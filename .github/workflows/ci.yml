@@ -1,0 +1,62 @@
+name: floor
+
+# atelier's own CI — it dogfoods the floor every review asserts by hand: the
+# tool test suite, the three scanner --selftests, and the scan triad re-run over
+# the whole tree. Now possible because the repo is public (ADR 0005): the tools
+# are zero-dep stdlib Python, so a runner needs nothing but Python to run them.
+#
+# HONEST SCOPE. This gate proves what it can prove in CI, not everything the
+# local hooks prove:
+#   - secretscan / licenscan run at FULL cover here — no machine-local state.
+#   - leakscan runs STRUCTURAL-ONLY. Its literal person/estate term list is
+#     machine-local by design (~/.claude, never in any repo), so CI cannot have
+#     it and MUST NOT (that list is itself the thing we keep out of repos). We
+#     deliberately do NOT pass --require-terms: a degraded structural pass is the
+#     correct, honest CI cover, and the pre-commit hook on a real machine — where
+#     the term list exists — is where full leakscan cover lives. See tools/README.
+#
+# This same file is the reference a child repo copies to fetch atelier's public
+# tools/ in its own CI (ROADMAP: wire the public scanners into child CI) — there
+# the "run in-repo tools" steps become a checkout of mike548141/atelier instead.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Least privilege: the floor only reads the tree.
+permissions:
+  contents: read
+
+# Cost hygiene — a newer push to the same ref cancels the superseded run.
+concurrency:
+  group: floor-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  floor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: scanner selftests
+        run: |
+          python3 tools/leakscan.py --selftest
+          python3 tools/secretscan.py --selftest
+          python3 tools/licenscan.py --selftest
+
+      - name: tool test suite
+        run: python3 -m unittest discover -s tools -p 'test_*.py' -v
+
+      - name: secretscan (full tree)
+        run: python3 tools/secretscan.py --root . .
+
+      - name: leakscan (structural-only — see header)
+        run: python3 tools/leakscan.py --root . .
+
+      - name: licenscan (assert Apache-2.0)
+        run: python3 tools/licenscan.py --expect Apache-2.0 .
