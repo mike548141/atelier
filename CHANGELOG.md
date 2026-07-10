@@ -18,6 +18,11 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   real-world side-effects.
 - `docs/method/TOOLBOX.md` — keep a tool manifest; approved-but-missing may be
   installed; the personal inventory stays machine-local, not in this repo.
+- `docs/method/PROPAGATION.md` — the propagation mechanism: thin-anchor /
+  fat-pointer (inlined safety floor + SHA pin + session-start drift check), the
+  standard child doctrine block, the layer-override rule, and the enforcement
+  clause (read ≠ complied). Versioning decided: the commit SHA is the version;
+  CHANGELOG is the human-readable index; tags reserved for milestones.
 - README, CLAUDE onramp, LICENSE (Apache-2.0), house `.gitignore` +
   `.claude/settings.json`.
 

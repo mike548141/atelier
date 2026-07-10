@@ -22,22 +22,25 @@ has inherited the costume, not the doctrine.
 ## Next — the propagation mechanism (do BEFORE further extraction)
 
 The load-bearing architecture, review-endorsed shape: **"thin anchor, fat
-pointer"** (dependency + lockfile for doctrine).
+pointer"** (dependency + lockfile for doctrine). Written up in
+`docs/method/PROPAGATION.md` (2026-07-10).
 
-- [ ] **Version atelier** — tag on each doctrine change (or use SHA); one
-      CHANGELOG line per change.
-- [ ] **Define the standard child CLAUDE.md doctrine block** — inlined ~8-line
-      safety floor (apex + always-confirm) + pointer + version pin + a one-line
-      drift check (`git -C ../atelier log --oneline PIN..HEAD`) that rides the
-      existing session-start read + a stated **repo-visibility fact** (public
-      repos flag "every push is publication"; verifiable via `gh repo view`).
-      Budget: anchor ≤ ~15 lines; `method/` read on demand, never wholesale.
-- [ ] **Retrofit `faves` and `ros`** with the block (faves still points at the
-      old ros/tiki source).
-- [ ] **Layer-override rule** into `method/`: a child may narrow or append,
+- [x] **Version atelier** — decided: the **commit SHA is the version** (no tag
+      ceremony); CHANGELOG is the human-readable index; tags reserved for
+      milestones. One CHANGELOG line per doctrine change.
+- [x] **Define the standard child CLAUDE.md doctrine block** — inlined safety
+      floor (apex + always-confirm) + pointer + SHA pin + one-line drift check
+      (`git -C <atelier-path> log --oneline PIN..HEAD`) riding the session-start
+      read + a stated **repo-visibility fact** (verifiable via `gh repo view`).
+      Canonical text lives in `PROPAGATION.md`.
+- [x] **Retrofit `faves` and `ros`** with the block (stamped at the mechanism's
+      commit SHA).
+- [x] **Layer-override rule** into `method/`: a child may narrow or append,
       never silently contradict; a contradiction is a defect to surface.
-- [ ] **Enforcement clause** (the category error, in writing): documents are the
+      (`PROPAGATION.md` § layer-override rule.)
+- [x] **Enforcement clause** (the category error, in writing): documents are the
       standard; the review-with-a-more-capable-model practice is the enforcement.
+      (`PROPAGATION.md` § enforcement clause.)
 
 ## Then — extraction (keep the case-law, don't strip it)
 

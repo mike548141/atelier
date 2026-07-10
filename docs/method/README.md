@@ -24,5 +24,14 @@ Read in this order:
 8. **`MODEL-ECONOMICS.md`** — which model does what, and what it costs.
    *(Extraction in progress — canonical source is ros `docs/MODEL-ECONOMICS.md`.)*
 
+**Meta — how the doctrine itself travels:**
+
+- **`PROPAGATION.md`** — how the house doctrine reaches every child repo without
+  a second source of truth drifting: thin anchor (inlined safety floor, binds
+  even unread) + fat pointer (SHA-pinned, drift-checked at session start). Also
+  holds the layer-override rule (a child may narrow/append, never silently
+  contradict) and the enforcement clause (read ≠ complied — review is the
+  enforcement). Read this when wiring a new repo or bumping a pin.
+
 Not yet written here (candidates as the layer matures): session + doc-as-code
 discipline, and the review-with-a-more-capable-model practice.
