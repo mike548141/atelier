@@ -102,7 +102,14 @@ theatre). Leave tiki-specific bearings + review case-law in ros.
 - [x] **Model-capability authority** section in AUTONOMY (harvest A4 — the
       *who-acts* axis; "policy in memory protects nothing — encode it").
       Ratified by Mike 2026-07-10; written into `method/AUTONOMY.md`.
-- [ ] Honest-instrument (A7) + source-acquisition ladder (A6) into method/.
+- [x] **Source-acquisition ladder (A6) + honest-instrument (A7)** — DONE
+      2026-07-10 (Opus): `EVIDENCE.md` §13 (climb the acquisition ladder to the
+      *cost of being wrong*, state the gap when blocked) + §14 (an instrument the
+      agent builds is a source; its "ok"/"applied" is a claim the apex governs —
+      verified-not-attempted, silent-success-is-a-defect, "unknown"-is-required,
+      known-failure-test enforces). Grounded in §3/§11 and PRINCIPLES §6; ros
+      diagnose/apply phantom-success named as the estate instance. Closes the
+      extraction section. Review-owed (doctrine text — a REVIEW.md sampling pass).
 
 ## build/ layer + inheritance delivery
 

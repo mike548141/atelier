@@ -159,10 +159,79 @@ fact. That is weaker, and saying so is the point: where a claim *can* live in a
 checkable file, prefer that home, because it upgrades the claim from
 honour-system to enforced.
 
+## 13. Escalate acquisition to the stakes — don't stop at the first rung
+
+§3 records *how* a fact was obtained and the risk that carries. This is its
+active counterpart: when a claim matters more than its current rung supports,
+**climb** — don't launder the first cheap source into a confident assertion. The
+ladder, cheapest/weakest to strongest:
+
+- **model recall** — treat as `ai-inference` until grounded (§2);
+- **search-snippet / aggregated** — a lead, not a fact (§4);
+- **direct fetch of the primary** — the actual page, file, or spec, read whole;
+- **direct tool call / structured export** — the publisher's own machine-readable
+  answer;
+- **independent corroboration** — a second angle that can't share the first's
+  error;
+- **reproduce it yourself** — run the code, measure the value, re-derive from the
+  rule (§8). The top rung, and its own corroboration (§4).
+
+The rung you stop at is set by the **cost of being wrong, not the cost of
+climbing**. A throwaway aside can rest on recall; a number going into advice, a
+config about to hit a live system, the precondition of an irreversible act —
+climb to primary + corroboration before calling it settled. Record the rung you
+stopped at (§1), so a reader knows whether to climb further before *they* lean on
+it.
+
+Blocked from climbing (source unreachable, tool absent, no second angle) is
+**not** permission to promote the weak rung — it is a gap to *state*: "best
+available is a single snippet, unconfirmed" is honest; presenting it as settled
+is §2's cardinal sin by another route. And don't over-climb: §11 — spend the
+verification budget where the model is weak (traps, dated deltas, local exposure,
+currency), not re-confirming what any capable model already reliably knows.
+
+## 14. An instrument you built is a source — it must not lie for you
+
+The agent doesn't only *cite* evidence; it *builds the instruments that produce
+it* — a validator, a diagnostic, a plan/apply verb, a test, a scan, a health
+check. Every such instrument's own self-report ("ok", "12 passed", "clean",
+"applied") is itself a claim, and the apex binds it exactly as it binds the
+agent's prose: **never stronger than its evidence.**
+
+- **Success means verified, not attempted.** An instrument reports success only
+  for what it actually confirmed — not "the command returned 0", not "no
+  exception was raised". "I ran it and observed it work" is the bar (the apex's
+  own distinction). A verb that reports *applied* without reading the result back
+  is asserting a `primary` fact (§2) it never obtained.
+- **Silent success is a defect equal to silent failure** (`PRINCIPLES.md` §6).
+  The **phantom-success** bug class — a tool that rounds a partial or failed run
+  up to "ok" — is precisely a claim emitted stronger than its evidence, now baked
+  into code where it repeats every run and no reviewer re-reads it. It is the
+  §0-worst defect mechanised.
+- **"Unknown" is a valid, required output.** An instrument that cannot tell
+  whether it worked must say so — never default the uncertain case to success. A
+  skipped target reports *skipped*, a bounded sweep announces what it dropped ("no
+  silent caps"), an unreachable check returns *unknown*, not *pass*.
+- **The instrument carries provenance too.** Its output states how it knows
+  (read-back vs assumed, measured vs inferred) and when — so a downstream reader
+  can tier it (§1). An honest instrument upgrades its observations to a
+  trustworthy `primary`; a lying one poisons that tier for everything built on it.
+- **Enforce by machine** (§12): the cheapest place to catch a phantom-success is
+  a test that drives the instrument through a *known failure* and asserts it
+  reports the failure. A tool trusted to be honest only on the happy path isn't
+  trusted.
+
+This is §1–§4 turned on the tools the agent makes, and `PRINCIPLES.md` §6
+"observable by design" seen from the evidence side rather than the design side.
+The design principle says *build it observable*; this says *its observations are
+claims, and the apex governs them.*
+
 ---
 
 *Bearing in `ros`: the diagnose layer's honesty discriminators (a signal-floored
 client is not "broken hardware"; a flap is not a roam) are §2–§4 applied to live
-network telemetry — the "phantom success / phantom failure" bug class is exactly
-a claim emitted stronger than its evidence. That case-law stays in ros
+network telemetry, and its instruments — `apply`'s skip-loudly, the read-back
+after a write, `diagnose` returning "unknown" rather than a guessed cause — are
+§14 in force: the "phantom success / phantom failure" bug class is exactly a
+claim emitted stronger than its evidence. That case-law stays in ros
 `docs/PRINCIPLES.md`; this file is the general statement it points up to.*

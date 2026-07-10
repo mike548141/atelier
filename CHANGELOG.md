@@ -5,6 +5,20 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-10 — harvest extraction: A6 + A7, the last of the extraction section)
+- `docs/method/EVIDENCE.md` gains **§13 source-acquisition escalation ladder**
+  (harvest A6) and **§14 honest-instrument doctrine** (harvest A7). §13 is the
+  active counterpart to §3: when a claim matters more than its current rung
+  supports, climb the recall→snippet→fetch→tool-call→corroborate→reproduce
+  ladder — the rung set by *the cost of being wrong, not the cost of climbing* —
+  and state the gap when blocked rather than promoting a weak rung. §14 turns
+  §1–§4 on the tools the agent *builds*: an instrument's own "ok"/"applied" is a
+  claim the apex governs — success means verified not attempted, silent success
+  is a defect (PRINCIPLES §6), "unknown" is a required output, and a known-failure
+  test is the machine enforcement. Closes the extraction section's last line; the
+  ros diagnose/apply phantom-success case-law is now named as §14's estate
+  instance in the closing bearing.
+
 ### Changed (2026-07-10 — salvaged from the parallel review line)
 - `docs/method/EVIDENCE.md` §1 gains the **two-register** provenance rule — a
   durable artifact carries provenance *written down*, an in-flight claim carries
