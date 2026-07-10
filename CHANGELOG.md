@@ -6,6 +6,14 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 ## [Unreleased]
 
 ### Added
+- `tools/worktree.py` — one command for `CONCURRENCY.md`'s "one worktree per
+  line of work": `start`/`list`/`land`/`remove`. Bakes the doctrine's guards into
+  the tool — refuses an iCloud base (sync corrupts a live `.git` index), branches
+  off the integration branch so a line never inherits a half-done branch, flags
+  stale/dirty worktrees (merge hazards + leaked file handles), and refuses to
+  delete uncommitted/unmerged work without `--force`. Zero-dep, `--json`,
+  `--selftest`, fail-safe exit codes; 12 stdlib tests over real throwaway repos.
+  Makes the parallel-work doctrine a tool, not just prose (Mike, 2026-07-10).
 - `tools/leakscan.py` — the mechanical leak-scan (first executable control):
   shareable structural patterns + a machine-local literal-term list, run as a
   pre-commit hook and in CI to keep personal/estate data out of a shareable

@@ -103,11 +103,15 @@ theatre). Leave tiki-specific bearings + review case-law in ros.
 - [ ] **Repo-boundary guidance** — Claude *directs* standalone-repo vs component
       vs monorepo-folder (e.g. a rich client engagement). Standing behaviour:
       advise proactively.
-- [ ] **Parallel-work tooling** (Mike 2026-07-10: make fork-and-merge a *tool*,
-      not just doctrine) — a helper that makes CONCURRENCY's worktree-per-line
-      one command: fork a branch/worktree (outside iCloud), work it, merge back
-      via PR, clean up. Where it makes sense, the default path for parallel work.
-      Doctrine is `method/CONCURRENCY.md`; this is its delivery.
+- [x] **Parallel-work tooling** (Mike 2026-07-10: make fork-and-merge a *tool*,
+      not just doctrine) — built as `tools/worktree.py`
+      (`start`/`list`/`land`/`remove`), the one-command delivery of CONCURRENCY's
+      worktree-per-line: fork outside iCloud, hygiene view, push+PR back, guarded
+      cleanup. Guards encode the doctrine — iCloud-base refusal, branch-off-main,
+      stale/dirty flags, no-lose-work on remove. 12 stdlib tests + live-proven on
+      atelier itself (start → list → remove round-trip, main tree left untouched).
+      Built the same session Mike was handed the worktree recipe to run the
+      method/ Fable review as a parallel line.
 
 ## Safety tooling (gates the person-context + archive threads)
 
