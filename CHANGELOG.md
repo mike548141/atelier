@@ -5,6 +5,20 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-10 — access onboarding doctrine)
+- `docs/method/ACCESS.md` — safe-access-onboarding: the ordered runbook for the
+  moment access to a new domain (network/cloud/NAS/workspace/API) is granted.
+  Invents no rule; **sequences** the existing ones — grant-recorded-not-originated
+  (`AUTONOMY`), narrowest-credential + plane-split, credential-into-store-first
+  (`SECRETS`), read-only first ring + reconcile-or-stop (`DATA-PROTECTION`),
+  destructive gate encoded *before* destructive power, widen-in-rings each ring
+  earned, Zero-Trust the new domain. The active onboarding counterpart to the
+  DATA-PROTECTION/SECRETS/AUTONOMY posture; encodes the estate-access expansion as
+  doctrine instead of memory. The concrete estate access map stays person-local in
+  ros (sensitive topology, protected under DATA-PROTECTION). Slotted into
+  method/README as #6 (after SECRETS); the rest renumbered. Review-owed (doctrine
+  text — a REVIEW.md sampling pass).
+
 ### Added (2026-07-10 — the secrets doctrine)
 - `docs/method/SECRETS.md` — the *make-rotation-cheap* half that the leak/secret
   scans' *detect* half depends on; extracted from ros §5 (credential triad) + §7

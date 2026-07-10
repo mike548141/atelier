@@ -22,17 +22,23 @@ Read in this order:
    the least/JIT/short-lived triad with standing creds as tracked debt, references
    never values, rotation-on-cadence. The *make-rotation-cheap* half that the two
    scans' *detect* half depends on; the load under `AUTONOMY.md`'s push floor.
-6. **`STORAGE.md`** — GitHub master, iCloud backup, laptop disposable.
-7. **`CONCURRENCY.md`** — one worktree per line of work; serialise real-world
+6. **`ACCESS.md`** — onboarding a new domain safely: the ordered runbook that
+   turns a fresh access grant into safe action — grant-recorded-not-originated,
+   least-privilege scoped credential into the store, read-only first ring,
+   destructive gate encoded before destructive power, widen-in-rings. Sequences
+   the `AUTONOMY`/`DATA-PROTECTION`/`SECRETS` rules for the moment access is new;
+   the concrete estate access map stays person-local in `ros`.
+7. **`STORAGE.md`** — GitHub master, iCloud backup, laptop disposable.
+8. **`CONCURRENCY.md`** — one worktree per line of work; serialise real-world
    side-effects.
-8. **`TOOLBOX.md`** — keep a tool manifest; approved-but-missing may be
+9. **`TOOLBOX.md`** — keep a tool manifest; approved-but-missing may be
    installed; keep the personal inventory machine-local.
-9. **`PRINCIPLES.md`** — the design principles (resilience, structure,
+10. **`PRINCIPLES.md`** — the design principles (resilience, structure,
    events-over-polling, state/concurrency, security/privacy/cost, legibility,
    reproducibility) + the precedence ladder + situation tests, with generalised
    cases. **Canonical here**; `ros` keeps its tiki bearings + review case-law and
    points up.
-10. **`MODEL-ECONOMICS.md`** — match the model to the job (plan model builds,
+11. **`MODEL-ECONOMICS.md`** — match the model to the job (plan model builds,
    usage-billed model reviews), the which-pool self-check, tiered authority, and
    session hygiene. **Canonical here**; the estate-specific numbers (prices,
    model roster, session-overhead figure) stay person-local in `ros`.

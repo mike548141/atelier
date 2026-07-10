@@ -179,13 +179,15 @@ theatre). Leave tiki-specific bearings + review case-law in ros.
 - [x] **`DATA-PROTECTION.md`** written (2026-07-10) — read-before-write; verified
       way-back before any destructive op; data plane is the slow lane even under
       broad grants; reproducibility as insurance; protect others' data.
-- [ ] **Safe-access-onboarding doctrine** — the checklist for onboarding a new
-      access domain (network, cloud tenancy, NAS, workspace): least-privilege /
-      scoped-per-capability, **read-first**, widen-in-rings, credential in the
-      secret store not inline, and — for any domain holding data — a
-      **snapshot/restore-before-destructive gate** encoded, not remembered.
-      (Shareable doctrine; the concrete estate access map is instance-local, not
-      in this repo.)
+- [x] **Safe-access-onboarding doctrine** — DONE 2026-07-10 (Opus):
+      `method/ACCESS.md`, the ordered onboarding runbook (grant-recorded-not-
+      originated → narrowest credential + plane-split → credential-into-store-first
+      → read-only first ring + reconcile-or-stop → destructive gate encoded before
+      destructive power → widen-in-rings → Zero-Trust the domain). Invents no rule;
+      sequences AUTONOMY/DATA-PROTECTION/SECRETS/PRINCIPLES for the moment access is
+      new. The concrete estate access map stays person-local in ros (sensitive
+      topology, protected under DATA-PROTECTION). method/README #6. Review-owed
+      (doctrine text — a REVIEW.md sampling pass).
 - [x] **`SECRETS.md`** doctrine — DONE 2026-07-10 (Opus): `method/SECRETS.md`,
       extracted from ros §5 (credential triad) + §7 (secret-store-not-exempt).
       Reproducible / re-mintable enabling property (internal rotate mechanically,
