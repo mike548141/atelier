@@ -403,6 +403,26 @@ public as a **named worked example** (README "If you're adopting this"). What wa
       text), REPO-STANDARD file set, and pinned by 5 `test_templates.py` tests
       (one-source, repo-scoped, structural-only, licenscan-commented, least-priv;
       suite 190→195). The step-6 "not wired yet" text is retired.
+  - [x] **Exercised on a real child (numen) — DONE 2026-07-11 (Opus).** Session
+        27's owed real-child run: numen adopted `floor.yml`, closing its own
+        stated no-CI-gate (unblocked by ADR 0005). Driving it caught two real link
+        breaks in numen before push and exposed a **four-session linkscan false
+        negative** — `SKIP_DIR_NAMES` held `build`, masking atelier's own
+        `docs/build/` layer (14 files); fixed at `d0870a4` (drop `build`/`dist`;
+        suite 195→196), which also caught the inherited template placeholder (now
+        code-spanned). Proven on real GitHub Actions both ways: happy path green
+        (`29092514962`), fail-closed red via a throwaway broken-link PR
+        (`29092599385`, since cleaned up). Detail:
+        `sessions/2026-07-11-28-child-ci-floor-exercised.md`.
+  - [ ] **Review the child-CI floor + the linkscan masking fix** — brief written
+        `docs/reviews/2026-07-11-child-ci-floor.md` (range `bafeaa3`+`d0870a4`,
+        numen `0958cd5` as the live rig; 9 assumptions, 4 lenses). Fifth
+        application of don't-stack: `floor.yml` isn't rolled to further children,
+        and the linkscan change isn't leaned on, until the verdict clears. Sharpest
+        open questions: `floor.yml` trigger gaps (a never-PR'd branch push scanned
+        by nothing), `atelier@main` as a supply-chain trust, whether the
+        broken-link fail-closed proof generalises to a secret or the real-infra
+        secret-block is still `act`-only-owed (session 27).
 - [x] **Markdown internal-link check** — BUILT 2026-07-10 (Opus), **REVIEWED
       2026-07-10 (Fable, cold session): PASS-WITH-FINDINGS, gate cleared** —
       verdict below the divider in `docs/reviews/2026-07-10-linkscan.md`.
