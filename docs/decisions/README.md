@@ -17,6 +17,7 @@ with a new one.
 
 ## Index
 
-<!-- One line per ADR, e.g.:
-- [0001](0001-slug.md) — one-line summary of the decision
--->
+- [0001](0001-atelier-is-canonical.md) — atelier holds canonical doctrine; children carry floor + pin + bearings and point up.
+- [0002](0002-sha-is-the-version.md) — the commit SHA is the version; CHANGELOG is the index; tags only for milestones.
+- [0003](0003-private-first.md) — private-first: one real peer adoption + practice-restructure before any public release.
+- [0004](0004-apache-2-licence.md) — Apache-2.0 whole-repo, matching the house standard (ros/faves/rpi).

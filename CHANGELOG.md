@@ -5,6 +5,21 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-10 — records, not doctrine: no method/ change)
+- `docs/decisions/` ADRs 0001–0004 for the decided re-litigable questions
+  (method-review finding V2): atelier-is-canonical, SHA-is-the-version,
+  private-first, Apache-2.0. Deliberations recorded from the session/review
+  record; 0004 is honest that the licence landed at scaffold via the house
+  convention and records the reasoning that holds it.
+
+### Changed (2026-07-10 — records, not doctrine: no method/ change)
+- `docs/SESSIONS.md` split to index + `docs/sessions/<date>-NN-slug.md` detail
+  files (method-review finding V3), entries preserved verbatim — the
+  index/detail split RECORD.md prescribes, applied to atelier itself.
+- ros `docs/PRINCIPLES.md` trimmed to bearings + case-law (the transitional
+  DRY breach closed) — the change lives in ros (`73fd50b`); noted here because
+  atelier's ROADMAP extraction item tracked it.
+
 ### Changed (2026-07-10 — method/-layer Fable review, PASS-WITH-FINDINGS)
 - The gated review of the whole `method/` layer ran; verdict in
   `docs/reviews/2026-07-10-method-layer.md`. Ten findings fixed in the same

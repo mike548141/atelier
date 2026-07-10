@@ -58,12 +58,14 @@ layer earn a review with fresh context before extraction continues.
       corrected, not confirmed — Fable is the *more* capable tier (the reframe
       to independence-as-core still landed, for peer adopters without a
       superior tier).
-- [ ] **Method-review follow-ups ([backlog] findings)** — P2: fleet-level
-      "which children are stale" pin view (candidate `tools/` script) +
-      acknowledge the gap in PROPAGATION; V2: ADRs for the decided questions
-      (canonicality, SHA-as-version, private-first + Apache-2.0); V3: split
-      atelier `SESSIONS.md` to index + detail-on-demand per RECORD. Also:
+- [ ] **Method-review follow-ups ([backlog] findings)** — remaining: P2
+      fleet-level "which children are stale" pin view (candidate `tools/`
+      script — an Opus build) + acknowledge the gap in PROPAGATION. Also:
       faves adopts the P1 floor wording at its next pin bump.
+      - [x] V2 ADRs — DONE 2026-07-10 (Fable): `docs/decisions/0001–0004`
+            (canonicality, SHA-as-version, private-first, Apache-2.0).
+      - [x] V3 SESSIONS split — DONE 2026-07-10 (Fable): index +
+            `docs/sessions/` detail files, entries preserved verbatim.
 
 ## Then — extraction (keep the case-law, don't strip it)
 
@@ -72,11 +74,12 @@ theatre). Leave tiki-specific bearings + review case-law in ros.
 
 - [x] **`PRINCIPLES.md`** spine + precedence ladder + situation tests, with
       generalised cases. Extracted 2026-07-10; canonical here.
-- [ ] **Trim ros `docs/PRINCIPLES.md`** to pointer + tiki bearings + review
-      case-law only — its general §1–7 prose now duplicates atelier's canonical
-      spine (a transitional DRY breach, flagged loudly at the top of that file,
-      not silent). Deserves its own careful session in ros so the case-law isn't
-      damaged in the trim.
+- [x] **Trim ros `docs/PRINCIPLES.md`** — DONE 2026-07-10 (Fable, ros
+      `73fd50b`) per the verdict's trim guidance (lens-1 answer 12): kept the
+      §0 bearing, every Tiki-bearing/Already-holds line, the seven-tenet ZT
+      estate mapping, and the whole precedent-annotated trade-offs section;
+      dropped only the general prose the spine states. The transitional DRY
+      breach is closed.
 - [ ] **`MODEL-ECONOMICS.md`** general shape (numbers stay person-local). (Stub
       has review-trigger + tiered authority already.)
 - [x] **`EVIDENCE.md`** (harvest A1 — highest-value net-new) — authority tiers,
