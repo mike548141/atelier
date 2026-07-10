@@ -59,8 +59,9 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   DATA-PROTECTION/SECRETS/AUTONOMY posture; encodes the estate-access expansion as
   doctrine instead of memory. The concrete estate access map stays person-local in
   ros (sensitive topology, protected under DATA-PROTECTION). Slotted into
-  method/README as #6 (after SECRETS); the rest renumbered. Review-owed (doctrine
-  text — a REVIEW.md sampling pass).
+  method/README as #6 (after SECRETS); the rest renumbered. Reviewed 2026-07-10
+  (batch review — B13 strengthening owned + fallback, B14 access-map claim
+  corrected; see the review entry above).
 
 ### Added (2026-07-10 — the secrets doctrine)
 - `docs/method/SECRETS.md` — the *make-rotation-cheap* half that the leak/secret
