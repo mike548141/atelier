@@ -5,6 +5,18 @@ grows. Sequencing rule from the 2026-07-10 review: **mechanism before more
 content** — a repo that inherits docs but not the propagation + review cadence
 has inherited the costume, not the doctrine.
 
+## Doctrine calibration — review-owed
+
+- [ ] **Review the "match the ceremony to the risk" doctrine change** (session
+      28, 2026-07-11, branch `gate-calibration`) — MODEL-ECONOMICS gains the
+      ceremony-∝-risk section + a codified, narrowed *don't-stack* + a sharpened
+      "one task per session"; REVIEW gains a "whether a change earns a review at
+      all" bearing. **Owed by its own new rule** (doctrine text earns an
+      independent fresh-context review); small + self-contained, so a light
+      fresh-session read, not a heavy sweep. Not merged by the author. Follow-up:
+      the condensed `build/templates/docs/MODEL-ECONOMICS.md` line may want the
+      same sharpening (a separate templates pass).
+
 ## Done (2026-07-10)
 
 - [x] Scaffold + method/ first slice: `00-APEX`, `AUTONOMY`, `STORAGE`,

@@ -61,13 +61,46 @@ batch** to run together later. Both are sanctioned; pick per cost and how
 blocking the result is. Either way a review stays *scoped and short*, and it is
 still spend — so it stays inside the "know which pool" rule above.
 
+## Match the ceremony to the risk
+
+Review gates, fresh-context sweeps, session breaks, and the *don't-stack* pause
+below are all **spend** — reviewer tokens, a cold re-onramp, lost cache and
+thinking continuity. Like every other cost they are optimised last but still
+optimised: apply them **in proportion to the cost of being wrong**, not uniformly
+to every change. Uniform ceremony is how a maturing repo's overhead-to-output
+ratio quietly climbs — the per-change tax stays fixed while the work-unit shrinks,
+until the meta-work crowds out the building.
+
+- **Earns the full ceremony** (an independent, fresh-context review before the
+  work is trusted): first-of-kind or structural tooling; anything with a
+  **silent-failure mode** — a gate that can report green while not actually
+  checking; **doctrine text**, because a wrong rule propagates everywhere it is
+  inherited; and irreversible or public-facing actions.
+- **Self-verifying — the mechanical floor *is* the review**: a change whose tests
+  and dogfooding exercise it end-to-end over *already-reviewed* machinery. Wiring
+  an already-reviewed tool into a gate, a refactor its suite fully covers, a
+  records-only edit — these do not each earn a brief→verdict cycle. Demanding one
+  is the overhead, not the safety.
+
+**What *don't-stack* actually covers.** The rule is narrow: *do not build a gate
+on top of unreviewed tooling or doctrine* — a gate is only as trustworthy as the
+thing behind it, so that thing earns its review first (why a new scanner is
+reviewed before it is wired into CI). It is **not** a ban on doing several
+related, already-grounded things in one session. The trigger is an *unreviewed
+dependency* between two pieces of work; mere sequence is not one.
+
 ## Session hygiene (both models)
 
 The prompt cache is **per-model** and the whole context is resent every turn, so
 context size and continuity are the levers:
 
-1. **One task per session.** A pivoted session drags the old task's tokens along
-   every turn. Wrap up (write the session record) and start fresh instead.
+1. **One task per session — but a task is a coherent *line* of work, not a single
+   checkbox.** The cost is *pivoting to an unrelated task*: that drags the old
+   task's tokens along every turn for no benefit. Related, already-grounded work
+   sharing the same context is the *same* task — keep going through it. Break for a
+   genuine reason (an unrelated pivot, a decision only the principal can make, a
+   real unreviewed dependency, or context/cache degradation), **not because one
+   item went green**. Then wrap up (write the session record) and start fresh.
 2. **Never switch model mid-session.** The cache is per-model — a switch
    re-processes the entire context at full input price and loses the prior
    model's thinking continuity. Switch at session boundaries.
