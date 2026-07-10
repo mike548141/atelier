@@ -124,3 +124,37 @@ Fable review of the new method/ docs (approach/quality/completeness + leak-check
 the review practice REVIEW.md just codified, applied to itself); (2) then either
 the ros PRINCIPLES trim, MODEL-ECONOMICS full extraction + A6/A7, or the build/
 layer + create-repo rewire (the delivery vehicle for the propagation block).
+
+---
+
+**2026-07-10 — review brief, then the first mechanical control (Opus, "keep
+going until economics say stop").** Session-start drift check fired as designed:
+`957fa08` surfaced past the `dde4170` pin — inspected, found session-log-only (no
+`method/` change), bumped ros's pin `dde4170→957fa08` deliberately. Then two
+deliverables. **(1) The owed review is briefed:** `docs/reviews/2026-07-10-
+method-layer.md` scopes the Fable review of the whole `method/` layer (PROPAGATION,
+EVIDENCE, REVIEW, RECORD, PRINCIPLES) against the three lenses, with a load-bearing
+assumption to attack per doc — sharpest being REVIEW.md's "a *more capable* model
+reviews" vs the actual Opus-builds/Fable-reviews split (Fable is the cheaper review
+tier, not uniformly more capable; the real value may be independence + fresh
+context). ROADMAP grew a "review gate" section so the brief blocks further
+extraction. Applies REVIEW.md's own lifecycle to the layer that codified it.
+**Running the review is Fable's job, not this Opus session's** — so, staying on the
+independent side of that gate, built **(2) the mechanical leak-scan** — atelier's
+first executable tool (`tools/leakscan.py` + README, `pre-commit.sample`, term-list
+template, unittest). Two layers, split so the scanner leaks nothing: shareable
+STRUCTURAL shape-patterns that always run, + a machine-local LITERAL term list
+(`~/.claude/leakscan-terms.txt`, never in a repo); absent ⇒ structural-only with a
+loud warning (graceful degradation + legibility). Fail-safe exit codes, `--staged`
+hot path, `--json`, `.leakscanignore` + `leakscan:allow` escape hatches; zero-dep
+stdlib. **It bit on first run** — caught real leaks in its own draft fixtures (a
+real address, real coordinates, a family name), now fictionalised: the tool earning
+its keep against its own author is the honest proof. ROADMAP safety item ticked;
+README/CHANGELOG in lockstep; pyc litter caught + gitignored (amend). **Economics
+call: a clean stopping point.** The remaining queue is gated — most extraction
+waits on the method/ review (Fable), secret-scan needs a tool install (floor/
+confirm), and the ros PRINCIPLES trim depends on the review trusting the spine.
+**Next session:** (1) run the briefed Fable review; (2) seed the real
+`~/.claude/leakscan-terms.txt` so the scan runs full-cover (turns the control from
+partial to real); (3) wire the hook + CI per shareable repo; then the gated
+extraction once the review clears.
