@@ -451,9 +451,18 @@ public as a **named worked example** (README "If you're adopting this"). What wa
         (N1–N3 reaching every child with zero bumps is the argument); the
         real-infra secret drive judged NOT owed (closed by composition).
         **Gate cleared — floor.yml may roll to further children.**
-        - [ ] Follow-ups: numen re-copies floor.yml (workflow-file fixes don't
-              float, unlike the scanner fixes); atelier's own ci.yml trigger has
-              the same N4 gap — take on next ci.yml touch.
+        - [x] Follow-ups — BOTH DONE 2026-07-11 (Opus), each proven on real
+              infra. **atelier's own `ci.yml`** widened to every-push +
+              `workflow_dispatch` (`2a4b2fd`); the gap-closure proven by pushing
+              a throwaway `n4-trigger-proof` branch (never PR'd) and watching CI
+              fire green on it — a run that would not have existed before — then
+              torn down local+remote. **numen re-copied `floor.yml`** byte-for-
+              byte from the post-review template (numen `f81f66f`), picking up the
+              workflow-file fixes that don't float (N4 every-push, N5 selftests
+              step, N6 hatch docs); numen's floor ran green with the new selftests
+              step live in the job log. numen's tree re-scanned clean in the exact
+              floor.yml shape first. numen's frozen pre-scaffold hook (no linkscan)
+              stands as already flagged — its floor is the only linkscan gate.
 - [x] **Markdown internal-link check** — BUILT 2026-07-10 (Opus), **REVIEWED
       2026-07-10 (Fable, cold session): PASS-WITH-FINDINGS, gate cleared** —
       verdict below the divider in `docs/reviews/2026-07-10-linkscan.md`.
