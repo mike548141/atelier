@@ -20,7 +20,9 @@ it — a second copy drifts.
   doctrine-heavy docs), honest-CI, repo-craft conventions, and the two processes
   (new repo / standardise an existing one). The readable, forkable source.
 - **`templates/`** — the seed files the standard describes: README, CLAUDE.md
-  (carrying the stamped doctrine block), CONTRIBUTING, CHANGELOG, NOTICE,
+  (carrying the stamped doctrine block), CONTRIBUTING, CHANGELOG, LICENSE
+  (Apache-2.0, the house default — verbatim text; the holder goes in the
+  appendix line + NOTICE), NOTICE,
   gitignore, the `.claude/` allowlist, the `docs/` set (ARCHITECTURE, ROADMAP,
   SESSIONS, MODEL-ECONOMICS, decisions/, reviews/), both CI workflows, and
   `tools/check_links.py`. One source, shared by the `create-repo` skill and the

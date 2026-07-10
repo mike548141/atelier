@@ -30,8 +30,9 @@ in atelier and is read on demand — never wholesale.
   new trust surface (deploy keys, webhooks, OAuth/app grants). Everything
   recoverable — commit/push/PR included — just proceed.
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
-  session start run `git -C <atelier-path> log --oneline <SHA>..HEAD`; any output
-  means the house doctrine moved — read it, then bump the pin above deliberately.
+  session start run `git -C "<atelier-path>" log --oneline <SHA>..HEAD`; any
+  output means the house doctrine moved — read it, then bump the pin above
+  deliberately.
 - **This repo's visibility:** <visibility fact>. Verify:
   `gh repo view <owner/repo> --json visibility`.
 
@@ -53,6 +54,10 @@ in atelier and is read on demand — never wholesale.
 - **No personal / instance data.** No health, family, financial, or
   personal-estate context enters this repo. <!-- Tighten per repo: a public-bound
   repo forbids client names too; run the leak/secret scans as hooks. -->
+- **Hooks don't travel.** The scan hook and its `hooks.atelierTools` config are
+  per-clone — git transports neither, so a fresh clone commits **unscanned**
+  until they're reinstalled. Before the first commit on any new clone or
+  machine, rewire them (commands in CONTRIBUTING — Development setup).
 - <!-- repo-specific invariants: the boundary a change must not cross. -->
 
 ## Layout

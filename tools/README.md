@@ -131,8 +131,12 @@ leakscan --staged --disable ipv4,ipv6,mac-address tiki/
     silently skipped — the pre-fix hook skipped silently and committed a planted
     secret (2026-07-10, the create-repo exercise). Contract pinned by
     `tools/test_precommit.py`.
-- **CI** — run both scanners with `--json` on every push (belt and braces; a
-  hook only protects the machine that has it installed).
+- **CI** — in a repo that carries the scanners (atelier itself), run both with
+  `--json` on every push (belt and braces; a hook only protects the clone that
+  has it installed). **A child repo cannot do this yet** — it has no scanners
+  and CI has no atelier path; scanner distribution (vendor / fetch / publish)
+  is the deferred supply-chain call (ROADMAP), so a child's only scan gate is
+  the per-clone hook. That gap is stated, not silent.
 
 ## `secretscan.py` — keep plaintext credentials out of git history
 

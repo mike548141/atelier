@@ -215,13 +215,30 @@ clone-loses-hook-and-config (does protection evaporate on machine two?),
 template-block drift vs PROPAGATION's canonical text, and prose-stamp-procedure
 as model-memory reborn. **Run cold, fresh session.**
 
-- [ ] **Fable sweep of `f72031c..92c0112` + the skill** — per the brief; verdict
-      below its divider; findings C1…Cn dispositioned same session where
-      possible.
-- [ ] Until the verdict: create-repo may be used for throwaway/scratch
+- [x] **Fable sweep of `f72031c..92c0112` + the skill** — RAN 2026-07-10
+      (Fable, cold session): **PASS-WITH-FINDINGS**, verdict below the divider
+      in `docs/reviews/2026-07-10-create-repo-rewire.md`. Floor green (142→145
+      tests, 3 selftests, leakscan/licenscan clean); mechanism driven live
+      twice. 10 findings C1–C10, **all [fixed] + re-driven same session**. The
+      two sharpest, both proven live: C1 a fresh clone loses hook + config
+      silently — machine two committed a planted `AKIA…` key green (fixed at
+      the three places a new clone looks: CLAUDE.md bullet, CONTRIBUTING
+      once-per-clone install, hook header); C2 the stamped drift check breaks
+      run-verbatim — unquoted spacey path, and the skill's `$PP/atelier`
+      contradicted the `../atelier` house practice (skill now stamps
+      sibling-relative + block quotes the path + a mechanical prove-the-stamp
+      in step 5). `tools/test_templates.py` pins template-block ≡ PROPAGATION
+      canonical (C3). Still owed: the outward `gh repo create --push` live
+      proof (first keeper run); ros/faves pin bumps carry the reworded block
+      down.
+  - [ ] **C5 backlog strand**: `tools/scaffold.py` (mechanise the
+        seed/rename/stamp core; skill becomes its wrapper) — only if a stamp
+        defect recurs despite step 5's new mechanical prove-the-stamp.
+- [x] Until the verdict: create-repo may be used for throwaway/scratch
       exercising, but **don't scaffold a real keeper repo on the unreviewed
       mechanism** (the don't-stack-on-unreviewed rule, applied to delivery
-      instead of doctrine).
+      instead of doctrine). *Cleared 2026-07-10 by the sweep above — keeper
+      repos may be scaffolded.*
 - [x] **Repo-boundary guidance** — DONE 2026-07-10 (Opus): `docs/build/
       REPO-BOUNDARY.md`, the is-this-a-repo decision by independent-lifecycle
       discriminators (visibility/cadence/ownership/reuse/blast-radius) → standalone

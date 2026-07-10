@@ -21,9 +21,19 @@
 # choice on the record, not a silent skip.
 #
 # Both scan only staged additions, so they are fast on the commit hot path. A
-# hook protects only the machine it is installed on — pair it with the same
-# scans in CI. For a networking / private-with-shareable-subtree repo, append the
-# `--disable`/subtree scoping (see tools/README.md) to the leakscan run_scan line.
+# hook protects only the CLONE it is installed in — git transports neither hooks
+# nor config, so every fresh clone must reinstall it (see the scaffolded repo's
+# CONTRIBUTING). CI scanning for child repos is NOT wired yet (scanner
+# distribution is the deferred supply-chain call — atelier ROADMAP): until then
+# this hook is a child repo's only scan gate. For a networking /
+# private-with-shareable-subtree repo, append the `--disable`/subtree scoping
+# (see tools/README.md) to the leakscan run_scan line.
+#
+# TRUST NOTE. ATELIER_TOOLS / hooks.atelierTools point this hook at code it
+# executes on every commit. That is the same trust class as the hook file
+# itself (per-clone, per-machine, set by whoever set the hook up) — point them
+# only at a tools dir you own. Env wins over config so a test/CI run can
+# redirect without touching the repo's config.
 
 repo_root=$(git rev-parse --show-toplevel)
 # Resolve atelier's tools dir: env wins, then the baked git config, then in-repo

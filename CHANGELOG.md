@@ -5,6 +5,35 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-07-10 — the create-repo delivery-mechanism review: C1–C10, all fixed + re-driven)
+- **The Fable sweep of the rewire ran cold and PASSED-WITH-FINDINGS** (verdict in
+  `docs/reviews/2026-07-10-create-repo-rewire.md`); the gate is cleared — keeper
+  repos may be scaffolded. Two findings proven live before fixing: **C1** a fresh
+  clone of a scaffolded repo lost the hook + `hooks.atelierTools` silently
+  (git transports neither) and committed a planted `AKIA…` key green — the
+  fail-open class one hop later; now stated at the three places a new clone
+  looks (template CLAUDE.md "Hooks don't travel" bullet, CONTRIBUTING
+  once-per-clone install lines, the hook header). **C2** the stamped drift
+  check broke run-verbatim — the block stamped the atelier path unquoted and
+  the house path contains spaces; the canonical block (PROPAGATION) + template
+  now quote it, and the skill stamps sibling-relative `../atelier` with a
+  mechanical prove-the-stamp (grep unfilled placeholders; run the drift command
+  verbatim, expect empty).
+- **Template-block drift is now mechanically impossible to miss** (C3):
+  `tools/test_templates.py` diffs the template's stamped doctrine block against
+  PROPAGATION's canonical text character-for-character on every suite run, and
+  pins the four-placeholder set (C4 — PROPAGATION's prose said "three" while
+  its own block carried four). Suite 142→145 OK.
+- **Honesty sweeps** (C6–C10): the hook's/README's "pair with CI" lines now
+  state that child-repo CI scanning is *not wired yet* (the hook is a child's
+  only scan gate — deferred scanner-distribution call); `templates/LICENSE`
+  added (Apache-2.0 verbatim; was copied from faves — a second source with no
+  target line for "set the holder"); the `ATELIER_TOOLS` trust surface stated
+  in the hook header; skill step 7's `gh repo create` re-anchored to Mike's
+  ask (not "push is recoverable"); the atelier-present precondition now checks
+  the templates are *readable*, not just that the path exists (iCloud
+  eviction).
+
 ### Fixed (2026-07-10 — create-repo scaffold exercised end-to-end; scan-hook fail-open defect closed)
 - **The scaffolded scan hook silently protected nothing.** Exercising `create-repo`
   on a real local scaffold (the owed real-scaffold run) surfaced a defect the

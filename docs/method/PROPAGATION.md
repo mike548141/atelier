@@ -43,7 +43,7 @@ Five moving parts, no engine, no new machinery:
 
 4. **The drift check rides the session-start read.** The child `CLAUDE.md` is
    already read at session start; it now ends the doctrine block with one
-   command — `git -C <atelier-path> log --oneline <PIN>..HEAD`. Empty output ⇒
+   command — `git -C "<atelier-path>" log --oneline <PIN>..HEAD`. Empty output ⇒
    current. Any output ⇒ the house doctrine has moved since the pin: read the
    changes, decide if they bear on this repo, and bump the pin **deliberately**.
    Bump even when the delta turns out not to bear on this repo (tool commits,
@@ -72,8 +72,10 @@ still holds in full.
 
 ## The standard child doctrine block
 
-Copy this to the **top** of a child repo's `CLAUDE.md`, fill the three
-placeholders (`<atelier-path>`, `<SHA>`, `<visibility fact>`), and keep it under
+Copy this to the **top** of a child repo's `CLAUDE.md`, fill the four
+placeholders (`<atelier-path>`, `<SHA>`, `<owner/repo>`, `<visibility fact>`
+— quote the path if it contains spaces; the sibling-relative `../atelier` is
+the house shape), and keep it under
 ~15 lines of substance. `create-repo` stamps it on new repos; existing repos are
 retrofitted once. Everything below the block is repo-specific onramp.
 
@@ -96,8 +98,9 @@ in atelier and is read on demand — never wholesale.
   new trust surface (deploy keys, webhooks, OAuth/app grants). Everything
   recoverable — commit/push/PR included — just proceed.
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
-  session start run `git -C <atelier-path> log --oneline <SHA>..HEAD`; any output
-  means the house doctrine moved — read it, then bump the pin above deliberately.
+  session start run `git -C "<atelier-path>" log --oneline <SHA>..HEAD`; any
+  output means the house doctrine moved — read it, then bump the pin above
+  deliberately.
 - **This repo's visibility:** <visibility fact>. Verify:
   `gh repo view <owner/repo> --json visibility`.
 ```

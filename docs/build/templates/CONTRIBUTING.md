@@ -10,6 +10,16 @@ so a change doesn't run aground on a deliberate boundary.
 <!-- how to run it and how to run the checks -->
 ```
 
+Once per clone — git transports neither hooks nor config, so a fresh clone
+commits **unscanned** until this is rewired (once installed, the hook fails
+closed rather than ever scanning nothing):
+
+```sh
+cp "<atelier-path>/tools/pre-commit.sample" .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+git config hooks.atelierTools "<atelier-path>/tools"
+```
+
 ## What makes a good change
 
 - **Stay in scope.** <!-- the non-goals -->
