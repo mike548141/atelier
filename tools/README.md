@@ -162,8 +162,49 @@ codes (0 ok · 1 a guard tripped · 2 environment error). Real-world side-effect
 stay serialised: this forks *build-time* lines only — applying a change to a live
 device is still one-at-a-time and announced (CONCURRENCY "the safety rail").
 
+## `pins.py` — the fleet view of who is stale on the doctrine
+
+`method/PROPAGATION.md` makes staleness observable one repo at a time: each
+child's `CLAUDE.md` carries a pin (`atelier@<SHA>`) and a session-start drift
+check. That is per-child and pull-based — a child only shows it's behind when a
+session opens in it. `pins` is the roll-up: stand in atelier, get one answer to
+"across the whole fleet, who is behind, and by how much?".
+
+It is deliberately **read-only**. Bumping a pin stays a per-repo
+human-in-the-loop act (PROPAGATION §5 — read the delta, judge it bears on that
+repo, then move the pin). This tool never edits a child; it turns per-child
+observability into a fleet view and nothing more.
+
+| Status | Means | Mark |
+|---|---|---|
+| `current` | pin == atelier HEAD | ✓ |
+| `behind` | pin is an ancestor of HEAD — N house commits since | → |
+| `ahead` | HEAD is an ancestor of pin — child pinned newer (atelier not pulled here?) | ! |
+| `diverged` | neither is an ancestor — pin on a different history | ✗ |
+| `unknown` | atelier has no such object — bad/rewritten pin, or unfetched | ? |
+| `no-pin` | `CLAUDE.md` exists but names no atelier pin | · |
+
+### Usage
+
+```sh
+python3 tools/pins.py                    # discover children under atelier's parent, report
+python3 tools/pins.py --log              # also print the commits each stale child would inspect
+python3 tools/pins.py --child ../ros     # report only named repo(s) (repeatable; skips discovery)
+python3 tools/pins.py --root ~/code      # search a different root (repeatable)
+python3 tools/pins.py --json             # machine-readable, for a dashboard / CI gate
+python3 tools/pins.py --check            # exit 1 if any child is not current (CI/hooks)
+python3 tools/pins.py --selftest         # prove the parse + classification offline
+```
+
+Discovery walks one level under each search root (default: atelier's parent dir)
+for git repos whose `CLAUDE.md` carries a pin; atelier itself is excluded. An
+unreadable root degrades to a warning, not a crash (fail-safe). Exit codes match
+the others: `0` every child current · `1` at least one not current · `2`
+environment error (not an atelier repo, HEAD unreadable, a named child missing) —
+so a fleet it *couldn't* verify never reports green.
+
 ## Tests
 
 ```sh
-cd tools && python3 -m unittest      # stdlib only, no pytest — covers all three tools
+cd tools && python3 -m unittest      # stdlib only, no pytest — covers all four tools
 ```

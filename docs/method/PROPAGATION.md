@@ -61,6 +61,15 @@ Five moving parts, no engine, no new machinery:
 not *enforced*. Nothing here compels a session to run the drift check or act on
 it. Enforcement is a separate thing — see the enforcement clause below.
 
+The drift check above is *per-child and pull-based* — a child only learns it is
+behind when a session happens to open in it. The fleet-level companion is
+`tools/pins.py`: stood in atelier, it reads every child's pin and reports who is
+behind and by how much (one roll-up instead of N separate session-starts). It is
+deliberately **read-only** — it never bumps a pin, because bumping stays the
+per-repo human-in-the-loop act point 5 describes. So it widens *observability*
+(per-child → fleet), and changes nothing about enforcement; the caveat above
+still holds in full.
+
 ## The standard child doctrine block
 
 Copy this to the **top** of a child repo's `CLAUDE.md`, fill the three

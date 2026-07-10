@@ -58,10 +58,15 @@ layer earn a review with fresh context before extraction continues.
       corrected, not confirmed — Fable is the *more* capable tier (the reframe
       to independence-as-core still landed, for peer adopters without a
       superior tier).
-- [ ] **Method-review follow-ups ([backlog] findings)** — remaining: P2
-      fleet-level "which children are stale" pin view (candidate `tools/`
-      script — an Opus build) + acknowledge the gap in PROPAGATION. Also:
-      faves adopts the P1 floor wording at its next pin bump.
+- [ ] **Method-review follow-ups ([backlog] findings)** — remaining: faves
+      adopts the P1 floor wording at its next pin bump (surfaced now by
+      `tools/pins.py` — faves reads 9 behind).
+      - [x] P2 fleet pin view — DONE 2026-07-10 (Opus): `tools/pins.py`, the
+            read-only roll-up of every child's pin vs atelier HEAD
+            (`current`/`behind N`/`ahead`/`diverged`/`unknown`/`no-pin`, `--log`/
+            `--json`/`--check`/`--selftest`); 12 stdlib tests; live-proven
+            (faves 9 behind, ros current). PROPAGATION honest caveat updated to
+            acknowledge it as observability-not-enforcement.
       - [x] V2 ADRs — DONE 2026-07-10 (Fable): `docs/decisions/0001–0004`
             (canonicality, SHA-as-version, private-first, Apache-2.0).
       - [x] V3 SESSIONS split — DONE 2026-07-10 (Fable): index +

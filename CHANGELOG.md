@@ -5,6 +5,24 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-10 — method-review backlog finding P2)
+- `tools/pins.py` — the fleet view of "which children are stale" against atelier
+  HEAD, closing the method-review's remaining backlog finding. The per-child
+  drift check (PROPAGATION §4) is pull-based; this is the roll-up — stood in
+  atelier it reads every child's pin and reports `current`/`behind N`/`ahead`/
+  `diverged`/`unknown`/`no-pin`, with `--log` to show the drift a stale child
+  would inspect. Deliberately **read-only**: bumping a pin stays the per-repo
+  human-in-the-loop act (PROPAGATION §5), so the tool widens observability, not
+  enforcement — the honest caveat in PROPAGATION is updated to say exactly that.
+  Zero-dep, `--json`/`--check`/`--selftest`, fail-safe exit codes; 12 stdlib
+  tests over real throwaway repos (behind/ahead/diverged/unknown/no-pin +
+  discovery). Live-proven on the real fleet: faves 9 behind, ros current.
+
+### Changed (2026-07-10 — method-review backlog finding P2)
+- `docs/method/PROPAGATION.md` honest caveat acknowledges the fleet pin view
+  (`tools/pins.py`) as the per-child → fleet observability widening, restating
+  that it changes nothing about enforcement.
+
 ### Added (2026-07-10 — records, not doctrine: no method/ change)
 - `docs/decisions/` ADRs 0001–0004 for the decided re-litigable questions
   (method-review finding V2): atelier-is-canonical, SHA-is-the-version,
