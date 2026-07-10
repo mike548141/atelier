@@ -1,6 +1,6 @@
 # 0003 — private-first: harden on a real peer before any public release
 
-**Status**: accepted • **Date**: 2026-07-10
+**Status**: superseded by [0005](0005-going-public.md) • **Date**: 2026-07-10
 
 ## Context
 

@@ -3,9 +3,10 @@
 This repo *is* the operating model. When working here you are editing the rules
 you work by everywhere else — so hold them especially tightly here.
 
-**Repo facts:** `mike548141/atelier` · **Visibility: PRIVATE** (so a push is not
-publication — but *making it public* is a floor action; confirm). Verify:
-`gh repo view mike548141/atelier --json visibility`.
+**Repo facts:** `mike548141/atelier` · **Visibility: PUBLIC** (ADR 0005,
+2026-07-10). A push *is* publication now — the no-personal-data boundary binds on
+**every commit**, and the pre-commit scan hook is load-bearing, not a
+private-repo nicety. Verify: `gh repo view mike548141/atelier --json visibility`.
 
 ## Read order at session start
 
@@ -33,11 +34,13 @@ Read the rest of `docs/method/` on demand when a change touches it.
 ## Autonomy in this repo
 
 Full standing grant applies: commit + push + manage PRs at discretion
-(`AUTONOMY.md`). The repo exists — **private, `mike548141/atelier`** — so routine
-pushes are granted. The one thing that still stops to ask is the floor item it
-sits nearest: **making it public** (or widening its audience) is a deliberate
-private→public act — confirm, cite the floor, never flip visibility on your own
-initiative. This is private-first until Mike decides otherwise.
+(`AUTONOMY.md`). The repo is **public, `mike548141/atelier`** (ADR 0005) — routine
+pushes are granted, and a push is now publication, so the pre-commit scan hook
+binds on every commit. The making-public floor is **spent** (ADR 0005 was the
+confirmation). The live floor is the next deliberate *widening* — a public
+announcement, a published package, a plugin/skills bundle — which stays Mike's
+call, never the agent's initiative. And because the repo is public, the
+no-personal-data boundary is load-bearing continuously, not just at publish.
 
 ## Layout
 
@@ -48,6 +51,6 @@ initiative. This is private-first until Mike decides otherwise.
 ## Conventions
 
 - NZ English; macrons on te reo Māori.
-- Git identity `Mike Clements <mike@cxi.nz>`; commit messages  <!-- leakscan:allow: author's own attribution; genericise for adopters at publish time -->
+- Git identity `Mike Clements <mike@cxi.nz>`; commit messages  <!-- leakscan:allow: author's own attribution; named worked example (ADR 0005), adopters substitute their own identity -->
   `area: imperative subject`, why-dense body, Co-Authored-By trailer.
 - Before finishing a session, append a `docs/SESSIONS.md` entry.

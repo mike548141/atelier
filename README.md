@@ -14,6 +14,21 @@ repo*. New projects were born shape-complete but wisdom-empty, and the reasoning
 had to be re-taught each time. atelier is the missing middle layer: general
 doctrine that sits above any single project.
 
+## If you're adopting this
+
+atelier is a **named worked example**, not an abstract framework. It's written to
+one principal — Mike — grounding real decisions in a real estate (`ros`, `tiki`),
+because a principle reads truer anchored to a real call than floated free of one.
+To adopt it, **you become the principal**: read Mike's instance to learn the
+*shape*, then instantiate it as yourself — your `~/.claude/` context, your estate,
+your decisions. The doctrine in `docs/method/` is the general part meant to
+travel; the person-and-estate specifics are the worked example you replace.
+
+`ros` and `tiki` are named throughout as **provenance** — the private repo this
+doctrine was extracted from, cited so each principle shows its real origin. They
+stay private; you can't open them and you don't need to. The citation means
+"here's where this was earned", not a link to follow.
+
 ## The layers
 
 The same general→specific inheritance the estate's own tools use, applied to how
@@ -62,8 +77,11 @@ Early. The `method/` layer is standing up first; the `build/` layer (the
 
 ## Sharing
 
-Private-first: shared with Competitive Edge and trusted client-org peers to
-harden in real use before any public release. No personal, health, family, or
-financial context ever enters this repo — that stays in the operator's private
-person-level context by design, which is what makes atelier safe to hand to a
-colleague. Licensed Apache-2.0.
+**Public** since 2026-07-10 (see `docs/decisions/0005-going-public.md`),
+Apache-2.0. No personal, health, family, or financial context ever enters this
+repo — that stays in the operator's private person-level context by design,
+which is exactly what makes atelier safe to publish. Because the repo is public,
+that boundary is load-bearing on **every commit**: the `tools/` scan hook
+(leakscan · secretscan) is the mechanical gate, not a pre-publish afterthought.
+Widening further — an announcement, a packaged plugin/skills bundle — is the next
+deliberate step, not this one.
