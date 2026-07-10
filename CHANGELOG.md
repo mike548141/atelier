@@ -5,6 +5,26 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-10 — atelier's own CI: the floor, dogfooded)
+- **`.github/workflows/ci.yml` (job `floor`)** — going public (ADR 0005)
+  dissolved the blocker, so the floor every review had been asserting by hand now
+  runs on every push and PR: the tool test suite (145 tests), the three scanner
+  `--selftest`s, and the scan triad (`secretscan`/`leakscan`/`licenscan
+  --expect Apache-2.0`) over the whole tree. Zero-dep stdlib → a runner needs
+  only Python.
+- **Honest CI scope, in the header not the fine print**: secretscan/licenscan run
+  at full cover; **leakscan runs structural-only and deliberately WITHOUT
+  `--require-terms`**, because its literal person/estate term list is
+  machine-local by design (`~/.claude`, never in any repo) — CI can't hold it and
+  must not. Full leakscan cover stays where the term list lives: the pre-commit
+  hook on a real machine.
+- Least-privilege (`contents: read`), concurrency-cancel for cost hygiene.
+  **Live-proven twice on GitHub** — first run green (11s), then `checkout@v5` +
+  `setup-python@v6` to clear the Node-20 deprecation annotation, re-run green (7s,
+  11/11 steps, no annotation). Watched, not assumed (REVIEW's re-run-live-proven
+  rule). The file doubles as the reference a child copies to run atelier's public
+  `tools/` in its own CI (that half + a markdown link-check remain open).
+
 ### Fixed (2026-07-10 — the create-repo delivery-mechanism review: C1–C10, all fixed + re-driven)
 - **The Fable sweep of the rewire ran cold and PASSED-WITH-FINDINGS** (verdict in
   `docs/reviews/2026-07-10-create-repo-rewire.md`); the gate is cleared — keeper

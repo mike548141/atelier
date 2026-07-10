@@ -373,10 +373,23 @@ public as a **named worked example** (README "If you're adopting this"). What wa
       This is now the live floor item (Mike's call, not the agent's). Reuse the
       ros `PUBLISHING.md` extract-scrub-fresh-export pattern; **scrub list must
       include client names**.
-- [ ] **Wire the (now-public) scanners into child CI** — the question that opened
-      the going-public session, now unblocked: a child's CI can fetch atelier's
-      public `tools/` (no secret, no vendored copy, no drift). Plus atelier's own
-      CI (dogfood the test suite + scan triad + link check).
+- [x] **atelier's own CI** — DONE 2026-07-10 (Opus): `.github/workflows/ci.yml`
+      (job `floor`) dogfoods the floor every review asserted by hand — the tool
+      test suite, three scanner `--selftest`s, and the scan triad over the whole
+      tree. Zero-dep stdlib means a public runner needs only Python. Honest
+      scope baked into the header: secretscan/licenscan at full cover; **leakscan
+      structural-only, deliberately no `--require-terms`** (its term list is
+      machine-local by design — CI can't hold it and must not). Least-privilege
+      (`contents: read`), concurrency-cancel. **Live-proven twice on GitHub** (7s,
+      11/11 steps, no deprecation annotation after the `checkout@v5`/
+      `setup-python@v6` bump) — not assumed; watched green.
+- [ ] **Wire the public scanners into child CI** — the other half, still open: a
+      child's CI checks out `mike548141/atelier` and runs its public `tools/` (no
+      secret, no vendored copy, no drift). atelier's own `ci.yml` is the reference
+      to adapt (swap the in-repo tool steps for an atelier checkout). Also still
+      open: a **markdown internal-link check** (the pointer architecture depends
+      on links resolving — deliberately deferred as net-new tooling wanting its
+      own review, not stacked onto this CI change).
 
 ## Open questions
 
