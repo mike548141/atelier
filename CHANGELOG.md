@@ -22,6 +22,16 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   (`git config hooks.atelierTools "$PP/atelier/tools"`) and prove-it-once
   instructions. Re-exercised: fail-closed with no config, blocks a real secret
   with config, passes a clean commit, atelier's own path unaffected. Suite 137 OK.
+- **The fix's contract pinned by tests** (same day, follow-on): the hook was the
+  one scan artifact with *no* automated tests — exactly where the defect lived,
+  and the live re-proof was one-time (the B1 lesson: a recorded proof can be
+  stale by the time it's durable). `tools/test_precommit.py` added — 5 tests
+  driving real `git commit`s in throwaway repos: fail-closed when unresolvable,
+  config-resolution blocks a planted secret / passes clean, env-wins-over-config,
+  in-repo fallback. **Known-failure proven**: the pre-fix sample re-run under the
+  same scenario commits the secret with exit 0 — the tests catch the defect
+  class, not just bless the fix. Suite 137→142 OK; tools/README wiring section
+  now documents `hooks.atelierTools`/`ATELIER_TOOLS` + fail-closed.
 - **Owed, surfaced not fixed:** CI templates carry *no* scanner step, so a
   scaffolded repo's only scan gate is the machine-local hook — the "pair it with CI"
   line in both the sample and step 6 is currently unbacked. Wiring scanners into CI

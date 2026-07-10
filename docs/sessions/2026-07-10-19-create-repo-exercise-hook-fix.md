@@ -63,6 +63,21 @@ ignores** as a known dummy — so the first re-run looked like a miss but was th
 scanner behaving. Switched to the access-key-*ID* shape (`AKIA…`, a structural
 match) to prove teeth honestly.
 
+## Follow-on same session: the contract pinned by tests
+
+Mike asked whether tests were being written as we go — honest answer: every
+Python tool has them (137 at that point), but the hook, a shell script, had
+**none** — exactly where the defect lived, and the fix's live proof was
+one-time (B1's lesson: a recorded proof can be stale by the time it's durable).
+Added `tools/test_precommit.py`: 5 stdlib tests driving real `git commit`s in
+throwaway repos — fail-closed when unresolvable, config-resolution blocks a
+planted secret / passes a clean commit, env-wins-over-config, in-repo fallback.
+**Known-failure proven:** the pre-fix sample, reconstructed from `HEAD~1` and
+driven through the same scenario, commits the secret with exit 0 — so the tests
+catch the defect class, not just bless the current fix. Suite **137→142 OK**.
+tools/README's wiring section now documents the `hooks.atelierTools` /
+`ATELIER_TOOLS` resolution + fail-closed for child repos.
+
 ## Surfaced, not fixed
 
 The CI templates (`workflows/ci-*.yml`) run **no scanner** — so a scaffolded

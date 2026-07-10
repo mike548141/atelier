@@ -123,6 +123,14 @@ leakscan --staged --disable ipv4,ipv6,mac-address tiki/
   and `leakscan --staged` and aborts the commit on any finding. This is the
   primary control. For a subtree/networking repo, edit the hook's leakscan
   invocation to add the `--disable`/path scoping above.
+  - **In a repo that doesn't carry the scanners** (any create-repo child — the
+    scanners live only here), point the hook up:
+    `git config hooks.atelierTools <atelier-path>/tools` (or `ATELIER_TOOLS`
+    env, which wins). The hook **fails closed**: if a scanner it's asked to run
+    can't be resolved, the commit is *blocked with an explanation*, never
+    silently skipped — the pre-fix hook skipped silently and committed a planted
+    secret (2026-07-10, the create-repo exercise). Contract pinned by
+    `tools/test_precommit.py`.
 - **CI** — run both scanners with `--json` on every push (belt and braces; a
   hook only protects the machine that has it installed).
 

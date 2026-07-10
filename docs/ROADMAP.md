@@ -195,7 +195,9 @@ standout debt; sessions 14–15 deliberately did not stack on it.
         atelier's tools (`ATELIER_TOOLS` → `git config hooks.atelierTools` →
         in-repo fallback) and **fail closed**; step 6 bakes the path + a
         prove-it-once check. Re-proven: fail-closed / blocks-secret / passes-clean
-        / atelier-unaffected; suite 137 OK. **Still owed:** the single `gh repo
+        / atelier-unaffected, then pinned by `tools/test_precommit.py` (5 tests,
+        known-failure proven against the pre-fix sample; suite 137→142 OK).
+        **Still owed:** the single `gh repo
         create --push` step (not run — outward, unneeded for a throwaway); a Fable
         sweep of the rewire; and **CI scan wiring** — CI templates run no scanner,
         so the hook is a scaffolded repo's only scan gate (needs the
