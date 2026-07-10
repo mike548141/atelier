@@ -42,6 +42,17 @@ pointer"** (dependency + lockfile for doctrine). Written up in
       standard; the review-with-a-more-capable-model practice is the enforcement.
       (`PROPAGATION.md` § enforcement clause.)
 
+## Review gate — before more content stacks on the method/ layer
+
+The "mechanism/review before more content" rule: the keystone + the whole `method/`
+layer earn a review with fresh context before extraction continues.
+
+- [ ] **Fable review of the `method/` layer** — brief written 2026-07-10 at
+      `docs/reviews/2026-07-10-method-layer.md` (PROPAGATION, EVIDENCE, REVIEW,
+      RECORD, PRINCIPLES; three lenses; sharpest ask = REVIEW's "more capable"
+      framing vs the Opus-builds/Fable-reviews reality). Run it, append the
+      verdict below the divider, then disposition findings per `REVIEW.md` §4.
+
 ## Then — extraction (keep the case-law, don't strip it)
 
 Generalise the *bearings/cases*, don't delete them (a de-cased principle is
