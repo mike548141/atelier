@@ -5,6 +5,15 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-10 — salvaged from the parallel review line)
+- `docs/method/EVIDENCE.md` §1 gains the **two-register** provenance rule — a
+  durable artifact carries provenance *written down*, an in-flight claim carries
+  it *on demand* (answer-on-challenge + label-guesses-unprompted); ceremony
+  scales with durability, discipline never drops. This was finding E3 in the
+  worktree-branch draft of the method-layer review (`atelier-method-review`),
+  which main's verdict had judged "§1 holds" and so never applied. Recovered
+  during the worktree reconciliation before that branch was retired.
+
 ### Changed (2026-07-10 — harvest extraction)
 - `docs/method/MODEL-ECONOMICS.md` promoted stub → **canonical**. Keeps the
   stub's match-the-model / which-pool self-check / tiered-authority /
