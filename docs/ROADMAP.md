@@ -136,11 +136,12 @@ standout debt; sessions 14–15 deliberately did not stack on it.
             sensitive content, a ros session's job (seed from the nas02/tiki
             facts SPECS already scatters). ACCESS.md now states the honest
             status until it exists.
-      - [ ] **REVIEW.md addition at its next touch** (verdict recommendation):
-            a review re-runs every "live-proven" claim inside its scope — B1
-            showed a recorded proof can be stale by the time it's durable.
-            Not edited this session (REVIEW.md is outside the batch's scope;
-            stacking unreviewed doctrine edits is what the gate exists to stop).
+      - [x] **REVIEW.md addition** — DONE 2026-07-10 (Opus): new "Re-run every
+            'live-proven' claim in scope" subsection — a recorded proof is a
+            claim that can be stale by the commit that records it, so a review
+            re-runs the work's asserted proofs, not just reads them. Grounded
+            twice (B1 the scan's stale "live-proven clean"; C2 the stamped drift
+            check that broke run-verbatim). Review-owed like any doctrine edit.
 
 ## build/ layer + inheritance delivery
 
@@ -228,9 +229,15 @@ as model-memory reborn. **Run cold, fresh session.**
       contradicted the `../atelier` house practice (skill now stamps
       sibling-relative + block quotes the path + a mechanical prove-the-stamp
       in step 5). `tools/test_templates.py` pins template-block ≡ PROPAGATION
-      canonical (C3). Still owed: the outward `gh repo create --push` live
-      proof (first keeper run); ros/faves pin bumps carry the reworded block
-      down.
+      canonical (C3). **Both owed items now closed 2026-07-10 (Opus):** the
+      outward `gh repo create --push` step driven live for the first time —
+      scaffolded **`numen`** (`mike548141/numen`, PRIVATE, verified
+      `isPrivate: true`), the first keeper repo, born from this mechanism at
+      `atelier@bbdeece`; hook proven live to block a planted `AKIA…` key +
+      pass the real commit clean, drift check clean run-verbatim, no
+      `settings.local.json` leaked. And ros (f72031c→bbdeece) + faves
+      (dde4170→bbdeece, +the P1 trust-surface floor clause it lagged) pin bumps
+      carried the reworded block down — fleet now all-current (`tools/pins.py`).
   - [ ] **C5 backlog strand**: `tools/scaffold.py` (mechanise the
         seed/rename/stamp core; skill becomes its wrapper) — only if a stamp
         defect recurs despite step 5's new mechanical prove-the-stamp.

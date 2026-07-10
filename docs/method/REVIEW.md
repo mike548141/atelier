@@ -33,6 +33,21 @@ Not just "are there bugs". A real review runs all three:
 3. **Completeness / harvest** — what the work *should* have covered and didn't;
    what already exists that it duplicated or ignored.
 
+## Re-run every "live-proven" claim in scope
+
+A recorded proof is a claim like any other, and it can be **stale by the time
+it is durable**: a check that ran clean mid-build may be false at the commit that
+recorded it — the fixtures moved, the exemption was never added, HEAD advanced,
+or the proof only ever held in a hand-run the record then generalised. So a
+review does not *read* the work's "live-proven" / "verified" assertions and take
+them; it **re-runs them** within its scope and treats a proof that no longer
+reproduces as a finding. Grounded twice: the post-method-review batch caught a
+scan's "live-proven clean" that was false at its own recording commit (it flagged
+its unexempted fixtures at HEAD), and the create-repo sweep caught the same class
+again — a stamped, recorded proof that broke when run verbatim. This is lens 2
+(does it do what it claims) applied to the record itself, and it feeds the
+close-rule below: a proof you have not re-run is not a proof you can close on.
+
 ## The lifecycle — brief on top, verdict below, one file
 
 Grounded in the `ros`/atelier practice. A review is a **durable artifact**, not a
