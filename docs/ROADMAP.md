@@ -53,8 +53,9 @@ theatre). Leave tiki-specific bearings + review case-law in ros.
       mechanically hardens the apex. Source: `hitchbots_guide/STANDARDS.md`.
 - [ ] **Peer-review lifecycle** doc (harvest A2) + **session/doc-as-code
       discipline** doc (harvest A3) — both already named as owed.
-- [ ] **Model-capability authority** section in AUTONOMY (harvest A4 — the
+- [x] **Model-capability authority** section in AUTONOMY (harvest A4 — the
       *who-acts* axis; "policy in memory protects nothing — encode it").
+      Ratified by Mike 2026-07-10; written into `method/AUTONOMY.md`.
 - [ ] Honest-instrument (A7) + source-acquisition ladder (A6) into method/.
 
 ## build/ layer + inheritance delivery

@@ -98,6 +98,35 @@ action is, why, and what's irreversible about it. A grant in one context is not 
 grant for the next — "yes, publish this" is not "publish things like this from
 now on".
 
+## Who acts — capability earns authority over live systems
+
+This is a *second axis*, orthogonal to the floor above. The floor classes **what
+action**; this classes **who may take it** on live, irreversible systems.
+
+**A more capable model earns broader authority over live systems — because it can
+dig itself out.** Not because it errs less (everything errs), but because when it
+does, on live gear, it can diagnose and recover. A less capable model that errs
+on a live system leaves two problems: the broken system *and* a set of changes
+the operator doesn't understand and can't easily unwind. So:
+
+- The most capable model available runs the **first-of-kind, structural, or
+  live-blast-radius** work.
+- A less capable model runs **pattern-following** work behind a **mechanical
+  gate** (validators/CI/schema) that holds the floor regardless of who ran — the
+  gate is what makes cheaper-model work safe.
+- A less capable model that hits first-of-kind or live-risk work **logs it and
+  hands up** to a capable session, rather than improvising past its limit.
+
+Two corollaries, both load-bearing:
+
+- **Encode the policy, don't just remember it.** A "never do X to this live box"
+  rule that lives only in a session's memory protects nothing — the next session
+  never saw it. Move it into code/config/schema where every model, capable or
+  not, hits it. (This is why a live-risk constraint becomes a gate, not a note.)
+- Same doctrine binds all models (00-APEX "who it binds"); this section is only
+  about *how much live-system authority* capability earns — never about which
+  rules apply.
+
 ## How the grant evolved
 
 *(Worked example from this estate — a peer adopting atelier substitutes their
