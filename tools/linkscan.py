@@ -64,11 +64,18 @@ ALLOW_MARKER = "linkscan:allow"
 # link *target* (checked for existence) but never a *source*.
 MARKDOWN_SUFFIXES = {".md", ".markdown"}
 
-# Paths never worth walking — binary/vendored/VCS noise. Repo-specific globs
-# come from .linkscanignore at the scan root.
+# Paths never worth walking. Hardcode-skip ONLY names that are never
+# human-authored prose — VCS, dependency, and tool-cache dirs. Ambiguous names
+# a content dir can legitimately share (`build`, `dist`) are DELIBERATELY absent:
+# atelier's own `docs/build/` is a first-class doctrine layer, and skipping it by
+# name silently masked 14 files from every whole-tree scan — a false negative,
+# linkscan's cardinal sin. The tool cannot tell "build output" from "content
+# named build" by name alone, so it must not guess; a repo with a real
+# build-output dir names it in `.linkscanignore` (one line). Over-scanning a
+# generated dir is cheap; masking a doctrine layer is not.
 SKIP_DIR_NAMES = {".git", "node_modules", "__pycache__", ".venv", "venv",
-                  ".mypy_cache", ".ruff_cache", ".pytest_cache", "dist",
-                  "build", ".idea", ".vscode"}
+                  ".mypy_cache", ".ruff_cache", ".pytest_cache",
+                  ".idea", ".vscode"}
 
 # A URI scheme (http:, mailto:, tel:…) or a protocol-relative //host prefix:
 # not our link to check.

@@ -17,6 +17,6 @@ with a new one.
 
 ## Index
 
-<!-- One line per ADR, e.g.:
-- [0001](0001-slug.md) — one-line summary of the decision
--->
+<!-- One line per ADR — replace with live entries. The example below is a
+single-line code span so its placeholder link isn't scanned as a real one:
+`[0001](0001-slug.md) — one-line summary of the decision` -->

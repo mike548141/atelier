@@ -148,6 +148,16 @@ class EndToEnd(unittest.TestCase):
         self._write("index.md", "# T\n```\n[x](gone.md)\n```\n")
         self.assertEqual(linkscan.scan_paths([self.tmp], self.tmp), [])
 
+    def test_content_dir_named_build_is_walked(self):
+        # Regression: `build`/`dist` are NOT hardcode-skipped — a content dir
+        # sharing the name (atelier's own docs/build/ doctrine layer) must be
+        # scanned, not masked. A repo with a real build-output dir uses
+        # .linkscanignore instead.
+        (self.tmp / "docs" / "build").mkdir(parents=True)
+        self._write("docs/build/note.md", "# B\n[x](gone.md)\n")
+        fs = linkscan.scan_paths([self.tmp], self.tmp)
+        self.assertEqual([f.kind for f in fs], ["missing-file"])
+
     def test_selftest_passes(self):
         self.assertEqual(linkscan._selftest(), 0)
 
