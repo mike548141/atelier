@@ -5,6 +5,16 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-10 — harvest extraction)
+- `docs/method/MODEL-ECONOMICS.md` promoted stub → **canonical**. Keeps the
+  stub's match-the-model / which-pool self-check / tiered-authority /
+  inline-batched review triggering, and adds the general session-hygiene
+  mechanics + cache economics extracted from ros (per-model prompt cache, TTL
+  churn, output>input, one-task-per-session, heavy-skills-are-episodic,
+  point-don't-paste, keep-the-hot-path-lean). The estate-specific numbers
+  (prices, model roster, measured session-overhead) stay person-local in ros; a
+  foot-pointer names the split. README + `method/README` swept off "stub".
+
 ### Added (2026-07-10 — method-review backlog finding P2)
 - `tools/pins.py` — the fleet view of "which children are stale" against atelier
   HEAD, closing the method-review's remaining backlog finding. The per-child
@@ -127,8 +137,6 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   `.claude/settings.json`.
 
 ### Pending (see ROADMAP)
-- `MODEL-ECONOMICS.md` extraction from ros (`PRINCIPLES.md` landed — see
-  *Changed*).
 - The `build/` layer: the `create-repo` standard + templates.
 - `create-repo` rewired to inherit from atelier instead of copying empty
   templates.

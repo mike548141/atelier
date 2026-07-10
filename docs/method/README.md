@@ -27,8 +27,10 @@ Read in this order:
    reproducibility) + the precedence ladder + situation tests, with generalised
    cases. **Canonical here**; `ros` keeps its tiki bearings + review case-law and
    points up.
-9. **`MODEL-ECONOMICS.md`** — which model does what, and what it costs.
-   *(Extraction in progress — canonical source is ros `docs/MODEL-ECONOMICS.md`.)*
+9. **`MODEL-ECONOMICS.md`** — match the model to the job (plan model builds,
+   usage-billed model reviews), the which-pool self-check, tiered authority, and
+   session hygiene. **Canonical here**; the estate-specific numbers (prices,
+   model roster, session-overhead figure) stay person-local in `ros`.
 
 **Meta — how the doctrine is enforced, recorded, and propagated:**
 

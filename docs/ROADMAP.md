@@ -85,8 +85,13 @@ theatre). Leave tiki-specific bearings + review case-law in ros.
       estate mapping, and the whole precedent-annotated trade-offs section;
       dropped only the general prose the spine states. The transitional DRY
       breach is closed.
-- [ ] **`MODEL-ECONOMICS.md`** general shape (numbers stay person-local). (Stub
-      has review-trigger + tiered authority already.)
+- [x] **`MODEL-ECONOMICS.md`** general shape — DONE 2026-07-10 (Opus): promoted
+      stub → canonical. Match-the-model-to-job + which-pool self-check + tiered
+      authority + inline/batched review triggering (already in the stub) plus the
+      general session-hygiene mechanics + cache economics extracted from ros
+      (per-model cache, TTL churn, point-don't-paste, one-task, heavy-skills).
+      Person-local numbers (prices, model roster, 35k overhead) stay in ros; a
+      foot-pointer names the split. README + method/README swept off "stub".
 - [x] **`EVIDENCE.md`** (harvest A1 — highest-value net-new) — authority tiers,
       acquisition-method error risk, absolute-dating, store-the-rule-not-the-value,
       one-fact-one-home, trigger-based refresh, enforce-by-machine; mechanically

@@ -1,40 +1,105 @@
 # Model economics
 
-<!-- TODO: extraction in progress — not yet the canonical copy. -->
+*How to split work across models, and how to keep a session token-efficient.
+The doctrine is general; the estate-specific numbers — which exact models, their
+prices, this operator's plan and session-overhead figures — stay person-local
+(see the pointer at the foot).*
 
-> **Status: stub.** The worked policy currently lives in the `ros` repo at
-> `docs/MODEL-ECONOMICS.md`.
+## Match the model to the job
 
-The general shape, to be extracted here:
+Two kinds of spend, drawn from two pools:
 
-- **Match the model to the job.** A capable plan-included model does the
-  *building*; a separate, usage-billed model does *review* (code, docs,
-  approach, real-world validation) — work is trusted only after that
-  independent pass. Reviews are **scoped and short**; builds are the bulk.
-- **Know which pool you're spending.** Before token-heavy work, state which
-  model you're running as and which billing pool it draws on — because a
-  usage-billed model silently doing a *build* is the expensive mistake. Flag it
-  before spending.
-- **Session hygiene.** Watch context growth; a bloated session wastes the plan.
-  Log where you got to and start fresh rather than dragging a huge context.
-- **One doctrine, tiered authority — not tiered rules.** Every model runs the
-  *same* doctrine (see 00-APEX "who it binds"). What scales with capability is
-  **authority over live/irreversible systems**, not which rules apply: match the
-  model to the task's *risk* — pattern-following work runs on a cheaper model; a
-  mechanical gate (validators/CI) holds the floor regardless of which model ran,
-  which is what makes cheap-model work safe; first-of-kind or structural work
-  escalates to the capable model, and a smaller model that hits it **logs and
-  hands up** rather than improvising.
-- **Triggering reviews — inline or batched, the building model's call.** When
-  economics allow, the building (Opus) session may **spawn a design/build review
-  as a background agent inline** — verify as you go, no context switch (this is
-  how the atelier foundation review ran). When they don't, **queue a batch** to
-  run together later. Both are sanctioned; pick per cost and how blocking the
-  result is. A review is still *scoped and short* either way, and it's still
-  spend — so it stays inside the "know which pool" rule.
-- **Cost is the lowest precedence** (see PRINCIPLES) — optimised last, never by
-  weakening honesty, safety, or correctness.
+- **Plan-included** — a subscription's capable model. A token costs no marginal
+  dollars but draws down a usage allowance.
+- **Usage-billed** — billed per token, real money, output (including any
+  always-on thinking tokens) costing several times input.
 
-The estate-specific numbers (which exact models, their pools, the session
-overhead figure) stay in `ros` / machine-local — those are this operator's plan
-details, not general doctrine.
+The split that follows from this: a **plan-included model does the *building*** —
+iterating, tests, docs, exploration, the long agentic sessions, anything
+mechanical or high-volume. Burning plan quota on exploration is fine; burning
+real dollars on it is not. A **usage-billed model does *review*** — code, docs,
+approach/assumptions, real-world validation — and the hard problem the building
+model is stuck on. Reviews are **scoped and short** (hand it the diff / commit
+range / named files, not the repo; ask for findings, not rewrites — apply fixes
+back on the building model); builds are the bulk.
+
+**Subagents for fan-out.** From either model, push broad reading/searching into
+subagents so the expensive main context stays lean — most valuable in a
+usage-billed session, where every main-context token is metered.
+
+## Know which pool you're spending — the self-check
+
+The subscription default is **not a reliable guard**: a model picker can save the
+last choice as the new default, and a project/managed/IDE setting can outrank the
+user default — so a session can silently come up on the usage-billed model even
+when the plan model is pinned. The surfaces that always reflect the *real*
+running model are the statusline and the model itself.
+
+So the standing rule: **before token-heavy build/implementation work, state the
+running model and its billing pool in one line; if it's the usage-billed model
+and the task is a *build*, flag it and confirm before spending.** This catches
+the "should have been on the plan model" case up front, when the fix is free
+(switch at the session boundary), not after the dollars are gone. Review and
+hard-problem work on the usage-billed model is the *intended* use — no flag
+needed there. The guard is specifically usage-billed-doing-a-build.
+
+## One doctrine, tiered authority — not tiered rules
+
+Every model runs the *same* doctrine (00-APEX "who it binds"). What scales with
+capability is **authority over live/irreversible systems**, not which rules
+apply. Match the model to the task's *risk*: pattern-following work runs on a
+cheaper model; a **mechanical gate (validators/CI) holds the floor regardless of
+which model ran** — that is what makes cheap-model work safe; first-of-kind or
+structural work escalates to the capable model, and a smaller model that hits it
+**logs and hands up** rather than improvising past its depth.
+
+## Triggering reviews — inline or batched, the building model's call
+
+When economics allow, the building session may **spawn a review as a background
+agent inline** — verify as you go, no context switch. When they don't, **queue a
+batch** to run together later. Both are sanctioned; pick per cost and how
+blocking the result is. Either way a review stays *scoped and short*, and it is
+still spend — so it stays inside the "know which pool" rule above.
+
+## Session hygiene (both models)
+
+The prompt cache is **per-model** and the whole context is resent every turn, so
+context size and continuity are the levers:
+
+1. **One task per session.** A pivoted session drags the old task's tokens along
+   every turn. Wrap up (write the session record) and start fresh instead.
+2. **Never switch model mid-session.** The cache is per-model — a switch
+   re-processes the entire context at full input price and loses the prior
+   model's thinking continuity. Switch at session boundaries.
+3. **Mind the cache TTL.** A prompt cache expires after a few minutes; a gap
+   longer than that re-writes it (a full input re-read). Cache *writes* cost more
+   than cache *reads*, so churn is the expensive pattern — it bites hardest on a
+   usage-billed session.
+4. **Watch context growth.** Long sessions get slower and costlier per turn.
+   When a session feels long, write the record and restart — a standing practice,
+   not a failure.
+5. **Heavy skills are episodic costs.** A single skill/reference load can inject
+   tens of thousands of tokens. Fine when needed; don't invoke speculatively, and
+   especially not in a usage-billed session.
+6. **Point, don't paste.** Give file paths and line ranges rather than pasting
+   large content the model can read itself — reads are targeted and droppable;
+   pastes live in the context forever.
+
+Keep the every-session read path lean: **bulk — completed detail, append-only
+logs, verbose specs — does not accumulate in the docs a session loads at start**
+(split it out, tail-read or grep on demand). The cost is linear, not a cliff, so
+never sacrifice clarity to hit a number; the rule is only that bulk stays off the
+hot path.
+
+## Cost is the lowest precedence
+
+Cost is optimised **last** (see PRINCIPLES' precedence ladder) — never by
+weakening honesty, safety, or correctness. A cheaper session that ships a wrong
+or unsafe result saved nothing.
+
+---
+
+*Person-local (kept in the operator's repo / machine, not here): the exact model
+roster and their pools, current per-token prices and cache multipliers, the
+rules-of-thumb constants (chars-per-token), and the measured fixed per-session
+overhead. Those are plan details and change with pricing; this doctrine does not.*
