@@ -29,7 +29,7 @@ git worktree add ~/worktrees/<repo>-<feature> -b <feature>
   work you want to *steer* (feature A here, feature B there). Human-in-the-loop
   on each.
 - **Background *agents* (fan-out)** — for breadth *within one task* that you then
-  synthesize: multi-file reviews, research sweeps, "check these 20 things". The
+  synthesise: multi-file reviews, research sweeps, "check these 20 things". The
   agents return results into one context you drive; they are not long-lived
   independent developers.
 

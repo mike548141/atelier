@@ -17,6 +17,21 @@ The general shape, to be extracted here:
   before spending.
 - **Session hygiene.** Watch context growth; a bloated session wastes the plan.
   Log where you got to and start fresh rather than dragging a huge context.
+- **One doctrine, tiered authority — not tiered rules.** Every model runs the
+  *same* doctrine (see 00-APEX "who it binds"). What scales with capability is
+  **authority over live/irreversible systems**, not which rules apply: match the
+  model to the task's *risk* — pattern-following work runs on a cheaper model; a
+  mechanical gate (validators/CI) holds the floor regardless of which model ran,
+  which is what makes cheap-model work safe; first-of-kind or structural work
+  escalates to the capable model, and a smaller model that hits it **logs and
+  hands up** rather than improvising.
+- **Triggering reviews — inline or batched, the building model's call.** When
+  economics allow, the building (Opus) session may **spawn a design/build review
+  as a background agent inline** — verify as you go, no context switch (this is
+  how the atelier foundation review ran). When they don't, **queue a batch** to
+  run together later. Both are sanctioned; pick per cost and how blocking the
+  result is. A review is still *scoped and short* either way, and it's still
+  spend — so it stays inside the "know which pool" rule.
 - **Cost is the lowest precedence** (see PRINCIPLES) — optimised last, never by
   weakening honesty, safety, or correctness.
 

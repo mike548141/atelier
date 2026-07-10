@@ -28,10 +28,12 @@ Read the rest of `docs/method/` on demand when a change touches it.
 
 ## Autonomy in this repo
 
-Commit at discretion (`AUTONOMY.md`). Docs-only repo, no deploy-on-push, so a
-push is low-consequence storage — but **push and GitHub creation still confirm
-until Mike sets the standing grant** for atelier (owner/visibility not yet
-decided; private-first is the intent).
+Full standing grant applies: commit + push + manage PRs at discretion
+(`AUTONOMY.md`). The repo exists — **private, `mike548141/atelier`** — so routine
+pushes are granted. The one thing that still stops to ask is the floor item it
+sits nearest: **making it public** (or widening its audience) is a deliberate
+private→public act — confirm, cite the floor, never flip visibility on your own
+initiative. This is private-first until Mike decides otherwise.
 
 ## Layout
 

@@ -16,9 +16,11 @@ This is atelier's layering applied to tools:
 - **The instance (personal — NOT in this repo).** The actual list of *this
   operator's* tools — accounts, credentials scopes, venv paths, connected
   services (mail, calendar, finance, drive) — is personal/estate context. It
-  lives machine-local (`~/.claude/`), never in a shareable repo. Naming a
-  colleague's connected mail account in a doc you hand them is exactly the leak
-  atelier exists to prevent.
+  lives in the operator's **person-level** private context — today `~/.claude/`
+  (machine-local); the goal is *portable across the operator's own devices*, but
+  **never** in a shareable repo (see the ROADMAP portable-context north star).
+  Naming a colleague's connected mail account in a doc you hand them is exactly
+  the leak atelier exists to prevent.
 
 ## What the manifest records, per tool
 
@@ -33,7 +35,7 @@ This is atelier's layering applied to tools:
 
 - **Approved but not installed → proceed.** Installing a pre-approved tool from a
   trusted package manager is reversible (uninstall) and already sanctioned — it
-  falls under "reversible and local" in `AUTONOMY.md`. Install it, use it,
+  is a proceed-without-prompt action under `AUTONOMY.md`. Install it, use it,
   record it in the manifest.
 - **Not on the approved list → confirm first.** New tooling is a new capability
   and a new trust surface; that's the owner's call.

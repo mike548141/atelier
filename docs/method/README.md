@@ -7,8 +7,9 @@ Read in this order:
 
 1. **`00-APEX.md`** — honesty is absolute, then the AI-adapted Three Laws. The
    frame everything else sits inside; above the precedence ladder, never traded.
-2. **`AUTONOMY.md`** — proceed on reversible/local; confirm on
-   irreversible/outward/secrets/spend/safety. Autonomy is granted per repo.
+2. **`AUTONOMY.md`** — proceed on anything recoverable (commit/push/PR granted
+   for all work); confirm on the hard-to-undo floor (private→public, destructive,
+   secrets, spend, people/safety, self-widening, lockout-class). Repos may narrow.
 3. **`STORAGE.md`** — GitHub master, iCloud backup, laptop disposable.
 4. **`CONCURRENCY.md`** — one worktree per line of work; serialise real-world
    side-effects.

@@ -39,7 +39,8 @@ we work:
 
 - **`00-APEX.md`** — honesty is absolute, then the AI-adapted Three Laws. Above
   everything else.
-- **`AUTONOMY.md`** — when the agent proceeds vs stops to ask; per-repo grants.
+- **`AUTONOMY.md`** — when the agent proceeds vs stops to ask; broad standing
+  grant (commit/push/PR), with a fixed floor and per-repo narrowing.
 - **`STORAGE.md`** — GitHub = master, iCloud = backup/offline, laptop =
   disposable; keep churn out of iCloud.
 - **`CONCURRENCY.md`** — one worktree per line of work; serialise real-world
@@ -55,7 +56,8 @@ Early. The `method/` layer is standing up first; the `build/` layer (the
 
 ## Sharing
 
-Private-first: shared with Competitive Edge / EPL peers to harden in real use
-before any public release. No personal, health, family, or financial context
-ever enters this repo — that stays machine-local by design, which is what makes
-atelier safe to hand to a colleague. Licensed Apache-2.0.
+Private-first: shared with Competitive Edge and trusted client-org peers to
+harden in real use before any public release. No personal, health, family, or
+financial context ever enters this repo — that stays in the operator's private
+person-level context by design, which is what makes atelier safe to hand to a
+colleague. Licensed Apache-2.0.

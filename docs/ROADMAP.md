@@ -1,92 +1,124 @@
 # atelier ROADMAP
 
-Lean and read every session. Completed detail moves to `ROADMAP-DONE.md` once
-this grows.
+Lean; read every session. Completed detail moves to `ROADMAP-DONE.md` once this
+grows. Sequencing rule from the 2026-07-10 review: **mechanism before more
+content** — a repo that inherits docs but not the propagation + review cadence
+has inherited the costume, not the doctrine.
 
-## The hard problem — propagation (raised by Mike 2026-07-10)
+## Done (2026-07-10)
 
-*"How do we learn this lesson once — keep all sessions and repos up to date as
-the house doctrine changes? Child repos like faves need to feed off the house
-doctrine repo."* This is the load-bearing architecture question for atelier and
-is in the first Fable review's scope.
+- [x] Scaffold + method/ first slice: `00-APEX`, `AUTONOMY`, `STORAGE`,
+      `CONCURRENCY`, `TOOLBOX`.
+- [x] Foundation review (2 Fable + 1 harvest) — `docs/reviews/2026-07-10-…`.
+- [x] Autonomy floor closed (self-widening, lockout-class, GitHub-surface,
+      deploy carve-out, recoverability-ends-at-push, pull-quote) + global
+      commit/push/PR grant.
+- [x] **Canonicality decided** (atelier canonical; children point up) and the
+      active APEX↔ros §0 DRY breach fixed — ros §0 shrunk to inlined floor +
+      pointer (first instance of the anchor pattern).
+- [x] All-models-one-doctrine stated (APEX "who it binds"); review-trigger
+      policy + tiered-authority in MODEL-ECONOMICS.
 
-- [ ] **Design the propagation mechanism.** How a doctrine change in atelier
-      reaches every child repo and every session, without a manual sync
-      nightmare or a second diverging source of truth. Candidate shapes to weigh
-      (Fable to pressure-test): child repos *reference* atelier (a pointer in
-      each CLAUDE.md that says "the doctrine lives in atelier; read it there")
-      vs *vendored copy* + a drift-check that flags staleness vs a session-start
-      hook that pulls latest. Whatever wins must respect DRY (one source) and be
-      observable (a repo can tell when it's behind).
-- [ ] **Repo-boundary guidance** — Claude should *direct* whether a new piece of
-      work is its own repo or a component of an existing one (Mike: "you should
-      direct more"). E.g. rich EPL work = own repo vs component vs monorepo
-      folder. A short decision guide in `build/`, and the standing behaviour to
-      advise proactively rather than wait to be told.
+## Next — the propagation mechanism (do BEFORE further extraction)
 
-## Now — method/ layer standing up
+The load-bearing architecture, review-endorsed shape: **"thin anchor, fat
+pointer"** (dependency + lockfile for doctrine).
 
-- [x] Scaffold; `00-APEX`, `AUTONOMY`, `STORAGE`, `CONCURRENCY`, `TOOLBOX`.
-- [x] Autonomy widened to standing commit+push+PR for all work (2026-07-10).
-- [ ] **Extract `PRINCIPLES.md` spine** from ros — the named principles +
-      precedence ladder + situation tests, generalised out of tiki examples.
-      Leave the tiki bearings + review case-law in ros. (Stub in place.)
-- [ ] **Extract `MODEL-ECONOMICS.md`** general shape from ros; keep the
-      estate-specific model/pool numbers machine-local. (Stub in place.)
-- [ ] Write **session + doc-as-code discipline** and the
-      **review-with-a-more-capable-model** practice into `method/`.
+- [ ] **Version atelier** — tag on each doctrine change (or use SHA); one
+      CHANGELOG line per change.
+- [ ] **Define the standard child CLAUDE.md doctrine block** — inlined ~8-line
+      safety floor (apex + always-confirm) + pointer + version pin + a one-line
+      drift check (`git -C ../atelier log --oneline PIN..HEAD`) that rides the
+      existing session-start read. Budget: anchor ≤ ~15 lines; `method/` read on
+      demand, never wholesale.
+- [ ] **Retrofit `faves` and `ros`** with the block (faves still points at the
+      old ros/tiki source).
+- [ ] **Layer-override rule** into `method/`: a child may narrow or append,
+      never silently contradict; a contradiction is a defect to surface.
+- [ ] **Enforcement clause** (the category error, in writing): documents are the
+      standard; the review-with-a-more-capable-model practice is the enforcement.
 
-## Next — build/ layer + inheritance
+## Then — extraction (keep the case-law, don't strip it)
 
-- [ ] Extract the `create-repo` standard into `docs/build/` as the readable
-      source; move `templates/` alongside.
-- [ ] **Rewire `create-repo` to inherit from atelier** — the core fix: new repos
-      inherit doctrine, not empty templates.
+Generalise the *bearings/cases*, don't delete them (a de-cased principle is
+theatre). Leave tiki-specific bearings + review case-law in ros.
 
-## Then — the machine-local instance (not in this repo)
+- [ ] **`PRINCIPLES.md`** spine + precedence ladder + situation tests, with
+      generalised cases. (Stub in place.)
+- [ ] **`MODEL-ECONOMICS.md`** general shape (numbers stay person-local). (Stub
+      has review-trigger + tiered authority already.)
+- [ ] **`EVIDENCE.md`** (harvest A1 — highest-value net-new) — authority tiers,
+      absolute-dating, store-the-rule-not-the-value, trigger-based refresh;
+      mechanically hardens the apex. Source: `hitchbots_guide/STANDARDS.md`.
+- [ ] **Peer-review lifecycle** doc (harvest A2) + **session/doc-as-code
+      discipline** doc (harvest A3) — both already named as owed.
+- [ ] **Model-capability authority** section in AUTONOMY (harvest A4 — the
+      *who-acts* axis; "policy in memory protects nothing — encode it").
+- [ ] Honest-instrument (A7) + source-acquisition ladder (A6) into method/.
 
-- [ ] Capture the concrete **toolbox manifest** machine-local (`~/.claude/`):
-      installed/approved tools, auth scopes, venv paths, connected services —
-      so sessions stop rediscovering. Doctrine is `method/TOOLBOX.md`; the
-      inventory itself never enters this shareable repo.
+## build/ layer + inheritance delivery
 
-## North star — work from any device, anywhere (Mike 2026-07-10)
+- [ ] Extract the `create-repo` standard into `docs/build/` (product-in-subfolder,
+      standardise-existing process, honest-CI, lockstep-change, ADR rule, TODO/
+      comment conventions — harvest A10).
+- [ ] **Supply-chain/release standard** (A5) — committed deterministic SBOM +
+      keyless signing; **licence-consistency pre-publish gate** (A11).
+- [ ] **Rewire `create-repo` to inherit from atelier** — stamp the doctrine
+      block + pin; the skill is the *delivery vehicle*, atelier is the *source*.
+      No delivery path bypasses create-repo. (The core Q1 fix.)
+- [ ] **Repo-boundary guidance** — Claude *directs* standalone-repo vs component
+      vs monorepo-folder (e.g. a rich client engagement). Standing behaviour:
+      advise proactively.
 
-Two distinct goals, kept distinct on purpose:
+## Safety tooling (gates the person-context + archive threads)
 
-- [ ] **Personal context travels with the *person*, not the device.** Mike's
-      personal context (`~/.claude`) should be reachable from any of his devices
-      (iPhone, MacBook, and their successors) — synced to *him*, not pinned to
-      one machine. This does NOT weaken the rule that personal context never
-      enters a *shareable repo*: it travels with Mike privately; it still never
-      lands in atelier or any repo handed to a peer. (Design: where does the
-      personal store live so it's on every device but never in a shared repo?
-      Fable to weigh.)
-- [ ] **Resume any project from any device.** The end state: pick up work on any
-      repo/idea with Claude from any device, anywhere. Depends on the
-      propagation + portable-context threads above.
+- [ ] **Mechanical leak-scan** — pre-commit/CI denylist (names, addresses, med
+      terms, deal figures, device/network IDs) on every shareable repo. The
+      boundary must be enforced by machine, not intent. This is the single
+      control that catches every failure mode of portable-context + archive.
 
-## Session archive (Mike wondering, 2026-07-10)
+## North star — context follows the person, work follows anywhere
 
-- [ ] Decide whether to **archive every session** (chat, cowork, CLI, VS Code)
-      for detail-on-demand — a kept-if-needed record, not regularly referenced.
-      SESSIONS.md stays the human *index*; this would be the raw *detail* store.
-      Feasibility: Claude Code already writes local transcripts
-      (`~/.claude/projects/**/*.jsonl`); the work is collecting + backing them
-      up (iCloud/NAS) and deciding retention/search. Design question for the
-      review: worth the storage + privacy handling, or index-only enough?
+- [ ] **Two-tier person-context portability.** Both excluded from atelier, both
+      must reach every device Mike works from, handled by sensitivity:
+      - *Crown-jewels* (health/family/finance/estate map): E2E-encrypted only
+        (iCloud ADP or sops/age); **never a plain remote, not even private
+        GitHub**; encrypted at rest even locally; device floor (FileVault/
+        passcode).
+      - *Instance/identity/toolbox* (accounts, venv paths, domains, client-entity
+        facts): private but lighter; may tolerate a private store/repo.
+      Honest gap: the **iPhone leg has no filesystem mechanism** — the Claude app
+      doesn't read `~/.claude`; phone-side is app memory/Projects, a different
+      system. This needs a focused design pass, not "a sync problem".
+- [ ] **Resume any project from any device, anywhere** — depends on propagation
+      + person-context above.
+
+## Session archive (decide)
+
+- [ ] Archive sessions as **encrypted cold storage** — NAS, local-only (never
+      iCloud-broad, never a repo), ~12-month rolling retention, **no search
+      index initially** (searchability = exfil surface); NZ Privacy Act retention
+      applies (third-party PII in transcripts). Start with Claude Code
+      `~/.claude/projects/**/*.jsonl`; "every session incl. chat/cowork" needs
+      export machinery that doesn't exist yet — say so.
 
 ## Sharing (private-first)
 
-- [ ] Decide owner/visibility and push (deferred — Mike's call).
-- [ ] Share with CEL/EPL peers; harden in real use.
-- [ ] Decide public release + packaging (readable repo vs Claude Code
-      plugin/skills bundle) once the layers are populated. Reuse the ros
-      `PUBLISHING.md` pattern (extract public subset, scrub, fresh export).
+- [ ] **One real peer adoption** (CEL, then a client-org) hardens the doctrine
+      before any public work — shareability is untested (audience-of-two so far);
+      treat their confusion as the harvest.
+- [ ] Full **practice/instance restructure** of AUTONOMY + STORAGE before public
+      release (grant ledger, Apple/iCloud specifics → marked worked-examples or
+      person-local).
+- [ ] Public release + packaging: readable repo vs **Claude Code plugin/skills
+      bundle** (plugin = behaviour travels — higher leverage). Reuse the ros
+      `PUBLISHING.md` extract-scrub-fresh-export pattern. **Scrub list must
+      include client names** (e.g. any client-org named in docs).
 
 ## Open questions
 
-- Does ros keep its own `PRINCIPLES.md`/`MODEL-ECONOMICS.md` as the canonical
-  copy and atelier hold the general spine, or does atelier become canonical and
-  ros reference it? (Resolve when extracting — avoid two diverging sources.)
-- Naming/identity for the shared package when it goes to peers.
+- Does ros keep canonical copies of any doctrine, or hold only bearings + point
+  up for everything (as §0 now does)? Default: point up; resolve per doc at
+  extraction.
+- `docker-heap` is unstandardised (stub README, no CLAUDE.md) — run the
+  standardise-existing pass when convenient.

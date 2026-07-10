@@ -3,7 +3,11 @@
 A project is worth more than the laptop it sits on. Every repo is arranged so
 that losing any one location loses nothing.
 
-## Three locations, three jobs
+*(The specific services below — iCloud, a home NAS, Apple Time Machine — are
+this estate's worked example. A peer substitutes their own: the doctrine is the
+four **roles**, not the Apple-shaped instances that fill them.)*
+
+## Four locations, four jobs
 
 | Location | Role | Property it provides |
 |---|---|---|
@@ -48,7 +52,7 @@ iCloud sync + tooling that rewrites many files fast = trouble. Two known traps:
 - **Throwaway git worktrees go outside iCloud** too (see CONCURRENCY) — they'd
   otherwise generate sync churn for no benefit.
 
-## Secrets are a fourth thing
+## Secrets are a thing apart
 
 Secrets are neither backed up casually nor committed in plaintext. They follow
 their own regeneration doctrine: prefer *re-mint from code* over *hand-keep an
