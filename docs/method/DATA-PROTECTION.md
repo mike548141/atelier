@@ -35,6 +35,13 @@ routine; removing or overwriting it is gated. A domain that holds real data
 even when its owner has granted broad write — the grant buys capability, not a
 licence to lose data.
 
+**Enforce the plane split with the credential, not with discipline.** Where a
+system separates data from control, take **two scoped credentials** — a *data*
+credential (read/write to the data, bound by the restore-before-destructive
+gate) and a separate *control/config* credential that **cannot touch the data at
+all**. Then a mistake in the control plane physically can't lose data — the
+boundary is in the token's scope, not in an agent remembering to be careful.
+
 ## Reproducibility is data insurance
 
 Anything rebuildable from code (containers, VMs, config, derived artifacts) has
