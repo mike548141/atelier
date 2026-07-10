@@ -74,6 +74,19 @@ throwaway chat:
    live proof where one exists. "Addressed the review" without exercising the fix
    is the apex violation the review existed to catch.
 
+## Whether a change earns a review at all — calibrate to risk
+
+The lifecycle above is the *full* ceremony; **not every change earns it.** Match
+the gate to the cost of being wrong (`MODEL-ECONOMICS.md` — "match the ceremony to
+the risk"): first-of-kind or structural work, a silent-failure mode, doctrine
+text, and irreversible or public actions earn the independent fresh-context
+review; a change whose tests and dogfooding exercise it end-to-end over
+*already-reviewed* machinery is **self-verifying** — there the mechanical floor
+*is* the review, and a brief→verdict cycle is overhead, not safety. Under-review a
+risky change and the defect ships; over-review a safe one and the ceremony crowds
+out the work. Same "layers, not alternatives" split as *What review is not* below,
+applied one level up — to the decision to review at all.
+
 ## When to review — inline or batched (the building model's call)
 
 Both are sanctioned; pick per cost and how blocking the result is
