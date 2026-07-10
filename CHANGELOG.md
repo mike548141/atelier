@@ -5,6 +5,22 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-10 — licence-consistency pre-publish gate)
+- `tools/licenscan.py` (+ `tools/test_licenscan.py`, 35 tests) — the third
+  pre-publish scan, completing the triad: leakscan (no personal data) · secretscan
+  (no credentials) · **licenscan (no licence surprise)**. Three checks: LICENSE
+  present and SPDX-recognised; every licence declaration (pyproject/package.json/
+  Cargo/gemspec/setup.cfg/README badge) agrees with it; no incompatible
+  `SPDX-License-Identifier` header (copyleft-into-permissive is a block — can't be
+  relicensed on publish). Conservative + advisory (flags for a human, not legal
+  advice), `--expect <SPDX>` assertion for CI, zero-dep stdlib, allow-marker +
+  `.licenscanignore` escape hatches, `--selftest`. A pre-publish gate, not an
+  every-commit hook (private repos carry licence mess harmlessly; it bites at the
+  public boundary AUTONOMY already gates). Live-proven clean on atelier itself
+  (`--expect Apache-2.0`). tools/README documents it; suite 98→133. Review-owed
+  (mechanical control — validator run is most of the enforcement; the SPDX matrix
+  deserves an approach review).
+
 ### Added (2026-07-10 — access onboarding doctrine)
 - `docs/method/ACCESS.md` — safe-access-onboarding: the ordered runbook for the
   moment access to a new domain (network/cloud/NAS/workspace/API) is granted.

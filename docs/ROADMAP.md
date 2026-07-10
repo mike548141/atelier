@@ -121,8 +121,21 @@ theatre). Leave tiki-specific bearings + review case-law in ros.
       of copying it. build/README rewritten from pointer → layer index. Review-owed
       (doctrine text — a REVIEW.md sampling pass). Instance specifics stay in the
       skill. Templates-move + rewire-to-inherit remain (below).
+- [x] **Licence-consistency pre-publish gate** (A11) — DONE 2026-07-10 (Opus):
+      `tools/licenscan.py`, the third pre-publish scan (leakscan · secretscan ·
+      licenscan). Three checks — LICENSE present + SPDX-recognised, every
+      declaration (pyproject/package.json/Cargo/gemspec/setup.cfg/README badge)
+      agrees, no incompatible `SPDX-License-Identifier` header (copyleft-into-
+      permissive blocks). Conservative + advisory, `--expect <SPDX>` for CI,
+      zero-dep, allow-marker + `.licenscanignore` hatches, `--selftest`. 35 tests
+      (suite 98→133); live-proven clean on atelier (`--expect Apache-2.0`).
+      Review-owed (mechanical control — a validator run is most of the
+      enforcement, but the SPDX matrix + compatibility heuristic deserve an
+      approach review).
 - [ ] **Supply-chain/release standard** (A5) — committed deterministic SBOM +
-      keyless signing; **licence-consistency pre-publish gate** (A11).
+      keyless signing. DEFERRED: SBOM/signing needs external tooling (syft/cosign),
+      which hits the tool-install floor + breaks the zero-dep house-tool pattern —
+      a deliberate design call, not a build. Revisit when a real release needs it.
 - [ ] **Rewire `create-repo` to inherit from atelier** — stamp the doctrine
       block + pin; the skill is the *delivery vehicle*, atelier is the *source*.
       No delivery path bypasses create-repo. (The core Q1 fix.)

@@ -131,6 +131,47 @@ named rule, `assigned`, or `high-entropy`) while keeping the rest. A true
 positive is never just exempted — **remove it, move it to the secret store, and
 rotate it.**
 
+## `licenscan.py` — the pre-publish licence gate
+
+The third member of the publish triad. leakscan keeps personal data out;
+secretscan keeps credentials out; both guard *content*. `licenscan` guards the
+licence story: publish a repo whose licence is missing, self-contradictory, or
+carries someone else's copyleft code and you grant the wrong rights (or, with no
+LICENSE, none — the default is all-rights-reserved). Unlike the other two it is a
+**pre-publish** check, not an every-commit one: a private repo carries licence
+mess harmlessly; it only bites at the public boundary that `AUTONOMY` already
+gates.
+
+### Three checks, rising specificity
+
+| Check | Catches | Severity |
+|---|---|---|
+| **LICENSE present + recognised** | an open repo with no LICENSE (all-rights-reserved by default), or a LICENSE body no known SPDX licence matches (can't verify the rest) | high / medium |
+| **Declarations agree** | metadata that names a *different* licence than LICENSE — `pyproject.toml`, `package.json`, `Cargo.toml`, `*.gemspec`, `setup.cfg`, a README shields.io badge — i.e. the repo contradicting itself | high |
+| **No incompatible header** | a file with an `SPDX-License-Identifier` differing from the repo licence — copyleft (GPL/AGPL/LGPL/MPL) into a permissive repo is a **block** (can't be relicensed on publish); permissive-into-permissive is a warn | high / medium |
+
+The compatibility judgement is deliberately **conservative and advisory** — it
+flags for a human, it is not legal advice, and it does not encode the deep cases
+(e.g. Apache-2.0/GPLv2). It encodes the one that bites in practice:
+copyleft-into-permissive.
+
+### Usage
+
+```sh
+python3 tools/licenscan.py                      # scan the repo in cwd
+python3 tools/licenscan.py path/to/repo         # scan a specific repo root
+python3 tools/licenscan.py --expect Apache-2.0  # assert the licence (CI); fail if LICENSE differs
+python3 tools/licenscan.py --json               # machine-readable, for CI/composition
+python3 tools/licenscan.py --selftest           # prove the engine on this box
+```
+
+Exit codes match the others (`0` clean · `1` findings, publish blocked · `2`
+usage/config error). Escape hatches mirror them: `# licenscan:allow: <reason>`
+per line (a deliberately dual-licensed file, or a header in test data), a glob in
+`.licenscanignore` per path. Because it's a publish gate, wire it into the
+**pre-publish** scrub (alongside the leak/secret pass) and CI's release job — not
+the per-commit hook.
+
 ## `worktree.py` — one worktree per line of work
 
 `method/CONCURRENCY.md` says every independent line of work gets its own git
@@ -206,5 +247,5 @@ so a fleet it *couldn't* verify never reports green.
 ## Tests
 
 ```sh
-cd tools && python3 -m unittest      # stdlib only, no pytest — covers all four tools
+cd tools && python3 -m unittest      # stdlib only, no pytest — covers all five tools
 ```
