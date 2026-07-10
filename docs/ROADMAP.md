@@ -126,9 +126,12 @@ theatre). Leave tiki-specific bearings + review case-law in ros.
 - [ ] **Rewire `create-repo` to inherit from atelier** — stamp the doctrine
       block + pin; the skill is the *delivery vehicle*, atelier is the *source*.
       No delivery path bypasses create-repo. (The core Q1 fix.)
-- [ ] **Repo-boundary guidance** — Claude *directs* standalone-repo vs component
-      vs monorepo-folder (e.g. a rich client engagement). Standing behaviour:
-      advise proactively.
+- [x] **Repo-boundary guidance** — DONE 2026-07-10 (Opus): `docs/build/
+      REPO-BOUNDARY.md`, the is-this-a-repo decision by independent-lifecycle
+      discriminators (visibility/cadence/ownership/reuse/blast-radius) → standalone
+      / component / monorepo-folder (rich client engagement as the monorepo case);
+      advise proactively; when ambiguous prefer the reversible direction (split
+      later is cheap, merge is painful). Review-owed (doctrine text).
 - [x] **Parallel-work tooling** (Mike 2026-07-10: make fork-and-merge a *tool*,
       not just doctrine) — built as `tools/worktree.py`
       (`start`/`list`/`land`/`remove`), the one-command delivery of CONCURRENCY's

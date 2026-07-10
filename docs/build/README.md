@@ -10,6 +10,11 @@ it — a second copy drifts.
 
 ## Contents
 
+- **`REPO-BOUNDARY.md`** — the decision *before* the standard: whether a piece of
+  work is its own repo, a component (folder in an existing repo), or a monorepo
+  folder — by independent-lifecycle discriminators (visibility, cadence,
+  ownership, reuse, blast radius). Advise proactively; when ambiguous, prefer the
+  reversible direction.
 - **`REPO-STANDARD.md`** — the standard: product-in-a-subfolder, sizing to the
   repo type, the standard file set (with pointers up to `method/` for the
   doctrine-heavy docs), honest-CI, repo-craft conventions, and the two processes
@@ -27,5 +32,3 @@ it — a second copy drifts.
    bypasses the skill.
 3. **Supply-chain / release standard** — committed deterministic SBOM + keyless
    signing, and a licence-consistency pre-publish gate. Its own doc when written.
-4. **Repo-boundary guidance** — when a piece of work is a standalone repo vs a
-   component vs a folder in a monorepo; advise proactively.

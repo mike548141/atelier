@@ -20,6 +20,17 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   `!secret` syntax, the credential map) stays in ros. Slotted into method/README
   as #5 (after DATA-PROTECTION); the rest renumbered.
 
+### Added (2026-07-10 — build/ layer: repo-boundary guidance)
+- `docs/build/REPO-BOUNDARY.md` — the decision before the standard: whether a
+  piece of work is its own repo, a component (folder in an existing repo), or a
+  monorepo folder. Decided by independent-lifecycle discriminators (visibility,
+  release cadence, ownership/access, reuse, blast radius) rather than size; a repo
+  is a unit of independent lifecycle (loose-coupling from PRINCIPLES applied to the
+  boundary). The rich client engagement is the worked monorepo case. Standing
+  behaviour: advise proactively. When ambiguous, prefer the reversible direction —
+  split later is cheap, merge is painful. Indexed in build/README; removed from
+  its still-owed list.
+
 ### Added (2026-07-10 — build/ layer: the repo standard extracted (A10))
 - `docs/build/REPO-STANDARD.md` — the repo-craft standard extracted from the
   `create-repo` skill into readable, forkable doctrine: product-in-a-subfolder
