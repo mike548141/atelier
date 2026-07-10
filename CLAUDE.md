@@ -3,6 +3,10 @@
 This repo *is* the operating model. When working here you are editing the rules
 you work by everywhere else — so hold them especially tightly here.
 
+**Repo facts:** `mike548141/atelier` · **Visibility: PRIVATE** (so a push is not
+publication — but *making it public* is a floor action; confirm). Verify:
+`gh repo view mike548141/atelier --json visibility`.
+
 ## Read order at session start
 
 1. `docs/method/00-APEX.md` — the frame everything sits inside.

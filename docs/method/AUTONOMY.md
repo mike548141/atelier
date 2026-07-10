@@ -46,12 +46,24 @@ are hard or impossible to undo:
   audience. Publishing is not undoable: it may be cached or indexed even after
   deletion. (Routine *push to the owner's own remotes* is not this — that's
   granted above; this is the private→public boundary and external distribution.)
+  - **Know your repo's visibility before you push — never guess.** A private→public
+    floor is meaningless if you don't know which side you're on. Every repo states
+    its visibility as a fact in its `CLAUDE.md` (a **public** repo means *every*
+    push is publication), and it is verifiable: `gh repo view <owner/repo> --json
+    visibility`. State it *and* be able to check it (legibility).
 - **Recoverability ends at push once anything downstream consumes it.** A pushed
   commit a peer, CI, or a deploy has already pulled is not revert-clean; a pushed
   **secret is burned** even after a history rewrite. So: a commit that contains a
   credential is a *making-private-public* event regardless of the remote's
-  visibility — treat it as the secrets floor, not as routine push. (Run a
-  secret-scan before pushing content that could carry one.)
+  visibility — treat it as the secrets floor, not as routine push. Run a
+  secret-scan before pushing content that could carry one.
+  - **Mitigation (why this isn't paralysing):** secrets are *designed to be
+    cheaply rotatable* — reproducible / re-mintable, per the secrets doctrine — so
+    an exposed secret is a **rotate-immediately** event, not a disaster, *provided*
+    two things hold: exposure is **detected** (secret-scan on push), and rotation
+    is genuinely low-work/low-risk. Rotate on a cadence that keeps any
+    *undetected*-exposure window small. The design goal is "a burned secret costs
+    minutes", not "never risk a secret".
 - **Truly destructive / irreversible** — deleting data the agent didn't create,
   `rm -rf` of real work, force-push or history rewrite on a shared branch,
   dropping a database, wiping a device, `gh repo delete`, deleting a remote

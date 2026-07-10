@@ -29,8 +29,9 @@ pointer"** (dependency + lockfile for doctrine).
 - [ ] **Define the standard child CLAUDE.md doctrine block** — inlined ~8-line
       safety floor (apex + always-confirm) + pointer + version pin + a one-line
       drift check (`git -C ../atelier log --oneline PIN..HEAD`) that rides the
-      existing session-start read. Budget: anchor ≤ ~15 lines; `method/` read on
-      demand, never wholesale.
+      existing session-start read + a stated **repo-visibility fact** (public
+      repos flag "every push is publication"; verifiable via `gh repo view`).
+      Budget: anchor ≤ ~15 lines; `method/` read on demand, never wholesale.
 - [ ] **Retrofit `faves` and `ros`** with the block (faves still points at the
       old ros/tiki source).
 - [ ] **Layer-override rule** into `method/`: a child may narrow or append,
@@ -76,6 +77,15 @@ theatre). Leave tiki-specific bearings + review case-law in ros.
       terms, deal figures, device/network IDs) on every shareable repo. The
       boundary must be enforced by machine, not intent. This is the single
       control that catches every failure mode of portable-context + archive.
+- [ ] **Secret-scan on push** (gitleaks or equiv) — the *detection* half of the
+      secrets mitigation: an exposed secret is only a cheap rotate-now event if
+      you *know* it was exposed.
+- [ ] **`SECRETS.md`** doctrine (extract ros §5) — reproducible / re-mintable
+      secrets so rotation is low-work/low-risk (internal: rotate at will;
+      external: re-mint behind one approval); least/JIT/short-lived as the goal;
+      a rotation cadence that bounds any undetected-exposure window. Pairs with
+      the two scans above: *detect → rotate immediately → the burn cost is
+      minutes.* (Mike, 2026-07-10: a burned secret must be easily replaceable.)
 
 ## North star — context follows the person, work follows anywhere
 
