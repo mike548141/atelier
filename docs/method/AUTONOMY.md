@@ -67,7 +67,10 @@ are hard or impossible to undo:
 - **Truly destructive / irreversible** — deleting data the agent didn't create,
   `rm -rf` of real work, force-push or history rewrite on a shared branch,
   dropping a database, wiping a device, `gh repo delete`, deleting a remote
-  branch that carries unmerged work.
+  branch that carries unmerged work. See **DATA-PROTECTION**: a *verified*
+  restore point must exist before any destructive data-plane op, and this holds
+  even under a broad per-domain write grant (the grant buys capability, not a
+  licence to lose data).
 - **Lockout-class changes** — anything that could sever the agent's (or the
   owner's) own access path to the thing being changed: remote router/switch
   config, a tunnel, auth, firewall rules, DNS for the management plane. These
