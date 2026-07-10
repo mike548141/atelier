@@ -8,23 +8,46 @@
 #   leakscan   — blocks a commit that would put PERSONAL/ESTATE data into a repo
 #                that can go public. Run it where that boundary applies.
 #
+# WHERE THE SCANNERS LIVE. They are atelier's tools — one source; children do NOT
+# vendor a copy. In atelier itself that is $repo_root/tools. A repo scaffolded by
+# create-repo has no scanners of its own, so it points here at atelier's copy via
+# `hooks.atelierTools` (create-repo bakes this in) or the ATELIER_TOOLS env var.
+#
+# FAIL CLOSED. A gate whose whole job is to block bad commits must NOT pass
+# silently when its scanner is missing — that defeats it exactly when it matters
+# (a child with no in-repo scanners). A missing scanner is a misconfiguration, so
+# the commit is BLOCKED with an explanation, never waved through. To genuinely
+# opt a repo out of a scanner, delete its `run_scan` line below — an explicit
+# choice on the record, not a silent skip.
+#
 # Both scan only staged additions, so they are fast on the commit hot path. A
 # hook protects only the machine it is installed on — pair it with the same
-# scans in CI. For a networking/private-with-shareable-subtree repo, add the
-# `--disable`/subtree scoping (see tools/README.md) to the leakscan line.
+# scans in CI. For a networking / private-with-shareable-subtree repo, append the
+# `--disable`/subtree scoping (see tools/README.md) to the leakscan run_scan line.
 
 repo_root=$(git rev-parse --show-toplevel)
+# Resolve atelier's tools dir: env wins, then the baked git config, then in-repo
+# (atelier itself). create-repo sets `git config hooks.atelierTools <atelier>/tools`.
+tools_dir="${ATELIER_TOOLS:-$(git config --get hooks.atelierTools 2>/dev/null)}"
+tools_dir="${tools_dir:-$repo_root/tools}"
 status=0
 
-secretscanner="$repo_root/tools/secretscan.py"
-if [ -f "$secretscanner" ]; then
-    python3 "$secretscanner" --staged --root "$repo_root" || status=1
-fi
+run_scan() {
+    scanner="$tools_dir/$1.py"
+    if [ ! -f "$scanner" ]; then
+        echo >&2 "pre-commit: $1.py not found under $tools_dir — BLOCKING (fail closed)."
+        echo >&2 "  These scanners live in atelier's tools/. Point them out with:"
+        echo >&2 "    git config hooks.atelierTools <atelier-path>/tools   (create-repo bakes this in)"
+        echo >&2 "  or set ATELIER_TOOLS in the environment; or drop this scanner's"
+        echo >&2 "  run_scan line to opt the repo out deliberately."
+        exit 1
+    fi
+    shift
+    python3 "$scanner" --staged --root "$repo_root" "$@" || status=1
+}
 
-leakscanner="$repo_root/tools/leakscan.py"
-if [ -f "$leakscanner" ]; then
-    python3 "$leakscanner" --staged --root "$repo_root" || status=1
-fi
+run_scan secretscan
+run_scan leakscan            # networking repo? append --disable <rules> / a subtree path
 
 if [ "$status" -ne 0 ]; then
     echo >&2

@@ -5,6 +5,29 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-07-10 — create-repo scaffold exercised end-to-end; scan-hook fail-open defect closed)
+- **The scaffolded scan hook silently protected nothing.** Exercising `create-repo`
+  on a real local scaffold (the owed real-scaffold run) surfaced a defect the
+  session-18 scratch dry-run couldn't: `tools/pre-commit.sample` hardcoded the
+  scanners at `$repo_root/tools/` and **failed open** (`[ -f ] → skip`) when they
+  were absent. A child repo has no scanners of its own — they live only in atelier
+  — so its copied hook waved *every* commit through, secrets included (proven: a
+  commit carrying a real `AKIA…` key went straight into history). The "costume,
+  not doctrine" failure one layer down, and a textbook §14 silent-success defect.
+- **Fix — resolve up + fail closed.** The sample now resolves atelier's tools dir
+  (`ATELIER_TOOLS` env → `git config hooks.atelierTools` → in-repo fallback, so
+  atelier itself still works) and **blocks the commit with an explanation** when a
+  scanner it is configured to run is missing — a gate that can't scan must never
+  pass silently. `create-repo` step 6 now bakes the path
+  (`git config hooks.atelierTools "$PP/atelier/tools"`) and prove-it-once
+  instructions. Re-exercised: fail-closed with no config, blocks a real secret
+  with config, passes a clean commit, atelier's own path unaffected. Suite 137 OK.
+- **Owed, surfaced not fixed:** CI templates carry *no* scanner step, so a
+  scaffolded repo's only scan gate is the machine-local hook — the "pair it with CI"
+  line in both the sample and step 6 is currently unbacked. Wiring scanners into CI
+  needs the scanner-distribution decision (vendor / fetch atelier / publish) — the
+  deferred supply-chain question; recorded in ROADMAP, not half-built here.
+
 ### Changed (2026-07-10 — create-repo rewired to inherit; templates moved into build/)
 - **The core Q1 fix landed.** `create-repo` no longer re-encodes the standard from
   memory — it now **inherits from atelier** (the source) and **stamps the standard

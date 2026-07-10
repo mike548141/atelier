@@ -185,6 +185,22 @@ standout debt; sessions 14–15 deliberately did not stack on it.
       on atelier, fails honestly if absent. Stamp core dry-run-proven in scratch
       (renames + all four placeholders + drift-check runs "current"); real-repo
       run (`gh` create + hook install) + Fable sweep owed. Review-owed.
+  - [x] **Real-scaffold exercise — DONE 2026-07-10 (Opus):** scaffolded a real
+        local git repo from the templates (seed → 3 renames → stamp → hook →
+        commit) and drove the hook end-to-end. Surfaced + fixed a live
+        **scan-hook fail-open defect** the scratch dry-run couldn't:
+        `tools/pre-commit.sample` pointed at `$repo_root/tools/` and skipped
+        silently when the scanners were absent — a child has none (they live in
+        atelier), so its hook committed a real `AKIA…` secret. Fixed to resolve
+        atelier's tools (`ATELIER_TOOLS` → `git config hooks.atelierTools` →
+        in-repo fallback) and **fail closed**; step 6 bakes the path + a
+        prove-it-once check. Re-proven: fail-closed / blocks-secret / passes-clean
+        / atelier-unaffected; suite 137 OK. **Still owed:** the single `gh repo
+        create --push` step (not run — outward, unneeded for a throwaway); a Fable
+        sweep of the rewire; and **CI scan wiring** — CI templates run no scanner,
+        so the hook is a scaffolded repo's only scan gate (needs the
+        scanner-distribution call: vendor / fetch atelier / publish — folds into
+        the deferred supply-chain item).
 - [x] **Repo-boundary guidance** — DONE 2026-07-10 (Opus): `docs/build/
       REPO-BOUNDARY.md`, the is-this-a-repo decision by independent-lifecycle
       discriminators (visibility/cadence/ownership/reuse/blast-radius) → standalone
