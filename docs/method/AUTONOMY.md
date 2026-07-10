@@ -6,75 +6,73 @@ his attention on a decision he doesn't need to make. The point of this doctrine
 is to **maximise the work the agent can do unsupervised without ever crossing
 the lines that actually matter**.
 
-This is not a fixed permission list. It is the *framework* every repo's
-permission list is generated from.
-
 ## The one rule
 
-> **Proceed on anything reversible and local. Stop and confirm only for actions
-> that are hard to undo or reach outside the machine.**
+> **Proceed on anything recoverable. Stop and confirm only for the genuinely
+> hard-to-undo: making private things public, secrets, spend, and anything
+> touching people or safety.**
 
-Everything else is detail on where that line falls.
+Git is recoverable (revert/reset/restore a branch), so committing, pushing, and
+managing pull requests are *inside* the recoverable line, not outside it —
+Mike granted this as a standing rule for all work (2026-07-10: *"you should be
+free to commit and push as you see fit, and manage pull requests as needed —
+you have better context than I"*). The rest of this doc is where the line falls.
 
 ## Always proceed (no prompt)
-
-Reversible, local, and inside the repo or a scratch area:
 
 - Read anything in the repo; search, list, inspect.
 - Write/edit files in the repo; create scratch files.
 - Run the dev loop: tests, linters, type-checkers, builds, formatters.
-- **Commit** at natural checkpoints (a completed, verified unit of work).
-- Local git that doesn't rewrite shared history: branch locally, stage, diff,
-  stash, `git worktree add`.
+- **Commit, push, and manage pull requests** at discretion across all work —
+  commit at natural checkpoints, push, open/merge/close PRs, branch as needed.
+  Deploy-on-push (e.g. Cloudflare Pages from `main`) is accepted under this
+  grant.
+- All local git: branch, stage, diff, stash, merge, `git worktree add`.
+- Install an **approved** tool that's merely missing (see TOOLBOX).
 
-## Always confirm (regardless of repo, unless a specific standing grant covers it)
+## Always confirm
 
-The floor. These hold even where broad autonomy has been granted:
+The floor. These hold everywhere, standing grants notwithstanding, because they
+are hard or impossible to undo:
 
-- **Destructive / irreversible** — deleting data the agent didn't create,
-  `rm -rf`, force-push, history rewrite, dropping a database, wiping a device.
-- **Outward-facing / publishing** — sending anything to an external service or
-  audience; making a private thing public. (Publishing is not undoable: it may
-  be cached or indexed even after deletion.)
+- **Making a private thing public** — changing repo/artifact visibility to
+  public, or sending to an external audience. Publishing is not undoable: it may
+  be cached or indexed even after deletion. (Routine *push to Mike's own
+  remotes* is not this — that's granted above; this is the private→public
+  boundary and external distribution.)
+- **Truly destructive / irreversible** — deleting data the agent didn't create,
+  `rm -rf` of real work, force-push or history rewrite on a shared branch,
+  dropping a database, wiping a device.
 - **Secrets** — reading, writing, moving, or regenerating credentials/keys.
 - **Spend** — anything that costs money or metered usage beyond the plan
   (e.g. a billed model review — see MODEL-ECONOMICS).
 - **People and safety** — any action touching a person's safety, or the safety
   of physical resources.
+- **Installing an *unapproved* tool** — a new capability is a new trust surface;
+  that's the owner's call (see TOOLBOX).
 
 When one of these is required, surface it plainly (the apex): say what the
-action is, why, and what's irreversible about it.
+action is, why, and what's irreversible about it. And a grant in one context is
+not a grant for the next — "yes, publish this" is not "publish things like this
+from now on".
 
-## The middle: push, deploy, and per-repo grants
+## How the grant evolved (context, not gates)
 
-Push is the interesting case, because whether it's "local" or "outward" depends
-entirely on what the remote *does*:
+Autonomy widened as trust was demonstrated. The waypoints:
 
-- **Push to a repo that only stores** → still outward (it leaves the machine and
-  is shareable) but low-consequence; grantable as standing autonomy per repo.
-- **Push to a repo that deploys** → push *is* a deploy, a real outward action;
-  confirm unless the owner has explicitly granted standing authorisation for
-  that repo.
+| Date | Grant |
+|---|---|
+| 2026-07-06 | commit in `ros` at discretion (push confirmed) |
+| 2026-07-10 | `faves`: commit **+ push** at discretion (push = deploy) |
+| 2026-07-10 | **all work: commit + push + manage PRs at discretion** |
 
-So autonomy is **granted per repo, by context**, and each repo records its own
-level in its `CLAUDE.md`. The two live examples that ground this doctrine:
+The floor above never moved through any of these. A repo may still record a
+*narrower* posture in its `CLAUDE.md` when its live blast-radius warrants extra
+care (e.g. a repo that pushes straight to live network infrastructure might keep
+a human beat before an apply) — but the default is now broad.
 
-| Repo | Standing grant | Why | Still asks |
-|---|---|---|---|
-| **ros** | commit at discretion; push confirms | no remote today; changes touch live network infra | push, outward actions |
-| **faves** | **commit *and* push** at discretion | push to `main` deploys via Cloudflare Pages — Mike wanted the deploy loop unblocked | branching off `main` |
+## Before you destroy or overwrite
 
-Same agent, same floor, different granted middle — decided by what a push
-actually does in each place. A new repo inherits the *framework* here and then
-records the specific grant Mike gives it.
-
-## Notes
-
-- A grant in one context does not extend to the next. "Yes, publish this" is not
-  "yes, publish things like this from now on".
-- Before deleting or overwriting something the agent didn't create, look at it
-  first — if what's there contradicts how it was described, surface that instead
-  of proceeding.
-- This doctrine generalises two earlier per-domain grants: commit authority
-  (ros) and device-change authority (the MikroTik fleet). Both are instances of
-  "the owner sets the autonomy level for a domain; the floor never moves".
+Before deleting or overwriting something the agent didn't create, look at it
+first — if what's there contradicts how it was described, surface that instead
+of proceeding.
