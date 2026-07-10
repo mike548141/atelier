@@ -56,4 +56,17 @@ mechanics); deliberately don't plant fake secrets in remote history.
 **Follow-ups (not blockers):** numen re-copies floor.yml — the scanner fixes
 float to it, the workflow-file fixes (N4–N6) don't; atelier's own ci.yml
 trigger has the same N4 gap, take on next touch. **Gate cleared** — floor.yml
-may roll to further children in its post-review form.
+may roll to further children in its post-review form. CI watched green on
+GitHub for the review commit (`29097784652`, 9s, 205 tests + triad ✓).
+
+**Second review, same session (proportionate — related work, no unreviewed
+dependency): the session-29 ceremony-calibration doctrine change (`cb37310`,
+merged by Mike as PR #2) — PASS, no findings.** The light read its ROADMAP
+item asked for, grounding probed not read: `don't-stack` is genuinely absent
+from pre-change `docs/method/`, and hygiene item 1's original rationale was
+always pivot-cost — the sharpening restores, not revises. The self-verifying
+carve-out can't be over-read onto scanner-class changes (the
+silent-failure-mode bullet catches them), and this session is the live proof
+of both halves of the calibration: d0870a4 earned and *needed* its review,
+the records-only edits around it earned none. Template hygiene line stays a
+flagged follow-up (condensed, not contradictory).

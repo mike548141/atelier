@@ -5,17 +5,26 @@ grows. Sequencing rule from the 2026-07-10 review: **mechanism before more
 content** — a repo that inherits docs but not the propagation + review cadence
 has inherited the costume, not the doctrine.
 
-## Doctrine calibration — review-owed
+## Doctrine calibration — reviewed
 
-- [ ] **Review the "match the ceremony to the risk" doctrine change** (session
-      29, 2026-07-11, branch `gate-calibration`) — MODEL-ECONOMICS gains the
-      ceremony-∝-risk section + a codified, narrowed *don't-stack* + a sharpened
-      "one task per session"; REVIEW gains a "whether a change earns a review at
-      all" bearing. **Owed by its own new rule** (doctrine text earns an
-      independent fresh-context review); small + self-contained, so a light
-      fresh-session read, not a heavy sweep. Not merged by the author. Follow-up:
-      the condensed `build/templates/docs/MODEL-ECONOMICS.md` line may want the
-      same sharpening (a separate templates pass).
+- [x] **Review the "match the ceremony to the risk" doctrine change** — RAN
+      2026-07-11 (Fable, fresh session, the light read the item asked for):
+      **PASS, no findings.** Grounding verified by probe, not read: `don't-stack`
+      appears nowhere in pre-change `docs/method/` (`git grep` at `cb37310^` —
+      the "un-codified habit enforced as a rule" claim is true), and the
+      original hygiene item 1's own rationale was always pivot-cost, so the
+      sharpening is restoration, not revision. Consistency held everywhere
+      checked: the narrowed don't-stack matches all five recorded applications
+      (each was a gate on unreviewed tooling/doctrine); the self-verifying
+      carve-out cannot be over-read to exempt scanner-class changes because the
+      **silent-failure-mode bullet catches them** — and the same session's
+      child-CI-floor review is the live demonstration of both halves (d0870a4
+      earned its review and needed it: the class was still open in the sibling
+      scanners; the records-only edits around it earned none). Recursive check
+      honoured: flagged, not self-certified, merged by the principal.
+      Follow-up stands: the condensed `build/templates/docs/MODEL-ECONOMICS.md`
+      hygiene line picks up the sharpening in the already-flagged templates
+      pass (it is condensed-not-contradictory today).
 
 ## Done (2026-07-10)
 
