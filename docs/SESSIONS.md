@@ -1,0 +1,24 @@
+# atelier — session log
+
+Append-only, newest last. Tail-read at session start; append an entry before
+finishing. One short paragraph per session; unpack detail in the repo it
+describes.
+
+---
+
+**2026-07-10 — repo born.** Split out of a wider conversation about how Mike and
+Claude work together. atelier is the extracted operating model: the doctrine
+that made `ros`/`tiki` good to build in, lifted above any single repo so every
+project inherits it and peers can adopt it. Decided (Mike): start with the
+doctrine repo; name `atelier`; private-to-CEL first. Two layers — `method/` (how
+we work, shareable) and `build/` (how we build, repo craft). Stood up the
+`method/` layer: `00-APEX` (honesty absolute + AI-adapted Three Laws, extracted
+from ros §0 committed the same day and generalised estate-wide), `AUTONOMY`
+(per-repo grants; reconciles ros commit-only vs faves commit+push-deploys),
+`STORAGE` (GitHub master / iCloud backup / Time Machine-to-NAS whole-machine /
+laptop disposable), `CONCURRENCY` (worktree-per-line + serialise real-world
+side-effects), `TOOLBOX` (keep a manifest; approved-but-missing may be
+installed; keep the personal inventory machine-local). `PRINCIPLES` and
+`MODEL-ECONOMICS` left as honest stubs pointing at ros pending extraction.
+Local commit only — GitHub owner/visibility deferred to Mike. Next: the
+extractions and rewiring `create-repo` to inherit from here.

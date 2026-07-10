@@ -1,0 +1,22 @@
+# macOS litter
+.DS_Store
+
+# Editor cruft
+*.swp
+*~
+
+# Claude Code personal settings (the shared allowlist in
+# .claude/settings.json IS committed; the local override is not)
+.claude/settings.local.json
+
+# --- add language litter as needed ---
+# Python:
+# __pycache__/
+# *.pyc
+# .venv/
+# *.egg-info/
+# .pytest_cache/
+# .ruff_cache/
+# .mypy_cache/
+# Node:
+# node_modules/
