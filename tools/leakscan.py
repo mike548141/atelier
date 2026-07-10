@@ -143,12 +143,15 @@ def load_local_terms(path: Path | None) -> tuple[list[tuple[str, "re.Pattern[str
 
 
 def scan_text(path: str, text: str,
-              local_terms: list[tuple[str, "re.Pattern[str]"]]) -> list[Finding]:
+              local_terms: list[tuple[str, "re.Pattern[str]"]],
+              disabled: frozenset[str] = frozenset()) -> list[Finding]:
     findings: list[Finding] = []
     for lineno, line in enumerate(text.splitlines(), start=1):
         if ALLOW_MARKER in line:
             continue
         for pat in STRUCTURAL:
+            if pat.name in disabled:
+                continue
             for m in pat.regex.finditer(line):
                 span = m.group(0)
                 if pat.name == "ipv4" and _ipv4_is_safe(span):
@@ -201,14 +204,16 @@ def iter_files(paths: list[Path], root: Path, globs: list[str]):
 
 
 def scan_paths(paths: list[Path], root: Path,
-               local_terms: list[tuple[str, "re.Pattern[str]"]]) -> list[Finding]:
+               local_terms: list[tuple[str, "re.Pattern[str]"]],
+               disabled: frozenset[str] = frozenset()) -> list[Finding]:
     globs = load_ignore_globs(root)
     findings: list[Finding] = []
     for p, rel in iter_files(paths, root, globs):
         data = p.read_bytes()
         if _looks_binary(data):
             continue
-        findings.extend(scan_text(rel, data.decode("utf-8", errors="replace"), local_terms))
+        findings.extend(scan_text(rel, data.decode("utf-8", errors="replace"),
+                                  local_terms, disabled))
     return findings
 
 
@@ -267,6 +272,10 @@ def main(argv: list[str] | None = None) -> int:
                     help="scan only lines added in the git staging area (pre-commit hook)")
     ap.add_argument("--terms", help="path to the local literal-term list")
     ap.add_argument("--root", default=".", help="repo root for relative paths/.leakscanignore")
+    ap.add_argument("--disable", default="",
+                    help="comma-separated structural rules to skip (e.g. "
+                         "ipv4,ipv6,mac-address for a networking repo where those "
+                         "shapes are unavoidable noise). Local terms always run.")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--selftest", action="store_true", help="run built-in checks and exit")
     args = ap.parse_args(argv)
@@ -279,17 +288,34 @@ def main(argv: list[str] | None = None) -> int:
     local_terms, warning = load_local_terms(terms_path)
     scanned_local = terms_path is not None
 
+    disabled = frozenset(r.strip() for r in args.disable.split(",") if r.strip())
+    unknown = disabled - {p.name for p in STRUCTURAL}
+    if unknown:
+        print(f"leakscan: unknown rule(s) in --disable: {', '.join(sorted(unknown))}",
+              file=sys.stderr)
+        return 2
+
     if args.staged:
         try:
             staged = staged_added_lines()
         except subprocess.CalledProcessError as e:
             print(f"leakscan: git diff failed: {e}", file=sys.stderr)
             return 2
-        findings = [f for path, text in staged.items()
-                    for f in scan_text(path, text, local_terms)]
+        # Positional paths, in --staged mode, restrict the scan to staged files
+        # under those prefixes — e.g. scan only the shareable `tiki/` subtree of
+        # an otherwise-private repo.
+        prefixes = tuple(p.rstrip("/") + "/" for p in args.paths)
+        if prefixes:
+            staged = {path: text for path, text in staged.items()
+                      if path.startswith(prefixes) or path in args.paths}
+        # .leakscanignore applies in staged mode too, so an exemption means the
+        # same thing whether you scan the tree or a commit.
+        globs = load_ignore_globs(root)
+        findings = [f for path, text in staged.items() if not _ignored(path, globs)
+                    for f in scan_text(path, text, local_terms, disabled)]
     else:
         targets = [Path(p) for p in (args.paths or [str(root)])]
-        findings = scan_paths(targets, root, local_terms)
+        findings = scan_paths(targets, root, local_terms, disabled)
 
     if args.json:
         print(json.dumps({

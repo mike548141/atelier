@@ -10,7 +10,8 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   shareable structural patterns + a machine-local literal-term list, run as a
   pre-commit hook and in CI to keep personal/estate data out of a shareable
   repo. Zero-dep, `--json`, self-tested; caught real address/coordinate leaks in
-  its own fixtures on first run.
+  its own fixtures on first run. `--disable <rules>` + `--staged <subtree>` scope
+  it to a networking repo's shareable subtree (proven on ros `tiki/`).
 - Initial scaffold: the `method/` layer stands up first.
 - `docs/method/00-APEX.md` — honesty is absolute, then the AI-adapted Three
   Laws (extracted from ros `docs/PRINCIPLES.md` §0, generalised estate-wide).

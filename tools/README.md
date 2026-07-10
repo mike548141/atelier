@@ -61,11 +61,33 @@ negative costs a leak). Two escape hatches, both visible and greppable:
 - **Per path** — add a glob to `.leakscanignore` at the repo root. Keep it short;
   every entry is a hole in the boundary.
 
+### Networking repos & scanning a subtree
+
+A networking codebase is *full* of IPs and MACs by nature — scanning it whole
+buries the real signal (leaked names, addresses, subnets) under thousands of
+legitimate structural hits. Two levers handle this:
+
+- **`--disable ipv4,ipv6,mac-address`** silences the network-shape rules while
+  keeping the PII/secret catches (email, address, coordinates, private keys, AWS
+  keys) and *all* local-term matching. Unknown rule names are a usage error.
+- **Positional paths in `--staged` mode** restrict the scan to a subtree — so a
+  mostly-private repo can guard only its shareable part. `leakscan --staged
+  tiki/` scans only staged additions under `tiki/`; the private inventory/secrets
+  are left alone (they hold real data by design).
+
+Together they give the pattern for a private repo with an open-sourceable
+subtree — scan the new lines of that subtree only, minus the network noise:
+
+```sh
+leakscan --staged --disable ipv4,ipv6,mac-address tiki/
+```
+
 ### Wiring it in
 
 - **Pre-commit hook** — copy `tools/pre-commit.sample` to
   `.git/hooks/pre-commit` (`chmod +x`). It runs `leakscan --staged` and aborts
-  the commit on a finding. This is the primary control.
+  the commit on a finding. This is the primary control. For a subtree/networking
+  repo, edit the hook's invocation to add the `--disable`/path scoping above.
 - **CI** — run `python3 tools/leakscan.py --json` on every push (belt and
   braces; a hook only protects the machine that has it installed).
 

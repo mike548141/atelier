@@ -158,3 +158,20 @@ confirm), and the ros PRINCIPLES trim depends on the review trusting the spine.
 `~/.claude/leakscan-terms.txt` so the scan runs full-cover (turns the control from
 partial to real); (3) wire the hook + CI per shareable repo; then the gated
 extraction once the review clears.
+
+*Continued (same session):* Mike chose "seed, then wire hooks". **Term list
+SEEDED** at `~/.claude/leakscan-terms.txt` (estate specifics from `~/.claude/
+CLAUDE.md`; full names, not bare "Mike" which doctrine uses deliberately). Full-
+cover validation: atelier **clean**; a scan of ros `tiki/` returned 738 raw hits
+but exposed a design truth — structural IP/MAC rules are pure noise on a
+networking codebase (722 of them). Added **`--disable <rules>`** (skip named
+structural rules, local terms always run) + **positional-path filtering in
+`--staged`** (scope to a subtree). With network shapes off, tiki/ narrowed to 16,
+all verified fictional/intended — the lone real residue being the OSS author name
+in `tiki/pyproject.toml` (allow-marked as intentional attribution; Mike's call
+whether to use a handle). This **live-validated the earlier tiki scrub**. Hooks
+**installed + proven**: atelier whole-repo; ros `tiki/`-scoped (a real term in
+`tiki/` blocks; the same term in the private `docs/` passes). Hooks are local
+(`.git/hooks`, uncommitted); tool + docs committed. **Still owed:** CI wiring;
+term-list portability to Mike's other devices. **Flagged for Mike:** the
+`pyproject.toml` author-identity decision.

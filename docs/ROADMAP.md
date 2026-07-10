@@ -106,12 +106,18 @@ theatre). Leave tiki-specific bearings + review case-law in ros.
       list (`~/.claude/leakscan-terms.txt`, never in a repo); graceful
       degradation to structural-only with a loud warning; `--staged` hot path,
       `--json`, fail-safe exit codes; `.leakscanignore` + `leakscan:allow`
-      escape hatches. Proven: caught real address/coordinate/name leaks in its
-      own first-draft fixtures. **Owed:** install the hook + CI wiring per repo;
-      seed the real local term list in `~/.claude/`; extend patterns as gaps
-      appear. Review-owed (mechanical control, so a validator/CI run is most of
-      the enforcement — but the pattern set + the shareable/local split deserve
-      an approach review).
+      escape hatches; `--disable <rules>` + `--staged <subtree>` for networking
+      repos / private-repo-with-shareable-subtree. Proven: caught real address/
+      coordinate/name leaks in its own first-draft fixtures; **local term list
+      SEEDED** in `~/.claude/`; **hooks INSTALLED** (atelier whole-repo; ros
+      `tiki/`-scoped with network-shape rules off) and block/pass proven live.
+      Full-cover scan validated the earlier tiki scrub — 1 residue (the intended
+      OSS author name in `pyproject.toml`, allow-marked) out of 738 raw hits.
+      **Owed:** CI wiring (a hook only guards the machine it's on); portability
+      of the term list to Mike's other devices (north-star); extend patterns as
+      gaps appear. Review-owed (mechanical control, so a validator/CI run is most
+      of the enforcement — but the pattern set + the shareable/local split
+      deserve an approach review).
 - [ ] **Secret-scan on push** (gitleaks or equiv) — the *detection* half of the
       secrets mitigation: an exposed secret is only a cheap rotate-now event if
       you *know* it was exposed.

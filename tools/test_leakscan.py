@@ -71,6 +71,25 @@ class LocalTerms(unittest.TestCase):
         self.assertNotIn("local-term", rules("Bart here", []))
 
 
+class Disable(unittest.TestCase):
+    def test_disabled_rule_skipped(self):
+        self.assertIn("ipv4", rules("gateway 10.0.0.5 here"))  # baseline: enabled
+        fs = ls.scan_text("t", "gateway 10.0.0.5 here", [], frozenset({"ipv4"}))
+        self.assertEqual([], fs)
+
+    def test_disable_keeps_other_rules(self):
+        fs = ls.scan_text("t", "10.0.0.1 and a.b@c.com", [], frozenset({"ipv4"}))
+        got = {f.rule for f in fs}
+        self.assertNotIn("ipv4", got)
+        self.assertIn("email", got)
+
+    def test_local_terms_survive_disable(self):
+        terms = [("Acme", re.compile(r"\bAcme\b", re.IGNORECASE))]
+        fs = ls.scan_text("t", "Acme at 10.0.0.1", terms,
+                          frozenset({"ipv4", "email", "mac-address"}))
+        self.assertEqual({"local-term"}, {f.rule for f in fs})
+
+
 class Allow(unittest.TestCase):
     def test_inline_allow_marker_exempts_line(self):
         self.assertEqual([], scan("secret a.b@example.com  # leakscan:allow: doc"))
@@ -95,6 +114,19 @@ class LoadTerms(unittest.TestCase):
             self.assertIn("local-term", hits)
         finally:
             os.remove(path)
+
+
+class Ignore(unittest.TestCase):
+    def test_exact_glob(self):
+        self.assertTrue(ls._ignored("tools/test_leakscan.py", ["tools/test_leakscan.py"]))
+
+    def test_subtree_glob(self):
+        # a bare dir/prefix glob matches everything beneath it
+        self.assertTrue(ls._ignored("tiki/tests/fixtures/x.yaml", ["tiki/tests/"]))
+        self.assertTrue(ls._ignored("tiki/tests/fixtures/x.yaml", ["tiki/tests"]))
+
+    def test_non_match(self):
+        self.assertFalse(ls._ignored("src/real.py", ["tools/test_leakscan.py"]))
 
 
 class Redact(unittest.TestCase):
