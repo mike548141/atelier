@@ -182,7 +182,9 @@ standout debt; sessions 14–15 deliberately did not stack on it.
       `build/templates/` (18 files, one source), the missing CLAUDE.md template
       added, three instance-residue scrubs + one live ros-is-canonical drift fix;
       leakscan clean. Skill stays machine-local (delivery vehicle), hard-depends
-      on atelier, fails honestly if absent. Review-owed (delivery mechanism).
+      on atelier, fails honestly if absent. Stamp core dry-run-proven in scratch
+      (renames + all four placeholders + drift-check runs "current"); real-repo
+      run (`gh` create + hook install) + Fable sweep owed. Review-owed.
 - [x] **Repo-boundary guidance** — DONE 2026-07-10 (Opus): `docs/build/
       REPO-BOUNDARY.md`, the is-this-a-repo decision by independent-lifecycle
       discriminators (visibility/cadence/ownership/reuse/blast-radius) → standalone

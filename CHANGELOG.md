@@ -29,8 +29,10 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   seed→rename→fill→stamp→scan→push procedure documented. The skill is machine-local
   (delivery vehicle); it carries only instance specifics (exemplars, git identity,
   `gh` account, `$PP`, default holder, locale) and hard-depends on atelier being
-  present — failing honestly if it is not. Review-owed (delivery mechanism, not
-  yet Fable-swept).
+  present — failing honestly if it is not. The stamp's mechanical core was
+  dry-run-proven in a scratch scaffold (seed+renames, sizing, all four
+  placeholders filled, the drift-check ran verbatim and read "current"); a
+  real-repo run (`gh` create + hook install) and a Fable sweep remain owed.
 
 ### Changed (2026-07-10 — the post-method-review batch review, PASS-WITH-FINDINGS)
 - The gated Fable sweep of `957fa08..f72031c` ran (verdict below the divider in

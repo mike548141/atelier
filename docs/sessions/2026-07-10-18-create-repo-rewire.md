@@ -62,10 +62,13 @@ not a side effect.
 ## Verification
 
 Residue grep across the new template tree clean; `leakscan docs/build/templates/`
-clean (structural + local). The skill's stamp/inherit logic is documented but
-**not yet exercised end-to-end on a real new repo** — that, and a Fable sweep of
-the delivery mechanism, are the honest owed items. This is doctrine + delivery
-wiring, review-owed like the rest of the post-gate work.
+clean (structural + local). The stamp **mechanical core was dry-run-proven** in a
+scratch scaffold (not a real repo): seed-from-templates + the three renames, sizing
+dropped the unused CI, all four doctrine-block placeholders filled, and the
+stamped drift-check ran verbatim and correctly read "current" (pin == HEAD); no
+doctrine-block placeholder leaked. **Still owed**: a real-repo run (`gh repo
+create`, the scan-hook install, a first commit) and a Fable sweep of the delivery
+mechanism. Review-owed like the rest of the post-gate work.
 
 ## Close
 
