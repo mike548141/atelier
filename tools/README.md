@@ -91,8 +91,39 @@ leakscan --staged --disable ipv4,ipv6,mac-address tiki/
 - **CI** — run `python3 tools/leakscan.py --json` on every push (belt and
   braces; a hook only protects the machine that has it installed).
 
-### Tests
+## `worktree.py` — one worktree per line of work
+
+`method/CONCURRENCY.md` says every independent line of work gets its own git
+worktree — own checkout, own branch, **outside iCloud** (a live `.git` index in
+iCloud corrupts under sync) — reconciling on `main` via PR/merge. Said once
+that's easy; at 11pm it's the forgotten rule. This makes the right thing the
+one-liner and bakes the guards in.
+
+| Command | Does | Guard it encodes |
+|---|---|---|
+| `worktree start <feature>` | checkout at `~/worktrees/<repo>-<feature>`, branch `<feature>` | **refuses an iCloud base**; branches off the integration branch so a line never inherits a half-done branch |
+| `worktree list` | every worktree + ahead/behind, dirty, age | flags **stale** (diverged for days = merge hazard) and **dirty** (leaked file handle) trees |
+| `worktree land [<feature>]` | push the branch + open a PR back to `main` | refuses to land `main` onto itself or with uncommitted changes; falls back to a local-merge instruction when there's no remote |
+| `worktree remove <feature>` | `git worktree remove`, guarded | **refuses to delete uncommitted or unmerged work** without `--force` — losing work is the failure mode the whole doctrine exists to prevent |
+
+### Usage
 
 ```sh
-cd tools && python3 -m unittest      # stdlib only, no pytest
+python3 tools/worktree.py start perf-harness   # fork a line of work
+python3 tools/worktree.py list                 # hygiene view (--json for tooling)
+python3 tools/worktree.py list --check         # exit 1 if any tree is stale/dirty (CI/hooks)
+python3 tools/worktree.py land perf-harness    # push + PR back to main
+python3 tools/worktree.py remove perf-harness --delete-branch
+python3 tools/worktree.py --selftest           # prove the guard logic offline
+```
+
+Zero-dep, `--json` on every command (the orchestrator seam), fail-safe exit
+codes (0 ok · 1 a guard tripped · 2 environment error). Real-world side-effects
+stay serialised: this forks *build-time* lines only — applying a change to a live
+device is still one-at-a-time and announced (CONCURRENCY "the safety rail").
+
+## Tests
+
+```sh
+cd tools && python3 -m unittest      # stdlib only, no pytest — covers both tools
 ```
