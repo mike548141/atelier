@@ -60,11 +60,16 @@ the source's authority. Roughly ascending in risk:
 High-risk acquisition + a claim that matters ⇒ confirm it a second way before
 reporting it as settled.
 
-## 4. Never assert an uncorroborated fact
+## 4. Never assert an uncorroborated *reported* fact
 
-A specific figure or claim that appears in exactly one place and can't be
+A specific figure or claim that arrives through a reporting chain — someone
+else's account of the thing — and appears in exactly one place that can't be
 cross-checked is **marked unverified or left out** — never presented as settled.
-One unconfirmed source is a lead, not a fact.
+One unconfirmed source is a lead, not a fact. This rule is about *reported*
+facts: direct observation of the primary artefact (code the agent read, a value
+it measured, an API response it received) is its own corroboration and needs no
+second source — though §3's acquisition-method risk still applies to *how* the
+observation was made.
 
 ## 5. Separate fact from interpretation
 
@@ -94,7 +99,7 @@ applied to time.)
 ## 8. Store the rule, not the derived value
 
 Don't record a computed value that goes stale ("commences in 2028", "costs
-$40/mo", "the fleet has 13 devices"). Record the **rule that produces it** ("24
+$40/mo", "the fleet has 45 devices"). Record the **rule that produces it** ("24
 months after assent", "$X per device-month", "count of `role: device` records")
 or, if you must cache the value, tag it as an estimate tied to a specific
 `last_verified` date. A stored derivation rots silently; a stored rule
@@ -140,6 +145,13 @@ block, tiers are stated, dates are absolute, no orphaned cross-references — an
 **green is part of "done"**. This is the same category the enforcement clause in
 `PROPAGATION.md` names: a *document* saying "cite your sources" informs; a
 *check* that fails the commit enforces. Intent is not a control.
+
+The honest boundary: most agent claims are **ephemeral** — made in a reply, not
+a file — and no validator can reach them. There, enforcement is only the apex
+held genuinely plus the review loop (`REVIEW.md`) sampling the work after the
+fact. That is weaker, and saying so is the point: where a claim *can* live in a
+checkable file, prefer that home, because it upgrades the claim from
+honour-system to enforced.
 
 ---
 

@@ -32,9 +32,10 @@ Read in this order:
 
 **Meta — how the doctrine is enforced, recorded, and propagated:**
 
-- **`REVIEW.md`** — the enforcement half: independent review by a more capable
-  model before work is trusted (three lenses; brief-on-top/verdict-below
-  lifecycle; inline vs batched). Documents inform; review enforces.
+- **`REVIEW.md`** — the enforcement half: independent, fresh-context review
+  (by the most capable model available) before work is trusted (three lenses;
+  brief-on-top/verdict-below lifecycle; inline vs batched). Documents inform;
+  review enforces.
 - **`RECORD.md`** — docs-as-code (lockstep change), the append-only session log +
   detail-on-demand, ADRs for re-litigable decisions, absolute dating. The record
   is what makes a session resumable cold.

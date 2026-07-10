@@ -47,11 +47,23 @@ pointer"** (dependency + lockfile for doctrine). Written up in
 The "mechanism/review before more content" rule: the keystone + the whole `method/`
 layer earn a review with fresh context before extraction continues.
 
-- [ ] **Fable review of the `method/` layer** — brief written 2026-07-10 at
-      `docs/reviews/2026-07-10-method-layer.md` (PROPAGATION, EVIDENCE, REVIEW,
-      RECORD, PRINCIPLES; three lenses; sharpest ask = REVIEW's "more capable"
-      framing vs the Opus-builds/Fable-reviews reality). Run it, append the
-      verdict below the divider, then disposition findings per `REVIEW.md` §4.
+- [x] **Fable review of the `method/` layer** — RAN 2026-07-10:
+      **PASS-WITH-FINDINGS**, verdict below the divider in
+      `docs/reviews/2026-07-10-method-layer.md`. Architecture holds; 10
+      findings [fixed] same session (trust-surface floor gap, drift-check
+      alarm-fatigue guard, EVIDENCE §4 scope + §12 boundary, REVIEW reframe +
+      [rejected] disposition, RECORD integration-boundary lockstep, PRINCIPLES
+      missing cases, stale README/CHANGELOG). **The gate is cleared —
+      extraction may resume.** Notably: the sharpest ask's premise was
+      corrected, not confirmed — Fable is the *more* capable tier (the reframe
+      to independence-as-core still landed, for peer adopters without a
+      superior tier).
+- [ ] **Method-review follow-ups ([backlog] findings)** — P2: fleet-level
+      "which children are stale" pin view (candidate `tools/` script) +
+      acknowledge the gap in PROPAGATION; V2: ADRs for the decided questions
+      (canonicality, SHA-as-version, private-first + Apache-2.0); V3: split
+      atelier `SESSIONS.md` to index + detail-on-demand per RECORD. Also:
+      faves adopts the P1 floor wording at its next pin bump.
 
 ## Then — extraction (keep the case-law, don't strip it)
 

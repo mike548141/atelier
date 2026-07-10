@@ -2,20 +2,24 @@
 
 *`PROPAGATION.md` names the category error: **a doctrine that is read is not a
 doctrine that is complied with.** Documents inform; they do not enforce. This is
-what enforces — an independent review of the work by a more capable model,
-before the work is trusted. The build makes the claim; the review is what earns
-the right to believe it.*
+what enforces — an independent review of the work, before the work is trusted.
+The build makes the claim; the review is what earns the right to believe it.*
 
-## Why review, and why a *more capable* reviewer
+## Why review, and who reviews
 
 The building model is the worst-placed judge of its own work: it shares every
 blind spot that produced the work, and the apex's honesty burden is hardest to
-discharge against oneself. So the check is **external** (a separate agent, fresh
-context) and **more capable where it counts** (see `MODEL-ECONOMICS.md`: a
-higher-authority model reviews irreversible or structural work; a mechanical
-gate — validators, CI — holds the floor for the routine). The review is not a
-formality tax on good work; it is the thing that lets "done" mean *verified*
-rather than *looks right*.
+discharge against oneself. So the check is **external** — a separate agent with
+fresh context. That is the irreducible core, and it costs nothing an adopter
+doesn't already have: **independence, different blind spots, and fresh context**
+deliver most of the value even when the reviewer is the *same* model in a new
+session. Capability is the multiplier on top, not the precondition: where a more
+capable tier exists, deploy it at review — that is where its marginal value per
+token is highest — and match reviewer capability to the stakes (see
+`MODEL-ECONOMICS.md`: the most capable available model reviews irreversible or
+structural work; a mechanical gate — validators, CI — holds the floor for the
+routine). The review is not a formality tax on good work; it is the thing that
+lets "done" mean *verified* rather than *looks right*.
 
 ## What a review actually checks — three lenses
 
@@ -44,9 +48,13 @@ throwaway chat:
    follow-up checklist) is appended to the **same file**, below a `---`
    divider. *Answer below the ask.* One file holds the whole exchange, so the
    question and its answer can never drift apart (EVIDENCE §9).
-4. **Disposition** — each finding is tagged **[fixed]** (done this session) or
-   **[backlog]** (a named ROADMAP slice). Fixes consolidate onto one ROADMAP
-   follow-ups item; then tick the ROADMAP pointer and add a `SESSIONS.md` entry.
+4. **Disposition** — each finding is tagged **[fixed]** (done this session),
+   **[backlog]** (a named ROADMAP slice), or **[rejected: grounds]** — the
+   builder/owner may disagree with a finding, but the disagreement and its
+   grounds are recorded in the verdict file, never resolved by silently dropping
+   it (the same rule the layer-override discipline applies to doctrine
+   conflicts). Fixes consolidate onto one ROADMAP follow-ups item; then tick the
+   ROADMAP pointer and add a `SESSIONS.md` entry.
 5. **Close** — a finding is only closed when its fix is itself verified, with a
    live proof where one exists. "Addressed the review" without exercising the fix
    is the apex violation the review existed to catch.

@@ -9,12 +9,15 @@ can't, the record failed.*
 ## Docs-as-code — the core discipline
 
 Documentation lives in the repo, in the same commit as the change it describes.
-The rule is **lockstep**: a change to behaviour and the change to the doc that
-governs it land **together**, or the doc is a lie the moment it merges. A commit
-that alters the CLI surface and leaves the man page stale is not "done with a
-doc follow-up owed" — it is a broken commit. This is EVIDENCE §9 (one fact, one
-home) plus the apex (no claim stronger than its evidence — a stale doc *is* an
-over-strong claim about the code).
+The rule is **lockstep at the integration boundary**: a change to behaviour and
+the change to the doc that governs it land **together** on the shared branch, or
+the doc is a lie the moment it merges. A commit that alters the CLI surface and
+leaves the man page stale is not "done with a doc follow-up owed" — it is a
+broken commit. A WIP or spike **branch** may trail its docs while the line is in
+flight — that's what branches are for — but what *lands* lands doc-complete
+(this is CONCURRENCY's worktree-per-line: a line of work integrates as a unit).
+This is EVIDENCE §9 (one fact, one home) plus the apex (no claim stronger than
+its evidence — a stale doc *is* an over-strong claim about the code).
 
 Consequences:
 

@@ -46,7 +46,10 @@ Five moving parts, no engine, no new machinery:
    command — `git -C <atelier-path> log --oneline <PIN>..HEAD`. Empty output ⇒
    current. Any output ⇒ the house doctrine has moved since the pin: read the
    changes, decide if they bear on this repo, and bump the pin **deliberately**.
-   No polling, no hook — the CLAUDE.md read *is* the propagation event
+   Bump even when the delta turns out not to bear on this repo (tool commits,
+   session logs) — the pin means "inspected up to here", and a check that keeps
+   re-surfacing old noise trains sessions to skim it (alarm fatigue kills the
+   signal). No polling, no hook — the CLAUDE.md read *is* the propagation event
    (events-over-polling).
 
 5. **Bumping the pin is a per-repo human-in-the-loop act.** A doctrine change in
@@ -80,7 +83,8 @@ in atelier and is read on demand — never wholesale.
   widening its audience; anything truly destructive or irreversible; secrets;
   spending money; anything touching people's safety; widening your own grant
   (record the principal's decision, never originate it); a lockout-class change
-  that could sever your own access; installing an unapproved tool. Everything
+  that could sever your own access; installing an unapproved tool or adding a
+  new trust surface (deploy keys, webhooks, OAuth/app grants). Everything
   recoverable — commit/push/PR included — just proceed.
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
   session start run `git -C <atelier-path> log --oneline <SHA>..HEAD`; any output
@@ -115,7 +119,8 @@ The category error to name in writing: **a doctrine that is read is not a
 doctrine that is complied with.** The propagation mechanism distributes the
 *documents* and makes staleness *visible* — that is all a document can do.
 
-Enforcement was always a separate practice: **review by a more capable model.**
+Enforcement was always a separate practice: **independent review, by the most
+capable model available** (see `REVIEW.md`).
 The documents are the standard; the peer review is what checks the work against
 the standard before it is trusted (see `MODEL-ECONOMICS.md` review-trigger
 policy, and the review lifecycle owed in the ROADMAP). A pin that is current and

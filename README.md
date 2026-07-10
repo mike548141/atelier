@@ -33,7 +33,7 @@ we work:
 | `docs/method/` | **how we work** — the shareable crown jewels. Read `00-APEX.md` first. |
 | `docs/build/` | **how we build** — the repo-build standard and templates (repo craft) |
 | `docs/decisions/` | ADRs — decisions that rejected a real alternative |
-| `docs/reviews/` | peer-review briefs (work is reviewed by a more capable model before it's trusted) |
+| `docs/reviews/` | peer-review briefs (work earns trust through independent review — see `method/REVIEW.md`) |
 | `tools/` | the mechanical controls that *enforce* the doctrine — e.g. `leakscan.py`, the pre-commit boundary keeping personal/estate data out of a shareable repo |
 
 ### `docs/method/` — the operating model
@@ -46,8 +46,11 @@ we work:
   disposable; keep churn out of iCloud.
 - **`CONCURRENCY.md`** — one worktree per line of work; serialise real-world
   side-effects.
-- **`PRINCIPLES.md`**, **`MODEL-ECONOMICS.md`** — *(extraction in progress — see
-  ROADMAP; the canonical source is currently ros `docs/`.)*
+- **`PRINCIPLES.md`** — the design principles, precedence ladder, and situation
+  tests, with generalised cases. **Canonical here** (extracted 2026-07-10);
+  child repos keep their bearings + case-law and point up.
+- **`MODEL-ECONOMICS.md`** — *(extraction in progress — see ROADMAP; the
+  canonical source is currently ros `docs/`.)*
 
 ## Status
 

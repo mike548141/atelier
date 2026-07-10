@@ -5,6 +5,27 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-10 — method/-layer Fable review, PASS-WITH-FINDINGS)
+- The gated review of the whole `method/` layer ran; verdict in
+  `docs/reviews/2026-07-10-method-layer.md`. Ten findings fixed in the same
+  commit: the child doctrine block's inlined floor now names **new trust
+  surfaces** (deploy keys/webhooks/OAuth grants — was a silent narrowing of the
+  AUTONOMY floor; children adopt at their next pin bump); the drift check says
+  to bump even on a non-doctrine delta (alarm-fatigue guard); EVIDENCE §4
+  scoped to *reported* facts (direct primary observation is its own
+  corroboration), §12 names the ephemeral-claim boundary (no validator reaches
+  an in-conversation claim), §8's real fleet figure swapped for an invented
+  one; REVIEW reframed — independence + fresh context is the irreducible core
+  of review, capability the multiplier not the precondition (cross-references
+  swept in PROPAGATION + both READMEs), and the disposition set gained
+  **[rejected: grounds]** so disagreement is recorded, never silent; RECORD's
+  lockstep rule scoped to the integration boundary (a WIP branch may trail
+  until it lands); PRINCIPLES §3/§4/§5/§7 got their generalised cases back
+  (the preamble's every-principle-carries-a-case claim is now true); stale
+  README/CHANGELOG statements about the PRINCIPLES extraction corrected.
+  Backlog: fleet-level pin-staleness view; ADRs for atelier's own decided
+  questions; SESSIONS.md index/detail split.
+
 ### Added
 - `tools/secretscan.py` — the detection half of the secrets story: a zero-dep
   pre-commit/CI scan that blocks a plaintext CREDENTIAL from entering git
@@ -73,7 +94,8 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   `.claude/settings.json`.
 
 ### Pending (see ROADMAP)
-- `PRINCIPLES.md` spine and `MODEL-ECONOMICS.md` extraction from ros.
+- `MODEL-ECONOMICS.md` extraction from ros (`PRINCIPLES.md` landed — see
+  *Changed*).
 - The `build/` layer: the `create-repo` standard + templates.
 - `create-repo` rewired to inherit from atelier instead of copying empty
   templates.

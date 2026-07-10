@@ -71,7 +71,10 @@ Prefer events and triggers; avoid polling, timers, and schedules. The latter
 have a place, but only on a clear, stated need — a poll loop is a standing cost
 *and* a staleness window. Convergence rides a triggered action, not a blind
 sweep; recovery fires on an event. When a timer **is** the right tool, say why
-(and bound the staleness — see the timer-vs-event situation test).
+(and bound the staleness — see the timer-vs-event situation test). *Case:*
+configuration converges on a deliberately-triggered apply, never a cron sweep;
+the wipe-to-known-good recovery path fires on a physical button event, not a
+watchdog poll.
 
 ## 4. State & concurrency
 
@@ -84,6 +87,9 @@ sweep; recovery fires on an event. When a timer **is** the right tool, say why
   converges toward it; running it twice is safe and the second run is a no-op.
   This is the property that makes automation safe at all — a verb that is not
   re-run-safe must say so **loudly** and is not automatable. (Serves rule 1.)
+  *Case:* a plan/apply engine that diffs desired against live and pushes only
+  the delta; its removal verb diffs clean against an already-swept target, so
+  a retried run cannot double-fire.
 
 ## 5. Security, privacy, cost — by design, not bolted on
 
@@ -104,6 +110,10 @@ sweep; recovery fires on an event. When a timer **is** the right tool, say why
   are reproducible but neither JIT nor short-lived. The triad is the *direction*;
   each standing credential is a tracked debt to shorten, not a resting state.
   (Serves rule 1: a short-lived least credential has a small blast radius.)
+  *Case:* an automation user on a platform that offers no per-session grant
+  stays standing — reproducible and policy-tiered as the first least-privilege
+  step, with its standing-and-forever nature recorded as the tracked debt
+  rather than silently accepted.
 - **Zero Trust — the NIST SP 800-207 tenets, right-sized.** No asset is inherently
   trusted; verify explicitly; least privilege; assume breach; network location
   alone grants no trust. NIST's own caveat is that not every tenet is achievable
@@ -155,7 +165,11 @@ can't be regenerated.
   exception where codifying is genuinely unsafe (e.g. an action that would sever
   the agent's own access mid-run). Never as steady state. (Serves rule 1: a
   reproducible system is a recoverable one; and rule 2: undated hand-state is a
-  future lie.)
+  future lie.) *Case:* recurring hand-surgery on live systems — removing a
+  retired record's leftover state by hand — was recognised as exactly the
+  infrastructure not yet reproducible from code; the fix was to build the
+  codified removal verb and treat each interim hand-run as a tracked debt, not
+  a workflow to keep.
 
 ---
 

@@ -168,4 +168,205 @@ batch this structural is itself suspect — scope too narrow or read too fast.
 
 ---
 
-<!-- Verdict appended here after the review runs. -->
+## Verdict (2026-07-10, Fable 5) — PASS-WITH-FINDINGS
+
+Reviewed at `atelier@957fa08` (verified: `docs/method/` unchanged through HEAD
+`1c09fa4`, so the brief's scope holds at HEAD). Read whole: the five in-scope
+docs, `00-APEX`, `AUTONOMY`, both READMEs, `MODEL-ECONOMICS` stub, `CHANGELOG`,
+`ROADMAP`, `SESSIONS.md` (+ its git history), the foundation review, the ros
+`docs/PRINCIPLES.md` source, and the stamped `ros`/`faves` doctrine blocks.
+Mechanical pass: `tools/leakscan.py` full-cover (local term list present) —
+**clean**.
+
+**Overall: the architecture holds.** Nothing in the layer is structurally
+mis-built; the load-bearing mechanism (thin anchor, fat pointer) is live-proven,
+the harvest docs are grounded not invented, and the keystone's ladder still
+adjudicates real collisions. Findings are 10 small corrections **[fixed]** this
+session + 3 **[backlog]** slices. A batch this structural yielding no
+architectural rework is itself evidence the foundation review + sequencing rule
+did their job.
+
+### Lens 1 — approach & assumptions (per brief question)
+
+1. **Drift check fires — yes, n=4 and honestly framed.** Documented firings:
+   the pin-bump session (dde4170→957fa08, inspected, session-log-only, bumped),
+   the worktree session (noted 4 commits, deliberately deferred the bump to a
+   ros session), and this session (6 commits surfaced; bump lands with this
+   verdict). It also fired *usefully* — each time the output was read and a
+   deliberate decision followed. Against the undiligent-session test: the doc
+   is honest that it doesn't survive one ("observable, not enforced") and names
+   review as the catch. That is sufficiency, not fig leaf — **provided the
+   signal stays binary**. The rot risk is alarm fatigue, not skipping: non-
+   doctrine commits (tools, session logs) re-surface every session until
+   someone bumps, training sessions to skim. Fix: make explicit that an
+   inspection finding no doctrine-bearing change should still bump (**P3
+   [fixed]**).
+2. **Inlined floor narrowing-free — one real drop.** Diffed the canonical
+   block and both stamped children against `00-APEX` + `AUTONOMY`: the apex
+   compression is faithful (drops rationale, no rules); the confirm-floor
+   covers 7 of AUTONOMY's items, but **new trust surfaces** (deploy keys,
+   webhooks, CI secrets, OAuth/app grants) is only derivable via AUTONOMY's
+   "same class as unapproved tool" — a child-only reader can't get there from
+   the block's wording. Silent narrowing, exactly the class the doc forbids
+   (**P1 [fixed]**: four words in the floor line; children adopt at next pin
+   bump, ros this session).
+3. **~15 lines carries the floor — yes**, with P1 fixed. Nothing else
+   load-bearing was dropped; the deploy-on-push and secret-in-commit cases
+   compress safely into "private→public" and "secrets".
+4. **Per-repo pin bump scales — honest at N=2, unexamined at N=10.** No
+   fleet-level "which children are stale" view exists and its absence is not
+   acknowledged. Cheap house-pattern fix exists (a `tools/` script reading
+   each child's pin). **P2 [backlog]** — acknowledge in PROPAGATION + tool
+   candidate.
+5. **EVIDENCE §12 reach — scoped honestly, boundary unnamed.** §12's opening
+   qualifier ("where the evidence lives in files") avoids the overclaim, but
+   the doc never says what enforces the *common* case — the ephemeral
+   in-conversation claim. Answer: nothing mechanical; only the apex + the
+   review loop. That's tolerable but must be said (**E1 [fixed]**).
+6. **Tier taxonomy usable in-loop — yes.** Well-drafted on this exact point:
+   §1 demands the agent *be able to answer* provenance on challenge, not tag
+   every claim inline. "Treat un-sourced recall as ai-inference until
+   grounded" is an actionable in-loop rule, not ceremony. Holds.
+7. **Coherence off the private source — one seam.** §4 ("never assert an
+   uncorroborated fact") generalised *too strongly* from the advisory context
+   where every fact arrives through a reporting chain: read literally it
+   forbids asserting what a primary artefact directly shows (code you read, a
+   value you measured) because it "appears in exactly one place". Direct
+   observation of the primary is its own corroboration — §3's acquisition
+   risk still applies. Scope §4 to reported/external facts (**E2 [fixed]**).
+8. **"More capable" (the sharpest ask) — the brief's premise is factually
+   wrong, and the reframe is still right.** Plainly, as asked: the brief
+   asserts "Fable is the cheaper review tier, not uniformly more capable than
+   Opus". Per Anthropic's published positioning (official-guidance tier, not
+   my self-assessment): Fable 5 is a Mythos-class model that sits **above**
+   Opus in capability; it is the *more expensive, usage-billed* tier used
+   sparingly — "cheaper" conflated price-of-the-pass with capability. So in
+   this estate today, REVIEW.md's "more capable where it counts" is the
+   literal truth: the most capable model is deployed at review because that's
+   where its marginal value per token is highest. **However** the reframe is
+   still owed, for the doctrine's stated audience: a peer adopting atelier may
+   have no superior tier at all, and review by an equal model with fresh
+   context still delivers the irreducible core — **independence + different
+   blind spots + fresh context** — with capability as a multiplier, not a
+   precondition. As written, the doc quietly makes review sound contingent on
+   owning a better model. Reframed (**R1 [fixed]**).
+9. **Lockstep absolutism — confirmed footgun, with a precise fix.** The
+   legitimate trailing case is the WIP/spike **branch**: intermediate commits
+   with stale docs are normal and harmless there. The discipline's real
+   boundary is **integration** — what lands on the shared branch lands
+   doc-complete. Stated absolutely, the rule pushes exactly the two failure
+   modes the brief guessed (skip the doc, or squash away honest history).
+   Scope it to the integration boundary (**V1 [fixed]**); this also lines up
+   with CONCURRENCY's worktree-per-line (a line lands as a unit).
+10. **Cases survived generalisation — where they exist.** §1, §2, §6 cases are
+    concrete and still bite (batch-refusal, federation seam, voided-proof
+    comment). But §3, §4, and §7 carry **no case at all**, and §5's "honest
+    pattern" paragraph is a rule, not a decided case — while the preamble
+    claims "each carries a *generalised case*". The ros source has the
+    missing cases (triggered-apply-not-cron; plan/apply idempotent diff;
+    standing-credential debt; hand-surgery-as-tracked-debt). Preamble
+    currently overclaims — an honesty nit in the keystone itself. Add the
+    cases (**PR1 [fixed]**).
+11. **Ladder + situation tests still adjudicate — yes.** Ran the live
+    collisions against the generalised text: apply-bulkhead resolves under
+    "whose failure is it" (remote peer → skip loudly; own partial plan →
+    refuse); gate-sizing still calls the re-class; mitigation-under-
+    uncertainty still holds the narrow scope. Substance unchanged from ros;
+    teeth intact.
+12. **Split of responsibility — sound; trim guidance for the ros session.**
+    Atelier general spine + ros bearings/case-law pointing up is the right
+    shape. For the pending trim: ros must **keep** its §0 tiki bearing, every
+    *Tiki bearing/Already holds* line, the seven-tenet Zero-Trust estate
+    mapping in §5 (far richer than atelier's general §5 — that's bearings,
+    not duplication), and the whole precedent-annotated trade-offs section;
+    it should **drop** only the general prose sentences that restate the
+    spine verbatim. Not re-flagged as a finding, per the brief.
+
+### Lens 2 — doctrine quality & honesty
+
+Sound and internally consistent overall; overclaim found in three small
+places, all stale-truth rather than false-claim: the repo README still lists
+PRINCIPLES as "extraction in progress" after the extraction landed (**H1
+[fixed]** — a lockstep miss in the repo that wrote the lockstep rule);
+CHANGELOG's *Pending* section still lists the PRINCIPLES extraction that its
+own *Changed* section records as done (**H2 [fixed]**); and the PRINCIPLES
+preamble's every-principle-has-a-case claim (PR1, above). Stubs are honestly
+stubs: MODEL-ECONOMICS says so twice, build/README is an explicit
+pointer-not-yet-extracted, ROADMAP matches. `method/README.md` is accurate
+about canonicality (only the top-level README lagged).
+
+### Lens 3 — completeness / harvest
+
+- **REVIEW.md lacks a dispute path.** Dispositions are only [fixed]/[backlog]
+  — acceptance is structurally forced; a builder/owner who *disagrees* with a
+  finding has no sanctioned move except silence, which is the one resolution
+  the layer-override rule forbids elsewhere. Add **[rejected: grounds]**
+  (**R2 [fixed]**).
+- **The repo's own re-litigable decisions have no ADRs.** `docs/decisions/`
+  holds only the template, yet SHA-as-version (vs tags), canonicality,
+  private-first, and Apache-2.0 are all textbook re-litigation risks by
+  RECORD's own test — currently recorded only as prose in
+  SESSIONS/ROADMAP/PROPAGATION. **V2 [backlog]** — three or four short ADRs,
+  a build-session task.
+- **SESSIONS.md is outgrowing its own doctrine.** Recent entries run 30–60
+  lines inline; RECORD prescribes index + detail-on-demand for exactly this.
+  Adopt the ros split before it gets expensive (**V3 [backlog]**).
+- Cross-cutting DRY of the doctrine: clean. Absolute dating and
+  one-fact-one-home each have one canonical home (EVIDENCE §7/§9) and the
+  restatements carry pointers. The one restatement worth trimming toward a
+  pointer someday is RECORD's "Absolute dating" section — noted, not a
+  finding.
+- Leak-check (manual + leakscan): **clean**, one judgement nit — EVIDENCE §8
+  uses "the fleet has 13 devices", a real estate figure, as its illustrative
+  stale value; invented numbers cost nothing (**L1 [fixed]**). The `$40/mo`
+  and legislative examples read as generic. No names, hosts, or addresses in
+  any of the five docs.
+
+### Real-world check
+
+**PROPAGATION bit, as written** — four firings, each producing a deliberate,
+recorded decision (bump / defer / bump-with-this-review). **The repo runs on
+its own doctrine**: SESSIONS.md verified append-only against git history (zero
+deletion lines since birth); this review followed REVIEW.md's lifecycle
+end-to-end (brief on top → this verdict below the divider → dispositions →
+ROADMAP tick + SESSIONS entry); the foundation review's findings were all
+dispositioned [fixed]/[backlog] with the backlog traceable in ROADMAP. The two
+places practice lags the text are V2 (no ADRs) and V3 (inline session bloat) —
+both named above, neither structural.
+
+### Findings — dispositions
+
+| ID | Doc | Finding | Disposition |
+|---|---|---|---|
+| P1 | PROPAGATION | Inlined floor drops "new trust surfaces" — silent narrowing for child-only readers | **[fixed]** block + ros stamped copy |
+| P3 | PROPAGATION | Drift-check noise: state that inspect-then-bump applies even when the delta doesn't bear on the repo | **[fixed]** |
+| P2 | PROPAGATION | No fleet-level staleness view at N children; absence unacknowledged | **[backlog]** |
+| E1 | EVIDENCE | §12 doesn't name the ephemeral-claim boundary (no validator for in-conversation claims) | **[fixed]** |
+| E2 | EVIDENCE | §4 over-generalised: direct primary observation needs no second source | **[fixed]** |
+| L1 | EVIDENCE | §8 "13 devices" is a real estate figure in a shareable doc | **[fixed]** |
+| R1 | REVIEW | Reframe: independence + fresh context is the irreducible core; capability the multiplier (brief's capability premise also corrected) | **[fixed]** |
+| R2 | REVIEW | Add **[rejected: grounds]** disposition — silence must not be the only way to disagree | **[fixed]** |
+| V1 | RECORD | Scope lockstep to the integration boundary; WIP branches may trail until they land | **[fixed]** |
+| V2 | RECORD (practice) | Write the missing ADRs (canonicality, SHA-as-version, private-first + licence) | **[backlog]** |
+| V3 | RECORD (practice) | Split atelier SESSIONS.md to index + detail-on-demand | **[backlog]** |
+| PR1 | PRINCIPLES | §3/§4/§5/§7 lost their cases in extraction while the preamble claims universal coverage — add generalised cases from ros | **[fixed]** |
+| H1 | README | Stale "extraction in progress" for PRINCIPLES | **[fixed]** |
+| H2 | CHANGELOG | *Pending* contradicts *Changed* on the PRINCIPLES extraction | **[fixed]** |
+
+### Follow-up checklist
+
+- [ ] **P2** — acknowledge the fleet-staleness gap in PROPAGATION when built;
+      candidate `tools/` script that reads every child's pin and reports lag.
+- [ ] **V2** — ADRs for canonicality, SHA-as-version, private-first+Apache-2.0
+      (record the decisions already taken; a build session's task).
+- [ ] **V3** — adopt the index/detail session-log split in atelier itself.
+- [ ] **faves** — its stamped block adopts the P1 floor wording at its next
+      pin bump (drift check will surface it; deliberately not edited from this
+      session — atelier is the only granted working dir here besides ros).
+- [ ] The **ros PRINCIPLES trim** may now proceed: this review trusts the
+      atelier spine; trim guidance is in lens-1 answer 12.
+
+*Review conduct note (EVIDENCE §2 discipline): the capability claim in R1 is
+tiered official-guidance (Anthropic's published model positioning), not the
+reviewer's self-assessment; every other finding is grounded in a direct read
+of the artefacts named, at the SHAs stated.*
