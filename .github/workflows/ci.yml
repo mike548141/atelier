@@ -20,10 +20,19 @@ name: floor
 # tools/ in its own CI (ROADMAP: wire the public scanners into child CI) — there
 # the "run in-repo tools" steps become a checkout of mike548141/atelier instead.
 
+# Every push, not just main (2026-07-11 child-CI-floor review, N4 follow-up).
+# atelier is public (ADR 0005), so a push to ANY branch is already publication —
+# the commit is on the remote whether or not it is ever PR'd or merged, and a
+# feature branch that never sees a PR was previously scanned by nothing. This job
+# IS the floor (its whole purpose is dogfooding the publish-safety scans), so it
+# gates publication, not just the merge — the same call floor.yml made for
+# children. A same-repo PR branch runs twice (push + PR event); that costs
+# seconds (zero-dep stdlib) and is the right side of the trade for a safety floor.
+# workflow_dispatch allows a manual re-run without an empty push.
 on:
   push:
-    branches: [main]
   pull_request:
+  workflow_dispatch:
 
 # Least privilege: the floor only reads the tree.
 permissions:
