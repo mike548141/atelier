@@ -1,26 +1,37 @@
 #!/bin/sh
-# atelier leakscan pre-commit hook.
+# atelier pre-commit hook — runs both mechanical scanners over the staged diff.
 # Install:  cp tools/pre-commit.sample .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
 #
-# Blocks a commit that would introduce personal/estate data. Scans only the
-# staged additions, so it is fast on the commit hot path. A hook protects only
-# the machine it is installed on — pair it with the same scan in CI.
+#   secretscan — blocks a commit that would put a plaintext CREDENTIAL into git
+#                history. Runs in EVERY repo (a burned secret is burned whatever
+#                the repo's visibility).
+#   leakscan   — blocks a commit that would put PERSONAL/ESTATE data into a repo
+#                that can go public. Run it where that boundary applies.
+#
+# Both scan only staged additions, so they are fast on the commit hot path. A
+# hook protects only the machine it is installed on — pair it with the same
+# scans in CI. For a networking/private-with-shareable-subtree repo, add the
+# `--disable`/subtree scoping (see tools/README.md) to the leakscan line.
 
 repo_root=$(git rev-parse --show-toplevel)
-scanner="$repo_root/tools/leakscan.py"
+status=0
 
-if [ ! -f "$scanner" ]; then
-    echo "leakscan: scanner not found at $scanner — skipping (is this an atelier-standard repo?)" >&2
-    exit 0
+secretscanner="$repo_root/tools/secretscan.py"
+if [ -f "$secretscanner" ]; then
+    python3 "$secretscanner" --staged --root "$repo_root" || status=1
 fi
 
-python3 "$scanner" --staged --root "$repo_root"
-status=$?
+leakscanner="$repo_root/tools/leakscan.py"
+if [ -f "$leakscanner" ]; then
+    python3 "$leakscanner" --staged --root "$repo_root" || status=1
+fi
 
 if [ "$status" -ne 0 ]; then
     echo >&2
-    echo "leakscan blocked this commit. Fix the finding above, or exempt a false" >&2
-    echo "positive with '# leakscan:allow: <reason>' / .leakscanignore, then retry." >&2
+    echo "A scanner blocked this commit. Fix the finding(s) above — remove and" >&2
+    echo "ROTATE a real secret, or exempt a false positive with a" >&2
+    echo "'# secretscan:allow: <reason>' / '# leakscan:allow: <reason>' line" >&2
+    echo "marker or a .secretscanignore / .leakscanignore glob, then retry." >&2
     echo "To bypass in a genuine emergency (discouraged): git commit --no-verify" >&2
 fi
 

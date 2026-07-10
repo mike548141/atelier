@@ -122,9 +122,20 @@ theatre). Leave tiki-specific bearings + review case-law in ros.
       gaps appear. Review-owed (mechanical control, so a validator/CI run is most
       of the enforcement — but the pattern set + the shareable/local split
       deserve an approach review).
-- [ ] **Secret-scan on push** (gitleaks or equiv) — the *detection* half of the
-      secrets mitigation: an exposed secret is only a cheap rotate-now event if
-      you *know* it was exposed.
+- [x] **Secret-scan on push** — built 2026-07-10 as `tools/secretscan.py` (a
+      zero-dep, self-written "equiv", not a gitleaks install — matches the house
+      tool pattern + dodges the tool-install floor). Named vendor formats + a
+      secret-named-assignment/entropy workhorse; skips the safe indirections
+      (`!secret`/`${VAR}`/`<ph>`), code refs, public keys and URL paths.
+      **Validated 0 FP over real tiki source/inventory/docs** (25→0 across three
+      FP-class fixes) while still catching the fixture-secret shapes; report
+      redacts to length+entropy. 47 tests; combined pre-commit sample runs it
+      with leakscan; `.secretscanignore` + allow-marker escape hatches.
+      Review-owed (mechanical control — a validator run is most of the
+      enforcement, but the pattern set + the assigned/entropy heuristic deserve
+      an approach review). **Owed:** CI wiring (dead until atelier has a remote);
+      hook portability to Mike's other repos. Closes the *detect* half of
+      *detect → rotate → burn-cost-is-minutes*.
 - [x] **`DATA-PROTECTION.md`** written (2026-07-10) — read-before-write; verified
       way-back before any destructive op; data plane is the slow lane even under
       broad grants; reproducibility as insurance; protect others' data.

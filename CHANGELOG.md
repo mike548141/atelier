@@ -6,6 +6,19 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 ## [Unreleased]
 
 ### Added
+- `tools/secretscan.py` — the detection half of the secrets story: a zero-dep
+  pre-commit/CI scan that blocks a plaintext CREDENTIAL from entering git
+  history, in *every* repo (a burned secret is burned whatever the repo's
+  visibility). Named vendor formats (AWS/GitHub/Slack/Google/Stripe/Anthropic/
+  OpenAI/… tokens, private-key/PGP headers, JWTs) flag on shape; a secret-named
+  assignment with a high-entropy value catches home-grown secrets. Skips the
+  safe indirections (`!secret`, `${VAR}`, `<placeholder>`), code refs, public
+  keys and URL paths — validated at **0 false positives** over real tiki source/
+  inventory/docs while still catching the fixture-secret shapes. Report redacts
+  to length+entropy, never the value. `--staged`/`--json`/`--disable`/
+  `--selftest`, `.secretscanignore` + `secretscan:allow`; 47 stdlib tests. The
+  shared pre-commit sample now runs both scanners. Pairs with the SECRETS
+  doctrine: detect → rotate → the burn cost is minutes.
 - `tools/worktree.py` — one command for `CONCURRENCY.md`'s "one worktree per
   line of work": `start`/`list`/`land`/`remove`. Bakes the doctrine's guards into
   the tool — refuses an iCloud base (sync corrupts a live `.git` index), branches

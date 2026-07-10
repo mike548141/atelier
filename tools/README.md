@@ -85,11 +85,51 @@ leakscan --staged --disable ipv4,ipv6,mac-address tiki/
 ### Wiring it in
 
 - **Pre-commit hook** — copy `tools/pre-commit.sample` to
-  `.git/hooks/pre-commit` (`chmod +x`). It runs `leakscan --staged` and aborts
-  the commit on a finding. This is the primary control. For a subtree/networking
-  repo, edit the hook's invocation to add the `--disable`/path scoping above.
-- **CI** — run `python3 tools/leakscan.py --json` on every push (belt and
-  braces; a hook only protects the machine that has it installed).
+  `.git/hooks/pre-commit` (`chmod +x`). It runs **both** `secretscan --staged`
+  and `leakscan --staged` and aborts the commit on any finding. This is the
+  primary control. For a subtree/networking repo, edit the hook's leakscan
+  invocation to add the `--disable`/path scoping above.
+- **CI** — run both scanners with `--json` on every push (belt and braces; a
+  hook only protects the machine that has it installed).
+
+## `secretscan.py` — keep plaintext credentials out of git history
+
+leakscan guards the *public* boundary; `secretscan` guards one that exists in
+**every** repo, private ones included: a credential committed in plaintext is
+burned the moment it lands in history — history is forever and a private repo can
+be shared or leaked later. So this runs everywhere, and pairs with the SECRETS
+doctrine's other half: **detect → rotate immediately → the burn cost is minutes.**
+
+### Two detector classes
+
+| Class | Catches | Confidence |
+|---|---|---|
+| **Named credentials** | vendor formats that are a secret by construction — private-key/PGP headers, AWS/GitHub/Slack/Google/Stripe/Anthropic/OpenAI/Twilio/SendGrid/npm tokens, JWTs, `user:pass@host` URLs | high; flags on shape alone |
+| **Assigned + entropy** | a key that *names* a credential (`password`, `api_key`, `token`, `client_secret`…) assigned a long, high-entropy value that isn't a placeholder or indirection; plus a conservative context-free high-entropy net | medium; the workhorse for home-grown secrets matching no vendor format |
+
+It deliberately does **not** flag the safe indirections — `!secret foo` (tiki),
+`${VAR}`, `$(cmd)`, `<placeholder>` — those are the *correct* way to reference a
+secret. It skips variable/attribute/call values (`password=admin_password`),
+public-key material (`ssh-ed25519 …`, `public_key:`), and URL paths, which are
+the dominant false positives in real source. The report prints only a redacted
+fingerprint (length + entropy), never the secret value.
+
+### Usage
+
+```sh
+python3 tools/secretscan.py                 # scan the whole repo
+python3 tools/secretscan.py --staged        # scan only staged additions (the hook)
+python3 tools/secretscan.py path/to/file    # scan specific paths
+python3 tools/secretscan.py --json          # machine-readable, for CI/composition
+python3 tools/secretscan.py --selftest      # prove the engine on this box
+```
+
+Exit codes match leakscan (`0` clean · `1` findings · `2` usage/config error).
+Escape hatches mirror it too: `# secretscan:allow: <reason>` per line, a glob in
+`.secretscanignore` per path, and `--disable <rule>` to quiet a noisy rule (a
+named rule, `assigned`, or `high-entropy`) while keeping the rest. A true
+positive is never just exempted — **remove it, move it to the secret store, and
+rotate it.**
 
 ## `worktree.py` — one worktree per line of work
 
@@ -125,5 +165,5 @@ device is still one-at-a-time and announced (CONCURRENCY "the safety rail").
 ## Tests
 
 ```sh
-cd tools && python3 -m unittest      # stdlib only, no pytest — covers both tools
+cd tools && python3 -m unittest      # stdlib only, no pytest — covers all three tools
 ```

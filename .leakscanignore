@@ -6,6 +6,10 @@
 # They are kept deliberately fictional; scanning them only yields noise.
 tools/test_leakscan.py
 
+# secretscan's tests are the same: a wall of fictional credential shapes, which
+# are also leak-shaped (emails/keys). Exempt them for the same reason.
+tools/test_secretscan.py
+
 # The local-term list TEMPLATE is, like the tests, a wall of deliberately
 # fictional example shapes documenting the format. No real data lives here.
 tools/leakscan-terms.example.txt
