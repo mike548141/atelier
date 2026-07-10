@@ -62,7 +62,8 @@ it. Enforcement is a separate thing — see the enforcement clause below.
 
 Copy this to the **top** of a child repo's `CLAUDE.md`, fill the three
 placeholders (`<atelier-path>`, `<SHA>`, `<visibility fact>`), and keep it under
-~15 lines of substance. `create-repo` stamps it on new repos; existing repos are
+~20 lines of substance (the 2026-07-10 review found the original ~15-line
+squeeze had dropped two floor cases — compress prose, never floor coverage). `create-repo` stamps it on new repos; existing repos are
 retrofitted once. Everything below the block is repo-specific onramp.
 
 ```markdown
@@ -80,8 +81,11 @@ in atelier and is read on demand — never wholesale.
   widening its audience; anything truly destructive or irreversible; secrets;
   spending money; anything touching people's safety; widening your own grant
   (record the principal's decision, never originate it); a lockout-class change
-  that could sever your own access; installing an unapproved tool. Everything
-  recoverable — commit/push/PR included — just proceed.
+  that could sever your own access; a new trust surface (deploy key, webhook,
+  CI secret, OAuth/app grant); installing an unapproved tool. Everything
+  recoverable — commit/push/PR included — just proceed. (On a deploy-on-push
+  repo, a push that publishes a *new class* of content is the private→public
+  line above, not routine push.)
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
   session start run `git -C <atelier-path> log --oneline <SHA>..HEAD`; any output
   means the house doctrine moved — read it, then bump the pin above deliberately.
@@ -115,10 +119,12 @@ The category error to name in writing: **a doctrine that is read is not a
 doctrine that is complied with.** The propagation mechanism distributes the
 *documents* and makes staleness *visible* — that is all a document can do.
 
-Enforcement was always a separate practice: **review by a more capable model.**
-The documents are the standard; the peer review is what checks the work against
-the standard before it is trusted (see `MODEL-ECONOMICS.md` review-trigger
-policy, and the review lifecycle owed in the ROADMAP). A pin that is current and
-a floor that is inlined still only *inform* the agent; the review loop is what
-*catches* the session that ignored them. Do not mistake the anchor for the
-enforcement.
+Enforcement was always a separate practice: **independent review by a capable
+model** (`REVIEW.md`). The documents are the standard; the peer review is what
+checks the work against the standard before it is trusted (see
+`MODEL-ECONOMICS.md` review-trigger policy). A pin that is current and a floor
+that is inlined still only *inform* the agent; the review loop is what *catches*
+the session that ignored them — with an honest window: reviews trigger on
+structural or irreversible work, so a routine session that skips the drift check
+may go uncaught until the next reviewed slice. The mechanism bounds staleness;
+it does not eliminate it. Do not mistake the anchor for the enforcement.

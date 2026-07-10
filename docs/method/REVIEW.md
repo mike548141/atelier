@@ -2,20 +2,38 @@
 
 *`PROPAGATION.md` names the category error: **a doctrine that is read is not a
 doctrine that is complied with.** Documents inform; they do not enforce. This is
-what enforces — an independent review of the work by a more capable model,
-before the work is trusted. The build makes the claim; the review is what earns
-the right to believe it.*
+what enforces — an **independent review** of the work by a separate, capable
+model, before the work is trusted. The build makes the claim; the review is what
+earns the right to believe it.*
 
-## Why review, and why a *more capable* reviewer
+## Why review, and what the reviewer must be
 
 The building model is the worst-placed judge of its own work: it shares every
 blind spot that produced the work, and the apex's honesty burden is hardest to
-discharge against oneself. So the check is **external** (a separate agent, fresh
-context) and **more capable where it counts** (see `MODEL-ECONOMICS.md`: a
-higher-authority model reviews irreversible or structural work; a mechanical
-gate — validators, CI — holds the floor for the routine). The review is not a
-formality tax on good work; it is the thing that lets "done" mean *verified*
-rather than *looks right*.
+discharge against oneself. So the check is **external** — and what makes it
+bite, in order of what actually carries the weight:
+
+1. **Independence** — a separate agent, fresh context: none of the build's
+   momentum, sunk-cost framing, or accumulated assumptions.
+2. **Different blind spots** — a *different model* errs differently; two
+   failure surfaces overlap less than one.
+3. **An adversarial brief** — named load-bearing assumptions to attack, not
+   "look this over".
+4. **Sufficient capability** — the reviewer must be capable enough to judge the
+   class of work (a much weaker reviewer rubber-stamps); for structural or
+   irreversible work use the most capable reviewer economics allow
+   (`MODEL-ECONOMICS.md`). Capability is a **floor and one axis** — not the
+   definition of the practice.
+
+*(Honest reframe, from the 2026-07-10 method-layer review of this very doc: it
+originally said "review by a **more capable** model". The house's real economics
+are a capable plan-included model **building** and a separate usage-billed model
+**reviewing** — the reviewer is not uniformly more capable, and the review works
+anyway, because independence, not superiority, is the mechanism.)*
+
+A mechanical gate — validators, CI — still holds the floor for the routine. The
+review is not a formality tax on good work; it is the thing that lets "done"
+mean *verified* rather than *looks right*.
 
 ## What a review actually checks — three lenses
 
@@ -47,6 +65,10 @@ throwaway chat:
 4. **Disposition** — each finding is tagged **[fixed]** (done this session) or
    **[backlog]** (a named ROADMAP slice). Fixes consolidate onto one ROADMAP
    follow-ups item; then tick the ROADMAP pointer and add a `SESSIONS.md` entry.
+   The review session may land **small, doctrine-consistent fixes** itself;
+   structural rework goes back to a build session as named backlog. If builder
+   and reviewer disagree, the conflict is **surfaced to the owner**, never
+   silently resolved (the layer-override rule's shape, applied to reviews).
 5. **Close** — a finding is only closed when its fix is itself verified, with a
    live proof where one exists. "Addressed the review" without exercising the fix
    is the apex violation the review existed to catch.

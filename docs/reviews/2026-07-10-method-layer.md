@@ -168,4 +168,207 @@ batch this structural is itself suspect — scope too narrow or read too fast.
 
 ---
 
-<!-- Verdict appended here after the review runs. -->
+## Verdict (2026-07-10) — Fable 5, usage-billed, fresh context
+
+Read: all five in-scope docs + `00-APEX.md`, `AUTONOMY.md`, `MODEL-ECONOMICS.md`,
+README, ROADMAP, SESSIONS tail, the foundation review, ros `docs/PRINCIPLES.md`,
+and both stamped child blocks (ros + faves CLAUDE.md). Mechanical leak-scan run
+over the five docs: **clean** (structural + local terms). Live datum worth
+recording first: **this review session initially started on Opus by accident;
+the MODEL-ECONOMICS "state your model + pool before spend" rule surfaced it in
+the first line and Mike swapped to Fable before any review spend** — the
+doctrine bit, live, before the review even began.
+
+### Overall: PASS-WITH-FINDINGS
+
+The layer is sound, honestly built, and demonstrably *lived* (drift check fired
+n=2; review lifecycle followed recursively; leak boundary mechanically clean).
+One framing defect was real and load-bearing — REVIEW.md's "more capable model"
+(Q8/R1, fixed this session). The rest are compression drops, honest-gap
+sentences owed, and small lockstep misses. Nothing invalidates the architecture.
+
+### Per-question answers
+
+**Q1 — drift check fires?** Honest sufficiency, with one overclaim now fixed.
+Evidence: n=2 fires, both behaving exactly as written (surfaced the moved
+commit → inspected → deliberate bump; documented in SESSIONS). It does *not*
+survive an undiligent session, and the doc says so plainly ("observable, not
+enforced"). The defect was downstream: the enforcement clause implied the review
+loop catches the session that ignored the check, but reviews trigger on
+structural/irreversible work — a routine session that skips it goes uncaught
+until the next reviewed slice. That window is now named in the doc (P3
+[fixed]). The mechanism *bounds* staleness; it never claimed to eliminate it —
+and now it says which bound.
+
+**Q2 — inlined floor narrowing-free?** Checked word-by-word against `00-APEX.md`
++ `AUTONOMY.md`, and both stamped children against the canonical block. The
+children match the canonical text (ros appends its bearing line, faves appends
+its publication-bound note — both legal narrowing/appending). But the canonical
+block itself had **two silent drops** vs AUTONOMY's floor — see Q3. No
+*contradiction* of the apex; the apex compression is faithful.
+
+**Q3 — ~15 lines carries the floor?** **No — two load-bearing cases fell in the
+squeeze.** (a) **New trust surfaces** (deploy keys, webhooks, CI secrets,
+OAuth/app grants) — a full floor item in AUTONOMY, absent from the block; a
+block-only agent could add a webhook unconfirmed. (b) **Deploy-on-push,
+non-routine**: the block's "everything recoverable — commit/push/PR included —
+just proceed" silently *loosens* AUTONOMY's confirm-first rule for a push that
+publishes a new content class on a deploy-on-push repo (faves patched this
+locally in its own block; the canonical text would have carried the loosening
+to every future child). Both restored (P1, P2 [fixed]); the spec now reads ~20
+lines with an explicit "compress prose, never floor coverage" rule. Children
+re-stamp at next pin bump.
+
+**Q4 — per-repo pin bump scales?** Proven at n=2, unproven beyond, and the doc
+doesn't acknowledge the fleet-scale gap: staleness is observable only from
+*inside* a session in that repo, so a dormant child rots invisibly. A
+fleet-level drift view (for each child: pin vs atelier HEAD — a five-line
+script or CI job) is owed and now ROADMAP-tracked (P4 [backlog]).
+
+**Q5 — EVIDENCE §12 reach?** §12 scoped itself honestly ("where the evidence
+lives in files") but stayed silent on what enforces the *common* case — the
+in-conversation claim. Answer: nothing mechanical; only the apex plus the
+review practice. That gap is now named in §12 (E2 [fixed]). Not an overclaim as
+written, but an omission the apex style requires filling.
+
+**Q6 — tier taxonomy usable in-loop?** Mostly honestly framed already: §1 says
+the agent "must be able to answer" — capability on demand, not per-sentence
+annotation ceremony. What was missing is the explicit two-register statement:
+durable artifacts carry provenance *written down*; in-flight claims carry it
+*on demand* + guesses labelled unprompted. Added to §1 (E3 [fixed]). With that,
+this is target discipline honestly scoped, not aspirational ceremony.
+
+**Q7 — seams from the lift?** One found. §4 ("never assert an uncorroborated
+fact") is a reference-library rule that over-fires when generalised: a primary
+artifact read directly (the code, the config, the measured output) appears in
+exactly one place and needs no second source — it *is* the corroboration. The
+letter of §4 forbade asserting it. Scoped (E1 [fixed]). Otherwise the eleven+one
+rules are mutually coherent; §6's legislative flavour (bills, exposure drafts)
+reads as worked examples, not vagueness. §11 generalised cleanly and is one of
+the strongest sections.
+
+**Q8 — "more capable model" (the sharpest ask).** **The framing does not hold,
+and I am the counterexample.** I am Fable reviewing Opus's work — the *cheaper
+review tier*, deliberately, per the house's own economics. MODEL-ECONOMICS
+already states the true mechanism: "a capable plan-included model does the
+*building*; a **separate, usage-billed** model does *review*" — separateness,
+not superiority. So REVIEW.md contradicted its own economics doc. What actually
+made this review bite: (1) **independence** — I carry none of the build
+sessions' momentum or sunk-cost framing; (2) **different blind spots** — a
+different model errs differently; (3) **the adversarial brief** — named
+assumptions to attack; (4) **sufficient capability** — a real floor (a much
+weaker reviewer would rubber-stamp this material), and for structural work "the
+most capable reviewer economics allow" remains right. Capability is one axis
+and a floor — not the definition. REVIEW.md reframed accordingly, with the
+reframe recorded in-place as an honest correction; the same phrase aligned in
+PROPAGATION's enforcement clause, README, and RECORD (R1 [fixed]). Note APEX's
+"capability scopes authority" and AUTONOMY's "who acts" are about *building*
+authority over live systems and were already correct — no change there.
+
+**Q9 — lockstep absolutism?** Correct, with a scope clarification rather than
+an escape hatch. The doc already contained the resolution in its own words
+("...a lie the moment it **merges**") while stating the rule per-commit. Now
+explicit: lockstep binds what lands on the shared branch; a spike/WIP commit
+may trail its doc on its own branch; the merge is where it holds (V1 [fixed]).
+This kills the footgun (nobody is pushed to skip docs to avoid "breaking" WIP
+commits) without opening the "doc follows next week" hole on trunk — which
+remains exactly the lie the rule exists to kill.
+
+**Q10 — cases survived generalisation?** Substantially yes — the batch-op
+anti-pattern, the federation seam, the voided-"proven"-comment cautionary case,
+and the gate re-classing precedent all still bite as generalised. Two situation
+tests, however, lost their precedent anchors entirely (mitigation-under-
+uncertainty; special-case-vs-uniform) while the section header claims "every
+ruling below generalises a real decided case". Both regained a one-line
+generalised precedent (PR1 [fixed]); the header claim now holds. The Zero-Trust
+compression (seven tenets → summary + name-the-gap) is the right split — the
+tenet-by-tenet detail is estate-specific and correctly stays in ros.
+
+**Q11 — ladder + tests still adjudicate?** Yes, and there is fresh live
+evidence: the leak-scan-on-tiki decision (structural IP/MAC rules blocking
+routine networking work → `--disable`, per the gate-sizing test: "a control
+stricter than its threat trains bypass") is a real collision this repo resolved
+*using* these tests, post-generalisation. The ladder retains teeth.
+
+**Q12 — the split (not re-flagged, as instructed).** The split is right:
+atelier = general spine with generalised cases; ros = bearings + named
+precedents, pointing up. One guardrail for the pending trim session: after the
+trim, ros's named case-law (D1, poe-cycle, change_policy) will be invisible to
+peer adopters — so **before deleting ros §1–7 prose, confirm every atelier
+case/test stands alone as a complete teachable statement** without the ros
+detail behind it. Tracked in the follow-ups item (PR2).
+
+### Cross-cutting
+
+- **DRY of the doctrine:** clean. One-fact-one-home is canonical in EVIDENCE §9
+  and pointed to (not restated) from RECORD, PRINCIPLES §2, and PROPAGATION.
+  The single borderline restatement is RECORD's absolute-dating section, which
+  repeats EVIDENCE §7's two rationales rather than just pointing — judged
+  acceptable (two-line compression *with* citation, low drift risk); noted,
+  no change.
+- **Leak-check: clean.** Mechanical scan (structural + seeded local terms)
+  passes on all five docs. EVIDENCE §8's "13 devices"/"$40/mo": judged **safely
+  generic** — unattributed, no entity, no identifying combination; they read as
+  invented illustrations whether or not they once were real. No swap needed.
+- **Honest stubbing: holds, with one lockstep miss.** MODEL-ECONOMICS is loudly
+  a stub; A6/A7 + build/ are ROADMAP-tracked open; docs/build/ exists (stub
+  README). The miss: README still said PRINCIPLES' "canonical source is
+  currently ros" — false since the extraction, and the extraction commit should
+  have updated it (RECORD's own rule). README's method list also omitted four
+  shipped docs (PROPAGATION, EVIDENCE, REVIEW, RECORD) + DATA-PROTECTION +
+  TOOLBOX. Both fixed (X1 [fixed]).
+
+### Real-world check
+
+- **PROPAGATION bit, as written, twice:** dde4170-pin session surfaced 957f08 →
+  inspected → deliberate bump (SESSIONS, 2026-07-10). Behaviour matched the doc
+  exactly.
+- **The repo is run by its own doctrine:** SESSIONS.md is append-only; the
+  foundation review is brief-on-top/verdict-below with every finding
+  dispositioned [fixed]/[backlog] per §4; this review recursively follows the
+  same lifecycle. One practice gap: RECORD prescribes index + detail-on-demand,
+  but atelier's own SESSIONS entries are ~40-line full-detail inline (V2
+  [backlog] — split at the next natural point, or decide the threshold hasn't
+  been reached and say so).
+- **Bonus:** the state-your-model rule caught this session starting on the
+  wrong model (top of verdict). Two mechanisms, both proven live.
+
+### Findings
+
+| ID | Doc | Finding | Disposition |
+|---|---|---|---|
+| P1 | PROPAGATION | Block floor dropped **new trust surfaces** (deploy keys/webhooks/CI secrets/OAuth) | **[fixed]** — restored to canonical block; children re-stamp at next bump |
+| P2 | PROPAGATION | Block's "push — just proceed" silently loosened AUTONOMY's deploy-on-push non-routine confirm | **[fixed]** — new-content-class qualifier added |
+| P3 | PROPAGATION | Enforcement clause implied review catches every ignoring session; review-trigger policy leaves routine-work windows | **[fixed]** — honest window named |
+| P4 | PROPAGATION | No fleet-level staleness view; dormant children rot invisibly | **[backlog]** — ROADMAP follow-ups |
+| E1 | EVIDENCE | §4 over-fires on primary direct reads (reference-library seam) | **[fixed]** — scoped |
+| E2 | EVIDENCE | §12 silent on the in-conversation (common) case having no validator | **[fixed]** — gap named |
+| E3 | EVIDENCE | Artifact-ceremony vs in-loop discipline registers not distinguished | **[fixed]** — two-register rule in §1 |
+| R1 | REVIEW | "More capable model" framing contradicts MODEL-ECONOMICS + observed practice; independence is the mechanism | **[fixed]** — reframed here + PROPAGATION + README + RECORD, reframe recorded in-place |
+| R2 | REVIEW | Reviewer write-authority + builder/reviewer disagreement path unstated | **[fixed]** — added to lifecycle §4 |
+| V1 | RECORD | Lockstep absolutism per-commit vs its own "moment it merges"; WIP footgun | **[fixed]** — scoped to the shared branch |
+| V2 | RECORD | atelier's own SESSIONS.md ignores the index/detail split it prescribes | **[backlog]** — split at next natural point |
+| PR1 | PRINCIPLES | Two situation tests lost precedent anchors; header claims all rulings are cased | **[fixed]** — generalised precedents restored |
+| PR2 | PRINCIPLES | Trim-session guardrail: atelier cases must stand alone before ros §1–7 prose is deleted | **[backlog]** — guardrail on the existing trim item |
+| X1 | README | Stale PRINCIPLES canonicality line + four shipped method docs unlisted (lockstep miss) | **[fixed]** — README updated |
+
+### Follow-up checklist
+
+- [ ] **Fleet drift view** (P4): per child, pin vs atelier HEAD — script or CI;
+      five lines, closes the dormant-child blind spot.
+- [ ] **Re-stamp ros + faves doctrine blocks** at each repo's next pin bump —
+      pick up the P1/P2 floor restorations (the mechanism will surface this
+      itself once this branch merges).
+- [ ] **SESSIONS.md index/detail split** (V2) at the next natural point.
+- [ ] **ros PRINCIPLES trim guardrail** (PR2): verify each atelier case/test
+      stands alone before deleting the ros §1–7 prose.
+- [ ] CHANGELOG line per doctrine change: **done this session** (R1/P1/P2 etc.
+      are doctrine changes; children's drift checks will surface them — that is
+      the mechanism working, not a side effect).
+
+*Reviewer's honesty note, per the apex: this session both found and fixed R1 —
+finding-and-fixing in one session is sanctioned by the §4 rule this review
+itself added (R2). The circularity is real and is why the rule distinguishes
+small doctrine-consistent fixes (these) from structural rework (handed back).
+If Mike judges any fix here structural, revert it to [backlog] — the findings
+stand either way.*

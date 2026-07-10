@@ -43,6 +43,23 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   resumable cold.
 
 ### Changed
+- **Review reframed: independence, not superiority (2026-07-10 method-layer
+  review, R1).** `REVIEW.md` no longer claims a "*more capable* model" reviews —
+  the mechanism is an **independent capable review**: fresh context, a different
+  model's blind spots, an adversarial brief, capability as a floor. Same phrase
+  aligned in `PROPAGATION.md`'s enforcement clause, README, `RECORD.md`.
+- **Standard child doctrine block regains two floor cases** dropped in the
+  ~15-line squeeze (method-layer review P1/P2): *new trust surfaces* (deploy
+  keys, webhooks, CI secrets, OAuth grants) and the *deploy-on-push new-content*
+  qualifier on the routine-push grant. Children re-stamp at next pin bump.
+- `PROPAGATION.md` enforcement clause names its honest window (routine sessions
+  that skip the drift check are caught only at the next reviewed slice);
+  `EVIDENCE.md` §1/§4/§12 scoped honestly (two-register provenance,
+  primary-read corroboration, no validator for in-conversation claims);
+  `RECORD.md` lockstep scoped to the shared branch (WIP may trail on its own
+  branch); `PRINCIPLES.md` mitigation-under-uncertainty + special-case tests
+  regain generalised precedent lines. All from the 2026-07-10 method-layer
+  review (`docs/reviews/2026-07-10-method-layer.md`).
 - `docs/method/PRINCIPLES.md` — extracted from stub to the canonical general
   spine (§1–7 + precedence ladder + situation tests, generalised off tiki with
   the cases kept). ros `docs/PRINCIPLES.md` is now the *bearings + case-law*
@@ -52,7 +69,7 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   `.claude/settings.json`.
 
 ### Pending (see ROADMAP)
-- `PRINCIPLES.md` spine and `MODEL-ECONOMICS.md` extraction from ros.
+- `MODEL-ECONOMICS.md` extraction from ros.
 - The `build/` layer: the `create-repo` standard + templates.
 - `create-repo` rewired to inherit from atelier instead of copying empty
   templates.

@@ -218,9 +218,16 @@ are never traded against a design principle.
   special need **loud** (a lint, a report, a stated invariant). Divergent
   semantics are a least-surprise defect that surfaces years later. Escalate to a
   true special case only when the **threat model changes**, and record the trigger.
+  *Precedent:* a config field that seemed to want restrict-only merge kept the
+  uniform override semantics plus a loosening lint — the true special case
+  pre-agreed to trigger the day the config takes a second author (the trigger
+  recorded, the semantics not forked early).
 - **Mitigation under uncertainty.** While a fix's own justification is unproven,
   hold the **narrowest live-proven scope** — extending an unproven mitigation
-  extends unproven behaviour.
+  extends unproven behaviour. *Precedent:* a live workaround whose root cause was
+  still unconfirmed stayed scoped to the one surface it was proven on until a
+  re-test settled the culprit; widening it fleet-wide first would have widened
+  unproven behaviour.
 - **Timer vs event.** Default to the event/trigger. A poll/timer needs a stated
   need *and* a stated staleness bound (e.g. "refuses if the snapshot is older than
   24h"), so the cost and the window are both deliberate.

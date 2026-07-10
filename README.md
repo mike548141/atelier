@@ -33,7 +33,7 @@ we work:
 | `docs/method/` | **how we work** — the shareable crown jewels. Read `00-APEX.md` first. |
 | `docs/build/` | **how we build** — the repo-build standard and templates (repo craft) |
 | `docs/decisions/` | ADRs — decisions that rejected a real alternative |
-| `docs/reviews/` | peer-review briefs (work is reviewed by a more capable model before it's trusted) |
+| `docs/reviews/` | peer-review briefs (work is trusted only after an independent capable-model review) |
 | `tools/` | the mechanical controls that *enforce* the doctrine — e.g. `leakscan.py`, the pre-commit boundary keeping personal/estate data out of a shareable repo |
 
 ### `docs/method/` — the operating model
@@ -46,8 +46,21 @@ we work:
   disposable; keep churn out of iCloud.
 - **`CONCURRENCY.md`** — one worktree per line of work; serialise real-world
   side-effects.
-- **`PRINCIPLES.md`**, **`MODEL-ECONOMICS.md`** — *(extraction in progress — see
-  ROADMAP; the canonical source is currently ros `docs/`.)*
+- **`PRINCIPLES.md`** — the design-principle spine: §1–7 + precedence ladder +
+  situation tests, with the cases kept. Canonical here since 2026-07-10 (ros
+  keeps the tiki bearings and points up).
+- **`PROPAGATION.md`** — how doctrine reaches child repos: thin anchor, fat
+  pointer (inlined floor + SHA pin + session-start drift check).
+- **`EVIDENCE.md`** — how the agent knows what it claims: provenance, authority
+  tiers, acquisition risk, absolute dating, one-fact-one-home.
+- **`REVIEW.md`** — the enforcement half: independent capable-model review;
+  three lenses; brief-on-top/verdict-below lifecycle.
+- **`RECORD.md`** — docs-as-code lockstep, append-only session log, ADRs.
+- **`DATA-PROTECTION.md`** — read-before-write; verified way-back before any
+  destructive op.
+- **`TOOLBOX.md`** — the tool manifest; approved-but-missing may be installed.
+- **`MODEL-ECONOMICS.md`** — *(stub — the worked policy is in ros `docs/`; see
+  ROADMAP.)*
 
 ## Status
 

@@ -3,7 +3,7 @@
 *The doctrine, the design decisions, and the trail of how the work got here are
 **artifacts in the repo**, versioned and changed in lockstep with the code — not
 lore in someone's head or a chat that scrolls away. A future session (or a peer,
-or a more capable reviewer) reconstructs the "why" from the repo alone. If it
+or an independent reviewer) reconstructs the "why" from the repo alone. If it
 can't, the record failed.*
 
 ## Docs-as-code — the core discipline
@@ -12,7 +12,10 @@ Documentation lives in the repo, in the same commit as the change it describes.
 The rule is **lockstep**: a change to behaviour and the change to the doc that
 governs it land **together**, or the doc is a lie the moment it merges. A commit
 that alters the CLI surface and leaves the man page stale is not "done with a
-doc follow-up owed" — it is a broken commit. This is EVIDENCE §9 (one fact, one
+doc follow-up owed" — it is a broken commit. (Scope: what binds is what lands on
+the **shared branch**. A spike or WIP commit may trail its doc while it stays on
+its own branch; the *merge* is where lockstep holds — "the doc follows next
+week" landing on trunk is exactly the lie the rule exists to kill.) This is EVIDENCE §9 (one fact, one
 home) plus the apex (no claim stronger than its evidence — a stale doc *is* an
 over-strong claim about the code).
 

@@ -47,11 +47,19 @@ pointer"** (dependency + lockfile for doctrine). Written up in
 The "mechanism/review before more content" rule: the keystone + the whole `method/`
 layer earn a review with fresh context before extraction continues.
 
-- [ ] **Fable review of the `method/` layer** — brief written 2026-07-10 at
-      `docs/reviews/2026-07-10-method-layer.md` (PROPAGATION, EVIDENCE, REVIEW,
-      RECORD, PRINCIPLES; three lenses; sharpest ask = REVIEW's "more capable"
-      framing vs the Opus-builds/Fable-reviews reality). Run it, append the
-      verdict below the divider, then disposition findings per `REVIEW.md` §4.
+- [x] **Fable review of the `method/` layer** — run 2026-07-10 (Fable 5,
+      usage-billed); verdict below the divider in
+      `docs/reviews/2026-07-10-method-layer.md`. **PASS-WITH-FINDINGS**: 14
+      findings, 11 [fixed] in-session (headline R1: "more capable model"
+      reframed to **independent capable review** — independence, not
+      superiority, is the mechanism; plus two floor cases restored to the
+      child doctrine block), 3 [backlog] → follow-ups item below.
+- [ ] **Method-review follow-ups (2026-07-10):** (a) fleet-level drift view —
+      per child, pin vs atelier HEAD (P4); (b) re-stamp ros + faves doctrine
+      blocks at each repo's next pin bump to pick up the P1/P2 floor
+      restorations; (c) SESSIONS.md index/detail split at the next natural
+      point (V2); (d) trim guardrail folded into the ros PRINCIPLES trim item
+      below (PR2).
 
 ## Then — extraction (keep the case-law, don't strip it)
 
@@ -64,7 +72,10 @@ theatre). Leave tiki-specific bearings + review case-law in ros.
       case-law only — its general §1–7 prose now duplicates atelier's canonical
       spine (a transitional DRY breach, flagged loudly at the top of that file,
       not silent). Deserves its own careful session in ros so the case-law isn't
-      damaged in the trim.
+      damaged in the trim. **Guardrail (method-review PR2):** before deleting
+      ros prose, confirm every atelier case/situation test stands alone as a
+      complete teachable statement — post-trim, ros's named precedents are
+      invisible to peer adopters.
 - [ ] **`MODEL-ECONOMICS.md`** general shape (numbers stay person-local). (Stub
       has review-trigger + tiered authority already.)
 - [x] **`EVIDENCE.md`** (harvest A1 — highest-value net-new) — authority tiers,

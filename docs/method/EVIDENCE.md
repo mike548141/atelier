@@ -23,6 +23,12 @@ yet a fact — it is a guess, and must be labelled one. Provenance is not
 bureaucracy; it is the difference between "it works" and "I ran it and observed
 it work" that the apex draws.
 
+Two registers, both honest: a **durable artifact** carries its provenance
+*written down* (tiers, dates, sources in the file); an **in-flight claim**
+carries it *on demand* — the agent must be able to answer when challenged, and
+must label a guess a guess unprompted. The ceremony scales with durability; the
+discipline never drops.
+
 ## 2. Authority tiers — never launder a weak source into a strong claim
 
 Every source sits in a tier, and the claim inherits the *weakest* tier it
@@ -65,6 +71,11 @@ reporting it as settled.
 A specific figure or claim that appears in exactly one place and can't be
 cross-checked is **marked unverified or left out** — never presented as settled.
 One unconfirmed source is a lead, not a fact.
+
+Scope: this bites where the source or acquisition leaves residual doubt (tiers
+below primary; high-risk acquisition). A primary artifact read directly — the
+code, the config, the measured output — is its own corroboration; this is not a
+demand to double-source what was directly observed.
 
 ## 5. Separate fact from interpretation
 
@@ -140,6 +151,11 @@ block, tiers are stated, dates are absolute, no orphaned cross-references — an
 **green is part of "done"**. This is the same category the enforcement clause in
 `PROPAGATION.md` names: a *document* saying "cite your sources" informs; a
 *check* that fails the commit enforces. Intent is not a control.
+
+Honest reach: this section has teeth only where the evidence lives in files. The
+**in-conversation claim — the common case — has no validator**; there the
+discipline is held by the apex and enforced only by the review practice
+(`REVIEW.md`). That gap is real and named, not papered over.
 
 ---
 

@@ -175,3 +175,36 @@ whether to use a handle). This **live-validated the earlier tiki scrub**. Hooks
 (`.git/hooks`, uncommitted); tool + docs committed. **Still owed:** CI wiring;
 term-list portability to Mike's other devices. **Flagged for Mike:** the
 `pyproject.toml` author-identity decision.
+
+---
+
+**2026-07-10 — the method/ layer review (Fable 5, usage-billed; the gated
+review both prior sessions stopped for).** Ran the brief at
+`docs/reviews/2026-07-10-method-layer.md` deep-not-fast: all five in-scope docs
++ APEX/AUTONOMY/MODEL-ECONOMICS, README/ROADMAP/SESSIONS, the foundation
+review, ros `docs/PRINCIPLES.md`, and both stamped child blocks; mechanical
+leak-scan over the five docs (clean). **Live datum before the review began:**
+the session accidentally started on Opus; the "state your model + pool" rule
+surfaced it in line one and Mike swapped to Fable before spend — the doctrine
+bit. **Verdict: PASS-WITH-FINDINGS** — 14 findings, 11 [fixed] in-session, 3
+[backlog]. Headline (the brief's sharpest ask, confirmed): REVIEW.md's "more
+capable model" framing was false against the house's own economics — Fable is
+the *cheaper review tier*, and MODEL-ECONOMICS already said the true mechanism
+(a *separate, usage-billed* model reviews). Reframed to **independent capable
+review** (independence + different blind spots + adversarial brief; capability
+a floor, not the definition) across REVIEW/PROPAGATION/README/RECORD, reframe
+recorded in-place. Second-order: the child doctrine block's ~15-line squeeze
+had **dropped two floor cases** (new trust surfaces; deploy-on-push
+new-content qualifier) — restored; children re-stamp at next pin bump.
+Honest-gap sentences landed (PROPAGATION's enforcement window; EVIDENCE §12's
+no-validator-for-conversation case; EVIDENCE §1 two-register provenance; §4
+primary-read scoping); RECORD lockstep scoped to the shared branch; two
+PRINCIPLES situation tests regained precedent lines; README's stale
+PRINCIPLES-canonicality line + four unlisted method docs fixed (a lockstep
+miss). Real-world checks passed: drift check fired-as-written n=2; foundation
+review properly dispositioned; ladder adjudicated a fresh live collision (the
+leakscan gate-sizing call). [backlog]: fleet-level drift view (P4), SESSIONS
+index/detail split (V2), ros-trim guardrail (PR2) — all on the ROADMAP
+follow-ups item. Review gate ticked; extraction is unblocked. Committed on
+`atelier-method-review`, PR to main (expect ROADMAP/SESSIONS merge conflicts
+with the parallel Opus session — keep both sides).
