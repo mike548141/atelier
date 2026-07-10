@@ -5,6 +5,27 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-10 — child CI scanner floor: the public scanners now gate child repos)
+- **`docs/build/templates/workflows/floor.yml`** — the CI backstop to the
+  pre-commit scan hook, for any repo that inherits house doctrine. The hook only
+  guards the clone it's installed in (git transports neither hooks nor config);
+  this workflow re-runs the publish/leak scans on every push + PR. It checks
+  `mike548141/atelier` out **beside** the repo and runs its public
+  secretscan/leakscan/linkscan against the repo's own tree — **one source, no
+  vendored copy, no drift**, now possible because atelier is public (ADR 0005)
+  and the scanners are zero-dep stdlib. Design calls are in the header:
+  **`atelier@main`** floats (a security floor wants the newest scanner; and it
+  avoids a second stamped-SHA drift surface — CLAUDE.md's pin stays the only
+  doctrine-version truth); **leakscan structural-only** (its term list is
+  machine-local — the same honest scope as atelier's own `ci.yml`);
+  **licenscan commented** (no-LICENSE hard-fails it, so it's a *publish* gate,
+  not an always-on floor for a private child). The scan is scoped to the repo's
+  tree, not the whole workspace — atelier's own fake-secret fixtures would
+  false-positive otherwise. Proven both ways (clean child 0/0/0; damaged child
+  with a real key + broken link blocks) and pinned by 5 `test_templates.py`
+  tests (suite 190→195). create-repo seeds it and REPO-STANDARD lists it; the
+  skill's "CI scanning not wired yet" note is retired.
+
 ### Changed (2026-07-10 — the linkscan review: gate cleared, five assumptions repaired)
 - **`tools/linkscan.py` hardened by its own review** (Fable, cold session:
   `docs/reviews/2026-07-10-linkscan.md`, PASS-WITH-FINDINGS, findings L1–L10).

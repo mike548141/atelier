@@ -88,6 +88,13 @@ evidence — see `method/EVIDENCE.md`.
   say so in a comment and leave that as a documented human step. A green check
   that proves nothing is a phantom-success — the exact failure mode `method/`
   names an instrument must never have.
+- **.github/workflows/floor.yml** — the *scanner* floor, for any repo that
+  inherits house doctrine: the CI backstop to the pre-commit scan hook (which
+  only guards the clone it's installed in). It checks atelier out beside the repo
+  and runs its public `tools/` (secretscan · structural leakscan · linkscan)
+  against the tree on every push + PR — one source, no vendored copy, no drift.
+  Distinct from `ci.yml` (which gates *correctness*); this gates *publish-safety*.
+  licenscan is a publish gate, left commented until the repo settles a licence.
 
 **docs/** (present to the degree the type earns — see sizing):
 

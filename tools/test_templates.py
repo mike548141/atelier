@@ -60,5 +60,67 @@ class TemplateBlockSyncTest(unittest.TestCase):
         self.assertRegex(PROPAGATION.read_text(), r"fill the four\s+placeholders")
 
 
+FLOOR = ROOT / "docs" / "build" / "templates" / "workflows" / "floor.yml"
+
+
+class ChildFloorWorkflowTest(unittest.TestCase):
+    """docs/build/templates/workflows/floor.yml — the child-CI scanner floor.
+
+    Its safety rests on invariants that are easy to break with an innocent
+    edit: it must fetch the *one source* of scanners, scope the scan to the
+    repo's own tree (not the whole workspace, which holds atelier's fake-secret
+    fixtures), and keep leakscan structural-only (its term list is machine-local
+    and must never be demanded in CI). Pin them.
+    """
+
+    def setUp(self):
+        self.text = FLOOR.read_text()
+
+    def test_fetches_atelier_scanners_one_source(self):
+        """No vendored copy: the tools come from a checkout of atelier."""
+        self.assertIn("repository: mike548141/atelier", self.text)
+        for tool in ("secretscan.py", "leakscan.py", "linkscan.py"):
+            self.assertIn(f"atelier/tools/{tool}", self.text)
+
+    def test_scan_scoped_to_repo_not_workspace(self):
+        """Every active scan targets `repo` (its own tree), never `.` — a
+        whole-workspace scan would false-positive on atelier's fixtures."""
+        runs = re.findall(r"tools/(?:secret|leak|link)scan\.py [^\n]*", self.text)
+        self.assertTrue(runs, "no scanner run lines found in floor.yml")
+        for line in runs:
+            self.assertRegex(
+                line,
+                r"--root repo repo$",
+                f"scan not scoped to the repo tree: {line!r}",
+            )
+
+    def test_leakscan_structural_only(self):
+        """--require-terms would demand the machine-local term list CI can't
+        (and must not) hold — the same honest scope as atelier's own ci.yml.
+        Assert on the active run line, not the file: the header prose names the
+        flag to explain why it's absent."""
+        run_lines = [
+            ln for ln in self.text.splitlines()
+            if "run:" in ln and "leakscan.py" in ln
+        ]
+        self.assertTrue(run_lines, "no leakscan run line found in floor.yml")
+        for ln in run_lines:
+            self.assertNotIn("--require-terms", ln)
+
+    def test_licenscan_is_a_commented_publish_gate(self):
+        """No LICENSE hard-fails licenscan; a private/pre-licence child must
+        not red on it. It stays commented until the repo opts in."""
+        for line in self.text.splitlines():
+            if "licenscan.py" in line:
+                self.assertTrue(
+                    line.lstrip().startswith("#"),
+                    f"licenscan must be commented (publish gate): {line!r}",
+                )
+
+    def test_least_privilege(self):
+        """The floor only reads trees."""
+        self.assertIn("contents: read", self.text)
+
+
 if __name__ == "__main__":
     unittest.main()

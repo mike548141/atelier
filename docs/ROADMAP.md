@@ -383,10 +383,26 @@ public as a **named worked example** (README "If you're adopting this"). What wa
       (`contents: read`), concurrency-cancel. **Live-proven twice on GitHub** (7s,
       11/11 steps, no deprecation annotation after the `checkout@v5`/
       `setup-python@v6` bump) — not assumed; watched green.
-- [ ] **Wire the public scanners into child CI** — the other half, still open: a
-      child's CI checks out `mike548141/atelier` and runs its public `tools/` (no
-      secret, no vendored copy, no drift). atelier's own `ci.yml` is the reference
-      to adapt (swap the in-repo tool steps for an atelier checkout).
+- [x] **Wire the public scanners into child CI** — DONE 2026-07-10 (Opus): the
+      other half of the CI build, unblocked by the public flip (ADR 0005).
+      `docs/build/templates/workflows/floor.yml` — a language-agnostic scanner
+      floor any doctrine-inheriting child drops in beside its `ci.yml`. It checks
+      `mike548141/atelier` out **as a sibling** and runs its public
+      secretscan/leakscan/linkscan against the child's own tree (`repo/`) — no
+      secret, no vendored copy, no drift. Design calls stated in the header, not
+      buried: **floats `atelier@main`** (a scanner *floor* wants newest; also
+      avoids a second stamped-SHA drift surface — the CLAUDE.md pin stays the sole
+      doctrine-version truth; `ref:` commented for anyone wanting reproducible CI);
+      **leakscan structural-only** (term list is machine-local — same honest scope
+      as atelier's own `ci.yml`); **licenscan commented** (it hard-fails with no
+      LICENSE, so it's a *publish* gate, wrong to default-on for a private child).
+      Scan scoped to `repo/` because a whole-workspace scan would false-positive
+      on atelier's own fake-secret fixtures (proven, load-bearing). Driven both
+      ways before claimed: clean child passes 0/0/0, damaged child (real `AKIA…`
+      key + broken link) blocks. Wired into create-repo (seed step 3, step 6 CI
+      text), REPO-STANDARD file set, and pinned by 5 `test_templates.py` tests
+      (one-source, repo-scoped, structural-only, licenscan-commented, least-priv;
+      suite 190→195). The step-6 "not wired yet" text is retired.
 - [x] **Markdown internal-link check** — BUILT 2026-07-10 (Opus), **REVIEWED
       2026-07-10 (Fable, cold session): PASS-WITH-FINDINGS, gate cleared** —
       verdict below the divider in `docs/reviews/2026-07-10-linkscan.md`.
