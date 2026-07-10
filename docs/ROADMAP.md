@@ -51,11 +51,13 @@ theatre). Leave tiki-specific bearings + review case-law in ros.
       generalised cases. (Stub in place.)
 - [ ] **`MODEL-ECONOMICS.md`** general shape (numbers stay person-local). (Stub
       has review-trigger + tiered authority already.)
-- [ ] **`EVIDENCE.md`** (harvest A1 — highest-value net-new) — authority tiers,
-      absolute-dating, store-the-rule-not-the-value, trigger-based refresh;
-      mechanically hardens the apex. Source: `hitchbots_guide/STANDARDS.md`.
-- [ ] **Peer-review lifecycle** doc (harvest A2) + **session/doc-as-code
-      discipline** doc (harvest A3) — both already named as owed.
+- [x] **`EVIDENCE.md`** (harvest A1 — highest-value net-new) — authority tiers,
+      acquisition-method error risk, absolute-dating, store-the-rule-not-the-value,
+      one-fact-one-home, trigger-based refresh, enforce-by-machine; mechanically
+      hardens the apex. Generalised from a private reference-library `STANDARDS.md`.
+- [x] **Peer-review lifecycle** doc (harvest A2 → `REVIEW.md`) +
+      **session/doc-as-code discipline** doc (harvest A3 → `RECORD.md`) — both
+      written 2026-07-10; close the enforcement-clause forward-references.
 - [x] **Model-capability authority** section in AUTONOMY (harvest A4 — the
       *who-acts* axis; "policy in memory protects nothing — encode it").
       Ratified by Mike 2026-07-10; written into `method/AUTONOMY.md`.

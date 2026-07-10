@@ -23,6 +23,18 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   standard child doctrine block, the layer-override rule, and the enforcement
   clause (read ≠ complied). Versioning decided: the commit SHA is the version;
   CHANGELOG is the human-readable index; tags reserved for milestones.
+- `docs/method/EVIDENCE.md` — the machinery behind the apex's honesty (harvest
+  A1): authority tiers, acquisition-method error risk, absolute dating,
+  store-the-rule-not-the-value, one-fact-one-home, trigger-based refresh,
+  invest-where-the-model-is-weak, enforce-by-machine. Generalised from a private
+  reference-library `STANDARDS.md`.
+- `docs/method/REVIEW.md` — the enforcement half (harvest A2): independent
+  review by a more capable model; three lenses; brief-on-top/verdict-below
+  lifecycle; inline-vs-batched triggering.
+- `docs/method/RECORD.md` — session + doc-as-code discipline (harvest A3):
+  lockstep doc change, append-only session log with detail-on-demand, ADRs for
+  re-litigable decisions, absolute dating; the record is what makes a session
+  resumable cold.
 - README, CLAUDE onramp, LICENSE (Apache-2.0), house `.gitignore` +
   `.claude/settings.json`.
 
