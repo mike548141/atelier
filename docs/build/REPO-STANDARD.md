@@ -47,8 +47,8 @@ Apply what earns its place; stub the rest with a note (below).
 
 ## The standard file set
 
-Seed from `templates/` (today still carried by the `create-repo` skill — the
-move to live alongside this standard is owed, see `build/README.md`), then
+Seed from `build/templates/` (they live alongside this standard, one source the
+skill and the published methodology share), then
 **fill every placeholder with real, grounded content**. A lorem-ipsum ARCHITECTURE is worse than no ARCHITECTURE — it reads as
 truth and isn't. If you cannot ground a doc yet (you don't understand the
 project), write the stub with a visible `<!-- TODO -->` and *say so*, rather than
@@ -157,8 +157,13 @@ two hops away, on purpose:
 - **Delivery vehicle** — the `create-repo` skill applies this standard as a
   guided action. It carries the instance-local specifics a shareable doc must not
   (exemplar repo names, git identity, the `gh` account, the workspace path,
-  house-convention locale). The skill should *inherit from this doctrine*, not
-  re-encode it — closing the gap that new repos were born wisdom-empty.
-- **Templates** — the seed files. Their home is alongside this standard so the
-  skill and the published methodology share one source (owed — see the build/
-  README).
+  house-convention locale, the default copyright holder). It *inherits from this
+  doctrine* rather than re-encoding it, and it **stamps the standard doctrine
+  block + SHA pin** (`method/PROPAGATION.md`) into every new repo's CLAUDE.md —
+  so no delivery path leaves a repo born wisdom-empty.
+- **Templates** — the seed files, in `build/templates/`, alongside this standard:
+  the skill and the published methodology share one source. The skill seeds from
+  here (renaming `gitignore`→`.gitignore`, `claude/`→`.claude/`,
+  `workflows/`→`.github/workflows/`) and fills the placeholders. The CLAUDE.md
+  template carries a *stamped copy* of the doctrine block whose canonical text is
+  `method/PROPAGATION.md` — a pin bump reviews that wording.

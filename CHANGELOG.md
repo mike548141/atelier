@@ -5,6 +5,33 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-10 — create-repo rewired to inherit; templates moved into build/)
+- **The core Q1 fix landed.** `create-repo` no longer re-encodes the standard from
+  memory — it now **inherits from atelier** (the source) and **stamps the standard
+  doctrine block + SHA pin** into every new repo's `CLAUDE.md`. The gap this
+  closes: the skill had *no CLAUDE.md template at all*, so new repos were born
+  with no inlined safety floor, no pointer up, no drift check — the whole
+  `PROPAGATION.md` mechanism bypassed at birth. No delivery path now leaves a repo
+  wisdom-empty.
+- **Templates moved** from the skill's private copy into `docs/build/templates/`
+  (18 files) — one source shared by the skill and the published methodology, per
+  REPO-STANDARD's decided direction. Added the missing **`CLAUDE.md` template**
+  carrying the stamped doctrine block (canonical text stays in PROPAGATION.md).
+  Scrubbed of instance residue as they crossed into the shareable repo: `NOTICE`
+  holder hardcoded to a company → `<copyright holder>`; `ci-static.yml` project
+  name "Nova" → generic; `reviews/README.md` static-web-specific examples →
+  type-neutral. Caught one **live drift** that grounds the whole one-source move:
+  the `MODEL-ECONOMICS` template still named **ros** as canonical months after it
+  was extracted to atelier — fixed to point up to atelier. Verified: residue grep
+  clean, `leakscan` clean on the subtree.
+- REPO-STANDARD + `build/README.md` updated from "owed" to done: templates now in
+  `build/templates/`; the skill *inherits + stamps* rather than re-encodes; the
+  seed→rename→fill→stamp→scan→push procedure documented. The skill is machine-local
+  (delivery vehicle); it carries only instance specifics (exemplars, git identity,
+  `gh` account, `$PP`, default holder, locale) and hard-depends on atelier being
+  present — failing honestly if it is not. Review-owed (delivery mechanism, not
+  yet Fable-swept).
+
 ### Changed (2026-07-10 — the post-method-review batch review, PASS-WITH-FINDINGS)
 - The gated Fable sweep of `957fa08..f72031c` ran (verdict below the divider in
   `docs/reviews/2026-07-10-post-method-review-batch.md`): floor green (3

@@ -1,0 +1,14 @@
+<name>
+Copyright <year> <copyright holder>
+
+This product includes original work licensed under the Apache License,
+Version 2.0 (see LICENSE).
+
+It also bundles third-party components, each retaining its own licence and
+copyright (the maintainers claim no ownership; included with attribution):
+
+- <Component>            <path>
+    <origin/author> — <licence>.
+
+If any attribution here is incomplete or wrong, it is an oversight to be
+corrected, not a claim of ownership.

@@ -1,0 +1,35 @@
+# CI for a Python package. Proves it lints, type-checks and passes its
+# tests on Linux + macOS (the portability guarantee — developed on one
+# Mac). Adjust the working-directory if the package isn't at src/.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: py${{ matrix.python-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install + dev tools
+        run: python -m pip install -e ".[dev]"
+      - name: Lint (ruff)
+        run: ruff check .
+      - name: Type-check (mypy)
+        run: mypy
+      - name: Test (pytest)
+        run: python -m pytest -q

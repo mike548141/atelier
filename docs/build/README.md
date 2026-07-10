@@ -19,18 +19,18 @@ it — a second copy drifts.
   repo type, the standard file set (with pointers up to `method/` for the
   doctrine-heavy docs), honest-CI, repo-craft conventions, and the two processes
   (new repo / standardise an existing one). The readable, forkable source.
+- **`templates/`** — the seed files the standard describes: README, CLAUDE.md
+  (carrying the stamped doctrine block), CONTRIBUTING, CHANGELOG, NOTICE,
+  gitignore, the `.claude/` allowlist, the `docs/` set (ARCHITECTURE, ROADMAP,
+  SESSIONS, MODEL-ECONOMICS, decisions/, reviews/), both CI workflows, and
+  `tools/check_links.py`. One source, shared by the `create-repo` skill and the
+  published methodology — moved here from the skill's private copy 2026-07-10 and
+  scrubbed of instance residue (a hardcoded holder, a project name, a stale
+  ros-is-canonical pointer).
 
 ## Still owed (ROADMAP)
 
-1. **Move the templates** (`templates/`) alongside this standard, so the
-   `create-repo` skill and the published methodology share one source instead of
-   the skill holding a private copy.
-2. **Rewire `create-repo` to inherit from atelier** — the skill references this
-   doctrine and seeds from these templates, instead of copying wisdom-empty
-   shells. The skill remains the *delivery vehicle* (it carries the instance-local
-   specifics a shareable doc must not); atelier is the *source*. No delivery path
-   bypasses the skill.
-3. **Supply-chain / release standard** — committed deterministic SBOM + keyless
+1. **Supply-chain / release standard** — committed deterministic SBOM + keyless
    signing. Its own doc when written; currently deferred (external tooling hits
    the tool-install floor — see ROADMAP). The licence-consistency pre-publish
    gate landed 2026-07-10 as `tools/licenscan.py` (review B11 swept this line —

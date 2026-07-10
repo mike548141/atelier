@@ -173,9 +173,16 @@ standout debt; sessions 14–15 deliberately did not stack on it.
       keyless signing. DEFERRED: SBOM/signing needs external tooling (syft/cosign),
       which hits the tool-install floor + breaks the zero-dep house-tool pattern —
       a deliberate design call, not a build. Revisit when a real release needs it.
-- [ ] **Rewire `create-repo` to inherit from atelier** — stamp the doctrine
-      block + pin; the skill is the *delivery vehicle*, atelier is the *source*.
-      No delivery path bypasses create-repo. (The core Q1 fix.)
+- [x] **Rewire `create-repo` to inherit from atelier** — DONE 2026-07-10 (Opus):
+      the core Q1 fix. The skill now inherits from atelier (points up to
+      REPO-STANDARD/REPO-BOUNDARY/PROPAGATION, seeds from `build/templates/`)
+      instead of re-encoding the standard, and **stamps the doctrine block + SHA
+      pin** into every new repo's CLAUDE.md — the skill had *no CLAUDE.md template
+      at all*, so PROPAGATION was bypassed at birth. Templates moved skill→
+      `build/templates/` (18 files, one source), the missing CLAUDE.md template
+      added, three instance-residue scrubs + one live ros-is-canonical drift fix;
+      leakscan clean. Skill stays machine-local (delivery vehicle), hard-depends
+      on atelier, fails honestly if absent. Review-owed (delivery mechanism).
 - [x] **Repo-boundary guidance** — DONE 2026-07-10 (Opus): `docs/build/
       REPO-BOUNDARY.md`, the is-this-a-repo decision by independent-lifecycle
       discriminators (visibility/cadence/ownership/reuse/blast-radius) → standalone
