@@ -5,6 +5,21 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-10 — the secrets doctrine)
+- `docs/method/SECRETS.md` — the *make-rotation-cheap* half that the leak/secret
+  scans' *detect* half depends on; extracted from ros §5 (credential triad) + §7
+  (secret-store-not-exempt). Reproducible / re-mintable as the enabling property
+  (internal secrets rotate mechanically, external re-mint from code behind one
+  approval — no hand-kept irreplaceable token); the least → JIT → short-lived
+  triad with standing credentials as a tracked debt, not a resting state;
+  references-never-values in the right plane (config/device/shareable-repo hold a
+  reference, the value lives only in the encrypted store, scans enforce it);
+  rotation-on-cadence bounds the undetected-exposure window. Completes the
+  *detect → rotate → burn-cost-is-minutes* arc and closes `AUTONOMY.md`'s
+  forward-reference to "the secrets doctrine". Instance mechanism (sops+age,
+  `!secret` syntax, the credential map) stays in ros. Slotted into method/README
+  as #5 (after DATA-PROTECTION); the rest renumbered.
+
 ### Added (2026-07-10 — build/ layer: the repo standard extracted (A10))
 - `docs/build/REPO-STANDARD.md` — the repo-craft standard extracted from the
   `create-repo` skill into readable, forkable doctrine: product-in-a-subfolder

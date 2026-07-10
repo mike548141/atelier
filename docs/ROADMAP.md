@@ -183,12 +183,16 @@ theatre). Leave tiki-specific bearings + review case-law in ros.
       **snapshot/restore-before-destructive gate** encoded, not remembered.
       (Shareable doctrine; the concrete estate access map is instance-local, not
       in this repo.)
-- [ ] **`SECRETS.md`** doctrine (extract ros §5) — reproducible / re-mintable
-      secrets so rotation is low-work/low-risk (internal: rotate at will;
-      external: re-mint behind one approval); least/JIT/short-lived as the goal;
-      a rotation cadence that bounds any undetected-exposure window. Pairs with
-      the two scans above: *detect → rotate immediately → the burn cost is
-      minutes.* (Mike, 2026-07-10: a burned secret must be easily replaceable.)
+- [x] **`SECRETS.md`** doctrine — DONE 2026-07-10 (Opus): `method/SECRETS.md`,
+      extracted from ros §5 (credential triad) + §7 (secret-store-not-exempt).
+      Reproducible / re-mintable enabling property (internal rotate mechanically,
+      external re-mint behind one approval); the least/JIT/short-lived triad with
+      standing creds as tracked-debt-not-resting-state; references-never-values in
+      the right plane; rotation-on-cadence bounds the undetected window. Closes
+      AUTONOMY's forward-reference to "the secrets doctrine" and completes the
+      *detect → rotate → burn-cost-is-minutes* arc with the two scans. Instance
+      mechanism (sops+age, `!secret`, the credential map) stays in ros.
+      Review-owed (doctrine text — a REVIEW.md sampling pass).
 
 ## North star — context follows the person, work follows anywhere
 

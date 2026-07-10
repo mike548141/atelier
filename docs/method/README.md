@@ -17,17 +17,22 @@ Read in this order:
    verified way-back before any destructive op; the data plane is the slow lane
    even under broad grants; reproducibility as insurance; protect others' data
    too.
-5. **`STORAGE.md`** — GitHub master, iCloud backup, laptop disposable.
-6. **`CONCURRENCY.md`** — one worktree per line of work; serialise real-world
+5. **`SECRETS.md`** — designed to be cheaply burned: reproducible / re-mintable
+   secrets (internal rotate mechanically, external re-mint behind one approval),
+   the least/JIT/short-lived triad with standing creds as tracked debt, references
+   never values, rotation-on-cadence. The *make-rotation-cheap* half that the two
+   scans' *detect* half depends on; the load under `AUTONOMY.md`'s push floor.
+6. **`STORAGE.md`** — GitHub master, iCloud backup, laptop disposable.
+7. **`CONCURRENCY.md`** — one worktree per line of work; serialise real-world
    side-effects.
-7. **`TOOLBOX.md`** — keep a tool manifest; approved-but-missing may be
+8. **`TOOLBOX.md`** — keep a tool manifest; approved-but-missing may be
    installed; keep the personal inventory machine-local.
-8. **`PRINCIPLES.md`** — the design principles (resilience, structure,
+9. **`PRINCIPLES.md`** — the design principles (resilience, structure,
    events-over-polling, state/concurrency, security/privacy/cost, legibility,
    reproducibility) + the precedence ladder + situation tests, with generalised
    cases. **Canonical here**; `ros` keeps its tiki bearings + review case-law and
    points up.
-9. **`MODEL-ECONOMICS.md`** — match the model to the job (plan model builds,
+10. **`MODEL-ECONOMICS.md`** — match the model to the job (plan model builds,
    usage-billed model reviews), the which-pool self-check, tiered authority, and
    session hygiene. **Canonical here**; the estate-specific numbers (prices,
    model roster, session-overhead figure) stay person-local in `ros`.
