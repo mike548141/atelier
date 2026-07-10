@@ -152,5 +152,114 @@ class EndToEnd(unittest.TestCase):
         self.assertEqual(linkscan._selftest(), 0)
 
 
+class ReviewFindings(unittest.TestCase):
+    """Pins for the 2026-07-10 Fable review findings (L1–L10): each was a
+    live-proven false negative, false positive, or silent green before the fix."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="linkscan-review-"))
+
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def _write(self, rel, body):
+        p = self.tmp / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(body)
+        return p
+
+    # L1 — a typo'd path arg must never scan nothing and report clean.
+    def test_nonexistent_path_arg_is_usage_error(self):
+        self.assertEqual(linkscan.main([str(self.tmp / "no-such-dir")]), 2)
+
+    def test_nonexistent_root_is_usage_error(self):
+        self.assertEqual(
+            linkscan.main(["--root", str(self.tmp / "no-such-root"),
+                           str(self.tmp)]), 2)
+
+    # L2 — a case-mismatched link passes exists() on APFS but 404s on GitHub.
+    def test_case_mismatch_flagged(self):
+        self._write("Target.md", "# H\n")
+        self._write("doc.md", "# D\n[x](target.md)\n")
+        fs = linkscan.scan_paths([self.tmp], self.tmp)
+        self.assertEqual([f.kind for f in fs], ["missing-file"])
+
+    # L3 — a link resolving above the scan root exists locally, 404s on GitHub.
+    def test_link_escaping_root_flagged(self):
+        (self.tmp / "outside.md").write_text("# O\n")
+        repo = self.tmp / "repo"
+        repo.mkdir()
+        (repo / "doc.md").write_text("# D\n[x](../outside.md)\n")
+        fs = linkscan.scan_paths([repo], repo)
+        self.assertEqual([f.kind for f in fs], ["outside-root"])
+
+    # L4 — GitHub fragment matching is exact; a wrong-case anchor is a break.
+    def test_wrong_case_anchor_flagged_with_hint(self):
+        self._write("doc.md", "# T\n## A Section\n[x](#A-Section)\n")
+        fs = linkscan.scan_paths([self.tmp], self.tmp)
+        self.assertEqual([f.kind for f in fs], ["missing-anchor"])
+        self.assertIn("#a-section", fs[0].detail)
+
+    def test_exact_anchor_still_passes(self):
+        self._write("t.md", "# Real Heading\n")
+        self._write("doc.md", "# D\n[x](t.md#real-heading)\n")
+        self.assertEqual(linkscan.scan_paths([self.tmp], self.tmp), [])
+
+    # L4 — the slugger keeps literal underscores (GitHub does).
+    def test_snake_case_heading_anchor(self):
+        self._write("doc.md", "# T\n## snake_case name\n[x](#snake_case-name)\n")
+        self.assertEqual(linkscan.scan_paths([self.tmp], self.tmp), [])
+
+    def test_underscore_emphasis_unwrapped(self):
+        self.assertEqual(linkscan.slugify("_Emph_ text"), "emph-text")
+
+    # L5 — a destination with balanced parens is a legal filename.
+    def test_paren_destination_resolves(self):
+        self._write("a(1).md", "# H\n")
+        self._write("doc.md", "# D\n[x](a(1).md)\n")
+        self.assertEqual(linkscan.scan_paths([self.tmp], self.tmp), [])
+
+    def test_paren_destination_missing_reports_full_dest(self):
+        self._write("doc.md", "# D\n[x](gone(1).md)\n")
+        fs = linkscan.scan_paths([self.tmp], self.tmp)
+        self.assertEqual([(f.kind, f.target) for f in fs],
+                         [("missing-file", "gone(1).md")])
+
+    # L6 — setext headings mint real GitHub anchors.
+    def test_setext_heading_anchor_resolves(self):
+        self._write("t.md", "Real Setext Heading\n===================\n\nbody\n")
+        self._write("doc.md", "# D\n[x](t.md#real-setext-heading)\n")
+        self.assertEqual(linkscan.scan_paths([self.tmp], self.tmp), [])
+
+    def test_divider_after_blank_is_not_a_heading(self):
+        # the house `---` verdict divider (blank line above) mints no anchor
+        slugs = linkscan.heading_slugs("# T\n\nprose\n\n---\n\nmore\n")
+        self.assertEqual(slugs, {"t"})
+
+    # L7 — fence tracking is length- and info-string-aware.
+    def test_four_backtick_fence_keeps_inner_example_as_code(self):
+        self._write("doc.md",
+                    "# D\n\n````markdown\n```\n[example](fake.md)\n```\n````\n")
+        self.assertEqual(linkscan.scan_paths([self.tmp], self.tmp), [])
+
+    def test_info_string_line_does_not_close_a_fence(self):
+        self._write("doc.md",
+                    "# D\n\n```\n```python\n[example](fake.md)\n```\n")
+        self.assertEqual(linkscan.scan_paths([self.tmp], self.tmp), [])
+
+    def test_unclosed_fence_swallows_to_eof(self):
+        # matches GitHub: an unclosed fence is code to end-of-file
+        self._write("doc.md", "# D\n```\n[gone](missing.md)\n")
+        self.assertEqual(linkscan.scan_paths([self.tmp], self.tmp), [])
+
+    def test_real_break_after_closed_nested_fence_still_flags(self):
+        self._write("doc.md",
+                    "# D\n\n````\n```\n[ex](fake.md)\n```\n````\n\n[gone](missing.md)\n")
+        fs = linkscan.scan_paths([self.tmp], self.tmp)
+        self.assertEqual([(f.kind, f.target) for f in fs],
+                         [("missing-file", "missing.md")])
+
+
 if __name__ == "__main__":
     unittest.main()

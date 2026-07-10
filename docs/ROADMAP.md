@@ -387,20 +387,27 @@ public as a **named worked example** (README "If you're adopting this"). What wa
       child's CI checks out `mike548141/atelier` and runs its public `tools/` (no
       secret, no vendored copy, no drift). atelier's own `ci.yml` is the reference
       to adapt (swap the in-repo tool steps for an atelier checkout).
-- [~] **Markdown internal-link check** — BUILT 2026-07-10 (Opus):
+- [x] **Markdown internal-link check** — BUILT 2026-07-10 (Opus), **REVIEWED
+      2026-07-10 (Fable, cold session): PASS-WITH-FINDINGS, gate cleared** —
+      verdict below the divider in `docs/reviews/2026-07-10-linkscan.md`.
       `tools/linkscan.py`, the mechanical check that atelier's "thin anchor, fat
-      pointer" graph actually resolves. Internal `[text](path)` links only (external
-      schemes skipped — the network is a flakier tool's job): `missing-file` (path
-      unresolved, relative to the linking file / root for `/…`) + `missing-anchor`
-      (a `#fragment` into a Markdown target whose GitHub slug matches no heading;
-      `#L42` line refs + non-Markdown anchors skipped). Fenced/inline code stripped;
-      `linkscan:allow` + `.linkscanignore` hatches; fail-safe `0`/`1`/`2`; zero-dep
-      stdlib + `--selftest`. 26 tests (suite 145→171); proven live — selftest OK,
-      whole tree clean (55 files, 36 links), anchor pass/fail + a planted break
-      verified against real files. **Review-gated before it becomes a gate:** brief
-      `docs/reviews/2026-07-10-linkscan.md` (false-negative surface the sharpest
-      lens); **not yet wired into `ci.yml`/`pre-commit.sample`** — that wiring waits
-      for the verdict (don't-stack-a-gate-on-unreviewed-tooling, third application).
+      pointer" graph actually resolves. The review proved damage to **all five**
+      of the brief's load-bearing assumptions and fixed it same session (suite
+      171→187): L1 a typo'd path arg scanned nothing and exited 0 (the §14
+      silent-success class — now exit 2); L2 case-mismatched links green on APFS
+      but 404 on GitHub (now walked against on-disk casing, NFC/NFD-safe); L3
+      links escaping the repo root (new `outside-root` kind — GitHub serves
+      nothing above root); L4+L5 anchor matching now exact like GitHub's, after
+      fixing the slugger's underscore-stripping divergence; L6 parenthesised
+      filenames parse; L7 fence tracking length/info-string-aware (nested ````
+      examples stay code); L9 setext headings now mint anchors. L8 root-relative
+      `/…` semantics verified against GitHub docs; L10 indented-code FP stated
+      as residual by design.
+  - [ ] **Wire linkscan into `ci.yml` + `pre-commit.sample`** — unblocked by the
+        verdict, deliberately left to the next build session (the reviewer
+        doesn't wire its own same-day fixes into the gate — fourth application
+        of don't-stack). A two-line change: a floor step in `ci.yml`, a
+        `linkscan` line in the hook.
 
 ## Open questions
 

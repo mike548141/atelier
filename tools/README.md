@@ -32,12 +32,17 @@ standing residual, the classes each scan *structurally* cannot catch:
   "bundled, not relicensed".
 
 **linkscan** (a doc-integrity check, not a leak scan) is line-based too: it reads
-inline `[text](path)` links and ATX (`#`) headings only. **Reference-style links**
-(`[text][ref]` + a `[ref]: …` definition), links inside raw **HTML**, **setext**
-(underline `===`) headings, and a link whose `](…)` **spans two lines** are
-invisible to it — as is any anchor slug where atelier's simplified slugger
-diverges from GitHub's full CommonMark render (an exotic heading). It never
-touches the network, so it says nothing about whether an external URL is alive.
+inline `[text](path)` links and Markdown (ATX `#` + setext underline) headings
+only. **Reference-style links** (`[text][ref]` + a `[ref]: …` definition), links
+inside raw **HTML**, and a link whose `](…)` **spans two lines** are invisible to
+it — as is any anchor slug where atelier's simplified slugger diverges from
+GitHub's full CommonMark render (an exotic heading). Anchors minted by raw HTML
+(`<a id=…>`, `<h2>`) aren't seen either, so a valid link into one **false
+positives** (one `linkscan:allow` fixes it); the same goes for a link-shaped
+example inside an **indented (4-space) code block**, which linkscan reads as
+live text (GitHub renders it as code — fixing that would risk missing real
+links in indented list items, the worse trade). It never touches the network,
+so it says nothing about whether an external URL is alive.
 
 The scans are the mechanical floor, not the whole boundary: the human
 pre-publish scrub (and the review practice) owns the residual above.
@@ -314,11 +319,17 @@ Scope is deliberately narrow — a sharp honest check beats a broad flaky one:
   `tel`, …) and protocol-relative `//host` are **skipped** — verifying them means
   the network, which is a different, flakier tool's job.
 - **File existence** — the path must resolve (relative to the linking file, or the
-  repo root for a leading `/`), to a real file *or* directory.
+  repo root for a leading `/` — GitHub resolves those against the repository root
+  too), to a real file *or* directory, with the **on-disk casing matched exactly**
+  (a case-insensitive local disk hides a mismatch GitHub 404s) and the target
+  **inside the repo root** (GitHub serves nothing above it — a `../…` that
+  resolves on this machine is still a 404 for every reader).
 - **Anchor existence** — a `#fragment` into a Markdown target (or same-file) must
-  match a heading, by GitHub's slug algorithm. `#L42` line anchors are line
-  references, not headings, and are skipped; anchors into non-Markdown targets
-  aren't validated (nothing to validate against).
+  match a heading anchor **exactly** (GitHub fragment matching is exact —
+  `#A-Section` never reaches `#a-section`; the report says what to write
+  instead). ATX (`#`) and setext (underline) headings both mint anchors. `#L42`
+  line anchors are line references, not headings, and are skipped; anchors into
+  non-Markdown targets aren't validated (nothing to validate against).
 
 Links inside fenced (` ``` `) or inline (`` `…` ``) code are ignored — they're
 examples, not live pointers. Wiki-style `[[name]]` memory links aren't Markdown

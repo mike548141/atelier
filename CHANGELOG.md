@@ -5,6 +5,31 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-10 — the linkscan review: gate cleared, five assumptions repaired)
+- **`tools/linkscan.py` hardened by its own review** (Fable, cold session:
+  `docs/reviews/2026-07-10-linkscan.md`, PASS-WITH-FINDINGS, findings L1–L10).
+  The brief's five load-bearing assumptions all took damage, proven live before
+  fixing: a **typo'd path arg scanned nothing and exited 0** (now a usage error,
+  exit 2 — the EVIDENCE §14 silent-success class in a gate-destined tool);
+  **case-mismatched links** green on a case-insensitive disk but 404 on GitHub
+  (now checked against on-disk casing, unicode-normalisation-safe); links
+  **escaping the repo root** (new `outside-root` finding — GitHub serves nothing
+  above the repository root); **anchor matching now exact** like GitHub's
+  fragment matching, with the fix printed when only the casing is wrong — which
+  required teaching the slugger that GitHub *keeps* literal underscores;
+  **parenthesised filenames** (`a(1).md`) parse instead of false-positiving;
+  **fence tracking** length- and info-string-aware (a ``` inside a ```` block
+  stays code) via one shared tracker for links and headings; **setext headings**
+  now mint anchors (they were false-positiving valid links, filed under the
+  wrong failure class in the residual). Root-relative `/…` semantics verified
+  against GitHub's docs (matches). Residual list updated: setext off;
+  HTML-minted anchors and indented-code false positives on, the latter
+  deliberately unfixed (the fix would cost real false negatives). Suite
+  **171→187**, selftest +2 cases, whole tree rescanned clean under the stricter
+  checks. **Gate cleared** — wiring into `ci.yml`/`pre-commit.sample` is
+  unblocked but left to the next build session (a reviewer doesn't wire its own
+  same-day fixes into the gate).
+
 ### Added (2026-07-10 — linkscan: the internal-link integrity check)
 - **`tools/linkscan.py`** — the mechanical check that atelier's "thin anchor, fat
   pointer" graph (`method/PROPAGATION.md`) actually resolves. A relative link that
