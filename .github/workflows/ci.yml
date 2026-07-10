@@ -1,8 +1,9 @@
 name: floor
 
 # atelier's own CI — it dogfoods the floor every review asserts by hand: the
-# tool test suite, the three scanner --selftests, and the scan triad re-run over
-# the whole tree. Now possible because the repo is public (ADR 0005): the tools
+# tool test suite, the scanner --selftests, and the scans re-run over the whole
+# tree (the leak/secret/licence publish triad, plus linkscan's internal-link
+# integrity check). Now possible because the repo is public (ADR 0005): the tools
 # are zero-dep stdlib Python, so a runner needs nothing but Python to run them.
 #
 # HONEST SCOPE. This gate proves what it can prove in CI, not everything the
@@ -48,6 +49,7 @@ jobs:
           python3 tools/leakscan.py --selftest
           python3 tools/secretscan.py --selftest
           python3 tools/licenscan.py --selftest
+          python3 tools/linkscan.py --selftest
 
       - name: tool test suite
         run: python3 -m unittest discover -s tools -p 'test_*.py' -v
@@ -60,3 +62,6 @@ jobs:
 
       - name: licenscan (assert Apache-2.0)
         run: python3 tools/licenscan.py --expect Apache-2.0 .
+
+      - name: linkscan (internal-link integrity, full tree)
+        run: python3 tools/linkscan.py --root . .

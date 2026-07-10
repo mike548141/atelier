@@ -1,12 +1,23 @@
 #!/bin/sh
-# atelier pre-commit hook — runs both mechanical scanners over the staged diff.
+# atelier pre-commit hook — runs the mechanical scanners before a commit lands.
 # Install:  cp tools/pre-commit.sample .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
 #
 #   secretscan — blocks a commit that would put a plaintext CREDENTIAL into git
 #                history. Runs in EVERY repo (a burned secret is burned whatever
-#                the repo's visibility).
+#                the repo's visibility). Scans the STAGED diff.
 #   leakscan   — blocks a commit that would put PERSONAL/ESTATE data into a repo
-#                that can go public. Run it where that boundary applies.
+#                that can go public. Run it where that boundary applies. Scans
+#                the STAGED diff.
+#   linkscan   — blocks a commit that would leave a broken INTERNAL link in the
+#                doc graph ("thin anchor, fat pointer" only holds if the pointers
+#                resolve). Unlike the two above it scans the WHOLE TREE, not the
+#                staged diff: a link breaks when a *different* file is renamed or
+#                deleted, so the file that goes stale is usually not the one in
+#                your diff. It is the one gate that catches a 404 *before* a push
+#                publishes it (CI runs after the push). Recoverable, unlike a
+#                burned secret — but on a public repo a reader hits it meanwhile,
+#                which is exactly what linkscan exists to prevent. A deliberately
+#                dangling pointer is exempted in-line (`linkscan:allow`).
 #
 # WHERE THE SCANNERS LIVE. They are atelier's tools — one source; children do NOT
 # vendor a copy. In atelier itself that is $repo_root/tools. A repo scaffolded by
@@ -20,10 +31,11 @@
 # opt a repo out of a scanner, delete its `run_scan` line below — an explicit
 # choice on the record, not a silent skip.
 #
-# Both scan only staged additions, so they are fast on the commit hot path. A
-# hook protects only the CLONE it is installed in — git transports neither hooks
-# nor config, so every fresh clone must reinstall it (see the scaffolded repo's
-# CONTRIBUTING). CI scanning for child repos is NOT wired yet (scanner
+# The two boundary scanners read only staged additions, so they stay fast on the
+# commit hot path; linkscan reads the whole tree (see above) but is cheap (stdlib,
+# no network). A hook protects only the CLONE it is installed in — git transports
+# neither hooks nor config, so every fresh clone must reinstall it (see the
+# scaffolded repo's CONTRIBUTING). CI scanning for child repos is NOT wired yet (scanner
 # distribution is the deferred supply-chain call — atelier ROADMAP): until then
 # this hook is a child repo's only scan gate. For a networking /
 # private-with-shareable-subtree repo, append the `--disable`/subtree scoping
@@ -42,10 +54,15 @@ tools_dir="${ATELIER_TOOLS:-$(git config --get hooks.atelierTools 2>/dev/null)}"
 tools_dir="${tools_dir:-$repo_root/tools}"
 status=0
 
+# $1 = scanner name; the rest = exactly how to invoke it (each scanner declares
+# its own mode at the call site — the boundary scanners take --staged, linkscan
+# does not; see the header). The fail-closed guard runs here in the hook's own
+# shell (not a subshell) so its `exit 1` actually aborts the commit.
 run_scan() {
-    scanner="$tools_dir/$1.py"
+    name="$1"
+    scanner="$tools_dir/$name.py"
     if [ ! -f "$scanner" ]; then
-        echo >&2 "pre-commit: $1.py not found under $tools_dir — BLOCKING (fail closed)."
+        echo >&2 "pre-commit: $name.py not found under $tools_dir — BLOCKING (fail closed)."
         echo >&2 "  These scanners live in atelier's tools/. Point them out with:"
         echo >&2 "    git config hooks.atelierTools <atelier-path>/tools   (create-repo bakes this in)"
         echo >&2 "  or set ATELIER_TOOLS in the environment; or drop this scanner's"
@@ -53,18 +70,20 @@ run_scan() {
         exit 1
     fi
     shift
-    python3 "$scanner" --staged --root "$repo_root" "$@" || status=1
+    python3 "$scanner" "$@" || status=1
 }
 
-run_scan secretscan
-run_scan leakscan            # networking repo? append --disable <rules> / a subtree path
+run_scan secretscan --staged --root "$repo_root"
+run_scan leakscan   --staged --root "$repo_root"   # networking repo? append --disable <rules> / a subtree path
+run_scan linkscan   --root "$repo_root" "$repo_root"   # whole tree — a rename breaks links outside the diff
 
 if [ "$status" -ne 0 ]; then
     echo >&2
     echo "A scanner blocked this commit. Fix the finding(s) above — remove and" >&2
-    echo "ROTATE a real secret, or exempt a false positive with a" >&2
-    echo "'# secretscan:allow: <reason>' / '# leakscan:allow: <reason>' line" >&2
-    echo "marker or a .secretscanignore / .leakscanignore glob, then retry." >&2
+    echo "ROTATE a real secret, fix a broken link (or the moved/renamed target)," >&2
+    echo "or exempt a false positive with a '# secretscan:allow: <reason>' /" >&2
+    echo "'# leakscan:allow: <reason>' / 'linkscan:allow: <reason>' line marker or" >&2
+    echo "a .secretscanignore / .leakscanignore / .linkscanignore glob, then retry." >&2
     echo "To bypass in a genuine emergency (discouraged): git commit --no-verify" >&2
 fi
 

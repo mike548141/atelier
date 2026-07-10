@@ -12,6 +12,10 @@ claim; the known-failure-test is the enforcement):
      secret is blocked; a clean commit passes.
   3. Resolution via ATELIER_TOOLS env (wins over config).
   4. In-repo fallback ($repo_root/tools) — atelier's own case — still blocks.
+  5. linkscan is wired WHOLE-TREE, not staged: a broken internal link blocks,
+     and — the crux — a rename that breaks a link in a file NOT in the diff
+     still blocks (the staged boundary scanners structurally cannot see this,
+     which is why linkscan runs over the tree). A valid link passes.
 
 Each test builds a throwaway git repo in a temp dir and drives `git commit`
 for real: the hook's behaviour is only meaningful on the actual commit path.
@@ -112,12 +116,51 @@ class PreCommitHookTest(unittest.TestCase):
         """A repo carrying the scanners itself (atelier) needs no config."""
         tools = self.repo / "tools"
         tools.mkdir()
-        for name in ("secretscan.py", "leakscan.py"):
+        # Carry all three the hook runs, so the block is the secretscan finding —
+        # not a fail-closed on a scanner the hook now also invokes (linkscan).
+        for name in ("secretscan.py", "leakscan.py", "linkscan.py"):
             shutil.copy(TOOLS_DIR / name, tools / name)
         (self.repo / "leaky.py").write_text(PLANTED_SECRET)
         r = self._commit(env={"ATELIER_TOOLS": ""})
         self.assertNotEqual(r.returncode, 0)
         self.assertEqual(self._commit_count(), 0)
+        self.assertNotIn("fail closed", r.stderr.lower())
+
+    # -- 5. linkscan wired whole-tree (not staged) -----------------------------
+
+    def test_broken_link_blocks_commit(self):
+        """A staged Markdown file with a broken internal link is blocked."""
+        _git(self.repo, "config", "hooks.atelierTools", str(TOOLS_DIR))
+        (self.repo / "doc.md").write_text("# Doc\n\nsee [the plan](nope.md)\n")
+        r = self._commit(env={"ATELIER_TOOLS": ""})
+        self.assertNotEqual(r.returncode, 0, "a broken internal link must block")
+        self.assertEqual(self._commit_count(), 0)
+        self.assertNotIn("fail closed", r.stderr.lower())
+
+    def test_valid_link_passes(self):
+        """A Markdown file whose internal link resolves commits cleanly."""
+        _git(self.repo, "config", "hooks.atelierTools", str(TOOLS_DIR))
+        (self.repo / "target.md").write_text("# Target\n\nbody\n")
+        (self.repo / "doc.md").write_text("# Doc\n\nsee [target](target.md)\n")
+        r = self._commit(env={"ATELIER_TOOLS": ""})
+        self.assertEqual(r.returncode, 0, f"clean links must pass; stderr: {r.stderr}")
+        self.assertEqual(self._commit_count(), 1)
+
+    def test_rename_breaking_unstaged_link_blocks(self):
+        """The crux of whole-tree scanning: deleting target.md breaks doc.md's
+        link even though doc.md is NOT in this commit's diff. A staged-only scan
+        would wave this through; linkscan over the tree catches it."""
+        _git(self.repo, "config", "hooks.atelierTools", str(TOOLS_DIR))
+        (self.repo / "target.md").write_text("# Target\n\nbody\n")
+        (self.repo / "doc.md").write_text("# Doc\n\nsee [target](target.md)\n")
+        first = self._commit(env={"ATELIER_TOOLS": ""})
+        self.assertEqual(first.returncode, 0, f"setup commit must pass; stderr: {first.stderr}")
+        # Remove the target only — doc.md is untouched, so it is not in the diff.
+        _git(self.repo, "rm", "-q", "target.md")
+        r = _git(self.repo, "commit", "-m", "drop target", env={"ATELIER_TOOLS": ""})
+        self.assertNotEqual(r.returncode, 0,
+                            "a rename/delete breaking an unstaged link must block")
+        self.assertEqual(self._commit_count(), 1, "the breaking commit must not land")
 
 
 if __name__ == "__main__":

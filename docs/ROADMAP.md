@@ -403,11 +403,22 @@ public as a **named worked example** (README "If you're adopting this"). What wa
       examples stay code); L9 setext headings now mint anchors. L8 root-relative
       `/…` semantics verified against GitHub docs; L10 indented-code FP stated
       as residual by design.
-  - [ ] **Wire linkscan into `ci.yml` + `pre-commit.sample`** — unblocked by the
-        verdict, deliberately left to the next build session (the reviewer
-        doesn't wire its own same-day fixes into the gate — fourth application
-        of don't-stack). A two-line change: a floor step in `ci.yml`, a
-        `linkscan` line in the hook.
+  - [x] **Wire linkscan into `ci.yml` + `pre-commit.sample`** — DONE 2026-07-10
+        (Opus), the session after the verdict (don't-stack honoured). CI: a
+        `--selftest` line + a whole-tree `linkscan --root . .` step, mirroring
+        the triad. Hook: linkscan added as a **whole-tree integrity** check —
+        *not* `--staged` like the two boundary scanners, because a link breaks
+        when a *different* file is renamed/deleted (the stale file is usually
+        not the one in your diff). `run_scan` generalised to drop the hardcoded
+        `--staged` so each scanner declares its own mode; header documents the
+        distinct contract; block-message + README updated. Contract pinned by
+        three new `test_precommit.py` tests incl. the whole-tree crux (a rename
+        breaking an *unstaged* link blocks — a staged-only scan would miss it);
+        suite 187→190. Installed atelier hook refreshed so this very commit
+        dogfoods it. **Residual, stated:** a scaffolded child inherits the
+        stricter whole-tree contract (its whole doc tree must stay link-clean to
+        commit, vs the diff-scoped boundary scanners) — cheap for a clean tree,
+        `linkscan:allow`/`.linkscanignore`/`--no-verify` are the hatches.
 
 ## Open questions
 

@@ -132,10 +132,14 @@ leakscan --staged --disable ipv4,ipv6,mac-address tiki/
 ### Wiring it in
 
 - **Pre-commit hook** — copy `tools/pre-commit.sample` to
-  `.git/hooks/pre-commit` (`chmod +x`). It runs **both** `secretscan --staged`
-  and `leakscan --staged` and aborts the commit on any finding. This is the
-  primary control. For a subtree/networking repo, edit the hook's leakscan
-  invocation to add the `--disable`/path scoping above.
+  `.git/hooks/pre-commit` (`chmod +x`). It runs `secretscan --staged` and
+  `leakscan --staged` over the staged diff, plus `linkscan` over the **whole
+  tree**, and aborts the commit on any finding. This is the primary control.
+  (linkscan is whole-tree, not staged, on purpose: a link breaks when a
+  *different* file is renamed or deleted, so the file that goes stale is usually
+  not the one in your diff — see `linkscan.py` below.) For a subtree/networking
+  repo, edit the hook's leakscan invocation to add the `--disable`/path scoping
+  above.
   - **In a repo that doesn't carry the scanners** (any create-repo child — the
     scanners live only here), point the hook up:
     `git config hooks.atelierTools <atelier-path>/tools` (or `ATELIER_TOOLS`
@@ -350,6 +354,14 @@ python3 tools/linkscan.py --selftest       # prove the engine offline
 Exit codes match the others: `0` every internal link resolves · `1` at least one
 break · `2` usage/config error — so a scan it *couldn't* complete never reports
 green. See the residual note at the top for what it structurally cannot catch.
+
+**Wiring** — unlike the licence gate, linkscan runs on both the **pre-commit
+hook** and **CI**, always over the **whole tree** (not `--staged`): a link goes
+stale when a *different* file is renamed or deleted, so the file to re-check is
+rarely the one in the diff. It is cheap (stdlib, no network) so the hot-path cost
+is negligible, and it is the one gate that catches a 404 *before* a push
+publishes it. A repo that keeps its tree link-clean pays nothing; a deliberately
+dangling pointer uses `linkscan:allow` / `.linkscanignore`.
 
 ## Tests
 
