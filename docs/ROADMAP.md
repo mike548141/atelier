@@ -198,11 +198,30 @@ standout debt; sessions 14–15 deliberately did not stack on it.
         / atelier-unaffected, then pinned by `tools/test_precommit.py` (5 tests,
         known-failure proven against the pre-fix sample; suite 137→142 OK).
         **Still owed:** the single `gh repo
-        create --push` step (not run — outward, unneeded for a throwaway); a Fable
-        sweep of the rewire; and **CI scan wiring** — CI templates run no scanner,
-        so the hook is a scaffolded repo's only scan gate (needs the
-        scanner-distribution call: vendor / fetch atelier / publish — folds into
-        the deferred supply-chain item).
+        create --push` step (not run — outward, unneeded for a throwaway); the
+        Fable sweep (now briefed — gate below); and **CI scan wiring** — CI
+        templates run no scanner, so the hook is a scaffolded repo's only scan
+        gate (needs the scanner-distribution call: vendor / fetch atelier /
+        publish — folds into the deferred supply-chain item).
+
+## Review gate — the create-repo delivery mechanism (before it scaffolds a real repo)
+
+The same rule, third application: the mechanism that stamps doctrine into every
+future repo must itself be reviewed before it's *used in anger*. Brief written
+2026-07-10: `docs/reviews/2026-07-10-create-repo-rewire.md` — range
+`f72031c..92c0112` **plus the machine-local skill** (outside the repo; no other
+review will catch it). Nine load-bearing assumptions to attack; the sharpest:
+clone-loses-hook-and-config (does protection evaporate on machine two?),
+template-block drift vs PROPAGATION's canonical text, and prose-stamp-procedure
+as model-memory reborn. **Run cold, fresh session.**
+
+- [ ] **Fable sweep of `f72031c..92c0112` + the skill** — per the brief; verdict
+      below its divider; findings C1…Cn dispositioned same session where
+      possible.
+- [ ] Until the verdict: create-repo may be used for throwaway/scratch
+      exercising, but **don't scaffold a real keeper repo on the unreviewed
+      mechanism** (the don't-stack-on-unreviewed rule, applied to delivery
+      instead of doctrine).
 - [x] **Repo-boundary guidance** — DONE 2026-07-10 (Opus): `docs/build/
       REPO-BOUNDARY.md`, the is-this-a-repo decision by independent-lifecycle
       discriminators (visibility/cadence/ownership/reuse/blast-radius) → standalone

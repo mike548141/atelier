@@ -88,6 +88,22 @@ it needs the scanner-distribution decision — vendor into each repo / fetch
 atelier in CI / publish the scanners — which is the already-*deferred*
 supply-chain item. Recorded in ROADMAP + CHANGELOG; not half-built here.
 
+## Session close-out: the review brief
+
+The owed Fable sweep was **briefed, not run** (independence — the hand that
+built and fixed the mechanism must not review it in the same window):
+`docs/reviews/2026-07-10-create-repo-rewire.md`, range `f72031c..92c0112`
+**plus the machine-local skill** at `~/.claude/skills/create-repo/SKILL.md`,
+which no in-repo review would ever catch by accident. Nine load-bearing
+assumptions to attack; the three I'd bet find something: **a fresh clone loses
+both the hook and `hooks.atelierTools`** (git never transports either — does
+protection silently evaporate on machine two?), **template-block drift** vs
+PROPAGATION's canonical text (nothing mechanical diffs them; the
+MODEL-ECONOMICS template drift proves the class), and **the prose stamp
+procedure** as re-encoding-from-memory reborn (the thesis the rewire exists to
+kill, possibly surviving inside its own fix). ROADMAP gate raised: throwaway
+exercising fine, no *keeper* repo scaffolded until the verdict.
+
 ## Close
 
 The `create-repo` rewire's real-scaffold exercise is done and it paid for
