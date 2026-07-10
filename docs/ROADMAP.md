@@ -113,9 +113,14 @@ theatre). Leave tiki-specific bearings + review case-law in ros.
 
 ## build/ layer + inheritance delivery
 
-- [ ] Extract the `create-repo` standard into `docs/build/` (product-in-subfolder,
-      standardise-existing process, honest-CI, lockstep-change, ADR rule, TODO/
-      comment conventions — harvest A10).
+- [x] **Extract the `create-repo` standard into `docs/build/`** — DONE
+      2026-07-10 (Opus): `docs/build/REPO-STANDARD.md` (product-in-subfolder + why,
+      sizing-to-type, the standard file set, honest-CI, standardise-existing
+      process, repo-craft conventions), pointing up to `method/` for the
+      cross-cutting doctrine (EVIDENCE/RECORD/REVIEW/PROPAGATION/AUTONOMY) instead
+      of copying it. build/README rewritten from pointer → layer index. Review-owed
+      (doctrine text — a REVIEW.md sampling pass). Instance specifics stay in the
+      skill. Templates-move + rewire-to-inherit remain (below).
 - [ ] **Supply-chain/release standard** (A5) — committed deterministic SBOM +
       keyless signing; **licence-consistency pre-publish gate** (A11).
 - [ ] **Rewire `create-repo` to inherit from atelier** — stamp the doctrine

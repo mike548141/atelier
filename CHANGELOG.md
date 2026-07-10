@@ -5,6 +5,22 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-10 — build/ layer: the repo standard extracted (A10))
+- `docs/build/REPO-STANDARD.md` — the repo-craft standard extracted from the
+  `create-repo` skill into readable, forkable doctrine: product-in-a-subfolder
+  (+ why), sizing the standard to the repo type, the standard file set,
+  **honest-CI** (a green check that proves nothing is the phantom-success
+  `method/` forbids an instrument), repo-craft conventions, and the two processes
+  (new repo / standardise an existing one). It owns repo *shape* only and points
+  up to `method/` for the cross-cutting doctrine (EVIDENCE for grounded-not-
+  invented, RECORD for SESSIONS/ADRs/why-comments, REVIEW for the reviews/ briefs,
+  PROPAGATION for the CLAUDE.md doctrine block, AUTONOMY for private-first) rather
+  than copying it. Instance-local specifics (exemplar repos, git identity, `gh`
+  account, workspace path, locale) stay in the delivery vehicle (the skill).
+- `docs/build/README.md` rewritten from "pointer, not yet extracted" to the layer
+  index; still-owed list now names templates-move, rewire-skill-to-inherit,
+  supply-chain/release, and repo-boundary guidance.
+
 ### Changed (2026-07-10 — harvest extraction: A6 + A7, the last of the extraction section)
 - `docs/method/EVIDENCE.md` gains **§13 source-acquisition escalation ladder**
   (harvest A6) and **§14 honest-instrument doctrine** (harvest A7). §13 is the
