@@ -386,10 +386,21 @@ public as a **named worked example** (README "If you're adopting this"). What wa
 - [ ] **Wire the public scanners into child CI** — the other half, still open: a
       child's CI checks out `mike548141/atelier` and runs its public `tools/` (no
       secret, no vendored copy, no drift). atelier's own `ci.yml` is the reference
-      to adapt (swap the in-repo tool steps for an atelier checkout). Also still
-      open: a **markdown internal-link check** (the pointer architecture depends
-      on links resolving — deliberately deferred as net-new tooling wanting its
-      own review, not stacked onto this CI change).
+      to adapt (swap the in-repo tool steps for an atelier checkout).
+- [~] **Markdown internal-link check** — BUILT 2026-07-10 (Opus):
+      `tools/linkscan.py`, the mechanical check that atelier's "thin anchor, fat
+      pointer" graph actually resolves. Internal `[text](path)` links only (external
+      schemes skipped — the network is a flakier tool's job): `missing-file` (path
+      unresolved, relative to the linking file / root for `/…`) + `missing-anchor`
+      (a `#fragment` into a Markdown target whose GitHub slug matches no heading;
+      `#L42` line refs + non-Markdown anchors skipped). Fenced/inline code stripped;
+      `linkscan:allow` + `.linkscanignore` hatches; fail-safe `0`/`1`/`2`; zero-dep
+      stdlib + `--selftest`. 26 tests (suite 145→171); proven live — selftest OK,
+      whole tree clean (55 files, 36 links), anchor pass/fail + a planted break
+      verified against real files. **Review-gated before it becomes a gate:** brief
+      `docs/reviews/2026-07-10-linkscan.md` (false-negative surface the sharpest
+      lens); **not yet wired into `ci.yml`/`pre-commit.sample`** — that wiring waits
+      for the verdict (don't-stack-a-gate-on-unreviewed-tooling, third application).
 
 ## Open questions
 

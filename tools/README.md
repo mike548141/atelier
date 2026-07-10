@@ -31,6 +31,14 @@ standing residual, the classes each scan *structurally* cannot catch:
   allow-marker/ignore hatch, reason recorded, is the sanctioned way to say
   "bundled, not relicensed".
 
+**linkscan** (a doc-integrity check, not a leak scan) is line-based too: it reads
+inline `[text](path)` links and ATX (`#`) headings only. **Reference-style links**
+(`[text][ref]` + a `[ref]: …` definition), links inside raw **HTML**, **setext**
+(underline `===`) headings, and a link whose `](…)` **spans two lines** are
+invisible to it — as is any anchor slug where atelier's simplified slugger
+diverges from GitHub's full CommonMark render (an exotic heading). It never
+touches the network, so it says nothing about whether an external URL is alive.
+
 The scans are the mechanical floor, not the whole boundary: the human
 pre-publish scrub (and the review practice) owns the residual above.
 
@@ -290,8 +298,50 @@ the others: `0` every child current · `1` at least one not current · `2`
 environment error (not an atelier repo, HEAD unreadable, a named child missing) —
 so a fleet it *couldn't* verify never reports green.
 
+## `linkscan.py` — keep the doctrine's internal pointers resolving
+
+atelier's architecture is **"thin anchor, fat pointer"** (`method/PROPAGATION.md`):
+a child inlines a safety floor and *points up* to canonical doctrine; a doc states
+a bearing and *points* to its case-law. The whole graph is only as sound as its
+links. A relative link that 404s — a renamed file, a moved doc, a typo'd `#anchor`
+— is a silent hole: the reader is told "see X" and X isn't there. `linkscan` is the
+machine that catches it before a reader (or an adopter) does.
+
+Scope is deliberately narrow — a sharp honest check beats a broad flaky one:
+
+- **Internal links only.** `[text](path)` / `![alt](path)` with a relative or
+  root-relative (`/…`) destination. External schemes (`http`, `https`, `mailto`,
+  `tel`, …) and protocol-relative `//host` are **skipped** — verifying them means
+  the network, which is a different, flakier tool's job.
+- **File existence** — the path must resolve (relative to the linking file, or the
+  repo root for a leading `/`), to a real file *or* directory.
+- **Anchor existence** — a `#fragment` into a Markdown target (or same-file) must
+  match a heading, by GitHub's slug algorithm. `#L42` line anchors are line
+  references, not headings, and are skipped; anchors into non-Markdown targets
+  aren't validated (nothing to validate against).
+
+Links inside fenced (` ``` `) or inline (`` `…` ``) code are ignored — they're
+examples, not live pointers. Wiki-style `[[name]]` memory links aren't Markdown
+links and are out of scope by design. A deliberately dangling pointer is exempted
+with `<!-- linkscan:allow: <reason> -->` on the line, or a glob in
+`.linkscanignore`.
+
+### Usage
+
+```sh
+python3 tools/linkscan.py                 # scan the whole repo
+python3 tools/linkscan.py docs/method      # scan a subtree / named files
+python3 tools/linkscan.py --root . .       # explicit root for /… links + .linkscanignore
+python3 tools/linkscan.py --json           # machine-readable, for CI
+python3 tools/linkscan.py --selftest       # prove the engine offline
+```
+
+Exit codes match the others: `0` every internal link resolves · `1` at least one
+break · `2` usage/config error — so a scan it *couldn't* complete never reports
+green. See the residual note at the top for what it structurally cannot catch.
+
 ## Tests
 
 ```sh
-cd tools && python3 -m unittest      # stdlib only, no pytest — covers all five tools
+cd tools && python3 -m unittest      # stdlib only, no pytest — covers all six tools
 ```

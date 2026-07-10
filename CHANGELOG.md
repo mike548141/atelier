@@ -5,6 +5,31 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-10 — linkscan: the internal-link integrity check)
+- **`tools/linkscan.py`** — the mechanical check that atelier's "thin anchor, fat
+  pointer" graph (`method/PROPAGATION.md`) actually resolves. A relative link that
+  404s — a renamed file, a moved doc, a typo'd `#anchor` — is a silent hole in the
+  doctrine graph; this catches it before a reader (or adopter) does. Scope is
+  deliberately narrow: **internal `[text](path)` links only** (external schemes and
+  `//host` skipped — the network is a flakier tool's job). Two finding kinds:
+  `missing-file` (path unresolved, relative to the linking file / repo root for
+  `/…`) and `missing-anchor` (a `#fragment` into a Markdown target whose GitHub
+  slug matches no heading; `#L42` line refs and non-Markdown anchors skipped).
+  Fenced/inline code stripped so example links don't false-positive.
+- Same house pattern as the scan triad: zero-dep stdlib, `--selftest`,
+  `linkscan:allow` + `.linkscanignore` hatches, fail-safe exit codes (`0` clean /
+  `1` break / `2` couldn't-complete — never a silent green). **`tools/test_linkscan.py`**
+  adds 26 tests (suite 145→171). Proven live — selftest OK, whole tree clean (55
+  Markdown files, 36 internal links), anchor pass/fail + a planted break verified
+  against real files. Honest residual added to `tools/README.md`: reference-style
+  links, HTML links, setext headings, a `](…)` split across two lines, and slugger
+  divergence from full CommonMark are the known blind spots.
+- **Review-gated before it becomes a gate** (`docs/reviews/2026-07-10-linkscan.md`,
+  brief) — the false-negative surface is the sharpest lens. **Not yet wired into
+  `ci.yml`/`pre-commit.sample`**; that wiring waits for the verdict
+  (don't-stack-a-gate-on-unreviewed-tooling, third application after the method
+  layer and the create-repo mechanism).
+
 ### Added (2026-07-10 — atelier's own CI: the floor, dogfooded)
 - **`.github/workflows/ci.yml` (job `floor`)** — going public (ADR 0005)
   dissolved the blocker, so the floor every review had been asserting by hand now
