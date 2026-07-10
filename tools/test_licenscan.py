@@ -72,6 +72,26 @@ class Normalise(unittest.TestCase):
         self.assertEqual(lc.normalise_spdx("apache 2.0"), "Apache-2.0")
         self.assertEqual(lc.normalise_spdx("gpl-3.0-or-later"), "GPL-3.0")
 
+    def test_only_or_later_plus_suffixes(self):
+        # Review B2: the modern canonical -only/-or-later (and deprecated `+`)
+        # forms must resolve to the base id, or a strong-copyleft header
+        # mis-tiers from a high/incompatible block to a medium warn.
+        self.assertEqual(lc.normalise_spdx("GPL-2.0-only"), "GPL-2.0")
+        self.assertEqual(lc.normalise_spdx("AGPL-3.0-only"), "AGPL-3.0")
+        self.assertEqual(lc.normalise_spdx("LGPL-2.1-only"), "LGPL-2.1")
+        self.assertEqual(lc.normalise_spdx("LGPL-2.1-or-later"), "LGPL-2.1")
+        self.assertEqual(lc.normalise_spdx("GPL-2.0+"), "GPL-2.0")
+
+    def test_only_suffix_header_still_blocks(self):
+        # The end-to-end teeth for B2: a GPL-2.0-only header in a permissive
+        # repo must be the high/incompatible BLOCK, not unknown-declaration.
+        rep = lc.scan_repo(lc.Path("."), [
+            ("LICENSE", APACHE),
+            ("vendor/v.c", "/* SPDX-License-Identifier: GPL-2.0-only */\n"),  # licenscan:allow: test fixture, not a real header
+        ], None)
+        self.assertIn("incompatible", kinds(rep))
+        self.assertNotIn("unknown-declaration", kinds(rep))
+
     def test_classifier(self):
         self.assertEqual(
             lc.normalise_spdx("License :: OSI Approved :: MIT License"), "MIT")

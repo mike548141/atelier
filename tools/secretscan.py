@@ -375,10 +375,13 @@ def scan_paths(paths: list[Path], root: Path,
 
 def staged_added_lines() -> dict[str, str]:
     """Path → the added-line text of the staged diff. Scans only what a commit
-    would introduce (the pre-commit hot path), not the whole tree."""
+    would introduce (the pre-commit hot path), not the whole tree.
+    R is in the filter deliberately (review B4): git detects renames by
+    default, and a renamed-AND-edited file's added lines are exactly as
+    leak-capable as a modified file's — ACM alone silently skipped them."""
     out = subprocess.run(
         ["git", "diff", "--cached", "--unified=0", "--no-color",
-         "--diff-filter=ACM"],
+         "--diff-filter=ACMR"],
         capture_output=True, text=True, check=True).stdout
     files: dict[str, list[str]] = {}
     current: str | None = None

@@ -189,6 +189,10 @@ available is a single snippet, unconfirmed" is honest; presenting it as settled
 is §2's cardinal sin by another route. And don't over-climb: §11 — spend the
 verification budget where the model is weak (traps, dated deltas, local exposure,
 currency), not re-confirming what any capable model already reliably knows.
+When §11 and §13 pull opposite ways, **stakes win**: §11 trims the budget only
+below the stakes line, because "I reliably know this" is a self-assessment §2
+already distrusts — fluency never excuses skipping the climb on a claim whose
+cost of being wrong is high.
 
 ## 14. An instrument you built is a source — it must not lie for you
 

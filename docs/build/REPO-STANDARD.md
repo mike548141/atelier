@@ -10,15 +10,21 @@ doctrine — where `method/` already owns a rule, this points up rather than
 copying it (a second copy drifts). The pointers are load-bearing, not
 decoration: read them when they fire.
 
-## The rule that always applies: product in a subfolder
+## The default that binds: product in a subfolder
 
-The deployable/product artifact lives in a **subfolder** (`site/`, `src/`,
-`pkg/`, …), never mixed with repo scaffolding at the root. The root holds only
-meta: README, `docs/`, licence, CI, tools. This keeps *what ships* cleanly
-separable from *how the repo is run* — you can point a build, a publish step, or
-a reviewer at the product folder without dragging the scaffolding, and the
-scaffolding can grow without polluting the artifact. (Learned the hard way; the
-static-site exemplar arrived at `site/` independently.)
+Where a repo has a **deployable/product artifact**, it lives in a subfolder
+(`site/`, `src/`, `pkg/`, …), never mixed with repo scaffolding at the root. The
+root holds only meta: README, `docs/`, licence, CI, tools. This keeps *what
+ships* cleanly separable from *how the repo is run* — you can point a build, a
+publish step, or a reviewer at the product folder without dragging the
+scaffolding, and the scaffolding can grow without polluting the artifact.
+(Learned the hard way; the static-site exemplar arrived at `site/`
+independently.)
+
+It is a strong default, not an invariant — the sizing table below carries the
+two honest exceptions (an infra repo *is* its config tree; a docs repo's content
+may live at root). Departing anywhere else needs a stated reason, per
+`method/PRINCIPLES.md`'s stated-exception rule.
 
 ## Size the standard to the repo type
 
@@ -30,17 +36,20 @@ what the repo is for.
 |---|---|---|---|
 | Static / web site | `site/` | stdlib link-check | NOTICE if it bundles third-party code |
 | Package / library / CLI | `src/` or `pkg/` | lint + type-check + test matrix | man page if it exposes a CLI |
-| Infra / config | the config tree as-is | lint the config *if* a linter exists | secrets policy if it holds any |
+| Infra / config | the config tree as-is | lint the config if a linter exists; **if none does, a stated no-gate note, never a silent absence** | secrets policy if it holds any |
 | Docs / reference | content at root or `content/` | link-check (optional) | — |
 
 Sizing is a judgement, not a menu: a five-file static site does not need an ADR
 directory on day one, and an infra repo's "CI" may honestly be a config linter
-and nothing more. Apply what earns its place; stub the rest with a note (below).
+and nothing more — but "nothing at all" is only honest when it is *written
+down* (the honest-CI rule below: an uncovered gap is documented, not silent).
+Apply what earns its place; stub the rest with a note (below).
 
 ## The standard file set
 
-Seed from `templates/`, then **fill every placeholder with real, grounded
-content**. A lorem-ipsum ARCHITECTURE is worse than no ARCHITECTURE — it reads as
+Seed from `templates/` (today still carried by the `create-repo` skill — the
+move to live alongside this standard is owed, see `build/README.md`), then
+**fill every placeholder with real, grounded content**. A lorem-ipsum ARCHITECTURE is worse than no ARCHITECTURE — it reads as
 truth and isn't. If you cannot ground a doc yet (you don't understand the
 project), write the stub with a visible `<!-- TODO -->` and *say so*, rather than
 inventing. This is the apex applied to repo docs: a claim no stronger than its

@@ -36,6 +36,16 @@ Apache-2.0/GPLv2 patent-clause incompatibility); it encodes the one that bites i
 practice: copyleft-into-permissive is a block, permissive-into-permissive and
 anything-into-copyleft is a warn (inconsistency worth a look, not a stopper).
 
+What it structurally CANNOT see (review B3 — a clean scan means "no known shape
+matched", not "licence-safe"): a vendored file carrying the traditional PROSE
+licence header with no `SPDX-License-Identifier` tag — the commonest real-world
+copyleft shape — is invisible to check 3; the human pre-publish scrub owns that
+case. Dual-licence expressions (`MIT OR Apache-2.0`) and `LicenseRef-` custom
+ids degrade conservatively to an unknown-declaration warn (friction, never a
+false pass). A legitimately bundled copyleft component (the NOTICE case) will
+block — the allow-marker / .licenscanignore hatch, with its reason recorded, is
+the sanctioned way to express "bundled, not relicensed".
+
 Exit codes (fail-safe — anything but a clean, verifiable scan is non-zero):
   0  clean — one coherent, recognised licence, no incompatible headers
   1  findings (blocks a publish)
@@ -157,6 +167,13 @@ def normalise_spdx(raw: str) -> str | None:
     s = raw.strip().strip("\"'").lower()
     s = s.replace("license :: osi approved ::", "").strip()
     s = re.sub(r"\s+license$", "", s).strip()
+    # Modern SPDX writes GPL-family ids with an -only/-or-later suffix (and the
+    # deprecated `GPL-2.0+` form). Our family tables key on the base id, and
+    # only/or-later never changes the copyleft family — so strip the suffix
+    # rather than alias every combination. Review B2: without this, a
+    # `GPL-2.0-only` header mis-tiered from a high/incompatible BLOCK to a
+    # medium unknown-declaration warn.
+    s = re.sub(r"-(?:only|or-later)$", "", s).rstrip("+")
     if s in _SPDX_ALIASES:
         return _SPDX_ALIASES[s]
     # a bare canonical id written exactly (case-insensitive) still resolves
@@ -461,6 +478,17 @@ def _selftest() -> int:
     checks.append(("norm gplv3", normalise_spdx("GPLv3") == "GPL-3.0"))
     checks.append(("norm classifier",
                    normalise_spdx("License :: OSI Approved :: MIT License") == "MIT"))
+    # review B2: modern -only/-or-later/+ forms must resolve to the base id,
+    # or a strong-copyleft header mis-tiers from block to unknown-declaration
+    checks.append(("norm gpl-2.0-only", normalise_spdx("GPL-2.0-only") == "GPL-2.0"))
+    checks.append(("norm agpl-3.0-only", normalise_spdx("AGPL-3.0-only") == "AGPL-3.0"))
+    checks.append(("norm gpl-2.0+", normalise_spdx("GPL-2.0+") == "GPL-2.0"))
+    only_poison = scan_repo(Path("."), [
+        ("LICENSE", apache),
+        ("vendor/z.py", "# SPDX-License-Identifier: GPL-2.0-only\n"),  # licenscan:allow: selftest fixture, not a real header
+    ], None)
+    checks.append(("-only copyleft still blocks",
+                   any(f.kind == "incompatible" for f in only_poison.findings)))
 
     # clean repo: apache LICENSE + agreeing pyproject
     clean = scan_repo(Path("."), [

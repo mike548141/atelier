@@ -31,4 +31,7 @@ it — a second copy drifts.
    specifics a shareable doc must not); atelier is the *source*. No delivery path
    bypasses the skill.
 3. **Supply-chain / release standard** — committed deterministic SBOM + keyless
-   signing, and a licence-consistency pre-publish gate. Its own doc when written.
+   signing. Its own doc when written; currently deferred (external tooling hits
+   the tool-install floor — see ROADMAP). The licence-consistency pre-publish
+   gate landed 2026-07-10 as `tools/licenscan.py` (review B11 swept this line —
+   it still listed the gate as unwritten after the tool shipped).

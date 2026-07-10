@@ -7,11 +7,15 @@ the agent never originates it. This doc is what happens **after** that grant —
 the ordered procedure that turns "I now have access" into "I can act safely",
 without letting a fresh, broad credential become a fresh, broad blast radius.
 
-It invents no new rule. It **sequences** the ones already written — the
-`AUTONOMY.md` floor, the `DATA-PROTECTION.md` gate, the `SECRETS.md` store, the
-`PRINCIPLES.md` posture — into a runbook for the moment access is new. Read it
-when onboarding a domain; the concrete estate access map stays instance-local
-(below).
+It invents no new rule, with one owned exception: step 5 *tightens* an existing
+one. `DATA-PROTECTION.md` requires the destructive gate before the destructive
+*operation*; this sequence demands it before the destructive *power* exists at
+all — the strengthening is this runbook's own contribution, stated here so the
+"only sequences" claim stays honest. Everything else **sequences** rules already
+written — the `AUTONOMY.md` floor, the `DATA-PROTECTION.md` gate, the
+`SECRETS.md` store, the `PRINCIPLES.md` posture — into a runbook for the moment
+access is new. Read it when onboarding a domain; the concrete estate access map
+is instance-local (below).
 
 ## The onboarding sequence
 
@@ -55,6 +59,15 @@ power must not exist before the earlier step's guard does.
    "a verified way back" + "encode it, don't just remember it"). If you can
    delete before the gate exists, the gate is late.
 
+   *The honest fallback (review B13):* many platforms issue only one broad
+   credential — write power arrives with first access, before any gate can
+   exist, and this step's ordering cannot be walked literally. Then the ring is
+   held **behaviourally** (the agent performs reads only), the gate is encoded
+   before any write is *performed* rather than before the power exists, and the
+   gap between the credential's power and its guard is a **named, tracked debt**
+   (step 2's same clause) — never a silently absorbed risk. The ordering is the
+   target; the fallback is the stated bridge.
+
 6. **Widen in rings, each ring earned.** Access grows the way a rollout does —
    read → additive/reversible writes → destructive — and each ring opens only
    after the prior one proved safe and the *next* ring's gate is in place. Never
@@ -82,7 +95,11 @@ This is the shareable procedure. The instance keeps:
 - **The estate access map** — which domains are onboarded, which credential
   guards each, the plane split per domain, and how far each domain's rings have
   actually been walked. It is sensitive topology, so it is itself protected under
-  `DATA-PROTECTION.md` and never lives in this repo.
+  `DATA-PROTECTION.md` and never lives in this repo. *(Honest status,
+  2026-07-10, review B14: the instance currently holds this as scattered
+  per-domain notes, not a consolidated map — the first onboarding walked under
+  this runbook should create it, and each later one extends it. A runbook step
+  that says "record it in the map" needs the map to exist.)*
 - **The per-domain mint/rotate procedures and standing-credential debts** — in
   the instance's secrets doc and `secrets/` tree (`SECRETS.md` "what lives
   elsewhere"), never here.

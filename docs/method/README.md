@@ -27,7 +27,8 @@ Read in this order:
    least-privilege scoped credential into the store, read-only first ring,
    destructive gate encoded before destructive power, widen-in-rings. Sequences
    the `AUTONOMY`/`DATA-PROTECTION`/`SECRETS` rules for the moment access is new;
-   the concrete estate access map stays person-local in `ros`.
+   the concrete estate access map is instance-local (created at the first
+   onboarding walked under the runbook — see ACCESS "what lives elsewhere").
 7. **`STORAGE.md`** — GitHub master, iCloud backup, laptop disposable.
 8. **`CONCURRENCY.md`** — one worktree per line of work; serialise real-world
    side-effects.

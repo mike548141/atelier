@@ -13,7 +13,8 @@ closed the moment it leaks: you cannot rotate what you cannot re-mint.
 
 ## Reproducible / re-mintable — the enabling property
 
-No secret in the estate is a hand-kept, irreplaceable artifact. Every secret can
+No *operational* secret in the estate is a hand-kept, irreplaceable artifact
+(the honest boundary below names the two edges of that claim). Every secret can
 be regenerated from something you still hold:
 
 - **Internal secrets** (ones both sides of which you control) rotate
@@ -28,6 +29,25 @@ This is `RECORD`/`EVIDENCE`'s **store-the-rule-not-the-value** applied to
 credentials (EVIDENCE §8): what's durable is the *procedure to mint*, not a
 frozen token. A store built this way is itself reproducible — it rebuilds from
 code, so it is not an exception to infrastructure-is-code.
+
+**The honest boundary (2026-07-10, review B12).** Two edges of the claim, named
+so a clean-sounding doctrine doesn't over-promise:
+
+- **The store's own master key** (the age/KMS-class key that unlocks the store)
+  is re-mintable for *exposure* — regenerate and re-encrypt, minutes, like any
+  internal secret — but its *loss* is a different failure: you cannot re-mint
+  your way back into a store you can no longer read. Loss is guarded by
+  **redundancy** (an out-of-band backup of the key, or a second resolution
+  plane holding the same values), and that backup is a named obligation, not an
+  optional nicety. One hand-kept artifact class survives the doctrine, and this
+  is it — kept survivable by copies, not by minting.
+- **Scope: system and infrastructure credentials.** Person-level credentials —
+  account recovery keys, identity seeds, the master key's own backup — are
+  deliberately *outside* this doctrine, in the operator's personal vault, and
+  some are genuinely not re-mintable from code. The doctrine doesn't pretend to
+  cover them; it keeps the estate's *operational* secrets cheap to burn so the
+  irreplaceable set stays as small as the identity layer itself
+  (`DATA-PROTECTION.md`'s smallest-irreplaceable-set, applied to credentials).
 
 ## The credential triad — least, JIT, short-lived (the direction)
 

@@ -139,6 +139,29 @@ class Redact(unittest.TestCase):
         self.assertIn("chars", out)
 
 
+class RequireTerms(unittest.TestCase):
+    """Review B5: to automation, a degraded structural-only exit-0 pass is
+    indistinguishable from full cover; --require-terms makes it fail closed."""
+
+    def _run(self, argv):
+        import os, tempfile
+        from unittest import mock
+        with tempfile.TemporaryDirectory() as td:
+            absent = str(ls.Path(td) / "absent-terms.txt")
+            env = {k: v for k, v in os.environ.items()
+                   if k != "ATELIER_LEAKSCAN_TERMS"}
+            with mock.patch.dict(os.environ, env, clear=True), \
+                 mock.patch.object(ls, "DEFAULT_LOCAL_TERMS", absent):
+                return ls.main(argv + ["--root", td, td])
+
+    def test_require_terms_fails_closed_without_list(self):
+        self.assertEqual(2, self._run(["--require-terms"]))
+
+    def test_default_still_degrades_to_pass(self):
+        # the peer-adopter case: no list, no flag → structural-only, exit 0
+        self.assertEqual(0, self._run([]))
+
+
 class SelfTest(unittest.TestCase):
     def test_selftest_passes(self):
         self.assertEqual(0, ls._selftest())

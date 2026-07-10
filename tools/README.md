@@ -3,6 +3,37 @@
 Doctrine informs; a *check* enforces. These are the checks. Zero third-party
 dependencies — run them with the system `python3`.
 
+## What these scans cannot see (read this before trusting a clean run)
+
+A clean scan means **"no known shape matched"**, not "safe to publish". Per
+EVIDENCE §14, an instrument states what it dropped — this is the triad's
+standing residual, the classes each scan *structurally* cannot catch:
+
+- **All three** scan line-by-line and text-only: anything **split across
+  lines** (a concatenated secret, a PEM body pasted without its header, a
+  folded YAML scalar) and anything inside a **binary container** (docx, PDF,
+  sqlite, images — skipped silently on the first NUL byte) is invisible.
+- **leakscan** matches literal terms and NZ-tuned structural shapes: a
+  **paraphrased** personal fact ("the dog", "the house we bought last year"),
+  a term not on the machine-local list, or a non-NZ address/phone shape sails
+  through. The term list is only as good as its curation.
+- **secretscan** deliberately trades away single-case hex (git SHAs would
+  drown it): a **hex-encoded token outside a secret-named assignment** is not
+  caught, nor is a novel vendor format that is neither assignment-anchored nor
+  high-entropy-mixed-class, nor a literal secret that *begins* like an
+  indirection (`$uperS3cret…` reads as `$VAR`).
+- **licenscan** sees SPDX-tagged headers and metadata declarations only: a
+  vendored file carrying the **traditional prose licence header** with no
+  `SPDX-License-Identifier` tag — the commonest real-world copyleft shape — is
+  invisible. Dual-licence (`A OR B`) and `LicenseRef-` ids degrade to an
+  *unknown-declaration* warn (friction, never a silent pass). A legitimately
+  bundled copyleft component (the NOTICE case) **will block**; the
+  allow-marker/ignore hatch, reason recorded, is the sanctioned way to say
+  "bundled, not relicensed".
+
+The scans are the mechanical floor, not the whole boundary: the human
+pre-publish scrub (and the review practice) owns the residual above.
+
 ## `leakscan.py` — keep personal/estate data out of a shareable repo
 
 The apex + AUTONOMY floor forbid personal, health, family, financial or
@@ -18,7 +49,10 @@ reaching the remote.
 | **Literal terms** | `~/.claude/leakscan-terms.txt` (**machine-local, never in a repo**) | the actual names, addresses, medications, device IDs, deal figures of one estate. This list *is* the leak if committed, so it stays outside every repo. |
 
 If no local list is found, the scan runs structural-only and **says so loudly** —
-partial cover, never silently weaker.
+partial cover, never silently weaker. For automation that only reads exit codes,
+loud isn't enough: pass **`--require-terms`** on a hook/CI line that *expects*
+full cover and the scan fails closed (exit 2) when the list is absent, instead
+of reporting a degraded pass a script can't tell from a full one.
 
 ### Usage
 

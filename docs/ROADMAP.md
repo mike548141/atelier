@@ -109,7 +109,8 @@ theatre). Leave tiki-specific bearings + review case-law in ros.
       verified-not-attempted, silent-success-is-a-defect, "unknown"-is-required,
       known-failure-test enforces). Grounded in §3/§11 and PRINCIPLES §6; ros
       diagnose/apply phantom-success named as the estate instance. Closes the
-      extraction section. Review-owed (doctrine text — a REVIEW.md sampling pass).
+      extraction section. Reviewed 2026-07-10 (batch review — holds; B15 §13/§11
+      stakes-win tiebreak added).
 
 ## Review gate — the post-method-review batch (before more content stacks)
 
@@ -117,15 +118,29 @@ The same "mechanism/review before more content" rule that gated the `method/`
 layer now gates everything built since it. Session 15 flagged this as the
 standout debt; sessions 14–15 deliberately did not stack on it.
 
-- [ ] **Fable sweep of the `957fa08..f72031c` batch** — brief written
-      2026-07-10 (Opus): `docs/reviews/2026-07-10-post-method-review-batch.md`.
-      Scope: doctrine text (`EVIDENCE §13/§14`, `build/REPO-STANDARD`,
-      `build/REPO-BOUNDARY`, `method/SECRETS`, `method/ACCESS`) + the scan triad
-      approach review (`leakscan`/`secretscan`/`licenscan`, `--selftest`-first).
-      Supersedes the scattered "Review-owed" tags on those items. Deep-not-fast;
-      generous Fable spend authorised (safety gates + load-bearing doctrine).
-      Extraction/delivery that stacks on this batch (the create-repo rewire) stays
-      blocked until the verdict lands.
+- [x] **Fable sweep of the `957fa08..f72031c` batch** — RAN 2026-07-10 (Fable,
+      fresh session): **PASS-WITH-FINDINGS**, verdict below the divider in
+      `docs/reviews/2026-07-10-post-method-review-batch.md`. Floor green (3
+      selftests + 133→137 tests + live runs), doctrine grounded, ros cross-read
+      done. 16 findings B1–B16, **every one carrying an in-repo fix, applied +
+      verified same session**; two backlog strands remain below. The two
+      sharpest: B1 a "live-proven clean" claim false at the commit that
+      recorded it — licenscan flagged its own unexempted fixtures; B14 ACCESS
+      pointing at an estate access map ros doesn't hold. Scan fixes re-run
+      clean; B4 (renamed-file staged hole) proven live both scanners. **The
+      gate is cleared — the create-repo rewire and further stacking may
+      resume.**
+- [ ] **Batch-review follow-ups ([backlog] findings)** — the consolidated item:
+      - [ ] **ros: first consolidated estate access map** (B14) — domains
+            onboarded / credential per domain / plane split / rings walked;
+            sensitive content, a ros session's job (seed from the nas02/tiki
+            facts SPECS already scatters). ACCESS.md now states the honest
+            status until it exists.
+      - [ ] **REVIEW.md addition at its next touch** (verdict recommendation):
+            a review re-runs every "live-proven" claim inside its scope — B1
+            showed a recorded proof can be stale by the time it's durable.
+            Not edited this session (REVIEW.md is outside the batch's scope;
+            stacking unreviewed doctrine edits is what the gate exists to stop).
 
 ## build/ layer + inheritance delivery
 
@@ -134,9 +149,11 @@ standout debt; sessions 14–15 deliberately did not stack on it.
       sizing-to-type, the standard file set, honest-CI, standardise-existing
       process, repo-craft conventions), pointing up to `method/` for the
       cross-cutting doctrine (EVIDENCE/RECORD/REVIEW/PROPAGATION/AUTONOMY) instead
-      of copying it. build/README rewritten from pointer → layer index. Review-owed
-      (doctrine text — a REVIEW.md sampling pass). Instance specifics stay in the
-      skill. Templates-move + rewire-to-inherit remain (below).
+      of copying it. build/README rewritten from pointer → layer index. Reviewed
+      2026-07-10 (batch review — B8 subfolder rule scoped to deployable-artifact
+      repos, B9 no-gate-must-be-stated, B10 RECORD gained the pointed-at
+      comments rule, B11 templates/staleness swept). Instance specifics stay in
+      the skill. Templates-move + rewire-to-inherit remain (below).
 - [x] **Licence-consistency pre-publish gate** (A11) — DONE 2026-07-10 (Opus):
       `tools/licenscan.py`, the third pre-publish scan (leakscan · secretscan ·
       licenscan). Three checks — LICENSE present + SPDX-recognised, every
@@ -144,10 +161,14 @@ standout debt; sessions 14–15 deliberately did not stack on it.
       agrees, no incompatible `SPDX-License-Identifier` header (copyleft-into-
       permissive blocks). Conservative + advisory, `--expect <SPDX>` for CI,
       zero-dep, allow-marker + `.licenscanignore` hatches, `--selftest`. 35 tests
-      (suite 98→133); live-proven clean on atelier (`--expect Apache-2.0`).
-      Review-owed (mechanical control — a validator run is most of the
-      enforcement, but the SPDX matrix + compatibility heuristic deserve an
-      approach review).
+      (suite 98→133). *Correction (2026-07-10 review, B1): the original
+      "live-proven clean on atelier" claim here was **false at the commit that
+      recorded it** — the scan flagged its own unexempted test fixtures at HEAD;
+      any mid-build clean run didn't survive to the commit. Fixed (`.licenscanignore`,
+      same reasoned exemption as the sibling scans) and re-proven:
+      `--expect Apache-2.0` exit 0 at the review session's close.* Reviewed
+      2026-07-10 (the batch review, B1–B3 fixed: `-only`/`+` SPDX suffixes,
+      prose-header residual stated).
 - [ ] **Supply-chain/release standard** (A5) — committed deterministic SBOM +
       keyless signing. DEFERRED: SBOM/signing needs external tooling (syft/cosign),
       which hits the tool-install floor + breaks the zero-dep house-tool pattern —
@@ -160,7 +181,8 @@ standout debt; sessions 14–15 deliberately did not stack on it.
       discriminators (visibility/cadence/ownership/reuse/blast-radius) → standalone
       / component / monorepo-folder (rich client engagement as the monorepo case);
       advise proactively; when ambiguous prefer the reversible direction (split
-      later is cheap, merge is painful). Review-owed (doctrine text).
+      later is cheap, merge is painful). Reviewed 2026-07-10 (batch review —
+      discriminators decide the three live cases; B16 split-promptly clause).
 - [x] **Parallel-work tooling** (Mike 2026-07-10: make fork-and-merge a *tool*,
       not just doctrine) — built as `tools/worktree.py`
       (`start`/`list`/`land`/`remove`), the one-command delivery of CONCURRENCY's
@@ -188,9 +210,9 @@ standout debt; sessions 14–15 deliberately did not stack on it.
       OSS author name in `pyproject.toml`, allow-marked) out of 738 raw hits.
       **Owed:** CI wiring (a hook only guards the machine it's on); portability
       of the term list to Mike's other devices (north-star); extend patterns as
-      gaps appear. Review-owed (mechanical control, so a validator/CI run is most
-      of the enforcement — but the pattern set + the shareable/local split
-      deserve an approach review).
+      gaps appear. Reviewed 2026-07-10 (batch review — B4 renamed-file staged
+      hole fixed + proven live, B5 `--require-terms` fail-closed flag for
+      hooks/CI, B7 residual false-negative surface now stated in tools/README).
 - [x] **Secret-scan on push** — built 2026-07-10 as `tools/secretscan.py` (a
       zero-dep, self-written "equiv", not a gitleaks install — matches the house
       tool pattern + dodges the tool-install floor). Named vendor formats + a
@@ -200,9 +222,9 @@ standout debt; sessions 14–15 deliberately did not stack on it.
       FP-class fixes) while still catching the fixture-secret shapes; report
       redacts to length+entropy. 47 tests; combined pre-commit sample runs it
       with leakscan; `.secretscanignore` + allow-marker escape hatches.
-      Review-owed (mechanical control — a validator run is most of the
-      enforcement, but the pattern set + the assigned/entropy heuristic deserve
-      an approach review). **Owed:** CI wiring (dead until atelier has a remote);
+      Reviewed 2026-07-10 (batch review — pattern set + heuristic hold, skip-list
+      verified against SECRETS.md's named forms; B4 renamed-file staged hole
+      fixed + proven live, B6/B7 residuals stated). **Owed:** CI wiring (dead until atelier has a remote);
       hook portability to Mike's other repos. Closes the *detect* half of
       *detect → rotate → burn-cost-is-minutes*.
 - [x] **`DATA-PROTECTION.md`** written (2026-07-10) — read-before-write; verified
@@ -214,9 +236,11 @@ standout debt; sessions 14–15 deliberately did not stack on it.
       → read-only first ring + reconcile-or-stop → destructive gate encoded before
       destructive power → widen-in-rings → Zero-Trust the domain). Invents no rule;
       sequences AUTONOMY/DATA-PROTECTION/SECRETS/PRINCIPLES for the moment access is
-      new. The concrete estate access map stays person-local in ros (sensitive
-      topology, protected under DATA-PROTECTION). method/README #6. Review-owed
-      (doctrine text — a REVIEW.md sampling pass).
+      new. The concrete estate access map is instance-local (sensitive topology,
+      protected under DATA-PROTECTION; ros owes its first consolidated map —
+      B14 backlog). method/README #6. Reviewed 2026-07-10 (batch review — B13
+      step-5 strengthening owned + one-credential fallback stated, B14 access-map
+      claim corrected to honest status).
 - [x] **`SECRETS.md`** doctrine — DONE 2026-07-10 (Opus): `method/SECRETS.md`,
       extracted from ros §5 (credential triad) + §7 (secret-store-not-exempt).
       Reproducible / re-mintable enabling property (internal rotate mechanically,
@@ -225,8 +249,10 @@ standout debt; sessions 14–15 deliberately did not stack on it.
       the right plane; rotation-on-cadence bounds the undetected window. Closes
       AUTONOMY's forward-reference to "the secrets doctrine" and completes the
       *detect → rotate → burn-cost-is-minutes* arc with the two scans. Instance
-      mechanism (sops+age, `!secret`, the credential map) stays in ros.
-      Review-owed (doctrine text — a REVIEW.md sampling pass).
+      mechanism (sops+age, `!secret`, the credential map) stays in ros — ros
+      cross-read confirmed it holds that content. Reviewed 2026-07-10 (batch
+      review — B12 honest boundary added: master-key loss is redundancy-guarded,
+      person-level vault out of scope by design).
 
 ## North star — context follows the person, work follows anywhere
 

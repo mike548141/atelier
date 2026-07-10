@@ -219,10 +219,13 @@ def scan_paths(paths: list[Path], root: Path,
 
 def staged_added_lines() -> dict[str, str]:
     """Map path → the added-line text of the staged diff. Scans only what a
-    commit would introduce (the pre-commit hot path), not the whole tree."""
+    commit would introduce (the pre-commit hot path), not the whole tree.
+    R is in the filter deliberately (review B4): git detects renames by
+    default, and a renamed-AND-edited file's added lines are exactly as
+    leak-capable as a modified file's — ACM alone silently skipped them."""
     out = subprocess.run(
         ["git", "diff", "--cached", "--unified=0", "--no-color",
-         "--diff-filter=ACM"],
+         "--diff-filter=ACMR"],
         capture_output=True, text=True, check=True).stdout
     files: dict[str, list[str]] = {}
     current: str | None = None
@@ -271,6 +274,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--staged", action="store_true",
                     help="scan only lines added in the git staging area (pre-commit hook)")
     ap.add_argument("--terms", help="path to the local literal-term list")
+    ap.add_argument("--require-terms", action="store_true",
+                    help="fail (exit 2) if no local term list is found, instead of "
+                         "degrading to structural-only. For hooks/CI on a machine "
+                         "that is EXPECTED to have full cover — review B5: to "
+                         "automation, a degraded exit-0 pass is indistinguishable "
+                         "from a full one.")
     ap.add_argument("--root", default=".", help="repo root for relative paths/.leakscanignore")
     ap.add_argument("--disable", default="",
                     help="comma-separated structural rules to skip (e.g. "
@@ -285,6 +294,12 @@ def main(argv: list[str] | None = None) -> int:
 
     root = Path(args.root).resolve()
     terms_path = resolve_terms_path(args.terms)
+    if args.require_terms and terms_path is None:
+        print("leakscan: --require-terms set but no local term list found "
+              f"(--terms, $ATELIER_LEAKSCAN_TERMS, or {DEFAULT_LOCAL_TERMS}). "
+              "A structural-only scan is partial cover — refusing to report it "
+              "as a pass.", file=sys.stderr)
+        return 2
     local_terms, warning = load_local_terms(terms_path)
     scanned_local = terms_path is not None
 

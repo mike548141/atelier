@@ -5,6 +5,32 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-10 — the post-method-review batch review, PASS-WITH-FINDINGS)
+- The gated Fable sweep of `957fa08..f72031c` ran (verdict below the divider in
+  `docs/reviews/2026-07-10-post-method-review-batch.md`): floor green (3
+  selftests, 137 tests, live runs), 16 findings B1–B16 — every one carrying an
+  in-repo fix applied and verified same session, plus two backlog strands (the
+  ros access map from B14; a REVIEW.md lifecycle line). The two sharpest were honesty defects of the class the batch
+  itself codified: **B1** — the licenscan "live-proven clean" claim was false at
+  the commit that recorded it (the scan flagged its own unexempted test
+  fixtures; fixed with `.licenscanignore`, re-proven exit 0); **B14** — ACCESS
+  pointed at an estate access map ros doesn't hold (wording corrected to honest
+  status; ros owes the map). Tool fixes: **B2** `-only`/`+` SPDX suffixes now
+  normalise (a `GPL-2.0-only` header mis-tiered block→warn); **B4** `--staged`
+  now uses `--diff-filter=ACMR` in both scanners — a renamed-and-edited file's
+  added lines were invisible to the hook hot path (proven live both ways);
+  **B5** leakscan `--require-terms` fails closed (exit 2) when the local list is
+  absent, for hooks/CI expecting full cover; **B7** `tools/README.md` gains
+  "What these scans cannot see" — the stated residual false-negative surface.
+  Doctrine fixes: REPO-STANDARD's subfolder rule scoped to deployable-artifact
+  repos (B8) + no-gate-must-be-stated (B9); RECORD gains the comments-say-*why*
+  rule REPO-STANDARD already pointed at (B10); SECRETS gains the honest boundary
+  (master-key loss is redundancy-guarded; person-level vault out of scope, B12);
+  ACCESS owns its step-5 strengthening + states the one-broad-credential
+  fallback (B13); EVIDENCE §13 gains the §11/§13 stakes-win tiebreak (B15);
+  REPO-BOUNDARY gains split-*promptly* (B16). Suite 133→137. **The review gate
+  is cleared; the create-repo rewire may stack.**
+
 ### Added (2026-07-10 — licence-consistency pre-publish gate)
 - `tools/licenscan.py` (+ `tools/test_licenscan.py`, 35 tests) — the third
   pre-publish scan, completing the triad: leakscan (no personal data) · secretscan
@@ -16,10 +42,11 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   advice), `--expect <SPDX>` assertion for CI, zero-dep stdlib, allow-marker +
   `.licenscanignore` escape hatches, `--selftest`. A pre-publish gate, not an
   every-commit hook (private repos carry licence mess harmlessly; it bites at the
-  public boundary AUTONOMY already gates). Live-proven clean on atelier itself
-  (`--expect Apache-2.0`). tools/README documents it; suite 98→133. Review-owed
-  (mechanical control — validator run is most of the enforcement; the SPDX matrix
-  deserves an approach review).
+  public boundary AUTONOMY already gates). ~~Live-proven clean on atelier itself
+  (`--expect Apache-2.0`).~~ *(Correction, 2026-07-10 review B1: false at the
+  commit that recorded it — the scan flagged its own unexempted test fixtures.
+  Fixed and re-proven clean the same day; see the review entry above.)*
+  tools/README documents it; suite 98→133. Reviewed 2026-07-10 (B1–B3).
 
 ### Added (2026-07-10 — access onboarding doctrine)
 - `docs/method/ACCESS.md` — safe-access-onboarding: the ordered runbook for the

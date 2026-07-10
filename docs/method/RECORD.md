@@ -30,6 +30,22 @@ Consequences:
   the present tense as though it exists. "Extraction in progress" beats a
   confident paragraph describing a thing that's empty.
 
+## The *why* lives at the site
+
+The smallest unit of the record is the comment and the commit message, and both
+carry the same discipline: **say _why_, not _what_.** Code already says what it
+does; a comment restating it is noise that rots. What a future reader cannot
+recover from the artifact itself is the *reason* — the platform quirk, the
+rejected alternative, the non-obvious constraint, the precedent a trade-off
+ruling set. Commit messages are the same rule at the change level: a why-dense
+body, so the history reads as reasoning, not a diff narration. (This scales up
+the same way: an ADR is a why that outgrew a comment; a doctrine doc is a why
+that generalised. Which register it belongs in is decided by who must find it —
+the reader at the site gets the comment, the re-litigator gets the ADR.)
+
+*(Added 2026-07-10, review B10 — `build/REPO-STANDARD.md` pointed here for this
+rule before it was written down; the practice long predates the paragraph.)*
+
 ## The session log — an append-only index with detail on demand
 
 Every working session leaves a trace, so the next one starts from where this one

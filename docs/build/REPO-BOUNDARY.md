@@ -74,4 +74,7 @@ should have been one is painful (history reconciliation, cross-repo change
 choreography). So when the discriminators are balanced, **start as a component or
 monorepo folder and split when a discriminator actually fires** — not on
 speculation that one might. Don't pre-split for a reuse or a public release that
-is only hypothetical; let the real need draw the boundary.
+is only hypothetical; let the real need draw the boundary. And when one *does*
+fire, split **promptly**: the cheapness of splitting decays as a folder accretes
+cross-references, its own CI, and a doctrine block — deferring a fired
+discriminator is how the accidental monorepo above actually forms.

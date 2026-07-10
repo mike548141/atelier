@@ -1,0 +1,10 @@
+# Paths exempt from licenscan (gitignore-style globs, one per line).
+# Keep this list SHORT and reasoned — every entry is a hole in the gate.
+
+# The scanner's own unit tests are, by definition, a wall of licence-SHAPED
+# fixtures (SPDX headers, mismatched declarations, copyleft poison pills) whose
+# whole job is to prove detection. Scanning them only yields noise — the same
+# reasoned exemption the sibling scans give their test files. Review B1
+# (docs/reviews/2026-07-10-post-method-review-batch.md): the absence of this
+# file is why the "live-proven clean" claim at c38e4ce didn't hold at HEAD.
+tools/test_licenscan.py
