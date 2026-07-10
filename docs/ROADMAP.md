@@ -111,6 +111,22 @@ theatre). Leave tiki-specific bearings + review case-law in ros.
       diagnose/apply phantom-success named as the estate instance. Closes the
       extraction section. Review-owed (doctrine text — a REVIEW.md sampling pass).
 
+## Review gate — the post-method-review batch (before more content stacks)
+
+The same "mechanism/review before more content" rule that gated the `method/`
+layer now gates everything built since it. Session 15 flagged this as the
+standout debt; sessions 14–15 deliberately did not stack on it.
+
+- [ ] **Fable sweep of the `957fa08..f72031c` batch** — brief written
+      2026-07-10 (Opus): `docs/reviews/2026-07-10-post-method-review-batch.md`.
+      Scope: doctrine text (`EVIDENCE §13/§14`, `build/REPO-STANDARD`,
+      `build/REPO-BOUNDARY`, `method/SECRETS`, `method/ACCESS`) + the scan triad
+      approach review (`leakscan`/`secretscan`/`licenscan`, `--selftest`-first).
+      Supersedes the scattered "Review-owed" tags on those items. Deep-not-fast;
+      generous Fable spend authorised (safety gates + load-bearing doctrine).
+      Extraction/delivery that stacks on this batch (the create-repo rewire) stays
+      blocked until the verdict lands.
+
 ## build/ layer + inheritance delivery
 
 - [x] **Extract the `create-repo` standard into `docs/build/`** — DONE
