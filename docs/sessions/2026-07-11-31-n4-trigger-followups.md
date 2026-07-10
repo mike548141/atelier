@@ -45,9 +45,25 @@ Incidental restated (session 28): numen's pre-commit hook is frozen pre-scaffold
 (no linkscan) — on numen the CI floor is the only linkscan gate. It caught the
 inherited breaks before, and the re-copy keeps it current.
 
+## Templates pass — the session-29 sharpening propagated (`53b41db`)
+
+Same session, related strand (both are review follow-ups). The condensed
+template copy `build/templates/docs/MODEL-ECONOMICS.md` shipped **"One task per
+session; start fresh"** — the exact misreadable phrase session 29 diagnosed as
+driving over-application of "one thing per session," inherited by *every*
+scaffolded child. Rewritten to carry the reviewed sharpening (a coherent *line*
+of work, not a single checkbox; break for a genuine reason, not because one item
+went green) and to name the new ceremony-to-risk bearing in the point-up pointer.
+
+Judged **self-verifying, not fresh-review-owed** — a live application of this
+session's calibration lesson turned on the deferral itself: session-29-me flagged
+this "review-owed, separate," but it merely applies an *already-reviewed*
+decision (session 30: PASS, no findings) to its condensed mirror. That is the
+second-copy-drift class `test_templates.py` exists to catch; there is no live pin
+on this file's body (the CLAUDE.md stamped block is the pinned one), so the check
+is: does the copy now read consistent with the reviewed source? It does. Suite
+205 OK, unchanged.
+
 ## Left open
 
-- **Templates pass** — `build/templates/docs/MODEL-ECONOMICS.md`'s condensed
-  hygiene line still owes the session-29 sharpening (flagged there, review-owed;
-  untouched here — a different strand from CI triggers).
 - ros B14 estate access map — a ros session's job, as ever.

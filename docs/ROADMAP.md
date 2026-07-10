@@ -22,9 +22,15 @@ has inherited the costume, not the doctrine.
       earned its review and needed it: the class was still open in the sibling
       scanners; the records-only edits around it earned none). Recursive check
       honoured: flagged, not self-certified, merged by the principal.
-      Follow-up stands: the condensed `build/templates/docs/MODEL-ECONOMICS.md`
-      hygiene line picks up the sharpening in the already-flagged templates
-      pass (it is condensed-not-contradictory today).
+      Follow-up DONE 2026-07-11 (Opus, session 31, `53b41db`): the condensed
+      `build/templates/docs/MODEL-ECONOMICS.md` hygiene line shipped the exact
+      "One task per session; start fresh" misread this change diagnosed —
+      inherited by every scaffold. Rewritten to carry the sharpening (a coherent
+      *line*, not a checkbox; break for a genuine reason, not a green item) plus
+      the new ceremony-to-risk bearing. Judged self-verifying, not a fresh
+      review: it applies an *already-reviewed* decision to its condensed mirror
+      (the second-copy-drift class test_templates.py guards; no live pin on this
+      file's body). Suite 205 OK, unchanged.
 
 ## Done (2026-07-10)
 
