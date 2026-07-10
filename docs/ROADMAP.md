@@ -349,18 +349,34 @@ as model-memory reborn. **Run cold, fresh session.**
       `~/.claude/projects/**/*.jsonl`; "every session incl. chat/cowork" needs
       export machinery that doesn't exist yet — say so.
 
-## Sharing (private-first)
+## Sharing — public since 2026-07-10 (ADR 0005)
 
-- [ ] **One real peer adoption** (CEL, then a client-org) hardens the doctrine
-      before any public work — shareability is untested (audience-of-two so far);
-      treat their confusion as the harvest.
-- [ ] Full **practice/instance restructure** of AUTONOMY + STORAGE before public
-      release (grant ledger, Apple/iCloud specifics → marked worked-examples or
-      person-local).
-- [ ] Public release + packaging: readable repo vs **Claude Code plugin/skills
-      bundle** (plugin = behaviour travels — higher leverage). Reuse the ros
-      `PUBLISHING.md` extract-scrub-fresh-export pattern. **Scrub list must
-      include client names** (e.g. any client-org named in docs).
+The private-first sequence (peer-adoption → restructure → *then* public) was
+consciously collapsed: the peer-of-two never became a peer-of-three, so **public
+is the friction mechanism**, not a reward withheld until after it. atelier is
+public as a **named worked example** (README "If you're adopting this"). What was
+"before public release" is now **post-public hardening**:
+
+- [x] **Public release (readable repo)** — DONE 2026-07-10 (ADR 0005), as a named
+      worked example: no genericise-the-voice pass, no instance-restructure
+      precondition; the audit showed the hard boundary already held. The flip
+      was `gh repo edit --visibility public`, act-then-record.
+- [ ] **One real peer adoption** (CEL, then a client-org) — still the highest-value
+      hardening; now happens *with* strangers able to read it too. Treat their
+      confusion as the harvest.
+- [ ] **Practice/instance restructure** of AUTONOMY + STORAGE — the person-local
+      specifics (grant ledger, Apple/iCloud) → marked worked-examples. No longer
+      a publication gate; do it as the named-worked-example framing gets tested by
+      a real adopter.
+- [ ] **The next widening** — a public announcement, or packaging as a **Claude
+      Code plugin/skills bundle** (plugin = behaviour travels — higher leverage).
+      This is now the live floor item (Mike's call, not the agent's). Reuse the
+      ros `PUBLISHING.md` extract-scrub-fresh-export pattern; **scrub list must
+      include client names**.
+- [ ] **Wire the (now-public) scanners into child CI** — the question that opened
+      the going-public session, now unblocked: a child's CI can fetch atelier's
+      public `tools/` (no secret, no vendored copy, no drift). Plus atelier's own
+      CI (dogfood the test suite + scan triad + link check).
 
 ## Open questions
 
