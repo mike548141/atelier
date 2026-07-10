@@ -35,6 +35,13 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   lockstep doc change, append-only session log with detail-on-demand, ADRs for
   re-litigable decisions, absolute dating; the record is what makes a session
   resumable cold.
+
+### Changed
+- `docs/method/PRINCIPLES.md` — extracted from stub to the canonical general
+  spine (§1–7 + precedence ladder + situation tests, generalised off tiki with
+  the cases kept). ros `docs/PRINCIPLES.md` is now the *bearings + case-law*
+  child that points up; trimming its transitional general-prose duplication is a
+  tracked ROADMAP follow-up.
 - README, CLAUDE onramp, LICENSE (Apache-2.0), house `.gitignore` +
   `.claude/settings.json`.
 

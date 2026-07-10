@@ -47,8 +47,13 @@ pointer"** (dependency + lockfile for doctrine). Written up in
 Generalise the *bearings/cases*, don't delete them (a de-cased principle is
 theatre). Leave tiki-specific bearings + review case-law in ros.
 
-- [ ] **`PRINCIPLES.md`** spine + precedence ladder + situation tests, with
-      generalised cases. (Stub in place.)
+- [x] **`PRINCIPLES.md`** spine + precedence ladder + situation tests, with
+      generalised cases. Extracted 2026-07-10; canonical here.
+- [ ] **Trim ros `docs/PRINCIPLES.md`** to pointer + tiki bearings + review
+      case-law only — its general §1–7 prose now duplicates atelier's canonical
+      spine (a transitional DRY breach, flagged loudly at the top of that file,
+      not silent). Deserves its own careful session in ros so the case-law isn't
+      damaged in the trim.
 - [ ] **`MODEL-ECONOMICS.md`** general shape (numbers stay person-local). (Stub
       has review-trigger + tiered authority already.)
 - [x] **`EVIDENCE.md`** (harvest A1 — highest-value net-new) — authority tiers,

@@ -22,8 +22,11 @@ Read in this order:
    side-effects.
 7. **`TOOLBOX.md`** — keep a tool manifest; approved-but-missing may be
    installed; keep the personal inventory machine-local.
-8. **`PRINCIPLES.md`** — the design principles + precedence ladder + situation
-   tests. *(Extraction in progress — canonical source is ros `docs/PRINCIPLES.md`.)*
+8. **`PRINCIPLES.md`** — the design principles (resilience, structure,
+   events-over-polling, state/concurrency, security/privacy/cost, legibility,
+   reproducibility) + the precedence ladder + situation tests, with generalised
+   cases. **Canonical here**; `ros` keeps its tiki bearings + review case-law and
+   points up.
 9. **`MODEL-ECONOMICS.md`** — which model does what, and what it costs.
    *(Extraction in progress — canonical source is ros `docs/MODEL-ECONOMICS.md`.)*
 
