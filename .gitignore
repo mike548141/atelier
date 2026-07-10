@@ -10,13 +10,13 @@
 .claude/settings.local.json
 
 # --- add language litter as needed ---
-# Python:
-# __pycache__/
-# *.pyc
-# .venv/
-# *.egg-info/
-# .pytest_cache/
-# .ruff_cache/
-# .mypy_cache/
+# Python (tools/ carries stdlib-only scripts):
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
 # Node:
 # node_modules/

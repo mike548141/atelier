@@ -34,6 +34,7 @@ we work:
 | `docs/build/` | **how we build** — the repo-build standard and templates (repo craft) |
 | `docs/decisions/` | ADRs — decisions that rejected a real alternative |
 | `docs/reviews/` | peer-review briefs (work is reviewed by a more capable model before it's trusted) |
+| `tools/` | the mechanical controls that *enforce* the doctrine — e.g. `leakscan.py`, the pre-commit boundary keeping personal/estate data out of a shareable repo |
 
 ### `docs/method/` — the operating model
 

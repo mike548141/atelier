@@ -1,0 +1,11 @@
+# Paths exempt from leakscan (gitignore-style globs, one per line).
+# Keep this list SHORT and reasoned — every entry is a hole in the boundary.
+
+# The scanner's own unit tests are, by definition, a wall of leak-SHAPED
+# fixtures (emails, MACs, addresses) whose whole job is to prove detection.
+# They are kept deliberately fictional; scanning them only yields noise.
+tools/test_leakscan.py
+
+# The local-term list TEMPLATE is, like the tests, a wall of deliberately
+# fictional example shapes documenting the format. No real data lives here.
+tools/leakscan-terms.example.txt

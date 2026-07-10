@@ -48,6 +48,6 @@ initiative. This is private-first until Mike decides otherwise.
 ## Conventions
 
 - NZ English; macrons on te reo Māori.
-- Git identity `Mike Clements <mike@cxi.nz>`; commit messages
+- Git identity `Mike Clements <mike@cxi.nz>`; commit messages  <!-- leakscan:allow: author's own attribution; genericise for adopters at publish time -->
   `area: imperative subject`, why-dense body, Co-Authored-By trailer.
 - Before finishing a session, append a `docs/SESSIONS.md` entry.

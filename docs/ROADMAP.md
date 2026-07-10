@@ -100,10 +100,18 @@ theatre). Leave tiki-specific bearings + review case-law in ros.
 
 ## Safety tooling (gates the person-context + archive threads)
 
-- [ ] **Mechanical leak-scan** — pre-commit/CI denylist (names, addresses, med
-      terms, deal figures, device/network IDs) on every shareable repo. The
-      boundary must be enforced by machine, not intent. This is the single
-      control that catches every failure mode of portable-context + archive.
+- [x] **Mechanical leak-scan** — built 2026-07-10 as `tools/leakscan.py`
+      (+ README, `pre-commit.sample`, `leakscan-terms.example.txt`, unittest).
+      Shareable structural patterns (always run) + machine-local literal-term
+      list (`~/.claude/leakscan-terms.txt`, never in a repo); graceful
+      degradation to structural-only with a loud warning; `--staged` hot path,
+      `--json`, fail-safe exit codes; `.leakscanignore` + `leakscan:allow`
+      escape hatches. Proven: caught real address/coordinate/name leaks in its
+      own first-draft fixtures. **Owed:** install the hook + CI wiring per repo;
+      seed the real local term list in `~/.claude/`; extend patterns as gaps
+      appear. Review-owed (mechanical control, so a validator/CI run is most of
+      the enforcement — but the pattern set + the shareable/local split deserve
+      an approach review).
 - [ ] **Secret-scan on push** (gitleaks or equiv) — the *detection* half of the
       secrets mitigation: an exposed secret is only a cheap rotate-now event if
       you *know* it was exposed.
