@@ -5,6 +5,27 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-11 — the child-CI-floor review: the masking fix now covers the class)
+- **secretscan + leakscan hardened by the child-CI-floor review** (Fable, cold
+  session: `docs/reviews/2026-07-11-child-ci-floor.md`, PASS-WITH-FINDINGS,
+  N1–N6 all fixed + re-driven; suite 196→205). The review's headline: the
+  `d0870a4` linkscan masking fix had closed the *instance*, not the class —
+  proven live at review HEAD, a planted `AKIA…` key in `docs/build/` scanned
+  **green** whole-tree because both boundary scanners still hardcode-skipped
+  `build`/`dist` (N1, now mirrored out); both also **phantom-succeeded on a
+  nonexistent path** ("✓ clean", exit 0 — the linkscan L1 silent-success class;
+  now exit 2, N2); and the ignore-file hatch was **dead whenever CWD ≠ root** —
+  exactly floor.yml's invocation — because globs were matched against
+  CWD-relative paths (N3, both sides now resolved, mirroring linkscan's
+  reviewed `_rel`). `floor.yml` gains **every-push triggers** (a never-PR'd
+  feature branch was scanned by nothing, while the header claimed "every push";
+  N4), a **scanner-selftests step** before the scans (N5), and **in-file
+  false-positive hatch docs** (N6) — all pinned by new `test_templates.py`
+  tests. Floating `atelier@main` was attacked and held: the scanner fixes reach
+  every child's next run with zero per-child bumps, which for a security floor
+  is the safety property. Follow-up: numen re-copies floor.yml (workflow-file
+  fixes don't float).
+
 ### Added (2026-07-10 — child CI scanner floor: the public scanners now gate child repos)
 - **`docs/build/templates/workflows/floor.yml`** — the CI backstop to the
   pre-commit scan hook, for any repo that inherits house doctrine. The hook only

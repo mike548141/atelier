@@ -162,6 +162,58 @@ class RequireTerms(unittest.TestCase):
         self.assertEqual(0, self._run([]))
 
 
+class WholeTree(unittest.TestCase):
+    """Whole-tree walk guards from the 2026-07-11 child-CI-floor review
+    (findings N1–N3) — same class as the secretscan pins: no masked content
+    dirs, no phantom-success on a bad path, ignore hatch CWD-independent."""
+
+    def setUp(self):
+        import shutil, tempfile
+        self.tmp = ls.Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        # A present-but-empty terms file keeps main() off any real
+        # machine-local term list — structural rules are the point here.
+        self.terms = self.tmp / "terms.txt"
+        self.terms.write_text("")
+
+    def _write(self, rel, text):
+        p = self.tmp / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text)
+
+    def _main(self, argv):
+        import contextlib, io
+        with contextlib.redirect_stdout(io.StringIO()), \
+                contextlib.redirect_stderr(io.StringIO()):
+            return ls.main(argv + ["--terms", str(self.terms)])
+
+    def test_content_dir_named_build_is_walked(self):
+        # Regression (N1): `build`/`dist` are NOT hardcode-skipped — a content
+        # dir sharing the name (atelier's own docs/build/) must be scanned.
+        self._write("docs/build/note.md", "gateway is 10.20.30.40 today\n")
+        fs = ls.scan_paths([self.tmp], self.tmp, [])
+        self.assertEqual(["ipv4"], [f.rule for f in fs])
+
+    def test_nonexistent_path_is_an_error_not_a_pass(self):
+        # Regression (N2), the linkscan L1 class.
+        self.assertEqual(2, self._main(["--root", str(self.tmp),
+                                        str(self.tmp / "gone")]))
+
+    def test_ignore_hatch_lives_when_cwd_is_not_root(self):
+        # Regression (N3): CWD = workspace, root = repo (the floor.yml shape);
+        # the repo's root-relative .leakscanignore globs must still match.
+        import os
+        self._write("repo/docs/fixture.md", "gateway is 10.20.30.40 today\n")
+        old = os.getcwd()
+        os.chdir(self.tmp)
+        try:
+            self.assertEqual(1, self._main(["--root", "repo", "repo"]))
+            self._write("repo/.leakscanignore", "docs/fixture.md\n")
+            self.assertEqual(0, self._main(["--root", "repo", "repo"]))
+        finally:
+            os.chdir(old)
+
+
 class SelfTest(unittest.TestCase):
     def test_selftest_passes(self):
         self.assertEqual(0, ls._selftest())

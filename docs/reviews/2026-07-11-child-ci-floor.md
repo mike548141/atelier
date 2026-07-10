@@ -175,3 +175,152 @@ summaries here. Land findings as `N1..` with a fix each where you can, applied +
 re-driven same session per house practice. Append the verdict below the divider.
 
 ---
+
+# Verdict — PASS-WITH-FINDINGS (Fable, cold session, 2026-07-11)
+
+**Bottom line:** the floor.yml design holds (sibling checkout, repo-scoping,
+honest leakscan scope, commented licenscan, floating main), the numen evidence
+is exactly as recorded — but the brief's sharpest question ("does the linkscan
+fix close the class or just this instance?") has a decisive answer: **just the
+instance.** The same masked-layer false negative was alive in secretscan and
+leakscan at review time, plus two more members of the silent-success family the
+linkscan review had already fixed in linkscan alone. Six findings N1–N6, every
+one **[fixed]** this session, each proven broken live before fixing and proven
+closed after; suite 196→205.
+
+## Floor, reproduced (re-run rule — nothing taken on record)
+
+- `linkscan --selftest` OK; whole tree clean; a planted break in `docs/build/`
+  flags `missing-file` exit 1 and the tree is clean again on removal.
+- Full tool suite at review start: **196 OK**. All four scanner selftests OK;
+  scan triad + licenscan `--expect Apache-2.0` clean over the tree.
+- numen happy path re-read from the live logs (`gh run view 29092514962`):
+  conclusion `success` at `0958cd5`, all three scans ✓ in-log. Fail-closed
+  re-read (`29092599385`, PR event at `b2b6dcb`): conclusion `failure`,
+  secretscan ✓, leakscan ✓, **linkscan ✗ → `Process completed with exit code
+  1`**. The brief's claims match the logs exactly.
+- Templates as-if-scaffolded (`linkscan --root docs/build/templates …`): clean;
+  the decisions-README was the only template with a placeholder link
+  (assumption 7 **confirmed**).
+
+## Findings (all [fixed] this session, each re-driven)
+
+**N1 — the masking fix closed the instance, not the class (the sharpest
+finding).** `d0870a4` dropped `build`/`dist` from *linkscan's* hardcode-skip;
+**secretscan and leakscan still carried both names**. Proven live at review
+HEAD: a well-formed `AKIA…` key planted in `docs/build/` scanned **green** on a
+whole-tree secretscan — the doctrine layer unmasked for links was still masked
+for secrets and leaks, in the two scanners whose false negative is costliest.
+Fixed by mirroring `d0870a4` in both scanners (hardcode-skip now only
+never-authored names); pinned by `test_content_dir_named_build_is_walked` in
+both test files; planted key + planted IP in `docs/build/` re-driven red;
+atelier's whole tree re-scanned clean with the layer newly in scope for all
+three scanners.
+
+**N2 — the L1 silent-success class also lived on in both boundary scanners.**
+`secretscan --root x x` and `leakscan --root x x` with a nonexistent path
+printed **“✓ clean” and exited 0** (linkscan post-L1 exits 2; licenscan already
+exits 2). In floor.yml terms: a typo'd `repo` path would phantom-succeed the
+publish-safety scans. Fixed: nonexistent path args are now a usage error, exit
+2, both scanners; pinned.
+
+**N3 — the child's documented false-positive hatch was dead in exactly the
+floor.yml invocation.** `iter_files` computed `rel` via
+`p.relative_to(root)` with an unresolved `p` — whenever CWD ≠ root (floor.yml
+runs `--root repo repo` from the workspace) that raises and the silent fallback
+yields a **CWD-relative** path, so the scanned repo's own
+`.secretscanignore`/`.leakscanignore` globs never matched. Proven live: a child
+`.secretscanignore` failed to suppress a fixture under the exact floor.yml
+command. The hook and ci.yml only worked because CWD happens to equal root
+there. Fixed by resolving both sides (mirrors linkscan's `_rel`, already
+reviewed); pinned by a CWD≠root test in both test files, sanity-checked in both
+directions (flags without the hatch, clean with it).
+
+**N4 — trigger gap confirmed (assumption 1), and the header overclaimed.** The
+header said "every push + PR"; the trigger said `push: branches: [main]`. A
+feature branch pushed and never PR'd was scanned by nothing — and a push to
+*any* branch is already publication (the commit is on the remote regardless of
+merge). floor.yml now triggers on every push; the double-run cost on same-repo
+PR branches is stated in-file and accepted (seconds, per-ref concurrency).
+Pinned (`test_push_trigger_covers_every_branch`). Note, deliberately not
+changed: `ci-python.yml`/`ci-static.yml` keep `branches: [main]` — correctness
+CI gates the merge; the floor gates publication. And atelier's **own** `ci.yml`
+(out of scope, already reviewed) carries the same narrow trigger — same
+reasoning applies; flagged as an observation for its next touch.
+
+**N5 — floor.yml ran no scanner selftests (ci.yml does).** A fetched scanner
+that can no longer detect its own fixtures would have passed green. A selftests
+step now runs before the scans; pinned, ordered-before-scans asserted. Residual
+stated honestly: a truly *empty/no-op* scanner file passes `--selftest` exit 0
+silently (proven with an empty `.py`) — that class is bounded by atelier's own
+CI, which runs the full 205-test suite on every push to the `main` the children
+fetch.
+
+**N6 — the false-positive hatches were undocumented where a child would look
+(assumption 2 confirmed).** A real child carrying its own fake-secret fixture
+red-flags its floor with no hatch named in floor.yml — and pre-N3 the
+ignore-file hatch it might have found in the scanner output *didn't work* under
+floor.yml. The header now documents both hatches (allow-marker, root-relative
+ignore globs) and that they travel with the repo; pinned
+(`test_false_positive_hatches_documented`). Proven live end-to-end: planted key
+in a child `build/` dir flags; `.secretscanignore` glob suppresses it; clean
+child passes 0/0/0 — all with the exact floor.yml commands, CWD at the
+workspace.
+
+## The judgement calls (assumptions 4, 5, 9)
+
+**Floating `atelier@main` — holds, attacked.** The strongest case against: a
+broken or subverted atelier `main` silently neuters (or worse, weaponises —
+CI code can read the private child's checkout and has network egress) every
+child's floor at once, and unpinned runtime-fetched code is textbook
+supply-chain surface. It survives because: (a) the trust root is *identical* —
+a child already inherits atelier's doctrine and templates, and adopters are
+told in-file to point at their own fork; (b) what `main` serves is itself
+gated — hook, 205-test CI floor, and this review culture; (c) `contents: read`
+caps the token, and the `ref:` pin is already in-file for anyone whose threat
+model differs. The clincher is this very review: **N1–N3 reach every child's
+next run with zero per-child bumps** — under a pinned SHA, every child would
+still be running the masked scanners until someone remembered to bump. For a
+security floor, freshness *is* the safety property. Residual named: the
+private-tree-exfiltration case rests on atelier main staying trustworthy;
+that is accepted for a single-principal estate and re-opens if atelier ever
+takes external committers.
+
+**Remaining `SKIP_DIR_NAMES` — holds, with a note.** `.git`, dep dirs, tool
+caches: never human-authored. `.idea`/`.vscode` do ship *checked-in config*,
+but markdown prose there is vanishingly rare and the miss cost is a few config
+files, not a doctrine layer. Kept, residual stated here.
+
+**Assumption 9 — the fail-closed proof generalises; the real-infra secret
+drive is NOT owed.** Decided closed by composition: (a) the exact floor.yml
+secretscan command blocks a planted well-formed key locally (re-driven this
+session, exit 1); (b) run `29092599385` proves on real infra that a scanner's
+exit 1 fails the job — and that mechanism is scanner-agnostic (identical step
+shape, same runner). The only untested link would be GitHub treating one
+`run:` step differently from its neighbour, for which there is no mechanism.
+Deliberately not driven: planting even a fake-shaped secret in remote history
+is precisely the noise this whole apparatus exists to prevent.
+
+## Records honesty (lens 4)
+
+Session 28's entry and this brief match the live evidence everywhere checked.
+One over-readable line, now moot: `d0870a4`'s "whole floor re-proven green with
+docs/build now in scope" was true **of linkscan only** — for secretscan and
+leakscan the layer stayed masked until N1. Post-N1 the sentence is true of the
+triad. The child-CI story (sessions 23/26/27 leaving it open, session 28
+closing it on numen) is accurately told.
+
+## Follow-ups (not blockers)
+
+1. **numen should re-copy `floor.yml`** — the scanner fixes (N1–N3) reach it
+   automatically via floating main, but the *workflow-file* fixes (N4 trigger,
+   N5 selftests, N6 hatch docs) are baked into its copied YAML. One-file copy,
+   next numen touch. Its frozen pre-scaffold hook (session 28's incidental)
+   stands as already flagged.
+2. **atelier's own `ci.yml` trigger** — same N4 reasoning (a never-PR'd branch
+   push is unscanned by CI); out of this review's scope, take it on the next
+   ci.yml touch.
+
+**Gate cleared:** `floor.yml` may roll to further children (in its post-review
+form), and the linkscan masking fix may be leaned on — it now actually covers
+the class, in all three scanners.

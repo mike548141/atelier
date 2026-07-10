@@ -426,15 +426,25 @@ public as a **named worked example** (README "If you're adopting this"). What wa
         (`29092514962`), fail-closed red via a throwaway broken-link PR
         (`29092599385`, since cleaned up). Detail:
         `sessions/2026-07-11-28-child-ci-floor-exercised.md`.
-  - [ ] **Review the child-CI floor + the linkscan masking fix** — brief written
-        `docs/reviews/2026-07-11-child-ci-floor.md` (range `bafeaa3`+`d0870a4`,
-        numen `0958cd5` as the live rig; 9 assumptions, 4 lenses). Fifth
-        application of don't-stack: `floor.yml` isn't rolled to further children,
-        and the linkscan change isn't leaned on, until the verdict clears. Sharpest
-        open questions: `floor.yml` trigger gaps (a never-PR'd branch push scanned
-        by nothing), `atelier@main` as a supply-chain trust, whether the
-        broken-link fail-closed proof generalises to a secret or the real-infra
-        secret-block is still `act`-only-owed (session 27).
+  - [x] **Review the child-CI floor + the linkscan masking fix** — RAN
+        2026-07-11 (Fable, cold session): **PASS-WITH-FINDINGS**, verdict below
+        the divider in `docs/reviews/2026-07-11-child-ci-floor.md`. The brief's
+        sharpest question answered decisively: the masking fix closed the
+        *instance*, not the class — secretscan + leakscan still hardcode-skipped
+        `build`/`dist` (a planted key in `docs/build/` scanned green, proven
+        live), still phantom-succeeded on a nonexistent path (the linkscan L1
+        class), and the child's ignore-file hatch was dead under exactly the
+        floor.yml invocation (CWD-relative vs root-relative globs). Six findings
+        N1–N6, all [fixed] + re-driven same session (suite 196→205): both
+        scanners mirror the linkscan fixes; floor.yml gains every-push triggers
+        (a never-PR'd branch was scanned by nothing), a selftests step, and
+        in-file FP-hatch docs. Floating `atelier@main` attacked and **held**
+        (N1–N3 reaching every child with zero bumps is the argument); the
+        real-infra secret drive judged NOT owed (closed by composition).
+        **Gate cleared — floor.yml may roll to further children.**
+        - [ ] Follow-ups: numen re-copies floor.yml (workflow-file fixes don't
+              float, unlike the scanner fixes); atelier's own ci.yml trigger has
+              the same N4 gap — take on next ci.yml touch.
 - [x] **Markdown internal-link check** — BUILT 2026-07-10 (Opus), **REVIEWED
       2026-07-10 (Fable, cold session): PASS-WITH-FINDINGS, gate cleared** —
       verdict below the divider in `docs/reviews/2026-07-10-linkscan.md`.

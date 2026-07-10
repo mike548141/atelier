@@ -4,7 +4,13 @@ Every credential-looking literal here is fictional/example-shaped — the point 
 the test is the *shape*, not any real value.
 """
 
+import contextlib
+import io
+import os
+import shutil
+import tempfile
 import unittest
+from pathlib import Path
 
 import secretscan as ss
 
@@ -223,6 +229,55 @@ class Ignore(unittest.TestCase):
 
     def test_non_match(self):
         self.assertFalse(ss._ignored("src/real.py", ["secrets/"]))
+
+
+class WholeTree(unittest.TestCase):
+    """Whole-tree walk guards from the 2026-07-11 child-CI-floor review
+    (findings N1–N3): no masked content dirs, no phantom-success on a bad
+    path, and the ignore hatch working however the caller invokes it."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+
+    def _write(self, rel, text):
+        p = self.tmp / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text)
+
+    def _main(self, argv):
+        with contextlib.redirect_stdout(io.StringIO()), \
+                contextlib.redirect_stderr(io.StringIO()):
+            return ss.main(argv)
+
+    def test_content_dir_named_build_is_walked(self):
+        # Regression (N1): `build`/`dist` are NOT hardcode-skipped — a content
+        # dir sharing the name (atelier's own docs/build/) must be scanned; a
+        # real build-output dir uses .secretscanignore instead.
+        self._write("docs/build/note.md", "key = AKIAJ7Q2XR4TP9WNB5KD\n")
+        fs = ss.scan_paths([self.tmp], self.tmp)
+        self.assertEqual(["aws-access-key-id"], [f.rule for f in fs])
+
+    def test_nonexistent_path_is_an_error_not_a_pass(self):
+        # Regression (N2), the linkscan L1 class: a typo'd path scanning
+        # nothing must never exit 0.
+        self.assertEqual(2, self._main(["--root", str(self.tmp),
+                                        str(self.tmp / "gone")]))
+
+    def test_ignore_hatch_lives_when_cwd_is_not_root(self):
+        # Regression (N3): floor.yml runs `--root repo repo` from the
+        # workspace, not the repo — the scanned repo's own .secretscanignore
+        # globs are root-relative by contract and must still match. Sanity
+        # first: without the hatch the planted key flags.
+        self._write("repo/docs/fixture.md", "key = AKIAJ7Q2XR4TP9WNB5KD\n")
+        old = os.getcwd()
+        os.chdir(self.tmp)
+        try:
+            self.assertEqual(1, self._main(["--root", "repo", "repo"]))
+            self._write("repo/.secretscanignore", "docs/fixture.md\n")
+            self.assertEqual(0, self._main(["--root", "repo", "repo"]))
+        finally:
+            os.chdir(old)
 
 
 class SelfTest(unittest.TestCase):

@@ -84,8 +84,10 @@ class ChildFloorWorkflowTest(unittest.TestCase):
 
     def test_scan_scoped_to_repo_not_workspace(self):
         """Every active scan targets `repo` (its own tree), never `.` — a
-        whole-workspace scan would false-positive on atelier's fixtures."""
+        whole-workspace scan would false-positive on atelier's fixtures.
+        Selftest lines scan nothing, so they are exempt."""
         runs = re.findall(r"tools/(?:secret|leak|link)scan\.py [^\n]*", self.text)
+        runs = [ln for ln in runs if "--selftest" not in ln]
         self.assertTrue(runs, "no scanner run lines found in floor.yml")
         for line in runs:
             self.assertRegex(
@@ -93,6 +95,30 @@ class ChildFloorWorkflowTest(unittest.TestCase):
                 r"--root repo repo$",
                 f"scan not scoped to the repo tree: {line!r}",
             )
+
+    def test_selftests_run_before_the_scans(self):
+        """2026-07-11 review N5 (mirrors atelier's own ci.yml): prove the
+        fetched instruments before trusting their pass — a scanner that cannot
+        detect its own fixtures must go red here, not pass green below."""
+        for tool in ("secretscan.py", "leakscan.py", "linkscan.py"):
+            self.assertIn(f"atelier/tools/{tool} --selftest", self.text)
+        self.assertLess(self.text.find("--selftest"),
+                        self.text.find("--root repo repo"),
+                        "selftests must run before the scans they vouch for")
+
+    def test_push_trigger_covers_every_branch(self):
+        """2026-07-11 review N4: a push to ANY branch is publication (the
+        commit is on the remote whether or not it's ever PR'd); restricting
+        push to main left a never-PR'd feature branch scanned by nothing."""
+        on_block = self.text[self.text.find("\non:"):self.text.find("permissions:")]
+        self.assertNotIn("branches:", on_block)
+
+    def test_false_positive_hatches_documented(self):
+        """2026-07-11 review N6: a child whose own tree legitimately trips a
+        scanner (its own fake-secret fixtures, a committed build-output dir)
+        must find the hatch in this file, not in atelier's internals."""
+        for hatch in (".secretscanignore", ".leakscanignore", ".linkscanignore"):
+            self.assertIn(hatch, self.text)
 
     def test_leakscan_structural_only(self):
         """--require-terms would demand the machine-local term list CI can't

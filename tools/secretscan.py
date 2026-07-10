@@ -63,11 +63,18 @@ from pathlib import Path
 # credential, or a known-public test key). Keep the reason on the same line.
 ALLOW_MARKER = "secretscan:allow"
 
-# Paths never worth scanning — binary/vendored/VCS noise. Repo-specific globs
-# come from .secretscanignore at the scan root.
+# Paths never worth scanning. Hardcode-skip ONLY names that are never
+# human-authored content — VCS, dependency, and tool-cache dirs. `build`/`dist`
+# are DELIBERATELY absent (2026-07-11 child-CI-floor review, N1 — the same
+# masking linkscan fixed at d0870a4): a content dir can legitimately share the
+# name (atelier's own docs/build/ doctrine layer), and skipping it by name made
+# a whole-tree scan blind to a planted key there. Masking a layer is the worst
+# failure a publish-safety scanner has; a repo with a real build-output dir
+# names it in `.secretscanignore` (one line). Repo-specific globs come from
+# .secretscanignore at the scan root.
 SKIP_DIR_NAMES = {".git", "node_modules", "__pycache__", ".venv", "venv",
-                  ".mypy_cache", ".ruff_cache", ".pytest_cache", "dist",
-                  "build", ".idea", ".vscode"}
+                  ".mypy_cache", ".ruff_cache", ".pytest_cache",
+                  ".idea", ".vscode"}
 
 # The key-name half of the ASSIGNED-secret heuristic: a word that means "this is
 # a credential". Bounded so `password`, `api_key`, `client-secret`, `authToken`
@@ -351,8 +358,13 @@ def iter_files(paths: list[Path], root: Path, globs: list[str]):
             files = [p for p in base.rglob("*")
                      if p.is_file() and not (SKIP_DIR_NAMES & set(p.parts))]
         for p in files:
+            # Resolve BOTH sides so rel is root-relative no matter the caller's
+            # CWD (2026-07-11 review N3): floor.yml runs `--root repo repo` from
+            # the workspace, where the unresolved relative_to raised and the
+            # fallback quietly produced CWD-relative paths — so the scanned
+            # repo's own .secretscanignore globs never matched.
             try:
-                rel = str(p.relative_to(root))
+                rel = str(p.resolve().relative_to(root.resolve()))
             except ValueError:
                 rel = str(p)
             if _ignored(rel, globs):
@@ -455,6 +467,14 @@ def main(argv: list[str] | None = None) -> int:
                     for f in scan_text(path, text, disabled)]
     else:
         targets = [Path(p) for p in (args.paths or [str(root)])]
+        missing = [str(p) for p in targets if not p.exists()]
+        if missing:
+            # A typo'd path scanning nothing must never read as a clean pass —
+            # the linkscan L1 silent-success class, closed here too
+            # (2026-07-11 review N2).
+            print(f"secretscan: path does not exist: {', '.join(missing)}",
+                  file=sys.stderr)
+            return 2
         findings = scan_paths(targets, root, disabled)
 
     if args.json:
