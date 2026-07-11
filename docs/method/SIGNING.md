@@ -209,6 +209,18 @@ Vigilant mode stays off until the fleet is fully green (else pre-boundary
 history reads "Unverified"); flipping CI from warn to block is the remaining
 deliberate step, Mike's call once the pre-existing scanner debt is cleared.
 
+## Operational notes (known issues)
+
+- **"couldn't load key" / "incorrect passphrase" on commit.** The signing key is
+  passphrase-protected; if it isn't loaded in the ssh-agent, `git commit` fails
+  to sign with that cryptic error and writes no commit. **Fix — load it once per
+  login:** `ssh-add --apple-use-keychain ~/.ssh/id_ed25519_signing` (drop the
+  `--apple-use-keychain` flag off macOS). The flag caches the passphrase in the
+  OS keychain so it survives reboots; you should rarely need to re-run it. The
+  pre-commit hook now runs a silent test-sign and prints this same remedy the
+  moment signing looks unready, so the failure is caught before the scanners'
+  work is wasted, not after.
+
 ## What lives elsewhere
 
 The key itself, its passphrase, and its vault location — personal, never in

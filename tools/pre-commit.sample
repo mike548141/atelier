@@ -77,6 +77,26 @@ run_scan secretscan --staged --root "$repo_root"
 run_scan leakscan   --staged --root "$repo_root"   # networking repo? append --disable <rules> / a subtree path
 run_scan linkscan   --root "$repo_root" "$repo_root"   # whole tree — a rename breaks links outside the diff
 
+# Signing pre-flight (SIGNING.md, ADR 0007). If this repo signs commits with an
+# SSH key, a passphrase-protected key that isn't loaded in the agent makes the
+# imminent `git commit` fail with a cryptic "couldn't load key / incorrect
+# passphrase". Surface the one-line remedy HERE instead — only when the scanners
+# passed (a scanner block aborts before signing anyway) and only when a quick
+# non-interactive test-sign actually fails, so a ready key prints nothing. This
+# is a HINT, never a block: the OS keychain may still load the key on demand.
+if [ "$status" -eq 0 ] &&
+   [ "$(git config --get commit.gpgsign 2>/dev/null)" = "true" ] &&
+   [ "$(git config --get gpg.format 2>/dev/null)" = "ssh" ]; then
+    signkey=$(git config --get user.signingkey 2>/dev/null)
+    if [ -n "$signkey" ] &&
+       ! printf 'preflight' | SSH_ASKPASS_REQUIRE=never ssh-keygen -Y sign -n git -f "$signkey" >/dev/null 2>&1; then
+        echo >&2 "pre-commit: signing key not ready — this commit will likely fail to sign."
+        echo >&2 "  Load it into the agent (once per login), then retry:"
+        echo >&2 "    ssh-add --apple-use-keychain \"${signkey%.pub}\"   # macOS; drop the flag on Linux"
+        echo >&2 "  (SIGNING.md - Operational notes)"
+    fi
+fi
+
 if [ "$status" -ne 0 ]; then
     echo >&2
     echo "A scanner blocked this commit. Fix the finding(s) above — remove and" >&2
