@@ -40,19 +40,21 @@ General machine/infra utilities (macOS, TrueNAS, networking) that you or Claude
 merely *use* from time to time do **not** belong here — they live with the estate
 they serve. `docs/decisions/0006-instruments-in-atelier.md` records that line.
 
-## ccrepo billing model — designed, not yet built
+## ccrepo billing model — Actual vs Est
 
 ccrepo's Cost column is an **API-equivalent estimate** (ccusage's USD basis) —
 "a gauge, not your bill". A subscription-plan user's *actual* spend diverges
 sharply, and the general shape is **hybrid**: a flat plan covering some models
-plus per-token billing for the rest or for overage. The roadmap item wants both
-numbers side by side; per its design-before-code rule, the config is designed
-here first:
+plus per-token billing for the rest or for overage. When a billing config is
+present, ccrepo shows both numbers side by side — **Est (API)** and
+**Actual** — and `--json` carries `actual` on every repo/model/day plus a
+top-level `billing` block. `--no-billing` forces estimate-only for a run.
 
 - **Home:** `~/.claude/ccrepo-billing.json` — machine-local like leakscan's term
   list, **never in a repo** (a person's plan and spend are personal data).
-  Absent file ⇒ ccrepo behaves exactly as today (estimate only); no new
-  requirement on anyone else's machine.
+  Absent file ⇒ ccrepo behaves exactly as before (estimate only); no new
+  requirement on anyone else's machine. A malformed file is ignored with a
+  warning, never fatal.
 - **Shape** (all fields optional beyond `plan.monthlyCost`):
 
   ```json
@@ -68,16 +70,23 @@ here first:
   }
   ```
 
-- **Semantics:** tokens on `covers` models cost **$0 marginal** (the plan is a
-  sunk monthly cost, reported as its own line, apportionable per repo by share
-  of covered tokens); tokens on `perTokenModels` (or any model not covered)
-  keep the API-rate estimate as their actual. Actual = plan share + uncovered
-  per-token spend. Both columns render side by side: *Est (API)* and *Actual*.
+- **Semantics:** `covers[]` entries match a model family by prefix after
+  `claude-` is stripped (`opus` matches `opus-4-8`); `perTokenModels` carves a
+  specific model back out of an otherwise-covered family. Tokens on covered
+  models cost **$0 marginal** — the flat plan fee is a sunk monthly cost,
+  apportioned across repos by each repo's share of covered tokens (if nothing in
+  range ran on a covered model, it falls back to total-token share so a fee you
+  really paid is still reflected). Tokens on uncovered models keep the API-rate
+  estimate as their actual. **Actual = apportioned plan share + uncovered
+  per-token spend** — so the TOTAL Actual row is exactly `plan fee + all
+  uncovered spend`.
 - **Honest limits, stated up front:** there is no API for "what you actually
-  paid" — this is a user-maintained model, only as true as its config; plan
+  paid" — this is a user-maintained model, only as true as its config. The plan
+  fee shown is **one month**; over a multi-month range true plan outlay is
+  `months × fee` — v1 doesn't infer the month count (a footnote says so). Plan
   *limits/overage thresholds* are deliberately out of scope v1 (modelling when
-  a plan tips into overage needs rate-limit data the logs don't carry — that
-  gap stays visible in the output as a footnote, not silently absorbed).
+  a plan tips into overage needs rate-limit data the logs don't carry) — that
+  gap stays a stated footnote, not silently absorbed.
 
 ## Schema caveat
 

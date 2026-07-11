@@ -5,6 +5,24 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-11 — ccrepo actuals vs estimate)
+- **ccrepo: an Actual column beside Est (API)**, driven by a machine-local
+  `~/.claude/ccrepo-billing.json` (never in a repo — a plan and spend are
+  personal data; absent ⇒ estimate-only with a byte-identical JSON contract;
+  malformed ⇒ ignored-with-warning, never fatal). `plan.covers[]` matches model
+  families by prefix after `claude-` is stripped, `perTokenModels` carves one
+  back out; covered-model tokens cost **$0 marginal** and the sunk plan fee is
+  apportioned per repo by covered-token share (falling back to total-token share
+  if nothing covered ran in range), while uncovered models keep the API-rate
+  figure. **Actual = apportioned plan share + uncovered per-token spend**, so the
+  TOTAL Actual row equals `fee + all uncovered spend` — proven live: estate-wide
+  Est US$2,305 vs Actual US$200 (the whole plan fee). Both columns convert
+  together under `--fx`; `--no-billing` forces estimate-only. Multi-month outlay
+  and overage thresholds are stated footnotes, out of scope v1. Closes the
+  design-before-code roadmap item (the config was designed first, then the code
+  once the shape was confirmed). 8 new pure tests (`loadBilling`,
+  `coversPredicate`, `actualFor`, the covered/uncovered fold); Node suite 26→34.
+
 ### Fixed (2026-07-11 — the instruments test-floor code review's 10 findings)
 - **All ten confirmed findings from the `8536971` code review fixed + pinned**
   (`docs/reviews/2026-07-11-instruments-test-floor-code-review.md`; suite

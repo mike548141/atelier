@@ -47,19 +47,27 @@ has inherited the costume, not the doctrine.
 
 ## instruments/ layer (new 2026-07-11, ADR 0006)
 
-- [ ] **ccrepo — cost fidelity, full breakdown, and reach** (Mike, 2026-07-11) —
-      three strands to make the DevFinOps view truer and more accessible:
-      - [ ] **Actuals vs estimate — show both.** Config DESIGNED 2026-07-11
-            (the item's design-before-code step): `instruments/README.md`
-            "ccrepo billing model" section — machine-local
-            `~/.claude/ccrepo-billing.json` (personal spend data never in a
-            repo; absent file ⇒ today's estimate-only behaviour), plan =
-            sunk monthly cost with `covers[]` model families at $0 marginal,
-            uncovered models keep the API-rate figure, output shows *Est
-            (API)* and *Actual* side by side; plan limits/overage explicitly
-            out of scope v1 (no data source — stays a stated footnote). The
-            **code** is the remaining half; build once Mike confirms the
-            config shape fits his actual plan.
+- [x] **ccrepo — cost fidelity, full breakdown, and reach** (Mike, 2026-07-11) —
+      three strands to make the DevFinOps view truer and more accessible; all
+      three now addressed (the VS Code *build* stays a separate decision):
+      - [x] **Actuals vs estimate — show both.** DONE 2026-07-11 (Opus, session
+            38): config confirmed (USD Max-20x, all Claude families covered) and
+            the code built. `~/.claude/ccrepo-billing.json` (machine-local, never
+            in a repo; absent ⇒ estimate-only, byte-identical JSON contract
+            preserved; malformed ⇒ ignored-with-warning, never fatal) drives an
+            **Actual** column beside **Est (API)**: `covers[]` matches model
+            families by prefix (after `claude-` stripped), `perTokenModels` carves
+            one back out; covered tokens cost $0 marginal, the sunk plan fee is
+            apportioned per repo by covered-token share (falls back to total-token
+            share if nothing covered ran in range), uncovered models keep the
+            API-rate figure. **Actual = plan share + uncovered spend**, so TOTAL
+            Actual = fee + all uncovered — proven live: estate-wide Est
+            US$2,305 vs Actual US$200 (the whole plan fee), and `--by-model`
+            children sum to their repo. Both columns convert together under
+            `--fx`; `--no-billing` forces estimate-only. Multi-month outlay +
+            overage thresholds out of scope v1, stated as footnotes. 8 new pure
+            tests (`loadBilling`/`coversPredicate`/`actualFor`/covered-split
+            fold); suite 26→34 Node.
       - [x] **Full ccusage breakdown** — DONE 2026-07-11: ccrepo now shows
             Cache Create · Cache Read · **Cache Hit** (reads ÷ prompt-side
             tokens, the point-don't-paste signal made observable) alongside
