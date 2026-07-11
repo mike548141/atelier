@@ -63,7 +63,19 @@ has inherited the costume, not the doctrine.
             per-repo cost at a glance where the work happens. Depends on what the
             Claude Code extension exposes (panel/statusbar hook) or a small
             companion extension; feasibility unknown — scope it before building.
-- [ ] **Tests for `ccrepo` + `cctranscript`** — the instruments shipped untested
+- [ ] **cctranscript — per-reply response IDs (`N.M`)** (Mike, 2026-07-11) —
+      consider. The exchange number `▸ N` on each prompt is a strong
+      in-transcript reference; extend it so each of Claude's replies to prompt N
+      is addressable as `N.M` (1.1, 1.2, …), shown in the reply header:
+      `◂ Claude 1.1 (Opus 4.8)  10:29:32  +2s`. M resets after each prompt. <!-- leakscan:allow: example clock time (HH:MM:SS) in a UI mockup, not an IPv6 address -->
+
+      Decisions to make: what counts as a reply — the text replies only (the
+      natural unit a human cites) or every assistant turn incl. thinking/tool
+      steps under `--full` (more precise, more numbers); and surface `N.M` in
+      `--json` so the citation is machine-addressable too. Weigh clutter vs
+      value — the win is a stable citation for any point in a transcript,
+      completing the reference scheme the session-ID header and exchange rule
+      already start (anchor the top, number each ask, now number each reply).
       (session 34), unlike the `tools/` scanners which each carry a unittest +
       `--selftest`. Acceptable while they're throwaway; the moment either is leaned
       on they earn the same floor. Minimum: a `--json` output-contract test over a
