@@ -85,9 +85,11 @@ layer earn a review with fresh context before extraction continues.
       corrected, not confirmed — Fable is the *more* capable tier (the reframe
       to independence-as-core still landed, for peer adopters without a
       superior tier).
-- [ ] **Method-review follow-ups ([backlog] findings)** — remaining: faves
-      adopts the P1 floor wording at its next pin bump (surfaced now by
-      `tools/pins.py` — faves reads 9 behind).
+- [x] **Method-review follow-ups ([backlog] findings)** — CLOSED. faves adopted
+      the P1 trust-surface floor wording at its session-21 pin bump
+      (dde4170→bbdeece); the 2026-07-11 session-31 fleet bump then carried all
+      three children (faves/numen/ros) current to `d45a431` — `tools/pins.py`
+      reads **all 3 current ✓**.
       - [x] P2 fleet pin view — DONE 2026-07-10 (Opus): `tools/pins.py`, the
             read-only roll-up of every child's pin vs atelier HEAD
             (`current`/`behind N`/`ahead`/`diverged`/`unknown`/`no-pin`, `--log`/
