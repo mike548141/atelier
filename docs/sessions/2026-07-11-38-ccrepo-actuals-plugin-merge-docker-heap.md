@@ -36,21 +36,20 @@ resolves — **the doctrine now travels as behaviour**. The "next widening"
 live-floor item is marked spent; the floor advances to the *next* deliberate
 widening (announcement / v2 plugin / package), still Mike's call.
 
-## 3. docker-heap standardised — and a live-secret discovery handled honestly
+## 3. docker-heap standardised — and a scan finding handled honestly
 
-Standardise-existing pass (`atelier@5db645e`). The interesting part was what the
-scan hooks *surfaced*: **real committed credentials** the private repo already
-tracks in its own roadmap. (Estate specifics deliberately stay in that private
-repo — see the covenant note below.) The principal chose "externalise now, you
-rotate," but tracing the linkage revealed the scope was bigger than it first
-looked (several linked secrets, not two lines) plus a genuine **reconciliation
-smell** where a "fix" could sever a running service's auth if applied blind.
-**Then the decisive find:** the repo *already has* a considered ROADMAP that
-tracks the exact rotation as its pre-public blocker **with a decided fix** — my
-first instinct would have fought the repo's own direction. So I **deviated from
-"externalise now"** and left the stack configs entirely untouched: the right fix
-is the owner's, needs him at the host for
-the redeploy, and is already planned. Surfaced that reconciliation smell into the
+Standardise-existing pass (`atelier@5db645e`). The interesting part was that the
+scan hooks *surfaced findings* the private repo's own records already track.
+(What they are, where, and their history deliberately stay in that private
+repo — RECORD's "the record is public" rule.) The principal chose "externalise
+now, you rotate," but tracing the linkage revealed the scope was bigger than it
+first looked, plus a genuine **reconciliation smell** where a "fix" could sever
+a running service's auth if applied blind. **Then the decisive find:** the repo
+*already has* a considered ROADMAP item tracking exactly this, **with a decided
+fix** — my first instinct would have fought the repo's own direction. So I
+**deviated from "externalise now"** and left the stack configs entirely
+untouched: the right fix is the owner's, needs him at the host for the
+redeploy, and is already planned. Surfaced that reconciliation smell into the
 repo's own (private) roadmap item.
 
 Scaffolding delivered (no stack config touched): doctrine block + pin (`CLAUDE.md`),
@@ -61,8 +60,8 @@ house `README`, `docs/ARCHITECTURE.md` (estate map), moved `ROADMAP.md` → `doc
 rules — `.claude/settings.local.json`/`.env`/OS-litter all unignored) — now tracked;
 and `floor.yml` + the hook **scoped to disable `ipv4,ipv6,mac-address`** because a
 container/network estate has ~60 legitimate network shapes that would drown the real
-signal (the ros/tiki precedent). floor CI now correctly red on **secretscan only**
-(the tracked 🔴 secret), leak/link clean. docker-heap is `current` in `tools/pins.py`.
+signal (the ros/tiki precedent). floor CI red by design on the known,
+owner-tracked item; everything else clean. docker-heap is `current` in `tools/pins.py`.
 
 ## 4. Code-signing (Mike's mid-turn steer) — captured, recommended
 
@@ -77,4 +76,4 @@ create-repo + doctrine side once he's named a key.
 
 ## Floor at close
 atelier: 34 Node + 205 Python + 4 scanners clean; main at the session's doc commit.
-docker-heap: floor red on the tracked secret (by design), everything else clean.
+docker-heap: floor red by design on the known, owner-tracked item; everything else clean.

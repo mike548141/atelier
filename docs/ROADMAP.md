@@ -7,14 +7,43 @@ has inherited the costume, not the doctrine.
 
 ## Doctrine — review-owed
 
-- [ ] **Cold review of RECORD "keep private repos generic"** — the new section
-      (2026-07-11) came out of a live incident (session-record posture-prose leaked
-      into public atelier, scrubbed) rather than the usual grounded-extraction, so
-      it earns a cold read: is the worked-example carve-out ("name ros/faves, not a
-      merely-worked-on repo") drawn in the right place, and does the rule catch the
-      failure mode without over-restricting legitimate doctrine that must cite a
-      real repo? Also sanity-check the older records that predate it (ros/faves/numen
-      are intended examples; anything else naming a private repo is a candidate scrub).
+- [x] **Cold review of RECORD "keep private repos generic"** — RAN 2026-07-12
+      (cold fresh-context agent): **PASS-WITH-FINDINGS**, verdict in
+      `reviews/2026-07-12-record-private-repos-generic.md`. The central clause
+      held; the naming clause was mis-drawn — the harmful class is the **join**
+      (a private repo's name × its sensitive posture), not the name, and the
+      rule as written outlawed the repo's own records while the actual join
+      survived the original scrub in four places. 7 findings R1–R7, all
+      [fixed] same day: section redrafted (the join is the regulated class;
+      name-only mentions sanctioned behind a load-bearing-name test, e.g.
+      ros/faves/numen; enforcement stated honestly — write-time discipline +
+      review sweeps, no mechanical floor exists; scrub-of-HEAD-is-not-
+      remediation now opens the section), and the surviving joins scrubbed at
+      HEAD (the fleet-adoption three-repo join; the infra-child coarse joins
+      in SESSIONS/detail/ROADMAP — resolved the strict way, so doctrine and
+      record agree). Residual, stated: pre-scrub prose stays reachable in
+      public history; the write-time rule is the only control that exists.
+- [x] **Cold review of the signing doctrine (SIGNING.md + ADR 0007)** — RAN
+      2026-07-12 (cold fresh-context agent; every mechanical claim live-driven
+      in a scratch repo, GitHub claims grounded in current docs):
+      **PASS-WITH-FINDINGS**, verdict in `reviews/2026-07-12-signing-doctrine.md`.
+      The core design proved out live — config block verbatim-correct, and the
+      crown-jewel claim (bounded retirement keeps old signatures verifiable)
+      is true: git passes the committer timestamp as verify-time. 10 findings
+      G1–G10, all addressed same day; pre-activation, so every fix was a text
+      edit — exactly what review-before-activation was for. The three
+      blocking: verification made **two-plane** (GitHub's own merge commits —
+      two already on `main` — are GPG-signed by the web-flow key and would
+      have red-flagged the repo on first activation; the `gh api` verification
+      check closes it spoof-safe), the badge-persistence claim was **inverted**
+      vs current GitHub behaviour (removing a key does NOT un-verify history —
+      corrected in SIGNING.md + ADR 0007 addendum), and quoted
+      `valid-after="…"` timestamps mandated (the man page's unquoted form
+      fails to parse on the estate's own ssh-keygen). Plus: trust list
+      resolved at the child's pin, never floating `main` (a floated trust
+      root defeats the blast-radius argument); custody, boundary-stub, and
+      backdating honesty. Decision unchanged; activation still gates on Mike
+      registering a key.
 - [x] **Cold review of PRINCIPLES §8 ("Leverage")** — RAN 2026-07-11 (Fable,
       cold session): **PASS-WITH-FINDINGS**, verdict in
       `reviews/2026-07-11-principles-8-leverage.md`. Placement verified against
@@ -346,7 +375,9 @@ standout debt; sessions 14–15 deliberately did not stack on it.
             repo's adoption boundary; history never rewritten to sign it; what
             a signature honestly claims — machine custody, not personal
             authorship — stated per the apex). Rejected: GPG, sigstore/gitsign,
-            no-signing (see the ADR). Review-owed with the standing debt.
+            no-signing (see the ADR). **Reviewed 2026-07-12** — PASS-WITH-
+            FINDINGS, all G1–G10 addressed pre-activation (see the review-owed
+            section above; `reviews/2026-07-12-signing-doctrine.md`).
       - [ ] **Activation (ladder in SIGNING.md).** Step 1 **blocked on Mike**:
             generate + register a dedicated signing key on GitHub — identity
             infra + a new trust surface, his call, never the agent's. Steps
@@ -678,9 +709,9 @@ public as a **named worked example** (README "If you're adopting this"). What wa
   house README, `docs/` with ARCHITECTURE/ROADMAP/SESSIONS, CONTRIBUTING,
   `floor.yml` scoped for an infra repo, fail-closed hook, `.gitignore` fixed —
   it was self-ignoring + untracked). No stack config touched; the pass *surfaced*
-  inline-credential debt already tracked as the repo's own pre-public blocker (a
-  reconciliation smell noted into that private roadmap). `floor.yml` CI correctly
-  red on the tracked secret until it's rotated. Now `current` in `tools/pins.py`.
+  findings the repo's own (private) records already track, with a decided fix (a
+  reconciliation smell noted into that private roadmap); its floor red by design
+  until the owner acts. Now `current` in `tools/pins.py`.
 - Where does estate-wide credential **governance** live? Not here — atelier is
   public, and RECORD.md forbids a public record holding a secrets registry
   (which secret exists, its scope, where it's kept, when it rolls). The first

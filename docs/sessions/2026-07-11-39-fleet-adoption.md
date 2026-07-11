@@ -12,8 +12,8 @@ each proven blocking a planted key:
 - `rpi`, `nova` — already close to standard; block prepended, additive.
 - `Baby Brain`, `FoodTracker` — early iOS/Swift apps; light honest scaffold
   (purpose one-liner flagged TODO, not fabricated).
-- `ec2_builder`, `homenetwork`, `hitchbots_guide` — the ones carrying
-  secrets/client content (below).
+- `ec2_builder`, `homenetwork`, `hitchbots_guide` — same scaffold; per-repo
+  scan scoping applied (the shareable pattern below).
 
 **Pin-bumped current (4)**: `faves`, `ros`, `numen`, `docker-heap`
 (`d45a431`/`5db645e` → `1588fda`). Caught real block-wording drift — the
@@ -34,7 +34,7 @@ not just secret values. Each finding is tracked in its own private repo's
 records. The shareable lesson only:
 
 - Some repos carried **real committed credentials** already tracked in their own
-  roadmaps; handled per the docker-heap policy the principal set — scaffold
+  roadmaps; handled per the policy the principal set in session 38 — scaffold
   safely, treat the secrets as the owner's tracked debt to rotate/purge, **never
   silently allow-mark a real secret**.
 - One scary-looking finding was **verified a false positive before it was

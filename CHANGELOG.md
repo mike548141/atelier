@@ -5,6 +5,34 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-12 — the two owed cold reviews ran; both doctrines corrected)
+- **RECORD "keep private repos generic" redrafted** after its cold review
+  (`docs/reviews/2026-07-12-record-private-repos-generic.md`,
+  PASS-WITH-FINDINGS, R1–R7 all fixed): the regulated class is now the **join**
+  — a private repo's *name* coupled to its *sensitive posture* (which secrets,
+  where, exposure history, publication intent, client content) — not the name
+  itself; name-only mentions are sanctioned behind a load-bearing-name test
+  (e.g. ros, faves, numen). Enforcement stated honestly: no scanner can hold
+  this rule — write-time discipline plus review sweeps, nothing stronger; and
+  on a public repo a scrub of HEAD is not remediation. Four surviving
+  name-to-posture joins the incident scrub missed were scrubbed at HEAD
+  (SESSIONS index, two session detail files, ROADMAP).
+- **SIGNING.md corrected pre-activation** after its cold review
+  (`docs/reviews/2026-07-12-signing-doctrine.md`, PASS-WITH-FINDINGS, G1–G10
+  all addressed; core design live-proven sound in a scratch drive):
+  verification is now **two-plane** (machine-key commits via
+  `git verify-commit`; GitHub's server-side merge/squash commits — GPG-signed
+  by the web-flow key, two already on `main` — via the `gh api` verification
+  check, spoof-safe); the badge-persistence claim was inverted vs current
+  GitHub behaviour and is corrected (removing a key does **not** un-verify
+  history) — ADR 0007 carries the correction as an addendum (no-edit rule);
+  `allowed_signers` entries mandate **quoted** validity timestamps (unquoted
+  man-page syntax fails to parse on the estate's ssh-keygen) and the trust
+  list is resolved at the child's atelier **pin**, never floating `main`;
+  custody, adoption-boundary stubs, and bounding-is-not-revocation stated at
+  true strength. Decision unchanged; activation still gates on the principal
+  registering a key.
+
 ### Added (2026-07-11 — RECORD: public records keep private repos generic)
 - `docs/method/RECORD.md` new section **"The record is public — keep private repos
   generic"**: the no-personal-estate-data rule covers *prose describing* private

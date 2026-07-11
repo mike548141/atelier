@@ -52,3 +52,27 @@ boundary). **Activation is gated on Mike registering a signing key — a new
 trust surface on his identity infra, his act (AUTONOMY floor). The standard
 is decided but dormant until then**; the doctrine's activation ladder names
 the agent-executable steps that follow.
+
+---
+
+## Addendum (2026-07-12) — pre-activation review corrections, decision unchanged
+
+The cold review (`docs/reviews/2026-07-12-signing-doctrine.md`,
+PASS-WITH-FINDINGS) live-proved the core design and corrected two statements
+above; recorded as an addendum per the decisions README no-edit rule:
+
+- **Badge persistence inverted (G2).** "Removing a key from GitHub
+  un-verifies its history there" is the reverse of current GitHub behaviour:
+  verification is persistent and non-retroactive — removed keys leave their
+  history marked Verified. The durable-plane conclusion stands on its real
+  grounds: `allowed_signers` is self-hosted, versioned, and reviewed; the
+  badge is GitHub-controlled and unauditable.
+- **GPG rejection over-stated (G8).** "No capability SSH signing lacks in
+  this estate" — the estate's own `main` already holds GitHub web-flow merge
+  commits whose signatures *are* GPG, and GPG has revocation semantics SSH
+  signing lacks. True strength: GPG offers no capability we need for signing
+  *our own* commits; server-side commits are verified via GitHub's API plane
+  (SIGNING.md's two-plane verification), not by adopting GPG.
+
+Decision unchanged: SSH-native commit/tag signing fleet-wide; activation
+still gated on the principal registering a key.

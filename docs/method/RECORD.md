@@ -90,18 +90,28 @@ across models with different cutoffs. (EVIDENCE §7.)
 
 ## The record is public — keep private repos generic
 
-atelier is public (ADR 0005): its record publishes on every commit. The
-no-personal-estate-data rule covers **prose that describes** private-estate
-secrets, not only literal secret *values* — a pattern-matching leak scanner
-catches the value `AKIA…`, never the sentence "repo X keeps a live key in its
-history". So a public record refers to a private sibling repo **generically** ("an
-infra repo", "a captured runtime snapshot") and never records *which private repo
-holds which secret, where, or its exposure history* — that reconnaissance lives
-only in the private repo's own records. Name a private repo here only when its
-name carries **doctrinal weight as a worked example** (ros, faves); a repo merely
-standardised or worked on that session gets no name. (Grounded: 2026-07-11 — a
-session-record posture-prose leak into public atelier, scrubbed; the scanners
-couldn't catch it because it was description, not pattern.)
+atelier is public (ADR 0005): its record publishes on every commit — and on a
+public repo a scrub of HEAD is not remediation, because the scrubbed prose stays
+reachable in pushed history forever. So this rule can only ever bind at
+**write-time**. The no-personal-estate-data rule covers **prose that describes**
+private-estate security posture, not only literal secret *values* — a
+pattern-matching leak scanner catches the value `AKIA…`, never the sentence
+"repo X keeps a live key in its history". The regulated class is the **join**:
+a private repo's *name* coupled to its *sensitive posture* — which secrets it
+holds, where, their exposure history, its publication intent, or the
+confidential content it carries. Naming a private sibling is not the harm —
+adoption lists, pin bumps, and worked examples (e.g. ros, faves, numen) name
+children legitimately, and the record's resumability depends on it; the test is
+whether the name is load-bearing for the lesson. When a record must describe
+security work, either the name or the posture goes generic ("an infra repo",
+"a captured runtime snapshot"), and the fine detail lives only in the private
+repo's own records. Enforcement, stated honestly (PROPAGATION's enforcement
+clause): no scanner can hold this rule — by its own premise the mechanical
+floor is unavailable — so it binds through write-time discipline plus periodic
+review sweeps of the record, nothing stronger. (Grounded: 2026-07-11 —
+session-record posture prose leaked into public atelier, scrubbed at HEAD but
+permanent in history; the 2026-07-12 cold review then found the name-to-posture
+join had survived that scrub in four more places.)
 
 ## Why this is doctrine, not just tidiness
 

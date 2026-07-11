@@ -50,15 +50,34 @@ zero-dep house ethos answer. The shape:
 - **One canonical `allowed_signers` file, tracked in atelier** (repo root).
   Public keys are public — safe in a public repo — and one-fact-one-home
   (EVIDENCE §9) says the trust list has exactly one source: machines point
-  their git config at it; child CI fetches it alongside atelier's tools.
-  Entries carry `valid-after` (and `valid-before` on retirement); the file is
-  **append-only** — a retired key is bounded, never deleted, so old
-  signatures stay verifiable forever.
+  their git config at it; child CI resolves it **at the child's existing
+  atelier pin (ADR 0002), never floating `main`** — a floated trust list
+  would let anyone with write access to atelier's main mint trust for every
+  child silently, exactly the auth-plane compromise the dedicated key exists
+  to survive. (A new key therefore fails child CI until a visible, reviewed
+  pin bump — correct behaviour for a trust root. Stated residual: no
+  signature CI defends against full write compromise of the repo holding the
+  trust list — the attacker self-attests in one push; branch protection is
+  the compensating control.) Entries carry the committer email as principal
+  by convention and `valid-after` (plus `valid-before` on retirement) —
+  **values quoted** (`valid-after="20260712"`): the man page's unquoted form
+  fails to parse on the estate's own OpenSSH ("missing start quote"), and a
+  parse failure silently fails the whole entry's verification, so the CI/hook
+  step carries a known-signed-fixture selftest to turn a syntax regression
+  red. The file is **append-only** — a retired key is bounded, never deleted,
+  so old signatures stay verifiable forever (proven live 2026-07-12: git
+  passes the commit's committer timestamp as the verify-time, so a bounded
+  key keeps verifying its own era).
 - **GitHub's "Verified" badge is the convenience plane, not the durable one.**
-  It requires the public key uploaded to the account as a *signing* key, and
-  it lasts only while the key stays registered — remove the key and history
-  shows unverified again. The `allowed_signers` file + `git verify-commit`
-  is the verification that survives; the badge is UI sugar on top.
+  It requires the public key uploaded to the account as a *signing* key and
+  the committer email verified on the account. GitHub's verification record
+  is **persistent**: it does not re-verify or retroactively adjust old
+  commits when a key's state changes — removing a key leaves its history
+  marked Verified (and SSH signing keys carry no revocation semantics there
+  at all). The `allowed_signers` file + `git verify-commit` is the durable
+  plane not because the badge decays but because the badge is
+  GitHub-controlled and unauditable, while the file is self-hosted,
+  versioned, and reviewed.
 
 ### Layer 2 — release-artifact signing + SBOM (deferred, stated trigger)
 
@@ -73,13 +92,35 @@ there is nothing to sign, and standing up the machinery would be ceremony.
 ## Verification — signing without checking is ceremony
 
 The same read-≠-complied logic as PROPAGATION: a signature nobody verifies
-enforces nothing. Two verification planes:
+enforces nothing. And verification is **two-plane by necessity, not choice**
+(2026-07-12 review, G1): the house PR flow itself mints commits committed by
+GitHub — merge/squash commits signed by GitHub's web-flow **GPG** key, never
+by any machine key; two already sit in atelier's own `main` (`a0ef731`,
+`4b2cf6f`) — and `git verify-commit` on those needs a GPG keyring this estate
+doesn't run. A verify step that swept every commit against `allowed_signers`
+would red-flag its own repo on first activation.
 
-- **Local:** `git log --show-signature` / `git verify-commit <ref>`, resolved
-  against the canonical `allowed_signers`.
-- **CI:** a `floor.yml` / `ci.yml` step verifies signatures the same way the
-  scanners verify content — over commits **after the adoption boundary** (see
-  below), pointing `gpg.ssh.allowedSignersFile` at the tracked file.
+- **Machine-key commits** (everything not committed by
+  `GitHub <noreply@github.com>`): `git log --show-signature` / <!-- leakscan:allow: GitHub's public web-flow committer address, not personal data -->
+  `git verify-commit <ref>`, resolved against the canonical
+  `allowed_signers`.
+- **GitHub server-side commits:** assert
+  `gh api repos/<owner>/<repo>/commits/<sha> --jq .commit.verification.verified`
+  is `true`. The committer string alone exempts nothing — anyone can set it;
+  the API check is what closes the spoof (live-proven on `a0ef731`:
+  `verified: true, reason: valid`). `gh` is already the house tool, so
+  zero-dep survives.
+- **CI:** a `floor.yml` / `ci.yml` step runs both planes over commits **after
+  the adoption boundary** (see below). Two execution facts the step must
+  encode when it lands: the checkout needs `fetch-depth: 0` (the floor
+  template's default depth-1 sees no history), and the sweep is
+  `git rev-list <boundary>..HEAD`.
+
+What verification asserts, honestly: git checks the signing key is a *member*
+of `allowed_signers` — it does **not** bind key to committer identity (any
+listed key verifies any committer; proven live). The assurance is
+machine-level custody unless CI additionally compares the reported principal
+to the committer email — not wired; decide when step 5 lands.
 
 ## The adoption boundary — unsigned history is a fact, not a defect
 
@@ -92,13 +133,23 @@ retro-signing would trade the whole propagation mechanism for a badge.
 ## Key handling — where SECRETS' boundary falls
 
 The signing key is **identity-layer, person-level**: per SECRETS' scope
-boundary it lives in the operator's personal vault and custody, outside the
-estate's cheap-burn store. Its failure modes are both mild — the reason this
-layer is cheap to run:
+boundary the *durable* copy lives in the operator's personal vault, outside
+the estate's cheap-burn store. Custody stated at true strength (2026-07-12
+review, G5): signing runs on every commit, so every committing machine holds
+a working copy (or an agent session) readable by the agent process — a
+standing machine credential, tracked as such per SECRETS, passphrase-in-agent
+as the mitigation. The failure modes stay mild — the reason this layer is
+cheap to run:
 
-- **Exposure** — remove the key from GitHub, mint a replacement, append the
-  new entry to `allowed_signers` and bound the old with `valid-before`.
-  Pre-revocation signatures stay verifiable; the badge plane heals on upload.
+- **Exposure** — remove the key from GitHub (this stops *future* badge
+  minting only: existing badges persist, including any the attacker minted
+  before removal — the local plane is the only recourse for those), mint a
+  replacement, append the new entry to `allowed_signers` and bound the old
+  with `valid-before`. Honest limit: bounding is **retirement hygiene, not
+  revocation** — the verify-time is the commit's own committer timestamp,
+  which a signer controls, so a holder of the retired key can backdate into
+  its window and verify locally; GitHub's plane (key registration checked at
+  push time) is the complement, and the two cover each other.
 - **Loss** — mint and register a new key; nothing becomes unreadable, and
   local verification of old commits is untouched (`allowed_signers` still
   holds the retired public key). Unlike the store master key, a lost signing
@@ -107,16 +158,23 @@ layer is cheap to run:
 ## Activation ladder (status: step 1 pending — the standard is dormant until it moves)
 
 1. **Principal registers a signing key** — generate the dedicated key, upload
-   to GitHub as a signing key, name it to the agent. A new trust surface on
-   his identity infra: **his act, never the agent's initiative** (AUTONOMY
-   floor). Optional at this step: GitHub vigilant mode (flags unsigned
-   commits "Unverified" — including his own pre-boundary history; his call).
+   to GitHub as a signing key, name it to the agent. The badge additionally
+   needs the committer email verified on the account (it already is here;
+   stated for adopters). A new trust surface on his identity infra: **his
+   act, never the agent's initiative** (AUTONOMY floor). Optional at this
+   step: GitHub vigilant mode (flags unsigned commits "Unverified" —
+   including his own pre-boundary history; his call).
 2. Agent wires the machine: global git config + the canonical
-   `allowed_signers` in atelier.
+   `allowed_signers` in atelier (quoted-timestamp entries — see above).
 3. `create-repo` bakes the repo-local `commit.gpgsign=true` into its
    git-config step.
-4. Retrofit the fleet's existing repos; record each boundary.
-5. Add the CI verification step to the floor workflows.
+4. Retrofit the fleet's existing repos; record each boundary. **Stub, per
+   RECORD:** the boundary's home is decided at execution — the working
+   candidate is a boundary SHA stated in the child's own `floor.yml`, read
+   by `git rev-list <boundary>..HEAD`; nothing is wired yet.
+5. Add the CI verification step to the floor workflows — both planes
+   (machine-key + GitHub API), `fetch-depth: 0`, trust list at the child's
+   pin, plus the known-signed-fixture selftest. **Stub until wired.**
 
 Steps 2–5 are agent-executable the day step 1 lands.
 
