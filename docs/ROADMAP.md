@@ -36,6 +36,33 @@ has inherited the costume, not the doctrine.
 
 ## instruments/ layer (new 2026-07-11, ADR 0006)
 
+- [ ] **ccrepo — cost fidelity, full breakdown, and reach** (Mike, 2026-07-11) —
+      three strands to make the DevFinOps view truer and more accessible:
+      - [ ] **Actuals vs estimate — show both.** ccrepo reports an
+            *API-equivalent* estimate (ccusage's USD basis), deliberately "a
+            gauge, not your bill". But a subscription-plan user's *actual* spend
+            diverges sharply: a flat plan covers some/all models at zero marginal
+            token cost, so actuals can sit far below the per-token estimate. The
+            general — and coming — case is **hybrid**: a plan *plus* per-token
+            billing for the models or overage the plan doesn't cover. Both numbers
+            are useful; show them side by side (estimate = what this would cost at
+            API rates; actual = what the billing shape actually charges). Hard part,
+            stated honestly: there's no clean API for "what you actually paid", so
+            actuals need a small **user-maintained billing model** (plan cost +
+            which models/usage it covers + per-token rates for the rest) applied
+            over ccusage's token counts. Design that config before the code.
+      - [ ] **Full ccusage breakdown.** ccusage's own columns are Input · Output ·
+            **Cache Create · Cache Read** · Total Tokens · Cost; ccrepo shows only
+            Input · Output · Total · Cost — the two cache columns are dropped
+            (they're already summed into ccrepo's Total via the `--by-model` path,
+            just not shown). Surface them, plus a derived **cache-hit ratio** —
+            cache economics are a real lever (MODEL-ECONOMICS point-don't-paste /
+            TTL churn), so making cache create-vs-read visible per-repo is exactly
+            the signal that doctrine wants observable.
+      - [ ] **VS Code UI.** A ccrepo view inside the editor, not just the CLI —
+            per-repo cost at a glance where the work happens. Depends on what the
+            Claude Code extension exposes (panel/statusbar hook) or a small
+            companion extension; feasibility unknown — scope it before building.
 - [ ] **Tests for `ccrepo` + `cctranscript`** — the instruments shipped untested
       (session 34), unlike the `tools/` scanners which each carry a unittest +
       `--selftest`. Acceptable while they're throwaway; the moment either is leaned
