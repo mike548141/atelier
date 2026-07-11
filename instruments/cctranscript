@@ -8,10 +8,12 @@
  * that log and prints who said what and when — your prompts and Claude's
  * replies — with elapsed deltas between turns.
  *
- * The human view colour-codes each speaker, groups a turn's body under a
- * coloured left bar, word-wraps to the terminal, and lightly renders markdown
- * (bold, inline code, headings, lists, links). Colour auto-disables when piped;
- * --json is the machine-readable format and is never styled.
+ * The human view is iMessage-style: your prompts mirror to the right, Claude's
+ * replies sit on the left with a per-message model tag (coloured by model, so a
+ * mid-session switch is visible). Each turn's body is grouped under a coloured
+ * bar, word-wrapped to the terminal, with light markdown (bold, inline code,
+ * headings, lists, links). Colour auto-disables when piped; --json is the
+ * machine-readable format and is never styled.
  *
  * The .jsonl schema is internal to Claude Code and can shift between releases;
  * if a field moves this may need a nudge.
@@ -263,13 +265,14 @@ function readTurns(file) {
       turns.push({ role: 'result', ts, text: r });
     } else if (o.type === 'assistant') {
       const content = (o.message && o.message.content) || [];
+      const model = friendlyModel(o.message && o.message.model);
       for (const b of Array.isArray(content) ? content : []) {
         if (b.type === 'text' && b.text.trim()) {
-          turns.push({ role: 'claude', ts, text: b.text.trim() });
+          turns.push({ role: 'claude', ts, text: b.text.trim(), model });
         } else if (b.type === 'thinking' && showThink && (b.thinking || '').trim()) {
-          turns.push({ role: 'think', ts, text: b.thinking.trim() });
+          turns.push({ role: 'think', ts, text: b.thinking.trim(), model });
         } else if (b.type === 'tool_use' && showTools) {
-          turns.push({ role: 'tool', ts, text: toolSummary(b.name, b.input) });
+          turns.push({ role: 'tool', ts, text: toolSummary(b.name, b.input), model });
         }
       }
     }
@@ -282,10 +285,29 @@ function readTurns(file) {
 const ESC = {
   reset: '\x1b[0m', bold: '\x1b[1m', dim: '\x1b[2m', italic: '\x1b[3m', ul: '\x1b[4m',
   cyan: '\x1b[96m', green: '\x1b[32m', yellow: '\x1b[33m',
-  grey: '\x1b[90m', red: '\x1b[91m', blue: '\x1b[94m',
+  grey: '\x1b[90m', red: '\x1b[91m', blue: '\x1b[94m', magenta: '\x1b[95m',
 };
 // Wrap s in ANSI codes, but only when colour is on and codes are non-empty.
 const paint = (codes, s) => (useColor && codes) ? codes + s + ESC.reset : s;
+// Visible length (ANSI stripped) and right-justify to a column.
+const visLen = (s) => s.replace(/\x1b\[[0-9;]*m/g, '').length;
+const padLeftTo = (s, width) => { const p = width - visLen(s); return (p > 0 ? ' '.repeat(p) : '') + s; };
+
+// Map a raw model id to a friendly name; null for none/synthetic (no tag shown).
+// e.g. claude-opus-4-8 → "Opus 4.8", claude-fable-5 → "Fable 5", fable → "Fable".
+function friendlyModel(m) {
+  if (!m || m === '<synthetic>') return null;
+  const s = m.replace(/^claude-/, '').replace(/-\d{8}$/, ''); // drop prefix + trailing date
+  const fam = { opus: 'Opus', sonnet: 'Sonnet', haiku: 'Haiku', fable: 'Fable' };
+  const g = s.match(/^(opus|sonnet|haiku|fable)(?:-(\d+))?(?:-(\d+))?/);
+  if (!g) return s;
+  return fam[g[1]] + (g[2] ? ' ' + g[2] + (g[3] ? '.' + g[3] : '') : '');
+}
+// Colour the model tag by family, so a mid-session model switch is visible.
+function modelColor(friendly) {
+  const w = (friendly || '').split(' ')[0].toLowerCase();
+  return { opus: ESC.magenta, fable: ESC.blue, sonnet: ESC.cyan, haiku: ESC.yellow }[w] || ESC.grey;
+}
 
 const ROLE = {
   you:    { icon: '▸', label: 'You',      color: ESC.cyan },
@@ -337,26 +359,31 @@ function wrap(s, width) {
   return lines;
 }
 
-// Render a turn's body into output lines, each prefixed with the role's
-// coloured bar. Fenced code blocks are kept verbatim (dimmed, unwrapped);
+// Render a turn's body into output lines. Left turns (Claude, tools) get a
+// coloured left bar; right turns (You) are right-justified with the bar on the
+// right edge, iMessage-style. Fenced code is kept verbatim (dimmed, unwrapped);
 // prose is wrapped; headings, list items and inline markdown are styled.
-function renderBody(text, role, width) {
+function renderBody(text, role, width, side) {
   const out = [];
-  const bar = ' ' + paint(role.color, '│') + ' ';
-  const barEmpty = ' ' + paint(role.color, '│');
+  const barCh = paint(role.color, '│');
+  // Emit one body line given its already-styled inner content.
+  const emit = (inner) => out.push(
+    side === 'right' ? padLeftTo(inner + ' ' + barCh, TW - 1) : ' ' + barCh + ' ' + inner
+  );
+  const emitEmpty = () => out.push(side === 'right' ? padLeftTo(barCh, TW - 1) : ' ' + barCh);
   let inCode = false;
   for (const raw of text.split('\n')) {
     if (/^\s*```/.test(raw)) {
       inCode = !inCode;
-      out.push(barEmpty + ' ' + paint(ESC.grey, raw.trim()));
+      emit(paint(ESC.grey, raw.trim()));
       continue;
     }
-    if (inCode) { out.push(bar + paint(ESC.grey, raw)); continue; }
-    if (raw.trim() === '') { out.push(barEmpty); continue; }
+    if (inCode) { emit(paint(ESC.grey, raw)); continue; }
+    if (raw.trim() === '') { emitEmpty(); continue; }
 
     const h = raw.match(/^(#{1,6})\s+(.*)$/);
     if (h) {
-      for (const wl of wrap(h[2], width)) out.push(bar + paint(ESC.bold, styleInline(wl)));
+      for (const wl of wrap(h[2], width)) emit(paint(ESC.bold, styleInline(wl)));
       continue;
     }
     const li = raw.match(/^(\s*)([-*+]|\d+[.)])\s+(.*)$/);
@@ -364,13 +391,26 @@ function renderBody(text, role, width) {
       const marker = li[1] + li[2] + ' ';
       const pad = ' '.repeat(marker.length);
       wrap(li[3], width - marker.length).forEach((line, i) => {
-        out.push(bar + (i === 0 ? paint(ESC.dim, marker) : pad) + styleInline(line));
+        emit((i === 0 ? paint(ESC.dim, marker) : pad) + styleInline(line));
       });
       continue;
     }
-    for (const wl of wrap(raw, width)) out.push(bar + styleInline(wl));
+    for (const wl of wrap(raw, width)) emit(styleInline(wl));
   }
   return out;
+}
+
+// Build a turn's header line: role label (+ model tag for Claude) and the
+// timestamp/delta. Right-side turns (You) are mirrored to the right margin.
+function turnHeader(role, model, time, deltaMs, side) {
+  const meta = paint(ESC.dim, time) + (deltaMs != null ? '  ' + deltaStr(deltaMs) : '');
+  if (side === 'right') {
+    const label = paint(role.color + ESC.bold, `${role.label} ${role.icon}`);
+    return padLeftTo(meta + '  ' + label, TW - 1);
+  }
+  const label = paint(role.color + ESC.bold, `${role.icon} ${role.label}`);
+  const tag = model ? ' ' + paint(modelColor(model), `(${model})`) : '';
+  return ' ' + label + tag + '  ' + meta;
 }
 
 // --- session selection --------------------------------------------------
@@ -443,7 +483,7 @@ function runTranscript() {
     console.log(JSON.stringify({
       session: chosen.id, repo: chosen.label, cwd: chosen.cwd,
       timezone: useUtc ? 'UTC' : 'local',
-      turns: turns.map((t) => ({ role: t.role, timestamp: t.ts, text: t.text })),
+      turns: turns.map((t) => ({ role: t.role, model: t.model || null, timestamp: t.ts, text: t.text })),
     }, null, 2));
     return;
   }
@@ -481,15 +521,16 @@ function runTranscript() {
       curDate = d;
     }
     const role = ROLE[t.role] || ROLE.claude;
-    let delta = '';
+    const side = t.role === 'you' ? 'right' : 'left';
+    let deltaMs = null;
     if (showDelta && prevTs && t.ts) {
       const ms = new Date(t.ts) - new Date(prevTs);
-      if (ms >= 0) delta = '  ' + deltaStr(ms);
+      if (ms >= 0) deltaMs = ms;
     }
     prevTs = t.ts || prevTs;
     console.log();
-    console.log(' ' + paint(role.color + ESC.bold, `${role.icon} ${role.label}`) + '  ' + paint(ESC.dim, fmtTime(t.ts)) + delta);
-    for (const line of renderBody(t.text, role, CW)) console.log(line);
+    console.log(turnHeader(role, t.model, fmtTime(t.ts), deltaMs, side));
+    for (const line of renderBody(t.text, role, CW, side)) console.log(line);
   }
   console.log();
 }
