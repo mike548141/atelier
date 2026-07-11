@@ -5,6 +5,35 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-11 — CONCURRENCY: every branch ends put away)
+- **`docs/method/CONCURRENCY.md` gains "Every branch ends put away"** — "branch
+  exists" had been allowed to mean two things: *open work*, and *closed work
+  nobody finished putting away* — and every session that saw a half-closed branch
+  paid to re-derive which it was. Now it means only the first. A branch ends
+  **landed** (merged then deleted; delete-branch-on-merge flipped ON across the 8
+  active repos makes that automatic) or **abandoned/superseded** via **salvage →
+  tag → delete → record** — mechanical comparison, annotated `archive/<name>` tag
+  stating what was salvaged where and what was consciously dropped, branch
+  deleted, disposition in the session log. Grounded in the failure it closes:
+  `atelier-method-review` was salvaged *and* archive-tagged properly, left
+  standing, and re-derived by session after session. **Review-owed** (doctrine
+  text; flagged in ROADMAP, not self-certified). create-repo birthing new repos
+  with the merge setting on is backlogged.
+
+### Added (2026-07-11 — the instruments/ layer: ccrepo + cctranscript, ADR 0006)
+- **`instruments/` — a new top-level layer for teammate instruments**, split from
+  `tools/` by purpose: `tools/` *enforces* the doctrine (Python checks that gate a
+  commit), `instruments/` *observes* the collaboration itself. First residents:
+  **`ccrepo`** (per-repo Claude Code token/cost totals — the DevFinOps view) and
+  **`cctranscript`** (timestamped session transcript — the timestamps the chat UI
+  hides), both zero-dep Node CLIs reading `~/.claude/projects/` read-only, plus an
+  idempotent `instruments/install` (per-tool symlinks into `~/.local/bin`).
+  Membership rule in **ADR 0006**: an instrument belongs only if its value *is*
+  the Claude teammateship; estate utilities stay with the estate they serve.
+  Moved in from `homenetwork/bin` (which is now removed); verified clean of
+  personal data before entering the public repo. Tests backlogged in ROADMAP —
+  shipped untested, stated not silent.
+
 ### Added (2026-07-11 — PRINCIPLES §8: leverage / "productive laziness")
 - **`docs/method/PRINCIPLES.md` gains §8 "Leverage — invest now to stop paying
   later"** — Mike named the principle; strategic laziness is leverage: spend more
