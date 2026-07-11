@@ -327,10 +327,28 @@ standout debt; sessions 14–15 deliberately did not stack on it.
       `--expect Apache-2.0` exit 0 at the review session's close.* Reviewed
       2026-07-10 (the batch review, B1–B3 fixed: `-only`/`+` SPDX suffixes,
       prose-header residual stated).
-- [ ] **Supply-chain/release standard** (A5) — committed deterministic SBOM +
-      keyless signing. DEFERRED: SBOM/signing needs external tooling (syft/cosign),
-      which hits the tool-install floor + breaks the zero-dep house-tool pattern —
-      a deliberate design call, not a build. Revisit when a real release needs it.
+- [ ] **Code-signing standard across the fleet** (Mike, 2026-07-11) — "how do we
+      sign all the code in the various repos". Two distinct layers, deliberately
+      split by cost:
+      - [ ] **Commit/tag signing (do-now-able, zero-install).** git signs commits
+            with **SSH keys natively** (`gpg.format=ssh` since git 2.34) — no GPG
+            keyring, no cosign, no tool-install floor breached; GitHub shows
+            "Verified", and `git log --show-signature` / a `floor.yml` step can
+            *verify* signatures the same way the scanners verify content. This is
+            the aligned, house-ethos answer and should likely become **doctrine**
+            (a signing clause in PROPAGATION/RECORD + `commit.gpgsign=true` baked
+            into create-repo's `git config` step, an `allowed_signers` file per
+            repo or machine-local). **Blocked on Mike:** generating/registering a
+            signing key touches his identity infra + a new GitHub trust surface
+            (upload a signing key) — his call, not the agent's. Recommendation:
+            adopt SSH commit signing fleet-wide; I can wire the create-repo +
+            doctrine side once he's registered a key and named it.
+      - [ ] **Release-artifact signing + SBOM (deferred, was A5).** Signing *built
+            artifacts* + a deterministic SBOM needs external tooling (syft/cosign),
+            which hits the tool-install floor and breaks the zero-dep house-tool
+            pattern — a deliberate design call, not a build. Revisit when a real
+            *release* (a published package/binary) needs provenance; GitHub's
+            native artifact attestations are the lightest route if so.
 - [x] **Rewire `create-repo` to inherit from atelier** — DONE 2026-07-10 (Opus):
       the core Q1 fix. The skill now inherits from atelier (points up to
       REPO-STANDARD/REPO-BOUNDARY/PROPAGATION, seeds from `build/templates/`)
@@ -643,5 +661,12 @@ public as a **named worked example** (README "If you're adopting this"). What wa
 - Does ros keep canonical copies of any doctrine, or hold only bearings + point
   up for everything (as §0 now does)? Default: point up; resolve per doc at
   extraction.
-- `docker-heap` is unstandardised (stub README, no CLAUDE.md) — run the
-  standardise-existing pass when convenient.
+- ~~`docker-heap` is unstandardised~~ — DONE 2026-07-11 (Opus, session 38):
+  standardise-existing pass applied (doctrine block + pin `atelier@5db645e`,
+  house README, `docs/` with ARCHITECTURE/ROADMAP/SESSIONS, CONTRIBUTING,
+  `floor.yml` scoped for an infra repo, fail-closed hook, `.gitignore` fixed —
+  it was self-ignoring + untracked). No stack config touched; the pass *surfaced*
+  the inline-credential debt already tracked as docker-heap's own 🔴 blocker
+  (with a reconciliation smell noted: NetBox app `DB_PASSWORD` ≠ db
+  `POSTGRES_PASSWORD`). `floor.yml` CI correctly red on that secret until it's
+  rotated. Now `current` in `tools/pins.py`.
