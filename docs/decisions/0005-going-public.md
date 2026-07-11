@@ -74,3 +74,29 @@ instead of needing a secret or a vendored copy. The leak boundary is now
 load-bearing on every commit, not a pre-publish nicety; the scan hook earns its
 keep continuously. Supersede *this* ADR only to reverse course (re-privatise) —
 which un-taking clones cannot actually achieve.
+
+## Addendum (2026-07-11) — was public ever *required*?
+
+*Recorded at the principal's direction after he asked the question cold; the
+decision above is unchanged (the no-edit rule guards substance; this adds the
+deliberation the question deserved and the original text compressed away).*
+
+- **Adoption never technically required public.** The child repos consume
+  atelier through the **local filesystem** (`../atelier` doctrine reads, the
+  drift check) and a commit-SHA pin — all of which work identically on a
+  private repo. Nothing in the propagation mechanism (PROPAGATION.md) depends
+  on visibility.
+- **The private alternative for peers existed:** add named GitHub accounts as
+  collaborators on a private atelier. That is essentially 0003's model with
+  the peer named up front — and 0005 superseded it because the peer never
+  materialised; *public is the mechanism for finding readers you can't name
+  yet*, not a distribution requirement for the ones you can.
+- **What public actually buys** (and what re-privatising would forfeit):
+  strangers as reviewers; the child-CI scanner fetch without secrets or
+  vendored copies; and — least obvious, most doctrinal — the **discipline
+  itself**: the record-is-public constraint (RECORD.md's private-repos-stay-
+  generic rule) exists *because* publication forces it, and that pressure has
+  already caught one real leak class.
+- **The asymmetry stands:** named-collaborator sharing could have substituted
+  *before* the flip, not after — clones taken while public cannot be un-taken,
+  so re-privatising now would end the benefits without recovering the privacy.
