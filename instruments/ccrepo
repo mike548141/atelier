@@ -1,0 +1,555 @@
+#!/usr/bin/env node
+/*
+ * ccrepo — per-repo Claude Code usage totals.
+ *
+ * Reuses ccusage's own per-session cost figures (no pricing reimplemented)
+ * and attributes each session to a repo by matching the session UUID to the
+ * .jsonl filename under ~/.claude/projects/<encoded-repo-path>/.
+ *
+ * ccusage's native figures are USD; ccrepo converts to NZD by default at the
+ * live USD→NZD rate. Use --fx <code> for another currency, or --fx usd for the
+ * raw USD figures.
+ * Optionally nest a child breakdown under each repo: --by-model or --by-day.
+ *
+ * Cost is an API-equivalent *estimate*. A subscription-plan user's real spend
+ * diverges: a flat monthly fee covers some models at $0 marginal. If
+ * ~/.claude/ccrepo-billing.json exists, ccrepo adds an Actual column applying
+ * that plan (see the billing model in instruments/README.md). Absent file ⇒
+ * estimate-only, exactly as before.
+ * See --help for details.
+ */
+const { execFileSync } = require('node:child_process');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+
+// Disambiguating symbols; unknown codes fall back to "CODE " prefix so the
+// currency is always explicit in the value as well as the column header.
+const SYMBOLS = { USD: 'US$', NZD: 'NZ$', AUD: 'A$', CAD: 'C$', GBP: '£', EUR: '€', JPY: '¥' };
+const symbolFor = (code) => SYMBOLS[code] || code + ' ';
+
+const argv = process.argv.slice(2);
+
+const HELP = `ccrepo — per-repo Claude Code token & cost totals
+
+Wraps \`ccusage session\` and attributes each session to the repo it ran in
+(by matching the session UUID to its .jsonl under ~/.claude/projects/). Cost
+figures are ccusage's own USD estimates, shown in NZD by default at today's
+live rate — a relative gauge, not your bill.
+
+USAGE
+  ccrepo [options] [ccusage passthrough flags]
+
+OPTIONS
+  --by-model         Nest a per-model breakdown under each repo.
+  --by-day           Nest a per-day breakdown under each repo (by a session's
+                     last-activity day). Mutually exclusive with --by-model.
+  --fx <code>        Convert cost to an ISO-4217 currency via live USD→<code>
+                     rate (e.g. --fx gbp, --fx aud, --fx eur). Defaults to nzd;
+                     use --fx usd for the raw USD figures.
+  --rate <n>         Force the USD→<code> rate instead of fetching.
+  --no-billing       Ignore ~/.claude/ccrepo-billing.json; show estimate only.
+  --json             Machine-readable output (nests children when grouping).
+  -h, --help         Show this help.
+
+PASSTHROUGH
+  Any other flag is forwarded to \`ccusage session\`, e.g. date filters:
+  --since <YYYYMMDD>   --until <YYYYMMDD>   -z <timezone>
+
+BILLING (Actual vs Est)
+  The Cost column is an API-equivalent *estimate*. If a machine-local billing
+  config exists at ~/.claude/ccrepo-billing.json, ccrepo shows Est (API) and
+  Actual side by side: covered-model tokens cost $0 marginal (your flat plan
+  fee is a sunk cost, apportioned across repos by covered-token share);
+  uncovered models keep the API-rate figure. The file is never in a repo (a
+  plan and spend are personal data); absent ⇒ estimate-only. Shape + honest
+  limits: instruments/README.md "ccrepo billing model".
+
+EXAMPLES
+  ccrepo                              All-time per-repo totals (NZD).
+  ccrepo --by-model                  Per-repo, broken down by model.
+  ccrepo --by-day                    Per-repo, broken down by day.
+  ccrepo --fx usd                    Totals in raw USD (no conversion).
+  ccrepo --by-day --fx gbp           Per-day breakdown, in GBP.
+  ccrepo --since 20260601            June-to-date, in NZD.
+  ccrepo --json                      JSON for scripting.
+
+Env: none required (needs \`ccusage\` on PATH; network access to convert
+currency — the NZD default too, unless you pass --fx usd or --rate).`;
+
+const asJson = argv.includes('--json');
+const byModel = argv.includes('--by-model');
+const byDay = argv.includes('--by-day');
+const noBilling = argv.includes('--no-billing');
+// The child dimension nested under each repo, or null for a flat report.
+const groupBy = byModel ? 'model' : byDay ? 'day' : null;
+const childHead = groupBy === 'model' ? 'Model' : 'Day';
+
+function takeValue(flag) {
+  const i = argv.indexOf(flag);
+  return i !== -1 ? argv[i + 1] : null;
+}
+
+let fxCode = takeValue('--fx');
+fxCode = fxCode ? fxCode.toUpperCase() : null;
+// Default to NZD; ccusage's native figures are USD, so --fx usd means no
+// conversion. Any other code (default included) is converted at the live rate.
+const currency = fxCode || 'NZD';
+const converted = currency !== 'USD';
+const forcedRate = argv.includes('--rate') ? Number(takeValue('--rate')) : null;
+
+// Help and flag validation run from main(), never at module load: their
+// console output and process.exit() would otherwise fire off the HOST's argv
+// when this file is required (by the tests, or any script using the exports).
+function checkArgs() {
+  if (argv.includes('-h') || argv.includes('--help')) {
+    console.log(HELP);
+    process.exit(0);
+  }
+  if (byModel && byDay) {
+    console.error('--by-model and --by-day are mutually exclusive; pick one.');
+    process.exit(2);
+  }
+  if (forcedRate !== null && !converted) {
+    console.error('--rate has no effect on USD figures; drop it or pick a non-USD currency.');
+    process.exit(2);
+  }
+  if (forcedRate !== null && !(forcedRate > 0)) {
+    console.error('--rate must be a positive number.');
+    process.exit(2);
+  }
+}
+
+// Strip ccrepo's own flags (and their values); forward the rest to ccusage.
+const OWN_WITH_VALUE = new Set(['--fx', '--rate']);
+const OWN_BARE = new Set(['--json', '--by-model', '--by-day', '--no-billing']);
+const passthrough = [];
+for (let i = 0; i < argv.length; i++) {
+  if (OWN_WITH_VALUE.has(argv[i])) { i++; continue; }
+  if (OWN_BARE.has(argv[i])) continue;
+  passthrough.push(argv[i]);
+}
+
+const projectsDir = path.join(os.homedir(), '.claude', 'projects');
+
+// Read the real project path (cwd) from the first log line that carries one.
+// Claude's folder names dash-mangle every '/', '.', '_' alike, so they can't be
+// reversed unambiguously (e.g. hitchbots_guide -> ...-hitchbots-guide -> "guide").
+// The logs record the true cwd, so we recover the exact repo name from there.
+function cwdFromLog(file) {
+  let chunk;
+  try {
+    const fd = fs.openSync(file, 'r');
+    const buf = Buffer.alloc(65536);
+    const n = fs.readSync(fd, buf, 0, buf.length, 0);
+    fs.closeSync(fd);
+    chunk = buf.toString('utf8', 0, n);
+  } catch { return null; }
+  const m = chunk.match(/"cwd"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+  if (!m) return null;
+  try { return JSON.parse(`"${m[1]}"`); } catch { return null; }
+}
+
+// A dangling symlink (or an entry deleted mid-scan) must not kill the walk.
+function isDir(p) {
+  try { return fs.statSync(p).isDirectory(); } catch { return false; }
+}
+
+// Build sessionUUID -> repoDir index, plus repoDir -> display label, from logs.
+// Deferred into a function (not run at module load) so requiring this file for
+// the unit tests touches no disk. Returns the maps rather than mutating module
+// state, so a caller can't consult a silently empty index by mistake.
+function buildIndex() {
+  const sessionToRepo = new Map();
+  const repoLabel = new Map();
+  for (const repo of fs.readdirSync(projectsDir)) {
+    const dir = path.join(projectsDir, repo);
+    if (!isDir(dir)) continue;
+    for (const file of fs.readdirSync(dir)) {
+      if (!file.endsWith('.jsonl')) continue;
+      sessionToRepo.set(file.replace(/\.jsonl$/, ''), repo);
+      if (!repoLabel.has(repo)) {
+        const cwd = cwdFromLog(path.join(dir, file));
+        if (cwd) repoLabel.set(repo, path.basename(cwd));
+      }
+    }
+  }
+  return { sessionToRepo, repoLabel };
+}
+
+// Prefer the exact name from the logs; fall back to the dash-decoded last
+// segment.
+function label(encoded, labels) {
+  if (labels.has(encoded)) return labels.get(encoded);
+  const seg = encoded.split('-').filter(Boolean);
+  return seg[seg.length - 1] || encoded;
+}
+// Total over drifting ccusage rows: a breakdown without modelName must not
+// throw mid-aggregation.
+const shortModel = (m) => m ? m.replace(/^claude-/, '') : 'unknown';
+const dayOf = (iso) => {
+  if (!iso) return 'unknown';
+  const d = new Date(iso);
+  return isNaN(d) ? 'unknown' : d.toLocaleDateString('en-CA'); // YYYY-MM-DD, local tz
+};
+
+// coveredTokens / uncoveredCost stay 0 unless a billing config is active (a
+// `covers` predicate is passed to aggregate); they're the raw material for the
+// Actual column and are stripped from JSON when billing is off.
+const zeroAgg = () => ({
+  sessions: 0, inputTokens: 0, outputTokens: 0,
+  cacheCreationTokens: 0, cacheReadTokens: 0, totalTokens: 0, cost: 0,
+  coveredTokens: 0, uncoveredCost: 0,
+});
+function addTo(agg, v) {
+  agg.sessions += v.sessions; agg.inputTokens += v.inputTokens;
+  agg.outputTokens += v.outputTokens;
+  agg.cacheCreationTokens += v.cacheCreationTokens || 0;
+  agg.cacheReadTokens += v.cacheReadTokens || 0;
+  agg.totalTokens += v.totalTokens; agg.cost += v.cost;
+  agg.coveredTokens += v.coveredTokens || 0;
+  agg.uncoveredCost += v.uncoveredCost || 0;
+}
+// Share of prompt-side tokens served from cache: read / (input + create + read).
+// null when there were no prompt-side tokens at all (nothing to hit or miss).
+function cacheHitRate(agg) {
+  const denom = (agg.inputTokens || 0) + (agg.cacheCreationTokens || 0) + (agg.cacheReadTokens || 0);
+  return denom ? (agg.cacheReadTokens || 0) / denom : null;
+}
+// Add a value into repo.children under `key`, creating the bucket as needed.
+function addChild(r, key, v) {
+  let c = r.children.get(key);
+  if (!c) { c = zeroAgg(); r.children.set(key, c); }
+  addTo(c, v);
+}
+
+// --- billing model (Actual vs Est) --------------------------------------
+
+// Load the machine-local billing config, or null (⇒ estimate-only). A malformed
+// or under-specified file is *ignored with a warning*, never fatal — a cost
+// report must not die over a bad optional config. Takes a path for the tests.
+function loadBilling(file) {
+  const p = file || path.join(os.homedir(), '.claude', 'ccrepo-billing.json');
+  let raw;
+  try { raw = fs.readFileSync(p, 'utf8'); } catch { return null; } // absent ⇒ estimate-only
+  let cfg;
+  try { cfg = JSON.parse(raw); }
+  catch (e) { console.error(`Ignoring ${p}: not valid JSON (${e.message}).`); return null; }
+  if (!cfg || typeof cfg !== 'object' || !cfg.plan || !(cfg.plan.monthlyCost > 0)) {
+    console.error(`Ignoring ${p}: needs plan.monthlyCost > 0.`);
+    return null;
+  }
+  return {
+    currency: (cfg.currency || 'USD').toUpperCase(),
+    plan: {
+      name: cfg.plan.name || 'plan',
+      monthlyCost: cfg.plan.monthlyCost,
+      covers: Array.isArray(cfg.plan.covers) ? cfg.plan.covers.map((s) => String(s).toLowerCase()) : [],
+    },
+    perTokenModels: Array.isArray(cfg.perTokenModels) ? cfg.perTokenModels.map((s) => String(s).toLowerCase()) : [],
+  };
+}
+
+// A predicate on a short model name (claude- already stripped): covered iff it
+// matches a `covers` family prefix and isn't carved out by perTokenModels.
+// Returns null when there's no billing, so aggregate() skips classification.
+function coversPredicate(billing) {
+  if (!billing) return null;
+  const { covers } = billing.plan;
+  const carve = billing.perTokenModels;
+  const hit = (list, n) => list.some((c) => n === c || n.startsWith(c));
+  return (shortName) => {
+    const n = (shortName || '').toLowerCase();
+    return hit(covers, n) && !hit(carve, n);
+  };
+}
+
+// Actual spend for one aggregate = its uncovered per-token cost + its share of
+// the (sunk) plan fee. Apportion by covered-token share; if nothing in range
+// ran on a covered model, fall back to total-token share so the fee a user
+// really paid is still reflected somewhere. Pure — the tests drive it directly.
+function actualFor(agg, { monthlyCostUSD, totalCovered, totalAllTokens }) {
+  const useCovered = totalCovered > 0;
+  const basis = useCovered ? (agg.coveredTokens || 0) : (agg.totalTokens || 0);
+  const denom = useCovered ? totalCovered : totalAllTokens;
+  const share = denom ? monthlyCostUSD * basis / denom : 0;
+  return (agg.uncoveredCost || 0) + share;
+}
+
+async function fetchUsdRates() {
+  try {
+    const res = await fetch('https://open.er-api.com/v6/latest/USD', {
+      signal: AbortSignal.timeout(4000),
+    });
+    const data = await res.json();
+    if (data && data.rates) return data.rates;
+  } catch { /* offline / feed down — caller degrades honestly */ }
+  return null;
+}
+
+// Fold ccusage's per-session rows into repo -> aggregate (with optional child
+// breakdown). Pure over its inputs — no disk, no ccusage — so the tests drive it
+// with fixture sessions and a fixture session->repo index. `covers` (or null)
+// classifies each model's tokens as plan-covered ($0 marginal) or uncovered.
+function aggregate(sessions, index, group, covers) {
+  const repos = new Map();
+  let unmatched = 0;
+  for (const s of sessions) {
+    const repo = index.get(s.period);
+    if (!repo) { unmatched++; continue; }
+    let r = repos.get(repo);
+    if (!r) { r = { ...zeroAgg(), children: new Map() }; repos.set(repo, r); }
+    const sessionAgg = {
+      sessions: 1,
+      inputTokens: s.inputTokens || 0,
+      outputTokens: s.outputTokens || 0,
+      cacheCreationTokens: s.cacheCreationTokens || 0,
+      cacheReadTokens: s.cacheReadTokens || 0,
+      totalTokens: s.totalTokens || 0,
+      cost: s.totalCost || 0,
+    };
+    addTo(r, sessionAgg);
+
+    // One pass over the per-model breakdown does double duty: emit --by-model
+    // children, and (when billing is on) split the session's tokens into
+    // covered vs uncovered. A single session can span several models.
+    if (group === 'model' || covers) {
+      let covTokens = 0, uncovCost = 0;
+      for (const mb of s.modelBreakdowns || []) {
+        const name = shortModel(mb.modelName);
+        const mbTokens = (mb.inputTokens || 0) + (mb.outputTokens || 0) +
+          (mb.cacheCreationTokens || 0) + (mb.cacheReadTokens || 0);
+        const isCov = covers ? covers(name) : false;
+        if (isCov) covTokens += mbTokens; else uncovCost += (mb.cost || 0);
+        if (group === 'model') {
+          addChild(r, name, {
+            sessions: 1, // sessions that used this model within the repo
+            inputTokens: mb.inputTokens || 0,
+            outputTokens: mb.outputTokens || 0,
+            cacheCreationTokens: mb.cacheCreationTokens || 0,
+            cacheReadTokens: mb.cacheReadTokens || 0,
+            totalTokens: mbTokens,
+            cost: mb.cost || 0,
+            coveredTokens: isCov ? mbTokens : 0,
+            uncoveredCost: isCov ? 0 : (mb.cost || 0),
+          });
+        }
+      }
+      if (covers) {
+        r.coveredTokens += covTokens;
+        r.uncoveredCost += uncovCost;
+        // Carry the split onto the session so a --by-day child inherits it.
+        sessionAgg.coveredTokens = covTokens;
+        sessionAgg.uncoveredCost = uncovCost;
+      }
+    }
+
+    if (group === 'day') {
+      // Whole session attributed to its last-activity day.
+      addChild(r, dayOf(s.metadata && s.metadata.lastActivity), sessionAgg);
+    }
+  }
+  return { repos, unmatched };
+}
+
+async function main() {
+  checkArgs();
+  const billing = noBilling ? null : loadBilling();
+  const covers = coversPredicate(billing);
+  const { sessionToRepo, repoLabel } = buildIndex();
+  let sessions;
+  try {
+    const out = execFileSync('ccusage', ['session', '--json', ...passthrough], {
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+    });
+    sessions = JSON.parse(out).session;
+  } catch (e) {
+    console.error('Failed to run ccusage:', e.message);
+    process.exit(1);
+  }
+  // Envelope drift (ccusage renaming .session) must fail with a message, not a
+  // raw "sessions is not iterable" stack out of aggregate().
+  if (!Array.isArray(sessions)) {
+    console.error("ccusage's JSON had no .session array — its output format may have changed; ccrepo needs a nudge.");
+    process.exit(1);
+  }
+
+  const { repos, unmatched } = aggregate(sessions, sessionToRepo, groupBy, covers);
+
+  let rate = 1, rateSource = 'native', usdRates = null;
+  if (converted) {
+    if (forcedRate !== null) { rate = forcedRate; rateSource = 'manual'; }
+    else {
+      usdRates = await fetchUsdRates();
+      const r = usdRates && usdRates[currency];
+      if (!r) {
+        console.error(`Couldn't fetch USD→${currency} rate (offline?). Pass --rate <n> to force one, or --fx usd.`);
+        process.exit(1);
+      }
+      rate = r; rateSource = 'live (open.er-api.com)';
+    }
+  }
+
+  // Plan fee in USD (everything is folded in USD; `conv` applies the display
+  // rate uniformly at the end). Convert from the config's currency via the same
+  // live feed; degrade honestly if the pivot rate can't be had.
+  let monthlyCostUSD = 0, planCaveat = null;
+  if (billing) {
+    if (billing.currency === 'USD') monthlyCostUSD = billing.plan.monthlyCost;
+    else {
+      if (!usdRates) usdRates = await fetchUsdRates();
+      const pr = usdRates && usdRates[billing.currency];
+      if (pr) monthlyCostUSD = billing.plan.monthlyCost / pr;
+      else {
+        monthlyCostUSD = billing.plan.monthlyCost;
+        planCaveat = `plan cost read as USD — couldn't fetch USD→${billing.currency} rate`;
+      }
+    }
+  }
+
+  const totalCovered = [...repos.values()].reduce((n, r) => n + (r.coveredTokens || 0), 0);
+  const totalAllTokens = [...repos.values()].reduce((n, r) => n + (r.totalTokens || 0), 0);
+  const actualParams = { monthlyCostUSD, totalCovered, totalAllTokens };
+  const actualUSD = (agg) => (billing ? actualFor(agg, actualParams) : null);
+
+  const conv = (agg) => ({ ...agg, cost: agg.cost * rate });
+
+  // Models sort by cost desc; days sort chronologically (ascending).
+  const childSort = groupBy === 'day'
+    ? (a, b) => a.label.localeCompare(b.label)
+    : (a, b) => b.cost - a.cost;
+
+  const rows = [...repos.entries()]
+    .map(([encoded, r]) => ({
+      repo: label(encoded, repoLabel),
+      ...conv(r),
+      actual: billing ? actualUSD(r) * rate : null,
+      cacheHitRate: cacheHitRate(r),
+      children: [...r.children.entries()]
+        .map(([key, c]) => ({
+          label: key, ...conv(c),
+          actual: billing ? actualUSD(c) * rate : null,
+          cacheHitRate: cacheHitRate(c),
+        }))
+        .sort(childSort),
+    }))
+    .sort((a, b) => b.cost - a.cost);
+
+  const billingView = billing ? {
+    name: billing.plan.name,
+    covers: billing.plan.covers,
+    monthlyCostDisplay: monthlyCostUSD * rate,
+    basis: totalCovered > 0 ? 'covered' : 'total',
+    caveat: planCaveat,
+  } : null;
+
+  if (asJson) {
+    const arrName = groupBy === 'model' ? 'models' : 'days';
+    // Strip the internal covered/uncovered material; surface `actual` only when
+    // billing is on, so the estimate-only JSON contract is unchanged.
+    const clean = ({ coveredTokens, uncoveredCost, actual, ...rest }) =>
+      billing ? { ...rest, actual } : rest;
+    const reposOut = rows.map((row) => {
+      const { children, ...r } = row;
+      const base = clean(r);
+      if (!groupBy) return base;
+      return { ...base, [arrName]: children.map(({ label, ...c }) => ({ [groupBy]: label, ...clean(c) })) };
+    });
+    console.log(JSON.stringify({
+      currency, rate: converted ? rate : null, rateSource,
+      groupBy, billing: billingView, repos: reposOut, unmatchedSessions: unmatched,
+    }, null, 2));
+    return;
+  }
+
+  renderTable(rows, { currency, converted, rate, rateSource, unmatched, billing: billingView });
+}
+
+function renderTable(rows, { currency, converted, rate, rateSource, unmatched, billing }) {
+  const sym = symbolFor(currency);
+  const n = (x) => x.toLocaleString('en-NZ');
+  const money = (x) => sym + x.toLocaleString('en-NZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const pct = (x) => x === null ? '—' : (x * 100).toFixed(1) + '%';
+
+  // The child column (Model/Day) only appears when grouping; the Actual column
+  // only when a billing config is active — Est then labels the old Cost column.
+  const cols = [
+    { head: 'Repo', align: 'l', fmt: (r) => r.repo || '' },
+    ...(groupBy ? [{ head: childHead, align: 'l', fmt: (r) => r.child || '' }] : []),
+    { head: 'Sessions', align: 'r', fmt: (r) => n(r.sessions) },
+    { head: 'Input', align: 'r', fmt: (r) => n(r.inputTokens) },
+    { head: 'Output', align: 'r', fmt: (r) => n(r.outputTokens) },
+    { head: 'Cache Create', align: 'r', fmt: (r) => n(r.cacheCreationTokens) },
+    { head: 'Cache Read', align: 'r', fmt: (r) => n(r.cacheReadTokens) },
+    { head: 'Cache Hit', align: 'r', fmt: (r) => pct(cacheHitRate(r)) },
+    { head: 'Total Tokens', align: 'r', fmt: (r) => n(r.totalTokens) },
+    { head: billing ? `Est (${currency})` : `Cost (${currency})`, align: 'r', fmt: (r) => money(r.cost) },
+    ...(billing ? [{ head: `Actual (${currency})`, align: 'r', fmt: (r) => money(r.actual || 0) }] : []),
+  ];
+
+  // Default view = one section (no internal separators, keeps the original
+  // look). Grouped = one section per repo: a repo total row followed by its
+  // indented child rows.
+  const sections = groupBy
+    ? rows.map((r) => [
+        { repo: r.repo, child: '', ...r },
+        ...r.children.map((c) => ({ repo: '', child: '· ' + c.label, ...c })),
+      ])
+    : [rows.map((r) => ({ repo: r.repo, ...r }))];
+
+  const totals = rows.reduce((t, r) => { addTo(t, r); return t; },
+    { repo: 'TOTAL', child: '', ...zeroAgg() });
+  totals.actual = rows.reduce((s, r) => s + (r.actual || 0), 0);
+
+  const allRows = [...sections.flat(), totals];
+  const w = cols.map((c) => Math.max(c.head.length, ...allRows.map((r) => c.fmt(r).length)));
+
+  const cell = (r, i) => cols[i].align === 'l' ? cols[i].fmt(r).padEnd(w[i]) : cols[i].fmt(r).padStart(w[i]);
+  const line = (l, m, rt) => l + w.map((x) => '─'.repeat(x + 2)).join(m) + rt;
+  const row = (r) => '│ ' + cols.map((_, i) => cell(r, i)).join(' │ ') + ' │';
+  const headRow = () => '│ ' + cols.map((c, i) => c.align === 'l' ? c.head.padEnd(w[i]) : c.head.padStart(w[i])).join(' │ ') + ' │';
+
+  console.log();
+  console.log(line('┌', '┬', '┐'));
+  console.log(headRow());
+  console.log(line('├', '┼', '┤'));
+  sections.forEach((sec, idx) => {
+    if (idx > 0) console.log(line('├', '┼', '┤'));
+    for (const r of sec) console.log(row(r));
+  });
+  console.log(line('├', '┼', '┤'));
+  console.log(row(totals));
+  console.log(line('└', '┴', '┘'));
+  if (converted) console.log(`  Rate: 1 USD = ${rate.toFixed(4)} ${currency} — ${rateSource}`);
+  if (billing) {
+    const covers = billing.covers.length ? billing.covers.join(', ') : '(none listed)';
+    const basisLabel = billing.basis === 'covered'
+      ? 'covered-token share'
+      : 'total-token share (no covered-model usage in range)';
+    console.log(`  Est (API) is the API-equivalent estimate; Actual applies your plan: ${billing.name}, ${money(billing.monthlyCostDisplay)}/mo covering ${covers}.`);
+    console.log(`  Covered-model tokens cost $0 marginal; the flat plan fee is apportioned across repos by ${basisLabel}, plus any uncovered per-token spend.`);
+    console.log(`  Plan fee shown is one month; over a multi-month range true plan outlay is (months × fee) — v1 doesn't infer month count. Overage thresholds out of scope.`);
+    if (billing.caveat) console.log(`  Note: ${billing.caveat}.`);
+  } else {
+    console.log(`  Cost is an API-equivalent estimate (USD basis), not your subscription bill.`);
+  }
+  console.log(`  Cache Hit = cache reads ÷ (input + cache create + cache read) — the share of prompt-side tokens served from cache.`);
+  if (groupBy === 'model') console.log(`  Model 'Sessions' counts sessions that used that model (a session can use several).`);
+  if (groupBy === 'day') console.log(`  Each session is counted on its last-activity day (local time).`);
+  if (unmatched) console.log(`  ${unmatched} session(s) unmatched to a repo folder (archived/deleted logs).`);
+  console.log();
+}
+
+// CLI only when invoked directly; required by the tests, only the pure exports
+// below are visible and nothing runs (no ccusage, no disk, no argv parsing).
+// The .catch keeps a failed run loud: without it an index-build error is an
+// unhandled rejection, which some runtime modes report as exit 0 with no output.
+if (require.main === module) {
+  main().catch((e) => { console.error(e && e.stack || String(e)); process.exit(1); });
+}
+
+module.exports = {
+  symbolFor, shortModel, dayOf, zeroAgg, addTo, addChild, cacheHitRate, label, aggregate,
+  loadBilling, coversPredicate, actualFor,
+};

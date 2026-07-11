@@ -36,6 +36,134 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 - Delivered on a branch + PR: **the PR merge to `main` is the go-live act** (the
   marketplace only resolves from the default branch) — the widening floor stays
   the principal's deliberate call, not the agent's.
+### Added (2026-07-11 — ccrepo actuals vs estimate)
+- **ccrepo: an Actual column beside Est (API)**, driven by a machine-local
+  `~/.claude/ccrepo-billing.json` (never in a repo — a plan and spend are
+  personal data; absent ⇒ estimate-only with a byte-identical JSON contract;
+  malformed ⇒ ignored-with-warning, never fatal). `plan.covers[]` matches model
+  families by prefix after `claude-` is stripped, `perTokenModels` carves one
+  back out; covered-model tokens cost **$0 marginal** and the sunk plan fee is
+  apportioned per repo by covered-token share (falling back to total-token share
+  if nothing covered ran in range), while uncovered models keep the API-rate
+  figure. **Actual = apportioned plan share + uncovered per-token spend**, so the
+  TOTAL Actual row equals `fee + all uncovered spend` — proven live: estate-wide
+  Est US$2,305 vs Actual US$200 (the whole plan fee). Both columns convert
+  together under `--fx`; `--no-billing` forces estimate-only. Multi-month outlay
+  and overage thresholds are stated footnotes, out of scope v1. Closes the
+  design-before-code roadmap item (the config was designed first, then the code
+  once the shape was confirmed). 8 new pure tests (`loadBilling`,
+  `coversPredicate`, `actualFor`, the covered/uncovered fold); Node suite 26→34.
+
+### Fixed (2026-07-11 — the instruments test-floor code review's 10 findings)
+- **All ten confirmed findings from the `8536971` code review fixed + pinned**
+  (`docs/reviews/2026-07-11-instruments-test-floor-code-review.md`; suite
+  20→26). The two that affected the floor itself: the **timezone-fragile
+  `--by-day` test** (fixture timestamps moved to midday UTC — same local day in
+  every real offset; proven under Halifax and Chatham) and the **`test_*.js` →
+  `*.test.js` rename** — the documented command now works, and `ci.yml` runs the
+  shell glob `node --test instruments/*.test.js` so a future test file can't
+  silently skip CI. Correctness: help/validation argv parsing moved out of
+  module load (requiring an instrument can no longer print help or kill the
+  host off the host's argv — pinned by require-survival tests); `shortModel`
+  total over drifted ccusage rows; `.session` envelope guard with a friendly
+  message; dangling-symlink guard in ccrepo's projects walk; `main().catch`
+  keeps failed runs loud. Cleanups: `pt`/`paint` painter deduped;
+  one `sessionRecord()` constructor for walked + explicit-path sessions (real
+  mtime, no more blank list timestamp); `buildIndex()` returns its maps instead
+  of mutating module state.
+
+### Added (2026-07-11 — instruments builds + three cold reviews cleared)
+- **ccrepo: full ccusage breakdown** — the table, `--by-model`/`--by-day`
+  children, and `--json` now carry **Cache Create · Cache Read · Cache Hit**
+  (reads ÷ prompt-side tokens; definition footnoted in the output) alongside
+  Input/Output/Total/Cost — the cache-economics lever MODEL-ECONOMICS names,
+  made observable per repo. Fixtures corrected to mirror ccusage's real shape
+  (totalTokens includes cache tokens); new `cacheHitRate` unit.
+- **cctranscript: per-reply response IDs (`N.M`)** — each of Claude's text
+  replies to prompt N is citable as `N.M` in the reply header
+  (`◂ Claude 1.1 (Opus 4.8)`), M resetting per prompt; `--json` carries a
+  `ref` on every turn (null on think/tool/result — the citable unit is what a
+  human quotes). Completes the reference scheme the session-ID header and
+  `▸ N` exchange rule started. `numberTurns()` pure + unit-tested; the
+  contract test asserts the scheme.
+- **ccrepo actuals-vs-estimate: billing-model config designed** (design-
+  before-code, per the roadmap item) — `instruments/README.md` § "ccrepo
+  billing model": machine-local `~/.claude/ccrepo-billing.json`, plan as sunk
+  monthly cost with covered families at $0 marginal, uncovered models keep
+  the API-rate figure; limits/overage explicitly out of scope v1. Code awaits
+  Mike's confirmation of the config shape.
+- **REPO-STANDARD: new repos born with delete-branch-on-merge** — new-repo
+  process step 6 (+ the create-repo skill's create-remote step): `gh repo
+  edit --delete-branch-on-merge` follows `gh repo create`, making the landed
+  half of CONCURRENCY's put-away rule automatic at birth.
+
+### Changed (2026-07-11 — three cold reviews, all PASS-WITH-FINDINGS, findings fixed)
+- **PRINCIPLES §8 reviewed** (`docs/reviews/2026-07-11-principles-8-leverage.md`):
+  intro's stale "§1–7" swept to "§1–8", §7's "Numbered last" opener made
+  position-independent, observed-vs-predicted recurrence evidence bar added
+  to the §8 discipline. Gate cleared.
+- **CONCURRENCY put-away rule reviewed**
+  (`docs/reviews/2026-07-11-concurrency-put-away.md`): the bearing's
+  re-derivation count grounded explicitly (PR #1 close + session 34; a
+  *considered* kept-branch still generated the tax), scoping clause added
+  (integration/permanent branches are infrastructure, not open work),
+  archive-tag convention date-prefixed per RECORD. Gate cleared.
+- **Plugin bundle (PR #3) reviewed cold, install driven live**
+  (`docs/reviews/2026-07-11-plugin-bundle.md`): PASS-WITH-FINDINGS, nothing
+  blocks the merge; findings 1–3 fixed on the branch (update-invalidates-
+  hooks warning, location-relative doctrine refs in skills, all three
+  companions named). Go-live (the merge) stays Mike's call.
+
+### Added (2026-07-11 — instruments/ test floor: ccrepo + cctranscript)
+- **The `instruments/` layer gains its test floor** — shipped untested in session
+  34 (stated, not silent); now floored. Runner decision, recorded because it's the
+  first Node test surface and so sets the layer's convention: **Node's built-in
+  `node:test` + `node:assert`, zero third-party dep** — mirrors `tools/`'s
+  stdlib-only "no pytest" pattern. `instruments/test_cctranscript.js` carries a
+  **`--json` output-contract test** over a checked-in synthetic fixture
+  (`fixtures/session-sample.jsonl`) — role classification, model mapping,
+  timestamp/text extraction, and `--think`/`--tools` gating — which is what catches
+  a Claude Code `.jsonl` log-format change, plus pure-function units (friendlyModel,
+  wrap, styleInline, humanDelta, fmtTime/dateOf, visLen/padLeftTo). `test_ccrepo.js`
+  covers the pure functions and the aggregation fold over fixture ccusage rows.
+  Testability refactor was minimal and behaviour-preserving: CLI entrypoints guarded
+  by `require.main === module`, pure functions exported, three colour/tz-dependent
+  functions given a defaulted param. **One stated fix** surfaced by a test: an
+  explicit `.jsonl` path now recovers its repo label via `cwdFromLog` (every other
+  route already did; the explicit-path branch had dropped it). Wired into `ci.yml`'s
+  floor job (adds `setup-node`, stays zero-dep). Grounded in **EVIDENCE §14** — an
+  honest instrument's "ok" is a claim the apex governs. **Residual:** ccrepo's
+  `ccusage` shell-out / FX / render sit behind an untested seam (aggregation was
+  factored to `aggregate()` and is covered; the `execFileSync` itself is not).
+
+### Added (2026-07-11 — CONCURRENCY: every branch ends put away)
+- **`docs/method/CONCURRENCY.md` gains "Every branch ends put away"** — "branch
+  exists" had been allowed to mean two things: *open work*, and *closed work
+  nobody finished putting away* — and every session that saw a half-closed branch
+  paid to re-derive which it was. Now it means only the first. A branch ends
+  **landed** (merged then deleted; delete-branch-on-merge flipped ON across the 8
+  active repos makes that automatic) or **abandoned/superseded** via **salvage →
+  tag → delete → record** — mechanical comparison, annotated `archive/<name>` tag
+  stating what was salvaged where and what was consciously dropped, branch
+  deleted, disposition in the session log. Grounded in the failure it closes:
+  `atelier-method-review` was salvaged *and* archive-tagged properly, left
+  standing, and re-derived by session after session. **Review-owed** (doctrine
+  text; flagged in ROADMAP, not self-certified). create-repo birthing new repos
+  with the merge setting on is backlogged.
+
+### Added (2026-07-11 — the instruments/ layer: ccrepo + cctranscript, ADR 0006)
+- **`instruments/` — a new top-level layer for teammate instruments**, split from
+  `tools/` by purpose: `tools/` *enforces* the doctrine (Python checks that gate a
+  commit), `instruments/` *observes* the collaboration itself. First residents:
+  **`ccrepo`** (per-repo Claude Code token/cost totals — the DevFinOps view) and
+  **`cctranscript`** (timestamped session transcript — the timestamps the chat UI
+  hides), both zero-dep Node CLIs reading `~/.claude/projects/` read-only, plus an
+  idempotent `instruments/install` (per-tool symlinks into `~/.local/bin`).
+  Membership rule in **ADR 0006**: an instrument belongs only if its value *is*
+  the Claude teammateship; estate utilities stay with the estate they serve.
+  Moved in from `homenetwork/bin` (which is now removed); verified clean of
+  personal data before entering the public repo. Tests backlogged in ROADMAP —
+  shipped untested, stated not silent.
 
 ### Added (2026-07-11 — PRINCIPLES §8: leverage / "productive laziness")
 - **`docs/method/PRINCIPLES.md` gains §8 "Leverage — invest now to stop paying

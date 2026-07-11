@@ -50,6 +50,7 @@ we work:
 | `docs/decisions/` | ADRs — decisions that rejected a real alternative |
 | `docs/reviews/` | peer-review briefs (work earns trust through independent review — see `method/REVIEW.md`) |
 | `tools/` | the mechanical controls that *enforce* the doctrine — e.g. `leakscan.py`, the pre-commit boundary keeping personal/estate data out of a shareable repo |
+| `instruments/` | tools that *observe* the collaboration — its cost (`ccrepo`) and its history (`cctranscript`); tools whose only value is the Claude teammateship (see `docs/decisions/0006-instruments-in-atelier.md`) |
 
 ### `docs/method/` — the operating model
 

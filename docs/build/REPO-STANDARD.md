@@ -143,6 +143,9 @@ evidence — see `method/EVIDENCE.md`.
    (`method/PROPAGATION.md`).
 5. Commit. Create the remote **private** by default; push is recoverable, so it
    needs no confirmation — *publishing* (public, or widening audience) does.
+6. Set **delete-branch-on-merge** on the new remote (`gh repo edit
+   --delete-branch-on-merge`) — the landed half of CONCURRENCY's "every branch
+   ends put away", made automatic at birth so merged branches never linger.
 
 ## Process — standardise an existing repo
 

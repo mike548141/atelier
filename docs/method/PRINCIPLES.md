@@ -9,7 +9,7 @@ principle stripped of its cases is theatre; the cases are what make it teachable
 **The apex (§0) sits above all of this** — honesty is absolute, then the Laws.
 It is canonical in [`00-APEX.md`](00-APEX.md) and is **not** on the precedence
 ladder below: it is never traded against a design goal; it bounds the whole
-ladder. What follows resolves collisions *among* the design principles §1–7.
+ladder. What follows resolves collisions *among* the design principles §1–8.
 
 *Estate/product-specific bearings and the decided review case-law live in the
 child repo that produced them (e.g. `ros`); this file is the general statement
@@ -143,7 +143,8 @@ must carry its own evidence.
 
 ## 7. Reproducibility — infrastructure is code
 
-Numbered last for stability, logically first: the axiom the rest serves. Every
+Last of the original seven — positions here are stable so §N citations hold —
+but logically first: the axiom the rest serves. Every
 piece of infrastructure is reproducible from code — it exists because the source
 says so, and can be rebuilt from source + secrets alone. Nothing exists that
 can't be regenerated.
@@ -200,7 +201,9 @@ paying.*
   cost to debugging it later.
 
 **The discipline — not a licence to gold-plate.** The payback comes from *real*
-recurrence or a *real* avoided class of work, never an imagined future need.
+recurrence or a *real* avoided class of work, never an imagined future need. The
+strong case is *observed* recurrence — it has already recurred; a predicted
+recurrence is a claim like any other and carries its test (§6).
 Over-building a general tool for a task that happens once is the same waste facing
 the other way (KISS, §2; keep-it-cheap, precedence rule 6). Match the investment
 to how often the work will actually recur — and it never buys a shortcut through
