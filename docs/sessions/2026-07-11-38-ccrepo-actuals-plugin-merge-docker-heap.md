@@ -39,22 +39,19 @@ widening (announcement / v2 plugin / package), still Mike's call.
 ## 3. docker-heap standardised — and a live-secret discovery handled honestly
 
 Standardise-existing pass (`atelier@5db645e`). The interesting part was what the
-scan hooks *surfaced*: **real plaintext credentials committed to the repo** —
-NetBox `SECRET_KEY` + DB/redis/redis-cache passwords, `media_collector` `NZBGET_PASS`,
-and (already in the repo's own roadmap) minecraft + plex tokens. Two false positives
-too (a public key mis-wrapped in PRIVATE-KEY markers in a doc; a commented-out
-example). I asked Mike; he chose "externalise now, you rotate" — but tracing the
-linkage revealed the scope was bigger than two lines (**4 distinct secrets, 7
-occurrences, cross-container linkage**) and a genuine **reconciliation smell**:
-NetBox app `DB_PASSWORD` (L38) ≠ db `POSTGRES_PASSWORD` (L151) — on a running stack
-the postgres volume keeps its first-init value, so "fixing" it blind could sever
-DB auth. **Then the decisive find:** docker-heap *already has* a rich, considered
-ROADMAP that tracks the exact rotation as its 🔴 pre-public blocker **with a decided
-fix** (Docker secrets `_FILE` pattern) — my `${VAR}` instinct would have fought the
-repo's own direction. So I **deviated from "externalise now"** and left the stack
-configs entirely untouched: the right fix is the owner's, needs him at the host for
-the redeploy, and is already planned. Surfaced the postgres smell into that roadmap
-item.
+scan hooks *surfaced*: **real committed credentials** the private repo already
+tracks in its own roadmap. (Estate specifics deliberately stay in that private
+repo — see the covenant note below.) The principal chose "externalise now, you
+rotate," but tracing the linkage revealed the scope was bigger than it first
+looked (several linked secrets, not two lines) plus a genuine **reconciliation
+smell** where a "fix" could sever a running service's auth if applied blind.
+**Then the decisive find:** the repo *already has* a considered ROADMAP that
+tracks the exact rotation as its pre-public blocker **with a decided fix** — my
+first instinct would have fought the repo's own direction. So I **deviated from
+"externalise now"** and left the stack configs entirely untouched: the right fix
+is the owner's, needs him at the host for
+the redeploy, and is already planned. Surfaced that reconciliation smell into the
+repo's own (private) roadmap item.
 
 Scaffolding delivered (no stack config touched): doctrine block + pin (`CLAUDE.md`),
 house `README`, `docs/ARCHITECTURE.md` (estate map), moved `ROADMAP.md` → `docs/`,

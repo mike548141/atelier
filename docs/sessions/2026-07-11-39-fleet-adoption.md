@@ -27,38 +27,32 @@ rule, and its named example.
 
 ## Security debt surfaced (the scan pre-check earned its keep)
 
-Adopting isn't just stamping — the scan floor *found things*. Handled per the
-docker-heap policy Mike set (scaffold safely, ignore captured snapshots, owner
-rotates/purges; never silently allow-mark a real secret):
+Adopting isn't just stamping — the scan floor *found things*. **The estate
+specifics (which private repo carries what) deliberately do NOT live here** —
+atelier is public, and the no-personal-estate-data rule covers *posture prose*,
+not just secret values. Each finding is tracked in its own private repo's
+records. The shareable lesson only:
 
-- **`ec2_builder` — the urgent one.** Its own ROADMAP P0 (dated 2026-07-05) is
-  **still open**: a **live Google-Authenticator TOTP seed** + TLS private keys,
-  and the repo *was public*, so those hit public git history. Verified before
-  alarming that the scary "OpenAI key" finding was a **false positive** (an SSH
-  FIDO security-key algorithm name in a commented `HostKeyAlgorithms` line, not an
-  API key). `data/web_server/` (captured EFS snapshot) + the sshd recipe scan-ignored;
-  real keys are the tracked P0. **Recommendation: rotate the TOTP seed now if it's
-  still in use; purge history.**
-- **`homenetwork`** — real WireGuard/RouterOS keys in a stale `_archive/2024-09-23/`
-  capture; scan-ignored as tracked debt (purge candidate). Network repo →
-  leakscan `ipv4,ipv6,mac-address` disabled (CI + hook), the docker-heap pattern.
-- **`hitchbots_guide`** — **no real secrets**; every finding a false positive on
-  ingested published standards (NZISM 3.9, gov frameworks) + source URLs. Scoped
-  ignores keep `clients/` scanned. Noted: the machine-local leakscan term list
-  legitimately flags client names here (this *is* the client library) — hook-only,
-  documented.
+- Some repos carried **real committed credentials** already tracked in their own
+  roadmaps; handled per the docker-heap policy the principal set — scaffold
+  safely, treat the secrets as the owner's tracked debt to rotate/purge, **never
+  silently allow-mark a real secret**.
+- One scary-looking finding was **verified a false positive before it was
+  reported** (an SSH FIDO security-key algorithm name mistaken for an `sk-` API
+  key) — the "verify before you alarm" discipline.
+- Reference/knowledge repos threw **only false positives** on ingested published
+  standards; scoped ignores kept the genuinely-scannable content scanned.
 
-## Per-repo scan scoping learned
-Infra/network repos need `--disable ipv4,ipv6,mac-address` (docker-heap,
-homenetwork). Reference libraries need the ingested-standards dirs ignored
-(hitchbots_guide). Captured runtime snapshots (`data/web_server/`, `_archive/`)
-get `.secretscanignore` + `.leakscanignore` — they're data, not source, and their
-real secrets are tracked debt, not a per-commit gate. floor.yml CI is green on all
-adopted repos except where a real secret is knowingly tracked (docker-heap,
-ec2_builder — red by design until the owner rotates).
+## Per-repo scan scoping learned (the shareable pattern)
+Infra/network repos need `--disable ipv4,ipv6,mac-address` (IPs/hostnames/MACs
+are legitimate config). Reference libraries need their ingested-standards dirs
+ignored. Captured runtime snapshots get `.secretscanignore` + `.leakscanignore` —
+they're data, not source, and any real secrets in them are the owner's tracked
+debt, not a per-commit gate. floor.yml CI is green on every adopted repo except
+where a real secret is knowingly tracked (red by design until the owner rotates).
 
 ## Owed to the owner
-Rotations/purges (ec2_builder TOTP + keys, homenetwork archive keys, docker-heap
-inline secrets); the app purpose one-liners for Baby Brain/FoodTracker; and — the
+Rotations/purges in the repos that carry tracked secret debt (details in those
+private repos); the app purpose one-liners for the two early apps; and — the
 standing floor item — registering an SSH signing key to activate the signing
 doctrine fleet-wide.

@@ -670,7 +670,6 @@ public as a **named worked example** (README "If you're adopting this"). What wa
   house README, `docs/` with ARCHITECTURE/ROADMAP/SESSIONS, CONTRIBUTING,
   `floor.yml` scoped for an infra repo, fail-closed hook, `.gitignore` fixed —
   it was self-ignoring + untracked). No stack config touched; the pass *surfaced*
-  the inline-credential debt already tracked as docker-heap's own 🔴 blocker
-  (with a reconciliation smell noted: NetBox app `DB_PASSWORD` ≠ db
-  `POSTGRES_PASSWORD`). `floor.yml` CI correctly red on that secret until it's
-  rotated. Now `current` in `tools/pins.py`.
+  inline-credential debt already tracked as the repo's own pre-public blocker (a
+  reconciliation smell noted into that private roadmap). `floor.yml` CI correctly
+  red on the tracked secret until it's rotated. Now `current` in `tools/pins.py`.
