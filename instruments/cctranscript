@@ -10,10 +10,11 @@
  *
  * The human view is iMessage-style: your prompts mirror to the right, Claude's
  * replies sit on the left with a per-message model tag (coloured by model, so a
- * mid-session switch is visible). Each turn's body is grouped under a coloured
- * bar, word-wrapped to the terminal, with light markdown (bold, inline code,
- * headings, lists, links). Colour auto-disables when piped; --json is the
- * machine-readable format and is never styled.
+ * mid-session switch is visible). A full-width numbered rule opens each exchange
+ * (one of your prompts + all the replies to it), so a long transcript scans as
+ * sections. Each turn's body is grouped under a coloured bar, word-wrapped to
+ * the terminal, with light markdown (bold, inline code, headings, lists, links).
+ * Colour auto-disables when piped; --json is the machine format, never styled.
  *
  * The .jsonl schema is internal to Claude Code and can shift between releases;
  * if a field moves this may need a nudge.
@@ -400,6 +401,18 @@ function renderBody(text, role, width, side) {
   return out;
 }
 
+// A full-width rule marking the start of an exchange (one of your prompts and
+// everything Claude replies to it). Placed only before your turns, so the
+// transcript reads as scannable sections; the counter orients you in a long
+// scroll and gives each ask a reference number. The label sits on the right,
+// tying it to the right-aligned prompt below it.
+function exchangeRule(n) {
+  const lab = `▸ ${n}`;
+  const tail = '──';
+  const dashes = Math.max(0, TW - lab.length - tail.length - 2);
+  return paint(ESC.dim, '─'.repeat(dashes) + ' ') + paint(ESC.cyan, lab) + paint(ESC.dim, ' ' + tail);
+}
+
 // Build a turn's header line: role label (+ model tag for Claude) and the
 // timestamp/delta. Right-side turns (You) are mirrored to the right margin.
 function turnHeader(role, model, time, deltaMs, side) {
@@ -513,6 +526,7 @@ function runTranscript() {
 
   let prevTs = null;
   let curDate = startDate;
+  let exchange = 0;
   for (const t of turns) {
     const d = dateOf(t.ts);
     if (d && d !== curDate) {
@@ -529,6 +543,7 @@ function runTranscript() {
     }
     prevTs = t.ts || prevTs;
     console.log();
+    if (side === 'right') console.log(exchangeRule(++exchange));
     console.log(turnHeader(role, t.model, fmtTime(t.ts), deltaMs, side));
     for (const line of renderBody(t.text, role, CW, side)) console.log(line);
   }
