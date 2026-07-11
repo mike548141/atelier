@@ -5,6 +5,48 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-11 — instruments builds + three cold reviews cleared)
+- **ccrepo: full ccusage breakdown** — the table, `--by-model`/`--by-day`
+  children, and `--json` now carry **Cache Create · Cache Read · Cache Hit**
+  (reads ÷ prompt-side tokens; definition footnoted in the output) alongside
+  Input/Output/Total/Cost — the cache-economics lever MODEL-ECONOMICS names,
+  made observable per repo. Fixtures corrected to mirror ccusage's real shape
+  (totalTokens includes cache tokens); new `cacheHitRate` unit.
+- **cctranscript: per-reply response IDs (`N.M`)** — each of Claude's text
+  replies to prompt N is citable as `N.M` in the reply header
+  (`◂ Claude 1.1 (Opus 4.8)`), M resetting per prompt; `--json` carries a
+  `ref` on every turn (null on think/tool/result — the citable unit is what a
+  human quotes). Completes the reference scheme the session-ID header and
+  `▸ N` exchange rule started. `numberTurns()` pure + unit-tested; the
+  contract test asserts the scheme.
+- **ccrepo actuals-vs-estimate: billing-model config designed** (design-
+  before-code, per the roadmap item) — `instruments/README.md` § "ccrepo
+  billing model": machine-local `~/.claude/ccrepo-billing.json`, plan as sunk
+  monthly cost with covered families at $0 marginal, uncovered models keep
+  the API-rate figure; limits/overage explicitly out of scope v1. Code awaits
+  Mike's confirmation of the config shape.
+- **REPO-STANDARD: new repos born with delete-branch-on-merge** — new-repo
+  process step 6 (+ the create-repo skill's create-remote step): `gh repo
+  edit --delete-branch-on-merge` follows `gh repo create`, making the landed
+  half of CONCURRENCY's put-away rule automatic at birth.
+
+### Changed (2026-07-11 — three cold reviews, all PASS-WITH-FINDINGS, findings fixed)
+- **PRINCIPLES §8 reviewed** (`docs/reviews/2026-07-11-principles-8-leverage.md`):
+  intro's stale "§1–7" swept to "§1–8", §7's "Numbered last" opener made
+  position-independent, observed-vs-predicted recurrence evidence bar added
+  to the §8 discipline. Gate cleared.
+- **CONCURRENCY put-away rule reviewed**
+  (`docs/reviews/2026-07-11-concurrency-put-away.md`): the bearing's
+  re-derivation count grounded explicitly (PR #1 close + session 34; a
+  *considered* kept-branch still generated the tax), scoping clause added
+  (integration/permanent branches are infrastructure, not open work),
+  archive-tag convention date-prefixed per RECORD. Gate cleared.
+- **Plugin bundle (PR #3) reviewed cold, install driven live**
+  (`docs/reviews/2026-07-11-plugin-bundle.md`): PASS-WITH-FINDINGS, nothing
+  blocks the merge; findings 1–3 fixed on the branch (update-invalidates-
+  hooks warning, location-relative doctrine refs in skills, all three
+  companions named). Go-live (the merge) stays Mike's call.
+
 ### Added (2026-07-11 — instruments/ test floor: ccrepo + cctranscript)
 - **The `instruments/` layer gains its test floor** — shipped untested in session
   34 (stated, not silent); now floored. Runner decision, recorded because it's the

@@ -40,6 +40,45 @@ General machine/infra utilities (macOS, TrueNAS, networking) that you or Claude
 merely *use* from time to time do **not** belong here — they live with the estate
 they serve. `docs/decisions/0006-instruments-in-atelier.md` records that line.
 
+## ccrepo billing model — designed, not yet built
+
+ccrepo's Cost column is an **API-equivalent estimate** (ccusage's USD basis) —
+"a gauge, not your bill". A subscription-plan user's *actual* spend diverges
+sharply, and the general shape is **hybrid**: a flat plan covering some models
+plus per-token billing for the rest or for overage. The roadmap item wants both
+numbers side by side; per its design-before-code rule, the config is designed
+here first:
+
+- **Home:** `~/.claude/ccrepo-billing.json` — machine-local like leakscan's term
+  list, **never in a repo** (a person's plan and spend are personal data).
+  Absent file ⇒ ccrepo behaves exactly as today (estimate only); no new
+  requirement on anyone else's machine.
+- **Shape** (all fields optional beyond `plan.monthlyCost`):
+
+  ```json
+  {
+    "currency": "USD",
+    "plan": {
+      "name": "Max 20x",
+      "monthlyCost": 200,
+      "covers": ["opus", "sonnet", "haiku", "fable"]
+    },
+    "perTokenModels": ["some-uncovered-model"],
+    "notes": "covers[] matches model-family prefixes after claude- is stripped"
+  }
+  ```
+
+- **Semantics:** tokens on `covers` models cost **$0 marginal** (the plan is a
+  sunk monthly cost, reported as its own line, apportionable per repo by share
+  of covered tokens); tokens on `perTokenModels` (or any model not covered)
+  keep the API-rate estimate as their actual. Actual = plan share + uncovered
+  per-token spend. Both columns render side by side: *Est (API)* and *Actual*.
+- **Honest limits, stated up front:** there is no API for "what you actually
+  paid" — this is a user-maintained model, only as true as its config; plan
+  *limits/overage thresholds* are deliberately out of scope v1 (modelling when
+  a plan tips into overage needs rate-limit data the logs don't carry — that
+  gap stays visible in the output as a footnote, not silently absorbed).
+
 ## Schema caveat
 
 Both read Claude Code's session `.jsonl` logs, whose format is internal to the

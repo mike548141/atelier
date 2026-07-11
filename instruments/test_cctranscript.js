@@ -80,6 +80,17 @@ test('visLen ignores ANSI; padLeftTo right-justifies by visible width', () => {
   assert.equal(cc.padLeftTo('toolong', 3), 'toolong'); // never truncates
 });
 
+test('numberTurns: prompts get N, text replies N.M resetting per prompt; think/tool unnumbered', () => {
+  const turns = [
+    { role: 'claude' },                 // reply before any prompt → exchange 0
+    { role: 'you' }, { role: 'think' }, { role: 'claude' }, { role: 'tool' }, { role: 'claude' },
+    { role: 'you' }, { role: 'claude' },
+  ];
+  cc.numberTurns(turns);
+  assert.deepEqual(turns.map((t) => t.ref),
+    ['0.1', '1', undefined, '1.1', undefined, '1.2', '2', '2.1']);
+});
+
 test('extractText concatenates text blocks and passes strings through', () => {
   assert.equal(cc.extractText('plain string'), 'plain string');
   assert.equal(cc.extractText([
@@ -108,6 +119,7 @@ test('contract: default classifies prompts vs replies, maps models, extracts tex
   // Default gates out thinking, tool calls, and tool-result carriers.
   assert.deepEqual(roles(j), ['you', 'claude', 'claude']);
   assert.deepEqual(models(j), [null, 'Opus 4.8', 'Sonnet 5']);
+  assert.deepEqual(j.turns.map((t) => t.ref), ['1', '1.1', '1.2']); // citable refs in --json
   assert.equal(j.turns[0].text, 'Add a null check to the parser');
   assert.equal(j.turns[0].timestamp, '2026-01-02T03:04:05.000Z');
   assert.equal(j.turns[1].text, "I'll add the null check now.");
@@ -129,4 +141,6 @@ test('contract: --think admits thinking blocks (only)', () => {
 test('contract: --full admits thinking, tools, and results together', () => {
   const j = runJson('--full');
   assert.deepEqual(roles(j), ['you', 'think', 'claude', 'tool', 'result', 'claude']);
+  // Refs number only prompts and text replies; think/tool/result stay null.
+  assert.deepEqual(j.turns.map((t) => t.ref), ['1', null, '1.1', null, null, '1.2']);
 });

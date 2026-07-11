@@ -7,75 +7,92 @@ has inherited the costume, not the doctrine.
 
 ## Doctrine — review-owed
 
-- [ ] **Cold review of PRINCIPLES §8 ("Leverage — invest now to stop paying
-      later")** — added 2026-07-11 (session 33) at Mike's request; doctrine text,
-      so review-owed by the ceremony-calibration rule (flagged, not
-      self-certified). A light, fresh-context read suffices (small,
-      self-contained): check placement/consistency (appended-not-renumbered is
-      correct; the §7 "numbered last" note vs a new §8; ties to §2 DRY / §7 codify
-      / EVIDENCE §14 hold) and that the "not a licence to gold-plate" discipline
-      genuinely bounds it. Grounding is strong (the repo instantiates §8
-      throughout), so expect consistency-and-placement over premise-attack — but
-      that's the reviewer's call.
-- [ ] **Cold review of the plugin bundle (PR #3)** — net-new, first-of-kind,
-      public-facing tooling; earns a `review-brief` pass before it's leaned on /
-      before go-live is trusted. Range: branch `plugin-bundle` + the machine-facing
-      install/marketplace behaviour. Don't-stack: the builder doesn't review its
-      own bundle.
-- [ ] **Cold review of CONCURRENCY "Every branch ends put away"** — added
-      2026-07-11 (session 34); doctrine text, so review-owed (flagged, not
-      self-certified). Light read: the landed/abandoned fork is exhaustive?
-      salvage→tag→delete→record doesn't fight RECORD/REVIEW? the bearing
-      (atelier-method-review re-derived across sessions) is stated accurately?
-      Grounding is strong (the rule was executed live before being written).
-- [ ] **create-repo: new repos born with delete-branch-on-merge** — the setting
-      was flipped by hand on the 8 active repos (2026-07-11); the scaffold's
-      `gh repo create` step should set it so future repos never regrow the
-      merged-branch-lingers class. One flag in the skill's step 6 + a
-      REPO-STANDARD line; fold into the next create-repo touch.
+- [x] **Cold review of PRINCIPLES §8 ("Leverage")** — RAN 2026-07-11 (Fable,
+      cold session): **PASS-WITH-FINDINGS**, verdict in
+      `reviews/2026-07-11-principles-8-leverage.md`. Placement verified against
+      the pre-change text (appended-not-renumbered correct; §8 rightly off the
+      precedence ladder); all ties hold; the gold-plate discipline genuinely
+      bounds it. 3 findings, all [fixed] same day: intro's "§1–7" swept to
+      "§1–8" (§6's own stale-claim class), §7's "Numbered last" opener made
+      position-independent, and the optional observed-vs-predicted recurrence
+      evidence bar taken. Gate cleared.
+- [x] **Cold review of the plugin bundle (PR #3)** — RAN 2026-07-11 (Fable,
+      cold session, isolated worktree): **PASS-WITH-FINDINGS, nothing blocks
+      the merge** — verdict in `reviews/2026-07-11-plugin-bundle.md`. Proven
+      live: install end-to-end (root-as-plugin delivers tools/+docs/ at the
+      consumer end), `/atelier:scan` honest in a foreign repo, install-hook
+      blocks/passes/fails-closed as documented, and merge-is-go-live proven
+      directly (marketplace add from GitHub fails today — no manifest on
+      main). 5 findings: 1–3 **[fixed] on the branch** (`030f185`, PR #3
+      updated — update-invalidates-hooks warning, skills' plugin-root refs
+      made location-relative, all three companions named); 4–5 notes, no
+      action. User config verified clean after (install fully undone). **The
+      merge (go-live) is Mike's call, now review-cleared.**
+- [x] **Cold review of CONCURRENCY "Every branch ends put away"** — RAN
+      2026-07-11 (Fable, cold session): **PASS-WITH-FINDINGS**, verdict in
+      `reviews/2026-07-11-concurrency-put-away.md`. Fork exhaustive for lines
+      of work; no RECORD/REVIEW conflict (tag keeps history reachable;
+      disposition-in-session-log is RECORD's own discipline). 3 findings, all
+      [fixed] same day: the bearing's "multiple sessions" count grounded
+      explicitly (PR #1 close + session 34 — and sharpened: the branch was
+      kept *deliberately* and still generated the re-derivation tax), a
+      scoping clause added (integration/permanent branches are infrastructure,
+      not open work), and the tag convention date-prefixed per RECORD. Gate
+      cleared.
+- [x] **create-repo: new repos born with delete-branch-on-merge** — DONE
+      2026-07-11: the skill's create-remote step now follows `gh repo create`
+      with `gh repo edit --delete-branch-on-merge` (stated as standard, not
+      option), and REPO-STANDARD's new-repo process gained step 6 saying the
+      same — the landed half of CONCURRENCY's put-away rule automatic at birth.
 
 ## instruments/ layer (new 2026-07-11, ADR 0006)
 
 - [ ] **ccrepo — cost fidelity, full breakdown, and reach** (Mike, 2026-07-11) —
       three strands to make the DevFinOps view truer and more accessible:
-      - [ ] **Actuals vs estimate — show both.** ccrepo reports an
-            *API-equivalent* estimate (ccusage's USD basis), deliberately "a
-            gauge, not your bill". But a subscription-plan user's *actual* spend
-            diverges sharply: a flat plan covers some/all models at zero marginal
-            token cost, so actuals can sit far below the per-token estimate. The
-            general — and coming — case is **hybrid**: a plan *plus* per-token
-            billing for the models or overage the plan doesn't cover. Both numbers
-            are useful; show them side by side (estimate = what this would cost at
-            API rates; actual = what the billing shape actually charges). Hard part,
-            stated honestly: there's no clean API for "what you actually paid", so
-            actuals need a small **user-maintained billing model** (plan cost +
-            which models/usage it covers + per-token rates for the rest) applied
-            over ccusage's token counts. Design that config before the code.
-      - [ ] **Full ccusage breakdown.** ccusage's own columns are Input · Output ·
-            **Cache Create · Cache Read** · Total Tokens · Cost; ccrepo shows only
-            Input · Output · Total · Cost — the two cache columns are dropped
-            (they're already summed into ccrepo's Total via the `--by-model` path,
-            just not shown). Surface them, plus a derived **cache-hit ratio** —
-            cache economics are a real lever (MODEL-ECONOMICS point-don't-paste /
-            TTL churn), so making cache create-vs-read visible per-repo is exactly
-            the signal that doctrine wants observable.
-      - [ ] **VS Code UI.** A ccrepo view inside the editor, not just the CLI —
-            per-repo cost at a glance where the work happens. Depends on what the
-            Claude Code extension exposes (panel/statusbar hook) or a small
-            companion extension; feasibility unknown — scope it before building.
-- [ ] **cctranscript — per-reply response IDs (`N.M`)** (Mike, 2026-07-11) —
-      consider. The exchange number `▸ N` on each prompt is a strong
-      in-transcript reference; extend it so each of Claude's replies to prompt N
-      is addressable as `N.M` (1.1, 1.2, …), shown in the reply header:
-      `◂ Claude 1.1 (Opus 4.8)  10:29:32  +2s`. M resets after each prompt. <!-- leakscan:allow: example clock time (HH:MM:SS) in a UI mockup, not an IPv6 address -->
-
-      Decisions to make: what counts as a reply — the text replies only (the
-      natural unit a human cites) or every assistant turn incl. thinking/tool
-      steps under `--full` (more precise, more numbers); and surface `N.M` in
-      `--json` so the citation is machine-addressable too. Weigh clutter vs
-      value — the win is a stable citation for any point in a transcript,
-      completing the reference scheme the session-ID header and exchange rule
-      already start (anchor the top, number each ask, now number each reply).
+      - [ ] **Actuals vs estimate — show both.** Config DESIGNED 2026-07-11
+            (the item's design-before-code step): `instruments/README.md`
+            "ccrepo billing model" section — machine-local
+            `~/.claude/ccrepo-billing.json` (personal spend data never in a
+            repo; absent file ⇒ today's estimate-only behaviour), plan =
+            sunk monthly cost with `covers[]` model families at $0 marginal,
+            uncovered models keep the API-rate figure, output shows *Est
+            (API)* and *Actual* side by side; plan limits/overage explicitly
+            out of scope v1 (no data source — stays a stated footnote). The
+            **code** is the remaining half; build once Mike confirms the
+            config shape fits his actual plan.
+      - [x] **Full ccusage breakdown** — DONE 2026-07-11: ccrepo now shows
+            Cache Create · Cache Read · **Cache Hit** (reads ÷ prompt-side
+            tokens, the point-don't-paste signal made observable) alongside
+            Input/Output/Total/Cost, in the table, `--by-model`/`--by-day`
+            children, and `--json` (`cacheCreationTokens`/`cacheReadTokens`/
+            `cacheHitRate`); definition footnoted in the output. Tests updated
+            + new `cacheHitRate` unit (fixtures now mirror ccusage's real
+            shape: totalTokens includes cache); driven live — repo-level hit
+            rates 95–98%.
+      - [x] **VS Code UI — SCOPED 2026-07-11** (the item asked for scoping
+            before building; grounded via current docs, not memory). Findings:
+            the official Claude Code extension exposes **no** third-party hook
+            points (no API, no contributed-view extension points; open feature
+            requests confirm); Claude Code's **statusline** can carry per-repo
+            cost (rich stdin JSON incl. `workspace` + live session cost;
+            ~1.1 s ccrepo run needs a TTL cache) but renders **only in
+            terminal surfaces**, never the graphical panel. Recommended route:
+            a tiny **sideloaded companion extension** (status bar item +
+            tooltip breakdown reading `ccrepo --json`; local `.vsix`, no
+            marketplace; declare workspace-trust, resolve PATH explicitly),
+            ~4–6 h, with a ~1 h spike (40-line extension showing the workspace
+            total) as the feasibility proof. Statusline script is a free
+            adjunct for terminal sessions. Build is a separate decision.
+- [x] **cctranscript — per-reply response IDs (`N.M`)** — DONE 2026-07-11.
+      Both open decisions taken and stated in the code: a "reply" is a **text
+      reply only** (the unit a human cites; thinking/tool turns stay
+      unnumbered even under `--full` — clutter loses), and `--json` carries a
+      `ref` field on every turn (`"1"` on prompts, `"1.2"` on replies, null on
+      think/tool/result) so citations are machine-addressable. Header shows
+      `◂ Claude 1.1 (Opus 4.8)`; a reply before any prompt (resumed session)
+      numbers under exchange 0, honestly marking its prompt isn't in the log.
+      `numberTurns()` pure + unit-tested; `--json` contract test asserts the
+      ref scheme; driven live.
 - [x] **ccrepo + cctranscript ship untested** — DONE 2026-07-11 (session 35).
       They shipped with no tests (session 34), unlike the `tools/` scanners which
       each carry a unittest + `--selftest`; cctranscript had since grown real

@@ -37,17 +37,30 @@ test('dayOf returns unknown for missing/invalid, YYYY-MM-DD otherwise', () => {
 
 test('zeroAgg / addTo / addChild accumulate correctly', () => {
   const z = r.zeroAgg();
-  assert.deepEqual(z, { sessions: 0, inputTokens: 0, outputTokens: 0, totalTokens: 0, cost: 0 });
-  r.addTo(z, { sessions: 1, inputTokens: 2, outputTokens: 3, totalTokens: 5, cost: 0.5 });
-  r.addTo(z, { sessions: 1, inputTokens: 8, outputTokens: 7, totalTokens: 15, cost: 1.5 });
-  assert.deepEqual(z, { sessions: 2, inputTokens: 10, outputTokens: 10, totalTokens: 20, cost: 2 });
+  assert.deepEqual(z, { sessions: 0, inputTokens: 0, outputTokens: 0,
+    cacheCreationTokens: 0, cacheReadTokens: 0, totalTokens: 0, cost: 0 });
+  r.addTo(z, { sessions: 1, inputTokens: 2, outputTokens: 3,
+    cacheCreationTokens: 1, cacheReadTokens: 4, totalTokens: 10, cost: 0.5 });
+  r.addTo(z, { sessions: 1, inputTokens: 8, outputTokens: 7, totalTokens: 15, cost: 1.5 }); // no cache fields → 0
+  assert.deepEqual(z, { sessions: 2, inputTokens: 10, outputTokens: 10,
+    cacheCreationTokens: 1, cacheReadTokens: 4, totalTokens: 25, cost: 2 });
 
   const repo = { children: new Map() };
   r.addChild(repo, 'opus', { sessions: 1, inputTokens: 4, outputTokens: 1, totalTokens: 5, cost: 0.4 });
   r.addChild(repo, 'opus', { sessions: 1, inputTokens: 6, outputTokens: 1, totalTokens: 7, cost: 0.6 });
   assert.equal(repo.children.size, 1);
   assert.deepEqual(repo.children.get('opus'),
-    { sessions: 2, inputTokens: 10, outputTokens: 2, totalTokens: 12, cost: 1 });
+    { sessions: 2, inputTokens: 10, outputTokens: 2,
+      cacheCreationTokens: 0, cacheReadTokens: 0, totalTokens: 12, cost: 1 });
+});
+
+test('cacheHitRate is read share of prompt-side tokens, null when there are none', () => {
+  // 20 reads / (100 input + 10 create + 20 read) = 20/130
+  assert.ok(Math.abs(r.cacheHitRate({ inputTokens: 100, cacheCreationTokens: 10, cacheReadTokens: 20 }) - 20 / 130) < 1e-12);
+  assert.equal(r.cacheHitRate({ inputTokens: 0, cacheCreationTokens: 0, cacheReadTokens: 0 }), null);
+  assert.equal(r.cacheHitRate(r.zeroAgg()), null);
+  // output tokens play no part in the ratio
+  assert.equal(r.cacheHitRate({ inputTokens: 50, cacheCreationTokens: 0, cacheReadTokens: 50, outputTokens: 999 }), 0.5);
 });
 
 test('label prefers the index name, else dash-decodes the last segment', () => {
@@ -61,11 +74,14 @@ test('label prefers the index name, else dash-decodes the last segment', () => {
 // Shape mirrors `ccusage session --json`'s .session entries: period is the
 // session UUID, plus token counts, totalCost, per-model breakdowns, metadata.
 const SESSIONS = [
-  { period: 's1', inputTokens: 100, outputTokens: 50, totalTokens: 150, totalCost: 1.0,
+  // ccusage's totalTokens already includes the cache tokens (input+output+create+read).
+  { period: 's1', inputTokens: 100, outputTokens: 50,
+    cacheCreationTokens: 10, cacheReadTokens: 20, totalTokens: 180, totalCost: 1.0,
     metadata: { lastActivity: '2026-01-02T03:00:00.000Z' },
     modelBreakdowns: [{ modelName: 'claude-opus-4-8', inputTokens: 100, outputTokens: 50,
       cacheCreationTokens: 10, cacheReadTokens: 20, cost: 1.0 }] },
-  { period: 's2', inputTokens: 200, outputTokens: 100, totalTokens: 300, totalCost: 2.0,
+  { period: 's2', inputTokens: 200, outputTokens: 100,
+    cacheCreationTokens: 0, cacheReadTokens: 0, totalTokens: 300, totalCost: 2.0,
     metadata: { lastActivity: '2026-01-02T04:00:00.000Z' },
     modelBreakdowns: [{ modelName: 'claude-sonnet-5', inputTokens: 200, outputTokens: 100,
       cacheCreationTokens: 0, cacheReadTokens: 0, cost: 2.0 }] },
@@ -82,8 +98,11 @@ test('aggregate folds matched sessions per repo and counts unmatched', () => {
   assert.equal(a.sessions, 2);
   assert.equal(a.inputTokens, 300);
   assert.equal(a.outputTokens, 150);
-  assert.equal(a.totalTokens, 450);
+  assert.equal(a.cacheCreationTokens, 10);
+  assert.equal(a.cacheReadTokens, 20);
+  assert.equal(a.totalTokens, 480);
   assert.ok(Math.abs(a.cost - 3.0) < 1e-9);
+  assert.ok(Math.abs(r.cacheHitRate(a) - 20 / 330) < 1e-12); // 20 reads / (300 in + 10 create + 20 read)
   assert.equal(a.children.size, 0);              // no grouping requested
 });
 
@@ -93,6 +112,8 @@ test('aggregate --by-model breaks each repo down by model, cache tokens folded i
   assert.equal(a.children.size, 2);
   const opus = a.children.get('opus-4-8');
   assert.equal(opus.sessions, 1);
+  assert.equal(opus.cacheCreationTokens, 10);
+  assert.equal(opus.cacheReadTokens, 20);
   assert.equal(opus.totalTokens, 180);           // 100 + 50 + 10 (cache create) + 20 (cache read)
   assert.ok(Math.abs(opus.cost - 1.0) < 1e-9);
   assert.equal(a.children.get('sonnet-5').totalTokens, 300); // 200 + 100 + 0 + 0
@@ -105,5 +126,5 @@ test('aggregate --by-day buckets whole sessions by last-activity day', () => {
   assert.equal(a.children.size, 1);
   const day = [...a.children.values()][0];
   assert.equal(day.sessions, 2);
-  assert.equal(day.totalTokens, 450);
+  assert.equal(day.totalTokens, 480);
 });

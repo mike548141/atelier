@@ -12,7 +12,9 @@
  * replies sit on the left with a per-message model tag (coloured by model, so a
  * mid-session switch is visible). A full-width numbered rule opens each exchange
  * (one of your prompts + all the replies to it), so a long transcript scans as
- * sections. Each turn's body is grouped under a coloured bar, word-wrapped to
+ * sections, and each of Claude's text replies to prompt N carries a citable
+ * reference N.M (M resets per prompt; thinking/tool turns aren't numbered —
+ * the citable unit is what a human quotes). --json carries the same refs. Each turn's body is grouped under a coloured bar, word-wrapped to
  * the terminal, with light markdown (bold, inline code, headings, lists, links).
  * Colour auto-disables when piped; --json is the machine format, never styled.
  *
@@ -283,6 +285,20 @@ function readTurns(file) {
   return turns;
 }
 
+// Number the citable turns in place: each prompt is exchange N (the ▸ N rule),
+// each of Claude's *text* replies to it is N.M (M resets per prompt). Thinking
+// and tool turns stay unnumbered — the citable unit is what a human quotes.
+// A reply arriving before any prompt (e.g. a resumed session) numbers under
+// exchange 0, honestly marking that its prompt isn't in this log.
+function numberTurns(turns) {
+  let n = 0, m = 0;
+  for (const t of turns) {
+    if (t.role === 'you') { n++; m = 0; t.ref = String(n); }
+    else if (t.role === 'claude') { m++; t.ref = `${n}.${m}`; }
+  }
+  return turns;
+}
+
 // --- styling ------------------------------------------------------------
 
 const ESC = {
@@ -418,17 +434,19 @@ function exchangeRule(n) {
   return paint(ESC.dim, '─'.repeat(dashes) + ' ') + paint(ESC.cyan, lab) + paint(ESC.dim, ' ' + tail);
 }
 
-// Build a turn's header line: role label (+ model tag for Claude) and the
-// timestamp/delta. Right-side turns (You) are mirrored to the right margin.
-function turnHeader(role, model, time, deltaMs, side) {
+// Build a turn's header line: role label (+ N.M ref and model tag for Claude)
+// and the timestamp/delta. Right-side turns (You) are mirrored to the right
+// margin (their ref is the ▸ N on the exchange rule, not repeated here).
+function turnHeader(role, model, time, deltaMs, side, ref) {
   const meta = paint(ESC.dim, time) + (deltaMs != null ? '  ' + deltaStr(deltaMs) : '');
   if (side === 'right') {
     const label = paint(role.color + ESC.bold, `${role.label} ${role.icon}`);
     return padLeftTo(meta + '  ' + label, TW - 1);
   }
   const label = paint(role.color + ESC.bold, `${role.icon} ${role.label}`);
+  const refTag = ref ? ' ' + paint(ESC.dim, ref) : '';
   const tag = model ? ' ' + paint(modelColor(model), `(${model})`) : '';
-  return ' ' + label + tag + '  ' + meta;
+  return ' ' + label + refTag + tag + '  ' + meta;
 }
 
 // --- session selection --------------------------------------------------
@@ -498,13 +516,13 @@ function runTranscript() {
     process.exit(1);
   }
   const chosen = pool[lastK - 1];
-  const turns = readTurns(chosen.file);
+  const turns = numberTurns(readTurns(chosen.file));
 
   if (asJson) {
     console.log(JSON.stringify({
       session: chosen.id, repo: chosen.label, cwd: chosen.cwd,
       timezone: useUtc ? 'UTC' : 'local',
-      turns: turns.map((t) => ({ role: t.role, model: t.model || null, timestamp: t.ts, text: t.text })),
+      turns: turns.map((t) => ({ ref: t.ref || null, role: t.role, model: t.model || null, timestamp: t.ts, text: t.text })),
     }, null, 2));
     return;
   }
@@ -534,7 +552,6 @@ function runTranscript() {
 
   let prevTs = null;
   let curDate = startDate;
-  let exchange = 0;
   for (const t of turns) {
     const d = dateOf(t.ts);
     if (d && d !== curDate) {
@@ -551,8 +568,8 @@ function runTranscript() {
     }
     prevTs = t.ts || prevTs;
     console.log();
-    if (side === 'right') console.log(exchangeRule(++exchange));
-    console.log(turnHeader(role, t.model, fmtTime(t.ts), deltaMs, side));
+    if (side === 'right') console.log(exchangeRule(t.ref));
+    console.log(turnHeader(role, t.model, fmtTime(t.ts), deltaMs, side, t.ref));
     for (const line of renderBody(t.text, role, CW, side)) console.log(line);
   }
   console.log();
@@ -568,4 +585,5 @@ if (require.main === module) {
 module.exports = {
   friendlyModel, modelColor, humanDelta, wrap, visLen, padLeftTo,
   styleInline, fmtTime, dateOf, toolSummary, extractText, encodePath, readTurns,
+  numberTurns,
 };

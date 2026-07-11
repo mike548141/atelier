@@ -166,10 +166,22 @@ const dayOf = (iso) => {
   return isNaN(d) ? 'unknown' : d.toLocaleDateString('en-CA'); // YYYY-MM-DD, local tz
 };
 
-const zeroAgg = () => ({ sessions: 0, inputTokens: 0, outputTokens: 0, totalTokens: 0, cost: 0 });
+const zeroAgg = () => ({
+  sessions: 0, inputTokens: 0, outputTokens: 0,
+  cacheCreationTokens: 0, cacheReadTokens: 0, totalTokens: 0, cost: 0,
+});
 function addTo(agg, v) {
   agg.sessions += v.sessions; agg.inputTokens += v.inputTokens;
-  agg.outputTokens += v.outputTokens; agg.totalTokens += v.totalTokens; agg.cost += v.cost;
+  agg.outputTokens += v.outputTokens;
+  agg.cacheCreationTokens += v.cacheCreationTokens || 0;
+  agg.cacheReadTokens += v.cacheReadTokens || 0;
+  agg.totalTokens += v.totalTokens; agg.cost += v.cost;
+}
+// Share of prompt-side tokens served from cache: read / (input + create + read).
+// null when there were no prompt-side tokens at all (nothing to hit or miss).
+function cacheHitRate(agg) {
+  const denom = (agg.inputTokens || 0) + (agg.cacheCreationTokens || 0) + (agg.cacheReadTokens || 0);
+  return denom ? (agg.cacheReadTokens || 0) / denom : null;
 }
 // Add a value into repo.children under `key`, creating the bucket as needed.
 function addChild(r, key, v) {
@@ -209,6 +221,8 @@ function aggregate(sessions, index, group) {
       sessions: 1,
       inputTokens: s.inputTokens || 0,
       outputTokens: s.outputTokens || 0,
+      cacheCreationTokens: s.cacheCreationTokens || 0,
+      cacheReadTokens: s.cacheReadTokens || 0,
       totalTokens: s.totalTokens || 0,
       cost: s.totalCost || 0,
     };
@@ -221,6 +235,8 @@ function aggregate(sessions, index, group) {
           sessions: 1, // sessions that used this model within the repo
           inputTokens: mb.inputTokens || 0,
           outputTokens: mb.outputTokens || 0,
+          cacheCreationTokens: mb.cacheCreationTokens || 0,
+          cacheReadTokens: mb.cacheReadTokens || 0,
           totalTokens: (mb.inputTokens || 0) + (mb.outputTokens || 0) +
             (mb.cacheCreationTokens || 0) + (mb.cacheReadTokens || 0),
           cost: mb.cost || 0,
@@ -263,8 +279,9 @@ async function main() {
     .map(([encoded, r]) => ({
       repo: label(encoded),
       ...conv(r),
+      cacheHitRate: cacheHitRate(r),
       children: [...r.children.entries()]
-        .map(([key, c]) => ({ label: key, ...conv(c) }))
+        .map(([key, c]) => ({ label: key, ...conv(c), cacheHitRate: cacheHitRate(c) }))
         .sort(childSort),
     }))
     .sort((a, b) => b.cost - a.cost);
@@ -288,6 +305,7 @@ function renderTable(rows, { currency, converted, rate, rateSource, unmatched })
   const sym = symbolFor(currency);
   const n = (x) => x.toLocaleString('en-NZ');
   const money = (x) => sym + x.toLocaleString('en-NZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const pct = (x) => x === null ? '—' : (x * 100).toFixed(1) + '%';
 
   // The child column (Model/Day) only appears when grouping.
   const cols = [
@@ -296,6 +314,9 @@ function renderTable(rows, { currency, converted, rate, rateSource, unmatched })
     { head: 'Sessions', align: 'r', fmt: (r) => n(r.sessions) },
     { head: 'Input', align: 'r', fmt: (r) => n(r.inputTokens) },
     { head: 'Output', align: 'r', fmt: (r) => n(r.outputTokens) },
+    { head: 'Cache Create', align: 'r', fmt: (r) => n(r.cacheCreationTokens) },
+    { head: 'Cache Read', align: 'r', fmt: (r) => n(r.cacheReadTokens) },
+    { head: 'Cache Hit', align: 'r', fmt: (r) => pct(cacheHitRate(r)) },
     { head: 'Total Tokens', align: 'r', fmt: (r) => n(r.totalTokens) },
     { head: `Cost (${currency})`, align: 'r', fmt: (r) => money(r.cost) },
   ];
@@ -334,6 +355,7 @@ function renderTable(rows, { currency, converted, rate, rateSource, unmatched })
   console.log(line('└', '┴', '┘'));
   if (converted) console.log(`  Rate: 1 USD = ${rate.toFixed(4)} ${currency} — ${rateSource}`);
   console.log(`  Cost is an API-equivalent estimate (USD basis), not your subscription bill.`);
+  console.log(`  Cache Hit = cache reads ÷ (input + cache create + cache read) — the share of prompt-side tokens served from cache.`);
   if (groupBy === 'model') console.log(`  Model 'Sessions' counts sessions that used that model (a session can use several).`);
   if (groupBy === 'day') console.log(`  Each session is counted on its last-activity day (local time).`);
   if (unmatched) console.log(`  ${unmatched} session(s) unmatched to a repo folder (archived/deleted logs).`);
@@ -345,5 +367,5 @@ function renderTable(rows, { currency, converted, rate, rateSource, unmatched })
 if (require.main === module) main();
 
 module.exports = {
-  symbolFor, shortModel, dayOf, zeroAgg, addTo, addChild, label, aggregate,
+  symbolFor, shortModel, dayOf, zeroAgg, addTo, addChild, cacheHitRate, label, aggregate,
 };
