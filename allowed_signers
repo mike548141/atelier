@@ -1,0 +1,16 @@
+# atelier canonical allowed_signers — the fleet's single trust list for git
+# commit/tag signature verification (SIGNING.md, ADR 0007).
+#
+# One-fact-one-home (EVIDENCE §9): signing trust has exactly one source. Machines
+# point git config here; child CI resolves it at the child's existing atelier pin
+# (ADR 0002), never floating main — a floated trust list would let anyone with
+# write access to main mint trust for every child silently.
+#
+# Public keys only — safe in a public repo. APPEND-ONLY: a retired key is bounded
+# with valid-before, never deleted, so old signatures stay verifiable forever
+# (git verifies against the commit's own committer timestamp).
+#
+# Values are QUOTED: the man page's unquoted valid-after form fails to parse on
+# macOS OpenSSH ("missing start quote"), and a parse failure silently fails the
+# whole entry — see SIGNING.md.
+mike@cxi.nz namespaces="git",valid-after="20260712" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMRyr825fwPQZcOJ3upmTyQoewvLxktbmxOmn6MmcNn1 atelier signing key

@@ -14,6 +14,13 @@ tools/test_secretscan.py
 # fictional example shapes documenting the format. No real data lives here.
 tools/leakscan-terms.example.txt
 
+# The canonical signing trust list carries a principal email beside each public
+# key by the allowed_signers format's own design (SIGNING.md, ADR 0007) — the
+# emails ARE the data the file exists to hold, and every future key appended
+# would re-trigger the same finding. Public keys + principals only; secretscan
+# still covers it against a real private key ever being pasted in.
+allowed_signers
+
 # The plugin + marketplace manifests carry the author's own name in the
 # author/owner attribution field — legitimate, approved, named-worked-example
 # identity (ADR 0005; an adopter substitutes their own).
