@@ -171,6 +171,42 @@ can't be regenerated.
   codified removal verb and treat each interim hand-run as a tracked debt, not
   a workflow to keep.
 
+## 8. Leverage — invest now to stop paying later
+
+*Added after the original seven: where §1–7 say how to build well, this says how
+much to build, and when. The "productive laziness" principle — minimising total
+work **over time** is the virtue, and it usually means spending **more** at this
+moment, not less. The lazy-in-the-moment choice (the one-off hand-fix, the
+copy-paste, the quick patch) is often the expensive one, because the work is paid
+again every time it recurs. Laziness done right is leverage: pay once to stop
+paying.*
+
+- **Design out the work.** The best work is work that never has to be done again.
+  A design decision that eliminates a whole *class* of future effort beats one
+  that handles each instance well. *Case:* the "thin anchor, fat pointer"
+  propagation ([`PROPAGATION.md`](PROPAGATION.md)) — a child links to the doctrine
+  instead of copying it, so no re-sync work exists when the doctrine moves;
+  one-source (§2 DRY) is this principle applied to facts. Prefer the architecture
+  that makes a future problem *impossible* over the one that only makes it
+  *manageable*.
+- **Build the reliable tool once; reuse it forever.** When a task will recur,
+  doing the hard work now to build a sharp, tested, reusable tool pays back on
+  every run — and it buys more than time: a machine gives *consistent, robust*
+  outputs where a hand-repeat drifts and errs. *Case:* the scan triad (built once,
+  gating every commit in every repo identically) and the codified removal verb
+  that replaced recurring hand-surgery (§7). The tool the agent builds is itself a
+  source the apex governs ([`EVIDENCE.md`](EVIDENCE.md) §14): "build the tool"
+  means build it *tested and honest*, not a fragile script that just moves the
+  cost to debugging it later.
+
+**The discipline — not a licence to gold-plate.** The payback comes from *real*
+recurrence or a *real* avoided class of work, never an imagined future need.
+Over-building a general tool for a task that happens once is the same waste facing
+the other way (KISS, §2; keep-it-cheap, precedence rule 6). Match the investment
+to how often the work will actually recur — and it never buys a shortcut through
+§0–§2: an "efficient" tool that lies about its result costs more trust than any
+time it saved.
+
 ---
 
 ## Trade-offs: precedence and situation tests
@@ -252,6 +288,13 @@ are never traded against a design principle.
 - **Standing or ephemeral credential?** Default to least + just-in-time +
   short-lived (§5). A standing credential needs a stated reason — usually the
   platform offers no JIT grant — and is a tracked debt, not a resting state.
+- **One-off or recurring?** A task that genuinely happens once → do it directly;
+  don't build a tool for it (KISS). A task that recurs, or whose manual repetition
+  drifts and errs → invest now in the reusable tool or the work-avoiding design;
+  the up-front cost pays back and buys consistency (§8). *Precedent:* recurring
+  hand-surgery on live state was made a codified verb; a one-shot migration stayed
+  a throwaway script. The wrong call in *either* direction is waste — a tool for a
+  never-repeated job, or a hand-repeat of a job done weekly.
 
 *A stated deliberate exception is fine; a silent violation is the defect. When a
 collision is resolved, the ruling lives in three places: the code comment at the

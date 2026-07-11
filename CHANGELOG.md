@@ -5,6 +5,21 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-11 — PRINCIPLES §8: leverage / "productive laziness")
+- **`docs/method/PRINCIPLES.md` gains §8 "Leverage — invest now to stop paying
+  later"** — Mike named the principle; strategic laziness is leverage: spend more
+  now (a work-avoiding *design*, or a reliable *reusable tool*) to save repeated
+  work later and get consistent, robust outputs. Two forms — **design out the
+  work** (thin-anchor-fat-pointer, one-source) and **build the reliable tool once**
+  (the scan triad; the codified verb that replaced recurring hand-surgery, a §7
+  case now generalised; tied to EVIDENCE §14 — the tool is a source, so build it
+  tested-and-honest). Plus **the discipline** (payback needs real recurrence, not
+  gold-plating; never a shortcut through §0–§2) and a **"One-off or recurring?"**
+  situation test. Appended, not renumbered (§5 is cross-referenced; external cites
+  of `PRINCIPLES §N` must not shift). Grounded, not invented — the repo already
+  instantiates it. **Review-owed** by the ceremony-calibration rule (doctrine text;
+  flagged, not self-certified).
+
 ### Changed (2026-07-11 — the child-CI-floor review: the masking fix now covers the class)
 - **secretscan + leakscan hardened by the child-CI-floor review** (Fable, cold
   session: `docs/reviews/2026-07-11-child-ci-floor.md`, PASS-WITH-FINDINGS,

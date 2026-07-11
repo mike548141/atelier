@@ -5,6 +5,24 @@ grows. Sequencing rule from the 2026-07-10 review: **mechanism before more
 content** — a repo that inherits docs but not the propagation + review cadence
 has inherited the costume, not the doctrine.
 
+## Doctrine — review-owed
+
+- [ ] **Cold review of PRINCIPLES §8 ("Leverage — invest now to stop paying
+      later")** — added 2026-07-11 (session 33) at Mike's request; doctrine text,
+      so review-owed by the ceremony-calibration rule (flagged, not
+      self-certified). A light, fresh-context read suffices (small,
+      self-contained): check placement/consistency (appended-not-renumbered is
+      correct; the §7 "numbered last" note vs a new §8; ties to §2 DRY / §7 codify
+      / EVIDENCE §14 hold) and that the "not a licence to gold-plate" discipline
+      genuinely bounds it. Grounding is strong (the repo instantiates §8
+      throughout), so expect consistency-and-placement over premise-attack — but
+      that's the reviewer's call.
+- [ ] **Cold review of the plugin bundle (PR #3)** — net-new, first-of-kind,
+      public-facing tooling; earns a `review-brief` pass before it's leaned on /
+      before go-live is trusted. Range: branch `plugin-bundle` + the machine-facing
+      install/marketplace behaviour. Don't-stack: the builder doesn't review its
+      own bundle.
+
 ## Doctrine calibration — reviewed
 
 - [x] **Review the "match the ceremony to the risk" doctrine change** — RAN
