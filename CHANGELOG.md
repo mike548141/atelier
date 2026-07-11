@@ -22,6 +22,14 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   floor. **Warn-first** — reports unverified commits without failing the build
   until the fleet has settled. (Per-child retrofit — step 4 — rolls the updated
   floor to each child with a pin bump + recorded boundary.)
+- **Timezone trap fixed, caught by atelier's own CI dogfood.** The first CI run
+  reported every signed commit `bad`: bare `valid-after="20260712"` is read in
+  the verifier's local timezone, so the list passed on the UTC+12 author machine
+  but failed in the UTC runner ("key is not yet valid" — a 02:13 NZST commit is
+  14:13 the previous UTC day). Fixed by anchoring `valid-after` in UTC with a
+  `Z` suffix (`"20260711Z"`), before the earliest commit's UTC time; SIGNING.md
+  now mandates it and the signscan selftest fixture guards it. Dogfooding
+  atelier before any child was retrofitted is exactly what surfaced it.
 - **`create-repo` + REPO-STANDARD** bake repo-local `commit.gpgsign=true` so a
   scaffolded repo is born signing (step 3).
 

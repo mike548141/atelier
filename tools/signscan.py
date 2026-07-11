@@ -164,7 +164,9 @@ def _selftest() -> int:
         as_path = os.path.join(d, "allowed_signers")
         sig_path = os.path.join(d, "data.sig")
         with open(as_path, "w") as f:
-            f.write(f'{_FIX_PRINCIPAL} namespaces="git",valid-after="20260101" {_FIX_PUB}\n')
+            # Quoted AND Z-suffixed (UTC) valid-after — the two parse/timezone
+            # traps SIGNING.md warns about, so the selftest guards both.
+            f.write(f'{_FIX_PRINCIPAL} namespaces="git",valid-after="20260101Z" {_FIX_PUB}\n')
         with open(sig_path, "w") as f:
             f.write(_FIX_SIG)
 

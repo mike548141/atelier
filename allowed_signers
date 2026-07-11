@@ -13,4 +13,11 @@
 # Values are QUOTED: the man page's unquoted valid-after form fails to parse on
 # macOS OpenSSH ("missing start quote"), and a parse failure silently fails the
 # whole entry — see SIGNING.md.
-mike@cxi.nz namespaces="git",valid-after="20260712" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMRyr825fwPQZcOJ3upmTyQoewvLxktbmxOmn6MmcNn1 atelier signing key
+#
+# Timestamps carry an explicit "Z" (UTC) suffix and sit BEFORE the earliest
+# signed commit's committer time in UTC. Without the suffix ssh-keygen reads the
+# date in the verifier's LOCAL timezone, so the same list passes on a UTC+12
+# machine and fails in a UTC CI runner ("key is not yet valid") — a commit made
+# at 02:13 NZST is 14:13 the PREVIOUS UTC day. UTC-anchor the window and the two
+# planes agree. (Caught by atelier's own CI dogfood 2026-07-12.)
+mike@cxi.nz namespaces="git",valid-after="20260711Z" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMRyr825fwPQZcOJ3upmTyQoewvLxktbmxOmn6MmcNn1 atelier signing key

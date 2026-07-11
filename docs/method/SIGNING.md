@@ -62,12 +62,23 @@ zero-dep house ethos answer. The shape:
   signature CI defends against full write compromise of the repo holding the
   trust list — the attacker self-attests in one push; branch protection is
   the compensating control.) Entries carry the committer email as principal
-  by convention and `valid-after` (plus `valid-before` on retirement) —
-  **values quoted** (`valid-after="20260712"`): the man page's unquoted form
-  fails to parse on the estate's own OpenSSH ("missing start quote"), and a
-  parse failure silently fails the whole entry's verification, so the CI/hook
-  step carries a known-signed-fixture selftest to turn a syntax regression
-  red. The file is **append-only** — a retired key is bounded, never deleted,
+  by convention and `valid-after` (plus `valid-before` on retirement),
+  subject to **two traps that both silently fail an entry's verification**:
+  - **Quote the values** (`valid-after="20260711Z"`): the man page's unquoted
+    form fails to parse on the estate's own OpenSSH ("missing start quote").
+  - **Suffix the timestamp with `Z` (UTC), and set `valid-after` before the
+    earliest signed commit's committer time *in UTC*.** Bare `20260712` is read
+    in the *verifier's local timezone*, so a list that passes on a UTC+12
+    machine fails in a UTC CI runner with "key is not yet valid" — a commit made
+    at 02:13 NZST is 14:13 the previous UTC day, which falls before a
+    local-midnight `valid-after`. Anchoring the window in UTC makes the local
+    hook and CI agree. (Both traps were caught live — the quote trap in the
+    2026-07-12 review, the timezone trap by atelier's own CI dogfood the same
+    day, before any child was retrofitted.)
+
+  Because a parse or timezone failure is silent, the CI/hook step carries a
+  known-signed-fixture selftest whose quoted, `Z`-suffixed `valid-after` turns
+  either regression red. The file is **append-only** — a retired key is bounded, never deleted,
   so old signatures stay verifiable forever (proven live 2026-07-12: git
   passes the commit's committer timestamp as the verify-time, so a bounded
   key keeps verifying its own era).

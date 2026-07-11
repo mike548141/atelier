@@ -58,17 +58,42 @@ The entry flags the live boundary question: this key's **secret** is person-leve
 (Apple Passwords), yet the whole fleet **trusts** it as estate provenance infra —
 the open "where estate credential governance lives" ADR.
 
-## Left for a scoped follow-up (ladder steps 4–5)
+## Steps 4–5 taken up (Mike: "do 4 + 5 now", CI warns-first)
 
-Both gate on Mike's steer, so they weren't ploughed unilaterally:
-- **Step 4 — fleet retrofit.** Turn on signing across the 11 children and record
-  each adoption boundary (the boundary's home is still the stub: a SHA in each
-  child's `floor.yml`). Needs a retrofit order.
-- **Step 5 — CI verification step** in the floor workflows: both planes
-  (machine-key + `gh api`), `fetch-depth: 0`, trust list at the child's pin, the
-  known-signed-fixture selftest. Needs the block-or-warn-first call.
-- Vigilant mode left **off** until the fleet is retrofit (else pre-boundary
-  history reads "Unverified" everywhere).
+**Step 5 — CI verification, built as a tool not YAML.** The review's mandated
+"known-signed-fixture selftest" only means something if it runs, so the logic
+went into `tools/signscan.py` (a testable house tool with `--selftest`, like the
+scanners), not inline workflow bash. signscan verifies `boundary..HEAD` against
+a trust list, two-plane by necessity: machine-key commits locally via
+ssh-keygen; GitHub web-flow merge/squash commits **deferred** to the gh-api
+plane (never failed — two already sit on atelier's main). `--selftest` carries a
+throwaway ed25519 signature whose quoted, `Z`-suffixed `valid-after` guards both
+parse traps; a tampered-payload negative proves the check has teeth. Wired into
+atelier's `ci.yml` and the child `floor.yml` template (`fetch-depth: 0`, both
+planes, warn-first). Trust list read at the child's **pin** via
+`git show <pin>:allowed_signers`, never floating main (review G7). 11 tests.
 
-SIGNING.md ladder, ROADMAP item, and this log updated to say steps 1–3 live,
-4–5 pending — honest done-vs-stubbed per the apex.
+**The dogfood earned its keep — a timezone bug, caught before any child.** The
+first CI run went `0 good, 3 bad`: bare `valid-after="20260712"` is read in the
+verifier's *local* timezone, so it passed on the UTC+12 author machine and
+failed in the UTC runner ("key is not yet valid" — a 02:13 NZST commit is 14:13
+the *previous* UTC day, before a local-midnight window start). Fixed by
+UTC-anchoring with a `Z` suffix (`"20260711Z"`) before the earliest commit's UTC
+time; SIGNING.md now mandates it, the selftest fixture guards it. Running
+atelier's own CI *before* touching the fleet is precisely what surfaced it — the
+"proven on both planes" from step 2 was the local `verify-commit` + the GitHub
+badge; the CI *sweep* is a third check, and it found the config bug the other
+two couldn't.
+
+## Step 4 — fleet retrofit (in progress)
+
+Each of the 11 children: bump its atelier pin to a SHA that carries
+`allowed_signers` (≥ the fix), roll the updated `floor.yml` (signing steps),
+set `SIGN_BOUNDARY` to the child's pre-signing HEAD (its unsigned past stays
+unflagged), and record the boundary. New commits already sign — global config
+is machine-level — so the retrofit is about *verification*, not turning signing
+on. Vigilant mode stays **off** until the fleet is retrofit (else pre-boundary
+history reads "Unverified" everywhere; Mike's call to flip later).
+
+SIGNING.md ladder, ROADMAP, and this log kept honest per the apex: steps 1–3 +
+5 live, step 4 rolling out, warn-first until the fleet settles.
