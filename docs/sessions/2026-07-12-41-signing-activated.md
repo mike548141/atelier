@@ -85,15 +85,39 @@ atelier's own CI *before* touching the fleet is precisely what surfaced it — t
 badge; the CI *sweep* is a third check, and it found the config bug the other
 two couldn't.
 
-## Step 4 — fleet retrofit (in progress)
+## Step 4 — fleet retrofit (done; faves/ros deferred)
 
-Each of the 11 children: bump its atelier pin to a SHA that carries
-`allowed_signers` (≥ the fix), roll the updated `floor.yml` (signing steps),
-set `SIGN_BOUNDARY` to the child's pre-signing HEAD (its unsigned past stays
-unflagged), and record the boundary. New commits already sign — global config
-is machine-level — so the retrofit is about *verification*, not turning signing
-on. Vigilant mode stays **off** until the fleet is retrofit (else pre-boundary
-history reads "Unverified" everywhere; Mike's call to flip later).
+The fleet splits three ways, which changed the plan (Mike: "take your
+recommendation"): **10 children carry the house `floor.yml`** — uniform retrofit;
+**faves + ros run bespoke `ci.yml`** (menu-validate/SBOM, router config) and
+never adopted the house floor — a pre-existing standardisation gap, so their
+signing-CI was **deferred** to a separate floor-adoption pass (they still sign
+every commit — only CI *verification* waits).
 
-SIGNING.md ladder, ROADMAP, and this log kept honest per the apex: steps 1–3 +
-5 live, step 4 rolling out, warn-first until the fleet settles.
+The 10 retrofit each: pin bumped to a signing-aware atelier SHA (picks up
+`allowed_signers` + signscan), the floor signing steps rolled in (overwrite from
+the proven template, `--disable` re-applied for the two network repos), and
+`SIGN_BOUNDARY` set to the repo's pre-signing HEAD so its unsigned past stays
+unflagged. numen piloted first — its CI resolved the trust list at its own pin
+via `git show <pin>:allowed_signers` and reported `1 good, 0 bad`, proving the
+*child* pattern (distinct from atelier's in-repo trust list) — then the other 9
+in a batch, each signed + verified + pushed.
+
+**Result: 7 CI-green** (numen, Baby Brain, ec2_builder, FoodTracker,
+hitchbots_guide, nova, shed). **3 red — docker-heap, rpi, homenetwork — on
+pre-existing scanner debt**, confirmed by each repo's *prior* run being red too:
+they fail at the secretscan/leakscan stage, which runs *before* the signing
+steps, so signing never even executes. That debt is the owners' (docker-heap's
+floor was "red by design" at adoption); not mine to detail here (public repo)
+or fix. shed's boundary is its pre-signing HEAD `5bdee55` (it already carried
+one signed commit, the registry entry).
+
+## Honest close
+
+Signing is **fully active, warn-first**. Ladder steps 1–5 done; SIGNING.md,
+ROADMAP, CHANGELOG, and this log say so with the apex's done-vs-stubbed honesty —
+including the two things NOT finished: faves/ros signing-CI (deferred) and the
+warn→block flip (Mike's call once the pre-existing scanner debt clears). Vigilant
+mode stays off until the fleet is fully green. The dogfood earning its keep — a
+timezone bug caught on atelier before a single child was touched — is the session's
+one real lesson: verify the mechanism on yourself first.

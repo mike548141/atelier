@@ -378,24 +378,35 @@ standout debt; sessions 14–15 deliberately did not stack on it.
             no-signing (see the ADR). **Reviewed 2026-07-12** — PASS-WITH-
             FINDINGS, all G1–G10 addressed pre-activation (see the review-owed
             section above; `reviews/2026-07-12-signing-doctrine.md`).
-      - [~] **Activation (ladder in SIGNING.md) — steps 1–3 LIVE 2026-07-12
-            (Opus, session 40), 4–5 pending.** Mike generated + registered a
-            dedicated ed25519 signing key on GitHub (step 1, his act); agent
-            wired the machine (global `gpg.format=ssh` + `commit/tag.gpgsign` +
-            canonical `allowed_signers` in atelier root) and set atelier's
-            adoption boundary at `958b1ea` — **proven on both planes**:
-            `git verify-commit` good against the trust list, and
-            `gh api …verification.verified` → `true` (badge lit). Two review
-            traps dodged live: quoted `valid-after` parsed (no "missing start
-            quote"), boundary set forward (no history rewrite). Passphrase key
-            loaded via `ssh-add --apple-use-keychain` (unattended signing).
-            `allowed_signers` exempted in `.leakscanignore` (its principal
-            emails are the data the format holds, not a leak). Step 3:
-            `create-repo` + REPO-STANDARD now bake repo-local `commit.gpgsign`.
-            **Still owed (4–5):** retrofit the fleet's repos (record each
-            boundary) → CI verify step in the floor workflows. Both gate on
-            Mike's steer: retrofit order, and whether CI verification blocks or
-            warns at first. Vigilant mode left OFF until the fleet is retrofit.
+      - [x] **Activation (ladder in SIGNING.md) — FULLY ACTIVE 2026-07-12 (Opus,
+            session 41), warn-first.** All five ladder steps done. Step 1: Mike
+            registered a dedicated ed25519 signing key (his act). Step 2: machine
+            wired, atelier boundary `958b1ea` proven on both planes
+            (`git verify-commit` good + `gh api …verified` true). Step 3:
+            `create-repo` + REPO-STANDARD bake repo-local `commit.gpgsign`. Step
+            5: `tools/signscan.py` (two-plane, known-signed-fixture selftest) +
+            CI verification in atelier `ci.yml` and the child `floor.yml`
+            template, trust list at the child's pin, **warn-first**. Step 4: **10
+            house-floor children retrofit** (pin bump + floor signing steps +
+            `SIGN_BOUNDARY`), 7 CI-green, 3 (docker-heap, rpi, homenetwork) red
+            on **pre-existing scanner debt** that fails before the signing steps
+            run — not signing, the owner's debt. **Bug the dogfood caught:**
+            bare `valid-after` is read in the verifier's local tz, so atelier's
+            own first CI run flagged every signed commit "not yet valid" in the
+            UTC runner — fixed by UTC-anchoring with a `Z` suffix; SIGNING.md now
+            mandates it, the selftest guards it. Caught before any child was
+            touched — the reason to dogfood atelier first.
+            **Two follow-ups (below).**
+      - [ ] **faves + ros: adopt the house floor (then signing-CI).** Both run
+            bespoke `ci.yml`, never adopted `floor.yml`, so the fleet retrofit
+            skipped their signing *verification* (they still sign every commit).
+            A separate standardisation pass: give them the house floor, or inject
+            signing steps into their bespoke CI. The pre-existing gap this work
+            surfaced.
+      - [ ] **Flip CI from warn to block.** signscan runs `--warn` fleet-wide;
+            flipping to blocking (drop `--warn`, make the gh-plane warning an
+            error) is Mike's call once the pre-existing scanner debt is cleared
+            and every active machine signs. Vigilant mode stays off until then.
       - [ ] **Release-artifact signing + SBOM (deferred, was A5).** Signing *built
             artifacts* + a deterministic SBOM needs external tooling (syft/cosign),
             which hits the tool-install floor and breaks the zero-dep house-tool

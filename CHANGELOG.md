@@ -22,6 +22,13 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   floor. **Warn-first** — reports unverified commits without failing the build
   until the fleet has settled. (Per-child retrofit — step 4 — rolls the updated
   floor to each child with a pin bump + recorded boundary.)
+- **Fleet retrofit (step 4).** The 10 children carrying the house floor adopted
+  signing verification — pin bumped to a signing-aware atelier SHA, floor
+  signing steps rolled in, `SIGN_BOUNDARY` set to each repo's pre-signing HEAD.
+  7 verified CI-green; 3 (docker-heap, rpi, homenetwork) red on **pre-existing
+  scanner debt** that fails before the signing steps run (owner's debt, not
+  signing). faves + ros run bespoke `ci.yml` (never adopted the house floor) —
+  their signing-CI is deferred to a floor-adoption pass; they still sign.
 - **Timezone trap fixed, caught by atelier's own CI dogfood.** The first CI run
   reported every signed commit `bad`: bare `valid-after="20260712"` is read in
   the verifier's local timezone, so the list passed on the UTC+12 author machine

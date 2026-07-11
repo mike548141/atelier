@@ -169,7 +169,7 @@ cheap to run:
   holds the retired public key). Unlike the store master key, a lost signing
   key costs minutes, not access.
 
-## Activation ladder (status: steps 1–3 live 2026-07-12; steps 4–5 pending)
+## Activation ladder (status: fully active 2026-07-12 — warn-first, faves/ros deferred)
 
 1. **[done 2026-07-12]** **Principal registers a signing key** — generate the
    dedicated key, upload to GitHub as a signing key, name it to the agent. The
@@ -188,16 +188,26 @@ cheap to run:
 3. **[done 2026-07-12]** `create-repo` bakes the repo-local
    `commit.gpgsign=true` into its git-config step (and REPO-STANDARD's new-repo
    process states the same).
-4. **[pending]** Retrofit the fleet's existing repos; record each boundary.
-   **Stub, per RECORD:** the boundary's home is decided at execution — the
-   working candidate is a boundary SHA stated in the child's own `floor.yml`,
-   read by `git rev-list <boundary>..HEAD`; nothing is wired yet.
-5. **[pending]** Add the CI verification step to the floor workflows — both
-   planes (machine-key + GitHub API), `fetch-depth: 0`, trust list at the
-   child's pin, plus the known-signed-fixture selftest. **Stub until wired.**
+4. **[done 2026-07-12]** Retrofit the fleet's existing repos; record each
+   boundary. The boundary's home resolved as designed: **`SIGN_BOUNDARY` in the
+   child's own `floor.yml`**, read by `git rev-list <boundary>..HEAD`. All **10
+   children carrying the house floor** retrofit (pin bumped to a signing-aware
+   atelier SHA + the floor signing steps + their pre-signing HEAD as boundary);
+   7 verified green, 3 (docker-heap, rpi, homenetwork) red on **pre-existing
+   scanner debt that predates signing** — they fail at the scanner stage before
+   the signing steps run, owner's debt to clear. **Deferred: faves and ros** run
+   bespoke `ci.yml`, not the house floor — signing-CI for them waits on a
+   separate floor-adoption pass (they still *sign* every commit; only their CI
+   *verification* is deferred).
+5. **[done 2026-07-12]** CI verification in the floor workflows — both planes
+   (machine-key via `tools/signscan.py` + GitHub API), `fetch-depth: 0`, trust
+   list at the child's pin (`git show <pin>:allowed_signers`), the
+   known-signed-fixture selftest. **Warn-first** (Mike's steer): reports, does
+   not block, until the fleet settles; flip instructions live in both workflows.
 
-Steps 4–5 remain agent-executable; they gate on Mike's steer on scope
-(retrofit order, and whether CI verification blocks or warns at first).
+Vigilant mode stays off until the fleet is fully green (else pre-boundary
+history reads "Unverified"); flipping CI from warn to block is the remaining
+deliberate step, Mike's call once the pre-existing scanner debt is cleared.
 
 ## What lives elsewhere
 
