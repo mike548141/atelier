@@ -61,3 +61,32 @@ action across every parallel session.
   worktrees are the concurrency equivalent of a leaked file handle.
 - If two lines of work both need the same live resource, that's a signal to
   sequence them, not to build a locking scheme — KISS over cleverness.
+
+## Every branch ends put away
+
+A branch that exists must mean exactly one thing: **open work**. The moment it
+can mean anything else, every future session that sees it pays to re-derive
+what it is — a half-closed branch reads identically to a live one.
+
+A branch ends in one of two ways, and both end with the branch **gone**:
+
+- **Landed** — merged to the integration branch, then deleted. Turn on the
+  host's delete-branch-on-merge setting so this is automatic, not a memory.
+- **Abandoned or superseded** — never delete lazily, and never keep the branch
+  "just in case" either. Close it deliberately: **salvage → tag → delete →
+  record.** Compare it against the integration branch *mechanically* (not by
+  recollection); salvage anything unique; put an annotated **archive tag** on
+  the tip (`archive/<name>` — the message states what was salvaged where and
+  what was consciously dropped); delete the branch; record the disposition in
+  the session log. The tag keeps every commit reachable forever; the branch
+  namespace keeps meaning "open work".
+
+Half-closing is the failure mode this rule exists for: a branch whose PR was
+closed-not-merged, salvaged and even archive-tagged — but not deleted — gets
+re-investigated by session after session, because nothing at the branch says
+"already dispositioned". Careful-with-data and clean-namespace are not in
+tension; the tag is how you get both.
+
+*Bearing:* atelier `atelier-method-review` (2026-07-10/11) — one session did the
+salvage and the archive tag properly, left the branch standing, and multiple
+later sessions each re-derived its status before the rule above closed it.

@@ -88,6 +88,17 @@ branches, worktrees) across the estate. Findings and closures:
 - **atelier PR #3 (`plugin-bundle`)** — open *by design* (merge = go-live,
   Mike's call). Untouched.
 
+Mike then asked the right follow-on: how do we stop this repeating? Root cause
+named: "branch exists" had been allowed to mean both *open work* and *closed
+work nobody finished putting away*, so every session re-derived which. Fix in
+the house's three layers: **doctrine** — CONCURRENCY gains "Every branch ends
+put away" (landed→deleted, or salvage→tag→delete→record; both end with the
+branch gone; review-owed, flagged); **mechanism** — delete-branch-on-merge
+flipped ON across all 8 active repos (atelier, nova, numen, faves, ros,
+homenetwork, docker-heap, rpi), killing the merged-branch-lingers class at the
+source; **inheritance** — ROADMAP backlog: create-repo's `gh repo create` step
+sets the flag so future repos are born with it.
+
 ## Left open
 
 - The instruments are **untested** (unlike the `tools/` scanners). Test coverage

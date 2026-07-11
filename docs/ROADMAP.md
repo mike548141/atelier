@@ -22,6 +22,17 @@ has inherited the costume, not the doctrine.
       before go-live is trusted. Range: branch `plugin-bundle` + the machine-facing
       install/marketplace behaviour. Don't-stack: the builder doesn't review its
       own bundle.
+- [ ] **Cold review of CONCURRENCY "Every branch ends put away"** — added
+      2026-07-11 (session 34); doctrine text, so review-owed (flagged, not
+      self-certified). Light read: the landed/abandoned fork is exhaustive?
+      salvage→tag→delete→record doesn't fight RECORD/REVIEW? the bearing
+      (atelier-method-review re-derived across sessions) is stated accurately?
+      Grounding is strong (the rule was executed live before being written).
+- [ ] **create-repo: new repos born with delete-branch-on-merge** — the setting
+      was flipped by hand on the 8 active repos (2026-07-11); the scaffold's
+      `gh repo create` step should set it so future repos never regrow the
+      merged-branch-lingers class. One flag in the skill's step 6 + a
+      REPO-STANDARD line; fold into the next create-repo touch.
 
 ## instruments/ layer (new 2026-07-11, ADR 0006)
 
