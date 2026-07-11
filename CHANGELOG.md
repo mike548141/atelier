@@ -36,6 +36,7 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 - Delivered on a branch + PR: **the PR merge to `main` is the go-live act** (the
   marketplace only resolves from the default branch) — the widening floor stays
   the principal's deliberate call, not the agent's.
+
 ### Added (2026-07-11 — ccrepo actuals vs estimate)
 - **ccrepo: an Actual column beside Est (API)**, driven by a machine-local
   `~/.claude/ccrepo-billing.json` (never in a repo — a plan and spend are

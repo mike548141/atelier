@@ -28,6 +28,15 @@ has inherited the costume, not the doctrine.
       made location-relative, all three companions named); 4–5 notes, no
       action. User config verified clean after (install fully undone). **The
       merge (go-live) is Mike's call, now review-cleared.**
+      **MERGED 2026-07-11 (Opus, session 38) — Mike authorised go-live.** PR #3
+      merged to `main` (`a0ef731`) after resolving a CHANGELOG append-conflict
+      with the intervening ccrepo work and re-running the floor green on the
+      merged head (`6245986`: 34 Node + 205 Python + 4 scanners); CI green on
+      the head SHA before merge. `main` now carries `.claude-plugin/plugin.json`
+      + `marketplace.json`, so `/plugin marketplace add mike548141/atelier` →
+      `/plugin install atelier@atelier` resolves — the doctrine now travels as
+      behaviour. Branch deleted local+remote. **This is the first deliberate
+      widening spent from the live-floor item below.**
 - [x] **Cold review of CONCURRENCY "Every branch ends put away"** — RAN
       2026-07-11 (Fable, cold session): **PASS-WITH-FINDINGS**, verdict in
       `reviews/2026-07-11-concurrency-put-away.md`. Fork exhaustive for lines
@@ -516,11 +525,17 @@ public as a **named worked example** (README "If you're adopting this"). What wa
       specifics (grant ledger, Apple/iCloud) → marked worked-examples. No longer
       a publication gate; do it as the named-worked-example framing gets tested by
       a real adopter.
-- [ ] **The next widening** — a public announcement, or packaging as a **Claude
-      Code plugin/skills bundle** (plugin = behaviour travels — higher leverage).
-      This is now the live floor item (Mike's call, not the agent's). Reuse the
-      ros `PUBLISHING.md` extract-scrub-fresh-export pattern; **scrub list must
-      include client names**.
+- [x] **The next widening — plugin/skills bundle SPENT 2026-07-11** (Opus,
+      session 38): the plugin bundle (PR #3) merged to `main` on Mike's explicit
+      go-ahead — atelier is now an installable Claude Code plugin+marketplace,
+      the doctrine travelling as behaviour (the higher-leverage option this item
+      named). See the merged plugin-review item above for the go-live detail.
+      **The live floor now advances to the *next* deliberate widening** — a
+      public announcement, a v2 plugin (de-instanced `create-repo`, `worktree`/
+      `fleet-pins` commands), or a published package. Still Mike's call, never the
+      agent's initiative. For an announcement, reuse the ros `PUBLISHING.md`
+      extract-scrub-fresh-export pattern; **scrub list must include client
+      names**.
 - [x] **atelier's own CI** — DONE 2026-07-10 (Opus): `.github/workflows/ci.yml`
       (job `floor`) dogfoods the floor every review asserted by hand — the tool
       test suite, three scanner `--selftest`s, and the scan triad over the whole
