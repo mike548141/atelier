@@ -681,3 +681,14 @@ public as a **named worked example** (README "If you're adopting this"). What wa
   inline-credential debt already tracked as the repo's own pre-public blocker (a
   reconciliation smell noted into that private roadmap). `floor.yml` CI correctly
   red on the tracked secret until it's rotated. Now `current` in `tools/pins.py`.
+- Where does estate-wide credential **governance** live? Not here — atelier is
+  public, and RECORD.md forbids a public record holding a secrets registry
+  (which secret exists, its scope, where it's kept, when it rolls). The first
+  root→child credential pattern was worked live 2026-07-11: a provider-level
+  minting root the principal authorises once (browser, unavoidably), then
+  least-privilege per-repo children minted — and tightened — in code, held in
+  the OS keychain, rolled by re-mint; faves' Pages deploy runs on a child
+  scoped to a single zone. The *pattern* looks doctrinal (a method/ candidate
+  once a second provider confirms the shape); the *registry* needs a private
+  home above the product repos — likely a dedicated estate repo, the
+  principal's call, ADR-owed wherever it lands.
