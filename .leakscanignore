@@ -5,6 +5,9 @@
 # fixtures (emails, MACs, addresses) whose whole job is to prove detection.
 # They are kept deliberately fictional; scanning them only yields noise.
 tools/test_leakscan.py
+# signscan's tests carry example committer addresses (an example.test author and
+# GitHub's web-flow no-reply) in throwaway repos — fixtures, not real addresses.
+tools/test_signscan.py
 
 # secretscan's tests are the same: a wall of fictional credential shapes, which
 # are also leak-shaped (emails/keys). Exempt them for the same reason.

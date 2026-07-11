@@ -36,9 +36,17 @@ on:
   pull_request:
   workflow_dispatch:
 
-# Least privilege: the floor only reads the tree.
+# Least privilege: the floor only reads the tree (contents:read also lets the
+# signature step's gh-api plane read commit verification state).
 permissions:
   contents: read
+
+# Adoption boundary for commit-signature verification (SIGNING.md, ADR 0007):
+# the last UNSIGNED commit before atelier's boundary 958b1ea. Everything after
+# it must verify. Set here (not empty) because atelier has real pre-signing
+# history that must not be flagged.
+env:
+  SIGN_BOUNDARY: "450b10d"
 
 # Cost hygiene — a newer push to the same ref cancels the superseded run.
 concurrency:
@@ -50,6 +58,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0   # signature verification needs full history (rev-list)
 
       - uses: actions/setup-python@v6
         with:
@@ -65,6 +75,7 @@ jobs:
           python3 tools/secretscan.py --selftest
           python3 tools/licenscan.py --selftest
           python3 tools/linkscan.py --selftest
+          python3 tools/signscan.py --selftest
 
       - name: tool test suite
         run: python3 -m unittest discover -s tools -p 'test_*.py' -v
@@ -87,3 +98,27 @@ jobs:
 
       - name: linkscan (internal-link integrity, full tree)
         run: python3 tools/linkscan.py --root . .
+
+      # --- commit-signature verification (SIGNING.md, ADR 0007) --------------
+      # atelier is the trust root, so it verifies against its OWN allowed_signers
+      # at the tested commit (no pin resolution — children resolve at their pin,
+      # atelier is the pin). WARN-FIRST while the fleet settles; to block, drop
+      # `--warn` and turn the gh-plane warning into an error + exit 1.
+      - name: Verify commit signatures — machine-key plane (warn-first)
+        run: |
+          python3 tools/signscan.py \
+            --allowed-signers allowed_signers --boundary "$SIGN_BOUNDARY" --warn
+
+      - name: Verify commit signatures — GitHub-server plane (warn-first)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Merge/squash commits GitHub minted (two already on main: a0ef731,
+          # 4b2cf6f) carry no machine key — assert GitHub's own verification.
+          DEFERRED=$(python3 tools/signscan.py \
+            --allowed-signers allowed_signers --boundary "$SIGN_BOUNDARY" --json \
+            | python3 -c 'import json,sys; [print(r["sha"]) for r in json.load(sys.stdin)["results"] if r["plane"]=="github"]')
+          for SHA in $DEFERRED; do
+            V=$(gh api "repos/${{ github.repository }}/commits/$SHA" --jq '.commit.verification.verified' 2>/dev/null || echo error)
+            [ "$V" = "true" ] || echo "::warning::server commit $SHA not GitHub-verified (got: $V)"
+          done

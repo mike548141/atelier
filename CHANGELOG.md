@@ -5,6 +5,26 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-12 — commit signing ACTIVATED; ladder steps 1–5)
+- **Signing is live** (SIGNING.md, ADR 0007). Mike registered a dedicated
+  ed25519 signing key to GitHub (step 1); the machine is wired (global
+  `gpg.format=ssh` + `commit/tag.gpgsign` + canonical `allowed_signers` in the
+  repo root); atelier's **adoption boundary is `958b1ea`**, proven on both
+  planes (`git verify-commit` good, `gh api …verification.verified` → true).
+- **`tools/signscan.py`** — verifies commit signatures over a range against a
+  trust list, two-plane aware (machine-key commits locally via ssh-keygen;
+  GitHub web-flow commits deferred to the `gh api` plane), with a `--selftest`
+  carrying a known-signed fixture whose **quoted** `valid-after` turns a parse
+  regression red. `--warn` for the warn-first rollout. Zero-dep; 12 tests.
+- **CI verification wired** (step 5) into atelier's `ci.yml` and the child
+  `floor.yml` template: `fetch-depth: 0`, both planes, trust list resolved at
+  the child's atelier **pin** (never floating `main`), signscan selftest in the
+  floor. **Warn-first** — reports unverified commits without failing the build
+  until the fleet has settled. (Per-child retrofit — step 4 — rolls the updated
+  floor to each child with a pin bump + recorded boundary.)
+- **`create-repo` + REPO-STANDARD** bake repo-local `commit.gpgsign=true` so a
+  scaffolded repo is born signing (step 3).
+
 ### Changed (2026-07-12 — the two owed cold reviews ran; both doctrines corrected)
 - **RECORD "keep private repos generic" redrafted** after its cold review
   (`docs/reviews/2026-07-12-record-private-repos-generic.md`,
