@@ -5,6 +5,16 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-11 — RECORD: public records keep private repos generic)
+- `docs/method/RECORD.md` new section **"The record is public — keep private repos
+  generic"**: the no-personal-estate-data rule covers *prose describing* private
+  secrets, not only literal values (a pattern scanner can't catch a sentence). A
+  public record names a private sibling repo only when its name carries doctrinal
+  weight as a worked example; it never records which private repo holds which
+  secret, where, or its exposure history. Grounded in a same-day incident — session
+  records had leaked secret-posture prose into public atelier; scrubbed from HEAD
+  (history left, per the principal — no real values, only pointers). Review-owed.
+
 ### Added (2026-07-11 — signing doctrine: SSH commit signing fleet-wide, ADR 0007)
 - `docs/method/SIGNING.md` — provenance doctrine for the record: SSH-native
   commit/tag signing (zero-install, `gpg.format ssh`), dedicated signing key,

@@ -88,6 +88,21 @@ roadmap ticks — states the date **absolutely** (`2026-07-10`), never "today" o
 time is meaningless to the reader who finds it three weeks later, and ambiguous
 across models with different cutoffs. (EVIDENCE §7.)
 
+## The record is public — keep private repos generic
+
+atelier is public (ADR 0005): its record publishes on every commit. The
+no-personal-estate-data rule covers **prose that describes** private-estate
+secrets, not only literal secret *values* — a pattern-matching leak scanner
+catches the value `AKIA…`, never the sentence "repo X keeps a live key in its
+history". So a public record refers to a private sibling repo **generically** ("an
+infra repo", "a captured runtime snapshot") and never records *which private repo
+holds which secret, where, or its exposure history* — that reconnaissance lives
+only in the private repo's own records. Name a private repo here only when its
+name carries **doctrinal weight as a worked example** (ros, faves); a repo merely
+standardised or worked on that session gets no name. (Grounded: 2026-07-11 — a
+session-record posture-prose leak into public atelier, scrubbed; the scanners
+couldn't catch it because it was description, not pattern.)
+
 ## Why this is doctrine, not just tidiness
 
 The whole operating model assumes a session can be **resumed cold** — by another

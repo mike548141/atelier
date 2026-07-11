@@ -7,6 +7,14 @@ has inherited the costume, not the doctrine.
 
 ## Doctrine — review-owed
 
+- [ ] **Cold review of RECORD "keep private repos generic"** — the new section
+      (2026-07-11) came out of a live incident (session-record posture-prose leaked
+      into public atelier, scrubbed) rather than the usual grounded-extraction, so
+      it earns a cold read: is the worked-example carve-out ("name ros/faves, not a
+      merely-worked-on repo") drawn in the right place, and does the rule catch the
+      failure mode without over-restricting legitimate doctrine that must cite a
+      real repo? Also sanity-check the older records that predate it (ros/faves/numen
+      are intended examples; anything else naming a private repo is a candidate scrub).
 - [x] **Cold review of PRINCIPLES §8 ("Leverage")** — RAN 2026-07-11 (Fable,
       cold session): **PASS-WITH-FINDINGS**, verdict in
       `reviews/2026-07-11-principles-8-leverage.md`. Placement verified against
