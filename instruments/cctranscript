@@ -8,9 +8,10 @@
  * that log and prints who said what and when — your prompts and Claude's
  * replies — with elapsed deltas between turns.
  *
- * By default it picks the latest session for the repo you're standing in.
- * See --help for selecting other sessions/repos and for including tool calls,
- * thinking blocks, and tool results.
+ * The human view colour-codes each speaker, groups a turn's body under a
+ * coloured left bar, word-wraps to the terminal, and lightly renders markdown
+ * (bold, inline code, headings, lists, links). Colour auto-disables when piped;
+ * --json is the machine-readable format and is never styled.
  *
  * The .jsonl schema is internal to Claude Code and can shift between releases;
  * if a field moves this may need a nudge.
@@ -18,7 +19,6 @@
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const readline = require('node:readline');
 
 const argv = process.argv.slice(2);
 
@@ -45,7 +45,10 @@ OPTIONS
   --full           Everything: prompts, replies, thinking, tools.
   --utc            Timestamps in UTC (default: your local timezone).
   --no-delta       Hide the elapsed-time deltas between messages.
-  --json           Machine-readable array of turns.
+  --width <n>      Wrap width (default: terminal width, capped at 100).
+  --color          Force ANSI colour; --no-color disables it. Default: colour
+                   when writing to a terminal, plain when piped or NO_COLOR set.
+  --json           Machine-readable array of turns (never styled).
   -h, --help       Show this help.
 
 EXAMPLES
@@ -57,8 +60,10 @@ EXAMPLES
   cctranscript --repo ros --tools    Latest ros session, with tools.
   cctranscript 1a4fa531-...          A specific session by UUID.
   cctranscript ./path/to/log.jsonl   A specific log file.
+  cctranscript --json | jq .         Machine-readable, for scripting.
 
-Env: none required. Reads ~/.claude/projects/ read-only; writes nothing.`;
+Env: none required. Reads ~/.claude/projects/ read-only; writes nothing.
+Honours NO_COLOR / FORCE_COLOR.`;
 
 if (argv.includes('-h') || argv.includes('--help')) {
   console.log(HELP);
@@ -81,12 +86,24 @@ const repoArg = takeValue('--repo');
 const lastArg = argv.includes('-n') ? takeValue('-n') : takeValue('--last');
 const lastK = lastArg ? Math.max(1, parseInt(lastArg, 10) || 1) : 1;
 
+// Colour: explicit flag wins; else on when stdout is a TTY and NO_COLOR is
+// unset. FORCE_COLOR forces it on. Never colour --json (it's a data format).
+const colorFlag = argv.includes('--no-color') ? false : argv.includes('--color') ? true : null;
+const useColor = asJson ? false : colorFlag !== null ? colorFlag
+  : (!!process.env.FORCE_COLOR || (process.stdout.isTTY && !process.env.NO_COLOR));
+
+// Wrap width: explicit --width, else the terminal's, capped to a readable 100.
+const widthArg = takeValue('--width');
+const termCols = widthArg ? parseInt(widthArg, 10) : (process.stdout.columns || 100);
+const TW = Math.max(40, Math.min(termCols || 100, 100)); // total column budget
+const CW = TW - 4;                                       // body width inside the bar
+
 // Flags that consume the following token, so we don't mistake a value for the
 // positional session argument.
-const OWN_WITH_VALUE = new Set(['--repo', '-n', '--last']);
+const OWN_WITH_VALUE = new Set(['--repo', '-n', '--last', '--width']);
 const OWN_BARE = new Set([
   '--json', '--list', '--all', '--tools', '--think', '--full',
-  '--utc', '--no-delta', '-h', '--help',
+  '--utc', '--no-delta', '--color', '--no-color', '-h', '--help',
 ]);
 let positional = null;
 for (let i = 0; i < argv.length; i++) {
@@ -200,14 +217,16 @@ const dateOf = (iso) => {
   if (isNaN(d)) return '';
   return useUtc ? d.toISOString().slice(0, 10) : d.toLocaleDateString('en-CA');
 };
-function humanDelta(ms) {
-  if (ms < 1000) return `+${ms}ms`;
+// Compact human duration; `signed` prefixes a '+' (for inter-turn deltas).
+function humanDelta(ms, signed = true) {
+  const sign = signed ? '+' : '';
+  if (ms < 1000) return `${sign}${ms}ms`;
   const s = Math.round(ms / 1000);
-  if (s < 60) return `+${s}s`;
+  if (s < 60) return `${sign}${s}s`;
   const m = Math.floor(s / 60), rs = s % 60;
-  if (m < 60) return rs ? `+${m}m${rs}s` : `+${m}m`;
+  if (m < 60) return rs ? `${sign}${m}m${rs}s` : `${sign}${m}m`;
   const h = Math.floor(m / 60), rm = m % 60;
-  return rm ? `+${h}h${rm}m` : `+${h}h`;
+  return rm ? `${sign}${h}h${rm}m` : `${sign}${h}h`;
 }
 
 // Summarise a tool_use block's input to a single short line.
@@ -258,16 +277,100 @@ function readTurns(file) {
   return turns;
 }
 
+// --- styling ------------------------------------------------------------
+
+const ESC = {
+  reset: '\x1b[0m', bold: '\x1b[1m', dim: '\x1b[2m', italic: '\x1b[3m', ul: '\x1b[4m',
+  cyan: '\x1b[96m', green: '\x1b[32m', yellow: '\x1b[33m',
+  grey: '\x1b[90m', red: '\x1b[91m', blue: '\x1b[94m',
+};
+// Wrap s in ANSI codes, but only when colour is on and codes are non-empty.
+const paint = (codes, s) => (useColor && codes) ? codes + s + ESC.reset : s;
+
 const ROLE = {
-  you:    { icon: '▸', label: 'You' },
-  claude: { icon: '◂', label: 'Claude' },
-  think:  { icon: '·', label: 'thinking' },
-  tool:   { icon: '⚙', label: 'tool' },
-  result: { icon: '⤷', label: 'result' },
+  you:    { icon: '▸', label: 'You',      color: ESC.cyan },
+  claude: { icon: '◂', label: 'Claude',   color: ESC.green },
+  think:  { icon: '✱', label: 'thinking', color: ESC.grey },
+  tool:   { icon: '⚙', label: 'tool',     color: ESC.blue },
+  result: { icon: '⤷', label: 'result',   color: ESC.grey },
 };
 
-function indent(text, pad) {
-  return text.split('\n').map((l) => pad + l).join('\n');
+// Colour an inter-turn delta by magnitude so time sinks are easy to spot.
+function deltaStr(ms) {
+  const h = humanDelta(ms);
+  if (ms >= 600000) return paint(ESC.red, h);    // >= 10m
+  if (ms >= 60000) return paint(ESC.yellow, h);  // >= 1m
+  return paint(ESC.dim, h);
+}
+
+// Light inline markdown: inline code, bold, links. Applied per wrapped line, so
+// a span split across a wrap boundary just renders literally (rare, harmless).
+// With colour off, markers are cleaned (bold/link) but code keeps its backticks
+// so it stays recognisable.
+function styleInline(s) {
+  s = s.replace(/`([^`]+)`/g, (_, x) => useColor ? paint(ESC.yellow, x) : '`' + x + '`');
+  s = s.replace(/\*\*([^*]+)\*\*/g, (_, x) => paint(ESC.bold, x));
+  // single-asterisk emphasis, but not a leftover half of a ** pair
+  s = s.replace(/\*([^*\s](?:[^*]*[^*\s])?)\*/g, (_, x) => paint(ESC.italic, x));
+  s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, t, u) => paint(ESC.ul, t) + paint(ESC.dim, ' (' + u + ')'));
+  return s;
+}
+
+// Word-wrap plain text to width, hard-breaking any token longer than width.
+function wrap(s, width) {
+  if (width < 8) width = 8;
+  const words = s.split(/\s+/).filter(Boolean);
+  if (!words.length) return [''];
+  const lines = [];
+  let cur = '';
+  for (let w of words) {
+    while (w.length > width) {
+      if (cur) { lines.push(cur); cur = ''; }
+      lines.push(w.slice(0, width));
+      w = w.slice(width);
+    }
+    if (!cur) cur = w;
+    else if (cur.length + 1 + w.length <= width) cur += ' ' + w;
+    else { lines.push(cur); cur = w; }
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
+// Render a turn's body into output lines, each prefixed with the role's
+// coloured bar. Fenced code blocks are kept verbatim (dimmed, unwrapped);
+// prose is wrapped; headings, list items and inline markdown are styled.
+function renderBody(text, role, width) {
+  const out = [];
+  const bar = ' ' + paint(role.color, '│') + ' ';
+  const barEmpty = ' ' + paint(role.color, '│');
+  let inCode = false;
+  for (const raw of text.split('\n')) {
+    if (/^\s*```/.test(raw)) {
+      inCode = !inCode;
+      out.push(barEmpty + ' ' + paint(ESC.grey, raw.trim()));
+      continue;
+    }
+    if (inCode) { out.push(bar + paint(ESC.grey, raw)); continue; }
+    if (raw.trim() === '') { out.push(barEmpty); continue; }
+
+    const h = raw.match(/^(#{1,6})\s+(.*)$/);
+    if (h) {
+      for (const wl of wrap(h[2], width)) out.push(bar + paint(ESC.bold, styleInline(wl)));
+      continue;
+    }
+    const li = raw.match(/^(\s*)([-*+]|\d+[.)])\s+(.*)$/);
+    if (li) {
+      const marker = li[1] + li[2] + ' ';
+      const pad = ' '.repeat(marker.length);
+      wrap(li[3], width - marker.length).forEach((line, i) => {
+        out.push(bar + (i === 0 ? paint(ESC.dim, marker) : pad) + styleInline(line));
+      });
+      continue;
+    }
+    for (const wl of wrap(raw, width)) out.push(bar + styleInline(wl));
+  }
+  return out;
 }
 
 // --- session selection --------------------------------------------------
@@ -321,10 +424,10 @@ function runList() {
     const when = s.mtime ? `${dateOf(new Date(s.mtime).toISOString())} ${fmtTime(new Date(s.mtime).toISOString())}` : '                   ';
     let first = firstUserPromptText(s.file);
     if (first.length > 70) first = first.slice(0, 67) + '…';
-    const repoTag = listAll || repoArg ? `  [${s.label}]` : '';
-    console.log(`  ${s.id.slice(0, 8)}  ${when}${repoTag}  ${first}`);
+    const repoTag = listAll || repoArg ? '  ' + paint(ESC.blue, `[${s.label}]`) : '';
+    console.log(`  ${paint(ESC.cyan, s.id.slice(0, 8))}  ${paint(ESC.dim, when)}${repoTag}  ${first}`);
   }
-  console.log(`\n  ${pool.length} session(s). Use: cctranscript <id>  or  cctranscript -n <k>\n`);
+  console.log(`\n  ${paint(ESC.dim, `${pool.length} session(s). Use: cctranscript <id>  or  cctranscript -n <k>`)}\n`);
 }
 
 function runTranscript() {
@@ -347,28 +450,46 @@ function runTranscript() {
 
   if (!turns.length) { console.log('\n  (no renderable turns in this session)\n'); return; }
 
+  // Header: a rule with the session identity, then a one-line summary.
   const startDate = dateOf(turns[0].ts);
+  const stamped = turns.filter((t) => t.ts);
+  const first = stamped[0] && stamped[0].ts;
+  const last = stamped.length ? stamped[stamped.length - 1].ts : first;
+  const title = `Session ${chosen.id.slice(0, 8)} · ${chosen.label || 'unknown repo'} · ${startDate}${useUtc ? ' UTC' : ''}`;
+  const fill = Math.max(0, TW - title.length - 4);
   console.log();
-  console.log(`  Session ${chosen.id.slice(0, 8)}  ·  ${chosen.label || 'unknown repo'}  ·  ${startDate}${useUtc ? ' (UTC)' : ''}`);
-  console.log('  ' + '─'.repeat(66));
+  console.log(paint(ESC.grey, '━━ ') + paint(ESC.bold, title) + ' ' + paint(ESC.grey, '━'.repeat(fill)));
+
+  const count = (r) => turns.filter((t) => t.role === r).length;
+  const parts = [`${turns.length} turns`, `${count('you')} you`, `${count('claude')} Claude`];
+  if (showThink && count('think')) parts.push(`${count('think')} thinking`);
+  if (showTools && count('tool')) parts.push(`${count('tool')} tool`);
+  if (first && last) {
+    parts.push(`${fmtTime(first)}–${fmtTime(last)}`);
+    const span = new Date(last) - new Date(first);
+    if (span > 0) parts.push(humanDelta(span, false));
+  }
+  console.log('   ' + paint(ESC.dim, parts.join(' · ')));
 
   let prevTs = null;
   let curDate = startDate;
   for (const t of turns) {
     const d = dateOf(t.ts);
     if (d && d !== curDate) {
-      console.log(`\n  ── ${d} ──`);
+      console.log();
+      console.log('   ' + paint(ESC.grey, `── ${d} ──`));
       curDate = d;
     }
-    const r = ROLE[t.role] || ROLE.claude;
+    const role = ROLE[t.role] || ROLE.claude;
     let delta = '';
     if (showDelta && prevTs && t.ts) {
       const ms = new Date(t.ts) - new Date(prevTs);
-      if (ms >= 0) delta = `  (${humanDelta(ms)})`;
+      if (ms >= 0) delta = '  ' + deltaStr(ms);
     }
     prevTs = t.ts || prevTs;
-    console.log(`\n  ${fmtTime(t.ts)}  ${r.icon} ${r.label}${delta}`);
-    console.log(indent(t.text, '      '));
+    console.log();
+    console.log(' ' + paint(role.color + ESC.bold, `${role.icon} ${role.label}`) + '  ' + paint(ESC.dim, fmtTime(t.ts)) + delta);
+    for (const line of renderBody(t.text, role, CW)) console.log(line);
   }
   console.log();
 }
