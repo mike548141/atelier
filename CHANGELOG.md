@@ -5,6 +5,19 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-11 — signing doctrine: SSH commit signing fleet-wide, ADR 0007)
+- `docs/method/SIGNING.md` — provenance doctrine for the record: SSH-native
+  commit/tag signing (zero-install, `gpg.format ssh`), dedicated signing key,
+  one canonical append-only `allowed_signers` tracked in atelier, verification
+  in CI from each repo's adoption boundary, honest statement of what a
+  signature claims (machine custody, not personal authorship). **Decided but
+  dormant** — activation gated on the principal registering a signing key (a
+  trust surface, his act); the doc carries the activation ladder.
+- `docs/decisions/0007-ssh-commit-signing.md` — the ADR: SSH signing beats
+  GPG (tool install for no gain), sigstore/gitsign (OIDC + tooling dependency),
+  and no-signing (spoofable identity under load-bearing SHAs); artifact
+  signing + SBOM stays deferred behind the first real release.
+
 ### Added (2026-07-11 — atelier packaged as an installable Claude Code plugin, v0.1.0)
 - **atelier is now its own plugin *and* its own marketplace.** `.claude-plugin/
   plugin.json` (name `atelier`, `version 0.1.0`, Apache-2.0) + `.claude-plugin/

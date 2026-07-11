@@ -330,25 +330,29 @@ standout debt; sessions 14–15 deliberately did not stack on it.
 - [ ] **Code-signing standard across the fleet** (Mike, 2026-07-11) — "how do we
       sign all the code in the various repos". Two distinct layers, deliberately
       split by cost:
-      - [ ] **Commit/tag signing (do-now-able, zero-install).** git signs commits
-            with **SSH keys natively** (`gpg.format=ssh` since git 2.34) — no GPG
-            keyring, no cosign, no tool-install floor breached; GitHub shows
-            "Verified", and `git log --show-signature` / a `floor.yml` step can
-            *verify* signatures the same way the scanners verify content. This is
-            the aligned, house-ethos answer and should likely become **doctrine**
-            (a signing clause in PROPAGATION/RECORD + `commit.gpgsign=true` baked
-            into create-repo's `git config` step, an `allowed_signers` file per
-            repo or machine-local). **Blocked on Mike:** generating/registering a
-            signing key touches his identity infra + a new GitHub trust surface
-            (upload a signing key) — his call, not the agent's. Recommendation:
-            adopt SSH commit signing fleet-wide; I can wire the create-repo +
-            doctrine side once he's registered a key and named it.
+      - [x] **Doctrine drafted — DONE 2026-07-11 (Fable):** `method/SIGNING.md`
+            + ADR 0007. SSH-native commit/tag signing fleet-wide (dedicated
+            ed25519 signing key, machine-global config + create-repo-baked
+            repo-local `commit.gpgsign=true`, one canonical append-only
+            `allowed_signers` tracked in atelier, CI verification from each
+            repo's adoption boundary; history never rewritten to sign it; what
+            a signature honestly claims — machine custody, not personal
+            authorship — stated per the apex). Rejected: GPG, sigstore/gitsign,
+            no-signing (see the ADR). Review-owed with the standing debt.
+      - [ ] **Activation (ladder in SIGNING.md).** Step 1 **blocked on Mike**:
+            generate + register a dedicated signing key on GitHub — identity
+            infra + a new trust surface, his call, never the agent's. Steps
+            2–5 are agent-executable the day it lands: wire machine git config
+            + canonical `allowed_signers` in atelier → create-repo git-config
+            step → retrofit the fleet's repos (record each boundary) → CI
+            verify step in the floor workflows.
       - [ ] **Release-artifact signing + SBOM (deferred, was A5).** Signing *built
             artifacts* + a deterministic SBOM needs external tooling (syft/cosign),
             which hits the tool-install floor and breaks the zero-dep house-tool
             pattern — a deliberate design call, not a build. Revisit when a real
             *release* (a published package/binary) needs provenance; GitHub's
-            native artifact attestations are the lightest route if so.
+            native artifact attestations are the lightest route if so. Now also
+            recorded as SIGNING.md's layer 2 with the same stated trigger.
 - [x] **Rewire `create-repo` to inherit from atelier** — DONE 2026-07-10 (Opus):
       the core Q1 fix. The skill now inherits from atelier (points up to
       REPO-STANDARD/REPO-BOUNDARY/PROPAGATION, seeds from `build/templates/`)
