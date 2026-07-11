@@ -7,9 +7,9 @@ description: Write a peer-review brief and run an independent review of a change
 
 A doctrine that is *read* is not a doctrine that is *complied with*. Documents
 inform; the review is what enforces. The build makes the claim; the review earns
-the right to believe it. Full doctrine:
-`${CLAUDE_PLUGIN_ROOT}/docs/method/REVIEW.md` (and `MODEL-ECONOMICS.md` for which
-reviewer, and whether a change earns a review at all).
+the right to believe it. Full doctrine: `docs/method/REVIEW.md`, bundled with
+this plugin under the plugin's own install directory (and `MODEL-ECONOMICS.md`
+beside it for which reviewer, and whether a change earns a review at all).
 
 ## First: does this change even earn a review?
 

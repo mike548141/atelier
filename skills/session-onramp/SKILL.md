@@ -9,10 +9,10 @@ Atelier is *how* to work with Claude as a teammate, extracted so any project can
 inherit it. It is a **named worked example**: read to learn the shape, then
 instantiate it as yourself — **you become the principal** it is written to.
 
-The full doctrine is bundled with this plugin at
-`${CLAUDE_PLUGIN_ROOT}/docs/method/` and `${CLAUDE_PLUGIN_ROOT}/docs/build/`. Read
-it **on demand, never wholesale** — the two things below bind from the start; the
-rest you open when a change touches it.
+The full doctrine is bundled with this plugin, under `docs/method/` and
+`docs/build/` of the plugin's own install directory (the folder this skill
+ships in). Read it **on demand, never wholesale** — the two things below bind
+from the start; the rest you open when a change touches it.
 
 ## 1. The apex — never traded, by any model
 
@@ -57,6 +57,8 @@ When a change touches one of these, read it first — don't re-derive it:
   record-keeping, propagation, secrets, access, storage, concurrency.
 - `docs/build/` — the repo-craft standard, repo-boundary guidance, templates.
 
-Two companion behaviours ship alongside this skill: `/atelier:scan` (the
-publish-safety scanners) and the `review-brief` skill (the peer-review lifecycle
-that turns "looks right" into "verified").
+Three companion behaviours ship alongside this skill: `/atelier:scan` (the
+publish-safety scanners), `/atelier:install-hook` (the pre-commit scan gate —
+the mechanical enforcement the doctrine leans on hardest), and the
+`review-brief` skill (the peer-review lifecycle that turns "looks right" into
+"verified").

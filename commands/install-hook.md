@@ -40,7 +40,12 @@ Do this:
      a commit, and confirm the hook **blocks** it (exit non-zero); then remove it
      and confirm a clean commit **passes**. Report the result honestly.
 
-Tell the user two things after installing: (a) the hook guards **only this clone**
-— every fresh clone or other machine must re-run `/atelier:install-hook`; and (b)
-the escape hatches for a genuine false positive (inline `…:allow:` markers /
-`.*scanignore` globs), and `git commit --no-verify` for a real emergency only.
+Tell the user three things after installing: (a) the hook guards **only this
+clone** — every fresh clone or other machine must re-run
+`/atelier:install-hook`; (b) after a **plugin update or uninstall**, re-run
+`/atelier:install-hook` in each repo that has the hook — the stored scanner
+path is version-pinned to the installed plugin copy, so an update leaves it
+dangling (the hook then **blocks** commits rather than waving them through, by
+design, until re-pointed); and (c) the escape hatches for a genuine false
+positive (inline `…:allow:` markers / `.*scanignore` globs), and
+`git commit --no-verify` for a real emergency only.

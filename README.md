@@ -85,7 +85,10 @@ What you get:
 - **`/atelier:scan`** — run the four publish-safety scanners (secret · leak ·
   licence · link) over any repo. Zero-dependency stdlib Python, bundled.
 - **`/atelier:install-hook`** — install the fail-closed git pre-commit scan hook
-  into the current repo (git hooks don't travel, so it's per-clone).
+  into the current repo (git hooks don't travel, so it's per-clone; and the
+  hook's scanner path is pinned to the installed plugin *version*, so re-run
+  it in each hooked repo after a plugin update — until then the hook blocks,
+  it never waves through).
 - **`session-onramp`** skill — loads the apex (honesty + the Laws) and the
   always-confirm floor, then points at the rest of the doctrine, read on demand.
 - **`review-brief`** skill — the peer-review lifecycle that turns "looks right"
