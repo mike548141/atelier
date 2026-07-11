@@ -378,13 +378,24 @@ standout debt; sessions 14–15 deliberately did not stack on it.
             no-signing (see the ADR). **Reviewed 2026-07-12** — PASS-WITH-
             FINDINGS, all G1–G10 addressed pre-activation (see the review-owed
             section above; `reviews/2026-07-12-signing-doctrine.md`).
-      - [ ] **Activation (ladder in SIGNING.md).** Step 1 **blocked on Mike**:
-            generate + register a dedicated signing key on GitHub — identity
-            infra + a new trust surface, his call, never the agent's. Steps
-            2–5 are agent-executable the day it lands: wire machine git config
-            + canonical `allowed_signers` in atelier → create-repo git-config
-            step → retrofit the fleet's repos (record each boundary) → CI
-            verify step in the floor workflows.
+      - [~] **Activation (ladder in SIGNING.md) — steps 1–3 LIVE 2026-07-12
+            (Opus, session 40), 4–5 pending.** Mike generated + registered a
+            dedicated ed25519 signing key on GitHub (step 1, his act); agent
+            wired the machine (global `gpg.format=ssh` + `commit/tag.gpgsign` +
+            canonical `allowed_signers` in atelier root) and set atelier's
+            adoption boundary at `958b1ea` — **proven on both planes**:
+            `git verify-commit` good against the trust list, and
+            `gh api …verification.verified` → `true` (badge lit). Two review
+            traps dodged live: quoted `valid-after` parsed (no "missing start
+            quote"), boundary set forward (no history rewrite). Passphrase key
+            loaded via `ssh-add --apple-use-keychain` (unattended signing).
+            `allowed_signers` exempted in `.leakscanignore` (its principal
+            emails are the data the format holds, not a leak). Step 3:
+            `create-repo` + REPO-STANDARD now bake repo-local `commit.gpgsign`.
+            **Still owed (4–5):** retrofit the fleet's repos (record each
+            boundary) → CI verify step in the floor workflows. Both gate on
+            Mike's steer: retrofit order, and whether CI verification blocks or
+            warns at first. Vigilant mode left OFF until the fleet is retrofit.
       - [ ] **Release-artifact signing + SBOM (deferred, was A5).** Signing *built
             artifacts* + a deterministic SBOM needs external tooling (syft/cosign),
             which hits the tool-install floor and breaks the zero-dep house-tool

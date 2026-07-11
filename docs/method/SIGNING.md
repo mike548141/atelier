@@ -5,9 +5,12 @@ by SHA (ADR 0002), reviews cite commits as evidence, and the repo is public —
 a push is publication. But a git identity is an **assertion, not an
 authentication**: anyone can commit as anyone with two `git config` lines.
 Signing closes that gap mechanically (EVIDENCE §12 — enforce by machine, not
-by good intention). Standard decided 2026-07-11 (ADR 0007); **not yet active**
-— see the activation ladder below. Written before activation deliberately, so
-the wiring lands against a stated standard rather than ad-hoc choices.*
+by good intention). Standard decided 2026-07-11 (ADR 0007); **activated
+2026-07-12** — steps 1–3 of the ladder are live (a dedicated key registered,
+the machine wired, atelier's adoption boundary set at a commit that verifies
+on both planes), fleet retrofit + CI verification (steps 4–5) still pending.
+Written before activation deliberately, so the wiring landed against a stated
+standard rather than ad-hoc choices.*
 
 ## What a signature honestly claims (read this first)
 
@@ -155,28 +158,35 @@ cheap to run:
   holds the retired public key). Unlike the store master key, a lost signing
   key costs minutes, not access.
 
-## Activation ladder (status: step 1 pending — the standard is dormant until it moves)
+## Activation ladder (status: steps 1–3 live 2026-07-12; steps 4–5 pending)
 
-1. **Principal registers a signing key** — generate the dedicated key, upload
-   to GitHub as a signing key, name it to the agent. The badge additionally
-   needs the committer email verified on the account (it already is here;
-   stated for adopters). A new trust surface on his identity infra: **his
-   act, never the agent's initiative** (AUTONOMY floor). Optional at this
-   step: GitHub vigilant mode (flags unsigned commits "Unverified" —
-   including his own pre-boundary history; his call).
-2. Agent wires the machine: global git config + the canonical
-   `allowed_signers` in atelier (quoted-timestamp entries — see above).
-3. `create-repo` bakes the repo-local `commit.gpgsign=true` into its
-   git-config step.
-4. Retrofit the fleet's existing repos; record each boundary. **Stub, per
-   RECORD:** the boundary's home is decided at execution — the working
-   candidate is a boundary SHA stated in the child's own `floor.yml`, read
-   by `git rev-list <boundary>..HEAD`; nothing is wired yet.
-5. Add the CI verification step to the floor workflows — both planes
-   (machine-key + GitHub API), `fetch-depth: 0`, trust list at the child's
-   pin, plus the known-signed-fixture selftest. **Stub until wired.**
+1. **[done 2026-07-12]** **Principal registers a signing key** — generate the
+   dedicated key, upload to GitHub as a signing key, name it to the agent. The
+   badge additionally needs the committer email verified on the account (it
+   already is here; stated for adopters). A new trust surface on his identity
+   infra: **his act, never the agent's initiative** (AUTONOMY floor). Optional
+   at this step: GitHub vigilant mode (flags unsigned commits "Unverified" —
+   including his own pre-boundary history; his call — **left off for now** so
+   the pre-retrofit fleet doesn't read red).
+2. **[done 2026-07-12]** Agent wires the machine: global git config + the
+   canonical `allowed_signers` in atelier (quoted-timestamp entries — see
+   above). Adoption boundary is atelier `958b1ea`; proven on both planes
+   (`git verify-commit` → good, `gh api …verification.verified` → true). The
+   passphrase-protected key is loaded via `ssh-add --apple-use-keychain` so
+   signing runs unattended (passphrase-in-agent, per Key handling above).
+3. **[done 2026-07-12]** `create-repo` bakes the repo-local
+   `commit.gpgsign=true` into its git-config step (and REPO-STANDARD's new-repo
+   process states the same).
+4. **[pending]** Retrofit the fleet's existing repos; record each boundary.
+   **Stub, per RECORD:** the boundary's home is decided at execution — the
+   working candidate is a boundary SHA stated in the child's own `floor.yml`,
+   read by `git rev-list <boundary>..HEAD`; nothing is wired yet.
+5. **[pending]** Add the CI verification step to the floor workflows — both
+   planes (machine-key + GitHub API), `fetch-depth: 0`, trust list at the
+   child's pin, plus the known-signed-fixture selftest. **Stub until wired.**
 
-Steps 2–5 are agent-executable the day step 1 lands.
+Steps 4–5 remain agent-executable; they gate on Mike's steer on scope
+(retrofit order, and whether CI verification blocks or warns at first).
 
 ## What lives elsewhere
 

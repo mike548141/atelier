@@ -134,7 +134,9 @@ evidence — see `method/EVIDENCE.md`.
 
 ## Process — a new repo
 
-1. Create the directory and `git init`; set the git identity (instance-local).
+1. Create the directory and `git init`; set the git identity (instance-local) and
+   bake repo-local `commit.gpgsign=true` — belt-and-braces so the repo signs even
+   where global config drifted; signing itself is a machine property (SIGNING.md).
 2. Seed the file set from `templates/`, sized to the type; put the product in its
    subfolder.
 3. Fill placeholders with grounded content; stub-and-flag what you can't ground.
