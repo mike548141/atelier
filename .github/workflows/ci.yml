@@ -69,8 +69,12 @@ jobs:
       - name: tool test suite
         run: python3 -m unittest discover -s tools -p 'test_*.py' -v
 
+      # Shell glob, not hand-enumerated files: it expands at run time, so a
+      # future instruments/*.test.js can't silently skip CI. (A directory arg is
+      # rejected by Node 22+; a quoted glob needs Node 21+ — the shell glob
+      # works on every Node this job might pin.)
       - name: instrument test suite
-        run: node --test instruments/test_cctranscript.js instruments/test_ccrepo.js
+        run: node --test instruments/*.test.js
 
       - name: secretscan (full tree)
         run: python3 tools/secretscan.py --root . .

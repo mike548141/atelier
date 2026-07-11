@@ -104,11 +104,11 @@ has inherited the costume, not the doctrine.
       `require.main === module`, pure functions `module.exports`ed — no behaviour
       change, except one stated fix (an explicit `.jsonl` path now recovers its
       repo label via `cwdFromLog`, as every other route already did). Coverage:
-      `instruments/test_cctranscript.js` — a `--json` output-contract test over a
+      `instruments/cctranscript.test.js` — a `--json` output-contract test over a
       checked-in synthetic fixture (`fixtures/session-sample.jsonl`) asserting role
       classification, model mapping, timestamp/text extraction, and `--think`/
       `--tools` gating (this is what catches a Claude Code log-format change), plus
-      pure-function units; `instruments/test_ccrepo.js` — pure functions and the
+      pure-function units; `instruments/ccrepo.test.js` — pure functions and the
       aggregation fold over fixture ccusage rows. Wired into `ci.yml`'s floor job.
       Grounded in EVIDENCE §14 (an honest instrument's "ok" is a claim the apex
       governs). **Residual:** ccrepo's coverage is pure-functions + aggregation

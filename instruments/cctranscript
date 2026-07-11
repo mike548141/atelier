@@ -70,11 +70,6 @@ EXAMPLES
 Env: none required. Reads ~/.claude/projects/ read-only; writes nothing.
 Honours NO_COLOR / FORCE_COLOR.`;
 
-if (argv.includes('-h') || argv.includes('--help')) {
-  console.log(HELP);
-  process.exit(0);
-}
-
 function takeValue(flag) {
   const i = argv.indexOf(flag);
   return i !== -1 ? argv[i + 1] : null;
@@ -147,7 +142,26 @@ function isDir(p) {
   try { return fs.statSync(p).isDirectory(); } catch { return false; }
 }
 
-// All session logs across all repos: { file, id, repoDir, cwd, label, mtime }.
+// The one session record constructor: { file, id, repoDir, cwd, label, mtime }.
+// Used for walked logs and explicitly-pathed ones alike, so the label fallback
+// and the mtime stat can't diverge between routes. repoDir is null for an
+// explicit path (it may live outside ~/.claude/projects/).
+function sessionRecord(full, repoDir) {
+  let mtime = 0;
+  try { mtime = fs.statSync(full).mtimeMs; } catch {}
+  const cwd = cwdFromLog(full);
+  return {
+    file: full,
+    id: path.basename(full).replace(/\.jsonl$/, ''),
+    repoDir,
+    cwd,
+    label: cwd ? path.basename(cwd)
+      : repoDir ? repoDir.split('-').filter(Boolean).pop() || repoDir : '',
+    mtime,
+  };
+}
+
+// All session logs across all repos.
 function allSessions() {
   const out = [];
   let repos;
@@ -157,18 +171,7 @@ function allSessions() {
     if (!isDir(dir)) continue;
     for (const file of fs.readdirSync(dir)) {
       if (!file.endsWith('.jsonl')) continue;
-      const full = path.join(dir, file);
-      let mtime = 0;
-      try { mtime = fs.statSync(full).mtimeMs; } catch {}
-      const cwd = cwdFromLog(full);
-      out.push({
-        file: full,
-        id: file.replace(/\.jsonl$/, ''),
-        repoDir,
-        cwd,
-        label: cwd ? path.basename(cwd) : repoDir.split('-').filter(Boolean).pop() || repoDir,
-        mtime,
-      });
+      out.push(sessionRecord(path.join(dir, file), repoDir));
     }
   }
   return out;
@@ -307,7 +310,9 @@ const ESC = {
   grey: '\x1b[90m', red: '\x1b[91m', blue: '\x1b[94m', magenta: '\x1b[95m',
 };
 // Wrap s in ANSI codes, but only when colour is on and codes are non-empty.
-const paint = (codes, s) => (useColor && codes) ? codes + s + ESC.reset : s;
+// `on` defaults to the resolved global; styleInline passes its own so the
+// whole styling path stays colour-pure for the tests.
+const paint = (codes, s, on = useColor) => (on && codes) ? codes + s + ESC.reset : s;
 // Visible length (ANSI stripped) and right-justify to a column.
 const visLen = (s) => s.replace(/\x1b\[[0-9;]*m/g, '').length;
 const padLeftTo = (s, width) => { const p = width - visLen(s); return (p > 0 ? ' '.repeat(p) : '') + s; };
@@ -349,14 +354,12 @@ function deltaStr(ms) {
 // With colour off, markers are cleaned (bold/link) but code keeps its backticks
 // so it stays recognisable.
 // `color` defaults to the resolved useColor global; tests pass it explicitly.
-// A local painter honours the param so the whole function is colour-pure.
 function styleInline(s, color = useColor) {
-  const pt = (codes, x) => (color && codes) ? codes + x + ESC.reset : x;
-  s = s.replace(/`([^`]+)`/g, (_, x) => color ? pt(ESC.yellow, x) : '`' + x + '`');
-  s = s.replace(/\*\*([^*]+)\*\*/g, (_, x) => pt(ESC.bold, x));
+  s = s.replace(/`([^`]+)`/g, (_, x) => color ? paint(ESC.yellow, x, color) : '`' + x + '`');
+  s = s.replace(/\*\*([^*]+)\*\*/g, (_, x) => paint(ESC.bold, x, color));
   // single-asterisk emphasis, but not a leftover half of a ** pair
-  s = s.replace(/\*([^*\s](?:[^*]*[^*\s])?)\*/g, (_, x) => pt(ESC.italic, x));
-  s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, t, u) => pt(ESC.ul, t) + pt(ESC.dim, ' (' + u + ')'));
+  s = s.replace(/\*([^*\s](?:[^*]*[^*\s])?)\*/g, (_, x) => paint(ESC.italic, x, color));
+  s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, t, u) => paint(ESC.ul, t, color) + paint(ESC.dim, ' (' + u + ')', color));
   return s;
 }
 
@@ -456,10 +459,9 @@ function pickSessions() {
   if (positional && (positional.includes('/') || positional.endsWith('.jsonl'))) {
     const p = path.resolve(positional);
     if (!fs.existsSync(p)) { console.error(`No such file: ${p}`); process.exit(1); }
-    // Recover cwd/label from the log, as every other route does — an explicit
-    // path shouldn't lose the repo name the log still carries.
-    const cwd = cwdFromLog(p);
-    return [{ file: p, id: path.basename(p).replace(/\.jsonl$/, ''), cwd, label: cwd ? path.basename(cwd) : '', mtime: 0 }];
+    // Same constructor as the walked routes — recovers cwd/label from the log
+    // and stats the real mtime, so an explicit path loses nothing.
+    return [sessionRecord(p, null)];
   }
   const sessions = allSessions();
   // Explicit UUID (or prefix)?
@@ -576,8 +578,14 @@ function runTranscript() {
 }
 
 // Run as a CLI only when invoked directly; when required (by the tests) the
-// pure functions below are exported and nothing executes.
+// functions below are exported and nothing executes — including the help
+// check, whose console output and process.exit() must not fire off the HOST's
+// argv when this file is required.
 if (require.main === module) {
+  if (argv.includes('-h') || argv.includes('--help')) {
+    console.log(HELP);
+    process.exit(0);
+  }
   if (doList) runList();
   else runTranscript();
 }

@@ -5,6 +5,24 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-07-11 — the instruments test-floor code review's 10 findings)
+- **All ten confirmed findings from the `8536971` code review fixed + pinned**
+  (`docs/reviews/2026-07-11-instruments-test-floor-code-review.md`; suite
+  20→26). The two that affected the floor itself: the **timezone-fragile
+  `--by-day` test** (fixture timestamps moved to midday UTC — same local day in
+  every real offset; proven under Halifax and Chatham) and the **`test_*.js` →
+  `*.test.js` rename** — the documented command now works, and `ci.yml` runs the
+  shell glob `node --test instruments/*.test.js` so a future test file can't
+  silently skip CI. Correctness: help/validation argv parsing moved out of
+  module load (requiring an instrument can no longer print help or kill the
+  host off the host's argv — pinned by require-survival tests); `shortModel`
+  total over drifted ccusage rows; `.session` envelope guard with a friendly
+  message; dangling-symlink guard in ccrepo's projects walk; `main().catch`
+  keeps failed runs loud. Cleanups: `pt`/`paint` painter deduped;
+  one `sessionRecord()` constructor for walked + explicit-path sessions (real
+  mtime, no more blank list timestamp); `buildIndex()` returns its maps instead
+  of mutating module state.
+
 ### Added (2026-07-11 — instruments builds + three cold reviews cleared)
 - **ccrepo: full ccusage breakdown** — the table, `--by-model`/`--by-day`
   children, and `--json` now carry **Cache Create · Cache Read · Cache Hit**

@@ -1,6 +1,8 @@
 // Stdlib-only tests for ccrepo — Node's built-in node:test + node:assert, zero
-// third-party dep (mirrors tools/'s "stdlib only, no pytest" floor). Run:
-//   node --test instruments/
+// third-party dep (mirrors tools/'s "stdlib only, no pytest" floor). Named
+// *.test.js per node:test convention; the shell glob expands at run time, so a
+// new test file is picked up without editing any command. Run:
+//   node --test instruments/*.test.js
 //
 // ccrepo shells out to `ccusage` (execFileSync) for its per-session rows, so a
 // true end-to-end run needs that binary. The aggregation — the part ccrepo owns
@@ -24,9 +26,12 @@ test('symbolFor knows the common codes and prefixes the rest', () => {
   assert.equal(r.symbolFor('XYZ'), 'XYZ ');   // unknown → explicit code prefix
 });
 
-test('shortModel drops the claude- prefix and passes others through', () => {
+test('shortModel drops the claude- prefix, passes others through, tolerates absence', () => {
   assert.equal(r.shortModel('claude-opus-4-8'), 'opus-4-8');
   assert.equal(r.shortModel('gpt-4'), 'gpt-4');
+  // A ccusage breakdown row may drift and drop modelName; the fold must not throw.
+  assert.equal(r.shortModel(undefined), 'unknown');
+  assert.equal(r.shortModel(''), 'unknown');
 });
 
 test('dayOf returns unknown for missing/invalid, YYYY-MM-DD otherwise', () => {
@@ -75,14 +80,18 @@ test('label prefers the index name, else dash-decodes the last segment', () => {
 // session UUID, plus token counts, totalCost, per-model breakdowns, metadata.
 const SESSIONS = [
   // ccusage's totalTokens already includes the cache tokens (input+output+create+read).
+  // lastActivity times sit at midday UTC, minutes apart: dayOf() buckets by
+  // LOCAL day, and midday-UTC stamps this close share a calendar day in every
+  // real offset (-12:00..+14:00) — timestamps near 00:00Z straddle local
+  // midnight in UTC-4/-3:30 zones and make the --by-day test tz-dependent.
   { period: 's1', inputTokens: 100, outputTokens: 50,
     cacheCreationTokens: 10, cacheReadTokens: 20, totalTokens: 180, totalCost: 1.0,
-    metadata: { lastActivity: '2026-01-02T03:00:00.000Z' },
+    metadata: { lastActivity: '2026-01-02T12:00:00.000Z' },
     modelBreakdowns: [{ modelName: 'claude-opus-4-8', inputTokens: 100, outputTokens: 50,
       cacheCreationTokens: 10, cacheReadTokens: 20, cost: 1.0 }] },
   { period: 's2', inputTokens: 200, outputTokens: 100,
     cacheCreationTokens: 0, cacheReadTokens: 0, totalTokens: 300, totalCost: 2.0,
-    metadata: { lastActivity: '2026-01-02T04:00:00.000Z' },
+    metadata: { lastActivity: '2026-01-02T12:05:00.000Z' },
     modelBreakdowns: [{ modelName: 'claude-sonnet-5', inputTokens: 200, outputTokens: 100,
       cacheCreationTokens: 0, cacheReadTokens: 0, cost: 2.0 }] },
   // s3 is deliberately absent from the index → must count as unmatched.
@@ -127,4 +136,29 @@ test('aggregate --by-day buckets whole sessions by last-activity day', () => {
   const day = [...a.children.values()][0];
   assert.equal(day.sessions, 2);
   assert.equal(day.totalTokens, 480);
+});
+
+test('aggregate --by-model survives a breakdown row without modelName', () => {
+  const drifted = [{ period: 's1', inputTokens: 1, outputTokens: 1, totalTokens: 2, totalCost: 0.1,
+    modelBreakdowns: [{ inputTokens: 1, outputTokens: 1, cost: 0.1 }] }];
+  const { repos } = r.aggregate(drifted, new Map([['s1', '-a-repoA']]), 'model');
+  assert.ok(repos.get('-a-repoA').children.has('unknown'));
+});
+
+// --- module-load safety (require must be inert) --------------------------
+
+const { execFileSync } = require('node:child_process');
+const path = require('node:path');
+
+test('requiring ccrepo never acts on the host argv (help/validation live in main)', () => {
+  const script = path.join(__dirname, 'ccrepo');
+  // The -e host's argv.slice(2) is exactly the flags after the script path:
+  // '-h' used to print ccrepo's help and exit(0), killing the host; conflicting
+  // flags used to exit(2) at load. Both must now be inert under require().
+  for (const flags of [['-h'], ['--by-model', '--by-day']]) {
+    const out = execFileSync('node',
+      ['-e', 'require(process.argv[1]); console.log("host-alive")', script, ...flags],
+      { encoding: 'utf8' });
+    assert.equal(out.trim(), 'host-alive');
+  }
 });

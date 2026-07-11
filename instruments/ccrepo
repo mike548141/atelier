@@ -61,19 +61,9 @@ EXAMPLES
 Env: none required (needs \`ccusage\` on PATH; network access to convert
 currency — the NZD default too, unless you pass --fx usd or --rate).`;
 
-if (argv.includes('-h') || argv.includes('--help')) {
-  console.log(HELP);
-  process.exit(0);
-}
-
 const asJson = argv.includes('--json');
 const byModel = argv.includes('--by-model');
 const byDay = argv.includes('--by-day');
-
-if (byModel && byDay) {
-  console.error('--by-model and --by-day are mutually exclusive; pick one.');
-  process.exit(2);
-}
 // The child dimension nested under each repo, or null for a flat report.
 const groupBy = byModel ? 'model' : byDay ? 'day' : null;
 const childHead = groupBy === 'model' ? 'Model' : 'Day';
@@ -91,13 +81,26 @@ const currency = fxCode || 'NZD';
 const converted = currency !== 'USD';
 const forcedRate = argv.includes('--rate') ? Number(takeValue('--rate')) : null;
 
-if (forcedRate !== null && !converted) {
-  console.error('--rate has no effect on USD figures; drop it or pick a non-USD currency.');
-  process.exit(2);
-}
-if (forcedRate !== null && !(forcedRate > 0)) {
-  console.error('--rate must be a positive number.');
-  process.exit(2);
+// Help and flag validation run from main(), never at module load: their
+// console output and process.exit() would otherwise fire off the HOST's argv
+// when this file is required (by the tests, or any script using the exports).
+function checkArgs() {
+  if (argv.includes('-h') || argv.includes('--help')) {
+    console.log(HELP);
+    process.exit(0);
+  }
+  if (byModel && byDay) {
+    console.error('--by-model and --by-day are mutually exclusive; pick one.');
+    process.exit(2);
+  }
+  if (forcedRate !== null && !converted) {
+    console.error('--rate has no effect on USD figures; drop it or pick a non-USD currency.');
+    process.exit(2);
+  }
+  if (forcedRate !== null && !(forcedRate > 0)) {
+    console.error('--rate must be a positive number.');
+    process.exit(2);
+  }
 }
 
 // Strip ccrepo's own flags (and their values); forward the rest to ccusage.
@@ -130,17 +133,21 @@ function cwdFromLog(file) {
   try { return JSON.parse(`"${m[1]}"`); } catch { return null; }
 }
 
+// A dangling symlink (or an entry deleted mid-scan) must not kill the walk.
+function isDir(p) {
+  try { return fs.statSync(p).isDirectory(); } catch { return false; }
+}
+
 // Build sessionUUID -> repoDir index, plus repoDir -> display label, from logs.
 // Deferred into a function (not run at module load) so requiring this file for
-// the unit tests touches no disk — the index is built only when main() runs.
-let sessionToRepo = new Map();
-let repoLabel = new Map();
+// the unit tests touches no disk. Returns the maps rather than mutating module
+// state, so a caller can't consult a silently empty index by mistake.
 function buildIndex() {
-  sessionToRepo = new Map();
-  repoLabel = new Map();
+  const sessionToRepo = new Map();
+  const repoLabel = new Map();
   for (const repo of fs.readdirSync(projectsDir)) {
     const dir = path.join(projectsDir, repo);
-    if (!fs.statSync(dir).isDirectory()) continue;
+    if (!isDir(dir)) continue;
     for (const file of fs.readdirSync(dir)) {
       if (!file.endsWith('.jsonl')) continue;
       sessionToRepo.set(file.replace(/\.jsonl$/, ''), repo);
@@ -150,16 +157,19 @@ function buildIndex() {
       }
     }
   }
+  return { sessionToRepo, repoLabel };
 }
 
 // Prefer the exact name from the logs; fall back to the dash-decoded last
-// segment. `labels` defaults to the built index; tests pass one in.
-function label(encoded, labels = repoLabel) {
+// segment.
+function label(encoded, labels) {
   if (labels.has(encoded)) return labels.get(encoded);
   const seg = encoded.split('-').filter(Boolean);
   return seg[seg.length - 1] || encoded;
 }
-const shortModel = (m) => m.replace(/^claude-/, '');
+// Total over drifting ccusage rows: a breakdown without modelName must not
+// throw mid-aggregation.
+const shortModel = (m) => m ? m.replace(/^claude-/, '') : 'unknown';
 const dayOf = (iso) => {
   if (!iso) return 'unknown';
   const d = new Date(iso);
@@ -251,7 +261,8 @@ function aggregate(sessions, index, group) {
 }
 
 async function main() {
-  buildIndex();
+  checkArgs();
+  const { sessionToRepo, repoLabel } = buildIndex();
   let sessions;
   try {
     const out = execFileSync('ccusage', ['session', '--json', ...passthrough], {
@@ -261,6 +272,12 @@ async function main() {
     sessions = JSON.parse(out).session;
   } catch (e) {
     console.error('Failed to run ccusage:', e.message);
+    process.exit(1);
+  }
+  // Envelope drift (ccusage renaming .session) must fail with a message, not a
+  // raw "sessions is not iterable" stack out of aggregate().
+  if (!Array.isArray(sessions)) {
+    console.error("ccusage's JSON had no .session array — its output format may have changed; ccrepo needs a nudge.");
     process.exit(1);
   }
 
@@ -277,7 +294,7 @@ async function main() {
 
   const rows = [...repos.entries()]
     .map(([encoded, r]) => ({
-      repo: label(encoded),
+      repo: label(encoded, repoLabel),
       ...conv(r),
       cacheHitRate: cacheHitRate(r),
       children: [...r.children.entries()]
@@ -363,8 +380,12 @@ function renderTable(rows, { currency, converted, rate, rateSource, unmatched })
 }
 
 // CLI only when invoked directly; required by the tests, only the pure exports
-// below are visible and nothing runs (no ccusage, no disk).
-if (require.main === module) main();
+// below are visible and nothing runs (no ccusage, no disk, no argv parsing).
+// The .catch keeps a failed run loud: without it an index-build error is an
+// unhandled rejection, which some runtime modes report as exit 0 with no output.
+if (require.main === module) {
+  main().catch((e) => { console.error(e && e.stack || String(e)); process.exit(1); });
+}
 
 module.exports = {
   symbolFor, shortModel, dayOf, zeroAgg, addTo, addChild, cacheHitRate, label, aggregate,

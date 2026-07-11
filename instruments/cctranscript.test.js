@@ -1,6 +1,8 @@
 // Stdlib-only tests for cctranscript — Node's built-in node:test + node:assert,
-// zero third-party dep (mirrors tools/'s "stdlib only, no pytest" floor). Run:
-//   node --test instruments/
+// zero third-party dep (mirrors tools/'s "stdlib only, no pytest" floor). Named
+// *.test.js per node:test convention; the shell glob expands at run time, so a
+// new test file is picked up without editing any command. Run:
+//   node --test instruments/*.test.js
 //
 // Two layers:
 //   1. Pure-function units — friendlyModel, wrap, styleInline, humanDelta,
@@ -136,6 +138,23 @@ test('contract: --think admits thinking blocks (only)', () => {
   const j = runJson('--think');
   assert.deepEqual(roles(j), ['you', 'think', 'claude', 'claude']);
   assert.equal(j.turns[1].text, 'Consider the empty-input edge case first.');
+});
+
+test('contract: --list on an explicit path recovers repo and a real timestamp', () => {
+  const out = execFileSync('node', [SCRIPT, '--json', '--list', FIXTURE], { encoding: 'utf8' });
+  const [entry] = JSON.parse(out);
+  assert.equal(entry.repo, 'synthetic-repo');
+  // The record comes from the same constructor as walked sessions: a real
+  // stat mtime, not the old hardcoded 0 that rendered a blank timestamp.
+  assert.ok(entry.lastActivity, 'explicit path must carry the file mtime');
+  assert.ok(!isNaN(new Date(entry.lastActivity)));
+});
+
+test('requiring cctranscript never acts on the host argv (help lives in the CLI guard)', () => {
+  const out = execFileSync('node',
+    ['-e', 'require(process.argv[1]); console.log("host-alive")', SCRIPT, '-h'],
+    { encoding: 'utf8' });
+  assert.equal(out.trim(), 'host-alive');
 });
 
 test('contract: --full admits thinking, tools, and results together', () => {
