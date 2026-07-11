@@ -23,6 +23,19 @@ has inherited the costume, not the doctrine.
       install/marketplace behaviour. Don't-stack: the builder doesn't review its
       own bundle.
 
+## instruments/ layer (new 2026-07-11, ADR 0006)
+
+- [ ] **Tests for `ccrepo` + `cctranscript`** — the instruments shipped untested
+      (session 34), unlike the `tools/` scanners which each carry a unittest +
+      `--selftest`. Acceptable while they're throwaway; the moment either is leaned
+      on they earn the same floor. Minimum: a `--json` output-contract test over a
+      fixture `.jsonl` — the session-log schema is *internal to Claude Code and
+      shifts between releases*, so a parse-contract test is exactly what catches a
+      silent break — plus a known-bad-input case per EVIDENCE §14 (an honest
+      instrument's "ok" is a claim the apex governs). Node has no house test-runner
+      yet, so this also sets the test pattern for the Node layer (the `tools/` layer
+      is `python3 -m unittest`); keep it zero-dep to match the house tool pattern.
+
 ## Doctrine calibration — reviewed
 
 - [x] **Review the "match the ceremony to the risk" doctrine change** — RAN
