@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# install — symlink every CLI in this instruments/ dir into ~/.local/bin (on PATH).
+#
+# Idempotent: safe to re-run after adding a tool or on a fresh machine. Only
+# touches symlinks it owns (ones pointing back into this dir); never clobbers
+# a real file of the same name.
+set -euo pipefail
+
+BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEST="${XDG_BIN_HOME:-$HOME/.local/bin}"
+mkdir -p "$DEST"
+
+for src in "$BIN_DIR"/*; do
+  name="$(basename "$src")"
+  # Skip non-tools: this script, docs, anything non-executable.
+  case "$name" in install|README.md|*.md) continue ;; esac
+  [ -x "$src" ] || continue
+
+  link="$DEST/$name"
+  if [ -e "$link" ] && [ ! -L "$link" ]; then
+    echo "skip  $name — a real file already exists at $link" >&2
+    continue
+  fi
+  ln -sfn "$src" "$link"
+  echo "link  $name -> $link"
+done
+
+case ":$PATH:" in
+  *":$DEST:"*) ;;
+  *) echo "note  $DEST is not on your PATH — add it in ~/.zshrc:" >&2
+     echo "        export PATH=\"$DEST:\$PATH\"" >&2 ;;
+esac

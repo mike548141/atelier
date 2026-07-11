@@ -1,0 +1,327 @@
+#!/usr/bin/env node
+/*
+ * ccrepo — per-repo Claude Code usage totals.
+ *
+ * Reuses ccusage's own per-session cost figures (no pricing reimplemented)
+ * and attributes each session to a repo by matching the session UUID to the
+ * .jsonl filename under ~/.claude/projects/<encoded-repo-path>/.
+ *
+ * ccusage's native figures are USD; ccrepo converts to NZD by default at the
+ * live USD→NZD rate. Use --fx <code> for another currency, or --fx usd for the
+ * raw USD figures.
+ * Optionally nest a child breakdown under each repo: --by-model or --by-day.
+ * See --help for details.
+ */
+const { execFileSync } = require('node:child_process');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+
+// Disambiguating symbols; unknown codes fall back to "CODE " prefix so the
+// currency is always explicit in the value as well as the column header.
+const SYMBOLS = { USD: 'US$', NZD: 'NZ$', AUD: 'A$', CAD: 'C$', GBP: '£', EUR: '€', JPY: '¥' };
+const symbolFor = (code) => SYMBOLS[code] || code + ' ';
+
+const argv = process.argv.slice(2);
+
+const HELP = `ccrepo — per-repo Claude Code token & cost totals
+
+Wraps \`ccusage session\` and attributes each session to the repo it ran in
+(by matching the session UUID to its .jsonl under ~/.claude/projects/). Cost
+figures are ccusage's own USD estimates, shown in NZD by default at today's
+live rate — a relative gauge, not your bill.
+
+USAGE
+  ccrepo [options] [ccusage passthrough flags]
+
+OPTIONS
+  --by-model         Nest a per-model breakdown under each repo.
+  --by-day           Nest a per-day breakdown under each repo (by a session's
+                     last-activity day). Mutually exclusive with --by-model.
+  --fx <code>        Convert cost to an ISO-4217 currency via live USD→<code>
+                     rate (e.g. --fx gbp, --fx aud, --fx eur). Defaults to nzd;
+                     use --fx usd for the raw USD figures.
+  --rate <n>         Force the USD→<code> rate instead of fetching.
+  --json             Machine-readable output (nests children when grouping).
+  -h, --help         Show this help.
+
+PASSTHROUGH
+  Any other flag is forwarded to \`ccusage session\`, e.g. date filters:
+  --since <YYYYMMDD>   --until <YYYYMMDD>   -z <timezone>
+
+EXAMPLES
+  ccrepo                              All-time per-repo totals (NZD).
+  ccrepo --by-model                  Per-repo, broken down by model.
+  ccrepo --by-day                    Per-repo, broken down by day.
+  ccrepo --fx usd                    Totals in raw USD (no conversion).
+  ccrepo --by-day --fx gbp           Per-day breakdown, in GBP.
+  ccrepo --since 20260601             June-to-date, in NZD.
+  ccrepo --json                      JSON for scripting.
+
+Env: none required (needs \`ccusage\` on PATH; network access to convert
+currency — the NZD default too, unless you pass --fx usd or --rate).`;
+
+if (argv.includes('-h') || argv.includes('--help')) {
+  console.log(HELP);
+  process.exit(0);
+}
+
+const asJson = argv.includes('--json');
+const byModel = argv.includes('--by-model');
+const byDay = argv.includes('--by-day');
+
+if (byModel && byDay) {
+  console.error('--by-model and --by-day are mutually exclusive; pick one.');
+  process.exit(2);
+}
+// The child dimension nested under each repo, or null for a flat report.
+const groupBy = byModel ? 'model' : byDay ? 'day' : null;
+const childHead = groupBy === 'model' ? 'Model' : 'Day';
+
+function takeValue(flag) {
+  const i = argv.indexOf(flag);
+  return i !== -1 ? argv[i + 1] : null;
+}
+
+let fxCode = takeValue('--fx');
+fxCode = fxCode ? fxCode.toUpperCase() : null;
+// Default to NZD; ccusage's native figures are USD, so --fx usd means no
+// conversion. Any other code (default included) is converted at the live rate.
+const currency = fxCode || 'NZD';
+const converted = currency !== 'USD';
+const forcedRate = argv.includes('--rate') ? Number(takeValue('--rate')) : null;
+
+if (forcedRate !== null && !converted) {
+  console.error('--rate has no effect on USD figures; drop it or pick a non-USD currency.');
+  process.exit(2);
+}
+if (forcedRate !== null && !(forcedRate > 0)) {
+  console.error('--rate must be a positive number.');
+  process.exit(2);
+}
+
+// Strip ccrepo's own flags (and their values); forward the rest to ccusage.
+const OWN_WITH_VALUE = new Set(['--fx', '--rate']);
+const OWN_BARE = new Set(['--json', '--by-model', '--by-day']);
+const passthrough = [];
+for (let i = 0; i < argv.length; i++) {
+  if (OWN_WITH_VALUE.has(argv[i])) { i++; continue; }
+  if (OWN_BARE.has(argv[i])) continue;
+  passthrough.push(argv[i]);
+}
+
+const projectsDir = path.join(os.homedir(), '.claude', 'projects');
+
+// Read the real project path (cwd) from the first log line that carries one.
+// Claude's folder names dash-mangle every '/', '.', '_' alike, so they can't be
+// reversed unambiguously (e.g. hitchbots_guide -> ...-hitchbots-guide -> "guide").
+// The logs record the true cwd, so we recover the exact repo name from there.
+function cwdFromLog(file) {
+  let chunk;
+  try {
+    const fd = fs.openSync(file, 'r');
+    const buf = Buffer.alloc(65536);
+    const n = fs.readSync(fd, buf, 0, buf.length, 0);
+    fs.closeSync(fd);
+    chunk = buf.toString('utf8', 0, n);
+  } catch { return null; }
+  const m = chunk.match(/"cwd"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+  if (!m) return null;
+  try { return JSON.parse(`"${m[1]}"`); } catch { return null; }
+}
+
+// Build sessionUUID -> repoDir index, plus repoDir -> display label, from logs.
+const sessionToRepo = new Map();
+const repoLabel = new Map();
+for (const repo of fs.readdirSync(projectsDir)) {
+  const dir = path.join(projectsDir, repo);
+  if (!fs.statSync(dir).isDirectory()) continue;
+  for (const file of fs.readdirSync(dir)) {
+    if (!file.endsWith('.jsonl')) continue;
+    sessionToRepo.set(file.replace(/\.jsonl$/, ''), repo);
+    if (!repoLabel.has(repo)) {
+      const cwd = cwdFromLog(path.join(dir, file));
+      if (cwd) repoLabel.set(repo, path.basename(cwd));
+    }
+  }
+}
+
+// Prefer the exact name from the logs; fall back to the dash-decoded last segment.
+function label(encoded) {
+  if (repoLabel.has(encoded)) return repoLabel.get(encoded);
+  const seg = encoded.split('-').filter(Boolean);
+  return seg[seg.length - 1] || encoded;
+}
+const shortModel = (m) => m.replace(/^claude-/, '');
+const dayOf = (iso) => {
+  if (!iso) return 'unknown';
+  const d = new Date(iso);
+  return isNaN(d) ? 'unknown' : d.toLocaleDateString('en-CA'); // YYYY-MM-DD, local tz
+};
+
+const zeroAgg = () => ({ sessions: 0, inputTokens: 0, outputTokens: 0, totalTokens: 0, cost: 0 });
+function addTo(agg, v) {
+  agg.sessions += v.sessions; agg.inputTokens += v.inputTokens;
+  agg.outputTokens += v.outputTokens; agg.totalTokens += v.totalTokens; agg.cost += v.cost;
+}
+// Add a value into repo.children under `key`, creating the bucket as needed.
+function addChild(r, key, v) {
+  let c = r.children.get(key);
+  if (!c) { c = zeroAgg(); r.children.set(key, c); }
+  addTo(c, v);
+}
+
+async function fxRate(code) {
+  if (forcedRate !== null) return { rate: forcedRate, source: 'manual' };
+  try {
+    const res = await fetch('https://open.er-api.com/v6/latest/USD', {
+      signal: AbortSignal.timeout(4000),
+    });
+    const data = await res.json();
+    const rate = data && data.rates && data.rates[code];
+    if (rate) return { rate, source: 'live (open.er-api.com)' };
+    console.error(`Unknown currency '${code}' (not in the FX feed). Pass --rate to force one.`);
+  } catch {
+    console.error(`Couldn't fetch USD→${code} rate (offline?). Pass --rate <n> to force one.`);
+  }
+  process.exit(1);
+}
+
+async function main() {
+  let sessions;
+  try {
+    const out = execFileSync('ccusage', ['session', '--json', ...passthrough], {
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+    });
+    sessions = JSON.parse(out).session;
+  } catch (e) {
+    console.error('Failed to run ccusage:', e.message);
+    process.exit(1);
+  }
+
+  const repos = new Map();
+  let unmatched = 0;
+  for (const s of sessions) {
+    const repo = sessionToRepo.get(s.period);
+    if (!repo) { unmatched++; continue; }
+    let r = repos.get(repo);
+    if (!r) { r = { ...zeroAgg(), children: new Map() }; repos.set(repo, r); }
+    const sessionAgg = {
+      sessions: 1,
+      inputTokens: s.inputTokens || 0,
+      outputTokens: s.outputTokens || 0,
+      totalTokens: s.totalTokens || 0,
+      cost: s.totalCost || 0,
+    };
+    addTo(r, sessionAgg);
+
+    if (groupBy === 'model') {
+      // A single session may span multiple models; each contributes its share.
+      for (const mb of s.modelBreakdowns || []) {
+        addChild(r, shortModel(mb.modelName), {
+          sessions: 1, // sessions that used this model within the repo
+          inputTokens: mb.inputTokens || 0,
+          outputTokens: mb.outputTokens || 0,
+          totalTokens: (mb.inputTokens || 0) + (mb.outputTokens || 0) +
+            (mb.cacheCreationTokens || 0) + (mb.cacheReadTokens || 0),
+          cost: mb.cost || 0,
+        });
+      }
+    } else if (groupBy === 'day') {
+      // Whole session attributed to its last-activity day.
+      addChild(r, dayOf(s.metadata && s.metadata.lastActivity), sessionAgg);
+    }
+  }
+
+  let rate = 1, rateSource = 'native';
+  if (converted) ({ rate, source: rateSource } = await fxRate(currency));
+  const conv = (agg) => ({ ...agg, cost: agg.cost * rate });
+
+  // Models sort by cost desc; days sort chronologically (ascending).
+  const childSort = groupBy === 'day'
+    ? (a, b) => a.label.localeCompare(b.label)
+    : (a, b) => b.cost - a.cost;
+
+  const rows = [...repos.entries()]
+    .map(([encoded, r]) => ({
+      repo: label(encoded),
+      ...conv(r),
+      children: [...r.children.entries()]
+        .map(([key, c]) => ({ label: key, ...conv(c) }))
+        .sort(childSort),
+    }))
+    .sort((a, b) => b.cost - a.cost);
+
+  if (asJson) {
+    const arrName = groupBy === 'model' ? 'models' : 'days';
+    const reposOut = rows.map(({ children, ...r }) => groupBy
+      ? { ...r, [arrName]: children.map(({ label, ...c }) => ({ [groupBy]: label, ...c })) }
+      : r);
+    console.log(JSON.stringify({
+      currency, rate: converted ? rate : null, rateSource,
+      groupBy, repos: reposOut, unmatchedSessions: unmatched,
+    }, null, 2));
+    return;
+  }
+
+  renderTable(rows, { currency, converted, rate, rateSource, unmatched });
+}
+
+function renderTable(rows, { currency, converted, rate, rateSource, unmatched }) {
+  const sym = symbolFor(currency);
+  const n = (x) => x.toLocaleString('en-NZ');
+  const money = (x) => sym + x.toLocaleString('en-NZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  // The child column (Model/Day) only appears when grouping.
+  const cols = [
+    { head: 'Repo', align: 'l', fmt: (r) => r.repo || '' },
+    ...(groupBy ? [{ head: childHead, align: 'l', fmt: (r) => r.child || '' }] : []),
+    { head: 'Sessions', align: 'r', fmt: (r) => n(r.sessions) },
+    { head: 'Input', align: 'r', fmt: (r) => n(r.inputTokens) },
+    { head: 'Output', align: 'r', fmt: (r) => n(r.outputTokens) },
+    { head: 'Total Tokens', align: 'r', fmt: (r) => n(r.totalTokens) },
+    { head: `Cost (${currency})`, align: 'r', fmt: (r) => money(r.cost) },
+  ];
+
+  // Default view = one section (no internal separators, keeps the original
+  // look). Grouped = one section per repo: a repo total row followed by its
+  // indented child rows.
+  const sections = groupBy
+    ? rows.map((r) => [
+        { repo: r.repo, child: '', ...r },
+        ...r.children.map((c) => ({ repo: '', child: '· ' + c.label, ...c })),
+      ])
+    : [rows.map((r) => ({ repo: r.repo, ...r }))];
+
+  const totals = rows.reduce((t, r) => { addTo(t, r); return t; },
+    { repo: 'TOTAL', child: '', ...zeroAgg() });
+
+  const allRows = [...sections.flat(), totals];
+  const w = cols.map((c) => Math.max(c.head.length, ...allRows.map((r) => c.fmt(r).length)));
+
+  const cell = (r, i) => cols[i].align === 'l' ? cols[i].fmt(r).padEnd(w[i]) : cols[i].fmt(r).padStart(w[i]);
+  const line = (l, m, rt) => l + w.map((x) => '─'.repeat(x + 2)).join(m) + rt;
+  const row = (r) => '│ ' + cols.map((_, i) => cell(r, i)).join(' │ ') + ' │';
+  const headRow = () => '│ ' + cols.map((c, i) => c.align === 'l' ? c.head.padEnd(w[i]) : c.head.padStart(w[i])).join(' │ ') + ' │';
+
+  console.log();
+  console.log(line('┌', '┬', '┐'));
+  console.log(headRow());
+  console.log(line('├', '┼', '┤'));
+  sections.forEach((sec, idx) => {
+    if (idx > 0) console.log(line('├', '┼', '┤'));
+    for (const r of sec) console.log(row(r));
+  });
+  console.log(line('├', '┼', '┤'));
+  console.log(row(totals));
+  console.log(line('└', '┴', '┘'));
+  if (converted) console.log(`  Rate: 1 USD = ${rate.toFixed(4)} ${currency} — ${rateSource}`);
+  console.log(`  Cost is an API-equivalent estimate (USD basis), not your subscription bill.`);
+  if (groupBy === 'model') console.log(`  Model 'Sessions' counts sessions that used that model (a session can use several).`);
+  if (groupBy === 'day') console.log(`  Each session is counted on its last-activity day (local time).`);
+  if (unmatched) console.log(`  ${unmatched} session(s) unmatched to a repo folder (archived/deleted logs).`);
+  console.log();
+}
+
+main();

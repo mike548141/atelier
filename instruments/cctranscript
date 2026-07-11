@@ -1,0 +1,377 @@
+#!/usr/bin/env node
+/*
+ * cctranscript — render a timestamped transcript of a Claude Code session.
+ *
+ * The VS Code chat panel (and the terminal UI) don't show per-message
+ * timestamps, but every message is timestamped in the session's raw .jsonl log
+ * under ~/.claude/projects/<encoded-repo-path>/<session-uuid>.jsonl. This reads
+ * that log and prints who said what and when — your prompts and Claude's
+ * replies — with elapsed deltas between turns.
+ *
+ * By default it picks the latest session for the repo you're standing in.
+ * See --help for selecting other sessions/repos and for including tool calls,
+ * thinking blocks, and tool results.
+ *
+ * The .jsonl schema is internal to Claude Code and can shift between releases;
+ * if a field moves this may need a nudge.
+ */
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const readline = require('node:readline');
+
+const argv = process.argv.slice(2);
+
+const HELP = `cctranscript — timestamped transcript of a Claude Code session
+
+Reads the raw session log under ~/.claude/projects/ and prints each turn with
+its timestamp. The chat UI hides these; the log keeps them.
+
+USAGE
+  cctranscript [options] [session]
+
+  session   A session UUID, a path to a .jsonl log, or omitted (the latest
+            session for the repo you're currently in).
+
+OPTIONS
+  --repo <name>    Use sessions from the named repo (its folder basename, e.g.
+                   'atelier') instead of the current directory.
+  --list           List sessions for the repo (id · start · first prompt) and
+                   exit. Combine with --repo, or --all for every repo.
+  --all            With --list, list sessions across all repos.
+  -n, --last <k>   Use the k-th most recent session (1 = latest, the default).
+  --tools          Include tool calls and their results (summarised).
+  --think          Include Claude's thinking blocks.
+  --full           Everything: prompts, replies, thinking, tools.
+  --utc            Timestamps in UTC (default: your local timezone).
+  --no-delta       Hide the elapsed-time deltas between messages.
+  --json           Machine-readable array of turns.
+  -h, --help       Show this help.
+
+EXAMPLES
+  cctranscript                       Latest session in this repo.
+  cctranscript --full                ...with thinking and tool calls.
+  cctranscript --list                What sessions exist for this repo.
+  cctranscript --list --all          Every session, every repo.
+  cctranscript -n 2                  The second-most-recent session here.
+  cctranscript --repo ros --tools    Latest ros session, with tools.
+  cctranscript 1a4fa531-...          A specific session by UUID.
+  cctranscript ./path/to/log.jsonl   A specific log file.
+
+Env: none required. Reads ~/.claude/projects/ read-only; writes nothing.`;
+
+if (argv.includes('-h') || argv.includes('--help')) {
+  console.log(HELP);
+  process.exit(0);
+}
+
+function takeValue(flag) {
+  const i = argv.indexOf(flag);
+  return i !== -1 ? argv[i + 1] : null;
+}
+
+const asJson = argv.includes('--json');
+const doList = argv.includes('--list');
+const listAll = argv.includes('--all');
+const showTools = argv.includes('--tools') || argv.includes('--full');
+const showThink = argv.includes('--think') || argv.includes('--full');
+const useUtc = argv.includes('--utc');
+const showDelta = !argv.includes('--no-delta');
+const repoArg = takeValue('--repo');
+const lastArg = argv.includes('-n') ? takeValue('-n') : takeValue('--last');
+const lastK = lastArg ? Math.max(1, parseInt(lastArg, 10) || 1) : 1;
+
+// Flags that consume the following token, so we don't mistake a value for the
+// positional session argument.
+const OWN_WITH_VALUE = new Set(['--repo', '-n', '--last']);
+const OWN_BARE = new Set([
+  '--json', '--list', '--all', '--tools', '--think', '--full',
+  '--utc', '--no-delta', '-h', '--help',
+]);
+let positional = null;
+for (let i = 0; i < argv.length; i++) {
+  if (OWN_WITH_VALUE.has(argv[i])) { i++; continue; }
+  if (OWN_BARE.has(argv[i])) continue;
+  if (positional === null) positional = argv[i];
+}
+
+const projectsDir = path.join(os.homedir(), '.claude', 'projects');
+
+// Read the true cwd from the first log line that records one. Claude's folder
+// names dash-mangle every separator alike and can't be reversed, so we recover
+// the exact repo path (and hence basename) from inside the log. Mirrors ccrepo.
+function cwdFromLog(file) {
+  let chunk;
+  try {
+    const fd = fs.openSync(file, 'r');
+    const buf = Buffer.alloc(65536);
+    const n = fs.readSync(fd, buf, 0, buf.length, 0);
+    fs.closeSync(fd);
+    chunk = buf.toString('utf8', 0, n);
+  } catch { return null; }
+  const m = chunk.match(/"cwd"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+  if (!m) return null;
+  try { return JSON.parse(`"${m[1]}"`); } catch { return null; }
+}
+
+// Encode a filesystem path the way Claude names its project folders: every run
+// of non-alphanumerics collapses to single dashes. Used to find the current
+// repo's folder directly from process.cwd().
+function encodePath(p) {
+  return p.replace(/[^A-Za-z0-9]+/g, '-');
+}
+
+function isDir(p) {
+  try { return fs.statSync(p).isDirectory(); } catch { return false; }
+}
+
+// All session logs across all repos: { file, id, repoDir, cwd, label, mtime }.
+function allSessions() {
+  const out = [];
+  let repos;
+  try { repos = fs.readdirSync(projectsDir); } catch { return out; }
+  for (const repoDir of repos) {
+    const dir = path.join(projectsDir, repoDir);
+    if (!isDir(dir)) continue;
+    for (const file of fs.readdirSync(dir)) {
+      if (!file.endsWith('.jsonl')) continue;
+      const full = path.join(dir, file);
+      let mtime = 0;
+      try { mtime = fs.statSync(full).mtimeMs; } catch {}
+      const cwd = cwdFromLog(full);
+      out.push({
+        file: full,
+        id: file.replace(/\.jsonl$/, ''),
+        repoDir,
+        cwd,
+        label: cwd ? path.basename(cwd) : repoDir.split('-').filter(Boolean).pop() || repoDir,
+        mtime,
+      });
+    }
+  }
+  return out;
+}
+
+// Resolve which repo folder the current directory maps to. Prefer the direct
+// path encoding; fall back to matching a log's recorded cwd to process.cwd().
+function currentRepoDir() {
+  const guess = encodePath(process.cwd());
+  if (isDir(path.join(projectsDir, guess))) return guess;
+  const here = process.cwd();
+  for (const s of allSessions()) {
+    if (s.cwd === here) return s.repoDir;
+  }
+  return null;
+}
+
+// The header for a real user prompt vs a tool-result carrier: prompts have no
+// toolUseResult and carry actual authored text.
+function firstUserPromptText(file) {
+  const lines = fs.readFileSync(file, 'utf8').split('\n');
+  for (const ln of lines) {
+    if (!ln.trim()) continue;
+    let o; try { o = JSON.parse(ln); } catch { continue; }
+    if (o.type === 'user' && !o.toolUseResult) {
+      const t = extractText(o.message && o.message.content);
+      if (t) return t.replace(/\s+/g, ' ').trim();
+    }
+  }
+  return '';
+}
+
+// Pull concatenated text from a message.content that may be a string or an
+// array of typed blocks.
+function extractText(content) {
+  if (typeof content === 'string') return content;
+  if (!Array.isArray(content)) return '';
+  return content.filter((b) => b && b.type === 'text').map((b) => b.text).join('\n');
+}
+
+const fmtTime = (iso) => {
+  if (!iso) return '        ';
+  const d = new Date(iso);
+  if (isNaN(d)) return '        ';
+  if (useUtc) return d.toISOString().slice(11, 19);
+  return d.toLocaleTimeString('en-NZ', { hour12: false });
+};
+const dateOf = (iso) => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  return useUtc ? d.toISOString().slice(0, 10) : d.toLocaleDateString('en-CA');
+};
+function humanDelta(ms) {
+  if (ms < 1000) return `+${ms}ms`;
+  const s = Math.round(ms / 1000);
+  if (s < 60) return `+${s}s`;
+  const m = Math.floor(s / 60), rs = s % 60;
+  if (m < 60) return rs ? `+${m}m${rs}s` : `+${m}m`;
+  const h = Math.floor(m / 60), rm = m % 60;
+  return rm ? `+${h}h${rm}m` : `+${h}h`;
+}
+
+// Summarise a tool_use block's input to a single short line.
+function toolSummary(name, input) {
+  if (!input || typeof input !== 'object') return name;
+  const keys = ['command', 'file_path', 'path', 'pattern', 'query', 'prompt', 'description', 'url'];
+  for (const k of keys) {
+    if (typeof input[k] === 'string' && input[k].trim()) {
+      let v = input[k].replace(/\s+/g, ' ').trim();
+      if (v.length > 80) v = v.slice(0, 77) + '…';
+      return `${name}  ${v}`;
+    }
+  }
+  return name;
+}
+
+// Build the ordered list of turns from a session log.
+function readTurns(file) {
+  const turns = [];
+  const lines = fs.readFileSync(file, 'utf8').split('\n');
+  for (const ln of lines) {
+    if (!ln.trim()) continue;
+    let o; try { o = JSON.parse(ln); } catch { continue; }
+    const ts = o.timestamp;
+
+    if (o.type === 'user' && !o.toolUseResult) {
+      const text = extractText(o.message && o.message.content).trim();
+      if (text) turns.push({ role: 'you', ts, text });
+    } else if (o.type === 'user' && o.toolUseResult && showTools) {
+      let r = o.toolUseResult;
+      if (typeof r !== 'string') { try { r = JSON.stringify(r); } catch { r = String(r); } }
+      r = r.replace(/\s+/g, ' ').trim();
+      if (r.length > 120) r = r.slice(0, 117) + '…';
+      turns.push({ role: 'result', ts, text: r });
+    } else if (o.type === 'assistant') {
+      const content = (o.message && o.message.content) || [];
+      for (const b of Array.isArray(content) ? content : []) {
+        if (b.type === 'text' && b.text.trim()) {
+          turns.push({ role: 'claude', ts, text: b.text.trim() });
+        } else if (b.type === 'thinking' && showThink && (b.thinking || '').trim()) {
+          turns.push({ role: 'think', ts, text: b.thinking.trim() });
+        } else if (b.type === 'tool_use' && showTools) {
+          turns.push({ role: 'tool', ts, text: toolSummary(b.name, b.input) });
+        }
+      }
+    }
+  }
+  return turns;
+}
+
+const ROLE = {
+  you:    { icon: '▸', label: 'You' },
+  claude: { icon: '◂', label: 'Claude' },
+  think:  { icon: '·', label: 'thinking' },
+  tool:   { icon: '⚙', label: 'tool' },
+  result: { icon: '⤷', label: 'result' },
+};
+
+function indent(text, pad) {
+  return text.split('\n').map((l) => pad + l).join('\n');
+}
+
+// --- session selection --------------------------------------------------
+
+function pickSessions() {
+  // Explicit path?
+  if (positional && (positional.includes('/') || positional.endsWith('.jsonl'))) {
+    const p = path.resolve(positional);
+    if (!fs.existsSync(p)) { console.error(`No such file: ${p}`); process.exit(1); }
+    return [{ file: p, id: path.basename(p).replace(/\.jsonl$/, ''), label: '', mtime: 0 }];
+  }
+  const sessions = allSessions();
+  // Explicit UUID (or prefix)?
+  if (positional) {
+    const hits = sessions.filter((s) => s.id === positional || s.id.startsWith(positional));
+    if (!hits.length) { console.error(`No session matching '${positional}'.`); process.exit(1); }
+    hits.sort((a, b) => b.mtime - a.mtime);
+    return [hits[0]];
+  }
+  // By repo (named or current).
+  let pool = sessions;
+  if (repoArg) {
+    pool = sessions.filter((s) => s.label === repoArg || s.repoDir === repoArg);
+    if (!pool.length) { console.error(`No sessions for repo '${repoArg}'.`); process.exit(1); }
+  } else if (!listAll) {
+    const rd = currentRepoDir();
+    if (!rd) {
+      console.error('No Claude sessions found for this directory. Pass --repo <name>, a session id, or run from a repo you\'ve used Claude in.');
+      process.exit(1);
+    }
+    pool = sessions.filter((s) => s.repoDir === rd);
+  }
+  pool.sort((a, b) => b.mtime - a.mtime);
+  return pool;
+}
+
+// --- output -------------------------------------------------------------
+
+function runList() {
+  const pool = pickSessions();
+  if (asJson) {
+    console.log(JSON.stringify(pool.map((s) => ({
+      id: s.id, repo: s.label, cwd: s.cwd,
+      lastActivity: s.mtime ? new Date(s.mtime).toISOString() : null,
+      firstPrompt: firstUserPromptText(s.file),
+    })), null, 2));
+    return;
+  }
+  console.log();
+  for (const s of pool) {
+    const when = s.mtime ? `${dateOf(new Date(s.mtime).toISOString())} ${fmtTime(new Date(s.mtime).toISOString())}` : '                   ';
+    let first = firstUserPromptText(s.file);
+    if (first.length > 70) first = first.slice(0, 67) + '…';
+    const repoTag = listAll || repoArg ? `  [${s.label}]` : '';
+    console.log(`  ${s.id.slice(0, 8)}  ${when}${repoTag}  ${first}`);
+  }
+  console.log(`\n  ${pool.length} session(s). Use: cctranscript <id>  or  cctranscript -n <k>\n`);
+}
+
+function runTranscript() {
+  const pool = pickSessions();
+  if (lastK > pool.length) {
+    console.error(`Only ${pool.length} session(s) available; can't take #${lastK}.`);
+    process.exit(1);
+  }
+  const chosen = pool[lastK - 1];
+  const turns = readTurns(chosen.file);
+
+  if (asJson) {
+    console.log(JSON.stringify({
+      session: chosen.id, repo: chosen.label, cwd: chosen.cwd,
+      timezone: useUtc ? 'UTC' : 'local',
+      turns: turns.map((t) => ({ role: t.role, timestamp: t.ts, text: t.text })),
+    }, null, 2));
+    return;
+  }
+
+  if (!turns.length) { console.log('\n  (no renderable turns in this session)\n'); return; }
+
+  const startDate = dateOf(turns[0].ts);
+  console.log();
+  console.log(`  Session ${chosen.id.slice(0, 8)}  ·  ${chosen.label || 'unknown repo'}  ·  ${startDate}${useUtc ? ' (UTC)' : ''}`);
+  console.log('  ' + '─'.repeat(66));
+
+  let prevTs = null;
+  let curDate = startDate;
+  for (const t of turns) {
+    const d = dateOf(t.ts);
+    if (d && d !== curDate) {
+      console.log(`\n  ── ${d} ──`);
+      curDate = d;
+    }
+    const r = ROLE[t.role] || ROLE.claude;
+    let delta = '';
+    if (showDelta && prevTs && t.ts) {
+      const ms = new Date(t.ts) - new Date(prevTs);
+      if (ms >= 0) delta = `  (${humanDelta(ms)})`;
+    }
+    prevTs = t.ts || prevTs;
+    console.log(`\n  ${fmtTime(t.ts)}  ${r.icon} ${r.label}${delta}`);
+    console.log(indent(t.text, '      '));
+  }
+  console.log();
+}
+
+if (doList) runList();
+else runTranscript();
