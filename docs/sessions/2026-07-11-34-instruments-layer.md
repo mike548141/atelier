@@ -58,6 +58,36 @@ mischaracterised atelier as doctrine-only when it already ships tools. Memory
 precedent (`which` → `ls -l`, read the actual config) before documenting or
 assuming by analogy.
 
+## Housekeeping — parallel-session loose ends audited and closed
+
+Mike asked for a sweep of anything left open by past parallel sessions (PRs,
+branches, worktrees) across the estate. Findings and closures:
+
+- **nova `tidy-up`** — initially misreported this session as "unpushed, at
+  risk" (a `rev-list --left-right` read inverted; the memory lesson bit its
+  author within the hour). Truth: merged into nova main *and* pushed; pure
+  stale branch. Deleted local + remote.
+- **atelier `gate-calibration`** — merged via PR #2 (`4b2cf6f`), 0 commits
+  outside main; branch lingered only because the repo doesn't auto-delete on
+  merge. Remote branch deleted.
+- **atelier `atelier-method-review`** — the recurring one, now closed for
+  good. PR #1 was closed-not-merged; the branch held 2 commits main lacks.
+  Mechanical comparison (per-file branch-vs-main line sweep, then whole-tree
+  grep for branch-only lines) showed it is the *same* session-08 method-layer
+  review rendered twice: branch `8407b37` per-question (Q1–Q12), main
+  `6fd64ba` per-lens with the [fixed] dispositions — main's is operative.
+  Then found a past session had already salvaged the real residue: tag
+  **`archive/2026-07-10-method-review-parallel-verdict`** (same tip,
+  `3bfcbbc`) records "E3 salvaged to main in `48fa5ff`; P2/PR2 consciously
+  not carried". That session archived but didn't delete — which is exactly
+  why the branch kept resurfacing. The branch is now **deleted**; the
+  archive tag keeps every commit reachable forever. (A duplicate tag this
+  session minted before spotting the original was removed — one archive, one
+  name.) Pattern worth keeping: **branches are for active work; archive tags
+  are for closed-not-merged history — salvage, tag, delete, record.**
+- **atelier PR #3 (`plugin-bundle`)** — open *by design* (merge = go-live,
+  Mike's call). Untouched.
+
 ## Left open
 
 - The instruments are **untested** (unlike the `tools/` scanners). Test coverage
