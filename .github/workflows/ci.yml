@@ -5,6 +5,8 @@ name: floor
 # tree (the leak/secret/licence publish triad, plus linkscan's internal-link
 # integrity check). Now possible because the repo is public (ADR 0005): the tools
 # are zero-dep stdlib Python, so a runner needs nothing but Python to run them.
+# The instruments/ layer (ADR 0006) adds a zero-dep Node surface — its tests use
+# node:test/node:assert, so a runner needs only Node, nothing from npm.
 #
 # HONEST SCOPE. This gate proves what it can prove in CI, not everything the
 # local hooks prove:
@@ -53,6 +55,10 @@ jobs:
         with:
           python-version: '3.12'
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: scanner selftests
         run: |
           python3 tools/leakscan.py --selftest
@@ -62,6 +68,9 @@ jobs:
 
       - name: tool test suite
         run: python3 -m unittest discover -s tools -p 'test_*.py' -v
+
+      - name: instrument test suite
+        run: node --test instruments/test_cctranscript.js instruments/test_ccrepo.js
 
       - name: secretscan (full tree)
         run: python3 tools/secretscan.py --root . .

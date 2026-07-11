@@ -207,18 +207,20 @@ function extractText(content) {
   return content.filter((b) => b && b.type === 'text').map((b) => b.text).join('\n');
 }
 
-const fmtTime = (iso) => {
+// `utc` defaults to the --utc global; passed explicitly by tests. Same output
+// as before for every real caller (which relies on the default).
+const fmtTime = (iso, utc = useUtc) => {
   if (!iso) return '        ';
   const d = new Date(iso);
   if (isNaN(d)) return '        ';
-  if (useUtc) return d.toISOString().slice(11, 19);
+  if (utc) return d.toISOString().slice(11, 19);
   return d.toLocaleTimeString('en-NZ', { hour12: false });
 };
-const dateOf = (iso) => {
+const dateOf = (iso, utc = useUtc) => {
   if (!iso) return '';
   const d = new Date(iso);
   if (isNaN(d)) return '';
-  return useUtc ? d.toISOString().slice(0, 10) : d.toLocaleDateString('en-CA');
+  return utc ? d.toISOString().slice(0, 10) : d.toLocaleDateString('en-CA');
 };
 // Compact human duration; `signed` prefixes a '+' (for inter-turn deltas).
 function humanDelta(ms, signed = true) {
@@ -330,12 +332,15 @@ function deltaStr(ms) {
 // a span split across a wrap boundary just renders literally (rare, harmless).
 // With colour off, markers are cleaned (bold/link) but code keeps its backticks
 // so it stays recognisable.
-function styleInline(s) {
-  s = s.replace(/`([^`]+)`/g, (_, x) => useColor ? paint(ESC.yellow, x) : '`' + x + '`');
-  s = s.replace(/\*\*([^*]+)\*\*/g, (_, x) => paint(ESC.bold, x));
+// `color` defaults to the resolved useColor global; tests pass it explicitly.
+// A local painter honours the param so the whole function is colour-pure.
+function styleInline(s, color = useColor) {
+  const pt = (codes, x) => (color && codes) ? codes + x + ESC.reset : x;
+  s = s.replace(/`([^`]+)`/g, (_, x) => color ? pt(ESC.yellow, x) : '`' + x + '`');
+  s = s.replace(/\*\*([^*]+)\*\*/g, (_, x) => pt(ESC.bold, x));
   // single-asterisk emphasis, but not a leftover half of a ** pair
-  s = s.replace(/\*([^*\s](?:[^*]*[^*\s])?)\*/g, (_, x) => paint(ESC.italic, x));
-  s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, t, u) => paint(ESC.ul, t) + paint(ESC.dim, ' (' + u + ')'));
+  s = s.replace(/\*([^*\s](?:[^*]*[^*\s])?)\*/g, (_, x) => pt(ESC.italic, x));
+  s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, t, u) => pt(ESC.ul, t) + pt(ESC.dim, ' (' + u + ')'));
   return s;
 }
 
@@ -433,7 +438,10 @@ function pickSessions() {
   if (positional && (positional.includes('/') || positional.endsWith('.jsonl'))) {
     const p = path.resolve(positional);
     if (!fs.existsSync(p)) { console.error(`No such file: ${p}`); process.exit(1); }
-    return [{ file: p, id: path.basename(p).replace(/\.jsonl$/, ''), label: '', mtime: 0 }];
+    // Recover cwd/label from the log, as every other route does — an explicit
+    // path shouldn't lose the repo name the log still carries.
+    const cwd = cwdFromLog(p);
+    return [{ file: p, id: path.basename(p).replace(/\.jsonl$/, ''), cwd, label: cwd ? path.basename(cwd) : '', mtime: 0 }];
   }
   const sessions = allSessions();
   // Explicit UUID (or prefix)?
@@ -550,5 +558,14 @@ function runTranscript() {
   console.log();
 }
 
-if (doList) runList();
-else runTranscript();
+// Run as a CLI only when invoked directly; when required (by the tests) the
+// pure functions below are exported and nothing executes.
+if (require.main === module) {
+  if (doList) runList();
+  else runTranscript();
+}
+
+module.exports = {
+  friendlyModel, modelColor, humanDelta, wrap, visLen, padLeftTo,
+  styleInline, fmtTime, dateOf, toolSummary, extractText, encodePath, readTurns,
+};

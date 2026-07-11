@@ -131,24 +131,31 @@ function cwdFromLog(file) {
 }
 
 // Build sessionUUID -> repoDir index, plus repoDir -> display label, from logs.
-const sessionToRepo = new Map();
-const repoLabel = new Map();
-for (const repo of fs.readdirSync(projectsDir)) {
-  const dir = path.join(projectsDir, repo);
-  if (!fs.statSync(dir).isDirectory()) continue;
-  for (const file of fs.readdirSync(dir)) {
-    if (!file.endsWith('.jsonl')) continue;
-    sessionToRepo.set(file.replace(/\.jsonl$/, ''), repo);
-    if (!repoLabel.has(repo)) {
-      const cwd = cwdFromLog(path.join(dir, file));
-      if (cwd) repoLabel.set(repo, path.basename(cwd));
+// Deferred into a function (not run at module load) so requiring this file for
+// the unit tests touches no disk — the index is built only when main() runs.
+let sessionToRepo = new Map();
+let repoLabel = new Map();
+function buildIndex() {
+  sessionToRepo = new Map();
+  repoLabel = new Map();
+  for (const repo of fs.readdirSync(projectsDir)) {
+    const dir = path.join(projectsDir, repo);
+    if (!fs.statSync(dir).isDirectory()) continue;
+    for (const file of fs.readdirSync(dir)) {
+      if (!file.endsWith('.jsonl')) continue;
+      sessionToRepo.set(file.replace(/\.jsonl$/, ''), repo);
+      if (!repoLabel.has(repo)) {
+        const cwd = cwdFromLog(path.join(dir, file));
+        if (cwd) repoLabel.set(repo, path.basename(cwd));
+      }
     }
   }
 }
 
-// Prefer the exact name from the logs; fall back to the dash-decoded last segment.
-function label(encoded) {
-  if (repoLabel.has(encoded)) return repoLabel.get(encoded);
+// Prefer the exact name from the logs; fall back to the dash-decoded last
+// segment. `labels` defaults to the built index; tests pass one in.
+function label(encoded, labels = repoLabel) {
+  if (labels.has(encoded)) return labels.get(encoded);
   const seg = encoded.split('-').filter(Boolean);
   return seg[seg.length - 1] || encoded;
 }
@@ -187,23 +194,14 @@ async function fxRate(code) {
   process.exit(1);
 }
 
-async function main() {
-  let sessions;
-  try {
-    const out = execFileSync('ccusage', ['session', '--json', ...passthrough], {
-      encoding: 'utf8',
-      maxBuffer: 64 * 1024 * 1024,
-    });
-    sessions = JSON.parse(out).session;
-  } catch (e) {
-    console.error('Failed to run ccusage:', e.message);
-    process.exit(1);
-  }
-
+// Fold ccusage's per-session rows into repo -> aggregate (with optional child
+// breakdown). Pure over its inputs — no disk, no ccusage — so the tests drive it
+// with fixture sessions and a fixture session->repo index.
+function aggregate(sessions, index, group) {
   const repos = new Map();
   let unmatched = 0;
   for (const s of sessions) {
-    const repo = sessionToRepo.get(s.period);
+    const repo = index.get(s.period);
     if (!repo) { unmatched++; continue; }
     let r = repos.get(repo);
     if (!r) { r = { ...zeroAgg(), children: new Map() }; repos.set(repo, r); }
@@ -216,7 +214,7 @@ async function main() {
     };
     addTo(r, sessionAgg);
 
-    if (groupBy === 'model') {
+    if (group === 'model') {
       // A single session may span multiple models; each contributes its share.
       for (const mb of s.modelBreakdowns || []) {
         addChild(r, shortModel(mb.modelName), {
@@ -228,11 +226,29 @@ async function main() {
           cost: mb.cost || 0,
         });
       }
-    } else if (groupBy === 'day') {
+    } else if (group === 'day') {
       // Whole session attributed to its last-activity day.
       addChild(r, dayOf(s.metadata && s.metadata.lastActivity), sessionAgg);
     }
   }
+  return { repos, unmatched };
+}
+
+async function main() {
+  buildIndex();
+  let sessions;
+  try {
+    const out = execFileSync('ccusage', ['session', '--json', ...passthrough], {
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+    });
+    sessions = JSON.parse(out).session;
+  } catch (e) {
+    console.error('Failed to run ccusage:', e.message);
+    process.exit(1);
+  }
+
+  const { repos, unmatched } = aggregate(sessions, sessionToRepo, groupBy);
 
   let rate = 1, rateSource = 'native';
   if (converted) ({ rate, source: rateSource } = await fxRate(currency));
@@ -324,4 +340,10 @@ function renderTable(rows, { currency, converted, rate, rateSource, unmatched })
   console.log();
 }
 
-main();
+// CLI only when invoked directly; required by the tests, only the pure exports
+// below are visible and nothing runs (no ccusage, no disk).
+if (require.main === module) main();
+
+module.exports = {
+  symbolFor, shortModel, dayOf, zeroAgg, addTo, addChild, label, aggregate,
+};

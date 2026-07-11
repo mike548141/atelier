@@ -5,6 +5,28 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-11 — instruments/ test floor: ccrepo + cctranscript)
+- **The `instruments/` layer gains its test floor** — shipped untested in session
+  34 (stated, not silent); now floored. Runner decision, recorded because it's the
+  first Node test surface and so sets the layer's convention: **Node's built-in
+  `node:test` + `node:assert`, zero third-party dep** — mirrors `tools/`'s
+  stdlib-only "no pytest" pattern. `instruments/test_cctranscript.js` carries a
+  **`--json` output-contract test** over a checked-in synthetic fixture
+  (`fixtures/session-sample.jsonl`) — role classification, model mapping,
+  timestamp/text extraction, and `--think`/`--tools` gating — which is what catches
+  a Claude Code `.jsonl` log-format change, plus pure-function units (friendlyModel,
+  wrap, styleInline, humanDelta, fmtTime/dateOf, visLen/padLeftTo). `test_ccrepo.js`
+  covers the pure functions and the aggregation fold over fixture ccusage rows.
+  Testability refactor was minimal and behaviour-preserving: CLI entrypoints guarded
+  by `require.main === module`, pure functions exported, three colour/tz-dependent
+  functions given a defaulted param. **One stated fix** surfaced by a test: an
+  explicit `.jsonl` path now recovers its repo label via `cwdFromLog` (every other
+  route already did; the explicit-path branch had dropped it). Wired into `ci.yml`'s
+  floor job (adds `setup-node`, stays zero-dep). Grounded in **EVIDENCE §14** — an
+  honest instrument's "ok" is a claim the apex governs. **Residual:** ccrepo's
+  `ccusage` shell-out / FX / render sit behind an untested seam (aggregation was
+  factored to `aggregate()` and is covered; the `execFileSync` itself is not).
+
 ### Added (2026-07-11 — CONCURRENCY: every branch ends put away)
 - **`docs/method/CONCURRENCY.md` gains "Every branch ends put away"** — "branch
   exists" had been allowed to mean two things: *open work*, and *closed work

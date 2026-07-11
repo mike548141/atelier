@@ -1,0 +1,109 @@
+// Stdlib-only tests for ccrepo — Node's built-in node:test + node:assert, zero
+// third-party dep (mirrors tools/'s "stdlib only, no pytest" floor). Run:
+//   node --test instruments/
+//
+// ccrepo shells out to `ccusage` (execFileSync) for its per-session rows, so a
+// true end-to-end run needs that binary. The aggregation — the part ccrepo owns
+// — is factored behind aggregate(sessions, index, groupBy), a pure function over
+// fixture session data and a fixture session->repo index. That is what these
+// tests drive. HONEST SCOPE (see ROADMAP residual): the ccusage invocation, JSON
+// parse, FX conversion, and table render are NOT covered here — only the pure
+// functions and the aggregation fold are.
+
+const test = require('node:test');
+const assert = require('node:assert');
+
+const r = require('./ccrepo');
+
+// --- pure functions -----------------------------------------------------
+
+test('symbolFor knows the common codes and prefixes the rest', () => {
+  assert.equal(r.symbolFor('NZD'), 'NZ$');
+  assert.equal(r.symbolFor('USD'), 'US$');
+  assert.equal(r.symbolFor('GBP'), '£');
+  assert.equal(r.symbolFor('XYZ'), 'XYZ ');   // unknown → explicit code prefix
+});
+
+test('shortModel drops the claude- prefix and passes others through', () => {
+  assert.equal(r.shortModel('claude-opus-4-8'), 'opus-4-8');
+  assert.equal(r.shortModel('gpt-4'), 'gpt-4');
+});
+
+test('dayOf returns unknown for missing/invalid, YYYY-MM-DD otherwise', () => {
+  assert.equal(r.dayOf(null), 'unknown');
+  assert.equal(r.dayOf('garbage'), 'unknown');
+  assert.match(r.dayOf('2026-01-02T03:04:05.000Z'), /^\d{4}-\d{2}-\d{2}$/); // local tz, shape only
+});
+
+test('zeroAgg / addTo / addChild accumulate correctly', () => {
+  const z = r.zeroAgg();
+  assert.deepEqual(z, { sessions: 0, inputTokens: 0, outputTokens: 0, totalTokens: 0, cost: 0 });
+  r.addTo(z, { sessions: 1, inputTokens: 2, outputTokens: 3, totalTokens: 5, cost: 0.5 });
+  r.addTo(z, { sessions: 1, inputTokens: 8, outputTokens: 7, totalTokens: 15, cost: 1.5 });
+  assert.deepEqual(z, { sessions: 2, inputTokens: 10, outputTokens: 10, totalTokens: 20, cost: 2 });
+
+  const repo = { children: new Map() };
+  r.addChild(repo, 'opus', { sessions: 1, inputTokens: 4, outputTokens: 1, totalTokens: 5, cost: 0.4 });
+  r.addChild(repo, 'opus', { sessions: 1, inputTokens: 6, outputTokens: 1, totalTokens: 7, cost: 0.6 });
+  assert.equal(repo.children.size, 1);
+  assert.deepEqual(repo.children.get('opus'),
+    { sessions: 2, inputTokens: 10, outputTokens: 2, totalTokens: 12, cost: 1 });
+});
+
+test('label prefers the index name, else dash-decodes the last segment', () => {
+  assert.equal(r.label('weird', new Map([['weird', 'Nice Name']])), 'Nice Name'); // index hit
+  assert.equal(r.label('-Users-dev-atelier', new Map()), 'atelier');              // fallback
+  assert.equal(r.label('foo-bar-baz', new Map()), 'baz');
+});
+
+// --- aggregation over fixture ccusage session rows ----------------------
+
+// Shape mirrors `ccusage session --json`'s .session entries: period is the
+// session UUID, plus token counts, totalCost, per-model breakdowns, metadata.
+const SESSIONS = [
+  { period: 's1', inputTokens: 100, outputTokens: 50, totalTokens: 150, totalCost: 1.0,
+    metadata: { lastActivity: '2026-01-02T03:00:00.000Z' },
+    modelBreakdowns: [{ modelName: 'claude-opus-4-8', inputTokens: 100, outputTokens: 50,
+      cacheCreationTokens: 10, cacheReadTokens: 20, cost: 1.0 }] },
+  { period: 's2', inputTokens: 200, outputTokens: 100, totalTokens: 300, totalCost: 2.0,
+    metadata: { lastActivity: '2026-01-02T04:00:00.000Z' },
+    modelBreakdowns: [{ modelName: 'claude-sonnet-5', inputTokens: 200, outputTokens: 100,
+      cacheCreationTokens: 0, cacheReadTokens: 0, cost: 2.0 }] },
+  // s3 is deliberately absent from the index → must count as unmatched.
+  { period: 's3', inputTokens: 5, outputTokens: 5, totalTokens: 10, totalCost: 0.1,
+    modelBreakdowns: [] },
+];
+const INDEX = new Map([['s1', '-a-repoA'], ['s2', '-a-repoA']]);
+
+test('aggregate folds matched sessions per repo and counts unmatched', () => {
+  const { repos, unmatched } = r.aggregate(SESSIONS, INDEX, null);
+  assert.equal(unmatched, 1);                    // s3 had no repo folder
+  const a = repos.get('-a-repoA');
+  assert.equal(a.sessions, 2);
+  assert.equal(a.inputTokens, 300);
+  assert.equal(a.outputTokens, 150);
+  assert.equal(a.totalTokens, 450);
+  assert.ok(Math.abs(a.cost - 3.0) < 1e-9);
+  assert.equal(a.children.size, 0);              // no grouping requested
+});
+
+test('aggregate --by-model breaks each repo down by model, cache tokens folded into total', () => {
+  const { repos } = r.aggregate(SESSIONS, INDEX, 'model');
+  const a = repos.get('-a-repoA');
+  assert.equal(a.children.size, 2);
+  const opus = a.children.get('opus-4-8');
+  assert.equal(opus.sessions, 1);
+  assert.equal(opus.totalTokens, 180);           // 100 + 50 + 10 (cache create) + 20 (cache read)
+  assert.ok(Math.abs(opus.cost - 1.0) < 1e-9);
+  assert.equal(a.children.get('sonnet-5').totalTokens, 300); // 200 + 100 + 0 + 0
+});
+
+test('aggregate --by-day buckets whole sessions by last-activity day', () => {
+  const { repos } = r.aggregate(SESSIONS, INDEX, 'day');
+  const a = repos.get('-a-repoA');
+  // Both sessions share a local day here; assert the fold, not the tz-local key.
+  assert.equal(a.children.size, 1);
+  const day = [...a.children.values()][0];
+  assert.equal(day.sessions, 2);
+  assert.equal(day.totalTokens, 450);
+});
