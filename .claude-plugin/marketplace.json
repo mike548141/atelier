@@ -1,0 +1,27 @@
+{
+  "name": "atelier",
+  "owner": {
+    "name": "Mike Clements",
+    "url": "https://github.com/mike548141"
+  },
+  "description": "Atelier — the operating model for working with Claude as a teammate, distributed as an installable plugin. This repo is both the plugin and its own marketplace.",
+  "plugins": [
+    {
+      "name": "atelier",
+      "source": "./",
+      "description": "Apex honesty doctrine, publish-safety scanners (secret / leak / licence / link), a session onramp, and the peer-review lifecycle. A named worked example — adopt it by becoming the principal.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Mike Clements"
+      },
+      "homepage": "https://github.com/mike548141/atelier",
+      "repository": "https://github.com/mike548141/atelier",
+      "license": "Apache-2.0",
+      "keywords": [
+        "operating-model",
+        "doctrine",
+        "code-review"
+      ]
+    }
+  ]
+}

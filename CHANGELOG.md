@@ -5,6 +5,37 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-11 — atelier packaged as an installable Claude Code plugin, v0.1.0)
+- **atelier is now its own plugin *and* its own marketplace.** `.claude-plugin/
+  plugin.json` (name `atelier`, `version 0.1.0`, Apache-2.0) + `.claude-plugin/
+  marketplace.json` (`source: "./"`). Install:
+  `/plugin marketplace add mike548141/atelier` → `/plugin install atelier@atelier`.
+  The doctrine now travels as **behaviour**, not just readable docs.
+- **Root-as-plugin, not a subfolder — a deliberate, documented exception to
+  REPO-STANDARD's product-in-subfolder rule.** Forced by *one source*: a
+  `git-subdir` install sparse-clones only the subdir, so a `plugin/` folder could
+  not reach `tools/`+`docs/` without *copying* them — the exact second-source
+  atelier exists to prevent. Root-as-plugin keeps `${CLAUDE_PLUGIN_ROOT}` = the
+  repo, scanners and docs referenced in place.
+- **`version: "0.1.0"`, bumped deliberately — not omitted.** Omitting makes every
+  commit a new version consumers auto-pull, so a *records commit* would ship a
+  "release". A real version bumped only on doctrine change matches atelier's
+  deliberate-bump doctrine (ADR 0002 / SHA-as-version, applied to the consumer
+  edge).
+- **v1 (Middle tier) components:** `/atelier:scan` (the four publish-safety
+  scanners over any repo), `/atelier:install-hook` (the fail-closed git
+  pre-commit hook — resolves `${CLAUDE_PLUGIN_ROOT}/tools` to an absolute path at
+  install time, since git has no such env var at commit time), the
+  `session-onramp` skill (inlines the apex + always-confirm floor, points at the
+  bundled doctrine) and the `review-brief` skill (the REVIEW.md lifecycle). The
+  whole `docs/method/` + `docs/build/` doctrine ships as bundled reference.
+- **Deferred to v2:** a de-instanced `create-repo` (general parts →
+  `${CLAUDE_PLUGIN_ROOT}`, the gh-account / git-identity / copyright-holder
+  specifics become adopter-filled placeholders that stay machine-local), plus
+  `worktree` / `fleet-pins` commands.
+- Delivered on a branch + PR: **the PR merge to `main` is the go-live act** (the
+  marketplace only resolves from the default branch) — the widening floor stays
+  the principal's deliberate call, not the agent's.
 ### Added (2026-07-11 — ccrepo actuals vs estimate)
 - **ccrepo: an Actual column beside Est (API)**, driven by a machine-local
   `~/.claude/ccrepo-billing.json` (never in a repo — a plan and spend are

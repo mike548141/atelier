@@ -70,6 +70,35 @@ we work:
   session hygiene. **Canonical here** (extracted 2026-07-10); the estate-specific
   numbers stay person-local.
 
+## Install as a Claude Code plugin
+
+atelier ships as an installable Claude Code plugin — the doctrine travels as
+*behaviour*, not just readable docs. The repo is its own marketplace (one source;
+the scanners and docs are referenced in place, never copied):
+
+```
+/plugin marketplace add mike548141/atelier
+/plugin install atelier@atelier
+```
+
+What you get:
+
+- **`/atelier:scan`** — run the four publish-safety scanners (secret · leak ·
+  licence · link) over any repo. Zero-dependency stdlib Python, bundled.
+- **`/atelier:install-hook`** — install the fail-closed git pre-commit scan hook
+  into the current repo (git hooks don't travel, so it's per-clone; and the
+  hook's scanner path is pinned to the installed plugin *version*, so re-run
+  it in each hooked repo after a plugin update — until then the hook blocks,
+  it never waves through).
+- **`session-onramp`** skill — loads the apex (honesty + the Laws) and the
+  always-confirm floor, then points at the rest of the doctrine, read on demand.
+- **`review-brief`** skill — the peer-review lifecycle that turns "looks right"
+  into "verified".
+- The whole `docs/method/` + `docs/build/` doctrine, bundled as reference.
+
+Adopting it, you **become the principal**: instantiate the worked example as
+yourself. `create-repo` and the fleet tooling follow in a later version.
+
 ## Status
 
 Early. The `method/` layer is standing up first; the `build/` layer (the
@@ -84,5 +113,7 @@ repo — that stays in the operator's private person-level context by design,
 which is exactly what makes atelier safe to publish. Because the repo is public,
 that boundary is load-bearing on **every commit**: the `tools/` scan hook
 (leakscan · secretscan) is the mechanical gate, not a pre-publish afterthought.
-Widening further — an announcement, a packaged plugin/skills bundle — is the next
-deliberate step, not this one.
+Widening further, atelier is now packaged as an installable plugin/skills bundle
+(see *Install as a Claude Code plugin* above) — the delivery vehicle for the
+doctrine to travel. A public **announcement** remains the next deliberate widening
+beyond that, and stays the principal's call.

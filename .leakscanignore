@@ -13,3 +13,13 @@ tools/test_secretscan.py
 # The local-term list TEMPLATE is, like the tests, a wall of deliberately
 # fictional example shapes documenting the format. No real data lives here.
 tools/leakscan-terms.example.txt
+
+# The plugin + marketplace manifests carry the author's own name in the
+# author/owner attribution field — legitimate, approved, named-worked-example
+# identity (ADR 0005; an adopter substitutes their own).
+# This is the same case the CLAUDE.md convention line handles with an inline
+# `leakscan:allow`, but JSON cannot hold that marker, so the exemption lives
+# here. Scope is deliberately tight (two small structured manifests) and
+# secretscan still covers them for credentials.
+.claude-plugin/plugin.json
+.claude-plugin/marketplace.json
