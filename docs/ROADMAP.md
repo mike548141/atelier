@@ -29,7 +29,17 @@ has inherited the costume, not the doctrine.
       applies nothing — **findings await Mike's disposition.** Author's counsel on
       record: take I1–I5 + I7 (all cheap and land on real seams; I2/I3 are the two
       that most need closing before this is cited as standalone), I6 a judgement
-      call (soften "proved").
+      call (soften "proved"). **Second pass RAN 2026-07-13** (principal-
+      commissioned, un-briefed, whole-doc scope): **PASS-WITH-FINDINGS**, verdict
+      in `reviews/2026-07-13-review-doctrine-second-pass.md`. Independently
+      corroborates I1/I3/I5/I6, endorses I2/I4/I7; adds F1–F7 outside the first
+      review's scope, led by F1 ("finds nothing ⇒ suspect" is a Goodhart trap —
+      the REACH first review had five findings and was still the failure case),
+      F2 (the sanctioned inline-spawn review is the warmest-brief shape and the
+      sections never touch), F3 (grounding is n=1 *uncontrolled* — post-fix text,
+      adversarial priming, reviewer variance — name the strengthening trigger),
+      F4 (PROPAGATION still restates the superseded "most capable model" rule).
+      Both checklists disposition as one batch — **Mike's call.**
 - [ ] **REACH.md adversarial re-review — DISPOSITION OWED, Mike's, not the
       author's.** RAN 2026-07-12 (session 47's post-session self-review found
       the first review author-briefed — cold context, warm questions — so an
