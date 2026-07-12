@@ -1,0 +1,110 @@
+# Reach — getting past a block, and the line you won't cross to do it
+
+When the clean path to a resource is blocked — a `403`, an anti-bot wall, a
+login the agent doesn't hold — there is a *further* path, and there is a
+**limit** on how far the agent may go to take it. This doc is both halves:
+**escalate cheapest-first** (the ladder), and **never mint access from the
+principal's saved credentials** (the boundary). It is the doctrine behind the
+`instruments/` layer's third verb — `tools/` **enforce**, the observer
+instruments **observe**, and reach-extending instruments **get the teammate
+through a wall** (ADR 0006 addendum). The worked instance is
+`instruments/browser-fetch/`; the rules here are general.
+
+## Escalate cheapest-first — the ladder
+
+Reaching the internet (or any walled resource) is a **ladder of methods,
+cheapest at the top**. Always start at the top and step down **only when the
+current rung is actually blocked** — each rung down costs more of something:
+time, tokens, or the operator's attention. Never open at a lower rung because
+it's more likely to work; the cost you'd skip is the cost that keeps the
+top rungs the default.
+
+The general shape, from cheapest:
+
+1. **Built-in, processed** — the cleaned, known-URL fetch or the search that
+   finds one. No process of your own, no operator.
+2. **Raw client** — raw bytes when you need exact headers, an API, a file, or
+   when the processing in rung 1 gets in the way. Same anti-bot profile as
+   rung 1 (a bare HTTP client), so it clears no new *walls* — it's a
+   different *shape* of request, not a stronger one.
+3. **A real engine, disposable** — a standalone, fully isolated browser the
+   agent drives itself. Beats a bare client at anti-bot walls because it *is* a
+   real engine; shares nothing with the operator's browsing, so it can't be
+   clicked away or break anything.
+4. **A real engine the operator started, isolated** — non-headless (some walls
+   key on headless specifically) but still a dedicated, everyday-browsing-free
+   profile. Costs the operator an action to start it.
+5. **The operator's own live session** — their real history and logged-in
+   tabs, "just another tab as if they'd opened it". Only when the operator
+   *deliberately* exposes it, and only when nothing weaker gets through.
+6. **Ask the operator** — full manual fallback, when even their browser hits a
+   wall only a human clears.
+
+The rungs climb one axis — **isolation traded away for reach** — and cross a
+second at rung 4: **needing the operator**. Rungs 1–3 the agent walks alone;
+4–6 cost the operator progressively more, which is the real reason to exhaust
+the cheap rungs first. The escalation principle is general; the *engines and
+tools* that fill the rungs are instance-local (see "What lives elsewhere").
+
+## The credential boundary — a purpose-of-storage test
+
+Descending the ladder eventually rides the operator's real browser (rungs 4–5),
+where saved logins live. The boundary that governs it generalises past
+browsers: **which credential stores may the agent draw on at all?** The test is
+*why the credential was stored*, not where it sits or how easy it is to reach.
+
+- **Provisioned stores are the intended path.** Credentials saved *so that* a
+  repo, tool, or agent can use them — the keychain items the estate registry
+  records, per-consumer minted API tokens, the whole `SECRETS.md` / `ACCESS.md`
+  machinery. Agent use is the thing they exist for; in scope by design, no
+  further permission needed beyond the grant that provisioned them.
+
+- **Personal convenience stores are off-limits by default.** A browser
+  profile's saved logins, the principal's password manager — saved over years
+  to ease the *principal's own* use, never provisioned for the agent, and far
+  broader than any task needs. The agent may **ride a session the principal has
+  already authenticated** (existing cookies, a logged-in tab are fair game); it
+  may **never reach for the stored credentials that would mint a session**, nor
+  the credentials themselves. **Riding an open session is fine; touching the
+  credentials behind it is the line.**
+
+- **The principal can grant across the line** — per credential, temporary or
+  permanent, as an explicit act. A grant is the principal's alone to make
+  (`AUTONOMY.md`: the agent records a grant, never originates one; crossing this
+  line is a trust-surface widening, floor-class). And a grant *moves* the
+  credential into the intended path: it belongs in the provisioned machinery
+  (`SECRETS.md`'s store, `ACCESS.md`'s runbook), not held ad-hoc in the agent's
+  memory of "I was allowed this once" (`EVIDENCE.md`: store the rule, not a
+  loose recollection of it).
+
+The line runs where `SECRETS.md`'s own scope boundary runs — its person-level
+credentials sit in the operator's personal vault, *outside* the estate's
+operational doctrine. This test is the reciprocal from the agent's side: the
+same personal vault the estate doctrine declines to cover is the store the agent
+declines to draw on. Both halves keep the irreplaceable, personal credential set
+untouched by the operational machine.
+
+## Why the two halves are one doc
+
+The ladder is how far the agent reaches; the boundary is the line reach must not
+cross. They meet at rungs 4–5, where extending reach *is* riding the principal's
+authenticated session — so the guardrail and the escalation are the same event
+seen twice. A reader who has the ladder without the boundary would descend it
+into the saved-credential store; a reader who has the boundary without the
+ladder would never learn there's a disciplined, cheapest-first way down at all.
+
+## What lives elsewhere
+
+This is the shareable doctrine. The concrete mechanism is instance-local:
+
+- **The built ladder** — which engines and tools fill rungs 1–6, the exact
+  tool names and their `status`/isolation behaviour, and the honest gaps (today
+  the real-engine rungs are one browser; other engines and an explicit rung-4/5
+  split are open work) — lives in `instruments/browser-fetch/README.md` and the
+  ROADMAP, never here. The doctrine is engine-agnostic; the instance is partial,
+  and says so there.
+- **The estate's provisioned stores and the grants across the line** — which
+  keychain items and tokens exist, and which personal credentials the principal
+  has moved into the intended path — are the `SECRETS.md` / `ACCESS.md`
+  instance-local machinery (sensitive topology under `DATA-PROTECTION.md`),
+  never here.

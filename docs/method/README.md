@@ -29,21 +29,29 @@ Read in this order:
    the `AUTONOMY`/`DATA-PROTECTION`/`SECRETS` rules for the moment access is new;
    the concrete estate access map is instance-local (created at the first
    onboarding walked under the runbook — see ACCESS "what lives elsewhere").
-7. **`STORAGE.md`** — GitHub master, iCloud backup, laptop disposable.
-8. **`CONCURRENCY.md`** — one worktree per line of work; serialise real-world
+7. **`REACH.md`** — getting past a block, and the line you won't cross for it:
+   escalate cheapest-first (the fetch ladder — built-in → raw client → real
+   engine → the operator's session → ask), and the credential boundary as a
+   **purpose-of-storage test** (provisioned stores are the intended path;
+   personal convenience stores off-limits by default; ride a session, never the
+   saved credentials that mint one; the principal grants across the line). The
+   instruments' third verb — *extend reach*; the built instance is
+   `instruments/browser-fetch/`.
+8. **`STORAGE.md`** — GitHub master, iCloud backup, laptop disposable.
+9. **`CONCURRENCY.md`** — one worktree per line of work; serialise real-world
    side-effects.
-9. **`TOOLBOX.md`** — keep a tool manifest; approved-but-missing may be
+10. **`TOOLBOX.md`** — keep a tool manifest; approved-but-missing may be
    installed; keep the personal inventory machine-local.
-10. **`PRINCIPLES.md`** — the design principles (resilience, structure,
+11. **`PRINCIPLES.md`** — the design principles (resilience, structure,
    events-over-polling, state/concurrency, security/privacy/cost, legibility,
    reproducibility) + the precedence ladder + situation tests, with generalised
    cases. **Canonical here**; `ros` keeps its tiki bearings + review case-law and
    points up.
-11. **`MODEL-ECONOMICS.md`** — match the model to the job (plan model builds,
+12. **`MODEL-ECONOMICS.md`** — match the model to the job (plan model builds,
    usage-billed model reviews), the which-pool self-check, tiered authority, and
    session hygiene. **Canonical here**; the estate-specific numbers (prices,
    model roster, session-overhead figure) stay person-local in `ros`.
-12. **`COMMUNICATION.md`** — calibrate replies to the person reading them: each
+13. **`COMMUNICATION.md`** — calibrate replies to the person reading them: each
    principal keeps a person-local "working with me" calibration (ordering,
    density, visual structure, tone, locale), maintained from dated evidence.
    The *pattern* is shareable; the instance stays in `~/.claude/`, with a

@@ -7,6 +7,17 @@ has inherited the costume, not the doctrine.
 
 ## Doctrine — review-owed
 
+- [ ] **Cold review of `method/REACH.md`** — OWED 2026-07-12 (session 47). New
+      doctrine: the fetch escalation ladder + the credential boundary (purpose-
+      of-storage test), elevated from the browser-fetch README. Cold fresh-
+      context agent, session-40/44 lifecycle (brief → run → verdict in the brief
+      file → disposition). Pre-seeded questions: (1) does the ladder's generic
+      1–6 shape stay grounded, or does it invent rungs the built instance lacks;
+      (2) is "why the two halves are one doc" argued or merely asserted; (3) does
+      the purpose-of-storage test cover the estate's real credential cases
+      without finding intended provisioned use contrary to itself; (4) does it
+      leak nothing person-level (the personal password manager is named as a
+      *class*, not an instance — is that the right line).
 - [x] **Cold review of `method/COMMUNICATION.md`** — RAN 2026-07-12 (cold
       fresh-context agent, barred from the person-level layer by the brief so
       the leak question was judged as a genuine outside reader):
@@ -151,15 +162,24 @@ has inherited the costume, not the doctrine.
       **Chrome-only**; open work:
       - [ ] **Other engines** — Safari and Firefox for rungs 3–5 (some anti-bot
             keys on Chrome/headless specifically; a second engine is another way
-            through).
+            through). *In progress 2026-07-12 (session 47) — build agent.*
       - [ ] **Cleaner 4/5 split** — today one `browser_fetch_persistent` serves
             both, distinguished only by which profile the operator exposes on
             `:9222`. Consider making the dedicated (rung 4) vs everyday-session
-            (rung 5) choice explicit rather than implicit-by-setup.
-      - [ ] **Elevate the credential boundary + ladder to `method/` doctrine**
-            (review-owed). The rule generalises as a **purpose-of-storage test**
-            (Mike, 2026-07-12), and the doctrine must draw it so the estate's
-            intended credential use is not found contrary to it:
+            (rung 5) choice explicit rather than implicit-by-setup. *In progress
+            2026-07-12 (session 47) — build agent.*
+      - [x] **Elevate the credential boundary + ladder to `method/` doctrine**
+            — DONE 2026-07-12 (session 47, Opus): `method/REACH.md` written,
+            grounded in the browser-fetch README + this item. Both halves in one
+            doc: the escalation ladder (engine-agnostic, cheapest-first) and the
+            credential boundary as a purpose-of-storage test. Named for the
+            instruments' third verb (*extend reach*, ADR 0006), indexed after
+            ACCESS in the SECRETS/ACCESS family. **Review-owed** (cold
+            fresh-context, session-40/44 pattern) — pre-seeded questions: does
+            the ladder's generic shape stay honestly grounded without inventing
+            rungs the instance doesn't have; is the two-halves-one-doc join
+            argued or asserted; does the purpose-of-storage test cover the real
+            estate cases without outlawing intended use. The rule as captured:
             - **Provisioned stores are the intended path** — credentials saved
               *so that* a repo/tool/agent can use them (keychain items the estate
               registry records, minted per-consumer API tokens, the SECRETS/
