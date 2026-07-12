@@ -32,11 +32,12 @@ the *ask*.
 Two terms, because the rules turn on them. The **author** is the agent (or party)
 whose judgement produced the work — the entity whose blind spots are in question,
 whatever name the commit metadata carries. The **principal** is the deciding
-human the agent serves (00-APEX). The rules presuppose the two are *distinct*.
+human the agent serves (00-APEX). Rule 3 presupposes the two are *distinct*.
 Where they are not — a solo operator adopting this doctrine for work they wrote
-themselves — rule 3 gives nothing: the only independence available is the cold
-reviewer's findings on the durable record, and an adopter in that position
-should know the gap rather than assume the rule covers it.
+themselves — rule 3 gives nothing (rules 1–2 still deliver): the only remaining
+independence is the cold reviewer's findings on the durable record, and an
+adopter in that position should know the gap rather than assume the rule
+covers it.
 
 The grounding is one case — REACH (2026-07-12): an author-briefed review passed
 a doc clean on four pre-seeded questions; an un-briefed adversarial re-run of
@@ -45,26 +46,32 @@ boundary the seeded questions steered around. One case is evidence, not proof,
 and this one is confounded (the re-run read post-fix text, was primed to be
 adversarial, and two cold reviewers diverge anyway) — what the rules encode is
 the *mechanism* it exhibited: **framing leaks through the ask, not just the
-context.** Standing test to strengthen or weaken the rules: an author-briefed
-review that passes clean earns an un-briefed re-run; each such pair is a data
-point.
+context.** Standing test to strengthen or weaken the rules: an author-framed
+review of doctrine or structural work earns an un-briefed re-run regardless of
+its finding count (count is the wrong credibility test — see *What review is
+not*); a pass that is clean *on the seeded questions specifically* is the
+strongest trigger. Each such pair is a data point.
 
-So when the brief is written by, or on the framing of, the work's author, these
-rules bind on top of fresh context (rules 1–2 always; rule 3 on doctrine):
+So these rules bind on top of fresh context — rules 1–2 whenever the brief is
+written by, or on the framing of, the work's author; rule 3 whenever the work
+is self-authored doctrine, however the review was commissioned:
 
-1. **The author's questions are a floor, never a fence.** The author may seed
-   attack questions — it knows where the hard trade-offs were — but the reviewer
-   names the load-bearing assumptions *itself* and chooses its own attack surface
-   beyond anything seeded (lens 1 below). And extra care: seeded questions
-   influence by their very existence — their topic and tone suggest where "the
-   risk" lives — so the reviewer chooses its own surface *before* weighing the
-   author's list, and treats the brief's framing, including its account of *what
-   the work is*, as itself attackable (a "grounded in X" in a brief is the
-   author's claim to test, not settled scope).
-2. **Barred from prior reviews until its own findings are committed.** An
-   earlier verdict is another channel for the author's framing; the reviewer
-   reads it only after committing its own findings — to reconcile, never to
-   anchor. Verifying a prior review's dispositions (its `[fixed]` claims) is
+1. **The author's questions are a floor, never a fence — and the deferral is
+   structural, not willpower.** The author may seed attack questions — it knows
+   where the hard trade-offs were — but seeded questions influence by their very
+   existence: their topic and tone suggest where "the risk" lives, and a
+   reviewer cannot un-read them. So they sit in a **deferred section of the
+   brief, below the divider**, which the reviewer opens only after its own
+   attack surface is committed (the same shape rule 2 gives prior verdicts).
+   The reviewer names the load-bearing assumptions *itself* as its first act
+   (lens 1 below), and treats the brief's framing, including its account of
+   *what the work is*, as itself attackable (a "grounded in X" in a brief is
+   the author's claim to test, not settled scope).
+2. **Barred from prior reviews until its own findings are committed** —
+   committed meaning *durably written to its draft*, before any prior verdict
+   is opened. An earlier verdict is another channel for the author's framing;
+   the reviewer reads it only after that point — to reconcile, never to anchor.
+   Verifying a prior review's dispositions (its `[fixed]` claims) is
    reconcile-step work, done after that point — not licence to read early.
 3. **Findings on self-authored *doctrine* are the principal's to disposition,
    not the author's.** Doctrine here is defined by **function, not file type**:
@@ -115,12 +122,11 @@ throwaway chat:
 1. **Brief** — before the review runs, write a scoped brief to
    `docs/reviews/<date>-<slug>.md`: what the work is, the three lenses, and the
    **specific assumptions to attack**. Add a `[ ]` pointer in the ROADMAP. The
-   brief is *ask on top*. **When the brief carries the author's framing** (written
-   by, or dictated by, the party whose work is under review), the independence
-   rules bind: seeded questions are a floor, never a fence — the reviewer names
-   its own assumptions to attack beyond them, guards against the subtle steer of
-   the questions' topic and tone, and treats the brief's framing as itself
-   attackable (see *Independence is more than fresh context*).
+   brief is *ask on top*. **When the brief is written by, or on the framing of,
+   the work's author**, the independence rules bind: seeded questions go in a
+   deferred section below the divider, opened by the reviewer only after its own
+   attack surface is committed — a floor, never a fence — and the brief's
+   framing is itself attackable (see *Independence is more than fresh context*).
 2. **Run** — the reviewer reads the repo and the brief and reviews deep, not
    fast. Findings get stable IDs so nothing is lost in synthesis.
 3. **Verdict** — the reviewer's output (per-question answers, findings, a
@@ -145,6 +151,21 @@ throwaway chat:
    live proof where one exists. "Addressed the review" without exercising the fix
    is the apex violation the review existed to catch.
 
+**Applying dispositions to doctrine — and when the cycle stops.** Applying
+dispositioned findings to doctrine text is itself a doctrine edit and earns a
+cold pass (ceremony-to-risk below). Prefer an applier that authored neither the
+doctrine nor the verdicts — a neutral hand can harmonise a stale recommendation
+with the principal's decision without defending either. An application review
+cannot fully honour rule 2 — the delta it reviews carries the prior verdicts'
+disposition stamps — so its sequence is: review the edited doctrine at HEAD and
+commit findings *first*, open the verdict-file hunks after; the residual
+exposure is named, not denied. And the cycle terminates (law of diminishing
+returns — the principal's ruling, 2026-07-13): it **closes when a pass returns
+no MAJOR finding** — what remains is dispositioned into the backlog, and that
+application does not spawn another full ceremony. The escape valve if it *isn't*
+converging: when the MAJOR count is not falling from pass to pass, do not keep
+cranking — stop and ask the principal for direction.
+
 ## Whether a change earns a review at all — calibrate to risk
 
 The lifecycle above is the *full* ceremony; **not every change earns it.** Match
@@ -167,8 +188,9 @@ Both are sanctioned; pick per cost and how blocking the result is
   the review as a background agent and verifies as it goes, no context switch.
   (This is how the atelier foundation review ran.) The spawn prompt *is* a brief,
   and the spawning session is usually the work's author with its framing at its
-  warmest — so the independence rules bind it in full: seeded questions are a
-  floor, and the reviewer chooses its own attack surface.
+  warmest — so the independence rules bind it in full: seeded questions deferred
+  (a section or file the reviewer opens only after committing its own attack
+  surface), never a fence.
 - **Batched queue** — when they don't, queue the briefs and run them together
   later.
 

@@ -139,8 +139,8 @@ doctrine that is complied with.** The propagation mechanism distributes the
 Enforcement was always a separate practice: **independent review** — who
 reviews, at what capability, and which changes earn one live in `REVIEW.md`.
 The documents are the standard; the peer review is what checks the work against
-the standard before it is trusted (see `MODEL-ECONOMICS.md` review-trigger
-policy, and the review lifecycle owed in the ROADMAP). A pin that is current and
+the standard before it is trusted (`REVIEW.md` carries the lifecycle;
+`MODEL-ECONOMICS.md` the trigger economics). A pin that is current and
 a floor that is inlined still only *inform* the agent; the review loop is what
 *catches* the session that ignored them. Do not mistake the anchor for the
 enforcement.

@@ -88,15 +88,15 @@ For a background-agent reviewer there is no git commit of its own. Say "committe
 
 ## Follow-up checklist
 
-- [ ] G1 — encode deferred-seeded-questions in the brief shape (or state the ordering rule as mitigation-not-cure with the re-run test as backstop)
-- [ ] G2 — decouple rule 3's condition from brief authorship; align with step 4
-- [ ] G3 — re-key the standing test's trigger off finding count (risk- or seeded-axes-keyed)
-- [ ] G4 — encode the application-earns-review rule, the neutral-applier preference, and a cycle-stopping rule
-- [ ] G5 — sequencing guidance for application reviews (delta carries dispositions)
-- [ ] G6 — "Rule 3 presupposes", singular
-- [ ] G7 — drop/repoint PROPAGATION's stale "lifecycle owed in the ROADMAP"
-- [ ] G8 — unify the trigger gloss
-- [ ] G9 — define "committed" as durably-drafted
+- [x] G1 — encode deferred-seeded-questions in the brief shape (or state the ordering rule as mitigation-not-cure with the re-run test as backstop)
+- [x] G2 — decouple rule 3's condition from brief authorship; align with step 4
+- [x] G3 — re-key the standing test's trigger off finding count (risk- or seeded-axes-keyed)
+- [x] G4 — encode the application-earns-review rule, the neutral-applier preference, and a cycle-stopping rule
+- [x] G5 — sequencing guidance for application reviews (delta carries dispositions)
+- [x] G6 — "Rule 3 presupposes", singular
+- [x] G7 — drop/repoint PROPAGATION's stale "lifecycle owed in the ROADMAP"
+- [x] G8 — unify the trigger gloss
+- [x] G9 — define "committed" as durably-drafted
 
 ## Reconciliation (written last, after reading both prior verdicts and their dispositions)
 
@@ -107,3 +107,24 @@ For a background-agent reviewer there is no git commit of its own. Say "committe
 **Does reading the priors change my verdict?** No. My G5 independently extends the second pass's F5 to the application-review shape; my G3 lands on the same territory F1 cleared (count is the wrong test) and shows the F3 fix reimported the metric F1 evicted — the two dispositions, both faithfully applied, are in quiet tension at HEAD, which is itself evidence the batch earned this cold pass. Both prior verdicts and this one land on the same tier for the same reason: the spine holds; the seams that remain are in the newest, least-exercised material. None of G1–G9 blocks the doctrine from operating; G1–G5 should land before the independence section is cited as standalone authority.
 
 Per rule 3, these findings are Mike's to disposition; this reviewer applies nothing.
+
+---
+
+## Disposition (2026-07-13, Mike — the principal)
+
+All nine **[fixed]**, applied same day by the batch's applier at Mike's
+direction. Two rulings of Mike's own are now doctrine:
+
+- **G1 [fixed — Mike endorsed the structural fix]:** seeded questions live in a
+  deferred section below the brief's divider, opened only after the reviewer's
+  own attack surface is committed — deferral by structure, not willpower.
+- **G4 [fixed — extended by Mike]:** the cycle closes when a pass returns no
+  MAJOR (this pass did — the cycle is closed; this application spawns no
+  further ceremony), *plus his escape valve*: if the MAJOR count is not falling
+  from pass to pass, stop cranking and ask the principal for direction.
+- **G2, G3, G5–G9 [fixed]** as recommended: rule 3 reconditioned on
+  self-authored doctrine however commissioned; the standing test re-keyed off
+  finding count; application-review sequencing stated with the residual
+  exposure named; "rule 3 presupposes", singular; PROPAGATION's stale
+  "lifecycle owed" repointed; the trigger gloss unified; "committed" defined
+  as durably-drafted.

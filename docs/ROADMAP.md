@@ -18,8 +18,14 @@ has inherited the costume, not the doctrine.
       surface). Applied 2026-07-13 to REVIEW.md + PROPAGATION.md by a session
       that authored neither the doctrine nor either verdict; dispositions
       stamped in both verdict files.
-- [ ] **Cold review of the applied independence batch — RAN 2026-07-13,
-      DISPOSITION OWED, Mike's.** **PASS-WITH-FINDINGS**, verdict verbatim in
+- [x] **Cold review of the applied independence batch — RAN 2026-07-13,
+      dispositioned same day: all nine [fixed], applied, cycle CLOSED.** Mike
+      ruled the loop question directly: the cycle closes when a pass returns no
+      MAJOR (this one did), and if MAJORs ever stop falling pass-to-pass, stop
+      and ask him — both now encoded in REVIEW.md's application paragraph,
+      alongside his endorsement of G1's structural fix (seeded questions defer
+      below the brief's divider). This application spawns no further ceremony
+      per the rule it encodes. **PASS-WITH-FINDINGS**, verdict verbatim in
       `reviews/2026-07-13-independence-batch-applied.md`. Fidelity confirmed:
       14/14 dispositions faithfully applied (one deviation judged the right
       call — F2's pre-fork wording harmonised with the floor-not-fence

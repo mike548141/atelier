@@ -45,3 +45,25 @@ dispositions; G4 — the doctrine-review regress needs an explicit stopping rule
 and the neutral-applier pattern this session stumbled into deserves encoding.
 Recorded verbatim, nothing applied — **G1–G9 await Mike's disposition**
 (ROADMAP'd with the applier's counsel, labelled: take all nine).
+
+## Addendum — the loop question, and G1–G9 dispositioned
+
+Mike asked mid-session whether the doctrine-review cycle was becoming an
+endless loop. Assessment: converging, not looping (pass 1 → 3 MAJOR; pass 2 →
+0 MAJOR among 7; G-pass → 0 MAJOR among 9), and G4 had already named the
+missing stopping rule. **Mike ruled:** the no-MAJOR exit is the mechanism, with
+his escape valve on top — if the MAJOR count is not falling pass-to-pass, stop
+cranking and ask the principal for direction. He also endorsed G1's structural
+fix in his own words ("put seeded questions below the brief's divider, opened
+only after the reviewer commits its own attack plan") and dispositioned **all
+nine [fixed]**.
+
+Applied same day to REVIEW.md (rule 1 deferral-by-structure; rule 3
+reconditioned on self-authored doctrine however commissioned; standing test
+re-keyed off finding count; the new *Applying dispositions to doctrine*
+paragraph carrying the neutral-applier preference, the application-review
+sequencing, the no-MAJOR stopping rule, and the non-convergence valve;
+"committed" defined; glosses unified) and PROPAGATION.md (stale "lifecycle owed
+in the ROADMAP" repointed). Disposition stamped in the G verdict file; ROADMAP
+ticked. **Per the stopping rule just encoded, this application spawns no
+further review cycle — the independence-doctrine sequence is closed.**
