@@ -95,11 +95,11 @@ This is the shareable procedure. The instance keeps:
 - **The estate access map** — which domains are onboarded, which credential
   guards each, the plane split per domain, and how far each domain's rings have
   actually been walked. It is sensitive topology, so it is itself protected under
-  `DATA-PROTECTION.md` and never lives in this repo. *(Honest status,
-  2026-07-10, review B14: the instance currently holds this as scattered
-  per-domain notes, not a consolidated map — the first onboarding walked under
-  this runbook should create it, and each later one extends it. A runbook step
-  that says "record it in the map" needs the map to exist.)*
+  `DATA-PROTECTION.md` and never lives in this repo. *(Status: 2026-07-10 review
+  B14 flagged the instance held only scattered per-domain notes, not a
+  consolidated map; the consolidated map was created 2026-07-12 (a row per domain
+  across the four axes above, with honest per-domain onboarding status), and each
+  later onboarding extends it — one home, per RECORD's one-fact-one-home.)*
 - **The per-domain mint/rotate procedures and standing-credential debts** — in
   the instance's secrets doc and `secrets/` tree (`SECRETS.md` "what lives
   elsewhere"), never here.

@@ -459,18 +459,25 @@ standout debt; sessions 14–15 deliberately did not stack on it.
       gate is cleared — the create-repo rewire and further stacking may
       resume.**
 - [ ] **Batch-review follow-ups ([backlog] findings)** — the consolidated item:
-      - [~] **ros: first consolidated estate access map** (B14) — CREATED
-            2026-07-12 (session 47, agent scoped inside the private ros repo;
-            structure only recorded here, sensitive topology stays in ros).
-            `docs/ACCESS-MAP.md` in ros: a row per domain across ACCESS.md's four
-            axes (credential+store · plane split · rings walked · status/debt),
-            seeded from ros's own scattered facts (SPECS, inventory, secrets
-            README), honest per-domain status (one LIVE/mature, one STAGED, one
-            PLANNED — nothing rounded up to "onboarded"). Committed **signed** on
-            an isolated worktree branch `access/estate-access-map` (`c3bc612`),
-            **not pushed** — a concurrent session is live on ros's main, so merge
-            + push is the follow-up once that session settles. ACCESS.md's honest
-            "not yet consolidated" status can flip once it lands on ros main.
+      - [x] **ros: first consolidated estate access map** (B14) — DONE
+            2026-07-12 (session 47; created by an agent scoped inside the private
+            ros repo, then **landed on ros main** by the main line once ros's PR
+            merged and it had no live session). `docs/ACCESS-MAP.md` in ros: a row
+            per domain across ACCESS.md's four axes, seeded from ros's own
+            scattered facts, honest per-domain status (one LIVE/mature, one
+            STAGED, one PLANNED — nothing rounded up to "onboarded"). **Read
+            before finalize caught a stale status** — the map, seeded while ros's
+            mgmt-plane-pinning work was still in-progress, called it "review +
+            live-capture owed"; by merge time that work had merged (Fable-reviewed
+            PASS-WITH-FINDINGS, F1–F5 applied, live-bench-proven), so the cell was
+            corrected before push. Rebased onto the merged main (conflict-free,
+            new file), signed, ff-merged + pushed (`82db55c`), worktree/branch put
+            away. ACCESS.md's honest-status note flipped (map now exists).
+            **Note:** ros's floor is red, but *not* on this map (it scans clean) —
+            pre-existing `pins/cel.yaml` high-entropy debt (TOFU pin fingerprints,
+            almost certainly false positives) from the just-merged security PR,
+            red since that merge. That's the security work's owed scanner cleanup,
+            separate from B14.
       - [x] **REVIEW.md addition** — DONE 2026-07-10 (Opus): new "Re-run every
             'live-proven' claim in scope" subsection — a recorded proof is a
             claim that can be stale by the commit that records it, so a review
