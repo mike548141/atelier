@@ -40,10 +40,22 @@ Grounded in the live instance, not invented to fill a heading:
 - **Density and volume** — how terse is too terse; whether structure should
   *replace* length or supplement it. A long reply reads as heavy even when
   every line is tight.
-- **Visual structure** — iconography, tables, headings; and the specifics
-  matter more than the category (the live instance prefers *colour* icons —
-  ✅ ❌ ⚠️ — over monochrome glyphs, because colour carries the signal
-  faster; confirmed 2026-07-12).
+- **Visual structure** — iconography, tables, headings, and call-out devices
+  (blockquotes, dedicated sections); the specifics matter more than the
+  category (the live instance prefers *colour* icons — ✅ ❌ ⚠️ — over
+  monochrome glyphs, because colour carries the signal faster; confirmed
+  2026-07-12). Two refinements from the same instance (2026-07-12): don't
+  ration the icon vocabulary to a fixed set — reach for the one that *fits*
+  the moment (🎉 a real win, 🎯 a decision that's the reader's to make, 🚩 a
+  caution) — under the guardrail that an *apt* icon is signal and an
+  *overused* one is noise. And surface the parts the reader must **act on** —
+  a decision, an action, a caution — in a device that draws the eye and sits
+  *apart* from the reasoning, so the ask never hides inside the evidence.
+- **Accessibility of the language** — a term the reader hasn't signalled they
+  share, or a wall of unbroken prose, costs a reread exactly as a missing
+  colour-glyph does. Define or drop the jargon; prefer plain words; let
+  structure break the wall. (Live instance, 2026-07-12: replies had run
+  text-heavy and term-laden — same reader, same cost as the visual axis.)
 - **Cognitive-load stance** — solutions, drafts, and summaries versus option
   surveys; whether stating the obvious helps or grates.
 - **Tone** — register, humour, and *how much*. Dosage is part of the
@@ -89,8 +101,12 @@ it does not track the original). Replace wholesale with your own:
 > - **Outcome first, evidence beneath it** — lead with the answer/verdict,
 >   then the supporting detail; the answer gives the detail its context.
 > - **Visual reader** — colour iconography (✅ done · ❌ failed · ⚠️
->   partial/deferred), tables for anything multi-dimensional, headings to scan
->   by. Use layout to carry structure and cut length.
+>   partial/deferred, and the wider palette when it fits — 🎉 🎯 🚩), tables
+>   for anything multi-dimensional, headings to scan by; surface actions and
+>   decisions in an eye-catching call-out, apart from the reasoning. Use
+>   layout to carry structure and cut length.
+> - **Plain over jargon** — define or drop terms the reader hasn't signalled
+>   they share; don't run text-heavy.
 > - **Dense and concise** — "as short as possible, but no shorter"; watch
 >   volume, and let structure *replace* length, never pad it.
 > - **Reduce cognitive load** — provide solutions, drafts, or summaries, not

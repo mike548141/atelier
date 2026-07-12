@@ -57,10 +57,18 @@ stopped instead of re-deriving it:
   goes in a `docs/sessions/<date>-NN-slug.md` file and the index carries a
   one-line pointer. Open the detail file only when a line needs unpacking. This
   keeps the always-loaded index cheap (token discipline) without losing depth.
-- **Write it before finishing.** The session entry is part of the work, not an
-  afterthought — the handoff is a deliverable. (See also session hygiene in
-  `MODEL-ECONOMICS.md`: log where you got to, then start fresh rather than
-  dragging a bloated context.)
+- **Write it before finishing — and *declare* the close.** The session entry is
+  part of the work, not an afterthought — the handoff is a deliverable. When the
+  agent judges a line of work done, it does the full tidy-up **unprompted** —
+  entry written, changes committed and pushed, roadmap and follow-ups updated —
+  and *says so*: the principal should be able to close the session on the agent's
+  signal, not have to ask "are we actually done?" at the end of a run. Questions
+  mid-run are always fine — including stopping work to understand an issue; it is
+  the *close-ready* signal that shouldn't wait to be asked for. (Grounded
+  2026-07-12: this signal had been running on soft habit and drifted after a
+  model change — the artifact was mandated, the signal wasn't; encoding it.)
+  (See also session hygiene in `MODEL-ECONOMICS.md`: log where you got to, then
+  start fresh rather than dragging a bloated context.)
 
 ## Decisions — ADRs for anything a future session might re-propose
 
