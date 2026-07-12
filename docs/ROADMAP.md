@@ -7,39 +7,21 @@ has inherited the costume, not the doctrine.
 
 ## Doctrine — review-owed
 
-- [ ] **REVIEW.md reviewer-independence rule — DISPOSITION OWED, Mike's, not the
-      author's.** Cold review RAN 2026-07-12 (author-commissioned, written under
-      the new rule — brief seeded no attack questions, reviewer chose its own
-      surface): **PASS-WITH-FINDINGS**, verdict in
-      `reviews/2026-07-12-review-independence.md`. Design ships (fresh-context-is-
-      not-sufficient is right, framing-leaks-through-the-ask correctly named,
-      dogfood genuine); 7 findings I1–I7, **3 MAJOR on the rule's own load-bearing
-      axes**: I1 the rule overshoots its grounding (REACH proposed the milder
-      "author questions as a floor + reviewer licensed beyond them"; REVIEW.md took
-      the maximal "no author questions at all" without arguing the trade-off — and
-      the brief itself smuggled a verdict, "Grounded in the REACH case"); I2 the
-      author≠principal split the whole rule rests on is undefined and collapses in
-      two real cases (solo adopter who is both; atelier's own convention where
-      every commit is authored by Mike the principal); I3 the doctrine-vs-code line
-      the carve-out rides is undefined and dodgeable by encoding doctrine as a
-      validator (which AUTONOMY tells the agent to do). Plus I4–I7 (MINOR/NOTE):
-      rule-2 milestone mismatch, trigger over-generalises, "proved" from n=1 (the
-      exact defect REACH's own A8 was docked for), and a PROPAGATION "resolved
-      upward" vs "to the principal" seam. Self-authored doctrine, so the author
-      applies nothing — **findings await Mike's disposition.** Author's counsel on
-      record: take I1–I5 + I7 (all cheap and land on real seams; I2/I3 are the two
-      that most need closing before this is cited as standalone), I6 a judgement
-      call (soften "proved"). **Second pass RAN 2026-07-13** (principal-
-      commissioned, un-briefed, whole-doc scope): **PASS-WITH-FINDINGS**, verdict
-      in `reviews/2026-07-13-review-doctrine-second-pass.md`. Independently
-      corroborates I1/I3/I5/I6, endorses I2/I4/I7; adds F1–F7 outside the first
-      review's scope, led by F1 ("finds nothing ⇒ suspect" is a Goodhart trap —
-      the REACH first review had five findings and was still the failure case),
-      F2 (the sanctioned inline-spawn review is the warmest-brief shape and the
-      sections never touch), F3 (grounding is n=1 *uncontrolled* — post-fix text,
-      adversarial priming, reviewer variance — name the strengthening trigger),
-      F4 (PROPAGATION still restates the superseded "most capable model" rule).
-      Both checklists disposition as one batch — **Mike's call.**
+- [x] **REVIEW.md reviewer-independence rule — dispositioned 2026-07-13, all
+      fixed.** Two cold reviews ran: 2026-07-12 (scoped to the three independence
+      edits, I1–I7, 3 MAJOR — `reviews/2026-07-12-review-independence.md`) and
+      2026-07-13 (principal-commissioned, un-briefed, whole-doc, F1–F7 —
+      `reviews/2026-07-13-review-doctrine-second-pass.md`). Mike dispositioned
+      both batches **[fixed]**, choosing floor-not-fence on the seeded-questions
+      fork and adding his own strengthening (questions influence by their very
+      existence — the reviewer guards against their topic/tone steering its
+      surface). Applied 2026-07-13 to REVIEW.md + PROPAGATION.md by a session
+      that authored neither the doctrine nor either verdict; dispositions
+      stamped in both verdict files.
+- [ ] **Cold review of the applied independence-batch edits (REVIEW.md +
+      PROPAGATION.md, 2026-07-13)** — doctrine text earns the full ceremony, and
+      applying review fixes is itself a doctrine edit. Commissioned un-briefed,
+      per the (now-strengthened) rule the edits encode; findings route to Mike.
 - [ ] **REACH.md adversarial re-review — DISPOSITION OWED, Mike's, not the
       author's.** RAN 2026-07-12 (session 47's post-session self-review found
       the first review author-briefed — cold context, warm questions — so an

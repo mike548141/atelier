@@ -24,30 +24,61 @@ lets "done" mean *verified* rather than *looks right*.
 ## Independence is more than fresh context
 
 Fresh context is necessary but not sufficient. A review can be **cold-context yet
-warm-questioned**: if the work's author writes the brief's attack questions, they
-aim where the author was already looking, and the reviewer — however independent
-its *context* — inherits the author's blind spots through the *ask*. Grounded in
-the REACH case (2026-07-12): the author-briefed review passed the doc clean on
-four pre-seeded questions; an un-briefed adversarial re-run of the same doc found
-eight findings, zero overlap, two MAJOR — on the exact boundary the seeded
-questions steered around. So when the work's author commissions the review of its
-own work, three rules bind on top of fresh context:
+warm-questioned**: if the brief carries the framing of the party whose work is
+under review, its questions aim where that party was already looking, and the
+reviewer — however independent its *context* — inherits those blind spots through
+the *ask*.
 
-1. **The reviewer chooses its own attack surface.** No author-seeded questions;
-   the brief scopes *what the work is*, not *what to doubt about it*. The reviewer
-   names the load-bearing assumptions itself — that naming is the review's first
-   act (lens 1 below), not an input handed to it.
-2. **Barred from prior reviews until its own verdict drafts.** An earlier verdict
-   is another channel for the author's framing; the reviewer reads it only after
-   committing its own findings — to reconcile, never to anchor.
-3. **Findings on self-authored *doctrine* are the principal's to disposition, not
-   the author's.** The `[rejected: grounds]` escape below lets a builder overrule
-   a reviewer — sound for code, unsound when one agent both wrote the doctrine and
-   judges the challenge to it. There the author records the verdict verbatim and
-   applies nothing on its own; the principal decides.
+Two terms, because the rules turn on them. The **author** is the agent (or party)
+whose judgement produced the work — the entity whose blind spots are in question,
+whatever name the commit metadata carries. The **principal** is the deciding
+human the agent serves (00-APEX). The rules presuppose the two are *distinct*.
+Where they are not — a solo operator adopting this doctrine for work they wrote
+themselves — rule 3 gives nothing: the only independence available is the cold
+reviewer's findings on the durable record, and an adopter in that position
+should know the gap rather than assume the rule covers it.
 
-This is the independence the external-reviewer rule was always reaching for — the
-REACH case proved fresh context alone doesn't deliver it.
+The grounding is one case — REACH (2026-07-12): an author-briefed review passed
+a doc clean on four pre-seeded questions; an un-briefed adversarial re-run of
+the same doc found eight findings, zero overlap, two MAJOR — on the exact
+boundary the seeded questions steered around. One case is evidence, not proof,
+and this one is confounded (the re-run read post-fix text, was primed to be
+adversarial, and two cold reviewers diverge anyway) — what the rules encode is
+the *mechanism* it exhibited: **framing leaks through the ask, not just the
+context.** Standing test to strengthen or weaken the rules: an author-briefed
+review that passes clean earns an un-briefed re-run; each such pair is a data
+point.
+
+So when the brief is written by, or on the framing of, the work's author, these
+rules bind on top of fresh context (rules 1–2 always; rule 3 on doctrine):
+
+1. **The author's questions are a floor, never a fence.** The author may seed
+   attack questions — it knows where the hard trade-offs were — but the reviewer
+   names the load-bearing assumptions *itself* and chooses its own attack surface
+   beyond anything seeded (lens 1 below). And extra care: seeded questions
+   influence by their very existence — their topic and tone suggest where "the
+   risk" lives — so the reviewer chooses its own surface *before* weighing the
+   author's list, and treats the brief's framing, including its account of *what
+   the work is*, as itself attackable (a "grounded in X" in a brief is the
+   author's claim to test, not settled scope).
+2. **Barred from prior reviews until its own findings are committed.** An
+   earlier verdict is another channel for the author's framing; the reviewer
+   reads it only after committing its own findings — to reconcile, never to
+   anchor. Verifying a prior review's dispositions (its `[fixed]` claims) is
+   reconcile-step work, done after that point — not licence to read early.
+3. **Findings on self-authored *doctrine* are the principal's to disposition,
+   not the author's.** Doctrine here is defined by **function, not file type**:
+   any rule that governs future agent behaviour, whether it lives in prose, an
+   ADR, a schema, a validator, or a CI gate — encoding a policy as code does not
+   keep the escape. The `[rejected: grounds]` escape below stays sound for
+   ordinary code, where a wrong rejection is caught mechanically; it is unsound
+   where one agent both wrote the rule and judges the challenge to it. There the
+   author records the verdict verbatim and applies nothing on its own; it may
+   argue its case per finding, labelled as the author's position and kept below
+   the reviewer's text — the decision is the principal's.
+
+This is the independence the external-reviewer rule was always reaching for —
+the REACH case showed fresh context alone doesn't deliver it.
 
 ## What a review actually checks — three lenses
 
@@ -84,10 +115,12 @@ throwaway chat:
 1. **Brief** — before the review runs, write a scoped brief to
    `docs/reviews/<date>-<slug>.md`: what the work is, the three lenses, and the
    **specific assumptions to attack**. Add a `[ ]` pointer in the ROADMAP. The
-   brief is *ask on top*. **Exception when the work's author writes the brief:**
-   it scopes *what the work is* and stops — the reviewer chooses the assumptions
-   to attack itself (see *Independence is more than fresh context*), so the author
-   can't steer the review to its own blind spots.
+   brief is *ask on top*. **When the brief carries the author's framing** (written
+   by, or dictated by, the party whose work is under review), the independence
+   rules bind: seeded questions are a floor, never a fence — the reviewer names
+   its own assumptions to attack beyond them, guards against the subtle steer of
+   the questions' topic and tone, and treats the brief's framing as itself
+   attackable (see *Independence is more than fresh context*).
 2. **Run** — the reviewer reads the repo and the brief and reviews deep, not
    fast. Findings get stable IDs so nothing is lost in synthesis.
 3. **Verdict** — the reviewer's output (per-question answers, findings, a
@@ -100,10 +133,14 @@ throwaway chat:
    grounds are recorded in the verdict file, never resolved by silently dropping
    it (the same rule the layer-override discipline applies to doctrine
    conflicts). **The one carve-out:** findings on doctrine the *author itself*
-   wrote are dispositioned by the principal, not the author — the author can't
-   both write the doctrine and reject the challenge to it (see *Independence is
-   more than fresh context*). Fixes consolidate onto one ROADMAP follow-ups item; then tick the
-   ROADMAP pointer and add a `SESSIONS.md` entry.
+   wrote (doctrine by function — rule 3 above) are dispositioned by the
+   principal, not the author; the author may record its counsel per finding,
+   labelled as such, and applies nothing until the principal decides. Where such
+   a finding is a parent/child doctrine conflict, this and `PROPAGATION.md`'s
+   resolved-upward rule are the same act seen from governance and from layering:
+   the principal decides, and the resolution lands in the parent. Once
+   dispositioned, fixes consolidate onto one ROADMAP follow-ups item; then tick
+   the ROADMAP pointer and add a `SESSIONS.md` entry.
 5. **Close** — a finding is only closed when its fix is itself verified, with a
    live proof where one exists. "Addressed the review" without exercising the fix
    is the apex violation the review existed to catch.
@@ -128,7 +165,10 @@ Both are sanctioned; pick per cost and how blocking the result is
 
 - **Inline background agent** — when economics allow, the building session spawns
   the review as a background agent and verifies as it goes, no context switch.
-  (This is how the atelier foundation review ran.)
+  (This is how the atelier foundation review ran.) The spawn prompt *is* a brief,
+  and the spawning session is usually the work's author with its framing at its
+  warmest — so the independence rules bind it in full: seeded questions are a
+  floor, and the reviewer chooses its own attack surface.
 - **Batched queue** — when they don't, queue the briefs and run them together
   later.
 
@@ -137,9 +177,14 @@ lives inside the "know which pool you're spending" rule.
 
 ## What review is not
 
-- **Not a rubber stamp.** A review that finds nothing on non-trivial work is
-  itself suspect — either the scope was too narrow or the reviewer went fast.
-  Briefs say "review deep, not fast" for a reason.
+- **Not a rubber stamp.** A verdict earns trust by *showing its work* — the
+  load-bearing assumptions named and attacked, the live proofs re-run, the
+  sibling docs checked — never by its finding count. A clean verdict with that
+  trail is a real result; a clean verdict without it is the suspect one.
+  Counting findings is the wrong test in both directions: a busy review can
+  still miss the majors (the author-briefed REACH pass found five and missed
+  two), and distrusting clean verdicts just pressures reviewers to manufacture
+  findings. Briefs say "review deep, not fast" for a reason.
 - **Not a substitute for the mechanical floor.** Validators and CI catch the
   regressions cheaply and on every change; the capable-model review is for the
   judgement a validator can't make. They are layers, not alternatives.

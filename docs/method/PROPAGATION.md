@@ -136,8 +136,8 @@ The category error to name in writing: **a doctrine that is read is not a
 doctrine that is complied with.** The propagation mechanism distributes the
 *documents* and makes staleness *visible* — that is all a document can do.
 
-Enforcement was always a separate practice: **independent review, by the most
-capable model available** (see `REVIEW.md`).
+Enforcement was always a separate practice: **independent review** — who
+reviews, at what capability, and which changes earn one live in `REVIEW.md`.
 The documents are the standard; the peer review is what checks the work against
 the standard before it is trusted (see `MODEL-ECONOMICS.md` review-trigger
 policy, and the review lifecycle owed in the ROADMAP). A pin that is current and

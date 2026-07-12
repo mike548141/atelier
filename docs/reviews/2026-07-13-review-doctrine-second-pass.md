@@ -149,13 +149,13 @@ mid-flow by the carve-out's insertion (commit `21b1524`). Re-seat it.
 
 ## Follow-up checklist
 
-- [ ] F1 — replace finds-nothing-suspect with the show-your-work credibility test
-- [ ] F2 — bind the independence rules to the inline-spawn shape by cross-reference
-- [ ] F3 — n=1-uncontrolled honesty clause + the clean-pass-earns-re-run trigger
-- [ ] F4 — PROPAGATION enforcement clause points at REVIEW.md, stops restating
-- [ ] F5 — disposition verification named as reconcile-step work
-- [ ] F6 — author may argue, labelled; principal decides
-- [ ] F7 — re-seat the stranded consolidation sentence
+- [x] F1 — replace finds-nothing-suspect with the show-your-work credibility test
+- [x] F2 — bind the independence rules to the inline-spawn shape by cross-reference
+- [x] F3 — n=1-uncontrolled honesty clause + the clean-pass-earns-re-run trigger
+- [x] F4 — PROPAGATION enforcement clause points at REVIEW.md, stops restating
+- [x] F5 — disposition verification named as reconcile-step work
+- [x] F6 — author may argue, labelled; principal decides
+- [x] F7 — re-seat the stranded consolidation sentence
 
 ---
 
@@ -185,3 +185,16 @@ declared scope (the three independence edits only); none contradicts it.
 for the same reason: the spine holds, the independence section is right in
 direction and over-strong in claim. The two follow-up checklists are
 complementary, not rival — I1–I7 and F1–F7 can be dispositioned as one batch.
+
+---
+
+## Disposition (2026-07-13, Mike — the principal)
+
+All seven **[fixed]**, batched with I1–I7. On the one open fork (I1/F3
+territory: may the author seed questions?) Mike chose floor-not-fence and
+strengthened it: the reviewer must not let the topic or tone of seeded
+questions steer what it does or doesn't consider — questions influence by
+their very existence, so extra care is owed. F1, F2, F5–F7 applied as written;
+F3's confounds and standing test folded into the grounding paragraph; F4
+applied in `PROPAGATION.md`. Applying these is itself a doctrine edit — a cold
+review of the applied batch was commissioned per the ceremony-to-risk rule.

@@ -231,18 +231,18 @@ governance vs. layering, not rival routes.
 
 ## Follow-up checklist
 
-- [ ] I1 — reconcile the rule with its grounding: adopt the milder "author
+- [x] I1 — reconcile the rule with its grounding: adopt the milder "author
       questions as a floor + reviewer licensed beyond them," or argue the maximal
       cut and guard "what the work is" against smuggled verdicts
-- [ ] I2 — define author and principal; state the distinct-entities precondition;
+- [x] I2 — define author and principal; state the distinct-entities precondition;
       add the honest carve-out for when author *is* principal
-- [ ] I3 — define "doctrine" by function not file-type; close the policy-as-code
+- [x] I3 — define "doctrine" by function not file-type; close the policy-as-code
       escape hatch
-- [ ] I4 — align rule 2's headline to "findings committed"
-- [ ] I5 — rescope the trigger (brief-writer, not nominal author; rule 3 is
+- [x] I4 — align rule 2's headline to "findings committed"
+- [x] I5 — rescope the trigger (brief-writer, not nominal author; rule 3 is
       doctrine-only)
-- [ ] I6 — soften "proved" to match the evidence; optional n=1 honesty clause
-- [ ] I7 — reconcile "to the principal" with PROPAGATION's "resolved upward"
+- [x] I6 — soften "proved" to match the evidence; optional n=1 honesty clause
+- [x] I7 — reconcile "to the principal" with PROPAGATION's "resolved upward"
 
 ## Close
 
@@ -256,3 +256,25 @@ attribution, and its doctrine/code line is neither defined nor dodge-proof.
 Until those land, this should not be cited as the standalone authority on review
 independence. Findings go to the principal (Mike) for disposition; per the rule
 under review, the author records this verbatim and applies nothing on its own.
+
+---
+
+## Disposition (2026-07-13, Mike — the principal)
+
+All seven **[fixed]**, batched with F1–F7 of
+`2026-07-13-review-doctrine-second-pass.md`, applied by a session that authored
+neither the doctrine nor this verdict.
+
+- **I1 [fixed — with the principal's own strengthening]:** Mike chose the
+  floor-not-fence model and added a clause neither review proposed: seeded
+  questions influence *by their very existence* — topic and tone suggest where
+  "the risk" lives — so the reviewer chooses its own surface before weighing
+  the author's list. Encoded in rule 1 and lifecycle step 1.
+- **I2–I5, I7 [fixed]** as recommended: author/principal defined with the
+  distinct-entities precondition and the solo-operator gap stated (I2);
+  doctrine defined by function, policy-as-code escape closed (I3); rule-2
+  milestone aligned to findings-committed (I4); trigger rescoped to
+  brief-carries-the-author's-framing, rule 3 marked doctrine-only (I5);
+  to-the-principal and resolved-upward reconciled as one act in step 4 (I7).
+- **I6 [fixed]:** "proved" softened; treated as apex-required, not optional —
+  extended by F3's uncontrolled-n=1 clause and standing test.
