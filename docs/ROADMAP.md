@@ -93,32 +93,29 @@ has inherited the costume, not the doctrine.
 
 ## Raised 2026-07-12 (logged, not yet scoped)
 
-- [ ] **Reply/reporting style as method doctrine** (Mike, 2026-07-12) — capture
-      *how a Claude teammate reports back*, which `method/` currently has no doc
-      on. Mike finds scannable structure high-value: lead with the verdict;
-      status iconography (✓ done · ✗ failed · ~ deferred); tables for
-      multi-dimensional results; density matched to cognitive load; honest
-      altitude (never round ✗/~ up to ✓). Groundable in observed practice (this
-      session's tables/ticks + Mike's stated preference), and generic enough to
-      be shareable. Keep it one tight page — reply style is partly model-native +
-      partly personal preference; the *principles* are atelier's, the personal
-      dial (wit, NZ English) stays in `~/.claude/`. Risk: over-specification.
-      Candidate home: `method/REPORTING.md`. [[record]]-adjacent.
+- Reply/reporting style — **reframed out of atelier scope 2026-07-12.** Mike
+  clarified the purpose is *for the agent to understand him*, not rules the agent
+  recites — so it's personal context (a specific person's communication
+  preferences), which the no-personal-data boundary keeps in `~/.claude/`, not
+  public atelier. Written into `~/.claude/CLAUDE.md`'s "Working with me" section
+  (visual reader → iconography/tables; outcome-first-then-evidence; watch volume,
+  let structure replace length). No atelier artifact — the clean call was *not*
+  to build `method/REPORTING.md`.
 - [ ] **Adopt browser-fetch as a teammate capability** (Mike, 2026-07-12) — a
       Python MCP server at `~/.claude/mcp-servers/browser-fetch` that drives
       Chrome (a clean isolated instance, or Mike's own so he can clear
-      captcha/Turnstile) when WebFetch/curl are blocked. Mike wants it in
-      atelier's instruments. It **passes** ADR 0006's purpose test (value is
-      wholly the Claude teammateship) but **breaks** every current instruments
-      sub-norm: it's Python not Node, has a `.venv` (deps, vs zero-dep), is an
-      MCP server not a `~/.local/bin` CLI, and it **acts** rather than
-      **observes**. So it's a third verb — `tools/` enforce, `instruments/`
-      observe, this **extends reach** (a capability). Blocking sub-decisions,
-      Mike's calls: **(a)** the boundary — widen `instruments/` to admit
-      capability tools, or name a new category (ADR-0006-extending); **(b)** a
+      captcha/Turnstile) when WebFetch/curl are blocked. It **passes** ADR 0006's
+      purpose test (value is wholly the Claude teammateship) but **breaks** every
+      current instruments sub-norm: Python not Node, has a `.venv` (deps, vs
+      zero-dep), MCP server not a `~/.local/bin` CLI, and it **acts** rather than
+      **observes**. A third verb — `tools/` enforce, `instruments/` observe, this
+      **extends reach** (a capability). **Boundary DECIDED (Mike, 2026-07-12):**
+      `instruments/` widens to admit **capability tools where their value is us
+      working together** — browser-fetch qualifies. ADR-0006-extending; write the
+      amendment when the build runs. Still owed, Mike's calls: **(a)** a
       **pre-public scrub** of `server.py` — it enters a PUBLIC repo, so any
       Chrome-profile path / machine- or person-specific detail must go first;
-      **(c)** how the zero-dep ethos flexes for an MCP server that legitimately
+      **(b)** how the zero-dep ethos flexes for an MCP server that legitimately
       needs deps. Then standardise (git-ify, README, tests, doctrine block,
       floor). Not started; no code moved.
 

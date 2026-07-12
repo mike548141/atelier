@@ -131,10 +131,16 @@ remedy the moment signing looks unready; silent when ready, never blocks, only
 after scanners pass) and a **SIGNING.md Operational notes** section as the
 durable record. Verified silent on a real commit with the key loaded.
 
-Two things Mike raised for the future, **logged to ROADMAP not built** (his
-call): a `method/` **reply/reporting-style doctrine** (iconography, tables,
-verdict-first — capture what he finds high-value in wrap-ups), and adopting
-**browser-fetch** (a Python Chrome-driving MCP server) as a teammate
-*capability* — which tests ADR 0006's boundary (it's not an observer instrument;
-Python + deps + acts) and needs a pre-public scrub before any code enters the
-public repo. Neither started.
+Two things Mike raised for the future. **Reply/reporting style — reframed out of
+atelier.** First logged as a candidate `method/REPORTING.md`; Mike then clarified
+the purpose is *for the agent to understand him*, not rules the agent recites —
+which makes it personal context (a named person's communication preferences), and
+the no-personal-data boundary keeps that in `~/.claude/`, never public atelier.
+Written into `~/.claude/CLAUDE.md`'s "Working with me" (visual reader →
+iconography/tables; outcome-first-then-evidence; watch volume, structure replaces
+length). The honest call was *not* to build an atelier doc — the boundary decided
+it. **browser-fetch** (a Python Chrome-driving MCP server) as a teammate
+*capability*: **boundary decided** — `instruments/` widens to admit capability
+tools whose value is the working-together relationship (ADR-0006-extending, amend
+when built). Still owed before any code moves: a pre-public scrub of `server.py`
+and the zero-dep-ethos-vs-deps call. Not started.
