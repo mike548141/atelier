@@ -19,7 +19,11 @@ echo
 "$py" -m venv "$venv"
 "$venv/bin/pip" install --quiet --upgrade pip
 "$venv/bin/pip" install --quiet -r "$here/requirements.txt" -c "$here/constraints.txt"
-"$venv/bin/python" -m playwright install chromium
+# chromium = rung 3 default + the persistent rungs (4/5, Chrome-only over CDP).
+# firefox/webkit are the alternate engines for rung 3's `engine` parameter — a
+# second way past anti-bot that keys on Chrome specifically. These are engine
+# downloads (a setup step), not dependency changes; requirements.txt is unchanged.
+"$venv/bin/python" -m playwright install chromium firefox webkit
 
 cat <<EOF
 
@@ -33,6 +37,8 @@ Done. Register the server with Claude Code — add this under "mcpServers" in
     "env": {}
   }
 
-For browser_fetch_persistent, also start a dedicated Chrome once per login —
-see the command in server.py's module docstring.
+For browser_fetch_persistent, also start a real Chrome once per login — a
+DEDICATED profile on port 9222 for rung 4 (the default), and only if you want
+rung 5, your EVERYDAY profile on port 9223. See the commands in server.py's
+module docstring.
 EOF

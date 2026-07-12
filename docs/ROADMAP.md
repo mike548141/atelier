@@ -163,20 +163,36 @@ has inherited the costume, not the doctrine.
       session ran `browser_fetch` end-to-end against the re-registered server
       (example.com → 200; httpbin User-Agent showed `HeadlessChrome/149` — real
       Chrome), so the old `~/.claude/mcp-servers/browser-fetch` was deleted.
-- [ ] **Fetch escalation ladder — build the missing rungs + elevate to doctrine**
-      (Mike, 2026-07-12). The full ladder is documented in
-      `instruments/browser-fetch/README.md` (rungs 1 WebFetch/WebSearch · 2 curl ·
-      3 `browser_fetch` standalone headless · 4 persistent dedicated profile ·
-      5 persistent everyday session · 6 ask the operator). What's built today is
-      **Chrome-only**; open work:
-      - [ ] **Other engines** — Safari and Firefox for rungs 3–5 (some anti-bot
-            keys on Chrome/headless specifically; a second engine is another way
-            through). *In progress 2026-07-12 (session 47) — build agent.*
-      - [ ] **Cleaner 4/5 split** — today one `browser_fetch_persistent` serves
-            both, distinguished only by which profile the operator exposes on
-            `:9222`. Consider making the dedicated (rung 4) vs everyday-session
-            (rung 5) choice explicit rather than implicit-by-setup. *In progress
-            2026-07-12 (session 47) — build agent.*
+- [x] **Fetch escalation ladder — build the missing rungs + elevate to doctrine**
+      — DONE 2026-07-12 (session 47): doctrine elevated (`method/REACH.md`,
+      reviewed) and both build sub-items shipped (multi-engine rung 3,
+      live-verified; explicit rung-4/5 port split). The full ladder is documented
+      in `instruments/browser-fetch/README.md` (rungs 1 WebFetch/WebSearch ·
+      2 curl · 3 `browser_fetch` standalone headless, now Chrome/Firefox/WebKit ·
+      4 persistent dedicated profile `:9222` · 5 persistent everyday session
+      `:9223` · 6 ask the operator). The **only residual is operator-gated**: a
+      live rung-5 fetch needs the operator's everyday Chrome on `:9223`.
+      Sub-items, for the record:
+      - [x] **Other engines** — DONE 2026-07-12 (session 47). `browser_fetch`
+            (rung 3) gains an `engine` param: `chromium` (default, real installed
+            Chrome), `firefox` (Gecko), `webkit` (Safari's engine) — a second
+            engine is a second way past anti-bot that keys on Chrome/headless
+            specifically. Firefox + WebKit **live-verified** (each fetched
+            example.com end-to-end through the server path). **Honest limit:**
+            rungs 4/5 stay **Chrome-only by protocol** — CDP is Chrome's, and
+            Playwright's `connect_over_cdp` speaks only CDP; Firefox/WebKit have
+            no connect-to-running equivalent. Not a fillable stub — a real limit,
+            documented in code + README.
+      - [x] **Cleaner 4/5 split** — DONE 2026-07-12 (session 47). Made explicit
+            two ways at once: `browser_fetch_persistent` gains a `rung` param
+            (`4` dedicated / `5` everyday), each mapping to a **distinct port**
+            (rung 4 → `:9222`, rung 5 → `:9223`) the operator binds to the
+            matching profile — replacing the implicit "which profile is on
+            `:9222`". Rung-specific not-reachable errors (rung 5's names the
+            credential boundary and warns it's a deliberate escalation).
+            Rung-4 live-proven on adoption (change is port-param, unit-covered);
+            **rung-5 live fetch is owed-to-operator** by nature (needs the
+            operator's everyday Chrome on `:9223` — can't be self-driven).
       - [x] **Elevate the credential boundary + ladder to `method/` doctrine**
             — DONE 2026-07-12 (session 47, Opus): `method/REACH.md` written,
             grounded in the browser-fetch README + this item. Both halves in one
