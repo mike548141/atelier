@@ -23,6 +23,40 @@ git worktree add ~/worktrees/<repo>-<feature> -b <feature>
 - They reconcile on `main` via PR/merge. `main` is the integration point; the
   worktrees are where divergence is allowed to happen.
 
+## The trigger — knowing a session is the second one
+
+The substrate rule only fires if a session *knows* it is concurrent. The gap
+in practice was never the rule but the cue: git protects concurrent *commits*
+(worst case a rejected push and a rebase), but nothing protects the
+**uncommitted working tree** two sessions share — session B can overwrite
+session A's in-flight edits or sweep them into its own commit, and nothing
+errors. Two cues, both cheap, no locking machinery:
+
+- **Say so at open (primary):** when the principal knows they are opening a
+  second session on a repo already in use, they say so, and that session works
+  in a worktree from its first action. The harness has native worktree
+  support, so the ceremony is near-zero.
+- **Dirty-tree backstop:** a session that finds uncommitted changes it did not
+  make assumes another session is live and moves itself to a worktree. Never
+  work around a stranger's in-flight edits and never absorb them into a
+  commit — that silently merges two intentions, the exact clobbering this
+  doctrine exists to prevent.
+
+*Bearing:* atelier sessions 45–46 (2026-07-12) — session 45 ran two parallel
+sessions in the same checkout and needed a *survival audit* afterwards
+(everything intact, history linear — that time); session 46 named the gap:
+the worktree rule had existed since this doc was written yet never fired,
+because nothing told a session it was the second one. Good habits (small
+commits, pushed fast) were standing in for a rule with no firing condition.
+
+## The solo default — trunk-based, no standing ceremony
+
+One session alone on a repo commits to the integration branch directly: small
+commits, pushed immediately. Branch-per-session for solo work costs more than
+it buys — every branch demands the put-away ceremony below and adds a merge
+step for zero isolation gain (there is nothing to be isolated *from*).
+Worktrees are for known-parallel work, not a tax on every session.
+
 ## Two kinds of parallelism — use the right one
 
 - **Parallel *sessions* (worktrees)** — for independent, long-lived lines of
@@ -55,6 +89,14 @@ action across every parallel session.
 
 ## Integration hygiene
 
+- **Sync bookends** shrink the collision window the substrate can't cover
+  (two sessions legitimately landing on the same integration branch):
+  `git pull --rebase --autostash` at session start; push after each commit,
+  not in a batch at session end.
+- Append-tail files (session logs, changelogs) will conflict when concurrent
+  sessions both append — that conflict is *expected and trivial*: keep both
+  entries, chronological order, move on. Design shared records so this is the
+  worst case they present.
 - Rebase/merge small and often; a worktree that diverges for days is a merge
   hazard.
 - Delete a worktree when its branch lands (`git worktree remove`); stale

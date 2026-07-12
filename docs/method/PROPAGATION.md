@@ -97,6 +97,9 @@ in atelier and is read on demand — never wholesale.
   that could sever your own access; installing an unapproved tool or adding a
   new trust surface (deploy keys, webhooks, OAuth/app grants). Everything
   recoverable — commit/push/PR included — just proceed.
+- **Concurrency:** `git pull --rebase --autostash` at session start; push after
+  each commit. Uncommitted changes this session didn't make ⇒ another session
+  is live: move to a worktree — never work around or absorb them.
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
   session start run `git -C "<atelier-path>" log --oneline <SHA>..HEAD`; any
   output means the house doctrine moved — read it, then bump the pin above
@@ -106,8 +109,10 @@ in atelier and is read on demand — never wholesale.
 ```
 
 The inlined floor is a **narrowing-free restatement** of the apex + AUTONOMY
-floor — it may compress but must not contradict them. When atelier's apex or
-floor changes, the block's wording is part of what a pin bump reviews.
+floor, and the concurrency line restates `CONCURRENCY.md`'s sync bookends and
+dirty-tree backstop — each may compress but must not contradict its source.
+When atelier's apex, floor, or concurrency doctrine changes, the block's
+wording is part of what a pin bump reviews.
 
 ## The layer-override rule
 

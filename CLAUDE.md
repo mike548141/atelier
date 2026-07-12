@@ -10,10 +10,13 @@ private-repo nicety. Verify: `gh repo view mike548141/atelier --json visibility`
 
 ## Read order at session start
 
-1. `docs/method/00-APEX.md` — the frame everything sits inside.
-2. `README.md` — what atelier is and its layers.
-3. Tail of `docs/SESSIONS.md` — where the last session left off.
-4. `docs/ROADMAP.md` — what's open.
+1. Sync first: `git pull --rebase --autostash`. If the tree holds uncommitted
+   changes this session didn't make, another session is live — move to a
+   worktree (`docs/method/CONCURRENCY.md`) before touching anything.
+2. `docs/method/00-APEX.md` — the frame everything sits inside.
+3. `README.md` — what atelier is and its layers.
+4. Tail of `docs/SESSIONS.md` — where the last session left off.
+5. `docs/ROADMAP.md` — what's open.
 
 Read the rest of `docs/method/` on demand when a change touches it.
 

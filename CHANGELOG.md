@@ -5,6 +5,24 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-12 — concurrency gets its trigger; sync bookends)
+- **`method/CONCURRENCY.md`** — the worktree rule existed but nothing told a
+  session it was the *second* one on a repo, so it never fired in practice;
+  parallel sessions in shared checkouts stayed safe on short commit-to-push
+  windows, not on the rule. Added: **the trigger** (say-so-at-open primary cue
+  + dirty-tree backstop — uncommitted changes a session didn't make mean
+  another session is live: move to a worktree, never work around or absorb
+  them), **the solo default** (a lone session commits to the integration
+  branch directly; branch-per-session is put-away ceremony with zero isolation
+  gain), and **sync bookends** (`git pull --rebase --autostash` at start, push
+  per commit; append-tail conflicts in session logs are expected-and-trivial).
+- **`method/PROPAGATION.md`** — the standard child doctrine block gains a
+  **Concurrency** line (bookends + dirty-tree backstop) so the trigger reaches
+  the fleet on each repo's next pin bump; the narrowing-free-restatement note
+  now names the line's source.
+- **`CLAUDE.md`** — the session-start read order now begins with the sync
+  bookend + dirty-tree check.
+
 ### Changed (2026-07-12 — COMMUNICATION.md cold-reviewed, findings fixed)
 - **`method/COMMUNICATION.md` review-cleared** — the owed cold review RAN:
   **PASS-WITH-FINDINGS**, verdict in `docs/reviews/2026-07-12-communication.md`.
