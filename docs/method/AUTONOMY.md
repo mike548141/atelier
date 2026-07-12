@@ -101,6 +101,15 @@ action is, why, and what's irreversible about it. A grant in one context is not 
 grant for the next — "yes, publish this" is not "publish things like this from
 now on".
 
+The same plainness applies when the stop comes not from the floor but from
+**contradictory instructions** — repo doc vs doctrine vs the owner's words.
+Asking is the right move (a dilemma is never silently resolved), but a bare
+"may I?" wastes the stop: **name both sources in the ask**, so the question
+doubles as a drift report and the owner comes away knowing what to *fix*, not
+just what to answer. (Bearing: 2026-07-12, a faves session correctly stopped on
+a CLAUDE.md-vs-CONTRIBUTING push-policy conflict but asked without citing it —
+the stale doc survived until a second session went looking.)
+
 ## Who acts — capability earns authority over live systems
 
 This is a *second axis*, orthogonal to the floor above. The floor classes **what
