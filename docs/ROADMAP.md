@@ -142,6 +142,31 @@ has inherited the costume, not the doctrine.
 
 ## Raised 2026-07-12 (logged, not yet scoped)
 
+- [ ] **Apply the REACH re-review findings A1–A8 on Mike's disposition** — the
+      verdict is recorded verbatim (`reviews/2026-07-12-reach-rereview.md`,
+      tracked under review-owed above); the author applies nothing until Mike
+      says which findings to take. His steer at session close: "add to the work
+      to do" — disposition itself still pending. The author's counsel, on
+      record: accept A1–A5 (the two MAJORs are cheap text fixes that err on the
+      side that matters), A6–A8 judgement calls.
+- [ ] **Session-38 borderline join — Mike's call** (surfaced by the session-47
+      self-review's scrub pass). One prior public record line carries a milder
+      instance of the name × debt class (a named child × "scan surfaced
+      findings, owner-tracked, decided fix"). It predates and survived the
+      session-40 review sweep, so it was arguably judged acceptable — left
+      standing rather than unilaterally rewriting a reviewed prior record.
+      Scrub on Mike's word, leave on his word; either way note the decision.
+- [ ] **REVIEW.md — encode reviewer independence** (grounded 2026-07-12, the
+      REACH case). The gap today proved: a *cold-context* review can still be
+      *warm-questioned* — the REACH author wrote its review brief's pre-seeded
+      questions, and every one aimed where the author was already looking; the
+      un-briefed adversarial re-run found eight findings with zero overlap, two
+      MAJOR. Candidate rule for REVIEW.md: when the work's author commissions
+      the review, the reviewer chooses its own attack surface (no author-seeded
+      questions, barred from prior reviews until its own verdict drafts), and
+      findings on self-authored *doctrine* are dispositioned by the principal,
+      not the author. Doctrine edit → itself review-owed when written.
+
 - Reply/reporting style — **reframed out of atelier scope 2026-07-12.** Mike
   clarified the purpose is *for the agent to understand him*, not rules the agent
   recites — so it's personal context (a specific person's communication

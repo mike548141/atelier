@@ -167,3 +167,15 @@ close. Findings, most severe first — the defects are this session's own:
 The pattern under findings 1–2: **the record outran the evidence** at
 this session's pace — six self-certified pushes to a public repo in one
 sitting. The apex held on the work; it slipped on the record about the work.
+
+**Re-review outcome (before close):** PASS-WITH-FINDINGS — A1–A8, two MAJOR
+(the credential boundary reading more permissively than decided practice: the
+"no further permission" clause vs AUTONOMY's secrets floor; ride-a-session
+unscoped beyond fetch-only), **zero overlap with the first review's R1–R5**.
+Its judgement of the first review: tier right, basis unsound — "cold context,
+warm questions is self-certification at one remove". Recorded verbatim with no
+author disposition; A1–A8 await Mike (ROADMAP'd, with the author's counsel on
+record). Also logged to ROADMAP at close: the session-38 borderline join
+(Mike's call) and encoding reviewer-independence in REVIEW.md — the doctrine
+gap this session proved. Session closed with REACH standing as doctrine,
+disposition-owed.
