@@ -29,6 +29,9 @@ in atelier and is read on demand — never wholesale.
   that could sever your own access; installing an unapproved tool or adding a
   new trust surface (deploy keys, webhooks, OAuth/app grants). Everything
   recoverable — commit/push/PR included — just proceed.
+- **Concurrency:** `git pull --rebase --autostash` at session start; push after
+  each commit. Uncommitted changes this session didn't make ⇒ another session
+  is live: move to a worktree — never work around or absorb them.
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
   session start run `git -C "<atelier-path>" log --oneline <SHA>..HEAD`; any
   output means the house doctrine moved — read it, then bump the pin above
