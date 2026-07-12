@@ -101,23 +101,23 @@ has inherited the costume, not the doctrine.
   (visual reader → iconography/tables; outcome-first-then-evidence; watch volume,
   let structure replace length). No atelier artifact — the clean call was *not*
   to build `method/REPORTING.md`.
-- [ ] **Adopt browser-fetch as a teammate capability** (Mike, 2026-07-12) — a
-      Python MCP server at `~/.claude/mcp-servers/browser-fetch` that drives
-      Chrome (a clean isolated instance, or Mike's own so he can clear
-      captcha/Turnstile) when WebFetch/curl are blocked. It **passes** ADR 0006's
-      purpose test (value is wholly the Claude teammateship) but **breaks** every
-      current instruments sub-norm: Python not Node, has a `.venv` (deps, vs
-      zero-dep), MCP server not a `~/.local/bin` CLI, and it **acts** rather than
-      **observes**. A third verb — `tools/` enforce, `instruments/` observe, this
-      **extends reach** (a capability). **Boundary DECIDED (Mike, 2026-07-12):**
-      `instruments/` widens to admit **capability tools where their value is us
-      working together** — browser-fetch qualifies. ADR-0006-extending; write the
-      amendment when the build runs. Still owed, Mike's calls: **(a)** a
-      **pre-public scrub** of `server.py` — it enters a PUBLIC repo, so any
-      Chrome-profile path / machine- or person-specific detail must go first;
-      **(b)** how the zero-dep ethos flexes for an MCP server that legitimately
-      needs deps. Then standardise (git-ify, README, tests, doctrine block,
-      floor). Not started; no code moved.
+- [x] **Adopt browser-fetch as a teammate capability** — DONE 2026-07-12 (Opus,
+      session 41). The first **capability** instrument: a Chrome-driving MCP
+      server (fresh headless, or the operator's own Chrome over CDP for
+      captcha/Cloudflare) for when `WebFetch`/curl are blocked. ADR 0006 got an
+      addendum — `instruments/` widens to admit tools that **extend the
+      teammate's reach**, not only observe; the zero-dep ethos flexes for a
+      capability tool whose value needs deps (pinned `requirements`/`constraints`,
+      a regenerable venv OUTSIDE the repo/iCloud, code versioned in-repo).
+      `instruments/browser-fetch/` holds the **scrubbed** `server.py` (every
+      "Mike" → operator, pre-SDK/machine history removed before this public repo),
+      pinned deps, a reproducible `setup`, and a README. Proven end-to-end after
+      setup (`browser_fetch` returned a rendered page; both tools register); MCP
+      registration repointed to the atelier location. Not CI-unit-tested (a
+      browser is disproportionate in CI); floor scanners cover `server.py`, live
+      use verifies. **Cleanup owed:** delete the old
+      `~/.claude/mcp-servers/browser-fetch` once a fresh session confirms the
+      atelier-hosted server connects.
 
 ## instruments/ layer (new 2026-07-11, ADR 0006)
 
