@@ -57,18 +57,26 @@ stopped instead of re-deriving it:
   goes in a `docs/sessions/<date>-NN-slug.md` file and the index carries a
   one-line pointer. Open the detail file only when a line needs unpacking. This
   keeps the always-loaded index cheap (token discipline) without losing depth.
-- **Write it before finishing — and *declare* the close.** The session entry is
-  part of the work, not an afterthought — the handoff is a deliverable. When the
-  agent judges a line of work done, it does the full tidy-up **unprompted** —
-  entry written, changes committed and pushed, roadmap and follow-ups updated —
-  and *says so*: the principal should be able to close the session on the agent's
-  signal, not have to ask "are we actually done?" at the end of a run. Questions
-  mid-run are always fine — including stopping work to understand an issue; it is
-  the *close-ready* signal that shouldn't wait to be asked for. (Grounded
-  2026-07-12: this signal had been running on soft habit and drifted after a
-  model change — the artifact was mandated, the signal wasn't; encoding it.)
-  (See also session hygiene in `MODEL-ECONOMICS.md`: log where you got to, then
-  start fresh rather than dragging a bloated context.)
+- **Finish the sequence, then *declare* the close.** When the agent judges a
+  **sequence of work** done, it does the full tidy-up **unprompted** and *says
+  the session is ready to close* — the principal closes on the agent's signal,
+  never by having to ask "are we actually done?". Two conditions, both required:
+  **(a) the tidy-up is genuinely done**, and **(b) the principal has a clear
+  all-done message**. The invariant that tests it: if the principal asks "ready
+  to close?", the honest answer is *already* yes — the agent is never caught
+  replying "wait, there are things to do first". What "tidied up" means is
+  **situation-dependent** — write the session entry, update the roadmap /
+  changelog / follow-ups, commit and push, close out worktrees and PRs — take
+  the subset the work actually left owing.
+  - **The boundary is the balance.** The trigger is *completing* a sequence, not
+    a pause *within* one. Stopping mid-sequence to show or ask something — a
+    question, a checkpoint, an issue worth understanding first — is always fine
+    and carries no close-obligation. Declare the close only when the sequence
+    itself is complete. (Grounded 2026-07-12: the signal had run on soft habit
+    and drifted after a model change — the artifact was mandated, the signal
+    wasn't; Mike sharpened the sequence-vs-within-sequence boundary the same day.)
+  - (See also session hygiene in `MODEL-ECONOMICS.md`: log where you got to, then
+    start fresh rather than dragging a bloated context.)
 
 ## Decisions — ADRs for anything a future session might re-propose
 
