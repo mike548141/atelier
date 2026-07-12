@@ -7,6 +7,13 @@ has inherited the costume, not the doctrine.
 
 ## Doctrine — review-owed
 
+- [ ] **Cold review of the REVIEW.md reviewer-independence rule** (added
+      2026-07-12). Brief in `reviews/2026-07-12-review-independence.md`,
+      author-commissioned so written *under the new rule itself* — it scopes
+      *what the work is* and seeds no attack questions; the reviewer picks its
+      own surface. It is self-authored doctrine, so **findings are Mike's to
+      disposition, not the author's**: the author records the verdict verbatim
+      and applies nothing on its own.
 - [ ] **REACH.md adversarial re-review — DISPOSITION OWED, Mike's, not the
       author's.** RAN 2026-07-12 (session 47's post-session self-review found
       the first review author-briefed — cold context, warm questions — so an
@@ -156,16 +163,17 @@ has inherited the costume, not the doctrine.
       session-40 review sweep, so it was arguably judged acceptable — left
       standing rather than unilaterally rewriting a reviewed prior record.
       Scrub on Mike's word, leave on his word; either way note the decision.
-- [ ] **REVIEW.md — encode reviewer independence** (grounded 2026-07-12, the
-      REACH case). The gap today proved: a *cold-context* review can still be
-      *warm-questioned* — the REACH author wrote its review brief's pre-seeded
-      questions, and every one aimed where the author was already looking; the
-      un-briefed adversarial re-run found eight findings with zero overlap, two
-      MAJOR. Candidate rule for REVIEW.md: when the work's author commissions
-      the review, the reviewer chooses its own attack surface (no author-seeded
-      questions, barred from prior reviews until its own verdict drafts), and
-      findings on self-authored *doctrine* are dispositioned by the principal,
-      not the author. Doctrine edit → itself review-owed when written.
+- [x] **REVIEW.md — encode reviewer independence** — DONE 2026-07-12. The gap
+      the REACH case proved: a *cold-context* review can still be
+      *warm-questioned* — the REACH author wrote its brief's pre-seeded
+      questions, all aimed where the author was already looking; the un-briefed
+      re-run found eight findings, zero overlap, two MAJOR. Encoded as a new
+      REVIEW.md section *Independence is more than fresh context* (three rules:
+      reviewer chooses its own attack surface, barred from prior reviews until
+      its verdict drafts, self-authored *doctrine* findings dispositioned by the
+      principal not the author) + two lifecycle carve-outs (step 1 author-brief
+      exception, step 4 doctrine-disposition carve-out). **Cold review owed**
+      (tracked under *Doctrine — review-owed* at the top).
 
 - Reply/reporting style — **reframed out of atelier scope 2026-07-12.** Mike
   clarified the purpose is *for the agent to understand him*, not rules the agent

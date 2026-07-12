@@ -21,6 +21,34 @@ structural work; a mechanical gate — validators, CI — holds the floor for th
 routine). The review is not a formality tax on good work; it is the thing that
 lets "done" mean *verified* rather than *looks right*.
 
+## Independence is more than fresh context
+
+Fresh context is necessary but not sufficient. A review can be **cold-context yet
+warm-questioned**: if the work's author writes the brief's attack questions, they
+aim where the author was already looking, and the reviewer — however independent
+its *context* — inherits the author's blind spots through the *ask*. Grounded in
+the REACH case (2026-07-12): the author-briefed review passed the doc clean on
+four pre-seeded questions; an un-briefed adversarial re-run of the same doc found
+eight findings, zero overlap, two MAJOR — on the exact boundary the seeded
+questions steered around. So when the work's author commissions the review of its
+own work, three rules bind on top of fresh context:
+
+1. **The reviewer chooses its own attack surface.** No author-seeded questions;
+   the brief scopes *what the work is*, not *what to doubt about it*. The reviewer
+   names the load-bearing assumptions itself — that naming is the review's first
+   act (lens 1 below), not an input handed to it.
+2. **Barred from prior reviews until its own verdict drafts.** An earlier verdict
+   is another channel for the author's framing; the reviewer reads it only after
+   committing its own findings — to reconcile, never to anchor.
+3. **Findings on self-authored *doctrine* are the principal's to disposition, not
+   the author's.** The `[rejected: grounds]` escape below lets a builder overrule
+   a reviewer — sound for code, unsound when one agent both wrote the doctrine and
+   judges the challenge to it. There the author records the verdict verbatim and
+   applies nothing on its own; the principal decides.
+
+This is the independence the external-reviewer rule was always reaching for — the
+REACH case proved fresh context alone doesn't deliver it.
+
 ## What a review actually checks — three lenses
 
 Not just "are there bugs". A real review runs all three:
@@ -56,7 +84,10 @@ throwaway chat:
 1. **Brief** — before the review runs, write a scoped brief to
    `docs/reviews/<date>-<slug>.md`: what the work is, the three lenses, and the
    **specific assumptions to attack**. Add a `[ ]` pointer in the ROADMAP. The
-   brief is *ask on top*.
+   brief is *ask on top*. **Exception when the work's author writes the brief:**
+   it scopes *what the work is* and stops — the reviewer chooses the assumptions
+   to attack itself (see *Independence is more than fresh context*), so the author
+   can't steer the review to its own blind spots.
 2. **Run** — the reviewer reads the repo and the brief and reviews deep, not
    fast. Findings get stable IDs so nothing is lost in synthesis.
 3. **Verdict** — the reviewer's output (per-question answers, findings, a
@@ -68,7 +99,10 @@ throwaway chat:
    builder/owner may disagree with a finding, but the disagreement and its
    grounds are recorded in the verdict file, never resolved by silently dropping
    it (the same rule the layer-override discipline applies to doctrine
-   conflicts). Fixes consolidate onto one ROADMAP follow-ups item; then tick the
+   conflicts). **The one carve-out:** findings on doctrine the *author itself*
+   wrote are dispositioned by the principal, not the author — the author can't
+   both write the doctrine and reject the challenge to it (see *Independence is
+   more than fresh context*). Fixes consolidate onto one ROADMAP follow-ups item; then tick the
    ROADMAP pointer and add a `SESSIONS.md` entry.
 5. **Close** — a finding is only closed when its fix is itself verified, with a
    live proof where one exists. "Addressed the review" without exercising the fix
