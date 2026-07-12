@@ -18,10 +18,27 @@ has inherited the costume, not the doctrine.
       surface). Applied 2026-07-13 to REVIEW.md + PROPAGATION.md by a session
       that authored neither the doctrine nor either verdict; dispositions
       stamped in both verdict files.
-- [ ] **Cold review of the applied independence-batch edits (REVIEW.md +
-      PROPAGATION.md, 2026-07-13)** — doctrine text earns the full ceremony, and
-      applying review fixes is itself a doctrine edit. Commissioned un-briefed,
-      per the (now-strengthened) rule the edits encode; findings route to Mike.
+- [ ] **Cold review of the applied independence batch — RAN 2026-07-13,
+      DISPOSITION OWED, Mike's.** **PASS-WITH-FINDINGS**, verdict verbatim in
+      `reviews/2026-07-13-independence-batch-applied.md`. Fidelity confirmed:
+      14/14 dispositions faithfully applied (one deviation judged the right
+      call — F2's pre-fork wording harmonised with the floor-not-fence
+      decision). Nine findings G1–G9, five MEDIUM, none blocking: G1 the rule-1
+      ordering instruction is behavioural where the house demands structural —
+      exposure to seeded questions primes at read time, so defer them below the
+      brief's divider (or name the ordering as mitigation-not-cure); G2 rule 3
+      is wrongly conditioned on brief authorship (its true trigger is
+      self-authored doctrine, however commissioned) and step 4 already says so;
+      G3 the standing test's "passes clean" trigger keys on finding count — the
+      metric F1 just evicted — and would not have fired on the REACH case
+      itself; G4 the doctrine-review regress needs a stopping rule and the
+      neutral-applier pattern deserves encoding; G5 application reviews can't
+      honour rule 2 (the delta carries the disposition stamps) — needs
+      sequencing guidance. G6–G9 small wording/staleness. Applier's counsel,
+      labelled (the applier authored the reviewed edits, so decides nothing):
+      take all nine — G2/G6–G9 are mechanical; G1 suggests the deferred-
+      questions brief shape (structural, matches rule 2); G3's re-key and G4's
+      no-MAJOR stopping rule read sound; G5 pairs with G4's paragraph.
 - [ ] **REACH.md adversarial re-review — DISPOSITION OWED, Mike's, not the
       author's.** RAN 2026-07-12 (session 47's post-session self-review found
       the first review author-briefed — cold context, warm questions — so an
