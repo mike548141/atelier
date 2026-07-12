@@ -78,18 +78,20 @@ still taxes).
 
 ## Signing warn→block flip: assessed, HELD
 
-Gate **not met, and the blocker is not main-line-agent-clearable** — recorded
-rather than flipped (enforce-mode over a knowingly-red fleet would be
-enforcement-theatre, against the apex). The three red repos fail for **three
-different reasons, none a signing failure** (so the flip wouldn't newly-red
-them): **homenetwork** — secretscan 25 findings (real secret debt, Mike's
-rotation, session 39's owed list); **docker-heap** — secretscan full-cover
-(same class); **rpi** — ruff (2) + a Windows test error in its **bespoke** CI,
-**not the scanner floor and not signing** — session 41 mis-filed this as
-"scanner debt"; it's ordinary code debt, agent-actionable, separate cleanup.
-On docker-heap/homenetwork signscan never runs (secretscan fails first). The
-"every active machine signs" half is also unverified. **Owed to Mike:** the two
-secret rotations, and a yes/no on taking the rpi ruff/test cleanup.
+Gate **not met, and the blockers are the owners'** — recorded rather than
+flipped (enforce-mode over a knowingly-red fleet would be enforcement-theatre,
+against the apex). None of the three red children fails on *signing* (so the
+flip wouldn't newly-red them): two fail secretscan on owner-tracked secret debt
+(the principal's rotations, session 39's owed list); the third is red on both
+its bespoke CI (lint + a test error — agent-actionable, separate cleanup) and
+its floor (leakscan). Which child is which lives in their own private records
+(RECORD's name × debt join — this section originally named them with finding
+counts; scrubbed by the post-session self-review below). On the two secret-debt
+children signscan never runs (secretscan fails first). The "every active
+machine signs" half is also unverified. **Owed to Mike:** the two secret
+rotations, and a yes/no on the third child's lint/test cleanup. *This section
+as first committed also accused session 41 of mis-filing the third child's
+redness — retracted; see the self-review below.*
 
 ## B14: ros consolidated estate access map
 
@@ -97,8 +99,8 @@ Background agent scoped **inside the private ros repo**; structure reported
 back, sensitive topology never crossed into public atelier. Created
 `docs/ACCESS-MAP.md` — a row per domain across ACCESS.md's four axes
 (credential+store · plane split · rings walked · status/debt), seeded from ros's
-own scattered facts (SPECS, inventory, secrets README), honest per-domain status
-(one LIVE/mature, one STAGED, one PLANNED — nothing rounded to "onboarded").
+own scattered facts (SPECS, inventory, secrets README), honest per-domain
+onboarding status (nothing rounded to "onboarded").
 Committed **signed** on isolated worktree branch `access/estate-access-map`
 (`c3bc612`), **not pushed** — a concurrent session is live on ros's main (the
 agent's worktree isolated it correctly). Merge + push is the follow-up once that
@@ -109,5 +111,59 @@ session settles; ACCESS.md's honest "not yet consolidated" status flips then.
 Two of four fully closed (doctrine reviewed + shipped; build shipped +
 live-verified), one created-pending-merge (B14, blocked only by a live ros
 session), one assessed-and-held (signing, blocked on Mike). Plus a red main
-fixed. Owed to Mike: the homenetwork/docker-heap secret rotations, the rpi
-cleanup nod, the rung-5 operator live check, and the ros map's merge.
+fixed. Owed to Mike: the two children's secret rotations (named in their own
+records), the third child's cleanup nod, the rung-5 operator live check, and
+the ros map's merge.
+
+## Post-session self-review (same day, Mike's ask)
+
+Mike, uneasy about something in the session history he couldn't name, asked for
+a review of the session's decisions, interpretations, and assumptions before
+close. Findings, most severe first — the defects are this session's own:
+
+1. **Published the join the same-day RECORD review exists to prevent.** The
+   signing-gate text in ROADMAP and this file joined private children's *names*
+   to their *secret-debt specifics* (finding counts, "real") in public atelier —
+   hours after the session-40 review scrubbed exactly that class at HEAD.
+   Session 39 had handled the same facts correctly ("not detailed here — atelier
+   is public"); session 41 carried a milder join (names × "scanner debt"); this
+   session sharpened it. **Fixed:** all instances scrubbed at HEAD the strict
+   way (this file, ROADMAP ×2, SESSIONS.md sessions 41 + 47, the session-41
+   detail), each scrub acknowledged in place, not silent. **Honest residual:**
+   per the reviewed rule, scrub-of-HEAD-is-not-remediation — git history retains
+   the joins (and two pushed commit messages carry softer instances, immutable
+   under ADR 0002's no-rewrite). Exposure window ~2 h on a low-traffic public
+   repo; values never exposed, posture only.
+2. **A false correction, retracted.** This session accused session 41 of
+   mis-filing one child's redness as "scanner debt", from a `--limit 1` run
+   query that happened to catch that child's *bespoke* CI workflow (lint/test).
+   Checked properly, the child's *floor* workflow is red too (leakscan) —
+   session 41's filing was accurate. Retracted in ROADMAP and above. The
+   correction violated the evidence bar it invoked: it was built on weaker
+   evidence than the record it corrected.
+3. **Self-certification loop on REACH.** The doctrine's author wrote the review
+   brief, pre-seeded its questions, and dispositioned the findings — same
+   session, no principal eyes on the doc before it shipped. The review was cold
+   in *context* but not in *framing*, and REACH is specifically the rule
+   limiting the agent's access to the principal's credentials. **Remediation:**
+   a genuinely adversarial re-review commissioned — un-briefed by the author,
+   choosing its own questions, barred from the prior review until its own
+   verdict is written; its disposition goes to Mike, not to this author.
+4. **Boundary spirit breach, named.** After scoping the B14 agent to return
+   structure-only, the main line grepped the private map's full contents into
+   this session's transcript. The transcript is person-local (`~/.claude`),
+   never published — but the isolation was defeated by its own designer, and
+   unflagged until this review.
+5. **Smaller, patched same day:** the ros map's corrected status cell had been
+   upgraded on commit *subjects*; the underlying review verdict has now been
+   read and confirms it (PASS-WITH-FINDINGS, live capture landed). The
+   browser-fetch commit message cites the build agent's worktree SHA, whose
+   branch was then deleted — the SHA dangles in immutable history; noted here.
+   `engine=chromium`'s default path, changed by the build, re-driven live:
+   PASS (example.com, 200). The held signing flip despite "proceed on all 4"
+   stands as decided, with the gate now honestly recorded — finding 2
+   strengthens the hold.
+
+The pattern under findings 1–2: **the record outran the evidence** at
+this session's pace — six self-certified pushes to a public repo in one
+sitting. The apex held on the work; it slipped on the record about the work.

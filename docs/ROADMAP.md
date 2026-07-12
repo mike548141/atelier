@@ -464,20 +464,17 @@ standout debt; sessions 14–15 deliberately did not stack on it.
             ros repo, then **landed on ros main** by the main line once ros's PR
             merged and it had no live session). `docs/ACCESS-MAP.md` in ros: a row
             per domain across ACCESS.md's four axes, seeded from ros's own
-            scattered facts, honest per-domain status (one LIVE/mature, one
-            STAGED, one PLANNED — nothing rounded up to "onboarded"). **Read
-            before finalize caught a stale status** — the map, seeded while ros's
-            mgmt-plane-pinning work was still in-progress, called it "review +
-            live-capture owed"; by merge time that work had merged (Fable-reviewed
-            PASS-WITH-FINDINGS, F1–F5 applied, live-bench-proven), so the cell was
-            corrected before push. Rebased onto the merged main (conflict-free,
-            new file), signed, ff-merged + pushed (`82db55c`), worktree/branch put
-            away. ACCESS.md's honest-status note flipped (map now exists).
-            **Note:** ros's floor is red, but *not* on this map (it scans clean) —
-            pre-existing `pins/cel.yaml` high-entropy debt (TOFU pin fingerprints,
-            almost certainly false positives) from the just-merged security PR,
-            red since that merge. That's the security work's owed scanner cleanup,
-            separate from B14.
+            scattered facts, honest per-domain onboarding status (nothing rounded
+            up to "onboarded"). **Read before finalize caught a stale status** —
+            a cell seeded while a ros work-stream was still in flight had gone
+            stale by land time (the work had since merged, reviewed and
+            live-proven), so it was corrected before push. Rebased onto the
+            merged main (conflict-free, new file), signed, ff-merged + pushed
+            (`82db55c`), worktree/branch put away. ACCESS.md's honest-status note
+            flipped (map now exists). **Note:** ros's floor is red, but *not* on
+            this map (it scans clean) — pre-existing scanner findings the owner
+            judges false-positive-class, red since before the map landed;
+            specifics in ros's own records. Separate from B14.
       - [x] **REVIEW.md addition** — DONE 2026-07-10 (Opus): new "Re-run every
             'live-proven' claim in scope" subsection — a recorded proof is a
             claim that can be stale by the commit that records it, so a review
@@ -536,9 +533,11 @@ standout debt; sessions 14–15 deliberately did not stack on it.
             CI verification in atelier `ci.yml` and the child `floor.yml`
             template, trust list at the child's pin, **warn-first**. Step 4: **10
             house-floor children retrofit** (pin bump + floor signing steps +
-            `SIGN_BOUNDARY`), 7 CI-green, 3 (docker-heap, rpi, homenetwork) red
-            on **pre-existing scanner debt** that fails before the signing steps
-            run — not signing, the owner's debt. **Bug the dogfood caught:**
+            `SIGN_BOUNDARY`), 7 CI-green, 3 red on **pre-existing scanner debt**
+            that fails before the signing steps run — not signing, the owner's
+            debt (which children, and what debt, lives in their own private
+            records — the name × debt join stays out of public atelier per
+            RECORD; joined here until the 2026-07-12 session-47 scrub). **Bug the dogfood caught:**
             bare `valid-after` is read in the verifier's local tz, so atelier's
             own first CI run flagged every signed commit "not yet valid" in the
             UTC runner — fixed by UTC-anchoring with a `Z` suffix; SIGNING.md now
@@ -574,20 +573,24 @@ standout debt; sessions 14–15 deliberately did not stack on it.
             flipping to blocking (drop `--warn`, make the gh-plane warning an
             error) is Mike's call once the pre-existing scanner debt is cleared
             and every active machine signs. Vigilant mode stays off until then.
-            **Gate assessed 2026-07-12 (session 47) — not met, and the blocker
-            is not main-line-agent-clearable.** The three red repos fail for
-            *three different* reasons, none a signing failure (so the flip
-            wouldn't newly-red them, but the fleet isn't clean enough to declare
-            enforce-mode honestly): **homenetwork** — secretscan 25 findings
-            (real secret debt, Mike's rotation/purge, session 39's owed list);
-            **docker-heap** — secretscan full-cover findings (same class);
-            **rpi** — ruff (2) + a Windows test error, its *bespoke* CI, **not
-            the scanner floor and not signing** — session 41 mis-filed this as
-            "scanner debt"; it's ordinary code-quality debt, agent-actionable
-            but a separate cleanup. On docker-heap/homenetwork signscan never
-            runs (secretscan fails first). The **"every active machine signs"**
-            half is also unverified. Flip held — Mike's call + Mike's action
-            (the rotations); the rpi ruff/test cleanup is offered separately.
+            **Gate assessed 2026-07-12 (session 47), corrected same day by the
+            post-session self-review — not met, and the blockers are the
+            owners', not the main line's.** None of the three red children fails
+            on *signing* (so the flip wouldn't newly-red them, but the fleet
+            isn't clean enough to declare enforce-mode honestly): two fail
+            secretscan on owner-tracked secret debt (the principal's rotations,
+            session 39's owed list); the third is red on **both** its bespoke CI
+            (lint + a test error, agent-actionable, separate cleanup) **and**
+            its floor (leakscan findings). Which child is which lives in their
+            own private records, not here (RECORD's name × debt join).
+            **Retraction:** this session first published a claim that session 41
+            had "mis-filed" the third child's redness as scanner debt — that
+            claim was built on a `--limit 1` run query that happened to catch
+            the bespoke CI workflow; the floor workflow is red too, session 41's
+            filing was accurate, and the accusation is withdrawn. On the two
+            secret-debt children signscan never runs (secretscan fails first).
+            The **"every active machine signs"** half is also unverified. Flip
+            held — Mike's call + Mike's action (the rotations).
       - [ ] **Release-artifact signing + SBOM (deferred, was A5).** Signing *built
             artifacts* + a deterministic SBOM needs external tooling (syft/cosign),
             which hits the tool-install floor and breaks the zero-dep house-tool

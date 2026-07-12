@@ -104,12 +104,13 @@ via `git show <pin>:allowed_signers` and reported `1 good, 0 bad`, proving the
 in a batch, each signed + verified + pushed.
 
 **Result: 7 CI-green** (numen, Baby Brain, ec2_builder, FoodTracker,
-hitchbots_guide, nova, shed). **3 red — docker-heap, rpi, homenetwork — on
-pre-existing scanner debt**, confirmed by each repo's *prior* run being red too:
-they fail at the secretscan/leakscan stage, which runs *before* the signing
-steps, so signing never even executes. That debt is the owners' (docker-heap's
-floor was "red by design" at adoption); not mine to detail here (public repo)
-or fix. shed's boundary is its pre-signing HEAD `5bdee55` (it already carried
+hitchbots_guide, nova, shed). **3 red on pre-existing scanner debt**, confirmed
+by each repo's *prior* run being red too: they fail at the secretscan/leakscan
+stage, which runs *before* the signing steps, so signing never even executes.
+That debt is the owners' (one child's floor was "red by design" at adoption);
+which children, and what debt, lives in their own private records — not
+detailed here (public repo; the names were joined to the debt in this file
+until the session-47 scrub). shed's boundary is its pre-signing HEAD `5bdee55` (it already carried
 one signed commit, the registry entry).
 
 ## Honest close
