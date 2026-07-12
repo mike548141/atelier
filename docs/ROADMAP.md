@@ -428,12 +428,31 @@ standout debt; sessions 14–15 deliberately did not stack on it.
             mandates it, the selftest guards it. Caught before any child was
             touched — the reason to dogfood atelier first.
             **Two follow-ups (below).**
-      - [ ] **faves + ros: adopt the house floor (then signing-CI).** Both run
+      - [x] **faves + ros: adopt the house floor (then signing-CI).** Both run
             bespoke `ci.yml`, never adopted `floor.yml`, so the fleet retrofit
             skipped their signing *verification* (they still sign every commit).
             A separate standardisation pass: give them the house floor, or inject
             signing steps into their bespoke CI. The pre-existing gap this work
             surfaced.
+            - [x] **DONE 2026-07-12 (Fable, session 42) — full adoption, both
+                  floors green on first run.** Current template alongside each
+                  repo's bespoke `ci.yml`; pins bumped to a trust-resolving SHA
+                  (both old pins predated `allowed_signers`, so verification
+                  would have silently skipped); boundaries at each repo's last
+                  unsigned commit; two-plane verification *verified* (not
+                  skipped) — faves 9/9, ros 2/2 good. Unlike the three
+                  debt-red children, both went green by encoding each repo's
+                  charter through the scanners' designed hatches: repo-type
+                  `--disable` tuning (content shapes for a listings site,
+                  network shapes for a network-inventory repo — the flag's own
+                  documented example), reasoned ignore globs for chartered
+                  content (each entry stating it does NOT survive the
+                  publish-time scrub pass), inline allow-markers for the
+                  handful of shape false positives. licenscan enabled in both
+                  (settled Apache-2.0 — the template's stated trigger); four
+                  real broken links fixed in passing. leakscan CI cover stays
+                  honestly structural-only; full-term cover remains on the
+                  pre-commit hook.
       - [ ] **Flip CI from warn to block.** signscan runs `--warn` fleet-wide;
             flipping to blocking (drop `--warn`, make the gh-plane warning an
             error) is Mike's call once the pre-existing scanner debt is cleared
