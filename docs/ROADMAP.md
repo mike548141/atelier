@@ -157,10 +157,26 @@ has inherited the costume, not the doctrine.
             `:9222`. Consider making the dedicated (rung 4) vs everyday-session
             (rung 5) choice explicit rather than implicit-by-setup.
       - [ ] **Elevate the credential boundary + ladder to `method/` doctrine**
-            (review-owed). The credential rule — *ride an already-authenticated
-            session, never use the browser's saved credentials or access the
-            credentials themselves without explicit permission* — is a shareable
-            security boundary (SECRETS/ACCESS family), currently only stated
+            (review-owed). The rule generalises as a **purpose-of-storage test**
+            (Mike, 2026-07-12), and the doctrine must draw it so the estate's
+            intended credential use is not found contrary to it:
+            - **Provisioned stores are the intended path** — credentials saved
+              *so that* a repo/tool/agent can use them (keychain items the estate
+              registry records, minted per-consumer API tokens, the SECRETS/
+              ACCESS machinery). Agent use is what they exist for; in scope by
+              design.
+            - **Personal convenience stores are off-limits by default** — a
+              browser profile's saved logins, the principal's password manager
+              (here Apple Passwords; browsers hold little to nothing by his own
+              practice): saved over years to ease the *principal's own* browsing,
+              never provisioned for agent use, and far broader than any task
+              needs. Riding an already-authenticated *session* is fine; the
+              stored credentials that mint sessions are the line.
+            - **The principal can grant across the line** — temporary or
+              permanent, per credential, his explicit act; a grant moves that
+              credential into the intended path (and belongs in the provisioned
+              machinery, not ad-hoc).
+            A shareable SECRETS/ACCESS-family boundary, currently stated only
             operationally in the browser-fetch README. The escalation principle
             (start cheapest, step down only when blocked) is likewise general.
 
