@@ -459,11 +459,18 @@ standout debt; sessions 14–15 deliberately did not stack on it.
       gate is cleared — the create-repo rewire and further stacking may
       resume.**
 - [ ] **Batch-review follow-ups ([backlog] findings)** — the consolidated item:
-      - [ ] **ros: first consolidated estate access map** (B14) — domains
-            onboarded / credential per domain / plane split / rings walked;
-            sensitive content, a ros session's job (seed from the nas02/tiki
-            facts SPECS already scatters). ACCESS.md now states the honest
-            status until it exists.
+      - [~] **ros: first consolidated estate access map** (B14) — CREATED
+            2026-07-12 (session 47, agent scoped inside the private ros repo;
+            structure only recorded here, sensitive topology stays in ros).
+            `docs/ACCESS-MAP.md` in ros: a row per domain across ACCESS.md's four
+            axes (credential+store · plane split · rings walked · status/debt),
+            seeded from ros's own scattered facts (SPECS, inventory, secrets
+            README), honest per-domain status (one LIVE/mature, one STAGED, one
+            PLANNED — nothing rounded up to "onboarded"). Committed **signed** on
+            an isolated worktree branch `access/estate-access-map` (`c3bc612`),
+            **not pushed** — a concurrent session is live on ros's main, so merge
+            + push is the follow-up once that session settles. ACCESS.md's honest
+            "not yet consolidated" status can flip once it lands on ros main.
       - [x] **REVIEW.md addition** — DONE 2026-07-10 (Opus): new "Re-run every
             'live-proven' claim in scope" subsection — a recorded proof is a
             claim that can be stale by the commit that records it, so a review
