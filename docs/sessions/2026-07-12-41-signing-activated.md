@@ -121,3 +121,20 @@ warn→block flip (Mike's call once the pre-existing scanner debt clears). Vigil
 mode stays off until the fleet is fully green. The dogfood earning its keep — a
 timezone bug caught on atelier before a single child was touched — is the session's
 one real lesson: verify the mechanism on yourself first.
+
+## Tail — the papercut, and two items logged
+
+Mike flagged the passphrase-in-agent papercut ("couldn't load key") for a
+findable home. Closed both ways, in atelier so they travel: a **pre-commit
+signing pre-flight** (fast non-interactive test-sign → prints the `ssh-add`
+remedy the moment signing looks unready; silent when ready, never blocks, only
+after scanners pass) and a **SIGNING.md Operational notes** section as the
+durable record. Verified silent on a real commit with the key loaded.
+
+Two things Mike raised for the future, **logged to ROADMAP not built** (his
+call): a `method/` **reply/reporting-style doctrine** (iconography, tables,
+verdict-first — capture what he finds high-value in wrap-ups), and adopting
+**browser-fetch** (a Python Chrome-driving MCP server) as a teammate
+*capability* — which tests ADR 0006's boundary (it's not an observer instrument;
+Python + deps + acts) and needs a pre-public scrub before any code enters the
+public repo. Neither started.

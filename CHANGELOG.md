@@ -39,6 +39,11 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   atelier before any child was retrofitted is exactly what surfaced it.
 - **`create-repo` + REPO-STANDARD** bake repo-local `commit.gpgsign=true` so a
   scaffolded repo is born signing (step 3).
+- **Signing pre-flight in the pre-commit hook.** When a repo signs with SSH, the
+  hook runs a fast non-interactive test-sign; if the key isn't loaded it prints
+  the `ssh-add --apple-use-keychain` remedy before git's cryptic failure, only
+  after scanners pass, silent when ready, never blocking. Same remedy documented
+  in SIGNING.md's new *Operational notes* section (the known-issue home).
 
 ### Changed (2026-07-12 — the two owed cold reviews ran; both doctrines corrected)
 - **RECORD "keep private repos generic" redrafted** after its cold review
