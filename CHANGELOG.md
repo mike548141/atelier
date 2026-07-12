@@ -20,7 +20,8 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   rungs 1–2, block gates 3+ (A4), isolation axis restricted to rungs 3–5 (A5),
   temporary grants expire rather than enrol (A6), EVIDENCE §13 cross-reference
   (A7), generality honesty clause + ADR 0006 third-verb realignment (A8).
-  **Cold pass owed** on this application per the cycle rule (brief:
+  **Cold pass RAN same day** per the cycle rule: PASS-WITH-FINDINGS, **no
+  MAJOR — cycle closed**; fidelity 8/8, H1–H8 backlogged (verdict in
   `reviews/2026-07-13-reach-batch-applied.md`).
 - **Session-38 name × debt join scrubbed** (Mike's decision) — the last
   surviving instance of a named child paired with its scan posture, reworded

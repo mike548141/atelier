@@ -7,12 +7,30 @@ has inherited the costume, not the doctrine.
 
 ## Doctrine — review-owed
 
-- [ ] **Cold pass on the applied REACH batch (A1–A8 + the AUTONOMY carve-out)**
-      — owed per REVIEW.md's cycle rule (applying decisions to doctrine is
-      itself a doctrine edit). Brief:
-      `reviews/2026-07-13-reach-batch-applied.md` (seeded questions deferred
-      below the divider per the independence rule). Cycle closes on a no-MAJOR
-      pass; remainder to backlog without further ceremony.
+- [x] **Cold pass on the applied REACH batch — RAN 2026-07-13, same day:
+      PASS-WITH-FINDINGS, no MAJOR — cycle CLOSED** per the stopping rule.
+      Verdict verbatim in `reviews/2026-07-13-reach-batch-applied.md`.
+      Fidelity 8/8 confirmed (two immaterial deviations, labelled, no drift
+      label owed); the instance proof re-run 11/11. Eight findings H1–H8
+      (four MEDIUM, four LOW) + two reconciliation residuals — none unseats
+      an applied decision — consolidated onto the backlog item below, no
+      further ceremony per the rule.
+- [ ] **REACH/AUTONOMY backlog — the cold pass's H1–H8 + residuals** (all
+      backlog-grade; doctrine-substantive ones are the principal's when
+      picked up). Sharpest three: H2 "existing cookies are fair game" reads
+      as licensing cookie *export* (rung-5 reach with rung-3 isolation) —
+      scope to in-place use through the ridden session; H3 the categorical
+      browser-store exclusion now argues *against* the doc's own two criteria
+      post-A1 (a provisioned bot-login profile passes both) — ground it or
+      scope the test; H1 operator/principal conflation unstated (and the
+      instance README drifts on it). Also: H4 the resource-owner's "no" never
+      named as its own judgement; H5 "blocked" undefined for soft blocks; H6
+      rung-1/2 equivalence overclaimed beyond the instance (challenges
+      decided A4/A5 wording — principal's); H7 "never a standing grant" vs
+      "temporary or permanent" seam; H8 instance-README alignment pass
+      (stale pre-A4 absolute, boundary pointer should name REACH.md);
+      residuals — AUTONOMY's "direct handling" doesn't literally catch
+      machinery-mediated *repurposing*; two over-length lines to rewrap.
 - [x] **REVIEW.md reviewer-independence rule — decided 2026-07-13, all
       fixed.** Two cold reviews ran: 2026-07-12 (scoped to the three independence
       edits, I1–I7, 3 MAJOR — `reviews/2026-07-12-review-independence.md`) and

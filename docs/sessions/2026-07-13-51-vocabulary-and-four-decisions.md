@@ -55,8 +55,19 @@ edit (body text starting mid-sentence at "fresh-context agent):"); restored
 the `- [x] **Cold review of method/REACH.md** — RAN 2026-07-12 (cold` opener
 from the sibling items' pattern.
 
+## 4. Addendum — the owed cold pass ran before close
+
+Commissioned cold (fresh-context agent, findings drafted before any barred
+material opened, instance proof re-run 11/11): **PASS-WITH-FINDINGS, no
+MAJOR — cycle CLOSED** per the stopping rule. Fidelity 8/8 with two
+immaterial labelled deviations. H1–H8 (four MEDIUM, four LOW — sharpest:
+cookie-export reading of "fair game", the categorical browser-store exclusion
+arguing against the doc's own post-A1 criteria, operator/principal
+conflation) + two residuals consolidated onto one ROADMAP backlog item, no
+further ceremony. Verdict verbatim below the second divider in
+`reviews/2026-07-13-reach-batch-applied.md`.
+
 ## Floor at close
 
-Pre-commit triad clean on both commits; CI watched on push. Review-owed: the
-applied REACH batch (brief above). The v2-plugin scoping pass is the natural
-next session.
+Pre-commit triad clean on all three commits; CI watched green. Review-owed
+queue: empty. The v2-plugin scoping pass is the natural next session.
