@@ -6,10 +6,41 @@ get blocked (403s, anti-bot, Cloudflare Turnstile). Two tools, tried in order:
 | Tool | What | When |
 |---|---|---|
 | `browser_fetch` | a **fresh, disposable, headless Chrome** per call (Playwright) | first resort — a real engine beats a bare HTTP client |
-| `browser_fetch_persistent` | the **operator's own already-running Chrome** over the DevTools Protocol | only if `browser_fetch` is also blocked — an aged, real session with genuine cookies/history clears checks a brand-new automated browser can't |
+| `browser_fetch_persistent` | a **real Chrome the operator started** on `:9222` over the DevTools Protocol — dedicated profile by default (4a), or their everyday session (4b) | only if `browser_fetch` is also blocked — a real, non-headless (and optionally aged) session clears checks a fresh automated browser can't |
 
 Both return `status`/`title`/`url` + rendered text (or `raw_html=True`),
 truncated to 80k chars to stay token-considerate.
+
+## The fetch escalation ladder
+
+browser-fetch is rungs 3–4 of how a Claude teammate fetches from the internet.
+**Always start at the top and step down only when the current rung is blocked** —
+each rung costs more (time, tokens, or the operator's attention).
+
+| # | Method | What it is | Isolation | Needs the operator? |
+|---|--------|-----------|-----------|---------------------|
+| 1 | **WebFetch / WebSearch** | built-in; fetch a known URL (cleaned content) or search to find one | n/a | no |
+| 2 | **curl / raw HTTP** | raw bytes — APIs, files, exact headers, or when #1's processing gets in the way (same anti-bot profile as #1: a bare HTTP client) | n/a | no |
+| 3 | **`browser_fetch`** | a **completely standalone, disposable Chrome** the agent launches (headless) — its own process/session, **no** cookies, history, extensions, or downloads shared with the operator's browsing; can't be clicked away or broken by accident | fully isolated | no |
+| 4a | **`browser_fetch_persistent` → dedicated profile** | a **standalone, non-headless** Chrome the operator started on `:9222` with a **dedicated** profile — like #3 but real/visible (some anti-bot blocks headless: #3's UA still says `HeadlessChrome`), still isolated from everyday browsing | isolated (dedicated profile) | ⚠️ operator starts it |
+| 4b | **`browser_fetch_persistent` → everyday session** | the operator's **own everyday Chrome** — real history, cookies, logged-in sessions; "just another tab as if the operator opened it". Only when the operator **deliberately** exposes that profile on `:9222` | none — the operator's real browser | ⚠️ operator exposes it; may clear a challenge in-window |
+| 5 | **ask the operator to paste** | full manual fallback — when even the operator's browser hits a challenge only a human clears | — | ⚠️ fully manual |
+
+Today rung 3 and rung 4 are **Chrome only**; other engines (Safari, Firefox) and
+a cleaner split of 4a/4b are roadmap. The single `browser_fetch_persistent` tool
+serves both 4a and 4b — which one depends on **which profile the operator exposes
+on `:9222`** (dedicated = 4a, everyday = 4b).
+
+### Credential boundary (non-negotiable)
+
+Across **every** rung: the agent may **ride a session the operator has already
+authenticated** (existing cookies / a logged-in tab are fair game). The agent may
+**never use the browser's *saved credentials*** — password-manager entries,
+autofill, stored logins — to authenticate, nor access those credentials
+themselves, **without the operator's explicit permission**. Using an existing
+session is fine; touching the credentials that mint one is the sensitive line.
+(This is the operational statement of a rule owed to `method/` doctrine — see
+ROADMAP.)
 
 ## Why it's an *instrument* (and a different kind)
 
@@ -46,9 +77,13 @@ prebuilt wheels for that platform). Needs a Python new enough for the `mcp` SDK
 ```
 
 Use the binary path directly (`open -a` drops the flags if Chrome is already
-running). **A DEDICATED profile — never your everyday Chrome** — so it never
-touches personal logins/cookies. The debug port binds to localhost only and has
-no auth of its own; never expose it on a network interface.
+running). The `--user-data-dir` above is a **dedicated profile (rung 4a)** —
+isolated from everyday browsing, the safe default. Exposing your **everyday**
+profile instead (rung 4b — omit the dedicated `--user-data-dir`) is a
+*deliberate* operator choice for when only a real logged-in session gets through;
+the **credential boundary above still binds** (ride the session, never the saved
+credentials). The debug port binds to localhost only and has no auth of its own;
+never expose it on a network interface.
 
 ## Verification
 

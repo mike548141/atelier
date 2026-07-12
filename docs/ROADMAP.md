@@ -143,6 +143,26 @@ has inherited the costume, not the doctrine.
       session ran `browser_fetch` end-to-end against the re-registered server
       (example.com → 200; httpbin User-Agent showed `HeadlessChrome/149` — real
       Chrome), so the old `~/.claude/mcp-servers/browser-fetch` was deleted.
+- [ ] **Fetch escalation ladder — build the missing rungs + elevate to doctrine**
+      (Mike, 2026-07-12). The full ladder is documented in
+      `instruments/browser-fetch/README.md` (rungs 1 WebFetch/WebSearch · 2 curl ·
+      3 `browser_fetch` standalone headless · 4a persistent dedicated profile ·
+      4b persistent everyday session · 5 ask the operator). What's built today is
+      **Chrome-only**; open work:
+      - [ ] **Other engines** — Safari and Firefox for rungs 3–4 (some anti-bot
+            keys on Chrome/headless specifically; a second engine is another way
+            through).
+      - [ ] **Cleaner 4a/4b** — today one `browser_fetch_persistent` serves both,
+            distinguished only by which profile the operator exposes on `:9222`.
+            Consider making the dedicated (4a) vs everyday-session (4b) choice
+            explicit rather than implicit-by-setup.
+      - [ ] **Elevate the credential boundary + ladder to `method/` doctrine**
+            (review-owed). The credential rule — *ride an already-authenticated
+            session, never use the browser's saved credentials or access the
+            credentials themselves without explicit permission* — is a shareable
+            security boundary (SECRETS/ACCESS family), currently only stated
+            operationally in the browser-fetch README. The escalation principle
+            (start cheapest, step down only when blocked) is likewise general.
 
 ## instruments/ layer (new 2026-07-11, ADR 0006)
 
