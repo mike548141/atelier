@@ -5,6 +5,20 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-12 — COMMUNICATION.md cold-reviewed, findings fixed)
+- **`method/COMMUNICATION.md` review-cleared** — the owed cold review RAN:
+  **PASS-WITH-FINDINGS**, verdict in `docs/reviews/2026-07-12-communication.md`.
+  The leak-by-implication fear cleared (the scrubbed example's join carries no
+  content; the scrub note names only categories the boundary statement already
+  publishes). Findings C1–C4 fixed in the doc: maintenance enforcement stated
+  honestly (write-time discipline is the only control — the person layer is
+  outside every mechanical floor and review sweep by design); the
+  not-even-private rule's divergence from the portability north star surfaced
+  and kept, with its why; the worked example dated as a 2026-07-12 snapshot
+  and named as the one sanctioned exception to never-copied; the boundary
+  sentence sharpened (*functions* without the personal context — the
+  understanding stays person-local).
+
 ### Added (2026-07-12 — communication calibration doctrine)
 - **`method/COMMUNICATION.md`** — calibrate replies to the person reading
   them. Each principal keeps a person-local "working with me" calibration

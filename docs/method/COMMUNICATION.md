@@ -43,7 +43,7 @@ Grounded in the live instance, not invented to fill a heading:
 - **Visual structure** — iconography, tables, headings; and the specifics
   matter more than the category (the live instance prefers *colour* icons —
   ✅ ❌ ⚠️ — over monochrome glyphs, because colour carries the signal
-  faster).
+  faster; confirmed 2026-07-12).
 - **Cognitive-load stance** — solutions, drafts, and summaries versus option
   surveys; whether stating the obvious helps or grates.
 - **Tone** — register, humour, and *how much*. Dosage is part of the
@@ -65,16 +65,26 @@ Grounded in the live instance, not invented to fill a heading:
 - **Maintain it like a record.** When a reply lands notably well or badly,
   that is calibration data — write it back, dated (`EVIDENCE.md` absolute
   dating), so confirmations accumulate instead of evaporating at session end.
+  Enforcement, stated honestly (`PROPAGATION.md`'s clause): write-time
+  discipline is the *only* control — the instance sits outside the reach of
+  every mechanical floor and every review sweep, because the house's own
+  reviews are barred from the person-level layer by design.
 - **Person-local, pointed at, never copied.** A repo's CLAUDE.md may carry
   *repo* conventions (locale for its artefacts, commit style); the personal
   layer never travels into a repo — not even a private one, because repos
   change hands and visibility (the no-personal-data boundary, and RECORD's
-  scrub-of-HEAD-is-not-remediation).
+  scrub-of-HEAD-is-not-remediation). This is deliberately stricter than the
+  portability north star's lighter tier, which tolerates a private store for
+  instance-level facts: a calibration travels *with* its motivators, so it
+  gets crown-jewel handling whole. The scrubbed snapshot below is the one
+  sanctioned exception — ADR 0005's named-worked-example framing, replaced
+  wholesale by an adopter.
 
 ## Worked example (scrubbed)
 
-The live instance's calibration with the personal context removed — replace
-wholesale with your own:
+The live instance's calibration with the personal context removed — a
+snapshot taken 2026-07-12 (the instance moves; this illustrates the shape,
+it does not track the original). Replace wholesale with your own:
 
 > - **Outcome first, evidence beneath it** — lead with the answer/verdict,
 >   then the supporting detail; the answer gives the detail its context.
@@ -91,8 +101,10 @@ wholesale with your own:
 
 What was scrubbed: the personal context (health, workload, household) that
 motivates several of these lines. It stays in the person-level layer — the
-boundary this repo exists to hold — and the calibration works without the
-reader knowing it.
+boundary this repo exists to hold. The calibration *functions* without it —
+every line above is executable as printed; the understanding that turns
+rules into judgement stays person-local, which is why the instance, not
+this snapshot, is what the agent actually serves.
 
 *Bearing: the live instance is the "Working with me" section of the
 principal's `~/.claude/CLAUDE.md`, maintained since before atelier existed and
