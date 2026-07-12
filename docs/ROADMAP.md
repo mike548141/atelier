@@ -7,17 +7,26 @@ has inherited the costume, not the doctrine.
 
 ## Doctrine — review-owed
 
-- [ ] **Cold review of `method/REACH.md`** — OWED 2026-07-12 (session 47). New
-      doctrine: the fetch escalation ladder + the credential boundary (purpose-
-      of-storage test), elevated from the browser-fetch README. Cold fresh-
-      context agent, session-40/44 lifecycle (brief → run → verdict in the brief
-      file → disposition). Pre-seeded questions: (1) does the ladder's generic
-      1–6 shape stay grounded, or does it invent rungs the built instance lacks;
-      (2) is "why the two halves are one doc" argued or merely asserted; (3) does
-      the purpose-of-storage test cover the estate's real credential cases
-      without finding intended provisioned use contrary to itself; (4) does it
-      leak nothing person-level (the personal password manager is named as a
-      *class*, not an instance — is that the right line).
+- [x] **Cold review of `method/REACH.md`** — RAN 2026-07-12 (session 47, cold
+      fresh-context agent): **PASS-WITH-FINDINGS**, verdict in
+      `reviews/2026-07-12-reach.md`. All four sharp questions cleared green — the
+      ladder is a faithful abstraction with no invented rungs (generic 1–6 maps
+      1:1 onto the Chrome-only instance, the partial-instance gap disclosed
+      verbatim from this item); the two-halves join is *argued* on a real
+      mechanism (same event at rungs 4–5), not asserted; the purpose-of-storage
+      test covers the estate's cases without outlawing the one use the ladder
+      exists for (riding the live session); no person-level leak (password
+      manager named as a class, the ROADMAP's `Apple Passwords` instance
+      correctly kept out). **5 findings R1–R5, all [fixed] same day** — none
+      blocking, one theme (adopter-clarity + one genuine seam): R1 "the estate
+      registry"/"keychain" definite references an outside adopter can't resolve →
+      indefinite "a provisioning registry's entries"; R2 operator/principal
+      identity the join leans on now *stated* where the halves meet; R3 the seam
+      between the purpose test and the categorical browser rule closed (a
+      browser's saved-credential store is never itself the provisioned path —
+      ride, don't mint, whichever profile); R4 the rung-4/5 one-mechanism caveat
+      pulled up beside the ladder; R5 the grant exception signalled at first
+      statement ("without an explicit grant").
 - [x] **Cold review of `method/COMMUNICATION.md`** — RAN 2026-07-12 (cold
       fresh-context agent, barred from the person-level layer by the brief so
       the leak question was judged as a genuine outside reader):

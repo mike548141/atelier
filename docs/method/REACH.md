@@ -4,7 +4,8 @@ When the clean path to a resource is blocked — a `403`, an anti-bot wall, a
 login the agent doesn't hold — there is a *further* path, and there is a
 **limit** on how far the agent may go to take it. This doc is both halves:
 **escalate cheapest-first** (the ladder), and **never mint access from the
-principal's saved credentials** (the boundary). It is the doctrine behind the
+principal's saved credentials** without an explicit grant (the boundary). It is
+the doctrine behind the
 `instruments/` layer's third verb — `tools/` **enforce**, the observer
 instruments **observe**, and reach-extending instruments **get the teammate
 through a wall** (ADR 0006 addendum). The worked instance is
@@ -44,7 +45,9 @@ The rungs climb one axis — **isolation traded away for reach** — and cross a
 second at rung 4: **needing the operator**. Rungs 1–3 the agent walks alone;
 4–6 cost the operator progressively more, which is the real reason to exhaust
 the cheap rungs first. The escalation principle is general; the *engines and
-tools* that fill the rungs are instance-local (see "What lives elsewhere").
+tools* that fill the rungs are instance-local (see "What lives elsewhere") — a
+given instance may even serve rungs 4 and 5 with one mechanism, split only by
+which profile the operator exposes, though the rungs stay distinct in principle.
 
 ## The credential boundary — a purpose-of-storage test
 
@@ -54,8 +57,8 @@ browsers: **which credential stores may the agent draw on at all?** The test is
 *why the credential was stored*, not where it sits or how easy it is to reach.
 
 - **Provisioned stores are the intended path.** Credentials saved *so that* a
-  repo, tool, or agent can use them — the keychain items the estate registry
-  records, per-consumer minted API tokens, the whole `SECRETS.md` / `ACCESS.md`
+  repo, tool, or agent can use them — a provisioning registry's entries,
+  per-consumer minted API tokens, the whole `SECRETS.md` / `ACCESS.md`
   machinery. Agent use is the thing they exist for; in scope by design, no
   further permission needed beyond the grant that provisioned them.
 
@@ -66,7 +69,10 @@ browsers: **which credential stores may the agent draw on at all?** The test is
   already authenticated** (existing cookies, a logged-in tab are fair game); it
   may **never reach for the stored credentials that would mint a session**, nor
   the credentials themselves. **Riding an open session is fine; touching the
-  credentials behind it is the line.**
+  credentials behind it is the line.** A browser's saved-credential store is
+  never itself the provisioned path: provisioned *browser* access means the
+  operator authenticates and the agent rides the session, so ride-not-mint holds
+  whichever profile it is — even a dedicated one stood up for the agent's use.
 
 - **The principal can grant across the line** — per credential, temporary or
   permanent, as an explicit act. A grant is the principal's alone to make
@@ -88,8 +94,10 @@ untouched by the operational machine.
 
 The ladder is how far the agent reaches; the boundary is the line reach must not
 cross. They meet at rungs 4–5, where extending reach *is* riding the principal's
-authenticated session — so the guardrail and the escalation are the same event
-seen twice. A reader who has the ladder without the boundary would descend it
+authenticated session — the operator running the browser there is the principal
+whose vault the boundary guards, so the guardrail and the escalation are the
+same event seen twice. A reader who has the ladder without the boundary would
+descend it
 into the saved-credential store; a reader who has the boundary without the
 ladder would never learn there's a disciplined, cheapest-first way down at all.
 
