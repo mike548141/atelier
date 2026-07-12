@@ -535,6 +535,20 @@ standout debt; sessions 14–15 deliberately did not stack on it.
             flipping to blocking (drop `--warn`, make the gh-plane warning an
             error) is Mike's call once the pre-existing scanner debt is cleared
             and every active machine signs. Vigilant mode stays off until then.
+            **Gate assessed 2026-07-12 (session 47) — not met, and the blocker
+            is not main-line-agent-clearable.** The three red repos fail for
+            *three different* reasons, none a signing failure (so the flip
+            wouldn't newly-red them, but the fleet isn't clean enough to declare
+            enforce-mode honestly): **homenetwork** — secretscan 25 findings
+            (real secret debt, Mike's rotation/purge, session 39's owed list);
+            **docker-heap** — secretscan full-cover findings (same class);
+            **rpi** — ruff (2) + a Windows test error, its *bespoke* CI, **not
+            the scanner floor and not signing** — session 41 mis-filed this as
+            "scanner debt"; it's ordinary code-quality debt, agent-actionable
+            but a separate cleanup. On docker-heap/homenetwork signscan never
+            runs (secretscan fails first). The **"every active machine signs"**
+            half is also unverified. Flip held — Mike's call + Mike's action
+            (the rotations); the rpi ruff/test cleanup is offered separately.
       - [ ] **Release-artifact signing + SBOM (deferred, was A5).** Signing *built
             artifacts* + a deterministic SBOM needs external tooling (syft/cosign),
             which hits the tool-install floor and breaks the zero-dep house-tool
