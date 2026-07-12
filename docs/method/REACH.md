@@ -7,18 +7,22 @@ login the agent doesn't hold — there is a *further* path, and there is a
 principal's saved credentials** without an explicit grant (the boundary). It is
 the doctrine behind the
 `instruments/` layer's third verb — `tools/` **enforce**, the observer
-instruments **observe**, and reach-extending instruments **get the teammate
-through a wall** (ADR 0006 addendum). The worked instance is
-`instruments/browser-fetch/`; the rules here are general.
+instruments **observe**, and **capability** instruments **extend what the
+teammate can *do*** (ADR 0006 addendum); getting through a wall is the kind of
+capability this doc governs, not the whole verb. The worked instance is
+`instruments/browser-fetch/`; the rules here are generalised from that one
+worked instance — engine-agnostic by construction, untested beyond it.
 
 ## Escalate cheapest-first — the ladder
 
 Reaching the internet (or any walled resource) is a **ladder of methods,
-cheapest at the top**. Always start at the top and step down **only when the
-current rung is actually blocked** — each rung down costs more of something:
-time, tokens, or the operator's attention. Never open at a lower rung because
-it's more likely to work; the cost you'd skip is the cost that keeps the
-top rungs the default.
+cheapest at the top**. Rungs 1–2 cost the same and clear the same walls — pick
+between them by **request shape** (a processed page vs raw bytes, an API, exact
+headers), not by strength. From rung 3 down, every step costs more of
+something — time, tokens, or the operator's attention — so descent is
+**block-gated**: step down only when the current rung is actually blocked, and
+never open at a lower rung because it's more likely to work; the cost you'd
+skip is the cost that keeps the high rungs the default.
 
 The general shape, from cheapest:
 
@@ -41,13 +45,22 @@ The general shape, from cheapest:
 6. **Ask the operator** — full manual fallback, when even their browser hits a
    wall only a human clears.
 
-The rungs climb one axis — **isolation traded away for reach** — and cross a
-second at rung 4: **needing the operator**. Rungs 1–3 the agent walks alone;
-4–6 cost the operator progressively more, which is the real reason to exhaust
-the cheap rungs first. The escalation principle is general; the *engines and
+Across the engine rungs (3–5) the ladder trades one axis away — **isolation
+for reach**: a disposable engine shares nothing with the operator, their live
+session shares everything. Rungs 1–2 sit above that trade (equal
+wall-clearing power, different request shape — no isolation given up). A
+second axis crosses at rung 4: **needing the operator**. Rungs 1–3 the agent
+walks alone; 4–6 cost the operator progressively more, which is the real
+reason to exhaust the cheap rungs first. The escalation principle is general; the *engines and
 tools* that fill the rungs are instance-local (see "What lives elsewhere") — a
 given instance may even serve rungs 4 and 5 with one mechanism, split only by
 which profile the operator exposes, though the rungs stay distinct in principle.
+
+Sibling ladder, opposite-sounding maxim, no conflict: `EVIDENCE.md` §13's
+acquisition ladder says *climb* — spend more — as the stakes demand. The two
+govern different choices: **reach picks the pipe** to a source, **evidence
+picks the strength** of what must come back — and stakes can compel a fetch
+that reach-economics alone would not.
 
 ## The credential boundary — a purpose-of-storage test
 
@@ -59,8 +72,13 @@ browsers: **which credential stores may the agent draw on at all?** The test is
 - **Provisioned stores are the intended path.** Credentials saved *so that* a
   repo, tool, or agent can use them — a provisioning registry's entries,
   per-consumer minted API tokens, the whole `SECRETS.md` / `ACCESS.md`
-  machinery. Agent use is the thing they exist for; in scope by design, no
-  further permission needed beyond the grant that provisioned them.
+  machinery. Agent use is the thing they exist for — in scope by design **for
+  the use they were provisioned for, through the resolving machinery** (the
+  tooling resolves references to values; the agent handling values directly is
+  what `SECRETS.md`'s right-plane rule exists to avoid). The provisioning
+  grant is the confirm *for that use*; directly reading, exporting, or
+  repurposing a stored value stays on `AUTONOMY.md`'s always-confirm secrets
+  floor.
 
 - **Personal convenience stores are off-limits by default.** A browser
   profile's saved logins, the principal's password manager — saved over years
@@ -69,7 +87,11 @@ browsers: **which credential stores may the agent draw on at all?** The test is
   already authenticated** (existing cookies, a logged-in tab are fair game); it
   may **never reach for the stored credentials that would mint a session**, nor
   the credentials themselves. **Riding an open session is fine; touching the
-  credentials behind it is the line.** A browser's saved-credential store is
+  credentials behind it is the line.** And riding licenses **retrieval** — the
+  reach this doc exists for. Any state-changing act taken *through* a ridden
+  session (sending, buying, deleting, granting) is its own action under the
+  `AUTONOMY.md` floor, and a rung-5 ride is scoped to the exposure the
+  operator deliberately made — never a standing grant. A browser's saved-credential store is
   never itself the provisioned path: provisioned *browser* access means the
   operator authenticates and the agent rides the session, so ride-not-mint holds
   whichever profile it is — even a dedicated one stood up for the agent's use.
@@ -77,11 +99,13 @@ browsers: **which credential stores may the agent draw on at all?** The test is
 - **The principal can grant across the line** — per credential, temporary or
   permanent, as an explicit act. A grant is the principal's alone to make
   (`AUTONOMY.md`: the agent records a grant, never originates one; crossing this
-  line is a trust-surface widening, floor-class). And a grant *moves* the
-  credential into the intended path: it belongs in the provisioned machinery
-  (`SECRETS.md`'s store, `ACCESS.md`'s runbook), not held ad-hoc in the agent's
-  memory of "I was allowed this once" (`EVIDENCE.md`: store the rule, not a
-  loose recollection of it).
+  line is a trust-surface widening, floor-class). A **standing** grant *moves*
+  the credential into the intended path: it enrols in the provisioned
+  machinery (`SECRETS.md`'s store, `ACCESS.md`'s runbook). A **temporary**
+  grant ("use this once") expires with the task — a one-shot credential never
+  enrols and never persists; what is recorded is the *grant itself*, dated and
+  scoped, never the value (`EVIDENCE.md`: store the rule, not a loose
+  recollection of it).
 
 The line runs where `SECRETS.md`'s own scope boundary runs — its person-level
 credentials sit in the operator's personal vault, *outside* the estate's
@@ -106,11 +130,10 @@ ladder would never learn there's a disciplined, cheapest-first way down at all.
 This is the shareable doctrine. The concrete mechanism is instance-local:
 
 - **The built ladder** — which engines and tools fill rungs 1–6, the exact
-  tool names and their `status`/isolation behaviour, and the honest gaps (today
-  the real-engine rungs are one browser; other engines and an explicit rung-4/5
-  split are open work) — lives in `instruments/browser-fetch/README.md` and the
-  ROADMAP, never here. The doctrine is engine-agnostic; the instance is partial,
-  and says so there.
+  tool names and their `status`/isolation behaviour, and the honest gaps —
+  lives in `instruments/browser-fetch/README.md` and the ROADMAP, never here.
+  The doctrine is engine-agnostic; the instance's coverage and its gaps are
+  stated there, where they can change without falsifying a doctrine sentence.
 - **The estate's provisioned stores and the grants across the line** — which
   keychain items and tokens exist, and which personal credentials the principal
   has moved into the intended path — are the `SECRETS.md` / `ACCESS.md`

@@ -7,6 +7,12 @@ has inherited the costume, not the doctrine.
 
 ## Doctrine — review-owed
 
+- [ ] **Cold pass on the applied REACH batch (A1–A8 + the AUTONOMY carve-out)**
+      — owed per REVIEW.md's cycle rule (applying decisions to doctrine is
+      itself a doctrine edit). Brief:
+      `reviews/2026-07-13-reach-batch-applied.md` (seeded questions deferred
+      below the divider per the independence rule). Cycle closes on a no-MAJOR
+      pass; remainder to backlog without further ceremony.
 - [x] **REVIEW.md reviewer-independence rule — decided 2026-07-13, all
       fixed.** Two cold reviews ran: 2026-07-12 (scoped to the three independence
       edits, I1–I7, 3 MAJOR — `reviews/2026-07-12-review-independence.md`) and
@@ -45,7 +51,13 @@ has inherited the costume, not the doctrine.
       take all nine — G2/G6–G9 are mechanical; G1 suggests the deferred-
       questions brief shape (structural, matches rule 2); G3's re-key and G4's
       no-MAJOR stopping rule read sound; G5 pairs with G4's paragraph.
-- [ ] **REACH.md adversarial re-review — DECISION OWED, Mike's, not the
+- [x] **REACH.md adversarial re-review — DECIDED 2026-07-13: all eight
+      [fixed], applied same day** to `REACH.md` (A1–A8) + `AUTONOMY.md` (A1's
+      matching secrets-floor carve-out, so the two docs state one rule) by a
+      session that authored neither the doctrine nor the verdict; decisions
+      stamped in the verdict file. **Cold pass on the applied batch owed**
+      (REVIEW.md's cycle rule — tracked below). Original item follows:
+      ~~DECISION OWED, Mike's, not the
       author's.** RAN 2026-07-12 (session 47's post-session self-review found
       the first review author-briefed — cold context, warm questions — so an
       un-briefed adversarial pass was commissioned; it chose its own attack
@@ -58,7 +70,8 @@ has inherited the costume, not the doctrine.
       ride-a-session unscoped beyond fetch-only). The reviewer's judgement of
       the first review: tier right, basis unsound — every pre-seeded question
       pointed where the author was already looking. Findings await **Mike's**
-      decision; the doc's author applies nothing here on its own.
+      decision; the doc's author applies nothing here on its own.~~
+- [x] **Cold review of `method/REACH.md`** — RAN 2026-07-12 (cold
       fresh-context agent): **PASS-WITH-FINDINGS**, verdict in
       `reviews/2026-07-12-reach.md`. All four sharp questions cleared green — the
       ladder is a faithful abstraction with no invented rungs (generic 1–6 maps
@@ -180,20 +193,20 @@ has inherited the costume, not the doctrine.
 
 ## Raised 2026-07-12 (logged, not yet scoped)
 
-- [ ] **Apply the REACH re-review findings A1–A8 on Mike's decision** — the
-      verdict is recorded verbatim (`reviews/2026-07-12-reach-rereview.md`,
-      tracked under review-owed above); the author applies nothing until Mike
-      says which findings to take. His steer at session close: "add to the work
-      to do" — the decision itself still pending. The author's counsel, on
-      record: accept A1–A5 (the two MAJORs are cheap text fixes that err on the
-      side that matters), A6–A8 judgement calls.
-- [ ] **Session-38 borderline join — Mike's call** (surfaced by the session-47
-      self-review's scrub pass). One prior public record line carries a milder
-      instance of the name × debt class (a named child × "scan surfaced
-      findings, owner-tracked, decided fix"). It predates and survived the
-      session-40 review sweep, so it was arguably judged acceptable — left
-      standing rather than unilaterally rewriting a reviewed prior record.
-      Scrub on Mike's word, leave on his word; either way note the decision.
+- [x] **Apply the REACH re-review findings A1–A8 on Mike's decision** — DONE
+      2026-07-13: Mike ruled **all eight [fixed]** (the counsel had said A1–A5
+      + judgement on the rest; he took the lot). Applied to `REACH.md` and
+      `AUTONOMY.md` by a neutral hand (authored neither doctrine nor verdict);
+      decisions stamped in `reviews/2026-07-12-reach-rereview.md`. The cold
+      pass on the applied batch is the review-owed item at the top.
+- [x] **Session-38 borderline join — SCRUBBED 2026-07-13, Mike's decision.**
+      The name × debt join (a named child × "scan surfaced findings,
+      owner-tracked, decided fix") was reworded out of all three public spots
+      that carried it — the session-38 detail file, its SESSIONS.md index
+      line, and the ROADMAP's standardisation bullet — keeping the
+      transferable lesson (read the repo's own roadmap before externalising a
+      scan report), each spot noting the scrub and that the old wording stays
+      reachable in git history (a scrub of HEAD is not remediation).
 - [x] **REVIEW.md — encode reviewer independence** — DONE 2026-07-12. The gap
       the REACH case proved: a *cold-context* review can still be
       *warm-questioned* — the REACH author wrote its brief's pre-seeded
@@ -880,6 +893,12 @@ public as a **named worked example** (README "If you're adopting this"). What wa
       agent's initiative. For an announcement, reuse the ros `PUBLISHING.md`
       extract-scrub-fresh-export pattern; **scrub list must include client
       names**.
+- [ ] **v2 plugin — CHOSEN 2026-07-13 (Mike's call): the next widening is
+      spent here.** De-instance `create-repo` so it travels in the plugin, and
+      ship `worktree` + `fleet-pins` as plugin commands — doctrine travelling
+      as behaviour, wider than the current bundle. Needs a scoping pass first
+      (what "de-instanced" means for a skill that stamps house identity), then
+      the build; go-live via PR like the v1 bundle, reviewed before merge.
 - [x] **atelier's own CI** — DONE 2026-07-10 (Opus): `.github/workflows/ci.yml`
       (job `floor`) dogfoods the floor every review asserted by hand — the tool
       test suite, three scanner `--selftest`s, and the scan triad over the whole
@@ -991,18 +1010,16 @@ public as a **named worked example** (README "If you're adopting this"). What wa
   standardise-existing pass applied (doctrine block + pin `atelier@5db645e`,
   house README, `docs/` with ARCHITECTURE/ROADMAP/SESSIONS, CONTRIBUTING,
   `floor.yml` scoped for an infra repo, fail-closed hook, `.gitignore` fixed —
-  it was self-ignoring + untracked). No stack config touched; the pass *surfaced*
-  findings the repo's own (private) records already track, with a decided fix (a
-  reconciliation smell noted into that private roadmap); its floor red by design
-  until the owner acts. Now `current` in `tools/pins.py`.
-- Where does estate-wide credential **governance** live? Not here — atelier is
-  public, and RECORD.md forbids a public record holding a secrets registry
-  (which secret exists, its scope, where it's kept, when it rolls). The first
-  root→child credential pattern was worked live 2026-07-11: a provider-level
-  minting root the principal authorises once (browser, unavoidably), then
-  least-privilege per-repo children minted — and tightened — in code, held in
-  the OS keychain, rolled by re-mint; faves' Pages deploy runs on a child
-  scoped to a single zone. The *pattern* looks doctrinal (a method/ candidate
-  once a second provider confirms the shape); the *registry* needs a private
-  home above the product repos — likely a dedicated estate repo, the
-  principal's call, ADR-owed wherever it lands.
+  it was self-ignoring + untracked). No stack config touched; what the scans
+  reported is the owner's, in that repo's own private records *(reworded
+  2026-07-13 on the principal's decision — the name × posture join; old wording
+  in git history)*. Now `current` in `tools/pins.py`.
+- ~~Where does estate-wide credential **governance** live?~~ — RESOLVED
+  2026-07-13, the principal's designation: it lives in the **dedicated private
+  estate-root repo**, which already exists and already holds the registry
+  (metadata only — provider, scope, keychain item, expiry, roll story; never a
+  value), the mint tooling, and the estate map, with its own ADR recording the
+  root→child pattern. Which repo that is stays out of this public record —
+  naming the registry's home is itself the pointer RECORD keeps out. The
+  remaining half stands: the root→child *pattern* becomes a method/ candidate
+  once a second provider confirms the shape.

@@ -5,6 +5,35 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-13 — REACH re-review applied; four principal decisions land)
+- **`method/REACH.md` + `method/AUTONOMY.md`** — the adversarial re-review's
+  eight findings **A1–A8 all [fixed]** on Mike's decision (counsel had said
+  A1–A5; he took the lot), applied by a neutral hand. The two majors close
+  real credential-boundary gaps: **A1** REACH's "no further permission needed"
+  reconciled with AUTONOMY's always-confirm secrets floor — provisioned
+  credentials are in scope *for their provisioned use, through the resolving
+  machinery*; direct value handling stays floor-stopped (AUTONOMY gains the
+  matching carve-out so the two docs state one rule). **A2** riding an
+  authenticated session now licenses *retrieval only*; state-changing acts
+  through a ridden session are their own actions under the floor. Plus: stale
+  instance-status parenthetical dropped (A3), descent rule split — shape picks
+  rungs 1–2, block gates 3+ (A4), isolation axis restricted to rungs 3–5 (A5),
+  temporary grants expire rather than enrol (A6), EVIDENCE §13 cross-reference
+  (A7), generality honesty clause + ADR 0006 third-verb realignment (A8).
+  **Cold pass owed** on this application per the cycle rule (brief:
+  `reviews/2026-07-13-reach-batch-applied.md`).
+- **Session-38 name × debt join scrubbed** (Mike's decision) — the last
+  surviving instance of a named child paired with its scan posture, reworded
+  out of the session-38 detail file, its SESSIONS.md index line, and the
+  ROADMAP bullet; each spot notes the scrub and that history keeps the old
+  wording. The transferable lesson (read the repo's own roadmap before
+  externalising a scan report) is kept.
+- **Two decisions recorded:** the next deliberate widening is spent on a
+  **v2 plugin** (de-instanced `create-repo`, `worktree`/`fleet-pins` commands
+  — new ROADMAP item, scoping first); the estate credential-registry open
+  question is **resolved** — it already lives in the dedicated private
+  estate-root repo (unnamed here by RECORD's own rule).
+
 ### Changed (2026-07-13 — "disposition" renamed to "decision")
 - **`method/REVIEW.md` + `method/CONCURRENCY.md` + `docs/ROADMAP.md`** — the
   review-lifecycle term **"disposition" is retired for "decision"**, Mike's

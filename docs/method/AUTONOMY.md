@@ -84,7 +84,12 @@ are hard or impossible to undo:
   record, not a licence to extend.)
 - **New trust surfaces** — deploy keys, webhooks, CI secrets, GitHub app
   installs, OAuth grants: same class as installing an unapproved tool.
-- **Secrets** — reading, writing, moving, or regenerating credentials/keys.
+- **Secrets** — reading, writing, moving, or regenerating credentials/keys:
+  any direct handling of a stored value. The one carve-out (`REACH.md`'s
+  boundary states the same rule from the other side): *using* a provisioned
+  credential for the purpose it was provisioned for, through the resolving
+  machinery — the tooling resolves the reference, the agent never handles the
+  value — is what its provisioning grant already confirmed, not a fresh stop.
 - **Spend** — anything that costs money or metered usage beyond the plan
   (e.g. a billed model review — see MODEL-ECONOMICS).
 - **People and safety** — any action touching a person's safety, or the safety

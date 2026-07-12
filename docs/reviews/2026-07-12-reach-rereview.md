@@ -1,8 +1,14 @@
 # Re-review: `docs/method/REACH.md` — independent adversarial pass
 
 **Date:** 2026-07-12 · **Reviewer:** fresh-context agent, deliberately unbriefed
-by the author · **Disposition owner:** Mike (the principal), not the doc's
+by the author · **Decision owner:** Mike (the principal), not the doc's
 author.
+
+> **Decision (Mike, 2026-07-13): all eight [fixed].** Applied same day to
+> `REACH.md` (A1–A8) and `AUTONOMY.md` (A1's matching secrets-floor carve-out,
+> so the two docs state one rule) by a session that authored neither the
+> doctrine nor this verdict. Checklist ticked below; the application is a
+> doctrine edit and carries its own cold pass per `REVIEW.md`'s cycle rule.
 
 **Why this review exists.** REACH.md was authored, review-briefed, and
 findings-dispositioned by the same agent in one session — a self-certification
@@ -191,14 +197,14 @@ gloss with the ADR's wording ("extend reach" as one kind of capability).
 
 ## Follow-up checklist
 
-- [ ] A1 — reconcile REACH provisioned-store clause with the AUTONOMY secrets floor (both docs)
-- [ ] A2 — scope "riding is fine" to retrieval; state-changing acts take their own floor
-- [ ] A3 — drop the stale instance-status parenthetical from "What lives elsewhere"
-- [ ] A4 — restate descent rule: shape picks 1 vs 2; block gates 3+
-- [ ] A5 — restrict the isolation axis to rungs 3–5
-- [ ] A6 — temporary grants expire, they don't enrol
-- [ ] A7 — cross-reference EVIDENCE §13
-- [ ] A8 — honesty clause on generality; realign third-verb gloss with ADR 0006
+- [x] A1 — reconcile REACH provisioned-store clause with the AUTONOMY secrets floor (both docs) **[fixed 2026-07-13]**
+- [x] A2 — scope "riding is fine" to retrieval; state-changing acts take their own floor **[fixed 2026-07-13]**
+- [x] A3 — drop the stale instance-status parenthetical from "What lives elsewhere" **[fixed 2026-07-13]**
+- [x] A4 — restate descent rule: shape picks 1 vs 2; block gates 3+ **[fixed 2026-07-13]**
+- [x] A5 — restrict the isolation axis to rungs 3–5 **[fixed 2026-07-13]**
+- [x] A6 — temporary grants expire, they don't enrol **[fixed 2026-07-13]**
+- [x] A7 — cross-reference EVIDENCE §13 **[fixed 2026-07-13]**
+- [x] A8 — honesty clause on generality; realign third-verb gloss with ADR 0006 **[fixed 2026-07-13]**
 
 ---
 
