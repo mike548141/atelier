@@ -43,6 +43,11 @@ Read in this order:
    usage-billed model reviews), the which-pool self-check, tiered authority, and
    session hygiene. **Canonical here**; the estate-specific numbers (prices,
    model roster, session-overhead figure) stay person-local in `ros`.
+12. **`COMMUNICATION.md`** — calibrate replies to the person reading them: each
+   principal keeps a person-local "working with me" calibration (ordering,
+   density, visual structure, tone, locale), maintained from dated evidence.
+   The *pattern* is shareable; the instance stays in `~/.claude/`, with a
+   scrubbed worked example in the doc.
 
 **Meta — how the doctrine is enforced, recorded, and propagated:**
 

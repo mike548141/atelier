@@ -7,6 +7,13 @@ has inherited the costume, not the doctrine.
 
 ## Doctrine — review-owed
 
+- [ ] **Cold review of `method/COMMUNICATION.md`** (added 2026-07-12, session
+      43). Sharpest questions for the brief: does the practice/instance split
+      actually hold at the worked example (is the scrubbed calibration truly
+      free of the personal layer, or does it leak by implication?); is the
+      axes list grounded or padded; and does the decline-then-revisit history
+      read as honest grounding or as relitigating a decision the ROADMAP
+      already recorded.
 - [x] **Cold review of RECORD "keep private repos generic"** — RAN 2026-07-12
       (cold fresh-context agent): **PASS-WITH-FINDINGS**, verdict in
       `reviews/2026-07-12-record-private-repos-generic.md`. The central clause
@@ -101,6 +108,14 @@ has inherited the costume, not the doctrine.
   (visual reader → iconography/tables; outcome-first-then-evidence; watch volume,
   let structure replace length). No atelier artifact — the clean call was *not*
   to build `method/REPORTING.md`.
+  - **Revisited same day, by Mike — `method/COMMUNICATION.md` built
+    (2026-07-12, session 43).** Not a reversal of the boundary: the *values*
+    stay personal (`~/.claude/`), but Mike ruled the *pattern* shareable —
+    peers adopting atelier work better with the agent if they keep their own
+    calibration, and the doc is how they learn to. Same split as TOOLBOX
+    (practice shareable / instance personal); Mike's calibration included
+    scrubbed as the named worked example (ADR 0005 framing). The doc records
+    this decline-then-revisit history honestly. **Review-owed** (below).
 - [x] **Adopt browser-fetch as a teammate capability** — DONE 2026-07-12 (Opus,
       session 41). The first **capability** instrument: a Chrome-driving MCP
       server (fresh headless, or the operator's own Chrome over CDP for

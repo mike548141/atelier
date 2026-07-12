@@ -5,6 +5,17 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-12 — communication calibration doctrine)
+- **`method/COMMUNICATION.md`** — calibrate replies to the person reading
+  them. Each principal keeps a person-local "working with me" calibration
+  (ordering, density, visual structure, cognitive-load stance, tone, locale,
+  what personal context is for), maintained from dated evidence, pointed at
+  and never copied into a repo. The TOOLBOX practice/instance split applied
+  to communication; a scrubbed worked example included (ADR 0005
+  named-worked-example framing). Declined 2026-07-12 as personal-only, then
+  revisited the same day by Mike: the values stay in `~/.claude/`, the
+  *pattern* is what a peer adopter needs. Review-owed (ROADMAP).
+
 ### Added (2026-07-12 — commit signing ACTIVATED; ladder steps 1–5)
 - **Signing is live** (SIGNING.md, ADR 0007). Mike registered a dedicated
   ed25519 signing key to GitHub (step 1); the machine is wired (global
