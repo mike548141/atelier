@@ -54,10 +54,11 @@ stopped instead of re-deriving it:
 - **`SESSIONS.md` is an append-only index** — one entry per session, newest last,
   read at session start (tail it). Never rewritten; history is not edited.
 - **Detail lives on demand** — when a session is substantial, its full detail
-  goes in a `docs/sessions/<date>-NN-slug.md` file and the index carries a
-  one-line pointer. (NN — like every next-N counter in the record — is
-  allocated at landing time, never at session open: CONCURRENCY's
-  numbered-records rule.) Open the detail file only when a line needs unpacking. This
+  goes in a `docs/sessions/<date>-<HHMM>-<slug>.md` file and the index carries
+  a one-line pointer. (`HHMM` is the session's start time, 24-hour — the
+  identifier is coordination-free per CONCURRENCY's record-identifier rule:
+  built from facts the session already owns, safe to allocate at open, no
+  shared counter. Files named under the retired `NN` scheme keep their names.) Open the detail file only when a line needs unpacking. This
   keeps the always-loaded index cheap (token discipline) without losing depth.
 - **Finish the sequence, then *declare* the close.** When the agent judges a
   **sequence of work** done, it does the full tidy-up **unprompted** and *says

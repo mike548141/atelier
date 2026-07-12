@@ -1,4 +1,4 @@
-# NNNN — <short decision title>
+# <short decision title>
 
 **Status**: accepted • **Date**: <YYYY-MM-DD>
 

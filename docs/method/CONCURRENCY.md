@@ -97,27 +97,29 @@ action across every parallel session.
   sessions both append — that conflict is *expected and trivial*: keep both
   entries, chronological order, move on. Design shared records so this is the
   worst case they present.
-- **Numbered records are that conflict's silent sibling.** A next-N counter —
-  session numbers, `<date>-NN` detail files, ADR/review `NNNN` — is a shared
+- **Record identifiers are coordination-free — a counter is that conflict's
+  silent sibling.** A next-N counter (session `NN`, ADR `NNNN`) is a shared
   resource git does not police: two sessions allocating from their own stale
   views create *differently named* files carrying the same number, so no merge
-  conflict fires and the collision lands silently. Three rules, still no
-  locking:
-  - **Allocate late** — pick N at the moment the record lands, never at session
-    open: fresh `git pull --rebase` immediately before, commit, push at once.
-    That is the sync bookends applied to the counter; the allocate-to-push gap
-    is the entire collision window, so keep it seconds.
-  - **Provisional until pushed** — don't cite your own number anywhere else
-    (prose, cross-references, commit subjects) before the push lands, so a
-    collision costs one file rename, not a cascade of stale references.
-  - **First landed wins** — a rejected push that reveals a taken number means
-    *you* renumber. Mechanical, no adjudication; the same first-landed rule the
-    rebase already imposes on content.
+  conflict fires and the collision lands silently. So records are named from
+  facts the session already owns — **date + slug**, plus start time (`HHMM`)
+  where same-day order matters (session logs). That needs no shared state, is
+  safe to allocate at session open, and is citable immediately. Structurally,
+  the worst case collapses into the append-tail case above: two sessions
+  wanting the *same name* is a visible git conflict, the trivial kind. A
+  running number adds nothing over the date — chronology was the only meaning
+  it carried (Mike's ruling, 2026-07-13) — and costs a standing discipline to
+  keep unique.
 
-  When designing a *new* record series, prefer an identifier that needs no
-  coordination at all — date plus start time, or a unique slug; keep a counter
-  only where the running number itself carries meaning worth the discipline
-  (the way "session 51" names a point in a repo's history).
+  Where a legacy counter still exists (a repo not yet migrated), the interim
+  discipline, still no locking: **allocate late** — pick N at the moment the
+  record lands, never at session open (fresh `git pull --rebase` immediately
+  before, commit, push at once; the allocate-to-push gap is the entire
+  collision window); **provisional until pushed** — don't cite your own number
+  anywhere else before the push lands, so a collision costs one rename, not a
+  cascade; **first landed wins** — a rejected push revealing a taken number
+  means *you* renumber, mechanically. Either way, existing numbered files and
+  their citations stand — the record is append-only; never renumber history.
 
   *Bearing:* ros 2026-07-13 — two parallel sessions each computed "next NN"
   from a stale view: one had taken 03, the other took 03 and 04. Nothing

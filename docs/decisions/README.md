@@ -9,11 +9,12 @@ session might re-propose, or (b) rests on evidence that took real work to
 gather. Don't write one for reversible implementation choices — a code
 comment covers those (the "comments say why" rule).
 
-Format: one file, numbered `NNNN-slug.md`, about half a page. Sections:
-**Status** (accepted / superseded-by-NNNN), **Date**, **Context**,
-**Decision**, **Rejected** (each alternative + why it lost),
-**Consequences**. Never edit an accepted ADR's substance — supersede it
-with a new one.
+Format: one file, `<YYYY-MM-DD>-<slug>.md` (coordination-free, per
+`method/CONCURRENCY.md`'s record-identifier rule; legacy `NNNN` files keep
+their names), about half a page. Sections: **Status** (accepted / superseded
+by `<file>`), **Date**, **Context**, **Decision**, **Rejected** (each
+alternative + why it lost), **Consequences**. Never edit an accepted ADR's
+substance — supersede it with a new one.
 
 ## Index
 
@@ -24,3 +25,4 @@ with a new one.
 - [0005](0005-going-public.md) — atelier goes public; the making-public floor is spent, the next deliberate widening is Mike's call.
 - [0006](0006-instruments-in-atelier.md) — teammate instruments (ccrepo, cctranscript) live in atelier in their own `instruments/` layer, split from the `tools/` controls.
 - [0007](0007-ssh-commit-signing.md) — commit/tag signing via SSH keys fleet-wide (zero-install, dedicated key, tracked `allowed_signers`); artifact signing deferred until a real release exists.
+- [2026-07-13](2026-07-13-coordination-free-record-identifiers.md) — record identifiers are date + slug (+ start time for session logs), never a next-N counter; legacy numbered files keep their names.

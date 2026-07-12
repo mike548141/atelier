@@ -108,7 +108,8 @@ evidence — see `method/EVIDENCE.md`.
 - **MODEL-ECONOMICS.md** — the repo's model/token policy. General shape (which
   model builds, which reviews, session hygiene) is `method/MODEL-ECONOMICS.md`;
   the repo file carries only what's repo-local, or points up entirely.
-- **decisions/** — numbered ADRs `NNNN-slug.md`. Write one when a decision
+- **decisions/** — ADRs named `<YYYY-MM-DD>-<slug>.md` (coordination-free, per
+  `method/CONCURRENCY.md`; legacy `NNNN` files keep their names). Write one when a decision
   **rejected a plausible alternative** or **rests on hard-won evidence**; skip it
   for reversible choices (a code comment covers those). The when-to-ADR rule is
   `method/RECORD.md`.

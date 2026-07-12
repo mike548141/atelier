@@ -21,7 +21,8 @@ a real look are enough.
 
 ## Format
 
-One file per review, `NNNN-slug.md` or `slug.md`. Keep it a brief the
+One file per review, `<YYYY-MM-DD>-<slug>.md` (coordination-free, per
+atelier's `method/CONCURRENCY.md` record-identifier rule). Keep it a brief the
 reviewer can act on, not a transcript:
 
 - **Build** — what changed and by which model/date.
