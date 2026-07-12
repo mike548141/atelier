@@ -7,19 +7,19 @@ has inherited the costume, not the doctrine.
 
 ## Doctrine — review-owed
 
-- [x] **REVIEW.md reviewer-independence rule — dispositioned 2026-07-13, all
+- [x] **REVIEW.md reviewer-independence rule — decided 2026-07-13, all
       fixed.** Two cold reviews ran: 2026-07-12 (scoped to the three independence
       edits, I1–I7, 3 MAJOR — `reviews/2026-07-12-review-independence.md`) and
       2026-07-13 (principal-commissioned, un-briefed, whole-doc, F1–F7 —
-      `reviews/2026-07-13-review-doctrine-second-pass.md`). Mike dispositioned
+      `reviews/2026-07-13-review-doctrine-second-pass.md`). Mike ruled
       both batches **[fixed]**, choosing floor-not-fence on the seeded-questions
       fork and adding his own strengthening (questions influence by their very
       existence — the reviewer guards against their topic/tone steering its
       surface). Applied 2026-07-13 to REVIEW.md + PROPAGATION.md by a session
-      that authored neither the doctrine nor either verdict; dispositions
+      that authored neither the doctrine nor either verdict; decisions
       stamped in both verdict files.
 - [x] **Cold review of the applied independence batch — RAN 2026-07-13,
-      dispositioned same day: all nine [fixed], applied, cycle CLOSED.** Mike
+      decided same day: all nine [fixed], applied, cycle CLOSED.** Mike
       ruled the loop question directly: the cycle closes when a pass returns no
       MAJOR (this one did), and if MAJORs ever stop falling pass-to-pass, stop
       and ask him — both now encoded in REVIEW.md's application paragraph,
@@ -27,7 +27,7 @@ has inherited the costume, not the doctrine.
       below the brief's divider). This application spawns no further ceremony
       per the rule it encodes. **PASS-WITH-FINDINGS**, verdict verbatim in
       `reviews/2026-07-13-independence-batch-applied.md`. Fidelity confirmed:
-      14/14 dispositions faithfully applied (one deviation judged the right
+      14/14 decisions faithfully applied (one deviation judged the right
       call — F2's pre-fork wording harmonised with the floor-not-fence
       decision). Nine findings G1–G9, five MEDIUM, none blocking: G1 the rule-1
       ordering instruction is behavioural where the house demands structural —
@@ -39,13 +39,13 @@ has inherited the costume, not the doctrine.
       metric F1 just evicted — and would not have fired on the REACH case
       itself; G4 the doctrine-review regress needs a stopping rule and the
       neutral-applier pattern deserves encoding; G5 application reviews can't
-      honour rule 2 (the delta carries the disposition stamps) — needs
+      honour rule 2 (the delta carries the decision stamps) — needs
       sequencing guidance. G6–G9 small wording/staleness. Applier's counsel,
       labelled (the applier authored the reviewed edits, so decides nothing):
       take all nine — G2/G6–G9 are mechanical; G1 suggests the deferred-
       questions brief shape (structural, matches rule 2); G3's re-key and G4's
       no-MAJOR stopping rule read sound; G5 pairs with G4's paragraph.
-- [ ] **REACH.md adversarial re-review — DISPOSITION OWED, Mike's, not the
+- [ ] **REACH.md adversarial re-review — DECISION OWED, Mike's, not the
       author's.** RAN 2026-07-12 (session 47's post-session self-review found
       the first review author-briefed — cold context, warm questions — so an
       un-briefed adversarial pass was commissioned; it chose its own attack
@@ -58,7 +58,7 @@ has inherited the costume, not the doctrine.
       ride-a-session unscoped beyond fetch-only). The reviewer's judgement of
       the first review: tier right, basis unsound — every pre-seeded question
       pointed where the author was already looking. Findings await **Mike's**
-      disposition; the doc's author applies nothing here on its own.
+      decision; the doc's author applies nothing here on its own.
       fresh-context agent): **PASS-WITH-FINDINGS**, verdict in
       `reviews/2026-07-12-reach.md`. All four sharp questions cleared green — the
       ladder is a faithful abstraction with no invented rungs (generic 1–6 maps
@@ -165,7 +165,7 @@ has inherited the costume, not the doctrine.
       2026-07-11 (Fable, cold session): **PASS-WITH-FINDINGS**, verdict in
       `reviews/2026-07-11-concurrency-put-away.md`. Fork exhaustive for lines
       of work; no RECORD/REVIEW conflict (tag keeps history reachable;
-      disposition-in-session-log is RECORD's own discipline). 3 findings, all
+      decision-in-session-log is RECORD's own discipline). 3 findings, all
       [fixed] same day: the bearing's "multiple sessions" count grounded
       explicitly (PR #1 close + session 34 — and sharpened: the branch was
       kept *deliberately* and still generated the re-derivation tax), a
@@ -180,11 +180,11 @@ has inherited the costume, not the doctrine.
 
 ## Raised 2026-07-12 (logged, not yet scoped)
 
-- [ ] **Apply the REACH re-review findings A1–A8 on Mike's disposition** — the
+- [ ] **Apply the REACH re-review findings A1–A8 on Mike's decision** — the
       verdict is recorded verbatim (`reviews/2026-07-12-reach-rereview.md`,
       tracked under review-owed above); the author applies nothing until Mike
       says which findings to take. His steer at session close: "add to the work
-      to do" — disposition itself still pending. The author's counsel, on
+      to do" — the decision itself still pending. The author's counsel, on
       record: accept A1–A5 (the two MAJORs are cheap text fixes that err on the
       side that matters), A6–A8 judgement calls.
 - [ ] **Session-38 borderline join — Mike's call** (surfaced by the session-47
@@ -201,9 +201,9 @@ has inherited the costume, not the doctrine.
       re-run found eight findings, zero overlap, two MAJOR. Encoded as a new
       REVIEW.md section *Independence is more than fresh context* (three rules:
       reviewer chooses its own attack surface, barred from prior reviews until
-      its verdict drafts, self-authored *doctrine* findings dispositioned by the
+      its verdict drafts, self-authored *doctrine* findings decided by the
       principal not the author) + two lifecycle carve-outs (step 1 author-brief
-      exception, step 4 doctrine-disposition carve-out). **Cold review owed**
+      exception, step 4 doctrine-decision carve-out). **Cold review owed**
       (tracked under *Doctrine — review-owed* at the top).
 
 - Reply/reporting style — **reframed out of atelier scope 2026-07-12.** Mike
@@ -455,7 +455,7 @@ layer earn a review with fresh context before extraction continues.
       `docs/reviews/2026-07-10-method-layer.md`. Architecture holds; 10
       findings [fixed] same session (trust-surface floor gap, drift-check
       alarm-fatigue guard, EVIDENCE §4 scope + §12 boundary, REVIEW reframe +
-      [rejected] disposition, RECORD integration-boundary lockstep, PRINCIPLES
+      [rejected] decision, RECORD integration-boundary lockstep, PRINCIPLES
       missing cases, stale README/CHANGELOG). **The gate is cleared —
       extraction may resume.** Notably: the sharpest ask's premise was
       corrected, not confirmed — Fable is the *more* capable tier (the reframe

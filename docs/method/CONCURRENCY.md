@@ -123,19 +123,19 @@ A branch ends in one of two ways, and both end with the branch **gone**:
   recollection); salvage anything unique; put an annotated **archive tag** on
   the tip (`archive/<date>-<name>`, absolute-dated per RECORD — the message
   states what was salvaged where and
-  what was consciously dropped); delete the branch; record the disposition in
+  what was consciously dropped); delete the branch; record the decision in
   the session log. The tag keeps every commit reachable forever; the branch
   namespace keeps meaning "open work".
 
 Half-closing is the failure mode this rule exists for: a branch whose PR was
 closed-not-merged, salvaged and even archive-tagged — but not deleted — gets
 re-investigated by session after session, because nothing at the branch says
-"already dispositioned". Careful-with-data and clean-namespace are not in
+"already decided and closed". Careful-with-data and clean-namespace are not in
 tension; the tag is how you get both.
 
 *Bearing:* atelier `atelier-method-review` (2026-07-10/11) — one session did the
 salvage and the archive tag properly and *deliberately* kept the branch as a
 second archive copy; its status was still re-derived twice more (the PR #1
-close-not-merge reciting the disposition; session 34 hitting it again cold)
+close-not-merge reciting the closure decision; session 34 hitting it again cold)
 before the rule above closed it. Even a considered kept-branch generated the
 re-derivation tax.

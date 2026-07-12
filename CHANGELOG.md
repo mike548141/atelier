@@ -5,6 +5,15 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-13 — "disposition" renamed to "decision")
+- **`method/REVIEW.md` + `method/CONCURRENCY.md` + `docs/ROADMAP.md`** — the
+  review-lifecycle term **"disposition" is retired for "decision"**, Mike's
+  call: the word was the agent's vocabulary, not his, and plain language wins
+  (lifecycle step 4 is now **Decision**; findings are *decided*, decisions are
+  stamped). Terminology only — no rule changes meaning. Dated records
+  (`docs/reviews/`, `docs/sessions/`, past CHANGELOG entries) keep the word
+  they were written with, per the leave-prior-records-standing practice.
+
 ### Changed (2026-07-12 — concurrency gets its trigger; sync bookends)
 - **`method/CONCURRENCY.md`** — the worktree rule existed but nothing told a
   session it was the *second* one on a repo, so it never fired in practice;

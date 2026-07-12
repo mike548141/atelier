@@ -71,9 +71,9 @@ is self-authored doctrine, however the review was commissioned:
    committed meaning *durably written to its draft*, before any prior verdict
    is opened. An earlier verdict is another channel for the author's framing;
    the reviewer reads it only after that point — to reconcile, never to anchor.
-   Verifying a prior review's dispositions (its `[fixed]` claims) is
+   Verifying a prior review's decisions (its `[fixed]` claims) is
    reconcile-step work, done after that point — not licence to read early.
-3. **Findings on self-authored *doctrine* are the principal's to disposition,
+3. **Findings on self-authored *doctrine* are the principal's to decide,
    not the author's.** Doctrine here is defined by **function, not file type**:
    any rule that governs future agent behaviour, whether it lives in prose, an
    ADR, a schema, a validator, or a CI gate — encoding a policy as code does not
@@ -133,35 +133,35 @@ throwaway chat:
    follow-up checklist) is appended to the **same file**, below a `---`
    divider. *Answer below the ask.* One file holds the whole exchange, so the
    question and its answer can never drift apart (EVIDENCE §9).
-4. **Disposition** — each finding is tagged **[fixed]** (done this session),
+4. **Decision** — each finding is tagged **[fixed]** (done this session),
    **[backlog]** (a named ROADMAP slice), or **[rejected: grounds]** — the
    builder/owner may disagree with a finding, but the disagreement and its
    grounds are recorded in the verdict file, never resolved by silently dropping
    it (the same rule the layer-override discipline applies to doctrine
    conflicts). **The one carve-out:** findings on doctrine the *author itself*
-   wrote (doctrine by function — rule 3 above) are dispositioned by the
+   wrote (doctrine by function — rule 3 above) are decided by the
    principal, not the author; the author may record its counsel per finding,
    labelled as such, and applies nothing until the principal decides. Where such
    a finding is a parent/child doctrine conflict, this and `PROPAGATION.md`'s
    resolved-upward rule are the same act seen from governance and from layering:
    the principal decides, and the resolution lands in the parent. Once
-   dispositioned, fixes consolidate onto one ROADMAP follow-ups item; then tick
+   decided, fixes consolidate onto one ROADMAP follow-ups item; then tick
    the ROADMAP pointer and add a `SESSIONS.md` entry.
 5. **Close** — a finding is only closed when its fix is itself verified, with a
    live proof where one exists. "Addressed the review" without exercising the fix
    is the apex violation the review existed to catch.
 
-**Applying dispositions to doctrine — and when the cycle stops.** Applying
-dispositioned findings to doctrine text is itself a doctrine edit and earns a
+**Applying decisions to doctrine — and when the cycle stops.** Applying
+decided findings to doctrine text is itself a doctrine edit and earns a
 cold pass (ceremony-to-risk below). Prefer an applier that authored neither the
 doctrine nor the verdicts — a neutral hand can harmonise a stale recommendation
 with the principal's decision without defending either. An application review
 cannot fully honour rule 2 — the delta it reviews carries the prior verdicts'
-disposition stamps — so its sequence is: review the edited doctrine at HEAD and
+decision stamps — so its sequence is: review the edited doctrine at HEAD and
 commit findings *first*, open the verdict-file hunks after; the residual
 exposure is named, not denied. And the cycle terminates (law of diminishing
 returns — the principal's ruling, 2026-07-13): it **closes when a pass returns
-no MAJOR finding** — what remains is dispositioned into the backlog, and that
+no MAJOR finding** — what remains is decided into the backlog, and that
 application does not spawn another full ceremony. The escape valve if it *isn't*
 converging: when the MAJOR count is not falling from pass to pass, do not keep
 cranking — stop and ask the principal for direction.
