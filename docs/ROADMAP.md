@@ -139,9 +139,10 @@ has inherited the costume, not the doctrine.
       setup (`browser_fetch` returned a rendered page; both tools register); MCP
       registration repointed to the atelier location. Not CI-unit-tested (a
       browser is disproportionate in CI); floor scanners cover `server.py`, live
-      use verifies. **Cleanup owed:** delete the old
-      `~/.claude/mcp-servers/browser-fetch` once a fresh session confirms the
-      atelier-hosted server connects.
+      use verifies. **Confirmed + cleaned up 2026-07-12:** a fresh parallel
+      session ran `browser_fetch` end-to-end against the re-registered server
+      (example.com → 200; httpbin User-Agent showed `HeadlessChrome/149` — real
+      Chrome), so the old `~/.claude/mcp-servers/browser-fetch` was deleted.
 
 ## instruments/ layer (new 2026-07-11, ADR 0006)
 
