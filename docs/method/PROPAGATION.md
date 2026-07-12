@@ -99,7 +99,9 @@ in atelier and is read on demand — never wholesale.
   recoverable — commit/push/PR included — just proceed.
 - **Concurrency:** `git pull --rebase --autostash` at session start; push after
   each commit. Uncommitted changes this session didn't make ⇒ another session
-  is live: move to a worktree — never work around or absorb them.
+  is live: move to a worktree — never work around or absorb them. Allocate
+  record numbers (session NN, ADR NNNN) at landing, never at session open:
+  fresh pull, commit, push at once — first landed wins, the loser renumbers.
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
   session start run `git -C "<atelier-path>" log --oneline <SHA>..HEAD`; any
   output means the house doctrine moved — read it, then bump the pin above
@@ -109,8 +111,9 @@ in atelier and is read on demand — never wholesale.
 ```
 
 The inlined floor is a **narrowing-free restatement** of the apex + AUTONOMY
-floor, and the concurrency line restates `CONCURRENCY.md`'s sync bookends and
-dirty-tree backstop — each may compress but must not contradict its source.
+floor, and the concurrency line restates `CONCURRENCY.md`'s sync bookends,
+dirty-tree backstop, and numbered-records rule — each may compress but must not
+contradict its source.
 When atelier's apex, floor, or concurrency doctrine changes, the block's
 wording is part of what a pin bump reviews.
 

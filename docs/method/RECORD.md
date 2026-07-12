@@ -55,7 +55,9 @@ stopped instead of re-deriving it:
   read at session start (tail it). Never rewritten; history is not edited.
 - **Detail lives on demand** — when a session is substantial, its full detail
   goes in a `docs/sessions/<date>-NN-slug.md` file and the index carries a
-  one-line pointer. Open the detail file only when a line needs unpacking. This
+  one-line pointer. (NN — like every next-N counter in the record — is
+  allocated at landing time, never at session open: CONCURRENCY's
+  numbered-records rule.) Open the detail file only when a line needs unpacking. This
   keeps the always-loaded index cheap (token discipline) without losing depth.
 - **Finish the sequence, then *declare* the close.** When the agent judges a
   **sequence of work** done, it does the full tidy-up **unprompted** and *says

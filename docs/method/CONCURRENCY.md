@@ -97,6 +97,33 @@ action across every parallel session.
   sessions both append — that conflict is *expected and trivial*: keep both
   entries, chronological order, move on. Design shared records so this is the
   worst case they present.
+- **Numbered records are that conflict's silent sibling.** A next-N counter —
+  session numbers, `<date>-NN` detail files, ADR/review `NNNN` — is a shared
+  resource git does not police: two sessions allocating from their own stale
+  views create *differently named* files carrying the same number, so no merge
+  conflict fires and the collision lands silently. Three rules, still no
+  locking:
+  - **Allocate late** — pick N at the moment the record lands, never at session
+    open: fresh `git pull --rebase` immediately before, commit, push at once.
+    That is the sync bookends applied to the counter; the allocate-to-push gap
+    is the entire collision window, so keep it seconds.
+  - **Provisional until pushed** — don't cite your own number anywhere else
+    (prose, cross-references, commit subjects) before the push lands, so a
+    collision costs one file rename, not a cascade of stale references.
+  - **First landed wins** — a rejected push that reveals a taken number means
+    *you* renumber. Mechanical, no adjudication; the same first-landed rule the
+    rebase already imposes on content.
+
+  When designing a *new* record series, prefer an identifier that needs no
+  coordination at all — date plus start time, or a unique slug; keep a counter
+  only where the running number itself carries meaning worth the discipline
+  (the way "session 51" names a point in a repo's history).
+
+  *Bearing:* ros 2026-07-13 — two parallel sessions each computed "next NN"
+  from a stale view: one had taken 03, the other took 03 and 04. Nothing
+  conflicted at merge; the duplicate surfaced only on human read-through and
+  was fixed by renumbering 03→05. Allocation at session open, with the push
+  hours later, was the whole window.
 - Rebase/merge small and often; a worktree that diverges for days is a merge
   hazard.
 - Delete a worktree when its branch lands (`git worktree remove`); stale
