@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Stand up browser-fetch's runtime and print its MCP registration.
+#
+# The CODE lives here in atelier (versioned, public). The VENV is a regenerable
+# build artifact, so it lives OUTSIDE the repo (and outside iCloud) under
+# ~/.cache — never committed, rebuilt from requirements.txt any time. Idempotent:
+# safe to re-run after a deps bump or on a fresh machine.
+set -euo pipefail
+
+here="$(cd "$(dirname "$0")" && pwd)"
+venv="${BROWSER_FETCH_VENV:-$HOME/.cache/atelier/browser-fetch/venv}"
+py="${PYTHON:-python3}"
+
+echo "browser-fetch setup"
+echo "  code: $here"
+echo "  venv: $venv"
+echo
+
+"$py" -m venv "$venv"
+"$venv/bin/pip" install --quiet --upgrade pip
+"$venv/bin/pip" install --quiet -r "$here/requirements.txt" -c "$here/constraints.txt"
+"$venv/bin/python" -m playwright install chromium
+
+cat <<EOF
+
+Done. Register the server with Claude Code — add this under "mcpServers" in
+~/.claude.json (Claude reconnects to MCP servers at session start):
+
+  "browser-fetch": {
+    "type": "stdio",
+    "command": "$venv/bin/python",
+    "args": ["$here/server.py"],
+    "env": {}
+  }
+
+For browser_fetch_persistent, also start a dedicated Chrome once per login —
+see the command in server.py's module docstring.
+EOF

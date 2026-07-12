@@ -71,3 +71,41 @@ idempotent `instruments/install`, not the folder on `PATH`.
   `~/.local/bin` symlinks re-point to atelier; `homenetwork/bin/` is removed.
 - The instruments are currently untested (unlike the `tools/` scanners). Test
   coverage for them is a future item if they grow beyond throwaway.
+
+## Addendum (2026-07-12) — the layer admits *capability* tools, not only observers
+
+**Decision (Mike):** `instruments/` widens to admit **capability tools** — ones
+that extend what the teammate can *do* — where their value is wholly the
+working-together relationship. The membership rule is unchanged (purpose, not
+runtime); what widens is the *kind* of value that counts: not just **observing**
+the collaboration (ccrepo, cctranscript) but **extending its reach**.
+
+Prompted by adopting **`browser-fetch`** (Mike, 2026-07-12): an MCP server that
+drives Chrome so the teammate can get through when `WebFetch`/curl are blocked
+(and so the operator can help clear a captcha the agent can't). It passes the
+purpose test squarely — it exists only for the teammateship — but it breaks
+every prior *sub-norm* of the layer, and those norms are now understood as
+descriptive of the first two instruments, not constitutive of the layer:
+
+- **acts, not observes** — the layer is now three verbs: `tools/` enforce,
+  observer instruments (ccrepo/cctranscript) observe, capability instruments
+  (browser-fetch) extend reach.
+- **Python + dependencies, not zero-dep Node** — a browser tool cannot be
+  zero-dep. The zero-dep ethos holds where it can (`tools/`) but **flexes for
+  capability tools whose value requires deps**; the price is paid honestly —
+  deps pinned (`requirements.txt`) and constrained (`constraints.txt`), the
+  runtime a regenerable venv outside the repo, the code versioned in-repo.
+- **an MCP server, not a `~/.local/bin` CLI** — it installs via its own `setup`
+  (build the venv, print the `~/.claude.json` registration), not the shared
+  symlink `install`.
+
+**Boundary still holds:** a *general* browser-automation utility Claude merely
+uses would be estate/infra, not an instrument. browser-fetch qualifies because
+it is built for, and only makes sense within, the Claude teammateship.
+
+**Consequences:** the `instruments/` charter is "value is the teammateship",
+observing **or** extending it. CI does not unit-test a browser (disproportionate);
+the floor scanners still cover its source, and it is verified by live use — the
+same honest-scope stance the scanners take. Pre-public scrub done (the
+`Mike`/machine specifics and pre-SDK history removed before the code entered the
+public repo).

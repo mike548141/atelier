@@ -1,0 +1,4 @@
+# On Intel macOS, cryptography >= 46 stopped shipping prebuilt wheels and falls
+# back to a Rust source build that fails without OpenSSL headers. Pin it below
+# that line. Harmless on platforms that do have wheels. See server.py's docstring.
+cryptography<46

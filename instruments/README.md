@@ -1,22 +1,26 @@
 # instruments/ — tools for working with Claude as a teammate
 
 Where `tools/` **enforces** the doctrine (checks that gate a commit),
-`instruments/` **observes** the collaboration itself — what it costs, and what
-happened when. They have no purpose outside the human+Claude working
-relationship; that's what earns them a place in atelier rather than in a
-personal infra repo (see `docs/decisions/0006-instruments-in-atelier.md`).
+`instruments/` serve the collaboration itself — they **observe** it (what it
+costs, what happened when) or **extend its reach** (what the teammate can do).
+They have no purpose outside the human+Claude working relationship; that's what
+earns them a place in atelier rather than in a personal infra repo (see
+`docs/decisions/0006-instruments-in-atelier.md`, incl. the 2026-07-12 addendum
+that widened the layer to capability tools).
 
-Unlike the `tools/` scanners (Python, zero-dep, hook-wired), these are small
-zero-dependency **Node** CLIs you run interactively from anywhere. Each reads
-the local Claude Code logs under `~/.claude/projects/` **read-only** — nothing
-here writes to those logs.
+Most are small zero-dependency **Node** CLIs that read the local Claude Code logs
+under `~/.claude/projects/` **read-only**. The capability tools are the honest
+exception — they act on the world and may carry pinned dependencies (browser-fetch
+drives Chrome via Playwright); each documents its own runtime.
 
-| Instrument     | Lens         | What it does                                                         |
-|----------------|--------------|---------------------------------------------------------------------|
-| `ccrepo`       | DevFinOps    | Per-repo Claude Code token & cost totals (`--by-model`, `--by-day`). |
-| `cctranscript` | Observability| Timestamped transcript of a session — the timestamps the chat UI hides. |
+| Instrument      | Verb      | What it does                                                         |
+|-----------------|-----------|---------------------------------------------------------------------|
+| `ccrepo`        | observe   | Per-repo Claude Code token & cost totals (`--by-model`, `--by-day`). |
+| `cctranscript`  | observe   | Timestamped transcript of a session — the timestamps the chat UI hides. |
+| `browser-fetch` | extend    | A browser (fresh headless, or the operator's own Chrome) when `WebFetch`/curl are blocked. MCP server; see its own README. |
 
-Every instrument has `-h`/`--help`.
+The Node CLIs each have `-h`/`--help`; `browser-fetch` is an MCP server with its
+own `instruments/browser-fetch/README.md`.
 
 ## Install (and on a new machine)
 
@@ -31,6 +35,10 @@ after adding an instrument or on a fresh laptop:
 Requirements: `node` on `PATH` (any recent LTS) for all of them; `ccrepo` also
 needs `ccusage` (`npx ccusage` or a global install). If `~/.local/bin` isn't on
 your `PATH`, the installer prints the one line to add to your shell profile.
+
+`browser-fetch` installs differently — it's an MCP server, not a `~/.local/bin`
+CLI. Run `instruments/browser-fetch/setup` (builds a venv + Chromium, prints the
+`~/.claude.json` registration Claude Code reads at start).
 
 ## What belongs here (and what doesn't)
 

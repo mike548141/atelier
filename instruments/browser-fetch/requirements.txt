@@ -1,0 +1,4 @@
+# browser-fetch runtime deps. Pinned for reproducibility; bump deliberately.
+# Installed with -c constraints.txt (see setup) for the Intel-macOS cryptography pin.
+mcp==1.28.1
+playwright==1.61.0
