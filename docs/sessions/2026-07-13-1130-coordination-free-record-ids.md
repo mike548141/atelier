@@ -47,3 +47,24 @@ zero incidents.
 - New/changed doctrine ⇒ the usual cold-review sweep covers it.
 
 This file is the first session record named under the new scheme.
+
+## Addendum (same conversation, ~12:00) — uniform form; interim rules retired
+
+Mike refined the ruling twice more (`11ef17b`):
+
+- **`HHMM` everywhere** — ADRs and reviews take it too; every record series is
+  `YYYY-MM-DD-HHMM-slug.md`, dropping the "where same-day order matters"
+  judgement clause. Files named before the addendum keep their names, the ADR
+  itself included.
+- **Interim counter rules retired, not kept** — Mike questioned the carve-out;
+  the agent's assessment agreed and he confirmed: the rules were hours old
+  with zero adopters, and their only audience (a repo not yet migrated) can
+  never receive them — the pin bump that would deliver the interim discipline
+  delivers the coordination-free rule in the same block. Keeping both invited
+  exactly the two-scheme confusion Mike flagged, for zero coverage. The
+  deliberation lives in the ADR's addendum; the living doctrine states one
+  rule.
+- **The drift test fired for real:** the block wording `<date>-<HHMM>-<slug>`
+  tripped `test_block_carries_exactly_the_four_placeholders` — angle brackets
+  in the child block are reserved for create-repo fill placeholders. Reworded
+  to the literal `YYYY-MM-DD-HHMM-slug.md`, canonical + template together.
