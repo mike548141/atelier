@@ -101,25 +101,21 @@ action across every parallel session.
   silent sibling.** A next-N counter (session `NN`, ADR `NNNN`) is a shared
   resource git does not police: two sessions allocating from their own stale
   views create *differently named* files carrying the same number, so no merge
-  conflict fires and the collision lands silently. So records are named from
-  facts the session already owns — **date + slug**, plus start time (`HHMM`)
-  where same-day order matters (session logs). That needs no shared state, is
-  safe to allocate at session open, and is citable immediately. Structurally,
+  conflict fires and the collision lands silently. So every record series —
+  session logs, ADRs, review briefs, anything similar — uses one form,
+  **`<date>-<HHMM>-<slug>`** (start time, 24-hour), built from facts the
+  session already owns: no shared state, safe to allocate at session open,
+  citable immediately, and same-day records keep their order. Structurally,
   the worst case collapses into the append-tail case above: two sessions
   wanting the *same name* is a visible git conflict, the trivial kind. A
   running number adds nothing over the date — chronology was the only meaning
   it carried (Mike's ruling, 2026-07-13) — and costs a standing discipline to
-  keep unique.
-
-  Where a legacy counter still exists (a repo not yet migrated), the interim
-  discipline, still no locking: **allocate late** — pick N at the moment the
-  record lands, never at session open (fresh `git pull --rebase` immediately
-  before, commit, push at once; the allocate-to-push gap is the entire
-  collision window); **provisional until pushed** — don't cite your own number
-  anywhere else before the push lands, so a collision costs one rename, not a
-  cascade; **first landed wins** — a rejected push revealing a taken number
-  means *you* renumber, mechanically. Either way, existing numbered files and
-  their citations stand — the record is append-only; never renumber history.
+  keep unique: the counter-plus-discipline fix tried first (allocate at
+  landing, first landed wins) was retired the same day it was written, because
+  its audience — a repo not yet migrated — can only ever receive it via the
+  pin bump that delivers this rule in the same block (the ADR's addendum
+  carries that deliberation). Files named under retired schemes keep their
+  names and citations — the record is append-only; never rename history.
 
   *Bearing:* ros 2026-07-13 — two parallel sessions each computed "next NN"
   from a stale view: one had taken 03, the other took 03 and 04. Nothing

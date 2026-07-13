@@ -9,12 +9,12 @@ session might re-propose, or (b) rests on evidence that took real work to
 gather. Don't write one for reversible implementation choices — a code
 comment covers those (the "comments say why" rule).
 
-Format: one file, `<YYYY-MM-DD>-<slug>.md` (coordination-free, per
-`method/CONCURRENCY.md`'s record-identifier rule; legacy `NNNN` files keep
-their names), about half a page. Sections: **Status** (accepted / superseded
-by `<file>`), **Date**, **Context**, **Decision**, **Rejected** (each
-alternative + why it lost), **Consequences**. Never edit an accepted ADR's
-substance — supersede it with a new one.
+Format: one file, `<YYYY-MM-DD>-<HHMM>-<slug>.md` (start time, 24-hour —
+coordination-free, per `method/CONCURRENCY.md`'s record-identifier rule; files
+named under retired schemes keep their names), about half a page. Sections:
+**Status** (accepted / superseded by `<file>`), **Date**, **Context**,
+**Decision**, **Rejected** (each alternative + why it lost), **Consequences**.
+Never edit an accepted ADR's substance — supersede it with a new one.
 
 ## Index
 

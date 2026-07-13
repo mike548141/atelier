@@ -47,3 +47,21 @@ never renumbered.
   resolve because legacy files keep their names.
 - Children adopt via their normal pin bumps; the child doctrine block's
   Concurrency line carries the compressed rule.
+
+## Addendum (2026-07-13, same day — Mike's ruling)
+
+Two refinements, hours after acceptance:
+
+- **One uniform form.** `<HHMM>` extends to ADRs and reviews too: every record
+  series is `<date>-<HHMM>-<slug>.md` (start time, 24-hour), dropping the
+  "where same-day order matters" judgement clause — one form beats a
+  per-series call. Files named before this addendum keep their names, this
+  one included.
+- **The interim counter discipline is retired, not kept.** The rules (allocate
+  at landing, provisional until pushed, first landed wins) were hours old with
+  zero adopters, and their only audience — a repo not yet migrated — can never
+  actually receive them: the pin bump that would deliver the interim
+  discipline delivers the coordination-free rule in the same doctrine block.
+  Keeping both schemes in the living doctrine bought no coverage and invited
+  exactly the confusion between them Mike flagged. The deliberation survives
+  here and in the session records; the living doctrine states one rule.

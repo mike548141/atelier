@@ -100,9 +100,8 @@ in atelier and is read on demand — never wholesale.
 - **Concurrency:** `git pull --rebase --autostash` at session start; push after
   each commit. Uncommitted changes this session didn't make ⇒ another session
   is live: move to a worktree — never work around or absorb them. Name records
-  coordination-free — date + slug (+ start time `HHMM` for session logs), never
-  a next-N counter; a legacy counter is allocated at landing, never at open:
-  fresh pull, commit, push at once — first landed wins, the loser renumbers.
+  (session logs, ADRs, reviews) coordination-free — `YYYY-MM-DD-HHMM-slug.md`,
+  never a next-N counter; files named under retired schemes keep their names.
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
   session start run `git -C "<atelier-path>" log --oneline <SHA>..HEAD`; any
   output means the house doctrine moved — read it, then bump the pin above

@@ -120,7 +120,8 @@ Grounded in the `ros`/atelier practice. A review is a **durable artifact**, not 
 throwaway chat:
 
 1. **Brief** — before the review runs, write a scoped brief to
-   `docs/reviews/<date>-<slug>.md`: what the work is, the three lenses, and the
+   `docs/reviews/<date>-<HHMM>-<slug>.md`: what the work is, the three lenses,
+   and the
    **specific assumptions to attack**. Add a `[ ]` pointer in the ROADMAP. The
    brief is *ask on top*. **When the brief is written by, or on the framing of,
    the work's author**, the independence rules bind: seeded questions go in a
