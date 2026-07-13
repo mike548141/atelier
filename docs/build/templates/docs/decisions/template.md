@@ -1,6 +1,6 @@
 # <short decision title>
 
-**Status**: accepted • **Date**: <YYYY-MM-DD>
+**Status**: <draft | accepted> • **Date**: <YYYY-MM-DD>
 
 ## Context
 

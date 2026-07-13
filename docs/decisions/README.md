@@ -12,13 +12,14 @@ comment covers those (the "comments say why" rule).
 Format: one file, `<YYYY-MM-DD>-<HHMM>-<slug>.md` (start time, 24-hour —
 coordination-free, per `method/CONCURRENCY.md`'s record-identifier rule; files
 named under retired schemes keep their names), about half a page. Sections:
-**Status** (accepted / revoked `<date>` / superseded by `<file>`), **Date**,
-**Context**, **Decision**, **Rejected** (each alternative + why it lost),
-**Consequences**. An accepted ADR's substance is immutable — everything after
-acceptance is appended, never edited: a dated **Addendum** section when the
-decision matures, `revoked <date>` + addendum when it stops applying with no
-replacement, `superseded by <file>` when a new ADR replaces it (the full
-lifecycle is `method/RECORD.md`).
+**Status** (draft / accepted / revoked `<date>` / superseded by `<file>`),
+**Date**, **Context**, **Decision**, **Rejected** (each alternative + why it
+lost), **Consequences**. Draft is the only mutable state — deliberation still
+open, binding on nothing; acceptance is the principal's call and freezes the
+substance. Everything after acceptance is appended, never edited: a dated
+**Addendum** section when the decision matures, `revoked <date>` + addendum
+when it stops applying with no replacement, `superseded by <file>` when a new
+ADR replaces it (the full lifecycle is `method/RECORD.md`).
 
 ## Index
 

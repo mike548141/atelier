@@ -28,6 +28,19 @@ all.
   never-edit line expanded into the three-verb mechanics, pointing up to
   RECORD for the full lifecycle.
 
+## Addendum (same conversation, ~12:22) — the draft state
+
+Mike anchored the lifecycle to the IEEE/IETF standards shape (draft → active →
+superseded or withdrawn), which exposed the state the three verbs skipped:
+**draft**. Encoded: draft is the one *mutable* state — deliberation written
+down, binding on nothing yet; acceptance is the principal's decision, never
+the author's, and is what freezes the substance. This gives the recurring
+"await Mike's decision" pattern a first-class home: the agent can author the
+deliberation as a draft ADR and the ruling flips it to accepted. Status
+vocabulary is now draft / accepted / revoked `<date>` / superseded by
+`<file>`; RECORD.md names the standards-body anchor; both READMEs and both
+template copies updated together.
+
 ## Owed
 
 - Children pick it up at their next pin bump alongside the identifier scheme.

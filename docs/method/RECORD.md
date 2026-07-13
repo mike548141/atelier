@@ -89,9 +89,13 @@ monorepo?", "why sops+age not vault?") is recorded as a short **ADR** in
 The test is *re-litigation risk*: if forgetting the reasoning would cost a future
 session a wasted argument, write the ADR.
 
-An ADR is **immutable once decided** — the substance of what was decided, and
-on what reasoning, is never rewritten (the append-only principle again).
-Everything after acceptance happens by *appending*, in one of three verbs:
+An ADR moves through the lifecycle standards bodies use (the IETF/IEEE shape:
+draft → active → superseded or withdrawn). **Draft** is the one mutable
+state — the deliberation written down, binding on nothing yet; accepting it is
+the principal's decision, never the author's. Once **accepted**, an ADR is
+immutable — the substance of what was decided, and on what reasoning, is never
+rewritten (the append-only principle again). Everything after acceptance
+happens by *appending*, in one of three verbs:
 
 - **Addendum** — a dated section appended to the ADR when the same decision
   matures: a scope extension, a corrected claim, a sharpening. The accepted
