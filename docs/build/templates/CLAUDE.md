@@ -38,6 +38,11 @@ in atelier and is read on demand — never wholesale.
   session start run `git -C "<atelier-path>" log --oneline <SHA>..HEAD`; any
   output means the house doctrine moved — read it, then bump the pin above
   deliberately.
+- **Estate resources — point up, don't re-derive:** providers & account plans,
+  financial constraints & plan entitlements, licences, credentials, shared
+  estate tooling, and the estate inventory live in the operator's **private
+  estate-root repo** (atelier's private counterpart). Reference it for these;
+  never re-derive them locally or copy its contents into this repo.
 - **This repo's visibility:** <visibility fact>. Verify:
   `gh repo view <owner/repo> --json visibility`.
 

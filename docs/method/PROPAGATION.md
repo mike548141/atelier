@@ -106,6 +106,11 @@ in atelier and is read on demand — never wholesale.
   session start run `git -C "<atelier-path>" log --oneline <SHA>..HEAD`; any
   output means the house doctrine moved — read it, then bump the pin above
   deliberately.
+- **Estate resources — point up, don't re-derive:** providers & account plans,
+  financial constraints & plan entitlements, licences, credentials, shared
+  estate tooling, and the estate inventory live in the operator's **private
+  estate-root repo** (atelier's private counterpart). Reference it for these;
+  never re-derive them locally or copy its contents into this repo.
 - **This repo's visibility:** <visibility fact>. Verify:
   `gh repo view <owner/repo> --json visibility`.
 ```
@@ -113,9 +118,16 @@ in atelier and is read on demand — never wholesale.
 The inlined floor is a **narrowing-free restatement** of the apex + AUTONOMY
 floor, and the concurrency line restates `CONCURRENCY.md`'s sync bookends,
 dirty-tree backstop, and record-identifier rule — each may compress but must
-not contradict its source.
-When atelier's apex, floor, or concurrency doctrine changes, the block's
-wording is part of what a pin bump reviews.
+not contradict its source. The **estate-resources** line points at the *other*
+root: atelier is the doctrine root; the estate's facts (its inventory, provider
+plans and financial constraints, credentials, shared tooling) live in a separate
+**private estate-root repo** — the knowing-root that atelier deliberately is not
+(atelier is public and holds no inventory). Every child inherits both pointers:
+up to atelier for *how we work*, up to the estate root for *what the estate has*.
+The estate root is named in the child's own onramp, never in this public
+canonical text, and its contents are never copied down into a child.
+When atelier's apex, floor, concurrency, or estate-pointer doctrine changes, the
+block's wording is part of what a pin bump reviews.
 
 ## The layer-override rule
 
