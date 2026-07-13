@@ -47,11 +47,21 @@ name: floor
 # `.secretscanignore` / `.leakscanignore` / `.linkscanignore` at the repo root.
 # The failing run's output prints the same options.
 
-# Every push, not just main (2026-07-11 review N4): a push to ANY branch is
-# already publication — the commit is on the remote whether or not it is ever
-# PR'd or merged, and a feature branch that never sees a PR was previously
-# scanned by nothing. A same-repo PR branch runs twice (push + PR event);
-# that costs seconds and is the right side of the trade for a safety floor.
+# Every push, not just main (2026-07-11 review N4) — but the RATIONALE and the
+# COST differ by visibility, and this template is copied into private repos:
+#   - PUBLIC repo: a push to ANY branch IS publication (on the public remote
+#     whether or not it is ever PR'd), so every-push is the primary gate — and
+#     it is free.
+#   - PRIVATE repo: a push is NOT yet publication, so every-push is a BACKSTOP
+#     over the pre-commit hook (a --no-verify bypass, a hook-less clone) that
+#     ALSO scans branch history at full cover — history that publishes WHOLESALE
+#     the day the repo goes public. It runs on METERED Actions minutes (billed
+#     per job, rounded up to the minute), so trimming it trades minutes now
+#     against unscanned history exposed at the go-public flip. Default to
+#     every-push; whether to scope it down is an estate-specific call (financial
+#     inventory in the operator's estate-root repo), and if you do, do so knowing
+#     what publishes at that flip. See atelier docs/method/MODEL-ECONOMICS.md,
+#     "The compute pool — CI minutes".
 on:
   push:
   pull_request:

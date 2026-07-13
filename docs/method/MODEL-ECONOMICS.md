@@ -1,9 +1,9 @@
 # Model economics
 
-*How to split work across models, and how to keep a session token-efficient.
-The doctrine is general; the estate-specific numbers — which exact models, their
-prices, this operator's plan and session-overhead figures — stay person-local
-(see the pointer at the foot).*
+*How to split work across models, how to keep a session token-efficient, and how
+CI compute is metered. The doctrine is general; the estate-specific numbers —
+which exact models, their prices, this operator's plan, the CI allowance and
+session-overhead figures — stay person-local (see the pointer at the foot).*
 
 ## Match the model to the job
 
@@ -42,6 +42,55 @@ the "should have been on the plan model" case up front, when the fix is free
 (switch at the session boundary), not after the dollars are gone. Review and
 hard-problem work on the usage-billed model is the *intended* use — no flag
 needed there. The guard is specifically usage-billed-doing-a-build.
+
+## The compute pool — CI minutes
+
+A **third spend pool** sits beside the two model pools above: **CI compute**,
+metered by the forge (GitHub Actions) in **minutes**. Same "know which pool"
+discipline, but its meter is coupled to something the model pools are not —
+**repository visibility**:
+
+- **Public repo → runs are free** — on standard hosted runners; larger/GPU
+  runners bill even when public. A safety gate can fire on every push at no
+  marginal cost.
+- **Private repo → runs meter against a monthly allowance**, billed per job
+  **rounded up to the whole minute** — so a 20-second job still costs a minute,
+  and *run count*, not run *duration*, is the lever. Exhaust the allowance and
+  behaviour splits: at a zero spending-limit CI **fails closed** on a capacity
+  error (not a broken workflow — an empty tank; report it as such, don't debug
+  the YAML); with billing attached it **fails open** and silently bills overage
+  (the surprise-invoice case).
+
+The useful part is the coupling: the *same visibility flip* moves the safety
+rationale and the meter together.
+
+- **A push to a public repo *is* publication** — so a publish-safety floor gates
+  every push *and* that push is free; rationale and cost align. (This is why
+  atelier's own floor runs on every branch — `.github/workflows/ci.yml`.)
+- **A push to a private repo is *not yet* publication** — the world can't see it,
+  so every-push is a **backstop** over the pre-commit hook (catching a
+  `--no-verify` bypass or a hook-less clone), bought with *metered* minutes. It
+  is not value-free, though: a private repo's CI scans branch history at full
+  cover, and that history publishes *wholesale* the day the repo goes public — so
+  trimming the floor trades minutes now against unscanned history exposed at that
+  flip.
+
+So floor **frequency is a visibility-dependent trade** — genuinely two-sided, and
+therefore *not atelier's to prescribe*. This doc names the coupling; the **call**
+(how often a given repo's floor fires, whether to pay overage, which providers
+sit on which plan) turns on estate-specific numbers atelier deliberately doesn't
+hold — they live in the operator's **private estate-root repo** (its financial
+inventory: providers, plan entitlements, free-vs-metered, one-off costs), decided
+per repo there. Whatever the call, it obeys this file's precedence: **cost never
+buys down safety** (see the closing section), and **publication is never
+cost-driven** — a repo goes public on its own merits and free minutes are a side
+effect, never the reason.
+
+Cost hygiene applies regardless of meter: cancel superseded runs
+(`concurrency: cancel-in-progress`), and prefer path filters over unconditional
+triggers where a job guards only part of the tree. Self-hosted / cloud runners
+(e.g. AWS) take the work off the forge meter entirely — a known future option,
+held for a deliberate decision, not reached for unprompted.
 
 ## One doctrine, tiered authority — not tiered rules
 
@@ -134,5 +183,6 @@ or unsafe result saved nothing.
 
 *Person-local (kept in the operator's repo / machine, not here): the exact model
 roster and their pools, current per-token prices and cache multipliers, the
-rules-of-thumb constants (chars-per-token), and the measured fixed per-session
-overhead. Those are plan details and change with pricing; this doctrine does not.*
+CI-minutes allowance and per-minute overage price, the rules-of-thumb constants
+(chars-per-token), and the measured fixed per-session overhead. Those are plan
+details and change with pricing; this doctrine does not.*
