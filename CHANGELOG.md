@@ -17,7 +17,18 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   only (zero cost to the solo default); grain is the leaf item not the theme (so
   a themed instruction fans out); release = branch put-away; orphan claims
   judged like stale branches (timestamp bounds staleness, no lease/lock). ROADMAP
-  gains a `[~]` legend. **Review-owed** (cold, un-briefed).
+  gains a `[~]` legend. **Reviewed same day** (cold, un-briefed):
+  PASS-WITH-FINDINGS, 1 MAJOR · 4 MEDIUM · 2 LOW, Mike ruled **all seven [fixed]**
+  and they were applied. The MAJOR reframed the mechanism — claiming now keys on
+  **selection from the shared queue** (not worktree-mode, whose only trigger was
+  the say-so the incident had already broken), and the claim commit lands on
+  `main` *before* branching. Plus: fan-out needs per-leaf lines (bundled lines
+  serialise); adjacent one-line claims raise a trivial keep-both conflict
+  (live-verified); put-away carries the `[~]`→`[ ]` reversion; tracker-based
+  adopters pointed at the assignee primitive; timestamp demoted to a staleness
+  tiebreak. Verdict + decisions in
+  `reviews/2026-07-13-concurrency-claiming-work.md`. **Applied-batch cold pass
+  owed** (first pass carried a MAJOR).
 
 ### Changed (2026-07-13 — REACH re-review applied; four principal decisions land)
 - **`method/REACH.md` + `method/AUTONOMY.md`** — the adversarial re-review's
