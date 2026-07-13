@@ -119,9 +119,14 @@ they don't actually test. The build-layer templates default to Linux for this
 reason; a macOS/Windows job is added deliberately, scoped to its slice.
 
 Cost hygiene applies regardless of meter: cancel superseded runs
-(`concurrency: cancel-in-progress`), and prefer path filters over unconditional
+(`concurrency: cancel-in-progress`), prefer path filters over unconditional
 triggers where a job guards only part of the tree — never the publish-safety
-floor itself, though: a whole-tree scan must see the whole tree. Self-hosted /
+floor itself, though: a whole-tree scan must see the whole tree — and avoid
+**duplicate triggers**: an unfiltered `push` plus `pull_request` fires *twice*
+per push on a branch with an open PR, so scope `push` to the branches that need
+it (as the CI templates do) unless the second run genuinely earns its minutes —
+scanning the merge preview a tip-push can't see, or covering fork PRs that never
+raise a `push` event in the base repo. Self-hosted /
 cloud runners
 (e.g. AWS) take the work off the forge meter entirely — a known future option,
 held for a deliberate decision, not reached for unprompted.

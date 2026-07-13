@@ -1041,3 +1041,17 @@ public as a **named worked example** (README "If you're adopting this"). What wa
   naming the registry's home is itself the pointer RECORD keeps out. The
   remaining half stands: the root→child *pattern* becomes a method/ candidate
   once a second provider confirms the shape.
+- **Floor template's duplicate trigger (raised 2026-07-13, for a future
+  session).** `build/templates/workflows/floor.yml` fires on `push:` (all
+  branches) **plus** `pull_request`, so any branch with an open PR scans
+  **twice** — free on public atelier, but *metered minutes* in every private
+  child that copies it. Genuinely two-sided, which is why it wasn't auto-fixed:
+  the `push` run scans the branch tip (what a public push *publishes*), the
+  `pull_request` run scans the *merge preview* a tip-push can't see and covers
+  fork PRs (no `push` event in the base repo) — so they aren't pure duplicates.
+  The N4 review deliberately chose every-push for the public publish-safety
+  rationale; trimming the overlap (e.g. dropping `pull_request` where a repo
+  takes no fork PRs, or scoping `push`) touches that decision, so it's the
+  estate's call per repo, not the agent's. Decide whether the merge-preview +
+  fork-PR coverage earns the second metered run on private children, or the
+  template should scope down. See MODEL-ECONOMICS "duplicate triggers".
