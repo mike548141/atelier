@@ -64,6 +64,32 @@ costs) is shed's, the same way credentials are. Confirmed and recorded there as
 inventory), ROADMAP'd as a build-out with the GitHub seed datum. Schema left to
 emerge (rule of three) — charter set, structure is honest follow-on.
 
+## Addendum (same conversation) — second review caught a self-inflicted defect (`4eac3d3`)
+
+Mike asked for a fresh un-briefed pass over the *final* text before close (the
+first review ran on the pre-rework draft). It earned its keep — two real
+findings, one of them introduced *by the first fix*:
+
+1. **False security claim, fleet-wide.** The rework said private CI "scans
+   branch history at full cover." It doesn't — verified: the scanners run
+   `--root repo repo` (no `--staged`), reading the working *tree at the pushed
+   tip*, never the log; `--staged` (the hook's mode) is the only history-aware
+   path. Per-commit cover is the hook's, not CI's. A claim stronger than its
+   evidence — the exact APEX breach — and it had already propagated into the
+   child template. Restated as tip-tree cover (the go-public argument still holds:
+   main-only leaves feature *tips* unscanned).
+2. **Name↔posture leak vector.** The bullet is clean unnamed, but the prose told
+   a child to name the root in its onramp — and some children are *public*. A
+   public repo naming the estate's credential/inventory root beside a catalogue
+   of what it holds is the reconnaissance join RECORD forbids. Now: a public
+   child references the root by local-path convention, never by name.
+
+Also fixed: path-filter advice now exempts the floor; "not atelier's to
+prescribe" narrowed to the trim-down. shed's `free/2000` figure **verified**
+correct via `gh api user` (finding #5) — no change owed. Lesson: a review of a
+*reworked* draft is not ceremony — the rework is fresh, unreviewed code, and here
+it carried an error the reviewer's own earlier phrasing seeded.
+
 ## Owed
 
 - shed's financial-inventory **structure** — build-out when a second provider
