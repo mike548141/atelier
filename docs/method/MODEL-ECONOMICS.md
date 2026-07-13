@@ -55,7 +55,8 @@ discipline, but its meter is coupled to something the model pools are not —
   marginal cost.
 - **Private repo → runs meter against a monthly allowance**, billed per job
   **rounded up to the whole minute** — so a 20-second job still costs a minute,
-  and *run count*, not run *duration*, is the lever. Exhaust the allowance and
+  and *run count*, not run *duration*, is one lever; **runner class** (below) is
+  the other, and often the larger. Exhaust the allowance and
   behaviour splits: at a zero spending-limit CI **fails closed** on a capacity
   error (not a broken workflow — an empty tank; report it as such, don't debug
   the YAML); with billing attached it **fails open** and silently bills overage
@@ -87,6 +88,35 @@ per repo there. Whatever the call, it obeys this file's precedence: **cost never
 buys down safety** (see the closing section), and **publication is never
 cost-driven** — a repo goes public on its own merits and free minutes are a side
 effect, never the reason.
+
+### Runner class — the multiplier lever
+
+A minute is not a minute. The forge meters each runner **class** at a different
+per-minute rate, so *which* runner a job picks multiplies its cost before run
+count is even counted. On GitHub's standard hosted runners the multipliers are
+**Linux 1× · Windows 2× · macOS 10×** (larger/GPU runners bill higher still, and
+**bill even on public repos** where standard runners are free). A private repo
+running its whole suite on macOS burns its allowance **ten times** as fast as the
+same suite on Linux — usually for no portability gain, because lint, type-check,
+build and most tests are platform-independent.
+
+The rule: **each repo uses the cheapest runner class that genuinely does its
+work.** Default every job to Linux. Escalate to a dearer class *only* for the
+specific slice that truly exercises that platform — and isolate that slice in its
+own job so the multiplier lands on the minimum surface, never on checks that
+would pass identically on Linux.
+
+- **Single-platform repo** → all jobs Linux. No exceptions to reach for.
+- **Multi-platform repo** → Linux for everything portable (lint, type-check,
+  build, the platform-agnostic tests), and a **narrow** macOS/Windows job for
+  only the OS-specific code paths. The worked case is `ros`: multi-platform by
+  design, so Linux carries the whole pipeline except the two `tiki` pieces that
+  are genuinely macOS-specific, which alone touch a macOS runner.
+
+A full `os: [ubuntu, macos]` matrix across *every* job is the anti-pattern this
+trims: it re-runs platform-independent checks at 10× for a portability claim
+they don't actually test. The build-layer templates default to Linux for this
+reason; a macOS/Windows job is added deliberately, scoped to its slice.
 
 Cost hygiene applies regardless of meter: cancel superseded runs
 (`concurrency: cancel-in-progress`), and prefer path filters over unconditional

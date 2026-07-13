@@ -1,6 +1,16 @@
 # CI for a Python package. Proves it lints, type-checks and passes its
-# tests on Linux + macOS (the portability guarantee — developed on one
-# Mac). Adjust the working-directory if the package isn't at src/.
+# tests across supported Python versions. Adjust the working-directory if
+# the package isn't at src/.
+#
+# RUNNER CLASS — read before adding OS coverage. The forge meters runners by
+# class (GitHub standard: Linux 1x, Windows 2x, macOS 10x; and macOS/Windows
+# bill even where Linux-only public repos run free). So this template defaults
+# EVERY job to Linux: lint, type-check and most tests are platform-independent
+# and prove nothing extra on a dearer runner. Add a macOS/Windows job ONLY for
+# genuinely OS-specific code paths, scoped to that slice (see the commented job
+# below) — never a blanket os: [ubuntu, macos] matrix that re-runs the whole
+# suite at 10x for a portability claim it doesn't test. See atelier
+# docs/method/MODEL-ECONOMICS.md, "Runner class — the multiplier lever".
 name: CI
 
 on:
@@ -11,12 +21,11 @@ on:
 
 jobs:
   test:
-    name: py${{ matrix.python-version }} on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: py${{ matrix.python-version }}
+    runs-on: ubuntu-latest   # Linux = 1x the metered rate; the default for anything not OS-specific
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
         python-version: ["3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
@@ -33,3 +42,25 @@ jobs:
         run: mypy
       - name: Test (pytest)
         run: python -m pytest -q
+
+  # Platform-specific tests — UNCOMMENT ONLY if the package has genuinely
+  # macOS-specific behaviour to prove (a Mac-only code path). macOS meters at
+  # 10x Linux, so keep this to the narrowest slice: the OS-specific tests alone
+  # (mark them, e.g. `@pytest.mark.macos`, and select with `-m macos`), one
+  # Python version, and NOT lint/type-check — those are platform-independent and
+  # already covered above. Swap macos-latest -> windows-latest (2x) for a
+  # Windows-specific path instead.
+  # test-macos:
+  #   name: macOS-specific paths
+  #   runs-on: macos-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-python@v5
+  #       with:
+  #         python-version: "3.12"
+  #         cache: pip
+  #         cache-dependency-path: pyproject.toml
+  #     - name: Install + dev tools
+  #       run: python -m pip install -e ".[dev]"
+  #     - name: Test (pytest, macOS-marked only)
+  #       run: python -m pytest -q -m macos
