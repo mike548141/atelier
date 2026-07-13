@@ -87,9 +87,22 @@ A decision that a later session could reasonably reopen ("why isn't this a
 monorepo?", "why sops+age not vault?") is recorded as a short **ADR** in
 `docs/decisions/` — context, the decision, the alternatives, the consequences.
 The test is *re-litigation risk*: if forgetting the reasoning would cost a future
-session a wasted argument, write the ADR. An ADR is immutable once decided;
-superseding it is a new ADR that points back, never an edit (the append-only
-principle again).
+session a wasted argument, write the ADR.
+
+An ADR is **immutable once decided** — the substance of what was decided, and
+on what reasoning, is never rewritten (the append-only principle again).
+Everything after acceptance happens by *appending*, in one of three verbs:
+
+- **Addendum** — a dated section appended to the ADR when the same decision
+  matures: a scope extension, a corrected claim, a sharpening. The accepted
+  text above it stands untouched. (Grounded: ADR 0007's addendum 2026-07-12;
+  the record-identifiers ADR's same-day addendum 2026-07-13.)
+- **Revoked** — the decision stops applying without a replacement: the status
+  line gains `revoked <date>` and a dated addendum says why and from when. The
+  file stays in the record — a revoked decision still explains the era it
+  governed.
+- **Superseded** — a new ADR replaces it: the status line gains
+  `superseded by <file>`, and the new ADR points back. Never an edit.
 
 ## The roadmap — current-truth, with completed detail moved aside
 
