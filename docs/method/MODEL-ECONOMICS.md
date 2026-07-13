@@ -70,13 +70,15 @@ rationale and the meter together.
 - **A push to a private repo is *not yet* publication** — the world can't see it,
   so every-push is a **backstop** over the pre-commit hook (catching a
   `--no-verify` bypass or a hook-less clone), bought with *metered* minutes. It
-  is not value-free, though: a private repo's CI scans branch history at full
-  cover, and that history publishes *wholesale* the day the repo goes public — so
-  trimming the floor trades minutes now against unscanned history exposed at that
-  flip.
+  is not value-free, though: CI re-scans the whole *tree at each pushed tip*
+  (per-commit cover is the hook's job, not CI's — the scanners read the tree, not
+  the log), so every-push covers the tip of every feature branch — trees that
+  publish *wholesale* the day the repo goes public. Trimming the floor to
+  main-only leaves those feature tips unscanned until that flip.
 
-So floor **frequency is a visibility-dependent trade** — genuinely two-sided, and
-therefore *not atelier's to prescribe*. This doc names the coupling; the **call**
+So a floor's **trim-down is a visibility-dependent trade** — genuinely two-sided,
+and therefore *not atelier's to prescribe* (the safe every-push default is;
+trimming it is the estate's call). This doc names the coupling; the **call**
 (how often a given repo's floor fires, whether to pay overage, which providers
 sit on which plan) turns on estate-specific numbers atelier deliberately doesn't
 hold — they live in the operator's **private estate-root repo** (its financial
@@ -88,7 +90,9 @@ effect, never the reason.
 
 Cost hygiene applies regardless of meter: cancel superseded runs
 (`concurrency: cancel-in-progress`), and prefer path filters over unconditional
-triggers where a job guards only part of the tree. Self-hosted / cloud runners
+triggers where a job guards only part of the tree — never the publish-safety
+floor itself, though: a whole-tree scan must see the whole tree. Self-hosted /
+cloud runners
 (e.g. AWS) take the work off the forge meter entirely — a known future option,
 held for a deliberate decision, not reached for unprompted.
 

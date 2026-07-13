@@ -42,7 +42,9 @@ in atelier and is read on demand — never wholesale.
   financial constraints & plan entitlements, licences, credentials, shared
   estate tooling, and the estate inventory live in the operator's **private
   estate-root repo** (atelier's private counterpart). Reference it for these;
-  never re-derive them locally or copy its contents into this repo.
+  never re-derive them locally or copy its contents down. If **this** repo is
+  public, reference the root by local-path convention, never by name — a public
+  repo naming the estate's credential/inventory root is reconnaissance.
 - **This repo's visibility:** <visibility fact>. Verify:
   `gh repo view <owner/repo> --json visibility`.
 

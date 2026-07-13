@@ -110,7 +110,9 @@ in atelier and is read on demand — never wholesale.
   financial constraints & plan entitlements, licences, credentials, shared
   estate tooling, and the estate inventory live in the operator's **private
   estate-root repo** (atelier's private counterpart). Reference it for these;
-  never re-derive them locally or copy its contents into this repo.
+  never re-derive them locally or copy its contents down. If **this** repo is
+  public, reference the root by local-path convention, never by name — a public
+  repo naming the estate's credential/inventory root is reconnaissance.
 - **This repo's visibility:** <visibility fact>. Verify:
   `gh repo view <owner/repo> --json visibility`.
 ```
@@ -124,8 +126,11 @@ plans and financial constraints, credentials, shared tooling) live in a separate
 **private estate-root repo** — the knowing-root that atelier deliberately is not
 (atelier is public and holds no inventory). Every child inherits both pointers:
 up to atelier for *how we work*, up to the estate root for *what the estate has*.
-The estate root is named in the child's own onramp, never in this public
-canonical text, and its contents are never copied down into a child.
+The estate root is named only in a **private** child's own onramp — never in this
+public canonical text, and never in a **public** child's tree: a public child
+references it by a local-path convention, so the repo's name is never coupled to
+the sensitive posture it holds (RECORD's name↔posture split). Its contents are
+never copied down into any child.
 When atelier's apex, floor, concurrency, or estate-pointer doctrine changes, the
 block's wording is part of what a pin bump reviews.
 

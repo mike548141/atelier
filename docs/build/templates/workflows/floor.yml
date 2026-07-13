@@ -54,13 +54,14 @@ name: floor
 #     it is free.
 #   - PRIVATE repo: a push is NOT yet publication, so every-push is a BACKSTOP
 #     over the pre-commit hook (a --no-verify bypass, a hook-less clone) that
-#     ALSO scans branch history at full cover — history that publishes WHOLESALE
-#     the day the repo goes public. It runs on METERED Actions minutes (billed
-#     per job, rounded up to the minute), so trimming it trades minutes now
-#     against unscanned history exposed at the go-public flip. Default to
-#     every-push; whether to scope it down is an estate-specific call (financial
-#     inventory in the operator's estate-root repo), and if you do, do so knowing
-#     what publishes at that flip. See atelier docs/method/MODEL-ECONOMICS.md,
+#     re-scans the whole TREE at each pushed tip (per-commit cover is the hook's
+#     job, not CI's — the scanners read the tree, not the log). Every-push thus
+#     covers every feature-branch tip — trees that publish WHOLESALE the day the
+#     repo goes public. It runs on METERED Actions minutes (billed per job,
+#     rounded up to the minute), so trimming to main-only trades minutes now
+#     against feature tips left unscanned until that flip. Default to every-push;
+#     whether to scope it down is an estate-specific call (financial inventory in
+#     the operator's estate-root repo). See atelier docs/method/MODEL-ECONOMICS.md,
 #     "The compute pool — CI minutes".
 on:
   push:
