@@ -48,3 +48,31 @@ existing "Actions minutes pool" memory needn't duplicate it.
   (bar the two tiki macOS pieces) is ros's own follow-up, in its repo.
 - Children pick up the strengthened `ci-python.yml` at their next pin bump / when
   re-scaffolded; existing copies of the old matrix are each owner's cleanup.
+
+## Addendum — the "when" lever + ros review (same session)
+
+Mike asked whether triggering deserves the same scrutiny as runner class, or
+whether that's over-engineering. Verdict: **mostly already covered, one real
+lever, the rest is too much.** Path filters and `cancel-in-progress` were already
+doctrine; every-push-vs-main-only is the documented visibility trade. The one
+un-named lever is **duplicate triggers** — an unfiltered `push` + `pull_request`
+fires *twice* per push on a branch with an open PR. Added one line to
+MODEL-ECONOMICS cost-hygiene (`26f…`-ish): scope `push` to the branches that need
+it unless the second run earns its minutes (merge-preview scan a tip-push can't
+see; fork-PR coverage). Skip-ci tokens / debounce / gating the safety floor named
+as the over-engineering to avoid (cost is optimised last).
+
+**Left as a decision, not auto-fixed:** atelier's own `floor.yml` template carries
+that overlap (`push:` all-branches + `pull_request`) — free on public atelier,
+metered on private children. Two-sided (merge-preview + fork-PR coverage is real)
+and it touches the deliberate N4 every-push call, so logged under ROADMAP *Open
+questions* for a future session to decide per repo.
+
+**ros review (Mike: review, but queue findings — don't implement).** ros's
+freshly-updated CI is already good: Linux routine matrix, macOS gated to
+`if: github.event_name != 'pull_request'`, and `push` scoped to main in both
+workflows (so no duplicate-trigger overlap). Two minor trims found and **queued in
+ros's own ROADMAP** (`roadmap:` commit there, not implemented): (1) the on-demand
+macOS job still runs `ruff`+`mypy`+full suite at 10× when only the Keychain macOS
+test needs the runner — narrow to `-m macos`, drop lint/type-check; (2) `ci.yml`
+lacks the `cancel-in-progress` that `floor.yml` has. Both left for a ros session.
