@@ -5,8 +5,20 @@ grows. Sequencing rule from the 2026-07-10 review: **mechanism before more
 content** — a repo that inherits docs but not the propagation + review cadence
 has inherited the costume, not the doctrine.
 
+Checkbox states: `[ ]` open · `[x]` done · `[~]` **claimed** by a live parallel
+session — `(claimed <date>-<HHMM>, wt: <branch>)` — don't start a `[~]` item;
+take the next open one (`method/CONCURRENCY.md` § Claiming work).
+
 ## Doctrine — review-owed
 
+- [ ] **Cold review of CONCURRENCY "Claiming work"** — the new section (claim a
+      roadmap item by editing its line in place, push before working; collision
+      lands as a trivial same-line git conflict; release = put-away; orphan
+      claims judged like stale branches). Grounds on the 2026-07-13 duplicate-
+      selection incident and generalises the coordination-free record-ID
+      bearing to work-*selection*. **Run cold, un-briefed** (reviewer picks its
+      own attack surface, per REVIEW.md independence) — self-authored doctrine,
+      so findings are Mike's to decide, not the author's.
 - [x] **Cold pass on the applied REACH batch — RAN 2026-07-13, same day:
       PASS-WITH-FINDINGS, no MAJOR — cycle CLOSED** per the stopping rule.
       Verdict verbatim in `reviews/2026-07-13-reach-batch-applied.md`.

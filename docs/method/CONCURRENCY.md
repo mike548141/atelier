@@ -129,6 +129,71 @@ action across every parallel session.
 - If two lines of work both need the same live resource, that's a signal to
   sequence them, not to build a locking scheme — KISS over cleverness.
 
+## Claiming work — make selection collide like naming does
+
+Sync bookends and worktrees protect the *tree*; nothing protects the *queue*.
+Two sessions that both open on "the next thing in the roadmap" each
+`pull --rebase`, both read the same item unclaimed, and both build it — no git
+conflict ever fires, because neither mutated a shared thing. This is the
+silent-collision class again, one rung up from the record-identifier case
+above: there the duplicate was two files carrying one number; here it is two
+sessions on one item, and the cost is whole sessions of wasted model time.
+
+The fix is the same move — **force the collision onto one shared line so git
+catches it.** A session claims a roadmap item by editing *that item's own line,
+in place*, then committing and pushing the claim **before it does any work**:
+
+```
+- [~] REACH/AUTONOMY backlog … (claimed 2026-07-13-2140, wt: atelier-reach-backlog)
+```
+
+- **Push succeeds** → the item is yours; start work.
+- **Push rejected** → `pull --rebase`. If another session claimed the *same*
+  item, both edited that one line and the rebase stops on it — the trivial
+  conflict kind. They pushed first, so they own it: drop your claim, take the
+  next unclaimed item.
+- **Different items** → the two claim commits touch different lines, no
+  conflict, both proceed. The mechanism resolves *exactly* at the contested
+  grain and stays silent everywhere else.
+
+Claiming is a **worktree-mode discipline** — it fires under the same trigger as
+the worktree (you know you are a parallel session). A session alone on the repo
+has no one to collide with and claims nothing; this adds zero ceremony to the
+solo default.
+
+Two properties make it fit rather than bolt on:
+
+- **The claim mutates the item in place — never appends to a claims list.** An
+  append-tail "who's on what" file would let two same-item claims land as two
+  different lines, and the collision goes silent exactly as the next-N counter
+  did. Mutating the contested line *is* what forces the conflict; that is the
+  whole design, not an incidental.
+- **The grain is the leaf item, not the theme.** Two sessions both told "do the
+  reviews" each claim a different review item and coexist; the theme is never
+  claimed, the items under it are, as each takes the next unclaimed one. This is
+  what lets one themed instruction fan out across sessions without collision.
+
+**Release is put-away.** A claim's life is its branch's life. The item either
+completes (`[x]`) or is abandoned — and abandonment runs the same
+salvage → tag → delete → record as any branch (next section), reverting the
+line to `[ ]` as it goes. There is no separate release step to forget.
+
+**Orphan claims — the unhappy path.** A session that dies mid-item leaves a
+`[~]` with no live branch behind it. This is not a new failure mode: it is a
+stale branch wearing a roadmap marker, judged the same mechanical way — a claim
+whose branch/worktree is gone and whose commits have stopped is stale and
+reclaimable, its timestamp bounding "how long is too long". No auto-expiry, no
+lease timer, no lock server; reclaiming a dead claim is a judgement a session
+makes on the evidence, inside this doc's no-locking-machinery line. The
+timestamp is a fact to reason from, not a clock that fires.
+
+*Bearing:* atelier 2026-07-13 — several parallel evening sessions, each told
+only "the next thing in the queue", self-selected the *same* roadmap item more
+than once and duplicated the work before anyone noticed. The waste was model
+time, and nothing in the tree or the record ever conflicted to warn them:
+selection was the one coordination point this doctrine named a substrate for
+(worktrees) and a trigger for (say-so / dirty-tree) but never gave a *claim*.
+
 ## Every branch ends put away
 
 A branch that exists must mean exactly one thing: **open work**. The moment it

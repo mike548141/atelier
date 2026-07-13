@@ -5,6 +5,20 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-13 — CONCURRENCY gains a work-claiming mechanism)
+- **`method/CONCURRENCY.md` § "Claiming work — make selection collide like
+  naming does"** — closes the last unguarded coordination point: two parallel
+  sessions self-selecting the *same* roadmap item and duplicating the work,
+  silently (nothing in tree or record conflicts). A session claims an item by
+  editing that item's line **in place** (`[~]` + `(claimed <date>-<HHMM>, wt:
+  <branch>)`) and pushing **before** working, so a same-item double-claim lands
+  as a trivial same-line rebase conflict — the coordination-free record-ID
+  bearing generalised from record *naming* to work *selection*. Worktree-mode
+  only (zero cost to the solo default); grain is the leaf item not the theme (so
+  a themed instruction fans out); release = branch put-away; orphan claims
+  judged like stale branches (timestamp bounds staleness, no lease/lock). ROADMAP
+  gains a `[~]` legend. **Review-owed** (cold, un-briefed).
+
 ### Changed (2026-07-13 — REACH re-review applied; four principal decisions land)
 - **`method/REACH.md` + `method/AUTONOMY.md`** — the adversarial re-review's
   eight findings **A1–A8 all [fixed]** on Mike's decision (counsel had said
