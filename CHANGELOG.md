@@ -28,7 +28,18 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   adopters pointed at the assignee primitive; timestamp demoted to a staleness
   tiebreak. Verdict + decisions in
   `reviews/2026-07-13-concurrency-claiming-work.md`. **Applied-batch cold pass
-  owed** (first pass carried a MAJOR).
+  RAN same day** (owed because the first pass carried a MAJOR): PASS-WITH-FINDINGS,
+  **no MAJOR — cycle closed**, all seven confirmed landed + live-reproduced. Two
+  residuals, both **[fixed]**: the claim is made from the primary `main` checkout
+  before `git worktree add` (git checks `main` out in one place — the MEDIUM the
+  reframe opened beneath), and the adjacency parenthetical corrected (no unchanged
+  line between, not a three-line context — LOW). Verdict in
+  `reviews/2026-07-13-2256-claiming-work-applied.md`.
+- **`method/RECORD.md`** — record ids are noted as long/lowercase/hyphenated by
+  design (40+ chars), so a downstream tool that quotes one (registry validator,
+  secret/token scanner) must allow that shape and reference the id in full.
+  Bearing: a sibling repo's registry validator tripped its token-shape guard on a
+  46-char id; atelier's own entropy-based scanners pass these ids clean.
 
 ### Changed (2026-07-13 — REACH re-review applied; four principal decisions land)
 - **`method/REACH.md` + `method/AUTONOMY.md`** — the adversarial re-review's

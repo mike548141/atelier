@@ -58,8 +58,17 @@ stopped instead of re-deriving it:
   a one-line pointer. (`HHMM` is the session's start time, 24-hour — the
   identifier is coordination-free per CONCURRENCY's record-identifier rule:
   built from facts the session already owns, safe to allocate at open, no
-  shared counter. Files named under the retired `NN` scheme keep their names.) Open the detail file only when a line needs unpacking. This
-  keeps the always-loaded index cheap (token discipline) without losing depth.
+  shared counter. Files named under the retired `NN` scheme keep their names.)
+  These identifiers are **long, lowercase and hyphenated by design** (a full
+  slug runs 40+ chars); a downstream tool that quotes one — a registry
+  validator, a secret/token scanner — must allow that shape rather than flag it
+  as a suspicious high-length token, and reference the id in full rather than
+  truncating the slug away. *(Bearing: a sibling repo's registry validator
+  tripped its token-shape guard on a 46-char id quoted verbatim; the estate's
+  own entropy-based scanners pass these ids clean — a hyphenated date-slug
+  carries almost no entropy.)* Open the detail file only when a line needs
+  unpacking. This keeps the always-loaded index cheap (token discipline)
+  without losing depth.
 - **Finish the sequence, then *declare* the close.** When the agent judges a
   **sequence of work** done, it does the full tidy-up **unprompted** and *says
   the session is ready to close* — the principal closes on the agent's signal,

@@ -35,7 +35,9 @@ errors. Two cues, both cheap, no locking machinery:
 - **Say so at open (primary):** when the principal knows they are opening a
   second session on a repo already in use, they say so, and that session works
   in a worktree from its first action. The harness has native worktree
-  support, so the ceremony is near-zero.
+  support, so the ceremony is near-zero. (One thing precedes the worktree: if
+  the session takes an item off the shared queue, it claims it on `main` from
+  the primary checkout first — § Claiming work.)
 - **Dirty-tree backstop:** a session that finds uncommitted changes it did not
   make assumes another session is live and moves itself to a worktree. Never
   work around a stranger's in-flight edits and never absorb them into a
@@ -157,6 +159,13 @@ entering the worktree — the claim is a direct-to-`main` commit even though the
 work that follows is not. A claim committed on a feature/worktree branch is
 invisible to every other session (separate branches' pushes never collide) and
 the mechanism silently does nothing. So: **claim on `main`, then branch.**
+Because git keeps `main` checked out in exactly one place — the primary checkout
+— a parallel session makes the claim *from that primary checkout* (a fast
+edit → commit → push), not from inside a worktree; it is the benign
+same-integration-branch landing the sync bookends already sanction (§ Integration
+hygiene), not a second session working inside another's tree. The worktree for
+the work comes *after* the claim lands. (An adopter who runs separate clones
+rather than worktrees skips this entirely — each clone has its own `main`.)
 
 - **Push succeeds** → the item is yours; now enter the worktree and work.
 - **Push rejected** → `pull --rebase`. If another session claimed the *same*
@@ -164,9 +173,9 @@ the mechanism silently does nothing. So: **claim on `main`, then branch.**
   trivial conflict kind. They pushed first, so they own it: drop your claim,
   take the next unclaimed item.
 - **Different items** → *usually* no conflict, both proceed. Usually, not
-  always: two claims on **adjacent** one-line items raise a trivial *keep-both*
-  rebase conflict (git's three-line diff context overlaps) — keep both claims
-  and move on. Only a *same-item* claim is a real yield; put the `[~]` on the
+  always: two claims on **adjacent** one-line items (no unchanged line between
+  them) raise a trivial *keep-both* rebase conflict — a one-line gap already
+  rebases clean — so keep both claims and move on. Only a *same-item* claim is a real yield; put the `[~]` on the
   item's **checkbox line** so a same-item collision always fires on one line,
   even for a multi-line item.
 
