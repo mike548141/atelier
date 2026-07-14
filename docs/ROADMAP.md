@@ -13,8 +13,8 @@ take the next open one (`method/CONCURRENCY.md` § Claiming work).
 
 ## Doctrine — review-owed
 
-- [ ] **Cold pass on the four new §2 PRINCIPLES bullets (added 2026-07-14,
-      Mike's principles, agent's wording)** — *human-readable output carries a
+- [~] **Cold pass on the four new §2 PRINCIPLES bullets (added 2026-07-14,
+      Mike's principles, agent's wording)** (claimed 2026-07-14-2154, wt: main) — *human-readable output carries a
       machine-readable twin*, *a commodity sub-feature sits behind a swappable
       seam*, *API first*, and *one responsive web app, mobile-first*. The
       principles themselves are the principal's decision; what the pass attacks
