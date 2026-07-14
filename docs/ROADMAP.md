@@ -29,7 +29,7 @@ take the next open one (`method/CONCURRENCY.md` § Claiming work).
       (stale pre-A4 absolute, boundary pointer should name REACH.md);
       residuals — AUTONOMY's "direct handling" doesn't literally catch
       machinery-mediated *repurposing*; two over-length lines to rewrap.
-- [ ] **Lean-files doctrine + `sizescan` — cold review owed (added 2026-07-14).**
+- [~] **Lean-files doctrine + `sizescan` — cold review owed (added 2026-07-14).** (claimed 2026-07-14-2048, solo session on main — review-only, no worktree)
       This session sharpened `method/RECORD.md`'s roadmap section (the
       current-truth/history split, the growth dynamic, the harvest-at-close
       trigger), built `tools/sizescan.py` + tests, and harvested this file.
