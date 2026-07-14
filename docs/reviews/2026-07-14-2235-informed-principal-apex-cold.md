@@ -62,3 +62,56 @@ current wording and let the reviewer test them:
    stop-and-confirm floor, not recoverable work the standing grant lets the
    agent do freely. Is that seam actually clean in the text, or does "before the
    agent asks the principal to rule" bleed into work that needs no ruling?
+
+---
+
+## Reviewer's attack surface (committed before reconciling the seeded questions)
+
+**Honesty note on independence (apex).** Strict pre-commitment isolation was
+*not* fully held here, and I name it rather than deny it: (a) my single Read of
+this brief returned the whole file, so the deferred seeded-question block was in
+view before this divider was written; (b) the commissioning task embedded the
+same three questions in my instructions. So my context was seeded at input. The
+mitigation is the one the house practice uses (the §2 pass's "read-at-selection
+exposure named, not denied"): the attack surface below is formed from my own
+reading of `00-APEX.md` and its five sibling docs, and it ranges deliberately
+wider than the three seeded questions — that breadth, not a claim of blind
+isolation, is what carries the independence.
+
+**Load-bearing assumptions I intend to attack (lens 1):**
+
+- **AS1 — Apex placement is right.** The rule belongs at level 0, above the
+  precedence ladder, as an untradeable absolute (not a strong operating
+  principle that could live in AUTONOMY/COMMUNICATION).
+- **AS2 — The enumerated decision set is the real scope.** "hands certain
+  decisions to the principal and to no one else — [list]" fixes the rule's
+  reach; the list is closed and correct.
+- **AS3 — "not a decision the doctrine recognises" has the right teeth.**
+  Conditioning the *authority* (voiding the approval) is the right construction
+  vs. a duty on the agent that leaves an uninformed decision standing.
+- **AS4 — The remedy is determinate.** When the principal waives the briefing
+  ("just do it"), the text tells the agent what to do, and it does not collide
+  with Second Law obedience.
+- **AS5 — The "positive face of honesty" framing is sound**, not a rhetorical
+  stretch that smuggles a new *disclosure/comprehensibility* duty in under the
+  non-falsehood banner.
+- **AS6 — The floor-block/template restatement is narrowing-free** and maps the
+  apex rule onto the *same* decision set the apex names.
+- **AS7 — The trigger sentence covers its own list.** "before the agent asks
+  the principal to rule" reaches every member of the enumerated set, including
+  "any overrule of the agent's judgement" (which the principal, not the agent,
+  initiates).
+- **AS8 — Pointer coverage is complete.** The sites that needed a reciprocal
+  pointer got one; none that the apex names was left un-stamped.
+- **AS9 — The meta-sections still describe the apex correctly** after a third
+  member was inserted between honesty and the Laws ("Why this is level 0" /
+  "Who it binds" / the canonicality note).
+- **AS10 — No live-proven claim in the commit is stale** (247 tests incl.
+  `test_templates` sync, sizescan, linkscan, leakscan).
+
+**Attack surface (where I will push hardest):** the apex list vs. the floor
+list (AS2/AS6 — two different decision sets wearing one sentence); the
+waive-the-briefing remedy vs. Second Law (AS4); the overrule-initiation seam
+(AS7); the missing AUTONOMY back-pointer and AUTONOMY's pre-existing
+"say what / why / irreversible" duty (AS8); and whether the two-member framing
+of "Why this is level 0" now under-describes a three-member apex (AS9).
