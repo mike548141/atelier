@@ -44,6 +44,14 @@ live text (GitHub renders it as code — fixing that would risk missing real
 links in indented list items, the worse trade). It never touches the network,
 so it says nothing about whether an external URL is alive.
 
+**sizescan** (a hygiene check, not a safety scan) measures **length**, which is a
+proxy for token cost, not for bloat itself: it cannot tell a roadmap padded with
+completed narration from one with a genuinely long list of *open* items, nor a
+verbose README from a dense one. Its budgets are heuristic, and its verdict is
+advisory by design — it says "this crossed the line, look at it", never "this is
+wrong". A false flag is one inline `sizescan:budget=N` away; the judgement of
+whether to harvest or to raise the ceiling stays human.
+
 The scans are the mechanical floor, not the whole boundary: the human
 pre-publish scrub (and the review practice) owns the residual above.
 
@@ -363,8 +371,63 @@ is negligible, and it is the one gate that catches a 404 *before* a push
 publishes it. A repo that keeps its tree link-clean pays nothing; a deliberately
 dangling pointer uses `linkscan:allow` / `.linkscanignore`.
 
+## `sizescan.py` — keep the always-loaded files lean
+
+A session resumes cold by reading a handful of files at the start — the roadmap
+(what's open), the session index (where the last one stopped), the README, the
+architecture note. `RECORD.md` prescribes the fix for when they bloat — the
+**current-truth / history split** (open items stay; completed detail moves to
+`ROADMAP-DONE.md`; a flat session log becomes an index + `docs/sessions/`). The
+split works, but nothing *triggered* it: it got done once by hand and the
+discipline decayed silently — a sibling roadmap reached 3000+ lines, each
+finished item accreting a running log of how it got done, no signal firing.
+`sizescan` is that missing signal.
+
+It reports any **current-truth file over its line budget** (a line count is a
+cheap, honest proxy for the tokens a session pays to load it), and is narrow in
+two deliberate directions:
+
+- **It budgets only the files meant to stay lean** — `ROADMAP.md`, `SESSIONS.md`,
+  `ARCHITECTURE.md`, plus the **root** `README.md` and `CLAUDE.md` (a nested
+  `tools/README.md` is a reference index, read on demand — not budgeted, so the
+  signal stays sharp). A long *reference* doc (`PRINCIPLES.md`, a doctrine file)
+  is read on demand, not every session, so it isn't budgeted either.
+- **It ignores the append-only stores by design** — `ROADMAP-DONE.md`,
+  `CHANGELOG.md`, `SPECS.md`, and anything under `sessions/`, `reviews/`,
+  `decisions/`, or archive dirs. Those are the *destinations* the split moves
+  detail into; flagging them would punish the very fix the tool encourages.
+
+Budgets are starting points, not law (`ROADMAP` 300, `SESSIONS` 250, `README`/
+`ARCHITECTURE` 250, `CLAUDE` 200 — round and generous; the fleet's healthy files
+sit well under, the bloated ones clear them by a wide margin). A legitimately
+long file declares its own ceiling inline with `sizescan:budget=N`, opts out with
+`sizescan:allow`, or a glob in `.sizescanignore`.
+
+### Usage
+
+```sh
+python3 tools/sizescan.py                  # advisory report over the whole repo
+python3 tools/sizescan.py --root repo repo  # scan a child from atelier
+python3 tools/sizescan.py --check          # opt-in gate: exit 1 if any file is over
+python3 tools/sizescan.py --json           # machine-readable
+python3 tools/sizescan.py --selftest       # prove the engine offline
+```
+
+**Advisory by default.** Bloat is a recoverable hygiene threshold, not a defect
+like a leaked secret or a 404 — the fix (harvest the completed detail aside) is a
+judgement a session makes at a good moment, not a hard stop on every commit. So a
+bare `sizescan` **reports and exits 0** (drop it in CI to surface the numbers
+without breaking a build); `--check` is the opt-in gate that gives it teeth. Exit
+codes: `0` clean or advisory-over · `1` over **and** `--check` · `2` usage/config
+error (a scan that read nothing is never green).
+
+**Not wired into any gate yet** — unlike the triad and linkscan, `sizescan` is
+new and review-owed; it runs by hand (and against the fleet from atelier) until a
+cold review clears wiring it into `ci.yml` / the child `floor.yml` in `--check`
+mode. Don't-stack: no gate leans on it before then.
+
 ## Tests
 
 ```sh
-cd tools && python3 -m unittest      # stdlib only, no pytest — covers all six tools
+cd tools && python3 -m unittest      # stdlib only, no pytest — covers all seven tools
 ```

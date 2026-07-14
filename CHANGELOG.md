@@ -5,6 +5,38 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-14 — lean current-truth files: `sizescan` + the harvest trigger)
+- **`tools/sizescan.py`** (seventh house scanner) — the missing *signal* behind
+  the current-truth/history split. `method/RECORD.md` already prescribed the fix
+  (open items stay in `ROADMAP.md`; completed detail moves to `ROADMAP-DONE.md`;
+  a flat session log becomes an index + `docs/sessions/`), but nothing *triggered*
+  it: the split got done once by hand and decayed silently — a sibling roadmap
+  reached 3197 lines, atelier's own 1091, each finished item accreting a running
+  log of how it got done. `sizescan` reports any current-truth file over its line
+  budget (`ROADMAP` 300 · `SESSIONS` 250 · `README`/`ARCHITECTURE` 250 · `CLAUDE`
+  200), and is narrow by design: it budgets **only** the files meant to stay lean
+  (root `README`/`CLAUDE`, the singular `ROADMAP`/`SESSIONS`/`ARCHITECTURE`) and
+  **ignores the append-only stores** (`ROADMAP-DONE`, `CHANGELOG`, `SPECS`,
+  `sessions/`, `reviews/`, `decisions/`, archives) — flagging the *destination*
+  would punish the fix. **Advisory by default** (reports, exits 0 — bloat is a
+  recoverable hygiene threshold, not a defect); `--check` is the opt-in gate.
+  Zero-dep, `--selftest`, `sizescan:budget=N`/`sizescan:allow`/`.sizescanignore`
+  hatches; 24 tests. Proven across the fleet — sharp on the real offenders (ros
+  3197, faves SESSIONS 1157), silent on the seven healthy repos.
+- **`method/RECORD.md` § "The roadmap"** sharpened — names the growth dynamic (a
+  finished item becomes a mini session-log; the case-law is *history* in a
+  *current-truth* file), the fix (collapse to a one-line pointer, relocate
+  verbatim, never delete), the generalisation (**current-truth files stay lean;
+  history relocates to an on-demand store** — SESSIONS/ROADMAP/README all one
+  shape), and the trigger (**harvest at session close**, backed by `sizescan`).
+- **`docs/ROADMAP-DONE.md`** created — atelier dogfooding its own doctrine:
+  `docs/ROADMAP.md` harvested 1091→lean (well under budget), ~800 lines of
+  completed case-law moved **verbatim** to the new archive, every checkbox item
+  accounted for (zero lost). `sizescan` + `linkscan` clean on the result.
+- **Owed:** `sizescan` + this doctrine are net-new tooling → **cold review
+  owed** before wiring into `ci.yml`/`floor.yml` (don't-stack). The ros ROADMAP
+  harvest + faves SESSIONS split are logged as fleet backlog (their own sessions).
+
 ### Added (2026-07-13 — CONCURRENCY gains a work-claiming mechanism)
 - **`method/CONCURRENCY.md` § "Claiming work — make selection collide like
   naming does"** — closes the last unguarded coordination point: two parallel

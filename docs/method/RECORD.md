@@ -119,11 +119,37 @@ happens by *appending*, in one of three verbs:
 
 ## The roadmap — current-truth, with completed detail moved aside
 
-- **`ROADMAP.md` stays lean** — what's open, prioritised, read every session.
-- When it grows, **completed detail moves to `ROADMAP-DONE.md`** rather than
-  bloating the live file — the same index/detail split as the session log.
-- Full specs of pending features live in a `SPECS.md` grepped on demand, never
-  loaded whole.
+`ROADMAP.md` is **current-truth**: what's open, prioritised, read every session.
+Its failure mode is subtler than "finished items pile up" (they do): a *finished
+item keeps accreting the story of how it got done* — a correction, a review
+verdict, a live-proof note, a suite count. The item quietly becomes a mini
+session-log. That narration is valuable **case-law**, but it is *history* (what
+happened) living in a *current-truth* file (what's open), and every session pays
+to load it. (Grounded: a sibling roadmap reached 3000+ lines this way, ~75%
+completed detail; atelier's own reached 1091 before the same harvest.)
+
+The fix is relocation, never deletion (a de-cased roadmap is as much theatre as a
+de-cased principle):
+
+- **A completed item collapses to a one-line pointer** — the outcome plus a link
+  to where the detail already lives (the session detail file that captured it, or
+  `ROADMAP-DONE.md`). The case-law is preserved on demand, not loaded every time.
+- **Completed detail moves to `ROADMAP-DONE.md`** — the append-only store that is
+  *meant* to grow, the same index/detail split as the session log.
+- **Full specs of pending features live in a `SPECS.md`** grepped on demand,
+  never loaded whole.
+
+This is one pattern the whole record shares: **current-truth files stay lean;
+history relocates to an on-demand store.** SESSIONS (index + `docs/sessions/`),
+ROADMAP (open + `ROADMAP-DONE.md`), a README that points into `docs/` — the same
+shape. The discipline decays silently, though: the split gets done once by hand,
+then nothing fires when a file bloats again. So it carries a **budget and a
+signal** — `tools/sizescan.py` reports any current-truth file over its line
+budget (advisory; the growth stores are excluded by design, since flagging the
+*destination* would punish the fix). And it carries a **trigger**: harvesting is
+part of the session-close tidy-up (above) — when a session closes roadmap items,
+collapsing them to pointers happens then, not someday. That is what stops the
+3000-line accretion from ever forming.
 
 ## Absolute dating, everywhere in the record
 
