@@ -77,30 +77,42 @@ service beats total failure.
   beneath it earns the API*. Omitting the machine surface is the choice that
   needs a stated reason, never the default.
 - **API first — the UI is one client among many.** The twin rule above at the
-  service layer: a product's capabilities land behind an API *before* any
-  surface is built on them, and every surface — web app, CLI, automation,
-  another product — rides that same contract. A capability reachable only by
-  clicking is a capability the pipeline, the agent, and the next integration
-  cannot reach. *Scope:* this binds a capability that serves — or will serve —
-  more than one surface, or that is itself a service; a single-surface CLI tool
-  already satisfies it through the machine twin above (its `--json` and exit
-  codes are the contract), no separate API layer required. *Grounding is
-  consumption-side today:* `tiki` drives RouterOS through its REST API — the
-  same seam the vendor's own UI rides — for all steady-state convergence (its
-  one non-REST path is a single SFTP upload on the rescue route), which is this
-  principle experienced from the client's chair; producing our own services
-  API-first is the adopted standing practice (decided 2026-07-14), with the
-  estate's planned orchestration layer as its first intended case.
+  service layer, and it binds **where we design the service**: the API
+  contract is designed first and is the single source of truth; the product's
+  capabilities — the data and the business logic — land behind that API
+  *before* any surface is built on them, and every surface (web app, CLI,
+  automation, another product) rides the same contract. A web front end holds
+  presentation only. A capability reachable only by clicking is a capability
+  the pipeline, the agent, and the next integration cannot reach. *Scope:*
+  this governs services we are in a position to design — a capability that
+  serves, or will serve, more than one surface, or that is itself a service; a
+  single-surface CLI tool already satisfies it through the machine twin above
+  (its `--json` and exit codes are the contract), no separate API layer
+  required. **Consuming a third-party system is out of scope:** there the
+  provider has already made the design decision, and we use whichever
+  interfaces it offers the job requires — the API where it serves, another
+  provided channel where it doesn't. *Case:* `tiki` drives RouterOS through
+  its REST API for steady-state convergence, and over SSH/SFTP where REST
+  doesn't serve — the pre-apply snapshot, on-device key generation for PKI,
+  the rescue upload — each a stated, reasoned choice, not drift. Producing our
+  own services API-first is adopted standing practice (decided 2026-07-14;
+  scope sharpened to producer-side by the principal, 2026-07-14 applied-batch
+  cold pass F1), with the estate's planned orchestration layer as its first
+  intended case.
 - **One responsive web app, mobile-first.** When the human surface is a web
-  app, it is a *single* responsive app designed for the small screen first and
-  scaling up — never a separate *web* mobile edition (that is a DRY violation at
-  the presentation layer: two surfaces asserting the same product truth,
-  diverging from the day they fork; a *native* app is a different client riding
-  the API-first contract, not a banned edition — the ban is on forking the web
-  surface, not on adding clients) and never a desktop-only layout that breaks on
-  the phone that is actually in the operator's hand. Adopted as standing practice
-  (decided 2026-07-14); no shipped worked case in the fleet yet — the first
-  web surface built here becomes the case.
+  app, build it as a *single* responsive app: designed for the smallest screen
+  first — which forces the core content forward and keeps it fast — and scaled
+  up by CSS for larger devices. One responsive artifact already serves every
+  form factor, so a separate *web* mobile edition adds no capability and
+  duplicates every product truth: DRY violated at the presentation layer, two
+  surfaces diverging from the day they fork. A *native* app is different in
+  kind — a distinct client medium bringing capabilities the web surface cannot
+  (offline, push, device sensors), riding the API-first contract like any
+  other client. The ban is on forking the web surface, never on adding
+  clients. A desktop-only layout that breaks on the phone actually in the
+  operator's hand fails the same test from the other side. Adopted as standing
+  practice (decided 2026-07-14); no shipped worked case in the fleet yet — the
+  first web surface built here becomes the case.
 - **A commodity sub-feature sits behind a swappable seam.** Many commodity
   capabilities a build needs — a PKI CA, a secret store, a web server, a
   hypervisor — exist as mature full-featured products. Building the minimal

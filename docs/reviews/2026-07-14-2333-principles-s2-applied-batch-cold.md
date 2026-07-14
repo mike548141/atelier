@@ -189,3 +189,44 @@ rescue upload over pinned SSH — stated exceptions, not drift"), and fixing
 ros's stale `rescue.py:21` comment in the same sweep removes the false
 source; a principal ruling on F1–F4 directly, with fix-verification only,
 would close honestly without a fourth pass. The decision is Mike's.
+
+---
+
+## Decision — the principal ruled directly (escape valve), 2026-07-14
+
+Mike ruled on the findings in person, supplying the doctrine's intent and
+industry definitions (API-first: contract designed first, single source of
+truth, backend logic behind the API, UIs as clients; mobile-first: smallest
+screen first, CSS scales up, forces core content and performance):
+
+- **F1 [fixed] — by re-scope, deeper than the counselled one-clause edit.**
+  API first binds **where we design the service** (producer side): contract
+  first, data + business logic behind the API, a web front end holds
+  presentation only. **Consuming a third-party system is out of scope** — the
+  provider made the design decision; we use whichever interfaces it offers
+  the job requires. The tiki/RouterOS material is re-grounded as the
+  consumption case stated honestly: REST for steady-state convergence,
+  SSH/SFTP where REST doesn't serve (pre-apply snapshot, on-device PKI key
+  generation, rescue upload) — stated choices, not drift. Facts re-verified
+  at ros HEAD before applying (`apply.py` snapshot-over-SSH gate, `pki.py`
+  "Why SSH and not REST" header, ACCESS-MAP's two authenticated planes).
+- **F3 [fixed] — subsumed by F1.** The re-scope removes the "same seam the
+  vendor's own UI rides" clause entirely; no vendor-internals claim remains.
+- **F2 [fixed].** The mobile-first rationale now states the discriminator:
+  one responsive artifact already serves every form factor, so a web fork
+  adds no capability and duplicates every product truth; a native app is a
+  different client medium bringing capabilities the web cannot (offline,
+  push, sensors), riding the API-first contract. Ban on forking the web
+  surface, never on adding clients.
+- **F4 [fixed].** The bullet rewritten as short sentences; the native-app
+  carve-out has its own sentence; nesting gone.
+
+Applied same session by the commissioning session (authored neither the
+doctrine nor either verdict — the neutral-hand preference holds). The false
+source in ros (`rescue.py`'s stale "the one non-REST step" comment) is fixed
+in ros in the same sweep, per the reviewer's counsel.
+
+**Cycle: CLOSED on fix-verification** — the principal ruled directly under
+the escape valve; every grounding claim in the replacement text re-ran true
+at the primary source before it was written, and the floor is green (count
+recorded in the session log). No fourth ceremony.

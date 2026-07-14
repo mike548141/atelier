@@ -28,26 +28,26 @@ take the next open one (`method/CONCURRENCY.md` § Claiming work).
       F6 folded into F5, F7 no-action. No MAJOR ⇒ cycle closed without a further
       ceremony (close rule). Floor green (247 tests · sizescan · linkscan).
       Propagates fleet-wide on the next pin bump.
-- [ ] **PRINCIPLES §2 — ⏳ Mike's ruling owed on F1–F4 (escape valve).**
-      Applied-batch cold pass RAN 2026-07-14 (independent session, neither
-      author nor applier; findings committed before the prior verdict was
-      opened): **PASS-WITH-FINDINGS — 1 MAJOR · 1 MEDIUM · 2 LOW**, verdict in
-      `reviews/2026-07-14-2333-principles-s2-applied-batch-cold.md`. Four of
-      five prior fixes verified clean at the primary sources; the batch was
-      applied exactly as ruled. **F1 MAJOR:** the prior F1 fix's replacement
-      clause ("its one non-REST path is a single SFTP upload on the rescue
-      route") is false at the primary source — ros `0df23f7` (2026-07-13,
-      *before both passes*) put an SSH `/export` snapshot in front of every
-      mutating apply, and `tiki pki` writes over SSH by design; the falsity
-      propagated from tiki's own stale `rescue.py:21` comment through the
-      prior counsel into the fix. F2 MEDIUM: mobile-first ban's DRY rationale
-      doesn't discriminate the banned web fork from the permitted native
-      client (capability-delta test unstated). F3 LOW: "the seam the vendor's
-      own UI rides" is ungrounded vendor-internals recall. F4 LOW: 80-word
-      doubly-nested sentence. **MAJOR count not falling (1 → 1) ⇒ REVIEW.md's
-      escape valve: stop cranking, principal rules directly.** Reviewer's
-      counsel (labelled counsel): a one-clause F1 ruling + fixing ros's stale
-      comment closes honestly with fix-verification only, no fourth ceremony.
+- [x] **PRINCIPLES §2 four bullets — CYCLE CLOSED 2026-07-15 (escape valve;
+      Mike ruled directly).** Applied-batch cold pass by an independent
+      session (neither author nor applier): **PASS-WITH-FINDINGS — 1 MAJOR ·
+      1 MEDIUM · 2 LOW**, four of five prior fixes verified clean at the
+      primary sources; verdict + the principal's ruling in
+      `reviews/2026-07-14-2333-principles-s2-applied-batch-cold.md`. MAJOR
+      count flat across passes (1 → 1) ⇒ escape valve: Mike ruled F1–F4 in
+      person, supplying the intent — **F1 [fixed] by re-scope**: API first
+      binds *where we design the service* (contract first, logic behind the
+      API, front end holds presentation only); consuming a third-party system
+      is out of scope — tiki/RouterOS re-grounded as the consumption case
+      stated honestly (REST for convergence, SSH/SFTP where REST doesn't
+      serve — stated choices, not drift). F3 [fixed] subsumed (vendor-UI-seam
+      clause gone); F2 [fixed] discriminator stated (a web fork adds no
+      capability; a native app is a different medium riding the API
+      contract); F4 [fixed] bullet rewritten in short sentences. The false
+      source killed at origin: ros `rescue.py` stale "one non-REST step"
+      comment fixed + pushed (ros `261fca2`). Every grounding claim
+      re-verified at ros HEAD before writing; floor green (247 tests ·
+      sizescan · linkscan). Propagates on the next pin bump.
 - [ ] **REACH/AUTONOMY backlog — the cold pass's H1–H8 + residuals** (all
       backlog-grade; doctrine-substantive ones are the principal's when
       picked up). Sharpest three: H2 "existing cookies are fair game" reads
