@@ -51,3 +51,84 @@ record, do not apply. Per the close rule, if this pass returns no MAJOR the
 cycle closes.
 
 ---
+
+## Cold pass — findings (reviewer: independent session, 2026-07-15)
+
+*Written and committed before opening the prior verdict or any diff/message of
+the applied batch, per the brief's binding sequence. One exposure declared:
+locating the file's last-touch commit via `git log --oneline` showed the batch
+commit's subject line only — no body, no diff, no prior verdict.*
+
+### Load-bearing assumptions named and attacked (lens 1)
+
+1. Each new bullet generalises from decided practice, not invented to fill a
+   heading — **held** (bf7ef4d / ae43f12 record Mike bringing all four,
+   dated 2026-07-14).
+2. The mobile-first ban's DRY rationale discriminates the banned case from the
+   permitted one — **attacked, fails** (F2).
+3. The grounding claims re-run true at the primary source — **attacked, one
+   fails** (F1), the rest verified below.
+4. The scope tests (twin's reads-vs-operates; API-first's more-than-one-surface)
+   are decidable — held; no concrete case found where they mis-decide.
+5. The fleet honours the twin rule rather than silently violating its own
+   doctrine — **held**: `tiki` carries `--json` with documented schemas
+   (ros `tiki/src/tiki/cli.py:62`); atelier's `ccrepo` and `cctranscript` both
+   carry `--json`.
+
+### Live-proven claims re-run (REVIEW.md §Re-run)
+
+- ✅ "decided 2026-07-14" (API first; mobile-first) — ae43f12, attributed Mike.
+- ✅ "direction set 2026-07-12" (CA seam) — ros `docs/SPECS.md:1232`.
+- ✅ "the seam's first slice shipped 2026-07-14" — ros `8d297e8` (`ca.py`,
+  pluggable `CaBackend`); "its own review owed" — tracked as an open ros
+  ROADMAP item with brief `docs/reviews/2026-07-14-common-ca-engine.md`.
+- ✅ EVIDENCE.md §9 is the one-fact-one-home rule; PROPAGATION.md carries the
+  one-source rule; §6 "Observable by design" reads as §2 cites it.
+- ❌ "its one non-REST path is a single SFTP upload on the rescue route" —
+  fails re-run at the primary source. F1.
+
+### Findings
+
+**F1 · MAJOR · The API-first bullet's grounding parenthetical is false at the
+primary source — and was false when written.** §2 states tiki drives RouterOS
+via REST "for all steady-state convergence (its one non-REST path is a single
+SFTP upload on the rescue route)". At ros HEAD, `apply_plan` takes a pre-apply
+`/export` snapshot **over SSH before every mutation** and refuses to apply if
+it fails (ros `tiki/src/tiki/apply.py:186-194`, `snapshot.py:59`) — a second,
+load-bearing non-REST path inside the steady-state convergence verb itself. It
+landed 2026-07-13 (ros `0df23f7`), the day *before* the claim was written, so
+this is the §6 cautionary class exactly: a recorded proof false at its own
+recording commit. Charitable readings don't save it: `tiki pki` deliberately
+writes device certs over SSH (pki.py header: "Why SSH and not REST"), and the
+ros record itself names **two** authenticated management planes — REST and SSH
+— that "every steady-state verb enforces" (ros `docs/ACCESS-MAP.md:52`). The
+principle stands; its stated evidence doesn't. Note the miss also flattens a
+*better* case: pki's SSH-not-REST is a documented, reasoned departure where the
+API has a gap — a model instance of §2's own "stated deliberate exception"
+discipline, stronger grounding than the false "single exception" tally.
+
+**F2 · MEDIUM · The mobile-first bullet's DRY rationale doesn't discriminate
+between the banned case and the permitted one.** The ban's stated ground —
+"two surfaces asserting the same product truth, diverging from the day they
+fork" — applies equally to a native app; the permission's stated ground —
+"riding the API-first contract" — applies equally to a separate mobile web
+edition. The real discriminator is unstated: within the web medium one
+responsive artifact already serves every form factor, so a forked web edition
+is pure duplication with zero capability delta, while a native client is a
+different medium bringing capabilities the web surface cannot (offline, push,
+sensors). As written, an agent applying the *reasoning* rather than the fiat
+could ban a native client or wave through an API-backed m-dot edition. State
+the capability-delta test; the labels then follow instead of being asserted.
+
+**F3 · LOW · "the same seam the vendor's own UI rides" is an unverified
+vendor-internals claim stated as fact.** Nothing in the ros record asserts
+WebFig rides the REST API, and at a strict reading it likely doesn't (WebFig
+shares the www service, not the documented `/rest` seam) — EVIDENCE.md §2
+would tier this ai-inference presented at primary confidence. Soften to what
+is known ("the same HTTP management plane") or ground it.
+
+**F4 · LOW · Legibility: the mobile-first bullet is one ~80-word sentence with
+a doubly nested parenthetical** (the native-app carve-out inside the DRY
+aside). The doc holds KISS as doctrine; give the carve-out its own sentence.
+
+**Count: 1 MAJOR · 1 MEDIUM · 2 LOW.**
