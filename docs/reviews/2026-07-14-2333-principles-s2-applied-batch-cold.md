@@ -132,3 +132,60 @@ a doubly nested parenthetical** (the native-app carve-out inside the DRY
 aside). The doc holds KISS as doctrine; give the carve-out its own sentence.
 
 **Count: 1 MAJOR · 1 MEDIUM · 2 LOW.**
+
+## Reconciliation with the prior verdict (opened after findings commit `0b0510d`)
+
+### [fixed]-claim verification at HEAD (fix-verification, REVIEW.md step 5)
+
+- **Prior F1 [fixed] — ⚠️ applied as ruled, but the fix does not survive
+  re-run.** "Exclusively" is gone and the counselled wording is present at
+  HEAD. But the replacement clause — "its one non-REST path is a single SFTP
+  upload on the rescue route" — is itself false at the primary source (this
+  pass's F1): ros `0df23f7` (2026-07-13, *before both passes*) put an SSH
+  `/export` snapshot in front of every mutating apply. The prior pass's
+  counsel leaned on tiki's own `rescue.py:21` comment ("the one non-REST
+  step"), which was already stale in ros when quoted — the false source
+  propagated through the counsel into the fix.
+- **Prior F2 [fixed] — ✅ verified.** The restated case is at HEAD and all
+  three facts re-ran true independently: direction set 2026-07-12 (ros
+  `SPECS.md:1232`), first slice shipped 2026-07-14 (ros `8d297e8`), review
+  owed (open ros ROADMAP item + carved brief).
+- **Prior F3 [fixed] — ✅ verified.** The *Scope* sentence is at HEAD and
+  matches the counsel (more-than-one-surface / is-a-service; single-surface
+  CLI satisfied by the twin).
+- **Prior F4 [fixed] — ✅ verified.** "Commodity" replaces "minor"; the
+  adopt-outright exit (KISS, precedence 5–6) and the §5 hold for
+  security-critical commodities are both at HEAD.
+- **Prior F5 [fixed, bundle] — ✅ verified, with residuals.** Read-vs-operate
+  test, §6 cross-link, and the native-app clause are all at HEAD; tiki naming
+  kept as ruled. Residuals found by this pass on the added clause: its DRY
+  rationale doesn't discriminate (F2 here) and the sentence's nesting hurts
+  legibility (F4 here).
+
+### Agreement / divergence
+
+The prior pass and this one agree on the doctrine's shape and on four of five
+fixes. The one divergence is structural, not a quarrel: the prior F1 fix
+traded a large overclaim for a smaller one, because the "one non-REST step"
+tally came from a ros comment that ros's own 2026-07-13 snapshot change had
+already invalidated. This pass's F3 (vendor-UI seam) and F4 (legibility) are
+new; F2 here is a residual edge on the prior F5's native-app clause.
+
+### Final verdict — PASS-WITH-FINDINGS · 1 MAJOR · 1 MEDIUM · 2 LOW
+
+The applied batch is real, honest work: all five rulings were applied as
+decided, four verify clean at the primary sources, and the section is
+materially stronger than at the first pass. The MAJOR is confined to one
+grounding clause whose falsity originates in the child repo's own stale
+comment.
+
+**Cycle status — the escape valve applies.** This pass carries a MAJOR, so
+the close rule does not close the cycle — and the MAJOR count is *not
+falling* (pass 1: one MAJOR; this pass: one MAJOR). Per REVIEW.md, that is
+the signal to stop cranking and ask the principal for direction rather than
+spawn another full ceremony. Reviewer's counsel, labelled as counsel: F1 is a
+one-clause ruling (e.g. "its non-REST paths are a pre-apply snapshot and the
+rescue upload over pinned SSH — stated exceptions, not drift"), and fixing
+ros's stale `rescue.py:21` comment in the same sweep removes the false
+source; a principal ruling on F1–F4 directly, with fix-verification only,
+would close honestly without a fourth pass. The decision is Mike's.
