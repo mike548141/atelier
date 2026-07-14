@@ -68,40 +68,55 @@ service beats total failure.
   above as a hard rule, stated because it's cheap at build time and expensive to
   retrofit: any tool we build that prints for a human — a CLI verb, a scanner, a
   report — must *also* offer the same result machine-readable (`--json` plus
-  honest exit codes). Every tool is a future pipeline citizen whether or not
-  today's caller is a person. Scope: tools whose output can feed another
+  honest exit codes; §6 *Observable by design* is the same rule at the
+  system-behaviour layer). Every tool is a future pipeline citizen whether or
+  not today's caller is a person. Scope: tools whose output can feed another
   program; an inherently interactive surface (a web app's UI) is out of scope,
-  though the service behind it still earns an API. Omitting the machine surface
-  is the choice that needs a stated reason, never the default.
+  though the service behind it still earns an API — the test is *if a human
+  reads the output, twin it; if a human operates a live surface, the service
+  beneath it earns the API*. Omitting the machine surface is the choice that
+  needs a stated reason, never the default.
 - **API first — the UI is one client among many.** The twin rule above at the
   service layer: a product's capabilities land behind an API *before* any
   surface is built on them, and every surface — web app, CLI, automation,
   another product — rides that same contract. A capability reachable only by
   clicking is a capability the pipeline, the agent, and the next integration
-  cannot reach. *Grounding is consumption-side today:* `tiki` drives RouterOS
-  exclusively through its REST API — the same seam the vendor's own UI rides —
-  which is this principle experienced from the client's chair; producing our
-  own services API-first is the adopted standing practice (decided 2026-07-14),
-  with the estate's planned orchestration layer as its first intended case.
+  cannot reach. *Scope:* this binds a capability that serves — or will serve —
+  more than one surface, or that is itself a service; a single-surface CLI tool
+  already satisfies it through the machine twin above (its `--json` and exit
+  codes are the contract), no separate API layer required. *Grounding is
+  consumption-side today:* `tiki` drives RouterOS through its REST API — the
+  same seam the vendor's own UI rides — for all steady-state convergence (its
+  one non-REST path is a single SFTP upload on the rescue route), which is this
+  principle experienced from the client's chair; producing our own services
+  API-first is the adopted standing practice (decided 2026-07-14), with the
+  estate's planned orchestration layer as its first intended case.
 - **One responsive web app, mobile-first.** When the human surface is a web
   app, it is a *single* responsive app designed for the small screen first and
-  scaling up — never a separate mobile edition (that is a DRY violation at the
-  presentation layer: two surfaces asserting the same product truth, diverging
-  from the day they fork) and never a desktop-only layout that breaks on the
-  phone that is actually in the operator's hand. Adopted as standing practice
+  scaling up — never a separate *web* mobile edition (that is a DRY violation at
+  the presentation layer: two surfaces asserting the same product truth,
+  diverging from the day they fork; a *native* app is a different client riding
+  the API-first contract, not a banned edition — the ban is on forking the web
+  surface, not on adding clients) and never a desktop-only layout that breaks on
+  the phone that is actually in the operator's hand. Adopted as standing practice
   (decided 2026-07-14); no shipped worked case in the fleet yet — the first
   web surface built here becomes the case.
-- **A commodity sub-feature sits behind a swappable seam.** Many minor
+- **A commodity sub-feature sits behind a swappable seam.** Many commodity
   capabilities a build needs — a PKI CA, a secret store, a web server, a
   hypervisor — exist as mature full-featured products. Building the minimal
-  in-house version is legitimate (it keeps "works out of the box" true, with
-  zero external dependencies), but it goes behind a loosely coupled, pluggable
-  seam so a real product can replace it without touching the core. The in-house
-  component is a *default implementation of an interface*, never a load-bearing
-  wall the architecture hardens around. *Case:* the plan for `tiki`'s PKI CA —
-  a built-in CA so certificate issuance works out of the box, specified from
-  the outset as swappable for an external CA behind the same seam (a designed
-  direction, decided 2026-07-14; the seam is not yet built).
+  in-house version is legitimate *when it earns its keep* (it keeps "works out
+  of the box" true, with zero external dependencies), but it goes behind a
+  loosely coupled, pluggable seam so a real product can replace it without
+  touching the core. The in-house component is a *default implementation of an
+  interface*, never a load-bearing wall the architecture hardens around. When
+  nothing needs the out-of-the-box default — the deployment already runs the
+  mature product — adopt that product outright rather than build (KISS,
+  precedence 5–6); and where the commodity is security-critical (a CA, a secret
+  store), the minimal in-house build is held to §5 (security by design), not
+  waved through as cheap. *Case:* `tiki`'s PKI CA — a built-in CA so
+  certificate issuance works out of the box, specified from the outset as
+  swappable for an external CA behind a pluggable backend seam (direction set
+  2026-07-12; the seam's first slice shipped 2026-07-14, its own review owed).
 
 ## 3. Interaction model — events over polling
 

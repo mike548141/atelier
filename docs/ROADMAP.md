@@ -13,24 +13,21 @@ take the next open one (`method/CONCURRENCY.md` § Claiming work).
 
 ## Doctrine — review-owed
 
-- [ ] **PRINCIPLES §2 four-bullet cold pass — RAN 2026-07-14, Mike's decisions
-      owed.** Un-briefed cold pass (reviewer not the author):
+- [ ] **PRINCIPLES §2 four-bullet cold pass — applied-batch cold pass owed.**
+      First un-briefed pass RAN 2026-07-14 (reviewer not the author):
       **PASS-WITH-FINDINGS — 1 MAJOR · 3 MEDIUM · 1 LOW bundle**, verdict in
-      `reviews/2026-07-14-2154-principles-s2-four-bullets-cold.md`. Both
-      grounding falsities reproduced against ros at HEAD: **F1 (MAJOR)**
-      "tiki drives RouterOS *exclusively* through REST" — tiki's own rescue
-      path names its SFTP step, ACCESS-MAP names two management planes;
-      **F2** "the seam is not yet built" was false at its own recording
-      commit (the pluggable CaBackend seam's first slice shipped twelve hours
-      earlier; direction set 2026-07-12) — conservative-direction error, the
-      grounding is *stronger* than claimed. **F3** API-first carries no scope
-      sentence (read literally the seven house scanners breach it); **F4**
-      "minor"/"legitimate" under-warns on security-critical commodities (CA,
-      secret store — no §5 pointer, no adopt-the-product-outright exit);
-      **F5 LOW bundle** (exemption edge untested, native-app edge unpicked,
-      named-tiki case style, §6 cross-link). All decisions Mike's (rule 3:
-      agent-authored doctrine). MAJOR on first pass ⇒ the applied batch earns
-      its own cold pass once Mike rules.
+      `reviews/2026-07-14-2154-principles-s2-four-bullets-cold.md`. **Mike ruled
+      all five [fixed]; applied same session** (F1 "exclusively" dropped +
+      SFTP rescue path named; F2 case restated — pluggable seam's first slice
+      shipped 2026-07-14, direction set 2026-07-12, "not yet built" was false;
+      F3 API-first gained a Scope sentence; F4 "minor"→"commodity" +
+      adopt-outright exit + §5 hold; F5 bundle — exemption test, §6 xref,
+      native-app clause; named-tiki style kept, consistent with sibling method
+      docs). Floor green after applying (247 tests · sizescan · linkscan).
+      **Owed:** MAJOR on the first pass ⇒ the applied batch earns its own
+      un-briefed cold pass **by a different session** (also the
+      applier-independence backstop — this session authored both verdict and
+      edits). Per the cycle rule that pass closes it if it returns no MAJOR.
 - [ ] **REACH/AUTONOMY backlog — the cold pass's H1–H8 + residuals** (all
       backlog-grade; doctrine-substantive ones are the principal's when
       picked up). Sharpest three: H2 "existing cookies are fair game" reads

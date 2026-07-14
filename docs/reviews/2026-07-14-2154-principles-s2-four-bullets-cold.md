@@ -230,4 +230,43 @@ to decide** (rule 3: agent-authored doctrine). Per the cycle rule, the pass
 carries a MAJOR, so the applied batch — once Mike rules — earns its own cold
 pass before the cycle closes.
 
-*Decision stamps (Mike) go below, per finding.*
+## Decisions (Mike, 2026-07-14) — all applied
+
+Mike's ruling as principal: **"address any review findings"** → all five
+**[fixed]**, applied to `PRINCIPLES.md` §2 this session per the counsel above.
+
+- **F1 [fixed]** — "exclusively" dropped; grounding now reads "drives RouterOS
+  through its REST API … for all steady-state convergence (its one non-REST
+  path is a single SFTP upload on the rescue route)".
+- **F2 [fixed]** — case restated at true strength: "specified from the outset
+  as swappable … behind a pluggable backend seam (direction set 2026-07-12;
+  the seam's first slice shipped 2026-07-14, its own review owed)". The false
+  "not yet built" and the misleading "decided 2026-07-14" are gone.
+- **F3 [fixed]** — API-first gained a *Scope* sentence matching its sibling:
+  binds a capability serving more than one surface, or a service; a
+  single-surface CLI satisfies it through the machine twin.
+- **F4 [fixed]** — "minor" → "commodity"; added the adopt-the-product-outright
+  exit (KISS, precedence 5–6) and the §5 by-design hold for security-critical
+  commodities.
+- **F5 [fixed, bundle]** — machine-twin gained the read-vs-operate exemption
+  test and a §6 cross-link; mobile-first gained the native-app clause ("a
+  *native* app is a different client riding the API-first contract, not a
+  banned edition"). **Named-`tiki` case style:** kept as-is — consistent with
+  sibling method docs (PROPAGATION, STORAGE, MODEL-ECONOMICS, 00-APEX all name
+  tiki); the header's "general statement" stands because the *principle* is
+  general and tiki is only its illustrative case, exactly as §1–§8 carry cases.
+
+**Applier-independence exposure, named not denied:** this session authored both
+the verdict and the applied edits — REVIEW.md prefers a neutral applier
+(neither doctrine- nor verdict-author). Mike directed the application directly,
+so it proceeded; the residual exposure is that the applier defends its own
+counsel rather than harmonising it fresh. This is precisely why the cycle rule
+already owes an **un-briefed cold pass on the applied batch** (MAJOR on the
+first pass) — that pass, run by a different session, is the independence
+backstop.
+
+**Floor re-run after applying, all green:** 247 tests OK · sizescan clean ·
+linkscan clean · leakscan clean.
+
+**Cycle status:** first pass carried a MAJOR, so it does **not** close here —
+the applied-batch cold pass is owed (ROADMAP *Doctrine — review-owed*).
