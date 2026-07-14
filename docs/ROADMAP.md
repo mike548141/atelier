@@ -14,13 +14,15 @@ take the next open one (`method/CONCURRENCY.md` § Claiming work).
 ## Doctrine — review-owed
 
 - [ ] **MODEL-ECONOMICS triple delta (sub-agents · tier selection · context
-      reset) — cold pass owed.** Sub-agents expanded (isolation-not-savings,
-      when/when-not, lossiness), tier selection made explicit (cheapest model
-      that genuinely does the work; verifiability test; rework pricing),
-      hygiene item 4 rewritten (record-and-restart primary, compaction
-      fallback, no numeric thresholds). Brief:
-      `reviews/2026-07-15-0910-model-economics-triple-delta.md`. Self-authored
-      doctrine ⇒ findings are the principal's (REVIEW rule 3).
+      reset) — cold pass RAN 2026-07-15, Mike's ruling owed.** Delta: sub-agents
+      expanded (isolation-not-savings, when/when-not, lossiness), tier selection
+      made explicit (cheapest model that genuinely does the work; verifiability
+      test; rework pricing), hygiene item 4 rewritten (record-and-restart
+      primary, compaction fallback, no numeric thresholds). Verdict
+      **PASS-WITH-FINDINGS — 0 MAJOR · 3 MEDIUM · 3 LOW**, author counsels
+      accept-all-six; findings are the principal's (REVIEW rule 3):
+      `reviews/2026-07-15-0910-model-economics-triple-delta.md`. 0 MAJOR ⇒
+      once ruled, application closes the cycle without further ceremony.
 - [x] **"Informed principal" apex rule — reviewed, applied, CYCLE CLOSED
       2026-07-14.** New `00-APEX.md` subsection *The principal's authority is
       conditioned on being informed* (now under *Honesty is absolute*). Cold
