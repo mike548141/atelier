@@ -13,15 +13,24 @@ take the next open one (`method/CONCURRENCY.md` § Claiming work).
 
 ## Doctrine — review-owed
 
-- [~] **Cold pass on the four new §2 PRINCIPLES bullets (added 2026-07-14,
-      Mike's principles, agent's wording)** (claimed 2026-07-14-2154, wt: main) — *human-readable output carries a
-      machine-readable twin*, *a commodity sub-feature sits behind a swappable
-      seam*, *API first*, and *one responsive web app, mobile-first*. The
-      principles themselves are the principal's decision; what the pass attacks
-      is the wording — scope creep, the web-app exemption's edge, and whether
-      each grounding claim is stated no stronger than its evidence (the tiki
-      PKI-CA seam is a designed direction; API-first grounding is
-      consumption-side only; mobile-first has no shipped case yet).
+- [ ] **PRINCIPLES §2 four-bullet cold pass — RAN 2026-07-14, Mike's decisions
+      owed.** Un-briefed cold pass (reviewer not the author):
+      **PASS-WITH-FINDINGS — 1 MAJOR · 3 MEDIUM · 1 LOW bundle**, verdict in
+      `reviews/2026-07-14-2154-principles-s2-four-bullets-cold.md`. Both
+      grounding falsities reproduced against ros at HEAD: **F1 (MAJOR)**
+      "tiki drives RouterOS *exclusively* through REST" — tiki's own rescue
+      path names its SFTP step, ACCESS-MAP names two management planes;
+      **F2** "the seam is not yet built" was false at its own recording
+      commit (the pluggable CaBackend seam's first slice shipped twelve hours
+      earlier; direction set 2026-07-12) — conservative-direction error, the
+      grounding is *stronger* than claimed. **F3** API-first carries no scope
+      sentence (read literally the seven house scanners breach it); **F4**
+      "minor"/"legitimate" under-warns on security-critical commodities (CA,
+      secret store — no §5 pointer, no adopt-the-product-outright exit);
+      **F5 LOW bundle** (exemption edge untested, native-app edge unpicked,
+      named-tiki case style, §6 cross-link). All decisions Mike's (rule 3:
+      agent-authored doctrine). MAJOR on first pass ⇒ the applied batch earns
+      its own cold pass once Mike rules.
 - [ ] **REACH/AUTONOMY backlog — the cold pass's H1–H8 + residuals** (all
       backlog-grade; doctrine-substantive ones are the principal's when
       picked up). Sharpest three: H2 "existing cookies are fair game" reads
