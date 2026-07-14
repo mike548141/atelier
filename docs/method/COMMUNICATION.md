@@ -56,6 +56,14 @@ Grounded in the live instance, not invented to fill a heading:
   colour-glyph does. Define or drop the jargon; prefer plain words; let
   structure break the wall. (Live instance, 2026-07-12: replies had run
   text-heavy and term-laden — same reader, same cost as the visual axis.)
+  Sentence *shape* sits on the same axis: a sentence interrupted by a long
+  bracketed aside forces the reader to hold the suspended sentence open while
+  parsing the interruption, and demotes load-bearing content into brackets.
+  Finish the sentence clean, then give the aside its own sentence — or hang a
+  short clause off the end with a dash. Brackets are for short, droppable
+  glosses only; content that matters never lives in them. (Live instance,
+  2026-07-15: named as a recurring cross-repo habit and a refinement — the
+  structure and consistency around it had landed well.)
 - **Cognitive-load stance** — solutions, drafts, and summaries versus option
   surveys; whether stating the obvious helps or grates.
 - **Tone** — register, humour, and *how much*. Dosage is part of the

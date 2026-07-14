@@ -290,3 +290,11 @@ applies — once ruled, the application spawns no further full ceremony.
 
 0 MAJOR at the cold pass ⇒ this ruled application ends the cycle without a
 further ceremony (REVIEW.md, the close rule).
+
+**F1 disposition REOPENED (Mike, 2026-07-15, later the same day).** The
+"agree if that's what you're counselling" ruling did not reflect Mike's
+intention — he has asked for a proper plain-language walk-through of what the
+author was recommending before ruling. The applied text (the bind) stays in
+place while that conversation runs, since it restates REVIEW.md's existing
+position rather than adding new policy; F1's *ruling*, not its text, is what
+is open. F2–F6 and the price-the-job nuance are unaffected.
