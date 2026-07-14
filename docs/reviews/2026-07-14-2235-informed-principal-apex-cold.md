@@ -283,3 +283,48 @@ wording fixes at the seams (scope-unification, agent-vs-principal teeth,
 overrule trigger, pointer symmetry). All are Mike's to decide (rule 3); once
 decided, the fixes consolidate onto one ROADMAP follow-ups item and the cycle
 closes without a further full ceremony.
+
+---
+
+## Decisions (Mike, 2026-07-14) — applied same session
+
+No MAJOR ⇒ per the close rule this application does not spawn a further
+ceremony; the cycle **closes** here. Mike ruled:
+
+- **F1 [fixed]** — the apex list is now explicitly two-armed: a *governance
+  ruling* **or** an *always-confirm floor stop* (`PROPAGATION.md` floor), "the
+  rule binds them all". The child stamp no longer out-scopes the parent.
+- **F2 [fixed]** — Mike kept the teeth he liked ("obedience extracted, not a
+  decision made, and the doctrine does not recognise it as one") but they are
+  **re-pointed at the agent's discharge**: void when the agent *extracted
+  approval by withholding* what/why/impact — not on the principal's state of
+  mind. Added the principal's **right to waive** once the account is offered
+  ("the agent's job is to *provide* the briefing, never to *refuse* the
+  decision. The agent informs; it does not police the principal's diligence").
+  Second-Law bind removed.
+- **F3 [fixed]** — the trigger now runs both directions: "before the agent asks
+  the principal to rule — or *acts on an overrule the principal initiates*";
+  the impact bullet gained "(for an overrule: what the overrule itself trades
+  away)".
+- **F4 [fixed]** — `AUTONOMY.md`'s existing "say what / why / irreversible"
+  duty is now stamped as the reciprocal reference (folded into the apex pointer,
+  aligned to what/why/impact, `COMMUNICATION.md` cross-linked for the how) —
+  asymmetry gone.
+- **F5 [fixed]** — the section is **demoted to a `###` subsection under
+  *Honesty is absolute*** (framed "the positive face of the absolute above, and
+  part of it"), so "Why this is level 0"'s two-member "honesty and the Laws"
+  stays literally true and the face-of-honesty framing is now structural.
+- **F6 [applied as part of F5, cosmetic]** — "and part of it" names the
+  extension; the oversell is gone without a separate edit.
+- **F7 [no action]** — sanctioned inlining; lockstep noted for a future reword.
+
+**Floor re-run after applying, all green:** 247 tests OK · sizescan clean ·
+linkscan clean.
+
+**Applier-independence exposure, named not denied:** this session authored the
+apex text under review; the verdict was authored by the independent reviewer,
+and the application is low-risk wording with no MAJOR — the close rule sanctions
+applying without a further ceremony. The residual exposure (author applies its
+own doctrine) is named here, not denied.
+
+**Cycle: CLOSED.**
