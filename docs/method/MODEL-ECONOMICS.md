@@ -23,9 +23,36 @@ model is stuck on. Reviews are **scoped and short** (hand it the diff / commit
 range / named files, not the repo; ask for findings, not rewrites — apply fixes
 back on the building model); builds are the bulk.
 
-**Subagents for fan-out.** From either model, push broad reading/searching into
-subagents so the expensive main context stays lean — most valuable in a
-usage-billed session, where every main-context token is metered.
+## Sub-agents — isolation, not savings
+
+A sub-agent runs in its own context and returns only its final report; the main
+session carries that report, not the reading that produced it. Two corrections
+to the intuition that this "saves tokens":
+
+- **It buys context isolation, not token savings.** A sub-agent re-pays its own
+  fixed overhead (system prompt, tool schemas) and often spends *more* total
+  tokens than doing the work inline. What it buys is that every *subsequent*
+  main-session turn is cheaper and sharper: the main context stays lean, the
+  cache stays warm, and long-context quality decay is deferred. The economics
+  flip with session length — early in a short session, delegation is pure
+  overhead; deep in a long session (above all a usage-billed one, where every
+  main-context token is metered) it is the cheapest read available.
+- **The report is all that survives.** A sub-agent's return is lossy by design.
+  Where the task needs the *raw* detail — the exact file content an edit
+  depends on, the precise error text — delegating trades correctness for
+  context, and that trade loses.
+
+When to reach for one: **fan-out** — searching or reading across many files
+where only the conclusion needs to come back; **parallel independent slices**
+that share no state; and **fresh-context verification** — a sub-agent is
+mechanically a cold reviewer (independence, different blind spots, fresh
+context — `REVIEW.md`), which is exactly the inline background review of
+*Triggering reviews* below. When not: a single known lookup, where the overhead
+exceeds the read; tightly iterative loops, where the hand-off tax repeats every
+round; anything whose correctness turns on detail a report would drop. Two
+disciplines: once delegated, don't also do the work inline — pick one; and take
+the *conclusion* into the main context, never the transcript — over-asking a
+sub-agent is cheap, over-carrying its output is not.
 
 ## Know which pool you're spending — the self-check
 
@@ -141,6 +168,17 @@ which model ran** — that is what makes cheap-model work safe; first-of-kind or
 structural work escalates to the capable model, and a smaller model that hits it
 **logs and hands up** rather than improvising past its depth.
 
+Within that risk frame, tier selection is the runner-class rule above applied
+to models: **the cheapest model that genuinely does the work, at the quality
+the work needs.** "Genuinely does" is a verifiability test, not optimism:
+cheap-model work is safe where failure is *catchable* — a validator, a test
+suite, a gate — because the floor converts a capability gap into a caught
+failure instead of a shipped one. Where failure would be silent or the work is
+judgement-heavy — doctrine text, review verdicts, structural design —
+capability *is* the safety property; pay for it. And price the rework in: a
+cheap attempt that fails and is redone on the capable model costs more than
+starting capable, so when a hand-up looks likely, escalate up front.
+
 ## Triggering reviews — inline or batched, the building model's call
 
 When economics allow, the building session may **spawn a review as a background
@@ -196,9 +234,18 @@ context size and continuity are the levers:
    longer than that re-writes it (a full input re-read). Cache *writes* cost more
    than cache *reads*, so churn is the expensive pattern — it bites hardest on a
    usage-billed session.
-4. **Watch context growth.** Long sessions get slower and costlier per turn.
-   When a session feels long, write the record and restart — a standing practice,
-   not a failure.
+4. **Watch context growth — and reset by record, not by compaction.** Long
+   sessions get slower and costlier per turn, and the harness signals it
+   (context meters, auto-compaction warnings). Heed the signal, don't chase a
+   number — thresholds are harness- and plan-specific, and the cost is linear
+   the whole way. The standing reset is **write the session record and restart
+   fresh**: the record is this method's compaction — deliberate, curated,
+   versioned, and doubling as the institutional memory (`RECORD.md`). An
+   in-place compaction (the harness summarising the conversation for itself) is
+   the lossy fallback for a mid-task rescue, not the practice; a bare context
+   wipe is fine only *after* the record is written. (In today's harness those
+   are `/compact` and `/clear`; mechanism names change, the order doesn't —
+   record first, then reset.)
 5. **Heavy skills are episodic costs.** A single skill/reference load can inject
    tens of thousands of tokens. Fine when needed; don't invoke speculatively, and
    especially not in a usage-billed session.
