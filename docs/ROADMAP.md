@@ -13,6 +13,22 @@ take the next open one (`method/CONCURRENCY.md` § Claiming work).
 
 ## Doctrine — review-owed
 
+- [ ] **Cold pass on the "informed principal" apex rule (added 2026-07-14,
+      Mike's decision, agent's wording).** New `00-APEX.md` section *The
+      principal's authority is conditioned on being informed* — a principal
+      decision/overrule is not exercisable uninformed; the agent owes a
+      plain-language what / why / likely-impact before the principal rules, and
+      an approval without it "is not a decision the doctrine recognises".
+      Pointers added at the decision sites (`REVIEW.md` rule 3, `RECORD.md` ADR
+      acceptance, `PROPAGATION.md` floor — the latter re-stamped into the child
+      CLAUDE.md template, so it propagates fleet-wide on the next pin bump). The
+      principle is Mike's; the wording earns an un-briefed cold pass. Attack
+      surface for the reviewer: is "not a decision the doctrine recognises" too
+      absolute (does it retroactively void routine confirmations)?; does the
+      floor-block addition over-weight the compressed child stamp?; does it
+      collide with AUTONOMY's standing-grant "just proceed" for recoverable work
+      (it shouldn't — the rule binds the *stop-and-confirm* set, not the
+      proceed-freely set, but verify the seam is clean).
 - [ ] **PRINCIPLES §2 four-bullet cold pass — applied-batch cold pass owed.**
       First un-briefed pass RAN 2026-07-14 (reviewer not the author):
       **PASS-WITH-FINDINGS — 1 MAJOR · 3 MEDIUM · 1 LOW bundle**, verdict in

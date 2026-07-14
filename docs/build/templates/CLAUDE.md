@@ -27,7 +27,10 @@ in atelier and is read on demand — never wholesale.
   spending money; anything touching people's safety; widening your own grant
   (record the principal's decision, never originate it); a lockout-class change
   that could sever your own access; installing an unapproved tool or adding a
-  new trust surface (deploy keys, webhooks, OAuth/app grants). Everything
+  new trust surface (deploy keys, webhooks, OAuth/app grants). Each such
+  confirmation is an *informed* one — the agent puts what it wants to do, why,
+  and the likely impact in plain language first; an approval given without that
+  account is not a decision the doctrine recognises (`00-APEX.md`). Everything
   recoverable — commit/push/PR included — just proceed.
 - **Concurrency:** `git pull --rebase --autostash` at session start; push after
   each commit. Uncommitted changes this session didn't make ⇒ another session

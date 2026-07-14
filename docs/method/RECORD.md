@@ -110,7 +110,10 @@ session a wasted argument, write the ADR.
 An ADR moves through the lifecycle standards bodies use (the IETF/IEEE shape:
 draft → active → superseded or withdrawn). **Draft** is the one mutable
 state — the deliberation written down, binding on nothing yet; accepting it is
-the principal's decision, never the author's. Once **accepted**, an ADR is
+the principal's decision, never the author's — and an informed one: the draft
+must put what it decides, why, and its consequences in plain language before the
+principal accepts (`00-APEX.md`, *The principal's authority is conditioned on
+being informed*). Once **accepted**, an ADR is
 immutable — the substance of what was decided, and on what reasoning, is never
 rewritten (the append-only principle again). Everything after acceptance
 happens by *appending*, in one of three verbs:

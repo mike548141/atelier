@@ -82,7 +82,11 @@ is self-authored doctrine, however the review was commissioned:
    where one agent both wrote the rule and judges the challenge to it. There the
    author records the verdict verbatim and applies nothing on its own; it may
    argue its case per finding, labelled as the author's position and kept below
-   the reviewer's text — the decision is the principal's.
+   the reviewer's text — the decision is the principal's, and taken **informed**:
+   the author owes a plain-language what / why / likely-impact before the
+   principal rules, never a bare finding to rubber-stamp (`00-APEX.md`, *The
+   principal's authority is conditioned on being informed*). An approval given
+   without that account is not a decision the doctrine recognises.
 
 This is the independence the external-reviewer rule was always reaching for —
 the REACH case showed fresh context alone doesn't deliver it.
