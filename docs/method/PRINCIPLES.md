@@ -73,6 +73,24 @@ service beats total failure.
   program; an inherently interactive surface (a web app's UI) is out of scope,
   though the service behind it still earns an API. Omitting the machine surface
   is the choice that needs a stated reason, never the default.
+- **API first — the UI is one client among many.** The twin rule above at the
+  service layer: a product's capabilities land behind an API *before* any
+  surface is built on them, and every surface — web app, CLI, automation,
+  another product — rides that same contract. A capability reachable only by
+  clicking is a capability the pipeline, the agent, and the next integration
+  cannot reach. *Grounding is consumption-side today:* `tiki` drives RouterOS
+  exclusively through its REST API — the same seam the vendor's own UI rides —
+  which is this principle experienced from the client's chair; producing our
+  own services API-first is the adopted standing practice (decided 2026-07-14),
+  with the estate's planned orchestration layer as its first intended case.
+- **One responsive web app, mobile-first.** When the human surface is a web
+  app, it is a *single* responsive app designed for the small screen first and
+  scaling up — never a separate mobile edition (that is a DRY violation at the
+  presentation layer: two surfaces asserting the same product truth, diverging
+  from the day they fork) and never a desktop-only layout that breaks on the
+  phone that is actually in the operator's hand. Adopted as standing practice
+  (decided 2026-07-14); no shipped worked case in the fleet yet — the first
+  web surface built here becomes the case.
 - **A commodity sub-feature sits behind a swappable seam.** Many minor
   capabilities a build needs — a PKI CA, a secret store, a web server, a
   hypervisor — exist as mature full-featured products. Building the minimal

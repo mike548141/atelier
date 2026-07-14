@@ -39,9 +39,29 @@ Both are Mike's decided practice (2026-07-14), placed beside their siblings
   ask), and the decision step (`[rejected: grounds]` for code; the principal
   decides doctrine findings).
 
+## Addendum — two more, same turn's follow-up
+
+Mike added *API first* and *responsive mobile-first web apps*. Both land as §2
+bullets beside the first two — they are the same family (how a product faces
+its clients), and each is placed with its grounding stated at its true
+strength:
+
+- **API first — the UI is one client among many.** The machine-twin rule at
+  the service layer: capabilities land behind an API before any surface rides
+  them. Grounding is honest about being *consumption-side today* — `tiki`
+  drives RouterOS exclusively through its REST API (the principle from the
+  client's chair); producing our own services API-first is adopted standing
+  practice, first intended case the planned orchestration layer.
+- **One responsive web app, mobile-first.** Framed as DRY at the presentation
+  layer — a separate mobile edition is two surfaces asserting one truth,
+  diverging from the fork. Labelled: adopted standing practice, **no shipped
+  worked case in the fleet yet**; the first web surface built becomes the case
+  (stub-don't-fabricate applied to grounding).
+
 ## Owed
 
-- **Cold pass on the two new bullets** — doctrine text, so the wording earns an
-  un-briefed review (the principles themselves are the principal's decision).
-  ROADMAP item added under *Doctrine — review-owed*.
+- **Cold pass on the four new bullets** — doctrine text, so the wording earns
+  an un-briefed review (the principles themselves are the principal's
+  decision). ROADMAP item under *Doctrine — review-owed*, widened from two to
+  four.
 - Children inherit via normal pin bumps; no fleet retrofit.

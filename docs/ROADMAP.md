@@ -13,13 +13,15 @@ take the next open one (`method/CONCURRENCY.md` § Claiming work).
 
 ## Doctrine — review-owed
 
-- [ ] **Cold pass on the two new §2 PRINCIPLES bullets (added 2026-07-14,
+- [ ] **Cold pass on the four new §2 PRINCIPLES bullets (added 2026-07-14,
       Mike's principles, agent's wording)** — *human-readable output carries a
-      machine-readable twin* and *a commodity sub-feature sits behind a
-      swappable seam*. The principles themselves are the principal's decision;
-      what the pass attacks is the wording — scope creep, the web-app
-      exemption's edge, whether the tiki PKI-CA case is stated no stronger than
-      its evidence (it is a designed direction, not yet a shipped seam).
+      machine-readable twin*, *a commodity sub-feature sits behind a swappable
+      seam*, *API first*, and *one responsive web app, mobile-first*. The
+      principles themselves are the principal's decision; what the pass attacks
+      is the wording — scope creep, the web-app exemption's edge, and whether
+      each grounding claim is stated no stronger than its evidence (the tiki
+      PKI-CA seam is a designed direction; API-first grounding is
+      consumption-side only; mobile-first has no shipped case yet).
 - [ ] **REACH/AUTONOMY backlog — the cold pass's H1–H8 + residuals** (all
       backlog-grade; doctrine-substantive ones are the principal's when
       picked up). Sharpest three: H2 "existing cookies are fair game" reads
