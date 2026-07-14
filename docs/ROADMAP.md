@@ -28,21 +28,26 @@ take the next open one (`method/CONCURRENCY.md` § Claiming work).
       F6 folded into F5, F7 no-action. No MAJOR ⇒ cycle closed without a further
       ceremony (close rule). Floor green (247 tests · sizescan · linkscan).
       Propagates fleet-wide on the next pin bump.
-- [ ] **PRINCIPLES §2 four-bullet cold pass — applied-batch cold pass owed.**
-      First un-briefed pass RAN 2026-07-14 (reviewer not the author):
-      **PASS-WITH-FINDINGS — 1 MAJOR · 3 MEDIUM · 1 LOW bundle**, verdict in
-      `reviews/2026-07-14-2154-principles-s2-four-bullets-cold.md`. **Mike ruled
-      all five [fixed]; applied same session** (F1 "exclusively" dropped +
-      SFTP rescue path named; F2 case restated — pluggable seam's first slice
-      shipped 2026-07-14, direction set 2026-07-12, "not yet built" was false;
-      F3 API-first gained a Scope sentence; F4 "minor"→"commodity" +
-      adopt-outright exit + §5 hold; F5 bundle — exemption test, §6 xref,
-      native-app clause; named-tiki style kept, consistent with sibling method
-      docs). Floor green after applying (247 tests · sizescan · linkscan).
-      **Owed:** MAJOR on the first pass ⇒ the applied batch earns its own
-      un-briefed cold pass **by a different session** (also the
-      applier-independence backstop — this session authored both verdict and
-      edits). Per the cycle rule that pass closes it if it returns no MAJOR.
+- [ ] **PRINCIPLES §2 — ⏳ Mike's ruling owed on F1–F4 (escape valve).**
+      Applied-batch cold pass RAN 2026-07-14 (independent session, neither
+      author nor applier; findings committed before the prior verdict was
+      opened): **PASS-WITH-FINDINGS — 1 MAJOR · 1 MEDIUM · 2 LOW**, verdict in
+      `reviews/2026-07-14-2333-principles-s2-applied-batch-cold.md`. Four of
+      five prior fixes verified clean at the primary sources; the batch was
+      applied exactly as ruled. **F1 MAJOR:** the prior F1 fix's replacement
+      clause ("its one non-REST path is a single SFTP upload on the rescue
+      route") is false at the primary source — ros `0df23f7` (2026-07-13,
+      *before both passes*) put an SSH `/export` snapshot in front of every
+      mutating apply, and `tiki pki` writes over SSH by design; the falsity
+      propagated from tiki's own stale `rescue.py:21` comment through the
+      prior counsel into the fix. F2 MEDIUM: mobile-first ban's DRY rationale
+      doesn't discriminate the banned web fork from the permitted native
+      client (capability-delta test unstated). F3 LOW: "the seam the vendor's
+      own UI rides" is ungrounded vendor-internals recall. F4 LOW: 80-word
+      doubly-nested sentence. **MAJOR count not falling (1 → 1) ⇒ REVIEW.md's
+      escape valve: stop cranking, principal rules directly.** Reviewer's
+      counsel (labelled counsel): a one-clause F1 ruling + fixing ros's stale
+      comment closes honestly with fix-verification only, no fourth ceremony.
 - [ ] **REACH/AUTONOMY backlog — the cold pass's H1–H8 + residuals** (all
       backlog-grade; doctrine-substantive ones are the principal's when
       picked up). Sharpest three: H2 "existing cookies are fair game" reads
