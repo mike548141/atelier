@@ -12,3 +12,6 @@ Lets do some work!
 * focus on the following themed work as long as its not claimed and you don't
   think another session is working on something that is going to cause
   problems:
+
+If I've given you too much work then use economics and your own reasoning to
+find a good spot to stop safely to tidy everything up and finish the session.
