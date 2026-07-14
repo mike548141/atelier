@@ -29,15 +29,21 @@ take the next open one (`method/CONCURRENCY.md` § Claiming work).
       (stale pre-A4 absolute, boundary pointer should name REACH.md);
       residuals — AUTONOMY's "direct handling" doesn't literally catch
       machinery-mediated *repurposing*; two over-length lines to rewrap.
-- [~] **Lean-files doctrine + `sizescan` — cold review owed (added 2026-07-14).** (claimed 2026-07-14-2048, solo session on main — review-only, no worktree)
-      This session sharpened `method/RECORD.md`'s roadmap section (the
-      current-truth/history split, the growth dynamic, the harvest-at-close
-      trigger), built `tools/sizescan.py` + tests, and harvested this file.
-      Net-new tooling + doctrine → un-briefed cold pass owed before `sizescan`
-      is wired into any gate (don't-stack). Sharpest questions to attack: are the
-      default budgets defensible or arbitrary; does the root-only README/CLAUDE
-      rule mask a real reference-doc bloat; is line-count an honest enough proxy;
-      does "advisory exit 0" leave the gate toothless in practice.
+- [ ] **Lean-files doctrine + `sizescan` — cold review RAN 2026-07-14,
+      decisions owed (Mike).** Un-briefed cold pass (Fable, not the author):
+      **PASS-WITH-FINDINGS — 1 MAJOR · 2 MEDIUM · 1 LOW bundle**, verdict in
+      `reviews/2026-07-14-2048-lean-files-sizescan-cold.md`. All recorded
+      proofs reproduced (240 tests, selftests, zero-loss harvest verified
+      mechanically 94/94, fleet claim re-run). The MAJOR: an ancestor
+      directory named like a growth store (`~/archive/<repo>`) silently blanks
+      the whole scan — fail-open, reproduced. MEDIUMs: a prose *mention* of
+      sizescan's allow/budget markers exempts the whole file (reproduced —
+      this very item's first draft quoted the allow marker literally and
+      thereby silently exempted the ROADMAP itself); the
+      SESSIONS budget collides with the append-only index rule with no
+      sanctioned move (atelier's index trips in ~2 weeks at current cadence;
+      shed's is over today). **Wiring `sizescan` into any gate stays blocked
+      until Mike rules and F1's fix is live-reproven.**
 
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
 COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin
@@ -103,9 +109,10 @@ budget across the fleet; these are the outstanding harvests it surfaced.
       **1157 lines**, a flat log that never adopted the index model (its own
       header already says "tail-read, don't load whole" — the split is the next
       step). Harvest `docs/ROADMAP.md` (766) too; `ARCHITECTURE.md` is +26 (mild).
-- [ ] **Review `sizescan`, then wire it into the gate** — once the cold pass
-      above clears it, add it to `ci.yml` + the child `floor.yml` template in
-      `--check` mode (opt-in teeth). Not wired yet (don't-stack).
+- [ ] **Wire `sizescan` into the gate** — the cold pass RAN 2026-07-14 (see
+      Doctrine section): wiring stays blocked until Mike rules on the findings
+      and the F1 fix is live-reproven; then add it to `ci.yml` + the child
+      `floor.yml` template in `--check` mode (opt-in teeth).
 
 ## North star — context follows the person, work follows anywhere
 
