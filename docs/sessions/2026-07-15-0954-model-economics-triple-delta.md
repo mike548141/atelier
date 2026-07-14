@@ -54,7 +54,19 @@ job done to the quality we want?
   Author counsels **accept all six**; self-authored doctrine ⇒ **Mike's ruling
   owed** (REVIEW rule 3). 0 MAJOR ⇒ once ruled, application closes the cycle.
 
-## Open
+## Ruling + application (same day) — cycle CLOSED
 
-- 🎯 Mike's ruling on F1–F6 (counsel: accept all; six small edits — five
-  one-clause fixes in MODEL-ECONOMICS, one template sweep).
+Mike ruled F1–F6 accepted. F1 nuance handled honestly: Mike's wording reached
+up to a full ban on warm spawns; the counsel was the *bind* (independence
+rules on author-spawned reviews, per REVIEW.md), which is what was applied —
+the distinction flagged to Mike, the ban held in reserve if the bind proves
+insufficient. Mike also supplied a new nuance, applied with the batch: **price
+the job, not the token** — a dearer model that completes the work in fewer
+turns/retries is often the cheaper job; only cost-to-done compares outcomes.
+All fixes applied to `method/MODEL-ECONOMICS.md` + the child template (F6);
+decision recorded in the verdict file; floor green. 0 MAJOR ⇒ closed on the
+ruled application.
+
+Separately, Mike gave standing communication feedback (all repos): stop
+interrupting sentences with long bracketed asides — restructure instead.
+Saved to agent memory; candidate for COMMUNICATION.md if wanted fleet-wide.

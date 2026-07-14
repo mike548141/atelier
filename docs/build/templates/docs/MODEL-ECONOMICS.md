@@ -9,8 +9,10 @@ The short version of the house policy this repo runs by.
 - **Fable (usage-billed: real money)** — the reviewer and hard-problem
   solver. Give it a **scoped** diff/file list; ask for *findings*, not
   rewrites; apply fixes back on Opus. See `reviews/README.md`.
-- **Subagents (Explore, etc.)** — fan-out reading/searching so the main
-  context stays lean.
+- **Sub-agents** — fan-out, parallel slices, fresh-context verification; they
+  buy context *isolation*, not token savings. The full economics — when,
+  when-not, lossiness — live in the parent's *Sub-agents — isolation, not
+  savings* (atelier `docs/method/MODEL-ECONOMICS.md`).
 
 ## Session hygiene
 

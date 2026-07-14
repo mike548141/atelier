@@ -13,16 +13,17 @@ take the next open one (`method/CONCURRENCY.md` § Claiming work).
 
 ## Doctrine — review-owed
 
-- [ ] **MODEL-ECONOMICS triple delta (sub-agents · tier selection · context
-      reset) — cold pass RAN 2026-07-15, Mike's ruling owed.** Delta: sub-agents
-      expanded (isolation-not-savings, when/when-not, lossiness), tier selection
-      made explicit (cheapest model that genuinely does the work; verifiability
-      test; rework pricing), hygiene item 4 rewritten (record-and-restart
-      primary, compaction fallback, no numeric thresholds). Verdict
-      **PASS-WITH-FINDINGS — 0 MAJOR · 3 MEDIUM · 3 LOW**, author counsels
-      accept-all-six; findings are the principal's (REVIEW rule 3):
-      `reviews/2026-07-15-0910-model-economics-triple-delta.md`. 0 MAJOR ⇒
-      once ruled, application closes the cycle without further ceremony.
+- [x] **MODEL-ECONOMICS triple delta — CYCLE CLOSED 2026-07-15.** Sub-agents
+      (isolation-not-savings, when/when-not, lossiness), explicit tier
+      selection (cheapest model that genuinely does the work — verifiability
+      test, pool-anchored, price-the-job), hygiene item 4 (reset by record,
+      not compaction; no numeric thresholds). Cold pass **PASS-WITH-FINDINGS —
+      0 MAJOR · 3 MEDIUM · 3 LOW**; Mike ruled F1–F6 **[fixed]** same day
+      (F1 applied as the independence *bind* on warm spawns, ban held in
+      reserve) and supplied the price-the-job nuance, applied with the batch.
+      Verdict + ruling: `reviews/2026-07-15-0910-model-economics-triple-delta.md`.
+      0 MAJOR ⇒ closed on the ruled application (close rule). Propagates on
+      the next pin bump; child template swept (F6).
 - [x] **"Informed principal" apex rule — reviewed, applied, CYCLE CLOSED
       2026-07-14.** New `00-APEX.md` subsection *The principal's authority is
       conditioned on being informed* (now under *Honesty is absolute*). Cold

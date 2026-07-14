@@ -259,3 +259,34 @@ sub-agents. **F6 accept** — sweep the child template's sub-agent bullet to a
 thin pointer at the parent section, matching spelling. All six are
 severity-proportionate one-clause/one-sweep edits; with 0 MAJOR the close rule
 applies — once ruled, the application spawns no further full ceremony.
+
+---
+
+## Decision (Mike, 2026-07-15) — cycle CLOSED
+
+- **F1 [fixed]** — Mike ruled for independence, accepting the counsel up to
+  and including a ban: "reviews must remain independent, if that means no warm
+  spawns for reviews then that is fine. If that is what your counselling then
+  I agree." Applied as counselled — **the bind, not the ban**: the sub-agent
+  section now states that fresh context alone is not independence and that the
+  independence rules bind in full on author-spawned reviews, pointing at
+  REVIEW.md. A ban on warm spawns would change REVIEW.md's sanctioned
+  inline-review pattern and remains open to the principal if the bind proves
+  insufficient — the distinction was flagged to Mike at application.
+- **F2 [fixed]** — flip axis restated as work *remaining ahead* plus the decay
+  delegation defers; depth-accrued framing removed.
+- **F3 [fixed]** — sub-agent total-cost claim qualified per pool (allowance vs
+  dollars); tier selection anchored inside the pool split ("pick the pool
+  first, then the tier within it").
+- **F4 [fixed]** — cheap-tier fan-out composed into the when-to-reach list.
+- **F5 [fixed]** — "cache stays warm" replaced by the lean, stable prefix,
+  with the TTL caveat for long-running sub-agents.
+- **F6 [fixed]** — child template's bullet swept to a thin pointer at the
+  parent section, spelling aligned.
+- **Also applied, principal-supplied at the same ruling:** price the *job*,
+  not the token — a dearer model that completes the work in fewer turns,
+  retries and re-reviews is often the cheaper way to get it done — woven into
+  the tier paragraph beside the rework rule it generalises.
+
+0 MAJOR at the cold pass ⇒ this ruled application ends the cycle without a
+further ceremony (REVIEW.md, the close rule).

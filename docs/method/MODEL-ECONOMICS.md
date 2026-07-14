@@ -30,13 +30,18 @@ session carries that report, not the reading that produced it. Two corrections
 to the intuition that this "saves tokens":
 
 - **It buys context isolation, not token savings.** A sub-agent re-pays its own
-  fixed overhead (system prompt, tool schemas) and often spends *more* total
-  tokens than doing the work inline. What it buys is that every *subsequent*
-  main-session turn is cheaper and sharper: the main context stays lean, the
-  cache stays warm, and long-context quality decay is deferred. The economics
-  flip with session length — early in a short session, delegation is pure
-  overhead; deep in a long session (above all a usage-billed one, where every
-  main-context token is metered) it is the cheapest read available.
+  fixed overhead — its own system prompt and tool schemas — and often spends
+  *more* in total than doing the work inline: more allowance drawn on a
+  plan-included session, more dollars on a usage-billed one. What it buys is
+  that every *subsequent* main-session turn is cheaper and sharper: the main
+  context stays lean, the cached prefix stays small and stable, and
+  long-context quality decay is deferred. The payback therefore scales with
+  the work *remaining ahead* — every later turn re-carries whatever entered
+  the main context, so delegation pays most with many turns still to come, is
+  pure overhead with few, and bites hardest where every main-context token is
+  metered. One caveat from item 3 below: a sub-agent that runs past the cache
+  TTL idles the main session into a cache re-write — the durable win is the
+  lean, stable prefix, not cache warmth.
 - **The report is all that survives.** A sub-agent's return is lossy by design.
   Where the task needs the *raw* detail — the exact file content an edit
   depends on, the precise error text — delegating trades correctness for
@@ -44,10 +49,15 @@ to the intuition that this "saves tokens":
 
 When to reach for one: **fan-out** — searching or reading across many files
 where only the conclusion needs to come back; **parallel independent slices**
-that share no state; and **fresh-context verification** — a sub-agent is
-mechanically a cold reviewer (independence, different blind spots, fresh
-context — `REVIEW.md`), which is exactly the inline background review of
-*Triggering reviews* below. When not: a single known lookup, where the overhead
+that share no state; and **fresh-context verification** — the inline
+background review of *Triggering reviews* below. Fresh context alone is not
+independence, though: the spawn prompt is a brief, usually the author's, so
+the independence rules bind in full — seeded questions deferred, the
+reviewer's own attack surface committed first — per `REVIEW.md`,
+*Independence is more than fresh context*. Fan-out is also where tier
+selection bites: mechanical reading is pattern-following work, so delegate it
+to the cheapest tier that genuinely does it — which softens the total-cost
+correction above. When not: a single known lookup, where the overhead
 exceeds the read; tightly iterative loops, where the hand-off tax repeats every
 round; anything whose correctness turns on detail a report would drop. Two
 disciplines: once delegated, don't also do the work inline — pick one; and take
@@ -170,14 +180,21 @@ structural work escalates to the capable model, and a smaller model that hits it
 
 Within that risk frame, tier selection is the runner-class rule above applied
 to models: **the cheapest model that genuinely does the work, at the quality
-the work needs.** "Genuinely does" is a verifiability test, not optimism:
-cheap-model work is safe where failure is *catchable* — a validator, a test
-suite, a gate — because the floor converts a capability gap into a caught
-failure instead of a shipped one. Where failure would be silent or the work is
-judgement-heavy — doctrine text, review verdicts, structural design —
-capability *is* the safety property; pay for it. And price the rework in: a
-cheap attempt that fails and is redone on the capable model costs more than
-starting capable, so when a hand-up looks likely, escalate up front.
+the work needs.** "Cheapest" is judged inside the pool split that opens this
+doc, because the two meters differ — a plan-included capable model can cost
+fewer marginal dollars than a usage-billed small one. Pick the pool first,
+then the tier within it. "Genuinely does" is a verifiability test, not
+optimism: cheap-model work is safe where failure is *catchable* — a validator,
+a test suite, a gate — because the floor converts a capability gap into a
+caught failure instead of a shipped one. Where failure would be silent or the
+work is judgement-heavy — doctrine text, review verdicts, structural design —
+capability *is* the safety property; pay for it. Above all, price the *job*,
+not the token: a dearer model that completes the work in fewer turns, retries
+and re-reviews is often the cheaper way to get it done — per-token rates
+compare models, but only cost-to-done compares outcomes. The rework rule is
+the same truth seen from the failure side: a cheap attempt that fails and is
+redone on the capable model costs more than starting capable, so when a
+hand-up looks likely, escalate up front.
 
 ## Triggering reviews — inline or batched, the building model's call
 
