@@ -118,6 +118,7 @@ jobs:
           python3 atelier/tools/leakscan.py --selftest
           python3 atelier/tools/linkscan.py --selftest
           python3 atelier/tools/signscan.py --selftest
+          python3 atelier/tools/sizescan.py --selftest
 
       - name: secretscan (full cover)
         run: python3 atelier/tools/secretscan.py --root repo repo
@@ -127,6 +128,17 @@ jobs:
 
       - name: linkscan (internal-link integrity, whole tree)
         run: python3 atelier/tools/linkscan.py --root repo repo
+
+      # Current-truth files (ROADMAP, SESSIONS index, README…) must stay lean so a
+      # session resumes cheaply. --check makes it a gate. A NEW repo is born lean,
+      # so this passes; a repo adopting this floor while a file is already bloated
+      # (e.g. a 3000-line ROADMAP) will RED here — that red IS the signal to
+      # harvest completed detail aside (RECORD.md's current-truth/history split),
+      # which is the point. Two hatches if a file is legitimately long: declare
+      # `sizescan:budget=N` in its first 15 lines, or `sizescan:allow`. Drop
+      # `--check` to run advisory (report-only, never fails) instead.
+      - name: sizescan (current-truth budgets)
+        run: python3 atelier/tools/sizescan.py --check --root repo repo
 
       # Publish gate — uncomment when this repo has a LICENSE / before going public.
       # - name: licenscan (assert your licence)

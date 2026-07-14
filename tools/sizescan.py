@@ -35,13 +35,16 @@ a leaked secret or a 404 pointer — the fix (harvest the completed detail aside
 is a judgement call a session makes at a good moment, not a hard stop on every
 commit. So a bare `sizescan` **reports and exits 0**: drop it in CI to surface
 the numbers without ever breaking a build. `--check` is the opt-in gate — it
-exits 1 when any budgeted file is over, for a repo that wants teeth once the tool
-is reviewed. (It is NOT wired into any gate yet — see tools/README.md.)
+exits 1 when any budgeted file is over. Reviewed 2026-07-14 (cold, PASS-WITH-
+FINDINGS) and wired in `--check` mode into atelier's `ci.yml` and the child
+`floor.yml` template.
 
 Budgets are starting points, not law. A file that is legitimately long can
-declare its own ceiling inline with `sizescan:budget=N`, or opt out entirely with
-`sizescan:allow` or a glob in `.sizescanignore` — the same self-documenting,
-greppable hatches the other scans use.
+declare its own ceiling in its **header** (the first 15 lines) with
+`sizescan:budget=N`, or opt out entirely with `sizescan:allow` or a glob in
+`.sizescanignore`. Markers are read only in the header, never the body — a
+budgeted file that merely *mentions* a marker in prose does not silently exempt
+itself (the reviewer's F2).
 
 Exit codes (fail-safe — anything but a clean/advisory run is non-zero):
   0  clean, OR over budget in advisory mode (the default — a report, not a gate)
@@ -62,16 +65,28 @@ import sys
 from dataclasses import dataclass, asdict
 from pathlib import Path
 
-# A file carrying this marker anywhere is exempt from the budget entirely (e.g. a
-# repo that deliberately keeps a flat session log rather than an index). Keep the
-# reason on the same line so the exemption is self-documenting and greppable.
+# A file whose HEADER carries this marker is exempt from the budget entirely
+# (e.g. a repo that deliberately keeps a flat session log rather than an index).
+# Keep the reason on the same line so the exemption is self-documenting.
 ALLOW_MARKER = "sizescan:allow"
 
-# An inline per-file budget override: `sizescan:budget=400` (or `: 400`, or a
-# space). Lets a legitimately long current-truth file state its own ceiling
+# A per-file budget override in the HEADER: `sizescan:budget=400` (or `: 400`, or
+# a space). Lets a legitimately long current-truth file state its own ceiling
 # instead of opting out wholesale — the honest middle between the default and
 # `sizescan:allow`.
 _BUDGET_MARKER = re.compile(r"sizescan:budget\s*[=:]?\s*(\d+)")
+
+# Markers are honoured ONLY in the file's header — the first MARKER_SCAN_LINES
+# lines — never in the body. Matching anywhere let a budgeted file that merely
+# *mentions* a marker in prose (a roadmap item about budgets, a doc of the hatch)
+# silently exempt or re-budget itself (F2), a per-file blast radius blunter than
+# the sibling scanners' per-line allows. A real exemption is a deliberate
+# declaration at the top of the file, where a reader meets it first.
+MARKER_SCAN_LINES = 15
+
+
+def _header(text: str) -> str:
+    return "\n".join(text.splitlines()[:MARKER_SCAN_LINES])
 
 # The current-truth files that must stay lean, and the line budget each starts
 # with. Keyed by exact basename. These are the files a session loads at start or
@@ -121,7 +136,9 @@ class Finding:
 # report points at the fix, not just the symptom.
 _STORE_HINT = {
     "ROADMAP.md": "harvest completed items to ROADMAP-DONE.md (keep only what's open)",
-    "SESSIONS.md": "move to a one-line-per-session index + docs/sessions/ detail files",
+    "SESSIONS.md": "if a flat log, split to an index + docs/sessions/ detail; if "
+                   "already an index, rotate older entries to SESSIONS-ARCHIVE.md "
+                   "(keep the recent tail)",
     "README.md": "move depth to docs/ (ARCHITECTURE.md, a guide) and point to it",
     "ARCHITECTURE.md": "split by subsystem or move detail to a design doc",
     "CLAUDE.md": "point to docs/ for detail; the onramp stays a thin index",
@@ -129,9 +146,9 @@ _STORE_HINT = {
 
 
 def budget_for(text: str, basename: str) -> int | None:
-    """The budget this file is held to, or None if it isn't budgeted. An inline
+    """The budget this file is held to, or None if it isn't budgeted. A header
     `sizescan:budget=N` overrides the default for a legitimately long file."""
-    m = _BUDGET_MARKER.search(text)
+    m = _BUDGET_MARKER.search(_header(text))
     if m:
         return int(m.group(1))
     return DEFAULT_BUDGETS.get(basename)
@@ -169,24 +186,43 @@ def _rel(p: Path, root: Path) -> str:
         return str(p)
 
 
+def _in_skipped_dir(p: Path, walk_base: Path) -> bool:
+    """Is p inside a growth-store directory *within the scanned tree*? The skip
+    names are matched against the path **relative to the scan base**, never the
+    absolute path. Matching absolute parts was a fail-open bug (F1): a repo that
+    merely *lives under* an ancestor named `archive`/`sessions`/`reviews`/… — the
+    store names are ordinary English words — had every file skipped, so the scan
+    read nothing and reported "clean", the exact contract violation the tool's
+    own exit codes forbid ("a scan that read nothing is NOT a pass")."""
+    try:
+        rel_parts = p.relative_to(walk_base).parts
+    except ValueError:
+        rel_parts = (p.name,)
+    return bool(SKIP_DIR_NAMES & set(rel_parts[:-1]))   # intermediate dirs only
+
+
 def iter_candidates(paths: list[Path], root: Path, globs: list[str]):
     """Yield budgeted files under the given paths, skipping growth stores and
-    ignored globs. A file is a candidate iff its basename is budgeted."""
+    ignored globs. A file is a candidate iff its basename is budgeted. Results are
+    de-duplicated by resolved path so overlapping args (`sizescan . docs`) don't
+    double-report the same file (F4)."""
+    seen: set[Path] = set()
     for base in paths:
-        if base.is_file():
-            candidates = [base]
-        else:
-            candidates = [p for p in base.rglob("*")
-                          if p.is_file() and not (SKIP_DIR_NAMES & set(p.parts))]
+        base = base.resolve()
+        walk_base = base if base.is_dir() else base.parent
+        candidates = [base] if base.is_file() else [
+            p for p in base.rglob("*") if p.is_file()]
         for p in candidates:
-            if p.name not in DEFAULT_BUDGETS:
+            rp = p.resolve()
+            if rp in seen or p.name not in DEFAULT_BUDGETS:
                 continue
-            if SKIP_DIR_NAMES & set(p.parts):
+            if _in_skipped_dir(p, walk_base):
                 continue
-            if p.name in ROOT_ONLY and p.resolve().parent != root.resolve():
+            if p.name in ROOT_ONLY and rp.parent != root.resolve():
                 continue
             if _ignored(_rel(p, root), globs):
                 continue
+            seen.add(rp)
             yield p
 
 
@@ -195,7 +231,7 @@ def scan_paths(paths: list[Path], root: Path) -> list[Finding]:
     findings: list[Finding] = []
     for p in iter_candidates(paths, root, globs):
         text = p.read_text(encoding="utf-8", errors="replace")
-        if ALLOW_MARKER in text:
+        if ALLOW_MARKER in _header(text):
             continue
         budget = budget_for(text, p.name)
         if budget is None:
@@ -218,8 +254,9 @@ def render_human(findings: list[Finding]) -> str:
             lines.append(f"      → {f.store}")
     lines.append("\n  Fix: harvest the overflow to its on-demand store (RECORD.md, "
                  "the current-truth/history split).")
-    lines.append(f"  Legitimately long: add 'sizescan:budget=N' inline, "
-                 f"'{ALLOW_MARKER}' to exempt, or a glob in .sizescanignore.")
+    lines.append(f"  Legitimately long: declare 'sizescan:budget=N' in the file's "
+                 f"first {MARKER_SCAN_LINES} lines, '{ALLOW_MARKER}' to exempt, "
+                 f"or a glob in .sizescanignore.")
     return "\n".join(lines)
 
 
@@ -310,6 +347,25 @@ def _selftest() -> int:
     (docs / "ROADMAP.md").write_text(f"<!-- {ALLOW_MARKER}: living doc -->\n" + over)
     if any(f.path.replace("\\", "/") == "docs/ROADMAP.md" for f in scan_paths([tmp], tmp)):
         print("FAIL: allow-marker did not exempt")
+        ok = False
+
+    # F1: a repo living UNDER a store-named ancestor must still be scanned (the
+    # absolute-path skip check silently blanked the whole scan and reported clean)
+    anc = tmp / "archive" / "child"
+    (anc / "docs").mkdir(parents=True)
+    (anc / "docs" / "ROADMAP.md").write_text(over)
+    f1 = scan_paths([anc], anc)
+    if not any(f.path.replace("\\", "/") == "docs/ROADMAP.md" for f in f1):
+        print("FAIL: F1 — repo under a store-named ancestor was skipped (fail-open)")
+        ok = False
+
+    # F2: a marker only *mentioned* in the body (below the header) must NOT exempt
+    body_mention = ("t\n" * 20) + f"discussion of {ALLOW_MARKER} and budgets\n" + over
+    (tmp / "F2").mkdir()
+    (tmp / "F2" / "ROADMAP.md").write_text(body_mention)
+    if not any(f.path.replace("\\", "/") == "ROADMAP.md"
+               for f in scan_paths([tmp / "F2"], tmp / "F2")):
+        print("FAIL: F2 — a body-only marker mention silently exempted the file")
         ok = False
 
     # count_lines: trailing newline doesn't inflate the count

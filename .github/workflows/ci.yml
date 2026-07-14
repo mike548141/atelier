@@ -84,6 +84,7 @@ jobs:
           python3 tools/licenscan.py --selftest
           python3 tools/linkscan.py --selftest
           python3 tools/signscan.py --selftest
+          python3 tools/sizescan.py --selftest
 
       - name: tool test suite
         run: python3 -m unittest discover -s tools -p 'test_*.py' -v
@@ -106,6 +107,13 @@ jobs:
 
       - name: linkscan (internal-link integrity, full tree)
         run: python3 tools/linkscan.py --root . .
+
+      # Current-truth files (ROADMAP, SESSIONS index, README…) must stay lean so
+      # a session resumes cheaply. --check makes it a gate (advisory otherwise);
+      # atelier keeps its own files harvested, and the hatches exist for a
+      # legitimately long file (RECORD.md's current-truth/history split).
+      - name: sizescan (current-truth budgets)
+        run: python3 tools/sizescan.py --check --root . .
 
       # --- commit-signature verification (SIGNING.md, ADR 0007) --------------
       # atelier is the trust root, so it verifies against its OWN allowed_signers

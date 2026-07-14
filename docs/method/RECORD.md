@@ -52,7 +52,16 @@ Every working session leaves a trace, so the next one starts from where this one
 stopped instead of re-deriving it:
 
 - **`SESSIONS.md` is an append-only index** — one entry per session, newest last,
-  read at session start (tail it). Never rewritten; history is not edited.
+  read at session start (tail it). Append-only is a rule about **content** — an
+  entry is never edited or reordered once written — **not a fixed home**: like
+  the roadmap, an index that outgrows its budget **rotates**. The recent tail
+  stays in `SESSIONS.md`; older entries relocate **verbatim** to a
+  `SESSIONS-ARCHIVE.md` growth store (grepped on demand, never loaded whole) —
+  the same current-truth/history split as `ROADMAP`→`ROADMAP-DONE`, and the
+  answer to the one move a bloated *already-split* index otherwise lacks.
+  `tools/sizescan.py` flags the index when it crosses budget. (Grounded
+  2026-07-14: the cold review found the append-only rule and the budget colliding
+  with no sanctioned move for an index that had already done the split.)
 - **Detail lives on demand** — when a session is substantial, its full detail
   goes in a `docs/sessions/<date>-<HHMM>-<slug>.md` file and the index carries
   a one-line pointer. (`HHMM` is the session's start time, 24-hour — the

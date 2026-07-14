@@ -5,6 +5,35 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-14 — `sizescan` reviewed, fixed, and wired into the gate)
+- **Cold review of `sizescan` + the lean-files doctrine cleared** (PASS-WITH-
+  FINDINGS, un-briefed; `reviews/2026-07-14-2048-lean-files-sizescan-cold.md`).
+  All findings resolved:
+  - **F1 (MAJOR, fail-open) fixed** — skip-dir names were matched against the
+    *absolute* path, so a repo living under any ancestor named `archive`/
+    `sessions`/`reviews`/… had every file skipped and reported "clean" (exit 0),
+    the exact contract violation the tool forbids. Now matched relative to the
+    scan base; **live-reproven** (a 400-line ROADMAP under `archive/` now flags).
+  - **F2 (MEDIUM) fixed** — `sizescan:allow`/`sizescan:budget=N` matched anywhere
+    in the file, so a budgeted file that merely *mentioned* a marker in prose
+    silently exempted itself (the reviewer's own draft tripped it). Markers are
+    now honoured only in the **header** (first 15 lines).
+  - **F4 fixed** — overlapping positional paths no longer double-report.
+  - **F3 (doctrine) decided by Mike — index rotation.** `RECORD.md` sharpened:
+    "append-only" is a rule about **content** (entries never edited/reordered),
+    **not a fixed home** — an index that outgrows its budget rotates its older
+    entries verbatim to a `SESSIONS-ARCHIVE.md` growth store, the same
+    current-truth/history split as `ROADMAP`→`ROADMAP-DONE`. Resolves the
+    collision the review found (a budget with no sanctioned move for an
+    already-split index).
+- **`sizescan` wired into the gate in `--check` mode** — atelier's `ci.yml` and
+  the child `docs/build/templates/workflows/floor.yml` now run it (with
+  `--selftest`). A repo that adopts the floor while over-budget **reds** — the
+  intended signal to harvest — with `sizescan:budget=N`/`allow` hatches for a
+  legitimately long file. Existing children pick it up when they re-adopt the
+  template. Pinned by new `test_sizescan.py` (F1/F2/F4) + `test_templates.py`
+  tests; suite 240→247.
+
 ### Added (2026-07-14 — lean current-truth files: `sizescan` + the harvest trigger)
 - **`tools/sizescan.py`** (seventh house scanner) — the missing *signal* behind
   the current-truth/history split. `method/RECORD.md` already prescribed the fix

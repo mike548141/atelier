@@ -107,7 +107,68 @@ class Selection(_TreeTest):
         self.assertEqual(self.flagged(), ["docs/ROADMAP.md"])
 
 
+class FailOpenF1(unittest.TestCase):
+    """F1 (MAJOR): skip-dir names must be matched relative to the scan base, not
+    the absolute path — else a repo living under a store-named ancestor has every
+    file skipped and reports clean (fail-open)."""
+
+    def _repo_under(self, ancestor):
+        base = Path(tempfile.mkdtemp(prefix="sizescan-f1-"))
+        repo = base / ancestor / "myrepo"
+        (repo / "docs").mkdir(parents=True)
+        (repo / "docs" / "ROADMAP.md").write_text(
+            "x\n" * (sizescan.DEFAULT_BUDGETS["ROADMAP.md"] + 100))
+        return base, repo
+
+    def _assert_flags(self, ancestor):
+        base, repo = self._repo_under(ancestor)
+        try:
+            flagged = [f.path.replace("\\", "/") for f in sizescan.scan_paths([repo], repo)]
+            self.assertIn("docs/ROADMAP.md", flagged,
+                          f"repo under {ancestor}/ was skipped (fail-open)")
+        finally:
+            import shutil
+            shutil.rmtree(base, ignore_errors=True)
+
+    def test_under_archive_ancestor_still_scanned(self):
+        self._assert_flags("archive")
+
+    def test_under_reviews_ancestor_still_scanned(self):
+        self._assert_flags("reviews")
+
+    def test_real_store_dir_inside_repo_still_skipped(self):
+        # the fix must not break the intended behaviour: an in-repo reviews/ etc.
+        base = Path(tempfile.mkdtemp(prefix="sizescan-f1b-"))
+        try:
+            (base / "docs" / "reviews").mkdir(parents=True)
+            (base / "docs" / "reviews" / "README.md").write_text("x\n" * 5000)
+            self.assertEqual(sizescan.scan_paths([base], base), [])
+        finally:
+            import shutil
+            shutil.rmtree(base, ignore_errors=True)
+
+
 class Hatches(_TreeTest):
+    def test_body_only_marker_mention_does_not_exempt(self):
+        # F2: a marker mentioned below the header must not silently exempt
+        p = self.write("docs/ROADMAP.md", 0)
+        p.write_text(("prose\n" * 20) + "we set sizescan:allow here in discussion\n"
+                     + "x\n" * (sizescan.DEFAULT_BUDGETS["ROADMAP.md"] + 5))
+        self.assertEqual(self.flagged(), ["docs/ROADMAP.md"])
+
+    def test_header_marker_still_exempts(self):
+        p = self.write("docs/ROADMAP.md", 0)
+        p.write_text(f"<!-- {sizescan.ALLOW_MARKER}: flat log -->\n"
+                     + "x\n" * (sizescan.DEFAULT_BUDGETS["ROADMAP.md"] + 5))
+        self.assertEqual(self.flagged(), [])
+
+    def test_overlapping_paths_do_not_double_report(self):
+        # F4: dedup by resolved path
+        self.write("docs/ROADMAP.md", sizescan.DEFAULT_BUDGETS["ROADMAP.md"] + 1)
+        findings = sizescan.scan_paths([self.tmp, self.tmp / "docs"], self.tmp)
+        paths = [f.path.replace("\\", "/") for f in findings]
+        self.assertEqual(paths.count("docs/ROADMAP.md"), 1)
+
     def test_allow_marker_exempts_file(self):
         p = self.write("docs/ROADMAP.md", sizescan.DEFAULT_BUDGETS["ROADMAP.md"] + 50)
         p.write_text(f"<!-- {sizescan.ALLOW_MARKER}: living doc -->\n" + p.read_text())

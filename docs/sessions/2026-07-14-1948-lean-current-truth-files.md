@@ -77,3 +77,38 @@ linkscan clean · full leakscan (structural + local terms) clean on the new file
   relocation), faves SESSIONS index/detail split (1157) + ROADMAP harvest (766).
 - Handed back as a **branch + PR** (doctrine change → Mike merges), not
   self-merged.
+
+## Addendum — reviewed, fixed, wired (same day, after PR #4 merged)
+
+Mike merged PR #4, then asked to make `sizescan` **automatic**; the cold review
+had run in a separate session while this one waited.
+
+**Review verdict** (`reviews/2026-07-14-2048-lean-files-sizescan-cold.md`):
+PASS-WITH-FINDINGS, **1 MAJOR · 2 MEDIUM · 1 LOW**, un-briefed (Fable, not the
+author). Every recorded proof reproduced; harvest verified lossless (94/94).
+
+**Findings resolved:**
+- **F1 (MAJOR, fail-open):** `SKIP_DIR_NAMES & set(p.parts)` tested the
+  *absolute* path → a repo under an ancestor named `archive`/`sessions`/… had
+  every file skipped and reported clean. Fixed to match **relative to the scan
+  base**; **live-reproven** (ROADMAP under `archive/` now flags; control under
+  `ctrl/` unchanged). Pinned by `FailOpenF1` tests + a selftest assertion.
+- **F2 (MEDIUM):** markers matched anywhere → a prose *mention* self-exempted the
+  file. Now honoured only in the **header** (first 15 lines). Pinned.
+- **F4:** overlapping paths de-duplicated by resolved identity.
+- **F3 (doctrine, Mike's call → index rotation):** `RECORD.md` sharpened —
+  append-only is about *content*, not a fixed home; an over-budget index rotates
+  older entries verbatim to `SESSIONS-ARCHIVE.md`. Closes the collision (a budget
+  with no move for an already-split index; atelier's would have tripped in ~2wk).
+
+**Wired (the automatic part Mike wanted):** `sizescan --check` + `--selftest` in
+atelier's `ci.yml` and the child `floor.yml` template. A repo adopting the floor
+while over-budget reds — the intended harvest trigger; `budget=N`/`allow` hatches
+exist. Existing children pick it up when they re-adopt the template (so ros/faves
+red → harvest when they next update). Suite **240→247**; floor green.
+
+**Answer to Mike's "do I need to tell them?"** — now: **ongoing** hygiene is
+automatic (harvest-at-close doctrine + the CI gate on every child that adopts the
+floor); the **existing** ros/faves backlog still needs a deliberate harvest in
+each repo (privacy + delicate case-law), but their floor will now red until it's
+done, so the *reminder* is automatic even though the *work* isn't.

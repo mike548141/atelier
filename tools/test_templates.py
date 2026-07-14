@@ -147,6 +147,18 @@ class ChildFloorWorkflowTest(unittest.TestCase):
         """The floor only reads trees."""
         self.assertIn("contents: read", self.text)
 
+    def test_sizescan_wired_as_a_check_scoped_to_repo(self):
+        """2026-07-14 review: sizescan gates current-truth file size in --check
+        mode, scoped to the repo's own tree, with its selftest run first — the
+        same contract as the other scanners."""
+        self.assertIn("atelier/tools/sizescan.py --selftest", self.text)
+        run_lines = [ln for ln in self.text.splitlines()
+                     if "run:" in ln and "sizescan.py" in ln and "--selftest" not in ln]
+        self.assertTrue(run_lines, "no sizescan run line found in floor.yml")
+        for ln in run_lines:
+            self.assertIn("--check", ln)          # a gate, not advisory
+            self.assertRegex(ln, r"--root repo repo$")   # its own tree only
+
 
 if __name__ == "__main__":
     unittest.main()
