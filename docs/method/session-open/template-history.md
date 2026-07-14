@@ -8,3 +8,7 @@ Lets do some work!
   economics suggest a new session, or you do for other reasons.
 
 * dont forget to claim your work
+
+* focus on the following themed work as long as its not claimed and you don't
+  think another session is working on something that is going to cause
+  problems:
