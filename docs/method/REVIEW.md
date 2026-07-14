@@ -53,8 +53,9 @@ not*); a pass that is clean *on the seeded questions specifically* is the
 strongest trigger. Each such pair is a data point.
 
 So these rules bind on top of fresh context — rules 1–2 whenever the brief is
-written by, or on the framing of, the work's author; rule 3 whenever the work
-is self-authored doctrine, however the review was commissioned:
+written by, or on the framing of, the work's author; rules 3–4 whenever the
+work is self-authored doctrine — rule 3 however the review was commissioned,
+rule 4 governing who may commission it:
 
 1. **The author's questions are a floor, never a fence — and the deferral is
    structural, not willpower.** The author may seed attack questions — it knows
@@ -87,6 +88,22 @@ is self-authored doctrine, however the review was commissioned:
    principal rules, never a bare finding to rubber-stamp (`00-APEX.md`, *The
    principal's authority is conditioned on being informed*). An approval given
    without that account is not a decision the doctrine recognises.
+4. **Self-authored doctrine earns a cold *spawn*, not just a cold context**
+   (the principal's ruling, 2026-07-15, after the MODEL-ECONOMICS F1
+   walk-through). The highest-stakes category is stated plainly: **work that
+   is doctrine by function and authored by the agent under review's own
+   judgement** — any rule that will govern future agent behaviour, whether it
+   lives in prose, an ADR, a schema, a validator, a CI gate, or a template or
+   skill that stamps behaviour into other repos (rule 3's definition; encoding
+   the rule as code does not move it out of scope). For that category the
+   deferral discipline of rules 1–2 is necessary but not sufficient: its
+   residual risk is the author's own compliance, and a wrong rule propagates
+   to every repo and every future session that inherits it — the widest blast
+   radius in the operating model. So there the review is spawned by a
+   **non-author** — the principal, a scheduled batch, or a neutral session
+   the author neither started nor instructed. Routine, non-doctrine work
+   keeps the warm-spawn-plus-deferral pattern of *When to review* below; the
+   ban lands only where it pays.
 
 This is the independence the external-reviewer rule was always reaching for —
 the REACH case showed fresh context alone doesn't deliver it.
@@ -195,7 +212,8 @@ Both are sanctioned; pick per cost and how blocking the result is
   and the spawning session is usually the work's author with its framing at its
   warmest — so the independence rules bind it in full: seeded questions deferred
   (a section or file the reviewer opens only after committing its own attack
-  surface), never a fence.
+  surface), never a fence. One carve-out: **self-authored doctrine cannot take
+  this path at all** — rule 4 requires its review be spawned by a non-author.
 - **Batched queue** — when they don't, queue the briefs and run them together
   later.
 

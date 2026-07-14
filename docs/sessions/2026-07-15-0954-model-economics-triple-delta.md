@@ -69,4 +69,22 @@ ruled application.
 
 Separately, Mike gave standing communication feedback (all repos): stop
 interrupting sentences with long bracketed asides — restructure instead.
-Saved to agent memory; candidate for COMMUNICATION.md if wanted fleet-wide.
+Saved to agent memory; on Mike's yes, codified into COMMUNICATION.md's
+accessibility axis (sentence shape).
+
+## F1 re-ruled — REVIEW rule 4 (later, same day)
+
+Mike reopened F1: the conditional "if that's what you're counselling"
+agreement had not matched his intention — a live case of the informed-principal
+rule. After a plain-language walk-through of the options (bind vs ban vs
+tiered), Mike ruled **tiered, with the highest stakes explicit**: routine work
+keeps warm-spawn-plus-deferral; **self-authored doctrine** — by function:
+prose, ADR, schema, validator, CI gate, behaviour-stamping template/skill —
+is **banned from warm spawns**; its review must be spawned by a non-author
+(the principal, a scheduled batch, or a neutral session). Applied as
+REVIEW.md rule 4 + the rules lead-in + the inline-bullet carve-out, plus a
+pointer clause in MODEL-ECONOMICS' sub-agent section. Rule 4's own wording is
+agent-drafted, so by its own terms its cold pass cannot be warm-spawned —
+queued on the ROADMAP for **Mike to trigger** from a fresh session. Agent
+memory updated to match (including the lesson: for doctrine rulings, walk the
+options plainly and confirm intent before applying a conditional agreement).

@@ -54,7 +54,9 @@ background review of *Triggering reviews* below. Fresh context alone is not
 independence, though: the spawn prompt is a brief, usually the author's, so
 the independence rules bind in full — seeded questions deferred, the
 reviewer's own attack surface committed first — per `REVIEW.md`,
-*Independence is more than fresh context*. Fan-out is also where tier
+*Independence is more than fresh context*. Self-authored doctrine goes
+further: there the spawn itself must be cold — a non-author starts the review
+(REVIEW rule 4). Fan-out is also where tier
 selection bites: mechanical reading is pattern-following work, so delegate it
 to the cheapest tier that genuinely does it — which softens the total-cost
 correction above. When not: a single known lookup, where the overhead

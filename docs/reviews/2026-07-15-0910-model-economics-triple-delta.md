@@ -291,10 +291,19 @@ applies — once ruled, the application spawns no further full ceremony.
 0 MAJOR at the cold pass ⇒ this ruled application ends the cycle without a
 further ceremony (REVIEW.md, the close rule).
 
-**F1 disposition REOPENED (Mike, 2026-07-15, later the same day).** The
-"agree if that's what you're counselling" ruling did not reflect Mike's
-intention — he has asked for a proper plain-language walk-through of what the
-author was recommending before ruling. The applied text (the bind) stays in
-place while that conversation runs, since it restates REVIEW.md's existing
-position rather than adding new policy; F1's *ruling*, not its text, is what
-is open. F2–F6 and the price-the-job nuance are unaffected.
+**F1 ruling RESOLVED (Mike, 2026-07-15, after a plain-language
+walk-through).** The first "agree if that's what you're counselling" exchange
+did not reflect Mike's intention, so the options were laid out plainly — the
+bind (author may spawn its own review under the deferral rules), the ban
+(author never spawns its own review), and a tiered middle ground. **Mike ruled
+the tiered option, with the highest-stakes part stated explicitly:** the bind
+stays for routine work; **self-authored doctrine — any rule that will govern
+future agent behaviour, in prose, ADR, schema, validator, CI gate, or
+behaviour-stamping template/skill — earns a full ban on warm spawns**: its
+review must come from a session the author neither started nor instructed.
+Applied as REVIEW.md **rule 4**, a carve-out on the inline-review bullet, and
+a pointer clause in MODEL-ECONOMICS' sub-agent section. Rule 4's wording is
+agent-drafted from the principal's stated intent, and by its own terms its
+cold pass cannot be warm-spawned — that pass is queued for the principal to
+trigger (ROADMAP pointer). F2–F6 and the price-the-job nuance stand as
+decided.

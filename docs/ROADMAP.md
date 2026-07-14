@@ -13,14 +13,27 @@ take the next open one (`method/CONCURRENCY.md` § Claiming work).
 
 ## Doctrine — review-owed
 
+- [ ] **REVIEW rule 4 (cold spawn for self-authored doctrine) — non-author
+      cold pass owed; ⏳ Mike triggers it.** Mike's ruling 2026-07-15, tiered,
+      highest stakes explicit: warm-spawn-plus-deferral stays for routine
+      work; **self-authored doctrine** (by function — prose, ADR, schema,
+      validator, CI gate, behaviour-stamping template/skill) is banned from
+      warm spawns — its review must be spawned by the principal, a scheduled
+      batch, or a neutral session the author neither started nor instructed.
+      Delta: REVIEW.md rule 4 + lead-in + inline-bullet carve-out;
+      MODEL-ECONOMICS pointer clause. Rule 4's own wording is agent-drafted,
+      so by its own terms this pass **cannot be warm-spawned**: Mike opens a
+      fresh session and points it at this item + the ruling record in
+      `reviews/2026-07-15-0910-model-economics-triple-delta.md` (§Decision).
 - [x] **MODEL-ECONOMICS triple delta — CYCLE CLOSED 2026-07-15.** Sub-agents
       (isolation-not-savings, when/when-not, lossiness), explicit tier
       selection (cheapest model that genuinely does the work — verifiability
       test, pool-anchored, price-the-job), hygiene item 4 (reset by record,
       not compaction; no numeric thresholds). Cold pass **PASS-WITH-FINDINGS —
       0 MAJOR · 3 MEDIUM · 3 LOW**; Mike ruled F1–F6 **[fixed]** same day
-      (F1 applied as the independence *bind* on warm spawns, ban held in
-      reserve) and supplied the price-the-job nuance, applied with the batch.
+      (F1 re-ruled after a plain-language walk-through → the tiered rule now
+      in REVIEW rule 4, item above) and supplied the price-the-job nuance,
+      applied with the batch.
       Verdict + ruling: `reviews/2026-07-15-0910-model-economics-triple-delta.md`.
       0 MAJOR ⇒ closed on the ruled application (close rule). Propagates on
       the next pin bump; child template swept (F6).
