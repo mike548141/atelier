@@ -64,6 +64,26 @@ service beats total failure.
   structured output designed to feed the next (unknown) program. Each verb is one
   job; `--json`/exit codes make the tool a citizen of a larger pipeline. The
   spirit: modularity, composition, transparency, least surprise.
+- **Human-readable output carries a machine-readable twin.** The Unix bullet
+  above as a hard rule, stated because it's cheap at build time and expensive to
+  retrofit: any tool we build that prints for a human — a CLI verb, a scanner, a
+  report — must *also* offer the same result machine-readable (`--json` plus
+  honest exit codes). Every tool is a future pipeline citizen whether or not
+  today's caller is a person. Scope: tools whose output can feed another
+  program; an inherently interactive surface (a web app's UI) is out of scope,
+  though the service behind it still earns an API. Omitting the machine surface
+  is the choice that needs a stated reason, never the default.
+- **A commodity sub-feature sits behind a swappable seam.** Many minor
+  capabilities a build needs — a PKI CA, a secret store, a web server, a
+  hypervisor — exist as mature full-featured products. Building the minimal
+  in-house version is legitimate (it keeps "works out of the box" true, with
+  zero external dependencies), but it goes behind a loosely coupled, pluggable
+  seam so a real product can replace it without touching the core. The in-house
+  component is a *default implementation of an interface*, never a load-bearing
+  wall the architecture hardens around. *Case:* the plan for `tiki`'s PKI CA —
+  a built-in CA so certificate issuance works out of the box, specified from
+  the outset as swappable for an external CA behind the same seam (a designed
+  direction, decided 2026-07-14; the seam is not yet built).
 
 ## 3. Interaction model — events over polling
 
