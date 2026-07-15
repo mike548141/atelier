@@ -56,6 +56,12 @@ Read in this order:
    density, visual structure, tone, locale), maintained from dated evidence.
    The *pattern* is shareable; the instance stays in `~/.claude/`, with a
    scrubbed worked example in the doc.
+14. **`CONVENTIONS.md`** — the default frame: a value carrying a frame (a time
+    needs a zone, a price a currency, text an encoding) is read against a
+    declared default, stated once and silent, labelled only on a deviation or a
+    collision; foreign data is kept as-is with its frame as metadata. Declares
+    the estate's defaults — UTC at rest, NZD, ISO 8601, UTF-8, NZ English + te
+    reo. Time's full case is ADR 2026-07-15.
 
 **Meta — how the doctrine is enforced, recorded, and propagated:**
 
