@@ -68,6 +68,19 @@ home instead of becoming ADR number eight.
   list. Repointed to `~/.pets/atelier/allowed_signers`; HEAD now verifies as a
   good signature against the trust list. Machine-local fix, not committed.
 
+## Audit against the feedback (post-commit)
+
+Mike asked for a pass over every prompt from the opening timezone question
+forward, to confirm the commit takes all of it into account. 9 of 10 points
+were faithfully captured (convention-not-practice · four declared defaults ·
+~99%/exception softening of "never" · ELT precedence · no-retro-rewrite ·
+UTC-forward identifiers · sticker/watch/clocks/border examples · ISO 8601 named
+· two artifacts). Two fidelity gaps found and fixed in `198cf32`: CONVENTIONS.md
+claimed the onramp pointed to it when CLAUDE.md didn't (fixed — the claim is now
+true, and readers reach the canonical doc); and clause 3 carried only one of
+Mike's two stated ELT reasons (added the second — no transform cost on data we
+didn't author).
+
 ## Owed
 
 - **Cold review ⏳ queued** (ROADMAP, review-owed): self-authored doctrine, so its

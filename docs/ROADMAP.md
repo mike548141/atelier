@@ -19,7 +19,9 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
       New `method/CONVENTIONS.md` (the default-frame rule: declare once + label
       deviation/collision; foreign-data precedence) and ADR `2026-07-15-1327`
       (timestamps UTC at rest, identifiers UTC-forward, ELT-not-ETL). Delta:
-      commit `67e8582`. **Self-authored doctrine ⇒ its author must not warm-spawn
+      `67e8582` (doctrine) + `198cf32` (fidelity fixes — CLAUDE.md→CONVENTIONS
+      pointer, clause-3 second ELT reason — from a full-feedback audit against
+      Mike's prompts). **Self-authored doctrine ⇒ its author must not warm-spawn
       the review** (rule 4); a non-author session takes this ⏳ and writes the
       brief. Intent record: `sessions/2026-07-15-1327-conventions-default-frame.md`.
       Brief seeds — does the label rule's ~99%/exception split stay honest or
