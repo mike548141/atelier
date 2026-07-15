@@ -15,6 +15,17 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
+- ⏳ **CONVENTIONS.md + UTC-at-rest ADR — cold review queued 2026-07-15.**
+      New `method/CONVENTIONS.md` (the default-frame rule: declare once + label
+      deviation/collision; foreign-data precedence) and ADR `2026-07-15-1327`
+      (timestamps UTC at rest, identifiers UTC-forward, ELT-not-ETL). Delta:
+      commit `67e8582`. **Self-authored doctrine ⇒ its author must not warm-spawn
+      the review** (rule 4); a non-author session takes this ⏳ and writes the
+      brief. Intent record: `sessions/2026-07-15-1327-conventions-default-frame.md`.
+      Brief seeds — does the label rule's ~99%/exception split stay honest or
+      invite over-labelling; is the foreign-data precedence grounded or padded;
+      do the declared defaults leak anything person-local into a public repo;
+      does "UTC-forward identifiers" cohere with RECORD's coordination-free rule.
 - [x] **REVIEW rule 4 — CYCLE CLOSED 2026-07-15.** Drafted from Mike's
       tiered ruling → cold pass (1 MAJOR — the spawner enumeration weaker
       than the ruled criterion) → F1–F8 ruled + applied → applied-batch cold
