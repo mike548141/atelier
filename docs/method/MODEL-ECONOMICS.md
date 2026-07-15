@@ -198,12 +198,14 @@ the same truth seen from the failure side: a cheap attempt that fails and is
 redone on the capable model costs more than starting capable, so when a
 hand-up looks likely, escalate up front.
 
-## Triggering reviews — inline or batched, the building model's call
+## Triggering reviews — inline or batched
 
 When economics allow, the building session may **spawn a review as a background
 agent inline** — verify as you go, no context switch. When they don't, **queue a
-batch** to run together later. Both are sanctioned; pick per cost and how
-blocking the result is. Either way a review stays *scoped and short*, and it is
+batch** to run together later. Both are sanctioned for routine work; pick per
+cost and how blocking the result is. The exception is self-authored doctrine:
+there the spawn must be a non-author's whichever path the economics favour
+(REVIEW rule 4). Either way a review stays *scoped and short*, and it is
 still spend — so it stays inside the "know which pool" rule above.
 
 ## Match the ceremony to the risk

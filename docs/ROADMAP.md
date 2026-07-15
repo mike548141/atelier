@@ -13,23 +13,23 @@ take the next open one (`method/CONCURRENCY.md` § Claiming work).
 
 ## Doctrine — review-owed
 
-- [ ] **REVIEW rule 4 (cold spawn for self-authored doctrine) — cold pass
-      RAN 2026-07-15; ⏳ Mike's ruling owed on F1–F8.** The pass was
-      triggered per its own terms: Mike opened a fresh session and pointed
-      it at the queue; that neutral session (non-author) wrote the brief and
-      spawned the cold reviewer. **PASS-WITH-FINDINGS — 1 MAJOR · 4 MEDIUM ·
-      3 LOW**, verdict + fidelity-to-intent check in
-      `reviews/2026-07-15-1202-review-rule4-cold.md`. The MAJOR (F1): the
-      rule renders Mike's single ruled criterion ("a session the author
-      neither started nor instructed") as a three-item enumeration whose
-      qualifier reaches only the third item — an author-scheduled,
-      author-briefed *batch* passes the letter while defeating the purpose.
-      F2 author's handoff unstated · F3 companion passages unswept
-      (MODEL-ECONOMICS §Triggering reviews, "building model's call" heading,
-      applier seam) · F4 doctrine-by-function defined twice, divergently ·
-      F5 no provenance hook · F6–F8 LOW (verbs, wording, ⏳-convention
-      cross-reference). MAJOR ⇒ cycle stays open (close rule); self-authored
-      doctrine ⇒ all findings are Mike's to decide, nothing applied.
+- [ ] **REVIEW rule 4 — F1–F8 ruled + applied 2026-07-15; applied-batch cold
+      pass owed; ⏳ a non-author takes it** (any spawner passing rule 4's
+      criterion; the principal triggering a fresh session is the worked
+      example). Cold pass was **PASS-WITH-FINDINGS — 1 MAJOR · 4 MEDIUM ·
+      3 LOW**; verdict + fidelity check + Mike's ruling in
+      `reviews/2026-07-15-1202-review-rule4-cold.md`. Mike accepted the
+      reviewer's direction on all eight; applied by the commissioning
+      session (authored neither rule nor verdict): rule 4 restated as the
+      single spawn criterion with the named paths as examples that must pass
+      it (F1), author handoff + provenance requirement + ⏳ licence written
+      in (F2/F5/F8), companions swept — MODEL-ECONOMICS §Triggering reviews,
+      REVIEW §When to review lead + batched-queue bullet, the applier seam
+      (F3) — doctrine-by-function single-sourced in rule 3 (F4), verbs
+      aligned on spawn (F6), wording cleaned (F7). 1 MAJOR at the pass ⇒
+      cycle open until the applied batch passes its own cold review; that
+      pass's delta is the application commit. The applier cannot spawn it
+      (rule 4 as now written — the application is itself self-authored).
 - [x] **MODEL-ECONOMICS triple delta — CYCLE CLOSED 2026-07-15.** Sub-agents
       (isolation-not-savings, when/when-not, lossiness), explicit tier
       selection (cheapest model that genuinely does the work — verifiability

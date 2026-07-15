@@ -212,3 +212,46 @@ criterion the principal actually ruled, and the batch path as written can be
 staged end-to-end by the author. Per the close rule a MAJOR keeps this cycle
 open; all findings are the principal's to decide (rule 3) — nothing has been
 applied.
+
+---
+
+## Decision (Mike, 2026-07-15) — F1–F8 ruled as counselled; applied
+
+Mike accepted the reviewer's suggested direction on all eight findings.
+Applied same day by the commissioning session — which authored neither rule 4
+nor this verdict, though it did write this brief; named per the
+applier-independence preference, not hidden.
+
+- **F1 [fixed]** — rule 4's spawner enumeration replaced by the ruling's
+  single criterion as the test (**the review comes from a session the author
+  neither started nor instructed**), with the principal / scheduled batch /
+  neutral session recast as examples that must each pass it; the
+  batched-queue bullet gains the matching carve-out (an author-queued,
+  author-scheduled batch is still an author spawn).
+- **F2 [fixed]** — the author's handoff written into rule 4: queue the
+  ROADMAP `⏳` pointer naming the delta and the intent record, then stop;
+  the non-author who takes the item writes the brief.
+- **F3 [fixed]** — companions swept: MODEL-ECONOMICS §Triggering reviews
+  gains the rule-4 exception and drops "the building model's call" from its
+  heading, as does REVIEW §When to review (the qualifier moved into the
+  lead); the "Applying decisions" paragraph now states the application
+  inherits rule-4 status — the applier queues, never spawns, its own
+  application review.
+- **F4 [fixed]** — doctrine-by-function single-sourced in rule 3, whose list
+  gains the behaviour-stamping template/skill item (in the recorded ruling
+  all along); rule 4 now cites the definition without restating it.
+- **F5 [fixed]** — provenance requirement written into rule 4: the brief
+  states who spawned the review and the author's non-involvement, the
+  verdict repeats it; no provenance trail ⇒ unauditable ⇒ non-compliant.
+- **F6 [fixed]** — lead-in verbs aligned on *spawn*.
+- **F7 [fixed]** — "authored by the agent under review's own judgement"
+  replaced with rule 3's self-authored phrasing.
+- **F8 [fixed]** — rule 4 names the `⏳` convention and licenses any
+  criterion-passing spawner to take a queued item; the pass that produced
+  this verdict is recorded in the rule as the worked example.
+
+1 MAJOR at the cold pass ⇒ the close rule does not close the cycle on this
+ruled application: the applied batch earns its own cold pass. Per rule 4 as
+now written the applier cannot spawn that pass — it is queued on the ROADMAP
+(`⏳`) for a non-author to take; the delta for that pass is the application
+commit.

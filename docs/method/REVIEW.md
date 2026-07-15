@@ -54,8 +54,8 @@ strongest trigger. Each such pair is a data point.
 
 So these rules bind on top of fresh context — rules 1–2 whenever the brief is
 written by, or on the framing of, the work's author; rules 3–4 whenever the
-work is self-authored doctrine — rule 3 however the review was commissioned,
-rule 4 governing who may commission it:
+work is self-authored doctrine — rule 3 however the review was spawned, rule 4
+governing who may spawn it:
 
 1. **The author's questions are a floor, never a fence — and the deferral is
    structural, not willpower.** The author may seed attack questions — it knows
@@ -77,8 +77,9 @@ rule 4 governing who may commission it:
 3. **Findings on self-authored *doctrine* are the principal's to decide,
    not the author's.** Doctrine here is defined by **function, not file type**:
    any rule that governs future agent behaviour, whether it lives in prose, an
-   ADR, a schema, a validator, or a CI gate — encoding a policy as code does not
-   keep the escape. The `[rejected: grounds]` escape below stays sound for
+   ADR, a schema, a validator, a CI gate, or a template or skill that stamps
+   behaviour into other repos — encoding a policy as code does not keep the
+   escape. The `[rejected: grounds]` escape below stays sound for
    ordinary code, where a wrong rejection is caught mechanically; it is unsound
    where one agent both wrote the rule and judges the challenge to it. There the
    author records the verdict verbatim and applies nothing on its own; it may
@@ -90,20 +91,29 @@ rule 4 governing who may commission it:
    without that account is not a decision the doctrine recognises.
 4. **Self-authored doctrine earns a cold *spawn*, not just a cold context**
    (the principal's ruling, 2026-07-15, after the MODEL-ECONOMICS F1
-   walk-through). The highest-stakes category is stated plainly: **work that
-   is doctrine by function and authored by the agent under review's own
-   judgement** — any rule that will govern future agent behaviour, whether it
-   lives in prose, an ADR, a schema, a validator, a CI gate, or a template or
-   skill that stamps behaviour into other repos (rule 3's definition; encoding
-   the rule as code does not move it out of scope). For that category the
-   deferral discipline of rules 1–2 is necessary but not sufficient: its
-   residual risk is the author's own compliance, and a wrong rule propagates
-   to every repo and every future session that inherits it — the widest blast
-   radius in the operating model. So there the review is spawned by a
-   **non-author** — the principal, a scheduled batch, or a neutral session
-   the author neither started nor instructed. Routine, non-doctrine work
-   keeps the warm-spawn-plus-deferral pattern of *When to review* below; the
-   ban lands only where it pays.
+   walk-through; sharpened by this rule's own cold pass, ruled the same day).
+   The highest-stakes category is stated plainly: **self-authored doctrine**
+   — work that is doctrine by function (rule 3's definition, single-sourced
+   there) whose wording the author's own judgement produced. For that
+   category the deferral discipline of rules 1–2 is necessary but not
+   sufficient: its residual risk is the author's own compliance, and a wrong
+   rule propagates to every repo and every future session that inherits it —
+   the widest blast radius in the operating model. So the spawn test is a
+   single criterion: **the review comes from a session the author neither
+   started nor instructed.** The principal, a scheduled batch, and a neutral
+   working session are *examples that must each pass that test*, not a list
+   of exemptions — an author-written brief, queued by the author into a
+   batch the author scheduled, fails it whatever the batch is called. The
+   author's handoff when such work is finished: queue the review pointer
+   (ROADMAP `⏳`, naming the delta and the intent record) and stop — the
+   brief is written by the non-author who takes the item, and any spawner
+   passing the criterion may take a `⏳` item (the principal opening a fresh
+   session and pointing it at the queue is the worked example). The brief
+   states its commissioning provenance — who spawned the review and the
+   author's non-involvement — and the verdict repeats it; a rule-4 pass with
+   no provenance trail is unauditable, and unauditable is non-compliant.
+   Routine, non-doctrine work keeps the warm-spawn-plus-deferral pattern of
+   *When to review* below; the ban lands only where it pays.
 
 This is the independence the external-reviewer rule was always reaching for —
 the REACH case showed fresh context alone doesn't deliver it.
@@ -177,7 +187,11 @@ throwaway chat:
 decided findings to doctrine text is itself a doctrine edit and earns a
 cold pass (ceremony-to-risk below). Prefer an applier that authored neither the
 doctrine nor the verdicts — a neutral hand can harmonise a stale recommendation
-with the principal's decision without defending either. An application review
+with the principal's decision without defending either. And where the doctrine
+is self-authored in rule 4's sense, the application inherits that status — the
+applier's judgement produced the new wording — so the applier does not spawn
+the application review either: it queues the `⏳` pointer for a non-author to
+take. An application review
 cannot fully honour rule 2 — the delta it reviews carries the prior verdicts'
 decision stamps — so its sequence is: review the edited doctrine at HEAD and
 commit findings *first*, open the verdict-file hunks after; the residual
@@ -201,10 +215,12 @@ risky change and the defect ships; over-review a safe one and the ceremony crowd
 out the work. Same "layers, not alternatives" split as *What review is not* below,
 applied one level up — to the decision to review at all.
 
-## When to review — inline or batched (the building model's call)
+## When to review — inline or batched
 
-Both are sanctioned; pick per cost and how blocking the result is
-(`MODEL-ECONOMICS.md`):
+Both are sanctioned for routine work; pick per cost and how blocking the
+result is (`MODEL-ECONOMICS.md`). For self-authored doctrine the pick is not
+the building model's to make: rule 4 puts the spawn in a non-author's hands,
+whichever path the economics favour:
 
 - **Inline background agent** — when economics allow, the building session spawns
   the review as a background agent and verifies as it goes, no context switch.
@@ -215,7 +231,10 @@ Both are sanctioned; pick per cost and how blocking the result is
   surface), never a fence. One carve-out: **self-authored doctrine cannot take
   this path at all** — rule 4 requires its review be spawned by a non-author.
 - **Batched queue** — when they don't, queue the briefs and run them together
-  later.
+  later. The carve-out reaches here too: an author-queued, author-scheduled
+  batch is still an author spawn and fails rule 4's criterion — rule-4 work
+  enters the queue as a `⏳` pointer for a non-author to take, never as an
+  author-written brief.
 
 Either way the review stays **scoped and short**, and it is still spend — so it
 lives inside the "know which pool you're spending" rule.
