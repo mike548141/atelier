@@ -13,23 +13,22 @@ take the next open one (`method/CONCURRENCY.md` § Claiming work).
 
 ## Doctrine — review-owed
 
-- [ ] **REVIEW rule 4 — F1–F8 ruled + applied 2026-07-15; applied-batch cold
-      pass owed; ⏳ a non-author takes it** (any spawner passing rule 4's
-      criterion; the principal triggering a fresh session is the worked
-      example). Cold pass was **PASS-WITH-FINDINGS — 1 MAJOR · 4 MEDIUM ·
-      3 LOW**; verdict + fidelity check + Mike's ruling in
-      `reviews/2026-07-15-1202-review-rule4-cold.md`. Mike accepted the
-      reviewer's direction on all eight; applied by the commissioning
-      session (authored neither rule nor verdict): rule 4 restated as the
-      single spawn criterion with the named paths as examples that must pass
-      it (F1), author handoff + provenance requirement + ⏳ licence written
-      in (F2/F5/F8), companions swept — MODEL-ECONOMICS §Triggering reviews,
-      REVIEW §When to review lead + batched-queue bullet, the applier seam
-      (F3) — doctrine-by-function single-sourced in rule 3 (F4), verbs
-      aligned on spawn (F6), wording cleaned (F7). 1 MAJOR at the pass ⇒
-      cycle open until the applied batch passes its own cold review; that
-      pass's delta is the application commit. The applier cannot spawn it
-      (rule 4 as now written — the application is itself self-authored).
+- [ ] **REVIEW rule 4 — applied-batch cold pass RAN 2026-07-15; ceremony
+      closed (0 MAJOR); 🎯 Mike's ruling owed on F1–F7.** Delta:
+      `c4a73c4`; verdict:
+      `reviews/2026-07-15-1244-review-rule4-applied-batch-cold.md`. Prior
+      cycle record (rule drafted → 1-MAJOR cold pass → F1–F8 ruled +
+      applied): `reviews/2026-07-15-1202-review-rule4-cold.md`.
+      **PASS-WITH-FINDINGS — 0 MAJOR · 2 MEDIUM · 5 LOW**; all eight rulings
+      verified encoded faithfully; floor proofs re-run and reproduce. Per the
+      close rule a no-MAJOR pass closes the ceremony — the findings are
+      decided into the backlog, and self-authored doctrine makes that
+      decision Mike's (rule 3). The two MEDIUMs are seam debts: F1 the
+      applier-seam queue obligation vs the close rule (does the terminal
+      application queue a pointer?); F2 the `⏳` pointer itself as an
+      undeferred framing channel (spec is a floor, not a ceiling). F3–F7
+      LOW. Findings + reviewer's counsel in the verdict file; nothing
+      applied.
 - [x] **MODEL-ECONOMICS triple delta — CYCLE CLOSED 2026-07-15.** Sub-agents
       (isolation-not-savings, when/when-not, lossiness), explicit tier
       selection (cheapest model that genuinely does the work — verifiability
