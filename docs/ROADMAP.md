@@ -9,26 +9,27 @@ has inherited the costume, not the doctrine.
 
 Checkbox states: `[ ]` open · `[x]` done · `[~]` **claimed** by a live parallel
 session — `(claimed <date>-<HHMM>, wt: <branch>)` — don't start a `[~]` item;
-take the next open one (`method/CONCURRENCY.md` § Claiming work).
+take the next open one (`method/CONCURRENCY.md` § Claiming work) ·
+`⏳` **review queued** for a non-author to take — any spawner passing rule 4's
+criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
-- [ ] **REVIEW rule 4 — applied-batch cold pass RAN 2026-07-15; ceremony
-      closed (0 MAJOR); 🎯 Mike's ruling owed on F1–F7.** Delta:
-      `c4a73c4`; verdict:
-      `reviews/2026-07-15-1244-review-rule4-applied-batch-cold.md`. Prior
-      cycle record (rule drafted → 1-MAJOR cold pass → F1–F8 ruled +
-      applied): `reviews/2026-07-15-1202-review-rule4-cold.md`.
-      **PASS-WITH-FINDINGS — 0 MAJOR · 2 MEDIUM · 5 LOW**; all eight rulings
-      verified encoded faithfully; floor proofs re-run and reproduce. Per the
-      close rule a no-MAJOR pass closes the ceremony — the findings are
-      decided into the backlog, and self-authored doctrine makes that
-      decision Mike's (rule 3). The two MEDIUMs are seam debts: F1 the
-      applier-seam queue obligation vs the close rule (does the terminal
-      application queue a pointer?); F2 the `⏳` pointer itself as an
-      undeferred framing channel (spec is a floor, not a ceiling). F3–F7
-      LOW. Findings + reviewer's counsel in the verdict file; nothing
-      applied.
+- [x] **REVIEW rule 4 — CYCLE CLOSED 2026-07-15.** Drafted from Mike's
+      tiered ruling → cold pass (1 MAJOR — the spawner enumeration weaker
+      than the ruled criterion) → F1–F8 ruled + applied → applied-batch cold
+      pass **PASS-WITH-FINDINGS — 0 MAJOR · 2 MEDIUM · 5 LOW**, all eight
+      rulings verified faithfully encoded, every claimed proof reproduced →
+      Mike ruled F1–F7 as counselled, applied same day: the applier seam
+      conditioned on an open cycle (terminal application queues no pointer);
+      the `⏳` pointer spec now a ceiling as well as a floor (refs only, no
+      evaluative account); MODEL-ECONOMICS §Sub-agents carries the full
+      criterion; spawn provenance; the legend defines `⏳`; an application
+      review tests the delta's author at minimum. Verdicts:
+      `reviews/2026-07-15-1202-review-rule4-cold.md` +
+      `reviews/2026-07-15-1244-review-rule4-applied-batch-cold.md`. 0 MAJOR
+      ⇒ closed on the ruled application (close rule). Propagates on the next
+      pin bump.
 - [x] **MODEL-ECONOMICS triple delta — CYCLE CLOSED 2026-07-15.** Sub-agents
       (isolation-not-savings, when/when-not, lossiness), explicit tier
       selection (cheapest model that genuinely does the work — verifiability

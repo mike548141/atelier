@@ -55,8 +55,9 @@ independence, though: the spawn prompt is a brief, usually the author's, so
 the independence rules bind in full — seeded questions deferred, the
 reviewer's own attack surface committed first — per `REVIEW.md`,
 *Independence is more than fresh context*. Self-authored doctrine goes
-further: there the spawn itself must be cold — a non-author starts the review
-(REVIEW rule 4). Fan-out is also where tier
+further: there the spawn itself must be cold — the review comes from a
+session the author neither started nor instructed (REVIEW rule 4). Fan-out
+is also where tier
 selection bites: mechanical reading is pattern-following work, so delegate it
 to the cheapest tier that genuinely does it — which softens the total-cost
 correction above. When not: a single known lookup, where the overhead
@@ -204,7 +205,7 @@ When economics allow, the building session may **spawn a review as a background
 agent inline** — verify as you go, no context switch. When they don't, **queue a
 batch** to run together later. Both are sanctioned for routine work; pick per
 cost and how blocking the result is. The exception is self-authored doctrine:
-there the spawn must be a non-author's whichever path the economics favour
+there the spawn must be a non-author's, whichever path the economics favour
 (REVIEW rule 4). Either way a review stays *scoped and short*, and it is
 still spend — so it stays inside the "know which pool" rule above.
 

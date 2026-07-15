@@ -105,11 +105,14 @@ governing who may spawn it:
    of exemptions — an author-written brief, queued by the author into a
    batch the author scheduled, fails it whatever the batch is called. The
    author's handoff when such work is finished: queue the review pointer
-   (ROADMAP `⏳`, naming the delta and the intent record) and stop — the
+   (ROADMAP `⏳`, naming the delta and the intent record — a ceiling as well
+   as a floor: refs only, no evaluative account, which belongs in the intent
+   record where the reviewer's deferral discipline governs when it is read)
+   and stop — the
    brief is written by the non-author who takes the item, and any spawner
    passing the criterion may take a `⏳` item (the principal opening a fresh
    session and pointing it at the queue is the worked example). The brief
-   states its commissioning provenance — who spawned the review and the
+   states its spawn provenance — who spawned the review and the
    author's non-involvement — and the verdict repeats it; a rule-4 pass with
    no provenance trail is unauditable, and unauditable is non-compliant.
    Routine, non-doctrine work keeps the warm-spawn-plus-deferral pattern of
@@ -189,9 +192,13 @@ cold pass (ceremony-to-risk below). Prefer an applier that authored neither the
 doctrine nor the verdicts — a neutral hand can harmonise a stale recommendation
 with the principal's decision without defending either. And where the doctrine
 is self-authored in rule 4's sense, the application inherits that status — the
-applier's judgement produced the new wording — so the applier does not spawn
-the application review either: it queues the `⏳` pointer for a non-author to
-take. An application review
+applier's judgement produced the new wording — so while the cycle is open the
+applier does not spawn the application review either: it queues the `⏳`
+pointer for a non-author to take. For that review, rule 4's criterion tests
+the *delta's* author — the applier — at minimum, and prior authors in the
+chain where practical. The terminal application — one applying the rulings of
+a pass that returned no MAJOR — closes without a queued pointer, per the
+close rule below. An application review
 cannot fully honour rule 2 — the delta it reviews carries the prior verdicts'
 decision stamps — so its sequence is: review the edited doctrine at HEAD and
 commit findings *first*, open the verdict-file hunks after; the residual

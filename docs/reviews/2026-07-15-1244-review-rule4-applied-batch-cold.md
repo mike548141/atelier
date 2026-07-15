@@ -300,3 +300,36 @@ rule, a no-MAJOR pass closes the cycle — what remains is the principal's to
 decide into the backlog.
 
 **PASS-WITH-FINDINGS — 0 MAJOR · 2 MEDIUM · 5 LOW.**
+
+---
+
+## Decision (Mike, 2026-07-15) — F1–F7 ruled as counselled; applied; cycle closed
+
+Mike accepted the reviewer's counsel on all seven findings. Applied same day
+by the taking session — which wrote this brief and spawned the reviewer, and
+authored neither rule 4, the prior verdict, nor the applied batch under
+review; named, not hidden. The 0-MAJOR pass had already closed the ceremony
+(close rule), so this terminal application queues no pointer — the first
+exercise of the F1 fix it applies.
+
+- **F1 [fixed]** — the applier seam conditioned on the cycle being open; the
+  terminal application (applying the rulings of a no-MAJOR pass) closes
+  without a queued pointer, per the close rule.
+- **F2 [fixed]** — rule 4's handoff spec is now a ceiling as well as a
+  floor: the `⏳` pointer carries refs only (delta + intent record), no
+  evaluative account — that belongs in the intent record, where the
+  reviewer's deferral discipline governs when it is read.
+- **F3 [fixed]** — MODEL-ECONOMICS §Sub-agents' paraphrase aligned to the
+  full criterion ("a session the author neither started nor instructed").
+- **F4 [fixed]** — "commissioning provenance" → "spawn provenance"; the
+  commission family is gone from the rule.
+- **F5 [fixed]** — the ROADMAP legend now defines `⏳`: review queued for a
+  non-author to take; any criterion-passing spawner may take it; the taker
+  writes the brief.
+- **F6 [fixed]** — the application-review subject stated: rule 4's criterion
+  tests the *delta's* author (the applier) at minimum, prior authors in the
+  chain where practical.
+- **F7 [fixed]** — the comma before "whichever".
+
+0 MAJOR at the pass ⇒ the ceremony closed on this ruled application; no
+further pass is owed.
