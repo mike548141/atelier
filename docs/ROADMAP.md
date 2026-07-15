@@ -13,18 +13,23 @@ take the next open one (`method/CONCURRENCY.md` § Claiming work).
 
 ## Doctrine — review-owed
 
-- [ ] **REVIEW rule 4 (cold spawn for self-authored doctrine) — non-author
-      cold pass owed; ⏳ Mike triggers it.** Mike's ruling 2026-07-15, tiered,
-      highest stakes explicit: warm-spawn-plus-deferral stays for routine
-      work; **self-authored doctrine** (by function — prose, ADR, schema,
-      validator, CI gate, behaviour-stamping template/skill) is banned from
-      warm spawns — its review must be spawned by the principal, a scheduled
-      batch, or a neutral session the author neither started nor instructed.
-      Delta: REVIEW.md rule 4 + lead-in + inline-bullet carve-out;
-      MODEL-ECONOMICS pointer clause. Rule 4's own wording is agent-drafted,
-      so by its own terms this pass **cannot be warm-spawned**: Mike opens a
-      fresh session and points it at this item + the ruling record in
-      `reviews/2026-07-15-0910-model-economics-triple-delta.md` (§Decision).
+- [ ] **REVIEW rule 4 (cold spawn for self-authored doctrine) — cold pass
+      RAN 2026-07-15; ⏳ Mike's ruling owed on F1–F8.** The pass was
+      triggered per its own terms: Mike opened a fresh session and pointed
+      it at the queue; that neutral session (non-author) wrote the brief and
+      spawned the cold reviewer. **PASS-WITH-FINDINGS — 1 MAJOR · 4 MEDIUM ·
+      3 LOW**, verdict + fidelity-to-intent check in
+      `reviews/2026-07-15-1202-review-rule4-cold.md`. The MAJOR (F1): the
+      rule renders Mike's single ruled criterion ("a session the author
+      neither started nor instructed") as a three-item enumeration whose
+      qualifier reaches only the third item — an author-scheduled,
+      author-briefed *batch* passes the letter while defeating the purpose.
+      F2 author's handoff unstated · F3 companion passages unswept
+      (MODEL-ECONOMICS §Triggering reviews, "building model's call" heading,
+      applier seam) · F4 doctrine-by-function defined twice, divergently ·
+      F5 no provenance hook · F6–F8 LOW (verbs, wording, ⏳-convention
+      cross-reference). MAJOR ⇒ cycle stays open (close rule); self-authored
+      doctrine ⇒ all findings are Mike's to decide, nothing applied.
 - [x] **MODEL-ECONOMICS triple delta — CYCLE CLOSED 2026-07-15.** Sub-agents
       (isolation-not-savings, when/when-not, lossiness), explicit tier
       selection (cheapest model that genuinely does the work — verifiability
