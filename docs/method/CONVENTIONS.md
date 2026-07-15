@@ -29,7 +29,8 @@ unlabelled-value case has a rule to point at instead of a fresh argument.
 
 3. **Precedence when principles collide.** "Preserve data we don't own" outranks
    "normalise to the default." Data from an external party is kept as received —
-   integrity and verifiability first — and its frame is recorded as *metadata
+   integrity and verifiability first, and no transform cost spent rewriting data
+   we didn't author — and its frame is recorded as *metadata
    alongside*, never rewritten into the payload. The kept data then re-enters
    rule 2 as a labelled deviation, and that metadata is its label. ELT, not ETL.
 

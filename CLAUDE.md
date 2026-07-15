@@ -53,7 +53,10 @@ no-personal-data boundary is load-bearing continuously, not just at publish.
 
 ## Conventions
 
-- NZ English; macrons on te reo Māori.
+- Conventions — currency, date/time format, encoding, language, timezone — are
+  declared in [`docs/method/CONVENTIONS.md`](docs/method/CONVENTIONS.md), the
+  canonical default-frame doc: NZ English with macrons on te reo Māori; UTC
+  timestamps at rest, local on presentation; ISO 8601 dates; UTF-8; NZD.
 - Git identity `Mike Clements <mike@cxi.nz>`; commit messages  <!-- leakscan:allow: author's own attribution; named worked example (ADR 0005), adopters substitute their own identity -->
   `area: imperative subject`, why-dense body, Co-Authored-By trailer.
 - Before finishing a session, append a `docs/SESSIONS.md` entry.
