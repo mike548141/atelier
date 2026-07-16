@@ -19,11 +19,11 @@ const r = require('./ccrepo');
 
 // --- pure functions -----------------------------------------------------
 
-test('symbolFor knows the common codes and prefixes the rest', () => {
-  assert.equal(r.symbolFor('NZD'), 'NZ$');
-  assert.equal(r.symbolFor('USD'), 'US$');
+test('symbolFor gives a bare money marker, letting header + footnote name the currency', () => {
+  assert.equal(r.symbolFor('NZD'), '$');      // dollar family → plain "$", no NZ/US/A prefix
+  assert.equal(r.symbolFor('USD'), '$');
   assert.equal(r.symbolFor('GBP'), '£');
-  assert.equal(r.symbolFor('XYZ'), 'XYZ ');   // unknown → explicit code prefix
+  assert.equal(r.symbolFor('XYZ'), '');       // unknown → no marker; footnote carries it
 });
 
 test('shortModel drops the claude- prefix, passes others through, tolerates absence', () => {

@@ -23,10 +23,12 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
-// Disambiguating symbols; unknown codes fall back to "CODE " prefix so the
-// currency is always explicit in the value as well as the column header.
-const SYMBOLS = { USD: 'US$', NZD: 'NZ$', AUD: 'A$', CAD: 'C$', GBP: '£', EUR: '€', JPY: '¥' };
-const symbolFor = (code) => SYMBOLS[code] || code + ' ';
+// Bare money marker for each currency — no disambiguating prefix, because the
+// currency is named once in the column header and once in a footnote rather than
+// stamped onto every figure. The dollar family therefore all show a plain "$";
+// unknown codes show no marker and lean on the header + footnote alone.
+const SYMBOLS = { USD: '$', NZD: '$', AUD: '$', CAD: '$', GBP: '£', EUR: '€', JPY: '¥' };
+const symbolFor = (code) => SYMBOLS[code] || '';
 
 const argv = process.argv.slice(2);
 
@@ -521,6 +523,7 @@ function renderTable(rows, { currency, converted, rate, rateSource, unmatched, b
   console.log(line('├', '┼', '┤'));
   console.log(row(totals));
   console.log(line('└', '┴', '┘'));
+  console.log(`  All amounts shown in ${currency}.`);
   if (converted) console.log(`  Rate: 1 USD = ${rate.toFixed(4)} ${currency} — ${rateSource}`);
   if (billing) {
     const covers = billing.covers.length ? billing.covers.join(', ') : '(none listed)';
