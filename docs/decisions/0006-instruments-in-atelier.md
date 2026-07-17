@@ -109,3 +109,33 @@ the floor scanners still cover its source, and it is verified by live use — th
 same honest-scope stance the scanners take. Pre-public scrub done (the
 `Mike`/machine specifics and pre-SDK history removed before the code entered the
 public repo).
+
+## Addendum (2026-07-17) — a *preserving* verb, and the first instrument that writes
+
+**Decision (Mike):** admit **`ccarchive`** — it durably mirrors every raw session
+`.jsonl` into a compressed, append-only archive so the transcripts survive Claude
+Code's `cleanupPeriodDays` deletion. Its value is wholly the teammateship (keeping
+the record of the work), so it passes the purpose rule squarely and lands as the
+ADR anticipated — "future teammate-support tools land here by the purpose rule".
+It sits beside the observers as a zero-dep Node CLI, unit-tested like
+`cctranscript`.
+
+It stretches one prior *sub-norm*, recorded here for honesty (the norms are
+descriptive of the first instruments, not constitutive): the observers "read the
+logs **read-only**, write nothing". `ccarchive` **writes** — that's its job. Two
+guards keep the boundary clean:
+
+- **No personal data in the code.** The dest defaults to the operator's iCloud
+  Drive but is derived at runtime from `$HOME` (`--dest`/`CCARCHIVE_DEST` to
+  override); nothing personal is committed. The leakscan/secretscan gate covers it
+  as usual.
+- **The write target is a personal store, outside any repo.** The transcripts span
+  every repo and carry personal data, so the archive itself must never be atelier
+  (public) — it lands in the operator's own storage, and the *schedule* (a
+  `launchd`/`cron` job) is machine-local too. Only the generic, data-free tool
+  lives here.
+
+So the layer is now four verbs: `tools/` **enforce**; observer instruments
+**observe** (ccrepo, cctranscript); capability instruments **extend** reach
+(browser-fetch); and `ccarchive` **preserves**. The boundary is unchanged —
+value is the teammateship — the kinds of value it admits widen again.

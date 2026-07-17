@@ -15,6 +15,21 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
+- ⏳ **ADR 0006 addendum (ccarchive — the *preserving* verb) — cold review
+      queued 2026-07-17.** New instrument `ccarchive` and its ADR 0006 addendum:
+      the `instruments/` layer gains a fourth verb (**preserve**) and its first
+      *writing* instrument, admitted by the existing purpose rule with two guards
+      (no personal data in code; write target a personal store outside any repo).
+      Delta: the `instruments: add ccarchive` commit on branch `ccarchive` (the
+      code + README are tested/driven and self-verifying; only the ADR addendum's
+      doctrine gates). **Self-authored doctrine ⇒ its author must not warm-spawn
+      the review** (rule 4); a non-author session takes this ⏳ and writes the
+      brief. Intent record:
+      `sessions/2026-07-17-0810-ccarchive-transcript-preservation.md`. Brief
+      seeds — is "preserve" a real fourth verb or does it fold into observe; is
+      the writing-instrument boundary (personal dest, runtime-derived) drawn
+      tightly enough for a public repo; does the §8 reconciliation (ccarchive
+      subsumes ccrepo's retention-ledger survival rationale) hold.
 - ⏳ **CONVENTIONS.md + UTC-at-rest ADR — cold review queued 2026-07-15.**
       New `method/CONVENTIONS.md` (the default-frame rule: declare once + label
       deviation/collision; foreign-data precedence) and ADR `2026-07-15-1327`

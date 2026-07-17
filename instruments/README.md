@@ -17,6 +17,7 @@ drives Chrome via Playwright); each documents its own runtime.
 |-----------------|-----------|---------------------------------------------------------------------|
 | `ccrepo`        | observe   | Per-repo Claude Code token & cost totals (`--by-model`, `--by-day`). |
 | `cctranscript`  | observe   | Timestamped transcript of a session — the timestamps the chat UI hides. |
+| `ccarchive`     | preserve  | Durably mirror every raw `.jsonl` transcript into a compressed, append-only archive that outlives Claude Code's cleanup. |
 | `browser-fetch` | extend    | A browser (fresh headless, or the operator's own Chrome) when `WebFetch`/curl are blocked. MCP server; see its own README. |
 
 The Node CLIs each have `-h`/`--help`; `browser-fetch` is an MCP server with its
@@ -96,8 +97,51 @@ top-level `billing` block. `--no-billing` forces estimate-only for a run.
   a plan tips into overage needs rate-limit data the logs don't carry) — that
   gap stays a stated footnote, not silently absorbed.
 
+## ccarchive — keeping transcripts past Claude Code's cleanup
+
+Claude Code deletes session logs older than `cleanupPeriodDays` (default 30). The
+raw `.jsonl` under `~/.claude/projects/` *is* the complete word-for-word record —
+every timestamp, model, token count, tool call and thinking block — so losing it
+loses history the chat UI can't reconstruct. `ccarchive` mirrors every `.jsonl`
+(sessions **and** nested subagent logs) into a compressed archive that outlives
+that cleanup:
+
+- **Incremental gzip mirror**, not one monolithic tarball: each
+  `<rel>/<name>.jsonl` becomes `<dest>/<rel>/<name>.jsonl.gz`. Each session stays
+  individually readable (gunzip, then `cctranscript <path>`; or `zgrep`), and only
+  sessions changed since the last run are recompressed — cheap to run often and
+  light on a synced dest (only new/updated files upload). ~2.8× smaller than raw.
+- **Append-only by contract:** it never deletes from the archive. When Claude
+  Code's cleanup removes a source log, the archived copy stays — that is the point.
+  It doesn't parse the `.jsonl`, it preserves the bytes, so it's immune to schema
+  drift (unlike the observers below).
+- **Default dest is the operator's iCloud Drive** (`--dest` / `CCARCHIVE_DEST` to
+  override) — derived at runtime from `$HOME`, so no personal path lives in this
+  code. It's the first *writing* instrument (see ADR 0006 addendum); `--dry-run`
+  previews, and it reads the source read-only.
+- **Meant to be scheduled.** It's idempotent and exits 0 with nothing to do, so it
+  runs cleanly from `cron`/`launchd` (daily is ample). A daily run captures every
+  session well inside Claude Code's default 30-day `cleanupPeriodDays`, so the
+  archive alone is the durable copy — no need to raise retention and hoard raw
+  logs in `~/.claude/projects`; let cleanup keep the working dir lean. (Raising
+  `cleanupPeriodDays` is only worth it if the archive can't run for a stretch
+  longer than the retention window.)
+
+**The durable substrate for the *other* instruments too.** `ccrepo.design.md` §8
+defers a *retention ledger* — persisting cost/usage rollups so ccrepo's
+month/quarter views survive the prune. ccarchive **subsumes that idea's survival
+purpose**: it keeps the full raw logs losslessly (~1.2 GB/yr), in a tree that
+mirrors `~/.claude/projects/` exactly, so *any* historical view — ccrepo's time
+grouping included — can be recomputed at full fidelity from the archive. A rollup
+ledger, if ever built, is then a *precompute/speed* layer, not a *data-survival*
+one. The open seam is sourcing: `ccrepo`/`cctranscript` read `.jsonl` from the
+live dir, not `.jsonl.gz` from the archive — a `--source <archive>` with
+transparent gunzip (or a `ccarchive` hydrate mode) is what turns preservation into
+usable extended history. Not built here; noted so the two ideas stay reconciled.
+
 ## Schema caveat
 
-Both read Claude Code's session `.jsonl` logs, whose format is internal to the
-tool and can shift between releases. A clean run today can need a small nudge
-after an update; each instrument isolates the parsing so the fix is local.
+The observers (`ccrepo`, `cctranscript`) read Claude Code's session `.jsonl` logs,
+whose format is internal to the tool and can shift between releases. A clean run
+today can need a small nudge after an update; each instrument isolates the parsing
+so the fix is local. `ccarchive` is exempt — it copies bytes, it doesn't parse.
