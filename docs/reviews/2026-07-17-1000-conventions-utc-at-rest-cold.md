@@ -246,3 +246,33 @@ has been applied.
 
 *Reviewed by a cold spawn (Fable 5), 2026-07-17 ~1015 UTC. Files touched:
 this brief only (appended). No commits, no pushes.*
+
+---
+
+## Addendum — principal-raised finding (2026-07-17, post-verdict)
+
+Raised by Mike while reading this verdict; elaborated and recorded by the
+taking session (not the reviewer), labelled as such. The decision is his, with
+the F1–F5 batch.
+
+**F6 — LOW — the "ISO 8601" table row declares a standard the estate
+deliberately profiles, without saying so.** Strict ISO 8601 separates date and
+time with `T` (`2026-07-16T15:06` extended, `20260716T1506` basic; a space is
+RFC 3339's readability concession, not ISO), and a value with no zone
+designator means *local* time. The estate's actual shapes, checked at HEAD:
+machine-authored timestamps are strict ISO (`toISOString()` → `T`+`Z`, e.g.
+ccarchive's manifest); record identifiers are a filename-safe key profile
+(`YYYY-MM-DD-HHMM`, hyphen standing in for `T`, no colon — `:` is illegal or
+hostile in filenames, zone carried by the UTC-at-rest default); prose stamps
+are space-separated and labelled (`0958 UTC`); SIGNING's
+`valid-after="20260711Z"` is ssh-keygen's own foreign syntax, kept as-is. The
+CONVENTIONS row ("ISO 8601 — `YYYY-MM-DD`, 24-hour, `Z` for UTC") declares
+none of this, so by the doc's own rule the identifier and prose shapes read as
+*unlabelled deviations* from the declared default — the anti-pattern the doc
+names, in its own table (same family as F2's label-strength mismatch).
+*Taker's counsel:* rewrite the row as a declared profile, one line per shape —
+strict ISO 8601 with `T` and `Z` for machine-authored timestamps; the
+`YYYY-MM-DD-HHMM` key profile for record identifiers (hyphen for `T`, zone
+from the UTC-at-rest default); date + `HHMM UTC` in prose; foreign formats
+(ssh-keygen) kept as-is under clause 3. That is declare-once with named
+deviations — the rule the doc itself teaches.

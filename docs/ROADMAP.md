@@ -38,8 +38,11 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
       nothing applied. Intent record:
       `sessions/2026-07-17-0810-ccarchive-transcript-preservation.md`.
 - 🎯 **CONVENTIONS.md + UTC-at-rest ADR — cold pass RAN 2026-07-17:
-      PASS-WITH-FINDINGS, 1 MAJOR · 0 MEDIUM · 4 LOW; Mike's ruling owed on
-      F1–F5.** Verdict (rule-4 provenance stated inside):
+      PASS-WITH-FINDINGS, 1 MAJOR · 0 MEDIUM · 5 LOW; Mike's ruling owed on
+      F1–F6 (F6 principal-raised post-verdict: the "ISO 8601" table row
+      declares a standard the estate deliberately profiles — `T`/space,
+      identifier key shape — without declaring the profile).** Verdict
+      (rule-4 provenance stated inside):
       `reviews/2026-07-17-1000-conventions-utc-at-rest-cold.md`. Sharpest: F1
       the ADR changed what a record identifier's `HHMM` means (UTC), but all
       six docs that direct identifier minting (RECORD, CONCURRENCY,
