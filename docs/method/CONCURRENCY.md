@@ -108,7 +108,8 @@ action across every parallel session.
   **`<date>-<HHMM>-<slug>`** (start time, 24-hour, in UTC — `date -u`,
   ADR 2026-07-15), built from facts the
   session already owns: no shared state, safe to allocate at session open,
-  citable immediately, and same-day records keep their order. Structurally,
+  citable immediately, and same-day records keep their order (steady-state —
+  the one boundary-era inversion is named and accepted in the ADR's addendum). Structurally,
   the worst case collapses into the append-tail case above: two sessions
   wanting the *same name* is a visible git conflict, the trivial kind. A
   running number adds nothing over the date — chronology was the only meaning

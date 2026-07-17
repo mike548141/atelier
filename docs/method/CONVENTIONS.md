@@ -33,8 +33,8 @@ unlabelled-value case has a rule to point at instead of a fresh argument.
    we didn't author — and its frame is recorded as *metadata
    alongside*, never rewritten into the payload. The kept data then re-enters
    rule 2 as a labelled deviation, and that metadata is its label. ELT, not ETL.
-   (No live ingestion surface exists in the estate yet — the first one is this
-   clause's proving ground.)
+   (No repo under this doctrine has a live ingestion surface yet — the first
+   one is this clause's proving ground.)
 
 *Worked examples — the same rule, three shapes:* a **shop sticker** carries no
 currency because every party shares the local default (rule 1, silent); crossing
@@ -56,7 +56,7 @@ repos and the work going forward:
 |---|---|---|
 | **Time** | UTC at rest; local on presentation, labelled where doubtable | Record identifiers UTC-forward. Full deliberation + the foreign-data precedence: [ADR 2026-07-15](../decisions/2026-07-15-1327-timestamps-utc-at-rest.md). |
 | **Currency** | NZD | A bare `$` is NZD. Another currency is labelled (rule 2). |
-| **Date & time format** | ISO 8601, house-profiled | Three declared shapes (rule 2 applied to this row): machine-authored timestamps are strict ISO 8601 — `T` separator, `Z` designator (`2026-07-17T10:13:17Z`); record identifiers use the filename-safe key shape `YYYY-MM-DD-HHMM` — hyphen standing in for `T`, no colon (`:` is illegal in filenames on common systems), zone carried by the UTC-at-rest default; prose stamps are `YYYY-MM-DD` + `HHMM UTC`, space-separated and labelled. `YYYY-MM-DD` everywhere kills DD/MM vs MM/DD ambiguity; a bare ISO stamp with no designator would mean *local* time, which is why the default above is load-bearing. |
+| **Date & time format** | ISO 8601, house-profiled | Three declared shapes (rule 2 applied to this row; re-declared 2026-07-17 from a bare "ISO 8601" — the ADR's addendum records why): machine-authored timestamps are strict ISO 8601 — `T` separator, `Z` designator (`2026-07-17T10:13:17Z`); record identifiers use the filename-safe key shape `YYYY-MM-DD-HHMM` — hyphen standing in for `T`, no colon (`:` is illegal in filenames on common systems), zone carried by the UTC-at-rest default; prose stamps are `YYYY-MM-DD` + `HHMM UTC`, space-separated and labelled. `YYYY-MM-DD` everywhere kills DD/MM vs MM/DD ambiguity; a bare ISO stamp with no designator would mean *local* time, which is why the default above is load-bearing. Foreign formats — e.g. ssh-keygen's own `YYYYMMDDZ` syntax — are kept as received under rule 3, their frame recorded alongside. |
 | **Text encoding** | UTF-8 | Macrons on te reo Māori depend on it; a tool that mangles `Māori` is a silent frame break. |
 | **Language / dialect** | New Zealand English, with te reo Māori | NZ spelling (organise, licence); macrons (tohutō) correct. |
 

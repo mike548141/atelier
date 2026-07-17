@@ -109,9 +109,8 @@ evidence — see `method/EVIDENCE.md`.
   model builds, which reviews, session hygiene) is `method/MODEL-ECONOMICS.md`;
   the repo file carries only what's repo-local, or points up entirely.
 - **decisions/** — ADRs named `<YYYY-MM-DD>-<HHMM>-<slug>.md` (`HHMM` in UTC —
-  `date -u`, ADR 2026-07-15; coordination-free,
-  per `method/CONCURRENCY.md`; files named under retired schemes keep their
-  names). Write one when a decision
+  `date -u`, ADR 2026-07-15; coordination-free, per `method/CONCURRENCY.md`;
+  files named under retired schemes keep their names). Write one when a decision
   **rejected a plausible alternative** or **rests on hard-won evidence**; skip it
   for reversible choices (a code comment covers those). The when-to-ADR rule is
   `method/RECORD.md`.
@@ -143,7 +142,7 @@ evidence — see `method/EVIDENCE.md`.
   `tools/` scanners carry no pages: they run in place, in this repo and in
   children's hooks, never installed onto a machine.
   - **`--help` — the digest.** Concise and scannable, fits a screen: a one-line
-    synopsis, the options as a flat list, and at most a one-breath closing line
+    synopsis, the options as a flat list, and at most a closing line or two
     saying what the tool does and where the manual is (`… full manual:
     man <tool>`). It serves the user who already knows the tool and wants a
     reminder — it is *not* where rationale or worked examples belong.

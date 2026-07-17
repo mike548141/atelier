@@ -46,8 +46,8 @@ done
 
 # Man pages. macOS/BSD `man` auto-maps a PATH entry <X>/bin to <X>/share/man,
 # so a page in ~/.local/share/man/man1 is found because ~/.local/bin is on PATH.
+MAN_DEST="${XDG_DATA_HOME:-$HOME/.local/share}/man/man1"
 if [ -d "$BIN_DIR/man" ]; then
-  MAN_DEST="${XDG_DATA_HOME:-$HOME/.local/share}/man/man1"
   mkdir -p "$MAN_DEST"
   for page in "$BIN_DIR"/man/*.1; do
     [ -e "$page" ] || continue
@@ -60,7 +60,11 @@ if [ -d "$BIN_DIR/man" ]; then
     ln -sfn "$page" "$plink"
     echo "man   $pname -> $plink"
   done
-  # Same cleanup pass for pages: an owned man link whose page is gone is stale.
+fi
+
+# Same cleanup pass for pages — unconditional, like the bin pass: retiring the
+# whole man/ dir must not strand stale owned man links behind the dir guard.
+if [ -d "$MAN_DEST" ]; then
   for plink in "$MAN_DEST"/*; do
     [ -L "$plink" ] || continue
     ptarget="$(readlink "$plink")"

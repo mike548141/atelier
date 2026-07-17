@@ -180,6 +180,15 @@ backup with an
 modification time \(em is silently left un-archived, since the archived copy
 is newer.
 .PP
+The shrink guard's sibling is a
+.B layout-drift alarm :
+a run that finds
+.I zero
+transcripts under the source while the manifest already records some exits
+non-zero instead of reporting success \(em the live directory moved or Claude
+Code changed where it writes logs, and a silently empty mirror would stop
+growing while looking healthy.
+.PP
 The manifest is the trust anchor. It defends against
 .I accidental
 corruption. It is not, on its own, tamper-proof: an adversary who rewrote a
@@ -228,11 +237,27 @@ Archive somewhere other than iCloud Drive.
 How many sessions were archived on this run.
 .SH EXIT STATUS
 .B 0
-on success (including a run or verify with nothing to do).
+on success (including a run or verify with nothing to do). An ordinary run
+exits
+.B 1
+when it refuses a shrink overwrite (a source smaller than the size recorded
+at capture;
+.B \-\-force
+overrides), when it refuses an archive destination inside a git work tree
+.RB ( \-\-allow\-repo\-dest
+overrides), or when the layout-drift alarm fires \(em zero transcripts found
+while the manifest is non-empty. See
+.B INTEGRITY
+for all three.
 .B \-\-verify
 exits
 .B 1
-when the archive does not verify (any mismatch or missing file).
+when the archive does not verify: any
+.BR mismatch ,
+.B missing
+or
+.B UNMANIFESTED
+file.
 .SH NOTES
 The default destination is the operator's iCloud Drive, derived at runtime
 from the home directory; no personal path is baked into the tool. It reads the

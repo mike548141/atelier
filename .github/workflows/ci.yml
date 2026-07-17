@@ -96,16 +96,15 @@ jobs:
       - name: instrument test suite
         run: node --test instruments/*.test.js
 
-      # Guarded, not a hard dependency: mandoc isn't preinstalled on the runner,
-      # so the roff lint runs where the tool exists and states plainly when it
-      # doesn't — an honest local-only gate beats a phantom-green one.
-      - name: man page lint (best effort)
+      # mandoc isn't preinstalled on ubuntu runners, so install it — seconds,
+      # free public-repo minutes. The guarded fall-through form shipped first
+      # never linted in the one place it was wired (applied-batch review,
+      # 2026-07-17): a real gate beats an honestly-labelled phantom one.
+      - name: man page lint
         run: |
-          if command -v mandoc >/dev/null 2>&1; then
-            mandoc -T lint instruments/man/*.1
-          else
-            echo "mandoc unavailable on this runner — roff lint is a local-only check"
-          fi
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq mandoc
+          mandoc -T lint instruments/man/*.1
 
       - name: secretscan (full tree)
         run: python3 tools/secretscan.py --root . .

@@ -262,3 +262,32 @@ per finding; nothing has been applied.
 
 Per the close rule: 0 MAJOR at an applied-batch pass — reviewer's counsel is
 that this closes the CLI-docs cycle on Mike's ruling of F1–F5.
+
+---
+
+## Decision — 2026-07-17, ruled by Mike (principal)
+
+Mike ruled **F1–F5 all [fixed] as counselled** ("agreed — apply as
+counselled", 2026-07-17). Applied the same day by the taking session (authored
+neither the doctrine nor this verdict; the reviewer was its cold spawn). What
+was applied:
+
+- **F1** — `man/ccarchive.1` `EXIT STATUS` now enumerates the three ordinary-run
+  non-zero exits (shrink refusal, repo dest, layout-drift alarm) and names
+  `UNMANIFESTED` among the verify causes; the layout-drift alarm gets its own
+  paragraph in `INTEGRITY`.
+- **F2** — the CI step now installs mandoc (`apt-get`, seconds, free
+  public-repo minutes) and lints for real; the comment records why the guarded
+  form was retired. Ruled knowingly against the earlier F7 form.
+- **F3** — the man-link cleanup pass hoisted out of the `if [ -d man ]` guard
+  (unconditional, mirroring the bin pass); proven live in throwaway XDG dirs
+  with `man/` retired and a planted stale owned link (removed; real page kept).
+- **F4** — the letter now reads "at most a closing line or two".
+- **F5** — README says "non-empty manifest", matching the code's trigger.
+
+Verified after applying: mandoc lint clean · 75 instrument tests · 247 tool
+tests · sizescan · linkscan all green; installer driven fresh (normal and
+retired-`man/` cases).
+
+**0 MAJOR at the pass ⇒ CYCLE CLOSED** (close rule): this terminal
+application queues no further pointer.

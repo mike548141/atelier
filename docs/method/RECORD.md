@@ -64,9 +64,9 @@ stopped instead of re-deriving it:
   with no sanctioned move for an index that had already done the split.)
 - **Detail lives on demand** — when a session is substantial, its full detail
   goes in a `docs/sessions/<date>-<HHMM>-<slug>.md` file and the index carries
-  a one-line pointer. (`HHMM` is the session's start time, 24-hour, in UTC
-  (`date -u`) — ADR 2026-07-15; the
-  identifier is coordination-free per CONCURRENCY's record-identifier rule:
+  a one-line pointer. (`HHMM` is the session's start time, 24-hour, in UTC —
+  `date -u`, ADR 2026-07-15; the identifier is coordination-free per
+  CONCURRENCY's record-identifier rule:
   built from facts the session already owns, safe to allocate at open, no
   shared counter. Files named under the retired `NN` scheme keep their names.)
   These identifiers are **long, lowercase and hyphenated by design** (a full

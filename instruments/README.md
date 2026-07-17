@@ -164,7 +164,7 @@ that cleanup:
   when a newer source is *smaller* than the size recorded at capture (sessions
   only grow; a shrink means truncation or corruption upstream — `--force` is the
   deliberate override), and a source yielding **zero transcripts** against a
-  non-empty archive exits non-zero instead of logging success while the archive
+  non-empty manifest exits non-zero instead of logging success while the archive
   quietly stops growing (the live dir moved). A dest inside a git work tree is
   also refused (`--allow-repo-dest` overrides): transcripts are personal data,
   and a repo dest is one commit away from publication.

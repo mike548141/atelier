@@ -71,3 +71,34 @@ spawns no further ceremony.
 The stale `.claude/worktrees/fable-review` worktree (previous session's,
 zero unique commits, flagged by both reviewers as working-tree scan noise)
 removed; claims released with this landing (`⏳` → 🎯).
+
+## Addendum — same session: Mike ruled both batches; applied; both cycles CLOSED
+
+Mike ruled wholesale after the plain-language what/why/impact per finding
+(informed-principal rule): **"agreed — apply as counselled"** — CLI-docs F1–F5
+and CONVENTIONS/UTC F1–F6, all [fixed]. Applied same session by the taking
+session (authored none of the doctrine and neither verdict); per-finding
+detail stamped in each verdict file's § Decision.
+
+Application highlights:
+
+- **CLI-docs (F1–F5):** man-page `EXIT STATUS` now enumerates all four
+  non-zero exit paths and the layout-drift alarm has an `INTEGRITY`
+  paragraph; the CI mandoc step installs mandoc and lints for real (the
+  guarded form never linted on ubuntu runners); the man-link cleanup pass is
+  unconditional — proven live with `man/` retired and a planted stale owned
+  link removed; the `--help` letter reads "a closing line or two"; README's
+  alarm trigger says "non-empty manifest".
+- **CONVENTIONS/UTC (F1–F6):** the seventh minting site (`REVIEW.md` brief
+  step) UTC-annotated; the Date & time row dates its own 2026-07-17
+  re-declaration and regains the dropped foreign-formats line (ssh-keygen's
+  `YYYYMMDDZ` kept as received under rule 3) — the silent narrowing this pass
+  caught, now closed; the ingestion aside scoped to repos under this
+  doctrine; both ragged splices reflowed; CONCURRENCY's ordering claim points
+  at the ADR addendum's accepted boundary-era inversion.
+
+Floor after applying: 247 tool tests · 75 instrument tests · mandoc lint ·
+sizescan · linkscan · scan triad (pre-commit) — all green.
+
+**Both cycles CLOSED** (0 MAJOR at the pass; terminal applications, no queued
+pointers — close rule). The *Doctrine — review-owed* queue is empty.

@@ -250,6 +250,41 @@ record the narrowing in the prior verdict's `§ Decision` with grounds. The
 class matters more than the instance: an applied-batch record that silently
 implements less than the ruling is the drift this pass exists to catch.*
 
-*Reconcile written 2026-07-18 (UTC) by the same cold reviewer; files touched:
+*Reconcile written 2026-07-17 (UTC; originally mis-stamped 2026-07-18 — the
+local date — corrected by the taker at commit) by the same cold reviewer; files touched:
 this brief only (appended + the headline count amended transparently). No
 commits, no pushes.*
+
+---
+
+## Decision — 2026-07-17, ruled by Mike (principal)
+
+Mike ruled **F1–F6 all [fixed] as counselled** ("agreed — apply as
+counselled", 2026-07-17). Applied the same day by the taking session (authored
+neither the doctrine nor this verdict; the reviewer was its cold spawn). What
+was applied:
+
+- **F1** — the seventh minting site annotated: `REVIEW.md` lifecycle step 1 now
+  carries `(`HHMM` in UTC — `date -u`, ADR 2026-07-15)`. The counsel's
+  derive-don't-assert rule holds for any future "all minting sites" claim
+  (sweep `grep -rn 'HHMM' docs/`).
+- **F2** — the Date & time row now dates its own re-declaration ("re-declared
+  2026-07-17 from a bare 'ISO 8601' — the ADR's addendum records why"),
+  satisfying CONVENTIONS' own maintenance rule in-doc.
+- **F3** — the ingestion aside scoped to what the doctrine can see: "No repo
+  under this doctrine has a live ingestion surface yet".
+- **F4** — both spliced paragraphs reflowed (`RECORD.md`, `REPO-STANDARD.md`).
+- **F5** — CONCURRENCY's ordering claim now points at the accepted boundary-era
+  inversion in the ADR's addendum.
+- **F6** — the dropped fourth line restored to the row: foreign formats (e.g.
+  ssh-keygen's `YYYYMMDDZ`) kept as received under rule 3, frame recorded
+  alongside — closing the silent narrowing this pass caught.
+
+Also corrected by the taker, named in place: the verdict heading and reconcile
+footer had stamped the local date (2026-07-18) as UTC.
+
+Verified after applying: 247 tool tests (incl. the template drift test) · 75
+instrument tests · sizescan · linkscan all green.
+
+**0 MAJOR at the pass ⇒ CYCLE CLOSED** (close rule): this terminal
+application queues no further pointer.
