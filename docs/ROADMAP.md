@@ -122,7 +122,8 @@ REPO-BOUNDARY, worktree tooling) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 ### ccarchive (Mike, 2026-07-17)
 
-- [ ] **Local-store audit vs the archive manifest** — check the *live* store
+- [~] **Local-store audit vs the archive manifest** *(claimed 2026-07-17-2234,
+      wt: instruments-audit)* — check the *live* store
       (`~/.claude/projects`) against the archive's `manifest.json` to spot
       **renamed, missing, or mutated** transcripts (the live file drifted from
       what was archived). Distinct from `--verify`, which checks the *archive*
