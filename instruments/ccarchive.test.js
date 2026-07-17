@@ -296,3 +296,22 @@ test('saveManifest is atomic (temp+rename) and writes deterministic key order', 
   assert.ok(!fs.existsSync(cc.manifestPath(dir) + '.tmp'), 'temp file renamed away');
   assert.deepEqual(cc.loadManifest(dir), { 'a.jsonl': { sha256: '2' }, 'z.jsonl': { sha256: '1' } });
 });
+
+// --- documentation convention (REPO-STANDARD: concise --help + a man page) --
+
+test('--help is a concise digest that points at the man page', () => {
+  const help = execFileSync('node', [SCRIPT, '-h'], { encoding: 'utf8' });
+  assert.ok(help.split('\n').length <= 22, '--help should stay a one-screen digest');
+  assert.match(help, /man ccarchive/, '--help must point at the full manual');
+  for (const opt of ['--dest', '--verify', '--install-schedule']) assert.ok(help.includes(opt));
+});
+
+test('a man page ships and is well-formed roff', () => {
+  const page = path.join(__dirname, 'man', 'ccarchive.1');
+  assert.ok(fs.existsSync(page), 'instruments/man/ccarchive.1 must exist');
+  const roff = fs.readFileSync(page, 'utf8');
+  assert.match(roff, /^\.TH CCARCHIVE 1 /m, 'a .TH title line');
+  for (const sec of ['NAME', 'SYNOPSIS', 'DESCRIPTION', 'OPTIONS', 'EXAMPLES', 'SEE ALSO']) {
+    assert.match(roff, new RegExp(`^\\.SH ${sec}`, 'm'), `a ${sec} section`);
+  }
+});

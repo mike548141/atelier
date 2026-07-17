@@ -133,6 +133,25 @@ evidence — see `method/EVIDENCE.md`.
   action (`method/AUTONOMY.md`, `decisions/0003`).
 - **Don't standardise a third-party repo.** Check the remote's owner before
   touching anything; a repo under someone else's org is not yours to reshape.
+- **CLI tools ship both `--help` and a man page — different jobs, not two copies
+  of one.** A repo with command-line tools documents each in two registers and is
+  explicit about which is which:
+  - **`--help` — the digest.** Concise and scannable, fits a screen: a one-line
+    synopsis and the options as a flat list, nothing more. It serves the user who
+    already knows the tool and wants a reminder. It ends by pointing at the manual
+    (`… full detail: man <tool>`), and it is *not* where prose, rationale or
+    worked examples belong.
+  - **`man <tool>(1)` — the full reference.** Plain language: what the tool is and
+    *why*, every option explained, and the sections a digest can't carry —
+    `FILES`, `EXAMPLES`, `EXIT STATUS`, `NOTES`, `SEE ALSO`. It serves the user
+    learning the tool or needing depth.
+
+  The man page is the superset; `--help` is its digest. Keep them from drifting by
+  keeping the detail in **one** place (the page) and letting `--help` point to it —
+  never maintain the same paragraph twice. Ship pages as roff under a `man/` dir
+  and have the installer symlink them onto `MANPATH`
+  (`~/.local/share/man/man1`, auto-found because the bin dir is on `PATH`). Worked
+  example: atelier's `instruments/` (`man/ccarchive.1` + a one-screen `--help`).
 
 ## Process — a new repo
 

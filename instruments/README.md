@@ -20,8 +20,13 @@ drives Chrome via Playwright); each documents its own runtime.
 | `ccarchive`     | preserve  | Durably mirror every raw `.jsonl` transcript into a compressed, append-only archive that outlives Claude Code's cleanup. |
 | `browser-fetch` | extend    | A browser (fresh headless, or the operator's own Chrome) when `WebFetch`/curl are blocked. MCP server; see its own README. |
 
-The Node CLIs each have `-h`/`--help`; `browser-fetch` is an MCP server with its
-own `instruments/browser-fetch/README.md`.
+The Node CLIs each carry both a concise `-h`/`--help` digest and a fuller
+`man <tool>` page — the two-register convention in
+[`build/REPO-STANDARD.md`](../docs/build/REPO-STANDARD.md) (`--help` = one-screen
+reminder; `man` = plain-language reference with `FILES`/`EXAMPLES`/`NOTES`).
+`ccarchive` is the worked example (`man/ccarchive.1`); `cctranscript` and `ccrepo`
+follow (ROADMAP; ccrepo after its v2 rewrite). `browser-fetch` is an MCP server
+with its own `instruments/browser-fetch/README.md`.
 
 ## Install (and on a new machine)
 
@@ -32,6 +37,10 @@ after adding an instrument or on a fresh laptop:
 ```sh
 ./instruments/install
 ```
+
+It symlinks each CLI into `~/.local/bin` and each `man/*.1` page into
+`~/.local/share/man/man1` (auto-found by `man` because `~/.local/bin` is on
+`PATH`), so `man ccarchive` works after install.
 
 Requirements: `node` on `PATH` (any recent LTS) for all of them. `ccrepo`
 computes cost itself from the logs, but uses `ccusage` (`npx ccusage` or a global

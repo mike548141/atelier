@@ -15,6 +15,19 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
+- ⏳ **REPO-STANDARD: CLI tools ship both `--help` and a man page — cold review
+      queued 2026-07-17.** New repo-craft convention in `build/REPO-STANDARD.md`
+      (§ Repo-craft conventions): the two-register split — `--help` a one-screen
+      digest that points at the manual, `man <tool>(1)` the plain-language full
+      reference (FILES/EXAMPLES/NOTES) — plus how to wire it (`man/` dir, installer
+      publishes to `MANPATH`). Children inherit it. Worked example landed in the
+      same delta: `instruments/man/ccarchive.1` + a trimmed `ccarchive --help` +
+      `instruments/install` man-wiring. **Self-authored doctrine ⇒ author must not
+      warm-spawn the review** (rule 4); a non-author takes this ⏳. Intent record:
+      `sessions/2026-07-17-0946-ccarchive-man-cli-docs-standard.md`. Brief seeds —
+      is the digest/reference boundary drawn sharply enough to prevent drift; does
+      the convention over-reach for repos with trivial one-flag tools (should it be
+      sized to tool complexity like the rest of the standard).
 - ⏳ **ADR 0006 addendum (ccarchive — the *preserving* verb) — cold review
       queued 2026-07-17.** New instrument `ccarchive` and its ADR 0006 addendum:
       the `instruments/` layer gains a fourth verb (**preserve**) and its first
@@ -176,6 +189,46 @@ bundle, CONCURRENCY put-away) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 Completed build/inheritance work (REPO-STANDARD, licenscan, signing doctrine +
 activation, faves/ros floor adoption, create-repo rewire + real-scaffold,
 REPO-BOUNDARY, worktree tooling) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
+
+## instruments/ — open features
+
+### ccarchive (Mike, 2026-07-17)
+
+- [ ] **Local-store audit vs the archive manifest** — check the *live* store
+      (`~/.claude/projects`) against the archive's `manifest.json` to spot
+      **renamed, missing, or mutated** transcripts (the live file drifted from
+      what was archived). Distinct from `--verify`, which checks the *archive*
+      against its own manifest; this checks the *live store* against the archive.
+      Read-only; reports drift.
+- [ ] **Restore from archive — full + delta** — replace mutated/missing local
+      files from the archive (gunzip `<dest>/<rel>.gz` → `~/.claude/projects/<rel>`).
+      A full `--restore` and a delta mode that restores only what the local-store
+      audit flags. Must not clobber a live file *newer* than the archived copy
+      (an in-flight session); confirm/refuse rather than overwrite silently.
+- [ ] **iCloud dataless-file awareness** — iCloud "Optimise Mac Storage" evicts
+      the local bytes of unused files, leaving a dataless placeholder (contents
+      still in the cloud). ccarchive must keep working: reading an evicted `.gz`
+      faults it back on access (fine), but a whole-archive `--verify` would
+      re-download *everything* — costly and it defeats the point of eviction.
+      Detect dataless files (macOS `SF_DATALESS` st_flags / the ubiquity
+      "downloaded" key) and (a) never mis-report an evicted-but-intact file as
+      missing/corrupt, (b) don't gratuitously materialise them (skip by default;
+      opt-in `--verify --materialise`), (c) ensure writing the manifest/new `.gz`
+      never triggers a bulk re-download.
+- [ ] **Sign the manifest (tamper-evidence)** — closes the `--verify` caveat: a
+      tamperer who rewrites a `.gz` *and* the manifest currently passes. Sign
+      `manifest.json` (detached signature / HMAC with a key kept **off the
+      archive** — `~/.claude` or the macOS Keychain) so `--verify` detects a
+      forged manifest, raising the anchor from "accidental corruption" to
+      "tamper-evident". Key location/rotation is the real design question.
+
+### man pages — convention rollout
+
+- [ ] **cctranscript + ccrepo: man page + concise `--help`** — the split (full
+      plain-language `man`, concise `--help` pointing to it) is established with
+      `ccarchive` as the worked example (`instruments/man/`, published by
+      `instruments/install`). Roll it out to the other CLIs. **ccrepo waits for
+      the v2 rewrite to land** — don't churn its help mid-redesign.
 
 ## File-size hygiene (new 2026-07-14)
 

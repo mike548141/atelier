@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# install — symlink every CLI in this instruments/ dir into ~/.local/bin (on PATH).
+# install — publish this instruments/ dir onto the machine:
+#   * each CLI  → a symlink in ~/.local/bin (on PATH)
+#   * each man page (man/*.1) → a symlink in ~/.local/share/man/man1 (on MANPATH)
 #
 # Idempotent: safe to re-run after adding a tool or on a fresh machine. Only
 # touches symlinks it owns (ones pointing back into this dir); never clobbers
@@ -12,9 +14,10 @@ mkdir -p "$DEST"
 
 for src in "$BIN_DIR"/*; do
   name="$(basename "$src")"
-  # Skip non-tools: this script, docs, anything non-executable.
+  # Skip non-tools: this script, docs, directories (man/, fixtures/, MCP-server
+  # dirs like browser-fetch that install via their own setup), non-executables.
   case "$name" in install|README.md|*.md) continue ;; esac
-  [ -x "$src" ] || continue
+  [ -f "$src" ] && [ -x "$src" ] || continue
 
   link="$DEST/$name"
   if [ -e "$link" ] && [ ! -L "$link" ]; then
@@ -24,6 +27,24 @@ for src in "$BIN_DIR"/*; do
   ln -sfn "$src" "$link"
   echo "link  $name -> $link"
 done
+
+# Man pages. macOS/BSD `man` auto-maps a PATH entry <X>/bin to <X>/share/man,
+# so a page in ~/.local/share/man/man1 is found because ~/.local/bin is on PATH.
+if [ -d "$BIN_DIR/man" ]; then
+  MAN_DEST="${XDG_DATA_HOME:-$HOME/.local/share}/man/man1"
+  mkdir -p "$MAN_DEST"
+  for page in "$BIN_DIR"/man/*.1; do
+    [ -e "$page" ] || continue
+    pname="$(basename "$page")"
+    plink="$MAN_DEST/$pname"
+    if [ -e "$plink" ] && [ ! -L "$plink" ]; then
+      echo "skip  $pname — a real file already exists at $plink" >&2
+      continue
+    fi
+    ln -sfn "$page" "$plink"
+    echo "man   $pname -> $plink"
+  done
+fi
 
 case ":$PATH:" in
   *":$DEST:"*) ;;

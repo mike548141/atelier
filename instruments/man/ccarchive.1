@@ -1,0 +1,212 @@
+.TH CCARCHIVE 1 "2026-07-17" "atelier instruments" "User Commands"
+.SH NAME
+ccarchive \- durably preserve every Claude Code transcript, word for word
+.SH SYNOPSIS
+.B ccarchive
+.RI [ options ]
+.br
+.B ccarchive \-\-verify
+.RI [ \-\-dest
+.IR dir ]
+.br
+.B ccarchive \-\-install\-schedule
+|
+.B \-\-schedule\-status
+|
+.B \-\-uninstall\-schedule
+.SH DESCRIPTION
+Claude Code records each session as a raw JSON-lines log under
+.IR ~/.claude/projects/ <encoded-repo>/ <session-uuid> .jsonl
+(plus subagent logs beneath it). That file is the complete, word-for-word
+record of the session \(em every message, timestamp, model, token count, tool
+call and thinking block. It is also
+.BR ephemeral :
+Claude Code deletes logs older than its
+.I cleanupPeriodDays
+setting (30 by default), so the history disappears on a rolling window.
+.PP
+.B ccarchive
+mirrors every one of those logs into a compressed, append-only archive that
+outlives that cleanup. Where
+.BR cctranscript (1)
+.I reads
+the logs,
+.B ccarchive
+.I keeps
+them.
+.PP
+The archive is an
+.B incremental per-session gzip mirror :
+each
+.IR <rel>/<name> .jsonl
+under the source becomes
+.IR <dest>/<rel>/<name> .jsonl.gz
+under the archive. Only sessions that changed since the last run are
+recompressed, so it is cheap to run often and light on a synced destination
+such as iCloud Drive (only new or updated sessions upload). Each archived
+session stays individually readable \(em decompress it and hand it to
+.BR cctranscript (1),
+or search the whole archive with
+.BR zgrep (1).
+.PP
+The tool is
+.B append-only by contract:
+it never deletes from the archive. When Claude Code's cleanup removes a source
+log, the archived copy remains \(em that is the whole point. It does not parse
+the JSON, it preserves the bytes, so it is immune to any change in Claude
+Code's internal log format.
+.SH OPTIONS
+.TP
+.BI \-\-dest " dir"
+Archive into
+.I dir
+instead of the default, which is a
+.I cc-transcripts
+folder in the operator's iCloud Drive. May also be set with the
+.B CCARCHIVE_DEST
+environment variable.
+.TP
+.BI \-\-source " dir"
+Read transcripts from
+.I dir
+instead of
+.IR ~/.claude/projects .
+Mainly for testing.
+.TP
+.B \-\-dry\-run
+Report what would be archived and write nothing.
+.TP
+.B \-\-verify
+Re-hash every archived transcript and compare it against the sha256 recorded
+when it was archived. See
+.B INTEGRITY
+below.
+.TP
+.B \-\-install\-schedule
+Install and load a scheduled job that runs
+.B ccarchive
+daily and at login. See
+.B SCHEDULE
+below.
+.TP
+.B \-\-schedule\-status
+Report whether the scheduled job is installed and loaded.
+.TP
+.B \-\-uninstall\-schedule
+Unload and remove the scheduled job.
+.TP
+.B \-\-json
+Emit a machine-readable JSON summary instead of the human report. Never
+styled; safe to pipe into
+.BR jq (1).
+.TP
+.BR \-h ", " \-\-help
+Print a concise usage summary and exit. This manual is the full reference.
+.SH SCHEDULE
+An archive is only durable if it actually runs.
+.B ccarchive \-\-install\-schedule
+writes and loads a launchd agent (on macOS) that runs the tool daily and at
+login, so no external cron wiring is needed and the schedule re-establishes on
+a new machine with a single command. Every path in the agent is derived at
+runtime. On a platform without launchd it prints the equivalent
+.BR cron (8)
+line instead.
+.PP
+Because a daily run captures every session well inside Claude Code's 30-day
+default retention, the archive alone is the durable copy \(em raising
+.I cleanupPeriodDays
+is optional (a longer live working window, and a buffer if the agent is ever
+down for a stretch), never required for survival.
+.SH INTEGRITY
+gzip carries a CRC-32, so a corrupted
+.I .gz
+fails to decompress \(em but that is weak and only proves the file is
+self-consistent, not that it still equals what was captured. So when it
+archives a transcript,
+.B ccarchive
+records a sha256 of the transcript's raw bytes in
+.IR <dest>/manifest.json .
+.PP
+.B ccarchive \-\-verify
+re-hashes every archived
+.I .gz
+and compares it against the manifest, reporting any
+.B mismatch
+(mutation, bit rot or a sync glitch) or
+.B missing
+file, and exiting non-zero if the archive does not verify. The manifest tracks
+the
+.I archive
+(append-only), not the live sources: a session pruned by Claude Code's cleanup
+keeps its recorded hash because its
+.I .gz
+is kept.
+.PP
+The manifest is the trust anchor. It defends against
+.I accidental
+corruption. It is not, on its own, tamper-proof: an adversary who rewrote a
+.I .gz
+.I and
+the manifest would pass. For tamper-resistance, keep a copy of
+.I manifest.json
+somewhere separate from the archive.
+.SH FILES
+.TP
+.I ~/.claude/projects/
+The source: Claude Code's raw session logs (read-only to this tool).
+.TP
+.I <dest>/<rel>/<name>.jsonl.gz
+An archived transcript \(em the gzip of one source log.
+.TP
+.I <dest>/manifest.json
+The integrity manifest: one sha256 (plus size and archive time) per archived
+transcript.
+.TP
+.I ~/Library/LaunchAgents/com.ccarchive.archive.plist
+The scheduled agent installed by
+.BR \-\-install\-schedule " (macOS)."
+.TP
+.I ~/Library/Logs/ccarchive.log
+Output of the scheduled runs.
+.SH EXAMPLES
+.TP
+.B ccarchive
+Mirror new or changed sessions into the archive (the default daily action).
+.TP
+.B ccarchive \-\-dry\-run
+Preview what a run would archive without writing anything.
+.TP
+.B ccarchive \-\-install\-schedule
+Start archiving daily from now on (macOS launchd).
+.TP
+.B ccarchive \-\-verify
+Confirm every archived transcript still matches its recorded sha256 \(em run
+this after restoring the archive to a new machine.
+.TP
+.B ccarchive \-\-dest ~/backup/cc
+Archive somewhere other than iCloud Drive.
+.TP
+.B ccarchive \-\-json | jq .archived
+How many sessions were archived on this run.
+.SH EXIT STATUS
+.B 0
+on success (including a run or verify with nothing to do).
+.B \-\-verify
+exits
+.B 1
+when the archive does not verify (any mismatch or missing file).
+.SH NOTES
+The default destination is the operator's iCloud Drive, derived at runtime
+from the home directory; no personal path is baked into the tool. It reads the
+source read-only and writes only under the destination (and, for
+.BR \-\-install\-schedule ", under " ~/Library ).
+.SH SEE ALSO
+.BR cctranscript (1),
+.BR ccrepo (1),
+.BR gzip (1),
+.BR zgrep (1),
+.BR launchctl (1)
+.PP
+The instruments overview:
+.I instruments/README.md
+in the atelier repository.
