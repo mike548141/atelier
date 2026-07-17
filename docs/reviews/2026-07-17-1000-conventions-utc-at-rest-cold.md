@@ -276,3 +276,37 @@ strict ISO 8601 with `T` and `Z` for machine-authored timestamps; the
 from the UTC-at-rest default); date + `HHMM UTC` in prose; foreign formats
 (ssh-keygen) kept as-is under clause 3. That is declare-once with named
 deviations — the rule the doc itself teaches.
+
+---
+
+## Decision — 2026-07-17, ruled by Mike (principal)
+
+Mike ruled **F1–F6 all [fixed] as counselled** (F1–F5 "make all the changes as
+you counselled" after a plain-language walk-through; F6 is his own finding,
+raised and ruled in the same exchange). Applied the same day by the taking
+session (authored neither the doctrine nor this verdict). What was applied:
+
+- **F1 (MAJOR)** — the six identifier-minting sites now state UTC (`date -u`)
+  with the ADR pointer: `RECORD.md`, `CONCURRENCY.md`, `REPO-STANDARD.md`, and
+  the three child templates (`templates/CLAUDE.md` via the canonical block in
+  `PROPAGATION.md` — both edited together, drift test green; decisions and
+  reviews README templates). Children pick it up at their next pin bump.
+- **F2** — the Time row now reads "local on presentation, labelled where
+  doubtable", aligned with the ADR's strength.
+- **F3** — ADR addendum: a bare prose date is a UTC date; RECORD's
+  absolute-dating section states it and points at the ADR.
+- **F4** — clause 3 carries the honest marker: no live ingestion surface yet;
+  the first is the clause's proving ground.
+- **F5** — ADR addendum names boundary-era sort inversion as accepted.
+- **F6 (principal-raised)** — the "ISO 8601" row rewritten as the declared
+  house profile: strict ISO with `T`+`Z` for machine-authored timestamps; the
+  `YYYY-MM-DD-HHMM` filename-safe key shape for record identifiers (hyphen for
+  `T`, zone from the UTC-at-rest default); `YYYY-MM-DD` + `HHMM UTC` in prose.
+
+The ADR itself changed only by dated addendum (the lifecycle's append-only
+verb); the decision is unchanged. Verified after applying: 247 tool tests
+(template drift test green) · sizescan · linkscan — all green.
+
+**1 MAJOR at the pass ⇒ the cycle stays open:** the applied batch's cold pass
+is queued `⏳` in the ROADMAP for a non-author to take (the applier queues,
+never spawns — rule 4 applied to the application).

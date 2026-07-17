@@ -260,3 +260,39 @@ promise needs the one cheap test that would make it true (F2), and the
 doctrine and its own exemplar need to agree on what `--help` may contain (F3).
 All findings are the principal's to decide; counsel is recorded per finding
 and nothing has been applied.
+
+---
+
+## Decision — 2026-07-17, ruled by Mike (principal)
+
+Mike ruled **F1–F7 all [fixed] as counselled** ("agreed", 2026-07-17). Applied
+the same day by the taking session — which authored neither the doctrine nor
+this verdict (the reviewer was its cold spawn; exposure named in the
+provenance above). What was applied:
+
+- **F1** — the scope predicate drawn: an *installed* CLI (published to `PATH`,
+  used away from the repo) ships both registers; repo-internal scripts owe a
+  good `--help` only. The bullet now states why `tools/` scanners sit outside
+  the boundary, and ties to the sizing table's row.
+- **F2** — the anti-drift promise made mechanical: doctrine states the options
+  list is the duplicated surface and asks for a superset test where tests
+  exist; `instruments/ccarchive.test.js` gains that test (every `--help` flag
+  asserted present in the man page).
+- **F3** — the letter amended to the example's shape: `--help` may end with a
+  one-breath closing line (what the tool does + where the manual is).
+- **F4** — README recast to "converging on" (present-tense overclaim gone).
+- **F5** — `instruments/install` gains a stale-owned-link cleanup pass (bin and
+  man1), proven in throwaway XDG dirs (planted dir symlink and renamed-tool
+  link both removed, real tools kept); the live machine's residue
+  (`fixtures`, `browser-fetch` dir symlinks) removed.
+- **F6** — the MANPATH claim scoped honestly: PATH-derived manpath on macOS/BSD
+  and man-db Linux; a hard-set `MANPATH` env var overrides derivation.
+- **F7** — `ci.yml` gains a guarded mandoc lint step (runs where mandoc exists,
+  states plainly when it doesn't).
+
+Verified after applying: 247 tool tests · 75 instrument tests · mandoc lint
+clean · sizescan · linkscan · scan triad — all green.
+
+**1 MAJOR at the pass ⇒ the cycle stays open:** the applied batch's cold pass
+is queued `⏳` in the ROADMAP for a non-author to take (the applier queues,
+never spawns — rule 4 applied to the application).

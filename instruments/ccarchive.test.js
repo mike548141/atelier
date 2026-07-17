@@ -315,3 +315,99 @@ test('a man page ships and is well-formed roff', () => {
     assert.match(roff, new RegExp(`^\\.SH ${sec}`, 'm'), `a ${sec} section`);
   }
 });
+
+// --- the ruled review findings, pinned (F1–F4, 2026-07-17) ----------------
+
+test('isSuspectShrink flags a smaller source only when rawBytes is recorded', () => {
+  assert.equal(cc.isSuspectShrink(5, { rawBytes: 10 }), true);
+  assert.equal(cc.isSuspectShrink(10, { rawBytes: 10 }), false);
+  assert.equal(cc.isSuspectShrink(15, { rawBytes: 10 }), false);
+  assert.equal(cc.isSuspectShrink(5, undefined), false);
+  assert.equal(cc.isSuspectShrink(5, { fromArchive: true }), false);  // no raw-bytes anchor
+});
+
+test('contract: a shrunken source is refused (exit 1), archive untouched; --force overwrites', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const srcFile = path.join(src, '-repo-b', 'uuid2.jsonl');
+  const gzFile = path.join(dest, '-repo-b', 'uuid2.jsonl.gz');
+  const before = fs.readFileSync(gzFile);
+  fs.writeFileSync(srcFile, '{}\n');                      // truncated: smaller than recorded
+  const future = (Date.now() + 5000) / 1000;
+  fs.utimesSync(srcFile, future, future);                 // newer mtime → would overwrite
+  const res = spawnSync('node', [SCRIPT, '--json', '--source', src, '--dest', dest],
+    { encoding: 'utf8' });
+  assert.equal(res.status, 1, 'a refused shrink must exit non-zero');
+  const report = JSON.parse(res.stdout);
+  assert.deepEqual(report.refusedShrink, [path.join('-repo-b', 'uuid2.jsonl')]);
+  assert.match(res.stderr, /REFUSED/);
+  assert.ok(fs.readFileSync(gzFile).equals(before), 'the archived copy must be untouched');
+  // --force is the operator's deliberate overwrite: it goes through and re-anchors.
+  const forced = runJson(src, dest, '--force');
+  assert.equal(forced.archived, 1);
+  assert.equal(zlib.gunzipSync(fs.readFileSync(gzFile)).toString(), '{}\n');
+});
+
+test('insideGitWorkTree detects a .git ancestor at any depth', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ccarchive-git-'));
+  fs.mkdirSync(path.join(dir, 'repo', '.git', 'objects'), { recursive: true });
+  fs.mkdirSync(path.join(dir, 'repo', 'deep', 'inside'), { recursive: true });
+  assert.equal(cc.insideGitWorkTree(path.join(dir, 'repo', 'deep', 'inside')), true);
+  assert.equal(cc.insideGitWorkTree(dir), false);
+});
+
+test('contract: a dest inside a git work tree is refused; --allow-repo-dest proceeds', () => {
+  const { dir, src } = makeTree();
+  const repoDest = path.join(dir, 'fakerepo', 'archive');
+  fs.mkdirSync(path.join(dir, 'fakerepo', '.git'), { recursive: true });
+  const res = spawnSync('node', [SCRIPT, '--json', '--source', src, '--dest', repoDest],
+    { encoding: 'utf8' });
+  assert.equal(res.status, 1);
+  assert.match(res.stderr, /refusing to archive into a git work tree/);
+  assert.ok(!fs.existsSync(repoDest), 'nothing may be written behind the refusal');
+  const allowed = runJson(src, repoDest, '--allow-repo-dest');
+  assert.equal(allowed.archived, 3);
+});
+
+test('contract: an empty source against a non-empty archive exits 1, not silent success', () => {
+  const { dir, src, dest } = makeTree();
+  runJson(src, dest);
+  fs.renameSync(src, path.join(dir, 'projects-moved'));   // layout drift
+  const res = spawnSync('node', [SCRIPT, '--json', '--source', src, '--dest', dest],
+    { encoding: 'utf8' });
+  assert.equal(res.status, 1);
+  assert.match(res.stderr, /yielded no transcripts/);
+});
+
+test('contract: --verify fails on an unmanifested (injected) archive file and names it', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  fs.writeFileSync(path.join(dest, '-repo-b', 'injected.jsonl.gz'), zlib.gzipSync('{"x":1}\n'));
+  const res = spawnSync('node', [SCRIPT, '--verify', '--dest', dest], { encoding: 'utf8' });
+  assert.equal(res.status, 1, 'an injected file must fail the verify');
+  assert.match(res.stdout, /UNMANIFESTED.*injected\.jsonl/);
+});
+
+test('contract: --verify surfaces fromArchive entries distinctly (archive attesting itself)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  fs.rmSync(cc.manifestPath(dest));                       // lose the manifest…
+  fs.rmSync(path.join(src, '-repo-b', 'uuid2.jsonl'));    // …and one source is pruned
+  runJson(src, dest);                                     // backfill: uuid2 from its .gz
+  const res = spawnSync('node', [SCRIPT, '--verify', '--json', '--dest', dest],
+    { encoding: 'utf8' });
+  assert.equal(res.status, 0);
+  assert.equal(JSON.parse(res.stdout).fromArchive, 1);
+});
+
+test('drift guard: every flag --help prints appears in the man page (superset relation)', () => {
+  const help = execFileSync('node', [SCRIPT, '-h'], { encoding: 'utf8' });
+  const page = fs.readFileSync(path.join(__dirname, 'man', 'ccarchive.1'), 'utf8');
+  // Roff hyphenates flags as \-\-flag; normalise the page before matching.
+  const pageFlat = page.replace(/\\-/g, '-');
+  const flags = [...new Set(help.match(/--[\w-]+/g))];
+  assert.ok(flags.length >= 8, `expected a real flag list, got ${flags.length}`);
+  for (const flag of flags) {
+    assert.ok(pageFlat.includes(flag), `man page must document ${flag} (--help is the digest, the page the superset)`);
+  }
+});

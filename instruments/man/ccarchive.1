@@ -76,6 +76,17 @@ Mainly for testing.
 .B \-\-dry\-run
 Report what would be archived and write nothing.
 .TP
+.B \-\-force
+Overwrite an archived copy even when the source is smaller than the size
+recorded at capture. Without it such a shrink is refused \(em see
+.B INTEGRITY
+below.
+.TP
+.B \-\-allow\-repo\-dest
+Permit an archive directory that sits inside a git work tree. Refused by
+default: the archive holds personal transcripts, and a repository destination
+is one commit away from publishing them.
+.TP
 .B \-\-verify
 Re-hash every archived transcript and compare it against the sha256 recorded
 when it was archived. See
@@ -141,6 +152,33 @@ the
 keeps its recorded hash because its
 .I .gz
 is kept.
+.PP
+A file present in the archive but absent from the manifest is reported
+.B UNMANIFESTED
+and fails the verify: it is either injected, or history the manifest lost, and
+both deserve a human eye. Entries whose source was pruned before hashing
+existed are marked
+.B fromArchive
+in the manifest \(em their hash attests the archived copy only, not the
+original raw bytes \(em and
+.B \-\-verify
+counts them distinctly.
+.PP
+The archive never
+.I deletes
+\(em but an ordinary run does
+.I overwrite
+an archived copy when the source is newer. Because sessions only ever grow, a
+source that is
+.I smaller
+than the size recorded at capture is treated as suspect (truncation, disk
+fault, sync accident) and the overwrite is refused with a non-zero exit;
+.B \-\-force
+is the deliberate override. The mirror image \(em a source restored from
+backup with an
+.I older
+modification time \(em is silently left un-archived, since the archived copy
+is newer.
 .PP
 The manifest is the trust anchor. It defends against
 .I accidental

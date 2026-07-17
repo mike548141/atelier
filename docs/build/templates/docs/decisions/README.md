@@ -9,8 +9,9 @@ session might re-propose, or (b) rests on evidence that took real work to
 gather. Don't write one for reversible implementation choices — a code
 comment covers those (the "comments say why" rule).
 
-Format: one file, `<YYYY-MM-DD>-<HHMM>-<slug>.md` (start time, 24-hour —
-coordination-free, per atelier's `method/CONCURRENCY.md` record-identifier
+Format: one file, `<YYYY-MM-DD>-<HHMM>-<slug>.md` (start time, 24-hour, in UTC
+— `date -u`, atelier ADR 2026-07-15; coordination-free, per atelier's
+`method/CONCURRENCY.md` record-identifier
 rule; files named under retired schemes keep their names), about half a page.
 Sections: **Status** (draft / accepted / revoked `<date>` / superseded by
 `<file>`), **Date**, **Context**, **Decision**, **Rejected** (each alternative

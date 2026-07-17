@@ -21,8 +21,9 @@ a real look are enough.
 
 ## Format
 
-One file per review, `<YYYY-MM-DD>-<HHMM>-<slug>.md` (start time, 24-hour —
-coordination-free, per atelier's `method/CONCURRENCY.md` record-identifier
+One file per review, `<YYYY-MM-DD>-<HHMM>-<slug>.md` (start time, 24-hour, in
+UTC — `date -u`, atelier ADR 2026-07-15; coordination-free, per atelier's
+`method/CONCURRENCY.md` record-identifier
 rule). Keep it a brief the reviewer can act on, not a transcript:
 
 - **Build** — what changed and by which model/date.

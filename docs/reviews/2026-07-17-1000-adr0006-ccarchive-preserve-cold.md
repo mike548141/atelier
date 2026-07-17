@@ -252,3 +252,33 @@ All findings are the principal's to decide (rule 3); counsel above is the
 reviewer's, applied nowhere.
 
 — Cold reviewer (Fable 5), 2026-07-17, worktree `fable-review` at `325011b`.
+
+---
+
+## Decision — 2026-07-17, ruled by Mike (principal)
+
+Mike ruled **F1–F4 all [fixed] as counselled** ("agreed", 2026-07-17). Applied
+the same day by the taking session (authored neither the ADR addendum nor this
+verdict). What was applied:
+
+- **F1** — the shrink guard: a re-archive whose source is smaller than the
+  manifest's recorded `rawBytes` is refused (non-zero exit, archive and
+  manifest untouched); `--force` is the deliberate override. Exposure and the
+  older-mtime mirror edge now named in the man page's INTEGRITY section and
+  the README.
+- **F2** — guard 2 made a guard in code (the stronger of the counselled
+  options, so the ADR's word stays true): a dest inside a git work tree is
+  refused; `--allow-repo-dest` overrides consciously.
+- **F3** — layout-drift alarm: zero transcripts against a non-empty archive
+  exits non-zero instead of logging success while the archive silently stops
+  growing.
+- **F4** — `--verify` fails on unmanifested files and names them;
+  `fromArchive` entries surfaced distinctly in output and documented as the
+  weaker anchor.
+
+All four pinned by tests (ccarchive suite 27 → 35; instrument total 75), the
+live archive re-driven read-only (`--dry-run` clean over 432 transcripts).
+
+**0 MAJOR at the pass + ruled + fixes verified ⇒ CYCLE CLOSED** (the terminal
+application of a no-MAJOR pass closes without a queued pointer — the close
+rule).

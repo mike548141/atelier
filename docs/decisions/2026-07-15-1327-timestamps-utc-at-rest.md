@@ -74,3 +74,19 @@ The general rule — declare a default frame, label deviations — lives in
   and the record says which is which.
 - Time is the first worked instance of `method/CONVENTIONS.md`; currency,
   encoding, date-format and locale are declared there under the same rule.
+
+## Addendum — 2026-07-17 (cold-review F3/F5, ruled by the principal)
+
+Two consequences the decision implied but never stated, added on the ruling of
+the cold pass (`reviews/2026-07-17-1000-conventions-utc-at-rest-cold.md`); the
+decision itself is unchanged:
+
+- **A bare date in prose is a UTC date.** "Every timestamp atelier authors is
+  UTC" includes day-granularity prose dates (RECORD's absolute-dating rule now
+  says so): an NZ morning is still the previous UTC day, so a session writes
+  the UTC date that matches its own identifier, not its wall clock.
+- **Boundary-era sort inversion is accepted.** Mixed local/UTC identifiers
+  coexist across the boundary as designed — and near the boundary a UTC key can
+  sort *before* a local key minted earlier in real time (this ADR's own `07-15`
+  filename against any local `07-15` afternoon stamp is the worked case).
+  Named and accepted; forward-only, like the boundary itself.

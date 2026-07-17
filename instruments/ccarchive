@@ -60,6 +60,8 @@ OPTIONS
   --dest <dir>           Archive dir (default: iCloud Drive; or $CCARCHIVE_DEST).
   --source <dir>         Read from <dir> (default: ~/.claude/projects).
   --dry-run              Show what would be archived; write nothing.
+  --force                Overwrite an archived copy even when the source shrank.
+  --allow-repo-dest      Permit an archive dir inside a git work tree.
   --verify               Re-check the archive against its sha256 manifest.
   --install-schedule     Run daily via launchd (macOS). Also --schedule-status,
                          --uninstall-schedule.
@@ -97,6 +99,30 @@ function archivePathFor(destRoot, srcRoot, srcAbs) {
 const MTIME_TOLERANCE_MS = 1;
 function shouldArchive(srcMtimeMs, destMtimeMs) {
   return destMtimeMs === null || srcMtimeMs - destMtimeMs > MTIME_TOLERANCE_MS;
+}
+
+// A re-archive that would shrink the stored copy is suspect: session logs only
+// ever grow, so a smaller-than-recorded source usually means truncation or
+// corruption upstream. After Claude Code's cleanup the archive is the sole
+// durable copy, so an overwrite must never propagate that damage silently —
+// refuse unless the operator forces it (--force).
+function isSuspectShrink(srcBytes, manifestEntry) {
+  return !!(manifestEntry && typeof manifestEntry.rawBytes === 'number'
+    && srcBytes < manifestEntry.rawBytes);
+}
+
+// The write target must never sit inside a git work tree: the archive holds
+// personal transcripts, and a repo dest is one commit away from publishing
+// them. This makes the ADR's second guard a refusal in code, not just a safe
+// default (--allow-repo-dest overrides, consciously).
+function insideGitWorkTree(dir) {
+  let d = path.resolve(dir);
+  for (;;) {
+    if (fs.existsSync(path.join(d, '.git'))) return true;
+    const parent = path.dirname(d);
+    if (parent === d) return false;
+    d = parent;
+  }
 }
 
 function humanBytes(n) {
@@ -322,8 +348,13 @@ function verifyArchive(destRoot, asJson) {
   for (const rel of listArchivedRels(destRoot)) {
     if (!manifest[rel]) result.unmanifested.push(rel);  // archived but no recorded hash
   }
+  // Entries whose hash was backfilled from the .gz itself — the archive
+  // attesting the archive, weaker than a raw-bytes anchor; surfaced, not hidden.
+  result.fromArchive = rels.filter((rel) => manifest[rel].fromArchive).length;
 
-  const failed = result.mismatch.length + result.missing.length;
+  // An unmanifested file fails the verify: it is either injected, or archived
+  // history the manifest lost — both need a human eye, not a green tick.
+  const failed = result.mismatch.length + result.missing.length + result.unmanifested.length;
   if (asJson) { process.stdout.write(JSON.stringify(result, null, 2) + '\n'); return failed ? 1 : 0; }
 
   const lines = [
@@ -331,12 +362,16 @@ function verifyArchive(destRoot, asJson) {
     `  ${result.checked} in manifest · ${result.ok} verified, ` +
       `${result.mismatch.length} mismatched, ${result.missing.length} missing`,
   ];
-  if (result.unmanifested.length) {
-    lines.push(`  ${result.unmanifested.length} archived file(s) not in the manifest ` +
-      `(run ccarchive once to record them)`);
+  if (result.fromArchive) {
+    lines.push(`  ${result.fromArchive} entr${result.fromArchive === 1 ? 'y' : 'ies'} ` +
+      `attest the archived copy only (source pruned before hashing — fromArchive)`);
   }
   for (const rel of result.mismatch) lines.push(`  ✗ MISMATCH ${rel}`);
   for (const rel of result.missing) lines.push(`  ✗ MISSING  ${rel}`);
+  for (const rel of result.unmanifested) {
+    lines.push(`  ✗ UNMANIFESTED ${rel} (no recorded hash — injected, or lost ` +
+      `from the manifest; run ccarchive to record it, then investigate)`);
+  }
   if (!failed) lines.push('  ✓ every archived transcript matches its recorded sha256.');
   process.stdout.write(lines.join('\n') + '\n');
   return failed ? 1 : 0;
@@ -354,20 +389,40 @@ function run() {
   if (argv.includes('--schedule-status')) return scheduleStatus(os.homedir());
   const asJson = argv.includes('--json');
   const dryRun = argv.includes('--dry-run');
+  const force = argv.includes('--force');
   const home = os.homedir();
   const srcRoot = takeValue('--source') || path.join(home, '.claude', 'projects');
   const destRoot = takeValue('--dest') || process.env.CCARCHIVE_DEST || defaultDest(home);
 
   if (argv.includes('--verify')) return verifyArchive(destRoot, asJson);
 
+  if (insideGitWorkTree(destRoot) && !argv.includes('--allow-repo-dest')) {
+    process.stderr.write(
+      `ccarchive: refusing to archive into a git work tree (${destRoot}) — ` +
+      `transcripts are personal data one commit away from publication. ` +
+      `Pass --allow-repo-dest to override.\n`);
+    return 1;
+  }
+
   const files = listJsonl(srcRoot);
   const report = { source: srcRoot, dest: destRoot, dryRun, total: files.length,
-    archived: 0, skipped: 0, bytesRaw: 0, bytesGz: 0, files: [] };
+    archived: 0, skipped: 0, refusedShrink: [], bytesRaw: 0, bytesGz: 0, files: [] };
 
-  // The integrity manifest is loaded/updated only on a real run.
-  const manifest = dryRun ? null : loadManifest(destRoot);
+  // The manifest is read on every run (the shrink guard needs its rawBytes);
+  // it is only ever written back on a real run.
+  const manifest = loadManifest(destRoot);
   let manifestChanged = false;
   const nowIso = dryRun ? null : new Date().toISOString();
+
+  // Layout-drift alarm: an empty source against a non-empty archive means the
+  // live dir moved or was renamed — without this, a scheduled run would report
+  // success forever while the archive silently stopped growing.
+  if (files.length === 0 && Object.keys(manifest).length > 0) {
+    process.stderr.write(
+      `ccarchive: source ${srcRoot} yielded no transcripts while the archive ` +
+      `holds ${Object.keys(manifest).length} — has the live directory moved?\n`);
+    return 1;
+  }
 
   for (const srcAbs of files) {
     const srcStat = fs.statSync(srcAbs);
@@ -382,10 +437,19 @@ function run() {
       report.skipped++;
       // Backfill: an already-archived transcript with no recorded hash (e.g. the
       // first run after this feature shipped). The source is present, so hash it.
-      if (manifest && !manifest[rel]) {
+      if (!dryRun && !manifest[rel]) {
         manifest[rel] = { sha256: sha256File(srcAbs), rawBytes: srcStat.size, archivedAt: nowIso };
         manifestChanged = true;
       }
+      continue;
+    }
+
+    // Shrink guard: this is an overwrite of the sole durable copy, and the
+    // source is smaller than what the manifest recorded — suspect, refuse.
+    if (!force && destMtimeMs !== null && isSuspectShrink(srcStat.size, manifest[rel])) {
+      report.refusedShrink.push(rel);
+      report.files.push({ rel, action: 'refused-shrink', rawBytes: srcStat.size,
+        recordedBytes: manifest[rel].rawBytes });
       continue;
     }
 
@@ -415,7 +479,7 @@ function run() {
 
   // Backfill any archived .gz whose source is already gone (pruned before this
   // feature existed) — hash it from the compressed copy, the only source left.
-  if (manifest) {
+  if (!dryRun) {
     for (const rel of listArchivedRels(destRoot)) {
       if (manifest[rel]) continue;
       manifest[rel] = { sha256: sha256Gz(path.join(destRoot, rel + '.gz')), archivedAt: nowIso, fromArchive: true };
@@ -425,9 +489,15 @@ function run() {
     report.manifestEntries = Object.keys(manifest).length;
   }
 
+  for (const rel of report.refusedShrink) {
+    process.stderr.write(
+      `ccarchive: REFUSED ${rel} — source is smaller than the archived copy ` +
+      `(truncated?). Re-run with --force to overwrite deliberately.\n`);
+  }
+
   if (asJson) {
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');
-    return 0;
+    return report.refusedShrink.length ? 1 : 0;
   }
 
   const verb = dryRun ? 'would archive' : 'archived';
@@ -441,11 +511,14 @@ function run() {
       ? `  ${humanBytes(report.bytesRaw)} raw to compress`
       : `  ${humanBytes(report.bytesGz)} written (from ${humanBytes(report.bytesRaw)} raw)`);
   }
+  if (report.refusedShrink.length) {
+    lines.push(`  ${report.refusedShrink.length} REFUSED (source smaller than archived copy — see stderr)`);
+  }
   if (!dryRun && report.manifestEntries) {
     lines.push(`  ${report.manifestEntries} sha256 in manifest.json — verify with: ccarchive --verify`);
   }
   process.stdout.write(lines.join('\n') + '\n');
-  return 0;
+  return report.refusedShrink.length ? 1 : 0;
 }
 
 if (require.main === module) {
@@ -456,4 +529,5 @@ module.exports = {
   defaultDest, archivePathFor, shouldArchive, humanBytes, listJsonl, run,
   xmlEscape, schedulePaths, resolveScriptPath, launchdPlist, cronLine,
   sha256, manifestPath, loadManifest, saveManifest, listArchivedRels, verifyArchive,
+  isSuspectShrink, insideGitWorkTree,
 };

@@ -105,7 +105,8 @@ action across every parallel session.
   views create *differently named* files carrying the same number, so no merge
   conflict fires and the collision lands silently. So every record series —
   session logs, ADRs, review briefs, anything similar — uses one form,
-  **`<date>-<HHMM>-<slug>`** (start time, 24-hour), built from facts the
+  **`<date>-<HHMM>-<slug>`** (start time, 24-hour, in UTC — `date -u`,
+  ADR 2026-07-15), built from facts the
   session already owns: no shared state, safe to allocate at session open,
   citable immediately, and same-day records keep their order. Structurally,
   the worst case collapses into the append-tail case above: two sessions

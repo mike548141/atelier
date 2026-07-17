@@ -15,44 +15,31 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
-- 🎯 **REPO-STANDARD CLI-docs convention — cold pass RAN 2026-07-17:
-      PASS-WITH-FINDINGS, 1 MAJOR · 4 MEDIUM · 2 LOW; Mike's ruling owed on
-      F1–F7.** Verdict (rule-4 provenance stated inside):
-      `reviews/2026-07-17-1000-cli-docs-standard-cold.md`. Sharpest: F1 the
-      scope predicate is unbounded — as written it binds atelier's own seven
-      `tools/` scanners (no man pages, no stated exception), contradicting the
-      standard's own sizing principle. Self-authored doctrine ⇒ decisions are
-      the principal's (rule 3); reviewer's counsel recorded per finding,
-      nothing applied. Intent record:
-      `sessions/2026-07-17-0946-ccarchive-man-cli-docs-standard.md`.
-- 🎯 **ADR 0006 addendum (ccarchive, the *preserve* verb) — cold pass RAN
-      2026-07-17: PASS-WITH-FINDINGS, 0 MAJOR · 1 MEDIUM · 3 LOW; Mike's ruling
-      owed on F1–F4.** Verdict (rule-4 provenance stated inside):
-      `reviews/2026-07-17-1000-adr0006-ccarchive-preserve-cold.md`. Sharpest:
-      F1 "append-only" is delete-proof but not overwrite-proof — a corrupted
-      source transcript with a newer mtime silently overwrites the only durable
-      archived copy and the manifest then blesses the damage. All three seeded
-      questions answered yes/holds (preserve is a real verb; the public-repo
-      boundary holds as shipped; §8 reconciliation holds). Self-authored
-      doctrine ⇒ decisions are the principal's (rule 3); counsel recorded,
-      nothing applied. Intent record:
-      `sessions/2026-07-17-0810-ccarchive-transcript-preservation.md`.
-- 🎯 **CONVENTIONS.md + UTC-at-rest ADR — cold pass RAN 2026-07-17:
-      PASS-WITH-FINDINGS, 1 MAJOR · 0 MEDIUM · 5 LOW; Mike's ruling owed on
-      F1–F6 (F6 principal-raised post-verdict: the "ISO 8601" table row
-      declares a standard the estate deliberately profiles — `T`/space,
-      identifier key shape — without declaring the profile).** Verdict
-      (rule-4 provenance stated inside):
-      `reviews/2026-07-17-1000-conventions-utc-at-rest-cold.md`. Sharpest: F1
-      the ADR changed what a record identifier's `HHMM` means (UTC), but all
-      six docs that direct identifier minting (RECORD, CONCURRENCY,
-      REPO-STANDARD, three templates) still say "start time, 24-hour" with no
-      zone — stale in the delivering commit by RECORD's own lockstep rule, and
-      children never read atelier's ADRs. No person-local leak (seeded Q3
-      cleared); the UTC regime verified behaviourally, not just read.
-      Self-authored doctrine ⇒ decisions are the principal's (rule 3); counsel
-      recorded, nothing applied. Intent record:
-      `sessions/2026-07-15-1327-conventions-default-frame.md`.
+- ⏳ **CLI-docs standard — applied-batch cold pass queued 2026-07-17** (the
+      first pass carried a MAJOR, so the cycle stays open; the applier queues,
+      never spawns — rule 4). Delta: the doctrine + instruments hunks of the
+      F1–F7 application commit (2026-07-17, `build/REPO-STANDARD.md` +
+      `instruments/`). Ruling record:
+      `reviews/2026-07-17-1000-cli-docs-standard-cold.md` § Decision. Intent
+      record: `sessions/2026-07-17-0958-three-queued-cold-reviews-taken.md`.
+- [x] **ADR 0006 addendum (ccarchive, the *preserve* verb) — reviewed, ruled,
+      applied, CYCLE CLOSED 2026-07-17.** Cold pass PASS-WITH-FINDINGS
+      (0 MAJOR · 1 MEDIUM · 3 LOW); Mike ruled F1–F4 [fixed] as counselled,
+      applied + pinned same day (shrink guard `--force`, repo-dest guard
+      `--allow-repo-dest`, layout-drift alarm, strict `--verify`; ccarchive
+      tests 27→35). Verdict + decisions:
+      `reviews/2026-07-17-1000-adr0006-ccarchive-preserve-cold.md`. 0 MAJOR ⇒
+      the terminal application closes without a queued pointer (close rule).
+- ⏳ **CONVENTIONS + UTC-at-rest ADR — applied-batch cold pass queued
+      2026-07-17** (the first pass carried a MAJOR, so the cycle stays open;
+      the applier queues, never spawns — rule 4). Delta: the doctrine hunks of
+      the F1–F6 application commit (2026-07-17: `method/CONVENTIONS.md`,
+      `method/RECORD.md`, `method/CONCURRENCY.md`, `method/PROPAGATION.md`,
+      `build/REPO-STANDARD.md`, the three templates, the ADR's dated
+      addendum). Ruling record:
+      `reviews/2026-07-17-1000-conventions-utc-at-rest-cold.md` § Decision.
+      Intent record:
+      `sessions/2026-07-17-0958-three-queued-cold-reviews-taken.md`.
 Closed doctrine review cycles (REVIEW rule 4, MODEL-ECONOMICS triple delta,
 "informed principal" apex rule, PRINCIPLES §2 four bullets — all CYCLE CLOSED
 2026-07-14/15) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § Doctrine — completed

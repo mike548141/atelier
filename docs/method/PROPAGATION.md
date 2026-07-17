@@ -104,7 +104,8 @@ in atelier and is read on demand — never wholesale.
   each commit. Uncommitted changes this session didn't make ⇒ another session
   is live: move to a worktree — never work around or absorb them. Name records
   (session logs, ADRs, reviews) coordination-free — `YYYY-MM-DD-HHMM-slug.md`,
-  never a next-N counter; files named under retired schemes keep their names.
+  `HHMM` in UTC (`date -u`); never a next-N counter; files named under retired
+  schemes keep their names.
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
   session start run `git -C "<atelier-path>" log --oneline <SHA>..HEAD`; any
   output means the house doctrine moved — read it, then bump the pin above

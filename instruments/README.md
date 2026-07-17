@@ -20,7 +20,7 @@ drives Chrome via Playwright); each documents its own runtime.
 | `ccarchive`     | preserve  | Durably mirror every raw `.jsonl` transcript into a compressed, append-only archive that outlives Claude Code's cleanup. |
 | `browser-fetch` | extend    | A browser (fresh headless, or the operator's own Chrome) when `WebFetch`/curl are blocked. MCP server; see its own README. |
 
-The Node CLIs each carry both a concise `-h`/`--help` digest and a fuller
+The Node CLIs are converging on a concise `-h`/`--help` digest plus a fuller
 `man <tool>` page — the two-register convention in
 [`build/REPO-STANDARD.md`](../docs/build/REPO-STANDARD.md) (`--help` = one-screen
 reminder; `man` = plain-language reference with `FILES`/`EXAMPLES`/`NOTES`).
@@ -159,7 +159,15 @@ that cleanup:
 - **Append-only by contract:** it never deletes from the archive. When Claude
   Code's cleanup removes a source log, the archived copy stays — that is the point.
   It doesn't parse the `.jsonl`, it preserves the bytes, so it's immune to schema
-  drift (unlike the observers below).
+  drift (unlike the observers below). Append-only is not overwrite-proof, so two
+  guards protect the sole durable copy: a **shrink guard** refuses to overwrite
+  when a newer source is *smaller* than the size recorded at capture (sessions
+  only grow; a shrink means truncation or corruption upstream — `--force` is the
+  deliberate override), and a source yielding **zero transcripts** against a
+  non-empty archive exits non-zero instead of logging success while the archive
+  quietly stops growing (the live dir moved). A dest inside a git work tree is
+  also refused (`--allow-repo-dest` overrides): transcripts are personal data,
+  and a repo dest is one commit away from publication.
 - **Integrity — sha256 manifest + `--verify`.** gzip's CRC-32 catches a corrupted
   `.gz` on decompression, but it's weak and only proves the file is
   self-consistent. So ccarchive records a **sha256 of each transcript's raw bytes**
@@ -167,7 +175,11 @@ that cleanup:
   archived `.gz` and compares, reporting any **mismatch** (mutation/bit-rot/sync
   glitch) or **missing** file and exiting non-zero if the archive doesn't verify.
   The manifest tracks the *archive* (append-only), not live sources — a pruned
-  session keeps its recorded hash because its `.gz` is kept. It's the trust
+  session keeps its recorded hash because its `.gz` is kept. An archived file
+  *absent* from the manifest fails the verify (injected, or lost history — both
+  need a human eye), and entries backfilled from the `.gz` after their source was
+  pruned are counted distinctly (`fromArchive`: the archive attesting itself, a
+  weaker anchor than raw bytes). It's the trust
   anchor: it defends against accidental corruption; for tamper-resistance keep a
   copy of `manifest.json` somewhere separate from the archive (a mutation that
   also rewrote the manifest would pass). Run it any time, and after any restore.

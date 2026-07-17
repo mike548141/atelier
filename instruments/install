@@ -28,6 +28,22 @@ for src in "$BIN_DIR"/*; do
   echo "link  $name -> $link"
 done
 
+# Clean up stale owned links: anything in DEST that points back into this dir
+# but is no longer a currently installable tool (a renamed/removed tool, or the
+# directory symlinks an earlier install bug leaked). Ownership = the same test
+# the loop above uses — the link targets this dir.
+for link in "$DEST"/*; do
+  [ -L "$link" ] || continue
+  target="$(readlink "$link")"
+  case "$target" in "$BIN_DIR"/*) ;; *) continue ;; esac
+  name="$(basename "$link")"
+  case "$name" in install|README.md|*.md) ;; *)
+    [ -f "$BIN_DIR/$name" ] && [ -x "$BIN_DIR/$name" ] && continue ;;
+  esac
+  rm "$link"
+  echo "clean $name — stale link removed ($target)"
+done
+
 # Man pages. macOS/BSD `man` auto-maps a PATH entry <X>/bin to <X>/share/man,
 # so a page in ~/.local/share/man/man1 is found because ~/.local/bin is on PATH.
 if [ -d "$BIN_DIR/man" ]; then
@@ -43,6 +59,15 @@ if [ -d "$BIN_DIR/man" ]; then
     fi
     ln -sfn "$page" "$plink"
     echo "man   $pname -> $plink"
+  done
+  # Same cleanup pass for pages: an owned man link whose page is gone is stale.
+  for plink in "$MAN_DEST"/*; do
+    [ -L "$plink" ] || continue
+    ptarget="$(readlink "$plink")"
+    case "$ptarget" in "$BIN_DIR"/man/*) ;; *) continue ;; esac
+    [ -f "$BIN_DIR/man/$(basename "$plink")" ] && continue
+    rm "$plink"
+    echo "clean $(basename "$plink") — stale man link removed ($ptarget)"
   done
 fi
 

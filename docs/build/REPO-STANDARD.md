@@ -108,7 +108,8 @@ evidence — see `method/EVIDENCE.md`.
 - **MODEL-ECONOMICS.md** — the repo's model/token policy. General shape (which
   model builds, which reviews, session hygiene) is `method/MODEL-ECONOMICS.md`;
   the repo file carries only what's repo-local, or points up entirely.
-- **decisions/** — ADRs named `<YYYY-MM-DD>-<HHMM>-<slug>.md` (coordination-free,
+- **decisions/** — ADRs named `<YYYY-MM-DD>-<HHMM>-<slug>.md` (`HHMM` in UTC —
+  `date -u`, ADR 2026-07-15; coordination-free,
   per `method/CONCURRENCY.md`; files named under retired schemes keep their
   names). Write one when a decision
   **rejected a plausible alternative** or **rests on hard-won evidence**; skip it
@@ -133,25 +134,34 @@ evidence — see `method/EVIDENCE.md`.
   action (`method/AUTONOMY.md`, `decisions/0003`).
 - **Don't standardise a third-party repo.** Check the remote's owner before
   touching anything; a repo under someone else's org is not yours to reshape.
-- **CLI tools ship both `--help` and a man page — different jobs, not two copies
-  of one.** A repo with command-line tools documents each in two registers and is
-  explicit about which is which:
+- **An installed CLI ships both `--help` and a man page — different jobs, not
+  two copies of one.** Scope: a tool the repo **installs onto an operator's
+  machine** (published to `PATH`, used away from the repo) documents itself in
+  two registers; a repo-internal script that runs in place — hooks, CI steps,
+  checks invoked from the repo root — owes a good `--help` only. This is the
+  sizing table's man-page row given its boundary, and it is why atelier's own
+  `tools/` scanners carry no pages: they run in place, in this repo and in
+  children's hooks, never installed onto a machine.
   - **`--help` — the digest.** Concise and scannable, fits a screen: a one-line
-    synopsis and the options as a flat list, nothing more. It serves the user who
-    already knows the tool and wants a reminder. It ends by pointing at the manual
-    (`… full detail: man <tool>`), and it is *not* where prose, rationale or
-    worked examples belong.
+    synopsis, the options as a flat list, and at most a one-breath closing line
+    saying what the tool does and where the manual is (`… full manual:
+    man <tool>`). It serves the user who already knows the tool and wants a
+    reminder — it is *not* where rationale or worked examples belong.
   - **`man <tool>(1)` — the full reference.** Plain language: what the tool is and
     *why*, every option explained, and the sections a digest can't carry —
     `FILES`, `EXAMPLES`, `EXIT STATUS`, `NOTES`, `SEE ALSO`. It serves the user
     learning the tool or needing depth.
 
-  The man page is the superset; `--help` is its digest. Keep them from drifting by
-  keeping the detail in **one** place (the page) and letting `--help` point to it —
-  never maintain the same paragraph twice. Ship pages as roff under a `man/` dir
-  and have the installer symlink them onto `MANPATH`
-  (`~/.local/share/man/man1`, auto-found because the bin dir is on `PATH`). Worked
-  example: atelier's `instruments/` (`man/ccarchive.1` + a one-screen `--help`).
+  The man page is the superset; `--help` is its digest. The one thing both must
+  carry is the options list, so that duplication is where drift lives: keep
+  prose detail in **one** place (the page), and where the repo has tests, pin
+  the superset relation mechanically — assert every flag `--help` prints
+  appears in the page (atelier's `instruments/` tests do). Ship pages as roff
+  under a `man/` dir and have the installer publish them to
+  `~/.local/share/man/man1` — auto-found on macOS/BSD `man` and man-db Linux,
+  which derive the manpath from `PATH`; a hard-set `MANPATH` environment
+  variable overrides that derivation, the one common gotcha. Worked example:
+  atelier's `instruments/` (`man/ccarchive.1` + a one-screen `--help`).
 
 ## Process — a new repo
 

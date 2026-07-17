@@ -64,7 +64,8 @@ stopped instead of re-deriving it:
   with no sanctioned move for an index that had already done the split.)
 - **Detail lives on demand** — when a session is substantial, its full detail
   goes in a `docs/sessions/<date>-<HHMM>-<slug>.md` file and the index carries
-  a one-line pointer. (`HHMM` is the session's start time, 24-hour — the
+  a one-line pointer. (`HHMM` is the session's start time, 24-hour, in UTC
+  (`date -u`) — ADR 2026-07-15; the
   identifier is coordination-free per CONCURRENCY's record-identifier rule:
   built from facts the session already owns, safe to allocate at open, no
   shared counter. Files named under the retired `NN` scheme keep their names.)
@@ -169,7 +170,9 @@ Every dated thing in the record — session entries, ADRs, doctrine changes,
 roadmap ticks — states the date **absolutely** (`2026-07-10`), never "today" or
 "last week". A record is read out of its writing-context by definition; relative
 time is meaningless to the reader who finds it three weeks later, and ambiguous
-across models with different cutoffs. (EVIDENCE §7.)
+across models with different cutoffs. (EVIDENCE §7.) And the absolute date is
+the **UTC** date (ADR 2026-07-15): an NZ morning is still the previous UTC day,
+so the prose date matches the record's own UTC identifier, not the wall clock.
 
 ## The record is public — keep private repos generic
 

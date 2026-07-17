@@ -96,6 +96,17 @@ jobs:
       - name: instrument test suite
         run: node --test instruments/*.test.js
 
+      # Guarded, not a hard dependency: mandoc isn't preinstalled on the runner,
+      # so the roff lint runs where the tool exists and states plainly when it
+      # doesn't — an honest local-only gate beats a phantom-green one.
+      - name: man page lint (best effort)
+        run: |
+          if command -v mandoc >/dev/null 2>&1; then
+            mandoc -T lint instruments/man/*.1
+          else
+            echo "mandoc unavailable on this runner — roff lint is a local-only check"
+          fi
+
       - name: secretscan (full tree)
         run: python3 tools/secretscan.py --root . .
 

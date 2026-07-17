@@ -62,3 +62,39 @@ the ccarchive pass (0 MAJOR) closes on Mike's ruling per the close rule.
 Records landed on `main`; the three claims are released with this landing (the
 `⏳` lines rewritten as 🎯 ruling-owed items). Worktree put away —
 zero unique commits after the landing.
+
+## Addendum — same session: Mike ruled all three batches; applied
+
+Mike ruled in sequence, each after a plain-language what/why/impact (the
+informed-principal rule): **CLI-docs F1–F7 "agreed"** · **ccarchive F1–F4
+"agreed"** · **CONVENTIONS F1–F5 + F6 "make all the changes as you
+counselled"** — F6 being his own finding, raised mid-review (the "ISO 8601"
+row declares a standard the estate deliberately profiles; strict ISO wants
+`T`, a zone-less stamp means local). All applied same session by the taking
+session (authored none of the three doctrines nor any verdict); per-finding
+detail stamped in each verdict file's § Decision.
+
+Highlights of the application:
+
+- **ccarchive** (F1–F4, all pinned; tests 27→35, instrument total 75): shrink
+  guard (`--force` overrides), git-work-tree dest guard (`--allow-repo-dest`),
+  layout-drift alarm (zero transcripts + non-empty archive ⇒ exit 1), strict
+  `--verify` (unmanifested fails; `fromArchive` surfaced). Man page + README
+  carry the exposures honestly. **Cycle CLOSED** (0 MAJOR, ruled, verified).
+- **CLI-docs** (F1–F7): scope predicate drawn (installed-onto-a-machine ships
+  both registers; in-place scripts owe `--help` only — why `tools/` carries no
+  pages is now stated); superset drift test added; the `--help` letter matches
+  its own exemplar; README tense fixed; installer gains a stale-owned-link
+  cleanup pass (proven in throwaway XDG dirs; live residue `fixtures` +
+  `browser-fetch` removed from `~/.local/bin`); MANPATH claim scoped; guarded
+  mandoc step in CI. **Cycle open** — applied-batch ⏳ queued.
+- **CONVENTIONS/UTC** (F1–F6): the six minting sites now say UTC (`date -u`,
+  ADR pointer) — templates via the canonical block, drift test green, children
+  inherit at next pin bump; label strength aligned; prose-date-is-UTC in the
+  ADR addendum + RECORD; ingestion clause honestly marked instance-less;
+  boundary sort inversion named; the Date & time row rewritten as the declared
+  three-shape house profile. ADR changed by dated addendum only. **Cycle
+  open** — applied-batch ⏳ queued.
+
+Floor after applying: 247 tool tests · 75 instrument tests · mandoc ·
+sizescan · linkscan · scan triad — all green.
