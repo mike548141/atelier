@@ -1,0 +1,182 @@
+# ccrepo v2 — flexible grouping, filters, and a message-grain cost engine
+
+Status: **design agreed, not yet built.** Captures the decisions from the
+2026-07-16/17 design conversation so implementation has a single grounded
+reference. Numbers below are from the live machine at design time (284 sessions,
+a ~6-week log window).
+
+## 1. What changes, in one line
+
+Grouping goes from *"repo is always outer, pick one child"* to **an ordered list
+of dimensions, any subset, any order** — and the cost behind it moves from
+*session-grain (trust ccusage)* to **message-grain (compute it ourselves, then
+reconcile against ccusage)** so the new within-session dimensions are honest.
+
+## 2. Grouping — `--group` / `-g`
+
+One ordered, comma-separated flag. Leftmost = outermost parent. Replaces
+`--by-model` / `--by-day` outright (clean break — no aliases kept).
+
+```
+ccrepo                       # default: -g repo, cost-descending
+ccrepo -g month              # totals per month
+ccrepo -g repo,model         # repo → model (old --by-model)
+ccrepo -g model,repo         # model → repo (new: any order)
+ccrepo -g repo,branch,month  # three levels
+ccrepo -g total              # single grand-total row
+```
+
+Default stays **`repo`** — it answers "which repo is burning money", it's the
+actionable view, and under ~30-day log retention a time default renders only 1–2
+rows (see §8). Long flag names are primary; `-g` is the one short alias (hot
+path). Existing `-z`, `-h` kept.
+
+## 3. Dimensions and their data grain
+
+The vocabulary you can **group by** is exactly the vocabulary you can **filter
+by** (§5). Two grains:
+
+| Dimension | Source | Grain | Notes |
+|---|---|---|---|
+| `repo` | ccrepo's UUID→path index | session | unchanged; from `~/.claude/projects/` path |
+| `model` | per-message `model` | message | opus-4-8 / fable-5 / sonnet-5 / haiku-4-5 / sonnet-4-6 seen |
+| `year` `month` `week` `day` `hour` | message `timestamp` | message | all five derivable; sub-day needs message grain (§4) |
+| `branch` | message `gitBranch` | message | 49 distinct live — "what did this feature cost"; `HEAD` (detached) bucketed as-is |
+| `kind` (main / subagent) | message `isSidechain` | message | subagent/fleet spend |
+| `entrypoint` | message `entrypoint` | message | `cli` vs `claude-vscode` |
+| `cc-version` | message `version` | message | 10 distinct — release-cost diagnostics |
+| `agent` | message `agent` / ccusage | session | uniform `claude` today — wired but latent |
+
+`repo` stays session-grained (stable; `cwd` can vary per message but rarely
+matters). Everything marked *message* is attributed exactly, per message, not by
+a session's dominant value — that's the whole point of the grain move.
+
+## 4. Cost engine — compute at message grain, reconcile against ccusage
+
+**Why we can't keep trusting ccusage's number directly:** ccusage reports cost
+per *session*; branch/kind/version/entrypoint/hour all vary *within* a session,
+so a per-session cost can't be split across them honestly. The raw logs carry
+per-message **tokens + model** but **no cost** — so ccrepo computes it.
+
+### Price table (embedded snapshot, overridable)
+
+Cost per message = Σ over five token classes of `tokens × price(model, class,
+tier)`:
+
+| Token class | Log field |
+|---|---|
+| input | `usage.input_tokens` |
+| output | `usage.output_tokens` |
+| cache read | `usage.cache_read_input_tokens` |
+| cache write 5-minute | `usage.cache_creation.ephemeral_5m_input_tokens` |
+| cache write 1-hour | `usage.cache_creation.ephemeral_1h_input_tokens` |
+
+The 5m/1h split is real and priced differently (≈1.25× vs ≈2× base) — lumping
+them is a measurable error, so they're separate classes. `service_tier`
+(all `standard` live; `priority`/`batch` carry multipliers) applies a tier
+factor. `<synthetic>` model → zero cost. Unknown model → zero + a flag in the
+drift report, never a silent guess.
+
+### The reconciliation guard (the feature Mike asked for)
+
+ccusage stays in the loop as the **oracle**. Every run:
+
+1. Sum ccrepo's own per-message costs up to the **session** level.
+2. Run `ccusage session --json` and read its `totalCost` per session.
+3. Compare. Report **total drift ($ and %)**, the **worst-offending sessions /
+   models**, and a best-effort **cause tag** per drift class.
+
+Our per-message table is the working number; the ccusage cross-check is the
+alarm that says *our snapshot has drifted and by how much*. A footnote states
+the aggregate delta every run (e.g. `Reconciled against ccusage: +0.3% ($2.10)
+— within tolerance`); drift past a threshold (say 1%) prints a louder warning.
+
+**Known drift sources to name in the report**, not bury: stale price snapshot,
+`server_tool_use` calls (web search etc. — 53.7k assistant messages carry it
+live; separate per-call pricing, likely **out of scope v1** and a named
+contributor), service-tier multipliers, unknown/new models, cache-tier split.
+
+## 5. Filters — mirror the grouping vocabulary
+
+Filters pick which messages/sessions enter; grouping arranges them. **AND across
+dimensions, OR within a comma list.** Every group dimension gets a filter:
+
+| Filter | Flag | Example |
+|---|---|---|
+| repo | `--repo` | `--repo ros,faves` · `--repo '!scanme'` excludes |
+| model | `--model` | `--model opus` (short-name match) |
+| branch | `--branch` | `--branch 'client-*'` (glob) |
+| kind | `--kind` | `--kind main` \| `--kind subagent` |
+| entrypoint | `--entrypoint` | `--entrypoint cli` |
+| cc version | `--cc-version` | `--cc-version 2.1.209` |
+| session | `--session` | `--session 01c3,ff97` (UUID prefix) |
+| date range | `--since` / `--until` | day-grained; **now applied by ccrepo itself** (was ccusage passthrough) so the reconciliation runs ccusage with the same window |
+
+**Session IDs are UUIDs, not numbers** — no stable ordinal exists (a new session
+or a pruned log shifts any ordinal), so we filter by UUID prefix. A synthetic
+`#n` may appear as a *display label* only, never a filter key.
+
+## 6. Sorting — `--sort`
+
+**Per-dimension defaults** (no flag): time dimensions (`year`…`hour`) →
+chronological ascending; everything else → **cost descending**.
+
+**Override:** `--sort <spec>`, a comma list aligned to the `-g` levels (a single
+value broadcasts to all). Keys: `cost · tokens · count · name · time`, optional
+`:asc`/`:desc` (default `name`/`time` asc, metrics desc).
+
+```
+ccrepo -g repo,month --sort count,time   # repos by session count; months chrono
+ccrepo -g repo --sort name               # alphabetical
+```
+
+## 7. Output
+
+- **Default — indented tree.** Extends today's `· ` child prefix to `· `,
+  `· · ` per depth; each internal node prints a subtotal row, then its children,
+  then the grand `TOTAL`. One "Group" column carries the hierarchy.
+- **`--flat` — one column per level** (`Repo │ Month │ Model │ …metrics`), parent
+  cells blank-filled. Spreadsheet/pivot shape.
+- **`--json` — tidy, never the rendered tree.** One flat record per **leaf**
+  group, each grouping dimension as its own named field + metrics; **no subtotal
+  rows** (a machine re-aggregates); a top-level meta block (currency, FX rate,
+  filters applied, date range, reconciliation delta). Loads straight into `jq` /
+  pandas / sqlite.
+- **`--csv`** — the same tidy shape, for free.
+
+```json
+{"meta": {"currency":"NZD","rate":1.7126,"range":["2026-06-05","2026-07-17"],
+          "filters":{"repo":["ros"]},"reconciliation":{"deltaPct":0.3,"delta":2.10}},
+ "rows": [{"repo":"ros","month":"2026-07","model":"opus-4-8",
+           "sessions":3,"cost":42.10,"totalTokens":21742561}]}
+```
+
+## 8. Time retention (context, not a v2 feature)
+
+The data floor is **local log retention**, not ccrepo: logs read only from
+`~/.claude/projects/`, no server history, pruned = gone. Live window is ~6 weeks
+(earliest 2026-06-05), bounded by Claude Code's `cleanupPeriodDays` (~30 default).
+So any time grouping is permanently shallow until history is persisted.
+
+**Deferred idea (not v2):** a small append-only rollup ledger so month/quarter
+views survive pruning — the thing that eventually makes a time-based default
+worthwhile. Out of scope here; noted so it isn't re-derived.
+
+## 9. Build sequence
+
+1. **Message-grain aggregator + price table + reconciliation guard** — the
+   foundation; prove the drift number small before anything leans on it.
+2. **`-g` ordered grouping + N-level tree render** (drop `--by-*`).
+3. **Filters** (all dimensions, AND/OR, UUID-prefix sessions).
+4. **`--sort` full spec.**
+5. **`--flat`, tidy `--json`, `--csv`.**
+
+Each slice is a self-verifying instrument change (tests + live drive); no review
+gate (ceremony ∝ risk). The reconciliation delta is its own live proof that
+slice 1 is correct.
+
+## 10. Deferred / out of scope
+
+Server-tool-use per-call pricing · service tiers beyond `standard` · the
+retention ledger · synthetic-ordinal session numbers as filter keys · `agent`
+dimension while it stays uniform.
