@@ -15,47 +15,41 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
-- ⏳ (claimed 2026-07-17-1000, wt: worktree-fable-review) **REPO-STANDARD: CLI tools ship both `--help` and a man page — cold review
-      queued 2026-07-17.** New repo-craft convention in `build/REPO-STANDARD.md`
-      (§ Repo-craft conventions): the two-register split — `--help` a one-screen
-      digest that points at the manual, `man <tool>(1)` the plain-language full
-      reference (FILES/EXAMPLES/NOTES) — plus how to wire it (`man/` dir, installer
-      publishes to `MANPATH`). Children inherit it. Worked example landed in the
-      same delta: `instruments/man/ccarchive.1` + a trimmed `ccarchive --help` +
-      `instruments/install` man-wiring. **Self-authored doctrine ⇒ author must not
-      warm-spawn the review** (rule 4); a non-author takes this ⏳. Intent record:
-      `sessions/2026-07-17-0946-ccarchive-man-cli-docs-standard.md`. Brief seeds —
-      is the digest/reference boundary drawn sharply enough to prevent drift; does
-      the convention over-reach for repos with trivial one-flag tools (should it be
-      sized to tool complexity like the rest of the standard).
-- ⏳ (claimed 2026-07-17-1000, wt: worktree-fable-review) **ADR 0006 addendum (ccarchive — the *preserving* verb) — cold review
-      queued 2026-07-17.** New instrument `ccarchive` and its ADR 0006 addendum:
-      the `instruments/` layer gains a fourth verb (**preserve**) and its first
-      *writing* instrument, admitted by the existing purpose rule with two guards
-      (no personal data in code; write target a personal store outside any repo).
-      Delta: the `instruments: add ccarchive` commit on branch `ccarchive` (the
-      code + README are tested/driven and self-verifying; only the ADR addendum's
-      doctrine gates). **Self-authored doctrine ⇒ its author must not warm-spawn
-      the review** (rule 4); a non-author session takes this ⏳ and writes the
-      brief. Intent record:
-      `sessions/2026-07-17-0810-ccarchive-transcript-preservation.md`. Brief
-      seeds — is "preserve" a real fourth verb or does it fold into observe; is
-      the writing-instrument boundary (personal dest, runtime-derived) drawn
-      tightly enough for a public repo; does the §8 reconciliation (ccarchive
-      subsumes ccrepo's retention-ledger survival rationale) hold.
-- ⏳ (claimed 2026-07-17-1000, wt: worktree-fable-review) **CONVENTIONS.md + UTC-at-rest ADR — cold review queued 2026-07-15.**
-      New `method/CONVENTIONS.md` (the default-frame rule: declare once + label
-      deviation/collision; foreign-data precedence) and ADR `2026-07-15-1327`
-      (timestamps UTC at rest, identifiers UTC-forward, ELT-not-ETL). Delta:
-      `67e8582` (doctrine) + `198cf32` (fidelity fixes — CLAUDE.md→CONVENTIONS
-      pointer, clause-3 second ELT reason — from a full-feedback audit against
-      Mike's prompts). **Self-authored doctrine ⇒ its author must not warm-spawn
-      the review** (rule 4); a non-author session takes this ⏳ and writes the
-      brief. Intent record: `sessions/2026-07-15-1327-conventions-default-frame.md`.
-      Brief seeds — does the label rule's ~99%/exception split stay honest or
-      invite over-labelling; is the foreign-data precedence grounded or padded;
-      do the declared defaults leak anything person-local into a public repo;
-      does "UTC-forward identifiers" cohere with RECORD's coordination-free rule.
+- 🎯 **REPO-STANDARD CLI-docs convention — cold pass RAN 2026-07-17:
+      PASS-WITH-FINDINGS, 1 MAJOR · 4 MEDIUM · 2 LOW; Mike's ruling owed on
+      F1–F7.** Verdict (rule-4 provenance stated inside):
+      `reviews/2026-07-17-1000-cli-docs-standard-cold.md`. Sharpest: F1 the
+      scope predicate is unbounded — as written it binds atelier's own seven
+      `tools/` scanners (no man pages, no stated exception), contradicting the
+      standard's own sizing principle. Self-authored doctrine ⇒ decisions are
+      the principal's (rule 3); reviewer's counsel recorded per finding,
+      nothing applied. Intent record:
+      `sessions/2026-07-17-0946-ccarchive-man-cli-docs-standard.md`.
+- 🎯 **ADR 0006 addendum (ccarchive, the *preserve* verb) — cold pass RAN
+      2026-07-17: PASS-WITH-FINDINGS, 0 MAJOR · 1 MEDIUM · 3 LOW; Mike's ruling
+      owed on F1–F4.** Verdict (rule-4 provenance stated inside):
+      `reviews/2026-07-17-1000-adr0006-ccarchive-preserve-cold.md`. Sharpest:
+      F1 "append-only" is delete-proof but not overwrite-proof — a corrupted
+      source transcript with a newer mtime silently overwrites the only durable
+      archived copy and the manifest then blesses the damage. All three seeded
+      questions answered yes/holds (preserve is a real verb; the public-repo
+      boundary holds as shipped; §8 reconciliation holds). Self-authored
+      doctrine ⇒ decisions are the principal's (rule 3); counsel recorded,
+      nothing applied. Intent record:
+      `sessions/2026-07-17-0810-ccarchive-transcript-preservation.md`.
+- 🎯 **CONVENTIONS.md + UTC-at-rest ADR — cold pass RAN 2026-07-17:
+      PASS-WITH-FINDINGS, 1 MAJOR · 0 MEDIUM · 4 LOW; Mike's ruling owed on
+      F1–F5.** Verdict (rule-4 provenance stated inside):
+      `reviews/2026-07-17-1000-conventions-utc-at-rest-cold.md`. Sharpest: F1
+      the ADR changed what a record identifier's `HHMM` means (UTC), but all
+      six docs that direct identifier minting (RECORD, CONCURRENCY,
+      REPO-STANDARD, three templates) still say "start time, 24-hour" with no
+      zone — stale in the delivering commit by RECORD's own lockstep rule, and
+      children never read atelier's ADRs. No person-local leak (seeded Q3
+      cleared); the UTC regime verified behaviourally, not just read.
+      Self-authored doctrine ⇒ decisions are the principal's (rule 3); counsel
+      recorded, nothing applied. Intent record:
+      `sessions/2026-07-15-1327-conventions-default-frame.md`.
 Closed doctrine review cycles (REVIEW rule 4, MODEL-ECONOMICS triple delta,
 "informed principal" apex rule, PRINCIPLES §2 four bullets — all CYCLE CLOSED
 2026-07-14/15) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § Doctrine — completed
