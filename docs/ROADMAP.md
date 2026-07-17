@@ -18,8 +18,8 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 - ⏳ **CLI-docs standard — applied-batch cold pass queued 2026-07-17** (the
       first pass carried a MAJOR, so the cycle stays open; the applier queues,
       never spawns — rule 4). Delta: the doctrine + instruments hunks of the
-      F1–F7 application commit (2026-07-17, `build/REPO-STANDARD.md` +
-      `instruments/`). Ruling record:
+      F1–F7 application commit `e6a295e` (2026-07-17, `build/REPO-STANDARD.md`
+      + `instruments/`). Ruling record:
       `reviews/2026-07-17-1000-cli-docs-standard-cold.md` § Decision. Intent
       record: `sessions/2026-07-17-0958-three-queued-cold-reviews-taken.md`.
 - [x] **ADR 0006 addendum (ccarchive, the *preserve* verb) — reviewed, ruled,
@@ -33,7 +33,7 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 - ⏳ **CONVENTIONS + UTC-at-rest ADR — applied-batch cold pass queued
       2026-07-17** (the first pass carried a MAJOR, so the cycle stays open;
       the applier queues, never spawns — rule 4). Delta: the doctrine hunks of
-      the F1–F6 application commit (2026-07-17: `method/CONVENTIONS.md`,
+      the F1–F6 application commit `e6a295e` (2026-07-17: `method/CONVENTIONS.md`,
       `method/RECORD.md`, `method/CONCURRENCY.md`, `method/PROPAGATION.md`,
       `build/REPO-STANDARD.md`, the three templates, the ADR's dated
       addendum). Ruling record:
