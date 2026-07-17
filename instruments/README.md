@@ -120,6 +120,17 @@ that cleanup:
   Code's cleanup removes a source log, the archived copy stays — that is the point.
   It doesn't parse the `.jsonl`, it preserves the bytes, so it's immune to schema
   drift (unlike the observers below).
+- **Integrity — sha256 manifest + `--verify`.** gzip's CRC-32 catches a corrupted
+  `.gz` on decompression, but it's weak and only proves the file is
+  self-consistent. So ccarchive records a **sha256 of each transcript's raw bytes**
+  in `<dest>/manifest.json` when it archives; `ccarchive --verify` re-hashes every
+  archived `.gz` and compares, reporting any **mismatch** (mutation/bit-rot/sync
+  glitch) or **missing** file and exiting non-zero if the archive doesn't verify.
+  The manifest tracks the *archive* (append-only), not live sources — a pruned
+  session keeps its recorded hash because its `.gz` is kept. It's the trust
+  anchor: it defends against accidental corruption; for tamper-resistance keep a
+  copy of `manifest.json` somewhere separate from the archive (a mutation that
+  also rewrote the manifest would pass). Run it any time, and after any restore.
 - **Default dest is the operator's iCloud Drive** (`--dest` / `CCARCHIVE_DEST` to
   override) — derived at runtime from `$HOME`, so no personal path lives in this
   code. It's the first *writing* instrument (see ADR 0006 addendum); `--dry-run`

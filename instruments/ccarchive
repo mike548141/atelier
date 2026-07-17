@@ -27,6 +27,15 @@
  * The .jsonl schema is internal to Claude Code, but ccarchive doesn't parse it —
  * it preserves the bytes exactly — so it is immune to schema drift.
  *
+ * Integrity: gzip's own CRC-32 catches a corrupted .gz on decompression, but it
+ * is weak and only proves the file is self-consistent — not that it still equals
+ * what was captured. So ccarchive records a sha256 of each transcript's raw bytes
+ * in <dest>/manifest.json when it archives, and `ccarchive --verify` re-hashes
+ * every archived .gz and compares. That detects any post-archive mutation, bit
+ * rot or sync glitch. The manifest is the trust anchor: it defends against
+ * accidental corruption; for tamper-resistance keep a copy somewhere separate
+ * from the archive (a mutation that also rewrites the manifest would pass).
+ *
  * Scheduling is built in: `ccarchive --install-schedule` writes and loads a
  * launchd agent (macOS) that runs it daily and at login, so preservation needs
  * no hand-wired cron and re-establishes on a new machine with one command (after
@@ -37,6 +46,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const zlib = require('node:zlib');
+const crypto = require('node:crypto');
 const { execFileSync } = require('node:child_process');
 
 const argv = process.argv.slice(2);
@@ -56,6 +66,10 @@ OPTIONS
                    Or set CCARCHIVE_DEST.
   --source <dir>   Read transcripts from <dir> instead of ~/.claude/projects.
   --dry-run        Report what would be archived; write nothing.
+  --verify         Re-hash every archived transcript and check it against the
+                   sha256 recorded when it was archived (in <dest>/manifest.json).
+                   Reports any mismatch (mutation/corruption) or missing file;
+                   exits non-zero if the archive doesn't verify.
   --json           Machine-readable summary (never styled).
   -h, --help       Show this help.
 
@@ -260,6 +274,96 @@ function scheduleStatus(home) {
   return 0;
 }
 
+// --- integrity: sha256 manifest + verify ---------------------------------
+// Each archived transcript's raw-byte sha256 is recorded in <dest>/manifest.json
+// (keyed by the same source-relative path the mirror uses). --verify re-hashes
+// the archive against it. The manifest tracks the archive (append-only), not the
+// live sources: a source pruned by Claude Code's cleanup keeps its entry, because
+// its .gz is kept too.
+
+function sha256(buf) { return crypto.createHash('sha256').update(buf).digest('hex'); }
+function sha256File(p) { return sha256(fs.readFileSync(p)); }
+function sha256Gz(gzPath) { return sha256(zlib.gunzipSync(fs.readFileSync(gzPath))); }
+
+function manifestPath(destRoot) { return path.join(destRoot, 'manifest.json'); }
+
+function loadManifest(destRoot) {
+  try {
+    return JSON.parse(fs.readFileSync(manifestPath(destRoot), 'utf8'));
+  } catch (e) {
+    if (e.code === 'ENOENT') return {};
+    // Corrupt manifest: preserve it rather than clobber, warn, start fresh.
+    try { fs.renameSync(manifestPath(destRoot), manifestPath(destRoot) + '.corrupt'); } catch {}
+    process.stderr.write(
+      `ccarchive: manifest unreadable (${e.message}); kept as manifest.json.corrupt, starting fresh.\n`);
+    return {};
+  }
+}
+
+function saveManifest(destRoot, obj) {
+  fs.mkdirSync(destRoot, { recursive: true });
+  const ordered = {};
+  for (const k of Object.keys(obj).sort()) ordered[k] = obj[k];  // stable diffs
+  const p = manifestPath(destRoot);
+  const tmp = p + '.tmp';
+  fs.writeFileSync(tmp, JSON.stringify(ordered, null, 2) + '\n');
+  fs.renameSync(tmp, p);  // atomic: a crash mid-write can't corrupt the manifest
+}
+
+// Archived transcripts as manifest keys (the .gz suffix stripped). Excludes
+// manifest.json and any non-transcript file.
+function listArchivedRels(destRoot) {
+  const out = [];
+  const walk = (dir) => {
+    let entries;
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
+    catch (e) { if (e.code === 'ENOENT') return; throw e; }
+    for (const ent of entries) {
+      const abs = path.join(dir, ent.name);
+      if (ent.isDirectory()) walk(abs);
+      else if (ent.isFile() && ent.name.endsWith('.jsonl.gz')) out.push(path.relative(destRoot, abs).slice(0, -3));
+    }
+  };
+  walk(destRoot);
+  return out;
+}
+
+function verifyArchive(destRoot, asJson) {
+  const manifest = loadManifest(destRoot);
+  const rels = Object.keys(manifest);
+  const result = { dest: destRoot, checked: rels.length, ok: 0, mismatch: [], missing: [], unmanifested: [] };
+
+  for (const rel of rels) {
+    const gzPath = path.join(destRoot, rel + '.gz');
+    let actual;
+    try { actual = sha256Gz(gzPath); }
+    catch (e) { if (e.code === 'ENOENT') { result.missing.push(rel); continue; } throw e; }
+    if (actual === manifest[rel].sha256) result.ok++;
+    else result.mismatch.push(rel);
+  }
+  for (const rel of listArchivedRels(destRoot)) {
+    if (!manifest[rel]) result.unmanifested.push(rel);  // archived but no recorded hash
+  }
+
+  const failed = result.mismatch.length + result.missing.length;
+  if (asJson) { process.stdout.write(JSON.stringify(result, null, 2) + '\n'); return failed ? 1 : 0; }
+
+  const lines = [
+    `cc-transcripts verify → ${destRoot}`,
+    `  ${result.checked} in manifest · ${result.ok} verified, ` +
+      `${result.mismatch.length} mismatched, ${result.missing.length} missing`,
+  ];
+  if (result.unmanifested.length) {
+    lines.push(`  ${result.unmanifested.length} archived file(s) not in the manifest ` +
+      `(run ccarchive once to record them)`);
+  }
+  for (const rel of result.mismatch) lines.push(`  ✗ MISMATCH ${rel}`);
+  for (const rel of result.missing) lines.push(`  ✗ MISSING  ${rel}`);
+  if (!failed) lines.push('  ✓ every archived transcript matches its recorded sha256.');
+  process.stdout.write(lines.join('\n') + '\n');
+  return failed ? 1 : 0;
+}
+
 // --- run -----------------------------------------------------------------
 
 function run() {
@@ -276,13 +380,21 @@ function run() {
   const srcRoot = takeValue('--source') || path.join(home, '.claude', 'projects');
   const destRoot = takeValue('--dest') || process.env.CCARCHIVE_DEST || defaultDest(home);
 
+  if (argv.includes('--verify')) return verifyArchive(destRoot, asJson);
+
   const files = listJsonl(srcRoot);
   const report = { source: srcRoot, dest: destRoot, dryRun, total: files.length,
     archived: 0, skipped: 0, bytesRaw: 0, bytesGz: 0, files: [] };
 
+  // The integrity manifest is loaded/updated only on a real run.
+  const manifest = dryRun ? null : loadManifest(destRoot);
+  let manifestChanged = false;
+  const nowIso = dryRun ? null : new Date().toISOString();
+
   for (const srcAbs of files) {
     const srcStat = fs.statSync(srcAbs);
     const destAbs = archivePathFor(destRoot, srcRoot, srcAbs);
+    const rel = path.relative(srcRoot, srcAbs);
     let destMtimeMs = null;
     try { destMtimeMs = fs.statSync(destAbs).mtimeMs; } catch (e) {
       if (e.code !== 'ENOENT') throw e;
@@ -290,10 +402,15 @@ function run() {
 
     if (!shouldArchive(srcStat.mtimeMs, destMtimeMs)) {
       report.skipped++;
+      // Backfill: an already-archived transcript with no recorded hash (e.g. the
+      // first run after this feature shipped). The source is present, so hash it.
+      if (manifest && !manifest[rel]) {
+        manifest[rel] = { sha256: sha256File(srcAbs), rawBytes: srcStat.size, archivedAt: nowIso };
+        manifestChanged = true;
+      }
       continue;
     }
 
-    const rel = path.relative(srcRoot, srcAbs);
     if (dryRun) {
       report.archived++;
       report.bytesRaw += srcStat.size;
@@ -301,18 +418,33 @@ function run() {
       continue;
     }
 
-    const gz = zlib.gzipSync(fs.readFileSync(srcAbs));
+    const raw = fs.readFileSync(srcAbs);
+    const gz = zlib.gzipSync(raw);
     fs.mkdirSync(path.dirname(destAbs), { recursive: true });
     fs.writeFileSync(destAbs, gz);
     // Stamp the mirror with the source's mtime (numeric seconds, so no Date
     // millisecond truncation) so the next run's freshness check is stable and
     // the archive reflects each session's real time.
     fs.utimesSync(destAbs, srcStat.atimeMs / 1000, srcStat.mtimeMs / 1000);
+    manifest[rel] = { sha256: sha256(raw), rawBytes: srcStat.size, archivedAt: nowIso };
+    manifestChanged = true;
 
     report.archived++;
     report.bytesRaw += srcStat.size;
     report.bytesGz += gz.length;
     report.files.push({ rel, action: 'archived', rawBytes: srcStat.size, gzBytes: gz.length });
+  }
+
+  // Backfill any archived .gz whose source is already gone (pruned before this
+  // feature existed) — hash it from the compressed copy, the only source left.
+  if (manifest) {
+    for (const rel of listArchivedRels(destRoot)) {
+      if (manifest[rel]) continue;
+      manifest[rel] = { sha256: sha256Gz(path.join(destRoot, rel + '.gz')), archivedAt: nowIso, fromArchive: true };
+      manifestChanged = true;
+    }
+    if (manifestChanged) saveManifest(destRoot, manifest);
+    report.manifestEntries = Object.keys(manifest).length;
   }
 
   if (asJson) {
@@ -331,6 +463,9 @@ function run() {
       ? `  ${humanBytes(report.bytesRaw)} raw to compress`
       : `  ${humanBytes(report.bytesGz)} written (from ${humanBytes(report.bytesRaw)} raw)`);
   }
+  if (!dryRun && report.manifestEntries) {
+    lines.push(`  ${report.manifestEntries} sha256 in manifest.json — verify with: ccarchive --verify`);
+  }
   process.stdout.write(lines.join('\n') + '\n');
   return 0;
 }
@@ -342,4 +477,5 @@ if (require.main === module) {
 module.exports = {
   defaultDest, archivePathFor, shouldArchive, humanBytes, listJsonl, run,
   xmlEscape, schedulePaths, resolveScriptPath, launchdPlist, cronLine,
+  sha256, manifestPath, loadManifest, saveManifest, listArchivedRels, verifyArchive,
 };
