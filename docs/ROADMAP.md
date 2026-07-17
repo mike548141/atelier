@@ -15,7 +15,8 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
-- ⏳ **CLI-docs standard — applied-batch cold pass queued 2026-07-17** (the
+- ⏳ **CLI-docs standard — applied-batch cold pass queued 2026-07-17**
+      (claimed 2026-07-17-1157, main — solo taking session) (the
       first pass carried a MAJOR, so the cycle stays open; the applier queues,
       never spawns — rule 4). Delta: the doctrine + instruments hunks of the
       F1–F7 application commit `e6a295e` (2026-07-17, `build/REPO-STANDARD.md`
@@ -31,7 +32,8 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
       `reviews/2026-07-17-1000-adr0006-ccarchive-preserve-cold.md`. 0 MAJOR ⇒
       the terminal application closes without a queued pointer (close rule).
 - ⏳ **CONVENTIONS + UTC-at-rest ADR — applied-batch cold pass queued
-      2026-07-17** (the first pass carried a MAJOR, so the cycle stays open;
+      2026-07-17** (claimed 2026-07-17-1157, main — solo taking session)
+      (the first pass carried a MAJOR, so the cycle stays open;
       the applier queues, never spawns — rule 4). Delta: the doctrine hunks of
       the F1–F6 application commit `e6a295e` (2026-07-17: `method/CONVENTIONS.md`,
       `method/RECORD.md`, `method/CONCURRENCY.md`, `method/PROPAGATION.md`,
