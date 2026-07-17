@@ -188,17 +188,22 @@ budget across the fleet; these are the outstanding harvests it surfaced.
 - [x] **atelier: sizescan + RECORD doctrine + this ROADMAP harvest** — DONE
       2026-07-14 (1091→lean; completed detail → `ROADMAP-DONE.md`). Dogfood of
       the doctrine here first.
-- [~] **ros: harvest `docs/ROADMAP.md`** (claimed 2026-07-17-2235, wt:
-      ros/roadmap-harvest) — `sizescan` flags it now at **4933 lines** (grown
-      from 3197; ~75% completed detail accreted onto finished items). Its own
-      focused ros session: collapse done items to one-line pointers, move the
-      case-law to ros's `ROADMAP-DONE.md` (which already exists at 1285 lines).
-      Delicate — the narration is real case-law; relocate verbatim, never
-      delete. Also `ros/CLAUDE.md` sits +34 over budget (mild).
-- [ ] **faves: adopt the SESSIONS index/detail split** — `docs/SESSIONS.md` is
-      **1157 lines**, a flat log that never adopted the index model (its own
-      header already says "tail-read, don't load whole" — the split is the next
-      step). Harvest `docs/ROADMAP.md` (766) too; `ARCHITECTURE.md` is +26 (mild).
+- [ ] **ros: harvest `docs/ROADMAP.md`** — `sizescan` flags it now at **4933
+      lines** (grown from the 3197 recorded when this item was filed; ~75%
+      completed detail accreted onto finished items). Its own focused ros
+      session: collapse done items to one-line pointers, move the case-law to
+      ros's `ROADMAP-DONE.md` (which already exists at 1285 lines). Delicate —
+      the narration is real case-law; relocate verbatim, never delete. Also
+      `ros/CLAUDE.md` sits +34 over budget (mild). **⚠️ Check ros-session
+      liveness first**: a wholesale reorg of this file collides hard with a live
+      ros session (they claim roadmap items = edit the same file). Attempted
+      2026-07-17-2235 and released on discovering an active ros session
+      (`radius-home` worktree) mid-claim — take it only when ros is quiet.
+- [~] **faves: adopt the SESSIONS index/detail split** (claimed 2026-07-17-2245,
+      wt: faves/sessions-roadmap-harvest) — `docs/SESSIONS.md` is **1157 lines**,
+      a flat log that never adopted the index model (its own header already says
+      "tail-read, don't load whole" — the split is the next step). Harvest
+      `docs/ROADMAP.md` (766) too; `ARCHITECTURE.md` is +26 (mild).
 - [x] **`sizescan` reviewed + wired into the gate** — DONE 2026-07-14. Cold pass
       cleared (PASS-WITH-FINDINGS); F1 (fail-open ancestor-dir MAJOR) fixed +
       live-reproven, F2 (prose-mention self-exempt) fixed (markers header-only),
