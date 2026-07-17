@@ -15,7 +15,7 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
-- ⏳ **REPO-STANDARD: CLI tools ship both `--help` and a man page — cold review
+- ⏳ (claimed 2026-07-17-1000, wt: worktree-fable-review) **REPO-STANDARD: CLI tools ship both `--help` and a man page — cold review
       queued 2026-07-17.** New repo-craft convention in `build/REPO-STANDARD.md`
       (§ Repo-craft conventions): the two-register split — `--help` a one-screen
       digest that points at the manual, `man <tool>(1)` the plain-language full
@@ -28,7 +28,7 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
       is the digest/reference boundary drawn sharply enough to prevent drift; does
       the convention over-reach for repos with trivial one-flag tools (should it be
       sized to tool complexity like the rest of the standard).
-- ⏳ **ADR 0006 addendum (ccarchive — the *preserving* verb) — cold review
+- ⏳ (claimed 2026-07-17-1000, wt: worktree-fable-review) **ADR 0006 addendum (ccarchive — the *preserving* verb) — cold review
       queued 2026-07-17.** New instrument `ccarchive` and its ADR 0006 addendum:
       the `instruments/` layer gains a fourth verb (**preserve**) and its first
       *writing* instrument, admitted by the existing purpose rule with two guards
@@ -43,7 +43,7 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
       the writing-instrument boundary (personal dest, runtime-derived) drawn
       tightly enough for a public repo; does the §8 reconciliation (ccarchive
       subsumes ccrepo's retention-ledger survival rationale) hold.
-- ⏳ **CONVENTIONS.md + UTC-at-rest ADR — cold review queued 2026-07-15.**
+- ⏳ (claimed 2026-07-17-1000, wt: worktree-fable-review) **CONVENTIONS.md + UTC-at-rest ADR — cold review queued 2026-07-15.**
       New `method/CONVENTIONS.md` (the default-frame rule: declare once + label
       deviation/collision; foreign-data precedence) and ADR `2026-07-15-1327`
       (timestamps UTC at rest, identifiers UTC-forward, ELT-not-ETL). Delta:
