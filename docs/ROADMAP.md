@@ -122,18 +122,26 @@ REPO-BOUNDARY, worktree tooling) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 ### ccarchive (Mike, 2026-07-17)
 
-- [~] **Local-store audit vs the archive manifest** *(claimed 2026-07-17-2234,
-      wt: instruments-audit)* — check the *live* store
-      (`~/.claude/projects`) against the archive's `manifest.json` to spot
-      **renamed, missing, or mutated** transcripts (the live file drifted from
-      what was archived). Distinct from `--verify`, which checks the *archive*
-      against its own manifest; this checks the *live store* against the archive.
-      Read-only; reports drift.
+- [x] **Local-store audit vs the archive manifest — DONE 2026-07-17.**
+      `ccarchive --audit` hashes every live `.jsonl` and buckets it against the
+      manifest: **synced** · **grown** (archived bytes a strict prefix — a plain
+      append, kept out of the drift signal so an active session isn't a false
+      alarm) · **mutated** (rewritten/truncated) · **renamed** (content matched
+      an archived path now gone from live) · **new** · **pruned**. Only mutated +
+      renamed are drift (listed, non-zero exit); the rest are counted. Read-only
+      over both trees (no write path ⇒ no git-worktree guard). Pure core
+      (`auditCategorize` + `classifyDivergence`) unit-tested; +11 tests (35→46
+      ccarchive, 86 instrument), man AUDIT section (mandoc clean), README +
+      `--help`. Driven live: 435 archived · 432 synced · 3 grown · 19 new · 0
+      drift → exit 0.
 - [ ] **Restore from archive — full + delta** — replace mutated/missing local
       files from the archive (gunzip `<dest>/<rel>.gz` → `~/.claude/projects/<rel>`).
       A full `--restore` and a delta mode that restores only what the local-store
-      audit flags. Must not clobber a live file *newer* than the archived copy
-      (an in-flight session); confirm/refuse rather than overwrite silently.
+      audit flags (now built — `--audit`'s `mutated`/`renamed`/`pruned` buckets
+      are the delta source). Must not clobber a live file *newer* than the
+      archived copy (an in-flight session); confirm/refuse rather than overwrite
+      silently. Note the `grown` bucket is *not* a restore target — the live file
+      is ahead of the archive there, the opposite direction.
 - [ ] **iCloud dataless-file awareness** — iCloud "Optimise Mac Storage" evicts
       the local bytes of unused files, leaving a dataless placeholder (contents
       still in the cloud). ccarchive must keep working: reading an evicted `.gz`
