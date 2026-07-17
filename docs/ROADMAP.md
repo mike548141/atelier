@@ -187,12 +187,13 @@ budget across the fleet; these are the outstanding harvests it surfaced.
 - [x] **atelier: sizescan + RECORD doctrine + this ROADMAP harvest** — DONE
       2026-07-14 (1091→lean; completed detail → `ROADMAP-DONE.md`). Dogfood of
       the doctrine here first.
-- [ ] **ros: harvest `docs/ROADMAP.md`** — `sizescan` flags it at **3197 lines**
-      (~75% completed detail accreted onto finished items). Its own focused ros
-      session: collapse done items to one-line pointers, move the case-law to
-      ros's `ROADMAP-DONE.md` (which already exists at 1285 lines). Delicate —
-      the narration is real case-law; relocate verbatim, never delete. Also
-      `ros/CLAUDE.md` sits +34 over budget (mild).
+- [~] **ros: harvest `docs/ROADMAP.md`** (claimed 2026-07-17-2235, wt:
+      ros/roadmap-harvest) — `sizescan` flags it now at **4933 lines** (grown
+      from 3197; ~75% completed detail accreted onto finished items). Its own
+      focused ros session: collapse done items to one-line pointers, move the
+      case-law to ros's `ROADMAP-DONE.md` (which already exists at 1285 lines).
+      Delicate — the narration is real case-law; relocate verbatim, never
+      delete. Also `ros/CLAUDE.md` sits +34 over budget (mild).
 - [ ] **faves: adopt the SESSIONS index/detail split** — `docs/SESSIONS.md` is
       **1157 lines**, a flat log that never adopted the index model (its own
       header already says "tail-read, don't load whole" — the split is the next
