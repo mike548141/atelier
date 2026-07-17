@@ -15,7 +15,7 @@ drives Chrome via Playwright); each documents its own runtime.
 
 | Instrument      | Verb      | What it does                                                         |
 |-----------------|-----------|---------------------------------------------------------------------|
-| `ccrepo`        | observe   | Per-repo Claude Code token & cost totals (`--by-model`, `--by-day`). |
+| `ccrepo`        | observe   | Claude Code token & cost totals, grouped/filtered any way (`-g repo,model`, `--branch`, message-grain cost reconciled against ccusage). |
 | `cctranscript`  | observe   | Timestamped transcript of a session — the timestamps the chat UI hides. |
 | `ccarchive`     | preserve  | Durably mirror every raw `.jsonl` transcript into a compressed, append-only archive that outlives Claude Code's cleanup. |
 | `browser-fetch` | extend    | A browser (fresh headless, or the operator's own Chrome) when `WebFetch`/curl are blocked. MCP server; see its own README. |
@@ -33,9 +33,11 @@ after adding an instrument or on a fresh laptop:
 ./instruments/install
 ```
 
-Requirements: `node` on `PATH` (any recent LTS) for all of them; `ccrepo` also
-needs `ccusage` (`npx ccusage` or a global install). If `~/.local/bin` isn't on
-your `PATH`, the installer prints the one line to add to your shell profile.
+Requirements: `node` on `PATH` (any recent LTS) for all of them. `ccrepo`
+computes cost itself from the logs, but uses `ccusage` (`npx ccusage` or a global
+install) for its reconciliation cross-check — skip it with `--no-reconcile` if
+ccusage isn't present. If `~/.local/bin` isn't on your `PATH`, the installer
+prints the one line to add to your shell profile.
 
 `browser-fetch` installs differently — it's an MCP server, not a `~/.local/bin`
 CLI. Run `instruments/browser-fetch/setup` (builds a venv + Chromium, prints the
@@ -54,10 +56,39 @@ General machine/infra utilities (macOS, TrueNAS, networking) that you or Claude
 merely *use* from time to time do **not** belong here — they live with the estate
 they serve. `docs/decisions/0006-instruments-in-atelier.md` records that line.
 
+## ccrepo grouping, filters & the cost engine
+
+**Grouping** is an ordered dimension list — `-g repo,model` nests model under
+repo, `-g model,repo` inverts it, `-g month` totals per month, `-g total` is one
+grand total. Dimensions: `repo · model · branch · kind · entrypoint · cc-version
+· agent · year · month · week · day · hour`. Default is `-g repo`, cost-desc.
+The reader is a tree by default (`Sessions` is a *distinct* count at every level);
+`--flat` gives one column per level, `--json`/`--csv` give one tidy record per
+leaf (each dimension a named field, a `meta` block up top).
+
+**Filters** mirror that exact vocabulary — `--repo`, `--model`, `--branch`,
+`--kind`, `--entrypoint`, `--cc-version`, `--agent`, `--session`, plus
+`--since`/`--until`. Comma = OR within a dimension, leading `!` excludes, `*`
+globs; sessions match by UUID prefix. `--sort` overrides the per-dimension
+defaults (time chronological, else cost-desc), aligned to the group levels.
+
+**Cost is computed here, per message**, from a local list-price table across five
+token classes — input, output, cache read, and the 5m/1h cache-*write* split
+(they price differently). branch/kind/version/hour vary *within* a session, so
+this message grain is what lets ccrepo group by them; the price table lives at
+the top of the script, overridable at `~/.claude/ccrepo-pricing.json`.
+
+**Reconciliation** keeps that honest: every run cross-checks ccrepo's own total
+against `ccusage session` and prints the drift (`Δ` in $ and %, largest
+per-model). A small drift is expected (token-counting edge cases); a large one
+means the price table has gone stale — the guard says so instead of lying
+quietly. `--no-reconcile` skips the ccusage call.
+
 ## ccrepo billing model — Actual vs Est
 
-ccrepo's Cost column is an **API-equivalent estimate** (ccusage's USD basis) —
-"a gauge, not your bill". A subscription-plan user's *actual* spend diverges
+ccrepo's Cost column is an **API-equivalent estimate** (list prices, reconciled
+against ccusage) — "a gauge, not your bill". A subscription-plan user's *actual*
+spend diverges
 sharply, and the general shape is **hybrid**: a flat plan covering some models
 plus per-token billing for the rest or for overage. When a billing config is
 present, ccrepo shows both numbers side by side — **Est (API)** and
