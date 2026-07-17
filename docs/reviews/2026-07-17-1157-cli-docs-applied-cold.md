@@ -75,3 +75,190 @@ spec). Refs for the reconcile step:
   author's claims to test, not settled scope).
 
 ---
+
+## Verdict — cold reviewer, 2026-07-17 (UTC)
+
+**Provenance (rule 4, repeated per the brief):** this reviewer is a cold spawn
+of the taking session — a session Mike opened fresh and pointed at the queue —
+which authored neither the doctrine, the prior verdict, nor the applied delta;
+the applier session neither started nor instructed the taking session or this
+reviewer. The taking session read the intent record and prior verdict to scope
+the brief; this reviewer had read **only the brief above its first divider**
+when the attack surface and findings below were formed and written.
+
+**Sequencing disclosures:** (a) read brief lines 1–65 (stopping at the deferred
+heading), then `grep -n '^---$'` for divider line numbers and lines 76–77 (a
+blank and the final divider) to find the append point — no deferred content, no
+prior verdict, no intent record opened before this section was written.
+(b) The brief says append with the Edit tool; Edit needs a unique anchor and
+`---` appears twice, so this section was appended by shell redirection instead
+— same durable write, different tool. (c) The e6a295e commit message (read via
+`git show`, needed to identify the CLI-docs hunks) itself summarises all three
+batches; that summary is applier-authored framing and was treated as claims to
+verify, not ground truth.
+
+### Attack surface (named before any deferred material was opened)
+
+1. **Scope predicate** — is "installed onto an operator's machine" a real
+   boundary, or a rationalisation of the current gap (no pages on `tools/`)?
+   Attacked by checking `tools/` `--help` quality, instruments' own conformance
+   at HEAD, and whether the two page-less installed CLIs are honestly tracked.
+2. **The `--help` letter vs its own exemplar** — does ccarchive's help at HEAD
+   satisfy the reworded letter (one-line synopsis, flat options, one-breath
+   closing)?
+3. **Superset relation** — actually pinned mechanically? Test soundness: roff
+   `\-` normalisation, flag-extraction regex, substring matching, flag count.
+4. **Installer cleanup** — can the ownership test delete something it doesn't
+   own (foreign links, real files) or miss stales (directory links from the
+   historical bug, `*.md`-named links, relative targets)? Idempotence of the
+   re-run. Driven fresh in throwaway XDG dirs, not taken on trust.
+5. **MANPATH claim** — the doctrine now asserts PATH-derived manpath with
+   hard-set `MANPATH` as the gotcha; tested empirically, not accepted.
+6. **CI mandoc guard** — honest gate or ceremony? What does the step actually
+   do on ubuntu-latest?
+7. **Interaction boundary with the closed ccarchive cycle** — every new flag
+   and every new non-zero exit path owes coverage in both registers under the
+   superset relation; checked exhaustively against the man page.
+8. **Proof-floor claims** — all re-runnable at HEAD, re-run rather than read.
+
+### Findings
+
+- **F1 (MEDIUM) — man page `EXIT STATUS` is stale against HEAD behaviour; the
+  layout-drift alarm is absent from the page entirely.** An ordinary run now
+  exits 1 on a refused shrink, on a repo dest, and on the empty-source alarm;
+  `EXIT STATUS` still reads "0 on success … `--verify` exits 1 … (any mismatch
+  or missing file)" — naming none of the three run-mode failures and omitting
+  `UNMANIFESTED` from the verify causes. Worse, the empty-source/layout-drift
+  alarm appears nowhere in the man page (README only): an operator whose
+  scheduled run starts failing consults the full reference and finds no mention
+  of that exit. Under the standard's own superset doctrine the page must carry
+  what the tool does. *Counsel:* enumerate the non-zero exits in `EXIT STATUS`
+  and give the layout-drift alarm a sentence in `DESCRIPTION` or `INTEGRITY`.
+- **F2 (MEDIUM) — the CI mandoc step never lints in CI.** ubuntu-latest ships
+  no mandoc, so as merged the step's only CI behaviour is echoing
+  "unavailable". The in-line comment keeps it honest, but the gate is phantom
+  in the one place it is wired, and the cheap real alternative —
+  `apt-get install -y mandoc`, seconds, free Actions minutes on a public repo —
+  is neither taken nor named as rejected. *Counsel:* install mandoc in the step
+  (or record in the comment why not); until then roff lint is enforced only by
+  unhooked local discipline.
+- **F3 (LOW) — installer cleanup asymmetry.** The man-link cleanup pass sits
+  inside `if [ -d "$BIN_DIR/man" ]`, so retiring the whole `man/` dir would
+  strand stale owned man links forever, while the bin pass runs
+  unconditionally. (Also: ownership only recognises absolute targets — a
+  relative owned link is never cleaned; conservative, worth a comment at most.)
+  *Counsel:* hoist the man cleanup out of the guard to mirror the bin pass.
+- **F4 (LOW) — the letter still slightly under-describes its exemplar.** The
+  reworded letter allows "at most a one-breath closing line"; the exemplar
+  ships a two-sentence, three-line closing block. Small residual gap — the next
+  tool's author must guess whether two sentences pass. *Counsel:* "a closing
+  line or two" in the letter, or trim the exemplar's closing to one sentence.
+- **F5 (LOW) — README wording vs trigger.** README says the zero-transcript
+  alarm fires "against a non-empty archive"; the code keys on a non-empty
+  *manifest*. Divergent only when the manifest is lost and the source moves in
+  the same window. *Counsel:* say "non-empty manifest", or leave; a note only.
+
+### Attacked and held
+
+- **Installer cleanup proven fresh** in throwaway XDG dirs: planted stale owned
+  link, stale owned *directory* link (the historical bug shape), and owned
+  `.md`-named link all removed; foreign bin link, real file, and foreign man
+  link untouched; stale owned man link removed; all three tools plus
+  `ccarchive.1` linked; second run idempotent. Live `~/.local/bin` holds
+  exactly the three tool links (no `fixtures`/`browser-fetch` residue);
+  `man1/` holds `ccarchive.1` only.
+- **Superset drift test** sound and green: `\-`→`-` normalisation correct, all
+  11 flags captured including the sub-flags of `--install-schedule`; substring
+  matching is a theoretical false-pass only.
+- **MANPATH doctrine claim verified empirically**: PATH-derived lookup finds
+  the page; hard-set `MANPATH` loses it; colon-suffixed `MANPATH` merges and
+  still finds it. The doctrine's "hard-set … overrides" is accurate as worded.
+- **Scope predicate grounded, not rationalised**: `tools/` scanners carry
+  argparse-quality `--help`; the two page-less installed CLIs are named
+  honestly (README "converging", ROADMAP rollout item) rather than papered
+  over.
+- **New flags fully covered**: `--force` and `--allow-repo-dest` present in
+  both registers; `--help` is 20 lines — one screen.
+
+### Proofs re-run (all green)
+
+247 tool tests (`unittest discover`, OK) · 75 instrument tests (`node --test`,
+0 fail — includes the superset drift test and the four contract tests for the
+new guards) · `mandoc -T lint` clean · secretscan, leakscan (structural+local),
+licenscan (Apache-2.0), linkscan, sizescan `--check` all clean **on a clean
+export of HEAD**. Disclosure: on the *working tree* secretscan reports 29
+findings, all inside untracked `.claude/worktrees/fable-review/` — a leftover
+review worktree's copies of the scanners' own test fixtures. Machine-local
+residue, not HEAD content, not a delta finding; flagged for hygiene (the
+stale worktree also defeats any full-tree local scan until removed).
+
+### Reconciliation (deferred section, prior verdict + § Decision, intent record — opened after the findings above were committed)
+
+The deferred section was refs-only as specced — no seed questions to fold in.
+Ruling-by-ruling, prior verdict `2026-07-17-1000-cli-docs-standard-cold.md`
+against the applied delta:
+
+| Ruling | Applied as decided? |
+|---|---|
+| F1 scope predicate | ✅ Drawn exactly as counselled (installed-onto-a-machine ships both; in-place scripts owe `--help` only; `tools/` exclusion stated; tied to the sizing table's row — the row exists, line 38, and the tie-in is coherent) |
+| F2 superset test | ✅ Test present and green (flag-extraction regex equivalent to the counselled one; all 11 flags pinned); doctrine sentence added ("where the repo has tests, pin the superset relation mechanically") |
+| F3 `--help` letter | ✅ Amended verbatim to the counselled phrase ("one-breath closing line…") |
+| F4 README tense | ✅ "are converging on" — overclaim gone |
+| F5 installer cleanup | ✅ Both passes present (bin + man1), ownership test as counselled; re-proven here in fresh throwaway XDG dirs incl. the historical dir-link shape; live residue confirmed gone |
+| F6 MANPATH scoping | ✅ Applied nearly verbatim; verified empirically here (derived found / hard-set lost / colon-suffixed merged) |
+| F7 guarded mandoc step | ✅ The step is character-for-character the ruled counsel's shape |
+
+**No drift, no overreach, no silent miss** across F1–F7. The CLI-docs hunks
+contain nothing beyond the rulings; the interleaved ccarchive/CONVENTIONS
+hunks stayed in their own batches.
+
+**How my findings land after reconciling** (no severities changed post-hoc;
+framing sharpened):
+
+- **My F1 (MEDIUM) stands, sharpened.** The ccarchive § Decision claims "man
+  page + README name the exposures honestly" — the page carries the shrink
+  guard, repo-dest guard, `UNMANIFESTED` and `fromArchive`, but the
+  layout-drift alarm lives in the README only and `EXIT STATUS` predates all
+  four new non-zero exits. Under the superset doctrine this batch itself wrote,
+  the page owes them. (The ccarchive cycle is closed; this attaches through the
+  CLI-docs interaction rule the brief names, so it is this cycle's to carry.)
+- **My F2 (MEDIUM) stands, reframed: not drift — counsel against the ruled
+  form.** The step is exactly what was ruled (F7, LOW, "no hard dependency").
+  My finding is a soundness-at-HEAD challenge to that ruled form: on
+  ubuntu-latest the step will never lint, and `apt-get install -y mandoc`
+  (seconds, free public-repo minutes) is not a "hard dependency" in the sense
+  the counsel guarded against. Mike may reasonably treat this as
+  already-decided; the counsel is recorded because the cheap stronger form was
+  never named as rejected.
+- **My F3 (LOW) stands** — a completeness residue of the ruled F5 fix, not
+  drift (the counselled cleanup said "same for man1" without the guard nuance).
+- **My F4 (LOW) stands, reframed: the residual gap is in the ruled wording
+  itself** ("one-breath closing *line*" vs the exemplar's two-sentence block)
+  — the application is verbatim-faithful; the ruling's phrase carries the slack.
+- **My F5 (LOW) stands** — README trigger wording vs code ("non-empty archive"
+  vs non-empty manifest), a note only.
+
+Intent-record frictions: none material. Its application highlights all
+re-proved true here (instrument suite 67→75 consistent with the +8 new tests;
+floor claims all green; residue removal confirmed live). One soft overclaim
+already carried into my F1: "man page + README carry the exposures honestly"
+is true of the README, partial for the page.
+
+### Verdict
+
+**PASS-WITH-FINDINGS** — 0 MAJOR · 2 MEDIUM (F1, F2) · 3 LOW (F3–F5).
+
+The application is **faithful**: every one of the seven rulings is implemented
+as decided, several verbatim, with nothing smuggled in beside them — and every
+proof the application claims re-ran green here, including a fresh adversarial
+installer drive and empirical verification of the MANPATH doctrine. The
+findings are residue, not drift: the man page's `EXIT STATUS` fell behind the
+behaviour the sibling batch added (F1, the one finding with an operator-facing
+cost), and the rest are counsel on the ruled forms' remaining slack. As sound
+doctrine at HEAD, the CLI-docs convention now says what it means, meets its own
+letter in the exemplar repo, and is mechanically pinned where it promised to
+be. All findings are the principal's to decide (rule 3); counsel is recorded
+per finding; nothing has been applied.
+
+Per the close rule: 0 MAJOR at an applied-batch pass — reviewer's counsel is
+that this closes the CLI-docs cycle on Mike's ruling of F1–F5.
