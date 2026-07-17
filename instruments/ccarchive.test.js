@@ -400,6 +400,142 @@ test('contract: --verify surfaces fromArchive entries distinctly (archive attest
   assert.equal(JSON.parse(res.stdout).fromArchive, 1);
 });
 
+// --- audit: the live store vs the archive --------------------------------
+// --verify checks the archive against its manifest; --audit checks the live
+// store against the archive. Pure categorisation first, then behaviour.
+
+test('auditCategorize buckets synced / changed / renamed / new / pruned by sha256', () => {
+  const manifest = {
+    'a.jsonl': { sha256: 'AA' },   // unchanged live
+    'b.jsonl': { sha256: 'BB' },   // live differs → changed
+    'c.jsonl': { sha256: 'CC' },   // live gone, content reappears at c2 → renamed
+    'd.jsonl': { sha256: 'DD' },   // live gone, content unseen → pruned
+  };
+  const live = [
+    { rel: 'a.jsonl', sha256: 'AA' },
+    { rel: 'b.jsonl', sha256: 'BX' },
+    { rel: 'c2.jsonl', sha256: 'CC' },   // c's content under a new path
+    { rel: 'e.jsonl', sha256: 'EE' },    // wholly new
+  ];
+  const r = cc.auditCategorize(manifest, live);
+  assert.deepEqual(r.synced, ['a.jsonl']);
+  assert.deepEqual(r.changed, ['b.jsonl']);
+  assert.deepEqual(r.renamed, [{ from: 'c.jsonl', to: 'c2.jsonl', ambiguous: false }]);
+  assert.deepEqual(r.added, ['e.jsonl']);
+  assert.deepEqual(r.pruned, ['d.jsonl']);
+});
+
+test('auditCategorize: a content match whose archived path is still live is a copy (new), not a rename', () => {
+  const manifest = { 'a.jsonl': { sha256: 'AA' } };
+  const live = [{ rel: 'a.jsonl', sha256: 'AA' }, { rel: 'copy.jsonl', sha256: 'AA' }];
+  const r = cc.auditCategorize(manifest, live);
+  assert.deepEqual(r.synced, ['a.jsonl']);
+  assert.deepEqual(r.renamed, []);         // a.jsonl is present, so copy is not a move
+  assert.deepEqual(r.added, ['copy.jsonl']);
+});
+
+test('classifyDivergence: a pure append is grown; a prefix loss is shrunk; anything else rewritten', () => {
+  const base = Buffer.from('{"turn":1}\n{"turn":2}\n');
+  assert.equal(cc.classifyDivergence(base, Buffer.concat([base, Buffer.from('{"turn":3}\n')])), 'grown');
+  assert.equal(cc.classifyDivergence(base, base.subarray(0, 10)), 'shrunk');
+  assert.equal(cc.classifyDivergence(base, Buffer.from('{"rewritten":true}\n')), 'rewritten');
+  // Same length, different bytes → rewritten (the equal-content case never reaches here).
+  assert.equal(cc.classifyDivergence(Buffer.from('aaaa'), Buffer.from('aaab')), 'rewritten');
+});
+
+test('contract: --audit on a store matching its archive is clean (exit 0, all synced)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const r = runCli('--audit', '--source', src, '--dest', dest, '--json');
+  assert.equal(r.status, 0);
+  const out = JSON.parse(r.stdout);
+  assert.equal(out.synced, 3);
+  assert.equal(out.mutated.length, 0);
+  assert.equal(out.renamed.length, 0);
+});
+
+test('contract: --audit flags a rewritten live transcript as mutated (exit 1)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  // Rewrite a live file to different content of the same-ish length (not a growth).
+  fs.writeFileSync(path.join(src, '-repo-b', 'uuid2.jsonl'), '{"rewritten":"whole"}\n');
+  const r = runCli('--audit', '--source', src, '--dest', dest, '--json');
+  assert.equal(r.status, 1);
+  const out = JSON.parse(r.stdout);
+  assert.equal(out.mutated.length, 1);
+  assert.equal(out.mutated[0].rel, path.join('-repo-b', 'uuid2.jsonl'));
+  assert.equal(out.mutated[0].reason, 'rewritten');
+});
+
+test('contract: --audit treats a pure append as grown, not drift (exit 0)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const f = path.join(src, '-repo-b', 'uuid2.jsonl');
+  fs.appendFileSync(f, '{"turn":"appended"}\n');   // archived bytes stay a prefix
+  const r = runCli('--audit', '--source', src, '--dest', dest, '--json');
+  assert.equal(r.status, 0, 'a growth between archive runs is normal, not drift');
+  const out = JSON.parse(r.stdout);
+  assert.equal(out.grown, 1);
+  assert.equal(out.mutated.length, 0);
+});
+
+test('contract: --audit flags a truncated live transcript as shrunk (exit 1)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const f = path.join(src, '-repo-a', 'uuid1.jsonl');   // was two turns
+  fs.writeFileSync(f, '{"turn":1}\n');                   // a prefix of the archived bytes
+  const r = runCli('--audit', '--source', src, '--dest', dest, '--json');
+  assert.equal(r.status, 1);
+  const out = JSON.parse(r.stdout);
+  assert.equal(out.mutated.length, 1);
+  assert.equal(out.mutated[0].reason, 'shrunk');
+});
+
+test('contract: --audit detects a renamed live transcript (exit 1, names old → new)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  // Move a live session to a new path without re-archiving it.
+  fs.renameSync(path.join(src, '-repo-b', 'uuid2.jsonl'), path.join(src, '-repo-b', 'renamed.jsonl'));
+  const r = runCli('--audit', '--source', src, '--dest', dest, '--json');
+  assert.equal(r.status, 1);
+  const out = JSON.parse(r.stdout);
+  assert.equal(out.renamed.length, 1);
+  assert.equal(out.renamed[0].from, path.join('-repo-b', 'uuid2.jsonl'));
+  assert.equal(out.renamed[0].to, path.join('-repo-b', 'renamed.jsonl'));
+});
+
+test('contract: --audit counts a pruned source as expected, not drift (exit 0)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  fs.rmSync(path.join(src, '-repo-b', 'uuid2.jsonl'));   // Claude Code cleanup
+  const r = runCli('--audit', '--source', src, '--dest', dest, '--json');
+  assert.equal(r.status, 0);
+  const out = JSON.parse(r.stdout);
+  assert.equal(out.pruned, 1);
+  assert.equal(out.mutated.length, 0);
+  assert.equal(out.renamed.length, 0);
+});
+
+test('contract: --audit counts an unarchived live file as new, not drift (exit 0)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  fs.writeFileSync(path.join(src, '-repo-b', 'fresh.jsonl'), '{"brand":"new"}\n');
+  const r = runCli('--audit', '--source', src, '--dest', dest, '--json');
+  assert.equal(r.status, 0);
+  const out = JSON.parse(r.stdout);
+  assert.equal(out.added, 1);
+  assert.equal(out.mutated.length, 0);
+});
+
+test('contract: --audit human output names drift and exits 1', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  fs.writeFileSync(path.join(src, '-repo-b', 'uuid2.jsonl'), '{"rewritten":"whole"}\n');
+  const r = runCli('--audit', '--source', src, '--dest', dest);
+  assert.equal(r.status, 1);
+  assert.match(r.stdout, /REWRITTEN.*uuid2\.jsonl/);
+});
+
 test('drift guard: every flag --help prints appears in the man page (superset relation)', () => {
   const help = execFileSync('node', [SCRIPT, '-h'], { encoding: 'utf8' });
   const page = fs.readFileSync(path.join(__dirname, 'man', 'ccarchive.1'), 'utf8');

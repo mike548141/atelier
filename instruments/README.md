@@ -183,6 +183,17 @@ that cleanup:
   anchor: it defends against accidental corruption; for tamper-resistance keep a
   copy of `manifest.json` somewhere separate from the archive (a mutation that
   also rewrote the manifest would pass). Run it any time, and after any restore.
+- **Live-store audit — `--audit`.** `--verify` asks whether the *archive* is
+  intact; `--audit` asks the other question — has the *live* store drifted from
+  what was preserved? It hashes every live `.jsonl` and buckets it: **synced**
+  (matches the recorded sha256), **grown** (the archived bytes are a strict
+  prefix — a plain append the next run will capture), **mutated** (rewritten or
+  truncated — the archive no longer equals the session's history), **renamed**
+  (content matched under an archived path now gone from the live store), **new**
+  (unarchived, matches nothing) and **pruned** (archived, no live counterpart —
+  the expected steady state after cleanup). Only **mutated** and **renamed** are
+  drift: they're listed by name and exit non-zero; growth, new and pruning are
+  normal and only counted. Read-only over both trees.
 - **Default dest is the operator's iCloud Drive** (`--dest` / `CCARCHIVE_DEST` to
   override) — derived at runtime from `$HOME`, so no personal path lives in this
   code. It's the first *writing* instrument (see ADR 0006 addendum); `--dry-run`

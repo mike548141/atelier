@@ -9,6 +9,10 @@ ccarchive \- durably preserve every Claude Code transcript, word for word
 .RI [ \-\-dest
 .IR dir ]
 .br
+.B ccarchive \-\-audit
+.RI [ \-\-dest
+.IR dir ]
+.br
 .B ccarchive \-\-install\-schedule
 |
 .B \-\-schedule\-status
@@ -91,6 +95,15 @@ is one commit away from publishing them.
 Re-hash every archived transcript and compare it against the sha256 recorded
 when it was archived. See
 .B INTEGRITY
+below.
+.TP
+.B \-\-audit
+Compare the
+.I live
+store against the archive and report how it has drifted from what was
+preserved \(em mutated, renamed, grown, new or pruned transcripts. Read-only.
+See
+.B AUDIT
 below.
 .TP
 .B \-\-install\-schedule
@@ -197,6 +210,47 @@ corruption. It is not, on its own, tamper-proof: an adversary who rewrote a
 the manifest would pass. For tamper-resistance, keep a copy of
 .I manifest.json
 somewhere separate from the archive.
+.SH AUDIT
+.B \-\-verify
+asks one question \(em is the
+.I archive
+still intact against its own manifest?
+.B \-\-audit
+asks the other \(em has the
+.I live
+store drifted from what was archived? It hashes every live transcript and
+places it in one bucket:
+.PP
+.B synced
+(live bytes match the recorded sha256; the healthy majority),
+.B grown
+(the archived bytes are a strict prefix of the live file \(em a plain append
+since the last run, which the next
+.B ccarchive
+will capture),
+.B mutated
+(the live file diverges from the archived copy by something other than growth
+\(em rewritten, or shrunk/truncated),
+.B renamed
+(a live file whose content matches an archived transcript recorded under a
+different path that is now gone from the live store),
+.B new
+(an unarchived live file matching nothing archived) and
+.B pruned
+(an archived transcript with no live counterpart \(em the expected steady
+state once Claude Code's cleanup has run).
+.PP
+Only
+.B mutated
+and
+.B renamed
+are drift: the archive no longer equals the live session's history, or is
+keyed by a stale path. Those exit non-zero and are listed by name;
+.BR grown ,
+.B new
+and
+.B pruned
+are normal and only counted. The audit reads both trees and writes nothing.
 .SH FILES
 .TP
 .I ~/.claude/projects/
@@ -230,6 +284,10 @@ Start archiving daily from now on (macOS launchd).
 Confirm every archived transcript still matches its recorded sha256 \(em run
 this after restoring the archive to a new machine.
 .TP
+.B ccarchive \-\-audit
+Report whether any live transcript has drifted (been rewritten, truncated or
+moved) from what the archive preserved.
+.TP
 .B ccarchive \-\-dest ~/backup/cc
 Archive somewhere other than iCloud Drive.
 .TP
@@ -258,6 +316,16 @@ when the archive does not verify: any
 or
 .B UNMANIFESTED
 file.
+.B \-\-audit
+exits
+.B 1
+when the live store has drifted: any
+.B mutated
+or
+.B renamed
+transcript.
+Growth, new files and pruning are expected and exit
+.BR 0 .
 .SH NOTES
 The default destination is the operator's iCloud Drive, derived at runtime
 from the home directory; no personal path is baked into the tool. It reads the

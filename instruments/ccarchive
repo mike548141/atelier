@@ -63,6 +63,7 @@ OPTIONS
   --force                Overwrite an archived copy even when the source shrank.
   --allow-repo-dest      Permit an archive dir inside a git work tree.
   --verify               Re-check the archive against its sha256 manifest.
+  --audit                Check the live store against the archive; report drift.
   --install-schedule     Run daily via launchd (macOS). Also --schedule-status,
                          --uninstall-schedule.
   --json                 Machine-readable output (never styled).
@@ -377,6 +378,154 @@ function verifyArchive(destRoot, asJson) {
   return failed ? 1 : 0;
 }
 
+// --- audit: the live store vs the archive --------------------------------
+// --verify checks the archive against its own manifest (has a .gz rotted or
+// gone?). --audit checks the *live* store against the archive (has a live
+// transcript drifted from what we preserved?). Different axis, read-only. The
+// manifest is the record of what was archived; the live files are the truth
+// we compare it to.
+//
+// Every live/archived transcript falls into one bucket:
+//   synced  — live present, raw-byte sha256 == the recorded hash. The healthy
+//             majority; counted only.
+//   grown   — live present, hash differs, but the archived bytes are a strict
+//             prefix of the live bytes: a pure append since the last archive.
+//             Normal between runs; the next `ccarchive` catches it up.
+//   mutated — live present, hash differs, and the live bytes are NOT a growth
+//             of the archived copy (rewritten, or shrunk/truncated). Real
+//             drift: the archive no longer equals the live session's history.
+//   renamed — a live file with no manifest entry whose content matches an
+//             archived entry recorded under a different path that is itself
+//             gone from the live store. Real drift: the archive is keyed by
+//             the old path.
+//   new     — live present, unarchived, matching no archived content. The next
+//             run archives it; counted.
+//   pruned  — an archived entry with no live counterpart, its content unseen
+//             live. The expected steady state after Claude Code's cleanup;
+//             counted.
+// Only mutated and renamed are drift worth a non-zero exit.
+
+// Bucket the live store against the manifest by sha256 alone (no byte reads):
+// `changed` still needs a byte-level look to split grown from mutated.
+function auditCategorize(manifest, liveList) {
+  const manifestRels = Object.keys(manifest);
+  const manifestSet = new Set(manifestRels);
+  const liveSet = new Set(liveList.map((f) => f.rel));
+
+  // sha256 → the archived rels holding that content, for rename detection.
+  const shaIndex = {};
+  for (const rel of manifestRels) {
+    const s = manifest[rel].sha256;
+    (shaIndex[s] || (shaIndex[s] = [])).push(rel);
+  }
+
+  const synced = [];
+  const changed = [];           // in manifest, hash differs → classify by bytes
+  const renamed = [];           // { from, to, ambiguous }
+  const added = [];             // live, unmanifested, content unseen archived
+  const renameSources = new Set();
+
+  for (const f of liveList) {
+    if (manifestSet.has(f.rel)) {
+      if (manifest[f.rel].sha256 === f.sha256) synced.push(f.rel);
+      else changed.push(f.rel);
+      continue;
+    }
+    // Unmanifested live file: a rename of an archived one, or genuinely new?
+    // A match only counts as a rename when the archived path it matches is
+    // itself gone from the live store (else it is a copy, not a move).
+    const cands = (shaIndex[f.sha256] || []).filter((r) => !liveSet.has(r) && !renameSources.has(r));
+    if (cands.length) {
+      renamed.push({ from: cands[0], to: f.rel, ambiguous: cands.length > 1 });
+      renameSources.add(cands[0]);
+    } else {
+      added.push(f.rel);
+    }
+  }
+
+  const pruned = manifestRels.filter((r) => !liveSet.has(r) && !renameSources.has(r));
+  return { synced, changed, renamed, added, pruned };
+}
+
+// How a live file diverges from its archived copy, once the hashes disagree.
+// Pure prefix comparison over the raw bytes — a session log only ever appends,
+// so a growth is benign (the archive just hasn't caught up); anything else is
+// a rewrite or truncation the archive should not silently absorb.
+function classifyDivergence(archivedBuf, liveBuf) {
+  if (liveBuf.length >= archivedBuf.length) {
+    return archivedBuf.equals(liveBuf.subarray(0, archivedBuf.length)) ? 'grown' : 'rewritten';
+  }
+  return liveBuf.equals(archivedBuf.subarray(0, liveBuf.length)) ? 'shrunk' : 'rewritten';
+}
+
+function auditLiveStore(srcRoot, destRoot, asJson) {
+  const manifest = loadManifest(destRoot);
+  const files = listJsonl(srcRoot);
+  const liveList = files.map((abs) => ({
+    rel: path.relative(srcRoot, abs), abs, sha256: sha256File(abs),
+  }));
+
+  const cat = auditCategorize(manifest, liveList);
+  const absByRel = new Map(liveList.map((f) => [f.rel, f.abs]));
+
+  const grown = [];
+  const mutated = [];           // { rel, reason, liveBytes, archivedBytes }
+  for (const rel of cat.changed) {
+    const liveBuf = fs.readFileSync(absByRel.get(rel));
+    let archivedBuf;
+    try { archivedBuf = zlib.gunzipSync(fs.readFileSync(path.join(destRoot, rel + '.gz'))); }
+    catch (e) {
+      if (e.code !== 'ENOENT') throw e;
+      // The manifest records this rel but its .gz is gone (a --verify concern).
+      // We can't classify the divergence, but live ≠ record is itself drift.
+      mutated.push({ rel, reason: 'archive-missing', liveBytes: liveBuf.length, archivedBytes: null });
+      continue;
+    }
+    const kind = classifyDivergence(archivedBuf, liveBuf);
+    if (kind === 'grown') grown.push(rel);
+    else mutated.push({ rel, reason: kind, liveBytes: liveBuf.length, archivedBytes: archivedBuf.length });
+  }
+
+  const result = {
+    live: srcRoot, archive: destRoot,
+    archived: Object.keys(manifest).length, live_total: liveList.length,
+    synced: cat.synced.length, grown: grown.length,
+    added: cat.added.length, pruned: cat.pruned.length,
+    mutated, renamed: cat.renamed,
+  };
+  const drift = mutated.length + cat.renamed.length;
+
+  if (asJson) { process.stdout.write(JSON.stringify(result, null, 2) + '\n'); return drift ? 1 : 0; }
+
+  const lines = [
+    `cc-transcripts audit → live store vs archive`,
+    `  ${result.archived} archived · ${result.synced} in sync, ${result.grown} grown, ` +
+      `${result.added} new, ${result.pruned} pruned`,
+  ];
+  if (drift) lines.push(`  ${mutated.length} mutated, ${cat.renamed.length} renamed`);
+  for (const m of mutated) {
+    const label = m.reason === 'shrunk' ? 'SHRUNK   '
+      : m.reason === 'rewritten' ? 'REWRITTEN'
+      : m.reason === 'archive-missing' ? 'NO-ARCHIVE' : 'MUTATED  ';
+    const sizes = m.archivedBytes === null
+      ? `live ${humanBytes(m.liveBytes)}, archived copy absent`
+      : `live ${humanBytes(m.liveBytes)} vs archived ${humanBytes(m.archivedBytes)}`;
+    lines.push(`  ✗ ${label} ${m.rel} (${sizes})`);
+  }
+  for (const r of cat.renamed) {
+    lines.push(`  ✗ RENAMED   ${r.from} → ${r.to}${r.ambiguous ? ' (one of several matches)' : ''}`);
+  }
+  if (!drift && (result.grown || result.added)) {
+    lines.push(`  ⚠ ${result.grown + result.added} changed or added since the last archive — ` +
+      `run ccarchive to catch up.`);
+  }
+  if (!drift && !result.grown && !result.added) {
+    lines.push('  ✓ the live store matches the archive (only expected pruning).');
+  }
+  process.stdout.write(lines.join('\n') + '\n');
+  return drift ? 1 : 0;
+}
+
 // --- run -----------------------------------------------------------------
 
 function run() {
@@ -395,6 +544,7 @@ function run() {
   const destRoot = takeValue('--dest') || process.env.CCARCHIVE_DEST || defaultDest(home);
 
   if (argv.includes('--verify')) return verifyArchive(destRoot, asJson);
+  if (argv.includes('--audit')) return auditLiveStore(srcRoot, destRoot, asJson);
 
   if (insideGitWorkTree(destRoot) && !argv.includes('--allow-repo-dest')) {
     process.stderr.write(
@@ -529,5 +679,5 @@ module.exports = {
   defaultDest, archivePathFor, shouldArchive, humanBytes, listJsonl, run,
   xmlEscape, schedulePaths, resolveScriptPath, launchdPlist, cronLine,
   sha256, manifestPath, loadManifest, saveManifest, listArchivedRels, verifyArchive,
-  isSuspectShrink, insideGitWorkTree,
+  isSuspectShrink, insideGitWorkTree, auditCategorize, classifyDivergence, auditLiveStore,
 };
