@@ -217,3 +217,82 @@ test('contract: --schedule-status is read-only and exits 0 on any platform', () 
   const out = execFileSync('node', [SCRIPT, '--schedule-status'], { encoding: 'utf8' });
   assert.ok(out.length > 0);
 });
+
+// --- integrity: sha256 manifest + verify ---------------------------------
+
+const { spawnSync } = require('node:child_process');
+function runCli(...args) {
+  const r = spawnSync('node', [SCRIPT, ...args], { encoding: 'utf8' });
+  return { status: r.status, stdout: r.stdout, stderr: r.stderr };
+}
+
+test('sha256 is the known-answer hash of its input', () => {
+  assert.equal(cc.sha256(Buffer.from('')),
+    'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855');
+  assert.equal(cc.sha256(Buffer.from('abc')),
+    'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
+});
+
+test('contract: a run records a sha256 manifest matching the raw source bytes', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const manifest = cc.loadManifest(dest);
+  const rels = ['-repo-a/uuid1.jsonl', '-repo-a/uuid1/subagents/agent-x.jsonl', '-repo-b/uuid2.jsonl'];
+  for (const rel of rels) {
+    assert.ok(manifest[rel], `manifest should record ${rel}`);
+    assert.equal(manifest[rel].sha256, cc.sha256(fs.readFileSync(path.join(src, rel))));
+  }
+});
+
+test('contract: --verify passes on an intact archive (exit 0)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const r = runCli('--verify', '--dest', dest);
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /every archived transcript matches/);
+});
+
+test('contract: --verify detects a mutated archive file (exit 1, names it)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  // Tamper: replace a .gz with a gzip of different content.
+  const gzPath = path.join(dest, '-repo-b', 'uuid2.jsonl.gz');
+  fs.writeFileSync(gzPath, zlib.gzipSync(Buffer.from('{"tampered":true}\n')));
+  const r = runCli('--verify', '--dest', dest, '--json');
+  assert.equal(r.status, 1);
+  const out = JSON.parse(r.stdout);
+  assert.deepEqual(out.mismatch, ['-repo-b/uuid2.jsonl']);
+  assert.equal(out.missing.length, 0);
+});
+
+test('contract: --verify reports a deleted archive file as missing (exit 1)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  fs.rmSync(path.join(dest, '-repo-b', 'uuid2.jsonl.gz'));
+  const r = runCli('--verify', '--dest', dest, '--json');
+  assert.equal(r.status, 1);
+  const out = JSON.parse(r.stdout);
+  assert.deepEqual(out.missing, ['-repo-b/uuid2.jsonl']);
+});
+
+test('manifest tracks the archive, not live sources: a pruned source keeps its entry', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const before = cc.loadManifest(dest)['-repo-b/uuid2.jsonl'].sha256;
+  // Source pruned by Claude Code cleanup; .gz stays (append-only).
+  fs.rmSync(path.join(src, '-repo-b', 'uuid2.jsonl'));
+  runJson(src, dest);
+  const after = cc.loadManifest(dest)['-repo-b/uuid2.jsonl'];
+  assert.ok(after, 'pruned-source entry must survive');
+  assert.equal(after.sha256, before);
+  assert.equal(runCli('--verify', '--dest', dest).status, 0);  // still verifies
+});
+
+test('saveManifest is atomic (temp+rename) and writes deterministic key order', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ccarchive-mf-'));
+  cc.saveManifest(dir, { 'z.jsonl': { sha256: '1' }, 'a.jsonl': { sha256: '2' } });
+  const text = fs.readFileSync(cc.manifestPath(dir), 'utf8');
+  assert.ok(text.indexOf('a.jsonl') < text.indexOf('z.jsonl'), 'keys sorted for stable diffs');
+  assert.ok(!fs.existsSync(cc.manifestPath(dir) + '.tmp'), 'temp file renamed away');
+  assert.deepEqual(cc.loadManifest(dir), { 'a.jsonl': { sha256: '2' }, 'z.jsonl': { sha256: '1' } });
+});
