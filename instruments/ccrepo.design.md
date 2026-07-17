@@ -1,8 +1,14 @@
 # ccrepo v2 — flexible grouping, filters, and a message-grain cost engine
 
-Status: **design agreed, not yet built.** Captures the decisions from the
-2026-07-16/17 design conversation so implementation has a single grounded
-reference. Numbers below are from the live machine at design time (284 sessions,
+Status: **built** (2026-07-17) — every section below is implemented in
+`instruments/ccrepo`; this doc stays as the grounded rationale. Two things
+sharpened in the build, both recorded here for honesty: (1) the price *base* per
+model was cross-checked against ccusage and came out to clean round numbers, so
+the table stores published list prices, not observed fits — the reconciliation
+stays genuinely independent and lands at ~0.05% drift; (2) subagent logs live in
+`<session>/subagents/*.jsonl` and had to be walked recursively and folded into
+their parent session, which is what closed the drift (and powers the `kind`
+dimension). Numbers below are from the live machine at design time (284 sessions,
 a ~6-week log window).
 
 ## 1. What changes, in one line

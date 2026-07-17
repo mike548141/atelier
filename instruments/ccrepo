@@ -1,143 +1,287 @@
 #!/usr/bin/env node
 /*
- * ccrepo — per-repo Claude Code usage totals.
+ * ccrepo — Claude Code usage totals, grouped and filtered any way you like.
  *
- * Reuses ccusage's own per-session cost figures (no pricing reimplemented)
- * and attributes each session to a repo by matching the session UUID to the
- * .jsonl filename under ~/.claude/projects/<encoded-repo-path>/.
+ * v2 reads the raw session logs under ~/.claude/projects/ directly and computes
+ * cost itself, per message, from a local price table (five token classes incl.
+ * the 5m/1h cache-write split). That message grain is what lets it group by
+ * dimensions that vary *within* a session — branch, main-vs-subagent, entrypoint,
+ * CC version, hour — not just repo/model/day.
  *
- * ccusage's native figures are USD; ccrepo converts to NZD by default at the
- * live USD→NZD rate. Use --fx <code> for another currency, or --fx usd for the
- * raw USD figures.
- * Optionally nest a child breakdown under each repo: --by-model or --by-day.
+ * ccusage is no longer the cost source; it's the *oracle*. Every run reconciles
+ * ccrepo's own total against `ccusage session` and reports the drift ($ and %),
+ * so a stale price table announces itself instead of lying quietly.
  *
- * Cost is an API-equivalent *estimate*. A subscription-plan user's real spend
- * diverges: a flat monthly fee covers some models at $0 marginal. If
- * ~/.claude/ccrepo-billing.json exists, ccrepo adds an Actual column applying
- * that plan (see the billing model in instruments/README.md). Absent file ⇒
- * estimate-only, exactly as before.
- * See --help for details.
+ * Grouping is an ordered list: -g repo,model or -g model,repo or -g month, any
+ * subset of {repo, model, branch, kind, entrypoint, cc-version, agent, year,
+ * month, week, day, hour}, nested left-to-right. Filters mirror that exact
+ * vocabulary. Default is -g repo, cost-descending.
+ *
+ * Cost is an API-equivalent *estimate* (list prices, not your subscription bill).
+ * A ~/.claude/ccrepo-billing.json plan config adds an Actual column (see the
+ * billing model in instruments/README.md). Absent ⇒ estimate-only.
+ * See --help for the full surface.
  */
 const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
-// Bare money marker for each currency — no disambiguating prefix, because the
-// currency is named once in the column header and once in a footnote rather than
-// stamped onto every figure. The dollar family therefore all show a plain "$";
-// unknown codes show no marker and lean on the header + footnote alone.
+// Bare money marker per currency — the currency is named in the header + a
+// footnote, not stamped on every figure. Dollar family → plain "$".
 const SYMBOLS = { USD: '$', NZD: '$', AUD: '$', CAD: '$', GBP: '£', EUR: '€', JPY: '¥' };
 const symbolFor = (code) => SYMBOLS[code] || '';
 
-const argv = process.argv.slice(2);
+// --- pricing -------------------------------------------------------------
+//
+// USD list price per *million* input tokens, standard tier, keyed by short model
+// name (claude- stripped) via longest-prefix match. The other four token classes
+// derive from the input base by Anthropic's standard multipliers (output 5×,
+// cache read 0.1×, cache write-5m 1.25×, cache write-1h 2×). Snapshot 2026-07-17;
+// each base was cross-checked against ccusage's own per-model cost on real logs
+// and came out to a clean round number, so the multiplier model is exact. Update
+// here (or drop ~/.claude/ccrepo-pricing.json to override) when list prices move;
+// the reconciliation footnote tells you when they have.
+const PRICING = {
+  'opus-4-8': 5,
+  'fable-5': 10,
+  'sonnet-5': 2,
+  'sonnet-4': 3,
+  'haiku-4-5': 1,
+};
+const MULT = { output: 5, cacheRead: 0.1, write5m: 1.25, write1h: 2 };
 
-const HELP = `ccrepo — per-repo Claude Code token & cost totals
-
-Wraps \`ccusage session\` and attributes each session to the repo it ran in
-(by matching the session UUID to its .jsonl under ~/.claude/projects/). Cost
-figures are ccusage's own USD estimates, shown in NZD by default at today's
-live rate — a relative gauge, not your bill.
-
-USAGE
-  ccrepo [options] [ccusage passthrough flags]
-
-OPTIONS
-  --by-model         Nest a per-model breakdown under each repo.
-  --by-day           Nest a per-day breakdown under each repo (by a session's
-                     last-activity day). Mutually exclusive with --by-model.
-  --fx <code>        Convert cost to an ISO-4217 currency via live USD→<code>
-                     rate (e.g. --fx gbp, --fx aud, --fx eur). Defaults to nzd;
-                     use --fx usd for the raw USD figures.
-  --rate <n>         Force the USD→<code> rate instead of fetching.
-  --no-billing       Ignore ~/.claude/ccrepo-billing.json; show estimate only.
-  --json             Machine-readable output (nests children when grouping).
-  -h, --help         Show this help.
-
-PASSTHROUGH
-  Any other flag is forwarded to \`ccusage session\`, e.g. date filters:
-  --since <YYYYMMDD>   --until <YYYYMMDD>   -z <timezone>
-
-BILLING (Actual vs Est)
-  The Cost column is an API-equivalent *estimate*. If a machine-local billing
-  config exists at ~/.claude/ccrepo-billing.json, ccrepo shows Est (API) and
-  Actual side by side: covered-model tokens cost $0 marginal (your flat plan
-  fee is a sunk cost, apportioned across repos by covered-token share);
-  uncovered models keep the API-rate figure. The file is never in a repo (a
-  plan and spend are personal data); absent ⇒ estimate-only. Shape + honest
-  limits: instruments/README.md "ccrepo billing model".
-
-EXAMPLES
-  ccrepo                              All-time per-repo totals (NZD).
-  ccrepo --by-model                  Per-repo, broken down by model.
-  ccrepo --by-day                    Per-repo, broken down by day.
-  ccrepo --fx usd                    Totals in raw USD (no conversion).
-  ccrepo --by-day --fx gbp           Per-day breakdown, in GBP.
-  ccrepo --since 20260601            June-to-date, in NZD.
-  ccrepo --json                      JSON for scripting.
-
-Env: none required (needs \`ccusage\` on PATH; network access to convert
-currency — the NZD default too, unless you pass --fx usd or --rate).`;
-
-const asJson = argv.includes('--json');
-const byModel = argv.includes('--by-model');
-const byDay = argv.includes('--by-day');
-const noBilling = argv.includes('--no-billing');
-// The child dimension nested under each repo, or null for a flat report.
-const groupBy = byModel ? 'model' : byDay ? 'day' : null;
-const childHead = groupBy === 'model' ? 'Model' : 'Day';
-
-function takeValue(flag) {
-  const i = argv.indexOf(flag);
-  return i !== -1 ? argv[i + 1] : null;
+// Load a machine-local price override, merged over the built-in table. Never in
+// a repo (list prices aren't secret, but the override path keeps corrections out
+// of the tool). Malformed ⇒ ignored with a warning, never fatal.
+function loadPricing(file) {
+  const p = file || path.join(os.homedir(), '.claude', 'ccrepo-pricing.json');
+  let raw;
+  try { raw = fs.readFileSync(p, 'utf8'); } catch { return { ...PRICING }; }
+  try {
+    const over = JSON.parse(raw);
+    const merged = { ...PRICING };
+    for (const [k, v] of Object.entries(over)) if (v > 0) merged[k.toLowerCase().replace(/^claude-/, '')] = v;
+    return merged;
+  } catch (e) { console.error(`Ignoring ${p}: not valid JSON (${e.message}).`); return { ...PRICING }; }
 }
 
-let fxCode = takeValue('--fx');
-fxCode = fxCode ? fxCode.toUpperCase() : null;
-// Default to NZD; ccusage's native figures are USD, so --fx usd means no
-// conversion. Any other code (default included) is converted at the live rate.
-const currency = fxCode || 'NZD';
-const converted = currency !== 'USD';
-const forcedRate = argv.includes('--rate') ? Number(takeValue('--rate')) : null;
-
-// Help and flag validation run from main(), never at module load: their
-// console output and process.exit() would otherwise fire off the HOST's argv
-// when this file is required (by the tests, or any script using the exports).
-function checkArgs() {
-  if (argv.includes('-h') || argv.includes('--help')) {
-    console.log(HELP);
-    process.exit(0);
+// Longest-prefix base price for a short model name, or null if unpriced.
+function priceBase(short, table) {
+  const t = table || PRICING;
+  const n = (short || '').toLowerCase();
+  let best = null;
+  for (const key of Object.keys(t)) {
+    if (n === key || n.startsWith(key)) {
+      if (best === null || key.length > best.length) best = key;
+    }
   }
-  if (byModel && byDay) {
-    console.error('--by-model and --by-day are mutually exclusive; pick one.');
-    process.exit(2);
-  }
-  if (forcedRate !== null && !converted) {
-    console.error('--rate has no effect on USD figures; drop it or pick a non-USD currency.');
-    process.exit(2);
-  }
-  if (forcedRate !== null && !(forcedRate > 0)) {
-    console.error('--rate must be a positive number.');
-    process.exit(2);
-  }
+  return best === null ? null : t[best];
+}
+// Cost of one message's five token classes, USD. { cost, priced } — priced=false
+// (cost 0) for synthetic/unknown models, surfaced in the drift report.
+function messageCost(short, t, table) {
+  const base = priceBase(short, table);
+  if (base === null) return { cost: 0, priced: false };
+  const cost = (
+    (t.input || 0) * base +
+    (t.output || 0) * base * MULT.output +
+    (t.cacheRead || 0) * base * MULT.cacheRead +
+    (t.write5m || 0) * base * MULT.write5m +
+    (t.write1h || 0) * base * MULT.write1h
+  ) / 1e6;
+  return { cost, priced: true };
 }
 
-// Strip ccrepo's own flags (and their values); forward the rest to ccusage.
-const OWN_WITH_VALUE = new Set(['--fx', '--rate']);
-const OWN_BARE = new Set(['--json', '--by-model', '--by-day', '--no-billing']);
-const passthrough = [];
-for (let i = 0; i < argv.length; i++) {
-  if (OWN_WITH_VALUE.has(argv[i])) { i++; continue; }
-  if (OWN_BARE.has(argv[i])) continue;
-  passthrough.push(argv[i]);
+// --- dimensions ----------------------------------------------------------
+
+const shortModel = (m) => m ? m.replace(/^claude-/, '') : 'unknown';
+
+// Local-time bucket key for a timestamp at a given granularity. Local tz on
+// purpose (a day/hour means the local one); 'unknown' for a missing/bad stamp.
+function timeBucket(iso, gran) {
+  if (!iso) return 'unknown';
+  const d = new Date(iso);
+  if (isNaN(d)) return 'unknown';
+  const Y = d.getFullYear();
+  const M = String(d.getMonth() + 1).padStart(2, '0');
+  const D = String(d.getDate()).padStart(2, '0');
+  const H = String(d.getHours()).padStart(2, '0');
+  switch (gran) {
+    case 'year': return String(Y);
+    case 'month': return `${Y}-${M}`;
+    case 'day': return `${Y}-${M}-${D}`;
+    case 'hour': return `${Y}-${M}-${D} ${H}h`;
+    case 'week': return isoWeek(d);
+    default: return 'unknown';
+  }
 }
+// ISO-8601 week key (YYYY-Www), local. Weeks start Monday; week 1 holds Jan 4.
+function isoWeek(d) {
+  const t = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const dow = (t.getDay() + 6) % 7;       // Mon=0..Sun=6
+  t.setDate(t.getDate() - dow + 3);        // move to the Thursday of this week
+  const firstThu = new Date(t.getFullYear(), 0, 4);
+  const fdow = (firstThu.getDay() + 6) % 7;
+  firstThu.setDate(firstThu.getDate() - fdow + 3);
+  const week = 1 + Math.round((t - firstThu) / (7 * 86400000));
+  return `${t.getFullYear()}-W${String(week).padStart(2, '0')}`;
+}
+
+// Every dimension the report can group or filter by. A getter maps one event to
+// its key string; empty optional fields collapse to '—' so a group/filter has a
+// stable bucket. Keep this list and HELP + README in step.
+const DIMS = {
+  repo: (e) => e.repo || '—',
+  model: (e) => e.model || 'unknown',
+  branch: (e) => e.branch || '—',
+  kind: (e) => e.kind || '—',
+  entrypoint: (e) => e.entrypoint || '—',
+  'cc-version': (e) => e.version || '—',
+  agent: (e) => e.agent || '—',
+  year: (e) => timeBucket(e.ts, 'year'),
+  month: (e) => timeBucket(e.ts, 'month'),
+  week: (e) => timeBucket(e.ts, 'week'),
+  day: (e) => timeBucket(e.ts, 'day'),
+  hour: (e) => timeBucket(e.ts, 'hour'),
+};
+const TIME_DIMS = new Set(['year', 'month', 'week', 'day', 'hour']);
+const SORT_KEYS = new Set(['cost', 'tokens', 'count', 'name', 'time']);
+
+// --- aggregates ----------------------------------------------------------
+
+const zeroAgg = () => ({
+  inputTokens: 0, outputTokens: 0,
+  cacheCreationTokens: 0, cacheReadTokens: 0, totalTokens: 0, cost: 0,
+  coveredTokens: 0, uncoveredCost: 0,
+});
+function addTo(agg, v) {
+  agg.inputTokens += v.inputTokens || 0;
+  agg.outputTokens += v.outputTokens || 0;
+  agg.cacheCreationTokens += v.cacheCreationTokens || 0;
+  agg.cacheReadTokens += v.cacheReadTokens || 0;
+  agg.totalTokens += v.totalTokens || 0;
+  agg.cost += v.cost || 0;
+  agg.coveredTokens += v.coveredTokens || 0;
+  agg.uncoveredCost += v.uncoveredCost || 0;
+}
+// Share of prompt-side tokens served from cache: read / (input + create + read).
+// null when there were no prompt-side tokens at all.
+function cacheHitRate(agg) {
+  const denom = (agg.inputTokens || 0) + (agg.cacheCreationTokens || 0) + (agg.cacheReadTokens || 0);
+  return denom ? (agg.cacheReadTokens || 0) / denom : null;
+}
+
+// --- N-level grouping ----------------------------------------------------
+
+const node = () => ({ agg: zeroAgg(), sessions: new Set(), children: new Map() });
+
+// Fold events into a tree keyed by the ordered `keys`. Every node (root included)
+// carries its own rolled-up agg and a Set of distinct session IDs — so a
+// "Sessions" count is always distinct, never a sum of child slices. keys=[] ⇒
+// just the root (a single grand total).
+function groupTree(events, keys) {
+  const root = node();
+  for (const e of events) {
+    addTo(root.agg, e); root.sessions.add(e.session);
+    let cur = root;
+    for (const k of keys) {
+      const kv = String(DIMS[k] ? DIMS[k](e) : '—');
+      let ch = cur.children.get(kv);
+      if (!ch) { ch = node(); cur.children.set(kv, ch); }
+      addTo(ch.agg, e); ch.sessions.add(e.session);
+      cur = ch;
+    }
+  }
+  return root;
+}
+
+// Children of a node, sorted for a level. Default: time dims chronological
+// ascending, everything else by cost descending. spec {key,dir} overrides.
+function sortedEntries(nd, dimName, spec) {
+  const entries = [...nd.children.entries()];
+  const key = (spec && spec.key) || (TIME_DIMS.has(dimName) ? 'time' : 'cost');
+  const dir = (spec && spec.dir) || (key === 'name' || key === 'time' ? 'asc' : 'desc');
+  const val = (k, n) => {
+    switch (key) {
+      case 'cost': return n.agg.cost;
+      case 'tokens': return n.agg.totalTokens;
+      case 'count': return n.sessions.size;
+      default: return k;                    // name | time
+    }
+  };
+  entries.sort((a, b) => {
+    const va = val(a[0], a[1]), vb = val(b[0], b[1]);
+    const c = typeof va === 'string' ? va.localeCompare(vb) : va - vb;
+    return dir === 'asc' ? c : -c;
+  });
+  return entries;
+}
+
+// Pre-order rows for the indented tree: one row per node with its depth.
+function treeRows(root, keys, specs) {
+  const rows = [];
+  (function walk(nd, depth) {
+    if (depth >= keys.length) return;
+    for (const [k, child] of sortedEntries(nd, keys[depth], specs[depth])) {
+      rows.push({ depth: depth + 1, label: k, sessions: child.sessions.size, agg: child.agg });
+      walk(child, depth + 1);
+    }
+  })(root, 0);
+  return rows;
+}
+// Leaf rows (full key path) for flat / JSON / CSV — no subtotals.
+function leafRows(root, keys, specs) {
+  const out = [];
+  if (!keys.length) { out.push({ path: [], sessions: root.sessions.size, agg: root.agg }); return out; }
+  (function walk(nd, depth, path) {
+    if (depth >= keys.length) { out.push({ path, sessions: nd.sessions.size, agg: nd.agg }); return; }
+    for (const [k, child] of sortedEntries(nd, keys[depth], specs[depth])) walk(child, depth + 1, [...path, k]);
+  })(root, 0, []);
+  return out;
+}
+
+// --- filters -------------------------------------------------------------
+
+const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// One filter term against one value. '*' globs; else session=prefix,
+// model=substring, everything else=exact. All case-insensitive.
+function globMatch(pattern, value, dim) {
+  const p = pattern.toLowerCase(), v = String(value).toLowerCase();
+  if (p.includes('*')) return new RegExp('^' + p.split('*').map(escapeRe).join('.*') + '$').test(v);
+  if (dim === 'session') return v.startsWith(p);
+  if (dim === 'model') return v.includes(p);
+  return v === p;
+}
+// Build an AND-of-dimensions predicate from {dim: "a,b,!c"} specs. Comma = OR
+// within a dimension; a leading '!' on a term excludes.
+function buildDimFilter(specs) {
+  const preds = [];
+  for (const [dim, raw] of Object.entries(specs)) {
+    const getter = dim === 'session' ? (e) => e.session : DIMS[dim];
+    if (!getter) continue;
+    const inc = [], exc = [];
+    for (const term of String(raw).split(',').map((s) => s.trim()).filter(Boolean)) {
+      if (term.startsWith('!')) exc.push(term.slice(1)); else inc.push(term);
+    }
+    preds.push((e) => {
+      const v = getter(e);
+      if (exc.some((p) => globMatch(p, v, dim))) return false;
+      if (inc.length && !inc.some((p) => globMatch(p, v, dim))) return false;
+      return true;
+    });
+  }
+  return (e) => preds.every((p) => p(e));
+}
+
+// --- reading the raw logs ------------------------------------------------
 
 const projectsDir = path.join(os.homedir(), '.claude', 'projects');
 
-// Read the real project path (cwd) from the first log line that carries one.
-// Claude's folder names dash-mangle every '/', '.', '_' alike, so they can't be
-// reversed unambiguously (e.g. hitchbots_guide -> ...-hitchbots-guide -> "guide").
-// The logs record the true cwd, so we recover the exact repo name from there.
+function isDir(p) { try { return fs.statSync(p).isDirectory(); } catch { return false; } }
+
+// The folder name dash-mangles every '/', '.', '_' alike, so the true repo name
+// is unrecoverable from it — the logs record the real cwd, so read it from there.
 function cwdFromLog(file) {
   let chunk;
   try {
@@ -151,89 +295,164 @@ function cwdFromLog(file) {
   if (!m) return null;
   try { return JSON.parse(`"${m[1]}"`); } catch { return null; }
 }
-
-// A dangling symlink (or an entry deleted mid-scan) must not kill the walk.
-function isDir(p) {
-  try { return fs.statSync(p).isDirectory(); } catch { return false; }
-}
-
-// Build sessionUUID -> repoDir index, plus repoDir -> display label, from logs.
-// Deferred into a function (not run at module load) so requiring this file for
-// the unit tests touches no disk. Returns the maps rather than mutating module
-// state, so a caller can't consult a silently empty index by mistake.
-function buildIndex() {
-  const sessionToRepo = new Map();
-  const repoLabel = new Map();
-  for (const repo of fs.readdirSync(projectsDir)) {
-    const dir = path.join(projectsDir, repo);
-    if (!isDir(dir)) continue;
-    for (const file of fs.readdirSync(dir)) {
-      if (!file.endsWith('.jsonl')) continue;
-      sessionToRepo.set(file.replace(/\.jsonl$/, ''), repo);
-      if (!repoLabel.has(repo)) {
-        const cwd = cwdFromLog(path.join(dir, file));
-        if (cwd) repoLabel.set(repo, path.basename(cwd));
-      }
-    }
-  }
-  return { sessionToRepo, repoLabel };
-}
-
-// Prefer the exact name from the logs; fall back to the dash-decoded last
-// segment.
+// Prefer the exact logged name; else dash-decode the folder's last segment.
 function label(encoded, labels) {
   if (labels.has(encoded)) return labels.get(encoded);
-  const seg = encoded.split('-').filter(Boolean);
+  const seg = String(encoded).split('-').filter(Boolean);
   return seg[seg.length - 1] || encoded;
 }
-// Total over drifting ccusage rows: a breakdown without modelName must not
-// throw mid-aggregation.
-const shortModel = (m) => m ? m.replace(/^claude-/, '') : 'unknown';
-const dayOf = (iso) => {
-  if (!iso) return 'unknown';
-  const d = new Date(iso);
-  return isNaN(d) ? 'unknown' : d.toLocaleDateString('en-CA'); // YYYY-MM-DD, local tz
-};
 
-// coveredTokens / uncoveredCost stay 0 unless a billing config is active (a
-// `covers` predicate is passed to aggregate); they're the raw material for the
-// Actual column and are stripped from JSON when billing is off.
-const zeroAgg = () => ({
-  sessions: 0, inputTokens: 0, outputTokens: 0,
-  cacheCreationTokens: 0, cacheReadTokens: 0, totalTokens: 0, cost: 0,
-  coveredTokens: 0, uncoveredCost: 0,
-});
-function addTo(agg, v) {
-  agg.sessions += v.sessions; agg.inputTokens += v.inputTokens;
-  agg.outputTokens += v.outputTokens;
-  agg.cacheCreationTokens += v.cacheCreationTokens || 0;
-  agg.cacheReadTokens += v.cacheReadTokens || 0;
-  agg.totalTokens += v.totalTokens; agg.cost += v.cost;
-  agg.coveredTokens += v.coveredTokens || 0;
-  agg.uncoveredCost += v.uncoveredCost || 0;
-}
-// Share of prompt-side tokens served from cache: read / (input + create + read).
-// null when there were no prompt-side tokens at all (nothing to hit or miss).
-function cacheHitRate(agg) {
-  const denom = (agg.inputTokens || 0) + (agg.cacheCreationTokens || 0) + (agg.cacheReadTokens || 0);
-  return denom ? (agg.cacheReadTokens || 0) / denom : null;
-}
-// Add a value into repo.children under `key`, creating the bucket as needed.
-function addChild(r, key, v) {
-  let c = r.children.get(key);
-  if (!c) { c = zeroAgg(); r.children.set(key, c); }
-  addTo(c, v);
+// Yield every .jsonl under a repo dir with its owning session + whether it's a
+// subagent log. Layout: <repo>/<uuid>.jsonl is a main session (session=uuid);
+// <repo>/<uuid>/subagents/agent-*.jsonl is that session's subagent (session=uuid,
+// sub=true) — real spend ccusage folds into the parent, so it must be read too.
+function* walkSessionFiles(dir, session) {
+  let entries;
+  try { entries = fs.readdirSync(dir); } catch { return; }
+  for (const entry of entries) {
+    const p = path.join(dir, entry);
+    if (isDir(p)) {
+      // At the repo root, a subdir is named for its parent session UUID; anything
+      // below that (session != null) is a subagent log owned by that session.
+      yield* walkSessionFiles(p, session || entry);
+    } else if (entry.endsWith('.jsonl')) {
+      yield { full: p, session: session || entry.replace(/\.jsonl$/, ''), sub: session != null };
+    }
+  }
 }
 
-// --- billing model (Actual vs Est) --------------------------------------
+// Parse one already-JSON.parsed assistant log record into an event, or null if
+// it isn't a priced assistant message. `covers` (or null) classifies the model
+// for the billing split. Pure over its inputs — the tests drive it directly.
+function eventFrom(o, ctx) {
+  if (!o || o.type !== 'assistant') return null;
+  const msg = o.message || {};
+  const u = msg.usage || {};
+  const cc = u.cache_creation || {};
+  const w5 = cc.ephemeral_5m_input_tokens || 0;
+  const w1 = cc.ephemeral_1h_input_tokens || 0;
+  const input = u.input_tokens || 0;
+  const output = u.output_tokens || 0;
+  const cacheRead = u.cache_read_input_tokens || 0;
+  const create = (w5 + w1) || (u.cache_creation_input_tokens || 0);
+  const total = input + output + cacheRead + create;
+  const model = shortModel(msg.model);
+  const { cost, priced } = messageCost(model, { input, output, cacheRead, write5m: w5, write1h: w1 }, ctx && ctx.pricing);
+  const covered = ctx && ctx.covers ? ctx.covers(model) : false;
+  return {
+    // Falsy when the repo label isn't known yet (e.g. a subagent log walked
+    // before its dir's main file) — readAllEvents resolves it after the walk.
+    // A truthy placeholder here would lock in and skip that resolution.
+    repo: (ctx && ctx.repo) || '',
+    session: (ctx && ctx.session) || o.sessionId || '—',
+    model,
+    branch: o.gitBranch || '',
+    kind: (o.isSidechain || (ctx && ctx.sub)) ? 'subagent' : 'main',
+    entrypoint: o.entrypoint || '',
+    version: o.version || '',
+    agent: o.agent || '',
+    ts: o.timestamp || '',
+    priced, total,
+    inputTokens: input, outputTokens: output,
+    cacheCreationTokens: create, cacheReadTokens: cacheRead,
+    totalTokens: total, cost,
+    coveredTokens: covered ? total : 0,
+    uncoveredCost: covered ? 0 : cost,
+  };
+}
 
-// Load the machine-local billing config, or null (⇒ estimate-only). A malformed
-// or under-specified file is *ignored with a warning*, never fatal — a cost
-// report must not die over a bad optional config. Takes a path for the tests.
+// Walk every session log, emit one event per priced assistant message. Dedups on
+// (message.id, requestId) keeping the LAST occurrence — streaming writes partial
+// usage lines under one id and only the final line carries the complete token
+// counts, so last-wins matches ccusage (first-wins undercounts by ~4%). A message
+// with no id is always kept. Returns events + encoded→label map + unpriced tally.
+function readAllEvents(covers, pricing) {
+  const byKey = new Map();     // (message.id|requestId) -> event, last wins
+  const noKey = [];            // events with no message.id
+  const repoLabels = new Map();
+  let dirs;
+  try { dirs = fs.readdirSync(projectsDir); } catch { return { events: [], repoLabels, unpriced: new Map() }; }
+  for (const enc of dirs) {
+    const dir = path.join(projectsDir, enc);
+    if (!isDir(dir)) continue;
+    let lab = null;
+    for (const { full, session, sub } of walkSessionFiles(dir, null)) {
+      // Repo label from a main (non-subagent) file's cwd — a subagent may run in
+      // a worktree whose basename isn't the repo's.
+      if (lab === null && !sub) { const cwd = cwdFromLog(full); if (cwd) lab = path.basename(cwd); }
+      let content;
+      try { content = fs.readFileSync(full, 'utf8'); } catch { continue; }
+      for (const line of content.split('\n')) {
+        if (!line) continue;
+        let o;
+        try { o = JSON.parse(line); } catch { continue; }
+        if (o.type !== 'assistant') continue;
+        const e = eventFrom(o, { repo: lab, session, sub, covers, pricing });
+        if (!e) continue;
+        e._enc = enc;
+        const mid = (o.message && o.message.id) || '';
+        if (mid) byKey.set(mid + '|' + (o.requestId || ''), e); else noKey.push(e);
+      }
+    }
+    if (lab) repoLabels.set(enc, lab);
+  }
+  const events = [...byKey.values(), ...noKey];
+  const unpriced = new Map();
+  for (const e of events) {
+    if (!e.repo) e.repo = label(e._enc, repoLabels);
+    if (!e.priced && e.total > 0) unpriced.set(e.model, (unpriced.get(e.model) || 0) + 1);
+  }
+  return { events, repoLabels, unpriced };
+}
+
+// --- reconciliation against ccusage --------------------------------------
+
+function runCcusage(passthrough) {
+  try {
+    const out = execFileSync('ccusage', ['session', '--json', ...passthrough], {
+      encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
+    });
+    return JSON.parse(out).session;
+  } catch { return null; }
+}
+
+// Compare ccrepo's own per-session/per-model cost against ccusage's. Pure — the
+// tests drive it with fixture arrays. Returns null when ccusage is unavailable.
+function reconcile(myEvents, ccuSessions) {
+  if (!Array.isArray(ccuSessions)) return null;
+  const myP = new Map(), myM = new Map();
+  for (const e of myEvents) {
+    myP.set(e.session, (myP.get(e.session) || 0) + e.cost);
+    myM.set(e.model, (myM.get(e.model) || 0) + e.cost);
+  }
+  const cuP = new Map(), cuM = new Map();
+  for (const s of ccuSessions) {
+    cuP.set(s.period, (cuP.get(s.period) || 0) + (s.totalCost || 0));
+    for (const mb of s.modelBreakdowns || []) {
+      const m = shortModel(mb.modelName);
+      cuM.set(m, (cuM.get(m) || 0) + (mb.cost || 0));
+    }
+  }
+  let myTot = 0, cuTot = 0, matched = 0, myOnly = 0, cuOnly = 0;
+  for (const p of new Set([...myP.keys(), ...cuP.keys()])) {
+    const a = myP.get(p), b = cuP.get(p);
+    if (a != null && b != null) { myTot += a; cuTot += b; matched++; }
+    else if (a != null) myOnly++;
+    else cuOnly++;
+  }
+  const models = [...new Set([...myM.keys(), ...cuM.keys()])].map((m) => {
+    const a = myM.get(m) || 0, b = cuM.get(m) || 0;
+    return { model: m, mine: a, ccu: b, delta: a - b, pct: b ? (a - b) / b : (a ? Infinity : 0) };
+  }).sort((x, y) => Math.abs(y.delta) - Math.abs(x.delta));
+  return { myTot, cuTot, delta: myTot - cuTot, pct: cuTot ? (myTot - cuTot) / cuTot : 0, matched, myOnly, cuOnly, models };
+}
+
+// --- billing model (Actual vs Est) — unchanged from v1 -------------------
+
 function loadBilling(file) {
   const p = file || path.join(os.homedir(), '.claude', 'ccrepo-billing.json');
   let raw;
-  try { raw = fs.readFileSync(p, 'utf8'); } catch { return null; } // absent ⇒ estimate-only
+  try { raw = fs.readFileSync(p, 'utf8'); } catch { return null; }
   let cfg;
   try { cfg = JSON.parse(raw); }
   catch (e) { console.error(`Ignoring ${p}: not valid JSON (${e.message}).`); return null; }
@@ -251,10 +470,6 @@ function loadBilling(file) {
     perTokenModels: Array.isArray(cfg.perTokenModels) ? cfg.perTokenModels.map((s) => String(s).toLowerCase()) : [],
   };
 }
-
-// A predicate on a short model name (claude- already stripped): covered iff it
-// matches a `covers` family prefix and isn't carved out by perTokenModels.
-// Returns null when there's no billing, so aggregate() skips classification.
 function coversPredicate(billing) {
   if (!billing) return null;
   const { covers } = billing.plan;
@@ -265,11 +480,6 @@ function coversPredicate(billing) {
     return hit(covers, n) && !hit(carve, n);
   };
 }
-
-// Actual spend for one aggregate = its uncovered per-token cost + its share of
-// the (sunk) plan fee. Apportion by covered-token share; if nothing in range
-// ran on a covered model, fall back to total-token share so the fee a user
-// really paid is still reflected somewhere. Pure — the tests drive it directly.
 function actualFor(agg, { monthlyCostUSD, totalCovered, totalAllTokens }) {
   const useCovered = totalCovered > 0;
   const basis = useCovered ? (agg.coveredTokens || 0) : (agg.totalTokens || 0);
@@ -280,105 +490,340 @@ function actualFor(agg, { monthlyCostUSD, totalCovered, totalAllTokens }) {
 
 async function fetchUsdRates() {
   try {
-    const res = await fetch('https://open.er-api.com/v6/latest/USD', {
-      signal: AbortSignal.timeout(4000),
-    });
+    const res = await fetch('https://open.er-api.com/v6/latest/USD', { signal: AbortSignal.timeout(4000) });
     const data = await res.json();
     if (data && data.rates) return data.rates;
-  } catch { /* offline / feed down — caller degrades honestly */ }
+  } catch { /* offline — caller degrades honestly */ }
   return null;
 }
 
-// Fold ccusage's per-session rows into repo -> aggregate (with optional child
-// breakdown). Pure over its inputs — no disk, no ccusage — so the tests drive it
-// with fixture sessions and a fixture session->repo index. `covers` (or null)
-// classifies each model's tokens as plan-covered ($0 marginal) or uncovered.
-function aggregate(sessions, index, group, covers) {
-  const repos = new Map();
-  let unmatched = 0;
-  for (const s of sessions) {
-    const repo = index.get(s.period);
-    if (!repo) { unmatched++; continue; }
-    let r = repos.get(repo);
-    if (!r) { r = { ...zeroAgg(), children: new Map() }; repos.set(repo, r); }
-    const sessionAgg = {
-      sessions: 1,
-      inputTokens: s.inputTokens || 0,
-      outputTokens: s.outputTokens || 0,
-      cacheCreationTokens: s.cacheCreationTokens || 0,
-      cacheReadTokens: s.cacheReadTokens || 0,
-      totalTokens: s.totalTokens || 0,
-      cost: s.totalCost || 0,
-    };
-    addTo(r, sessionAgg);
+// --- CLI parsing (pure at load; no output/exit until main → checkArgs) ----
 
-    // One pass over the per-model breakdown does double duty: emit --by-model
-    // children, and (when billing is on) split the session's tokens into
-    // covered vs uncovered. A single session can span several models.
-    if (group === 'model' || covers) {
-      let covTokens = 0, uncovCost = 0;
-      for (const mb of s.modelBreakdowns || []) {
-        const name = shortModel(mb.modelName);
-        const mbTokens = (mb.inputTokens || 0) + (mb.outputTokens || 0) +
-          (mb.cacheCreationTokens || 0) + (mb.cacheReadTokens || 0);
-        const isCov = covers ? covers(name) : false;
-        if (isCov) covTokens += mbTokens; else uncovCost += (mb.cost || 0);
-        if (group === 'model') {
-          addChild(r, name, {
-            sessions: 1, // sessions that used this model within the repo
-            inputTokens: mb.inputTokens || 0,
-            outputTokens: mb.outputTokens || 0,
-            cacheCreationTokens: mb.cacheCreationTokens || 0,
-            cacheReadTokens: mb.cacheReadTokens || 0,
-            totalTokens: mbTokens,
-            cost: mb.cost || 0,
-            coveredTokens: isCov ? mbTokens : 0,
-            uncoveredCost: isCov ? 0 : (mb.cost || 0),
-          });
-        }
-      }
-      if (covers) {
-        r.coveredTokens += covTokens;
-        r.uncoveredCost += uncovCost;
-        // Carry the split onto the session so a --by-day child inherits it.
-        sessionAgg.coveredTokens = covTokens;
-        sessionAgg.uncoveredCost = uncovCost;
-      }
+const argv = process.argv.slice(2);
+const has = (f) => argv.includes(f);
+function takeValue(...flags) {
+  for (const f of flags) { const i = argv.indexOf(f); if (i !== -1) return argv[i + 1]; }
+  return null;
+}
+
+const asJson = has('--json');
+const asCsv = has('--csv');
+const flat = has('--flat');
+const noBilling = has('--no-billing');
+const noReconcile = has('--no-reconcile');
+
+let fxCode = takeValue('--fx'); fxCode = fxCode ? fxCode.toUpperCase() : null;
+const currency = fxCode || 'NZD';
+const converted = currency !== 'USD';
+const forcedRate = has('--rate') ? Number(takeValue('--rate')) : null;
+
+const groupArg = (takeValue('-g', '--group') || 'repo').trim();
+const keys = (groupArg === '' || groupArg === 'total') ? [] : groupArg.split(',').map((s) => s.trim()).filter(Boolean);
+
+const FILTER_FLAGS = {
+  '--repo': 'repo', '--model': 'model', '--branch': 'branch', '--kind': 'kind',
+  '--entrypoint': 'entrypoint', '--cc-version': 'cc-version', '--agent': 'agent', '--session': 'session',
+};
+const filterSpecs = {};
+for (const [flag, dim] of Object.entries(FILTER_FLAGS)) { const v = takeValue(flag); if (v != null) filterSpecs[dim] = v; }
+
+const since = takeValue('--since');
+const until = takeValue('--until');
+const tz = takeValue('-z', '--timezone');
+
+function parseSort(arg, ks) {
+  if (!arg) return ks.map(() => null);
+  const parts = arg.split(',').map((s) => s.trim()).filter(Boolean).map((p) => {
+    const [k, dir] = p.split(':');
+    return { key: k, dir: dir || null };
+  });
+  if (parts.length === 1) return ks.map(() => parts[0]);
+  return ks.map((_, i) => parts[i] || null);
+}
+const sortSpecs = parseSort(takeValue('--sort'), keys);
+
+const HELP = `ccrepo — Claude Code usage totals, grouped and filtered any way you like
+
+Reads ~/.claude/projects/ logs directly, attributes each session to its repo,
+and computes cost per message from a local price table — then reconciles that
+total against \`ccusage session\` and reports the drift. Cost is an API-equivalent
+estimate (list prices), shown in NZD by default at today's live rate.
+
+USAGE
+  ccrepo [options]
+
+GROUPING
+  -g, --group <list>   Ordered, comma-separated dimensions, nested left→right.
+                       Default: repo. Use 'total' for a single grand total.
+                       Dimensions: repo · model · branch · kind · entrypoint ·
+                       cc-version · agent · year · month · week · day · hour
+                       e.g. -g repo,model   -g model,repo   -g repo,branch,month
+
+FILTERS  (comma = OR within; leading ! excludes; * globs; case-insensitive)
+  --repo <list>        e.g. --repo ros,faves   --repo '!scanme'
+  --model <list>       substring match, e.g. --model opus
+  --branch <list>      glob, e.g. --branch 'client-*'
+  --kind <list>        main | subagent
+  --entrypoint <list>  cli | claude-vscode
+  --cc-version <list>  e.g. --cc-version 2.1.209
+  --agent <list>       agent type
+  --session <list>     session UUID prefix, e.g. --session 01c3,ff97
+  --since <YYYYMMDD>   --until <YYYYMMDD>   -z, --timezone <tz>
+
+SORTING
+  --sort <list>        Per-level, aligned to -g (one value broadcasts to all).
+                       Keys: cost · tokens · count · name · time  (+ :asc/:desc)
+                       Default: time dims chronological, others by cost desc.
+
+OUTPUT
+  --flat               One column per group level (spreadsheet shape) vs the
+                       default indented tree.
+  --json               Tidy JSON: one record per leaf, each dimension a field.
+  --csv                Same shape as CSV.
+  --fx <code>          Convert to an ISO-4217 currency (default nzd; usd = raw).
+  --rate <n>           Force the USD→<code> rate instead of fetching.
+  --no-billing         Ignore ~/.claude/ccrepo-billing.json; estimate only.
+  --no-reconcile       Skip the ccusage cross-check (faster / offline).
+  -h, --help           Show this help.
+
+COST & RECONCILIATION
+  Cost is computed here from list prices (~/.claude/ccrepo-pricing.json overrides
+  the built-in table), per message, across five token classes incl. the 5m/1h
+  cache-write split. Every run cross-checks the total against ccusage and prints
+  the drift; a large drift means the price table has gone stale. Not your bill.
+
+BILLING (Actual vs Est)
+  A machine-local ~/.claude/ccrepo-billing.json plan config adds an Actual column
+  (covered-model tokens at $0 marginal + apportioned flat fee). See the billing
+  model in instruments/README.md. Absent ⇒ estimate-only.
+
+EXAMPLES
+  ccrepo                             Per-repo totals (NZD), default.
+  ccrepo -g month                   Totals per month.
+  ccrepo -g repo,model              Repo, broken down by model.
+  ccrepo -g model,repo              Model, broken down by repo.
+  ccrepo -g repo,branch --repo ros  Just ros, by branch.
+  ccrepo -g kind                    Main thread vs subagent spend.
+  ccrepo -g repo --sort name        Repos alphabetically.
+  ccrepo --json > usage.json        Tidy JSON for scripting.
+
+Env: needs \`ccusage\` on PATH for the reconciliation cross-check (skip with
+--no-reconcile); network access to convert currency (the NZD default too).`;
+
+function checkArgs() {
+  if (has('-h') || has('--help')) { console.log(HELP); process.exit(0); }
+  const badDim = keys.find((k) => !DIMS[k]);
+  if (badDim) {
+    console.error(`Unknown group dimension '${badDim}'. Valid: ${Object.keys(DIMS).join(', ')}, total.`);
+    process.exit(2);
+  }
+  for (const s of sortSpecs) {
+    if (s && !SORT_KEYS.has(s.key)) {
+      console.error(`Unknown --sort key '${s.key}'. Valid: ${[...SORT_KEYS].join(', ')} (+ :asc/:desc).`);
+      process.exit(2);
     }
-
-    if (group === 'day') {
-      // Whole session attributed to its last-activity day.
-      addChild(r, dayOf(s.metadata && s.metadata.lastActivity), sessionAgg);
+    if (s && s.dir && s.dir !== 'asc' && s.dir !== 'desc') {
+      console.error(`--sort direction must be asc or desc, got '${s.dir}'.`);
+      process.exit(2);
     }
   }
-  return { repos, unmatched };
+  if (asJson && asCsv) { console.error('--json and --csv are mutually exclusive; pick one.'); process.exit(2); }
+  if (forcedRate !== null && !converted) {
+    console.error('--rate has no effect on USD figures; drop it or pick a non-USD currency.');
+    process.exit(2);
+  }
+  if (forcedRate !== null && !(forcedRate > 0)) { console.error('--rate must be a positive number.'); process.exit(2); }
 }
+
+// --- output --------------------------------------------------------------
+
+function fmts(rate, currency) {
+  const sym = symbolFor(currency);
+  return {
+    n: (x) => (x || 0).toLocaleString('en-NZ'),
+    money: (usd) => sym + ((usd || 0) * rate).toLocaleString('en-NZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+    pct: (x) => x === null ? '—' : (x * 100).toFixed(1) + '%',
+  };
+}
+
+function metricHeads(currency, billing) {
+  const h = [
+    { head: 'Sessions', align: 'r' }, { head: 'Input', align: 'r' }, { head: 'Output', align: 'r' },
+    { head: 'Cache Create', align: 'r' }, { head: 'Cache Read', align: 'r' }, { head: 'Cache Hit', align: 'r' },
+    { head: 'Total Tokens', align: 'r' },
+    { head: billing ? `Est (${currency})` : `Cost (${currency})`, align: 'r' },
+  ];
+  if (billing) h.push({ head: `Actual (${currency})`, align: 'r' });
+  return h;
+}
+
+function printMatrix(cols, dataRows, totalRow) {
+  const all = [...dataRows.map((r) => r.cells), totalRow.cells];
+  const w = cols.map((c, i) => Math.max(c.head.length, ...all.map((cells) => String(cells[i] == null ? '' : cells[i]).length)));
+  const pad = (s, i) => cols[i].align === 'l' ? String(s == null ? '' : s).padEnd(w[i]) : String(s == null ? '' : s).padStart(w[i]);
+  const line = (l, m, r) => l + w.map((x) => '─'.repeat(x + 2)).join(m) + r;
+  const rowStr = (cells) => '│ ' + cells.map((s, i) => pad(s, i)).join(' │ ') + ' │';
+  const headStr = '│ ' + cols.map((c, i) => c.align === 'l' ? c.head.padEnd(w[i]) : c.head.padStart(w[i])).join(' │ ') + ' │';
+  console.log();
+  console.log(line('┌', '┬', '┐'));
+  console.log(headStr);
+  console.log(line('├', '┼', '┤'));
+  dataRows.forEach((r, i) => { if (r.rule && i > 0) console.log(line('├', '┼', '┤')); console.log(rowStr(r.cells)); });
+  if (dataRows.length) console.log(line('├', '┼', '┤'));
+  console.log(rowStr(totalRow.cells));
+  console.log(line('└', '┴', '┘'));
+}
+
+function renderHuman(root, ctx) {
+  const { keys, currency, rate, converted, rateSource, billing, actualUSD, unpriced, recon } = ctx;
+  const { n, money, pct } = fmts(rate, currency);
+  const mHeads = metricHeads(currency, billing);
+  const mCells = (sessions, agg) => {
+    const c = [n(sessions), n(agg.inputTokens), n(agg.outputTokens), n(agg.cacheCreationTokens),
+      n(agg.cacheReadTokens), pct(cacheHitRate(agg)), n(agg.totalTokens), money(agg.cost)];
+    if (billing) c.push(money(actualUSD(agg) || 0));
+    return c;
+  };
+
+  let cols, dataRows;
+  if (flat && keys.length) {
+    cols = [...keys.map((k) => ({ head: k, align: 'l' })), ...mHeads];
+    dataRows = leafRows(root, keys, ctx.sortSpecs).map((lf) => {
+      const pathCells = keys.map((_, i) => lf.path[i] == null ? '' : lf.path[i]);
+      return { cells: [...pathCells, ...mCells(lf.sessions, lf.agg)] };
+    });
+  } else {
+    const head = keys.length ? keys.join(' › ') : 'Total';
+    cols = [{ head, align: 'l' }, ...mHeads];
+    dataRows = treeRows(root, keys, ctx.sortSpecs).map((r) => ({
+      cells: ['· '.repeat(r.depth - 1) + r.label, ...mCells(r.sessions, r.agg)],
+      rule: r.depth === 1 && keys.length > 1,
+    }));
+  }
+  const totalLeft = flat && keys.length ? ['TOTAL', ...Array(keys.length - 1).fill('')] : ['TOTAL'];
+  const totalRow = { cells: [...totalLeft, ...mCells(root.sessions.size, root.agg)] };
+  printMatrix(cols, dataRows, totalRow);
+
+  // Footnotes.
+  console.log(`  All amounts shown in ${currency}.`);
+  if (converted) console.log(`  Rate: 1 USD = ${rate.toFixed(4)} ${currency} — ${rateSource}`);
+  if (recon) {
+    const d = recon;
+    const s = d.delta >= 0 ? '+' : '−';
+    console.log(`  Reconciled vs ccusage: ${money(d.myTot)} mine vs ${money(d.cuTot)} ccusage — Δ ${s}${money(Math.abs(d.delta))} (${d.pct >= 0 ? '+' : ''}${(d.pct * 100).toFixed(2)}%) over ${d.matched} session(s).`);
+    const worst = d.models.filter((m) => Math.abs(m.pct) > 0.01 && Math.abs(m.delta) > 0.005 && isFinite(m.pct)).slice(0, 3);
+    if (worst.length) console.log(`  Largest per-model Δ: ${worst.map((m) => `${m.model} ${m.pct >= 0 ? '+' : ''}${(m.pct * 100).toFixed(1)}%`).join(', ')}.`);
+    if (d.myOnly || d.cuOnly) console.log(`  ${d.myOnly} session(s) only in logs, ${d.cuOnly} only in ccusage (scope/pruning differences).`);
+  } else if (!noReconcile) {
+    console.log(`  Reconciliation skipped — ccusage unavailable (cost is unchecked against it).`);
+  }
+  if (unpriced && unpriced.size) {
+    console.log(`  ⚠ Unpriced model(s): ${[...unpriced].map(([m, c]) => `${m} (${c} msgs)`).join(', ')} — counted at $0; add to the price table.`);
+  }
+  if (billing) {
+    const covers = billing.covers.length ? billing.covers.join(', ') : '(none listed)';
+    const basisLabel = billing.basis === 'covered' ? 'covered-token share' : 'total-token share (no covered-model usage in range)';
+    console.log(`  Est is the API-equivalent estimate; Actual applies your plan: ${billing.name}, ${money(billing.monthlyCostDisplay)}/mo covering ${covers}.`);
+    console.log(`  Covered-model tokens cost $0 marginal; the flat plan fee is apportioned by ${basisLabel}, plus any uncovered per-token spend.`);
+    console.log(`  Plan fee shown is one month; over a multi-month range true outlay is (months × fee).`);
+    if (billing.caveat) console.log(`  Note: ${billing.caveat}.`);
+  } else {
+    console.log(`  Cost is an API-equivalent estimate (list prices), not your subscription bill.`);
+  }
+  console.log(`  Cache Hit = cache reads ÷ (input + cache create + cache read).`);
+  console.log(`  Sessions is a distinct count at every level. Branch/kind/version are attributed per message.`);
+  if (ctx.unmatchedNote) console.log(`  ${ctx.unmatchedNote}`);
+  console.log();
+}
+
+function metricObj(agg, sessions, ctx) {
+  const round2 = (x) => Math.round((x || 0) * 100) / 100;
+  const o = {
+    sessions,
+    inputTokens: agg.inputTokens, outputTokens: agg.outputTokens,
+    cacheCreationTokens: agg.cacheCreationTokens, cacheReadTokens: agg.cacheReadTokens,
+    cacheHitRate: cacheHitRate(agg), totalTokens: agg.totalTokens,
+    cost: round2(agg.cost * ctx.rate),
+  };
+  if (ctx.billing) o.actual = round2((ctx.actualUSD(agg) || 0) * ctx.rate);
+  return o;
+}
+
+function buildMeta(ctx) {
+  const filters = {};
+  for (const [dim, v] of Object.entries(ctx.filterSpecs)) filters[dim] = v;
+  if (ctx.since || ctx.until) filters.date = { since: ctx.since || null, until: ctx.until || null };
+  return {
+    currency: ctx.currency,
+    rate: ctx.converted ? ctx.rate : null,
+    rateSource: ctx.rateSource,
+    group: ctx.keys,
+    filters,
+    range: ctx.range,
+    billing: ctx.billing || null,
+    reconciliation: ctx.recon ? {
+      mine: Math.round(ctx.recon.myTot * 100) / 100,
+      ccusage: Math.round(ctx.recon.cuTot * 100) / 100,
+      delta: Math.round(ctx.recon.delta * 100) / 100,
+      deltaPct: Math.round(ctx.recon.pct * 10000) / 100,
+      sessions: ctx.recon.matched,
+      basis: 'USD',
+    } : null,
+    unpriced: ctx.unpriced ? [...ctx.unpriced].map(([m, c]) => ({ model: m, messages: c })) : [],
+  };
+}
+
+function outputJson(root, ctx) {
+  const rows = leafRows(root, ctx.keys, ctx.sortSpecs).map((lf) => {
+    const o = {};
+    ctx.keys.forEach((k, i) => { o[k] = lf.path[i]; });
+    Object.assign(o, metricObj(lf.agg, lf.sessions, ctx));
+    return o;
+  });
+  console.log(JSON.stringify({ meta: buildMeta(ctx), rows }, null, 2));
+}
+
+function outputCsv(root, ctx) {
+  const metricCols = ['sessions', 'inputTokens', 'outputTokens', 'cacheCreationTokens',
+    'cacheReadTokens', 'cacheHitRate', 'totalTokens', 'cost', ...(ctx.billing ? ['actual'] : [])];
+  const header = [...ctx.keys, ...metricCols];
+  const esc = (v) => {
+    const s = v == null ? '' : String(v);
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  const lines = [header.map(esc).join(',')];
+  for (const lf of leafRows(root, ctx.keys, ctx.sortSpecs)) {
+    const m = metricObj(lf.agg, lf.sessions, ctx);
+    const row = [...ctx.keys.map((_, i) => lf.path[i]), ...metricCols.map((k) => m[k])];
+    lines.push(row.map(esc).join(','));
+  }
+  console.log(lines.join('\n'));
+}
+
+// --- main ----------------------------------------------------------------
 
 async function main() {
   checkArgs();
   const billing = noBilling ? null : loadBilling();
   const covers = coversPredicate(billing);
-  const { sessionToRepo, repoLabel } = buildIndex();
-  let sessions;
-  try {
-    const out = execFileSync('ccusage', ['session', '--json', ...passthrough], {
-      encoding: 'utf8',
-      maxBuffer: 64 * 1024 * 1024,
-    });
-    sessions = JSON.parse(out).session;
-  } catch (e) {
-    console.error('Failed to run ccusage:', e.message);
-    process.exit(1);
-  }
-  // Envelope drift (ccusage renaming .session) must fail with a message, not a
-  // raw "sessions is not iterable" stack out of aggregate().
-  if (!Array.isArray(sessions)) {
-    console.error("ccusage's JSON had no .session array — its output format may have changed; ccrepo needs a nudge.");
-    process.exit(1);
-  }
+  const pricing = loadPricing();
 
-  const { repos, unmatched } = aggregate(sessions, sessionToRepo, groupBy, covers);
+  const { events, unpriced } = readAllEvents(covers, pricing);
 
+  const dimFilter = buildDimFilter(filterSpecs);
+  const dayNum = (ts) => timeBucket(ts, 'day').replace(/-/g, '');
+  const dateOk = (e) => {
+    if (!since && !until) return true;
+    const d = dayNum(e.ts);
+    if (d === 'unknown') return false;
+    if (since && d < since) return false;
+    if (until && d > until) return false;
+    return true;
+  };
+  const reconEvents = events.filter(dateOk);            // ccusage-comparable scope
+  const dispEvents = reconEvents.filter(dimFilter);      // fully filtered for display
+
+  // FX rate.
   let rate = 1, rateSource = 'native', usdRates = null;
   if (converted) {
     if (forcedRate !== null) { rate = forcedRate; rateSource = 'manual'; }
@@ -393,9 +838,7 @@ async function main() {
     }
   }
 
-  // Plan fee in USD (everything is folded in USD; `conv` applies the display
-  // rate uniformly at the end). Convert from the config's currency via the same
-  // live feed; degrade honestly if the pivot rate can't be had.
+  // Plan fee in USD (folded in USD; the display rate applies uniformly at the end).
   let monthlyCostUSD = 0, planCaveat = null;
   if (billing) {
     if (billing.currency === 'USD') monthlyCostUSD = billing.plan.monthlyCost;
@@ -403,156 +846,56 @@ async function main() {
       if (!usdRates) usdRates = await fetchUsdRates();
       const pr = usdRates && usdRates[billing.currency];
       if (pr) monthlyCostUSD = billing.plan.monthlyCost / pr;
-      else {
-        monthlyCostUSD = billing.plan.monthlyCost;
-        planCaveat = `plan cost read as USD — couldn't fetch USD→${billing.currency} rate`;
-      }
+      else { monthlyCostUSD = billing.plan.monthlyCost; planCaveat = `plan cost read as USD — couldn't fetch USD→${billing.currency} rate`; }
     }
   }
-
-  const totalCovered = [...repos.values()].reduce((n, r) => n + (r.coveredTokens || 0), 0);
-  const totalAllTokens = [...repos.values()].reduce((n, r) => n + (r.totalTokens || 0), 0);
+  const totalCovered = dispEvents.reduce((s, e) => s + (e.coveredTokens || 0), 0);
+  const totalAllTokens = dispEvents.reduce((s, e) => s + (e.totalTokens || 0), 0);
   const actualParams = { monthlyCostUSD, totalCovered, totalAllTokens };
   const actualUSD = (agg) => (billing ? actualFor(agg, actualParams) : null);
 
-  const conv = (agg) => ({ ...agg, cost: agg.cost * rate });
+  const root = groupTree(dispEvents, keys);
 
-  // Models sort by cost desc; days sort chronologically (ascending).
-  const childSort = groupBy === 'day'
-    ? (a, b) => a.label.localeCompare(b.label)
-    : (a, b) => b.cost - a.cost;
+  // Reconcile over the date-comparable scope (ccusage can't honour the other
+  // filters, so comparing the fully-filtered set would be apples-to-oranges).
+  let recon = null;
+  if (!noReconcile) {
+    const passthrough = [];
+    if (since) passthrough.push('--since', since);
+    if (until) passthrough.push('--until', until);
+    if (tz) passthrough.push('-z', tz);
+    recon = reconcile(reconEvents, runCcusage(passthrough));
+  }
 
-  const rows = [...repos.entries()]
-    .map(([encoded, r]) => ({
-      repo: label(encoded, repoLabel),
-      ...conv(r),
-      actual: billing ? actualUSD(r) * rate : null,
-      cacheHitRate: cacheHitRate(r),
-      children: [...r.children.entries()]
-        .map(([key, c]) => ({
-          label: key, ...conv(c),
-          actual: billing ? actualUSD(c) * rate : null,
-          cacheHitRate: cacheHitRate(c),
-        }))
-        .sort(childSort),
-    }))
-    .sort((a, b) => b.cost - a.cost);
+  const days = dispEvents.map((e) => timeBucket(e.ts, 'day')).filter((d) => d !== 'unknown').sort();
+  const range = days.length ? [days[0], days[days.length - 1]] : [null, null];
 
   const billingView = billing ? {
-    name: billing.plan.name,
-    covers: billing.plan.covers,
+    name: billing.plan.name, covers: billing.plan.covers,
     monthlyCostDisplay: monthlyCostUSD * rate,
-    basis: totalCovered > 0 ? 'covered' : 'total',
-    caveat: planCaveat,
+    basis: totalCovered > 0 ? 'covered' : 'total', caveat: planCaveat,
   } : null;
 
-  if (asJson) {
-    const arrName = groupBy === 'model' ? 'models' : 'days';
-    // Strip the internal covered/uncovered material; surface `actual` only when
-    // billing is on, so the estimate-only JSON contract is unchanged.
-    const clean = ({ coveredTokens, uncoveredCost, actual, ...rest }) =>
-      billing ? { ...rest, actual } : rest;
-    const reposOut = rows.map((row) => {
-      const { children, ...r } = row;
-      const base = clean(r);
-      if (!groupBy) return base;
-      return { ...base, [arrName]: children.map(({ label, ...c }) => ({ [groupBy]: label, ...clean(c) })) };
-    });
-    console.log(JSON.stringify({
-      currency, rate: converted ? rate : null, rateSource,
-      groupBy, billing: billingView, repos: reposOut, unmatchedSessions: unmatched,
-    }, null, 2));
-    return;
-  }
+  const ctx = {
+    keys, sortSpecs, currency, rate, converted, rateSource,
+    billing: billingView, actualUSD, unpriced, recon, filterSpecs, since, until, range,
+  };
 
-  renderTable(rows, { currency, converted, rate, rateSource, unmatched, billing: billingView });
+  if (asJson) return outputJson(root, ctx);
+  if (asCsv) return outputCsv(root, ctx);
+  renderHuman(root, ctx);
 }
 
-function renderTable(rows, { currency, converted, rate, rateSource, unmatched, billing }) {
-  const sym = symbolFor(currency);
-  const n = (x) => x.toLocaleString('en-NZ');
-  const money = (x) => sym + x.toLocaleString('en-NZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const pct = (x) => x === null ? '—' : (x * 100).toFixed(1) + '%';
-
-  // The child column (Model/Day) only appears when grouping; the Actual column
-  // only when a billing config is active — Est then labels the old Cost column.
-  const cols = [
-    { head: 'Repo', align: 'l', fmt: (r) => r.repo || '' },
-    ...(groupBy ? [{ head: childHead, align: 'l', fmt: (r) => r.child || '' }] : []),
-    { head: 'Sessions', align: 'r', fmt: (r) => n(r.sessions) },
-    { head: 'Input', align: 'r', fmt: (r) => n(r.inputTokens) },
-    { head: 'Output', align: 'r', fmt: (r) => n(r.outputTokens) },
-    { head: 'Cache Create', align: 'r', fmt: (r) => n(r.cacheCreationTokens) },
-    { head: 'Cache Read', align: 'r', fmt: (r) => n(r.cacheReadTokens) },
-    { head: 'Cache Hit', align: 'r', fmt: (r) => pct(cacheHitRate(r)) },
-    { head: 'Total Tokens', align: 'r', fmt: (r) => n(r.totalTokens) },
-    { head: billing ? `Est (${currency})` : `Cost (${currency})`, align: 'r', fmt: (r) => money(r.cost) },
-    ...(billing ? [{ head: `Actual (${currency})`, align: 'r', fmt: (r) => money(r.actual || 0) }] : []),
-  ];
-
-  // Default view = one section (no internal separators, keeps the original
-  // look). Grouped = one section per repo: a repo total row followed by its
-  // indented child rows.
-  const sections = groupBy
-    ? rows.map((r) => [
-        { repo: r.repo, child: '', ...r },
-        ...r.children.map((c) => ({ repo: '', child: '· ' + c.label, ...c })),
-      ])
-    : [rows.map((r) => ({ repo: r.repo, ...r }))];
-
-  const totals = rows.reduce((t, r) => { addTo(t, r); return t; },
-    { repo: 'TOTAL', child: '', ...zeroAgg() });
-  totals.actual = rows.reduce((s, r) => s + (r.actual || 0), 0);
-
-  const allRows = [...sections.flat(), totals];
-  const w = cols.map((c) => Math.max(c.head.length, ...allRows.map((r) => c.fmt(r).length)));
-
-  const cell = (r, i) => cols[i].align === 'l' ? cols[i].fmt(r).padEnd(w[i]) : cols[i].fmt(r).padStart(w[i]);
-  const line = (l, m, rt) => l + w.map((x) => '─'.repeat(x + 2)).join(m) + rt;
-  const row = (r) => '│ ' + cols.map((_, i) => cell(r, i)).join(' │ ') + ' │';
-  const headRow = () => '│ ' + cols.map((c, i) => c.align === 'l' ? c.head.padEnd(w[i]) : c.head.padStart(w[i])).join(' │ ') + ' │';
-
-  console.log();
-  console.log(line('┌', '┬', '┐'));
-  console.log(headRow());
-  console.log(line('├', '┼', '┤'));
-  sections.forEach((sec, idx) => {
-    if (idx > 0) console.log(line('├', '┼', '┤'));
-    for (const r of sec) console.log(row(r));
-  });
-  console.log(line('├', '┼', '┤'));
-  console.log(row(totals));
-  console.log(line('└', '┴', '┘'));
-  console.log(`  All amounts shown in ${currency}.`);
-  if (converted) console.log(`  Rate: 1 USD = ${rate.toFixed(4)} ${currency} — ${rateSource}`);
-  if (billing) {
-    const covers = billing.covers.length ? billing.covers.join(', ') : '(none listed)';
-    const basisLabel = billing.basis === 'covered'
-      ? 'covered-token share'
-      : 'total-token share (no covered-model usage in range)';
-    console.log(`  Est (API) is the API-equivalent estimate; Actual applies your plan: ${billing.name}, ${money(billing.monthlyCostDisplay)}/mo covering ${covers}.`);
-    console.log(`  Covered-model tokens cost $0 marginal; the flat plan fee is apportioned across repos by ${basisLabel}, plus any uncovered per-token spend.`);
-    console.log(`  Plan fee shown is one month; over a multi-month range true plan outlay is (months × fee) — v1 doesn't infer month count. Overage thresholds out of scope.`);
-    if (billing.caveat) console.log(`  Note: ${billing.caveat}.`);
-  } else {
-    console.log(`  Cost is an API-equivalent estimate (USD basis), not your subscription bill.`);
-  }
-  console.log(`  Cache Hit = cache reads ÷ (input + cache create + cache read) — the share of prompt-side tokens served from cache.`);
-  if (groupBy === 'model') console.log(`  Model 'Sessions' counts sessions that used that model (a session can use several).`);
-  if (groupBy === 'day') console.log(`  Each session is counted on its last-activity day (local time).`);
-  if (unmatched) console.log(`  ${unmatched} session(s) unmatched to a repo folder (archived/deleted logs).`);
-  console.log();
-}
-
-// CLI only when invoked directly; required by the tests, only the pure exports
-// below are visible and nothing runs (no ccusage, no disk, no argv parsing).
-// The .catch keeps a failed run loud: without it an index-build error is an
-// unhandled rejection, which some runtime modes report as exit 0 with no output.
 if (require.main === module) {
   main().catch((e) => { console.error(e && e.stack || String(e)); process.exit(1); });
 }
 
 module.exports = {
-  symbolFor, shortModel, dayOf, zeroAgg, addTo, addChild, cacheHitRate, label, aggregate,
+  symbolFor, shortModel, timeBucket, isoWeek,
+  PRICING, priceBase, messageCost, loadPricing,
+  zeroAgg, addTo, cacheHitRate, label,
+  DIMS, TIME_DIMS, globMatch, buildDimFilter,
+  groupTree, sortedEntries, treeRows, leafRows,
+  eventFrom, readAllEvents, reconcile,
   loadBilling, coversPredicate, actualFor,
 };
