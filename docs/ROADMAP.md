@@ -207,11 +207,10 @@ budget across the fleet; these are the outstanding harvests it surfaced.
       ros session (they claim roadmap items = edit the same file). Attempted
       2026-07-17-2235 and released on discovering an active ros session
       (`radius-home` worktree) mid-claim — take it only when ros is quiet.
-- [~] **faves: adopt the SESSIONS index/detail split** (claimed 2026-07-17-2245,
-      wt: faves/sessions-roadmap-harvest) — `docs/SESSIONS.md` is **1157 lines**,
-      a flat log that never adopted the index model (its own header already says
-      "tail-read, don't load whole" — the split is the next step). Harvest
-      `docs/ROADMAP.md` (766) too; `ARCHITECTURE.md` is +26 (mild).
+- [x] **faves: SESSIONS/ROADMAP/ARCHITECTURE harvest — DONE 2026-07-18,
+      `sizescan` clean.** `SESSIONS.md` 1157→234 (rotation → new
+      `SESSIONS-ARCHIVE.md`), `ROADMAP.md` 766→299 (resolved → new
+      `ROADMAP-DONE.md`, verbatim), `ARCHITECTURE.md` 276→250. `dba7658..ab6a12d`.
 - [x] **`sizescan` reviewed + wired into the gate** — DONE 2026-07-14. Cold pass
       cleared (PASS-WITH-FINDINGS); F1 (fail-open ancestor-dir MAJOR) fixed +
       live-reproven, F2 (prose-mention self-exempt) fixed (markers header-only),
@@ -223,8 +222,10 @@ budget across the fleet; these are the outstanding harvests it surfaced.
       `test_sizescan.py` + `test_templates.py`.
 - [ ] **Existing fleet children pick up the `floor.yml` size gate** — the
       template now carries `sizescan --check`, but children copy `floor.yml`
-      statically, so they adopt at their next pin bump / harvest. ros + faves
-      (below) will red until harvested — that red is the intended trigger.
+      statically, so they adopt at their next pin bump / harvest. ros (above)
+      will red until harvested — that red is the intended trigger. faves is now
+      harvested (2026-07-18), so adopting the gate there is safe (faves' CI
+      doesn't yet run `sizescan --check` — a separate floor-adoption step).
 
 ## North star — context follows the person, work follows anywhere
 
