@@ -165,13 +165,34 @@ REPO-BOUNDARY, worktree tooling) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
       forged manifest, raising the anchor from "accidental corruption" to
       "tamper-evident". Key location/rotation is the real design question.
 
+### ccrepo (Mike, 2026-07-17)
+
+- [ ] **Tighten the ccusage reconciliation drift** — v2 lands at ~0.05% (a few
+      dollars on ~$6.9k), reported every run. Tighten it further: chase the
+      residual per-model (sonnet-5 is the largest at ~1.5%), decide whether
+      `server_tool_use` per-call pricing (web search/fetch — deferred v1) is a
+      real contributor worth pricing, and confirm the token-count edge cases where
+      ccrepo's `(message.id, requestId)` last-wins dedup still differs from
+      ccusage. Goal: shrink the drift and, where it can't go to zero, *name the
+      cause* in the footnote rather than leave it a bare number.
+- [ ] **Actual spend (plan or usage) vs the API-usage estimate** — the money-side
+      analog of the ccusage cross-check. ccrepo's cost is an API-list-price
+      *estimate*; the billing model (`ccrepo-billing.json`) already apportions a
+      flat plan fee into an Actual column, but Mike wants to compare **what he
+      genuinely pays** — a subscription tier (e.g. Max 5x/20x) or metered usage —
+      against what ccrepo computes from API usage, and see the delta. Needs a
+      machine-local source of real spend (plan tier + period, or an exported
+      usage/invoice figure) and a reconciliation footnote like the ccusage one but
+      for dollars actually billed. Personal data ⇒ the spend source stays in
+      `~/.claude`, never a repo (same boundary as `ccrepo-billing.json`).
+
 ### man pages — convention rollout
 
 - [ ] **cctranscript + ccrepo: man page + concise `--help`** — the split (full
       plain-language `man`, concise `--help` pointing to it) is established with
       `ccarchive` as the worked example (`instruments/man/`, published by
-      `instruments/install`). Roll it out to the other CLIs. **ccrepo waits for
-      the v2 rewrite to land** — don't churn its help mid-redesign.
+      `instruments/install`). Roll it out to the other CLIs. **ccrepo v2 has now
+      landed** (2026-07-17), so its help is stable — this is unblocked.
 
 ## File-size hygiene (new 2026-07-14)
 

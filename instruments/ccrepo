@@ -151,11 +151,12 @@ const SORT_KEYS = new Set(['cost', 'tokens', 'count', 'name', 'time']);
 // --- aggregates ----------------------------------------------------------
 
 const zeroAgg = () => ({
-  inputTokens: 0, outputTokens: 0,
+  messages: 0, inputTokens: 0, outputTokens: 0,
   cacheCreationTokens: 0, cacheReadTokens: 0, totalTokens: 0, cost: 0,
   coveredTokens: 0, uncoveredCost: 0,
 });
 function addTo(agg, v) {
+  agg.messages += v.messages || 0;
   agg.inputTokens += v.inputTokens || 0;
   agg.outputTokens += v.outputTokens || 0;
   agg.cacheCreationTokens += v.cacheCreationTokens || 0;
@@ -353,6 +354,7 @@ function eventFrom(o, ctx) {
     agent: o.agent || '',
     ts: o.timestamp || '',
     priced, total,
+    messages: 1,               // one event = one (deduped) assistant message
     inputTokens: input, outputTokens: output,
     cacheCreationTokens: create, cacheReadTokens: cacheRead,
     totalTokens: total, cost,
@@ -648,7 +650,7 @@ function fmts(rate, currency) {
 
 function metricHeads(currency, billing) {
   const h = [
-    { head: 'Sessions', align: 'r' }, { head: 'Input', align: 'r' }, { head: 'Output', align: 'r' },
+    { head: 'Sessions', align: 'r' }, { head: 'Messages', align: 'r' }, { head: 'Input', align: 'r' }, { head: 'Output', align: 'r' },
     { head: 'Cache Create', align: 'r' }, { head: 'Cache Read', align: 'r' }, { head: 'Cache Hit', align: 'r' },
     { head: 'Total Tokens', align: 'r' },
     { head: billing ? `Est (${currency})` : `Cost (${currency})`, align: 'r' },
@@ -679,7 +681,7 @@ function renderHuman(root, ctx) {
   const { n, money, pct } = fmts(rate, currency);
   const mHeads = metricHeads(currency, billing);
   const mCells = (sessions, agg) => {
-    const c = [n(sessions), n(agg.inputTokens), n(agg.outputTokens), n(agg.cacheCreationTokens),
+    const c = [n(sessions), n(agg.messages), n(agg.inputTokens), n(agg.outputTokens), n(agg.cacheCreationTokens),
       n(agg.cacheReadTokens), pct(cacheHitRate(agg)), n(agg.totalTokens), money(agg.cost)];
     if (billing) c.push(money(actualUSD(agg) || 0));
     return c;
@@ -731,7 +733,7 @@ function renderHuman(root, ctx) {
     console.log(`  Cost is an API-equivalent estimate (list prices), not your subscription bill.`);
   }
   console.log(`  Cache Hit = cache reads ÷ (input + cache create + cache read).`);
-  console.log(`  Sessions is a distinct count at every level. Branch/kind/version are attributed per message.`);
+  console.log(`  Sessions is a distinct count at every level; Messages counts (deduped) assistant messages. Branch/kind/version are attributed per message.`);
   if (ctx.unmatchedNote) console.log(`  ${ctx.unmatchedNote}`);
   console.log();
 }
@@ -739,7 +741,7 @@ function renderHuman(root, ctx) {
 function metricObj(agg, sessions, ctx) {
   const round2 = (x) => Math.round((x || 0) * 100) / 100;
   const o = {
-    sessions,
+    sessions, messages: agg.messages,
     inputTokens: agg.inputTokens, outputTokens: agg.outputTokens,
     cacheCreationTokens: agg.cacheCreationTokens, cacheReadTokens: agg.cacheReadTokens,
     cacheHitRate: cacheHitRate(agg), totalTokens: agg.totalTokens,
@@ -784,7 +786,7 @@ function outputJson(root, ctx) {
 }
 
 function outputCsv(root, ctx) {
-  const metricCols = ['sessions', 'inputTokens', 'outputTokens', 'cacheCreationTokens',
+  const metricCols = ['sessions', 'messages', 'inputTokens', 'outputTokens', 'cacheCreationTokens',
     'cacheReadTokens', 'cacheHitRate', 'totalTokens', 'cost', ...(ctx.billing ? ['actual'] : [])];
   const header = [...ctx.keys, ...metricCols];
   const esc = (v) => {

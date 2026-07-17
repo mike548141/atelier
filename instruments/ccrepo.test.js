@@ -90,14 +90,14 @@ test('loadPricing merges an override over the built-in table, ignores junk', () 
 
 // --- aggregates ----------------------------------------------------------
 
-test('zeroAgg / addTo accumulate the token + cost fields', () => {
+test('zeroAgg / addTo accumulate the token + cost + message fields', () => {
   const z = r.zeroAgg();
-  assert.deepEqual(z, { inputTokens: 0, outputTokens: 0, cacheCreationTokens: 0,
+  assert.deepEqual(z, { messages: 0, inputTokens: 0, outputTokens: 0, cacheCreationTokens: 0,
     cacheReadTokens: 0, totalTokens: 0, cost: 0, coveredTokens: 0, uncoveredCost: 0 });
-  r.addTo(z, { inputTokens: 2, outputTokens: 3, cacheCreationTokens: 1, cacheReadTokens: 4,
+  r.addTo(z, { messages: 5, inputTokens: 2, outputTokens: 3, cacheCreationTokens: 1, cacheReadTokens: 4,
     totalTokens: 10, cost: 0.5, coveredTokens: 10, uncoveredCost: 0 });
   r.addTo(z, { inputTokens: 8, outputTokens: 7, totalTokens: 15, cost: 1.5 }); // missing fields → 0
-  assert.deepEqual(z, { inputTokens: 10, outputTokens: 10, cacheCreationTokens: 1,
+  assert.deepEqual(z, { messages: 5, inputTokens: 10, outputTokens: 10, cacheCreationTokens: 1,
     cacheReadTokens: 4, totalTokens: 25, cost: 2, coveredTokens: 10, uncoveredCost: 0 });
 });
 
@@ -140,6 +140,7 @@ test('eventFrom parses tokens, splits cache write, computes cost, tags dimension
   assert.equal(e.cacheReadTokens, 1000);
   assert.equal(e.cacheCreationTokens, 100);   // 40 + 60
   assert.equal(e.totalTokens, 1250);          // 100 + 50 + 1000 + 100
+  assert.equal(e.messages, 1);                // one event = one message
   assert.ok(Math.abs(e.cost - 0.0031) < 1e-12);
   assert.equal(e.priced, true);
 });
@@ -203,7 +204,7 @@ test('buildDimFilter: AND across dims, OR within, ! excludes', () => {
 // --- N-level grouping + sorting -----------------------------------------
 
 const mkEv = (o) => ({ repo: 'r', session: 's', model: 'm', branch: 'b', kind: 'main',
-  entrypoint: 'cli', version: 'v', agent: '', ts: '2026-07-15T12:00:00.000Z',
+  entrypoint: 'cli', version: 'v', agent: '', ts: '2026-07-15T12:00:00.000Z', messages: 1,
   inputTokens: 0, outputTokens: 0, cacheCreationTokens: 0, cacheReadTokens: 0,
   totalTokens: 0, cost: 0, coveredTokens: 0, uncoveredCost: 0, ...o });
 
@@ -216,10 +217,13 @@ test('groupTree folds into an N-level tree with distinct session counts', () => 
   ];
   const root = r.groupTree(evs, ['repo', 'model']);
   assert.equal(root.sessions.size, 3);                       // s1, s2, s3 distinct
+  assert.equal(root.agg.messages, 4);                        // 4 messages (not deduped to sessions)
   assert.ok(Math.abs(root.agg.cost - 5.6) < 1e-9);
   const A = root.children.get('A');
   assert.equal(A.sessions.size, 2);                          // s1, s2
-  assert.equal(A.children.get('opus-4-8').sessions.size, 1); // s1 twice → 1 distinct
+  assert.equal(A.agg.messages, 3);                           // 3 messages in repo A
+  assert.equal(A.children.get('opus-4-8').sessions.size, 1); // s1 twice → 1 distinct session
+  assert.equal(A.children.get('opus-4-8').agg.messages, 2);  // but 2 messages
   assert.equal(A.children.get('opus-4-8').agg.totalTokens, 15);
   // keys=[] → just the root grand total, no children.
   const flat = r.groupTree(evs, []);
