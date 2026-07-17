@@ -1,0 +1,200 @@
+#!/usr/bin/env node
+/*
+ * ccarchive — durably preserve every Claude Code transcript, word for word.
+ *
+ * Claude Code writes each session as a raw .jsonl log under
+ * ~/.claude/projects/<encoded-repo-path>/<session-uuid>.jsonl (plus subagent
+ * logs beneath it) — one JSON object per turn, verbatim, carrying the
+ * timestamp, the model, token counts, tool calls and thinking. That is the
+ * complete record. But it is *ephemeral*: Claude Code deletes logs older than
+ * `cleanupPeriodDays` (default 30). Where cctranscript *reads* these logs,
+ * ccarchive *keeps* them — it mirrors every .jsonl into a compressed archive
+ * that outlives the source.
+ *
+ * The archive is an incremental per-session gzip mirror: each
+ *   ~/.claude/projects/<rel>/<name>.jsonl
+ * becomes
+ *   <dest>/<rel>/<name>.jsonl.gz
+ * so each session stays individually readable (`cctranscript <path>` after
+ * gunzip, or `zgrep`) and only files that changed since last run are
+ * recompressed — cheap to run often, and light on a synced dest like iCloud
+ * Drive (only new/updated sessions upload). The default dest is iCloud Drive.
+ *
+ * Append-only by contract: ccarchive never deletes from the archive. When
+ * Claude Code's cleanup removes a source log, the archived copy remains — that
+ * is the whole point. Pruning the archive is deliberately not a mode.
+ *
+ * The .jsonl schema is internal to Claude Code, but ccarchive doesn't parse it —
+ * it preserves the bytes exactly — so it is immune to schema drift.
+ */
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const zlib = require('node:zlib');
+
+const argv = process.argv.slice(2);
+
+const HELP = `ccarchive — durably preserve every Claude Code transcript, word for word
+
+Mirrors every raw session log under ~/.claude/projects/ into a compressed,
+append-only archive that outlives Claude Code's own cleanup. Incremental: only
+sessions changed since the last run are recompressed. Default dest: iCloud Drive.
+
+USAGE
+  ccarchive [options]
+
+OPTIONS
+  --dest <dir>     Archive into <dir> instead of the iCloud Drive default
+                   (~/Library/Mobile Documents/com~apple~CloudDocs/cc-transcripts).
+                   Or set CCARCHIVE_DEST.
+  --source <dir>   Read transcripts from <dir> instead of ~/.claude/projects.
+  --dry-run        Report what would be archived; write nothing.
+  --json           Machine-readable summary (never styled).
+  -h, --help       Show this help.
+
+EXAMPLES
+  ccarchive                          Mirror new/changed sessions into iCloud Drive.
+  ccarchive --dry-run                Preview this run; touch nothing.
+  ccarchive --dest ~/backup/cc       Archive somewhere other than iCloud.
+  ccarchive --json | jq .archived    How many sessions were archived this run.
+
+Runs well from cron/launchd — idempotent, exits 0 with nothing to do. It never
+deletes from the archive: a source log removed by Claude Code's cleanup stays
+kept here. Reads the source read-only; writes only under the dest.`;
+
+function takeValue(flag) {
+  const i = argv.indexOf(flag);
+  return i !== -1 ? argv[i + 1] : null;
+}
+
+// --- pure helpers (unit-tested; no filesystem side effects) --------------
+
+// The macOS iCloud Drive root, derived at runtime — no hardcoded home path, so
+// this file carries no personal data (atelier is public; ADR 0005/0006).
+function defaultDest(home) {
+  return path.join(home, 'Library', 'Mobile Documents', 'com~apple~CloudDocs', 'cc-transcripts');
+}
+
+// The archived path for one source log: mirror its path relative to the source
+// root under the dest root, with a .gz suffix.
+function archivePathFor(destRoot, srcRoot, srcAbs) {
+  return path.join(destRoot, path.relative(srcRoot, srcAbs) + '.gz');
+}
+
+// Archive a source only when the mirror is missing or the source is newer.
+// destMtimeMs is null when no archived copy exists yet. The 1 ms tolerance
+// absorbs the sub-millisecond rounding a filesystem can apply when we stamp the
+// mirror's mtime — without it an unchanged session would re-archive every run;
+// a genuine rewrite moves the mtime by far more than a millisecond.
+const MTIME_TOLERANCE_MS = 1;
+function shouldArchive(srcMtimeMs, destMtimeMs) {
+  return destMtimeMs === null || srcMtimeMs - destMtimeMs > MTIME_TOLERANCE_MS;
+}
+
+function humanBytes(n) {
+  if (n < 1024) return `${n} B`;
+  const units = ['KB', 'MB', 'GB', 'TB'];
+  let v = n / 1024;
+  let i = 0;
+  while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
+  return `${v < 10 ? v.toFixed(1) : Math.round(v)} ${units[i]}`;
+}
+
+// --- filesystem walk -----------------------------------------------------
+
+// Every .jsonl at any depth under root (session logs + nested subagent logs),
+// returned as absolute paths. Missing root ⇒ empty (nothing to archive yet).
+function listJsonl(root) {
+  const out = [];
+  let entries;
+  try {
+    entries = fs.readdirSync(root, { withFileTypes: true });
+  } catch (e) {
+    if (e.code === 'ENOENT') return out;
+    throw e;
+  }
+  for (const ent of entries) {
+    const abs = path.join(root, ent.name);
+    if (ent.isDirectory()) out.push(...listJsonl(abs));
+    else if (ent.isFile() && ent.name.endsWith('.jsonl')) out.push(abs);
+  }
+  return out;
+}
+
+// --- run -----------------------------------------------------------------
+
+function run() {
+  if (argv.includes('-h') || argv.includes('--help')) {
+    process.stdout.write(HELP + '\n');
+    return 0;
+  }
+  const asJson = argv.includes('--json');
+  const dryRun = argv.includes('--dry-run');
+  const home = os.homedir();
+  const srcRoot = takeValue('--source') || path.join(home, '.claude', 'projects');
+  const destRoot = takeValue('--dest') || process.env.CCARCHIVE_DEST || defaultDest(home);
+
+  const files = listJsonl(srcRoot);
+  const report = { source: srcRoot, dest: destRoot, dryRun, total: files.length,
+    archived: 0, skipped: 0, bytesRaw: 0, bytesGz: 0, files: [] };
+
+  for (const srcAbs of files) {
+    const srcStat = fs.statSync(srcAbs);
+    const destAbs = archivePathFor(destRoot, srcRoot, srcAbs);
+    let destMtimeMs = null;
+    try { destMtimeMs = fs.statSync(destAbs).mtimeMs; } catch (e) {
+      if (e.code !== 'ENOENT') throw e;
+    }
+
+    if (!shouldArchive(srcStat.mtimeMs, destMtimeMs)) {
+      report.skipped++;
+      continue;
+    }
+
+    const rel = path.relative(srcRoot, srcAbs);
+    if (dryRun) {
+      report.archived++;
+      report.bytesRaw += srcStat.size;
+      report.files.push({ rel, action: 'would-archive', rawBytes: srcStat.size });
+      continue;
+    }
+
+    const gz = zlib.gzipSync(fs.readFileSync(srcAbs));
+    fs.mkdirSync(path.dirname(destAbs), { recursive: true });
+    fs.writeFileSync(destAbs, gz);
+    // Stamp the mirror with the source's mtime (numeric seconds, so no Date
+    // millisecond truncation) so the next run's freshness check is stable and
+    // the archive reflects each session's real time.
+    fs.utimesSync(destAbs, srcStat.atimeMs / 1000, srcStat.mtimeMs / 1000);
+
+    report.archived++;
+    report.bytesRaw += srcStat.size;
+    report.bytesGz += gz.length;
+    report.files.push({ rel, action: 'archived', rawBytes: srcStat.size, gzBytes: gz.length });
+  }
+
+  if (asJson) {
+    process.stdout.write(JSON.stringify(report, null, 2) + '\n');
+    return 0;
+  }
+
+  const verb = dryRun ? 'would archive' : 'archived';
+  const lines = [
+    `cc-transcripts archive${dryRun ? ' (dry run)' : ''} → ${destRoot}`,
+    `  ${report.total} transcript${report.total === 1 ? '' : 's'} · ` +
+      `${report.archived} ${verb}, ${report.skipped} unchanged`,
+  ];
+  if (report.archived > 0) {
+    lines.push(dryRun
+      ? `  ${humanBytes(report.bytesRaw)} raw to compress`
+      : `  ${humanBytes(report.bytesGz)} written (from ${humanBytes(report.bytesRaw)} raw)`);
+  }
+  process.stdout.write(lines.join('\n') + '\n');
+  return 0;
+}
+
+if (require.main === module) {
+  process.exit(run());
+}
+
+module.exports = { defaultDest, archivePathFor, shouldArchive, humanBytes, listJsonl, run };
