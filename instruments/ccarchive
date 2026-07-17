@@ -26,11 +26,18 @@
  *
  * The .jsonl schema is internal to Claude Code, but ccarchive doesn't parse it —
  * it preserves the bytes exactly — so it is immune to schema drift.
+ *
+ * Scheduling is built in: `ccarchive --install-schedule` writes and loads a
+ * launchd agent (macOS) that runs it daily and at login, so preservation needs
+ * no hand-wired cron and re-establishes on a new machine with one command (after
+ * instruments/install puts it on PATH). Every path is derived at runtime —
+ * nothing personal is baked in. On non-macOS it prints the cron line to add.
  */
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const zlib = require('node:zlib');
+const { execFileSync } = require('node:child_process');
 
 const argv = process.argv.slice(2);
 
@@ -52,15 +59,24 @@ OPTIONS
   --json           Machine-readable summary (never styled).
   -h, --help       Show this help.
 
+SCHEDULE (macOS launchd)
+  --install-schedule    Install & load an agent that runs ccarchive daily (and
+                        at login). Idempotent; re-run after moving the repo or on
+                        a new machine. Non-macOS: prints the cron line to add.
+  --schedule-status     Report whether the scheduled agent is installed & loaded.
+  --uninstall-schedule  Unload and remove the scheduled agent.
+
 EXAMPLES
   ccarchive                          Mirror new/changed sessions into iCloud Drive.
   ccarchive --dry-run                Preview this run; touch nothing.
   ccarchive --dest ~/backup/cc       Archive somewhere other than iCloud.
   ccarchive --json | jq .archived    How many sessions were archived this run.
+  ccarchive --install-schedule       Run daily from now on (macOS launchd).
 
-Runs well from cron/launchd — idempotent, exits 0 with nothing to do. It never
-deletes from the archive: a source log removed by Claude Code's cleanup stays
-kept here. Reads the source read-only; writes only under the dest.`;
+Runs well unattended — idempotent, exits 0 with nothing to do. It never deletes
+from the archive: a source log removed by Claude Code's cleanup stays kept here.
+Reads the source read-only; writes only under the dest (and, for --install-
+schedule, the launchd agent under ~/Library).`;
 
 function takeValue(flag) {
   const i = argv.indexOf(flag);
@@ -121,6 +137,129 @@ function listJsonl(root) {
   return out;
 }
 
+// --- schedule management -------------------------------------------------
+// The archive is only durable if it actually runs. Rather than a hand-written
+// launchd plist (invisible to version control, silently missing on a new
+// machine), ccarchive installs its own schedule from runtime-derived paths.
+
+const SCHEDULE_LABEL = 'com.ccarchive.archive';   // neutral: no personal data
+const SCHEDULE_INTERVAL_SECONDS = 24 * 60 * 60;   // daily
+
+function xmlEscape(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function schedulePaths(home) {
+  return {
+    label: SCHEDULE_LABEL,
+    plistPath: path.join(home, 'Library', 'LaunchAgents', SCHEDULE_LABEL + '.plist'),
+    logPath: path.join(home, 'Library', 'Logs', 'ccarchive.log'),
+  };
+}
+
+// Prefer the stable installed entrypoint (~/.local/bin/ccarchive, put on PATH by
+// instruments/install) so the agent survives the repo moving; fall back to this
+// script's own path when it isn't installed there.
+function resolveScriptPath(home, fallbackPath) {
+  const installed = path.join(home, '.local', 'bin', 'ccarchive');
+  return fs.existsSync(installed) ? installed : fallbackPath;
+}
+
+function launchdPlist({ label, nodePath, scriptPath, intervalSeconds, logPath }) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>${xmlEscape(label)}</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>${xmlEscape(nodePath)}</string>
+        <string>${xmlEscape(scriptPath)}</string>
+    </array>
+    <key>StartInterval</key>
+    <integer>${intervalSeconds}</integer>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>${xmlEscape(logPath)}</string>
+    <key>StandardErrorPath</key>
+    <string>${xmlEscape(logPath)}</string>
+</dict>
+</plist>
+`;
+}
+
+// Daily at 03:00 — the fallback for non-launchd platforms.
+function cronLine(nodePath, scriptPath) {
+  return `0 3 * * * ${nodePath} ${scriptPath}`;
+}
+
+function installSchedule(home) {
+  const nodePath = process.execPath;
+  const scriptPath = resolveScriptPath(home, fs.realpathSync(__filename));
+  const { label, plistPath, logPath } = schedulePaths(home);
+
+  if (process.platform !== 'darwin') {
+    process.stdout.write(
+      'ccarchive scheduling uses launchd (macOS). On this platform, add a cron line:\n' +
+      `  ${cronLine(nodePath, scriptPath)}\n`);
+    return 0;
+  }
+
+  fs.mkdirSync(path.dirname(plistPath), { recursive: true });
+  fs.writeFileSync(plistPath, launchdPlist({
+    label, nodePath, scriptPath, intervalSeconds: SCHEDULE_INTERVAL_SECONDS, logPath,
+  }));
+  // Reload so a re-install picks up a changed plist; ignore the unload error
+  // when it wasn't already loaded.
+  try { execFileSync('launchctl', ['unload', '-w', plistPath], { stdio: 'ignore' }); } catch {}
+  execFileSync('launchctl', ['load', '-w', plistPath], { stdio: 'ignore' });
+
+  process.stdout.write(
+    `Scheduled: ${label} runs daily (and at login).\n` +
+    `  plist: ${plistPath}\n` +
+    `  runs:  ${nodePath} ${scriptPath}\n` +
+    `  log:   ${logPath}\n`);
+  return 0;
+}
+
+function uninstallSchedule(home) {
+  const { label, plistPath } = schedulePaths(home);
+  if (process.platform !== 'darwin') {
+    process.stdout.write('Nothing to remove (launchd is macOS-only). Delete any cron line you added.\n');
+    return 0;
+  }
+  try { execFileSync('launchctl', ['unload', '-w', plistPath], { stdio: 'ignore' }); } catch {}
+  let removed = false;
+  try { fs.rmSync(plistPath); removed = true; } catch (e) { if (e.code !== 'ENOENT') throw e; }
+  process.stdout.write(removed
+    ? `Removed schedule ${label} (${plistPath}).\n`
+    : `No schedule installed (${plistPath} absent).\n`);
+  return 0;
+}
+
+function scheduleStatus(home) {
+  const nodePath = process.execPath;
+  const scriptPath = resolveScriptPath(home, fs.realpathSync(__filename));
+  const { label, plistPath, logPath } = schedulePaths(home);
+  if (process.platform !== 'darwin') {
+    process.stdout.write(
+      'Scheduling uses launchd (macOS); not this platform.\n' +
+      `  cron equivalent: ${cronLine(nodePath, scriptPath)}\n`);
+    return 0;
+  }
+  const installed = fs.existsSync(plistPath);
+  let loaded = false;
+  try { execFileSync('launchctl', ['list', label], { stdio: 'ignore' }); loaded = true; } catch {}
+  process.stdout.write(
+    `Schedule ${label}:\n` +
+    `  plist installed: ${installed ? 'yes' : 'no'} (${plistPath})\n` +
+    `  launchd loaded:  ${loaded ? 'yes' : 'no'}\n` +
+    `  log:             ${logPath}\n`);
+  return 0;
+}
+
 // --- run -----------------------------------------------------------------
 
 function run() {
@@ -128,6 +267,9 @@ function run() {
     process.stdout.write(HELP + '\n');
     return 0;
   }
+  if (argv.includes('--install-schedule')) return installSchedule(os.homedir());
+  if (argv.includes('--uninstall-schedule')) return uninstallSchedule(os.homedir());
+  if (argv.includes('--schedule-status')) return scheduleStatus(os.homedir());
   const asJson = argv.includes('--json');
   const dryRun = argv.includes('--dry-run');
   const home = os.homedir();
@@ -197,4 +339,7 @@ if (require.main === module) {
   process.exit(run());
 }
 
-module.exports = { defaultDest, archivePathFor, shouldArchive, humanBytes, listJsonl, run };
+module.exports = {
+  defaultDest, archivePathFor, shouldArchive, humanBytes, listJsonl, run,
+  xmlEscape, schedulePaths, resolveScriptPath, launchdPlist, cronLine,
+};

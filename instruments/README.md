@@ -41,6 +41,11 @@ your `PATH`, the installer prints the one line to add to your shell profile.
 CLI. Run `instruments/browser-fetch/setup` (builds a venv + Chromium, prints the
 `~/.claude.json` registration Claude Code reads at start).
 
+`ccarchive` has one extra step to keep it *running*: after `install` puts it on
+`PATH`, `ccarchive --install-schedule` registers the daily launchd agent (macOS).
+This is the whole new-machine recovery — `./instruments/install` then
+`ccarchive --install-schedule` — and `ccarchive --schedule-status` confirms it.
+
 ## What belongs here (and what doesn't)
 
 The boundary is purpose, not runtime: an instrument earns a place here only if
@@ -119,13 +124,17 @@ that cleanup:
   override) — derived at runtime from `$HOME`, so no personal path lives in this
   code. It's the first *writing* instrument (see ADR 0006 addendum); `--dry-run`
   previews, and it reads the source read-only.
-- **Meant to be scheduled.** It's idempotent and exits 0 with nothing to do, so it
-  runs cleanly from `cron`/`launchd` (daily is ample). A daily run captures every
-  session well inside Claude Code's default 30-day `cleanupPeriodDays`, so the
-  archive alone is the durable copy — no need to raise retention and hoard raw
-  logs in `~/.claude/projects`; let cleanup keep the working dir lean. (Raising
-  `cleanupPeriodDays` is only worth it if the archive can't run for a stretch
-  longer than the retention window.)
+- **Self-scheduling.** `ccarchive --install-schedule` writes and loads a launchd
+  agent (macOS) that runs it daily and at login — no hand-wired cron, and it
+  re-establishes on a new machine with one command (`--schedule-status` /
+  `--uninstall-schedule` round it out; non-macOS prints the cron line instead).
+  The agent, its plist and log live under `~/Library` — machine-local, outside
+  any repo; the tool that generates them is data-free (paths derived at runtime).
+- **Retention pairing.** A daily run captures every session well inside Claude
+  Code's `cleanupPeriodDays`, so the archive alone is the durable copy — a large
+  `cleanupPeriodDays` is optional (a longer *live* working window for the other
+  instruments, and a buffer if the agent is ever down for a stretch), never
+  required for survival. Idempotent, exits 0 with nothing to do.
 
 **The durable substrate for the *other* instruments too.** `ccrepo.design.md` §8
 defers a *retention ledger* — persisting cost/usage rollups so ccrepo's

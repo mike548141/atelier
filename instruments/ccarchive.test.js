@@ -157,3 +157,63 @@ test('requiring ccarchive never acts on the host argv (the CLI lives behind the 
     { encoding: 'utf8' });
   assert.equal(out.trim(), 'host-alive');
 });
+
+// --- schedule management -------------------------------------------------
+// Pure builders + the read-only status query only. Never spawn --install-
+// schedule / --uninstall-schedule from tests: on a developer's Mac that would
+// mutate their real launchd state.
+
+test('schedulePaths derives the launchd + log paths under the given home', () => {
+  const p = cc.schedulePaths('/Users/x');
+  assert.equal(p.label, 'com.ccarchive.archive');
+  assert.equal(p.plistPath, '/Users/x/Library/LaunchAgents/com.ccarchive.archive.plist');
+  assert.equal(p.logPath, '/Users/x/Library/Logs/ccarchive.log');
+});
+
+test('resolveScriptPath prefers ~/.local/bin/ccarchive when present, else the fallback', () => {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'ccarchive-home-'));
+  const fallback = '/repo/instruments/ccarchive';
+  // No installed entrypoint yet → fallback.
+  assert.equal(cc.resolveScriptPath(home, fallback), fallback);
+  // Create the installed symlink target → it wins.
+  fs.mkdirSync(path.join(home, '.local', 'bin'), { recursive: true });
+  const installed = path.join(home, '.local', 'bin', 'ccarchive');
+  fs.writeFileSync(installed, '#!/usr/bin/env node\n');
+  assert.equal(cc.resolveScriptPath(home, fallback), installed);
+});
+
+test('launchdPlist emits a valid agent with the given command, interval and log', () => {
+  const xml = cc.launchdPlist({
+    label: 'com.ccarchive.archive', nodePath: '/usr/local/bin/node',
+    scriptPath: '/Users/x/.local/bin/ccarchive', intervalSeconds: 86400,
+    logPath: '/Users/x/Library/Logs/ccarchive.log',
+  });
+  assert.match(xml, /<key>Label<\/key>\s*<string>com\.ccarchive\.archive<\/string>/);
+  assert.match(xml, /<string>\/usr\/local\/bin\/node<\/string>/);
+  assert.match(xml, /<string>\/Users\/x\/\.local\/bin\/ccarchive<\/string>/);
+  assert.match(xml, /<key>StartInterval<\/key>\s*<integer>86400<\/integer>/);
+  assert.match(xml, /<key>RunAtLoad<\/key>\s*<true\/>/);
+  assert.match(xml, /<string>\/Users\/x\/Library\/Logs\/ccarchive\.log<\/string>/);
+});
+
+test('launchdPlist XML-escapes paths so an & in a home path cannot break the plist', () => {
+  const xml = cc.launchdPlist({
+    label: 'com.ccarchive.archive', nodePath: '/usr/local/bin/node',
+    scriptPath: '/Users/a&b/ccarchive', intervalSeconds: 86400,
+    logPath: '/Users/a&b/log',
+  });
+  assert.ok(xml.includes('/Users/a&amp;b/ccarchive'));
+  assert.ok(!xml.includes('/Users/a&b/ccarchive'));  // raw & would be invalid XML
+});
+
+test('cronLine is a daily entry invoking node on the script', () => {
+  assert.equal(cc.cronLine('/usr/local/bin/node', '/Users/x/.local/bin/ccarchive'),
+    '0 3 * * * /usr/local/bin/node /Users/x/.local/bin/ccarchive');
+});
+
+test('contract: --schedule-status is read-only and exits 0 on any platform', () => {
+  // Safe everywhere: on macOS it queries launchctl (no mutation); elsewhere it
+  // prints the cron equivalent. Either way, output and a clean exit.
+  const out = execFileSync('node', [SCRIPT, '--schedule-status'], { encoding: 'utf8' });
+  assert.ok(out.length > 0);
+});
