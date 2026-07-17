@@ -53,44 +53,22 @@ const argv = process.argv.slice(2);
 
 const HELP = `ccarchive — durably preserve every Claude Code transcript, word for word
 
-Mirrors every raw session log under ~/.claude/projects/ into a compressed,
-append-only archive that outlives Claude Code's own cleanup. Incremental: only
-sessions changed since the last run are recompressed. Default dest: iCloud Drive.
-
 USAGE
   ccarchive [options]
 
 OPTIONS
-  --dest <dir>     Archive into <dir> instead of the iCloud Drive default
-                   (~/Library/Mobile Documents/com~apple~CloudDocs/cc-transcripts).
-                   Or set CCARCHIVE_DEST.
-  --source <dir>   Read transcripts from <dir> instead of ~/.claude/projects.
-  --dry-run        Report what would be archived; write nothing.
-  --verify         Re-hash every archived transcript and check it against the
-                   sha256 recorded when it was archived (in <dest>/manifest.json).
-                   Reports any mismatch (mutation/corruption) or missing file;
-                   exits non-zero if the archive doesn't verify.
-  --json           Machine-readable summary (never styled).
-  -h, --help       Show this help.
+  --dest <dir>           Archive dir (default: iCloud Drive; or $CCARCHIVE_DEST).
+  --source <dir>         Read from <dir> (default: ~/.claude/projects).
+  --dry-run              Show what would be archived; write nothing.
+  --verify               Re-check the archive against its sha256 manifest.
+  --install-schedule     Run daily via launchd (macOS). Also --schedule-status,
+                         --uninstall-schedule.
+  --json                 Machine-readable output (never styled).
+  -h, --help             This summary.
 
-SCHEDULE (macOS launchd)
-  --install-schedule    Install & load an agent that runs ccarchive daily (and
-                        at login). Idempotent; re-run after moving the repo or on
-                        a new machine. Non-macOS: prints the cron line to add.
-  --schedule-status     Report whether the scheduled agent is installed & loaded.
-  --uninstall-schedule  Unload and remove the scheduled agent.
-
-EXAMPLES
-  ccarchive                          Mirror new/changed sessions into iCloud Drive.
-  ccarchive --dry-run                Preview this run; touch nothing.
-  ccarchive --dest ~/backup/cc       Archive somewhere other than iCloud.
-  ccarchive --json | jq .archived    How many sessions were archived this run.
-  ccarchive --install-schedule       Run daily from now on (macOS launchd).
-
-Runs well unattended — idempotent, exits 0 with nothing to do. It never deletes
-from the archive: a source log removed by Claude Code's cleanup stays kept here.
-Reads the source read-only; writes only under the dest (and, for --install-
-schedule, the launchd agent under ~/Library).`;
+Mirrors every ~/.claude/projects/*.jsonl into a compressed, append-only,
+sha256-verified archive that outlives Claude Code's cleanup. Full manual, with
+examples and the FILES/INTEGRITY/SCHEDULE detail:  man ccarchive`;
 
 function takeValue(flag) {
   const i = argv.indexOf(flag);

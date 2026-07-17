@@ -15,6 +15,19 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
+- ⏳ **REPO-STANDARD: CLI tools ship both `--help` and a man page — cold review
+      queued 2026-07-17.** New repo-craft convention in `build/REPO-STANDARD.md`
+      (§ Repo-craft conventions): the two-register split — `--help` a one-screen
+      digest that points at the manual, `man <tool>(1)` the plain-language full
+      reference (FILES/EXAMPLES/NOTES) — plus how to wire it (`man/` dir, installer
+      publishes to `MANPATH`). Children inherit it. Worked example landed in the
+      same delta: `instruments/man/ccarchive.1` + a trimmed `ccarchive --help` +
+      `instruments/install` man-wiring. **Self-authored doctrine ⇒ author must not
+      warm-spawn the review** (rule 4); a non-author takes this ⏳. Intent record:
+      `sessions/2026-07-17-0946-ccarchive-man-cli-docs-standard.md`. Brief seeds —
+      is the digest/reference boundary drawn sharply enough to prevent drift; does
+      the convention over-reach for repos with trivial one-flag tools (should it be
+      sized to tool complexity like the rest of the standard).
 - ⏳ **ADR 0006 addendum (ccarchive — the *preserving* verb) — cold review
       queued 2026-07-17.** New instrument `ccarchive` and its ADR 0006 addendum:
       the `instruments/` layer gains a fourth verb (**preserve**) and its first
@@ -43,68 +56,11 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
       invite over-labelling; is the foreign-data precedence grounded or padded;
       do the declared defaults leak anything person-local into a public repo;
       does "UTC-forward identifiers" cohere with RECORD's coordination-free rule.
-- [x] **REVIEW rule 4 — CYCLE CLOSED 2026-07-15.** Drafted from Mike's
-      tiered ruling → cold pass (1 MAJOR — the spawner enumeration weaker
-      than the ruled criterion) → F1–F8 ruled + applied → applied-batch cold
-      pass **PASS-WITH-FINDINGS — 0 MAJOR · 2 MEDIUM · 5 LOW**, all eight
-      rulings verified faithfully encoded, every claimed proof reproduced →
-      Mike ruled F1–F7 as counselled, applied same day: the applier seam
-      conditioned on an open cycle (terminal application queues no pointer);
-      the `⏳` pointer spec now a ceiling as well as a floor (refs only, no
-      evaluative account); MODEL-ECONOMICS §Sub-agents carries the full
-      criterion; spawn provenance; the legend defines `⏳`; an application
-      review tests the delta's author at minimum. Verdicts:
-      `reviews/2026-07-15-1202-review-rule4-cold.md` +
-      `reviews/2026-07-15-1244-review-rule4-applied-batch-cold.md`. 0 MAJOR
-      ⇒ closed on the ruled application (close rule). Propagates on the next
-      pin bump.
-- [x] **MODEL-ECONOMICS triple delta — CYCLE CLOSED 2026-07-15.** Sub-agents
-      (isolation-not-savings, when/when-not, lossiness), explicit tier
-      selection (cheapest model that genuinely does the work — verifiability
-      test, pool-anchored, price-the-job), hygiene item 4 (reset by record,
-      not compaction; no numeric thresholds). Cold pass **PASS-WITH-FINDINGS —
-      0 MAJOR · 3 MEDIUM · 3 LOW**; Mike ruled F1–F6 **[fixed]** same day
-      (F1 re-ruled after a plain-language walk-through → the tiered rule now
-      in REVIEW rule 4, item above) and supplied the price-the-job nuance,
-      applied with the batch.
-      Verdict + ruling: `reviews/2026-07-15-0910-model-economics-triple-delta.md`.
-      0 MAJOR ⇒ closed on the ruled application (close rule). Propagates on
-      the next pin bump; child template swept (F6).
-- [x] **"Informed principal" apex rule — reviewed, applied, CYCLE CLOSED
-      2026-07-14.** New `00-APEX.md` subsection *The principal's authority is
-      conditioned on being informed* (now under *Honesty is absolute*). Cold
-      pass by an independent reviewer (not the author): **PASS-WITH-FINDINGS —
-      0 MAJOR · 4 MEDIUM · 3 LOW**, verdict in
-      `reviews/2026-07-14-2235-informed-principal-apex-cold.md`. Mike ruled
-      **F1–F5 [fixed]** (F1 apex list unified to cover governance rulings *and*
-      floor stops so the child stamp stops out-scoping the parent; F2 teeth
-      re-pointed at the agent's *withholding* + principal's right to *waive*
-      once informed — Second-Law bind removed; F3 trigger runs both directions
-      incl. principal-initiated overrule; F4 AUTONOMY + COMMUNICATION pointers
-      added, asymmetry gone; F5 section demoted to a subsection under honesty),
-      F6 folded into F5, F7 no-action. No MAJOR ⇒ cycle closed without a further
-      ceremony (close rule). Floor green (247 tests · sizescan · linkscan).
-      Propagates fleet-wide on the next pin bump.
-- [x] **PRINCIPLES §2 four bullets — CYCLE CLOSED 2026-07-15 (escape valve;
-      Mike ruled directly).** Applied-batch cold pass by an independent
-      session (neither author nor applier): **PASS-WITH-FINDINGS — 1 MAJOR ·
-      1 MEDIUM · 2 LOW**, four of five prior fixes verified clean at the
-      primary sources; verdict + the principal's ruling in
-      `reviews/2026-07-14-2333-principles-s2-applied-batch-cold.md`. MAJOR
-      count flat across passes (1 → 1) ⇒ escape valve: Mike ruled F1–F4 in
-      person, supplying the intent — **F1 [fixed] by re-scope**: API first
-      binds *where we design the service* (contract first, logic behind the
-      API, front end holds presentation only); consuming a third-party system
-      is out of scope — tiki/RouterOS re-grounded as the consumption case
-      stated honestly (REST for convergence, SSH/SFTP where REST doesn't
-      serve — stated choices, not drift). F3 [fixed] subsumed (vendor-UI-seam
-      clause gone); F2 [fixed] discriminator stated (a web fork adds no
-      capability; a native app is a different medium riding the API
-      contract); F4 [fixed] bullet rewritten in short sentences. The false
-      source killed at origin: ros `rescue.py` stale "one non-REST step"
-      comment fixed + pushed (ros `261fca2`). Every grounding claim
-      re-verified at ros HEAD before writing; floor green (247 tests ·
-      sizescan · linkscan). Propagates on the next pin bump.
+Closed doctrine review cycles (REVIEW rule 4, MODEL-ECONOMICS triple delta,
+"informed principal" apex rule, PRINCIPLES §2 four bullets — all CYCLE CLOSED
+2026-07-14/15) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § Doctrine — completed
+review cycles.
+
 - [ ] **REACH/AUTONOMY backlog — the cold pass's H1–H8 + residuals** (all
       backlog-grade; doctrine-substantive ones are the principal's when
       picked up). Sharpest three: H2 "existing cookies are fair game" reads
@@ -176,6 +132,46 @@ bundle, CONCURRENCY put-away) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 Completed build/inheritance work (REPO-STANDARD, licenscan, signing doctrine +
 activation, faves/ros floor adoption, create-repo rewire + real-scaffold,
 REPO-BOUNDARY, worktree tooling) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
+
+## instruments/ — open features
+
+### ccarchive (Mike, 2026-07-17)
+
+- [ ] **Local-store audit vs the archive manifest** — check the *live* store
+      (`~/.claude/projects`) against the archive's `manifest.json` to spot
+      **renamed, missing, or mutated** transcripts (the live file drifted from
+      what was archived). Distinct from `--verify`, which checks the *archive*
+      against its own manifest; this checks the *live store* against the archive.
+      Read-only; reports drift.
+- [ ] **Restore from archive — full + delta** — replace mutated/missing local
+      files from the archive (gunzip `<dest>/<rel>.gz` → `~/.claude/projects/<rel>`).
+      A full `--restore` and a delta mode that restores only what the local-store
+      audit flags. Must not clobber a live file *newer* than the archived copy
+      (an in-flight session); confirm/refuse rather than overwrite silently.
+- [ ] **iCloud dataless-file awareness** — iCloud "Optimise Mac Storage" evicts
+      the local bytes of unused files, leaving a dataless placeholder (contents
+      still in the cloud). ccarchive must keep working: reading an evicted `.gz`
+      faults it back on access (fine), but a whole-archive `--verify` would
+      re-download *everything* — costly and it defeats the point of eviction.
+      Detect dataless files (macOS `SF_DATALESS` st_flags / the ubiquity
+      "downloaded" key) and (a) never mis-report an evicted-but-intact file as
+      missing/corrupt, (b) don't gratuitously materialise them (skip by default;
+      opt-in `--verify --materialise`), (c) ensure writing the manifest/new `.gz`
+      never triggers a bulk re-download.
+- [ ] **Sign the manifest (tamper-evidence)** — closes the `--verify` caveat: a
+      tamperer who rewrites a `.gz` *and* the manifest currently passes. Sign
+      `manifest.json` (detached signature / HMAC with a key kept **off the
+      archive** — `~/.claude` or the macOS Keychain) so `--verify` detects a
+      forged manifest, raising the anchor from "accidental corruption" to
+      "tamper-evident". Key location/rotation is the real design question.
+
+### man pages — convention rollout
+
+- [ ] **cctranscript + ccrepo: man page + concise `--help`** — the split (full
+      plain-language `man`, concise `--help` pointing to it) is established with
+      `ccarchive` as the worked example (`instruments/man/`, published by
+      `instruments/install`). Roll it out to the other CLIs. **ccrepo waits for
+      the v2 rewrite to land** — don't churn its help mid-redesign.
 
 ## File-size hygiene (new 2026-07-14)
 
