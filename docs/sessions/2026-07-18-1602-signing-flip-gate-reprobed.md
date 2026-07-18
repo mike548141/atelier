@@ -69,7 +69,9 @@ settled it:
 | Reflog: checkout off `security/mgmt-plane-pinning…` → `pull --ff-only` | A branch merged remotely, then pulled back |
 | **Pre-merge originals survive as dangling objects, correctly signed** | The laptop *did* sign; something downstream stripped it |
 
-The cause is a **GitHub web-UI "Rebase and merge"**: GitHub re-commits server-side,
+The cause is a **rebase-merge** (`gh pr merge --rebase`, or the equivalent API
+call — the principal does not use the web UI; merges here are agent-run through
+the CLI). GitHub performs it server-side regardless of trigger: it re-commits,
 minting new SHAs, discarding the local signatures, and setting the committer to the
 merging account's *display name*. Not a machine at all; a profile name.
 
@@ -79,12 +81,26 @@ simply set one commit too early.
 
 ## The finding with a future
 
-Squash and merge-commit via the web **are** signed by GitHub's web-flow key —
-signscan already defers those to the gh plane (ros carries 11 such, all handled).
+Squash and merge-commit **are** signed by GitHub's web-flow key — signscan already
+defers those to the gh plane (ros carries 11 such since its boundary, all handled,
+all `Merge pull request #N` two-parent merge commits dated 2026-07-18/19).
 **Rebase-merge is not.** It silently mints unsigned commits *inside* the verified
 range, and will re-offend on the next PR merged that way.
 
 Moving a boundary fixes the past. It does nothing about this.
+
+**This is agent-facing, not principal-facing.** Merges in this estate are run by
+agent sessions through `gh`, not by hand in a browser — so the recurrence risk is
+a default in agent behaviour, not a human habit to break. That cuts against
+complacency: an agent chose `--rebase` once already, agents merge PRs routinely
+under the standing grant, and nothing has since changed to prevent it. The 11
+clean merges are convention, not enforcement.
+
+The durable control is the **repo setting** (`allow_rebase_merge: false`), which
+is enforced server-side on the same endpoint the CLI and the web UI both call —
+so it binds every trigger, including `gh pr merge --rebase`, rather than relying
+on an instruction each session has to remember. As of this session it is
+**enabled on all 13 repos**.
 
 ## Applied
 

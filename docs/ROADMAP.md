@@ -92,12 +92,12 @@ CONVENTIONS + UTC-at-rest) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
             among the scanner-red three. Seven commits dated 2026-07-12
             (activation day) are unsigned, from two causes, **neither a second
             machine**: (a) an adoption boundary set one commit too early; (b)
-            five replayed by a **GitHub web-UI "Rebase and merge"** — re-committed
-            server-side, signatures stripped, committer set to the merging
-            account (pre-merge originals survive as dangling objects, correctly
-            signed). (b) is a **recurring hazard**: squash/merge-commit are
-            web-flow-signed (signscan defers those to the gh plane), rebase-merge
-            is not. **Both boundaries corrected + pushed 2026-07-19 (principal
+            five replayed by a **rebase-merge** (`gh pr merge --rebase` — merges
+            here are agent-run via CLI, not the web UI): re-committed server-side,
+            signatures stripped, committer set to the merging account; pre-merge
+            originals survive, correctly signed. (b) is a **recurring hazard**:
+            squash/merge-commit are web-flow-signed (deferred to the gh plane),
+            rebase-merge is not. **Both boundaries corrected + pushed (principal
             agreed); blocking-mode probe now 12/12 PASS.** Remaining blockers:
             the unchanged scanner debt, and a **rebase-merge decision** (disable
             it per-repo, or it re-offends on the next PR). "Every active machine
