@@ -191,39 +191,41 @@ REPO-BOUNDARY, worktree tooling) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 The generalised anti-bloat work. `sizescan` flags any current-truth file over
 budget across the fleet; these are the outstanding harvests it surfaced.
 
-- [x] **atelier: sizescan + RECORD doctrine + this ROADMAP harvest** — DONE
-      2026-07-14 (1091→lean; completed detail → `ROADMAP-DONE.md`). Dogfood of
-      the doctrine here first.
-- [~] **ros: harvest `docs/ROADMAP.md`** (claimed 2026-07-18-1655, wt:
-      ros/roadmap-harvest) — `sizescan` flags it now at **7122 lines** (3197
-      when filed, 4933 on 07-17: accreting ~2k/day). Its own focused ros
-      session: collapse done items to one-line pointers, move the case-law to
-      ros's `ROADMAP-DONE.md` (1285 lines). Delicate — the narration is real
-      case-law; relocate verbatim, never delete. Also `ros/CLAUDE.md` sits +57
-      over budget (mild). **⚠️ Check ros-session liveness first**: a wholesale
-      reorg collides hard with a live ros session (they edit the same file).
-      Released once (2026-07-17-2235) on finding an active session mid-claim;
-      retaken 2026-07-18-1655 with ros quiet (no worktrees, clean tree, last
-      commit ~1h old, session logged closed).
+- [x] **ros: completed-detail harvest — DONE 2026-07-18** (`d92de7f..5ae6ee1`).
+      `ROADMAP.md` **7123→4755** (116 done blocks → `ROADMAP-DONE.md` behind
+      pointers; harvester took only `[x]`, >4 lines, **no nested open sub-item**;
+      verified byte-identical, open census unchanged). Also `SESSIONS.md`
+      269→174, `CLAUDE.md` 257→135 (legacy half → `docs/LEGACY-INIT.md`),
+      `tiki/docs/ARCHITECTURE.md` 329→319. Stated scope complete.
+- [ ] 🎯 **ros ROADMAP: the structural call (Mike's).** Harvesting can't reach
+      the budget: at **4755** the `[x]` residue is only 431 lines — the rest is
+      **3733 lines of genuinely open work** (101 `[ ]` + 24 `[~]`) + 592 prose.
+      Routes: migrate pending-feature detail to ros's `docs/SPECS.md` (its own
+      declared home, already 2263), or split the roadmap by subsystem. Same
+      call covers `tiki/docs/ARCHITECTURE.md`, which now **declares
+      `sizescan:budget=320`** with in-file reasoning rather than sitting red
+      (~100 lines are Purpose doctrine ratified 07-18; the clean fix is splitting
+      Purpose out).
+- [x] **shed: SESSIONS.md rotated — DONE 2026-07-18**, 318→204 (older entries
+      verbatim → new `SESSIONS-ARCHIVE.md`; all 14 verified present once).
+      Also fixed en route: shed's `hooks.atelierTools` was *relative*
+      (`../atelier/tools`), resolving only from the main checkout, so the
+      fail-closed pre-commit scanner blocked every worktree commit — set
+      absolute. **Worth checking on other children.**
 - [x] **faves: SESSIONS/ROADMAP/ARCHITECTURE harvest — DONE 2026-07-18,
       `sizescan` clean.** `SESSIONS.md` 1157→234 (rotation → new
       `SESSIONS-ARCHIVE.md`), `ROADMAP.md` 766→299 (resolved → new
       `ROADMAP-DONE.md`, verbatim), `ARCHITECTURE.md` 276→250. `dba7658..ab6a12d`.
-- [x] **`sizescan` reviewed + wired into the gate** — DONE 2026-07-14. Cold pass
-      cleared (PASS-WITH-FINDINGS); F1 (fail-open ancestor-dir MAJOR) fixed +
-      live-reproven, F2 (prose-mention self-exempt) fixed (markers header-only),
-      F4 dedup fixed; **F3 decided by Mike — index rotation** (`SESSIONS.md`
-      tail + `SESSIONS-ARCHIVE.md` growth store; RECORD.md sharpened). Now runs
-      `--check` in atelier's `ci.yml` and the child `floor.yml` template (a repo
-      that adopts the floor while over-budget reds → the signal to harvest;
-      `sizescan:budget=N`/`allow` hatches). Suite 240→247; pinned in
-      `test_sizescan.py` + `test_templates.py`.
+- [x] **`sizescan` reviewed + wired into the gate** — DONE 2026-07-14; cold
+      pass cleared, `--check` now gates atelier `ci.yml` + the child
+      `floor.yml` template. Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 - [ ] **Existing fleet children pick up the `floor.yml` size gate** — the
       template now carries `sizescan --check`, but children copy `floor.yml`
-      statically, so they adopt at their next pin bump / harvest. ros (above)
-      will red until harvested — that red is the intended trigger. faves is now
-      harvested (2026-07-18), so adopting the gate there is safe (faves' CI
-      doesn't yet run `sizescan --check` — a separate floor-adoption step).
+      statically, so they adopt at their next pin bump / harvest. **The fleet is
+      now sizescan-clean except ros's ROADMAP** (the structural call above), so
+      adopting the gate is safe everywhere else — faves and ros still run
+      bespoke CI without `sizescan --check`, a separate floor-adoption step.
+      Note ros would red on its ROADMAP until that call lands.
 
 ## North star — context follows the person, work follows anywhere
 
