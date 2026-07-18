@@ -9,9 +9,6 @@ Lets do some work!
 * dont forget to claim your work and if work is claimed then don't work on it
   even if I've told you too below
 
-* Then carry on with the next work in queue thats not claimed until the
-  economics suggest a new session, or you do for other reasons.
-
 * If I've given you too much work then use economics and your own reasoning to
   find a good spot to stop safely, tidy everything up, wrap up and finish the
   session.
