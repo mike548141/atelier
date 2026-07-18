@@ -223,6 +223,63 @@ risky change and the defect ships; over-review a safe one and the ceremony crowd
 out the work. Same "layers, not alternatives" split as *What review is not* below,
 applied one level up — to the decision to review at all.
 
+## Review the design, not only the build — the earliest review is the cheapest
+
+*The principal's ruling, 2026-07-18: "Fable reviewers are just as much, if not
+more so, to test our thinking, assumptions, decisions and architecture. Not
+just code… reviewing things before we build them helps us reduce rework and
+improve the quality of the things we do build."*
+
+Everything above answers *whether* and *how* a review runs. This answers
+**when in the lifecycle** — and it is a distinct claim, because review is an
+**input to building, not only a gate after it**. A wrong premise caught at
+design time costs a paragraph; the same premise caught after the build costs
+the build, and every decision that was stacked on it. Lens 1 is already named
+the most important lens — this is the corollary nobody had written down: lens 1
+has the most to bite on *before* the code exists, when changing the answer is
+still free.
+
+So a **captured feature, a ratified design, or a structural decision earns a
+review in its own right** — a review is not something work qualifies for by
+containing code. Doctrine, ADRs, roadmap direction, an architecture note, a
+decision recorded in a session log: all reviewable, all cheapest to review at
+the moment they are written.
+
+**Why this needed writing at all — the framing was the trap.** Every prior
+formulation here is phrased around *a change* ("whether a **change** earns a
+review", "match the gate to the cost of being wrong"), and that grammar quietly
+presupposes the work already exists. A reader looking for "does this earn a
+review" while holding a design, not a diff, finds every sentence shaped for the
+diff — and concludes the answer is no. The rule was not wrong; its framing
+encoded a late-review default that its own lens 1 contradicts.
+
+**Enforcement is structural, because the written rule demonstrably did not
+hold.** Grounded in two incidents, the second decisive: 2026-07-15, a reviewer
+dismissed a committed-direction expansion as *"zero source code, so nothing my
+verdict should have covered"* — the rule already said otherwise. Then
+2026-07-18 (`ros`, model-datasheet catalogue), a building session declined to
+queue a review on the same "no code" grounds **while the correct rule sat in
+three places it had access to** — the repo's own review policy, this file, and
+that session's memory of the 2026-07-15 correction. Writing it a fourth time
+is the category error `PROPAGATION.md` names: *a doctrine that is read is not a
+doctrine that is complied with.*
+
+The failure mode is not ignorance, it is **invisibility** — *declining* a
+review is an omission, and an omission reads identically to nobody having
+considered it. So the remedy is to make the decline an act:
+
+> Where a repo records design or direction durably (a roadmap section, an ADR,
+> a doctrine change), **each such record carries a review line** — a queued
+> pointer, or an explicit `review: not warranted — <grounds>`. **Omission is
+> the bug.** A reviewer, or the principal, can then disagree with a stated
+> judgement; neither can disagree with a blank.
+
+Calibration still applies — this widens *what* is reviewable and *when*, never
+the ceremony. Most design records will honestly carry "not warranted", and that
+is the rule working: the cost is one line and a moment's thought, paid at the
+point the thought is cheapest. Under-review a premise and the build inherits
+it; over-ceremony a routine note and the practice crowds out the work.
+
 ## When to review — inline or batched
 
 Both are sanctioned for routine work; pick per cost and how blocking the

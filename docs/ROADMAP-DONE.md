@@ -7,6 +7,36 @@ file is a destination that is *meant* to grow (`sizescan` excludes it by design)
 First harvested 2026-07-14 (ROADMAP.md had reached 1091 lines).
 
 ## Doctrine — completed review cycles
+- [x] **CLI-docs standard — applied-batch cold pass reviewed, ruled, applied,
+      CYCLE CLOSED 2026-07-17.** PASS-WITH-FINDINGS (0 MAJOR · 2 MEDIUM ·
+      3 LOW), all seven prior rulings reconciled as faithfully implemented;
+      Mike ruled F1–F5 [fixed] as counselled, applied + verified same day
+      (man-page `EXIT STATUS` + layout-drift alarm; CI mandoc made real;
+      unconditional man cleanup; "a closing line or two"; README manifest
+      wording). Verdict + decisions:
+      `reviews/2026-07-17-1157-cli-docs-applied-cold.md`. 0 MAJOR ⇒ the
+      terminal application closes without a queued pointer (close rule).
+- [x] **ADR 0006 addendum (ccarchive, the *preserve* verb) — reviewed, ruled,
+      applied, CYCLE CLOSED 2026-07-17.** Cold pass PASS-WITH-FINDINGS
+      (0 MAJOR · 1 MEDIUM · 3 LOW); Mike ruled F1–F4 [fixed] as counselled,
+      applied + pinned same day (shrink guard `--force`, repo-dest guard
+      `--allow-repo-dest`, layout-drift alarm, strict `--verify`; ccarchive
+      tests 27→35). Verdict + decisions:
+      `reviews/2026-07-17-1000-adr0006-ccarchive-preserve-cold.md`. 0 MAJOR ⇒
+      the terminal application closes without a queued pointer (close rule).
+- [x] **CONVENTIONS + UTC-at-rest ADR — applied-batch cold pass reviewed,
+      ruled, applied, CYCLE CLOSED 2026-07-17.** PASS-WITH-FINDINGS (0 MAJOR ·
+      1 MEDIUM · 5 LOW), the six prior rulings reconciled as implemented with
+      one reconcile-stage drift caught (F6); Mike ruled F1–F6 [fixed] as
+      counselled, applied + verified same day (seventh minting site UTC'd;
+      row dated + foreign-formats line restored; ingestion clause scoped;
+      reflows; CONCURRENCY→ADR-addendum pointer). Verdict + decisions:
+      `reviews/2026-07-17-1157-conventions-utc-applied-cold.md`. 0 MAJOR ⇒ the
+      terminal application closes without a queued pointer (close rule).
+Closed doctrine review cycles (REVIEW rule 4, MODEL-ECONOMICS triple delta,
+"informed principal" apex rule, PRINCIPLES §2 four bullets — all CYCLE CLOSED
+2026-07-14/15) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § Doctrine — completed
+review cycles.
 - [x] **REVIEW rule 4 — CYCLE CLOSED 2026-07-15.** Drafted from Mike's
       tiered ruling → cold pass (1 MAJOR — the spawner enumeration weaker
       than the ruled criterion) → F1–F8 ruled + applied → applied-batch cold

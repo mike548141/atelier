@@ -5,6 +5,28 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-18 — review is an input to building, not only a gate)
+- **`method/REVIEW.md` — new section "Review the design, not only the build —
+  the earliest review is the cheapest"** (the principal's ruling, 2026-07-18).
+  Answers *when in the lifecycle*, distinct from the existing risk-calibration
+  (*whether*) and inline-vs-batched (*by what mechanism*) sections: a captured
+  feature, ratified design or structural decision earns a review **in its own
+  right** — reviewability is not conferred by containing code — and lens 1 has
+  the most to bite on before the code exists, when changing the answer is free.
+  Names the framing trap that let the existing rule fail: every prior
+  formulation is phrased around *a change*, grammar that presupposes the work
+  already exists, so an agent holding a design finds every sentence shaped for
+  a diff. Enforcement is **structural, not more prose** — the scope rule was
+  already present in three accessible places when it was broken (2026-07-15 and
+  again 2026-07-18), so a fourth copy would be the category error
+  `PROPAGATION.md` names: durable design records now carry a review line, either
+  a queued pointer or an explicit `review: not warranted — <grounds>`, because
+  **omission reads identically to nobody having considered it**. Calibration
+  unchanged — this widens what is reviewable and when, never the ceremony.
+  Intent record: `decisions/2026-07-18-0820-review-the-design-not-only-the-build.md`.
+  ⏳ **Self-authored doctrine — cold review queued** (rule 4: the taker writes
+  the brief; the author wrote none).
+
 ### Changed (2026-07-14 — `sizescan` reviewed, fixed, and wired into the gate)
 - **Cold review of `sizescan` + the lean-files doctrine cleared** (PASS-WITH-
   FINDINGS, un-briefed; `reviews/2026-07-14-2048-lean-files-sizescan-cold.md`).
