@@ -68,8 +68,9 @@ CONVENTIONS + UTC-at-rest) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
             **Gate assessed 2026-07-12 (session 47), corrected same day by the
             post-session self-review — not met, and the blockers are the
             owners', not the main line's.** None of the three red children fails
-            on *signing* (so the flip wouldn't newly-red them, but the fleet
-            isn't clean enough to declare enforce-mode honestly): two fail
+            on *signing* (~~so the flip wouldn't newly-red them~~ — **corrected
+            2026-07-19, see below**; but the fleet isn't clean enough to declare
+            enforce-mode honestly): two fail
             secretscan on owner-tracked secret debt (the principal's rotations,
             session 39's owed list); the third is red on **both** its bespoke CI
             (lint + a test error, agent-actionable, separate cleanup) **and**
@@ -83,6 +84,21 @@ CONVENTIONS + UTC-at-rest) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
             secret-debt children signscan never runs (secretscan fails first).
             The **"every active machine signs"** half is also unverified. Flip
             held — Mike's call + Mike's action (the rotations).
+            **Correction 2026-07-19 — "wouldn't newly-red them" was wrong, and
+            the greens proved nothing** (under `--warn` no floor has ever
+            *failed* on signing; on scanner-red children the signing steps never
+            run at all). A blocking-mode probe over all 12 children at their own
+            pins/boundaries: **10 pass, 2 fail — both currently green**, neither
+            among the scanner-red three. Seven commits dated 2026-07-12
+            (activation day) are unsigned, from two causes, **neither a second
+            machine**: (a) an adoption boundary set one commit too early; (b)
+            five replayed by a **GitHub web-UI "Rebase and merge"** — re-committed
+            server-side, signatures stripped, committer set to the merging
+            account (pre-merge originals survive as dangling objects, correctly
+            signed). (b) is a **recurring hazard**: squash/merge-commit are
+            web-flow-signed (signscan defers those to the gh plane), rebase-merge
+            is not. Flip now also needs the two boundaries fixed + a rebase-merge
+            decision. Child identities stay in their private records, per above.
       - [ ] **Release-artifact signing + SBOM (deferred, was A5).** Signing *built
             artifacts* + a deterministic SBOM needs external tooling (syft/cosign),
             which hits the tool-install floor and breaks the zero-dep house-tool
