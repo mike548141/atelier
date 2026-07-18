@@ -194,17 +194,17 @@ budget across the fleet; these are the outstanding harvests it surfaced.
 - [x] **atelier: sizescan + RECORD doctrine + this ROADMAP harvest** — DONE
       2026-07-14 (1091→lean; completed detail → `ROADMAP-DONE.md`). Dogfood of
       the doctrine here first.
-- [ ] **ros: harvest `docs/ROADMAP.md`** — `sizescan` flags it now at **4933
-      lines** (grown from the 3197 recorded when this item was filed; ~75%
-      completed detail accreted onto finished items). Its own focused ros
+- [~] **ros: harvest `docs/ROADMAP.md`** (claimed 2026-07-18-1655, wt:
+      ros/roadmap-harvest) — `sizescan` flags it now at **7122 lines** (3197
+      when filed, 4933 on 07-17: accreting ~2k/day). Its own focused ros
       session: collapse done items to one-line pointers, move the case-law to
-      ros's `ROADMAP-DONE.md` (which already exists at 1285 lines). Delicate —
-      the narration is real case-law; relocate verbatim, never delete. Also
-      `ros/CLAUDE.md` sits +34 over budget (mild). **⚠️ Check ros-session
-      liveness first**: a wholesale reorg of this file collides hard with a live
-      ros session (they claim roadmap items = edit the same file). Attempted
-      2026-07-17-2235 and released on discovering an active ros session
-      (`radius-home` worktree) mid-claim — take it only when ros is quiet.
+      ros's `ROADMAP-DONE.md` (1285 lines). Delicate — the narration is real
+      case-law; relocate verbatim, never delete. Also `ros/CLAUDE.md` sits +57
+      over budget (mild). **⚠️ Check ros-session liveness first**: a wholesale
+      reorg collides hard with a live ros session (they edit the same file).
+      Released once (2026-07-17-2235) on finding an active session mid-claim;
+      retaken 2026-07-18-1655 with ros quiet (no worktrees, clean tree, last
+      commit ~1h old, session logged closed).
 - [x] **faves: SESSIONS/ROADMAP/ARCHITECTURE harvest — DONE 2026-07-18,
       `sizescan` clean.** `SESSIONS.md` 1157→234 (rotation → new
       `SESSIONS-ARCHIVE.md`), `ROADMAP.md` 766→299 (resolved → new
