@@ -84,25 +84,23 @@ CONVENTIONS + UTC-at-rest) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
             secret-debt children signscan never runs (secretscan fails first).
             The **"every active machine signs"** half is also unverified. Flip
             held — Mike's call + Mike's action (the rotations).
-            **Correction 2026-07-19 — "wouldn't newly-red them" was wrong, and
-            the greens proved nothing** (under `--warn` no floor has ever
-            *failed* on signing; on scanner-red children the signing steps never
-            run at all). A blocking-mode probe over all 12 children at their own
-            pins/boundaries: **10 pass, 2 fail — both currently green**, neither
-            among the scanner-red three. Seven commits dated 2026-07-12
-            (activation day) are unsigned, from two causes, **neither a second
-            machine**: (a) a boundary set one commit too early; (b) five replayed
-            by a **rebase-merge** (`gh pr merge --rebase` — merges here are
-            agent-run via CLI) which re-commits server-side, stripping signatures.
-            (b) is a **recurring hazard**: squash/merge-commit are web-flow-signed
-            (deferred to the gh plane), rebase-merge is not. Full evidence chain
-            in the session record. **Applied 2026-07-19 (principal's call): both
-            boundaries corrected (probe 12/12 PASS) and `allow_rebase_merge`
-            disabled on all 13 repos — shut server-side rather than left to each
-            session to remember; merge-commit + squash remain, local rebase
-            unaffected, reversible per repo.** Remaining blocker: the scanner
-            debt. "Every active machine signs" stays unverified, but the drift
-            behind that doubt is explained and is **not** a machine.
+            **Correction 2026-07-19 — "wouldn't newly-red them" was wrong; the
+            greens proved nothing** (under `--warn` no floor can *fail* on
+            signing, and on scanner-red children the signing steps never run).
+            **Before flipping, run `tools/signfleet.py`** — built this session
+            for exactly this question. First run: **10 pass, 2 fail, both
+            currently green**. Seven unsigned commits from two causes, neither a
+            second machine: a boundary set too early, and five replayed by a
+            **rebase-merge** (`gh pr merge --rebase`; merges here are agent-run)
+            which re-commits server-side, stripping signatures — a recurring
+            hazard, since squash/merge-commit are web-flow-signed and it is not.
+            Evidence chain in the session record. **Applied (principal's call):
+            both boundaries corrected (signfleet 12/12) and
+            `allow_rebase_merge` disabled on all 13 repos — shut server-side
+            rather than left to each session to remember; merge-commit + squash
+            remain, local rebase unaffected, reversible.** Remaining blocker:
+            the scanner debt. "Every active machine signs" stays unverified, but
+            the drift behind that doubt is explained and is **not** a machine.
       - [ ] **Release-artifact signing + SBOM (deferred, was A5).** Signing *built
             artifacts* + a deterministic SBOM needs external tooling (syft/cosign),
             which hits the tool-install floor and breaks the zero-dep house-tool

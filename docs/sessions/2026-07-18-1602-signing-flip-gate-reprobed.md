@@ -137,6 +137,31 @@ re-sign five commits would break every pin referencing them for no security gain
 
 Blocking-mode probe after the change: **12/12 PASS**.
 
+## The probe became a tool
+
+The throwaway probe was promoted to **`tools/signfleet.py`** at the end of the
+session. The reasoning for keeping it: the blind spot is *structural*, not a
+one-off. As long as `signscan` runs `--warn`, no floor can fail on signing, so
+the fleet will stay mute on "would the flip pass?" every time anyone asks —
+and the wrong answer already survived six days once.
+
+It reuses `pins.discover`/`read_pin` and `signscan.scan` **by import** rather
+than re-implementing either, so discovery rules and verification semantics
+cannot drift from the tools it mirrors. Per-child resolution — trust list at
+that child's pin, boundary from that child's `floor.yml` — is exactly why it
+could not be a loop over `signscan --allowed-signers allowed_signers`.
+
+Local-only by nature (it reads sibling repos), so like `pins` it cannot run in
+CI and the suite is where it is proven: **17 tests, suite 247→264**. The
+load-bearing one is `test_unsigned_child_fails` — a fleet probe that has only
+ever printed "pass" is not proven, so the suite builds a throwaway atelier and
+child whose commits are genuinely unsigned and asserts it goes red. The skip
+paths are tested too, since a silent skip is how this tool would lie by
+omission. Documented in `method/SIGNING.md` beside `signscan`.
+
+The `\s`/BSD-sed bug that broke the first probe is preserved as a comment on
+the boundary regex, so the next person to "tidy" it into shorthand sees why not.
+
 ## Left open
 
 - **The rebase-merge decision** — disable it per-repo in GitHub settings (a settings
