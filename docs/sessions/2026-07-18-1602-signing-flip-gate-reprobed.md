@@ -99,8 +99,26 @@ clean merges are convention, not enforcement.
 The durable control is the **repo setting** (`allow_rebase_merge: false`), which
 is enforced server-side on the same endpoint the CLI and the web UI both call —
 so it binds every trigger, including `gh pr merge --rebase`, rather than relying
-on an instruction each session has to remember. As of this session it is
-**enabled on all 13 repos**.
+on an instruction each session has to remember.
+
+**Applied on the principal's call: disabled on all 13 repos**, then independently
+re-read to confirm rather than trusting the write responses (13/13 `false`).
+Merge-commit and squash remain enabled on every repo, so no PR becomes unmergeable.
+
+What it costs is worth stating plainly, because the principal asked twice and the
+first answers were too abstract. Rebase-merge is the only method that yields flat
+history *while keeping the individual commits separate* — merge-commit keeps the
+commits but adds branch structure, squash flattens but melts them into one. That
+combination is what is given up. In practice it costs nearly nothing here: all 11
+PRs merged in ros since its boundary already used merge commits, so the button was
+buying nothing while sitting there as a hazard. And the workflow remains reachable
+— `git rebase` locally produces the same linear history *and* signs each replayed
+commit, because the signing key is on the machine doing the work. The one-line
+form of the whole issue: **rebase locally and it is signed; rebase on GitHub and
+it is not**, because GitHub has no access to the key and cannot re-sign what it
+rebuilds. Fully reversible per repo
+(`gh api -X PATCH repos/<owner>/<repo> -F allow_rebase_merge=true`); nothing
+accumulates while it is off.
 
 ## Applied
 

@@ -91,18 +91,18 @@ CONVENTIONS + UTC-at-rest) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
             pins/boundaries: **10 pass, 2 fail — both currently green**, neither
             among the scanner-red three. Seven commits dated 2026-07-12
             (activation day) are unsigned, from two causes, **neither a second
-            machine**: (a) an adoption boundary set one commit too early; (b)
-            five replayed by a **rebase-merge** (`gh pr merge --rebase` — merges
-            here are agent-run via CLI, not the web UI): re-committed server-side,
-            signatures stripped, committer set to the merging account; pre-merge
-            originals survive, correctly signed. (b) is a **recurring hazard**:
-            squash/merge-commit are web-flow-signed (deferred to the gh plane),
-            rebase-merge is not. **Both boundaries corrected + pushed (principal
-            agreed); blocking-mode probe now 12/12 PASS.** Remaining blockers:
-            the unchanged scanner debt, and a **rebase-merge decision** (disable
-            it per-repo, or it re-offends on the next PR). "Every active machine
-            signs" stays unverified — but the drift that prompted that doubt is
-            explained, and is **not** a machine. Identities: private records.
+            machine**: (a) a boundary set one commit too early; (b) five replayed
+            by a **rebase-merge** (`gh pr merge --rebase` — merges here are
+            agent-run via CLI) which re-commits server-side, stripping signatures.
+            (b) is a **recurring hazard**: squash/merge-commit are web-flow-signed
+            (deferred to the gh plane), rebase-merge is not. Full evidence chain
+            in the session record. **Applied 2026-07-19 (principal's call): both
+            boundaries corrected (probe 12/12 PASS) and `allow_rebase_merge`
+            disabled on all 13 repos — shut server-side rather than left to each
+            session to remember; merge-commit + squash remain, local rebase
+            unaffected, reversible per repo.** Remaining blocker: the scanner
+            debt. "Every active machine signs" stays unverified, but the drift
+            behind that doubt is explained and is **not** a machine.
       - [ ] **Release-artifact signing + SBOM (deferred, was A5).** Signing *built
             artifacts* + a deterministic SBOM needs external tooling (syft/cosign),
             which hits the tool-install floor and breaks the zero-dep house-tool
