@@ -97,8 +97,12 @@ CONVENTIONS + UTC-at-rest) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
             account (pre-merge originals survive as dangling objects, correctly
             signed). (b) is a **recurring hazard**: squash/merge-commit are
             web-flow-signed (signscan defers those to the gh plane), rebase-merge
-            is not. Flip now also needs the two boundaries fixed + a rebase-merge
-            decision. Child identities stay in their private records, per above.
+            is not. **Both boundaries corrected + pushed 2026-07-19 (principal
+            agreed); blocking-mode probe now 12/12 PASS.** Remaining blockers:
+            the unchanged scanner debt, and a **rebase-merge decision** (disable
+            it per-repo, or it re-offends on the next PR). "Every active machine
+            signs" stays unverified — but the drift that prompted that doubt is
+            explained, and is **not** a machine. Identities: private records.
       - [ ] **Release-artifact signing + SBOM (deferred, was A5).** Signing *built
             artifacts* + a deterministic SBOM needs external tooling (syft/cosign),
             which hits the tool-install floor and breaks the zero-dep house-tool
