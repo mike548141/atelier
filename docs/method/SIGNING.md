@@ -209,6 +209,38 @@ Vigilant mode stays off until the fleet is fully green (else pre-boundary
 history reads "Unverified"); flipping CI from warn to block is the remaining
 deliberate step, Mike's call once the pre-existing scanner debt is cleared.
 
+### Answering "would the flip pass?" — `tools/signfleet.py`
+
+Warn-first has a blind spot that cost this estate a wrong belief for six days.
+Because `signscan` runs `--warn` everywhere, **no child's floor can fail on
+signing** — so a green floor is not evidence that a child signs, only that the
+step cannot fail. And on a child whose earlier scanners fail, the signature steps
+never execute at all: the job skips the rest. Greens and reds were both mute.
+
+On 2026-07-12 that produced a recorded claim that flipping "wouldn't newly-red"
+any child, reasoning from the fact that none of the *scanner-red* children failed
+on signing. The reasoning could not carry the claim, and re-probing on 2026-07-19
+found **two children that would newly-red — both of them green at the time**.
+
+`signfleet` closes the gap: it runs `signscan` in **blocking** mode against every
+discovered child, each resolved the way that child's own CI resolves it — trust
+list from atelier's `allowed_signers` **at the child's pin** (never floating
+main, per ADR 0002), boundary from the child's own `SIGN_BOUNDARY`. It is
+read-only and answers exactly one question: *would the flip pass, today?*
+
+```sh
+python3 tools/signfleet.py            # fleet report
+python3 tools/signfleet.py --check    # exit 1 if any child would fail
+python3 tools/signfleet.py --json     # machine-readable
+```
+
+It is a **local** tool, like `pins` — it reads sibling repos on this machine, so
+it cannot run in CI, and its test suite is where it is proven. Two honest limits
+carried in its docstring: it verifies the **machine plane only** (server-minted
+merge/squash commits are reported `deferred`, exactly as `signscan` reports them,
+and need the `gh api` plane), and a pass means *today, at this HEAD* — the next
+unsigned commit changes the answer. **Run it before the flip, not after.**
+
 ## Operational notes (known issues)
 
 - **"couldn't load key" / "incorrect passphrase" on commit.** The signing key is

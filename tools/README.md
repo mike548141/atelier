@@ -429,5 +429,5 @@ mode. Don't-stack: no gate leans on it before then.
 ## Tests
 
 ```sh
-cd tools && python3 -m unittest      # stdlib only, no pytest — covers all seven tools
+cd tools && python3 -m unittest      # stdlib only, no pytest — covers every tool here
 ```
