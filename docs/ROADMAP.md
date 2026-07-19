@@ -62,15 +62,11 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
       (stale pre-A4 absolute, boundary pointer should name REACH.md);
       residuals — AUTONOMY's "direct handling" doesn't literally catch
       machinery-mediated *repurposing*; two over-length lines to rewrap.
-- [x] **Lean-files doctrine + `sizescan` — reviewed 2026-07-14, all findings
-      resolved, cycle closed.** Cold un-briefed **PASS-WITH-FINDINGS**; verdict
-      `reviews/2026-07-14-2048-lean-files-sizescan-cold.md`. Detail →
-      [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
-
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
 COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin
 bundle, CONCURRENCY put-away, CLI-docs standard, ADR 0006/ccarchive addendum,
-CONVENTIONS + UTC-at-rest) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
+CONVENTIONS + UTC-at-rest, lean-files/sizescan) →
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 ## build/ layer — open strands
 
