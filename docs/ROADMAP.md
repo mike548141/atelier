@@ -15,24 +15,26 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
-- [~] **Applied batch of the combined cold pass — its own cold pass owed**
-      (claimed 2026-07-19-0544, rule-4 taker, on main — tree was clean, no
-      parallel session)
-      (rule 4: the applier queues, a non-author taker writes the brief). Mike
-      ruled F1–F9 on 2026-07-19 (F1–F8 fixed, F9 accepted); applied same day
-      by the taking session. Delta at HEAD: `method/REVIEW.md` (F6),
-      `method/PRINCIPLES.md` (F8), `tools/sizescan.py` +
-      `build/templates/workflows/floor.yml` (F5),
-      `skills/review-brief/SKILL.md` (F3), `tools/test_templates.py` (F7,
-      suite 274), correction addenda F2/F4 (0111 session log, 0100 intent
-      record, CHANGELOG) — plus `create-repo`'s stamp step (F1,
-      machine-local skill, outside this repo; fix recorded in the verdict).
-      Verdict + decisions:
-      `reviews/2026-07-19-0407-review-trigger-sizescan-combined-cold.md`.
-      Cycle closes on a no-MAJOR pass + Mike's ruling.
-- [ ] **Fleet re-stamp of the reviews template** — unblocked by F1's fix
-      (create-repo now fills and proves the whole tree) but held behind the
-      applied-batch pass above; children otherwise adopt at pin bump.
+- [ ] 🎯 **Applied-batch cold pass RAN 2026-07-19 — 1 MAJOR (G1), Mike's
+      rulings owed on G1–G3.** The application itself verified clean: all nine
+      F-rulings applied exactly as ruled, no drift/softening/overshoot, F2/F4
+      addenda independently fact-checked, suite 274 + four scans re-run green.
+      The MAJOR is F1's *proof*, not its fix: the whole-tree prove-the-stamp
+      grep can never go green on a full scaffold — the floor.yml template's
+      `<SHA>` pin slot is a standing hit — so the recorded "live-proven both
+      ways" only held on a partial tree, and the misfiring check would ship
+      fleet-wide with the re-stamp. G2 (LOW): add the set-wide
+      placeholder-inventory test that would have caught it. G3 (note,
+      withdrawn as defect): discretionary one-liner on the 0820 record.
+      Verdict + counsel:
+      `reviews/2026-07-19-0544-combined-applied-batch-cold.md`; prior cycle
+      records: `reviews/2026-07-19-0407-review-trigger-sizescan-combined-cold.md`.
+      On the rulings: fixes consolidate to one item, applied by a non-author,
+      next pass queued ⏳ — cycle closes on a no-MAJOR pass + Mike's ruling.
+- [ ] **Fleet re-stamp of the reviews template** — HELD: G1 shows the
+      re-stamp would distribute a prove-the-stamp check that is red on every
+      healthy child (floor.yml's `<SHA>` pin slot). Held until G1's fix lands
+      and re-proves; children otherwise adopt at pin bump.
 - [ ] **The 07-18 review-line remedy has no artefact.** `REVIEW.md` requires
       every durable design record to carry a `review:` line ("omission is the
       bug"), but no ADR template, `decisions/README.md`, or ROADMAP template
