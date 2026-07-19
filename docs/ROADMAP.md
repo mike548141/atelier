@@ -15,7 +15,7 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
-- ⏳ **`method/REVIEW.md` — new section "Review the design, not only the build
+- ⏳ (claimed 2026-07-19-0358, wt: fable-cold-pass) **`method/REVIEW.md` — new section "Review the design, not only the build
       — the earliest review is the cheapest"** (+ the structural review-line
       convention). Delta: `method/REVIEW.md`, section inserted before *When to
       review — inline or batched*. Intent record:
