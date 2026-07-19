@@ -352,3 +352,41 @@ not on anything I can observe.
 **Cycle status**: 1 MAJOR (G1) ⇒ under the close rule this pass does **not**
 close the cycle; the ruling is the principal's. Nothing applied; the live tree
 is byte-identical to HEAD except this file.
+
+---
+
+## Taker's counsel — per finding (non-author; kept below the reviewer's text; decisions Mike's)
+
+The taking session authored none of the deltas, the 0407 verdict, or the
+applied batch; this is counsel, not a defence. Plain-language impact first:
+**the application itself came through clean — all nine rulings were applied
+exactly as ruled, both records corrections check out, and seven of the eight
+fixes are verified sound.** The one MAJOR is not a wrong fix but a wrong
+*proof*: F1's new whole-tree prove-the-stamp grep can never go green on a
+full standard scaffold, because the floor.yml template ships a deliberate
+`<SHA>` pin slot the grep counts as an unfilled stamp. A check that is red on
+every healthy child trains agents to ignore its red — and the fleet re-stamp
+queued behind this cycle would push that misfiring check fleet-wide.
+
+- **G1 — take, three parts.** (1) Reword floor.yml's pin comment so the slot
+  stops using placeholder vocabulary — plain words ("pin to a commit SHA for
+  reproducible CI"), no angle-bracket token — restoring the grep's reachable
+  green; template intent unchanged. (2) Correct the false "live-proven both
+  ways" stamp by dated addendum (the 0407 decision stamp and the ROADMAP
+  item's "unblocked by F1's fix" echo) — same correction-by-addendum vehicle
+  as F2/F4, never a silent edit. (3) Keep the fleet re-stamp held until the
+  reworded template and the re-proven grep land. The whole-tree-grep principle
+  stands; only the template's vocabulary violated its precondition.
+- **G2 — take with G1.** Add the set-wide placeholder-inventory test to
+  `test_templates.py` — stamp-shaped placeholders may appear in the template
+  set only where the stamp step fills them. It is the mechanical pin that
+  would have turned G1 red on the suite run, and it is one test.
+- **G3 — take as noted, one line.** The reviewer withdrew it as a defect; a
+  dated one-line addendum on the 0820 record's enforcement claim spares a
+  future reader an inference. Cheap, discretionary.
+
+Sequencing counsel: 1 MAJOR ⇒ the cycle stays open. On Mike's rulings the
+fixes consolidate onto one follow-ups item, applied by a non-author, and that
+application earns its own queued ⏳ pass. The fixes are small (a comment
+reword, one addendum set, one test, one line) — the next pass has every
+prospect of being the no-MAJOR terminal one.
