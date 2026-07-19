@@ -34,7 +34,12 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
       `build/templates/CONTRIBUTING.md`. Intent record:
       `decisions/2026-07-19-0100-review-trigger-is-commitment-not-artefact.md`.
       Same rule-4 status — this delta's author is the 07-18 delta's applier, so
-      the criterion tests both; no brief written.
+      the criterion tests both; no brief written. A same-day records follow-up
+      widens the delta (overclaim corrected; `REVIEW.md` intro +
+      `PROPAGATION.md` grammar aligned) — review the named files at HEAD.
+- [ ] **`method/PRINCIPLES.md` header keeps the build grammar** ("every build
+      is measured against") — residual after the commitment re-key; substantive
+      (design principles bind at design time) ⇒ the cold pass rules it.
 - [ ] **The 07-18 review-line remedy has no artefact.** `REVIEW.md` requires
       every durable design record to carry a `review:` line ("omission is the
       bug"), but no ADR template, `decisions/README.md`, or ROADMAP template

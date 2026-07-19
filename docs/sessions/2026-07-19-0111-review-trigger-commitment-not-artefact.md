@@ -97,3 +97,35 @@ work moved to worktree `atelier-review-trigger-commitment`. Floor clean there
 - **No review spawned.** Self-authored doctrine, and this delta's author is the
   prior delta's applier ⇒ REVIEW rule 4 in full: pointer queued, no brief
   written, the non-author taker writes it and takes both deltas together.
+
+## Addendum — Fable retrospective, same session (2026-07-19)
+
+Mike switched this session to Fable and asked for a review of the session. The
+boundary stated first: **a model switch does not create independence** — rule
+4's criterion tests the session's provenance, not the tier, so this is a
+workmanship retrospective and author's counsel, never the queued cold review.
+
+What it verified and found:
+
+- **Harvest verified post-hoc, clean**: 26 lines moved, **0 open items lost**,
+  2 non-verbatim lines = the one deviation stated at commit time. The defect is
+  process, not outcome — the house bar is verify-*before*-commit (byte-identical
+  + census), and the commit rode on scans alone.
+- **A records overclaim — the honesty-grade defect**: CHANGELOG + the template
+  header claimed the fork drifted *"months after the parent said otherwise"*.
+  The repo is nine days old. Claim stronger than its evidence, committed to a
+  public record. Corrected duration-free in both places.
+- **The "4→1 statements" claim had residue**: `REVIEW.md`'s own intro ("The
+  *build* makes the claim") and `PROPAGATION.md`'s enforcement clause ("which
+  *changes* earn one") — both mechanically aligned now; `PRINCIPLES.md`'s
+  header ("every *build* is measured against") is substantive and queued for
+  the cold pass instead.
+- **create-repo wiring verified, not assumed** (the sibling-wiring lesson): the
+  skill's close-out grep catches any unfilled `<atelier-path>`, so the
+  template's new pointers sit inside its net. Bonus finding: the old template's
+  relative `../MODEL-ECONOMICS.md` link resolved to a file **no child has** —
+  the fork wasn't just stale, it was broken in situ in every stamped child.
+- Hygiene confirmed: remote branch gone, worktree removed; a mechanical-rewording
+  scar in a SESSIONS entry fixed. The dirty-tree backstop had fired correctly
+  mid-session — but by luck (a re-run scan moved a number), which is counsel for
+  the cold pass, not doctrine from this author.

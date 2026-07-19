@@ -130,13 +130,17 @@ jobs:
         run: python3 atelier/tools/linkscan.py --root repo repo
 
       # Current-truth files (ROADMAP, SESSIONS index, README…) must stay lean so a
-      # session resumes cheaply. --check makes it a gate. A NEW repo is born lean,
-      # so this passes; a repo adopting this floor while a file is already bloated
-      # (e.g. a 3000-line ROADMAP) will RED here — that red IS the signal to
-      # harvest completed detail aside (RECORD.md's current-truth/history split),
-      # which is the point. Two hatches if a file is legitimately long: declare
-      # `sizescan:budget=N` in its first 15 lines, or `sizescan:allow`. Drop
-      # `--check` to run advisory (report-only, never fails) instead.
+      # session resumes cheaply. --check gates ONLY the two files whose remedy is
+      # lossless relocation — ROADMAP.md (harvest done detail to ROADMAP-DONE.md)
+      # and SESSIONS.md (rotate older entries to SESSIONS-ARCHIVE.md) — so a red
+      # here never demands rewording, only a move. Judgement docs (README/
+      # ARCHITECTURE/CLAUDE) are reported but NEVER fail the build: a hard number
+      # on a judgement doc makes trimming-to-the-number the work (tripwire, not
+      # target — ruling 2026-07-19). A repo adopting this floor with a bloated
+      # ROADMAP will RED — that red IS the signal to harvest. Hatches for a
+      # legitimately long file: declare `sizescan:budget=N` in its first 15 lines
+      # (grounded in the file's CLASS, never its current length) or
+      # `sizescan:allow`. Drop `--check` to run fully advisory instead.
       - name: sizescan (current-truth budgets)
         run: python3 atelier/tools/sizescan.py --check --root repo repo
 

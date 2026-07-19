@@ -5,7 +5,7 @@
   on without opening atelier) plus a pointer up. Do NOT restate atelier's
   trigger list here: an unmarked local copy is how this file drifted from its
   parent once already (2026-07-18 — it still carried a diff-shaped trigger, and
-  affirmatively exempted "a doc line", months after the parent said otherwise).
+  affirmatively exempted "a doc line" while the parent said otherwise).
   Narrowing-free: this may compress the parent, never contradict it.
 -->
 

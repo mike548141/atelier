@@ -23,7 +23,7 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   queue a review — pointed up for the *lifecycle* while silently restating the
   *trigger* and *brief format* as its own second source. It had drifted
   accordingly, still carrying a 3-for-3 diff-shaped trigger and still naming
-  *"a doc line"* as not-review-worthy, months after the parent said otherwise —
+  *"a doc line"* as not-review-worthy while the parent said otherwise —
   the N-copies shape `PROPAGATION.md` rejects, reproduced inside the doctrine
   that forbids it. It now carries the same *"stamped copy, not a second source"*
   header `templates/CLAUDE.md` uses, states the one commitment question as a

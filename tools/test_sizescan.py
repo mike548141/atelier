@@ -208,6 +208,29 @@ class ExitContract(_TreeTest):
         code, _ = self._run("--check")
         self.assertEqual(code, 0)
 
+    # The tripwire-not-target split (Mike's ruling 2026-07-19): only the files
+    # with a lossless remedy (ROADMAP/SESSIONS — harvest/rotate) gate under
+    # --check. A judgement doc over budget is reported but can never fail the
+    # build, so the number cannot demand line-golf.
+    def test_check_advisory_class_reports_but_exits_zero(self):
+        self.write("ARCHITECTURE.md", sizescan.DEFAULT_BUDGETS["ARCHITECTURE.md"] + 40)
+        code, out = self._run("--check")
+        self.assertEqual(code, 0)          # judgement doc: never gate-failing
+        self.assertIn("ARCHITECTURE.md", out)   # ...but still reported
+        self.assertIn("[advisory]", out)
+
+    def test_check_mixed_gated_wins(self):
+        self.write("ARCHITECTURE.md", sizescan.DEFAULT_BUDGETS["ARCHITECTURE.md"] + 40)
+        self.write("docs/SESSIONS.md", sizescan.DEFAULT_BUDGETS["SESSIONS.md"] + 1)
+        code, out = self._run("--check")
+        self.assertEqual(code, 1)          # the gated file carries the teeth
+        self.assertIn("[gate]", out)
+        self.assertIn("[advisory]", out)
+
+    def test_gated_set_is_exactly_the_lossless_remedy_files(self):
+        # Pin the doctrine: gating any judgement doc reintroduces the target.
+        self.assertEqual(sizescan.GATED, {"ROADMAP.md", "SESSIONS.md"})
+
     def test_json_output(self):
         self.write("docs/ROADMAP.md", sizescan.DEFAULT_BUDGETS["ROADMAP.md"] + 1)
         code, out = self._run("--json")

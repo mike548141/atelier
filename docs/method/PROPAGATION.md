@@ -161,7 +161,7 @@ doctrine that is complied with.** The propagation mechanism distributes the
 *documents* and makes staleness *visible* — that is all a document can do.
 
 Enforcement was always a separate practice: **independent review** — who
-reviews, at what capability, and which changes earn one live in `REVIEW.md`.
+reviews, at what capability, and which work earns one live in `REVIEW.md`.
 The documents are the standard; the peer review is what checks the work against
 the standard before it is trusted (`REVIEW.md` carries the lifecycle;
 `MODEL-ECONOMICS.md` the trigger economics). A pin that is current and

@@ -31,13 +31,32 @@ narrow in two directions:
     the tool exists to encourage.
 
 Advisory by default. Bloat is a recoverable hygiene threshold, not a defect like
-a leaked secret or a 404 pointer — the fix (harvest the completed detail aside)
-is a judgement call a session makes at a good moment, not a hard stop on every
-commit. So a bare `sizescan` **reports and exits 0**: drop it in CI to surface
-the numbers without ever breaking a build. `--check` is the opt-in gate — it
-exits 1 when any budgeted file is over. Reviewed 2026-07-14 (cold, PASS-WITH-
-FINDINGS) and wired in `--check` mode into atelier's `ci.yml` and the child
-`floor.yml` template.
+a leaked secret or a 404 pointer — so a bare `sizescan` **reports and exits 0**:
+drop it in CI to surface the numbers without ever breaking a build. `--check` is
+the opt-in gate. Reviewed 2026-07-14 (cold, PASS-WITH-FINDINGS) and wired in
+`--check` mode into atelier's `ci.yml` and the child `floor.yml` template.
+
+**A budget is a tripwire, never a target** (Mike's ruling, 2026-07-19). Crossing
+one should summon judgement; it must never make trimming-to-the-number the work.
+The gate therefore splits by **remedy class**:
+
+  * `ROADMAP.md` and `SESSIONS.md` **gate** under `--check`. Their remedy is
+    **lossless relocation** — harvest done items to `ROADMAP-DONE.md`, rotate
+    older index entries to `SESSIONS-ARCHIVE.md` — so a red never demands
+    rewording, only a move. The gate can have teeth here because obeying it
+    cannot damage content.
+  * `README.md`, `ARCHITECTURE.md`, `CLAUDE.md` are **advisory-only, always** —
+    reported, never gate-failing, even under `--check`. Their remedy is
+    editorial judgement, and a hard number on a judgement doc induces line-golf:
+    the observed failure (2026-07-18) was source made *worse* — a wrapped bullet
+    merged into one over-long line — purely to hit a round number.
+    "Well-described" outranks any count.
+
+The signal is also **one-sided by design**: nothing here flags a too-thin file.
+A hollow ARCHITECTURE.md is the worse defect — it lies by omission — but
+thinness is a judgement caught at review under the stub-honestly rule
+(`00-APEX.md`), never measured; a numeric floor would be the same
+target-not-tripwire trap mirrored.
 
 Budgets are starting points, not law. A file that is legitimately long can
 declare its own ceiling in its **header** (the first 15 lines) with
@@ -61,8 +80,9 @@ principal caught it. The rule existed in the review verdict but not here, where
 it would have been read.)*
 
 Exit codes (fail-safe — anything but a clean/advisory run is non-zero):
-  0  clean, OR over budget in advisory mode (the default — a report, not a gate)
-  1  over budget AND --check was given (the opt-in gate)
+  0  clean; over budget in advisory mode; or only advisory-class files over
+     under --check (judgement docs never fail the build)
+  1  a GATED file (ROADMAP/SESSIONS) over budget AND --check was given
   2  usage / config error (a scan that read nothing is NOT a pass)
 
 Zero third-party dependencies; stdlib only, so a peer who adopts atelier can run
@@ -126,6 +146,14 @@ DEFAULT_BUDGETS = {
 # wherever they live — root or `docs/`.
 ROOT_ONLY = {"README.md", "CLAUDE.md"}
 
+# The files whose over-budget finding FAILS a `--check` run. Only the two whose
+# remedy is lossless relocation (harvest / rotate) — obeying the gate can never
+# damage content. The judgement docs (README/ARCHITECTURE/CLAUDE) stay
+# advisory-only even under --check: their remedy is editorial, and a hard number
+# there turns the signal into a target (Mike's tripwire-not-target ruling,
+# 2026-07-19; see the module docstring).
+GATED = {"ROADMAP.md", "SESSIONS.md"}
+
 # Where completed / append-only detail is *meant* to accumulate — never budgeted.
 # `ROADMAP-DONE.md`, `CHANGELOG.md`, `SPECS.md` fall out naturally (their
 # basenames aren't in DEFAULT_BUDGETS); these path components catch a budgeted
@@ -144,6 +172,7 @@ class Finding:
     budget: int        # the budget it exceeded
     over: int          # lines - budget
     store: str         # where its completed/history detail should move
+    gated: bool        # True = fails --check (lossless remedy); False = advisory
 
 
 # The harvest hint per current-truth file — where its overflow belongs, so the
@@ -253,24 +282,37 @@ def scan_paths(paths: list[Path], root: Path) -> list[Finding]:
         n = count_lines(text)
         if n > budget:
             findings.append(Finding(_rel(p, root), n, budget, n - budget,
-                                    _STORE_HINT.get(p.name, "")))
+                                    _STORE_HINT.get(p.name, ""),
+                                    p.name in GATED))
     return findings
 
 
 def render_human(findings: list[Finding]) -> str:
     if not findings:
         return "✓ sizescan clean — every current-truth file within budget."
-    lines = [f"⚠ sizescan: {len(findings)} current-truth file(s) over budget "
-             "(advisory — the split doctrine wants these lean).\n"]
-    for f in sorted(findings, key=lambda x: -x.over):
-        lines.append(f"  {f.path}  {f.lines} lines (budget {f.budget}, +{f.over})")
+    n_gated = sum(1 for f in findings if f.gated)
+    n_adv = len(findings) - n_gated
+    head = (f"⚠ sizescan: {len(findings)} current-truth file(s) over budget "
+            f"({n_gated} gated · {n_adv} advisory).\n")
+    lines = [head]
+    for f in sorted(findings, key=lambda x: (not x.gated, -x.over)):
+        cls = "gate" if f.gated else "advisory"
+        lines.append(f"  {f.path}  {f.lines} lines (budget {f.budget}, "
+                     f"+{f.over}) [{cls}]")
         if f.store:
             lines.append(f"      → {f.store}")
-    lines.append("\n  Fix: harvest the overflow to its on-demand store (RECORD.md, "
-                 "the current-truth/history split).")
+    if n_gated:
+        lines.append("\n  Gated (fails --check): the remedy is lossless relocation "
+                     "(RECORD.md, the current-truth/history split) — move detail, "
+                     "never reword to fit.")
+    if n_adv:
+        lines.append("\n  Advisory (never fails --check): a judgement doc — the "
+                     "number summons a look; well-described outranks any count. "
+                     "Trim only where content is misplaced or duplicated.")
     lines.append(f"  Legitimately long: declare 'sizescan:budget=N' in the file's "
-                 f"first {MARKER_SCAN_LINES} lines, '{ALLOW_MARKER}' to exempt, "
-                 f"or a glob in .sizescanignore.")
+                 f"first {MARKER_SCAN_LINES} lines (GROUNDED in the file's class, "
+                 f"never its current length — see the module doc), "
+                 f"'{ALLOW_MARKER}' to exempt, or a glob in .sizescanignore.")
     return "\n".join(lines)
 
 
@@ -284,8 +326,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--root", default=".",
                     help="repo root for .sizescanignore and relative paths")
     ap.add_argument("--check", action="store_true",
-                    help="exit 1 if any file is over budget (opt-in gate; "
-                         "default is advisory, exit 0)")
+                    help="exit 1 if a GATED file (ROADMAP/SESSIONS — lossless "
+                         "remedy) is over budget; judgement docs stay advisory "
+                         "(default: everything advisory, exit 0)")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--selftest", action="store_true",
                     help="run built-in checks and exit")
@@ -319,8 +362,10 @@ def main(argv: list[str] | None = None) -> int:
         print(render_human(findings))
 
     # Advisory by default: over-budget is a report, not a failure. --check gives
-    # it teeth for a repo that opts in.
-    return 1 if (findings and args.check) else 0
+    # it teeth for a repo that opts in — but only for the GATED files, whose
+    # remedy is lossless relocation. A judgement doc can never fail the build
+    # (tripwire, not target).
+    return 1 if (args.check and any(f.gated for f in findings)) else 0
 
 
 def _selftest() -> int:
@@ -393,6 +438,17 @@ def _selftest() -> int:
         ok = False
     if budget_for("body\n", "PRINCIPLES.md") is not None:
         print("FAIL: non-current-truth basename should not be budgeted")
+        ok = False
+
+    # Gate split: ROADMAP findings are gated, ARCHITECTURE findings advisory —
+    # and only gated findings carry --check teeth (tripwire-not-target ruling).
+    gt = tmp / "gatesplit"
+    (gt / "docs").mkdir(parents=True)
+    (gt / "docs" / "ROADMAP.md").write_text(over)
+    (gt / "ARCHITECTURE.md").write_text(over)
+    gf = {f.path.replace("\\", "/"): f.gated for f in scan_paths([gt], gt)}
+    if gf.get("docs/ROADMAP.md") is not True or gf.get("ARCHITECTURE.md") is not False:
+        print(f"FAIL: gate split wrong: {gf}")
         ok = False
 
     print("selftest OK" if ok else "selftest FAILED")

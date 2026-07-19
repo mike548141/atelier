@@ -3,7 +3,7 @@
 *`PROPAGATION.md` names the category error: **a doctrine that is read is not a
 doctrine that is complied with.** Documents inform; they do not enforce. This is
 what enforces — an independent review of the work, before the work is trusted.
-The build makes the claim; the review is what earns the right to believe it.*
+The work makes the claim; the review is what earns the right to believe it.*
 
 ## Why review, and who reviews
 
