@@ -15,7 +15,9 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
-- ⏳ **Applied batch of the combined cold pass — its own cold pass owed**
+- [~] **Applied batch of the combined cold pass — its own cold pass owed**
+      (claimed 2026-07-19-0544, rule-4 taker, on main — tree was clean, no
+      parallel session)
       (rule 4: the applier queues, a non-author taker writes the brief). Mike
       ruled F1–F9 on 2026-07-19 (F1–F8 fixed, F9 accepted); applied same day
       by the taking session. Delta at HEAD: `method/REVIEW.md` (F6),
