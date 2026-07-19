@@ -15,7 +15,10 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
-- ⏳ **Applied batch of the G1–G3 rulings — its own cold pass owed** (rule 4:
+- [~] **Applied batch of the G1–G3 rulings — its own cold pass owed** (rule 4:
+      **claimed 2026-07-19 0629 UTC** by a rule-4-eligible session — Mike-spawned
+      ("do any review work"), authored none of the doctrine, batch, findings, or
+      application; brief: `reviews/2026-07-19-0629-g1g3-application-cold.md`.)
       the applier queues, a non-author taker writes the brief). Mike ruled
       G1–G3 on 2026-07-19 ("yes take all three"); applied same day by the
       taking session. Delta at HEAD:
