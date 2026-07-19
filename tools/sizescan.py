@@ -46,6 +46,20 @@ declare its own ceiling in its **header** (the first 15 lines) with
 budgeted file that merely *mentions* a marker in prose does not silently exempt
 itself (the reviewer's F2).
 
+**A declared budget must be GROUNDED, and must not be derived from the file's
+current length.** The defaults earn their place as grounded heuristics (healthy
+files across the fleet sit well under them; the offenders clear them by
+multiples) — the 2026-07-14 cold review's standard. A number picked to sit just
+above what the file happens to weigh today is circular: it can't be exceeded at
+the moment it's written and says nothing about what the file *should* be. That
+same review weighed raising a budget as a remedy and ruled it **"defers the
+collision, doesn't resolve it"**. So: fix the file, or state grounds that are a
+property of its *class* (e.g. "a generated table with one row per device").
+If neither is honest, leave it red — a true signal beats a silenced one.
+*(Grounded 2026-07-18: a session declared a budget of 320 on a 319-line file; the
+principal caught it. The rule existed in the review verdict but not here, where
+it would have been read.)*
+
 Exit codes (fail-safe — anything but a clean/advisory run is non-zero):
   0  clean, OR over budget in advisory mode (the default — a report, not a gate)
   1  over budget AND --check was given (the opt-in gate)

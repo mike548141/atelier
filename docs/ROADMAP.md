@@ -197,25 +197,22 @@ budget across the fleet; these are the outstanding harvests it surfaced.
       verified byte-identical, open census unchanged). Also `SESSIONS.md`
       269→174, `CLAUDE.md` 257→135 (legacy half → `docs/LEGACY-INIT.md`),
       `tiki/docs/ARCHITECTURE.md` 329→319. Stated scope complete.
-- [ ] 🎯 **ros ROADMAP: the structural call (Mike's).** Harvesting can't reach
-      the budget: at **4755** the `[x]` residue is only 431 lines — the rest is
-      **3733 lines of genuinely open work** (101 `[ ]` + 24 `[~]`) + 592 prose.
-      Routes: migrate pending-feature detail to ros's `docs/SPECS.md` (its own
-      declared home, already 2263), or split the roadmap by subsystem. Same
-      call covers `tiki/docs/ARCHITECTURE.md`, which now **declares
-      `sizescan:budget=320`** with in-file reasoning rather than sitting red
-      (~100 lines are Purpose doctrine ratified 07-18; the clean fix is splitting
-      Purpose out).
-- [x] **shed: SESSIONS.md rotated — DONE 2026-07-18**, 318→204 (older entries
-      verbatim → new `SESSIONS-ARCHIVE.md`; all 14 verified present once).
-      Also fixed en route: shed's `hooks.atelierTools` was *relative*
-      (`../atelier/tools`), resolving only from the main checkout, so the
-      fail-closed pre-commit scanner blocked every worktree commit — set
-      absolute. **Worth checking on other children.**
-- [x] **faves: SESSIONS/ROADMAP/ARCHITECTURE harvest — DONE 2026-07-18,
-      `sizescan` clean.** `SESSIONS.md` 1157→234 (rotation → new
-      `SESSIONS-ARCHIVE.md`), `ROADMAP.md` 766→299 (resolved → new
-      `ROADMAP-DONE.md`, verbatim), `ARCHITECTURE.md` 276→250. `dba7658..ab6a12d`.
+- [x] **ros: both structural calls ruled by Mike + applied 2026-07-18.**
+      *(a) SPECS migration* — ROADMAP **4756→982** (7123 at session start, 86%
+      down) in three verified passes; each block byte-identical in `SPECS.md`,
+      open census unchanged (101 `[ ]` + 24 `[~]`), 125 titles reachable. Stays
+      **+682 over 300, signal left lit deliberately** — 125 open items is a
+      structural floor, not bloat. *(b)* Purpose split to `tiki/docs/PURPOSE.md`;
+      `ARCHITECTURE` 319→**218**, hatch withdrawn.
+- [x] 🚩 **Budget hatches must be grounded — corrected 2026-07-18 (Mike caught
+      it).** a declared `sizescan` budget of 320 had been declared on a 319-line file: derived
+      from the file's own length, so circular — and the *"raise the budget"* move
+      the 2026-07-14 review already ruled *"defers, doesn't resolve"*. The
+      hatch's docs never said so; now fixed at the point of use in
+      `tools/sizescan.py`.
+- [x] **faves + shed harvests — DONE 2026-07-18**, both `sizescan` clean
+      (faves 1157/766/276 → 234/299/250; shed 318→204). Detail + the shed
+      worktree-hook fix → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 - [x] **`sizescan` reviewed + wired into the gate** — DONE 2026-07-14; cold
       pass cleared, `--check` now gates atelier `ci.yml` + the child
       `floor.yml` template. Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).

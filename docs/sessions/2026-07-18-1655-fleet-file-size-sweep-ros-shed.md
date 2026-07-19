@@ -52,7 +52,7 @@ budget needs a structural call: migrate pending-feature detail into ros's
 `docs/SPECS.md` (its own declared home, already 2263 lines), or split the
 roadmap by subsystem.
 
-**`tiki/docs/ARCHITECTURE.md` declares `sizescan:budget=320`** with the reasoning
+**`tiki/docs/ARCHITECTURE.md` declares a declared `sizescan` budget of 320** with the reasoning
 in its header rather than sitting quietly red. ~100 of its lines are the
 Purpose/outcome doctrine **cold-reviewed and ratified 2026-07-18**; trimming
 freshly-ratified doctrine to hit a round number is the wrong trade. The clean
@@ -82,3 +82,44 @@ atelier's own ROADMAP kept at 300 by moving its two oldest completed harvest
 items into `ROADMAP-DONE.md` — the same dogfood. No review owed: mechanical
 relocation throughout, verified verbatim and by census, no doctrine or behaviour
 changed.
+
+---
+
+## Addendum — Mike ruled both open questions (2026-07-19)
+
+**(a) SPECS migration chosen.** Applied: ros `ROADMAP.md` **4756→982** (7123 at
+session start — **86% down**). `SPECS.md`'s own header already declared the
+model, and several small sections were already stubs doing it; the rest followed
+in three passes — open-item design detail (66 blocks), feature-section design
+prose (10), and design/bug work that sat in the review section only because a
+review surfaced it (7). Genuine review-queue items (`follow-ups queue #N`,
+`residue`) deliberately stay: SPECS is for feature specs, not queue bookkeeping.
+Completed-item pointers collapsed to one line per section. Verified after every
+pass: blocks byte-identical in SPECS, open-item census unchanged (101 `[ ]` + 24
+`[~]`), all 125 open titles reachable, zero broken links.
+
+It remains **+682 over the 300 budget, and that is left lit on purpose.** ros
+carries 125 open work items; at ~2 lines of stub each plus section headings that
+is a structural floor, not bloat. The signal is *true*, and silencing a true
+signal is the very move (b) is about.
+
+**(b) The budget hatch was withdrawn — Mike was right.** a declared `sizescan` budget of 320
+had been declared on a 319-line file: the ceiling was reverse-engineered from
+the file's own current length, so it was circular — it could not be exceeded at
+the moment it was written and said nothing about what the file *should* be. It
+was also exactly the *"(c) raise the budget"* remedy the 2026-07-14 cold review
+had already weighed and ruled **"defers the collision, doesn't resolve it"**,
+against a standard that budgets are defensible only as **grounded** heuristics.
+
+The real fix instead: `Purpose` was ~100 lines of *product doctrine* living as
+the longest section of a document about layout and transport. Split verbatim to
+`tiki/docs/PURPOSE.md` (content unchanged, still canonical), cross-references in
+`README.md` and `docs/ROADMAP.md` updated in the same commit.
+`tiki/docs/ARCHITECTURE.md` **319→218**, under its real budget, no hatch.
+
+**Gap closed at the point of use.** The rule existed in a review verdict but not
+where the hatch is documented — which is why it was missed. `tools/sizescan.py`
+now states it beside the marker: a declared budget must be grounded in a property
+of the file's *class*, never derived from its current length; raising a budget
+defers rather than resolves; and if neither is honest, leave it red — a true
+signal beats a silenced one. Suite green (264 tests).

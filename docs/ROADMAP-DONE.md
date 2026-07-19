@@ -1084,3 +1084,15 @@ as model-memory reborn. **Run cold, fresh session.**
 - [x] **atelier: sizescan + RECORD doctrine + this ROADMAP harvest** — DONE
       2026-07-14 (1091→lean; completed detail → `ROADMAP-DONE.md`). Dogfood of
       the doctrine here first.
+
+- [x] **faves: SESSIONS/ROADMAP/ARCHITECTURE harvest — DONE 2026-07-18,
+      `sizescan` clean.** `SESSIONS.md` 1157→234 (rotation → new
+      `SESSIONS-ARCHIVE.md`), `ROADMAP.md` 766→299 (resolved → new
+      `ROADMAP-DONE.md`, verbatim), `ARCHITECTURE.md` 276→250. `dba7658..ab6a12d`.
+
+- [x] **shed: SESSIONS.md rotated — DONE 2026-07-18**, 318→204 (older entries
+      verbatim → new `SESSIONS-ARCHIVE.md`; all 14 verified present once).
+      Also fixed en route: shed's `hooks.atelierTools` was *relative*
+      (`../atelier/tools`), resolving only from the main checkout, so the
+      fail-closed pre-commit scanner blocked every worktree commit — set
+      absolute. **Worth checking on other children.**
