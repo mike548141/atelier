@@ -59,3 +59,24 @@ ask; the fleet re-stamp flipped from "unblocked" to **HELD** on G1.
 application queues its own `⏳` pass. The fixes are small — a comment reword,
 one addendum set, one test, one line — so the next pass has every prospect of
 being the no-MAJOR terminal one.
+
+## Addendum — Mike ruled, all applied same session (2026-07-19)
+
+"Yes take all three": G1–G3 [fixed], applied by this taking session (authored
+neither the doctrine, nor the applied batch under review, nor the verdict
+findings) directly on `main`. The work: **G1** the `floor.yml` template's pin
+slot reworded to plain words — no placeholder-shaped token — and the
+whole-tree prove-the-stamp grep re-proven both legs on a **full** step-3
+scaffold (red: 11 hits unfilled; green: grep exit 1 with floor.yml present —
+the leg that was unsatisfiable); the false "live-proven both ways" claim
+corrected by dated addenda on the 0407 verdict's F1 stamp and the 0407
+session log, originals standing, `9d95644`'s immutable message named; the
+fleet re-stamp's G1 blocker cleared, item still held behind the open cycle.
+**G2** `test_templates.py` gains `TemplateSetPlaceholderInventoryTest` — the
+exact (file, token) pairs the stamp step fills, nothing else, anywhere in the
+template set; suite 274→275 green; bite-proven in scratch (re-adding a
+`<SHA>` token to floor.yml turns exactly this test red). **G3** the one-line
+dated addendum on the 0820 record. Decisions stamped in the verdict file.
+The application is itself doctrine ⇒ **⏳ pass queued** for a non-author
+taker (this applier writes no brief); 1 MAJOR at this pass means it was not
+terminal — the cycle closes on a no-MAJOR pass + Mike's ruling.

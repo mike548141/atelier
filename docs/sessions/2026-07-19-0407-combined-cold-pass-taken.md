@@ -81,3 +81,13 @@ are test-banned (F7; suite 267→274 green); PRINCIPLES.md re-keyed off the
 build grammar (F8). Decisions stamped in the verdict file. The application is
 itself doctrine ⇒ **⏳ applied-batch pass queued** for a non-author; the fleet
 re-stamp is unblocked by F1 but held behind that pass.
+
+## Correction addendum — 2026-07-19 (applied-batch pass, G1)
+
+The addendum above records F1 as "live-proven red and green in a scratch
+child". Corrected: the green leg held only on a partial tree without
+`floor.yml` — on the standard scaffold the whole-tree grep was unsatisfiable
+(the floor template's `# ref: <SHA>` pin slot). G1 (MAJOR) in
+`reviews/2026-07-19-0544-combined-applied-batch-cold.md`; fixed on Mike's
+ruling (pin slot reworded to plain words, both legs re-proven on a full
+scaffold). The original stands, per the correction-by-addendum rule.

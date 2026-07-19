@@ -561,3 +561,22 @@ missing in-file `review:` line is F6's class and lifts with the artefact item.
 by rule 4's definition ⇒ a `⏳` applied-batch pass is queued for a non-author
 taker (this applier writes no brief). The cycle closes when a pass returns no
 MAJOR, on the principal's ruling.
+
+---
+
+## Correction addendum — 2026-07-19 (the applied-batch cold pass, G1)
+
+The **F1 [fixed]** stamp above records "**Live-proven both ways in a scratch
+child**: … after filling, clean." The green leg of that proof is **corrected**:
+it held only on a partial scratch tree that lacked `floor.yml`. On a full
+step-3 scaffold the whole-tree grep could never go green — the floor.yml
+template's `# ref: <SHA>` pin slot was a standing hit the stamp step never
+fills — so the recorded proof generalised past its evidence (REVIEW.md's
+stale-proof class). Found by the applied-batch cold pass as **G1 (MAJOR)**,
+`2026-07-19-0544-combined-applied-batch-cold.md`; fixed on Mike's ruling by
+rewording the pin slot out of placeholder vocabulary and re-proving both legs
+on a **full** scaffold (red: 11 hits unfilled; green: grep exit 1 with
+floor.yml present). The commit message of `9d95644` carries the original
+claim and is immutable. F1's fix itself (fill + grep the whole tree) was
+verified clean and stands. The original stamp above is left standing, per the
+correction-by-addendum rule.

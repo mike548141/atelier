@@ -103,7 +103,10 @@ jobs:
           repository: mike548141/atelier
           path: atelier
           fetch-depth: 0   # so `git show <pin>:allowed_signers` resolves any pin
-          # ref: <SHA>   # pin here for reproducible CI; default floats to main
+          # ref:   # set a commit SHA here for reproducible CI; default floats
+          #        # to main. Deliberately plain words, no placeholder token:
+          #        # a stamp-token-shaped slot here made the stamp step's
+          #        # whole-tree grep unsatisfiable (G1, 2026-07-19 review)
 
       - uses: actions/setup-python@v6
         with:

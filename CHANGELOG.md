@@ -5,6 +5,26 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-19 — the applied-batch cold pass ruled and applied, G1–G3)
+- The queued cold review of the F1–F9 application ran: **PASS-WITH-FINDINGS,
+  1 MAJOR · 0 MEDIUM · 1 LOW + 1 note**
+  (`docs/reviews/2026-07-19-0544-combined-applied-batch-cold.md`); Mike ruled
+  all three as counselled. The application itself verified clean — all nine
+  rulings applied exactly as ruled, the F2/F4 addenda independently
+  fact-checked. Applied: **G1** the `floor.yml` template's pin slot reworded
+  out of placeholder vocabulary — its `# ref: <SHA>` comment made the
+  create-repo whole-tree prove-the-stamp grep unsatisfiable on every full
+  scaffold, so the grep's green state now exists; re-proven both legs on a
+  full scaffold. **G2** `test_templates.py` gains the set-wide
+  placeholder-inventory pin (stamp tokens only where the stamp step fills
+  them; suite 274→275, bite-proven). **G3** one-line addendum on the 0820
+  record pointing at the F6 qualification.
+- ⚠️ **One claim in the entry below is corrected** (G1 — dated addenda on the
+  0407 verdict's F1 stamp and the 0407 session log; the originals stand): the
+  F1 fix's "re-proven red and green in scratch" green leg held only on a
+  partial tree without `floor.yml`; on the standard scaffold the grep could
+  not go green until this entry's pin-slot reword. The F1 fix itself stands.
+
 ### Changed (2026-07-19 — the combined cold pass ruled and applied, F1–F9)
 - The queued cold review of the two entries below (+ the sizescan doctrine
   deltas) ran: **PASS-WITH-FINDINGS, 3 MAJOR · 3 MEDIUM · 3 LOW**

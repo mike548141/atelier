@@ -96,3 +96,10 @@ doctrine now cites). Self-authored doctrine ⇒ `REVIEW.md` rule 4: the author
 queues a `⏳` pointer and writes no brief; a non-author spawner takes it.
 The `ros`-side application of the same ruling is committed at `55d0d51`
 (`CLAUDE.md` + ROADMAP review policy).
+
+**Addendum 2026-07-19 (applied-batch pass, G3, discretionary):** Decision
+bullet 4's "Enforcement is structural" was subsequently qualified in
+`REVIEW.md` — structural in *intent*, still conventional in *fact* until the
+record templates carry the `review:` field (cold-pass F6; the artefact item is
+queued in the ROADMAP). This record's Rejected section already carries that
+honesty; this line saves a reader the inference.

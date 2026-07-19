@@ -390,3 +390,35 @@ fixes consolidate onto one follow-ups item, applied by a non-author, and that
 application earns its own queued ⏳ pass. The fixes are small (a comment
 reword, one addendum set, one test, one line) — the next pass has every
 prospect of being the no-MAJOR terminal one.
+
+---
+
+## Decisions — Mike's ruling, 2026-07-19 ("yes take all three")
+
+Applied same session by the taking session (authored neither the doctrine,
+nor the applied batch under review, nor the verdict findings — it wrote the
+counsel above, labelled as such). Each fix verified; suite 274→275 green, all
+scans clean.
+
+- **G1 [fixed]** — three parts as counselled. (1) `floor.yml` template's pin
+  slot reworded to plain words — no placeholder-shaped token — with the why
+  stated in-line; the whole-tree prove-the-stamp grep's green state is now
+  reachable. **Re-proven both legs on a full step-3 scaffold** (floor.yml
+  present): red = 11 hits unfilled; green = grep exit 1 after filling — the
+  exact leg that was unsatisfiable before. (2) The false "live-proven both
+  ways" claim corrected by dated addenda on the 0407 verdict's F1 decision
+  stamp and the 0407 session log (originals standing; `9d95644`'s immutable
+  commit message named). (3) The fleet re-stamp stays held behind this open
+  cycle; its G1 blocker is cleared and the ROADMAP item says so.
+- **G2 [fixed]** — `test_templates.py` gains
+  `TemplateSetPlaceholderInventoryTest`: the exact (file, token) pairs the
+  stamp step fills, nothing else, anywhere in the template set. Suite
+  274→275. **Bite-proven in scratch**: re-adding a `<SHA>` token to floor.yml
+  turns exactly this test red.
+- **G3 [fixed]** — dated one-line addendum on the 0820 record's Decision
+  bullet 4, pointing at the F6 qualification and the queued artefact item.
+
+**Cycle status after application**: the application is itself a doctrine edit
+⇒ a `⏳` pass is queued for a non-author taker (this applier writes no
+brief). This pass returned 1 MAJOR, so it is not the terminal one; the cycle
+closes when a pass returns no MAJOR, on the principal's ruling.

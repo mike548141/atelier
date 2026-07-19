@@ -208,6 +208,49 @@ class ReviewsTemplateTest(unittest.TestCase):
         self.assertIn("<atelier-path>", self.text)
 
 
+TEMPLATES_DIR = ROOT / "docs" / "build" / "templates"
+
+# The whole-set inventory: stamp placeholders may appear in the template set
+# ONLY where create-repo's stamp step fills them. Adding a token to a new
+# file means updating the skill's fill step AND this inventory, together.
+STAMP_INVENTORY = {
+    ("CLAUDE.md", "<atelier-path>"),
+    ("CLAUDE.md", "<SHA>"),
+    ("CLAUDE.md", "<owner/repo>"),
+    ("CLAUDE.md", "<visibility fact>"),
+    ("CONTRIBUTING.md", "<atelier-path>"),
+    ("docs/reviews/README.md", "<atelier-path>"),
+}
+
+
+class TemplateSetPlaceholderInventoryTest(unittest.TestCase):
+    """2026-07-19 applied-batch cold-pass G2: floor.yml carried a stamp-shaped
+    `<SHA>` slot the stamp step never fills, making the whole-tree
+    prove-the-stamp grep unsatisfiable on every full scaffold (G1) — and no
+    test saw it, because each pin was per-file. This is the set-wide pin: the
+    exact (file, token) pairs the stamp step fills, nothing else, anywhere."""
+
+    def test_stamp_tokens_only_where_the_stamp_step_fills_them(self):
+        found = set()
+        for path in TEMPLATES_DIR.rglob("*"):
+            if not path.is_file():
+                continue
+            text = path.read_text()
+            rel = path.relative_to(TEMPLATES_DIR).as_posix()
+            for token in PLACEHOLDERS:
+                if token in text:
+                    found.add((rel, token))
+        self.assertEqual(
+            found,
+            STAMP_INVENTORY,
+            "stamp-placeholder inventory drifted: a token appeared in a "
+            "template the stamp step doesn't fill (it would make the "
+            "prove-the-stamp grep permanently red — G1), or a filled "
+            "surface lost its token. Change create-repo's fill step and "
+            "this inventory together.",
+        )
+
+
 class ReviewBriefSkillTest(unittest.TestCase):
     """skills/review-brief/SKILL.md — the plugin copy of the same doctrine.
 
