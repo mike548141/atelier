@@ -215,16 +215,18 @@ Review gates, fresh-context sweeps, session breaks, and the *don't-stack* pause
 below are all **spend** — reviewer tokens, a cold re-onramp, lost cache and
 thinking continuity. Like every other cost they are optimised last but still
 optimised: apply them **in proportion to the cost of being wrong**, not uniformly
-to every change. Uniform ceremony is how a maturing repo's overhead-to-output
-ratio quietly climbs — the per-change tax stays fixed while the work-unit shrinks,
-until the meta-work crowds out the building.
+to all work. Uniform ceremony is how a maturing repo's overhead-to-output ratio
+quietly climbs — the per-unit tax stays fixed while the work-unit shrinks, until
+the meta-work crowds out the building. (What counts as a unit here is a
+*commitment*, not a diff — `REVIEW.md` owns that trigger; a design earns the
+proportionality test the same way built work does.)
 
 - **Earns the full ceremony** (an independent, fresh-context review before the
   work is trusted): first-of-kind or structural tooling; anything with a
   **silent-failure mode** — a gate that can report green while not actually
   checking; **doctrine text**, because a wrong rule propagates everywhere it is
   inherited; and irreversible or public-facing actions.
-- **Self-verifying — the mechanical floor *is* the review**: a change whose tests
+- **Self-verifying — the mechanical floor *is* the review**: work whose tests
   and dogfooding exercise it end-to-end over *already-reviewed* machinery. Wiring
   an already-reviewed tool into a gate, a refactor its suite fully covers, a
   records-only edit — these do not each earn a brief→verdict cycle. Demanding one
