@@ -462,3 +462,50 @@ finding above was altered after opening them.
 
 **Cycle status**: 3 MAJOR ⇒ under the close rule this cycle does not close on
 this pass. The findings go to the principal (rule 3); nothing has been applied.
+
+---
+
+## Taker's counsel — per finding (non-author; kept below the reviewer's text; decisions Mike's)
+
+The taking session authored none of the deltas; this is counsel, not the
+authors' defence. Plain-language impact first: **the doctrine itself held —
+what failed is part of the verification record.** Two "verified" claims are
+false on re-run (F1, F2), one sweep stopped short (F3), and the fleet re-stamp
+queued behind this cycle would currently distribute F1's defect. All nine fixes
+are text- or small-tool-cheap; nothing here reopens the principal's 07-18/19
+rulings.
+
+- **F1 — take.** Fix `create-repo` step 5 to fill `<atelier-path>` in every
+  stamped file (grep the whole stamped tree, not two named files) and widen the
+  prove-the-stamp grep the same way; keep the fleet re-stamp gated behind this
+  fix. The false "verified" claim is F2's records fix.
+- **F2 — take.** Append dated corrections to the two records carrying the
+  false broken-link claim (the 0111 retrospective addendum and its CHANGELOG
+  echo) — correction by addendum, never silent edit. The pointer conversion's
+  doctrinal case stands on the fork argument alone.
+- **F3 — take.** Re-key `skills/review-brief/SKILL.md` to the commitment
+  grammar and give it the stamped-pointer header; add `skills/` to the sweep
+  scope wherever the consolidation claim is restated.
+- **F4 — take.** Same addendum vehicle: correct the ros-incident attribution
+  in the 0100 intent record §Context and CHANGELOG (the 07-18 record already
+  has it right; the commit message is immutable and the addenda name it).
+- **F5 — take.** Soften the categorical line in `tools/sizescan.py` and the
+  `floor.yml` template comment to the reviewer's honest statement: a move in
+  the overwhelming case; where a file is legitimately all-current, ground a
+  budget or accept a standing red.
+- **F6 — take, two halves.** Qualify "Enforcement is structural" in REVIEW.md
+  until the artefact exists; the artefact itself is the already-queued
+  review-line templates item — the reviewer's answer to the 0820 record's
+  deferred question (a cheap design-record lint alongside it) can ride that
+  item.
+- **F7 — take, cheap.** Extend `test_templates.py`'s block-sync precedent to
+  pin the reviews template's header + floor.
+- **F8 — take as counselled.** Re-key `PRINCIPLES.md` lines 1 and 3 as one
+  hunk of the findings application.
+- **F9 — accept as acknowledged.** The absorb is owned from both sides with a
+  standing precaution; no further action beyond the pattern being watched.
+
+Sequencing counsel: 3 MAJOR ⇒ the cycle stays open; on Mike's rulings the
+fixes consolidate onto one follow-ups item, applied by a non-author, and the
+applied batch earns its own queued ⏳ pass (MAJOR at first pass — the loop
+rule).
