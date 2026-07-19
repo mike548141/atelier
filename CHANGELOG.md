@@ -5,6 +5,17 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-19 — the review cycle closed terminal, no MAJOR)
+- The queued cold review of the G1–G3 application ran: **PASS — 0 MAJOR ·
+  0 MEDIUM · 0 LOW + 1 note**
+  (`docs/reviews/2026-07-19-0629-g1g3-application-cold.md`), every recorded
+  proof re-run independently (suite 275; G1's red/green legs on a full
+  scaffold; G2's bite; G3's claims) and the reconcile clean. First no-MAJOR
+  pass ⇒ terminal; Mike ruled the cycle **closed** and N1 accepted as named
+  (create-repo's machine-local vocabulary copy — sync test rides with any
+  future plugin-bundle shipping). The fleet re-stamp's hold is lifted;
+  nothing applied, so no further pass queued.
+
 ### Changed (2026-07-19 — the applied-batch cold pass ruled and applied, G1–G3)
 - The queued cold review of the F1–F9 application ran: **PASS-WITH-FINDINGS,
   1 MAJOR · 0 MEDIUM · 1 LOW + 1 note**

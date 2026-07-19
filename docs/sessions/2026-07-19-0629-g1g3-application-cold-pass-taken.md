@@ -31,3 +31,12 @@ independent re-runs exactly.
 **Cycle status**: first no-MAJOR pass ⇒ terminal per the close rule, pending
 Mike's ruling. Counsel (labelled, decisions Mike's): close the cycle; accept
 N1 as named; on close the fleet re-stamp's hold lifts.
+
+## Addendum — Mike ruled, cycle closed (2026-07-19)
+
+"Accepted": the cycle **[closed]** on the terminal no-MAJOR pass; **N1
+[accepted]** as named (no artefact owed; the sync test rides with any future
+plugin-bundle shipping of create-repo). Decisions stamped in the verdict
+file. ROADMAP: the ⏳ item retired to the completed-cycles list; the fleet
+re-stamp's hold lifted. Nothing to apply ⇒ no new ⏳ pointer, per the close
+rule.

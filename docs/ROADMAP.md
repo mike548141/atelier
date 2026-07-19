@@ -15,33 +15,11 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
-- ⏳ **G1–G3 application cold pass RAN — PASS, no MAJOR; Mike's ruling owed
-      to close the cycle.** Taken 2026-07-19 0629 UTC by a rule-4-eligible
-      session (Mike-spawned, authored nothing in the chain); every proof
-      re-run independently, reconcile clean:
-      `reviews/2026-07-19-0629-g1g3-application-cold.md`. First no-MAJOR
-      pass ⇒ terminal per the close rule. Counsel: close; accept N1 (the
-      create-repo skill's machine-local vocabulary copy — sync test rides
-      with any future plugin-bundle shipping) as named. On close, the fleet
-      re-stamp hold below lifts.
-      the applier queues, a non-author taker writes the brief). Mike ruled
-      G1–G3 on 2026-07-19 ("yes take all three"); applied same day by the
-      taking session. Delta at HEAD:
-      `build/templates/workflows/floor.yml` (G1 — pin slot reworded out of
-      placeholder vocabulary; grep green re-proven on a **full** scaffold),
-      `tools/test_templates.py` (G2 — set-wide placeholder-inventory test,
-      suite 275, bite-proven), correction addenda for the false "live-proven
-      both ways" claim (0407 verdict + 0407 session log; `9d95644`'s message
-      immutable, named), G3 one-liner on the 0820 record, CHANGELOG. Verdict +
-      decisions: `reviews/2026-07-19-0544-combined-applied-batch-cold.md`;
-      prior cycle:
-      `reviews/2026-07-19-0407-review-trigger-sizescan-combined-cold.md`.
-      Cycle closes on a no-MAJOR pass + Mike's ruling; the fixes here are
-      small, so the next pass is likely terminal.
-- [ ] **Fleet re-stamp of the reviews template** — G1's blocker cleared
-      (pin slot reworded, prove-the-stamp grep green re-proven on a full
-      scaffold) but held behind the open review cycle above; children
-      otherwise adopt at pin bump.
+- [ ] **Fleet re-stamp of the reviews template** — unblocked 2026-07-19:
+      the review cycle closed terminal (Mike's ruling on the 0629 no-MAJOR
+      pass) and G1's blocker is cleared (pin slot reworded, prove-the-stamp
+      grep green re-proven on a full scaffold); children otherwise adopt at
+      pin bump.
 - [ ] **The 07-18 review-line remedy has no artefact.** `REVIEW.md` requires
       every durable design record to carry a `review:` line ("omission is the
       bug"), but no ADR template, `decisions/README.md`, or ROADMAP template
@@ -70,7 +48,9 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
 COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin
 bundle, CONCURRENCY put-away, CLI-docs standard, ADR 0006/ccarchive addendum,
-CONVENTIONS + UTC-at-rest, lean-files/sizescan) →
+CONVENTIONS + UTC-at-rest, lean-files/sizescan, the review-trigger/sizescan
+combined cycle — 0407 → F1–F9 applied → 0544 → G1–G3 applied → 0629 terminal
+no-MAJOR pass, closed 2026-07-19) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 ## build/ layer — open strands

@@ -185,3 +185,19 @@ pass) closes on your ruling, no further ceremony spawned. Counsel:
 - **Consequence of closing**: the fleet re-stamp item's hold lifts — it
   becomes an ordinary open ROADMAP item (children pick up the reworded
   floor.yml and re-prove their stamps at pin bump).
+
+---
+
+## Decisions — Mike's ruling, 2026-07-19 ("accepted")
+
+- **Cycle [closed]** — this pass is the terminal one (first no-MAJOR), per
+  the close rule. The chain: 0407 combined pass → F1–F9 ruled + applied →
+  0544 applied-batch pass → G1–G3 ruled + applied → this pass, clean. No
+  further ceremony spawned; per the close rule the terminal state closes
+  without a queued pointer.
+- **N1 [accepted]** — accepted as named, no artefact owed now: the
+  create-repo skill's vocabulary copy is machine-local and unpinnable
+  in-repo; the sync test rides with any future shipping of create-repo into
+  the plugin bundle.
+- **Consequence** — the fleet re-stamp item's hold is lifted in the ROADMAP;
+  it proceeds as ordinary open work.
