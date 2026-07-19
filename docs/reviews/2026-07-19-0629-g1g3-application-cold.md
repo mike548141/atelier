@@ -146,3 +146,42 @@ session-log addenda.
 **None of MAJOR, MEDIUM, or LOW severity.** One note (N1 above) for the
 backlog's judgement, no action owed by this delta. Per the close rule, a
 pass with no MAJOR is terminal for the cycle — subject to Mike's ruling.
+
+---
+
+## Reconcile — deferred material opened after the verdict commit (`bf5a5b9`)
+
+The delta's verdict-file hunks (0544 decision stamps, the 0407 correction
+addendum) and the applier's session-log addenda were opened only now.
+Reconciliation: **no discrepancy in either direction.**
+
+- The applier's recorded proofs match my independent re-runs exactly — red
+  leg 11 hits, green leg grep exit 1 with floor.yml present, suite 274→275,
+  and the bite turning *exactly* `TemplateSetPlaceholderInventoryTest` red.
+- The correction addenda are as my A5 check found the G3 one: dated,
+  labelled, originals standing, `9d95644`'s immutable message named rather
+  than hidden.
+- Severity arithmetic is consistent across records: the 0544 pass was
+  1 MAJOR (G1) · 0 MEDIUM · 1 LOW (G2) · 1 note (G3, withdrawn as a defect,
+  taken as discretionary) — matching the CHANGELOG entry, and Mike's "yes
+  take all three" matches the [fixed] stamps.
+- Nothing in the deferred material weakens, contradicts, or would have
+  redirected the findings above. The verdict stands: **PASS, no MAJOR.**
+
+## Taker's counsel (labelled as such — the decisions are Mike's, rule 3)
+
+This is the cycle's first no-MAJOR pass, so per the close rule it is the
+**terminal** one: the cycle (0407 → application → 0544 → application → this
+pass) closes on your ruling, no further ceremony spawned. Counsel:
+
+- **Close the cycle.** Every proof in the chain now re-runs clean and the
+  false-proof record is corrected by addenda.
+- **N1 → accept as named** (no code change owed): the create-repo skill's
+  fill step + grep vocabulary is machine-local and cannot be pinned by an
+  in-repo test; the verdict records the exposure. If create-repo ships into
+  the plugin bundle later, the vocabulary sync test belongs in that change —
+  a one-line note on that future work item is the only artefact worth making
+  now.
+- **Consequence of closing**: the fleet re-stamp item's hold lifts — it
+  becomes an ordinary open ROADMAP item (children pick up the reworded
+  floor.yml and re-prove their stamps at pin bump).
