@@ -98,3 +98,78 @@ carry their framing):
   sizescan deltas' authoring session; its 1830 and tripwire addenda)
 - Prior verdicts in `docs/reviews/` (notably `2026-07-14-2048-lean-files-sizescan-cold.md`
   — the grounded-budgets rule's origin) — rule 2: reconcile-step only.
+
+---
+
+# Verdict
+
+**Reviewer**: cold-context agent (Fable), spawned by the rule-4 taking session.
+Attack surface written and committed 2026-07-19 ~0404 UTC, before any deferred
+material (intent records, authoring sessions' logs, prior verdicts, the brief's
+below-divider section) was opened.
+
+## Attack surface — the load-bearing assumptions I will attack (chosen cold)
+
+Named from the brief's top section, `method/` docs, and the subject files/diffs
+at HEAD only.
+
+1. **The grounding narrative's internal consistency.** `REVIEW.md`'s
+   enforcement paragraph still asserts the 2026-07-18 `ros` session broke the
+   rule "while the correct rule sat in three places it had access to" — yet the
+   follow-on delta (`4c17f59`) established one of those places (the stamped
+   reviews template) carried the *broken* diff-shaped formulation. Does the
+   doctrine's own grounding story survive its own later findings at HEAD?
+2. **"Enforcement is structural" as a claim.** The review-line convention is
+   itself prose: no template carries the field (admitted, queued), no scanner or
+   CI checks for the line. Is "structural" an overclaim of the same class the
+   apex forbids — and does atelier's *own* record-keeping since `30c9cd9`
+   comply with the rule it wrote?
+3. **The consolidation claim** ("four independent statements → one, plus three
+   pointers"). Sweep `method/` + `build/templates/` at HEAD for residual
+   artefact-shaped trigger grammar the re-key missed beyond the queued
+   PRINCIPLES.md header.
+4. **Fork→pointer actually achieved?** The template's new header bans restating
+   the parent's trigger list — then the file restates a four-bullet trigger
+   list. Is this a pointer with a thin floor, or a re-marked fork still free to
+   drift? And does any line *narrow* the parent (its own "narrowing-free"
+   claim)?
+5. **The `<atelier-path>` pointer wiring.** The recorded claim is that the old
+   relative link was broken in every stamped child and the new wiring resolves.
+   Verify in a create-repo-shaped child: does the skill actually fill the
+   placeholder, and does anything mechanical (linkscan, close-out grep) guard
+   it?
+6. **The remedy-class split's core premise** — "obeying the gate cannot damage
+   content" for ROADMAP/SESSIONS. An all-open roadmap (ros's 125 open items is
+   the live case) has nothing to relocate: the lossless remedy does not exist
+   for it, so the gate's teeth *can* demand rewording or a budget hatch. Is the
+   doctrine honest about that case, or does the class claim overreach?
+7. **Gate mechanics at the edges.** GATED keyed by basename: interaction with
+   `sizescan:budget=N` overrides (a gated file with a declared budget still
+   gates?), `sizescan:allow`, `.sizescanignore`, ROOT_ONLY, the JSON schema
+   change (new `gated` field — any consumer assumptions?), and whether the
+   fail-safe exit-2 paths survived the change.
+8. **Every recorded proof re-runs.** Suite green (records claim 267), template
+   drift test, live gate behaviours both classes (gated over → exit 1;
+   judgement doc over → `[advisory]`, exit 0), the four scans clean at HEAD,
+   the stamped pointer resolving in a child. A proof that fails to reproduce is
+   a finding.
+9. **The budgets' own grounding.** The module doc demands class-grounded
+   budgets and forbids deriving from current length — do the DEFAULT_BUDGETS
+   and the new normative text meet the doc's own standard, and is the one-sided
+   (no thinness floor) design defensible rather than merely asserted?
+10. **The PRINCIPLES.md header question.** Rule it against PRINCIPLES' own
+    first sentence ("The design doctrine for all technical work") and §1's
+    design-time cases — does the header's build grammar contradict the file's
+    own scope, and was deferring it to this pass correct?
+11. **The pass structure itself (the brief is attackable).** Three deltas in
+    one pass risks dilution; the sizescan delta has *no honest describing
+    commit* (silent-absorbed into `4fb09a7`, whose message describes different
+    work) — is "review the files at HEAD" sufficient mitigation, and is the
+    absorb's acknowledgement mechanism adequate? Also: the combined pass's
+    authors overlap (the 07-19 trigger delta's author is the 07-18 delta's
+    applier; the sizescan text is the same session cluster) — does the one-pass
+    fold weaken rule 4's independence in any way the brief hasn't named?
+12. **Self-compliance of this very cycle.** Does the live queue/records trail
+    since `30c9cd9` carry the review lines the new rule demands (the ⏳
+    pointer, the ROADMAP items, the CHANGELOG entries), or is the repo already
+    manufacturing the blank it declared to be the bug?
