@@ -34,7 +34,17 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
       `build/templates/CONTRIBUTING.md`. Intent record:
       `decisions/2026-07-19-0100-review-trigger-is-commitment-not-artefact.md`.
       Same rule-4 status — this delta's author is the 07-18 delta's applier, so
-      the criterion tests both; no brief written. A same-day records follow-up
+      the criterion tests both; no brief written.
+      **Extended again 2026-07-19 — the sizescan doctrine deltas join the same
+      pass** (Mike's R3 fold): the grounded-budgets paragraph and the
+      tripwire-not-target gate split (`tools/sizescan.py` module doc + `GATED`,
+      `floor.yml` template comment) are agent-authored normative text landed on
+      Mike's ruling; author: the 07-18/19 harvest session. No brief written.
+      ⚠️ Provenance note for the taker: the gate-split code entered history
+      inside `4fb09a7` — a *different* session's records commit absorbed it
+      from the shared tree (silent-absorb, CONCURRENCY's named hazard); that
+      message doesn't describe it. The describing record is the harvest
+      session's log entry. A same-day records follow-up
       widens the delta (overclaim corrected; `REVIEW.md` intro +
       `PROPAGATION.md` grammar aligned) — review the named files at HEAD.
 - [ ] **`method/PRINCIPLES.md` header keeps the build grammar** ("every build
@@ -132,18 +142,9 @@ REPO-BOUNDARY, worktree tooling) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 ### ccarchive (Mike, 2026-07-17)
 
-- [x] **Local-store audit vs the archive manifest — DONE 2026-07-17.**
-      `ccarchive --audit` hashes every live `.jsonl` and buckets it against the
-      manifest: **synced** · **grown** (archived bytes a strict prefix — a plain
-      append, kept out of the drift signal so an active session isn't a false
-      alarm) · **mutated** (rewritten/truncated) · **renamed** (content matched
-      an archived path now gone from live) · **new** · **pruned**. Only mutated +
-      renamed are drift (listed, non-zero exit); the rest are counted. Read-only
-      over both trees (no write path ⇒ no git-worktree guard). Pure core
-      (`auditCategorize` + `classifyDivergence`) unit-tested; +11 tests (35→46
-      ccarchive, 86 instrument), man AUDIT section (mandoc clean), README +
-      `--help`. Driven live: 435 archived · 432 synced · 3 grown · 19 new · 0
-      drift → exit 0.
+- [x] **Local-store audit (`--audit`) — DONE 2026-07-17**; live store hashed
+      against the manifest, only mutated+renamed count as drift. Detail →
+      [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 - [ ] **Restore from archive — full + delta** — replace mutated/missing local
       files from the archive (gunzip `<dest>/<rel>.gz` → `~/.claude/projects/<rel>`).
       A full `--restore` and a delta mode that restores only what the local-store
@@ -203,27 +204,28 @@ REPO-BOUNDARY, worktree tooling) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 The generalised anti-bloat work. `sizescan` flags any current-truth file over
 budget across the fleet; these are the outstanding harvests it surfaced.
 
-- [x] **ros: completed-detail harvest — DONE 2026-07-18** (`d92de7f..5ae6ee1`);
-      ROADMAP 7123→4755, verified byte-identical. Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
-- [x] **ros: both structural calls ruled + applied 2026-07-18** — SPECS
-      migration (ROADMAP →982, 86% down, signal left lit deliberately) and the
-      Purpose split (`ARCHITECTURE` →218). Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
-- [x] 🚩 **Budget hatches must be grounded — corrected 2026-07-18 (Mike caught
-      it)**; fixed at the point of use in `tools/sizescan.py`. Detail →
-      [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
-- [x] **faves + shed harvests — DONE 2026-07-18**, both `sizescan` clean
-      (faves 1157/766/276 → 234/299/250; shed 318→204). Detail + the shed
-      worktree-hook fix → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
-- [x] **`sizescan` reviewed + wired into the gate** — DONE 2026-07-14; cold
-      pass cleared, `--check` now gates atelier `ci.yml` + the child
-      `floor.yml` template. Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
-- [ ] **Existing fleet children pick up the `floor.yml` size gate** — the
-      template now carries `sizescan --check`, but children copy `floor.yml`
-      statically, so they adopt at their next pin bump / harvest. **The fleet is
-      now sizescan-clean except ros's ROADMAP** (the structural call above), so
-      adopting the gate is safe everywhere else — faves and ros still run
-      bespoke CI without `sizescan --check`, a separate floor-adoption step.
-      Note ros would red on its ROADMAP until that call lands.
+- [x] **Budgets are tripwires, not targets — Mike's ruling 2026-07-19, APPLIED.**
+      `--check` now gates only the lossless-remedy files (`ROADMAP.md`,
+      `SESSIONS.md` — a red demands a *move*, never rewording); judgement docs
+      (`README`/`ARCHITECTURE`/`CLAUDE`) report but never fail the build. The
+      one-sided signal (no thinness floor — that's stub-honestly judgement, not
+      a number) stated as deliberate in the module doc. `sizescan.py` + report
+      + `floor.yml` template comment; suite 267 green, both classes live-proven
+      (atelier gated red exits 1; a judgement-doc red exits 0). Children adopt
+      at pin bump. **Agent-authored doctrine ⇒ in the ⏳ review scope above.**
+- [x] **hooks.atelierTools worktree bug was fleet-wide** — 9 more children
+      carried the relative path (every worktree commit blocked by the
+      fail-closed hook); all 10 set absolute 2026-07-19, and the **source
+      fixed** — `create-repo` step 6 now absolutises the path it stamps.
+Completed file-size work (the 2026-07-14 sizescan build/review + wiring; the
+2026-07-18 fleet harvests — ros 7123→982 in two ruled stages, faves, shed;
+the grounded-budgets correction) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
+- [ ] **Existing fleet children pick up the `floor.yml` size gate** — children
+      copy `floor.yml` statically, so they adopt at their next pin bump /
+      harvest. The fleet is sizescan-clean except ros's ROADMAP (structural —
+      125 open items; its red is true and stays lit until ros declares a
+      class-grounded budget or the item count falls). faves and ros run bespoke
+      CI without `sizescan --check` — a separate floor-adoption step.
 
 ## North star — context follows the person, work follows anywhere
 
