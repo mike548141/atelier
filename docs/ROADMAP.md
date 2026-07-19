@@ -15,47 +15,30 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
-- ⏳ (claimed 2026-07-19-0358, wt: fable-cold-pass) **`method/REVIEW.md` — new section "Review the design, not only the build
-      — the earliest review is the cheapest"** (+ the structural review-line
-      convention). Delta: `method/REVIEW.md`, section inserted before *When to
-      review — inline or batched*. Intent record:
-      `decisions/2026-07-18-0820-review-the-design-not-only-the-build.md`.
-      Principal's ruling 2026-07-18. Self-authored doctrine (author: Opus,
-      `ros` session 2026-07-18) ⇒ rule 4: **the taker writes the brief**; the
-      author has queued this pointer and written none. Sibling application
-      already committed in `ros` at `55d0d51` (`CLAUDE.md` + ROADMAP review
-      policy) — in scope for the same pass if the taker wants it.
-      **Extended 2026-07-19 (`4c17f59`) — take both deltas as one pass.** The
-      07-18 fix was downstream: the trigger is now re-keyed at source on
-      **commitment, not artefact** (`method/REVIEW.md`), and
-      `build/templates/docs/reviews/README.md` converts from an unmarked fork
-      to a stamped pointer — it had drifted, still carrying a diff-shaped
-      trigger that exempted *"a doc line"*. Also `method/MODEL-ECONOMICS.md`,
-      `build/templates/CONTRIBUTING.md`. Intent record:
-      `decisions/2026-07-19-0100-review-trigger-is-commitment-not-artefact.md`.
-      Same rule-4 status — this delta's author is the 07-18 delta's applier, so
-      the criterion tests both; no brief written.
-      **Extended again 2026-07-19 — the sizescan doctrine deltas join the same
-      pass** (Mike's R3 fold): the grounded-budgets paragraph and the
-      tripwire-not-target gate split (`tools/sizescan.py` module doc + `GATED`,
-      `floor.yml` template comment) are agent-authored normative text landed on
-      Mike's ruling; author: the 07-18/19 harvest session. No brief written.
-      ⚠️ Provenance note for the taker: the gate-split code entered history
-      inside `4fb09a7` — a *different* session's records commit absorbed it
-      from the shared tree (silent-absorb, CONCURRENCY's named hazard); that
-      message doesn't describe it. The describing record is the harvest
-      session's log entry. A same-day records follow-up
-      widens the delta (overclaim corrected; `REVIEW.md` intro +
-      `PROPAGATION.md` grammar aligned) — review the named files at HEAD.
-- [ ] **`method/PRINCIPLES.md` header keeps the build grammar** ("every build
-      is measured against") — residual after the commitment re-key; substantive
-      (design principles bind at design time) ⇒ the cold pass rules it.
+- 🎯 **The combined cold pass RAN 2026-07-19 (design-review section +
+      commitment re-key + sizescan doctrine deltas): PASS-WITH-FINDINGS,
+      3 MAJOR · 3 MEDIUM · 3 LOW — Mike's rulings owed on F1–F9.** Verdict +
+      per-finding taker's counsel:
+      `reviews/2026-07-19-0407-review-trigger-sizescan-combined-cold.md`.
+      The doctrine content held; what failed is the verification record.
+      Sharpest: F1 the stamped `<atelier-path>` pointer is never filled in a
+      create-repo child and the prove-the-stamp grep misses it — 🚩 **keep the
+      fleet re-stamp gated until fixed**; F2 the "old link broken in every
+      stamped child" claim is false on re-run; F3 `skills/review-brief` still
+      carries the old artefact-grammar trigger (the sweep never covered
+      `skills/`). F8 rules the queued PRINCIPLES.md header question: genuine
+      defect, re-key lines 1+3 with the application. 3 MAJOR ⇒ cycle open; on
+      the rulings a non-author applies, and the applied batch queues its own
+      ⏳ pass.
 - [ ] **The 07-18 review-line remedy has no artefact.** `REVIEW.md` requires
       every durable design record to carry a `review:` line ("omission is the
       bug"), but no ADR template, `decisions/README.md`, or ROADMAP template
       carries the field — the templates manufacture the blank the rule calls a
       bug. Deliberately left out of `4c17f59` to keep that delta reviewable as
       one thing. Doctrine-by-function ⇒ earns its own review when taken.
+      The 07-19 cold pass adds (F6): qualify REVIEW.md's "enforcement is
+      structural" until this lands, and a cheap design-record lint belongs
+      alongside it (the 0820 record's deferred question, answered yes).
 - [ ] **REACH/AUTONOMY backlog — the cold pass's H1–H8 + residuals** (all
       backlog-grade; doctrine-substantive ones are the principal's when
       picked up). Sharpest three: H2 "existing cookies are fair game" reads
