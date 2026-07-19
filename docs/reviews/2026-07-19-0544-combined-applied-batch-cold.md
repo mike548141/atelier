@@ -271,3 +271,84 @@ stays open on this pass**; the ruling is the principal's.
 
 Live tree untouched except this file; all scratch work under the session
 scratchpad. Committed before any deferred material was opened.
+
+## Reconcile — deferred material opened after `b556392`
+
+Opened only after the findings above were committed: the 0407 verdict file
+(findings, taker's counsel, Mike's decision stamps), the applier's session log
+(`2026-07-19-0407-combined-cold-pass-taken.md`), its two `SESSIONS.md` index
+entries, and — for G3's caveat — the 0820 intent record. No finding's
+substance was altered after opening them; G3's standing is re-ruled below
+exactly as its committed caveat said it would be.
+
+**Each ruling against what `9d95644` applied** (the ruling is Mike's "take all
+recommendations, fix all", so the taker's per-finding counsel is the operative
+spec):
+
+- **F1** — counsel: fill every stamped file, widen the grep to the whole tree,
+  keep the fleet re-stamp gated. Applied as ruled — no drift, no softening.
+  But the decision stamp's proof claim ("live-proven both ways in a scratch
+  child … after filling, clean") **generalises past its evidence**: the green
+  leg holds only on a tree without `floor.yml`, and step 3 puts floor.yml in
+  every house-doctrine child (G1). This is REVIEW.md's own stale-proof class
+  verbatim — "the proof only ever held in a hand-run the record then
+  generalised". Notably the 0407 reviewer's scratch child had the same shape
+  (doc files only), so the trap was invisible to both passes; no prior record
+  contradicts G1, and G1 **stands, MAJOR**. The ROADMAP item's "unblocked by
+  F1's fix" is the same overclaim's echo.
+- **F2** — addenda on the 0111 log + CHANGELOG, originals standing. Applied as
+  ruled; addenda factually verified (the template set ships the target).
+  Clean.
+- **F3** — re-key + stamped-copy header + `Range`→`Subject`. Applied as ruled;
+  phrases test-banned and the bans bite. Clean.
+- **F4** — addendum on the 0100 record + CHANGELOG. Applied as ruled; I
+  verified the load-bearing fact independently (`ros` has never carried
+  `docs/reviews/README.md` — empty history for the path). Clean.
+- **F5** — honest-edge wording in sizescan + floor.yml. Applied as ruled;
+  the two surfaces agree, behaviour unchanged, and the remedy it names
+  (`sizescan:budget=N`) is a real mechanism. Clean.
+- **F6** — REVIEW.md qualified; both halves on the ROADMAP artefact item
+  (present, with the lint question answered yes). Applied as ruled — the
+  ruling scoped **REVIEW.md**, and the application matched it exactly.
+- **F7** — counsel said "extend the block-sync precedent"; what landed is
+  invariant pins, not a character-for-character sync. Right call, not a
+  softening: the reviews template has no canonical block to sync against, and
+  the decision stamp describes exactly what landed ("invariants pinned, prose
+  left editable"). G2 (no set-wide placeholder-inventory pin) remains the
+  honest residue — it is the mechanical guard that would have caught G1.
+- **F8** — lines 1 + 3 + intro re-keyed as counselled. Clean.
+- **F9** — accepted, nothing applied, pattern watched. As ruled.
+
+**G3 re-ruled per its committed caveat**: F6's ruling never scoped decision
+records, and the 0820 record's own *Rejected* section carries the honesty G3
+asked for (the validator "considered and deferred … a question for the
+reviewer of this delta") — the 0407 reconcile said the same. So G3 is
+**withdrawn as a defect of the application**; it stands only as a
+discretionary note (an addendum on 0820's Decision bullet 4 would spare a
+future reader one inference, cost one line). It was LOW; the overall count
+adjusts to **1 MAJOR · 0 MEDIUM · 1 LOW + 1 note**.
+
+**No drift, softening, or overshoot found in the application itself.** Every
+ruling was applied at the scope ruled, silently-cut nothing, and the two
+records corrections are accurate. The one false note in the records is F1's
+proof generalisation — which is G1, and it is the fix's *verification*, not
+the ruling's application, that fails.
+
+## Spawn provenance (repeated, rule 4)
+
+This review was spawned by the rule-4 taking session, which claimed the `⏳`
+applied-batch pointer on `main` (`599b631`), wrote the brief (`fcf9787`), and
+authored neither the three original deltas, nor the 0407 verdict, nor the
+applied batch under review. That session was opened fresh by the principal
+("Do any review work") — the applied batch's author (the 0407 taking/applying
+session) neither started nor instructed it. I am a fresh-context agent spawned
+by the taker; my attack surface was committed (`04ae013`) and my findings
+committed (`b556392`) before any deferred material was opened. Stated
+honestly: I cannot verify the taker's account of its own spawning from inside
+this session — the trail above is the brief's and the commit record's,
+mutually consistent, but the "Mike opened it fresh" leg rests on the records,
+not on anything I can observe.
+
+**Cycle status**: 1 MAJOR (G1) ⇒ under the close rule this pass does **not**
+close the cycle; the ruling is the principal's. Nothing applied; the live tree
+is byte-identical to HEAD except this file.
