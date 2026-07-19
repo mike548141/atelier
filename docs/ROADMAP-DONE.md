@@ -1096,3 +1096,34 @@ as model-memory reborn. **Run cold, fresh session.**
       (`../atelier/tools`), resolving only from the main checkout, so the
       fail-closed pre-commit scanner blocked every worktree commit — set
       absolute. **Worth checking on other children.**
+
+- [x] **ros: completed-detail harvest — DONE 2026-07-18** (`d92de7f..5ae6ee1`).
+      `ROADMAP.md` **7123→4755** (116 done blocks → `ROADMAP-DONE.md` behind
+      pointers; harvester took only `[x]`, >4 lines, **no nested open sub-item**;
+      verified byte-identical, open census unchanged). Also `SESSIONS.md`
+      269→174, `CLAUDE.md` 257→135 (legacy half → `docs/LEGACY-INIT.md`),
+      `tiki/docs/ARCHITECTURE.md` 329→319. Stated scope complete.
+
+- [x] **ros: both structural calls ruled by Mike + applied 2026-07-18.**
+      *(a) SPECS migration* — ROADMAP **4756→982** (7123 at session start, 86%
+      down) in three verified passes; each block byte-identical in `SPECS.md`,
+      open census unchanged (101 `[ ]` + 24 `[~]`), 125 titles reachable. Stays
+      **+682 over 300, signal left lit deliberately** — 125 open items is a
+      structural floor, not bloat. *(b)* Purpose split to `tiki/docs/PURPOSE.md`;
+      `ARCHITECTURE` 319→**218**, hatch withdrawn.
+
+- [x] 🚩 **Budget hatches must be grounded — corrected 2026-07-18 (Mike caught
+      it).** a declared `sizescan` budget of 320 had been declared on a 319-line file: derived
+      from the file's own length, so circular — and the *"raise the budget"* move
+      the 2026-07-14 review already ruled *"defers, doesn't resolve"*. The
+      hatch's docs never said so; now fixed at the point of use in
+      `tools/sizescan.py`.
+
+- [x] **Lean-files doctrine + `sizescan` — reviewed 2026-07-14, all findings
+      resolved, cycle closed.** Cold un-briefed pass **PASS-WITH-FINDINGS**
+      (1 MAJOR · 2 MEDIUM · 1 LOW); verdict in
+      `reviews/2026-07-14-2048-lean-files-sizescan-cold.md`. F1 (fail-open
+      ancestor-dir) + F2 (body marker self-exempt) + F4 (dup paths) fixed +
+      pinned + F1 live-reproven; **F3 decided by Mike — SESSIONS index rotation**
+      (RECORD.md sharpened: append-only *content*, relocatable home →
+      `SESSIONS-ARCHIVE.md`). `sizescan` now wired `--check` into the gate.

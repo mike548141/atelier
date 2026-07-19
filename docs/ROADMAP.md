@@ -25,6 +25,22 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
       author has queued this pointer and written none. Sibling application
       already committed in `ros` at `55d0d51` (`CLAUDE.md` + ROADMAP review
       policy) — in scope for the same pass if the taker wants it.
+      **Extended 2026-07-19 (`4c17f59`) — take both deltas as one pass.** The
+      07-18 fix was downstream: the trigger is now re-keyed at source on
+      **commitment, not artefact** (`method/REVIEW.md`), and
+      `build/templates/docs/reviews/README.md` converts from an unmarked fork
+      to a stamped pointer — it had drifted, still carrying a diff-shaped
+      trigger that exempted *"a doc line"*. Also `method/MODEL-ECONOMICS.md`,
+      `build/templates/CONTRIBUTING.md`. Intent record:
+      `decisions/2026-07-19-0100-review-trigger-is-commitment-not-artefact.md`.
+      Same rule-4 status — this delta's author is the 07-18 delta's applier, so
+      the criterion tests both; no brief written.
+- [ ] **The 07-18 review-line remedy has no artefact.** `REVIEW.md` requires
+      every durable design record to carry a `review:` line ("omission is the
+      bug"), but no ADR template, `decisions/README.md`, or ROADMAP template
+      carries the field — the templates manufacture the blank the rule calls a
+      bug. Deliberately left out of `4c17f59` to keep that delta reviewable as
+      one thing. Doctrine-by-function ⇒ earns its own review when taken.
 - [ ] **REACH/AUTONOMY backlog — the cold pass's H1–H8 + residuals** (all
       backlog-grade; doctrine-substantive ones are the principal's when
       picked up). Sharpest three: H2 "existing cookies are fair game" reads
@@ -42,14 +58,9 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
       residuals — AUTONOMY's "direct handling" doesn't literally catch
       machinery-mediated *repurposing*; two over-length lines to rewrap.
 - [x] **Lean-files doctrine + `sizescan` — reviewed 2026-07-14, all findings
-      resolved, cycle closed.** Cold un-briefed pass **PASS-WITH-FINDINGS**
-      (1 MAJOR · 2 MEDIUM · 1 LOW); verdict in
-      `reviews/2026-07-14-2048-lean-files-sizescan-cold.md`. F1 (fail-open
-      ancestor-dir) + F2 (body marker self-exempt) + F4 (dup paths) fixed +
-      pinned + F1 live-reproven; **F3 decided by Mike — SESSIONS index rotation**
-      (RECORD.md sharpened: append-only *content*, relocatable home →
-      `SESSIONS-ARCHIVE.md`). `sizescan` now wired `--check` into the gate (see
-      *File-size hygiene* below).
+      resolved, cycle closed.** Cold un-briefed **PASS-WITH-FINDINGS**; verdict
+      `reviews/2026-07-14-2048-lean-files-sizescan-cold.md`. Detail →
+      [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
 COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin
@@ -191,25 +202,14 @@ REPO-BOUNDARY, worktree tooling) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 The generalised anti-bloat work. `sizescan` flags any current-truth file over
 budget across the fleet; these are the outstanding harvests it surfaced.
 
-- [x] **ros: completed-detail harvest — DONE 2026-07-18** (`d92de7f..5ae6ee1`).
-      `ROADMAP.md` **7123→4755** (116 done blocks → `ROADMAP-DONE.md` behind
-      pointers; harvester took only `[x]`, >4 lines, **no nested open sub-item**;
-      verified byte-identical, open census unchanged). Also `SESSIONS.md`
-      269→174, `CLAUDE.md` 257→135 (legacy half → `docs/LEGACY-INIT.md`),
-      `tiki/docs/ARCHITECTURE.md` 329→319. Stated scope complete.
-- [x] **ros: both structural calls ruled by Mike + applied 2026-07-18.**
-      *(a) SPECS migration* — ROADMAP **4756→982** (7123 at session start, 86%
-      down) in three verified passes; each block byte-identical in `SPECS.md`,
-      open census unchanged (101 `[ ]` + 24 `[~]`), 125 titles reachable. Stays
-      **+682 over 300, signal left lit deliberately** — 125 open items is a
-      structural floor, not bloat. *(b)* Purpose split to `tiki/docs/PURPOSE.md`;
-      `ARCHITECTURE` 319→**218**, hatch withdrawn.
+- [x] **ros: completed-detail harvest — DONE 2026-07-18** (`d92de7f..5ae6ee1`);
+      ROADMAP 7123→4755, verified byte-identical. Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
+- [x] **ros: both structural calls ruled + applied 2026-07-18** — SPECS
+      migration (ROADMAP →982, 86% down, signal left lit deliberately) and the
+      Purpose split (`ARCHITECTURE` →218). Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 - [x] 🚩 **Budget hatches must be grounded — corrected 2026-07-18 (Mike caught
-      it).** a declared `sizescan` budget of 320 had been declared on a 319-line file: derived
-      from the file's own length, so circular — and the *"raise the budget"* move
-      the 2026-07-14 review already ruled *"defers, doesn't resolve"*. The
-      hatch's docs never said so; now fixed at the point of use in
-      `tools/sizescan.py`.
+      it)**; fixed at the point of use in `tools/sizescan.py`. Detail →
+      [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 - [x] **faves + shed harvests — DONE 2026-07-18**, both `sizescan` clean
       (faves 1157/766/276 → 234/299/250; shed 318→204). Detail + the shed
       worktree-hook fix → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
