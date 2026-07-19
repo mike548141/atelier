@@ -129,3 +129,20 @@ What it verified and found:
   scar in a SESSIONS entry fixed. The dirty-tree backstop had fired correctly
   mid-session — but by luck (a re-run scan moved a number), which is counsel for
   the cold pass, not doctrine from this author.
+
+## Second addendum — the retrospective's own worst defect, found by the other session
+
+The records commit applying the retrospective's findings (`4fb09a7`) was made
+with `git add -A` on the **shared main checkout while the parallel session was
+live** — and silently absorbed their in-flight work: +100 lines of
+`tools/sizescan.py` (the gate split), +23 of its tests, and the `floor.yml`
+template rework. The exact silent-absorb hazard `CONCURRENCY.md` names, in the
+same session that had handled the dirty-tree backstop correctly hours earlier.
+The cue was on screen and misread: sizescan's output changed format and wording
+mid-session ("1 gated · 0 advisory") and the next commit message even cited the
+"sharpened sizescan doctrine" — describing uncommitted foreign work as landed
+context. Found and provenance-recorded by the *other* session (ROADMAP ⏳ note);
+this entry owns it from the causing side. No history rewrite — the commit is
+pushed and built on; the record is the remedy. Standing precaution adopted:
+**scoped adds only from a shared checkout; `add -A` only inside a worktree.**
+Fitting coda: the absorbed gate is what redded `4fb09a7`'s own floor run.
