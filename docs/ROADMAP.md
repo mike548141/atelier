@@ -15,10 +15,15 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
-- [~] **Applied batch of the G1–G3 rulings — its own cold pass owed** (rule 4:
-      **claimed 2026-07-19 0629 UTC** by a rule-4-eligible session — Mike-spawned
-      ("do any review work"), authored none of the doctrine, batch, findings, or
-      application; brief: `reviews/2026-07-19-0629-g1g3-application-cold.md`.)
+- ⏳ **G1–G3 application cold pass RAN — PASS, no MAJOR; Mike's ruling owed
+      to close the cycle.** Taken 2026-07-19 0629 UTC by a rule-4-eligible
+      session (Mike-spawned, authored nothing in the chain); every proof
+      re-run independently, reconcile clean:
+      `reviews/2026-07-19-0629-g1g3-application-cold.md`. First no-MAJOR
+      pass ⇒ terminal per the close rule. Counsel: close; accept N1 (the
+      create-repo skill's machine-local vocabulary copy — sync test rides
+      with any future plugin-bundle shipping) as named. On close, the fleet
+      re-stamp hold below lifts.
       the applier queues, a non-author taker writes the brief). Mike ruled
       G1–G3 on 2026-07-19 ("yes take all three"); applied same day by the
       taking session. Delta at HEAD:
