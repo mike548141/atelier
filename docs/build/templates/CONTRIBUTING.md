@@ -39,6 +39,9 @@ git config hooks.atelierTools "<atelier-path>/tools"
 
 ## Review
 
-Significant or risky changes get a peer review before they're trusted — a
-more capable model reviews approach, assumptions and real-world behaviour,
-not just correctness. See [`docs/reviews/README.md`](docs/reviews/README.md).
+Significant or risky work gets a peer review before it's trusted — a more
+capable model reviews approach, assumptions and real-world behaviour, not just
+correctness. The trigger is **commitment, not artefact**: a design or decision
+others will build on earns one as much as a diff does, and earns it earlier,
+when being wrong is still cheap. See
+[`docs/reviews/README.md`](docs/reviews/README.md).

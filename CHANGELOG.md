@@ -5,6 +5,44 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-19 — the review trigger is commitment, not artefact)
+- **`method/REVIEW.md` — the scope rule re-keyed at its source.** The heading
+  loses *a change* (*"Whether **work** earns a review at all"*) and the trigger
+  becomes **commitment, not artefact**: *what will come to rest on this once it
+  is trusted* — a question that parses identically whether the reader holds a
+  paragraph, a plan, or a patch. The 2026-07-18 entry below diagnosed this
+  framing defect correctly but fixed it *downstream*, by explaining the trap in
+  a later section; with the trigger corrected upstream, that explanation shrinks
+  to hand the correction up and carry the transferable rule instead — **when a
+  written rule keeps being broken, suspect its framing before its enforcement**
+  (Mike, 2026-07-19).
+- **`build/templates/docs/reviews/README.md` — converted from an unmarked fork
+  to a stamped pointer.** This is the propagation fix, and the reason the
+  2026-07-18 amendment never reached the fleet: the file `create-repo` stamps
+  into every child — the one an agent actually reads when deciding whether to
+  queue a review — pointed up for the *lifecycle* while silently restating the
+  *trigger* and *brief format* as its own second source. It had drifted
+  accordingly, still carrying a 3-for-3 diff-shaped trigger and still naming
+  *"a doc line"* as not-review-worthy, months after the parent said otherwise —
+  the N-copies shape `PROPAGATION.md` rejects, reproduced inside the doctrine
+  that forbids it. It now carries the same *"stamped copy, not a second source"*
+  header `templates/CLAUDE.md` uses, states the one commitment question as a
+  thin floor, and defers calibration explicitly to the parent. Brief format made
+  fillable by work that isn't built yet (`Build`→`Subject`; `Scope` points at a
+  design record where no diff exists; `Real-world check`→`Grounding`). The
+  carve-out keeps its point but loses *"a doc line"* and gains its opposite:
+  prose is not routine by virtue of being prose.
+- **`method/MODEL-ECONOMICS.md`, `build/templates/CONTRIBUTING.md`** — re-nouned
+  where they co-own the trigger, and pointed at `REVIEW.md` for it rather than
+  implying their own. Net diff is **+89/−47** — *larger*, not smaller; what
+  shrank is the count of independent statements of the trigger rule, **four to
+  one** plus three pointers.
+- **Still owed** (stated, not silent): the structural remedy the 2026-07-18
+  change promised — every durable design record carrying a `review:` line — has
+  **no artefact**. No ADR template, decisions README or ROADMAP template carries
+  the field, so the templates keep manufacturing the blank the rule declares to
+  be the bug.
+
 ### Changed (2026-07-18 — review is an input to building, not only a gate)
 - **`method/REVIEW.md` — new section "Review the design, not only the build —
   the earliest review is the cheapest"** (the principal's ruling, 2026-07-18).

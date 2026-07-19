@@ -210,18 +210,26 @@ application does not spawn another full ceremony. The escape valve if it *isn't*
 converging: when the MAJOR count is not falling from pass to pass, do not keep
 cranking — stop and ask the principal for direction.
 
-## Whether a change earns a review at all — calibrate to risk
+## Whether work earns a review at all — calibrate to risk
 
-The lifecycle above is the *full* ceremony; **not every change earns it.** Match
-the gate to the cost of being wrong (`MODEL-ECONOMICS.md` — "match the ceremony to
-the risk"): first-of-kind or structural work, a silent-failure mode, doctrine
-text, and irreversible or public actions earn the independent fresh-context
-review; a change whose tests and dogfooding exercise it end-to-end over
+The lifecycle above is the *full* ceremony; **not all work earns it.** The
+trigger is **commitment, not artefact** — the question is never what form the
+work took, but *what will come to rest on it once it is trusted*. A design others
+will build to, a decision that forecloses alternatives, a diff that ships: each
+is a commitment, each is reviewable on the same footing. Asked while holding a
+paragraph, a plan, or a patch, the question still parses — which is the point,
+and why it is phrased this way (see *Review the design* below for the framing
+defect this replaced).
+
+Match the gate to the cost of being wrong (`MODEL-ECONOMICS.md` — "match the
+ceremony to the risk"): first-of-kind or structural work, a silent-failure mode,
+doctrine text, and irreversible or public actions earn the independent
+fresh-context review; work whose tests and dogfooding exercise it end-to-end over
 *already-reviewed* machinery is **self-verifying** — there the mechanical floor
 *is* the review, and a brief→verdict cycle is overhead, not safety. Under-review a
-risky change and the defect ships; over-review a safe one and the ceremony crowds
-out the work. Same "layers, not alternatives" split as *What review is not* below,
-applied one level up — to the decision to review at all.
+risky commitment and the defect ships; over-review a safe one and the ceremony
+crowds out the work. Same "layers, not alternatives" split as *What review is not*
+below, applied one level up — to the decision to review at all.
 
 ## Review the design, not only the build — the earliest review is the cheapest
 
@@ -246,12 +254,17 @@ decision recorded in a session log: all reviewable, all cheapest to review at
 the moment they are written.
 
 **Why this needed writing at all — the framing was the trap.** Every prior
-formulation here is phrased around *a change* ("whether a **change** earns a
-review", "match the gate to the cost of being wrong"), and that grammar quietly
-presupposes the work already exists. A reader looking for "does this earn a
-review" while holding a design, not a diff, finds every sentence shaped for the
-diff — and concludes the answer is no. The rule was not wrong; its framing
-encoded a late-review default that its own lens 1 contradicts.
+formulation here was phrased around *a change*, and that grammar quietly
+presupposes the work already exists: a reader holding a design rather than a
+diff found every sentence shaped for the diff, and concluded the answer was no.
+The rule was never wrong — its framing encoded a late-review default that its own
+lens 1 contradicts. **The correction belongs upstream, not here.** The trigger
+above now keys on commitment rather than artefact, so a design-holder is inside
+the grammar at the point of asking; this section no longer has to rescue a reader
+the previous wording had already turned away. When a written rule keeps being
+broken, suspect its framing before its enforcement — restating it louder assumes
+non-compliance, where checking the grammar asks whether the rule was ever
+findable from where the reader stood. (Mike, 2026-07-19.)
 
 **Enforcement is structural, because the written rule demonstrably did not
 hold.** Grounded in two incidents, the second decisive: 2026-07-15, a reviewer
