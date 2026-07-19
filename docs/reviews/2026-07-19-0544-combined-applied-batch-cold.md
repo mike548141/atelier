@@ -98,3 +98,59 @@ queued pointer.
   taker/applier's own account of the application.
 - The `docs/SESSIONS.md` index entry for that session.
 - Prior verdicts in `docs/reviews/` — rule 2: reconcile-step only.
+
+---
+
+# Verdict
+
+**Reviewer**: cold-context agent (Fable), spawned 2026-07-19 0547 UTC by the
+rule-4 taking session. Spawn provenance: I am a fresh-context agent spawned by
+the taker, which was opened fresh by the principal ("Do any review work"); the
+applied batch's author (the 0407 taking/applying session) neither started nor
+instructed this review. I authored none of the work under review. Written
+before opening any deferred material.
+
+## Attack surface — the load-bearing assumptions, chosen cold
+
+- **A1 — the F1 grep actually proves the stamp.** The fix's whole claim is
+  that a whole-tree grep replaces a named-file list and "verify like an
+  instrument". Attack: run the skill's fenced commands *verbatim* in a scratch
+  child — a prove-the-stamp command that itself errors, or whose exit
+  semantics invert (grep exits 1 on the *desired* outcome), is a proof in
+  prose only. Also rebuild the red/green proof: old two-file grep green with
+  `docs/reviews/README.md` unfilled; widened grep red; clean after filling.
+- **A2 — the F7 tests bite.** Pins that pass at HEAD prove nothing unless a
+  violation turns them red. Attack in a scratch copy: re-introduce each banned
+  F3 phrase, strip the stamped-copy/pointer markers, re-add a second stamp
+  placeholder, drop the commitment-trigger line — each mutation must fail
+  exactly the test that claims to pin it. Also attack the pins' *reach*: do
+  the three banned phrases actually cover the retired grammar, or is the ban
+  narrower than the drift class it answers?
+- **A3 — the applied wording stays narrowing-free.** The review-brief skill
+  and the reviews template both claim "may compress the parent, never
+  contradict it". Attack: diff their trigger/calibration wording against
+  REVIEW.md at HEAD — does the skill's "Earns the full ceremony" list widen or
+  harden what the parent leaves to calibration; does any surface still carry
+  the artefact grammar the pass retired (beyond the three test-banned
+  phrases)?
+- **A4 — "originals left standing" is true.** F2/F4 were fixed by dated
+  addenda. Attack: confirm from the 9d95644 diff that no pre-existing line of
+  the 0111 log, the 0100 record, or the CHANGELOG's earlier entries was
+  silently reworded; and that the addenda's own factual claims (link resolves
+  by construction; incident repo never carried the file) are checkable and
+  check out where verifiable from here.
+- **A5 — the F5/F6/F8 rewordings are honest and consistent across surfaces.**
+  F5: sizescan module doc and floor.yml comment must state the same edge, and
+  sizescan's *behaviour* must be unchanged (wording-only fix — any code drift
+  is an overreach). F6: the qualification must match reality — the `review:`
+  template artefact must actually be queued and absent. F8: the PRINCIPLES.md
+  re-key must not leave stale "every build is measured against" citations
+  elsewhere in the repo.
+- **A6 — the recorded proofs reproduce at HEAD.** Suite 274 green, sizescan
+  --selftest, four scans clean. A proof that fails to reproduce is a finding.
+- **A7 — the brief's own framing.** It asserts the delta is one commit at
+  HEAD and that machine-local scope is exactly the create-repo skill. Attack:
+  check nothing else moved between 9d95644 and HEAD except the claim/brief
+  commits, and that no other machine-local surface (the review-brief skill is
+  also installed machine-locally?) escaped scope.
+
