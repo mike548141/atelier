@@ -266,8 +266,11 @@ broken, suspect its framing before its enforcement — restating it louder assum
 non-compliance, where checking the grammar asks whether the rule was ever
 findable from where the reader stood. (Mike, 2026-07-19.)
 
-**Enforcement is structural, because the written rule demonstrably did not
-hold.** Grounded in two incidents, the second decisive: 2026-07-15, a reviewer
+**Enforcement is structural in intent, because the written rule demonstrably
+did not hold — and, stated honestly, still conventional in fact: until the
+record templates carry the `review:` field, the remedy below is one more
+written rule** (the template artefact is queued; 2026-07-19 cold-pass F6).
+Grounded in two incidents, the second decisive: 2026-07-15, a reviewer
 dismissed a committed-direction expansion as *"zero source code, so nothing my
 verdict should have covered"* — the rule already said otherwise. Then
 2026-07-18 (`ros`, model-datasheet catalogue), a building session declined to

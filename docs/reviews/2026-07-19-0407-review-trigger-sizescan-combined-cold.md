@@ -509,3 +509,55 @@ Sequencing counsel: 3 MAJOR ⇒ the cycle stays open; on Mike's rulings the
 fixes consolidate onto one follow-ups item, applied by a non-author, and the
 applied batch earns its own queued ⏳ pass (MAJOR at first pass — the loop
 rule).
+
+---
+
+## Decisions — Mike's ruling, 2026-07-19 ("I will take your recommendations and I want all of them fixed")
+
+Applied same day by the taking session (authored none of the three deltas nor
+the verdict findings). Each fix verified; suite 267→274 green, all scans clean.
+
+- **F1 [fixed]** — create-repo step 5 fills `<atelier-path>` in every stamped
+  file and the prove-the-stamp grep covers the whole tree
+  (`--exclude-dir=.git`, no named-file list), citing this finding in-line.
+  **Live-proven both ways in a scratch child**: old two-file grep passed with
+  the reviews README unfilled (the false green reproduced); widened grep caught
+  it; after filling, clean.
+- **F2 [fixed]** — dated correction addenda on the 0111 retrospective and in
+  CHANGELOG; originals left standing. The conversion's case restated on the
+  fork argument alone.
+- **F3 [fixed]** — `skills/review-brief/SKILL.md` re-keyed (description,
+  intro, trigger section, brief format's `Range`→`Subject`) to the commitment
+  grammar, stamped-copy header added naming REVIEW.md canonical with this
+  finding as the worked example. The three anchored phrases are now
+  test-evicted (see F7).
+- **F4 [fixed]** — dated addendum on the 0100 intent record + the CHANGELOG
+  correction; `4c17f59`'s immutable message named as carrying the claim.
+- **F5 [fixed]** — `tools/sizescan.py` gate bullet and the `floor.yml`
+  template comment now state the honest edge: a move in the overwhelming case;
+  an all-current file grounds a budget or accepts a standing red, never trims
+  a true signal.
+- **F6 [fixed]** — REVIEW.md's enforcement claim now reads "structural in
+  intent… still conventional in fact" until the record templates carry the
+  `review:` field; the ROADMAP artefact item carries both halves (heading
+  qualification lifts when the templates land; the 0820 record's deferred
+  lint question answered yes, riding the same item).
+- **F7 [fixed]** — `test_templates.py` gains `ReviewsTemplateTest` (stamped
+  header · commitment trigger · prose-not-exempt · placeholder set) and
+  `ReviewBriefSkillTest` (stamped-copy marker · commitment trigger · the three
+  F3 phrases banned), 274 total green. Invariants pinned, prose left editable.
+- **F8 [fixed]** — PRINCIPLES.md line 1 → "every piece of work is measured
+  against"; the violation sentence → "Work that violates…"; intro states
+  designs are measured before any build exists.
+- **F9 [accepted as acknowledged]** — no further action; the
+  records-commit-carries-doctrine pattern stays watched (the scoped-adds
+  precaution from the 0111 second addendum stands).
+
+Reconcile-stage observations: the ⏳ pointer's one-hop-short describing-record
+note is mooted by this file now holding the full account; the 0820 record's
+missing in-file `review:` line is F6's class and lifts with the artefact item.
+
+**Cycle status after application**: the application is itself a doctrine edit
+by rule 4's definition ⇒ a `⏳` applied-batch pass is queued for a non-author
+taker (this applier writes no brief). The cycle closes when a pass returns no
+MAJOR, on the principal's ruling.

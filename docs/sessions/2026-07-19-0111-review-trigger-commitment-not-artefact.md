@@ -146,3 +146,24 @@ this entry owns it from the causing side. No history rewrite — the commit is
 pushed and built on; the record is the remedy. Standing precaution adopted:
 **scoped adds only from a shared checkout; `add -A` only inside a worktree.**
 Fitting coda: the absorbed gate is what redded `4fb09a7`'s own floor run.
+
+## Third addendum — two retrospective claims corrected by the cold pass (2026-07-19)
+
+The queued cold review ran (`reviews/2026-07-19-0407-review-trigger-sizescan-combined-cold.md`)
+and disproved two of the retrospective's "verified, not assumed" claims above;
+Mike ruled the findings fixed. Corrections, the originals left standing:
+
+- **The grep-net claim is false (F1).** "The skill's close-out grep catches any
+  unfilled `<atelier-path>`" — it did not: the grep was scoped to
+  `CLAUDE.md CONTRIBUTING.md` and never covered `docs/reviews/README.md`, so a
+  child was born with both pointers unfilled behind a green check. Fixed
+  2026-07-19: create-repo now fills every stamped file and greps the whole
+  tree; re-proven red *and* green in scratch.
+- **The broken-link claim is false (F2).** The old `../MODEL-ECONOMICS.md`
+  link resolved **by construction** — the template set itself ships
+  `templates/docs/MODEL-ECONOMICS.md`, and every child carrying the old README
+  also carries the target (all five checked, plus atelier's own tree, which is
+  why linkscan was always green). "Broken in situ in every stamped child" was
+  a claim minted stronger than its evidence, in the same retrospective that
+  corrected one of those. The fork→pointer conversion stands on the fork
+  argument alone — it never needed the embellishment.

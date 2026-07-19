@@ -116,3 +116,15 @@ Fix the trigger at its source, then make the downstream copies point at it.
   two. Deliberately not done in this branch — the queue is edited in place on
   `main` (`CONCURRENCY.md` § Claiming work) and `main` was mid-commit in another
   session.
+
+## Addendum (2026-07-19) — the ros-incident attribution corrected
+
+The cold pass (F4, ruled fixed by the principal) disproves one strand of
+§Context: the incident repo has **never carried** `docs/reviews/README.md`, so
+the stamped template cannot have misled the 2026-07-18 session — REVIEW.md's
+"three places" are the repo's own review policy, REVIEW.md itself, and session
+memory (the 2026-07-18 intent record states them correctly). The drifted-fork
+finding stands for the children that *do* carry the file, and the fork→pointer
+conversion stands with it; what falls is only the causal embellishment ("the
+one an agent actually reads… the reason the amendment never reached the
+fleet"), which `4c17f59`'s immutable commit message also carries.

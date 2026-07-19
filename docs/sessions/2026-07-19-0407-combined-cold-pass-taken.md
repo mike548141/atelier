@@ -62,3 +62,22 @@ gated behind F1.
 3 MAJOR ⇒ the cycle stays open; on the rulings a non-author applies and the
 applied batch queues its own `⏳` pass. The review-line-artefact ROADMAP item
 picks up F6's two halves.
+
+## Addendum — Mike ruled, all applied same session (2026-07-19)
+
+"I will take your recommendations and I want all of them fixed": F1–F8
+[fixed], F9 [accepted as acknowledged], applied by this taking session
+(authored none of the deltas nor the verdict) directly on `main` (solo, tree
+clean). The work: create-repo's stamp step fills and greps the **whole tree**
+(F1 — live-proven red and green in a scratch child); correction addenda for
+the two false record claims (F2 the broken-link claim, F4 the ros
+attribution) in the 0111 session log, the 0100 intent record and CHANGELOG,
+originals standing; `skills/review-brief` re-keyed to the commitment trigger
+with a stamped-copy header (F3); the gate-class wording's honest edge stated
+in sizescan + the floor template (F5); REVIEW.md's "structural" enforcement
+claim qualified until the `review:`-field artefact lands (F6);
+`test_templates.py` pins both stamped review surfaces — the three F3 phrases
+are test-banned (F7; suite 267→274 green); PRINCIPLES.md re-keyed off the
+build grammar (F8). Decisions stamped in the verdict file. The application is
+itself doctrine ⇒ **⏳ applied-batch pass queued** for a non-author; the fleet
+re-stamp is unblocked by F1 but held behind that pass.

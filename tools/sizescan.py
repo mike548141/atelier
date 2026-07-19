@@ -42,9 +42,13 @@ The gate therefore splits by **remedy class**:
 
   * `ROADMAP.md` and `SESSIONS.md` **gate** under `--check`. Their remedy is
     **lossless relocation** — harvest done items to `ROADMAP-DONE.md`, rotate
-    older index entries to `SESSIONS-ARCHIVE.md` — so a red never demands
-    rewording, only a move. The gate can have teeth here because obeying it
-    cannot damage content.
+    older index entries to `SESSIONS-ARCHIVE.md` — so in the overwhelming case
+    a red demands a move, not rewording, and the gate can have teeth because
+    obeying it cannot damage content. The honest edge (2026-07-19 cold-pass
+    F5): a file that is legitimately **all-current** — a roadmap of wholly open
+    items — has nothing to relocate; there the sanctioned remedies are a
+    class-grounded declared budget or a standing red, never trimming a true
+    signal (the all-open-roadmap case, 2026-07-18).
   * `README.md`, `ARCHITECTURE.md`, `CLAUDE.md` are **advisory-only, always** —
     reported, never gate-failing, even under `--check`. Their remedy is
     editorial judgement, and a hard number on a judgement doc induces line-golf:

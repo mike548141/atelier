@@ -1,6 +1,7 @@
-# Design principles — the doctrine every build is measured against
+# Design principles — the doctrine every piece of work is measured against
 
-The design doctrine for all technical work. A build that violates one of these
+The design doctrine for all technical work — designs are measured against it
+before any build exists. Work that violates one of these
 **without a stated, deliberate reason is a defect, not a style choice.** They
 overlap on purpose — grouped so the overlaps reinforce rather than repeat — and
 each carries a *generalised case* so it stays actionable, not abstract. (A

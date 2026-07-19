@@ -133,7 +133,10 @@ jobs:
       # session resumes cheaply. --check gates ONLY the two files whose remedy is
       # lossless relocation — ROADMAP.md (harvest done detail to ROADMAP-DONE.md)
       # and SESSIONS.md (rotate older entries to SESSIONS-ARCHIVE.md) — so a red
-      # here never demands rewording, only a move. Judgement docs (README/
+      # here demands a move, not rewording, in the overwhelming case. The edge: a
+      # legitimately all-current file (a roadmap of wholly open items) has nothing
+      # to move — there, ground a declared budget in the file's class or accept a
+      # standing red; never trim a true signal. Judgement docs (README/
       # ARCHITECTURE/CLAUDE) are reported but NEVER fail the build: a hard number
       # on a judgement doc makes trimming-to-the-number the work (tripwire, not
       # target — ruling 2026-07-19). A repo adopting this floor with a bloated

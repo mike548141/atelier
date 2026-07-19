@@ -15,21 +15,22 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
-- 🎯 **The combined cold pass RAN 2026-07-19 (design-review section +
-      commitment re-key + sizescan doctrine deltas): PASS-WITH-FINDINGS,
-      3 MAJOR · 3 MEDIUM · 3 LOW — Mike's rulings owed on F1–F9.** Verdict +
-      per-finding taker's counsel:
+- ⏳ **Applied batch of the combined cold pass — its own cold pass owed**
+      (rule 4: the applier queues, a non-author taker writes the brief). Mike
+      ruled F1–F9 on 2026-07-19 (F1–F8 fixed, F9 accepted); applied same day
+      by the taking session. Delta at HEAD: `method/REVIEW.md` (F6),
+      `method/PRINCIPLES.md` (F8), `tools/sizescan.py` +
+      `build/templates/workflows/floor.yml` (F5),
+      `skills/review-brief/SKILL.md` (F3), `tools/test_templates.py` (F7,
+      suite 274), correction addenda F2/F4 (0111 session log, 0100 intent
+      record, CHANGELOG) — plus `create-repo`'s stamp step (F1,
+      machine-local skill, outside this repo; fix recorded in the verdict).
+      Verdict + decisions:
       `reviews/2026-07-19-0407-review-trigger-sizescan-combined-cold.md`.
-      The doctrine content held; what failed is the verification record.
-      Sharpest: F1 the stamped `<atelier-path>` pointer is never filled in a
-      create-repo child and the prove-the-stamp grep misses it — 🚩 **keep the
-      fleet re-stamp gated until fixed**; F2 the "old link broken in every
-      stamped child" claim is false on re-run; F3 `skills/review-brief` still
-      carries the old artefact-grammar trigger (the sweep never covered
-      `skills/`). F8 rules the queued PRINCIPLES.md header question: genuine
-      defect, re-key lines 1+3 with the application. 3 MAJOR ⇒ cycle open; on
-      the rulings a non-author applies, and the applied batch queues its own
-      ⏳ pass.
+      Cycle closes on a no-MAJOR pass + Mike's ruling.
+- [ ] **Fleet re-stamp of the reviews template** — unblocked by F1's fix
+      (create-repo now fills and proves the whole tree) but held behind the
+      applied-batch pass above; children otherwise adopt at pin bump.
 - [ ] **The 07-18 review-line remedy has no artefact.** `REVIEW.md` requires
       every durable design record to carry a `review:` line ("omission is the
       bug"), but no ADR template, `decisions/README.md`, or ROADMAP template

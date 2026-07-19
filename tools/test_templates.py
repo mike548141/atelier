@@ -160,5 +160,79 @@ class ChildFloorWorkflowTest(unittest.TestCase):
             self.assertRegex(ln, r"--root repo repo$")   # its own tree only
 
 
+REVIEWS_TEMPLATE = ROOT / "docs" / "build" / "templates" / "docs" / "reviews" / "README.md"
+REVIEW_SKILL = ROOT / "skills" / "review-brief" / "SKILL.md"
+
+
+class ReviewsTemplateTest(unittest.TestCase):
+    """docs/build/templates/docs/reviews/README.md — the stamped pointer.
+
+    2026-07-19 cold-pass F7: this file drifted once as an unmarked fork (it
+    carried a diff-shaped trigger its parent had retired), and after the
+    fork→pointer conversion nothing mechanical pinned the conversion's
+    load-bearing lines. Pin the invariants, not the prose — the file may be
+    edited deliberately, but it must stay a marked, narrowing-free pointer
+    keyed on the commitment trigger.
+    """
+
+    def setUp(self):
+        self.text = REVIEWS_TEMPLATE.read_text()
+        # Wrap- and emphasis-insensitive view: assertions pin wording, not
+        # where a line happens to break.
+        self.flat = " ".join(self.text.replace("*", "").split())
+
+    def test_carries_the_stamped_pointer_header(self):
+        """An unmarked local copy is how it drifted; the marker is the fix."""
+        self.assertIn("STAMPED POINTER, NOT A SECOND SOURCE", self.text)
+        self.assertIn("docs/method/REVIEW.md", self.text)
+        self.assertIn("Narrowing-free", self.text)
+
+    def test_trigger_is_commitment_not_artefact(self):
+        """The one trigger question, stated in the parent's grammar."""
+        self.assertIn("The trigger is commitment, not artefact", self.flat)
+        self.assertIn("what will come to rest on it once it is trusted",
+                      self.flat)
+
+    def test_prose_is_not_exempted(self):
+        """The old fork affirmatively exempted "a doc line"; the conversion
+        replaced that with its opposite — keep the opposite."""
+        self.assertIn("not routine by virtue of being prose", self.flat)
+
+    def test_placeholder_is_exactly_atelier_path(self):
+        """create-repo's stamp step fills <atelier-path> here (its prove-the-
+        stamp grep covers the whole tree since cold-pass F1); of the stamp
+        vocabulary, exactly that one may appear. (The Format section's
+        <YYYY-MM-DD>-style filename patterns are not stamp placeholders.)"""
+        found = set(re.findall(r"<[a-z/ A-Z-]+>", self.text)) & PLACEHOLDERS
+        self.assertEqual(found, {"<atelier-path>"})
+        self.assertIn("<atelier-path>", self.text)
+
+
+class ReviewBriefSkillTest(unittest.TestCase):
+    """skills/review-brief/SKILL.md — the plugin copy of the same doctrine.
+
+    2026-07-19 cold-pass F3: the consolidation sweep missed skills/, leaving
+    the old artefact-grammar trigger live on the widest propagation surface.
+    Same pin, same reason.
+    """
+
+    def setUp(self):
+        self.text = REVIEW_SKILL.read_text()
+
+    def test_marked_as_stamped_copy(self):
+        self.assertIn("STAMPED COPY, NOT A SECOND SOURCE", self.text)
+
+    def test_trigger_is_commitment_not_artefact(self):
+        self.assertIn("The trigger is commitment, not artefact",
+                      self.text.replace("*", ""))
+
+    def test_old_artefact_grammar_evicted(self):
+        """The exact phrases F3 anchored on must not return."""
+        for phrase in ("a change earns a review",
+                       "does this change even earn a review",
+                       "The build makes the claim"):
+            self.assertNotIn(phrase, self.text)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -5,6 +5,30 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-19 — the combined cold pass ruled and applied, F1–F9)
+- The queued cold review of the two entries below (+ the sizescan doctrine
+  deltas) ran: **PASS-WITH-FINDINGS, 3 MAJOR · 3 MEDIUM · 3 LOW**
+  (`docs/reviews/2026-07-19-0407-review-trigger-sizescan-combined-cold.md`);
+  Mike ruled all findings as counselled (F1–F8 fixed, F9 accepted). Applied:
+  **create-repo** now fills `<atelier-path>` in every stamped file and its
+  prove-the-stamp grep covers the whole tree, re-proven red and green in
+  scratch (F1); **`skills/review-brief`** re-keyed to the commitment trigger
+  with a stamped-copy header — the consolidation sweep had missed `skills/`
+  (F3); the sizescan gate-class wording states its honest edge — an all-current
+  file has nothing to move; ground a budget or accept a standing red (F5, in
+  `tools/sizescan.py` + the `floor.yml` template); REVIEW.md's "enforcement is
+  structural" qualified until the `review:`-field templates exist (F6);
+  `test_templates.py` now pins the reviews template and the review-brief skill
+  (F7; suite 267→274); `PRINCIPLES.md` header re-keyed off the build grammar
+  (F8, as the pass ruled).
+- ⚠️ **Two claims in the entry below are corrected** (F2, F4 — dated addenda in
+  the 0111 session log and the 0100 intent record; the originals stand): the
+  old reviews-template link was **not** "broken in every stamped child" — it
+  resolved by construction (the template set ships the target) — and the
+  stamped template was **not** one of the "three places" the `ros` session had,
+  nor why the amendment "never reached the fleet" (that repo never carried the
+  file). The fork→pointer conversion stands on the fork argument alone.
+
 ### Changed (2026-07-19 — the review trigger is commitment, not artefact)
 - **`method/REVIEW.md` — the scope rule re-keyed at its source.** The heading
   loses *a change* (*"Whether **work** earns a review at all"*) and the trigger

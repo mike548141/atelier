@@ -1,24 +1,36 @@
 ---
 name: review-brief
-description: Write a peer-review brief and run an independent review of a change before it is trusted — atelier's enforcement half. Use when a change earns a review (structural/first-of-kind work, doctrine, a silent-failure surface, anything irreversible or public), when the user asks to review a diff/branch "properly", or to draft the brief a fresh session will run cold.
+description: Write a peer-review brief and run an independent review of work before it is trusted — atelier's enforcement half. Use when work earns a review — the trigger is commitment, not artefact: a design others will build to, a decision that forecloses alternatives, or a diff that ships (structural/first-of-kind work, doctrine, a silent-failure surface, anything irreversible or public) — when the user asks to review a design/diff/branch "properly", or to draft the brief a fresh session will run cold.
 ---
+
+<!--
+  STAMPED COPY, NOT A SECOND SOURCE. The canonical trigger, calibration and
+  lifecycle live in docs/method/REVIEW.md (bundled with this plugin). This
+  skill compresses them for the point of use; narrowing-free — it may compress
+  the parent, never contradict it. (2026-07-19 cold-pass F3: this file was an
+  unmarked copy still carrying the artefact-grammar trigger the parent had
+  retired — the same drift class as the reviews template, one sweep later.)
+-->
 
 # Atelier — the peer-review lifecycle
 
 A doctrine that is *read* is not a doctrine that is *complied with*. Documents
-inform; the review is what enforces. The build makes the claim; the review earns
+inform; the review is what enforces. The work makes the claim; the review earns
 the right to believe it. Full doctrine: `docs/method/REVIEW.md`, bundled with
 this plugin under the plugin's own install directory (and `MODEL-ECONOMICS.md`
-beside it for which reviewer, and whether a change earns a review at all).
+beside it for which reviewer, and whether work earns a review at all).
 
-## First: does this change even earn a review?
+## First: does the work even earn a review?
 
-Ceremony is *spend* — apply it in proportion to the cost of being wrong, not
-uniformly. **Earns the full ceremony:** first-of-kind or structural work, a
-silent-failure surface (a check whose green exit is read as "safe"), doctrine
-text, anything irreversible or public. **Self-verifying** (tests + dogfooding
-over already-reviewed machinery): most routine, mechanical changes. If it doesn't
-earn one, say so and stop — don't manufacture ceremony.
+**The trigger is commitment, not artefact** — ask *what will come to rest on
+this once it is trusted*; the question parses the same holding a paragraph, a
+plan, or a patch. Ceremony is *spend* — apply it in proportion to the cost of
+being wrong, not uniformly. **Earns the full ceremony:** a design others will
+build to or a decision that forecloses alternatives, first-of-kind or
+structural work, a silent-failure surface (a check whose green exit is read as
+"safe"), doctrine text, anything irreversible or public. **Self-verifying**
+(tests + dogfooding over already-reviewed machinery): most routine, mechanical
+changes. If it doesn't earn one, say so and stop — don't manufacture ceremony.
 
 ## Independence is the core, not capability
 
@@ -33,8 +45,9 @@ cold**, not in the window that built the work.
 
 A good brief is falsifiable and attackable. Include:
 
-1. **Range under review** — exact commits / files / branch, including anything
-   machine-local that no other review will catch.
+1. **Subject under review** — point at the exact thing: the commits / files /
+   branch if it's built, the design record or decision if it isn't; include
+   anything machine-local that no other review will catch.
 2. **Why it earns a review** — name the worst failure mode (e.g. a false negative
    that manufactures confidence).
 3. **The three lenses**, run all three:
