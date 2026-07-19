@@ -397,3 +397,68 @@ fresh-context agent spawned by the taker; its attack surface was committed
 honestly: the reviewer cannot independently verify the taker's account of its
 own spawning from inside the worktree — the provenance trail above is the
 brief's, consistent with the claim commit on `main`.
+
+## Reconcile — deferred material opened after `ec58474`
+
+Opened only after the findings above were committed: the brief's deferred
+section, both intent records, the 0111 and 1655 session logs (with addenda),
+the SESSIONS.md index entries, and the 2026-07-14 sizescan cold verdict. No
+finding above was altered after opening them.
+
+**Where the records and my findings agree**
+- The 2026-07-18 intent record states the three places correctly ("the `ros`
+  repo's own review policy carried an approach+assumptions clause" — no
+  template), matching `REVIEW.md` and the sibling commit's own account. This
+  confirms F4 and locates the divergence: the misattribution entered with the
+  2026-07-19 session and propagated into three records (the `4c17f59` message,
+  the 0100 intent record §Context, the 0111 session log), while the 07-18
+  record it cites had it right.
+- The 0820 record honestly names F6's residual itself ("the convention is
+  still a *convention*") and explicitly defers a validator "as a question for
+  the reviewer of this delta". Answering it: yes — with the review-line
+  templates item already queued, a cheap per-repo lint on design-record
+  sections is now worth building alongside it; until then the REVIEW.md
+  heading should not say "structural" unqualified. Principal's call.
+- The silent-absorb is owned thoroughly from the causing side (the 0111 second
+  addendum, `b33f072`), with a standing precaution adopted. F9 stays LOW; the
+  acknowledgement mechanism is adequate.
+- The 1655 addendum strengthens F5 from inside: the all-open roadmap case got
+  a *partial* lossless remedy (design detail migrated to its specs store,
+  7123→982) and is still left standing red on purpose (+682, "the signal is
+  true"). So the remedy space for open items is wider than the store hint
+  admits — the hint names only "harvest completed items" — and the terminal
+  state the doctrine itself sanctions is a standing red, which "a red never
+  demands rewording, only a move" cannot describe.
+- The 2026-07-14 verdict's "defers the collision, doesn't resolve it" is
+  quoted accurately in the module doc, and its F3 (a budget with no sanctioned
+  move for an already-split index) is the same class my F5 generalises to the
+  all-open roadmap. The grounded-budgets paragraph faithfully encodes that
+  verdict plus the withdrawn-hatch incident.
+- Recorded proof claims in SESSIONS.md's tripwire entry ("suite 267 green",
+  "both classes live-proven") reproduced exactly.
+
+**Where they diverge from my findings — and why the findings stand**
+- F1 and F2 originate in the 0111 retrospective addendum, which records both
+  claims as "verified, not assumed" under the sibling-wiring lesson. My
+  re-runs disprove both: the skill's grep is scoped to two files that do not
+  include the reviews template, and every child that carries the old README
+  also carries its link target (as does the template set itself — and the two
+  children without the README have the target too, so "a file no child has"
+  fails in all five). The deferred list itself flags the retrospective as
+  "author-adjacent, not a cold verdict"; this pass is the first cold check of
+  those claims, and both fail.
+
+**Reconcile-stage observations (not new findings, noted for the principal)**
+- The ⏳ pointer says the gate split's "describing record is the harvest
+  session's log entry"; the description actually lives in the SESSIONS.md
+  *index* line, which links to the 1655 session file — and that file carries
+  no gate-split addendum. The pointer resolves one hop short of the detail it
+  promises.
+- The 0100 intent record carries the `review:` line by hand (the worked
+  example, as claimed); the 0820 record — the convention's own birthplace —
+  does not carry one in-file, its queue pointer living in ROADMAP/CHANGELOG
+  instead. Consistent with F6: the convention currently binds only where an
+  author remembers it.
+
+**Cycle status**: 3 MAJOR ⇒ under the close rule this cycle does not close on
+this pass. The findings go to the principal (rule 3); nothing has been applied.
