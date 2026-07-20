@@ -75,9 +75,13 @@ still holds in full.
 Copy this to the **top** of a child repo's `CLAUDE.md`, fill the four
 placeholders (`<atelier-path>`, `<SHA>`, `<owner/repo>`, `<visibility fact>`
 — quote the path if it contains spaces; the sibling-relative `../atelier` is
-the house shape), and keep it under
-~15 lines of substance. `create-repo` stamps it on new repos; existing repos are
-retrofitted once. Everything below the block is repo-specific onramp.
+the house shape), and keep it **deliberately lean**: the block is the hottest
+read path in the fleet — every child session pays its length at every open —
+so a line earns its place or moves behind a pointer. (The old "~15 lines"
+figure was dead on arrival — SR2, ruled 2026-07-20; the numeric re-grounding
+is queued with the size-signal rebalance on the ROADMAP.) `create-repo` stamps
+it on new repos; existing repos are retrofitted once. Everything below the
+block is repo-specific onramp.
 
 ```markdown
 ## Doctrine — inherited from atelier (pinned `atelier@<SHA>`)
@@ -100,19 +104,22 @@ in atelier and is read on demand — never wholesale.
   and the likely impact in plain language first; an approval given without that
   account is not a decision the doctrine recognises (`00-APEX.md`). Everything
   recoverable — commit/push/PR included — just proceed.
-- **Concurrency:** `git pull --rebase --autostash` at session start; push after
-  each commit. Uncommitted changes this session didn't make ⇒ another session
-  is live: move to a worktree — never work around or absorb them. Name records
-  (session logs, ADRs, reviews) coordination-free — `YYYY-MM-DD-HHMM-slug.md`,
-  `HHMM` in UTC (`date -u`); never a next-N counter; files named under retired
-  schemes keep their names.
-- **Session rhythm (points up for the full rule):** claim work before starting
-  it, and let a live `[~]` claim override a standing instruction to take that
-  item (`CONCURRENCY.md`); stay in the lane you were given; flag when economics
-  favour a fresh session, and on overload stop at a safe point, record, and hand
-  off (`MODEL-ECONOMICS.md`); before your final verdict, do the put-away
-  unprompted and close with an evidence-based all-clear that nothing owed is left
-  uncaptured (`RECORD.md`).
+- **Concurrency:** assume another session may be live — a clean tree is not
+  proof you're alone. `git pull --rebase --autostash` at session start; push
+  after each commit. Take a worktree by default for write-heavy or multi-commit
+  work; uncommitted changes this session didn't make are positive proof ⇒ move
+  to a worktree — never work around or absorb them (`CONCURRENCY.md`). Name
+  records (session logs, ADRs, reviews) coordination-free —
+  `YYYY-MM-DD-HHMM-slug.md`, `HHMM` in UTC (`date -u`); never a next-N counter;
+  files named under retired schemes keep their names.
+- **Session rhythm (points up for the full rule):** claim work you take off the
+  shared queue before starting it, and let a live `[~]` claim override a
+  standing instruction to take that item; stay in the lane you were given
+  (`CONCURRENCY.md`); flag when economics favour a fresh session, and on
+  overload stop at a safe point, record, and hand off (`MODEL-ECONOMICS.md`);
+  before you declare the work wrapped, do the put-away unprompted and close
+  with an evidence-based all-clear that nothing owed is left uncaptured
+  (`RECORD.md`).
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
   session start run `git -C "<atelier-path>" log --oneline <SHA>..HEAD`; any
   output means the house doctrine moved — read it, then bump the pin above
@@ -129,7 +136,8 @@ in atelier and is read on demand — never wholesale.
 ```
 
 The inlined floor is a **narrowing-free restatement** of the apex + AUTONOMY
-floor, and the concurrency line restates `CONCURRENCY.md`'s sync bookends,
+floor, and the concurrency line restates `CONCURRENCY.md`'s flipped prior
+(assume concurrent; worktree by default for heavy writes), sync bookends,
 dirty-tree backstop, and record-identifier rule — each may compress but must
 not contradict its source. The **estate-resources** line points at the *other*
 root: atelier is the doctrine root; the estate's facts (its inventory, provider

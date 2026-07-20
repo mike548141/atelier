@@ -47,17 +47,19 @@ reading, heavier only when writing:
 - **Write-heavy or multi-commit work** — take a worktree *by default*, without
   waiting to confirm a second session exists. The cost is near-zero (the harness
   has native worktree support) and it removes the shared-uncommitted-tree hazard
-  outright rather than betting the other session stayed clean.
+  outright rather than betting the other session stayed clean. When unsure
+  which rung the work is, take the worktree.
 
 The substrate rule still needs a firing cue, and there are two — both cheap, no
-locking machinery. Read them as telling you when you may *relax* the worktree
-default, not as the only way to discover you are concurrent. git protects
+locking machinery. Read them as extra ways to *discover* you are concurrent,
+never as the only ones — their silence licenses nothing (the flipped prior
+above already assumes company). git protects
 concurrent *commits* (worst case a rejected push and a rebase), but nothing
 protects the **uncommitted working tree** two sessions share — session B can
 overwrite session A's in-flight edits or sweep them into its own commit, and
 nothing errors. The two cues:
 
-- **Say so at open (primary):** when the principal knows they are opening a
+- **Say so at open:** when the principal knows they are opening a
   second session on a repo already in use, they say so, and that session works
   in a worktree from its first action. The harness has native worktree
   support, so the ceremony is near-zero. (One thing precedes the worktree: if
@@ -87,10 +89,14 @@ isolation gain (there is nothing to be isolated *from*). Worktrees are not a tax
 on every session.
 
 The pivot is *how you reach "solo"*: it is earned from evidence, never assumed
-from silence (§ The trigger). Absent positive evidence you are alone, the
-default for write-heavy work leans to a worktree. Truly-alone sessions still pay
-nothing — the only change is that a clean tree no longer *counts* as the
-evidence.
+from silence (§ The trigger) — and an "equivalent positive signal" means an
+affirmative statement or record, never an absence. Absent that evidence, the
+default for write-heavy work leans to a worktree. An *evidenced*-alone session
+still pays nothing; an alone-but-unevidenced one buys insurance at near-zero
+cost — a wasted worktree is cheap, a clobbered tree is not. And a clean tree
+never *counts* as the evidence. (CF1/CF5, ruled 2026-07-20 — the reassurance
+that "truly-alone sessions pay nothing" denied the trade the flip deliberately
+makes; the doctrine now owns it.)
 
 ## Two kinds of parallelism — use the right one
 
@@ -202,6 +208,16 @@ hygiene), not a second session working inside another's tree. The worktree for
 the work comes *after* the claim lands. (An adopter who runs separate clones
 rather than worktrees skips this entirely — each clone has its own `main`.)
 
+**Claiming at a dirty primary checkout.** The flipped prior (§ The trigger)
+says to expect company, and the claim must still land on `main` from the
+primary checkout — so the dirty case gets a rule, not a workaround. If the
+stranger's uncommitted edits do **not** touch the queue file: stage and commit
+the claim line alone, nothing else — the one sanctioned touch inside another
+session's tree, safe because it stages only your own hunk. If the queue file
+**itself** is dirty: that is positive proof the other session is queue-active —
+sync, take the next open item, touch nothing. (CF3, ruled 2026-07-20 — the
+gap predated the flip; the flip made it expected rather than exceptional.)
+
 - **Push succeeds** → the item is yours; now enter the worktree and work.
 - **Push rejected** → `pull --rebase`. If another session claimed the *same*
   item, both edited that one checkbox line and the rebase stops on it — the
@@ -281,6 +297,23 @@ than once and duplicated the work before anyone noticed. The waste was model
 time, and nothing in the tree or the record ever conflicted to warn them:
 selection was the one coordination point this doctrine named a substrate for
 (worktrees) and a trigger for (say-so / dirty-tree) but never gave a *claim*.
+
+## Stay in your lane
+
+A session works the work it was given or claimed — nothing else it can see.
+The lane has three fences, each enforced at its own level above: another
+session's **claimed item** (`[~]`) is out of bounds even when a standing
+instruction names it (§ Claiming work); another session's **in-flight tree**
+is never worked around or absorbed (§ The trigger); and another **repo's**
+open work belongs to the session live in that repo — read it for the picture,
+change nothing (the 2026-07-20 cmd-Q recovery held exactly this line: the
+atelier sweep read `ros` for context and left tiki's recovery to the ros
+session). Scope creep inside one session — "while I'm here" fixes in files
+the given work doesn't touch — is the same fence seen from inside: surface
+it and queue it, don't quietly take it. This section is the named home the
+child block's Session-rhythm cue points to. (SR1, ruled 2026-07-20 —
+authored from Mike's standing "focus on given work" instruction; until then
+the cue was the rule's only copy, which its own points-up design forbids.)
 
 ## Every branch ends put away
 
