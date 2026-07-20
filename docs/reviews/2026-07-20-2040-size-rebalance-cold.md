@@ -101,3 +101,116 @@ coherently superseded or half-retired.
 Live re-runs owed in scope: `test_sizescan.py` suite (count + pass);
 `sizescan.py` against the worktree HEAD (and against a synthetic worklog
 fixture probing A1's edges); the A6 item-by-item diff; the grep sweeps.
+
+---
+
+# Verdict — 2026-07-20 2047 UTC
+
+**Provenance repeated (rule 4):** reviewed by the rule-4 taker named in the
+brief — Fable, Mike-spawned ("do any review or fable dependent work"), author
+of none of the rebalance, the tool, or their records. Findings below were
+committed before any deferred material was opened. **Added exposure
+discovered mid-run, named not denied:** (a) `git show` on `b5dc12d` printed
+its commit *body* (an author account) before the taker switched to
+`--format=`; (b) a date-sweep grep resurfaced the SESSIONS.md index line for
+the authoring session, including its "2 were duplicate stubs already in DONE;
+2 moved verbatim" claim — the A6 diff comparison below was derived from the
+diff itself, and that claim is tested, not taken.
+
+## Lens 1 — approach
+
+**The rework is sound.** Gating only on content whose remedy is a lossless
+move (a `[x]` item on a checkbox worklog) and demoting length to advisory is
+the right shape: the gate can no longer demand a reword, and the advisory
+remains the pointer to review-caught prose bloat, so dropping the length
+*gate* opens no silent hole (A2 held). The A1 regress edge holds —
+`ROADMAP-DONE.md` can never be a candidate (its basename is unmetered), so
+the gate cannot demand harvesting the harvest. Fail-loud posture survives
+(A3): missing path/root exit 2, the F1/F2 fail-open regressions are covered
+in suite and selftest, and the budget hatch provably cannot silence the gate.
+Fleet transition (A7) is coherent: `floor.yml`'s header tells an adopting
+child that a red means harvest, and child adoption is tracked as an open
+ROADMAP item.
+
+## Live re-runs — all reproduce
+
+- Suite: **282 tests, OK** (test_sizescan alone: 40) — the "267→282" claim is
+  the full tools suite and checks out. `--selftest` OK.
+- Floor at HEAD: `sizescan --check --root . .` → **✓ clean, exit 0** — green
+  re-proven, and green *because* the four `[x]` items are gone, not because
+  anything was trimmed (the harvest diff shows moves, no line-golf).
+- Date correction (`910085f`): complete — every remaining `2026-07-21` at
+  HEAD is a deliberate mention of the local-date discrepancy, not a stamp.
+- A6 harvest: all four `[x]` items' content survives — two were stubs whose
+  detail already lived in `ROADMAP-DONE.md` (triple cycle incl. the tiki→ros
+  pointer at DONE:21; ccarchive audit), two were moved (see SR4 below).
+
+## Findings
+
+- **SR1 (MEDIUM, lens 2/3 — stale doc, adopter-facing).** `tools/README.md`
+  § sizescan (~line 386) still documents the dead model at the same commit
+  that removed it: "reports any **current-truth file over its line budget**",
+  "Budgets are starting points, not law", the old per-file budget list — and
+  no mention of the cold-content gate, which is now the tool's whole point.
+  The module doc was rewritten; the adopter-facing README was not. This
+  breaches the same-commit-currency principle the estate ratified the same
+  day (DOCUMENTATION doctrine), on the surface a peer adopter reads first.
+  *Counsel: rewrite the section to the cold-content frame (gate = `[x]` on a
+  worklog, length = advisory reference); ~15 lines.*
+- **SR2-C (MEDIUM, lens 2 — the re-grounded number is circular by the
+  delta's own standard).** `PROPAGATION.md`'s new figure is **~50 lines**;
+  the block as shipped measures **49**. The same delta's module doc defines
+  exactly this as the anti-pattern: "a number picked to sit just above
+  today's line count is circular: it can't be exceeded the moment it's
+  written." The claimed derivation — seven concerns + heading/intro → ~50 —
+  asserts the step from concern-count to line-count without grounding it
+  (that step's ~6–7 lines-per-concern *is* the current block's density), and
+  the earlier draft of the same text (`3ec8823`) said the quiet part aloud:
+  "class-grounded on the block's **measured** shape". Mitigations are real:
+  nothing gates on the figure, the text explicitly forbids reading it as a
+  target, and the house's own SIZE_REFERENCE grounding ("where the fleet's
+  healthy instances sit") is also measurement-of-healthy-instances — but
+  there the class has n>1; here n=1 and the instance certifies itself.
+  *Counsel — either: (a) keep ~50 but state the arithmetic (7 concerns ×
+  ~6 lines each as tight-but-complete + ~4 heading/intro), making the
+  derivation checkable when a concern is added or removed; or (b) drop the
+  number entirely — the structural rule (one bullet per irreducible concern,
+  each as tight as full statement allows; growth means detail belongs behind
+  a pointer) already does all the work, and nothing consumes the figure.
+  The taker leans (b): a number that nothing enforces and that tracks the
+  measurement is decoration with a circularity liability.*
+- **SR3 (LOW, lens 2 — detector edges).** `_COLD_ITEM` counts a `[x]` bullet
+  *inside a fenced code block* on a worklog file (false positive — fail-loud,
+  a red someone inspects) and misses `+ [x]` and `1. [x]` items (false
+  negative — fail-silent, but requires non-house bullet style). Probed live;
+  the suite covers neither. *Counsel: a fence-state toggle in
+  `cold_item_count` plus two suite cases; the `+`/ordered forms can be added
+  to the regex in the same touch.*
+- **SR4 (LOW, lens 2 — overclaim in the record).** The authoring session's
+  index entry claims the two non-stub items "moved verbatim". The
+  hooks.atelierTools item did; the tripwire-split item was **compressed and
+  reworded** in the move — the supersession note added (good), but the
+  live-proven evidence detail and artifact list dropped, and "Children adopt
+  at pin bump" survives only via the separate open fleet item. Defensible
+  archive compression; not "verbatim". *Counsel: one-word fix in the session
+  record/index ("moved, one with supersession annotation"), or accept as
+  noted here — the archive content itself needs no change.*
+- **SR5 (LOW, compliance — the rule-4 handoff ceiling, second consecutive
+  breach).** REVIEW.md rule 4 caps the queue pointer at "refs only, no
+  evaluative account". This cycle's `⏳` entry is a full evaluative account —
+  the ruling's rationale, the shipped list, "green **the right way**", and a
+  *review:* paragraph seeding two attack sites. The 2026-07-20 1355 pass
+  named the same breach on the previous cycle's pointer. Per the estate's
+  own rule-grammar principle, a rule breached by every author who meets it
+  has a framing problem at the point of use, not a compliance problem.
+  *Counsel: put the ceiling where authors write the pointer — one line in
+  the ROADMAP header block (which already explains `⏳`), e.g. "pointer =
+  refs only; the account lives in the session record."*
+
+## Verdict
+
+**PASS — 0 MAJOR / 2 MEDIUM / 3 LOW.** The mechanism is right, proven, and
+honestly recorded almost everywhere; the two MEDIUMs are a stale adopter-facing
+doc and a number that fails the delta's own circularity test. Per rule 3,
+all findings on this self-authored doctrine are **Mike's to decide**; counsel
+above, nothing applied by this pass.
