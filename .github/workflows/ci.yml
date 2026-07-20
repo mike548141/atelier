@@ -118,11 +118,13 @@ jobs:
       - name: linkscan (internal-link integrity, full tree)
         run: python3 tools/linkscan.py --root . .
 
-      # Current-truth files (ROADMAP, SESSIONS index, README…) must stay lean so
-      # a session resumes cheaply. --check makes it a gate (advisory otherwise);
-      # atelier keeps its own files harvested, and the hatches exist for a
-      # legitimately long file (RECORD.md's current-truth/history split).
-      - name: sizescan (current-truth budgets)
+      # Current-truth files (ROADMAP, SESSIONS index, README…) must stay honest so
+      # a session resumes cheaply. --check gates on relocatable COLD CONTENT — a
+      # completed `[x]` item on the hot path, whose fix is a lossless move to
+      # ROADMAP-DONE.md — never on length: a file long purely from live
+      # current-truth is advisory, never a build failure (Mike's ruling
+      # 2026-07-20; RECORD.md's current-truth/history split).
+      - name: sizescan (cold content on the hot path)
         run: python3 tools/sizescan.py --check --root . .
 
       # --- commit-signature verification (SIGNING.md, ADR 0007) --------------

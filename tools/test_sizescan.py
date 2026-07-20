@@ -1,10 +1,17 @@
 """Stdlib-only tests for sizescan (no pytest needed): `python3 -m unittest`.
 
-Pure-logic parts (count_lines, budget_for) are unit-tested directly. The
-end-to-end parts build a throwaway tree under a tmp dir and drive scan_paths() /
-main(), so the budgeted-set selection (growth stores skipped, reference docs
-unbudgeted, root-only READMEs), the escape hatches, and the advisory-vs-`--check`
-exit contract are proven against the real filesystem, not a mock."""
+Pure-logic parts (count_lines, reference_for, cold_item_count) are unit-tested
+directly. The end-to-end parts build a throwaway tree under a tmp dir and drive
+scan_paths() / main(), so the metered-set selection (growth stores skipped,
+reference docs unmetered, root-only READMEs), the escape hatches, and the
+cold-content-gate-vs-advisory exit contract are proven against the real
+filesystem, not a mock.
+
+The gate model (Mike's 2026-07-20 ruling, reworked 2026-07-21): `--check` fails
+ONLY on relocatable cold content — a completed `[x]` item on the hot path, whose
+fix is a lossless move to ROADMAP-DONE.md. A file that is merely *long* from live
+current-truth is advisory, never a build failure — cost is size × read-frequency,
+and there is nothing to relocate in an all-open roadmap."""
 
 import io
 import tempfile
@@ -13,6 +20,13 @@ from contextlib import redirect_stdout
 from pathlib import Path
 
 import sizescan
+
+R = sizescan.SIZE_REFERENCE["ROADMAP.md"]
+
+
+def _cold(n_open=1, n_done=0):
+    """A checkbox-worklog body with n_open live items and n_done cold `[x]` ones."""
+    return "".join(["- [ ] open item\n"] * n_open + ["- [x] done item\n"] * n_done)
 
 
 class CountLines(unittest.TestCase):
@@ -27,21 +41,43 @@ class CountLines(unittest.TestCase):
         self.assertEqual(sizescan.count_lines("a\r\nb\r\n"), 2)
 
 
-class BudgetFor(unittest.TestCase):
+class ReferenceFor(unittest.TestCase):
     def test_default_for_current_truth_basename(self):
-        self.assertEqual(sizescan.budget_for("body\n", "ROADMAP.md"),
-                         sizescan.DEFAULT_BUDGETS["ROADMAP.md"])
+        self.assertEqual(sizescan.reference_for("body\n", "ROADMAP.md"),
+                         sizescan.SIZE_REFERENCE["ROADMAP.md"])
 
-    def test_unbudgeted_basename_is_none(self):
-        self.assertIsNone(sizescan.budget_for("body\n", "PRINCIPLES.md"))
-        self.assertIsNone(sizescan.budget_for("body\n", "CHANGELOG.md"))
+    def test_unmetered_basename_is_none(self):
+        self.assertIsNone(sizescan.reference_for("body\n", "PRINCIPLES.md"))
+        self.assertIsNone(sizescan.reference_for("body\n", "CHANGELOG.md"))
 
     def test_inline_override_wins(self):
-        self.assertEqual(sizescan.budget_for("sizescan:budget=42\n", "ROADMAP.md"), 42)
+        self.assertEqual(sizescan.reference_for("sizescan:budget=42\n", "ROADMAP.md"), 42)
 
     def test_inline_override_accepts_colon_and_space(self):
-        self.assertEqual(sizescan.budget_for("<!-- sizescan:budget: 900 -->", "SESSIONS.md"), 900)
-        self.assertEqual(sizescan.budget_for("sizescan:budget 55", "README.md"), 55)
+        self.assertEqual(sizescan.reference_for("<!-- sizescan:budget: 900 -->", "SESSIONS.md"), 900)
+        self.assertEqual(sizescan.reference_for("sizescan:budget 55", "README.md"), 55)
+
+
+class ColdItemCount(unittest.TestCase):
+    def test_counts_done_checkbox_items(self):
+        self.assertEqual(sizescan.cold_item_count(_cold(2, 3), "ROADMAP.md"), 3)
+
+    def test_caps_and_indent_counted(self):
+        self.assertEqual(
+            sizescan.cold_item_count("  - [x] indented\n- [X] caps\n* [x] star\n", "ROADMAP.md"), 3)
+
+    def test_open_claimed_review_states_not_cold(self):
+        body = "- [ ] open\n- [~] claimed\n- ⏳ review queued\n"
+        self.assertEqual(sizescan.cold_item_count(body, "ROADMAP.md"), 0)
+
+    def test_prose_mention_of_bracket_x_not_counted(self):
+        self.assertEqual(
+            sizescan.cold_item_count("checkbox states: [x] done, in a sentence\n", "ROADMAP.md"), 0)
+
+    def test_only_checkbox_worklog_files_count(self):
+        # a [x] in a README or session index is prose, not a harvestable work item
+        self.assertEqual(sizescan.cold_item_count("- [x] done\n", "README.md"), 0)
+        self.assertEqual(sizescan.cold_item_count("- [x] done\n", "SESSIONS.md"), 0)
 
 
 class _TreeTest(unittest.TestCase):
@@ -61,49 +97,70 @@ class _TreeTest(unittest.TestCase):
         p.write_text("x\n" * n_lines)
         return p
 
+    def write_text(self, rel, text):
+        p = self.tmp / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text)
+        return p
+
     def flagged(self):
         return sorted(f.path.replace("\\", "/")
                       for f in sizescan.scan_paths([self.tmp], self.tmp))
 
+    def finding(self, rel):
+        for f in sizescan.scan_paths([self.tmp], self.tmp):
+            if f.path.replace("\\", "/") == rel:
+                return f
+        return None
+
 
 class Selection(_TreeTest):
-    def test_over_budget_current_truth_flags(self):
-        self.write("docs/ROADMAP.md", sizescan.DEFAULT_BUDGETS["ROADMAP.md"] + 1)
-        self.assertIn("docs/ROADMAP.md", self.flagged())
+    def test_over_reference_current_truth_flags_advisory(self):
+        self.write("docs/ROADMAP.md", R + 1)
+        f = self.finding("docs/ROADMAP.md")
+        self.assertIsNotNone(f)
+        self.assertFalse(f.gated)          # long but all-current: advisory, not gated
+        self.assertEqual(f.cold_items, 0)
 
-    def test_under_budget_passes(self):
-        self.write("docs/ROADMAP.md", sizescan.DEFAULT_BUDGETS["ROADMAP.md"] - 1)
+    def test_under_reference_no_cold_is_silent(self):
+        self.write("docs/ROADMAP.md", R - 1)
         self.assertEqual(self.flagged(), [])
 
-    def test_exactly_at_budget_passes(self):
-        self.write("docs/ROADMAP.md", sizescan.DEFAULT_BUDGETS["ROADMAP.md"])
+    def test_exactly_at_reference_is_silent(self):
+        self.write("docs/ROADMAP.md", R)
         self.assertEqual(self.flagged(), [])
 
-    def test_growth_stores_never_budgeted(self):
-        big = 5000
-        self.write("docs/ROADMAP-DONE.md", big)
-        self.write("docs/SPECS.md", big)
-        self.write("CHANGELOG.md", big)
+    def test_small_file_with_cold_content_flags_and_gates(self):
+        # size is irrelevant — a done item on the hot path is what matters
+        self.write_text("docs/ROADMAP.md", _cold(1, 2))
+        f = self.finding("docs/ROADMAP.md")
+        self.assertIsNotNone(f)
+        self.assertTrue(f.gated)
+        self.assertEqual(f.cold_items, 2)
+        self.assertEqual(f.over, 0)        # small: no size advisory, just the gate
+
+    def test_growth_stores_never_metered(self):
+        self.write("docs/ROADMAP-DONE.md", 5000)
+        self.write("docs/SPECS.md", 5000)
+        self.write("CHANGELOG.md", 5000)
         self.assertEqual(self.flagged(), [])
 
-    def test_reference_doc_not_budgeted(self):
+    def test_reference_doc_not_metered(self):
         self.write("docs/PRINCIPLES.md", 5000)
         self.assertEqual(self.flagged(), [])
 
-    def test_budgeted_basename_inside_growth_store_ignored(self):
-        # an ARCHITECTURE.md snapshotted under _archive/ is history, not current
+    def test_metered_basename_inside_growth_store_ignored(self):
         self.write("_archive/ARCHITECTURE.md", 5000)
         self.write("docs/reviews/README.md", 5000)
         self.assertEqual(self.flagged(), [])
 
-    def test_root_readme_budgeted_nested_readme_not(self):
-        self.write("README.md", sizescan.DEFAULT_BUDGETS["README.md"] + 1)
+    def test_root_readme_metered_nested_readme_not(self):
+        self.write("README.md", R + 1)
         self.write("tools/README.md", 5000)
         self.assertEqual(self.flagged(), ["README.md"])
 
-    def test_roadmap_budgeted_wherever_it_lives(self):
-        # singular-by-name files aren't root-only: docs/ROADMAP.md still counts
-        self.write("docs/ROADMAP.md", sizescan.DEFAULT_BUDGETS["ROADMAP.md"] + 1)
+    def test_roadmap_metered_wherever_it_lives(self):
+        self.write_text("docs/ROADMAP.md", _cold(1, 1))
         self.assertEqual(self.flagged(), ["docs/ROADMAP.md"])
 
 
@@ -116,8 +173,7 @@ class FailOpenF1(unittest.TestCase):
         base = Path(tempfile.mkdtemp(prefix="sizescan-f1-"))
         repo = base / ancestor / "myrepo"
         (repo / "docs").mkdir(parents=True)
-        (repo / "docs" / "ROADMAP.md").write_text(
-            "x\n" * (sizescan.DEFAULT_BUDGETS["ROADMAP.md"] + 100))
+        (repo / "docs" / "ROADMAP.md").write_text(_cold(1, 2))
         return base, repo
 
     def _assert_flags(self, ancestor):
@@ -137,7 +193,6 @@ class FailOpenF1(unittest.TestCase):
         self._assert_flags("reviews")
 
     def test_real_store_dir_inside_repo_still_skipped(self):
-        # the fix must not break the intended behaviour: an in-repo reviews/ etc.
         base = Path(tempfile.mkdtemp(prefix="sizescan-f1b-"))
         try:
             (base / "docs" / "reviews").mkdir(parents=True)
@@ -151,36 +206,42 @@ class FailOpenF1(unittest.TestCase):
 class Hatches(_TreeTest):
     def test_body_only_marker_mention_does_not_exempt(self):
         # F2: a marker mentioned below the header must not silently exempt
-        p = self.write("docs/ROADMAP.md", 0)
-        p.write_text(("prose\n" * 20) + "we set sizescan:allow here in discussion\n"
-                     + "x\n" * (sizescan.DEFAULT_BUDGETS["ROADMAP.md"] + 5))
+        self.write_text("docs/ROADMAP.md",
+                        ("prose\n" * 20) + "we set sizescan:allow here in discussion\n"
+                        + _cold(1, 2))
         self.assertEqual(self.flagged(), ["docs/ROADMAP.md"])
 
-    def test_header_marker_still_exempts(self):
-        p = self.write("docs/ROADMAP.md", 0)
-        p.write_text(f"<!-- {sizescan.ALLOW_MARKER}: flat log -->\n"
-                     + "x\n" * (sizescan.DEFAULT_BUDGETS["ROADMAP.md"] + 5))
+    def test_header_allow_marker_exempts_everything(self):
+        # allow exempts BOTH the advisory and the cold-content gate
+        self.write_text("docs/ROADMAP.md",
+                        f"<!-- {sizescan.ALLOW_MARKER}: living doc -->\n" + _cold(1, 5))
         self.assertEqual(self.flagged(), [])
 
     def test_overlapping_paths_do_not_double_report(self):
         # F4: dedup by resolved path
-        self.write("docs/ROADMAP.md", sizescan.DEFAULT_BUDGETS["ROADMAP.md"] + 1)
+        self.write_text("docs/ROADMAP.md", _cold(1, 1))
         findings = sizescan.scan_paths([self.tmp, self.tmp / "docs"], self.tmp)
         paths = [f.path.replace("\\", "/") for f in findings]
         self.assertEqual(paths.count("docs/ROADMAP.md"), 1)
 
-    def test_allow_marker_exempts_file(self):
-        p = self.write("docs/ROADMAP.md", sizescan.DEFAULT_BUDGETS["ROADMAP.md"] + 50)
-        p.write_text(f"<!-- {sizescan.ALLOW_MARKER}: living doc -->\n" + p.read_text())
-        self.assertEqual(self.flagged(), [])
+    def test_budget_override_quiets_advisory_but_not_the_gate(self):
+        # a huge budget silences the size nudge; it must NOT hide cold content
+        self.write_text("docs/ROADMAP.md",
+                        "<!-- sizescan:budget=100000 -->\n" + _cold(R, 2))
+        f = self.finding("docs/ROADMAP.md")
+        self.assertIsNotNone(f)
+        self.assertEqual(f.over, 0)        # advisory quieted
+        self.assertTrue(f.gated)           # gate stands
+        self.assertEqual(f.cold_items, 2)
 
-    def test_inline_budget_override_raises_ceiling(self):
-        p = self.write("docs/ROADMAP.md", sizescan.DEFAULT_BUDGETS["ROADMAP.md"] + 50)
-        p.write_text("<!-- sizescan:budget=100000 -->\n" + p.read_text())
+    def test_budget_override_silences_advisory_only_file(self):
+        # a long all-current file with a grounded budget goes fully silent
+        self.write_text("docs/ROADMAP.md",
+                        "<!-- sizescan:budget=100000 -->\n" + _cold(R + 50, 0))
         self.assertEqual(self.flagged(), [])
 
     def test_sizescanignore_glob_skips(self):
-        self.write("docs/ROADMAP.md", sizescan.DEFAULT_BUDGETS["ROADMAP.md"] + 50)
+        self.write_text("docs/ROADMAP.md", _cold(1, 5))
         (self.tmp / ".sizescanignore").write_text("docs/ROADMAP.md\n")
         self.assertEqual(self.flagged(), [])
 
@@ -192,57 +253,70 @@ class ExitContract(_TreeTest):
             code = sizescan.main([*args, "--root", str(self.tmp), str(self.tmp)])
         return code, buf.getvalue()
 
-    def test_advisory_default_exit_zero_even_when_over(self):
-        self.write("docs/ROADMAP.md", sizescan.DEFAULT_BUDGETS["ROADMAP.md"] + 1)
+    def test_advisory_default_exit_zero_even_with_cold_content(self):
+        self.write_text("docs/ROADMAP.md", _cold(1, 2))
         code, out = self._run()
-        self.assertEqual(code, 0)          # advisory: reports but does not fail
-        self.assertIn("over budget", out)
+        self.assertEqual(code, 0)          # no --check: reports but never fails
+        self.assertIn("cold-content", out)
 
-    def test_check_flag_exits_one_when_over(self):
-        self.write("docs/ROADMAP.md", sizescan.DEFAULT_BUDGETS["ROADMAP.md"] + 1)
-        code, _ = self._run("--check")
-        self.assertEqual(code, 1)          # opt-in gate: teeth
+    def test_check_gates_on_cold_content(self):
+        self.write_text("docs/ROADMAP.md", _cold(1, 1))
+        code, out = self._run("--check")
+        self.assertEqual(code, 1)          # a [x] item on the hot path has teeth
+        self.assertIn("[cold-content, gated]", out)
 
-    def test_check_flag_exits_zero_when_clean(self):
-        self.write("docs/ROADMAP.md", sizescan.DEFAULT_BUDGETS["ROADMAP.md"] - 1)
+    def test_check_does_not_gate_a_long_all_open_roadmap(self):
+        # THE reversal: fulsome live current-truth is never a build failure
+        self.write_text("docs/ROADMAP.md", _cold(R + 50, 0))
+        code, out = self._run("--check")
+        self.assertEqual(code, 0)
+        self.assertIn("[size-advisory]", out)
+
+    def test_check_exits_zero_when_no_cold_content(self):
+        self.write_text("docs/ROADMAP.md", _cold(R - 1, 0))
         code, _ = self._run("--check")
         self.assertEqual(code, 0)
 
-    # The tripwire-not-target split (Mike's ruling 2026-07-19): only the files
-    # with a lossless remedy (ROADMAP/SESSIONS — harvest/rotate) gate under
-    # --check. A judgement doc over budget is reported but can never fail the
-    # build, so the number cannot demand line-golf.
-    def test_check_advisory_class_reports_but_exits_zero(self):
-        self.write("ARCHITECTURE.md", sizescan.DEFAULT_BUDGETS["ARCHITECTURE.md"] + 40)
+    def test_check_size_advisory_reports_but_exits_zero(self):
+        self.write("ARCHITECTURE.md",
+                   sizescan.SIZE_REFERENCE["ARCHITECTURE.md"] + 40)
         code, out = self._run("--check")
-        self.assertEqual(code, 0)          # judgement doc: never gate-failing
-        self.assertIn("ARCHITECTURE.md", out)   # ...but still reported
-        self.assertIn("[advisory]", out)
+        self.assertEqual(code, 0)          # long judgement doc: never gate-failing
+        self.assertIn("ARCHITECTURE.md", out)
+        self.assertIn("[size-advisory]", out)
 
-    def test_check_mixed_gated_wins(self):
-        self.write("ARCHITECTURE.md", sizescan.DEFAULT_BUDGETS["ARCHITECTURE.md"] + 40)
-        self.write("docs/SESSIONS.md", sizescan.DEFAULT_BUDGETS["SESSIONS.md"] + 1)
+    def test_check_cold_content_wins_over_advisory(self):
+        self.write("ARCHITECTURE.md",
+                   sizescan.SIZE_REFERENCE["ARCHITECTURE.md"] + 40)   # advisory only
+        self.write_text("docs/ROADMAP.md", _cold(1, 1))              # cold → gate
         code, out = self._run("--check")
-        self.assertEqual(code, 1)          # the gated file carries the teeth
-        self.assertIn("[gate]", out)
-        self.assertIn("[advisory]", out)
+        self.assertEqual(code, 1)
+        self.assertIn("[cold-content, gated]", out)
+        self.assertIn("[size-advisory]", out)
 
-    def test_gated_set_is_exactly_the_lossless_remedy_files(self):
-        # Pin the doctrine: gating any judgement doc reintroduces the target.
-        self.assertEqual(sizescan.GATED, {"ROADMAP.md", "SESSIONS.md"})
+    def test_gate_is_cold_content_not_a_static_file_set(self):
+        # Pin the doctrine: gating is driven by relocatable cold content, so a
+        # long all-current ROADMAP/SESSIONS does not gate, but any file's [x]
+        # items would. There is no static GATED set to drift.
+        self.assertFalse(hasattr(sizescan, "GATED"))
+        self.write_text("docs/SESSIONS.md", "x\n" * (sizescan.SIZE_REFERENCE["SESSIONS.md"] + 5))
+        code, _ = self._run("--check")
+        self.assertEqual(code, 0)          # a big index (no [x]) is advisory only
 
     def test_json_output(self):
-        self.write("docs/ROADMAP.md", sizescan.DEFAULT_BUDGETS["ROADMAP.md"] + 1)
+        self.write_text("docs/ROADMAP.md", _cold(1, 1))
         code, out = self._run("--json")
         import json
         data = json.loads(out)
         self.assertFalse(data["clean"])
-        self.assertEqual(data["findings"][0]["path"].replace("\\", "/"), "docs/ROADMAP.md")
+        f0 = data["findings"][0]
+        self.assertEqual(f0["path"].replace("\\", "/"), "docs/ROADMAP.md")
+        self.assertEqual(f0["cold_items"], 1)
+        self.assertTrue(f0["gated"])
 
 
 class UsageErrors(unittest.TestCase):
     def test_missing_path_is_error_not_pass(self):
-        # a typo'd path scanning nothing must never read as a clean pass
         code = sizescan.main(["/no/such/path/xyz", "--root", "."])
         self.assertEqual(code, 2)
 
