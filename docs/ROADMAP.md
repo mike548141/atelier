@@ -199,14 +199,11 @@ outstanding strands.
       the dead "~15"). main's floor
       is now green **the right way** — the 4 inline `[x]` items harvested, not 15
       lines trimmed.
-      *review: WARRANTED — reverses a dated ruling + reworks a gate with a
-      silent-failure mode; **SR2's re-grounding rides with this cycle.** Rule 4
-      independent: a non-author spawner (a session the author neither started nor
-      instructed) may take it and write the brief (REVIEW.md rule 4). Detail →
-      session record 2026-07-20.*
-      **CLAIMED 2026-07-20 2040 UTC** by a rule-4 taker (Fable, Mike-spawned:
-      "do any review or fable dependent work"; authored none of the rebalance
-      chain). Brief → `docs/reviews/2026-07-20-2040-size-rebalance-cold.md`.
+      **Review RAN 2026-07-20 2047 UTC — PASS, 0 MAJOR / 2 MEDIUM / 3 LOW;
+      Mike's rulings owed on SR1, SR2-C, SR3, SR4, SR5** (rule-4 taker: Fable,
+      Mike-spawned, authored none of the chain). Verdict + counsel →
+      `reviews/2026-07-20-2040-size-rebalance-cold.md`; intent → session
+      record 2026-07-20.
 Completed file-size work (the 2026-07-14 sizescan build/review + wiring; the
 2026-07-18 fleet harvests — ros 7123→982 in two ruled stages, faves, shed; the
 grounded-budgets correction; the 2026-07-19 tripwire-split application, now
