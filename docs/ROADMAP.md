@@ -15,8 +15,10 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
-- [ ] **DOCUMENTATION doctrine — what great documentation is, per audience and
+- [~] **DOCUMENTATION doctrine — what great documentation is, per audience and
       consumer (Mike, 2026-07-20, raised in ros off the tiki CLI-UX review).**
+      (**claimed 2026-07-20 1423 UTC** — Mike ruled "1–3 I accept your
+      recommendations"; the taker applies DD1–DD4, wt: `atelier-rulings-apply`.)
       **Cold pass RAN 2026-07-20**
       (`reviews/2026-07-20-1355-documentation-draft-cold.md`): **PASS — 0 MAJOR
       · 2 MEDIUM · 2 LOW**; every grounding claim re-ran true at ros `806eb10`.
@@ -71,8 +73,10 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
       reconciles the drafts, and applies. Author does not self-review. tiki
       application (ros half) still owed and is the review's evidence base.*
 
-- [ ] **CONCURRENCY posture flip — "assume you are not alone"** (Mike,
+- [~] **CONCURRENCY posture flip — "assume you are not alone"** (Mike,
       2026-07-20).
+      (**claimed 2026-07-20 1423 UTC** — Mike ruled "1–3 I accept your
+      recommendations"; the taker applies CF1–CF7, wt: `atelier-rulings-apply`.)
       **Cold pass RAN 2026-07-20**
       (`reviews/2026-07-20-1355-concurrency-flip-cold.md`): **PASS — 0 MAJOR ·
       4 MEDIUM · 3 LOW**; flip judged sound and live-executed by the pass
@@ -94,8 +98,10 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
       Watch: whether the risk-scaled ladder over-taxes light sessions, and
       whether "positive evidence you are alone" is crisp enough to act on.*
 
-- [ ] **Session-onramp operating-rhythm — surface the working beat to every
+- [~] **Session-onramp operating-rhythm — surface the working beat to every
       session** (Mike, 2026-07-20).
+      (**claimed 2026-07-20 1423 UTC** — Mike ruled "1–3 I accept your
+      recommendations"; the taker applies SR1–SR4, wt: `atelier-rulings-apply`.)
       **Cold pass RAN 2026-07-20**
       (`reviews/2026-07-20-1355-onramp-rhythm-cold.md`): **PASS — 0 MAJOR ·
       2 MEDIUM · 2 LOW**; reframe judged sound, cue parity re-proven (suite
