@@ -148,3 +148,35 @@ not invention. One clause breaks the pattern — SR1.
   sequencing) left the concurrency-flip block catch-up with no vehicle —
   recorded as the sibling pass's CF4 (homeless propagation half); noted
   here for the cross-reference, not double-counted.
+
+## Reconcile — intent record opened after the findings above were committed
+
+- **The seven candidates, accounted for.** think-step-by-step [dropped,
+  named, grounds stated — correct call]; worktrees/watch-others [the flip
+  cycle's, not this delta's]; claim + claimed-beats-told [(A) + cue];
+  focus-on-given-work [folded to "lane" — the record *confirms* SR1: folded
+  into the cue, never authored into a home]; economics-boundary + safe-stop
+  [(B)]; close-confirm [(C)]. Nothing silently dropped beyond the one named.
+- **Seed ↔ finding overlap:** the Watch seed ("does the cue earn its lines
+  in a block spec'd ~15 lines") maps to SR2, reached here independently by
+  measurement (48 vs ~15). SR1, SR3, SR4 sit beyond the seeds.
+- **One framing nuance, sub-finding grade:** "6 of 7 are already grounded
+  doctrine" is closer to "6 of 7 had *homes* ready to sharpen" — (A), (B),
+  (C) are new text authored this delta into existing docs. The reframe's
+  force survives (reach was the gap; the homes existed); the counting is
+  looser than the record's phrasing. SR1 is the one clause where no home
+  existed at all.
+- **Dogfood claims spot-checked:** the authoring worktree
+  (`atelier-session-onramp-review`) is put away at HEAD; the pause-and-rebase
+  account is consistent with the commit graph (`295d94a` → `62fe96a` →
+  `674b70b` → `c25b8a4`). No discrepancy.
+
+## Result
+
+**PASS with findings — 0 MAJOR · 2 MEDIUM · 2 LOW.** The reframe is right,
+the ordering was right, and the mechanical floor held (parity test, honest
+red). The MEDIUMs are the one homeless clause (SR1) and the dead size spec
+the cue built on top of (SR2). Doctrine is self-authored in rule 3's sense —
+**decisions are Mike's**; taker's counsel sits with each finding. No-MAJOR ⇒
+on Mike's rulings this cycle closes terminal, with the application batch
+folding naturally into the same block-update CF4 asks for a line on.
