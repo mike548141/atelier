@@ -66,3 +66,85 @@ ungrounded. After findings are committed, reconcile the deferred list against
 what landed — anything silently dropped beyond the named one is a finding.
 
 ---
+
+# Verdict — findings (committed before the intent record was opened)
+
+**Provenance repeated (rule 4):** the taker named in the brief; author of
+none of the delta. The intent record
+(`sessions/2026-07-20-1302-session-onramp-operating-rhythm.md`) remains
+unopened at this commit; reconcile follows in a separate commit after it is
+read.
+
+## Lens 1 — approach
+
+**The reach reframe is sound, and the ordering was right.** The delta
+authored the home rules first (three method docs, each stamped with its
+2026-07-20 grounding) and then made the cue *point up* — mechanism-before-
+content respected, no rule invented to fill a heading. The claim-outranks
+rule is a genuine sharpening (the yield moved one step earlier than the
+rejected-push, onto a marker the instruction predates); item 7 and the
+all-clear sharpening both read as extraction of Mike's repeated instructions,
+not invention. One clause breaks the pattern — SR1.
+
+## Findings
+
+- **SR1 (MEDIUM, lens 1/2 — a cue clause with no home).** "Stay in the lane
+  you were given" is the only cue clause with no parenthetical pointer — and
+  nothing to point to: no method doc at HEAD states a lane/boundary rule
+  (swept `method/*`; every "lane" hit is DATA-PROTECTION's unrelated
+  "slow lane" or "plane"). The commit message confirms it: "focus on given
+  work" was *folded into the cue*, not authored into a home doc. So the
+  block — a compression layer whose own label says "points up for the full
+  rule" — is now the **canonical and only** home of a rule, which makes that
+  rule un-reviewable and un-propagatable upstream, and quietly falsifies the
+  "6 of 7 already grounded" reframe for this clause. The practice *is* real
+  (the 2026-07-20 cmd-Q recovery honoured the ros/atelier boundary and even
+  cited "per CONCURRENCY" — a citation to a rule that doesn't exist as
+  written). *Taker's counsel: author the lane rule properly — a short
+  passage in `CONCURRENCY.md` (it already owns claim-boundaries and the
+  repo-boundary bearings) — and give the clause its pointer; or drop the
+  clause until the rule exists.*
+- **SR2 (MEDIUM, lens 2 — the block's size spec is dead text).** 
+  `PROPAGATION.md` instructs "keep it under **~15 lines of substance**"; the
+  fenced block measures **48 lines** at HEAD (~41 before this cue). The spec
+  was already broken before this delta; the cue added seven more lines
+  against a spec it visibly exceeds threefold, with the contradiction
+  unacknowledged in the doc itself (the ROADMAP Watch names it, the doc does
+  not). Per the ground-numeric-limits rule this resolves one of two ways —
+  re-ground the spec in the block's class (it is the hottest path in the
+  fleet: every child session, every open — exactly the size×read-frequency
+  frame the new rebalance item establishes) or shrink the block to spec.
+  Leaving a spec every reading contradicts trains readers to ignore specs.
+  *Taker's counsel: fold the block-spec re-grounding into the size-signal
+  rebalance item's scope, and meanwhile fix the number to what the block's
+  class honestly needs.*
+- **SR3 (LOW, lens 2 — compression widens the rule).** "Claim work before
+  starting it" drops the source's qualifier — claiming keys on *selection
+  from the shared queue* (`CONCURRENCY.md`). As written the cue taxes
+  directly-assigned, non-queue work with a claim it doesn't owe. Five words
+  ("work you take off the shared queue") close it; the adjacent pointer
+  mitigates but the block is what children actually read every session.
+- **SR4 (LOW, lens 2 — vocabulary).** "Before your final verdict" imports
+  review vocabulary into a general-session cue; `RECORD.md`'s own terms are
+  the close of a *sequence* and the all-clear. A child session not running a
+  review may not recognise itself in "verdict". *Counsel: "before you
+  declare the work wrapped".*
+
+## Lens 2/3 — verifications run clean
+
+- **Cue parity**: the `PROPAGATION.md` and template copies byte-match, and
+  parity is *mechanically enforced* — `test_templates.py` extracts the fenced
+  canonical block and compares the stamped copy; suite re-run: 20 OK.
+- **Sizescan red**: re-run at HEAD — exactly one gated red, `ROADMAP.md` 411
+  (budget 300), matching the author's "deliberately left red, not hacked"
+  account. Honest handling confirmed (the exemption mechanisms existed and
+  were not abused to green the build).
+- **Item 7 ↔ item 1**: the "one task per session, seen from the overload
+  side" citation matches item 1's actual sharpened wording — no misquote.
+- **The size-signal rebalance item** carries its own `*review: WARRANTED…*`
+  line — compliant with the 07-18 "omission is the bug" remedy, and its
+  direction (hot-path metering) is the frame SR2 wants to borrow.
+- **The decoupling** (`c25b8a4` reversing `674b70b`'s one-coordinated-edit
+  sequencing) left the concurrency-flip block catch-up with no vehicle —
+  recorded as the sibling pass's CF4 (homeless propagation half); noted
+  here for the cross-reference, not double-counted.
