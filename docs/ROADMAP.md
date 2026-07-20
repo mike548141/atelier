@@ -15,6 +15,35 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
+- [ ] **DOCUMENTATION doctrine — what great documentation is, per audience and
+      consumer (Mike, 2026-07-20, raised in ros off the tiki CLI-UX review).**
+      Mike: *"be clear on what great documentation looks like, and its
+      purpose"* — for **audiences** developer vs operator × newbie vs expert,
+      and **consumers** human · AI · orchestrating software — covering
+      *"everything from docstrings to the --help screen on a CLI app … to the
+      man file and a wiki. And any other form of documentation you can think
+      of."* Belongs HERE because it binds every child repo; **tiki (ros) is
+      the named exemplar / real-world proving ground** (its ROADMAP carries
+      the application half, same day). Scope for the method doc
+      (`method/DOCUMENTATION.md` when authored): the audience×consumer
+      matrix and what "great" means per cell · the artefact inventory
+      (docstrings · CLI --help · man pages · README · canon docs
+      (PURPOSE/ARCHITECTURE/GLOSSARY-class) · wiki/tutorials/examples ·
+      error messages as documentation · the machine contract (--json
+      schemas, exit codes) as documentation-for-software · changelogs ·
+      session/decision records) · the single-source/pointer rule (a fact
+      lives once; everything else points) · same-commit currency (docs
+      change in the commit that changes the behaviour — the man-page rule
+      generalised) · honesty in docs (claims carry their proving rung) · and
+      the **third-party-docs seam**: a child's docs state its own intent +
+      live-proven deltas/quirks, and POINT to vendor docs (RouterOS,
+      VirtualBox, …) — never mirror them. Existing part-truths to absorb,
+      not duplicate: RECORD.md (records), the CLI-docs standard cycle
+      (ROADMAP-DONE), CONVENTIONS.md, ros PRINCIPLES §6 legibility.
+      *review: WARRANTED — doctrine; author, Fable-review, THEN propagate
+      (mechanism-before-content). The tiki application pass is the review's
+      evidence base.*
+
 - [ ] **Fleet re-stamp of the reviews template** — unblocked 2026-07-19:
       the review cycle closed terminal (Mike's ruling on the 0629 no-MAJOR
       pass) and G1's blocker is cleared (pin slot reworded, prove-the-stamp
