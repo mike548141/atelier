@@ -43,6 +43,32 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
       *review: WARRANTED — doctrine; author, Fable-review, THEN propagate
       (mechanism-before-content). The tiki application pass is the review's
       evidence base.*
+      **Decisions to date (Mike, 2026-07-20):** (1) **anchor on Diátaxis**
+      (tutorial · how-to · reference · explanation) and extend as needed —
+      the least-invented path; (2) the **consumer axis** (human · AI ·
+      orchestrating software) is the extension Diátaxis lacks; (3) fold the
+      independently-surfaced deltas — the **developer** audience is a distinct
+      cell Diátaxis's *explanation* mode serves, easy to conflate with
+      expert-*user*; atelier's **record doctrine already IS the AI-reading
+      standard** (resume-cold, one-fact-one-home, grounding, absolute dating —
+      so that cell is *extraction*, not invention); **version-pin the vendor
+      pointer** ("verified against RouterOS 7.x", not a bare link). Owning
+      session authors; a second session did not open a competing draft.
+
+- ⏳ **CONCURRENCY posture flip — "assume you are not alone"** (Mike,
+      2026-07-20). `CONCURRENCY.md` § The trigger now leads with a concurrent
+      prior instead of a solo one: the dirty-tree backstop has a blind spot —
+      the doctrine's own commit-small-push-fast hygiene leaves a *clean* tree
+      between a disciplined parallel session's commits, so a clean tree is not
+      evidence of solitude. Precaution scales with the write (read = none ·
+      light single-commit = sync + claim · write-heavy/multi-commit = worktree
+      by default). Solo default reframed: "solo" is a conclusion earned from
+      evidence, not assumed from silence. `CLAUDE.md` onramp rule 1 restated to
+      match. *review: WARRANTED — doctrine change (reverses the prior of a
+      decided section); queued for an independent session per REVIEW.md rule 4 /
+      review-brief-independence. Author (this session) does not self-review.
+      Watch: whether the risk-scaled ladder over-taxes light sessions, and
+      whether "positive evidence you are alone" is crisp enough to act on.*
 
 - [ ] **Fleet re-stamp of the reviews template** — unblocked 2026-07-19:
       the review cycle closed terminal (Mike's ruling on the 0629 no-MAJOR

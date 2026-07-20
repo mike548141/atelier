@@ -10,9 +10,14 @@ private-repo nicety. Verify: `gh repo view mike548141/atelier --json visibility`
 
 ## Read order at session start
 
-1. Sync first: `git pull --rebase --autostash`. If the tree holds uncommitted
-   changes this session didn't make, another session is live — move to a
-   worktree (`docs/method/CONCURRENCY.md`) before touching anything.
+1. Sync first: `git pull --rebase --autostash`, and **assume another session may
+   be live** — a clean tree is not proof you're alone (this repo's own
+   commit-small-push-fast hygiene means a disciplined parallel session leaves the
+   tree clean between commits). Uncommitted changes you didn't make are positive
+   proof another session is live: move to a worktree before touching anything.
+   Absent that proof, still take a worktree by default for write-heavy or
+   multi-commit work; reading needs no ceremony (`docs/method/CONCURRENCY.md`
+   § The trigger).
 2. `docs/method/00-APEX.md` — the frame everything sits inside.
 3. `README.md` — what atelier is and its layers.
 4. Tail of `docs/SESSIONS.md` — where the last session left off.

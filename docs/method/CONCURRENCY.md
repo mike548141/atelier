@@ -23,14 +23,39 @@ git worktree add ~/worktrees/<repo>-<feature> -b <feature>
 - They reconcile on `main` via PR/merge. `main` is the integration point; the
   worktrees are where divergence is allowed to happen.
 
-## The trigger — knowing a session is the second one
+## The trigger — assume you are not the only session
 
-The substrate rule only fires if a session *knows* it is concurrent. The gap
-in practice was never the rule but the cue: git protects concurrent *commits*
-(worst case a rejected push and a rebase), but nothing protects the
-**uncommitted working tree** two sessions share — session B can overwrite
-session A's in-flight edits or sweep them into its own commit, and nothing
-errors. Two cues, both cheap, no locking machinery:
+**Start from the assumption that another session may be live right now.** The
+safe prior is *concurrent until you have positive evidence you are alone* — not
+the reverse. The reason is a blind spot in the cues below: the dirty-tree
+backstop fires only on *uncommitted* changes, yet this doctrine tells every
+session to commit small and push fast (§ Integration hygiene), so a well-behaved
+parallel session leaves a **clean** tree between its commits. A clean working
+tree is therefore *not* evidence of solitude — only evidence that whoever else
+is here is disciplined. (Grounded 2026-07-20, Mike: the earlier framing let "I
+saw no dirty tree" read as "I am alone", which the fast-push hygiene this same
+doctrine mandates directly undermines.)
+
+The precaution **scales with what the session is about to do** — cheap when
+reading, heavier only when writing:
+
+- **Reading only** — no ceremony; a stale read is harmless and the next sync
+  corrects it.
+- **A light, single-commit write** — sync immediately before (§ Integration
+  hygiene), and claim on `main` if the work came off the shared queue
+  (§ Claiming work); trunk-based is enough.
+- **Write-heavy or multi-commit work** — take a worktree *by default*, without
+  waiting to confirm a second session exists. The cost is near-zero (the harness
+  has native worktree support) and it removes the shared-uncommitted-tree hazard
+  outright rather than betting the other session stayed clean.
+
+The substrate rule still needs a firing cue, and there are two — both cheap, no
+locking machinery. Read them as telling you when you may *relax* the worktree
+default, not as the only way to discover you are concurrent. git protects
+concurrent *commits* (worst case a rejected push and a rebase), but nothing
+protects the **uncommitted working tree** two sessions share — session B can
+overwrite session A's in-flight edits or sweep them into its own commit, and
+nothing errors. The two cues:
 
 - **Say so at open (primary):** when the principal knows they are opening a
   second session on a repo already in use, they say so, and that session works
@@ -51,13 +76,21 @@ the worktree rule had existed since this doc was written yet never fired,
 because nothing told a session it was the second one. Good habits (small
 commits, pushed fast) were standing in for a rule with no firing condition.
 
-## The solo default — trunk-based, no standing ceremony
+## The solo default — trunk-based, but "solo" is a conclusion, not an assumption
 
-One session alone on a repo commits to the integration branch directly: small
-commits, pushed immediately. Branch-per-session for solo work costs more than
-it buys — every branch demands the put-away ceremony below and adds a merge
-step for zero isolation gain (there is nothing to be isolated *from*).
-Worktrees are for known-parallel work, not a tax on every session.
+A session that has *established* it is alone — the principal's say-so that no
+other session is open, or an equivalent positive signal — commits to the
+integration branch directly: small commits, pushed immediately.
+Branch-per-session for genuinely-solo work costs more than it buys — every
+branch demands the put-away ceremony below and adds a merge step for zero
+isolation gain (there is nothing to be isolated *from*). Worktrees are not a tax
+on every session.
+
+The pivot is *how you reach "solo"*: it is earned from evidence, never assumed
+from silence (§ The trigger). Absent positive evidence you are alone, the
+default for write-heavy work leans to a worktree. Truly-alone sessions still pay
+nothing — the only change is that a clean tree no longer *counts* as the
+evidence.
 
 ## Two kinds of parallelism — use the right one
 
