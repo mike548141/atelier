@@ -5,6 +5,26 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-20 — sizescan: line-count budget → cold-content gate)
+- **`sizescan` now gates on relocatable cold content, not line count** (Mike's
+  2026-07-20 ruling; reverses the 2026-07-19 budget gate). Cost is size ×
+  read-frequency, so `--check` fails only on a completed `[x]` item on the hot
+  path (a checkbox-worklog file — `ROADMAP.md`), whose fix is a lossless move to
+  `ROADMAP-DONE.md`. Line count is demoted to a pure **advisory** — a class
+  reference point that reports but never fails a build — so a file long purely
+  from live current-truth is never penalised and the number can't induce
+  line-golf. Prose-shaped cold content and thinness stay caught at review, not
+  measured. The static `GATED` set is gone (gating is content-driven). Hatches:
+  `sizescan:allow` exempts a file fully; `sizescan:budget=N` quiets the size
+  advisory only, never the gate. Suite **267→282**; `ci.yml` + `floor.yml`
+  retitled to the cold-content frame; `RECORD.md` module doc updated. `main`'s
+  floor is green by harvesting 4 `[x]` items, not trimming lines.
+- **`PROPAGATION.md` child-block size spec re-grounded (SR2)** — the dead
+  "~15 lines" figure replaced with a grounded shape (~50 lines, one bullet per
+  irreducible floor concern, seven today).
+- **Applied-but-review-owed**: the rework is a `⏳` item queued for independent
+  rule-4 review (SR2 rides the cycle); the author did not self-review.
+
 ### Changed (2026-07-20 — triple doctrine cycle closed terminal; DOCUMENTATION ratified)
 - Three queued rule-4 cold passes ran in one taker session ("do any reviews
   waiting") and all returned **PASS, 0 MAJOR**; Mike ruled every counsel

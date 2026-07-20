@@ -94,7 +94,7 @@ Advisory by default. A bare `sizescan` **reports and exits 0** — drop it in CI
 surface the numbers without ever breaking a build. `--check` is the opt-in gate,
 and it fails **only** on relocatable cold content (a `[x]` item on the hot path),
 whose fix is lossless. Reviewed 2026-07-14 (cold, PASS-WITH-FINDINGS) and
-reworked to this cold-content model 2026-07-21 (Mike's 2026-07-20 ruling).
+reworked to this cold-content model 2026-07-20 (Mike's ruling, same day).
 
 Exit codes (fail-safe — anything but a clean/advisory run is non-zero):
   0  clean; any advisory finding (size over reference); or cold content present

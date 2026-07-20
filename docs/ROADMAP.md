@@ -179,7 +179,7 @@ The generalised anti-bloat work. `sizescan` flags relocatable **cold content** o
 the hot path across the fleet (and reports size as advisory); these are the
 outstanding strands.
 
-- ⏳ **Size-signal rebalance to a cold-content gate — APPLIED 2026-07-21, review
+- ⏳ **Size-signal rebalance to a cold-content gate — APPLIED 2026-07-20, review
       queued (rule 4 independent).** Mike's 2026-07-20 ruling (reverses the
       2026-07-19 line-count gate): **cost is size × read-frequency**, so the enemy
       is never fulsomeness but **cold content sitting on the hot path**. `sizescan`
@@ -203,7 +203,7 @@ outstanding strands.
       silent-failure mode; **SR2's re-grounding rides with this cycle.** Rule 4
       independent: a non-author spawner (a session the author neither started nor
       instructed) may take it and write the brief (REVIEW.md rule 4). Detail →
-      session record 2026-07-21.*
+      session record 2026-07-20.*
 Completed file-size work (the 2026-07-14 sizescan build/review + wiring; the
 2026-07-18 fleet harvests — ros 7123→982 in two ruled stages, faves, shed; the
 grounded-budgets correction; the 2026-07-19 tripwire-split application, now

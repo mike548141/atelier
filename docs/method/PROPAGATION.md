@@ -78,7 +78,7 @@ placeholders (`<atelier-path>`, `<SHA>`, `<owner/repo>`, `<visibility fact>`
 the house shape), and keep it **deliberately lean**: the block is the hottest
 read path in the fleet — every child session pays its length at every open —
 so a line earns its place or moves behind a pointer. **Grounded shape (SR2,
-2026-07-21):** one bullet per irreducible floor concern — seven today (apex +
+2026-07-20):** one bullet per irreducible floor concern — seven today (apex +
 Laws, the always-stop floor, concurrency, session rhythm, source & drift, estate
 resources, this repo's visibility), each as tight as it can be while stating its
 concern in full and pointing up for the rest. That structure — seven dense

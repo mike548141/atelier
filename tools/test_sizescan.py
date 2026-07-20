@@ -7,7 +7,7 @@ reference docs unmetered, root-only READMEs), the escape hatches, and the
 cold-content-gate-vs-advisory exit contract are proven against the real
 filesystem, not a mock.
 
-The gate model (Mike's 2026-07-20 ruling, reworked 2026-07-21): `--check` fails
+The gate model (Mike's 2026-07-20 ruling, reworked 2026-07-20): `--check` fails
 ONLY on relocatable cold content — a completed `[x]` item on the hot path, whose
 fix is a lossless move to ROADMAP-DONE.md. A file that is merely *long* from live
 current-truth is advisory, never a build failure — cost is size × read-frequency,
