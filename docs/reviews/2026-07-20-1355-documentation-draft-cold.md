@@ -81,3 +81,109 @@ real repo ships (tests-as-docs? commit messages? ADRs? README badges?
 tutorials?) — a silently missing artefact class is a finding.
 
 ---
+
+# Verdict — 2026-07-20 ~1500 UTC
+
+**Provenance repeated (rule 4):** the taker named in the brief; author of
+none of the draft, its records, or the ros artefacts cited. No deferred
+material remained unread beyond what the brief names (no intent record
+exists separate from the SESSIONS entry; no prior verdict exists), so
+findings and reconcile land in one commit.
+
+## Lens 2 first — every grounding claim re-ran TRUE at `ros` @ `806eb10`
+
+This is the draft's strongest property and it is verified, not taken:
+
+- `tiki.1` **MACHINE OUTPUT**: "byte-stable", "Machine mode never prompts",
+  per-verb schemas — present as claimed.
+- `tiki.1` **CAVEATS**: the flash-floor quirk (free-hdd exactly 20480,
+  RAM-only silent revert, "run tiki health before trusting an apply to
+  stick") — verbatim as the draft renders it.
+- `tiki.1` **SEE ALSO**: points only to ARCHITECTURE/CHANGELOG/README — the
+  draft's *honest-gap* claim (no vendor pointer yet) is **true**, and
+  correctly assigned to ros's application half.
+- `ros PRINCIPLES §6`: "the principal may be a machine" (Mike, 2026-07-15),
+  the tier-1/tier-2 split (2026-07-17), "entire result, never a lossy
+  subset", "the human view is a rendering of the machine truth", and
+  `fleet.json schema_version` as the worked instance — all present; the
+  draft's Grounding paragraph is a faithful lift.
+- **"Ship the harvester, not the harvest"**: a real, Mike-ratified ruling
+  (ros model-datasheet catalogue, 2026-07-18, three independent grounds) —
+  the draft's copyright-question cross-reference is accurate.
+- Principle 2's pointer: `RECORD.md` does carry the docs-as-code /
+  man-page-in-the-same-commit rule at its head — the pointer resolves.
+- Registration: `method/README.md` entry 15 present; sizescan does not flag
+  the new file (232 lines, judgement-class); the in-doc `*review:*` foot
+  line complies with the 07-18 "omission is the bug" remedy; the
+  COMMUNICATION.md seam claim ("working with me" calibration) matches that
+  doc's actual text.
+
+## Findings
+
+- **DD1 (MEDIUM, lens 1/2 — the table drops the cell the doc says is most
+  often dropped).** § *What "great" means per cell* promises "the two axes
+  together", but its table columns are **Human newbie · Human expert · AI
+  operator · Orchestrator** — a four-persona strip, not a matrix. Missing:
+  the **developer** cell (and the human *operator*, arguably). The draft
+  itself warns, three sections earlier, "The developer cell is the one most
+  often dropped… Name it separately" — and then its own great-per-cell table
+  drops it. The persona set also disagrees with the artefact inventory's
+  (which uses operator/expert/developer). The irony aside, the defect is
+  real: the table is where a child session will look up "what does great
+  mean for X", and the extend-the-tool reader has no column. *Taker's
+  counsel: add the developer column (needs: the why + extension seams;
+  served by: ARCHITECTURE/PURPOSE-class docs, why-comments, ADRs; fails
+  when: only reference exists), or retitle the table "the four
+  highest-traffic cells" and say where the others live.*
+- **DD2 (LOW, lens 2 — the mapping overclaims "directly").** "Its four
+  modes map onto the audiences directly" is stronger than Diátaxis itself
+  licenses — modes serve *needs of the moment*, not user types (an expert
+  is a newbie in a new tool; newbies read how-tos). Mike's decision 3
+  deliberately folds developer↔explanation, so the mapping is ruled — but
+  "directly" flattens a known-rough correspondence into a clean one. One
+  qualifying clause ("map roughly, by centre of gravity") keeps the anchor
+  honest without weakening it.
+- **DD3 (MEDIUM, lens 3 — inventory gaps against the commission's "any
+  other form you can think of").** Three artefact classes the estate
+  demonstrably uses are absent from the inventory: (a) **tests as
+  documentation** — executable how-to/reference whose staleness is caught
+  mechanically, the natural bridge to `EVIDENCE.md` (fixtures and
+  snapshot-replay *are* worked examples); (b) **commit messages** — the
+  house's own "why-dense body" convention is a documentation artefact, and
+  the AI consumer leans on it constantly (this review reconstructed intent
+  from commit messages throughout); (c) **diagrams** (architecture /
+  executive-audience) — a form the estate's own practice names. *Counsel:
+  add rows, or state the exclusion and where each lives instead.*
+- **DD4 (LOW, process — the reconcile clause is vacuous).** Mike
+  commissioned "cold-review against any competing drafts to reconcile"; no
+  competing draft exists at HEAD (no file, no branch; the ROADMAP records
+  that the second session did not open one). Not a defect of the draft —
+  recorded so the `⏳` item's "reconciles the drafts and applies" is not
+  ticked as done by implication. **Mike decides**: accept this adversarial
+  cold pass as the counterweight the second draft would have been, or
+  commission a genuine competing draft before ratifying.
+
+## Reconcile — named exposure re-checked against findings
+
+Mike's three recorded decisions function as the seeds, and all three are
+honoured in the draft: Diátaxis anchor ✓ (with DD2's one-word overclaim),
+consumer axis ✓ (faithful §6 lift, verified), the three folded deltas ✓ —
+though decision 3's *warning* (developer ≠ expert-user, easy to conflate) is
+exactly what DD1's table then does by omission, which is the strongest sign
+this pass found something the seeds pointed *at* rather than away from. The
+SESSIONS entry's evaluative claims ("honest gaps stated in-doc", "grounded
+read-only against ros @ 806eb10") both re-ran true. Beyond the seeds: DD3
+(inventory gaps), DD4 (vacuous reconcile).
+
+## Result
+
+**PASS with findings — 0 MAJOR · 2 MEDIUM · 2 LOW.** The draft is strong:
+genuinely grounded (every citation re-ran true at the pin — rare and worth
+saying), honest about its gaps, single-sourced by pointer, and the two-axis
+frame with the consumer extension is the right shape. The MEDIUMs are the
+dropped developer column (DD1) and the inventory gaps (DD3); both are
+additive fixes, not rework. Doctrine, self-authored — **decisions are
+Mike's**, including the standing one DD4 surfaces: whether this cold pass
+discharges the "competing draft" intent. The tiki application pass (ros's
+half) remains owed and is unaffected. No-MAJOR ⇒ on Mike's rulings the
+cycle closes terminal per the close rule.
