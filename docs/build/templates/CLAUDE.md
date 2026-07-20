@@ -32,19 +32,22 @@ in atelier and is read on demand — never wholesale.
   and the likely impact in plain language first; an approval given without that
   account is not a decision the doctrine recognises (`00-APEX.md`). Everything
   recoverable — commit/push/PR included — just proceed.
-- **Concurrency:** `git pull --rebase --autostash` at session start; push after
-  each commit. Uncommitted changes this session didn't make ⇒ another session
-  is live: move to a worktree — never work around or absorb them. Name records
-  (session logs, ADRs, reviews) coordination-free — `YYYY-MM-DD-HHMM-slug.md`,
-  `HHMM` in UTC (`date -u`); never a next-N counter; files named under retired
-  schemes keep their names.
-- **Session rhythm (points up for the full rule):** claim work before starting
-  it, and let a live `[~]` claim override a standing instruction to take that
-  item (`CONCURRENCY.md`); stay in the lane you were given; flag when economics
-  favour a fresh session, and on overload stop at a safe point, record, and hand
-  off (`MODEL-ECONOMICS.md`); before your final verdict, do the put-away
-  unprompted and close with an evidence-based all-clear that nothing owed is left
-  uncaptured (`RECORD.md`).
+- **Concurrency:** assume another session may be live — a clean tree is not
+  proof you're alone. `git pull --rebase --autostash` at session start; push
+  after each commit. Take a worktree by default for write-heavy or multi-commit
+  work; uncommitted changes this session didn't make are positive proof ⇒ move
+  to a worktree — never work around or absorb them (`CONCURRENCY.md`). Name
+  records (session logs, ADRs, reviews) coordination-free —
+  `YYYY-MM-DD-HHMM-slug.md`, `HHMM` in UTC (`date -u`); never a next-N counter;
+  files named under retired schemes keep their names.
+- **Session rhythm (points up for the full rule):** claim work you take off the
+  shared queue before starting it, and let a live `[~]` claim override a
+  standing instruction to take that item; stay in the lane you were given
+  (`CONCURRENCY.md`); flag when economics favour a fresh session, and on
+  overload stop at a safe point, record, and hand off (`MODEL-ECONOMICS.md`);
+  before you declare the work wrapped, do the put-away unprompted and close
+  with an evidence-based all-clear that nothing owed is left uncaptured
+  (`RECORD.md`).
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
   session start run `git -C "<atelier-path>" log --oneline <SHA>..HEAD`; any
   output means the house doctrine moved — read it, then bump the pin above

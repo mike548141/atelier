@@ -5,6 +5,36 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-20 — triple doctrine cycle closed terminal; DOCUMENTATION ratified)
+- Three queued rule-4 cold passes ran in one taker session ("do any reviews
+  waiting") and all returned **PASS, 0 MAJOR**; Mike ruled every counsel
+  accepted ("1–3 I accept your recommendations") and the taker applied them
+  as a terminal application (`87af9f9`) — no further pointer, per the close
+  rule. Verdicts + decisions:
+  `docs/reviews/2026-07-20-1355-{concurrency-flip,onramp-rhythm,documentation-draft}-cold.md`.
+- **`method/DOCUMENTATION.md` is now ratified doctrine** (new, entry 15): the
+  Diátaxis × consumer matrix, artefact inventory, five principles, the
+  vendor-docs seam. Review fixes: developer column added to the
+  great-per-cell table (DD1), centre-of-gravity qualifier on the mode↔audience
+  mapping (DD2), tests/commit-messages/diagrams added to the inventory (DD3);
+  the cold pass stands as the competing-draft counterweight (DD4 — none was
+  ever opened). Every grounding claim re-verified at ros `806eb10`. tiki
+  application half lives in ros.
+- **`method/CONCURRENCY.md`** — the "assume you are not alone" flip refined:
+  the solo default owns its trade (evidenced-alone pays nothing;
+  alone-but-unevidenced buys near-zero-cost insurance; evidence is
+  affirmative, never an absence — CF1/CF5); the cues are discovery-only,
+  silence licenses nothing (CF2); new dirty-primary claiming rule (CF3); new
+  § **Stay in your lane** — the standing "focus on given work" instruction
+  finally has a home doc (SR1).
+- **Child doctrine block** (`PROPAGATION.md` + `build/templates/CLAUDE.md`,
+  parity re-proven, suite 20 OK): Concurrency bullet caught up to the flipped
+  prior (CF4); Session-rhythm cue scoped to the shared queue (SR3), lane
+  clause pointered, "final verdict" → "declare the work wrapped" (SR4). The
+  dead "~15 lines" block spec replaced with the class-grounded lean rule;
+  numeric re-grounding queued into the size-signal rebalance (SR2). Children
+  adopt at pin bump.
+
 ### Changed (2026-07-19 — the review cycle closed terminal, no MAJOR)
 - The queued cold review of the G1–G3 application ran: **PASS — 0 MAJOR ·
   0 MEDIUM · 0 LOW + 1 note**

@@ -8,7 +8,8 @@ quality; it is the **right artefact for each cell** of a matrix. A docstring, a
 man page and an error message do not compete — each answers a different question
 for a different reader at a different moment, and each is good exactly when it
 serves its cell. (Authored 2026-07-20 off Mike's brief; anchored on Diátaxis +
-a consumer axis; tiki is the named exemplar. review-owed — see foot.)*
+a consumer axis; tiki is the named exemplar. Cold-reviewed 2026-07-20, findings
+ruled and applied — see foot.)*
 
 This binds every child repo. atelier holds the **doctrine**; a child holds its
 **application** — `ros`/tiki is the named proving ground (its ROADMAP carries the
@@ -28,7 +29,9 @@ For "who is asking and what are they asking", we adopt **Diátaxis** rather than
 reinvent it: a proven, widely-used framework, and adopting it is the
 least-invented path (the house rule is to ground, not to fabricate a private
 vocabulary where a good public one exists). Its four modes map onto the
-audiences directly:
+audiences by centre of gravity — roughly, not rigidly: modes serve *needs of
+the moment*, not user types (an expert is a newbie in a tool they have never
+used, and newbies read how-tos too):
 
 | Diátaxis mode | Orientation | Serves | The reader's question |
 |---|---|---|---|
@@ -82,11 +85,11 @@ house-wide documentation doctrine.
 The two axes together; "great" is the artefact that serves the cell, nothing
 grander.
 
-| | **Human newbie** | **Human expert** | **AI operator** (tier 1) | **Orchestrator** (tier 2) |
-|---|---|---|---|---|
-| **Needs** | a guided path, examples first | fast reference, zero ceremony | accurate one-liners, predictable grammar | stable schemas + exit codes |
-| **Served by** | tutorials, curated `--help`, README | man page, full per-command help | docstrings/help as index, GLOSSARY, grounded canon docs | `--json` contract + exit codes, versioned |
-| **Fails when** | drops them into reference | pads with ceremony | facts conflict across sources | the schema changes silently |
+| | **Human newbie** | **Human expert** | **Human developer** | **AI operator** (tier 1) | **Orchestrator** (tier 2) |
+|---|---|---|---|---|---|
+| **Needs** | a guided path, examples first | fast reference, zero ceremony | the *why* and the extension seams | accurate one-liners, predictable grammar | stable schemas + exit codes |
+| **Served by** | tutorials, curated `--help`, README | man page, full per-command help | ARCHITECTURE/PURPOSE-class docs, why-comments, ADRs | docstrings/help as index, GLOSSARY, grounded canon docs | `--json` contract + exit codes, versioned |
+| **Fails when** | drops them into reference | pads with ceremony | only reference exists — the *what* without the *why* | facts conflict across sources | the schema changes silently |
 
 ## The artefact inventory
 
@@ -106,6 +109,9 @@ serves "everyone". Map each to its mode and its consumer:
 | **Machine contract** (`--json` schemas, exit codes) | *the contract* | **software** |
 | Changelog | reference (history) | human + AI |
 | ADR / session / decision records | explanation (why-history) | human + AI |
+| **Tests & fixtures** (executable examples) | how-to + reference, *executable* | AI + human (developer) |
+| **Commit messages** (why-dense body) | explanation (the why, at the change site) | AI + human |
+| Diagrams (architecture / executive) | explanation | human |
 
 Two cells earn emphasis because they are the ones most often left out of "the
 docs":
@@ -222,11 +228,14 @@ review's evidence base.
 
 ---
 
-*review: **WARRANTED** — doctrine that binds every child repo, and it reverses/
-unifies scattered case-law. Author (this session, Opus) does **not** self-review
-(`REVIEW.md` rule 3/4, review-brief independence). Mike has commissioned a cold
-review of this draft **against any competing draft, to reconcile** — so this is
-one candidate, deliberately not the only one. Queued `⏳` on the ROADMAP.
-Grounding read this session (read-only, ros @ `806eb10`): `tiki/docs/tiki.1`
-(MACHINE OUTPUT, CAVEATS, SEE ALSO), `ros PRINCIPLES.md §6`,
-`EVIDENCE.md §9`, `RECORD.md`.*
+*review: **cold pass RAN 2026-07-20**
+(`../reviews/2026-07-20-1355-documentation-draft-cold.md`) — **PASS, 0 MAJOR ·
+2 MEDIUM · 2 LOW**; every grounding claim re-ran true at ros @ `806eb10`
+(tiki.1 MACHINE OUTPUT/CAVEATS/SEE ALSO, PRINCIPLES §6, the harvester
+ratification). Mike ruled 2026-07-20 ("1–3 I accept your recommendations"):
+DD1–DD3 applied — the developer column, the centre-of-gravity qualifier, the
+tests/commit-messages/diagrams inventory rows. DD4: no competing draft was
+ever opened; the adversarial cold pass stands as its counterweight and
+discharges the reconcile intent. **Cycle closed terminal** (no-MAJOR, close
+rule). The tiki application pass (ros's half) remains owed and is this
+doctrine's live evidence base.*

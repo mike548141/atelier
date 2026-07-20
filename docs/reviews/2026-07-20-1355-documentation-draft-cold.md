@@ -187,3 +187,22 @@ Mike's**, including the standing one DD4 surfaces: whether this cold pass
 discharges the "competing draft" intent. The tiki application pass (ros's
 half) remains owed and is unaffected. No-MAJOR ⇒ on Mike's rulings the
 cycle closes terminal per the close rule.
+
+## Decisions — ruled 2026-07-20, applied `87af9f9` (terminal application)
+
+Mike: *"1–3 I rule that I accept your recommendations"* — all counsel
+accepted, applied by the taking session (terminal — no further pointer).
+
+- **DD1 [fixed]** — the great-per-cell table gains the **Human developer**
+  column (needs the *why* + extension seams · served by ARCHITECTURE/
+  PURPOSE-class docs, why-comments, ADRs · fails when only reference exists).
+- **DD2 [fixed]** — "map onto the audiences directly" → by centre of
+  gravity, with the modes-serve-needs-not-user-types qualifier.
+- **DD3 [fixed]** — inventory rows added: tests & fixtures (executable
+  examples), commit messages (why-dense body), diagrams.
+- **DD4 [decided]** — the adversarial cold pass stands as the competing
+  draft's counterweight and discharges the reconcile intent; the doctrine is
+  **ratified** with the fixes above. The in-doc foot line records it.
+
+**Cycle CLOSED terminal.** The tiki application pass (ros's half) remains
+owed and is the doctrine's live evidence base.
