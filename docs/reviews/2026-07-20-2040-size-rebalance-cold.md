@@ -214,3 +214,31 @@ honestly recorded almost everywhere; the two MEDIUMs are a stale adopter-facing
 doc and a number that fails the delta's own circularity test. Per rule 3,
 all findings on this self-authored doctrine are **Mike's to decide**; counsel
 above, nothing applied by this pass.
+
+## Reconcile — deferred material opened after the findings commit (`e2aa0a5`)
+
+Opened: the authoring session record (2026-07-20-2025), the CHANGELOG entry,
+the `⏳` entry's *review:* seeds, and the delta commit bodies.
+
+- **The seeds landed where this pass had already looked.** "Silent-failure
+  mode" → covered by A3/SR3; "SR2 rides" → SR2-C. No seeded site was missed;
+  no finding here originated from a seed.
+- **The author flagged three judgement calls; two were independently covered
+  (detector = `[x]` only; advisory numbers retained — both endorsed under
+  A2). The third deserves its own line: SESSIONS.md moved from gated to
+  advisory-only.** The old gate could red a flat-log SESSIONS; the new one
+  never can (SESSIONS is not a checkbox worklog). The author's reading of
+  the ruling is faithful — a flat-log's fix is a split, not a machine-
+  nameable lossless move — and RECORD.md documents the advisory as the
+  regression signal. The residual is visibility: an advisory on a green
+  build is only seen if someone reads the log. This pass endorses the
+  change and names the residual for Mike rather than raising it as a
+  finding — it is the ruling's own one-sided honesty, applied consistently.
+- **SR2-C and SR4 both survive the author's account.** The session record
+  restates the SR2 derivation ("derived from the block's *structure*, never
+  from what it weighs today (measured 49)") — restating independence is not
+  deriving it; the concern-count→line-count step remains ungrounded. And
+  both the record and `3ec8823`'s body repeat "moved verbatim" — the diff
+  shows the tripwire-split item compressed and re-tensed in the move, so
+  SR4 stands as written.
+- Nothing in the deferred material contradicts a finding or adds a new one.
