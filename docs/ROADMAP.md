@@ -195,7 +195,8 @@ outstanding strands.
       now cold-content-driven; suite 267→282), `ci.yml` + `floor.yml` retitled to
       the cold-content frame, `RECORD.md` module doc, the 07-19 ruling record, and
       **SR2** — `PROPAGATION.md`'s child-block size spec re-grounded numerically
-      (`≤ ~40 lines`, class-grounded on the block's measured shape). main's floor
+      (**~50 lines**, class-grounded on the block's seven-concern shape, replacing
+      the dead "~15"). main's floor
       is now green **the right way** — the 4 inline `[x]` items harvested, not 15
       lines trimmed.
       *review: WARRANTED — reverses a dated ruling + reworks a gate with a
