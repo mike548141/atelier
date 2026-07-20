@@ -97,6 +97,16 @@ stopped instead of re-deriving it:
     itself is complete. (Grounded 2026-07-12: the signal had run on soft habit
     and drifted after a model change — the artifact was mandated, the signal
     wasn't; Mike sharpened the sequence-vs-within-sequence boundary the same day.)
+  - **The all-clear carries its evidence.** The close message does not just
+    assert "done" — it *shows* what was captured and put away (session entry,
+    roadmap/records updated, commits pushed, worktrees/PRs closed, review queued
+    if owed), so the principal closes on verifiable fact, not on trust. The form
+    is free — a sentence, a checklist, a small table — but "nothing is owed" is
+    itself a claim, and the apex rule that a claim never runs stronger than its
+    evidence binds it (`00-APEX.md`). An honest all-clear also *names* anything
+    deliberately left open. The test: the principal reads it and closes without
+    a nagging "did it really capture everything?" (Grounded 2026-07-20, Mike:
+    the declare-the-close signal is only worth the evidence under it.)
   - (See also session hygiene in `MODEL-ECONOMICS.md`: log where you got to, then
     start fresh rather than dragging a bloated context.)
 

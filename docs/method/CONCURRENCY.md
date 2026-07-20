@@ -224,6 +224,16 @@ mid-way through it. Because claiming keys on **selection from the shared
 queue**, no session that picks work is ever outside it — closing the gap a
 session which didn't *know* it was parallel used to leave open.
 
+**A live claim outranks a standing instruction to take that item.** When the
+principal has handed a session a batch of work, a `[~]` on one of those items
+still wins — the claim reflects the queue's *current* state, which the batch
+instruction, written earlier, could not. Skip to the next open item and note the
+skip; never reach into another session's in-flight work because an earlier list
+named it. This is the same yield as a rejected push (they claimed first, they own
+it), reached one step sooner — before any work, off a marker the instruction
+predates. An explicit, *current* re-assignment from the principal is a different
+thing and does override; a stale list is not that. (Grounded 2026-07-20, Mike.)
+
 Two more properties:
 
 - **The claim mutates the item in place — never appends to a claims list.** An

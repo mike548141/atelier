@@ -276,6 +276,16 @@ context size and continuity are the levers:
 6. **Point, don't paste.** Give file paths and line ranges rather than pasting
    large content the model can read itself — reads are targeted and droppable;
    pastes live in the context forever.
+7. **Surface the boundary — and stop safely under overload.** A session boundary
+   is often the principal's call, not one to cross silently. When the economics
+   point to a fresh session — context degrading, cache churn, a genuine pivot —
+   *say so* rather than press on into a slow, costly context or start anew
+   without a word. And when handed more work than one session can carry well,
+   don't push a degrading context to the end of the list: use the economics to
+   pick a **safe stopping point**, write the record, put the work away, and hand
+   the remainder to a fresh session. A clean handoff of half the list beats a
+   muddy completion of all of it — item 1's "one task per session" seen from the
+   overload side. (Grounded 2026-07-20, Mike.)
 
 Keep the every-session read path lean: **bulk — completed detail, append-only
 logs, verbose specs — does not accumulate in the docs a session loads at start**

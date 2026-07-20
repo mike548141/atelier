@@ -78,6 +78,36 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
       Watch: whether the risk-scaled ladder over-taxes light sessions, and
       whether "positive evidence you are alone" is crisp enough to act on.*
 
+- ⏳ **Session-onramp operating-rhythm — surface the working beat to every
+      session** (Mike, 2026-07-20). Detail →
+      [session](sessions/2026-07-20-1302-session-onramp-operating-rhythm.md).
+      Finding: Mike's standing per-session instructions are already grounded
+      doctrine in `method/*` but never *reach* a session — the only always-loaded
+      surface (the child doctrine block, `PROPAGATION.md`) inlines the *safety
+      floor* only. A reach gap, not a content gap. **Authored (applied):** (A)
+      `CONCURRENCY.md` — a live `[~]` claim **outranks a standing instruction** to
+      take that item; (B) `MODEL-ECONOMICS.md` item 7 — **surface the session
+      boundary** + **stop safely under overload**; (C) `RECORD.md` — the close-out
+      **all-clear carries its evidence**, not a bare "done". Dropped
+      "think step-by-step" (ungrounded); folded "focus on given work" → "stay in
+      your lane". **STAGED — the child-block cue** (Mike ruled *yes*, the block
+      may carry an operating beat, not only the floor):
+
+      > - **Session rhythm (points up for the full rule):** claim work before
+      >   starting it, and let a live `[~]` claim override a standing instruction
+      >   to take that item (`CONCURRENCY.md`); stay in the lane you were given;
+      >   flag when economics favour a fresh session, and on overload stop at a
+      >   safe point, record, and hand off (`MODEL-ECONOMICS.md`); before your
+      >   final verdict, do the put-away unprompted and close with an
+      >   evidence-based all-clear that nothing owed is left uncaptured
+      >   (`RECORD.md`).
+
+      **Sequencing (Mike's call):** the cue lands in `PROPAGATION.md`'s block +
+      `build/templates/CLAUDE.md` in the *same* edit that catches them up to the
+      still-owed concurrency-flip (`295d94a`) propagation — one block-update,
+      after Mike rules on that flip. *review: WARRANTED — three method docs + a
+      pending block change; rule 4, independent, author does not self-review.*
+
 - [ ] **Fleet re-stamp of the reviews template** — unblocked 2026-07-19:
       the review cycle closed terminal (Mike's ruling on the 0629 no-MAJOR
       pass) and G1's blocker is cleared (pin slot reworded, prove-the-stamp
