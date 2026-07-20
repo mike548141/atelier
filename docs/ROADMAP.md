@@ -15,14 +15,6 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
-- [x] **Triple doctrine cycle CLOSED 2026-07-20** — DOCUMENTATION doctrine
-      (ratified), CONCURRENCY posture flip, session-onramp operating-rhythm:
-      three rule-4 cold passes, all PASS no-MAJOR; Mike ruled all counsel
-      accepted; terminal application `87af9f9` (incl. the child-block
-      concurrency catch-up, CF4). Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md);
-      verdicts: `reviews/2026-07-20-1355-{documentation-draft,concurrency-flip,
-      onramp-rhythm}-cold.md`. tiki application half of DOCUMENTATION → ros.
-
 - [ ] **Fleet re-stamp of the reviews template** — unblocked 2026-07-19:
       the review cycle closed terminal (Mike's ruling on the 0629 no-MAJOR
       pass) and G1's blocker is cleared (pin slot reworded, prove-the-stamp
@@ -58,7 +50,9 @@ COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin
 bundle, CONCURRENCY put-away, CLI-docs standard, ADR 0006/ccarchive addendum,
 CONVENTIONS + UTC-at-rest, lean-files/sizescan, the review-trigger/sizescan
 combined cycle — 0407 → F1–F9 applied → 0544 → G1–G3 applied → 0629 terminal
-no-MAJOR pass, closed 2026-07-19) →
+no-MAJOR pass, closed 2026-07-19; the 2026-07-20 triple cycle — DOCUMENTATION
+doctrine + CONCURRENCY posture flip + session-onramp operating-rhythm, three
+rule-4 cold passes all PASS no-MAJOR, applied `87af9f9`) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 ## build/ layer — open strands
@@ -125,9 +119,6 @@ REPO-BOUNDARY, worktree tooling) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 ### ccarchive (Mike, 2026-07-17)
 
-- [x] **Local-store audit (`--audit`) — DONE 2026-07-17**; live store hashed
-      against the manifest, only mutated+renamed count as drift. Detail →
-      [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 - [ ] **Restore from archive — full + delta** — replace mutated/missing local
       files from the archive (gunzip `<dest>/<rel>.gz` → `~/.claude/projects/<rel>`).
       A full `--restore` and a delta mode that restores only what the local-store
@@ -184,63 +175,48 @@ REPO-BOUNDARY, worktree tooling) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 ## File-size hygiene (new 2026-07-14)
 
-The generalised anti-bloat work. `sizescan` flags any current-truth file over
-budget across the fleet; these are the outstanding harvests it surfaced.
+The generalised anti-bloat work. `sizescan` flags relocatable **cold content** on
+the hot path across the fleet (and reports size as advisory); these are the
+outstanding strands.
 
-- [ ] **Rebalance the size signal — meter the hot path, gate on relocatable cold
-      content, never on live fulsomeness (Mike, 2026-07-20; reverses the
-      2026-07-19 "budgets gate ROADMAP/SESSIONS" ruling below).** The bug Mike
-      named: a flat line-count budget (300) makes a *crude proxy* a **hard CI
-      failure** — punishing a file for being *fulsome* even when the bulk is
-      legitimate live content, on a number grounded in nothing ([[ground-numeric-
-      limits]]). Reframe: **cost is size × read-frequency.** A hot-path file (read
-      every session: CLAUDE, ROADMAP, SESSIONS tail, start-path docs) pays its
-      size every session; a cold store (grep-on-demand: ROADMAP-DONE, session
-      detail, archives) is nearly free — so "cheap vs fulsome" is a false choice
-      once content sits in the right tier. **Design direction:** (1) weigh only
-      the **hot path** — cold stores unmetered, fulsomeness there is free; (2) the
-      only thing that reds the build is **cold content sitting on the hot path**
-      (completed/`[x]` items, closed cycles, resolved narrative under open items)
-      — *always* losslessly fixable (move to `-DONE`) and pure cost, so a gate
-      there is fair (the 07-19 "always has a clean fix" logic aimed at the *right
-      target*); (3) a hot file large purely from **live current-truth** is
-      **never** penalised. No magic number — the trigger is "is there relocatable
-      cold content here", not "> N lines". Honest hard part: reliably *detecting*
-      cold content (heuristics, imperfect). Touches `sizescan.py`, `floor.yml` +
-      atelier CI, the sizescan module doc, and the record of the 07-19 ruling.
-      **Scope add (SR2, ruled 2026-07-20):** re-ground the child doctrine
-      block's size spec numerically — `PROPAGATION.md`'s old "~15 lines" was
-      dead text (block measured 48); the interim class-grounded lean rule is
-      in place, the number lands here (the block is the fleet's hottest read
-      path — the purest size×read-frequency case).
-      **`main`'s floor is deliberately left RED until this lands** — that red is
-      the false signal being fixed, not a real defect; not hacked to hide it.
+- ⏳ **Size-signal rebalance to a cold-content gate — APPLIED 2026-07-21, review
+      queued (rule 4 independent).** Mike's 2026-07-20 ruling (reverses the
+      2026-07-19 line-count gate): **cost is size × read-frequency**, so the enemy
+      is never fulsomeness but **cold content sitting on the hot path**. `sizescan`
+      now gates on relocatable cold content — a completed `[x]` item on a
+      checkbox-worklog file (`ROADMAP.md`), whose fix is a lossless move to
+      `ROADMAP-DONE.md` — and **never on length**. Line count is demoted to a pure
+      **advisory** (a class reference point that reports but never fails a build),
+      so a file long purely from live current-truth (a roadmap of wholly open
+      items) is never penalised, and the number can no longer induce line-golf.
+      Prose-shaped cold content (resolved narrative under an open item) + thinness
+      stay **caught at review, not measured** (the standing one-sided honesty).
+      Shipped: `sizescan.py` reworked (the static `GATED` set is gone — gating is
+      now cold-content-driven; suite 267→282), `ci.yml` + `floor.yml` retitled to
+      the cold-content frame, `RECORD.md` module doc, the 07-19 ruling record, and
+      **SR2** — `PROPAGATION.md`'s child-block size spec re-grounded numerically
+      (`≤ ~40 lines`, class-grounded on the block's measured shape). main's floor
+      is now green **the right way** — the 4 inline `[x]` items harvested, not 15
+      lines trimmed.
       *review: WARRANTED — reverses a dated ruling + reworks a gate with a
-      silent-failure mode; rule 4 independent. Best as a fresh focused session
-      (first-of-kind design).*
-
-- [x] **Budgets are tripwires, not targets — Mike's ruling 2026-07-19, APPLIED.**
-      `--check` now gates only the lossless-remedy files (`ROADMAP.md`,
-      `SESSIONS.md` — a red demands a *move*, never rewording); judgement docs
-      (`README`/`ARCHITECTURE`/`CLAUDE`) report but never fail the build. The
-      one-sided signal (no thinness floor — that's stub-honestly judgement, not
-      a number) stated as deliberate in the module doc. `sizescan.py` + report
-      + `floor.yml` template comment; suite 267 green, both classes live-proven
-      (atelier gated red exits 1; a judgement-doc red exits 0). Children adopt
-      at pin bump. **Agent-authored doctrine ⇒ in the ⏳ review scope above.**
-- [x] **hooks.atelierTools worktree bug was fleet-wide** — 9 more children
-      carried the relative path (every worktree commit blocked by the
-      fail-closed hook); all 10 set absolute 2026-07-19, and the **source
-      fixed** — `create-repo` step 6 now absolutises the path it stamps.
+      silent-failure mode; **SR2's re-grounding rides with this cycle.** Rule 4
+      independent: a non-author spawner (a session the author neither started nor
+      instructed) may take it and write the brief (REVIEW.md rule 4). Detail →
+      session record 2026-07-21.*
 Completed file-size work (the 2026-07-14 sizescan build/review + wiring; the
-2026-07-18 fleet harvests — ros 7123→982 in two ruled stages, faves, shed;
-the grounded-budgets correction) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
-- [ ] **Existing fleet children pick up the `floor.yml` size gate** — children
-      copy `floor.yml` statically, so they adopt at their next pin bump /
-      harvest. The fleet is sizescan-clean except ros's ROADMAP (structural —
-      125 open items; its red is true and stays lit until ros declares a
-      class-grounded budget or the item count falls). faves and ros run bespoke
-      CI without `sizescan --check` — a separate floor-adoption step.
+2026-07-18 fleet harvests — ros 7123→982 in two ruled stages, faves, shed; the
+grounded-budgets correction; the 2026-07-19 tripwire-split application, now
+superseded by the rebalance above; the fleet-wide `hooks.atelierTools` fix) →
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md).
+- [ ] **Existing fleet children pick up the reworked `floor.yml` gate** — children
+      copy `floor.yml` statically, so they adopt the cold-content gate at their
+      next pin bump / harvest. **The rebalance dissolves the all-open-roadmap
+      red**: a wholly-open ROADMAP (ros's ~125 open items) no longer reds on
+      length — with no cold content to relocate it is advisory now, not a standing
+      red — so the class-grounded-budget workaround is no longer needed for that
+      case. A child that still reds does so on un-harvested `[x]` items, its own
+      harvest lane. faves and ros run bespoke CI without `sizescan --check` — a
+      separate floor-adoption step.
 
 ## North star — context follows the person, work follows anywhere
 
