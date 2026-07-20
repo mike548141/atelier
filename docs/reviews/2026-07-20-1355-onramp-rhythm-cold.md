@@ -180,3 +180,23 @@ the cue built on top of (SR2). Doctrine is self-authored in rule 3's sense —
 **decisions are Mike's**; taker's counsel sits with each finding. No-MAJOR ⇒
 on Mike's rulings this cycle closes terminal, with the application batch
 folding naturally into the same block-update CF4 asks for a line on.
+
+## Decisions — ruled 2026-07-20, applied `87af9f9` (terminal application)
+
+Mike: *"1–3 I rule that I accept your recommendations"* — all counsel
+accepted, applied by the taking session (terminal — no further pointer).
+
+- **SR1 [fixed]** — `CONCURRENCY.md` gains § *Stay in your lane* (the three
+  fences: claimed items, in-flight trees, other repos' open work — grounded
+  in the cmd-Q recovery's held boundary); the cue's lane clause now carries
+  its `CONCURRENCY.md` pointer. The rule finally has a home the block points
+  up to.
+- **SR2 [fixed + backlog]** — the dead "~15 lines" spec replaced with the
+  class-grounded rule (the block is the fleet's hottest read path; a line
+  earns its place or moves behind a pointer); the *numeric* re-grounding is
+  folded into the size-signal rebalance item's scope, per counsel.
+- **SR3 [fixed]** — the claim clause scoped to work taken off the shared
+  queue. **SR4 [fixed]** — "before your final verdict" → "before you declare
+  the work wrapped". Parity re-proven, suite 20 OK.
+
+**Cycle CLOSED terminal.**

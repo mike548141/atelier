@@ -189,3 +189,27 @@ self-authored in rule 3's sense — **decisions are Mike's**; taker's counsel
 sits with each finding, labelled. No-MAJOR ⇒ on Mike's rulings this cycle
 closes terminal per the close rule, with the application batch (and CF4's
 line) the only follow-on.
+
+## Decisions — ruled 2026-07-20, applied `87af9f9` (terminal application)
+
+Mike: *"1–3 I rule that I accept your recommendations"* — all taker's counsel
+accepted, applied by the taking session (a terminal application: rulings of a
+no-MAJOR pass close without a further queued pointer, REVIEW.md close rule).
+
+- **CF1 [fixed]** — § solo default now owns the trade: an *evidenced*-alone
+  session pays nothing; an alone-but-unevidenced one buys insurance at
+  near-zero cost. **CF5 [fixed]** in the same paragraph: an equivalent
+  positive signal is affirmative, never an absence.
+- **CF2 [fixed]** — the cues are discovery-only; their silence licenses
+  nothing.
+- **CF3 [fixed]** — § Claiming work gains the dirty-primary rule: queue file
+  clean ⇒ stage the claim hunk alone; queue file dirty ⇒ the other session is
+  queue-active, take the next item.
+- **CF4 [fixed]** — the child block's Concurrency bullet caught up to the
+  flipped prior in `PROPAGATION.md` + `build/templates/CLAUDE.md` (folded
+  into this batch per counsel's second option); parity re-proven, suite
+  20 OK. Children adopt at pin bump.
+- **CF6 [fixed]** — "(primary)" residue dropped. **CF7 [fixed]** — "when
+  unsure which rung, take the worktree."
+
+**Cycle CLOSED terminal.**
