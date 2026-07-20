@@ -204,6 +204,9 @@ outstanding strands.
       independent: a non-author spawner (a session the author neither started nor
       instructed) may take it and write the brief (REVIEW.md rule 4). Detail →
       session record 2026-07-20.*
+      **CLAIMED 2026-07-20 2040 UTC** by a rule-4 taker (Fable, Mike-spawned:
+      "do any review or fable dependent work"; authored none of the rebalance
+      chain). Brief → `docs/reviews/2026-07-20-2040-size-rebalance-cold.md`.
 Completed file-size work (the 2026-07-14 sizescan build/review + wiring; the
 2026-07-18 fleet harvests — ros 7123→982 in two ruled stages, faves, shed; the
 grounded-budgets correction; the 2026-07-19 tripwire-split application, now
