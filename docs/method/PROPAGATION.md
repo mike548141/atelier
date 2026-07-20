@@ -77,11 +77,20 @@ placeholders (`<atelier-path>`, `<SHA>`, `<owner/repo>`, `<visibility fact>`
 — quote the path if it contains spaces; the sibling-relative `../atelier` is
 the house shape), and keep it **deliberately lean**: the block is the hottest
 read path in the fleet — every child session pays its length at every open —
-so a line earns its place or moves behind a pointer. (The old "~15 lines"
-figure was dead on arrival — SR2, ruled 2026-07-20; the numeric re-grounding
-is queued with the size-signal rebalance on the ROADMAP.) `create-repo` stamps
-it on new repos; existing repos are retrofitted once. Everything below the
-block is repo-specific onramp.
+so a line earns its place or moves behind a pointer. **Grounded shape (SR2,
+2026-07-20):** one bullet per irreducible floor concern — seven today (apex +
+Laws, the always-stop floor, concurrency, session rhythm, source & drift, estate
+resources, this repo's visibility), each as tight as it can be while stating its
+concern in full and pointing up for the rest. That structure — seven dense
+concerns plus the heading and intro — sizes the block at **~50 lines**; the
+figure is the *concern-count shape*, never a line target (grounding it in what
+the block happens to weigh today would be circular). A block materially past it
+means a concern has grown narratable detail that belongs behind its pointer, not
+that it "broke a budget"; a concern can only *leave* the block by being genuinely
+redundant with another, never by trimming a live safety statement. (This
+replaces the "~15 lines" figure, which was dead on arrival — the block has never
+been that short.) `create-repo` stamps it on new repos; existing repos are
+retrofitted once. Everything below the block is repo-specific onramp.
 
 ```markdown
 ## Doctrine — inherited from atelier (pinned `atelier@<SHA>`)

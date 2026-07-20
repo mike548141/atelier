@@ -59,7 +59,9 @@ stopped instead of re-deriving it:
   `SESSIONS-ARCHIVE.md` growth store (grepped on demand, never loaded whole) —
   the same current-truth/history split as `ROADMAP`→`ROADMAP-DONE`, and the
   answer to the one move a bloated *already-split* index otherwise lacks.
-  `tools/sizescan.py` flags the index when it crosses budget. (Grounded
+  `tools/sizescan.py` reports the index as an **advisory** when it outgrows its
+  size reference — a lean index carries no `[x]` items, so it never gates, and the
+  size nudge is exactly what surfaces a regression back to a flat log. (Grounded
   2026-07-14: the cold review found the append-only rule and the budget colliding
   with no sanctioned move for an index that had already done the split.)
 - **Detail lives on demand** — when a session is substantial, its full detail
@@ -166,13 +168,17 @@ This is one pattern the whole record shares: **current-truth files stay lean;
 history relocates to an on-demand store.** SESSIONS (index + `docs/sessions/`),
 ROADMAP (open + `ROADMAP-DONE.md`), a README that points into `docs/` — the same
 shape. The discipline decays silently, though: the split gets done once by hand,
-then nothing fires when a file bloats again. So it carries a **budget and a
-signal** — `tools/sizescan.py` reports any current-truth file over its line
-budget (advisory; the growth stores are excluded by design, since flagging the
-*destination* would punish the fix). And it carries a **trigger**: harvesting is
-part of the session-close tidy-up (above) — when a session closes roadmap items,
-collapsing them to pointers happens then, not someday. That is what stops the
-3000-line accretion from ever forming.
+then nothing fires when a file bloats again. So it carries a **signal** —
+`tools/sizescan.py`. Cost is size × read-frequency (Mike's ruling, 2026-07-20),
+so the signal keys on **relocatable cold content on the hot path**, not length:
+it **gates** on a completed `[x]` item in a checkbox-worklog file (a done item
+belongs in `ROADMAP-DONE.md`; left inline it is pure cost with a lossless fix),
+and reports line count only as an **advisory** — never a build failure, because a
+file long purely from live current-truth has nothing to relocate. Growth stores
+are excluded by design; flagging the *destination* would punish the fix. And it
+carries a **trigger**: harvesting is part of the session-close tidy-up (above) —
+when a session closes roadmap items, collapsing them to pointers happens then,
+not someday. That is what stops the 3000-line accretion from ever forming.
 
 ## Absolute dating, everywhere in the record
 

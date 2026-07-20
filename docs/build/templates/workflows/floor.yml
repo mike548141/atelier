@@ -132,22 +132,21 @@ jobs:
       - name: linkscan (internal-link integrity, whole tree)
         run: python3 atelier/tools/linkscan.py --root repo repo
 
-      # Current-truth files (ROADMAP, SESSIONS index, README…) must stay lean so a
-      # session resumes cheaply. --check gates ONLY the two files whose remedy is
-      # lossless relocation — ROADMAP.md (harvest done detail to ROADMAP-DONE.md)
-      # and SESSIONS.md (rotate older entries to SESSIONS-ARCHIVE.md) — so a red
-      # here demands a move, not rewording, in the overwhelming case. The edge: a
-      # legitimately all-current file (a roadmap of wholly open items) has nothing
-      # to move — there, ground a declared budget in the file's class or accept a
-      # standing red; never trim a true signal. Judgement docs (README/
-      # ARCHITECTURE/CLAUDE) are reported but NEVER fail the build: a hard number
-      # on a judgement doc makes trimming-to-the-number the work (tripwire, not
-      # target — ruling 2026-07-19). A repo adopting this floor with a bloated
-      # ROADMAP will RED — that red IS the signal to harvest. Hatches for a
-      # legitimately long file: declare `sizescan:budget=N` in its first 15 lines
-      # (grounded in the file's CLASS, never its current length) or
-      # `sizescan:allow`. Drop `--check` to run fully advisory instead.
-      - name: sizescan (current-truth budgets)
+      # Current-truth files (ROADMAP, SESSIONS index, README…) must stay honest so
+      # a session resumes cheaply. --check gates on relocatable COLD CONTENT, not
+      # length (cost is size × read-frequency — Mike's ruling 2026-07-20): a
+      # completed `[x]` item on the hot path is pure cost with a lossless fix —
+      # move it to ROADMAP-DONE.md — so that red demands a move, never a reword. A
+      # file long purely from LIVE current-truth (a roadmap of wholly open items)
+      # has nothing to relocate and is advisory only — never a build failure, so
+      # the number can never induce line-golf. Prose-shaped cold content (resolved
+      # narrative under an open item) and thinness are caught at REVIEW, not
+      # measured. A repo adopting this floor with un-harvested `[x]` items will
+      # RED — that red IS the signal to harvest. Hatches: `sizescan:allow` exempts
+      # a file fully; `sizescan:budget=N` (grounded in the file's CLASS, never its
+      # current length) quiets the size advisory only, never the cold-content
+      # gate. Drop `--check` to run fully advisory instead.
+      - name: sizescan (cold content on the hot path)
         run: python3 atelier/tools/sizescan.py --check --root repo repo
 
       # Publish gate — uncomment when this repo has a LICENSE / before going public.
