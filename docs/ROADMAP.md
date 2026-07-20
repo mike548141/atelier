@@ -90,8 +90,11 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
       boundary** + **stop safely under overload**; (C) `RECORD.md` — the close-out
       **all-clear carries its evidence**, not a bare "done". Dropped
       "think step-by-step" (ungrounded); folded "focus on given work" → "stay in
-      your lane". **STAGED — the child-block cue** (Mike ruled *yes*, the block
-      may carry an operating beat, not only the floor):
+      your lane". **APPLIED — the child-block cue** (Mike ruled *yes* 2026-07-20, the
+      block may carry an operating beat, not only the floor; decoupled from the
+      concurrency-flip catch-up as standalone): a **Session rhythm** bullet now
+      lives in `PROPAGATION.md`'s canonical block **and** `build/templates/
+      CLAUDE.md` —
 
       > - **Session rhythm (points up for the full rule):** claim work before
       >   starting it, and let a live `[~]` claim override a standing instruction
@@ -102,11 +105,12 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
       >   evidence-based all-clear that nothing owed is left uncaptured
       >   (`RECORD.md`).
 
-      **Sequencing (Mike's call):** the cue lands in `PROPAGATION.md`'s block +
-      `build/templates/CLAUDE.md` in the *same* edit that catches them up to the
-      still-owed concurrency-flip (`295d94a`) propagation — one block-update,
-      after Mike rules on that flip. *review: WARRANTED — three method docs + a
-      pending block change; rule 4, independent, author does not self-review.*
+      *Still owed on the block, but NOT this item's:* the concurrency-flip
+      (`295d94a`) catch-up — the block's Concurrency bullet still carries the
+      pre-flip "dirty tree ⇒ another session live" wording; that propagation is
+      the concurrency cycle's job. *review: WARRANTED — three method docs + the
+      block cue; rule 4, independent, author does not self-review. Watch: whether
+      the cue earns its lines in a block spec'd ~15 lines.*
 
 - [ ] **Fleet re-stamp of the reviews template** — unblocked 2026-07-19:
       the review cycle closed terminal (Mike's ruling on the 0629 no-MAJOR
@@ -271,6 +275,33 @@ REPO-BOUNDARY, worktree tooling) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 The generalised anti-bloat work. `sizescan` flags any current-truth file over
 budget across the fleet; these are the outstanding harvests it surfaced.
+
+- [ ] **Rebalance the size signal — meter the hot path, gate on relocatable cold
+      content, never on live fulsomeness (Mike, 2026-07-20; reverses the
+      2026-07-19 "budgets gate ROADMAP/SESSIONS" ruling below).** The bug Mike
+      named: a flat line-count budget (300) makes a *crude proxy* a **hard CI
+      failure** — punishing a file for being *fulsome* even when the bulk is
+      legitimate live content, on a number grounded in nothing ([[ground-numeric-
+      limits]]). Reframe: **cost is size × read-frequency.** A hot-path file (read
+      every session: CLAUDE, ROADMAP, SESSIONS tail, start-path docs) pays its
+      size every session; a cold store (grep-on-demand: ROADMAP-DONE, session
+      detail, archives) is nearly free — so "cheap vs fulsome" is a false choice
+      once content sits in the right tier. **Design direction:** (1) weigh only
+      the **hot path** — cold stores unmetered, fulsomeness there is free; (2) the
+      only thing that reds the build is **cold content sitting on the hot path**
+      (completed/`[x]` items, closed cycles, resolved narrative under open items)
+      — *always* losslessly fixable (move to `-DONE`) and pure cost, so a gate
+      there is fair (the 07-19 "always has a clean fix" logic aimed at the *right
+      target*); (3) a hot file large purely from **live current-truth** is
+      **never** penalised. No magic number — the trigger is "is there relocatable
+      cold content here", not "> N lines". Honest hard part: reliably *detecting*
+      cold content (heuristics, imperfect). Touches `sizescan.py`, `floor.yml` +
+      atelier CI, the sizescan module doc, and the record of the 07-19 ruling.
+      **`main`'s floor is deliberately left RED until this lands** — that red is
+      the false signal being fixed, not a real defect; not hacked to hide it.
+      *review: WARRANTED — reverses a dated ruling + reworks a gate with a
+      silent-failure mode; rule 4 independent. Best as a fresh focused session
+      (first-of-kind design).*
 
 - [x] **Budgets are tripwires, not targets — Mike's ruling 2026-07-19, APPLIED.**
       `--check` now gates only the lossless-remedy files (`ROADMAP.md`,

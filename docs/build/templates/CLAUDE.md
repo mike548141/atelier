@@ -38,6 +38,13 @@ in atelier and is read on demand — never wholesale.
   (session logs, ADRs, reviews) coordination-free — `YYYY-MM-DD-HHMM-slug.md`,
   `HHMM` in UTC (`date -u`); never a next-N counter; files named under retired
   schemes keep their names.
+- **Session rhythm (points up for the full rule):** claim work before starting
+  it, and let a live `[~]` claim override a standing instruction to take that
+  item (`CONCURRENCY.md`); stay in the lane you were given; flag when economics
+  favour a fresh session, and on overload stop at a safe point, record, and hand
+  off (`MODEL-ECONOMICS.md`); before your final verdict, do the put-away
+  unprompted and close with an evidence-based all-clear that nothing owed is left
+  uncaptured (`RECORD.md`).
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
   session start run `git -C "<atelier-path>" log --oneline <SHA>..HEAD`; any
   output means the house doctrine moved — read it, then bump the pin above

@@ -47,16 +47,29 @@ working beat extends a precedent rather than inventing one.
 reason by default; it would be the one line violating the repo's ground-everything
 rule. **Folded:** "focus on given work" → "stay in your lane" in the cue.
 
-## Staged, NOT applied — the child-block cue
+## Applied — the child-block cue (standalone)
 
 Mike ruled (2026-07-20): *yes*, the always-read block may carry an operating
-beat, not only the floor. The distilled cue (claim → lane → economics/boundary →
-evidence-based close, each pointing up) is drafted verbatim on the ROADMAP ⏳
-item. **Sequencing (Mike's call):** it lands into `PROPAGATION.md`'s canonical
-block **and** `build/templates/CLAUDE.md` in the *same* edit that catches those
-copies up to the still-owed concurrency-flip propagation — one coordinated
-block-update, after Mike rules on the concurrency flip (`295d94a`, still ⏳).
-Don't touch the block twice.
+beat, not only the floor. He then decoupled it from the concurrency-flip
+catch-up (the coupling was confusing and not a real dependency). So a **Session
+rhythm** bullet (claim → lane → economics/boundary → evidence-based close, each
+pointing up) now lives in `PROPAGATION.md`'s canonical block **and**
+`build/templates/CLAUDE.md`. Children adopt at their next pin bump. *Still owed
+on the block but NOT this work's:* the concurrency-flip (`295d94a`) catch-up —
+the block's Concurrency bullet still carries the pre-flip wording; that's the
+concurrency cycle's job.
+
+## Follow-on — the size-signal rebalance (Mike commissioned; fresh session)
+
+Landing the operating-rhythm work tripped `main`'s floor: `sizescan --check` reds
+on ROADMAP > 300 lines. Mike rejected the easy de-fang ("make it advisory") and
+named the real bug — a flat line-count is a crude proxy made a **hard CI
+failure**, punishing fulsomeness on a number grounded in nothing. Agreed reframe:
+**cost is size × read-frequency**; meter only the hot path, gate only on
+relocatable cold content, never on live fulsomeness. Captured as an open ROADMAP
+item (File-size hygiene) with the full design direction, for a fresh focused
+session. **`main`'s floor is deliberately left RED** until it lands — the red is
+the false signal being fixed, not a real defect; not hacked to hide it.
 
 ## Review
 
