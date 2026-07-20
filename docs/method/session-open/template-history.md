@@ -1,5 +1,3 @@
-Lets do some work!
-
 * Think step-by-step.
 
 * I have multiple parallel sessions so use worktree(s) etc. and be careful.
@@ -12,6 +10,3 @@ Lets do some work!
 * If I've given you too much work then use economics and your own reasoning to
   find a good spot to stop safely, tidy everything up, wrap up and finish the
   session.
-
-* At the end when you give your verdict check and confirm that everything has
-  been tidied up and wrapped up. So you are ready for me to close this session
