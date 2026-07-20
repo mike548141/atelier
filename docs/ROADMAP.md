@@ -15,7 +15,7 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
-- [ ] **DOCUMENTATION doctrine — what great documentation is, per audience and
+- ⏳ **DOCUMENTATION doctrine — what great documentation is, per audience and
       consumer (Mike, 2026-07-20, raised in ros off the tiki CLI-UX review).**
       Mike: *"be clear on what great documentation looks like, and its
       purpose"* — for **audiences** developer vs operator × newbie vs expert,
@@ -52,8 +52,16 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
       expert-*user*; atelier's **record doctrine already IS the AI-reading
       standard** (resume-cold, one-fact-one-home, grounding, absolute dating —
       so that cell is *extraction*, not invention); **version-pin the vendor
-      pointer** ("verified against RouterOS 7.x", not a bare link). Owning
-      session authors; a second session did not open a competing draft.
+      pointer** ("verified against RouterOS 7.x", not a bare link).
+      **Draft authored 2026-07-20 (Opus) at `method/DOCUMENTATION.md`** —
+      registered in `method/README.md` (15), grounded read-only against
+      ros @ `806eb10` (tiki.1 MACHINE OUTPUT/CAVEATS/SEE ALSO, PRINCIPLES §6,
+      EVIDENCE §9, RECORD). Mike commissioned this as **one candidate**, to be
+      **cold-reviewed against any competing draft and reconciled** — so unlike
+      the earlier note, a competing draft *is* deliberately open. *review
+      state: `⏳` queued — a non-author session takes it (REVIEW.md rule 4),
+      reconciles the drafts, and applies. Author does not self-review. tiki
+      application (ros half) still owed and is the review's evidence base.*
 
 - ⏳ **CONCURRENCY posture flip — "assume you are not alone"** (Mike,
       2026-07-20). `CONCURRENCY.md` § The trigger now leads with a concurrent

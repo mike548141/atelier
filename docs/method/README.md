@@ -62,6 +62,15 @@ Read in this order:
     collision; foreign data is kept as-is with its frame as metadata. Declares
     the estate's defaults — UTC at rest, NZD, ISO 8601, UTF-8, NZ English + te
     reo. Time's full case is ADR 2026-07-15.
+15. **`DOCUMENTATION.md`** — transfer intent and capability at the reader's
+    altitude: "great" is the right artefact per cell of two axes — **Diátaxis**
+    (tutorial/how-to/reference/explanation, the what/who) × the **consumer**
+    (human · AI · orchestrating software, the how). Error messages and the
+    `--json`/exit-code machine contract are documentation too; a fact lives once
+    and everything points; docs change in the behaviour's commit and carry their
+    proving rung; the vendor-docs seam points, never mirrors. Generalises `ros`
+    `PRINCIPLES §6`; tiki is the named exemplar. *(review-owed; draft authored
+    2026-07-20.)*
 
 **Meta — how the doctrine is enforced, recorded, and propagated:**
 
