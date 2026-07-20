@@ -15,8 +15,12 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 
 ## Doctrine — review-owed
 
-- ⏳ **DOCUMENTATION doctrine — what great documentation is, per audience and
+- [~] **DOCUMENTATION doctrine — what great documentation is, per audience and
       consumer (Mike, 2026-07-20, raised in ros off the tiki CLI-UX review).**
+      (**claimed 2026-07-20 1355 UTC** by a rule-4-eligible session — Mike-spawned
+      ("do any reviews waiting"), authored none of the draft or its records;
+      brief: `reviews/2026-07-20-1355-documentation-draft-cold.md`,
+      wt: `atelier-review-triple-take`.)
       Mike: *"be clear on what great documentation looks like, and its
       purpose"* — for **audiences** developer vs operator × newbie vs expert,
       and **consumers** human · AI · orchestrating software — covering
@@ -63,8 +67,12 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
       reconciles the drafts, and applies. Author does not self-review. tiki
       application (ros half) still owed and is the review's evidence base.*
 
-- ⏳ **CONCURRENCY posture flip — "assume you are not alone"** (Mike,
-      2026-07-20). `CONCURRENCY.md` § The trigger now leads with a concurrent
+- [~] **CONCURRENCY posture flip — "assume you are not alone"** (Mike,
+      2026-07-20).
+      (**claimed 2026-07-20 1355 UTC** by a rule-4-eligible session — Mike-spawned
+      ("do any reviews waiting"), authored none of the flip or its records;
+      brief: `reviews/2026-07-20-1355-concurrency-flip-cold.md`,
+      wt: `atelier-review-triple-take`.) `CONCURRENCY.md` § The trigger now leads with a concurrent
       prior instead of a solo one: the dirty-tree backstop has a blind spot —
       the doctrine's own commit-small-push-fast hygiene leaves a *clean* tree
       between a disciplined parallel session's commits, so a clean tree is not
@@ -78,8 +86,12 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
       Watch: whether the risk-scaled ladder over-taxes light sessions, and
       whether "positive evidence you are alone" is crisp enough to act on.*
 
-- ⏳ **Session-onramp operating-rhythm — surface the working beat to every
-      session** (Mike, 2026-07-20). Detail →
+- [~] **Session-onramp operating-rhythm — surface the working beat to every
+      session** (Mike, 2026-07-20).
+      (**claimed 2026-07-20 1355 UTC** by a rule-4-eligible session — Mike-spawned
+      ("do any reviews waiting"), authored none of the delta or its records;
+      brief: `reviews/2026-07-20-1355-onramp-rhythm-cold.md`,
+      wt: `atelier-review-triple-take`.) Detail →
       [session](sessions/2026-07-20-1302-session-onramp-operating-rhythm.md).
       Finding: Mike's standing per-session instructions are already grounded
       doctrine in `method/*` but never *reach* a session — the only always-loaded
