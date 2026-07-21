@@ -33,6 +33,10 @@ terminal, closed 2026-07-21) →
 - ⏳ **REVIEW.md — scope mandate + security & privacy lens 4** — deltas
   `f9db922` + `a059e49` (2026-07-21); intent record:
   [`sessions/2026-07-21-2147-review-scope-security-lens.md`](sessions/2026-07-21-2147-review-scope-security-lens.md).
+  **CLAIMED 2026-07-21 2158 UTC** by a rule-4 taker (Fable, Mike-spawned:
+  "Please do any review work"; authored none of the delta). Brief →
+  `docs/reviews/2026-07-21-2158-review-scope-security-lens4-cold.md`
+  (wt: review-scope-lens4-cold-pass).
 
 ## build/ layer — open strands
 
