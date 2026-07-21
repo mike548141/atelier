@@ -168,13 +168,10 @@ REPO-BOUNDARY, worktree tooling) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
       for dollars actually billed. Personal data ⇒ the spend source stays in
       `~/.claude`, never a repo (same boundary as `ccrepo-billing.json`).
 
-### man pages — convention rollout
-
-- [~] **cctranscript + ccrepo: man page + concise `--help`** (claimed 2026-07-21-0738, wt: worktree-manpages) — the split (full
-      plain-language `man`, concise `--help` pointing to it) is established with
-      `ccarchive` as the worked example (`instruments/man/`, published by
-      `instruments/install`). Roll it out to the other CLIs. **ccrepo v2 has now
-      landed** (2026-07-17), so its help is stable — this is unblocked.
+Completed instruments work (ccrepo actuals/breakdown, ccarchive integrity/audit,
+the **man-page convention rollout — ccarchive worked example + cctranscript +
+ccrepo, all installed CLIs now carry a `man/<tool>.1` + trimmed `--help`, closed
+2026-07-21**) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 ## File-size hygiene (new 2026-07-14)
 

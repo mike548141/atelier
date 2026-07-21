@@ -5,6 +5,19 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-21 — man pages for cctranscript + ccrepo; convention rollout closed)
+- **`cctranscript` and `ccrepo` now ship a `man/<tool>.1` + trimmed `--help`**,
+  closing the man-page convention rollout the CLI-docs standard opened (`ccarchive`
+  was the reviewed worked example). Every CLI the installer publishes to `PATH`
+  now documents itself in both registers: a full plain-language `man` page (the
+  superset — what/why, every option, FILES/EXAMPLES/EXIT STATUS/NOTES, `mandoc
+  -T lint` clean) and a concise `--help` digest pointing at it (cctranscript
+  42→24 lines, ccrepo 67→35; rationale + worked examples relocated into the page
+  so the two can't drift). EXIT STATUS is enumerated against every `process.exit()`
+  path in each source (the drift a prior ccarchive review caught, designed out
+  here). +6 doc-convention tests (92 instrument tests green). Installer needed no
+  change — it already globs `man/*.1`.
+
 ### Changed (2026-07-20 — sizescan: line-count budget → cold-content gate)
 - **`sizescan` now gates on relocatable cold content, not line count** (Mike's
   2026-07-20 ruling; reverses the 2026-07-19 budget gate). Cost is size ×
