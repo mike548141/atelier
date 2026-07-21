@@ -13,8 +13,13 @@
 
 Significant or risky work gets a peer review before it's trusted, and the review
 is written down here. The house practice: a **more capable model (Fable) reviews
-the approach, assumptions and real-world behaviour — not just whether the code is
-correct** — before the work is relied on. The builder (usually Opus) then applies
+the approach, assumptions, security & privacy, and real-world behaviour — not
+just whether the code is correct** — before the work is relied on. Reviewer
+scope is the whole commitment — intent, decisions, design, docs, code, tests,
+behaviour (exercised live where possible); the brief's non-goals are the only
+legitimate narrowing, and security & privacy is a must on every review (likely
+threat vectors checked against open catalogues such as OWASP, not recalled; a
+work with no such surface says so explicitly, with grounds). The builder (usually Opus) then applies
 the findings. Canonical doctrine, and anything this file doesn't answer:
 `<atelier-path>/docs/method/REVIEW.md`.
 

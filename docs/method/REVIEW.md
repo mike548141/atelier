@@ -121,9 +121,22 @@ governing who may spawn it:
 This is the independence the external-reviewer rule was always reaching for —
 the REACH case showed fresh context alone doesn't deliver it.
 
-## What a review actually checks — three lenses
+## What a review actually checks — widest scope, four lenses
 
-Not just "are there bugs". A real review runs all three:
+**Scope is the whole commitment, never just the artefact in hand** (the
+principal's ruling, 2026-07-21). The reviewer's scope is the widest the work
+admits: the intent or idea that drives it, the decisions and assumptions that
+went into it, the design, the documentation, the code, the test code — a wrong
+test verifies nothing, so tests are reviewable on the same footing as the code
+they exercise — and its real-world behaviour, exercised live where doing so is
+possible and re-run from the work's own claims where it is not (see *Re-run
+every "live-proven" claim* below). The brief's **non-goals are the only
+legitimate narrowing**: anything not named out of scope is in scope, and "no
+source code" is never grounds to shrink a verdict (the 2026-07-15 dismissal —
+*Review the design* below). The lenses organise that scope; they do not bound
+it.
+
+Not just "are there bugs". A real review runs all four:
 
 1. **Approach & assumptions** — the most important lens. *Is this the right
    problem, solved the right way?* Attack the load-bearing assumptions by name;
@@ -132,6 +145,19 @@ Not just "are there bugs". A real review runs all three:
    what's done vs stubbed; any overclaim, any silent scope-cut.
 3. **Completeness / harvest** — what the work *should* have covered and didn't;
    what already exists that it duplicated or ignored.
+4. **Security & privacy** — a must on every review, not a specialist add-on
+   (the principal's ruling, 2026-07-21). It runs at every altitude the scope
+   reaches: at design altitude, what the work exposes, over-collects, or leaks
+   by weakness of design — a privacy defect is a design defect before it is
+   ever a code one; at code altitude, the likely threat vectors for the work's
+   class — injection, cross-site scripting, authentication/authorisation gaps,
+   secret handling, unsafe input paths. *Likely* means checked, not recalled:
+   the reviewer is free — and expected — to consult open catalogues (OWASP
+   Top 10 / ASVS, or the domain's equivalent) to confirm the likely vectors are
+   covered rather than trusting memory. Where the work genuinely has no
+   security or privacy surface, the lens discharges in one explicit line with
+   grounds — the same shape as `review: not warranted`, and for the same
+   reason: omission is the bug, and no one can disagree with a blank.
 
 ## Re-run every "live-proven" claim in scope
 
@@ -155,7 +181,7 @@ throwaway chat:
 
 1. **Brief** — before the review runs, write a scoped brief to
    `docs/reviews/<date>-<HHMM>-<slug>.md` (`HHMM` in UTC — `date -u`,
-   ADR 2026-07-15): what the work is, the three lenses,
+   ADR 2026-07-15): what the work is, the four lenses,
    and the
    **specific assumptions to attack**. Add a `[ ]` pointer in the ROADMAP. The
    brief is *ask on top*. **When the brief is written by, or on the framing of,
