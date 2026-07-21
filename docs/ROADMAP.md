@@ -30,13 +30,15 @@ artefact cycle — rule-4 cold pass PASS 0M/1M/5L, Mike's accept-all applied
 terminal, closed 2026-07-21) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- ⏳ **REVIEW.md — scope mandate + security & privacy lens 4** — deltas
-  `f9db922` + `a059e49` (2026-07-21); intent record:
-  [`sessions/2026-07-21-2147-review-scope-security-lens.md`](sessions/2026-07-21-2147-review-scope-security-lens.md).
-  **CLAIMED 2026-07-21 2158 UTC** by a rule-4 taker (Fable, Mike-spawned:
-  "Please do any review work"; authored none of the delta). Brief →
-  `docs/reviews/2026-07-21-2158-review-scope-security-lens4-cold.md`
-  (wt: review-scope-lens4-cold-pass).
+- [ ] **REVIEW.md scope/lens-4 cycle — 🎯 Mike's rulings owed on SL1–SL7** —
+  cold pass on `f9db922` + `a059e49` returned **PASS-WITH-FINDINGS
+  2 MAJOR · 3 MEDIUM · 2 LOW**
+  ([`reviews/2026-07-21-2158-review-scope-security-lens4-cold.md`](reviews/2026-07-21-2158-review-scope-security-lens4-cold.md));
+  MAJORs: the review-brief skill still stamps three lenses (SL1); lens 4's
+  `/security-review` mandate misfires live in the cold-pass shape (SL2).
+  Rule 3: decisions are Mike's; reviewer counsel is in the verdict's
+  follow-ups. MAJORs present ⇒ after rulings, application + further cold
+  pass until a no-MAJOR pass closes the cycle.
 
 ## build/ layer — open strands
 
