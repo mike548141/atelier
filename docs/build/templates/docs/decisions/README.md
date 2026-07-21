@@ -14,8 +14,14 @@ Format: one file, `<YYYY-MM-DD>-<HHMM>-<slug>.md` (start time, 24-hour, in UTC
 `method/CONCURRENCY.md` record-identifier
 rule; files named under retired schemes keep their names), about half a page.
 Sections: **Status** (draft / accepted / revoked `<date>` / superseded by
-`<file>`), **Date**, **Context**, **Decision**, **Rejected** (each alternative
-+ why it lost), **Consequences**. Draft is the only mutable state —
+`<file>`), **Date**, **Review**, **Context**, **Decision**, **Rejected** (each
+alternative + why it lost), **Consequences**. **Review** is the stated
+judgement the record owes at the moment it's written (atelier
+`method/REVIEW.md`): a queued pointer (`queued — docs/reviews/<file>`) or an
+explicit `not warranted — <grounds>` — omission is the bug, and atelier's
+`tools/reviewscan.py` reds a new record that leaves it blank (a reviewer or
+the principal can disagree with a judgement; neither can disagree with a
+blank). Draft is the only mutable state —
 deliberation still open, binding on nothing; acceptance is the principal's
 call and freezes the substance. Everything after acceptance is appended, never
 edited: a dated **Addendum** section when the decision matures, `revoked

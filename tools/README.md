@@ -54,6 +54,13 @@ pure cost with a lossless fix, harvest it"; the advisory says "this file is long
 look at it" and never breaks a build. The judgement of whether a long all-open
 file is fine or hiding resolved narrative stays human.
 
+**reviewscan** (a records-hygiene check) proves only **presence**: a decision
+record carries *a* review line. Whether "not warranted" was the honest call —
+or a queued pointer was ever taken — is exactly the judgement a validator
+can't make; the review practice owns it. Roadmap sections aren't scanned at
+all (deliberate — see the tool's docstring), so a design entry there rests on
+convention alone.
+
 The scans are the mechanical floor, not the whole boundary: the human
 pre-publish scrub (and the review practice) owns the residual above.
 
@@ -443,6 +450,26 @@ never green — fail-loud, not fail-open).
 `ci.yml` and the child `floor.yml` in cold-content mode. Because it gates only on
 a lossless move, it is safe to stack: it can red a build only when the fix is
 `git mv`-shaped, never when it would demand a reword.
+
+## `reviewscan.py` — decision records state their review judgement
+
+`REVIEW.md`'s remedy made *declining* a review an act: every durable design
+record carries a `review:` line — a queued pointer or an explicit
+`not warranted — <grounds>` — because a reader can disagree with a stated
+judgement but not with a blank. This is the structural half of that rule: it
+reds any record under a `docs/decisions/` directory, named on the
+coordination-free `YYYY-MM-DD[-HHMM]-slug.md` scheme and dated on or after
+**2026-07-21** (the day the templates began prompting for the field — frozen
+records are append-only and never flagged), that carries no review line.
+Presence only, by design; scope deliberately excludes roadmap headings (a lint
+there fires on prose — the `2026-07-18-0820` record's grounds). Exemption
+hatch: `reviewscan:allow: <reason>` on any line. Deliberation:
+`docs/decisions/2026-07-21-0744-review-line-artefact.md`.
+
+```sh
+python3 tools/reviewscan.py --root . .        # scan a repo
+python3 tools/reviewscan.py --selftest        # prove it against fixtures
+```
 
 ## Tests
 

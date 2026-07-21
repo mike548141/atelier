@@ -5,6 +5,23 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-21 — the review-line artefact: templated field + reviewscan)
+- **The `review:` line is now structural for decision records.** The ADR
+  template and decisions README carry a **Review** field, the ROADMAP template
+  states the convention for direction-setting entries, and the new
+  `tools/reviewscan.py` (pre-commit + CI + child `floor.yml`) reds a decision
+  record dated ≥ 2026-07-21 that omits the line — presence only, scoped to
+  `docs/decisions/`, roadmap headings deliberately unlinted (the 0820 record's
+  grounds). Closes 2026-07-19 cold-pass **F6**: `REVIEW.md`'s "enforcement is
+  structural" claim is re-stated per surface — mechanical for decision
+  records, honestly conventional for roadmap sections. Suite **284→293**.
+  Deliberation: `docs/decisions/2026-07-21-0744-review-line-artefact.md`.
+  Doctrine delta ⇒ ⏳ rule-4 cold pass queued.
+- **Fleet re-stamp of the reviews template** (the unblocked ROADMAP item):
+  nova, numen, shed — the three children carrying the drifted pre-trigger
+  copy — re-stamped from the closed-cycle template, `<atelier-path>` filled,
+  stamp grep + pointer resolution proven per child, pushed.
+
 ### Added (2026-07-21 — man pages for cctranscript + ccrepo; convention rollout closed)
 - **`cctranscript` and `ccrepo` now ship a `man/<tool>.1` + trimmed `--help`**,
   closing the man-page convention rollout the CLI-docs standard opened (`ccarchive`

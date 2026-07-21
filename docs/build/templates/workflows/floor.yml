@@ -122,6 +122,7 @@ jobs:
           python3 atelier/tools/linkscan.py --selftest
           python3 atelier/tools/signscan.py --selftest
           python3 atelier/tools/sizescan.py --selftest
+          python3 atelier/tools/reviewscan.py --selftest
 
       - name: secretscan (full cover)
         run: python3 atelier/tools/secretscan.py --root repo repo
@@ -131,6 +132,12 @@ jobs:
 
       - name: linkscan (internal-link integrity, whole tree)
         run: python3 atelier/tools/linkscan.py --root repo repo
+
+      # A new decision record states its review judgement — a queued pointer or
+      # an explicit "not warranted — grounds" (atelier method/REVIEW.md:
+      # omission is the bug). Frozen pre-boundary records are never flagged.
+      - name: reviewscan (decision records carry a review line)
+        run: python3 atelier/tools/reviewscan.py --root repo repo
 
       # Current-truth files (ROADMAP, SESSIONS index, README…) must stay honest so
       # a session resumes cheaply. --check gates on relocatable COLD CONTENT, not

@@ -85,6 +85,7 @@ jobs:
           python3 tools/linkscan.py --selftest
           python3 tools/signscan.py --selftest
           python3 tools/sizescan.py --selftest
+          python3 tools/reviewscan.py --selftest
 
       - name: tool test suite
         run: python3 -m unittest discover -s tools -p 'test_*.py' -v
@@ -117,6 +118,11 @@ jobs:
 
       - name: linkscan (internal-link integrity, full tree)
         run: python3 tools/linkscan.py --root . .
+
+      # A new decision record states its review judgement — queued pointer or
+      # "not warranted — grounds" (method/REVIEW.md: omission is the bug).
+      - name: reviewscan (decision records carry a review line)
+        run: python3 tools/reviewscan.py --root . .
 
       # Current-truth files (ROADMAP, SESSIONS index, README…) must stay honest so
       # a session resumes cheaply. --check gates on relocatable COLD CONTENT — a

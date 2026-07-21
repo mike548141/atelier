@@ -266,10 +266,15 @@ broken, suspect its framing before its enforcement — restating it louder assum
 non-compliance, where checking the grammar asks whether the rule was ever
 findable from where the reader stood. (Mike, 2026-07-19.)
 
-**Enforcement is structural in intent, because the written rule demonstrably
-did not hold — and, stated honestly, still conventional in fact: until the
-record templates carry the `review:` field, the remedy below is one more
-written rule** (the template artefact is queued; 2026-07-19 cold-pass F6).
+**Enforcement is structural where a machine can reach it, conventional where
+it can't — stated per surface, because the written rule demonstrably did not
+hold.** Since 2026-07-21 the artefact exists (closing 2026-07-19 cold-pass
+F6): the ADR template and decisions README carry the `review:` field, and
+`tools/reviewscan.py` reds a new decision record that omits the line — there
+the omission is caught mechanically. Roadmap sections carry the same
+convention by template prose only: a lint on roadmap headings would fire on
+prose and be trained away (the 0820 record's grounds for deferring it), so
+for those records the remedy below remains a written rule, honestly named.
 Grounded in two incidents, the second decisive: 2026-07-15, a reviewer
 dismissed a committed-direction expansion as *"zero source code, so nothing my
 verdict should have covered"* — the rule already said otherwise. Then
