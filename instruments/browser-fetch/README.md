@@ -60,7 +60,9 @@ available for rungs 4/5**. This is a genuine protocol limit, not a stub.
 ### Credential boundary (non-negotiable)
 
 Across **every** rung: the agent may **ride a session the operator has already
-authenticated** (existing cookies / a logged-in tab are fair game). The agent may
+authenticated** — existing cookies / a logged-in tab — **in place, driven
+through the ridden session**; reading or exporting session state (cookie
+stores, tokens) is touching the store and stays on the secrets floor. The agent may
 **never use the browser's *saved credentials*** — password-manager entries,
 autofill, stored logins — to authenticate, nor access those credentials
 themselves, **without an explicit grant, which is the principal's alone to

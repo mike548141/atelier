@@ -85,7 +85,10 @@ are hard or impossible to undo:
 - **New trust surfaces** — deploy keys, webhooks, CI secrets, GitHub app
   installs, OAuth grants: same class as installing an unapproved tool.
 - **Secrets** — reading, writing, moving, or regenerating credentials/keys:
-  any direct handling of a stored value. The one carve-out (`REACH.md`'s
+  any direct handling of a stored value — and any *use* of one beyond its
+  provisioned purpose, machinery-mediated or not (tooling that resolves the
+  value for an unprovisioned purpose is on this floor even though the agent
+  never touches the value). The one carve-out (`REACH.md`'s
   boundary states the same rule from the other side): *using* a provisioned
   credential for the purpose it was provisioned for, through the resolving
   machinery — the tooling resolves the reference, the agent never handles the

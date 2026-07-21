@@ -118,3 +118,20 @@ My committed pass independently covered questions 3 and 4 (H8, and assumption 5'
 this pass; H1–H8 + the two reconciliation residuals consolidated onto one
 ROADMAP backlog item (doctrine-substantive ones flagged as the principal's
 when picked up). No further ceremony spawned, per the rule.
+
+**Addendum 2026-07-21 — the backlog item taken; the principal ruled.** The
+2026-07-21-0736 session applied the agent-grade findings (H8 [fixed] — the
+README alignment pass, plus the two cosmetic rewraps) and put H1–H7 + the
+machinery-mediated-repurposing residual (R1, reconciliation question 1) to
+Mike with per-finding counsel. Mike ruled: *"I accept your recommendations on
+all of those"* — **H1–H7 [fixed], R1 [fixed]**, applied 2026-07-21
+(wt: worktree-reach-rulings-apply) in the reviewer's recommended shapes:
+H1 operator/principal defined + team-adoption clause; H2 riding scoped to
+in-place use through the ridden session (REACH + the instance README's mirror
+sentence); H3 the two tests scoped — purpose governs stores, mint-vs-ride
+governs acts, autofill is a mint; H4 the resource-owner residual named; H5
+"blocked" defined incl. soft blocks; H6 rung-1/2 equivalence hedged to the
+worked instance; H7 standing-reach-through-the-provisioned-path join; R1
+AUTONOMY's secrets bullet extended to unprovisioned *use*, machinery-mediated
+or not. This applies the rulings of a **no-MAJOR** pass ⇒ terminal
+application, no further pointer (the close rule; same shape as `87af9f9`).

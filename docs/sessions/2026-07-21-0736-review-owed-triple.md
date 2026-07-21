@@ -109,3 +109,27 @@ the open review-line cycle's terminal rules if Mike prefers).
 
 Worktree merged to `main`; claims released (strand 1 → DONE, strand 2 → ⏳,
 strand 3 → rulings-owed item); suite 293 OK; scans green; children pushed.
+
+## Addendum — 2026-07-21 · Mike's accept-all ruling applied, backlog closed
+
+Mike: *"I accept your recommendations on all of those"* — H1–H7 + R1 all
+taken. Applied by this same session (the counsel's author, applying the
+principal's rulings — the sanctioned application shape) in a fresh worktree,
+`wt: worktree-reach-rulings-apply`, claimed on `main` (`4975092`) first:
+
+- **REACH.md**: H5 "blocked" defined (incl. soft blocks) · H6 rung-1/2
+  equivalence hedged to the worked instance (three sites) · H4 the
+  resource-owner residual paragraph · H2 riding scoped to in-place use, with
+  the cookie-export hazard named · H7 the standing-reach ⇒ provisioned-path
+  join · H3 purpose-governs-stores / mint-vs-ride-governs-acts, autofill is
+  a mint · H1 operator/principal defined + team-adoption clause.
+- **AUTONOMY.md**: R1 — the secrets bullet catches unprovisioned
+  machinery-mediated *use*, not only direct handling.
+- **browser-fetch README**: the H2 mirror sentence scoped the same way.
+- Decisions stamped in `reviews/2026-07-13-reach-batch-applied.md` (dated
+  addendum); item harvested to ROADMAP-DONE; CHANGELOG entry added.
+
+Rulings of a **no-MAJOR** pass ⇒ terminal application, no further pointer
+(the close rule; `87af9f9` precedent). Mid-application, a parallel rule-4
+taker claimed the review-line artefact ⏳ item (0913 UTC) — no file overlap
+with this application; its lane untouched.

@@ -26,16 +26,6 @@ the work cold (REVIEW.md rule 4's ceiling, stated here at the point of use).
       "Please do any review work"; authored none of the delta). Brief →
       `docs/reviews/2026-07-21-0913-review-line-artefact-cold.md`
       (wt: review-line-artefact-cold-pass).
-- [~] **REACH/AUTONOMY backlog — 🎯 the principal's rulings owed on H1–H7 +
-      (claimed 2026-07-21-0916, wt: worktree-reach-rulings-apply — Mike ruled
-      accept-all; the applying session)
-      one residual** (findings in `reviews/2026-07-13-reach-batch-applied.md`;
-      the author's counsel with proposed wordings is in the 2026-07-21-0736
-      session record — apply on ruling, nothing before). Already applied
-      2026-07-21 (agent-grade, decided-doctrine alignment only): H8 the
-      browser-fetch README pass (pre-A4 absolute realigned, boundary pointer
-      names REACH.md, grant wording re-anchored to the principal) and the two
-      over-length REACH.md rewraps.
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
 COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin
 bundle, CONCURRENCY put-away, CLI-docs standard, ADR 0006/ccarchive addendum,
