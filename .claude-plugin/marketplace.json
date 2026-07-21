@@ -9,8 +9,8 @@
     {
       "name": "atelier",
       "source": "./",
-      "description": "Apex honesty doctrine, publish-safety scanners (secret / leak / licence / link), a session onramp, and the peer-review lifecycle. A named worked example — adopt it by becoming the principal.",
-      "version": "0.1.0",
+      "description": "Apex honesty doctrine, publish-safety scanners (secret / leak / licence / link), a session onramp, the peer-review lifecycle, repo-scaffolding to the house standard, and worktree + fleet-pin commands. A named worked example — adopt it by becoming the principal.",
+      "version": "0.2.0",
       "author": {
         "name": "Mike Clements"
       },
