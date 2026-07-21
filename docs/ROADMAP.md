@@ -18,7 +18,10 @@ the work cold (REVIEW.md rule 4's ceiling, stated here at the point of use).
 
 ## Doctrine — review-owed
 
-- [ ] **Review-line artefact — 🎯 Mike's rulings owed on RS1–RS6.** The
+- [~] **Review-line artefact — 🎯 Mike's rulings owed on RS1–RS6.**
+      (claimed 2026-07-21-1105, wt: review-line-rs-apply — Mike ruled
+      accept-all; terminal application by the counsel's author, push
+      deferred by a network outage) The
       rule-4 cold pass RAN 2026-07-21 0913 UTC (taken from this queue by a
       Mike-spawned non-author): **PASS — 0 MAJOR / 1 MEDIUM / 5 LOW**, all
       proofs reproduced. Findings + counsel per finding in
