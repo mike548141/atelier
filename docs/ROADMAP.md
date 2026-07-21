@@ -26,7 +26,9 @@ the work cold (REVIEW.md rule 4's ceiling, stated here at the point of use).
       "Please do any review work"; authored none of the delta). Brief →
       `docs/reviews/2026-07-21-0913-review-line-artefact-cold.md`
       (wt: review-line-artefact-cold-pass).
-- [ ] **REACH/AUTONOMY backlog — 🎯 the principal's rulings owed on H1–H7 +
+- [~] **REACH/AUTONOMY backlog — 🎯 the principal's rulings owed on H1–H7 +
+      (claimed 2026-07-21-0916, wt: worktree-reach-rulings-apply — Mike ruled
+      accept-all; the applying session)
       one residual** (findings in `reviews/2026-07-13-reach-batch-applied.md`;
       the author's counsel with proposed wordings is in the 2026-07-21-0736
       session record — apply on ruling, nothing before). Already applied
