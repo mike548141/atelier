@@ -294,4 +294,21 @@ CI, child-CI scanner floor, linkscan build + wiring) → [`ROADMAP-DONE.md`](ROA
   fork-PR coverage earns the second metered run on private children, or the
   template should scope down. See MODEL-ECONOMICS "duplicate triggers".
 
+- [ ] **`MODEL-ECONOMICS.md` has outgrown its name — rename to `ECONOMICS.md`**
+      (Mike, 2026-07-21). The file now spans TWO spend pools — model tokens AND
+      CI compute/runners (the "compute pool — CI minutes" + "runner class"
+      sections) — and its load-bearing sections ("know which pool you're
+      spending", "match ceremony to risk", "cost is the lowest precedence") are
+      cross-cutting over both. **Recommendation: RENAME, do not split.** One
+      unified spend doctrine is the whole point; splitting would fragment the
+      cross-cutting precedence/self-check doctrine or force duplication, and at
+      308 lines it's within size hygiene. `ECONOMICS.md` (title "# Economics")
+      matches Mike's instinct and covers models + runners under one roof.
+      Cost = a PROPAGATION sweep of inbound refs (PROPAGATION.md): ros
+      `CLAUDE.md`, the ros private `docs/MODEL-ECONOMICS.md` counterpart,
+      atelier cross-refs, and any pin — mechanical but must be complete so no
+      ref dangles. Raw note: "Model-economics is wider than just models now it
+      has runners. Rename or split file?" *review: light — a rename + ref sweep,
+      not a doctrine change; the naming call is Mike's (recommendation above).*
+
 Resolved questions (docker-heap standardisation, estate credential governance) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
