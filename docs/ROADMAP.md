@@ -12,6 +12,9 @@ session — `(claimed <date>-<HHMM>, wt: <branch>)` — don't start a `[~]` item
 take the next open one (`method/CONCURRENCY.md` § Claiming work) ·
 `⏳` **review queued** for a non-author to take — any spawner passing rule 4's
 criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
+**The pointer is refs only** — name the delta and the intent record, no
+evaluative account; the account lives in the session record, so a taker meets
+the work cold (REVIEW.md rule 4's ceiling, stated here at the point of use).
 
 ## Doctrine — review-owed
 
