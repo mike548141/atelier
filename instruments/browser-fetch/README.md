@@ -19,8 +19,10 @@ also take `raw_html` and `wait_ms`.
 ## The fetch escalation ladder
 
 browser-fetch is rungs 3–5 of how a Claude teammate fetches from the internet.
-**Always start at the top and step down only when the current rung is blocked** —
-each rung costs more (time, tokens, or the operator's attention).
+**Rungs 1–2 cost the same and clear the same walls — pick between them by
+request shape; from rung 3 down, step down only when the current rung is
+actually blocked** (`../../docs/method/REACH.md`) — each step costs more
+(time, tokens, or the operator's attention).
 
 | # | Method | What it is | Isolation | Needs the operator? |
 |---|--------|-----------|-----------|---------------------|
@@ -61,10 +63,13 @@ Across **every** rung: the agent may **ride a session the operator has already
 authenticated** (existing cookies / a logged-in tab are fair game). The agent may
 **never use the browser's *saved credentials*** — password-manager entries,
 autofill, stored logins — to authenticate, nor access those credentials
-themselves, **without the operator's explicit permission**. Using an existing
+themselves, **without an explicit grant, which is the principal's alone to
+make** (the agent records a grant, never originates one). Using an existing
 session is fine; touching the credentials that mint one is the sensitive line.
-(This is the operational statement of a rule owed to `method/` doctrine — see
-ROADMAP.)
+(This is the operational statement of the credential boundary in
+`../../docs/method/REACH.md` — the purpose-of-storage test, ride-not-mint —
+which has survived independent review; that doc, not this README, is
+canonical.)
 
 ## Why it's an *instrument* (and a different kind)
 

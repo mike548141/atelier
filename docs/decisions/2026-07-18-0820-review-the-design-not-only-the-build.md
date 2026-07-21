@@ -101,5 +101,14 @@ The `ros`-side application of the same ruling is committed at `55d0d51`
 bullet 4's "Enforcement is structural" was subsequently qualified in
 `REVIEW.md` — structural in *intent*, still conventional in *fact* until the
 record templates carry the `review:` field (cold-pass F6; the artefact item is
-queued in the ROADMAP). This record's Rejected section already carries that
+queued in the ROADMAP).
+
+**Addendum 2026-07-21 (the artefact landed):** the Rejected section's deferred
+question — a per-record lint as the next rung — was answered **yes** by the
+0407 reviewer (F6) and is now built: the record templates carry the `review:`
+field and `tools/reviewscan.py` reds a post-2026-07-21 decision record that
+omits the line, scoped to decision records only (the roadmap-heading lint this
+record rejected stays rejected). Deliberation and boundary in
+`2026-07-21-0744-review-line-artefact.md`; `REVIEW.md`'s qualification is
+narrowed to per-surface honesty accordingly. This record's Rejected section already carries that
 honesty; this line saves a reader the inference.

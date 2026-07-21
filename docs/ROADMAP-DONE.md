@@ -7,6 +7,15 @@ file is a destination that is *meant* to grow (`sizescan` excludes it by design)
 First harvested 2026-07-14 (ROADMAP.md had reached 1091 lines).
 
 ## Doctrine — completed review cycles
+- [x] **Fleet re-stamp of the reviews template** — unblocked 2026-07-19 (cycle
+      closed terminal on Mike's 0629 ruling; G1's blocker cleared — pin slot
+      reworded, prove-the-stamp grep green re-proven on a full scaffold).
+      **Done 2026-07-21** (wt: worktree-review-owed-triple): nova, numen, shed
+      — the three children carrying the drifted pre-trigger copy — re-stamped
+      from the closed-cycle template, `<atelier-path>` filled `../atelier`,
+      no-placeholder grep + pointer resolution proven per child, committed and
+      pushed (nova `13f6970`, numen `d271ae0`, shed `118fc69`). Other template
+      deltas reach children at their own pin bumps, per the item's design.
 - [x] **DOCUMENTATION doctrine — what great documentation is, per audience and
       consumer (Mike, 2026-07-20, raised in ros off the tiki CLI-UX review).**
       (**claimed 2026-07-20 1423 UTC** — Mike ruled "1–3 I accept your

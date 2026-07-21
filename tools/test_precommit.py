@@ -116,9 +116,10 @@ class PreCommitHookTest(unittest.TestCase):
         """A repo carrying the scanners itself (atelier) needs no config."""
         tools = self.repo / "tools"
         tools.mkdir()
-        # Carry all three the hook runs, so the block is the secretscan finding —
-        # not a fail-closed on a scanner the hook now also invokes (linkscan).
-        for name in ("secretscan.py", "leakscan.py", "linkscan.py"):
+        # Carry every scanner the hook runs, so the block is the secretscan
+        # finding — not a fail-closed on a scanner the hook also invokes.
+        for name in ("secretscan.py", "leakscan.py", "linkscan.py",
+                     "reviewscan.py"):
             shutil.copy(TOOLS_DIR / name, tools / name)
         (self.repo / "leaky.py").write_text(PLANTED_SECRET)
         r = self._commit(env={"ATELIER_TOOLS": ""})

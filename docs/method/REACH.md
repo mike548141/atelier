@@ -51,8 +51,9 @@ session shares everything. Rungs 1–2 sit above that trade (equal
 wall-clearing power, different request shape — no isolation given up). A
 second axis crosses at rung 4: **needing the operator**. Rungs 1–3 the agent
 walks alone; 4–6 cost the operator progressively more, which is the real
-reason to exhaust the cheap rungs first. The escalation principle is general; the *engines and
-tools* that fill the rungs are instance-local (see "What lives elsewhere") — a
+reason to exhaust the cheap rungs first. The escalation principle is general;
+the *engines and tools* that fill the rungs are instance-local (see "What
+lives elsewhere") — a
 given instance may even serve rungs 4 and 5 with one mechanism, split only by
 which profile the operator exposes, though the rungs stay distinct in principle.
 
@@ -91,10 +92,11 @@ browsers: **which credential stores may the agent draw on at all?** The test is
   reach this doc exists for. Any state-changing act taken *through* a ridden
   session (sending, buying, deleting, granting) is its own action under the
   `AUTONOMY.md` floor, and a rung-5 ride is scoped to the exposure the
-  operator deliberately made — never a standing grant. A browser's saved-credential store is
-  never itself the provisioned path: provisioned *browser* access means the
-  operator authenticates and the agent rides the session, so ride-not-mint holds
-  whichever profile it is — even a dedicated one stood up for the agent's use.
+  operator deliberately made — never a standing grant. A browser's
+  saved-credential store is never itself the provisioned path: provisioned
+  *browser* access means the operator authenticates and the agent rides the
+  session, so ride-not-mint holds whichever profile it is — even a dedicated
+  one stood up for the agent's use.
 
 - **The principal can grant across the line** — per credential, temporary or
   permanent, as an explicit act. A grant is the principal's alone to make

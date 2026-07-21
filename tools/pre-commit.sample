@@ -8,6 +8,11 @@
 #   leakscan   — blocks a commit that would put PERSONAL/ESTATE data into a repo
 #                that can go public. Run it where that boundary applies. Scans
 #                the STAGED diff.
+#   reviewscan — blocks a commit that would land a NEW decision record with no
+#                stated review judgement (a `review:` line — queued pointer or
+#                "not warranted — grounds"). Omission is the bug (REVIEW.md);
+#                pre-boundary records are frozen and never touched. Scans
+#                docs/decisions/ in the whole tree — cheap (small dir, stdlib).
 #   linkscan   — blocks a commit that would leave a broken INTERNAL link in the
 #                doc graph ("thin anchor, fat pointer" only holds if the pointers
 #                resolve). Unlike the two above it scans the WHOLE TREE, not the
@@ -76,6 +81,7 @@ run_scan() {
 run_scan secretscan --staged --root "$repo_root"
 run_scan leakscan   --staged --root "$repo_root"   # networking repo? append --disable <rules> / a subtree path
 run_scan linkscan   --root "$repo_root" "$repo_root"   # whole tree — a rename breaks links outside the diff
+run_scan reviewscan --root "$repo_root" "$repo_root"   # decision records state their review judgement
 
 # Signing pre-flight (SIGNING.md, ADR 0007). If this repo signs commits with an
 # SSH key, a passphrase-protected key that isn't loaded in the agent makes the
