@@ -294,6 +294,33 @@ CI, child-CI scanner floor, linkscan build + wiring) → [`ROADMAP-DONE.md`](ROA
   fork-PR coverage earns the second metered run on private children, or the
   template should scope down. See MODEL-ECONOMICS "duplicate triggers".
 
+- [ ] **Map honesty vs truth vs transparency — three distinct axes the apex
+      conflates** (Mike, 2026-07-22). 00-APEX.md makes HONESTY absolute and
+      leans on "truth" in passing, but never separates the three, and
+      TRANSPARENCY isn't a named concept anywhere. Mike's observation: Claude
+      does *honesty* well; understand where truth and transparency sit relative
+      to it. **Seed framing (a draft to refine, not settled doctrine):**
+      • **Honesty** = calibration of CLAIM to EVIDENCE + no intent to deceive —
+        never assert more than the evidence supports, report what broke first,
+        "done" = verified. A property of the speaker's good faith. *You can be
+        honest and WRONG* (honestly mistaken).
+      • **Truth** = correspondence to REALITY, speaker-independent — is it
+        actually so. *You can honestly state a falsehood* (you believed it);
+        honesty doesn't guarantee truth, it guarantees you didn't overclaim.
+      • **Transparency** = DISCLOSURE / legibility — showing the working,
+        surfacing what you did and didn't do, your uncertainty and gaps, the
+        reasoning and process. *You can be honest but NOT transparent* (answer
+        truthfully yet omit the context that changes its meaning).
+      So: honesty is about the claim↔evidence relation, truth about the
+      claim↔reality relation, transparency about how much of the process you
+      REVEAL. The apex today mostly names the first; the interesting doctrine
+      work is (a) whether transparency deserves naming as its own duty (the
+      "hedged omission" the apex already forbids is really a transparency
+      failure, not a pure honesty one), and (b) how they trade — e.g. honesty
+      can REQUIRE surfacing a genuine dilemma (a transparency act), and
+      brevity/COMMUNICATION can pull against full transparency. Touches
+      00-APEX.md + EVIDENCE.md + COMMUNICATION.md. *review: WARRANTED — an apex-
+      level doctrine refinement; brief owed at pickup.*
 - [ ] **`MODEL-ECONOMICS.md` has outgrown its name — rename to `ECONOMICS.md`**
       (Mike, 2026-07-21). The file now spans TWO spend pools — model tokens AND
       CI compute/runners (the "compute pool — CI minutes" + "runner class"
