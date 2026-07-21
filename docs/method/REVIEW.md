@@ -154,7 +154,13 @@ Not just "are there bugs". A real review runs all four:
    secret handling, unsafe input paths. *Likely* means checked, not recalled:
    the reviewer is free — and expected — to consult open catalogues (OWASP
    Top 10 / ASVS, or the domain's equivalent) to confirm the likely vectors are
-   covered rather than trusting memory. Where the work genuinely has no
+   covered rather than trusting memory. And where the working harness ships a
+   security scanner — Claude Code's `/security-review` over the in-scope diff
+   is the house instance, sanctioned by the principal (2026-07-21) — the
+   reviewer runs it and folds its findings in: it is the mechanical floor
+   layered under this lens (*What review is not* below), never a discharge of
+   it, and its clean pass is a claim to weigh like any other. Where the work
+   genuinely has no
    security or privacy surface, the lens discharges in one explicit line with
    grounds — the same shape as `review: not warranted`, and for the same
    reason: omission is the bug, and no one can disagree with a blank.
