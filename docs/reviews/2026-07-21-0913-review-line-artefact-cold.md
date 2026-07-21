@@ -275,3 +275,36 @@ CHANGELOG entry, the 0820 addendum text, and the delta commit body (re-read).
 findings await the principal's ruling; this pass returned no MAJOR, so per
 the close rule the applying session's work closes the cycle without a
 further full ceremony.**
+
+---
+
+# Decisions — 2026-07-21 1110 UTC (the principal's ruling, applied)
+
+**Mike: "I accept your recommendations on all these."** Terminal application
+(no-MAJOR pass ⇒ the counsel's author applies and the cycle closes — the
+REACH `87af9f9` shape), landed `c06c0a4` in wt: review-line-rs-apply; claim
+`8815f40` on `main` first. Every leg re-driven live before the stamp.
+
+- **RS1 [fixed]** — `find_records` accepts a decisions dir or a single record
+  file directly; an explicitly-named path is scanned, never silently matched
+  by nothing. Dir-direct and file-direct red legs proven (exit 1 on an
+  offending record, was exit 0); overlapping bases dedupe; pre-boundary
+  files named directly stay out of scope. +3 suite cases.
+- **RS2 [fixed]** — fence-state tracking in `scan_record`: a `review:` inside
+  a code fence is a quoted example and no longer satisfies the lint; a real
+  field beside a fenced example still counts. Red leg proven live. +1 case.
+- **RS3 [fixed]** — `REVIEW_LINE` requires a non-empty value (`:\s*\S`):
+  `**Review**:` with nothing after the colon now reds. Proven live. +1 case.
+- **RS4 [fixed]** — (a) the backdated-filename escape stated as an accepted
+  residual in the docstring, beside the boundary rationale; (b) all-caps
+  `REVIEW:` folded into the regex (greens, proven live). +1 case.
+- **RS5 [fixed]** — REPO-STANDARD's inline scanner enumeration replaced with
+  a pointer to `tools/README.md` (with the why: an inline list went stale
+  three scanners running), so the roster can't go stale there again.
+- **RS6 [fixed]** — the 0820 record's orphaned sentence restored to the
+  2026-07-19 note it closes; the 2026-07-21 addendum stands whole, with the
+  restoration annotated in place rather than silently re-edited.
+
+Suite 293→298, selftest OK, whole-tree scan green, sizescan/linkscan/
+secretscan/leakscan clean. **Cycle closed** — no further pointer, per the
+close rule.
