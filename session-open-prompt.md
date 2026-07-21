@@ -1,8 +1,10 @@
-Lets do some work!
-* Think step-by-step.
-* I have multiple parallel sessions so use worktree(s) etc. and be careful. Keep an eye on other worktrees and sessions that are live, they may start or stop after you
-* dont forget to claim your work and if work is claimed then don't work on it even if I've told you too below
-* Then carry on with the next work in queue thats not claimed until the economics suggest a new session, or you do for other reasons.
-* If I've given you too much work then use economics and your own reasoning to find a good spot to stop safely, tidy everything up, wrap up and finish the session.
+I have a long list of work queued up in this repo. Please maximise my claude plan use by opening
+a session, giving it a prompt, and when its complete starting another.
 
-At the end when you give your verdict check and confirm that everything has been tidied up and wrapped up. So you are ready for me to close this session.
+Lets use an fable session to orchestrate and Opus agents doing the work. I will have multiple
+parallel sessions so take appropriate precautions like using worktrees.
+If I accidentally start the orchestration session as a different model then stop and we will change models.
+Be ready in the likely situation that we max out a claude session limit.
+
+After all of that is finished - Have you captured all the learnings, evidence, decisions, designs,
+work etc for product and the repo. And have you tidied everything up ready to close this session?
