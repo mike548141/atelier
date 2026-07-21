@@ -5,6 +5,21 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-21 — REACH/AUTONOMY backlog closed: H1–H7 + R1 applied on Mike's accept-all)
+- **`REACH.md` tightened on the seams its own 2026-07-13 no-MAJOR pass named**:
+  riding a session is scoped to *in-place* use through the ridden session
+  (exporting cookies/tokens is touching the store — H2); the two boundary
+  tests scoped — purpose governs stores, mint-vs-ride governs acts, and a
+  saved-login autofill is a mint whatever the store's purpose (H3);
+  operator/principal defined with the team-adoption rule (H1); the
+  resource-owner's "no" named as its own judgement with its own floor (H4);
+  "blocked" defined incl. soft blocks (H5); rung-1/2 equivalence hedged to
+  the worked instance (H6); standing reach joined to the provisioned path
+  (H7). **`AUTONOMY.md`** secrets floor now catches machinery-mediated
+  *unprovisioned use*, not only direct handling (R1). The browser-fetch
+  README mirrors H2. Terminal application of a no-MAJOR pass ⇒ no further
+  pointer; decisions stamped in the verdict's addendum.
+
 ### Added (2026-07-21 — the review-line artefact: templated field + reviewscan)
 - **The `review:` line is now structural for decision records.** The ADR
   template and decisions README carry a **Review** field, the ROADMAP template
