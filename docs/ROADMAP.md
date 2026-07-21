@@ -236,12 +236,24 @@ public as a **named worked example** (README "If you're adopting this"). What wa
       specifics (grant ledger, Apple/iCloud) → marked worked-examples. No longer
       a publication gate; do it as the named-worked-example framing gets tested by
       a real adopter.
-- [ ] **v2 plugin — CHOSEN 2026-07-13 (Mike's call): the next widening is
+- [~] **v2 plugin — CHOSEN 2026-07-13 (Mike's call): the next widening is
       spent here.** De-instance `create-repo` so it travels in the plugin, and
       ship `worktree` + `fleet-pins` as plugin commands — doctrine travelling
-      as behaviour, wider than the current bundle. Needs a scoping pass first
-      (what "de-instanced" means for a skill that stamps house identity), then
-      the build; go-live via PR like the v1 bundle, reviewed before merge.
+      as behaviour, wider than the current bundle. **Scoping pass ruled
+      2026-07-21** (Mike accepted the three recommendations) →
+      `decisions/2026-07-21-0748-deinstance-create-repo-for-the-plugin.md`
+      (accepted). **Build done in a PR** (branch `v2-plugin-deinstance`):
+      skill de-instanced + relocated, adopter-profile resolver, `worktree` +
+      `fleet-pins` commands, manifests 0.1.0→0.2.0, floor green. ⏳ **rule-4
+      review owed before merge** (see below). Owed after merge: retire Mike's
+      global `~/.claude/skills/create-repo` (superseded by the plugin copy —
+      local, outside this repo); exercise the interactive fill + bundled-mode
+      scaffold end-to-end. Go-live (merge) stays Mike's call.
+  - ⏳ **v2-plugin de-instance review** — delta: branch `v2-plugin-deinstance`
+        + `decisions/2026-07-21-0748-deinstance-create-repo-for-the-plugin.md`;
+        intent record: that ADR + the 2026-07-21 SESSIONS entry. Doctrine-
+        substantive (forks ADR 0002 for plugin-only adopters), self-authored ⇒
+        rule 4: non-author taker writes the brief, reviews ADR + build as one.
 
 Completed sharing work (public release, the plugin bundle widening, atelier's own
 CI, child-CI scanner floor, linkscan build + wiring) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).

@@ -5,6 +5,28 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-21 — v2 plugin: create-repo de-instanced, worktree + fleet-pins commands)
+- **`create-repo` de-instanced and moved into the plugin** (`skills/create-repo/`).
+  The skill carried seven baked instance facts (git identity, remote account,
+  workspace path, copyright holder, locale, exemplars, doctrine-source location);
+  they now come from an **adopter-owned profile** (`~/.atelier/instance.yaml`,
+  filled interactively on first run, never committed) so the skill carries no
+  identity of its own and can travel in the bundle — you become the principal it
+  stamps. A **two-mode source resolver** replaces the hard-coded sibling path:
+  *live mode* (a real atelier checkout → pin its git SHA, latest templates) or
+  *bundled mode* (the plugin's own tree → pin the plugin version as provenance).
+  Design + rulings: `docs/decisions/2026-07-21-0748-deinstance-create-repo-for-the-plugin.md`
+  (accepted; rule-4 review ⏳ queued — it forks ADR 0002's SHA-is-the-version for
+  plugin-only adopters).
+- **`/atelier:worktree` and `/atelier:fleet-pins` commands** — thin wrappers over
+  the bundled house tools (`tools/worktree.py`, `tools/pins.py`): doctrine
+  (`CONCURRENCY.md`, `PROPAGATION.md`) travelling as behaviour, not just prose.
+- Plugin + marketplace manifests bumped **0.1.0 → 0.2.0**; `session-onramp`'s
+  companion-behaviours list updated to name the repo-craft additions. All four
+  publish-safety scanners green; `worktree.py` + `pins.py` selftests green.
+  **Not yet exercised end-to-end:** the interactive first-run fill and a
+  bundled-mode scaffold (model-prose behaviour, proven at review/use, not unit-tested).
+
 ### Added (2026-07-21 — man pages for cctranscript + ccrepo; convention rollout closed)
 - **`cctranscript` and `ccrepo` now ship a `man/<tool>.1` + trimmed `--help`**,
   closing the man-page convention rollout the CLI-docs standard opened (`ccarchive`
