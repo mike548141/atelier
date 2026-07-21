@@ -177,6 +177,9 @@ touches REVIEW.md + EVIDENCE.md + the scanner floor); brief owed at pickup.*
 - [ ] **Is there any metadata that ccarchive misses?** (Mike, 2026-07-22) —
       open question to work later: does the archive capture everything worth
       keeping, or is there session/project metadata it leaves behind?
+- [ ] **Should cctranscript and ccarchive be one?** (Mike, 2026-07-22) — open
+      question to work later: `cctranscript` reads the logs, `ccarchive` keeps
+      them — worth deciding whether they should be a single instrument.
 
 ### ccrepo (Mike, 2026-07-17)
 
