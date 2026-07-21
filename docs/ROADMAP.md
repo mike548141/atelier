@@ -18,36 +18,18 @@ the work cold (REVIEW.md rule 4's ceiling, stated here at the point of use).
 
 ## Doctrine — review-owed
 
-- [~] **Fleet re-stamp of the reviews template** (claimed 2026-07-21-0736, wt: worktree-review-owed-triple) — unblocked 2026-07-19:
-      the review cycle closed terminal (Mike's ruling on the 0629 no-MAJOR
-      pass) and G1's blocker is cleared (pin slot reworded, prove-the-stamp
-      grep green re-proven on a full scaffold); children otherwise adopt at
-      pin bump.
-- [~] **The 07-18 review-line remedy has no artefact.** (claimed 2026-07-21-0736, wt: worktree-review-owed-triple) `REVIEW.md` requires
-      every durable design record to carry a `review:` line ("omission is the
-      bug"), but no ADR template, `decisions/README.md`, or ROADMAP template
-      carries the field — the templates manufacture the blank the rule calls a
-      bug. Deliberately left out of `4c17f59` to keep that delta reviewable as
-      one thing. Doctrine-by-function ⇒ earns its own review when taken.
-      The 07-19 cold pass adds (F6): qualify REVIEW.md's "enforcement is
-      structural" until this lands, and a cheap design-record lint belongs
-      alongside it (the 0820 record's deferred question, answered yes).
-- [~] **REACH/AUTONOMY backlog — the cold pass's H1–H8 + residuals** (claimed 2026-07-21-0736, wt: worktree-review-owed-triple) (all
-      backlog-grade; doctrine-substantive ones are the principal's when
-      picked up). Sharpest three: H2 "existing cookies are fair game" reads
-      as licensing cookie *export* (rung-5 reach with rung-3 isolation) —
-      scope to in-place use through the ridden session; H3 the categorical
-      browser-store exclusion now argues *against* the doc's own two criteria
-      post-A1 (a provisioned bot-login profile passes both) — ground it or
-      scope the test; H1 operator/principal conflation unstated (and the
-      instance README drifts on it). Also: H4 the resource-owner's "no" never
-      named as its own judgement; H5 "blocked" undefined for soft blocks; H6
-      rung-1/2 equivalence overclaimed beyond the instance (challenges
-      decided A4/A5 wording — principal's); H7 "never a standing grant" vs
-      "temporary or permanent" seam; H8 instance-README alignment pass
-      (stale pre-A4 absolute, boundary pointer should name REACH.md);
-      residuals — AUTONOMY's "direct handling" doesn't literally catch
-      machinery-mediated *repurposing*; two over-length lines to rewrap.
+- ⏳ **Review-line artefact delta** — delta `fa7a90f` (ADR/decisions/ROADMAP
+      templates + `tools/reviewscan.py` + wiring + `REVIEW.md` enforcement
+      re-statement); intent record
+      `docs/decisions/2026-07-21-0744-review-line-artefact.md`.
+- [ ] **REACH/AUTONOMY backlog — 🎯 the principal's rulings owed on H1–H7 +
+      one residual** (findings in `reviews/2026-07-13-reach-batch-applied.md`;
+      the author's counsel with proposed wordings is in the 2026-07-21-0736
+      session record — apply on ruling, nothing before). Already applied
+      2026-07-21 (agent-grade, decided-doctrine alignment only): H8 the
+      browser-fetch README pass (pre-A4 absolute realigned, boundary pointer
+      names REACH.md, grant wording re-anchored to the principal) and the two
+      over-length REACH.md rewraps.
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
 COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin
 bundle, CONCURRENCY put-away, CLI-docs standard, ADR 0006/ccarchive addendum,
