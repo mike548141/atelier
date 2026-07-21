@@ -29,20 +29,14 @@ const argv = process.argv.slice(2);
 
 const HELP = `cctranscript — timestamped transcript of a Claude Code session
 
-Reads the raw session log under ~/.claude/projects/ and prints each turn with
-its timestamp. The chat UI hides these; the log keeps them.
-
 USAGE
   cctranscript [options] [session]
 
-  session   A session UUID, a path to a .jsonl log, or omitted (the latest
-            session for the repo you're currently in).
+  session   A UUID, a path to a .jsonl log, or omitted (latest for this repo).
 
 OPTIONS
-  --repo <name>    Use sessions from the named repo (its folder basename, e.g.
-                   'atelier') instead of the current directory.
-  --list           List sessions for the repo (id · start · first prompt) and
-                   exit. Combine with --repo, or --all for every repo.
+  --repo <name>    Use sessions from the named repo (its folder basename).
+  --list           List sessions for the repo and exit (with --repo or --all).
   --all            With --list, list sessions across all repos.
   -n, --last <k>   Use the k-th most recent session (1 = latest, the default).
   --tools          Include tool calls and their results (summarised).
@@ -51,24 +45,12 @@ OPTIONS
   --utc            Timestamps in UTC (default: your local timezone).
   --no-delta       Hide the elapsed-time deltas between messages.
   --width <n>      Wrap width (default: terminal width, capped at 100).
-  --color          Force ANSI colour; --no-color disables it. Default: colour
-                   when writing to a terminal, plain when piped or NO_COLOR set.
+  --color          Force ANSI colour; --no-color disables it (auto by default).
   --json           Machine-readable array of turns (never styled).
   -h, --help       Show this help.
 
-EXAMPLES
-  cctranscript                       Latest session in this repo.
-  cctranscript --full                ...with thinking and tool calls.
-  cctranscript --list                What sessions exist for this repo.
-  cctranscript --list --all          Every session, every repo.
-  cctranscript -n 2                  The second-most-recent session here.
-  cctranscript --repo ros --tools    Latest ros session, with tools.
-  cctranscript 1a4fa531-...          A specific session by UUID.
-  cctranscript ./path/to/log.jsonl   A specific log file.
-  cctranscript --json | jq .         Machine-readable, for scripting.
-
-Env: none required. Reads ~/.claude/projects/ read-only; writes nothing.
-Honours NO_COLOR / FORCE_COLOR.`;
+Prints each turn of a Claude Code session with its timestamp — the chat UI
+hides them. Full manual, with examples and detail:  man cctranscript`;
 
 function takeValue(flag) {
   const i = argv.indexOf(flag);

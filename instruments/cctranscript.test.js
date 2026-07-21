@@ -16,6 +16,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert');
+const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
@@ -162,4 +163,37 @@ test('contract: --full admits thinking, tools, and results together', () => {
   assert.deepEqual(roles(j), ['you', 'think', 'claude', 'tool', 'result', 'claude']);
   // Refs number only prompts and text replies; think/tool/result stay null.
   assert.deepEqual(j.turns.map((t) => t.ref), ['1', null, '1.1', null, null, '1.2']);
+});
+
+// --- documentation convention (REPO-STANDARD: concise --help + a man page) --
+
+test('--help is a concise digest that points at the man page', () => {
+  const help = execFileSync('node', [SCRIPT, '-h'], { encoding: 'utf8' });
+  // A one-screen digest: fits a standard 24-row terminal (trimEnd drops the
+  // trailing newline console.log adds, so this counts content lines).
+  assert.ok(help.trimEnd().split('\n').length <= 24, '--help should stay a one-screen digest');
+  assert.match(help, /man cctranscript/, '--help must point at the full manual');
+  for (const opt of ['--repo', '--list', '--full']) assert.ok(help.includes(opt));
+});
+
+test('a man page ships and is well-formed roff', () => {
+  const page = path.join(__dirname, 'man', 'cctranscript.1');
+  assert.ok(fs.existsSync(page), 'instruments/man/cctranscript.1 must exist');
+  const roff = fs.readFileSync(page, 'utf8');
+  assert.match(roff, /^\.TH CCTRANSCRIPT 1 /m, 'a .TH title line');
+  for (const sec of ['NAME', 'SYNOPSIS', 'DESCRIPTION', 'OPTIONS', 'EXAMPLES', 'EXIT STATUS', 'SEE ALSO']) {
+    assert.match(roff, new RegExp(`^\\.SH ${sec}`, 'm'), `a ${sec} section`);
+  }
+});
+
+test('drift guard: every flag --help prints appears in the man page (superset relation)', () => {
+  const help = execFileSync('node', [SCRIPT, '-h'], { encoding: 'utf8' });
+  const page = fs.readFileSync(path.join(__dirname, 'man', 'cctranscript.1'), 'utf8');
+  // Roff hyphenates flags as \-\-flag; normalise the page before matching.
+  const pageFlat = page.replace(/\\-/g, '-');
+  const flags = [...new Set(help.match(/--[\w-]+/g))];
+  assert.ok(flags.length >= 8, `expected a real flag list, got ${flags.length}`);
+  for (const flag of flags) {
+    assert.ok(pageFlat.includes(flag), `man page must document ${flag} (--help is the digest, the page the superset)`);
+  }
 });

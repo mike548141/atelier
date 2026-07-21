@@ -347,3 +347,38 @@ test('requiring ccrepo never acts on the host argv (help/validation live in main
     assert.equal(out.trim(), 'host-alive');
   }
 });
+
+// --- documentation convention (REPO-STANDARD: concise --help + a man page) --
+
+const SCRIPT = path.join(__dirname, 'ccrepo');
+
+test('--help is a concise digest that points at the man page', () => {
+  const help = execFileSync('node', [SCRIPT, '-h'], { encoding: 'utf8' });
+  assert.ok(help.split('\n').length <= 40, '--help should stay a one-screen digest');
+  assert.match(help, /man ccrepo/, '--help must point at the full manual');
+  // Rationale + worked examples belong in the page, not the digest.
+  assert.ok(!/^EXAMPLES$/m.test(help), '--help must not carry a worked EXAMPLES block');
+  for (const opt of ['-g', '--repo', '--json', '--no-reconcile']) assert.ok(help.includes(opt));
+});
+
+test('a man page ships and is well-formed roff', () => {
+  const page = path.join(__dirname, 'man', 'ccrepo.1');
+  assert.ok(fs.existsSync(page), 'instruments/man/ccrepo.1 must exist');
+  const roff = fs.readFileSync(page, 'utf8');
+  assert.match(roff, /^\.TH CCREPO 1 /m, 'a .TH title line');
+  for (const sec of ['NAME', 'SYNOPSIS', 'DESCRIPTION', 'OPTIONS', 'EXAMPLES', 'EXIT STATUS', 'SEE ALSO']) {
+    assert.match(roff, new RegExp(`^\\.SH ${sec}`, 'm'), `a ${sec} section`);
+  }
+});
+
+test('drift guard: every flag --help prints appears in the man page (superset relation)', () => {
+  const help = execFileSync('node', [SCRIPT, '-h'], { encoding: 'utf8' });
+  const page = fs.readFileSync(path.join(__dirname, 'man', 'ccrepo.1'), 'utf8');
+  // Roff hyphenates flags as \-\-flag; normalise the page before matching.
+  const pageFlat = page.replace(/\\-/g, '-');
+  const flags = [...new Set(help.match(/--[\w-]+/g))];
+  assert.ok(flags.length >= 15, `expected a real flag list, got ${flags.length}`);
+  for (const flag of flags) {
+    assert.ok(pageFlat.includes(flag), `man page must document ${flag} (--help is the digest, the page the superset)`);
+  }
+});

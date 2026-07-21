@@ -546,71 +546,39 @@ const sortSpecs = parseSort(takeValue('--sort'), keys);
 
 const HELP = `ccrepo — Claude Code usage totals, grouped and filtered any way you like
 
-Reads ~/.claude/projects/ logs directly, attributes each session to its repo,
-and computes cost per message from a local price table — then reconciles that
-total against \`ccusage session\` and reports the drift. Cost is an API-equivalent
-estimate (list prices), shown in NZD by default at today's live rate.
-
 USAGE
   ccrepo [options]
 
-GROUPING
-  -g, --group <list>   Ordered, comma-separated dimensions, nested left→right.
-                       Default: repo. Use 'total' for a single grand total.
-                       Dimensions: repo · model · branch · kind · entrypoint ·
-                       cc-version · agent · year · month · week · day · hour
-                       e.g. -g repo,model   -g model,repo   -g repo,branch,month
+OPTIONS
+  -g, --group <list>   Ordered dimensions, nested left→right (default: repo;
+                       'total' = grand total). repo · model · branch · kind ·
+                       entrypoint · cc-version · agent · year|month|week|day|hour
+  --repo <list>        Filter by repo, e.g. --repo ros,faves   --repo '!scanme'
+  --model <list>       Filter by model (substring), e.g. --model opus
+  --branch <list>      Filter by branch (glob), e.g. --branch 'client-*'
+  --kind <list>        Filter by main | subagent
+  --entrypoint <list>  Filter by entrypoint, e.g. cli | claude-vscode
+  --cc-version <list>  Filter by Claude Code version, e.g. 2.1.209
+  --agent <list>       Filter by agent type
+  --session <list>     Filter by session UUID prefix, e.g. --session 01c3,ff97
+  --since <YYYYMMDD>   On or after this local date
+  --until <YYYYMMDD>   On or before this local date
+  -z, --timezone <tz>  Timezone for the ccusage cross-check
+  --sort <list>        Per-level, aligned to -g: cost·tokens·count·name·time
+                       (+ :asc/:desc). Default: time chronological, else cost desc.
+  --flat               One column per group level (spreadsheet shape)
+  --json               Tidy JSON, one record per leaf
+  --csv                Same shape as CSV
+  --fx <code>          Convert to an ISO-4217 currency (default nzd; usd = raw)
+  --rate <n>           Force the USD→<code> rate instead of fetching
+  --no-billing         Ignore ~/.claude/ccrepo-billing.json; estimate only
+  --no-reconcile       Skip the ccusage cross-check (faster / offline)
+  -h, --help           This summary
 
-FILTERS  (comma = OR within; leading ! excludes; * globs; case-insensitive)
-  --repo <list>        e.g. --repo ros,faves   --repo '!scanme'
-  --model <list>       substring match, e.g. --model opus
-  --branch <list>      glob, e.g. --branch 'client-*'
-  --kind <list>        main | subagent
-  --entrypoint <list>  cli | claude-vscode
-  --cc-version <list>  e.g. --cc-version 2.1.209
-  --agent <list>       agent type
-  --session <list>     session UUID prefix, e.g. --session 01c3,ff97
-  --since <YYYYMMDD>   --until <YYYYMMDD>   -z, --timezone <tz>
-
-SORTING
-  --sort <list>        Per-level, aligned to -g (one value broadcasts to all).
-                       Keys: cost · tokens · count · name · time  (+ :asc/:desc)
-                       Default: time dims chronological, others by cost desc.
-
-OUTPUT
-  --flat               One column per group level (spreadsheet shape) vs the
-                       default indented tree.
-  --json               Tidy JSON: one record per leaf, each dimension a field.
-  --csv                Same shape as CSV.
-  --fx <code>          Convert to an ISO-4217 currency (default nzd; usd = raw).
-  --rate <n>           Force the USD→<code> rate instead of fetching.
-  --no-billing         Ignore ~/.claude/ccrepo-billing.json; estimate only.
-  --no-reconcile       Skip the ccusage cross-check (faster / offline).
-  -h, --help           Show this help.
-
-COST & RECONCILIATION
-  Cost is computed here from list prices (~/.claude/ccrepo-pricing.json overrides
-  the built-in table), per message, across five token classes incl. the 5m/1h
-  cache-write split. Every run cross-checks the total against ccusage and prints
-  the drift; a large drift means the price table has gone stale. Not your bill.
-
-BILLING (Actual vs Est)
-  A machine-local ~/.claude/ccrepo-billing.json plan config adds an Actual column
-  (covered-model tokens at $0 marginal + apportioned flat fee). See the billing
-  model in instruments/README.md. Absent ⇒ estimate-only.
-
-EXAMPLES
-  ccrepo                             Per-repo totals (NZD), default.
-  ccrepo -g month                   Totals per month.
-  ccrepo -g repo,model              Repo, broken down by model.
-  ccrepo -g model,repo              Model, broken down by repo.
-  ccrepo -g repo,branch --repo ros  Just ros, by branch.
-  ccrepo -g kind                    Main thread vs subagent spend.
-  ccrepo -g repo --sort name        Repos alphabetically.
-  ccrepo --json > usage.json        Tidy JSON for scripting.
-
-Env: needs \`ccusage\` on PATH for the reconciliation cross-check (skip with
---no-reconcile); network access to convert currency (the NZD default too).`;
+Totals Claude Code usage from ~/.claude/projects/ logs, priced per message and
+reconciled against ccusage. Cost is an API-equivalent estimate (list prices) in
+NZD by default, not your bill. Full manual, with the cost, reconciliation and
+billing detail plus examples:  man ccrepo`;
 
 function checkArgs() {
   if (has('-h') || has('--help')) { console.log(HELP); process.exit(0); }

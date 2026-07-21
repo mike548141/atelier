@@ -1,0 +1,358 @@
+.TH CCREPO 1 "2026-07-21" "atelier instruments" "User Commands"
+.SH NAME
+ccrepo \- Claude Code usage totals, grouped and filtered any way you like
+.SH SYNOPSIS
+.B ccrepo
+.RI [ options ]
+.br
+.B ccrepo
+.BI \-g " list"
+.RI [ filters ]
+.RI [ \-\-sort
+.IR list ]
+.br
+.B ccrepo
+.RB [ \-\-json | \-\-csv | \-\-flat ]
+.RB [ \-\-fx
+.IR code ]
+.SH DESCRIPTION
+.B ccrepo
+totals what Claude Code has cost you and lets you slice that total along any
+dimension the logs record \(em by repository, model, git branch, main thread
+versus subagent, entrypoint, Claude Code version, agent type, or any calendar
+bucket from year down to hour \(em nested however you ask.
+.PP
+It reads Claude Code's raw session logs under
+.I ~/.claude/projects/
+directly and computes cost itself,
+.BR "per message" ,
+from a local price table. Working at the single-message grain is the whole
+point: it is what lets
+.B ccrepo
+group by dimensions that vary
+.I within
+a session \(em the branch a message was sent from, whether it came from the main
+thread or a subagent, which Claude Code version wrote it \(em not just the
+coarse repo/model/day totals a per-session tool can offer.
+.PP
+Cost here is an API-equivalent
+.BR estimate :
+what the usage would bill at Anthropic's public list prices, not what your
+subscription actually charges. For a plan holder the two differ, and the
+.B BILLING
+section below explains the optional
+.I Actual
+column that reconciles them.
+.SS How cost is computed
+Each message carries five classes of token \(em input, output, cache read, and
+a cache write split into 5-minute and 1-hour tiers.
+.B ccrepo
+prices each class from a built-in per-model table (USD per million input
+tokens, keyed by the short model name via longest-prefix match) and the four
+standard multipliers Anthropic applies to the other classes. The table is a
+dated snapshot; a machine-local
+.I ~/.claude/ccrepo-pricing.json
+overrides or extends it without touching the tool. See
+.B COST AND RECONCILIATION
+below.
+.SS ccusage as the oracle
+.B ccrepo
+computes its own cost, but it does not ask you to trust that blindly. On every
+run it also invokes
+.BR ccusage (1)
+and reconciles its own grand total against ccusage's, reporting the drift in
+both dollars and percent as a footnote under the table. ccusage is the
+.IR oracle :
+when the two agree the local price table is current; when they diverge the
+footnote says so, per model, so a stale price announces itself instead of
+lying quietly. The cross-check is skippable for a faster or offline run \(em see
+.BR \-\-no\-reconcile .
+.SH OPTIONS
+.SS Grouping
+.TP
+.BI \-g " list" "\fR, \fP" \-\-group " list"
+An ordered, comma-separated list of dimensions, nested left to right. Valid
+dimensions are
+.IR repo ", " model ", " branch ", " kind " (main | subagent), "
+.IR entrypoint ", " cc\-version ", " agent ", " year ", " month ", " week ", "
+.IR day " and " hour .
+The default is
+.IR repo .
+Use
+.I total
+(or an empty list) for a single grand total with no breakdown. For example
+.I \-g repo,model
+totals each repo and breaks it down by model;
+.I \-g model,repo
+inverts that nesting. An unknown dimension is refused.
+.SS Filtering
+Each filter takes a comma-separated list. Within one filter a comma means OR; a
+leading
+.B !
+on a term excludes it; a
+.B *
+globs; matching is case-insensitive. Across different filters the conditions
+combine with AND. Most dimensions match exactly, with two conveniences:
+.B \-\-model
+matches as a substring and
+.B \-\-session
+matches as a UUID prefix.
+.TP
+.BI \-\-repo " list"
+Restrict to repositories, e.g.
+.I \-\-repo ros,faves
+or
+.IR "\-\-repo '!scanme'" .
+.TP
+.BI \-\-model " list"
+Restrict to models by substring, e.g.
+.IR "\-\-model opus" .
+.TP
+.BI \-\-branch " list"
+Restrict to git branches, e.g.
+.IR "\-\-branch 'client\-*'" .
+.TP
+.BI \-\-kind " list"
+Restrict to
+.I main
+or
+.I subagent
+messages.
+.TP
+.BI \-\-entrypoint " list"
+Restrict to an entrypoint, e.g.
+.I cli
+or
+.IR claude\-vscode .
+.TP
+.BI \-\-cc\-version " list"
+Restrict to a Claude Code version, e.g.
+.IR 2.1.209 .
+.TP
+.BI \-\-agent " list"
+Restrict to an agent type.
+.TP
+.BI \-\-session " list"
+Restrict to sessions by UUID prefix, e.g.
+.IR "\-\-session 01c3,ff97" .
+.TP
+.BI \-\-since " YYYYMMDD"
+Include only messages on or after this local date.
+.TP
+.BI \-\-until " YYYYMMDD"
+Include only messages on or before this local date.
+.TP
+.BI \-z " tz" "\fR, \fP" \-\-timezone " tz"
+Passed through to
+.BR ccusage (1)
+for the reconciliation cross-check, so both sides bucket dates in the same zone.
+.SS Sorting
+.TP
+.BI \-\-sort " list"
+A per-level sort, aligned position-for-position to
+.BR \-g ;
+a single value broadcasts to every level. Each entry is a key, optionally
+suffixed
+.BI : dir
+.RB ( asc " or " desc ).
+Keys are
+.IR cost ", " tokens ", " count " (distinct sessions), " name " and " time .
+The default is chronological for time dimensions and cost-descending for
+everything else. An unknown key or direction is refused.
+.SS Output format
+.TP
+.B \-\-flat
+Emit one column per group level (a spreadsheet shape) instead of the default
+indented tree with subtotals.
+.TP
+.B \-\-json
+Emit tidy JSON: a
+.I meta
+block plus one record per leaf, each dimension its own field. Mutually
+exclusive with
+.BR \-\-csv .
+.TP
+.B \-\-csv
+Emit the same tidy shape as CSV. Mutually exclusive with
+.BR \-\-json .
+.SS Currency
+.TP
+.BI \-\-fx " code"
+Convert all amounts to an ISO-4217 currency, fetched live. The default is
+.IR nzd ;
+pass
+.I usd
+for the raw list-price figures with no conversion. A non-USD currency needs
+network access to fetch the rate.
+.TP
+.BI \-\-rate " n"
+Force the USD-to-target rate instead of fetching it (useful offline). Has no
+effect on USD figures, and must be positive.
+.SS Reconciliation and billing
+.TP
+.B \-\-no\-reconcile
+Skip the
+.BR ccusage (1)
+cross-check. Faster, and works offline, at the cost of leaving the local total
+unchecked against the oracle.
+.TP
+.B \-\-no\-billing
+Ignore
+.I ~/.claude/ccrepo-billing.json
+and report the estimate only, even when a plan config is present.
+.TP
+.BR \-h ", " \-\-help
+Print a concise usage digest and exit. This manual is the full reference.
+.SH COST AND RECONCILIATION
+The built-in price table records, per model, the USD list price per million
+.I input
+tokens. The other four token classes derive from that base by Anthropic's
+standard multipliers \(em output at 5\(mu, cache read at 0.1\(mu, a 5-minute
+cache write at 1.25\(mu and a 1-hour cache write at 2\(mu \(em so one base
+number prices all five classes. Model names match by longest prefix, so a dated
+model id such as
+.I haiku\-4\-5\-20251001
+resolves to the
+.I haiku\-4\-5
+base. A model absent from the table is counted at
+.B $0
+and flagged, never silently guessed.
+.PP
+The table is a snapshot, checked against ccusage's own per-model cost on real
+logs at the time it was taken. Because list prices move, every run reconciles
+.BR ccrepo 's
+grand total against
+.BR ccusage (1)
+and prints the drift. The reconciliation footnote reads out mine-versus-ccusage
+totals, the delta in dollars and percent over the matched sessions, the largest
+per-model divergences, and any sessions seen by only one side (a scope or
+pruning difference). A large or growing drift is the signal to refresh the price
+table \(em drop an updated
+.I ~/.claude/ccrepo-pricing.json
+or edit the built-in snapshot. Because ccusage cannot honour
+.BR ccrepo 's
+non-date filters, the cross-check is computed over the date-comparable scope,
+not the fully filtered display set.
+.SH BILLING
+By default every figure is an API-equivalent estimate at list prices. A
+machine-local
+.I ~/.claude/ccrepo-billing.json
+plan config adds an
+.I Actual
+column alongside the estimate: tokens on a plan-covered model cost
+.B $0
+marginal, and the flat monthly plan fee is apportioned across usage \(em by
+covered-token share where there is covered usage in range, otherwise by
+total-token share \(em plus any uncovered per-token spend. The config names the
+plan, its monthly cost, which model families it covers, and any per-token
+carve-outs. Absent, or suppressed with
+.BR \-\-no\-billing ,
+.B ccrepo
+reports the estimate only. The plan fee shown is one month; over a multi-month
+range the true outlay is (months \(mu fee). The billing model is described in
+full in
+.I instruments/README.md
+in the atelier repository.
+.SH FILES
+.TP
+.I ~/.claude/projects/
+The source: Claude Code's raw session logs, read read-only. A repo's true name
+is recovered from the
+.I cwd
+recorded inside each log, not from the dash-mangled folder name.
+.TP
+.I ~/.claude/ccrepo-pricing.json
+Optional local price overrides, merged over the built-in table. Malformed JSON
+is ignored with a warning, never fatal.
+.TP
+.I ~/.claude/ccrepo-billing.json
+Optional plan config that enables the
+.I Actual
+column. Malformed or missing a positive
+.I plan.monthlyCost
+\(em ignored with a warning.
+.SH EXAMPLES
+.TP
+.B ccrepo
+Per-repo totals in NZD (the default).
+.TP
+.B ccrepo \-g month
+Totals per calendar month.
+.TP
+.B ccrepo \-g repo,model
+Each repo, broken down by model.
+.TP
+.B ccrepo \-g model,repo
+Each model, broken down by repo.
+.TP
+.B ccrepo \-g repo,branch \-\-repo ros
+Just the
+.I ros
+repo, broken down by branch.
+.TP
+.B ccrepo \-g kind
+Main-thread spend versus subagent spend.
+.TP
+.B ccrepo \-g repo \-\-sort name
+Repos listed alphabetically instead of by cost.
+.TP
+.B ccrepo \-\-fx usd \-\-no\-reconcile
+Raw list-price figures, offline, with no ccusage cross-check.
+.TP
+.B ccrepo \-\-json > usage.json
+Tidy JSON for scripting.
+.SH EXIT STATUS
+.B 0
+on success.
+.PP
+.B 2
+on a usage error \(em an unknown
+.B \-g
+dimension, an unknown or badly-directed
+.B \-\-sort
+key,
+.B \-\-json
+and
+.B \-\-csv
+together,
+.B \-\-rate
+on USD figures where it has no effect, or a non-positive
+.BR \-\-rate .
+.PP
+.B 1
+on a runtime failure \(em notably a currency conversion whose rate could not be
+fetched (offline, with no
+.B \-\-rate
+override), or any unexpected error.
+.SH NOTES
+Cost is an API-equivalent estimate at list prices, not your subscription bill;
+the
+.I Actual
+column (see
+.BR BILLING )
+is the closest the tool comes to real outlay.
+.PP
+Calendar buckets (day, hour, week, and the
+.BR \-\-since / \-\-until
+filters) use
+.I local
+time on purpose \(em a day means the local one. Currency defaults to NZD and is
+converted live, so a plain run needs network access both for the conversion and
+for the
+.BR ccusage (1)
+cross-check;
+.B \-\-fx usd
+and
+.B \-\-no\-reconcile
+together make the run fully offline. No personal path is baked into the tool:
+the source, price and billing locations are all derived from the home directory
+at runtime.
+.SH SEE ALSO
+.BR ccusage (1),
+.BR ccarchive (1),
+.BR cctranscript (1),
+.BR jq (1)
+.PP
+The instruments overview, including the billing model:
+.I instruments/README.md
+in the atelier repository.
