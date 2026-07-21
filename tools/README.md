@@ -468,8 +468,14 @@ hatch: `reviewscan:allow: <reason>` on any line. Deliberation:
 
 ```sh
 python3 tools/reviewscan.py --root . .        # scan a repo
+python3 tools/reviewscan.py --root . docs/decisions   # a decisions dir directly
 python3 tools/reviewscan.py --selftest        # prove it against fixtures
 ```
+
+A path arg may be a tree, a `docs/decisions/` dir itself, or a single record
+file — an explicitly-named path is scanned, never silently matched by nothing
+(the 2026-07-21 cold pass's RS1). The review line must carry a non-empty
+value, and a `review:` quoted inside a code fence doesn't count (RS2/RS3).
 
 ## Tests
 
