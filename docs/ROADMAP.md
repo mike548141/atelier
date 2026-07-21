@@ -18,14 +18,13 @@ the work cold (REVIEW.md rule 4's ceiling, stated here at the point of use).
 
 ## Doctrine — review-owed
 
-- ⏳ **Review-line artefact delta** — delta `fa7a90f` (ADR/decisions/ROADMAP
-      templates + `tools/reviewscan.py` + wiring + `REVIEW.md` enforcement
-      re-statement); intent record
-      `docs/decisions/2026-07-21-0744-review-line-artefact.md`.
-      **CLAIMED 2026-07-21 0913 UTC** by a rule-4 taker (Fable, Mike-spawned:
-      "Please do any review work"; authored none of the delta). Brief →
-      `docs/reviews/2026-07-21-0913-review-line-artefact-cold.md`
-      (wt: review-line-artefact-cold-pass).
+- [ ] **Review-line artefact — 🎯 Mike's rulings owed on RS1–RS6.** The
+      rule-4 cold pass RAN 2026-07-21 0913 UTC (taken from this queue by a
+      Mike-spawned non-author): **PASS — 0 MAJOR / 1 MEDIUM / 5 LOW**, all
+      proofs reproduced. Findings + counsel per finding in
+      `docs/reviews/2026-07-21-0913-review-line-artefact-cold.md`; apply on
+      ruling, nothing before. No MAJOR ⇒ the applying session closes the
+      cycle (REVIEW.md close rule).
 - [ ] **REACH/AUTONOMY backlog — 🎯 the principal's rulings owed on H1–H7 +
       one residual** (findings in `reviews/2026-07-13-reach-batch-applied.md`;
       the author's counsel with proposed wordings is in the 2026-07-21-0736
