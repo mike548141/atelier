@@ -90,6 +90,62 @@ Completed build/inheritance work (REPO-STANDARD, licenscan, signing doctrine +
 activation, faves/ros floor adoption, create-repo rewire + real-scaffold,
 REPO-BOUNDARY, worktree tooling) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
+## Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)
+
+Source: <https://thenewstack.io/engineering-ai-slop-registry/> (Aviator). A
+mechanism for AI+human engineering that fits atelier's "mechanism before more
+content" ethos. The idea: an **invariant catalog** — codified, always-checked
+rules capturing the conventions/constraints that live in senior engineers'
+heads (convention blindness, deprecated APIs, module boundaries, security
+baselines) and that a model has no per-codebase training for. They call it the
+"anti-AI-slop registry".
+
+**What's genuinely NEW for atelier** (much is already ours — see below): the
+systematic REGISTRY and its promotion rule.
+- [ ] **Promotion rule — recurrence makes an invariant.** Any review finding
+      left **more than twice** should become an invariant. Mine historical
+      review records, cluster them, generate invariant CANDIDATES for **human
+      approval** (matches our PROPOSED-then-ratify pattern — the glossary does
+      this). "Each invariant you codify is a check that will never cost a
+      reviewer time again." atelier already has the review corpus to mine
+      (session records + `reviews/` briefs + verdicts).
+- [ ] **Two-layer acceptance criteria, one verification pass.** Per-change
+      criteria (task-specific) + the invariant catalog (loaded automatically)
+      assemble into ONE checklist a verifier runs. The author need not remember
+      the org rule — the catalog enforces it unasked. Invariants are
+      declarative rules with conditions (path globs, exemptions), e.g. "writes
+      to `users` must go through the repository; exempt migrations; glob
+      `src/**/*.go`".
+- [ ] **Enforcement seam — how does an invariant get checked?** Three
+      candidates to place on our existing spectrum: a CI scanner (like
+      leakscan/secretscan — the machine-checkable ones), a review-time
+      checklist item, or an agent-verifier criterion. Decide which invariants
+      are code-checkable (→ scanner) vs judgement (→ verifier/human).
+- [ ] **Where does the registry live?** atelier-shared floor invariants (fleet-
+      wide, like the current scanners) vs repo-specific catalogs (a child's own
+      conventions). Likely both, same layering as doctrine: shared floor +
+      local append. Ties REPO-STANDARD.
+
+**What atelier ALREADY has (this EXTENDS, doesn't invent):**
+- The **floor scanners** (leakscan/secretscan/signscan/sizescan) ARE always-on
+  invariants — machine-checked, fleet-wide, never re-argued. This idea
+  generalises them to project-specific, review-derived rules.
+- **Writer ≠ verifier independence** — REVIEW.md rule 4 (different context,
+  different blind spots, structured findings on the durable record) is exactly
+  the article's "the writing agent and verifying agent are different… a
+  structured report per criterion, not a gut-check from the same model".
+  Corroboration of standing doctrine, not a new claim.
+- **Move human judgment UPSTREAM / review before build** — "humans review
+  specs, plans, constraints, acceptance criteria, not 500-line diffs" is our
+  review-is-an-input-not-a-gate line (ros CLAUDE.md + REVIEW.md). Corroborated
+  by their intent-driven experiment (spec reviewed first → agent builds 6k LOC
+  → second agent verifies 65 criteria in 6 min: 60 pass / 4 fail / 1 partial).
+
+Framing worth keeping: *"You're not building software anymore. You're building
+the machine that builds software, and quality control is part of that machine."*
+*review: WARRANTED when this moves from capture to doctrine/mechanism (it
+touches REVIEW.md + EVIDENCE.md + the scanner floor); brief owed at pickup.*
+
 ## instruments/ — open features
 
 ### ccarchive (Mike, 2026-07-17)
