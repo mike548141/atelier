@@ -19,11 +19,21 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   advisory only, never the gate. Suite **267→282**; `ci.yml` + `floor.yml`
   retitled to the cold-content frame; `RECORD.md` module doc updated. `main`'s
   floor is green by harvesting 4 `[x]` items, not trimming lines.
-- **`PROPAGATION.md` child-block size spec re-grounded (SR2)** — the dead
-  "~15 lines" figure replaced with a grounded shape (~50 lines, one bullet per
-  irreducible floor concern, seven today).
-- **Applied-but-review-owed**: the rework is a `⏳` item queued for independent
-  rule-4 review (SR2 rides the cycle); the author did not self-review.
+- **`PROPAGATION.md` child-block size spec — structural rule, no line figure**
+  (SR2 → SR2-C). The dead "~15 lines" figure was first replaced with "~50 lines",
+  then **that number was dropped too** on review: it sat at measured-49+1,
+  circular by the delta's own standard. The structural rule (one bullet per
+  irreducible floor concern, seven today) is the whole spec; nothing gates on
+  length here.
+- **Cycle closed 2026-07-21.** The rework was queued for independent rule-4
+  review (author did not self-review); it **RAN — PASS, 0 MAJOR / 2 MEDIUM /
+  3 LOW** (`reviews/2026-07-20-2040-size-rebalance-cold.md`), Mike ruled
+  accept-all, and the taker applied all five findings as a terminal application:
+  SR1 (tools/README rewritten to the cold-content frame), SR2-C (figure dropped,
+  above), SR3 (detector edges: code-fence false positive + `+`/ordered-bullet
+  misses — suite **282→284**), SR5 (rule-4 refs-only pointer ceiling stated in
+  the ROADMAP header at point of use), SR4 (accept-as-noted — immutable record,
+  correction in the verdict).
 
 ### Changed (2026-07-20 — triple doctrine cycle closed terminal; DOCUMENTATION ratified)
 - Three queued rule-4 cold passes ran in one taker session ("do any reviews

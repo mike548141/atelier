@@ -182,35 +182,12 @@ The generalised anti-bloat work. `sizescan` flags relocatable **cold content** o
 the hot path across the fleet (and reports size as advisory); these are the
 outstanding strands.
 
-- ⏳ **Size-signal rebalance to a cold-content gate — APPLIED 2026-07-20, review
-      queued (rule 4 independent).** Mike's 2026-07-20 ruling (reverses the
-      2026-07-19 line-count gate): **cost is size × read-frequency**, so the enemy
-      is never fulsomeness but **cold content sitting on the hot path**. `sizescan`
-      now gates on relocatable cold content — a completed `[x]` item on a
-      checkbox-worklog file (`ROADMAP.md`), whose fix is a lossless move to
-      `ROADMAP-DONE.md` — and **never on length**. Line count is demoted to a pure
-      **advisory** (a class reference point that reports but never fails a build),
-      so a file long purely from live current-truth (a roadmap of wholly open
-      items) is never penalised, and the number can no longer induce line-golf.
-      Prose-shaped cold content (resolved narrative under an open item) + thinness
-      stay **caught at review, not measured** (the standing one-sided honesty).
-      Shipped: `sizescan.py` reworked (the static `GATED` set is gone — gating is
-      now cold-content-driven; suite 267→282), `ci.yml` + `floor.yml` retitled to
-      the cold-content frame, `RECORD.md` module doc, the 07-19 ruling record, and
-      **SR2** — `PROPAGATION.md`'s child-block size spec re-grounded numerically
-      (**~50 lines**, class-grounded on the block's seven-concern shape, replacing
-      the dead "~15"). main's floor
-      is now green **the right way** — the 4 inline `[x]` items harvested, not 15
-      lines trimmed.
-      **Review RAN 2026-07-20 2047 UTC — PASS, 0 MAJOR / 2 MEDIUM / 3 LOW;
-      Mike's rulings owed on SR1, SR2-C, SR3, SR4, SR5** (rule-4 taker: Fable,
-      Mike-spawned, authored none of the chain). Verdict + counsel →
-      `reviews/2026-07-20-2040-size-rebalance-cold.md`; intent → session
-      record 2026-07-20.
 Completed file-size work (the 2026-07-14 sizescan build/review + wiring; the
 2026-07-18 fleet harvests — ros 7123→982 in two ruled stages, faves, shed; the
-grounded-budgets correction; the 2026-07-19 tripwire-split application, now
-superseded by the rebalance above; the fleet-wide `hooks.atelierTools` fix) →
+grounded-budgets correction; the 2026-07-19 tripwire-split application, superseded
+by the cold-content rebalance; the **2026-07-20 size-signal rebalance to a
+cold-content gate + its rule-4 review (PASS 0M/2M/3L) + Mike's accept-all ruling
+applied 2026-07-21**; the fleet-wide `hooks.atelierTools` fix) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 - [ ] **Existing fleet children pick up the reworked `floor.yml` gate** — children
       copy `floor.yml` statically, so they adopt the cold-content gate at their
