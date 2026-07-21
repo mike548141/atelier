@@ -63,3 +63,16 @@ session that ran the gap audit above, so the audit's framing (what was
 whether the gaps were real and whether lens 4's shape (per-lens vs per-brief,
 the discharge line, the OWASP expectation) is the right mechanism, not take
 this record's account of them.
+
+## Addendum — same session: /security-review named in lens 4 (`a059e49`)
+
+Mike asked whether the harness's `/security-review` skill was wrapped into the
+delta — it wasn't (lens 4 sanctioned OWASP catalogues but never the tool) —
+and granted its use: *"If it is useful I'm happy for you to use it."* Second
+delta `a059e49`: lens 4 now instructs the reviewer to run the harness's
+security scanner where one exists (Claude Code's `/security-review` over the
+in-scope diff is the house instance) and fold its findings in — the mechanical
+floor layered under the lens per *What review is not*, never a discharge of
+it, its clean pass a claim to weigh like any other. Child template carries the
+same clause. The open `⏳` cycle now covers `f9db922` + `a059e49` as one
+reviewable delta; the pointer updated refs-only.
