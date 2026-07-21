@@ -170,7 +170,7 @@ REPO-BOUNDARY, worktree tooling) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 ### man pages — convention rollout
 
-- [ ] **cctranscript + ccrepo: man page + concise `--help`** — the split (full
+- [~] **cctranscript + ccrepo: man page + concise `--help`** (claimed 2026-07-21-0738, wt: worktree-manpages) — the split (full
       plain-language `man`, concise `--help` pointing to it) is established with
       `ccarchive` as the worked example (`instruments/man/`, published by
       `instruments/install`). Roll it out to the other CLIs. **ccrepo v2 has now
