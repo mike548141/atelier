@@ -166,9 +166,16 @@ COLD_CHECKBOX_FILES = {"ROADMAP.md"}
 
 # A completed checkbox list item — the one crisp, un-guessable form of cold
 # content. Anchored to a list bullet so a `[x]` inside prose (a sentence about
-# checkbox states, a quoted example) is not miscounted; `[X]` tolerated. Open
-# `[ ]`, claimed `[~]`, and the review-queued `⏳` are LIVE states, not cold.
-_COLD_ITEM = re.compile(r"^\s*[-*]\s+\[[xX]\]")
+# checkbox states, a quoted example) is not miscounted; `[X]` tolerated. Every
+# Markdown bullet marker counts — `-`, `*`, `+`, and ordered (`1.` / `1)`) — so a
+# done item written in any list style is caught. Open `[ ]`, claimed `[~]`, and
+# the review-queued `⏳` are LIVE states, not cold.
+_COLD_ITEM = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s+\[[xX]\]")
+
+# A fenced-code-block delimiter (``` or ~~~). A `[x]` line inside a fence is a
+# quoted example, not a work item — `cold_item_count` toggles on these so it
+# never fires the gate on documentation that *shows* checkbox syntax.
+_FENCE = re.compile(r"^\s*(?:```|~~~)")
 
 # `README.md` and `CLAUDE.md` are current-truth only at the **repo root** — the
 # front door and the session onramp. A nested `tools/README.md` or
@@ -227,10 +234,20 @@ def reference_for(text: str, basename: str) -> int | None:
 def cold_item_count(text: str, basename: str) -> int:
     """Count relocatable cold content: completed `[x]` checkbox items in a file
     whose convention is a checkbox worklog. Zero for any other file — a `[x]` in
-    a README or a doctrine doc is prose, not a harvestable work item."""
+    a README or a doctrine doc is prose, not a harvestable work item. A `[x]`
+    inside a fenced code block is a quoted example, not a work item, so fenced
+    regions are skipped."""
     if basename not in COLD_CHECKBOX_FILES:
         return 0
-    return sum(1 for line in text.splitlines() if _COLD_ITEM.match(line))
+    count = 0
+    in_fence = False
+    for line in text.splitlines():
+        if _FENCE.match(line):
+            in_fence = not in_fence
+            continue
+        if not in_fence and _COLD_ITEM.match(line):
+            count += 1
+    return count
 
 
 def count_lines(text: str) -> int:
@@ -523,6 +540,13 @@ def _selftest() -> int:
         ok = False
     if cold_item_count("- [x] done\n", "README.md") != 0:
         print("FAIL: [x] outside a checkbox-worklog file should not count")
+        ok = False
+    if cold_item_count("+ [x] plus\n1. [x] ordered\n2) [x] ordered paren\n",
+                       "ROADMAP.md") != 3:
+        print("FAIL: +/ordered-bullet [x] items not counted")
+        ok = False
+    if cold_item_count("```\n- [x] a quoted example\n```\n", "ROADMAP.md") != 0:
+        print("FAIL: a [x] inside a code fence was miscounted as a cold item")
         ok = False
 
     # count_lines: trailing newline doesn't inflate the count.
