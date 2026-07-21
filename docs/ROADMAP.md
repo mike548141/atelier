@@ -30,6 +30,10 @@ artefact cycle — rule-4 cold pass PASS 0M/1M/5L, Mike's accept-all applied
 terminal, closed 2026-07-21) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
+- ⏳ **REVIEW.md — scope mandate + security & privacy lens 4** — delta
+  `f9db922` (2026-07-21); intent record:
+  [`sessions/2026-07-21-2147-review-scope-security-lens.md`](sessions/2026-07-21-2147-review-scope-security-lens.md).
+
 ## build/ layer — open strands
 
 - [ ] **Code-signing standard across the fleet** (Mike, 2026-07-11) — "how do we
