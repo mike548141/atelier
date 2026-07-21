@@ -18,12 +18,12 @@ the work cold (REVIEW.md rule 4's ceiling, stated here at the point of use).
 
 ## Doctrine — review-owed
 
-- [ ] **Fleet re-stamp of the reviews template** — unblocked 2026-07-19:
+- [~] **Fleet re-stamp of the reviews template** (claimed 2026-07-21-0736, wt: worktree-review-owed-triple) — unblocked 2026-07-19:
       the review cycle closed terminal (Mike's ruling on the 0629 no-MAJOR
       pass) and G1's blocker is cleared (pin slot reworded, prove-the-stamp
       grep green re-proven on a full scaffold); children otherwise adopt at
       pin bump.
-- [ ] **The 07-18 review-line remedy has no artefact.** `REVIEW.md` requires
+- [~] **The 07-18 review-line remedy has no artefact.** (claimed 2026-07-21-0736, wt: worktree-review-owed-triple) `REVIEW.md` requires
       every durable design record to carry a `review:` line ("omission is the
       bug"), but no ADR template, `decisions/README.md`, or ROADMAP template
       carries the field — the templates manufacture the blank the rule calls a
@@ -32,7 +32,7 @@ the work cold (REVIEW.md rule 4's ceiling, stated here at the point of use).
       The 07-19 cold pass adds (F6): qualify REVIEW.md's "enforcement is
       structural" until this lands, and a cheap design-record lint belongs
       alongside it (the 0820 record's deferred question, answered yes).
-- [ ] **REACH/AUTONOMY backlog — the cold pass's H1–H8 + residuals** (all
+- [~] **REACH/AUTONOMY backlog — the cold pass's H1–H8 + residuals** (claimed 2026-07-21-0736, wt: worktree-review-owed-triple) (all
       backlog-grade; doctrine-substantive ones are the principal's when
       picked up). Sharpest three: H2 "existing cookies are fair game" reads
       as licensing cookie *export* (rung-5 reach with rung-3 isolation) —
