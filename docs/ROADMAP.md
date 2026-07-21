@@ -174,40 +174,9 @@ touches REVIEW.md + EVIDENCE.md + the scanner floor); brief owed at pickup.*
       archive** — `~/.claude` or the macOS Keychain) so `--verify` detects a
       forged manifest, raising the anchor from "accidental corruption" to
       "tamper-evident". Key location/rotation is the real design question.
-- [ ] **Metadata coverage — ccarchive selects `*.jsonl` ONLY** (Mike asked
-      2026-07-22 "is there any metadata ccarchive misses?"; answered from the
-      code). WITHIN a transcript it misses nothing — it preserves the raw bytes,
-      so every timestamp/model/token/tool/thinking field is kept. But the file
-      selector (`instruments/ccarchive:154`, `endsWith('.jsonl')`) walks the
-      whole `~/.claude/projects/` tree and archives ONLY `.jsonl`, skipping
-      everything else IN THAT SAME TREE. Live evidence (all projects, 2026-07-22):
-      565 `.jsonl` archived; **227 `.txt`, 209 `.json`, 106 `.md`, 9 `.pdf`
-      skipped**. Two skips are worth a decision:
-      • **Attachments = a transcript-COMPLETENESS gap (arguably in charter).**
-        The 9 `.pdf` (and any pasted images/files) live under `projects/<repo>/`
-        beside the logs. A transcript that references an attachment stored as a
-        separate file is NOT self-complete once archived — the words are kept,
-        the artefact is dropped. First check whether Claude Code INLINES paste
-        bytes into the `.jsonl` (then fine) or REFERENCES an external file (then
-        ccarchive loses it); if referenced, capture the referenced non-`.jsonl`
-        artefacts alongside their transcript.
-      • **The `memory/` directory (high-value, scope call).** The curated
-        durable memory (`MEMORY.md` + ~40 `.md`) sits under `projects/<repo>/`
-        exactly where ccarchive walks, but as `.md` is skipped. It's arguably
-        the MOST valuable durable metadata in the tree — yet unlike transcripts
-        it is NOT on Claude Code's rolling `cleanupPeriodDays` deletion, so it's
-        already more persistent; the exposure is a local disk loss (it's
-        local-only + unversioned). Decide: does ccarchive preserve it, or a
-        sibling/`ccrepo`?
-      Lower priority / arguably out-of-charter ("transcripts, word for word"):
-      `~/.claude/history.jsonl` (a `.jsonl`, but OUTSIDE the source dir so it's
-      skipped — surprising given the extension), `shell-snapshots/`,
-      `file-history/` (5579 files), `settings.json` session-context, and the
-      209 `.json` / 227 `.txt` sidecars under `projects/`. **The framing
-      question for Mike:** ccarchive's charter is transcripts; attachments are a
-      completeness gap within it, memory + the rest are adjacencies — broaden
-      ccarchive, or let a sibling own them? *review: light — a scope/coverage
-      decision, then a small selector change if broadened.*
+- [ ] **Is there any metadata that ccarchive misses?** (Mike, 2026-07-22) —
+      open question to work later: does the archive capture everything worth
+      keeping, or is there session/project metadata it leaves behind?
 
 ### ccrepo (Mike, 2026-07-17)
 
