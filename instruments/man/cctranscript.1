@@ -1,0 +1,202 @@
+.TH CCTRANSCRIPT 1 "2026-07-21" "atelier instruments" "User Commands"
+.SH NAME
+cctranscript \- render a timestamped transcript of a Claude Code session
+.SH SYNOPSIS
+.B cctranscript
+.RI [ options ]
+.RI [ session ]
+.br
+.B cctranscript \-\-list
+.RI [ \-\-repo
+.IR name ]
+.RI [ \-\-all ]
+.SH DESCRIPTION
+Claude Code records each session as a raw JSON-lines log under
+.IR ~/.claude/projects/ <encoded-repo>/ <session-uuid> .jsonl.
+Every message in that log is timestamped, but the chat panel and the terminal
+UI don't show per-message times.
+.B cctranscript
+reads the log and prints who said what and when \(em your prompts and Claude's
+replies \(em with the elapsed delta between turns, so you can see where a
+session actually spent its time.
+.PP
+The default view is human and iMessage-style: your prompts mirror to the right,
+Claude's replies sit on the left, each tagged with the model that produced it
+.RB ( "Opus 4.8" ", " "Sonnet 5" )
+and coloured by model family, so a mid-session model switch is visible at a
+glance. A full-width numbered rule opens each
+.B exchange
+\(em one of your prompts and every reply to it \(em so a long transcript scans
+as sections. Each of Claude's text replies to prompt
+.I N
+carries a citable reference
+.IR N . M
+.RI ( M
+resets per prompt); thinking and tool turns aren't numbered, since the citable
+unit is what a human would quote.
+.PP
+By default the view is the conversation only \(em your prompts and Claude's
+text replies. Thinking blocks, tool calls and their results are hidden until
+you ask for them with
+.BR \-\-think ", " \-\-tools " or " \-\-full ,
+keeping the everyday transcript readable and revealing the machinery when you
+need to debug a session.
+.PP
+With no
+.I session
+argument the tool renders the latest session for the repo you are currently in,
+recovered from each log's recorded working directory rather than from Claude
+Code's dash-mangled folder name (which can't be reversed). Pass a session UUID
+(or a unique prefix), a path to a
+.I .jsonl
+log, or use
+.BR \-\-repo " and " \-n
+to reach back to an older session or one in another repo.
+.PP
+Colour is automatic: on when writing to a terminal, off when piped or when
+.B NO_COLOR
+is set.
+.B \-\-json
+emits a machine-readable array of turns \(em the same refs, roles, models,
+timestamps and text \(em and is never styled, so it is safe to pipe into
+.BR jq (1).
+.SH OPTIONS
+.TP
+.I session
+A session UUID (or a unique prefix of one), a path to a
+.I .jsonl
+log, or omitted to use the latest session for the current repo.
+.TP
+.BI \-\-repo " name"
+Use sessions from the named repo \(em its folder basename, e.g.
+.I atelier
+\(em instead of the current directory.
+.TP
+.B \-\-list
+List the sessions for the repo (id, start time, first prompt) and exit, rather
+than rendering a transcript. Combine with
+.B \-\-repo
+for another repo, or
+.B \-\-all
+for every repo.
+.TP
+.B \-\-all
+With
+.BR \-\-list ,
+list sessions across all repos.
+.TP
+.BI \-n ", " \-\-last " k"
+Use the
+.IR k -th
+most recent session
+.RI ( 1
+= latest, the default) instead of the newest.
+.TP
+.B \-\-tools
+Include tool calls and their results, each summarised to a single line.
+.TP
+.B \-\-think
+Include Claude's thinking blocks.
+.TP
+.B \-\-full
+Everything: prompts, replies, thinking and tools.
+.TP
+.B \-\-utc
+Print timestamps in UTC. The default is your local timezone.
+.TP
+.B \-\-no\-delta
+Hide the elapsed-time deltas shown between messages.
+.TP
+.BI \-\-width " n"
+Wrap the body to
+.I n
+columns. The default is the terminal width, capped at 100.
+.TP
+.BR \-\-color ", " \-\-no\-color
+Force ANSI colour on or off. The default is colour when writing to a terminal
+and plain when piped or when
+.B NO_COLOR
+is set;
+.B FORCE_COLOR
+forces it on.
+.TP
+.B \-\-json
+Emit a machine-readable array of turns instead of the human view. Never styled;
+safe to pipe into
+.BR jq (1).
+.TP
+.BR \-h ", " \-\-help
+Print a concise usage summary and exit. This manual is the full reference.
+.SH FILES
+.TP
+.I ~/.claude/projects/
+Claude Code's raw session logs, one folder per repo. Read-only to this tool.
+.TP
+.IR ~/.claude/projects/ <encoded-repo>/ <session-uuid> .jsonl
+A single session log \(em the source
+.B cctranscript
+reads and renders.
+.SH EXAMPLES
+.TP
+.B cctranscript
+Render the latest session in this repo.
+.TP
+.B cctranscript \-\-full
+The latest session with thinking and tool calls included.
+.TP
+.B cctranscript \-\-list
+What sessions exist for this repo.
+.TP
+.B cctranscript \-\-list \-\-all
+Every session across every repo.
+.TP
+.B cctranscript \-n 2
+The second-most-recent session here.
+.TP
+.B cctranscript \-\-repo ros \-\-tools
+The latest
+.I ros
+session, with tool calls.
+.TP
+.B cctranscript 1a4fa531\-...
+A specific session by UUID (or a unique prefix).
+.TP
+.B cctranscript ./path/to/log.jsonl
+A specific log file by path.
+.TP
+.B cctranscript \-\-json | jq .
+The machine-readable form, for scripting.
+.SH EXIT STATUS
+.B 0
+on success, including
+.BR \-\-help " and " \-\-list .
+.PP
+.B 1
+when the tool cannot select a session to render: no log at an explicit path, no
+session matching a given UUID or prefix, no sessions for the named repo, no
+Claude sessions found for the current directory, or a
+.B \-n
+index larger than the number of sessions available.
+.SH NOTES
+The tool reads
+.I ~/.claude/projects/
+read-only and writes nothing \(em no state, no cache, no output file.
+.PP
+It honours
+.BR NO_COLOR " and " FORCE_COLOR .
+No environment variable is required.
+.PP
+The
+.I .jsonl
+schema is internal to Claude Code and can shift between releases. If a field
+moves, the human view may need a nudge; the checked-in schema-drift contract
+test is what catches such a change, failing loudly rather than mis-rendering in
+silence.
+.SH SEE ALSO
+.BR ccarchive (1),
+.BR ccrepo (1),
+.BR jq (1)
+.PP
+The instruments overview:
+.I instruments/README.md
+in the atelier repository.
