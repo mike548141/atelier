@@ -66,6 +66,20 @@ class ColdItemCount(unittest.TestCase):
         self.assertEqual(
             sizescan.cold_item_count("  - [x] indented\n- [X] caps\n* [x] star\n", "ROADMAP.md"), 3)
 
+    def test_all_bullet_markers_counted(self):
+        # -, *, +, and ordered (1. / 1)) are all Markdown list bullets; a done
+        # item written in any of them is still relocatable cold content.
+        self.assertEqual(
+            sizescan.cold_item_count("+ [x] plus\n1. [x] ordered\n2) [x] paren\n", "ROADMAP.md"), 3)
+
+    def test_checkbox_inside_code_fence_not_counted(self):
+        # a [x] inside a fenced block is a quoted example (e.g. docs showing the
+        # worklog syntax), not a harvestable work item — fenced regions are skipped.
+        body = "- [x] real done item\n```\n- [x] quoted example\n- [x] another\n```\n"
+        self.assertEqual(sizescan.cold_item_count(body, "ROADMAP.md"), 1)
+        self.assertEqual(
+            sizescan.cold_item_count("~~~\n- [x] tilde-fenced\n~~~\n", "ROADMAP.md"), 0)
+
     def test_open_claimed_review_states_not_cold(self):
         body = "- [ ] open\n- [~] claimed\n- ⏳ review queued\n"
         self.assertEqual(sizescan.cold_item_count(body, "ROADMAP.md"), 0)

@@ -77,20 +77,23 @@ placeholders (`<atelier-path>`, `<SHA>`, `<owner/repo>`, `<visibility fact>`
 — quote the path if it contains spaces; the sibling-relative `../atelier` is
 the house shape), and keep it **deliberately lean**: the block is the hottest
 read path in the fleet — every child session pays its length at every open —
-so a line earns its place or moves behind a pointer. **Grounded shape (SR2,
-2026-07-20):** one bullet per irreducible floor concern — seven today (apex +
-Laws, the always-stop floor, concurrency, session rhythm, source & drift, estate
-resources, this repo's visibility), each as tight as it can be while stating its
-concern in full and pointing up for the rest. That structure — seven dense
-concerns plus the heading and intro — sizes the block at **~50 lines**; the
-figure is the *concern-count shape*, never a line target (grounding it in what
-the block happens to weigh today would be circular). A block materially past it
-means a concern has grown narratable detail that belongs behind its pointer, not
-that it "broke a budget"; a concern can only *leave* the block by being genuinely
-redundant with another, never by trimming a live safety statement. (This
-replaces the "~15 lines" figure, which was dead on arrival — the block has never
-been that short.) `create-repo` stamps it on new repos; existing repos are
-retrofitted once. Everything below the block is repo-specific onramp.
+so a line earns its place or moves behind a pointer. **Structural rule (SR2,
+2026-07-20; the number dropped after review, 2026-07-21):** one bullet per
+irreducible floor concern — seven today (apex + Laws, the always-stop floor,
+concurrency, session rhythm, source & drift, estate resources, this repo's
+visibility), each as tight as it can be while stating its concern in full and
+pointing up for the rest. That structure *is* the spec — there is deliberately
+**no line figure**: a number picked to sit just above what the block weighs
+today is circular (it can't be exceeded the moment it's written), and nothing
+gates on length here anyway, so a figure would be decoration with a circularity
+liability. A block that has grown means a concern has accreted narratable detail
+that belongs behind its pointer, not that it "broke a budget"; a concern can
+only *leave* the block by being genuinely redundant with another, never by
+trimming a live safety statement. (The earlier "~15 lines" and "~50 lines"
+figures are both retired — the first was dead on arrival, the second tracked the
+measurement it claimed to be independent of.) `create-repo` stamps it on new
+repos; existing repos are retrofitted once. Everything below the block is
+repo-specific onramp.
 
 ```markdown
 ## Doctrine — inherited from atelier (pinned `atelier@<SHA>`)

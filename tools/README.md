@@ -44,13 +44,15 @@ live text (GitHub renders it as code — fixing that would risk missing real
 links in indented list items, the worse trade). It never touches the network,
 so it says nothing about whether an external URL is alive.
 
-**sizescan** (a hygiene check, not a safety scan) measures **length**, which is a
-proxy for token cost, not for bloat itself: it cannot tell a roadmap padded with
-completed narration from one with a genuinely long list of *open* items, nor a
-verbose README from a dense one. Its budgets are heuristic, and its verdict is
-advisory by design — it says "this crossed the line, look at it", never "this is
-wrong". A false flag is one inline `sizescan:budget=N` away; the judgement of
-whether to harvest or to raise the ceiling stays human.
+**sizescan** (a hygiene check, not a safety scan) gates on **relocatable cold
+content** — a completed `[x]` item on a checkbox-worklog file, whose fix is a
+lossless move to the history store — and treats **length** as a pure advisory.
+Cost is size × read-frequency, so the enemy is cold content sitting on the hot
+path, never fulsomeness: a roadmap that is long purely from a genuine list of
+*open* items is never failed, only reported. The gate says "this done item is
+pure cost with a lossless fix, harvest it"; the advisory says "this file is long,
+look at it" and never breaks a build. The judgement of whether a long all-open
+file is fine or hiding resolved narrative stays human.
 
 The scans are the mechanical floor, not the whole boundary: the human
 pre-publish scrub (and the review practice) owns the residual above.
@@ -371,7 +373,7 @@ is negligible, and it is the one gate that catches a 404 *before* a push
 publishes it. A repo that keeps its tree link-clean pays nothing; a deliberately
 dangling pointer uses `linkscan:allow` / `.linkscanignore`.
 
-## `sizescan.py` — keep the always-loaded files lean
+## `sizescan.py` — keep cold content off the always-loaded files
 
 A session resumes cold by reading a handful of files at the start — the roadmap
 (what's open), the session index (where the last one stopped), the README, the
@@ -383,48 +385,64 @@ discipline decayed silently — a sibling roadmap reached 3000+ lines, each
 finished item accreting a running log of how it got done, no signal firing.
 `sizescan` is that missing signal.
 
-It reports any **current-truth file over its line budget** (a line count is a
-cheap, honest proxy for the tokens a session pays to load it), and is narrow in
-two deliberate directions:
+**Cost is size × read-frequency (2026-07-20 ruling)**, so the enemy is never
+fulsomeness — it is **cold content on the hot path**: content that is finished
+(no longer live current-truth) yet still loaded every session. `sizescan` fires
+on exactly that, and only where the fix is mechanical and lossless:
 
-- **It budgets only the files meant to stay lean** — `ROADMAP.md`, `SESSIONS.md`,
+- **The gate** fires on **relocatable cold content** — a completed `[x]` item on
+  a checkbox-worklog file (`ROADMAP.md`), whose whole remedy is a lossless move
+  to `ROADMAP-DONE.md` (the current-truth/history split). The gate can never
+  demand a reword: it fires only when a machine can name the fix as a move. It
+  never fires on length.
+- **Length is a pure advisory** — the line count reports (a class reference
+  point: `ROADMAP` ~300, `SESSIONS`/`README`/`ARCHITECTURE` ~250, `CLAUDE` ~200,
+  where the fleet's healthy files sit) but **never fails a build**. A file long
+  purely from live open items is fine; the number is a prompt to look for
+  un-marked resolved narrative, not a ceiling to golf under.
+
+Narrow in two further deliberate directions:
+
+- **It meters only the files meant to stay lean** — `ROADMAP.md`, `SESSIONS.md`,
   `ARCHITECTURE.md`, plus the **root** `README.md` and `CLAUDE.md` (a nested
-  `tools/README.md` is a reference index, read on demand — not budgeted, so the
+  `tools/README.md` is a reference index, read on demand — not metered, so the
   signal stays sharp). A long *reference* doc (`PRINCIPLES.md`, a doctrine file)
-  is read on demand, not every session, so it isn't budgeted either.
+  is read on demand, not every session, so it isn't metered either.
 - **It ignores the append-only stores by design** — `ROADMAP-DONE.md`,
   `CHANGELOG.md`, `SPECS.md`, and anything under `sessions/`, `reviews/`,
   `decisions/`, or archive dirs. Those are the *destinations* the split moves
   detail into; flagging them would punish the very fix the tool encourages.
 
-Budgets are starting points, not law (`ROADMAP` 300, `SESSIONS` 250, `README`/
-`ARCHITECTURE` 250, `CLAUDE` 200 — round and generous; the fleet's healthy files
-sit well under, the bloated ones clear them by a wide margin). A legitimately
-long file declares its own ceiling inline with `sizescan:budget=N`, opts out with
-`sizescan:allow`, or a glob in `.sizescanignore`.
+Prose-shaped cold content (resolved narrative under an *open* item) and thinness
+aren't mechanically detectable — they stay **caught at review, not measured** (the
+standing one-sided honesty: the tool never fails on what it can't name losslessly).
+A legitimately long all-open file can quiet the advisory with an inline
+`sizescan:budget=N` (grounded in its class, never its current length), opt out
+with `sizescan:allow`, or a glob in `.sizescanignore` — none of which silences the
+cold-content gate; for that, harvest the `[x]` items.
 
 ### Usage
 
 ```sh
-python3 tools/sizescan.py                  # advisory report over the whole repo
+python3 tools/sizescan.py                  # report over the whole repo (length advisory + any cold content)
 python3 tools/sizescan.py --root repo repo  # scan a child from atelier
-python3 tools/sizescan.py --check          # opt-in gate: exit 1 if any file is over
+python3 tools/sizescan.py --check          # gate: exit 1 only if a file has relocatable cold content
 python3 tools/sizescan.py --json           # machine-readable
 python3 tools/sizescan.py --selftest       # prove the engine offline
 ```
 
-**Advisory by default.** Bloat is a recoverable hygiene threshold, not a defect
-like a leaked secret or a 404 — the fix (harvest the completed detail aside) is a
-judgement a session makes at a good moment, not a hard stop on every commit. So a
-bare `sizescan` **reports and exits 0** (drop it in CI to surface the numbers
-without breaking a build); `--check` is the opt-in gate that gives it teeth. Exit
-codes: `0` clean or advisory-over · `1` over **and** `--check` · `2` usage/config
-error (a scan that read nothing is never green).
+**The gate has a narrow bite.** Cold content is a recoverable hygiene threshold
+with a lossless fix — harvest the `[x]` item aside — so a bare `sizescan`
+**reports and exits 0** (drop it in CI to surface the advisory numbers without
+breaking a build); `--check` gives it teeth, but **only on cold content, never on
+length**. Exit codes: `0` clean or length-advisory-only · `1` cold content
+present **and** `--check` · `2` usage/config error (a scan that read nothing is
+never green — fail-loud, not fail-open).
 
-**Not wired into any gate yet** — unlike the triad and linkscan, `sizescan` is
-new and review-owed; it runs by hand (and against the fleet from atelier) until a
-cold review clears wiring it into `ci.yml` / the child `floor.yml` in `--check`
-mode. Don't-stack: no gate leans on it before then.
+**Wired into the gate (2026-07-20).** `sizescan --check` runs in atelier's
+`ci.yml` and the child `floor.yml` in cold-content mode. Because it gates only on
+a lossless move, it is safe to stack: it can red a build only when the fix is
+`git mv`-shaped, never when it would demand a reword.
 
 ## Tests
 
