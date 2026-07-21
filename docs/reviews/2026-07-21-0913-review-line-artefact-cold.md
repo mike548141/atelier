@@ -239,3 +239,39 @@ The MEDIUM is the house's own silent-success class on the unwired hand-run
 path; nothing found touches the wired enforcement. Per rule 3, all findings
 on this self-authored doctrine are **Mike's to decide**; counsel above,
 nothing applied by this pass.
+
+## Reconcile — deferred material opened after the findings commit (`ed478ee`)
+
+Opened: the intent record `2026-07-21-0744` (evaluative account), the
+CHANGELOG entry, the 0820 addendum text, and the delta commit body (re-read).
+
+- **The account matches the build.** Every decision the intent record states
+  (presence-only, decisions-dir scope, landing-date boundary, the three
+  rejections) is what the code does; the "children inherit immediately via
+  floor.yml's float-to-main checkout" consequence is accurate — reviewscan
+  is on `main`, so children's floors already run it ahead of any pin bump.
+  The commit body's claims all reproduced (suite, selftest, red/green,
+  dogfood, per-surface narrowing). No finding is contradicted; RS1–RS5
+  stand as written.
+- **One new finding from the deferred material itself — RS6 (LOW, lens 2 —
+  the addendum is an insertion, not an append).** The 0820 record's
+  2026-07-21 addendum was spliced into the middle of the earlier F6
+  qualification note: the prior note's closing sentence ("This record's
+  Rejected section already carries that honesty; this line saves a reader
+  the inference") was detached and now dangles at the end of the *new*
+  paragraph, where "this line" reads as the addendum and the sentence no
+  longer says what its author meant. Append-only means the earlier appended
+  note's text should also have stayed intact, with the addendum below it.
+  Substance is unharmed; the record now misreads slightly. *Counsel: a
+  records-only touch — restore the orphaned sentence to the F6 note it
+  belongs to and let the addendum stand whole beneath it.* Named honestly:
+  found after the findings commit, from deferred material, and flagged as
+  such per the application-review sequence REVIEW.md prescribes.
+- The CHANGELOG entry also records a fleet re-stamp strand (three children's
+  reviews templates) that is outside this delta's scope; nothing in it
+  touches the reviewscan claims.
+
+**Final: PASS — 0 MAJOR / 1 MEDIUM / 5 LOW (RS6 added at reconcile). All
+findings await the principal's ruling; this pass returned no MAJOR, so per
+the close rule the applying session's work closes the cycle without a
+further full ceremony.**
