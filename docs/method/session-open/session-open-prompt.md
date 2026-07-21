@@ -1,12 +1,16 @@
-* Think step-by-step.
+I have a long list of work queued up in this repo. Please maximise my claude
+plan use by opening a session, giving it a prompt, and when its completes
+starting another.
 
-* I have multiple parallel sessions so use worktree(s) etc. and be careful.
-  Keep an eye on other worktrees and sessions that are live, they may start or
-  stop after you
+Lets use an fable session to orchestrate and Opus agents doing the work, but
+you are allowed to use fable for orchestration and/or agents if you need to. I
+will have multiple parallel sessions so take appropriate precautions like
+using worktrees. If I accidentally start the orchestration session as a
+different model then stop and we will change models.
 
-* dont forget to claim your work and if work is claimed then don't work on it
-  even if I've told you too below
+Be ready in the likely situation that we max out a calude session limit
 
-* If I've given you too much work then use economics and your own reasoning to
-  find a good spot to stop safely, tidy everything up, wrap up and finish the
-  session.
+After all of that is finished - As I always ask. Have you captured all the
+learnings, evidence, decisions, designs, work etc for product and the repo. We
+want future sessions to keep building this all out over time And have you
+tidied everything up ready to close this session?
