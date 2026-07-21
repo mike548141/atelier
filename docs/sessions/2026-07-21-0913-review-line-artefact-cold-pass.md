@@ -45,3 +45,22 @@ at PR #13 (the v2 plugin de-instance) as a review subject, one reporting a
 only to title + file list (enough to establish a different strand; no ⏳
 queues it), and the bug report was left unlogged as unverified. Both handed
 back to Mike to re-issue if current.
+
+## Addendum 2026-07-21 1110 UTC — accept-all applied, cycle closed (same session)
+
+Mike: *"I accept your recommendations on all these."* Applied as a **terminal
+application** (no-MAJOR pass ⇒ the counsel's author applies, no further
+pointer — the REACH `87af9f9` shape): claim `8815f40` on `main` first
+(push deferred by a machine-wide network outage at claim time, named
+honestly), then wt: review-line-rs-apply, landed `c06c0a4`. RS1–RS6 all
+[fixed] with every leg re-driven live — dir/file-direct red (exit 1, was
+silent 0), fenced-only red, empty-value red, all-caps green — suite
+**293→298**, selftest OK, floor scans clean. Decisions stamped in the
+verdict's dated addendum; item harvested to ROADMAP-DONE; CHANGELOG closed.
+
+Two operational notes for future sessions: (a) a scan run from the primary
+checkout while a worktree lives under `.claude/worktrees/` walks into that
+checkout's tree and double-counts its files — transient, benign, but it
+explains a "2 records" count that puzzled this session for a minute;
+(b) the outage also produced Mike's API error — same cause, not a repo
+matter.

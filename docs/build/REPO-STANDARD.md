@@ -91,7 +91,9 @@ evidence — see `method/EVIDENCE.md`.
 - **.github/workflows/floor.yml** — the *scanner* floor, for any repo that
   inherits house doctrine: the CI backstop to the pre-commit scan hook (which
   only guards the clone it's installed in). It checks atelier out beside the repo
-  and runs its public `tools/` (secretscan · structural leakscan · linkscan)
+  and runs its public `tools/` scanners — the current roster and what each
+  gates is `tools/README.md`'s to state, not re-enumerated here (an inline
+  list went stale three scanners running) —
   against the tree on every push + PR — one source, no vendored copy, no drift.
   Distinct from `ci.yml` (which gates *correctness*); this gates *publish-safety*.
   licenscan is a publish gate, left commented until the repo settles a licence.

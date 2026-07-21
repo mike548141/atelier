@@ -20,6 +20,20 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   README mirrors H2. Terminal application of a no-MAJOR pass ⇒ no further
   pointer; decisions stamped in the verdict's addendum.
 
+### Changed (2026-07-21 — review-line cycle closed: RS1–RS6 accept-all applied)
+- **The reviewscan cycle is closed terminal.** The rule-4 cold pass on the
+  artefact delta returned **PASS — 0 MAJOR / 1 MEDIUM / 5 LOW**; Mike ruled
+  accept-all and the counsel's author applied (no-MAJOR ⇒ terminal, no further
+  pointer). reviewscan now scans an explicitly-named decisions dir or record
+  file directly (RS1 — the silent-success hand-run closed, red legs proven),
+  ignores `review:` lines quoted inside code fences (RS2), requires a
+  non-empty value (RS3), accepts all-caps and states the backdate residual
+  (RS4); REPO-STANDARD points at `tools/README.md` for the scanner roster
+  instead of an inline list that had gone stale three scanners running (RS5);
+  the 0820 record's spliced addendum is unwound with the restoration
+  annotated (RS6). Suite **293→298**. Verdict + decisions:
+  `docs/reviews/2026-07-21-0913-review-line-artefact-cold.md`.
+
 ### Added (2026-07-21 — the review-line artefact: templated field + reviewscan)
 - **The `review:` line is now structural for decision records.** The ADR
   template and decisions README carry a **Review** field, the ROADMAP template

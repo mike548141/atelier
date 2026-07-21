@@ -35,6 +35,12 @@ boundary is the mechanism's own landing date, not a number picked to pass.
 Records named under the retired numeric scheme (`0001-…`) all predate the
 convention and are skipped by construction (they carry no date to test).
 
+Stated residual (2026-07-21 cold-pass RS4): the boundary reads the FILENAME
+date, so a record deliberately backdated below BOUNDARY escapes the lint.
+The house's real date-error mode (NZ local stamped instead of UTC) errs
+forward — the safe direction — and a gaming author has a cheaper honest
+hatch in `reviewscan:allow:`. Accepted, not defended against.
+
 A line carrying `reviewscan:allow: <reason>` anywhere in a record exempts it —
 self-documenting and greppable, same hatch as the sibling scanners.
 
@@ -65,10 +71,15 @@ BOUNDARY = "2026-07-21"
 RECORD_NAME = re.compile(r"^(\d{4}-\d{2}-\d{2})(?:-\d{4})?-.+\.md$")
 
 # `**Review**: …` (ADR header), `review: not warranted — …` (inline), a list
-# bullet, or a blockquoted line all count — the field, not one typography.
-REVIEW_LINE = re.compile(r"^[\s>*-]*(?:\*\*)?[Rr]eview(?:\*\*)?\s*:")
+# bullet, blockquoted, or SHOUTED — the field, not one typography. The value
+# must be non-empty (RS3): the thing whose presence the rule demands is a
+# JUDGEMENT, and `**Review**:` with nothing after the colon is the blank the
+# rule exists to make impossible, wearing the field's clothes.
+REVIEW_LINE = re.compile(r"^[\s>*-]*(?:\*\*)?[Rr](?:eview|EVIEW)(?:\*\*)?\s*:\s*\S")
 
 ALLOW_MARKER = "reviewscan:allow:"
+
+FENCE = re.compile(r"^\s*(```|~~~)")
 
 
 def scan_record(path: Path) -> bool:
@@ -76,24 +87,53 @@ def scan_record(path: Path) -> bool:
     text = path.read_text(encoding="utf-8", errors="replace")
     if ALLOW_MARKER in text:
         return True
-    return any(REVIEW_LINE.match(line) for line in text.splitlines())
+    # A `review:` inside a fenced code block is a QUOTED example, not the
+    # record's own judgement (RS2) — track fence state and skip fenced lines.
+    in_fence = False
+    for line in text.splitlines():
+        if FENCE.match(line):
+            in_fence = not in_fence
+            continue
+        if not in_fence and REVIEW_LINE.match(line):
+            return True
+    return False
+
+
+def _dir_records(decisions_dir: Path) -> list[Path]:
+    records = []
+    for f in sorted(decisions_dir.glob("*.md")):
+        m = RECORD_NAME.match(f.name)
+        if m and m.group(1) >= BOUNDARY:
+            records.append(f)
+    return records
+
+
+def _is_decisions_dir(p: Path) -> bool:
+    return (p.is_dir() and p.name == "decisions" and p.parent.name == "docs"
+            and "templates" not in p.parts)
 
 
 def find_records(paths: list[Path]) -> list[Path]:
-    """Decision records in scope: docs/decisions/<date-named>.md, post-boundary."""
+    """Decision records in scope: docs/decisions/<date-named>.md, post-boundary.
+
+    A base may be a tree to search, a decisions dir itself, or a single record
+    file — the natural hand-run invocations (RS1: an explicitly-named path
+    must be scanned, never silently matched by nothing and greened).
+    """
     records: list[Path] = []
     for base in paths:
-        for decisions_dir in sorted(base.rglob("docs/decisions")):
-            if not decisions_dir.is_dir():
-                continue
-            # A templates tree ships the *blank* forms, not records — skip it.
-            if "templates" in decisions_dir.parts:
-                continue
-            for f in sorted(decisions_dir.glob("*.md")):
-                m = RECORD_NAME.match(f.name)
-                if m and m.group(1) >= BOUNDARY:
-                    records.append(f)
-    return records
+        if base.is_file():
+            m = RECORD_NAME.match(base.name)
+            if (m and m.group(1) >= BOUNDARY
+                    and _is_decisions_dir(base.parent)):
+                records.append(base)
+        elif _is_decisions_dir(base):
+            records.extend(_dir_records(base))
+        else:
+            for decisions_dir in sorted(base.rglob("docs/decisions")):
+                if _is_decisions_dir(decisions_dir):
+                    records.extend(_dir_records(decisions_dir))
+    return sorted(dict.fromkeys(records))
 
 
 def run(paths: list[Path], root: Path, as_json: bool) -> int:

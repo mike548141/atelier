@@ -18,16 +18,6 @@ the work cold (REVIEW.md rule 4's ceiling, stated here at the point of use).
 
 ## Doctrine — review-owed
 
-- [~] **Review-line artefact — 🎯 Mike's rulings owed on RS1–RS6.**
-      (claimed 2026-07-21-1105, wt: review-line-rs-apply — Mike ruled
-      accept-all; terminal application by the counsel's author, push
-      deferred by a network outage) The
-      rule-4 cold pass RAN 2026-07-21 0913 UTC (taken from this queue by a
-      Mike-spawned non-author): **PASS — 0 MAJOR / 1 MEDIUM / 5 LOW**, all
-      proofs reproduced. Findings + counsel per finding in
-      `docs/reviews/2026-07-21-0913-review-line-artefact-cold.md`; apply on
-      ruling, nothing before. No MAJOR ⇒ the applying session closes the
-      cycle (REVIEW.md close rule).
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
 COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin
 bundle, CONCURRENCY put-away, CLI-docs standard, ADR 0006/ccarchive addendum,
@@ -35,7 +25,9 @@ CONVENTIONS + UTC-at-rest, lean-files/sizescan, the review-trigger/sizescan
 combined cycle — 0407 → F1–F9 applied → 0544 → G1–G3 applied → 0629 terminal
 no-MAJOR pass, closed 2026-07-19; the 2026-07-20 triple cycle — DOCUMENTATION
 doctrine + CONCURRENCY posture flip + session-onramp operating-rhythm, three
-rule-4 cold passes all PASS no-MAJOR, applied `87af9f9`) →
+rule-4 cold passes all PASS no-MAJOR, applied `87af9f9`; the review-line
+artefact cycle — rule-4 cold pass PASS 0M/1M/5L, Mike's accept-all applied
+terminal, closed 2026-07-21) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 ## build/ layer — open strands
