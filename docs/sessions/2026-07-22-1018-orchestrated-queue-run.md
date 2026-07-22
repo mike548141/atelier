@@ -109,3 +109,18 @@ neither this run nor its workers may take that review (rule 4; stated on the
 queue line). The meta-note worth keeping: the run built its own doctrine
 while running the pattern, so the intent record doubles as the delta's
 second live bearing.
+
+**1052 · ccrepo reconciliation drift — landed.** Worker (Opus) traced the
+whole sonnet-5 residual to one defect class (`75bba4c`, merged `--no-ff`):
+last-wins dedup kept trailing partial/zeroed usage lines the logs re-emit,
+silently dropping tokens; richest-record-wins recovers them and matches
+ccusage exactly on a frozen matched-session set — per-model drift 0.00%
+across the board, only in-flight variance left. `server_tool_use` measured
+all-zero live → per-call pricing not built and the v1 hypothesis retracted
+in the design doc (honesty: measured-false, not quietly dropped). Bonus
+catch: per-model reconcile was comparing unmatched session sets, smearing
+window-edge sessions into phantom per-model deltas — now scoped to matched.
+Suite 92→94 (111 instruments-wide, re-proven post-merge). Worker isolated
+the moving-target artefact (this very session writing logs during
+measurement) before attributing drift — the discriminating-evidence
+discipline holding in the small. Worktree put away.
