@@ -93,3 +93,19 @@ false-failed; corrected to the test files). Live fixture run exercised
 refuse/force/grown paths with matching exit codes. Wave 2 launched in
 parallel: queue-run doctrine + skill, anti-slop corpus mining, ccrepo drift
 (claims `77f1037`). Worktree put away.
+
+**1105 · Queue-run doctrine + skill — landed; rule-4 `⏳` queued.** Worker
+(Opus) built the ratified pattern (`343def8` + `8111e9f`, merged `--no-ff`):
+CONCURRENCY capstone section (96 lines) + ECONOMICS tier-split subsection
+(22 lines) — section-not-file settled on actual size as ratified — and the
+plugin-bundled `queue-run` skill (auto-discovered like review-brief; no
+manifest change, verified against how review-brief travels). The stale
+interruption-resilience pointer to "(ROADMAP)" rewired to the new section.
+Orchestrator read the full doctrine diff and skill before merging; linkscan
+clean, 323 tool tests green post-merge (worker ran the suite via `unittest`
+— pytest absent on system python; identical TestCase suite). Self-authored
+doctrine: the worker drafted the `⏳` pointer, the orchestrator queued it —
+neither this run nor its workers may take that review (rule 4; stated on the
+queue line). The meta-note worth keeping: the run built its own doctrine
+while running the pattern, so the intent record doubles as the delta's
+second live bearing.

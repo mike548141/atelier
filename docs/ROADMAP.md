@@ -118,52 +118,28 @@ REPO-BOUNDARY, worktree tooling) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 ## Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)
 
-Mike has been running "queue runs": an orchestrator session drains the shared
-queue — pick, execute (itself or via worker agents), close records per item,
-repeat — chained session-to-session to use plan capacity fully. It works (the
-2026-07-21 man-page rollout ran this way, and the pattern recurs), but it
-lives entirely in a prompt Mike re-pastes — an operating pattern carried as
-costume, not doctrine, and parts of it re-state rules that already stand
-(worktrees, claims, the closing litany), which is the drift risk. Captured
-question: embed it, and how?
-
-- [~] **Name the pattern in `method/`**
-      (claimed 2026-07-22-1033, wt: atelier-queue-run) (likely CONCURRENCY § session rhythm
-      + ECONOMICS for the tier split): the orchestrator/worker shape
-      (capable tier orchestrates and reviews, workhorse tier executes; flex
-      allowed on judgement); a default selection order when the run's brief
-      doesn't override — loose ends & unblockers → features most of the way
-      to done → queue order; **per-item close** (commit, push, records) so a
-      hard session cap loses nothing — limit-readiness is per-item
-      durability, never an end-of-run tidy; named stop conditions
-      (economics, session cap, queue empty, everything-left-blocked) with an
-      end-of-run report that surfaces 🎯 principal-blocked items rather than
-      silently skipping them; and a role check at open — a session opened on
-      the wrong tier for its role stops and says so instead of proceeding.
-- [~] **Mechanise it as a skill**
-      (claimed 2026-07-22-1033, wt: atelier-queue-run) (`queue-run`, plugin-bundled) so the
-      prompt shrinks to an invocation plus per-run overrides — mechanism
-      before more content.
-- Noted synergy: a chain of fresh sessions naturally produces
-  rule-4-eligible takers for the `⏳` queue — the run pattern and the
-  independence rules reinforce each other. The rule the skill must carry: a
-  run takes a `⏳` item only where *that session* passes rule 4's criterion
-  for that delta (a run that authored a delta never takes its review).
-- Deliberately kept out of doctrine: "maximise plan use" stays the
-  principal's per-run spend directive (which pool — ECONOMICS), never
-  a standing instruction; the closing litany stays in RECORD.md/CLAUDE.md
-  where it already binds — the run prompt should not need to restate it.
-
-*review: WARRANTED when this moves from capture to doctrine/skill — doctrine
-by function, so the full rule-4 cycle. The capture itself is records-only.*
-
-**RATIFIED 2026-07-22 (Mike): "I like everything you have there" — build
-as counselled** (method-layer pattern + `queue-run` skill; the counselled
-home was CONCURRENCY § session rhythm + ECONOMICS for the tier split,
-with section-vs-new-file settled by the builder on the text's actual size).
-Deliberately left for a **fresh session** to claim and build — the
-counsel's author closes out; the builder queues the rule-4 `⏳` when the
-doctrine lands.
+- [x] **Name the pattern in `method/`** — built 2026-07-22 by a fresh
+      session per Mike's ratification ("build as counselled"), wave-2 queue
+      run, `343def8`: CONCURRENCY.md § Orchestrated queue runs (96 lines —
+      run mechanics, role check at open, default selection order, per-item
+      close as the cap-safety property, four named stop conditions + the
+      🎯-surfacing report, rule-4 synergy) + ECONOMICS.md § The
+      orchestrated-run tier split (22 lines). Section-vs-new-file settled by
+      the builder on actual size, as ratified. Every ratified element landed,
+      incl. the deliberately-out items named at the point a reader would
+      look. Grounded on both bearings (man-page rollout + the live
+      2026-07-22-1018 run).
+- [x] **Mechanise it as a skill** — built same delta, `8111e9f`:
+      `skills/queue-run/SKILL.md`, plugin-bundled by auto-discovery exactly
+      as review-brief travels (no manifest change needed — verified);
+      stamped-copy header points up, narrowing-free.
+- ⏳ **Orchestrated-queue-run doctrine + skill — rule-4 cold review owed.**
+  Delta: `343def8` (CONCURRENCY § Orchestrated queue runs + ECONOMICS § the
+  orchestrated-run tier split) + `8111e9f` (`skills/queue-run` +
+  README/session-onramp wiring). Intent record:
+  [`sessions/2026-07-22-1018-orchestrated-queue-run.md`](sessions/2026-07-22-1018-orchestrated-queue-run.md).
+  Doctrine by function → full rule-4 cycle; the 2026-07-22-1018 run authored
+  the delta, so that run (and its workers) cannot take this.
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 
