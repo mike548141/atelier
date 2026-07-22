@@ -80,3 +80,16 @@ live ros session; nothing touched there. Worker also caught and corrected a
 staging hazard mid-flight (git add aborting on renamed pathspecs left content
 edits unstaged while renames staged) — verified the index before committing.
 Worktree put away.
+
+**1042 · ccarchive restore (full + delta) — landed.** Worker (Opus) built the
+inverse of `--audit` (`9ca1425`, merged `--no-ff`): one engine, two shapes
+(`--restore`, `--restore --delta` off the audit's mutated/pruned/renamed
+buckets), content-first safety (grown = byte-prefix ⇒ never a target; newer
+diverged live refuses unless a loud `--force`; zip-slip containment; additive
+only — the renamed bucket re-materialises the old path and never deletes the
+live rename). Suite 46→63/109 green — re-run by the orchestrator post-merge
+(first orchestrator invocation ran `node --test` on the whole dir and
+false-failed; corrected to the test files). Live fixture run exercised
+refuse/force/grown paths with matching exit codes. Wave 2 launched in
+parallel: queue-run doctrine + skill, anti-slop corpus mining, ccrepo drift
+(claims `77f1037`). Worktree put away.

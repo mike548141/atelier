@@ -273,15 +273,16 @@ touches REVIEW.md + EVIDENCE.md + the scanner floor); brief owed at pickup.*
 
 ### ccarchive (Mike, 2026-07-17)
 
-- [~] **Restore from archive — full + delta**
-      (claimed 2026-07-22-1018, wt: atelier-ccarchive-restore) — replace mutated/missing local
-      files from the archive (gunzip `<dest>/<rel>.gz` → `~/.claude/projects/<rel>`).
-      A full `--restore` and a delta mode that restores only what the local-store
-      audit flags (now built — `--audit`'s `mutated`/`renamed`/`pruned` buckets
-      are the delta source). Must not clobber a live file *newer* than the
-      archived copy (an in-flight session); confirm/refuse rather than overwrite
-      silently. Note the `grown` bucket is *not* a restore target — the live file
-      is ahead of the archive there, the opposite direction.
+- [x] **Restore from archive — full + delta** — built 2026-07-22 (wave-1
+      queue run, `9ca1425`): `--restore` (full) + `--restore --delta`
+      (audit's mutated/pruned/renamed buckets), `--dry-run`/`--force`/`--json`
+      reused. Content-first safety: `grown` never a target (byte-prefix
+      check, so even a full restore can't drop a live tail); diverged+newer
+      live refuses unless `--force` (loud); zip-slip containment; additive
+      only (renamed restores the OLD path, never deletes the live rename —
+      documented choice). Suite 46→63 ccarchive / 109 instruments green,
+      re-proven post-merge; live fixture run exercised every exit path.
+      Man page + README updated per the CLI-docs standard.
 - [ ] **iCloud dataless-file awareness** — iCloud "Optimise Mac Storage" evicts
       the local bytes of unused files, leaving a dataless placeholder (contents
       still in the cloud). ccarchive must keep working: reading an evicted `.gz`
