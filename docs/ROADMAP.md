@@ -39,6 +39,14 @@ no-MAJOR application pass, closed 2026-07-22; the harvest-integrity cycle —
 no-MAJOR application pass, closed 2026-07-22) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
+- ⏳ **SECRETS.md access-management expansion + ACCESS.md step-2 line** —
+  delta: `caa85fe` (SECRETS.md sections: non-reuse rules, asymmetric keys,
+  minting, exposure watch/roll/never-scrub, public-practice grounding;
+  ACCESS.md step 2 minted-fresh line). Intent record:
+  [`sessions/2026-07-22-1005-secrets-access-doctrine.md`](sessions/2026-07-22-1005-secrets-access-doctrine.md).
+  Self-authored doctrine — rule 4: a non-author takes it and writes the
+  brief; the author spawned nothing.
+
 ## build/ layer — open strands
 
 - [ ] **Code-signing standard across the fleet** (Mike, 2026-07-11) — "how do we
@@ -145,6 +153,42 @@ with section-vs-new-file settled by the builder on the text's actual size).
 Deliberately left for a **fresh session** to claim and build — the
 counsel's author closes out; the builder queues the rule-4 `⏳` when the
 doctrine lands.
+
+## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
+
+Mike's directive during the SECRETS.md access-management session: *"take into
+account any publicly available good practice for security that we should build
+into the doctrine"* — OWASP named, the NCSC developers collection linked, and a
+secure-SDLC checklist pasted (threat modelling/STRIDE, secure defaults, least
+privilege, secure coding, secrets management, supply-chain checks, automated
+scanning, peer review, continuous learning). The *credentials* slice landed
+same-session (SECRETS.md "Grounding in public practice", `caa85fe` — NIST SP
+800-63B rev 4 + OWASP secrets cheat sheet, corroboration named, the one
+divergence owned). The rest is a doctrine-wide sweep, deliberately not crammed
+into that delta:
+
+- [ ] **Map the public canon against `method/` + the scanner floor** — sources
+      to work from: OWASP (ASVS, SAMM, cheat-sheet series), the
+      [NCSC developers collection](https://www.ncsc.gov.uk/collection/developers-collection)
+      (8 principles), NIST SSDF (SP 800-218), CIS Controls. Corroboration
+      named as corroboration, never re-invented (the anti-slop capture's own
+      rule).
+- **Already held — name, don't rebuild**: automated scanning in the pipeline
+  (the floor scanners), peer review before ship (REVIEW.md), least privilege
+  (SECRETS triad), secrets never in source (right plane), repo protection
+  (ADR 0007 signing + the floor), incident learning (harvest + the anti-slop
+  promotion rule), clean maintainable code (PRINCIPLES).
+- Candidate **gaps** spotted at capture (to be confirmed by the mapping, not
+  assumed): threat modelling at design time (STRIDE-class — where would it
+  bind? REVIEW's design-review lens is the likely seam); secure-defaults
+  doctrine beyond credentials (deny-by-default posture); supply-chain checks
+  (licenscan covers licences, nothing screens dependencies for known vulns);
+  a secure-coding floor (input validation / injection — likely
+  instance-layer, decide whether doctrine holds any of it); "plan for
+  security flaws" (a vulnerability capture-and-track process).
+
+*review: WARRANTED when the mapping moves to doctrine edits; the capture
+itself is records-only.*
 
 ## Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)
 
