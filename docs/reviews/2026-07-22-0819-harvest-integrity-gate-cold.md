@@ -242,3 +242,31 @@ finding and no finding is withdrawn:
 - Nothing in the deferred material anticipates HI-F1 or HI-F2 — both were
   found cold, consistent with the record's "obvious attack surfaces are the
   reviewer's to find" handoff.
+
+## Decisions (Mike, 2026-07-22 — "I accept your recommendations on all")
+
+Applied in delta `30d350c` (worktree `hi-rulings-apply`); proofs re-driven at
+apply time — suite 314→319 green, selftest gains the store-under-`sessions/`
+case, both original fail-open reproductions re-run and now exit 1, live repo
+scan green.
+
+- **HI-F1 [fixed]** — archive-store basenames bypass the skip-dir filter in
+  `iter_candidates`; integrity is checked wherever a store lives, metering
+  stays bounded by the dir skip. Tests: stores under `sessions/` and
+  `_archive/` gate; a clean store there stays silent; selftest case added.
+- **HI-F2 [fixed]** — shared `_count_list_items` treats a fence still open at
+  EOF as never opened and counts the swallowed tail, fail-safe; applied to
+  both counters, keeping the cold/live grammar in parity. Tests both sides.
+- **HI-F3 [fixed]** — `RECORD.md` § current-truth lean now names the
+  harvest-integrity gate beside the cold-content gate.
+- **HI-F4 [fixed]** — the child ROADMAP template carries the work-owed
+  tri-state legend, so children meet the grammar before the gate does.
+- **HI-F5 [fixed]** — the blockquote skip is documented beside `_LIVE_ITEM`
+  as a decision (quoted material, same rationale as fences).
+- **HI-F6 [fixed]** — the indented-code false-positive is documented in the
+  module doc as an accepted edge, with the investigative remedy as grounds.
+
+The application is itself a doctrine edit by an applier who authored these
+verdicts, so per REVIEW.md § Applying decisions the cycle stays open: its
+cold pass is queued `⏳` refs-only for a non-author (this session neither
+takes nor spawns it).
