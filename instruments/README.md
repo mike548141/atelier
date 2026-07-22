@@ -120,6 +120,10 @@ top-level `billing` block. `--no-billing` forces estimate-only for a run.
       "covers": ["opus", "sonnet", "haiku", "fable"]
     },
     "perTokenModels": ["some-uncovered-model"],
+    "spend": {
+      "mode": "usage",
+      "periods": { "2026-06": 200.00, "2026-07": 214.50 }
+    },
     "notes": "covers[] matches model-family prefixes after claude- is stripped"
   }
   ```
@@ -134,13 +138,46 @@ top-level `billing` block. `--no-billing` forces estimate-only for a run.
   estimate as their actual. **Actual = apportioned plan share + uncovered
   per-token spend** — so the TOTAL Actual row is exactly `plan fee + all
   uncovered spend`.
+### Actual spend vs the estimate
+
+The `Actual` column reprices usage under the plan, but on its own it doesn't
+answer the money question Mike actually asks: over the range, is **what I
+genuinely pay** more or less than the API list price would have been? An optional
+`spend` block supplies the genuine outlay and ccrepo reconciles it against its own
+estimate — the **money-side analog of the ccusage cross-check** — in a footnote
+that's a peer of the ccusage one:
+
+```
+  Actual spend vs estimate: $200.00 billed (Max 5x, $100.00/mo × 2 mo) vs $50.00 API-list-price estimate — Δ +$150.00 (+300.00%) over 2 month(s).
+```
+
+- **`spend.mode`** (default `plan`):
+  - `plan` — billed = plan fee × distinct months in scope **+ uncovered per-token
+    spend**. This makes the `months × fee` true outlay (previously only gestured
+    at in a footnote) observable and reconciled. Works with any existing config —
+    no new keys needed, since `plan.monthlyCost` is already there.
+  - `usage` — billed = Σ of an invoiced/metered figure you record per month in
+    `spend.periods` (`{ "YYYY-MM": amount }`, in `currency`). This is exact for a
+    metered bill or a tier change mid-range. A month with **no** recorded figure
+    is a stated gap (`⚠ … partial`), never smeared into the delta.
+- **Scope:** like the ccusage cross-check, the comparison runs over the whole
+  **date-comparable** scope, not a dimension-filtered slice — the subscription fee
+  is global, so a per-repo estimate against the whole plan fee would be
+  apples-to-oranges. `--json`/`--csv` carry it under `meta.spendReconciliation`
+  with the same inputs the footnote shows (observable-by-design).
+- **Backwards compatible:** no `spend` block ⇒ plan mode with no periods, so a
+  pre-existing billing config gets the plan-mode comparison for free.
+- **Degrades honestly, never fabricates:** a range the config can't answer for
+  (`usage` mode with no matching invoice, or no usage at all) prints
+  `Actual spend vs estimate: unavailable — <reason>`, not a guessed figure.
+
 - **Honest limits, stated up front:** there is no API for "what you actually
-  paid" — this is a user-maintained model, only as true as its config. The plan
-  fee shown is **one month**; over a multi-month range true plan outlay is
-  `months × fee` — v1 doesn't infer the month count (a footnote says so). Plan
-  *limits/overage thresholds* are deliberately out of scope v1 (modelling when
-  a plan tips into overage needs rate-limit data the logs don't carry) — that
-  gap stays a stated footnote, not silently absorbed.
+  paid" — this is a user-maintained model, only as true as its config. In `plan`
+  mode the billed figure assumes the plan was live for every month with usage in
+  range; a month you didn't hold the plan needs `usage` mode with the real
+  invoices. Plan *limits/overage thresholds* are deliberately out of scope
+  (modelling when a plan tips into overage needs rate-limit data the logs don't
+  carry) — that gap stays a stated footnote, not silently absorbed.
 
 ## ccarchive — keeping transcripts past Claude Code's cleanup
 

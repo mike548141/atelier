@@ -18,9 +18,11 @@
  * vocabulary. Default is -g repo, cost-descending.
  *
  * Cost is an API-equivalent *estimate* (list prices, not your subscription bill).
- * A ~/.claude/ccrepo-billing.json plan config adds an Actual column (see the
- * billing model in instruments/README.md). Absent ⇒ estimate-only.
- * See --help for the full surface.
+ * A ~/.claude/ccrepo-billing.json plan config adds an Actual column, and a `spend`
+ * block reconciles what you *genuinely pay* (plan tier × months, or invoiced/metered
+ * figures) against that estimate — a footnote with the delta, the money-side analog
+ * of the ccusage cross-check (see the billing model in instruments/README.md).
+ * Absent ⇒ estimate-only. See --help for the full surface.
  */
 const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
@@ -470,7 +472,32 @@ function reconcile(myEvents, ccuSessions) {
   return { myTot, cuTot, delta: myTot - cuTot, pct: cuTot ? (myTot - cuTot) / cuTot : 0, matched: matchedSet.size, myOnly, cuOnly, models };
 }
 
-// --- billing model (Actual vs Est) — unchanged from v1 -------------------
+// --- billing model (Actual vs Est) ---------------------------------------
+
+// Normalise the optional `spend` block — the genuine-outlay source for the
+// actual-spend-vs-estimate reconciliation (the money-side analog of the ccusage
+// cross-check). Two modes:
+//   plan  (default): genuine outlay = plan fee × months-in-scope + uncovered spend.
+//   usage          : genuine outlay = sum of invoiced/metered figures per month.
+// Absent ⇒ plan mode with no periods, so any pre-spend config gets the plan-mode
+// comparison for free (backwards compatible). A bad mode falls back to plan with a
+// warning; non-'YYYY-MM' or non-finite period entries are dropped, never fatal.
+function normaliseSpend(raw, srcPath) {
+  const out = { mode: 'plan', periods: {} };
+  if (raw == null || typeof raw !== 'object') return out;
+  if (raw.mode != null) {
+    const m = String(raw.mode).toLowerCase();
+    if (m === 'plan' || m === 'usage') out.mode = m;
+    else console.error(`Ignoring spend.mode '${raw.mode}' in ${srcPath}: expected 'plan' or 'usage'; using plan.`);
+  }
+  if (raw.periods != null && typeof raw.periods === 'object') {
+    for (const [k, v] of Object.entries(raw.periods)) {
+      if (/^\d{4}-\d{2}$/.test(k) && Number.isFinite(v) && v >= 0) out.periods[k] = v;
+      else console.error(`Ignoring spend.periods["${k}"] in ${srcPath}: need a "YYYY-MM" key and a finite amount ≥ 0.`);
+    }
+  }
+  return out;
+}
 
 function loadBilling(file) {
   const p = file || path.join(os.homedir(), '.claude', 'ccrepo-billing.json');
@@ -491,6 +518,7 @@ function loadBilling(file) {
       covers: Array.isArray(cfg.plan.covers) ? cfg.plan.covers.map((s) => String(s).toLowerCase()) : [],
     },
     perTokenModels: Array.isArray(cfg.perTokenModels) ? cfg.perTokenModels.map((s) => String(s).toLowerCase()) : [],
+    spend: normaliseSpend(cfg.spend, p),
   };
 }
 function coversPredicate(billing) {
@@ -509,6 +537,56 @@ function actualFor(agg, { monthlyCostUSD, totalCovered, totalAllTokens }) {
   const denom = useCovered ? totalCovered : totalAllTokens;
   const share = denom ? monthlyCostUSD * basis / denom : 0;
   return (agg.uncoveredCost || 0) + share;
+}
+
+// Actual spend vs the API-list-price estimate — the money-side analog of the
+// ccusage cross-check. Pure over its inputs (the tests drive it with fixture
+// arrays); everything is folded in USD, the display rate applies at render. Like
+// the ccusage reconciliation it works over the whole date-comparable scope, not a
+// dimension-filtered slice: the subscription fee is global, so comparing a per-repo
+// estimate against the whole plan fee would be apples-to-oranges. Returns null when
+// there is no billing config; { available:false, reason } when the config can't
+// answer for the range (degrade honestly, never fabricate a figure).
+//   plan mode : billed = plan fee × distinct months in scope + uncovered per-token
+//               spend (the "true outlay = months × fee" the Actual column footnote
+//               only gestures at, made observable and reconciled).
+//   usage mode: billed = Σ invoiced/metered figures for the months in scope; a month
+//               with no figure is a stated gap, not smeared into the delta.
+function reconcileSpend(events, spend, { monthlyCostUSD, planName, periodsUSD }) {
+  if (!spend) return null;
+  const months = new Set();
+  let estimate = 0, uncovered = 0;
+  for (const e of events) {
+    estimate += e.cost || 0;
+    uncovered += e.uncoveredCost || 0;
+    const m = timeBucket(e.ts, 'month');
+    if (m !== 'unknown') months.add(m);
+  }
+  const monthList = [...months].sort();
+  const withDelta = (billed, extra) => ({
+    available: true, mode: spend.mode, billed, estimate,
+    delta: billed - estimate, pct: estimate ? (billed - estimate) / estimate : (billed ? Infinity : 0),
+    months: monthList, ...extra,
+  });
+  if (spend.mode === 'usage') {
+    const covered = [], gaps = [];
+    let billed = 0;
+    for (const m of monthList) {
+      if (periodsUSD && periodsUSD[m] != null) { billed += periodsUSD[m]; covered.push(m); }
+      else gaps.push(m);
+    }
+    if (!covered.length) {
+      const reason = monthList.length
+        ? `spend.mode is 'usage' but no spend.periods figure covers any month in range (${monthList.join(', ')})`
+        : 'no usage in range to compare';
+      return { available: false, mode: 'usage', reason, estimate, months: monthList, gaps };
+    }
+    return withDelta(billed, { covered, gaps });
+  }
+  // plan mode
+  if (!monthList.length) return { available: false, mode: 'plan', reason: 'no usage in range to compare', estimate, months: monthList, planName };
+  const planTotal = monthlyCostUSD * monthList.length;
+  return withDelta(planTotal + uncovered, { planName, monthlyCostUSD, monthsCount: monthList.length, planTotal, uncovered });
 }
 
 async function fetchUsdRates() {
@@ -665,8 +743,33 @@ function printMatrix(cols, dataRows, totalRow) {
   console.log(line('└', '┴', '┘'));
 }
 
+// The actual-spend-vs-estimate footnote — a peer of the ccusage line, but for
+// dollars genuinely billed rather than a second cost oracle. Observable by design:
+// it shows its inputs (what makes up "billed", the months in scope, the estimate)
+// so the delta can be re-derived from the line, not just trusted.
+function spendFootnote(sr, billing, money) {
+  if (!sr.available) {
+    console.log(`  Actual spend vs estimate: unavailable — ${sr.reason}.`);
+    return;
+  }
+  const s = sr.delta >= 0 ? '+' : '−';
+  const pctStr = isFinite(sr.pct) ? `${sr.pct >= 0 ? '+' : ''}${(sr.pct * 100).toFixed(2)}%` : 'n/a';
+  let basis;
+  if (sr.mode === 'plan') {
+    basis = `${billing.name}, ${money(sr.monthlyCostUSD)}/mo × ${sr.monthsCount} mo`;
+    if (sr.uncovered > 0.005) basis += ` + ${money(sr.uncovered)} uncovered per-token`;
+  } else {
+    const span = sr.covered.length > 1 ? `${sr.covered[0]}…${sr.covered[sr.covered.length - 1]}` : sr.covered[0];
+    basis = `${sr.covered.length} invoiced period(s): ${span}`;
+  }
+  console.log(`  Actual spend vs estimate: ${money(sr.billed)} billed (${basis}) vs ${money(sr.estimate)} API-list-price estimate — Δ ${s}${money(Math.abs(sr.delta))} (${pctStr}) over ${sr.months.length} month(s).`);
+  if (sr.mode === 'usage' && sr.gaps && sr.gaps.length) {
+    console.log(`  ⚠ Actual-spend comparison partial: no billed figure for ${sr.gaps.join(', ')} (${sr.gaps.length} month(s) uncovered); delta covers ${sr.covered.length} of ${sr.months.length}.`);
+  }
+}
+
 function renderHuman(root, ctx) {
-  const { keys, currency, rate, converted, rateSource, billing, actualUSD, unpriced, recon } = ctx;
+  const { keys, currency, rate, converted, rateSource, billing, actualUSD, unpriced, recon, spendRecon } = ctx;
   const { n, money, pct } = fmts(rate, currency);
   const mHeads = metricHeads(currency, billing);
   const mCells = (sessions, agg) => {
@@ -714,9 +817,10 @@ function renderHuman(root, ctx) {
   if (billing) {
     const covers = billing.covers.length ? billing.covers.join(', ') : '(none listed)';
     const basisLabel = billing.basis === 'covered' ? 'covered-token share' : 'total-token share (no covered-model usage in range)';
-    console.log(`  Est is the API-equivalent estimate; Actual applies your plan: ${billing.name}, ${money(billing.monthlyCostDisplay)}/mo covering ${covers}.`);
+    console.log(`  Est is the API-equivalent estimate; Actual applies your plan: ${billing.name}, ${money(billing.monthlyCostUSD)}/mo covering ${covers}.`);
     console.log(`  Covered-model tokens cost $0 marginal; the flat plan fee is apportioned by ${basisLabel}, plus any uncovered per-token spend.`);
     console.log(`  Plan fee shown is one month; over a multi-month range true outlay is (months × fee).`);
+    if (spendRecon) spendFootnote(spendRecon, billing, money);
     if (billing.caveat) console.log(`  Note: ${billing.caveat}.`);
   } else {
     console.log(`  Cost is an API-equivalent estimate (list prices), not your subscription bill.`);
@@ -760,7 +864,26 @@ function buildMeta(ctx) {
       sessions: ctx.recon.matched,
       basis: 'USD',
     } : null,
+    spendReconciliation: spendMeta(ctx),
     unpriced: ctx.unpriced ? [...ctx.unpriced].map(([m, c]) => ({ model: m, messages: c })) : [],
+  };
+}
+
+// Machine-readable form of the actual-spend footnote (display currency). Carries
+// the same inputs the human footnote shows, so a script can re-derive the delta.
+function spendMeta(ctx) {
+  const sr = ctx.spendRecon;
+  if (!sr) return null;
+  const r2 = (x) => Math.round((x || 0) * ctx.rate * 100) / 100;
+  if (!sr.available) return { mode: sr.mode, available: false, reason: sr.reason, months: sr.months };
+  return {
+    mode: sr.mode, available: true,
+    billed: r2(sr.billed), estimate: r2(sr.estimate), delta: r2(sr.delta),
+    deltaPct: isFinite(sr.pct) ? Math.round(sr.pct * 10000) / 100 : null,
+    months: sr.months,
+    ...(sr.mode === 'plan'
+      ? { monthlyCost: r2(sr.monthlyCostUSD), monthsCount: sr.monthsCount, uncovered: r2(sr.uncovered) }
+      : { covered: sr.covered, gaps: sr.gaps }),
   };
 }
 
@@ -829,16 +952,21 @@ async function main() {
     }
   }
 
-  // Plan fee in USD (folded in USD; the display rate applies uniformly at the end).
+  // Plan fee and any invoiced spend figures in USD (folded in USD; the display
+  // rate applies uniformly at the end). The plan fee and spend.periods amounts are
+  // both quoted in billing.currency, so they share one conversion.
   let monthlyCostUSD = 0, planCaveat = null;
+  const periodsUSD = {};
   if (billing) {
-    if (billing.currency === 'USD') monthlyCostUSD = billing.plan.monthlyCost;
-    else {
+    let toUSD = (x) => x;
+    if (billing.currency !== 'USD') {
       if (!usdRates) usdRates = await fetchUsdRates();
       const pr = usdRates && usdRates[billing.currency];
-      if (pr) monthlyCostUSD = billing.plan.monthlyCost / pr;
-      else { monthlyCostUSD = billing.plan.monthlyCost; planCaveat = `plan cost read as USD — couldn't fetch USD→${billing.currency} rate`; }
+      if (pr) toUSD = (x) => x / pr;
+      else planCaveat = `plan/spend cost read as USD — couldn't fetch USD→${billing.currency} rate`;
     }
+    monthlyCostUSD = toUSD(billing.plan.monthlyCost);
+    for (const [m, amt] of Object.entries(billing.spend.periods)) periodsUSD[m] = toUSD(amt);
   }
   const totalCovered = dispEvents.reduce((s, e) => s + (e.coveredTokens || 0), 0);
   const totalAllTokens = dispEvents.reduce((s, e) => s + (e.totalTokens || 0), 0);
@@ -861,15 +989,21 @@ async function main() {
   const days = dispEvents.map((e) => timeBucket(e.ts, 'day')).filter((d) => d !== 'unknown').sort();
   const range = days.length ? [days[0], days[days.length - 1]] : [null, null];
 
+  // Actual-spend-vs-estimate reconciliation, over the date-comparable scope (like
+  // the ccusage cross-check — the plan fee is global, not per-repo/model).
+  const spendRecon = billing
+    ? reconcileSpend(reconEvents, billing.spend, { monthlyCostUSD, planName: billing.plan.name, periodsUSD })
+    : null;
+
   const billingView = billing ? {
     name: billing.plan.name, covers: billing.plan.covers,
-    monthlyCostDisplay: monthlyCostUSD * rate,
+    monthlyCostUSD,                     // in USD; money() converts once at render
     basis: totalCovered > 0 ? 'covered' : 'total', caveat: planCaveat,
   } : null;
 
   const ctx = {
     keys, sortSpecs, currency, rate, converted, rateSource,
-    billing: billingView, actualUSD, unpriced, recon, filterSpecs, since, until, range,
+    billing: billingView, actualUSD, unpriced, recon, spendRecon, filterSpecs, since, until, range,
   };
 
   if (asJson) return outputJson(root, ctx);
@@ -888,5 +1022,5 @@ module.exports = {
   DIMS, TIME_DIMS, globMatch, buildDimFilter,
   groupTree, sortedEntries, treeRows, leafRows,
   eventFrom, keepRicher, readAllEvents, reconcile,
-  loadBilling, coversPredicate, actualFor,
+  loadBilling, coversPredicate, actualFor, normaliseSpend, reconcileSpend,
 };

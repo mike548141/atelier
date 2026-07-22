@@ -359,9 +359,27 @@ test('loadBilling: absent ⇒ null; valid normalises; malformed ⇒ null + warni
   assert.equal(b.currency, 'USD');
   assert.deepEqual(b.plan.covers, ['opus', 'sonnet']);
   assert.deepEqual(b.perTokenModels, ['gpt-4']);
+  assert.deepEqual(b.spend, { mode: 'plan', periods: {} });   // no spend block ⇒ plan-mode default
   const noCost = quietErr(() => r.loadBilling(tmpConfig(JSON.stringify({ plan: { name: 'x' } }))));
   assert.equal(noCost.result, null);
   assert.match(noCost.msgs.join(' '), /monthlyCost > 0/);
+});
+
+test('loadBilling: spend block normalises mode + periods, drops junk with a warning', () => {
+  const good = r.loadBilling(tmpConfig(JSON.stringify({
+    plan: { name: 'Max 5x', monthlyCost: 100 },
+    spend: { mode: 'USAGE', periods: { '2026-06': 100, '2026-07': 137.2 } },
+  })));
+  assert.equal(good.spend.mode, 'usage');                     // case-folded
+  assert.deepEqual(good.spend.periods, { '2026-06': 100, '2026-07': 137.2 });
+  const junk = quietErr(() => r.loadBilling(tmpConfig(JSON.stringify({
+    plan: { name: 'p', monthlyCost: 100 },
+    spend: { mode: 'wat', periods: { '2026-07': 42, 'julyish': 9, '2026-08': -3 } },
+  }))));
+  assert.equal(junk.result.spend.mode, 'plan');               // bad mode ⇒ plan fallback
+  assert.deepEqual(junk.result.spend.periods, { '2026-07': 42 }); // bad key + negative dropped
+  assert.match(junk.msgs.join(' '), /expected 'plan' or 'usage'/);
+  assert.match(junk.msgs.join(' '), /julyish/);
 });
 
 test('coversPredicate: family-prefix match, perTokenModels carve-out, null off', () => {
@@ -381,6 +399,72 @@ test('actualFor: uncovered cost + apportioned plan share (covered / total basis)
   const X = { coveredTokens: 0, uncoveredCost: 2, totalTokens: 100 };
   const q = { monthlyCostUSD: 200, totalCovered: 0, totalAllTokens: 400 };
   assert.ok(Math.abs(r.actualFor(X, q) - 52) < 1e-9);   // falls back to total-token share
+});
+
+// --- actual spend vs estimate (reconcileSpend) --------------------------
+
+// Synthetic events, only the fields reconcileSpend reads (ts, cost, uncoveredCost).
+const spendEv = (ts, cost, uncoveredCost = 0) => ({ ts, cost, uncoveredCost });
+
+test('reconcileSpend: null with no billing config', () => {
+  assert.equal(r.reconcileSpend([spendEv('2026-07-15T12:00:00Z', 10)], null, {}), null);
+});
+
+test('reconcileSpend plan mode: billed = fee × distinct months + uncovered spend', () => {
+  const events = [
+    spendEv('2026-06-10T12:00:00Z', 40),
+    spendEv('2026-07-05T12:00:00Z', 30, 6),   // 6 of this is uncovered per-token
+    spendEv('2026-07-20T12:00:00Z', 20),
+  ];
+  const sr = r.reconcileSpend(events, { mode: 'plan', periods: {} },
+    { monthlyCostUSD: 100, planName: 'Max 5x', periodsUSD: {} });
+  assert.equal(sr.available, true);
+  assert.equal(sr.mode, 'plan');
+  assert.deepEqual(sr.months, ['2026-06', '2026-07']);
+  assert.equal(sr.monthsCount, 2);
+  assert.ok(Math.abs(sr.estimate - 90) < 1e-9);           // 40 + 30 + 20
+  assert.ok(Math.abs(sr.uncovered - 6) < 1e-9);
+  assert.ok(Math.abs(sr.billed - 206) < 1e-9);            // 100 × 2 months + 6 uncovered
+  assert.ok(Math.abs(sr.delta - 116) < 1e-9);             // 206 − 90
+  assert.ok(Math.abs(sr.pct - 116 / 90) < 1e-9);
+});
+
+test('reconcileSpend usage mode: billed = Σ invoiced figures for months in scope', () => {
+  const events = [spendEv('2026-06-10T12:00:00Z', 40), spendEv('2026-07-05T12:00:00Z', 50)];
+  const sr = r.reconcileSpend(events, { mode: 'usage', periods: {} },
+    { monthlyCostUSD: 100, planName: 'Max 5x', periodsUSD: { '2026-06': 100, '2026-07': 137.2 } });
+  assert.equal(sr.available, true);
+  assert.deepEqual(sr.covered, ['2026-06', '2026-07']);
+  assert.deepEqual(sr.gaps, []);
+  assert.ok(Math.abs(sr.billed - 237.2) < 1e-9);
+  assert.ok(Math.abs(sr.estimate - 90) < 1e-9);
+  assert.ok(Math.abs(sr.delta - 147.2) < 1e-9);
+});
+
+test('reconcileSpend usage mode: a month with no figure is a stated gap, not smeared', () => {
+  const events = [spendEv('2026-06-10T12:00:00Z', 40), spendEv('2026-07-05T12:00:00Z', 50)];
+  const sr = r.reconcileSpend(events, { mode: 'usage', periods: {} },
+    { periodsUSD: { '2026-06': 100 } });                  // July invoice missing
+  assert.equal(sr.available, true);
+  assert.deepEqual(sr.covered, ['2026-06']);
+  assert.deepEqual(sr.gaps, ['2026-07']);
+  assert.ok(Math.abs(sr.billed - 100) < 1e-9);            // only the covered month
+});
+
+test('reconcileSpend usage mode: unavailable when no month has an invoice figure', () => {
+  const events = [spendEv('2026-07-05T12:00:00Z', 50)];
+  const sr = r.reconcileSpend(events, { mode: 'usage', periods: {} }, { periodsUSD: {} });
+  assert.equal(sr.available, false);
+  assert.match(sr.reason, /no spend\.periods figure covers any month/);
+  assert.ok(Math.abs(sr.estimate - 50) < 1e-9);           // estimate still reported
+});
+
+test('reconcileSpend: unavailable (never fabricates) when the range has no usage', () => {
+  const planEmpty = r.reconcileSpend([], { mode: 'plan', periods: {} }, { monthlyCostUSD: 100 });
+  assert.equal(planEmpty.available, false);
+  assert.match(planEmpty.reason, /no usage in range/);
+  const usageEmpty = r.reconcileSpend([], { mode: 'usage', periods: {} }, { periodsUSD: { '2026-07': 100 } });
+  assert.equal(usageEmpty.available, false);
 });
 
 // --- module-load safety (require must be inert) --------------------------

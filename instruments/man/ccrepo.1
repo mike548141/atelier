@@ -1,4 +1,4 @@
-.TH CCREPO 1 "2026-07-21" "atelier instruments" "User Commands"
+.TH CCREPO 1 "2026-07-22" "atelier instruments" "User Commands"
 .SH NAME
 ccrepo \- Claude Code usage totals, grouped and filtered any way you like
 .SH SYNOPSIS
@@ -253,6 +253,38 @@ range the true outlay is (months \(mu fee). The billing model is described in
 full in
 .I instruments/README.md
 in the atelier repository.
+.SS Actual spend versus the estimate
+The
+.I Actual
+column reprices usage under the plan, but it does not on its own answer the
+money question: over the whole range, is what you
+.I genuinely pay
+more or less than the API list price would have been? An optional
+.I spend
+block in the billing config supplies the genuine outlay and
+.B ccrepo
+reconciles it against its own estimate \(em the money-side analog of the ccusage
+cross-check \(em in a footnote that reads out billed versus estimate, the delta
+in dollars and percent, and the months it spans. Two modes:
+.B plan
+(the default) takes billed as the plan fee times the distinct months in scope,
+plus any uncovered per-token spend \(em making the
+.RI ( months " \(mu " fee )
+outlay observable and reconciled;
+.B usage
+sums an invoiced or metered figure you record per month, so a metered or
+tier-changing bill is exact. A month with no recorded figure is reported as a
+gap, never smeared into the delta, and a range the config cannot answer for
+degrades to a stated
+.I unavailable
+line rather than a guessed number. Like the ccusage cross-check the comparison
+is computed over the whole date-comparable scope, not a dimension-filtered
+slice \(em the subscription fee is global, so comparing a per-repo estimate
+against the whole plan fee would be apples-to-oranges. The
+.I spend
+schema and worked examples are in
+.I instruments/README.md
+in the atelier repository.
 .SH FILES
 .TP
 .I ~/.claude/projects/
@@ -268,9 +300,16 @@ is ignored with a warning, never fatal.
 .I ~/.claude/ccrepo-billing.json
 Optional plan config that enables the
 .I Actual
-column. Malformed or missing a positive
+column and, via an optional
+.I spend
+block, the actual-spend-versus-estimate reconciliation. Malformed or missing a
+positive
 .I plan.monthlyCost
-\(em ignored with a warning.
+\(em ignored with a warning; a bad
+.I spend.mode
+falls back to plan mode and a malformed period entry is dropped, never fatal.
+Holds a person's plan and real spend, so it stays machine-local and never enters
+a repository.
 .SH EXAMPLES
 .TP
 .B ccrepo
@@ -328,9 +367,13 @@ override), or any unexpected error.
 Cost is an API-equivalent estimate at list prices, not your subscription bill;
 the
 .I Actual
-column (see
+column reprices it under a plan, and the
+.I spend
+block (see
 .BR BILLING )
-is the closest the tool comes to real outlay.
+reconciles it against what you genuinely pay. Neither is fetched from a billing
+API \(em there is none \(em so both are only as true as the machine-local
+config.
 .PP
 Calendar buckets (day, hour, week, and the
 .BR \-\-since / \-\-until
