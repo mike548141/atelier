@@ -222,3 +222,23 @@ layout is unaffected.
 Per rule 3, decisions on HI-F1–F6 are **Mike's**. Per the close rule, a MAJOR
 means this cycle stays open: ruling, then application, then the application's
 own cold pass via a queued `⏳`.
+
+## Reconcile (deferred material opened after verdict commit `0ce23e1`)
+
+Intent record `sessions/2026-07-22-0634-harvest-integrity-gate.md` and
+`2cd4730`'s records read after the verdict was committed. Nothing overturns a
+finding and no finding is withdrawn:
+
+- Every claim the intent record carries had already been re-run above and
+  reproduced (suite 314, selftest, live scan, four-situation coverage, the
+  scope bound, the hatch behaviour).
+- The record confirms the pointer discipline held: refs-only queue entry,
+  builder neither took nor spawned the review, attack surfaces left for the
+  cold taker — this pass's provenance chain is intact end-to-end.
+- The five-state `[-]`/`[^]` extension is recorded there as an open 🎯
+  question for Mike with the builder's counsel against; my A4 verdict met the
+  same item at `ROADMAP.md:357` cold and treats it the same way — additive,
+  not a defect, decision already queued.
+- Nothing in the deferred material anticipates HI-F1 or HI-F2 — both were
+  found cold, consistent with the record's "obvious attack surfaces are the
+  reviewer's to find" handoff.
