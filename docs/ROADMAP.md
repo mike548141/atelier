@@ -334,7 +334,9 @@ applied 2026-07-21**; the fleet-wide `hooks.atelierTools` fix) →
 
 ## North star — context follows the person, work follows anywhere
 
-- [ ] **Two-tier person-context portability.** Both excluded from atelier, both
+- [~] **Two-tier person-context portability.** (claimed 2026-07-22-1233 —
+      the focused design pass only, records-only deliverable; build/doctrine
+      moves stay open.) Both excluded from atelier, both
       must reach every device Mike works from, handled by sensitivity:
       - *Crown-jewels* (health/family/finance/estate map): E2E-encrypted only
         (iCloud ADP or sops/age); **never a plain remote, not even private
