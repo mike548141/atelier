@@ -5,6 +5,21 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-22 — HA1–HA5 ruled and applied: skip classes split, fence recount whole-file)
+- **Mike accepted all five terminal-pass findings as counselled**; applied
+  in `120b777`. `SKIP_DIR_NAMES` split into `NON_CONTENT_DIR_NAMES` (VCS
+  internals, vendored code, venvs, caches — never scanned at all) and
+  `STORE_DIR_NAMES` (metering bounded, integrity checked per HI-F1), so a
+  vendored store-named file no longer reds the build. Unbalanced fence
+  delimiters at EOF now recount the whole file with fences ignored — the
+  true "as if no fence ever opened" semantic; the stray-delimiter window
+  that silently hid a marker is closed and the comment claims exactly what
+  the code does. Both CI surfaces name the harvest-integrity gate; the
+  template legend reads finished-state-items-only; RECORD.md's trigger
+  sentence re-anchors. Proof: suite 319→323; red leg reds exactly the four
+  new tests; both live probes re-driven; selftest + live scan green.
+  Residue [x]'d and harvested to DONE same session — queue empty.
+
 ### Reviewed (2026-07-22 — HI application cold pass: 0 MAJOR, cycle CLOSED)
 - **The queued rule-4 pass on `30d350c` ran and closed the
   harvest-integrity cycle** (taker: a Mike-spawned "do any review work"

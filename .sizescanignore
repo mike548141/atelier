@@ -1,0 +1,6 @@
+# Harness worktrees nest inside the repo (.claude/worktrees/<branch>/): full
+# checkouts of sibling sessions' in-flight state. Their ROADMAP/index copies
+# are theirs to keep honest at their own landing — scanning them here
+# double-reports every file and lets another session's mid-flight tree gate
+# this one's commit.
+.claude/worktrees/**

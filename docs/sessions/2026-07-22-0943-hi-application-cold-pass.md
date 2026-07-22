@@ -54,3 +54,21 @@ paragraph; 🎯 **HA1–HA5 await Mike's ruling** (backlog item with per-finding
 counsel); the stale interruption-resilience section harvested (drafting was
 delivered + in DONE — its intro was resolved narrative on the hot path, part
 of the roadmap's +124 size advisory). The `⏳` queue is empty.
+
+## Addendum — Mike's accept-all ruling applied (same session, main)
+
+Mike: *"accept your recommendation on all of them"* ⇒ **HA1–HA5 [fixed]** as
+counselled, delta `120b777`: the skip set split into non-content
+(never scanned) vs growth-store (metering bounded, integrity checked)
+classes; unbalanced fence delimiters at EOF recount the whole file with
+fences ignored — the stray-delimiter window closed and the comment now
+claims exactly what the code does; both CI surfaces name the
+harvest-integrity gate; template legend and RECORD.md wording fixed.
+Proof: suite **319→323** green (the four new red-leg tests account
+exactly); pre-fix tool reds exactly those four; both live probes
+re-driven (vendored stores silent, store under `sessions/` still gates;
+the count=0 demo now counts 1); selftest + live scan + floors green.
+Decisions stamped in the verdict (`68b50a8`). Application sanctioned by
+the backlog item's own `review: not warranted` line — the cycle stays
+closed, no further ceremony. Residue harvested to DONE; the `⏳` queue
+and the 🎯 backlog are both empty.

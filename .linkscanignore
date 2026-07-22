@@ -1,0 +1,5 @@
+# Harness worktrees nest inside the repo (.claude/worktrees/<branch>/ — see
+# .gitignore, same class as the git-add -A lesson): they are sibling sessions'
+# in-flight state, whose links may deliberately point at records not yet
+# written. Another session's mid-flight tree must never gate this one's commit.
+.claude/worktrees/**
