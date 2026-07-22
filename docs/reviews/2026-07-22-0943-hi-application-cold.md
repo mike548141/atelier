@@ -252,3 +252,33 @@ Nothing overturned; two findings sharpened.
 **Final: PASS-WITH-FINDINGS, no MAJOR — the cycle closes.** HA1–HA5 to
 the backlog for the principal (rule 3); no further ceremony spawned, per
 the close rule.
+
+---
+
+## Decisions — 2026-07-22, the principal
+
+Mike ruled on HA1–HA5 (same day): **"accept your recommendation on all of
+them"** — all five **[fixed]**, applied by the reviewing session in
+`120b777` (sanctioned by the backlog item's own `review: not warranted`
+line — the terminal pass reviewed the surrounding text; HA1/HA2 landed
+with their own red-leg tests through the standing floor):
+
+- **HA1 [fixed]** — `SKIP_DIR_NAMES` split into `NON_CONTENT_DIR_NAMES`
+  (never scanned at all) and `STORE_DIR_NAMES` (metering bounded,
+  integrity checked); the two live probes re-driven — vendored stores
+  under `node_modules/`/`.venv/` now silent, a store under `sessions/`
+  still gates.
+- **HA2 [fixed]** — delimiters unbalanced at EOF ⇒ the whole file is
+  recounted with fences ignored, the true "as if no fence ever opened"
+  semantic; the count=0 demo now counts 1; comment rewritten to claim
+  exactly what the code does.
+- **HA3 [fixed]** — `ci.yml` and the template `floor.yml` name the
+  harvest-integrity gate in both comment and step name.
+- **HA4 [fixed]** — template legend: "finished-state items only — a live
+  `[ ]`/`[~]`/`⏳` item there reds the floor".
+- **HA5 [fixed]** — "And the signal carries a **trigger**".
+
+Re-proven after all five edits: suite **323** green (319→323, the four
+new red-leg tests account exactly); selftest OK; live repo scan exit 0;
+red leg re-driven (pre-fix tool reds exactly the four new tests); floors
+green on the applying commit.
