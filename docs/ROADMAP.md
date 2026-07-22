@@ -150,6 +150,36 @@ Deliberately left for a **fresh session** to claim and build — the
 counsel's author closes out; the builder queues the rule-4 `⏳` when the
 doctrine lands.
 
+## Interruption resilience — surviving a mid-flight cut (Mike, 2026-07-22)
+
+Mike's four recurring interruptions — session-limit cut, network loss / API
+error (last night's RB5009 mis-route), a closed/cancelled question window, a
+cmd+Q on VS Code — are one shape: **work cut off mid-flight, then resumed or
+picked up by another session.** Doctrine already carries ~80% (commit-small-
+push-fast, RECORD's resumed-cold assumption, CONCURRENCY's orphan-claim
+reclaim, the twice-grounded cmd+Q sweep precedent). Three gaps remain; drafting
+all three as one change (Mike ratified 2026-07-22, "all three"):
+
+- [~] **Draft the three interruption-resilience gaps as one doctrine change**
+      (claimed 2026-07-22-0245, wt: interruption-resilience) —
+      - **Gap 1 (high): the resume-state carrier doesn't exist at the cut.**
+        The session log is written at *close*; interruptions precede close, so
+        a cut session leaves a clean tree but no *intent*. Fix: a durable
+        in-flight breadcrumb (extend the claim line — `at: <step>, waiting on
+        <X>`), updated as work moves. Overlaps the queue-run strand's per-item
+        close (line ~122); reference, don't duplicate.
+      - **Gap 2 (medium): decision-limbo.** A pending `🎯` question lives only
+        in volatile chat; a dropped window loses it. Fix: write the open
+        question into the record before blocking on it.
+      - **Gap 3 (low): the recovery procedure isn't in method.** The cmd+Q
+        sweep is twice-grounded (session 45, 2026-07-20) but lives in a session
+        log. Fix: distil the checklist (tree/sync/stashes/orphan worktrees/
+        reflog-after-close/respect sibling lanes) into CONCURRENCY, plus a
+        resumer tell — did the last session close clean or die mid-flight?
+
+*review: WARRANTED — method doctrine by function, so the full rule-4 cycle.
+The author queues the `⏳` pointer for a non-author when the delta lands.*
+
 ## Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)
 
 Source: <https://thenewstack.io/engineering-ai-slop-registry/> (Aviator). A
