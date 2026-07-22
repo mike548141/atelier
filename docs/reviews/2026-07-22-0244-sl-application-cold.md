@@ -209,3 +209,21 @@ record + addendum, and `913c81a`.
 
 **Final: PASS, no MAJOR — the cycle closes.** AC1–AC2 to the backlog for
 the principal (rule 3); no further ceremony spawned, per the close rule.
+
+---
+
+## Decisions — 2026-07-22, the principal
+
+Mike ruled on AC1–AC2 (mid-turn, same day): **"agreed I accept both per
+your counsel"** — both **[fixed]**, applied by the reviewing session
+(sanctioned by the backlog item's own `review: not warranted` line —
+line-level mechanical application):
+
+- **AC1 [fixed]** — CONTRIBUTING template line rewrapped (122 → ≤80 cols),
+  no meaning touched.
+- **AC2 [fixed]** — the skill's scanner clause gains the exclusion-barred
+  caution (a clean pass over a barred file class is definitionally empty —
+  weigh it as nothing).
+
+Re-proven: suite 302 green after both edits (the lens-roster parity pins
+unaffected); no line in either file exceeds the house wrap tolerance.

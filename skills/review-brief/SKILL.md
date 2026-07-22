@@ -70,7 +70,9 @@ A good brief is falsifiable and attackable. Include:
      a security scanner (Claude Code's `/security-review`), aim it at the
      in-scope diff where it can reach one — the floor under the lens, never a
      discharge of it; where it can't reach the work, or the work has no
-     surface, one explicit line with grounds. Never run it over a brief
+     surface, one explicit line with grounds. A clean pass over a file class
+     the scanner's own exclusions bar (markdown, for `/security-review`) is
+     definitionally empty — weigh it as nothing. Never run it over a brief
      carrying deferred material before findings are committed.
 4. **Load-bearing assumptions to attack** — list them as falsifiable claims. The
    reviewer must *damage each with a probe or confirm it by re-driving* — not
