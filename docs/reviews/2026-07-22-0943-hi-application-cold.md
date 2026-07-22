@@ -207,3 +207,48 @@ No personal-data or leak surface in any hunk; design altitude clean.
 closes, HA1–HA5 go to the principal for decision (rule 3 — the chain is
 self-authored doctrine), and this application does not spawn another
 ceremony.
+
+### Reconcile — what the deferred material changed
+
+Opened after the verdict above was committed (`c398408`): the 0819 verdict
++ decision stamps (`cfb0ae6`), the applier's intent record + addendum, the
+record commits (`f86e6ef`, `4e6e891`, `cc0bed3`), and the CHANGELOG entry.
+Nothing overturned; two findings sharpened.
+
+- **Every [fixed] stamp corroborated independently.** All six HI rulings
+  match what this pass verified at HEAD *before* reading them: the bypass
+  and its tests (red leg re-driven here), the shared counter, RECORD.md's
+  gate sentence, the template legend, the two documented decisions. The
+  0819 pass's counsel is exactly what landed, and the intent record's
+  proof claims are all claims this pass had already reproduced.
+- **HA1 sharpened: the conflation originates in the 0819 counsel, not the
+  application.** The counsel reads "let an archive-store basename bypass
+  the skip-dir filter" — unqualified over the whole `SKIP_DIR_NAMES` set,
+  which mixes growth stores with non-content dirs. The applier implemented
+  it faithfully; application fidelity confirmed, severity unchanged. This
+  is the laundered-through-counsel class REVIEW's history already names —
+  a defect in the counselled fix shape survives a faithful application.
+- **HA2 sharpened: the [fixed] stamp claims semantics the code doesn't
+  implement.** The stamp (and the code comment) say an unclosed fence is
+  treated "as never opened"; the implementation counts only the tail after
+  the *last* delimiter, and the original HI-F2 class — "every live marker
+  after an unclosed ``` is treated as quoted" — is narrowed, not closed
+  (the count=0 demo above sits squarely inside that class). The 0819
+  counsel offered "count conservatively or warn, or document the gap"; the
+  applied fix is a third shape — stronger than documenting, weaker than
+  its own claim. Severity unchanged (MEDIUM).
+- **HA3 confirmed in-bounds.** HI-F3 named RECORD.md only; no ruling
+  covered the CI comment surfaces, so nothing decided was skipped — HA3 is
+  new completeness, not application infidelity. HA4/HA5 are wording
+  defects in the applied hunks themselves; they contradict no ruling.
+- **Record hygiene, one wobble found and remedied at close-out:** the
+  record commits left the `⏳` pointer (this item) orphaned under the
+  stale "Interruption resilience" ROADMAP heading, whose drafting work is
+  delivered and harvested (`ROADMAP-DONE.md`) — the intro's "Three gaps
+  remain" is resolved narrative on the hot path, part of what the live
+  scan's +124 size advisory points at. Harvested by this session's
+  close-out, the exact remedy the advisory prescribes.
+
+**Final: PASS-WITH-FINDINGS, no MAJOR — the cycle closes.** HA1–HA5 to
+the backlog for the principal (rule 3); no further ceremony spawned, per
+the close rule.
