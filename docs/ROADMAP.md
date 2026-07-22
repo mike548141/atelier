@@ -30,19 +30,14 @@ artefact cycle — rule-4 cold pass PASS 0M/1M/5L, Mike's accept-all applied
 terminal, closed 2026-07-21) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- [ ] **REVIEW.md scope/lens-4 cycle — 🎯 Mike's rulings owed on SL1–SL7** —
-  cold pass on `f9db922` + `a059e49` returned **PASS-WITH-FINDINGS
-  2 MAJOR · 3 MEDIUM · 2 LOW**
-  ([`reviews/2026-07-21-2158-review-scope-security-lens4-cold.md`](reviews/2026-07-21-2158-review-scope-security-lens4-cold.md));
-  MAJORs: the review-brief skill still stamps three lenses (SL1); lens 4's
-  `/security-review` mandate misfires live in the cold-pass shape (SL2).
-  Rule 3: decisions are Mike's; reviewer counsel is in the verdict's
-  follow-ups. MAJORs present ⇒ after rulings, application + further cold
-  pass until a no-MAJOR pass closes the cycle.
-  **RULED 2026-07-22: Mike accepts all (SL1–SL7 [fixed], as counselled).
-  CLAIMED 2026-07-22 0022 UTC** by the taker session for the application
-  (wt: scope-lens4-sl-apply); application review to be queued ⏳ for a
-  non-author — the applier does not spawn it.
+- ⏳ **REVIEW.md scope/lens-4 cycle — application cold pass** — delta
+  `d553045` (2026-07-22, applies SL1–SL7 rulings; prior deltas in the cycle:
+  `f9db922` + `a059e49`); intent record:
+  [`sessions/2026-07-21-2208-scope-lens4-cold-pass.md`](sessions/2026-07-21-2208-scope-lens4-cold-pass.md)
+  (addendum). Prior verdict + decision stamps:
+  [`reviews/2026-07-21-2158-review-scope-security-lens4-cold.md`](reviews/2026-07-21-2158-review-scope-security-lens4-cold.md)
+  — an application review reviews the doctrine at HEAD first, verdict hunks
+  after (REVIEW.md § Applying decisions). Cycle closes on a no-MAJOR pass.
 
 ## build/ layer — open strands
 

@@ -55,3 +55,19 @@ reviewer's counsel is in the verdict's follow-ups). MAJORs present ⇒ after
 rulings land, the application is reviewable and the cycle stays open until
 a pass returns no MAJOR. Verdict + draft + records merged to `main`;
 worktree away.
+
+## Addendum — 2026-07-22 0028 UTC · Mike's accept-all applied (wt: scope-lens4-sl-apply)
+
+Mike ruled **"accept all as recommended"**: SL1–SL7 **[fixed]**, applied by
+the taker session (authored neither doctrine nor verdict; claim `fe39f04`
+on `main` first). Delta `d553045`: the review-brief skill gains the scope
+mandate + four lenses + scanner clause with a **mechanical lens-roster
+parity floor** (LensRosterParityTest — REVIEW.md's numbered list is the one
+source; red leg proven; suite 298→302); lens 4's scanner sentence rewritten
+reach-per-review-shape on the restored permissive grant, with both
+live-proven cautions stated; scope-vs-"scoped and short" reconciled and
+non-goals made explicitly reviewable; impossibility claims carry grounds;
+CONTRIBUTING + reviews templates swept (SL3/SL4/SL7). Decisions stamped in
+the verdict's dated addendum. **MAJORs in the pass ⇒ the application
+inherits rule-4 status: its cold pass queued `⏳` refs-only; this session
+spawns nothing further.**

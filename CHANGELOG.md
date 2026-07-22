@@ -5,6 +5,27 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-22 — reviewer scope mandated; security & privacy is lens 4)
+- **Review scope is the whole commitment, and security & privacy is a must
+  on every review** (Mike's rulings, 2026-07-21): `REVIEW.md` gained a scope
+  mandate above the lenses (intent, decisions, assumptions, design, docs,
+  code, tests, real-world behaviour — live where possible, with grounds when
+  not; non-goals the only legitimate narrowing, and the narrowing itself
+  reviewable) and **lens 4 — security & privacy** (design-altitude privacy
+  weakness through code-altitude injection/XSS/authn/secret handling; likely
+  vectors checked against OWASP Top 10/ASVS, not recalled; harness security
+  scanners used reach-per-review-shape as the floor under the lens, never a
+  discharge of it). The rule-4 cold pass on the delta (a fresh-context
+  subagent, two-hop spawn) returned **PASS-WITH-FINDINGS 2M/3M/2L** — the
+  MAJORs live-proven by the pass itself — and Mike's accept-all landed
+  SL1–SL7: the review-brief skill now carries all four lenses with a
+  **mechanical lens-roster parity floor** (LensRosterParityTest; suite
+  298→302, red leg proven), the scanner clause states the
+  never-scan-a-brief and exclusion-barred-class cautions, and the child
+  templates are swept. Cycle open pending the application's own cold pass.
+  Verdict + decisions:
+  `docs/reviews/2026-07-21-2158-review-scope-security-lens4-cold.md`.
+
 ### Changed (2026-07-21 — REACH/AUTONOMY backlog closed: H1–H7 + R1 applied on Mike's accept-all)
 - **`REACH.md` tightened on the seams its own 2026-07-13 no-MAJOR pass named**:
   riding a session is scoped to *in-place* use through the ridden session

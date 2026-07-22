@@ -160,3 +160,38 @@ Nothing overturned; two additions. SQ1≙A4/SL5, SQ3≙A3/SL2, SQ4≙A1→SL1 (s
 4. SL5: reconcile "scoped and short" with the scope mandate; state that non-goals are attackable by the reviewer.
 5. SL6, SL7: one-line fixes alongside the above.
 6. All rulings are Mike's (rule 3 — self-authored doctrine); MAJORs present, so the cycle stays open after decisions land.
+
+---
+
+## Decisions — 2026-07-22, the principal
+
+Mike ruled on SL1–SL7: **"accept all as recommended"** — all seven
+**[fixed]**, per the reviewer's counsel in the follow-ups. Applied
+2026-07-22 (commit `d553045`) by the cycle's taker session — an applier that
+authored neither the doctrine under review nor the verdict text (the
+findings were a fresh-context subagent's). What landed, per finding:
+
+- **SL1 [fixed]** — the review-brief skill carries the scope mandate and all
+  four lenses (security & privacy with the scanner clause), and the roster
+  is now machine-checked: `tools/test_templates.py` LensRosterParityTest
+  parses REVIEW.md's numbered lens list as the one source and fails if the
+  skill misses a lens or keeps a stale count word, with the child template
+  pinned on the security sentence. Red leg proven against the pre-fix skill
+  text. Suite 298→302.
+- **SL2 [fixed]** — the scanner sentence is reach-per-review-shape and back
+  to the permissive grant ("uses it where it can reach the work"); the
+  pending-diff vs landed-delta/design-time shapes are named; a
+  scanner-inapplicable discharge line exists; both live-proven cautions are
+  stated (never over a brief carrying deferred material pre-draft; an
+  exclusion-barred file class makes a clean pass definitionally empty).
+- **SL3 [fixed]** — CONTRIBUTING template names the whole commitment incl.
+  security & privacy. **SL4 [fixed]** — "correctness only" Type replaced
+  with commitment-shape semantics; narrowing lives only in Non-goals.
+- **SL5 [fixed]** — "pre-scoped and short — short in ceremony, never in
+  scope"; non-goals explicitly reviewable (rule 1 extended to them).
+- **SL6 [fixed]** — impossibility claims state grounds, same discharge
+  shape as every other. **SL7 [fixed]** — stub reflowed, >80 line rewrapped.
+
+The pass carried MAJORs, so the cycle stays open: this application is
+itself rule-4 work and its cold pass is queued as a `⏳` pointer in the
+ROADMAP for a non-author to take — the applier spawns nothing.
