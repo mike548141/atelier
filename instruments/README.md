@@ -179,10 +179,34 @@ that cleanup:
   *absent* from the manifest fails the verify (injected, or lost history — both
   need a human eye), and entries backfilled from the `.gz` after their source was
   pruned are counted distinctly (`fromArchive`: the archive attesting itself, a
-  weaker anchor than raw bytes). It's the trust
-  anchor: it defends against accidental corruption; for tamper-resistance keep a
-  copy of `manifest.json` somewhere separate from the archive (a mutation that
-  also rewrote the manifest would pass). Run it any time, and after any restore.
+  weaker anchor than raw bytes). The sha256 manifest defends against *accidental*
+  corruption; the **signature** below raises it to *tamper-evident*. Run `--verify`
+  any time, and after any restore.
+- **Tamper-evidence — a signed manifest.** The hash manifest alone isn't
+  tamper-proof: a tamperer with write access to the archive volume (iCloud) could
+  rewrite a `.gz` **and** recompute the manifest hash, and a hash-only `--verify`
+  would pass. So ccarchive **signs** the manifest — an **HMAC-SHA256** over its
+  exact bytes, with a secret key kept *off* the archive volume — writing a detached
+  `manifest.json.sig` beside it; `--verify` recomputes the MAC and a forged manifest
+  no longer matches. HMAC not asymmetric (design call): signer and verifier are the
+  same machine/user, so a local symmetric key is the KISS fit — a public key shipped
+  *inside* the archive would just be swapped by the same tamperer. The key lives at
+  `~/.claude/ccarchive-signing.key` (mode `0600`, off-archive; `CCARCHIVE_KEYFILE`
+  overrides — the cron/launchd and test seam), a **file** rather than the Keychain
+  because a background/scheduled run can read a file without a Keychain prompt and
+  the key guards tamper-*evidence*, not confidentiality. It's minted at first use
+  (32 bytes of entropy) and **re-mintable**: `ccarchive --rekey` rolls it and
+  re-signs the current manifest (the signature only ever attests the current
+  manifest, so a roll loses nothing) — roll on suspected exposure or on a cadence,
+  but keep an **out-of-band backup** of the key, because a *new machine* needs it to
+  verify (SECRETS.md's redundancy obligation, applied). Every manifest write
+  re-signs, and a pre-signing archive is migrated on the next run. `--verify` fails
+  **safe and honest**, never green on doubt: it separates a `MISMATCH` (tamper) from
+  a `different-key` signature, an `unsigned` manifest (migrate), and an
+  `unverifiable` one (no key here). What it does **not** stop: a tamperer who also
+  **steals the key** can forge a valid signature (hence the key's confidentiality
+  and cheap rotation), and it's evidence at *verify* time, not prevention of the
+  write.
 - **Live-store audit — `--audit`.** `--verify` asks whether the *archive* is
   intact; `--audit` asks the other question — has the *live* store drifted from
   what was preserved? It hashes every live `.jsonl` and buckets it: **synced**

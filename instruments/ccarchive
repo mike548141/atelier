@@ -62,7 +62,8 @@ OPTIONS
   --dry-run              Preview; write nothing (works with --restore too).
   --force                Overwrite a shrunk archive copy; with --restore, a newer live file.
   --allow-repo-dest      Permit an archive dir inside a git work tree.
-  --verify [--materialise]  Re-check archive vs sha256 manifest; --materialise reads evicted files too.
+  --verify [--materialise]  Re-check archive vs signed sha256 manifest; --materialise reads evicted files too.
+  --rekey                Mint a fresh signing key (0600, off-archive) and re-sign the manifest.
   --audit                Check the live store against the archive; report drift.
   --restore              Restore transcripts from the archive into the live store.
   --delta                With --restore: only --audit's drift (mutated/pruned/renamed).
@@ -70,8 +71,7 @@ OPTIONS
   --json                 Machine-readable output (never styled).
   -h, --help             This summary.
 
-Mirrors every ~/.claude/projects/*.jsonl into a compressed, append-only, sha256-verified
-archive outliving Claude Code's cleanup, and restores from it.  Full manual:  man ccarchive`;
+Mirror ~/.claude/projects/*.jsonl into a compressed, append-only, signed archive; restore too.  man ccarchive`;
 
 function takeValue(flag) {
   const i = argv.indexOf(flag);
@@ -386,7 +386,150 @@ function listArchivedRels(destRoot) {
   return out;
 }
 
-function verifyArchive(destRoot, asJson, materialise) {
+// --- manifest signing: tamper-evidence (HMAC-SHA256) ---------------------
+// The sha256 manifest defends against ACCIDENTAL corruption, but a tamperer with
+// write access to the archive volume (iCloud) can rewrite a .gz AND recompute the
+// manifest's hash — and --verify would still pass. Signing closes that: ccarchive
+// keeps a secret key OFF the archive volume (~/.claude, or $CCARCHIVE_KEYFILE) and
+// writes a detached HMAC-SHA256 of the manifest's EXACT bytes to manifest.json.sig
+// beside it. --verify recomputes the MAC with the local key: a forged manifest no
+// longer carries a MAC the key would produce, so the tampering is EVIDENT.
+//
+// HMAC, not asymmetric (design call): the signer and verifier are the same
+// machine/user, so a locally-held symmetric key is the KISS fit (SECRETS.md —
+// asymmetric buys nothing unless verification must happen keyless *elsewhere*,
+// which it need not here; and a public key that rode along inside the archive
+// would just be swapped by the same write-capable tamperer, giving no protection).
+// The key protects tamper-EVIDENCE, not content confidentiality, and is
+// re-mintable at will: a rolled key simply re-signs the current manifest
+// (SECRETS.md replaceability), losing nothing but the ability to verify OLD
+// signatures — which is why a new machine needs the same key brought out-of-band.
+
+const SIG_ALGORITHM = 'HMAC-SHA256';
+
+// The signing key lives OFF the archive volume. Default ~/.claude (local disk,
+// beside Claude Code's own data, never synced into the archive); $CCARCHIVE_KEYFILE
+// overrides — the seam tests and cron/launchd use. A plain 0600 file beats the
+// macOS Keychain here (design call): ccarchive runs from a launchd/cron context
+// where Keychain access prompts or fails, and the key guards tamper-evidence, not
+// a confidentiality secret, so a file is proportionate and background-safe.
+function defaultKeyFile(home) { return path.join(home, '.claude', 'ccarchive-signing.key'); }
+function resolveKeyPath(home) { return process.env.CCARCHIVE_KEYFILE || defaultKeyFile(home); }
+
+function sigPath(destRoot) { return path.join(destRoot, 'manifest.json.sig'); }
+
+// A non-secret fingerprint of the key: lets --verify distinguish "signed by key X,
+// your key is Y" (a rekey, or a foreign signer) from "MAC mismatch" (the manifest
+// bytes changed). 12 hex of a sha256 leaks nothing usable about a 256-bit key.
+function keyId(keyBuf) { return crypto.createHash('sha256').update(keyBuf).digest('hex').slice(0, 12); }
+
+function computeMac(keyBuf, bytes) { return crypto.createHmac('sha256', keyBuf).update(bytes).digest('hex'); }
+
+// Constant-time hex compare; false (not a throw) on any malformed/short input.
+function macEqual(aHex, bHex) {
+  let a, b;
+  try { a = Buffer.from(String(aHex), 'hex'); b = Buffer.from(String(bHex), 'hex'); } catch { return false; }
+  return a.length > 0 && a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+// Load the signing key (raw bytes, stored hex-encoded). null when absent — the
+// caller decides: a write path mints one, a verify treats it as "unverifiable".
+function loadKey(keyPath) {
+  let text;
+  try { text = fs.readFileSync(keyPath, 'utf8'); }
+  catch (e) { if (e.code === 'ENOENT') return null; throw e; }
+  const buf = Buffer.from(text.trim(), 'hex');
+  if (buf.length === 0) throw new Error(`ccarchive: signing key at ${keyPath} is empty or not hex`);
+  return buf;
+}
+
+// Mint a fresh 32-byte key at maximum entropy (SECRETS.md — machine-minted, no
+// scheme), written 0600 off the archive volume. Overwrites any existing key (that
+// is exactly what --rekey wants); callers that must not clobber check first.
+function mintKey(keyPath) {
+  const buf = crypto.randomBytes(32);
+  fs.mkdirSync(path.dirname(keyPath), { recursive: true });
+  fs.writeFileSync(keyPath, buf.toString('hex') + '\n', { mode: 0o600 });
+  try { fs.chmodSync(keyPath, 0o600); } catch {}   // enforce 0600 even if the file pre-existed
+  return buf;
+}
+
+// Load the key, minting one if absent. Only ever called on WRITE paths (archive,
+// rekey) — never on verify, where an auto-mint would defeat the check.
+function ensureKey(keyPath) { return loadKey(keyPath) || mintKey(keyPath); }
+
+// The detached signature sidecar, or null when absent/malformed (both read as
+// "no usable signature" — a malformed .sig is as suspect as a missing one).
+function loadSig(destRoot) {
+  try { return JSON.parse(fs.readFileSync(sigPath(destRoot), 'utf8')); }
+  catch { return null; }
+}
+
+// Sign the manifest's EXACT on-disk bytes into a detached sidecar. Atomic write so
+// a crash mid-write can't leave a half-written signature.
+function signManifest(destRoot, keyBuf, manifestBytes) {
+  const bytes = manifestBytes || fs.readFileSync(manifestPath(destRoot));
+  const sig = { algorithm: SIG_ALGORITHM, keyId: keyId(keyBuf), mac: computeMac(keyBuf, bytes) };
+  const p = sigPath(destRoot);
+  const tmp = p + '.tmp';
+  fs.writeFileSync(tmp, JSON.stringify(sig, null, 2) + '\n');
+  fs.renameSync(tmp, p);   // atomic
+  return sig;
+}
+
+// Pure verdict on a manifest's signature. States:
+//   verified     — sig present, our key reproduces its MAC over the manifest bytes.
+//   tampered     — sig present, same keyId, MAC differs → the manifest bytes changed
+//                  after signing (the caveat this feature closes). Fail SAFE.
+//   key-mismatch — sig present under a DIFFERENT keyId → signed by another key (an
+//                  unexpected rekey, or a tamperer who re-signed with their own).
+//   unsigned     — no .sig beside a manifest that exists → a pre-signing archive to
+//                  migrate (run ccarchive), or the signature was removed. Not green.
+//   no-key       — no local key to check with → UNVERIFIABLE (a new machine without
+//                  the key brought out-of-band). Honest "unknown", never a pass.
+function verifySignature(manifestBytes, sig, keyBuf) {
+  if (keyBuf === null) return { state: 'no-key', sigPresent: !!sig };
+  const mine = keyId(keyBuf);
+  if (sig === null) return { state: 'unsigned', keyId: mine };
+  if (macEqual(sig.mac, computeMac(keyBuf, manifestBytes))) return { state: 'verified', keyId: mine };
+  if (sig.keyId && sig.keyId !== mine) return { state: 'key-mismatch', keyId: mine, sigKeyId: sig.keyId };
+  return { state: 'tampered', keyId: mine };
+}
+
+// One human line for a signature verdict — the trust anchor, shown up top.
+function signatureLine(sig, keyPath) {
+  switch (sig.state) {
+    case 'verified':     return `  ✓ manifest signature verified (${SIG_ALGORITHM}, key ${sig.keyId})`;
+    case 'tampered':     return `  ✗ manifest signature MISMATCH — the manifest was altered after signing (TAMPER EVIDENT)`;
+    case 'key-mismatch': return `  ✗ manifest signed by a different key (sig ${sig.sigKeyId} vs your key ${sig.keyId}) — an unexpected key roll, or tampering`;
+    case 'unsigned':     return `  ⚠ manifest is NOT signed — a pre-signing archive to migrate (run ccarchive), or the signature was removed`;
+    case 'no-key':       return `  ⚠ manifest signature UNVERIFIABLE — no signing key at ${keyPath}; bring it here out-of-band or run ccarchive to establish one (the hash results below then trust an unauthenticated manifest)`;
+    default:             return null;   // 'absent' — no manifest, nothing to attest
+  }
+}
+
+// --rekey: mint a fresh signing key (rolling it) and re-sign the current manifest.
+// The signature only ever attests the CURRENT manifest bytes, so a roll loses
+// nothing — old .sig files simply stop verifying, which is the point of a roll.
+function rekeyManifest(destRoot, keyPath, asJson) {
+  const keyBuf = mintKey(keyPath);           // fresh key, replacing any existing
+  const id = keyId(keyBuf);
+  const hasManifest = fs.existsSync(manifestPath(destRoot));
+  if (hasManifest) signManifest(destRoot, keyBuf);
+  const result = { rekeyed: true, keyId: id, keyFile: keyPath, manifestSigned: hasManifest };
+  if (asJson) { process.stdout.write(JSON.stringify(result, null, 2) + '\n'); return 0; }
+  process.stdout.write([
+    `cc-transcripts rekey → new signing key ${id}`,
+    `  key: ${keyPath} (0600, off the archive volume)`,
+    hasManifest
+      ? `  re-signed manifest.json at ${destRoot} with the new key (old signatures now invalid — nothing lost, the current manifest is re-attested)`
+      : `  no manifest at ${destRoot} yet — the key is ready; the next ccarchive run signs the manifest`,
+    `  ⚠ back up this key out-of-band: a new machine needs THIS key to verify the archive's signatures. Minting on loss re-signs but cannot reproduce a lost key (SECRETS.md redundancy).`,
+  ].join('\n') + '\n');
+  return 0;
+}
+
+function verifyArchive(destRoot, asJson, materialise, keyPath) {
   const manifest = loadManifest(destRoot);
   const rels = Object.keys(manifest);
   const result = { dest: destRoot, checked: rels.length, ok: 0, mismatch: [], missing: [], evicted: [], unmanifested: [] };
@@ -412,17 +555,29 @@ function verifyArchive(destRoot, asJson, materialise) {
   // attesting the archive, weaker than a raw-bytes anchor; surfaced, not hidden.
   result.fromArchive = rels.filter((rel) => manifest[rel].fromArchive).length;
 
+  // Signature: the manifest's own tamper-evidence. Check it only when a manifest
+  // file exists (nothing to attest otherwise). A verdict other than `verified`
+  // fails the verify — TAMPER (mismatch/key-mismatch), a legacy UNSIGNED manifest
+  // to migrate, or an UNVERIFIABLE one (no key). None is ever a silent green.
+  const manifestExists = fs.existsSync(manifestPath(destRoot));
+  result.signature = manifestExists
+    ? verifySignature(fs.readFileSync(manifestPath(destRoot)), loadSig(destRoot), loadKey(keyPath))
+    : { state: 'absent' };
+  const sigFailed = manifestExists && result.signature.state !== 'verified';
+
   // An unmanifested file fails the verify: it is either injected, or archived
   // history the manifest lost — both need a human eye, not a green tick.
-  const failed = result.mismatch.length + result.missing.length + result.unmanifested.length;
+  const failed = result.mismatch.length + result.missing.length + result.unmanifested.length
+    + (sigFailed ? 1 : 0);
   if (asJson) { process.stdout.write(JSON.stringify(result, null, 2) + '\n'); return failed ? 1 : 0; }
 
-  const lines = [
-    `cc-transcripts verify → ${destRoot}`,
+  const lines = [`cc-transcripts verify → ${destRoot}`];
+  const sigLine = signatureLine(result.signature, keyPath);
+  if (sigLine) lines.push(sigLine);
+  lines.push(
     `  ${result.checked} in manifest · ${result.ok} verified, ` +
       `${result.mismatch.length} mismatched, ${result.missing.length} missing` +
-      (result.evicted.length ? `, ${result.evicted.length} evicted` : ''),
-  ];
+      (result.evicted.length ? `, ${result.evicted.length} evicted` : ''));
   if (result.fromArchive) {
     lines.push(`  ${result.fromArchive} entr${result.fromArchive === 1 ? 'y' : 'ies'} ` +
       `attest the archived copy only (source pruned before hashing — fromArchive)`);
@@ -773,8 +928,10 @@ function run() {
   const home = os.homedir();
   const srcRoot = takeValue('--source') || path.join(home, '.claude', 'projects');
   const destRoot = takeValue('--dest') || process.env.CCARCHIVE_DEST || defaultDest(home);
+  const keyPath = resolveKeyPath(home);
 
-  if (argv.includes('--verify')) return verifyArchive(destRoot, asJson, materialise);
+  if (argv.includes('--rekey')) return rekeyManifest(destRoot, keyPath, asJson);
+  if (argv.includes('--verify')) return verifyArchive(destRoot, asJson, materialise, keyPath);
   if (argv.includes('--audit')) return auditLiveStore(srcRoot, destRoot, asJson, materialise);
   if (argv.includes('--restore')) {
     return restoreArchive(srcRoot, destRoot, { delta: argv.includes('--delta'), dryRun, force, asJson });
@@ -877,6 +1034,20 @@ function run() {
     }
     if (manifestChanged) saveManifest(destRoot, manifest);
     report.manifestEntries = Object.keys(manifest).length;
+
+    // Every manifest write re-signs (tamper-evidence); a legacy unsigned or
+    // invalid signature is migrated in place. Sign only when a manifest exists —
+    // an empty archive has nothing to attest. The key is minted 0600 off-archive
+    // on first use; verify never mints, so signing stays a write-path act.
+    if (fs.existsSync(manifestPath(destRoot))) {
+      const keyBuf = ensureKey(keyPath);
+      const bytes = fs.readFileSync(manifestPath(destRoot));
+      if (manifestChanged || verifySignature(bytes, loadSig(destRoot), keyBuf).state !== 'verified') {
+        signManifest(destRoot, keyBuf, bytes);
+      }
+      report.signed = true;
+      report.keyId = keyId(keyBuf);
+    }
   }
 
   for (const rel of report.refusedShrink) {
@@ -905,7 +1076,9 @@ function run() {
     lines.push(`  ${report.refusedShrink.length} REFUSED (source smaller than archived copy — see stderr)`);
   }
   if (!dryRun && report.manifestEntries) {
-    lines.push(`  ${report.manifestEntries} sha256 in manifest.json — verify with: ccarchive --verify`);
+    lines.push(`  ${report.manifestEntries} sha256 in manifest.json` +
+      (report.signed ? `, signed (${SIG_ALGORITHM}, key ${report.keyId})` : '') +
+      ` — verify with: ccarchive --verify`);
   }
   process.stdout.write(lines.join('\n') + '\n');
   return report.refusedShrink.length ? 1 : 0;
@@ -922,4 +1095,6 @@ module.exports = {
   isSuspectShrink, insideGitWorkTree, auditCategorize, classifyDivergence, auditLiveStore,
   isDatalessFlags, statFlags, isDataless,
   classifyRestore, isInsideRoot, restoreTargets, restoreArchive,
+  defaultKeyFile, resolveKeyPath, sigPath, keyId, computeMac, macEqual,
+  loadKey, mintKey, ensureKey, loadSig, signManifest, verifySignature, rekeyManifest,
 };
