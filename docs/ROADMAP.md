@@ -39,14 +39,22 @@ no-MAJOR application pass, closed 2026-07-22; the harvest-integrity cycle —
 no-MAJOR application pass, closed 2026-07-22) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- ⏳ **SECRETS.md access-management expansion + ACCESS.md step-2 line**
-  (claimed 2026-07-22-1018, wt: atelier-secrets-review) —
-  delta: `caa85fe` (SECRETS.md sections: non-reuse rules, asymmetric keys,
-  minting, exposure watch/roll/never-scrub, public-practice grounding;
-  ACCESS.md step 2 minted-fresh line). Intent record:
-  [`sessions/2026-07-22-1005-secrets-access-doctrine.md`](sessions/2026-07-22-1005-secrets-access-doctrine.md).
-  Self-authored doctrine — rule 4: a non-author takes it and writes the
-  brief; the author spawned nothing.
+- [x] **SECRETS.md access-management expansion + ACCESS.md step-2 line** —
+  rule-4 cold pass on `caa85fe` run 2026-07-22 by the wave-1 queue run
+  (provenance in the brief; the run authored none of the delta):
+  **PASS-WITH-FINDINGS 0 MAJOR · 4 MINOR · 4 LOW · 1 nit**, citations
+  verified live, live-proven claims re-run clean, reconcile overturned
+  nothing — terminal per the close rule, cycle closed. Verdict:
+  [`reviews/2026-07-22-1021-secrets-access-cold-pass.md`](reviews/2026-07-22-1021-secrets-access-cold-pass.md).
+- [ ] 🎯 **SA1–SA8 rulings (secrets/access cold pass)** — self-authored
+  doctrine, so the findings are Mike's to decide (rule 3); nothing applied.
+  Sharpest four: SA1 the asymmetric-key grading misses the agent-forwarding
+  channel (a compromised target can reach the fleet a shared key opens);
+  SA2 the watch leg's third surface is unachievable on the doctrine's own
+  exemplar store (sops+age has no read trail); SA3 minting conflates max
+  entropy with max length (silently-truncating verifiers); SA4 no
+  break-glass / store-unreachable class. Per-finding what/why/impact in the
+  verdict.
 
 ## build/ layer — open strands
 

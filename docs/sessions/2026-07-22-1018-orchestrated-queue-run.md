@@ -52,3 +52,15 @@ first slice SHA-pinned actions + SECURITY.md. Floor scanners re-run green on
 main post-merge (orchestrator's first run used a wrong flag and read exit 2 as
 suspect — invocation corrected against the hook, then clean; named per the
 check-exit-codes rule). Worktree put away.
+
+**1035 · SECRETS/ACCESS `⏳` cold pass — landed, cycle closed.** Taker (Fable
+worker) met the delta cold: brief + findings committed (`092db29`) before the
+intent record or reconcile (`7b6c935`), provenance stated in brief and verdict.
+**PASS-WITH-FINDINGS 0M/4m/4L/1n** — terminal, cycle closed. Citations
+re-verified against live sources (NIST 800-63B rev 4 confirmed final
+2025-07-31; OWASP store/rotation/audit-trail confirmed; one Appendix-A
+rationale verified in substance only, named). Live-proven claims re-run clean
+at HEAD. Reconcile overturned nothing; the reviewer noted SA1's gap originates
+in the in-conversation ruling itself, so Mike's ruling sits at the ruling's
+level, not the text's. 🎯 SA1–SA8 (+ a spelling nit) queued for Mike.
+Worktree put away.
