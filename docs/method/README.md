@@ -5,8 +5,9 @@ not. This is the shareable core of atelier.
 
 Read in this order:
 
-1. **`00-APEX.md`** — honesty is absolute, then the AI-adapted Three Laws. The
-   frame everything else sits inside; above the precedence ladder, never traded.
+1. **`00-APEX.md`** — honesty is absolute, adaptation is continuous, then the
+   AI-adapted Three Laws. The frame everything else sits inside; above the
+   precedence ladder, never traded.
 2. **`EVIDENCE.md`** — the machinery behind the apex's honesty: authority tiers,
    acquisition-method error risk, absolute dating, store-the-rule-not-the-value,
    one-fact-one-home, trigger-based refresh. How the agent knows what it claims.
