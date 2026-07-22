@@ -201,7 +201,9 @@ derivable but unstated.
 
 ## Verdict
 
-**PASS-WITH-FINDINGS — 1 MAJOR · 5 MEDIUM · 1 LOW · 1 note.** The pattern is
+**PASS-WITH-FINDINGS — 1 MAJOR · 5 MEDIUM · 1 LOW · 1 note** (revised to
+**1 MAJOR · 6 MEDIUM · 1 LOW · 1 note** by the reconcile below — QR9 added,
+nothing overturned). The pattern is
 genuinely good — real practice, correctly homed, assembled from named
 primitives, honestly bounded, wired and bundled exactly as claimed; every
 mechanical proof reproduced. What bars a clean pass sits in one seam: the
@@ -209,3 +211,70 @@ chaining promise and the rule-4 synergy are welded together without pinning
 spawn provenance down a chain or authorship across the orchestrator/worker
 split. All findings are wording-sized. Per rule 3, **all rulings are Mike's**;
 nothing is applied by this review.
+
+---
+
+# Reconcile — appended after the findings were committed (`3797c5a`)
+
+Deferred section and intent record opened only now; read to reconcile, not to
+anchor.
+
+## The taker's five seeds
+
+| Seed | Disposition |
+|---|---|
+| 1 — rule-4 transitivity | **Already covered** by QR1 (author-side chains) and QR2 (worker-built authorship). The other half — a non-author run dispatching a review *worker*, as the 1018 run did for SECRETS/ACCESS and this taker did here — is **cleared**: rule 4's criterion tests the *author's* involvement in the reviewer's spawn chain, and a chain containing no author passes it; QR1's counsel already generalises to the spawn-chain reading. |
+| 2 — queue-item text as prompt input | **Already covered** by QR4. |
+| 3 — skill parity | **Already covered** by QR6; no *current* drift found — the exposure is future drift. |
+| 4 — per-item durability vs claiming rules | **Cleared** — probed cold as attack-surface item 8; skill step 4 and the new section are consistent with § Claiming work. But see QR9, adjacent, surfaced from the intent record. |
+| 5 — tier split grounded? | **Partially grounded, one bearing** (the 1018 run practiced it) — and the practice carried a compensating control the text never codified; see the QR5 adjustment. |
+
+## Intent-record reconciliation
+
+**Nothing overturned.** Three findings enriched, one calibration, one new:
+
+- **QR1 (MAJOR — stands, calibrated):** every session in the live chain was
+  principal-spawned, so the laundering path is *prospective*, not an observed
+  breach — the gap is in the wording future sessions obey. The fix is
+  demonstrably cheap: it codifies what practice already does.
+- **QR2 (MEDIUM — stands, sharpened):** not hypothetical — this very delta was
+  worker-built, and the run *correctly* ruled "neither this run nor its
+  workers may take that review". Practice enacted the rule QR2 asks for; the
+  text still doesn't carry it, and a future run gets only the text.
+- **QR3 (MEDIUM — stands, counsel strengthened):** the record shows the
+  envelope in practice — workers commit in worktrees, the orchestrator merges
+  `--no-ff` and re-proves post-merge. Counsel: codify the practice the 1018
+  run already followed.
+- **QR5 (MEDIUM — stands, adjusted):** the run put doctrine text (this delta)
+  in the workhorse seat — the exact exposure — but compensated: the
+  orchestrator read the full doctrine diff before merging. That control is
+  practice, not doctrine. Adjusted counsel: *either* add doctrine text to the
+  escalation list, *or* codify the compensating control (a doctrine-text item
+  dispatched to the workhorse earns a full orchestrator read at merge).
+- **QR9 · MEDIUM · new — the doctrine's loop is serial; its grounding run was
+  wave-parallel.** The 1018 run claimed four items in one commit and
+  dispatched four concurrent workers, then a second wave. The extracted
+  doctrine and skill describe a strictly serial loop (select → claim one →
+  execute → close → repeat), the selection default says "minimise work in
+  flight", and nothing licenses concurrent claims or maps per-item close and
+  the end-of-run report onto waves. Either serialisation is deliberate (then
+  it belongs in "deliberately not", because the pattern's own live bearing
+  contradicts it) or waves are sanctioned (then say so: claim per item still,
+  close per worker at merge, report aggregates). As written, "extracted from
+  those runs, not invented" fails in exactly this one dimension, and a
+  literal future orchestrator forfeits the parallelism its grounding run
+  used.
+- **Overclaim check on the author's account:** the record itself uses the
+  honest "loses at most the in-flight item" form — QR7's target is the
+  README/skill wording, not the underlying claim. The delta's "grounded
+  twice" second bearing is the author-run's own record, written by the same
+  party mid-run (the record says so itself, honestly); the per-item closes it
+  narrates are independently corroborated by the cited merge commits. Claims
+  that should have been re-driven and weren't: none found.
+
+## Statement
+
+**Nothing overturned. Nothing downgraded.** QR2/QR3/QR5 enriched (severities
+unchanged); QR1 stands MAJOR with the prospective-not-observed calibration;
+QR9 (MEDIUM) added. Revised tally: **1 MAJOR · 6 MEDIUM · 1 LOW · 1 note —
+PASS-WITH-FINDINGS.** All rulings are Mike's (rule 3); nothing applied.
