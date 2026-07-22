@@ -138,8 +138,13 @@ question: embed it, and how?
 *review: WARRANTED when this moves from capture to doctrine/skill — doctrine
 by function, so the full rule-4 cycle. The capture itself is records-only.*
 
-🎯 Mike to ratify direction and shape (method-section vs new file; skill
-alongside the doctrine or after it lands).
+**RATIFIED 2026-07-22 (Mike): "I like everything you have there" — build
+as counselled** (method-layer pattern + `queue-run` skill; the counselled
+home was CONCURRENCY § session rhythm + MODEL-ECONOMICS for the tier split,
+with section-vs-new-file settled by the builder on the text's actual size).
+Deliberately left for a **fresh session** to claim and build — the
+counsel's author closes out; the builder queues the rule-4 `⏳` when the
+doctrine lands.
 
 ## Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)
 
