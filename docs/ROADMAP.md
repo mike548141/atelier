@@ -127,7 +127,8 @@ costume, not doctrine, and parts of it re-state rules that already stand
 (worktrees, claims, the closing litany), which is the drift risk. Captured
 question: embed it, and how?
 
-- [ ] **Name the pattern in `method/`** (likely CONCURRENCY § session rhythm
+- [~] **Name the pattern in `method/`**
+      (claimed 2026-07-22-1033, wt: atelier-queue-run) (likely CONCURRENCY § session rhythm
       + ECONOMICS for the tier split): the orchestrator/worker shape
       (capable tier orchestrates and reviews, workhorse tier executes; flex
       allowed on judgement); a default selection order when the run's brief
@@ -139,7 +140,8 @@ question: embed it, and how?
       end-of-run report that surfaces 🎯 principal-blocked items rather than
       silently skipping them; and a role check at open — a session opened on
       the wrong tier for its role stops and says so instead of proceeding.
-- [ ] **Mechanise it as a skill** (`queue-run`, plugin-bundled) so the
+- [~] **Mechanise it as a skill**
+      (claimed 2026-07-22-1033, wt: atelier-queue-run) (`queue-run`, plugin-bundled) so the
       prompt shrinks to an invocation plus per-run overrides — mechanism
       before more content.
 - Noted synergy: a chain of fresh sessions naturally produces
@@ -219,26 +221,30 @@ baselines) and that a model has no per-codebase training for. They call it the
 
 **What's genuinely NEW for atelier** (much is already ours — see below): the
 systematic REGISTRY and its promotion rule.
-- [ ] **Promotion rule — recurrence makes an invariant.** Any review finding
+- [~] **Promotion rule — recurrence makes an invariant.**
+      (claimed 2026-07-22-1033, wt: atelier-antislop-mine) Any review finding
       left **more than twice** should become an invariant. Mine historical
       review records, cluster them, generate invariant CANDIDATES for **human
       approval** (matches our PROPOSED-then-ratify pattern — the glossary does
       this). "Each invariant you codify is a check that will never cost a
       reviewer time again." atelier already has the review corpus to mine
       (session records + `reviews/` briefs + verdicts).
-- [ ] **Two-layer acceptance criteria, one verification pass.** Per-change
+- [~] **Two-layer acceptance criteria, one verification pass.**
+      (claimed 2026-07-22-1033, wt: atelier-antislop-mine — proposals only) Per-change
       criteria (task-specific) + the invariant catalog (loaded automatically)
       assemble into ONE checklist a verifier runs. The author need not remember
       the org rule — the catalog enforces it unasked. Invariants are
       declarative rules with conditions (path globs, exemptions), e.g. "writes
       to `users` must go through the repository; exempt migrations; glob
       `src/**/*.go`".
-- [ ] **Enforcement seam — how does an invariant get checked?** Three
+- [~] **Enforcement seam — how does an invariant get checked?**
+      (claimed 2026-07-22-1033, wt: atelier-antislop-mine — proposals only) Three
       candidates to place on our existing spectrum: a CI scanner (like
       leakscan/secretscan — the machine-checkable ones), a review-time
       checklist item, or an agent-verifier criterion. Decide which invariants
       are code-checkable (→ scanner) vs judgement (→ verifier/human).
-- [ ] **Where does the registry live?** atelier-shared floor invariants (fleet-
+- [~] **Where does the registry live?**
+      (claimed 2026-07-22-1033, wt: atelier-antislop-mine — proposals only) atelier-shared floor invariants (fleet-
       wide, like the current scanners) vs repo-specific catalogs (a child's own
       conventions). Likely both, same layering as doctrine: shared floor +
       local append. Ties REPO-STANDARD.
@@ -301,7 +307,8 @@ touches REVIEW.md + EVIDENCE.md + the scanner floor); brief owed at pickup.*
 
 ### ccrepo (Mike, 2026-07-17)
 
-- [ ] **Tighten the ccusage reconciliation drift** — v2 lands at ~0.05% (a few
+- [~] **Tighten the ccusage reconciliation drift**
+      (claimed 2026-07-22-1033, wt: atelier-ccrepo-drift) — v2 lands at ~0.05% (a few
       dollars on ~$6.9k), reported every run. Tighten it further: chase the
       residual per-model (sonnet-5 is the largest at ~1.5%), decide whether
       `server_tool_use` per-call pricing (web search/fetch — deferred v1) is a

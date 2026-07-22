@@ -65,7 +65,7 @@ in the in-conversation ruling itself, so Mike's ruling sits at the ruling's
 level, not the text's. 🎯 SA1–SA8 (+ a spelling nit) queued for Mike.
 Worktree put away.
 
-**1050 · ECONOMICS.md rename — landed.** Worker (Opus) executed the decided
+**1032 · ECONOMICS.md rename — landed.** Worker (Opus) executed the decided
 rename (`b639513`, merged `--no-ff`): `git mv` on canonical + child-template
 copies, 24 refs across 16 live files, history untouched. Worker judgement
 call, endorsed at merge: the child-template copy renamed too (in the sweep's
