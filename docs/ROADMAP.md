@@ -197,30 +197,48 @@ baselines) and that a model has no per-codebase training for. They call it the
 
 **What's genuinely NEW for atelier** (much is already ours — see below): the
 systematic REGISTRY and its promotion rule.
-- [~] **Promotion rule — recurrence makes an invariant.**
-      (claimed 2026-07-22-1033, wt: atelier-antislop-mine) Any review finding
+- [x] **Promotion rule — recurrence makes an invariant** — the mining half
+      done 2026-07-22 (wave-2 queue run, `84fb112`): 330 findings across all
+      47 review files clustered into 5 scanner candidates (S1 wrap-hygiene —
+      the class that shipped three cycles running; S2 named-path-resolves;
+      S3 UTC dating; S4 template stamp-drift; S5 NZ spelling, carried on ROI)
+      + 7 verifier/checklist candidates (V1 overclaim-vs-evidence is the
+      largest cluster at ~30 — validating the doctrine, not exposing a gap),
+      below-threshold classes named, already-enforced classes credited, and
+      one ⚠️: fail-open/detector-edge (~23) kept recurring *after* the
+      selftest floor — "harden tools/ tests", not "solved". Record:
+      [`sessions/2026-07-22-1036-invariant-candidates.md`](sessions/2026-07-22-1036-invariant-candidates.md).
+- [ ] 🎯 **Rule on the invariant candidates S1–S5 / V1–V7** — per-candidate
+      approval is Mike's (the PROPOSED-then-ratify pattern); each carries its
+      cited occurrences + proposed seam/home in the record. Approved scanner
+      candidates become build items; approved verifier candidates feed the
+      REVIEW.md/skill checklist when the registry mechanism lands. Original
+      capture text (the promotion rule): any review finding
       left **more than twice** should become an invariant. Mine historical
       review records, cluster them, generate invariant CANDIDATES for **human
       approval** (matches our PROPOSED-then-ratify pattern — the glossary does
       this). "Each invariant you codify is a check that will never cost a
       reviewer time again." atelier already has the review corpus to mine
       (session records + `reviews/` briefs + verdicts).
-- [~] **Two-layer acceptance criteria, one verification pass.**
-      (claimed 2026-07-22-1033, wt: atelier-antislop-mine — proposals only) Per-change
+- [ ] **Two-layer acceptance criteria, one verification pass.** (Build item —
+      waits on the 🎯 rulings above; the mining record's "how the registry
+      would be checked" section holds the proposal.) Per-change
       criteria (task-specific) + the invariant catalog (loaded automatically)
       assemble into ONE checklist a verifier runs. The author need not remember
       the org rule — the catalog enforces it unasked. Invariants are
       declarative rules with conditions (path globs, exemptions), e.g. "writes
       to `users` must go through the repository; exempt migrations; glob
       `src/**/*.go`".
-- [~] **Enforcement seam — how does an invariant get checked?**
-      (claimed 2026-07-22-1033, wt: atelier-antislop-mine — proposals only) Three
+- [ ] **Enforcement seam — how does an invariant get checked?** (Per-candidate
+      seams proposed in the mining record — scanner vs checklist vs verifier,
+      one line of why each; decisions ride the 🎯 rulings above.) Three
       candidates to place on our existing spectrum: a CI scanner (like
       leakscan/secretscan — the machine-checkable ones), a review-time
       checklist item, or an agent-verifier criterion. Decide which invariants
       are code-checkable (→ scanner) vs judgement (→ verifier/human).
-- [~] **Where does the registry live?**
-      (claimed 2026-07-22-1033, wt: atelier-antislop-mine — proposals only) atelier-shared floor invariants (fleet-
+- [ ] **Where does the registry live?** (Proposed per candidate in the mining
+      record — all five scanner candidates shared-floor, one checklist
+      repo-specific; decision rides the 🎯 rulings above.) atelier-shared floor invariants (fleet-
       wide, like the current scanners) vs repo-specific catalogs (a child's own
       conventions). Likely both, same layering as doctrine: shared floor +
       local append. Ties REPO-STANDARD.

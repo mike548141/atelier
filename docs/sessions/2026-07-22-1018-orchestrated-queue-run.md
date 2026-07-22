@@ -124,3 +124,19 @@ Suite 92→94 (111 instruments-wide, re-proven post-merge). Worker isolated
 the moving-target artefact (this very session writing logs during
 measurement) before attributing drift — the discriminating-evidence
 discipline holding in the small. Worktree put away.
+
+**1115 · Anti-slop invariant candidates — landed.** Worker (Opus) + five
+parallel miners read the whole review corpus (330 findings, 47 review files,
+plus the sessions/ROADMAP-DONE disposition sweep — near-total double-homing
+confirmed, reviews kept primary) and applied the >2 promotion rule with cited
+IDs (`84fb112`, merged `--no-ff`): 5 scanner candidates (S1–S5) + 7
+verifier/checklist candidates (V1–V7), below-threshold classes named rather
+than rounded up. Sharpest results: the wrap class shipped three consecutive
+cycles (SL7→AC1→IR3) — the clearest scanner case; "artifact" appears 15+
+times in method/ against the NZ-English rule (caught twice — the
+eye-skips-what-a-scanner-catches premise in one word); and
+fail-open/detector-edge (~23) kept recurring *after* the selftest floor
+existed — flagged ⚠️ as "harden tools/ tests", not "solved". The worker
+survived one mid-flight API drop (resumed from transcript; nothing lost —
+its worktree was verified clean before resume). 🎯 S1–S5/V1–V7 rulings
+queued for Mike. Worktree put away.
