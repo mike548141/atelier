@@ -334,9 +334,22 @@ applied 2026-07-21**; the fleet-wide `hooks.atelierTools` fix) →
 
 ## North star — context follows the person, work follows anywhere
 
-- [~] **Two-tier person-context portability.** (claimed 2026-07-22-1233 —
-      the focused design pass only, records-only deliverable; build/doctrine
-      moves stay open.) Both excluded from atelier, both
+- [ ] **Two-tier person-context portability.** **Design pass DELIVERED
+      2026-07-22** →
+      [`sessions/2026-07-22-1233-person-context-portability-design.md`](sessions/2026-07-22-1233-person-context-portability-design.md)
+      — constraints C1–C8 from cited doctrine, an 8-threat pass, candidate
+      architectures per leg, argued recommendations (tier-1 filesystem:
+      age/sops capsule, decrypt-on-need; tier-2: estate-root private repo +
+      wrong-tier gate; tier-1 phone: out of scope app-native, phone-as-
+      terminal when needed; tier-2 phone: app memory as a declared, dated
+      second system; seam: filesystem canonical, phone derived). Records-
+      only; review WARRANTED when it moves to build/doctrine.
+  - [ ] 🎯 **D1–D5 rulings** — the design's decisions only Mike can make:
+        D1 does never-plain-remote bind plaintext or any form; D2 provider
+        trust for any tier-1 on the phone; D3 is ADP-class E2E actually
+        enabled / acceptable as load-bearing; D4 appetite for phone-side
+        context; D5 key-backup home. Build steps stay parked on these.
+      Original item, for context: both excluded from atelier, both
       must reach every device Mike works from, handled by sensitivity:
       - *Crown-jewels* (health/family/finance/estate map): E2E-encrypted only
         (iCloud ADP or sops/age); **never a plain remote, not even private

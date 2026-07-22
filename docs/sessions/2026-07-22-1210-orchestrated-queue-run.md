@@ -85,3 +85,17 @@ self-verifying class (instrument code under its test floor, no doctrine
 surface) — grounds stated, not skipped. 🎯 residue on the ROADMAP: the
 machine-local config doesn't exist yet; mode choice (plan vs usage) is
 Mike's fact, not the mechanism's.
+
+**1247 · Person-context portability design pass — delivered.** Fable
+worker (capable tier — structural design, the rework rule), records-only
+deliverable placed as
+[`2026-07-22-1233-person-context-portability-design.md`](2026-07-22-1233-person-context-portability-design.md),
+orchestrator-verified against the public-repo boundary: written wholly in
+tier/device/mechanism classes, no personal facts beyond the item's own
+wording. The design runs the new REVIEW.md threat-pass discipline on
+itself (8 threats), derives C1–C8 from named doctrine sections, and lands
+argued per-tier-per-leg recommendations with the phone leg treated as a
+different system, not "a sync problem" — exactly the item's framing.
+🎯 D1–D5 to Mike on the ROADMAP; build steps and doctrine edits
+deliberately undecided behind them. Review stance: records-only capture,
+WARRANTED at build/doctrine time (gap-map precedent).
