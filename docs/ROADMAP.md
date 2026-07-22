@@ -38,6 +38,10 @@ terminal, closed 2026-07-21) →
   [`reviews/2026-07-21-2158-review-scope-security-lens4-cold.md`](reviews/2026-07-21-2158-review-scope-security-lens4-cold.md)
   — an application review reviews the doctrine at HEAD first, verdict hunks
   after (REVIEW.md § Applying decisions). Cycle closes on a no-MAJOR pass.
+  **CLAIMED 2026-07-22 0244 UTC** by a rule-4 taker (wt:
+  scope-lens4-app-cold) — spawn provenance: the principal opened this
+  session and pointed it at the queue ("please do any review work");
+  the delta's author neither started nor instructed it.
 
 ## build/ layer — open strands
 
