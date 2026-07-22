@@ -64,6 +64,45 @@ convention alone.
 The scans are the mechanical floor, not the whole boundary: the human
 pre-publish scrub (and the review practice) owns the residual above.
 
+## Supply chain — zero-dep *is* the control, and its residual
+
+These tools take **zero third-party dependencies** (stdlib Python, and Node's
+built-in `node:test` for `instruments/`), and that is a deliberate
+**supply-chain control**, not merely a convenience: a dependency you do not have
+is a dependency that cannot ship a vulnerability into the build
+(`method/PRINCIPLES.md` §8, *design out the work* — depending on nothing designs
+out the whole class of dependency-vulnerability screening). It is the reason this
+repo runs no SCA scanner, no Dependabot, no lockfile audit: there is almost
+nothing to screen. **"Almost"** is the honest word — the control shrinks the
+surface to near-zero, it does not zero it, and the residual is named here rather
+than pretended away:
+
+- **CI actions are SHA-pinned, not tag-pinned.** The floor and CI workflows
+  consume a few third-party GitHub Actions (`actions/checkout`,
+  `actions/setup-python`, `actions/setup-node`). A version *tag* (`@v5`) is
+  mutable — its owner can repoint it at new code — so every such action is pinned
+  to a **full commit SHA** with the tag kept as a trailing comment
+  (`@<sha> # v5`), in `.github/workflows/ci.yml` and in the child
+  `docs/build/templates/workflows/` a child copies. A pin is bumped
+  deliberately, re-resolving the SHA (`gh api repos/<owner>/<repo>/git/ref/tags/<tag>`);
+  a moved tag can no longer ship code into a trusted build silently. (Grounded:
+  the 2026-07-22 security-canon gap map.)
+- **The toolchain is a trusted, unpinned dependency — stated, not hidden.** The
+  scanners still trust the runner's `python3`, `node`, `git`, and `gh`, the OS,
+  and the runner image itself. These are dependencies even though no manifest
+  lists them; the floor pins the *actions* but not the interpreter builds
+  (`setup-python`/`setup-node` request a version line, not a SHA of the
+  toolchain). That is an accepted residual for a zero-dep doctrine repo, named
+  here so it is a known limit rather than an invisible one.
+- **No SBOM / artifact signing yet — deferred with a stated trigger.** There is
+  no software bill of materials at rest and no release-artifact signing; both are
+  deferred to the first published *artifact* (`method/SIGNING.md`, layer 2 — the
+  trigger is a package or binary someone else installs). Until an artifact
+  exists there is nothing to bill or sign, and standing the machinery up would be
+  ceremony.
+- **Scanner distribution to children** stays the other deferred supply-chain
+  call (vendor / fetch / publish) — see the leakscan **CI** wiring note below.
+
 ## `leakscan.py` — keep personal/estate data out of a shareable repo
 
 The apex + AUTONOMY floor forbid personal, health, family, financial or

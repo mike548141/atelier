@@ -158,7 +158,18 @@ Not just "are there bugs". A real review runs all four:
    secret handling, unsafe input paths. *Likely* means checked, not recalled:
    the reviewer is free — and expected — to consult open catalogues (OWASP
    Top 10 / ASVS, or the domain's equivalent) to confirm the likely vectors are
-   covered rather than trusting memory. And where the working harness ships a
+   covered rather than trusting memory. At design altitude the same lens carries
+   a build-time obligation, not only a reviewer's after-the-fact check:
+   **enumerate the design's threats before building it** — who and what could
+   attack this surface, what it exposes, what it trusts — as a first-class,
+   right-sized design step. That is a lightweight pass, not full STRIDE
+   ceremony: name the handful of threats that actually bear on the work's class
+   and show the design answers them, at the altitude where a wrong premise still
+   costs a paragraph (lens 1; *Review the design, not only the build* below).
+   Absent enumeration is the finding, the same shape as a missing `review:`
+   line. (Grounded: the 2026-07-22 security-canon gap map — threat modelling was
+   held as a review lens but unnamed as a first-class build activity.) And where
+   the working harness ships a
    security scanner — Claude Code's `/security-review` is the house instance,
    sanctioned by the principal (2026-07-21) — the reviewer uses it **where it
    can reach the work**, folding its findings in as the mechanical floor
@@ -179,6 +190,17 @@ Not just "are there bugs". A real review runs all four:
    security or privacy surface, the lens discharges in one explicit line with
    grounds — the same shape as `review: not warranted`, and for the same
    reason: omission is the bug, and no one can disagree with a blank.
+
+**A confirmed security finding carries two marks beyond the standard
+`[fixed]`/`[backlog]`/`[rejected]` tag** (*The lifecycle* step 4 below): a
+**severity**, and a **recurrence-prevention step** — the change that stops the
+*class* recurring, not only this instance (the SSDF "respond to vulnerabilities"
+third leg). Where the finding sits in tooling this repo ships for others to
+adopt, it also routes to the private-disclosure path in the repo-root
+`SECURITY.md`. This is the security specialisation of the ordinary findings
+flow, not a parallel one — a security finding is a review finding first.
+(Grounded: the 2026-07-22 security-canon gap map — the credential-exposure
+runbook was held; a general security-finding lifecycle was not.)
 
 ## Re-run every "live-proven" claim in scope
 
