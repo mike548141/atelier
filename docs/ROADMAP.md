@@ -119,6 +119,7 @@ ECONOMICS § tier split + plugin-bundled `queue-run` skill) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md). What remains open is its review:
 
 - ⏳ **Orchestrated-queue-run doctrine + skill — rule-4 cold review owed.**
+  (claimed 2026-07-22-1149, wt: queue-run-cold-pass)
   Delta: `343def8` (CONCURRENCY § Orchestrated queue runs + ECONOMICS § the
   orchestrated-run tier split) + `8111e9f` (`skills/queue-run` +
   README/session-onramp wiring). Intent record:
