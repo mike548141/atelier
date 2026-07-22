@@ -99,6 +99,48 @@ Completed build/inheritance work (REPO-STANDARD, licenscan, signing doctrine +
 activation, faves/ros floor adoption, create-repo rewire + real-scaffold,
 REPO-BOUNDARY, worktree tooling) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
+## Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)
+
+Mike has been running "queue runs": an orchestrator session drains the shared
+queue — pick, execute (itself or via worker agents), close records per item,
+repeat — chained session-to-session to use plan capacity fully. It works (the
+2026-07-21 man-page rollout ran this way, and the pattern recurs), but it
+lives entirely in a prompt Mike re-pastes — an operating pattern carried as
+costume, not doctrine, and parts of it re-state rules that already stand
+(worktrees, claims, the closing litany), which is the drift risk. Captured
+question: embed it, and how?
+
+- [ ] **Name the pattern in `method/`** (likely CONCURRENCY § session rhythm
+      + MODEL-ECONOMICS for the tier split): the orchestrator/worker shape
+      (capable tier orchestrates and reviews, workhorse tier executes; flex
+      allowed on judgement); a default selection order when the run's brief
+      doesn't override — loose ends & unblockers → features most of the way
+      to done → queue order; **per-item close** (commit, push, records) so a
+      hard session cap loses nothing — limit-readiness is per-item
+      durability, never an end-of-run tidy; named stop conditions
+      (economics, session cap, queue empty, everything-left-blocked) with an
+      end-of-run report that surfaces 🎯 principal-blocked items rather than
+      silently skipping them; and a role check at open — a session opened on
+      the wrong tier for its role stops and says so instead of proceeding.
+- [ ] **Mechanise it as a skill** (`queue-run`, plugin-bundled) so the
+      prompt shrinks to an invocation plus per-run overrides — mechanism
+      before more content.
+- Noted synergy: a chain of fresh sessions naturally produces
+  rule-4-eligible takers for the `⏳` queue — the run pattern and the
+  independence rules reinforce each other. The rule the skill must carry: a
+  run takes a `⏳` item only where *that session* passes rule 4's criterion
+  for that delta (a run that authored a delta never takes its review).
+- Deliberately kept out of doctrine: "maximise plan use" stays the
+  principal's per-run spend directive (which pool — MODEL-ECONOMICS), never
+  a standing instruction; the closing litany stays in RECORD.md/CLAUDE.md
+  where it already binds — the run prompt should not need to restate it.
+
+*review: WARRANTED when this moves from capture to doctrine/skill — doctrine
+by function, so the full rule-4 cycle. The capture itself is records-only.*
+
+🎯 Mike to ratify direction and shape (method-section vs new file; skill
+alongside the doctrine or after it lands).
+
 ## Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)
 
 Source: <https://thenewstack.io/engineering-ai-slop-registry/> (Aviator). A
