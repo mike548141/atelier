@@ -27,21 +27,22 @@ no-MAJOR pass, closed 2026-07-19; the 2026-07-20 triple cycle — DOCUMENTATION
 doctrine + CONCURRENCY posture flip + session-onramp operating-rhythm, three
 rule-4 cold passes all PASS no-MAJOR, applied `87af9f9`; the review-line
 artefact cycle — rule-4 cold pass PASS 0M/1M/5L, Mike's accept-all applied
-terminal, closed 2026-07-21) →
+terminal, closed 2026-07-21; the REVIEW.md scope/lens-4 cycle — 2158 cold
+pass 2M/3M/2L → SL1–SL7 accept-all applied `d553045` → 0244 terminal
+no-MAJOR application pass, closed 2026-07-22) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- ⏳ **REVIEW.md scope/lens-4 cycle — application cold pass** — delta
-  `d553045` (2026-07-22, applies SL1–SL7 rulings; prior deltas in the cycle:
-  `f9db922` + `a059e49`); intent record:
-  [`sessions/2026-07-21-2208-scope-lens4-cold-pass.md`](sessions/2026-07-21-2208-scope-lens4-cold-pass.md)
-  (addendum). Prior verdict + decision stamps:
-  [`reviews/2026-07-21-2158-review-scope-security-lens4-cold.md`](reviews/2026-07-21-2158-review-scope-security-lens4-cold.md)
-  — an application review reviews the doctrine at HEAD first, verdict hunks
-  after (REVIEW.md § Applying decisions). Cycle closes on a no-MAJOR pass.
-  **CLAIMED 2026-07-22 0244 UTC** by a rule-4 taker (wt:
-  scope-lens4-app-cold) — spawn provenance: the principal opened this
-  session and pointed it at the queue ("please do any review work");
-  the delta's author neither started nor instructed it.
+- [ ] 🎯 **Scope/lens-4 cycle residue — AC1 + AC2, Mike's ruling** — two LOW
+  findings from the terminal pass
+  ([`reviews/2026-07-22-0244-sl-application-cold.md`](reviews/2026-07-22-0244-sl-application-cold.md)),
+  decided into the backlog per the close rule; rule 3 makes them Mike's.
+  AC1: `build/templates/CONTRIBUTING.md:44` is 122 cols (SL3's edit
+  re-shipped the wrap class SL7 fixed) — counsel: one-line rewrap, no
+  meaning touched. AC2: the review-brief skill's scanner clause omits the
+  exclusion-barred caution (a clean pass over a barred file class is
+  definitionally empty) — counsel: half a sentence at the next skill touch.
+  *review: not warranted — applying two LOW rulings is mechanical; the
+  cycle's terminal pass already reviewed the surrounding text.*
 
 ## build/ layer — open strands
 

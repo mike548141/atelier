@@ -22,9 +22,14 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   **mechanical lens-roster parity floor** (LensRosterParityTest; suite
   298→302, red leg proven), the scanner clause states the
   never-scan-a-brief and exclusion-barred-class cautions, and the child
-  templates are swept. Cycle open pending the application's own cold pass.
+  templates are swept. Cycle **closed 2026-07-22**: the application's own
+  rule-4 cold pass returned **PASS no MAJOR** — terminal per the close rule
+  (suite 302 OK reproduced, red leg re-driven, scanner discharged with
+  grounds under its own new reach-per-shape rule); two LOW residues
+  (AC1 wrap line, AC2 skill compression loss) to the backlog for Mike.
   Verdict + decisions:
-  `docs/reviews/2026-07-21-2158-review-scope-security-lens4-cold.md`.
+  `docs/reviews/2026-07-21-2158-review-scope-security-lens4-cold.md` and
+  `docs/reviews/2026-07-22-0244-sl-application-cold.md`.
 
 ### Changed (2026-07-21 — REACH/AUTONOMY backlog closed: H1–H7 + R1 applied on Mike's accept-all)
 - **`REACH.md` tightened on the seams its own 2026-07-13 no-MAJOR pass named**:
