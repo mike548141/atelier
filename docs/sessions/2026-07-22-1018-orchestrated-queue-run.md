@@ -64,3 +64,19 @@ at HEAD. Reconcile overturned nothing; the reviewer noted SA1's gap originates
 in the in-conversation ruling itself, so Mike's ruling sits at the ruling's
 level, not the text's. 🎯 SA1–SA8 (+ a spelling nit) queued for Mike.
 Worktree put away.
+
+**1050 · ECONOMICS.md rename — landed.** Worker (Opus) executed the decided
+rename (`b639513`, merged `--no-ff`): `git mv` on canonical + child-template
+copies, 24 refs across 16 live files, history untouched. Worker judgement
+call, endorsed at merge: the child-template copy renamed too (in the sweep's
+stated scope; `create-repo` globs the dir, so scaffolds pick it up
+transparently). Proofs: linkscan clean before/after + in-hook, 323 tool tests
+green incl. template block-sync, re-proven post-merge by the orchestrator.
+Cross-repo recon (read-only): nothing dangles — children resolve against
+pins; per-child atelier-pointing refs update at next pin bump; ros keeps its
+own counterpart's name (its own 2026-07-22 record anticipated this). ⚠️ ros
+tree observed with one modified inventory YAML (unrelated file) — possible
+live ros session; nothing touched there. Worker also caught and corrected a
+staging hazard mid-flight (git add aborting on renamed pathspecs left content
+edits unstaged while renames staged) — verified the index before committing.
+Worktree put away.

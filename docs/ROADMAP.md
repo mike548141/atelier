@@ -440,31 +440,19 @@ CI, child-CI scanner floor, linkscan build + wiring) → [`ROADMAP-DONE.md`](ROA
       (name + path) is kept in Mike's private note, deliberately NOT published
       here (atelier is public). Do NOT interpret until Mike expands it.
       (Mike, 2026-07-22.)
-- [~] **`MODEL-ECONOMICS.md` has outgrown its name — rename to `ECONOMICS.md`**
-      (claimed 2026-07-22-1018, wt: atelier-econ-rename) (Mike, 2026-07-21). **DECIDED (Mike, 2026-07-22): rename to
-      `ECONOMICS.md`, do not split.** Naming settled — what remains is
-      execution only: the rename + full PROPAGATION ref sweep below.
-      The file now spans TWO spend pools — model tokens AND
-      CI compute/runners (the "compute pool — CI minutes" + "runner class"
-      sections) — and its load-bearing sections ("know which pool you're
-      spending", "match ceremony to risk", "cost is the lowest precedence") are
-      cross-cutting over both. **Recommendation: RENAME, do not split.** One
-      unified spend doctrine is the whole point; splitting would fragment the
-      cross-cutting precedence/self-check doctrine or force duplication, and at
-      308 lines it's within size hygiene. `ECONOMICS.md` (title "# Economics")
-      matches Mike's instinct and covers models + runners under one roof.
-      Cost = a PROPAGATION sweep of inbound refs (PROPAGATION.md): ros
-      `CLAUDE.md`, the ros private `docs/MODEL-ECONOMICS.md` counterpart,
-      atelier cross-refs, and any pin — mechanical but must be complete so no
-      ref dangles. Raw note: "Model-economics is wider than just models now it
-      has runners. Rename or split file?" Considered alternative: `FINOPS.md`
-      (Mike, 2026-07-22) — ruled against because FinOps is a branded industry
-      term for the *practice* of cloud cost accounting (billing visibility,
-      showback/chargeback), while this file is spend *doctrine* (tier choice,
-      pool awareness, precedence); it would also be the method shelf's only
-      vendor-flavoured name among plain concept nouns, and the repo's
-      plain-over-jargon rule favours "Economics" for a public audience.
-      *review: light — a rename + ref sweep, not a doctrine change; the naming
-      call was Mike's, now made (decision above).*
+- [x] **`MODEL-ECONOMICS.md` renamed to `ECONOMICS.md`** — Mike's 2026-07-22
+      decision executed 2026-07-22 (wave-1 queue run, `b639513`): `git mv` on
+      the canonical file and the child-template copy, 24 pointer refs across
+      16 live files; history append-only (113 old-name refs in records stand).
+      Deliberation record:
+      [`sessions/2026-07-22-0435-economics-rename-decision.md`](sessions/2026-07-22-0435-economics-rename-decision.md).
+      Light review discharged mechanically per the item's own note: linkscan
+      clean before/after, 323 tool tests green incl. the template block-sync
+      test, orchestrator diff-verified at merge. Nothing dangles cross-repo —
+      children resolve refs against their pins; each child updates its
+      atelier-pointing refs (stamped block's session-rhythm pointer, floor.yml
+      comments) **at its next pin bump**, and a child's own private
+      `MODEL-ECONOMICS.md` counterpart keeps its name by that child's call
+      (ros recorded exactly this, 2026-07-22).
 
 Resolved questions (docker-heap standardisation, estate credential governance) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
