@@ -191,3 +191,32 @@ decided fixes apply without another full ceremony.
   pass will apply it in its records close and re-prove the floor green.
   *Counsel for the doctrine itself: none — the gate worked exactly as
   designed; the miss was the close litany, which RECORD already owns.*
+
+### Reconcile — what the deferred material changed
+
+Nothing overturned; two nuances. Opened after findings committed
+(`85e7eac`): the intent record, Gaps 1–2's analysis, and the commit bodies.
+
+- The author's account matches the encoding reviewed at HEAD: the ~80%
+  grounding claim, the three-gap structure, the deliberate template
+  non-propagation (IR2 answers the author's own flagged question), and the
+  two grounded recoveries. IR1's overclaim exists in the author's account
+  too ("silence with no closing entry = died mid-flight") — the finding
+  attacks the encoding and stands unchanged.
+- **The gitlink incident is honestly recorded and verified fixed**: the
+  `b4b5142` `git add -A` sweep of the sibling worktree's gitlink is
+  disclosed as an apex note, fixed forward (`3961404`: untracked +
+  `.claude/worktrees/` gitignored — this pass's own worktree confirms the
+  ignore holds), lesson saved to memory. No finding — the record did the
+  right thing loudly.
+- **IR5 nuance**: the close claim "all three pre-commit scanners green" was
+  *honest* — sizescan is a CI-side gate, not a pre-commit hook, so the
+  session verified exactly what it named. The miss is a close-litany blind
+  spot (hooks checked, workflow not), which RECORD's close rules own; the
+  finding stands as records hygiene, severity unchanged.
+
+**Final: PASS-WITH-FINDINGS — 0 MAJOR · 3 MEDIUM (IR1, IR2, IR5) ·
+2 LOW (IR3, IR4). No MAJOR ⇒ the cycle closes** (close rule); IR1–IR4 to
+the backlog for the principal's ruling with counsel recorded per finding;
+IR5's harvest is mechanical records hygiene, applied by this pass's records
+close and re-proven green there.
