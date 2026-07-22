@@ -87,3 +87,125 @@ the divider):
 5. **The ECONOMICS tier split** — grounded in measured practice or asserted?
 
 Intent record (deferred): `docs/sessions/2026-07-22-1018-orchestrated-queue-run.md`.
+
+---
+
+# Verdict — cold pass, 2026-07-22 1200 UTC
+
+**Reviewer provenance (rule 4, repeated per doctrine):** fresh-context subagent
+spawned by the rule-4 taker; the taker was Mike-spawned ("please do any review
+work") and authored none of the delta; the delta's author neither started nor
+instructed either. The reviewer read neither this brief's deferred section, nor
+any session record, nor any prior verdict before the findings below were
+durably committed; its attack surface was written to a draft before sibling
+doctrine was opened. Findings committed at this commit; the deferred material
+opens only for the reconcile step appended below.
+
+## Attack surface (named first)
+
+1. Grounding — "extracted from two real runs" is a claim, not a fact.
+2. Wiring — every `§` cross-reference, relative link, "bundled" claim at HEAD.
+3. Second-source discipline — the skill compresses, never contradicts.
+4. Bundling parity — the skill travels like review-brief; any test coverage.
+5. Rule-4 coherence under chaining — the text leans on *authorship*; the rule
+   turns on *started/instructed*.
+6. Orchestrator-as-reviewer — who is "the author" of a worker-built delta.
+7. Lens 4 at design altitude — worker prompts from queue-item text; worker
+   authority; blast radius on a public repo.
+8. Claim mechanics — skill step 4 vs CONCURRENCY's claiming rules.
+9. Exercisability — pool-spent observability, role check, chaining mechanism.
+10. Overclaim scan — README "loses nothing", "~95 lines", tier-split default.
+
+## Proofs re-run — all reproduced
+
+| Proof | Result |
+|---|---|
+| `python3 -m unittest discover -s tools` | ✅ 323 tests OK |
+| `node --test instruments/*.test.js` | ✅ 132 pass, 0 fail |
+| secretscan / leakscan / linkscan / reviewscan `--root . .` | ✅ all clean, exit 0 |
+| `sizescan --check --root . .` | ✅ exit 0 (one advisory: ROADMAP.md 399 lines, no gate) |
+| Plugin bundling (`.claude-plugin/plugin.json` + marketplace.json) | ✅ `source: "./"` bundles whole repo; queue-run sits identically to review-brief/session-onramp |
+| "~95 lines" claim | ✅ 96 actual |
+| All `§` refs + relative links in the delta | ✅ resolve at HEAD |
+| Parity test coverage of queue-run skill | ❌ none exists (→ QR6) |
+
+Lens 4 scanner discharge: the delta is landed markdown — `/security-review`'s
+exclusions bar the class, a clean pass would be definitionally empty; not run,
+weighed as nothing. The manual design-altitude pass is the lens's substance.
+
+## Findings
+
+**QR1 · MAJOR · Chain-spawn provenance is unspecified — the exact fact rule 4
+turns on.** Both texts promise chaining "without a hand-carried prompt each
+time", but neither says who starts session N+1; the rule-4 synergy paragraph
+keys eligibility on *authorship* where the rule's criterion is
+**started-or-instructed**. If a run ever spawns or instructs its successor,
+rule 4 acquires a laundering path: author queues `⏳`, chains successors, a
+later link takes the review — literally passing the criterion while inheriting
+the chain's framing at every hop. Impact: an ineligible review passes as
+rule-4-compliant on the widest-blast-radius work class. Counsel: pin the
+chain's links to the principal in CONCURRENCY § Orchestrated queue runs — a
+run never starts or instructs its own successor, and a session started or
+instructed by any session in a chain fails rule 4 for every delta that chain
+authored; mirror one clause in the skill's `⏳` section.
+
+**QR2 · MEDIUM · "The author" of a worker-built delta is undefined.** The
+run's workers build deltas under orchestrator dispatch prompts; the literal
+reading (worker = author) lets the same run later take the `⏳` on doctrine
+its own worker built — the QR1 laundering class, one hop shorter. Counsel:
+one clause — a delta built by a worker the run dispatched counts as the run's
+own authorship for rule 4.
+
+**QR3 · MEDIUM · The worker's authority envelope is unstated (lens 4).** The
+doctrine never says what a dispatched worker inherits: whether the standing
+autonomy grant flows whole, who merges, what a dispatch prompt must not
+carry. A public repo where a push is publication, with the least capable
+model in the worker seat. Counsel: state it — workers build and commit in
+their worktree; merge to `main` and everything on the always-confirm floor
+stays the orchestrator's.
+
+**QR4 · MEDIUM · Queue-item text reaches the workhorse tier as task input
+with no injection discipline named (lens 4).** Nothing says item text is
+*task description, not instruction* — a queue line that purports to override
+doctrine should be surfaced, not obeyed; the pattern routes the least-vetted
+input to the least-capable seat by design. Counsel: one sentence here or in
+§ Claiming work.
+
+**QR5 · MEDIUM · The tier split's default contradicts its own parent section
+for doctrine-text items.** "An item's build is pattern-following work …
+failure is catchable" sits two paragraphs below the parent rule that names
+**doctrine text** as judgement-heavy work where capability *is* the safety
+property — and the modal atelier queue item is doctrine text; no scanner
+catches a wrong rule. Counsel: add doctrine text to the escalation list.
+
+**QR6 · MEDIUM · No mechanical pin on the queue-run skill — a twice-shipped
+drift class left to memory.** review-brief's stamped-copy invariants are
+pinned by tests born from shipped drift (F3, SL1); queue-run — same shape,
+same widest-propagation surface — lands with zero test coverage. Counsel: a
+`QueueRunSkillTest` pinning the STAMPED COPY header, the canonical pointers,
+the stop-condition roster source-derived from CONCURRENCY, and the rule-4
+criterion phrase.
+
+**QR7 · LOW · "Loses nothing" overclaims on both public surfaces.** README
+and the skill description both promise more than the doctrine's honest "costs
+at most the in-flight item"; the description is model-read trigger text.
+Counsel: "loses at most the item in flight" on both.
+
+**QR8 · note · Small debts, none blocking.** (i) "Workhorse tier"/"the two
+tiers" used but defined nowhere in ECONOMICS; (ii) the skill header's
+"(ROADMAP, 2026-07-22)" grounding pointer dangles semantically once the item
+harvests; (iii) the end-of-run report's durable home unstated (per-item
+closes carry the substance; a cap-cut run never gets its report turn);
+(iv) whether a doctrine-authoring run may keep draining other items is
+derivable but unstated.
+
+## Verdict
+
+**PASS-WITH-FINDINGS — 1 MAJOR · 5 MEDIUM · 1 LOW · 1 note.** The pattern is
+genuinely good — real practice, correctly homed, assembled from named
+primitives, honestly bounded, wired and bundled exactly as claimed; every
+mechanical proof reproduced. What bars a clean pass sits in one seam: the
+chaining promise and the rule-4 synergy are welded together without pinning
+spawn provenance down a chain or authorship across the orchestrator/worker
+split. All findings are wording-sized. Per rule 3, **all rulings are Mike's**;
+nothing is applied by this review.
