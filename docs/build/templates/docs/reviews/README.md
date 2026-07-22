@@ -17,13 +17,15 @@ the approach, assumptions, security & privacy, and real-world behaviour — not
 just whether the code is correct** — before the work is relied on. Reviewer
 scope is the whole commitment — intent, decisions, design, docs, code, tests,
 behaviour (exercised live where possible); the brief's non-goals are the only
-legitimate narrowing, and security & privacy is a must on every review (likely
-threat vectors checked against open catalogues such as OWASP, not recalled;
-where the harness ships a security scanner — e.g. Claude Code's
-`/security-review` — run it as the floor under the lens, never a discharge of
-it; a work with no such surface says so explicitly, with grounds). The builder (usually Opus) then applies
-the findings. Canonical doctrine, and anything this file doesn't answer:
-`<atelier-path>/docs/method/REVIEW.md`.
+legitimate narrowing (and the narrowing is itself reviewable), and security &
+privacy is a must on every review (likely threat vectors checked against open
+catalogues such as OWASP, not recalled; where the harness ships a security
+scanner — e.g. Claude Code's `/security-review` — aim it at the work where it
+can reach it, the floor under the lens, never a discharge of it, and never at
+a brief carrying deferred material; a work the scanner can't reach, or with
+no such surface, says so explicitly, with grounds). The builder (usually
+Opus) then applies the findings. Canonical doctrine, and anything this file
+doesn't answer: `<atelier-path>/docs/method/REVIEW.md`.
 
 ## When to write one
 
@@ -55,7 +57,9 @@ act on, not a transcript. Every field takes work that isn't built yet:
 
 - **Subject** — what is under review, in what state (designed / built / shipped),
   by which model and date.
-- **Type** — "approach + assumptions" vs "correctness only". Say so.
+- **Type** — the commitment's shape: a design to build to, a decision, or
+  built work. It sets what evidence exists, never how wide the review runs —
+  narrowing lives only in **Non-goals**.
 - **Scope** — point at the exact thing: the files or diff if it exists, the
   design record or decision if it doesn't. Point, don't paste.
 - **Load-bearing assumptions to challenge** — the things that, if wrong, break

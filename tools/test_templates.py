@@ -277,5 +277,66 @@ class ReviewBriefSkillTest(unittest.TestCase):
             self.assertNotIn(phrase, self.text)
 
 
+REVIEW_DOCTRINE = ROOT / "docs" / "method" / "REVIEW.md"
+
+
+def canonical_lenses() -> list:
+    """Lens names from REVIEW.md's numbered list — the one source.
+
+    Bounded to the 'What a review actually checks' section so the
+    independence rules (1–4) and the lifecycle steps, also numbered+bold
+    lists, are never mistaken for lenses."""
+    text = REVIEW_DOCTRINE.read_text()
+    start = text.index("## What a review actually checks")
+    end = text.index("\n## ", start + 1)
+    return re.findall(r"^\d+\. \*\*(.+?)\*\*", text[start:end], re.M)
+
+
+class LensRosterParityTest(unittest.TestCase):
+    """2026-07-21 cold-pass SL1: lens 4 landed in REVIEW.md while the
+    review-brief skill still taught three lenses — the second shipping of the
+    F3 drift class, this time on the roster itself. The skill may compress
+    the parent's prose; the lens ROSTER it may never shrink. Same rule for
+    the child reviews template, which compresses the lenses into its
+    house-practice sentence."""
+
+    def test_canonical_roster_parses(self):
+        lenses = canonical_lenses()
+        self.assertGreaterEqual(
+            len(lenses), 4,
+            "REVIEW.md's lens list no longer parses — the parity tests "
+            "below are checking against nothing",
+        )
+
+    def test_skill_names_every_canonical_lens(self):
+        skill = REVIEW_SKILL.read_text()
+        for lens in canonical_lenses():
+            self.assertIn(
+                lens, skill,
+                f"skills/review-brief/SKILL.md is missing lens {lens!r} — "
+                "the skill must name every lens REVIEW.md enumerates "
+                "(add one there, add it here, same commit)",
+            )
+
+    def test_skill_lens_count_words_match_roster(self):
+        """'run all three' outlived lens 4 in prose; pin the count words."""
+        n = len(canonical_lenses())
+        words = {3: "three", 4: "four", 5: "five", 6: "six"}
+        skill_flat = " ".join(REVIEW_SKILL.read_text().split()).lower()
+        for count, word in words.items():
+            if count != n:
+                self.assertNotIn(
+                    f"{word} lenses", skill_flat,
+                    f"the skill still says '{word} lenses' while REVIEW.md "
+                    f"enumerates {n}",
+                )
+
+    def test_reviews_template_carries_the_security_lens(self):
+        """The child floor compresses the roster; security & privacy is the
+        lens whose omission SL1's cycle existed to catch — pin it."""
+        flat = " ".join(REVIEWS_TEMPLATE.read_text().split()).lower()
+        self.assertIn("security & privacy is a must on every review", flat)
+
+
 if __name__ == "__main__":
     unittest.main()

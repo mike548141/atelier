@@ -50,13 +50,28 @@ A good brief is falsifiable and attackable. Include:
    anything machine-local that no other review will catch.
 2. **Why it earns a review** — name the worst failure mode (e.g. a false negative
    that manufactures confidence).
-3. **The three lenses**, run all three:
+3. **Scope, and the four lenses — run all four.** Scope is the whole
+   commitment, never just the artefact in hand: intent, decisions,
+   assumptions, design, docs, code, test code, real-world behaviour
+   (exercised live where possible; an impossibility claim states its
+   grounds). Non-goals are the only legitimate narrowing, and the narrowing
+   is itself reviewable. The lenses organise that scope, never bound it:
    - **Approach & assumptions** (most important): *is this the right problem,
      solved the right way?* Attack the load-bearing assumptions **by name**.
    - **Correctness & quality**: does it do what it claims; honest about done vs
      stubbed; any overclaim or silent scope-cut.
    - **Completeness / harvest**: what it should have covered and didn't; what it
      duplicated or ignored.
+   - **Security & privacy** — a must on every review, never a specialist
+     add-on: design-altitude exposure, over-collection and
+     privacy-by-design-weakness, through code-altitude injection, XSS,
+     authn/authz and secret handling; *likely* vectors checked against open
+     catalogues (OWASP Top 10 / ASVS), not recalled. Where the harness ships
+     a security scanner (Claude Code's `/security-review`), aim it at the
+     in-scope diff where it can reach one — the floor under the lens, never a
+     discharge of it; where it can't reach the work, or the work has no
+     surface, one explicit line with grounds. Never run it over a brief
+     carrying deferred material before findings are committed.
 4. **Load-bearing assumptions to attack** — list them as falsifiable claims. The
    reviewer must *damage each with a probe or confirm it by re-driving* — not
    reason about it.

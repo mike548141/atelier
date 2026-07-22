@@ -129,12 +129,16 @@ admits: the intent or idea that drives it, the decisions and assumptions that
 went into it, the design, the documentation, the code, the test code — a wrong
 test verifies nothing, so tests are reviewable on the same footing as the code
 they exercise — and its real-world behaviour, exercised live where doing so is
-possible and re-run from the work's own claims where it is not (see *Re-run
-every "live-proven" claim* below). The brief's **non-goals are the only
-legitimate narrowing**: anything not named out of scope is in scope, and "no
-source code" is never grounds to shrink a verdict (the 2026-07-15 dismissal —
-*Review the design* below). The lenses organise that scope; they do not bound
-it.
+possible and re-run from the work's own claims where it is not; a claim that
+live exercise is impossible states its grounds, the same discharge shape as
+every other (see *Re-run every "live-proven" claim* below). The brief's
+**non-goals are the only legitimate narrowing — and the narrowing is itself
+reviewable**: anything not named out of scope is in scope, "no source code" is
+never grounds to shrink a verdict (the 2026-07-15 dismissal — *Review the
+design* below), and a non-goal that fences off the very risk the work carries
+is a finding, not a boundary — in a warm brief the author writes the
+non-goals, so rule 1's brief-framing-is-attackable extends to them explicitly.
+The lenses organise that scope; they do not bound it.
 
 Not just "are there bugs". A real review runs all four:
 
@@ -155,12 +159,23 @@ Not just "are there bugs". A real review runs all four:
    the reviewer is free — and expected — to consult open catalogues (OWASP
    Top 10 / ASVS, or the domain's equivalent) to confirm the likely vectors are
    covered rather than trusting memory. And where the working harness ships a
-   security scanner — Claude Code's `/security-review` over the in-scope diff
-   is the house instance, sanctioned by the principal (2026-07-21) — the
-   reviewer runs it and folds its findings in: it is the mechanical floor
+   security scanner — Claude Code's `/security-review` is the house instance,
+   sanctioned by the principal (2026-07-21) — the reviewer uses it **where it
+   can reach the work**, folding its findings in as the mechanical floor
    layered under this lens (*What review is not* below), never a discharge of
-   it, and its clean pass is a claim to weigh like any other. Where the work
-   genuinely has no
+   it, its clean pass a claim to weigh like any other. Reach is per review
+   shape, and the verdict says which case applied: a pending-diff review aims
+   the scanner at the in-scope diff; a landed-delta or design-time review may
+   have nothing the scanner can read — there it runs only where it can
+   genuinely be aimed at the work, else it is discharged in one explicit line
+   with grounds. Two cautions, both live-proven at the rule's first execution
+   (the 2026-07-21 cold pass, SL2): a pending-changes scanner scans whatever
+   is dirty — on that cold pass, the review *brief*, injecting its deferred
+   section into the reviewer pre-draft — so never run it over a brief or
+   other deferred material before findings are committed; and where the
+   scanner's own exclusions bar the work's file class (markdown
+   documentation, for `/security-review`), its clean pass is definitionally
+   empty — weigh it as nothing, and say so. Where the work genuinely has no
    security or privacy surface, the lens discharges in one explicit line with
    grounds — the same shape as `review: not warranted`, and for the same
    reason: omission is the bug, and no one can disagree with a blank.
@@ -354,8 +369,10 @@ whichever path the economics favour:
   enters the queue as a `⏳` pointer for a non-author to take, never as an
   author-written brief.
 
-Either way the review stays **scoped and short**, and it is still spend — so it
-lives inside the "know which pool you're spending" rule.
+Either way the review stays **pre-scoped and short — short in ceremony, never
+in scope**: "scoped" bounds the *subject* handed to the reviewer, and within
+that subject the scope mandate above governs everything examined. It is still
+spend — so it lives inside the "know which pool you're spending" rule.
 
 ## What review is not
 
