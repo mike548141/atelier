@@ -392,7 +392,10 @@ CI, child-CI scanner floor, linkscan build + wiring) → [`ROADMAP-DONE.md`](ROA
       here (atelier is public). Do NOT interpret until Mike expands it.
       (Mike, 2026-07-22.)
 - [ ] **`MODEL-ECONOMICS.md` has outgrown its name — rename to `ECONOMICS.md`**
-      (Mike, 2026-07-21). The file now spans TWO spend pools — model tokens AND
+      (Mike, 2026-07-21). **DECIDED (Mike, 2026-07-22): rename to
+      `ECONOMICS.md`, do not split.** Naming settled — what remains is
+      execution only: the rename + full PROPAGATION ref sweep below.
+      The file now spans TWO spend pools — model tokens AND
       CI compute/runners (the "compute pool — CI minutes" + "runner class"
       sections) — and its load-bearing sections ("know which pool you're
       spending", "match ceremony to risk", "cost is the lowest precedence") are
@@ -413,6 +416,6 @@ CI, child-CI scanner floor, linkscan build + wiring) → [`ROADMAP-DONE.md`](ROA
       vendor-flavoured name among plain concept nouns, and the repo's
       plain-over-jargon rule favours "Economics" for a public audience.
       *review: light — a rename + ref sweep, not a doctrine change; the naming
-      call is Mike's (recommendation above).*
+      call was Mike's, now made (decision above).*
 
 Resolved questions (docker-heap standardisation, estate credential governance) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
