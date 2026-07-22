@@ -151,7 +151,11 @@ push-fast, RECORD's resumed-cold assumption, CONCURRENCY's orphan-claim
 reclaim, the twice-grounded cmd+Q sweep precedent). Three gaps remain; drafting
 all three as one change (Mike ratified 2026-07-22, "all three"):
 
-- [ ] **Harvest-integrity invariant — no live checkbox in ROADMAP-DONE**
+- [~] **Harvest-integrity invariant — no live checkbox in ROADMAP-DONE**
+  **RATIFIED 2026-07-22 (Mike): "I like this idea of embedding it into the
+  CI" — build as counselled (extend sizescan; CI embedding comes free via
+  the floor's existing `sizescan --check`).** (claimed 2026-07-22-0634,
+  wt: harvest-integrity-gate)
   (Mike, 2026-07-22; triggered by IR5 and confirmed real by its first manual
   run — see below). The invariant: `[ ]` / `[~]` / `⏳` state markers must
   never sit in `ROADMAP-DONE.md` — the archive records finished history, and
