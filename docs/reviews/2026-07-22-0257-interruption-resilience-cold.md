@@ -176,3 +176,18 @@ resolves (linkscan green on every commit this pass made).
 No MAJOR. Rule 3: IR1–IR4 are Mike's to decide; counsel recorded per
 finding. Per the close rule a no-MAJOR pass closes the cycle — the
 decided fixes apply without another full ceremony.
+
+### Finding added at the floor re-run (still pre-deferred)
+
+- **IR5 (MEDIUM, records hygiene — the shared floor is red on `main`)** —
+  the authoring session's records marked its ROADMAP item `[x]` and closed
+  without harvesting it, so `sizescan --check` fails at HEAD
+  (1 cold-content item) and the **floor workflow on `main` has failed on
+  every push since** (verified: last three runs red, cause reproduced
+  locally, rc=1). A standing red on the shared floor is worse than its
+  trigger: it masks real reds for every session until cleared. The fix is
+  the gate's own lossless move — harvest the `[x]` byte-verbatim to
+  `ROADMAP-DONE.md` — mechanical records hygiene, not doctrine, so this
+  pass will apply it in its records close and re-prove the floor green.
+  *Counsel for the doctrine itself: none — the gate worked exactly as
+  designed; the miss was the close litany, which RECORD already owns.*
