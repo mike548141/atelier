@@ -34,8 +34,31 @@ rule-4 cold passes all PASS no-MAJOR, applied `87af9f9`; the review-line
 artefact cycle — rule-4 cold pass PASS 0M/1M/5L, Mike's accept-all applied
 terminal, closed 2026-07-21; the REVIEW.md scope/lens-4 cycle — 2158 cold
 pass 2M/3M/2L → SL1–SL7 accept-all applied `d553045` → 0244 terminal
+no-MAJOR application pass, closed 2026-07-22; the harvest-integrity cycle —
+0819 pass 1M/3M/2n → HI-F1–F6 accept-all applied `30d350c` → 0943 terminal
 no-MAJOR application pass, closed 2026-07-22) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
+
+- [ ] 🎯 **HI application-pass residue — HA1–HA5, Mike's ruling** — five
+  findings from the terminal pass
+  ([`reviews/2026-07-22-0943-hi-application-cold.md`](reviews/2026-07-22-0943-hi-application-cold.md)),
+  decided into the backlog per the close rule; rule 3 makes them Mike's.
+  HA1 (M): the HI-F1 bypass conflates growth stores with non-content dirs —
+  a vendored `ROADMAP-DONE.md` under `node_modules/` or `.venv/` reds
+  `--check` (probed live) with remedy prose that can't apply to a foreign
+  file; counsel: split `SKIP_DIR_NAMES` into store vs non-content sets,
+  bypass only the former. HA2 (M): the unclosed-fence fix narrows its
+  fail-open, doesn't close it — a marker between a stray delimiter and a
+  later fenced snippet is silently cleared (count=0 demo in the verdict),
+  and the code comment overclaims "never hide one"; counsel: delimiters
+  unbalanced at EOF ⇒ recount the whole file with fences ignored. HA3 (L):
+  both CI surfaces (`ci.yml`, template `floor.yml`) still describe
+  `--check` as cold-content-only. HA4 (L): the template legend's "exactly
+  this grammar" overclaims — `⏳` also gates but isn't in the tri-state.
+  HA5 (L): RECORD.md antecedent drift ("And it carries a trigger").
+  *review: not warranted — the cycle's terminal pass reviewed the
+  surrounding text; HA1/HA2 land with their own red-leg tests through the
+  standing floor.*
 
 ## build/ layer — open strands
 
@@ -143,24 +166,6 @@ with section-vs-new-file settled by the builder on the text's actual size).
 Deliberately left for a **fresh session** to claim and build — the
 counsel's author closes out; the builder queues the rule-4 `⏳` when the
 doctrine lands.
-
-## Interruption resilience — surviving a mid-flight cut (Mike, 2026-07-22)
-
-Mike's four recurring interruptions — session-limit cut, network loss / API
-error (last night's RB5009 mis-route), a closed/cancelled question window, a
-cmd+Q on VS Code — are one shape: **work cut off mid-flight, then resumed or
-picked up by another session.** Doctrine already carries ~80% (commit-small-
-push-fast, RECORD's resumed-cold assumption, CONCURRENCY's orphan-claim
-reclaim, the twice-grounded cmd+Q sweep precedent). Three gaps remain; drafting
-all three as one change (Mike ratified 2026-07-22, "all three"):
-
-- [~] **HI application cold pass** (claimed 2026-07-22-0943, solo on `main`) — delta `30d350c` (2026-07-22, sizescan
-  HI-F1–F6 application: skip-dir bypass for stores, fence fail-safe,
-  RECORD.md + template edits); intent record:
-  [`sessions/2026-07-22-0819-harvest-integrity-cold-pass.md`](sessions/2026-07-22-0819-harvest-integrity-cold-pass.md)
-  (§ Addendum). Doctrine edit by the verdicts' author → rule-4 cold pass;
-  any non-author spawner passing rule 4's criterion may take it (the
-  applier neither takes nor spawns it).
 
 ## Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)
 

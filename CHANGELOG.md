@@ -5,6 +5,27 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Reviewed (2026-07-22 — HI application cold pass: 0 MAJOR, cycle CLOSED)
+- **The queued rule-4 pass on `30d350c` ran and closed the
+  harvest-integrity cycle** (taker: a Mike-spawned "do any review work"
+  session, author of none of the chain; verdict + reconcile:
+  `reviews/2026-07-22-0943-hi-application-cold.md`). Every recorded proof
+  re-ran green — suite 319, selftest, live scan, the red leg re-driven at
+  `30d350c^` (exactly the four new HI tests go red) — and all six [fixed]
+  stamps corroborated independently before the deferred material was
+  opened. **PASS-WITH-FINDINGS 0M/2M/3L**, decided into the backlog for
+  Mike (rule 3): HA1 — the HI-F1 bypass over-reaches its class (a
+  store-named file under `node_modules/`/`.venv/` reds `--check`, probed
+  live); HA2 — the unclosed-fence fix narrows its fail-open rather than
+  closing it (a marker between a stray delimiter and a later fenced
+  snippet is silently cleared; the comment's "never hide one" overclaims);
+  HA3–HA5 — CI comments still cold-content-only, template-legend
+  "exactly this grammar" overclaim, RECORD.md antecedent drift. Reconcile
+  traced HA1 to the 0819 counsel itself (applied faithfully — the
+  laundered-through-counsel class). Terminal per the close rule; no
+  further ceremony. The stale interruption-resilience ROADMAP section
+  (drafting long delivered) was harvested with the close.
+
 ### Changed (2026-07-22 — HI-F1–F6 ruled and applied: integrity checked wherever a store lives)
 - **Mike accepted all six cold-pass findings as counselled**; applied in
   `30d350c`. The MAJOR's fix: archive-store basenames now bypass the
