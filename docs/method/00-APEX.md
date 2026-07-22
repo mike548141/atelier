@@ -94,7 +94,7 @@ In practice:
   too, and escalates where it must (§ Who it binds). Effort spent turning
   experience into evidence is the investment this principle exists to protect.
   (Mike, 2026-07-22.)
-- **Doctrine changes ride on proof.** A decision that changes design, or
+- **Doctrine and design changes ride on proof.** A decision that changes design, or
   affects any part of the doctrine — apex, principles, decisions, or the
   doctrine as a whole — must be **evidence-based and proven with hard facts**,
   and that evidence must be **repeatable**, so it can be challenged and
@@ -103,6 +103,22 @@ In practice:
   practice — never invented to fill a heading — and a claim whose proof cannot
   be re-run is testimony, not evidence ([`EVIDENCE.md`](EVIDENCE.md)).
   (Mike, 2026-07-22.)
+
+  *The worked case for both bullets (ros, 2026-07-22):* a session reported an
+  SSH key "dead fleet-wide", attributed it to a strict-crypto policy gating the
+  key's algorithm, and recommended switching algorithms — or enabling password
+  authentication. Challenged, the diagnosis collapsed: it was an inference from
+  a client-side failure, never tested on the wire, and the "dead" key had
+  months of successful daily use behind it. The hard road — a bench campaign
+  with discriminating probes, every claim wire-captured and revert-verified —
+  proved the real cause elsewhere entirely (a client agent offering many keys
+  and exhausting the server's attempt limit, misread as a server refusal); the
+  key and the strict policy were both innocent, and the recommended policy flip
+  would have re-enabled only *weaker* algorithms. The evidence-based fix kept
+  the stronger key, kept the strict policy, and turned password authentication
+  *off* — the opposite of the testimony's direction — and three prior records
+  were corrected, possible only because the captures were repeatable enough to
+  be challenged and contrasted.
 - A lesson that changes nothing wasn't learned. Harvest, then encode: a
   learning lands in doctrine, a tool, or a record — and when a learning is
   refined, its stale claims are swept in the same commit
