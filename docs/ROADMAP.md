@@ -150,11 +150,12 @@ Mapping done 2026-07-22 (record:
 — A/B/E confirmed narrow, C reframed to mutable-tag CI actions, D dismissed
 instance-layer) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- [ ] **Doctrine edits for confirmed gaps A/B/C/E** — seams and rough sizes
+- [~] **Doctrine edits for confirmed gaps A/B/C/E** — seams and rough sizes
       proposed in the mapping record §3 (proposals, not decisions).
       Suggested first slice: SHA-pin the CI actions + a SECURITY.md — both
       live public-repo exposure. Self-authored doctrine: each edit lands
-      with its rule-4 `⏳`.
+      with its rule-4 `⏳`. (claimed 2026-07-22-1210, wt: sec-canon-edits —
+      both slices: C-pin + SECURITY.md, then the A/B/C/E doctrine text.)
 - **Already held — name, don't rebuild** (verified by the mapping,
   2026-07-22): automated scanning in the pipeline (the floor scanners), peer
   review before ship (REVIEW.md), least privilege (SECRETS triad), secrets
@@ -266,7 +267,8 @@ What remains is Mike's:
 
 Reconciliation drift closed 2026-07-22 (richest-record dedup; exact ccusage
 match on frozen data) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
-- [ ] **Actual spend (plan or usage) vs the API-usage estimate** — the money-side
+- [~] **Actual spend (plan or usage) vs the API-usage estimate** (claimed
+      2026-07-22-1210, wt: ccrepo-actual-spend) — the money-side
       analog of the ccusage cross-check. ccrepo's cost is an API-list-price
       *estimate*; the billing model (`ccrepo-billing.json`) already apportions a
       flat plan fee into an Actual column, but Mike wants to compare **what he
@@ -348,9 +350,21 @@ public as a **named worked example** (README "If you're adopting this"). What wa
 - [ ] **v2 plugin — CHOSEN 2026-07-13 (Mike's call): the next widening is
       spent here.** De-instance `create-repo` so it travels in the plugin, and
       ship `worktree` + `fleet-pins` as plugin commands — doctrine travelling
-      as behaviour, wider than the current bundle. Needs a scoping pass first
-      (what "de-instanced" means for a skill that stamps house identity), then
-      the build; go-live via PR like the v1 bundle, reviewed before merge.
+      as behaviour, wider than the current bundle. **Build done 2026-07-21 on
+      branch `v2-plugin-deinstance`** (the 1018 run's "stray" worktree,
+      re-read 2026-07-22: a complete, recorded delta — scoping ruled by Mike,
+      ADR `decisions/2026-07-21-0748-deinstance-create-repo-for-the-plugin.md`
+      accepted on the branch, floor green; parked pending review, not
+      mid-flight). Go-live (merge) stays Mike's call; owed after merge:
+      retire the superseded global `create-repo` skill (machine-local),
+      exercise the interactive fill + bundled-mode scaffold end-to-end.
+  - [~] ⏳ **v2-plugin de-instance review** — delta: branch
+        `v2-plugin-deinstance` (one commit, `1516ae1`) +
+        `decisions/2026-07-21-0748-deinstance-create-repo-for-the-plugin.md`;
+        intent record: that ADR + the branch's SESSIONS entry. Doctrine-
+        substantive, self-authored ⇒ rule 4. (claimed 2026-07-22-1210, taken
+        by the queue-run orchestrator — a session the delta's author neither
+        started nor instructed; taker writes the brief.)
 
 Completed sharing work (public release, the plugin bundle widening, atelier's own
 CI, child-CI scanner floor, linkscan build + wiring) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
