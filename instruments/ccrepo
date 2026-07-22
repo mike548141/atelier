@@ -363,13 +363,27 @@ function eventFrom(o, ctx) {
   };
 }
 
+// Keep the richest record for a dedup key: the one with the most tokens wins
+// (max-total-wins). Claude Code re-emits the same (message.id, requestId) on more
+// than one JSONL line — a streaming/replay artefact — and the copies can differ:
+// an earlier line carries the complete usage, a trailing line carries partial or
+// zeroed counts. Last-wins takes that trailing line and undercounts; first-wins
+// undercounts the other way (~4% on partial-first streams). The complete line is
+// always the max, so max-total-wins recovers it in both directions — and matches
+// ccusage exactly (measured $0.00 per-model on the static matched set; last-wins
+// left sonnet-5 short by ~1.5% via zero/partial-tail duplicate lines). For the
+// ordinary single-copy or ascending-stream case the final line already *is* the
+// max, so this is identical to last-wins there. Mutates `map`; returns nothing.
+function keepRicher(map, key, e) {
+  const prev = map.get(key);
+  if (!prev || (e.total || 0) > (prev.total || 0)) map.set(key, e);
+}
+
 // Walk every session log, emit one event per priced assistant message. Dedups on
-// (message.id, requestId) keeping the LAST occurrence — streaming writes partial
-// usage lines under one id and only the final line carries the complete token
-// counts, so last-wins matches ccusage (first-wins undercounts by ~4%). A message
+// (message.id, requestId) via keepRicher (max-total-wins, see above). A message
 // with no id is always kept. Returns events + encoded→label map + unpriced tally.
 function readAllEvents(covers, pricing) {
-  const byKey = new Map();     // (message.id|requestId) -> event, last wins
+  const byKey = new Map();     // (message.id|requestId) -> event, richest wins
   const noKey = [];            // events with no message.id
   const repoLabels = new Map();
   let dirs;
@@ -393,7 +407,7 @@ function readAllEvents(covers, pricing) {
         if (!e) continue;
         e._enc = enc;
         const mid = (o.message && o.message.id) || '';
-        if (mid) byKey.set(mid + '|' + (o.requestId || ''), e); else noKey.push(e);
+        if (mid) keepRicher(byKey, mid + '|' + (o.requestId || ''), e); else noKey.push(e);
       }
     }
     if (lab) repoLabels.set(enc, lab);
@@ -422,31 +436,38 @@ function runCcusage(passthrough) {
 // tests drive it with fixture arrays. Returns null when ccusage is unavailable.
 function reconcile(myEvents, ccuSessions) {
   if (!Array.isArray(ccuSessions)) return null;
-  const myP = new Map(), myM = new Map();
-  for (const e of myEvents) {
-    myP.set(e.session, (myP.get(e.session) || 0) + e.cost);
-    myM.set(e.model, (myM.get(e.model) || 0) + e.cost);
+  const myP = new Map();
+  for (const e of myEvents) myP.set(e.session, (myP.get(e.session) || 0) + e.cost);
+  const cuP = new Map();
+  for (const s of ccuSessions) cuP.set(s.period, (cuP.get(s.period) || 0) + (s.totalCost || 0));
+  // A session is comparable only when BOTH sides carry it. Everything — the total
+  // AND the per-model breakdown — is scoped to that matched set; a session only
+  // one side has (date-clip at the window edge, log pruning) is reported as a
+  // scope gap (myOnly/cuOnly), never smeared into a per-model delta. Scoping the
+  // total but not the per-model was the bug that made a handful of edge sessions
+  // read as "fable +8.9%, opus +7.0%" phantom drift.
+  const matchedSet = new Set();
+  let myTot = 0, cuTot = 0, myOnly = 0, cuOnly = 0;
+  for (const p of new Set([...myP.keys(), ...cuP.keys()])) {
+    const a = myP.get(p), b = cuP.get(p);
+    if (a != null && b != null) { myTot += a; cuTot += b; matchedSet.add(p); }
+    else if (a != null) myOnly++;
+    else cuOnly++;
   }
-  const cuP = new Map(), cuM = new Map();
+  const myM = new Map(), cuM = new Map();
+  for (const e of myEvents) if (matchedSet.has(e.session)) myM.set(e.model, (myM.get(e.model) || 0) + e.cost);
   for (const s of ccuSessions) {
-    cuP.set(s.period, (cuP.get(s.period) || 0) + (s.totalCost || 0));
+    if (!matchedSet.has(s.period)) continue;
     for (const mb of s.modelBreakdowns || []) {
       const m = shortModel(mb.modelName);
       cuM.set(m, (cuM.get(m) || 0) + (mb.cost || 0));
     }
   }
-  let myTot = 0, cuTot = 0, matched = 0, myOnly = 0, cuOnly = 0;
-  for (const p of new Set([...myP.keys(), ...cuP.keys()])) {
-    const a = myP.get(p), b = cuP.get(p);
-    if (a != null && b != null) { myTot += a; cuTot += b; matched++; }
-    else if (a != null) myOnly++;
-    else cuOnly++;
-  }
   const models = [...new Set([...myM.keys(), ...cuM.keys()])].map((m) => {
     const a = myM.get(m) || 0, b = cuM.get(m) || 0;
     return { model: m, mine: a, ccu: b, delta: a - b, pct: b ? (a - b) / b : (a ? Infinity : 0) };
   }).sort((x, y) => Math.abs(y.delta) - Math.abs(x.delta));
-  return { myTot, cuTot, delta: myTot - cuTot, pct: cuTot ? (myTot - cuTot) / cuTot : 0, matched, myOnly, cuOnly, models };
+  return { myTot, cuTot, delta: myTot - cuTot, pct: cuTot ? (myTot - cuTot) / cuTot : 0, matched: matchedSet.size, myOnly, cuOnly, models };
 }
 
 // --- billing model (Actual vs Est) — unchanged from v1 -------------------
@@ -866,6 +887,6 @@ module.exports = {
   zeroAgg, addTo, cacheHitRate, label,
   DIMS, TIME_DIMS, globMatch, buildDimFilter,
   groupTree, sortedEntries, treeRows, leafRows,
-  eventFrom, readAllEvents, reconcile,
+  eventFrom, keepRicher, readAllEvents, reconcile,
   loadBilling, coversPredicate, actualFor,
 };

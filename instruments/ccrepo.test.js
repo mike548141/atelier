@@ -279,8 +279,58 @@ test('reconcile compares per-session + per-model cost; null when ccusage absent'
   assert.ok(Math.abs(rec.cuTot - 15.5) < 1e-9);
   assert.ok(Math.abs(rec.delta - -0.5) < 1e-9);
   const opus = rec.models.find((m) => m.model === 'opus-4-8');
-  assert.ok(Math.abs(opus.delta - (12 - 10.5)) < 1e-9); // per-model uses ALL my events (10+2 vs 10.5)
+  // Per-model is scoped to the MATCHED sessions, same as the total: session 'c'
+  // (my-only) is excluded, so opus is 10 vs 10.5 — not 12 vs 10.5. A one-sided
+  // session is a scope gap (myOnly), never a phantom per-model delta.
+  assert.ok(Math.abs(opus.delta - (10 - 10.5)) < 1e-9);
+  const fable = rec.models.find((m) => m.model === 'fable-5');
+  assert.ok(Math.abs(fable.delta - 0) < 1e-9);     // b matched both sides
   assert.equal(r.reconcile(my, null), null);       // ccusage unavailable
+});
+
+test('reconcile: a session only ccusage has is cuOnly, kept out of per-model', () => {
+  const my = [{ session: 'a', model: 'opus-4-8', cost: 4 }];
+  const ccu = [
+    { period: 'a', totalCost: 4, modelBreakdowns: [{ modelName: 'claude-opus-4-8', cost: 4 }] },
+    { period: 'z', totalCost: 99, modelBreakdowns: [{ modelName: 'claude-fable-5', cost: 99 }] }, // ccu-only
+  ];
+  const rec = r.reconcile(my, ccu);
+  assert.equal(rec.matched, 1);
+  assert.equal(rec.cuOnly, 1);
+  // fable lives only in the unmatched 'z' → it must not appear as ccusage-side drift.
+  assert.equal(rec.models.find((m) => m.model === 'fable-5'), undefined);
+  const opus = rec.models.find((m) => m.model === 'opus-4-8');
+  assert.ok(Math.abs(opus.delta - 0) < 1e-9);
+});
+
+// --- dedup: max-total-wins (keepRicher) ----------------------------------
+
+test('keepRicher keeps the richest record per key; ordinary streams unaffected', () => {
+  const ev = (total) => ({ total });
+  // A duplicate (id,requestId) whose trailing line zeroes usage: last-wins would
+  // take the 0 and undercount (the live sonnet-5 class); keepRicher holds the full
+  // record. This is the whole per-model drift, recovered.
+  const m1 = new Map();
+  r.keepRicher(m1, 'k', ev(291340));   // complete line
+  r.keepRicher(m1, 'k', ev(0));        // zeroed trailing duplicate
+  assert.equal(m1.get('k').total, 291340);
+  // Ascending stream (partial → complete): the final line already IS the max, so
+  // keepRicher == last-wins here — no regression on the normal case.
+  const m2 = new Map();
+  r.keepRicher(m2, 'k', ev(10));
+  r.keepRicher(m2, 'k', ev(100));      // final, complete
+  assert.equal(m2.get('k').total, 100);
+  // Order-independent: richest wins regardless of arrival order (unlike last/first).
+  const m3 = new Map();
+  r.keepRicher(m3, 'k', ev(100));
+  r.keepRicher(m3, 'k', ev(40));       // partial arriving last
+  assert.equal(m3.get('k').total, 100);
+  // Distinct keys coexist; a missing total counts as 0.
+  const m4 = new Map();
+  r.keepRicher(m4, 'a', ev(5));
+  r.keepRicher(m4, 'b', {});           // no total → 0, still stored (first for its key)
+  assert.equal(m4.get('a').total, 5);
+  assert.equal(m4.size, 2);
 });
 
 // --- billing model (Actual vs Est) — carried from v1 ---------------------
