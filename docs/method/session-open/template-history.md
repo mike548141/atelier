@@ -2,6 +2,12 @@ I have a long list of work queued up in this repo. Please maximise my claude
 plan use by opening a session, giving it a prompt, and when its completes
 starting another.
 
+I would like you to start on work that: (a) any small work, loose ends, and
+things that unblock other work of closing of features that are most of the way
+to complete (b) whatever you think is best Carry on with any work in queue
+thats not claimed until the economics suggest a new session, or you do for
+other reasons.
+
 Lets use an fable session to orchestrate and Opus agents doing the work, but
 you are allowed to use fable for orchestration and/or agents if you need to. I
 will have multiple parallel sessions so take appropriate precautions like
