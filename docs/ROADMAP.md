@@ -154,7 +154,7 @@ push-fast, RECORD's resumed-cold assumption, CONCURRENCY's orphan-claim
 reclaim, the twice-grounded cmd+Q sweep precedent). Three gaps remain; drafting
 all three as one change (Mike ratified 2026-07-22, "all three"):
 
-- ⏳ **HI application cold pass** — delta `30d350c` (2026-07-22, sizescan
+- [~] **HI application cold pass** (claimed 2026-07-22-0943, solo on `main`) — delta `30d350c` (2026-07-22, sizescan
   HI-F1–F6 application: skip-dir bypass for stores, fence fail-safe,
   RECORD.md + template edits); intent record:
   [`sessions/2026-07-22-0819-harvest-integrity-cold-pass.md`](sessions/2026-07-22-0819-harvest-integrity-cold-pass.md)
