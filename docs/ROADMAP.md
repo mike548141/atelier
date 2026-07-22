@@ -39,7 +39,8 @@ no-MAJOR application pass, closed 2026-07-22; the harvest-integrity cycle —
 no-MAJOR application pass, closed 2026-07-22) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- ⏳ **SECRETS.md access-management expansion + ACCESS.md step-2 line** —
+- ⏳ **SECRETS.md access-management expansion + ACCESS.md step-2 line**
+  (claimed 2026-07-22-1018, wt: atelier-secrets-review) —
   delta: `caa85fe` (SECRETS.md sections: non-reuse rules, asymmetric keys,
   minting, exposure watch/roll/never-scrub, public-practice grounding;
   ACCESS.md step 2 minted-fresh line). Intent record:
@@ -167,7 +168,8 @@ same-session (SECRETS.md "Grounding in public practice", `caa85fe` — NIST SP
 divergence owned). The rest is a doctrine-wide sweep, deliberately not crammed
 into that delta:
 
-- [ ] **Map the public canon against `method/` + the scanner floor** — sources
+- [~] **Map the public canon against `method/` + the scanner floor**
+      (claimed 2026-07-22-1018, wt: atelier-sec-gap-map) — sources
       to work from: OWASP (ASVS, SAMM, cheat-sheet series), the
       [NCSC developers collection](https://www.ncsc.gov.uk/collection/developers-collection)
       (8 principles), NIST SSDF (SP 800-218), CIS Controls. Corroboration
@@ -250,7 +252,8 @@ touches REVIEW.md + EVIDENCE.md + the scanner floor); brief owed at pickup.*
 
 ### ccarchive (Mike, 2026-07-17)
 
-- [ ] **Restore from archive — full + delta** — replace mutated/missing local
+- [~] **Restore from archive — full + delta**
+      (claimed 2026-07-22-1018, wt: atelier-ccarchive-restore) — replace mutated/missing local
       files from the archive (gunzip `<dest>/<rel>.gz` → `~/.claude/projects/<rel>`).
       A full `--restore` and a delta mode that restores only what the local-store
       audit flags (now built — `--audit`'s `mutated`/`renamed`/`pruned` buckets
@@ -422,8 +425,8 @@ CI, child-CI scanner floor, linkscan build + wiring) → [`ROADMAP-DONE.md`](ROA
       (name + path) is kept in Mike's private note, deliberately NOT published
       here (atelier is public). Do NOT interpret until Mike expands it.
       (Mike, 2026-07-22.)
-- [ ] **`MODEL-ECONOMICS.md` has outgrown its name — rename to `ECONOMICS.md`**
-      (Mike, 2026-07-21). **DECIDED (Mike, 2026-07-22): rename to
+- [~] **`MODEL-ECONOMICS.md` has outgrown its name — rename to `ECONOMICS.md`**
+      (claimed 2026-07-22-1018, wt: atelier-econ-rename) (Mike, 2026-07-21). **DECIDED (Mike, 2026-07-22): rename to
       `ECONOMICS.md`, do not split.** Naming settled — what remains is
       execution only: the rename + full PROPAGATION ref sweep below.
       The file now spans TWO spend pools — model tokens AND
