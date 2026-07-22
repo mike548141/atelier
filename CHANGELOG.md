@@ -5,6 +5,15 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-22 — floor: sibling worktrees out of scanner reach)
+- Mid-records-commit, linkscan redded on a **sibling session's** freshly
+  created nested worktree (`.claude/worktrees/…`, an in-flight dangling
+  link) — another session's mid-flight tree must never gate this one's
+  commits. `.linkscanignore` + `.sizescanignore` now exclude
+  `.claude/worktrees/**`, the same nested-worktree class `.gitignore`
+  already fences for `git add -A`; the sibling's files untouched
+  (CONCURRENCY's never-work-around-a-stranger rule).
+
 ### Changed (2026-07-22 — HA1–HA5 ruled and applied: skip classes split, fence recount whole-file)
 - **Mike accepted all five terminal-pass findings as counselled**; applied
   in `120b777`. `SKIP_DIR_NAMES` split into `NON_CONTENT_DIR_NAMES` (VCS

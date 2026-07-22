@@ -72,3 +72,16 @@ Decisions stamped in the verdict (`68b50a8`). Application sanctioned by
 the backlog item's own `review: not warranted` line — the cycle stays
 closed, no further ceremony. Residue harvested to DONE; the `⏳` queue
 and the 🎯 backlog are both empty.
+
+## Addendum 2 — the floor caught a live sibling mid-commit
+
+The HA records commit was blocked by linkscan redding on a **sibling
+session's** freshly created nested worktree
+(`.claude/worktrees/secrets-access-mgmt` — a locked worktree with an
+in-flight dangling link to a session record not yet written; positive
+proof of a live parallel session). Their files untouched (CONCURRENCY:
+never work around a stranger's in-flight edits). Fix at the class:
+`.linkscanignore` + `.sizescanignore` now exclude `.claude/worktrees/**`
+— another session's mid-flight tree must never gate this one's commits;
+the same nested-worktree class `.gitignore` already fences for
+`git add -A`. Landed in `6fadfd6` with the records.
