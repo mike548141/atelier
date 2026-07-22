@@ -140,3 +140,15 @@ existed — flagged ⚠️ as "harden tools/ tests", not "solved". The worker
 survived one mid-flight API drop (resumed from transcript; nothing lost —
 its worktree was verified clean before resume). 🎯 S1–S5/V1–V7 rulings
 queued for Mike. Worktree put away.
+
+**1120 · cc-instruments open questions — landed.** Worker (Opus) answered
+both queued questions with measurement, not opinion (`5ce9f00`, merged
+`--no-ff`): the metadata question found a genuine honesty defect — ccarchive
+walks `projects/**/*.jsonl` only, so `tool-results/` sidecars (offloaded
+tool-output payloads the transcript points at, ≈7% of volume) are silently
+missed while the docs advertise a word-for-word complete record; CAPTURE
+recommended, with `memory/*.md` and `history.jsonl` as 🎯 needs-Mike calls.
+The merge question: keep separate — shared code measured at ~10 lines, and
+fusing would couple the archive's schema-immunity to the reader's
+schema-fragile parser (ADR 0006's observe/preserve verbs); counter-case
+captured, middle path named. 🎯 both rulings queued. Worktree put away.

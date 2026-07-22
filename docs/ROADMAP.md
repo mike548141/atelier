@@ -294,14 +294,29 @@ touches REVIEW.md + EVIDENCE.md + the scanner floor); brief owed at pickup.*
       archive** — `~/.claude` or the macOS Keychain) so `--verify` detects a
       forged manifest, raising the anchor from "accidental corruption" to
       "tamper-evident". Key location/rotation is the real design question.
-- [~] **Is there any metadata that ccarchive misses?**
-      (claimed 2026-07-22-1047, wt: atelier-cc-questions) (Mike, 2026-07-22) —
-      open question to work later: does the archive capture everything worth
-      keeping, or is there session/project metadata it leaves behind?
-- [~] **Should cctranscript and ccarchive be one?**
-      (claimed 2026-07-22-1047, wt: atelier-cc-questions) (Mike, 2026-07-22) — open
-      question to work later: `cctranscript` reads the logs, `ccarchive` keeps
-      them — worth deciding whether they should be a single instrument.
+- [x] **Is there any metadata that ccarchive misses?** — answered 2026-07-22
+      (wave-3 queue run, `5ce9f00`): yes. The real hole is
+      `tool-results/` sidecars — offloaded tool-output payloads the
+      transcript only points at, so the archive can hold dangling references
+      while advertising a complete record (≈7% of transcript volume;
+      recommendation: CAPTURE, plus man-page honesty about what is excluded
+      regardless). Full classification (capture / exclude-and-document /
+      needs-Mike) in
+      [`sessions/2026-07-22-1050-cc-instruments-questions.md`](sessions/2026-07-22-1050-cc-instruments-questions.md).
+- [ ] 🎯 **Rule on the metadata classes** — needs-Mike calls: per-project
+      `memory/*.md` (durable cross-session state, most personal) and
+      top-level `history.jsonl` (typed-prompt stream, lean-exclude
+      counselled); plus approve/decline the CAPTURE of tool-result sidecars
+      (a build item once ruled).
+- [x] **Should cctranscript and ccarchive be one?** — analysed 2026-07-22
+      (wave-3 queue run, same record): **keep separate** counselled. Measured
+      shared code is ~10 lines; merging would couple ccarchive's
+      schema-immunity (the property guarding the sole durable copy) to
+      cctranscript's schema-fragile parser, and blur ADR 0006's observe vs
+      preserve verbs. Counter-case captured (natural pipeline pair → argues
+      for a `--source <archive>` flag on the reader, not a merge); middle
+      path (shared lib) only if shared code crosses ~40–50 lines. 🎯 Mike's
+      call whether to accept the recommendation; no work owed until then.
 
 ### ccrepo (Mike, 2026-07-17)
 
