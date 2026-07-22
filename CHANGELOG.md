@@ -5,6 +5,33 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-22 — second orchestrated queue run, 1210: four items per-item)
+- **Root `SECURITY.md` + child template** (`85157c3`): private-disclosure
+  policy (GitHub advisories, honest best-effort window, no invented
+  SLA/bounty), registered in REPO-STANDARD as a publish-time artifact like
+  LICENSE. Part of closing the security-canon gaps A/B/C/E.
+- **ccrepo actual-spend reconciliation** (`1711711`): machine-local `spend`
+  block (plan or usage mode) compared against the API-list-price estimate,
+  Δ $ and %, honest partial/unavailable degradation, JSON/CSV meta; +6
+  tests (139 green). Also fixed a pre-existing USD×rate² defect in the
+  Actual footnote (the column was always right).
+- **v2-plugin de-instance rule-4 verdict delivered**
+  (`reviews/2026-07-22-1215-v2-plugin-deinstance-cold.md`):
+  PASS-WITH-FINDINGS 2M/3M/1L/2n, VP1–VP8 to Mike; merge stays his call.
+- **Person-context portability design pass** (records-only,
+  `sessions/2026-07-22-1233-…`): constraints, 8-threat pass, per-leg
+  candidates, argued recommendations; D1–D5 to Mike.
+
+### Changed (2026-07-22 — second queue run, continued)
+- **Every third-party CI action SHA-pinned** (`85157c3`): ci.yml + all child
+  workflow templates, tag kept as trailing comment, five tag→SHA
+  resolutions verified live twice (worker + orchestrator independently).
+- **Doctrine seams for canon gaps A/B/E** (`85157c3`): REVIEW.md names the
+  right-sized threat pass as a build step and gives security findings
+  severity + recurrence-prevention; PRINCIPLES §5 secure-by-default, §8
+  zero-dep-as-supply-chain-control with the residual named in
+  tools/README. Rule-4 `⏳` queued — the building run may not take it.
+
 ### Added (2026-07-22 — orchestrated queue run: ten items landed per-item)
 - **The queue-run pattern is doctrine + a bundled skill** (`343def8`,
   `8111e9f`): CONCURRENCY § Orchestrated queue runs (role check, selection

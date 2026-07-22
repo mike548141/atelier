@@ -99,3 +99,51 @@ different system, not "a sync problem" — exactly the item's framing.
 🎯 D1–D5 to Mike on the ROADMAP; build steps and doctrine edits
 deliberately undecided behind them. Review stance: records-only capture,
 WARRANTED at build/doctrine time (gap-map precedent).
+
+## Stop condition and the 🎯 report
+
+**Stopped 1250 UTC on "everything left is blocked"** — the queue is drained
+to the principal. Every item the run could not progress, and why:
+
+- 🎯 **VP1–VP8** (v2-plugin cold pass, this run) — rulings + the merge/go-live
+  call. The reviewer counsels both MAJORs precede merge.
+- 🎯 **QR1–QR9, SA1–SA8** (prior cold passes) — standing rulings.
+- 🎯 **Invariant candidates S1–S5 / V1–V7**; the anti-slop build items queue
+  behind them.
+- 🎯 **ccarchive metadata classes + signing defaults**; 🎯 **ccrepo spend
+  config** (new this run — the machine-local file doesn't exist yet).
+- 🎯 **D1–D5** (portability design, this run); "resume any project from any
+  device" parks behind them.
+- 🎯 **Checkbox grammar five-state question**; **session archive decide**;
+  **floor-template duplicate trigger** (estate's call per repo).
+- ⏳ **security-canon A/B/C/E cold pass** — queued this run; **rule-4-barred
+  to this run** (its worker built the delta). A fresh principal-started
+  session passes the criterion and can take it first thing.
+- **Warn→block signing flip** — Mike's call + Mike's rotations; **SBOM/
+  artifact signing** — deferred behind a first release; **scaffold.py** —
+  trigger (a recurring stamp defect) not met; **peer adoption + the
+  AUTONOMY/STORAGE practice-instance restructure** — gated on a real
+  adopter; **Mike's two raw notes** (honesty/truth/transparency; the Teams
+  chat) — do-not-interpret, his to expand.
+- **Fleet children floor.yml/pin adoption** — 12/12 behind per
+  `tools/pins.py`, but a pin bump is the tool's own "deliberate per-repo
+  act" run from inside each child; out of this run's lane by design.
+  Follow-on: per-child sessions (each also inherits the new SHA-pinned
+  floor.yml and SECURITY.md template at its bump).
+
+## Honesty ledger
+
+- The 1018 run's stray-worktree call was *revised, not overturned*: with a
+  day's distance the evidence (complete commit, recorded handoff, queued ⏳
+  inside the delta) reads as parked-pending-review; the merge disposition
+  remains Mike's exactly as that run left it.
+- The ccrepo worker found and fixed a pre-existing rate² defect outside its
+  brief; the orchestrator verified it line-by-line before accepting — flagged
+  here because accepting unasked fixes is a judgement, not a default.
+- The security worker diverged from the gap map in six named ways (see the
+  1240 close); all six were accepted on review as better-grounded than the
+  proposals they replaced.
+- Orchestrator model: Fable (role check passed at open); workers: Opus ×2
+  (build), Fable ×2 (cold review; design pass — the rework rule). All worker
+  worktrees put away; `atelier-v2-plugin-deinstance` deliberately remains —
+  it is the pending-merge branch, Mike's disposition.
