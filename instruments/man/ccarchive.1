@@ -13,6 +13,11 @@ ccarchive \- durably preserve every Claude Code transcript, word for word
 .RI [ \-\-dest
 .IR dir ]
 .br
+.B ccarchive \-\-restore
+.RI [ \-\-delta ]
+.RI [ \-\-dry\-run ]
+.RI [ \-\-force ]
+.br
 .B ccarchive \-\-install\-schedule
 |
 .B \-\-schedule\-status
@@ -78,12 +83,19 @@ instead of
 Mainly for testing.
 .TP
 .B \-\-dry\-run
-Report what would be archived and write nothing.
+Report what would be archived (or, with
+.BR \-\-restore ,
+restored) and write nothing.
 .TP
 .B \-\-force
 Overwrite an archived copy even when the source is smaller than the size
 recorded at capture. Without it such a shrink is refused \(em see
 .B INTEGRITY
+below. With
+.BR \-\-restore ,
+it also overrides the refusal to overwrite a live file that is newer than the
+archived copy \(em see
+.B RESTORE
 below.
 .TP
 .B \-\-allow\-repo\-dest
@@ -105,6 +117,32 @@ preserved \(em mutated, renamed, grown, new or pruned transcripts. Read-only.
 See
 .B AUDIT
 below.
+.TP
+.B \-\-restore
+Restore transcripts from the archive back into the live store: gunzip each
+.IR <dest>/<rel> .jsonl.gz
+to
+.IR <source>/<rel> .jsonl.
+By default every archived transcript is a target (rebuild a lost store); with
+.B \-\-delta
+only the drift
+.BR \-\-audit
+reports is. Writes only under the source. See
+.B RESTORE
+below.
+.TP
+.B \-\-delta
+With
+.BR \-\-restore ,
+restore only what
+.B \-\-audit
+flags as drift \(em the
+.BR mutated ,
+.B pruned
+and
+.B renamed
+buckets \(em rather than the whole archive. Ignored without
+.BR \-\-restore .
 .TP
 .B \-\-install\-schedule
 Install and load a scheduled job that runs
@@ -251,6 +289,77 @@ keyed by a stale path. Those exit non-zero and are listed by name;
 and
 .B pruned
 are normal and only counted. The audit reads both trees and writes nothing.
+.SH RESTORE
+.B \-\-restore
+is the inverse of archiving: it decompresses archived transcripts back into the
+live store, gunzipping each
+.IR <dest>/<rel> .jsonl.gz
+to
+.IR <source>/<rel> .jsonl.
+It has two shapes. Plain
+.B \-\-restore
+targets every transcript in the manifest \(em the tool for rebuilding a live
+store that was wiped or lost, or seeding a new machine from the archive.
+.B \-\-restore \-\-delta
+targets only the drift
+.B \-\-audit
+reports \(em the
+.BR mutated ,
+.B pruned
+and
+.B renamed
+buckets \(em repairing in place rather than rewriting everything.
+.PP
+Safety is
+.B content-first,
+because the archive is a point-in-time copy and a live file can legitimately be
+.I ahead
+of it. Restore never overwrites an
+.B identical
+live file (nothing to do), and never overwrites a live file the archived copy is
+a strict
+.B prefix
+of \(em the
+.B grown
+bucket, an in-flight session that has appended since the last archive run.
+Overwriting that would drop the live tail the archive never held, so
+.B grown is not a restore target
+\(em enforced by comparing bytes, not by trusting a modification time.
+.PP
+A live file that has diverged some
+.I other
+way (rewritten or truncated) but carries a
+.B newer
+modification time than the archived copy may be a fresh in-flight rewrite.
+Restore
+.B refuses
+it \(em loudly, with a non-zero exit \(em rather than overwriting silently;
+.B \-\-force
+is the deliberate override. Targets with no live file at the restore path (the
+.B pruned
+and
+.B renamed
+cases) cannot clobber anything and are always written.
+.PP
+The
+.B renamed
+bucket restores the
+.I old,
+archived path. The archive is keyed by the path the transcript had when it was
+captured; a rename left that path empty in the live store and moved the content
+to a new one. Restore re-materialises the archived (old) path and leaves the
+live renamed copy at its new path untouched \(em the content is byte-identical,
+so this adds a copy under the old name rather than moving anything, and never
+destroys the live rename. A restored file is stamped with the archived copy's
+modification
+time, so a following
+.B \-\-audit
+reads it as
+.B synced
+and a repeated restore is idempotent.
+.B \-\-dry\-run
+previews the plan and writes nothing. Restore writes only under the source tree;
+a manifest key that would resolve outside it is refused.
 .SH FILES
 .TP
 .I ~/.claude/projects/
@@ -287,6 +396,13 @@ this after restoring the archive to a new machine.
 .B ccarchive \-\-audit
 Report whether any live transcript has drifted (been rewritten, truncated or
 moved) from what the archive preserved.
+.TP
+.B ccarchive \-\-restore \-\-delta \-\-dry\-run
+Preview the transcripts a delta restore would replace, writing nothing.
+.TP
+.B ccarchive \-\-restore
+Rebuild the live store from the archive \(em restore every archived transcript,
+skipping any that already match or that the live store is ahead of.
 .TP
 .B ccarchive \-\-dest ~/backup/cc
 Archive somewhere other than iCloud Drive.
@@ -325,6 +441,17 @@ or
 .B renamed
 transcript.
 Growth, new files and pruning are expected and exit
+.BR 0 .
+.B \-\-restore
+exits
+.B 1
+when it refuses to overwrite a live file newer than the archived copy
+.RB ( \-\-force
+overrides), or when a target it was asked to restore is absent from the archive
+(a manifest entry whose
+.I .gz
+is gone). A restore that only writes, skips identical or ahead files, or has
+nothing to do exits
 .BR 0 .
 .SH NOTES
 The default destination is the operator's iCloud Drive, derived at runtime

@@ -547,3 +547,243 @@ test('drift guard: every flag --help prints appears in the man page (superset re
     assert.ok(pageFlat.includes(flag), `man page must document ${flag} (--help is the digest, the page the superset)`);
   }
 });
+
+// --- restore: archive → live store ---------------------------------------
+// The inverse of --audit. Pure decision helpers first, then the two shapes
+// (full / delta) driven over a fixture tree: bucket by bucket, plus the two
+// safety rails — the newer-live refusal and the grown-bucket exclusion.
+
+function runRestore(src, dest, ...flags) {
+  const r = spawnSync('node', [SCRIPT, '--restore', '--json', '--source', src, '--dest', dest, ...flags],
+    { encoding: 'utf8' });
+  return { status: r.status, report: r.stdout ? JSON.parse(r.stdout) : null, stderr: r.stderr };
+}
+
+// The archived copy's stamped mtime (ms) — the reference the newer-live rule uses.
+function gzMtimeMs(dest, rel) {
+  return fs.statSync(path.join(dest, rel + '.gz')).mtimeMs;
+}
+
+test('classifyRestore: no live file is a plain restore (missing)', () => {
+  const a = Buffer.from('{"turn":1}\n');
+  assert.deepEqual(cc.classifyRestore(a, null, 1000, null, false), { action: 'restore', reason: 'missing' });
+});
+
+test('classifyRestore: an identical live file is skipped, never rewritten', () => {
+  const a = Buffer.from('{"turn":1}\n');
+  assert.deepEqual(cc.classifyRestore(a, Buffer.from('{"turn":1}\n'), 1000, 9999, false),
+    { action: 'skip', reason: 'identical' });   // newer mtime is irrelevant when bytes match
+});
+
+test('classifyRestore: a live file the archive is a prefix of is ahead (grown) — skipped, not a target', () => {
+  const a = Buffer.from('{"turn":1}\n');
+  const live = Buffer.from('{"turn":1}\n{"turn":2}\n');   // archive is a strict prefix
+  assert.deepEqual(cc.classifyRestore(a, live, 1000, 500, false), { action: 'skip', reason: 'ahead' });
+});
+
+test('classifyRestore: a diverged, newer live file is refused unless forced', () => {
+  const a = Buffer.from('{"turn":1}\n{"turn":2}\n');
+  const live = Buffer.from('{"rewritten":true}\n');
+  assert.deepEqual(cc.classifyRestore(a, live, 1000, 5000, false), { action: 'refuse', reason: 'newer' });
+  assert.deepEqual(cc.classifyRestore(a, live, 1000, 5000, true), { action: 'restore', reason: 'forced-newer' });
+});
+
+test('classifyRestore: a diverged, not-newer live file restores (the archive is at least as recent)', () => {
+  const a = Buffer.from('{"turn":1}\n{"turn":2}\n');
+  assert.deepEqual(cc.classifyRestore(a, Buffer.from('{"rewritten":true}\n'), 5000, 1000, false),
+    { action: 'restore', reason: 'rewritten' });
+  assert.deepEqual(cc.classifyRestore(a, a.subarray(0, 5), 5000, 1000, false),
+    { action: 'restore', reason: 'shrunk' });
+});
+
+test('isInsideRoot: a target under the root passes; an equal or escaping path fails', () => {
+  assert.equal(cc.isInsideRoot('/src', '/src/-repo/a.jsonl'), true);
+  assert.equal(cc.isInsideRoot('/src', '/src'), false);              // the root itself is not a target
+  assert.equal(cc.isInsideRoot('/src', '/src/../evil.jsonl'), false); // zip-slip escape
+  assert.equal(cc.isInsideRoot('/src', '/elsewhere/x.jsonl'), false);
+});
+
+test('contract: --restore with no manifest exits 1 (nothing to restore from)', () => {
+  const { dir } = makeTree();
+  const emptyDest = path.join(dir, 'empty-archive');
+  const r = runRestore(path.join(dir, 'projects'), emptyDest);
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /nothing to restore/);
+});
+
+test('contract: full --restore rebuilds a wiped live store, byte-identical, and re-audits clean', () => {
+  const { dir, src, dest } = makeTree();
+  runJson(src, dest);                                   // archive all three
+  const originals = {};
+  for (const rel of ['-repo-a/uuid1.jsonl', '-repo-a/uuid1/subagents/agent-x.jsonl', '-repo-b/uuid2.jsonl']) {
+    originals[rel] = fs.readFileSync(path.join(src, rel));
+  }
+  fs.rmSync(src, { recursive: true });                  // the whole live store is lost
+  assert.ok(!fs.existsSync(src));
+
+  const r = runRestore(src, dest);
+  assert.equal(r.status, 0);
+  assert.equal(r.report.mode, 'full');
+  assert.equal(r.report.restored.length, 3);
+  for (const [rel, bytes] of Object.entries(originals)) {
+    assert.deepEqual(fs.readFileSync(path.join(src, rel)), bytes, `${rel} restored byte-identical`);
+  }
+  // The rebuilt store now matches the archive.
+  assert.equal(runCli('--audit', '--source', src, '--dest', dest, '--json').status, 0);
+});
+
+test('contract: full --restore is idempotent — a second run skips every identical file (exit 0)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const r = runRestore(src, dest);                      // store already matches archive
+  assert.equal(r.status, 0);
+  assert.equal(r.report.restored.length, 0);
+  assert.equal(r.report.skipped.filter((s) => s.reason === 'identical').length, 3);
+});
+
+test('contract: delta --restore repairs a mutated live file, leaving synced siblings alone', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const rel = path.join('-repo-b', 'uuid2.jsonl');
+  const f = path.join(src, rel);
+  const archived = zlib.gunzipSync(fs.readFileSync(path.join(dest, rel + '.gz')));
+  fs.writeFileSync(f, '{"rewritten":"whole"}\n');       // mutated (not a growth)
+  const past = gzMtimeMs(dest, rel) / 1000 - 10;        // older than the archive → not in-flight
+  fs.utimesSync(f, past, past);
+
+  const r = runRestore(src, dest, '--delta');
+  assert.equal(r.status, 0);
+  assert.equal(r.report.mode, 'delta');
+  assert.equal(r.report.considered, 1);                 // only the mutated file is a target
+  assert.equal(r.report.restored.length, 1);
+  assert.equal(r.report.restored[0].rel, rel);
+  assert.equal(r.report.restored[0].reason, 'rewritten');
+  assert.deepEqual(fs.readFileSync(f), archived, 'the mutated file is back to the archived bytes');
+});
+
+test('contract: delta --restore rehydrates a pruned (deleted) live file', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const rel = path.join('-repo-b', 'uuid2.jsonl');
+  const archived = zlib.gunzipSync(fs.readFileSync(path.join(dest, rel + '.gz')));
+  fs.rmSync(path.join(src, rel));                        // Claude Code cleanup / accidental delete
+
+  const r = runRestore(src, dest, '--delta');
+  assert.equal(r.status, 0);
+  assert.equal(r.report.restored.length, 1);
+  assert.equal(r.report.restored[0].reason, 'missing');
+  assert.deepEqual(fs.readFileSync(path.join(src, rel)), archived);
+});
+
+test('contract: delta --restore re-materialises a renamed OLD path and leaves the live rename untouched', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const from = path.join('-repo-b', 'uuid2.jsonl');
+  const to = path.join('-repo-b', 'renamed.jsonl');
+  const archived = zlib.gunzipSync(fs.readFileSync(path.join(dest, from + '.gz')));
+  fs.renameSync(path.join(src, from), path.join(src, to));   // move without re-archiving
+
+  const r = runRestore(src, dest, '--delta');
+  assert.equal(r.status, 0);
+  assert.equal(r.report.restored.length, 1);
+  assert.equal(r.report.restored[0].rel, from, 'restores the archived (old) path');
+  // Old path re-materialised from the archive…
+  assert.deepEqual(fs.readFileSync(path.join(src, from)), archived);
+  // …and the live renamed copy at the new path is left exactly as it was.
+  assert.deepEqual(fs.readFileSync(path.join(src, to)), archived);
+});
+
+test('contract: the grown bucket is never a restore target — full skips it (ahead), delta ignores it', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const rel = path.join('-repo-b', 'uuid2.jsonl');
+  const f = path.join(src, rel);
+  fs.appendFileSync(f, '{"turn":"appended-in-flight"}\n');   // archived bytes stay a prefix → grown
+  const grownBytes = fs.readFileSync(f);
+
+  // Full restore must NOT clobber it — the live tail would be lost.
+  const full = runRestore(src, dest);
+  assert.equal(full.status, 0);
+  assert.equal(full.report.restored.find((x) => x.rel === rel), undefined, 'grown file is not restored');
+  assert.ok(full.report.skipped.some((s) => s.rel === rel && s.reason === 'ahead'));
+  assert.deepEqual(fs.readFileSync(f), grownBytes, 'the in-flight append survives a full restore');
+
+  // Delta restore does not even consider it (it is not audit drift).
+  const delta = runRestore(src, dest, '--delta');
+  assert.equal(delta.status, 0);
+  assert.equal(delta.report.considered, 0);
+  assert.deepEqual(fs.readFileSync(f), grownBytes);
+});
+
+test('contract: a mutated live file NEWER than the archive is refused (exit 1), untouched; --force overwrites', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const rel = path.join('-repo-b', 'uuid2.jsonl');
+  const f = path.join(src, rel);
+  const archived = zlib.gunzipSync(fs.readFileSync(path.join(dest, rel + '.gz')));
+  fs.writeFileSync(f, '{"maybe":"in-flight rewrite"}\n');    // diverged, not a growth
+  const future = gzMtimeMs(dest, rel) / 1000 + 10;           // newer than the archive
+  fs.utimesSync(f, future, future);
+  const mutatedBytes = fs.readFileSync(f);
+
+  const refused = runRestore(src, dest, '--delta');
+  assert.equal(refused.status, 1, 'a newer live file must not be silently overwritten');
+  assert.equal(refused.report.refused.length, 1);
+  assert.equal(refused.report.refused[0].rel, rel);
+  assert.equal(refused.report.refused[0].reason, 'newer');
+  assert.deepEqual(fs.readFileSync(f), mutatedBytes, 'the live file is left intact behind the refusal');
+
+  // The human report also names the refusal on a non-zero exit.
+  const human = runCli('--restore', '--delta', '--source', src, '--dest', dest);
+  assert.equal(human.status, 1);
+  assert.match(human.stdout, /REFUSED.*uuid2\.jsonl/);
+  assert.match(human.stdout, /newer than the archived copy/);
+
+  // --force is the deliberate override.
+  const forced = runRestore(src, dest, '--delta', '--force');
+  assert.equal(forced.status, 0);
+  assert.equal(forced.report.restored.length, 1);
+  assert.equal(forced.report.restored[0].reason, 'forced-newer');
+  assert.deepEqual(fs.readFileSync(f), archived);
+});
+
+test('contract: --restore --dry-run previews the plan and writes nothing', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const rel = path.join('-repo-b', 'uuid2.jsonl');
+  fs.rmSync(path.join(src, rel));                            // a pruned file to rehydrate
+  const r = runRestore(src, dest, '--delta', '--dry-run');
+  assert.equal(r.status, 0);
+  assert.equal(r.report.dryRun, true);
+  assert.equal(r.report.restored.length, 1);                // reported…
+  assert.ok(!fs.existsSync(path.join(src, rel)), '…but nothing written on a dry run');
+});
+
+test('contract: restore refuses a manifest key that would escape the live root (exit 1, writes nothing outside)', () => {
+  const { dir } = makeTree();
+  const src = path.join(dir, 'restore-target');
+  const dest = path.join(dir, 'evil-archive');
+  fs.mkdirSync(src, { recursive: true });
+  // A hand-built manifest whose key climbs out of the source tree (zip-slip).
+  cc.saveManifest(dest, { '../escaped.jsonl': { sha256: 'x', rawBytes: 1 } });
+  const escapee = path.join(dir, 'escaped.jsonl');
+  assert.ok(!fs.existsSync(escapee));
+
+  const r = runRestore(src, dest);
+  assert.equal(r.status, 1);
+  assert.equal(r.report.errors.length, 1);
+  assert.equal(r.report.errors[0].reason, 'escapes-root');
+  assert.ok(!fs.existsSync(escapee), 'no write may land outside the live root');
+});
+
+test('contract: restore reports a manifest entry whose .gz is gone as an error (exit 1)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const rel = path.join('-repo-b', 'uuid2.jsonl');
+  fs.rmSync(path.join(src, rel));                            // pruned live…
+  fs.rmSync(path.join(dest, rel + '.gz'));                   // …and the archive copy is also gone
+  const r = runRestore(src, dest, '--delta');
+  assert.equal(r.status, 1);
+  assert.equal(r.report.errors.length, 1);
+  assert.equal(r.report.errors[0].reason, 'no-archive');
+});
