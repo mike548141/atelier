@@ -180,3 +180,32 @@ improvement in its own right.
 No MAJOR. Per the close rule this pass is **terminal**: the cycle closes,
 AC1–AC2 go to the backlog for the principal's decision, and this
 application does not spawn another full ceremony.
+
+### Reconcile — what the deferred material changed
+
+Nothing overturned; one finding sharpened. Opened after the verdict above
+was committed (`35e2856`): the prior verdict + decision stamps, the intent
+record + addendum, and `913c81a`.
+
+- **Every [fixed] stamp corroborated independently.** All seven SL rulings
+  match what this pass verified at HEAD *before* reading them: SL1's parity
+  floor (red leg re-driven here), SL2's reach-per-shape rewrite with the
+  permissive grant restored — confirmed against the follow-up's "decide
+  mandate vs permissive to match the grant" — SL3/SL4's template sweeps,
+  SL5's "short in ceremony, never in scope", SL6's grounds burden, SL7's
+  reflow. The prior pass's follow-up counsel ("consider a mechanical parity
+  check… this drift class has now shipped twice") is exactly what landed.
+- **AC1 sharpened, severity unchanged (LOW).** SL7 fixed a ~90-char wrap
+  artefact and a stub; SL3's own edit introduced a 122-col line in
+  CONTRIBUTING — the fixing commit re-shipped the class it was fixing, in a
+  different file. Same counsel: one-line rewrap.
+- **AC2 confirmed in-bounds.** The rulings put both live-proven cautions in
+  REVIEW.md (done) and "the scanner clause" in the skill (done); the
+  exclusion-barred caution's absence from the *skill* contradicts no
+  ruling — it is compression loss at the point of use, LOW as filed.
+- The two-hop spawn account and the applier's claims in the intent record
+  are consistent with the evidence trail this pass re-ran; no claim was
+  taken on trust that had not already been reproduced.
+
+**Final: PASS, no MAJOR — the cycle closes.** AC1–AC2 to the backlog for
+the principal (rule 3); no further ceremony spawned, per the close rule.
