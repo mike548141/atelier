@@ -82,3 +82,128 @@ self-authored doctrine).
 - The record commits `f86e6ef`, `4e6e891`, `cc0bed3`
 - The author seeded no questions; there is no author-written ask anywhere in
   this file. Everything above the divider is taker-written.
+
+---
+
+## Verdict — PASS-WITH-FINDINGS, no MAJOR (committed before any deferred material was opened)
+
+**Provenance restated (rule 4):** this reviewer is the Mike-spawned taker
+("please do any review work"); it authored none of the sizescan doctrine,
+the HI-F1–F6 findings, or their application. Everything in this section was
+written without opening the prior verdict file, the decision stamps
+(`cfb0ae6`), or the applier's intent record. Subject pinned at `30d350c`,
+reviewed at HEAD (`b6737cc`); tree solo (no claims, no foreign edits; the
+claim commit collided with nothing).
+
+**Additional exposure incurred mid-pass, named:** reading the delta via
+`git show 30d350c` put the applier's full commit message — its evaluative
+account and proof claims ("suite 314→319 green; both original fail-open
+repros re-driven"; the six per-finding fix summaries) — in front of this
+reviewer before findings were drafted. Unavoidable for a landed-delta
+review (the diff and its message travel together); every claim in it was
+treated as a claim to re-run, and all were re-run below. Named, not denied.
+
+### Attack surface (named as the first act)
+
+- **A1 — the HI-F1 bypass actually reaches the stores it claims.**
+  CONFIRMED by live re-drive: a `SESSIONS-ARCHIVE.md` carrying `- [ ]`
+  under `docs/sessions/` exits 1 under `--check`; same for a store under
+  `_archive/`. Red leg re-driven: with `tools/sizescan.py` reverted to
+  `30d350c^` against HEAD's tests, exactly the four new HI tests go red
+  (2 failures + 2 errors, `Ran 59`); restored, green. But the bypass
+  over-reaches its class — HA1 below.
+- **A2 — the HI-F2 fence fail-safe genuinely fails safe.** PARTIAL: the
+  named repro (stray fence, marker in the swallowed tail) now counts and
+  gates — re-driven, exit 1. But the invariant the comment claims ("an
+  unclosed fence must surface a marker, never hide one") is falsified by
+  construction — HA2 below.
+- **A3 — counter parity.** CONFIRMED structurally: both counters route
+  through the shared `_count_list_items`; the cold-count side carries its
+  own unclosed-fence test. A `[x]` swallowed by a stray fence in a
+  ROADMAP.md counts (test re-run green).
+- **A4 — the recorded proofs reproduce.** Suite: **Ran 319 tests — OK**
+  (claimed 314→319; the five new tests account exactly). `--selftest` OK,
+  including the new store-under-`sessions/` case. Live repo scan: exit 0,
+  size-advisory only (the roadmap is +124 over reference from live
+  current-truth — correct non-gate). Floors green on every commit this
+  pass made (secretscan, leakscan, linkscan hooks).
+- **A5 — the doctrine/template edits say what the tool does.** Mostly
+  confirmed: RECORD.md's new paragraph matches the implemented gate
+  (stores, three live markers, investigate-then-recommend). Two wording
+  defects — HA4, HA5. One surface missed — HA3.
+
+### Lens 4 — security & privacy (run manually; scanner discharged)
+
+Scanner discharge, grounds: landed-delta shape — nothing pending for
+`/security-review` to read, and the doctrine/template hunks are markdown
+its exclusions bar; a clean pass would be definitionally empty. Manual
+pass: the tool remains stdlib-only, no exec/network surface; file reads
+use `errors="replace"` (no decode crash on crafted bytes); all four
+regexes are linear (no catastrophic backtracking shape); the adversarial
+file question — can a crafted repo file *hide* a marker? — is exactly
+HA2, filed under correctness where its remedy lives. Header-only marker
+scanning (first 15 lines) keeps the allow-hatch a deliberate declaration.
+No personal-data or leak surface in any hunk; design altitude clean.
+
+### Findings
+
+- **HA1 (MEDIUM, approach)** — the HI-F1 bypass conflates two skip
+  classes. `SKIP_DIR_NAMES` mixes *growth stores* (`sessions`, `reviews`,
+  `decisions`, `_archive`, `archive`, `intake`) with *non-content dirs*
+  (`.git`, `node_modules`, `.venv`/`venv`, four caches, `.idea`,
+  `.vscode`), and the bypass exempts archive-store basenames from the
+  whole set. "Integrity is checked wherever a store lives" is the right
+  rule for the store class; a vendored package's `ROADMAP-DONE.md` is not
+  a store where *this repo's* history lives. Probed live: a `- [ ]` in
+  `node_modules/somepkg/ROADMAP-DONE.md` and a `- [~]` in
+  `.venv/lib/NOTES-ARCHIVE.md` both exit 1 under `--check` — a CI red on
+  a file the repo owner doesn't own, with remedy prose ("flip to `[x]` …
+  un-harvest to the roadmap") that cannot apply to a third-party file.
+  Below MAJOR: fail-closed direction, rare trigger, and the
+  `.sizescanignore` hatch works. *Counsel: split the constant into
+  `STORE_DIR_NAMES` (bypass applies) and `NON_CONTENT_DIR_NAMES`
+  (absolute skip, no bypass), one test per side.*
+- **HA2 (MEDIUM, correctness)** — the unclosed-fence fix narrows the
+  fail-open; it does not close it, and the comment overclaims. A stray
+  delimiter followed by a *legitimate* fenced snippet shifts the pairing:
+  a live marker between the stray delimiter and the next one is cleared
+  when that "fence" closes, and if no later quoted line happens to match
+  the marker shape the scan reads clean. Demonstrated: stray ``` · a
+  `- [ ]` marker · a fenced shell snippet · prose tail → `live_item_count`
+  = 0, silent. The code comment's invariant — "an unclosed fence must
+  surface a marker, never hide one" — is falsified by that construction;
+  the swallowed-tail semantics only protect the region after the *last*
+  delimiter. Held at MEDIUM, stated against the incentive to grade down
+  (a 0-MAJOR verdict closes this cycle): the window needs two
+  co-occurring oddities in one file, the fix is strictly safer than
+  pre-fix, and no fleet file exhibits the shape — blast radius, not
+  rhetorical shape, sets the grade. *Counsel: when delimiters are
+  unbalanced at EOF, recount the whole file with fences ignored — the
+  true "as if the fence never opened" semantic; ~3 lines, false positives
+  only, which the doctrine already prices as "costs a look".*
+- **HA3 (LOW, completeness)** — both CI surfaces still describe `--check`
+  as cold-content-only. `.github/workflows/ci.yml` ("gates on relocatable
+  COLD CONTENT … never on length") and the child template
+  `docs/build/templates/workflows/floor.yml` (15-line comment, same
+  account, plus the step name "cold content on the hot path") predate the
+  harvest-integrity gate; an adopter whose build reds on a buried live
+  marker gets no warning from the surface that runs the gate. The tool's
+  own output explains fully, which keeps this LOW. *Counsel: one clause
+  in each comment (and the step name) at the next CI touch.*
+- **HA4 (LOW, quality)** — the template legend's parenthetical
+  overclaims: "(the harvest-integrity gate holds archive stores to
+  exactly this grammar)" — the gate also treats a `⏳` list item as live,
+  which the tri-state legend deliberately doesn't name (it is a queue
+  marker, not a box state). "Exactly this grammar" is therefore not
+  exact. *Counsel: soften to "holds archive stores to finished-state
+  items only" or add the ⏳ clause.*
+- **HA5 (LOW, quality)** — RECORD.md antecedent drift: the inserted
+  harvest-integrity sentence leaves "And it carries a **trigger**"
+  four subjects away from its antecedent (the signal, sizescan) — the
+  nearest prior subject is now "the remedy". One-word fix ("And the
+  signal carries a trigger").
+
+**No MAJOR.** Per the close rule this pass is **terminal**: the cycle
+closes, HA1–HA5 go to the principal for decision (rule 3 — the chain is
+self-authored doctrine), and this application does not spawn another
+ceremony.
