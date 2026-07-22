@@ -152,3 +152,15 @@ The merge question: keep separate — shared code measured at ~10 lines, and
 fusing would couple the archive's schema-immunity to the reader's
 schema-fragile parser (ADR 0006's observe/preserve verbs); counter-case
 captured, middle path named. 🎯 both rulings queued. Worktree put away.
+
+**1135 · ccarchive dataless awareness — landed.** Worker (Opus) found Node
+exposes no `st_flags` (verified incl. bigint stats) and chose BSD
+`stat -f %f` via the already-imported `execFileSync` — then verified the
+`SF_DATALESS` classifier against a genuinely evicted file in the live
+archive, read-only, proving `stat` non-faulting (`12794d6`, merged
+`--no-ff`). Verify/audit skip evicted files (distinct bucket, never a
+failure), `--materialise` opts in, restore deliberately still faults content
+back, writes proven non-download-triggering. The honest-residual discipline
+held: live-eviction end-to-end is stated as seam-simulated, untested — the
+worker evicted nothing. Suite 109→116 (118 instruments-wide, re-proven
+post-merge). Worktree put away.

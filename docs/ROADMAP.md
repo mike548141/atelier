@@ -277,17 +277,20 @@ touches REVIEW.md + EVIDENCE.md + the scanner floor); brief owed at pickup.*
       documented choice). Suite 46→63 ccarchive / 109 instruments green,
       re-proven post-merge; live fixture run exercised every exit path.
       Man page + README updated per the CLI-docs standard.
-- [~] **iCloud dataless-file awareness**
-      (claimed 2026-07-22-1047, wt: atelier-ccarchive-dataless) — iCloud "Optimise Mac Storage" evicts
-      the local bytes of unused files, leaving a dataless placeholder (contents
-      still in the cloud). ccarchive must keep working: reading an evicted `.gz`
-      faults it back on access (fine), but a whole-archive `--verify` would
-      re-download *everything* — costly and it defeats the point of eviction.
-      Detect dataless files (macOS `SF_DATALESS` st_flags / the ubiquity
-      "downloaded" key) and (a) never mis-report an evicted-but-intact file as
-      missing/corrupt, (b) don't gratuitously materialise them (skip by default;
-      opt-in `--verify --materialise`), (c) ensure writing the manifest/new `.gz`
-      never triggers a bulk re-download.
+- [x] **iCloud dataless-file awareness** — built 2026-07-22 (wave-3 queue
+      run, `12794d6`): `SF_DATALESS` read via BSD `stat -f %f` (Node exposes
+      no `st_flags` — investigated incl. bigint stats), classifier **verified
+      against a real evicted file** in the live archive, `stat` proven
+      non-faulting. `--verify`/`--audit` skip evicted files into a distinct
+      `evicted`/undetermined bucket (never a failure, never mis-read as
+      missing/corrupt; success line says "every *checked* transcript");
+      opt-in `--materialise` reads them deliberately; `--restore` still
+      faults content back by design (documented); manifest/backfill writes
+      proven non-faulting. Honest residual: the end-to-end skip on a *live*
+      eviction is seam-simulated, not exercised — nothing was evicted to
+      test. Suite 109→116 (118 instruments-wide post-merge). The `--json`
+      audit contract gains the `evicted` array — consistent-awareness call
+      endorsed at merge.
 - [ ] **Sign the manifest (tamper-evidence)** — closes the `--verify` caveat: a
       tamperer who rewrites a `.gz` *and* the manifest currently passes. Sign
       `manifest.json` (detached signature / HMAC with a key kept **off the
