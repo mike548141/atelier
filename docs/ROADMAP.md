@@ -154,10 +154,6 @@ push-fast, RECORD's resumed-cold assumption, CONCURRENCY's orphan-claim
 reclaim, the twice-grounded cmd+Q sweep precedent). Three gaps remain; drafting
 all three as one change (Mike ratified 2026-07-22, "all three"):
 
-- [x] **Harvest-integrity gate cold pass — RUN, ruled, applied** (2026-07-22):
-  PASS-WITH-FINDINGS 1M/3M/2n; Mike accepted all as counselled; **HI-F1–F6
-  [fixed]** in `30d350c` (verdict + stamps:
-  [`reviews/2026-07-22-0819-harvest-integrity-gate-cold.md`](reviews/2026-07-22-0819-harvest-integrity-gate-cold.md)).
 - ⏳ **HI application cold pass** — delta `30d350c` (2026-07-22, sizescan
   HI-F1–F6 application: skip-dir bypass for stores, fence fail-safe,
   RECORD.md + template edits); intent record:
