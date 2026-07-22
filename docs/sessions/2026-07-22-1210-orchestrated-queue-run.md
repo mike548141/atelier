@@ -38,4 +38,17 @@ Loose ends & unblockers first (`CONCURRENCY.md` default order):
 
 ## Per-item closes
 
-(appended per item)
+**1221 · v2-plugin de-instance ⏳ review — delivered.** Two-hop rule-4 pass
+(taker's exposure named in the brief; fresh-context Fable subagent as
+reviewer, refs-only prompt): **PASS-WITH-FINDINGS 2M/3M/1L/2n**, verdict
+appended verbatim to
+[`reviews/2026-07-22-1215-v2-plugin-deinstance-cold.md`](../reviews/2026-07-22-1215-v2-plugin-deinstance-cold.md).
+Design upheld (instance-facts externalisation the right cut, no leftover
+identity in the bundle — grep-verified); both MAJORs are gaps on the
+bundled-adopter path itself (VP1 no canonical bundled-mode propagation
+block; VP2 signing posture un-externalised). Mechanical floor re-run at
+branch HEAD: all exits 0. 🎯 VP1–VP8 to Mike on the ROADMAP; the reviewer
+counsels both MAJORs precede merge; merge and rulings stay Mike's. This
+run applied nothing (rule 3) and, having instructed the reviewer's spawn,
+may not take any further review of fixes it might later apply — noted for
+the chain.

@@ -358,13 +358,25 @@ public as a **named worked example** (README "If you're adopting this"). What wa
       mid-flight). Go-live (merge) stays Mike's call; owed after merge:
       retire the superseded global `create-repo` skill (machine-local),
       exercise the interactive fill + bundled-mode scaffold end-to-end.
-  - [~] ⏳ **v2-plugin de-instance review** — delta: branch
-        `v2-plugin-deinstance` (one commit, `1516ae1`) +
-        `decisions/2026-07-21-0748-deinstance-create-repo-for-the-plugin.md`;
-        intent record: that ADR + the branch's SESSIONS entry. Doctrine-
-        substantive, self-authored ⇒ rule 4. (claimed 2026-07-22-1210, taken
-        by the queue-run orchestrator — a session the delta's author neither
-        started nor instructed; taker writes the brief.)
+  - [x] ⏳ **v2-plugin de-instance review — DELIVERED 2026-07-22 1221**
+        (taken 1210 by the queue-run orchestrator, rule-4 provenance on the
+        brief; two-hop fresh-context reviewer) →
+        [`verdict`](reviews/2026-07-22-1215-v2-plugin-deinstance-cold.md).
+  - [ ] 🎯 **VP1–VP8 rulings (v2-plugin de-instance cold pass)** —
+        PASS-WITH-FINDINGS 2 MAJOR · 3 MEDIUM · 1 LOW · 2 notes;
+        self-authored doctrine ⇒ findings Mike's to decide (rule 3), nothing
+        applied. Sharpest: VP1 (MAJOR) the bundled-mode doctrine block is
+        unimplementable as specified (no canonical bundled-mode block text
+        exists — every plugin-only scaffold improvises the keystone
+        propagation block); VP2 (MAJOR) signing posture is an
+        un-externalised eighth instance fact (bundled adopters hit a failed
+        commit at the skill's own step 7, first run); VP5 (MEDIUM) the delta
+        no longer composes with main — 4-file conflict incl. the
+        session-onramp paragraph where a branch-side resolution silently
+        drops the queue-run wiring; VP3 (MEDIUM) the bundle README
+        contradicts the 0.2.0 manifest. Per-finding what/why/impact in the
+        verdict. Reviewer's counsel: both MAJORs precede merge; merge stays
+        Mike's call either way.
 
 Completed sharing work (public release, the plugin bundle widening, atelier's own
 CI, child-CI scanner floor, linkscan build + wiring) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
