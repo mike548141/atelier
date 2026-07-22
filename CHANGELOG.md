@@ -5,6 +5,53 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-22 — orchestrated queue run: ten items landed per-item)
+- **The queue-run pattern is doctrine + a bundled skill** (`343def8`,
+  `8111e9f`): CONCURRENCY § Orchestrated queue runs (role check, selection
+  order, per-item close as the cap-safety property, four stop conditions,
+  rule-4 synergy) + ECONOMICS § the orchestrated-run tier split +
+  `skills/queue-run` (auto-discovered like review-brief). Mike's hand-carried
+  run prompt is retired. Self-authored doctrine — rule-4 `⏳` queued; the
+  authoring run may not take it. Built by the run *while running the
+  pattern*, so its intent record is also the delta's second bearing.
+- **ccarchive grew its missing half**: `--restore` full + delta off the
+  audit buckets, content-first safety (`9ca1425`); iCloud dataless awareness
+  — verify/audit skip evicted files, `--materialise` opts in, classifier
+  proven on a real evicted file (`12794d6`); manifest signing — detached
+  HMAC-SHA256, off-archive key, `--rekey`, five honest verify states, the
+  rewrite-gz-and-manifest caveat closed and proven live (`2a85839`).
+  Instruments suite 109→132.
+
+### Changed (2026-07-22 — queue run, continued)
+- **`MODEL-ECONOMICS.md` → `ECONOMICS.md`** (Mike's decision executed,
+  `b639513`): `git mv` on canonical + child-template copies, 24 refs across
+  16 live files, history untouched; children re-point at their next pin
+  bump; ros keeps its private counterpart's name by its own recorded call.
+- **ccrepo dedup keeps the richest record, not the last** (`75bba4c`): the
+  logs re-emit messages with trailing zeroed usage lines; last-wins silently
+  dropped tokens. Sonnet-5 drift → 0.00% (exact ccusage match on frozen
+  data); `server_tool_use` measured all-zero, its pricing hypothesis
+  retracted; per-model reconcile scoped to matched sessions.
+
+### Reviewed / recorded (2026-07-22 — queue run, continued)
+- **SECRETS/ACCESS `⏳` cold pass taken and closed** (rule-4 provenance on
+  the record): PASS-WITH-FINDINGS 0M/4m/4L/1n, terminal; 🎯 SA1–SA8 to Mike
+  (`reviews/2026-07-22-1021-secrets-access-cold-pass.md`).
+- **Security canon mapped against `method/`**
+  (`sessions/2026-07-22-1025-security-canon-gap-map.md`): gaps A/B/E
+  confirmed narrow, C reframed (zero-dep is the control; residual =
+  mutable-tag CI actions), D dismissed; doctrine-edit follow-up queued.
+- **Anti-slop invariant candidates mined from the whole review corpus**
+  (330 findings, 47 files —
+  `sessions/2026-07-22-1036-invariant-candidates.md`): 5 scanner + 7
+  verifier candidates for Mike's per-item approval; the wrap class shipped
+  three cycles running; fail-open recurrence flagged as only-partly-held.
+- **Both cc-instruments open questions answered with measurement**
+  (`sessions/2026-07-22-1050-cc-instruments-questions.md`): tool-result
+  sidecars are a real capture hole (~7% of volume, CAPTURE recommended);
+  cctranscript/ccarchive merge counselled against (~10 shared lines;
+  schema-immunity must not couple to a schema-fragile parser).
+
 ### Changed (2026-07-22 — floor: sibling worktrees out of scanner reach)
 - Mid-records-commit, linkscan redded on a **sibling session's** freshly
   created nested worktree (`.claude/worktrees/…`, an in-flight dangling

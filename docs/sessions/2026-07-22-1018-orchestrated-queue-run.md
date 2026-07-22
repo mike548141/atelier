@@ -164,3 +164,37 @@ back, writes proven non-download-triggering. The honest-residual discipline
 held: live-eviction end-to-end is stated as seam-simulated, untested — the
 worker evicted nothing. Suite 109→116 (118 instruments-wide, re-proven
 post-merge). Worktree put away.
+
+**1124 · ccarchive manifest signing — landed; queue drained.** Worker (Opus)
+closed the `--verify` caveat (`2a85839`, merged `--no-ff`): detached
+HMAC-SHA256 sidecar, key off-archive (`~/.claude`, file over Keychain for
+promptless cron; `CCARCHIVE_KEYFILE` the test/cron seam — no test touches the
+real `~/.claude`), `--rekey` rotation, five verify states all honest and
+non-zero, verify never mints. Caveat closure proven live (forged `.gz` +
+recomputed hash → signature MISMATCH). Non-protections stated, not implied
+away. Suite 70→84 / 132 instruments-wide, re-proven post-merge. 🎯 two
+contestable defaults queued on the ROADMAP item (binary exit codes; no-key
+red on a legitimate new machine).
+
+## Close — 1124 UTC
+
+**Ten items landed, closed per-item, and pushed; every worker worktree put
+away; the queue is drained of anything this run can progress.** What remains
+is the principal's: the 🎯 backlog (SA1–SA8; invariant candidates S1–S5/
+V1–V7; metadata-class rulings; the two signing defaults; the gap-A/B/C/E
+doctrine-edit slice), the `⏳` queue-run review (this run authored it — a
+future non-author takes it), and the standing Mike-only items (signing flip,
+session-archive decision, checkbox grammar, honesty/truth/transparency,
+Teams-chat grab, floor duplicate trigger). Stop condition fired:
+**everything left is blocked on the principal or barred by rule 4** — the
+fourth named condition of the doctrine this run built and ran.
+
+**Orchestrator honesty ledger:** three false alarms self-caught (a wrong
+scanner flag read as findings; `node --test` on a directory; a stale-main
+merge-warning class avoided by doctrine) and one recurring defect —
+per-item stamps estimated ahead of the clock, twice, corrected both times
+from git's own commit clock (`f48e1d4`). One worker API-drop survived with
+nothing lost (transcript resume, worktree verified clean first). The
+v2-plugin stray worktree remains untouched and is Mike's to disposition.
+Fleet note: the ECONOMICS rename means children re-point refs at their next
+pin bump (the recon list is in the 1032 entry).

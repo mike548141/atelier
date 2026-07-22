@@ -291,13 +291,22 @@ touches REVIEW.md + EVIDENCE.md + the scanner floor); brief owed at pickup.*
       test. Suite 109→116 (118 instruments-wide post-merge). The `--json`
       audit contract gains the `evicted` array — consistent-awareness call
       endorsed at merge.
-- [~] **Sign the manifest (tamper-evidence)**
-      (claimed 2026-07-22-1106, wt: atelier-ccarchive-signing) — closes the `--verify` caveat: a
-      tamperer who rewrites a `.gz` *and* the manifest currently passes. Sign
-      `manifest.json` (detached signature / HMAC with a key kept **off the
-      archive** — `~/.claude` or the macOS Keychain) so `--verify` detects a
-      forged manifest, raising the anchor from "accidental corruption" to
-      "tamper-evident". Key location/rotation is the real design question.
+- [x] **Sign the manifest (tamper-evidence)** — built 2026-07-22 (wave-4
+      queue run, `2a85839`): detached HMAC-SHA256 sidecar
+      (`manifest.json.sig`), key off-archive at `~/.claude` (file over
+      Keychain — cron/launchd reads it promptless; the key guards
+      tamper-evidence, not confidentiality), `--rekey` rotation re-signs the
+      current manifest (SECRETS replaceability — a roll loses nothing),
+      five verify states each honest and non-zero (tampered / key-mismatch /
+      unsigned-legacy-migrates / no-key-unverifiable; verify never mints).
+      The closed caveat proven live: forged `.gz` + recomputed manifest hash
+      → signature MISMATCH, exit 1. Non-protections stated in the man page
+      (key theft forges; no anti-rollback; evidence, not prevention). Suite
+      70→84 ccarchive / 132 instruments-wide, re-proven post-merge.
+      🎯 Two contestable defaults, Mike's to overturn if wanted: binary 0/1
+      exit codes (unverifiable vs proven-tamper distinguished in text/JSON
+      only), and no-key verify exiting red on a legitimate new machine until
+      the key arrives out-of-band (deliberate never-silently-pass).
 - [x] **Is there any metadata that ccarchive misses?** — answered 2026-07-22
       (wave-3 queue run, `5ce9f00`): yes. The real hole is
       `tool-results/` sidecars — offloaded tool-output payloads the
