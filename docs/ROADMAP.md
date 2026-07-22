@@ -154,12 +154,14 @@ push-fast, RECORD's resumed-cold assumption, CONCURRENCY's orphan-claim
 reclaim, the twice-grounded cmd+Q sweep precedent). Three gaps remain; drafting
 all three as one change (Mike ratified 2026-07-22, "all three"):
 
-- ⏳ **Harvest-integrity gate cold pass** — delta `0bdccf3` (2026-07-22,
-  sizescan archive-integrity gate + tri-state legend); intent record:
-  [`sessions/2026-07-22-0634-harvest-integrity-gate.md`](sessions/2026-07-22-0634-harvest-integrity-gate.md).
-  Policy-as-code doctrine by function → full rule-4 cold pass; any
-  non-author spawner passing rule 4's criterion may take it (the builder
-  neither takes nor spawns it).
+- [ ] 🎯 **Harvest-integrity gate cold pass RUN — HI-F1–F6 await Mike's
+  ruling** (2026-07-22, verdict:
+  [`reviews/2026-07-22-0819-harvest-integrity-gate-cold.md`](reviews/2026-07-22-0819-harvest-integrity-gate-cold.md)).
+  PASS-WITH-FINDINGS: **1 MAJOR** (HI-F1 — archive stores inside skipped
+  dirs invisible to the gate, clean banner overclaims; latent, current fleet
+  layout unaffected), 3 MINOR, 2 notes; all delta claims re-ran green. Rule 3:
+  decisions are Mike's; reviewer counsel per finding is in the verdict. The
+  MAJOR keeps the cycle open — ruling → application → application's own `⏳`.
 
 ## Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)
 
