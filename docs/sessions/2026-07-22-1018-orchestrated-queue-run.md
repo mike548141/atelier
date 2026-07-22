@@ -40,4 +40,15 @@ questions.
 
 ## Per-item closes
 
-*(appended as each item lands)*
+**1030 · Security canon gap map — landed.** Worker (Opus) delivered
+`sessions/2026-07-22-1025-security-canon-gap-map.md` (`be737aa`, merged
+`--no-ff`): every canon source consulted live, every "already held" claim
+verified against the cited doc. A/B/E confirmed narrow, C confirmed-reframed
+(zero-dep is the unnamed control; residual = mutable-tag CI actions), D
+dismissed to the instance layer. Honesty catch worth naming: the ROADMAP's own
+"already held" list overclaimed the anti-slop promotion rule (captured, not
+doctrine) — corrected at close. Follow-up queued: doctrine edits for A/B/C/E,
+first slice SHA-pinned actions + SECURITY.md. Floor scanners re-run green on
+main post-merge (orchestrator's first run used a wrong flag and read exit 2 as
+suspect — invocation corrected against the hook, then clean; named per the
+check-exit-codes rule). Worktree put away.

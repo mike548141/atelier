@@ -168,26 +168,33 @@ same-session (SECRETS.md "Grounding in public practice", `caa85fe` — NIST SP
 divergence owned). The rest is a doctrine-wide sweep, deliberately not crammed
 into that delta:
 
-- [~] **Map the public canon against `method/` + the scanner floor**
-      (claimed 2026-07-22-1018, wt: atelier-sec-gap-map) — sources
-      to work from: OWASP (ASVS, SAMM, cheat-sheet series), the
-      [NCSC developers collection](https://www.ncsc.gov.uk/collection/developers-collection)
-      (8 principles), NIST SSDF (SP 800-218), CIS Controls. Corroboration
-      named as corroboration, never re-invented (the anti-slop capture's own
-      rule).
-- **Already held — name, don't rebuild**: automated scanning in the pipeline
-  (the floor scanners), peer review before ship (REVIEW.md), least privilege
-  (SECRETS triad), secrets never in source (right plane), repo protection
-  (ADR 0007 signing + the floor), incident learning (harvest + the anti-slop
-  promotion rule), clean maintainable code (PRINCIPLES).
-- Candidate **gaps** spotted at capture (to be confirmed by the mapping, not
-  assumed): threat modelling at design time (STRIDE-class — where would it
-  bind? REVIEW's design-review lens is the likely seam); secure-defaults
-  doctrine beyond credentials (deny-by-default posture); supply-chain checks
-  (licenscan covers licences, nothing screens dependencies for known vulns);
-  a secure-coding floor (input validation / injection — likely
-  instance-layer, decide whether doctrine holds any of it); "plan for
-  security flaws" (a vulnerability capture-and-track process).
+- [x] **Map the public canon against `method/` + the scanner floor** — done
+      2026-07-22 (wave-1 queue run): mapping record
+      [`sessions/2026-07-22-1025-security-canon-gap-map.md`](sessions/2026-07-22-1025-security-canon-gap-map.md),
+      every "already held" claim verified by reading the cited doc. Verdicts
+      on the capture's candidates: **A** threat modelling CONFIRMED (narrow —
+      reviewer-side held, the *builder* is never told to enumerate threats);
+      **B** secure defaults CONFIRMED (narrow — fragments, not generalised);
+      **C** supply chain CONFIRMED reframed (zero-dep *is* the control; the
+      live residual is third-party CI actions pinned by mutable tag, not
+      SHA); **D** secure-coding floor DISMISSED (instance-layer by design;
+      one framing line owed); **E** vuln lifecycle CONFIRMED (partial —
+      credential path fully held; missing severity/recurrence framing and a
+      public-repo SECURITY.md disclosure posture). The mapping also
+      corrected this section's "already held" list (below).
+- [ ] **Doctrine edits for confirmed gaps A/B/C/E** — seams and rough sizes
+      proposed in the mapping record §3 (proposals, not decisions).
+      Suggested first slice: SHA-pin the CI actions + a SECURITY.md — both
+      live public-repo exposure. Self-authored doctrine: each edit lands
+      with its rule-4 `⏳`.
+- **Already held — name, don't rebuild** (verified by the mapping,
+  2026-07-22): automated scanning in the pipeline (the floor scanners), peer
+  review before ship (REVIEW.md), least privilege (SECRETS triad), secrets
+  never in source (right plane), repo protection (ADR 0007 signing + the
+  floor — active since 2026-07-12 per SIGNING.md), incident learning (the
+  harvest loop; the anti-slop *promotion rule* is a capture below, not yet
+  doctrine — the original list overclaimed it, corrected 2026-07-22), clean
+  maintainable code (PRINCIPLES).
 
 *review: WARRANTED when the mapping moves to doctrine edits; the capture
 itself is records-only.*
