@@ -175,7 +175,12 @@ it **gates** on a completed `[x]` item in a checkbox-worklog file (a done item
 belongs in `ROADMAP-DONE.md`; left inline it is pure cost with a lossless fix),
 and reports line count only as an **advisory** — never a build failure, because a
 file long purely from live current-truth has nothing to relocate. Growth stores
-are excluded by design; flagging the *destination* would punish the fix. And it
+are excluded by design; flagging the *destination* would punish the fix. The
+destination has its own contract, though — **harvest integrity** (Mike's ruling,
+2026-07-22): the named archive stores (`*-DONE.md`, `*-ARCHIVE.md`) record
+finished history only, so a live state marker there (a `[ ]`/`[~]`/`⏳` list
+item) also gates — it is either a botched harvest or a box never flipped, and
+the remedy is investigate-then-recommend, never a silent fix. And it
 carries a **trigger**: harvesting is part of the session-close tidy-up (above) —
 when a session closes roadmap items, collapsing them to pointers happens then,
 not someday. That is what stops the 3000-line accretion from ever forming.

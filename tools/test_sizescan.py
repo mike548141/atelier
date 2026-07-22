@@ -80,6 +80,12 @@ class ColdItemCount(unittest.TestCase):
         self.assertEqual(
             sizescan.cold_item_count("~~~\n- [x] tilde-fenced\n~~~\n", "ROADMAP.md"), 0)
 
+    def test_unclosed_fence_does_not_swallow_cold_items(self):
+        # HI-F2: an unclosed fence gets no quoting immunity — same fail-safe
+        # as the harvest-integrity counter (shared _count_list_items).
+        body = "```\nstray fence\n- [x] done but swallowed\n"
+        self.assertEqual(sizescan.cold_item_count(body, "ROADMAP.md"), 1)
+
     def test_open_claimed_review_states_not_cold(self):
         body = "- [ ] open\n- [~] claimed\n- ⏳ review queued\n"
         self.assertEqual(sizescan.cold_item_count(body, "ROADMAP.md"), 0)
@@ -393,6 +399,35 @@ class HarvestIntegrity(_TreeTest):
     def test_sessions_archive_store_also_checked(self):
         self.write_text("docs/SESSIONS-ARCHIVE.md", "- [~] stranded claim\n")
         self.assertEqual(self.finding("docs/SESSIONS-ARCHIVE.md").live_items, 1)
+
+    # HI-F1: the growth-store directory skip bounds METERING, never integrity —
+    # a store inside `sessions/`, `_archive/`, etc. is checked wherever it
+    # lives. Before the fix these were silently invisible and the clean banner
+    # overclaimed ("archive stores hold no live markers" over files never read).
+    def test_archive_store_inside_sessions_dir_still_checked(self):
+        self.write_text("docs/sessions/SESSIONS-ARCHIVE.md", "- [ ] buried\n")
+        f = self.finding("docs/sessions/SESSIONS-ARCHIVE.md")
+        self.assertIsNotNone(f)
+        self.assertTrue(f.gated)
+        self.assertEqual(f.live_items, 1)
+
+    def test_archive_store_inside_underscore_archive_dir_still_checked(self):
+        self.write_text("docs/_archive/ROADMAP-DONE.md", "- [~] buried claim\n")
+        self.assertEqual(
+            self.finding("docs/_archive/ROADMAP-DONE.md").live_items, 1)
+
+    def test_clean_archive_store_inside_skipped_dir_stays_silent(self):
+        self.write_text("docs/_archive/ROADMAP-DONE.md", "- [x] finished\n")
+        self.assertEqual(self.flagged(), [])
+
+    # HI-F2: a fence still open at EOF gets no quoting immunity — the
+    # swallowed tail is counted, fail-safe. A properly closed fence keeps
+    # its contents quoted (the existing prose/fence test above).
+    def test_unclosed_fence_does_not_swallow_live_markers(self):
+        self.write_text("docs/ROADMAP-DONE.md",
+                        "```\nunclosed example\n- [ ] live after stray fence\n"
+                        "- [~] another\n")
+        self.assertEqual(self.finding("docs/ROADMAP-DONE.md").live_items, 2)
 
     def test_archive_store_never_size_metered(self):
         self.write_text("docs/ROADMAP-DONE.md", "- [x] done\n" + "x\n" * 3000)

@@ -91,8 +91,13 @@ still owed · `[~]` claimed/underway · `[x]` **no more work owed** — whether
 delivered, superseded, or declined, with the disposition said in the item's
 own text (a dated note), never a fourth bracket. Parent and child lines fire
 independently, so a live parent over done children and a stray live child
-under a done parent are both caught. On a hit the remedy is **investigative,
-never automatic**: the session that reds weighs the evidence (the item's
+under a done parent are both caught. Stores are checked **wherever they
+live** — the growth-store directory skip bounds *metering*, never integrity
+(HI-F1). One accepted edge (HI-F6): a live marker in unfenced, indent-only
+example code is line-indistinguishable from a nested child item and will
+fire — acceptable because the remedy below is investigative (a false
+positive costs a look, never a wrong fix); fence examples to avoid it. On a
+hit the remedy is **investigative, never automatic**: the session that reds weighs the evidence (the item's
 children, the session log, the code), then puts a recommendation to the
 principal — flip to `[x]` with a dated disposition note, un-harvest back to
 the roadmap, or reformat a parent that was only ever a heading. Never
@@ -197,8 +202,12 @@ COLD_CHECKBOX_FILES = {"ROADMAP.md"}
 _COLD_ITEM = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s+\[[xX]\]")
 
 # A fenced-code-block delimiter (``` or ~~~). A `[x]` line inside a fence is a
-# quoted example, not a work item — `cold_item_count` toggles on these so it
-# never fires the gate on documentation that *shows* checkbox syntax.
+# quoted example, not a work item — the counters toggle on these so they never
+# fire on documentation that *shows* checkbox syntax. A fence left UNCLOSED at
+# EOF gets no such immunity (HI-F2): the swallowed tail is counted as if the
+# fence never opened, because "everything after a stray ```" silently reading
+# as quoted was a fail-open — an unclosed fence is a defect to surface, never
+# a hatch.
 _FENCE = re.compile(r"^\s*(?:```|~~~)")
 
 # The named archive stores — where harvested / rotated detail comes to rest.
@@ -210,7 +219,11 @@ ARCHIVE_STORE_SUFFIXES = ("-DONE.md", "-ARCHIVE.md")
 # `⏳` — states that mean *work is not finished*. In an archive store any of
 # these is a harvest-integrity defect (a botched harvest, or a box never
 # flipped). Anchored to a list bullet exactly like _COLD_ITEM, so a prose
-# mention ("the `[ ]` state means…") or a backticked reference never fires.
+# mention ("the `[ ]` state means…") or a backticked reference never fires —
+# and a BLOCKQUOTED item (`> - [ ]`) deliberately doesn't either: the `>`
+# breaks the bullet anchor, and quoted material is not a work item, the same
+# rationale as fences (HI-F5 — documented so the skip is a decision, not an
+# accident of regex shape).
 # Superseded / declined work is archived as `[x]` with a dated disposition
 # note in the item's text — the box is a work-owed tri-state, never a
 # disposition (Mike's ruling, 2026-07-22).
@@ -275,6 +288,30 @@ def reference_for(text: str, basename: str) -> int | None:
     return SIZE_REFERENCE.get(basename)
 
 
+def _count_list_items(text: str, pattern: re.Pattern) -> int:
+    """Count pattern-matching list items outside fenced code blocks. A fence
+    that closes properly keeps its contents quoted; a fence still open at EOF
+    is treated as if it never opened (HI-F2) — the swallowed tail is counted,
+    fail-safe, because an unclosed fence must surface a marker, never hide
+    one."""
+    count = 0
+    in_fence = False
+    swallowed: list[str] = []   # lines inside a fence that may prove unclosed
+    for line in text.splitlines():
+        if _FENCE.match(line):
+            in_fence = not in_fence
+            if not in_fence:
+                swallowed.clear()   # fence closed — its contents stay quoted
+            continue
+        if in_fence:
+            swallowed.append(line)
+        elif pattern.match(line):
+            count += 1
+    if in_fence:                    # EOF inside a fence: count the tail
+        count += sum(1 for line in swallowed if pattern.match(line))
+    return count
+
+
 def live_item_count(text: str, basename: str) -> int:
     """Count live state markers (`[ ]` / `[~]` / `⏳` list items) in an archive
     store. Zero for any non-archive file — live states are the *point* of a
@@ -283,15 +320,7 @@ def live_item_count(text: str, basename: str) -> int:
     example is not a work item."""
     if not is_archive_store(basename):
         return 0
-    count = 0
-    in_fence = False
-    for line in text.splitlines():
-        if _FENCE.match(line):
-            in_fence = not in_fence
-            continue
-        if not in_fence and _LIVE_ITEM.match(line):
-            count += 1
-    return count
+    return _count_list_items(text, _LIVE_ITEM)
 
 
 def cold_item_count(text: str, basename: str) -> int:
@@ -302,15 +331,7 @@ def cold_item_count(text: str, basename: str) -> int:
     regions are skipped."""
     if basename not in COLD_CHECKBOX_FILES:
         return 0
-    count = 0
-    in_fence = False
-    for line in text.splitlines():
-        if _FENCE.match(line):
-            in_fence = not in_fence
-            continue
-        if not in_fence and _COLD_ITEM.match(line):
-            count += 1
-    return count
+    return _count_list_items(text, _COLD_ITEM)
 
 
 def count_lines(text: str) -> int:
@@ -377,7 +398,12 @@ def iter_candidates(paths: list[Path], root: Path, globs: list[str]):
             if rp in seen or (p.name not in SIZE_REFERENCE
                               and not is_archive_store(p.name)):
                 continue
-            if _in_skipped_dir(p, walk_base):
+            # Archive stores bypass the skip-dir filter (HI-F1): SKIP_DIR_NAMES
+            # exists to keep growth stores un-METERED, but integrity is checked
+            # wherever a store lives — a `*-DONE.md` under `sessions/` or
+            # `_archive/` silently escaping the gate was the fail-open class
+            # ("a scan that read nothing is NOT a pass") reintroduced.
+            if _in_skipped_dir(p, walk_base) and not is_archive_store(p.name):
                 continue
             if p.name in ROOT_ONLY and rp.parent != root.resolve():
                 continue
@@ -672,6 +698,17 @@ def _selftest() -> int:
            for f in scan_paths([hi], hi)):
         print("FAIL: clean archive store flagged (prose/fence/[x] misfired)")
         ok = False
+
+    # HI-F1: an archive store inside a growth-store dir (`sessions/`,
+    # `_archive/`…) is integrity-checked wherever it lives — the dir skip
+    # bounds metering, never integrity.
+    (hi / "docs" / "sessions").mkdir(parents=True, exist_ok=True)
+    (hi / "docs" / "ROADMAP-DONE.md").write_text("- [x] fine\n")
+    (hi / "docs" / "sessions" / "SESSIONS-ARCHIVE.md").write_text("- [ ] buried\n")
+    if main(["--check", str(hi), "--root", str(hi)]) != 1:
+        print("FAIL: HI-F1 — live marker in a store under sessions/ not gated")
+        ok = False
+    (hi / "docs" / "sessions" / "SESSIONS-ARCHIVE.md").write_text("- [x] done\n")
 
     # live_item_count: archive-only, all three live markers, bullet-anchored.
     if live_item_count("- [ ] a\n- [~] b\n- ⏳ c\n", "ROADMAP-DONE.md") != 3:
