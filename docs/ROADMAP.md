@@ -53,8 +53,9 @@ no-MAJOR application pass, closed 2026-07-22; the secrets/access cycle —
   verdict.
 
 - ⏳ **Apex third element — adaptation is continuous** (BUILT 2026-07-22,
-  `f52c50f` + `1da0a3e`) — delta: `f52c50f` + `1da0a3e` (hard-road and
-  proof-bar bullets, second dictation same session); intent record:
+  `f52c50f` + `1da0a3e` + `8d25fb3`) — delta: `f52c50f` + `1da0a3e` +
+  `8d25fb3` (hard-road + proof-bar bullets, then the ros SSH worked case and
+  the "doctrine and design" heading widening, one session); intent record:
   [`sessions/2026-07-22-2134-apex-adaptation.md`](sessions/2026-07-22-2134-apex-adaptation.md).
   Self-authored doctrine (wording by the building session on Mike's dictation)
   ⇒ rule 4: that session may not spawn this review; a non-author taker writes

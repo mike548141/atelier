@@ -1,6 +1,6 @@
 # 2026-07-22 · 2134 UTC · Apex gains its third element — adaptation is continuous
 
-**Intent record for the ⏳ review of `f52c50f` + `1da0a3e`.**
+**Intent record for the ⏳ review of `f52c50f` + `1da0a3e` + `8d25fb3`.**
 
 ## What Mike said (the dictation, 2026-07-22 UTC)
 
@@ -29,6 +29,27 @@ the smaller-model escalation path) and **Doctrine changes ride on proof**
 named as the grounding rule held at apex strength, pointing to `EVIDENCE.md`).
 Agent-authored connective tissue to attack: the "testimony, not evidence" line
 and the claim that this *is* the grounding rule at apex strength.
+
+## The worked case (`8d25fb3`, third exchange same session)
+
+Mike supplied a live example from an open ros session — an SSH key reported
+"dead fleet-wide" with a strict-crypto root cause and a recommendation to swap
+algorithms or enable password auth, which collapsed under challenge. Before
+encoding, this session **verified the account against the ros record** (ROADMAP
+item "SSH auth DENIES tiki's credentials FLEET-WIDE", wire-proven verdict
+2026-07-22 21:30 UTC): confirmed the diagnosis was an untested inference, the
+real cause was client agent key-crowding, the policy flip would only have
+re-enabled weaker algorithms, and the fix went the opposite direction. Encoded
+as a shared worked case under both new bullets. Mike also widened the bullet
+heading mid-session: "Doctrine changes ride on proof" → "Doctrine **and
+design** changes ride on proof" (the body already covered design; the heading
+undersold it).
+
+Choices to attack: the **genericisation level** (public repo — no hostnames,
+usernames, or key material; ros named as source, key algorithms and the
+agent-crowding mechanism kept as generic technical fact) and whether the
+17-line worked case is the right *weight* for the apex doc versus a pointer to
+a bearing held in ros.
 
 ## What changed (`f52c50f`)
 
