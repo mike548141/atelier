@@ -5,6 +5,17 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-22 — harvest-integrity gate: the archive must hold no live state)
+- **sizescan now checks archive stores** (`*-DONE.md`, `*-ARCHIVE.md`) for
+  live state markers — `[ ]`/`[~]`/`⏳` list items gate under `--check`,
+  the same fail-safe contract as cold content (Mike's ratified design,
+  embedded in CI for free via the floor's existing step). State coherence
+  only — never `[x]`-delivery verification. On a hit the output prescribes
+  investigate → recommend to the principal → never silently fix. The box
+  grammar is ruled a **work-owed tri-state**: `[x]` = no more work owed
+  (delivered / superseded / declined — disposition in the item's dated
+  note). Suite 302→314; review queued `⏳` (rule 4).
+
 ### Decided (2026-07-22 — MODEL-ECONOMICS.md will become ECONOMICS.md)
 - **Rename to `ECONOMICS.md`, do not split** (Mike's ruling, accepting the
   standing recommendation): the file spans both spend pools (model tokens

@@ -154,35 +154,12 @@ push-fast, RECORD's resumed-cold assumption, CONCURRENCY's orphan-claim
 reclaim, the twice-grounded cmd+Q sweep precedent). Three gaps remain; drafting
 all three as one change (Mike ratified 2026-07-22, "all three"):
 
-- [~] **Harvest-integrity invariant — no live checkbox in ROADMAP-DONE**
-  **RATIFIED 2026-07-22 (Mike): "I like this idea of embedding it into the
-  CI" — build as counselled (extend sizescan; CI embedding comes free via
-  the floor's existing `sizescan --check`).** (claimed 2026-07-22-0634,
-  wt: harvest-integrity-gate)
-  (Mike, 2026-07-22; triggered by IR5 and confirmed real by its first manual
-  run — see below). The invariant: `[ ]` / `[~]` / `⏳` state markers must
-  never sit in `ROADMAP-DONE.md` — the archive records finished history, and
-  a live marker there is either a botched harvest (open work silently
-  buried) or an untrue state (done work never flipped). **Deliberately NOT
-  delivery-verification of `[x]` items** (Mike's explicit bound — overhead
-  too high); this checks *state coherence*, one grep's worth of cost.
-  - **Counsel — extend `sizescan`, not a new tool**: it already owns the
-    ROADMAP↔ROADMAP-DONE seam and reads both files; add a red on live
-    markers in any `*-DONE` store, with a machine-readable escape for
-    sanctioned non-delivery states. Legend gains one state for those:
-    `[-]` **dropped** `— superseded / no longer required: <grounds>` — the
-    only live-box-shaped thing the archive may hold.
-  - **On hit, the finding is investigative, never auto-fixed**: the session
-    that reds checks the evidence (children's states, sessions log, the
-    codebase) for delivered-but-unmarked vs genuinely-open, then notifies
-    Mike with the evidence and a recommendation — flip with a dated note,
-    un-harvest back to ROADMAP, or mark `[-]` dropped. The scanner finds;
-    the agent investigates; Mike decides.
-  - **First manual run already caught one**: a `[ ]` parent
-    ("Batch-review follow-ups") sat in ROADMAP-DONE with both children
-    `[x]` DONE — delivered, never flipped; corrected with a dated note
-    (this session). *review: WARRANTED when built — a CI gate is
-    policy-as-code doctrine; brief owed at pickup.*
+- ⏳ **Harvest-integrity gate cold pass** — delta `0bdccf3` (2026-07-22,
+  sizescan archive-integrity gate + tri-state legend); intent record:
+  [`sessions/2026-07-22-0634-harvest-integrity-gate.md`](sessions/2026-07-22-0634-harvest-integrity-gate.md).
+  Policy-as-code doctrine by function → full rule-4 cold pass; any
+  non-author spawner passing rule 4's criterion may take it (the builder
+  neither takes nor spawns it).
 
 ## Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)
 
@@ -375,6 +352,16 @@ Completed sharing work (public release, the plugin bundle widening, atelier's ow
 CI, child-CI scanner floor, linkscan build + wiring) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 ## Open questions
+
+- [ ] 🎯 **Extend the checkbox grammar to five states?** (Mike, 2026-07-22,
+  mid-build) — proposal: add `[-]` declined and `[^]` superseded beside the
+  tri-state. **Builder's counsel: keep the tri-state** — the bracket answers
+  the one machine-checked question (is work owed?); declined/superseded both
+  answer "no" and need a dated note for the *why* regardless, so extra
+  states are a second copy of one fact (the point-of-use drift class).
+  Promote to distinct states only if we find ourselves repeatedly grepping
+  dispositions apart (the anti-slop promotion rule). Mike's call; Mike
+  himself flagged the complication risk.
 
 - Does ros keep canonical copies of any doctrine, or hold only bearings + point
   up for everything (as §0 now does)? Default: point up; resolve per doc at
