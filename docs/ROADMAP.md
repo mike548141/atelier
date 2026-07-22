@@ -118,14 +118,19 @@ Built 2026-07-22 as ratified (CONCURRENCY § Orchestrated queue runs +
 ECONOMICS § tier split + plugin-bundled `queue-run` skill) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md). What remains open is its review:
 
-- ⏳ **Orchestrated-queue-run doctrine + skill — rule-4 cold review owed.**
-  (claimed 2026-07-22-1149, wt: queue-run-cold-pass)
-  Delta: `343def8` (CONCURRENCY § Orchestrated queue runs + ECONOMICS § the
-  orchestrated-run tier split) + `8111e9f` (`skills/queue-run` +
-  README/session-onramp wiring). Intent record:
-  [`sessions/2026-07-22-1018-orchestrated-queue-run.md`](sessions/2026-07-22-1018-orchestrated-queue-run.md).
-  Doctrine by function → full rule-4 cycle; the 2026-07-22-1018 run authored
-  the delta, so that run (and its workers) cannot take this.
+- [ ] 🎯 **QR1–QR9 rulings (queue-run doctrine cold pass —
+  [`verdict`](reviews/2026-07-22-1149-queue-run-doctrine-cold.md))** —
+  PASS-WITH-FINDINGS 1 MAJOR · 6 MEDIUM · 1 LOW · 1 note; self-authored
+  doctrine, so the findings are Mike's to decide (rule 3); nothing applied.
+  Sharpest four: QR1 (MAJOR) chain-spawn provenance unpinned — the rule-4
+  synergy keys on *authorship* where the rule turns on *started-or-instructed*,
+  a prospective laundering path down a chain; QR2 "the author" of a
+  worker-built delta undefined (same class, one hop shorter); QR5 the tier
+  split's default contradicts its own parent section for doctrine-text items;
+  QR9 the doctrine's loop is serial where its grounding run was wave-parallel
+  ("extracted, not invented" fails in that one dimension). Per-finding
+  what/why/impact + counsel in the verdict; all wording-sized. The MAJOR
+  keeps the cycle open past the application.
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 
