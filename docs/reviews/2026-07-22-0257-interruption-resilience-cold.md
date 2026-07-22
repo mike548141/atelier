@@ -79,3 +79,100 @@ the cycle open past application.
 - Commit bodies of `9c11525`, `b4b5142`, `c258451`
 - The author seeded no questions beyond the pointer's flagged sub-question,
   which is carried in the Ask above; everything here is taker-written.
+
+---
+
+## Verdict — PASS-WITH-FINDINGS, 0 MAJOR · 2 MEDIUM · 2 LOW (committed before any deferred material was opened)
+
+**Provenance restated (rule 4):** the Mike-spawned taker session; authored
+none of `9c11525` or its records; the intent record, Gaps 1–2's analysis,
+and all commit bodies remain unread at this point. Diff read via
+`git show --format=`. Subject pinned at `9c11525` on ref `e0450ee`.
+
+### Attack surface (named as the first act)
+
+- **A1 — the onramp tell licenses the right conclusion.** FALSIFIED in the
+  live case — see IR1. The tell's *mechanics* are sound (clean closes do
+  leave closing entries here — verified against the session log's recent
+  history); its stated *inference* is not.
+- **A2 — the sweep is executable and correct.** CONFIRMED by running it
+  live on this repo mid-review: tree clean, stash list empty, every
+  worktree accounted to a live lane, reflog legible against the last
+  logged close. All five rows are checkable with plain git; none requires
+  state a cut would have destroyed.
+- **A3 — every § cross-reference resolves.** CONFIRMED by heading grep:
+  Integration hygiene, Claiming work, Orphan claims (bold run-in),
+  Stay in your lane, Every branch ends put away, RECORD.md § Why this is
+  doctrine — all real anchors at HEAD.
+- **A4 — the decision-limbo move contradicts nothing.** CONFIRMED: writing
+  the open question to the claim/roadmap line before blocking is the same
+  durability RECORD already demands of session close; chat-asks/record-
+  remembers adds a rule where none stood.
+- **A5 — no second telling to drift.** CONFIRMED: the session-onramp skill
+  does not restate the read-order (no parity surface); RECORD and
+  CONCURRENCY are cited, not copied. The one surface that *does* restate
+  the read-order — the child CLAUDE.md template — is IR2.
+
+### Lens 4 — security & privacy (scanner discharged with grounds)
+
+Landed-delta, markdown-only: `/security-review` cannot genuinely be aimed
+at it — discharged per REVIEW.md lens 4. Manual pass: the sweep is
+read-first by construction and lane-guarded ("another session's recovery
+is not yours to run"); it prescribes no command that publishes, and
+recovery-committing a stranger's stranded work — the real exposure in this
+territory — is explicitly barred by the change-nothing rule. The pre-commit
+scanner floor still covers anything a recovery session does choose to
+commit. No new surface.
+
+### Findings
+
+- **IR1 (MEDIUM, correctness at the point of use)** — `CLAUDE.md` step 4:
+  "A last commit then silence with **no closing entry** means the last
+  session died mid-flight, not closed clean." The inference is wrong by
+  this doctrine's own flipped prior: a **live parallel session** produces
+  the identical signature — and did, during this review (claim `e0450ee` +
+  brief `d9c140d` landed after this session's last closing entry, session
+  very much alive). CONCURRENCY's own text hedges correctly ("a
+  live-*looking* branch with no closing log entry" → *possible*
+  interruption residue → read-first sweep); the onramp compression
+  escalates "possible" to "means", teaching a resumer to conclude *death*
+  where the evidence supports *death or live sibling* — and a resumer who
+  believes "died" is primed to reclaim claims or tidy "orphan" state that
+  belongs to a live lane. Mitigation already present: the sweep is
+  read-first and the reclaim-on-evidence rule guards the worst act. Same
+  family as SL1/F3 — the point-of-use copy diverging from the parent —
+  but as overclaim, not omission. *Counsel: one-line reword — "means the
+  last session either died mid-flight or is still live — run the
+  read-first sweep… before assuming either".*
+- **IR2 (MEDIUM, completeness — the author's own flagged sub-question)** —
+  the child CLAUDE.md template carries the same onramp step ("Tail of
+  `docs/SESSIONS.md` — where the last session left off") with no firing
+  pointer, so children inherit the onramp without the tell — the firing
+  condition doesn't propagate. *Counsel: yes, propagate — one sentence in
+  the template pointing at `<atelier-path>/docs/method/CONCURRENCY.md`
+  § Surviving an interrupted session (the doctrine is reachable via the
+  pinned path), worded per IR1's corrected inference; lands at next pin
+  bump like every template change.*
+- **IR3 (LOW, wrap hygiene)** — two lines materially over the 80-col
+  house wrap: the claim-breadcrumb aside at `CONCURRENCY.md:197`
+  (~153 cols) and the orphan-worktrees table row (~109 cols). Ambient
+  tolerance runs 81–85; these are the third shipping of the wrap class in
+  three cycles (SL7, AC1, IR3). *Counsel: rewrap the aside; the table row
+  can split its parenthetical to a footnote line — or accept table rows as
+  a named exception if Mike prefers.*
+- **IR4 (LOW, grammar propagation)** — the resume breadcrumb
+  (`· at: export path unverified`) extends the claim-line grammar, but the
+  ROADMAP header legend — the point-of-use surface that defines claim-line
+  grammar — still shows only `(claimed <date>-<HHMM>, wt: <branch>)`.
+  *Counsel: extend the legend by half a line, or leave and accept the
+  breadcrumb as free-form; either is coherent, but say which.*
+
+### Live proofs
+
+Sweep exercised end-to-end on this repo (A2). Suite + floors re-run at
+HEAD: recorded below after the run. The onramp pointer's link target
+resolves (linkscan green on every commit this pass made).
+
+No MAJOR. Rule 3: IR1–IR4 are Mike's to decide; counsel recorded per
+finding. Per the close rule a no-MAJOR pass closes the cycle — the
+decided fixes apply without another full ceremony.
