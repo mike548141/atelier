@@ -93,7 +93,9 @@ own text (a dated note), never a fourth bracket. Parent and child lines fire
 independently, so a live parent over done children and a stray live child
 under a done parent are both caught. Stores are checked **wherever they
 live** — the growth-store directory skip bounds *metering*, never integrity
-(HI-F1). One accepted edge (HI-F6): a live marker in unfenced, indent-only
+(HI-F1) — though non-content directories (VCS internals, vendored packages,
+virtualenvs, caches) are outside the scan entirely: nothing there is this
+repo's record (HA1). One accepted edge (HI-F6): a live marker in unfenced, indent-only
 example code is line-indistinguishable from a nested child item and will
 fire — acceptable because the remedy below is investigative (a false
 positive costs a look, never a wrong fix); fence examples to avoid it. On a
@@ -203,11 +205,12 @@ _COLD_ITEM = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s+\[[xX]\]")
 
 # A fenced-code-block delimiter (``` or ~~~). A `[x]` line inside a fence is a
 # quoted example, not a work item — the counters toggle on these so they never
-# fire on documentation that *shows* checkbox syntax. A fence left UNCLOSED at
-# EOF gets no such immunity (HI-F2): the swallowed tail is counted as if the
-# fence never opened, because "everything after a stray ```" silently reading
-# as quoted was a fail-open — an unclosed fence is a defect to surface, never
-# a hatch.
+# fire on documentation that *shows* checkbox syntax. The immunity holds only
+# while the delimiters BALANCE (HI-F2, sharpened by HA2): one stray delimiter
+# shifts every pairing after it, so a file that ends inside a fence is
+# recounted whole with fences ignored — as if no fence ever opened. False
+# positives only, never a hidden marker; an unclosed fence is a defect to
+# surface, never a hatch.
 _FENCE = re.compile(r"^\s*(?:```|~~~)")
 
 # The named archive stores — where harvested / rotated detail comes to rest.
@@ -241,15 +244,27 @@ def is_archive_store(basename: str) -> bool:
 # root or `docs/`.
 ROOT_ONLY = {"README.md", "CLAUDE.md"}
 
-# Where completed / append-only detail is *meant* to accumulate — never metered.
-# `ROADMAP-DONE.md`, `CHANGELOG.md`, `SPECS.md` fall out naturally (their
-# basenames aren't in SIZE_REFERENCE); these path components catch a metered
-# basename that lives inside a growth store (an `ARCHITECTURE.md` snapshotted
-# under `_archive/`, a `README.md` inside `reviews/`).
-SKIP_DIR_NAMES = {".git", "node_modules", "__pycache__", ".venv", "venv",
-                  ".mypy_cache", ".ruff_cache", ".pytest_cache", ".idea",
-                  ".vscode", "sessions", "reviews", "decisions",
-                  "_archive", "archive", "intake"}
+# Two skip classes, deliberately separate (HA1 — one set conflated them and
+# the archive-store bypass leaked into vendored code):
+#
+# Non-content dirs — VCS internals, vendored packages, virtualenvs, caches,
+# IDE state. Nothing in them is this repo's record, so NOTHING in them is
+# ever scanned: a vendored package's `ROADMAP-DONE.md` is not a store where
+# this repo's history lives, and integrity-checking it reds the build on a
+# file the repo owner doesn't own.
+NON_CONTENT_DIR_NAMES = {".git", "node_modules", "__pycache__", ".venv",
+                         "venv", ".mypy_cache", ".ruff_cache",
+                         ".pytest_cache", ".idea", ".vscode"}
+
+# Growth-store dirs — where completed / append-only detail is *meant* to
+# accumulate. `ROADMAP-DONE.md`, `CHANGELOG.md`, `SPECS.md` fall out naturally
+# (their basenames aren't in SIZE_REFERENCE); these path components catch a
+# metered basename that lives inside a growth store (an `ARCHITECTURE.md`
+# snapshotted under `_archive/`, a `README.md` inside `reviews/`). This skip
+# bounds METERING only — an archive store inside one is still
+# integrity-checked (HI-F1): the skip keeps stores un-metered, never un-read.
+STORE_DIR_NAMES = {"sessions", "reviews", "decisions",
+                   "_archive", "archive", "intake"}
 
 
 @dataclass
@@ -289,26 +304,27 @@ def reference_for(text: str, basename: str) -> int | None:
 
 
 def _count_list_items(text: str, pattern: re.Pattern) -> int:
-    """Count pattern-matching list items outside fenced code blocks. A fence
-    that closes properly keeps its contents quoted; a fence still open at EOF
-    is treated as if it never opened (HI-F2) — the swallowed tail is counted,
-    fail-safe, because an unclosed fence must surface a marker, never hide
-    one."""
+    """Count pattern-matching list items outside fenced code blocks. Fence
+    pairing is only trustworthy when the delimiters balance: one stray
+    delimiter shifts every pairing after it, so a tail-only fix still hid
+    markers between the stray delimiter and the next one (HI-F2, sharpened by
+    HA2). If the file ends inside a fence, the whole file is therefore
+    recounted with fences ignored — genuinely "as if no fence ever opened".
+    Fail-safe by construction: a malformed file can only false-positive
+    (the remedy is investigative, so that costs a look), never hide a
+    marker."""
+    lines = text.splitlines()
     count = 0
     in_fence = False
-    swallowed: list[str] = []   # lines inside a fence that may prove unclosed
-    for line in text.splitlines():
+    for line in lines:
         if _FENCE.match(line):
             in_fence = not in_fence
-            if not in_fence:
-                swallowed.clear()   # fence closed — its contents stay quoted
             continue
-        if in_fence:
-            swallowed.append(line)
-        elif pattern.match(line):
+        if not in_fence and pattern.match(line):
             count += 1
-    if in_fence:                    # EOF inside a fence: count the tail
-        count += sum(1 for line in swallowed if pattern.match(line))
+    if in_fence:   # delimiters unbalanced — pairing untrustworthy; recount all
+        return sum(1 for line in lines
+                   if not _FENCE.match(line) and pattern.match(line))
     return count
 
 
@@ -366,19 +382,19 @@ def _rel(p: Path, root: Path) -> str:
         return str(p)
 
 
-def _in_skipped_dir(p: Path, walk_base: Path) -> bool:
-    """Is p inside a growth-store directory *within the scanned tree*? The skip
-    names are matched against the path **relative to the scan base**, never the
-    absolute path. Matching absolute parts was a fail-open bug (F1): a repo that
-    merely *lives under* an ancestor named `archive`/`sessions`/`reviews`/… — the
-    store names are ordinary English words — had every file skipped, so the scan
-    read nothing and reported "clean", the exact contract violation the tool's
-    own exit codes forbid ("a scan that read nothing is NOT a pass")."""
+def _dir_parts(p: Path, walk_base: Path) -> set[str]:
+    """The intermediate directory names between the scan base and p. Matched
+    against the path **relative to the scan base**, never the absolute path.
+    Matching absolute parts was a fail-open bug (F1): a repo that merely
+    *lives under* an ancestor named `archive`/`sessions`/`reviews`/… — the
+    store names are ordinary English words — had every file skipped, so the
+    scan read nothing and reported "clean", the exact contract violation the
+    tool's own exit codes forbid ("a scan that read nothing is NOT a pass")."""
     try:
         rel_parts = p.relative_to(walk_base).parts
     except ValueError:
         rel_parts = (p.name,)
-    return bool(SKIP_DIR_NAMES & set(rel_parts[:-1]))   # intermediate dirs only
+    return set(rel_parts[:-1])   # intermediate dirs only
 
 
 def iter_candidates(paths: list[Path], root: Path, globs: list[str]):
@@ -398,12 +414,15 @@ def iter_candidates(paths: list[Path], root: Path, globs: list[str]):
             if rp in seen or (p.name not in SIZE_REFERENCE
                               and not is_archive_store(p.name)):
                 continue
-            # Archive stores bypass the skip-dir filter (HI-F1): SKIP_DIR_NAMES
-            # exists to keep growth stores un-METERED, but integrity is checked
-            # wherever a store lives — a `*-DONE.md` under `sessions/` or
+            # Non-content dirs are never scanned at all (HA1); growth-store
+            # dirs bound metering only — an archive store inside one is still
+            # integrity-checked (HI-F1): a `*-DONE.md` under `sessions/` or
             # `_archive/` silently escaping the gate was the fail-open class
             # ("a scan that read nothing is NOT a pass") reintroduced.
-            if _in_skipped_dir(p, walk_base) and not is_archive_store(p.name):
+            parts = _dir_parts(p, walk_base)
+            if parts & NON_CONTENT_DIR_NAMES:
+                continue
+            if parts & STORE_DIR_NAMES and not is_archive_store(p.name):
                 continue
             if p.name in ROOT_ONLY and rp.parent != root.resolve():
                 continue

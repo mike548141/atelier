@@ -86,6 +86,12 @@ class ColdItemCount(unittest.TestCase):
         body = "```\nstray fence\n- [x] done but swallowed\n"
         self.assertEqual(sizescan.cold_item_count(body, "ROADMAP.md"), 1)
 
+    def test_cold_marker_between_stray_fence_and_snippet_counts(self):
+        # HA2: unbalanced delimiters recount the whole file — parity with
+        # the live counter via the shared _count_list_items.
+        body = "```\n- [x] buried done\n```\ncode line\n```\ntail\n"
+        self.assertEqual(sizescan.cold_item_count(body, "ROADMAP.md"), 1)
+
     def test_open_claimed_review_states_not_cold(self):
         body = "- [ ] open\n- [~] claimed\n- ⏳ review queued\n"
         self.assertEqual(sizescan.cold_item_count(body, "ROADMAP.md"), 0)
@@ -420,6 +426,20 @@ class HarvestIntegrity(_TreeTest):
         self.write_text("docs/_archive/ROADMAP-DONE.md", "- [x] finished\n")
         self.assertEqual(self.flagged(), [])
 
+    # HA1: the HI-F1 bypass reaches growth-store dirs ONLY — a non-content
+    # dir (vendored code, virtualenvs, VCS internals, caches) is never
+    # scanned at all: a vendored package's store-named file is not this
+    # repo's record, and integrity-checking it reds the build on a file the
+    # repo owner doesn't own.
+    def test_store_under_node_modules_never_scanned(self):
+        self.write_text("node_modules/somepkg/ROADMAP-DONE.md",
+                        "- [ ] vendor todo\n")
+        self.assertEqual(self.flagged(), [])
+
+    def test_store_under_venv_never_scanned(self):
+        self.write_text(".venv/lib/NOTES-ARCHIVE.md", "- [~] venv claim\n")
+        self.assertEqual(self.flagged(), [])
+
     # HI-F2: a fence still open at EOF gets no quoting immunity — the
     # swallowed tail is counted, fail-safe. A properly closed fence keeps
     # its contents quoted (the existing prose/fence test above).
@@ -428,6 +448,16 @@ class HarvestIntegrity(_TreeTest):
                         "```\nunclosed example\n- [ ] live after stray fence\n"
                         "- [~] another\n")
         self.assertEqual(self.finding("docs/ROADMAP-DONE.md").live_items, 2)
+
+    # HA2: one stray delimiter shifts every pairing after it — a marker
+    # between the stray fence and a later legit snippet was silently cleared
+    # by the tail-only fix. Unbalanced delimiters at EOF now recount the
+    # whole file with fences ignored, so the buried marker surfaces.
+    def test_marker_between_stray_fence_and_later_snippet_counts(self):
+        self.write_text("docs/ROADMAP-DONE.md",
+                        "```\n- [ ] buried real item\n```\n"
+                        "ssh host uptime\n```\nprose tail\n")
+        self.assertEqual(self.finding("docs/ROADMAP-DONE.md").live_items, 1)
 
     def test_archive_store_never_size_metered(self):
         self.write_text("docs/ROADMAP-DONE.md", "- [x] done\n" + "x\n" * 3000)

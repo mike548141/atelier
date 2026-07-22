@@ -7,7 +7,8 @@ start. Move completed detail to ROADMAP-DONE.md once it grows.
 Checkbox states are a **work-owed tri-state**: `[ ]` work still owed ·
 `[~]` claimed/underway · `[x]` no more work owed — delivered, superseded,
 or declined, with the disposition in the item's own dated note (the
-harvest-integrity gate holds archive stores to exactly this grammar).
+harvest-integrity gate holds archive stores to finished-state items only —
+a live `[ ]`/`[~]`/`⏳` item there reds the floor).
 
 An entry that records **design or direction** (a chosen approach, a scoped
 feature, a decision that forecloses alternatives) carries a review line —

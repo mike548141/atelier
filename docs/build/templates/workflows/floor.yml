@@ -149,11 +149,14 @@ jobs:
       # the number can never induce line-golf. Prose-shaped cold content (resolved
       # narrative under an open item) and thinness are caught at REVIEW, not
       # measured. A repo adopting this floor with un-harvested `[x]` items will
-      # RED — that red IS the signal to harvest. Hatches: `sizescan:allow` exempts
-      # a file fully; `sizescan:budget=N` (grounded in the file's CLASS, never its
-      # current length) quiets the size advisory only, never the cold-content
-      # gate. Drop `--check` to run fully advisory instead.
-      - name: sizescan (cold content on the hot path)
+      # RED — that red IS the signal to harvest. `--check` also gates on HARVEST
+      # INTEGRITY: an archive store (*-DONE.md / *-ARCHIVE.md) holding a live
+      # `[ ]`/`[~]`/`⏳` item is a botched harvest or a box never flipped — the
+      # tool's output prescribes the investigate-then-recommend remedy. Hatches:
+      # `sizescan:allow` exempts a file fully; `sizescan:budget=N` (grounded in
+      # the file's CLASS, never its current length) quiets the size advisory
+      # only, never either gate. Drop `--check` to run fully advisory instead.
+      - name: sizescan (cold content + harvest integrity)
         run: python3 atelier/tools/sizescan.py --check --root repo repo
 
       # Publish gate — uncomment when this repo has a LICENSE / before going public.
