@@ -98,9 +98,37 @@ the aggregate delta every run (e.g. `Reconciled against ccusage: +0.3% ($2.10)
 — within tolerance`); drift past a threshold (say 1%) prints a louder warning.
 
 **Known drift sources to name in the report**, not bury: stale price snapshot,
-`server_tool_use` calls (web search etc. — 53.7k assistant messages carry it
-live; separate per-call pricing, likely **out of scope v1** and a named
-contributor), service-tier multipliers, unknown/new models, cache-tier split.
+`server_tool_use` calls (web search etc. — see below), service-tier multipliers,
+unknown/new models, cache-tier split.
+
+### Tightening (2026-07-22) — drift chased to ~0.00% per model
+
+Three findings from reconciling against a live `ccusage session`, each grounded
+in measurement, not estimate:
+
+- **Dedup was last-wins; it undercounted.** Claude Code re-emits the same
+  `(message.id, requestId)` on multiple JSONL lines (a streaming/replay
+  artefact); a trailing line can carry partial or **zeroed** usage. Last-wins
+  took that trailing line and lost tokens — visible almost entirely on
+  `sonnet-5` (~1.5% short), the model whose logs carried the zero-tail pattern;
+  other models were near-exact by luck, not correctness. Dedup now keeps the
+  **richest** record per key (`keepRicher`, max-total-wins): the complete line is
+  always the max, so this recovers it *and* is identical to last-wins on ordinary
+  ascending streams. Result: per-model token/cost drift → **$0.00 on the static
+  matched session set** (every model exact), and the live per-model footnote goes
+  quiet (no model over the 1% threshold).
+- **`server_tool_use` is not a contributor.** Measured live: the field is present
+  on ~76k assistant messages but **every occurrence is all-zero**
+  (`web_search_requests` and `web_fetch_requests` both 0) — zero billable calls,
+  so **$0** effect on the drift. Per-call pricing deliberately *not* built; the
+  earlier "named contributor" guess is retracted as measured-false. Revisit only
+  if non-zero counts ever appear.
+- **The per-model footnote was scoped wrong.** It compared *mine-all* vs
+  *ccusage-all*, so a session only one side had (window-edge date clip, log
+  pruning) smeared into a fake per-model delta (once read as "fable +8.9%, opus
+  +7.0%"). Per-model is now scoped to the **matched** sessions, same as the total;
+  one-sided sessions are reported as a scope gap (`myOnly`/`cuOnly`), never as
+  drift.
 
 ## 5. Filters — mirror the grouping vocabulary
 
