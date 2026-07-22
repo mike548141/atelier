@@ -194,6 +194,8 @@ and pushing the claim **before it does any work**:
 - [~] REACH backlog H2 — scope cookie-export … (claimed 2026-07-13-2140, wt: atelier-reach-h2)
 ```
 
+*(Once work is under way the claim line can also carry a resume breadcrumb — § Surviving an interrupted session; here it is born as the bare claim.)*
+
 **Where the claim lands is load-bearing.** The claim commit goes to the
 **integration branch every session rebases onto** (`main`), *before* creating or
 entering the worktree — the claim is a direct-to-`main` commit even though the
@@ -352,3 +354,62 @@ second archive copy; its status was still re-derived twice more (the PR #1
 close-not-merge reciting the closure decision; session 34 hitting it again cold)
 before the rule above closed it. Even a considered kept-branch generated the
 re-derivation tax.
+
+## Surviving an interrupted session
+
+Every section above treats *concurrency* — another session clobbering yours.
+This one treats *interruption* — your own session cut off mid-flight: a
+session-limit stop, a dropped connection or API error, a closed question window,
+a cmd+Q on the editor. They are one shape — **work cut off mid-flight, then
+resumed or picked up cold** — and the operating model already assumes cold
+resume is possible (`RECORD.md` § Why this is doctrine). What that assumption
+was written for is a *clean close*; three moves make it hold when the cut is
+**involuntary**.
+
+**The cut loses only what isn't yet durable — so shrink that.** Commit-small-
+push-fast (§ Integration hygiene) already lands code-intent on the branch as you
+go, so a cut costs at most the current small step. Two things it does *not*
+carry, and how to make each survive:
+
+- **Where you are and what's next.** A clean tree tells a resumer *what the code
+  is*, never *what you were doing* — the session log that would carry that is a
+  close-time artefact, and an interrupted session never reaches close. So at each
+  natural checkpoint make the durable record legible cold: commit messages a
+  resumer can follow (never a bare "wip"), and — when the pause is a genuine
+  block another session should see — extend the claim line on `main` in place
+  with where it stopped and on what: `… wt: atelier-reach-h2 · at: export path
+  unverified`. This is the same per-item-close durability the orchestrated-queue-
+  run strand relies on (ROADMAP): resumability is earned per checkpoint, never by
+  an end-of-run tidy a cut erases before it runs.
+
+- **A decision you're blocked on.** A `🎯` question put only to the principal in
+  chat is *volatile* — a closed window or a cancelled prompt loses it, and the
+  resumer cannot tell "waiting on the principal" from "done". **Before blocking
+  on a decision, write the open question into the durable record** — the claim
+  line, or a roadmap line — so the block outlives the window that carried it. The
+  chat asks; the record is what remembers.
+
+**Recovering after a cut — the sweep.** A session that opens onto possible
+interruption residue (the principal says a window or the editor died, or the
+read-order onramp finds a live-*looking* branch with no closing log entry) runs a
+cheap, read-first sweep before starting new work — grounded in two real
+recoveries: atelier session 45's survival audit (2026-07-12) and the cmd+Q sweep
+(2026-07-20).
+
+| Check | Clean looks like |
+| --- | --- |
+| Working tree | no uncommitted, no untracked |
+| Sync vs `origin/main` | 0/0 ahead/behind |
+| Stashes | none unexpected |
+| Orphan worktrees / branches | none without live work (§ Claiming work · § Every branch ends put away) |
+| Reflog after the last close | nothing stranded past the last logged close |
+
+The resumer's tell is one question — **did the last session close clean, or die
+mid-flight?** A clean close leaves a session-log entry ending in a settled state;
+a death leaves a last commit then silence, no closing entry. The first needs only
+the normal onramp; the second warrants the sweep. Two lanes hold throughout: an
+orphan claim is reclaimed on the evidence, never a timer (§ Claiming work —
+Orphan claims), and **another repo's or session's recovery is not yours to run**
+(§ Stay in your lane) — read it for the picture and change nothing, as the
+2026-07-20 sweep read `ros` for context and left tiki's recovery to the session
+live there.
