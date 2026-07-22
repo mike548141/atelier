@@ -5,6 +5,20 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-22 — HI-F1–F6 ruled and applied: integrity checked wherever a store lives)
+- **Mike accepted all six cold-pass findings as counselled**; applied in
+  `30d350c`. The MAJOR's fix: archive-store basenames now bypass the
+  growth-store directory skip — `SKIP_DIR_NAMES` bounds *metering*, never
+  integrity, so a `*-DONE.md`/`*-ARCHIVE.md` under `sessions/`, `_archive/`,
+  etc. gates like any other. An unclosed fence no longer swallows the rest
+  of a file (the shared counter counts the tail, fail-safe, both grammars in
+  parity). `RECORD.md` now names the harvest-integrity gate beside the
+  cold-content gate; the child ROADMAP template teaches the tri-state
+  pre-hoc; the blockquote skip and indented-code edge are documented as
+  decisions. Proof: suite 314→319; both original fail-open repros re-driven
+  red→green; live scan green. Application is a doctrine edit by the
+  verdicts' author ⇒ its own cold pass queued `⏳` (rule 4).
+
 ### Reviewed (2026-07-22 — harvest-integrity gate cold pass: 1 MAJOR, cycle stays open)
 - **The queued rule-4 cold pass on `0bdccf3` ran** (taker: a Mike-spawned
   "do any review work" session; verdict
