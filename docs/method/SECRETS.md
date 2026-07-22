@@ -30,6 +30,12 @@ credentials (EVIDENCE §8): what's durable is the *procedure to mint*, not a
 frozen token. A store built this way is itself reproducible — it rebuilds from
 code, so it is not an exception to infrastructure-is-code.
 
+Replaceability is **absolute, and hesitation is the tell** (Mike, 2026-07-22):
+there must never be a credential whose roll anyone fears might break a service
+or the network. The moment someone hesitates to rotate — "what depends on
+this?" — the credential has silently become irreplaceable debt. Fix the
+coupling that causes the fear; never accommodate the fear by not rolling.
+
 **The honest boundary (2026-07-10, review B12).** Two edges of the claim, named
 so a clean-sounding doctrine doesn't over-promise:
 
@@ -66,6 +72,71 @@ of things to tighten. Silently treating a standing credential as the finished
 state is the defect; naming it as a bridge is the discipline (see
 `DATA-PROTECTION.md`'s stated-bridge rule).
 
+## One credential, one entity, one system — the non-reuse rules
+
+Non-reuse has two axes, and both are load-bearing (Mike's rulings, 2026-07-22):
+
+- **Across systems: one system, one value.** The same account on two devices
+  carries two different secrets — a service account present on every switch in
+  a rack is minted a fresh password per switch. Reuse couples the fleet: a
+  copied value opens every system it was copied to, so the blast radius of a
+  burn is exactly one system only if the value lives on exactly one system.
+- **Across entities: one credential, one holder.** Two agents, tools, or people
+  never present the same credential — not even to the same system. The reason
+  is **revocation independence**: either holder can be cut off without touching
+  the other, and an audit line attributes an action to one actor, not a pool.
+  A shared credential is a shared fate.
+
+The **identity/authenticator split** makes the first rule cheap to live with:
+a *username* is identity, and sharing it across systems is a feature — the same
+name lines audit trails up across the fleet. Only the *authenticator* (the
+secret) must differ. Correlate by name, never by value.
+
+Within one entity, the split runs the other way: **one holder may carry several
+credentials, separated by privilege**, where two genuinely distinct use cases
+exist — a read-only credential for routine observation and a read-write one
+taken up only for the change (the `sudo` shape: stand low, elevate
+deliberately). The test is the use-case boundary, not tidiness — don't multiply
+credentials that would only ever be used together. This is the triad's
+least-privilege leg applied *within* an entity, and it composes with the
+plane-split-in-the-credential rule (`ACCESS.md` step 2).
+
+## Asymmetric keys — stronger, so graded; not exempt
+
+The per-system rule above is calibrated to symmetric secrets, where every
+system that *verifies* the value also *holds* it — each copy is a place it can
+leak. A keypair breaks that symmetry: the target holds only the public half,
+and nothing it stores or sees can be replayed against another system. So the
+rule grades rather than transfers: **one key across many systems is
+acceptable** (Mike, 2026-07-22) — the leaky-verifier case that forces
+per-system passwords doesn't exist here.
+
+Acceptable is not ideal. The private key is now a single point whose exposure
+is a fleet-wide blast radius, so the residual duties concentrate on it: keep it
+where it can't travel (hardware-backed, or at least passphrase-wrapped at
+rest), split keys per security realm where that's cheap — and above all keep
+the roll cheap. Replaceability binds keys exactly as it binds passwords, and a
+key so widely deployed that rolling it is frightening has silently become the
+irreplaceable artifact this doctrine exists to prevent.
+
+## Minting — a leaked value must teach nothing
+
+Secrets are **machine-minted at the maximum entropy the technology accepts** —
+never hand-composed, never derived from a house scheme. The bar is Kerckhoffs'
+principle applied to credential *shape*: only the secret is secret, so the
+minting format must be publishable at zero cost. A leaked example teaches an
+attacker nothing about the next value — no prefix convention, no
+word-digit-symbol template, no length that isn't simply the platform's maximum.
+(Public practice agrees: NIST SP 800-63B rejects composition rules in favour of
+length and randomness — see "Grounding" below.)
+
+The one pattern allowed is the one the technology imposes: a platform that caps
+passwords at 30 characters makes "all its passwords fit in 30 characters" a
+visible pattern, but an *imposed* one — take the maximum the platform permits
+and record the constraint beside that platform's mint procedure
+(instance-local, "what lives elsewhere"). An imposed cap is a stated bridge
+(`DATA-PROTECTION.md`), never a licence for schemes below the cap.
+
 ## Right plane, never the wrong one
 
 A secret's *value* lives in exactly one place: the encrypted secret store.
@@ -94,13 +165,79 @@ The full loop, then: **detect** (the scans) → **rotate immediately** on any
 suspicion → and independently, **rotate on cadence** so undetected exposure
 expires on its own. Each leg shrinks the window a different way.
 
+## Exposure — watch, roll, never scrub
+
+Three duties, in order (Mike's rulings, 2026-07-22):
+
+- **Watch.** Exposure monitoring is a standing duty, not a commit-time event.
+  The scans hold the paths we control (the push path, the machine-local tree);
+  beyond them, watch the surfaces where a credential could surface without us
+  publishing it — breached-credential screening where a platform offers it,
+  provider breach notices, and the secret store's own access trail (who
+  resolved which secret, when — OWASP's audit leg; a store that can't account
+  for its reads can't tell you a secret was taken). Detection you don't do is
+  rotation you never trigger.
+- **Roll on confidence, not proof.** The trigger is *credible risk* of
+  exposure, never confirmed exposure — the burn costs minutes by design, so
+  the economics always favour rolling. Waiting for proof buys nothing and
+  spends the window.
+- **The roll is automated and rehearsed.** An exposure response that exists
+  only as prose is a hope, not a process — the same shape as
+  `DATA-PROTECTION.md`'s a-backup-isn't-a-backup-until-a-restore-is-verified,
+  applied to rotation. Here the cadence earns a second keep: every scheduled
+  roll is a live rehearsal of the exposure runbook, so the incident roll is a
+  motion already proven routine, executed sooner.
+
+And **never scrub history.** A rolled credential sitting in an immutable store
+— git history, a transcript archive — is dead text: it opens nothing.
+Rewriting published history to white-wash it costs real integrity (clones
+diverge, signatures break, the record stops being trustworthy) and buys
+nothing the roll didn't already buy. The one durable residue of a leak is
+*shape* — what our secrets look like — and the minting bar above prices that
+at zero by design rather than by luck. Roll it, and leave the corpse where it
+lies.
+
+## Grounding in public practice
+
+The rules above are Mike's decided practice, but they are also deliberately
+checked against published doctrine — corroboration named, divergence owned:
+
+- **[NIST SP 800-63B rev 4](https://pages.nist.gov/800-63-4/)** (final
+  2025-07-31): length-and-randomness over composition rules corroborates the
+  minting bar; screen-against-breached-lists corroborates the watch leg; and
+  *change on evidence of compromise, not on a calendar* corroborates
+  roll-on-confidence. **One owned divergence:** NIST drops *scheduled*
+  expiry for human-memorised passwords because forced rotation degrades what
+  humans choose next. That mechanism doesn't exist for machine-minted,
+  store-held secrets — no human memorises them, so rotation costs nothing and
+  degrades nothing — which is why the cadence stays for this doctrine's scope
+  (system and infrastructure credentials) while the NIST rationale is accepted
+  in full for the human-password class it addresses.
+- **[OWASP Secrets Management Cheat
+  Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html)**:
+  a centralised store holding values with everything else holding references,
+  automated rotation, and fine-grained least privilege corroborate the store
+  rule, the cheap-burn goal, and the triad. Its **tamper-resistant audit
+  trail** (who requested/used a secret, when, and whether expired ones were
+  re-tried) is absorbed above as the watch leg's third surface.
+- **Secure defaults** (CIS-class guidance): where a platform offers a stronger
+  authenticator class — MFA on a human account, keys over passwords, scoped
+  tokens over account passwords — take it by default; deny-by-default on
+  access. The weaker class needs the stated reason, not the stronger one.
+
+Public practice wider than credentials — threat modelling, supply-chain
+checks, secure-coding floors — belongs to a doctrine-wide gap analysis, not
+this file (tracked in `ROADMAP.md`).
+
 ## What lives elsewhere
 
 This is the shareable doctrine. The concrete mechanism is instance-local:
 
 - **The store technology and layout** (e.g. sops+age, per-org files, the
   `!secret` reference syntax), the specific standing credentials and their
-  shortening-debts, and the mint procedures for each external secret — all stay in
-  the instance repo's secrets doc and its `secrets/` tree, never here.
+  shortening-debts, the mint procedures for each external secret, and each
+  platform's imposed constraints (length caps and the like, per the minting
+  rule) — all stay in the instance repo's secrets doc and its `secrets/` tree,
+  never here.
 - **The estate credential map** (which credential guards what) is instance-local
   and, being sensitive topology, is itself protected under `DATA-PROTECTION.md`.

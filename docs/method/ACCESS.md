@@ -28,7 +28,10 @@ power must not exist before the earlier step's guard does.
    domain — "yes, connect to the NAS" is not "connect to things like the NAS
    from now on".
 
-2. **Take the narrowest credential that does the job.** Least-privilege is the
+2. **Take the narrowest credential that does the job — minted fresh for this
+   domain.** Never a value reused from another system or shared with another
+   entity (`SECRETS.md` "one credential, one entity, one system" — onboarding
+   is exactly where reuse tempts). Least-privilege is the
    first and most achievable step of the triad (`SECRETS.md`): a scoped token has
    a small blast radius when it burns. Don't accept an admin-all credential
    because the platform offered one. Where the platform separates data from
