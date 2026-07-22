@@ -162,6 +162,23 @@ watchdog poll.
 - **Privacy, security, and financial efficiency are design inputs from the first
   line**, not later hardening passes. Secrets never land inline; no personal
   detail in a shareable artifact; cost is a written policy, not an afterthought.
+  Enumerating a design's threats belongs in this first-line work — name what
+  could attack a surface before building it, right-sized ([`REVIEW.md`](REVIEW.md),
+  the security lens at design altitude; a lightweight pass, not full STRIDE
+  ceremony).
+- **Secure by default — a new surface opens closed.** Any new surface — a config
+  key, a service, a feature flag, a port, a permission, an exposed path —
+  **defaults to closed or minimal**, and *opening* it needs a stated, deliberate
+  reason: the same "stated bridge" grammar §7 gives a hand-action and the
+  precedence order gives every exception. This generalises the deny-by-default
+  cases scattered across the doctrine — fail-safe lands on *deny* (§1), the
+  credential defaults below take the least scope, Zero Trust below grants *no*
+  trust on network location alone — into one posture: the default state is the
+  safe, minimal one, and every widening is an explicit act carrying its reason. A
+  surface that opens by default and must be *closed* by hand is the anti-pattern;
+  the silent-open default is where insecure configuration hides. (Grounded: the
+  2026-07-22 security-canon gap map — the deny-by-default pieces were held for
+  access and failure states, the general secure-default posture was not.)
 - **Reproducible, least, just-in-time, short-lived credentials.** Secrets and
   privileges are the smallest set the task needs (least privilege), granted at
   the moment of use (just-in-time), and expiring (short-lived). The standing,
@@ -255,7 +272,13 @@ paying.*
   instead of copying it, so no re-sync work exists when the doctrine moves;
   one-source (§2 DRY) is this principle applied to facts. Prefer the architecture
   that makes a future problem *impossible* over the one that only makes it
-  *manageable*.
+  *manageable*. *Security case:* the zero-dep house ethos (`tools/README.md`) is
+  a **supply-chain control** by this principle — depending on nothing designs out
+  the whole class of dependency-vulnerability screening, rather than importing an
+  SCA pipeline to manage it. The residual it cannot zero — the CI actions the
+  build still consumes (now SHA-pinned), the trusted toolchain, a future release
+  artifact's SBOM — is named and bounded in `tools/README.md`, not pretended
+  away. (Grounded: the 2026-07-22 security-canon gap map.)
 - **Build the reliable tool once; reuse it forever.** When a task will recur,
   doing the hard work now to build a sharp, tested, reusable tool pays back on
   every run — and it buys more than time: a machine gives *consistent, robust*

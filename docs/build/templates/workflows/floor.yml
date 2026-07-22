@@ -91,14 +91,20 @@ jobs:
     name: scanner floor (leak · secret · link)
     runs-on: ubuntu-latest
     steps:
+      # Third-party actions are SHA-pinned, not tag-pinned: a movable tag (@v5)
+      # can be repointed at new code, so the full-commit pin is the supply-chain
+      # control for the actions this build trusts (atelier tools/README.md —
+      # "Supply chain"). The trailing tag is the human-readable label; bump both
+      # together, re-resolving the SHA. A child copying this floor inherits these
+      # pins — re-resolve them on a deliberate bump, never float them back to a tag.
       - name: Check out this repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           path: repo
           fetch-depth: 0   # signature verification needs full history (rev-list)
 
       - name: Check out atelier's scanners
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           repository: mike548141/atelier
           path: atelier
@@ -108,7 +114,7 @@ jobs:
           #        # a stamp-token-shaped slot here made the stamp step's
           #        # whole-tree grep unsatisfiable (G1, 2026-07-19 review)
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
 

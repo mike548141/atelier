@@ -75,6 +75,17 @@ evidence — see `method/EVIDENCE.md`.
   Apache-2.0 (`decisions/0004`). Set the copyright line to the right holder.
 - **NOTICE** — only if the repo bundles third-party code; list each component and
   its licence.
+- **SECURITY.md** — a private-disclosure policy, seeded **only once the repo is
+  public or about to be** — a private repo has no external reporter, so like
+  LICENSE and the licenscan gate this is a publish-time artifact, not a birth
+  file. Scope it to what the repo *ships*; state the response expectation
+  honestly (a solo-maintained repo says best-effort, no guaranteed timeline) and
+  claim no bug bounty that does not exist — the apex forbids a claim stronger
+  than its evidence. It points reporters at GitHub Private Vulnerability
+  Reporting; the finding severity + recurrence-prevention practice it names is
+  `method/REVIEW.md`'s security lens. Seed from `templates/SECURITY.md`; atelier's
+  own root `SECURITY.md` is the worked example. (Grounded: the 2026-07-22
+  security-canon gap map.)
 - **.gitignore** — always ignores OS litter and the *personal* Claude settings
   (`.claude/settings.local.json`); add language litter per type
   (`__pycache__/`, `node_modules/`, `.venv/`).

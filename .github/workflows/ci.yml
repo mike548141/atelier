@@ -65,15 +65,21 @@ jobs:
   floor:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      # Third-party actions are SHA-pinned, not tag-pinned: a movable tag (@v5)
+      # can be repointed at new code, so the full-commit pin is the supply-chain
+      # control for the actions this build trusts (tools/README.md — "Supply
+      # chain", and the residual named there). The trailing tag is the
+      # human-readable label; bump both together, deliberately, re-resolving the
+      # SHA. Grounded: the 2026-07-22 security-canon gap map.
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           fetch-depth: 0   # signature verification needs full history (rev-list)
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '20'
 
