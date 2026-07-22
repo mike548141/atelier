@@ -1,4 +1,4 @@
-# Model economics
+# Economics
 
 *How to split work across models, how to keep a session token-efficient, and how
 CI compute is metered. The doctrine is general; the estate-specific numbers —

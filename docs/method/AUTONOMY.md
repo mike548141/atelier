@@ -94,7 +94,7 @@ are hard or impossible to undo:
   machinery — the tooling resolves the reference, the agent never handles the
   value — is what its provisioning grant already confirmed, not a fresh stop.
 - **Spend** — anything that costs money or metered usage beyond the plan
-  (e.g. a billed model review — see MODEL-ECONOMICS).
+  (e.g. a billed model review — see ECONOMICS).
 - **People and safety** — any action touching a person's safety, or the safety
   of physical resources. Once repos are shared, "manage PRs" starts to include
   merging *other people's* work — that's people-adjacent; confirm.

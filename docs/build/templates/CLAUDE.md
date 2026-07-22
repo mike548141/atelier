@@ -44,7 +44,7 @@ in atelier and is read on demand — never wholesale.
   shared queue before starting it, and let a live `[~]` claim override a
   standing instruction to take that item; stay in the lane you were given
   (`CONCURRENCY.md`); flag when economics favour a fresh session, and on
-  overload stop at a safe point, record, and hand off (`MODEL-ECONOMICS.md`);
+  overload stop at a safe point, record, and hand off (`ECONOMICS.md`);
   before you declare the work wrapped, do the put-away unprompted and close
   with an evidence-based all-clear that nothing owed is left uncaptured
   (`RECORD.md`).

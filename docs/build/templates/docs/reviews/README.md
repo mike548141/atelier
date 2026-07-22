@@ -72,5 +72,5 @@ act on, not a transcript. Every field takes work that isn't built yet:
 - **Non-goals** — what's correctly out of scope.
 
 Keep Fable sessions short and pre-scoped
-(`<atelier-path>/docs/method/MODEL-ECONOMICS.md`): hand it the scoped subject,
+(`<atelier-path>/docs/method/ECONOMICS.md`): hand it the scoped subject,
 ask for findings, apply fixes back on Opus.

@@ -107,8 +107,8 @@ evidence — see `method/EVIDENCE.md`.
 - **SESSIONS.md** — the append-only session index (detail-on-demand in
   `sessions/`). Tail-read at session start; append before finishing. This is
   `method/RECORD.md`'s mechanism — the repo just hosts it.
-- **MODEL-ECONOMICS.md** — the repo's model/token policy. General shape (which
-  model builds, which reviews, session hygiene) is `method/MODEL-ECONOMICS.md`;
+- **ECONOMICS.md** — the repo's model/token policy. General shape (which
+  model builds, which reviews, session hygiene) is `method/ECONOMICS.md`;
   the repo file carries only what's repo-local, or points up entirely.
 - **decisions/** — ADRs named `<YYYY-MM-DD>-<HHMM>-<slug>.md` (`HHMM` in UTC —
   `date -u`, ADR 2026-07-15; coordination-free, per `method/CONCURRENCY.md`;
