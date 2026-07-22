@@ -5,6 +5,21 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Reviewed (2026-07-22 — harvest-integrity gate cold pass: 1 MAJOR, cycle stays open)
+- **The queued rule-4 cold pass on `0bdccf3` ran** (taker: a Mike-spawned
+  "do any review work" session; verdict
+  `reviews/2026-07-22-0819-harvest-integrity-gate-cold.md`). Every delta
+  claim reproduced — suite 314, selftest, live scan, the four-situation
+  taxonomy, tri-state coherence, hatch behaviour. **PASS-WITH-FINDINGS
+  1M/3M/2 notes**: the MAJOR (HI-F1) is a latent fail-open — archive
+  stores inside skipped dirs (`sessions/`, `_archive/`…) are invisible to
+  the gate while the clean banner claims coverage; reproduced, no live
+  incident (all five fleet repos keep stores at `docs/`). MINORs:
+  unclosed-fence swallow (HI-F2), RECORD.md's account now incomplete
+  (HI-F3), child template lacks the tri-state legend (HI-F4). 🎯
+  HI-F1–F6 await Mike's ruling; the MAJOR keeps the cycle open
+  (ruling → application → application's own `⏳`).
+
 ### Added (2026-07-22 — harvest-integrity gate: the archive must hold no live state)
 - **sizescan now checks archive stores** (`*-DONE.md`, `*-ARCHIVE.md`) for
   live state markers — `[ ]`/`[~]`/`⏳` list items gate under `--check`,
