@@ -150,12 +150,21 @@ Mapping done 2026-07-22 (record:
 — A/B/E confirmed narrow, C reframed to mutable-tag CI actions, D dismissed
 instance-layer) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- [~] **Doctrine edits for confirmed gaps A/B/C/E** — seams and rough sizes
-      proposed in the mapping record §3 (proposals, not decisions).
-      Suggested first slice: SHA-pin the CI actions + a SECURITY.md — both
-      live public-repo exposure. Self-authored doctrine: each edit lands
-      with its rule-4 `⏳`. (claimed 2026-07-22-1210, wt: sec-canon-edits —
-      both slices: C-pin + SECURITY.md, then the A/B/C/E doctrine text.)
+- [x] **Doctrine edits for confirmed gaps A/B/C/E — BUILT 2026-07-22**
+      (`85157c3`, merged `73da10d`): every third-party CI action SHA-pinned
+      (ci.yml + all child workflow templates, five tag→SHA resolutions
+      verified live twice); root `SECURITY.md` + child template, registered
+      in REPO-STANDARD as publish-time; REVIEW.md gains the right-sized
+      threat pass (A) + security-finding severity/recurrence-prevention (E);
+      PRINCIPLES gains secure-by-default (B) + zero-dep-as-supply-chain-
+      control with named residual (C). Worker divergences in the session
+      record.
+  - ⏳ **security-canon A/B/C/E review** — delta: `85157c3` (merge
+        `73da10d`); intent records: the gap map
+        `sessions/2026-07-22-1025-security-canon-gap-map.md` §3 + the
+        2026-07-22-1210 queue-run record's close entry. Self-authored
+        doctrine (built by this run's instructed worker) ⇒ rule 4: the run
+        may not spawn this review; a non-author taker writes the brief.
 - **Already held — name, don't rebuild** (verified by the mapping,
   2026-07-22): automated scanning in the pipeline (the floor scanners), peer
   review before ship (REVIEW.md), least privilege (SECRETS triad), secrets

@@ -52,3 +52,20 @@ counsels both MAJORs precede merge; merge and rulings stay Mike's. This
 run applied nothing (rule 3) and, having instructed the reviewer's spawn,
 may not take any further review of fixes it might later apply — noted for
 the chain.
+
+**1240 · Security canon gaps A/B/C/E — built and merged.** Opus worker in
+`wt sec-canon-edits`, orchestrator-verified before commit: all five
+tag→SHA resolutions re-run independently against the live API (matched),
+zero bare `@vN` `uses:` lines left anywhere, floor + YAML parse green at
+the worktree (sizescan's ROADMAP size-advisory pre-existing, exit 0).
+Landed as `85157c3`, merge `73da10d`. Worker judgement calls, recorded as
+the divergence ledger: (1) pinning extended beyond the two named files to
+*all* child workflow templates incl. commented example lines — gap C's own
+logic; (2) gap E's seam chosen as REVIEW.md over RECORD.md (the finding
+lifecycle lives there); (3) child SECURITY.md template + REPO-STANDARD
+registration added, framed publish-time like LICENSE; (4) gap-C bearing
+placed in PRINCIPLES §8 not §2; (5) SECURITY.md response window stated
+best-effort, no fabricated number (ground-numeric-limits); (6) why-SHA
+comments at each pin per the say-why convention. Gap D untouched (map
+dismissed it). Self-authored doctrine ⇒ **rule-4 `⏳` queued on the
+ROADMAP; this run built it and may not spawn its review.**
