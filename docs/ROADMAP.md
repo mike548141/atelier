@@ -120,7 +120,7 @@ costume, not doctrine, and parts of it re-state rules that already stand
 question: embed it, and how?
 
 - [ ] **Name the pattern in `method/`** (likely CONCURRENCY § session rhythm
-      + MODEL-ECONOMICS for the tier split): the orchestrator/worker shape
+      + ECONOMICS for the tier split): the orchestrator/worker shape
       (capable tier orchestrates and reviews, workhorse tier executes; flex
       allowed on judgement); a default selection order when the run's brief
       doesn't override — loose ends & unblockers → features most of the way
@@ -140,7 +140,7 @@ question: embed it, and how?
   run takes a `⏳` item only where *that session* passes rule 4's criterion
   for that delta (a run that authored a delta never takes its review).
 - Deliberately kept out of doctrine: "maximise plan use" stays the
-  principal's per-run spend directive (which pool — MODEL-ECONOMICS), never
+  principal's per-run spend directive (which pool — ECONOMICS), never
   a standing instruction; the closing litany stays in RECORD.md/CLAUDE.md
   where it already binds — the run prompt should not need to restate it.
 
@@ -149,7 +149,7 @@ by function, so the full rule-4 cycle. The capture itself is records-only.*
 
 **RATIFIED 2026-07-22 (Mike): "I like everything you have there" — build
 as counselled** (method-layer pattern + `queue-run` skill; the counselled
-home was CONCURRENCY § session rhythm + MODEL-ECONOMICS for the tier split,
+home was CONCURRENCY § session rhythm + ECONOMICS for the tier split,
 with section-vs-new-file settled by the builder on the text's actual size).
 Deliberately left for a **fresh session** to claim and build — the
 counsel's author closes out; the builder queues the rule-4 `⏳` when the
@@ -411,7 +411,7 @@ CI, child-CI scanner floor, linkscan build + wiring) → [`ROADMAP-DONE.md`](ROA
   takes no fork PRs, or scoping `push`) touches that decision, so it's the
   estate's call per repo, not the agent's. Decide whether the merge-preview +
   fork-PR coverage earns the second metered run on private children, or the
-  template should scope down. See MODEL-ECONOMICS "duplicate triggers".
+  template should scope down. See ECONOMICS "duplicate triggers".
 
 - [ ] **Map and understand the difference between honesty (that claude does
       well), the truth, and transparency** — MIKE'S raw note, to be fleshed out

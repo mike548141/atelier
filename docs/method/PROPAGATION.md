@@ -128,7 +128,7 @@ in atelier and is read on demand — never wholesale.
   shared queue before starting it, and let a live `[~]` claim override a
   standing instruction to take that item; stay in the lane you were given
   (`CONCURRENCY.md`); flag when economics favour a fresh session, and on
-  overload stop at a safe point, record, and hand off (`MODEL-ECONOMICS.md`);
+  overload stop at a safe point, record, and hand off (`ECONOMICS.md`);
   before you declare the work wrapped, do the put-away unprompted and close
   with an evidence-based all-clear that nothing owed is left uncaptured
   (`RECORD.md`).
@@ -191,7 +191,7 @@ Enforcement was always a separate practice: **independent review** — who
 reviews, at what capability, and which work earns one live in `REVIEW.md`.
 The documents are the standard; the peer review is what checks the work against
 the standard before it is trusted (`REVIEW.md` carries the lifecycle;
-`MODEL-ECONOMICS.md` the trigger economics). A pin that is current and
+`ECONOMICS.md` the trigger economics). A pin that is current and
 a floor that is inlined still only *inform* the agent; the review loop is what
 *catches* the session that ignored them. Do not mistake the anchor for the
 enforcement.

@@ -109,7 +109,7 @@ stopped instead of re-deriving it:
     deliberately left open. The test: the principal reads it and closes without
     a nagging "did it really capture everything?" (Grounded 2026-07-20, Mike:
     the declare-the-close signal is only worth the evidence under it.)
-  - (See also session hygiene in `MODEL-ECONOMICS.md`: log where you got to, then
+  - (See also session hygiene in `ECONOMICS.md`: log where you got to, then
     start fresh rather than dragging a bloated context.)
 
 ## Decisions — ADRs for anything a future session might re-propose

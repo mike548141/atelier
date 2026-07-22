@@ -65,7 +65,7 @@ we work:
 - **`PRINCIPLES.md`** — the design principles, precedence ladder, and situation
   tests, with generalised cases. **Canonical here** (extracted 2026-07-10);
   child repos keep their bearings + case-law and point up.
-- **`MODEL-ECONOMICS.md`** — match the model to the job (plan model builds,
+- **`ECONOMICS.md`** — match the model to the job (plan model builds,
   usage-billed model reviews), the which-pool self-check, tiered authority, and
   session hygiene. **Canonical here** (extracted 2026-07-10); the estate-specific
   numbers stay person-local.

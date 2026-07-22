@@ -61,7 +61,7 @@ name: floor
 #     rounded up to the minute), so trimming to main-only trades minutes now
 #     against feature tips left unscanned until that flip. Default to every-push;
 #     whether to scope it down is an estate-specific call (financial inventory in
-#     the operator's estate-root repo). See atelier docs/method/MODEL-ECONOMICS.md,
+#     the operator's estate-root repo). See atelier docs/method/ECONOMICS.md,
 #     "The compute pool — CI minutes".
 on:
   push:

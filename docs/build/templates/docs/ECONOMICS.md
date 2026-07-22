@@ -12,7 +12,7 @@ The short version of the house policy this repo runs by.
 - **Sub-agents** — fan-out, parallel slices, fresh-context verification; they
   buy context *isolation*, not token savings. The full economics — when,
   when-not, lossiness — live in the parent's *Sub-agents — isolation, not
-  savings* (atelier `docs/method/MODEL-ECONOMICS.md`).
+  savings* (atelier `docs/method/ECONOMICS.md`).
 
 ## Session hygiene
 
@@ -26,6 +26,6 @@ The short version of the house policy this repo runs by.
 - **Never switch model mid-session** — the prompt cache is per-model.
 - **Point, don't paste** — give paths/line ranges; let the model read.
 
-The canonical, fuller version is atelier's `docs/method/MODEL-ECONOMICS.md`
+The canonical, fuller version is atelier's `docs/method/ECONOMICS.md`
 (match-model-to-job, tiered authority, cache economics, ceremony-to-risk, review
 triggering). This file carries only what's repo-local, or points up entirely.

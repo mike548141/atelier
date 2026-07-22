@@ -10,7 +10,7 @@
 # genuinely OS-specific code paths, scoped to that slice (see the commented job
 # below) — never a blanket os: [ubuntu, macos] matrix that re-runs the whole
 # suite at 10x for a portability claim it doesn't test. See atelier
-# docs/method/MODEL-ECONOMICS.md, "Runner class — the multiplier lever".
+# docs/method/ECONOMICS.md, "Runner class — the multiplier lever".
 name: CI
 
 on:

@@ -16,7 +16,7 @@ deliver most of the value even when the reviewer is the *same* model in a new
 session. Capability is the multiplier on top, not the precondition: where a more
 capable tier exists, deploy it at review — that is where its marginal value per
 token is highest — and match reviewer capability to the stakes (see
-`MODEL-ECONOMICS.md`: the most capable available model reviews irreversible or
+`ECONOMICS.md`: the most capable available model reviews irreversible or
 structural work; a mechanical gate — validators, CI — holds the floor for the
 routine). The review is not a formality tax on good work; it is the thing that
 lets "done" mean *verified* rather than *looks right*.
@@ -268,7 +268,7 @@ paragraph, a plan, or a patch, the question still parses — which is the point,
 and why it is phrased this way (see *Review the design* below for the framing
 defect this replaced).
 
-Match the gate to the cost of being wrong (`MODEL-ECONOMICS.md` — "match the
+Match the gate to the cost of being wrong (`ECONOMICS.md` — "match the
 ceremony to the risk"): first-of-kind or structural work, a silent-failure mode,
 doctrine text, and irreversible or public actions earn the independent
 fresh-context review; work whose tests and dogfooding exercise it end-to-end over
@@ -351,7 +351,7 @@ it; over-ceremony a routine note and the practice crowds out the work.
 ## When to review — inline or batched
 
 Both are sanctioned for routine work; pick per cost and how blocking the
-result is (`MODEL-ECONOMICS.md`). For self-authored doctrine the pick is not
+result is (`ECONOMICS.md`). For self-authored doctrine the pick is not
 the building model's to make: rule 4 puts the spawn in a non-author's hands,
 whichever path the economics favour:
 

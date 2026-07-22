@@ -38,7 +38,7 @@ name: floor
 # Actions minutes (billed per job, rounded up to the minute), where a push is not
 # yet publication and every-push is a backstop over the pre-commit hook. Whether
 # that trade is worth its minutes is an estate-specific call, not a fixed one —
-# see docs/method/MODEL-ECONOMICS.md, "The compute pool — CI minutes".
+# see docs/method/ECONOMICS.md, "The compute pool — CI minutes".
 on:
   push:
   pull_request:
