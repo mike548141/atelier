@@ -82,3 +82,101 @@ the chain is self-authored doctrine).
 - `docs/sessions/2026-07-21-2208-scope-lens4-cold-pass.md`
 - The author seeded no questions; there is no author-written ask anywhere in
   this file. Everything above the divider is taker-written.
+
+---
+
+## Verdict — PASS, no MAJOR (committed before any deferred material was opened)
+
+**Provenance restated (rule 4):** this reviewer is the Mike-spawned taker
+("please do any review work"); it authored none of the doctrine deltas, the
+SL1–SL7 findings, or their application. Everything above this line and in
+this section was written without opening the prior verdict file, the
+decision-stamp commit, or the applier's intent record. Subject pinned at
+`d553045` on ref `92a146f`; two concurrent sessions were live during the
+pass (interruption-resilience, v2-plugin-deinstance) — neither branch
+touches any in-scope file, so the pass continued on the pinned ref
+(the principal delegated the pause/continue call).
+
+**Additional exposure incurred mid-pass, named:** a repo-wide stale-wording
+grep surfaced the prior pass's evaluative `SESSIONS.md` index line
+(SL1–SL7 summaries), and the record-hygiene check read the CHANGELOG entry
+for the application — both after the brief and the core findings were
+committed, but before this verdict was. Treated as claims, not facts;
+named, not denied.
+
+### Attack surface (named as the first act)
+
+- **A1 — the parity floor genuinely pins the roster (not a green fence).**
+  CONFIRMED by re-drive: with the pre-fix skill restored
+  (`git checkout d553045^ -- skills/review-brief/SKILL.md`) the suite goes
+  red with **2 failures** — the missing `Security & privacy` lens and the
+  `three lenses` count-word pin — exactly the SL1 drift class. Restored,
+  green. `canonical_lenses()` parses REVIEW.md to exactly
+  `['Approach & assumptions', 'Correctness & quality',
+  'Completeness / harvest', 'Security & privacy']`; the section-bounded
+  regex cannot mistake the independence rules or lifecycle steps for
+  lenses, and a renamed section heading fails loud (ValueError), not
+  silent-green. Residual accepted: the child-template pin is a literal
+  sentence — brittle-but-tripwire, which is the right failure direction
+  (reds on any reword, forcing a same-commit look).
+- **A2 — the reach-per-shape rewrite keeps lens 4's floor.** CONFIRMED, and
+  live-exercised by this very pass: this is a landed-delta review of
+  markdown + a stdlib test file, the scanner cannot genuinely be aimed at
+  it, and the new text forces exactly what this verdict does — an explicit
+  discharge with grounds and a statement of which case applied, rather
+  than a silent skip or a definitionally-empty clean pass weighed as
+  cover. The discharge line is not an easy out: it is auditable (one
+  explicit line in the verdict) and shape-scoped, not mood-scoped.
+- **A3 — the skill compresses, never contradicts, the parent.** CONFIRMED
+  on a clause-by-clause read of the skill's §3 against REVIEW.md's scope
+  mandate + lens list. One compression loss noted as AC2 below.
+- **A4 — the template Type replacement removes the standing narrowing
+  offer.** CONFIRMED: "correctness only" is gone from every live surface;
+  the new Type text routes all narrowing to Non-goals, which the same
+  delta makes reviewable. Repo-wide sweep for `three lenses`,
+  `run all three`, `correctness only`: only historical records remain
+  (prior session index, an old CHANGELOG entry) — correct residue, not
+  drift.
+- **A5 — the recorded proofs reproduce.** Suite: **Ran 302 tests — OK**
+  (claimed 298→302; the 4 new parity tests account exactly). Red leg:
+  reproduced (A1). Floors at HEAD: sizescan `--check` rc=0 (advisory
+  only), reviewscan clean, linkscan clean, secretscan + leakscan clean on
+  every commit this pass made.
+- **A6 — record hygiene.** CHANGELOG carries the cycle's entry
+  (open-pending-application stated — will need its close stamp when this
+  pass lands); ROADMAP pointer was refs-only as rule 4's ceiling demands;
+  the intent record is where the evaluative account lives, and it stayed
+  unread until after this verdict committed.
+
+### Lens 4 — security & privacy (run manually; scanner discharged)
+
+Scanner discharge, grounds per the rule under review: landed-delta shape,
+nothing pending for `/security-review` to read, and its exclusions bar
+markdown — a clean pass would be definitionally empty. Manual pass:
+`LensRosterParityTest` is stdlib-only (`re`, `unittest`, `pathlib`),
+reads two repo files, no exec/network/input surface; the doctrine and
+template prose leak nothing (leakscan structural + local, green); no
+over-collection at design altitude — the delta *narrows* what a reviewer
+feeds the scanner (never a brief carrying deferred material), a privacy
+improvement in its own right.
+
+### Findings
+
+- **AC1 (LOW, quality)** — `docs/build/templates/CONTRIBUTING.md:44` is
+  **122 columns**, introduced by the SL3 hunk — the same >80-col defect
+  class SL7 fixed in REVIEW.md in the same commit. House prose wraps at
+  ~80 (ambient tolerance runs 81–85); this is the widest line in any
+  in-scope file and sits in a template children copy. Non-semantic.
+  *Counsel: rewrap; one-line fix, no meaning touched.*
+- **AC2 (LOW, completeness)** — the skill's scanner clause omits the
+  exclusion-barred caution ("a clean pass over a barred file class is
+  definitionally empty — weigh it as nothing") that the parent states and
+  this cycle live-proved. A skill-guided reviewer holding a markdown diff
+  could aim the scanner, get a clean pass, and weigh it as a real floor.
+  Compression is the skill's sanctioned mode and the full doctrine is one
+  pointer away, so this is LOW, not a contradiction. *Counsel: half a
+  sentence at the next skill touch; not worth a solo commit.*
+
+No MAJOR. Per the close rule this pass is **terminal**: the cycle closes,
+AC1–AC2 go to the backlog for the principal's decision, and this
+application does not spawn another full ceremony.
