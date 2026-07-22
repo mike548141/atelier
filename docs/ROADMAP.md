@@ -291,7 +291,8 @@ touches REVIEW.md + EVIDENCE.md + the scanner floor); brief owed at pickup.*
       test. Suite 109→116 (118 instruments-wide post-merge). The `--json`
       audit contract gains the `evicted` array — consistent-awareness call
       endorsed at merge.
-- [ ] **Sign the manifest (tamper-evidence)** — closes the `--verify` caveat: a
+- [~] **Sign the manifest (tamper-evidence)**
+      (claimed 2026-07-22-1106, wt: atelier-ccarchive-signing) — closes the `--verify` caveat: a
       tamperer who rewrites a `.gz` *and* the manifest currently passes. Sign
       `manifest.json` (detached signature / HMAC with a key kept **off the
       archive** — `~/.claude` or the macOS Keychain) so `--verify` detects a

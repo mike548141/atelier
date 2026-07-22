@@ -125,7 +125,7 @@ the moving-target artefact (this very session writing logs during
 measurement) before attributing drift — the discriminating-evidence
 discipline holding in the small. Worktree put away.
 
-**1115 · Anti-slop invariant candidates — landed.** Worker (Opus) + five
+**1059 · Anti-slop invariant candidates — landed.** Worker (Opus) + five
 parallel miners read the whole review corpus (330 findings, 47 review files,
 plus the sessions/ROADMAP-DONE disposition sweep — near-total double-homing
 confirmed, reviews kept primary) and applied the >2 promotion rule with cited
@@ -141,7 +141,7 @@ survived one mid-flight API drop (resumed from transcript; nothing lost —
 its worktree was verified clean before resume). 🎯 S1–S5/V1–V7 rulings
 queued for Mike. Worktree put away.
 
-**1120 · cc-instruments open questions — landed.** Worker (Opus) answered
+**1100 · cc-instruments open questions — landed.** Worker (Opus) answered
 both queued questions with measurement, not opinion (`5ce9f00`, merged
 `--no-ff`): the metadata question found a genuine honesty defect — ccarchive
 walks `projects/**/*.jsonl` only, so `tool-results/` sidecars (offloaded
@@ -153,7 +153,7 @@ fusing would couple the archive's schema-immunity to the reader's
 schema-fragile parser (ADR 0006's observe/preserve verbs); counter-case
 captured, middle path named. 🎯 both rulings queued. Worktree put away.
 
-**1135 · ccarchive dataless awareness — landed.** Worker (Opus) found Node
+**1105 · ccarchive dataless awareness — landed.** Worker (Opus) found Node
 exposes no `st_flags` (verified incl. bigint stats) and chose BSD
 `stat -f %f` via the already-imported `execFileSync` — then verified the
 `SF_DATALESS` classifier against a genuinely evicted file in the live
