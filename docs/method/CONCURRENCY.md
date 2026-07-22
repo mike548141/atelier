@@ -380,8 +380,8 @@ carry, and how to make each survive:
   block another session should see — extend the claim line on `main` in place
   with where it stopped and on what: `… wt: atelier-reach-h2 · at: export path
   unverified`. This is the same per-item-close durability the orchestrated-queue-
-  run strand relies on (ROADMAP): resumability is earned per checkpoint, never by
-  an end-of-run tidy a cut erases before it runs.
+  run pattern relies on (§ Orchestrated queue runs, below): resumability is earned
+  per checkpoint, never by an end-of-run tidy a cut erases before it runs.
 
 - **A decision you're blocked on.** A `🎯` question put only to the principal in
   chat is *volatile* — a closed window or a cancelled prompt loses it, and the
@@ -415,3 +415,100 @@ away), and **another repo's or session's recovery is not yours to run**
 (§ Stay in your lane) — read it for the picture and change nothing, as the
 2026-07-20 sweep read `ros` for context and left tiki's recovery to the session
 live there.
+
+## Orchestrated queue runs — draining the shared queue across a session chain
+
+An **orchestrated queue run** assembles every primitive above into one loop: a
+session drains the shared queue — pick an item, execute it, close its records,
+repeat — chained session-to-session so the principal's plan capacity is used
+fully without a hand-carried prompt each time. It is not new machinery; it is the
+worktree substrate (§ The substrate), claiming (§ Claiming work), stay-in-your-
+lane (§ Stay in your lane), per-item durability (§ Surviving an interrupted
+session) and the record's close discipline (`RECORD.md`) run as one named
+pattern. Grounded twice: the 2026-07-21 man-page rollout ran this way, and the
+2026-07-22-1018 run (`../sessions/2026-07-22-1018-orchestrated-queue-run.md`) ran
+it live — this section is extracted from those, not invented.
+
+**The orchestrator/worker shape.** One session **orchestrates** — it selects,
+claims, dispatches, reviews and closes; an item's execution runs either **inline**
+or in a **worker** session in its own worktree (the choice is § Two kinds of
+parallelism, judged per item: a worker in a worktree for a substantial slice,
+inline for a small one). Which tier sits in which seat is a model-economics call,
+not a concurrency one — the capable tier orchestrates and reviews, the workhorse
+tier executes, flex on judgement allowed — so it lives in `ECONOMICS.md`
+(§ The orchestrated-run tier split), and this section assumes it.
+
+**Role check at open.** Before it does anything, an orchestrating session
+confirms it is on the tier its role needs (`ECONOMICS.md`). A session opened on
+the **wrong tier for its role** — a workhorse asked to orchestrate and review, or
+a capable session about to burn its pool on execution a worker should carry —
+**stops and says so** instead of proceeding; the fix (switch at the session
+boundary) is free before the work starts and costly after. This is the "know
+which pool you're spending" self-check (`ECONOMICS.md`) fired at run-open.
+
+**Selecting the next item.** The run's brief may set the order; absent an
+override, the default is **loose ends & unblockers first** (a near-done item, or
+one whose completion frees others), **then features most of the way to done**
+(finish before starting — minimise work in flight), **then queue order** for the
+rest. Whichever item is chosen, it is **claimed before any work** — a run does
+not skip the claim because it is "just draining the queue": a parallel run reads
+the `[~]` and takes something else (§ Claiming work), and a live `[~]` outranks
+the run's own brief naming that item (§ Claiming work — a live claim outranks a
+standing instruction).
+
+**Per-item close — the durability that makes the cap safe.** Each item
+**commits, pushes and records before the next is picked up** (`RECORD.md`). This
+is not end-of-run tidiness relocated; it is the load-bearing property of the
+whole pattern. A run has no clean-close guarantee — it ends when a cap, an
+economics stop, or an interruption cuts it (§ Surviving an interrupted session) —
+so **limit-readiness is earned per item, never deferred to a tidy-up a cut erases
+before it runs.** A run that batches its records to the end loses everything since
+its last commit the moment it is cut; the 2026-07-22-1018 run states this at its
+head and holds it per close.
+
+**Stop conditions — named, and the report says which fired.** A run stops on one
+of four:
+
+- **economics** — the pool is spent, or the principal's per-run spend directive
+  is met (below);
+- **session cap** — the harness limit; per-item close means the cut costs at most
+  the in-flight item;
+- **queue empty** — nothing left unclaimed;
+- **everything left is blocked** — every remaining item waits on a decision only
+  the principal can make, or on another item not yet done.
+
+It ends with a **report**, and the report's job is to make blocked items
+**visible, not skipped**: a run that silently steps over a 🎯 principal-blocked
+item leaves the principal unable to unblock it (`00-APEX.md` — authority is
+conditioned on being informed). So the end-of-run report **surfaces every 🎯 item
+the run could not progress, and why**, alongside what it closed — the same
+evidence-carrying all-clear `RECORD.md` mandates at session close, applied to a
+run.
+
+**Taking a `⏳` review item — the rule-4 synergy.** A chain of fresh sessions
+naturally throws up sessions eligible to review the `⏳` queue's self-authored-
+doctrine items: a later session in the chain often authored none of a queued
+delta. But eligibility is **per delta, not per run** — a run takes a `⏳` item
+only where *that session* passes rule 4's criterion for that delta (`REVIEW.md`
+rule 4: the review comes from a session the author neither started nor
+instructed). **A run that authored a delta never takes its own review**, however
+many items later it reaches it; it leaves the `⏳` for a session that did not. The
+2026-07-22-1018 run records its rule-4 standing explicitly before taking the
+SECRETS/ACCESS `⏳` — that provenance statement is the criterion met on the
+record, not assumed.
+
+**Deliberately not in this doctrine** (named here, because a reader would look
+for them):
+
+- **"Maximise plan use" is not a standing rule.** How hard to drain the pool on a
+  given run is the **principal's per-run spend directive** — which pool, how much
+  — and it turns on estate-specific plan facts `ECONOMICS.md` deliberately does
+  not hold (§ Know which pool you're spending). It is set per run, never baked
+  into the pattern.
+- **The closing litany is not restated here.** What a per-item close *contains* —
+  the session record, the roadmap harvest, review-queued-if-owed, the push —
+  already binds in `RECORD.md` and the child `CLAUDE.md` block. This section (and
+  a run prompt) **point at it, never restate it**: that restatement is the exact
+  drift the capture named — an operating pattern re-teaching the standing rules it
+  should inherit. A run inherits the close discipline; it does not carry its own
+  copy.

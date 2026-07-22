@@ -199,6 +199,28 @@ the same truth seen from the failure side: a cheap attempt that fails and is
 redone on the capable model costs more than starting capable, so when a
 hand-up looks likely, escalate up front.
 
+### The orchestrated-run tier split
+
+The rule above, applied to the queue-run rhythm (`CONCURRENCY.md` §
+Orchestrated queue runs): a run's two seats map to the two tiers. **The capable
+tier orchestrates and reviews** — selection, dispatch, the review verdicts and
+the structural judgement calls at merge are exactly the judgement-heavy,
+silent-failure-prone work this section says to pay capability for. **The
+workhorse tier executes** — an item's build is pattern-following work under a
+mechanical floor (the scanners, the test suite), which is where a cheaper model
+is safe because failure is *catchable*. So the run spends the expensive tier
+where its marginal value is highest and lets the cheap tier carry the bulk — the
+"cheapest model that genuinely does the work" rule reaching its natural shape
+across a chain of items. **Flex on judgement is allowed:** an orchestrator may
+execute a small item inline rather than dispatch it, and a first-of-kind or
+structural item escalates to the capable tier per the rework rule above (a
+hand-up that looks likely is taken up front). The split is the default, not a
+fence. The "know which pool you're spending" self-check still runs at whatever
+seat a session takes — the **role check** `CONCURRENCY.md` mandates at run-open
+*is* that self-check applied to orchestration: a session on the wrong tier for
+its role stops and says so, when the fix (switch at the session boundary) is
+still free.
+
 ## Triggering reviews — inline or batched
 
 When economics allow, the building session may **spawn a review as a background
