@@ -6,10 +6,12 @@ ccarchive \- durably preserve every Claude Code transcript, word for word
 .RI [ options ]
 .br
 .B ccarchive \-\-verify
+.RI [ \-\-materialise ]
 .RI [ \-\-dest
 .IR dir ]
 .br
 .B ccarchive \-\-audit
+.RI [ \-\-materialise ]
 .RI [ \-\-dest
 .IR dir ]
 .br
@@ -117,6 +119,19 @@ preserved \(em mutated, renamed, grown, new or pruned transcripts. Read-only.
 See
 .B AUDIT
 below.
+.TP
+.B \-\-materialise
+With
+.B \-\-verify
+or
+.BR \-\-audit ,
+read files whose local bytes iCloud has evicted (see
+.B DATALESS
+below) instead of skipping them. This deliberately
+.I re-downloads
+each evicted file to hash it, so it is opt-in \(em the default skips them to
+keep a routine check from dragging the whole archive back onto disk. No effect
+on any other mode.
 .TP
 .B \-\-restore
 Restore transcripts from the archive back into the live store: gunzip each
@@ -289,6 +304,65 @@ keyed by a stale path. Those exit non-zero and are listed by name;
 and
 .B pruned
 are normal and only counted. The audit reads both trees and writes nothing.
+.SH DATALESS
+The default archive destination is iCloud Drive, and macOS's
+.I Optimise Mac Storage
+may evict the local bytes of an archived
+.I .gz
+it judges unused, leaving a
+.B dataless
+placeholder: the content is still in the cloud and faults back on the next read,
+but no bytes sit on disk. Reading such a file re-downloads it. That is fine for
+a deliberate
+.BR \-\-restore ,
+but a whole-archive
+.B \-\-verify
+that re-hashed every file would drag the entire history back onto disk \(em
+costly, and it defeats the point of eviction.
+.PP
+So
+.B ccarchive
+detects eviction (the
+.B SF_DATALESS
+bit in the file's
+.BR st_flags ,
+read via
+.BR stat (1)
+\(em Node exposes no
+.I st_flags
+field of its own) and, by default,
+.B \-\-verify
+.I skips
+an evicted file, reporting it
+.B evicted
+\(em a bucket distinct from
+.B missing
+and
+.BR mismatch ,
+and
+.I not
+a failure: the copy is intact in the cloud, merely not local, so it does not
+exit non-zero.
+.B \-\-audit
+likewise leaves a changed live file whose archived copy is evicted
+.I undetermined
+rather than faulting the archive back to classify it. Pass
+.B \-\-materialise
+to read the evicted files anyway (re-downloading them).
+.PP
+Detection is metadata-only \(em
+.BR stat (1)
+does
+.I not
+fault an evicted file back, and neither does the mtime check an ordinary run
+uses \(em so archiving new sessions and writing the manifest never trigger a
+bulk re-download. Off macOS, or on a non-iCloud volume, the bit is simply absent
+and
+the whole mechanism cleanly no-ops (nothing is ever mis-reported as evicted).
+Because a fixture can never be genuinely evicted, this behaviour is exercised in
+the tests through a simulation seam; the underlying
+.B SF_DATALESS
+read was verified read-only against a real evicted iCloud file.
 .SH RESTORE
 .B \-\-restore
 is the inverse of archiving: it decompresses archived transcripts back into the
@@ -360,6 +434,19 @@ and a repeated restore is idempotent.
 .B \-\-dry\-run
 previews the plan and writes nothing. Restore writes only under the source tree;
 a manifest key that would resolve outside it is refused.
+.PP
+Unlike
+.B \-\-verify
+and
+.BR \-\-audit ,
+.B \-\-restore
+does
+.I not
+skip an evicted
+.RB ( dataless )
+archive file: restoring means getting its content back, so faulting it down from
+iCloud is exactly the intended read, not a gratuitous one. See
+.BR DATALESS .
 .SH FILES
 .TP
 .I ~/.claude/projects/
@@ -442,6 +529,18 @@ or
 transcript.
 Growth, new files and pruning are expected and exit
 .BR 0 .
+An
+.B evicted
+file (dataless, skipped by
+.B \-\-verify
+or left undetermined by
+.BR \-\-audit )
+is
+.I not
+a failure and exits
+.B 0
+\(em its bytes are intact in the cloud. See
+.BR DATALESS .
 .B \-\-restore
 exits
 .B 1
