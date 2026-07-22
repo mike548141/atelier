@@ -72,10 +72,29 @@ parallel queue-run sessions — thematically adjacent (that strand's per-item-cl
 bullet overlaps Gap 1) but a distinct piece of work; treated as the standalone
 doctrine thought it read as, and cross-referenced rather than merged.
 
+## Incident — `git add -A` swept a sibling's worktree gitlink (fixed)
+
+Honesty note (apex): the records commit `b4b5142` was made with `git add -A`,
+which grabbed `.claude/worktrees/scope-lens4-app-cold` — the SL1–SL7 cold-pass
+session's **live, locked, harness-native worktree, nested inside this repo** — as
+an embedded-repo gitlink, and pushed it to `main`. The sibling's work was never
+touched (only its gitlink was staged), but a stray submodule entry reached
+shared `main`. Fixed forward in `b4b5142`→next: `git rm --cached` the gitlink
+(files untouched), gitignore `.claude/worktrees/`, push. The bad gitlink stays
+in history (append-only; never rewrite pushed history); HEAD is correct and it
+cannot recur. Root cause: the harness places worktrees *inside* the repo tree,
+so `git add -A` from any session reaches into every other session's worktree —
+the exact stay-in-your-lane breach this session was writing doctrine about. The
+mechanical fix (gitignore) now enforces the lane; the discipline lesson —
+**stage explicit paths, never `-A`, when worktrees can nest in the tree** —
+is saved to memory.
+
 ## State at close
 
 - Delta `9c11525` on `main`, pushed; worktree + branch put away.
 - ROADMAP: drafting claim `[x]`; `⏳` review pointer queued.
-- All three pre-commit scanners green (secret / leak / link).
+- Sibling `scope-lens4-app-cold` worktree intact + locked; its gitlink now
+  untracked and gitignored.
+- All three pre-commit scanners green (secret / leak / link); tree clean, 0/0.
 </content>
 </invoke>
