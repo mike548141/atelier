@@ -5,6 +5,16 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Decided (2026-07-22 — MODEL-ECONOMICS.md will become ECONOMICS.md)
+- **Rename to `ECONOMICS.md`, do not split** (Mike's ruling, accepting the
+  standing recommendation): the file spans both spend pools (model tokens
+  and CI compute/runners) and its precedence/self-check doctrine is
+  cross-cutting, so one unified spend doctrine keeps its point. `FinOps`
+  was floated and ruled out — a branded cost-accounting practice term for
+  what is spend *doctrine*, and jargon on a shelf of plain concept nouns.
+  Execution (rename + PROPAGATION ref sweep) stays queued; nothing renamed
+  yet. Roadmap item carries the DECIDED stamp and the FinOps reasoning.
+
 ### Changed (2026-07-22 — interruption-resilience doctrine reviewed; scope/lens-4 residue applied)
 - **The interruption-resilience cycle closed same-day**: `9c11525`'s rule-4
   cold pass returned **PASS-WITH-FINDINGS 0M/3M/2L** — terminal per the
