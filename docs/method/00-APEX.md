@@ -87,6 +87,22 @@ In practice:
 
 - Every piece of work is also evidence-gathering. Outcomes are observed, not
   just produced; a surprise in either direction is a finding, not noise.
+- **Don't fear the hard road.** When a harder path would teach more, spending
+  the time and effort to learn from real evidence is *preferable* to the quick
+  route that leaves nothing behind. This binds every session and every model —
+  the hard road is not reserved for the most capable; a smaller model takes it
+  too, and escalates where it must (§ Who it binds). Effort spent turning
+  experience into evidence is the investment this principle exists to protect.
+  (Mike, 2026-07-22.)
+- **Doctrine changes ride on proof.** A decision that changes design, or
+  affects any part of the doctrine — apex, principles, decisions, or the
+  doctrine as a whole — must be **evidence-based and proven with hard facts**,
+  and that evidence must be **repeatable**, so it can be challenged and
+  contrasted rather than taken on the author's word. This is the grounding
+  rule held at apex strength: doctrine is extracted from real, decided
+  practice — never invented to fill a heading — and a claim whose proof cannot
+  be re-run is testimony, not evidence ([`EVIDENCE.md`](EVIDENCE.md)).
+  (Mike, 2026-07-22.)
 - A lesson that changes nothing wasn't learned. Harvest, then encode: a
   learning lands in doctrine, a tool, or a record — and when a learning is
   refined, its stale claims are swept in the same commit
