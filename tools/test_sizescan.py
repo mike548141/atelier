@@ -329,6 +329,94 @@ class ExitContract(_TreeTest):
         self.assertTrue(f0["gated"])
 
 
+class HarvestIntegrity(_TreeTest):
+    """The archive-integrity gate (Mike's ruling, 2026-07-22): the named
+    archive stores (*-DONE.md, *-ARCHIVE.md) record finished history, so a
+    live state marker there — [ ] / [~] / a ⏳ list item — gates under
+    --check. The box grammar is a work-owed tri-state: [x] means no more
+    work owed (delivered, superseded, or declined — disposition in the
+    item's text), so [x]-with-commentary is the ONLY resting state. The
+    four situations are the principal's own taxonomy from the design."""
+
+    # Situation 1: a top-level non-completed item in the archive.
+    def test_open_item_in_archive_gates(self):
+        self.write_text("docs/ROADMAP-DONE.md", "- [x] fine\n- [ ] buried\n")
+        f = self.finding("docs/ROADMAP-DONE.md")
+        self.assertIsNotNone(f)
+        self.assertTrue(f.gated)
+        self.assertEqual(f.live_items, 1)
+
+    # Situation 2: a live parent over all-completed children (the real
+    # incident: delivered, never flipped — or a parent that was only ever a
+    # heading; which remedy applies is the investigate step, not the scan).
+    def test_live_parent_over_done_children_gates_on_parent(self):
+        self.write_text("docs/ROADMAP-DONE.md",
+                        "- [ ] parent item\n"
+                        "      - [x] child one DONE\n"
+                        "      - [x] child two DONE\n")
+        self.assertEqual(self.finding("docs/ROADMAP-DONE.md").live_items, 1)
+
+    # Situation 3: a live parent with mixed children — every live line
+    # counts, parent and children alike (a botched harvest, most likely).
+    def test_live_parent_with_mixed_children_counts_each_live_line(self):
+        self.write_text("docs/ROADMAP-DONE.md",
+                        "- [ ] parent item\n"
+                        "      - [x] child done\n"
+                        "      - [ ] child open\n"
+                        "      - [~] child claimed\n")
+        self.assertEqual(self.finding("docs/ROADMAP-DONE.md").live_items, 3)
+
+    # Situation 4: a stray live child under a completed parent.
+    def test_live_child_under_done_parent_gates(self):
+        self.write_text("docs/ROADMAP-DONE.md",
+                        "- [x] parent DONE\n      - [ ] child open\n")
+        self.assertEqual(self.finding("docs/ROADMAP-DONE.md").live_items, 1)
+
+    def test_all_three_live_markers_gate(self):
+        self.write_text("docs/ROADMAP-DONE.md",
+                        "- [ ] open\n- [~] claimed\n- ⏳ queued review\n")
+        self.assertEqual(self.finding("docs/ROADMAP-DONE.md").live_items, 3)
+
+    def test_superseded_archives_as_x_with_disposition_note(self):
+        self.write_text("docs/ROADMAP-DONE.md",
+                        "- [x] old idea **dropped 2026-07-22: superseded by "
+                        "the v2 design — no more work owed**\n")
+        self.assertEqual(self.flagged(), [])
+
+    def test_prose_backtick_and_fenced_mentions_do_not_fire(self):
+        self.write_text("docs/ROADMAP-DONE.md",
+                        "taken from the `⏳` queue by a non-author\n"
+                        "prose about the [ ] state and a [~] claim\n"
+                        "```\n- [ ] quoted example\n- ⏳ quoted queue item\n```\n")
+        self.assertEqual(self.flagged(), [])
+
+    def test_sessions_archive_store_also_checked(self):
+        self.write_text("docs/SESSIONS-ARCHIVE.md", "- [~] stranded claim\n")
+        self.assertEqual(self.finding("docs/SESSIONS-ARCHIVE.md").live_items, 1)
+
+    def test_archive_store_never_size_metered(self):
+        self.write_text("docs/ROADMAP-DONE.md", "- [x] done\n" + "x\n" * 3000)
+        self.assertEqual(self.flagged(), [])
+
+    def test_live_markers_on_the_roadmap_do_not_gate(self):
+        self.write_text("docs/ROADMAP.md", _cold(n_open=3))
+        self.assertEqual(self.flagged(), [])
+
+    def test_allow_marker_exempts_archive_store(self):
+        self.write_text("docs/ROADMAP-DONE.md",
+                        f"<!-- {sizescan.ALLOW_MARKER}: migration in flight -->\n"
+                        "- [ ] deliberately parked here\n")
+        self.assertEqual(self.flagged(), [])
+
+    def test_check_exit_contract_gates_on_archive_marker(self):
+        self.write_text("docs/ROADMAP-DONE.md", "- [ ] buried\n")
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(
+                sizescan.main(["--check", str(self.tmp), "--root", str(self.tmp)]), 1)
+            self.assertEqual(
+                sizescan.main([str(self.tmp), "--root", str(self.tmp)]), 0)
+
+
 class UsageErrors(unittest.TestCase):
     def test_missing_path_is_error_not_pass(self):
         code = sizescan.main(["/no/such/path/xyz", "--root", "."])

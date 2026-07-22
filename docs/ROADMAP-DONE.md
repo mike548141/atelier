@@ -3,7 +3,10 @@
 The append-only companion to [`ROADMAP.md`](ROADMAP.md): the case-law of finished
 work, moved here so the live roadmap stays lean (the current-truth/history split,
 `method/RECORD.md`). **Entries are preserved verbatim** from ROADMAP.md; this
-file is a destination that is *meant* to grow (`sizescan` excludes it by design).
+file is a destination that is *meant* to grow (`sizescan` never meters its size;
+since 2026-07-22 it checks archive stores for **harvest integrity** — a live
+`[ ]`/`[~]`/`⏳` list item here gates the floor: finished history only, `[x]`
+with a disposition note where work was superseded or declined).
 First harvested 2026-07-14 (ROADMAP.md had reached 1091 lines).
 
 ## Doctrine — completed review cycles

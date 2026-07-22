@@ -7,7 +7,10 @@ file honest. Sequencing rule from the 2026-07-10 review: **mechanism before more
 content** — a repo that inherits docs but not the propagation + review cadence
 has inherited the costume, not the doctrine.
 
-Checkbox states: `[ ]` open · `[x]` done · `[~]` **claimed** by a live parallel
+Checkbox states — a **work-owed tri-state**, never a disposition (Mike,
+2026-07-22): `[ ]` work still owed · `[x]` **no more work owed** — delivered,
+superseded, or declined, with the disposition said in the item's own text (a
+dated note), never a fourth bracket · `[~]` **claimed** by a live parallel
 session — `(claimed <date>-<HHMM>, wt: <branch>)`, optionally extended in place
 with a resume breadcrumb (`· at: <step>` — CONCURRENCY § Surviving an
 interrupted session) — don't start a `[~]` item;

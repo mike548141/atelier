@@ -68,11 +68,35 @@ Scope — two directions, by design:
     `ARCHITECTURE.md`, `CLAUDE.md`). A long *reference* doc (`PRINCIPLES.md`, a
     doctrine file) is read on demand, not every session — not budgeted.
 
-  * The **append-only stores are ignored** — `ROADMAP-DONE.md`, `CHANGELOG.md`,
-    `SPECS.md`, and everything under `sessions/`, `reviews/`, `decisions/`, and
-    archive dirs. Those are the *destinations* the split moves detail into; they
-    are meant to grow. Flagging them would punish the very fix the tool exists to
-    encourage.
+  * The **append-only stores are never size-metered** — `ROADMAP-DONE.md`,
+    `CHANGELOG.md`, `SPECS.md`, and everything under `sessions/`, `reviews/`,
+    `decisions/`, and archive dirs. Those are the *destinations* the split moves
+    detail into; they are meant to grow. Flagging their size would punish the
+    very fix the tool exists to encourage.
+
+**Harvest integrity — the archive must hold no live state** (Mike's ruling,
+2026-07-22, after a real incident: an un-harvested `[x]` on the hot path had
+already redded the floor for three pushes, and the first manual sweep of the
+archive found a `[ ]` parent whose children were all DONE). The named archive
+stores (`*-DONE.md`, `*-ARCHIVE.md`) record *finished* history, so a live state
+marker there — an open `[ ]`, a claimed `[~]`, a queued `⏳` list item — is
+either a **botched harvest** (open work silently buried where no session will
+re-read it) or an **untrue state** (done work whose box was never flipped).
+Under `--check` that **gates**, same contract as cold content: the state is
+machine-checkable and the incident class is real. What the gate demands is
+*state coherence only* — it never verifies that `[x]` items were actually
+delivered (deliberately: that overhead belongs to review, not a scanner). The
+box grammar is a work-owed tri-state (Mike's ruling, 2026-07-22): `[ ]` work
+still owed · `[~]` claimed/underway · `[x]` **no more work owed** — whether
+delivered, superseded, or declined, with the disposition said in the item's
+own text (a dated note), never a fourth bracket. Parent and child lines fire
+independently, so a live parent over done children and a stray live child
+under a done parent are both caught. On a hit the remedy is **investigative,
+never automatic**: the session that reds weighs the evidence (the item's
+children, the session log, the code), then puts a recommendation to the
+principal — flip to `[x]` with a dated disposition note, un-harvest back to
+the roadmap, or reformat a parent that was only ever a heading. Never
+silently fix.
 
 Hatches (header-only — the first 15 lines, never the body, so a file that merely
 *mentions* a marker in prose does not silently exempt itself):
@@ -97,10 +121,10 @@ whose fix is lossless. Reviewed 2026-07-14 (cold, PASS-WITH-FINDINGS) and
 reworked to this cold-content model 2026-07-20 (Mike's ruling, same day).
 
 Exit codes (fail-safe — anything but a clean/advisory run is non-zero):
-  0  clean; any advisory finding (size over reference); or cold content present
-     but --check was not given
-  1  a hot-path file carries relocatable cold content ([x] items) AND --check
-     was given
+  0  clean; any advisory finding (size over reference); or gated findings
+     present but --check was not given
+  1  --check was given AND a hot-path file carries relocatable cold content
+     ([x] items) or an archive store carries live state markers
   2  usage / config error (a scan that read nothing is NOT a pass)
 
 Zero third-party dependencies; stdlib only, so a peer who adopts atelier can run
@@ -177,6 +201,25 @@ _COLD_ITEM = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s+\[[xX]\]")
 # never fires the gate on documentation that *shows* checkbox syntax.
 _FENCE = re.compile(r"^\s*(?:```|~~~)")
 
+# The named archive stores — where harvested / rotated detail comes to rest.
+# Matched by basename suffix so the convention travels to children and to any
+# future store that adopts the naming (`SESSIONS-ARCHIVE.md` etc.).
+ARCHIVE_STORE_SUFFIXES = ("-DONE.md", "-ARCHIVE.md")
+
+# A LIVE state marker as a list item: open `[ ]`, claimed `[~]`, or the queued
+# `⏳` — states that mean *work is not finished*. In an archive store any of
+# these is a harvest-integrity defect (a botched harvest, or a box never
+# flipped). Anchored to a list bullet exactly like _COLD_ITEM, so a prose
+# mention ("the `[ ]` state means…") or a backticked reference never fires.
+# Superseded / declined work is archived as `[x]` with a dated disposition
+# note in the item's text — the box is a work-owed tri-state, never a
+# disposition (Mike's ruling, 2026-07-22).
+_LIVE_ITEM = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s+(?:\[ \]|\[~\]|⏳)")
+
+
+def is_archive_store(basename: str) -> bool:
+    return basename.endswith(ARCHIVE_STORE_SUFFIXES)
+
 # `README.md` and `CLAUDE.md` are current-truth only at the **repo root** — the
 # front door and the session onramp. A nested `tools/README.md` or
 # `docs/decisions/README.md` is a reference index, read on demand, and metering
@@ -204,7 +247,8 @@ class Finding:
     reference: int       # the advisory size reference for its class
     over: int            # max(0, lines - reference); 0 = within reference
     store: str           # where its cold content / overflow belongs
-    gated: bool          # True = fails --check (has relocatable cold content)
+    gated: bool          # True = fails --check (cold content or live markers)
+    live_items: int = 0  # live state markers ([ ]/[~]/⏳) in an archive store
 
 
 # The harvest hint per current-truth file — where its overflow belongs, so the
@@ -229,6 +273,25 @@ def reference_for(text: str, basename: str) -> int | None:
     if m:
         return int(m.group(1))
     return SIZE_REFERENCE.get(basename)
+
+
+def live_item_count(text: str, basename: str) -> int:
+    """Count live state markers (`[ ]` / `[~]` / `⏳` list items) in an archive
+    store. Zero for any non-archive file — live states are the *point* of a
+    roadmap; only in the finished-history store are they a defect. Fenced
+    regions are skipped for the same reason as cold_item_count: a quoted
+    example is not a work item."""
+    if not is_archive_store(basename):
+        return 0
+    count = 0
+    in_fence = False
+    for line in text.splitlines():
+        if _FENCE.match(line):
+            in_fence = not in_fence
+            continue
+        if not in_fence and _LIVE_ITEM.match(line):
+            count += 1
+    return count
 
 
 def cold_item_count(text: str, basename: str) -> int:
@@ -298,9 +361,10 @@ def _in_skipped_dir(p: Path, walk_base: Path) -> bool:
 
 
 def iter_candidates(paths: list[Path], root: Path, globs: list[str]):
-    """Yield metered files under the given paths, skipping growth stores and
-    ignored globs. A file is a candidate iff its basename is a metered
-    current-truth file. Results are de-duplicated by resolved path so overlapping
+    """Yield candidate files under the given paths, skipping growth-store dirs
+    and ignored globs. A file is a candidate iff its basename is a metered
+    current-truth file OR a named archive store (integrity-checked, never
+    size-metered). Results are de-duplicated by resolved path so overlapping
     args (`sizescan . docs`) don't double-report the same file (F4)."""
     seen: set[Path] = set()
     for base in paths:
@@ -310,7 +374,8 @@ def iter_candidates(paths: list[Path], root: Path, globs: list[str]):
             p for p in base.rglob("*") if p.is_file()]
         for p in candidates:
             rp = p.resolve()
-            if rp in seen or p.name not in SIZE_REFERENCE:
+            if rp in seen or (p.name not in SIZE_REFERENCE
+                              and not is_archive_store(p.name)):
                 continue
             if _in_skipped_dir(p, walk_base):
                 continue
@@ -329,6 +394,18 @@ def scan_paths(paths: list[Path], root: Path) -> list[Finding]:
         text = p.read_text(encoding="utf-8", errors="replace")
         if ALLOW_MARKER in _header(text):
             continue
+        if is_archive_store(p.name):
+            # Integrity only — an archive store is never size-metered. A live
+            # marker gates under --check; a clean archive stays silent.
+            live = live_item_count(text, p.name)
+            if live:
+                findings.append(Finding(
+                    _rel(p, root), count_lines(text), 0, 0, 0,
+                    "investigate, then recommend to the principal: flip to [x] "
+                    "with a dated disposition note, or un-harvest to the "
+                    "roadmap — never silently fix",
+                    True, live))
+            continue
         reference = reference_for(text, p.name)
         if reference is None:
             continue
@@ -346,24 +423,46 @@ def scan_paths(paths: list[Path], root: Path) -> list[Finding]:
 
 def render_human(findings: list[Finding]) -> str:
     if not findings:
-        return "✓ sizescan clean — no relocatable cold content on the hot path."
+        return ("✓ sizescan clean — no relocatable cold content on the hot "
+                "path; archive stores hold no live markers.")
+    n_cold = sum(1 for f in findings if f.cold_items)
+    n_live = sum(1 for f in findings if f.live_items)
     n_gated = sum(1 for f in findings if f.gated)
     n_adv = sum(1 for f in findings if not f.gated)
-    head = (f"⚠ sizescan: {len(findings)} hot-path file(s) flagged "
-            f"({n_gated} cold-content · {n_adv} size-advisory).\n")
+    head = (f"⚠ sizescan: {len(findings)} file(s) flagged "
+            f"({n_cold} cold-content · {n_live} harvest-integrity · "
+            f"{n_adv} size-advisory).\n")
     lines = [head]
-    # Cold-content (gated) first, then advisory; within each, worst first.
-    for f in sorted(findings, key=lambda x: (not x.gated, -x.cold_items, -x.over)):
+    # Gated first (cold content, then archive integrity), then advisory;
+    # within each, worst first.
+    for f in sorted(findings, key=lambda x: (not x.gated, -x.cold_items,
+                                             -x.live_items, -x.over)):
         lines.append(f"  {f.path}  {f.lines} lines")
         if f.cold_items:
             lines.append(f"      → {f.cold_items} completed [x] item(s) to harvest "
                          f"[cold-content, gated]")
             if f.store:
                 lines.append(f"        {f.store}")
+        if f.live_items:
+            lines.append(f"      → {f.live_items} live state marker(s) "
+                         f"([ ]/[~]/⏳ list items) in an archive store "
+                         f"[harvest-integrity, gated]")
+            if f.store:
+                lines.append(f"        {f.store}")
         if f.over:
             lines.append(f"      → over the ~{f.reference}-line reference (+{f.over}) "
                          f"[size-advisory]")
-    if n_gated:
+    if n_live:
+        lines.append("\n  Harvest-integrity (fails --check): a live marker in an "
+                     "archive store is either a botched harvest (open work "
+                     "silently buried) or an untrue state (done work never "
+                     "flipped). Investigate the evidence — the item's children, "
+                     "the session log, the code — then put a recommendation to "
+                     "the principal: flip to [x] with a dated disposition note "
+                     "(delivered / superseded / declined — say which), or "
+                     "un-harvest back to the roadmap. Never silently fix, and "
+                     "never verify [x] delivery here — state coherence only.")
+    if n_cold:
         lines.append("\n  Cold-content (fails --check): a completed [x] item on the "
                      "hot path is pure cost with a lossless fix — move it to "
                      "ROADMAP-DONE.md (RECORD.md, the current-truth/history split). "
@@ -394,8 +493,10 @@ def main(argv: list[str] | None = None) -> int:
                     help="repo root for .sizescanignore and relative paths")
     ap.add_argument("--check", action="store_true",
                     help="exit 1 if a hot-path file carries relocatable cold "
-                         "content (a completed [x] item — lossless remedy); the "
-                         "size advisory never fails the build "
+                         "content (a completed [x] item — lossless remedy) or "
+                         "an archive store carries live state markers "
+                         "([ ]/[~]/⏳ — harvest integrity); the size advisory "
+                         "never fails the build "
                          "(default: everything advisory, exit 0)")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--selftest", action="store_true",
@@ -547,6 +648,37 @@ def _selftest() -> int:
         ok = False
     if cold_item_count("```\n- [x] a quoted example\n```\n", "ROADMAP.md") != 0:
         print("FAIL: a [x] inside a code fence was miscounted as a cold item")
+        ok = False
+
+    # Harvest integrity: a live marker in an archive store gates; a clean
+    # archive (all [x], prose ⏳ mentions, fenced examples) stays silent.
+    hi = tmp / "HI"
+    (hi / "docs").mkdir(parents=True)
+    (hi / "docs" / "ROADMAP-DONE.md").write_text(
+        "- [x] done, harvested\n- [ ] buried open item\n")
+    hif = {f.path.replace("\\", "/"): f for f in scan_paths([hi], hi)}
+    h = hif.get("docs/ROADMAP-DONE.md")
+    if not h or not h.gated or h.live_items != 1:
+        print(f"FAIL: live [ ] in archive store not gated: {h}")
+        ok = False
+    if main(["--check", str(hi), "--root", str(hi)]) != 1:
+        print("FAIL: --check did not gate on a live archive marker")
+        ok = False
+    (hi / "docs" / "ROADMAP-DONE.md").write_text(
+        "- [x] done (dropped 2026-07-22: superseded)\n"
+        "prose about the `[ ]` state\n"
+        "```\n- [ ] quoted example\n```\n")
+    if any(f.path.replace("\\", "/") == "docs/ROADMAP-DONE.md"
+           for f in scan_paths([hi], hi)):
+        print("FAIL: clean archive store flagged (prose/fence/[x] misfired)")
+        ok = False
+
+    # live_item_count: archive-only, all three live markers, bullet-anchored.
+    if live_item_count("- [ ] a\n- [~] b\n- ⏳ c\n", "ROADMAP-DONE.md") != 3:
+        print("FAIL: live markers in archive store not all counted")
+        ok = False
+    if live_item_count("- [ ] open\n", "ROADMAP.md") != 0:
+        print("FAIL: live marker outside an archive store counted")
         ok = False
 
     # count_lines: trailing newline doesn't inflate the count.
