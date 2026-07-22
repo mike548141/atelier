@@ -23,6 +23,13 @@ const { execFileSync } = require('node:child_process');
 const cc = require('./ccarchive');
 const SCRIPT = path.join(__dirname, 'ccarchive');
 
+// Manifest signing mints a key. Point it at a throwaway file so NO test ever
+// writes into the real ~/.claude/ccarchive-signing.key (the default). Every
+// spawned child inherits this via the environment, so archive runs sign under it.
+// Signing-specific tests below override CCARCHIVE_KEYFILE per-run for isolation.
+process.env.CCARCHIVE_KEYFILE =
+  path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'ccarchive-key-')), 'signing.key');
+
 // --- pure functions ------------------------------------------------------
 
 test('defaultDest points at the macOS iCloud Drive, from the given home', () => {
@@ -877,4 +884,199 @@ test('contract: restore reports a manifest entry whose .gz is gone as an error (
   assert.equal(r.status, 1);
   assert.equal(r.report.errors.length, 1);
   assert.equal(r.report.errors[0].reason, 'no-archive');
+});
+
+// --- manifest signing: tamper-evidence (HMAC-SHA256) ---------------------
+// The sha256 manifest catches accidental corruption but not a tamperer who
+// rewrites a .gz AND the manifest to match. Signing closes that: a detached
+// HMAC over the manifest bytes, keyed off the archive volume. Pure verdict units
+// first, then the write→verify→tamper behaviour, then failure semantics and
+// rotation. Every spawn runs under a throwaway CCARCHIVE_KEYFILE (top of file);
+// tests needing key isolation override it per-run.
+const crypto = require('node:crypto');
+
+// A run under a specific signing-key file (isolates no-key / wrong-key / rekey).
+function runCliKey(keyFile, ...args) {
+  const r = spawnSync('node', [SCRIPT, ...args],
+    { encoding: 'utf8', env: { ...process.env, CCARCHIVE_KEYFILE: keyFile } });
+  return { status: r.status, stdout: r.stdout, stderr: r.stderr };
+}
+function freshKeyFile() {
+  return path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'ccarchive-k-')), 'k.key');
+}
+
+test('keyId is a stable 12-hex fingerprint; distinct keys fingerprint distinctly', () => {
+  const k = crypto.randomBytes(32);
+  assert.match(cc.keyId(k), /^[0-9a-f]{12}$/);
+  assert.equal(cc.keyId(k), cc.keyId(Buffer.from(k)));            // deterministic
+  assert.notEqual(cc.keyId(k), cc.keyId(crypto.randomBytes(32))); // key-dependent
+});
+
+test('macEqual is a constant-time hex compare that rejects malformed / short input', () => {
+  const a = crypto.createHmac('sha256', 'k').update('x').digest('hex');
+  assert.equal(cc.macEqual(a, a), true);
+  assert.equal(cc.macEqual(a, a.slice(0, -2) + '00'), false);
+  assert.equal(cc.macEqual(a, 'deadbeef'), false);   // length mismatch
+  assert.equal(cc.macEqual(a, 'nothex!!'), false);   // unparseable
+  assert.equal(cc.macEqual('', ''), false);          // empty is never a match
+});
+
+test('verifySignature: verified / tampered / key-mismatch / unsigned / no-key', () => {
+  const key = crypto.randomBytes(32);
+  const bytes = Buffer.from('{"a.jsonl":{"sha256":"1"}}\n');
+  const good = { algorithm: 'HMAC-SHA256', keyId: cc.keyId(key), mac: cc.computeMac(key, bytes) };
+
+  assert.equal(cc.verifySignature(bytes, good, key).state, 'verified');
+  // Manifest bytes changed after signing → same key, MAC no longer matches.
+  assert.equal(cc.verifySignature(Buffer.from('{"a.jsonl":{"sha256":"2"}}\n'), good, key).state, 'tampered');
+  // A signature made by a different key.
+  const other = crypto.randomBytes(32);
+  const foreign = { algorithm: 'HMAC-SHA256', keyId: cc.keyId(other), mac: cc.computeMac(other, bytes) };
+  assert.equal(cc.verifySignature(bytes, foreign, key).state, 'key-mismatch');
+  // No signature at all, but a key present → migratable.
+  assert.equal(cc.verifySignature(bytes, null, key).state, 'unsigned');
+  // No key → unverifiable, whether or not a sig is present.
+  assert.equal(cc.verifySignature(bytes, good, null).state, 'no-key');
+  assert.equal(cc.verifySignature(bytes, null, null).state, 'no-key');
+});
+
+test('contract: an archive run signs the manifest (sidecar written) and --verify reports it verified', () => {
+  const { src, dest } = makeTree();
+  const j = runJson(src, dest);
+  assert.equal(j.signed, true);
+  const sig = JSON.parse(fs.readFileSync(path.join(dest, 'manifest.json.sig'), 'utf8'));
+  assert.equal(sig.algorithm, 'HMAC-SHA256');
+  assert.match(sig.mac, /^[0-9a-f]{64}$/);
+  // The MAC is over the exact manifest bytes.
+  const key = cc.loadKey(process.env.CCARCHIVE_KEYFILE);
+  assert.equal(sig.mac, cc.computeMac(key, fs.readFileSync(path.join(dest, 'manifest.json'))));
+
+  const r = runCli('--verify', '--dest', dest, '--json');
+  assert.equal(r.status, 0);
+  assert.equal(JSON.parse(r.stdout).signature.state, 'verified');
+
+  const human = runCli('--verify', '--dest', dest);
+  assert.match(human.stdout, /manifest signature verified/);
+});
+
+test('contract: editing any manifest byte (no hash change) is caught by the signature alone (exit 1)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  // Flip a non-hash field: the .gz still matches its recorded sha256, so the hash
+  // pass is untouched — only the signature can catch this.
+  const mf = cc.loadManifest(dest);
+  mf['-repo-b/uuid2.jsonl'].archivedAt = '1999-01-01T00:00:00.000Z';
+  cc.saveManifest(dest, mf);                                 // rewrites bytes, does NOT re-sign
+  const r = runCli('--verify', '--dest', dest, '--json');
+  assert.equal(r.status, 1);
+  const out = JSON.parse(r.stdout);
+  assert.equal(out.signature.state, 'tampered');
+  assert.equal(out.mismatch.length, 0, 'the hash check still passes — the signature is what fails');
+});
+
+test('contract: the closed caveat — a rewritten .gz AND a matching manifest hash is still caught (exit 1)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const rel = '-repo-b/uuid2.jsonl';
+  // A sophisticated tamperer: forge the transcript AND update the manifest hash so
+  // the sha256 check would pass. Before signing, --verify passed here (the caveat).
+  const forged = Buffer.from('{"forged":"history"}\n');
+  fs.writeFileSync(path.join(dest, rel + '.gz'), zlib.gzipSync(forged));
+  const mf = cc.loadManifest(dest);
+  mf[rel].sha256 = cc.sha256(forged);                        // hash now matches the forgery
+  cc.saveManifest(dest, mf);                                 // …but the tamperer can't re-sign
+  const r = runCli('--verify', '--dest', dest, '--json');
+  assert.equal(r.status, 1, 'the signature catches what the hash cannot');
+  const out = JSON.parse(r.stdout);
+  assert.equal(out.mismatch.length, 0, 'hash agrees with the forged .gz — the OLD gap');
+  assert.equal(out.signature.state, 'tampered', 'the manifest no longer matches its signature');
+});
+
+test('contract: --verify with no key is UNVERIFIABLE, not green — never silently passes (exit 1)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);                                        // signed under the shared test key
+  const absent = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'ccarchive-nokey-')), 'missing.key');
+  const r = runCliKey(absent, '--verify', '--dest', dest, '--json');
+  assert.equal(r.status, 1, 'an unverifiable signature must not exit 0');
+  assert.equal(JSON.parse(r.stdout).signature.state, 'no-key');
+  assert.ok(!fs.existsSync(absent), '--verify must NOT mint a key (that would defeat the check)');
+});
+
+test('contract: a missing signature on a key-present archive prompts migration, not green (exit 1)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  fs.rmSync(path.join(dest, 'manifest.json.sig'));           // legacy / removed signature
+  const r = runCli('--verify', '--dest', dest, '--json');
+  assert.equal(r.status, 1);
+  assert.equal(JSON.parse(r.stdout).signature.state, 'unsigned');
+  assert.match(runCli('--verify', '--dest', dest).stdout, /NOT signed/);
+});
+
+test('contract: a legacy unsigned manifest is migrated (signed) by the next ordinary run', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  fs.rmSync(path.join(dest, 'manifest.json.sig'));           // simulate a pre-signing archive
+  assert.equal(runCli('--verify', '--dest', dest, '--json').status, 1);   // unsigned → fails
+  runJson(src, dest);                                        // an ordinary run re-signs it
+  const r = runCli('--verify', '--dest', dest, '--json');
+  assert.equal(r.status, 0);
+  assert.equal(JSON.parse(r.stdout).signature.state, 'verified');
+});
+
+test('contract: a signature from a different key is flagged key-mismatch (exit 1)', () => {
+  const { src, dest } = makeTree();
+  const keyA = freshKeyFile();
+  runCliKey(keyA, '--json', '--source', src, '--dest', dest);   // signed by key A
+  const keyB = freshKeyFile();
+  cc.mintKey(keyB);                                             // a real, different key
+  const r = runCliKey(keyB, '--verify', '--dest', dest, '--json');   // verified with key B
+  assert.equal(r.status, 1);
+  assert.equal(JSON.parse(r.stdout).signature.state, 'key-mismatch');
+});
+
+test('contract: --rekey rolls the key and re-signs; the old key no longer verifies, the new one does', () => {
+  const { src, dest } = makeTree();
+  const key = freshKeyFile();
+  runCliKey(key, '--json', '--source', src, '--dest', dest);
+  const before = fs.readFileSync(key, 'utf8');
+  const oldSigMac = JSON.parse(fs.readFileSync(path.join(dest, 'manifest.json.sig'), 'utf8')).mac;
+
+  const rk = runCliKey(key, '--rekey', '--dest', dest, '--json');
+  assert.equal(rk.status, 0);
+  const out = JSON.parse(rk.stdout);
+  assert.equal(out.rekeyed, true);
+  assert.equal(out.manifestSigned, true);
+  assert.notEqual(fs.readFileSync(key, 'utf8'), before, 'the key file was replaced');
+  const newSigMac = JSON.parse(fs.readFileSync(path.join(dest, 'manifest.json.sig'), 'utf8')).mac;
+  assert.notEqual(newSigMac, oldSigMac, 'the manifest was re-signed under the new key');
+
+  // The rolled-in key verifies the re-signed manifest.
+  assert.equal(runCliKey(key, '--verify', '--dest', dest, '--json').status, 0);
+});
+
+test('contract: --rekey with no manifest yet still mints a ready key (exit 0)', () => {
+  const dest = fs.mkdtempSync(path.join(os.tmpdir(), 'ccarchive-rk-'));
+  const key = freshKeyFile();
+  const rk = runCliKey(key, '--rekey', '--dest', dest, '--json');
+  assert.equal(rk.status, 0);
+  assert.equal(JSON.parse(rk.stdout).manifestSigned, false);
+  assert.ok(fs.existsSync(key), 'the key is minted even without a manifest to sign');
+});
+
+test('the signing key is minted mode 0600 (readable only by its owner)', () => {
+  const { src, dest } = makeTree();
+  const key = freshKeyFile();
+  runCliKey(key, '--json', '--source', src, '--dest', dest);
+  assert.equal(fs.statSync(key).mode & 0o777, 0o600);
+});
+
+test('defaultKeyFile is under ~/.claude and CCARCHIVE_KEYFILE overrides it', () => {
+  assert.equal(cc.defaultKeyFile('/Users/x'), '/Users/x/.claude/ccarchive-signing.key');
+  const saved = process.env.CCARCHIVE_KEYFILE;
+  try {
+    process.env.CCARCHIVE_KEYFILE = '/tmp/override.key';
+    assert.equal(cc.resolveKeyPath('/Users/x'), '/tmp/override.key');
+    delete process.env.CCARCHIVE_KEYFILE;
+    assert.equal(cc.resolveKeyPath('/Users/x'), '/Users/x/.claude/ccarchive-signing.key');
+  } finally { process.env.CCARCHIVE_KEYFILE = saved; }
 });

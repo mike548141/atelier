@@ -1,4 +1,4 @@
-.TH CCARCHIVE 1 "2026-07-17" "atelier instruments" "User Commands"
+.TH CCARCHIVE 1 "2026-07-22" "atelier instruments" "User Commands"
 .SH NAME
 ccarchive \- durably preserve every Claude Code transcript, word for word
 .SH SYNOPSIS
@@ -19,6 +19,10 @@ ccarchive \- durably preserve every Claude Code transcript, word for word
 .RI [ \-\-delta ]
 .RI [ \-\-dry\-run ]
 .RI [ \-\-force ]
+.br
+.B ccarchive \-\-rekey
+.RI [ \-\-dest
+.IR dir ]
 .br
 .B ccarchive \-\-install\-schedule
 |
@@ -107,8 +111,17 @@ is one commit away from publishing them.
 .TP
 .B \-\-verify
 Re-hash every archived transcript and compare it against the sha256 recorded
-when it was archived. See
+when it was archived, and check the manifest's own signature. See
 .B INTEGRITY
+and
+.B SIGNING
+below.
+.TP
+.B \-\-rekey
+Mint a fresh signing key (replacing any existing one) and re-sign the current
+manifest with it. The deliberate key roll \(em after suspected key exposure, or
+on a cadence. See
+.B SIGNING
 below.
 .TP
 .B \-\-audit
@@ -255,14 +268,101 @@ non-zero instead of reporting success \(em the live directory moved or Claude
 Code changed where it writes logs, and a silently empty mirror would stop
 growing while looking healthy.
 .PP
-The manifest is the trust anchor. It defends against
+The sha256 manifest defends against
 .I accidental
-corruption. It is not, on its own, tamper-proof: an adversary who rewrote a
+corruption. On its own it is not tamper-proof \(em an adversary who rewrote a
 .I .gz
 .I and
-the manifest would pass. For tamper-resistance, keep a copy of
-.I manifest.json
-somewhere separate from the archive.
+the manifest would pass. That gap is closed by
+.BR SIGNING ,
+below: the manifest is signed with a key kept off the archive, so a forged
+manifest fails
+.BR \-\-verify .
+.SH SIGNING
+The manifest is the trust anchor, but a manifest an attacker can rewrite anchors
+nothing: with write access to the archive volume (for the default iCloud Drive
+destination, anyone or anything that can write there) a tamperer could rewrite a
+.I .gz
+.I and
+recompute the manifest hash, and a hash-only
+.B \-\-verify
+would pass. So
+.B ccarchive
+.B signs
+the manifest.
+.PP
+When it writes the manifest, it computes an
+.B HMAC\-SHA256
+over the manifest's exact bytes using a secret key held
+.I off
+the archive volume, and writes a detached signature beside it as
+.IR manifest.json.sig
+(algorithm, a non-secret key fingerprint, and the MAC).
+.B \-\-verify
+recomputes the MAC with the local key: a manifest altered after signing no
+longer carries a MAC the key reproduces, so the tampering is
+.BR "tamper-evident" .
+Every manifest write re-signs; a pre-signing archive is migrated to a signed one
+on the next ordinary run.
+.PP
+The scheme is symmetric (HMAC), not a public-key signature, by design: the
+signer and the verifier are the same machine and user, so a locally-held key is
+the simplest fit. A keypair would buy something only if the archive had to be
+verified somewhere the signing key must not go \(em not the case here, and a
+public key
+shipped
+.I inside
+the archive would just be replaced by the same write-capable tamperer.
+.PP
+.B The key.
+The key is stored, hex-encoded and mode
+.BR 0600 ,
+at
+.I ~/.claude/ccarchive-signing.key
+by default \(em on local disk, beside Claude Code's own data, never synced into
+the archive. Set
+.B CCARCHIVE_KEYFILE
+to override the path; a scheduled
+.RB ( launchd / cron )
+run reads it there without a Keychain prompt (a file is chosen over the macOS
+Keychain precisely because background contexts cannot reliably reach the
+Keychain, and this key guards tamper-evidence, not a confidential value). It is
+minted at first use with 32 bytes of entropy \(em never a hand-composed value.
+.PP
+.B Rotation.
+The key is re-mintable at will:
+.B \-\-rekey
+generates a fresh one and re-signs the current manifest, which is all a roll
+needs \(em the signature only ever attests the
+.I current
+manifest, so nothing is lost. Roll on any credible suspicion of key exposure,
+and on a cadence besides. But because the key is what a
+.I new
+machine needs to verify existing signatures, keep an out-of-band backup of it: a
+lost key cannot be re-minted to a value that verifies old signatures (the same
+redundancy obligation atelier's secrets doctrine places on a store's master
+key).
+.PP
+.B Failure semantics.
+.B \-\-verify
+never reports an unverified manifest as clean. It distinguishes, and exits
+non-zero for, each non-green case: a
+.B MISMATCH
+(the manifest changed after signing \(em tamper evident); a manifest signed by a
+.B different key
+(an unexpected roll, or a foreign signer); an
+.B unsigned
+manifest (a pre-signing archive to migrate, or a removed signature); and an
+.B unverifiable
+manifest \(em no key on this machine, so the signature cannot be checked at all
+(bring the key out-of-band, or establish one with a run). Only a manifest whose
+signature the local key reproduces exits
+.BR 0 .
+The signature is
+.I tamper-evident,
+not tamper-proof: it detects a forgery at verify time, it does not prevent the
+write, and an attacker who also steals the key can forge a valid signature \(em
+which is why the key's confidentiality and cheap rotation matter.
 .SH AUDIT
 .B \-\-verify
 asks one question \(em is the
@@ -459,6 +559,15 @@ An archived transcript \(em the gzip of one source log.
 The integrity manifest: one sha256 (plus size and archive time) per archived
 transcript.
 .TP
+.I <dest>/manifest.json.sig
+The detached manifest signature (HMAC-SHA256 over the manifest bytes). See
+.BR SIGNING .
+.TP
+.I ~/.claude/ccarchive-signing.key
+The signing key (hex, mode 0600), off the archive volume. Override with
+.BR CCARCHIVE_KEYFILE .
+Back it up out-of-band \(em a new machine needs it to verify.
+.TP
 .I ~/Library/LaunchAgents/com.ccarchive.archive.plist
 The scheduled agent installed by
 .BR \-\-install\-schedule " (macOS)."
@@ -477,8 +586,13 @@ Preview what a run would archive without writing anything.
 Start archiving daily from now on (macOS launchd).
 .TP
 .B ccarchive \-\-verify
-Confirm every archived transcript still matches its recorded sha256 \(em run
-this after restoring the archive to a new machine.
+Confirm every archived transcript still matches its recorded sha256 and the
+manifest's signature is intact \(em run this after restoring the archive to a
+new machine (bring the signing key too, or the signature reads as unverifiable).
+.TP
+.B ccarchive \-\-rekey
+Roll the signing key and re-sign the manifest \(em after suspected key exposure,
+or on a cadence.
 .TP
 .B ccarchive \-\-audit
 Report whether any live transcript has drifted (been rewritten, truncated or
@@ -518,7 +632,16 @@ when the archive does not verify: any
 .B missing
 or
 .B UNMANIFESTED
-file.
+file, or a manifest signature that is not
+.B verified
+\(em a
+.BR MISMATCH ,
+a different-key signature, an
+.B unsigned
+manifest, or an
+.B unverifiable
+one (no key). See
+.BR SIGNING .
 .B \-\-audit
 exits
 .B 1
@@ -555,8 +678,11 @@ nothing to do exits
 .SH NOTES
 The default destination is the operator's iCloud Drive, derived at runtime
 from the home directory; no personal path is baked into the tool. It reads the
-source read-only and writes only under the destination (and, for
-.BR \-\-install\-schedule ", under " ~/Library ).
+source read-only and writes only under the destination, the signing key at
+.I ~/.claude/ccarchive-signing.key
+.RB ( CCARCHIVE_KEYFILE
+to relocate), and, for
+.BR \-\-install\-schedule ", under " ~/Library .
 .SH SEE ALSO
 .BR cctranscript (1),
 .BR ccrepo (1),
