@@ -52,6 +52,17 @@ no-MAJOR application pass, closed 2026-07-22; the secrets/access cycle —
   break-glass / store-unreachable class. Per-finding what/why/impact in the
   verdict.
 
+- ⏳ **Apex third element — adaptation is continuous** (BUILT 2026-07-22,
+  `f52c50f`) — delta: `f52c50f`; intent record:
+  [`sessions/2026-07-22-2134-apex-adaptation.md`](sessions/2026-07-22-2134-apex-adaptation.md).
+  Self-authored doctrine (wording by the building session on Mike's dictation)
+  ⇒ rule 4: that session may not spawn this review; a non-author taker writes
+  the brief.
+- [ ] **Propagate the widened apex floor to children** — children inline a
+  short apex floor (`method/PROPAGATION.md`); the adaptation element makes
+  those floors stale. Gated on the ⏳ apex review above closing (the wording
+  may change under review); then a fleet sweep, per-child commits.
+
 ## build/ layer — open strands
 
 - [ ] **Code-signing standard across the fleet** (Mike, 2026-07-11) — "how do we
