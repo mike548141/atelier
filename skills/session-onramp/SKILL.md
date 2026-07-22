@@ -57,8 +57,9 @@ When a change touches one of these, read it first — don't re-derive it:
   record-keeping, propagation, secrets, access, storage, concurrency.
 - `docs/build/` — the repo-craft standard, repo-boundary guidance, templates.
 
-Three companion behaviours ship alongside this skill: `/atelier:scan` (the
+Companion behaviours ship alongside this skill: `/atelier:scan` (the
 publish-safety scanners), `/atelier:install-hook` (the pre-commit scan gate —
-the mechanical enforcement the doctrine leans on hardest), and the
-`review-brief` skill (the peer-review lifecycle that turns "looks right" into
-"verified").
+the mechanical enforcement the doctrine leans on hardest), the `review-brief`
+skill (the peer-review lifecycle that turns "looks right" into "verified"), and
+the `queue-run` skill (orchestrate a run that drains the shared queue,
+closing records per item).

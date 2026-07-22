@@ -94,6 +94,9 @@ What you get:
   always-confirm floor, then points at the rest of the doctrine, read on demand.
 - **`review-brief`** skill — the peer-review lifecycle that turns "looks right"
   into "verified".
+- **`queue-run`** skill — orchestrate a queue run: drain the shared queue as an
+  orchestrator, execute via workers in worktrees, close records per item so a
+  session cap loses nothing.
 - The whole `docs/method/` + `docs/build/` doctrine, bundled as reference.
 
 Adopting it, you **become the principal**: instantiate the worked example as
