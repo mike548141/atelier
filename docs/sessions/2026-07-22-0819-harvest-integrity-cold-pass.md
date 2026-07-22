@@ -48,3 +48,18 @@ echoed, fail-safe exit codes, no network/secrets).
 Verdict + reconcile + records on `main`, pushed; suite 314 green; floors
 green. The `⏳` queue is empty. 🎯 **HI-F1–F6 await Mike's ruling** — the
 MAJOR keeps this cycle open (ruling → application → application's own `⏳`).
+
+## Addendum — Mike's accept-all ruling applied (same session, wt: hi-rulings-apply)
+
+Mike: *"I accept your recommendations on all"* ⇒ **HI-F1–F6 [fixed]** as
+counselled, delta `30d350c`: archive stores integrity-checked wherever they
+live (the dir skip bounds metering only); unclosed fences count their
+swallowed tail fail-safe via the shared `_count_list_items` (both counters,
+parity kept); RECORD.md names the gate; the child template carries the
+tri-state legend; the blockquote skip and indented-code edge are documented
+as decisions. Proof: suite 314→319 green, selftest gains the
+store-under-`sessions/` case, **both original fail-open repros re-driven and
+now exit 1**, live repo scan green. Decisions stamped in the verdict
+(`cfb0ae6`). The application is a doctrine edit by the verdicts' own author,
+so the cycle stays open: its cold pass is queued `⏳` refs-only — this
+session neither takes nor spawns it.
