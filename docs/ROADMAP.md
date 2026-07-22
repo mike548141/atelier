@@ -8,7 +8,9 @@ content** — a repo that inherits docs but not the propagation + review cadence
 has inherited the costume, not the doctrine.
 
 Checkbox states: `[ ]` open · `[x]` done · `[~]` **claimed** by a live parallel
-session — `(claimed <date>-<HHMM>, wt: <branch>)` — don't start a `[~]` item;
+session — `(claimed <date>-<HHMM>, wt: <branch>)`, optionally extended in place
+with a resume breadcrumb (`· at: <step>` — CONCURRENCY § Surviving an
+interrupted session) — don't start a `[~]` item;
 take the next open one (`method/CONCURRENCY.md` § Claiming work) ·
 `⏳` **review queued** for a non-author to take — any spawner passing rule 4's
 criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
@@ -149,25 +151,31 @@ push-fast, RECORD's resumed-cold assumption, CONCURRENCY's orphan-claim
 reclaim, the twice-grounded cmd+Q sweep precedent). Three gaps remain; drafting
 all three as one change (Mike ratified 2026-07-22, "all three"):
 
-- [ ] 🎯 **Interruption-resilience cycle — IR1–IR4 await Mike's ruling** —
-  the rule-4 cold pass on `9c11525` returned **PASS-WITH-FINDINGS
-  0 MAJOR · 3 MEDIUM · 2 LOW**, so the cycle is closed terminal (close
-  rule); the findings are decided into this backlog item (rule 3 — Mike's).
-  Verdict + counsel per finding:
-  [`reviews/2026-07-22-0257-interruption-resilience-cold.md`](reviews/2026-07-22-0257-interruption-resilience-cold.md).
-  IR1 (M): the CLAUDE.md onramp tell overclaims — "no closing entry means
-  died mid-flight" also matches a live sibling (live-proven); counsel:
-  one-line reword to "died or still live — sweep read-first before assuming
-  either". IR2 (M, the author's flagged sub-question): the child CLAUDE.md
-  template onramp carries no firing pointer; counsel: propagate one
-  sentence via `<atelier-path>`, worded per IR1's correction, at next pin
-  bump. IR3 (L): two lines over-wrap (~153-col aside, ~109-col table row).
-  IR4 (L): the resume-breadcrumb grammar isn't in the ROADMAP legend.
-  IR5 (M, records hygiene) is already **[fixed]** — the authoring session
-  left an un-harvested `[x]` redding the shared floor on `main` for three
-  pushes; harvested by the reviewing session (this commit), floor re-proven
-  green. *review: not warranted — applying the rulings is line-level
-  mechanical; the cold pass just reviewed the surrounding text.*
+- [ ] **Harvest-integrity invariant — no live checkbox in ROADMAP-DONE**
+  (Mike, 2026-07-22; triggered by IR5 and confirmed real by its first manual
+  run — see below). The invariant: `[ ]` / `[~]` / `⏳` state markers must
+  never sit in `ROADMAP-DONE.md` — the archive records finished history, and
+  a live marker there is either a botched harvest (open work silently
+  buried) or an untrue state (done work never flipped). **Deliberately NOT
+  delivery-verification of `[x]` items** (Mike's explicit bound — overhead
+  too high); this checks *state coherence*, one grep's worth of cost.
+  - **Counsel — extend `sizescan`, not a new tool**: it already owns the
+    ROADMAP↔ROADMAP-DONE seam and reads both files; add a red on live
+    markers in any `*-DONE` store, with a machine-readable escape for
+    sanctioned non-delivery states. Legend gains one state for those:
+    `[-]` **dropped** `— superseded / no longer required: <grounds>` — the
+    only live-box-shaped thing the archive may hold.
+  - **On hit, the finding is investigative, never auto-fixed**: the session
+    that reds checks the evidence (children's states, sessions log, the
+    codebase) for delivered-but-unmarked vs genuinely-open, then notifies
+    Mike with the evidence and a recommendation — flip with a dated note,
+    un-harvest back to ROADMAP, or mark `[-]` dropped. The scanner finds;
+    the agent investigates; Mike decides.
+  - **First manual run already caught one**: a `[ ]` parent
+    ("Batch-review follow-ups") sat in ROADMAP-DONE with both children
+    `[x]` DONE — delivered, never flipped; corrected with a dated note
+    (this session). *review: WARRANTED when built — a CI gate is
+    policy-as-code doctrine; brief owed at pickup.*
 
 ## Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)
 

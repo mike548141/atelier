@@ -73,7 +73,11 @@ in atelier and is read on demand — never wholesale.
 
 1. `docs/ARCHITECTURE.md` — current truth: the stack and why.
 2. `docs/ROADMAP.md` — what's open.
-3. Tail of `docs/SESSIONS.md` — where the last session left off.
+3. Tail of `docs/SESSIONS.md` — where the last session left off. A last commit
+   then silence with no closing entry means the last session either died
+   mid-flight or is still live — run the read-first recovery sweep
+   (`<atelier-path>/docs/method/CONCURRENCY.md` § Surviving an interrupted
+   session) before assuming either.
 
 ## Hard constraints
 

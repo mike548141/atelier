@@ -21,9 +21,10 @@ private-repo nicety. Verify: `gh repo view mike548141/atelier --json visibility`
 2. `docs/method/00-APEX.md` — the frame everything sits inside.
 3. `README.md` — what atelier is and its layers.
 4. Tail of `docs/SESSIONS.md` — where the last session left off. A last commit
-   then silence with **no closing entry** means the last session died mid-flight,
-   not closed clean — run the recovery sweep (`docs/method/CONCURRENCY.md`
-   § Surviving an interrupted session) before starting new work.
+   then silence with **no closing entry** means the last session either died
+   mid-flight **or is still live** — run the read-first recovery sweep
+   (`docs/method/CONCURRENCY.md` § Surviving an interrupted session) before
+   assuming either, and before starting new work.
 5. `docs/ROADMAP.md` — what's open.
 
 Read the rest of `docs/method/` on demand when a change touches it.

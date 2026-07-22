@@ -220,3 +220,30 @@ Nothing overturned; two nuances. Opened after findings committed
 the backlog for the principal's ruling with counsel recorded per finding;
 IR5's harvest is mechanical records hygiene, applied by this pass's records
 close and re-proven green there.
+
+---
+
+## Decisions — 2026-07-22, the principal
+
+Mike ruled on IR1–IR4: **"I take your recommendations on these"** — all four
+**[fixed]** per the reviewer's counsel, applied same day by the reviewing
+session (sanctioned by the backlog item's own `review: not warranted` line —
+line-level mechanical application of a no-MAJOR pass's rulings; closes
+without a queued pointer, per the close rule):
+
+- **IR1 [fixed]** — the onramp tell now reads "either died mid-flight **or
+  is still live** — run the read-first recovery sweep … before assuming
+  either".
+- **IR2 [fixed]** — the child CLAUDE.md template's read-order step 3 carries
+  the firing pointer via `<atelier-path>`, worded per IR1's correction;
+  reaches children at next pin bump.
+- **IR3 [fixed]** — the claim-breadcrumb aside rewrapped; the table row
+  trimmed to its claim with the two § refs moved into the prose directly
+  below it (which already carried the orphan-claim ref — no ref lost).
+- **IR4 [fixed]** — the ROADMAP legend names the optional resume breadcrumb
+  with a pointer to its section.
+- **IR5** was already **[fixed]** in the pass itself (harvest + floor
+  re-proven green, three-push red ended).
+
+Re-proven after application: suite green, floors green, wrap check clean on
+every touched file (recorded in the applying commit).

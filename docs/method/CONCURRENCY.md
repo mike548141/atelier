@@ -194,7 +194,8 @@ and pushing the claim **before it does any work**:
 - [~] REACH backlog H2 — scope cookie-export … (claimed 2026-07-13-2140, wt: atelier-reach-h2)
 ```
 
-*(Once work is under way the claim line can also carry a resume breadcrumb — § Surviving an interrupted session; here it is born as the bare claim.)*
+*(Once work is under way the claim line can also carry a resume breadcrumb —
+§ Surviving an interrupted session; here it is born as the bare claim.)*
 
 **Where the claim lands is load-bearing.** The claim commit goes to the
 **integration branch every session rebases onto** (`main`), *before* creating or
@@ -401,15 +402,16 @@ recoveries: atelier session 45's survival audit (2026-07-12) and the cmd+Q sweep
 | Working tree | no uncommitted, no untracked |
 | Sync vs `origin/main` | 0/0 ahead/behind |
 | Stashes | none unexpected |
-| Orphan worktrees / branches | none without live work (§ Claiming work · § Every branch ends put away) |
+| Orphan worktrees / branches | none without live work |
 | Reflog after the last close | nothing stranded past the last logged close |
 
 The resumer's tell is one question — **did the last session close clean, or die
 mid-flight?** A clean close leaves a session-log entry ending in a settled state;
 a death leaves a last commit then silence, no closing entry. The first needs only
 the normal onramp; the second warrants the sweep. Two lanes hold throughout: an
-orphan claim is reclaimed on the evidence, never a timer (§ Claiming work —
-Orphan claims), and **another repo's or session's recovery is not yours to run**
+orphan claim, worktree, or branch is reclaimed or put away on the evidence,
+never a timer (§ Claiming work — Orphan claims · § Every branch ends put
+away), and **another repo's or session's recovery is not yours to run**
 (§ Stay in your lane) — read it for the picture and change nothing, as the
 2026-07-20 sweep read `ros` for context and left tiki's recovery to the session
 live there.
