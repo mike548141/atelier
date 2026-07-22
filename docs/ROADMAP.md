@@ -39,6 +39,10 @@ terminal, closed 2026-07-21) →
   Rule 3: decisions are Mike's; reviewer counsel is in the verdict's
   follow-ups. MAJORs present ⇒ after rulings, application + further cold
   pass until a no-MAJOR pass closes the cycle.
+  **RULED 2026-07-22: Mike accepts all (SL1–SL7 [fixed], as counselled).
+  CLAIMED 2026-07-22 0022 UTC** by the taker session for the application
+  (wt: scope-lens4-sl-apply); application review to be queued ⏳ for a
+  non-author — the applier does not spawn it.
 
 ## build/ layer — open strands
 
