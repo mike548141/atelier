@@ -1,6 +1,6 @@
 # 2026-07-22 · 2134 UTC · Apex gains its third element — adaptation is continuous
 
-**Intent record for the ⏳ review of `f52c50f`.**
+**Intent record for the ⏳ review of `f52c50f` + `1da0a3e`.**
 
 ## What Mike said (the dictation, 2026-07-22 UTC)
 
@@ -11,6 +11,24 @@
 > solutions we use to address it, the process we use, the things we do and say,
 > or don't do and say. Because we can always be better, and the environment /
 > context we operate in will continue to change as well.
+
+## The second dictation (same session, 2026-07-22 UTC)
+
+> Weave into that point about learning that sessions (all models) should not be
+> afraid of "taking the hard road" to learn more. It is preferable that models
+> spend the time and effort to enable it to learn from real evidence. And
+> decisions that change design or affect any part of the doctrine (apex,
+> principles, decisions etc) or the overall doctrine must be evidence based and
+> proven with hard facts. That evidence should be repeatable so it can be
+> challenged and contrasted.
+
+Encoded as two new "In practice" bullets (`1da0a3e`): **Don't fear the hard
+road** (binding on every session and every model, tied to § Who it binds for
+the smaller-model escalation path) and **Doctrine changes ride on proof**
+(evidence-based, hard facts, repeatable so it can be challenged and contrasted;
+named as the grounding rule held at apex strength, pointing to `EVIDENCE.md`).
+Agent-authored connective tissue to attack: the "testimony, not evidence" line
+and the claim that this *is* the grounding rule at apex strength.
 
 ## What changed (`f52c50f`)
 
