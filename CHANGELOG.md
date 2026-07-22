@@ -5,6 +5,19 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-22 — interruption-resilience doctrine reviewed; scope/lens-4 residue applied)
+- **The interruption-resilience cycle closed same-day**: `9c11525`'s rule-4
+  cold pass returned **PASS-WITH-FINDINGS 0M/3M/2L** — terminal per the
+  close rule. Notable: the onramp tell was live-falsified during the review
+  (a live sibling session matches the "died mid-flight" signature — IR1),
+  and the authoring session's un-harvested `[x]` had the shared floor red
+  on `main` for three pushes (IR5, fixed + re-proven green by the reviewing
+  session). IR1–IR4 await the principal's ruling with counsel per finding.
+  Verdict: `docs/reviews/2026-07-22-0257-interruption-resilience-cold.md`.
+- **AC1–AC2 applied on the principal's accept-both**: the CONTRIBUTING
+  template's 122-col line rewrapped; the review-brief skill's scanner
+  clause now carries the exclusion-barred caution. Suite 302 green.
+
 ### Changed (2026-07-22 — reviewer scope mandated; security & privacy is lens 4)
 - **Review scope is the whole commitment, and security & privacy is a must
   on every review** (Mike's rulings, 2026-07-21): `REVIEW.md` gained a scope
