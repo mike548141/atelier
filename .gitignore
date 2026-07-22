@@ -9,6 +9,10 @@
 # .claude/settings.json IS committed; the local override is not)
 .claude/settings.local.json
 
+# Harness-native worktrees land here — a sibling session's live worktree is
+# NOT ours to commit (CONCURRENCY § Stay in your lane); never track its gitlink.
+.claude/worktrees/
+
 # --- add language litter as needed ---
 # Python (tools/ carries stdlib-only scripts):
 __pycache__/
