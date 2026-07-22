@@ -160,8 +160,8 @@ push-fast, RECORD's resumed-cold assumption, CONCURRENCY's orphan-claim
 reclaim, the twice-grounded cmd+Q sweep precedent). Three gaps remain; drafting
 all three as one change (Mike ratified 2026-07-22, "all three"):
 
-- [~] **Draft the three interruption-resilience gaps as one doctrine change**
-      (claimed 2026-07-22-0245, wt: interruption-resilience) —
+- [x] **Draft the three interruption-resilience gaps as one doctrine change**
+      (landed `9c11525`, 2026-07-22) —
       - **Gap 1 (high): the resume-state carrier doesn't exist at the cut.**
         The session log is written at *close*; interruptions precede close, so
         a cut session leaves a clean tree but no *intent*. Fix: a durable
@@ -177,8 +177,15 @@ all three as one change (Mike ratified 2026-07-22, "all three"):
         reflog-after-close/respect sibling lanes) into CONCURRENCY, plus a
         resumer tell — did the last session close clean or die mid-flight?
 
-*review: WARRANTED — method doctrine by function, so the full rule-4 cycle.
-The author queues the `⏳` pointer for a non-author when the delta lands.*
+- ⏳ **Interruption-resilience cold pass** — delta `9c11525` (2026-07-22, new
+  CONCURRENCY § Surviving an interrupted session + onramp firing pointer);
+  intent record:
+  [`sessions/2026-07-22-0245-interruption-resilience-doctrine.md`](sessions/2026-07-22-0245-interruption-resilience-doctrine.md).
+  Method doctrine by function → full rule-4 cold pass; any non-author spawner
+  passing rule 4's criterion may take it (the author neither takes nor spawns
+  its own review). Open sub-question for the reviewer, flagged not done: should
+  the template CLAUDE.md onramp carry the same died-mid-flight→sweep pointer, to
+  propagate the firing condition to children?
 
 ## Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)
 
