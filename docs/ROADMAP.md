@@ -161,36 +161,25 @@ push-fast, RECORD's resumed-cold assumption, CONCURRENCY's orphan-claim
 reclaim, the twice-grounded cmd+Q sweep precedent). Three gaps remain; drafting
 all three as one change (Mike ratified 2026-07-22, "all three"):
 
-- [x] **Draft the three interruption-resilience gaps as one doctrine change**
-      (landed `9c11525`, 2026-07-22) —
-      - **Gap 1 (high): the resume-state carrier doesn't exist at the cut.**
-        The session log is written at *close*; interruptions precede close, so
-        a cut session leaves a clean tree but no *intent*. Fix: a durable
-        in-flight breadcrumb (extend the claim line — `at: <step>, waiting on
-        <X>`), updated as work moves. Overlaps the queue-run strand's per-item
-        close (line ~122); reference, don't duplicate.
-      - **Gap 2 (medium): decision-limbo.** A pending `🎯` question lives only
-        in volatile chat; a dropped window loses it. Fix: write the open
-        question into the record before blocking on it.
-      - **Gap 3 (low): the recovery procedure isn't in method.** The cmd+Q
-        sweep is twice-grounded (session 45, 2026-07-20) but lives in a session
-        log. Fix: distil the checklist (tree/sync/stashes/orphan worktrees/
-        reflog-after-close/respect sibling lanes) into CONCURRENCY, plus a
-        resumer tell — did the last session close clean or die mid-flight?
-
-- ⏳ **Interruption-resilience cold pass** — delta `9c11525` (2026-07-22, new
-  CONCURRENCY § Surviving an interrupted session + onramp firing pointer);
-  intent record:
-  [`sessions/2026-07-22-0245-interruption-resilience-doctrine.md`](sessions/2026-07-22-0245-interruption-resilience-doctrine.md).
-  Method doctrine by function → full rule-4 cold pass; any non-author spawner
-  passing rule 4's criterion may take it (the author neither takes nor spawns
-  its own review). Open sub-question for the reviewer, flagged not done: should
-  the template CLAUDE.md onramp carry the same died-mid-flight→sweep pointer, to
-  propagate the firing condition to children?
-  **CLAIMED 2026-07-22 0257 UTC** by a rule-4 taker (wt:
-  interruption-resilience-cold) — spawn provenance: the principal's session
-  ("please do any review work", continued); the delta's author — the
-  now-closed sibling session — neither started nor instructed it.
+- [ ] 🎯 **Interruption-resilience cycle — IR1–IR4 await Mike's ruling** —
+  the rule-4 cold pass on `9c11525` returned **PASS-WITH-FINDINGS
+  0 MAJOR · 3 MEDIUM · 2 LOW**, so the cycle is closed terminal (close
+  rule); the findings are decided into this backlog item (rule 3 — Mike's).
+  Verdict + counsel per finding:
+  [`reviews/2026-07-22-0257-interruption-resilience-cold.md`](reviews/2026-07-22-0257-interruption-resilience-cold.md).
+  IR1 (M): the CLAUDE.md onramp tell overclaims — "no closing entry means
+  died mid-flight" also matches a live sibling (live-proven); counsel:
+  one-line reword to "died or still live — sweep read-first before assuming
+  either". IR2 (M, the author's flagged sub-question): the child CLAUDE.md
+  template onramp carries no firing pointer; counsel: propagate one
+  sentence via `<atelier-path>`, worded per IR1's correction, at next pin
+  bump. IR3 (L): two lines over-wrap (~153-col aside, ~109-col table row).
+  IR4 (L): the resume-breadcrumb grammar isn't in the ROADMAP legend.
+  IR5 (M, records hygiene) is already **[fixed]** — the authoring session
+  left an un-harvested `[x]` redding the shared floor on `main` for three
+  pushes; harvested by the reviewing session (this commit), floor re-proven
+  green. *review: not warranted — applying the rulings is line-level
+  mechanical; the cold pass just reviewed the surrounding text.*
 
 ## Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)
 
