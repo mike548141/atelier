@@ -147,3 +147,11 @@ to the principal. Every item the run could not progress, and why:
   (build), Fable ×2 (cold review; design pass — the rework rule). All worker
   worktrees put away; `atelier-v2-plugin-deinstance` deliberately remains —
   it is the pending-merge branch, Mike's disposition.
+
+**Addendum, 1240 UTC — the floor caught the run's own debt.** CI went red on
+`sizescan --check` after the design-pass push: the three freshly-`[x]` items
+this run left on ROADMAP.md are exactly the cold content the gate exists to
+catch (the orchestrator's earlier local sizescan predated those closes — a
+sequencing miss, not a scanner surprise). Harvested to `ROADMAP-DONE.md`
+under this run's heading, open residue kept live; gate re-run green locally.
+The failure is left on the CI history as-is — the floor working as designed.

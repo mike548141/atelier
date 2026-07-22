@@ -150,21 +150,13 @@ Mapping done 2026-07-22 (record:
 — A/B/E confirmed narrow, C reframed to mutable-tag CI actions, D dismissed
 instance-layer) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- [x] **Doctrine edits for confirmed gaps A/B/C/E — BUILT 2026-07-22**
-      (`85157c3`, merged `73da10d`): every third-party CI action SHA-pinned
-      (ci.yml + all child workflow templates, five tag→SHA resolutions
-      verified live twice); root `SECURITY.md` + child template, registered
-      in REPO-STANDARD as publish-time; REVIEW.md gains the right-sized
-      threat pass (A) + security-finding severity/recurrence-prevention (E);
-      PRINCIPLES gains secure-by-default (B) + zero-dep-as-supply-chain-
-      control with named residual (C). Worker divergences in the session
-      record.
-  - ⏳ **security-canon A/B/C/E review** — delta: `85157c3` (merge
-        `73da10d`); intent records: the gap map
-        `sessions/2026-07-22-1025-security-canon-gap-map.md` §3 + the
-        2026-07-22-1210 queue-run record's close entry. Self-authored
-        doctrine (built by this run's instructed worker) ⇒ rule 4: the run
-        may not spawn this review; a non-author taker writes the brief.
+- ⏳ **security-canon A/B/C/E review** (edits BUILT 2026-07-22, `85157c3`,
+  merged `73da10d` — detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)) — delta:
+  `85157c3`; intent records: the gap map
+  `sessions/2026-07-22-1025-security-canon-gap-map.md` §3 + the
+  2026-07-22-1210 queue-run record's close entry. Self-authored doctrine
+  (built by that run's instructed worker) ⇒ rule 4: that run may not spawn
+  this review; a non-author taker writes the brief.
 - **Already held — name, don't rebuild** (verified by the mapping,
   2026-07-22): automated scanning in the pipeline (the floor scanners), peer
   review before ship (REVIEW.md), least privilege (SECRETS triad), secrets
@@ -276,33 +268,17 @@ What remains is Mike's:
 
 Reconciliation drift closed 2026-07-22 (richest-record dedup; exact ccusage
 match on frozen data) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
-- [x] **Actual spend (plan or usage) vs the API-usage estimate — BUILT
-      2026-07-22** (`1711711`, merged `12613e0`): machine-local `spend`
-      block (plan mode: months × fee + uncovered; usage mode: invoiced
-      figures per month), reconciliation footnote with Δ $ and %, honest
-      partial/unavailable degradation, JSON/CSV meta; 139 tests green;
-      also fixed a pre-existing USD×rate² defect in the Actual footnote.
-      Review: self-verifying class (instrument code under its test floor,
-      no doctrine surface — ECONOMICS § Match the ceremony). 🎯 residue
-      below. Original item, for context — the money-side
-      analog of the ccusage cross-check. ccrepo's cost is an API-list-price
-      *estimate*; the billing model (`ccrepo-billing.json`) already apportions a
-      flat plan fee into an Actual column, but Mike wants to compare **what he
-      genuinely pays** — a subscription tier (e.g. Max 5x/20x) or metered usage —
-      against what ccrepo computes from API usage, and see the delta. Needs a
-      machine-local source of real spend (plan tier + period, or an exported
-      usage/invoice figure) and a reconciliation footnote like the ccusage one but
-      for dollars actually billed. Personal data ⇒ the spend source stays in
-      `~/.claude`, never a repo (same boundary as `ccrepo-billing.json`).
-  - [ ] 🎯 **Fill the machine-local spend config** — needs-Mike facts the
-        mechanism can't know: `~/.claude/ccrepo-billing.json` does not
-        currently exist on this machine, so the comparison reports
-        unavailable until it's created. Two calls: (1) which mode — a flat
-        Max tier (`plan` mode: just name + monthly fee) or pasted monthly
-        invoice figures (`usage` mode, exact across tier changes); (2)
-        plan mode assumes the plan was live every month with usage in
-        range — if tiers changed mid-history, use usage mode for those
-        months. Schema documented in `instruments/README.md`.
+- [ ] 🎯 **Fill the machine-local spend config** (actual-spend mechanism
+      BUILT 2026-07-22, `1711711`, merged `12613e0` — detail →
+      [`ROADMAP-DONE.md`](ROADMAP-DONE.md)) — needs-Mike facts the
+      mechanism can't know: `~/.claude/ccrepo-billing.json` does not
+      currently exist on this machine, so the comparison reports
+      unavailable until it's created. Two calls: (1) which mode — a flat
+      Max tier (`plan` mode: just name + monthly fee) or pasted monthly
+      invoice figures (`usage` mode, exact across tier changes); (2)
+      plan mode assumes the plan was live every month with usage in
+      range — if tiers changed mid-history, use usage mode for those
+      months. Schema documented in `instruments/README.md`.
 
 Completed instruments work (ccrepo actuals/breakdown, ccarchive integrity/audit,
 the **man-page convention rollout — ccarchive worked example + cctranscript +
@@ -398,11 +374,10 @@ public as a **named worked example** (README "If you're adopting this"). What wa
       mid-flight). Go-live (merge) stays Mike's call; owed after merge:
       retire the superseded global `create-repo` skill (machine-local),
       exercise the interactive fill + bundled-mode scaffold end-to-end.
-  - [x] ⏳ **v2-plugin de-instance review — DELIVERED 2026-07-22 1221**
-        (taken 1210 by the queue-run orchestrator, rule-4 provenance on the
-        brief; two-hop fresh-context reviewer) →
-        [`verdict`](reviews/2026-07-22-1215-v2-plugin-deinstance-cold.md).
-  - [ ] 🎯 **VP1–VP8 rulings (v2-plugin de-instance cold pass)** —
+  - [ ] 🎯 **VP1–VP8 rulings (v2-plugin de-instance cold pass —
+        [`verdict`](reviews/2026-07-22-1215-v2-plugin-deinstance-cold.md),
+        delivered 2026-07-22; the take's provenance detail →
+        [`ROADMAP-DONE.md`](ROADMAP-DONE.md))** —
         PASS-WITH-FINDINGS 2 MAJOR · 3 MEDIUM · 1 LOW · 2 notes;
         self-authored doctrine ⇒ findings Mike's to decide (rule 3), nothing
         applied. Sharpest: VP1 (MAJOR) the bundled-mode doctrine block is

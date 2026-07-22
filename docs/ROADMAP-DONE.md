@@ -1645,3 +1645,45 @@ The 2026-07-22-1018 run's ten landed items, harvested at the run's own close
   `--source <archive>` flag on the reader, not a merge); middle path (shared
   lib) only if shared code crosses ~40–50 lines. Mike's call whether to
   accept the recommendation; no work owed until then.
+
+## Orchestrated queue run #2 — completed detail (moved 2026-07-22)
+
+Run record: `sessions/2026-07-22-1210-orchestrated-queue-run.md`. Open residue
+(🎯 VP1–VP8, 🎯 spend config, 🎯 D1–D5, the security-canon `⏳`) stays live in
+ROADMAP.md; the finished detail is preserved here.
+
+- [x] ⏳ **v2-plugin de-instance review — DELIVERED 2026-07-22 1221**
+      (taken 1210 by the queue-run orchestrator, rule-4 provenance on the
+      brief; two-hop fresh-context reviewer) →
+      [`verdict`](reviews/2026-07-22-1215-v2-plugin-deinstance-cold.md).
+      The 1018 run's "stray" worktree re-read on the evidence as a parked
+      rule-4 handoff (complete recorded commit `1516ae1`, queued `⏳` inside
+      its own delta), not a mid-flight death; merge stayed Mike's throughout.
+- [x] **Doctrine edits for confirmed gaps A/B/C/E — BUILT 2026-07-22**
+      (`85157c3`, merged `73da10d`): every third-party CI action SHA-pinned
+      (ci.yml + all child workflow templates, five tag→SHA resolutions
+      verified live twice); root `SECURITY.md` + child template, registered
+      in REPO-STANDARD as publish-time; REVIEW.md gains the right-sized
+      threat pass (A) + security-finding severity/recurrence-prevention (E);
+      PRINCIPLES gains secure-by-default (B) + zero-dep-as-supply-chain-
+      control with named residual (C). Worker divergences in the session
+      record. Rule-4 `⏳` remains queued in ROADMAP.md.
+- [x] **Actual spend (plan or usage) vs the API-usage estimate — BUILT
+      2026-07-22** (`1711711`, merged `12613e0`): machine-local `spend`
+      block (plan mode: months × fee + uncovered; usage mode: invoiced
+      figures per month), reconciliation footnote with Δ $ and %, honest
+      partial/unavailable degradation, JSON/CSV meta; 139 tests green;
+      also fixed a pre-existing USD×rate² defect in the Actual footnote.
+      Review: self-verifying class (instrument code under its test floor,
+      no doctrine surface — ECONOMICS § Match the ceremony). Original item,
+      for context — the money-side
+      analog of the ccusage cross-check. ccrepo's cost is an API-list-price
+      *estimate*; the billing model (`ccrepo-billing.json`) already apportions a
+      flat plan fee into an Actual column, but Mike wants to compare **what he
+      genuinely pays** — a subscription tier (e.g. Max 5x/20x) or metered usage —
+      against what ccrepo computes from API usage, and see the delta. Needs a
+      machine-local source of real spend (plan tier + period, or an exported
+      usage/invoice figure) and a reconciliation footnote like the ccusage one but
+      for dollars actually billed. Personal data ⇒ the spend source stays in
+      `~/.claude`, never a repo (same boundary as `ccrepo-billing.json`).
+      🎯 fill-the-config residue stays live in ROADMAP.md.
