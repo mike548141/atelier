@@ -187,6 +187,10 @@ all three as one change (Mike ratified 2026-07-22, "all three"):
   its own review). Open sub-question for the reviewer, flagged not done: should
   the template CLAUDE.md onramp carry the same died-mid-flight→sweep pointer, to
   propagate the firing condition to children?
+  **CLAIMED 2026-07-22 0257 UTC** by a rule-4 taker (wt:
+  interruption-resilience-cold) — spawn provenance: the principal's session
+  ("please do any review work", continued); the delta's author — the
+  now-closed sibling session — neither started nor instructed it.
 
 ## Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)
 
