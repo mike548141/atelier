@@ -36,17 +36,13 @@ terminal, closed 2026-07-21; the REVIEW.md scope/lens-4 cycle — 2158 cold
 pass 2M/3M/2L → SL1–SL7 accept-all applied `d553045` → 0244 terminal
 no-MAJOR application pass, closed 2026-07-22; the harvest-integrity cycle —
 0819 pass 1M/3M/2n → HI-F1–F6 accept-all applied `30d350c` → 0943 terminal
-no-MAJOR application pass, closed 2026-07-22) →
+no-MAJOR application pass, closed 2026-07-22; the secrets/access cycle —
+1021 rule-4 cold pass taken by the 1018 queue run, PASS-WITH-FINDINGS
+0M/4m/4L/1n terminal, closed 2026-07-22) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- [x] **SECRETS.md access-management expansion + ACCESS.md step-2 line** —
-  rule-4 cold pass on `caa85fe` run 2026-07-22 by the wave-1 queue run
-  (provenance in the brief; the run authored none of the delta):
-  **PASS-WITH-FINDINGS 0 MAJOR · 4 MINOR · 4 LOW · 1 nit**, citations
-  verified live, live-proven claims re-run clean, reconcile overturned
-  nothing — terminal per the close rule, cycle closed. Verdict:
-  [`reviews/2026-07-22-1021-secrets-access-cold-pass.md`](reviews/2026-07-22-1021-secrets-access-cold-pass.md).
-- [ ] 🎯 **SA1–SA8 rulings (secrets/access cold pass)** — self-authored
+- [ ] 🎯 **SA1–SA8 rulings (secrets/access cold pass —
+  [`verdict`](reviews/2026-07-22-1021-secrets-access-cold-pass.md))** — self-authored
   doctrine, so the findings are Mike's to decide (rule 3); nothing applied.
   Sharpest four: SA1 the asymmetric-key grading misses the agent-forwarding
   channel (a compromised target can reach the fleet a shared key opens);
@@ -118,21 +114,10 @@ REPO-BOUNDARY, worktree tooling) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 ## Orchestrated queue runs — from hand-carried prompt to doctrine (Mike, 2026-07-22)
 
-- [x] **Name the pattern in `method/`** — built 2026-07-22 by a fresh
-      session per Mike's ratification ("build as counselled"), wave-2 queue
-      run, `343def8`: CONCURRENCY.md § Orchestrated queue runs (96 lines —
-      run mechanics, role check at open, default selection order, per-item
-      close as the cap-safety property, four named stop conditions + the
-      🎯-surfacing report, rule-4 synergy) + ECONOMICS.md § The
-      orchestrated-run tier split (22 lines). Section-vs-new-file settled by
-      the builder on actual size, as ratified. Every ratified element landed,
-      incl. the deliberately-out items named at the point a reader would
-      look. Grounded on both bearings (man-page rollout + the live
-      2026-07-22-1018 run).
-- [x] **Mechanise it as a skill** — built same delta, `8111e9f`:
-      `skills/queue-run/SKILL.md`, plugin-bundled by auto-discovery exactly
-      as review-brief travels (no manifest change needed — verified);
-      stamped-copy header points up, narrowing-free.
+Built 2026-07-22 as ratified (CONCURRENCY § Orchestrated queue runs +
+ECONOMICS § tier split + plugin-bundled `queue-run` skill) →
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md). What remains open is its review:
+
 - ⏳ **Orchestrated-queue-run doctrine + skill — rule-4 cold review owed.**
   Delta: `343def8` (CONCURRENCY § Orchestrated queue runs + ECONOMICS § the
   orchestrated-run tier split) + `8111e9f` (`skills/queue-run` +
@@ -154,20 +139,11 @@ same-session (SECRETS.md "Grounding in public practice", `caa85fe` — NIST SP
 divergence owned). The rest is a doctrine-wide sweep, deliberately not crammed
 into that delta:
 
-- [x] **Map the public canon against `method/` + the scanner floor** — done
-      2026-07-22 (wave-1 queue run): mapping record
-      [`sessions/2026-07-22-1025-security-canon-gap-map.md`](sessions/2026-07-22-1025-security-canon-gap-map.md),
-      every "already held" claim verified by reading the cited doc. Verdicts
-      on the capture's candidates: **A** threat modelling CONFIRMED (narrow —
-      reviewer-side held, the *builder* is never told to enumerate threats);
-      **B** secure defaults CONFIRMED (narrow — fragments, not generalised);
-      **C** supply chain CONFIRMED reframed (zero-dep *is* the control; the
-      live residual is third-party CI actions pinned by mutable tag, not
-      SHA); **D** secure-coding floor DISMISSED (instance-layer by design;
-      one framing line owed); **E** vuln lifecycle CONFIRMED (partial —
-      credential path fully held; missing severity/recurrence framing and a
-      public-repo SECURITY.md disclosure posture). The mapping also
-      corrected this section's "already held" list (below).
+Mapping done 2026-07-22 (record:
+[`sessions/2026-07-22-1025-security-canon-gap-map.md`](sessions/2026-07-22-1025-security-canon-gap-map.md)
+— A/B/E confirmed narrow, C reframed to mutable-tag CI actions, D dismissed
+instance-layer) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
+
 - [ ] **Doctrine edits for confirmed gaps A/B/C/E** — seams and rough sizes
       proposed in the mapping record §3 (proposals, not decisions).
       Suggested first slice: SHA-pin the CI actions + a SECURITY.md — both
@@ -197,17 +173,11 @@ baselines) and that a model has no per-codebase training for. They call it the
 
 **What's genuinely NEW for atelier** (much is already ours — see below): the
 systematic REGISTRY and its promotion rule.
-- [x] **Promotion rule — recurrence makes an invariant** — the mining half
-      done 2026-07-22 (wave-2 queue run, `84fb112`): 330 findings across all
-      47 review files clustered into 5 scanner candidates (S1 wrap-hygiene —
-      the class that shipped three cycles running; S2 named-path-resolves;
-      S3 UTC dating; S4 template stamp-drift; S5 NZ spelling, carried on ROI)
-      + 7 verifier/checklist candidates (V1 overclaim-vs-evidence is the
-      largest cluster at ~30 — validating the doctrine, not exposing a gap),
-      below-threshold classes named, already-enforced classes credited, and
-      one ⚠️: fail-open/detector-edge (~23) kept recurring *after* the
-      selftest floor — "harden tools/ tests", not "solved". Record:
-      [`sessions/2026-07-22-1036-invariant-candidates.md`](sessions/2026-07-22-1036-invariant-candidates.md).
+Mining done 2026-07-22 (330 findings / 47 reviews → 5 scanner + 7 verifier
+candidates; record:
+[`sessions/2026-07-22-1036-invariant-candidates.md`](sessions/2026-07-22-1036-invariant-candidates.md))
+→ [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
+
 - [ ] 🎯 **Rule on the invariant candidates S1–S5 / V1–V7** — per-candidate
       approval is Mike's (the PROPOSED-then-ratify pattern); each carries its
       cited occurrences + proposed seam/home in the record. Approved scanner
@@ -267,86 +237,29 @@ touches REVIEW.md + EVIDENCE.md + the scanner floor); brief owed at pickup.*
 
 ### ccarchive (Mike, 2026-07-17)
 
-- [x] **Restore from archive — full + delta** — built 2026-07-22 (wave-1
-      queue run, `9ca1425`): `--restore` (full) + `--restore --delta`
-      (audit's mutated/pruned/renamed buckets), `--dry-run`/`--force`/`--json`
-      reused. Content-first safety: `grown` never a target (byte-prefix
-      check, so even a full restore can't drop a live tail); diverged+newer
-      live refuses unless `--force` (loud); zip-slip containment; additive
-      only (renamed restores the OLD path, never deletes the live rename —
-      documented choice). Suite 46→63 ccarchive / 109 instruments green,
-      re-proven post-merge; live fixture run exercised every exit path.
-      Man page + README updated per the CLI-docs standard.
-- [x] **iCloud dataless-file awareness** — built 2026-07-22 (wave-3 queue
-      run, `12794d6`): `SF_DATALESS` read via BSD `stat -f %f` (Node exposes
-      no `st_flags` — investigated incl. bigint stats), classifier **verified
-      against a real evicted file** in the live archive, `stat` proven
-      non-faulting. `--verify`/`--audit` skip evicted files into a distinct
-      `evicted`/undetermined bucket (never a failure, never mis-read as
-      missing/corrupt; success line says "every *checked* transcript");
-      opt-in `--materialise` reads them deliberately; `--restore` still
-      faults content back by design (documented); manifest/backfill writes
-      proven non-faulting. Honest residual: the end-to-end skip on a *live*
-      eviction is seam-simulated, not exercised — nothing was evicted to
-      test. Suite 109→116 (118 instruments-wide post-merge). The `--json`
-      audit contract gains the `evicted` array — consistent-awareness call
-      endorsed at merge.
-- [x] **Sign the manifest (tamper-evidence)** — built 2026-07-22 (wave-4
-      queue run, `2a85839`): detached HMAC-SHA256 sidecar
-      (`manifest.json.sig`), key off-archive at `~/.claude` (file over
-      Keychain — cron/launchd reads it promptless; the key guards
-      tamper-evidence, not confidentiality), `--rekey` rotation re-signs the
-      current manifest (SECRETS replaceability — a roll loses nothing),
-      five verify states each honest and non-zero (tampered / key-mismatch /
-      unsigned-legacy-migrates / no-key-unverifiable; verify never mints).
-      The closed caveat proven live: forged `.gz` + recomputed manifest hash
-      → signature MISMATCH, exit 1. Non-protections stated in the man page
-      (key theft forges; no anti-rollback; evidence, not prevention). Suite
-      70→84 ccarchive / 132 instruments-wide, re-proven post-merge.
-      🎯 Two contestable defaults, Mike's to overturn if wanted: binary 0/1
-      exit codes (unverifiable vs proven-tamper distinguished in text/JSON
-      only), and no-key verify exiting red on a legitimate new machine until
-      the key arrives out-of-band (deliberate never-silently-pass).
-- [x] **Is there any metadata that ccarchive misses?** — answered 2026-07-22
-      (wave-3 queue run, `5ce9f00`): yes. The real hole is
-      `tool-results/` sidecars — offloaded tool-output payloads the
-      transcript only points at, so the archive can hold dangling references
-      while advertising a complete record (≈7% of transcript volume;
-      recommendation: CAPTURE, plus man-page honesty about what is excluded
-      regardless). Full classification (capture / exclude-and-document /
-      needs-Mike) in
-      [`sessions/2026-07-22-1050-cc-instruments-questions.md`](sessions/2026-07-22-1050-cc-instruments-questions.md).
+Restore (full + delta), dataless awareness, and manifest signing all built
+2026-07-22; the two open questions answered by measurement (tool-result
+sidecar capture hole; keep-separate counselled) → detail in
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md), record
+[`sessions/2026-07-22-1050-cc-instruments-questions.md`](sessions/2026-07-22-1050-cc-instruments-questions.md).
+What remains is Mike's:
+
 - [ ] 🎯 **Rule on the metadata classes** — needs-Mike calls: per-project
       `memory/*.md` (durable cross-session state, most personal) and
       top-level `history.jsonl` (typed-prompt stream, lean-exclude
       counselled); plus approve/decline the CAPTURE of tool-result sidecars
       (a build item once ruled).
-- [x] **Should cctranscript and ccarchive be one?** — analysed 2026-07-22
-      (wave-3 queue run, same record): **keep separate** counselled. Measured
-      shared code is ~10 lines; merging would couple ccarchive's
-      schema-immunity (the property guarding the sole durable copy) to
-      cctranscript's schema-fragile parser, and blur ADR 0006's observe vs
-      preserve verbs. Counter-case captured (natural pipeline pair → argues
-      for a `--source <archive>` flag on the reader, not a merge); middle
-      path (shared lib) only if shared code crosses ~40–50 lines. 🎯 Mike's
-      call whether to accept the recommendation; no work owed until then.
+- [ ] 🎯 **Signing defaults + the merge recommendation** — overturn if
+      wanted: binary 0/1 exit codes (unverifiable vs proven-tamper
+      distinguished in text/JSON only); no-key verify red on a legitimate
+      new machine until the key arrives out-of-band (deliberate
+      never-silently-pass); and accept/decline the keep-separate counsel on
+      cctranscript/ccarchive (no work owed until ruled).
 
 ### ccrepo (Mike, 2026-07-17)
 
-- [x] **Tighten the ccusage reconciliation drift** — done 2026-07-22 (wave-2
-      queue run, `75bba4c`). Root cause found and fixed: the
-      `(message.id, requestId)` dedup kept the **last** log line, and the logs
-      re-emit messages with a trailing partial/zeroed usage line — last-wins
-      silently dropped tokens. Now keeps the **richest** record (max-total),
-      which matches ccusage **exactly** on a frozen matched-session set;
-      sonnet-5 (the ~1.5% outlier) → 0.00%, total drift → ~0.00% with only
-      in-flight current-session variance left, reported plainly.
-      `server_tool_use` measured live: present on many messages but every
-      counter zero — per-call pricing not built, the v1 "named contributor"
-      hypothesis retracted in the design doc as measured-false. Per-model
-      reconcile also scoped to matched sessions (one-sided window-edge
-      sessions no longer smear into phantom per-model deltas). Suite 92→94
-      green (111 instruments-wide, re-proven post-merge).
+Reconciliation drift closed 2026-07-22 (richest-record dedup; exact ccusage
+match on frozen data) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 - [ ] **Actual spend (plan or usage) vs the API-usage estimate** — the money-side
       analog of the ccusage cross-check. ccrepo's cost is an API-list-price
       *estimate*; the billing model (`ccrepo-billing.json`) already apportions a
@@ -478,19 +391,8 @@ CI, child-CI scanner floor, linkscan build + wiring) → [`ROADMAP-DONE.md`](ROA
       (name + path) is kept in Mike's private note, deliberately NOT published
       here (atelier is public). Do NOT interpret until Mike expands it.
       (Mike, 2026-07-22.)
-- [x] **`MODEL-ECONOMICS.md` renamed to `ECONOMICS.md`** — Mike's 2026-07-22
-      decision executed 2026-07-22 (wave-1 queue run, `b639513`): `git mv` on
-      the canonical file and the child-template copy, 24 pointer refs across
-      16 live files; history append-only (113 old-name refs in records stand).
-      Deliberation record:
-      [`sessions/2026-07-22-0435-economics-rename-decision.md`](sessions/2026-07-22-0435-economics-rename-decision.md).
-      Light review discharged mechanically per the item's own note: linkscan
-      clean before/after, 323 tool tests green incl. the template block-sync
-      test, orchestrator diff-verified at merge. Nothing dangles cross-repo —
-      children resolve refs against their pins; each child updates its
-      atelier-pointing refs (stamped block's session-rhythm pointer, floor.yml
-      comments) **at its next pin bump**, and a child's own private
-      `MODEL-ECONOMICS.md` counterpart keeps its name by that child's call
-      (ros recorded exactly this, 2026-07-22).
+The `MODEL-ECONOMICS.md` → `ECONOMICS.md` rename was executed 2026-07-22
+(nothing dangles; children re-point at their next pin bump) →
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 Resolved questions (docker-heap standardisation, estate credential governance) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
