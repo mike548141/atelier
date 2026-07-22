@@ -69,3 +69,19 @@ best-effort, no fabricated number (ground-numeric-limits); (6) why-SHA
 comments at each pin per the say-why convention. Gap D untouched (map
 dismissed it). Self-authored doctrine ⇒ **rule-4 `⏳` queued on the
 ROADMAP; this run built it and may not spawn its review.**
+
+**1230 · ccrepo actual-spend reconciliation — built and merged.** Opus
+worker in `wt ccrepo-actual-spend`, orchestrator-verified: 139/139 tests
+green re-run, the CLI smokes, and the worker's flagged **pre-existing
+USD×rate² defect** in the Actual footnote inspected line-by-line and
+confirmed real (fee stored display-converted, then `money()` converted
+again — invisible at `--fx usd`, overstated under the NZD default; the
+Actual *column* was always right). Landed `1711711`, merge `12613e0`;
+the `~/.local/bin/ccrepo` symlink means the feature is live on this
+machine immediately. Design held to the boundary: spend source stays in
+`~/.claude`, repo carries synthetic fixtures only; missing months degrade
+to a stated partial, never a fabricated figure. Review stance:
+self-verifying class (instrument code under its test floor, no doctrine
+surface) — grounds stated, not skipped. 🎯 residue on the ROADMAP: the
+machine-local config doesn't exist yet; mode choice (plan vs usage) is
+Mike's fact, not the mechanism's.

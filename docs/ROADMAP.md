@@ -276,8 +276,15 @@ What remains is Mike's:
 
 Reconciliation drift closed 2026-07-22 (richest-record dedup; exact ccusage
 match on frozen data) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
-- [~] **Actual spend (plan or usage) vs the API-usage estimate** (claimed
-      2026-07-22-1210, wt: ccrepo-actual-spend) — the money-side
+- [x] **Actual spend (plan or usage) vs the API-usage estimate — BUILT
+      2026-07-22** (`1711711`, merged `12613e0`): machine-local `spend`
+      block (plan mode: months × fee + uncovered; usage mode: invoiced
+      figures per month), reconciliation footnote with Δ $ and %, honest
+      partial/unavailable degradation, JSON/CSV meta; 139 tests green;
+      also fixed a pre-existing USD×rate² defect in the Actual footnote.
+      Review: self-verifying class (instrument code under its test floor,
+      no doctrine surface — ECONOMICS § Match the ceremony). 🎯 residue
+      below. Original item, for context — the money-side
       analog of the ccusage cross-check. ccrepo's cost is an API-list-price
       *estimate*; the billing model (`ccrepo-billing.json`) already apportions a
       flat plan fee into an Actual column, but Mike wants to compare **what he
@@ -287,6 +294,15 @@ match on frozen data) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
       usage/invoice figure) and a reconciliation footnote like the ccusage one but
       for dollars actually billed. Personal data ⇒ the spend source stays in
       `~/.claude`, never a repo (same boundary as `ccrepo-billing.json`).
+  - [ ] 🎯 **Fill the machine-local spend config** — needs-Mike facts the
+        mechanism can't know: `~/.claude/ccrepo-billing.json` does not
+        currently exist on this machine, so the comparison reports
+        unavailable until it's created. Two calls: (1) which mode — a flat
+        Max tier (`plan` mode: just name + monthly fee) or pasted monthly
+        invoice figures (`usage` mode, exact across tier changes); (2)
+        plan mode assumes the plan was live every month with usage in
+        range — if tiers changed mid-history, use usage mode for those
+        months. Schema documented in `instruments/README.md`.
 
 Completed instruments work (ccrepo actuals/breakdown, ccarchive integrity/audit,
 the **man-page convention rollout — ccarchive worked example + cctranscript +
