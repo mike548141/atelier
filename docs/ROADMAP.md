@@ -405,7 +405,14 @@ CI, child-CI scanner floor, linkscan build + wiring) → [`ROADMAP-DONE.md`](ROA
       `CLAUDE.md`, the ros private `docs/MODEL-ECONOMICS.md` counterpart,
       atelier cross-refs, and any pin — mechanical but must be complete so no
       ref dangles. Raw note: "Model-economics is wider than just models now it
-      has runners. Rename or split file?" *review: light — a rename + ref sweep,
-      not a doctrine change; the naming call is Mike's (recommendation above).*
+      has runners. Rename or split file?" Considered alternative: `FINOPS.md`
+      (Mike, 2026-07-22) — ruled against because FinOps is a branded industry
+      term for the *practice* of cloud cost accounting (billing visibility,
+      showback/chargeback), while this file is spend *doctrine* (tier choice,
+      pool awareness, precedence); it would also be the method shelf's only
+      vendor-flavoured name among plain concept nouns, and the repo's
+      plain-over-jargon rule favours "Economics" for a public audience.
+      *review: light — a rename + ref sweep, not a doctrine change; the naming
+      call is Mike's (recommendation above).*
 
 Resolved questions (docker-heap standardisation, estate credential governance) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
