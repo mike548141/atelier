@@ -259,7 +259,8 @@ touches REVIEW.md + EVIDENCE.md + the scanner floor); brief owed at pickup.*
       documented choice). Suite 46→63 ccarchive / 109 instruments green,
       re-proven post-merge; live fixture run exercised every exit path.
       Man page + README updated per the CLI-docs standard.
-- [ ] **iCloud dataless-file awareness** — iCloud "Optimise Mac Storage" evicts
+- [~] **iCloud dataless-file awareness**
+      (claimed 2026-07-22-1047, wt: atelier-ccarchive-dataless) — iCloud "Optimise Mac Storage" evicts
       the local bytes of unused files, leaving a dataless placeholder (contents
       still in the cloud). ccarchive must keep working: reading an evicted `.gz`
       faults it back on access (fine), but a whole-archive `--verify` would
@@ -275,10 +276,12 @@ touches REVIEW.md + EVIDENCE.md + the scanner floor); brief owed at pickup.*
       archive** — `~/.claude` or the macOS Keychain) so `--verify` detects a
       forged manifest, raising the anchor from "accidental corruption" to
       "tamper-evident". Key location/rotation is the real design question.
-- [ ] **Is there any metadata that ccarchive misses?** (Mike, 2026-07-22) —
+- [~] **Is there any metadata that ccarchive misses?**
+      (claimed 2026-07-22-1047, wt: atelier-cc-questions) (Mike, 2026-07-22) —
       open question to work later: does the archive capture everything worth
       keeping, or is there session/project metadata it leaves behind?
-- [ ] **Should cctranscript and ccarchive be one?** (Mike, 2026-07-22) — open
+- [~] **Should cctranscript and ccarchive be one?**
+      (claimed 2026-07-22-1047, wt: atelier-cc-questions) (Mike, 2026-07-22) — open
       question to work later: `cctranscript` reads the logs, `ccarchive` keeps
       them — worth deciding whether they should be a single instrument.
 
