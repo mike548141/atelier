@@ -54,6 +54,28 @@ test('humanBytes scales units and drops precision past ten', () => {
   assert.equal(cc.humanBytes(48 * 1024 * 1024), '48 MB');
 });
 
+// --- iCloud dataless-file awareness (pure) -------------------------------
+// The bit-test is pure and exercised against the REAL st_flags value observed
+// read-only on a genuinely dataless iCloud file (0x40000060 = SF_DATALESS +
+// UF_COMPRESSED). Truly evicting a fixture is impossible on demand (and the tool
+// must never evict anything), so real read-behaviour on an evicted file is
+// unit-verified only through this classifier plus the simulate-seam tests below.
+
+test('isDatalessFlags reads the SF_DATALESS bit (0x40000060 observed on a real evicted iCloud file)', () => {
+  assert.equal(cc.isDatalessFlags(0x40000060), true);   // real value: dataless + compressed
+  assert.equal(cc.isDatalessFlags(0x40000000), true);   // bare SF_DATALESS
+  assert.equal(cc.isDatalessFlags(0x20), false);        // UF_COMPRESSED only — bytes still local
+  assert.equal(cc.isDatalessFlags(0), false);           // ordinary file
+  assert.equal(cc.isDatalessFlags(NaN), false);         // unparseable stat → treated as not evicted
+});
+
+test('isDataless is false for an ordinary local file and honours the simulate seam', () => {
+  assert.equal(cc.isDataless(SCRIPT), false, 'this script is local — flags 0, not evicted');
+  process.env.CCARCHIVE_SIMULATE_DATALESS = 'ccarchive';   // substring of SCRIPT's path
+  try { assert.equal(cc.isDataless(SCRIPT), true, 'the seam forces the classification for tests'); }
+  finally { delete process.env.CCARCHIVE_SIMULATE_DATALESS; }
+});
+
 // --- filesystem walk + behaviour contract --------------------------------
 
 // A fresh temp workspace with a source tree; returns { dir, src, dest }.
@@ -400,6 +422,53 @@ test('contract: --verify surfaces fromArchive entries distinctly (archive attest
   assert.equal(JSON.parse(res.stdout).fromArchive, 1);
 });
 
+// --- iCloud dataless awareness: --verify / --audit skip + --materialise --
+// Fixtures can never be truly evicted, so behaviour is driven through the
+// CCARCHIVE_SIMULATE_DATALESS seam (comma-separated path substrings the CLI
+// treats as dataless). The tamper trick proves the SKIP means no read: a .gz
+// corrupted to mismatch its manifest hash would fail a real --verify, so an
+// exit-0 with it in `evicted` (not `mismatch`) can only mean it was never read.
+function runCliSim(sim, ...args) {
+  const r = spawnSync('node', [SCRIPT, ...args],
+    { encoding: 'utf8', env: { ...process.env, CCARCHIVE_SIMULATE_DATALESS: sim } });
+  return { status: r.status, stdout: r.stdout, stderr: r.stderr };
+}
+
+test('contract: --verify skips a dataless archive file (evicted, not read → exit 0 despite a tamper)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const rel = path.join('-repo-b', 'uuid2.jsonl');
+  // Corrupt the .gz so a REAL read would MISMATCH — the skip is what keeps it green.
+  fs.writeFileSync(path.join(dest, rel + '.gz'), zlib.gzipSync(Buffer.from('{"tampered":true}\n')));
+  const r = runCliSim('uuid2', '--verify', '--json', '--dest', dest);
+  assert.equal(r.status, 0, 'an evicted file is intact-in-cloud, not a verify failure');
+  const out = JSON.parse(r.stdout);
+  assert.deepEqual(out.evicted, [rel]);
+  assert.equal(out.mismatch.length, 0, 'skipped, not read — so the tamper is not seen');
+  assert.equal(out.ok, 2, 'the two non-evicted files still verify');
+});
+
+test('contract: --verify --materialise reads the dataless file (faults it back), catching the tamper (exit 1)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const rel = path.join('-repo-b', 'uuid2.jsonl');
+  fs.writeFileSync(path.join(dest, rel + '.gz'), zlib.gzipSync(Buffer.from('{"tampered":true}\n')));
+  const r = runCliSim('uuid2', '--verify', '--materialise', '--json', '--dest', dest);
+  assert.equal(r.status, 1, 'materialise reads it, so the tamper is caught');
+  const out = JSON.parse(r.stdout);
+  assert.deepEqual(out.mismatch, [rel]);
+  assert.equal(out.evicted.length, 0);
+});
+
+test('contract: --verify human output names the evicted skip without claiming it was verified', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const r = runCliSim('uuid2', '--verify', '--dest', dest);
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /1 evicted/);
+  assert.match(r.stdout, /every checked transcript matches/);  // NOT "every archived"
+});
+
 // --- audit: the live store vs the archive --------------------------------
 // --verify checks the archive against its manifest; --audit checks the live
 // store against the archive. Pure categorisation first, then behaviour.
@@ -534,6 +603,28 @@ test('contract: --audit human output names drift and exits 1', () => {
   const r = runCli('--audit', '--source', src, '--dest', dest);
   assert.equal(r.status, 1);
   assert.match(r.stdout, /REWRITTEN.*uuid2\.jsonl/);
+});
+
+test('contract: --audit leaves a changed file undetermined when its archive copy is dataless (exit 0)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  fs.writeFileSync(path.join(src, '-repo-b', 'uuid2.jsonl'), '{"rewritten":"whole"}\n');  // would be mutated
+  const r = runCliSim('uuid2', '--audit', '--json', '--source', src, '--dest', dest);
+  assert.equal(r.status, 0, 'an undetermined (evicted archive copy) file is not proven drift');
+  const out = JSON.parse(r.stdout);
+  assert.equal(out.mutated.length, 0, 'not classified — the archived bytes were not faulted back');
+  assert.deepEqual(out.evicted.map((e) => e.rel), [path.join('-repo-b', 'uuid2.jsonl')]);
+});
+
+test('contract: --audit --materialise reads the dataless archive copy and flags the mutation (exit 1)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  fs.writeFileSync(path.join(src, '-repo-b', 'uuid2.jsonl'), '{"rewritten":"whole"}\n');
+  const r = runCliSim('uuid2', '--audit', '--materialise', '--json', '--source', src, '--dest', dest);
+  assert.equal(r.status, 1);
+  const out = JSON.parse(r.stdout);
+  assert.equal(out.mutated.length, 1);
+  assert.equal(out.evicted.length, 0);
 });
 
 test('drift guard: every flag --help prints appears in the man page (superset relation)', () => {

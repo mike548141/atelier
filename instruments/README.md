@@ -208,6 +208,23 @@ that cleanup:
   live renamed copy untouched (byte-identical content, so a copy under the old
   name, never a move). Writes only under the source tree — a manifest key that
   would escape it is refused — and `--dry-run` previews the plan without writing.
+- **iCloud dataless-file awareness.** The default dest is iCloud Drive, whose
+  "Optimise Mac Storage" can *evict* an archived `.gz`'s local bytes — leaving a
+  **dataless** placeholder that faults back on read. Reading one re-downloads it,
+  so a whole-archive `--verify` would drag the entire history back onto disk and
+  defeat the eviction. `ccarchive` detects it (the `SF_DATALESS` bit in `st_flags`,
+  read via `stat` — Node exposes no `st_flags` of its own) and by default
+  `--verify` **skips** evicted files, reporting them `evicted` (distinct from
+  `missing`/`mismatch`, and *not* a failure — the bytes are intact in the cloud);
+  `--audit` likewise leaves a changed file whose archive copy is evicted
+  *undetermined* rather than faulting it back. `--verify --materialise` /
+  `--audit --materialise` reads them anyway (re-downloading). `--restore` reads
+  evicted files deliberately — restoring *is* getting the content back. Detection
+  is metadata-only (`stat` and the mtime check don't fault), so ordinary archiving
+  never triggers a bulk re-download; off macOS or on a non-iCloud volume it cleanly
+  no-ops. (The real `SF_DATALESS` read was verified read-only against a genuinely
+  evicted file; fixtures can't be truly evicted, so the tests drive it through a
+  simulation seam.)
 - **Default dest is the operator's iCloud Drive** (`--dest` / `CCARCHIVE_DEST` to
   override) — derived at runtime from `$HOME`, so no personal path lives in this
   code. It's the first *writing* instrument (see ADR 0006 addendum); `--dry-run`

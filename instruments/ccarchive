@@ -62,7 +62,7 @@ OPTIONS
   --dry-run              Preview; write nothing (works with --restore too).
   --force                Overwrite a shrunk archive copy; with --restore, a newer live file.
   --allow-repo-dest      Permit an archive dir inside a git work tree.
-  --verify               Re-check the archive against its sha256 manifest.
+  --verify [--materialise]  Re-check archive vs sha256 manifest; --materialise reads evicted files too.
   --audit                Check the live store against the archive; report drift.
   --restore              Restore transcripts from the archive into the live store.
   --delta                With --restore: only --audit's drift (mutated/pruned/renamed).
@@ -279,6 +279,59 @@ function scheduleStatus(home) {
   return 0;
 }
 
+// --- iCloud dataless-file awareness --------------------------------------
+// iCloud Drive's "Optimise Mac Storage" evicts the local bytes of files it
+// judges unused, leaving a *dataless* placeholder: the content still lives in
+// the cloud and faults back on the next read, but no bytes sit on disk. The
+// archive dest defaults to iCloud Drive, so its .gz files are prime eviction
+// targets. Reading one re-downloads it — fine for a deliberate restore, ruinous
+// for a whole-archive --verify that would drag the entire history back onto disk
+// and defeat the point of eviction.
+//
+// macOS records eviction as the SF_DATALESS bit in st_flags. Node's fs.Stats
+// does NOT expose st_flags (no `flags` field, even with { bigint: true } —
+// checked on Node 24), and process.binding is off-limits, so the only
+// stdlib-clean signal is to shell out to BSD `stat -f %f`, which prints st_flags
+// as a decimal. `stat` reads metadata only — it does NOT fault an evicted file
+// back (verified read-only against a genuinely dataless iCloud file: repeated
+// stat left it dataless). fs.statSync, used elsewhere only for mtime, is
+// likewise non-faulting — so the incremental archive freshness check and the
+// manifest write never re-download an evicted mirror.
+const SF_DATALESS = 0x40000000;
+
+// Pure: does a st_flags value carry the dataless bit? Unit-tested against the
+// real observed value on an evicted iCloud file (0x40000060 = SF_DATALESS +
+// UF_COMPRESSED; UF_COMPRESSED alone does NOT mean evicted).
+function isDatalessFlags(flags) {
+  return Number.isFinite(flags) && (flags & SF_DATALESS) !== 0;
+}
+
+// Read a path's BSD st_flags via `stat -f %f`. Returns null when the signal is
+// simply unavailable — non-Darwin, no `stat`, a failed call, or an unparseable
+// value — so a caller treats "unknown" as "not evicted". The whole mechanism
+// therefore cleanly no-ops off macOS and on non-iCloud volumes (where the bit is
+// just 0), never crashing and never false-positiving.
+function statFlags(p) {
+  if (process.platform !== 'darwin') return null;
+  try {
+    const n = Number(execFileSync('stat', ['-f', '%f', p], { encoding: 'utf8' }).trim());
+    return Number.isFinite(n) ? n : null;
+  } catch { return null; }
+}
+
+// Is this archive file an evicted iCloud placeholder whose bytes are not local?
+// Test seam: CCARCHIVE_SIMULATE_DATALESS holds comma-separated path substrings to
+// treat as dataless, so the classify/skip logic is exercisable over synthetic
+// fixtures that can never truly be evicted — an eviction cannot be forced on
+// demand, and this tool must never evict anything itself. Absent the env var it
+// is purely the real stat-based signal above.
+function isDataless(p) {
+  const sim = process.env.CCARCHIVE_SIMULATE_DATALESS;
+  if (sim) return sim.split(',').some((s) => s !== '' && p.includes(s));
+  const flags = statFlags(p);
+  return flags === null ? false : isDatalessFlags(flags);
+}
+
 // --- integrity: sha256 manifest + verify ---------------------------------
 // Each archived transcript's raw-byte sha256 is recorded in <dest>/manifest.json
 // (keyed by the same source-relative path the mirror uses). --verify re-hashes
@@ -333,13 +386,19 @@ function listArchivedRels(destRoot) {
   return out;
 }
 
-function verifyArchive(destRoot, asJson) {
+function verifyArchive(destRoot, asJson, materialise) {
   const manifest = loadManifest(destRoot);
   const rels = Object.keys(manifest);
-  const result = { dest: destRoot, checked: rels.length, ok: 0, mismatch: [], missing: [], unmanifested: [] };
+  const result = { dest: destRoot, checked: rels.length, ok: 0, mismatch: [], missing: [], evicted: [], unmanifested: [] };
 
   for (const rel of rels) {
     const gzPath = path.join(destRoot, rel + '.gz');
+    // Eviction check BEFORE any read: an evicted .gz is intact in the cloud, just
+    // not local, so re-hashing it would re-download it. Skipping keeps a whole-
+    // archive --verify from bulk-faulting the history back onto disk. Reported as
+    // `evicted` — distinct from missing/mismatch, and NOT a failure. --materialise
+    // opts into reading (and thus deliberately re-downloading) them.
+    if (!materialise && isDataless(gzPath)) { result.evicted.push(rel); continue; }
     let actual;
     try { actual = sha256Gz(gzPath); }
     catch (e) { if (e.code === 'ENOENT') { result.missing.push(rel); continue; } throw e; }
@@ -361,11 +420,16 @@ function verifyArchive(destRoot, asJson) {
   const lines = [
     `cc-transcripts verify → ${destRoot}`,
     `  ${result.checked} in manifest · ${result.ok} verified, ` +
-      `${result.mismatch.length} mismatched, ${result.missing.length} missing`,
+      `${result.mismatch.length} mismatched, ${result.missing.length} missing` +
+      (result.evicted.length ? `, ${result.evicted.length} evicted` : ''),
   ];
   if (result.fromArchive) {
     lines.push(`  ${result.fromArchive} entr${result.fromArchive === 1 ? 'y' : 'ies'} ` +
       `attest the archived copy only (source pruned before hashing — fromArchive)`);
+  }
+  if (result.evicted.length) {
+    lines.push(`  ${result.evicted.length} evicted (dataless — bytes in iCloud, not local; ` +
+      `skipped, not re-downloaded. Check them with: ccarchive --verify --materialise)`);
   }
   for (const rel of result.mismatch) lines.push(`  ✗ MISMATCH ${rel}`);
   for (const rel of result.missing) lines.push(`  ✗ MISSING  ${rel}`);
@@ -373,7 +437,11 @@ function verifyArchive(destRoot, asJson) {
     lines.push(`  ✗ UNMANIFESTED ${rel} (no recorded hash — injected, or lost ` +
       `from the manifest; run ccarchive to record it, then investigate)`);
   }
-  if (!failed) lines.push('  ✓ every archived transcript matches its recorded sha256.');
+  if (!failed) {
+    lines.push(result.evicted.length
+      ? `  ✓ every checked transcript matches its recorded sha256 (${result.evicted.length} evicted, skipped).`
+      : '  ✓ every archived transcript matches its recorded sha256.');
+  }
   process.stdout.write(lines.join('\n') + '\n');
   return failed ? 1 : 0;
 }
@@ -458,7 +526,7 @@ function classifyDivergence(archivedBuf, liveBuf) {
   return liveBuf.equals(archivedBuf.subarray(0, liveBuf.length)) ? 'shrunk' : 'rewritten';
 }
 
-function auditLiveStore(srcRoot, destRoot, asJson) {
+function auditLiveStore(srcRoot, destRoot, asJson, materialise) {
   const manifest = loadManifest(destRoot);
   const files = listJsonl(srcRoot);
   const liveList = files.map((abs) => ({
@@ -470,10 +538,18 @@ function auditLiveStore(srcRoot, destRoot, asJson) {
 
   const grown = [];
   const mutated = [];           // { rel, reason, liveBytes, archivedBytes }
+  const evicted = [];           // { rel, liveBytes } — changed, archive copy dataless
   for (const rel of cat.changed) {
     const liveBuf = fs.readFileSync(absByRel.get(rel));
+    const gzPath = path.join(destRoot, rel + '.gz');
+    // A changed live file whose archived .gz is evicted: we know it differs from
+    // the recorded hash, but classifying grown-vs-mutated needs the archived
+    // bytes — reading them would fault the archive back. Undetermined, not proven
+    // drift; report `evicted` and leave it to --materialise (or the next
+    // ccarchive run, which re-archives the change anyway).
+    if (!materialise && isDataless(gzPath)) { evicted.push({ rel, liveBytes: liveBuf.length }); continue; }
     let archivedBuf;
-    try { archivedBuf = zlib.gunzipSync(fs.readFileSync(path.join(destRoot, rel + '.gz'))); }
+    try { archivedBuf = zlib.gunzipSync(fs.readFileSync(gzPath)); }
     catch (e) {
       if (e.code !== 'ENOENT') throw e;
       // The manifest records this rel but its .gz is gone (a --verify concern).
@@ -491,7 +567,7 @@ function auditLiveStore(srcRoot, destRoot, asJson) {
     archived: Object.keys(manifest).length, live_total: liveList.length,
     synced: cat.synced.length, grown: grown.length,
     added: cat.added.length, pruned: cat.pruned.length,
-    mutated, renamed: cat.renamed,
+    mutated, renamed: cat.renamed, evicted,
   };
   const drift = mutated.length + cat.renamed.length;
 
@@ -515,11 +591,15 @@ function auditLiveStore(srcRoot, destRoot, asJson) {
   for (const r of cat.renamed) {
     lines.push(`  ✗ RENAMED   ${r.from} → ${r.to}${r.ambiguous ? ' (one of several matches)' : ''}`);
   }
+  if (evicted.length) {
+    lines.push(`  ⚠ ${evicted.length} changed but undetermined (archive copy dataless — ` +
+      `not classified; re-run with --materialise, or ccarchive to re-archive the change)`);
+  }
   if (!drift && (result.grown || result.added)) {
     lines.push(`  ⚠ ${result.grown + result.added} changed or added since the last archive — ` +
       `run ccarchive to catch up.`);
   }
-  if (!drift && !result.grown && !result.added) {
+  if (!drift && !result.grown && !result.added && !evicted.length) {
     lines.push('  ✓ the live store matches the archive (only expected pruning).');
   }
   process.stdout.write(lines.join('\n') + '\n');
@@ -689,12 +769,13 @@ function run() {
   const asJson = argv.includes('--json');
   const dryRun = argv.includes('--dry-run');
   const force = argv.includes('--force');
+  const materialise = argv.includes('--materialise');
   const home = os.homedir();
   const srcRoot = takeValue('--source') || path.join(home, '.claude', 'projects');
   const destRoot = takeValue('--dest') || process.env.CCARCHIVE_DEST || defaultDest(home);
 
-  if (argv.includes('--verify')) return verifyArchive(destRoot, asJson);
-  if (argv.includes('--audit')) return auditLiveStore(srcRoot, destRoot, asJson);
+  if (argv.includes('--verify')) return verifyArchive(destRoot, asJson, materialise);
+  if (argv.includes('--audit')) return auditLiveStore(srcRoot, destRoot, asJson, materialise);
   if (argv.includes('--restore')) {
     return restoreArchive(srcRoot, destRoot, { delta: argv.includes('--delta'), dryRun, force, asJson });
   }
@@ -785,7 +866,13 @@ function run() {
   if (!dryRun) {
     for (const rel of listArchivedRels(destRoot)) {
       if (manifest[rel]) continue;
-      manifest[rel] = { sha256: sha256Gz(path.join(destRoot, rel + '.gz')), archivedAt: nowIso, fromArchive: true };
+      // Backfill hashes from the .gz — a read that would fault an evicted copy
+      // back. Skip dataless ones so an ordinary run never bulk-downloads the
+      // archive; they stay unmanifested (a later run/--verify with them local
+      // records them). Only ever fires for archived files with no manifest entry.
+      const gzPath = path.join(destRoot, rel + '.gz');
+      if (isDataless(gzPath)) continue;
+      manifest[rel] = { sha256: sha256Gz(gzPath), archivedAt: nowIso, fromArchive: true };
       manifestChanged = true;
     }
     if (manifestChanged) saveManifest(destRoot, manifest);
@@ -833,5 +920,6 @@ module.exports = {
   xmlEscape, schedulePaths, resolveScriptPath, launchdPlist, cronLine,
   sha256, manifestPath, loadManifest, saveManifest, listArchivedRels, verifyArchive,
   isSuspectShrink, insideGitWorkTree, auditCategorize, classifyDivergence, auditLiveStore,
+  isDatalessFlags, statFlags, isDataless,
   classifyRestore, isInsideRoot, restoreTargets, restoreArchive,
 };
