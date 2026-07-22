@@ -337,8 +337,37 @@ the intent record.)
 
 ## Reconcile (deferred material opened only after the findings above were committed)
 
-Opened after commit `[see brief-commit hash in log]`: the intent record
-`docs/sessions/2026-07-22-1005-secrets-access-doctrine.md`. No prior review
-of this delta exists.
+Opened after commit `092db29` (which carries the brief and all findings): the
+intent record `docs/sessions/2026-07-22-1005-secrets-access-doctrine.md`. No
+prior review of this delta exists.
 
-*(Reconcile findings appended below after reading.)*
+- **Record vs delta: faithful, both directions.** Every ruling in the record
+  (1–8 plus the ACCESS line) is present in the doctrine text, and no doctrine
+  rule lacks a recorded ruling. The record's account of the grounding —
+  including calling the OWASP audit trail "one genuinely new leg" — matches
+  what the text absorbed.
+- **The record's proof claims re-checked.** "Pre-commit scans green,
+  sizescan --check exit 0" — my independent re-run at HEAD (which contains the
+  delta) reproduces all of it; the claim is current-true, not just
+  was-true. "Verified before citing: rev 4 final 2025-07-31" — independently
+  confirmed against the CSRC publication record, not taken from the record.
+- **No finding overturned; no finding anticipated.** Nothing in the record
+  argues against SA1–SA9 or addresses their edges — notably, the record's
+  ruling 4 carries the same "nothing it sees replays elsewhere" phrasing SA1
+  attacks, confirming the gap originates in the in-conversation ruling's
+  wording, not in a transcription slip; the finding stands as one for Mike to
+  rule on, at the ruling's level, not the text's.
+- **Author position:** the record contains no per-finding author argument, so
+  the empty author-position section above stands. The record's rule-4 handoff
+  (queued pointer, refs only, spawned nothing) matches the provenance this
+  review states — the provenance trail is consistent end to end.
+- **Rule-2 residual, named:** the reconcile was structurally clean — findings
+  committed at `092db29` before the record was opened; the commit boundary is
+  the audit trail.
+
+**Verdict after reconcile: unchanged — PASS-WITH-FINDINGS, 0 MAJOR · 4 MINOR
+· 4 LOW · 1 nit. All findings are Mike's to decide (rule 3); nothing has been
+applied to `docs/method/`.** Provenance, restated once more for the verdict:
+spawned by an orchestrator session Mike opened and pointed at the queue; the
+author spawned nothing and instructed no one; this reviewer authored none of
+the work under review.
