@@ -194,6 +194,20 @@ that cleanup:
   the expected steady state after cleanup). Only **mutated** and **renamed** are
   drift: they're listed by name and exit non-zero; growth, new and pruning are
   normal and only counted. Read-only over both trees.
+- **Restore — `--restore` (full) and `--restore --delta`.** The inverse of the
+  audit: gunzip archived transcripts back into the live store. Plain `--restore`
+  targets the whole manifest (rebuild a wiped store or seed a new machine);
+  `--restore --delta` targets only what `--audit` flags — the **mutated**,
+  **pruned** and **renamed** buckets — repairing in place. Safety is
+  **content-first**: it never overwrites an identical file, and never a live file
+  the archive is a strict prefix of (the **grown** bucket — an in-flight append;
+  clobbering it would drop the live tail, so grown is *not* a restore target). A
+  file that diverged *another* way but is **newer** than the archived copy is
+  **refused** (possible in-flight rewrite) unless `--force` — a loud, deliberate
+  override. The **renamed** bucket restores the *old* archived path and leaves the
+  live renamed copy untouched (byte-identical content, so a copy under the old
+  name, never a move). Writes only under the source tree — a manifest key that
+  would escape it is refused — and `--dry-run` previews the plan without writing.
 - **Default dest is the operator's iCloud Drive** (`--dest` / `CCARCHIVE_DEST` to
   override) — derived at runtime from `$HOME`, so no personal path lives in this
   code. It's the first *writing* instrument (see ADR 0006 addendum); `--dry-run`

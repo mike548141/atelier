@@ -59,19 +59,19 @@ USAGE
 OPTIONS
   --dest <dir>           Archive dir (default: iCloud Drive; or $CCARCHIVE_DEST).
   --source <dir>         Read from <dir> (default: ~/.claude/projects).
-  --dry-run              Show what would be archived; write nothing.
-  --force                Overwrite an archived copy even when the source shrank.
+  --dry-run              Preview; write nothing (works with --restore too).
+  --force                Overwrite a shrunk archive copy; with --restore, a newer live file.
   --allow-repo-dest      Permit an archive dir inside a git work tree.
   --verify               Re-check the archive against its sha256 manifest.
   --audit                Check the live store against the archive; report drift.
-  --install-schedule     Run daily via launchd (macOS). Also --schedule-status,
-                         --uninstall-schedule.
+  --restore              Restore transcripts from the archive into the live store.
+  --delta                With --restore: only --audit's drift (mutated/pruned/renamed).
+  --install-schedule     Run daily via launchd (macOS); --schedule-status/--uninstall-schedule.
   --json                 Machine-readable output (never styled).
   -h, --help             This summary.
 
-Mirrors every ~/.claude/projects/*.jsonl into a compressed, append-only,
-sha256-verified archive that outlives Claude Code's cleanup. Full manual, with
-examples and the FILES/INTEGRITY/SCHEDULE detail:  man ccarchive`;
+Mirrors every ~/.claude/projects/*.jsonl into a compressed, append-only, sha256-verified
+archive outliving Claude Code's cleanup, and restores from it.  Full manual:  man ccarchive`;
 
 function takeValue(flag) {
   const i = argv.indexOf(flag);
@@ -526,6 +526,156 @@ function auditLiveStore(srcRoot, destRoot, asJson) {
   return drift ? 1 : 0;
 }
 
+// --- restore: archive → live store ---------------------------------------
+// The inverse of archiving: gunzip <dest>/<rel>.gz back to <srcRoot>/<rel>.
+// Two shapes share one engine:
+//   --restore          every archived transcript (the manifest is the target
+//                      list) — rebuild a lost or wiped live store from scratch.
+//   --restore --delta  only what --audit flags as drift — the mutated, pruned
+//                      and renamed buckets. Repair in place, not a full rebuild.
+//
+// Safety is content-first, because the archive is a point-in-time copy and a
+// live file can be legitimately *ahead* of it. Restore never overwrites:
+//   • an identical live file            — nothing to do;
+//   • a live file the archive is a strict prefix of (the `grown` bucket: an
+//     in-flight session appended since the last archive run) — overwriting would
+//     drop the live tail the archive never held. This is the roadmap's explicit
+//     "grown is not a restore target", enforced by bytes, not by trusting mtime.
+// And it *refuses* — loudly, non-zero, rather than silently overwriting — a live
+// file that diverged in some other way (rewritten/truncated) yet carries a newer
+// mtime than the archived copy: it may be a fresh in-flight rewrite, so --force
+// is the deliberate override. pruned and renamed targets have no live file at
+// the restore path, so writing them can never clobber anything.
+
+// Pure decision for one target. liveBuf null ⇒ no live file at the path (the
+// pruned / renamed-old-path / missing case — always a safe write). Returns
+// { action: 'restore'|'skip'|'refuse', reason }.
+function classifyRestore(archivedBuf, liveBuf, gzMtimeMs, liveMtimeMs, force) {
+  if (liveBuf === null) return { action: 'restore', reason: 'missing' };
+  if (liveBuf.equals(archivedBuf)) return { action: 'skip', reason: 'identical' };
+  const div = classifyDivergence(archivedBuf, liveBuf);   // grown | shrunk | rewritten
+  if (div === 'grown') return { action: 'skip', reason: 'ahead' };
+  const newer = liveMtimeMs !== null && liveMtimeMs - gzMtimeMs > MTIME_TOLERANCE_MS;
+  if (newer && !force) return { action: 'refuse', reason: 'newer' };
+  return { action: 'restore', reason: newer ? 'forced-newer' : div };
+}
+
+// A restore target must resolve *inside* the live root: a tampered or malformed
+// manifest key containing `..` must never let a write escape the projects dir
+// (the zip-slip class of bug). Belt-and-braces alongside the path.join.
+function isInsideRoot(root, target) {
+  const rel = path.relative(path.resolve(root), path.resolve(target));
+  return rel !== '' && rel !== '..' && !rel.startsWith('..' + path.sep) && !path.isAbsolute(rel);
+}
+
+// The rels to consider, in stable order. Full = every manifest key. Delta =
+// re-run the audit categorisation and take mutated + pruned + renamed. Growth is
+// deliberately excluded (it is ahead of the archive), and `synced`/`added` have
+// nothing to restore. The renamed bucket contributes its OLD (archived) path:
+// the archive is keyed by `from`, that path is gone from the live store, and the
+// live renamed copy at `to` is left untouched — so restore re-materialises the
+// archived key without disturbing the live rename. Content is byte-identical, so
+// this adds a copy under the old name rather than moving anything.
+function restoreTargets(manifest, srcRoot, destRoot, delta) {
+  if (!delta) return Object.keys(manifest).sort();
+  const files = listJsonl(srcRoot);
+  const liveList = files.map((abs) => ({ rel: path.relative(srcRoot, abs), abs, sha256: sha256File(abs) }));
+  const cat = auditCategorize(manifest, liveList);
+  const absByRel = new Map(liveList.map((f) => [f.rel, f.abs]));
+  const mutated = [];
+  for (const rel of cat.changed) {
+    const liveBuf = fs.readFileSync(absByRel.get(rel));
+    let archivedBuf;
+    try { archivedBuf = zlib.gunzipSync(fs.readFileSync(path.join(destRoot, rel + '.gz'))); }
+    catch (e) { if (e.code !== 'ENOENT') throw e; mutated.push(rel); continue; }  // .gz gone: still drift
+    if (classifyDivergence(archivedBuf, liveBuf) !== 'grown') mutated.push(rel);  // grown excluded
+  }
+  const renamedFrom = cat.renamed.map((r) => r.from);
+  return [...new Set([...mutated, ...cat.pruned, ...renamedFrom])].sort();
+}
+
+function restoreArchive(srcRoot, destRoot, { delta, dryRun, force, asJson }) {
+  const manifest = loadManifest(destRoot);
+  if (Object.keys(manifest).length === 0) {
+    process.stderr.write(`ccarchive: nothing to restore — no manifest at ${destRoot}.\n`);
+    return 1;
+  }
+  const rels = restoreTargets(manifest, srcRoot, destRoot, delta);
+  const report = {
+    mode: delta ? 'delta' : 'full', live: srcRoot, archive: destRoot, dryRun: !!dryRun,
+    considered: rels.length, restored: [], skipped: [], refused: [], errors: [],
+  };
+
+  for (const rel of rels) {
+    const liveAbs = path.join(srcRoot, rel);
+    if (!isInsideRoot(srcRoot, liveAbs)) { report.errors.push({ rel, reason: 'escapes-root' }); continue; }
+    const gzPath = path.join(destRoot, rel + '.gz');
+    let archivedBuf, gzMtimeMs;
+    try { archivedBuf = zlib.gunzipSync(fs.readFileSync(gzPath)); gzMtimeMs = fs.statSync(gzPath).mtimeMs; }
+    catch (e) {
+      if (e.code !== 'ENOENT') throw e;
+      report.errors.push({ rel, reason: 'no-archive' });   // manifest records it, .gz absent
+      continue;
+    }
+    let liveBuf = null, liveMtimeMs = null;
+    try { liveBuf = fs.readFileSync(liveAbs); liveMtimeMs = fs.statSync(liveAbs).mtimeMs; }
+    catch (e) { if (e.code !== 'ENOENT') throw e; }
+
+    const d = classifyRestore(archivedBuf, liveBuf, gzMtimeMs, liveMtimeMs, force);
+    if (d.action === 'skip') { report.skipped.push({ rel, reason: d.reason }); continue; }
+    if (d.action === 'refuse') {
+      report.refused.push({ rel, reason: d.reason, liveBytes: liveBuf.length, archivedBytes: archivedBuf.length });
+      continue;
+    }
+    if (!dryRun) {
+      fs.mkdirSync(path.dirname(liveAbs), { recursive: true });
+      fs.writeFileSync(liveAbs, archivedBuf);
+      // Stamp the restored file with the archived copy's mtime, so a later audit
+      // reads it as synced and a repeated restore is idempotent (identical → skip).
+      fs.utimesSync(liveAbs, gzMtimeMs / 1000, gzMtimeMs / 1000);
+    }
+    report.restored.push({ rel, reason: d.reason, bytes: archivedBuf.length });
+  }
+
+  const failed = report.refused.length + report.errors.length;
+  if (asJson) { process.stdout.write(JSON.stringify(report, null, 2) + '\n'); return failed ? 1 : 0; }
+
+  const identical = report.skipped.filter((s) => s.reason === 'identical').length;
+  const ahead = report.skipped.filter((s) => s.reason === 'ahead');
+  const verb = dryRun ? 'would restore' : 'restored';
+  const lines = [
+    `cc-transcripts restore${dryRun ? ' (dry run)' : ''} → ${srcRoot}  [${report.mode}]`,
+    `  ${report.considered} considered · ${report.restored.length} ${verb}, ` +
+      `${report.skipped.length} skipped, ${report.refused.length} refused` +
+      (report.errors.length ? `, ${report.errors.length} error${report.errors.length === 1 ? '' : 's'}` : ''),
+  ];
+  if (identical) lines.push(`  (${identical} already match the archive)`);
+  for (const r of report.restored) {
+    const how = r.reason === 'missing' ? 'was missing'
+      : r.reason === 'forced-newer' ? 'FORCED over newer live'
+      : r.reason;   // shrunk | rewritten
+    lines.push(`  ${dryRun ? '·' : '✓'} ${dryRun ? 'would restore' : 'RESTORED'} ${r.rel} (${how}, ${humanBytes(r.bytes)})`);
+  }
+  for (const s of ahead) {
+    lines.push(`  · skip ${s.rel} (live is ahead of the archive — grown, not a restore target)`);
+  }
+  for (const r of report.refused) {
+    lines.push(`  ✗ REFUSED ${r.rel} — live file is newer than the archived copy ` +
+      `(live ${humanBytes(r.liveBytes)} vs archived ${humanBytes(r.archivedBytes)}); ` +
+      `an in-flight session? Re-run with --force to overwrite it.`);
+  }
+  for (const e of report.errors) {
+    lines.push(e.reason === 'no-archive'
+      ? `  ✗ ERROR ${e.rel} (the manifest records it but its .gz is gone — nothing to restore from)`
+      : `  ✗ ERROR ${e.rel} (target path escapes the live root — refused)`);
+  }
+  if (!report.restored.length && !report.refused.length && !report.errors.length && !ahead.length) {
+    lines.push('  ✓ nothing to restore — the live store already matches the archive.');
+  }
+  process.stdout.write(lines.join('\n') + '\n');
+  return failed ? 1 : 0;
+}
+
 // --- run -----------------------------------------------------------------
 
 function run() {
@@ -545,6 +695,9 @@ function run() {
 
   if (argv.includes('--verify')) return verifyArchive(destRoot, asJson);
   if (argv.includes('--audit')) return auditLiveStore(srcRoot, destRoot, asJson);
+  if (argv.includes('--restore')) {
+    return restoreArchive(srcRoot, destRoot, { delta: argv.includes('--delta'), dryRun, force, asJson });
+  }
 
   if (insideGitWorkTree(destRoot) && !argv.includes('--allow-repo-dest')) {
     process.stderr.write(
@@ -680,4 +833,5 @@ module.exports = {
   xmlEscape, schedulePaths, resolveScriptPath, launchdPlist, cronLine,
   sha256, manifestPath, loadManifest, saveManifest, listArchivedRels, verifyArchive,
   isSuspectShrink, insideGitWorkTree, auditCategorize, classifyDivergence, auditLiveStore,
+  classifyRestore, isInsideRoot, restoreTargets, restoreArchive,
 };
