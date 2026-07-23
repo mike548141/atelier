@@ -95,6 +95,7 @@ measurement it claimed to be independent of.) `create-repo` stamps it on new
 repos; existing repos are retrofitted once. Everything below the block is
 repo-specific onramp.
 
+<!-- floor:begin -->
 ```markdown
 ## Doctrine — inherited from atelier (pinned `atelier@<SHA>`)
 
@@ -149,6 +150,7 @@ in atelier and is read on demand — never wholesale.
 - **This repo's visibility:** <visibility fact>. Verify:
   `gh repo view <owner/repo> --json visibility`.
 ```
+<!-- floor:end -->
 
 The inlined floor is a **narrowing-free restatement** of the apex + AUTONOMY
 floor, and the concurrency line restates `CONCURRENCY.md`'s flipped prior
