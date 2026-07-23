@@ -304,6 +304,14 @@ Reconciliation drift closed 2026-07-22 (richest-record dedup; exact ccusage
 match on frozen data); spend-config fill closed 2026-07-23 (populated from
 real receipts, machine-local) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
+- **Archive sourcing (the ccrepo half of the seam)**: cctranscript reads
+  ccarchive's mirror since 2026-07-23 (`--archive` — ROADMAP-DONE); ccrepo
+  still reads only the live dir, so its month/quarter rollups stop at Claude
+  Code's prune horizon. Same shape when picked up: transparent gunzip behind
+  one read choke-point, eviction-aware walking (never bulk-fault an iCloud
+  dataless archive back to disk — see cctranscript's port of ccarchive's
+  SF_DATALESS check).
+
 Completed instruments work (ccrepo actuals/breakdown, ccarchive integrity/audit,
 the **man-page convention rollout — ccarchive worked example + cctranscript +
 ccrepo, all installed CLIs now carry a `man/<tool>.1` + trimmed `--help`, closed

@@ -772,6 +772,24 @@ review cycles.
 
 ## instruments/ layer (new 2026-07-11, ADR 0006)
 
+- [x] **cctranscript reads the ccarchive archive — DONE 2026-07-23** (Mike's
+      direct ask; wt: cctranscript-archive-read). Closes the observe-side half
+      of the README's "sourcing seam": `--archive` points every view (list,
+      render, `--json`, UUID/prefix selection) at the compressed mirror instead
+      of the live logs, with `--dest`/`$CCARCHIVE_DEST` resolution shared
+      verbatim with ccarchive and transparent gunzip in one `readLogText`
+      choke-point (parsers stay byte-format-blind). An explicit `.jsonl.gz`
+      path needs no flag. Eviction-aware by design: `--list` peeks inside every
+      candidate for cwd/first-prompt, so it must never read an iCloud-evicted
+      (dataless) mirror — ccarchive's SF_DATALESS check is ported (same test
+      seam) and evicted entries list with a marker; rendering one chosen
+      session deliberately faults its bytes back. Evicted records also match
+      `--repo` by dash-encoded folder suffix, since their labels are lossy.
+      Suite 150→156 (identical-render contract vs the live fixture, implied
+      `--archive` via `--dest`, flagless `.gz` path, simulated-eviction list);
+      man page + `--help` updated under the drift guard. The ccrepo half of
+      the seam stays open (ROADMAP § instruments).
+
 - [x] 🎯 **Fill the machine-local spend config — DONE 2026-07-23** (actual-
       spend mechanism BUILT 2026-07-22, `1711711`, merged `12613e0` — detail
       → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)). On Mike's direction the

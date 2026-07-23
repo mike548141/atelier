@@ -18,12 +18,22 @@
  * the terminal, with light markdown (bold, inline code, headings, lists, links).
  * Colour auto-disables when piped; --json is the machine format, never styled.
  *
+ * By default it reads the live logs, which Claude Code prunes after
+ * `cleanupPeriodDays`. --archive points every view at the compressed mirror
+ * ccarchive(1) maintains instead — same discovery, same rendering, reading
+ * <dest>/<encoded-repo>/<uuid>.jsonl.gz — so a session the cleanup has already
+ * deleted can still be listed and rendered. An explicit path to a .jsonl.gz
+ * needs no flag at all. Listing never reads an iCloud-evicted mirror (that
+ * would fault the bytes back down); rendering one chosen session may.
+ *
  * The .jsonl schema is internal to Claude Code and can shift between releases;
  * if a field moves this may need a nudge.
  */
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const zlib = require('node:zlib');
+const { execFileSync } = require('node:child_process');
 
 const argv = process.argv.slice(2);
 
@@ -32,9 +42,10 @@ const HELP = `cctranscript — timestamped transcript of a Claude Code session
 USAGE
   cctranscript [options] [session]
 
-  session   A UUID, a path to a .jsonl log, or omitted (latest for this repo).
+  session   A UUID, a .jsonl or .jsonl.gz path, or omitted (latest for this repo).
 
 OPTIONS
+  --archive        Read from the ccarchive archive; --dest <dir> sets where.
   --repo <name>    Use sessions from the named repo (its folder basename).
   --list           List sessions for the repo and exit (with --repo or --all).
   --all            With --list, list sessions across all repos.
@@ -49,8 +60,7 @@ OPTIONS
   --json           Machine-readable array of turns (never styled).
   -h, --help       Show this help.
 
-Prints each turn of a Claude Code session with its timestamp — the chat UI
-hides them. Full manual, with examples and detail:  man cctranscript`;
+Each turn timestamped, from the live logs or ccarchive's mirror.  man cctranscript`;
 
 function takeValue(flag) {
   const i = argv.indexOf(flag);
@@ -67,6 +77,10 @@ const showDelta = !argv.includes('--no-delta');
 const repoArg = takeValue('--repo');
 const lastArg = argv.includes('-n') ? takeValue('-n') : takeValue('--last');
 const lastK = lastArg ? Math.max(1, parseInt(lastArg, 10) || 1) : 1;
+// --archive reads the compressed mirror ccarchive maintains instead of the
+// live logs. --dest names that archive, so it implies --archive on its own.
+const destArg = takeValue('--dest');
+const archiveMode = argv.includes('--archive') || destArg !== null;
 
 // Colour: explicit flag wins; else on when stdout is a TTY and NO_COLOR is
 // unset. FORCE_COLOR forces it on. Never colour --json (it's a data format).
@@ -82,9 +96,9 @@ const CW = TW - 4;                                       // body width inside th
 
 // Flags that consume the following token, so we don't mistake a value for the
 // positional session argument.
-const OWN_WITH_VALUE = new Set(['--repo', '-n', '--last', '--width']);
+const OWN_WITH_VALUE = new Set(['--repo', '-n', '--last', '--width', '--dest']);
 const OWN_BARE = new Set([
-  '--json', '--list', '--all', '--tools', '--think', '--full',
+  '--json', '--list', '--all', '--tools', '--think', '--full', '--archive',
   '--utc', '--no-delta', '--color', '--no-color', '-h', '--help',
 ]);
 let positional = null;
@@ -96,17 +110,65 @@ for (let i = 0; i < argv.length; i++) {
 
 const projectsDir = path.join(os.homedir(), '.claude', 'projects');
 
+// Where the ccarchive mirror lives. Resolution mirrors ccarchive exactly
+// (--dest, then $CCARCHIVE_DEST, then the iCloud Drive default) so the same
+// words point both tools at the same archive.
+function defaultArchiveDest(home) {
+  return path.join(home, 'Library', 'Mobile Documents', 'com~apple~CloudDocs', 'cc-transcripts');
+}
+function archiveRoot() {
+  return destArg || process.env.CCARCHIVE_DEST || defaultArchiveDest(os.homedir());
+}
+
+// iCloud's "Optimise Mac Storage" can evict an archived .gz to a dataless
+// placeholder; *reading* one faults the bytes back down. Rendering one chosen
+// transcript may deliberately do that; a --list sweep (which peeks inside every
+// candidate for its cwd and first prompt) must not bulk-download the archive,
+// so listing skips reading any dataless file. Ported from ccarchive — same
+// SF_DATALESS signal, same CCARCHIVE_SIMULATE_DATALESS test seam; its comments
+// hold the full why (stat is metadata-only and never faults a file back).
+const SF_DATALESS = 0x40000000;
+function isDatalessFlags(flags) {
+  return Number.isFinite(flags) && (flags & SF_DATALESS) !== 0;
+}
+function statFlags(p) {
+  if (process.platform !== 'darwin') return null;
+  try {
+    const n = Number(execFileSync('stat', ['-f', '%f', p], { encoding: 'utf8' }).trim());
+    return Number.isFinite(n) ? n : null;
+  } catch { return null; }
+}
+function isDataless(p) {
+  const sim = process.env.CCARCHIVE_SIMULATE_DATALESS;
+  if (sim) return sim.split(',').some((s) => s !== '' && p.includes(s));
+  const flags = statFlags(p);
+  return flags === null ? false : isDatalessFlags(flags);
+}
+
+// Read a log's full text, transparently gunzipping an archived .gz mirror —
+// every parser above this line stays blind to which store the bytes came from.
+function readLogText(file) {
+  const raw = fs.readFileSync(file);
+  return file.endsWith('.gz') ? zlib.gunzipSync(raw).toString('utf8') : raw.toString('utf8');
+}
+
 // Read the true cwd from the first log line that records one. Claude's folder
 // names dash-mangle every separator alike and can't be reversed, so we recover
 // the exact repo path (and hence basename) from inside the log. Mirrors ccrepo.
 function cwdFromLog(file) {
   let chunk;
   try {
-    const fd = fs.openSync(file, 'r');
-    const buf = Buffer.alloc(65536);
-    const n = fs.readSync(fd, buf, 0, buf.length, 0);
-    fs.closeSync(fd);
-    chunk = buf.toString('utf8', 0, n);
+    if (file.endsWith('.gz')) {
+      // gzip has no cheap partial read; these logs are small enough that a
+      // full gunzip for the 64 KB cwd sniff is fine.
+      chunk = zlib.gunzipSync(fs.readFileSync(file)).toString('utf8', 0, 65536);
+    } else {
+      const fd = fs.openSync(file, 'r');
+      const buf = Buffer.alloc(65536);
+      const n = fs.readSync(fd, buf, 0, buf.length, 0);
+      fs.closeSync(fd);
+      chunk = buf.toString('utf8', 0, n);
+    }
   } catch { return null; }
   const m = chunk.match(/"cwd"\s*:\s*"((?:[^"\\]|\\.)*)"/);
   if (!m) return null;
@@ -131,20 +193,30 @@ function isDir(p) {
 function sessionRecord(full, repoDir) {
   let mtime = 0;
   try { mtime = fs.statSync(full).mtimeMs; } catch {}
-  const cwd = cwdFromLog(full);
+  // An evicted archive mirror is never read just to label a listing — that
+  // would fault its bytes back from iCloud. The label falls back to the last
+  // dash-segment of the folder name (lossy, but honest about what's local).
+  const evicted = full.endsWith('.gz') && isDataless(full);
+  const cwd = evicted ? null : cwdFromLog(full);
   return {
     file: full,
-    id: path.basename(full).replace(/\.jsonl$/, ''),
+    id: path.basename(full).replace(/\.jsonl(\.gz)?$/, ''),
     repoDir,
     cwd,
     label: cwd ? path.basename(cwd)
       : repoDir ? repoDir.split('-').filter(Boolean).pop() || repoDir : '',
     mtime,
+    evicted,
   };
 }
 
-// All session logs across all repos.
+// All session logs across all repos — one shape, from whichever store is live
+// for this invocation.
 function allSessions() {
+  return archiveMode ? archiveSessions() : liveSessions();
+}
+
+function liveSessions() {
   const out = [];
   let repos;
   try { repos = fs.readdirSync(projectsDir); } catch { return out; }
@@ -159,11 +231,32 @@ function allSessions() {
   return out;
 }
 
+// Sessions in a ccarchive mirror: <dest>/<repoDir>/<uuid>.jsonl.gz — the same
+// one-level shape as the live store (nested subagent logs and tool-result
+// sidecars aren't sessions in either). _external/ is ccarchive's reserved home
+// for the archived history.jsonl, not a repo folder — skipped.
+function archiveSessions() {
+  const out = [];
+  const root = archiveRoot();
+  let repos;
+  try { repos = fs.readdirSync(root); } catch { return out; }
+  for (const repoDir of repos) {
+    if (repoDir === '_external') continue;
+    const dir = path.join(root, repoDir);
+    if (!isDir(dir)) continue;
+    for (const file of fs.readdirSync(dir)) {
+      if (!file.endsWith('.jsonl.gz')) continue;
+      out.push(sessionRecord(path.join(dir, file), repoDir));
+    }
+  }
+  return out;
+}
+
 // Resolve which repo folder the current directory maps to. Prefer the direct
 // path encoding; fall back to matching a log's recorded cwd to process.cwd().
 function currentRepoDir() {
   const guess = encodePath(process.cwd());
-  if (isDir(path.join(projectsDir, guess))) return guess;
+  if (isDir(path.join(archiveMode ? archiveRoot() : projectsDir, guess))) return guess;
   const here = process.cwd();
   for (const s of allSessions()) {
     if (s.cwd === here) return s.repoDir;
@@ -174,7 +267,7 @@ function currentRepoDir() {
 // The header for a real user prompt vs a tool-result carrier: prompts have no
 // toolUseResult and carry actual authored text.
 function firstUserPromptText(file) {
-  const lines = fs.readFileSync(file, 'utf8').split('\n');
+  const lines = readLogText(file).split('\n');
   for (const ln of lines) {
     if (!ln.trim()) continue;
     let o; try { o = JSON.parse(ln); } catch { continue; }
@@ -238,7 +331,7 @@ function toolSummary(name, input) {
 // Build the ordered list of turns from a session log.
 function readTurns(file) {
   const turns = [];
-  const lines = fs.readFileSync(file, 'utf8').split('\n');
+  const lines = readLogText(file).split('\n');
   for (const ln of lines) {
     if (!ln.trim()) continue;
     let o; try { o = JSON.parse(ln); } catch { continue; }
@@ -437,8 +530,8 @@ function turnHeader(role, model, time, deltaMs, side, ref) {
 // --- session selection --------------------------------------------------
 
 function pickSessions() {
-  // Explicit path?
-  if (positional && (positional.includes('/') || positional.endsWith('.jsonl'))) {
+  // Explicit path? A .jsonl.gz (an archive mirror) routes here with no flag.
+  if (positional && (positional.includes('/') || positional.endsWith('.jsonl') || positional.endsWith('.jsonl.gz'))) {
     const p = path.resolve(positional);
     if (!fs.existsSync(p)) { console.error(`No such file: ${p}`); process.exit(1); }
     // Same constructor as the walked routes — recovers cwd/label from the log
@@ -456,12 +549,19 @@ function pickSessions() {
   // By repo (named or current).
   let pool = sessions;
   if (repoArg) {
-    pool = sessions.filter((s) => s.label === repoArg || s.repoDir === repoArg);
+    // An evicted mirror has no recovered cwd, so its label is the lossy folder
+    // tail — match those on the folder name's dash-encoded suffix instead, so
+    // eviction never hides a session from --repo. Confined to evicted records:
+    // readable logs keep the exact label match.
+    pool = sessions.filter((s) => s.label === repoArg || s.repoDir === repoArg
+      || (s.evicted && s.repoDir && s.repoDir.endsWith('-' + encodePath(repoArg))));
     if (!pool.length) { console.error(`No sessions for repo '${repoArg}'.`); process.exit(1); }
   } else if (!listAll) {
     const rd = currentRepoDir();
     if (!rd) {
-      console.error('No Claude sessions found for this directory. Pass --repo <name>, a session id, or run from a repo you\'ve used Claude in.');
+      console.error(archiveMode
+        ? `No archived sessions for this directory under ${archiveRoot()}. Pass --repo <name>, a session id, or run ccarchive first.`
+        : 'No Claude sessions found for this directory. Pass --repo <name>, a session id, or run from a repo you\'ve used Claude in.');
       process.exit(1);
     }
     pool = sessions.filter((s) => s.repoDir === rd);
@@ -478,19 +578,26 @@ function runList() {
     console.log(JSON.stringify(pool.map((s) => ({
       id: s.id, repo: s.label, cwd: s.cwd,
       lastActivity: s.mtime ? new Date(s.mtime).toISOString() : null,
-      firstPrompt: firstUserPromptText(s.file),
+      // Evicted mirrors are listed but never read: no first prompt to show.
+      firstPrompt: s.evicted ? null : firstUserPromptText(s.file),
+      ...(s.file.endsWith('.gz') ? { evicted: !!s.evicted } : {}),
     })), null, 2));
     return;
   }
   console.log();
   for (const s of pool) {
     const when = s.mtime ? `${dateOf(new Date(s.mtime).toISOString())} ${fmtTime(new Date(s.mtime).toISOString())}` : '                   ';
-    let first = firstUserPromptText(s.file);
-    if (first.length > 70) first = first.slice(0, 67) + '…';
+    let first;
+    if (s.evicted) {
+      first = paint(ESC.dim, '(evicted — bytes in iCloud; rendering it fetches them)');
+    } else {
+      first = firstUserPromptText(s.file);
+      if (first.length > 70) first = first.slice(0, 67) + '…';
+    }
     const repoTag = listAll || repoArg ? '  ' + paint(ESC.blue, `[${s.label}]`) : '';
     console.log(`  ${paint(ESC.cyan, s.id.slice(0, 8))}  ${paint(ESC.dim, when)}${repoTag}  ${first}`);
   }
-  console.log(`\n  ${paint(ESC.dim, `${pool.length} session(s). Use: cctranscript <id>  or  cctranscript -n <k>`)}\n`);
+  console.log(`\n  ${paint(ESC.dim, `${pool.length} session(s)${archiveMode ? ' · archive' : ''}. Use: cctranscript <id>  or  cctranscript -n <k>`)}\n`);
 }
 
 function runTranscript() {
@@ -500,11 +607,15 @@ function runTranscript() {
     process.exit(1);
   }
   const chosen = pool[lastK - 1];
+  // Judged by the file, not the flag, so an explicit .jsonl.gz path is tagged
+  // as archive-sourced too.
+  const fromArchive = chosen.file.endsWith('.gz');
   const turns = numberTurns(readTurns(chosen.file));
 
   if (asJson) {
     console.log(JSON.stringify({
       session: chosen.id, repo: chosen.label, cwd: chosen.cwd,
+      source: fromArchive ? 'archive' : 'live',
       timezone: useUtc ? 'UTC' : 'local',
       turns: turns.map((t) => ({ ref: t.ref || null, role: t.role, model: t.model || null, timestamp: t.ts, text: t.text })),
     }, null, 2));
@@ -518,7 +629,7 @@ function runTranscript() {
   const stamped = turns.filter((t) => t.ts);
   const first = stamped[0] && stamped[0].ts;
   const last = stamped.length ? stamped[stamped.length - 1].ts : first;
-  const title = `Session ${chosen.id.slice(0, 8)} · ${chosen.label || 'unknown repo'} · ${startDate}${useUtc ? ' UTC' : ''}`;
+  const title = `Session ${chosen.id.slice(0, 8)} · ${chosen.label || 'unknown repo'} · ${startDate}${useUtc ? ' UTC' : ''}${fromArchive ? ' · archive' : ''}`;
   const fill = Math.max(0, TW - title.length - 4);
   console.log();
   console.log(paint(ESC.grey, '━━ ') + paint(ESC.bold, title) + ' ' + paint(ESC.grey, '━'.repeat(fill)));
@@ -575,5 +686,5 @@ if (require.main === module) {
 module.exports = {
   friendlyModel, modelColor, humanDelta, wrap, visLen, padLeftTo,
   styleInline, fmtTime, dateOf, toolSummary, extractText, encodePath, readTurns,
-  numberTurns,
+  numberTurns, defaultArchiveDest, readLogText, isDatalessFlags, sessionRecord,
 };
