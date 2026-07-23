@@ -167,7 +167,10 @@ ECONOMICS § tier split + plugin-bundled `queue-run` skill) →
   extracted from practice, not assumed. Fan-out sub-agents on the cheapest
   genuinely-capable tier is already standing practice (no trial needed).
 
-- [ ] 🎯 **QR1–QR9 rulings (queue-run doctrine cold pass —
+- [~] 🎯 **QR1–QR9 rulings (queue-run doctrine cold pass —
+  (claimed 2026-07-23-0131, wt: qr-rulings-apply — Mike ruled: QR1–QR4,
+  QR6–QR8 fix as counselled; QR5 escalate-doctrine-to-capable-tier; QR9
+  sanction waves; application in flight)
   [`verdict`](reviews/2026-07-22-1149-queue-run-doctrine-cold.md))** —
   PASS-WITH-FINDINGS 1 MAJOR · 6 MEDIUM · 1 LOW · 1 note; self-authored
   doctrine, so the findings are Mike's to decide (rule 3); nothing applied.
