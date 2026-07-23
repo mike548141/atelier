@@ -54,8 +54,8 @@ we work:
 
 ### `docs/method/` — the operating model
 
-- **`00-APEX.md`** — honesty is absolute, then the AI-adapted Three Laws. Above
-  everything else.
+- **`00-APEX.md`** — honesty is absolute, adaptation is continuous, then the
+  AI-adapted Three Laws. Above everything else.
 - **`AUTONOMY.md`** — when the agent proceeds vs stops to ask; broad standing
   grant (commit/push/PR), with a fixed floor and per-repo narrowing.
 - **`STORAGE.md`** — GitHub = master, iCloud = backup/offline, laptop =
@@ -91,8 +91,8 @@ What you get:
   hook's scanner path is pinned to the installed plugin *version*, so re-run
   it in each hooked repo after a plugin update — until then the hook blocks,
   it never waves through).
-- **`session-onramp`** skill — loads the apex (honesty + the Laws) and the
-  always-confirm floor, then points at the rest of the doctrine, read on demand.
+- **`session-onramp`** skill — loads the apex (honesty, adaptation, the Laws) and
+  the always-confirm floor, then points at the rest of the doctrine, read on demand.
 - **`review-brief`** skill — the peer-review lifecycle that turns "looks right"
   into "verified".
 - **`queue-run`** skill — orchestrate a queue run: drain the shared queue as an
