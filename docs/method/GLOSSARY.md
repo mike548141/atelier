@@ -7,7 +7,7 @@ elsewhere gets a **pointer line here, never a duplicate** — one fact, one home
 (`EVIDENCE.md`) — and only terms with no single canonical home are defined in
 full in this file.
 
-> **⚠️ STATUS — SEED, 2026-07-22 (Fable session; wording PROPOSED).** Created
+> **⚠️ STATUS — SEED, 2026-07-23 (Fable session; wording PROPOSED).** Created
 > when the truth/honesty/transparency triad made it plain the doctrine now
 > assigns everyday words exact meanings. Follows the fleet's worked precedent
 > (tiki's glossary, 2026-07-20) including its **admission rule**: a term earns

@@ -52,18 +52,26 @@ no-MAJOR application pass, closed 2026-07-22; the secrets/access cycle —
   break-glass / store-unreachable class. Per-finding what/why/impact in the
   verdict.
 
-- ⏳ **Apex third element — adaptation is continuous** (BUILT 2026-07-22,
-  `f52c50f` + `1da0a3e` + `8d25fb3`) — delta: `f52c50f` + `1da0a3e` +
-  `8d25fb3` (hard-road + proof-bar bullets, then the ros SSH worked case and
-  the "doctrine and design" heading widening, one session); intent record:
-  [`sessions/2026-07-22-2134-apex-adaptation.md`](sessions/2026-07-22-2134-apex-adaptation.md).
+- ⏳ **Apex widening — adaptation element, honesty triad, glossary seed**
+  (BUILT 2026-07-22/23, one session) — delta: `f52c50f` + `1da0a3e` +
+  `8d25fb3` + `07cc855` + `c85712d` (adaptation element with hard-road +
+  proof-bar bullets and the ros SSH worked case; truth/honesty/transparency
+  triad + lived-experience close + EVIDENCE header ripple; GLOSSARY.md seed +
+  README registration). Intent records:
+  [`sessions/2026-07-22-2134-apex-adaptation.md`](sessions/2026-07-22-2134-apex-adaptation.md) +
+  [`sessions/2026-07-23-0021-honesty-triad-glossary.md`](sessions/2026-07-23-0021-honesty-triad-glossary.md).
   Self-authored doctrine (wording by the building session on Mike's dictation)
   ⇒ rule 4: that session may not spawn this review; a non-author taker writes
   the brief.
+- [ ] 🎯 **Glossary ratify pass (Mike)** — end-to-end read of
+  `method/GLOSSARY.md`: tighten wording, rule on the full-definition entries
+  (principal / agent / session / doctrine — new canonical homes), confirm the
+  admission rule. Until then the SEED banner holds entries as PROPOSED.
 - [ ] **Propagate the widened apex floor to children** — children inline a
-  short apex floor (`method/PROPAGATION.md`); the adaptation element makes
-  those floors stale. Gated on the ⏳ apex review above closing (the wording
-  may change under review); then a fleet sweep, per-child commits.
+  short apex floor (`method/PROPAGATION.md`); the adaptation element **and the
+  honesty triad** make those floors stale. Gated on the ⏳ apex review above
+  closing (the wording may change under review); then a fleet sweep, per-child
+  commits.
 
 - ⏳ **Economics rework — billing states, cap rule, hand-up ladder, third
   seat** (BUILT 2026-07-23, `dadde1d`) — delta: `dadde1d` (ECONOMICS.md

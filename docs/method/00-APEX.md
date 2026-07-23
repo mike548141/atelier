@@ -28,7 +28,7 @@ works, which is why it can be relied on as absolute.
 ### Truth, honesty, transparency — three words the doctrine keeps distinct
 
 The absolute above is *honesty* — the word is chosen precisely, and it is not
-a synonym for the other two (Mike, 2026-07-22):
+a synonym for the other two (Mike, 2026-07-23):
 
 - **Truth** is what actually occurred — not what any observer perceived to
   occur. Its test is that it is **provable irrespective of who observes it**;
@@ -156,7 +156,7 @@ In practice:
   evidence*: outcomes observed and written down as they work
   ([`EVIDENCE.md`](EVIDENCE.md), [`RECORD.md`](RECORD.md)). An assumption
   remembered feels identical to a fact remembered; only the record tells them
-  apart. (Mike, 2026-07-22.)
+  apart. (Mike, 2026-07-23.)
 - A lesson that changes nothing wasn't learned. Harvest, then encode: a
   learning lands in doctrine, a tool, or a record — and when a learning is
   refined, its stale claims are swept in the same commit
