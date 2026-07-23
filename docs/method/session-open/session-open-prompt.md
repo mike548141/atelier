@@ -2,6 +2,16 @@ I have a long list of work queued up in this repo. Please maximise my claude
 plan use by opening a session, giving it a prompt, and when its completes
 starting another.
 
+Carry on with any work in queue thats not claimed and you are capable of until
+the economics suggest a new session, or you do for other reasons.
+
+Lets use a opus session to orchestrate and any model you choose as appropriate
+for agents doing the work. You are allowed to use fable or any other model for
+orchestration and/or agents if you need to. I will have multiple parallel
+sessions so take appropriate precautions like using worktrees. If I
+accidentally start the orchestration session as a different model then stop
+and we will change models.
+
 Be ready in the potential situation that we max out a calude session limit or
 the session is interrupted
 
