@@ -65,7 +65,7 @@ Full ID citations per cluster are in the appendix.
 
 Grouped by proposed **enforcement seam**. Each carries: the declarative rule, the
 cited occurrences, the seam (with one line of why), and the proposed home
-(atelier-shared floor vs repo-specific catalog). Honest headline up front: **the
+(atelier-shared floor vs repo-specific catalogue). Honest headline up front: **the
 two largest clusters are judgement classes that atelier already enforces as
 REVIEW lenses** — codifying them is validation of the mechanism (an always-loaded
 verifier checklist), not new machine-checks. The genuinely *new* machine-checks
@@ -146,10 +146,10 @@ are the four small, sharp scanner candidates.
 > the finding count is thin.
 > *Seam:* **CI scanner** (wordlist). *Home:* **atelier-shared floor.**
 
-### Agent-verifier / review-checklist candidates (judgement — the always-loaded catalog)
+### Agent-verifier / review-checklist candidates (judgement — the always-loaded catalogue)
 
 These are the ROADMAP's "two-layer acceptance criteria" idea: per-change criteria
-plus a catalog the verifier loads unasked. Most are **already REVIEW/​APEX
+plus a catalogue the verifier loads unasked. Most are **already REVIEW/​APEX
 doctrine** — the candidate is to *codify them as an explicit always-run checklist*
 so no reviewer has to remember them, not to invent a new rule.
 
@@ -164,7 +164,7 @@ so no reviewer has to remember them, not to invent a new rule.
 > (~9). `post-method B1`, `signing G1`/`G2`/`G3`, `create-repo C2`,
 > `principles-s2-four-bullets F2`, `cli-docs-standard F7`, `F1` (0407). *Seam:*
 > **agent-verifier criterion** — already REVIEW "Re-run every live-proven claim";
-> codify as a catalog line. *Home:* **atelier-shared floor.**
+> codify as a catalogue line. *Home:* **atelier-shared floor.**
 
 > 🎯 **V3 — Doctrine-change propagation sweep** — an edit to a canonical rule
 > sweeps every mirror site (child templates, skills, sibling docs, READMEs)
@@ -188,7 +188,7 @@ so no reviewer has to remember them, not to invent a new rule.
 > `reach-rereview A2`, `signing G7`/`G10`, `reach-batch H2`/`H4`,
 > `principles-s2-four-bullets F4`, `SA1`. *Seam:* **agent-verifier criterion** —
 > already REVIEW lens 4 (Mike's 2026-07-21 ruling) + `/security-review` where
-> reachable; codify as a mandatory catalog line. *Home:* **atelier-shared floor.**
+> reachable; codify as a mandatory catalogue line. *Home:* **atelier-shared floor.**
 
 > 🎯 **V7 — Rule-4 spawn-provenance present** on self-authored-doctrine reviews
 > (3). `review-rule4-cold F5` (no provenance hook), `F9` (0407, missing
@@ -253,7 +253,7 @@ proposals only:
    spectrum (leakscan-class ↔ review-time ↔ human), applied per candidate.
 2. **Registry home — both layers, mirroring doctrine.** An **atelier-shared
    floor** (the fleet-wide invariants — S1–S5, V1–V7, same layer as the current
-   scanners and REVIEW lenses) plus **repo-specific catalogs** appended locally
+   scanners and REVIEW lenses) plus **repo-specific catalogues** appended locally
    (a child's own conventions; the instruments code-robustness checklist above is
    the first). Same shape as PROPAGATION's thin-anchor/fat-pointer: shared floor,
    local append, child may narrow-not-contradict. Ties REPO-STANDARD.
