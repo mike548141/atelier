@@ -253,11 +253,19 @@ candidates; record:
             `floor.yml` — it gates nothing until reviewed. Honest baseline left
             uncleaned as review evidence: **60 findings / 43 files**. Its ⏳
             review is queued below.
-- ⏳ **datescan (S3) review — first-of-kind scanner earns a review before it may
-      gate** (delta `6077972`; intent: `docs/sessions/2026-07-22-1036-invariant-candidates.md`
-      § S3). The don't-stack rule holds it advisory until an independent session
-      passes rule 4 (this queue run authored it via dispatch, so this chain may
-      not take it). Review scope: detection correctness + the exemption
+      - [~] **S1 wrapscan** (claimed 2026-07-23-0618, wt: queue-run-s1-wrapscan)
+            — line-wrap / column-hygiene scanner over `docs/**`, advisory-only,
+            queue run.
+      - [~] **S5 spellscan** (claimed 2026-07-23-0618, wt: queue-run-s5-spellscan)
+            — NZ-English spelling wordlist scanner over `docs/**`, advisory-only,
+            queue run.
+- [~] **datescan (S3) review — first-of-kind scanner earns a review before it may
+      gate** (claimed 2026-07-23-0618, wt: queue-run-s3-review; **rule-4 clear**:
+      the delta was authored by the 0441 queue-run chain, and this is a separate
+      Mike-started session that chain neither started nor instructed — the
+      standard fresh-session-takes-a-prior-run's-⏳ worked example). (delta
+      `6077972`; intent: `docs/sessions/2026-07-22-1036-invariant-candidates.md`
+      § S3). Review scope: detection correctness + the exemption
       heuristics' honest limits + whether the 60-finding baseline is signal or
       noise (decides gate-readiness). On PASS-and-clean, the follow-on is flipping
       `--warn` off + adding it to `floor.yml`; that flip is a separate act.
