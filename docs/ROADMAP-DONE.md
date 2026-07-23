@@ -1847,3 +1847,106 @@ Mike worked the whole standing 🎯 backlog in plain-language walk-throughs
 Still Mike's, deliberately untouched: the honesty/truth/transparency note
 (being expanded via the apex-triad work), the Teams-chat note (prompted
 verbatim, awaiting his expansion), the glossary ratify pass (his read).
+
+## Orchestrated queue runs 0441 + 0618 — completed detail (moved 2026-07-23)
+
+Two Opus-orchestrated queue runs' deliveries. The 0441 run left its four `[x]`
+items un-harvested on the live ROADMAP; the 0618 run harvested both runs'
+completed items at its close to restore the `sizescan --check` floor to green
+— the worked case for the ROADMAP "close all-clear should carry the pushed
+floor run's result" capture (the floor had been red on un-harvested `[x]`
+across several sessions).
+
+### Doctrine
+
+- [x] **In-repo apex restatements swept to three-element — DONE 2026-07-23**
+  (`a4740c4`, queue run, Opus worker). All named surfaces aligned to the widened
+  apex (honesty → adaptation → the Laws): `README.md` (×2), `PRINCIPLES.md` (×2),
+  `PROPAGATION.md` (description + inlined floor block), `build/templates/CLAUDE.md`
+  floor block (kept **byte-identical** to PROPAGATION's — cmp + `test_templates`
+  32/32 confirm the lockstep), `method/README.md` (EVIDENCE now behind honesty
+  **and** adaptation), `session-onramp/SKILL.md` (description + a new
+  Adaptation-is-continuous §1 bullet). AW8's honesty-precondition clause is
+  verbatim on the child floor's adaptation line. Dated records / review files /
+  EVIDENCE.md's accurate single-element honesty citation left untouched. This is
+  the closed apex-widening cycle's scheduled application ⇒ no new review owed.
+  (Its sibling `[ ]` "Propagate the widened apex floor to the fleet children"
+  stays open on the live ROADMAP — the fleet half, pin-bump lane.)
+
+### Anti-slop invariant scanners S1/S3/S5 + the S3 review
+
+All three wired ADVISORY-ONLY (`--warn`, exit 0) in `ci.yml`; none in the
+blocking pre-commit hook nor child `floor.yml` — each earns an independent
+review before gating (don't-stack). Their `⏳` first-of-kind reviews (S1, S5)
+and the datescan follow-ons (apply DSR1–DSR8; the advisory→blocking flip) stay
+open on the live ROADMAP.
+
+- [x] **S3 datescan BUILT 2026-07-23** (`6077972`, 0441 run, Sonnet worker).
+  `tools/datescan.py` + 41 tests + `--selftest`. Relative-time-word denylist +
+  non-ISO/invalid-ISO date check over `docs/**`, with
+  fenced-code/blockquote/quoted-mention exemptions (limits documented honestly
+  in-header; the "dated edit carries its date" clause stays review-only). Honest
+  baseline left uncleaned as review evidence: **60 findings / 43 files**.
+- [x] **S1 wrapscan BUILT 2026-07-23** (`72e8ecb`, 0618 run, Sonnet worker).
+  `tools/wrapscan.py` + 40 tests (suite 412 green) + `--selftest`. Flags
+  `docs/**` prose lines ≥86 cols; exemptions: fenced/indented code, table rows,
+  ATX headings, ref-link defs, single-unbreakable-token overflow (each limit
+  documented in-header; character-count not display-width is a stated Unicode
+  caveat). Honest baseline: **286 findings / 19 files**. 🚩 worker flagged
+  153/286 sit in `docs/SESSIONS.md` (a deliberate one-line-per-session log) and
+  review-verdict files cluster heavily — whether those need a prose exemption /
+  `.wrapscanignore` entry is a gate-readiness question for the ⏳ review.
+- [x] **S5 spellscan BUILT 2026-07-23** (`760260473`, 0618 run, Sonnet worker).
+  `tools/spellscan.py` + 60 tests (suite 432 green) + `--selftest`. NZ-English
+  wordlist over `docs/**`: generative `-ize/-ise` + `-yze/-yse` stem families
+  (irregular-noun stems excluded so it never invents a word) + hand-listed
+  irregulars. Exemptions: fenced/inline code, blockquotes, quote-flanked MENTION,
+  URL/path tokens, an `ALLOWLIST_PHRASES` for bare-prose API terms,
+  ALL-CAPS-as-identifier. **license/practice deliberately EXCLUDED** — US/NZ
+  noun-verb homographs untaggable without POS. Honest baseline: **68 findings /
+  32 files** (`artifact` ×53, `catalog` ×10…) — confirms "under-detected, not
+  rare".
+- [x] **datescan (S3) review DONE 2026-07-23** (0618 run, Opus cold reviewer;
+  brief+verdict `reviews/2026-07-23-0618-datescan-s3-cold.md`). Rule-4 clear:
+  authored by the 0441 chain, taken by the independent Mike-started 0618 session.
+  **Verdict PASS-WITH-FINDINGS, 0 MAJOR / 4 minor / 3 Low / 1 nit** — engine
+  correct, honestly documented, correctly wired advisory; no active silent-miss
+  producible. **But NOT gate-ready**: the 60-finding baseline is ~75% noise
+  (currently-sense `today`, DSR3; numeric-triple FPs, DSR2; multi-word quoted
+  mentions, DSR4). No MAJOR ⇒ review terminal; datescan stays advisory.
+
+### instruments — cc-tools flag vocabulary (Mike, 2026-07-23)
+
+- [x] **Audit + align the flag vocabulary across the cc-tools — DELIVERED
+  2026-07-23** (`85b17dd`, 0441 run). End-to-end read of all three tools'
+  `--help`, man pages and arg parsers confirmed **zero drift** — `--dest`,
+  `--from-archive`, `--materialise`, `--json`, `--repo` all consistent where they
+  overlap; no renames. Landed a **vocabulary table** in `instruments/README.md`
+  as the standing reference, with the `--materialise` asymmetry documented as
+  deliberate (cctranscript has no bulk-read op to name).
+- [x] **Flag-vocabulary rule RATIFIED 2026-07-23 (Mike): flags-follow-operation**
+  — uniform vocabulary whenever the operation is shared, but a flag is added to a
+  tool only when that tool actually performs the operation it names (never bolted
+  on for symmetry; the `--materialise`-on-cctranscript no-op is the rejected
+  alternative). Blessed as adopted principle in `instruments/README.md`. cc-tools
+  vocabulary strand closed.
+
+### instruments — ccrepo rollup precompute ledger (Mike, 2026-07-17)
+
+- [x] **ccrepo rollup precompute ledger — DELIVERED 2026-07-23** (`8a31b95`,
+  0441 run, Opus worker; `ccrepo.design.md` §8). Machine-local ledger at
+  `~/.claude/ccrepo-rollup.json` (mirrors the pricing/billing config convention;
+  `CCREPO_ROLLUP` override), so a warm `--from-archive` run reads the ledger
+  instead of re-gunzipping every file. **Live smoke: 3.1× faster warm, numbers
+  byte-identical cold vs warm** (the rollup==recompute floor, proven in a fixture
+  test AND on the real archive; invalidation tested; ccrepo 48/48, instruments
+  167/167). **One endorsed design deviation:** keyed **per-file, not per-period**
+  — a month can't be fingerprinted without first reading files for message
+  timestamps (chicken-and-egg; file mtime ≠ message timestamp), so period-keying
+  would misfile boundary-straddling sessions and break the floor. Per-file
+  `(mtime,size)` is provably exact. Known tradeoff: ~46 MB ledger; compaction is
+  a safe future optimisation. No review gate (design §9 self-verification).
+- [x] **Rollup default CONFIRMED 2026-07-23 (Mike): transparent-by-default** (as
+  shipped) — auto-used in `--from-archive` mode with a `--no-rollup` bypass; no
+  code change. Mike aware of the ~46 MB machine-local ledger the first warm run
+  writes under `~/.claude/` (recoverable). ccrepo rollup-ledger strand closed.
