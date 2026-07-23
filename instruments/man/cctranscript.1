@@ -1,4 +1,4 @@
-.TH CCTRANSCRIPT 1 "2026-07-21" "atelier instruments" "User Commands"
+.TH CCTRANSCRIPT 1 "2026-07-23" "atelier instruments" "User Commands"
 .SH NAME
 cctranscript \- render a timestamped transcript of a Claude Code session
 .SH SYNOPSIS
@@ -10,6 +10,12 @@ cctranscript \- render a timestamped transcript of a Claude Code session
 .RI [ \-\-repo
 .IR name ]
 .RI [ \-\-all ]
+.br
+.B cctranscript \-\-archive
+.RI [ \-\-dest
+.IR dir ]
+.RI [ options ]
+.RI [ session ]
 .SH DESCRIPTION
 Claude Code records each session as a raw JSON-lines log under
 .IR ~/.claude/projects/ <encoded-repo>/ <session-uuid> .jsonl.
@@ -53,6 +59,24 @@ log, or use
 .BR \-\-repo " and " \-n
 to reach back to an older session or one in another repo.
 .PP
+The live logs are ephemeral: Claude Code deletes them after
+.I cleanupPeriodDays
+(default 30). With
+.B \-\-archive
+the tool reads the compressed mirror
+.BR ccarchive (1)
+maintains instead \(em the same discovery, listing and rendering, over
+.IR <dest>/ <encoded-repo>/ <session-uuid> .jsonl.gz
+\(em so a session the cleanup has already removed can still be listed and
+rendered, word for word. The archive location resolves exactly as in
+.BR ccarchive (1):
+.BR \-\-dest ,
+then
+.BR $CCARCHIVE_DEST ,
+then the iCloud Drive default. An explicit path to a
+.I .jsonl.gz
+file is read transparently with no flag at all.
+.PP
 Colour is automatic: on when writing to a terminal, off when piped or when
 .B NO_COLOR
 is set.
@@ -64,8 +88,24 @@ timestamps and text \(em and is never styled, so it is safe to pipe into
 .TP
 .I session
 A session UUID (or a unique prefix of one), a path to a
-.I .jsonl
+.IR .jsonl " or " .jsonl.gz
 log, or omitted to use the latest session for the current repo.
+.TP
+.B \-\-archive
+Read from the
+.BR ccarchive (1)
+archive instead of the live logs. Every other option works unchanged.
+Evicted (dataless) iCloud files are respected: listing never reads one \(em
+its first-prompt column shows an
+.B evicted
+marker instead \(em but rendering a chosen session will fetch its bytes back,
+which is the point of a deliberate read.
+.TP
+.BI \-\-dest " dir"
+Where the archive lives (default: iCloud Drive, or
+.BR $CCARCHIVE_DEST ).
+Implies
+.BR \-\-archive .
 .TP
 .BI \-\-repo " name"
 Use sessions from the named repo \(em its folder basename, e.g.
@@ -136,6 +176,16 @@ Claude Code's raw session logs, one folder per repo. Read-only to this tool.
 A single session log \(em the source
 .B cctranscript
 reads and renders.
+.TP
+.I ~/Library/Mobile\ Documents/com~apple~CloudDocs/cc-transcripts/
+The default
+.BR ccarchive (1)
+archive
+.B \-\-archive
+reads \(em the same mirror layout, gzip-compressed. Overridden by
+.B \-\-dest
+or
+.BR $CCARCHIVE_DEST .
 .SH EXAMPLES
 .TP
 .B cctranscript
@@ -162,7 +212,16 @@ session, with tool calls.
 A specific session by UUID (or a unique prefix).
 .TP
 .B cctranscript ./path/to/log.jsonl
-A specific log file by path.
+A specific log file by path \(em a
+.I .jsonl.gz
+archive mirror works here too, no flag needed.
+.TP
+.B cctranscript \-\-archive \-\-list
+Every archived session for this repo, including ones Claude Code's cleanup has
+already deleted from the live store.
+.TP
+.B cctranscript \-\-archive 1a4fa531
+Render an archived session by UUID prefix, straight from the mirror.
 .TP
 .B cctranscript \-\-json | jq .
 The machine-readable form, for scripting.
@@ -180,10 +239,19 @@ index larger than the number of sessions available.
 .SH NOTES
 The tool reads
 .I ~/.claude/projects/
-read-only and writes nothing \(em no state, no cache, no output file.
+(or, with
+.BR \-\-archive ,
+the archive directory) read-only and writes nothing \(em no state, no cache,
+no output file.
+.PP
+On an iCloud-backed archive, macOS may have evicted a file's local bytes
+("Optimise Mac Storage"). Listing skips reading such files so a
+.B \-\-list
+never bulk-downloads the archive; rendering one evicted session faults just
+that file back from iCloud, deliberately.
 .PP
 It honours
-.BR NO_COLOR " and " FORCE_COLOR .
+.BR NO_COLOR ", " FORCE_COLOR " and " CCARCHIVE_DEST .
 No environment variable is required.
 .PP
 The
