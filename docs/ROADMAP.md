@@ -273,15 +273,10 @@ candidates; record:
 detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Its follow-ons: the DSR-apply is
 now DONE (above); the flip precondition is met (above). S1/S5 follow-ons below:*
 
-- [x] **Apply datescan review findings DSR1–DSR8 + re-baseline** — DONE
-      2026-07-23 (queue run 0707, Sonnet worker, merged `b7b292c`→ merge commit).
-      All eight applied; baseline **60→0** (5 genuine hits fixed: ISO rewrite
-      where re-derivable, `datescan:allow` with honest reasons where not). Three
-      extra real bugs caught mid-work (whole-line ISO cue leak, `YYYY-MM-DD-HHMM`
-      false-fire, empty `-->` reason). 58 datescan + 489 tools-suite green; DSR3
-      `today`-narrowing silent-miss trade declared in-header. Orchestrator (Opus)
-      verified before merge. Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md) at next
-      harvest.
+*datescan DSR1–DSR8 apply + re-baseline DONE 2026-07-23 (queue run 0707, Sonnet
+`b7b292c`) — baseline 60→0, detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). The
+flip follow-on stays open:*
+
 - [ ] 🎯 **datescan advisory→blocking flip (Mike's call) — precondition NOW MET**
       (2026-07-23): DSR2/DSR3/DSR4 fixed and docs re-baselined to **0 genuine
       breaches** by the DSR-apply above. The flip is therefore *unblocked* and is
@@ -290,16 +285,12 @@ now DONE (above); the flip precondition is met (above). S1/S5 follow-ons below:*
       silent-miss (a bare "today = this date" claim with no cue passes clean) to
       kill the ~9:1 noise — so the gate is tighter but not exhaustive on `today`.
       No code work owed; awaiting the ruling.
-- [x] **wrapscan (S1) first-of-kind review — DONE 2026-07-23** (queue run 0707,
-      cold Opus reviewer; taker rule-4 cleared). Verdict **PASS-WITH-FINDINGS —
-      1 MAJOR / 3 minor / 2 Low**, NOT gate-ready. Tool is correct, honestly
-      documented, correctly wired advisory; 40 tests + selftest green (orchestrator
-      re-verified). The MAJOR (WS1) is a **gate-scope** finding, not a detection
-      bug: default `docs/**` buries the real signal (~15% doctrine-prose
-      over-wraps) under 154 deliberate single-line SESSIONS index rows (54% of the
-      287 baseline). Brief:
-      [`docs/reviews/2026-07-23-0707-wrapscan-s1-cold.md`](reviews/2026-07-23-0707-wrapscan-s1-cold.md).
-      Two follow-ons stay open:
+*wrapscan (S1) first-of-kind review DONE 2026-07-23 (queue run 0707, cold Opus) —
+**PASS-WITH-FINDINGS 1M/3m/2L**, NOT gate-ready; MAJOR is gate-scope not
+detection (154/287 baseline is deliberate SESSIONS index rows). Brief
+[`docs/reviews/2026-07-23-0707-wrapscan-s1-cold.md`](reviews/2026-07-23-0707-wrapscan-s1-cold.md),
+detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Two follow-ons stay open:*
+
 - [ ] **Apply wrapscan review findings WS1–WS6 + scope decision** (ordinary code
       once the scope 🎯 below is ruled): fix the ~4 genuine doctrine over-wraps
       (`REPO-STANDARD.md:52`, `SIGNING.md:83`, `CONCURRENCY.md:232`); decide
@@ -313,17 +304,13 @@ now DONE (above); the flip precondition is met (above). S1/S5 follow-ons below:*
       (b)** teach a single-line-record exemption. Then, on a clean run over the
       gated scope, drop `--warn` + add to `floor.yml`. Blocked on the scope
       ruling; a separate act from the code fixes.
-- [x] **spellscan (S5) first-of-kind review — DONE 2026-07-23** (queue run 0707,
-      cold Opus reviewer; taker rule-4 cleared). Verdict **PASS-WITH-FINDINGS —
-      0 MAJOR / 2 minor / 1 Low / 1 nit**, NOT gate-ready. The core spelling-tool
-      safety property is *proven*: no confident wrong correction, no both-correct
-      word flagged (z→s engine verified across all 46 noun forms). 60 tests +
-      selftest green (orchestrator re-verified). Real latent bug found (SS1:
-      `hypothesize`/`jeopardize`/`penalize` in `IZE_NOUN_CAPABLE` contradict the
-      docstring's stated exclusion). Baseline ~1-in-5 signal — 53 of 68 are
-      `artifact` (mostly the legit CI/SBOM term-of-art). Brief:
-      [`docs/reviews/2026-07-23-0707-spellscan-s5-cold.md`](reviews/2026-07-23-0707-spellscan-s5-cold.md).
-      Follow-ons stay open:
+*spellscan (S5) first-of-kind review DONE 2026-07-23 (queue run 0707, cold Opus) —
+**PASS-WITH-FINDINGS 0M/2m/1L/1n**, NOT gate-ready; core safety proven (no wrong
+corrections), real latent bug SS1 found, license/practice exclusion ruled
+permanent. Brief
+[`docs/reviews/2026-07-23-0707-spellscan-s5-cold.md`](reviews/2026-07-23-0707-spellscan-s5-cold.md),
+detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Follow-ons stay open:*
+
 - [ ] **Apply spellscan review findings SS1–SS4 + tame the noise** (ordinary
       code): drop the three irregular-noun stems from `IZE_NOUN_CAPABLE` (SS1);
       declare the macron gap in the docstring (SS2); allowlist/inline-code the

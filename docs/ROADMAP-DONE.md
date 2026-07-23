@@ -1950,3 +1950,37 @@ open on the live ROADMAP.
   shipped) — auto-used in `--from-archive` mode with a `--no-rollup` bypass; no
   code change. Mike aware of the ~46 MB machine-local ledger the first warm run
   writes under `~/.claude/` (recoverable). ccrepo rollup-ledger strand closed.
+
+## Queue run 0707 — datescan DSR-apply + S1/S5 first-of-kind reviews (moved 2026-07-23)
+
+Verbatim from ROADMAP.md; the live follow-ons (apply-findings + Mike's-call
+flips/rulings) stay open in ROADMAP.md. Session record:
+[`sessions/2026-07-23-0707-orchestrated-queue-run.md`](sessions/2026-07-23-0707-orchestrated-queue-run.md).
+
+- [x] **Apply datescan review findings DSR1–DSR8 + re-baseline** — DONE
+      2026-07-23 (queue run 0707, Sonnet worker, merged `b7b292c`→ merge commit).
+      All eight applied; baseline **60→0** (5 genuine hits fixed: ISO rewrite
+      where re-derivable, `datescan:allow` with honest reasons where not). Three
+      extra real bugs caught mid-work (whole-line ISO cue leak, `YYYY-MM-DD-HHMM`
+      false-fire, empty `-->` reason). 58 datescan + 489 tools-suite green; DSR3
+      `today`-narrowing silent-miss trade declared in-header. Orchestrator (Opus)
+      verified before merge.
+- [x] **wrapscan (S1) first-of-kind review — DONE 2026-07-23** (queue run 0707,
+      cold Opus reviewer; taker rule-4 cleared). Verdict **PASS-WITH-FINDINGS —
+      1 MAJOR / 3 minor / 2 Low**, NOT gate-ready. Tool is correct, honestly
+      documented, correctly wired advisory; 40 tests + selftest green (orchestrator
+      re-verified). The MAJOR (WS1) is a **gate-scope** finding, not a detection
+      bug: default `docs/**` buries the real signal (~15% doctrine-prose
+      over-wraps) under 154 deliberate single-line SESSIONS index rows (54% of the
+      287 baseline). Brief:
+      [`reviews/2026-07-23-0707-wrapscan-s1-cold.md`](reviews/2026-07-23-0707-wrapscan-s1-cold.md).
+- [x] **spellscan (S5) first-of-kind review — DONE 2026-07-23** (queue run 0707,
+      cold Opus reviewer; taker rule-4 cleared). Verdict **PASS-WITH-FINDINGS —
+      0 MAJOR / 2 minor / 1 Low / 1 nit**, NOT gate-ready. The core spelling-tool
+      safety property is *proven*: no confident wrong correction, no both-correct
+      word flagged (z→s engine verified across all 46 noun forms). 60 tests +
+      selftest green (orchestrator re-verified). Real latent bug found (SS1:
+      `hypothesize`/`jeopardize`/`penalize` in `IZE_NOUN_CAPABLE` contradict the
+      docstring's stated exclusion). Baseline ~1-in-5 signal — 53 of 68 are
+      `artifact` (mostly the legit CI/SBOM term-of-art). Brief:
+      [`reviews/2026-07-23-0707-spellscan-s5-cold.md`](reviews/2026-07-23-0707-spellscan-s5-cold.md).
