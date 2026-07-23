@@ -290,7 +290,8 @@ detection (154/287 baseline is deliberate SESSIONS index rows). Brief
 [`docs/reviews/2026-07-23-0707-wrapscan-s1-cold.md`](reviews/2026-07-23-0707-wrapscan-s1-cold.md),
 detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Two follow-ons stay open:*
 
-- [ ] **Apply wrapscan review findings WS1–WS6 + implement option-a scope**
+- [~] **Apply wrapscan review findings WS1–WS6 + implement option-a scope**
+      (claimed 2026-07-23-0959, wt: qr-0959-wrapscan-apply)
       (ordinary code; scope now RULED — see below). Steps: scope the gate to the
       doctrine surface (`method/`/`build/`/`decisions/` bodies) and add a
       `.wrapscanignore` for the record/log/review stores (WS1); fix the ~4 genuine
@@ -311,8 +312,9 @@ permanent. Brief
 [`docs/reviews/2026-07-23-0707-spellscan-s5-cold.md`](reviews/2026-07-23-0707-spellscan-s5-cold.md),
 detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Follow-ons stay open:*
 
-- [ ] **Apply spellscan review findings SS1–SS4 + tame the noise** (ordinary
-      code): drop the three irregular-noun stems from `IZE_NOUN_CAPABLE` (SS1);
+- [~] **Apply spellscan review findings SS1–SS4 + tame the noise** (ordinary
+      code) (claimed 2026-07-23-0959, wt: qr-0959-spellscan-apply):
+      drop the three irregular-noun stems from `IZE_NOUN_CAPABLE` (SS1);
       declare the macron gap in the docstring (SS2); allowlist/inline-code the
       CI-`artifact` sense + OWASP ASVS/SAMM chapter names; fix `finalize`→`finalise`;
       **finish the `catalog`→`catalogue` rename** (Mike ruled 2026-07-23 —
