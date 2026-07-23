@@ -7,21 +7,33 @@ session-overhead figures — stay person-local (see the pointer at the foot).*
 
 ## Match the model to the job
 
-Two kinds of spend, drawn from two pools:
+Billing state belongs to the **marginal token**, not the model. A plan can move
+the same model between states over time (it has — 2026-07), so read the state
+off the current plan, never off habit. Three states:
 
-- **Plan-included** — a subscription's capable model. A token costs no marginal
-  dollars but draws down a usage allowance.
+- **Plan-included** — draws down a usage allowance; no marginal dollars.
+- **Plan-included, capped** — included only up to a share of the allowance;
+  past the cap the *same model's* next token silently becomes usage-billed.
 - **Usage-billed** — billed per token, real money, output (including any
   always-on thinking tokens) costing several times input.
 
-The split that follows from this: a **plan-included model does the *building*** —
-iterating, tests, docs, exploration, the long agentic sessions, anything
-mechanical or high-volume. Burning plan quota on exploration is fine; burning
-real dollars on it is not. A **usage-billed model does *review*** — code, docs,
-approach/assumptions, real-world validation — and the hard problem the building
-model is stuck on. Reviews are **scoped and short** (hand it the diff / commit
-range / named files, not the repo; ask for findings, not rewrites — apply fixes
-back on the building model); builds are the bulk.
+Two refinements the states force:
+
+- **Draw-down rate.** Within the plan pool, models are not equal: a premium
+  model draws the shared allowance several times faster. "No marginal dollars"
+  is not "free" — what the premium model drinks, the bulk work can't.
+- **Billing prices the seats; risk assigns them.** Which tier reviews and which
+  builds is *One doctrine, tiered authority*'s call (below), made on risk —
+  never this section's. This section only prices the assignment: **building —
+  iterating, tests, docs, exploration, the long agentic sessions, anything
+  mechanical or high-volume — belongs on the cheapest-drawing tier that
+  genuinely does it**, because burning allowance on exploration is fine where
+  burning real dollars (or premium draw) is not; **review and the hard problem
+  the building model is stuck on belong to the capable tier**, whatever billing
+  state the plan currently serves it in. Reviews are **scoped and short** (hand
+  the reviewer the diff / commit range / named files, not the repo; ask for
+  findings, not rewrites — apply fixes back on the building model); builds are
+  the bulk.
 
 ## Sub-agents — isolation, not savings
 
@@ -67,26 +79,42 @@ disciplines: once delegated, don't also do the work inline — pick one; and tak
 the *conclusion* into the main context, never the transcript — over-asking a
 sub-agent is cheap, over-carrying its output is not.
 
-## Know which pool you're spending — the self-check
+## Know the marginal cost of the running model — the self-check
 
 The subscription default is **not a reliable guard**: a model picker can save the
 last choice as the new default, and a project/managed/IDE setting can outrank the
-user default — so a session can silently come up on the usage-billed model even
-when the plan model is pinned. The surfaces that always reflect the *real*
+user default — so a session can silently come up on the dearest model even
+when a cheaper one is pinned. The surfaces that always reflect the *real*
 running model are the statusline and the model itself.
 
-So the standing rule: **before token-heavy build/implementation work, state the
-running model and its billing pool in one line; if it's the usage-billed model
-and the task is a *build*, flag it and confirm before spending.** This catches
-the "should have been on the plan model" case up front, when the fix is free
-(switch at the session boundary), not after the dollars are gone. Review and
-hard-problem work on the usage-billed model is the *intended* use — no flag
-needed there. The guard is specifically usage-billed-doing-a-build.
+So the standing rule: **before token-heavy build/implementation work, state in
+one line the running model, its billing state, and — for a capped model — the
+distance from its cap; flag and confirm before spending when a guard trips.**
+Two guards:
+
+- **A usage-billed or premium-draw model doing a *build*** — bulk work on the
+  dearest meter. This catches the "should have been on the cheaper tier" case
+  up front, when the fix is free (switch at the session boundary), not after
+  the spend is gone.
+- **A capped model near its cap** — past the cap the next token is real money
+  with no visible switch. Capacity with billing attached **fails open** (the
+  CI-minutes pattern below): nothing breaks, it just silently bills.
+
+Crossing a cap into usage billing is spend beyond the plan, so it sits under
+the standing confirmation floor (`AUTONOMY.md` — spend): at the cap the session
+stops at a safe point, records, and hands the principal the choice — **delay
+the work, or pay**. What the cap never does is move the work down-tier: tier
+selection is risk's call alone (next section), and an empty tank is not a risk
+argument. Review and hard-problem work on the capable tier is the *intended*
+use — no flag for that; the guards are bulk-work-on-a-dear-meter and
+silent-cap-crossing. (Grounded 2026-07-23, Mike: "we never decay the quality or
+integrity of the work because the tank is low, we either stop/delay the work or
+I choose to pay usage fees.")
 
 ## The compute pool — CI minutes
 
 A **third spend pool** sits beside the two model pools above: **CI compute**,
-metered by the forge (GitHub Actions) in **minutes**. Same "know which pool"
+metered by the forge (GitHub Actions) in **minutes**. Same know-the-marginal-cost
 discipline, but its meter is coupled to something the model pools are not —
 **repository visibility**:
 
@@ -199,6 +227,24 @@ the same truth seen from the failure side: a cheap attempt that fails and is
 redone on the capable model costs more than starting capable, so when a
 hand-up looks likely, escalate up front.
 
+Two hard edges on the ladder (both grounded 2026-07-23, Mike):
+
+- **Capacity never picks the tier.** "Cheapest that genuinely does the work" is
+  judged on the work's risk and verifiability — in *every* capacity state. A
+  cheaper model is welcome wherever that test passes, cap or no cap; it is
+  forbidden as a *response* to a low allowance. When the tank can't fund the
+  tier the work needs, the exits are stop/delay or principal-authorised spend
+  (the cap rule above) — never a quieter model doing louder work. Cost is the
+  lowest precedence, and an exhausted allowance doesn't promote it.
+- **Hand-ups are noisy, and the ladder ends at the principal.** "Logs and hands
+  up" means *fails visibly*: stop improvising, state what was attempted and
+  where the work exceeded the model's depth, record it (session log / queue),
+  and route the work up — workhorse → capable tier → **principal**, when every
+  tier is out of its depth. A silent stall, or a plausible-but-degraded
+  attempt, reads as progress and blocks the hand-up — the shipped-failure mode
+  the mechanical floor exists to prevent. "This exceeds me" is a report the
+  apex's honesty burden requires, not a failure it punishes.
+
 ### The orchestrated-run tier split
 
 The rule above, applied to the queue-run rhythm (`CONCURRENCY.md` §
@@ -215,11 +261,23 @@ across a chain of items. **Flex on judgement is allowed:** an orchestrator may
 execute a small item inline rather than dispatch it, and a first-of-kind or
 structural item escalates to the capable tier per the rework rule above (a
 hand-up that looks likely is taken up front). The split is the default, not a
-fence. The "know which pool you're spending" self-check still runs at whatever
+fence. The marginal-cost self-check still runs at whatever
 seat a session takes — the **role check** `CONCURRENCY.md` mandates at run-open
 *is* that self-check applied to orchestration: a session on the wrong tier for
 its role stops and says so, when the fix (switch at the session boundary) is
 still free.
+
+The two seats are not the whole ladder (adopted 2026-07-23, Mike). **Fan-out
+delegates below the workhorse**: the mechanical reads, searches and scans a
+session hands to sub-agents are pattern-following work whose report the parent
+verifies, so they run on the cheapest tier that genuinely does them — the
+*Sub-agents* tier note made standing practice, and the good kind of
+down-tiering: chosen because the work's risk permits it, true in every capacity
+state, never a response to a low tank. And the **executor seat may step down a
+tier for routine, well-floored items** — trialled per run, kept only when the
+floor's evidence (scanners, tests, the orchestrator's review) shows the tier
+genuinely does that class of work; extraction-from-practice applies to tier
+claims as much as to doctrine.
 
 ## Triggering reviews — inline or batched
 
@@ -229,7 +287,7 @@ batch** to run together later. Both are sanctioned for routine work; pick per
 cost and how blocking the result is. The exception is self-authored doctrine:
 there the spawn must be a non-author's, whichever path the economics favour
 (REVIEW rule 4). Either way a review stays *scoped and short*, and it is
-still spend — so it stays inside the "know which pool" rule above.
+still spend — so it stays inside the marginal-cost self-check above.
 
 ## Match the ceremony to the risk
 

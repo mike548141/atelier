@@ -394,7 +394,7 @@ whichever path the economics favour:
 Either way the review stays **pre-scoped and short — short in ceremony, never
 in scope**: "scoped" bounds the *subject* handed to the reviewer, and within
 that subject the scope mandate above governs everything examined. It is still
-spend — so it lives inside the "know which pool you're spending" rule.
+spend — so it lives inside `ECONOMICS.md`'s marginal-cost self-check.
 
 ## What review is not
 

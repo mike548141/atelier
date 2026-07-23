@@ -443,8 +443,8 @@ confirms it is on the tier its role needs (`ECONOMICS.md`). A session opened on
 the **wrong tier for its role** — a workhorse asked to orchestrate and review, or
 a capable session about to burn its pool on execution a worker should carry —
 **stops and says so** instead of proceeding; the fix (switch at the session
-boundary) is free before the work starts and costly after. This is the "know
-which pool you're spending" self-check (`ECONOMICS.md`) fired at run-open.
+boundary) is free before the work starts and costly after. This is the
+marginal-cost self-check (`ECONOMICS.md`) fired at run-open.
 
 **Selecting the next item.** The run's brief may set the order; absent an
 override, the default is **loose ends & unblockers first** (a near-done item, or
@@ -503,7 +503,8 @@ for them):
 - **"Maximise plan use" is not a standing rule.** How hard to drain the pool on a
   given run is the **principal's per-run spend directive** — which pool, how much
   — and it turns on estate-specific plan facts `ECONOMICS.md` deliberately does
-  not hold (§ Know which pool you're spending). It is set per run, never baked
+  not hold (§ Know the marginal cost of the running model). It is set per run,
+  never baked
   into the pattern.
 - **The closing litany is not restated here.** What a per-item close *contains* —
   the session record, the roadmap harvest, review-queued-if-owed, the push —
