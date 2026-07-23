@@ -166,6 +166,22 @@ ECONOMICS § tier split + plugin-bundled `queue-run` skill) →
   green, no hand-up); record the outcome either way — tier claims are
   extracted from practice, not assumed. Fan-out sub-agents on the cheapest
   genuinely-capable tier is already standing practice (no trial needed).
+  - **Run 1 outcome — 2026-07-23 (Opus-orchestrated queue run):** two items
+    dispatched to Sonnet — the **cc-tools vocab audit** (`85b17dd`: clean
+    single-file delivery, zero-drift finding correct on my review, 160/160 node
+    tests, recommendation correctly *held as a recommendation* not baked) and
+    the **S3 datescan build** (`6077972`: `tools/datescan.py` + 41 tests, suite
+    372 green, advisory wiring correct, honest baseline reported, exemption
+    limits documented honestly). **Both PASSED the orchestrator review with no
+    hand-up and no rework** — first positive data point that Sonnet genuinely
+    does the routine-docs and first-of-kind-scanner classes under the floor.
+    **One run ≠ a standing tier claim** (extracted-from-practice wants
+    corroboration): leave the trial open for a second run's data before
+    promoting Sonnet to the standing executor seat for these classes. Note for
+    contrast: the doctrine-text apex sweep + the correctness-sensitive ccrepo
+    ledger were kept on **Opus** this run (doctrine-text + silent-failure class
+    → capable tier, per ECONOMICS QR5) — the split behaved exactly as the tier
+    rule predicts.
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 
