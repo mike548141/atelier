@@ -108,9 +108,29 @@ strands — none a loose end for this session, and the next coherent build
 (codify V1–V7, doctrine) is better cold in a fresh session. Two ⏳ reviews
 queued this run; adding a third doctrine item here would grow, not drain.
 
+## Close-out coda — two gate flips on Mike's rulings
+
+At close-out I surfaced the run's two live decisions plain-language; Mike ruled
+both, and I applied them same-session (datescan's 0707 precedent):
+
+- **wrapscan → BLOCKING** (`4f1c10c`): precondition met, doctrine-surface scope
+  clean. `ci.yml` dropped `--warn`; child `floor.yml` gained a blocking step +
+  selftest with a re-baseline note.
+- **Frozen-record `artifact` → keep history verbatim; spellscan → BLOCKING.**
+  The ~36 general-sense `artifact` breaches in frozen record stores are NOT
+  retro-spelled; spellscan is scoped to the live doctrine surface with a
+  `.spellscanignore` netting the records. Re-baseline caught 2 genuine
+  doctrine-surface findings (a *pipe-vs-exit-code* verification catch — my first
+  "clean" read was `tail`'s exit, not spellscan's): ADR 0007 "Artifact
+  signing/SBOM" is supply-chain term-of-art (allow-marked, not mis-corrected),
+  one general-sense `artifact`→`artefact` fixed. Both flips CI-confirmed green.
+
 ## Floor at head
 
-Green (`4f637b0`, floor run success): tools suite 601, all scanner selftests OK,
-gated scanners (datescan/wrapscan/sizescan `--check` + leak/secret/link) exit 0,
-single worktree, 0/0 sync. Four 🎯 decisions surfaced for Mike (below / in
-ROADMAP), none silently skipped.
+Green (`4f1c10c`, floor run success, now running wrapscan + spellscan as blocking
+gates): tools suite 601, all scanner selftests OK, gated scanners exit 0, single
+worktree, 0/0 sync. All decisions this run surfaced were RULED + applied; the
+remaining open 🎯 are pre-existing and Mike's own to flesh out (Glossary ratify,
+the honesty/truth/transparency apex note, the Teams-chat note, code-signing
+flip), none newly blocked by this run. Two ⏳ first-of-kind reviews (pathscan,
+stampscan) queued for a future non-author session.
