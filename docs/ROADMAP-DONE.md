@@ -2039,3 +2039,28 @@ close-all-clear doctrine, stays live as a ⏳ review in ROADMAP.md).
       (the ~36 general-sense `artifact` breaches in frozen records — Mike's
       call, live in ROADMAP.md) which also blocks the spellscan flip's
       near-zero re-baseline.
+
+### wrapscan + spellscan flipped advisory→blocking (Mike's rulings, same run)
+
+Both scanners built/reviewed/applied earlier this run were flipped to BLOCKING on
+Mike's plain-language rulings during the close-out:
+
+- **wrapscan → blocking.** Precondition met (option-A doctrine-surface scope,
+  0 findings). atelier `ci.yml` dropped `--warn`; child `floor.yml` template
+  gained a blocking wrapscan step + selftest (children re-baseline their record
+  stores via `.wrapscanignore` on adoption — atelier's doctrine-surface scope is
+  atelier-specific, so children scope `repo/docs` broadly and ignore their logs).
+- **spellscan → blocking** + the **frozen-record `artifact` question RULED: keep
+  history verbatim.** The ~36 general-sense `artifact` breaches live in frozen
+  record stores; Mike ruled they are NOT retro-spelled. So spellscan is scoped to
+  the live doctrine surface with a `.spellscanignore` netting the record stores
+  (`docs/sessions/`, `docs/reviews/`, `docs/SESSIONS.md`, `docs/ROADMAP-DONE.md`,
+  `*-DONE.md`/`*-ARCHIVE.md`). Re-baseline turned up 2 genuine doctrine-surface
+  findings, both resolved honestly: ADR 0007's "Artifact signing/SBOM" is the
+  software-supply-chain term-of-art (allow-marked, not mis-corrected to
+  "Artefact"), and one general-sense `artifact`→`artefact` fixed in a decision
+  record. atelier `ci.yml` dropped `--warn`; child `floor.yml` gained a blocking
+  spellscan step + selftest with the same re-baseline note.
+
+Both flips follow datescan's 0707 pattern (atelier blocks now; children adopt +
+re-baseline at their next pin bump). Suite 601 green; atelier floor green at head.

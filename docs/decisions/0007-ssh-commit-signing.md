@@ -35,7 +35,8 @@ lightest route then is GitHub's native attestations. Doctrine:
 - **No signing:** leaves authorship spoofable in a public repo whose SHAs
   other repos pin as truth — the record's trust would rest on nothing but
   convention.
-- **Artifact signing/SBOM now (the old A5):** nothing published exists to
+- **Artifact signing/SBOM now (the old A5):** nothing published exists to <!-- spellscan:allow: software-supply-chain term of art (cosign/syft artifact), not the general "produced thing" sense -->
+
   sign; standing up cosign/syft-class machinery ahead of a release is
   ceremony that breaks zero-dep for an empty benefit.
 

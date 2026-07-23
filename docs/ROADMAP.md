@@ -344,15 +344,12 @@ detection (154/287 baseline is deliberate SESSIONS index rows). Brief
 [`docs/reviews/2026-07-23-0707-wrapscan-s1-cold.md`](reviews/2026-07-23-0707-wrapscan-s1-cold.md),
 detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Two follow-ons stay open:*
 
-*wrapscan (S1) review APPLIED 2026-07-23 (queue run 0959, `ceb3fda`) —
-option-A scope + WS1–WS6, gated scope 0 findings, stays advisory →
-[`ROADMAP-DONE.md`](ROADMAP-DONE.md). The flip precondition is now met:*
-- [ ] 🎯 **wrapscan flip (Mike's call, once clean)** — **scope RULED 2026-07-23
-      (Mike: "agreed option A")**: doctrine-surface scope + `.wrapscanignore` the
-      record stores. **Apply landed `ceb3fda` (above) — the flip precondition is
-      now MET: a clean `--warn` run over the gated doctrine surface (0 findings).**
-      Drop `--warn` + add to `floor.yml` is a Mike go/no-go. Not pre-authorised;
-      surfaced here now clean.
+*wrapscan (S1) review APPLIED + **FLIPPED TO BLOCKING** 2026-07-23 (queue run
+0959, apply `ceb3fda`, flip on Mike's ruling) — option-A doctrine-surface scope,
+WS1–WS6, gated scope 0 findings; atelier `ci.yml` dropped `--warn`, child
+`floor.yml` gained a blocking wrapscan step (child re-baselines its record stores
+first). An over-wide doctrine-prose line now fails the build. →
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md).*
 *spellscan (S5) first-of-kind review DONE 2026-07-23 (queue run 0707, cold Opus) —
 **PASS-WITH-FINDINGS 0M/2m/1L/1n**, NOT gate-ready; core safety proven (no wrong
 corrections), real latent bug SS1 found, license/practice exclusion ruled
@@ -360,32 +357,21 @@ permanent. Brief
 [`docs/reviews/2026-07-23-0707-spellscan-s5-cold.md`](reviews/2026-07-23-0707-spellscan-s5-cold.md),
 detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Follow-ons stay open:*
 
-*spellscan (S5) review APPLIED 2026-07-23 (queue run 0959, `b910962`/`4872f07`)
-— SS1–SS4 + `catalogue` rename, baseline 71→40 (remainder all genuine/quotes),
-stays advisory → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). It surfaced a live
-follow-on that also blocks the flip's near-zero re-baseline:*
-- [ ] 🎯 **Rule the ~36 general-sense `artifact`→`artefact` breaches in frozen
-      records** (surfaced by the 0959 spellscan apply). The apply proved the
-      *general* "a produced thing" sense (a session record, a web page) is a
-      genuine NZ breach distinct from the CI/SBOM term-of-art — and ~36 of the
-      40 remaining spellscan findings are that sense sitting in **frozen
-      historical records** (`SESSIONS.md`, `ROADMAP-DONE.md`, `docs/reviews/*`,
-      other `docs/sessions/*`), which the apply's bounds deliberately did not
-      touch. **The decision is Mike's** because it collides with the
-      immutable-history ethos (current-truth/history split): either (a)
-      spelling-normalise the frozen records too, or (b) rule them permanently
-      out of scope as *untouched history* — a `.spellscanignore`/allow on the
-      record stores. This is also the **spellscan flip's blocker**: near-zero
-      re-baseline can't be reached until (a) or (b) lands. (Adjacent, noted not
-      acted: two `artifact→artefact` rename-notation *mentions* at
-      `SESSIONS.md:157` + a review file — a MENTION not a USE, a possible future
-      heuristic extension.)
-      **license/practice exclusion ruled PERMANENT by the review** (empirically
-      vindicated — `practice` ×178 is correct NZ noun usage).
-*spellscan `catalog` rename DONE (both frozen records; article quote verbatim).
-The advisory→blocking **flip stays a Mike go/no-go**, now with its precondition
-named: it is blocked on the 🎯 above (near-zero re-baseline needs the frozen-
-record `artifact` decision first) — datescan's pattern.*
+*spellscan (S5) review APPLIED + **FLIPPED TO BLOCKING** 2026-07-23 (queue run
+0959, apply `b910962`/`4872f07`, flip on Mike's ruling) — SS1–SS4 + `catalogue`
+rename. **Frozen-record `artifact` question RULED 2026-07-23 (Mike: keep history
+verbatim)**: the ~36 general-sense `artifact` breaches in the frozen record
+stores (`SESSIONS.md`, `ROADMAP-DONE.md`, `docs/reviews/*`, `docs/sessions/*`)
+are NOT retro-spelled — history stays as-written — so the gate is scoped to the
+LIVE doctrine surface (`method/`/`build/`/`decisions/`) and a `.spellscanignore`
+nets the record stores. Re-baseline resolved the 2 genuine doctrine-surface
+findings (ADR 0007 "Artifact signing" = supply-chain term-of-art, allow-marked;
+one general-sense `artifact`→`artefact` fixed in a decision record). atelier
+`ci.yml` dropped `--warn`; child `floor.yml` gained a blocking spellscan step
+(child re-baselines first). license/practice exclusion PERMANENT (`practice`
+×178 correct NZ noun). → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). (Adjacent, noted
+not acted: two `artifact→artefact` rename-notation *mentions* — a MENTION not a
+USE — a possible future heuristic extension.)*
 - [ ] **Codify V1–V7 as the always-loaded reviewer checklist** — the
       registry mechanism's doctrine half; lands in REVIEW.md/the review
       skill with each item's cited grounding. Self-authored doctrine ⇒

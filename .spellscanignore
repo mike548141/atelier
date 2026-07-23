@@ -1,0 +1,25 @@
+# Paths exempt from spellscan (gitignore-style globs, one per line).
+# Keep this list SHORT and reasoned — every entry is a hole in the boundary.
+
+# 2026-07-23 (Mike's ruling on the queue-run-0959 spellscan apply): the frozen
+# historical record stores are kept VERBATIM — history is not retro-spelled.
+# The general-sense `artifact` (a produced thing) breaches that live here are
+# genuine NZ deviations but they are FROZEN HISTORY, so the gate is scoped to
+# the LIVE doctrine surface and these stores are ignored by scope AND by this
+# net (belt-and-braces for a manual/unscoped run). Spelling on NEW live prose
+# is what the gate protects; the immutable-history ethos keeps the past as-written.
+
+# Session logs: one dated entry per line, written-as-of-then — frozen.
+docs/sessions/
+
+# Review briefs/verdicts: frozen once landed; discuss US terms verbatim.
+docs/reviews/
+
+# The session index: hundreds of frozen one-line-per-session entries.
+docs/SESSIONS.md
+
+# Harvested/archived current-truth: preserved verbatim (the history half of
+# the current-truth/history split).
+docs/ROADMAP-DONE.md
+*-DONE.md
+*-ARCHIVE.md

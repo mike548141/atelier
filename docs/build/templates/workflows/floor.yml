@@ -130,6 +130,8 @@ jobs:
           python3 atelier/tools/sizescan.py --selftest
           python3 atelier/tools/reviewscan.py --selftest
           python3 atelier/tools/datescan.py --selftest
+          python3 atelier/tools/wrapscan.py --selftest
+          python3 atelier/tools/spellscan.py --selftest
 
       - name: secretscan (full cover)
         run: python3 atelier/tools/secretscan.py --root repo repo
@@ -176,6 +178,27 @@ jobs:
       # the signal. If this repo keeps records outside `docs/`, adjust the path.
       - name: datescan (dating discipline)
         run: python3 atelier/tools/datescan.py --root repo repo/docs
+
+      # wrapscan (S1): line-wrap/column-hygiene over docs prose. BLOCKING in
+      # atelier since 2026-07-23 (reviewed PASS + Mike's flip). A child's doc
+      # tree differs from atelier's method/build/decisions, so this scans
+      # `repo/docs` broadly. RE-BASELINE ON ADOPTION: the record/log stores use a
+      # deliberate one-line-per-entry format that reads as over-wide — add a
+      # `.wrapscanignore` (root-relative globs: `docs/sessions/`, `docs/SESSIONS.md`,
+      # `*-DONE.md`, …) and fix genuine doctrine over-wraps; that first red IS the
+      # signal. Hatch: `wrapscan:allow: <reason>` on the line.
+      - name: wrapscan (column hygiene)
+        run: python3 atelier/tools/wrapscan.py --root repo repo/docs
+
+      # spellscan (S5): NZ-English spelling over docs prose. BLOCKING in atelier
+      # since 2026-07-23 (reviewed PASS — no confident wrong correction — + Mike's
+      # flip; frozen record stores kept verbatim, not retro-spelled). RE-BASELINE
+      # ON ADOPTION: fix genuine US spellings (artefact/organise/licence…),
+      # inline-code or `ALLOWLIST_PHRASES` a genuine term-of-art (a tool/API name),
+      # and `.spellscanignore` the frozen record stores you keep verbatim. Hatch:
+      # `spellscan:allow: <reason>` on the line.
+      - name: spellscan (NZ-English spelling)
+        run: python3 atelier/tools/spellscan.py --root repo repo/docs
 
       # Publish gate — uncomment when this repo has a LICENSE / before going public.
       # - name: licenscan (assert your licence)

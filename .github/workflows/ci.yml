@@ -157,26 +157,27 @@ jobs:
       - name: datescan (dating discipline — blocking)
         run: python3 tools/datescan.py --root . docs
 
-      # wrapscan (S1, 2026-07-22 invariant-candidates review; scope per the
-      # 2026-07-23 0707 cold review's WS1 finding, Mike's ruling: option A):
-      # line-wrap/column-hygiene over the DOCTRINE SURFACE ONLY — method/,
-      # build/, decisions/ bodies — where the recurring prose-over-width
-      # defect actually lives; scanning all of docs/** instead buries that
-      # signal under the record/log/review stores' deliberate one-line-per-
-      # entry format (~6:1 noise, per the review). FIRST-OF-KIND, WIRED
-      # ADVISORY-ONLY: not yet reviewed against this new scope (don't-stack),
-      # so --warn always exits 0 — it reports the finding count for review
-      # evidence and never blocks a build. Do not drop --warn until reviewed.
-      - name: wrapscan (column hygiene, doctrine surface — advisory, not yet reviewed)
-        run: python3 tools/wrapscan.py --warn --root . docs/method docs/build docs/decisions
+      # wrapscan (S1): line-wrap/column-hygiene over the DOCTRINE SURFACE ONLY —
+      # method/, build/, decisions/ bodies (the record/log/review stores are a
+      # deliberate one-line-per-entry format; `.wrapscanignore` nets them for any
+      # unscoped run). Scope per the 0707 cold review's WS1 (Mike: option A).
+      # BLOCKING since 2026-07-23 (queue run 0959): reviewed PASS + WS1–WS6
+      # applied + a clean run over the gated scope (0 findings), Mike ruled flip.
+      # Hatches: `wrapscan:allow: <reason>` on the line, or a `.wrapscanignore`
+      # glob. An over-wide doctrine-prose line now fails the build.
+      - name: wrapscan (column hygiene, doctrine surface)
+        run: python3 tools/wrapscan.py --root . docs/method docs/build docs/decisions
 
-      # spellscan (S5, 2026-07-22 invariant-candidates review): NZ-English
-      # spelling over docs/** — a US spelling with an NZ equivalent reds.
-      # FIRST-OF-KIND, WIRED ADVISORY-ONLY: not yet reviewed (don't-stack), so
-      # --warn always exits 0 — it reports the finding count for review
-      # evidence and never blocks a build. Do not drop --warn until reviewed.
-      - name: spellscan (NZ-English spelling — advisory, not yet reviewed)
-        run: python3 tools/spellscan.py --warn --root . docs
+      # spellscan (S5): NZ-English spelling over the LIVE DOCTRINE SURFACE —
+      # method/, build/, decisions/ bodies. BLOCKING since 2026-07-23 (queue run
+      # 0959): reviewed PASS (no confident wrong correction) + SS1–SS4 applied,
+      # and the doctrine surface re-baselines clean. Mike ruled the frozen record
+      # stores kept VERBATIM (`.spellscanignore`) rather than retro-spelled, so
+      # the gate is scoped to live prose, not history. Hatches: inline-code /
+      # `ALLOWLIST_PHRASES` for genuine term-of-art, `spellscan:allow: <reason>`,
+      # or a `.spellscanignore` glob. A US spelling in new doctrine prose now fails.
+      - name: spellscan (NZ-English spelling, doctrine surface)
+        run: python3 tools/spellscan.py --root . docs/method docs/build docs/decisions
 
       # pathscan (S2, 2026-07-22 invariant-candidates review): a repo path
       # NAMED in bare prose or a backtick span (not a markdown link — that's

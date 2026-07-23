@@ -85,7 +85,7 @@ never the ceremony. Most design records will honestly carry "not warranted".
 - Cost is one line per design record, paid when the thought is cheapest.
 - ⚠️ Residual risk, named not solved: the convention is still a *convention*.
   It fails the same way if an agent simply never writes the line — the
-  improvement is that its absence is now legible in the artifact, where before
+  improvement is that its absence is now legible in the artefact, where before
   it was indistinguishable from a considered decision.
 
 ## Provenance
