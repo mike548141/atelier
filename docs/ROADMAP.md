@@ -308,17 +308,8 @@ What remains is Mike's:
 ### ccrepo (Mike, 2026-07-17)
 
 Reconciliation drift closed 2026-07-22 (richest-record dedup; exact ccusage
-match on frozen data) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
-- [x] 🎯 **Fill the machine-local spend config — DONE 2026-07-23** (actual-
-      spend mechanism BUILT 2026-07-22, `1711711`, merged `12613e0` — detail
-      → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)). On Mike's direction the
-      config was populated from his real billing receipts (collected from
-      his email by agent; **usage mode**, chosen because tiers changed
-      mid-history), and the reconciliation footnote now renders against
-      genuine billed figures. The receipts ledger and config live in
-      `~/.claude` only — figures never enter this repo (the item's own
-      boundary). Residual noted machine-locally: append each new invoice
-      month to the config as receipts arrive.
+match on frozen data); spend-config fill closed 2026-07-23 (populated from
+real receipts, machine-local) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 Completed instruments work (ccrepo actuals/breakdown, ccarchive integrity/audit,
 the **man-page convention rollout — ccarchive worked example + cctranscript +

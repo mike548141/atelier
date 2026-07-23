@@ -1,6 +1,8 @@
 # Billing state belongs to the marginal token, not the model
 
 **Status**: draft • **Date**: 2026-07-23
+**Review**: queued — the ⏳ pointer in `docs/ROADMAP.md` (economics rework,
+rule-4 cold pass; this record is the intent record, delta `dadde1d`)
 
 ## Context
 
