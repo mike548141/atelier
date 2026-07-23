@@ -62,15 +62,17 @@ pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
   `method/GLOSSARY.md`: tighten wording, rule on the full-definition entries
   (principal / agent / session / doctrine — new canonical homes), confirm the
   admission rule. Until then the SEED banner holds entries as PROPOSED.
-- [~] **Capture → doctrine candidate: the close all-clear should carry the
-  pushed floor run's result** (claimed 2026-07-23-0959, inline)
-  (grounded 2026-07-23: a session's 00:47 close
-  pushed a 🎯-closed item and ended with the floor red — reviewscan since
-  00:06 + its own un-harvested `[x]`; the next session inherited the debt and
-  restored green, `165c40f`). RECORD.md's close rule demands evidence under
-  the all-clear but never names the CI result; "scanners green locally" is
-  not "floor green at head". Small wording-sized RECORD.md edit; rides the
-  normal review cycle when taken.
+- ⏳ **Capture → doctrine: the close all-clear carries the pushed floor run's
+  result** — APPLIED 2026-07-23 (queue run 0959, inline Opus). RECORD.md's
+  all-clear evidence rule gained a sub-point: when a close pushes, the evidence
+  is the *floor at head*, not the local scan ("green locally, floor run pending"
+  is honest; "all green" before the head run reports is a claim past its
+  evidence). **⏳ review queued for a non-author** (self-authored doctrine, REVIEW
+  rule 4). *Delta:* the RECORD.md all-clear "floor at head" sub-point (landed this
+  commit). *Intent record:* this capture line + its grounding (`165c40f`: a 00:47
+  close pushed a 🎯-closed item and left the floor red — reviewscan since 00:06 +
+  an un-harvested `[x]` — and the next session inherited the debt to restore
+  green). Rides the normal review cycle when a qualifying session takes it.
 - [ ] **Propagate the widened apex floor to the fleet children** — the remaining
   half (the in-repo restatement sweep is DONE, `a4740c4`, →
   [`ROADMAP-DONE.md`](ROADMAP-DONE.md)). Each child copies the floor block

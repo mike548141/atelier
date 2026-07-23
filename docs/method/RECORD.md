@@ -109,6 +109,17 @@ stopped instead of re-deriving it:
     deliberately left open. The test: the principal reads it and closes without
     a nagging "did it really capture everything?" (Grounded 2026-07-20, Mike:
     the declare-the-close signal is only worth the evidence under it.)
+    - **When the close pushes, the evidence is the *floor at head*, not the
+      local scan.** "Scanners green locally" is not "floor green at head": CI
+      runs checks a local scan does not — reviewscan over what the push itself
+      queued, the harvest gate a pushed `[x]` trips — so a tree that scanned
+      clean can still red the floor once pushed. An all-clear that closes with a
+      push therefore carries the *pushed* floor run's result, or names it as
+      pending ("green locally, floor run pending"); "all green" asserted before
+      the head run reports is a claim past its evidence. (Grounded 2026-07-23: a
+      00:47 close pushed a 🎯-closed item and left the floor red — reviewscan
+      since 00:06 plus its own un-harvested `[x]` — and the next session
+      inherited the debt to restore green, `165c40f`.)
   - (See also session hygiene in `ECONOMICS.md`: log where you got to, then
     start fresh rather than dragging a bloated context.)
 
