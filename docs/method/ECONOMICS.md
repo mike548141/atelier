@@ -254,9 +254,11 @@ Two hard edges on the ladder (both grounded 2026-07-23, Mike):
 The rule above, applied to the queue-run rhythm (`CONCURRENCY.md` §
 Orchestrated queue runs): a run's two seats map to the two tiers — seat names
 for the spectrum above: the **capable tier** is the most capable model
-available, the **workhorse tier** the cheapest model that genuinely does *the
-items' builds* — the work class qualifies the seat, which is what lets
-fan-out sit *below* it on a different work class (2026-07-23, QR8; EB6). **The capable
+available; the **workhorse tier** is the run's *default executor slot*, filled
+per run by the cheapest model that genuinely does *the items' builds* (judged
+on the run's modal item). The seat is a slot and the rule fills it — which is
+what lets fan-out sit *below* it on a different work class, and the executor
+trial step a slot down (2026-07-23, QR8; EB6/QA6). **The capable
 tier orchestrates and reviews** — selection, dispatch, the review verdicts and
 the structural judgement calls at merge are exactly the judgement-heavy,
 silent-failure-prone work this section says to pay capability for. **The

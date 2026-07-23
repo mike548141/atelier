@@ -432,12 +432,14 @@ it live — this section is extracted from those, not invented.
 **The chain's links are the principal's.** Chaining names how the principal
 re-points fresh sessions at the queue, never a licence for a run to extend
 itself: **a run never starts or instructs its own successor.** The pin is
-`REVIEW.md` rule 4's own criterion read down a chain — a session started or
+`REVIEW.md` rule 4's own criterion read down a chain, with QR2's authorship
+attribution closing the downstream direction — a session started or
 instructed by any session in a chain fails rule 4 for every delta that chain
 authored, so a self-extending chain would launder the very independence the
-`⏳` synergy below exists to deliver. Every session in both grounding runs was
+`⏳` synergy below exists to deliver. Every *chain* session in both grounding
+runs was
 principal-opened; this sentence codifies what that practice already did
-(2026-07-23, QR1).
+(2026-07-23, QR1; QA3/QA4).
 
 **The orchestrator/worker shape.** One session **orchestrates** — it selects,
 claims, dispatches, reviews and closes; an item's execution runs either **inline**
