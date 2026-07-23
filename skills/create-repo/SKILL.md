@@ -10,8 +10,8 @@ This skill is the **delivery vehicle**. It does not *hold* the standard —
 cross-cutting doctrine; this skill applies that source as a guided action.
 It carries **no identity of its own** — the instance-local specifics a shareable
 doc must not hold (git identity, remote account, workspace path, copyright holder,
-locale, exemplars) come from **your instance profile**, filled once and read every
-run. That externalisation is what lets this skill travel in the plugin: you become
+locale, exemplars, signing posture) come from **your instance profile**, filled
+once and read every run. That externalisation is what lets this skill travel in the plugin: you become
 the principal it stamps. (Design: `docs/decisions/2026-07-21-0748-deinstance-create-repo-for-the-plugin.md`.)
 
 Read the source, then act.
@@ -30,9 +30,19 @@ modes, in this order:
   which carries `docs/`, `docs/build/templates/`, and `tools/`. Read from there.
 
 Set `$SRC` to whichever resolved. **Confirm the templates are readable**, not just
-that the path exists — `ls "$SRC/docs/build/templates/"` should list ~19 files;
-anything less, **stop and say so** (do not scaffold a repo wisdom-empty from memory —
-a repo born without the doctrine block has inherited the costume, not the doctrine).
+that the path exists — the load-bearing seeds the steps below stamp must each be
+present (a structural check, not a count — counts rot as templates change):
+
+```sh
+for f in CLAUDE.md CONTRIBUTING.md LICENSE NOTICE gitignore \
+         claude/settings.json workflows/floor.yml docs/reviews/README.md; do
+  [ -r "$SRC/docs/build/templates/$f" ] || echo "MISSING: $f"
+done                                     # expect: no output
+```
+
+Any `MISSING`, **stop and say so** (do not scaffold a repo wisdom-empty from
+memory — a repo born without the doctrine block has inherited the costume, not
+the doctrine).
 
 **The source (read these first — do not re-derive their content here):**
 
@@ -57,29 +67,20 @@ The identity this skill stamps comes from `~/.atelier/instance.yaml` — **your*
 profile, in your home directory, never in a repo, never committed (the same
 boundary that keeps personal context out of a shareable repo).
 
-- **If it exists**, read it. These keys drive every stamp below:
-  ```yaml
-  workspace_root:   ~/code            # where new repos live
-  git_identity:                       # stamped into every repo's git config
-    name:  "Your Name"
-    email: "you@example.com"       # leakscan:allow: RFC 2606 placeholder, not a real address
-  remote:
-    host:       gh                    # the CLI (gh today)
-    account:    your-gh-account       # owner for `gh repo create`
-    visibility: private               # default for new repos
-  copyright_holder: "Your Org or Name"  # LICENSE appendix + NOTICE
-  locale:           "en-NZ"           # spelling; note any script/macron rules
-  exemplars: [repo-a, repo-b]         # optional: copy their shape when unsure
-  atelier_path:     ~/code/atelier    # optional: forces live mode if set
-  ```
-- **If it is absent**, this is first run. **Fill it interactively**: ask the
-  principal for each key above (offer sensible defaults — `workspace_root` from
-  where they keep code; `visibility: private`), write `~/.atelier/instance.yaml`,
-  and continue. Do not invent values; a profile that guesses identity is the exact
-  failure this externalisation prevents. `exemplars` and `atelier_path` are
-  optional — skip them if the principal has neither.
+- **If it exists**, read it. Its keys drive every stamp below. The schema —
+  every key, its shape, its default, and the why per key — is
+  `instance.yaml.example` **beside this skill**: one source; this skill
+  deliberately does not restate it.
+- **If it is absent**, this is first run. **Fill it interactively**: walk the
+  keys of `instance.yaml.example`, ask the principal for each (offer the
+  example's defaults — `workspace_root` from where they keep code;
+  `visibility: private`; `signing: false` until their machine is set up to
+  sign), write `~/.atelier/instance.yaml`, and continue. Do not invent values;
+  a profile that guesses identity is the exact failure this externalisation
+  prevents. `exemplars` and `atelier_path` are optional — skip them if the
+  principal has neither.
 
-Refer to profile keys by name below (e.g. *"stamp `git_identity`"`); never
+Refer to profile keys by name below (e.g. "stamp `git_identity`"); never
 hard-code an identity into this skill.
 
 ## Process — a new repo
@@ -92,12 +93,13 @@ cd "$WS" && mkdir <name> && cd <name>
 git init -q && git branch -M main
 git config user.name  "<git_identity.name>"
 git config user.email "<git_identity.email>"
-git config commit.gpgsign true   # repo-local bake — belt-and-braces so a new
-                                 # repo signs even where global config drifted
-                                 # (SIGNING.md, ADR 0007). Signing itself is a
-                                 # machine property (global gpg.format=ssh +
-                                 # user.signingkey + allowed_signers); this only
-                                 # guarantees the *intent* travels with the repo.
+# Signing posture comes from the profile's `signing` key — never hard-baked
+# here. Signing is a machine property (global gpg.format=ssh + user.signingkey
+# + allowed_signers; SIGNING.md, ADR 0007), so a bake on an unconfigured
+# machine fails the very first commit. Only when the profile says the machine
+# signs, stamp the repo-local intent — belt-and-braces so the repo signs even
+# where global config drifted (atelier-style profiles keep signing on):
+[ "<signing>" = "true" ] && git config commit.gpgsign true
 ```
 
 1. **Boundary check first** (REPO-BOUNDARY) — if this isn't its own repo, say so
@@ -122,13 +124,16 @@ git config commit.gpgsign true   # repo-local bake — belt-and-braces so a new
    - `<atelier-path>` → the **sibling-relative** path to the doctrine source
      (`../atelier` when repos live beside an atelier checkout). Never stamp an
      absolute: sibling-relative survives the workspace moving and keeps the
-     drift-check command the block hands every future session valid. In **bundled
-     mode** there is no sibling checkout — stamp the plugin identity instead (see
-     `<SHA>`), and record in the block that drift is tracked by plugin version.
-   - `<SHA>` → **live mode:** `git -C "$SRC" rev-parse --short HEAD`. **Bundled
-     mode:** the plugin version (from `.claude-plugin/plugin.json` in `$SRC`),
-     stamped as the provenance pin — the SHA's referent becomes the plugin
-     version for a plugin-only adopter (ADR 0002 fork, named in the design ADR).
+     drift-check command the block hands every future session valid.
+   - `<SHA>` → `git -C "$SRC" rev-parse --short HEAD` (live mode).
+   - **Bundled mode stamps the canonical variant, verbatim.** With no sibling
+     checkout, the block's canonical text is `$SRC/docs/method/PROPAGATION.md`
+     § *The bundled-mode variant*: the same block with the heading line and the
+     **Source & drift** bullet substituted exactly as written there — never
+     improvised (the pin's referent becomes the plugin version; ADR 0002 fork,
+     named in the design ADR). Its placeholders are `<plugin-path>` (the
+     plugin's install directory — `$SRC`, absolute) and `<VERSION>` (the
+     `version` in `$SRC/.claude-plugin/plugin.json`).
    - `<owner/repo>` → `<remote.account>/<name>` (once the remote exists).
    - `<visibility fact>` → e.g. "PRIVATE (a push is not publication; making it
      public is a floor action)". The block's canonical text is atelier's
@@ -144,10 +149,13 @@ git config commit.gpgsign true   # repo-local bake — belt-and-braces so a new
 
    ```sh
    grep -rn --exclude-dir=.git \
-       '<atelier-path>\|<SHA>\|<owner/repo>\|<visibility fact>' . \
+       '<atelier-path>\|<SHA>\|<owner/repo>\|<visibility fact>\|<plugin-path>\|<VERSION>' . \
                                         # expect: no hits ANYWHERE (all filled)
-   # live mode only — run the block's own drift check VERBATIM; expect empty:
+   # then run the block's own drift check VERBATIM —
+   # live mode; expect empty:
    git -C "$SRC" log --oneline <stamped-SHA>..HEAD
+   # bundled mode; expect exactly the stamped <VERSION>:
+   grep '"version"' "$SRC/.claude-plugin/plugin.json"
    ```
 6. **Wire the safety scans** as a pre-commit hook (the repo will hold real
    content). The scanners live in the source — one source; **do not copy them into

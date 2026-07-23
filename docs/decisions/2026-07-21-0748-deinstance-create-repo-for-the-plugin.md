@@ -100,3 +100,15 @@ commands. Version bump on the plugin + marketplace manifests.
   the `worktree` + `fleet-pins` command wrappers; the manifest version bump; and the
   rule-4 review before merge. Shipping the widening (the merge / go-live) stays
   Mike's deliberate call, never the agent's initiative.
+- **Implemented 2026-07-23** (VP1–VP8 rulings applied on the branch): the
+  "drift-check … must branch on which" consequence above now has a copyable
+  home — the canonical bundled-mode block variant in `PROPAGATION.md` § *The
+  bundled-mode variant*, stamped verbatim, never improvised.
+
+---
+
+**Amended 2026-07-23** (VP2, cold pass `docs/reviews/2026-07-22-1215-v2-plugin-deinstance-cold.md`;
+Mike ruled [fixed]): signing posture is the **eighth** externalised fact — the
+`signing` key in the profile, honest default off; the skill reads it instead of
+hard-baking `git config commit.gpgsign true`. The enumeration of seven above
+stands as accepted; this note is the append-only correction, not a rewrite.

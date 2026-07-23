@@ -97,10 +97,18 @@ What you get:
 - **`queue-run`** skill — orchestrate a queue run: drain the shared queue as an
   orchestrator, execute via workers in worktrees, close records per item so a
   session cap loses nothing.
+- **`create-repo`** skill — scaffold a new repo (or standardise an existing one)
+  to the house standard, stamped from **your own** instance profile
+  (`~/.atelier/instance.yaml`, filled interactively on first run, never
+  committed) — the skill carries no identity of its own.
+- **`/atelier:worktree`** — one worktree per line of work (wraps the bundled
+  `tools/worktree.py`).
+- **`/atelier:fleet-pins`** — report which child repos are behind the doctrine
+  SHA they pin (wraps the bundled `tools/pins.py`).
 - The whole `docs/method/` + `docs/build/` doctrine, bundled as reference.
 
 Adopting it, you **become the principal**: instantiate the worked example as
-yourself. `create-repo` and the fleet tooling follow in a later version.
+yourself.
 
 ## Status
 

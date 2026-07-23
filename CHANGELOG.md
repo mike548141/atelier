@@ -305,6 +305,16 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   publish-safety scanners green; `worktree.py` + `pins.py` selftests green.
   **Not yet exercised end-to-end:** the interactive first-run fill and a
   bundled-mode scaffold (model-prose behaviour, proven at review/use, not unit-tested).
+- **VP1–VP8 rulings applied (2026-07-23**, cold pass
+  `reviews/2026-07-22-1215-v2-plugin-deinstance-cold.md`, Mike: VP1–VP6 + VP8
+  [fixed] as counselled, VP7 confirmed post-merge**)**: canonical bundled-mode
+  block variant added to `PROPAGATION.md` (stamped verbatim, drift tracked by a
+  runnable plugin-version check — VP1); signing posture externalised as the
+  eighth profile fact, honest default off (VP2); bundle README's "What you get"
+  states 0.2.0's actual contents (VP3); ls-count template guard → structural
+  named-entries check (VP4); branch rebased onto current main, queue-run +
+  create-repo onramp wiring both kept (VP5); profile schema single-sourced in
+  `instance.yaml.example` (VP6); malformed markup fixed (VP8).
 
 ### Added (2026-07-21 — man pages for cctranscript + ccrepo; convention rollout closed)
 - **`cctranscript` and `ccrepo` now ship a `man/<tool>.1` + trimmed `--help`**,
