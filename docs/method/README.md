@@ -48,8 +48,9 @@ Read in this order:
    reproducibility) + the precedence ladder + situation tests, with generalised
    cases. **Canonical here**; `ros` keeps its tiki bearings + review case-law and
    points up.
-12. **`ECONOMICS.md`** — match the model to the job (plan model builds,
-   usage-billed model reviews), the which-pool self-check, tiered authority, and
+12. **`ECONOMICS.md`** — match the model to the job by risk (workhorse builds,
+   capable tier reviews), the billing states of the marginal token, the
+   marginal-cost self-check, tiered authority, and
    session hygiene. **Canonical here**; the estate-specific numbers (prices,
    model roster, session-overhead figure) stay person-local in `ros`.
 13. **`COMMUNICATION.md`** — calibrate replies to the person reading them: each

@@ -541,7 +541,8 @@ for them):
 - **"Maximise plan use" is not a standing rule.** How hard to drain the pool on a
   given run is the **principal's per-run spend directive** — which pool, how much
   — and it turns on estate-specific plan facts `ECONOMICS.md` deliberately does
-  not hold (§ Know the marginal cost of the running model). It is set per run,
+  not hold (its head-note and person-local foot-note draw that boundary). It
+  is set per run,
   never baked
   into the pattern.
 - **The closing litany is not restated here.** What a per-item close *contains* —

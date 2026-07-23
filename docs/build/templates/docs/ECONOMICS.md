@@ -4,18 +4,27 @@ The short version of the house policy this repo runs by.
 
 ## Who does what
 
-- **Opus (plan-included)** — the workhorse: building, iterating, docs,
-  exploration. Plan quota, not dollars.
-- **Fable (plan-included, premium draw, capped share)** — the orchestrator,
-  reviewer and hard-problem solver. It drinks the shared allowance fastest,
-  and past its capped share the next token is silently real money — so keep
-  it **scoped**: hand it a diff/file list; ask for *findings*, not rewrites;
-  apply fixes back on Opus. See `reviews/README.md`. At the cap the exits are
+Seats are **roles assigned by risk**; billing facts are **read off the current
+plan at session open, never off this file** — a hard-coded model↔billing
+mapping here went stale once already when the provider moved the plan
+(atelier `docs/method/ECONOMICS.md`, billing states of the marginal token).
+Which model fills each seat, and each one's billing state, are plan details
+held person-local, not in this repo.
+
+- **Workhorse seat** — building, iterating, docs, exploration: the cheapest
+  model that genuinely does the items' builds, safe because the mechanical
+  floor catches its failures.
+- **Capable seat** — the orchestrator, reviewer and hard-problem solver. For
+  reviews and hard problems keep it **scoped**: hand it a diff/file list; ask
+  for *findings*, not rewrites; apply fixes back on the workhorse (see
+  `reviews/README.md`). Orchestration is the long-running exception — it runs
+  the parent's orchestrated-run tier split, not scoped-and-short. If this
+  seat's model is capped on the current plan, at the cap the exits are
   stop/delay or the principal choosing to pay — **never down-tier the work to
   dodge the cap**: tier is the work's risk profile's call, not the tank's.
-- **Sonnet / Haiku (plan-included, cheapest draw)** — sub-agent fan-out and
-  mechanical bulk (searches, scans, pattern-following reads) whose result the
-  parent or the mechanical floor verifies.
+- **Fan-out seat** — sub-agent fan-out and mechanical bulk (searches, scans,
+  pattern-following reads) whose result the parent or the mechanical floor
+  verifies: the cheapest tier that genuinely does the read.
 - **Sub-agents** — fan-out, parallel slices, fresh-context verification; they
   buy context *isolation*, not token savings — and they run on the cheapest
   tier that genuinely does the read. The full economics — when, when-not,

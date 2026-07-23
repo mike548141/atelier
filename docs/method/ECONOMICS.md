@@ -90,6 +90,9 @@ running model are the statusline and the model itself.
 So the standing rule: **before token-heavy build/implementation work, state in
 one line the running model, its billing state, and — for a capped model — the
 distance from its cap; flag and confirm before spending when a guard trips.**
+Where no surface reports cap distance, *unknown* trips the guard — flag and
+confirm before heavy spend, or consult the plan's usage surface first; fail
+toward confirmation, never toward silence.
 Two guards:
 
 - **A usage-billed or premium-draw model doing a *build*** — bulk work on the
@@ -113,10 +116,10 @@ I choose to pay usage fees.")
 
 ## The compute pool — CI minutes
 
-A **third spend pool** sits beside the two model pools above: **CI compute**,
-metered by the forge (GitHub Actions) in **minutes**. Same know-the-marginal-cost
-discipline, but its meter is coupled to something the model pools are not —
-**repository visibility**:
+**CI compute** sits beside the model spend above, metered by the forge
+(GitHub Actions) in **minutes**. Same know-the-marginal-cost
+discipline, but its meter is coupled to something the model billing states are
+not — **repository visibility**:
 
 - **Public repo → runs are free** — on standard hosted runners; larger/GPU
   runners bill even when public. A safety gate can fire on every push at no
@@ -211,10 +214,11 @@ structural work escalates to the capable model, and a smaller model that hits it
 
 Within that risk frame, tier selection is the runner-class rule above applied
 to models: **the cheapest model that genuinely does the work, at the quality
-the work needs.** "Cheapest" is judged inside the pool split that opens this
-doc, because the two meters differ — a plan-included capable model can cost
-fewer marginal dollars than a usage-billed small one. Pick the pool first,
-then the tier within it. "Genuinely does" is a verifiability test, not
+the work needs.** "Cheapest" is judged against the marginal token's billing
+state and draw-down rate (the states that open this doc), because the meters
+differ — a plan-included capable model can cost fewer marginal dollars than a
+usage-billed small one. Read the billing state first,
+then pick the tier within it. "Genuinely does" is a verifiability test, not
 optimism: cheap-model work is safe where failure is *catchable* — a validator,
 a test suite, a gate — because the floor converts a capability gap into a
 caught failure instead of a shipped one. Where failure would be silent or the
@@ -250,8 +254,9 @@ Two hard edges on the ladder (both grounded 2026-07-23, Mike):
 The rule above, applied to the queue-run rhythm (`CONCURRENCY.md` §
 Orchestrated queue runs): a run's two seats map to the two tiers — seat names
 for the spectrum above: the **capable tier** is the most capable model
-available, the **workhorse tier** the cheapest model that genuinely does the
-work (2026-07-23, QR8). **The capable
+available, the **workhorse tier** the cheapest model that genuinely does *the
+items' builds* — the work class qualifies the seat, which is what lets
+fan-out sit *below* it on a different work class (2026-07-23, QR8; EB6). **The capable
 tier orchestrates and reviews** — selection, dispatch, the review verdicts and
 the structural judgement calls at merge are exactly the judgement-heavy,
 silent-failure-prone work this section says to pay capability for. **The
