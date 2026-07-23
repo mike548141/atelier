@@ -221,18 +221,22 @@ candidates; record:
 [`sessions/2026-07-22-1036-invariant-candidates.md`](sessions/2026-07-22-1036-invariant-candidates.md))
 → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- [ ] 🎯 **Rule on the invariant candidates S1–S5 / V1–V7** — per-candidate
-      approval is Mike's (the PROPOSED-then-ratify pattern); each carries its
-      cited occurrences + proposed seam/home in the record. Approved scanner
-      candidates become build items; approved verifier candidates feed the
-      REVIEW.md/skill checklist when the registry mechanism lands. Original
-      capture text (the promotion rule): any review finding
-      left **more than twice** should become an invariant. Mine historical
-      review records, cluster them, generate invariant CANDIDATES for **human
-      approval** (matches our PROPOSED-then-ratify pattern — the glossary does
-      this). "Each invariant you codify is a check that will never cost a
-      reviewer time again." atelier already has the review corpus to mine
-      (session records + `reviews/` briefs + verdicts).
+- **S1–S5 / V1–V7 ALL APPROVED 2026-07-23** (Mike, plain-language
+  walk-through of the mining record's candidates; the PROPOSED-then-ratify
+  pattern; S5 approved explicitly on ROI over its borderline finding
+  count). Approved seams/homes are the record's proposals unamended: all
+  twelve shared-floor. The promotion rule itself (>2 occurrences ⇒
+  candidate) is thereby exercised end-to-end and stands as practice.
+- [ ] **Build the approved scanners S1–S5** — line-wrap (S1), prose-path
+      resolution via linkscan extension (S2), absolute-UTC dating (S3),
+      stamp-drift vs canonical parent (S4), NZ-English wordlist (S5). Each
+      lands with tests + selftest + floor wiring per the scanner house
+      pattern; first-of-kind ones earn their review before gating
+      (don't-stack).
+- [ ] **Codify V1–V7 as the always-loaded reviewer checklist** — the
+      registry mechanism's doctrine half; lands in REVIEW.md/the review
+      skill with each item's cited grounding. Self-authored doctrine ⇒
+      rule-4 ⏳ at landing.
 - [ ] **Two-layer acceptance criteria, one verification pass.** (Build item —
       waits on the 🎯 rulings above; the mining record's "how the registry
       would be checked" section holds the proposal.) Per-change
