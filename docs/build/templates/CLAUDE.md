@@ -15,6 +15,7 @@
   content for THIS repo; delete the guidance comments as you go.
 -->
 
+<!-- stamp:begin source=docs/method/PROPAGATION.md region=floor -->
 ## Doctrine — inherited from atelier (pinned `atelier@<SHA>`)
 
 This repo works by the atelier operating model. The safety floor here is
@@ -68,7 +69,7 @@ in atelier and is read on demand — never wholesale.
 - **This repo's visibility:** <visibility fact>. Verify:
   `gh repo view <owner/repo> --json visibility`.
 
----
+---<!-- stamp:end -->
 
 # <name> — session onramp
 
