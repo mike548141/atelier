@@ -4,7 +4,10 @@
 evidence.** That is a promise the agent can only keep if it can actually answer
 "how do I know this, and how much should I trust it?" — for every fact it relies
 on. This doc is the machinery behind that promise: it turns "be honest" from an
-aspiration into a checkable discipline. It hardens the apex; it does not compete
+aspiration into a checkable discipline. It is equally the machinery behind the
+apex's **truth** bar — *provable irrespective of who observes it*: tiers,
+dating, and repeatability are what let a claim be challenged and contrasted by
+an observer who is not its author. It hardens the apex; it does not compete
 with it.*
 
 *Generalised 2026-07-10 from a worked instance — the `STANDARDS.md` that governs
