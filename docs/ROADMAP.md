@@ -320,18 +320,13 @@ touches REVIEW.md + EVIDENCE.md + the scanner floor); brief owed at pickup.*
   `instruments/README.md` as the standing reference, with the `--materialise`
   asymmetry documented as deliberate (cctranscript has no bulk-read op to name).
   What remains is Mike's ratify below.
-- 🎯 **Ratify the standing rule direction (Mike)** — the audit recommends
-  **flags-follow-operation**: uniform vocabulary *whenever the operation is
-  shared*, but a flag is added to a tool only when that tool actually performs
-  the operation it names (never bolted on for symmetry). The worked example is
-  `--materialise`: forcing it onto cctranscript would imply a bulk-read control
-  that doesn't exist there — worse than the honest gap. The alternative
-  (uniform-regardless-of-operation) was considered and rejected as optimising a
-  surface checklist over truth-in-naming. **Impact:** ratifying blesses the
-  recommendation text already in `instruments/README.md` as adopted principle
-  (currently marked "recommended — for Mike to ratify"); rejecting means we
-  reword toward uniform-always and revisit the `--materialise` gap. Cheap either
-  way — it's a one-line disposition on already-landed prose.
+- [x] **Flag-vocabulary rule RATIFIED 2026-07-23 (Mike): flags-follow-operation**
+  — uniform vocabulary whenever the operation is shared, but a flag is added to a
+  tool only when that tool actually performs the operation it names (never bolted
+  on for symmetry; the `--materialise`-on-cctranscript no-op is the rejected
+  alternative). Blessed as adopted principle in `instruments/README.md` (the
+  "recommended — for Mike to ratify" hedge removed). cc-tools vocabulary strand
+  closed.
 
 ### ccarchive (Mike, 2026-07-17)
 
@@ -380,16 +375,10 @@ observe-side seam alongside cctranscript) closed 2026-07-23 →
   downstream from true timestamps. Known tradeoff: ~46 MB ledger (full event
   objects for exact equality); compaction is a safe future optimisation. No
   review gate (design §9 self-verification — tests + live drive are the proof).
-- 🎯 **Confirm transparent-vs-opt-in (Mike)** — the ledger shipped
-  **transparent-by-default** (auto-used in `--from-archive` mode when present)
-  with a `--no-rollup` bypass. Grounds for the default: it's a pure speed layer
-  that provably equals a recompute (floor test), it self-invalidates (no
-  stale-number risk), and it matches how pricing/billing/reconcile configs already
-  auto-load. **Impact if you'd rather opt-in:** flip one predicate in `main()`
-  (`fromArchive && !noRollup` → gate on an explicit `--rollup`) + rename the flag;
-  everything else unchanged. Also worth your eye: the **~46 MB machine-local
-  ledger** the first warm run writes under `~/.claude/` (recoverable — delete to
-  rebuild). Cheap either way.
+- [x] **Rollup default CONFIRMED 2026-07-23 (Mike): transparent-by-default** (as
+  shipped) — auto-used in `--from-archive` mode with a `--no-rollup` bypass; no
+  code change. Mike aware of the ~46 MB machine-local ledger the first warm run
+  writes under `~/.claude/` (recoverable). ccrepo rollup-ledger strand closed.
 
 Completed instruments work (ccrepo actuals/breakdown, ccarchive integrity/audit,
 the **man-page convention rollout — ccarchive worked example + cctranscript +

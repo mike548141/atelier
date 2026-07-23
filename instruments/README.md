@@ -56,7 +56,7 @@ evicted mirror back with no skip step to override in the first place. There is
 no bulk-read operation on `cctranscript` for a `--materialise` flag to name, so
 it doesn't carry one.
 
-**Standing rule (recommended; flags-follow-operation — for Mike to ratify):**
+**Standing rule (flags-follow-operation — ratified by Mike 2026-07-23):**
 vocabulary is uniform *whenever the operation is shared* — same word, same
 meaning, no exceptions. But a flag is added to a tool only when that tool
 actually performs the operation it names; it is never added to a tool for
