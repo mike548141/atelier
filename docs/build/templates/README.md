@@ -9,7 +9,7 @@
 
 | Path | Purpose |
 |---|---|
-| `<subfolder>/` | **The deployable artifact** |
+| `<subfolder>/` | **The deployable artefact** |
 | `docs/` | Architecture, roadmap, decisions, session log |
 | `tools/` | Dev/CI helpers |
 

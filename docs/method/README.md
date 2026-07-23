@@ -88,7 +88,7 @@ Read in this order:
   is what makes a session resumable cold.
 - **`SIGNING.md`** — provenance for the record: SSH-native commit/tag signing
   fleet-wide (what a signature honestly claims, the adoption boundary, key
-  handling under SECRETS' scope), artifact signing deferred behind a stated
+  handling under SECRETS' scope), artefact signing deferred behind a stated
   trigger. Standard decided (ADR 0007); dormant until the principal registers
   a signing key — the activation ladder is in the doc.
 - **`PROPAGATION.md`** — how the house doctrine reaches every child repo without

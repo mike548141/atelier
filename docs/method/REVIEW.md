@@ -219,7 +219,7 @@ close-rule below: a proof you have not re-run is not a proof you can close on.
 
 ## The lifecycle — brief on top, verdict below, one file
 
-Grounded in the `ros`/atelier practice. A review is a **durable artifact**, not a
+Grounded in the `ros`/atelier practice. A review is a **durable artefact**, not a
 throwaway chat:
 
 1. **Brief** — before the review runs, write a scoped brief to

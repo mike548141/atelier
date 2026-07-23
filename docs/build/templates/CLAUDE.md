@@ -95,7 +95,7 @@ in atelier and is read on demand — never wholesale.
 
 ## Layout
 
-- `<subfolder>/` — the deployable artifact (never mixed with root scaffolding)
+- `<subfolder>/` — the deployable artefact (never mixed with root scaffolding)
 - `docs/` — architecture, roadmap, decisions, session log
 - `tools/` — dev/CI helpers
 

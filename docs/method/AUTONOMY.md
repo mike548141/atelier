@@ -41,7 +41,7 @@ escalates what it can't safely do.*
 The floor. These hold everywhere, standing grants notwithstanding, because they
 are hard or impossible to undo:
 
-- **Making a private thing public** — changing repo/artifact visibility to
+- **Making a private thing public** — changing repo/artefact visibility to
   public; adding a collaborator or widening an audience; sending to an external
   audience. Publishing is not undoable: it may be cached or indexed even after
   deletion. (Routine *push to the owner's own remotes* is not this — that's

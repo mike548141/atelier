@@ -1,7 +1,7 @@
 # Record — docs are code, and the session is part of the build
 
 *The doctrine, the design decisions, and the trail of how the work got here are
-**artifacts in the repo**, versioned and changed in lockstep with the code — not
+**artefacts in the repo**, versioned and changed in lockstep with the code — not
 lore in someone's head or a chat that scrolls away. A future session (or a peer,
 or a more capable reviewer) reconstructs the "why" from the repo alone. If it
 can't, the record failed.*
@@ -35,7 +35,7 @@ Consequences:
 The smallest unit of the record is the comment and the commit message, and both
 carry the same discipline: **say _why_, not _what_.** Code already says what it
 does; a comment restating it is noise that rots. What a future reader cannot
-recover from the artifact itself is the *reason* — the platform quirk, the
+recover from the artefact itself is the *reason* — the platform quirk, the
 rejected alternative, the non-obvious constraint, the precedent a trade-off
 ruling set. Commit messages are the same rule at the change level: a why-dense
 body, so the history reads as reasoning, not a diff narration. (This scales up
@@ -97,7 +97,7 @@ stopped instead of re-deriving it:
     question, a checkpoint, an issue worth understanding first — is always fine
     and carries no close-obligation. Declare the close only when the sequence
     itself is complete. (Grounded 2026-07-12: the signal had run on soft habit
-    and drifted after a model change — the artifact was mandated, the signal
+    and drifted after a model change — the artefact was mandated, the signal
     wasn't; Mike sharpened the sequence-vs-within-sequence boundary the same day.)
   - **The all-clear carries its evidence.** The close message does not just
     assert "done" — it *shows* what was captured and put away (session entry,

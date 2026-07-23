@@ -26,7 +26,7 @@ yet a fact — it is a guess, and must be labelled one. Provenance is not
 bureaucracy; it is the difference between "it works" and "I ran it and observed
 it work" that the apex draws.
 
-Two registers, both honest: a **durable artifact** carries its provenance
+Two registers, both honest: a **durable artefact** carries its provenance
 *written down* (tiers, dates, sources in the file); an **in-flight claim**
 carries it *on demand* — the agent must be able to answer when challenged, and
 must label a guess a guess unprompted. The ceremony scales with durability; the

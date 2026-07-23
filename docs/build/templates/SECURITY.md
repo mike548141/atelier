@@ -1,7 +1,7 @@
 # Security policy
 
 <!-- Seed this only when the repo is PUBLIC (or about to be). A private repo has
-     no external reporter, so SECURITY.md is a publish-time artifact — like
+     no external reporter, so SECURITY.md is a publish-time artefact — like
      LICENSE and the licenscan gate, not a birth file (REPO-STANDARD.md). Fill
      the placeholders, then delete these comment blocks. Doctrine and the worked
      example: atelier's own root SECURITY.md and docs/method/REVIEW.md (the
