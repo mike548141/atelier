@@ -62,13 +62,27 @@ immediately. Floor green on the claim commit.
   license/practice exclusion ruled **permanent** (empirically vindicated).
   Orchestrator re-verified 60 tests, the 68 baseline, and SS1 in-source.
 
-## Decisions surfaced for Mike (plain-language, at close)
+## Decisions surfaced for Mike — all three RULED + applied same session
 
-1. **datescan flip** — precondition now MET (0 breaches); purely Mike's go/no-go.
-2. **wrapscan gate-scope** — option (a) scope to doctrine dirs (reviewer-preferred)
-   vs (b) record-format exemption; blocks the flip.
-3. **spellscan `catalog`** — rename "catalog"→"catalogue" fleet-wide, or accept as
-   a deliberate house term-of-art (decides whether ~10 findings are real/exempt).
+Walked through one-by-one, plain-language (context / what-it's-for / per-option
+impacts), per Mike's brief:
+
+1. **datescan flip → RULED "agree flip it"** (`d24caec`). atelier `ci.yml`
+   datescan dropped `--warn` (blocks clean); child `floor.yml` template gained a
+   docs-scoped datescan blocking step + selftest for pin-bump adoption. datescan
+   is now a **blocking floor scanner**.
+2. **wrapscan gate-scope → RULED "option A"** (`efea6a5`). Doctrine-surface scope
+   + `.wrapscanignore` the record stores; direction locked for the WS1–WS6 apply.
+   Flip stays a Mike go/no-go once clean (not pre-authorised).
+3. **spellscan `catalog` → RULED "rename to catalogue"** (`856818e`). House term
+   is now "catalogue"; the ~10 hits are real. Live ROADMAP prose renamed; frozen
+   mining-record + capture-stream sweep folded into the spellscan apply (backtick
+   literals + the source-article quote stay verbatim). Flip stays Mike's once
+   spellscan re-baselines.
+
+Only decision 1 had an instant clean payoff (datescan was already re-baselined to
+0); 2 and 3 set direction for future apply work, with the flips deferred to
+Mike's go/no-go on a clean re-baseline — datescan's proven pattern.
 
 ## Learnings captured
 
@@ -84,8 +98,12 @@ immediately. Floor green on the claim commit.
 
 ## Close state
 
-Floor green at head; single worktree remaining is the run's own (cleaned after
-merge). Two ⏳ reviews cleared, one flip precondition met, three 🎯 decisions
-queued for Mike. Economics stop: remaining queue is Mike-only rulings, heavier
-focused-session builds (S2/S4), or self-authored doctrine needing a cold spawn —
-none a good fit to chain further this run.
+Floor green at head; single worktree (main). Two ⏳ reviews cleared, datescan
+flipped to blocking, all three surfaced 🎯 ruled + applied/recorded same session.
+Economics stop on new *dispatch*: remaining queue is heavier focused-session
+builds (S2/S4 scanners), self-authored doctrine needing a cold spawn (V1–V7
+checklist, the Sonnet-executor ECONOMICS promotion the trial now supports), or
+Mike-only raw notes (glossary, honesty/truth/transparency, the AI-chat note).
+Open follow-ons left in good shape with directions locked: the wrapscan WS1–WS6
+apply (option-a scope), the spellscan SS1–SS4 apply (incl. the catalogue sweep),
+and both scanners' eventual flips (Mike go/no-go on a clean re-baseline).
