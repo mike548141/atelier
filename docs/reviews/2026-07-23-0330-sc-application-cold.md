@@ -301,3 +301,23 @@ spawn another full ceremony.
 03:28 UTC · cold rule-4 application pass, read-only, one file written (this
 one). Findings SCA1–SCA3 are the principal's to decide (REVIEW.md rules 3–4);
 the reviewer applied nothing.*
+
+---
+
+## Decisions (stamped 2026-07-23, the applying session)
+
+Mike ruled all three **accept as counselled**, walked through one-by-one in
+plain language with impacts. Applied by a session that authored neither the
+doctrine, the prior verdicts, nor the applications under review. No MAJOR in
+the pass ⇒ **the security-canon cycle is terminal and closes on this
+landing** (REVIEW.md termination rule; no further pointer).
+
+- **SCA1 [fixed]** — the residual bullet now states the float's standing
+  grant at strength (write to atelier `main` = code in every child's floor
+  job) with its bound (`contents: read`, no step secrets) and the `ref:` pin
+  escape named.
+- **SCA2 [fixed]** — the uptake sentence hedged to the floor template's
+  default configuration; pinned/forked children take fixes on deliberate
+  sync.
+- **SCA3 [fixed]** — `→ enabled: true` appended to REPO-STANDARD's PVR
+  verify command, matching the template.

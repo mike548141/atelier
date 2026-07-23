@@ -179,19 +179,6 @@ Mapping done 2026-07-22 (record:
 — A/B/E confirmed narrow, C reframed to mutable-tag CI actions, D dismissed
 instance-layer) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- [~] 🎯 **SCA1–SCA3 rulings (Mike) — security-canon cycle terminal**
-  (claimed 2026-07-23-0430, wt: awa-sca-rulings-apply — same sitting, same
-  applier) — the
-  SC-rulings application's rule-4 cold pass ran 2026-07-23-0330 (same
-  taker-spawn; **PASS-WITH-FINDINGS 0M/1m/1L/1n**, verdict:
-  [`reviews/2026-07-23-0330-sc-application-cold.md`](reviews/2026-07-23-0330-sc-application-cold.md)).
-  All six SC decision stamps reproduce (PVR re-verified live,
-  `enabled:true`); no MAJOR ⇒ the cycle closes on Mike's ruling and that
-  ruling's application is terminal. Counsel: take all three, wording-sized —
-  SCA1 state the atelier@main code-execution grant and its bound beside the
-  named asymmetry · SCA2 hedge "scanner fixes reach children automatically"
-  to the floor template's default configuration · SCA3 add `→ enabled: true`
-  to REPO-STANDARD's PVR verify command.
 - **Already held — name, don't rebuild** (verified by the mapping,
   2026-07-22): automated scanning in the pipeline (the floor scanners), peer
   review before ship (REVIEW.md), least privilege (SECRETS triad), secrets

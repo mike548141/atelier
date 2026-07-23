@@ -114,7 +114,11 @@ than pretended away:
   safest — rationale in floor.yml's header) while the *trust list* and
   doctrine are read at the child's pinned SHA. Detection floats, trust roots
   pin — the asymmetry is deliberate, named here where the residuals live
-  (SC5, 2026-07-23).
+  (SC5, 2026-07-23). Stated at strength: the float is also a standing grant —
+  a write to atelier's `main` runs code in every child's floor job, bounded
+  by the job's `contents: read` permissions and no step secrets; a child
+  wanting the opposite trade pins `ref:` exactly as the trust list pins
+  (SCA1, 2026-07-23).
 
 ## `leakscan.py` — keep personal/estate data out of a shareable repo
 

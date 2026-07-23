@@ -54,7 +54,9 @@ When a report is confirmed, the fix carries a **severity** and a
 **recurrence-prevention step** — the same way an internally-found security
 finding does (`docs/method/REVIEW.md`, the security lens). Because a fix
 publishes on push (the repo is public), uptake runs at two speeds: **scanner
-fixes reach a child's CI automatically** — the CI floor deliberately fetches
-atelier's scanners at `main` (newest detection is safest) — while **doctrine
+fixes reach a child's CI automatically in the floor template's default
+configuration** — it deliberately fetches atelier's scanners at floating
+`main` (newest detection is safest); a child that pins a `ref:` or points at
+its own fork takes them on deliberate sync instead — while **doctrine
 and template fixes** arrive when an adopter deliberately bumps the commit-SHA
 pin they hold on atelier.

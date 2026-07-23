@@ -84,7 +84,8 @@ evidence — see `method/EVIDENCE.md`.
   than its evidence. It points reporters at GitHub Private Vulnerability
   Reporting — and **enabling PVR in the repo's settings is part of the same
   seeding act, verified with
-  `gh api repos/<owner>/<repo>/private-vulnerability-reporting`** (a policy
+  `gh api repos/<owner>/<repo>/private-vulnerability-reporting` →
+  `enabled: true`** (a policy
   that routes through a disabled switch is a broken control — SC1,
   2026-07-23); the finding severity + recurrence-prevention practice it names
   is `method/REVIEW.md`'s security lens. Seed from `templates/SECURITY.md`; atelier's
