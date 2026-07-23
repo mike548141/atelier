@@ -62,8 +62,9 @@ pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
   `method/GLOSSARY.md`: tighten wording, rule on the full-definition entries
   (principal / agent / session / doctrine — new canonical homes), confirm the
   admission rule. Until then the SEED banner holds entries as PROPOSED.
-- [ ] **Capture → doctrine candidate: the close all-clear should carry the
-  pushed floor run's result** (grounded 2026-07-23: a session's 00:47 close
+- [~] **Capture → doctrine candidate: the close all-clear should carry the
+  pushed floor run's result** (claimed 2026-07-23-0959, inline)
+  (grounded 2026-07-23: a session's 00:47 close
   pushed a 🎯-closed item and ended with the floor red — reviewscan since
   00:06 + its own un-harvested `[x]`; the next session inherited the debt and
   restored green, `165c40f`). RECORD.md's close rule demands evidence under
