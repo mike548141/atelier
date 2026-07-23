@@ -313,25 +313,39 @@ permanent. Brief
 [`docs/reviews/2026-07-23-0707-spellscan-s5-cold.md`](reviews/2026-07-23-0707-spellscan-s5-cold.md),
 detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Follow-ons stay open:*
 
-- [~] **Apply spellscan review findings SS1–SS4 + tame the noise** (ordinary
-      code) (claimed 2026-07-23-0959, wt: qr-0959-spellscan-apply):
-      drop the three irregular-noun stems from `IZE_NOUN_CAPABLE` (SS1);
-      declare the macron gap in the docstring (SS2); allowlist/inline-code the
-      CI-`artifact` sense + OWASP ASVS/SAMM chapter names; fix `finalize`→`finalise`;
-      **finish the `catalog`→`catalogue` rename** (Mike ruled 2026-07-23 —
-      house term is "catalogue"; live ROADMAP done, sweep the remaining bare-prose
-      uses in `sessions/2026-07-22-1036-invariant-candidates.md` +
-      `sessions/2026-07-21-1233-roadmap-capture-stream.md`, leaving backtick
-      literals + the article quote verbatim).
+- [x] **Apply spellscan review findings SS1–SS4 + tame the noise** — DONE
+      2026-07-23 (queue run 0959, Sonnet `b910962`, merged `4872f07`,
+      Opus-verified). SS1 (dropped `hypothesize`/`jeopardize`/`penalize`,
+      verb forms preserved), SS2 (macron out-of-scope declared honestly),
+      SS3 (allowlisted the CI/SBOM `artifact` term-of-art + OWASP ASVS/SAMM
+      chapter names — general "produced-thing" sense deliberately kept
+      flagged), `finalize`→`finalise` fixed, `catalog`→`catalogue` renamed in
+      both frozen records (article quote left verbatim). Suite 65 spellscan /
+      502 total green. Stays ADVISORY. Baseline 71→40 — **not near-zero**; the
+      remainder is all genuine or preserved quotes (worker classified every
+      one), see the follow-on directly below. → `ROADMAP-DONE.md`.
+- [ ] 🎯 **Rule the ~36 general-sense `artifact`→`artefact` breaches in frozen
+      records** (surfaced by the 0959 spellscan apply). The apply proved the
+      *general* "a produced thing" sense (a session record, a web page) is a
+      genuine NZ breach distinct from the CI/SBOM term-of-art — and ~36 of the
+      40 remaining spellscan findings are that sense sitting in **frozen
+      historical records** (`SESSIONS.md`, `ROADMAP-DONE.md`, `docs/reviews/*`,
+      other `docs/sessions/*`), which the apply's bounds deliberately did not
+      touch. **The decision is Mike's** because it collides with the
+      immutable-history ethos (current-truth/history split): either (a)
+      spelling-normalise the frozen records too, or (b) rule them permanently
+      out of scope as *untouched history* — a `.spellscanignore`/allow on the
+      record stores. This is also the **spellscan flip's blocker**: near-zero
+      re-baseline can't be reached until (a) or (b) lands. (Adjacent, noted not
+      acted: two `artifact→artefact` rename-notation *mentions* at
+      `SESSIONS.md:157` + a review file — a MENTION not a USE, a possible future
+      heuristic extension.)
       **license/practice exclusion ruled PERMANENT by the review** (empirically
-      vindicated — `practice` ×178 is correct NZ noun usage). Detail in the brief.
-*spellscan `catalog` — **RULED 2026-07-23 (Mike: "Mistake to fix, rename to
-catalogue")**. `catalogue` is the house term now; the ~10 findings are real, not
-exempt. Live ROADMAP prose renamed this session; the remaining bare-prose uses in
-the frozen mining record + capture stream are folded into the spellscan apply
-above (spelling-normalise only — backtick `catalog` literals, the source-article
-quote, and finding-count archive records stay verbatim). The flip itself stays a
-Mike go/no-go once spellscan re-baselines near-zero (datescan's pattern).*
+      vindicated — `practice` ×178 is correct NZ noun usage).
+*spellscan `catalog` rename DONE (both frozen records; article quote verbatim).
+The advisory→blocking **flip stays a Mike go/no-go**, now with its precondition
+named: it is blocked on the 🎯 above (near-zero re-baseline needs the frozen-
+record `artifact` decision first) — datescan's pattern.*
 - [ ] **Codify V1–V7 as the always-loaded reviewer checklist** — the
       registry mechanism's doctrine half; lands in REVIEW.md/the review
       skill with each item's cited grounding. Self-authored doctrine ⇒
