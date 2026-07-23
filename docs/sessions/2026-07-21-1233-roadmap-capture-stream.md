@@ -9,7 +9,7 @@ captures, committed immediately.
 
 - **Anti-slop invariant registry** (new strand) — from
   <https://thenewstack.io/engineering-ai-slop-registry/> (Aviator). Invariant
-  catalog = codified always-checked rules for per-codebase conventions a model
+  catalogue = codified always-checked rules for per-codebase conventions a model
   can't know. NEW for atelier: the registry + promotion rule (a review finding
   left >2× → invariant, mined + human-approved) + two-layer criteria. Positioned
   as EXTENDING what atelier already has (floor scanners = proto-invariants,

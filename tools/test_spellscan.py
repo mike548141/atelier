@@ -40,6 +40,27 @@ class IzeFamily(unittest.TestCase):
         # dialects, so no noun form should be in the denylist at all.
         self.assertNotIn("synthesization", ss.DENYLIST)
 
+    def test_hypothesize_jeopardize_penalize_have_no_generated_noun(self):
+        # SS1 (2026-07-23 review): these three have irregular nouns
+        # (hypothesis, jeopardy, penalty) — the docstring claims such stems
+        # are excluded from IZE_NOUN_CAPABLE, but these three were left in
+        # by mistake, inventing near-nonwords ("hypothesisation" etc). Fixed
+        # by dropping them from IZE_NOUN_CAPABLE; the verb forms still fire.
+        for noun in ("hypothesization", "jeopardization", "penalization"):
+            self.assertNotIn(noun, ss.DENYLIST)
+        for verb in ("hypothesize", "jeopardize", "penalize"):
+            self.assertIn(verb, ss.DENYLIST)
+            self.assertIn(verb + "s", ss.DENYLIST)
+            self.assertIn(verb + "d", ss.DENYLIST)
+            self.assertIn(verb[:-1] + "ing", ss.DENYLIST)
+
+    def test_hypothesize_jeopardize_penalize_verb_still_flagged(self):
+        # The verb `-ize`->`-ise` transform must keep firing even though
+        # the noun form was dropped.
+        self.assertEqual(["hypothesise"], suggestions("we hypothesize this"))
+        self.assertEqual(["jeopardise"], suggestions("this could jeopardize it"))
+        self.assertEqual(["penalise"], suggestions("don't penalize them"))
+
     def test_suggestion_is_ise_form(self):
         self.assertEqual(["organise"], suggestions("we organize this"))
         self.assertEqual(["synthesise"], suggestions("we synthesize this"))
@@ -181,6 +202,35 @@ class ExemptionAllowlistPhrase(unittest.TestCase):
     def test_bare_artifact_elsewhere_still_flagged(self):
         fs = matches("an artifact, unlike artifact attestations, is different")
         self.assertEqual(["artifact"], fs)
+
+    def test_ci_build_release_sbom_artifact_sense_exempt(self):
+        # SS3 (2026-07-23 review): the CI/build/release/SBOM software-
+        # supply-chain sense of "artifact" is a term of art, not a genuine
+        # NZ breach — the reviewer found ~48 of 53 live "artifact" hits were
+        # this sense.
+        self.assertEqual([], scan("Release-artifact signing + SBOM stays deferred"))
+        self.assertEqual([], scan("scoped to repos with a deployable-artifact"))
+        self.assertEqual([], scan("scoped to repos with a deployable artifact"))
+        self.assertEqual([], scan("shares a name with a build-artifact convention"))
+        self.assertEqual([], scan("layer 2 (artifact signing + SBOM) stays deferred"))
+        self.assertEqual([], scan("rejected artifact-signing-now, each with why"))
+        self.assertEqual([], scan("the first real published artifact; GitHub"))
+        self.assertEqual([], scan("the open sub-item (step 1 Mike), artifact layer"))
+
+    def test_general_sense_artifact_still_flagged(self):
+        # The *general* "a produced thing" sense (a session record, a web
+        # page) is deliberately NOT exempted — it stays a genuine NZ
+        # breach, unlike the CI/build/release/SBOM term of art above.
+        self.assertEqual(["artifact"], matches("no atelier artifact — the clean call"))
+        self.assertEqual(["artifact"], matches("one responsive artifact already serves"))
+
+    def test_owasp_chapter_proper_nouns_exempt(self):
+        # SS3: OWASP ASVS/SAMM proper-noun chapter titles are a standards
+        # body's own published names, not this repo's prose to re-spell.
+        self.assertEqual([], scan("**PO** Prepare the Organization"))
+        self.assertEqual([], scan("ch.1 now Encoding & Sanitization, verified live"))
+        self.assertEqual(
+            [], scan("V5 Validation, Sanitization & Encoding"))
 
 
 class ExemptionAllCaps(unittest.TestCase):

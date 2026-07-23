@@ -9,6 +9,14 @@ with an unambiguous NZ equivalent is flagged; the fix is either the NZ
 spelling, or — for a genuine third-party term (an API name, a tool name) —
 an inline code span or an allowlist entry, never loosening the rule.
 
+OUT OF SCOPE, HONESTLY: this scanner checks US-vs-NZ spelling alternations
+only. Macron correctness on te reo Māori (tohutō — e.g. catching "Maori" for
+"Māori") is a *different* invariant from the same CONVENTIONS.md line and is
+**not checked here** — it would need a te-reo wordlist this tool doesn't
+have. Silently inferring macron coverage from the "NZ English with macrons"
+grounding would be the same silent-failure class this scanner exists to
+catch, so it is named rather than left implicit.
+
 BORDERLINE, NOT-YET-REVIEWED. Named "borderline (cheapest scanner)" in the
 mining record: the dedicated corpus findings are thin (2, +1 bundled) — the
 promotion case rests on ROI (this is the cheapest scanner to write) plus a
@@ -30,11 +38,14 @@ source of truth per family and no typo'd inflection):
     deliberately NOT the full stem list, because several common verbs have
     an *irregular* noun with no NZ variant at all (recognize → recognition,
     not "recognisation"; synthesize → synthesis; emphasize → emphasis;
-    criticize → criticism; apologize → apology). Inventing a wrong noun
+    criticize → criticism; apologize → apology; hypothesize → hypothesis;
+    jeopardize → jeopardy; penalize → penalty). Inventing a wrong noun
     would be worse than missing a real one, so those stems stop at the verb
-    forms. Words that are *always* spelled with a "z" in both dialects
-    (size, seize, capsize, prize) are simply never on the stem list — there
-    is no alternation to catch, so nothing to curate away.
+    forms — the verb `-ize`→`-ise` transform still fires for all of them,
+    only the generated `-ization` noun is withheld. Words that are *always*
+    spelled with a "z" in both dialects (size, seize, capsize, prize) are
+    simply never on the stem list — there is no alternation to catch, so
+    nothing to curate away.
   * **-yze/-yse → -yse.** A separate, smaller stem list (analyze, paralyze,
     catalyze) — same shape, kept apart because the letter that changes
     differs (y-z vs i-z) and because these three also have irregular nouns
@@ -82,13 +93,24 @@ away — the house's stated preference, same as datescan):
   * **ALL-CAPS tokens** (`COLOR_RESET`, `LICENSE`) — read as an identifier,
     env var, or filename convention, not prose.
   * **A small, named ALLOWLIST_PHRASES** for known-legit bare-prose API/
-    product terms that would otherwise false-positive with no code span or
-    slash to save them — currently just "artifact attestations" (GitHub's
-    own feature name) and "upload-artifact"/"download-artifact" (GitHub
-    Actions' own names, when written without a preceding `actions/`). Kept
-    deliberately tiny: growing it is how a real miss gets buried, so a new
-    entry should be added only for a confirmed proper-noun/API-term false
-    positive, never to quiet a genuine prose spelling.
+    product/term-of-art phrases that would otherwise false-positive with no
+    code span or slash to save them: GitHub's own feature/action names
+    ("artifact attestations", "upload-artifact"/"download-artifact", written
+    without a preceding `actions/`); the CI/build/release/SBOM sense of
+    "artifact" ("release-artifact signing", "deployable-artifact"/
+    "deployable artifact", "build-artifact", "artifact signing",
+    "artifact-signing-now", "published artifact", "artifact layer" — the
+    software-supply-chain term of art, where "artifact" is the industry-
+    standard spelling even in NZ/UK technical prose, distinct from the
+    *general* "a produced thing" sense (a session record, a web page),
+    which stays flagged as a genuine NZ breach); and the OWASP ASVS/SAMM
+    proper-noun chapter names ("Prepare the Organization", "Encoding &
+    Sanitization", "Validation, Sanitization & Encoding") — a standards
+    body's own published chapter titles are not this repo's prose to
+    re-spell. Kept deliberately tiny: growing it is how a real miss gets
+    buried, so a new entry should be added only for a confirmed proper-
+    noun/API-term/term-of-art false positive, never to quiet a genuine
+    prose spelling.
   * **The allow marker / ignore file** — `spellscan:allow: <reason>` on a
     line, or a glob in `.spellscanignore` — mirrors every sibling scanner.
 
@@ -169,8 +191,7 @@ IZE_NOUN_CAPABLE = {
     "mobilize", "neutralize", "rationalize", "sanitize", "socialize",
     "stabilize", "symbolize", "systematize", "visualize", "harmonize",
     "equalize", "civilize", "colonize", "idealize", "monopolize",
-    "industrialize", "immunize", "memorize", "dramatize", "jeopardize",
-    "penalize", "hypothesize",
+    "industrialize", "immunize", "memorize", "dramatize",
 }
 
 # The -yze/-yse family — kept separate because the alternating letter pair
@@ -264,9 +285,29 @@ _DENYLIST_RX = re.compile(
 # code span or path slash to save them. Kept tiny and documented — see the
 # module docstring's "growing it is how a real miss gets buried" note.
 ALLOWLIST_PHRASES = [
+    # GitHub's own feature/action names.
     "artifact attestations",
     "upload-artifact",
     "download-artifact",
+    # The CI/build/release/SBOM software-supply-chain sense of "artifact" —
+    # an industry-standard term of art, not this repo's prose to re-spell.
+    # The *general* "a produced thing" sense (a session record, a web page)
+    # is deliberately NOT here — it stays flagged as a genuine NZ breach.
+    "release-artifact signing",
+    "release-artifact",
+    "deployable-artifact",
+    "deployable artifact",
+    "build-artifact",
+    "artifact signing",
+    "artifact-signing-now",
+    "published artifact",
+    "artifact layer",
+    "artifacts* + a deterministic sbom",
+    # OWASP ASVS/SAMM proper-noun chapter names — a standards body's own
+    # published chapter titles, not this repo's own prose.
+    "prepare the organization",
+    "encoding & sanitization",
+    "validation, sanitization & encoding",
 ]
 
 _QUOTE_PAIRS = {'"': '"', "'": "'", "“": "”", "‘": "’"}

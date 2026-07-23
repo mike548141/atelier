@@ -1103,7 +1103,7 @@ standout debt; sessions 14–15 deliberately did not stack on it.
             merged and it had no live session). `docs/ACCESS-MAP.md` in ros: a row
             per domain across ACCESS.md's four axes, seeded from ros's own
             scattered facts, honest per-domain onboarding status (nothing rounded
-            up to "onboarded"). **Read before finalize caught a stale status** —
+            up to "onboarded"). **Read before finalise caught a stale status** —
             a cell seeded while a ros work-stream was still in flight had gone
             stale by land time (the work had since merged, reviewed and
             live-proven), so it was corrected before push. Rebased onto the
