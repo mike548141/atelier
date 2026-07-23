@@ -276,20 +276,29 @@ are the open first-of-kind work (⏳ below).**
   the extension-suffix-only heuristic leg is the noisiest half — tighten before
   gating? Baseline 174 on `docs/` is heuristic noise by design; gate-readiness +
   scope (à la WS1) are the review's call.
-- ⏳ **stampscan (S4) first-of-kind review** — advisory `2fe97f3` (queue run
-  0959), rule-4 non-author reviewer needed (this run built it). *Delta:*
-  `tools/stampscan.py` + `test_stampscan.py`, marker convention added to
-  `PROPAGATION.md` + `templates/CLAUDE.md` (invisible HTML comments), wired
-  `--warn` in `ci.yml`. *Intent record:*
+- ⏳ **stampscan (S4) first-of-kind review** — built + merged `2fe97f3` (queue
+  run 0959), **BUILT BUT NOT WIRED** (see the wiring blocker below), rule-4
+  non-author reviewer needed (this run built it). *Delta:* `tools/stampscan.py`
+  + `test_stampscan.py`, marker convention added to `PROPAGATION.md` +
+  `templates/CLAUDE.md` (invisible HTML comments); 46 tests, live pair CLEAN
+  (byte-identical). *Intent record:*
   `sessions/2026-07-22-1036-invariant-candidates.md` § S4. Reviewer must
-  scrutinise: (1) the **marker convention borders on a doctrine act** —
+  scrutinise: **(0) THE WIRING BLOCKER (load-bearing, found in-run):** the
+  marker parser recognises stamp markers anywhere it scans — including prose and
+  code spans that only *document* the syntax — and treats a stray/unpaired
+  marker as a hard config error (exit 2) that `--warn` does NOT suppress. So
+  even advisory wiring lets ordinary docs about stampscan block the floor (a
+  ROADMAP pointer describing the markers reddened the floor mid-run; the
+  stampscan CI step was reverted, so it is unwired). **Precondition to wire:
+  strip fenced/inline code before marker-hunting, as every sibling scanner
+  does.** (1) the **marker convention borders on a doctrine act** —
   `narrow=<reason>` declares a legitimate narrowing vs a silent drop (mechanically
-  identical subsequences), needs explicit ratification; (2) the
-  `---<!-- stamp:end -->` placement compromise, forced by a collision with the
-  pre-existing `test_templates.py` slice logic (a cleaner fix teaches
-  `template_block()` to strip markers); (3) fence-stripping + duplicate-line
-  subsequence matching are first-of-kind residuals unexercised beyond fixtures.
-  Live pair reports CLEAN (byte-identical). Other inlined-floor candidates
+  identical subsequences), needs explicit ratification; (2) the stamp-end marker
+  appended inline to the `---` divider (rather than its own line) — a placement
+  compromise forced by a collision with the pre-existing `test_templates.py`
+  slice logic (a cleaner fix teaches `template_block()` to strip markers);
+  (3) fence-stripping + duplicate-line subsequence matching are first-of-kind
+  residuals unexercised beyond fixtures. Other inlined-floor candidates
   (`method-layer P1`, `foundation Q2`, `CF4`/`IR2`/`SL1`/`HI-F4`) are NOT wired —
   their canonical source+region weren't confidently identifiable without guessing.
 *datescan (S3) review is DONE (2026-07-23) — verdict PASS-WITH-FINDINGS
