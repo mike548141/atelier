@@ -41,7 +41,10 @@ no-MAJOR application pass, closed 2026-07-22; the secrets/access cycle —
 0M/4m/4L/1n terminal, closed 2026-07-22) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- [ ] 🎯 **SA1–SA8 rulings (secrets/access cold pass —
+- [~] 🎯 **SA1–SA8 rulings (secrets/access cold pass —
+  (claimed 2026-07-23-0149, wt: sa-rulings-apply — Mike ruled accept-all:
+  SA1–SA3, SA5–SA8 as counselled; SA4 name-the-break-glass-class; SA9
+  repo-wide artefact sweep; terminal application in flight)
   [`verdict`](reviews/2026-07-22-1021-secrets-access-cold-pass.md))** — self-authored
   doctrine, so the findings are Mike's to decide (rule 3); nothing applied.
   Sharpest four: SA1 the asymmetric-key grading misses the agent-forwarding
