@@ -275,20 +275,26 @@ touches REVIEW.md + EVIDENCE.md + the scanner floor); brief owed at pickup.*
 
 ### cc-tools parameter vocabulary (Mike, 2026-07-23)
 
-- 🎯 [~] **NEXT SESSION — audit + align the flag vocabulary across the cc-tools**
-  (claimed 2026-07-23-0441, wt: cc-tools-vocab)
-  (`ccarchive`, `cctranscript`, `ccrepo`). Principle (Mike): a flag that means
-  the same thing in more than one tool must use the **same word**, judged from a
-  user who moves between them. Current state is *already* consistent where flags
-  overlap — `--dest`, `--from-archive`, `--materialise`, `--json` all match — so
-  this is a deliberate sweep + a standing rule, not a bug hunt. The one genuine
-  edge to rule on: `--materialise` (read iCloud-evicted files) exists on
-  `ccarchive` and `ccrepo` but **not** `cctranscript`, because cctranscript never
-  reads every file — it peeks on `--list`, reads only the one session it renders.
-  Decide: enforce uniform vocabulary even when the operation differs, or let
-  flags follow the operation (and document that principle). Deliverable: a short
-  vocabulary table (ideally in `instruments/README.md`) as the standing
-  reference, plus any renames. Cheap; pairs naturally with the ccrepo ledger.
+- [x] **Audit + align the flag vocabulary across the cc-tools — DELIVERED
+  2026-07-23** (`85b17dd`, queue run). End-to-end read of all three tools'
+  `--help`, man pages and arg parsers confirmed **zero drift** — `--dest`,
+  `--from-archive`, `--materialise`, `--json`, `--repo` all consistent where
+  they overlap; no renames needed. Landed a **vocabulary table** in
+  `instruments/README.md` as the standing reference, with the `--materialise`
+  asymmetry documented as deliberate (cctranscript has no bulk-read op to name).
+  What remains is Mike's ratify below.
+- 🎯 **Ratify the standing rule direction (Mike)** — the audit recommends
+  **flags-follow-operation**: uniform vocabulary *whenever the operation is
+  shared*, but a flag is added to a tool only when that tool actually performs
+  the operation it names (never bolted on for symmetry). The worked example is
+  `--materialise`: forcing it onto cctranscript would imply a bulk-read control
+  that doesn't exist there — worse than the honest gap. The alternative
+  (uniform-regardless-of-operation) was considered and rejected as optimising a
+  surface checklist over truth-in-naming. **Impact:** ratifying blesses the
+  recommendation text already in `instruments/README.md` as adopted principle
+  (currently marked "recommended — for Mike to ratify"); rejecting means we
+  reword toward uniform-always and revisit the `--materialise` gap. Cheap either
+  way — it's a one-line disposition on already-landed prose.
 
 ### ccarchive (Mike, 2026-07-17)
 
