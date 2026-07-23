@@ -287,17 +287,20 @@ sidecar capture hole; keep-separate counselled) → detail in
 [`sessions/2026-07-22-1050-cc-instruments-questions.md`](sessions/2026-07-22-1050-cc-instruments-questions.md).
 What remains is Mike's:
 
-- [ ] 🎯 **Rule on the metadata classes** — needs-Mike calls: per-project
-      `memory/*.md` (durable cross-session state, most personal) and
-      top-level `history.jsonl` (typed-prompt stream, lean-exclude
-      counselled); plus approve/decline the CAPTURE of tool-result sidecars
-      (a build item once ruled).
-- [ ] 🎯 **Signing defaults + the merge recommendation** — overturn if
-      wanted: binary 0/1 exit codes (unverifiable vs proven-tamper
-      distinguished in text/JSON only); no-key verify red on a legitimate
-      new machine until the key arrives out-of-band (deliberate
-      never-silently-pass); and accept/decline the keep-separate counsel on
-      cctranscript/ccarchive (no work owed until ruled).
+- **Metadata classes RULED 2026-07-23** (plain-language walk-through, the
+  cc-instruments record's context relayed): tool-result sidecars **capture**;
+  per-project `memory/*.md` **capture**; top-level `history.jsonl`
+  **capture — Mike overturned the lean-exclude counsel** (wants the
+  typed-prompt stream as a first-class artefact; grounds: his call, small
+  cost). Signing defaults + keep-separate counsel **accepted as-is** —
+  binary exits, new-machine red-until-key, two instruments; that 🎯 closes
+  with no work owed.
+- [~] **Widen ccarchive capture per the rulings** (claimed 2026-07-23-0210,
+      wt: ccarchive-capture-widen) — mirror `tool-results/` + `toolu_*`
+      sidecars, `memory/*.md`, and top-level `history.jsonl`; non-`.jsonl`
+      archived files become first-class in manifest/verify/audit/restore;
+      man page FILES/NOTES state captures *and* exclusions (webfetch PDFs,
+      file-history, runtime state — excluded, documented).
 
 ### ccrepo (Mike, 2026-07-17)
 
