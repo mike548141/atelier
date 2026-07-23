@@ -10,6 +10,13 @@ with a disposition note where work was superseded or declined).
 First harvested 2026-07-14 (ROADMAP.md had reached 1091 lines).
 
 ## Doctrine — completed review cycles
+- [x] 🎯 **SA1–SA8 rulings (secrets/access cold pass —
+  [`verdict`](reviews/2026-07-22-1021-secrets-access-cold-pass.md))** — ruled
+  2026-07-23, accept-all as counselled (SA4 = name the break-glass class,
+  SA9 = repo-wide artefact sweep); applied `f8350ee` by a non-author as the
+  **terminal application** of the no-MAJOR pass — decisions stamped in the
+  verdict, cycle closed. (Moved from ROADMAP.md 2026-07-23; the item's
+  original finding summary lives in the verdict.)
 - [x] **HI application-pass residue — HA1–HA5, Mike's ruling** — five
   findings from the terminal pass
   ([`reviews/2026-07-22-0943-hi-application-cold.md`](reviews/2026-07-22-0943-hi-application-cold.md)),

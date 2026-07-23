@@ -38,22 +38,9 @@ no-MAJOR application pass, closed 2026-07-22; the harvest-integrity cycle —
 0819 pass 1M/3M/2n → HI-F1–F6 accept-all applied `30d350c` → 0943 terminal
 no-MAJOR application pass, closed 2026-07-22; the secrets/access cycle —
 1021 rule-4 cold pass taken by the 1018 queue run, PASS-WITH-FINDINGS
-0M/4m/4L/1n terminal, closed 2026-07-22) →
+0M/4m/4L/1n terminal; SA1–SA9 ruled accept-all and applied `f8350ee`
+2026-07-23, cycle closed) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
-
-- [~] 🎯 **SA1–SA8 rulings (secrets/access cold pass —
-  (claimed 2026-07-23-0149, wt: sa-rulings-apply — Mike ruled accept-all:
-  SA1–SA3, SA5–SA8 as counselled; SA4 name-the-break-glass-class; SA9
-  repo-wide artefact sweep; terminal application in flight)
-  [`verdict`](reviews/2026-07-22-1021-secrets-access-cold-pass.md))** — self-authored
-  doctrine, so the findings are Mike's to decide (rule 3); nothing applied.
-  Sharpest four: SA1 the asymmetric-key grading misses the agent-forwarding
-  channel (a compromised target can reach the fleet a shared key opens);
-  SA2 the watch leg's third surface is unachievable on the doctrine's own
-  exemplar store (sops+age has no read trail); SA3 minting conflates max
-  entropy with max length (silently-truncating verifiers); SA4 no
-  break-glass / store-unreachable class. Per-finding what/why/impact in the
-  verdict.
 
 - ⏳ **Apex widening — adaptation element, honesty triad, glossary seed**
   (BUILT 2026-07-22/23, one session) — delta: `f52c50f` + `1da0a3e` +
