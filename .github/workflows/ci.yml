@@ -157,14 +157,18 @@ jobs:
       - name: datescan (dating discipline — blocking)
         run: python3 tools/datescan.py --root . docs
 
-      # wrapscan (S1, 2026-07-22 invariant-candidates review): line-wrap /
-      # column-hygiene over docs/** — a prose line materially over the house
-      # width (>=86 cols) reds. FIRST-OF-KIND, WIRED ADVISORY-ONLY: not yet
-      # reviewed (don't-stack), so --warn always exits 0 — it reports the
-      # finding count for review evidence and never blocks a build. Do not
-      # drop --warn until it has been reviewed.
-      - name: wrapscan (column hygiene — advisory, not yet reviewed)
-        run: python3 tools/wrapscan.py --warn --root . docs
+      # wrapscan (S1, 2026-07-22 invariant-candidates review; scope per the
+      # 2026-07-23 0707 cold review's WS1 finding, Mike's ruling: option A):
+      # line-wrap/column-hygiene over the DOCTRINE SURFACE ONLY — method/,
+      # build/, decisions/ bodies — where the recurring prose-over-width
+      # defect actually lives; scanning all of docs/** instead buries that
+      # signal under the record/log/review stores' deliberate one-line-per-
+      # entry format (~6:1 noise, per the review). FIRST-OF-KIND, WIRED
+      # ADVISORY-ONLY: not yet reviewed against this new scope (don't-stack),
+      # so --warn always exits 0 — it reports the finding count for review
+      # evidence and never blocks a build. Do not drop --warn until reviewed.
+      - name: wrapscan (column hygiene, doctrine surface — advisory, not yet reviewed)
+        run: python3 tools/wrapscan.py --warn --root . docs/method docs/build docs/decisions
 
       # spellscan (S5, 2026-07-22 invariant-candidates review): NZ-English
       # spelling over docs/** — a US spelling with an NZ equivalent reds.

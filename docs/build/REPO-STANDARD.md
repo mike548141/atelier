@@ -47,13 +47,14 @@ Apply what earns its place; stub the rest with a note (below).
 
 ## The standard file set
 
-Seed from `build/templates/` (they live alongside this standard, one source the
-skill and the published methodology share), then
-**fill every placeholder with real, grounded content**. A lorem-ipsum ARCHITECTURE is worse than no ARCHITECTURE — it reads as
-truth and isn't. If you cannot ground a doc yet (you don't understand the
-project), write the stub with a visible `<!-- TODO -->` and *say so*, rather than
-inventing. This is the apex applied to repo docs: a claim no stronger than its
-evidence — see `method/EVIDENCE.md`.
+Seed from `build/templates/` (they live alongside this standard, one source
+the skill and the published methodology share), then **fill every
+placeholder with real, grounded content**. A lorem-ipsum ARCHITECTURE is
+worse than no ARCHITECTURE — it reads as truth and isn't. If you cannot
+ground a doc yet (you don't understand the project), write the stub with a
+visible `<!-- TODO -->` and *say so*, rather than inventing. This is the apex
+applied to repo docs: a claim no stronger than its evidence — see
+`method/EVIDENCE.md`.
 
 **Root:**
 

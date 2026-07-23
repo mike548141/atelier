@@ -1,0 +1,36 @@
+# Paths exempt from wrapscan (gitignore-style globs, one per line).
+# Keep this list SHORT and reasoned — every entry is a hole in the boundary.
+
+# WS1 (2026-07-23 wrapscan S1 cold review; Mike's ruling: option A). The gate
+# is scoped to the doctrine surface (docs/method/, docs/build/, docs/decisions/
+# bodies) by EXPLICIT CI path — ci.yml never walks the dirs below at all, so
+# nothing here is what keeps the gate clean. This file is the belt-and-braces
+# net for any OTHER invocation (a default docs/** scan, a local run with no
+# path args): it keeps the record/log/review stores' deliberate one-line-per-
+# entry format from burying the doctrine-prose signal the tool actually
+# targets (the un-scoped `docs/**` baseline measured ~6:1 noise to signal).
+
+# Session logs: one dated entry per line by design (grep-ability, one-record-
+# per-line diffs), not this repo's own wrapped prose.
+docs/sessions/
+
+# Review briefs/verdicts: mostly one-line-per-entry too, but genuinely mixed
+# with real prose (the S1 review itself named this caveat) — ignored here
+# only as the safety net above; the CI gate proper never scans this dir, so
+# no real doctrine-prose signal is lost by this entry.
+docs/reviews/
+
+# The session index: hundreds of one-line-per-session entries, some
+# deliberately very long (a session's whole scope on one grep-able line).
+docs/SESSIONS.md
+
+# Harvested/archived current-truth: the same one-line-per-entry record
+# format, just moved out of the hot path.
+docs/ROADMAP-DONE.md
+*-DONE.md
+*-ARCHIVE.md
+
+# The decisions index (WS6): a one-line-per-entry record, the same class as
+# SESSIONS.md — not an ADR body — even though it lives inside
+# docs/decisions/, which is otherwise inside the doctrine-surface gate scope.
+docs/decisions/README.md

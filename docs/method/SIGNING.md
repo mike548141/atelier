@@ -80,10 +80,10 @@ zero-dep house ethos answer. The shape:
 
   Because a parse or timezone failure is silent, the CI/hook step carries a
   known-signed-fixture selftest whose quoted, `Z`-suffixed `valid-after` turns
-  either regression red. The file is **append-only** — a retired key is bounded, never deleted,
-  so old signatures stay verifiable forever (proven live 2026-07-12: git
-  passes the commit's committer timestamp as the verify-time, so a bounded
-  key keeps verifying its own era).
+  either regression red. The file is **append-only** — a retired key is
+  bounded, never deleted, so old signatures stay verifiable forever (proven
+  live 2026-07-12: git passes the commit's committer timestamp as the
+  verify-time, so a bounded key keeps verifying its own era).
 - **GitHub's "Verified" badge is the convenience plane, not the durable one.**
   It requires the public key uploaded to the account as a *signing* key and
   the committer email verified on the account. GitHub's verification record

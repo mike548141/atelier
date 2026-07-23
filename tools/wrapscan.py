@@ -6,6 +6,23 @@ under `docs/**` (and templates) wraps at the house width (~80 cols; ambient
 tolerance 81-85). A prose line *materially* over that reds — concretely,
 anything at or beyond 86 columns.
 
+GATE SCOPE — the DOCTRINE SURFACE, not all of `docs/**` (WS1, 2026-07-23 S1
+cold review; Mike's ruling: option A). The recurring defect this tool targets
+— ordinary prose drifting past the house width — lives in `docs/method/`,
+`docs/build/`, and `docs/decisions/` bodies; there the corpus is genuinely
+near-clean and a finding is real signal. Scanning all of `docs/**` instead
+buries that signal under the record/log/review stores' *deliberate*
+one-line-per-entry format (`docs/SESSIONS.md`, `docs/sessions/`,
+`docs/reviews/`, `docs/decisions/README.md`'s index, harvested
+`*-DONE.md`/`*-ARCHIVE.md`) — hundreds of long-by-design grep-able lines that
+are not this repo's own wrapped prose, at roughly 6:1 noise to signal on the
+un-scoped baseline. So: `ci.yml` invokes this tool against the three doctrine
+dirs explicitly, and `.wrapscanignore` (see below) is the belt-and-braces net
+for any OTHER invocation — a default `docs/**` scan, a local run with no path
+args — so it too stays quiet on the record-format class rather than
+reformatting it (rewrapping a deliberate one-line-per-entry format fights the
+format and would recur every session; see the review's own 🎯 disposition).
+
 This is not a taste preference being mechanised for its own sake: the corpus
 already paid for it three cycles running. `SL7` (2026-07-21-2158) shipped an
 over-wide line; the fix that closed it, `AC1` (2026-07-22-0244), re-shipped
@@ -19,7 +36,7 @@ discipline: this scanner has not yet earned an independent review, so — once
 wired — it belongs in CI in `--warn` mode only, never in the blocking
 pre-commit hook, until reviewed.
 
-THE CHECK — one measurement, four exemptions:
+THE CHECK — one measurement, six exemptions:
 
   * COLUMN COUNT. A line's length is its Python character count (`len(line)`
     after `str.splitlines()`, so no trailing newline is counted). This is
@@ -52,11 +69,18 @@ not rounded to "handled":
     inside real fenced/quoted code is the worse failure mode for a
     first-of-kind advisory scanner.
 
-  * TABLE ROWS. Any line containing a `|` character is treated as a Markdown
-    table row (a cell delimiter) and exempt whole-line. Honest limit: a
-    literal pipe used in ordinary prose (rare, but not impossible — e.g. a
-    shell pipeline shown inline outside a code span) would also be exempted;
-    accepted as a cheap, precise-enough heuristic for the actual corpus.
+  * TABLE ROWS. A line is treated as a Markdown table row (a cell delimiter)
+    and exempt whole-line only when it carries a STRUCTURAL pipe signal: it
+    starts or ends with `|` (stripped of surrounding whitespace), or it
+    contains two or more `|` characters. WS2 (2026-07-23 S1 cold review): a
+    bare single-pipe check exempted any line with one inline pipe anywhere —
+    a fail-open hole (a long prose line with one shell pipe, `A|B`, or a
+    regex would silently pass at any length). Requiring a structural signal
+    closes that: a genuine table row always has a leading/trailing `|` or at
+    least one interior cell separator (two-plus pipes), while a single
+    mid-sentence pipe in prose does not. Honest limit: a contrived prose line
+    with two literal pipes (rare) would still be exempted; accepted as a
+    cheap, precise-enough heuristic for the actual corpus.
 
   * HEADINGS. An ATX heading (`#` through `######` at the start of the line,
     after leading whitespace, followed by a space) is exempt — a heading is
@@ -85,22 +109,71 @@ not rounded to "handled":
     line *could* have broken, not just where it overflowed, which this
     line-local scanner does not attempt.
 
+  * SIBLING-SCANNER ALLOW-MARKER PADDING. A line whose only reason for
+    overflow is a trailing `<!-- <name>scan:allow: <reason> -->` marker
+    belonging to ANY scanner in this repo (not just wrapscan's own) is
+    exempt. WS4 (2026-07-23 S1 cold review): the marker contract (shared by
+    every sibling scanner) requires the reason stay on the *same* line as
+    the flagged content, so it can't itself be wrapped — a short, legitimate
+    line can read long purely because a mandatory marker pads it (e.g.
+    SIGNING.md:120, flagged at 149 cols solely by a trailing
+    `leakscan:allow` marker; the prose before it is 62 columns). Heuristic:
+    strip a trailing `<!-- <name>scan:allow: ... -->` (optionally followed
+    by trailing whitespace) from the end of the line; if what remains is
+    <= LINE_LIMIT, the marker alone caused the overflow and the line is
+    exempt. Honest limit: this only recognises the house's own
+    `<name>scan:allow:` marker shape — a differently-shaped trailing
+    annotation is not covered — and only when the marker is the *sole*
+    cause; a line that would already overflow without it still flags.
+
 STATED RESIDUAL, HONESTLY (do not round this to "solved"):
 
   * Column count is a character count, not a display-width measurement (see
     above) — a Unicode-width caveat, not a bug, for an ASCII-prose house.
   * The indented-code exemption is per-line and block-unaware (see above) —
     it will also exempt some genuinely-wrappable indented prose.
-  * The table-row exemption is a bare `|`-presence check, not a real table
-    parser — it will also exempt a rare inline literal pipe outside a code
-    span (see above).
+  * The table-row exemption (WS2-tightened) requires a structural pipe
+    signal (leading/trailing `|`, or two-plus pipes) — not a real table
+    parser — it will still exempt a contrived prose line carrying two
+    literal pipes (see above).
   * Setext headings (`===`/`---` underlines) are not specially exempted —
     the underline itself is short and never overflows, and the heading text
     line above it is ordinary prose subject to the same limit as any other
     line, which is the correct outcome.
+  * UNCLOSED FENCE SWALLOWS THE TAIL (WS3, 2026-07-23 S1 cold review,
+    ACCEPTED as a gate-time residual, not fixed). `_content_lines` pairs a
+    closing fence by matching character + length, same as datescan's and
+    linkscan's identical logic; a fence opened but never closed reads as
+    "still inside a fenced block" for the rest of the *file* — every line
+    after it, including genuine over-wrapped prose the author never meant as
+    code, is silently skipped (proven by `test_malformed_unclosed_fence`,
+    which asserts this on purpose). Judgement call: left as-is rather than
+    reprocessing the tail, because the alternative — deciding a fence
+    "doesn't count" once EOF is reached without it closing — would let a
+    genuinely long *pasted* code block (a truncated log/transcript with no
+    closing fence, plausible in a review or session note) get scanned as
+    prose and flagged, which is the worse failure mode this tool has
+    consistently chosen to avoid (see the fenced-code exemption above).
+    Blast radius is bounded to the one malformed file, and the doctrine
+    surface this tool now gates against is small and human-reviewed, so an
+    unclosed fence is expected to be caught by inspection long before it
+    hides a real over-wrap. Not solved — a scanner run over a file with a
+    stray unclosed fence must not be read as "the rest of that file is
+    clean."
+  * DOTTED UNITTEST INVOCATION FAILS (WS5, Low, note only, no fix here).
+    `python3 -m unittest tools.test_wrapscan` raises `ModuleNotFoundError` —
+    only `python3 -m unittest discover -s tools` or `cd tools && python3 -m
+    unittest test_wrapscan` work, because the test file imports `wrapscan`
+    as a top-level module, not `tools.wrapscan`. Sibling-consistent wart:
+    every scanner's test file in this repo has the identical wart (matches
+    datescan's DSR7) — fixing it here alone would make wrapscan the odd one
+    out, so it is left exactly as consistent as its siblings.
   * Only `docs/**` Markdown is scanned by default (prose lives there); code
     comments, commit messages, and non-Markdown prose are out of scope,
-    matching every sibling scanner's default.
+    matching every sibling scanner's default. The CI gate narrows this
+    further to the doctrine surface only (see GATE SCOPE, above) —
+    `docs/**` remains the *tool's* default fallback for an unscoped run, not
+    what the gate itself scans.
 
 Exit codes (fail-safe — anything but a clean scan is non-zero, UNLESS --warn):
   0  clean; or --warn was given (advisory rollout — never blocks)
@@ -152,6 +225,13 @@ INDENTED_CODE_COLUMNS = 4
 _FENCE = re.compile(r"^(`{3,}|~{3,})")
 _ATX_HEADING = re.compile(r"^#{1,6}(?:\s|$)")
 _REF_LINK_DEF = re.compile(r"^\[[^\]]+\]:\s*\S")
+
+# WS4 — any sibling scanner's allow marker, not just wrapscan's own. Matches
+# the shared house shape `<!-- <name>scan:allow: <reason> -->`, anchored at
+# end-of-line (trailing whitespace allowed after the closing `-->`) because
+# the exemption only applies when the marker is what's *padding the tail*,
+# not merely present somewhere mid-line.
+_SIBLING_ALLOW_MARKER = re.compile(r"<!--\s*\w+scan:allow:.*-->\s*$")
 
 
 @dataclass
@@ -211,7 +291,18 @@ def _is_indented_code(line: str) -> bool:
 
 
 def _is_table_row(line: str) -> bool:
-    return "|" in line
+    """WS2-tightened: require a STRUCTURAL pipe signal, not a bare
+    single-pipe presence check — a lone inline `|` in ordinary prose (a
+    shell pipeline, `A|B`, a regex) must not exempt a long line. A genuine
+    table row starts or ends with `|` (once surrounding whitespace is
+    stripped), or has two or more cell-delimiting pipes; either is
+    structural, one bare mid-line pipe is not."""
+    stripped = line.strip()
+    if not stripped:
+        return False
+    if stripped.startswith("|") or stripped.endswith("|"):
+        return True
+    return stripped.count("|") >= 2
 
 
 def _is_heading(line: str) -> bool:
@@ -234,9 +325,22 @@ def _is_single_unbreakable_token_overflow(line: str, limit: int) -> bool:
     return not any(ch in (" ", "\t") for ch in tail)
 
 
-def _is_exempt(line: str) -> bool:
+def _is_marker_padding_overflow(line: str, limit: int) -> bool:
+    """WS4: True if the line's overflow past `limit` is caused SOLELY by a
+    trailing sibling-scanner allow marker (`<!-- <name>scan:allow: ... -->`)
+    — see the module header for the full reasoning and its stated limit."""
+    if len(line) <= limit:
+        return False
+    m = _SIBLING_ALLOW_MARKER.search(line)
+    if not m:
+        return False
+    return len(line[:m.start()].rstrip()) <= limit
+
+
+def _is_exempt(line: str, limit: int = LINE_LIMIT) -> bool:
     return (_is_indented_code(line) or _is_table_row(line)
-            or _is_heading(line) or _is_ref_link_definition(line))
+            or _is_heading(line) or _is_ref_link_definition(line)
+            or _is_marker_padding_overflow(line, limit))
 
 
 def scan_text(path: str, text: str, limit: int = LINE_LIMIT) -> list[Finding]:
@@ -247,7 +351,7 @@ def scan_text(path: str, text: str, limit: int = LINE_LIMIT) -> list[Finding]:
         length = len(line)
         if length <= limit:
             continue
-        if _is_exempt(line):
+        if _is_exempt(line, limit):
             continue
         if _is_single_unbreakable_token_overflow(line, limit):
             continue

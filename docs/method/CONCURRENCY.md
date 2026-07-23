@@ -229,9 +229,9 @@ gap predated the flip; the flip made it expected rather than exceptional.)
 - **Different items** → *usually* no conflict, both proceed. Usually, not
   always: two claims on **adjacent** one-line items (no unchanged line between
   them) raise a trivial *keep-both* rebase conflict — a one-line gap already
-  rebases clean — so keep both claims and move on. Only a *same-item* claim is a real yield; put the `[~]` on the
-  item's **checkbox line** so a same-item collision always fires on one line,
-  even for a multi-line item.
+  rebases clean — so keep both claims and move on. Only a *same-item* claim
+  is a real yield; put the `[~]` on the item's **checkbox line** so a
+  same-item collision always fires on one line, even for a multi-line item.
 
 **This is not worktree ceremony.** A claim is one small commit on `main` —
 exactly the trunk-based small-commits-pushed-immediately the solo default

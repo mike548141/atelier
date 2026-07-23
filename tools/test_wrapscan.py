@@ -73,6 +73,28 @@ class TableRowExemption(unittest.TestCase):
         prose = "word " * 20
         self.assertTrue(lengths(prose))
 
+    def test_leading_pipe_only_exempt(self):
+        # No trailing pipe, but a leading one is still a structural signal.
+        self.assertEqual([], scan("| " + "c" * 90))
+
+    def test_trailing_pipe_only_exempt(self):
+        self.assertEqual([], scan("c" * 90 + " |"))
+
+    def test_two_interior_pipes_exempt(self):
+        # No leading/trailing pipe, but two cell-delimiting pipes inside.
+        line = "word " * 5 + "|" + "c" * 40 + "|" + "word " * 5
+        self.assertTrue(len(line) > 85)
+        self.assertEqual([], scan(line))
+
+    def test_single_inline_pipe_no_longer_exempt(self):
+        # WS2 (2026-07-23 S1 cold review): a lone inline pipe (a shell
+        # pipeline, `A|B`, a regex) in ordinary prose must NOT fail-open
+        # exempt an otherwise genuinely over-wrapped line — only a
+        # structural signal (leading/trailing pipe, or 2+ pipes) does.
+        line = "word " * 15 + "a|b " + "word " * 5
+        self.assertTrue(len(line) > 85)
+        self.assertTrue(lengths(line))
+
 
 class HeadingExemption(unittest.TestCase):
     def test_atx_heading_exempt(self):
@@ -123,6 +145,41 @@ class SingleUnbreakableTokenExemption(unittest.TestCase):
 class AllowMarker(unittest.TestCase):
     def test_inline_allow_marker_exempts_line(self):
         line = ("word " * 20) + " <!-- wrapscan:allow: selftest fixture -->"
+        self.assertEqual([], scan(line))
+
+
+class SiblingMarkerPaddingExemption(unittest.TestCase):
+    """WS4 (2026-07-23 S1 cold review): a line whose overflow is caused
+    SOLELY by a trailing sibling-scanner allow marker — not wrapscan's own
+    — must be exempt, because that marker's reason must stay on the same
+    line by its own contract and cannot be wrapped away."""
+
+    def test_trailing_leakscan_marker_padding_exempt(self):
+        short_prose = "See the note on committer addresses here for context"
+        self.assertLessEqual(len(short_prose), 85)
+        line = short_prose + "  <!-- leakscan:allow: GitHub's public web-flow committer address -->"
+        self.assertGreater(len(line), 85)
+        self.assertEqual([], scan(line))
+
+    def test_trailing_datescan_marker_padding_exempt(self):
+        short_prose = "This line is short enough on its own to be clean"
+        self.assertLessEqual(len(short_prose), 85)
+        line = short_prose + "  <!-- datescan:allow: reviewed and confirmed absolute -->"
+        self.assertGreater(len(line), 85)
+        self.assertEqual([], scan(line))
+
+    def test_marker_does_not_rescue_genuine_overflow(self):
+        # If the prose BEFORE the marker is itself over the limit, the
+        # marker is not the sole cause — must still flag.
+        long_prose = "word " * 20
+        self.assertGreater(len(long_prose), 85)
+        line = long_prose + "  <!-- leakscan:allow: selftest fixture -->"
+        self.assertTrue(lengths(line))
+
+    def test_signing_md_120_regression(self):
+        # The exact real-world line WS4 was raised against.
+        line = "  `GitHub <noreply@github.com>`): `git log --show-signature` / <!-- leakscan:allow: GitHub's public web-flow committer address, not personal data -->"  # leakscan:allow: GitHub's public web-flow committer address, not personal data
+        self.assertEqual(149, len(line))
         self.assertEqual([], scan(line))
 
 
