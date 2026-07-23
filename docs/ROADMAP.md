@@ -260,21 +260,11 @@ candidates; record:
   count). Approved seams/homes are the record's proposals unamended: all
   twelve shared-floor. The promotion rule itself (>2 occurrences ⇒
   candidate) is thereby exercised end-to-end and stands as practice.
-- [x] **Build the approved scanners S1–S5** — ALL FIVE BUILT + wired advisory.
-      S2+S4 landed 2026-07-23 (queue run 0959): **S2 `pathscan`** (`b738f21`,
-      merged) — bare-prose/backtick repo-path resolution, the half linkscan's
-      markdown-link resolution can't see; **S4 `stampscan`** (`2fe97f3`, merged)
-      — a new mechanism comparing an inlined-floor stamped block to its pinned
-      canonical parent region (marker convention wired to the real
-      templates/CLAUDE.md↔PROPAGATION.md floor pair, byte-identical → CLEAN).
-      Both Sonnet-built, Opus-verified, ship ADVISORY (`--warn` in `ci.yml`),
-      each earns a queued ⏳ first-of-kind review before any gate. ~~line-wrap
-      (S1)~~, ~~prose-path (S2)~~, ~~absolute-UTC dating (S3)~~, ~~stamp-drift
-      (S4)~~, ~~NZ-English (S5)~~. **S1/S3/S5** built earlier (`72e8ecb` wrapscan,
-      `6077972` datescan, `760260473` spellscan; detail →
-      [`ROADMAP-DONE.md`](ROADMAP-DONE.md)). **S1/S3/S5 first-of-kind reviews
-      are DONE** (S3 at 0618; S1 + S5 at 0707 — verdicts + follow-ons below).
-      **S2 + S4 reviews are now the open first-of-kind work (⏳ below).**
+**All five approved scanners S1–S5 are BUILT + wired advisory** (S1/S3/S5
+earlier; S2 `pathscan` `b738f21` + S4 `stampscan` `2fe97f3` this run — detail →
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md)). **S1/S3/S5 first-of-kind reviews are DONE**
+(S3 at 0618; S1 + S5 at 0707 — verdicts + follow-ons below). **S2 + S4 reviews
+are the open first-of-kind work (⏳ below).**
 - ⏳ **pathscan (S2) first-of-kind review** — advisory `b738f21` (queue run
   0959), rule-4 non-author reviewer needed (this run built it). *Delta:*
   `tools/pathscan.py` + `test_pathscan.py`, wired `--warn` in `ci.yml`.
@@ -325,16 +315,9 @@ detection (154/287 baseline is deliberate SESSIONS index rows). Brief
 [`docs/reviews/2026-07-23-0707-wrapscan-s1-cold.md`](reviews/2026-07-23-0707-wrapscan-s1-cold.md),
 detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Two follow-ons stay open:*
 
-- [x] **Apply wrapscan review findings WS1–WS6 + implement option-a scope** —
-      DONE 2026-07-23 (queue run 0959, Sonnet `ceb3fda`, Opus-verified/merged).
-      WS1 option-A scope live (`ci.yml` gates `docs/method docs/build
-      docs/decisions`, `.wrapscanignore` the record/log/review stores);
-      the 3 genuine over-wraps fixed (REPO-STANDARD:52, SIGNING:83,
-      CONCURRENCY:232); WS2 tightened (structural pipe signal), WS4 sibling
-      allow-marker padding exempted, WS3 accepted-and-documented as a gate-time
-      residual (reprocessing an unclosed fence would false-positive on truncated
-      pasted code — worse failure mode), WS5 documented wart. Suite 497 green,
-      gated scope 0 findings. Stays ADVISORY — no flip. → `ROADMAP-DONE.md`.
+*wrapscan (S1) review APPLIED 2026-07-23 (queue run 0959, `ceb3fda`) —
+option-A scope + WS1–WS6, gated scope 0 findings, stays advisory →
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md). The flip precondition is now met:*
 - [ ] 🎯 **wrapscan flip (Mike's call, once clean)** — **scope RULED 2026-07-23
       (Mike: "agreed option A")**: doctrine-surface scope + `.wrapscanignore` the
       record stores. **Apply landed `ceb3fda` (above) — the flip precondition is
@@ -348,17 +331,10 @@ permanent. Brief
 [`docs/reviews/2026-07-23-0707-spellscan-s5-cold.md`](reviews/2026-07-23-0707-spellscan-s5-cold.md),
 detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Follow-ons stay open:*
 
-- [x] **Apply spellscan review findings SS1–SS4 + tame the noise** — DONE
-      2026-07-23 (queue run 0959, Sonnet `b910962`, merged `4872f07`,
-      Opus-verified). SS1 (dropped `hypothesize`/`jeopardize`/`penalize`,
-      verb forms preserved), SS2 (macron out-of-scope declared honestly),
-      SS3 (allowlisted the CI/SBOM `artifact` term-of-art + OWASP ASVS/SAMM
-      chapter names — general "produced-thing" sense deliberately kept
-      flagged), `finalize`→`finalise` fixed, `catalog`→`catalogue` renamed in
-      both frozen records (article quote left verbatim). Suite 65 spellscan /
-      502 total green. Stays ADVISORY. Baseline 71→40 — **not near-zero**; the
-      remainder is all genuine or preserved quotes (worker classified every
-      one), see the follow-on directly below. → `ROADMAP-DONE.md`.
+*spellscan (S5) review APPLIED 2026-07-23 (queue run 0959, `b910962`/`4872f07`)
+— SS1–SS4 + `catalogue` rename, baseline 71→40 (remainder all genuine/quotes),
+stays advisory → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). It surfaced a live
+follow-on that also blocks the flip's near-zero re-baseline:*
 - [ ] 🎯 **Rule the ~36 general-sense `artifact`→`artefact` breaches in frozen
       records** (surfaced by the 0959 spellscan apply). The apply proved the
       *general* "a produced thing" sense (a session record, a web page) is a

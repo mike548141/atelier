@@ -1984,3 +1984,58 @@ flips/rulings) stay open in ROADMAP.md. Session record:
       docstring's stated exclusion). Baseline ~1-in-5 signal — 53 of 68 are
       `artifact` (mostly the legit CI/SBOM term-of-art). Brief:
       [`reviews/2026-07-23-0707-spellscan-s5-cold.md`](reviews/2026-07-23-0707-spellscan-s5-cold.md).
+
+## Queue run 0959 — S2/S4 scanner builds + wrapscan/spellscan applies (moved 2026-07-23)
+
+Opus-orchestrated queue run (Mike: "maximise plan use"), Sonnet executors in
+worktrees, per-item close. Four items closed (a fifth, the RECORD.md
+close-all-clear doctrine, stays live as a ⏳ review in ROADMAP.md).
+
+### Anti-slop invariant scanners — S2 + S4 built (all five S1–S5 now built)
+
+- [x] **Build the approved scanners S1–S5** — ALL FIVE BUILT + wired advisory.
+      S2+S4 landed 2026-07-23 (queue run 0959): **S2 `pathscan`** (`b738f21`,
+      merged) — bare-prose/backtick repo-path resolution, the half linkscan's
+      markdown-link resolution can't see (triple-anchor: root / own-dir /
+      outermost-`docs`-ancestor; 53 tests; 174-finding heuristic-noise baseline
+      by design); **S4 `stampscan`** (`2fe97f3`, merged) — a new mechanism
+      comparing an inlined-floor stamped block to its pinned canonical parent
+      region (`<!-- stamp:begin source=… region=… -->` markers wired to the real
+      templates/CLAUDE.md↔PROPAGATION.md floor pair, byte-identical → CLEAN; 46
+      tests; `narrow=<reason>` distinguishes a declared narrowing from a silent
+      drop). Both Sonnet-built, Opus-verified, ship ADVISORY (`--warn` in
+      `ci.yml`, absent from hook + `floor.yml` per don't-stack). Combined suite
+      601 green. S1/S3/S5 built earlier (`72e8ecb`/`6077972`/`760260473`). Each
+      of S2/S4 earns a queued ⏳ first-of-kind rule-4 review (live in ROADMAP.md)
+      before any gate.
+
+### wrapscan (S1) review applied — WS1–WS6 + option-A scope
+
+- [x] **Apply wrapscan review findings WS1–WS6 + implement option-a scope** —
+      DONE 2026-07-23 (queue run 0959, Sonnet `ceb3fda`, Opus-verified/merged).
+      WS1 option-A scope live (`ci.yml` gates `docs/method docs/build
+      docs/decisions`, `.wrapscanignore` the record/log/review stores);
+      the 3 genuine over-wraps fixed (REPO-STANDARD:52, SIGNING:83,
+      CONCURRENCY:232); WS2 tightened (structural pipe signal), WS4 sibling
+      allow-marker padding exempted, WS3 accepted-and-documented as a gate-time
+      residual (reprocessing an unclosed fence would false-positive on truncated
+      pasted code — worse failure mode), WS5 documented wart. Suite 497 green,
+      gated scope 0 findings. Stays ADVISORY — no flip. The wrapscan flip
+      precondition (clean run over the gated doctrine surface) is now MET; the
+      flip stays Mike's go/no-go (live in ROADMAP.md).
+
+### spellscan (S5) review applied — SS1–SS4 + catalogue rename
+
+- [x] **Apply spellscan review findings SS1–SS4 + tame the noise** — DONE
+      2026-07-23 (queue run 0959, Sonnet `b910962`, merged `4872f07`,
+      Opus-verified). SS1 (dropped `hypothesize`/`jeopardize`/`penalize`,
+      verb forms preserved), SS2 (macron out-of-scope declared honestly),
+      SS3 (allowlisted the CI/SBOM `artifact` term-of-art + OWASP ASVS/SAMM
+      chapter names — general "produced-thing" sense deliberately kept
+      flagged), `finalize`→`finalise` fixed, `catalog`→`catalogue` renamed in
+      both frozen records (article quote left verbatim). Suite 65 spellscan /
+      502 total green. Stays ADVISORY. Baseline 71→40 — not near-zero; the
+      remainder is all genuine or preserved quotes. Surfaced a live follow-on
+      (the ~36 general-sense `artifact` breaches in frozen records — Mike's
+      call, live in ROADMAP.md) which also blocks the spellscan flip's
+      near-zero re-baseline.
