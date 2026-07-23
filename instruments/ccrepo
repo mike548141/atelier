@@ -23,11 +23,31 @@
  * figures) against that estimate — a footnote with the delta, the money-side analog
  * of the ccusage cross-check (see the billing model in instruments/README.md).
  * Absent ⇒ estimate-only. See --help for the full surface.
+ *
+ * By default it reads the live logs. --from-archive (or naming a --dest) reads
+ * the compressed mirror ccarchive(1) maintains instead — same walk, transparent
+ * gunzip — so totals reach back past Claude Code's prune horizon. Because ccrepo
+ * reads *every* file, an iCloud-evicted mirror is skipped by default (reading it
+ * would fault the bytes back down) and counted as a stated gap; --materialise
+ * opts into reading them. The ccusage cross-check is off in archive mode: ccusage
+ * reads the live store, which no longer holds the pruned sessions.
  */
 const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const zlib = require('node:zlib');
+
+// Source selection (archive vs live), read straight off argv so the log-reading
+// functions below can consult it. Module-load-inert — no output, no exit. --dest
+// names the archive, so it implies --from-archive; resolution matches ccarchive
+// (--dest, then $CCARCHIVE_DEST, then the iCloud Drive default) so one vocabulary
+// points both tools at the same mirror. --materialise opts into reading evicted
+// (dataless) mirrors, which ccrepo otherwise skips to avoid bulk-downloading.
+const _srcArgv = process.argv.slice(2);
+const destArg = _srcArgv.includes('--dest') ? _srcArgv[_srcArgv.indexOf('--dest') + 1] : null;
+const fromArchive = _srcArgv.includes('--from-archive') || destArg != null;
+const materialise = _srcArgv.includes('--materialise');
 
 // Bare money marker per currency — the currency is named in the header + a
 // footnote, not stamped on every figure. Dollar family → plain "$".
@@ -281,18 +301,68 @@ function buildDimFilter(specs) {
 
 const projectsDir = path.join(os.homedir(), '.claude', 'projects');
 
+// The ccarchive mirror location, resolved exactly as ccarchive does, and the
+// live-vs-archive source root the walk reads. LOG_EXT is the on-disk suffix in
+// each store (.jsonl live, .jsonl.gz in the mirror).
+function defaultArchiveDest(home) {
+  return path.join(home, 'Library', 'Mobile Documents', 'com~apple~CloudDocs', 'cc-transcripts');
+}
+function archiveRoot() {
+  return destArg || process.env.CCARCHIVE_DEST || defaultArchiveDest(os.homedir());
+}
+function sourceRoot() { return fromArchive ? archiveRoot() : projectsDir; }
+const LOG_EXT = fromArchive ? '.jsonl.gz' : '.jsonl';
+
 function isDir(p) { try { return fs.statSync(p).isDirectory(); } catch { return false; } }
+
+// iCloud's "Optimise Mac Storage" can evict an archived .gz to a dataless
+// placeholder; *reading* one faults the bytes back down. ccrepo reads every file
+// to sum spend, so a whole-archive run over an evicted mirror would bulk-download
+// the history — skipped by default (counted as a gap), --materialise opts in.
+// Ported from ccarchive: same SF_DATALESS signal, same CCARCHIVE_SIMULATE_DATALESS
+// test seam (an eviction can't be forced on demand); its comments hold the full
+// why (stat is metadata-only and never faults a file back).
+const SF_DATALESS = 0x40000000;
+function isDatalessFlags(flags) {
+  return Number.isFinite(flags) && (flags & SF_DATALESS) !== 0;
+}
+function statFlags(p) {
+  if (process.platform !== 'darwin') return null;
+  try {
+    const n = Number(execFileSync('stat', ['-f', '%f', p], { encoding: 'utf8' }).trim());
+    return Number.isFinite(n) ? n : null;
+  } catch { return null; }
+}
+function isDataless(p) {
+  const sim = process.env.CCARCHIVE_SIMULATE_DATALESS;
+  if (sim) return sim.split(',').some((s) => s !== '' && p.includes(s));
+  const flags = statFlags(p);
+  return flags === null ? false : isDatalessFlags(flags);
+}
+
+// Read a log's full text, transparently gunzipping an archived .gz mirror — the
+// walk below stays blind to which store the bytes came from.
+function readLogText(file) {
+  const raw = fs.readFileSync(file);
+  return file.endsWith('.gz') ? zlib.gunzipSync(raw).toString('utf8') : raw.toString('utf8');
+}
 
 // The folder name dash-mangles every '/', '.', '_' alike, so the true repo name
 // is unrecoverable from it — the logs record the real cwd, so read it from there.
 function cwdFromLog(file) {
   let chunk;
   try {
-    const fd = fs.openSync(file, 'r');
-    const buf = Buffer.alloc(65536);
-    const n = fs.readSync(fd, buf, 0, buf.length, 0);
-    fs.closeSync(fd);
-    chunk = buf.toString('utf8', 0, n);
+    if (file.endsWith('.gz')) {
+      // gzip has no cheap partial read; these logs are small enough that a full
+      // gunzip for the 64 KB cwd sniff is fine.
+      chunk = zlib.gunzipSync(fs.readFileSync(file)).toString('utf8', 0, 65536);
+    } else {
+      const fd = fs.openSync(file, 'r');
+      const buf = Buffer.alloc(65536);
+      const n = fs.readSync(fd, buf, 0, buf.length, 0);
+      fs.closeSync(fd);
+      chunk = buf.toString('utf8', 0, n);
+    }
   } catch { return null; }
   const m = chunk.match(/"cwd"\s*:\s*"((?:[^"\\]|\\.)*)"/);
   if (!m) return null;
@@ -318,8 +388,11 @@ function* walkSessionFiles(dir, session) {
       // At the repo root, a subdir is named for its parent session UUID; anything
       // below that (session != null) is a subagent log owned by that session.
       yield* walkSessionFiles(p, session || entry);
-    } else if (entry.endsWith('.jsonl')) {
-      yield { full: p, session: session || entry.replace(/\.jsonl$/, ''), sub: session != null };
+    } else if (entry.endsWith(LOG_EXT)) {
+      // LOG_EXT is .jsonl live, .jsonl.gz in the archive; strip whichever for the
+      // session id. Archived tool-result sidecars mirror to <name>.gz (not
+      // .jsonl.gz), so they fall through here just as they do live.
+      yield { full: p, session: session || entry.slice(0, -LOG_EXT.length), sub: session != null };
     }
   }
 }
@@ -388,18 +461,27 @@ function readAllEvents(covers, pricing) {
   const byKey = new Map();     // (message.id|requestId) -> event, richest wins
   const noKey = [];            // events with no message.id
   const repoLabels = new Map();
+  let evicted = 0;             // archive mirrors skipped (dataless); a stated gap
+  const root = sourceRoot();
   let dirs;
-  try { dirs = fs.readdirSync(projectsDir); } catch { return { events: [], repoLabels, unpriced: new Map() }; }
+  try { dirs = fs.readdirSync(root); } catch { return { events: [], repoLabels, unpriced: new Map(), evicted }; }
   for (const enc of dirs) {
-    const dir = path.join(projectsDir, enc);
+    // _external is ccarchive's reserved home for the archived history.jsonl, not a
+    // repo folder — never a session log to price.
+    if (fromArchive && enc === '_external') continue;
+    const dir = path.join(root, enc);
     if (!isDir(dir)) continue;
     let lab = null;
     for (const { full, session, sub } of walkSessionFiles(dir, null)) {
+      // An evicted archive mirror is skipped, not read: ccrepo reads every file,
+      // so reading it would fault its bytes back from iCloud. Counted as a gap;
+      // --materialise opts into reading (and thus re-downloading) them.
+      if (fromArchive && !materialise && isDataless(full)) { evicted++; continue; }
       // Repo label from a main (non-subagent) file's cwd — a subagent may run in
       // a worktree whose basename isn't the repo's.
       if (lab === null && !sub) { const cwd = cwdFromLog(full); if (cwd) lab = path.basename(cwd); }
       let content;
-      try { content = fs.readFileSync(full, 'utf8'); } catch { continue; }
+      try { content = readLogText(full); } catch { continue; }
       for (const line of content.split('\n')) {
         if (!line) continue;
         let o;
@@ -420,7 +502,7 @@ function readAllEvents(covers, pricing) {
     if (!e.repo) e.repo = label(e._enc, repoLabels);
     if (!e.priced && e.total > 0) unpriced.set(e.model, (unpriced.get(e.model) || 0) + 1);
   }
-  return { events, repoLabels, unpriced };
+  return { events, repoLabels, unpriced, evicted };
 }
 
 // --- reconciliation against ccusage --------------------------------------
@@ -670,6 +752,9 @@ OPTIONS
   --csv                Same shape as CSV
   --fx <code>          Convert to an ISO-4217 currency (default nzd; usd = raw)
   --rate <n>           Force the USD→<code> rate instead of fetching
+  --from-archive       Read ccarchive's mirror, not the live logs (pruned history)
+  --dest <dir>         Where the archive lives (implies --from-archive)
+  --materialise        With --from-archive, also read iCloud-evicted files
   --no-billing         Ignore ~/.claude/ccrepo-billing.json; estimate only
   --no-reconcile       Skip the ccusage cross-check (faster / offline)
   -h, --help           This summary
@@ -801,6 +886,13 @@ function renderHuman(root, ctx) {
   // Footnotes.
   console.log(`  All amounts shown in ${currency}.`);
   if (converted) console.log(`  Rate: 1 USD = ${rate.toFixed(4)} ${currency} — ${rateSource}`);
+  if (ctx.source === 'archive') {
+    console.log(`  Source: ccarchive archive at ${ctx.archiveRoot} (past Claude Code's prune horizon).`);
+    if (ctx.evicted) {
+      console.log(`  ⚠ ${ctx.evicted} archived session file(s) skipped (evicted — bytes in iCloud, not local); ` +
+        `their spend is NOT counted. Re-run with --materialise to read them (re-downloads).`);
+    }
+  }
   if (recon) {
     const d = recon;
     const s = d.delta >= 0 ? '+' : '−';
@@ -808,6 +900,8 @@ function renderHuman(root, ctx) {
     const worst = d.models.filter((m) => Math.abs(m.pct) > 0.01 && Math.abs(m.delta) > 0.005 && isFinite(m.pct)).slice(0, 3);
     if (worst.length) console.log(`  Largest per-model Δ: ${worst.map((m) => `${m.model} ${m.pct >= 0 ? '+' : ''}${(m.pct * 100).toFixed(1)}%`).join(', ')}.`);
     if (d.myOnly || d.cuOnly) console.log(`  ${d.myOnly} session(s) only in logs, ${d.cuOnly} only in ccusage (scope/pruning differences).`);
+  } else if (ctx.source === 'archive') {
+    console.log(`  ccusage cross-check off in archive mode — ccusage reads the live store, which no longer holds the pruned sessions.`);
   } else if (!noReconcile) {
     console.log(`  Reconciliation skipped — ccusage unavailable (cost is unchecked against it).`);
   }
@@ -852,6 +946,9 @@ function buildMeta(ctx) {
     currency: ctx.currency,
     rate: ctx.converted ? ctx.rate : null,
     rateSource: ctx.rateSource,
+    source: ctx.source,
+    archiveRoot: ctx.archiveRoot || null,
+    evicted: ctx.source === 'archive' ? ctx.evicted : null,
     group: ctx.keys,
     filters,
     range: ctx.range,
@@ -922,7 +1019,7 @@ async function main() {
   const covers = coversPredicate(billing);
   const pricing = loadPricing();
 
-  const { events, unpriced } = readAllEvents(covers, pricing);
+  const { events, unpriced, evicted } = readAllEvents(covers, pricing);
 
   const dimFilter = buildDimFilter(filterSpecs);
   const dayNum = (ts) => timeBucket(ts, 'day').replace(/-/g, '');
@@ -977,8 +1074,11 @@ async function main() {
 
   // Reconcile over the date-comparable scope (ccusage can't honour the other
   // filters, so comparing the fully-filtered set would be apples-to-oranges).
+  // Off in archive mode: ccusage reads the live store, which no longer holds the
+  // pruned sessions the archive is here to surface — the comparison would be
+  // structurally short, not a real drift.
   let recon = null;
-  if (!noReconcile) {
+  if (!noReconcile && !fromArchive) {
     const passthrough = [];
     if (since) passthrough.push('--since', since);
     if (until) passthrough.push('--until', until);
@@ -1004,6 +1104,8 @@ async function main() {
   const ctx = {
     keys, sortSpecs, currency, rate, converted, rateSource,
     billing: billingView, actualUSD, unpriced, recon, spendRecon, filterSpecs, since, until, range,
+    source: fromArchive ? 'archive' : 'live', archiveRoot: fromArchive ? archiveRoot() : null,
+    evicted, materialise,
   };
 
   if (asJson) return outputJson(root, ctx);
@@ -1023,4 +1125,5 @@ module.exports = {
   groupTree, sortedEntries, treeRows, leafRows,
   eventFrom, keepRicher, readAllEvents, reconcile,
   loadBilling, coversPredicate, actualFor, normaliseSpend, reconcileSpend,
+  defaultArchiveDest, readLogText, isDatalessFlags,
 };

@@ -11,7 +11,7 @@ cctranscript \- render a timestamped transcript of a Claude Code session
 .IR name ]
 .RI [ \-\-all ]
 .br
-.B cctranscript \-\-archive
+.B cctranscript \-\-from\-archive
 .RI [ \-\-dest
 .IR dir ]
 .RI [ options ]
@@ -62,7 +62,7 @@ to reach back to an older session or one in another repo.
 The live logs are ephemeral: Claude Code deletes them after
 .I cleanupPeriodDays
 (default 30). With
-.B \-\-archive
+.B \-\-from\-archive
 the tool reads the compressed mirror
 .BR ccarchive (1)
 maintains instead \(em the same discovery, listing and rendering, over
@@ -91,7 +91,7 @@ A session UUID (or a unique prefix of one), a path to a
 .IR .jsonl " or " .jsonl.gz
 log, or omitted to use the latest session for the current repo.
 .TP
-.B \-\-archive
+.B \-\-from\-archive
 Read from the
 .BR ccarchive (1)
 archive instead of the live logs. Every other option works unchanged.
@@ -105,7 +105,7 @@ which is the point of a deliberate read.
 Where the archive lives (default: iCloud Drive, or
 .BR $CCARCHIVE_DEST ).
 Implies
-.BR \-\-archive .
+.BR \-\-from\-archive .
 .TP
 .BI \-\-repo " name"
 Use sessions from the named repo \(em its folder basename, e.g.
@@ -181,7 +181,7 @@ reads and renders.
 The default
 .BR ccarchive (1)
 archive
-.B \-\-archive
+.B \-\-from\-archive
 reads \(em the same mirror layout, gzip-compressed. Overridden by
 .B \-\-dest
 or
@@ -216,11 +216,11 @@ A specific log file by path \(em a
 .I .jsonl.gz
 archive mirror works here too, no flag needed.
 .TP
-.B cctranscript \-\-archive \-\-list
+.B cctranscript \-\-from\-archive \-\-list
 Every archived session for this repo, including ones Claude Code's cleanup has
 already deleted from the live store.
 .TP
-.B cctranscript \-\-archive 1a4fa531
+.B cctranscript \-\-from\-archive 1a4fa531
 Render an archived session by UUID prefix, straight from the mirror.
 .TP
 .B cctranscript \-\-json | jq .
@@ -240,7 +240,7 @@ index larger than the number of sessions available.
 The tool reads
 .I ~/.claude/projects/
 (or, with
-.BR \-\-archive ,
+.BR \-\-from\-archive ,
 the archive directory) read-only and writes nothing \(em no state, no cache,
 no output file.
 .PP

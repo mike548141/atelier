@@ -467,6 +467,91 @@ test('reconcileSpend: unavailable (never fabricates) when the range has no usage
   assert.equal(usageEmpty.available, false);
 });
 
+// --- reading the ccarchive mirror (--from-archive) -----------------------
+// The disk walk isn't unit-covered (see HONEST SCOPE up top), so this drives the
+// real CLI over a synthetic archive shaped exactly as ccarchive lays it out:
+//   <dest>/<encoded-repo>/<uuid>.jsonl.gz
+// The contract: ccrepo reads the gzip mirror and prices it like a live log, --dest
+// alone implies --from-archive, ccusage is off (it can't see pruned history), and
+// an evicted (dataless) mirror is skipped + counted through the same
+// CCARCHIVE_SIMULATE_DATALESS seam ccarchive's own tests use. Tests stay offline:
+// --fx usd (no FX fetch) + --no-billing (no config / no plan-currency fetch).
+
+const zlib = require('node:zlib');
+const CCREPO_UUID = 'a1b2c3d4-0000-4000-8000-000000000000';
+// One assistant message, opus at clean round tokens: (1e6·5 + 1e6·25)/1e6 = $30.
+const ARCHIVE_LOG = [
+  JSON.stringify({ type: 'summary', cwd: '/home/dev/synthetic-ccrepo' }),
+  JSON.stringify({
+    type: 'assistant', sessionId: CCREPO_UUID, timestamp: '2026-05-01T12:00:00.000Z',
+    requestId: 'req-1',
+    message: { id: 'msg-1', model: 'claude-opus-4-8',
+      usage: { input_tokens: 1000000, output_tokens: 1000000 } },
+  }),
+].join('\n') + '\n';
+
+function makeCcrepoArchive() {
+  const os2 = require('node:os');
+  const dest = fs.mkdtempSync(pathMod.join(os2.tmpdir(), 'ccrepo-archive-'));
+  const repoDir = pathMod.join(dest, '-home-dev-synthetic-ccrepo');
+  fs.mkdirSync(repoDir, { recursive: true });
+  fs.writeFileSync(pathMod.join(repoDir, `${CCREPO_UUID}.jsonl.gz`), zlib.gzipSync(ARCHIVE_LOG));
+  return dest;
+}
+function runCcrepoJson(dest, extra = [], env = {}) {
+  const script = pathMod.join(__dirname, 'ccrepo');
+  const out = require('node:child_process').execFileSync('node',
+    [script, '--json', '--fx', 'usd', '--no-billing', ...extra], {
+      encoding: 'utf8', env: { ...process.env, ...env },
+    });
+  return JSON.parse(out);
+}
+
+test('contract: --from-archive prices a .gz mirror; ccusage cross-check is off', () => {
+  const dest = makeCcrepoArchive();
+  const j = runCcrepoJson(dest, ['--from-archive', '--dest', dest, '-g', 'repo']);
+  assert.equal(j.meta.source, 'archive');
+  assert.equal(j.meta.archiveRoot, dest);
+  assert.equal(j.meta.evicted, 0);
+  assert.equal(j.meta.reconciliation, null);         // ccusage off in archive mode
+  const row = j.rows.find((x) => x.repo === 'synthetic-ccrepo');   // cwd recovered through gzip
+  assert.ok(row, 'the archived repo is priced');
+  assert.equal(row.totalTokens, 2000000);
+  assert.ok(Math.abs(row.cost - 30) < 1e-9);         // $30 at usd (rate 1)
+});
+
+test('contract: --dest alone implies --from-archive', () => {
+  const dest = makeCcrepoArchive();
+  const j = runCcrepoJson(dest, ['--dest', dest, '-g', 'repo']);
+  assert.equal(j.meta.source, 'archive');
+  assert.ok(j.rows.some((x) => x.repo === 'synthetic-ccrepo'));
+});
+
+test('contract: an evicted mirror is skipped + counted, its spend not priced', () => {
+  const dest = makeCcrepoArchive();
+  const j = runCcrepoJson(dest, ['--from-archive', '--dest', dest, '-g', 'repo'],
+    { CCARCHIVE_SIMULATE_DATALESS: CCREPO_UUID });
+  assert.equal(j.meta.evicted, 1);
+  assert.equal(j.rows.find((x) => x.repo === 'synthetic-ccrepo'), undefined); // not counted
+  // --materialise opts back into reading it.
+  const m = runCcrepoJson(dest, ['--from-archive', '--dest', dest, '--materialise', '-g', 'repo'],
+    { CCARCHIVE_SIMULATE_DATALESS: CCREPO_UUID });
+  assert.equal(m.meta.evicted, 0);
+  assert.ok(m.rows.some((x) => x.repo === 'synthetic-ccrepo'));
+});
+
+test('readLogText gunzips a .gz and passes plain files through; isDatalessFlags bit', () => {
+  const os2 = require('node:os');
+  const dir = fs.mkdtempSync(pathMod.join(os2.tmpdir(), 'ccrepo-rlt-'));
+  const plain = pathMod.join(dir, 'a.jsonl'), gz = pathMod.join(dir, 'a.jsonl.gz');
+  fs.writeFileSync(plain, 'x\n'); fs.writeFileSync(gz, zlib.gzipSync('x\n'));
+  assert.equal(r.readLogText(plain), 'x\n');
+  assert.equal(r.readLogText(gz), 'x\n');
+  assert.equal(r.isDatalessFlags(0x40000060), true);   // real evicted value
+  assert.equal(r.isDatalessFlags(0x20), false);        // UF_COMPRESSED alone
+  assert.equal(typeof r.defaultArchiveDest('/home/x'), 'string');
+});
+
 // --- module-load safety (require must be inert) --------------------------
 
 const { execFileSync } = require('node:child_process');

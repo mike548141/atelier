@@ -186,17 +186,17 @@ function makeArchive() {
   return { dest, gz };
 }
 
-test('contract: --archive renders a .gz mirror identically to the live log', () => {
+test('contract: --from-archive renders a .gz mirror identically to the live log', () => {
   const { dest } = makeArchive();
   const live = runJson();
   const j = JSON.parse(execFileSync('node',
-    [SCRIPT, '--json', '--archive', '--dest', dest, ARCHIVE_UUID], { encoding: 'utf8' }));
+    [SCRIPT, '--json', '--from-archive', '--dest', dest, ARCHIVE_UUID], { encoding: 'utf8' }));
   assert.equal(j.source, 'archive');
   assert.equal(j.repo, 'synthetic-repo');   // cwd recovered through the gzip
   assert.deepEqual(j.turns, live.turns);    // same turns, byte-format-blind
 });
 
-test('contract: --dest alone implies --archive; --list finds the mirrored session', () => {
+test('contract: --dest alone implies --from-archive; --list finds the mirrored session', () => {
   const { dest } = makeArchive();
   const out = execFileSync('node',
     [SCRIPT, '--json', '--list', '--dest', dest, '--repo', 'synthetic-repo'], { encoding: 'utf8' });
