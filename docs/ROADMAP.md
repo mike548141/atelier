@@ -51,7 +51,11 @@ terminal 2026-07-23; the v2-plugin cycle — 1215 pass → VP1–VP8 applied
 `bbaec81` terminal 2026-07-23) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- ⏳ **AW-rulings application review** (APPLIED 2026-07-23) — delta:
+- [~] **AW-rulings application review**
+  (claimed 2026-07-23-0319, wt: apex-sc-application-reviews — rule-4 taker:
+  fresh session Mike opened and pointed at the queue; authored neither the
+  doctrine, any verdict, nor the applications; taker writes the brief)
+  (APPLIED 2026-07-23) — delta:
   `e8d707c` (00-APEX.md, GLOSSARY.md, method README, ROADMAP preamble +
   propagation item). Intent records: the verdict's §Decisions
   ([`reviews/2026-07-23-0222-apex-widening-cold.md`](reviews/2026-07-23-0222-apex-widening-cold.md))
@@ -176,7 +180,9 @@ Mapping done 2026-07-22 (record:
 — A/B/E confirmed narrow, C reframed to mutable-tag CI actions, D dismissed
 instance-layer) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- ⏳ **SC-rulings application review** (APPLIED 2026-07-23) — delta:
+- [~] **SC-rulings application review**
+  (claimed 2026-07-23-0319, wt: apex-sc-application-reviews — same rule-4
+  taker) (APPLIED 2026-07-23) — delta:
   `c27189e` (SECURITY.md, tools/README.md, tools/pre-commit.sample,
   REPO-STANDARD.md, templates/SECURITY.md). Intent records: the verdict's
   §Decisions
