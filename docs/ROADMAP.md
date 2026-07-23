@@ -42,7 +42,10 @@ no-MAJOR application pass, closed 2026-07-22; the secrets/access cycle —
 2026-07-23, cycle closed) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- ⏳ **Apex widening — adaptation element, honesty triad, glossary seed**
+- [~] **Apex widening — adaptation element, honesty triad, glossary seed**
+  (claimed 2026-07-23-0222, wt: queue-reviews — rule-4 taker: fresh session
+  Mike opened and pointed at the queue; authored none of the deltas; taker
+  writes the brief)
   (BUILT 2026-07-22/23, one session) — delta: `f52c50f` + `1da0a3e` +
   `8d25fb3` + `07cc855` + `c85712d` (adaptation element with hard-road +
   proof-bar bullets and the ros SSH worked case; truth/honesty/transparency
@@ -71,8 +74,9 @@ no-MAJOR application pass, closed 2026-07-22; the secrets/access cycle —
   closing (the wording may change under review); then a fleet sweep, per-child
   commits.
 
-- ⏳ **Economics rework — billing states, cap rule, hand-up ladder, third
-  seat** (BUILT 2026-07-23, `dadde1d`) — delta: `dadde1d` (ECONOMICS.md
+- [~] **Economics rework — billing states, cap rule, hand-up ladder, third
+  seat** (claimed 2026-07-23-0222, wt: queue-reviews — same rule-4 taker)
+  (BUILT 2026-07-23, `dadde1d`) — delta: `dadde1d` (ECONOMICS.md
   pools→marginal-token billing states + draw-down rate, marginal-cost
   self-check with the stop-or-pay cap rule, the two hard edges on the tier
   ladder, the third seat in the orchestrated-run split; child ECONOMICS
@@ -159,7 +163,9 @@ ECONOMICS § tier split + plugin-bundled `queue-run` skill) →
   extracted from practice, not assumed. Fan-out sub-agents on the cheapest
   genuinely-capable tier is already standing practice (no trial needed).
 
-- ⏳ **QR1–QR9 application — rule-4 cold pass owed** (the 1149 pass carried a
+- [~] **QR1–QR9 application — rule-4 cold pass owed**
+  (claimed 2026-07-23-0222, wt: queue-reviews — same rule-4 taker; not the
+  applier session nor its subagents) (the 1149 pass carried a
   MAJOR, so the application inherits rule-4 status). Delta: `b65209c`
   (CONCURRENCY § Orchestrated queue runs + ECONOMICS § tier split +
   `skills/queue-run` + README + `QueueRunSkillTest`). Rulings and decision
@@ -187,7 +193,9 @@ Mapping done 2026-07-22 (record:
 — A/B/E confirmed narrow, C reframed to mutable-tag CI actions, D dismissed
 instance-layer) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- ⏳ **security-canon A/B/C/E review** (edits BUILT 2026-07-22, `85157c3`,
+- [~] **security-canon A/B/C/E review**
+  (claimed 2026-07-23-0222, wt: queue-reviews — same rule-4 taker)
+  (edits BUILT 2026-07-22, `85157c3`,
   merged `73da10d` — detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)) — delta:
   `85157c3`; intent records: the gap map
   `sessions/2026-07-22-1025-security-canon-gap-map.md` §3 + the
@@ -416,7 +424,9 @@ public as a **named worked example** (README "If you're adopting this"). What wa
       specifics (grant ledger, Apple/iCloud) → marked worked-examples. No longer
       a publication gate; do it as the named-worked-example framing gets tested by
       a real adopter.
-- ⏳ **v2-plugin application review** (the v2 plugin **SHIPPED 2026-07-23**,
+- [~] **v2-plugin application review**
+  (claimed 2026-07-23-0222, wt: queue-reviews — same rule-4 taker)
+  (the v2 plugin **SHIPPED 2026-07-23**,
   merge `0de6f52`, bundle 0.2.0 — VP1–VP8 ruled per-finding by Mike and
   applied same day; superseded global skill retired; shipped detail →
   [`ROADMAP-DONE.md`](ROADMAP-DONE.md)) — delta: `ff8a07f` (the VP
