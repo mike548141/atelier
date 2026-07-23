@@ -5,6 +5,26 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-23 — economics rework: billing states, cap rule, hand-up ladder, third seat)
+- **ECONOMICS.md pools → billing states of the marginal token** (`dadde1d`):
+  plan-included / plan-included-capped / usage-billed, plus draw-down rate;
+  risk assigns the tier seats, billing only prices them. Triggered by the
+  provider moving the capable model into the operator's subscription
+  (capped share, faster draw-down), which broke the two-pool binary.
+- **Marginal-cost self-check** (renamed from "know which pool"): two guards —
+  dear-meter builds, and silent cap-crossing (fails open like CI overage).
+  At a cap: stop/delay or principal-authorised spend under AUTONOMY's
+  confirm floor; **capacity never picks the tier** and down-tiering to dodge
+  a cap is forbidden (Mike's ruling, quoted in the ADR).
+- **Two hard edges on the tier ladder**: cheaper models welcome wherever the
+  work's risk permits (every capacity state); a model past its depth **fails
+  noisily and hands up** — workhorse → capable tier → principal.
+- **Third seat adopted**: fan-out sub-agents on the cheapest genuinely-capable
+  tier as standing practice; stepped-down executor trialled per queue run
+  (ROADMAP item). Child ECONOMICS template re-grounded to match. ADR:
+  `docs/decisions/2026-07-23-0001-billing-state-of-the-marginal-token.md`;
+  cold review queued (rule 4).
+
 ### Added (2026-07-22 — second orchestrated queue run, 1210: four items per-item)
 - **Root `SECURITY.md` + child template** (`85157c3`): private-disclosure
   policy (GitHub advisories, honest best-effort window, no invented

@@ -65,6 +65,18 @@ no-MAJOR application pass, closed 2026-07-22; the secrets/access cycle —
   those floors stale. Gated on the ⏳ apex review above closing (the wording
   may change under review); then a fleet sweep, per-child commits.
 
+- ⏳ **Economics rework — billing states, cap rule, hand-up ladder, third
+  seat** (BUILT 2026-07-23, `dadde1d`) — delta: `dadde1d` (ECONOMICS.md
+  pools→marginal-token billing states + draw-down rate, marginal-cost
+  self-check with the stop-or-pay cap rule, the two hard edges on the tier
+  ladder, the third seat in the orchestrated-run split; child ECONOMICS
+  template re-grounded; renamed-section cross-refs in REVIEW/CONCURRENCY).
+  Intent record with the three principal rulings quoted:
+  [`decisions/2026-07-23-0001-billing-state-of-the-marginal-token.md`](decisions/2026-07-23-0001-billing-state-of-the-marginal-token.md).
+  Self-authored doctrine (Fable session; rulings Mike's, wording the
+  session's) ⇒ rule 4: that session may not spawn this review; a non-author
+  taker writes the brief.
+
 ## build/ layer — open strands
 
 - [ ] **Code-signing standard across the fleet** (Mike, 2026-07-11) — "how do we
@@ -130,6 +142,14 @@ REPO-BOUNDARY, worktree tooling) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 Built 2026-07-22 as ratified (CONCURRENCY § Orchestrated queue runs +
 ECONOMICS § tier split + plugin-bundled `queue-run` skill) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md). What remains open is its review:
+
+- [ ] **Third-seat executor trial (Mike, 2026-07-23, per `dadde1d`)** — on the
+  next queue run, dispatch one or two *routine, well-floored* items to the
+  mid tier (Sonnet) instead of the workhorse; orchestrator reviews as normal.
+  Keep the step-down only on the floor's evidence (scanners/tests/review all
+  green, no hand-up); record the outcome either way — tier claims are
+  extracted from practice, not assumed. Fan-out sub-agents on the cheapest
+  genuinely-capable tier is already standing practice (no trial needed).
 
 - [ ] 🎯 **QR1–QR9 rulings (queue-run doctrine cold pass —
   [`verdict`](reviews/2026-07-22-1149-queue-run-doctrine-cold.md))** —
