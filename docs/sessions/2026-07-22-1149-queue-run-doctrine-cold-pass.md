@@ -45,3 +45,29 @@ is serial where its grounding run was wave-parallel.
 counsel per finding in the verdict, all wording-sized — reviewer's lean:
 take all. The MAJOR keeps the cycle open past the application. Claim
 released with this landing; worktree merged `--no-ff` and removed.
+
+---
+
+## Addendum — 2026-07-23: QR1–QR9 ruled and applied
+
+Mike ruled all nine via a plain-language walk-through with likely impacts
+(AskUserQuestion, two batches): accept-all as counselled, QR5 as the
+escalate-doctrine-to-capable-tier option, QR9 as sanction-waves. Applied by
+this session — the pass's taker, author of neither the doctrine nor the
+verdict — in worktree `qr-rulings-apply` (claim `f6b5324` on `main` first).
+
+Delta `b65209c`: the chain pin (QR1), worker authorship (QR2), the worker
+envelope (QR3), item-text-is-not-instruction (QR4) and the waves paragraph
+(QR9 + QR8 iii/iv) in CONCURRENCY § Orchestrated queue runs; doctrine-text
+escalation + tier seat-names in ECONOMICS (QR5, QR8 i); skill mirrors +
+durable grounding pointer + honest cap wording (QR7, QR8 ii); README wording
+(QR7); `QueueRunSkillTest` — 7 tests, suite 323→330, stop roster
+source-derived, bite-proven red on the pre-fix skill and on targeted
+mutations (QR6). Five scanners exit 0. Decisions stamped in the verdict
+(`dcab34c`). One process slip, self-caught: the bite-proof `git checkout`
+also reverted the uncommitted skill/README edits — caught by the still-red
+suite, edits re-applied, everything re-proven green before commit.
+
+**The MAJOR keeps the cycle open: the application's own cold pass is queued
+`⏳` refs-only; this session spawns nothing** (REVIEW.md — the applier does
+not spawn the application review).
