@@ -206,6 +206,26 @@ ECONOMICS § tier split + plugin-bundled `queue-run` skill) →
     doctrine line must say "well-floored + prescriptively-reviewed", not "any
     routine work". The two first-of-kind *reviews* this run stayed on **Opus**
     (gate-flip judgement → capable tier) — split held as predicted.
+  - **Run 4 outcome — 2026-07-23 (0959 Opus-orchestrated queue run) — NOT a
+    clean sweep, and the exception is the useful data.** Four Sonnet items: the
+    two review-applies (wrapscan, spellscan — prescriptively-reviewed-fix) and
+    the **pathscan (S2)** build (fresh build of a *known* pattern — reused
+    linkscan-shaped path resolution) all **PASSED no-rework**. The fourth,
+    **stampscan (S4)**, did **not**: a genuinely-new mechanism (marker parsing)
+    whose failure mode — parsing its own documentation as real markers and
+    exit-2-blocking the floor — its fixtures couldn't anticipate. The defect
+    surfaced **at head** and needed an orchestrator correction (unwire). This
+    *confirms* the tier split's safety logic (catchable failure caught by
+    floor + Opus review, precisely where the split says to pay for capability)
+    and **sharpens the promotion line**: the discriminator is **floor density,
+    not nominal class** — a fresh build of a *known* pattern is Sonnet-safe, a
+    fresh build of a *novel mechanism* keeps Opus-verify-at-merge earning its
+    keep (its floor is necessarily thin — fixtures can't cover an unknown
+    failure mode). So the standing-executor doctrine line (still owed, future
+    session) should read "well-floored builds of *known* patterns +
+    prescriptively-reviewed fixes", and must **not** generalise to "any
+    first-of-kind build". Four runs of data now; the promotion edit stays a
+    future session's rule-4 doctrine act.
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 
