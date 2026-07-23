@@ -10,6 +10,33 @@ with a disposition note where work was superseded or declined).
 First harvested 2026-07-14 (ROADMAP.md had reached 1091 lines).
 
 ## Doctrine — completed review cycles
+- [x] 🎯 **EB1–EB8 rulings (economics cold pass —
+  [`verdict`](reviews/2026-07-23-0222-economics-billing-states-cold.md))** —
+  0222 rule-4 taker's cold pass, PASS-WITH-FINDINGS 0M/4m/3L/1n; ruled
+  2026-07-23 accept-all as counselled; applied `86f8530` by the taker
+  session (authored neither doctrine nor verdict) as the **terminal
+  application** of the no-MAJOR pass — both indexes + ECONOMICS.md swept off
+  the two-pool frame, unknown-cap-distance guard, child template
+  de-hardcoded to seats-by-risk; EB8 [backlog] rides AUTONOMY's next edit.
+  Decisions stamped in the verdict; cycle closed. (Moved from ROADMAP.md
+  2026-07-23.)
+- [x] 🎯 **QA1–QA6 rulings (QR-application cold pass —
+  [`verdict`](reviews/2026-07-23-0222-qr-application-cold.md))** — 0222
+  rule-4 application pass, PASS-WITH-FINDINGS 0M/1m/3L/2n; all nine QR
+  rulings verified faithfully applied, QR6's bite reproduced. Ruled
+  2026-07-23 accept-all as counselled; applied `5891184` — the
+  item-text-never-overrides guard mirrored into the skill and test-pinned on
+  both surfaces, eviction extended to README, wording fixes. **Queue-run
+  cycle terminal**; decisions stamped; cycle closed. (Moved from ROADMAP.md
+  2026-07-23.)
+- [x] 🎯 **VA1–VA4 rulings (v2-plugin application cold pass —
+  [`verdict`](reviews/2026-07-23-0222-v2-plugin-application-cold.md))** —
+  0222 rule-4 application pass, PASS-WITH-FINDINGS 0M/2m/1L/1n; all eight VP
+  rulings byte-verified. Ruled 2026-07-23 accept-all as counselled; applied
+  `bbaec81` — SIGNING.md + REPO-STANDARD swept to the profile-gated bake,
+  VA2 [backlog] folded into the e2e exercise item, skill step-5 comment
+  rule, eight facts restored. **v2-plugin cycle terminal**; decisions
+  stamped; cycle closed. (Moved from ROADMAP.md 2026-07-23.)
 - [x] 🎯 **SA1–SA8 rulings (secrets/access cold pass —
   [`verdict`](reviews/2026-07-22-1021-secrets-access-cold-pass.md))** — ruled
   2026-07-23, accept-all as counselled (SA4 = name the break-glass class,

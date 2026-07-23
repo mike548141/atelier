@@ -334,3 +334,29 @@ No finding is withdrawn or added by the reconciliation; counts stand at
 decisions are the principal's.
 
 *Reviewer: cold rule-4 pass, Fable, 2026-07-23 (verdict finalised ~0234 UTC).*
+
+---
+
+## Decisions (stamped 2026-07-23, the applying session)
+
+Mike ruled **accept-all as counselled** (2026-07-23). Applied in `86f8530` by
+a session that authored neither the doctrine nor this verdict. No MAJOR in
+the pass ⇒ this is the **terminal application**; the economics cycle closes
+on its landing.
+
+- **EB1 [fixed]** — both indexes swept (billing states + marginal-cost
+  self-check).
+- **EB2 [fixed]** — ECONOMICS.md's own remnants rewritten (CI compute beside
+  the model spend; cheapest judged against billing state + draw-down rate).
+- **EB3 [fixed]** — unknown cap distance trips the guard; fail toward
+  confirmation.
+- **EB4 [fixed]** — template de-hardcoded: seats by risk, billing facts read
+  off the current plan, held person-local.
+- **EB5 [fixed]** — scoping advice attached to reviews/hard problems;
+  orchestration points at the parent's tier split.
+- **EB6 [fixed]** — workhorse qualified by work class (folded with QA6's
+  slot-per-run clause).
+- **EB7 [fixed]** — CONCURRENCY pointer aimed at ECONOMICS' person-local
+  boundary (head/foot).
+- **EB8 [backlog]** — AUTONOMY's spend example updates at that file's next
+  edit, per counsel; not worth its own commit.
