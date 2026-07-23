@@ -575,6 +575,89 @@ usage/config error. Escape hatches mirror the sibling scanners:
 `<!-- datescan:allow: <reason> -->` per line, a glob in `.datescanignore` per
 path.
 
+## `wrapscan.py` — line-wrap / column hygiene (FIRST-OF-KIND, advisory only)
+
+Seam S1 (2026-07-22 invariant-candidates review): Markdown prose under
+`docs/**` wraps at the house width; a line **materially over** it reds —
+concretely at or beyond `LINE_LIMIT + 1` (86 cols at the shipped limit of 85).
+Grounded in a real repeat: the same over-wide-line class shipped **three
+cycles running** (`SL7` → `AC1` at 122 cols → `IR3`), each fix re-introducing
+the next, because nothing mechanical caught a judgement the reviewer kept
+re-making. This scanner is that column count.
+
+**Not yet reviewed** (don't-stack) — wired CI **advisory-only** (`--warn`,
+always exit 0), **not** in the blocking pre-commit hook.
+
+Column length is a character count, honest for the house's ASCII prose but not
+a true display-width measure (a stated Unicode caveat). Four exemptions,
+each with its honest limit documented in-header: **fenced/indented code**
+(the indented rule is per-line, so it also exempts some wrappable indented
+prose — a false negative accepted over a false positive inside real code);
+**table rows** (any `|`-bearing line — a bare heuristic, not a table parser);
+**ATX headings**; **reference-style link definitions**; and **single
+unbreakable-token overflow** (a URL/path/long identifier with no legal wrap
+point in the overflow — this *will* let through prose that merely ends in one
+long word, the accepted line-local trade-off). Setext underlines are correctly
+not special-cased.
+
+```sh
+python3 tools/wrapscan.py                  # scan docs/** (default scope)
+python3 tools/wrapscan.py --root . docs     # explicit — the CI invocation
+python3 tools/wrapscan.py --warn            # report findings, always exit 0
+python3 tools/wrapscan.py --limit 100       # tune the column limit
+python3 tools/wrapscan.py --json            # machine-readable
+python3 tools/wrapscan.py --selftest        # prove the engine offline
+```
+
+Exit codes: `0` clean, or `--warn` given · `1` findings without `--warn` · `2`
+usage/config error. Escape hatches mirror the sibling scanners:
+`<!-- wrapscan:allow: <reason> -->` per line, a glob in `.wrapscanignore` per
+path.
+
+## `spellscan.py` — NZ-English spelling (FIRST-OF-KIND, advisory only)
+
+Seam S5 (2026-07-22 invariant-candidates review): `docs/**` uses NZ-English
+spelling (artefact, organise, colour, behaviour…). The premise is that a
+scanner catches the convention the eye skips — the mining found `artifact`
+used 15+ times across `method/` despite the rule, caught as a finding only
+twice; the class is **under-detected, not rare**.
+
+**Not yet reviewed** (don't-stack) — wired CI **advisory-only** (`--warn`,
+always exit 0), **not** in the blocking pre-commit hook.
+
+The denylist is generated from stem lists, one source of truth: an
+`-ize/-ise` + `-yze/-yse` verb family (with a smaller `-ization/-isation`
+subset that **excludes** stems whose noun is irregular — `recognize` →
+`recognition`, not `recognization` — so it never invents a word), plus
+hand-listed irregulars (artifact, the colour/behaviour/defence/centre
+families, catalogue, favour, honour, fulfil). Matched case-insensitively as
+whole words. **`license`/`practice` are deliberately excluded**: they are
+US/NZ noun-verb homographs (NZ `licence`/`license`, `practice`/`practise`)
+that need part-of-speech tagging to call correctly, and a bare heuristic would
+false-flag every `LICENSE` heading and `SPDX-License-Identifier` — the honest
+call is to leave them to review, documented in-header.
+
+Exemptions mirror datescan (fenced/inline code, blockquotes, quote-flanked
+MENTION) plus two this class needs: URL/path tokens (slash-detected, so
+`actions/upload-artifact` is exempt for free) and a small `ALLOWLIST_PHRASES`
+for bare-prose API terms (`artifact attestations`, `upload-artifact`…);
+ALL-CAPS tokens read as identifiers/filenames. Honest limit: a legitimate
+API term in bare prose still false-positives and is meant to be closed with an
+inline-code span, the allowlist, or `spellscan:allow`.
+
+```sh
+python3 tools/spellscan.py                 # scan docs/** (default scope)
+python3 tools/spellscan.py --root . docs    # explicit — the CI invocation
+python3 tools/spellscan.py --warn           # report findings, always exit 0
+python3 tools/spellscan.py --json           # machine-readable
+python3 tools/spellscan.py --selftest       # prove the engine offline
+```
+
+Exit codes: `0` clean, or `--warn` given · `1` findings without `--warn` · `2`
+usage/config error. Escape hatches mirror the sibling scanners:
+`<!-- spellscan:allow: <reason> -->` per line, a glob in `.spellscanignore` per
+path.
+
 ## Tests
 
 ```sh

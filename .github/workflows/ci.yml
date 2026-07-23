@@ -93,6 +93,8 @@ jobs:
           python3 tools/sizescan.py --selftest
           python3 tools/reviewscan.py --selftest
           python3 tools/datescan.py --selftest
+          python3 tools/wrapscan.py --selftest
+          python3 tools/spellscan.py --selftest
 
       - name: tool test suite
         run: python3 -m unittest discover -s tools -p 'test_*.py' -v
@@ -151,6 +153,23 @@ jobs:
       # never blocks a build. Do not drop --warn until it has been reviewed.
       - name: datescan (dating discipline — advisory, not yet reviewed)
         run: python3 tools/datescan.py --warn --root . docs
+
+      # wrapscan (S1, 2026-07-22 invariant-candidates review): line-wrap /
+      # column-hygiene over docs/** — a prose line materially over the house
+      # width (>=86 cols) reds. FIRST-OF-KIND, WIRED ADVISORY-ONLY: not yet
+      # reviewed (don't-stack), so --warn always exits 0 — it reports the
+      # finding count for review evidence and never blocks a build. Do not
+      # drop --warn until it has been reviewed.
+      - name: wrapscan (column hygiene — advisory, not yet reviewed)
+        run: python3 tools/wrapscan.py --warn --root . docs
+
+      # spellscan (S5, 2026-07-22 invariant-candidates review): NZ-English
+      # spelling over docs/** — a US spelling with an NZ equivalent reds.
+      # FIRST-OF-KIND, WIRED ADVISORY-ONLY: not yet reviewed (don't-stack), so
+      # --warn always exits 0 — it reports the finding count for review
+      # evidence and never blocks a build. Do not drop --warn until reviewed.
+      - name: spellscan (NZ-English spelling — advisory, not yet reviewed)
+        run: python3 tools/spellscan.py --warn --root . docs
 
       # --- commit-signature verification (SIGNING.md, ADR 0007) --------------
       # atelier is the trust root, so it verifies against its OWN allowed_signers

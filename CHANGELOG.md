@@ -5,6 +5,25 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-23 — two more anti-slop scanners: wrapscan (S1) + spellscan (S5), advisory)
+- **`tools/wrapscan.py` (S1)**: flags `docs/**` prose lines materially over the
+  house wrap width (≥86 cols). Exemptions: fenced/indented code, table rows, ATX
+  headings, ref-link defs, and single-unbreakable-token overflow — each with its
+  honest limit documented in-header (character-count, not display-width, is a
+  stated Unicode caveat). 40 tests + `--selftest`. Grounded in the wrap defect
+  that shipped three review cycles running (`SL7`→`AC1`→`IR3`).
+- **`tools/spellscan.py` (S5)**: flags US spellings in `docs/**` (artifact,
+  organize, colour-family…) via generative `-ise`/`-yse` stem families (irregular
+  nouns excluded so it never invents a word) + hand-listed irregulars.
+  `license`/`practice` deliberately excluded (untaggable US/NZ homographs).
+  Exemptions add URL/path tokens + an API-term allowlist to datescan's set. 60
+  tests + `--selftest`.
+- Both **wired ADVISORY-ONLY** (`--warn`, exit 0) in `ci.yml` — first-of-kind, so
+  not yet reviewed (don't-stack); absent from the blocking pre-commit hook and
+  child `floor.yml` until each earns an independent review. Honest uncleaned
+  baselines kept as review evidence: wrapscan 286/19, spellscan 68/32. Full tool
+  suite 432 green.
+
 ### Added (2026-07-23 — both observers read the ccarchive archive: `--from-archive`)
 - **`cctranscript --from-archive`**: every view (list, render, `--json`, explicit
   path) works over the compressed mirror ccarchive maintains, not just the live

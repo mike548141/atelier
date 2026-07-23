@@ -253,12 +253,34 @@ candidates; record:
             `floor.yml` — it gates nothing until reviewed. Honest baseline left
             uncleaned as review evidence: **60 findings / 43 files**. Its ⏳
             review is queued below.
-      - [~] **S1 wrapscan** (claimed 2026-07-23-0618, wt: queue-run-s1-wrapscan)
-            — line-wrap / column-hygiene scanner over `docs/**`, advisory-only,
-            queue run.
-      - [~] **S5 spellscan** (claimed 2026-07-23-0618, wt: queue-run-s5-spellscan)
-            — NZ-English spelling wordlist scanner over `docs/**`, advisory-only,
-            queue run.
+      - [x] **S1 wrapscan BUILT 2026-07-23** (`72e8ecb`, queue run, Sonnet
+            worker). `tools/wrapscan.py` + 40 tests (suite 412 green) +
+            `--selftest`. Flags `docs/**` prose lines ≥86 cols; exemptions:
+            fenced/indented code, table rows, ATX headings, ref-link defs,
+            single-unbreakable-token overflow (each limit documented honestly
+            in-header; character-count not display-width is a stated Unicode
+            caveat). **Wired ADVISORY-ONLY** (`--warn`, exit 0) in `ci.yml`; NOT
+            in the pre-commit hook nor child `floor.yml`. Honest baseline left
+            uncleaned: **286 findings / 19 files**. 🚩 worker flagged 153/286 sit
+            in `docs/SESSIONS.md` (a deliberate one-line-per-session log) and
+            review-verdict files cluster heavily — whether those need a prose
+            exemption / `.wrapscanignore` entry is a **gate-readiness question
+            for the ⏳ review**, not decided this run. Its ⏳ review is queued
+            below.
+      - [x] **S5 spellscan BUILT 2026-07-23** (`760260473`, queue run, Sonnet
+            worker). `tools/spellscan.py` + 60 tests (suite 432 green) +
+            `--selftest`. NZ-English wordlist over `docs/**`: generative
+            `-ize/-ise` + `-yze/-yse` stem families (irregular-noun stems
+            excluded so it never invents a word) + hand-listed irregulars
+            (artifact/artefact, colour/behaviour/defence families…). Exemptions:
+            fenced/inline code, blockquotes, quote-flanked MENTION, URL/path
+            tokens, an `ALLOWLIST_PHRASES` for bare-prose API terms like
+            `artifact attestations` and `upload-artifact`, ALL-CAPS-as-identifier.
+            **license/practice deliberately EXCLUDED** — US/NZ noun-verb
+            homographs untaggable without POS (documented in-header). **Wired
+            ADVISORY-ONLY** in `ci.yml`. Honest baseline: **68 findings / 32
+            files** (`artifact` ×53, `catalog` ×10…) — confirms "under-detected,
+            not rare". Its ⏳ review is queued below.
 - [x] **datescan (S3) review DONE 2026-07-23** (queue run 0618, Opus cold
       reviewer; brief+verdict `docs/reviews/2026-07-23-0618-datescan-s3-cold.md`).
       Rule-4 clear: authored by the 0441 chain, taken by this independent
@@ -282,6 +304,27 @@ candidates; record:
       near-zero genuine breaches (ISO-fix or `allow` the real ones — `15/7/26`,
       `last night's route`), *then* drop `--warn` + add to `floor.yml`. Blocked
       until the re-baseline; a separate act from the code fixes.
+- ⏳ **wrapscan (S1) review — first-of-kind scanner earns a review before it may
+      gate** (delta `72e8ecb` + its advisory wiring; intent:
+      `docs/sessions/2026-07-22-1036-invariant-candidates.md` § S1). This queue
+      run authored it via dispatch, so this chain may not take it. Review scope:
+      detection correctness + the exemption heuristics' honest limits (esp. the
+      single-unbreakable-token and per-line indented-code exemptions) + whether
+      the 286-finding baseline is signal or noise — **specifically decide the 🎯
+      raised in the build: do `SESSIONS.md` and the review-verdict files (which
+      carry a deliberate long-line format) need a prose exemption or a
+      `.wrapscanignore` entry before this can gate?** On PASS-and-clean, the
+      follow-on is flipping `--warn` off + adding to `floor.yml`; separate act.
+- ⏳ **spellscan (S5) review — first-of-kind scanner earns a review before it may
+      gate** (delta `760260473` + its advisory wiring; intent:
+      `docs/sessions/2026-07-22-1036-invariant-candidates.md` § S5). This queue
+      run authored it via dispatch, so this chain may not take it. Review scope:
+      denylist correctness (do the generative `-ise` stem families ever invent a
+      wrong word?) + the exemptions' honest limits + the **license/practice
+      exclusion** (accept as permanent, or revisit with a narrower lowercase-bare
+      heuristic?) + whether the 68-finding baseline is signal or noise (is
+      `catalog` ×10 genuine prose or a repo term-of-art?). On PASS-and-clean, the
+      follow-on is flipping `--warn` off + adding to `floor.yml`; separate act.
 - [ ] **Codify V1–V7 as the always-loaded reviewer checklist** — the
       registry mechanism's doctrine half; lands in REVIEW.md/the review
       skill with each item's cited grounding. Self-authored doctrine ⇒
