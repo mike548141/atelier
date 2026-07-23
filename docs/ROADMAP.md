@@ -51,7 +51,9 @@ terminal 2026-07-23; the v2-plugin cycle — 1215 pass → VP1–VP8 applied
 `bbaec81` terminal 2026-07-23) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- [ ] 🎯 **AWA1–AWA4 rulings (Mike) — apex-widening cycle terminal** — the
+- [~] 🎯 **AWA1–AWA4 rulings (Mike) — apex-widening cycle terminal**
+  (claimed 2026-07-23-0430, wt: awa-sca-rulings-apply — ruled accept-all by
+  Mike this sitting; terminal application in flight) — the
   AW-rulings application's rule-4 cold pass ran 2026-07-23-0330 (taker-spawned
   per the claim; **PASS-WITH-FINDINGS 0M/2m/1L/1n**, verdict:
   [`reviews/2026-07-23-0330-aw-application-cold.md`](reviews/2026-07-23-0330-aw-application-cold.md)).
@@ -181,7 +183,9 @@ Mapping done 2026-07-22 (record:
 — A/B/E confirmed narrow, C reframed to mutable-tag CI actions, D dismissed
 instance-layer) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- [ ] 🎯 **SCA1–SCA3 rulings (Mike) — security-canon cycle terminal** — the
+- [~] 🎯 **SCA1–SCA3 rulings (Mike) — security-canon cycle terminal**
+  (claimed 2026-07-23-0430, wt: awa-sca-rulings-apply — same sitting, same
+  applier) — the
   SC-rulings application's rule-4 cold pass ran 2026-07-23-0330 (same
   taker-spawn; **PASS-WITH-FINDINGS 0M/1m/1L/1n**, verdict:
   [`reviews/2026-07-23-0330-sc-application-cold.md`](reviews/2026-07-23-0330-sc-application-cold.md)).
