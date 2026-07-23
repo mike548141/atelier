@@ -5,7 +5,18 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
-### Changed (2026-07-23 — SECRETS.md edge-hardened: SA1–SA9 rulings applied, cycle closed)
+### Added (2026-07-23 — cctranscript reads the ccarchive archive)
+- **`cctranscript --archive`**: every view (list, render, `--json`, explicit
+  path) now works over the compressed mirror ccarchive maintains, not just the
+  live logs Claude Code prunes — so a cleaned-up session still renders word for
+  word. `--dest`/`$CCARCHIVE_DEST` resolution is shared verbatim with ccarchive;
+  an explicit `.jsonl.gz` path needs no flag; transcripts carry a
+  `source: archive` tag (JSON) / `· archive` header (human). Eviction-aware:
+  a `--list` never reads an iCloud-evicted (dataless) mirror — it's listed with
+  an `evicted` marker instead — while rendering one chosen session deliberately
+  fetches it back. Suite 150→156; man page + `--help` updated (drift guard
+  covers the new flags). Closes the README's "sourcing seam" for the
+  observe-side; the ccrepo half stays open.
 - **The secrets/access cycle closed terminal** (verdict:
   `docs/reviews/2026-07-22-1021-secrets-access-cold-pass.md`, 0 MAJOR; Mike
   accept-all, applied `f8350ee`): the keys rule names the **live-session

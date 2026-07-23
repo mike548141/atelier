@@ -17,7 +17,9 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
+const zlib = require('node:zlib');
 const { execFileSync } = require('node:child_process');
 
 const cc = require('./cctranscript');
@@ -163,6 +165,84 @@ test('contract: --full admits thinking, tools, and results together', () => {
   assert.deepEqual(roles(j), ['you', 'think', 'claude', 'tool', 'result', 'claude']);
   // Refs number only prompts and text replies; think/tool/result stay null.
   assert.deepEqual(j.turns.map((t) => t.ref), ['1', null, '1.1', null, null, '1.2']);
+});
+
+// --- archive mode: reading ccarchive's compressed mirror ----------------
+// A throwaway archive shaped exactly as ccarchive lays it out:
+//   <dest>/<encoded-repo>/<uuid>.jsonl.gz
+// The contract: the same fixture renders identically whether read live or
+// through the gzip mirror, and a --list over the archive never reads an
+// evicted (dataless) file — asserted through the same CCARCHIVE_SIMULATE_
+// DATALESS seam ccarchive's own tests use, since a real eviction can't be
+// forced on demand.
+
+const ARCHIVE_UUID = '0f9e8d7c-0000-4000-8000-000000000000';
+function makeArchive() {
+  const dest = fs.mkdtempSync(path.join(os.tmpdir(), 'cctranscript-archive-'));
+  const repoDir = path.join(dest, '-home-dev-synthetic-repo');
+  fs.mkdirSync(repoDir, { recursive: true });
+  const gz = path.join(repoDir, `${ARCHIVE_UUID}.jsonl.gz`);
+  fs.writeFileSync(gz, zlib.gzipSync(fs.readFileSync(FIXTURE)));
+  return { dest, gz };
+}
+
+test('contract: --archive renders a .gz mirror identically to the live log', () => {
+  const { dest } = makeArchive();
+  const live = runJson();
+  const j = JSON.parse(execFileSync('node',
+    [SCRIPT, '--json', '--archive', '--dest', dest, ARCHIVE_UUID], { encoding: 'utf8' }));
+  assert.equal(j.source, 'archive');
+  assert.equal(j.repo, 'synthetic-repo');   // cwd recovered through the gzip
+  assert.deepEqual(j.turns, live.turns);    // same turns, byte-format-blind
+});
+
+test('contract: --dest alone implies --archive; --list finds the mirrored session', () => {
+  const { dest } = makeArchive();
+  const out = execFileSync('node',
+    [SCRIPT, '--json', '--list', '--dest', dest, '--repo', 'synthetic-repo'], { encoding: 'utf8' });
+  const [entry] = JSON.parse(out);
+  assert.equal(entry.id, ARCHIVE_UUID);     // .jsonl.gz stripped to the uuid
+  assert.equal(entry.repo, 'synthetic-repo');
+  assert.match(entry.firstPrompt, /null check/);
+  assert.equal(entry.evicted, false);
+});
+
+test('contract: an explicit .jsonl.gz path needs no flag at all', () => {
+  const { gz } = makeArchive();
+  const live = runJson();
+  const j = JSON.parse(execFileSync('node', [SCRIPT, '--json', gz], { encoding: 'utf8' }));
+  assert.equal(j.source, 'archive');
+  assert.deepEqual(j.turns, live.turns);
+});
+
+test('contract: --list never reads an evicted mirror; --repo still finds it', () => {
+  const { dest } = makeArchive();
+  const out = execFileSync('node',
+    [SCRIPT, '--json', '--list', '--dest', dest, '--repo', 'synthetic-repo'], {
+      encoding: 'utf8',
+      env: { ...process.env, CCARCHIVE_SIMULATE_DATALESS: ARCHIVE_UUID },
+    });
+  const [entry] = JSON.parse(out);
+  assert.equal(entry.evicted, true);
+  assert.equal(entry.firstPrompt, null);    // not read — reading would fault it back
+  assert.equal(entry.cwd, null);            // cwd sniff skipped for the same reason
+  assert.equal(entry.repo, 'repo');         // lossy folder-tail label, honestly
+});
+
+test('readLogText gunzips a .gz and passes plain files through', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cctranscript-rlt-'));
+  const plain = path.join(dir, 'a.jsonl');
+  const gz = path.join(dir, 'a.jsonl.gz');
+  fs.writeFileSync(plain, 'hello\n');
+  fs.writeFileSync(gz, zlib.gzipSync('hello\n'));
+  assert.equal(cc.readLogText(plain), 'hello\n');
+  assert.equal(cc.readLogText(gz), 'hello\n');
+});
+
+test('isDatalessFlags: SF_DATALESS bit only (mirrors ccarchive)', () => {
+  assert.equal(cc.isDatalessFlags(0x40000060), true);   // real evicted value
+  assert.equal(cc.isDatalessFlags(0x20), false);        // UF_COMPRESSED alone
+  assert.equal(cc.isDatalessFlags(NaN), false);
 });
 
 // --- documentation convention (REPO-STANDARD: concise --help + a man page) --
