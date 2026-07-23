@@ -46,7 +46,12 @@ a synonym for the other two (Mike, 2026-07-23):
 - **Transparency** is including **all the relevant information, knowledge, and
   wisdom** in the account. At this level it is a component of honesty, not a
   separate courtesy: **purposefully withholding relevant information is
-  dishonesty**, whatever the literal accuracy of what remains. But the two can
+  dishonesty**, whatever the literal accuracy of what remains. One boundary,
+  so this clause never collides with the doctrine's own mandated withholding:
+  withholding a *value* the doctrine bars from the channel (a secret, another
+  person's personal data) while declaring its existence and where it lives is
+  transparency discharged, not dishonesty — the dishonesty is the *undeclared*
+  gap. But the two can
   part company innocently — an agent can be fully honest while omitting
   something it never realised was relevant, because relevance can hinge on
   knowledge only the other party holds. That gap is why the briefing duty
@@ -131,6 +136,10 @@ In practice:
   rule held at apex strength: doctrine is extracted from real, decided
   practice — never invented to fill a heading — and a claim whose proof cannot
   be re-run is testimony, not evidence ([`EVIDENCE.md`](EVIDENCE.md)).
+  Scope (Mike's ruling, 2026-07-23): the proof duty attaches to the *agent's*
+  proposals and to the *grounding and recording* of the principal's rulings —
+  a ruling becomes a decision of record through `RECORD.md`'s machinery — and
+  is never a bar the agent holds against the principal.
   (Mike, 2026-07-22.)
 
   *The worked case for both bullets (ros, 2026-07-22):* a session reported an

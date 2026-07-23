@@ -78,7 +78,6 @@ Read in this order:
 - **`GLOSSARY.md`** — the shared language: load-bearing terms defined once or
   pointed to their canonical home (thin anchor; tiki's admission rule). SEED —
   the principal's ratify pass is owed.
-
 - **`REVIEW.md`** — the enforcement half: independent, fresh-context review
   (by the most capable model available) before work is trusted (four lenses;
   brief-on-top/verdict-below lifecycle; inline vs batched). Documents inform;

@@ -20,6 +20,9 @@ criterion may take it; the taker writes the brief (`method/REVIEW.md` rule 4).
 **The pointer is refs only** — name the delta and the intent record, no
 evaluative account; the account lives in the session record, so a taker meets
 the work cold (REVIEW.md rule 4's ceiling, stated here at the point of use).
+And the delta list stays *complete*: a later commit that touches a queued
+delta's doctrine surfaces — even for hygiene — widens the pointer's delta
+list in the same commit (AW6 ruling, 2026-07-23).
 
 ## Doctrine — review-owed
 
@@ -67,11 +70,17 @@ no-MAJOR application pass, closed 2026-07-22; the secrets/access cycle —
   the all-clear but never names the CI result; "scanners green locally" is
   not "floor green at head". Small wording-sized RECORD.md edit; rides the
   normal review cycle when taken.
-- [ ] **Propagate the widened apex floor to children** — children inline a
-  short apex floor (`method/PROPAGATION.md`); the adaptation element **and the
-  honesty triad** make those floors stale. Gated on the apex review cycle
-  above closing (AW rulings + their application — the wording may change under
-  the rulings); then a fleet sweep, per-child commits.
+- [ ] **Propagate the widened apex floor to children — and sweep every in-repo
+  apex restatement** (surfaces named per AW2's ruling, 2026-07-23, so the
+  sweep is mechanical): root `README.md:57` + `:93`;
+  `docs/method/PRINCIPLES.md:10` + `:316`; `docs/method/PROPAGATION.md:40` +
+  its inlined floor template block; `skills/session-onramp/SKILL.md`
+  description + §1; `docs/method/README.md:11` (EVIDENCE named behind honesty
+  only, now the truth bar) — all still two-element at HEAD. Per AW8's ruling:
+  the child floor's adaptation line must carry the honesty-precondition
+  clause verbatim-or-equivalent. Gated on the apex review cycle above closing
+  (AW application ⏳ — the wording may change under that pass); then the
+  in-repo sweep + fleet sweep, per-child commits.
 
 - [~] 🎯 **EB1–EB8 rulings (economics cold pass —
   [`verdict`](reviews/2026-07-23-0222-economics-billing-states-cold.md))** —
