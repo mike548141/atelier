@@ -28,6 +28,47 @@ reminder; `man` = plain-language reference with `FILES`/`EXAMPLES`/`NOTES`).
 follow (ROADMAP; ccrepo after its v2 rewrite). `browser-fetch` is an MCP server
 with its own `instruments/browser-fetch/README.md`.
 
+## Flag vocabulary across the cc-tools
+
+A flag that means the same thing in more than one tool uses the **same word**,
+judged from a user who moves between them. Verified 2026-07-23 by reading all
+three `--help` texts, man pages and argument parsers end to end — the tools
+were already consistent; this table is the standing reference so they stay
+that way.
+
+| Flag | Meaning | `ccarchive` | `cctranscript` | `ccrepo` |
+|------|---------|:-----------:|:---------------:|:--------:|
+| `--dest <dir>` | Where the archive lives (default iCloud Drive, or `$CCARCHIVE_DEST`) | write target | read target (implies `--from-archive`) | read target (implies `--from-archive`) |
+| `--from-archive` | Read `ccarchive`'s mirror instead of the live logs | — (it *is* the archive) | ✅ | ✅ |
+| `--materialise` | Also read an iCloud-evicted (dataless) file, faulting its bytes back | ✅ (`--verify`/`--audit`) | — (see note) | ✅ |
+| `--json` | Machine-readable output; never styled | ✅ | ✅ | ✅ |
+| `--repo` | The repo dimension | — | `--repo <name>` selects one repo to read | `--repo <list>` filters/groups (comma = OR, `!` excludes, `*` globs) |
+| `-h`, `--help` | One-screen usage summary | ✅ | ✅ | ✅ |
+
+**Note — the `--materialise` asymmetry is deliberate, not a gap.** `ccarchive`
+and `ccrepo` both read *every* file in the archive on an ordinary run (a full
+verify/audit; a full cost total), so an evicted mirror is a bulk-download risk
+worth a skip-by-default/opt-in-override pair. `cctranscript` never reads every
+file: `--list` only peeks each candidate for its first prompt and skips an
+evicted one outright (no override needed — there's nothing to materialise for
+a listing), and rendering one chosen session already deliberately faults an
+evicted mirror back with no skip step to override in the first place. There is
+no bulk-read operation on `cctranscript` for a `--materialise` flag to name, so
+it doesn't carry one.
+
+**Standing rule (recommended; flags-follow-operation — for Mike to ratify):**
+vocabulary is uniform *whenever the operation is shared* — same word, same
+meaning, no exceptions. But a flag is added to a tool only when that tool
+actually performs the operation it names; it is never added to a tool for
+symmetry's sake alone. The `--materialise` asymmetry above is the worked
+example: bolting a `--materialise` no-op onto `cctranscript` would imply a
+bulk-read control that doesn't exist there, which is worse than the current
+honest gap. The alternative — force every shared-sounding flag onto every
+tool regardless of whether the operation exists — was considered and rejected:
+it optimises for a surface-level checklist over telling the truth about what
+each tool does, and this codebase's own convention (e.g. `ccarchive` itself
+carries no `--from-archive`, since it *is* the archive) already leans this way.
+
 ## Install (and on a new machine)
 
 These aren't run from this folder directly — instead each is symlinked into
