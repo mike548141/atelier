@@ -290,19 +290,20 @@ detection (154/287 baseline is deliberate SESSIONS index rows). Brief
 [`docs/reviews/2026-07-23-0707-wrapscan-s1-cold.md`](reviews/2026-07-23-0707-wrapscan-s1-cold.md),
 detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Two follow-ons stay open:*
 
-- [ ] **Apply wrapscan review findings WS1–WS6 + scope decision** (ordinary code
-      once the scope 🎯 below is ruled): fix the ~4 genuine doctrine over-wraps
-      (`REPO-STANDARD.md:52`, `SIGNING.md:83`, `CONCURRENCY.md:232`); decide
-      WS2 (pipe fail-open), WS3 (unclosed-fence swallow), WS4 (cross-scanner
-      allow-marker collision) — tighten or accept-and-document; WS5/WS6 ride the
-      scope fix. Detail in the brief.
-- [ ] 🎯 **wrapscan gate-scope + flip (Mike's call)** — the MAJOR is a decision
-      for you: **option (a)** scope the gate to the doctrine surface
-      (`method/`/`build/`/`decisions/` bodies) and `.wrapscanignore` the
-      record/log/review stores *(reviewer-preferred, lower-risk)*, or **option
-      (b)** teach a single-line-record exemption. Then, on a clean run over the
-      gated scope, drop `--warn` + add to `floor.yml`. Blocked on the scope
-      ruling; a separate act from the code fixes.
+- [ ] **Apply wrapscan review findings WS1–WS6 + implement option-a scope**
+      (ordinary code; scope now RULED — see below). Steps: scope the gate to the
+      doctrine surface (`method/`/`build/`/`decisions/` bodies) and add a
+      `.wrapscanignore` for the record/log/review stores (WS1); fix the ~4 genuine
+      doctrine over-wraps (`REPO-STANDARD.md:52`, `SIGNING.md:83`,
+      `CONCURRENCY.md:232`); decide WS2 (pipe fail-open), WS3 (unclosed-fence
+      swallow), WS4 (cross-scanner allow-marker collision) — tighten or
+      accept-and-document; WS5/WS6 ride the scope fix. Detail in the brief.
+- [ ] 🎯 **wrapscan flip (Mike's call, once clean)** — **scope RULED 2026-07-23
+      (Mike: "agreed option A")**: doctrine-surface scope + `.wrapscanignore` the
+      record stores. The flip itself follows datescan's pattern — once the apply
+      above lands and a clean run over the gated scope is achieved, drop `--warn`
+      + add to `floor.yml` is a Mike go/no-go. Not pre-authorised; surfaced when
+      clean.
 *spellscan (S5) first-of-kind review DONE 2026-07-23 (queue run 0707, cold Opus) —
 **PASS-WITH-FINDINGS 0M/2m/1L/1n**, NOT gate-ready; core safety proven (no wrong
 corrections), real latent bug SS1 found, license/practice exclusion ruled
