@@ -241,7 +241,8 @@ candidates; record:
 [`docs/reviews/2026-07-23-0618-datescan-s3-cold.md`](reviews/2026-07-23-0618-datescan-s3-cold.md),
 detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Its two follow-ons stay open:*
 
-- [ ] **Apply datescan review findings DSR1–DSR8 + re-baseline** (ordinary code
+- [~] **Apply datescan review findings DSR1–DSR8 + re-baseline** (claimed
+      2026-07-23-0707, wt: worktree-agent-af1784b16be8d4435) (ordinary code
       work, any session — not self-authored doctrine). Priority fixes for the
       gate: DSR2 (numeric-triple slash FP), DSR3 (`today` currently-sense
       conflation — the biggest lever), DSR4 (multi-word quoted-mention span).
@@ -257,7 +258,10 @@ detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Its two follow-ons stay open:*
 - ⏳ **wrapscan (S1) review — first-of-kind scanner earns a review before it may
       gate** (delta `72e8ecb` + its advisory wiring; intent:
       `docs/sessions/2026-07-22-1036-invariant-candidates.md` § S1). This queue
-      run authored it via dispatch, so this chain may not take it. Review scope:
+      run authored it via dispatch, so this chain may not take it.
+      **Taken 2026-07-23-0707 by a fresh Mike-started Opus queue run** (rule-4
+      cleared — neither started nor instructed the build; cold reviewer
+      dispatched). Review scope:
       detection correctness + the exemption heuristics' honest limits (esp. the
       single-unbreakable-token and per-line indented-code exemptions) + whether
       the 286-finding baseline is signal or noise — **specifically decide the 🎯
@@ -268,7 +272,10 @@ detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Its two follow-ons stay open:*
 - ⏳ **spellscan (S5) review — first-of-kind scanner earns a review before it may
       gate** (delta `760260473` + its advisory wiring; intent:
       `docs/sessions/2026-07-22-1036-invariant-candidates.md` § S5). This queue
-      run authored it via dispatch, so this chain may not take it. Review scope:
+      run authored it via dispatch, so this chain may not take it.
+      **Taken 2026-07-23-0707 by a fresh Mike-started Opus queue run** (rule-4
+      cleared — neither started nor instructed the build; cold reviewer
+      dispatched). Review scope:
       denylist correctness (do the generative `-ise` stem families ever invent a
       wrong word?) + the exemptions' honest limits + the **license/practice
       exclusion** (accept as permanent, or revisit with a narrower lowercase-bare
