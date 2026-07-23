@@ -91,8 +91,9 @@ Lens 1 — approach & assumptions (named by the taker as its first act):
   lint verbatim)? Does the ROADMAP template's prose-only convention match
   what REVIEW.md says of it? create-repo stamps templates into children —
   does the stamped tree pass its own floor at birth (a child born
-  yesterday: its first decision record is dated after the boundary — does
-  the scaffold's example/seed content red)?
+  yesterday: <!-- datescan:allow: hypothetical example --> its first decision
+  record is dated after the boundary — does the scaffold's example/seed
+  content red)?
 - **A6 — the delta must dogfood.** The intent record is itself a decision
   record dated 2026-07-21 — it must carry the field and pass its own lint;
   the 0820 addendum is an edit to a *frozen* pre-boundary record — the lint

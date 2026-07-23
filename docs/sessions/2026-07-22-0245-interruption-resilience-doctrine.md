@@ -2,8 +2,9 @@
 
 **Trigger.** Mike, thinking aloud about doctrine: four kinds of accidental
 interruption keep cutting sessions off mid-work — a Claude session-limit stop; a
-network loss / API error (last night's route out via the RB5009 instead of wifi);
-a closed or cancelled question window; a cmd+Q on VS Code. "Are there things we
+network loss / API error (last night's <!-- datescan:allow: date ambiguous across the NZ/UTC boundary; wrapscan:allow: marker-inflated line -->
+route out via the RB5009 instead of wifi); a closed or cancelled question
+window; a cmd+Q on VS Code. "Are there things we
 can do in the doctrine that help?" Ratified drafting all three identified gaps as
 one change ("yes do it" / "i.e. all three").
 

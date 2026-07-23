@@ -39,27 +39,59 @@ preference: under-flag with clear exemptions over being noisy). Three layers,
 same shape as the sibling scanners:
 
   * QUOTED EXTERNAL TEXT. A fenced (``` ```) code block is skipped whole,
-    matching linkscan/sizescan. A blockquoted line (`>` at the start, after
-    leading whitespace) is skipped whole — a quoted external source's own
-    words are not this repo's dating claim. An inline `` `code span` `` is
-    blanked before either check runs (linkscan's `_strip_inline_code`), so a
-    literal `` `today` `` in a code example never fires.
+    matching linkscan/sizescan; a 4-space-indented code block (CommonMark's
+    other code-block form) is skipped per-line the same way wrapscan does
+    (DSR6) — before this fix only fenced code was exempt. An inline
+    `` `code span` `` is blanked before either check runs (linkscan's
+    `_strip_inline_code`), so a literal `` `today` `` in a code example
+    never fires.
+
+    A blockquoted line (`>` at the start, after leading whitespace) is
+    skipped whole. STATED HONESTLY, NOT ROUNDED UP (DSR1 finding on the
+    original wording): `>` is not only how a quoted external source's words
+    read in Markdown — it is ALSO this house's own callout-block style (see
+    COMMUNICATION.md; `AUTONOMY.md`'s own `>` blocks; the `> 🎯 S1…` seam
+    candidates in the S3 intent doc are the repo's own normative text, not a
+    quotation). The blockquote skip therefore over-exempts: a relative-time
+    claim inside the house's own `>`-styled callout is silently missed, not
+    just a genuinely-quoted external source's. A per-line "is this an
+    attribution quote or a callout" classifier was considered and rejected —
+    the house's own icon vocabulary is deliberately NOT a fixed, closed set
+    (COMMUNICATION.md: "don't ration the icon vocabulary to a fixed set"),
+    so any icon-based classifier would itself silently miss callouts using an
+    icon not on its list, trading one silent-miss class for another instead
+    of removing it. This scanner picks the honest, simpler statement over a
+    heuristic that would look more precise than it is: **every** `>` line is
+    exempt, house callouts included, and that is a real gap, not a stated
+    limit that turned out narrower in practice.
 
   * PROSE *ABOUT* RELATIVE TIME — the hard exemption, because "this rule bans
     the word today" and "the meeting is today" are structurally identical to
     a regex. The only mechanically-honest signal available is USE vs MENTION
-    by punctuation: a relative-time word immediately flanked by a matching
-    pair of quote marks (`"today"`, `'yesterday'`, curly “last week”) is
-    treated as a MENTION (the word itself is the topic) and exempted. This is
-    exactly the shape the S3 rule's own worked examples use. It is a narrow,
+    by punctuation: a relative-time word or phrase inside a quoted SPAN — a
+    matching pair of quote marks with the opener before the match and the
+    closer at or after it (`"today"`, `'yesterday'`, curly “last week”, or a
+    multi-word phrase inside a longer quoted example like `"new this year"`)
+    — is treated as a MENTION (the word itself is the topic) and exempted.
+    This is exactly the shape the S3 rule's own worked examples use. DSR4:
+    the span check (not just the two characters immediately flanking the
+    match) is what makes the multi-word case work — the original adjacency-
+    only check missed a banned phrase sitting mid-quote. It is a narrow,
     honest heuristic, not a parser: prose that discusses relative time WITHOUT
     quoting the word ("the meaning of yesterday drifts by design") still
-    false-positives, and is meant to be closed with a `datescan:allow`.
+    false-positives, and is meant to be closed with a `datescan:allow`; and
+    the wider span check makes the OTHER direction (a genuine use that
+    happens to sit inside an unrelated quoted sentence) slightly more likely
+    too — both are accepted trade-offs, not new blind spots.
 
   * THE ALLOW MARKER / IGNORE FILE. A line carrying `datescan:allow: <reason>`
-    anywhere is exempt from every check on that line (mirrors leakscan/
-    linkscan). A glob in `.datescanignore` at the scan root exempts a path
-    wholesale (mirrors every sibling scanner's ignore file).
+    anywhere is exempt from every check on that line (same contract as
+    leakscan/linkscan). Tighter than sibling parity by one notch (the S3 cold
+    review's DSR8): the marker must sit at a word boundary and be followed by
+    a non-empty reason, so prose that merely *mentions* the marker text — with
+    no colon-and-reason after it — does not silently exempt the line. A glob
+    in `.datescanignore` at the scan root exempts a path wholesale (mirrors
+    every sibling scanner's ignore file).
 
 STATED RESIDUAL, HONESTLY (do not round this to "solved"):
 
@@ -77,10 +109,25 @@ STATED RESIDUAL, HONESTLY (do not round this to "solved"):
     tomorrow") would wrongly exempt. Both directions are accepted trade-offs,
     not blind spots — they're the reason this scanner ships advisory-only
     until reviewed.
+  * "today" is narrowed to date-adjacent contexts (a dating cue word, or an
+    ISO date elsewhere on the line — see TODAY_RX/_is_date_adjacent_today,
+    DSR3), because the reviewed corpus found it used ~9:1 as a "currently"
+    hedge rather than a calendar-date claim. The accepted cost: a bare,
+    genuine "today = this date" claim with no cue and no ISO date alongside
+    it on the same line now scans clean — a real silent-miss, traded
+    deliberately for killing the dominant noise source.
   * The non-ISO date patterns are common English/NZ shapes (slash-dates,
-    "23 July 2026", "July 23, 2026") — not exhaustive of every locale's date
-    grammar. A three-numeral slash requirement (`DD/MM/YYYY`, not `DD/MM`)
-    keeps ordinary fractions ("3/4 of the work") from false-firing.
+    dash-dates, "23 July 2026", "July 23, 2026") — not exhaustive of every
+    locale's date grammar. A three-numeral slash/dash requirement
+    (`DD/MM/YYYY`, not `DD/MM`) keeps ordinary fractions ("3/4 of the work")
+    from false-firing. Named gap (DSR5): a slash date in ISO field order,
+    `2026/07/23` (YYYY/MM/DD), still scans clean — the slash-date pattern
+    only reads `DD/MM/YYYY`. The numeral-triple patterns (slash-date,
+    dash-date) also require the pair to be a plausible (day, month) coordinate
+    in either field order (`_plausible_date_fields`, DSR2) — this is what
+    keeps a session number like `23/26/27` from false-firing as a date; it is
+    a plausibility gate, not a real calendar-date check (that's ISO_DATE_RX's
+    job on the actual ISO shape).
   * Only `docs/**` Markdown is scanned by default (dated records live there);
     code comments, commit messages, and non-Markdown prose are out of scope.
 
@@ -110,6 +157,19 @@ from pathlib import Path
 # and greppable, same contract as the sibling scanners.
 ALLOW_MARKER = "datescan:allow"
 
+# DSR8: the sibling scanners (leakscan/linkscan/secretscan/wrapscan/spellscan)
+# all treat ALLOW_MARKER as a bare substring — any prose that merely mentions
+# the marker text exempts the whole line, and an empty reason is accepted.
+# datescan tightens this past sibling parity: the marker must sit at a word
+# boundary (so it can't hide inside a longer token) and must be followed by a
+# colon and a non-empty reason, `datescan:allow: <reason>` — matching the
+# documented contract this header and render_human() already advertise. The
+# reason must start with a WORD character (not just any non-whitespace) so
+# an empty-reason marker inside its own HTML comment, `<!-- datescan:allow:
+# -->`, isn't mistaken for a reason of "-->" — the comment closer is the
+# first non-whitespace character there, but it isn't a reason.
+ALLOW_MARKER_RX = re.compile(r"\b" + re.escape(ALLOW_MARKER) + r":\s*\w")
+
 # Only these extensions are scanned — dated records are Markdown prose, not
 # code or config. Matches linkscan's MARKDOWN_SUFFIXES.
 MARKDOWN_SUFFIXES = {".md", ".markdown"}
@@ -130,8 +190,16 @@ SKIP_DIR_NAMES = {".git", "node_modules", "__pycache__", ".venv", "venv",
 # phrases are matched as literal word sequences; sorted longest-first so a
 # longer phrase wins the alternation over a shorter prefix (not load-bearing
 # here since none is a prefix of another, but keeps the invariant honest).
+#
+# NOTE: "today" is deliberately NOT in this list — see TODAY_RX and
+# _is_date_adjacent below (DSR3). Every other term here is unambiguous: they
+# occur almost exclusively as a claim about a specific point in time. "today"
+# is not — the corpus review found it used overwhelmingly as a weak-anchor
+# hedge ("still correct today", i.e. "currently"), the exact class this list
+# already excludes for "recently"/"currently"/"soon". "today" straddles both
+# senses, so it gets its own narrower check instead of a bare denylist entry.
 RELATIVE_TIME_TERMS = sorted([
-    "today", "tonight", "tomorrow", "yesterday",
+    "tonight", "tomorrow", "yesterday",
     "last night", "last week", "last month", "last year",
     "next week", "next month", "next year",
     "this week", "this month", "this year",
@@ -142,6 +210,47 @@ RELATIVE_TIME_RX = re.compile(
     r"\b(?:" + "|".join(re.escape(t) for t in RELATIVE_TIME_TERMS) + r")\b",
     re.IGNORECASE)
 
+# DSR3: "today" is checked separately, narrowed to DATE-ADJACENT contexts —
+# a cue word/phrase that signals "today" is standing in for a specific
+# calendar date, not just hedging "at present". Cues: an explicit dating verb
+# ("date[d]", "stamp[ed]", "dating"), the "as of" construction, or an
+# ISO-8601-shaped date appearing anywhere else on the same line (e.g. "Today,
+# 2026-07-23" or "today (2026-07-23)" — comparing/pairing "today" with a real
+# date is itself evidence it's being used as one).
+#
+# HONEST LIMIT (do not round this to "solved"): this narrows false positives
+# at the cost of a real false-negative class — a bare, genuine calendar-date
+# claim with no cue word and no ISO date alongside it on the same line
+# ("Filed today.") now scans clean. That trade is deliberate: the reviewed
+# corpus showed the hedge sense dominates ~9:1, so the bare form is now
+# treated as the common (silent-miss-accepted) case rather than the flagged
+# one — the same under-flag-over-noise call the denylist already makes for
+# "recently"/"currently"/"soon".
+TODAY_RX = re.compile(r"\btoday\b", re.IGNORECASE)
+TODAY_CUE_RX = re.compile(r"\b(?:date[ds]?|dating|stamp(?:ed)?)\b|\bas\s+of\b",
+                           re.IGNORECASE)
+_TODAY_CUE_WINDOW = 40  # characters either side of the match to scan for a cue
+
+
+def _is_date_adjacent_today(line: str, start: int, end: int) -> bool:
+    """DSR3: True if a "today" match at [start, end) sits near a dating cue
+    (see TODAY_CUE_RX) or an ISO-8601-shaped date NEARBY (same window) —
+    the narrowing heuristic that keeps the currently-sense "today" quiet
+    while still catching the calendar-date sense. Window-based, not
+    grammar-aware: see the honest limit noted above TODAY_RX.
+
+    Both checks are windowed around the match, NOT scanned over the whole
+    line — an earlier version of this heuristic checked the ISO date over
+    the whole line, which false-fired on long lines carrying an unrelated
+    ISO-dated link path or citation far from the "today" match (found live
+    in docs/SESSIONS.md during this fix's own re-baseline, e.g. a line
+    linking to `sessions/2026-07-14-2142-....md` while separately using
+    "today" in the currently-sense sixty-odd characters away)."""
+    lo = max(0, start - _TODAY_CUE_WINDOW)
+    hi = min(len(line), end + _TODAY_CUE_WINDOW)
+    window = line[lo:hi]
+    return bool(TODAY_CUE_RX.search(window) or ISO_DATE_RX.search(window))
+
 # Non-ISO absolute-date shapes. A three-numeral slash date requires TWO
 # slashes (`DD/MM/YYYY`), so an ordinary fraction ("3/4 of the work") never
 # matches — only one slash there.
@@ -149,13 +258,47 @@ _MONTH = (r"(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|"
           r"Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|"
           r"Nov(?:ember)?|Dec(?:ember)?)")
 
-NON_ISO_PATTERNS: list[tuple[str, "re.Pattern[str]"]] = [
-    ("slash-date", re.compile(r"\b\d{1,2}/\d{1,2}/\d{2,4}\b")),
+
+def _plausible_date_fields(a: int, b: int) -> bool:
+    """DSR2: True if the numeral pair (a, b) could plausibly be (day, month)
+    or (month, day) in EITHER field order — used to keep the numeral-triple
+    patterns below (slash-date, dash-date) from firing on ordinary numeric
+    triples that are not dates at all, e.g. a session number `23/26/27`
+    (23 is a plausible day, but 26 is not a plausible month in either
+    reading). Deliberately not a full calendar-date validator — the ISO
+    shape check owns real invalid-date detection (leap years etc); this is
+    just a coordinate-plausibility gate ahead of the noisier free-form
+    patterns."""
+    return (1 <= a <= 31 and 1 <= b <= 12) or (1 <= a <= 12 and 1 <= b <= 31)
+
+
+# Each entry is (kind, pattern, validator). The validator, if given, is
+# called with the first two captured numeral groups (as ints); a False
+# return drops the match as an implausible date rather than a finding —
+# see _plausible_date_fields. Patterns with no numeral ambiguity (the month
+# is spelled out) carry no validator.
+NON_ISO_PATTERNS: list[tuple[str, "re.Pattern[str]", object]] = [
+    ("slash-date", re.compile(r"\b(\d{1,2})/(\d{1,2})/(\d{2,4})\b"),
+     _plausible_date_fields),
+    # DSR5: dash DD-MM-YYYY (e.g. `23-07-2026`) — a form that scanned clean
+    # before this fix. Requires a 4-digit year so it can't be confused with
+    # an ISO date (which requires a 4-digit YEAR FIRST — ISO_DATE_RX owns
+    # that shape) or a hyphenated identifier. The `(?<!\d{4}-)` lookbehind
+    # is load-bearing: without it this pattern false-fires on the house's
+    # own session-log ID convention, `YYYY-MM-DD-HHMM`
+    # (e.g. `2026-07-22-1021` reads its trailing `07-22-1021` as a
+    # plausible MM-DD-"year" triple — found live in docs/SESSIONS.md during
+    # this fix's own re-baseline). Still doesn't cover every locale's
+    # dash-date grammar (see the header's honest residual).
+    ("dash-date", re.compile(r"(?<!\d{4}-)\b(\d{1,2})-(\d{1,2})-(\d{4})\b"),
+     _plausible_date_fields),
     ("month-day-year", re.compile(
-        rf"\b{_MONTH}\.?\s+\d{{1,2}}(?:st|nd|rd|th)?,?\s+\d{{4}}\b", re.IGNORECASE)),
+        rf"\b{_MONTH}\.?\s+\d{{1,2}}(?:st|nd|rd|th)?,?\s+\d{{4}}\b", re.IGNORECASE),
+     None),
     ("day-month-year", re.compile(
         rf"\b\d{{1,2}}(?:st|nd|rd|th)?\s+(?:of\s+)?{_MONTH}\.?,?\s+\d{{4}}\b",
-        re.IGNORECASE)),
+        re.IGNORECASE),
+     None),
 ]
 
 # An ISO-8601-SHAPED date. Digits-only, so a template placeholder like the
@@ -209,6 +352,34 @@ def _is_blockquote(line: str) -> bool:
     return line.lstrip().startswith(">")
 
 
+# DSR6: CommonMark's indented-code-block rule (4+ leading columns), applied
+# per-line like wrapscan's INDENTED_CODE_COLUMNS/_is_indented_code — a
+# 4-space-indented code example wasn't exempt before this fix (only fenced
+# code was), so a relative-time word or non-ISO date inside one flagged.
+INDENTED_CODE_COLUMNS = 4
+
+
+def _leading_columns(line: str) -> int:
+    """Count leading-whitespace columns, expanding tabs to the next 4-column
+    stop. Simple and stated, not a full CommonMark tab-expansion
+    implementation (matches wrapscan's helper of the same name/shape)."""
+    cols = 0
+    for ch in line:
+        if ch == " ":
+            cols += 1
+        elif ch == "\t":
+            cols += INDENTED_CODE_COLUMNS - (cols % INDENTED_CODE_COLUMNS)
+        else:
+            break
+    return cols
+
+
+def _is_indented_code(line: str) -> bool:
+    if line.strip() == "":
+        return False
+    return _leading_columns(line) >= INDENTED_CODE_COLUMNS
+
+
 def _strip_inline_code(line: str) -> str:
     """Blank out inline `code spans` so a link-shaped/date-shaped example
     inside them isn't read as a live claim. Identical to linkscan's helper —
@@ -234,20 +405,51 @@ def _strip_inline_code(line: str) -> str:
 
 
 def _is_quoted_mention(line: str, start: int, end: int) -> bool:
-    """USE-vs-MENTION by punctuation: True if the match is immediately flanked
-    by a matching pair of quote marks — the heuristic for 'prose about
-    relative time' (see module docstring for its honest limits)."""
-    before = line[start - 1] if start > 0 else ""
-    after = line[end] if end < len(line) else ""
-    return before in _QUOTE_PAIRS and after == _QUOTE_PAIRS[before]
+    """USE-vs-MENTION by punctuation: True if the match falls inside a quoted
+    SPAN — the nearest matching pair of quote marks with the opener before
+    the match and the closer at or after it. This is DSR4's fix: the
+    original check only looked at the two characters immediately flanking
+    the match, so a banned word inside a multi-word quoted example (`"new
+    this year"`, matching the phrase "this year") was wrongly caught — the
+    opening quote sits before "new", not immediately before "this". Checking
+    the enclosing span instead of adjacency catches both the single-word
+    case (`"today"`) and the multi-word case.
+
+    Honest limit (unchanged from before DSR4, see module docstring): this is
+    still punctuation-shaped, not semantic. A genuine USE that happens to
+    sit inside an unrelated quoted sentence — a quote that itself says
+    "we'll ship tomorrow" — is still wrongly exempted; a span check makes
+    this slightly MORE likely (a wider net), not less. Accepted trade-off,
+    same direction the header already documents."""
+    for open_ch, close_ch in _QUOTE_PAIRS.items():
+        open_pos = line.rfind(open_ch, 0, start)
+        if open_pos == -1:
+            continue
+        close_pos = line.find(close_ch, end)
+        if close_pos == -1:
+            continue
+        between = line[open_pos + 1:start]
+        # Straight quotes reuse the same character for open and close, so a
+        # stray same-char quote between the candidate opener and the match
+        # means `open_pos` is really the CLOSE of some earlier, unrelated
+        # quoted segment — not a genuine opener for this match.
+        if close_ch == open_ch:
+            if close_ch in between:
+                continue
+        elif open_ch in between:
+            continue
+        return True
+    return False
 
 
 def scan_text(path: str, text: str) -> list[Finding]:
     findings: list[Finding] = []
     for lineno, raw_line in _content_lines(text):
-        if ALLOW_MARKER in raw_line:
+        if ALLOW_MARKER_RX.search(raw_line):
             continue
         if _is_blockquote(raw_line):
+            continue
+        if _is_indented_code(raw_line):
             continue
         line = _strip_inline_code(raw_line)
 
@@ -259,8 +461,22 @@ def scan_text(path: str, text: str) -> list[Finding]:
                 "relative to the reader's 'now', not an absolute date — replace "
                 "with an ISO-8601 date stamped from `date -u`"))
 
-        for kind, rx in NON_ISO_PATTERNS:
+        for m in TODAY_RX.finditer(line):
+            if _is_quoted_mention(line, m.start(), m.end()):
+                continue
+            if not _is_date_adjacent_today(line, m.start(), m.end()):
+                continue
+            findings.append(Finding(
+                path, lineno, "relative-time-word", m.group(0),
+                "relative to the reader's 'now', not an absolute date — replace "
+                "with an ISO-8601 date stamped from `date -u`"))
+
+        for kind, rx, validator in NON_ISO_PATTERNS:
             for m in rx.finditer(line):
+                if validator is not None:
+                    a, b = int(m.group(1)), int(m.group(2))
+                    if not validator(a, b):
+                        continue
                 findings.append(Finding(
                     path, lineno, "non-iso-date", m.group(0),
                     f"not ISO-8601 ({kind}) — write YYYY-MM-DD"))
@@ -407,24 +623,30 @@ def _selftest() -> int:
     (tmp / "docs").mkdir()
     (tmp / "docs" / "note.md").write_text(
         "# Note\n\n"
-        "Landed today after the change last week.\n"                    # 2 hits
+        "Landed today after the change last week.\n"                     # DSR3: bare "today" (no cue) exempt; "last week" flagged
         "Stamped 2026-07-23 correctly.\n"                                 # clean ISO
-        "Filed on 23/07/2026 by hand.\n"                                  # non-iso slash
+        "Filed on 23/07/2026 by hand.\n"                                  # non-iso slash-date
+        "Filed on 23-07-2026 by hand too.\n"                              # DSR5: non-iso dash-date
+        "Session 23/26/27 is not a date.\n"                               # DSR2: implausible numeral triple, exempt
         "Filed on July 23, 2026 by hand.\n"                               # non-iso month-day-year
-        "Bogus date 2026-13-40 here.\n"                                    # invalid iso
+        "Bogus date 2026-13-40 here.\n"                                   # invalid iso
         "The rule bans relative-time words like \"today\" and \"yesterday\".\n"  # quoted mentions, exempt
+        "Banned phrases include \"new this year\" in the doc's own list.\n"  # DSR4: multi-word quoted mention, exempt
         "`tomorrow` is just an example in code.\n"                        # code span, exempt
         "> quoted external text says it happened yesterday.\n"           # blockquote, exempt
         "```\nshipped tomorrow in this fenced block\n```\n"               # fenced, exempt
+        "    shipped tomorrow in this indented code block\n"              # DSR6: indented code, exempt
         "reduced scope by 3/4 of the work.\n"                             # fraction, not a date
-        "allowed today  <!-- datescan:allow: selftest fixture -->\n"     # allow marker, exempt
+        "Stamped today, all fields correct.\n"                            # DSR3: date-adjacent "today", flagged
+        "allowed today  <!-- datescan:allow: selftest fixture -->\n"     # allow marker (with reason), exempt
     )
     findings = scan_paths([tmp / "docs"], tmp)
     kinds = sorted((f.kind, f.match.lower()) for f in findings)
     expected = sorted([
-        ("relative-time-word", "today"),
         ("relative-time-word", "last week"),
+        ("relative-time-word", "today"),
         ("non-iso-date", "23/07/2026"),
+        ("non-iso-date", "23-07-2026"),
         ("non-iso-date", "july 23, 2026"),
         ("invalid-iso-date", "2026-13-40"),
     ])

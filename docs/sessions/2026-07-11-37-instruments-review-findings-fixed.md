@@ -11,8 +11,9 @@ The review ran in a separate session (`738f1fbc`, high-effort /code-review: 8
 finder angles, ~14 candidates, per-candidate empirical verification) but its
 report lived only in that transcript — no brief in `docs/reviews/`, no ROADMAP
 item. Recovered with `cctranscript --json` over the transcript (the instrument
-reading its own review — the `ref` scheme built yesterday made the findings
-message directly addressable as turn 22.1). Now recorded properly:
+reading its own review — the `ref` scheme built yesterday <!-- datescan:allow: date uncertain; wrapscan:allow: marker-inflated line -->
+made the findings message directly addressable as turn 22.1). Now recorded
+properly:
 `docs/reviews/2026-07-11-instruments-test-floor-code-review.md` carries the
 ten findings, the three cut-by-cap residuals, and the disposition.
 
