@@ -51,17 +51,16 @@ terminal 2026-07-23; the v2-plugin cycle — 1215 pass → VP1–VP8 applied
 `bbaec81` terminal 2026-07-23) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- [~] **AW-rulings application review**
-  (claimed 2026-07-23-0319, wt: apex-sc-application-reviews — rule-4 taker:
-  fresh session Mike opened and pointed at the queue; authored neither the
-  doctrine, any verdict, nor the applications; taker writes the brief)
-  (APPLIED 2026-07-23) — delta:
-  `e8d707c` (00-APEX.md, GLOSSARY.md, method README, ROADMAP preamble +
-  propagation item). Intent records: the verdict's §Decisions
-  ([`reviews/2026-07-23-0222-apex-widening-cold.md`](reviews/2026-07-23-0222-apex-widening-cold.md))
-  + the 2026-07-23-0252 session entry. Self-authored application (the 1M pass
-  puts it under rule 4) ⇒ the applying session may not spawn this review; a
-  non-author taker writes the brief.
+- [ ] 🎯 **AWA1–AWA4 rulings (Mike) — apex-widening cycle terminal** — the
+  AW-rulings application's rule-4 cold pass ran 2026-07-23-0330 (taker-spawned
+  per the claim; **PASS-WITH-FINDINGS 0M/2m/1L/1n**, verdict:
+  [`reviews/2026-07-23-0330-aw-application-cold.md`](reviews/2026-07-23-0330-aw-application-cold.md)).
+  All nine AW decision stamps reproduce at HEAD; no MAJOR ⇒ the cycle closes
+  on Mike's ruling (REVIEW.md close rule) and that ruling's application is
+  the terminal one — no further pointer. Counsel: take all four, each small —
+  AWA1 add the child-template floor block to the AW2 sweep list · AWA2 close
+  AW6's landing→queuing window (queue the ⏳ in the landing commit) · AWA3
+  split the 00-APEX double attribution · AWA4 folds into AWA2.
 - [ ] 🎯 **Glossary ratify pass (Mike)** — end-to-end read of
   `method/GLOSSARY.md`: tighten wording, rule on the full-definition entries
   (principal / agent / session / doctrine — new canonical homes), confirm the
@@ -83,8 +82,10 @@ terminal 2026-07-23; the v2-plugin cycle — 1215 pass → VP1–VP8 applied
   only, now the truth bar) — all still two-element at HEAD. Per AW8's ruling:
   the child floor's adaptation line must carry the honesty-precondition
   clause verbatim-or-equivalent. Gated on the apex review cycle above closing
-  (AW application ⏳ — the wording may change under that pass); then the
-  in-repo sweep + fleet sweep, per-child commits.
+  (the application pass ran 2026-07-23-0330, no MAJOR — the cycle closes on
+  Mike's AWA ruling; if AWA1 is taken, this sweep list gains the
+  child-template floor block); then the in-repo sweep + fleet sweep,
+  per-child commits.
 
 ## build/ layer — open strands
 
@@ -180,16 +181,17 @@ Mapping done 2026-07-22 (record:
 — A/B/E confirmed narrow, C reframed to mutable-tag CI actions, D dismissed
 instance-layer) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- [~] **SC-rulings application review**
-  (claimed 2026-07-23-0319, wt: apex-sc-application-reviews — same rule-4
-  taker) (APPLIED 2026-07-23) — delta:
-  `c27189e` (SECURITY.md, tools/README.md, tools/pre-commit.sample,
-  REPO-STANDARD.md, templates/SECURITY.md). Intent records: the verdict's
-  §Decisions
-  ([`reviews/2026-07-23-0222-security-canon-abce-cold.md`](reviews/2026-07-23-0222-security-canon-abce-cold.md))
-  + the 2026-07-23-0252 session entry. Self-authored application (the 1M pass
-  puts it under rule 4) ⇒ the applying session may not spawn this review; a
-  non-author taker writes the brief.
+- [ ] 🎯 **SCA1–SCA3 rulings (Mike) — security-canon cycle terminal** — the
+  SC-rulings application's rule-4 cold pass ran 2026-07-23-0330 (same
+  taker-spawn; **PASS-WITH-FINDINGS 0M/1m/1L/1n**, verdict:
+  [`reviews/2026-07-23-0330-sc-application-cold.md`](reviews/2026-07-23-0330-sc-application-cold.md)).
+  All six SC decision stamps reproduce (PVR re-verified live,
+  `enabled:true`); no MAJOR ⇒ the cycle closes on Mike's ruling and that
+  ruling's application is terminal. Counsel: take all three, wording-sized —
+  SCA1 state the atelier@main code-execution grant and its bound beside the
+  named asymmetry · SCA2 hedge "scanner fixes reach children automatically"
+  to the floor template's default configuration · SCA3 add `→ enabled: true`
+  to REPO-STANDARD's PVR verify command.
 - **Already held — name, don't rebuild** (verified by the mapping,
   2026-07-22): automated scanning in the pipeline (the floor scanners), peer
   review before ship (REVIEW.md), least privilege (SECRETS triad), secrets
