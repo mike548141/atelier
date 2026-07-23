@@ -269,6 +269,22 @@ touches REVIEW.md + EVIDENCE.md + the scanner floor); brief owed at pickup.*
 
 ## instruments/ — open features
 
+### cc-tools parameter vocabulary (Mike, 2026-07-23)
+
+- 🎯 **NEXT SESSION — audit + align the flag vocabulary across the cc-tools**
+  (`ccarchive`, `cctranscript`, `ccrepo`). Principle (Mike): a flag that means
+  the same thing in more than one tool must use the **same word**, judged from a
+  user who moves between them. Current state is *already* consistent where flags
+  overlap — `--dest`, `--from-archive`, `--materialise`, `--json` all match — so
+  this is a deliberate sweep + a standing rule, not a bug hunt. The one genuine
+  edge to rule on: `--materialise` (read iCloud-evicted files) exists on
+  `ccarchive` and `ccrepo` but **not** `cctranscript`, because cctranscript never
+  reads every file — it peeks on `--list`, reads only the one session it renders.
+  Decide: enforce uniform vocabulary even when the operation differs, or let
+  flags follow the operation (and document that principle). Deliverable: a short
+  vocabulary table (ideally in `instruments/README.md`) as the standing
+  reference, plus any renames. Cheap; pairs naturally with the ccrepo ledger.
+
 ### ccarchive (Mike, 2026-07-17)
 
 Restore (full + delta), dataless awareness, and manifest signing all built
@@ -301,11 +317,17 @@ real receipts, machine-local); archive sourcing (`--from-archive`, closing the
 observe-side seam alongside cctranscript) closed 2026-07-23 →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- **Deferred: the rollup *precompute* ledger** (`ccrepo.design.md` §8). With
-  both observers reading the archive, this is no longer a data-*survival* need —
-  the raw logs are preserved and any historical view recomputes from them. It
-  survives only as an optional speed layer (precomputed month/quarter rollups so
-  a wide `--from-archive` run needn't re-walk the whole mirror). Not scheduled.
+- 🎯 **NEXT SESSION — the rollup *precompute* ledger** (`ccrepo.design.md` §8;
+  Mike scheduled it 2026-07-23). No longer a data-*survival* need — both
+  observers read the archive and the raw logs are preserved, so any historical
+  view recomputes from them. This is purely the **speed** layer: precomputed
+  month/quarter rollups so a wide `--from-archive` run over the whole mirror
+  needn't re-walk (and re-gunzip) every file each time. Design questions to
+  settle at pickup: where the rollup cache lives (machine-local, like the
+  billing/pricing configs — never in-repo), how it's keyed and invalidated (the
+  archive is append-only, so a rollup is valid until new files land under its
+  period), and whether it's transparent (auto-used when present) or opt-in. Read
+  `ccrepo.design.md` §8 first.
 
 Completed instruments work (ccrepo actuals/breakdown, ccarchive integrity/audit,
 the **man-page convention rollout — ccarchive worked example + cctranscript +
