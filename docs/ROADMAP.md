@@ -260,17 +260,48 @@ candidates; record:
   count). Approved seams/homes are the record's proposals unamended: all
   twelve shared-floor. The promotion rule itself (>2 occurrences ⇒
   candidate) is thereby exercised end-to-end and stands as practice.
-- [~] **Build the approved scanners S1–S5** (S2+S4 claimed 2026-07-23-0959,
-      wts: qr-0959-pathscan-s2 / qr-0959-stampscan-s4) — ~~line-wrap (S1)~~, prose-path
-      resolution via linkscan extension (S2), ~~absolute-UTC dating (S3)~~,
-      stamp-drift vs canonical parent (S4), ~~NZ-English wordlist (S5)~~. Each
-      lands with tests + selftest + floor wiring per the scanner house
-      pattern; first-of-kind ones earn their review before gating
-      (don't-stack). **S1/S3/S5 BUILT + wired advisory** (`72e8ecb` wrapscan,
+- [x] **Build the approved scanners S1–S5** — ALL FIVE BUILT + wired advisory.
+      S2+S4 landed 2026-07-23 (queue run 0959): **S2 `pathscan`** (`b738f21`,
+      merged) — bare-prose/backtick repo-path resolution, the half linkscan's
+      markdown-link resolution can't see; **S4 `stampscan`** (`2fe97f3`, merged)
+      — a new mechanism comparing an inlined-floor stamped block to its pinned
+      canonical parent region (marker convention wired to the real
+      templates/CLAUDE.md↔PROPAGATION.md floor pair, byte-identical → CLEAN).
+      Both Sonnet-built, Opus-verified, ship ADVISORY (`--warn` in `ci.yml`),
+      each earns a queued ⏳ first-of-kind review before any gate. ~~line-wrap
+      (S1)~~, ~~prose-path (S2)~~, ~~absolute-UTC dating (S3)~~, ~~stamp-drift
+      (S4)~~, ~~NZ-English (S5)~~. **S1/S3/S5** built earlier (`72e8ecb` wrapscan,
       `6077972` datescan, `760260473` spellscan; detail →
-      [`ROADMAP-DONE.md`](ROADMAP-DONE.md)). **All three first-of-kind reviews
-      are now DONE** (S3 at 0618; S1 + S5 at 0707 this run — verdicts + follow-ons
-      below). **S2 and S4 remain open to build.**
+      [`ROADMAP-DONE.md`](ROADMAP-DONE.md)). **S1/S3/S5 first-of-kind reviews
+      are DONE** (S3 at 0618; S1 + S5 at 0707 — verdicts + follow-ons below).
+      **S2 + S4 reviews are now the open first-of-kind work (⏳ below).**
+- ⏳ **pathscan (S2) first-of-kind review** — advisory `b738f21` (queue run
+  0959), rule-4 non-author reviewer needed (this run built it). *Delta:*
+  `tools/pathscan.py` + `test_pathscan.py`, wired `--warn` in `ci.yml`.
+  *Intent record:* `sessions/2026-07-22-1036-invariant-candidates.md` § S2.
+  The build's own open questions for the reviewer (from its report): is the
+  triple-anchor resolution (root / own-dir / outermost-`docs`-ancestor)
+  defensible or too atelier-specific; should README-without-`.md` (38 of 174
+  findings, the largest class) get an `.md`-append retry or stay a residual;
+  the extension-suffix-only heuristic leg is the noisiest half — tighten before
+  gating? Baseline 174 on `docs/` is heuristic noise by design; gate-readiness +
+  scope (à la WS1) are the review's call.
+- ⏳ **stampscan (S4) first-of-kind review** — advisory `2fe97f3` (queue run
+  0959), rule-4 non-author reviewer needed (this run built it). *Delta:*
+  `tools/stampscan.py` + `test_stampscan.py`, marker convention added to
+  `PROPAGATION.md` + `templates/CLAUDE.md` (invisible HTML comments), wired
+  `--warn` in `ci.yml`. *Intent record:*
+  `sessions/2026-07-22-1036-invariant-candidates.md` § S4. Reviewer must
+  scrutinise: (1) the **marker convention borders on a doctrine act** —
+  `narrow=<reason>` declares a legitimate narrowing vs a silent drop (mechanically
+  identical subsequences), needs explicit ratification; (2) the
+  `---<!-- stamp:end -->` placement compromise, forced by a collision with the
+  pre-existing `test_templates.py` slice logic (a cleaner fix teaches
+  `template_block()` to strip markers); (3) fence-stripping + duplicate-line
+  subsequence matching are first-of-kind residuals unexercised beyond fixtures.
+  Live pair reports CLEAN (byte-identical). Other inlined-floor candidates
+  (`method-layer P1`, `foundation Q2`, `CF4`/`IR2`/`SL1`/`HI-F4`) are NOT wired —
+  their canonical source+region weren't confidently identifiable without guessing.
 *datescan (S3) review is DONE (2026-07-23) — verdict PASS-WITH-FINDINGS
 (0 MAJOR / 4 minor / 3 Low / 1 nit), NOT gate-ready (~75% baseline noise); brief
 [`docs/reviews/2026-07-23-0618-datescan-s3-cold.md`](reviews/2026-07-23-0618-datescan-s3-cold.md),

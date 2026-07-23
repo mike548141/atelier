@@ -178,6 +178,27 @@ jobs:
       - name: spellscan (NZ-English spelling — advisory, not yet reviewed)
         run: python3 tools/spellscan.py --warn --root . docs
 
+      # pathscan (S2, 2026-07-22 invariant-candidates review): a repo path
+      # NAMED in bare prose or a backtick span (not a markdown link — that's
+      # linkscan's job) must resolve. FIRST-OF-KIND, WIRED ADVISORY-ONLY: not
+      # yet reviewed (don't-stack), and its bare-prose detection is an unproven
+      # heuristic with a deliberately-noisy baseline (see the tool header's
+      # STATED RESIDUAL), so --warn always exits 0 — it reports the finding
+      # count for review evidence and never blocks. Do not drop --warn until
+      # reviewed (the review decides scope/gate-readiness, as WS1 did wrapscan).
+      - name: pathscan (named-path resolution — advisory, not yet reviewed)
+        run: python3 tools/pathscan.py --warn --root . docs
+
+      # stampscan (S4, 2026-07-22 invariant-candidates review): an inlined-floor
+      # stamped block (marked `<!-- stamp:begin source=… region=… -->`) must
+      # match its pinned canonical parent region, or legitimately narrow it with
+      # a declared `narrow=`. FIRST-OF-KIND, WIRED ADVISORY-ONLY: not yet
+      # reviewed (don't-stack) — the marker convention itself borders on a
+      # doctrine act and is queued for rule-4 review — so --warn always exits 0.
+      # Do not drop --warn until reviewed.
+      - name: stampscan (inlined-floor stamp-drift — advisory, not yet reviewed)
+        run: python3 tools/stampscan.py --warn --root . docs
+
       # --- commit-signature verification (SIGNING.md, ADR 0007) --------------
       # atelier is the trust root, so it verifies against its OWN allowed_signers
       # at the tested commit (no pin resolution — children resolve at their pin,
