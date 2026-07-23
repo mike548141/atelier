@@ -371,3 +371,42 @@ applied to `docs/method/`.** Provenance, restated once more for the verdict:
 spawned by an orchestrator session Mike opened and pointed at the queue; the
 author spawned nothing and instructed no one; this reviewer authored none of
 the work under review.
+
+---
+
+# Decisions — Mike's rulings, applied 2026-07-23 (`f8350ee`)
+
+Mike ruled per finding via a plain-language walk-through with likely impacts:
+accept-all as counselled; SA4 as name-the-break-glass-class (not out-of-scope);
+SA9 as the repo-wide sweep. Applied by a session that authored neither the
+SECRETS.md delta nor this verdict (claim `7f83142` on `main` first, worktree
+`sa-rulings-apply`). **Terminal application**: the pass carried no MAJOR, so
+the secrets/access cycle closes on this landing with no further pointer.
+
+- **SA1 [fixed]** — live-session channel named in the keys section: no
+  delegated use through untrusted systems (agent forwarding), touch-to-sign
+  where hardware offers it.
+- **SA2 [fixed]** — store-trail surface qualified "where the store can
+  provide one"; the sops+age gap is a stated bridge weighed at store choice.
+- **SA3 [fixed]** — entropy-sufficiency bar (~128 bits) replaces max-length;
+  truncating verifiers record the effective length beside the mint procedure.
+- **SA4 [fixed — class named]** — break-glass class: machine-minted,
+  transcription-optimised, stated bridge per platform, instance-local; human
+  schemes stay banned.
+- **SA5 [fixed]** — NIST screening attributed to mint time; standing
+  screening named as platform practice.
+- **SA6 [fixed]** — never-scrub scoped to published history of rolled
+  credentials; pre-push amends are hygiene; unrollable residue routed to
+  DATA-PROTECTION.
+- **SA7 [fixed]** — the cadence section points at Exposure for the loop
+  wording; one home owns it.
+- **SA8 [fixed]** — central-auth (RADIUS/TACACS-class) pointer on the
+  across-systems rule.
+- **SA9 [fixed — swept]** — artifact→artefact across living surfaces
+  (method/, build/ + templates, tool/instrument READMEs, current ROADMAP);
+  immutable records (sessions, reviews, CHANGELOG history, ADRs) deliberately
+  untouched; vendor feature names ("artifact attestations") keep vendor
+  spelling.
+
+Proofs at the applied state: tool suite 330 OK · instruments 139 OK · five
+scanners exit 0.
