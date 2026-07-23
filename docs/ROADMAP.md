@@ -67,6 +67,14 @@ no-MAJOR application pass, closed 2026-07-22; the secrets/access cycle —
   `method/GLOSSARY.md`: tighten wording, rule on the full-definition entries
   (principal / agent / session / doctrine — new canonical homes), confirm the
   admission rule. Until then the SEED banner holds entries as PROPOSED.
+- [ ] **Capture → doctrine candidate: the close all-clear should carry the
+  pushed floor run's result** (grounded 2026-07-23: a session's 00:47 close
+  pushed a 🎯-closed item and ended with the floor red — reviewscan since
+  00:06 + its own un-harvested `[x]`; the next session inherited the debt and
+  restored green, `165c40f`). RECORD.md's close rule demands evidence under
+  the all-clear but never names the CI result; "scanners green locally" is
+  not "floor green at head". Small wording-sized RECORD.md edit; rides the
+  normal review cycle when taken.
 - [ ] **Propagate the widened apex floor to children** — children inline a
   short apex floor (`method/PROPAGATION.md`); the adaptation element **and the
   honesty triad** make those floors stale. Gated on the ⏳ apex review above
