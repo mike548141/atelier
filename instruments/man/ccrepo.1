@@ -1,4 +1,4 @@
-.TH CCREPO 1 "2026-07-22" "atelier instruments" "User Commands"
+.TH CCREPO 1 "2026-07-23" "atelier instruments" "User Commands"
 .SH NAME
 ccrepo \- Claude Code usage totals, grouped and filtered any way you like
 .SH SYNOPSIS
@@ -15,6 +15,12 @@ ccrepo \- Claude Code usage totals, grouped and filtered any way you like
 .RB [ \-\-json | \-\-csv | \-\-flat ]
 .RB [ \-\-fx
 .IR code ]
+.br
+.B ccrepo \-\-from\-archive
+.RB [ \-\-dest
+.IR dir ]
+.RB [ \-\-materialise ]
+.RI [ options ]
 .SH DESCRIPTION
 .B ccrepo
 totals what Claude Code has cost you and lets you slice that total along any
@@ -34,6 +40,17 @@ group by dimensions that vary
 a session \(em the branch a message was sent from, whether it came from the main
 thread or a subagent, which Claude Code version wrote it \(em not just the
 coarse repo/model/day totals a per-session tool can offer.
+.PP
+Those live logs are ephemeral \(em Claude Code deletes them after
+.I cleanupPeriodDays
+(default 30). With
+.B \-\-from\-archive
+.B ccrepo
+reads the compressed mirror
+.BR ccarchive (1)
+maintains instead, so totals reach back past that prune horizon. See
+.B SOURCE
+under OPTIONS.
 .PP
 Cost here is an API-equivalent
 .BR estimate :
@@ -68,6 +85,36 @@ footnote says so, per model, so a stale price announces itself instead of
 lying quietly. The cross-check is skippable for a faster or offline run \(em see
 .BR \-\-no\-reconcile .
 .SH OPTIONS
+.SS Source
+.TP
+.B \-\-from\-archive
+Read the compressed mirror
+.BR ccarchive (1)
+maintains, rather than the live logs under
+.IR ~/.claude/projects/ .
+This surfaces sessions Claude Code's cleanup has already pruned, so totals reach
+back over the whole preserved history. The archive location resolves exactly as
+in
+.BR ccarchive (1):
+.BR \-\-dest ,
+then
+.BR $CCARCHIVE_DEST ,
+then the iCloud Drive default. In this mode the
+.BR ccusage (1)
+cross-check is off \(em ccusage reads the live store, which no longer holds the
+pruned sessions, so the comparison would be structurally short rather than a
+real drift.
+.TP
+.BI \-\-dest " dir"
+Where the archive lives. Implies
+.BR \-\-from\-archive .
+.TP
+.B \-\-materialise
+In archive mode, also read files iCloud has evicted to dataless placeholders.
+.B ccrepo
+reads every file to sum spend, so by default an evicted mirror is skipped and
+counted as a stated gap (reading it would fault its bytes back down from
+iCloud); this opts into reading \(em and thus re-downloading \(em them.
 .SS Grouping
 .TP
 .BI \-g " list" "\fR, \fP" \-\-group " list"
@@ -293,6 +340,16 @@ is recovered from the
 .I cwd
 recorded inside each log, not from the dash-mangled folder name.
 .TP
+.I ~/Library/Mobile\ Documents/com~apple~CloudDocs/cc-transcripts/
+The default
+.BR ccarchive (1)
+mirror
+.B \-\-from\-archive
+reads \(em the same layout, gzip-compressed. Overridden by
+.B \-\-dest
+or
+.BR $CCARCHIVE_DEST .
+.TP
 .I ~/.claude/ccrepo-pricing.json
 Optional local price overrides, merged over the built-in table. Malformed JSON
 is ignored with a warning, never fatal.
@@ -337,6 +394,9 @@ Repos listed alphabetically instead of by cost.
 .TP
 .B ccrepo \-\-fx usd \-\-no\-reconcile
 Raw list-price figures, offline, with no ccusage cross-check.
+.TP
+.B ccrepo \-\-from\-archive \-g month
+Monthly totals over the whole preserved history, including pruned sessions.
 .TP
 .B ccrepo \-\-json > usage.json
 Tidy JSON for scripting.

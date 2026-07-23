@@ -15,8 +15,8 @@ drives Chrome via Playwright); each documents its own runtime.
 
 | Instrument      | Verb      | What it does                                                         |
 |-----------------|-----------|---------------------------------------------------------------------|
-| `ccrepo`        | observe   | Claude Code token & cost totals, grouped/filtered any way (`-g repo,model`, `--branch`, message-grain cost reconciled against ccusage). |
-| `cctranscript`  | observe   | Timestamped transcript of a session — the timestamps the chat UI hides. Reads the live logs, or ccarchive's mirror (`--archive`). |
+| `ccrepo`        | observe   | Claude Code token & cost totals, grouped/filtered any way (`-g repo,model`, `--branch`, message-grain cost reconciled against ccusage). Reads the live logs, or ccarchive's mirror (`--from-archive`). |
+| `cctranscript`  | observe   | Timestamped transcript of a session — the timestamps the chat UI hides. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
 | `ccarchive`     | preserve  | Durably mirror every raw `.jsonl` transcript into a compressed, append-only archive that outlives Claude Code's cleanup. |
 | `browser-fetch` | extend    | A browser (fresh headless, or the operator's own Chrome) when `WebFetch`/curl are blocked. MCP server; see its own README. |
 
@@ -309,13 +309,19 @@ purpose**: it keeps the full raw logs losslessly (~1.2 GB/yr), in a tree that
 mirrors `~/.claude/projects/` exactly, so *any* historical view — ccrepo's time
 grouping included — can be recomputed at full fidelity from the archive. A rollup
 ledger, if ever built, is then a *precompute/speed* layer, not a *data-survival*
-one. The sourcing seam is half-closed (2026-07-23): `cctranscript --archive`
-reads the archive directly — same discovery, listing and rendering over
-`.jsonl.gz`, `--dest`/`$CCARCHIVE_DEST` resolution shared with ccarchive,
-eviction-aware listing (a `--list` never faults iCloud-evicted bytes back) — so a
-pruned session renders word for word from the mirror. The `ccrepo` half stays
-open: it still reads only the live dir, so its historical rollups don't yet reach
-into the archive. Noted so the two ideas stay reconciled.
+one. The sourcing seam is **closed on the observe side** (2026-07-23): both
+observers take `--from-archive` and read the mirror directly, sharing
+`--dest`/`$CCARCHIVE_DEST` resolution with ccarchive and one transparent-gunzip
+read path, so a pruned session is still fully readable.
+`cctranscript --from-archive` renders it word for word (eviction-aware listing —
+a `--list` never faults iCloud-evicted bytes back); `ccrepo --from-archive`
+prices the whole preserved history past the prune horizon. Because ccrepo must
+read *every* file to sum spend, it skips an evicted (dataless) mirror by default
+and counts it as a stated gap — `--materialise` opts into reading (re-downloading)
+them — and it turns the ccusage cross-check off in archive mode, since ccusage
+reads the live store the pruned sessions have already left. What remains is
+purely a *precompute* idea, not a survival one: the rollup ledger `ccrepo.design.md`
+§8 defers, which the archive has made optional.
 
 ## Schema caveat
 

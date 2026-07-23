@@ -19,7 +19,7 @@
  * Colour auto-disables when piped; --json is the machine format, never styled.
  *
  * By default it reads the live logs, which Claude Code prunes after
- * `cleanupPeriodDays`. --archive points every view at the compressed mirror
+ * `cleanupPeriodDays`. --from-archive points every view at the compressed mirror
  * ccarchive(1) maintains instead — same discovery, same rendering, reading
  * <dest>/<encoded-repo>/<uuid>.jsonl.gz — so a session the cleanup has already
  * deleted can still be listed and rendered. An explicit path to a .jsonl.gz
@@ -45,7 +45,7 @@ USAGE
   session   A UUID, a .jsonl or .jsonl.gz path, or omitted (latest for this repo).
 
 OPTIONS
-  --archive        Read from the ccarchive archive; --dest <dir> sets where.
+  --from-archive   Read from the ccarchive archive; --dest <dir> sets where.
   --repo <name>    Use sessions from the named repo (its folder basename).
   --list           List sessions for the repo and exit (with --repo or --all).
   --all            With --list, list sessions across all repos.
@@ -77,10 +77,10 @@ const showDelta = !argv.includes('--no-delta');
 const repoArg = takeValue('--repo');
 const lastArg = argv.includes('-n') ? takeValue('-n') : takeValue('--last');
 const lastK = lastArg ? Math.max(1, parseInt(lastArg, 10) || 1) : 1;
-// --archive reads the compressed mirror ccarchive maintains instead of the
-// live logs. --dest names that archive, so it implies --archive on its own.
+// --from-archive reads the compressed mirror ccarchive maintains instead of the
+// live logs. --dest names that archive, so it implies --from-archive on its own.
 const destArg = takeValue('--dest');
-const archiveMode = argv.includes('--archive') || destArg !== null;
+const archiveMode = argv.includes('--from-archive') || destArg !== null;
 
 // Colour: explicit flag wins; else on when stdout is a TTY and NO_COLOR is
 // unset. FORCE_COLOR forces it on. Never colour --json (it's a data format).
@@ -98,7 +98,7 @@ const CW = TW - 4;                                       // body width inside th
 // positional session argument.
 const OWN_WITH_VALUE = new Set(['--repo', '-n', '--last', '--width', '--dest']);
 const OWN_BARE = new Set([
-  '--json', '--list', '--all', '--tools', '--think', '--full', '--archive',
+  '--json', '--list', '--all', '--tools', '--think', '--full', '--from-archive',
   '--utc', '--no-delta', '--color', '--no-color', '-h', '--help',
 ]);
 let positional = null;

@@ -5,18 +5,32 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
-### Added (2026-07-23 — cctranscript reads the ccarchive archive)
-- **`cctranscript --archive`**: every view (list, render, `--json`, explicit
-  path) now works over the compressed mirror ccarchive maintains, not just the
-  live logs Claude Code prunes — so a cleaned-up session still renders word for
-  word. `--dest`/`$CCARCHIVE_DEST` resolution is shared verbatim with ccarchive;
-  an explicit `.jsonl.gz` path needs no flag; transcripts carry a
-  `source: archive` tag (JSON) / `· archive` header (human). Eviction-aware:
-  a `--list` never reads an iCloud-evicted (dataless) mirror — it's listed with
-  an `evicted` marker instead — while rendering one chosen session deliberately
-  fetches it back. Suite 150→156; man page + `--help` updated (drift guard
-  covers the new flags). Closes the README's "sourcing seam" for the
-  observe-side; the ccrepo half stays open.
+### Added (2026-07-23 — both observers read the ccarchive archive: `--from-archive`)
+- **`cctranscript --from-archive`**: every view (list, render, `--json`, explicit
+  path) works over the compressed mirror ccarchive maintains, not just the live
+  logs Claude Code prunes — so a cleaned-up session still renders word for word.
+  An explicit `.jsonl.gz` path needs no flag; transcripts carry a `source: archive`
+  tag (JSON) / `· archive` header (human). Eviction-aware: a `--list` never reads
+  an iCloud-evicted (dataless) mirror — it's listed with an `evicted` marker
+  instead — while rendering one chosen session deliberately fetches it back.
+- **`ccrepo --from-archive`**: totals now reach back past Claude Code's prune
+  horizon by reading the same mirror. Because ccrepo reads *every* file to sum
+  spend, an evicted (dataless) mirror is skipped by default and counted as a
+  stated gap (a `⚠` footnote + `meta.evicted`); `--materialise` opts into reading
+  (re-downloading) them. The ccusage cross-check is off in archive mode — ccusage
+  reads the live store, which no longer holds the pruned sessions — with a
+  footnote saying so; the actual-spend-vs-estimate reconciliation still runs.
+- Shared across both: `--dest`/`$CCARCHIVE_DEST` resolution is copied verbatim
+  from ccarchive (so one vocabulary points every tool at the same mirror; `--dest`
+  alone implies `--from-archive`), one transparent-gunzip read choke-point per
+  tool keeps the parsers byte-format-blind, and ccarchive's SF_DATALESS check is
+  ported with the same `CCARCHIVE_SIMULATE_DATALESS` test seam. Suites 150→156
+  (cctranscript) and 34→41 (ccrepo); both man pages + `--help` updated under the
+  flag drift guard. **Closes the README's "sourcing seam" on the observe side**;
+  what remains is only the deferred rollup *precompute* ledger, not a survival gap.
+
+  _(Flag named `--from-archive`, not `--archive`: the bare form read like an
+  imperative — "archive the transcripts" — rather than a source selector.)_
 - **The secrets/access cycle closed terminal** (verdict:
   `docs/reviews/2026-07-22-1021-secrets-access-cold-pass.md`, 0 MAJOR; Mike
   accept-all, applied `f8350ee`): the keys rule names the **live-session
