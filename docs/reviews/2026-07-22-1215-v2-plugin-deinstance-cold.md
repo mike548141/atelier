@@ -130,3 +130,23 @@ Opened: ADR §Context, the branch SESSIONS entry, the branch ROADMAP delta, the 
 - **VP1, VP3, VP4, VP5, VP6, VP8 stand unchanged** — nothing in the deferred material addresses them.
 - **Claims re-run:** "Floor green (4 scanners + 2 tool selftests)" reproduces at branch HEAD (all exits 0, tool selftests run verbatim); the "two placeholder-email leakscan hits allow-marked" account matches the two `leakscan:allow` comments observed in the delta.
 - Nothing overturned; nothing added beyond the VP7 downgrade.
+
+---
+
+## Decisions (Mike, 2026-07-23 — per-finding walk-through)
+
+- **VP1–VP6, VP8 — [fixed] as counselled**, ruled individually after a
+  per-finding what/why/impact walk-through. Applied as one commit
+  (`ff8a07f`, worker-built on the branch rebased to current main —
+  ~155 commits absorbed, the session-onramp resolution keeping both the
+  queue-run wiring and the branch's restructure, grep-proven), merged
+  `0de6f52` on Mike's merge-on-green ruling. Bundle 0.1.0→0.2.0 shipped.
+- **VP7 — confirmed as counselled**: the superseded baked-identity global
+  skill was retired the same day post-merge (archived machine-locally,
+  outside this repo).
+- **The application is itself self-authored** (built by the orchestrating
+  session's instructed worker) ⇒ its rule-4 cold pass is **queued on the
+  ROADMAP**; this session may not spawn it. Old→new SHA mapping for the
+  record: the reviewed delta `1516ae1` was rebased to `2271a44`; the
+  application sits atop it as `ff8a07f`; the superseded remote branch was
+  deleted after merge (its content is fully carried by the merge).

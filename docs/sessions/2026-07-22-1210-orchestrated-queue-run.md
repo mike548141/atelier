@@ -155,3 +155,24 @@ catch (the orchestrator's earlier local sizescan predated those closes — a
 sequencing miss, not a scanner surprise). Harvested to `ROADMAP-DONE.md`
 under this run's heading, open residue kept live; gate re-run green locally.
 The failure is left on the CI history as-is — the floor working as designed.
+
+**Addendum, 2026-07-23 0130 UTC — the decision backlog worked through.**
+Mike asked for every unanswered question from the session; two sets were
+his: **VP1–VP8** (walked per finding: VP1–VP6+VP8 [fixed] as counselled,
+VP7 confirmed; applied by an instructed Fable worker as `ff8a07f` on the
+branch rebased to current main — main moved twice during the application,
+absorbed cleanly; merged `0de6f52` on his merge-on-green ruling; bundle
+0.2.0 shipped; remote branch deleted after merge; global baked-identity
+skill retired machine-locally) and **D1–D5** (ruled after plain-language
+re-walks — twice re-explained on Mike's ask, per the informed-principal
+rule; D2/D4 ruled as **full app-plane parity, superseding the design's
+counsel**, grounds stamped in the design record). The ccrepo spend-config
+🎯 also closed this sitting (billing receipts collected from Gmail on
+Mike's direction; machine-local config live; CEL Team-plan exclusion
+confirmed by Mike). Queued, not spawned: the v2 application's rule-4 `⏳`.
+Honesty note: the first D1–D5 ask was under-contextualised — Mike
+couldn't rule on it as put; it took two plain-language re-framings before
+the rulings were genuinely informed, and his parity challenge on D2/D4
+exposed that the design's phone-caution protected a line already crossed
+by daily filesystem-leg practice. Both the miss and the overturn are on
+the record.

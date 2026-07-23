@@ -355,11 +355,24 @@ applied 2026-07-21**; the fleet-wide `hooks.atelierTools` fix) →
       terminal when needed; tier-2 phone: app memory as a declared, dated
       second system; seam: filesystem canonical, phone derived). Records-
       only; review WARRANTED when it moves to build/doctrine.
-  - [ ] 🎯 **D1–D5 rulings** — the design's decisions only Mike can make:
-        D1 does never-plain-remote bind plaintext or any form; D2 provider
-        trust for any tier-1 on the phone; D3 is ADP-class E2E actually
-        enabled / acceptable as load-bearing; D4 appetite for phone-side
-        context; D5 key-backup home. Build steps stay parked on these.
+  - **D1–D5 RULED 2026-07-23** (plain-language walk-throughs; stamps and
+    grounds in the design record §Decision stamps): D1 the capsule rides
+    the private estate repo (plaintext-binding reading confirmed); D2+D4
+    **full app-plane parity, superseding the design's counsel** — both
+    tiers reach phone/web/desktop-app memory as a generated, date-stamped
+    profile (grounds recorded: no phone-unique risk; tier-1 already
+    transits the provider in filesystem-leg conversations; standing
+    memory deletable); D3 ADP enabled and may be load-bearing; D5 the key
+    backup lives in the person-level credential home.
+  - [ ] **Build the capsule** — encrypt tier-1 into an age capsule with
+        per-machine keys, estate-repo carrier (D1), decrypt-on-need
+        unlock, key backed up per D5. Gated on writing the
+        **tier-classification rule** (what makes a fact tier 1 — a
+        doctrine act) and the wrong-tier pre-commit gate (design §5).
+  - [ ] **App-plane profile generator** — render the date-stamped
+        both-tier profile from the canonical store for the app's
+        memory/Projects (D2/D4 parity ruling); define the reconcile
+        cadence; the one-directional seam holds (filesystem canonical).
       Original item, for context: both excluded from atelier, both
       must reach every device Mike works from, handled by sensitivity:
       - *Crown-jewels* (health/family/finance/estate map): E2E-encrypted only
@@ -398,35 +411,19 @@ public as a **named worked example** (README "If you're adopting this"). What wa
       specifics (grant ledger, Apple/iCloud) → marked worked-examples. No longer
       a publication gate; do it as the named-worked-example framing gets tested by
       a real adopter.
-- [~] **v2 plugin — CHOSEN 2026-07-13 (Mike's call): the next widening is
-      spent here.** De-instance `create-repo` so it travels in the plugin, and
-      ship `worktree` + `fleet-pins` as plugin commands — doctrine travelling
-      as behaviour, wider than the current bundle. **Build done 2026-07-21 on
-      branch `v2-plugin-deinstance`** (the 1018 run's "stray" worktree,
-      re-read 2026-07-22: a complete, recorded delta — scoping ruled by Mike,
-      ADR `decisions/2026-07-21-0748-deinstance-create-repo-for-the-plugin.md`
-      accepted on the branch, floor green; parked pending review, not
-      mid-flight). Go-live (merge) stays Mike's call; owed after merge:
-      retire the superseded global `create-repo` skill (machine-local),
-      exercise the interactive fill + bundled-mode scaffold end-to-end.
-  - [ ] 🎯 **VP1–VP8 rulings (v2-plugin de-instance cold pass —
-        [`verdict`](reviews/2026-07-22-1215-v2-plugin-deinstance-cold.md),
-        delivered 2026-07-22; the take's provenance detail →
-        [`ROADMAP-DONE.md`](ROADMAP-DONE.md))** —
-        PASS-WITH-FINDINGS 2 MAJOR · 3 MEDIUM · 1 LOW · 2 notes;
-        self-authored doctrine ⇒ findings Mike's to decide (rule 3), nothing
-        applied. Sharpest: VP1 (MAJOR) the bundled-mode doctrine block is
-        unimplementable as specified (no canonical bundled-mode block text
-        exists — every plugin-only scaffold improvises the keystone
-        propagation block); VP2 (MAJOR) signing posture is an
-        un-externalised eighth instance fact (bundled adopters hit a failed
-        commit at the skill's own step 7, first run); VP5 (MEDIUM) the delta
-        no longer composes with main — 4-file conflict incl. the
-        session-onramp paragraph where a branch-side resolution silently
-        drops the queue-run wiring; VP3 (MEDIUM) the bundle README
-        contradicts the 0.2.0 manifest. Per-finding what/why/impact in the
-        verdict. Reviewer's counsel: both MAJORs precede merge; merge stays
-        Mike's call either way.
+- ⏳ **v2-plugin application review** (the v2 plugin **SHIPPED 2026-07-23**,
+  merge `0de6f52`, bundle 0.2.0 — VP1–VP8 ruled per-finding by Mike and
+  applied same day; superseded global skill retired; shipped detail →
+  [`ROADMAP-DONE.md`](ROADMAP-DONE.md)) — delta: `ff8a07f` (the VP
+  application) + the rebase resolution in `2271a44`, merge `0de6f52`;
+  intent records: the verdict's §Decisions
+  ([`reviews/2026-07-22-1215-v2-plugin-deinstance-cold.md`](reviews/2026-07-22-1215-v2-plugin-deinstance-cold.md))
+  + the ADR. Self-authored application (built by the orchestrating
+  session's instructed worker) ⇒ rule 4: that session may not spawn it;
+  a non-author taker writes the brief.
+- [ ] **Exercise the interactive fill + bundled-mode scaffold end-to-end**
+      — owed post-ship; both flagged unexercised (model-prose, proven at
+      use) in the CHANGELOG's own honesty note.
 
 Completed sharing work (public release, the plugin bundle widening, atelier's own
 CI, child-CI scanner floor, linkscan build + wiring) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).

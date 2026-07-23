@@ -279,3 +279,35 @@ derived and dated.**
 
 The "resume any project from any device" north-star item remains open and
 depends on this design landing — this pass feeds it; it does not claim it.
+
+---
+
+## Decision stamps (Mike, 2026-07-23 — D1–D5 ruled)
+
+Ruled in plain-language walk-throughs; where a ruling supersedes this
+design's counsel, the grounds are recorded — the decision is the
+principal's (REVIEW.md rule 3).
+
+- **D1 — plaintext-binding reading confirmed; carrier = the private
+  estate repo.** The encrypted capsule may ride private GitHub (history
+  and provenance for free); the readable content never leaves owned
+  devices. Confirmed after an explicit locked-box walk-through.
+- **D2 + D4 — FULL PARITY for the app plane, superseding the design's
+  P3/P1 counsel.** Mike's challenge, upheld on examination: there is no
+  phone-unique risk — the app plane is identical on phone/web/desktop
+  app, and tier-1 material already transits the provider's servers in
+  every filesystem-leg conversation, so barring *standing* app memory
+  protected a line already crossed in daily practice. Ruling: both tiers
+  go to the app plane via memory/Projects as a **generated, date-stamped
+  profile**, refreshed on a cadence, deletable at will. The residuals
+  stand as named: staleness (the date stamp + reconcile cadence is the
+  control) and second-copy drift (one-directional seam unchanged —
+  filesystem canonical, app-plane derived).
+- **D3 — ADP is enabled and may be load-bearing** — F1/P4-class E2E
+  channels are available where convenient; the capsule remains primary.
+- **D5 — key backup lives in Apple Passwords** (secure note in the
+  person-level credential home, per the standing personal-credentials
+  rule; outside every repo and every machine the key protects).
+
+Unblocked build strand → ROADMAP (capsule build; tier-classification
+rule + wrong-tier gate; app-plane profile generator + cadence).

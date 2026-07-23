@@ -1700,3 +1700,26 @@ ROADMAP.md; the finished detail is preserved here.
       for dollars actually billed. Personal data ⇒ the spend source stays in
       `~/.claude`, never a repo (same boundary as `ccrepo-billing.json`).
       🎯 fill-the-config residue stays live in ROADMAP.md.
+
+## v2 plugin shipped + the VP/D rulings (moved 2026-07-23)
+
+- [x] **v2 plugin — CHOSEN 2026-07-13, SHIPPED 2026-07-23** (`0de6f52`).
+      De-instanced `create-repo` travels in the bundle with `/atelier:worktree`
+      + `/atelier:fleet-pins`; adopter-owned profile (eight instance facts incl.
+      signing posture per VP2); canonical bundled-mode propagation block in
+      PROPAGATION.md (VP1). History: built 2026-07-21 on branch
+      `v2-plugin-deinstance` (`1516ae1`), found parked as the 1018 run's
+      "stray", rule-4 cold pass 2026-07-22 (PASS-WITH-FINDINGS 2M/3M/1L/2n),
+      **VP1–VP8 ruled per-finding by Mike 2026-07-23** — VP1–VP6+VP8 [fixed]
+      as counselled, VP7 confirmed — applied `ff8a07f` on the branch rebased
+      across ~155 commits (session-onramp resolution kept both queue-run wiring
+      and the restructure), merged on Mike's merge-on-green ruling. Superseded
+      baked-identity global skill retired (archived machine-locally). The
+      application's own rule-4 `⏳` and the exercise-e2e residue stay live in
+      ROADMAP.md.
+- [x] **Portability D1–D5 ruled 2026-07-23** — decision stamps + grounds in
+      `sessions/2026-07-22-1233-person-context-portability-design.md`
+      §Decision stamps; headline: capsule rides the private estate repo;
+      **full app-plane parity** (Mike's challenge upheld over the design's
+      cautious counsel — no phone-unique risk); ADP available; key backup in
+      the person-level credential home. Build items now live in ROADMAP.md.
