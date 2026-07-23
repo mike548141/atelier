@@ -42,20 +42,16 @@ no-MAJOR application pass, closed 2026-07-22; the secrets/access cycle —
 2026-07-23, cycle closed) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- [~] **Apex widening — adaptation element, honesty triad, glossary seed**
-  (claimed 2026-07-23-0222, wt: queue-reviews — rule-4 taker: fresh session
-  Mike opened and pointed at the queue; authored none of the deltas; taker
-  writes the brief)
-  (BUILT 2026-07-22/23, one session) — delta: `f52c50f` + `1da0a3e` +
-  `8d25fb3` + `07cc855` + `c85712d` (adaptation element with hard-road +
-  proof-bar bullets and the ros SSH worked case; truth/honesty/transparency
-  triad + lived-experience close + EVIDENCE header ripple; GLOSSARY.md seed +
-  README registration). Intent records:
-  [`sessions/2026-07-22-2134-apex-adaptation.md`](sessions/2026-07-22-2134-apex-adaptation.md) +
-  [`sessions/2026-07-23-0021-honesty-triad-glossary.md`](sessions/2026-07-23-0021-honesty-triad-glossary.md).
-  Self-authored doctrine (wording by the building session on Mike's dictation)
-  ⇒ rule 4: that session may not spawn this review; a non-author taker writes
-  the brief.
+- [ ] 🎯 **AW1–AW9 rulings (apex-widening cold pass —
+  [`verdict`](reviews/2026-07-23-0222-apex-widening-cold.md))** — rule-4
+  taker's cold pass (2026-07-23), PASS-WITH-FINDINGS 1M/4m/3L/1n.
+  Self-authored doctrine, so the findings are Mike's to decide (rule 3);
+  nothing applied. Sharpest: AW1 MAJOR — the proof-bar bullet binds without a
+  stated scope and read literally is violated by its own enacting delta
+  (dictation = testimony in its own vocabulary); the scope ruling is the
+  principal's. AW2 — seven-plus in-repo apex restatements still describe a
+  two-element apex. MAJOR in the pass ⇒ the ruling application will inherit
+  rule-4 status.
 - [ ] 🎯 **Glossary ratify pass (Mike)** — end-to-end read of
   `method/GLOSSARY.md`: tighten wording, rule on the full-definition entries
   (principal / agent / session / doctrine — new canonical homes), confirm the
@@ -70,22 +66,18 @@ no-MAJOR application pass, closed 2026-07-22; the secrets/access cycle —
   normal review cycle when taken.
 - [ ] **Propagate the widened apex floor to children** — children inline a
   short apex floor (`method/PROPAGATION.md`); the adaptation element **and the
-  honesty triad** make those floors stale. Gated on the ⏳ apex review above
-  closing (the wording may change under review); then a fleet sweep, per-child
-  commits.
+  honesty triad** make those floors stale. Gated on the apex review cycle
+  above closing (AW rulings + their application — the wording may change under
+  the rulings); then a fleet sweep, per-child commits.
 
-- [~] **Economics rework — billing states, cap rule, hand-up ladder, third
-  seat** (claimed 2026-07-23-0222, wt: queue-reviews — same rule-4 taker)
-  (BUILT 2026-07-23, `dadde1d`) — delta: `dadde1d` (ECONOMICS.md
-  pools→marginal-token billing states + draw-down rate, marginal-cost
-  self-check with the stop-or-pay cap rule, the two hard edges on the tier
-  ladder, the third seat in the orchestrated-run split; child ECONOMICS
-  template re-grounded; renamed-section cross-refs in REVIEW/CONCURRENCY).
-  Intent record with the three principal rulings quoted:
-  [`decisions/2026-07-23-0001-billing-state-of-the-marginal-token.md`](decisions/2026-07-23-0001-billing-state-of-the-marginal-token.md).
-  Self-authored doctrine (Fable session; rulings Mike's, wording the
-  session's) ⇒ rule 4: that session may not spawn this review; a non-author
-  taker writes the brief.
+- [ ] 🎯 **EB1–EB8 rulings (economics cold pass —
+  [`verdict`](reviews/2026-07-23-0222-economics-billing-states-cold.md))** —
+  rule-4 taker's cold pass (2026-07-23), PASS-WITH-FINDINGS 0M/4m/3L/1n.
+  Rule 3: Mike decides; nothing applied. Sharpest: EB1/EB2 — the retired
+  two-pool framing survives in both READMEs and inside ECONOMICS.md itself;
+  EB4 — the child template re-hardcodes the billing mapping the intent record
+  diagnoses as the staleness mechanism. No MAJOR ⇒ the ruling application is
+  terminal; the cycle closes on its landing.
 
 ## build/ layer — open strands
 
@@ -163,17 +155,14 @@ ECONOMICS § tier split + plugin-bundled `queue-run` skill) →
   extracted from practice, not assumed. Fan-out sub-agents on the cheapest
   genuinely-capable tier is already standing practice (no trial needed).
 
-- [~] **QR1–QR9 application — rule-4 cold pass owed**
-  (claimed 2026-07-23-0222, wt: queue-reviews — same rule-4 taker; not the
-  applier session nor its subagents) (the 1149 pass carried a
-  MAJOR, so the application inherits rule-4 status). Delta: `b65209c`
-  (CONCURRENCY § Orchestrated queue runs + ECONOMICS § tier split +
-  `skills/queue-run` + README + `QueueRunSkillTest`). Rulings and decision
-  stamps: [`verdict`](reviews/2026-07-22-1149-queue-run-doctrine-cold.md)
-  (deferred material for the taker — application-review sequencing,
-  REVIEW.md). Intent record:
-  [`sessions/2026-07-22-1149-queue-run-doctrine-cold-pass.md`](sessions/2026-07-22-1149-queue-run-doctrine-cold-pass.md)
-  (addendum). The applier session and its subagents cannot take this.
+- [ ] 🎯 **QA1–QA6 rulings (QR-application cold pass —
+  [`verdict`](reviews/2026-07-23-0222-qr-application-cold.md))** — rule-4
+  taker's cold pass (2026-07-23), PASS-WITH-FINDINGS 0M/1m/3L/2n; all nine QR
+  rulings verified faithfully applied, QR6's bite reproduced. **No MAJOR ⇒ the
+  queue-run cycle is terminal** — what remains decides into the backlog on
+  Mike's ruling. Sharpest: QA1 — QR4's item-text-never-overrides guard (the
+  run's trust boundary) has no skill mirror and no test pin, so it can drift
+  with every test green.
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 
@@ -193,15 +182,17 @@ Mapping done 2026-07-22 (record:
 — A/B/E confirmed narrow, C reframed to mutable-tag CI actions, D dismissed
 instance-layer) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- [~] **security-canon A/B/C/E review**
-  (claimed 2026-07-23-0222, wt: queue-reviews — same rule-4 taker)
-  (edits BUILT 2026-07-22, `85157c3`,
-  merged `73da10d` — detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)) — delta:
-  `85157c3`; intent records: the gap map
-  `sessions/2026-07-22-1025-security-canon-gap-map.md` §3 + the
-  2026-07-22-1210 queue-run record's close entry. Self-authored doctrine
-  (built by that run's instructed worker) ⇒ rule 4: that run may not spawn
-  this review; a non-author taker writes the brief.
+- [ ] 🎯 **SC1–SC6 rulings (security-canon cold pass —
+  [`verdict`](reviews/2026-07-23-0222-security-canon-abce-cold.md))** — rule-4
+  taker's cold pass (2026-07-23), PASS-WITH-FINDINGS 1M/1m/3L/1n. Rule 3:
+  Mike decides; nothing applied. **SC1 MAJOR (security): SECURITY.md's sole
+  reporting channel — GitHub Private Vulnerability Reporting — is disabled on
+  this repo, so no working private disclosure path exists**; instance fix is
+  a repo-settings switch (Mike's action), recurrence step routes
+  enable-PVR-and-verify into SECURITY.md seeding (REPO-STANDARD + template).
+  SC2 minor — a stale deferred-call claim re-asserted in three places though
+  floor.yml resolved it (`bafeaa3`). MAJOR ⇒ the ruling application will
+  inherit rule-4 status.
 - **Already held — name, don't rebuild** (verified by the mapping,
   2026-07-22): automated scanning in the pipeline (the floor scanners), peer
   review before ship (REVIEW.md), least privilege (SECRETS triad), secrets
@@ -424,18 +415,17 @@ public as a **named worked example** (README "If you're adopting this"). What wa
       specifics (grant ledger, Apple/iCloud) → marked worked-examples. No longer
       a publication gate; do it as the named-worked-example framing gets tested by
       a real adopter.
-- [~] **v2-plugin application review**
-  (claimed 2026-07-23-0222, wt: queue-reviews — same rule-4 taker)
-  (the v2 plugin **SHIPPED 2026-07-23**,
-  merge `0de6f52`, bundle 0.2.0 — VP1–VP8 ruled per-finding by Mike and
-  applied same day; superseded global skill retired; shipped detail →
-  [`ROADMAP-DONE.md`](ROADMAP-DONE.md)) — delta: `ff8a07f` (the VP
-  application) + the rebase resolution in `2271a44`, merge `0de6f52`;
-  intent records: the verdict's §Decisions
-  ([`reviews/2026-07-22-1215-v2-plugin-deinstance-cold.md`](reviews/2026-07-22-1215-v2-plugin-deinstance-cold.md))
-  + the ADR. Self-authored application (built by the orchestrating
-  session's instructed worker) ⇒ rule 4: that session may not spawn it;
-  a non-author taker writes the brief.
+- [ ] 🎯 **VA1–VA4 rulings (v2-plugin application cold pass —
+  [`verdict`](reviews/2026-07-23-0222-v2-plugin-application-cold.md))** —
+  rule-4 taker's cold pass (2026-07-23), PASS-WITH-FINDINGS 0M/2m/1L/1n; all
+  eight VP rulings applied faithfully, every fix reproduces live (VP5
+  byte-verified across the rebase). **No MAJOR ⇒ the v2-plugin cycle is
+  terminal** — what remains decides into the backlog on Mike's ruling.
+  Sharpest: VA1 — VP2's signing externalisation unswept in SIGNING.md +
+  REPO-STANDARD (both still claim unconditional `commit.gpgsign=true` against
+  the profile-gated skill); VA2 — install-hook's version-pinned copy may
+  false-green the stamped drift check after a plugin update (folds into the
+  e2e exercise item below).
 - [ ] **Exercise the interactive fill + bundled-mode scaffold end-to-end**
       — owed post-ship; both flagged unexercised (model-prose, proven at
       use) in the CHANGELOG's own honesty note.
