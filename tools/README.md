@@ -94,10 +94,10 @@ than pretended away:
   (`setup-python`/`setup-node` request a version line, not a SHA of the
   toolchain). That is an accepted residual for a zero-dep doctrine repo, named
   here so it is a known limit rather than an invisible one.
-- **No SBOM / artifact signing yet — deferred with a stated trigger.** There is
-  no software bill of materials at rest and no release-artifact signing; both are
-  deferred to the first published *artifact* (`method/SIGNING.md`, layer 2 — the
-  trigger is a package or binary someone else installs). Until an artifact
+- **No SBOM / artefact signing yet — deferred with a stated trigger.** There is
+  no software bill of materials at rest and no release-artefact signing; both are
+  deferred to the first published *artefact* (`method/SIGNING.md`, layer 2 — the
+  trigger is a package or binary someone else installs). Until an artefact
   exists there is nothing to bill or sign, and standing the machinery up would be
   ceremony.
 - **Scanner distribution to children** stays the other deferred supply-chain

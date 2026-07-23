@@ -14,10 +14,10 @@ Current truth, kept compact. The *why* behind contestable calls lives in
 
 ## Layout
 
-<!-- The deployable artifact is in <subfolder>/; the root is scaffolding. -->
+<!-- The deployable artefact is in <subfolder>/; the root is scaffolding. -->
 
 ```
-<subfolder>/   # the deployable artifact
+<subfolder>/   # the deployable artefact
 docs/          # this file, ROADMAP, SESSIONS, decisions/, reviews/
 tools/         # dev/CI helpers
 ```

@@ -103,7 +103,7 @@ service beats total failure.
 - **One responsive web app, mobile-first.** When the human surface is a web
   app, build it as a *single* responsive app: designed for the smallest screen
   first — which forces the core content forward and keeps it fast — and scaled
-  up by CSS for larger devices. One responsive artifact already serves every
+  up by CSS for larger devices. One responsive artefact already serves every
   form factor, so a separate *web* mobile edition adds no capability and
   duplicates every product truth: DRY violated at the presentation layer, two
   surfaces diverging from the day they fork. A *native* app is different in
@@ -161,7 +161,7 @@ watchdog poll.
 
 - **Privacy, security, and financial efficiency are design inputs from the first
   line**, not later hardening passes. Secrets never land inline; no personal
-  detail in a shareable artifact; cost is a written policy, not an afterthought.
+  detail in a shareable artefact; cost is a written policy, not an afterthought.
   Enumerating a design's threats belongs in this first-line work — name what
   could attack a surface before building it, right-sized ([`REVIEW.md`](REVIEW.md),
   the security lens at design altitude; a lightweight pass, not full STRIDE
@@ -277,7 +277,7 @@ paying.*
   the whole class of dependency-vulnerability screening, rather than importing an
   SCA pipeline to manage it. The residual it cannot zero — the CI actions the
   build still consumes (now SHA-pinned), the trusted toolchain, a future release
-  artifact's SBOM — is named and bounded in `tools/README.md`, not pretended
+  artefact's SBOM — is named and bounded in `tools/README.md`, not pretended
   away. (Grounded: the 2026-07-22 security-canon gap map.)
 - **Build the reliable tool once; reuse it forever.** When a task will recur,
   doing the hard work now to build a sharp, tested, reusable tool pays back on

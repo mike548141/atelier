@@ -5,6 +5,22 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-23 — SECRETS.md edge-hardened: SA1–SA9 rulings applied, cycle closed)
+- **The secrets/access cycle closed terminal** (verdict:
+  `docs/reviews/2026-07-22-1021-secrets-access-cold-pass.md`, 0 MAJOR; Mike
+  accept-all, applied `f8350ee`): the keys rule names the **live-session
+  channel** — no delegated key use (agent forwarding) through untrusted hosts,
+  touch-to-sign where hardware offers it (SA1); the watch leg's store-trail
+  surface is honest — "where the store can provide one", the sops+age gap a
+  stated bridge (SA2); minting bar restated as **entropy sufficiency
+  (~128 bits)**, truncating verifiers record effective length (SA3); the
+  **break-glass class** named — machine-minted, transcription-optimised,
+  stated bridge per platform (SA4); NIST screening attributed to mint time
+  (SA5); never-scrub scoped to published history of rolled credentials (SA6);
+  the exposure loop's wording has one home (SA7); central-auth pointer on the
+  non-reuse rule (SA8); **artifact→artefact** swept across living surfaces,
+  immutable records untouched (SA9).
+
 ### Changed (2026-07-23 — queue-run doctrine hardened: QR1–QR9 rulings applied)
 - **The queue-run cold pass landed and was ruled** (verdict:
   `docs/reviews/2026-07-22-1149-queue-run-doctrine-cold.md`, PASS-WITH-FINDINGS

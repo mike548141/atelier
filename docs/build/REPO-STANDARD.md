@@ -12,12 +12,12 @@ decoration: read them when they fire.
 
 ## The default that binds: product in a subfolder
 
-Where a repo has a **deployable/product artifact**, it lives in a subfolder
+Where a repo has a **deployable/product artefact**, it lives in a subfolder
 (`site/`, `src/`, `pkg/`, …), never mixed with repo scaffolding at the root. The
 root holds only meta: README, `docs/`, licence, CI, tools. This keeps *what
 ships* cleanly separable from *how the repo is run* — you can point a build, a
 publish step, or a reviewer at the product folder without dragging the
-scaffolding, and the scaffolding can grow without polluting the artifact.
+scaffolding, and the scaffolding can grow without polluting the artefact.
 (Learned the hard way; the static-site exemplar arrived at `site/`
 independently.)
 
@@ -77,7 +77,7 @@ evidence — see `method/EVIDENCE.md`.
   its licence.
 - **SECURITY.md** — a private-disclosure policy, seeded **only once the repo is
   public or about to be** — a private repo has no external reporter, so like
-  LICENSE and the licenscan gate this is a publish-time artifact, not a birth
+  LICENSE and the licenscan gate this is a publish-time artefact, not a birth
   file. Scope it to what the repo *ships*; state the response expectation
   honestly (a solo-maintained repo says best-effort, no guaranteed timeline) and
   claim no bug bounty that does not exist — the apex forbids a claim stronger

@@ -13,7 +13,7 @@ closed the moment it leaks: you cannot rotate what you cannot re-mint.
 
 ## Reproducible / re-mintable — the enabling property
 
-No *operational* secret in the estate is a hand-kept, irreplaceable artifact
+No *operational* secret in the estate is a hand-kept, irreplaceable artefact
 (the honest boundary below names the two edges of that claim). Every secret can
 be regenerated from something you still hold:
 
@@ -45,7 +45,7 @@ so a clean-sounding doctrine doesn't over-promise:
   your way back into a store you can no longer read. Loss is guarded by
   **redundancy** (an out-of-band backup of the key, or a second resolution
   plane holding the same values), and that backup is a named obligation, not an
-  optional nicety. One hand-kept artifact class survives the doctrine, and this
+  optional nicety. One hand-kept artefact class survives the doctrine, and this
   is it — kept survivable by copies, not by minting.
 - **Scope: system and infrastructure credentials.** Person-level credentials —
   account recovery keys, identity seeds, the master key's own backup — are
@@ -81,6 +81,10 @@ Non-reuse has two axes, and both are load-bearing (Mike's rulings, 2026-07-22):
   a rack is minted a fresh password per switch. Reuse couples the fleet: a
   copied value opens every system it was copied to, so the blast radius of a
   burn is exactly one system only if the value lives on exactly one system.
+  Where the platform supports central auth (the RADIUS/TACACS class), the
+  stronger resolution is eliminating device-local secrets entirely — the
+  secure-defaults ladder ("Grounding" below) applied to this rule (SA8,
+  2026-07-23).
 - **Across entities: one credential, one holder.** Two agents, tools, or people
   never present the same credential — not even to the same system. The reason
   is **revocation independence**: either holder can be cut off without touching
@@ -106,10 +110,17 @@ plane-split-in-the-credential rule (`ACCESS.md` step 2).
 The per-system rule above is calibrated to symmetric secrets, where every
 system that *verifies* the value also *holds* it — each copy is a place it can
 leak. A keypair breaks that symmetry: the target holds only the public half,
-and nothing it stores or sees can be replayed against another system. So the
+and nothing it *stores* can be replayed against another system — at rest, a
+compromised target gains nothing toward the fleet. So the
 rule grades rather than transfers: **one key across many systems is
 acceptable** (Mike, 2026-07-22) — the leaky-verifier case that forces
-per-system passwords doesn't exist here.
+per-system passwords doesn't exist here. The live *session* is a different
+channel (SA1, 2026-07-23): a delegated-credential mechanism like SSH agent
+forwarding lets a compromised middle host authenticate onward to everything
+the key opens without ever holding it — so **no delegated use of the key
+through systems you don't control** (no agent forwarding through untrusted
+hosts), and take presence-confirmation (touch-to-sign) where hardware
+backing offers it.
 
 Acceptable is not ideal. The private key is now a single point whose exposure
 is a fleet-wide blast radius, so the residual duties concentrate on it: keep it
@@ -117,7 +128,7 @@ where it can't travel (hardware-backed, or at least passphrase-wrapped at
 rest), split keys per security realm where that's cheap — and above all keep
 the roll cheap. Replaceability binds keys exactly as it binds passwords, and a
 key so widely deployed that rolling it is frightening has silently become the
-irreplaceable artifact this doctrine exists to prevent.
+irreplaceable artefact this doctrine exists to prevent.
 
 ## Minting — a leaked value must teach nothing
 
@@ -126,7 +137,13 @@ never hand-composed, never derived from a house scheme. The bar is Kerckhoffs'
 principle applied to credential *shape*: only the secret is secret, so the
 minting format must be publishable at zero cost. A leaked example teaches an
 attacker nothing about the next value — no prefix convention, no
-word-digit-symbol template, no length that isn't simply the platform's maximum.
+word-digit-symbol template, no *chosen* length. The bar is **entropy, not
+length-worship** (SA3, 2026-07-23): take the platform's maximum up to entropy
+sufficiency — past ~128 bits of randomness, added length buys no security —
+and where a verifier silently truncates (the bcrypt-class 72-byte cutoff),
+the *effective* length is the verifier's cap and is recorded as such beside
+that platform's mint procedure, so the store never misstates what actually
+authenticates.
 (Public practice agrees: NIST SP 800-63B rejects composition rules in favour of
 length and randomness — see "Grounding" below.)
 
@@ -136,6 +153,18 @@ visible pattern, but an *imposed* one — take the maximum the platform permits
 and record the constraint beside that platform's mint procedure
 (instance-local, "what lives elsewhere"). An imposed cap is a stated bridge
 (`DATA-PROTECTION.md`), never a licence for schemes below the cap.
+
+**The break-glass class** (SA4, 2026-07-23). Credentials a human must
+transcribe by hand during an outage, when the store itself may be unreachable
+— the out-of-band console login, the serial-line password mid-incident, the
+hypervisor root while the store's host is down — are a use-imposed constraint
+the paragraph above doesn't cover: a max-length random string is hostile to
+the recovery path exactly when it matters. The class stays machine-minted and
+schemeless, but may be minted **transcription-optimised** (a generated
+word-sequence passphrase): the constraint is recorded as a stated bridge
+beside that platform's mint procedure, instance-local, like any imposed cap.
+What it never licenses is a human "memorable" scheme — the temptation this
+class exists to name is the one the minting bar exists to kill.
 
 ## Right plane, never the wrong one
 
@@ -161,9 +190,11 @@ exposure, breach or not, has a bounded life. The cadence is the control that mak
 "we never detected a leak" survivable: the undetected-exposure window is at most
 one rotation period, by design rather than by luck.
 
-The full loop, then: **detect** (the scans) → **rotate immediately** on any
-suspicion → and independently, **rotate on cadence** so undetected exposure
-expires on its own. Each leg shrinks the window a different way.
+The full loop's wording lives in **Exposure** below (watch → roll on
+confidence → rehearsed roll — one home, so the two sections can't drift;
+SA7, 2026-07-23); what this section adds is the independent third leg:
+**rotate on cadence**, so undetected exposure expires on its own. Each leg
+shrinks the window a different way.
 
 ## Exposure — watch, roll, never scrub
 
@@ -175,7 +206,12 @@ Three duties, in order (Mike's rulings, 2026-07-22):
   publishing it — breached-credential screening where a platform offers it,
   provider breach notices, and the secret store's own access trail (who
   resolved which secret, when — OWASP's audit leg; a store that can't account
-  for its reads can't tell you a secret was taken). Detection you don't do is
+  for its reads can't tell you a secret was taken) **where the store can
+  provide one** — a file-based store (the sops+age class, this doctrine's own
+  exemplar) decrypts offline and has no read trail to offer, and that gap is
+  a named limitation (stated bridge, `DATA-PROTECTION.md`) weighed when
+  choosing store technology, never a duty silently skipped (SA2, 2026-07-23).
+  Detection you don't do is
   rotation you never trigger.
 - **Roll on confidence, not proof.** The trigger is *credible risk* of
   exposure, never confirmed exposure — the burn costs minutes by design, so
@@ -195,7 +231,12 @@ diverge, signatures break, the record stops being trustworthy) and buys
 nothing the roll didn't already buy. The one durable residue of a leak is
 *shape* — what our secrets look like — and the minting bar above prices that
 at zero by design rather than by luck. Roll it, and leave the corpse where it
-lies.
+lies. Two scope lines, so the absolute isn't quoted past its own body (SA6,
+2026-07-23): the rule binds **published** history of **rolled credentials** —
+amending a secret out of a not-yet-pushed local commit costs nothing and is
+routine hygiene, not a scrub; and residue no roll can kill (personal data; a
+key whose captured past traffic lacks forward secrecy) is not "dead text" —
+that class is `DATA-PROTECTION.md`'s problem, handled there.
 
 ## Grounding in public practice
 
@@ -204,7 +245,10 @@ checked against published doctrine — corroboration named, divergence owned:
 
 - **[NIST SP 800-63B rev 4](https://pages.nist.gov/800-63-4/)** (final
   2025-07-31): length-and-randomness over composition rules corroborates the
-  minting bar; screen-against-breached-lists corroborates the watch leg; and
+  minting bar; its screen-against-breached-lists duty is the watch leg's
+  mechanism *at mint time* (NIST mandates the check when a secret is set —
+  the *standing* screening the watch leg names is platform practice, not an
+  800-63B mandate; SA5, 2026-07-23); and
   *change on evidence of compromise, not on a calendar* corroborates
   roll-on-confidence. **One owned divergence:** NIST drops *scheduled*
   expiry for human-memorised passwords because forced rotation degrades what

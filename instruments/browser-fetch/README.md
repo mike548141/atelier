@@ -96,7 +96,7 @@ step), not dependency changes** — `requirements.txt`/`constraints.txt` are
 unchanged (Playwright already bundles all three engines).
 
 The **code** lives here (versioned, public); the **venv** is a regenerable build
-artifact under `~/.cache/atelier/browser-fetch/` — never committed, never in
+artefact under `~/.cache/atelier/browser-fetch/` — never committed, never in
 iCloud. `setup` prints the exact `~/.claude.json` `mcpServers` snippet; Claude
 Code picks it up on its next start.
 

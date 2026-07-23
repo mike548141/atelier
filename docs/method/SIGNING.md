@@ -93,14 +93,14 @@ zero-dep house ethos answer. The shape:
   GitHub-controlled and unauditable, while the file is self-hosted,
   versioned, and reviewed.
 
-### Layer 2 — release-artifact signing + SBOM (deferred, stated trigger)
+### Layer 2 — release-artefact signing + SBOM (deferred, stated trigger)
 
-Signing *built artifacts* and emitting an SBOM needs external tooling
+Signing *built artefacts* and emitting an SBOM needs external tooling
 (cosign/syft-class), which hits the tool-install floor and breaks the
 zero-dep house-tool pattern — a deliberate design call, not an oversight.
 **Trigger to revisit:** the first real *release* — a published package or
 binary that someone else installs. Lightest route if triggered: GitHub's
-native artifact attestations (no local tooling). Until an artifact exists,
+native artifact attestations (no local tooling). Until an artefact exists,
 there is nothing to sign, and standing up the machinery would be ceremony.
 
 ## Verification — signing without checking is ceremony

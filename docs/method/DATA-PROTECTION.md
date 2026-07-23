@@ -44,7 +44,7 @@ boundary is in the token's scope, not in an agent remembering to be careful.
 
 ## Reproducibility is data insurance
 
-Anything rebuildable from code (containers, VMs, config, derived artifacts) has
+Anything rebuildable from code (containers, VMs, config, derived artefacts) has
 a second life — losing it costs minutes, not data. Prefer reproducible state so
 that the *irreplaceable* set is as small as possible, and guard that small set
 hardest. (This is the reproducibility principle pointed at data specifically.)
