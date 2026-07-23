@@ -176,3 +176,23 @@ the rulings were genuinely informed, and his parity challenge on D2/D4
 exposed that the design's phone-caution protected a line already crossed
 by daily filesystem-leg practice. Both the miss and the overturn are on
 the record.
+
+**Addendum, 2026-07-23 0245 UTC — the standing backlog cleared.** Mike
+extended the sitting to every 🎯 that predated this session, each put to
+him with plain-language use-context and likely impacts (the lesson from
+the D1–D5 miss, applied). Rulings: ccarchive metadata classes (capture
+all three — prompt history overturning the lean-exclude counsel) +
+signing defaults and keep-separate accepted; **the capture-widen was
+built, verified and merged the same sitting** (`2df595e`, 150 tests, the
+restore-redirect seam checked line-by-line before merge); invariant
+candidates **S1–S5/V1–V7 all approved** (S5 on ROI), scanner + checklist
+build items opened; checkbox grammar stays tri-state; session archive
+superseded by ccarchive-under-ADP (NAS leg + retention clock consciously
+not taken); floor-template trigger ruled — trim `pull_request` on
+no-fork private children at pin bump, template unchanged; signing-flip
+hold re-confirmed. Cross-session coordination note: Mike ran parallel
+sessions ruling QR and SA concurrently; one collision (the other session
+asking the same ccarchive questions) was caught by Mike and resolved by
+this run's pushed claim — the claim discipline worked as designed.
+Remaining with Mike alone: the two raw notes and the glossary ratify
+pass. The queue now holds only build items and the two rule-4 `⏳`s.

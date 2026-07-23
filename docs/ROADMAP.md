@@ -110,7 +110,9 @@ no-MAJOR application pass, closed 2026-07-22; the secrets/access cycle —
             filing was accurate, and the accusation is withdrawn. On the two
             secret-debt children signscan never runs (secretscan fails first).
             The **"every active machine signs"** half is also unverified. Flip
-            held — Mike's call + Mike's action (the rotations).
+            held — Mike's call + Mike's action (the rotations). **Hold
+            re-confirmed by Mike 2026-07-23** (offered a scheduled rotation
+            sitting; chose hold-as-is).
             **Correction 2026-07-19 — "wouldn't newly-red them" was wrong; the
             greens proved nothing** (under `--warn` no floor can *fail* on
             signing, and on scanner-red children the signing steps never run).
@@ -299,12 +301,12 @@ What remains is Mike's:
   cost). Signing defaults + keep-separate counsel **accepted as-is** —
   binary exits, new-machine red-until-key, two instruments; that 🎯 closes
   with no work owed.
-- [~] **Widen ccarchive capture per the rulings** (claimed 2026-07-23-0210,
-      wt: ccarchive-capture-widen) — mirror `tool-results/` + `toolu_*`
-      sidecars, `memory/*.md`, and top-level `history.jsonl`; non-`.jsonl`
-      archived files become first-class in manifest/verify/audit/restore;
-      man page FILES/NOTES state captures *and* exclusions (webfetch PDFs,
-      file-history, runtime state — excluded, documented).
+- **ccarchive capture widened — BUILT 2026-07-23** (`3c6394d`, merged
+  `2df595e`): all four ruled classes first-class end-to-end, exclusions
+  now documented in a man-page CAPTURE section, 150 tests green. One
+  operator note: the shrink guard covers memory files uniformly, so a
+  legitimately condensed memory file needs `--force` — safe-over-silent.
+  Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 ### ccrepo (Mike, 2026-07-17)
 
@@ -332,7 +334,12 @@ applied 2026-07-21**; the fleet-wide `hooks.atelierTools` fix) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 - [ ] **Existing fleet children pick up the reworked `floor.yml` gate** — children
       copy `floor.yml` statically, so they adopt the cold-content gate at their
-      next pin bump / harvest. **The rebalance dissolves the all-open-roadmap
+      next pin bump / harvest. **At the same bump, apply the 2026-07-23 trigger
+      ruling (Mike): private children that take no fork PRs drop the
+      `pull_request` trigger** — halves metered-minute burn; the merge-preview
+      scan is consciously traded away where the owner is the only contributor;
+      public children keep both (free). They also inherit the SHA-pinned
+      actions + the SECURITY.md template from the security-canon close. **The rebalance dissolves the all-open-roadmap
       red**: a wholly-open ROADMAP (ros's ~125 open items) no longer reds on
       length — with no cold content to relocate it is advisory now, not a standing
       red — so the class-grounded-budget workaround is no longer needed for that
@@ -384,14 +391,15 @@ applied 2026-07-21**; the fleet-wide `hooks.atelierTools` fix) →
 - [ ] **Resume any project from any device, anywhere** — depends on propagation
       + person-context above.
 
-## Session archive (decide)
+## Session archive — decided 2026-07-23
 
-- [ ] Archive sessions as **encrypted cold storage** — NAS, local-only (never
-      iCloud-broad, never a repo), ~12-month rolling retention, **no search
-      index initially** (searchability = exfil surface); NZ Privacy Act retention
-      applies (third-party PII in transcripts). Start with Claude Code
-      `~/.claude/projects/**/*.jsonl`; "every session incl. chat/cowork" needs
-      export machinery that doesn't exist yet — say so.
+Superseded by ccarchive (Mike's ruling, plain-language walk-through): the
+nightly iCloud archive under ADP-class E2E answers the original item's
+encryption concern; one archive, tamper-checked, capture widened same day
+(sidecars + memory + prompt history). Consciously not taken: the NAS
+second leg and a rolling-retention clock — history is kept indefinitely
+unless Mike asks for a retention rule. Detail →
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 ## Sharing — public since 2026-07-10 (ADR 0005)
 
@@ -427,33 +435,21 @@ CI, child-CI scanner floor, linkscan build + wiring) → [`ROADMAP-DONE.md`](ROA
 
 ## Open questions
 
-- [ ] 🎯 **Extend the checkbox grammar to five states?** (Mike, 2026-07-22,
-  mid-build) — proposal: add `[-]` declined and `[^]` superseded beside the
-  tri-state. **Builder's counsel: keep the tri-state** — the bracket answers
-  the one machine-checked question (is work owed?); declined/superseded both
-  answer "no" and need a dated note for the *why* regardless, so extra
-  states are a second copy of one fact (the point-of-use drift class).
-  Promote to distinct states only if we find ourselves repeatedly grepping
-  dispositions apart (the anti-slop promotion rule). Mike's call; Mike
-  himself flagged the complication risk.
+- **Checkbox grammar RULED 2026-07-23 (Mike): keep the tri-state** — the
+  bracket answers the one machine-checked question (is work owed?);
+  dispositions live in dated notes. Promote to five states only if we find
+  ourselves repeatedly grepping dispositions apart (the promotion rule).
 
 - Does ros keep canonical copies of any doctrine, or hold only bearings + point
   up for everything (as §0 now does)? Default: point up; resolve per doc at
   extraction.
-- **Floor template's duplicate trigger (raised 2026-07-13, for a future
-  session).** `build/templates/workflows/floor.yml` fires on `push:` (all
-  branches) **plus** `pull_request`, so any branch with an open PR scans
-  **twice** — free on public atelier, but *metered minutes* in every private
-  child that copies it. Genuinely two-sided, which is why it wasn't auto-fixed:
-  the `push` run scans the branch tip (what a public push *publishes*), the
-  `pull_request` run scans the *merge preview* a tip-push can't see and covers
-  fork PRs (no `push` event in the base repo) — so they aren't pure duplicates.
-  The N4 review deliberately chose every-push for the public publish-safety
-  rationale; trimming the overlap (e.g. dropping `pull_request` where a repo
-  takes no fork PRs, or scoping `push`) touches that decision, so it's the
-  estate's call per repo, not the agent's. Decide whether the merge-preview +
-  fork-PR coverage earns the second metered run on private children, or the
-  template should scope down. See ECONOMICS "duplicate triggers".
+- **Floor template's duplicate trigger — RULED 2026-07-23 (Mike): trim
+  `pull_request` on no-fork private children**, applied per child at its
+  next pin bump (standing guidance now in the fleet-adoption item above);
+  public children keep both triggers (free). The template itself stays
+  two-trigger — it serves public repos too, and the N4 publish-safety
+  rationale holds there. Full two-sided analysis preserved →
+  [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 - [ ] **Map and understand the difference between honesty (that claude does
       well), the truth, and transparency** — MIKE'S raw note, to be fleshed out

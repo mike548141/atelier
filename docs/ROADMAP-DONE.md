@@ -1730,3 +1730,41 @@ ROADMAP.md; the finished detail is preserved here.
       **full app-plane parity** (Mike's challenge upheld over the design's
       cautious counsel — no phone-unique risk); ADP available; key backup in
       the person-level credential home. Build items now live in ROADMAP.md.
+
+## The 2026-07-23 decision sitting — standing backlog cleared (moved 2026-07-23)
+
+Mike worked the whole standing 🎯 backlog in plain-language walk-throughs
+(run record: the 1210 queue-run's addenda). Rulings and their closed items:
+
+- [x] **ccarchive metadata classes + signing defaults** — sidecars, memory
+      AND prompt history all captured (the last overturning the
+      lean-exclude counsel); binary exits, new-machine-red, keep-separate
+      all accepted. **Built same sitting** (`3c6394d`, merged `2df595e`):
+      generalised walk + allowlist classifier, manifest/verify/signing
+      untouched by design (they iterate manifest keys), restore redirects
+      only tool-declared external rels, +11 tests (150 suite green).
+- [x] **Invariant candidates S1–S5 / V1–V7 — all approved** (S5 explicitly
+      on ROI over its borderline count); build items opened on the live
+      ROADMAP.
+- [x] **Checkbox grammar — keep the tri-state** (builder's counsel
+      accepted; five states only if dispositions repeatedly need machine
+      separation).
+- [x] **Session archive — superseded by ccarchive under ADP-class E2E**;
+      NAS second leg and retention clock consciously not taken (history
+      kept indefinitely absent a retention ask). Original item text: NAS,
+      local-only, ~12-month rolling, no search index (searchability = exfil
+      surface); NZ Privacy Act retention noted for third-party PII.
+- [x] **Floor-template duplicate trigger — trim `pull_request` on no-fork
+      private children at pin bump; template stays two-trigger.** Preserved
+      analysis: `push` scans the branch tip (what a public push publishes),
+      `pull_request` scans the merge preview a tip-push can't see and
+      covers fork PRs — not pure duplicates; the N4 review chose every-push
+      for publish-safety, which holds for public repos; on private no-fork
+      children the second metered run buys little (owner-only
+      contributors) and costs half the minutes pool.
+- [x] **Signing warn→block flip — hold re-confirmed** (rotation sitting
+      offered, declined for now).
+
+Still Mike's, deliberately untouched: the honesty/truth/transparency note
+(being expanded via the apex-triad work), the Teams-chat note (prompted
+verbatim, awaiting his expansion), the glossary ratify pass (his read).
