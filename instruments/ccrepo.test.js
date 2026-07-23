@@ -500,9 +500,14 @@ function makeCcrepoArchive() {
 }
 function runCcrepoJson(dest, extra = [], env = {}) {
   const script = pathMod.join(__dirname, 'ccrepo');
+  // Isolate the rollup ledger to a throwaway temp file so archive-mode runs never
+  // touch the real ~/.claude/ccrepo-rollup.json (and never cross-contaminate). A
+  // caller that wants a specific ledger (the rollup tests) passes CCREPO_ROLLUP in.
+  const ledger = env.CCREPO_ROLLUP
+    || pathMod.join(fs.mkdtempSync(pathMod.join(os.tmpdir(), 'ccrepo-rollup-')), 'rollup.json');
   const out = require('node:child_process').execFileSync('node',
     [script, '--json', '--fx', 'usd', '--no-billing', ...extra], {
-      encoding: 'utf8', env: { ...process.env, ...env },
+      encoding: 'utf8', env: { ...process.env, CCREPO_ROLLUP: ledger, ...env },
     });
   return JSON.parse(out);
 }
@@ -550,6 +555,152 @@ test('readLogText gunzips a .gz and passes plain files through; isDatalessFlags 
   assert.equal(r.isDatalessFlags(0x40000060), true);   // real evicted value
   assert.equal(r.isDatalessFlags(0x20), false);        // UF_COMPRESSED alone
   assert.equal(typeof r.defaultArchiveDest('/home/x'), 'string');
+});
+
+// --- rollup precompute ledger (the speed layer) --------------------------
+// The rollup ledger caches each archive file's parsed, priced events under a
+// (mtime,size) fingerprint so a warm --from-archive run gunzips only new files.
+// The non-negotiable claim is rollup == full recompute: identical numbers with
+// the cache on or off. These tests drive the real CLI over synthetic archives +
+// an isolated temp ledger (CCREPO_ROLLUP), so they exercise the whole disk path
+// the pure-function tests deliberately don't reach.
+
+// The pure helpers first (cheap, deterministic).
+test('recipeSig is stable under key order and reflects pricing + covers changes', () => {
+  const a = r.recipeSig({ 'opus-4-8': 5, 'fable-5': 10 }, { covers: ['opus'], perTokenModels: [] });
+  const b = r.recipeSig({ 'fable-5': 10, 'opus-4-8': 5 }, { perTokenModels: [], covers: ['opus'] });
+  assert.equal(a, b, 'key order must not change the signature');
+  assert.notEqual(a, r.recipeSig({ 'opus-4-8': 6, 'fable-5': 10 }, { covers: ['opus'], perTokenModels: [] })); // price moved
+  assert.notEqual(a, r.recipeSig({ 'opus-4-8': 5, 'fable-5': 10 }, null));                                     // covers dropped
+});
+
+test('loadRollup: absent ⇒ fresh; wrong schema ⇒ fresh; malformed ⇒ fresh + warning', () => {
+  const fresh = r.loadRollup(pathMod.join(os.tmpdir(), 'no-such-rollup-xyz.json'));
+  assert.deepEqual(fresh, { schema: 'ccrepo-rollup/1', roots: {} });
+  const dir = fs.mkdtempSync(pathMod.join(os.tmpdir(), 'ccrepo-rollup-u-'));
+  const wrong = pathMod.join(dir, 'w.json'); fs.writeFileSync(wrong, JSON.stringify({ schema: 'other', roots: {} }));
+  assert.deepEqual(r.loadRollup(wrong).roots, {});
+  const bad = pathMod.join(dir, 'b.json'); fs.writeFileSync(bad, '{ not json');
+  const q = quietErr(() => r.loadRollup(bad));
+  assert.deepEqual(q.result, { schema: 'ccrepo-rollup/1', roots: {} });
+  assert.match(q.msgs.join(' '), /rebuilding/);
+});
+
+// A richer multi-month, multi-session, multi-model archive so grouping is real.
+function makeRolloutArchive() {
+  const dest = fs.mkdtempSync(pathMod.join(os.tmpdir(), 'ccrepo-rollarch-'));
+  const repoDir = pathMod.join(dest, '-home-dev-rollup-demo');
+  fs.mkdirSync(repoDir, { recursive: true });
+  const write = (uuid, ts, model, inTok, outTok) => {
+    const log = [
+      JSON.stringify({ type: 'summary', cwd: '/home/dev/rollup-demo' }),
+      JSON.stringify({
+        type: 'assistant', sessionId: uuid, timestamp: ts, requestId: 'req-' + uuid,
+        message: { id: 'msg-' + uuid, model, usage: { input_tokens: inTok, output_tokens: outTok } },
+      }),
+    ].join('\n') + '\n';
+    fs.writeFileSync(pathMod.join(repoDir, `${uuid}.jsonl.gz`), zlib.gzipSync(log));
+  };
+  // Two months, two models. opus base $5: (in·5 + out·25)/1e6; fable base $10.
+  write('11111111-0000-4000-8000-000000000001', '2026-05-10T12:00:00.000Z', 'claude-opus-4-8', 1000000, 1000000); // $30
+  write('22222222-0000-4000-8000-000000000002', '2026-05-20T12:00:00.000Z', 'claude-fable-5', 1000000, 0);        // $10
+  write('33333333-0000-4000-8000-000000000003', '2026-06-05T12:00:00.000Z', 'claude-opus-4-8', 2000000, 0);       // $10
+  return { dest, repoDir, write };
+}
+function tmpLedger() {
+  return pathMod.join(fs.mkdtempSync(pathMod.join(os.tmpdir(), 'ccrepo-led-')), 'rollup.json');
+}
+
+test('FLOOR: rollup == full recompute — identical rows/total with the cache on vs off', () => {
+  const { dest } = makeRolloutArchive();
+  const args = ['--from-archive', '--dest', dest, '-g', 'month,model'];
+  const off = runCcrepoJson(dest, [...args, '--no-rollup']);        // full re-walk, no cache
+  const cold = runCcrepoJson(dest, args, { CCREPO_ROLLUP: tmpLedger() }); // cache built this run
+  // Same ledger reused: a genuinely warm run (every file a hit).
+  const led = tmpLedger();
+  runCcrepoJson(dest, args, { CCREPO_ROLLUP: led });                // populate
+  const warm = runCcrepoJson(dest, args, { CCREPO_ROLLUP: led });   // all-hits
+  assert.deepEqual(cold.rows, off.rows, 'cold cache run must equal the uncached recompute');
+  assert.deepEqual(warm.rows, off.rows, 'warm cache run must equal the uncached recompute');
+  // The three sessions: $30 + $10 + $10 = $50 total, exact.
+  const total = off.rows.reduce((s, x) => s + x.cost, 0);
+  assert.ok(Math.abs(total - 50) < 1e-9, `expected $50, got ${total}`);
+  assert.equal(warm.meta.rollup.hits, 3);
+  assert.equal(warm.meta.rollup.misses, 0);                        // warm: nothing re-read
+});
+
+test('cache hit: a warm run serves the ledger, not the disk (fingerprint unchanged)', () => {
+  const { dest } = makeRolloutArchive();
+  const led = tmpLedger();
+  const args = ['--from-archive', '--dest', dest, '-g', 'total'];
+  const cold = runCcrepoJson(dest, args, { CCREPO_ROLLUP: led });
+  assert.equal(cold.meta.rollup.misses, 3);                         // first run reads all three
+  // Tamper the CACHE (not the source): halve one file's stored token/cost. A hit
+  // path must surface the tampered value; a disk read would ignore it. This is the
+  // cleanest hit proof — same (mtime,size) ⇒ the ledger is trusted verbatim.
+  const ledger = JSON.parse(fs.readFileSync(led, 'utf8'));
+  const root = ledger.roots[dest];
+  const anyFile = Object.values(root.files)[0];
+  anyFile.events[0].cost = 999;                                    // sentinel only the cache carries
+  fs.writeFileSync(led, JSON.stringify(ledger));
+  const warm = runCcrepoJson(dest, args, { CCREPO_ROLLUP: led });
+  assert.equal(warm.meta.rollup.hits, 3);
+  assert.equal(warm.meta.rollup.misses, 0);
+  const total = warm.rows[0].cost;
+  assert.ok(total > 900, `sentinel from the cache must show through (got ${total})`);
+});
+
+test('invalidation: a stale file is re-read when its fingerprint changes', () => {
+  const { dest, write } = makeRolloutArchive();
+  const led = tmpLedger();
+  const args = ['--from-archive', '--dest', dest, '-g', 'total'];
+  runCcrepoJson(dest, args, { CCREPO_ROLLUP: led });               // populate
+  // Tamper the cache with a sentinel, THEN rewrite the source file with different
+  // content (so mtime+size move). The fingerprint mismatch must force a re-read,
+  // discarding the sentinel and restoring the true number.
+  const ledger = JSON.parse(fs.readFileSync(led, 'utf8'));
+  Object.values(ledger.roots[dest].files)[0].events[0].cost = 999;
+  fs.writeFileSync(led, JSON.stringify(ledger));
+  write('11111111-0000-4000-8000-000000000001', '2026-05-10T12:00:00.000Z', 'claude-opus-4-8', 1000000, 1000000); // same numbers, new bytes/mtime
+  const after = runCcrepoJson(dest, args, { CCREPO_ROLLUP: led });
+  assert.ok(after.meta.rollup.misses >= 1, 'the rewritten file must miss and be re-read');
+  assert.ok(Math.abs(after.rows[0].cost - 50) < 1e-9, 'true $50 restored, sentinel discarded');
+});
+
+test('invalidation: a NEW file landing under a period recomputes that period', () => {
+  const { dest, write } = makeRolloutArchive();
+  const led = tmpLedger();
+  const args = ['--from-archive', '--dest', dest, '-g', 'month'];
+  const before = runCcrepoJson(dest, args, { CCREPO_ROLLUP: led });
+  const may0 = before.rows.find((x) => x.month === '2026-05').cost;
+  assert.ok(Math.abs(may0 - 40) < 1e-9, `May starts at $40 (opus $30 + fable $10), got ${may0}`);
+  // A new May session lands ($30 opus). Old files stay hits; the new one is a miss.
+  write('44444444-0000-4000-8000-000000000004', '2026-05-25T12:00:00.000Z', 'claude-opus-4-8', 1000000, 1000000);
+  const after = runCcrepoJson(dest, args, { CCREPO_ROLLUP: led });
+  assert.equal(after.meta.rollup.hits, 3, 'the three original files are served from cache');
+  assert.equal(after.meta.rollup.misses, 1, 'only the new file is read');
+  const may1 = after.rows.find((x) => x.month === '2026-05').cost;
+  assert.ok(Math.abs(may1 - 70) < 1e-9, `May must grow to $70 after the new session, got ${may1}`);
+});
+
+test('recipe-signature mismatch (e.g. a price table move) rebuilds the whole ledger', () => {
+  const { dest } = makeRolloutArchive();
+  const led = tmpLedger();
+  const args = ['--from-archive', '--dest', dest, '-g', 'total'];
+  runCcrepoJson(dest, args, { CCREPO_ROLLUP: led });               // built → $50, sig recorded
+  // The baked cost/covered split depends on the price table + covers-list, folded
+  // into the root's recipe signature. Simulate either of them moving by staling the
+  // stored sig, and plant a sentinel cost. A signature mismatch must rebuild the
+  // whole root (every file a miss), discarding the sentinel — never serve a cost
+  // computed under the old recipe.
+  const ledger = JSON.parse(fs.readFileSync(led, 'utf8'));
+  ledger.roots[dest].sig = 'stale-recipe-signature';
+  Object.values(ledger.roots[dest].files)[0].events[0].cost = 999;
+  fs.writeFileSync(led, JSON.stringify(ledger));
+  const after = runCcrepoJson(dest, args, { CCREPO_ROLLUP: led });
+  assert.equal(after.meta.rollup.misses, 3, 'a recipe mismatch forces a full re-read');
+  assert.equal(after.meta.rollup.hits, 0);
+  assert.ok(Math.abs(after.rows[0].cost - 50) < 1e-9, `true $50 restored, stale sentinel discarded (got ${after.rows[0].cost})`);
 });
 
 // --- module-load safety (require must be inert) --------------------------

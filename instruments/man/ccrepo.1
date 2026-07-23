@@ -115,6 +115,14 @@ In archive mode, also read files iCloud has evicted to dataless placeholders.
 reads every file to sum spend, so by default an evicted mirror is skipped and
 counted as a stated gap (reading it would fault its bytes back down from
 iCloud); this opts into reading \(em and thus re-downloading \(em them.
+.TP
+.B \-\-no\-rollup
+In archive mode, ignore the rollup ledger and re-walk (and re-gunzip) every file
+from scratch, writing nothing back. The ledger is a transparent speed cache that
+is used automatically when present; this bypasses it \(em for a from-scratch
+verification, or to sidestep a ledger you suspect is stale. See
+.B ROLLUP LEDGER
+below. Outside archive mode it has no effect (there is no cache to bypass).
 .SS Grouping
 .TP
 .BI \-g " list" "\fR, \fP" \-\-group " list"
@@ -332,6 +340,42 @@ against the whole plan fee would be apples-to-oranges. The
 schema and worked examples are in
 .I instruments/README.md
 in the atelier repository.
+.SH ROLLUP LEDGER
+A wide
+.B \-\-from\-archive
+run re-reads and re-decompresses every file in the mirror \(em cheap per file,
+but the whole preserved history is roughly a gigabyte of gzip a year, so a
+repeated historical query pays that cost every time. The archive already
+guarantees the numbers survive pruning, so this is purely a
+.I speed
+concern, not a data one.
+.B ccrepo
+answers it with a machine-local rollup ledger,
+.IR ~/.claude/ccrepo-rollup.json ,
+that caches each source file's parsed, priced messages under a cheap validity
+fingerprint (its modification time and size). Because the archive is
+append-only, an existing file's fingerprint never changes \(em it is always a
+cache hit \(em while a newly-archived session is a miss, read and priced once
+and then folded in. A warm run decompresses only what is genuinely new.
+.PP
+The ledger is a pure speed layer: a cached message is grouped, filtered and
+reconciled by exactly the same code an uncached one is, so it changes how fast a
+total is produced, never the total itself. It is keyed per file rather than per
+calendar period on purpose \(em a month cannot be validated without first
+reading files to learn each message's timestamp, and a session straddling a
+month boundary would be misfiled by any date proxy; file-grain keying sidesteps
+both and leaves month, quarter or any grouping to be computed from the true
+timestamps downstream, identical to an uncached run. Cost and the
+plan-covered/uncovered split are stored per message, so they depend on the price
+table and the billing covers-list; a change to either is detected by a recipe
+signature and rebuilds the ledger automatically. It is used transparently
+whenever it is present;
+.B \-\-no\-rollup
+bypasses it, and deleting the file forces a clean rebuild on the next run. A
+corrupt or wrong-version ledger is rebuilt, never fatal. The ledger holds only
+token counts and cost per message \(em never prompt or response text \(em but as
+a derivative of a person's usage it stays machine-local and never enters a
+repository.
 .SH FILES
 .TP
 .I ~/.claude/projects/
@@ -367,6 +411,18 @@ positive
 falls back to plan mode and a malformed period entry is dropped, never fatal.
 Holds a person's plan and real spend, so it stays machine-local and never enters
 a repository.
+.TP
+.I ~/.claude/ccrepo-rollup.json
+The rollup ledger \(em a machine-local speed cache of parsed, priced messages
+for
+.B \-\-from\-archive
+runs, keyed per source file by modification time and size. Rebuilt automatically
+when stale, corrupt or wrong-version; bypass with
+.BR \-\-no\-rollup ,
+delete to force a clean rebuild. Holds usage-derived figures, so it stays
+machine-local and never enters a repository. See
+.B ROLLUP LEDGER
+above.
 .SH EXAMPLES
 .TP
 .B ccrepo
@@ -396,7 +452,11 @@ Repos listed alphabetically instead of by cost.
 Raw list-price figures, offline, with no ccusage cross-check.
 .TP
 .B ccrepo \-\-from\-archive \-g month
-Monthly totals over the whole preserved history, including pruned sessions.
+Monthly totals over the whole preserved history, including pruned sessions. The
+first such run builds the rollup ledger; later ones re-read only new files.
+.TP
+.B ccrepo \-\-from\-archive \-g month \-\-no\-rollup
+The same, but bypassing the rollup ledger for a from-scratch re-walk.
 .TP
 .B ccrepo \-\-json > usage.json
 Tidy JSON for scripting.

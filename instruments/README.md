@@ -344,25 +344,39 @@ that cleanup:
   required for survival. Idempotent, exits 0 with nothing to do.
 
 **The durable substrate for the *other* instruments too.** `ccrepo.design.md` §8
-defers a *retention ledger* — persisting cost/usage rollups so ccrepo's
+deferred a *retention ledger* — persisting cost/usage rollups so ccrepo's
 month/quarter views survive the prune. ccarchive **subsumes that idea's survival
 purpose**: it keeps the full raw logs losslessly (~1.2 GB/yr), in a tree that
 mirrors `~/.claude/projects/` exactly, so *any* historical view — ccrepo's time
-grouping included — can be recomputed at full fidelity from the archive. A rollup
-ledger, if ever built, is then a *precompute/speed* layer, not a *data-survival*
-one. The sourcing seam is **closed on the observe side** (2026-07-23): both
-observers take `--from-archive` and read the mirror directly, sharing
-`--dest`/`$CCARCHIVE_DEST` resolution with ccarchive and one transparent-gunzip
-read path, so a pruned session is still fully readable.
-`cctranscript --from-archive` renders it word for word (eviction-aware listing —
-a `--list` never faults iCloud-evicted bytes back); `ccrepo --from-archive`
-prices the whole preserved history past the prune horizon. Because ccrepo must
-read *every* file to sum spend, it skips an evicted (dataless) mirror by default
-and counts it as a stated gap — `--materialise` opts into reading (re-downloading)
-them — and it turns the ccusage cross-check off in archive mode, since ccusage
-reads the live store the pruned sessions have already left. What remains is
-purely a *precompute* idea, not a survival one: the rollup ledger `ccrepo.design.md`
-§8 defers, which the archive has made optional.
+grouping included — can be recomputed at full fidelity from the archive. The
+sourcing seam is **closed on the observe side** (2026-07-23): both observers take
+`--from-archive` and read the mirror directly, sharing `--dest`/`$CCARCHIVE_DEST`
+resolution with ccarchive and one transparent-gunzip read path, so a pruned
+session is still fully readable. `cctranscript --from-archive` renders it word for
+word (eviction-aware listing — a `--list` never faults iCloud-evicted bytes back);
+`ccrepo --from-archive` prices the whole preserved history past the prune horizon.
+Because ccrepo must read *every* file to sum spend, it skips an evicted (dataless)
+mirror by default and counts it as a stated gap — `--materialise` opts into reading
+(re-downloading) them — and it turns the ccusage cross-check off in archive mode,
+since ccusage reads the live store the pruned sessions have already left.
+
+With survival settled by the archive, the ledger the design deferred is now built
+as **exactly what remains — a pure precompute/speed layer**, never a data one
+(2026-07-23). A wide `--from-archive` run re-gunzips the whole ~1 GB/yr mirror
+every time; the rollup ledger (`~/.claude/ccrepo-rollup.json`, machine-local, the
+same class as the pricing/billing configs) caches each source file's parsed,
+priced messages under a cheap `(mtime,size)` fingerprint. The archive is
+append-only, so an existing file is always a hit and only genuinely new sessions
+are re-read — a warm whole-history run drops from ~12 s to ~4 s on the live
+machine at unchanged numbers. It is keyed **per file, not per calendar period**:
+a month can't be fingerprinted without first reading files to learn each message's
+timestamp, and a boundary-straddling session would be misfiled by any date proxy,
+so file-grain keying is the simpler thing that keeps *rollup == full recompute*
+(month/quarter grouping is computed downstream from true timestamps, identical to
+an uncached run). Baked cost/covered depend on the price table + covers-list, both
+folded into a recipe signature that rebuilds the ledger when either moves. Used
+transparently when present; `--no-rollup` bypasses it for a from-scratch re-walk.
+`man ccrepo` § ROLLUP LEDGER has the full contract.
 
 ## Schema caveat
 

@@ -347,6 +347,81 @@ function readLogText(file) {
   return file.endsWith('.gz') ? zlib.gunzipSync(raw).toString('utf8') : raw.toString('utf8');
 }
 
+// --- rollup precompute ledger (the speed layer) --------------------------
+//
+// A wide --from-archive run re-walks and re-gunzips *every* mirror file each
+// time — the archive is the durable substrate, so the numbers already survive
+// pruning; what hurts is recomputing them from ~1 GB of gzip on every run. The
+// ledger caches the *parsed, priced events* per source file so a warm run only
+// gunzips files that are genuinely new.
+//
+// Why cache per FILE, not per month/quarter (the design's first framing): a
+// month rollup can't be fingerprinted without first reading files to learn each
+// message's timestamp (chicken-and-egg), and a session that straddles a month
+// boundary would be misassigned by any file-level date proxy (mtime ≠ the
+// message timestamps ccrepo buckets by) — which would break the rollup==recompute
+// floor. File-grain keying sidesteps both: events are cached exactly as parsed,
+// and month/quarter/any grouping is computed downstream from true timestamps,
+// identical to an uncached run. The archive is append-only, so an old file's
+// (mtime,size) never changes ⇒ always a hit; a new file lands ⇒ one miss, read
+// once. That is precisely "valid until new files land under that period."
+//
+// Correctness: a cached event round-trips through JSON bit-identically (integers
+// exact; IEEE-754 doubles are shortest-round-trippable), and feeds the very same
+// grouping/filter/reconcile code an uncached event does — so the cache changes
+// speed, never a displayed number. Cost and the covered/uncovered split are baked
+// per event, so they depend on the price table and the billing covers-list; both
+// are folded into a recipe signature and a change to either rebuilds the whole
+// ledger (rare, and exactly when you *want* a recompute). Machine-local, never in
+// a repo — the same class as ~/.claude/ccrepo-pricing.json / ccrepo-billing.json.
+const ROLLUP_SCHEMA = 'ccrepo-rollup/1';
+function rollupFile() {
+  return process.env.CCREPO_ROLLUP || path.join(os.homedir(), '.claude', 'ccrepo-rollup.json');
+}
+// A file's cheap validity fingerprint: mtime + size. Append-only ⇒ stable.
+function fileFingerprint(st) { return `${Math.round(st.mtimeMs)}:${st.size}`; }
+// Stable JSON (object keys sorted) so a recipe signature is order-insensitive.
+function stableStringify(o) {
+  return JSON.stringify(o, (_k, v) =>
+    (v && typeof v === 'object' && !Array.isArray(v))
+      ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, v[k]]))
+      : v);
+}
+// Everything that changes an event's stored *values* (cost, covered split): the
+// merged price table and the billing covers descriptor. Anything else (grouping,
+// filters, dates, FX) is applied downstream over the cached events, so it never
+// belongs here. A signature mismatch ⇒ the ledger for that root is rebuilt whole.
+function recipeSig(pricing, coversDesc) {
+  return stableStringify({ pricing: pricing || {}, covers: coversDesc || null });
+}
+// Load the ledger, or a fresh empty one. Malformed / wrong-schema ⇒ fresh (with a
+// warning), never fatal — a corrupt speed cache must never break the tool.
+function loadRollup(file) {
+  let raw;
+  try { raw = fs.readFileSync(file, 'utf8'); } catch { return { schema: ROLLUP_SCHEMA, roots: {} }; }
+  try {
+    const led = JSON.parse(raw);
+    if (!led || led.schema !== ROLLUP_SCHEMA || typeof led.roots !== 'object') {
+      return { schema: ROLLUP_SCHEMA, roots: {} };
+    }
+    return led;
+  } catch (e) {
+    console.error(`Ignoring ${file}: not valid rollup JSON (${e.message}); rebuilding.`);
+    return { schema: ROLLUP_SCHEMA, roots: {} };
+  }
+}
+// Persist the ledger. Best-effort: a write failure warns and is swallowed — the
+// run already has its (freshly computed) numbers, only the next run's speed-up is
+// lost. Never fatal.
+function saveRollup(file, led) {
+  try {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, JSON.stringify(led));
+  } catch (e) {
+    console.error(`Couldn't write rollup ledger ${file}: ${e.message} (speed cache only; numbers unaffected).`);
+  }
+}
+
 // The folder name dash-mangles every '/', '.', '_' alike, so the true repo name
 // is unrecoverable from it — the logs record the real cwd, so read it from there.
 function cwdFromLog(file) {
@@ -454,55 +529,125 @@ function keepRicher(map, key, e) {
   if (!prev || (e.total || 0) > (prev.total || 0)) map.set(key, e);
 }
 
+// Parse one session log's whole text into its list of (pre-dedup) events, each
+// tagged with its encoded-dir and dedup key. Pulled out of the walk so a cached
+// file can skip it entirely — this gunzip+JSON.parse loop is the expensive work
+// the rollup ledger exists to avoid re-running. Repo is left unresolved ('') and
+// filled in after the walk from the dir labels, exactly as before.
+function parseFileEvents(full, enc, session, sub, covers, pricing) {
+  const out = [];
+  let content;
+  try { content = readLogText(full); } catch { return out; }
+  for (const line of content.split('\n')) {
+    if (!line) continue;
+    let o;
+    try { o = JSON.parse(line); } catch { continue; }
+    if (o.type !== 'assistant') continue;
+    const e = eventFrom(o, { repo: '', session, sub, covers, pricing });
+    if (!e) continue;
+    e._enc = enc;
+    const mid = (o.message && o.message.id) || '';
+    e._key = mid ? mid + '|' + (o.requestId || '') : null;
+    out.push(e);
+  }
+  return out;
+}
+
 // Walk every session log, emit one event per priced assistant message. Dedups on
 // (message.id, requestId) via keepRicher (max-total-wins, see above). A message
 // with no id is always kept. Returns events + encoded→label map + unpriced tally.
-function readAllEvents(covers, pricing) {
+//
+// `rollup` (archive mode only; null disables) is the speed layer: { path, sig }.
+// Each source file's parsed events are cached under its (mtime,size) fingerprint,
+// so a warm run gunzips only genuinely new files. The cache is a pure speed
+// memoisation — the assembled event set is identical to an uncached walk (see the
+// ledger comment above), so grouping/filters/reconcile downstream see no
+// difference. Returns a `rollup` stats block ({ path, hits, misses }) for the
+// footnote; null when the ledger is off.
+function readAllEvents(covers, pricing, rollup) {
   const byKey = new Map();     // (message.id|requestId) -> event, richest wins
   const noKey = [];            // events with no message.id
   const repoLabels = new Map();
   let evicted = 0;             // archive mirrors skipped (dataless); a stated gap
   const root = sourceRoot();
+
+  // Ledger: per archive-root, a recipe signature + per-file {fp, events} and the
+  // dir→label map. A signature mismatch (price table or covers changed) rebuilds
+  // the root's slice whole, since the baked cost/covered would otherwise be stale.
+  let ledger = null, rootEntry = null, dirty = false, hits = 0, misses = 0;
+  if (rollup) {
+    ledger = loadRollup(rollup.path);
+    rootEntry = ledger.roots[root];
+    if (!rootEntry || rootEntry.sig !== rollup.sig) {
+      rootEntry = { sig: rollup.sig, labels: {}, files: {} };
+      ledger.roots[root] = rootEntry;
+      dirty = true;
+    }
+  }
+
   let dirs;
-  try { dirs = fs.readdirSync(root); } catch { return { events: [], repoLabels, unpriced: new Map(), evicted }; }
+  try { dirs = fs.readdirSync(root); }
+  catch { return { events: [], repoLabels, unpriced: new Map(), evicted, rollup: rollup ? { path: rollup.path, hits, misses } : null }; }
   for (const enc of dirs) {
     // _external is ccarchive's reserved home for the archived history.jsonl, not a
     // repo folder — never a session log to price.
     if (fromArchive && enc === '_external') continue;
     const dir = path.join(root, enc);
     if (!isDir(dir)) continue;
-    let lab = null;
+    // Seed the label from the ledger when we have it — a cached dir then needs no
+    // main-file read at all. cwd is written once at session start, so the cached
+    // label stays valid for the life of the file.
+    let lab = (rootEntry && rootEntry.labels[enc]) || null;
     for (const { full, session, sub } of walkSessionFiles(dir, null)) {
       // An evicted archive mirror is skipped, not read: ccrepo reads every file,
       // so reading it would fault its bytes back from iCloud. Counted as a gap;
-      // --materialise opts into reading (and thus re-downloading) them.
+      // --materialise opts into reading (and thus re-downloading) them. Checked
+      // before the cache so eviction handling is byte-identical with the ledger
+      // on or off (a dataless file is a gap either way, never served from cache).
       if (fromArchive && !materialise && isDataless(full)) { evicted++; continue; }
-      // Repo label from a main (non-subagent) file's cwd — a subagent may run in
-      // a worktree whose basename isn't the repo's.
-      if (lab === null && !sub) { const cwd = cwdFromLog(full); if (cwd) lab = path.basename(cwd); }
-      let content;
-      try { content = readLogText(full); } catch { continue; }
-      for (const line of content.split('\n')) {
-        if (!line) continue;
-        let o;
-        try { o = JSON.parse(line); } catch { continue; }
-        if (o.type !== 'assistant') continue;
-        const e = eventFrom(o, { repo: lab, session, sub, covers, pricing });
-        if (!e) continue;
-        e._enc = enc;
-        const mid = (o.message && o.message.id) || '';
-        if (mid) keepRicher(byKey, mid + '|' + (o.requestId || ''), e); else noKey.push(e);
+
+      let fileEvents;
+      if (rollup) {
+        let st;
+        try { st = fs.statSync(full); } catch { continue; }
+        const fp = fileFingerprint(st);
+        const cached = rootEntry.files[path.relative(root, full)];
+        if (cached && cached.fp === fp) {
+          fileEvents = cached.events;          // hit — no gunzip, no parse
+          hits++;
+        } else {
+          // Miss: repo label from a main (non-subagent) file's cwd — a subagent
+          // may run in a worktree whose basename isn't the repo's.
+          if (lab === null && !sub) { const cwd = cwdFromLog(full); if (cwd) lab = path.basename(cwd); }
+          fileEvents = parseFileEvents(full, enc, session, sub, covers, pricing);
+          rootEntry.files[path.relative(root, full)] = { fp, events: fileEvents };
+          dirty = true;
+          misses++;
+        }
+      } else {
+        if (lab === null && !sub) { const cwd = cwdFromLog(full); if (cwd) lab = path.basename(cwd); }
+        fileEvents = parseFileEvents(full, enc, session, sub, covers, pricing);
+      }
+
+      for (const e of fileEvents) {
+        if (e._key) keepRicher(byKey, e._key, e); else noKey.push(e);
       }
     }
-    if (lab) repoLabels.set(enc, lab);
+    if (lab) {
+      repoLabels.set(enc, lab);
+      if (rootEntry && rootEntry.labels[enc] !== lab) { rootEntry.labels[enc] = lab; dirty = true; }
+    }
   }
+
+  if (rollup && dirty) saveRollup(rollup.path, ledger);
+
   const events = [...byKey.values(), ...noKey];
   const unpriced = new Map();
   for (const e of events) {
     if (!e.repo) e.repo = label(e._enc, repoLabels);
     if (!e.priced && e.total > 0) unpriced.set(e.model, (unpriced.get(e.model) || 0) + 1);
   }
-  return { events, repoLabels, unpriced, evicted };
+  return { events, repoLabels, unpriced, evicted, rollup: rollup ? { path: rollup.path, hits, misses } : null };
 }
 
 // --- reconciliation against ccusage --------------------------------------
@@ -694,6 +839,7 @@ const asCsv = has('--csv');
 const flat = has('--flat');
 const noBilling = has('--no-billing');
 const noReconcile = has('--no-reconcile');
+const noRollup = has('--no-rollup');
 
 let fxCode = takeValue('--fx'); fxCode = fxCode ? fxCode.toUpperCase() : null;
 const currency = fxCode || 'NZD';
@@ -755,6 +901,7 @@ OPTIONS
   --from-archive       Read ccarchive's mirror, not the live logs (pruned history)
   --dest <dir>         Where the archive lives (implies --from-archive)
   --materialise        With --from-archive, also read iCloud-evicted files
+  --no-rollup          With --from-archive, ignore the rollup cache (full re-walk)
   --no-billing         Ignore ~/.claude/ccrepo-billing.json; estimate only
   --no-reconcile       Skip the ccusage cross-check (faster / offline)
   -h, --help           This summary
@@ -892,6 +1039,13 @@ function renderHuman(root, ctx) {
       console.log(`  ⚠ ${ctx.evicted} archived session file(s) skipped (evicted — bytes in iCloud, not local); ` +
         `their spend is NOT counted. Re-run with --materialise to read them (re-downloads).`);
     }
+    if (ctx.rollupStats) {
+      const rs = ctx.rollupStats, total = rs.hits + rs.misses;
+      console.log(`  Rollup ledger: ${rs.hits}/${total} archive file(s) from cache` +
+        `${rs.misses ? `, ${rs.misses} re-read (new/changed)` : ' (all warm)'} — ${rs.path}.`);
+    } else if (ctx.rollupOff) {
+      console.log(`  Rollup ledger bypassed (--no-rollup) — every archive file re-read.`);
+    }
   }
   if (recon) {
     const d = recon;
@@ -949,6 +1103,7 @@ function buildMeta(ctx) {
     source: ctx.source,
     archiveRoot: ctx.archiveRoot || null,
     evicted: ctx.source === 'archive' ? ctx.evicted : null,
+    rollup: ctx.rollupStats ? { hits: ctx.rollupStats.hits, misses: ctx.rollupStats.misses } : null,
     group: ctx.keys,
     filters,
     range: ctx.range,
@@ -1019,7 +1174,15 @@ async function main() {
   const covers = coversPredicate(billing);
   const pricing = loadPricing();
 
-  const { events, unpriced, evicted } = readAllEvents(covers, pricing);
+  // The rollup ledger is a --from-archive-only speed layer: the live logs are a
+  // small, ever-changing window that re-reads cheaply and still runs the ccusage
+  // cross-check, so there's nothing to precompute there. Transparent by default
+  // (auto-used when present, self-invalidating on new files or a recipe change),
+  // bypassed with --no-rollup for a from-scratch re-walk.
+  const rollup = (fromArchive && !noRollup)
+    ? { path: rollupFile(), sig: recipeSig(pricing, billing ? { covers: billing.plan.covers, perTokenModels: billing.perTokenModels } : null) }
+    : null;
+  const { events, unpriced, evicted, rollup: rollupStats } = readAllEvents(covers, pricing, rollup);
 
   const dimFilter = buildDimFilter(filterSpecs);
   const dayNum = (ts) => timeBucket(ts, 'day').replace(/-/g, '');
@@ -1105,7 +1268,7 @@ async function main() {
     keys, sortSpecs, currency, rate, converted, rateSource,
     billing: billingView, actualUSD, unpriced, recon, spendRecon, filterSpecs, since, until, range,
     source: fromArchive ? 'archive' : 'live', archiveRoot: fromArchive ? archiveRoot() : null,
-    evicted, materialise,
+    evicted, materialise, rollupStats, rollupOff: fromArchive && noRollup,
   };
 
   if (asJson) return outputJson(root, ctx);
@@ -1126,4 +1289,5 @@ module.exports = {
   eventFrom, keepRicher, readAllEvents, reconcile,
   loadBilling, coversPredicate, actualFor, normaliseSpend, reconcileSpend,
   defaultArchiveDest, readLogText, isDatalessFlags,
+  loadRollup, saveRollup, recipeSig, fileFingerprint, stableStringify,
 };
