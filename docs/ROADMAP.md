@@ -257,7 +257,8 @@ candidates; record:
   count). Approved seams/homes are the record's proposals unamended: all
   twelve shared-floor. The promotion rule itself (>2 occurrences ⇒
   candidate) is thereby exercised end-to-end and stands as practice.
-- [ ] **Build the approved scanners S1–S5** — ~~line-wrap (S1)~~, prose-path
+- [~] **Build the approved scanners S1–S5** (S2+S4 claimed 2026-07-23-0959,
+      wts: qr-0959-pathscan-s2 / qr-0959-stampscan-s4) — ~~line-wrap (S1)~~, prose-path
       resolution via linkscan extension (S2), ~~absolute-UTC dating (S3)~~,
       stamp-drift vs canonical parent (S4), ~~NZ-English wordlist (S5)~~. Each
       lands with tests + selftest + floor wiring per the scanner house
