@@ -8,17 +8,29 @@
  * timestamp, the model, token counts, tool calls and thinking. That is the
  * complete record. But it is *ephemeral*: Claude Code deletes logs older than
  * `cleanupPeriodDays` (default 30). Where cctranscript *reads* these logs,
- * ccarchive *keeps* them — it mirrors every .jsonl into a compressed archive
- * that outlives the source.
+ * ccarchive *keeps* them — it mirrors every log into a compressed archive that
+ * outlives the source.
  *
- * The archive is an incremental per-session gzip mirror: each
- *   ~/.claude/projects/<rel>/<name>.jsonl
+ * A transcript is not the whole record, though. When a tool output is large,
+ * Claude Code offloads the payload to a sidecar file (<uuid>/tool-results/* or,
+ * older, <uuid>/toolu_*) and leaves only a pointer in the .jsonl — so a .jsonl
+ * alone can dangle a reference to content that was never archived. Per-project
+ * auto-memory (<project>/memory/*.md) and the top-level prompt history
+ * (~/.claude/history.jsonl, one level ABOVE the projects root) are likewise part
+ * of the working record. ccarchive captures all of these classes as raw bytes;
+ * the CAPTURE section of the man page states exactly what is and is not taken.
+ * What it captures is an ALLOWLIST — an unrecognised file (a WebFetch PDF cache,
+ * a stray scratch file) is left out by default, and that boundary is documented,
+ * not silent.
+ *
+ * The archive is an incremental per-file gzip mirror: each
+ *   ~/.claude/projects/<rel>/<name>          (any captured file)
  * becomes
- *   <dest>/<rel>/<name>.jsonl.gz
+ *   <dest>/<rel>/<name>.gz
  * so each session stays individually readable (`cctranscript <path>` after
  * gunzip, or `zgrep`) and only files that changed since last run are
  * recompressed — cheap to run often, and light on a synced dest like iCloud
- * Drive (only new/updated sessions upload). The default dest is iCloud Drive.
+ * Drive (only new/updated files upload). The default dest is iCloud Drive.
  *
  * Append-only by contract: ccarchive never deletes from the archive. When
  * Claude Code's cleanup removes a source log, the archived copy remains — that
@@ -71,7 +83,7 @@ OPTIONS
   --json                 Machine-readable output (never styled).
   -h, --help             This summary.
 
-Mirror ~/.claude/projects/*.jsonl into a compressed, append-only, signed archive; restore too.  man ccarchive`;
+Mirror transcripts, tool-result sidecars, memory and history into a compressed, append-only, signed archive; restore too.  man ccarchive`;
 
 function takeValue(flag) {
   const i = argv.indexOf(flag);
@@ -137,9 +149,10 @@ function humanBytes(n) {
 
 // --- filesystem walk -----------------------------------------------------
 
-// Every .jsonl at any depth under root (session logs + nested subagent logs),
-// returned as absolute paths. Missing root ⇒ empty (nothing to archive yet).
-function listJsonl(root) {
+// Every file at any depth under root, as absolute paths. Missing root ⇒ empty.
+// One traversal underpins both the capture allowlist and the .jsonl-only listing
+// so there is a single walk to reason about.
+function walkFiles(root) {
   const out = [];
   let entries;
   try {
@@ -150,10 +163,88 @@ function listJsonl(root) {
   }
   for (const ent of entries) {
     const abs = path.join(root, ent.name);
-    if (ent.isDirectory()) out.push(...listJsonl(abs));
-    else if (ent.isFile() && ent.name.endsWith('.jsonl')) out.push(abs);
+    if (ent.isDirectory()) out.push(...walkFiles(abs));
+    else if (ent.isFile()) out.push(abs);
   }
   return out;
+}
+
+// Classify one source-relative path into the capture class it belongs to, or
+// null when it is deliberately NOT captured. The archive is byte-for-byte and
+// never parses, so capture is an ALLOWLIST of known-valuable classes, not
+// "everything except a blocklist" — an unrecognised file is left out by default
+// and the man page's CAPTURE section states the boundary. Names are matched, not
+// contents or extensions-as-schema: a tool-result payload is opaque bytes, so
+// whatever sits under tool-results/ (or an older toolu_ sibling) is taken as-is.
+//   transcript  — <name>.jsonl at any depth (session logs + nested subagent logs)
+//   tool-result — offloaded large tool outputs: <uuid>/tool-results/* and the
+//                 legacy <uuid>/toolu_* siblings the .jsonl points at
+//   memory      — per-project auto-memory: <project>/memory/*.md
+function captureClass(rel) {
+  const name = path.basename(rel);
+  const parts = rel.split(path.sep);
+  if (name.endsWith('.jsonl')) return 'transcript';
+  if (parts.includes('tool-results')) return 'tool-result';
+  if (name.startsWith('toolu_')) return 'tool-result';
+  if (name.endsWith('.md') && parts[parts.length - 2] === 'memory') return 'memory';
+  return null;   // e.g. webfetch-*.pdf, notes/scratch — excluded, by allowlist
+}
+
+// Every captured file under root (allowlist above), returned as absolute paths.
+function listCaptured(root) {
+  return walkFiles(root).filter((abs) => captureClass(path.relative(root, abs)) !== null);
+}
+
+// Just the .jsonl logs — a strict subset of the captured set. Kept under its own
+// name because the tests and neighbouring tooling speak in "the transcripts".
+function listJsonl(root) {
+  return walkFiles(root).filter((abs) => abs.endsWith('.jsonl'));
+}
+
+// --- capture from outside the source root: the top-level history.jsonl ---
+// Claude Code writes ~/.claude/history.jsonl — the prompt/command history you
+// typed — BESIDE the projects/ dir, i.e. one level ABOVE the source root
+// (~/.claude/projects). It is the one thing we deliberately reach up out of the
+// source root for. It is archived under a reserved _external/ rel that cannot
+// collide with an encoded project directory (those always begin with '-', being
+// an absolute repo path with its slashes rewritten), and restore maps that rel
+// back to its real home above the source root — it is NEVER rewritten under
+// projects/. Overridable via CCARCHIVE_HISTORY for testing/relocation.
+const EXTERNAL_PREFIX = '_external';
+
+function historySource(srcRoot) {
+  return process.env.CCARCHIVE_HISTORY || path.join(path.dirname(srcRoot), 'history.jsonl');
+}
+
+// The external captures as { abs, rel } pairs. A fixed, tool-controlled list:
+// restore only ever redirects a rel that appears HERE, so a hostile manifest key
+// under _external/ can never steer a write to an arbitrary absolute path.
+function externalSources(srcRoot) {
+  return [{ abs: historySource(srcRoot), rel: path.join(EXTERNAL_PREFIX, 'history.jsonl') }];
+}
+
+// Reverse map rel → live abs for the external captures; null for ordinary rels.
+function externalAbsFor(srcRoot, rel) {
+  const hit = externalSources(srcRoot).find((e) => e.rel === rel);
+  return hit ? hit.abs : null;
+}
+
+// Where a manifest rel restores to in the live store: its real home above the
+// source root for an external capture, else mirrored under the source root.
+function liveAbsFor(srcRoot, rel) {
+  return externalAbsFor(srcRoot, rel) || path.join(srcRoot, rel);
+}
+
+// The live capture set as { abs, rel } — captured files under the source root
+// (keyed by their source-relative path) plus any external captures that exist on
+// disk. One definition shared by the archive walk, --audit and --restore, so all
+// three agree on exactly what is preserved.
+function listSources(srcRoot) {
+  const under = listCaptured(srcRoot).map((abs) => ({ abs, rel: path.relative(srcRoot, abs) }));
+  const ext = externalSources(srcRoot)
+    .filter((e) => { try { return fs.statSync(e.abs).isFile(); } catch { return false; } })
+    .map((e) => ({ abs: e.abs, rel: e.rel }));
+  return [...under, ...ext];
 }
 
 // --- schedule management -------------------------------------------------
@@ -368,8 +459,11 @@ function saveManifest(destRoot, obj) {
   fs.renameSync(tmp, p);  // atomic: a crash mid-write can't corrupt the manifest
 }
 
-// Archived transcripts as manifest keys (the .gz suffix stripped). Excludes
-// manifest.json and any non-transcript file.
+// Archived files as manifest keys (the .gz suffix stripped). Any archived .gz is
+// first-class here — a transcript, a tool-result sidecar, a memory .md or the
+// external history.jsonl all mirror to <rel>.gz, so keying on the .gz suffix
+// alone (rather than .jsonl.gz) treats every captured class the same. The
+// manifest.json / .sig sidecars carry no .gz suffix, so they are never picked up.
 function listArchivedRels(destRoot) {
   const out = [];
   const walk = (dir) => {
@@ -379,7 +473,7 @@ function listArchivedRels(destRoot) {
     for (const ent of entries) {
       const abs = path.join(dir, ent.name);
       if (ent.isDirectory()) walk(abs);
-      else if (ent.isFile() && ent.name.endsWith('.jsonl.gz')) out.push(path.relative(destRoot, abs).slice(0, -3));
+      else if (ent.isFile() && ent.name.endsWith('.gz')) out.push(path.relative(destRoot, abs).slice(0, -3));
     }
   };
   walk(destRoot);
@@ -681,12 +775,16 @@ function classifyDivergence(archivedBuf, liveBuf) {
   return liveBuf.equals(archivedBuf.subarray(0, liveBuf.length)) ? 'shrunk' : 'rewritten';
 }
 
+// The live capture set with a raw-byte sha256 for each — the input --audit and
+// --restore both categorise against the manifest. Spans every captured class and
+// the external history file (via listSources), not just .jsonl.
+function liveListWithHashes(srcRoot) {
+  return listSources(srcRoot).map((f) => ({ rel: f.rel, abs: f.abs, sha256: sha256File(f.abs) }));
+}
+
 function auditLiveStore(srcRoot, destRoot, asJson, materialise) {
   const manifest = loadManifest(destRoot);
-  const files = listJsonl(srcRoot);
-  const liveList = files.map((abs) => ({
-    rel: path.relative(srcRoot, abs), abs, sha256: sha256File(abs),
-  }));
+  const liveList = liveListWithHashes(srcRoot);
 
   const cat = auditCategorize(manifest, liveList);
   const absByRel = new Map(liveList.map((f) => [f.rel, f.abs]));
@@ -813,8 +911,7 @@ function isInsideRoot(root, target) {
 // this adds a copy under the old name rather than moving anything.
 function restoreTargets(manifest, srcRoot, destRoot, delta) {
   if (!delta) return Object.keys(manifest).sort();
-  const files = listJsonl(srcRoot);
-  const liveList = files.map((abs) => ({ rel: path.relative(srcRoot, abs), abs, sha256: sha256File(abs) }));
+  const liveList = liveListWithHashes(srcRoot);
   const cat = auditCategorize(manifest, liveList);
   const absByRel = new Map(liveList.map((f) => [f.rel, f.abs]));
   const mutated = [];
@@ -842,8 +939,13 @@ function restoreArchive(srcRoot, destRoot, { delta, dryRun, force, asJson }) {
   };
 
   for (const rel of rels) {
-    const liveAbs = path.join(srcRoot, rel);
-    if (!isInsideRoot(srcRoot, liveAbs)) { report.errors.push({ rel, reason: 'escapes-root' }); continue; }
+    // External captures (the top-level history.jsonl) restore to their real home
+    // ABOVE the source root — a tool-controlled path, so the zip-slip guard is
+    // waived only for a rel we ourselves declared external. Every ordinary rel
+    // still mirrors under srcRoot and must resolve inside it.
+    const external = externalAbsFor(srcRoot, rel) !== null;
+    const liveAbs = liveAbsFor(srcRoot, rel);
+    if (!external && !isInsideRoot(srcRoot, liveAbs)) { report.errors.push({ rel, reason: 'escapes-root' }); continue; }
     const gzPath = path.join(destRoot, rel + '.gz');
     let archivedBuf, gzMtimeMs;
     try { archivedBuf = zlib.gunzipSync(fs.readFileSync(gzPath)); gzMtimeMs = fs.statSync(gzPath).mtimeMs; }
@@ -945,8 +1047,13 @@ function run() {
     return 1;
   }
 
-  const files = listJsonl(srcRoot);
-  const report = { source: srcRoot, dest: destRoot, dryRun, total: files.length,
+  // Everything captured under the source root, plus the external history.jsonl
+  // that lives one level above it — a unified { abs, rel } list. The archive path
+  // is derived from rel (not from relative(srcRoot, abs)) so an external capture's
+  // reserved _external/ rel mirrors correctly instead of climbing out of dest.
+  const underRoot = listCaptured(srcRoot);
+  const sources = listSources(srcRoot);
+  const report = { source: srcRoot, dest: destRoot, dryRun, total: sources.length,
     archived: 0, skipped: 0, refusedShrink: [], bytesRaw: 0, bytesGz: 0, files: [] };
 
   // The manifest is read on every run (the shrink guard needs its rawBytes);
@@ -955,20 +1062,21 @@ function run() {
   let manifestChanged = false;
   const nowIso = dryRun ? null : new Date().toISOString();
 
-  // Layout-drift alarm: an empty source against a non-empty archive means the
-  // live dir moved or was renamed — without this, a scheduled run would report
-  // success forever while the archive silently stopped growing.
-  if (files.length === 0 && Object.keys(manifest).length > 0) {
+  // Layout-drift alarm: an empty projects walk against a non-empty archive means
+  // the live dir moved or was renamed — without this, a scheduled run would report
+  // success forever while the archive silently stopped growing. Keyed on the
+  // under-root capture, not the external history file, so a moved projects/ still
+  // trips the alarm even if history.jsonl is still findable.
+  if (underRoot.length === 0 && Object.keys(manifest).length > 0) {
     process.stderr.write(
       `ccarchive: source ${srcRoot} yielded no transcripts while the archive ` +
       `holds ${Object.keys(manifest).length} — has the live directory moved?\n`);
     return 1;
   }
 
-  for (const srcAbs of files) {
+  for (const { abs: srcAbs, rel } of sources) {
     const srcStat = fs.statSync(srcAbs);
-    const destAbs = archivePathFor(destRoot, srcRoot, srcAbs);
-    const rel = path.relative(srcRoot, srcAbs);
+    const destAbs = path.join(destRoot, rel + '.gz');
     let destMtimeMs = null;
     try { destMtimeMs = fs.statSync(destAbs).mtimeMs; } catch (e) {
       if (e.code !== 'ENOENT') throw e;
@@ -1064,7 +1172,7 @@ function run() {
   const verb = dryRun ? 'would archive' : 'archived';
   const lines = [
     `cc-transcripts archive${dryRun ? ' (dry run)' : ''} → ${destRoot}`,
-    `  ${report.total} transcript${report.total === 1 ? '' : 's'} · ` +
+    `  ${report.total} file${report.total === 1 ? '' : 's'} · ` +
       `${report.archived} ${verb}, ${report.skipped} unchanged`,
   ];
   if (report.archived > 0) {
@@ -1090,6 +1198,8 @@ if (require.main === module) {
 
 module.exports = {
   defaultDest, archivePathFor, shouldArchive, humanBytes, listJsonl, run,
+  walkFiles, captureClass, listCaptured, listSources, liveListWithHashes,
+  historySource, externalSources, externalAbsFor, liveAbsFor,
   xmlEscape, schedulePaths, resolveScriptPath, launchdPlist, cronLine,
   sha256, manifestPath, loadManifest, saveManifest, listArchivedRels, verifyArchive,
   isSuspectShrink, insideGitWorkTree, auditCategorize, classifyDivergence, auditLiveStore,
