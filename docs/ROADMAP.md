@@ -70,22 +70,26 @@ pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
   the all-clear but never names the CI result; "scanners green locally" is
   not "floor green at head". Small wording-sized RECORD.md edit; rides the
   normal review cycle when taken.
-- [~] **Propagate the widened apex floor to children — and sweep every in-repo
-  apex restatement** (claimed 2026-07-23-0441, wt: apex-floor-sweep · at:
-  in-repo sweep — the fleet sweep stays open)
-  (surfaces named per AW2's ruling, 2026-07-23, so the
-  sweep is mechanical): root `README.md:57` + `:93`;
-  `docs/method/PRINCIPLES.md:10` + `:316`; `docs/method/PROPAGATION.md:40` +
-  its inlined floor template block; `skills/session-onramp/SKILL.md`
-  description + §1; `docs/method/README.md:11` (EVIDENCE named behind honesty
-  only, now the truth bar); `docs/build/templates/CLAUDE.md:24` floor block —
-  byte-identical to PROPAGATION's inlined block, the two move in lockstep,
-  and it is the surface that stamps new children (AWA1 ruling, 2026-07-23) —
-  all still two-element at HEAD. Per AW8's ruling:
-  the child floor's adaptation line must carry the honesty-precondition
-  clause verbatim-or-equivalent. **Ungated 2026-07-23** — the apex review
-  cycle closed on Mike's AWA accept-all; the in-repo sweep + fleet sweep are
-  ready to take, per-child commits.
+- [x] **In-repo apex restatements swept to three-element — DONE 2026-07-23**
+  (`a4740c4`, queue run, Opus worker). All named surfaces aligned to the widened
+  apex (honesty → adaptation → the Laws): `README.md` (×2), `PRINCIPLES.md` (×2),
+  `PROPAGATION.md` (description + inlined floor block), `build/templates/CLAUDE.md`
+  floor block (kept **byte-identical** to PROPAGATION's — cmp + `test_templates`
+  32/32 confirm the lockstep), `method/README.md` (EVIDENCE now behind honesty
+  **and** adaptation), `session-onramp/SKILL.md` (description + a new
+  Adaptation-is-continuous §1 bullet). AW8's honesty-precondition clause is
+  verbatim on the child floor's adaptation line. Dated records / review files /
+  EVIDENCE.md's accurate single-element honesty citation left untouched. This is
+  the closed apex-widening cycle's scheduled application ⇒ no new review owed.
+- [ ] **Propagate the widened apex floor to the fleet children** — the remaining
+  half. Each child copies the floor block statically, so they adopt the
+  three-element floor + honesty-precondition clause at their next pin bump /
+  harvest, per-child commits. **Ungated 2026-07-23** (apex cycle closed on Mike's
+  AWA accept-all). The canonical child floor block now lives at
+  `docs/build/templates/CLAUDE.md` (byte-identical to PROPAGATION's inlined
+  block) — children align to it. Pairs naturally with the `floor.yml`
+  cold-content gate + `pull_request`-trigger adoption already queued below (same
+  pin-bump lane).
 
 ## build/ layer — open strands
 
