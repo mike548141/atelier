@@ -220,14 +220,31 @@ candidates; record:
   count). Approved seams/homes are the record's proposals unamended: all
   twelve shared-floor. The promotion rule itself (>2 occurrences ⇒
   candidate) is thereby exercised end-to-end and stands as practice.
-- [~] **Build the approved scanners S1–S5** — line-wrap (S1), prose-path
-      (claimed 2026-07-23-0441, wt: datescan-s3 · at: S3 only — S1/S2/S4/S5
-      stay open)
-      resolution via linkscan extension (S2), absolute-UTC dating (S3),
+- [ ] **Build the approved scanners S1–S5** — line-wrap (S1), prose-path
+      resolution via linkscan extension (S2), ~~absolute-UTC dating (S3)~~,
       stamp-drift vs canonical parent (S4), NZ-English wordlist (S5). Each
       lands with tests + selftest + floor wiring per the scanner house
       pattern; first-of-kind ones earn their review before gating
       (don't-stack).
+      - [x] **S3 datescan BUILT 2026-07-23** (`6077972`, queue run, Sonnet
+            worker). `tools/datescan.py` + 41 tests (suite 372 green) +
+            `--selftest`. Relative-time-word denylist + non-ISO/invalid-ISO
+            date check over `docs/**`, with fenced-code/blockquote/quoted-mention
+            exemptions (limits documented honestly in-header; the "dated edit
+            carries its date" clause stays review-only — no mechanical seam).
+            **Wired ADVISORY-ONLY** (`--warn`, exit 0) in atelier's own
+            `ci.yml`; NOT in the blocking pre-commit hook nor the child
+            `floor.yml` — it gates nothing until reviewed. Honest baseline left
+            uncleaned as review evidence: **60 findings / 43 files**. Its ⏳
+            review is queued below.
+- ⏳ **datescan (S3) review — first-of-kind scanner earns a review before it may
+      gate** (delta `6077972`; intent: `docs/sessions/2026-07-22-1036-invariant-candidates.md`
+      § S3). The don't-stack rule holds it advisory until an independent session
+      passes rule 4 (this queue run authored it via dispatch, so this chain may
+      not take it). Review scope: detection correctness + the exemption
+      heuristics' honest limits + whether the 60-finding baseline is signal or
+      noise (decides gate-readiness). On PASS-and-clean, the follow-on is flipping
+      `--warn` off + adding it to `floor.yml`; that flip is a separate act.
 - [ ] **Codify V1–V7 as the always-loaded reviewer checklist** — the
       registry mechanism's doctrine half; lands in REVIEW.md/the review
       skill with each item's cited grounding. Self-authored doctrine ⇒
