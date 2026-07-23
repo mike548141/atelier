@@ -50,3 +50,19 @@ session pre-ruling; findings are Mike's (rule 3).
 
 *review: not warranted — this record narrates two review passes; the passes
 themselves are the review artefacts, and this session changed no doctrine.*
+
+## Addendum — AWA1–AWA4 + SCA1–SCA3 ruled and applied; both cycles CLOSED (same session, wt: awa-sca-rulings-apply)
+
+Mike asked for the findings one-by-one in plain language; each was presented
+with what-it-is / what-it's-for / impacts, and AWA2 took three rounds of
+deepening context — his independence challenge (could landing = queuing
+weaken reviewer independence?) answered directly in-session before he ruled.
+**All seven accepted as counselled.**
+
+Applied by this session (authored neither doctrine nor verdicts; claim
+`e50d84d` on `main` first) as the **terminal applications** of the two
+no-MAJOR passes: apex `7230025` (sweep list + landing = queuing in ROADMAP
+preamble and REVIEW.md rule 4 + attribution split; AWA4 folded), canon
+`a97c140` (bounded-grant clause, default-config hedge, expected observation).
+Decisions stamped in both verdicts; items harvested to ROADMAP-DONE; **both
+cycles closed, no further pointer — the propagation sweep is ungated.**

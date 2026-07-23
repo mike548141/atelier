@@ -10,6 +10,27 @@ with a disposition note where work was superseded or declined).
 First harvested 2026-07-14 (ROADMAP.md had reached 1091 lines).
 
 ## Doctrine — completed review cycles
+- [x] 🎯 **AWA1–AWA4 rulings (AW-application cold pass —
+  [`verdict`](reviews/2026-07-23-0330-aw-application-cold.md))** — 0330
+  rule-4 application pass, PASS-WITH-FINDINGS 0M/2m/1L/1n; all nine AW
+  decision stamps reproduced at HEAD. Ruled 2026-07-23 accept-all,
+  walked through one-by-one plain-language; applied by a non-author as the
+  **terminal application** of the no-MAJOR pass — the child-template floor
+  block joins the propagation sweep list (AWA1), landing = queuing closes
+  the pointer window (AWA2, ROADMAP preamble + REVIEW.md rule 4), the
+  00-APEX attribution split (AWA3), AWA4 folded into AWA2. Decisions
+  stamped; **apex-widening cycle closed**, propagation sweep ungated.
+  (Moved from ROADMAP.md 2026-07-23.)
+- [x] 🎯 **SCA1–SCA3 rulings (SC-application cold pass —
+  [`verdict`](reviews/2026-07-23-0330-sc-application-cold.md))** — 0330
+  rule-4 application pass, PASS-WITH-FINDINGS 0M/1m/1L/1n; all six SC
+  decision stamps reproduced (PVR re-verified live `enabled:true`). Ruled
+  2026-07-23 accept-all; applied by a non-author as the **terminal
+  application** — the atelier@main float named as a bounded standing grant
+  (SCA1), scanner-fix uptake hedged to the default configuration (SCA2),
+  the PVR verify command states its expected observation (SCA3). Decisions
+  stamped; **security-canon cycle closed**. (Moved from ROADMAP.md
+  2026-07-23.)
 - [x] 🎯 **EB1–EB8 rulings (economics cold pass —
   [`verdict`](reviews/2026-07-23-0222-economics-billing-states-cold.md))** —
   0222 rule-4 taker's cold pass, PASS-WITH-FINDINGS 0M/4m/3L/1n; ruled
