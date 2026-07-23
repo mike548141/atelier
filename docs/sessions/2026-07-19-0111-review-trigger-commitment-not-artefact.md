@@ -39,7 +39,7 @@ such marker: it pointed up for the *lifecycle* while silently restating the
 drift — the N-copies shape `PROPAGATION.md` explicitly rejects, reproduced inside
 the doctrine that forbids it.
 
-The tell that yesterday's fix was downstream: correcting the grammar needed
+The tell that the 2026-07-18 fix was downstream: correcting the grammar needed
 patches in five places, and the *next* correction would need five more. That was
 the plan on the table before Mike's steer.
 
