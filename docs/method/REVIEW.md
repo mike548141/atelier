@@ -107,7 +107,10 @@ governing who may spawn it:
    author's handoff when such work is finished: queue the review pointer
    (ROADMAP `⏳`, naming the delta and the intent record — a ceiling as well
    as a floor: refs only, no evaluative account, which belongs in the intent
-   record where the reviewer's deferral discipline governs when it is read)
+   record where the reviewer's deferral discipline governs when it is read),
+   **in the same commit that lands the work** — landing = queuing, so no
+   window exists in which landed doctrine sits unpointed and commits touching
+   its surfaces escape the pointer's delta list (AWA2 ruling, 2026-07-23) —
    and stop — the
    brief is written by the non-author who takes the item, and any spawner
    passing the criterion may take a `⏳` item (the principal opening a fresh
@@ -264,7 +267,8 @@ with the principal's decision without defending either. And where the doctrine
 is self-authored in rule 4's sense, the application inherits that status — the
 applier's judgement produced the new wording — so while the cycle is open the
 applier does not spawn the application review either: it queues the `⏳`
-pointer for a non-author to take. For that review, rule 4's criterion tests
+pointer for a non-author to take — in the application commit itself, per
+rule 4's landing = queuing. For that review, rule 4's criterion tests
 the *delta's* author — the applier — at minimum, and prior authors in the
 chain where practical. The terminal application — one applying the rulings of
 a pass that returned no MAJOR — closes without a queued pointer, per the

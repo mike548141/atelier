@@ -22,7 +22,10 @@ evaluative account; the account lives in the session record, so a taker meets
 the work cold (REVIEW.md rule 4's ceiling, stated here at the point of use).
 And the delta list stays *complete*: a later commit that touches a queued
 delta's doctrine surfaces — even for hygiene — widens the pointer's delta
-list in the same commit (AW6 ruling, 2026-07-23).
+list in the same commit (AW6 ruling, 2026-07-23). The pointer itself is
+queued **in the commit that lands the work** — landing = queuing, so no
+window exists where landed doctrine sits unpointed and untracked (AWA2
+ruling, 2026-07-23; its enacting batch exercised exactly that window).
 
 ## Doctrine — review-owed
 
@@ -48,21 +51,13 @@ no-MAJOR application pass, closed 2026-07-22; the secrets/access cycle —
 0222 rule-4 application pass 0M/1m/3L/2n, QA1–QA6 applied `5891184`
 terminal 2026-07-23; the v2-plugin cycle — 1215 pass → VP1–VP8 applied
 `ff8a07f` → 0222 rule-4 application pass 0M/2m/1L/1n, VA1–VA4 applied
-`bbaec81` terminal 2026-07-23) →
+`bbaec81` terminal 2026-07-23; the apex-widening cycle — 0222 pass 1M/4m/3L/1n
+→ AW1–AW9 applied `e8d707c` → 0330 rule-4 application pass 0M/2m/1L/1n,
+AWA1–AWA4 accept-all applied terminal 2026-07-23; the security-canon cycle —
+0222 pass 1M/1m/3L/1n → SC1–SC6 applied `c27189e` → 0330 rule-4 application
+pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- [~] 🎯 **AWA1–AWA4 rulings (Mike) — apex-widening cycle terminal**
-  (claimed 2026-07-23-0430, wt: awa-sca-rulings-apply — ruled accept-all by
-  Mike this sitting; terminal application in flight) — the
-  AW-rulings application's rule-4 cold pass ran 2026-07-23-0330 (taker-spawned
-  per the claim; **PASS-WITH-FINDINGS 0M/2m/1L/1n**, verdict:
-  [`reviews/2026-07-23-0330-aw-application-cold.md`](reviews/2026-07-23-0330-aw-application-cold.md)).
-  All nine AW decision stamps reproduce at HEAD; no MAJOR ⇒ the cycle closes
-  on Mike's ruling (REVIEW.md close rule) and that ruling's application is
-  the terminal one — no further pointer. Counsel: take all four, each small —
-  AWA1 add the child-template floor block to the AW2 sweep list · AWA2 close
-  AW6's landing→queuing window (queue the ⏳ in the landing commit) · AWA3
-  split the 00-APEX double attribution · AWA4 folds into AWA2.
 - [ ] 🎯 **Glossary ratify pass (Mike)** — end-to-end read of
   `method/GLOSSARY.md`: tighten wording, rule on the full-definition entries
   (principal / agent / session / doctrine — new canonical homes), confirm the
@@ -81,13 +76,14 @@ terminal 2026-07-23; the v2-plugin cycle — 1215 pass → VP1–VP8 applied
   `docs/method/PRINCIPLES.md:10` + `:316`; `docs/method/PROPAGATION.md:40` +
   its inlined floor template block; `skills/session-onramp/SKILL.md`
   description + §1; `docs/method/README.md:11` (EVIDENCE named behind honesty
-  only, now the truth bar) — all still two-element at HEAD. Per AW8's ruling:
+  only, now the truth bar); `docs/build/templates/CLAUDE.md:24` floor block —
+  byte-identical to PROPAGATION's inlined block, the two move in lockstep,
+  and it is the surface that stamps new children (AWA1 ruling, 2026-07-23) —
+  all still two-element at HEAD. Per AW8's ruling:
   the child floor's adaptation line must carry the honesty-precondition
-  clause verbatim-or-equivalent. Gated on the apex review cycle above closing
-  (the application pass ran 2026-07-23-0330, no MAJOR — the cycle closes on
-  Mike's AWA ruling; if AWA1 is taken, this sweep list gains the
-  child-template floor block); then the in-repo sweep + fleet sweep,
-  per-child commits.
+  clause verbatim-or-equivalent. **Ungated 2026-07-23** — the apex review
+  cycle closed on Mike's AWA accept-all; the in-repo sweep + fleet sweep are
+  ready to take, per-child commits.
 
 ## build/ layer — open strands
 

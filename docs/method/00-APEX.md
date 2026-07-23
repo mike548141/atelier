@@ -136,11 +136,11 @@ In practice:
   rule held at apex strength: doctrine is extracted from real, decided
   practice — never invented to fill a heading — and a claim whose proof cannot
   be re-run is testimony, not evidence ([`EVIDENCE.md`](EVIDENCE.md)).
+  (Mike, 2026-07-22.)
   Scope (Mike's ruling, 2026-07-23): the proof duty attaches to the *agent's*
   proposals and to the *grounding and recording* of the principal's rulings —
   a ruling becomes a decision of record through `RECORD.md`'s machinery — and
   is never a bar the agent holds against the principal.
-  (Mike, 2026-07-22.)
 
   *The worked case for both bullets (ros, 2026-07-22):* a session reported an
   SSH key "dead fleet-wide", attributed it to a strict-crypto policy gating the

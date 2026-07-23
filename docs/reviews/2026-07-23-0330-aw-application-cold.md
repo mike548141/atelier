@@ -312,3 +312,26 @@ This pass returns **no MAJOR**. Per REVIEW.md's close rule, **the
 apex-widening cycle is terminal and closes on this verdict** — AWA1–AWA4 are
 the principal's to decide into the backlog (rule 3); no further full ceremony
 spawns from this application. The reviewer applied nothing.
+
+---
+
+## Decisions (stamped 2026-07-23, the applying session)
+
+Mike ruled all four **accept as counselled**, walked through one-by-one in
+plain language with impacts (AWA2 via three rounds of deepening context, the
+independence question answered directly before he ruled). Applied by a
+session that authored neither the doctrine, the prior verdicts, nor the
+applications under review. No MAJOR in the pass ⇒ **the apex-widening cycle
+is terminal and closes on this landing** (REVIEW.md termination rule; no
+further pointer).
+
+- **AWA1 [fixed]** — `docs/build/templates/CLAUDE.md:24` floor block added
+  to the propagation item's sweep list with the lockstep note.
+- **AWA2 [fixed]** — landing = queuing: the ⏳ pointer is queued in the
+  commit that lands the work (ROADMAP preamble + REVIEW.md rule 4 handoff +
+  the applying-decisions paragraph).
+- **AWA3 [fixed]** — the bullet's 2026-07-22 attribution moved to close the
+  pre-existing text; the scope sentence stands alone under its own date.
+- **AWA4 [fixed]** — folded into AWA2: with landing = queuing the "queued at
+  landing" claim is true by construction; the historical message stands as
+  recorded.
