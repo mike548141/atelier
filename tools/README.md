@@ -533,6 +533,48 @@ file — an explicitly-named path is scanned, never silently matched by nothing
 (the 2026-07-21 cold pass's RS1). The review line must carry a non-empty
 value, and a `review:` quoted inside a code fence doesn't count (RS2/RS3).
 
+## `datescan.py` — absolute-UTC dating discipline (FIRST-OF-KIND, advisory only)
+
+Seam S3 (2026-07-22 invariant-candidates review): a dated record states
+ISO-8601 absolute dates stamped from `date -u`, never a relative-time word
+("today", "yesterday", "last week") whose meaning drifts with the reader's
+"now" — grounded in a real miss, the standing correction that cost a
+five-file sweep when a record was stamped from local NZ time instead of UTC.
+Two checks over `docs/**` Markdown by default: a **relative-time-word
+denylist**, and an **ISO/UTC shape check** (a non-ISO absolute date like
+`23/07/2026` or `July 23, 2026`; an ISO-*shaped* date that isn't a real
+calendar day, e.g. `2026-13-40`).
+
+**This scanner has not yet earned an independent review** (don't-stack), so
+it is wired into CI **advisory-only** (`--warn`, always exit 0) and
+deliberately **not** in the blocking pre-commit hook.
+
+Exemptions, deliberately generous (a false positive costs a comment; a noisy
+scanner trains itself away): a fenced code block or blockquoted line (quoted
+external text), an inline `` `code span` ``, and — the hard case — a
+relative-time word immediately flanked by a matching quote pair (`"today"`)
+is read as a MENTION (prose *about* the word) rather than a USE, exactly the
+shape the rule's own worked examples use. This is a punctuation heuristic,
+not a parser: unquoted prose about relative time still false-positives, and
+is meant to be closed with `datescan:allow`. The rule's third clause — "a
+dated maintenance edit carries its date" — is **not** mechanically checked;
+naming an edit's intent isn't a shape a text scanner can see honestly, so
+that clause stays caught at review, same honesty as sizescan's
+prose-cold-content residual.
+
+```sh
+python3 tools/datescan.py                 # scan docs/** (default scope)
+python3 tools/datescan.py --root . docs    # explicit — the CI invocation
+python3 tools/datescan.py --warn           # report findings, always exit 0
+python3 tools/datescan.py --json           # machine-readable
+python3 tools/datescan.py --selftest       # prove the engine offline
+```
+
+Exit codes: `0` clean, or `--warn` given · `1` findings without `--warn` · `2`
+usage/config error. Escape hatches mirror the sibling scanners:
+`<!-- datescan:allow: <reason> -->` per line, a glob in `.datescanignore` per
+path.
+
 ## Tests
 
 ```sh

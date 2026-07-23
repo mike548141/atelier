@@ -92,6 +92,7 @@ jobs:
           python3 tools/signscan.py --selftest
           python3 tools/sizescan.py --selftest
           python3 tools/reviewscan.py --selftest
+          python3 tools/datescan.py --selftest
 
       - name: tool test suite
         run: python3 -m unittest discover -s tools -p 'test_*.py' -v
@@ -141,6 +142,15 @@ jobs:
       # the tool's output prescribes the investigate-then-recommend remedy.
       - name: sizescan (cold content + harvest integrity)
         run: python3 tools/sizescan.py --check --root . .
+
+      # datescan (S3, 2026-07-22 invariant-candidates review): absolute-UTC
+      # dating discipline over docs/** — a relative-time-word denylist + an
+      # ISO-8601 shape check. FIRST-OF-KIND, WIRED ADVISORY-ONLY: it has not
+      # yet earned an independent review (don't-stack), so --warn always
+      # exits 0 here — it reports the finding count for review evidence and
+      # never blocks a build. Do not drop --warn until it has been reviewed.
+      - name: datescan (dating discipline — advisory, not yet reviewed)
+        run: python3 tools/datescan.py --warn --root . docs
 
       # --- commit-signature verification (SIGNING.md, ADR 0007) --------------
       # atelier is the trust root, so it verifies against its OWN allowed_signers
