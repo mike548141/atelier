@@ -277,14 +277,13 @@ now DONE (above); the flip precondition is met (above). S1/S5 follow-ons below:*
 `b7b292c`) — baseline 60→0, detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). The
 flip follow-on stays open:*
 
-- [ ] 🎯 **datescan advisory→blocking flip (Mike's call) — precondition NOW MET**
-      (2026-07-23): DSR2/DSR3/DSR4 fixed and docs re-baselined to **0 genuine
-      breaches** by the DSR-apply above. The flip is therefore *unblocked* and is
-      now purely Mike's go/no-go: drop `--warn` in `ci.yml` + add datescan to
-      `floor.yml`. One honesty note for the decision: DSR3 traded a real
-      silent-miss (a bare "today = this date" claim with no cue passes clean) to
-      kill the ~9:1 noise — so the gate is tighter but not exhaustive on `today`.
-      No code work owed; awaiting the ruling.
+*datescan advisory→blocking flip — **RULED + DONE 2026-07-23 (Mike: "agree flip
+it")**. atelier `ci.yml` datescan dropped `--warn` (blocks clean, 0 breaches);
+child `floor.yml` template gained a docs-scoped datescan blocking step + its
+selftest, so children adopt at their next pin bump (re-baseline first — see the
+fleet-floor item below). Honest limit recorded in-gate: DSR3 narrowed `today`, so
+a bare "today = this date" claim with no cue passes silently — tighter but not
+exhaustive. → [`ROADMAP-DONE.md`](ROADMAP-DONE.md) at next harvest.*
 *wrapscan (S1) first-of-kind review DONE 2026-07-23 (queue run 0707, cold Opus) —
 **PASS-WITH-FINDINGS 1M/3m/2L**, NOT gate-ready; MAJOR is gate-scope not
 detection (154/287 baseline is deliberate SESSIONS index rows). Brief
@@ -438,7 +437,11 @@ applied 2026-07-21**; the fleet-wide `hooks.atelierTools` fix) →
       `pull_request` trigger** — halves metered-minute burn; the merge-preview
       scan is consciously traded away where the owner is the only contributor;
       public children keep both (free). They also inherit the SHA-pinned
-      actions + the SECURITY.md template from the security-canon close. **The rebalance dissolves the all-open-roadmap
+      actions + the SECURITY.md template from the security-canon close, **and the
+      new docs-scoped `datescan` blocking step (added to the template 2026-07-23
+      on Mike's flip ruling) — a child RE-BASELINES its records first (ISO-fix or
+      `datescan:allow` the genuine breaches; that first red is the signal) and
+      adjusts the path if it keeps records outside `docs/`.** **The rebalance dissolves the all-open-roadmap
       red**: a wholly-open ROADMAP (ros's ~125 open items) no longer reds on
       length — with no cold content to relocate it is advisory now, not a standing
       red — so the class-grounded-budget workaround is no longer needed for that

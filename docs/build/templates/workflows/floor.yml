@@ -129,6 +129,7 @@ jobs:
           python3 atelier/tools/signscan.py --selftest
           python3 atelier/tools/sizescan.py --selftest
           python3 atelier/tools/reviewscan.py --selftest
+          python3 atelier/tools/datescan.py --selftest
 
       - name: secretscan (full cover)
         run: python3 atelier/tools/secretscan.py --root repo repo
@@ -164,6 +165,17 @@ jobs:
       # only, never either gate. Drop `--check` to run fully advisory instead.
       - name: sizescan (cold content + harvest integrity)
         run: python3 atelier/tools/sizescan.py --check --root repo repo
+
+      # datescan (S3): absolute-UTC dating discipline over records. BLOCKING in
+      # atelier since 2026-07-23 (reviewed PASS + re-baselined clean). Scoped to
+      # `repo/docs` — dating discipline is a RECORDS check; scanning source would
+      # be noise. Honest limit: DSR3 narrowed "today" to date-adjacent contexts,
+      # so a bare "today = this date" claim with no cue passes silently. A child
+      # adopting this at a pin bump RE-BASELINES first (fix genuine breaches to
+      # ISO, or `datescan:allow: <reason>` the verbatim ones) — that first red IS
+      # the signal. If this repo keeps records outside `docs/`, adjust the path.
+      - name: datescan (dating discipline)
+        run: python3 atelier/tools/datescan.py --root repo repo/docs
 
       # Publish gate — uncomment when this repo has a LICENSE / before going public.
       # - name: licenscan (assert your licence)

@@ -147,12 +147,15 @@ jobs:
 
       # datescan (S3, 2026-07-22 invariant-candidates review): absolute-UTC
       # dating discipline over docs/** — a relative-time-word denylist + an
-      # ISO-8601 shape check. FIRST-OF-KIND, WIRED ADVISORY-ONLY: it has not
-      # yet earned an independent review (don't-stack), so --warn always
-      # exits 0 here — it reports the finding count for review evidence and
-      # never blocks a build. Do not drop --warn until it has been reviewed.
-      - name: datescan (dating discipline — advisory, not yet reviewed)
-        run: python3 tools/datescan.py --warn --root . docs
+      # ISO-8601 shape check. BLOCKING since 2026-07-23 (Mike's flip ruling):
+      # its 0618 cold review PASSED (0 MAJOR) and the 0707 queue run applied
+      # DSR1–DSR8 + re-baselined docs to 0 genuine breaches, so it earns the
+      # gate. Honest limit carried in tools/datescan.py: DSR3 narrowed "today"
+      # to date-adjacent contexts, so a bare "today = this date" claim with no
+      # cue passes silently — the gate is tighter but not exhaustive on that
+      # one word. Hatch: `datescan:allow: <reason>` on the flagged line.
+      - name: datescan (dating discipline — blocking)
+        run: python3 tools/datescan.py --root . docs
 
       # wrapscan (S1, 2026-07-22 invariant-candidates review): line-wrap /
       # column-hygiene over docs/** — a prose line materially over the house
