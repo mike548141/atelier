@@ -42,7 +42,10 @@ no-MAJOR application pass, closed 2026-07-22; the secrets/access cycle —
 2026-07-23, cycle closed) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- [ ] 🎯 **AW1–AW9 rulings (apex-widening cold pass —
+- [~] 🎯 **AW1–AW9 rulings (apex-widening cold pass —
+  (claimed 2026-07-23-0252, wt: rulings-apply — Mike ruled accept-all as
+  counselled, AW1 scope sentence + SC1 PVR-enable agreed verbatim; applier
+  authored neither the doctrine nor the verdicts)
   [`verdict`](reviews/2026-07-23-0222-apex-widening-cold.md))** — rule-4
   taker's cold pass (2026-07-23), PASS-WITH-FINDINGS 1M/4m/3L/1n.
   Self-authored doctrine, so the findings are Mike's to decide (rule 3);
@@ -70,7 +73,7 @@ no-MAJOR application pass, closed 2026-07-22; the secrets/access cycle —
   above closing (AW rulings + their application — the wording may change under
   the rulings); then a fleet sweep, per-child commits.
 
-- [ ] 🎯 **EB1–EB8 rulings (economics cold pass —
+- [~] 🎯 **EB1–EB8 rulings (economics cold pass —
   [`verdict`](reviews/2026-07-23-0222-economics-billing-states-cold.md))** —
   rule-4 taker's cold pass (2026-07-23), PASS-WITH-FINDINGS 0M/4m/3L/1n.
   Rule 3: Mike decides; nothing applied. Sharpest: EB1/EB2 — the retired
@@ -155,7 +158,7 @@ ECONOMICS § tier split + plugin-bundled `queue-run` skill) →
   extracted from practice, not assumed. Fan-out sub-agents on the cheapest
   genuinely-capable tier is already standing practice (no trial needed).
 
-- [ ] 🎯 **QA1–QA6 rulings (QR-application cold pass —
+- [~] 🎯 **QA1–QA6 rulings (QR-application cold pass —
   [`verdict`](reviews/2026-07-23-0222-qr-application-cold.md))** — rule-4
   taker's cold pass (2026-07-23), PASS-WITH-FINDINGS 0M/1m/3L/2n; all nine QR
   rulings verified faithfully applied, QR6's bite reproduced. **No MAJOR ⇒ the
@@ -182,7 +185,7 @@ Mapping done 2026-07-22 (record:
 — A/B/E confirmed narrow, C reframed to mutable-tag CI actions, D dismissed
 instance-layer) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- [ ] 🎯 **SC1–SC6 rulings (security-canon cold pass —
+- [~] 🎯 **SC1–SC6 rulings (security-canon cold pass —
   [`verdict`](reviews/2026-07-23-0222-security-canon-abce-cold.md))** — rule-4
   taker's cold pass (2026-07-23), PASS-WITH-FINDINGS 1M/1m/3L/1n. Rule 3:
   Mike decides; nothing applied. **SC1 MAJOR (security): SECURITY.md's sole
@@ -415,7 +418,7 @@ public as a **named worked example** (README "If you're adopting this"). What wa
       specifics (grant ledger, Apple/iCloud) → marked worked-examples. No longer
       a publication gate; do it as the named-worked-example framing gets tested by
       a real adopter.
-- [ ] 🎯 **VA1–VA4 rulings (v2-plugin application cold pass —
+- [~] 🎯 **VA1–VA4 rulings (v2-plugin application cold pass —
   [`verdict`](reviews/2026-07-23-0222-v2-plugin-application-cold.md))** —
   rule-4 taker's cold pass (2026-07-23), PASS-WITH-FINDINGS 0M/2m/1L/1n; all
   eight VP rulings applied faithfully, every fix reproduces live (VP5
