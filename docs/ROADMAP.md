@@ -309,17 +309,16 @@ What remains is Mike's:
 
 Reconciliation drift closed 2026-07-22 (richest-record dedup; exact ccusage
 match on frozen data) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
-- [ ] 🎯 **Fill the machine-local spend config** (actual-spend mechanism
-      BUILT 2026-07-22, `1711711`, merged `12613e0` — detail →
-      [`ROADMAP-DONE.md`](ROADMAP-DONE.md)) — needs-Mike facts the
-      mechanism can't know: `~/.claude/ccrepo-billing.json` does not
-      currently exist on this machine, so the comparison reports
-      unavailable until it's created. Two calls: (1) which mode — a flat
-      Max tier (`plan` mode: just name + monthly fee) or pasted monthly
-      invoice figures (`usage` mode, exact across tier changes); (2)
-      plan mode assumes the plan was live every month with usage in
-      range — if tiers changed mid-history, use usage mode for those
-      months. Schema documented in `instruments/README.md`.
+- [x] 🎯 **Fill the machine-local spend config — DONE 2026-07-23** (actual-
+      spend mechanism BUILT 2026-07-22, `1711711`, merged `12613e0` — detail
+      → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)). On Mike's direction the
+      config was populated from his real billing receipts (collected from
+      his email by agent; **usage mode**, chosen because tiers changed
+      mid-history), and the reconciliation footnote now renders against
+      genuine billed figures. The receipts ledger and config live in
+      `~/.claude` only — figures never enter this repo (the item's own
+      boundary). Residual noted machine-locally: append each new invoice
+      month to the config as receipts arrive.
 
 Completed instruments work (ccrepo actuals/breakdown, ccarchive integrity/audit,
 the **man-page convention rollout — ccarchive worked example + cctranscript +
