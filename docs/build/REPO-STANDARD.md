@@ -82,8 +82,12 @@ evidence — see `method/EVIDENCE.md`.
   honestly (a solo-maintained repo says best-effort, no guaranteed timeline) and
   claim no bug bounty that does not exist — the apex forbids a claim stronger
   than its evidence. It points reporters at GitHub Private Vulnerability
-  Reporting; the finding severity + recurrence-prevention practice it names is
-  `method/REVIEW.md`'s security lens. Seed from `templates/SECURITY.md`; atelier's
+  Reporting — and **enabling PVR in the repo's settings is part of the same
+  seeding act, verified with
+  `gh api repos/<owner>/<repo>/private-vulnerability-reporting`** (a policy
+  that routes through a disabled switch is a broken control — SC1,
+  2026-07-23); the finding severity + recurrence-prevention practice it names
+  is `method/REVIEW.md`'s security lens. Seed from `templates/SECURITY.md`; atelier's
   own root `SECURITY.md` is the worked example. (Grounded: the 2026-07-22
   security-canon gap map.)
 - **.gitignore** — always ignores OS litter and the *personal* Claude settings
@@ -177,8 +181,10 @@ evidence — see `method/EVIDENCE.md`.
 
 ## Process — a new repo
 
-1. Create the directory and `git init`; set the git identity (instance-local) and
-   bake repo-local `commit.gpgsign=true` — belt-and-braces so the repo signs even
+1. Create the directory and `git init`; set the git identity (instance-local)
+   and, **when the instance profile's `signing` fact says the machine signs**
+   (default off), bake repo-local `commit.gpgsign=true` — belt-and-braces so a
+   signing machine's repo signs even
    where global config drifted; signing itself is a machine property (SIGNING.md).
 2. Seed the file set from `templates/`, sized to the type; put the product in its
    subfolder.

@@ -411,9 +411,19 @@ class QueueRunSkillTest(unittest.TestCase):
         self.assertIn(phrase, self.flat)
         self.assertIn(phrase, " ".join(queue_run_section().split()))
 
+    def test_item_text_never_overrides_in_both(self):
+        """QR4's injection guard (QA1): the run's trust boundary is pinned
+        on both surfaces, same treatment as the chain pin."""
+        phrase = "never overrides"
+        self.assertIn(phrase, self.flat)
+        self.assertIn(phrase, " ".join(queue_run_section().split()))
+
     def test_loses_nothing_overclaim_evicted(self):
-        """QR7: the honest form is 'at most the item in flight'."""
+        """QR7: the honest form is 'at most the item in flight' — held on
+        both ruled surfaces (QA2: the README bullet had no pin)."""
         self.assertNotIn("loses nothing", self.flat.lower())
+        readme = " ".join((ROOT / "README.md").read_text().split()).lower()
+        self.assertNotIn("loses nothing", readme)
 
 
 if __name__ == "__main__":

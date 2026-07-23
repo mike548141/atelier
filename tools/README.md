@@ -84,9 +84,13 @@ than pretended away:
   to a **full commit SHA** with the tag kept as a trailing comment
   (`@<sha> # v5`), in `.github/workflows/ci.yml` and in the child
   `docs/build/templates/workflows/` a child copies. A pin is bumped
-  deliberately, re-resolving the SHA (`gh api repos/<owner>/<repo>/git/ref/tags/<tag>`);
+  deliberately, re-resolving the SHA (`gh api repos/<owner>/<repo>/git/ref/tags/<tag>`
+  — checking `.object.type` first: an **annotated** tag returns a *tag object*,
+  not a commit, so dereference it
+  (`gh api repos/<owner>/<repo>/git/tags/<sha> --jq .object.sha`, or
+  `git ls-remote --tags <url> '<tag>^{}'`) before pinning;
   a moved tag can no longer ship code into a trusted build silently. (Grounded:
-  the 2026-07-22 security-canon gap map.)
+  the 2026-07-22 security-canon gap map; SC3, 2026-07-23.)
 - **The toolchain is a trusted, unpinned dependency — stated, not hidden.** The
   scanners still trust the runner's `python3`, `node`, `git`, and `gh`, the OS,
   and the runner image itself. These are dependencies even though no manifest
@@ -100,8 +104,17 @@ than pretended away:
   trigger is a package or binary someone else installs). Until an artefact
   exists there is nothing to bill or sign, and standing the machinery up would be
   ceremony.
-- **Scanner distribution to children** stays the other deferred supply-chain
-  call (vendor / fetch / publish) — see the leakscan **CI** wiring note below.
+- **Scanner distribution to children is decided — fetch at CI.** A child's CI
+  floor checks atelier out beside the repo and runs these scanners from that
+  checkout (`docs/build/templates/workflows/floor.yml` — one source, no
+  vendored copy); the per-clone hook covers the local clone. (SC2 sweep,
+  2026-07-23 — the earlier "deferred call" wording predated floor.yml.)
+- **Child CI trusts `atelier@main` for scanner code — by design.** The floor
+  template fetches the scanners at floating `main` (newest detection is
+  safest — rationale in floor.yml's header) while the *trust list* and
+  doctrine are read at the child's pinned SHA. Detection floats, trust roots
+  pin — the asymmetry is deliberate, named here where the residuals live
+  (SC5, 2026-07-23).
 
 ## `leakscan.py` — keep personal/estate data out of a shareable repo
 
@@ -206,10 +219,10 @@ leakscan --staged --disable ipv4,ipv6,mac-address tiki/
     `tools/test_precommit.py`.
 - **CI** — in a repo that carries the scanners (atelier itself), run both with
   `--json` on every push (belt and braces; a hook only protects the clone that
-  has it installed). **A child repo cannot do this yet** — it has no scanners
-  and CI has no atelier path; scanner distribution (vendor / fetch / publish)
-  is the deferred supply-chain call (ROADMAP), so a child's only scan gate is
-  the per-clone hook. That gap is stated, not silent.
+  has it installed). A child repo runs the same scanners through its **CI
+  floor**, which checks atelier out beside the repo and fetches them at CI
+  time (`docs/build/templates/workflows/floor.yml`); the per-clone hook still
+  guards local commits. (Swept 2026-07-23, SC2 — this note predated floor.yml.)
 
 ## `secretscan.py` — keep plaintext credentials out of git history
 

@@ -288,3 +288,22 @@ this pass returns **no MAJOR**. Per REVIEW.md's termination rule the cycle
 delta is itself self-authored doctrine), all wording- or test-sized, and their
 application is the terminal one — it closes without a queued pointer. Nothing
 here reopens the ceremony.
+
+---
+
+## Decisions (stamped 2026-07-23, the applying session)
+
+Mike ruled **accept-all as counselled** (2026-07-23). Applied in `5891184` by
+a session that authored none of the chain (doctrine, prior verdict, prior
+application) nor this verdict. No MAJOR in the pass ⇒ **the queue-run cycle
+is terminal and closes on this landing** (REVIEW.md termination rule).
+
+- **QA1 [fixed]** — the injection guard mirrored into skill step 5 and
+  pinned on both surfaces (`test_item_text_never_overrides_in_both`).
+- **QA2 [fixed]** — loses-nothing eviction extended to README.
+- **QA3 [fixed]** — "every *chain* session … was principal-opened".
+- **QA4 [fixed]** — QR2's authorship attribution cited for the downstream
+  direction.
+- **QA5 [fixed]** — Waves pointer names the real heading.
+- **QA6 [fixed]** — workhorse = the run's default executor slot, filled per
+  run by the cheapest-genuinely-does rule.

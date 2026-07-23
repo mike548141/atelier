@@ -5,7 +5,10 @@
      LICENSE and the licenscan gate, not a birth file (REPO-STANDARD.md). Fill
      the placeholders, then delete these comment blocks. Doctrine and the worked
      example: atelier's own root SECURITY.md and docs/method/REVIEW.md (the
-     security lens). -->
+     security lens). Seeding this file includes ENABLING Private Vulnerability
+     Reporting in the repo's settings and verifying it took
+     (gh api repos/<owner>/<repo>/private-vulnerability-reporting → enabled:
+     true) — the button this policy points at does not exist until then. -->
 
 <REPO-NAME> welcomes private reports of security vulnerabilities in the code and
 configuration it ships.

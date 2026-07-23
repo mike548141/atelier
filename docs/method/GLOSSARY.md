@@ -27,7 +27,7 @@ full in this file.
   it. One doctrine binds every model; capability scopes *authority*, never
   *applicability* ([`00-APEX.md`](00-APEX.md) § Who it binds).
 - **Session** — one continuous working context of an agent, from onramp to
-  close; the unit that claims work, holds a worktree, and owes a closing
+  close; the unit that claims work, may hold a worktree, and owes a closing
   record ([`CONCURRENCY.md`](CONCURRENCY.md), [`RECORD.md`](RECORD.md)).
 
 ## Truth and its machinery
@@ -39,7 +39,9 @@ full in this file.
 - **Evidence vs testimony** — a claim whose proof can be re-run, challenged,
   and contrasted, versus one resting on its author's word
   ([`00-APEX.md`](00-APEX.md) § Adaptation is continuous;
-  machinery in [`EVIDENCE.md`](EVIDENCE.md)).
+  machinery in [`EVIDENCE.md`](EVIDENCE.md)). Admitted on concept-spread:
+  the *term* "testimony" lives in the apex only; the concept spans APEX and
+  EVIDENCE, which is what earns the entry (AW7 ruling, 2026-07-23).
 - **Provenance** — a claim's answer to "what is the source, how obtained, when
   verified, how far trusted" ([`EVIDENCE.md`](EVIDENCE.md) §1).
 - **Authority tier** — the graded strength of a source (primary,
@@ -48,9 +50,11 @@ full in this file.
 
 ## Structure of the doctrine
 
-- **Doctrine** — the whole operating model this repo carries: the apex, the
-  method docs, the build standard, and the decisions that bind them. "How we
-  work", held as code.
+- **Doctrine** — structurally, the whole operating model this repo carries:
+  the apex, the method docs, the build standard, and the decisions that bind
+  them. "How we work", held as code. For what counts as doctrine under review
+  governance — *doctrine by function, not file type* — the canonical
+  definition is [`REVIEW.md`](REVIEW.md) rule 3, single-sourced there.
 - **Apex** — level 0: honesty, adaptation, the Laws — above the precedence
   ladder, never traded ([`00-APEX.md`](00-APEX.md)).
 - **Floor** — the irreducible subset of the doctrine a child repo carries
@@ -71,9 +75,11 @@ full in this file.
 - **ADR** — architecture decision record: the durable capture of a
   re-litigable decision ([`RECORD.md`](RECORD.md); instances in
   `docs/decisions/`).
-- **Cold review** — independent review by a party with fresh context, met
-  through a refs-only brief rather than the author's framing
-  ([`REVIEW.md`](REVIEW.md)).
+- **Cold review** — independent review whose *spawn* passes rule 4's
+  criterion (a session the author neither started nor instructed); the brief
+  is written by the non-author taker, and it is the author's queue *pointer*
+  that is refs-only ([`REVIEW.md`](REVIEW.md)). Cold *context* alone — fresh
+  context under a warm spawn — is the weaker property, governed by rules 1–2.
 - **Intent record** — the session record a queued review pointer names: the
   account of what was built and why, including the authoring choices a
   reviewer should attack ([`REVIEW.md`](REVIEW.md) rule 4).

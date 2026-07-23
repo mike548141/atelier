@@ -302,3 +302,20 @@ no-MAJOR verdict stands, and with it the cycle's terminal close.
 
 *Per REVIEW.md rule 3, VA1–VA4 are the principal's to decide; this reviewer
 recommends and applies nothing.*
+
+---
+
+## Decisions (stamped 2026-07-23, the applying session)
+
+Mike ruled **accept-all as counselled** (2026-07-23). Applied in `bbaec81` by
+a session that authored none of the chain nor this verdict. No MAJOR in the
+pass ⇒ **the v2-plugin cycle is terminal and closes on this landing**.
+
+- **VA1 [fixed]** — SIGNING.md + REPO-STANDARD swept to the profile-gated
+  bake; the SIGNING done-log annotated, not rewritten.
+- **VA2 [backlog]** — folded into the e2e exercise ROADMAP item (update case
+  named); no text change before the observation, per counsel.
+- **VA3 [fixed]** — skill step 5 says to delete guidance comments before the
+  stamp-proof grep.
+- **VA4 [fixed]** — eight facts, `instance.yaml.example` named as single
+  source.

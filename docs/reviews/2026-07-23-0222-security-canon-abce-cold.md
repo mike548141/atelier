@@ -329,3 +329,28 @@ requirement the delta silently dropped.
 *Reviewed 2026-07-23 0231 UTC · cold rule-4 pass, read-only, one file written
 (this one). Findings SC1–SC6 above are the principal's to decide (REVIEW.md
 rules 3–4); the reviewer applied nothing.*
+
+---
+
+## Decisions (stamped 2026-07-23, the applying session)
+
+Mike ruled **accept-all as counselled** (2026-07-23), with SC1's
+enable-and-verify agreed verbatim. Applied in `c27189e` by a session that
+authored neither the doctrine nor this verdict.
+
+- **SC1 [fixed]** — severity MAJOR. Instance: PVR **enabled** on
+  `mike548141/atelier` and API-verified (`{"enabled":true}`, 2026-07-23,
+  pre-application). Recurrence-prevention: enable-PVR-and-verify is now part
+  of the SECURITY.md seeding act in REPO-STANDARD and the template.
+- **SC2 [fixed]** — the three stale deferred-call notes swept to the shipped
+  fetch-at-CI reality (the reviewer's "decided" reading confirmed).
+- **SC3 [fixed]** — pin-bump recipe dereferences annotated tags.
+- **SC4 [fixed]** — uptake sentence split: scanner fixes float to child CI,
+  doctrine/template fixes ride the pin bump.
+- **SC5 [fixed]** — the atelier@main scanner-trust asymmetry named in the
+  residual list.
+- **SC6 [no change needed]** — already swept by SA9; recorded as a
+  worker-prompt nudge, not doctrine.
+
+**MAJOR in this pass ⇒ the application (`c27189e`) inherits rule-4 status:
+`⏳` queued refs-only; the applier spawns nothing.**

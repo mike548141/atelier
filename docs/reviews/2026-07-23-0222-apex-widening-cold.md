@@ -408,3 +408,37 @@ own attack surface and findings (rule 1's deferral).*
   - *"Testimony, not evidence" / at-apex-strength connective tissue*:
     attacked under AW1 — the line is good doctrine but its unscoped bind is
     the MAJOR.
+
+---
+
+## Decisions (stamped 2026-07-23, the applying session)
+
+Mike ruled **accept-all as counselled** (2026-07-23), with AW1's scope
+sentence agreed verbatim: *the proof duty attaches to the agent's proposals
+and to the grounding and recording of the principal's rulings, never as a bar
+the agent holds against the principal.* Applied in `e8d707c` by a session that
+authored neither the doctrine nor this verdict.
+
+- **AW1 [fixed]** — scope sentence added to the proof-bar bullet
+  (`00-APEX.md`), citing `RECORD.md` as where a ruling becomes a decision of
+  record.
+- **AW2 [fixed→backlog split]** — the counselled fix (name every stale
+  restatement surface on the propagation item so the sweep is mechanical)
+  applied in `e8d707c`; the sweep itself rides that item, as counselled.
+- **AW3 [fixed]** — glossary Cold review entry now states the spawn
+  criterion, the taker-writes-the-brief split, and cold-context vs cold-spawn.
+- **AW4 [fixed]** — glossary Doctrine entry marked structural and pointed at
+  `REVIEW.md` rule 3 as the functional canon.
+- **AW5 [fixed]** — the triad's mandated-withholding boundary clause added
+  (value withheld + existence declared = transparency discharged).
+- **AW6 [fixed]** — ROADMAP pointer rule: later commits touching a queued
+  delta's surfaces widen the delta list in the same commit.
+- **AW7 [fixed]** — (a) testimony admitted on concept-spread, said in the
+  entry; (b) session "may hold" a worktree. Both remain PROPOSED under the
+  SEED banner for the ratify pass.
+- **AW8 [fixed]** — precondition-clause constraint recorded on the
+  propagation item.
+- **AW9 [fixed]** — spacing normalised.
+
+**MAJOR in this pass ⇒ the application (`e8d707c`) inherits rule-4 status:
+`⏳` queued refs-only; the applier spawns nothing.**

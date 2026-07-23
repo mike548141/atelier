@@ -9,8 +9,10 @@ This skill is the **delivery vehicle**. It does not *hold* the standard —
 **atelier** does. atelier is the source of truth for repo shape and the
 cross-cutting doctrine; this skill applies that source as a guided action.
 It carries **no identity of its own** — the instance-local specifics a shareable
-doc must not hold (git identity, remote account, workspace path, copyright holder,
-locale, exemplars, signing posture) come from **your instance profile**, filled
+doc must not hold — eight facts today (git identity, remote account, workspace
+path, copyright holder,
+locale, exemplars, signing posture, doctrine source; `instance.yaml.example`
+is the single source) — come from **your instance profile**, filled
 once and read every run. That externalisation is what lets this skill travel in the plugin: you become
 the principal it stamps. (Design: `docs/decisions/2026-07-21-0748-deinstance-create-repo-for-the-plugin.md`.)
 
@@ -146,6 +148,10 @@ git config user.email "<git_identity.email>"
    instrument, over the **whole tree**, never a named-file list (a grep scoped to
    two files once reported the stamp proven while a third file still carried its
    placeholders — cold-review finding F1, 2026-07-19):
+
+   Delete the templates' guidance comments first — the grep treats a surviving
+   comment (which names the placeholders) as an unfilled placeholder, by
+   design.
 
    ```sh
    grep -rn --exclude-dir=.git \
