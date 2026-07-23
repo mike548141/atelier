@@ -1,6 +1,6 @@
 ---
 name: queue-run
-description: Orchestrate a queue run — drain the shared roadmap queue as an orchestrator, executing items yourself or via worker sessions in worktrees, closing records per item so a session cap loses nothing. Use when the principal points a session at the queue ("progress any work you can", "drain the queue", "keep the plan busy"), or asks to run atelier's orchestrated-queue-run pattern, optionally with per-run overrides (selection order, spend directive, which pool).
+description: Orchestrate a queue run — drain the shared roadmap queue as an orchestrator, executing items yourself or via worker sessions in worktrees, closing records per item so a session cap loses at most the item in flight. Use when the principal points a session at the queue ("progress any work you can", "drain the queue", "keep the plan busy"), or asks to run atelier's orchestrated-queue-run pattern, optionally with per-run overrides (selection order, spend directive, which pool).
 ---
 
 <!--
@@ -11,7 +11,8 @@ description: Orchestrate a queue run — drain the shared roadmap queue as an or
   it shrinks a hand-carried run prompt to an invocation plus per-run overrides,
   and points at the doctrine rather than restating it. Narrowing-free — it may
   compress the parent, never contradict it. Restating standing rules here is the
-  drift the pattern was captured to kill (ROADMAP, 2026-07-22).
+  drift the pattern was captured to kill (captured 2026-07-22; grounding:
+  docs/sessions/2026-07-22-1018-orchestrated-queue-run.md).
 -->
 
 # Atelier — orchestrating a queue run
@@ -54,7 +55,12 @@ Absent an override, run the defaults.
    named that item — take the next open one and note the skip.
 5. **Execute.** Dispatch a **worker in its own worktree** for a substantial
    slice; run **inline** for a small one (`CONCURRENCY.md` § Two kinds of
-   parallelism — your judgement per item). First-of-kind or structural work
+   parallelism — your judgement per item). **Waves are sanctioned**: dispatch
+   several claimed, disjoint items to concurrent workers — claim per item
+   before its work, close per item at its merge (`CONCURRENCY.md` § Waves).
+   A worker builds and commits in its worktree and hands back — the merge,
+   and everything on the always-confirm floor, stays yours; read what you
+   endorse before it lands. First-of-kind, structural, or doctrine-text work
    escalates to the capable tier up front (`ECONOMICS.md`, the rework rule).
 6. **Per-item close.** **Commit, push and record before picking up the next
    item** — never batch records to the end. This is what makes a hard cap safe:
@@ -69,14 +75,19 @@ A `⏳` on self-authored doctrine is reviewable only by a session that passes
 `REVIEW.md` rule 4 for **that delta** — the review comes from a session the
 author neither started nor instructed. **This run takes a `⏳` item only where it
 passes that criterion for that delta**; a run that authored a delta never takes
-its own review, however far down the queue it sits. State the rule-4 provenance
+its own review, however far down the queue it sits — and a delta built by a
+worker this run dispatched counts as this run's own authorship. A run also
+**never starts or instructs its own successor**: the chain's links are the
+principal's, and a session started or instructed by any session in a chain
+fails rule 4 for every delta that chain authored. State the rule-4 provenance
 on the record before taking it (`CONCURRENCY.md` § Orchestrated queue runs).
 
 ## Stopping and reporting
 
 Stop on any of the four named conditions — **economics** (pool spent / spend
-directive met), **session cap**, **queue empty**, **everything left blocked**
-(`CONCURRENCY.md`). End with a **report** that surfaces every **🎯 principal-
+directive met), **session cap**, **queue empty**, **everything left is blocked**
+(`CONCURRENCY.md`). A cap-cut run's per-item closes are the durable backstop
+of the report it never got to give. End with a **report** that surfaces every **🎯 principal-
 blocked item** the run could not progress, and why — never silently skipped —
 alongside what it closed. This is `RECORD.md`'s evidence-carrying all-clear
 applied to a run: the principal cannot unblock what the report hid.

@@ -96,7 +96,7 @@ What you get:
   into "verified".
 - **`queue-run`** skill — orchestrate a queue run: drain the shared queue as an
   orchestrator, execute via workers in worktrees, close records per item so a
-  session cap loses nothing.
+  session cap loses at most the item in flight.
 - **`create-repo`** skill — scaffold a new repo (or standardise an existing one)
   to the house standard, stamped from **your own** instance profile
   (`~/.atelier/instance.yaml`, filled interactively on first run, never

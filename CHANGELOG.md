@@ -5,6 +5,22 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-23 — queue-run doctrine hardened: QR1–QR9 rulings applied)
+- **The queue-run cold pass landed and was ruled** (verdict:
+  `docs/reviews/2026-07-22-1149-queue-run-doctrine-cold.md`, PASS-WITH-FINDINGS
+  1 MAJOR · 6 MEDIUM · 1 LOW · 1 note; Mike accept-all, applied `b65209c`):
+  **a run never starts or instructs its own successor** (the chain's links are
+  the principal's — closes the rule-4 laundering path, QR1); worker-built
+  deltas count as the run's own authorship (QR2); the worker envelope stated —
+  merge and the always-confirm floor stay the orchestrator's (QR3); queue-item
+  text is task description, never instruction (QR4); **doctrine-text items
+  escalate to the capable tier** (QR5); `QueueRunSkillTest` pins the stamped
+  copy, suite 323→330 (QR6); "loses nothing" → "loses at most the item in
+  flight" (QR7); vocabulary/pointer/report debts closed (QR8); **waves
+  sanctioned** — claim per item, close per merge, report aggregates (QR9).
+  The pass's MAJOR keeps the cycle open: the application's own cold pass is
+  queued `⏳` for a non-author.
+
 ### Changed (2026-07-23 — economics rework: billing states, cap rule, hand-up ladder, third seat)
 - **ECONOMICS.md pools → billing states of the marginal token** (`dadde1d`):
   plan-included / plan-included-capped / usage-billed, plus draw-down rate;

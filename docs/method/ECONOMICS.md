@@ -248,19 +248,25 @@ Two hard edges on the ladder (both grounded 2026-07-23, Mike):
 ### The orchestrated-run tier split
 
 The rule above, applied to the queue-run rhythm (`CONCURRENCY.md` §
-Orchestrated queue runs): a run's two seats map to the two tiers. **The capable
+Orchestrated queue runs): a run's two seats map to the two tiers — seat names
+for the spectrum above: the **capable tier** is the most capable model
+available, the **workhorse tier** the cheapest model that genuinely does the
+work (2026-07-23, QR8). **The capable
 tier orchestrates and reviews** — selection, dispatch, the review verdicts and
 the structural judgement calls at merge are exactly the judgement-heavy,
 silent-failure-prone work this section says to pay capability for. **The
-workhorse tier executes** — an item's build is pattern-following work under a
-mechanical floor (the scanners, the test suite), which is where a cheaper model
-is safe because failure is *catchable*. So the run spends the expensive tier
-where its marginal value is highest and lets the cheap tier carry the bulk — the
-"cheapest model that genuinely does the work" rule reaching its natural shape
-across a chain of items. **Flex on judgement is allowed:** an orchestrator may
-execute a small item inline rather than dispatch it, and a first-of-kind or
-structural item escalates to the capable tier per the rework rule above (a
-hand-up that looks likely is taken up front). The split is the default, not a
+workhorse tier executes** — most items' builds are pattern-following work under
+a mechanical floor (the scanners, the test suite), which is where a cheaper
+model is safe because failure is *catchable*. So the run spends the expensive
+tier where its marginal value is highest and lets the cheap tier carry the bulk
+— the "cheapest model that genuinely does the work" rule reaching its natural
+shape across a chain of items. **Flex on judgement is allowed:** an
+orchestrator may execute a small item inline rather than dispatch it, and a
+first-of-kind, structural, **or doctrine-text** item escalates to the capable
+tier per the rework rule above (a hand-up that looks likely is taken up front;
+doctrine text because no scanner catches a wrong rule — this section's own
+"pay for capability" example, and the modal atelier queue item; 2026-07-23,
+QR5). The split is the default, not a
 fence. The marginal-cost self-check still runs at whatever
 seat a session takes — the **role check** `CONCURRENCY.md` mandates at run-open
 *is* that self-check applied to orchestration: a session on the wrong tier for

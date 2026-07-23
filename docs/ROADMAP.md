@@ -167,22 +167,15 @@ ECONOMICS § tier split + plugin-bundled `queue-run` skill) →
   extracted from practice, not assumed. Fan-out sub-agents on the cheapest
   genuinely-capable tier is already standing practice (no trial needed).
 
-- [~] 🎯 **QR1–QR9 rulings (queue-run doctrine cold pass —
-  (claimed 2026-07-23-0131, wt: qr-rulings-apply — Mike ruled: QR1–QR4,
-  QR6–QR8 fix as counselled; QR5 escalate-doctrine-to-capable-tier; QR9
-  sanction waves; application in flight)
-  [`verdict`](reviews/2026-07-22-1149-queue-run-doctrine-cold.md))** —
-  PASS-WITH-FINDINGS 1 MAJOR · 6 MEDIUM · 1 LOW · 1 note; self-authored
-  doctrine, so the findings are Mike's to decide (rule 3); nothing applied.
-  Sharpest four: QR1 (MAJOR) chain-spawn provenance unpinned — the rule-4
-  synergy keys on *authorship* where the rule turns on *started-or-instructed*,
-  a prospective laundering path down a chain; QR2 "the author" of a
-  worker-built delta undefined (same class, one hop shorter); QR5 the tier
-  split's default contradicts its own parent section for doctrine-text items;
-  QR9 the doctrine's loop is serial where its grounding run was wave-parallel
-  ("extracted, not invented" fails in that one dimension). Per-finding
-  what/why/impact + counsel in the verdict; all wording-sized. The MAJOR
-  keeps the cycle open past the application.
+- ⏳ **QR1–QR9 application — rule-4 cold pass owed** (the 1149 pass carried a
+  MAJOR, so the application inherits rule-4 status). Delta: `b65209c`
+  (CONCURRENCY § Orchestrated queue runs + ECONOMICS § tier split +
+  `skills/queue-run` + README + `QueueRunSkillTest`). Rulings and decision
+  stamps: [`verdict`](reviews/2026-07-22-1149-queue-run-doctrine-cold.md)
+  (deferred material for the taker — application-review sequencing,
+  REVIEW.md). Intent record:
+  [`sessions/2026-07-22-1149-queue-run-doctrine-cold-pass.md`](sessions/2026-07-22-1149-queue-run-doctrine-cold-pass.md)
+  (addendum). The applier session and its subagents cannot take this.
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 

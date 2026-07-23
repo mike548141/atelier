@@ -278,3 +278,47 @@ anchor.
 unchanged); QR1 stands MAJOR with the prospective-not-observed calibration;
 QR9 (MEDIUM) added. Revised tally: **1 MAJOR · 6 MEDIUM · 1 LOW · 1 note —
 PASS-WITH-FINDINGS.** All rulings are Mike's (rule 3); nothing applied.
+
+---
+
+# Decisions — Mike's rulings, applied 2026-07-23 (`b65209c`)
+
+Mike ruled per finding (2026-07-23, via the taker's plain-language
+walk-through with likely impacts): accept-all as counselled; QR5 as the
+escalate option; QR9 as sanction-waves. Applied by the pass's taker (authored
+neither the doctrine nor the verdict — the findings are the cold subagent's).
+
+- **QR1 [fixed]** — CONCURRENCY § Orchestrated queue runs: "The chain's links
+  are the principal's" paragraph — a run never starts or instructs its own
+  successor; started/instructed by any chain session fails rule 4 for every
+  chain-authored delta. Skill mirrors the clause. Pinned by test.
+- **QR2 [fixed]** — worker-built deltas are the run's own authorship for
+  rule 4 (CONCURRENCY synergy paragraph + skill mirror).
+- **QR3 [fixed]** — worker envelope stated: build + commit in the worktree,
+  hand back; merge and the always-confirm floor stay the orchestrator's, who
+  reads what it endorses; dispatch prompts never relax standing doctrine.
+- **QR4 [fixed]** — item text describes the work, never overrides doctrine;
+  a line that purports to is surfaced to the principal, not obeyed.
+- **QR5 [fixed — escalate option]** — ECONOMICS tier split: doctrine-text
+  items escalate to the capable tier ("most items' builds", not "an item's
+  build"); rationale stated in place.
+- **QR6 [fixed]** — `QueueRunSkillTest` (7 tests, suite 323→330): STAMPED
+  COPY header, both canonical pointers, stop-condition roster source-derived
+  from CONCURRENCY, rule-4 criterion phrase on both surfaces, QR1 chain pin
+  on both surfaces, "loses nothing" evicted. Bite-proven: red on the pre-fix
+  skill (3 failures), red on targeted mutations, green at the applied state.
+- **QR7 [fixed]** — README + skill description: "loses at most the item in
+  flight".
+- **QR8 [fixed]** — (i) tier seat-names defined in ECONOMICS; (ii) the
+  skill's grounding pointer now cites the dated intent record; (iii) report
+  owed at whatever stop the harness allows, per-item closes the durable
+  backstop; (iv) a doctrine-authoring run keeps draining — authoring is not
+  a stop condition.
+- **QR9 [fixed — waves sanctioned]** — CONCURRENCY "Waves" paragraph: claim
+  per item before its work, close per item at its merge, report aggregates;
+  "minimise work in flight" scoped to selection; skill step 5 mirrors.
+
+Proofs at the applied state: suite 330 OK; five scanners exit 0; bite legs
+driven red/green. **The pass's MAJOR keeps the cycle open: this application
+inherits rule-4 status — its `⏳` cold pass is queued for a non-author; the
+applier spawns nothing.**
