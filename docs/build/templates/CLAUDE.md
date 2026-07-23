@@ -5,7 +5,10 @@
   DOCTRINE BLOCK. Its canonical text lives in atelier's
   docs/method/PROPAGATION.md — this is a stamped copy, not a second source.
   create-repo fills the four placeholders (<atelier-path>, <SHA>, <owner/repo>,
-  <visibility fact>) at scaffold time. When atelier's apex or floor changes, a
+  <visibility fact>) at scaffold time. In bundled (plugin-only) mode the heading
+  and the Source & drift bullet are substituted verbatim from PROPAGATION.md
+  § The bundled-mode variant (placeholders <plugin-path>, <VERSION>) — never
+  improvised. When atelier's apex or floor changes, a
   pin bump reviews this wording too (PROPAGATION § the standard child block).
 
   Everything below the block is repo-specific onramp — fill it with grounded

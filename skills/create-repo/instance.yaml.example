@@ -1,0 +1,41 @@
+# create-repo instance profile — WORKED EXAMPLE with placeholder values.
+#
+# This is the identity `create-repo` stamps into every repo it scaffolds. It is
+# ADOPTER-LOCAL: copy it to ~/.atelier/instance.yaml, fill it with YOUR values,
+# and never commit it to any repo. `create-repo` fills it interactively on first
+# run if it is absent — this file just documents the shape.
+#
+# The whole point of externalising these keys is that the skill itself carries no
+# identity, so it can travel in the plugin unchanged: you become the principal it
+# stamps. See docs/decisions/2026-07-21-0748-deinstance-create-repo-for-the-plugin.md.
+
+workspace_root: ~/code              # where new repos are created
+
+git_identity:                       # baked into each new repo's git config
+  name:  "Your Name"
+  email: "you@example.com"         # leakscan:allow: RFC 2606 placeholder, not a real address
+
+remote:
+  host:       gh                    # the remote CLI (gh today)
+  account:    your-account          # owner for `<host> repo create`
+  visibility: private               # default visibility for new repos
+
+copyright_holder: "Your Org or Name"  # fills the LICENSE appendix + NOTICE line
+
+locale: "en-NZ"                     # spelling convention; note any script rules
+                                    # (e.g. macrons on te reo Māori) in your notes
+
+signing: false                      # bake `commit.gpgsign true` into each new
+                                    # repo? Honest default: OFF — signing is a
+                                    # machine property (a key + git signing
+                                    # config you set up first; atelier's
+                                    # SIGNING.md), and baking it on an
+                                    # unconfigured machine fails the very first
+                                    # commit. Flip to true once your machine
+                                    # signs — atelier-style profiles keep it on.
+
+# Optional — omit if you have neither:
+exemplars: [repo-a, repo-b]         # copy the shape of these when a call is unclear
+atelier_path: ~/code/atelier        # a live atelier checkout; if set, forces
+                                    # live mode (pin the real SHA, latest templates)
+                                    # rather than the plugin's bundled copy

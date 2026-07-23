@@ -165,6 +165,41 @@ never copied down into any child.
 When atelier's apex, floor, concurrency, or estate-pointer doctrine changes, the
 block's wording is part of what a pin bump reviews.
 
+### The bundled-mode variant (plugin-only adopters)
+
+An adopter who holds only the installed plugin — no atelier checkout — has no
+git history to log against, so the drift check above cannot run. The stamped
+block degrades the **pin's referent, not the block**: the same text with two
+substitutions, and only these (the ADR 0002 fork named in
+`docs/decisions/2026-07-21-0748-deinstance-create-repo-for-the-plugin.md` — the
+pin still exists; its referent becomes the plugin version). This is the
+canonical bundled-mode text: `create-repo` stamps it verbatim, filling
+`<plugin-path>` (the plugin's install directory, absolute) and `<VERSION>` (the
+`version` in the plugin's `.claude-plugin/plugin.json` at scaffold time) — a
+scaffold never improvises its own wording.
+
+The heading line becomes:
+
+```markdown
+## Doctrine — inherited from atelier (pinned plugin `atelier@<VERSION>`)
+```
+
+and the **Source & drift** bullet becomes:
+
+```markdown
+- **Source & drift:** canonical doctrine is the installed atelier plugin's
+  `docs/method/` (`<plugin-path>`). This repo pins plugin version `<VERSION>`.
+  At session start run
+  `grep '"version"' "<plugin-path>/.claude-plugin/plugin.json"`; a version
+  other than `<VERSION>` means the house doctrine moved — read the plugin's
+  `CHANGELOG.md`, then bump the pin above deliberately.
+```
+
+Every other line is identical to the block above — the floor, concurrency,
+session rhythm, estate pointer, and visibility fact do not vary by mode. Drift
+is tracked by plugin version because that is the pin a plugin-only adopter can
+actually check: the command runs against exactly what they have installed.
+
 ## The layer-override rule
 
 atelier is the parent; a child repo is a layer over it, the same shape tiki's

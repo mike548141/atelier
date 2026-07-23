@@ -402,7 +402,7 @@ public as a **named worked example** (README "If you're adopting this"). What wa
       specifics (grant ledger, Apple/iCloud) → marked worked-examples. No longer
       a publication gate; do it as the named-worked-example framing gets tested by
       a real adopter.
-- [ ] **v2 plugin — CHOSEN 2026-07-13 (Mike's call): the next widening is
+- [~] **v2 plugin — CHOSEN 2026-07-13 (Mike's call): the next widening is
       spent here.** De-instance `create-repo` so it travels in the plugin, and
       ship `worktree` + `fleet-pins` as plugin commands — doctrine travelling
       as behaviour, wider than the current bundle. **Build done 2026-07-21 on

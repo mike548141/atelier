@@ -1,8 +1,8 @@
 {
   "name": "atelier",
   "displayName": "Atelier",
-  "version": "0.1.0",
-  "description": "The operating model for working with Claude as a teammate: the apex honesty doctrine, publish-safety scanners (secret / leak / licence / link), a session onramp, and the peer-review lifecycle — as an installable bundle. A named worked example; to adopt it you become the principal.",
+  "version": "0.2.0",
+  "description": "The operating model for working with Claude as a teammate: the apex honesty doctrine, publish-safety scanners (secret / leak / licence / link), a session onramp, the peer-review lifecycle, repo-scaffolding to the house standard, and worktree + fleet-pin commands — as an installable bundle. A named worked example; to adopt it you become the principal.",
   "author": {
     "name": "Mike Clements",
     "url": "https://github.com/mike548141"
