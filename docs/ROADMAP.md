@@ -173,6 +173,36 @@ ECONOMICS § tier split + plugin-bundled `queue-run` skill) →
     ledger were kept on **Opus** this run (doctrine-text + silent-failure class
     → capable tier, per ECONOMICS QR5) — the split behaved exactly as the tier
     rule predicts.
+  - **Run 2 outcome — 2026-07-23 (0618 Opus-orchestrated queue run):** two more
+    Sonnet items — the **S1 wrapscan** and **S5 spellscan** first-of-kind scanner
+    builds (`72e8ecb`/`760260473`, advisory-only, 40+60 tests, suite 472). **Both
+    PASSED** the orchestrator review no-rework, each surfacing an honest judgement
+    call left to its ⏳ review. (Recorded in the 0618 session entry as "run 2" but
+    not folded into this trial record until the 0707 run — reconciled here.)
+  - **Run 3 outcome — 2026-07-23 (0707 Opus-orchestrated queue run):** one item
+    to Sonnet — **applying the datescan DSR1–DSR8 review findings + re-baseline**
+    (`b7b292c`). This is a *step up* from run 1's classes: not a fresh build or a
+    docs audit but **modifying scanner detection logic** (a silent-failure class,
+    the kind ECONOMICS QR5 nominally routes to the capable tier). It was
+    dispatched to Sonnet because it was **exceptionally well-floored** — 41
+    existing tests + selftest + a cold review naming exactly what to change — and
+    the orchestrator (Opus) re-verified the suite and read the risk-bearing DSR3
+    logic + header before merge. **PASSED with no rework**: all eight findings
+    applied, baseline 60→0, and Sonnet independently **caught three further real
+    bugs** the review hadn't named, declared the DSR3 silent-miss trade honestly
+    in-header, and correctly *declined to guess* an un-derivable date (left an
+    honest `allow`). **Reading:** the discriminator that worked was the *floor
+    density*, not the nominal class — a well-floored silent-failure task with a
+    prescriptive review is safely Sonnet-with-Opus-verify; a *thinly*-floored one
+    still isn't. **Three runs now agree** (five Sonnet items, zero rework): the
+    docs-audit, fresh-scanner-build, and prescriptively-reviewed-fix classes all
+    clear the floor. This is now enough corroboration to **write Sonnet into
+    ECONOMICS as the standing executor** for those classes — a small doctrine edit
+    (self-authored ⇒ rule-4 ⏳ at landing) that a future session should take; the
+    one guardrail the data supports is *floor density, not nominal class*, so the
+    doctrine line must say "well-floored + prescriptively-reviewed", not "any
+    routine work". The two first-of-kind *reviews* this run stayed on **Opus**
+    (gate-flip judgement → capable tier) — split held as predicted.
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 
@@ -234,54 +264,78 @@ candidates; record:
       pattern; first-of-kind ones earn their review before gating
       (don't-stack). **S1/S3/S5 BUILT + wired advisory** (`72e8ecb` wrapscan,
       `6077972` datescan, `760260473` spellscan; detail →
-      [`ROADMAP-DONE.md`](ROADMAP-DONE.md)); their ⏳ first-of-kind reviews are
-      queued below. **S2 and S4 remain open.**
+      [`ROADMAP-DONE.md`](ROADMAP-DONE.md)). **All three first-of-kind reviews
+      are now DONE** (S3 at 0618; S1 + S5 at 0707 this run — verdicts + follow-ons
+      below). **S2 and S4 remain open to build.**
 *datescan (S3) review is DONE (2026-07-23) — verdict PASS-WITH-FINDINGS
 (0 MAJOR / 4 minor / 3 Low / 1 nit), NOT gate-ready (~75% baseline noise); brief
 [`docs/reviews/2026-07-23-0618-datescan-s3-cold.md`](reviews/2026-07-23-0618-datescan-s3-cold.md),
-detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Its two follow-ons stay open:*
+detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Its follow-ons: the DSR-apply is
+now DONE (above); the flip precondition is met (above). S1/S5 follow-ons below:*
 
-- [~] **Apply datescan review findings DSR1–DSR8 + re-baseline** (claimed
-      2026-07-23-0707, wt: worktree-agent-af1784b16be8d4435) (ordinary code
-      work, any session — not self-authored doctrine). Priority fixes for the
-      gate: DSR2 (numeric-triple slash FP), DSR3 (`today` currently-sense
-      conflation — the biggest lever), DSR4 (multi-word quoted-mention span).
-      Lesser: DSR1 (blockquote covers house callouts, not just external quotes),
-      DSR5 (dash-DMY under-coverage), DSR6 (indented code not exempt), DSR7
-      (`import datescan` breaks the dotted `-m unittest` form), DSR8 (bare
-      `datescan:allow` substring test). Detail in the review file.
-- [ ] 🎯 **datescan advisory→blocking flip (Mike's call) — now with a concrete
-      precondition** (was "on PASS-and-clean"): fix DSR2/DSR3/DSR4, re-baseline to
-      near-zero genuine breaches (ISO-fix or `allow` the real ones — `15/7/26`,
-      `last night's route`), *then* drop `--warn` + add to `floor.yml`. Blocked
-      until the re-baseline; a separate act from the code fixes.
-- ⏳ **wrapscan (S1) review — first-of-kind scanner earns a review before it may
-      gate** (delta `72e8ecb` + its advisory wiring; intent:
-      `docs/sessions/2026-07-22-1036-invariant-candidates.md` § S1). This queue
-      run authored it via dispatch, so this chain may not take it.
-      **Taken 2026-07-23-0707 by a fresh Mike-started Opus queue run** (rule-4
-      cleared — neither started nor instructed the build; cold reviewer
-      dispatched). Review scope:
-      detection correctness + the exemption heuristics' honest limits (esp. the
-      single-unbreakable-token and per-line indented-code exemptions) + whether
-      the 286-finding baseline is signal or noise — **specifically decide the 🎯
-      raised in the build: do `SESSIONS.md` and the review-verdict files (which
-      carry a deliberate long-line format) need a prose exemption or a
-      `.wrapscanignore` entry before this can gate?** On PASS-and-clean, the
-      follow-on is flipping `--warn` off + adding to `floor.yml`; separate act.
-- ⏳ **spellscan (S5) review — first-of-kind scanner earns a review before it may
-      gate** (delta `760260473` + its advisory wiring; intent:
-      `docs/sessions/2026-07-22-1036-invariant-candidates.md` § S5). This queue
-      run authored it via dispatch, so this chain may not take it.
-      **Taken 2026-07-23-0707 by a fresh Mike-started Opus queue run** (rule-4
-      cleared — neither started nor instructed the build; cold reviewer
-      dispatched). Review scope:
-      denylist correctness (do the generative `-ise` stem families ever invent a
-      wrong word?) + the exemptions' honest limits + the **license/practice
-      exclusion** (accept as permanent, or revisit with a narrower lowercase-bare
-      heuristic?) + whether the 68-finding baseline is signal or noise (is
-      `catalog` ×10 genuine prose or a repo term-of-art?). On PASS-and-clean, the
-      follow-on is flipping `--warn` off + adding to `floor.yml`; separate act.
+- [x] **Apply datescan review findings DSR1–DSR8 + re-baseline** — DONE
+      2026-07-23 (queue run 0707, Sonnet worker, merged `b7b292c`→ merge commit).
+      All eight applied; baseline **60→0** (5 genuine hits fixed: ISO rewrite
+      where re-derivable, `datescan:allow` with honest reasons where not). Three
+      extra real bugs caught mid-work (whole-line ISO cue leak, `YYYY-MM-DD-HHMM`
+      false-fire, empty `-->` reason). 58 datescan + 489 tools-suite green; DSR3
+      `today`-narrowing silent-miss trade declared in-header. Orchestrator (Opus)
+      verified before merge. Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md) at next
+      harvest.
+- [ ] 🎯 **datescan advisory→blocking flip (Mike's call) — precondition NOW MET**
+      (2026-07-23): DSR2/DSR3/DSR4 fixed and docs re-baselined to **0 genuine
+      breaches** by the DSR-apply above. The flip is therefore *unblocked* and is
+      now purely Mike's go/no-go: drop `--warn` in `ci.yml` + add datescan to
+      `floor.yml`. One honesty note for the decision: DSR3 traded a real
+      silent-miss (a bare "today = this date" claim with no cue passes clean) to
+      kill the ~9:1 noise — so the gate is tighter but not exhaustive on `today`.
+      No code work owed; awaiting the ruling.
+- [x] **wrapscan (S1) first-of-kind review — DONE 2026-07-23** (queue run 0707,
+      cold Opus reviewer; taker rule-4 cleared). Verdict **PASS-WITH-FINDINGS —
+      1 MAJOR / 3 minor / 2 Low**, NOT gate-ready. Tool is correct, honestly
+      documented, correctly wired advisory; 40 tests + selftest green (orchestrator
+      re-verified). The MAJOR (WS1) is a **gate-scope** finding, not a detection
+      bug: default `docs/**` buries the real signal (~15% doctrine-prose
+      over-wraps) under 154 deliberate single-line SESSIONS index rows (54% of the
+      287 baseline). Brief:
+      [`docs/reviews/2026-07-23-0707-wrapscan-s1-cold.md`](reviews/2026-07-23-0707-wrapscan-s1-cold.md).
+      Two follow-ons stay open:
+- [ ] **Apply wrapscan review findings WS1–WS6 + scope decision** (ordinary code
+      once the scope 🎯 below is ruled): fix the ~4 genuine doctrine over-wraps
+      (`REPO-STANDARD.md:52`, `SIGNING.md:83`, `CONCURRENCY.md:232`); decide
+      WS2 (pipe fail-open), WS3 (unclosed-fence swallow), WS4 (cross-scanner
+      allow-marker collision) — tighten or accept-and-document; WS5/WS6 ride the
+      scope fix. Detail in the brief.
+- [ ] 🎯 **wrapscan gate-scope + flip (Mike's call)** — the MAJOR is a decision
+      for you: **option (a)** scope the gate to the doctrine surface
+      (`method/`/`build/`/`decisions/` bodies) and `.wrapscanignore` the
+      record/log/review stores *(reviewer-preferred, lower-risk)*, or **option
+      (b)** teach a single-line-record exemption. Then, on a clean run over the
+      gated scope, drop `--warn` + add to `floor.yml`. Blocked on the scope
+      ruling; a separate act from the code fixes.
+- [x] **spellscan (S5) first-of-kind review — DONE 2026-07-23** (queue run 0707,
+      cold Opus reviewer; taker rule-4 cleared). Verdict **PASS-WITH-FINDINGS —
+      0 MAJOR / 2 minor / 1 Low / 1 nit**, NOT gate-ready. The core spelling-tool
+      safety property is *proven*: no confident wrong correction, no both-correct
+      word flagged (z→s engine verified across all 46 noun forms). 60 tests +
+      selftest green (orchestrator re-verified). Real latent bug found (SS1:
+      `hypothesize`/`jeopardize`/`penalize` in `IZE_NOUN_CAPABLE` contradict the
+      docstring's stated exclusion). Baseline ~1-in-5 signal — 53 of 68 are
+      `artifact` (mostly the legit CI/SBOM term-of-art). Brief:
+      [`docs/reviews/2026-07-23-0707-spellscan-s5-cold.md`](reviews/2026-07-23-0707-spellscan-s5-cold.md).
+      Follow-ons stay open:
+- [ ] **Apply spellscan review findings SS1–SS4 + tame the noise** (ordinary
+      code): drop the three irregular-noun stems from `IZE_NOUN_CAPABLE` (SS1);
+      declare the macron gap in the docstring (SS2); allowlist/inline-code the
+      CI-`artifact` sense + OWASP ASVS/SAMM chapter names; fix `finalize`→`finalise`.
+      **license/practice exclusion ruled PERMANENT by the review** (empirically
+      vindicated — `practice` ×178 is correct NZ noun usage). Detail in the brief.
+- [ ] 🎯 **spellscan `catalog` ruling + flip (Mike's call)** — `catalog` (~10
+      hits) is atelier's own coinage ("invariant catalog"), a true NZ deviation
+      but a *consistent house term-of-art*, so it's your one-line call: **rename
+      "catalog"→"catalogue" fleet-wide, or accept it as a deliberate term** (this
+      decides whether those ~10 findings are real or exempt). Then, on a near-zero
+      re-baseline, drop `--warn` + add to `floor.yml`. Separate act.
 - [ ] **Codify V1–V7 as the always-loaded reviewer checklist** — the
       registry mechanism's doctrine half; lands in REVIEW.md/the review
       skill with each item's cited grounding. Self-authored doctrine ⇒
