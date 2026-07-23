@@ -338,5 +338,83 @@ class LensRosterParityTest(unittest.TestCase):
         self.assertIn("security & privacy is a must on every review", flat)
 
 
+QUEUE_RUN_SKILL = ROOT / "skills" / "queue-run" / "SKILL.md"
+CONCURRENCY = ROOT / "docs" / "method" / "CONCURRENCY.md"
+
+
+def queue_run_section() -> str:
+    """CONCURRENCY.md § Orchestrated queue runs — the skill's one source."""
+    text = CONCURRENCY.read_text()
+    start = text.index("## Orchestrated queue runs")
+    end = text.find("\n## ", start + 1)
+    return text[start:] if end == -1 else text[start:end]
+
+
+def canonical_stop_conditions() -> list:
+    """The bold stop names from the section's own bullet list, bounded to
+    the stop-conditions block so other bold bullets are never mistaken
+    for stops."""
+    section = queue_run_section()
+    start = section.index("A run stops on one")
+    end = section.index("It ends with a", start)
+    return re.findall(r"^- \*\*(.+?)\*\*", section[start:end], re.M)
+
+
+class QueueRunSkillTest(unittest.TestCase):
+    """skills/queue-run/SKILL.md — third stamped-copy skill, same pin as
+    review-brief (2026-07-19 F3, 2026-07-21 SL1: this drift class has
+    shipped twice; 2026-07-23 QR6 ruled the pin mandatory at birth)."""
+
+    def setUp(self):
+        self.text = QUEUE_RUN_SKILL.read_text()
+        self.flat = " ".join(self.text.split())
+
+    def test_marked_as_stamped_copy(self):
+        self.assertIn("STAMPED COPY, NOT A SECOND SOURCE", self.text)
+
+    def test_points_at_both_canonical_homes(self):
+        for pointer in ("CONCURRENCY.md` § Orchestrated queue runs",
+                        "ECONOMICS.md` § The orchestrated-run tier split"):
+            self.assertIn(
+                pointer, self.flat,
+                f"the skill lost its canonical pointer {pointer!r} — it is "
+                "a delivery vehicle, not a second source",
+            )
+
+    def test_canonical_stop_roster_parses(self):
+        self.assertEqual(
+            len(canonical_stop_conditions()), 4,
+            "CONCURRENCY.md's stop-condition list no longer parses as four "
+            "bold bullets — the parity test below is checking nothing",
+        )
+
+    def test_skill_names_every_stop_condition(self):
+        for stop in canonical_stop_conditions():
+            self.assertIn(
+                stop, self.flat,
+                f"skills/queue-run/SKILL.md is missing stop condition "
+                f"{stop!r} — the skill must name every stop CONCURRENCY.md "
+                "enumerates (change one, change both, same commit)",
+            )
+
+    def test_rule4_criterion_phrase_in_both(self):
+        """The criterion is quoted, not paraphrased, on both surfaces —
+        paraphrase is where the authorship-vs-spawn drift (QR1) hid."""
+        phrase = "neither started nor instructed"
+        self.assertIn(phrase, self.flat)
+        self.assertIn(phrase, " ".join(queue_run_section().split()))
+
+    def test_chain_pin_in_both(self):
+        """QR1's fix: a run never extends itself. Pin the sentence on both
+        surfaces so a future rewording can't quietly drop it."""
+        phrase = "starts or instructs its own successor"
+        self.assertIn(phrase, self.flat)
+        self.assertIn(phrase, " ".join(queue_run_section().split()))
+
+    def test_loses_nothing_overclaim_evicted(self):
+        """QR7: the honest form is 'at most the item in flight'."""
+        self.assertNotIn("loses nothing", self.flat.lower())
+
+
 if __name__ == "__main__":
     unittest.main()
