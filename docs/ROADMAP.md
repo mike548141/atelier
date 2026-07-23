@@ -259,16 +259,29 @@ candidates; record:
       - [~] **S5 spellscan** (claimed 2026-07-23-0618, wt: queue-run-s5-spellscan)
             — NZ-English spelling wordlist scanner over `docs/**`, advisory-only,
             queue run.
-- [~] **datescan (S3) review — first-of-kind scanner earns a review before it may
-      gate** (claimed 2026-07-23-0618, wt: queue-run-s3-review; **rule-4 clear**:
-      the delta was authored by the 0441 queue-run chain, and this is a separate
-      Mike-started session that chain neither started nor instructed — the
-      standard fresh-session-takes-a-prior-run's-⏳ worked example). (delta
-      `6077972`; intent: `docs/sessions/2026-07-22-1036-invariant-candidates.md`
-      § S3). Review scope: detection correctness + the exemption
-      heuristics' honest limits + whether the 60-finding baseline is signal or
-      noise (decides gate-readiness). On PASS-and-clean, the follow-on is flipping
-      `--warn` off + adding it to `floor.yml`; that flip is a separate act.
+- [x] **datescan (S3) review DONE 2026-07-23** (queue run 0618, Opus cold
+      reviewer; brief+verdict `docs/reviews/2026-07-23-0618-datescan-s3-cold.md`).
+      Rule-4 clear: authored by the 0441 chain, taken by this independent
+      Mike-started session. **Verdict PASS-WITH-FINDINGS, 0 MAJOR / 4 minor /
+      3 Low / 1 nit** — engine correct, honestly documented, correctly wired
+      advisory; no active silent-miss producible. **But NOT gate-ready**: the
+      60-finding baseline is ~75% noise (mostly currently-sense `today`, DSR3;
+      numeric-triple FPs, DSR2; multi-word quoted mentions, DSR4). No MAJOR ⇒
+      review terminal. datescan stays advisory (current wiring correct); two
+      follow-ons queued below.
+- [ ] **Apply datescan review findings DSR1–DSR8 + re-baseline** (ordinary code
+      work, any session — not self-authored doctrine). Priority fixes for the
+      gate: DSR2 (numeric-triple slash FP), DSR3 (`today` currently-sense
+      conflation — the biggest lever), DSR4 (multi-word quoted-mention span).
+      Lesser: DSR1 (blockquote covers house callouts, not just external quotes),
+      DSR5 (dash-DMY under-coverage), DSR6 (indented code not exempt), DSR7
+      (`import datescan` breaks the dotted `-m unittest` form), DSR8 (bare
+      `datescan:allow` substring test). Detail in the review file.
+- [ ] 🎯 **datescan advisory→blocking flip (Mike's call) — now with a concrete
+      precondition** (was "on PASS-and-clean"): fix DSR2/DSR3/DSR4, re-baseline to
+      near-zero genuine breaches (ISO-fix or `allow` the real ones — `15/7/26`,
+      `last night's route`), *then* drop `--warn` + add to `floor.yml`. Blocked
+      until the re-baseline; a separate act from the code fixes.
 - [ ] **Codify V1–V7 as the always-loaded reviewer checklist** — the
       registry mechanism's doctrine half; lands in REVIEW.md/the review
       skill with each item's cited grounding. Self-authored doctrine ⇒
