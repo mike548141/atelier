@@ -349,17 +349,31 @@ real receipts, machine-local); archive sourcing (`--from-archive`, closing the
 observe-side seam alongside cctranscript) closed 2026-07-23 →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- 🎯 **NEXT SESSION — the rollup *precompute* ledger** (`ccrepo.design.md` §8;
-  Mike scheduled it 2026-07-23). No longer a data-*survival* need — both
-  observers read the archive and the raw logs are preserved, so any historical
-  view recomputes from them. This is purely the **speed** layer: precomputed
-  month/quarter rollups so a wide `--from-archive` run over the whole mirror
-  needn't re-walk (and re-gunzip) every file each time. Design questions to
-  settle at pickup: where the rollup cache lives (machine-local, like the
-  billing/pricing configs — never in-repo), how it's keyed and invalidated (the
-  archive is append-only, so a rollup is valid until new files land under its
-  period), and whether it's transparent (auto-used when present) or opt-in. Read
-  `ccrepo.design.md` §8 first.
+- [x] **ccrepo rollup precompute ledger — DELIVERED 2026-07-23** (`8a31b95`,
+  queue run, Opus worker; `ccrepo.design.md` §8). Machine-local ledger at
+  `~/.claude/ccrepo-rollup.json` (mirrors the pricing/billing config convention;
+  `CCREPO_ROLLUP` override), so a warm `--from-archive` run reads the ledger
+  instead of re-gunzipping every file. **Live smoke: 3.1× faster warm, numbers
+  byte-identical cold vs warm** (the rollup==recompute floor, proven in a fixture
+  test AND on the real archive; invalidation on new-file/fingerprint/recipe-sig
+  tested; ccrepo 48/48, instruments 167/167). **One endorsed design deviation:**
+  keyed **per-file, not per-period** — a month can't be fingerprinted without
+  first reading files for message timestamps (chicken-and-egg; file mtime ≠
+  message timestamp), so period-keying would misfile boundary-straddling sessions
+  and break the floor. Per-file `(mtime,size)` is provably exact; grouping runs
+  downstream from true timestamps. Known tradeoff: ~46 MB ledger (full event
+  objects for exact equality); compaction is a safe future optimisation. No
+  review gate (design §9 self-verification — tests + live drive are the proof).
+- 🎯 **Confirm transparent-vs-opt-in (Mike)** — the ledger shipped
+  **transparent-by-default** (auto-used in `--from-archive` mode when present)
+  with a `--no-rollup` bypass. Grounds for the default: it's a pure speed layer
+  that provably equals a recompute (floor test), it self-invalidates (no
+  stale-number risk), and it matches how pricing/billing/reconcile configs already
+  auto-load. **Impact if you'd rather opt-in:** flip one predicate in `main()`
+  (`fromArchive && !noRollup` → gate on an explicit `--rollup`) + rename the flag;
+  everything else unchanged. Also worth your eye: the **~46 MB machine-local
+  ledger** the first warm run writes under `~/.claude/` (recoverable — delete to
+  rebuild). Cheap either way.
 
 Completed instruments work (ccrepo actuals/breakdown, ccarchive integrity/audit,
 the **man-page convention rollout — ccarchive worked example + cctranscript +
