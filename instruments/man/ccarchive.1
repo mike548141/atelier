@@ -1,4 +1,4 @@
-.TH CCARCHIVE 1 "2026-07-22" "atelier instruments" "User Commands"
+.TH CCARCHIVE 1 "2026-07-23" "atelier instruments" "User Commands"
 .SH NAME
 ccarchive \- durably preserve every Claude Code transcript, word for word
 .SH SYNOPSIS
@@ -41,8 +41,10 @@ Claude Code deletes logs older than its
 setting (30 by default), so the history disappears on a rolling window.
 .PP
 .B ccarchive
-mirrors every one of those logs into a compressed, append-only archive that
-outlives that cleanup. Where
+mirrors every one of those logs \(em and the offloaded payloads, memory and
+history that go with them (see
+.BR CAPTURE ) \(em
+into a compressed, append-only archive that outlives that cleanup. Where
 .BR cctranscript (1)
 .I reads
 the logs,
@@ -51,14 +53,14 @@ the logs,
 them.
 .PP
 The archive is an
-.B incremental per-session gzip mirror :
-each
-.IR <rel>/<name> .jsonl
+.B incremental per-file gzip mirror :
+each captured file
+.IR <rel>/<name>
 under the source becomes
-.IR <dest>/<rel>/<name> .jsonl.gz
-under the archive. Only sessions that changed since the last run are
+.IR <dest>/<rel>/<name> .gz
+under the archive. Only files that changed since the last run are
 recompressed, so it is cheap to run often and light on a synced destination
-such as iCloud Drive (only new or updated sessions upload). Each archived
+such as iCloud Drive (only new or updated files upload). Each archived
 session stays individually readable \(em decompress it and hand it to
 .BR cctranscript (1),
 or search the whole archive with
@@ -70,6 +72,74 @@ it never deletes from the archive. When Claude Code's cleanup removes a source
 log, the archived copy remains \(em that is the whole point. It does not parse
 the JSON, it preserves the bytes, so it is immune to any change in Claude
 Code's internal log format.
+.SH CAPTURE
+What
+.B ccarchive
+captures is an
+.B allowlist,
+not "everything under the source root": each class below is preserved as raw
+bytes; anything unrecognised is left out by default. This is stated here because
+a silent exclusion is invisible \(em an archive that dropped referenced content
+while advertising completeness would be dishonest about what it holds.
+.PP
+.B Captured.
+.TP
+.I <encoded-repo>/<uuid>.jsonl
+Session transcripts, and nested subagent logs beneath the session
+.RI ( <uuid>/subagents/*.jsonl ) \(em
+the core record, at any depth.
+.TP
+.IR <uuid>/tool-results/* " and " <uuid>/toolu_*
+.B Tool-result sidecars.
+When a tool output is large, Claude Code offloads the payload to one of these
+files and leaves only a pointer in the
+.I .jsonl.
+Capturing them closes a real hole: without them an archived transcript can
+dangle a reference to content that was pruned from the live store and never
+preserved. The modern shape is
+.IR tool-results/ ;
+.I toolu_*
+is the legacy sibling. Both are opaque bytes \(em taken as-is, whatever the
+extension.
+.TP
+.I <project>/memory/*.md
+.B Per-project auto-memory
+\(em the durable, cross-session working state Claude Code keeps for a project
+(a memory index and its named entries). It is not a transcript, but it is part
+of the working record and lives nowhere else.
+.TP
+.I ~/.claude/history.jsonl
+.B The top-level prompt/command history.
+This one file sits
+.I beside
+the projects directory, one level
+.I above
+the source root, so capturing it is a deliberate reach up out of
+.IR ~/.claude/projects .
+It is archived under a reserved
+.I _external/
+path that cannot collide with an encoded project directory, and
+.B \-\-restore
+returns it to its real home above the source root \(em never rewritten inside
+.IR projects/ .
+Override its location with
+.B CCARCHIVE_HISTORY
+(mainly for testing).
+.PP
+.B Not captured.
+The following are deliberately excluded and, on a machine wipe, are not
+recoverable from the archive:
+.IR <project>/webfetch-*.pdf
+(WebFetch page snapshots \(em re-fetchable, marginal),
+.I ~/.claude/file-history/
+(per-session edit checkpoints \(em large, and overlapping repository git
+history),
+.IR ~/.claude/sessions/ ", " ~/.claude/session-env/ " and " ~/.claude/shell-snapshots/
+(ephemeral per-session runtime and shell state), and Claude Code's
+.IR config ", " plugins " and " caches
+.RI ( settings*.json ", " ~/.claude/CLAUDE.md ", " plugins/ ", " backups/ ", the various cache directories)."
+These are runtime, re-derivable, or config that belongs to its own backup story,
+not to a transcript archive.
 .SH OPTIONS
 .TP
 .BI \-\-dest " dir"
@@ -550,14 +620,29 @@ iCloud is exactly the intended read, not a gratuitous one. See
 .SH FILES
 .TP
 .I ~/.claude/projects/
-The source: Claude Code's raw session logs (read-only to this tool).
+The source: Claude Code's raw session logs and the sidecars and memory beside
+them (read-only to this tool). See
+.B CAPTURE
+for exactly which files are taken.
 .TP
-.I <dest>/<rel>/<name>.jsonl.gz
-An archived transcript \(em the gzip of one source log.
+.I ~/.claude/history.jsonl
+The top-level prompt/command history, one level above the source root, also
+captured (read-only). Relocate with
+.BR CCARCHIVE_HISTORY .
+.TP
+.I <dest>/<rel>/<name>.gz
+An archived file \(em the gzip of one captured source file (a transcript, a
+tool-result sidecar or a memory
+.IR .md ).
+.TP
+.I <dest>/_external/history.jsonl.gz
+The archived top-level history, under a reserved
+.I _external/
+path that cannot collide with an encoded project directory.
 .TP
 .I <dest>/manifest.json
 The integrity manifest: one sha256 (plus size and archive time) per archived
-transcript.
+file, of every captured class alike.
 .TP
 .I <dest>/manifest.json.sig
 The detached manifest signature (HMAC-SHA256 over the manifest bytes). See
