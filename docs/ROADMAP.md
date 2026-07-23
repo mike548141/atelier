@@ -70,8 +70,10 @@ pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
   the all-clear but never names the CI result; "scanners green locally" is
   not "floor green at head". Small wording-sized RECORD.md edit; rides the
   normal review cycle when taken.
-- [ ] **Propagate the widened apex floor to children — and sweep every in-repo
-  apex restatement** (surfaces named per AW2's ruling, 2026-07-23, so the
+- [~] **Propagate the widened apex floor to children — and sweep every in-repo
+  apex restatement** (claimed 2026-07-23-0441, wt: apex-floor-sweep · at:
+  in-repo sweep — the fleet sweep stays open)
+  (surfaces named per AW2's ruling, 2026-07-23, so the
   sweep is mechanical): root `README.md:57` + `:93`;
   `docs/method/PRINCIPLES.md:10` + `:316`; `docs/method/PROPAGATION.md:40` +
   its inlined floor template block; `skills/session-onramp/SKILL.md`
@@ -214,7 +216,9 @@ candidates; record:
   count). Approved seams/homes are the record's proposals unamended: all
   twelve shared-floor. The promotion rule itself (>2 occurrences ⇒
   candidate) is thereby exercised end-to-end and stands as practice.
-- [ ] **Build the approved scanners S1–S5** — line-wrap (S1), prose-path
+- [~] **Build the approved scanners S1–S5** — line-wrap (S1), prose-path
+      (claimed 2026-07-23-0441, wt: datescan-s3 · at: S3 only — S1/S2/S4/S5
+      stay open)
       resolution via linkscan extension (S2), absolute-UTC dating (S3),
       stamp-drift vs canonical parent (S4), NZ-English wordlist (S5). Each
       lands with tests + selftest + floor wiring per the scanner house
@@ -271,7 +275,8 @@ touches REVIEW.md + EVIDENCE.md + the scanner floor); brief owed at pickup.*
 
 ### cc-tools parameter vocabulary (Mike, 2026-07-23)
 
-- 🎯 **NEXT SESSION — audit + align the flag vocabulary across the cc-tools**
+- 🎯 [~] **NEXT SESSION — audit + align the flag vocabulary across the cc-tools**
+  (claimed 2026-07-23-0441, wt: cc-tools-vocab)
   (`ccarchive`, `cctranscript`, `ccrepo`). Principle (Mike): a flag that means
   the same thing in more than one tool must use the **same word**, judged from a
   user who moves between them. Current state is *already* consistent where flags
