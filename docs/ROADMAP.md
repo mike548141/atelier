@@ -238,7 +238,7 @@ itself is records-only.*
 
 Source: <https://thenewstack.io/engineering-ai-slop-registry/> (Aviator). A
 mechanism for AI+human engineering that fits atelier's "mechanism before more
-content" ethos. The idea: an **invariant catalog** — codified, always-checked
+content" ethos. The idea: an **invariant catalogue** — codified, always-checked
 rules capturing the conventions/constraints that live in senior engineers'
 heads (convention blindness, deprecated APIs, module boundaries, security
 baselines) and that a model has no per-codebase training for. They call it the
@@ -314,15 +314,21 @@ detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Follow-ons stay open:*
 - [ ] **Apply spellscan review findings SS1–SS4 + tame the noise** (ordinary
       code): drop the three irregular-noun stems from `IZE_NOUN_CAPABLE` (SS1);
       declare the macron gap in the docstring (SS2); allowlist/inline-code the
-      CI-`artifact` sense + OWASP ASVS/SAMM chapter names; fix `finalize`→`finalise`.
+      CI-`artifact` sense + OWASP ASVS/SAMM chapter names; fix `finalize`→`finalise`;
+      **finish the `catalog`→`catalogue` rename** (Mike ruled 2026-07-23 —
+      house term is "catalogue"; live ROADMAP done, sweep the remaining bare-prose
+      uses in `sessions/2026-07-22-1036-invariant-candidates.md` +
+      `sessions/2026-07-21-1233-roadmap-capture-stream.md`, leaving backtick
+      literals + the article quote verbatim).
       **license/practice exclusion ruled PERMANENT by the review** (empirically
       vindicated — `practice` ×178 is correct NZ noun usage). Detail in the brief.
-- [ ] 🎯 **spellscan `catalog` ruling + flip (Mike's call)** — `catalog` (~10
-      hits) is atelier's own coinage ("invariant catalog"), a true NZ deviation
-      but a *consistent house term-of-art*, so it's your one-line call: **rename
-      "catalog"→"catalogue" fleet-wide, or accept it as a deliberate term** (this
-      decides whether those ~10 findings are real or exempt). Then, on a near-zero
-      re-baseline, drop `--warn` + add to `floor.yml`. Separate act.
+*spellscan `catalog` — **RULED 2026-07-23 (Mike: "Mistake to fix, rename to
+catalogue")**. `catalogue` is the house term now; the ~10 findings are real, not
+exempt. Live ROADMAP prose renamed this session; the remaining bare-prose uses in
+the frozen mining record + capture stream are folded into the spellscan apply
+above (spelling-normalise only — backtick `catalog` literals, the source-article
+quote, and finding-count archive records stay verbatim). The flip itself stays a
+Mike go/no-go once spellscan re-baselines near-zero (datescan's pattern).*
 - [ ] **Codify V1–V7 as the always-loaded reviewer checklist** — the
       registry mechanism's doctrine half; lands in REVIEW.md/the review
       skill with each item's cited grounding. Self-authored doctrine ⇒
@@ -330,9 +336,9 @@ detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Follow-ons stay open:*
 - [ ] **Two-layer acceptance criteria, one verification pass.** (Build item —
       waits on the 🎯 rulings above; the mining record's "how the registry
       would be checked" section holds the proposal.) Per-change
-      criteria (task-specific) + the invariant catalog (loaded automatically)
+      criteria (task-specific) + the invariant catalogue (loaded automatically)
       assemble into ONE checklist a verifier runs. The author need not remember
-      the org rule — the catalog enforces it unasked. Invariants are
+      the org rule — the catalogue enforces it unasked. Invariants are
       declarative rules with conditions (path globs, exemptions), e.g. "writes
       to `users` must go through the repository; exempt migrations; glob
       `src/**/*.go`".
@@ -346,7 +352,7 @@ detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Follow-ons stay open:*
 - [ ] **Where does the registry live?** (Proposed per candidate in the mining
       record — all five scanner candidates shared-floor, one checklist
       repo-specific; decision rides the 🎯 rulings above.) atelier-shared floor invariants (fleet-
-      wide, like the current scanners) vs repo-specific catalogs (a child's own
+      wide, like the current scanners) vs repo-specific catalogues (a child's own
       conventions). Likely both, same layering as doctrine: shared floor +
       local append. Ties REPO-STANDARD.
 
