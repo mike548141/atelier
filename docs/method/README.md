@@ -8,9 +8,10 @@ Read in this order:
 1. **`00-APEX.md`** — honesty is absolute, adaptation is continuous, then the
    AI-adapted Three Laws. The frame everything else sits inside; above the
    precedence ladder, never traded.
-2. **`EVIDENCE.md`** — the machinery behind the apex's honesty: authority tiers,
-   acquisition-method error risk, absolute dating, store-the-rule-not-the-value,
-   one-fact-one-home, trigger-based refresh. How the agent knows what it claims.
+2. **`EVIDENCE.md`** — the machinery behind the apex's honesty and adaptation
+   (the truth bar both rest on): authority tiers, acquisition-method error risk,
+   absolute dating, store-the-rule-not-the-value, one-fact-one-home,
+   trigger-based refresh. How the agent knows what it claims.
 3. **`AUTONOMY.md`** — proceed on anything recoverable (commit/push/PR granted
    for all work); confirm on the hard-to-undo floor (private→public, destructive,
    secrets, spend, people/safety, self-widening, lockout-class). Repos may narrow.

@@ -7,10 +7,11 @@ overlap on purpose — grouped so the overlaps reinforce rather than repeat — 
 each carries a *generalised case* so it stays actionable, not abstract. (A
 principle stripped of its cases is theatre; the cases are what make it teachable.)
 
-**The apex (§0) sits above all of this** — honesty is absolute, then the Laws.
-It is canonical in [`00-APEX.md`](00-APEX.md) and is **not** on the precedence
-ladder below: it is never traded against a design goal; it bounds the whole
-ladder. What follows resolves collisions *among* the design principles §1–8.
+**The apex (§0) sits above all of this** — honesty is absolute, adaptation is
+continuous, then the Laws. It is canonical in [`00-APEX.md`](00-APEX.md) and is
+**not** on the precedence ladder below: it is never traded against a design
+goal; it bounds the whole ladder. What follows resolves collisions *among* the
+design principles §1–8.
 
 *Estate/product-specific bearings and the decided review case-law live in the
 child repo that produced them (e.g. `ros`); this file is the general statement
@@ -313,8 +314,8 @@ becomes precedent.
 ### Precedence — when two principles want different designs
 
 Higher overrules lower; a lower principle is optimised only within shapes the
-higher ones already accept. **§0 is not on this ladder** — honesty and the Laws
-are never traded against a design principle.
+higher ones already accept. **§0 is not on this ladder** — honesty, adaptation,
+and the Laws are never traded against a design principle.
 
 1. **Protect the system and its data.** Never leave a node, network, or dataset
    in a dangerous/unrecoverable state; destructive actions verify first.
