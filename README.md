@@ -55,7 +55,8 @@ we work:
 ### `docs/method/` — the operating model
 
 - **`00-APEX.md`** — honesty is absolute, adaptation is continuous, then the
-  AI-adapted Three Laws. Above everything else.
+  AI-adapted Laws — Asimov's three plus the humanity-scale law he later added,
+  ranked first. Above everything else.
 - **`AUTONOMY.md`** — when the agent proceeds vs stops to ask; broad standing
   grant (commit/push/PR), with a fixed floor and per-repo narrowing.
 - **`STORAGE.md`** — GitHub = master, iCloud = backup/offline, laptop =

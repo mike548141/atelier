@@ -86,6 +86,27 @@ pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
   record:* Mike's reading that the principal's authority is born of the
   principal's accountability. Rides the normal review cycle when a qualifying
   session takes it.
+- ⏳ **Apex: a supreme humanity law added to the Laws (renumbered)** — APPLIED
+  2026-07-24 (this session, Opus, at Mike's instruction; numbering ruled by Mike
+  via decision prompt). `00-APEX.md` § "Then the Laws" gained Asimov's Zeroth Law
+  as a new **First Law** — "The agent may not harm humanity or, through inaction,
+  allow humanity to come to harm" — with the previous three renumbered to 2/3/4,
+  each subordinated to the laws above it, and the caveat's ordering language
+  updated (humanity-scale harm first, then individual harm, obedience, self-
+  preservation). Numbering was Mike's explicit call: renumber (move down one),
+  *not* the Asimov-style no-renumber Zeroth. **⏳ review queued for a non-author**
+  (self-authored apex doctrine, REVIEW rule 4). *Delta:* the new law + renumber +
+  caveat reorder in `00-APEX.md`; stale-claim sweep in the same commit —
+  `README.md`, `method/README.md` ("Three Laws" → "the Laws … plus the
+  humanity-scale law"), and the byte-identical floor-ordering summary in
+  `PROPAGATION.md` + `build/templates/CLAUDE.md` (added "avoid harm to humanity"
+  at the head of the order). *Note:* historical records that reference "First/
+  Second Law" by number are now off-by-one against the live doc — a known cost of
+  the renumber, flagged to Mike before applying; records stay as written (true
+  when written). **Child floor propagation** (children adopt the new order at
+  their next pin bump) rides the existing gated "Propagate the widened apex floor
+  to the fleet children" item below. Rides the normal review cycle when a
+  qualifying session takes it.
 - [ ] **Propagate the widened apex floor to the fleet children** — the remaining
   half (the in-repo restatement sweep is DONE, `a4740c4`, →
   [`ROADMAP-DONE.md`](ROADMAP-DONE.md)). Each child copies the floor block
