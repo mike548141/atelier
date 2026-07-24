@@ -50,6 +50,16 @@ service beats total failure.
   carrying the rope on the way in). A destructive verb with no stated way back is
   not finished. (See [`DATA-PROTECTION.md`](DATA-PROTECTION.md); serves
   precedence rule 1.)
+- **Design the way out before the way in.** Before adopting an external
+  dependency — a library, a service, a platform — first establish how you keep
+  working *without* it: a fallback, an export/migration path, a swappable seam,
+  or the ability to run degraded. Adopt only once that exit exists. A dependency
+  you can't leave owns you, and the exit is cheapest to build at adoption time —
+  near-impossible to retrofit mid-outage. The runtime faces of this are the
+  circuit breaker and graceful degradation above; this is the *design-time*
+  commitment that earns them. (Zero-dependency tooling is the limit case — the
+  exit is never needing the door; cf. [`REACH.md`](REACH.md) escalate-cheapest-
+  first and never mint access you can't withdraw.)
 
 ## 2. Structure — simple, decoupled, one source of truth
 

@@ -117,6 +117,17 @@ pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
   no count claim). **Child floor propagation** rides the existing gated
   "Propagate the widened apex floor to the fleet children" item below. Rides the
   normal review cycle when a qualifying session takes it.
+- ⏳ **PRINCIPLES §1: "Design the way out before the way in"** — APPLIED
+  2026-07-24 (this session, Opus, at Mike's instruction). New resilience
+  principle paired with "Build the way back before the way forward": before
+  adopting an external dependency, first establish how you keep working without
+  it (fallback / export path / swappable seam / degraded mode); adopt only once
+  the exit exists. Grounded in atelier's own practice — zero-dependency tooling
+  as the limit case, browser-fetch as the documented dependency exception — and
+  cross-linked to REACH (escalate-cheapest-first, never mint access you can't
+  withdraw). **⏳ review queued for a non-author** (self-authored doctrine, REVIEW
+  rule 4). *Delta:* one bullet in `PRINCIPLES.md` §1. Rides the normal review
+  cycle when a qualifying session takes it.
 - [ ] **Propagate the widened apex floor to the fleet children** — the remaining
   half (the in-repo restatement sweep is DONE, `a4740c4`, →
   [`ROADMAP-DONE.md`](ROADMAP-DONE.md)). Each child copies the floor block
