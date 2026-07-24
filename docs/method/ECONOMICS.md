@@ -235,8 +235,12 @@ Two hard edges on the ladder (both grounded 2026-07-23, Mike):
 
 - **Capacity never picks the tier.** "Cheapest that genuinely does the work" is
   judged on the work's risk and verifiability — in *every* capacity state. A
-  cheaper model is welcome wherever that test passes, cap or no cap; it is
-  forbidden as a *response* to a low allowance. When the tank can't fund the
+  cheaper model is *preferred* wherever that test passes, cap or no cap: the
+  same outcome for less spend is the first choice, not merely a tolerated one.
+  "Preferred" stops deliberately short of *required* — it leaves latitude for
+  cases this frame hasn't foreseen — but absent such a case, the cheaper model
+  that passes the test wins. It is forbidden only as a *response* to a low
+  allowance. When the tank can't fund the
   tier the work needs, the exits are stop/delay or principal-authorised spend
   (the cap rule above) — never a quieter model doing louder work. Cost is the
   lowest precedence, and an exhausted allowance doesn't promote it.

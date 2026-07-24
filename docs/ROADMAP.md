@@ -421,6 +421,21 @@ touches REVIEW.md + EVIDENCE.md + the scanner floor); brief owed at pickup.*
 
 ## instruments/ — open features
 
+### Directory naming: `tools/` vs `instruments/` (Mike, 2026-07-24 — low priority, consider later)
+
+Both dirs read colloquially as "tools," which blurs their real split: `tools/`
+**enforces** (checks that gate a commit), `instruments/` **observe/extend** the
+human+Claude collaboration. Swapping the two doesn't help — it just moves the
+generic word onto the other pile. The fix is to make the *generic* name
+descriptive. Recommendation: rename `tools/` → **`checks/`** (its own README
+already calls them "the checks"); keep `instruments/` (distinctive, ADR-0006-
+defended, carries the observe/measure sense). Alternatives for the enforcer dir:
+`gates/`, `scans/`, `guards/`. Rejected: `pipeline/` (implies ordered data-flow
+stages; the scanners are independent gates run as a set). Blast radius: live
+wiring is small (CI `discover -s tools`, pre-commit hook, `.gitignore`, `*ignore`
+files, README/CHANGELOG, cross-links); the ~128/63 file counts are mostly
+immutable session logs/ADRs, left as-is. Mike's call, not the agent's to execute.
+
 ### cc-tools parameter vocabulary (Mike, 2026-07-23)
 
 Strand closed 2026-07-23 (queue run): the flag-vocabulary audit found zero
