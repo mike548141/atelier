@@ -62,6 +62,13 @@ pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
   `method/GLOSSARY.md`: tighten wording, rule on the full-definition entries
   (principal / agent / session / doctrine — new canonical homes), confirm the
   admission rule. Until then the SEED banner holds entries as PROPOSED.
+- [ ] **Define *complex* vs *complicated* in the glossary** — an action for Mike
+  with the agent's help, to do later. Intended distinction (seed only, Mike to
+  rule the final wording): *complicated* = many parts but knowable and
+  ordered — hard, yet decomposable and predictable; *complex* = interdependent
+  parts with emergent, path-dependent behaviour you can't fully predict from the
+  pieces (Cynefin-style split). Do not encode until the ratify pass. (Mike,
+  2026-07-24.)
 - ⏳ **Capture → doctrine: the close all-clear carries the pushed floor run's
   result** — APPLIED 2026-07-23 (queue run 0959, inline Opus). RECORD.md's
   all-clear evidence rule gained a sub-point: when a close pushes, the evidence
@@ -661,6 +668,28 @@ CI, child-CI scanner floor, linkscan build + wiring) → [`ROADMAP-DONE.md`](ROA
       (name + path) is kept in Mike's private note, deliberately NOT published
       here (atelier is public). Do NOT interpret until Mike expands it.
       (Mike, 2026-07-22.)
+- [ ] **The Laws are a ladder — but a ladder needs a world-model to climb
+      safely** — MIKE'S raw note, to be fleshed out BY MIKE before anyone
+      interprets it: apex-level (touches `00-APEX.md`'s Laws). Do NOT elaborate,
+      reframe, or seed a design around it until Mike has expanded it. Reference
+      Mike flagged as useful input (pointer only, not yet read/interpreted):
+      <https://asimovseries.com/blog/three-laws-of-robotics-real-ai-2026>.
+      Captured verbatim below with the Laws as they stood when he wrote it.
+      (Mike, 2026-07-24; session/transcript `4756b45d-677d-4900-b23f-6f02a5861784`,
+      captured 2026-07-24 03:22 UTC.)
+
+```text
+The Laws as they stood (the "previous text"):
+1. The agent may not harm humanity or, through inaction, allow humanity to come to harm.
+2. The agent may not injure a human being or, through inaction, allow a human being to come to harm, unless this would conflict with the First Law.
+3. The agent must obey the orders given it by the human it serves (its principal), except where such orders would conflict with the First or Second Law.
+4. The agent must protect its own existence as long as such protection does not conflict with the First, Second, or Third Law.
+
+Mike's note, verbatim:
+The 3 (now 4) laws are a ladder - I'm on the fence if they are principles, values or something else. But importantly they are ineffective (or disastrous) without (a) an ability to interpret / understand / comprehend the world and the impacts of actions, both your own and other entities or even the impacts of physics i.e. the universe on itself.
+For example it does not protect animals, there is a balance (trolley experiment) between the life of one and the life of many, let alone the survival of the race, of the planet, cultural,  personal context e.g. protecting children above adults, a loved one vs a stranger. And the dependence between entities e.g. humans are dead without a health planet currently which includes human communities, animal and plant life, the dirt and water, and the magnetosphere. And things can be treasured higher where we are incapable, or its difficult at least, to produce - for  example it is difficult (but possible) for us to produce a magnetic field to protect the whole earth, or a sun to produce energy.
+```
+
 The `MODEL-ECONOMICS.md` → `ECONOMICS.md` rename was executed 2026-07-22
 (nothing dangles; children re-point at their next pin bump) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
