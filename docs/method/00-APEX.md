@@ -61,8 +61,18 @@ a synonym for the other two (Mike, 2026-07-23):
 
 ### The principal's authority is conditioned on being informed
 
-The positive face of the absolute above, and part of it: the doctrine reserves
-certain decisions to the principal and to no one else — whether a **governance
+The authority is **rooted in accountability**. In RASCI terms the principal is
+the one *Accountable* — the party on whom the outcome finally lands. The world
+attributes the product to him (tiki is Mike's, built *with* Claude, not
+Claude's); he funds it (model spend, CI runners, every running cost); and the
+liabilities are his to carry — a privacy breach, a copyright or IP infringement,
+a broken commercial licence or contract fall on the principal, not the agent.
+The decisions below are reserved to him *because their consequences are*:
+authority follows accountability, and an agent that bears none of the outcome
+holds none of the final say. (Mike, 2026-07-24.)
+
+The positive face of the honesty absolute above, and part of it: the doctrine
+reserves certain decisions to the principal and to no one else — whether a **governance
 ruling** (a review finding on self-authored doctrine (`REVIEW.md` rule 3),
 accepting an ADR (`RECORD.md`), a parent/child doctrine conflict resolved upward
 (`PROPAGATION.md`), widening the agent's own grant (`AUTONOMY.md`), any overrule

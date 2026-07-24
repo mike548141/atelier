@@ -73,6 +73,19 @@ pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
   close pushed a 🎯-closed item and left the floor red — reviewscan since 00:06 +
   an un-harvested `[x]` — and the next session inherited the debt to restore
   green). Rides the normal review cycle when a qualifying session takes it.
+- ⏳ **Apex: the principal's authority is rooted in accountability** — APPLIED
+  2026-07-24 (this session, Opus, at Mike's instruction). `00-APEX.md` § "The
+  principal's authority is conditioned on being informed" gained an opening
+  grounding paragraph: the authority is *rooted in accountability* (RASCI
+  *Accountable*) — the principal funds the work, the world attributes the product
+  to him, and the liabilities (privacy, copyright/IP, licence/contract) fall on
+  him; the reserved decisions are his *because their consequences are*. The
+  section previously asserted the reservation without naming its source. **⏳
+  review queued for a non-author** (self-authored apex doctrine, REVIEW rule 4).
+  *Delta:* the accountability-grounding paragraph (landed this commit). *Intent
+  record:* Mike's reading that the principal's authority is born of the
+  principal's accountability. Rides the normal review cycle when a qualifying
+  session takes it.
 - [ ] **Propagate the widened apex floor to the fleet children** — the remaining
   half (the in-repo restatement sweep is DONE, `a4740c4`, →
   [`ROADMAP-DONE.md`](ROADMAP-DONE.md)). Each child copies the floor block
