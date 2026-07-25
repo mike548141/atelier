@@ -165,11 +165,12 @@ class ConfigTest(unittest.TestCase):
             _states("ci", _cfg({"licence": "Apache-2.0"}))["licenscan"], "enforced")
 
 
-class PathScopingTest(unittest.TestCase):
-    """Record-subtree scoping — the part that lets the parent run its own floor."""
+class ScopeAndFlagsTest(unittest.TestCase):
+    """Where a check looks, and how it is tuned — the two things a repo may
+    legitimately vary, and the line between them and *softening* a check."""
 
     def test_override_expands_to_every_subtree(self):
-        cfg = _cfg({"paths": {"wrapscan": ["docs/method", "docs/build"]}})
+        cfg = _cfg({"scope": {"wrapscan": ["docs/method", "docs/build"]}})
         rendered = floor._render(floor.BY_NAME["wrapscan"].ci, Path("/repo"),
                                  cfg, "wrapscan")
         self.assertTrue(rendered[-1].endswith("docs/build"))
@@ -177,21 +178,76 @@ class PathScopingTest(unittest.TestCase):
         self.assertIn("--root", rendered)
 
     def test_override_does_not_leak_to_other_scanners(self):
-        cfg = _cfg({"paths": {"wrapscan": ["docs/method", "docs/build"]}})
+        cfg = _cfg({"scope": {"wrapscan": ["docs/method", "docs/build"]}})
         rendered = floor._render(floor.BY_NAME["datescan"].ci, Path("/repo"),
                                  cfg, "datescan")
         self.assertEqual(len(rendered), len(floor.BY_NAME["datescan"].ci))
 
-    def test_rejects_override_on_a_whole_tree_scanner(self):
-        """Accepting it would read as 'linkscan is scoped' while linkscan kept
-        reading everything — a false belief about cover, which is worse than
-        no scoping at all."""
-        with self.assertRaises(floor.ConfigError):
-            _cfg({"paths": {"linkscan": ["docs"]}})
-
     def test_rejects_empty_override(self):
+        """Narrowing a check to nothing is a silent hole, not a scope."""
         with self.assertRaises(floor.ConfigError):
-            _cfg({"paths": {"wrapscan": []}})
+            _cfg({"scope": {"wrapscan": []}})
+
+    def test_networking_repo_case(self):
+        """The worked case that forced this feature: a networking repo scans
+        only its shareable subtree, with leakscan's IP/MAC rules off — those
+        shapes are legitimate CONTENT there, not leaked estate data. It must be
+        expressible in config, or the repo keeps a bespoke hook and falls out of
+        propagation entirely, which is how this whole defect started."""
+        cfg = _cfg({
+            "scope": {"leakscan": ["tiki/"]},
+            "flags": {"leakscan": ["--disable", "ipv4,ipv6,mac-address"]},
+        })
+        argv = floor._render(floor.BY_NAME["leakscan"].hook, Path("/repo"),
+                             cfg, "leakscan")
+        self.assertIn("--staged", argv)
+        self.assertTrue(any(a.endswith("tiki") for a in argv), argv)
+        self.assertEqual(argv[-2:], ["--disable", "ipv4,ipv6,mac-address"])
+
+    def test_flags_cannot_soften_a_check(self):
+        """The sharpest guard here. `--warn` through `flags` would be an
+        advisory downgrade that bypasses every rule on `advisory` — including
+        on a scanner that has no advisory form at all."""
+        with self.assertRaises(floor.ConfigError):
+            _cfg({"flags": {"secretscan": ["--warn"]}})
+
+    def test_flags_cannot_change_a_checks_mode(self):
+        for bad in (["--json"], ["--selftest"], ["--check"]):
+            with self.assertRaises(floor.ConfigError):
+                _cfg({"flags": {"sizescan": bad}})
+
+    def test_staged_scope_is_repo_relative_never_absolute(self):
+        """A fail-OPEN shape, pinned because it exits 0 and reads as a clean pass.
+
+        secretscan/leakscan filter the staged diff by prefix against git's path
+        list, which is always repo-relative. An absolute path matches NOTHING, so
+        the boundary scanners silently approve every commit. The first draft of
+        _render emitted absolute paths on both planes and did exactly that — only
+        the planted-secret commit tests caught it.
+        """
+        cfg = _cfg({"scope": {"leakscan": ["tiki/"]}})
+        argv = floor._render(floor.BY_NAME["leakscan"].hook, Path("/repo"),
+                             cfg, "leakscan")
+        self.assertIn("--staged", argv)
+        positional = [a for a in argv if not a.startswith("-")
+                      and a not in ("/repo",)]
+        self.assertTrue(positional, "staged scope must still pass its subtree")
+        for a in positional:
+            self.assertFalse(a.startswith("/"),
+                             f"staged path must be repo-relative, got {a!r}")
+
+    def test_default_staged_scope_passes_no_positional(self):
+        """Whole-repo staged cover means NO positional at all — not '.', which
+        is an absolute-path-shaped miss in disguise (git never lists './x')."""
+        argv = floor._render(floor.BY_NAME["secretscan"].hook, Path("/repo"),
+                             floor.Config(), "secretscan")
+        self.assertEqual(argv, ["--staged", "--root", "/repo"])
+
+    def test_flags_stay_local_to_their_scanner(self):
+        cfg = _cfg({"flags": {"leakscan": ["--disable", "ipv4"]}})
+        argv = floor._render(floor.BY_NAME["secretscan"].hook, Path("/repo"),
+                             cfg, "secretscan")
+        self.assertNotIn("--disable", argv)
 
 
 class InvocationTest(unittest.TestCase):

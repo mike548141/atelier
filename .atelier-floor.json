@@ -1,7 +1,7 @@
 {
   "licence": "Apache-2.0",
   "docs": "docs",
-  "paths": {
+  "scope": {
     "wrapscan": ["docs/method", "docs/build", "docs/decisions"],
     "spellscan": ["docs/method", "docs/build", "docs/decisions"]
   }

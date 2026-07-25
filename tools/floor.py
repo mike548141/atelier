@@ -133,6 +133,9 @@ class Scanner:
     there at all. `advisory` is the argument form that reports without blocking —
     None means this check may not be softened (see the module docstring: boundary
     and integrity checks have no advisory form, by design).
+
+    `{scope}` is the tree the check reads. `default_scope` says what that is when
+    the child declares nothing: the whole repo, or its records subtree.
     """
 
     name: str
@@ -140,6 +143,7 @@ class Scanner:
     ci: list[str] | None
     advisory: list[str] | None
     why: str
+    default_scope: str = "root"  # "root" | "docs"
     opt_in: bool = False  # runs only when the child's config asks for it
 
 
@@ -147,69 +151,78 @@ class Scanner:
 SCANNERS: tuple[Scanner, ...] = (
     Scanner(
         "secretscan",
-        hook=["--staged", "--root", "{root}"],
-        ci=["--root", "{root}", "{root}"],
+        hook=["--staged", "--root", "{root}", "{scope}"],
+        ci=["--root", "{root}", "{scope}"],
         advisory=None,  # a burned secret is burned whatever the repo's visibility
         why="no plaintext credential enters git history",
     ),
     Scanner(
         "leakscan",
-        hook=["--staged", "--root", "{root}"],
-        ci=["--root", "{root}", "{root}"],  # structural-only: no --require-terms
+        hook=["--staged", "--root", "{root}", "{scope}"],
+        ci=["--root", "{root}", "{scope}"],  # structural-only: no --require-terms
         advisory=None,  # the personal-data boundary is not a re-baselining matter
         why="no personal/estate data enters a repo that can go public",
     ),
     Scanner(
         "linkscan",
-        hook=["--root", "{root}", "{root}"],  # whole tree: a rename breaks links
-        ci=["--root", "{root}", "{root}"],    # outside the diff that caused it
+        hook=["--root", "{root}", "{scope}"],  # whole tree: a rename breaks links
+        ci=["--root", "{root}", "{scope}"],    # outside the diff that caused it
         advisory=None,
         why="internal links resolve — thin anchor, fat pointer needs live pointers",
     ),
     Scanner(
         "reviewscan",
-        hook=["--root", "{root}", "{root}"],
-        ci=["--root", "{root}", "{root}"],
+        hook=["--root", "{root}", "{scope}"],
+        ci=["--root", "{root}", "{scope}"],
         advisory=None,  # REVIEW.md: omission IS the bug, so it cannot be advisory
         why="a new decision record states its review judgement",
     ),
     Scanner(
         "sizescan",
-        hook=["--check", "--root", "{root}", "{root}"],
-        ci=["--check", "--root", "{root}", "{root}"],
-        advisory=["--root", "{root}", "{root}"],  # drop --check
+        hook=["--check", "--root", "{root}", "{scope}"],
+        ci=["--check", "--root", "{root}", "{scope}"],
+        advisory=["--root", "{root}", "{scope}"],  # drop --check
         why="current-truth files stay honest; archive stores hold no live state",
     ),
     Scanner(
         "datescan",
-        hook=["--root", "{root}", "{docs}"],
-        ci=["--root", "{root}", "{docs}"],
-        advisory=["--warn", "--root", "{root}", "{docs}"],
+        hook=["--root", "{root}", "{scope}"],
+        ci=["--root", "{root}", "{scope}"],
+        advisory=["--warn", "--root", "{root}", "{scope}"],
         why="records date in absolute UTC, never a drifting 'today'",
+        default_scope="docs",
     ),
     Scanner(
         "wrapscan",
-        hook=["--root", "{root}", "{docs}"],
-        ci=["--root", "{root}", "{docs}"],
-        advisory=["--warn", "--root", "{root}", "{docs}"],
+        hook=["--root", "{root}", "{scope}"],
+        ci=["--root", "{root}", "{scope}"],
+        advisory=["--warn", "--root", "{root}", "{scope}"],
         why="doctrine prose stays within its column budget",
+        default_scope="docs",
     ),
     Scanner(
         "spellscan",
-        hook=["--root", "{root}", "{docs}"],
-        ci=["--root", "{root}", "{docs}"],
-        advisory=["--warn", "--root", "{root}", "{docs}"],
+        hook=["--root", "{root}", "{scope}"],
+        ci=["--root", "{root}", "{scope}"],
+        advisory=["--warn", "--root", "{root}", "{scope}"],
         why="NZ-English spelling across the doc surface",
+        default_scope="docs",
     ),
     Scanner(
         "licenscan",
-        hook=["--expect", "{licence}", "{root}"],
-        ci=["--expect", "{licence}", "{root}"],
+        hook=["--expect", "{licence}", "{scope}"],
+        ci=["--expect", "{licence}", "{scope}"],
         advisory=None,
         why="the declared licence is the one actually asserted",
         opt_in=True,  # only with a declared `licence` — see the docstring
     ),
 )
+
+# Flags a child may NOT add through `flags`. Each would change what a check
+# MEANS rather than where it looks — and would do it invisibly, which is the one
+# thing this design refuses. Softening has exactly one declared spelling
+# (`advisory`), and it is validated against the scanner's own advisory form.
+FORBIDDEN_FLAGS = {"--warn", "--check", "--selftest", "--json"}
 
 BY_NAME = {s.name: s for s in SCANNERS}
 
@@ -224,14 +237,21 @@ class Config:
     licence: str | None = None
     advisory: tuple[str, ...] = ()
     disabled: dict[str, str] = field(default_factory=dict)  # name -> reason
-    # Per-scanner path overrides, for the checks that take a subtree. atelier
-    # itself needs this (its prose checks are scoped to the doctrine surface, not
-    # the whole of docs/) and so will any child whose records live elsewhere.
-    # Modelling it as config — rather than special-casing the parent — is what
-    # lets atelier run the SAME floor it ships, which is the only way the
-    # registry stays honest: a parent with its own private list is the two-lists
-    # bug all over again, one level up.
-    paths: dict[str, tuple[str, ...]] = field(default_factory=dict)
+    # Per-scanner overrides of WHERE a check looks. atelier itself needs this
+    # (its prose checks are scoped to the doctrine surface, not all of docs/) and
+    # so does any repo whose shareable subtree is narrower than its whole tree —
+    # a networking repo scanning only the part that can go public, say. Modelling
+    # it as config rather than special-casing the parent is what lets atelier run
+    # the SAME floor it ships: a parent with its own private list would be the
+    # two-lists bug all over again, one level up.
+    scope: dict[str, tuple[str, ...]] = field(default_factory=dict)
+    # Per-scanner extra arguments — for a check that needs tuning to a repo's
+    # subject matter rather than its layout. A networking repo disabling
+    # leakscan's IP/MAC rules is the worked case: those shapes are legitimate
+    # CONTENT there, not leaked estate data. This genuinely weakens a check,
+    # which is why it lives in a committed file that `floorfleet` reads out
+    # estate-wide — declared and visible, never quietly applied.
+    flags: dict[str, tuple[str, ...]] = field(default_factory=dict)
 
     @staticmethod
     def load(root: Path) -> "Config":
@@ -265,21 +285,25 @@ class Config:
             raise ConfigError(f"{CONFIG_NAME}: `disabled` must be an object")
         disabled = {k: str(v) for k, v in raw_disabled.items()}
 
-        raw_paths = raw.get("paths", {}) or {}
-        if not isinstance(raw_paths, dict):
-            raise ConfigError(f"{CONFIG_NAME}: `paths` must be an object")
-        paths: dict[str, tuple[str, ...]] = {}
-        for k, v in raw_paths.items():
-            entries = [v] if isinstance(v, str) else list(v or ())
-            if not entries:
-                raise ConfigError(
-                    f"{CONFIG_NAME}: `paths.{k}` is empty — an override that "
-                    "narrows a check to nothing is a silent hole, not a scope"
-                )
-            paths[k] = tuple(str(e) for e in entries)
+        def _str_map(key: str, allow_empty: bool) -> dict[str, tuple[str, ...]]:
+            raw_map = raw.get(key, {}) or {}
+            if not isinstance(raw_map, dict):
+                raise ConfigError(f"{CONFIG_NAME}: `{key}` must be an object")
+            out: dict[str, tuple[str, ...]] = {}
+            for k, v in raw_map.items():
+                entries = [v] if isinstance(v, str) else list(v or ())
+                if not entries and not allow_empty:
+                    raise ConfigError(
+                        f"{CONFIG_NAME}: `{key}.{k}` is empty — an override that "
+                        "narrows a check to nothing is a silent hole, not a scope"
+                    )
+                out[k] = tuple(str(e) for e in entries)
+            return out
 
         cfg = Config(docs=docs, licence=licence, advisory=advisory,
-                     disabled=disabled, paths=paths)
+                     disabled=disabled,
+                     scope=_str_map("scope", allow_empty=False),
+                     flags=_str_map("flags", allow_empty=False))
         cfg.validate()
         return cfg
 
@@ -287,7 +311,7 @@ class Config:
         """Reject a config that does not mean what it says. Every one of these is
         a block, not a warning — a floor that quietly ignores half its config is
         worse than no config, because it reads as covered."""
-        for name in (*self.advisory, *self.disabled, *self.paths):
+        for name in (*self.advisory, *self.disabled, *self.scope, *self.flags):
             if name not in BY_NAME:
                 raise ConfigError(
                     f"{CONFIG_NAME}: unknown scanner {name!r} "
@@ -309,14 +333,16 @@ class Config:
                 raise ConfigError(
                     f"{CONFIG_NAME}: disabling {name!r} needs a stated reason"
                 )
-        # A path override only means something for a check that takes a subtree.
-        # Silently ignoring one aimed at a whole-tree scanner would read as
-        # "scoped" while the scanner still read everything.
-        for name in self.paths:
-            if "{docs}" not in (BY_NAME[name].ci or []):
+        # A flag that changes what a check MEANS is not a scoping decision, and
+        # must not be reachable by this route: `--warn` here would be a silent
+        # advisory downgrade that bypasses every guard on `advisory` above.
+        for name, extra in self.flags.items():
+            bad = sorted(FORBIDDEN_FLAGS.intersection(extra))
+            if bad:
                 raise ConfigError(
-                    f"{CONFIG_NAME}: `paths.{name}` has no effect — {name} scans "
-                    "the whole tree by design and cannot be scoped here"
+                    f"{CONFIG_NAME}: `flags.{name}` may not contain "
+                    f"{', '.join(bad)} — that changes what the check means, not "
+                    "where it looks. To soften a check, declare it `advisory`."
                 )
 
 
@@ -358,26 +384,49 @@ def _git_config(key: str) -> str | None:
 
 
 def subtrees(root: Path, cfg: Config, name: str) -> list[str]:
-    """The record subtrees a prose check reads in this repo: the scanner's own
-    override if it declared one, else the repo's `docs` setting."""
-    return list(cfg.paths.get(name) or (cfg.docs,))
+    """The paths a check reads in this repo: the scanner's own `scope` override
+    if it declared one, else its registered default — the whole repo, or the
+    repo's records tree."""
+    override = cfg.scope.get(name)
+    if override:
+        return list(override)
+    scanner = BY_NAME.get(name)
+    if scanner is not None and scanner.default_scope == "docs":
+        return [cfg.docs]
+    return ["."]
 
 
 def _render(args: list[str], root: Path, cfg: Config,
             name: str | None = None,
             trees: list[str] | None = None) -> list[str]:
-    """Resolve an argument template against a repo. `{docs}` expands to EVERY
-    subtree the check reads — which is why this returns a list rather than
-    mapping arg-for-arg."""
+    """Resolve an argument template against a repo. `{scope}` expands to EVERY
+    path the check reads — which is why this returns a list rather than mapping
+    arg-for-arg. A child's extra `flags` are appended LAST, so they can add to
+    the template's arguments but never displace them."""
     paths = trees if trees is not None else subtrees(root, cfg, name or "")
-    resolved = [str((root / p).resolve()) for p in paths] or [str(root)]
+
+    # STAGED MODE TAKES REPO-RELATIVE PATHS, and this is a genuine sharp edge.
+    # secretscan/leakscan filter the staged diff by PREFIX against git's own
+    # path list, which is always repo-relative. An absolute path (or a bare ".")
+    # therefore matches nothing at all — and a scan that matches nothing exits 0,
+    # so the failure looks exactly like a clean pass. Caught here by the planted-
+    # secret tests in test_precommit.py, which is the only reason it is not
+    # shipping: the first draft of this function rendered absolute paths for both
+    # planes and every boundary check silently passed.
+    if "--staged" in args:
+        scoped = [p.strip("/") for p in paths if p not in (".", "")]
+    else:
+        scoped = [str((root / p).resolve()) for p in paths] or [str(root)]
+
     out: list[str] = []
     for a in args:
-        if a == "{docs}":
-            out.extend(resolved)
+        if a == "{scope}":
+            out.extend(scoped)  # empty in staged mode = the whole staged diff
             continue
-        out.append(a.format(root=str(root), docs=resolved[0],
+        out.append(a.format(root=str(root),
+                            scope=scoped[0] if scoped else str(root),
                             licence=cfg.licence or ""))
+    out.extend(cfg.flags.get(name or "", ()))
     return out
 
 
@@ -435,21 +484,18 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
             scanner.hook if plane == "hook" else scanner.ci
         )
 
-        # A check scoped to a records subtree has nothing to read in a repo that
-        # keeps none. The scanners exit 2 (environment error) on a missing path,
-        # which would block every code-only repo — so skip, but SAY SO, and let
+        # A check scoped to a subtree has nothing to read in a repo that keeps
+        # none. The scanners exit 2 (environment error) on a missing path, which
+        # would block every code-only repo — so skip, but SAY SO, and let
         # floorfleet surface it estate-wide. A repo whose records simply live
-        # somewhere else sets `docs` in its config; this line is what makes that
-        # misconfiguration visible instead of silently uncovered.
-        trees = None
-        if "{docs}" in base:
-            trees = [p for p in subtrees(root, cfg, scanner.name)
-                     if (root / p).exists()]
-            if not trees:
-                declared = ", ".join(subtrees(root, cfg, scanner.name))
-                results.append(Result(scanner.name, "skipped", 0,
-                                      f"no {declared} tree in this repo"))
-                continue
+        # somewhere else sets `docs` (or a per-scanner `scope`); this branch is
+        # what makes that misconfiguration visible instead of silently uncovered.
+        declared = subtrees(root, cfg, scanner.name)
+        trees = [p for p in declared if (root / p).exists()]
+        if not trees:
+            results.append(Result(scanner.name, "skipped", 0,
+                                  f"no {', '.join(declared)} tree in this repo"))
+            continue
 
         argv = [sys.executable, str(path),
                 *_render(base, root, cfg, scanner.name, trees)]
@@ -538,20 +584,33 @@ def _selftest() -> int:
                 return
             fails.append(f"accepted bad config: {label}")
 
-    # Path overrides widen a check to several subtrees, and never silently
-    # narrow one that doesn't take a subtree at all.
-    scoped = Config(paths={"wrapscan": ("docs/method", "docs/build")})
+    # Scope overrides widen a check to several subtrees, and stay local to the
+    # scanner that declared one.
+    scoped = Config(scope={"wrapscan": ("docs/method", "docs/build")})
     rendered = _render(BY_NAME["wrapscan"].ci, root, scoped, "wrapscan")
     check("override expands to every subtree",
           sum(1 for a in rendered if a.endswith(("method", "build"))) == 2)
     check("override leaves --root intact", "--root" in rendered)
-    check("unscoped scanner keeps one docs path",
+    check("unscoped scanner keeps its own default",
           len(_render(BY_NAME["datescan"].ci, root, scoped, "datescan")) ==
           len(BY_NAME["datescan"].ci))
 
+    # Extra flags append, and cannot displace the template's own arguments —
+    # the networking-repo case (leakscan's IP/MAC rules are content there).
+    flagged = Config(flags={"leakscan": ("--disable", "ipv4,ipv6,mac-address")})
+    argv = _render(BY_NAME["leakscan"].hook, root, flagged, "leakscan")
+    check("extra flags appended", argv[-2:] == ["--disable", "ipv4,ipv6,mac-address"])
+    check("template args survive extra flags", "--staged" in argv and "--root" in argv)
+    check("flags stay local to their scanner",
+          "--disable" not in _render(BY_NAME["secretscan"].hook, root,
+                                     flagged, "secretscan"))
+
     rejects("unknown scanner", {"disabled": {"nosuchscan": "why"}})
-    rejects("path override on a whole-tree scanner", {"paths": {"linkscan": ["x"]}})
-    rejects("empty path override", {"paths": {"wrapscan": []}})
+    rejects("empty scope override", {"scope": {"wrapscan": []}})
+    # The sharpest one: --warn via `flags` would be an advisory downgrade that
+    # bypasses every guard on `advisory`, on a scanner that has no advisory form.
+    rejects("softening flag smuggled in", {"flags": {"secretscan": ["--warn"]}})
+    rejects("mode flag smuggled in", {"flags": {"sizescan": ["--json"]}})
     rejects("reasonless disable", {"disabled": {"spellscan": "  "}})
     rejects("unsoftenable advisory", {"advisory": ["secretscan"]})
     rejects("advisory+disabled", {"advisory": ["wrapscan"],
