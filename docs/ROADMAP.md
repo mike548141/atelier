@@ -27,6 +27,74 @@ queued **in the commit that lands the work** — landing = queuing, so no
 window exists where landed doctrine sits unpointed and untracked (AWA2
 ruling, 2026-07-23; its enacting batch exercised exactly that window).
 
+## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
+
+The mechanism is built, tested and committed in atelier; **no child repo is
+wired yet**. Measuring first showed a blind rollout would leave several repos
+red-and-blocked rather than red-and-visible, which is the wrong kind of red.
+
+- [ ] ⏳ **ADR 0008 review owed** — self-authored, so this session may not review
+      it (REVIEW.md rule 4). Aim a reviewer at the one real trade: moving every
+      repo onto a floating `@main` caller swaps a slow silent failure for a fast
+      loud estate-wide one. Is that right for a security floor?
+- [ ] 🎯 **Ratify the staged rollout** (Mike). Proposed: wire CI to all 13 now
+      (guards run, findings visible, nothing blocked) → declare the hygiene
+      checks `advisory` where they currently fail, so the finding stays visible
+      as tracked debt → scope the capture-data repos in `.atelier-floor.json` →
+      leave boundary reds red, they are real → install hooks only where the floor
+      is green, so daily work is never blocked mid-triage.
+- [ ] **Wire the 13 children** once ratified: thin caller + tracked
+      `.githooks/pre-commit` + `core.hooksPath` + per-repo `.atelier-floor.json`.
+      Close-out criterion is `floorfleet --check --remote` exiting 0, not a
+      count of files edited.
+- [ ] **ros needs `scope`** before wiring — its `observed/` device-config
+      captures return 30,213 `secretscan` high-entropy hits (Mike agreed
+      2026-07-25: scoping, not secrets). Its existing leakscan tuning
+      (`tiki/` subtree, `--disable ipv4,ipv6,mac-address`) is the worked case
+      `scope`/`flags` were built for and must survive the move verbatim.
+
+### Boundary findings surfaced by the measurement — triage separately
+
+These are **real findings the guards were never run to catch**, not rollout
+blockers to wave through. Each needs eyes before its repo can go green.
+
+Deliberately generic here: atelier is public, so naming which private repo holds
+committed credentials — and in which file — is reconnaissance, not a record. The
+per-repo detail belongs in the operator's private estate-root repo, and the
+triage list lives there. Only the *classes* are named below, because the classes
+are what generalise to any adopter.
+
+- [ ] **High-entropy hits in a tracked data export.** A business-system export
+      committed to a repo, carrying token-shaped values. The decision tree is the
+      transferable part: check what the export actually contains, then choose
+      between allow-marker, ignore-glob, history rewrite, or rotation — and note
+      that deleting the file is not one of the options, because history is
+      forever.
+- [ ] **`assigned-secret` findings in service configuration.** Self-hosted
+      service configs with credential-shaped assignments. Same tree; the usual
+      right answer is a secret-store or env reference, plus rotation if the value
+      was ever real.
+- [ ] **Structural `leakscan` reds across several private repos.** Expected for
+      an estate whose repos legitimately contain address/phone/network shapes as
+      *content*. Each needs a scoping or allow decision; leakscan has no advisory
+      form by design, so there is no wave-through.
+- [ ] **A `private-key-header` that was prose, not key material** — BEGIN and END
+      markers on one line, no base64 body: documentation describing a key file's
+      format. Resolved; wants an allow-marker, never rotation. Recorded because
+      it is the archetypal false positive of this rule and will recur.
+
+### Sharp edge found en route — worth fixing at the class
+
+- [ ] **`--staged` + a positional path silently covers nothing if the path is
+      absolute.** secretscan/leakscan filter the staged diff by prefix against
+      git's repo-relative path list, so an absolute path matches zero files and
+      the scan exits 0 — a fail-open that looks identical to a clean pass.
+      `floor.py` now always emits relative paths in staged mode and pins both
+      shapes, so the estate is safe; the *scanners* still accept the footgun.
+      Fix candidates: normalise positional paths to repo-relative in staged
+      mode, or refuse an absolute one with exit 2 (the linkscan L1
+      silent-success class, which these tools already close elsewhere).
+
 ## Doctrine — review-owed
 
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
