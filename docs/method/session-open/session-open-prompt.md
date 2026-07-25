@@ -1,29 +1,44 @@
-I have a long list of work queued up in this repo. Please maximise my claude
-plan use by opening a session, giving it a prompt, and when its completes
-starting another.
+Lets do some work! I have a long list of work queued up in this repo. Please
+maximise my claude plan use by opening a session, giving it a prompt, and when
+its completes starting another.
 
 Carry on with any work in queue thats not claimed and you are capable of until
 the economics suggest a new session, or you do for other reasons.
 
-Lets use a opus session to orchestrate and any model you choose as appropriate
-for agents doing the work. You are allowed to use fable or any other model for
-orchestration and/or agents if you need to. I will have multiple parallel
-sessions so take appropriate precautions like using worktrees. If I
-accidentally start the orchestration session as a different model then stop
-and we will change models.
+Lets use a opus 5 session to orchestrate and any model you choose as
+appropriate for agents doing the work. You are allowed to use any model for
+orchestration and/or agents. I will have multiple parallel sessions so take
+appropriate precautions like using worktrees and watching for changes
+in-flight. If I accidentally start the orchestration session as a different
+model then stop and we will change models.
 
-Be ready in the potential situation that we max out a calude session limit or
-the session is interrupted
+* Claim your work and if work is claimed then don't work on it even if I've
+  just told you too.
+
+* Update your pins to parent or peer repo's, like the Atelier repo, to
+  understand and apply the latest they contain.
+
+* If you can gather the facts yourself to answer your questions then do so,
+  otherwise you can ask me. In general I want you to make as much progress as
+  you can safely.
+
+* Be ready in the potential situation that a session is interrupted for any
+  reason. When service is restored please make any investigations, safety
+  checks, and precautions you deem necessary to salvage everything from the
+  session, pick up where you left off safely, and tidy up any mess that
+  caused.
 
 After all of that is finished.
 
-1. Review all of this chat/session. Are there any unanswered questions or
+1. Give me a summary of what was learnt, progressed or delivered this session
+
+2. Review all of this chat/session. Are there any unanswered questions or
    decisions that you need me to answer? If so lets work through them one by
    one Give context for these questions and they need to be plain language.
    What is it being used for, and waht are the likely impacts of the decision
    etc
 
-2. Have you captured all the learnings, evidence, decisions, designs, work etc
+3. Have you captured all the learnings, evidence, decisions, designs, work etc
    for product and the repo. We want future sessions to keep building this all
-   out over time And have you tidied everything up ready to close this
-   session?
+   out over time and the knowledge from this session will help it to do that
+   And have you tidied everything up ready to close this session?
