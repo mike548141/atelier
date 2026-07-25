@@ -458,6 +458,21 @@ def main(argv: list[str] | None = None) -> int:
         except subprocess.CalledProcessError as e:
             print(f"secretscan: git diff failed: {e}", file=sys.stderr)
             return 2
+        # An ABSOLUTE path here scans NOTHING and exits 0 — the silent-success
+        # class (linkscan L1) this tool already closes for a missing path, found
+        # again on 2026-07-25 while building tools/floor.py. git lists staged
+        # paths repo-relative, so `/Users/…/repo/x.py` matches no prefix, the
+        # filter empties the set, and a boundary scan that covered nothing looks
+        # exactly like one that found nothing wrong. Refuse it.
+        absolute = [p for p in args.paths if Path(p).is_absolute()]
+        if absolute:
+            print(f"secretscan: --staged needs repo-relative path(s), got absolute: "
+                  f"{', '.join(absolute)}\n"
+                  "  git lists staged paths relative to the repo root, so an "
+                  "absolute path matches nothing\n"
+                  "  and the scan would pass while covering nothing. Pass e.g. "
+                  "'src/' instead.", file=sys.stderr)
+            return 2
         prefixes = tuple(p.rstrip("/") + "/" for p in args.paths)
         if prefixes:
             staged = {path: text for path, text in staged.items()

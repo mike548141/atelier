@@ -331,6 +331,23 @@ def main(argv: list[str] | None = None) -> int:
         # Positional paths, in --staged mode, restrict the scan to staged files
         # under those prefixes — e.g. scan only the shareable `tiki/` subtree of
         # an otherwise-private repo.
+        # An ABSOLUTE path here scans NOTHING and exits 0 — the silent-success
+        # class (linkscan L1) already closed for a missing path, found again on
+        # 2026-07-25 while building tools/floor.py. git lists staged paths
+        # repo-relative, so an absolute one matches no prefix, the filter empties
+        # the set, and a boundary scan covering nothing looks exactly like one
+        # that found nothing wrong. Refuse it — this is the subtree-scoping
+        # entry point for private repos with a shareable subtree, so a silent
+        # miss here is precisely the case that matters.
+        absolute = [p for p in args.paths if Path(p).is_absolute()]
+        if absolute:
+            print(f"leakscan: --staged needs repo-relative path(s), got absolute: "
+                  f"{', '.join(absolute)}\n"
+                  "  git lists staged paths relative to the repo root, so an "
+                  "absolute path matches nothing\n"
+                  "  and the scan would pass while covering nothing. Pass e.g. "
+                  "'tiki/' instead.", file=sys.stderr)
+            return 2
         prefixes = tuple(p.rstrip("/") + "/" for p in args.paths)
         if prefixes:
             staged = {path: text for path, text in staged.items()

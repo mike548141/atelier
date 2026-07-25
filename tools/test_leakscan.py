@@ -1,6 +1,7 @@
 """Stdlib-only tests for leakscan (no pytest needed): `python3 -m unittest`."""
 
 import re
+import pathlib
 import unittest
 
 import leakscan as ls
@@ -217,6 +218,36 @@ class WholeTree(unittest.TestCase):
 class SelfTest(unittest.TestCase):
     def test_selftest_passes(self):
         self.assertEqual(0, ls._selftest())
+
+
+class StagedAbsolutePathTest(unittest.TestCase):
+    """An absolute path in --staged mode must be REFUSED, not silently obeyed.
+
+    git lists staged paths relative to the repo root, so an absolute path
+    matches no prefix: the filter empties the staged set and the scan exits 0
+    having covered nothing. A boundary scan that covered nothing is
+    indistinguishable from one that found nothing wrong — the silent-success
+    class this tool already closes for a missing path (linkscan L1).
+
+    Found for real on 2026-07-25: tools/floor.py's first draft rendered absolute
+    paths on the staged plane and every boundary check passed green.
+    """
+
+    def _run(self, *args):
+        import subprocess, sys
+        return subprocess.run(
+            [sys.executable, str(pathlib.Path(__file__).resolve().parent / "leakscan.py"), *args],
+            capture_output=True, text=True)
+
+    def test_absolute_staged_path_is_refused(self):
+        r = self._run("--staged", "--root", "/tmp", "/tmp/anything")
+        self.assertEqual(r.returncode, 2, "must be an environment error, not a pass")
+        self.assertIn("absolute", r.stderr.lower())
+
+    def test_error_names_the_working_form(self):
+        """A refusal that doesn't say what to do instead just gets --no-verify'd."""
+        r = self._run("--staged", "--root", "/tmp", "/tmp/anything")
+        self.assertIn("tiki/", r.stderr)
 
 
 if __name__ == "__main__":
