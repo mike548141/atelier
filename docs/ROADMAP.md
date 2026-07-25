@@ -139,6 +139,19 @@ pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
   block) — children align to it. Pairs naturally with the `floor.yml`
   cold-content gate + `pull_request`-trigger adoption already queued below (same
   pin-bump lane).
+- [ ] **Elevate the first-principles doctrine to atelier** (Mike, 2026-07-25) —
+  a child repo (kāinga) holds a **first-principles / evaluation doctrine**; a
+  prior session judged it *"may deserve elevation to atelier — it governs how any
+  repo evaluates, not just kāinga"*, and **Mike agrees**. The argument for
+  elevation is that *how you reason from first principles when evaluating*
+  is a cross-repo concern (the shared `method/` layer), not a kāinga-local one.
+  **Honest gap — stub, don't fabricate:** the doctrine's actual content is not in
+  atelier and is not reproduced here; a future session must first **locate it in
+  kāinga and understand it** before designing where it lands in `method/` (its
+  own doc, or a section of PRINCIPLES/APEX) and how it grounds. Do NOT invent
+  what "first principles" says to fill the heading. Self-authored doctrine when
+  it moves ⇒ rule-4 ⏳ at landing; review WARRANTED at that point. Captured only
+  for now.
 
 ## build/ layer — open strands
 
