@@ -5,6 +5,57 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-07-25 — enforcement propagates by call, not by copy: ADR 0008)
+- **`tools/floor.py`** — ONE registry of which checks run, read by both planes
+  (pre-commit hook: staged diff at full cover; CI: whole tree, leakscan
+  structural-only). Replaces a scanner list that was **vendored per repo**: the
+  scanner *code* was already one-source, but each child carried its own 247-line
+  `floor.yml` and four hard-coded `run_scan` lines. Measured across the estate:
+  12 of 13 children ran **none** of the five checks added since they were
+  scaffolded. Adding a line to the registry now reaches every repo's hook and CI
+  at once.
+- **`.github/workflows/floor.yml`** — atelier-hosted **reusable workflow**. The
+  child template drops 247 lines → ~30 and names no scanner at all. atelier being
+  public (ADR 0005) is what lets a private child call it — newly load-bearing.
+- **`.atelier-floor.json`** — a repo that does not enforce a check must SAY so:
+  `advisory` (runs, reports, does not block — for a one-off re-baseline) or
+  `disabled` (with a stated reason), plus `scope`/`flags` for where a check looks
+  and how it is tuned. Read out estate-wide by floorfleet. Softening is not the
+  child's call: boundary and integrity scanners have no advisory form, and the
+  mode-changing flags are refused.
+- **`.githooks/pre-commit` + `core.hooksPath`** — the hook is now TRACKED, so it
+  survives a fresh clone instead of living on one machine. Proven by a real
+  refused commit driven through `core.hooksPath`, not by resemblance to the
+  legacy path.
+- **atelier runs the floor it ships** — `ci.yml`'s hand-enumerated scanner list
+  is gone; the parent is scoped by its own config like any child. A parent with a
+  private list is the same bug one level up.
+
+### Added (2026-07-25)
+- **`tools/floorfleet.py`** — estate conformance board. Walks every child
+  (reusing `pins.discover`, as signfleet does) and reports which repos are
+  wired / pinned / vendored / absent, with `--remote` reading GitHub's default
+  branches — what will actually run on a push. `--check` exits non-zero if any
+  repo is unguarded. **Scaffolding is not proof; enumeration is.** 16 tests.
+- **ADR 0008** + two `PROPAGATION.md` sections ("Enforcement propagates too —
+  by call, never by copy"; "Enumeration, not assumption"). The existing rule had
+  been applied to doctrine *prose* while the file's own closing clause warned
+  "do not mistake the anchor for the enforcement" — the enforcement was the
+  vendored half.
+
+### Fixed (2026-07-25)
+- **A fail-open in floor.py's own first draft**, caught by the planted-secret
+  commit tests: it rendered **absolute** paths on the staged plane, which match
+  nothing against git's repo-relative path list, so every boundary check silently
+  passed. Both shapes now pinned. Recorded because it is the same shape as the
+  defect being fixed — a check that runs, reports success, and covers nothing.
+- **Nested harness worktrees no longer false-positive the scanners.** A worktree
+  nests inside the repo, so a scan rooted at the top re-reads a second copy of
+  the tree including this repo's deliberate fake-secret and incompatible-licence
+  fixtures — 33 findings, all false. linkscan/sizescan already carried the
+  exemption; it is now across the whole set, closing the class rather than the
+  next instance.
+
 ### Added (2026-07-23 — two more anti-slop scanners: wrapscan (S1) + spellscan (S5), advisory)
 - **`tools/wrapscan.py` (S1)**: flags `docs/**` prose lines materially over the
   house wrap width (≥86 cols). Exemptions: fenced/indented code, table rows, ATX
