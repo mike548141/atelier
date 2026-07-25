@@ -61,50 +61,49 @@ class TemplateBlockSyncTest(unittest.TestCase):
 
 
 FLOOR = ROOT / "docs" / "build" / "templates" / "workflows" / "floor.yml"
+REUSABLE_FLOOR = ROOT / ".github" / "workflows" / "floor.yml"
 
 
 class ChildFloorWorkflowTest(unittest.TestCase):
-    """docs/build/templates/workflows/floor.yml — the child-CI scanner floor.
+    """docs/build/templates/workflows/floor.yml — what a CHILD repo holds.
 
-    Its safety rests on invariants that are easy to break with an innocent
-    edit: it must fetch the *one source* of scanners, scope the scan to the
-    repo's own tree (not the whole workspace, which holds atelier's fake-secret
-    fixtures), and keep leakscan structural-only (its term list is machine-local
-    and must never be demanded in CI). Pin them.
+    Until 2026-07-25 this was a 247-line copy naming every scanner, and that
+    copy was the defect: 12 of 13 children were still running their
+    scaffold-time list and had never executed five of atelier's checks (ADR
+    0008). The template is now a thin caller, and the invariants worth pinning
+    inverted with it — the sharpest one being that this file names NO scanner
+    at all. The scanner-level invariants moved to ReusableFloorWorkflowTest
+    (transport) and test_floor.py (policy).
     """
 
     def setUp(self):
         self.text = FLOOR.read_text()
+        self.body = "\n".join(ln for ln in self.text.splitlines()
+                              if not ln.lstrip().startswith("#"))
 
-    def test_fetches_atelier_scanners_one_source(self):
-        """No vendored copy: the tools come from a checkout of atelier."""
-        self.assertIn("repository: mike548141/atelier", self.text)
-        for tool in ("secretscan.py", "leakscan.py", "linkscan.py"):
-            self.assertIn(f"atelier/tools/{tool}", self.text)
+    def test_names_no_scanner(self):
+        """THE invariant. A scanner named here is a scanner this repo has to
+        remember to update — which is the whole failure this design removed.
+        The header prose may discuss scanners; the executable body may not."""
+        self.assertNotRegex(
+            self.body, r"\w+scan\.py",
+            "the child floor must name no scanner — add it to atelier's "
+            "registry (tools/floor.py) so every repo gets it, not just this one",
+        )
 
-    def test_scan_scoped_to_repo_not_workspace(self):
-        """Every active scan targets `repo` (its own tree), never `.` — a
-        whole-workspace scan would false-positive on atelier's fixtures.
-        Selftest lines scan nothing, so they are exempt."""
-        runs = re.findall(r"tools/(?:secret|leak|link)scan\.py [^\n]*", self.text)
-        runs = [ln for ln in runs if "--selftest" not in ln]
-        self.assertTrue(runs, "no scanner run lines found in floor.yml")
-        for line in runs:
-            self.assertRegex(
-                line,
-                r"--root repo repo$",
-                f"scan not scoped to the repo tree: {line!r}",
-            )
+    def test_calls_ateliers_reusable_floor(self):
+        """One source, and not a copy of it."""
+        self.assertRegex(
+            self.body,
+            r"uses:\s*mike548141/atelier/\.github/workflows/floor\.yml@",
+            "the child floor must call atelier's reusable workflow",
+        )
 
-    def test_selftests_run_before_the_scans(self):
-        """2026-07-11 review N5 (mirrors atelier's own ci.yml): prove the
-        fetched instruments before trusting their pass — a scanner that cannot
-        detect its own fixtures must go red here, not pass green below."""
-        for tool in ("secretscan.py", "leakscan.py", "linkscan.py"):
-            self.assertIn(f"atelier/tools/{tool} --selftest", self.text)
-        self.assertLess(self.text.find("--selftest"),
-                        self.text.find("--root repo repo"),
-                        "selftests must run before the scans they vouch for")
+    def test_calls_main_not_a_pinned_sha(self):
+        """Newest scanner = safest for a security floor, and a pinned caller
+        would re-introduce exactly the staleness ADR 0008 removed. A child may
+        pin deliberately; the shipped default must not."""
+        self.assertIn("floor.yml@main", self.body)
 
     def test_push_trigger_covers_every_branch(self):
         """2026-07-11 review N4: a push to ANY branch is publication (the
@@ -113,51 +112,81 @@ class ChildFloorWorkflowTest(unittest.TestCase):
         on_block = self.text[self.text.find("\non:"):self.text.find("permissions:")]
         self.assertNotIn("branches:", on_block)
 
-    def test_false_positive_hatches_documented(self):
-        """2026-07-11 review N6: a child whose own tree legitimately trips a
-        scanner (its own fake-secret fixtures, a committed build-output dir)
-        must find the hatch in this file, not in atelier's internals."""
-        for hatch in (".secretscanignore", ".leakscanignore", ".linkscanignore"):
-            self.assertIn(hatch, self.text)
-
-    def test_leakscan_structural_only(self):
-        """--require-terms would demand the machine-local term list CI can't
-        (and must not) hold — the same honest scope as atelier's own ci.yml.
-        Assert on the active run line, not the file: the header prose names the
-        flag to explain why it's absent."""
-        run_lines = [
-            ln for ln in self.text.splitlines()
-            if "run:" in ln and "leakscan.py" in ln
-        ]
-        self.assertTrue(run_lines, "no leakscan run line found in floor.yml")
-        for ln in run_lines:
-            self.assertNotIn("--require-terms", ln)
-
-    def test_licenscan_is_a_commented_publish_gate(self):
-        """No LICENSE hard-fails licenscan; a private/pre-licence child must
-        not red on it. It stays commented until the repo opts in."""
-        for line in self.text.splitlines():
-            if "licenscan.py" in line:
-                self.assertTrue(
-                    line.lstrip().startswith("#"),
-                    f"licenscan must be commented (publish gate): {line!r}",
-                )
-
     def test_least_privilege(self):
         """The floor only reads trees."""
         self.assertIn("contents: read", self.text)
 
-    def test_sizescan_wired_as_a_check_scoped_to_repo(self):
-        """2026-07-14 review: sizescan gates current-truth file size in --check
-        mode, scoped to the repo's own tree, with its selftest run first — the
-        same contract as the other scanners."""
-        self.assertIn("atelier/tools/sizescan.py --selftest", self.text)
-        run_lines = [ln for ln in self.text.splitlines()
-                     if "run:" in ln and "sizescan.py" in ln and "--selftest" not in ln]
-        self.assertTrue(run_lines, "no sizescan run line found in floor.yml")
-        for ln in run_lines:
-            self.assertIn("--check", ln)          # a gate, not advisory
-            self.assertRegex(ln, r"--root repo repo$")   # its own tree only
+    def test_points_at_the_declaration_file_for_opt_outs(self):
+        """A child WILL need to opt out of something. It must be told where
+        that is declared — because the old answer ('delete the scanner line')
+        is now both impossible and invisible, and an undirected maintainer
+        will otherwise reach for --no-verify."""
+        self.assertIn(".atelier-floor.json", self.text)
+
+    def test_false_positive_hatches_documented(self):
+        """2026-07-11 review N6: a child whose own tree legitimately trips a
+        scanner (its own fake-secret fixtures, a committed build-output dir)
+        must find the hatch here, not in atelier's internals. Still true when
+        the file is thin — arguably more so, since there is now no scanner line
+        nearby to hint at it."""
+        for hatch in (".secretscanignore", ".leakscanignore", ".linkscanignore"):
+            self.assertIn(hatch, self.text)
+
+
+class ReusableFloorWorkflowTest(unittest.TestCase):
+    """.github/workflows/floor.yml — atelier's hosted floor, called by everyone.
+
+    This is the transport half of ADR 0008. Because every repo in the estate
+    calls THIS file, a mistake here is a mistake everywhere at once — so the
+    invariants that used to be pinned per-child are pinned once, here.
+    """
+
+    def setUp(self):
+        self.text = REUSABLE_FLOOR.read_text()
+        self.runs = [ln for ln in self.text.splitlines()
+                     if "run:" in ln or "python3" in ln]
+
+    def test_is_callable_by_children(self):
+        self.assertIn("workflow_call:", self.text)
+
+    def test_fetches_atelier_one_source(self):
+        self.assertIn("repository: mike548141/atelier", self.text)
+
+    def test_floor_scoped_to_the_calling_repo_not_the_workspace(self):
+        """A whole-workspace scan would read atelier's own tree, which carries
+        deliberate fake-secret fixtures. `--root repo` is load-bearing."""
+        # `--selftest` and `--list` read no tree, so they need no scoping.
+        floor_runs = [ln for ln in self.runs
+                      if "floor.py" in ln
+                      and "--selftest" not in ln and "--list" not in ln]
+        self.assertTrue(floor_runs, "no floor.py run line found")
+        for ln in floor_runs:
+            self.assertIn("--root repo", ln)
+            self.assertNotRegex(ln, r"--root\s+\.\s")
+
+    def test_selftests_run_before_the_floor(self):
+        """2026-07-11 review N5: prove the fetched instruments before trusting
+        their pass. A scanner that cannot detect its own fixtures goes red
+        here, not green below."""
+        self.assertIn("--selftest", self.text)
+        self.assertLess(self.text.find("--selftest"),
+                        self.text.find("--plane ci"),
+                        "selftests must run before the floor they vouch for")
+
+    def test_selftests_are_driven_by_the_registry(self):
+        """A hard-coded selftest list would be a second copy of the scanner
+        list living one directory from the first — the same bug, smaller."""
+        self.assertIn("floor.py --list", self.text)
+
+    def test_least_privilege(self):
+        self.assertIn("contents: read", self.text)
+
+    def test_signature_verification_kept_out_of_the_registry(self):
+        """signscan needs a trust list resolved from the CALLER's pin, never
+        floating main (2026-07-12 review G7). It is not a tree scanner, so it
+        stays here as explicit steps rather than being forced into floor.py."""
+        self.assertIn("signscan.py", self.text)
+        self.assertIn("allowed_signers", self.text)
 
 
 REVIEWS_TEMPLATE = ROOT / "docs" / "build" / "templates" / "docs" / "reviews" / "README.md"

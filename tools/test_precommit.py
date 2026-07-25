@@ -25,6 +25,7 @@ Zero third-party deps, same as the rest of the suite.
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -37,6 +38,14 @@ SAMPLE = TOOLS_DIR / "pre-commit.sample"
 # scanner correctly ignores known documentation dummies, which made the first
 # live proof look like a miss.)
 PLANTED_SECRET = 'aws_key = "AKIAIOSFODNN7EXAMPLE"\n'  # secretscan:allow / leakscan:allow: test fixture
+
+
+def _registry_scanners() -> list[str]:
+    """The scanners floor.py actually runs, read from the registry itself."""
+    sys.path.insert(0, str(TOOLS_DIR))
+    import floor  # noqa: E402  (deliberately late — TOOLS_DIR must be on the path)
+
+    return [s.name for s in floor.SCANNERS]
 
 
 def _git(repo: Path, *args: str, env: dict | None = None) -> subprocess.CompletedProcess:
@@ -116,16 +125,45 @@ class PreCommitHookTest(unittest.TestCase):
         """A repo carrying the scanners itself (atelier) needs no config."""
         tools = self.repo / "tools"
         tools.mkdir()
-        # Carry every scanner the hook runs, so the block is the secretscan
-        # finding — not a fail-closed on a scanner the hook also invokes.
-        for name in ("secretscan.py", "leakscan.py", "linkscan.py",
-                     "reviewscan.py"):
-            shutil.copy(TOOLS_DIR / name, tools / name)
+        # Carry the registry AND every scanner it runs, so the block is the
+        # secretscan finding — not a fail-closed on a scanner floor.py invokes.
+        # Read the list from floor.py rather than hard-coding it: a hard-coded
+        # list here would be a fourth copy of the policy, which is the exact bug
+        # ADR 0008 removed.
+        shutil.copy(TOOLS_DIR / "floor.py", tools / "floor.py")
+        for name in _registry_scanners():
+            shutil.copy(TOOLS_DIR / f"{name}.py", tools / f"{name}.py")
         (self.repo / "leaky.py").write_text(PLANTED_SECRET)
         r = self._commit(env={"ATELIER_TOOLS": ""})
         self.assertNotEqual(r.returncode, 0)
         self.assertEqual(self._commit_count(), 0)
         self.assertNotIn("fail closed", r.stderr.lower())
+
+    # -- 4b. the shim's NEW fail-closed surface (ADR 0008) ---------------------
+
+    def test_missing_individual_scanner_still_blocks(self):
+        """floor.py present, one scanner absent → BLOCK.
+
+        The 2026-07-10 defect was the hook failing open on a missing scanner.
+        Routing every scanner through floor.py moved that surface rather than
+        removing it: now a tools dir can hold the registry but not the check it
+        names. Pinned here because a fail-OPEN in this spot would be the original
+        defect wearing new clothes — and it would look green.
+        """
+        tools = self.repo / "tools"
+        tools.mkdir()
+        shutil.copy(TOOLS_DIR / "floor.py", tools / "floor.py")
+        names = _registry_scanners()
+        for name in names[1:]:  # deliberately omit the first registered scanner
+            shutil.copy(TOOLS_DIR / f"{name}.py", tools / f"{name}.py")
+        (self.repo / "README.md").write_text("entirely clean content\n")
+        r = self._commit(env={"ATELIER_TOOLS": ""})
+        self.assertNotEqual(r.returncode, 0,
+                            "a missing scanner must block, not silently skip")
+        self.assertIn("fail closed", r.stderr.lower())
+        self.assertIn(names[0], r.stderr)
+        self.assertEqual(self._commit_count(), 0,
+                         "nothing may enter history with a check unrun")
 
     # -- 5. linkscan wired whole-tree (not staged) -----------------------------
 

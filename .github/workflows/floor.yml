@@ -1,0 +1,165 @@
+name: floor (reusable)
+
+# THE scanner floor, hosted once and called by every repo in the estate.
+#
+# WHY THIS IS A REUSABLE WORKFLOW, NOT A TEMPLATE (2026-07-25, ADR 0008)
+# ----------------------------------------------------------------------
+# It used to be a template: 247 lines copied into each child at scaffold time.
+# The scanner CODE was shared (fetched from atelier at run time), but the LIST of
+# which scanners run was vendored — so a guard added here reached exactly zero
+# existing children. Measured on 2026-07-25: 12 of 13 children were frozen at
+# their scaffold-time list and ran NONE of the five checks added since.
+#
+# A child now calls this file. It names no scanner, so it cannot go stale on the
+# one axis that matters: a check added to atelier's registry is live everywhere on
+# the next push, with no child edit and nothing to remember.
+#
+# atelier is public (ADR 0005), so a PRIVATE child may call this workflow — a
+# public repo's reusable workflows are callable estate-wide. That property is
+# load-bearing here; if atelier ever went private this mechanism breaks for
+# private children and they would need the caller inlined again.
+#
+# WHY `@main`, NOT A PINNED SHA — unchanged from the template it replaces. The
+# scanners are a security FLOOR and newest is safest: a tightened scanner that
+# newly flags a repo has found a latent issue that was always there, not spooky
+# drift. Floating also keeps the doctrine pin in a child's CLAUDE.md the only SHA
+# to keep in sync. A child wanting reproducible CI pins the `uses:` line instead —
+# and thereby opts back into the staleness this file exists to remove, which is a
+# real trade to make deliberately, not a default.
+#
+# HONEST SCOPE — what CI can prove is not everything the hook proves:
+#   - secretscan runs at FULL cover: no machine-local state needed.
+#   - leakscan runs STRUCTURAL-ONLY, permanently. Its literal person/estate term
+#     list is machine-local by design (SECRETS.md) and must never enter a repo or
+#     a runner. Full leakscan cover lives on the real-machine hook; this is the
+#     honest, declared degradation, not an oversight.
+#   - Everything else reads the whole TREE — the scanners read files, not the log,
+#     and a rename breaks a link outside the diff that caused it.
+# The per-scanner list, the planes and the advisory/disabled rules all live in
+# atelier's tools/floor.py. This file is transport; that file is policy.
+#
+# The scan is scoped to the CALLER's tree (checked out at `repo/`), never the
+# whole workspace: atelier's own tree carries deliberate fake-secret fixtures that
+# would false-positive. Keeping the two checkouts as siblings and pointing the
+# tools at `repo/` is load-bearing, not cosmetic.
+
+on:
+  workflow_call:
+    inputs:
+      sign-boundary:
+        description: >-
+          Adoption boundary for commit-signature verification (SIGNING.md, ADR
+          0007): the last UNSIGNED commit — everything after it must be signed.
+          EMPTY verifies ALL history, the right default for a repo born signed.
+          A repo retrofitted onto signing sets its pre-signing HEAD here.
+        type: string
+        required: false
+        default: ""
+      atelier-ref:
+        description: >-
+          Which atelier to run. Defaults to main (newest scanner = safest). Pin a
+          SHA only if you have accepted the staleness trade above.
+        type: string
+        required: false
+        default: main
+
+permissions:
+  contents: read
+
+jobs:
+  floor:
+    name: scanner floor
+    runs-on: ubuntu-latest
+    steps:
+      # Third-party actions are SHA-pinned, not tag-pinned: a movable tag (@v5)
+      # can be repointed at new code, so the full-commit pin is the supply-chain
+      # control for the actions this build trusts (tools/README.md — "Supply
+      # chain"). The trailing tag is the human-readable label; bump both together,
+      # re-resolving the SHA. Pinning these HERE rather than in each child is a
+      # second win of the reusable move: one place to re-resolve, estate-wide.
+      - name: Check out the calling repo
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          path: repo
+          fetch-depth: 0   # signature verification needs full history (rev-list)
+
+      - name: Check out atelier's scanners
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          repository: mike548141/atelier
+          ref: ${{ inputs.atelier-ref }}
+          path: atelier
+          fetch-depth: 0   # so `git show <pin>:allowed_signers` resolves any pin
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+
+      # Prove the instruments before trusting their pass (2026-07-11 review N5): a
+      # fetched scanner that cannot detect its own fixtures must go red HERE, not
+      # pass green below. The registry drives this too, so a new scanner is
+      # selftested without anyone remembering to add a line.
+      - name: scanner selftests
+        run: |
+          python3 atelier/tools/floor.py --selftest
+          for s in $(python3 atelier/tools/floor.py --list --plane ci | awk '$2!="disabled"{print $1}'); do
+            python3 "atelier/tools/$s.py" --selftest
+          done
+
+      # The floor itself. One command, because the list is not this file's
+      # business — it is atelier/tools/floor.py's. Per-scanner grouping and
+      # ::error:: annotations come from floor.py when it detects Actions.
+      - name: scanner floor
+        run: python3 atelier/tools/floor.py --plane ci --root repo --tools atelier/tools
+
+      # --- commit-signature verification (SIGNING.md, ADR 0007) --------------
+      # Not in the registry, deliberately: signscan is not a tree scanner. It
+      # needs a trust list resolved from the caller's own atelier pin, plus a
+      # second GitHub-API plane for web-flow commits. Forcing it into floor.py's
+      # shape would misrepresent what it does.
+      #
+      # WARN-FIRST while the fleet settles: reports unverified commits, does not
+      # fail the build. To make it BLOCK once every active machine signs, drop
+      # `--warn` and turn the gh-plane `::warning::` into `::error::` + exit 1.
+      #
+      # TRUST LIST AT THE PIN, never floating main (2026-07-12 review G7): a
+      # floated trust root would let anyone with write to atelier's main mint
+      # trust for every child. A new signing key therefore takes effect only after
+      # a visible, reviewed pin bump. (Contrast the scanners, which deliberately
+      # float: newest scanner = safest; a trust root is the opposite call.)
+      - name: Resolve the trust list at this repo's atelier pin
+        run: |
+          PIN=$(grep -oE 'atelier@[0-9a-f]{7,40}' repo/CLAUDE.md | head -1 | cut -d@ -f2)
+          if [ -z "$PIN" ]; then
+            echo "::warning::no atelier pin in CLAUDE.md — skipping signature verification"; exit 0
+          fi
+          if ! git -C atelier show "$PIN:allowed_signers" > "$RUNNER_TEMP/allowed_signers" 2>/dev/null; then
+            echo "::warning::atelier@$PIN has no allowed_signers (pin predates signing) — bump the pin to verify signatures"; exit 0
+          fi
+          echo "TRUST=$RUNNER_TEMP/allowed_signers" >> "$GITHUB_ENV"
+
+      - name: Verify commit signatures — machine-key plane (warn-first)
+        if: env.TRUST != ''
+        run: |
+          python3 atelier/tools/signscan.py \
+            --allowed-signers "$TRUST" --boundary "${{ inputs.sign-boundary }}" \
+            --repo repo --warn
+
+      - name: Verify commit signatures — GitHub-server plane (warn-first)
+        if: env.TRUST != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Commits signscan deferred (committed by GitHub's web-flow identity —
+          # merge/squash): assert GitHub's own verification via the API. `gh` is
+          # preinstalled on the runner; the default token can read this.
+          # github.repository is the CALLER's repo inside a reusable workflow,
+          # which is exactly the repo whose commits we are verifying.
+          DEFERRED=$(python3 atelier/tools/signscan.py \
+            --allowed-signers "$TRUST" --boundary "${{ inputs.sign-boundary }}" \
+            --repo repo --json \
+            | python3 -c 'import json,sys; [print(r["sha"]) for r in json.load(sys.stdin)["results"] if r["plane"]=="github"]')
+          for SHA in $DEFERRED; do
+            V=$(gh api "repos/${{ github.repository }}/commits/$SHA" --jq '.commit.verification.verified' 2>/dev/null || echo error)
+            [ "$V" = "true" ] || echo "::warning::server commit $SHA not GitHub-verified (got: $V)"
+          done

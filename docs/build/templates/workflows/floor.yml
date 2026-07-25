@@ -1,68 +1,56 @@
 name: floor
 
-# The scanner floor for a child repo — the CI half of the pre-commit scan hook.
-# The hook only guards the clone it's installed in (git transports neither hooks
+# The scanner floor for this repo — the CI half of the pre-commit scan hook.
+# The hook only guards the clone it is installed in (git transports neither hooks
 # nor config), so a fresh clone, a teammate's machine, or a web edit can commit
-# unscanned. This job is the backstop: it re-runs the publish/leak scans on every
-# push + PR, on a runner nobody had to configure.
+# unscanned. This job is the backstop: it re-runs the scans on every push + PR, on
+# a runner nobody had to configure.
 #
-# ONE SOURCE, NO VENDORED COPY. A child repo holds no scanners — they live in
-# atelier (mike548141/atelier, public per ADR 0005), zero-dep stdlib Python. This
-# job checks atelier out beside the repo and runs its tools/ against the repo's
-# tree. No secret, no copy, no drift: the scanner a push is checked against is
-# atelier's current one. (Adopters: point `repository:` at your own atelier fork.)
+# THIS FILE NAMES NO SCANNER, AND THAT IS THE POINT (ADR 0008, 2026-07-25).
+# It used to be a 247-line copy listing every check. That copy went stale the
+# moment atelier added a guard: on 2026-07-25, 12 of 13 children were still
+# running their scaffold-time list and had never executed five of atelier's
+# checks — including one built after a real incident three days earlier.
 #
-# WHY `atelier@main`, NOT A PINNED SHA. The scanners are a security *floor*, and
-# newest is safest: a tightened scanner that newly flags this repo has found a
-# latent issue that was always there, not spooky drift. Floating also keeps the
-# single doctrine-version pin in CLAUDE.md the *only* SHA to keep in sync — a
-# second stamped SHA here would be a new drift surface for no gain. Want
-# reproducible CI instead? Uncomment `ref:` below and bump it with the CLAUDE.md
-# pin.
+# So the list moved to atelier (tools/floor.py) and this became a caller. A new
+# check reaches this repo on its next push, with no edit here and nothing for
+# anyone to remember. Keep it thin: if you find yourself adding a scanner line
+# below, that belongs in atelier's registry instead, where every repo gets it.
 #
-# HONEST SCOPE — this proves what CI *can* prove, not everything the local hook
-# proves (mirrors atelier's own ci.yml):
-#   - secretscan runs at FULL cover — no machine-local state needed.
-#   - leakscan runs STRUCTURAL-ONLY. Its literal person/estate term list is
-#     machine-local by design (~/.claude, never in any repo), so CI cannot hold
-#     it and MUST NOT. A degraded structural pass is the correct, honest CI
-#     cover; full leakscan cover lives on the real-machine pre-commit hook. We
-#     deliberately do NOT pass --require-terms.
-#   - linkscan runs whole-tree (internal-link integrity).
-#   - licenscan is a *publish* gate, not an always-on floor: with no LICENSE it
-#     hard-fails ("all-rights-reserved") — correct before going public, wrong for
-#     a private/pre-licence repo. It's left commented; enable it when this repo
-#     settles a licence / before it goes public.
+# WHAT THIS REPO STILL DECIDES — in `.atelier-floor.json` at the repo root, not
+# here: where its records live, the licence it asserts, and any check it runs
+# ADVISORY (reports, does not block — for a one-off re-baseline) or DISABLED
+# (with a stated reason). Those declarations are visible estate-wide via
+# `floorfleet`, so a check that is off is a decision on the record rather than an
+# absence nobody can see. Absent that file, everything is enforced.
 #
-# The scan is scoped to the repo's own tree (checked out at `repo/`), NOT the
-# whole workspace — atelier's tree carries deliberate fake-secret test fixtures
-# that would false-positive if scanned. Keeping the two checkouts as siblings and
-# pointing the tools at `repo/` only is load-bearing, not cosmetic.
+# ADOPTING THIS ON AN OLDER REPO? Expect a first red — that red is the signal, not
+# a defect. Work through it, or declare the hygiene checks advisory in
+# `.atelier-floor.json` while you do, which keeps the finding visible instead of
+# silencing it.
 #
-# FALSE POSITIVE in this repo's own tree (e.g. a deliberate fake-secret test
-# fixture of your own, or a committed build-output dir full of generated
-# markdown)? Two hatches, both travelling with the repo: append the scanner's
-# allow-marker to the flagged line (`secretscan:allow: <reason>` /
-# `leakscan:allow:` / `linkscan:allow:`), or add a root-relative path glob to
-# `.secretscanignore` / `.leakscanignore` / `.linkscanignore` at the repo root.
-# The failing run's output prints the same options.
+# FALSE POSITIVE in this repo's own tree (a deliberate fake-secret test fixture, a
+# committed build-output dir full of generated markdown)? Two hatches, both
+# travelling with the repo — reach for these before `--no-verify`, which scans
+# nothing at all:
+#   - append the scanner's allow-marker to the flagged line:
+#     `secretscan:allow: <reason>` / `leakscan:allow:` / `linkscan:allow:` …
+#   - or add a root-relative path glob to `.secretscanignore` /
+#     `.leakscanignore` / `.linkscanignore` (etc.) at the repo root.
+# The failing run's output prints the same options. A hatch is per-finding and
+# stays visible in the diff; `.atelier-floor.json` is for a whole check.
 
-# Every push, not just main (2026-07-11 review N4) — but the RATIONALE and the
-# COST differ by visibility, and this template is copied into private repos:
-#   - PUBLIC repo: a push to ANY branch IS publication (on the public remote
-#     whether or not it is ever PR'd), so every-push is the primary gate — and
-#     it is free.
-#   - PRIVATE repo: a push is NOT yet publication, so every-push is a BACKSTOP
-#     over the pre-commit hook (a --no-verify bypass, a hook-less clone) that
-#     re-scans the whole TREE at each pushed tip (per-commit cover is the hook's
-#     job, not CI's — the scanners read the tree, not the log). Every-push thus
-#     covers every feature-branch tip — trees that publish WHOLESALE the day the
+# Every push, not just main (2026-07-11 review N4) — the RATIONALE and the COST
+# differ by visibility:
+#   - PUBLIC repo: a push to ANY branch IS publication, so every-push is the
+#     primary gate — and it is free.
+#   - PRIVATE repo: a push is not yet publication, so every-push is a BACKSTOP
+#     over the hook (a --no-verify bypass, a hook-less clone), re-scanning the
+#     whole tree at each pushed tip — trees that publish WHOLESALE the day the
 #     repo goes public. It runs on METERED Actions minutes (billed per job,
-#     rounded up to the minute), so trimming to main-only trades minutes now
-#     against feature tips left unscanned until that flip. Default to every-push;
-#     whether to scope it down is an estate-specific call (financial inventory in
-#     the operator's estate-root repo). See atelier docs/method/ECONOMICS.md,
-#     "The compute pool — CI minutes".
+#     rounded up), so trimming to main-only trades minutes now against feature
+#     tips left unscanned until that flip. Default to every-push; scoping down is
+#     an estate-specific call. See atelier docs/method/ECONOMICS.md.
 on:
   push:
   pull_request:
@@ -73,14 +61,6 @@ on:
 permissions:
   contents: read
 
-# Adoption boundary for commit-signature verification (SIGNING.md, ADR 0007):
-# the last UNSIGNED commit — everything after it must be signed. EMPTY = verify
-# ALL history, the right default for a repo BORN signed (scaffolded by create-repo
-# with commit.gpgsign on). A repo RETROFITTED onto signing sets this to its
-# pre-signing HEAD so its unsigned past is not flagged as bad.
-env:
-  SIGN_BOUNDARY: ""
-
 # Cost hygiene — a newer push to the same ref cancels the superseded run.
 concurrency:
   group: floor-${{ github.ref }}
@@ -88,164 +68,8 @@ concurrency:
 
 jobs:
   floor:
-    name: scanner floor (leak · secret · link)
-    runs-on: ubuntu-latest
-    steps:
-      # Third-party actions are SHA-pinned, not tag-pinned: a movable tag (@v5)
-      # can be repointed at new code, so the full-commit pin is the supply-chain
-      # control for the actions this build trusts (atelier tools/README.md —
-      # "Supply chain"). The trailing tag is the human-readable label; bump both
-      # together, re-resolving the SHA. A child copying this floor inherits these
-      # pins — re-resolve them on a deliberate bump, never float them back to a tag.
-      - name: Check out this repo
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
-        with:
-          path: repo
-          fetch-depth: 0   # signature verification needs full history (rev-list)
-
-      - name: Check out atelier's scanners
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
-        with:
-          repository: mike548141/atelier
-          path: atelier
-          fetch-depth: 0   # so `git show <pin>:allowed_signers` resolves any pin
-          # ref:   # set a commit SHA here for reproducible CI; default floats
-          #        # to main. Deliberately plain words, no placeholder token:
-          #        # a stamp-token-shaped slot here made the stamp step's
-          #        # whole-tree grep unsatisfiable (G1, 2026-07-19 review)
-
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: '3.12'
-
-      # Prove the instruments before trusting their pass (2026-07-11 review
-      # N5, mirroring atelier's own ci.yml): a fetched scanner that cannot
-      # detect its own fixtures must go red here, not pass green below.
-      - name: scanner selftests
-        run: |
-          python3 atelier/tools/secretscan.py --selftest
-          python3 atelier/tools/leakscan.py --selftest
-          python3 atelier/tools/linkscan.py --selftest
-          python3 atelier/tools/signscan.py --selftest
-          python3 atelier/tools/sizescan.py --selftest
-          python3 atelier/tools/reviewscan.py --selftest
-          python3 atelier/tools/datescan.py --selftest
-          python3 atelier/tools/wrapscan.py --selftest
-          python3 atelier/tools/spellscan.py --selftest
-
-      - name: secretscan (full cover)
-        run: python3 atelier/tools/secretscan.py --root repo repo
-
-      - name: leakscan (structural-only — see header)
-        run: python3 atelier/tools/leakscan.py --root repo repo
-
-      - name: linkscan (internal-link integrity, whole tree)
-        run: python3 atelier/tools/linkscan.py --root repo repo
-
-      # A new decision record states its review judgement — a queued pointer or
-      # an explicit "not warranted — grounds" (atelier method/REVIEW.md:
-      # omission is the bug). Frozen pre-boundary records are never flagged.
-      - name: reviewscan (decision records carry a review line)
-        run: python3 atelier/tools/reviewscan.py --root repo repo
-
-      # Current-truth files (ROADMAP, SESSIONS index, README…) must stay honest so
-      # a session resumes cheaply. --check gates on relocatable COLD CONTENT, not
-      # length (cost is size × read-frequency — Mike's ruling 2026-07-20): a
-      # completed `[x]` item on the hot path is pure cost with a lossless fix —
-      # move it to ROADMAP-DONE.md — so that red demands a move, never a reword. A
-      # file long purely from LIVE current-truth (a roadmap of wholly open items)
-      # has nothing to relocate and is advisory only — never a build failure, so
-      # the number can never induce line-golf. Prose-shaped cold content (resolved
-      # narrative under an open item) and thinness are caught at REVIEW, not
-      # measured. A repo adopting this floor with un-harvested `[x]` items will
-      # RED — that red IS the signal to harvest. `--check` also gates on HARVEST
-      # INTEGRITY: an archive store (*-DONE.md / *-ARCHIVE.md) holding a live
-      # `[ ]`/`[~]`/`⏳` item is a botched harvest or a box never flipped — the
-      # tool's output prescribes the investigate-then-recommend remedy. Hatches:
-      # `sizescan:allow` exempts a file fully; `sizescan:budget=N` (grounded in
-      # the file's CLASS, never its current length) quiets the size advisory
-      # only, never either gate. Drop `--check` to run fully advisory instead.
-      - name: sizescan (cold content + harvest integrity)
-        run: python3 atelier/tools/sizescan.py --check --root repo repo
-
-      # datescan (S3): absolute-UTC dating discipline over records. BLOCKING in
-      # atelier since 2026-07-23 (reviewed PASS + re-baselined clean). Scoped to
-      # `repo/docs` — dating discipline is a RECORDS check; scanning source would
-      # be noise. Honest limit: DSR3 narrowed "today" to date-adjacent contexts,
-      # so a bare "today = this date" claim with no cue passes silently. A child
-      # adopting this at a pin bump RE-BASELINES first (fix genuine breaches to
-      # ISO, or `datescan:allow: <reason>` the verbatim ones) — that first red IS
-      # the signal. If this repo keeps records outside `docs/`, adjust the path.
-      - name: datescan (dating discipline)
-        run: python3 atelier/tools/datescan.py --root repo repo/docs
-
-      # wrapscan (S1): line-wrap/column-hygiene over docs prose. BLOCKING in
-      # atelier since 2026-07-23 (reviewed PASS + Mike's flip). A child's doc
-      # tree differs from atelier's method/build/decisions, so this scans
-      # `repo/docs` broadly. RE-BASELINE ON ADOPTION: the record/log stores use a
-      # deliberate one-line-per-entry format that reads as over-wide — add a
-      # `.wrapscanignore` (root-relative globs: `docs/sessions/`, `docs/SESSIONS.md`,
-      # `*-DONE.md`, …) and fix genuine doctrine over-wraps; that first red IS the
-      # signal. Hatch: `wrapscan:allow: <reason>` on the line.
-      - name: wrapscan (column hygiene)
-        run: python3 atelier/tools/wrapscan.py --root repo repo/docs
-
-      # spellscan (S5): NZ-English spelling over docs prose. BLOCKING in atelier
-      # since 2026-07-23 (reviewed PASS — no confident wrong correction — + Mike's
-      # flip; frozen record stores kept verbatim, not retro-spelled). RE-BASELINE
-      # ON ADOPTION: fix genuine US spellings (artefact/organise/licence…),
-      # inline-code or `ALLOWLIST_PHRASES` a genuine term-of-art (a tool/API name),
-      # and `.spellscanignore` the frozen record stores you keep verbatim. Hatch:
-      # `spellscan:allow: <reason>` on the line.
-      - name: spellscan (NZ-English spelling)
-        run: python3 atelier/tools/spellscan.py --root repo repo/docs
-
-      # Publish gate — uncomment when this repo has a LICENSE / before going public.
-      # - name: licenscan (assert your licence)
-      #   run: python3 atelier/tools/licenscan.py --expect Apache-2.0 repo
-
-      # --- commit-signature verification (SIGNING.md, ADR 0007) --------------
-      # WARN-FIRST: reports unverified commits, does NOT fail the build while the
-      # fleet settles. To make it BLOCK once every active machine signs: drop
-      # `--warn` from the machine plane, and change the gh-plane `::warning::` to
-      # `::error::` + `exit 1`.
-      #
-      # TRUST LIST AT THE PIN, never floating main (2026-07-12 review G7): a
-      # floated trust root would let anyone with write to atelier's main mint
-      # trust for every child. The list is read from atelier AS OF this repo's own
-      # CLAUDE.md pin — so a new signing key only takes effect here after a
-      # visible, reviewed pin bump, exactly the blast-radius property the
-      # dedicated key buys. (Contrast the scanners above, which deliberately float
-      # main: newest scanner = safest; a trust root is the opposite call.)
-      - name: Resolve the trust list at this repo's atelier pin
-        run: |
-          PIN=$(grep -oE 'atelier@[0-9a-f]{7,40}' repo/CLAUDE.md | head -1 | cut -d@ -f2)
-          if [ -z "$PIN" ]; then
-            echo "::warning::no atelier pin in CLAUDE.md — skipping signature verification"; exit 0
-          fi
-          if ! git -C atelier show "$PIN:allowed_signers" > "$RUNNER_TEMP/allowed_signers" 2>/dev/null; then
-            echo "::warning::atelier@$PIN has no allowed_signers (pin predates signing) — bump the pin to verify signatures"; exit 0
-          fi
-          echo "TRUST=$RUNNER_TEMP/allowed_signers" >> "$GITHUB_ENV"
-
-      - name: Verify commit signatures — machine-key plane (warn-first)
-        if: env.TRUST != ''
-        run: |
-          python3 atelier/tools/signscan.py \
-            --allowed-signers "$TRUST" --boundary "$SIGN_BOUNDARY" --repo repo --warn
-
-      - name: Verify commit signatures — GitHub-server plane (warn-first)
-        if: env.TRUST != ''
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          # Commits signscan deferred (committed by GitHub's web-flow identity —
-          # merge/squash): assert GitHub's own verification via the API. gh is
-          # preinstalled on the runner; the default token can read this.
-          DEFERRED=$(python3 atelier/tools/signscan.py \
-            --allowed-signers "$TRUST" --boundary "$SIGN_BOUNDARY" --repo repo --json \
-            | python3 -c 'import json,sys; [print(r["sha"]) for r in json.load(sys.stdin)["results"] if r["plane"]=="github"]')
-          for SHA in $DEFERRED; do
-            V=$(gh api "repos/${{ github.repository }}/commits/$SHA" --jq '.commit.verification.verified' 2>/dev/null || echo error)
-            [ "$V" = "true" ] || echo "::warning::server commit $SHA not GitHub-verified (got: $V)"
-          done
+    uses: mike548141/atelier/.github/workflows/floor.yml@main
+    with:
+      # The last UNSIGNED commit, if this repo was retrofitted onto commit
+      # signing. Leave empty for a repo born signed — that verifies all history.
+      sign-boundary: ""
