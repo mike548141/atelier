@@ -32,6 +32,7 @@ from pathlib import Path
 
 TOOLS_DIR = Path(__file__).resolve().parent
 SAMPLE = TOOLS_DIR / "pre-commit.sample"
+TRACKED_HOOK = TOOLS_DIR.parent / ".githooks" / "pre-commit"
 
 # Structural-match AWS access-key-ID shape — secretscan flags it as
 # [high/named]. (Do NOT use AWS's published example SECRET key wJalr…: the
@@ -56,6 +57,86 @@ def _git(repo: Path, *args: str, env: dict | None = None) -> subprocess.Complete
         ["git", "-C", str(repo), *args],
         capture_output=True, text=True, env=e,
     )
+
+
+class TrackedHookTest(unittest.TestCase):
+    """.githooks/pre-commit — the hook that survives a fresh clone.
+
+    `.git/hooks/` is untracked, so a hook installed there exists on exactly one
+    machine and no clone inherits it. That is not a theoretical gap: on
+    2026-07-25 every guard in every child repo in the estate was machine-local,
+    and a fresh clone (or a new laptop) would have started with none. A tracked
+    `.githooks/` plus `core.hooksPath` makes the hook FILE travel and stay
+    current; one `git config` per clone is still needed, and `floorfleet` is
+    what catches a clone that never ran it.
+
+    The tracked copy is a stamped copy of tools/pre-commit.sample, so it needs
+    the same treatment every other stamped copy in this repo gets: a test that
+    diffs it. A drifted hook is worse than no hook, because it looks installed.
+    """
+
+    def test_tracked_hook_matches_the_canonical_sample(self):
+        self.assertTrue(TRACKED_HOOK.is_file(),
+                        ".githooks/pre-commit is missing — the tracked hook is "
+                        "how a fresh clone gets guarded at all")
+        self.assertEqual(
+            SAMPLE.read_text(), TRACKED_HOOK.read_text(),
+            ".githooks/pre-commit has drifted from tools/pre-commit.sample — "
+            "sync them (the sample is canonical)",
+        )
+
+    def test_tracked_hook_is_executable(self):
+        """A non-executable hook is silently skipped by git: no error, no scan,
+        green commits. Exactly the fail-open shape this repo keeps closing."""
+        self.assertTrue(TRACKED_HOOK.stat().st_mode & 0o111,
+                        ".githooks/pre-commit is not executable — git will skip "
+                        "it silently and every commit goes unscanned")
+
+    def test_tracked_hook_blocks_a_real_commit_via_hookspath(self):
+        """Drive a real commit through `core.hooksPath`, not `.git/hooks/`.
+
+        Every other test here installs the hook the legacy way. That would leave
+        the tracked-hooks route — the whole point of the transport fix, and the
+        route every repo is about to be moved onto — proven by nothing but
+        resemblance. So: plant a secret in a repo whose hook lives in a TRACKED
+        directory, and require the commit to be refused.
+        """
+        tmp = tempfile.mkdtemp(prefix="hookspath-test-")
+        try:
+            repo = Path(tmp) / "child"
+            (repo / ".githooks").mkdir(parents=True)
+            _git(repo, "init", "-q")
+            _git(repo, "config", "user.name", "Test")
+            _git(repo, "config", "user.email", "test@example.com")  # leakscan:allow: RFC-2606 fixture identity
+            _git(repo, "config", "hooks.atelierTools", str(TOOLS_DIR))
+            hook = repo / ".githooks" / "pre-commit"
+            shutil.copy(TRACKED_HOOK, hook)
+            hook.chmod(0o755)
+            _git(repo, "config", "core.hooksPath", ".githooks")
+
+            (repo / "leaky.py").write_text(PLANTED_SECRET)
+            _git(repo, "add", "-A")
+            r = _git(repo, "commit", "-m", "x", env={"ATELIER_TOOLS": ""})
+
+            self.assertNotEqual(r.returncode, 0,
+                                "the tracked hook must block a planted secret")
+            self.assertNotIn("fail closed", r.stderr.lower(),
+                             "must block on the FINDING, not on a missing scanner")
+            count = _git(repo, "rev-list", "--count", "HEAD")
+            landed = int(count.stdout) if count.returncode == 0 else 0
+            self.assertEqual(landed, 0, "nothing may enter history")
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_tracked_hook_names_no_scanner(self):
+        """Same invariant as the child CI floor: the hook is transport, the
+        registry is policy."""
+        body = "\n".join(ln for ln in TRACKED_HOOK.read_text().splitlines()
+                         if not ln.lstrip().startswith("#"))
+        self.assertNotRegex(
+            body, r"\b(?!floor)\w+scan\.py",
+            "the hook must name no individual scanner — add it to the registry",
+        )
 
 
 class PreCommitHookTest(unittest.TestCase):

@@ -83,18 +83,18 @@ jobs:
         with:
           node-version: '20'
 
+      # Driven by the registry, not hand-enumerated: a scanner added to
+      # tools/floor.py is selftested here without anyone remembering to add a
+      # line. signscan is selftested explicitly — it is deliberately not in the
+      # registry (it needs a trust list resolved from a pin, not a tree).
       - name: scanner selftests
         run: |
-          python3 tools/leakscan.py --selftest
-          python3 tools/secretscan.py --selftest
-          python3 tools/licenscan.py --selftest
-          python3 tools/linkscan.py --selftest
+          python3 tools/floor.py --selftest
+          python3 tools/floorfleet.py --selftest
           python3 tools/signscan.py --selftest
-          python3 tools/sizescan.py --selftest
-          python3 tools/reviewscan.py --selftest
-          python3 tools/datescan.py --selftest
-          python3 tools/wrapscan.py --selftest
-          python3 tools/spellscan.py --selftest
+          for s in $(python3 tools/floor.py --list --plane ci | awk '$2!="disabled"{print $1}'); do
+            python3 "tools/$s.py" --selftest
+          done
 
       - name: tool test suite
         run: python3 -m unittest discover -s tools -p 'test_*.py' -v
@@ -116,68 +116,25 @@ jobs:
           sudo apt-get install -y -qq mandoc
           mandoc -T lint instruments/man/*.1
 
-      - name: secretscan (full tree)
-        run: python3 tools/secretscan.py --root . .
-
-      - name: leakscan (structural-only — see header)
-        run: python3 tools/leakscan.py --root . .
-
-      - name: licenscan (assert Apache-2.0)
-        run: python3 tools/licenscan.py --expect Apache-2.0 .
-
-      - name: linkscan (internal-link integrity, full tree)
-        run: python3 tools/linkscan.py --root . .
-
-      # A new decision record states its review judgement — queued pointer or
-      # "not warranted — grounds" (method/REVIEW.md: omission is the bug).
-      - name: reviewscan (decision records carry a review line)
-        run: python3 tools/reviewscan.py --root . .
-
-      # Current-truth files (ROADMAP, SESSIONS index, README…) must stay honest so
-      # a session resumes cheaply. --check gates on relocatable COLD CONTENT — a
-      # completed `[x]` item on the hot path, whose fix is a lossless move to
-      # ROADMAP-DONE.md — never on length: a file long purely from live
-      # current-truth is advisory, never a build failure (Mike's ruling
-      # 2026-07-20; RECORD.md's current-truth/history split). It also gates on
-      # HARVEST INTEGRITY: an archive store (*-DONE.md / *-ARCHIVE.md) holding a
-      # live `[ ]`/`[~]`/`⏳` item — a botched harvest or a box never flipped;
-      # the tool's output prescribes the investigate-then-recommend remedy.
-      - name: sizescan (cold content + harvest integrity)
-        run: python3 tools/sizescan.py --check --root . .
-
-      # datescan (S3, 2026-07-22 invariant-candidates review): absolute-UTC
-      # dating discipline over docs/** — a relative-time-word denylist + an
-      # ISO-8601 shape check. BLOCKING since 2026-07-23 (Mike's flip ruling):
-      # its 0618 cold review PASSED (0 MAJOR) and the 0707 queue run applied
-      # DSR1–DSR8 + re-baselined docs to 0 genuine breaches, so it earns the
-      # gate. Honest limit carried in tools/datescan.py: DSR3 narrowed "today"
-      # to date-adjacent contexts, so a bare "today = this date" claim with no
-      # cue passes silently — the gate is tighter but not exhaustive on that
-      # one word. Hatch: `datescan:allow: <reason>` on the flagged line.
-      - name: datescan (dating discipline — blocking)
-        run: python3 tools/datescan.py --root . docs
-
-      # wrapscan (S1): line-wrap/column-hygiene over the DOCTRINE SURFACE ONLY —
-      # method/, build/, decisions/ bodies (the record/log/review stores are a
-      # deliberate one-line-per-entry format; `.wrapscanignore` nets them for any
-      # unscoped run). Scope per the 0707 cold review's WS1 (Mike: option A).
-      # BLOCKING since 2026-07-23 (queue run 0959): reviewed PASS + WS1–WS6
-      # applied + a clean run over the gated scope (0 findings), Mike ruled flip.
-      # Hatches: `wrapscan:allow: <reason>` on the line, or a `.wrapscanignore`
-      # glob. An over-wide doctrine-prose line now fails the build.
-      - name: wrapscan (column hygiene, doctrine surface)
-        run: python3 tools/wrapscan.py --root . docs/method docs/build docs/decisions
-
-      # spellscan (S5): NZ-English spelling over the LIVE DOCTRINE SURFACE —
-      # method/, build/, decisions/ bodies. BLOCKING since 2026-07-23 (queue run
-      # 0959): reviewed PASS (no confident wrong correction) + SS1–SS4 applied,
-      # and the doctrine surface re-baselines clean. Mike ruled the frozen record
-      # stores kept VERBATIM (`.spellscanignore`) rather than retro-spelled, so
-      # the gate is scoped to live prose, not history. Hatches: inline-code /
-      # `ALLOWLIST_PHRASES` for genuine term-of-art, `spellscan:allow: <reason>`,
-      # or a `.spellscanignore` glob. A US spelling in new doctrine prose now fails.
-      - name: spellscan (NZ-English spelling, doctrine surface)
-        run: python3 tools/spellscan.py --root . docs/method docs/build docs/decisions
+      # THE FLOOR — one step, because the list of which checks run is not this
+      # file's business. It lives in tools/floor.py, the same registry every
+      # child repo's CI and every clone's pre-commit hook read (ADR 0008).
+      #
+      # atelier deliberately runs the floor it SHIPS rather than a private list
+      # of its own. A parent enforcing something its children don't — or missing
+      # something they have — is the two-lists bug one level up, and it is how
+      # the estate drifted in the first place: 12 of 13 children were running a
+      # scanner list frozen at their scaffold date.
+      #
+      # This repo's own scoping (Apache-2.0 licence assertion; the prose checks
+      # aimed at the doctrine surface rather than all of docs/) is declared in
+      # .atelier-floor.json, exactly as a child would declare its own.
+      #
+      # Per-gate history — when each check was flipped blocking, which review
+      # passed it, and its stated residual — lives in CHANGELOG.md and each
+      # tool's own docstring. It is deliberately not duplicated here.
+      - name: scanner floor (registry-driven)
+        run: python3 tools/floor.py --plane ci --root .
 
       # pathscan (S2, 2026-07-22 invariant-candidates review): a repo path
       # NAMED in bare prose or a backtick span (not a markdown link — that's
