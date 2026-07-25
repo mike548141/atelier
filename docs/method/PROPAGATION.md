@@ -221,6 +221,59 @@ computed by an engine, so the rule is a discipline:
 - On a live collision, the **stricter/safer** reading wins until the conflict is
   resolved upward. Children point up; the parent never points down for truth.
 
+## Enforcement propagates too — by call, never by copy
+
+*(Added 2026-07-26, ADR 0008, after this file's own rule was applied to prose
+and not to the machinery.)*
+
+Thin anchor, fat pointer is not only for doctrine text. **It binds hardest on
+the mechanical controls**, because a stale document merely misinforms a reader
+who can still think, while a stale *gate* silently enforces whatever standard
+was current on the day it was copied — and reports success while doing it.
+
+The rule, stated so it cannot be read as prose-only:
+
+> A child repo **calls** the parent's enforcement. It never holds a copy of
+> *which* checks run. Anything a child must edit to receive a new check is a
+> vendored policy, and it will go stale.
+
+The distinction that matters, and the one we got wrong: sharing the *code* of a
+control is not sharing the *policy*. Our scanners were always fetched fresh from
+atelier — and the **list of which scanners ran** was copied into every child at
+scaffold time. On 2026-07-25 that meant 12 of 13 children ran none of the five
+checks added since they were created, including one built after a real incident
+three days earlier. Nothing was broken. Nothing reported it either.
+
+So the test to apply to any new control is not "have we written it down and
+pointed at it?" but:
+
+- **What must a child edit to receive this?** If the answer is anything, the
+  mechanism is a copy. Make it a call.
+- **What does a child that opts out have to say?** If opting out is deleting a
+  line, it is invisible and indistinguishable from a line never added. Require a
+  *declaration* — and let the declaration be readable estate-wide.
+- **How would we know a repo never adopted it?** If the answer is "someone would
+  notice", there is no answer. See the next section.
+
+The parent is not exempt. atelier runs the floor it ships, scoped by the same
+config a child uses. A parent enforcing something its children don't — or missing
+something they have — is this defect one level up, and is exactly how a
+"canonical" repo drifts from its own canon.
+
+## Enumeration, not assumption (how we know it landed)
+
+**Scaffolding is not proof.** A scaffolder covers only the repos it created, and
+sees nothing that drifts afterwards. A pin bump proves a child *read* something,
+never that a control *runs* there.
+
+The only thing that closes this is an instrument that walks every child and
+reports the ones that are unguarded — `tools/floorfleet.py` for the scanner
+floor, `tools/signfleet.py` for signing. Both enumerate; both fail-safe (an
+estate that could not be verified is never reported green); both are cheap to
+re-run, which is what makes them true rather than a one-off audit.
+
+An absence never raises its hand. Something has to go looking for it.
+
 ## The enforcement clause (read ≠ complied)
 
 The category error to name in writing: **a doctrine that is read is not a
