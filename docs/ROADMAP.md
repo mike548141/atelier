@@ -473,6 +473,61 @@ itself is records-only.*
 
 ## Anti-slop invariant registry — promote recurring review findings to always-on checks (Mike, 2026-07-21)
 
+### Mine the estate's own history for repeat offences (Mike, 2026-07-25)
+
+**The ask, in Mike's words:** *"exactly this is what we need to be scanning all
+the repo's and transcripts to find."*
+
+**What prompted it.** A rule broke three times — private repo name joined to its
+security posture in a public record (2026-07-11, 2026-07-12, 2026-07-25), every
+time at the identical moment: summarising fleet-wide scan state into an atelier
+record. Each time it was caught by luck: Mike's unease, a post-session
+self-review, an unrelated question. Nobody was looking for the *pattern*, only
+for the instance in front of them. Three occurrences of one failure is not bad
+discipline — it is a missing check with a very loud signal nobody was reading.
+
+**The principle this rests on.** A rule that keeps breaking needs *mechanising,
+not restating*. Recurrence — not severity — is the trigger for promotion to an
+always-on check: a severe-but-once failure is a judgement call, while a
+trivial-but-thrice failure is a defect in the system that keeps producing it.
+Pairs with the existing rule that a rule breaking repeatedly should first be
+checked for bad *framing* before being restated louder.
+
+**The work.** A retrospective evidence pass over what the estate already
+records, to surface every rule that has broken more than once:
+
+- **Sources**, richest first: session records and their honest-notes sections ·
+  review briefs and their findings (already graded, already deduped by cycle) ·
+  git commit messages, especially corrective vocabulary — "fix", "correct",
+  "missed", "should have", "caught only because", "again", "third time" ·
+  `ROADMAP-DONE` entries describing what went wrong · the transcripts themselves
+  via `ccarchive`/`cctranscript`, which reach across every repo and are the only
+  source carrying what an agent *thought* rather than what it committed.
+- **Signal to extract**: the same corrective appearing N times, especially
+  across different repos or different sessions — cross-repo recurrence is much
+  stronger evidence of a systemic hole than one repo's habit.
+- **Output**: ranked candidates for this registry, each with its occurrence
+  count, the dates, and the moment-of-failure that produced it. The
+  moment-of-failure matters more than the rule text: all three occurrences of
+  the join defect shared one trigger, and a check aimed at that trigger would
+  have caught all three.
+- **Honest limits to state up front**: commit messages describe what an author
+  *noticed*, so this finds self-caught failures and misses silent ones entirely;
+  transcript volume makes exhaustive reading impractical, so sampling strategy
+  is part of the design, not an afterthought; and a failure that was never
+  written down anywhere is invisible to every source listed above.
+
+**Why it is worth real budget.** Every candidate it surfaces is a defect class
+already proven to recur in *this* estate, with its evidence attached — which is
+exactly the grounding this repo's doctrine demands and the thing that is
+normally hardest to get. It is the up-flow (child → parent) of cross-repo
+learning applied to failures rather than techniques.
+
+**First known candidate**, carried from 2026-07-25: the private-repo × posture
+join (see the enforcement-propagation section for the sketch and its
+false-positive caveat).
+
+
 Source: <https://thenewstack.io/engineering-ai-slop-registry/> (Aviator). A
 mechanism for AI+human engineering that fits atelier's "mechanism before more
 content" ethos. The idea: an **invariant catalogue** — codified, always-checked
