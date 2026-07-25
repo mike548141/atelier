@@ -8,3 +8,9 @@
 # (docs/reviews/2026-07-10-post-method-review-batch.md): the absence of this
 # file is why the "live-proven clean" claim at c38e4ce didn't hold at HEAD.
 tools/test_licenscan.py
+# Harness-native worktrees nest INSIDE the repo (.gitignore:14), so a scan rooted
+# at the repo top re-reads a second copy of the tree — including this repo's own
+# licenscan fixtures, which deliberately carry GPL/MIT SPDX headers to prove the
+# incompatible-licence detection. Scanned from the parent root they read as real
+# copyleft contamination. Same class as the secret/leak fixtures next door.
+.claude/worktrees/

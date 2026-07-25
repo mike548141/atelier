@@ -34,3 +34,12 @@ docs/ROADMAP-DONE.md
 # SESSIONS.md — not an ADR body — even though it lives inside
 # docs/decisions/, which is otherwise inside the doctrine-surface gate scope.
 docs/decisions/README.md
+
+# Harness-native worktrees nest INSIDE the repo (.gitignore:14), so a scan rooted
+# at the repo top re-reads a whole second copy of the tree — including this
+# repo's deliberate fake-secret fixtures, whose own allow-markers no longer
+# match once the scan root moves up a level. 29 false positives, every time, for
+# any session that scans from the main checkout while a worktree is live.
+# linkscan/sizescan already carried this rule; adding it to the rest closes the
+# class rather than the next instance.
+.claude/worktrees/
