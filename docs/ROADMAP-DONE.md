@@ -2064,3 +2064,18 @@ Mike's plain-language rulings during the close-out:
 
 Both flips follow datescan's 0707 pattern (atelier blocks now; children adopt +
 re-baseline at their next pin bump). Suite 601 green; atelier floor green at head.
+
+## Enforcement propagation — the estate rollout (ADR 0008, done 2026-07-25)
+
+Closed the propagation gap end to end: 13 of 13 children moved off vendored
+floor copies onto a called floor. `floorfleet --remote --check` exits 0.
+
+- [x] **Wire the 13 children** — thin caller + tracked `.githooks/pre-commit` +
+      `core.hooksPath` + per-repo `.atelier-floor.json`, each repo's signing
+      boundary preserved verbatim. Hygiene checks currently failing are declared
+      `advisory` so the finding stays reported and visible on the board instead
+      of reddening ten repos and drowning the one real credential signal.
+- [x] **Repo-specific scoping preserved** — the networking child's leakscan
+      tuning (shareable subtree only, IP/MAC rules off, because those shapes are
+      *content* there) moved into config verbatim. Its device-config capture
+      dirs went to `.secretscanignore` per Mike's ruling: scoping, not secrets.

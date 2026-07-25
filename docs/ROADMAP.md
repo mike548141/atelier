@@ -29,29 +29,31 @@ ruling, 2026-07-23; its enacting batch exercised exactly that window).
 
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
 
-The mechanism is built, tested and committed in atelier; **no child repo is
-wired yet**. Measuring first showed a blind rollout would leave several repos
-red-and-blocked rather than red-and-visible, which is the wrong kind of red.
+**Rolled out 2026-07-25.** All 13 children call the floor; `floorfleet --remote
+--check` exits 0 against GitHub's default branches. Proven live in CI, not just
+locally: one child's floor run passed, another failed on a real `leakscan`
+finding — the workflow itself ran clean in both, which is the end-to-end proof
+the mechanism works.
+
+> 📦 **2 completed items** in this section → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
+>   (the 13-repo wiring, and the repo-specific scoping preserved with it).
 
 - [ ] ⏳ **ADR 0008 review owed** — self-authored, so this session may not review
       it (REVIEW.md rule 4). Aim a reviewer at the one real trade: moving every
       repo onto a floating `@main` caller swaps a slow silent failure for a fast
       loud estate-wide one. Is that right for a security floor?
-- [ ] 🎯 **Ratify the staged rollout** (Mike). Proposed: wire CI to all 13 now
-      (guards run, findings visible, nothing blocked) → declare the hygiene
-      checks `advisory` where they currently fail, so the finding stays visible
-      as tracked debt → scope the capture-data repos in `.atelier-floor.json` →
-      leave boundary reds red, they are real → install hooks only where the floor
-      is green, so daily work is never blocked mid-triage.
-- [ ] **Wire the 13 children** once ratified: thin caller + tracked
-      `.githooks/pre-commit` + `core.hooksPath` + per-repo `.atelier-floor.json`.
-      Close-out criterion is `floorfleet --check --remote` exiting 0, not a
-      count of files edited.
-- [ ] **ros needs `scope`** before wiring — its `observed/` device-config
-      captures return 30,213 `secretscan` high-entropy hits (Mike agreed
-      2026-07-25: scoping, not secrets). Its existing leakscan tuning
-      (`tiki/` subtree, `--disable ipv4,ipv6,mac-address`) is the worked case
-      `scope`/`flags` were built for and must survive the move verbatim.
+- [ ] **Two children were bootstrapped with `--no-verify`** — the gate they were
+      installing already failed on their pre-existing content, so it blocked its
+      own installation. Once is the honest resolution; twice would not be. Both
+      commits say so in full and list what was found. **Their reds are now their
+      own work**: broken internal links (repo-root-relative paths written inside
+      `docs/` files two levels deep), decision records with no review line, and
+      in one case a credential-shaped string repeated across records that needs
+      eyes rather than an exemption. Deliberately not fixed by the rollout —
+      another repo's records are its own call.
+- [ ] **Retire the advisory declarations** as each repo re-baselines. The board
+      shows them; that is the point. An advisory that is still there in a month
+      is the "honour it manually" failure wearing a new hat.
 
 ### Boundary findings surfaced by the measurement — triage separately
 
