@@ -106,6 +106,64 @@ are what generalise to any adopter.
       before wiring — the false-positive surface is prose, and this repo's own
       doctrine names sibling repos legitimately.
 
+### To be considered — the ranked residual after the rollout (Mike, 2026-07-25)
+
+What is *not* covered now that policy propagates by call. Ranked by how much
+real protection each would add. Item 1 has its own section below with four
+costed options; the rest are recorded here with their reasoning so the next
+session inherits the thinking rather than re-deriving it.
+
+**1. Nothing runs `floorfleet` automatically** — the biggest structural gap. The
+enumerator exists and was never scheduled. Fully specified in the section
+immediately below (four options, one of them explicitly rejected).
+
+**2. A red CI does not actually stop anything — and the obvious fix is wrong.**
+The instinctive answer is branch protection with required status checks. Two
+findings, one of them a reversal worth recording:
+
+- The **private children cannot have branch protection at all** — GitHub gates
+  it behind Pro for private repos. So this is a *spending* decision before it is
+  a technical one.
+- **atelier can, free, and currently has none.**
+
+  🚩 **Recommendation reversed after thinking it through: do NOT enable it on
+  atelier.** Required status checks block direct pushes to `main` until CI
+  passes, and this estate deliberately runs commit-small-push-fast to main. It
+  would mean waiting on a runner for every commit, or routing one-line doc fixes
+  through PRs — a large, permanent tax on the working rhythm to catch a case the
+  pre-commit hook already catches earlier, at commit time.
+
+  **The honest framing to carry forward:** the floor is enforced *at commit time*
+  by the hook; CI is the backstop, not the gate. That is a defensible design, and
+  it should be stated rather than left implicit — because its corollary is that
+  **`--no-verify` is the real hole**, and it was used twice during the rollout
+  itself (both times deliberately, both times recorded in the commit message).
+  Anyone revisiting this should decide whether that hole is acceptable, not
+  assume it away.
+
+**3. Three PUBLIC repos in the account have no scanning at all** —
+`cel-web-hosting`, `fpx`, `homelablabelmaker`. They were never atelier children
+(no `CLAUDE.md`, no pin), so `floorfleet` correctly does not report them: it
+reports children, and these are not. Naming them here is not the private-repo ×
+posture join — they are public, so the absence of a workflow file is already
+visible to anyone. **Whether to adopt them is a scope decision, not a defect
+fix.** The relevant question is not "are they tidy" but "is anything in a public
+repo that should not be public", which is exactly what the scanners answer.
+
+**4. A blind spot worth closing cheaply.** `floorfleet` reads the workflow
+*file*, so a repo with GitHub **Actions disabled** reads as perfectly wired while
+running nothing. One `gh api repos/{owner}/{repo}/actions/permissions` call per
+child would catch it. Small, and it removes a way for the board to be confidently
+wrong — which is worse than the board being unavailable.
+
+**5. `advisory` needs a stated reason and an expiry.** `disabled` requires a
+reason; `advisory` does not, and neither carries a review date. So an advisory
+declaration can sit indefinitely — **the "honour it manually" decay in a new
+costume**, which is the precise failure ADR 0008 exists to end. Fix shape: make
+`advisory` take `{scanner: reason}` like `disabled`, add an optional
+`review-by` date, and have `floorfleet` flag any advisory past its date (or with
+no date) so the board ages them rather than accumulating them silently.
+
 ### 🎯 Schedule the conformance check — the last structural gap (Mike, 2026-07-25)
 
 **The gap, stated plainly:** `floorfleet` is the instrument that turns "I hope
