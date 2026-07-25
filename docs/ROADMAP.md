@@ -217,6 +217,170 @@ failure message naming which child dropped the floor and what to do about it. Th
 credential, if any, is Mike's to create; the agent wires around an existing
 secret and never mints one.
 
+### Licence gate — ENABLED estate-wide (Mike ruled 2026-07-25)
+
+Mike overruled an earlier deferral of mine, and was right to: I had weighed the
+gate as *tidiness* for private repos. His framing — **"I want the licence gate
+enabled so those repos are ready to publish"** — is protection, not
+housekeeping. Publish-readiness is the whole point of the gate; deferring it
+until a repo is already public is backwards.
+
+**Landed on 11 of 13.** 10 declare `Apache-2.0` and pass; 3 are `disabled` with
+a stated reason (below); one needed a false-positive marker.
+
+> 📦 **2 completed items** in this section → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
+
+- [ ] **licenscan gap — support proprietary / `LicenseRef-*` licences.** A
+      proprietary repo going public is *precisely* when copyleft-contamination
+      detection matters most, and today the tool is silent exactly there. Fix
+      shape: accept an unrecognised or `LicenseRef-` repo licence as a declared
+      licence, skip the "which SPDX licence is this" comparison, and still run
+      the file-header incompatibility checks. Unblocks the 3 disabled repos.
+- [ ] **licenscan gap — map known PyPI trove classifiers to SPDX ids.**
+      `"License :: OSI Approved :: Apache Software License"` is *correct*
+      packaging practice, not an error, and currently reads as an unrecognised
+      declaration. Marked in-place with the reason where it occurred; the class
+      fix belongs in the tool.
+- [ ] **2 repos still owe the declaration — blocked by their own reds.** Their
+      hooks refused the commit on pre-existing findings (broken internal links,
+      decision records with no review line). **Deliberately not forced:** those
+      two were already bootstrapped past their gate once with `--no-verify`, and
+      once is the honest resolution while twice is a habit. They get the licence
+      gate when they clear their existing findings — which is the forcing
+      function working exactly as designed, not a rollout failure.
+
+### Candidate invariant — the public-record join, breached three times
+
+- [ ] **Mechanise the private-repo × posture join** (anti-slop invariant
+      registry). `RECORD.md` already says keep private repos generic, and the
+      2026-07-12 review sharpened the harmful class to the **join** — a private
+      repo's name sitting next to its debt or security posture, not the name
+      alone. It has now been breached three times (2026-07-11, 2026-07-12,
+      2026-07-25), every time at the identical moment: *summarising fleet-wide
+      scan state into an atelier record*. The rule is not unclear; it loses to
+      the fact that the generic form is harder to write while holding a concrete
+      finding list in mind.
+      **No existing scanner can catch it** — a repo name beside a file path is
+      neither personal data nor a credential, so leakscan and secretscan both
+      pass it. It sits squarely in the judgement residual `tools/README.md`
+      declares, which is exactly the shape the registry exists to promote to an
+      always-on check. Sketch: flag a private-sibling repo name (discoverable via
+      `pins.discover`) co-occurring with finding-shaped vocabulary in `docs/`,
+      with an allow-marker for the deliberate worked examples. Needs a review
+      before wiring — the false-positive surface is prose, and this repo's own
+      doctrine names sibling repos legitimately.
+
+### To be considered — the ranked residual after the rollout (Mike, 2026-07-25)
+
+What is *not* covered now that policy propagates by call. Ranked by how much
+real protection each would add. Item 1 has its own section below with four
+costed options; the rest are recorded here with their reasoning so the next
+session inherits the thinking rather than re-deriving it.
+
+**1. Nothing runs `floorfleet` automatically** — the biggest structural gap. The
+enumerator exists and was never scheduled. Fully specified in the section
+immediately below (four options, one of them explicitly rejected).
+
+**2. A red CI does not actually stop anything — and the obvious fix is wrong.**
+The instinctive answer is branch protection with required status checks. Two
+findings, one of them a reversal worth recording:
+
+- The **private children cannot have branch protection at all** — GitHub gates
+  it behind Pro for private repos. So this is a *spending* decision before it is
+  a technical one.
+- **atelier can, free, and currently has none.**
+
+  🚩 **Recommendation reversed after thinking it through: do NOT enable it on
+  atelier.** Required status checks block direct pushes to `main` until CI
+  passes, and this estate deliberately runs commit-small-push-fast to main. It
+  would mean waiting on a runner for every commit, or routing one-line doc fixes
+  through PRs — a large, permanent tax on the working rhythm to catch a case the
+  pre-commit hook already catches earlier, at commit time.
+
+  **The honest framing to carry forward:** the floor is enforced *at commit time*
+  by the hook; CI is the backstop, not the gate. That is a defensible design, and
+  it should be stated rather than left implicit — because its corollary is that
+  **`--no-verify` is the real hole**, and it was used twice during the rollout
+  itself (both times deliberately, both times recorded in the commit message).
+  Anyone revisiting this should decide whether that hole is acceptable, not
+  assume it away.
+
+**3. Three PUBLIC repos in the account have no scanning at all** —
+`cel-web-hosting`, `fpx`, `homelablabelmaker`. They were never atelier children
+(no `CLAUDE.md`, no pin), so `floorfleet` correctly does not report them: it
+reports children, and these are not. Naming them here is not the private-repo ×
+posture join — they are public, so the absence of a workflow file is already
+visible to anyone. **Whether to adopt them is a scope decision, not a defect
+fix.** The relevant question is not "are they tidy" but "is anything in a public
+repo that should not be public", which is exactly what the scanners answer.
+
+**4. A blind spot worth closing cheaply.** `floorfleet` reads the workflow
+*file*, so a repo with GitHub **Actions disabled** reads as perfectly wired while
+running nothing. One `gh api repos/{owner}/{repo}/actions/permissions` call per
+child would catch it. Small, and it removes a way for the board to be confidently
+wrong — which is worse than the board being unavailable.
+
+**5. `advisory` needs a stated reason and an expiry.** `disabled` requires a
+reason; `advisory` does not, and neither carries a review date. So an advisory
+declaration can sit indefinitely — **the "honour it manually" decay in a new
+costume**, which is the precise failure ADR 0008 exists to end. Fix shape: make
+`advisory` take `{scanner: reason}` like `disabled`, add an optional
+`review-by` date, and have `floorfleet` flag any advisory past its date (or with
+no date) so the board ages them rather than accumulating them silently.
+
+### 🎯 Schedule the conformance check — the last structural gap (Mike, 2026-07-25)
+
+**The gap, stated plainly:** `floorfleet` is the instrument that turns "I hope
+the policy propagated" into "I know it did" — and nothing runs it. It only knows
+when a human types the command. That is the same shape as the defect this whole
+change fixed: a guard that exists, works, and is pointed at nothing.
+
+**What it would catch that nothing else does.** A child's `floor.yml` edited back
+into a copy or deleted · a fresh clone (or a new laptop) where nobody ran
+`git config core.hooksPath` · a child that pins `@<sha>` and quietly freezes
+propagation · a new repo that never adopted the floor at all. Every one of those
+is an *absence*, and an absence never raises its hand.
+
+**The constraint that makes this a decision rather than a task.** atelier's CI
+runs on a GitHub runner with no access to the private children. Reading their
+default branches needs a token — a fine-grained, read-only (`contents` +
+`metadata`), expiring PAT scoped to exactly those repos. That is a new credential
+and a new trust surface: **an always-confirm floor action, and the minting is
+Mike's, never the agent's.**
+
+Four ways, same goal, very different blast radius:
+
+- [ ] **A — PAT in atelier's CI.** True continuous enforcement, catches drift
+      within a day, no human in the loop. Cost: a read token spanning the whole
+      private estate, living in the **public** repo's secret store. GitHub does
+      withhold secrets from fork PRs, so it is not trivially stealable, but it is
+      the largest concentration of the four. Needs rotation discipline.
+- [ ] **B — scheduled workflow in a PRIVATE repo.** Identical automation and
+      identical benefit to A, with the token in a private secret store instead of
+      the public one. Runs on GitHub's schedule regardless of whether any machine
+      is on. Open question: which repo hosts it — the doctrine references a
+      "private estate-root repo" as atelier's counterpart, but which repo that
+      actually is has never been written down. **Answer that first; it is
+      reusable well beyond this item.**
+- [ ] **C — scheduled local run (cron/launchd).** `floorfleet --remote --check`,
+      shouting on failure. **No new credential** — uses the existing `gh` login.
+      Failure mode: a machine that is off does not check, so drift can sit for
+      as long as the laptop does.
+- [ ] **D — add it to the session-close ritual.** Cheapest, zero infrastructure,
+      and *rejected on this session's own evidence*: it is a discipline, not a
+      mechanism, and the entire finding behind ADR 0008 is that a discipline
+      logged as an intention decays silently. Recorded so the option is visibly
+      considered and dismissed, not quietly skipped.
+
+**Recommendation: B, or C if the preference is to mint nothing.** B is strictly
+better than A for the same outcome. D is not a real option and is listed only to
+close it off.
+
+**Whichever is chosen, the work is small:** the schedule, `--check` wiring, and a
+failure message naming which child dropped the floor and what to do about it. The
+credential, if any, is Mike's to create; the agent wires around an existing
+secret and never mints one.
+
 ### Licence gate — measured, deliberately NOT switched on (2026-07-25)
 
 `licenscan` is opt-in and no child declares a licence, so it runs nowhere but
