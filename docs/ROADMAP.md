@@ -589,6 +589,40 @@ What remains is Mike's:
   operator note: the shrink guard covers memory files uniformly, so a
   legitimately condensed memory file needs `--force` — safe-over-silent.
   Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
+- [ ] **ccarchive: encryption at rest, secure-by-default (Mike, 2026-07-25)** —
+  design pass, not a build. **Direction (Mike):** ccarchive stores the archive
+  **encrypted by default** (secure-by-default → confidential at rest), with an
+  **explicit opt-out param** to store plaintext if the overheads bite (a loud
+  opt-out, never a silent default); and **ccrepo + cctranscript gain live-decrypt**
+  the same way they already live-decompress. **This raises the bar the 2026-07-23
+  archive decision set:** that ruled the encryption concern "answered" by the
+  iCloud **ADP E2E** layer — but ADP only protects the *iCloud copy*; tool-native
+  encryption makes the bytes confidential *everywhere* (local disk, any copy, in
+  transit, the deferred NAS leg). Complementary to ADP, not redundant.
+  **Open design questions (stub — do not pre-decide):**
+  - **Key management is the crux, not the crypto.** Where the key lives + how the
+    consumers get it at read time. Keys → the person-level credential home
+    (keychain / an age identity), **never atelier** (SECRETS right-plane).
+  - **The overhead is key-*access*, not decrypt CPU** (symmetric decrypt is
+    microseconds; the cost is unlocking the key per op). Lever: session-cached
+    unlock / already-unlocked login keychain — then live-decrypt reuses the exact
+    live-decompress read seam. So encrypted-default is realistic; the opt-out is a
+    backstop, not the expected path.
+  - 🔗 **Solve-once reuse:** the person-context portability design already wants an
+    **age capsule with per-machine keys** for crown-jewels (rulings D1–D5). Same
+    building block — "encrypt-at-rest, keys in the person-home". Solve the key
+    infrastructure ONCE and reuse for both (a live instance of the *solve once,
+    reuse the building block* capture above).
+  - ⚠️ **Zero-dep tension (the one likely Mike-decision at the design pass):**
+    AEAD encryption isn't in Python stdlib — it needs a crypto dep (`age` is the
+    clean choice, already contemplated for the capsule) or shelling to `openssl`
+    (footguns — not AEAD by default). This is the same tool-install-floor tension
+    that *deferred* release-artifact signing/SBOM; weigh secure-by-default against
+    the zero-dep house-tool pattern.
+  - **Orthogonal to the existing manifest signing** (integrity ≠ confidentiality):
+    keep both — sign for tamper-evidence, encrypt for confidentiality.
+  Review WARRANTED when it moves from design to build (touches SECRETS.md +
+  the instruments crypto surface).
 
 ### ccrepo (Mike, 2026-07-17)
 
