@@ -170,24 +170,42 @@ git config user.email "<git_identity.email>"
    scaffolded repo can never commit unscanned:
 
    ```sh
-   cp "$SRC/tools/pre-commit.sample" .git/hooks/pre-commit
-   chmod +x .git/hooks/pre-commit
+   # TRACKED hooks dir, not .git/hooks — the hook FILE then travels with the
+   # clone and stays current (ADR 0008). .git/hooks/ is untracked, so a hook
+   # installed there exists on exactly one machine: on 2026-07-25 every guard in
+   # every child in this estate was machine-local, and a fresh clone would have
+   # started with none.
+   mkdir -p .githooks
+   cp "$SRC/.githooks/pre-commit" .githooks/pre-commit
+   chmod +x .githooks/pre-commit
+   git config core.hooksPath .githooks
    # Absolutise: a relative path here only resolves from the main checkout, so
    # the fail-closed hook would block every WORKTREE commit (fleet-wide bug,
    # 2026-07-19 — ten children were born with a relative `../atelier/tools`).
    git config hooks.atelierTools "$(cd "$SRC/tools" && pwd)"
    ```
 
-   A hook only guards the **clone** it's installed in — git transports neither
-   hooks nor config, so every fresh clone starts unprotected. That's why the
-   scaffolded CONTRIBUTING + CLAUDE.md carry the once-per-clone reinstall
-   instructions (step 5 fills their `<atelier-path>`) — don't strip them. The
-   hook is the repo's **local** gate; `.github/workflows/floor.yml` (seeded in
-   step 3) is the **CI backstop** — it checks the source out beside the repo and
-   runs its public scanners on every push + PR, so a fresh clone or a web edit
-   that skips the hook is still caught before publication. **Prove the hook
-   once**: stage a fake secret and confirm the commit is blocked — a hook that
-   scans nothing is the exact failure this step exists to prevent.
+   The hook **names no scanner** — it is a shim over the source's `tools/floor.py`
+   registry, the same list the CI floor reads (ADR 0008). Never add a scanner
+   line here; add it to the registry, where every repo gets it.
+
+   `core.hooksPath` still has to be set **once per clone** — git transports
+   config, no. So the tracked directory fixes staleness, not installation: the
+   scaffolded CONTRIBUTING + CLAUDE.md carry the once-per-clone instructions
+   (step 5 fills their `<atelier-path>`) — don't strip them, and
+   `floorfleet` is what catches a clone where nobody ran it. The hook is the
+   repo's **local** gate; `.github/workflows/floor.yml` (seeded in step 3) is the
+   **CI backstop** — a ~30-line caller of the source's reusable floor workflow,
+   so a check added upstream reaches this repo with no edit here, ever.
+
+   **Prove the hook once**: stage a fake secret and confirm the commit is
+   blocked — a hook that scans nothing is the exact failure this step exists to
+   prevent, and it has happened here for real (2026-07-10).
+
+   If this repo needs to run a check **advisory** while it re-baselines, or needs
+   a check **scoped**/**tuned** to its subject matter, declare that in
+   `.atelier-floor.json` at the repo root — never by dropping a scanner. A
+   declaration is visible estate-wide via `floorfleet`; a missing line is not.
 7. **Seed the first `docs/SESSIONS.md` entry**, commit, then create the remote and
    push. The authority for creating a *new* remote repo is **the principal's ask
    itself** (they invoked create-repo; a repo on their own account is what they

@@ -10,15 +10,27 @@ so a change doesn't run aground on a deliberate boundary.
 <!-- how to run it and how to run the checks -->
 ```
 
-Once per clone — git transports neither hooks nor config, so a fresh clone
-commits **unscanned** until this is rewired (once installed, the hook fails
-closed rather than ever scanning nothing):
+Once per clone. The hook itself is **tracked** (`.githooks/pre-commit`, so it
+travels with the repo and never goes stale), but git does not transport
+*config* — so a fresh clone commits **unscanned** until these two lines are run.
+Once wired, the hook fails closed rather than ever scanning nothing:
 
 ```sh
-cp "<atelier-path>/tools/pre-commit.sample" .git/hooks/pre-commit
-chmod +x .git/hooks/pre-commit
+git config core.hooksPath .githooks
 git config hooks.atelierTools "<atelier-path>/tools"
 ```
+
+Prove it landed — this should print the checks and their state, not an error:
+
+```sh
+python3 "<atelier-path>/tools/floor.py" --list --plane hook
+```
+
+The hook names no scanner: it is a shim over `<atelier-path>/tools/floor.py`,
+the one registry that this repo's CI reads too, so a check added upstream
+applies here with no edit. To run a check **advisory** while re-baselining, or
+to scope one to part of the tree, declare it in `.atelier-floor.json` at the
+repo root — never by removing a check.
 
 ## What makes a good change
 
