@@ -294,190 +294,54 @@ a stated reason (below); one needed a false-positive marker.
       gate when they clear their existing findings — which is the forcing
       function working exactly as designed, not a rollout failure.
 
-### Candidate invariant — the public-record join, breached three times
+### For your consideration — ideas raised this session, not yet decided (2026-07-25)
 
-- [ ] **Mechanise the private-repo × posture join** (anti-slop invariant
-      registry). `RECORD.md` already says keep private repos generic, and the
-      2026-07-12 review sharpened the harmful class to the **join** — a private
-      repo's name sitting next to its debt or security posture, not the name
-      alone. It has now been breached three times (2026-07-11, 2026-07-12,
-      2026-07-25), every time at the identical moment: *summarising fleet-wide
-      scan state into an atelier record*. The rule is not unclear; it loses to
-      the fact that the generic form is harder to write while holding a concrete
-      finding list in mind.
-      **No existing scanner can catch it** — a repo name beside a file path is
-      neither personal data nor a credential, so leakscan and secretscan both
-      pass it. It sits squarely in the judgement residual `tools/README.md`
-      declares, which is exactly the shape the registry exists to promote to an
-      always-on check. Sketch: flag a private-sibling repo name (discoverable via
-      `pins.discover`) co-occurring with finding-shaped vocabulary in `docs/`,
-      with an allow-marker for the deliberate worked examples. Needs a review
-      before wiring — the false-positive surface is prose, and this repo's own
-      doctrine names sibling repos legitimately.
+Suggestions the rollout surfaced that were never queued. None is urgent; each is
+recorded so it is a **choice** rather than something that quietly evaporates.
 
-### To be considered — the ranked residual after the rollout (Mike, 2026-07-25)
+- [ ] **`floorfleet` proves a repo CALLS the floor, never that its floor is
+      GREEN.** That limit is stated honestly in the tool, and it means the board
+      can read "all 13 ✓" while several repos are failing every run. Idea: a
+      `--status` mode reading each child's latest floor run conclusion via
+      `gh run list`, giving one board that answers *wired **and** passing*.
+      Cheap (one API call per child) and it closes the gap between conformance
+      and compliance, which are currently two separate questions with only one
+      instrument.
 
-What is *not* covered now that policy propagates by call. Ranked by how much
-real protection each would add. Item 1 has its own section below with four
-costed options; the rest are recorded here with their reasoning so the next
-session inherits the thinking rather than re-deriving it.
+- [ ] **Adoption is a chicken-and-egg problem and I improvised twice.** A repo
+      whose existing content already fails the gate **cannot commit the change
+      that installs the gate**. It happened on two repos and I resolved it with a
+      one-time `--no-verify`, documented in each commit — defensible once, but it
+      is now an undocumented pattern that will recur on *every* future adoption
+      (including the 3 public repos, if adopted). Idea: a documented adoption
+      path — either a sanctioned one-time bootstrap, or an `--adopt` mode that
+      installs the hygiene checks advisory-first and tightens once the repo
+      re-baselines. **Decide the pattern before the next adoption, not during
+      it.**
 
-**1. Nothing runs `floorfleet` automatically** — the biggest structural gap. The
-enumerator exists and was never scheduled. Fully specified in the section
-immediately below (four options, one of them explicitly rejected).
+- [ ] **`--no-verify` is the real hole, and nothing sees it.** With CI as a
+      backstop rather than a gate (see the ranked residual, item 2), a local
+      bypass is the one route that reaches history unscanned. I used it twice in
+      one night. Idea: make it *visible* rather than impossible — e.g. CI flags a
+      pushed commit that would not have passed the hook, so a bypass is a
+      recorded event rather than a private one. Worth weighing against the
+      obvious counter: it is also the legitimate escape hatch, and making it
+      painful invites worse workarounds.
 
-**2. A red CI does not actually stop anything — and the obvious fix is wrong.**
-The instinctive answer is branch protection with required status checks. Two
-findings, one of them a reversal worth recording:
+- [ ] **`floorfleet --remote` could check the tracked hook, and currently
+      doesn't.** Hooks used to be untracked, so the remote plane could say
+      nothing about them — but `.githooks/pre-commit` is now *in the repo*. The
+      remote plane could verify the tracked shim exists and is the current one,
+      leaving only `core.hooksPath` (genuinely per-clone) unknowable. A small
+      change that moves a chunk of the hook question from "machine-local only" to
+      "answerable estate-wide".
 
-- The **private children cannot have branch protection at all** — GitHub gates
-  it behind Pro for private repos. So this is a *spending* decision before it is
-  a technical one.
-- **atelier can, free, and currently has none.**
-
-  🚩 **Recommendation reversed after thinking it through: do NOT enable it on
-  atelier.** Required status checks block direct pushes to `main` until CI
-  passes, and this estate deliberately runs commit-small-push-fast to main. It
-  would mean waiting on a runner for every commit, or routing one-line doc fixes
-  through PRs — a large, permanent tax on the working rhythm to catch a case the
-  pre-commit hook already catches earlier, at commit time.
-
-  **The honest framing to carry forward:** the floor is enforced *at commit time*
-  by the hook; CI is the backstop, not the gate. That is a defensible design, and
-  it should be stated rather than left implicit — because its corollary is that
-  **`--no-verify` is the real hole**, and it was used twice during the rollout
-  itself (both times deliberately, both times recorded in the commit message).
-  Anyone revisiting this should decide whether that hole is acceptable, not
-  assume it away.
-
-**3. Three PUBLIC repos in the account have no scanning at all** —
-`cel-web-hosting`, `fpx`, `homelablabelmaker`. They were never atelier children
-(no `CLAUDE.md`, no pin), so `floorfleet` correctly does not report them: it
-reports children, and these are not. Naming them here is not the private-repo ×
-posture join — they are public, so the absence of a workflow file is already
-visible to anyone. **Whether to adopt them is a scope decision, not a defect
-fix.** The relevant question is not "are they tidy" but "is anything in a public
-repo that should not be public", which is exactly what the scanners answer.
-
-**4. A blind spot worth closing cheaply.** `floorfleet` reads the workflow
-*file*, so a repo with GitHub **Actions disabled** reads as perfectly wired while
-running nothing. One `gh api repos/{owner}/{repo}/actions/permissions` call per
-child would catch it. Small, and it removes a way for the board to be confidently
-wrong — which is worse than the board being unavailable.
-
-**5. `advisory` needs a stated reason and an expiry.** `disabled` requires a
-reason; `advisory` does not, and neither carries a review date. So an advisory
-declaration can sit indefinitely — **the "honour it manually" decay in a new
-costume**, which is the precise failure ADR 0008 exists to end. Fix shape: make
-`advisory` take `{scanner: reason}` like `disabled`, add an optional
-`review-by` date, and have `floorfleet` flag any advisory past its date (or with
-no date) so the board ages them rather than accumulating them silently.
-
-### 🎯 Schedule the conformance check — the last structural gap (Mike, 2026-07-25)
-
-**The gap, stated plainly:** `floorfleet` is the instrument that turns "I hope
-the policy propagated" into "I know it did" — and nothing runs it. It only knows
-when a human types the command. That is the same shape as the defect this whole
-change fixed: a guard that exists, works, and is pointed at nothing.
-
-**What it would catch that nothing else does.** A child's `floor.yml` edited back
-into a copy or deleted · a fresh clone (or a new laptop) where nobody ran
-`git config core.hooksPath` · a child that pins `@<sha>` and quietly freezes
-propagation · a new repo that never adopted the floor at all. Every one of those
-is an *absence*, and an absence never raises its hand.
-
-**The constraint that makes this a decision rather than a task.** atelier's CI
-runs on a GitHub runner with no access to the private children. Reading their
-default branches needs a token — a fine-grained, read-only (`contents` +
-`metadata`), expiring PAT scoped to exactly those repos. That is a new credential
-and a new trust surface: **an always-confirm floor action, and the minting is
-Mike's, never the agent's.**
-
-Four ways, same goal, very different blast radius:
-
-- [ ] **A — PAT in atelier's CI.** True continuous enforcement, catches drift
-      within a day, no human in the loop. Cost: a read token spanning the whole
-      private estate, living in the **public** repo's secret store. GitHub does
-      withhold secrets from fork PRs, so it is not trivially stealable, but it is
-      the largest concentration of the four. Needs rotation discipline.
-- [ ] **B — scheduled workflow in a PRIVATE repo.** Identical automation and
-      identical benefit to A, with the token in a private secret store instead of
-      the public one. Runs on GitHub's schedule regardless of whether any machine
-      is on. Open question: which repo hosts it — the doctrine references a
-      "private estate-root repo" as atelier's counterpart, but which repo that
-      actually is has never been written down. **Answer that first; it is
-      reusable well beyond this item.**
-- [ ] **C — scheduled local run (cron/launchd).** `floorfleet --remote --check`,
-      shouting on failure. **No new credential** — uses the existing `gh` login.
-      Failure mode: a machine that is off does not check, so drift can sit for
-      as long as the laptop does.
-- [ ] **D — add it to the session-close ritual.** Cheapest, zero infrastructure,
-      and *rejected on this session's own evidence*: it is a discipline, not a
-      mechanism, and the entire finding behind ADR 0008 is that a discipline
-      logged as an intention decays silently. Recorded so the option is visibly
-      considered and dismissed, not quietly skipped.
-
-**Recommendation: B, or C if the preference is to mint nothing.** B is strictly
-better than A for the same outcome. D is not a real option and is listed only to
-close it off.
-
-**Whichever is chosen, the work is small:** the schedule, `--check` wiring, and a
-failure message naming which child dropped the floor and what to do about it. The
-credential, if any, is Mike's to create; the agent wires around an existing
-secret and never mints one.
-
-### Licence gate — measured, deliberately NOT switched on (2026-07-25)
-
-`licenscan` is opt-in and no child declares a licence, so it runs nowhere but
-atelier. Measured before deciding, rather than assuming an easy win:
-
-- **9 children** would pass immediately — one config line each.
-- **1** has a real inconsistency: a `pyproject.toml` classifier using the old
-  PyPI wording rather than the SPDX id.
-- **3 are deliberately PROPRIETARY ("all rights reserved")** — a category
-  `licenscan` structurally cannot verify, since it checks against known SPDX
-  licences. Switching it on there yields a permanent unverifiable finding that
-  needs silencing: noise, not signal.
-
-- [ ] **Switch it on where it means something** — 9 config lines, fix the
-      classifier, and mark the 3 proprietary repos `disabled` **with the reason
-      recorded**, so the board shows a decision rather than a gap. Deliberately
-      deferred 2026-07-25: `licenscan` is a *publish* gate, only atelier is
-      public, and it already has it. For 12 private repos this is tidiness, not
-      protection — real, but not worth churning the whole fleet twice in a night.
-
-### Candidate invariant — the public-record join, breached three times
-
-- [ ] **Mechanise the private-repo × posture join** (anti-slop invariant
-      registry). `RECORD.md` already says keep private repos generic, and the
-      2026-07-12 review sharpened the harmful class to the **join** — a private
-      repo's name sitting next to its debt or security posture, not the name
-      alone. It has now been breached three times (2026-07-11, 2026-07-12,
-      2026-07-25), every time at the identical moment: *summarising fleet-wide
-      scan state into an atelier record*. The rule is not unclear; it loses to
-      the fact that the generic form is harder to write while holding a concrete
-      finding list in mind.
-      **No existing scanner can catch it** — a repo name beside a file path is
-      neither personal data nor a credential, so leakscan and secretscan both
-      pass it. It sits squarely in the judgement residual `tools/README.md`
-      declares, which is exactly the shape the registry exists to promote to an
-      always-on check. Sketch: flag a private-sibling repo name (discoverable via
-      `pins.discover`) co-occurring with finding-shaped vocabulary in `docs/`,
-      with an allow-marker for the deliberate worked examples. Needs a review
-      before wiring — the false-positive surface is prose, and this repo's own
-      doctrine names sibling repos legitimately.
-
-### Sharp edge found en route — worth fixing at the class
-
-- [ ] **`--staged` + a positional path silently covers nothing if the path is
-      absolute.** secretscan/leakscan filter the staged diff by prefix against
-      git's repo-relative path list, so an absolute path matches zero files and
-      the scan exits 0 — a fail-open that looks identical to a clean pass.
-      `floor.py` now always emits relative paths in staged mode and pins both
-      shapes, so the estate is safe; the *scanners* still accept the footgun.
-      Fix candidates: normalise positional paths to repo-relative in staged
-      mode, or refuse an absolute one with exit 2 (the linkscan L1
-      silent-success class, which these tools already close elsewhere).
+- [ ] **`linkscan` could name the fix for its commonest class.** One repo carried
+      17 broken links of a single shape: a repo-root-relative path written inside
+      a `docs/` file two levels down, so it resolves to `docs/<dir>/<path>` and
+      404s. The correct target is computable from the finding. Idea: print the
+      suggested relative path alongside the error. Turns a 17-item chore into 17
+      obvious edits, and this shape will recur wherever records cite source files.
 
 ## Doctrine — review-owed
 
