@@ -106,6 +106,59 @@ are what generalise to any adopter.
       before wiring — the false-positive surface is prose, and this repo's own
       doctrine names sibling repos legitimately.
 
+### 🎯 Schedule the conformance check — the last structural gap (Mike, 2026-07-25)
+
+**The gap, stated plainly:** `floorfleet` is the instrument that turns "I hope
+the policy propagated" into "I know it did" — and nothing runs it. It only knows
+when a human types the command. That is the same shape as the defect this whole
+change fixed: a guard that exists, works, and is pointed at nothing.
+
+**What it would catch that nothing else does.** A child's `floor.yml` edited back
+into a copy or deleted · a fresh clone (or a new laptop) where nobody ran
+`git config core.hooksPath` · a child that pins `@<sha>` and quietly freezes
+propagation · a new repo that never adopted the floor at all. Every one of those
+is an *absence*, and an absence never raises its hand.
+
+**The constraint that makes this a decision rather than a task.** atelier's CI
+runs on a GitHub runner with no access to the private children. Reading their
+default branches needs a token — a fine-grained, read-only (`contents` +
+`metadata`), expiring PAT scoped to exactly those repos. That is a new credential
+and a new trust surface: **an always-confirm floor action, and the minting is
+Mike's, never the agent's.**
+
+Four ways, same goal, very different blast radius:
+
+- [ ] **A — PAT in atelier's CI.** True continuous enforcement, catches drift
+      within a day, no human in the loop. Cost: a read token spanning the whole
+      private estate, living in the **public** repo's secret store. GitHub does
+      withhold secrets from fork PRs, so it is not trivially stealable, but it is
+      the largest concentration of the four. Needs rotation discipline.
+- [ ] **B — scheduled workflow in a PRIVATE repo.** Identical automation and
+      identical benefit to A, with the token in a private secret store instead of
+      the public one. Runs on GitHub's schedule regardless of whether any machine
+      is on. Open question: which repo hosts it — the doctrine references a
+      "private estate-root repo" as atelier's counterpart, but which repo that
+      actually is has never been written down. **Answer that first; it is
+      reusable well beyond this item.**
+- [ ] **C — scheduled local run (cron/launchd).** `floorfleet --remote --check`,
+      shouting on failure. **No new credential** — uses the existing `gh` login.
+      Failure mode: a machine that is off does not check, so drift can sit for
+      as long as the laptop does.
+- [ ] **D — add it to the session-close ritual.** Cheapest, zero infrastructure,
+      and *rejected on this session's own evidence*: it is a discipline, not a
+      mechanism, and the entire finding behind ADR 0008 is that a discipline
+      logged as an intention decays silently. Recorded so the option is visibly
+      considered and dismissed, not quietly skipped.
+
+**Recommendation: B, or C if the preference is to mint nothing.** B is strictly
+better than A for the same outcome. D is not a real option and is listed only to
+close it off.
+
+**Whichever is chosen, the work is small:** the schedule, `--check` wiring, and a
+failure message naming which child dropped the floor and what to do about it. The
+credential, if any, is Mike's to create; the agent wires around an existing
+secret and never mints one.
+
 ### Licence gate — measured, deliberately NOT switched on (2026-07-25)
 
 `licenscan` is opt-in and no child declares a licence, so it runs nowhere but
