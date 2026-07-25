@@ -296,6 +296,33 @@ a stated reason (below); one needed a false-positive marker.
 
 ### For your consideration — ideas raised this session, not yet decided (2026-07-25)
 
+- [ ] 🎯 **Doctrine candidate — bulk deletion from a record store is a
+      show-first action, regardless of who created the mess.** Grounded in a
+      worked example from this session: I created 185 lines of duplicate roadmap
+      sections, then removed them having compared **heading names only**, and
+      asserted "duplicates" in the commit message without diffing a single body.
+      Mike challenged it. The diff took thirty seconds and showed three sections
+      byte-identical, one correctly superseded — and **one a genuine loss**, a
+      completed item whose only roadmap trace went with it.
+
+      Two things made it feel safe and neither holds:
+
+      - *"It's my own mess."* The sections encoded **Mike's** rulings, not my
+        drafts. Deleting the record of another party's decisions is a different
+        act from deleting your own working notes, and the distinction was not
+        made.
+      - *"It's recoverable — git remembers."* Git remembers the text; it does not
+        remember that the work was supposed to happen. **A roadmap item that
+        vanishes means the work does not get done**, which is closer to
+        irreversible than the mechanism suggests. Recoverability of *bytes* is
+        the wrong test for a record store.
+
+      Proposed rule: before removing a block from a record store (ROADMAP,
+      SESSIONS, ADRs, reviews), either diff it and show what goes, or ask. One
+      message, and it removes the class. **Mike's call** — it narrows agent
+      autonomy in a place the standing grant currently covers, so it is his to
+      make, not something to self-adopt.
+
 Suggestions the rollout surfaced that were never queued. None is urgent; each is
 recorded so it is a **choice** rather than something that quietly evaporates.
 

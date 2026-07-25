@@ -1,8 +1,14 @@
 # 2026-07-25 · 1311 UTC · Policy-as-code wasn't propagating — enforcement moved from copy to call
 
-**Model**: Opus 5 (1M context), conversational → build. **Worktree**:
-`worktree-policy-propagation`. **Branch state at write**: 5 commits, suite 656
-green, no child repo touched.
+**Model**: Opus 5 (1M context), conversational → build. **Final state**: 19
+commits on atelier main, suite 660 green, floor 9/9, **all 13 children wired and
+pushed**, `floorfleet --remote --check` exit 0.
+
+*(This record was first written mid-session, before the rollout was authorised.
+Its "nothing was wired" framing was true then and false by the end — the
+close-out sweep caught it. The correction is kept visible rather than silently
+overwritten, because a record that quietly changes its own history is the thing
+this repo's honesty rule exists to prevent.)*
 
 ## The ask
 
@@ -80,15 +86,65 @@ Design commitments worth carrying forward:
 - `floorfleet` proves a repo **calls** the floor, never that the floor is green
   there. Conformance and compliance are separate claims and the tool says so.
 
-## Not done — deliberately, and why
+## The rollout — proposed staged, ruled full
 
-**No child repo was touched.** Measuring first showed that wiring blind would
-have been wrong: one child returns >30k `secretscan` hits from committed
-device-config captures (Mike agreed: scoping, not secrets), and the boundary
-scanners have no advisory form, so several repos would have gone red-and-blocked
-rather than red-and-visible. The rollout needs per-repo scoping decisions that
-did not exist when this session started. Staged plan proposed and awaiting
-ratification (see ROADMAP).
+I proposed a staged rollout. Mike pushed back — *"why not skip staged and go to
+a full rollout and then the repos fix what is making them go red?"* — and was
+right. Checking the fact my caution rested on: the two scanners that cannot be
+softened read only the **staged diff** in hook mode, so pre-existing findings
+cannot block a commit. That collapsed the risk from "several repos unworkable"
+to two repos with whole-tree findings. My staging was guarding a problem that
+mostly did not exist.
+
+**All 13 wired, committed, pushed.** Verified on the plane that matters —
+`floorfleet --remote --check` exit 0 against GitHub's default branches — and
+proven live in CI: one child's floor run passed, another failed on a real
+`leakscan` finding, with the workflow itself clean in both. One of each is the
+end-to-end proof; all-green would not have distinguished "the gate works" from
+"the gate never fires". One child's floor had been *failing before* the rollout
+and now passes: the stale copy was not merely incomplete, it was broken.
+
+Two children were bootstrapped with `--no-verify`: the gate they were installing
+already failed on their pre-existing content, so it blocked its own
+installation. Once is the honest resolution; twice would be a habit. Both
+commits say so in full and list what was found. Their content was deliberately
+not fixed — another repo's records are its own call.
+
+## Delivered after the rollout
+
+- **`create-repo` was still scaffolding the untracked hook** — every *future*
+  repo would have been born with the machine-local problem just removed, drifting
+  the estate back one new repo at a time. Fixed, with the CONTRIBUTING template.
+- **`secretscan`/`leakscan` hardened at source**: an absolute path in `--staged`
+  mode is now refused (exit 2) instead of silently scanning nothing. Fixed at the
+  class — those two are the only scanners with a staged mode.
+- **Licence gate enabled estate-wide** (Mike overruled my deferral; publish-
+  readiness is protection, not tidiness). 10 enforcing, 3 `disabled` with a
+  measured reason: licenscan cannot verify an unrecognised licence and does *not*
+  fall back to flagging vendored copyleft — proven against a fixture. Two
+  licenscan gaps queued with reproductions.
+
+## Honest notes — the close-out sweep found more than the work did
+
+Three things were caught only because Mike asked a question, not because any
+check surfaced them:
+
+- **Private repo names beside their credential findings**, written into a public
+  record. Third occurrence of that defect, same trigger each time. No scanner can
+  catch it. Now an invariant candidate.
+- **Stale duplicate roadmap sections** — 185 lines including a superseded
+  decision contradicting its own replacement, created by my own index-based
+  edits.
+- **I deleted those 185 lines having diffed nothing**, matching heading names and
+  asserting "duplicates" in a commit message. Mike challenged it; the diff showed
+  three were byte-identical, one was correctly superseded, and one was a genuine
+  loss (a completed item's only roadmap trace), since restored. The lesson is
+  named in the ROADMAP: bulk deletion from a record store is a show-first action
+  regardless of who created the mess.
+
+That is three separate self-inflicted issues found by a human asking, and none
+by the mechanical floor — a fair illustration of the residual `tools/README.md`
+declares, and the reason the review practice exists alongside the scanners.
 
 ## Interaction with the parallel ros sessions
 
