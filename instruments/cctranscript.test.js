@@ -41,6 +41,25 @@ test('friendlyModel maps the id table', () => {
   assert.equal(cc.friendlyModel('gpt-4'), 'gpt-4');            // unknown → passed through
 });
 
+test('contextOf counts the cached prefix, not just the fresh input', () => {
+  // The whole point: a long session sends almost everything as cache_read, so
+  // input_tokens alone would report a 400k conversation as a handful of tokens.
+  assert.equal(cc.contextOf({ input_tokens: 12, cache_creation_input_tokens: 4000, cache_read_input_tokens: 8000 }), 12012);
+  assert.equal(cc.contextOf({ input_tokens: 7 }), 7);        // missing cache fields → 0
+  assert.equal(cc.contextOf(undefined), null);               // no usage → unknown, not 0
+});
+
+test('fmtTokens abbreviates to a magnitude you can read at a glance', () => {
+  assert.equal(cc.fmtTokens(477189), '477k');
+  assert.equal(cc.fmtTokens(84929), '85k');    // whole thousands from 10k up
+  assert.equal(cc.fmtTokens(8532), '8.5k');    // a decimal below it, where it matters
+  assert.equal(cc.fmtTokens(12012), '12k');
+  assert.equal(cc.fmtTokens(1234567), '1.2M');
+  assert.equal(cc.fmtTokens(940), '940');
+  assert.equal(cc.fmtTokens(0), null);                       // nothing to report
+  assert.equal(cc.fmtTokens(undefined), null);
+});
+
 test('wrap word-wraps, hard-breaks over-long tokens, and floors width', () => {
   assert.deepEqual(cc.wrap('the quick brown fox', 9), ['the quick', 'brown fox']);
   assert.deepEqual(cc.wrap('abcdefghijkl', 8), ['abcdefgh', 'ijkl']); // hard break at width
@@ -128,6 +147,29 @@ test('contract: default classifies prompts vs replies, maps models, extracts tex
   assert.equal(j.turns[0].text, 'Add a null check to the parser');
   assert.equal(j.turns[0].timestamp, '2026-01-02T03:04:05.000Z');
   assert.equal(j.turns[1].text, "I'll add the null check now.");
+});
+
+test('contract: context peak and final come off the usage records', () => {
+  const j = runJson();
+  // The fixture's second reply is deliberately smaller than the first, the
+  // shape a compacted session leaves: the peak is what the session held, the
+  // final only what survived. Reporting one as the other would be a lie.
+  assert.equal(j.context.peak, 12012);
+  assert.equal(j.context.final, 2105);
+});
+
+test('the summary line reports the context peak; a log without usage omits it', () => {
+  const head = (file) => execFileSync('node', [SCRIPT, '--no-color', file], { encoding: 'utf8' })
+    .split('\n').filter((l) => l.trim())[1];
+  assert.match(head(FIXTURE), /12k context/);
+
+  // Same fixture with the usage records stripped — an older log, or a
+  // synthetic one. The chip disappears rather than claiming a context of 0.
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cctranscript-nousage-'));
+  const bare = path.join(dir, 'bare.jsonl');
+  fs.writeFileSync(bare, fs.readFileSync(FIXTURE, 'utf8')
+    .replace(/"usage":\{[^}]*\},/g, ''));
+  assert.ok(!/context/.test(head(bare)), 'no usage records → no context chip');
 });
 
 test('contract: --tools admits tool calls and tool-result carriers, in order', () => {

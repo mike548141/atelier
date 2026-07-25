@@ -16,7 +16,7 @@ drives Chrome via Playwright); each documents its own runtime.
 | Instrument      | Verb      | What it does                                                         |
 |-----------------|-----------|---------------------------------------------------------------------|
 | `ccrepo`        | observe   | Claude Code token & cost totals, grouped/filtered any way (`-g repo,model`, `--branch`, message-grain cost reconciled against ccusage). Reads the live logs, or ccarchive's mirror (`--from-archive`). |
-| `cctranscript`  | observe   | Timestamped transcript of a session — the timestamps the chat UI hides. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
+| `cctranscript`  | observe   | Timestamped transcript of a session — the timestamps the chat UI hides, plus how big its context grew. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
 | `ccarchive`     | preserve  | Durably mirror every raw `.jsonl` transcript into a compressed, append-only archive that outlives Claude Code's cleanup. |
 | `browser-fetch` | extend    | A browser (fresh headless, or the operator's own Chrome) when `WebFetch`/curl are blocked. MCP server; see its own README. |
 

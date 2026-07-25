@@ -18,6 +18,11 @@
  * the terminal, with light markdown (bold, inline code, headings, lists, links).
  * Colour auto-disables when piped; --json is the machine format, never styled.
  *
+ * The summary line under the header also reports how big the context grew —
+ * the peak of (input + cache_creation + cache_read) across the session's
+ * requests, since a cached prefix still occupies the window. --json carries the
+ * peak and the final size separately; they diverge when a session was compacted.
+ *
  * By default it reads the live logs, which Claude Code prunes after
  * `cleanupPeriodDays`. --from-archive points every view at the compressed mirror
  * ccarchive(1) maintains instead — same discovery, same rendering, reading
@@ -314,6 +319,17 @@ function humanDelta(ms, signed = true) {
   return rm ? `${sign}${h}h${rm}m` : `${sign}${h}h`;
 }
 
+// Token counts for a header chip: abbreviated so the magnitude lands at a
+// glance (8.5k, 477k, 1.2M) rather than as a wall of digits. Whole thousands
+// from 10k up — at that size the hundreds digit tells you nothing.
+function fmtTokens(n) {
+  if (!Number.isFinite(n) || n <= 0) return null;
+  if (n >= 1e6) return `${(n / 1e6).toFixed(1)}M`;
+  if (n >= 1e4) return `${Math.round(n / 1e3)}k`;
+  if (n >= 1e3) return `${(n / 1e3).toFixed(1)}k`;
+  return String(n);
+}
+
 // Summarise a tool_use block's input to a single short line.
 function toolSummary(name, input) {
   if (!input || typeof input !== 'object') return name;
@@ -328,14 +344,36 @@ function toolSummary(name, input) {
   return name;
 }
 
-// Build the ordered list of turns from a session log.
+// Context size at the moment of one request: everything the model was sent,
+// however it was billed. Cached prefix (cache_read) and freshly-cached blocks
+// (cache_creation) are *in* the window — counting input_tokens alone reads a
+// long session as tiny, because almost all of it is served from cache.
+function contextOf(usage) {
+  if (!usage) return null;
+  return (usage.input_tokens || 0)
+    + (usage.cache_creation_input_tokens || 0)
+    + (usage.cache_read_input_tokens || 0);
+}
+
+// Build the ordered list of turns from a session log, plus how big the context
+// grew. `peak` is the high-water mark and `final` the last request's size; they
+// differ when the session was compacted, where the honest headline is the peak
+// (how much the session actually held) rather than what survived the compact.
+// Sidechains aren't filtered out: subagents log to their own files, so every
+// usage record in one log belongs to the thread that log *is*.
 function readTurns(file) {
   const turns = [];
+  const context = { peak: 0, final: 0 };
   const lines = readLogText(file).split('\n');
   for (const ln of lines) {
     if (!ln.trim()) continue;
     let o; try { o = JSON.parse(ln); } catch { continue; }
     const ts = o.timestamp;
+
+    if (o.type === 'assistant') {
+      const ctx = contextOf(o.message && o.message.usage);
+      if (ctx) { context.peak = Math.max(context.peak, ctx); context.final = ctx; }
+    }
 
     if (o.type === 'user' && !o.toolUseResult) {
       const text = extractText(o.message && o.message.content).trim();
@@ -360,7 +398,7 @@ function readTurns(file) {
       }
     }
   }
-  return turns;
+  return { turns, context };
 }
 
 // Number the citable turns in place: each prompt is exchange N (the ▸ N rule),
@@ -610,13 +648,15 @@ function runTranscript() {
   // Judged by the file, not the flag, so an explicit .jsonl.gz path is tagged
   // as archive-sourced too.
   const fromArchive = chosen.file.endsWith('.gz');
-  const turns = numberTurns(readTurns(chosen.file));
+  const { turns: read, context } = readTurns(chosen.file);
+  const turns = numberTurns(read);
 
   if (asJson) {
     console.log(JSON.stringify({
       session: chosen.id, repo: chosen.label, cwd: chosen.cwd,
       source: fromArchive ? 'archive' : 'live',
       timezone: useUtc ? 'UTC' : 'local',
+      context: { peak: context.peak || null, final: context.final || null },
       turns: turns.map((t) => ({ ref: t.ref || null, role: t.role, model: t.model || null, timestamp: t.ts, text: t.text })),
     }, null, 2));
     return;
@@ -638,6 +678,10 @@ function runTranscript() {
   const parts = [`${turns.length} turns`, `${count('you')} you`, `${count('claude')} Claude`];
   if (showThink && count('think')) parts.push(`${count('think')} thinking`);
   if (showTools && count('tool')) parts.push(`${count('tool')} tool`);
+  // How full the window got. Absent from a log with no usage records (an old
+  // or synthetic one), where a silent omission beats a fabricated 0.
+  const ctxChip = fmtTokens(context.peak);
+  if (ctxChip) parts.push(`${ctxChip} context`);
   if (first && last) {
     parts.push(`${fmtTime(first)}–${fmtTime(last)}`);
     const span = new Date(last) - new Date(first);
@@ -684,7 +728,7 @@ if (require.main === module) {
 }
 
 module.exports = {
-  friendlyModel, modelColor, humanDelta, wrap, visLen, padLeftTo,
+  friendlyModel, modelColor, humanDelta, fmtTokens, contextOf, wrap, visLen, padLeftTo,
   styleInline, fmtTime, dateOf, toolSummary, extractText, encodePath, readTurns,
   numberTurns, defaultArchiveDest, readLogText, isDatalessFlags, sessionRecord,
 };

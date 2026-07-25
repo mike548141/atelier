@@ -59,6 +59,18 @@ log, or use
 .BR \-\-repo " and " \-n
 to reach back to an older session or one in another repo.
 .PP
+The summary line under the header also reports how big the context grew: the
+largest single request the session sent, counting the cached prefix
+.RB ( input_tokens " + " cache_creation_input_tokens " + " cache_read_input_tokens )
+\(em cached blocks still occupy the window, so counting fresh input alone would
+report a 400k conversation as a few hundred tokens. It is the peak rather than
+the size at the end, so a compacted session still shows what it actually held.
+.B \-\-json
+carries both, as
+.IR context.peak " and " context.final .
+A log with no usage records (an older or synthetic one) simply omits the figure
+instead of reporting a context of zero.
+.PP
 The live logs are ephemeral: Claude Code deletes them after
 .I cleanupPeriodDays
 (default 30). With
@@ -161,8 +173,10 @@ is set;
 forces it on.
 .TP
 .B \-\-json
-Emit a machine-readable array of turns instead of the human view. Never styled;
-safe to pipe into
+Emit a machine-readable array of turns instead of the human view, alongside the
+session's
+.I context
+peak and final size. Never styled; safe to pipe into
 .BR jq (1).
 .TP
 .BR \-h ", " \-\-help
