@@ -71,6 +71,12 @@ WHAT THIS CANNOT SEE — read before trusting a clean board
 - It reads workflow TEXT. A repo whose floor.yml calls the reusable workflow
   inside a job that never runs (a condition, a disabled workflow) reads as wired.
   Detecting that needs the Actions API and is not attempted.
+- **A local check is reported as DECLARED, never as working.** The `➕` lines
+  come from the child's `.atelier-floor.json` — its own checks, whose code this
+  tool never fetches and could not run. Whether the script is there at all is
+  `floor.py`'s question, answered where the repo is (it fails closed if not).
+  Here the claim is only "this repo says it enforces this", which is still worth
+  a line: it is the one class of check no other repo's board will ever mention.
 
 Usage:
   floorfleet                 discover children + report
@@ -140,6 +146,11 @@ class ChildFloor:
     shim: str = "unknown"
     advisory: list[str] = field(default_factory=list)
     disabled: dict[str, str] = field(default_factory=dict)
+    # Checks this repo declares for itself (floor.py's repo-local seam). Read
+    # here for the same reason `disabled` is: a rule the estate cannot see is a
+    # rule the estate cannot reason about — and unlike a fleet check, nobody
+    # else's floor will ever mention it.
+    local: dict[str, str] = field(default_factory=dict)  # name -> why
 
     @property
     def ok(self) -> bool:
@@ -228,6 +239,7 @@ def evaluate(child: Path, remote: bool) -> ChildFloor:
 
     advisory: list[str] = []
     disabled: dict[str, str] = {}
+    local: dict[str, str] = {}
     raw = read(child, CONFIG_PATH)
     if raw:
         try:
@@ -235,12 +247,20 @@ def evaluate(child: Path, remote: bool) -> ChildFloor:
             advisory = list(cfg.get("advisory", []) or [])
             d = cfg.get("disabled", {}) or {}
             disabled = {k: str(v) for k, v in d.items()} if isinstance(d, dict) else {}
+            loc = cfg.get("local", {}) or {}
+            if isinstance(loc, dict):
+                # Report what the declaration SAYS, not what floor.py would make
+                # of it. This tool reads text off a default branch and must stay
+                # readable against a malformed config — floor.py is the thing
+                # that blocks on one, and it runs where the repo is.
+                local = {k: str((v or {}).get("why", "") if isinstance(v, dict) else "")
+                         for k, v in loc.items()}
         except ValueError:
             detail += " (unreadable .atelier-floor.json)"
 
     return ChildFloor(name=child.name, path=str(child), state=state, detail=detail,
                       hook=hook_state(child), shim=shim_state(read, child),
-                      advisory=advisory, disabled=disabled)
+                      advisory=advisory, disabled=disabled, local=local)
 
 
 ICON = {"wired": "✅", "pinned": "📌", "vendored": "🛑", "absent": "🛑",
@@ -265,6 +285,8 @@ def render(infos: list[ChildFloor], remote: bool) -> str:
             lines.append(f"      ⚠️  {name} advisory — declared, still visible")
         for name, why in i.disabled.items():
             lines.append(f"      ⏭  {name} disabled — {why}")
+        for name, why in i.local.items():
+            lines.append(f"      ➕ {name} local — {why or 'no reason declared'}")
 
     bad = [i for i in infos if not i.ok]
     lines.append("")

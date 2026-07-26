@@ -251,6 +251,187 @@ class ScopeAndFlagsTest(unittest.TestCase):
         self.assertNotIn("--disable", argv)
 
 
+class LocalSeamTest(unittest.TestCase):
+    """The repo-local extension point: a child declaring a check of its OWN.
+
+    The forcing case (`ros`, 2026-07-26) is a tripwire whose blocklist names the
+    estate's own tokens — it can never be a shared scanner, so before this seam
+    the repo's only options were a bespoke hook (falling out of propagation, the
+    exact defect floor.py exists to end) or losing the check.
+
+    Every test here is about the seam being an ADDITION. The moment it can
+    replace, shadow or quietly weaken a fleet check, it has become a hole with a
+    config key in front of it.
+    """
+
+    DECL = {"run": "tools/tripwire.py", "why": "estate tokens never enter a commit"}
+
+    def test_local_check_runs_on_both_planes_by_default(self):
+        cfg = _cfg({"local": {"tripwire": dict(self.DECL)}})
+        for plane in ("hook", "ci"):
+            self.assertEqual(_states(plane, cfg)["tripwire"], "enforced")
+
+    def test_local_check_does_not_disturb_the_fleet_floor(self):
+        cfg = _cfg({"local": {"tripwire": dict(self.DECL)}})
+        states = _states("ci", cfg)
+        self.assertEqual(len(states), len(floor.SCANNERS) + 1)
+        for s in floor.SCANNERS:
+            if not s.opt_in:
+                self.assertEqual(states[s.name], "enforced", f"{s.name} must be untouched")
+
+    def test_a_local_check_may_not_shadow_a_fleet_scanner(self):
+        """The load-bearing guard. If `local` could take a registered name, a
+        child could point `leakscan` at a script that exits 0 — and the board
+        would go on printing 'leakscan enforced' beside it."""
+        with self.assertRaises(floor.ConfigError):
+            _cfg({"local": {"leakscan": {"run": "x.py", "why": "mine now"}}})
+
+    def test_run_path_must_stay_inside_the_repo(self):
+        """The seam runs the repo's own committed code. A path that climbs out
+        of the tree is running something the repo does not hold, on a plane the
+        repo's reviewers never see."""
+        for bad in ("../../etc/evil.sh", "/usr/bin/env", "tools/../../x.py"):
+            with self.assertRaises(floor.ConfigError):
+                _cfg({"local": {"t": {"run": bad, "why": "w"}}})
+
+    def test_a_local_check_states_what_it_protects(self):
+        for bad in ({"run": "x.py"}, {"run": "x.py", "why": "  "}, {"why": "w"}):
+            with self.assertRaises(floor.ConfigError):
+                _cfg({"local": {"t": bad}})
+
+    def test_rejects_local_as_a_bare_list(self):
+        with self.assertRaises(floor.ConfigError):
+            _cfg({"local": [{"name": "t", "run": "x.py", "why": "w"}]})
+
+    def test_planes_must_be_real_and_non_empty(self):
+        for bad in (["prod"], [], ["hook", "staging"]):
+            with self.assertRaises(floor.ConfigError):
+                _cfg({"local": {"t": {**self.DECL, "planes": bad}}})
+
+    def test_hook_only_check_still_lists_on_ci_as_skipped(self):
+        """The machine-local-data case — leakscan's shape, in a child. A check
+        absent from CI must SAY it was absent; silence there is indistinguishable
+        from a check that ran and passed, which is the whole file's defect."""
+        cfg = _cfg({"local": {"tripwire": {**self.DECL, "planes": ["hook"]}}})
+        self.assertEqual(_states("hook", cfg)["tripwire"], "enforced")
+        self.assertEqual(_states("ci", cfg)["tripwire"], "skipped")
+
+    def test_local_check_can_be_softened_by_the_same_two_spellings(self):
+        """One vocabulary. A reader of a board should not need to know whether a
+        softened check was inherited or declared to know what happened to it."""
+        soft = _cfg({"local": {"tripwire": dict(self.DECL)}, "advisory": ["tripwire"]})
+        self.assertEqual(_states("hook", soft)["tripwire"], "advisory")
+        off = _cfg({"local": {"tripwire": dict(self.DECL)},
+                    "disabled": {"tripwire": "rewriting the blocklist"}})
+        self.assertEqual(_states("hook", off)["tripwire"], "disabled")
+
+    def test_disabling_a_local_check_still_needs_a_reason(self):
+        with self.assertRaises(floor.ConfigError):
+            _cfg({"local": {"tripwire": dict(self.DECL)}, "disabled": {"tripwire": " "}})
+
+    def test_scope_and_args_belong_with_the_declaration(self):
+        """One fact, one home. `scope`/`flags` bend a check the child did not
+        write; a local check's own scope and arguments sit beside it, so nobody
+        has to read two blocks to know what actually ran."""
+        for block in ({"scope": {"t": ["src"]}}, {"flags": {"t": ["--quiet"]}}):
+            with self.assertRaises(floor.ConfigError):
+                _cfg({"local": {"t": dict(self.DECL)}, **block})
+
+    def test_local_scope_narrows_the_check(self):
+        cfg = _cfg({"local": {"t": {**self.DECL, "scope": ["src"]}}})
+        self.assertEqual(floor.subtrees(Path("/repo"), cfg, "t"), ["src"])
+
+    def test_rejects_empty_local_scope(self):
+        with self.assertRaises(floor.ConfigError):
+            _cfg({"local": {"t": {**self.DECL, "scope": []}}})
+
+    def test_args_render_with_the_same_templates(self):
+        cfg = _cfg({"local": {"t": {**self.DECL, "args": ["--root", "{root}", "{scope}"]}}})
+        argv = floor._render(cfg.local[0].hook, Path("/repo"), cfg, "t")
+        self.assertEqual(argv, ["--root", "/repo", "/repo"])
+
+
+class LocalSeamInvocationTest(unittest.TestCase):
+    """The seam as it actually executes — fail-closed, and the argv it builds."""
+
+    def _repo(self, td: str, decl: dict, script: str | None = None,
+              name: str = "tools/tripwire.py") -> Path:
+        root = Path(td)
+        (root / floor.CONFIG_NAME).write_text(
+            json.dumps({"local": {"tripwire": decl}}), encoding="utf-8")
+        if script is not None:
+            p = root / name
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(script, encoding="utf-8")
+        return root
+
+    def _floor(self, root: Path) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            [sys.executable, str(TOOLS_DIR / "floor.py"),
+             "--plane", "ci", "--root", str(root), "--json"],
+            capture_output=True, text=True,
+        )
+
+    def test_declared_but_missing_script_blocks(self):
+        """Declaring a check you do not ship must not be a way to look guarded —
+        the same fail-closed rule the registry applies to its own scanners."""
+        with tempfile.TemporaryDirectory() as td:
+            root = self._repo(td, {"run": "tools/tripwire.py", "why": "w"})
+            r = self._floor(root)
+            self.assertEqual(r.returncode, 1)
+            self.assertIn("fail closed", r.stderr.lower())
+            self.assertIn("tripwire", r.stderr)
+
+    def test_a_failing_local_check_blocks_the_floor(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = self._repo(td, {"run": "tools/tripwire.py", "why": "w"},
+                              "import sys; sys.exit(3)")
+            r = self._floor(root)
+            self.assertEqual(r.returncode, 1)
+            got = {x["name"]: x for x in json.loads(r.stdout)["results"]}["tripwire"]
+            self.assertEqual((got["state"], got["rc"], got["local"]),
+                             ("enforced", 3, True))
+
+    def test_an_advisory_local_check_reports_without_blocking(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = self._repo(td, {"run": "tools/tripwire.py", "why": "w"},
+                              "import sys; sys.exit(3)")
+            cfg = json.loads((root / floor.CONFIG_NAME).read_text())
+            cfg["advisory"] = ["tripwire"]
+            (root / floor.CONFIG_NAME).write_text(json.dumps(cfg), encoding="utf-8")
+            r = self._floor(root)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            got = {x["name"]: x for x in json.loads(r.stdout)["results"]}["tripwire"]
+            self.assertEqual(got["state"], "advisory")
+            self.assertEqual(got["rc"], 3, "the check still ran and still failed")
+
+    def test_a_non_python_check_needs_the_execute_bit(self):
+        """Without this guard subprocess raises PermissionError and the whole
+        floor dies with a traceback — which reads as broken tooling rather than
+        the config error it is."""
+        with tempfile.TemporaryDirectory() as td:
+            root = self._repo(td, {"run": "tools/tripwire.sh", "why": "w"},
+                              "#!/bin/sh\nexit 0\n", name="tools/tripwire.sh")
+            r = self._floor(root)
+            self.assertEqual(r.returncode, 1)
+            self.assertIn("not executable", r.stderr)
+            (root / "tools/tripwire.sh").chmod(0o755)
+            self.assertEqual(self._floor(root).returncode, 0)
+
+    def test_local_results_are_marked_in_json_and_render(self):
+        """A consumer must be able to tell an inherited check from a declared
+        one without a lookup table of atelier's registry."""
+        with tempfile.TemporaryDirectory() as td:
+            root = self._repo(td, {"run": "tools/tripwire.py", "why": "w"},
+                              "import sys; sys.exit(0)")
+            payload = json.loads(self._floor(root).stdout)["results"]
+            got = {x["name"]: x for x in payload}
+            self.assertTrue(got["tripwire"]["local"])
+            self.assertFalse(got["secretscan"]["local"])
+            self.assertIn("· local", floor.render(
+                [floor.Result("tripwire", "enforced", 0, local=True)], "ci"))
+
+
 class InvocationTest(unittest.TestCase):
     """End-to-end behaviour of the tool as the hook and CI actually call it."""
 

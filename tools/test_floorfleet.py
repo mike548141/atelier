@@ -127,6 +127,30 @@ class EvaluateTest(unittest.TestCase):
         self.assertEqual(info.advisory, ["wrapscan"])
         self.assertEqual(info.disabled, {"spellscan": "no prose in this repo"})
 
+    def test_reports_a_repos_own_declared_checks(self):
+        """A local check is the one class of check no OTHER repo's board will
+        ever mention — its code is repo-specific by construction. If the board
+        skipped it, the estate's only view of that rule would be the repo
+        itself, which is the pre-ADR-0008 position in miniature."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = self._repo(td, THIN_CALLER, {
+                "local": {"tripwire": {"run": "tools/tripwire.py",
+                                       "why": "estate tokens never enter a commit"}},
+            })
+            info = floorfleet.evaluate(repo, remote=False)
+        self.assertEqual(info.local, {"tripwire": "estate tokens never enter a commit"})
+        self.assertIn("➕ tripwire local", floorfleet.render([info], remote=False))
+
+    def test_a_malformed_local_block_does_not_crash_the_board(self):
+        """floor.py blocks on a bad config, where the repo is. This tool reads
+        text off a default branch and must still render the other 12 children —
+        a board that dies on one repo's typo reports nothing about any of them."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = self._repo(td, THIN_CALLER, {"local": {"t": "not-an-object"}})
+            info = floorfleet.evaluate(repo, remote=False)
+        self.assertEqual(info.local, {"t": ""})
+        self.assertIn("no reason declared", floorfleet.render([info], remote=False))
+
     def test_unreadable_config_is_surfaced_not_swallowed(self):
         with tempfile.TemporaryDirectory() as td:
             repo = self._repo(td, THIN_CALLER)

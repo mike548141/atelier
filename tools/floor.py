@@ -73,6 +73,60 @@ a botched harvest are not re-baselining problems. Only the prose-hygiene checks
 demand a one-off cleanup pass. Asking for an advisory state that a scanner does
 not offer is an error, not a silent downgrade.
 
+THE REPO-LOCAL SEAM — a child may ADD a check, never soften one
+----------------------------------------------------------------
+Everything above is subtraction: a child says which of atelier's checks it is
+not enforcing. There was no addition. A repo with a rule of its own — one that
+is genuinely repo-specific and could never be fleet-wide — had nowhere to put
+it, because the tracked pre-commit hook is deliberately scanner-agnostic and
+this registry is deliberately shared.
+
+The worked case that forced this (`ros`, 2026-07-26): a tripwire whose blocklist
+names the estate's own tokens. That list can never live in a shared repo, so the
+check can never be a `SCANNERS` line — and with no seam, the repo's only options
+were to keep a bespoke hook (falling out of propagation entirely, which is the
+defect this whole file exists to end) or to lose the check. Both are worse than
+the check running from a declaration the fleet board can see.
+
+So `local` in `.atelier-floor.json` declares checks the CHILD owns:
+
+  "local": {
+    "tripwire": {
+      "run": "tools/tripwire.py",        (required) repo-relative, inside the repo
+      "why": "estate tokens never enter a commit",   (required) one line
+      "planes": ["hook"],                 default both — hook-only is legitimate
+      "args": ["--staged", "--root", "{root}"],      same templates as above
+      "scope": ["src"]                    default the whole repo
+    }
+  }
+
+Three properties make this an extension point rather than a hole:
+
+  it only ADDS      a local name that collides with a registered scanner is a
+                    hard config error. The seam cannot replace, shadow or
+                    weaken a fleet check — PROPAGATION's narrow-not-contradict,
+                    applied to enforcement.
+  it fails CLOSED   a declared check whose script is missing BLOCKS, exactly as
+                    a missing shared scanner does. Declaring a check you do not
+                    ship is not a way to look guarded.
+  it is VISIBLE     local checks are in `--list`, in `--json`, in the render, and
+                    on `floorfleet`'s board. A repo's own rules are estate-legible
+                    even though their CODE is not shared.
+
+Softening works through the same two spellings as everything else: name a local
+check in `advisory` or `disabled` and it reads identically on the board. One
+honest difference — a shared scanner's advisory state swaps in that scanner's
+own `--warn` form, so its OUTPUT says warning; the floor cannot know a local
+check's flags, so advisory there is a floor-level downgrade and the check's own
+output will still read as a failure. It does not block; it just still looks
+alarming. If that matters, give the check a quieter form and declare it in
+`args`.
+
+What this seam is NOT: a way to run arbitrary work in the commit path of a repo
+you do not control. `run` must resolve inside the repo being scanned, and it is
+invoked directly — never through a shell. It is the child's own code, in the
+child's own hook and the child's own CI, which is code both already run.
+
 FAIL CLOSED
 -----------
 A gate whose whole job is to block bad commits must not pass silently when its
@@ -116,7 +170,7 @@ import os
 import subprocess
 import sys
 from dataclasses import dataclass, field
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 CONFIG_NAME = ".atelier-floor.json"
 
@@ -145,6 +199,18 @@ class Scanner:
     why: str
     default_scope: str = "root"  # "root" | "docs"
     opt_in: bool = False  # runs only when the child's config asks for it
+    # Set only for a check the CHILD declares (see THE REPO-LOCAL SEAM). The
+    # repo-relative path to its script — resolved against the repo being scanned,
+    # never against atelier's tools dir, which is the whole point.
+    run: str | None = None
+    # A local check carries its own scope inline rather than through the shared
+    # `scope` map: the child is declaring the check and where it looks in one
+    # place, and there is no fleet-wide default to override.
+    scope_paths: tuple[str, ...] = ()
+
+    @property
+    def is_local(self) -> bool:
+        return self.run is not None
 
 
 # The registry. Adding a line here is how a new policy reaches the whole estate.
@@ -231,6 +297,106 @@ class ConfigError(RuntimeError):
     """A child's floor config is unusable. Fail closed — never scan on a guess."""
 
 
+PLANES = ("hook", "ci")
+
+
+def _load_local(raw: object) -> tuple[Scanner, ...]:
+    """Parse the `local` block into Scanners — the child's own checks.
+
+    Every rejection here is deliberate: a malformed local declaration must not
+    become "no check", because the repo declaring it believes it is covered."""
+    if isinstance(raw, list):
+        raise ConfigError(
+            f'{CONFIG_NAME}: `local` must be an object of {{"name": {{...}}}} — '
+            "a check is named so it can be softened, disabled and read off the "
+            "fleet board by that name"
+        )
+    if not isinstance(raw, dict):
+        raise ConfigError(f"{CONFIG_NAME}: `local` must be an object")
+
+    out: list[Scanner] = []
+    for name, decl in raw.items():
+        if name in BY_NAME:
+            raise ConfigError(
+                f"{CONFIG_NAME}: `local.{name}` collides with atelier's own "
+                f"{name} — the local seam ADDS checks, it never replaces one. "
+                "To vary a fleet check use `scope`/`flags`, or declare it "
+                "`advisory`/`disabled` with a reason."
+            )
+        if not isinstance(decl, dict):
+            raise ConfigError(
+                f"{CONFIG_NAME}: `local.{name}` must be an object with at least "
+                "`run` and `why`"
+            )
+
+        run = str(decl.get("run", "") or "").strip()
+        why = str(decl.get("why", "") or "").strip()
+        if not run:
+            raise ConfigError(f"{CONFIG_NAME}: `local.{name}` needs a `run` path")
+        if not why:
+            # Same rule as a reasoned disable, for the same reason: a check
+            # nobody can state the point of is one nobody will maintain, and it
+            # prints on the board with nothing beside it.
+            raise ConfigError(
+                f"{CONFIG_NAME}: `local.{name}` needs a `why` — one line on what "
+                "it protects, printed by --list and on the fleet board"
+            )
+        run_path = PurePosixPath(run)
+        if run_path.is_absolute() or ".." in run_path.parts:
+            raise ConfigError(
+                f"{CONFIG_NAME}: `local.{name}.run` must be a path INSIDE the "
+                f"repo, got {run!r}. The seam runs the repo's own committed "
+                "code; anything else is not the repo's floor."
+            )
+
+        planes = decl.get("planes", list(PLANES)) or []
+        if isinstance(planes, str):
+            planes = [planes]
+        planes = [str(p) for p in planes]
+        unknown = [p for p in planes if p not in PLANES]
+        if unknown:
+            raise ConfigError(
+                f"{CONFIG_NAME}: `local.{name}.planes` has unknown "
+                f"{', '.join(unknown)} (known: {', '.join(PLANES)})"
+            )
+        if not planes:
+            raise ConfigError(
+                f"{CONFIG_NAME}: `local.{name}.planes` is empty — a check that "
+                "runs on no plane is a declaration with nothing behind it"
+            )
+
+        raw_args = decl.get("args", []) or []
+        if isinstance(raw_args, str):
+            raw_args = [raw_args]
+        args = [str(a) for a in raw_args]
+
+        raw_scope = decl.get("scope", []) or []
+        if isinstance(raw_scope, str):
+            raw_scope = [raw_scope]
+        scope = tuple(str(s) for s in raw_scope)
+        if "scope" in decl and not scope:
+            raise ConfigError(
+                f"{CONFIG_NAME}: `local.{name}.scope` is empty — narrowing a "
+                "check to nothing is a silent hole, not a scope"
+            )
+
+        out.append(Scanner(
+            name=name,
+            hook=args if "hook" in planes else None,
+            ci=args if "ci" in planes else None,
+            # A local check is softenable, and its advisory form is its ONLY
+            # form: the floor cannot know this check's flags, so `advisory`
+            # downgrades the RESULT rather than the invocation. Stated in the
+            # module docstring, because the difference from a fleet scanner's
+            # `--warn` is visible in the check's own output.
+            advisory=args,
+            why=why,
+            run=run,
+            scope_paths=scope,
+        ))
+    return tuple(out)
+
+
 @dataclass
 class Config:
     docs: str = "docs"
@@ -252,6 +418,19 @@ class Config:
     # which is why it lives in a committed file that `floorfleet` reads out
     # estate-wide — declared and visible, never quietly applied.
     flags: dict[str, tuple[str, ...]] = field(default_factory=dict)
+    # Checks the CHILD declares and ships — see THE REPO-LOCAL SEAM. Held as
+    # Scanners so every stage below (plan, scope, render, run) treats them
+    # identically to a fleet check; the only thing that differs is where the
+    # script is found.
+    local: tuple[Scanner, ...] = ()
+
+    def scanner(self, name: str) -> Scanner | None:
+        """The registered scanner or the child's local check of that name. One
+        lookup, so no stage can accidentally honour only half the floor."""
+        found = BY_NAME.get(name)
+        if found is not None:
+            return found
+        return next((s for s in self.local if s.name == name), None)
 
     @staticmethod
     def load(root: Path) -> "Config":
@@ -303,7 +482,8 @@ class Config:
         cfg = Config(docs=docs, licence=licence, advisory=advisory,
                      disabled=disabled,
                      scope=_str_map("scope", allow_empty=False),
-                     flags=_str_map("flags", allow_empty=False))
+                     flags=_str_map("flags", allow_empty=False),
+                     local=_load_local(raw.get("local", {}) or {}))
         cfg.validate()
         return cfg
 
@@ -311,18 +491,32 @@ class Config:
         """Reject a config that does not mean what it says. Every one of these is
         a block, not a warning — a floor that quietly ignores half its config is
         worse than no config, because it reads as covered."""
+        local_names = {s.name for s in self.local}
+        known = {*BY_NAME, *local_names}
         for name in (*self.advisory, *self.disabled, *self.scope, *self.flags):
-            if name not in BY_NAME:
+            if name not in known:
                 raise ConfigError(
                     f"{CONFIG_NAME}: unknown scanner {name!r} "
-                    f"(known: {', '.join(sorted(BY_NAME))})"
+                    f"(known: {', '.join(sorted(known))})"
                 )
+        # `scope`/`flags` tune a check the child did NOT write, so they exist to
+        # bend a fleet scanner to a repo. A local check's scope and arguments are
+        # declared where the check is — one fact, one home. Accepting both spellings
+        # would mean two places to read before you know what a check actually ran.
+        for key, block in (("scope", self.scope), ("flags", self.flags)):
+            for name in block:
+                if name in local_names:
+                    raise ConfigError(
+                        f"{CONFIG_NAME}: `{key}.{name}` names a local check — "
+                        f"declare it in `local.{name}.{'scope' if key == 'scope' else 'args'}` "
+                        "instead, where the check itself is defined"
+                    )
         for name in self.advisory:
             if name in self.disabled:
                 raise ConfigError(
                     f"{CONFIG_NAME}: {name!r} is both advisory and disabled — pick one"
                 )
-            if BY_NAME[name].advisory is None:
+            if self.scanner(name).advisory is None:
                 raise ConfigError(
                     f"{CONFIG_NAME}: {name!r} has no advisory form and may not be "
                     "softened — it is a boundary or integrity check. Fix the "
@@ -352,6 +546,7 @@ class Result:
     state: str  # enforced | advisory | disabled | skipped
     rc: int
     reason: str = ""
+    local: bool = False  # declared by this repo, not inherited from the fleet
 
     @property
     def failed(self) -> bool:
@@ -390,7 +585,9 @@ def subtrees(root: Path, cfg: Config, name: str) -> list[str]:
     override = cfg.scope.get(name)
     if override:
         return list(override)
-    scanner = BY_NAME.get(name)
+    scanner = cfg.scanner(name)
+    if scanner is not None and scanner.scope_paths:
+        return list(scanner.scope_paths)
     if scanner is not None and scanner.default_scope == "docs":
         return [cfg.docs]
     return ["."]
@@ -430,14 +627,33 @@ def _render(args: list[str], root: Path, cfg: Config,
     return out
 
 
+def _interpreter(path: Path) -> list[str]:
+    """How to invoke a check. atelier's scanners are Python and are run with the
+    SAME interpreter this file is running under — never a bare `python` off the
+    PATH. A local check may be anything the repo ships, so a non-`.py` script is
+    executed directly and carries its own shebang. Never through a shell: an
+    argument is an argument, not something a repo's filename can turn into one."""
+    if path.suffix == ".py":
+        return [sys.executable]
+    return []
+
+
 def plan(plane: str, cfg: Config) -> list[tuple[Scanner, str]]:
     """Decide what runs, in what state, before running anything. Kept separate
     from execution so `--list` and the selftest can prove the decision without
     invoking a single scanner."""
     out: list[tuple[Scanner, str]] = []
-    for s in SCANNERS:
+    # Fleet checks first, then the child's own — the floor a repo inherits is
+    # read before the floor it adds, in the output as in the doctrine.
+    for s in (*SCANNERS, *cfg.local):
         args = s.hook if plane == "hook" else s.ci
         if args is None:
+            # A local check may legitimately be hook-only — the ros tripwire's
+            # blocklist is machine/repo-local, the same shape as leakscan's term
+            # list. It still LISTS on the other plane, saying it did not run
+            # there: a check absent from CI must not read as a check that passed.
+            if s.is_local:
+                out.append((s, "skipped"))
             continue
         if s.name in cfg.disabled:
             out.append((s, "disabled"))
@@ -462,22 +678,56 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
             results.append(Result(scanner.name, state, 0, cfg.disabled[scanner.name]))
             continue
         if state == "skipped":
-            results.append(Result(scanner.name, state, 0, "no licence declared"))
+            reason = ("no licence declared" if scanner.opt_in
+                      else f"not declared on the {plane} plane")
+            results.append(Result(scanner.name, state, 0, reason,
+                                  local=scanner.is_local))
             continue
 
-        path = tools / f"{scanner.name}.py"
+        # A local check comes from the repo being scanned; a fleet check comes
+        # from atelier's tools dir. That one line is the whole difference.
+        path = (root / scanner.run) if scanner.is_local else (tools / f"{scanner.name}.py")
         if not path.is_file():
             # Fail closed, loudly. This is the case the whole design exists for:
             # a child pointed at a tools dir that isn't there must NOT sail past.
+            if scanner.is_local:
+                print(
+                    f"floor: {scanner.name} declares run={scanner.run!r} in "
+                    f"{CONFIG_NAME}, and it is not in this repo — BLOCKING "
+                    "(fail closed).\n"
+                    "  A declared check that is not there must not read as a "
+                    "check that passed.\n"
+                    "  Ship the script, fix the path, or remove the "
+                    f"`local.{scanner.name}` declaration.",
+                    file=sys.stderr,
+                )
+            else:
+                print(
+                    f"floor: {scanner.name}.py not found under {tools} — BLOCKING "
+                    "(fail closed).\n"
+                    "  The scanners live in atelier's tools/. Point at them with:\n"
+                    "    git config hooks.atelierTools <atelier-path>/tools\n"
+                    "  or set ATELIER_TOOLS in the environment.",
+                    file=sys.stderr,
+                )
+            results.append(Result(scanner.name, "enforced", 1, "scanner missing",
+                                  local=scanner.is_local))
+            continue
+
+        # A non-Python check runs on its own shebang, so it needs the execute
+        # bit. Without this it raises PermissionError deep inside subprocess and
+        # takes the whole floor down with a traceback — a crash reads as broken
+        # tooling, not as the config error it actually is.
+        if scanner.is_local and path.suffix != ".py" and not os.access(path, os.X_OK):
             print(
-                f"floor: {scanner.name}.py not found under {tools} — BLOCKING "
-                "(fail closed).\n"
-                "  The scanners live in atelier's tools/. Point at them with:\n"
-                "    git config hooks.atelierTools <atelier-path>/tools\n"
-                "  or set ATELIER_TOOLS in the environment.",
+                f"floor: {scanner.name} → {scanner.run} is not executable — "
+                "BLOCKING (fail closed).\n"
+                f"  chmod +x {scanner.run}, or give it a .py suffix to run under "
+                "this interpreter.",
                 file=sys.stderr,
             )
-            results.append(Result(scanner.name, "enforced", 1, "scanner missing"))
+            results.append(Result(scanner.name, "enforced", 1, "not executable",
+                                  local=True))
             continue
 
         base = scanner.advisory if state == "advisory" else (
@@ -494,10 +744,11 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
         trees = [p for p in declared if (root / p).exists()]
         if not trees:
             results.append(Result(scanner.name, "skipped", 0,
-                                  f"no {', '.join(declared)} tree in this repo"))
+                                  f"no {', '.join(declared)} tree in this repo",
+                                  local=scanner.is_local))
             continue
 
-        argv = [sys.executable, str(path),
+        argv = [*_interpreter(path), str(path),
                 *_render(base, root, cfg, scanner.name, trees)]
         # Actions' workflow commands go to the SAME stream the scanners' own
         # prose does (`child_stdout`: stderr under --json, stdout otherwise) —
@@ -514,7 +765,7 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
             if rc != 0 and state == "enforced":
                 print(f"::error::{scanner.name} failed — {scanner.why}",
                       file=child_stdout, flush=True)
-        results.append(Result(scanner.name, state, rc))
+        results.append(Result(scanner.name, state, rc, local=scanner.is_local))
     return results
 
 
@@ -524,7 +775,11 @@ def render(results: list[Result], plane: str) -> str:
     for r in results:
         mark = "❌" if r.failed else icon[r.state]
         note = f"  ({r.reason})" if r.reason else ""
-        lines.append(f"  {mark} {r.name:<11} {r.state}{note}")
+        # A local check is marked, not segregated: it blocks the same commit as
+        # a fleet check, so it belongs in the same list — but a reader must be
+        # able to tell which line came from this repo's own decision.
+        tag = " · local" if r.local else ""
+        lines.append(f"  {mark} {r.name:<11} {r.state}{tag}{note}")
     bad = [r.name for r in results if r.failed]
     if bad:
         lines.append("")
@@ -613,6 +868,56 @@ def _selftest() -> int:
           "--disable" not in _render(BY_NAME["secretscan"].hook, root,
                                      flagged, "secretscan"))
 
+    # THE REPO-LOCAL SEAM — it must only ever ADD.
+    tripwire = {"local": {"tripwire": {"run": "tools/tripwire.py",
+                                       "why": "estate tokens never enter a commit",
+                                       "planes": ["hook"]}}}
+    with tempfile.TemporaryDirectory() as td:
+        p = Path(td)
+        (p / CONFIG_NAME).write_text(json.dumps(tripwire), encoding="utf-8")
+        loaded = Config.load(p)
+    check("local check parses", len(loaded.local) == 1)
+    check("local check is marked local", loaded.local[0].is_local)
+    hook_states = {s.name: st for s, st in plan("hook", loaded)}
+    ci_states = {s.name: st for s, st in plan("ci", loaded)}
+    check("local check enforces on its declared plane",
+          hook_states["tripwire"] == "enforced")
+    check("off-plane local check still lists, as skipped",
+          ci_states["tripwire"] == "skipped")
+    check("a local check does not disturb the fleet floor",
+          hook_states["secretscan"] == "enforced" and len(hook_states) == len(SCANNERS) + 1)
+    check("local scope is read from the declaration",
+          subtrees(root, Config(local=(Scanner("x", [], [], [], "w", run="c.py",
+                                               scope_paths=("src",)),)), "x") == ["src"])
+
+    # Softening a local check uses the SAME two spellings as everything else.
+    soft = {"local": tripwire["local"], "advisory": ["tripwire"]}
+    with tempfile.TemporaryDirectory() as td:
+        p = Path(td)
+        (p / CONFIG_NAME).write_text(json.dumps(soft), encoding="utf-8")
+        loaded = Config.load(p)
+    check("local check can be advisory",
+          dict((s.name, st) for s, st in plan("hook", loaded))["tripwire"] == "advisory")
+
+    # The seam's own guards. The first is the load-bearing one: a local check
+    # that could take a fleet scanner's name could silently replace it.
+    rejects("local shadowing a fleet scanner",
+            {"local": {"leakscan": {"run": "x.py", "why": "mine now"}}})
+    rejects("local escaping the repo",
+            {"local": {"t": {"run": "../../etc/evil.sh", "why": "w"}}})
+    rejects("local with an absolute run path",
+            {"local": {"t": {"run": "/usr/bin/env", "why": "w"}}})
+    rejects("reasonless local", {"local": {"t": {"run": "x.py"}}})
+    rejects("runless local", {"local": {"t": {"why": "w"}}})
+    rejects("local on an unknown plane",
+            {"local": {"t": {"run": "x.py", "why": "w", "planes": ["prod"]}}})
+    rejects("local on no plane at all",
+            {"local": {"t": {"run": "x.py", "why": "w", "planes": []}}})
+    rejects("local as a list", {"local": [{"name": "t"}]})
+    rejects("local tuned through the fleet blocks",
+            {"local": {"t": {"run": "x.py", "why": "w"}},
+             "flags": {"t": ["--quiet"]}})
+
     rejects("unknown scanner", {"disabled": {"nosuchscan": "why"}})
     rejects("empty scope override", {"scope": {"wrapscan": []}})
     # The sharpest one: --warn via `flags` would be an advisory downgrade that
@@ -666,7 +971,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.list:
         for s, state in plan(args.plane, cfg):
-            print(f"{s.name:<11} {state:<9} {s.why}")
+            origin = "local" if s.is_local else "fleet"
+            print(f"{s.name:<11} {state:<9} {origin:<6} {s.why}")
         return 0
 
     tools = resolve_tools_dir(args.tools)
