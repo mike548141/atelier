@@ -84,6 +84,16 @@ are what generalise to any adopter.
       markers on one line, no base64 body: documentation describing a key file's
       format. Resolved; wants an allow-marker, never rotation. Recorded because
       it is the archetypal false positive of this rule and will recur.
+- [ ] **Two clock times side by side read as an IPv6 address** (found 2026-07-26,
+      writing a CHANGELOG line about a CLI that prints a time span). `HH:MM:SS to
+      HH:MM:SS` trips the structural `ipv6` rule twice. Same archetypal-false-
+      positive class as the bullet above, and it will recur wherever a record
+      quotes a rendered time range. Resolved that day by **describing the format
+      instead of quoting it** — the cheaper move, and the one that leaves no
+      exemption behind. Open question for triage: whether the `ipv6` rule should
+      require more than two colon-separated groups, or whether describe-don't-
+      quote is simply the standing answer for record prose (it already is for
+      example credentials).
 
 ### Candidate invariant — the public-record join, breached three times
 
@@ -1021,6 +1031,32 @@ What remains is Mike's:
     keep both — sign for tamper-evidence, encrypt for confidentiality.
   Review WARRANTED when it moves from design to build (touches SECRETS.md +
   the instruments crypto surface).
+
+### cctranscript (2026-07-26)
+
+The header's summary line gained a **context size** and a **subagent count**
+2026-07-26 (`19ef66d`, `2e8efb5`, `ae56b75`) → detail in
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md) at next harvest. Two strands stay open,
+both deliberately not built:
+
+- [ ] **Context as a share of the window** (`477k / 1M (48%)`). Wanted — a raw
+      figure doesn't say whether a session was near its ceiling. **Blocked on
+      evidence, not effort:** the log records the model as `claude-opus-5` with
+      no field distinguishing the 200k variant from the 1M one, so any
+      denominator today is a guess, and inferring it from the measurement
+      ("peak > 200k, therefore 1M") is exactly the grounding failure the
+      numeric-limits rule forbids. Unblocks if a variant/window field appears in
+      the log, or if a machine-local config states it per model — never by
+      inference from the number being explained.
+- [ ] **Exact agent count, where the evidence supports one.** The shipped count
+      reads the *spawn calls*, which is a ceiling: a skipped or stopped spawn
+      still counts. The stricter source is the sibling `<session-uuid>/
+      subagents/` directory — one log per agent that actually ran — which
+      ccarchive already mirrors. Not built because it needs a directory-aware
+      read alongside the single-file path resolution both live and archive modes
+      use, and a ceiling that holds in both modes beat an exact figure honest in
+      only one. Worth revisiting as *both* figures (started vs finished), since
+      the gap between them is itself the interesting signal.
 
 ### ccrepo (Mike, 2026-07-17)
 
