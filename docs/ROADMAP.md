@@ -1079,11 +1079,100 @@ live, per-file keying, transparent-by-default confirmed by Mike) closed
 2026-07-23 → [`ROADMAP-DONE.md`](ROADMAP-DONE.md); the **context-size column**
 (`Context med/max` — per-session peak windows, median beside max, with the full
 distribution in `--json`/`--csv`) closed 2026-07-26; the **`opus-5` price gap**
-(found and closed the same day — see below) closed 2026-07-26. ccrepo strand
-closed but for the dated price-table watch below and the `-g session` gap found
-by use on 2026-07-26.
+(found and closed the same day — see below) closed 2026-07-26. **Strand reopened
+the same day**: Mike queued five v3 asks (below), one of which subsumes the dated
+price-table watch and one of which answers the `-g session` question.
 
-#### 🤔 No `-g session` — "which sessions ran hottest?" can't be asked
+#### 🎯 v3 — five asks (Mike, 2026-07-26)
+
+Build order is not ask order. (1) is a **correctness** change — every other
+number ccrepo prints depends on it — and (5) is easier once (2)–(4) know what
+flags they're adding, so: pricing → session dimension → context filter → sort →
+CLI tidy. One of the five carries a decision that is Mike's, marked 🎯 inline.
+
+- [ ] **1. Time-bound the price table — a price is effective from A to B.**
+      Today `PRICING` is one flat USD-per-MTok input base per short model name,
+      so a 2026-06 message is priced at *today's* rate and nothing in the tool
+      can say otherwise. Shape: a bare number stays legal and means "always"
+      (keeps every current entry and the `~/.claude/ccrepo-pricing.json`
+      override valid), with an array of `{from, to, base}` intervals as the
+      richer form — open-ended at either end, ISO dates, UTC. `priceBase()` and
+      `messageCost()` both gain the message timestamp; the caller already holds
+      it as `e.ts`, so no new plumbing reaches the walker. **A timestamp inside
+      no interval is *unpriced*** — the existing unknown-model path (cost 0 + the
+      ⚠ footnote), never a silent snap to the nearest interval; a price we don't
+      have is not a price we can infer (the `opus-5` rule below, restated at the
+      point it would next be broken). The multipliers (output 5×, cache read
+      0.1×, write-5m 1.25×, write-1h 2×) stay flat for now, but the interval
+      should be an *object* so a multiplier can join it without another schema
+      move. **Rollup:** likely no `ROLLUP_SCHEMA` bump — cached events bake cost,
+      and the recipe signature already `stableStringify`s the price table, so a
+      shape change should rebuild the ledger by itself. Verify that rather than
+      assume it; a stale ledger here shows a confidently wrong dollar figure.
+      **Proof it works is free:** ccusage prices historically, so the
+      cross-check should hold at ~$0.00 across old months — a regression surfaces
+      as per-model drift on exactly the months a price moved.
+      *This subsumes the ⏳ `sonnet-5` watch below*: the 2026-09-01 revert stops
+      being a diary note and becomes a row entered **now** (`$2` to 2026-08-31,
+      `$3` from 2026-09-01), correct on both sides of the date without anyone
+      remembering.
+- [ ] **2. Filter by context size, between two figures.** `--context 100k-500k`,
+      open-ended either end (`--context 400k-`, `--context -100k`), `k`/`m`
+      suffixes — one selector flag rather than a `--context-min`/`--context-max`
+      pair, matching how the other filters read as *what they select*.
+      **The grain needs stating in `--help`, because it is the first filter whose
+      unit isn't the message:** context is a **per-session peak** (design §4), so
+      this selects *sessions* whose peak falls in the band and admits all their
+      messages. The message-grain reading is available but near-meaningless —
+      every session ramps up through every band beneath its peak, so a
+      message-level filter matches almost every session at almost every band.
+      Pairs directly with (3): `-g session --context 500k-` is "which sessions
+      blew past 500k", the exact question that needed an ad-hoc script on
+      2026-07-26.
+- [ ] **3. `-g session`.** Mike asking for it answers the *worth* half of the
+      open question below; the *shape* half survives — 420 sessions emit 420
+      rows. Filters plus the default cost-descending sort carry most of it;
+      `--top <n>` is the remaining sub-question and it belongs with (4). Cheap
+      to build: every event already carries its session id and each tree node
+      keys its context map by session, so this is a `DIMS` entry plus label
+      formatting, not a grain change. Labels are UUID prefixes — §5 permits a
+      synthetic `#n` as a *display label*, never a key.
+- [ ] **4. 🎯 Multi-column sort — half of this exists, and the syntax collides.**
+      `--sort` already takes `:asc`/`:desc`, so the direction half is built. But
+      the existing flag is **positional per group level**, aligned to `-g`:
+      `--sort cost,name` today means *"level 1 by cost, level 2 by name"*, not
+      *"cost, then name as tiebreaker"* — which is what `--sort columnA,columnB`
+      reads as. Same flag, same punctuation, two meanings. Worth naming why:
+      in a **tree**, sort is inherently per-level — rows at different depths
+      can't interleave — so "sort the whole table by two columns" only has a
+      literal meaning under `--flat`/`--json`/`--csv`. Options:
+      **A** keep the comma positional, add within-level multi-key on a second
+      separator (`--sort 'cost+name, time'`); **B** re-read the comma as
+      multi-key and move per-level elsewhere — breaks the documented v2 spec and
+      every existing invocation; **C** multi-key only in the flat outputs, tree
+      stays positional. **Recommend A, plus C where it's free** — purely
+      additive, `--sort cost` still broadcasts, nothing already written stops
+      working. 🎯 Mike's call: it's his flag's meaning, and B is the only one
+      that can't be walked back.
+- [ ] **5. Section the CLI surface.** `--help` is one flat 25-line `OPTIONS`
+      block and this batch adds at least three more flags to it. **Tiki is the
+      named reference and the transferable part is the grouping, not the
+      machinery** — tiki gets its panels from Typer's `rich_help_panel`
+      (*Daily* · *Inventory & read-model* · *Adopt & recover* · *Diagnose &
+      locate* · *Self-healing* · *Security* · *Meta*) plus an epilog that states
+      exit codes; ccrepo's help is a hand-written string in Node, so it copies
+      the *named sections*, not Typer. Proposed: **SELECT** (all filters,
+      including `--since`/`--until`/`--context`) · **SHAPE** (`-g`, `--sort`,
+      `--top`, `--flat`) · **OUTPUT** (`--json`, `--csv`, `--fx`, `--rate`) ·
+      **SOURCE** (`--from-archive`, `--dest`, `--materialise`, `--no-rollup`) ·
+      **PRICING** (`--no-billing`, `--no-reconcile`) · **META** (`-z`, `-h`).
+      The trailing prose paragraph stays — it's the part that says what the
+      numbers *are*. `--help` remains the summary and `man ccrepo` the long form
+      (2026-07-21 convention). Whether ccarchive and cctranscript follow is a
+      **separate** call: a convention is something repeated deliberately, and
+      three tools sectioned by drift is not that.
+
+#### `-g session` — asked for 2026-07-26 (tracked as v3 ask 3); grounding kept
 
 `session` is a **filter** (`--session <uuid-prefix>`) but not a **group
 dimension**, so `Context med/max` can say a repo peaked at 529k without any way
@@ -1104,6 +1193,12 @@ it sane · a `--top <n>` truncation that pairs with `--sort` · leave it out and
 let ad-hoc scripts own per-session questions. Display labels would use UUID
 prefixes; §5 already allows a synthetic `#n` as a label but never a key.
 
+**Answered, same day:** Mike asked for it (v3 ask 3 above), which settles *worth*
+— option three is out. The remaining choice is between a plain dimension and one
+paired with `--top`, and it now travels with the sort ask, where `--top` actually
+belongs. This block stays for the grounding — how the gap was found, and why it
+was never a design defect.
+
 #### ⏳ `sonnet-5` is priced at the introductory rate — reverts 2026-09-01
 
 `sonnet-5` is in the table at **$2**/MTok input. That is Anthropic's *introductory*
@@ -1117,6 +1212,13 @@ will catch it (the footnote will start showing a per-model sonnet-5 delta), but
 a reconciliation alarm firing on a known, diarised date is a worse outcome than
 just making the edit. Not pre-applied, because $2 is genuinely correct today and
 changing it now would make ccrepo wrong for the next five weeks.
+
+**v3 ask 1 dissolves this item rather than doing it.** Time-bounded prices let
+both numbers be entered now, each correct on its own side of 2026-08-31 — the
+diary note becomes data. Two conditions on retiring the ⏳: the interval work has
+to **land** before 2026-09-01 (until then this stays the live safeguard), and the
+flat `3` edit remains the fallback if it slips. A structural fix that arrives
+late is worse than the one-line edit it was meant to replace.
 
 Resolved, same session (2026-07-26) — kept for the reasoning, which generalises:
 
