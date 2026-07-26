@@ -340,9 +340,9 @@ Peaks are per
 .IR session ,
 not per message, because every session ramps up from near-empty: a message-grain
 median understates the weight sessions actually reach. When a session is split
-across groups (it ran on two branches, say) each slice reports the largest window
-reached while in that slice, which is what a per-slice reading means; the parent
-row still reports the session's true peak.
+across groups \(em it ran on two branches, say \(em each slice reports the
+largest window reached while in that slice, which is what a per-slice reading
+means; the parent row still reports the session's true peak.
 .PP
 There is deliberately
 .B no percentage-of-window
