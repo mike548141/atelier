@@ -38,8 +38,12 @@ the mechanism works.
 > 📦 **2 completed items** in this section → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
 >   (the 13-repo wiring, and the repo-specific scoping preserved with it).
 
-- [ ] ⏳ **ADR 0008 review owed** — self-authored, so this session may not review
-      it (REVIEW.md rule 4). Aim a reviewer at the one real trade: moving every
+- [~] **ADR 0008 review owed** — self-authored, so the authoring session may not
+      review it (REVIEW.md rule 4).
+      (**claimed 2026-07-26 0647 UTC** by a rule-4-eligible session — Mike-spawned
+      ("do any review work"), authored neither the ADR nor the rollout;
+      brief: `reviews/2026-07-26-0647-adr0008-called-not-copied-cold.md`,
+      wt: `atelier-review-0647-take`.) Aim a reviewer at the one real trade: moving every
       repo onto a floating `@main` caller swaps a slow silent failure for a fast
       loud estate-wide one. Is that right for a security floor?
 - [ ] **Two children were bootstrapped with `--no-verify`** — the gate they were
@@ -826,8 +830,12 @@ earlier; S2 `pathscan` `b738f21` + S4 `stampscan` `2fe97f3` this run — detail 
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md)). **S1/S3/S5 first-of-kind reviews are DONE**
 (S3 at 0618; S1 + S5 at 0707 — verdicts + follow-ons below). **S2 + S4 reviews
 are the open first-of-kind work (⏳ below).**
-- ⏳ **pathscan (S2) first-of-kind review** — advisory `b738f21` (queue run
-  0959), rule-4 non-author reviewer needed (this run built it). *Delta:*
+- [~] **pathscan (S2) first-of-kind review** — advisory `b738f21` (queue run
+  0959), rule-4 non-author reviewer needed (that run built it).
+  (**claimed 2026-07-26 0647 UTC** by a rule-4-eligible session — Mike-spawned
+  ("do any review work"), authored neither the scanner nor its records;
+  brief: `reviews/2026-07-26-0647-pathscan-s2-cold.md`,
+  wt: `atelier-review-0647-take`.) *Delta:*
   `tools/pathscan.py` + `test_pathscan.py`, wired `--warn` in `ci.yml`.
   *Intent record:* `sessions/2026-07-22-1036-invariant-candidates.md` § S2.
   The build's own open questions for the reviewer (from its report): is the
@@ -837,9 +845,13 @@ are the open first-of-kind work (⏳ below).**
   the extension-suffix-only heuristic leg is the noisiest half — tighten before
   gating? Baseline 174 on `docs/` is heuristic noise by design; gate-readiness +
   scope (à la WS1) are the review's call.
-- ⏳ **stampscan (S4) first-of-kind review** — built + merged `2fe97f3` (queue
+- [~] **stampscan (S4) first-of-kind review** — built + merged `2fe97f3` (queue
   run 0959), **BUILT BUT NOT WIRED** (see the wiring blocker below), rule-4
-  non-author reviewer needed (this run built it). *Delta:* `tools/stampscan.py`
+  non-author reviewer needed (that run built it).
+  (**claimed 2026-07-26 0647 UTC** by a rule-4-eligible session — Mike-spawned
+  ("do any review work"), authored neither the scanner nor its records;
+  brief: `reviews/2026-07-26-0647-stampscan-s4-cold.md`,
+  wt: `atelier-review-0647-take`.) *Delta:* `tools/stampscan.py`
   + `test_stampscan.py`, marker convention added to `PROPAGATION.md` +
   `templates/CLAUDE.md` (invisible HTML comments); 46 tests, live pair CLEAN
   (byte-identical). *Intent record:*
