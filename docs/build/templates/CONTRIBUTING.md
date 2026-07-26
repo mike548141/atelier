@@ -32,6 +32,13 @@ applies here with no edit. To run a check **advisory** while re-baselining, or
 to scope one to part of the tree, declare it in `.atelier-floor.json` at the
 repo root — never by removing a check.
 
+That file is also where this repo adds a check of its **own**, under `local`:
+a rule that is genuinely repo-specific and could never be fleet-wide. Give it
+a `run` path inside this repo and a `why`; it then runs beside the shared
+checks and blocks the same commit. It cannot take a shared check's name, and a
+declared check whose script is missing blocks rather than passing quietly. If
+other repos would want the rule, it belongs upstream in atelier instead.
+
 ## What makes a good change
 
 - **Stay in scope.** <!-- the non-goals -->

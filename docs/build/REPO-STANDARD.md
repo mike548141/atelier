@@ -114,6 +114,18 @@ applied to repo docs: a claim no stronger than its evidence — see
   against the tree on every push + PR — one source, no vendored copy, no drift.
   Distinct from `ci.yml` (which gates *correctness*); this gates *publish-safety*.
   licenscan is a publish gate, left commented until the repo settles a licence.
+- **.atelier-floor.json** — what the repo decides about that floor, and the only
+  place it decides it: where its records live, the licence it asserts, which
+  checks run advisory or disabled (with a reason), and — under `local` — checks
+  the repo **adds** for itself. The layering mirrors doctrine exactly
+  (`method/PROPAGATION.md`): a shared floor, a local append, and the child may
+  narrow but never contradict. So a rule that is genuinely this repo's — a
+  tripwire whose blocklist could never live in a shared repo, say — gets a home
+  that keeps the repo *inside* propagation, instead of the bespoke hook that
+  takes it out. A local check may not take a fleet check's name, and one whose
+  script is missing blocks rather than passing quietly. The test of where a rule
+  belongs is not how specific it feels: if another repo would want it, it goes
+  upstream to atelier's registry, where every repo gets it.
 
 **docs/** (present to the degree the type earns — see sizing):
 

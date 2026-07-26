@@ -5,6 +5,34 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-26 — the floor grows a repo-local extension point)
+- **A child repo may now ADD a check, not only subtract one.** `.atelier-floor.json`
+  gains a `local` block declaring checks the repo owns and ships: `run` (a path
+  inside the repo) and `why`, plus optional `planes`, `args` and `scope`. They run
+  beside the fleet checks on both planes and block the same commit.
+- **Why it exists.** Everything the config could say was subtractive — which of
+  atelier's checks a repo is *not* enforcing — and the tracked pre-commit shim is
+  deliberately scanner-agnostic. A repo with a rule of its own (the forcing case:
+  a tripwire whose blocklist names the estate's own tokens, which can never live
+  in a shared repo) had to keep a bespoke hook and fall out of propagation
+  entirely — the exact defect ADR 0008 closed — or lose the check.
+- **It adds; it cannot replace.** A local name colliding with a registered scanner
+  is a hard config error, `run` must resolve inside the repo, and the script is
+  invoked directly rather than through a shell. `scope`/`flags` are refused for
+  local names: a local check's scope and arguments live beside its declaration.
+- **It fails closed and stays visible.** A declared check whose script is missing
+  BLOCKS, as a missing shared scanner does — declaring a check you don't ship is
+  not a way to look guarded. Local checks appear in `--list`, `--json`, the render
+  (`· local`) and on `floorfleet`'s board (`➕`), which is the only place the
+  estate will ever see a rule whose code is repo-specific by construction.
+- **One softening vocabulary.** A local check named in `advisory`/`disabled` reads
+  identically to a fleet one. The honest difference is stated: a fleet scanner's
+  advisory swaps in its own `--warn` form, while the floor can't know a local
+  check's flags, so advisory there downgrades the result, not the invocation.
+- **A hook-only local check still lists on CI, as skipped with a reason** — the
+  machine-local-data shape (leakscan's term list) applied to a child. Silence
+  there would be indistinguishable from a check that ran and passed.
+
 ### Added (2026-07-26 — ccrepo prices by date and groups by session; cctranscript counts agents that finished)
 - **A ccrepo price is effective from a date to a date.** A `PRICING` entry may
   now be a list of `{from, to, base}` intervals (ISO dates, UTC, both ends

@@ -24,6 +24,15 @@ name: floor
 # `floorfleet`, so a check that is off is a decision on the record rather than an
 # absence nobody can see. Absent that file, everything is enforced.
 #
+# AND ITS OWN CHECKS — the `local` block in that same file, for a rule that is
+# genuinely this repo's and could never be fleet-wide (a tripwire whose blocklist
+# names things that must not leave this repo, say). Declare `run` (a path inside
+# this repo) and `why`; optionally `planes`, `args`, `scope`. It runs beside the
+# fleet checks, blocks the same commit, and shows on the board — but it can never
+# take a fleet check's name, and if the script is missing it BLOCKS rather than
+# passing quietly. A repo-specific rule belongs here; a rule other repos would
+# want belongs in atelier's registry.
+#
 # ADOPTING THIS ON AN OLDER REPO? Expect a first red — that red is the signal, not
 # a defect. Work through it, or declare the hygiene checks advisory in
 # `.atelier-floor.json` while you do, which keeps the finding visible instead of
