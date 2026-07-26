@@ -110,8 +110,11 @@ they serve. `docs/decisions/0006-instruments-in-atelier.md` records that line.
 
 **Grouping** is an ordered dimension list — `-g repo,model` nests model under
 repo, `-g model,repo` inverts it, `-g month` totals per month, `-g total` is one
-grand total. Dimensions: `repo · model · branch · kind · entrypoint · cc-version
-· agent · year · month · week · day · hour`. Default is `-g repo`, cost-desc.
+grand total. Dimensions: `repo · session · model · branch · kind · entrypoint ·
+cc-version · agent · year · month · week · day · hour`. Default is `-g repo`,
+cost-desc. `-g session` keys on the full UUID and *shows* an eight-character
+prefix — the same prefix `--session` takes; `--json`/`--csv` keep the whole id,
+because a truncated id you can't look up is worse than a wide one you can.
 The reader is a tree by default (`Sessions` is a *distinct* count at every level);
 `--flat` gives one column per level, `--json`/`--csv` give one tidy record per
 leaf (each dimension a named field, a `meta` block up top).
@@ -127,6 +130,15 @@ token classes — input, output, cache read, and the 5m/1h cache-*write* split
 (they price differently). branch/kind/version/hour vary *within* a session, so
 this message grain is what lets ccrepo group by them; the price table lives at
 the top of the script, overridable at `~/.claude/ccrepo-pricing.json`.
+
+A price is **effective from a date to a date**. An entry is either a bare number
+(that price, always) or a list of `{from, to, base}` intervals — ISO dates, UTC,
+both ends inclusive, either end omitted for open-ended. Each message is priced at
+the rate in force when it was *sent*, so a rate change no longer rewrites
+history. A timestamp inside no interval is **unpriced** — $0 and flagged, exactly
+as an unknown model is, never snapped to the nearest interval; the footnote names
+which of the two gaps it is, because one needs a price added and the other needs
+an interval widened.
 
 **Reconciliation** keeps that honest: every run cross-checks ccrepo's own total
 against `ccusage session` and prints the drift (`Δ` in $ and %, largest
