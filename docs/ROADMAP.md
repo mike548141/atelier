@@ -99,6 +99,29 @@ are what generalise to any adopter.
       quote is simply the standing answer for record prose (it already is for
       example credentials).
 
+### Doctrine candidate — the harvest rides the `[x]` commit (found 2026-07-26)
+
+- [ ] **State, at the point of use, that marking `[x]` and harvesting to
+      ROADMAP-DONE are one commit — not two.** The ROADMAP preamble defines the
+      `[x]` state but says nothing about *when* the harvest happens, and the
+      cold-content gate fires the moment an `[x]` lands on the hot path. So
+      marking three items done in one commit and harvesting in the next leaves a
+      window in which the **pushed** floor is red — which is exactly what
+      happened on 2026-07-26 (`d847866` red, `0485540` green). Local scans were
+      green throughout, because the harvest was already done on disk before the
+      first push was checked; only the pushed floor saw the window.
+      **This is the same shape as a ruling already made**, which is what makes it
+      a candidate rather than a one-off: AWA2 put the `⏳` pointer *in the commit
+      that lands the work* so no window exists where landed doctrine sits
+      unpointed. Same argument, different marker — an `[x]` and its harvest
+      belong in one commit so no window exists where a completed item sits
+      stranded on the hot path. Both are instances of a more general rule worth
+      naming if a third case appears: **a state change and the bookkeeping the
+      floor demands of it ship together.**
+      Not enacted here on purpose: this is doctrine, and REVIEW rule 4 binds the
+      author out of reviewing it, so a future session should write it into the
+      preamble and queue its `⏳` in the landing commit (per AWA2 itself).
+
 ### Candidate invariant — the public-record join, breached three times
 
 - [ ] **Mechanise the private-repo × posture join** (anti-slop invariant
