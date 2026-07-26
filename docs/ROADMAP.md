@@ -1087,18 +1087,10 @@ both deliberately not built:
       config. Incidental finds while looking, neither a denominator: assistant
       records carry a top-level `effort`, and `usage.cache_creation` splits
       `ephemeral_1h`/`ephemeral_5m` input tokens (cache TTL, not window size).
-- [x] **Exact agent count — BUILT 2026-07-26** (`3b38f3d`, merged `99d43d1`).
-      The header now carries both figures (`10 agents started · 15 finished`),
-      `--json` splits them, and unknown is distinguishable from zero.
-      **The reason this was deferred turned out to be false, and that is the
-      part worth keeping.** The item said a directory-sourced count would read
-      zero under `--from-archive`, because archive mode resolves a single file.
-      It doesn't: ccarchive's `captureClass` allows any `.jsonl` at *any depth*,
-      so `subagents/` is mirrored — 92 such directories in the live archive, and
-      the same session renders an identical header live and archived. The
-      deferral was reasoned from how the *path resolution* works rather than
-      from what the *archive actually contains*, and one `ls` would have settled
-      it. Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md) at next harvest.
+The **exact agent count** (started *vs* finished, unknown never printed as zero)
+was built 2026-07-26 — and the archive-mode blocker recorded against it turned
+out to be false, ccarchive having mirrored `subagents/` all along → detail in
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 ### ccrepo (Mike, 2026-07-17)
 
@@ -1122,45 +1114,13 @@ number ccrepo prints depends on it — and (5) is easier once (2)–(4) know wha
 flags they're adding, so: pricing → session dimension → context filter → sort →
 CLI tidy. One of the five carries a decision that is Mike's, marked 🎯 inline.
 
-- [x] **1. Time-bound the price table — DONE 2026-07-26** (`7cf8163`, merged
-      `70bc1ad`). Both forms legal (bare number = always; `{from,to,base}`
-      intervals), unpriced-outside-every-interval, `sonnet-5`'s two rates both
-      entered. **Verified rather than assumed, as the item asked:** no
-      `ROLLUP_SCHEMA` bump was needed — `recipeSig` already `stableStringify`s
-      the price table, so flat and time-bounded tables sign differently and the
-      ledger rebuilds itself; that previously-untested link is now pinned. Live
-      proof: ccusage cross-check **Δ +$0.00 (+0.00%) over 423 sessions**. One
-      honest limit — that proves *no regression*, not that the post-2026-08-31
-      rate is right; nothing can prove that yet, so the boundary is pinned in
-      unit tests instead. Unplanned extra: the unpriced footnote now says
-      *which* gap it is, because "add to the price table" is wrong advice for a
-      model already in it. Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md) at next
-      harvest. Original spec kept below for the reasoning:
-      Today `PRICING` is one flat USD-per-MTok input base per short model name,
-      so a 2026-06 message is priced at *today's* rate and nothing in the tool
-      can say otherwise. Shape: a bare number stays legal and means "always"
-      (keeps every current entry and the `~/.claude/ccrepo-pricing.json`
-      override valid), with an array of `{from, to, base}` intervals as the
-      richer form — open-ended at either end, ISO dates, UTC. `priceBase()` and
-      `messageCost()` both gain the message timestamp; the caller already holds
-      it as `e.ts`, so no new plumbing reaches the walker. **A timestamp inside
-      no interval is *unpriced*** — the existing unknown-model path (cost 0 + the
-      ⚠ footnote), never a silent snap to the nearest interval; a price we don't
-      have is not a price we can infer (the `opus-5` rule below, restated at the
-      point it would next be broken). The multipliers (output 5×, cache read
-      0.1×, write-5m 1.25×, write-1h 2×) stay flat for now, but the interval
-      should be an *object* so a multiplier can join it without another schema
-      move. **Rollup:** likely no `ROLLUP_SCHEMA` bump — cached events bake cost,
-      and the recipe signature already `stableStringify`s the price table, so a
-      shape change should rebuild the ledger by itself. Verify that rather than
-      assume it; a stale ledger here shows a confidently wrong dollar figure.
-      **Proof it works is free:** ccusage prices historically, so the
-      cross-check should hold at ~$0.00 across old months — a regression surfaces
-      as per-model drift on exactly the months a price moved.
-      *This subsumes the ⏳ `sonnet-5` watch below*: the 2026-09-01 revert stops
-      being a diary note and becomes a row entered **now** (`$2` to 2026-08-31,
-      `$3` from 2026-09-01), correct on both sides of the date without anyone
-      remembering.
+The **time-bounded price table** (ask 1) landed 2026-07-26 (`7cf8163`, merged
+`70bc1ad`) and the **`-g session` dimension** (ask 3) with it → detail in
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md). Ask 1 also **dissolved the dated
+`sonnet-5` watch**: both rates are entered, each correct on its own side of
+2026-08-31, so the section below is kept only for the reasoning. The three
+open asks:
+
 - [~] **2. Filter by context size, between two figures.** *(claimed
       2026-07-26-0702, wt: ccrepo-v3)* `--context 100k-500k`,
       open-ended either end (`--context 400k-`, `--context -100k`), `k`/`m`
@@ -1175,20 +1135,6 @@ CLI tidy. One of the five carries a decision that is Mike's, marked 🎯 inline.
       Pairs directly with (3): `-g session --context 500k-` is "which sessions
       blew past 500k", the exact question that needed an ad-hoc script on
       2026-07-26.
-- [x] **3. `-g session` — DONE 2026-07-26** (`7cf8163`, merged `70bc1ad`). A
-      `DIMS` entry as predicted, not a grain change; keys on the full UUID,
-      shows an 8-char prefix in the human table only, `--json`/`--csv` keep the
-      whole id. The filter's private getter is gone, so filtering and grouping
-      can no longer disagree about what a session key is. `--top` deliberately
-      not added — it travels with ask 4. Original text kept for the grounding:
-      Mike asking for it answers the *worth* half of the
-      open question below; the *shape* half survives — 420 sessions emit 420
-      rows. Filters plus the default cost-descending sort carry most of it;
-      `--top <n>` is the remaining sub-question and it belongs with (4). Cheap
-      to build: every event already carries its session id and each tree node
-      keys its context map by session, so this is a `DIMS` entry plus label
-      formatting, not a grain change. Labels are UUID prefixes — §5 permits a
-      synthetic `#n` as a *display label*, never a key.
 - [~] **4. Multi-column sort — half of this exists, and the syntax collided.**
       *(claimed 2026-07-26-0702, wt: ccrepo-v3)*
       **Decided by Mike, 2026-07-26: option A** — the comma stays positional
@@ -1234,10 +1180,15 @@ CLI tidy. One of the five carries a decision that is Mike's, marked 🎯 inline.
       **separate** call: a convention is something repeated deliberately, and
       three tools sectioned by drift is not that.
 
-#### `-g session` — asked for 2026-07-26 (tracked as v3 ask 3); grounding kept
+#### `-g session` — BUILT 2026-07-26 (v3 ask 3); grounding kept
 
-`session` is a **filter** (`--session <uuid-prefix>`) but not a **group
-dimension**, so `Context med/max` can say a repo peaked at 529k without any way
+**Shipped as a plain dimension**, so the shape question below is settled on that
+side; `--top` remains open and travels with ask 4, where it belongs. Kept for how
+the gap was found and why it was never a design defect — the past tense below is
+the state before the build.
+
+`session` was a **filter** (`--session <uuid-prefix>`) but not a **group
+dimension**, so `Context med/max` could say a repo peaked at 529k without any way
 to ask *which session that was*. Found by use, not by audit: a session asked for
 per-transcript context sizes the day after the column shipped, and the answer
 needed an ad-hoc script to rank individual sessions by peak — everything else in
@@ -1261,12 +1212,20 @@ paired with `--top`, and it now travels with the sort ask, where `--top` actuall
 belongs. This block stays for the grounding — how the gap was found, and why it
 was never a design defect.
 
-#### ⏳ `sonnet-5` is priced at the introductory rate — reverts 2026-09-01
+#### ✅ `sonnet-5`'s introductory rate — watch RETIRED 2026-09-01-safe (2026-07-26)
 
-`sonnet-5` is in the table at **$2**/MTok input. That is Anthropic's *introductory*
-rate, published as running **through 2026-08-31**; the standard rate is **$3**.
-From 2026-09-01 ccrepo will under-price every sonnet-5 message by a third until
-the entry is changed to `3`.
+**Both retirement conditions below are met.** The interval work landed
+2026-07-26 (`7cf8163`), comfortably before the 2026-09-01 deadline that made this
+a live safeguard, so the fallback flat-`3` edit is no longer needed and nobody has
+to remember a date: `sonnet-5` now carries `$2` through 2026-08-31 and `$3` from
+2026-09-01, each correct on its own side. **No action is owed on 2026-09-01.**
+The block is kept for the reasoning, which generalises — a diary note is a
+liability, and the fix was to turn it into data. Past tense from here:
+
+`sonnet-5` was in the table at a flat **$2**/MTok input. That is Anthropic's
+*introductory* rate, published as running **through 2026-08-31**; the standard
+rate is **$3**. From 2026-09-01 ccrepo would have under-priced every sonnet-5
+message by a third until the entry was changed to `3`.
 
 This is a **dated edit, not a judgement call** — the number is published, so
 there is nothing to decide, only something to remember. The ccusage cross-check
