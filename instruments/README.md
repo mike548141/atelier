@@ -16,7 +16,7 @@ drives Chrome via Playwright); each documents its own runtime.
 | Instrument      | Verb      | What it does                                                         |
 |-----------------|-----------|---------------------------------------------------------------------|
 | `ccrepo`        | observe   | Claude Code token & cost totals, grouped/filtered any way (`-g repo,model`, `--branch`, message-grain cost reconciled against ccusage), plus how large sessions' context windows got. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
-| `cctranscript`  | observe   | Timestamped transcript of a session — the timestamps the chat UI hides, plus how big its context grew. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
+| `cctranscript`  | observe   | Timestamped transcript of a session — the timestamps the chat UI hides, plus how big its context grew and how many subagents it started vs finished. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
 | `ccarchive`     | preserve  | Durably mirror every raw `.jsonl` transcript into a compressed, append-only archive that outlives Claude Code's cleanup. |
 | `browser-fetch` | extend    | A browser (fresh headless, or the operator's own Chrome) when `WebFetch`/curl are blocked. MCP server; see its own README. |
 
@@ -243,6 +243,38 @@ that's a peer of the ccusage one:
   invoices. Plan *limits/overage thresholds* are deliberately out of scope
   (modelling when a plan tips into overage needs rate-limit data the logs don't
   carry) — that gap stays a stated footnote, not silently absorbed.
+
+## cctranscript's header line — and what a missing figure prints as
+
+Under the session title sits one dense summary line, read left to right:
+turn counts, then **agents started · finished**, then the context peak, then the
+clock span. It is designed to be read by **comparing two sessions side by side**,
+which fixes one rule: the *field set* never varies between runs.
+
+**Agents started vs finished** is a deliberate pair. *Started* counts the spawn
+tool calls (`Agent`, legacy `Task`) — a ceiling, since a skipped or stopped spawn
+still counts. *Finished* counts the per-agent logs in the session's sibling
+`<uuid>/subagents/` directory, one per agent that actually ran. The gap is where
+a spawn that never became a run shows up. Neither bounds the other: a nested
+spawn (an agent spawning its own agent) logs into the same directory while
+*started* sees only the principal's calls, so finished can legitimately run
+ahead, and the figures are left unclamped rather than hide that. Both figures
+survive `--from-archive` — ccarchive captures every `.jsonl` at any depth and
+mirrors it at the same relative path, so the per-agent logs are in the archive
+too (their `.meta.json` sidecars are not, which is why the count keys on logs).
+
+**Where the two rules meet.** A zero the log *proves* is a fact worth printing;
+a figure the log never recorded is *unknown*, and printing that as zero would be
+a claim the evidence doesn't support. Against that sits the stable-field-set
+rule above. They are reconciled by splitting set from value: both agent chips
+print on **every** run, and where no per-agent store is reachable the second one
+reads `finished unknown` rather than dropping out — the chip holds its position
+and the *value* carries the honesty. `--json` gives `agents.finished: null` with
+`agents.finishedKnown: false`, so unknown is distinguishable from a zero and the
+key is never simply absent. A zero still prints wherever it is proved: no spawn
+call in the log means no agent can have run. The context figure is the case with
+*no* fixed pair to keep aligned, so it simply omits itself when a log carries no
+usage records — the opposite treatment, for the opposite reason.
 
 ## ccarchive — keeping transcripts past Claude Code's cleanup
 

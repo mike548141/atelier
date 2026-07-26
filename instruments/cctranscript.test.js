@@ -160,31 +160,130 @@ test('contract: context peak and final come off the usage records', () => {
 
 test('contract: subagent spawns are counted under either tool name, with their types', () => {
   const j = runJson();
-  assert.equal(j.agents.spawned, 2);                        // Agent + the legacy Task name
+  assert.equal(j.agents.started, 2);                        // Agent + the legacy Task name
   assert.deepEqual(j.agents.byType, { Explore: 1, unspecified: 1 });
   // The count is a property of the session, not of the view: it must not move
   // when the flags that gate *rendering* tool turns change.
-  assert.equal(runJson('--full').agents.spawned, 2);
+  assert.equal(runJson('--full').agents.started, 2);
+});
+
+// --- agents started vs finished -----------------------------------------
+// `started` comes off the spawn tool calls (a ceiling); `finished` off the
+// sibling <uuid>/subagents/ directory of per-agent logs (one per agent that
+// actually ran). The pair is the point: the gap is a skipped or stopped spawn.
+// The one thing that must never happen is a silent zero where the store simply
+// didn't say — so these pin the unknown path as hard as the counted one.
+
+// A copy of the fixture with a sibling subagents/ store beside it, shaped as the
+// harness writes it: <stem>/subagents/agent-<id>.jsonl (+ the .meta.json sidecar
+// the harness also writes, which must not be counted as an agent). `ext` lets
+// the archive case lay the same store down as .jsonl.gz.
+function withSubagents(tag, n, ext = '.jsonl') {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), `cctranscript-${tag}-`));
+  const file = path.join(dir, `${tag}.jsonl`);
+  fs.copyFileSync(FIXTURE, file);
+  const store = path.join(dir, tag, 'subagents');
+  fs.mkdirSync(store, { recursive: true });
+  for (let i = 0; i < n; i++) {
+    fs.writeFileSync(path.join(store, `agent-a${i}${ext}`), ext === '.jsonl.gz' ? zlib.gzipSync('{}\n') : '{}\n');
+    fs.writeFileSync(path.join(store, `agent-a${i}.meta.json`), '{"agentType":"Explore","spawnDepth":1}\n');
+  }
+  return file;
+}
+
+const head = (file, ...flags) => execFileSync('node', [SCRIPT, '--no-color', ...flags, file], { encoding: 'utf8' })
+  .split('\n').filter((l) => l.trim())[1];
+const jsonOf = (file, ...flags) => JSON.parse(
+  execFileSync('node', [SCRIPT, '--json', ...flags, file], { encoding: 'utf8' }));
+
+test('agents: a readable subagents/ directory gives the finished count', () => {
+  const file = withSubagents('bothran', 2);
+  const j = jsonOf(file);
+  assert.equal(j.agents.started, 2);
+  assert.equal(j.agents.finished, 2);
+  assert.equal(j.agents.finishedKnown, true);
+  assert.match(head(file), /2 agents started · 2 finished/);
+  // The .meta.json sidecars sit in the same directory and are not agents.
+  assert.equal(fs.readdirSync(path.join(path.dirname(file), 'bothran', 'subagents')).length, 4);
+});
+
+test('agents: started > finished — the gap a skipped or stopped spawn leaves', () => {
+  const file = withSubagents('stopped', 1);   // fixture spawns 2, only 1 ever ran
+  const j = jsonOf(file);
+  assert.equal(j.agents.started, 2);
+  assert.equal(j.agents.finished, 1);
+  assert.match(head(file), /2 agents started · 1 finished/);
+});
+
+test('agents: finished may exceed started — a nested spawn logs to the same store', () => {
+  // An agent that spawns its own agent writes into the principal's subagents/
+  // directory, while `started` only ever sees the principal's own spawn calls.
+  // Neither figure bounds the other, and clamping would hide the nesting.
+  const j = jsonOf(withSubagents('nested', 3));
+  assert.equal(j.agents.started, 2);
+  assert.equal(j.agents.finished, 3);
+});
+
+test('agents: no subagents/ store but spawns recorded → finished is unknown, not zero', () => {
+  // The checked-in fixture has no sibling store: spawns happened, nothing here
+  // says whether they ran. A 0 would be a claim the evidence cannot support.
+  const j = runJson();
+  assert.equal(j.agents.started, 2);
+  assert.equal(j.agents.finished, null);      // null, never 0
+  assert.equal(j.agents.finishedKnown, false);
+  assert.ok('finished' in j.agents, 'the key is always present, so absent-vs-zero is never the question');
+  assert.match(head(FIXTURE), /2 agents started · finished unknown/);
+});
+
+test('agents: no spawns at all → finished is a known zero, the log proves it', () => {
+  // No spawn call means no agent could have run: the zero is a fact off the log
+  // itself, so it prints as one even with no directory to read.
+  const none = variant('noagents', (t) => t.replace(/,\{"type":"tool_use","name":"(Agent|Task)"[^}]*\}\}/g, ''));
+  const j = jsonOf(none);
+  assert.equal(j.agents.started, 0);
+  assert.equal(j.agents.finished, 0);
+  assert.equal(j.agents.finishedKnown, true);
+  assert.match(head(none), /0 agents started · 0 finished/);
+});
+
+test('agents: both tallies are taken before the view gating', () => {
+  // --tools/--think change what you SEE; they must never change what the header
+  // reports about the session.
+  const file = withSubagents('gating', 1);
+  for (const flags of [[], ['--tools'], ['--think'], ['--full']]) {
+    const j = jsonOf(file, ...flags);
+    assert.equal(j.agents.started, 2, `started moved under ${flags.join(' ') || 'default'}`);
+    assert.equal(j.agents.finished, 1, `finished moved under ${flags.join(' ') || 'default'}`);
+  }
+});
+
+test('agents: the two chips hold their place in every case (stable field set)', () => {
+  // The summary line is read by comparing two sessions side by side, so the
+  // field SET never varies — counted, zero and unknown all print both chips.
+  const both = ['agents started', 'finished'];
+  for (const line of [head(withSubagents('stable', 2)), head(FIXTURE),
+                      head(variant('nospawn', (t) => t.replace(/,\{"type":"tool_use","name":"(Agent|Task)"[^}]*\}\}/g, '')))]) {
+    for (const chip of both) assert.ok(line.includes(chip), `missing "${chip}" in: ${line}`);
+  }
+});
+
+test('subagentDir resolves the store from a live log and an archive mirror alike', () => {
+  assert.equal(cc.subagentDir('/p/-repo/abc.jsonl'), path.join('/p/-repo/abc', 'subagents'));
+  assert.equal(cc.subagentDir('/p/-repo/abc.jsonl.gz'), path.join('/p/-repo/abc', 'subagents'));
 });
 
 test('the summary line reports the context peak; a log without usage omits it', () => {
-  const head = (file) => execFileSync('node', [SCRIPT, '--no-color', file], { encoding: 'utf8' })
-    .split('\n').filter((l) => l.trim())[1];
   assert.match(head(FIXTURE), /12k context/);
-  assert.match(head(FIXTURE), /2 agents/);
 
   // Same fixture with the usage records stripped — an older log, or a
   // synthetic one. The chip disappears rather than claiming a context of 0.
+  // This is the deliberate opposite of the agent chips, which hold their place
+  // and say "unknown" instead: context has no fixed pair to keep aligned.
   const bare = variant('nousage', (t) => t.replace(/"usage":\{[^}]*\},/g, ''));
   assert.ok(!/context/.test(head(bare)), 'no usage records → no context chip');
 
-  // The agent chip is reported even at zero: the summary line gets read by
-  // comparing sessions, and a chip that vanishes makes two headers line up
-  // differently. A stated zero is a fact; an absent one is ambiguity.
-  const none = variant('noagents', (t) => t.replace(/,\{"type":"tool_use","name":"(Agent|Task)"[^}]*\}\}/g, ''));
-  assert.match(head(none), /0 agents/);
   const one = variant('oneagent', (t) => t.replace(/,\{"type":"tool_use","name":"Task"[^}]*\}\}/, ''));
-  assert.match(head(one), /1 agent /);       // and one agent isn't "1 agents"
+  assert.match(head(one), /1 agent started/);   // and one agent isn't "1 agents"
 });
 
 // A throwaway copy of the fixture with an edit applied — for the cases that
@@ -294,6 +393,34 @@ test('contract: --list never reads an evicted mirror; --repo still finds it', ()
   assert.equal(entry.firstPrompt, null);    // not read — reading would fault it back
   assert.equal(entry.cwd, null);            // cwd sniff skipped for the same reason
   assert.equal(entry.repo, 'repo');         // lossy folder-tail label, honestly
+});
+
+test('contract: archive mode counts the mirrored subagents/ store, and admits when it is missing', () => {
+  // ccarchive captures every .jsonl at ANY depth and mirrors it at the same
+  // relative path, so <dest>/<repo>/<uuid>/subagents/agent-*.jsonl.gz is really
+  // there — the finished count is NOT live-only. Verified against a real archive
+  // on 2026-07-26; the .meta.json sidecars are the part that doesn't survive.
+  const { dest } = makeArchive();
+  const store = path.join(dest, '-home-dev-synthetic-repo', ARCHIVE_UUID, 'subagents');
+
+  // Before the store is laid down: mirrored session, no per-agent logs → unknown.
+  const before = JSON.parse(execFileSync('node',
+    [SCRIPT, '--json', '--from-archive', '--dest', dest, ARCHIVE_UUID], { encoding: 'utf8' }));
+  assert.equal(before.agents.started, 2);
+  assert.equal(before.agents.finished, null);
+  assert.equal(before.agents.finishedKnown, false);
+
+  fs.mkdirSync(store, { recursive: true });
+  for (const n of ['agent-a1', 'agent-a2']) fs.writeFileSync(path.join(store, `${n}.jsonl.gz`), zlib.gzipSync('{}\n'));
+  const after = JSON.parse(execFileSync('node',
+    [SCRIPT, '--json', '--from-archive', '--dest', dest, ARCHIVE_UUID], { encoding: 'utf8' }));
+  assert.equal(after.agents.finished, 2);
+  assert.equal(after.agents.finishedKnown, true);
+
+  // The nested store must not turn into a listed "session" of its own.
+  const listed = JSON.parse(execFileSync('node',
+    [SCRIPT, '--json', '--list', '--dest', dest, '--repo', 'synthetic-repo'], { encoding: 'utf8' }));
+  assert.equal(listed.length, 1);
 });
 
 test('readLogText gunzips a .gz and passes plain files through', () => {

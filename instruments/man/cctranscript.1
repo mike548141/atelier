@@ -1,4 +1,4 @@
-.TH CCTRANSCRIPT 1 "2026-07-23" "atelier instruments" "User Commands"
+.TH CCTRANSCRIPT 1 "2026-07-26" "atelier instruments" "User Commands"
 .SH NAME
 cctranscript \- render a timestamped transcript of a Claude Code session
 .SH SYNOPSIS
@@ -71,28 +71,81 @@ carries both, as
 A log with no usage records (an older or synthetic one) simply omits the figure
 instead of reporting a context of zero.
 .PP
-A session that started subagents reports how many, counted from the spawn tool
-calls in the log rather than from the sibling
-.I subagents/
-directory of per-agent logs. That directory is the stricter source \(em one log
-per agent that actually ran \(em but
-.B \-\-from\-archive
-resolves a single file, so a directory-sourced count would silently read zero
-there; a figure that holds in both modes is worth more than an exact one that
-holds in only the live mode. Read it as a ceiling, then: a spawn the operator
-skipped, or one stopped mid-run, still counts.
+Subagents are reported as two figures, not one:
+.B N agents started
+and
+.BR "N finished" .
+.I Started
+counts the spawn tool calls in the log, which is a ceiling \(em a spawn the
+operator skipped, or one stopped mid-run, still counts.
+.I Finished
+counts the per-agent logs in the sibling
+.I <session-uuid>/subagents/
+directory, one written per agent that actually ran. The gap between them is the
+point: it is where a spawn that never became a run shows up.
 .B \-\-json
-carries the breakdown by subagent type as
+carries them as
+.IR agents.started " and " agents.finished ,
+with the spawn breakdown by subagent type as
 .IR agents.byType .
 .PP
-The count is always reported, including
-.BR "0 agents" .
-The summary line is read by comparing sessions against one another, and a chip
-that vanishes at zero makes two headers line up differently for the reader to
-reconcile. This is deliberately the opposite treatment from the context figure,
-which is omitted when a log carries no usage records: a zero the log *proves*
-is a fact worth stating, while a size the log never recorded is unknown, and
-printing it as zero would be a claim the evidence doesn't support.
+Both figures work in
+.B \-\-from\-archive
+mode.
+.BR ccarchive (1)
+captures every
+.I .jsonl
+at any depth and mirrors it at the same relative path, so the per-agent logs are
+in the archive too, just gzipped. The
+.I .meta.json
+sidecar beside each one is not captured, which is why the count keys on the logs
+alone. Reading the directory is a name listing only \(em it never opens a log,
+so it cannot fault an iCloud-evicted archive's bytes back down.
+.PP
+Neither figure bounds the other. An agent that spawns its own agent writes into
+the principal's
+.I subagents/
+directory, while
+.I started
+sees only the principal's own spawn calls \(em so a nested run legitimately
+finishes more agents than it started, and the figures are left unclamped rather
+than hide that.
+.PP
+Where no per-agent store is reachable \(em an archive predating subagent
+capture, a pruned store, a log copied away from its directory \(em
+.I finished
+is reported as
+.BR "finished unknown" ,
+and
+.B \-\-json
+gives
+.I agents.finished
+as
+.B null
+with
+.I agents.finishedKnown
+false. It is never zero: the key is always present, so an absent field can never
+be mistaken for a count, and a consumer writing
+.I agents.finished || 0
+is choosing that reading rather than falling into it.
+.PP
+This reconciles two rules that pull against each other. Both chips print on
+every run, including
+.BR "0 agents started \(bu 0 finished" ,
+because the summary line is read by comparing two sessions side by side and a
+chip that vanishes leaves the reader working out which figure is missing from
+which line. But a figure the log never recorded is unknown, and printing it as
+zero would be a claim the evidence doesn't support. So the field
+.I set
+is fixed and the
+.I value
+carries the honesty: the chip holds its position and says
+.BR unknown .
+A zero, by contrast, is printed whenever it is a fact \(em with no spawn call in
+the log, no agent can have run, so
+.B 0 finished
+is proved by the log itself even with no directory to read. (The context figure
+is the case with no such pair to keep aligned, so it simply drops out instead.)
 .PP
 The live logs are ephemeral: Claude Code deletes them after
 .I cleanupPeriodDays
@@ -201,7 +254,7 @@ session's
 .I context
 peak and final size and its
 .I agents
-count. Never styled; safe to pipe into
+started/finished pair. Never styled; safe to pipe into
 .BR jq (1).
 .TP
 .BR \-h ", " \-\-help
@@ -215,6 +268,12 @@ Claude Code's raw session logs, one folder per repo. Read-only to this tool.
 A single session log \(em the source
 .B cctranscript
 reads and renders.
+.TP
+.IR ~/.claude/projects/ <encoded-repo>/ <session-uuid> /subagents/
+One log per subagent that actually ran under that session. Listed by name only,
+for the
+.B finished
+count; the logs themselves are never opened.
 .TP
 .I ~/Library/Mobile\ Documents/com~apple~CloudDocs/cc-transcripts/
 The default
