@@ -303,17 +303,83 @@ test('groupTree folds into an N-level tree with distinct session counts', () => 
 });
 
 test('sortedEntries: cost desc default, time asc default, spec overrides', () => {
+  // A per-level spec is a CHAIN (array of {key,dir}) — null uses the default,
+  // a one-element array overrides the primary key exactly as the old {key,dir}
+  // shape did (ROADMAP ccrepo v3 ask 4, option A).
   const root = r.groupTree([
     mkEv({ repo: 'cheap', session: 'a', cost: 1 }),
     mkEv({ repo: 'dear', session: 'b', cost: 9 }),
   ], ['repo']);
   assert.deepEqual(r.sortedEntries(root, 'repo', null).map((e) => e[0]), ['dear', 'cheap']); // cost desc
-  assert.deepEqual(r.sortedEntries(root, 'repo', { key: 'name' }).map((e) => e[0]), ['cheap', 'dear']); // alpha
+  assert.deepEqual(r.sortedEntries(root, 'repo', [{ key: 'name' }]).map((e) => e[0]), ['cheap', 'dear']); // alpha
   const byMonth = r.groupTree([
     mkEv({ session: 'a', ts: '2026-07-15T12:00:00Z' }),
     mkEv({ session: 'b', ts: '2026-06-15T12:00:00Z' }),
   ], ['month']);
   assert.deepEqual(r.sortedEntries(byMonth, 'month', null).map((e) => e[0]), ['2026-06', '2026-07']); // time asc
+});
+
+test('sortedEntries: a multi-key chain breaks ties with the second key (ask 4, option A)', () => {
+  // Two repos tie on cost; the chain's second key (name) breaks the tie. The
+  // comma in --sort stays positional per -g level — this is what the `+`
+  // separator buys WITHIN one level, additively.
+  const root = r.groupTree([
+    mkEv({ repo: 'zzz', session: 'a', cost: 5 }),
+    mkEv({ repo: 'aaa', session: 'b', cost: 5 }),
+    mkEv({ repo: 'mmm', session: 'c', cost: 9 }),
+  ], ['repo']);
+  const chain = [{ key: 'cost', dir: 'desc' }, { key: 'name', dir: 'asc' }];
+  assert.deepEqual(r.sortedEntries(root, 'repo', chain).map((e) => e[0]), ['mmm', 'aaa', 'zzz']);
+  // Reversing the tiebreak direction reverses just the tied pair.
+  const chain2 = [{ key: 'cost', dir: 'desc' }, { key: 'name', dir: 'desc' }];
+  assert.deepEqual(r.sortedEntries(root, 'repo', chain2).map((e) => e[0]), ['mmm', 'zzz', 'aaa']);
+});
+
+test('parseSortLevel: "+" chains keys within one level; parseSort keeps the comma positional', () => {
+  assert.deepEqual(r.parseSortLevel('cost'), [{ key: 'cost', dir: null }]);
+  assert.deepEqual(r.parseSortLevel('cost:desc'), [{ key: 'cost', dir: 'desc' }]);
+  assert.deepEqual(r.parseSortLevel('cost+name'), [{ key: 'cost', dir: null }, { key: 'name', dir: null }]);
+  assert.deepEqual(r.parseSortLevel('cost:desc+name:asc'),
+    [{ key: 'cost', dir: 'desc' }, { key: 'name', dir: 'asc' }]);
+  // A single value still broadcasts to every -g level — nothing already
+  // written stops working.
+  const broadcast = r.parseSort('cost', ['repo', 'model']);
+  assert.deepEqual(broadcast[0], [{ key: 'cost', dir: null }]);
+  assert.equal(broadcast[0], broadcast[1]);   // same chain object, broadcast
+  // The comma is still positional per level: "cost+name,time" = level 1 by
+  // cost-then-name, level 2 by time — never "sort by cost, name, and time".
+  const positional = r.parseSort('cost+name,time', ['repo', 'month']);
+  assert.deepEqual(positional[0], [{ key: 'cost', dir: null }, { key: 'name', dir: null }]);
+  assert.deepEqual(positional[1], [{ key: 'time', dir: null }]);
+  assert.deepEqual(r.parseSort(null, ['repo']), [null]);
+});
+
+// --- --top: truncate rows per level after sorting, TOTAL stays whole -----
+
+test('topEntries truncates a level\'s sorted children; a falsy topN is a no-op', () => {
+  const root = r.groupTree([
+    mkEv({ repo: 'a', session: '1', cost: 3 }), mkEv({ repo: 'b', session: '2', cost: 2 }),
+    mkEv({ repo: 'c', session: '3', cost: 1 }),
+  ], ['repo']);
+  assert.deepEqual(r.topEntries(root, 'repo', null, 2).map((e) => e[0]), ['a', 'b']); // top 2 by cost desc
+  assert.equal(r.topEntries(root, 'repo', null, null).length, 3);   // no cap
+  assert.equal(r.topEntries(root, 'repo', null, 0).length, 3);      // 0 is falsy ⇒ no-op, not "show none"
+});
+
+test('treeRows/leafRows apply --top per level, recursively; a dropped parent\'s children are never walked', () => {
+  const evs = [
+    mkEv({ repo: 'big', model: 'opus-4-8', session: 's1', cost: 9 }),
+    mkEv({ repo: 'big', model: 'fable-5', session: 's2', cost: 8 }),
+    mkEv({ repo: 'big', model: 'haiku-4-5', session: 's3', cost: 1 }),   // dropped: repo cap is 1
+    mkEv({ repo: 'small', model: 'opus-4-8', session: 's4', cost: 0.1 }),
+  ];
+  const root = r.groupTree(evs, ['repo', 'model']);
+  const rows = r.treeRows(root, ['repo', 'model'], [null, null], 1);
+  // Only the top repo (by cost) is listed at depth 1, and only its top model
+  // at depth 2 — 'small' and 'big'/haiku-4-5 never even get walked.
+  assert.deepEqual(rows.map((x) => [x.depth, x.label]), [[1, 'big'], [2, 'opus-4-8']]);
+  const leaves = r.leafRows(root, ['repo', 'model'], [null, null], 1);
+  assert.deepEqual(leaves.map((x) => x.path), [['big', 'opus-4-8']]);
 });
 
 // --- context size (per-session peak windows) -----------------------------
@@ -1044,11 +1110,19 @@ test('requiring ccrepo never acts on the host argv (help/validation live in main
 
 const SCRIPT = path.join(__dirname, 'ccrepo');
 
-// Interim bump (was 40): --context (ROADMAP ccrepo v3 ask 2) adds one flag
-// line to the still-flat OPTIONS block. Ask 5 resections the whole surface
-// and rebases this guard on a fully-grounded figure at that point — this
-// interim number is exactly old-budget + 1 new line, not a fitted afterthought.
-const HELP_LINE_BUDGET = 41;
+// Final line budget (ROADMAP ccrepo v3 ask 5), measured the same way the
+// original guard was: split('\n').length — the printed text's real line count
+// PLUS ONE, since console.log's trailing newline yields one empty trailing
+// element. v2 measured 40 by that count (39 real lines) under one flat
+// OPTIONS block. Ask 5 requires six NAMED sections (SELECT/SHAPE/OUTPUT/
+// SOURCE/PRICING/META, Mike's call, not ccrepo's) — six headers replacing the
+// one "OPTIONS" line adds 5. Ask 2 (--context) and ask 4 (--top) each added
+// one flag line already (the 41 and 42 interim guards on the way here). 40 +
+// 5 + 2 = 47 — grounded in that arithmetic, not fitted to whatever the
+// current string happens to measure (the anti-pattern this repo explicitly
+// forbids). If a future flag needs to land, the honest move is to re-run this
+// same arithmetic, not creep the number to fit new prose.
+const HELP_LINE_BUDGET = 47;
 
 test('--help is a concise digest that points at the man page', () => {
   const help = execFileSync('node', [SCRIPT, '-h'], { encoding: 'utf8' });
@@ -1058,6 +1132,15 @@ test('--help is a concise digest that points at the man page', () => {
   // Rationale + worked examples belong in the page, not the digest.
   assert.ok(!/^EXAMPLES$/m.test(help), '--help must not carry a worked EXAMPLES block');
   for (const opt of ['-g', '--repo', '--json', '--no-reconcile']) assert.ok(help.includes(opt));
+});
+
+test('--help groups the surface into ROADMAP v3 ask 5\'s six named sections', () => {
+  const help = execFileSync('node', [SCRIPT, '-h'], { encoding: 'utf8' });
+  for (const sec of ['SELECT', 'SHAPE', 'OUTPUT', 'SOURCE', 'PRICING', 'META']) {
+    assert.match(help, new RegExp(`^${sec}$`, 'm'), `--help must carry a ${sec} section`);
+  }
+  // The trailing prose paragraph — what the numbers ARE — stays, per the ask.
+  assert.match(help, /API-equivalent estimate/);
 });
 
 test('a man page ships and is well-formed roff', () => {

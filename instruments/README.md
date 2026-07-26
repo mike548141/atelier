@@ -108,6 +108,14 @@ they serve. `docs/decisions/0006-instruments-in-atelier.md` records that line.
 
 ## ccrepo grouping, filters & the cost engine
 
+`ccrepo -h` groups its surface into six named sections — **SELECT** (filters,
+including `--since`/`--until`/`--context`), **SHAPE** (`-g`, `--sort`,
+`--top`, `--flat`), **OUTPUT** (`--json`, `--csv`, `--fx`, `--rate`),
+**SOURCE** (`--from-archive`, `--dest`, `--materialise`, `--no-rollup`),
+**PRICING** (`--no-billing`, `--no-reconcile`), and **META** (`-z`, `-h`) —
+rather than one flat list, once ROADMAP v3 added enough flags that a flat list
+stopped scanning fast. `man ccrepo` stays the long form.
+
 **Grouping** is an ordered dimension list — `-g repo,model` nests model under
 repo, `-g model,repo` inverts it, `-g month` totals per month, `-g total` is one
 grand total. Dimensions: `repo · session · model · branch · kind · entrypoint ·
@@ -122,8 +130,21 @@ leaf (each dimension a named field, a `meta` block up top).
 **Filters** mirror that exact vocabulary — `--repo`, `--model`, `--branch`,
 `--kind`, `--entrypoint`, `--cc-version`, `--agent`, `--session`, plus
 `--since`/`--until`. Comma = OR within a dimension, leading `!` excludes, `*`
-globs; sessions match by UUID prefix. `--sort` overrides the per-dimension
-defaults (time chronological, else cost-desc), aligned to the group levels.
+globs; sessions match by UUID prefix.
+
+**`--sort` overrides the per-dimension defaults** (time chronological, else
+cost-desc), **one spec per `-g` level**, comma-separated and positional —
+`--sort cost,name` means *level 1 by cost, level 2 by name*, not "sort by cost
+then name" (decided 2026-07-26; that reading stays off the table). A single
+value still broadcasts to every level. **Within one level**, chain keys with
+`+` to break ties: `--sort 'cost+name'` sorts by cost, then alphabetically
+among equal costs; `+` was picked because `,` already means "next level" and
+`:` already means "direction" — the one separator left. `--top <n>` then caps
+each level to its first `n` rows *after* sorting, applied recursively (under
+`-g repo,model --top 5` each level, not just the leaves, keeps 5) — a group's
+own subtotal still covers everything in it regardless, and the grand `TOTAL`
+row always reflects the full, untruncated data; only the *listed* child rows
+shrink. Exists because `-g session` alone can emit several hundred rows.
 
 **`--context <range>` is the one filter whose grain isn't the message.**
 Context (§ below) is a per-*session* peak, so `--context 100k-500k` selects
