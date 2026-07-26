@@ -1024,12 +1024,31 @@ USE — a possible future heuristic extension.)*
       leakscan/secretscan — the machine-checkable ones), a review-time
       checklist item, or an agent-verifier criterion. Decide which invariants
       are code-checkable (→ scanner) vs judgement (→ verifier/human).
-- [ ] **Where does the registry live?** (Proposed per candidate in the mining
-      record — all five scanner candidates shared-floor, one checklist
-      repo-specific; decision rides the 🎯 rulings above.) atelier-shared floor invariants (fleet-
-      wide, like the current scanners) vs repo-specific catalogues (a child's own
-      conventions). Likely both, same layering as doctrine: shared floor +
-      local append. Ties REPO-STANDARD.
+- [ ] **Where does the registry live? — the SCANNER half is answered and built
+      (2026-07-26); the CHECKLIST half is still open.** Both layers, as proposed:
+      an atelier-shared floor (fleet-wide, the current scanners) plus a
+      repo-local append (a child's own conventions), same layering as doctrine —
+      shared floor, local append, child may narrow-not-contradict.
+      **Built:** `.atelier-floor.json` gains a `local` block, so a child declares
+      and ships checks of its own; they run on both planes, block the same
+      commit, fail closed when the script is missing, cannot take a fleet check's
+      name, and show on `floorfleet`'s board. Forced by a real case from `ros`
+      (2026-07-26): a tripwire whose blocklist names the estate's own tokens can
+      never be a shared scanner, so without the seam the repo had to keep a
+      bespoke hook — falling out of propagation, the exact ADR 0008 defect — or
+      lose the check. REPO-STANDARD carries the layering statement.
+      **Still open:** the *verifier/checklist* layer (V1–V7 and a child's own
+      review catalogue) has no such seam, and gets one only once
+      "Codify V1–V7 as the always-loaded reviewer checklist" (above) decides what
+      a checklist entry even is. Do not read the scanner seam as covering it.
+- [ ] ⏳ **The repo-local floor seam — review owed** (self-authored, so this
+      session may not review it — REVIEW.md rule 4). *Delta:* `tools/floor.py`
+      (`local` block, `_load_local`, the `is_local` path through plan/run/render,
+      `_interpreter`), `tools/floorfleet.py` (`➕` board line), their two test
+      files, `docs/build/REPO-STANDARD.md`, `docs/build/templates/CONTRIBUTING.md`,
+      `docs/build/templates/workflows/floor.yml`, CHANGELOG. Commits `f526dea`,
+      `76f4acc`. *Intent record:*
+      `sessions/2026-07-26-1120-floor-local-seam.md`.
 
 **What atelier ALREADY has (this EXTENDS, doesn't invent):**
 - The **floor scanners** (leakscan/secretscan/signscan/sizescan) ARE always-on
