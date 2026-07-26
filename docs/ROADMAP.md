@@ -123,6 +123,23 @@ are what generalise to any adopter.
       author out of reviewing it, so a future session should write it into the
       preamble and queue its `⏳` in the landing commit (per AWA2 itself).
 
+      **A third instance arrived the same day, from the opposite direction — and
+      it names the mechanism.** A post-outage recovery sweep found one item still
+      `[~]` **claimed** whose work had shipped hours earlier (`b89a306`). Of the
+      three states that is the worst to leave behind: a later session reads `[~]`
+      as *a live session owns this* and skips it, so delivered work sits looking
+      permanently in progress. The reason it was missed is structural, not
+      carelessness — **every other item that run was claimed with a worktree, and
+      merging the worktree forced a return to the roadmap. This one was claimed
+      `wt: none — inline on main`, so nothing ever forced the return.** The
+      forcing function was the worktree, and the item that skipped the worktree
+      skipped the closing step with it. So the rule wants a second clause aimed
+      at exactly that case: **an inline claim is closed in the commit that lands
+      its work**, because there is no merge step later to remember it. Same
+      family as the `[x]`/harvest pairing above — a state change and its
+      bookkeeping ship together — and the same reason it keeps recurring: the
+      bookkeeping is only reliable when something *makes* you do it.
+
 ### Candidate invariant — the public-record join, breached three times
 
 - [ ] **Mechanise the private-repo × posture join** (anti-slop invariant
