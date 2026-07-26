@@ -1080,7 +1080,29 @@ live, per-file keying, transparent-by-default confirmed by Mike) closed
 (`Context med/max` — per-session peak windows, median beside max, with the full
 distribution in `--json`/`--csv`) closed 2026-07-26; the **`opus-5` price gap**
 (found and closed the same day — see below) closed 2026-07-26. ccrepo strand
-closed but for the dated price-table watch below.
+closed but for the dated price-table watch below and the `-g session` gap found
+by use on 2026-07-26.
+
+#### 🤔 No `-g session` — "which sessions ran hottest?" can't be asked
+
+`session` is a **filter** (`--session <uuid-prefix>`) but not a **group
+dimension**, so `Context med/max` can say a repo peaked at 529k without any way
+to ask *which session that was*. Found by use, not by audit: a session asked for
+per-transcript context sizes the day after the column shipped, and the answer
+needed an ad-hoc script to rank individual sessions by peak — everything else in
+the question ccrepo already answered better.
+
+Not a defect. §5 makes `session`-as-filter deliberate, and §10 defers only
+*synthetic-ordinal session numbers as filter keys*, which is a different thing —
+grouping by session was simply never posed. The design's own "every group
+dimension gets a filter" doesn't run in reverse.
+
+**The open question is Mike's, and it is about shape, not worth:** grouping 420
+sessions emits 420 rows, so this is only useful narrowed (`--repo x --since y`)
+or ranked-and-truncated. Options: a plain dimension that trusts filters to keep
+it sane · a `--top <n>` truncation that pairs with `--sort` · leave it out and
+let ad-hoc scripts own per-session questions. Display labels would use UUID
+prefixes; §5 already allows a synthetic `#n` as a label but never a key.
 
 #### ⏳ `sonnet-5` is priced at the introductory rate — reverts 2026-09-01
 
