@@ -399,13 +399,9 @@ The **tracked-shim check** landed 2026-07-26 — `floorfleet` now reports
 `core.hooksPath` never travels) → detail in
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
-- [~] **`linkscan` could name the fix for its commonest class.** *(claimed
-      2026-07-26-0845, wt: none — inline on main)* One repo carried
-      17 broken links of a single shape: a repo-root-relative path written inside
-      a `docs/` file two levels down, so it resolves to `docs/<dir>/<path>` and
-      404s. The correct target is computable from the finding. Idea: print the
-      suggested relative path alongside the error. Turns a 17-item chore into 17
-      obvious edits, and this shape will recur wherever records cite source files.
+The **suggested-fix** strand closed 2026-07-26: `linkscan` now prints the
+replacement path where it is uniquely computable, advisory-only (`b89a306`)
+→ detail in [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 ## Doctrine — review-owed
 
