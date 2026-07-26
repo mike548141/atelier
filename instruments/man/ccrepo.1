@@ -10,6 +10,8 @@ ccrepo \- Claude Code usage totals, grouped and filtered any way you like
 .RI [ filters ]
 .RI [ \-\-sort
 .IR list ]
+.RB [ \-\-top
+.IR n ]
 .br
 .B ccrepo
 .RB [ \-\-json | \-\-csv | \-\-flat ]
@@ -239,19 +241,51 @@ one is refused with an error, never silently matched as everything.
 Passed through to
 .BR ccusage (1)
 for the reconciliation cross-check, so both sides bucket dates in the same zone.
-.SS Sorting
+.SS Sorting and row limits
 .TP
 .BI \-\-sort " list"
 A per-level sort, aligned position-for-position to
 .BR \-g ;
-a single value broadcasts to every level. Each entry is a key, optionally
-suffixed
+a single value broadcasts to every level. The comma still separates
+.B levels
+of
+.BR \-g \(em
+that positional meaning is unchanged, and is not up for re-reading (decided
+2026\-07\-26). Within one level, chain keys with
+.B +
+to break ties, e.g.
+.IR "cost+name" :
+sort that level by cost, then alphabetically among equal costs. Each key may
+carry its own
 .BI : dir
-.RB ( asc " or " desc ).
+suffix
+.RB ( asc " or " desc ),
+e.g.
+.IR "cost:desc+name:asc" .
 Keys are
 .IR cost ", " tokens ", " count " (distinct sessions), " name " and " time .
 The default is chronological for time dimensions and cost-descending for
-everything else. An unknown key or direction is refused.
+everything else. An unknown key or direction is refused. A single key with no
+.B +
+behaves exactly as before \(em
+.I \-\-sort cost
+still broadcasts to every level.
+.TP
+.BI \-\-top " n"
+Keep only the first
+.I n
+rows of
+.B each level
+after sorting \(em applied recursively, not just at the leaves: under
+.IR "\-g repo,model \-\-top 5" ,
+the top 5 repos are listed and, within each, the top 5 models. A level's own
+subtotal is unaffected \(em it is computed over every event in that group,
+never just the rows still listed under it \(em and the grand
+.B TOTAL
+row always reflects the full, untruncated data; only the enumerated child rows
+shrink. Exists because
+.I \-g session
+alone can emit several hundred rows.
 .SS Output format
 .TP
 .B \-\-flat
@@ -616,8 +650,14 @@ Main-thread spend versus subagent spend.
 .B ccrepo \-g repo \-\-sort name
 Repos listed alphabetically instead of by cost.
 .TP
+.B ccrepo \-g repo,model \-\-sort "cost+name"
+Repos by cost, models within each tied on cost broken alphabetically.
+.TP
 .B ccrepo \-g session \-\-context 500k\-
 Sessions whose peak context window reached 500k tokens or more.
+.TP
+.B ccrepo \-g session \-\-sort cost \-\-top 20
+The 20 costliest sessions, not several hundred.
 .TP
 .B ccrepo \-\-fx usd \-\-no\-reconcile
 Raw list-price figures, offline, with no ccusage cross-check.
