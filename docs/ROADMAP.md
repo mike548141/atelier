@@ -38,7 +38,10 @@ the mechanism works.
 > 📦 **2 completed items** in this section → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
 >   (the 13-repo wiring, and the repo-specific scoping preserved with it).
 
-- [~] ⏳ (claimed 2026-07-26-2210, wt: atelier-review-2210-take) **ADR 0008 review owed** — self-authored, so this session may not review
+- [ ] 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS
+      3M/5m/1L/1n — [verdict](reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md);
+      EP1–EP10 await Mike's ruling (REVIEW rule 3; MAJORs keep the cycle open
+      past the application). **ADR 0008 review owed** — self-authored, so this session may not review
       it (REVIEW.md rule 4). Aim a reviewer at the one real trade: moving every
       repo onto a floating `@main` caller swaps a slow silent failure for a fast
       loud estate-wide one. Is that right for a security floor?
@@ -501,7 +504,10 @@ pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
   parts with emergent, path-dependent behaviour you can't fully predict from the
   pieces (Cynefin-style split). Do not encode until the ratify pass. (Mike,
   2026-07-24.)
-- ⏳ (claimed 2026-07-26-2210, wt: atelier-review-2210-take) **Capture → doctrine: escalating to the principal is not a rung on the
+- 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS 0M/3m/3n
+  — [verdict](reviews/2026-07-26-2215-evidence-escalation-rung-cold.md); EE1–EE6
+  await Mike's ruling (rule 3; no MAJOR ⇒ the ruling application is terminal).
+  **Capture → doctrine: escalating to the principal is not a rung on the
   acquisition ladder** — APPLIED 2026-07-26 (this session, Opus, after the
   principal's correction). `EVIDENCE.md` §13 gained a paragraph before its
   blocked-from-climbing clause: handing a missing value up sits *beside* the
@@ -511,7 +517,10 @@ pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
   REVIEW rule 4). *Delta:* the `EVIDENCE.md` §13 paragraph (landed this commit).
   *Intent record:* [`2026-07-26-0100-ccrepo-context-column.md`](sessions/2026-07-26-0100-ccrepo-context-column.md)
   § Addendum. Rides the normal review cycle when a qualifying session takes it.
-- ⏳ (claimed 2026-07-26-2210, wt: atelier-review-2210-take) **Capture → doctrine: the close all-clear carries the pushed floor run's
+- 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS 1M/4m
+  — [verdict](reviews/2026-07-26-2215-record-pushed-floor-cold.md); RF1–RF5
+  await Mike's ruling (rule 3; the MAJOR keeps the cycle open past the
+  application). **Capture → doctrine: the close all-clear carries the pushed floor run's
   result** — APPLIED 2026-07-23 (queue run 0959, inline Opus). RECORD.md's
   all-clear evidence rule gained a sub-point: when a close pushes, the evidence
   is the *floor at head*, not the local scan ("green locally, floor run pending"
@@ -522,7 +531,10 @@ pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
   close pushed a 🎯-closed item and left the floor red — reviewscan since 00:06 +
   an un-harvested `[x]` — and the next session inherited the debt to restore
   green). Rides the normal review cycle when a qualifying session takes it.
-- ⏳ (claimed 2026-07-26-2210, wt: atelier-review-2210-take) **Apex: the principal's authority is rooted in accountability** — APPLIED
+- 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS 0M/3m/2n
+  — [verdict](reviews/2026-07-26-2215-apex-accountability-cold.md); AA1–AA5
+  await Mike's ruling (rule 3; no MAJOR ⇒ the ruling application is terminal).
+  **Apex: the principal's authority is rooted in accountability** — APPLIED
   2026-07-24 (this session, Opus, at Mike's instruction). `00-APEX.md` § "The
   principal's authority is conditioned on being informed" gained an opening
   grounding paragraph: the authority is *rooted in accountability* (RASCI
@@ -535,7 +547,11 @@ pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
   record:* Mike's reading that the principal's authority is born of the
   principal's accountability. Rides the normal review cycle when a qualifying
   session takes it.
-- ⏳ (claimed 2026-07-26-2210, wt: atelier-review-2210-take) **Apex: Asimov's Zeroth Law added above the Three Laws** — APPLIED
+- 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS 1M/2m/2n
+  — [verdict](reviews/2026-07-26-2215-apex-zeroth-law-cold.md); ZL1–ZL5 await
+  Mike's ruling (rule 3; the MAJOR — the session-onramp skill still teaches the
+  pre-Zeroth Laws — keeps the cycle open past the application).
+  **Apex: Asimov's Zeroth Law added above the Three Laws** — APPLIED
   2026-07-24 (this session, Opus, at Mike's instruction). `00-APEX.md` § "Then
   the Laws" gained the **Zeroth Law** — "The agent may not harm humanity or,
   through inaction, allow humanity to come to harm" — positioned *above* the
@@ -559,7 +575,10 @@ pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
   no count claim). **Child floor propagation** rides the existing gated
   "Propagate the widened apex floor to the fleet children" item below. Rides the
   normal review cycle when a qualifying session takes it.
-- ⏳ (claimed 2026-07-26-2210, wt: atelier-review-2210-take) **PRINCIPLES §1: "Design the way out before the way in"** — APPLIED
+- 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS 0M/3m/2n
+  — [verdict](reviews/2026-07-26-2215-principles-way-out-cold.md); WO1–WO5
+  await Mike's ruling (rule 3; no MAJOR ⇒ the ruling application is terminal).
+  **PRINCIPLES §1: "Design the way out before the way in"** — APPLIED
   2026-07-24 (this session, Opus, at Mike's instruction). New resilience
   principle paired with "Build the way back before the way forward": before
   adopting an external dependency, first establish how you keep working without
@@ -905,7 +924,13 @@ earlier; S2 `pathscan` `b738f21` + S4 `stampscan` `2fe97f3` this run — detail 
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md)). **S1/S3/S5 first-of-kind reviews are DONE**
 (S3 at 0618; S1 + S5 at 0707 — verdicts + follow-ons below). **S2 + S4 reviews
 are the open first-of-kind work (⏳ below).**
-- ⏳ (claimed 2026-07-26-2210, wt: atelier-review-2210-take) **pathscan (S2) first-of-kind review** — advisory `b738f21` (queue run
+- 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS 3M/5m
+  — [verdict](reviews/2026-07-26-2215-pathscan-s2-cold.md); PS1–PS8 await
+  Mike's ruling (rule 3). Recommendation: keep advisory, five preconditions
+  to flip (gate doctrine surface only; fourth anchor + root `*.md`; burn down
+  the gated residual incl. the one live TP at `docs/build/README.md:28`; flip
+  via the floor registry, not ci.yml; fix the docstring overclaim).
+  **pathscan (S2) first-of-kind review** — advisory `b738f21` (queue run
   0959), rule-4 non-author reviewer needed (this run built it). *Delta:*
   `tools/pathscan.py` + `test_pathscan.py`, wired `--warn` in `ci.yml`.
   *Intent record:* `sessions/2026-07-22-1036-invariant-candidates.md` § S2.
@@ -922,7 +947,13 @@ are the open first-of-kind work (⏳ below).**
   The withdrawn pass is preserved as history under `docs/reviews/withdrawn/`
   and is **not reading for the redo** — open it only after your own verdict
   is written and committed.
-- ⏳ (claimed 2026-07-26-2210, wt: atelier-review-2210-take) **stampscan (S4) first-of-kind review** — built + merged `2fe97f3` (queue
+- 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS 3M/3m/1n
+  — [verdict](reviews/2026-07-26-2215-stampscan-s4-cold.md); ST1–ST7 await
+  Mike's ruling (rule 3). Recommendation: do NOT wire yet, not even advisory —
+  a config error survives `--warn` and the live tree exits 2 today (the
+  quarantined withdrawn file + the new brief trip the parser); staged
+  preconditions in the verdict.
+  **stampscan (S4) first-of-kind review** — built + merged `2fe97f3` (queue
   run 0959), **BUILT BUT NOT WIRED** (see the wiring blocker below), rule-4
   non-author reviewer needed (this run built it). *Delta:* `tools/stampscan.py`
   + `test_stampscan.py`, marker convention added to `PROPAGATION.md` +
@@ -1041,7 +1072,11 @@ USE — a possible future heuristic extension.)*
       review catalogue) has no such seam, and gets one only once
       "Codify V1–V7 as the always-loaded reviewer checklist" (above) decides what
       a checklist entry even is. Do not read the scanner seam as covering it.
-- [~] ⏳ (claimed 2026-07-26-2210, wt: atelier-review-2210-take) **The repo-local floor seam — review owed** (self-authored, so this
+- [ ] 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS
+      3 medium / 2 low (reviewer's scale; no MAJOR label used) —
+      [verdict](reviews/2026-07-26-2215-floor-local-seam-cold.md); LS1–LS5
+      await Mike's ruling (rule 3).
+      **The repo-local floor seam — review owed** (self-authored, so this
       session may not review it — REVIEW.md rule 4). *Delta:* `tools/floor.py`
       (`local` block, `_load_local`, the `is_local` path through plan/run/render,
       `_interpreter`), `tools/floorfleet.py` (`➕` board line), their two test
