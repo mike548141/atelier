@@ -1149,7 +1149,17 @@ CLI tidy. One of the five carries a decision that is Mike's, marked 🎯 inline.
       keys its context map by session, so this is a `DIMS` entry plus label
       formatting, not a grain change. Labels are UUID prefixes — §5 permits a
       synthetic `#n` as a *display label*, never a key.
-- [ ] **4. 🎯 Multi-column sort — half of this exists, and the syntax collides.**
+- [ ] **4. Multi-column sort — half of this exists, and the syntax collided.**
+      **Decided by Mike, 2026-07-26: option A** — the comma stays positional
+      per group level, multi-key is additive on a second separator. Nothing
+      already written stops working, and B (the only unwalkable-back option) is
+      off the table. Two consequences worth stating rather than re-deriving:
+      **C stops being a separate choice** — under A the flat outputs get the
+      same within-level syntax for free, so there's no tree-vs-flat split to
+      decide; and the separator glyph (`+` as sketched) is now an
+      implementation detail, picked at build time against the other punctuation
+      already in the flag. The collision that made this a decision, kept for
+      the reasoning:
       `--sort` already takes `:asc`/`:desc`, so the direction half is built. But
       the existing flag is **positional per group level**, aligned to `-g`:
       `--sort cost,name` today means *"level 1 by cost, level 2 by name"*, not
@@ -1162,10 +1172,8 @@ CLI tidy. One of the five carries a decision that is Mike's, marked 🎯 inline.
       separator (`--sort 'cost+name, time'`); **B** re-read the comma as
       multi-key and move per-level elsewhere — breaks the documented v2 spec and
       every existing invocation; **C** multi-key only in the flat outputs, tree
-      stays positional. **Recommend A, plus C where it's free** — purely
-      additive, `--sort cost` still broadcasts, nothing already written stops
-      working. 🎯 Mike's call: it's his flag's meaning, and B is the only one
-      that can't be walked back.
+      stays positional. A was recommended and chosen — purely additive, and
+      `--sort cost` still broadcasts to every level.
 - [ ] **5. Section the CLI surface.** `--help` is one flat 25-line `OPTIONS`
       block and this batch adds at least three more flags to it. **Tiki is the
       named reference and the transferable part is the grouping, not the
