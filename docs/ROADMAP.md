@@ -1087,16 +1087,18 @@ both deliberately not built:
       config. Incidental finds while looking, neither a denominator: assistant
       records carry a top-level `effort`, and `usage.cache_creation` splits
       `ephemeral_1h`/`ephemeral_5m` input tokens (cache TTL, not window size).
-- [~] **Exact agent count, where the evidence supports one.** *(claimed
-      2026-07-26-0702, wt: cctranscript-agent-count)* The shipped count
-      reads the *spawn calls*, which is a ceiling: a skipped or stopped spawn
-      still counts. The stricter source is the sibling `<session-uuid>/
-      subagents/` directory — one log per agent that actually ran — which
-      ccarchive already mirrors. Not built because it needs a directory-aware
-      read alongside the single-file path resolution both live and archive modes
-      use, and a ceiling that holds in both modes beat an exact figure honest in
-      only one. Worth revisiting as *both* figures (started vs finished), since
-      the gap between them is itself the interesting signal.
+- [x] **Exact agent count — BUILT 2026-07-26** (`3b38f3d`, merged `99d43d1`).
+      The header now carries both figures (`10 agents started · 15 finished`),
+      `--json` splits them, and unknown is distinguishable from zero.
+      **The reason this was deferred turned out to be false, and that is the
+      part worth keeping.** The item said a directory-sourced count would read
+      zero under `--from-archive`, because archive mode resolves a single file.
+      It doesn't: ccarchive's `captureClass` allows any `.jsonl` at *any depth*,
+      so `subagents/` is mirrored — 92 such directories in the live archive, and
+      the same session renders an identical header live and archived. The
+      deferral was reasoned from how the *path resolution* works rather than
+      from what the *archive actually contains*, and one `ls` would have settled
+      it. Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md) at next harvest.
 
 ### ccrepo (Mike, 2026-07-17)
 
@@ -1120,8 +1122,20 @@ number ccrepo prints depends on it — and (5) is easier once (2)–(4) know wha
 flags they're adding, so: pricing → session dimension → context filter → sort →
 CLI tidy. One of the five carries a decision that is Mike's, marked 🎯 inline.
 
-- [~] **1. Time-bound the price table — a price is effective from A to B.**
-      *(claimed 2026-07-26-0702, wt: ccrepo-v3)*
+- [x] **1. Time-bound the price table — DONE 2026-07-26** (`7cf8163`, merged
+      `70bc1ad`). Both forms legal (bare number = always; `{from,to,base}`
+      intervals), unpriced-outside-every-interval, `sonnet-5`'s two rates both
+      entered. **Verified rather than assumed, as the item asked:** no
+      `ROLLUP_SCHEMA` bump was needed — `recipeSig` already `stableStringify`s
+      the price table, so flat and time-bounded tables sign differently and the
+      ledger rebuilds itself; that previously-untested link is now pinned. Live
+      proof: ccusage cross-check **Δ +$0.00 (+0.00%) over 423 sessions**. One
+      honest limit — that proves *no regression*, not that the post-2026-08-31
+      rate is right; nothing can prove that yet, so the boundary is pinned in
+      unit tests instead. Unplanned extra: the unpriced footnote now says
+      *which* gap it is, because "add to the price table" is wrong advice for a
+      model already in it. Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md) at next
+      harvest. Original spec kept below for the reasoning:
       Today `PRICING` is one flat USD-per-MTok input base per short model name,
       so a 2026-06 message is priced at *today's* rate and nothing in the tool
       can say otherwise. Shape: a bare number stays legal and means "always"
@@ -1161,7 +1175,12 @@ CLI tidy. One of the five carries a decision that is Mike's, marked 🎯 inline.
       Pairs directly with (3): `-g session --context 500k-` is "which sessions
       blew past 500k", the exact question that needed an ad-hoc script on
       2026-07-26.
-- [~] **3. `-g session`.** *(claimed 2026-07-26-0702, wt: ccrepo-v3)*
+- [x] **3. `-g session` — DONE 2026-07-26** (`7cf8163`, merged `70bc1ad`). A
+      `DIMS` entry as predicted, not a grain change; keys on the full UUID,
+      shows an 8-char prefix in the human table only, `--json`/`--csv` keep the
+      whole id. The filter's private getter is gone, so filtering and grouping
+      can no longer disagree about what a session key is. `--top` deliberately
+      not added — it travels with ask 4. Original text kept for the grounding:
       Mike asking for it answers the *worth* half of the
       open question below; the *shape* half survives — 420 sessions emit 420
       rows. Filters plus the default cost-descending sort carry most of it;

@@ -5,6 +5,50 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-26 — ccrepo prices by date and groups by session; cctranscript counts agents that finished)
+- **A ccrepo price is effective from a date to a date.** A `PRICING` entry may
+  now be a list of `{from, to, base}` intervals (ISO dates, UTC, both ends
+  inclusive, either end omitted for open-ended) as well as a bare number, which
+  still means "always" — the compatibility guarantee every existing
+  `~/.claude/ccrepo-pricing.json` rests on, now pinned by a test. Each message is
+  priced at the rate in force when it was **sent**, so a rate change no longer
+  rewrites history. `sonnet-5`'s introductory `$2` (through 2026-08-31) and
+  standard `$3` (from 2026-09-01) are both entered, each correct on its own side
+  of the date, so the revert needs nobody to remember it.
+- **A timestamp inside no interval is unpriced** — $0 and flagged, the same path
+  an unknown model takes, never snapped to the nearest interval. The footnote now
+  names *which* of the two gaps it is: a model missing from the table needs a
+  price added, one already in it needs an interval widened, and the old single
+  message gave the wrong instruction for half its cases.
+- **No `ROLLUP_SCHEMA` bump, verified rather than assumed** — `recipeSig` already
+  `stableStringify`s the price table, so a flat and a time-bounded table sign
+  differently and the ledger rebuilds itself. The event *shape* is unchanged;
+  only its values move, which is exactly what the signature covers.
+- **`-g session`** joins the group dimensions, answering "which session hit
+  529k?" — the one part of that question ccrepo previously couldn't. It keys on
+  the full UUID (a synthetic ordinal stays a display label, never a key) and
+  prints an 8-character prefix in the human table only; `--json`/`--csv` carry
+  the whole id, because a truncated id you can't look up is worse than a wide one
+  you can. The filter's private session getter is gone, so filtering and grouping
+  can no longer disagree about what a session key is.
+- **cctranscript reports agents *finished* beside agents *started*** —
+  `10 agents started · 15 finished`. Started reads the spawn calls (a ceiling);
+  finished reads the sibling `subagents/` directory, one log per agent that
+  actually ran. Both chips always print: where the store never said, the second
+  reads `finished unknown` rather than dropping out or claiming a zero — the
+  field set stays stable for a side-by-side read without asserting an unevidenced
+  figure. Finished can legitimately *exceed* started, because a nested agent logs
+  into the principal's directory while the principal's own call count doesn't see
+  it; the figures are left unclamped so the nesting stays visible.
+- **Correction to the entry below**: it says a directory-sourced count would
+  "silently read zero" under `--from-archive`. That was wrong. ccarchive's
+  capture allowlist takes any `.jsonl` at *any depth*, so `subagents/` is
+  mirrored — 92 such directories in the live archive, and a session renders an
+  identical header live and archived. The claim was reasoned from how path
+  resolution works rather than from what the archive contains. The entry is left
+  as written; a record that quietly rewrites its own history is what the honesty
+  rule exists to prevent.
+
 ### Added (2026-07-26 — cctranscript reports a session's context size and agent count)
 - **Context size on the summary line** — `206 turns · 24 you · 182 Claude ·
   477k context · 12h2m`. Counted as `input + cache_creation + cache_read`,
