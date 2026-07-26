@@ -1066,7 +1066,24 @@ real receipts, machine-local); archive sourcing (`--from-archive`, closing the
 observe-side seam alongside cctranscript) closed 2026-07-23; the **rollup
 precompute ledger** (`8a31b95`, 3.1× warm speedup, `rollup==recompute` proven
 live, per-file keying, transparent-by-default confirmed by Mike) closed
-2026-07-23 → [`ROADMAP-DONE.md`](ROADMAP-DONE.md). ccrepo strand closed.
+2026-07-23 → [`ROADMAP-DONE.md`](ROADMAP-DONE.md); the **context-size column**
+(`Context med/max` — per-session peak windows, median beside max, with the full
+distribution in `--json`/`--csv`) closed 2026-07-26. ccrepo strand closed but
+for the price-table gap below.
+
+#### 🎯 `opus-5` has no price — live totals understate (found 2026-07-26)
+
+The price table carries `opus-4-8`, `fable-5`, `sonnet-5`, `sonnet-4` and
+`haiku-4-5` but **not `opus-5`**, so every run prints `⚠ Unpriced model(s):
+opus-5` and counts those messages at **$0**. On the live logs that was 1,314
+messages in one drive — real spend reading as free, and growing as more work
+moves to opus-5.
+
+Not fixed when found, deliberately: a price must come from Anthropic's published
+list, and fitting one to the observed cost would be inventing a number and
+calling it grounded — exactly what the price table's own comment forbids. Needs
+the list price. The `⚠` footnote is doing its job in the meantime, which is why
+this is a gap rather than a silent error.
 
 Completed instruments work (ccrepo actuals/breakdown, ccarchive integrity/audit,
 the **man-page convention rollout — ccarchive worked example + cctranscript +
