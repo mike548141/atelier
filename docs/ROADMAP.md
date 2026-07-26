@@ -1070,7 +1070,8 @@ both deliberately not built:
       numeric-limits rule forbids. Unblocks if a variant/window field appears in
       the log, or if a machine-local config states it per model — never by
       inference from the number being explained.
-- [ ] **Exact agent count, where the evidence supports one.** The shipped count
+- [~] **Exact agent count, where the evidence supports one.** *(claimed
+      2026-07-26-0702, wt: cctranscript-agent-count)* The shipped count
       reads the *spawn calls*, which is a ceiling: a skipped or stopped spawn
       still counts. The stricter source is the sibling `<session-uuid>/
       subagents/` directory — one log per agent that actually ran — which
@@ -1102,7 +1103,8 @@ number ccrepo prints depends on it — and (5) is easier once (2)–(4) know wha
 flags they're adding, so: pricing → session dimension → context filter → sort →
 CLI tidy. One of the five carries a decision that is Mike's, marked 🎯 inline.
 
-- [ ] **1. Time-bound the price table — a price is effective from A to B.**
+- [~] **1. Time-bound the price table — a price is effective from A to B.**
+      *(claimed 2026-07-26-0702, wt: ccrepo-v3)*
       Today `PRICING` is one flat USD-per-MTok input base per short model name,
       so a 2026-06 message is priced at *today's* rate and nothing in the tool
       can say otherwise. Shape: a bare number stays legal and means "always"
@@ -1128,7 +1130,8 @@ CLI tidy. One of the five carries a decision that is Mike's, marked 🎯 inline.
       being a diary note and becomes a row entered **now** (`$2` to 2026-08-31,
       `$3` from 2026-09-01), correct on both sides of the date without anyone
       remembering.
-- [ ] **2. Filter by context size, between two figures.** `--context 100k-500k`,
+- [~] **2. Filter by context size, between two figures.** *(claimed
+      2026-07-26-0702, wt: ccrepo-v3)* `--context 100k-500k`,
       open-ended either end (`--context 400k-`, `--context -100k`), `k`/`m`
       suffixes — one selector flag rather than a `--context-min`/`--context-max`
       pair, matching how the other filters read as *what they select*.
@@ -1141,7 +1144,8 @@ CLI tidy. One of the five carries a decision that is Mike's, marked 🎯 inline.
       Pairs directly with (3): `-g session --context 500k-` is "which sessions
       blew past 500k", the exact question that needed an ad-hoc script on
       2026-07-26.
-- [ ] **3. `-g session`.** Mike asking for it answers the *worth* half of the
+- [~] **3. `-g session`.** *(claimed 2026-07-26-0702, wt: ccrepo-v3)*
+      Mike asking for it answers the *worth* half of the
       open question below; the *shape* half survives — 420 sessions emit 420
       rows. Filters plus the default cost-descending sort carry most of it;
       `--top <n>` is the remaining sub-question and it belongs with (4). Cheap
@@ -1149,7 +1153,8 @@ CLI tidy. One of the five carries a decision that is Mike's, marked 🎯 inline.
       keys its context map by session, so this is a `DIMS` entry plus label
       formatting, not a grain change. Labels are UUID prefixes — §5 permits a
       synthetic `#n` as a *display label*, never a key.
-- [ ] **4. Multi-column sort — half of this exists, and the syntax collided.**
+- [~] **4. Multi-column sort — half of this exists, and the syntax collided.**
+      *(claimed 2026-07-26-0702, wt: ccrepo-v3)*
       **Decided by Mike, 2026-07-26: option A** — the comma stays positional
       per group level, multi-key is additive on a second separator. Nothing
       already written stops working, and B (the only unwalkable-back option) is
@@ -1174,7 +1179,8 @@ CLI tidy. One of the five carries a decision that is Mike's, marked 🎯 inline.
       every existing invocation; **C** multi-key only in the flat outputs, tree
       stays positional. A was recommended and chosen — purely additive, and
       `--sort cost` still broadcasts to every level.
-- [ ] **5. Section the CLI surface.** `--help` is one flat 25-line `OPTIONS`
+- [~] **5. Section the CLI surface.** *(claimed 2026-07-26-0702, wt: ccrepo-v3)*
+      `--help` is one flat 25-line `OPTIONS`
       block and this batch adds at least three more flags to it. **Tiki is the
       named reference and the transferable part is the grouping, not the
       machinery** — tiki gets its panels from Typer's `rich_help_panel`
