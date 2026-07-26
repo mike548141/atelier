@@ -24,6 +24,7 @@ Zero third-party deps, same as the rest of the suite.
 """
 
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -261,6 +262,32 @@ class InvocationTest(unittest.TestCase):
 
     def test_selftest_passes(self):
         self.assertEqual(self._run("--selftest").returncode, 0)
+
+    def test_json_stdout_stays_pure_inside_actions(self):
+        """--json promises stdout carries nothing but the JSON document. Inside
+        Actions, floor.py also emits ::group::/::error:: workflow commands — and
+        those went to stdout unconditionally, so any caller parsing --json from
+        within a workflow got a JSONDecodeError on the first ::group:: line.
+
+        This is the regression that made the whole floor red for ~13 hours from
+        2026-07-25: the suite passed locally (no GITHUB_ACTIONS in the
+        environment) and failed only in CI, where the var is always set. Pinning
+        the var here means the contract is tested where it actually breaks,
+        rather than only where it happens to hold."""
+        env = {**os.environ, "GITHUB_ACTIONS": "true"}
+        with tempfile.TemporaryDirectory() as td:
+            r = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "floor.py"),
+                 "--plane", "ci", "--root", td, "--json"],
+                capture_output=True, text=True, env=env,
+            )
+            self.assertEqual(r.returncode, 0, r.stderr)
+            # The real assertion: parses at all. A ::group:: on stdout fails here.
+            payload = json.loads(r.stdout)
+            self.assertEqual(payload["plane"], "ci")
+            self.assertNotIn("::group::", r.stdout)
+            # ...and the markers are not lost, just relocated to stderr.
+            self.assertIn("::group::", r.stderr)
 
     def test_missing_records_tree_skips_visibly(self):
         """A code-only repo has no dating discipline to check. It must not be

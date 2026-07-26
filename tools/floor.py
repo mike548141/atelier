@@ -499,13 +499,21 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
 
         argv = [sys.executable, str(path),
                 *_render(base, root, cfg, scanner.name, trees)]
+        # Actions' workflow commands go to the SAME stream the scanners' own
+        # prose does (`child_stdout`: stderr under --json, stdout otherwise) —
+        # not unconditionally to stdout. Under --json, stdout is reserved for
+        # the JSON document by this function's contract above, and grouping
+        # markers written there corrupt it for every caller inside Actions
+        # (`json.loads` on a `::group::` line). Real CI invokes floor.py without
+        # --json, so grouping still renders exactly where it is consumed.
         if ci:
-            print(f"::group::{scanner.name} ({state})", flush=True)
+            print(f"::group::{scanner.name} ({state})", file=child_stdout, flush=True)
         rc = subprocess.run(argv, check=False, stdout=child_stdout).returncode
         if ci:
-            print("::endgroup::", flush=True)
+            print("::endgroup::", file=child_stdout, flush=True)
             if rc != 0 and state == "enforced":
-                print(f"::error::{scanner.name} failed — {scanner.why}", flush=True)
+                print(f"::error::{scanner.name} failed — {scanner.why}",
+                      file=child_stdout, flush=True)
         results.append(Result(scanner.name, state, rc))
     return results
 
