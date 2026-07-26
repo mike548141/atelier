@@ -45,8 +45,9 @@ the mechanism works.
       **⚠️ An Opus pass ran on 2026-07-26 0647 UTC and was NOT ACCEPTED** — reviews
       run on the wrong tier (Mike, 2026-07-26): cold review passes are Fable's.
       The item is re-queued unchanged and still awaits its first accepted review.
-      The withdrawn pass's files are out of the tree so the redo is genuinely cold
-      (recoverable at `4252bc6`).
+      The withdrawn pass is preserved as history under `docs/reviews/withdrawn/`
+      and is **not reading for the redo** — open it only after your own verdict
+      is written and committed.
 - [ ] **Two children were bootstrapped with `--no-verify`** — the gate they were
       installing already failed on their pre-existing content, so it blocked its
       own installation. Once is the honest resolution; twice would not be. Both
@@ -446,6 +447,19 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   whether a session that cannot honour it should stop rather than proceed.
   Self-authored doctrine when it lands ⇒ rule-4 `⏳` at landing — **and that
   review is Fable's.**
+
+- [ ] 🎯 **Promote the withdrawn-pass convention into `REVIEW.md`, or leave it
+  local** (Mike's ruling, 2026-07-26: a rejected pass's outputs happened, and we
+  do not rewrite history — recover them, keep them, make them unreadable as
+  "done"). The handling is now written and live in
+  [`reviews/withdrawn/README.md`](reviews/withdrawn/README.md): preserved
+  verbatim under a `⛔ WITHDRAWN` banner, quarantined out of `docs/reviews/`,
+  never handed to a taker as a queue ref, read-after-your-own-verdict-not-before,
+  and *findings die with the pass*. Open question is whether that is a directory
+  convention or doctrine — it decides the general case (a pass rejected on
+  content, on scope, or half-finished), and it sits directly against rule 2's
+  contamination bar, so promoting it is a doctrine act. Self-authored if
+  promoted ⇒ rule-4 `⏳` at landing.
 
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
 COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin
@@ -905,8 +919,9 @@ are the open first-of-kind work (⏳ below).**
   **⚠️ An Opus pass ran on 2026-07-26 0647 UTC and was NOT ACCEPTED** — reviews
   run on the wrong tier (Mike, 2026-07-26): cold review passes are Fable's.
   The item is re-queued unchanged and still awaits its first accepted review.
-  The withdrawn pass's files are out of the tree so the redo is genuinely cold
-  (recoverable at `4252bc6`).
+  The withdrawn pass is preserved as history under `docs/reviews/withdrawn/`
+  and is **not reading for the redo** — open it only after your own verdict
+  is written and committed.
 - ⏳ **stampscan (S4) first-of-kind review** — built + merged `2fe97f3` (queue
   run 0959), **BUILT BUT NOT WIRED** (see the wiring blocker below), rule-4
   non-author reviewer needed (this run built it). *Delta:* `tools/stampscan.py`
@@ -935,8 +950,9 @@ are the open first-of-kind work (⏳ below).**
   **⚠️ An Opus pass ran on 2026-07-26 0647 UTC and was NOT ACCEPTED** — reviews
   run on the wrong tier (Mike, 2026-07-26): cold review passes are Fable's.
   The item is re-queued unchanged and still awaits its first accepted review.
-  The withdrawn pass's files are out of the tree so the redo is genuinely cold
-  (recoverable at `4252bc6`).
+  The withdrawn pass is preserved as history under `docs/reviews/withdrawn/`
+  and is **not reading for the redo** — open it only after your own verdict
+  is written and committed.
 *datescan (S3) review is DONE (2026-07-23) — verdict PASS-WITH-FINDINGS
 (0 MAJOR / 4 minor / 3 Low / 1 nit), NOT gate-ready (~75% baseline noise); brief
 [`docs/reviews/2026-07-23-0618-datescan-s3-cold.md`](reviews/2026-07-23-0618-datescan-s3-cold.md),
