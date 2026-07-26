@@ -80,11 +80,19 @@ per agent that actually ran \(em but
 resolves a single file, so a directory-sourced count would silently read zero
 there; a figure that holds in both modes is worth more than an exact one that
 holds in only the live mode. Read it as a ceiling, then: a spawn the operator
-skipped, or one stopped mid-run, still counts. Sessions that started none omit
-the figure, and
+skipped, or one stopped mid-run, still counts.
 .B \-\-json
 carries the breakdown by subagent type as
 .IR agents.byType .
+.PP
+The count is always reported, including
+.BR "0 agents" .
+The summary line is read by comparing sessions against one another, and a chip
+that vanishes at zero makes two headers line up differently for the reader to
+reconcile. This is deliberately the opposite treatment from the context figure,
+which is omitted when a log carries no usage records: a zero the log *proves*
+is a fact worth stating, while a size the log never recorded is unknown, and
+printing it as zero would be a claim the evidence doesn't support.
 .PP
 The live logs are ephemeral: Claude Code deletes them after
 .I cleanupPeriodDays

@@ -22,8 +22,15 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   exact one that holds in only the live mode. Read as a ceiling: a skipped or
   stopped spawn still counts. `--json` adds `agents.byType`.
 - Both tallies are taken **before** the view gating, so `--tools`/`--think`
-  change what you see and never what the header reports. Sessions with no
-  agents omit the chip: a figure printed on every header stops being read.
+  change what you see and never what the header reports.
+- **The agent count always prints, including `0 agents`** — Mike's call, on the
+  ground that the summary line gets read by *comparing* sessions, and a chip
+  that vanishes at zero makes two headers line up differently for the reader to
+  reconcile. (It shipped omit-at-zero hours earlier; reversed the same day.)
+  Deliberately the opposite treatment from the context figure, which stays
+  conditional: a zero the log **proves** is a fact worth stating, while a size
+  the log never recorded is **unknown**, and printing that as zero would be a
+  claim the evidence doesn't support.
 
 ### Changed (2026-07-25 — enforcement propagates by call, not by copy: ADR 0008)
 - **`tools/floor.py`** — ONE registry of which checks run, read by both planes

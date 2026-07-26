@@ -705,11 +705,15 @@ function runTranscript() {
   const parts = [`${turns.length} turns`, `${count('you')} you`, `${count('claude')} Claude`];
   if (showThink && count('think')) parts.push(`${count('think')} thinking`);
   if (showTools && count('tool')) parts.push(`${count('tool')} tool`);
-  // How wide the session ran. Omitted at zero rather than printed as "0 agents":
-  // most sessions spawn none, and a chip that's always there stops being read.
-  if (agents.spawned) parts.push(`${agents.spawned} agent${agents.spawned === 1 ? '' : 's'}`);
-  // How full the window got. Absent from a log with no usage records (an old
-  // or synthetic one), where a silent omission beats a fabricated 0.
+  // How wide the session ran — always reported, including "0 agents". The line
+  // is read by comparing sessions against each other, and a chip that vanishes
+  // at zero makes two headers line up differently for the reader to reconcile;
+  // a stated zero is a fact, and an absent chip is only ambiguity. (Mike's call,
+  // 2026-07-26, reversing an omit-at-zero default on exactly that ground.)
+  parts.push(`${agents.spawned} agent${agents.spawned === 1 ? '' : 's'}`);
+  // The context chip is the other case, and stays conditional: a log with no
+  // usage records leaves the size *unknown*, which "0" would misreport. Known
+  // zero is printed; unknown is omitted.
   const ctxChip = fmtTokens(context.peak);
   if (ctxChip) parts.push(`${ctxChip} context`);
   if (first && last) {

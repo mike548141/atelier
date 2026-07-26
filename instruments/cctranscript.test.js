@@ -178,12 +178,13 @@ test('the summary line reports the context peak; a log without usage omits it', 
   const bare = variant('nousage', (t) => t.replace(/"usage":\{[^}]*\},/g, ''));
   assert.ok(!/context/.test(head(bare)), 'no usage records → no context chip');
 
-  // Most sessions spawn nothing, so a "0 agents" chip on every header would be
-  // noise that stops being read. One agent isn't "1 agents".
+  // The agent chip is reported even at zero: the summary line gets read by
+  // comparing sessions, and a chip that vanishes makes two headers line up
+  // differently. A stated zero is a fact; an absent one is ambiguity.
   const none = variant('noagents', (t) => t.replace(/,\{"type":"tool_use","name":"(Agent|Task)"[^}]*\}\}/g, ''));
-  assert.ok(!/agent/.test(head(none)), 'no spawns → no agent chip');
+  assert.match(head(none), /0 agents/);
   const one = variant('oneagent', (t) => t.replace(/,\{"type":"tool_use","name":"Task"[^}]*\}\}/, ''));
-  assert.match(head(one), /1 agent /);
+  assert.match(head(one), /1 agent /);       // and one agent isn't "1 agents"
 });
 
 // A throwaway copy of the fixture with an edit applied — for the cases that
