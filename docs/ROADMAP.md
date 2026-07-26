@@ -1271,7 +1271,9 @@ The **time-bounded price table** (ask 1) landed 2026-07-26 (`7cf8163`, merged
 open asks:
 
 - [~] **2. Filter by context size, between two figures.** *(claimed
-      2026-07-26-0702, wt: ccrepo-v3)* `--context 100k-500k`,
+      2026-07-26-0702, wt: ccrepo-v3 · at: implemented + tested in the worktree,
+      UNCOMMITTED and unverified by the orchestrator when the 0702 session
+      closed — re-run the floor and read the diff before trusting it)* `--context 100k-500k`,
       open-ended either end (`--context 400k-`, `--context -100k`), `k`/`m`
       suffixes — one selector flag rather than a `--context-min`/`--context-max`
       pair, matching how the other filters read as *what they select*.
@@ -1285,7 +1287,8 @@ open asks:
       blew past 500k", the exact question that needed an ad-hoc script on
       2026-07-26.
 - [~] **4. Multi-column sort — half of this exists, and the syntax collided.**
-      *(claimed 2026-07-26-0702, wt: ccrepo-v3)*
+      *(claimed 2026-07-26-0702, wt: ccrepo-v3 · at: NOT started — `--top` and
+      the within-level multi-key separator are both still open)*
       **Decided by Mike, 2026-07-26: option A** — the comma stays positional
       per group level, multi-key is additive on a second separator. Nothing
       already written stops working, and B (the only unwalkable-back option) is
@@ -1310,7 +1313,9 @@ open asks:
       every existing invocation; **C** multi-key only in the flat outputs, tree
       stays positional. A was recommended and chosen — purely additive, and
       `--sort cost` still broadcasts to every level.
-- [~] **5. Section the CLI surface.** *(claimed 2026-07-26-0702, wt: ccrepo-v3)*
+- [~] **5. Section the CLI surface.** *(claimed 2026-07-26-0702, wt: ccrepo-v3
+      · at: NOT started; note the `--help` ≤40-line guard will need a GROUNDED
+      decision, never a figure fitted to whatever the sectioned output measures)*
       `--help` is one flat 25-line `OPTIONS`
       block and this batch adds at least three more flags to it. **Tiki is the
       named reference and the transferable part is the grouping, not the
