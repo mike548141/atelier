@@ -400,7 +400,8 @@ recorded so it is a **choice** rather than something that quietly evaporates.
       change that moves a chunk of the hook question from "machine-local only" to
       "answerable estate-wide".
 
-- [ ] **`linkscan` could name the fix for its commonest class.** One repo carried
+- [~] **`linkscan` could name the fix for its commonest class.** *(claimed
+      2026-07-26-0845, wt: none — inline on main)* One repo carried
       17 broken links of a single shape: a repo-root-relative path written inside
       a `docs/` file two levels down, so it resolves to `docs/<dir>/<path>` and
       404s. The correct target is computable from the finding. Idea: print the
