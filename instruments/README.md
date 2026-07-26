@@ -125,6 +125,18 @@ leaf (each dimension a named field, a `meta` block up top).
 globs; sessions match by UUID prefix. `--sort` overrides the per-dimension
 defaults (time chronological, else cost-desc), aligned to the group levels.
 
+**`--context <range>` is the one filter whose grain isn't the message.**
+Context (§ below) is a per-*session* peak, so `--context 100k-500k` selects
+**sessions** whose peak landed in that band and admits *every* message of a
+matching session — never a per-message test, which would be near-meaningless
+(a session ramps through every band below its peak, so a message-grain filter
+would match almost every session at almost every band). `k`/`m` suffixes;
+open either end (`--context 400k-`, `--context -100k`). Pairs with `-g
+session`: `-g session --context 500k-` is "which sessions blew past 500k", a
+question that otherwise needs an ad-hoc script. A malformed range (no dash, no
+bound on either side, or min > max) is a hard error, never a silent
+match-everything.
+
 **Cost is computed here, per message**, from a local list-price table across five
 token classes — input, output, cache read, and the 5m/1h cache-*write* split
 (they price differently). branch/kind/version/hour vary *within* a session, so
