@@ -167,9 +167,68 @@ logs **90,703 times, every one `standard`, zero `fast`**. Same measured-false
 treatment as the earlier `server_tool_use` finding — the honest response to a
 measured zero is to record the measurement, not to build for the hypothetical.
 
+## Addendum · 0215 UTC · the all-clear I gave was past its evidence
+
+Mike, closing: *"have you tidied everything up ready to close this session?"*
+Checking properly — rather than asserting — turned up that **I had been
+reporting a green floor on local evidence while the pushed floor was red.**
+
+`RECORD.md`'s all-clear rule is explicit, and there is already a `⏳` capture
+queued for it since 2026-07-23: *when a close pushes, the evidence is the floor
+**at head**, not the local scan — "green locally, floor run pending" is honest;
+"all green" before the head run reports is a claim past its evidence.* I stated
+"floor 9/9, exit 0" in three commit messages and to Mike directly, every time
+from `python3 tools/floor.py` on this machine. **The rule already existed, was
+already queued for review, and I broke it anyway** — that is evidence for the
+review, not grounds for writing a fourth restatement of the same rule.
+
+**What the pushed floor was actually saying.** Red since `6749202`
+(2026-07-25 13:16) — about 19 hours, 20+ consecutive failing runs, spanning
+several sessions before this one. Two stacked failures, the first masking the
+second:
+
+**1. `--json` stdout corrupted inside Actions (inherited, not mine).**
+`floor.py`'s `run()` docstring states the contract: *"In `--json` mode the
+scanners' own reports are routed to stderr so stdout carries nothing but the
+JSON document."* It honoured that for the scanners and then broke it three lines
+later — the Actions `::group::` / `::endgroup::` / `::error::` markers printed to
+stdout unconditionally. So inside a workflow, `floor.py --json` emitted a
+`::group::` line before the JSON, and any caller parsing it got
+`JSONDecodeError: Expecting value: line 1 column 1`. That caller was our own
+`test_missing_records_tree_skips_visibly`.
+
+> **The generalisable bit — the failure was environment-gated, not logic-gated.**
+> `GITHUB_ACTIONS` is never set on a dev machine, so the suite was green locally
+> and red only in CI: the one place nobody re-runs by hand. Every session that
+> checked locally saw green and said so, including mine. A test that reads an
+> ambient environment variable it does not control is not testing one contract;
+> it is testing two different ones depending on where it runs.
+
+Fixed by routing the markers to the same stream the contract already reserves
+(`child_stdout` — stderr under `--json`, stdout otherwise). Nothing is lost:
+both workflows invoke `floor.py` **without** `--json`, so grouping still renders
+where it is consumed. The new `test_json_stdout_stays_pure_inside_actions` pins
+`GITHUB_ACTIONS=true` for the subprocess, so the contract is now tested where it
+actually breaks rather than only where it happens to hold. Suite 660 → 661,
+green under both conditions.
+
+**2. An 81-byte man page line (mine).** With the pipeline unblocked, a step that
+had never been reached started running and failed: `mandoc -T lint` flagged
+`ccrepo.1:343` — one byte over the 80-byte limit — from this session's own
+CONTEXT SIZE section. I had verified that page locally with `man -P cat`, which
+*renders* it; `mandoc -T lint` *checks* it, and isn't installed on this machine.
+**A render looking right is not the lint passing.** Rewrapped.
+
+**Floor at head: `908de1d` — GREEN.** First green run since 2026-07-25 06:51.
+That, and not the local scan, is this session's all-clear.
+
 ## Left open
 
 - **`sonnet-5` intro rate reverts 2026-09-01** (above) — a dated edit, not a
   decision. Roadmap `⏳`.
 - **The `EVIDENCE.md` §13 doctrine delta needs its cold review** — queued `⏳`,
   spawned by a non-author per REVIEW rule 4. Not startable by this session.
+- **No local equivalent of the `mandoc -T lint` gate.** `mandoc` isn't installed
+  here, so man-page style breaks can only be caught by pushing. Worth either
+  installing it or teaching the pre-commit hook to skip-with-a-note, so the gap
+  is stated rather than silently unchecked. Not built here — flagged.
