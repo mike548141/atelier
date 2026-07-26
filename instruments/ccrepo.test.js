@@ -1110,12 +1110,19 @@ test('requiring ccrepo never acts on the host argv (help/validation live in main
 
 const SCRIPT = path.join(__dirname, 'ccrepo');
 
-// Interim bump (was 40, then 41 for --context/ask 2): --top (ROADMAP ccrepo
-// v3 ask 4) adds one more flag line to the still-flat OPTIONS block. Ask 5
-// resections the whole surface and rebases this guard on a fully-grounded
-// figure at that point — this interim number is exactly old-budget + 1 new
-// line, not a fitted afterthought.
-const HELP_LINE_BUDGET = 42;
+// Final line budget (ROADMAP ccrepo v3 ask 5), measured the same way the
+// original guard was: split('\n').length — the printed text's real line count
+// PLUS ONE, since console.log's trailing newline yields one empty trailing
+// element. v2 measured 40 by that count (39 real lines) under one flat
+// OPTIONS block. Ask 5 requires six NAMED sections (SELECT/SHAPE/OUTPUT/
+// SOURCE/PRICING/META, Mike's call, not ccrepo's) — six headers replacing the
+// one "OPTIONS" line adds 5. Ask 2 (--context) and ask 4 (--top) each added
+// one flag line already (the 41 and 42 interim guards on the way here). 40 +
+// 5 + 2 = 47 — grounded in that arithmetic, not fitted to whatever the
+// current string happens to measure (the anti-pattern this repo explicitly
+// forbids). If a future flag needs to land, the honest move is to re-run this
+// same arithmetic, not creep the number to fit new prose.
+const HELP_LINE_BUDGET = 47;
 
 test('--help is a concise digest that points at the man page', () => {
   const help = execFileSync('node', [SCRIPT, '-h'], { encoding: 'utf8' });
@@ -1125,6 +1132,15 @@ test('--help is a concise digest that points at the man page', () => {
   // Rationale + worked examples belong in the page, not the digest.
   assert.ok(!/^EXAMPLES$/m.test(help), '--help must not carry a worked EXAMPLES block');
   for (const opt of ['-g', '--repo', '--json', '--no-reconcile']) assert.ok(help.includes(opt));
+});
+
+test('--help groups the surface into ROADMAP v3 ask 5\'s six named sections', () => {
+  const help = execFileSync('node', [SCRIPT, '-h'], { encoding: 'utf8' });
+  for (const sec of ['SELECT', 'SHAPE', 'OUTPUT', 'SOURCE', 'PRICING', 'META']) {
+    assert.match(help, new RegExp(`^${sec}$`, 'm'), `--help must carry a ${sec} section`);
+  }
+  // The trailing prose paragraph — what the numbers ARE — stays, per the ask.
+  assert.match(help, /API-equivalent estimate/);
 });
 
 test('a man page ships and is well-formed roff', () => {

@@ -1168,42 +1168,53 @@ function parseSort(arg, ks) {
 }
 const sortSpecs = parseSort(takeValue('--sort'), keys);
 
+// Section names + membership are Mike's call (ROADMAP v3 ask 5), not ccrepo's
+// invention: SELECT/SHAPE/OUTPUT/SOURCE/PRICING/META. Line budget: the old
+// single-OPTIONS digest was 39 real lines; six named headers replacing that one
+// header add 5, and the two new flags (--context, --top) add 2 more — 46 real
+// lines, not fitted after the fact. See the --help line-count test (which
+// counts split('\n').length, one more than the real line count) for the guard.
 const HELP = `ccrepo — Claude Code usage totals, grouped and filtered any way you like
 
 USAGE
   ccrepo [options]
 
-OPTIONS
-  -g, --group <list>   Ordered dimensions, nested left→right (default: repo)
-                       repo · session · model · branch · kind · entrypoint ·
-                       cc-version · agent · year|month|week|day|hour · total
-  --repo <list>        Filter by repo, e.g. --repo ros,faves   --repo '!scanme'
-  --model <list>       Filter by model (substring), e.g. --model opus
-  --branch <list>      Filter by branch (glob), e.g. --branch 'client-*'
-  --kind <list>        Filter by main | subagent
-  --entrypoint <list>  Filter by entrypoint, e.g. cli | claude-vscode
-  --cc-version <list>  Filter by Claude Code version, e.g. 2.1.209
-  --agent <list>       Filter by agent type
-  --session <list>     Filter by session UUID prefix, e.g. --session 01c3,ff97
-  --since <YYYYMMDD>   On or after this local date
-  --until <YYYYMMDD>   On or before this local date
-  --context <range>    SESSION peak (not per-message): 100k-500k, 400k-, -100k
-  -z, --timezone <tz>  Timezone for the ccusage cross-check
-  --sort <list>        Per level (aligned to -g); + chains keys within a level
-                       cost·tokens·count·name·time, optional :asc/:desc
-  --top <n>            Keep only the first n rows per level, after sorting
-  --flat               One column per group level (spreadsheet shape)
-  --json               Tidy JSON, one record per leaf
-  --csv                Same shape as CSV
-  --fx <code>          Convert to an ISO-4217 currency (default nzd; usd = raw)
-  --rate <n>           Force the USD→<code> rate instead of fetching
-  --from-archive       Read ccarchive's mirror, not the live logs (pruned history)
-  --dest <dir>         Where the archive lives (implies --from-archive)
-  --materialise        With --from-archive, also read iCloud-evicted files
-  --no-rollup          With --from-archive, ignore the rollup cache (full re-walk)
-  --no-billing         Ignore ~/.claude/ccrepo-billing.json; estimate only
-  --no-reconcile       Skip the ccusage cross-check (faster / offline)
-  -h, --help           This summary
+SELECT
+  --repo <list>          Filter by repo, e.g. ros,faves   '!scanme' excludes
+  --model <list>         Filter by model (substring), e.g. opus
+  --branch <list>        Filter by branch (glob), e.g. 'client-*'
+  --kind <list>          main | subagent
+  --entrypoint <list>    cli | claude-vscode
+  --cc-version <list>    e.g. 2.1.209
+  --agent <list>         Agent type
+  --session <list>       Session UUID prefix, e.g. 01c3,ff97
+  --since <YYYYMMDD>     On or after this local date
+  --until <YYYYMMDD>     On or before this local date
+  --context <range>      SESSION peak (not per-message): 100k-500k, 400k-, -100k
+SHAPE
+  -g, --group <list>     Ordered dims, nested left→right (default repo)
+                         repo · session · model · branch · kind · entrypoint ·
+                         cc-version · agent · year|month|week|day|hour · total
+  --sort <list>          Per level (aligned to -g); + chains keys within a level
+                         cost·tokens·count·name·time, optional :asc/:desc
+  --top <n>              Keep only the first n rows per level, after sorting
+  --flat                 One column per group level (spreadsheet shape)
+OUTPUT
+  --json                 Tidy JSON, one record per leaf
+  --csv                  Same shape as CSV
+  --fx <code>            Convert to an ISO-4217 currency (default nzd; usd=raw)
+  --rate <n>             Force the USD→<code> rate instead of fetching
+SOURCE
+  --from-archive         Read ccarchive's mirror, not the live logs (pruned history)
+  --dest <dir>           Where the archive lives (implies --from-archive)
+  --materialise          With --from-archive, also read iCloud-evicted files
+  --no-rollup            With --from-archive, ignore the rollup cache (full re-walk)
+PRICING
+  --no-billing           Ignore ~/.claude/ccrepo-billing.json; estimate only
+  --no-reconcile         Skip the ccusage cross-check (faster / offline)
+META
+  -z, --timezone <tz>    Timezone for the ccusage cross-check
+  -h, --help             This summary
 
 Totals usage from ~/.claude/projects/ logs, priced per message and reconciled
 against ccusage. Cost is an API-equivalent estimate (list prices), NZD by

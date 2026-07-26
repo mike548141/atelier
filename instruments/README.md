@@ -108,6 +108,14 @@ they serve. `docs/decisions/0006-instruments-in-atelier.md` records that line.
 
 ## ccrepo grouping, filters & the cost engine
 
+`ccrepo -h` groups its surface into six named sections — **SELECT** (filters,
+including `--since`/`--until`/`--context`), **SHAPE** (`-g`, `--sort`,
+`--top`, `--flat`), **OUTPUT** (`--json`, `--csv`, `--fx`, `--rate`),
+**SOURCE** (`--from-archive`, `--dest`, `--materialise`, `--no-rollup`),
+**PRICING** (`--no-billing`, `--no-reconcile`), and **META** (`-z`, `-h`) —
+rather than one flat list, once ROADMAP v3 added enough flags that a flat list
+stopped scanning fast. `man ccrepo` stays the long form.
+
 **Grouping** is an ordered dimension list — `-g repo,model` nests model under
 repo, `-g model,repo` inverts it, `-g month` totals per month, `-g total` is one
 grand total. Dimensions: `repo · session · model · branch · kind · entrypoint ·
