@@ -38,14 +38,34 @@ the mechanism works.
 > 📦 **2 completed items** in this section → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
 >   (the 13-repo wiring, and the repo-specific scoping preserved with it).
 
-- [~] **ADR 0008 review owed** — self-authored, so the authoring session may not
-      review it (REVIEW.md rule 4).
-      (**claimed 2026-07-26 0647 UTC** by a rule-4-eligible session — Mike-spawned
-      ("do any review work"), authored neither the ADR nor the rollout;
-      brief: `reviews/2026-07-26-0647-adr0008-called-not-copied-cold.md`,
-      wt: `atelier-review-0647-take`.) Aim a reviewer at the one real trade: moving every
-      repo onto a floating `@main` caller swaps a slow silent failure for a fast
-      loud estate-wide one. Is that right for a security floor?
+- [ ] 🎯 **ADR 0008 review DONE 2026-07-26 — Mike's rulings owed on 8 findings.**
+      Cold rule-4 pass by a Mike-spawned non-author session (0647 UTC),
+      **PASS-WITH-FINDINGS 3M/2m/2L/1n** — the decision itself is sound and the
+      reviewer would ratify it; the findings are about the enforcement of the
+      enforcement. **AD1 (MAJOR, security):** a `scope` override naming a path
+      that does not exist silently *skips* the scanner, including secretscan and
+      leakscan which the design says may never be softened — reproduced with a
+      control (same planted key pair: exit 1 with no config, exit 0 with a
+      one-character typo). **AD2 (MAJOR):** `floorfleet` never reads `scope` or
+      `flags`, so `floor.py`'s "declared and visible … read out estate-wide"
+      claim is false at HEAD — the two keys that actually weaken a check are the
+      two the board cannot show. **AD3 (MAJOR):** atelier's own clone runs the
+      pre-ADR-0008 vendored hook (`core.hooksPath` unset, 3 of 9 checks at commit
+      time) and `floorfleet`'s discovery excludes the parent, so the instrument
+      the ADR nominates to catch that gap structurally cannot see it. Plus AD4
+      (hook leakscan's "FULL cover" claim unbacked — `--require-terms` passed on
+      neither plane, and a test pins its absence using CI's reasoning), AD5 (the
+      ADR omits its own two `--no-verify` bypasses), AD6/AD7/AD8. **Every
+      recorded proof re-run and true:** `floorfleet --remote --check` exit 0 at
+      13/13, local board 13/13, 661 tests OK, both selftests ok, actions
+      SHA-pinned, caller passes no secrets. The floating-`@main` steer was
+      attacked and **does not land** — the G7 trust-root precedent is correctly
+      distinguished and the marginal supply-chain widening is ≈ 0. Brief +
+      verdict:
+      [`reviews/2026-07-26-0647-adr0008-called-not-copied-cold.md`](reviews/2026-07-26-0647-adr0008-called-not-copied-cold.md).
+      *Rulings are Mike's (rule 3 — doctrine by function); nothing applied. 3
+      MAJOR ⇒ the cycle does NOT close on this pass: the application earns a
+      further cold pass and queues its own `⏳` in the commit that lands it.*
 - [ ] **Two children were bootstrapped with `--no-verify`** — the gate they were
       installing already failed on their pre-existing content, so it blocked its
       own installation. Once is the honest resolution; twice would not be. Both
@@ -409,6 +429,27 @@ recorded so it is a **choice** rather than something that quietly evaporates.
       obvious edits, and this shape will recur wherever records cite source files.
 
 ## Doctrine — review-owed
+
+- [ ] 🎯 **The `⏳` pointer ceiling is being breached, and it costs real
+  independence** (finding of the 2026-07-26 0647 cold batch, raised in two
+  verdicts). ROADMAP's own header sets the ceiling — *"The pointer is refs
+  only … no evaluative account … so a taker meets the work cold"* — and REVIEW.md
+  rule 1 puts seeded questions in a **deferred section a reviewer opens only
+  after committing its own attack surface**, because *"a reviewer cannot un-read
+  them."* The `pathscan` and `stampscan` pointers carried the authors' full
+  reviewer agendas inline, so this taker read both **while selecting the items**,
+  before any brief existed to defer them. The ADR 0008 pointer was compliant.
+  **This is not theoretical**: on S2, two of the three seeded questions pointed
+  away from the load-bearing problem (they asked whether to tighten the noisy
+  heuristic leg; the actual MAJOR is that the anchor model cannot reach the
+  scanner's own motivating case), and on S4 the agenda framed the marker
+  convention as needing *ratification* while the substantive finding is that it
+  **contradicts** the doctrine it points at. Had the attack surface not been
+  committed from source first, both passes would plausibly have inherited the
+  authors' framing. **Fix shape:** move a queued item's seeded questions out of
+  the ROADMAP line and into the intent record, where rule 4 already says they
+  belong — the pointer names the delta and the record, nothing more. Self-authored
+  doctrine when it lands ⇒ rule-4 `⏳` at landing.
 
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
 COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin
@@ -853,51 +894,74 @@ candidates; record:
 earlier; S2 `pathscan` `b738f21` + S4 `stampscan` `2fe97f3` this run — detail →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md)). **S1/S3/S5 first-of-kind reviews are DONE**
 (S3 at 0618; S1 + S5 at 0707 — verdicts + follow-ons below). **S2 + S4 reviews
-are the open first-of-kind work (⏳ below).**
-- [~] **pathscan (S2) first-of-kind review** — advisory `b738f21` (queue run
-  0959), rule-4 non-author reviewer needed (that run built it).
-  (**claimed 2026-07-26 0647 UTC** by a rule-4-eligible session — Mike-spawned
-  ("do any review work"), authored neither the scanner nor its records;
-  brief: `reviews/2026-07-26-0647-pathscan-s2-cold.md`,
-  wt: `atelier-review-0647-take`.) *Delta:*
-  `tools/pathscan.py` + `test_pathscan.py`, wired `--warn` in `ci.yml`.
-  *Intent record:* `sessions/2026-07-22-1036-invariant-candidates.md` § S2.
-  The build's own open questions for the reviewer (from its report): is the
-  triple-anchor resolution (root / own-dir / outermost-`docs`-ancestor)
-  defensible or too atelier-specific; should README-without-`.md` (38 of 174
-  findings, the largest class) get an `.md`-append retry or stay a residual;
-  the extension-suffix-only heuristic leg is the noisiest half — tighten before
-  gating? Baseline 174 on `docs/` is heuristic noise by design; gate-readiness +
-  scope (à la WS1) are the review's call.
-- [~] **stampscan (S4) first-of-kind review** — built + merged `2fe97f3` (queue
-  run 0959), **BUILT BUT NOT WIRED** (see the wiring blocker below), rule-4
-  non-author reviewer needed (that run built it).
-  (**claimed 2026-07-26 0647 UTC** by a rule-4-eligible session — Mike-spawned
-  ("do any review work"), authored neither the scanner nor its records;
-  brief: `reviews/2026-07-26-0647-stampscan-s4-cold.md`,
-  wt: `atelier-review-0647-take`.) *Delta:* `tools/stampscan.py`
-  + `test_stampscan.py`, marker convention added to `PROPAGATION.md` +
-  `templates/CLAUDE.md` (invisible HTML comments); 46 tests, live pair CLEAN
-  (byte-identical). *Intent record:*
-  `sessions/2026-07-22-1036-invariant-candidates.md` § S4. Reviewer must
-  scrutinise: **(0) THE WIRING BLOCKER (load-bearing, found in-run):** the
-  marker parser recognises stamp markers anywhere it scans — including prose and
-  code spans that only *document* the syntax — and treats a stray/unpaired
-  marker as a hard config error (exit 2) that `--warn` does NOT suppress. So
-  even advisory wiring lets ordinary docs about stampscan block the floor (a
-  ROADMAP pointer describing the markers reddened the floor mid-run; the
-  stampscan CI step was reverted, so it is unwired). **Precondition to wire:
-  strip fenced/inline code before marker-hunting, as every sibling scanner
-  does.** (1) the **marker convention borders on a doctrine act** —
-  `narrow=<reason>` declares a legitimate narrowing vs a silent drop (mechanically
-  identical subsequences), needs explicit ratification; (2) the stamp-end marker
-  appended inline to the `---` divider (rather than its own line) — a placement
-  compromise forced by a collision with the pre-existing `test_templates.py`
-  slice logic (a cleaner fix teaches `template_block()` to strip markers);
-  (3) fence-stripping + duplicate-line subsequence matching are first-of-kind
-  residuals unexercised beyond fixtures. Other inlined-floor candidates
-  (`method-layer P1`, `foundation Q2`, `CF4`/`IR2`/`SL1`/`HI-F4`) are NOT wired —
-  their canonical source+region weren't confidently identifiable without guessing.
+are now DONE too** (2026-07-26 0647, one cold rule-4 session, verdicts below) —
+**all five first-of-kind reviews have run.** What is open is no longer review
+work but Mike's rulings on their findings, and neither S2 nor S4 is gate-ready:
+S4 is *not wireable as built*.
+- [ ] 🎯 **pathscan (S2) review DONE 2026-07-26 — Mike's rulings owed on 8
+  findings.** Cold rule-4 pass by a Mike-spawned non-author session (0647 UTC),
+  **PASS-WITH-FINDINGS 1M/3m/2L/1n**, **NOT gate-ready** — the detection engine
+  is sound; every finding is about where it is pointed and what counts as
+  resolved. **PS1 (MAJOR, gate scope — the WS1 shape):** the wired scope
+  (`docs`) excludes root-level Markdown, which is where the scanner's own
+  motivating case lives (a README naming `docs/decisions/`), **and it cannot be
+  widened until a fourth anchor exists** — root-level files write `reviews/…`
+  meaning `docs/reviews/…`, which no anchor covers, so a whole-tree run adds 65
+  findings that are overwhelmingly anchor artefacts (both sampled targets
+  verified present under `docs/`). Fix is one anchor (`<root>/docs/<token>`),
+  then re-baseline, then set the gated scope. Plus PS2 (the docstring still says
+  "not invoked from `ci.yml`" — it is, `--warn`), PS3 (anchor #3 and the
+  top-dir list are atelier-hardcoded, blocking fleet use), PS4 (a `../`
+  candidate reproduced resolving against a file *outside* the repo), PS5/PS6/
+  PS7/PS8. **Proofs re-run:** baseline 174 exact; the "38 of 174" class
+  reproduces as 39 extensionless targets, 24 of them `README`; selftest + 53
+  unit tests green. **Two of the three seeded questions are answered against
+  their premise:** the README `.md`-append retry is worth doing (all 24 resolve,
+  14% of the baseline), and the extension-only leg is **not** noise to tighten —
+  its 76 findings are real unresolvable references, so tightening it would lose
+  findings; the lever is the anchor model. Brief + verdict:
+  [`reviews/2026-07-26-0647-pathscan-s2-cold.md`](reviews/2026-07-26-0647-pathscan-s2-cold.md).
+  *Recommendation: keep `--warn`, do not gate. Rulings are Mike's (rule 3 — a CI
+  gate is doctrine by function); nothing applied. 1 MAJOR ⇒ the cycle does not
+  close on this pass.*
+- [ ] 🎯 **stampscan (S4) review DONE 2026-07-26 — Mike's rulings owed on 9
+  findings.** Cold rule-4 pass by a Mike-spawned non-author session (0647 UTC),
+  **PASS-WITH-FINDINGS 3M/1m/3L/1n** — **NOT gate-ready, and not wireable as
+  built.** The invariant is real and the engine is competently built; the problem
+  is one level up. **ST1 (MAJOR, lens 1 — the load-bearing assumption is
+  false):** the scanner enforces the *inverse* of `PROPAGATION.md`, the source of
+  its one live region — the doctrine says the inlined floor is a
+  "narrowing-free restatement" whose parts "may **compress** but must not
+  contradict", and stampscan reds a compressed line while greening a declared
+  narrowing. Worse, `narrow=` borrows a word `PROPAGATION.md`'s layer-override
+  rule already defines as "make a rule **stricter**", to legitimise dropping
+  lines — which makes a child *looser*, the act the same rule calls "a defect to
+  surface, not a quiet local win". Reproduced in both directions on a fixture.
+  **ST2 (MAJOR):** the escape has no floor — a stamped block emptied to nothing
+  with any `narrow=` reason reports "✓ stampscan clean — 0 of 3 canonical lines
+  kept" and exits 0, so a child can delete its entire inlined safety floor and
+  pass. **ST3 (MAJOR, the wiring blocker):** confirmed live and self-inflicted —
+  this review's own brief reddened a `docs/` run (exit 2 with *and* without
+  `--warn`) because it quotes the end marker in a backtick span. Two corrections
+  to the recorded precondition: "as every sibling scanner does" is inaccurate
+  (`pathscan` deliberately keeps backtick spans), and stripping alone is
+  insufficient — the end marker is an unanchored `search` while begin is
+  anchored, so any prose quoting it still fires. Robust fix: strip fenced +
+  inline code **and** anchor the end marker, which needs ST4 (a frozen
+  `test_templates.py` slice bought the fragile design; pay that cost in the test).
+  Plus ST5 (`source=` resolves outside the scan root — reproduced, same class and
+  same fix as `pathscan` PS4), ST6, ST7, ST8 (only **one** stamped pair exists in
+  the tree, so a green run is silent on the corpus that motivated the scanner),
+  ST9 (advisory registry wiring ignores the deliberately-undowngradable exit 2).
+  **Proofs re-run:** 46 tests OK, live pair identical at 52 lines. Brief +
+  verdict:
+  [`reviews/2026-07-26-0647-stampscan-s4-cold.md`](reviews/2026-07-26-0647-stampscan-s4-cold.md).
+  *Recommendation: **do not wire in any state until ST1 is ruled** — wiring a
+  gate that enforces the inverse of its own doctrine would propagate the
+  contradiction to every child that adopts it. Sequence: rule ST1 → fix
+  ST2/ST3/ST4 → stamp the motivating corpus (ST8) → re-baseline → then decide
+  advisory wiring with ST9 understood. Rulings are Mike's; nothing applied. 3
+  MAJOR ⇒ the cycle does not close on this pass.*
 *datescan (S3) review is DONE (2026-07-23) — verdict PASS-WITH-FINDINGS
 (0 MAJOR / 4 minor / 3 Low / 1 nit), NOT gate-ready (~75% baseline noise); brief
 [`docs/reviews/2026-07-23-0618-datescan-s3-cold.md`](reviews/2026-07-23-0618-datescan-s3-cold.md),
