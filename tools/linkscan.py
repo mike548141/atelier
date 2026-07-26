@@ -52,7 +52,7 @@ import re
 import sys
 import unicodedata
 from dataclasses import dataclass, asdict
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from urllib.parse import unquote
 
 # A line carrying this marker is intentionally exempt (e.g. a deliberately
@@ -110,6 +110,7 @@ class Finding:
     kind: str          # "missing-file" | "missing-anchor" | "outside-root"
     target: str        # the raw link destination, as written
     detail: str        # human hint at what's missing
+    suggest: str = ""  # a computed replacement path, or "" when none is certain
 
 
 def slugify(heading: str) -> str:
@@ -250,6 +251,47 @@ def resolve(md_file: Path, root: Path, path: str) -> Path:
     return (md_file.parent / path)
 
 
+def _suggest(md_file: Path, root: Path, path: str) -> str:
+    """A replacement path for a link that didn't resolve, or "" if none is
+    certain. Suggestions are advisory text only — they never change a verdict
+    or an exit code, and nothing rewrites a file.
+
+    Two tiers, both requiring a *unique* answer, because a confident wrong
+    suggestion costs more than none at all:
+
+    1. The path resolves from the **repository root**. This is the commonest
+       break by a wide margin: a root-relative path written inside a file two
+       levels down (`tools/x.py` in `docs/method/`) resolves to
+       `docs/method/tools/x.py` and 404s, when the writer meant the repo root.
+       The correct target is fully computable, so compute it.
+    2. Exactly **one** file anywhere under the root carries that basename —
+       the moved-or-renamed case. Two or more matches means guessing which,
+       so it stays silent.
+    """
+    if not path or path.startswith("/"):
+        return ""            # already root-relative: tier 1 IS the written form
+    # Tier 1 — did they mean it relative to the repo root?
+    from_root = root / path
+    if from_root.exists():
+        rel = os.path.relpath(from_root.resolve(), start=md_file.parent.resolve())
+        return rel if rel != path else ""
+    # Tier 2 — a unique basename match elsewhere in the tree.
+    name = PurePosixPath(path).name
+    if not name or name in (".", ".."):
+        return ""
+    matches: list[Path] = []
+    for cand in root.rglob(name):
+        if any(part.startswith(".") for part in cand.relative_to(root).parts):
+            continue         # .git, .github and friends are not link targets
+        matches.append(cand)
+        if len(matches) > 1:
+            return ""        # ambiguous — say nothing rather than pick
+    if len(matches) != 1:
+        return ""
+    rel = os.path.relpath(matches[0].resolve(), start=md_file.parent.resolve())
+    return rel if rel != path else ""
+
+
 def _within_root(target: Path, root: Path) -> bool:
     """A link that resolves *above* the scan root exists on this disk but not
     on GitHub — nothing above the repository root is servable."""
@@ -330,12 +372,14 @@ def check_file(md_file: Path, root: Path, text: str,
         target = resolve(md_file, root, path)
         if not target.exists():
             findings.append(Finding(rel, lineno, "missing-file", dest,
-                                    f"{_rel(target, root)} does not exist"))
+                                    f"{_rel(target, root)} does not exist",
+                                    _suggest(md_file, root, path)))
             continue
         if not _within_root(target, root):
             findings.append(Finding(rel, lineno, "outside-root", dest,
                                     "resolves outside the repo root — a reader "
-                                    "on GitHub gets a 404"))
+                                    "on GitHub gets a 404",
+                                    _suggest(md_file, root, path)))
             continue
         wrong = _case_mismatch(target, root)
         if wrong is not None:
@@ -413,6 +457,8 @@ def render_human(findings: list[Finding]) -> str:
     lines = [f"✗ linkscan: {len(findings)} broken internal link(s).\n"]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
         lines.append(f"  {f.path}:{f.line}  [{f.kind}] {f.target} → {f.detail}")
+        if f.suggest:
+            lines.append(f"      ↳ did you mean: {f.suggest}")
     lines.append("\n  A real break: fix the path/anchor (or the moved/renamed target).")
     lines.append(f"  A deliberate dangling pointer: append '<!-- {ALLOW_MARKER}: <reason> -->'")
     lines.append("  to the line, or add a path glob to .linkscanignore.")

@@ -6,6 +6,7 @@ dir and drive scan_paths(), so path resolution (relative + root-relative), ancho
 validation (same-file + cross-file), and the code/fence/allow skips are proven
 against the real filesystem, not a mock."""
 
+import dataclasses
 import tempfile
 import unittest
 from pathlib import Path
@@ -160,6 +161,86 @@ class EndToEnd(unittest.TestCase):
 
     def test_selftest_passes(self):
         self.assertEqual(linkscan._selftest(), 0)
+
+
+class SuggestedFix(unittest.TestCase):
+    """A broken link's replacement path is computable in the commonest cases —
+    naming it turns a chore into an obvious edit. Advisory only: a suggestion
+    never changes a verdict or an exit code, and nothing is rewritten."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="linkscan-suggest-"))
+
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def _write(self, rel, body):
+        p = self.tmp / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(body)
+        return p
+
+    def test_root_relative_path_written_two_levels_down(self):
+        # The commonest break: `tools/real.py` inside docs/method/ resolves to
+        # docs/method/tools/real.py. The writer meant the repo root.
+        self._write("tools/real.py", "x\n")
+        self._write("docs/method/F.md", "# T\n\n[a](tools/real.py)\n")
+        f = linkscan.scan_paths([self.tmp], self.tmp)
+        self.assertEqual(len(f), 1)
+        self.assertEqual(f[0].kind, "missing-file")
+        self.assertEqual(f[0].suggest, "../../tools/real.py")
+        # And the suggestion is what it claims to be: it resolves.
+        self.assertTrue((self.tmp / "docs/method" / f[0].suggest).exists())
+
+    def test_unique_basename_elsewhere_is_suggested(self):
+        # The moved-or-renamed case: one file in the tree carries that name.
+        self._write("docs/build/MOVED.md", "# M\n")
+        self._write("docs/method/F.md", "# T\n\n[a](MOVED.md)\n")
+        f = linkscan.scan_paths([self.tmp], self.tmp)
+        self.assertEqual(len(f), 1)
+        self.assertEqual(f[0].suggest, "../build/MOVED.md")
+
+    def test_ambiguous_basename_suggests_nothing(self):
+        # Two candidates means guessing which. A confident wrong suggestion
+        # costs more than none, so it stays silent — but still reports the break.
+        self._write("docs/build/DUP.md", "# A\n")
+        self._write("docs/method/sub/DUP.md", "# B\n")
+        self._write("docs/method/F.md", "# T\n\n[a](DUP.md)\n")
+        f = linkscan.scan_paths([self.tmp], self.tmp)
+        self.assertEqual(len(f), 1)
+        self.assertEqual(f[0].suggest, "")
+
+    def test_no_candidate_anywhere_suggests_nothing(self):
+        self._write("docs/method/F.md", "# T\n\n[a](nowhere/gone.md)\n")
+        f = linkscan.scan_paths([self.tmp], self.tmp)
+        self.assertEqual(len(f), 1)
+        self.assertEqual(f[0].suggest, "")
+
+    def test_dot_directories_are_not_link_targets(self):
+        # A match under .github (or .git) is not something a reader can follow.
+        self._write(".github/workflows/NOTE.md", "# N\n")
+        self._write("docs/method/F.md", "# T\n\n[a](NOTE.md)\n")
+        f = linkscan.scan_paths([self.tmp], self.tmp)
+        self.assertEqual(f[0].suggest, "")
+
+    def test_suggestion_is_advisory_only(self):
+        # The verdict and the exit code must not move because a fix was named.
+        self._write("tools/real.py", "x\n")
+        self._write("docs/method/F.md", "# T\n\n[a](tools/real.py)\n")
+        f = linkscan.scan_paths([self.tmp], self.tmp)
+        self.assertTrue(f[0].suggest)
+        self.assertEqual(linkscan.main(["--root", str(self.tmp), str(self.tmp)]), 1)
+        out = linkscan.render_human(f)
+        self.assertIn("did you mean", out)
+        # A clean tree says nothing about suggestions.
+        self.assertNotIn("did you mean", linkscan.render_human([]))
+
+    def test_json_carries_the_suggestion(self):
+        self._write("tools/real.py", "x\n")
+        self._write("docs/method/F.md", "# T\n\n[a](tools/real.py)\n")
+        f = linkscan.scan_paths([self.tmp], self.tmp)
+        self.assertEqual(dataclasses.asdict(f[0])["suggest"], "../../tools/real.py")
 
 
 class ReviewFindings(unittest.TestCase):

@@ -44,6 +44,15 @@ live text (GitHub renders it as code — fixing that would risk missing real
 links in indented list items, the worse trade). It never touches the network,
 so it says nothing about whether an external URL is alive.
 
+Where the replacement path is **computable**, linkscan prints it (`↳ did you
+mean: ../../tools/x.py`). Two cases qualify, both requiring a *unique* answer:
+the path resolves from the **repository root** — the commonest break by far, a
+root-relative path written inside a file two levels down — or exactly **one**
+file in the tree carries that basename, the moved-or-renamed case. Two
+candidates means guessing which, so it stays silent; a confident wrong
+suggestion costs more than none. Suggestions are **advisory text only**: they
+never change a verdict or an exit code, and nothing is rewritten for you.
+
 **sizescan** (a hygiene check, not a safety scan) gates on **relocatable cold
 content** — a completed `[x]` item on a checkbox-worklog file, whose fix is a
 lossless move to the history store — and treats **length** as a pure advisory.
