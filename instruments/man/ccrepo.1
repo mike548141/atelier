@@ -128,7 +128,7 @@ below. Outside archive mode it has no effect (there is no cache to bypass).
 .BI \-g " list" "\fR, \fP" \-\-group " list"
 An ordered, comma-separated list of dimensions, nested left to right. Valid
 dimensions are
-.IR repo ", " model ", " branch ", " kind " (main | subagent), "
+.IR repo ", " session ", " model ", " branch ", " kind " (main | subagent), "
 .IR entrypoint ", " cc\-version ", " agent ", " year ", " month ", " week ", "
 .IR day " and " hour .
 The default is
@@ -140,6 +140,17 @@ Use
 totals each repo and breaks it down by model;
 .I \-g model,repo
 inverts that nesting. An unknown dimension is refused.
+.PP
+Grouping by
+.I session
+keys on the full UUID but prints an eight-character prefix \(em the same prefix
+.B \-\-session
+takes, where the whole id would be 36 columns of mostly noise. The
+machine-readable outputs keep the full id, because a truncated id you cannot
+look up is worse than a wide one you can. Note that several hundred sessions
+emit several hundred rows: this dimension is meant to be narrowed with filters,
+as in
+.IR "\-g session \-\-repo ros \-\-since 20260701" .
 .SS Filtering
 Each filter takes a comma-separated list. Within one filter a comma means OR; a
 leading
@@ -370,6 +381,27 @@ resolves to the
 base. A model absent from the table is counted at
 .B $0
 and flagged, never silently guessed.
+.PP
+A price is effective
+.I from
+a date
+.IR to " a date."
+An entry is either a bare number, meaning that price always, or a list of
+.RI { from ", " to ", " base }
+intervals \(em ISO calendar dates, UTC, both ends inclusive, either end omitted
+for open-ended. Each message is priced at the rate in force when it was
+.IR sent ,
+so a rate change no longer rewrites history: a message from June is priced at
+June's rate. A timestamp that falls inside no interval is
+.B unpriced
+\(em counted at $0 and flagged, exactly as an unknown model is, never snapped to
+the nearest interval. The footnote distinguishes the two gaps, because a model
+missing from the table needs a price added while a model already in it needs an
+interval widened. The shipped table uses this for
+.IR sonnet\-5 ,
+whose introductory rate runs through 2026-08-31 and reverts the day after: both
+figures are entered, each correct on its own side of the date, so the change
+needs nobody to remember it.
 .PP
 The table is a snapshot, checked against ccusage's own per-model cost on real
 logs at the time it was taken. Because list prices move, every run reconciles

@@ -59,11 +59,51 @@ test('priceBase uses longest-prefix match; null for unpriced', () => {
   // prefixes of each other, and both must resolve to their own entry.
   assert.equal(r.priceBase('opus-4-7'), null, 'an unlisted opus stays unpriced, not silently $5');
   assert.equal(r.priceBase('fable-5'), 10);
-  assert.equal(r.priceBase('sonnet-5'), 2);
   assert.equal(r.priceBase('sonnet-4-6'), 3);   // 'sonnet-4' beats 'sonnet-5' by prefix
   assert.equal(r.priceBase('haiku-4-5-20251001'), 1);
   assert.equal(r.priceBase('gpt-4'), null);
   assert.equal(r.priceBase('<synthetic>'), null);
+});
+
+test('a bare number still means "always" — the pre-interval form keeps working', () => {
+  // The compatibility guarantee, stated as a test: every entry that was a plain
+  // number before time-bounding must resolve identically with or without a
+  // timestamp. If this breaks, every existing ccrepo-pricing.json breaks with it.
+  for (const ts of [undefined, '2020-01-01T00:00:00.000Z', '2099-12-31T23:59:59.000Z']) {
+    assert.equal(r.priceBase('opus-5', null, ts), 5);
+    assert.equal(r.priceBase('haiku-4-5-20251001', null, ts), 1);
+  }
+});
+
+test('a time-bounded price resolves at the message timestamp, both sides of the date', () => {
+  // sonnet-5 ships as two intervals: $2 through 2026-08-31, $3 from 2026-09-01.
+  assert.equal(r.priceBase('sonnet-5', null, '2026-07-26T07:00:00.000Z'), 2, 'intro rate before the boundary');
+  assert.equal(r.priceBase('sonnet-5', null, '2026-08-31T23:59:59.000Z'), 2, 'the "to" bound is inclusive');
+  assert.equal(r.priceBase('sonnet-5', null, '2026-09-01T00:00:00.000Z'), 3, 'the "from" bound is inclusive');
+  assert.equal(r.priceBase('sonnet-5', null, '2027-05-05T00:00:00.000Z'), 3, 'open-ended at the far end');
+  // The boundary is the UTC *date*, and the stamps are Z — no local-day guess.
+  assert.equal(r.priceBase('sonnet-5', null, '2026-08-31T11:30:00.000Z'), 2);
+});
+
+test('a date inside no interval is unpriced, never snapped to the nearest one', () => {
+  const table = { 'gap-1': [{ from: '2026-01-01', to: '2026-01-31', base: 7 }] };
+  assert.equal(r.priceBase('gap-1', table, '2026-01-15T00:00:00.000Z'), 7);
+  assert.equal(r.priceBase('gap-1', table, '2025-12-31T00:00:00.000Z'), null, 'before the first interval');
+  assert.equal(r.priceBase('gap-1', table, '2026-02-01T00:00:00.000Z'), null, 'after the last interval');
+  // No timestamp against a dated entry is also unpriced: an undated lookup can't
+  // be answered from a table that varies by date, and answering it with "today"
+  // would reintroduce the bug the intervals exist to fix.
+  assert.equal(r.priceBase('gap-1', table, undefined), null);
+  // ...and the message cost follows it down the unknown-model path, not to a guess.
+  assert.deepEqual(r.messageCost('gap-1', { input: 1e6 }, table, '2026-02-01T00:00:00.000Z'),
+    { cost: 0, priced: false });
+});
+
+test('priceEntry separates "no such model" from "no price on that date"', () => {
+  // The two gaps need different fixes, so the footnote has to tell them apart.
+  const table = { 'gap-1': [{ from: '2026-01-01', to: '2026-01-31', base: 7 }] };
+  assert.notEqual(r.priceEntry('gap-1', table), null, 'the model is in the table');
+  assert.equal(r.priceEntry('nope-9', table), null, 'the model is not');
 });
 
 test('messageCost sums five token classes at the standard multipliers', () => {
@@ -90,6 +130,29 @@ test('loadPricing merges an override over the built-in table, ignores junk', () 
   const bad = p.join(dir, 'bad.json'); fs.writeFileSync(bad, '{ not json');
   const orig = console.error; console.error = () => {};
   try { assert.equal(r.priceBase('opus-4-8', r.loadPricing(bad)), 5); } finally { console.error = orig; }
+});
+
+test('an override may be a list of intervals; a malformed entry loses only itself', () => {
+  const fs = require('node:fs'), os = require('node:os'), p = require('node:path');
+  const dir = fs.mkdtempSync(p.join(os.tmpdir(), 'ccrepo-price-iv-'));
+  const f = p.join(dir, 'iv.json');
+  fs.writeFileSync(f, JSON.stringify({
+    'opus-4-8': [{ to: '2026-06-30', base: 4 }, { from: '2026-07-01', base: 6 }],
+    'bad-dates': [{ from: 'June 2026', base: 9 }],   // not an ISO date
+    'bad-base': [{ from: '2026-01-01', base: 0 }],   // not a positive number
+    'empty-list': [],
+    'haiku-4-5': 2,                                   // a plain number alongside
+  }));
+  const orig = console.error; const warned = []; console.error = (m) => warned.push(String(m));
+  let merged; try { merged = r.loadPricing(f); } finally { console.error = orig; }
+  assert.equal(r.priceBase('opus-4-8', merged, '2026-06-30T00:00:00.000Z'), 4);
+  assert.equal(r.priceBase('opus-4-8', merged, '2026-07-01T00:00:00.000Z'), 6);
+  assert.equal(r.priceBase('haiku-4-5', merged, '2026-07-01T00:00:00.000Z'), 2);
+  // One bad entry must not sink the file — the other five corrections survive.
+  assert.equal(r.priceEntry('bad-dates', merged), null);
+  assert.equal(r.priceEntry('bad-base', merged), null);
+  assert.equal(r.priceEntry('empty-list', merged), null);
+  assert.equal(warned.length, 3, 'each dropped entry is named, not swallowed');
 });
 
 // --- aggregates ----------------------------------------------------------
@@ -618,6 +681,24 @@ test('contract: --from-archive prices a .gz mirror; ccusage cross-check is off',
   assert.ok(Math.abs(row.cost - 30) < 1e-9);         // $30 at usd (rate 1)
 });
 
+test('contract: -g session groups on the full UUID and machine output keeps it whole', () => {
+  const dest = makeCcrepoArchive();
+  const j = runCcrepoJson(dest, ['--from-archive', '--dest', dest, '-g', 'session']);
+  assert.equal(j.rows.length, 1);
+  const id = j.rows[0].session;
+  // The key is the whole id. The human table shows an 8-char prefix, but --json
+  // must carry something you can paste back into --session and look up.
+  assert.ok(id && id.length > 8, `expected a full session id, got ${JSON.stringify(id)}`);
+  // Same numbers as grouping by repo — a new dimension must not move the totals.
+  const byRepo = runCcrepoJson(dest, ['--from-archive', '--dest', dest, '-g', 'repo']);
+  assert.equal(j.rows[0].totalTokens, byRepo.rows.find((x) => x.repo === 'synthetic-ccrepo').totalTokens);
+  // And the dimension is filterable by the same prefix it groups by (one getter).
+  const filtered = runCcrepoJson(dest,
+    ['--from-archive', '--dest', dest, '-g', 'session', '--session', id.slice(0, 8)]);
+  assert.equal(filtered.rows.length, 1);
+  assert.equal(filtered.rows[0].session, id);
+});
+
 test('contract: --json/--csv carry the whole context distribution, not just med/max', () => {
   const dest = makeCcrepoArchive();
   const j = runCcrepoJson(dest, ['--from-archive', '--dest', dest, '-g', 'repo']);
@@ -701,6 +782,29 @@ test('readLogText gunzips a .gz and passes plain files through; isDatalessFlags 
 // the pure-function tests deliberately don't reach.
 
 // The pure helpers first (cheap, deterministic).
+test('contract: time-bounding a price invalidates the rollup ledger by itself', () => {
+  // The roadmap flagged this to *verify, not assume*: cached events bake their
+  // cost, so if turning a flat price into intervals didn't change the recipe
+  // signature, every warm archive run would keep serving the old dollar figure —
+  // confidently, and forever. It does not need a ROLLUP_SCHEMA bump, because the
+  // event *shape* is unchanged (cost is still a number); the signature covers
+  // changed *values*, which is what this is. Proven in two halves.
+  //
+  // Half one: the signature genuinely moves when a flat entry becomes intervals.
+  const flat = { 'sonnet-5': 2 };
+  const timed = { 'sonnet-5': [{ to: '2026-08-31', base: 2 }, { from: '2026-09-01', base: 3 }] };
+  const covers = { covers: ['opus'], perTokenModels: [] };
+  assert.notEqual(r.recipeSig(flat, covers), r.recipeSig(timed, covers),
+    'flat and time-bounded tables must not sign the same');
+  // ...even when today's effective price is identical, because tomorrow's isn't.
+  assert.notEqual(r.recipeSig(flat, covers), r.recipeSig({ 'sonnet-5': [{ base: 2 }] }, covers));
+  // Half two — that a moved signature rebuilds the root rather than serving the
+  // baked cost — is already pinned, with a sentinel cost, by
+  // 'recipe-signature mismatch (e.g. a price table move) rebuilds the whole
+  // ledger' below. The two halves together are the whole chain; this test adds
+  // only the link that was previously untested.
+});
+
 test('recipeSig is stable under key order and reflects pricing + covers changes', () => {
   const a = r.recipeSig({ 'opus-4-8': 5, 'fable-5': 10 }, { covers: ['opus'], perTokenModels: [] });
   const b = r.recipeSig({ 'fable-5': 10, 'opus-4-8': 5 }, { perTokenModels: [], covers: ['opus'] });
