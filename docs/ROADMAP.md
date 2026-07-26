@@ -1234,53 +1234,9 @@ The **time-bounded price table** (ask 1) landed 2026-07-26 (`7cf8163`, merged
 2026-08-31, so the section below is kept only for the reasoning. The three
 open asks:
 
-- [~] **4. Multi-column sort — half of this exists, and the syntax collided.**
-      *(claimed 2026-07-26-0702, wt: ccrepo-v3 · at: NOT started — `--top` and
-      the within-level multi-key separator are both still open)*
-      **Decided by Mike, 2026-07-26: option A** — the comma stays positional
-      per group level, multi-key is additive on a second separator. Nothing
-      already written stops working, and B (the only unwalkable-back option) is
-      off the table. Two consequences worth stating rather than re-deriving:
-      **C stops being a separate choice** — under A the flat outputs get the
-      same within-level syntax for free, so there's no tree-vs-flat split to
-      decide; and the separator glyph (`+` as sketched) is now an
-      implementation detail, picked at build time against the other punctuation
-      already in the flag. The collision that made this a decision, kept for
-      the reasoning:
-      `--sort` already takes `:asc`/`:desc`, so the direction half is built. But
-      the existing flag is **positional per group level**, aligned to `-g`:
-      `--sort cost,name` today means *"level 1 by cost, level 2 by name"*, not
-      *"cost, then name as tiebreaker"* — which is what `--sort columnA,columnB`
-      reads as. Same flag, same punctuation, two meanings. Worth naming why:
-      in a **tree**, sort is inherently per-level — rows at different depths
-      can't interleave — so "sort the whole table by two columns" only has a
-      literal meaning under `--flat`/`--json`/`--csv`. Options:
-      **A** keep the comma positional, add within-level multi-key on a second
-      separator (`--sort 'cost+name, time'`); **B** re-read the comma as
-      multi-key and move per-level elsewhere — breaks the documented v2 spec and
-      every existing invocation; **C** multi-key only in the flat outputs, tree
-      stays positional. A was recommended and chosen — purely additive, and
-      `--sort cost` still broadcasts to every level.
-- [~] **5. Section the CLI surface.** *(claimed 2026-07-26-0702, wt: ccrepo-v3
-      · at: NOT started; note the `--help` ≤40-line guard will need a GROUNDED
-      decision, never a figure fitted to whatever the sectioned output measures)*
-      `--help` is one flat 25-line `OPTIONS`
-      block and this batch adds at least three more flags to it. **Tiki is the
-      named reference and the transferable part is the grouping, not the
-      machinery** — tiki gets its panels from Typer's `rich_help_panel`
-      (*Daily* · *Inventory & read-model* · *Adopt & recover* · *Diagnose &
-      locate* · *Self-healing* · *Security* · *Meta*) plus an epilog that states
-      exit codes; ccrepo's help is a hand-written string in Node, so it copies
-      the *named sections*, not Typer. Proposed: **SELECT** (all filters,
-      including `--since`/`--until`/`--context`) · **SHAPE** (`-g`, `--sort`,
-      `--top`, `--flat`) · **OUTPUT** (`--json`, `--csv`, `--fx`, `--rate`) ·
-      **SOURCE** (`--from-archive`, `--dest`, `--materialise`, `--no-rollup`) ·
-      **PRICING** (`--no-billing`, `--no-reconcile`) · **META** (`-z`, `-h`).
-      The trailing prose paragraph stays — it's the part that says what the
-      numbers *are*. `--help` remains the summary and `man ccrepo` the long form
-      (2026-07-21 convention). Whether ccarchive and cctranscript follow is a
-      **separate** call: a convention is something repeated deliberately, and
-      three tools sectioned by drift is not that.
+**v3 is COMPLETE** — all five asks landed 2026-07-26 (pricing intervals,
+`-g session`, `--context`, multi-key sort + `--top`, sectioned `--help`) →
+detail in [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 #### `-g session` — BUILT 2026-07-26 (v3 ask 3); grounding kept
 

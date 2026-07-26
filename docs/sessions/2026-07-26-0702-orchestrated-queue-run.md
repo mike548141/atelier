@@ -22,10 +22,12 @@ breadcrumbs rather than run to exhaustion.
 | 5 | linkscan **names the fix** when the path is computable | `b89a306` |
 | 6 | floorfleet **reads the tracked shim** on the remote plane | `b6d6c8b` |
 | 7 | ccrepo **`--context` session-peak filter** (v3 ask 2) | `791bea6` |
-| 8 | Roadmap captures: transcript search, two corrections, one doctrine candidate | several |
+| 8 | ccrepo **multi-key sort + `--top`** (ask 4) | `ee36a91` |
+| 9 | ccrepo **sectioned `--help`** (ask 5) | `ece20b3` |
+| 10 | Roadmap captures: transcript search, two corrections, one doctrine candidate | several |
 
 Floor green at head throughout except one self-inflicted window (below).
-Tests: node 180 → 202; python 661 → 673.
+Tests: node 180 → **207**; python 661 → 673. **ccrepo v3 is complete — all five asks.**
 
 ## The five things worth carrying forward
 
@@ -75,15 +77,21 @@ spot-checked the worker's `finished > started` explanation, saw ten `spawnDepth:
 the distribution, which is `{1: 10, 2: 5}`. The worker was right both times.
 *Both near-misses came from reading a partial view as a complete one.*
 
-**5. Sonnet's third-seat trial: a partial run, and it is recorded as partial.**
-The Sonnet worker was given ccrepo asks 2/4/5 and **completed ask 2 only** before
-the session closed (`791bea6`). That one item **passed** orchestrator verification
-with no rework — the session-grain semantics are right, and a malformed *and* an
-inverted range both exit 2 rather than matching everything, which is the failure
-mode the ask didn't even name. Asks 4 and 5 were never started, so this is
-**one clean item out of three, not a clean run**; recorded that way deliberately.
-Call it **Run 5 (partial)** — it adds a data point for the well-specified-filter
-class and says nothing about the other two asks.
+**5. Sonnet's third-seat trial — Run 5, three items, PASSED; and I nearly
+recorded it as a failure.** The Sonnet worker was given ccrepo asks 2/4/5 and
+delivered **all three** (`791bea6`, `ee36a91`, `ece20b3`), each its own commit.
+At the point Mike asked to close I had seen only ask 2 committed, wrote the
+record as "one clean item of three", and was preparing to hand over asks 4 and 5
+as untouched — **the worker was simply still working.** It finished minutes
+later. The record was corrected before the session ended, but the lesson is the
+one that generalises: *a worker that hasn't reported is not a worker that has
+failed*, and a slow agent looks exactly like a dead one from the outside. The
+three earlier deaths in this session had primed me to read silence as death.
+On the merits it passed with no rework, including the trap the brief flagged —
+it did **not** fit the `--help` line guard to its own output, deriving 40 → 47
+from the structural change (six headers replacing one line, +5; two new flags,
++2) and commenting the arithmetic in both script and test. Verified at merge
+that no blank-line padding was slipped in to make the sum work.
 
 ## Infrastructure: three agent deaths, and the tier that was held
 
@@ -113,10 +121,10 @@ pricing work — a correctness change with a silent-failure mode — was taken
 
 ## Open at close
 
-- ccrepo v3 **asks 4 and 5** — `[~]` with resume breadcrumbs. Ask 4 (`--top` +
-  the within-level multi-key separator, option A already decided by Mike) and
-  ask 5 (sectioned `--help`) are both **untouched**. Ask 5 carries a live trap:
-  the `--help` ≤40-line guard will need a **grounded** decision, never a figure
-  fitted to whatever the sectioned output happens to measure.
-- Branch `ccrepo-v3` and its worktree **left in place** for that continuation.
-- **Nothing is uncommitted anywhere.**
+- **Nothing.** ccrepo v3 is complete, all worktrees removed, tree clean, in sync.
+- The one 🎯 owed to Mike is the ccarchive crypto-source decision (C′ counselled);
+  it gates a build that has not started, so nothing is blocked meanwhile.
+- ⚠️ For a future session: the `--help` budget now has **zero headroom** at 47,
+  so the next flag forces a fresh grounded derivation — which is what a budget is
+  for. And the sections carry no blank line between them (that is what kept the
+  sum honest); spacing them would cost six lines and another derivation.
