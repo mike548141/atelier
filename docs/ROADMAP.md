@@ -1107,40 +1107,33 @@ What remains is Mike's:
   operator note: the shrink guard covers memory files uniformly, so a
   legitimately condensed memory file needs `--force` — safe-over-silent.
   Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
-- [ ] **ccarchive: encryption at rest, secure-by-default (Mike, 2026-07-25)** —
-  design pass, not a build. **Direction (Mike):** ccarchive stores the archive
-  **encrypted by default** (secure-by-default → confidential at rest), with an
-  **explicit opt-out param** to store plaintext if the overheads bite (a loud
-  opt-out, never a silent default); and **ccrepo + cctranscript gain live-decrypt**
-  the same way they already live-decompress. **This raises the bar the 2026-07-23
-  archive decision set:** that ruled the encryption concern "answered" by the
-  iCloud **ADP E2E** layer — but ADP only protects the *iCloud copy*; tool-native
-  encryption makes the bytes confidential *everywhere* (local disk, any copy, in
-  transit, the deferred NAS leg). Complementary to ADP, not redundant.
-  **Open design questions (stub — do not pre-decide):**
-  - **Key management is the crux, not the crypto.** Where the key lives + how the
-    consumers get it at read time. Keys → the person-level credential home
-    (keychain / an age identity), **never atelier** (SECRETS right-plane).
-  - **The overhead is key-*access*, not decrypt CPU** (symmetric decrypt is
-    microseconds; the cost is unlocking the key per op). Lever: session-cached
-    unlock / already-unlocked login keychain — then live-decrypt reuses the exact
-    live-decompress read seam. So encrypted-default is realistic; the opt-out is a
-    backstop, not the expected path.
-  - 🔗 **Solve-once reuse:** the person-context portability design already wants an
-    **age capsule with per-machine keys** for crown-jewels (rulings D1–D5). Same
-    building block — "encrypt-at-rest, keys in the person-home". Solve the key
-    infrastructure ONCE and reuse for both (a live instance of the *solve once,
-    reuse the building block* capture above).
-  - ⚠️ **Zero-dep tension (the one likely Mike-decision at the design pass):**
-    AEAD encryption isn't in Python stdlib — it needs a crypto dep (`age` is the
-    clean choice, already contemplated for the capsule) or shelling to `openssl`
-    (footguns — not AEAD by default). This is the same tool-install-floor tension
-    that *deferred* release-artifact signing/SBOM; weigh secure-by-default against
-    the zero-dep house-tool pattern.
-  - **Orthogonal to the existing manifest signing** (integrity ≠ confidentiality):
-    keep both — sign for tamper-evidence, encrypt for confidentiality.
-  Review WARRANTED when it moves from design to build (touches SECRETS.md +
-  the instruments crypto surface).
+- [ ] **ccarchive: encryption at rest — BUILD not started; one decision open (🎯 Mike)**
+  The **design pass is done** (2026-07-26, `d913698`/`7701a62`) →
+  [`instruments/ccarchive.encryption.design.md`](../instruments/ccarchive.encryption.design.md),
+  completed detail in [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Direction, shape,
+  key management, granularity, migration and DONE conditions are all settled
+  there. Two roadmap premises were **corrected by measurement**: the zero-dep
+  tension doesn't exist for the Node instruments (`node:crypto` has AEAD +
+  X25519; the `openssl` fallback has no AEAD modes at all), and the overhead is
+  the *process boundary*, not key access — so encrypted-by-default is
+  comfortably realistic.
+- [ ] 🎯 **The one decision, and it gates the build: where does the crypto come
+      from?** Every option yields a confidential archive; what differs is what
+      you owe. **A** shell out to `age` everywhere — simplest, standard format
+      forever, but `age` must be installed on every *reading* machine and a full
+      read gets ~27 s slower. **B** house format in `node:crypto` — nothing to
+      install, fastest, but the archive is readable *only* by our code, a real
+      durability risk for something built to outlive its tools. **C** implement
+      the age format in both directions — no install, fast, standard, but we
+      write the trickiest code in the estate twice over. **C′ (counselled)**
+      write with the `age` binary, decrypt in-process — `age` needed only on the
+      archiving machine, readers stay dependency-free and fast, the format stays
+      standard, and **we author only the half where a bug fails loudly** (an
+      encrypt bug can mint weak files you discover years later). `age` is
+      already installed on this machine. Counsel, not a decision.
+      Review **WARRANTED when this moves from design to build** (touches
+      SECRETS.md + the instruments crypto surface); the design pass itself
+      authored no doctrine, so nothing is queued yet.
 
 ### cctranscript (2026-07-26)
 
