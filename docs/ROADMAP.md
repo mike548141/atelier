@@ -1137,8 +1137,56 @@ What remains is Mike's:
 
 The header's summary line gained a **context size** and a **subagent count**
 2026-07-26 (`19ef66d`, `2e8efb5`, `ae56b75`) → detail in
-[`ROADMAP-DONE.md`](ROADMAP-DONE.md) at next harvest. Two strands stay open,
-both deliberately not built:
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md) at next harvest. Open strands:
+
+- [ ] 🎯 **Search across transcripts — regex or plain term, scoped by the flags
+      that already exist (Mike, 2026-07-26).** *"Something that lets you search
+      all the transcripts using regex or for a simple term. If you give
+      cctranscript a command like `--repo` that limits the scope to search
+      within."* Today cctranscript resolves **one** session and renders it; there
+      is no way to ask *which* session said a thing. That is the gap — the tool
+      can answer "what happened in this session" but not "where did we discuss
+      X", which is the question you actually have when you can't remember the
+      session.
+      Grounded in the current surface rather than sketched from scratch — the
+      scoping half is **already built** and should be reused verbatim, not
+      reinvented: `--repo <name>`, `--all`, `-n/--last <k>`, `--from-archive`
+      /`--dest`, and the `--list` machinery that already walks candidate sessions
+      per repo. So the new surface is plausibly one flag plus a mode, not a
+      subcommand.
+      **Questions to settle at design time, none pre-decided:**
+      - **What is a match's unit?** A turn is the natural answer (the tool's
+        whole model is timestamped turns, and `--json` already emits an array of
+        them), but a hit inside a 3,000-line tool result is not a turn you want
+        printed. Likely: match at turn grain, *display* a bounded excerpt.
+      - **What is searched by default?** Prompts and replies only, or also
+        thinking and tool results? The `--tools`/`--think`/`--full` gating already
+        names those layers, so the honest default is probably "what the current
+        view shows", with the gates widening the search the same way they widen
+        the render — one vocabulary, not two. Worth stating explicitly, because a
+        search that silently skips tool output will be quietly wrong the first
+        time someone greps for a filename.
+      - **Regex or plain, and how does the user say which?** A plain term is the
+        common case and a regex is the powerful one; treat a plain string as
+        literal by default and take a regex behind its own flag, rather than
+        guessing from the string's shape (a path with a `.` in it must not
+        silently become a wildcard).
+      - **Output shape.** Probably a `--list`-like index of hits (session, time,
+        one-line excerpt) rather than full renders, since the point is to *find*
+        the session you then open normally. `--json` should carry it too.
+      - **Cost and eviction.** This is the first cctranscript operation that
+        reads **every** file rather than resolving one, which changes its
+        relationship to the archive: an iCloud-evicted mirror can no longer be
+        ignored. The `--materialise` asymmetry documented in
+        [`instruments/README.md`](../instruments/README.md) is justified *on the
+        grounds that cctranscript never bulk-reads* — a search would make that
+        justification stale, so the flag-vocabulary note has to be revisited in
+        the same change, not afterwards.
+      - Whether ccrepo's `--since`/`--until` should join the scoping vocabulary
+        here (flags-follow-operation says yes only if the operation is genuinely
+        shared).
+
+Two further strands stay open, both deliberately not built:
 
 - [ ] **Context as a share of the window** (`477k / 1M (48%)`). Wanted — a raw
       figure doesn't say whether a session was near its ceiling. **Blocked on
