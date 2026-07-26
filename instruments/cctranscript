@@ -22,8 +22,11 @@
  * the peak of (input + cache_creation + cache_read) across the session's
  * requests, since a cached prefix still occupies the window. --json carries the
  * peak and the final size separately; they diverge when a session was compacted.
- * Sessions that spawned subagents carry a count of them too, read from the spawn
- * tool calls (so it's a ceiling: agents started, not agents finished).
+ * Sessions that spawned subagents carry two figures: agents *started*, from the
+ * spawn tool calls in the log, and agents *finished*, from the sibling
+ * <session-uuid>/subagents/ directory of per-agent logs. The gap between them is
+ * the signal — a spawn that was skipped or stopped starts without finishing.
+ * Where no per-agent store is reachable, finished is reported unknown, never 0.
  *
  * By default it reads the live logs, which Claude Code prunes after
  * `cleanupPeriodDays`. --from-archive points every view at the compressed mirror
@@ -361,6 +364,40 @@ function contextOf(usage) {
 // harness of the day used (Agent now, Task in older logs).
 const AGENT_TOOLS = new Set(['Agent', 'Task']);
 
+// The sibling store the harness writes one log into per agent that actually RAN:
+// <session-uuid>/subagents/agent-<id>.jsonl, beside <session-uuid>.jsonl.
+// ccarchive(1) captures every .jsonl at any depth and mirrors it at the same
+// relative path, so this resolves in archive mode too — just gzipped. The
+// .meta.json sidecar beside each log is NOT captured (it isn't a .jsonl), which
+// is why the count keys on the logs alone and never on the directory's size.
+function subagentDir(file) {
+  const stem = path.basename(file).replace(/\.jsonl(\.gz)?$/, '');
+  return path.join(path.dirname(file), stem, 'subagents');
+}
+
+// How many subagents finished, or null for "this store never said".
+//
+// Known two ways. Either the directory reads (count its per-agent logs — a
+// readable-but-empty one is a known zero), or the session log itself proves the
+// answer: no spawn call means no agent could have run. Otherwise UNKNOWN —
+// spawns were recorded but no per-agent store is reachable, which an archive
+// predating subagent capture, a pruned store, or a hand-copied log all produce.
+// Reporting zero there would be a claim the evidence doesn't support; reporting
+// unknown says exactly what we have.
+//
+// readdir is metadata-only, so this never faults an iCloud-evicted archive's
+// bytes back down — the names are all we need, and we never open the logs.
+//
+// The two figures are NOT bounds on each other: an agent that spawns its own
+// agent logs into this same directory, while `started` only sees the principal's
+// own spawn calls, so finished legitimately runs ahead on a nested run.
+function finishedAgents(file, started) {
+  let names;
+  try { names = fs.readdirSync(subagentDir(file)); }
+  catch { return started === 0 ? 0 : null; }
+  return names.filter((n) => n.endsWith('.jsonl') || n.endsWith('.jsonl.gz')).length;
+}
+
 // Build the ordered list of turns from a session log, plus how big the context
 // grew and how many subagents were started.
 //
@@ -370,17 +407,16 @@ const AGENT_TOOLS = new Set(['Agent', 'Task']);
 // the compact. Sidechains aren't filtered out: subagents log to their own
 // files, so every usage record in one log belongs to the thread that log *is*.
 //
-// `agents.spawned` counts the spawn *calls*, which is a ceiling on the agents
-// that finished — a run the principal skipped or a TaskStop'd one still counts
-// here. The stricter count (one log per agent that actually ran) lives in a
-// sibling <session-uuid>/subagents/ directory this tool never opens, and
-// couldn't: --from-archive resolves a single file, so a directory-sourced count
-// would silently read zero there. A ceiling that works in both modes beats an
-// exact figure that's honest in only one.
+// `agents.started` counts the spawn *calls* — a ceiling, since a run the
+// principal skipped or stopped still counts. `agents.finished` counts the
+// per-agent logs in the sibling subagents/ directory (see finishedAgents above),
+// which is the stricter source: one log per agent that actually ran. Both ship,
+// because the gap between them is itself the signal. finished is null when no
+// per-agent store is reachable — unknown, which is not zero.
 function readTurns(file) {
   const turns = [];
   const context = { peak: 0, final: 0 };
-  const agents = { spawned: 0, byType: {} };
+  const agents = { started: 0, finished: null, byType: {} };
   const lines = readLogText(file).split('\n');
   for (const ln of lines) {
     if (!ln.trim()) continue;
@@ -395,7 +431,7 @@ function readTurns(file) {
       if (ctx) { context.peak = Math.max(context.peak, ctx); context.final = ctx; }
       for (const b of (o.message && Array.isArray(o.message.content) ? o.message.content : [])) {
         if (b.type !== 'tool_use' || !AGENT_TOOLS.has(b.name)) continue;
-        agents.spawned++;
+        agents.started++;
         const kind = (b.input && b.input.subagent_type) || 'unspecified';
         agents.byType[kind] = (agents.byType[kind] || 0) + 1;
       }
@@ -424,6 +460,10 @@ function readTurns(file) {
       }
     }
   }
+  // Taken here, beside the spawn tally and outside every view gate: how wide the
+  // session ran is a fact about the session, never about which turns you asked
+  // to see. --tools/--think change the transcript below, never this line.
+  agents.finished = finishedAgents(file, agents.started);
   return { turns, context, agents };
 }
 
@@ -683,7 +723,11 @@ function runTranscript() {
       source: fromArchive ? 'archive' : 'live',
       timezone: useUtc ? 'UTC' : 'local',
       context: { peak: context.peak || null, final: context.final || null },
-      agents,
+      // finished is null, never 0, when no per-agent store was reachable, and
+      // finishedKnown states the same thing in a form a consumer can't fall
+      // through by accident: `agents.finished || 0` would quietly turn "we don't
+      // know" into "none ran", which is the one reading the evidence forbids.
+      agents: { ...agents, finishedKnown: agents.finished !== null },
       turns: turns.map((t) => ({ ref: t.ref || null, role: t.role, model: t.model || null, timestamp: t.ts, text: t.text })),
     }, null, 2));
     return;
@@ -705,12 +749,17 @@ function runTranscript() {
   const parts = [`${turns.length} turns`, `${count('you')} you`, `${count('claude')} Claude`];
   if (showThink && count('think')) parts.push(`${count('think')} thinking`);
   if (showTools && count('tool')) parts.push(`${count('tool')} tool`);
-  // How wide the session ran — always reported, including "0 agents". The line
-  // is read by comparing sessions against each other, and a chip that vanishes
-  // at zero makes two headers line up differently for the reader to reconcile;
-  // a stated zero is a fact, and an absent chip is only ambiguity. (Mike's call,
-  // 2026-07-26, reversing an omit-at-zero default on exactly that ground.)
-  parts.push(`${agents.spawned} agent${agents.spawned === 1 ? '' : 's'}`);
+  // How wide the session ran — always two chips, in this order, on every run.
+  // The line is read by comparing sessions against each other, so the field SET
+  // is fixed even where a figure isn't: at zero both still print (a stated zero
+  // is a fact; an absent chip is only ambiguity), and where the store never said
+  // the second chip reads "finished unknown" rather than dropping out. That's
+  // the reconciliation of the two standing rules — a vanishing chip would break
+  // the side-by-side read, and a "0" would assert something unevidenced, so the
+  // chip holds its position and the *value* carries the honesty. (Mike's calls,
+  // 2026-07-26: report at zero; unknown is not zero.)
+  parts.push(`${agents.started} agent${agents.started === 1 ? '' : 's'} started`);
+  parts.push(agents.finished === null ? 'finished unknown' : `${agents.finished} finished`);
   // The context chip is the other case, and stays conditional: a log with no
   // usage records leaves the size *unknown*, which "0" would misreport. Known
   // zero is printed; unknown is omitted.
@@ -768,4 +817,5 @@ module.exports = {
   friendlyModel, modelColor, humanDelta, fmtTokens, contextOf, wrap, visLen, padLeftTo,
   styleInline, fmtTime, dateOf, toolSummary, extractText, encodePath, readTurns,
   numberTurns, defaultArchiveDest, readLogText, isDatalessFlags, sessionRecord,
+  subagentDir, finishedAgents,
 };
