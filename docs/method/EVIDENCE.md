@@ -186,6 +186,27 @@ climb to primary + corroboration before calling it settled. Record the rung you
 stopped at (§1), so a reader knows whether to climb further before *they* lean on
 it.
 
+**Handing the question to the principal is not a rung on this ladder.** It sits
+*beside* the ladder, and it is reached only when the climb is genuinely blocked —
+not when the agent simply doesn't have the value to hand. The failure mode is
+quiet and reads as diligence: the agent declines to guess (correctly), then
+substitutes *"this needs you"* for *"let me go and read it"*, and hands up a
+lookup dressed as a judgement call. The principal gets a decision to make where
+no decision existed — only a fact to fetch.
+
+The test before escalating a missing value is one question: **does an
+authoritative source for this exist, and have I gone to it?** If yes, that is the
+work, and it is owed *before* the hand-off. Escalate on *"no authoritative source
+exists"*, on a genuine contest between sources, or on a call that is the
+principal's by right — never on *"I don't have the number in front of me."*
+(Grounded 2026-07-26: `opus-5` was missing from ccrepo's price table, real spend
+counting at $0. The gap was handed to the principal as needing a published price,
+citing the ban on fitting a number to one's own measurement — with the published
+price one skill-lookup away. The principal's correction: *"you got the prices for
+the other models. Isn't there an API or web page you can reference?"* **Fitting**
+a number and **reading** one are different acts; the ban on the first is not
+cover for skipping the second.)
+
 Blocked from climbing (source unreachable, tool absent, no second angle) is
 **not** permission to promote the weak rung — it is a gap to *state*: "best
 available is a single snippet, unconfirmed" is honest; presenting it as settled

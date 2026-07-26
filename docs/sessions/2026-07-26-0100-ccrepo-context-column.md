@@ -111,10 +111,65 @@ The `--help` digest hit its 40-line ceiling during this work and the drift-guard
 test caught it — the closing paragraph was compressed rather than the ceiling
 raised. The constraint did its job.
 
-## Left open
+## Left open at first close — and closed in the addendum below
 
 - **`opus-5` is unpriced** — the price table has no entry, so 1,314 messages
   currently count at **$0** and the run prints `⚠ Unpriced model(s)`. Pre-existing
   and unrelated to this change, but it means live totals understate. Not fixed
   here: a price must come from Anthropic's published list, never from a fitted
   guess, so it needs Mike. Queued on the roadmap.
+
+*(That paragraph was true when written and wrong within the hour. It is kept
+as written, with the correction below, rather than edited in place — a record
+that quietly rewrites its own history is the thing this repo's honesty rule
+exists to prevent.)*
+
+## Addendum · 0210 UTC · the escalation that shouldn't have been one
+
+Mike, on the hand-off above: *"you got the prices for the other models. Isn't
+there an API or web page you can reference from anthropic?"*
+
+He was right, and the fix took minutes: the published list price was one lookup
+away (the `claude-api` skill — `claude-opus-5` at **$5 / $25 per MTok**, the same
+as `opus-4-8`). Added to the table; the `⚠ Unpriced model(s)` warning is gone.
+
+**What I actually got wrong.** I had collapsed two different acts into one rule:
+
+| Act | Verdict |
+|---|---|
+| **Fitting** a price to my own measurement | Forbidden — circular, invents a number and calls it grounded |
+| **Reading** a published, authoritative price | Just a lookup. Owed *before* handing anything back |
+
+The trigger for handing up is **"no authoritative source exists"**, not *"I don't
+have the number in front of me."* `EVIDENCE.md` §13 already says to climb the
+acquisition ladder to the stakes; what it did not say — and now does — is that
+**escalating to the principal is not a rung on that ladder.** I substituted the
+hand-off for the climb. Doctrine delta landed this session; its review is queued
+`⏳` per REVIEW rule 4 (self-authored doctrine — the author queues and stops).
+
+**Verified, not assumed.** With the entry added, the ccusage cross-check reads
+**Δ +$0.00 (+0.00%) across all 420 sessions** — an independent oracle agreeing to
+the cent with a number taken from the list rather than fitted to the logs. That
+is also precisely the check that would have caught a wrong guess, so the caution
+was sound even though the escalation was not.
+
+**Found in the same lookup, deliberately not changed:** `sonnet-5` sits at `$2`,
+which is the *introductory* rate published as running through **2026-08-31**; the
+standard rate is `$3`. Left at `$2` because it is genuinely correct today —
+changing it now would make ccrepo wrong for five weeks — but from **2026-09-01**
+it silently under-prices sonnet-5 by a third. Recorded at the constant and queued
+as a **dated edit rather than a decision**: the number is published, so there is
+nothing to rule on, only something to remember.
+
+**Also measured, and deliberately not built for:** checking whether fast mode
+needed its own rate (it bills $10/$50, 2× standard) turned up `speed` in the live
+logs **90,703 times, every one `standard`, zero `fast`**. Same measured-false
+treatment as the earlier `server_tool_use` finding — the honest response to a
+measured zero is to record the measurement, not to build for the hypothetical.
+
+## Left open
+
+- **`sonnet-5` intro rate reverts 2026-09-01** (above) — a dated edit, not a
+  decision. Roadmap `⏳`.
+- **The `EVIDENCE.md` §13 doctrine delta needs its cold review** — queued `⏳`,
+  spawned by a non-author per REVIEW rule 4. Not startable by this session.

@@ -123,6 +123,17 @@ in measurement, not estimate:
   so **$0** effect on the drift. Per-call pricing deliberately *not* built; the
   earlier "named contributor" guess is retracted as measured-false. Revisit only
   if non-zero counts ever appear.
+- **Fast mode is not a contributor either (measured 2026-07-26).** Fast mode on
+  `opus-5`/`opus-4-8` bills $10/$50 per MTok — 2× the standard rate — so if it
+  were in use, a single flat price per model would undercount it by half. The
+  logs *do* record it: `speed` appears **90,703 times, every occurrence
+  `standard`, zero `fast`**. So the effect today is **$0**, and no speed-aware
+  pricing is built. Same treatment as `server_tool_use` above, and the same
+  discipline: the honest response to a measured zero is to record the
+  measurement and the date, not to build for the hypothetical. Revisit only if
+  `"speed":"fast"` ever appears — and note the price table would then need a
+  per-speed dimension, not just another row.
+
 - **The per-model footnote was scoped wrong.** It compared *mine-all* vs
   *ccusage-all*, so a session only one side had (window-edge date clip, log
   pruning) smeared into a fake per-model delta (once read as "fable +8.9%, opus

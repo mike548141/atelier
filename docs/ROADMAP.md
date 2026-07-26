@@ -422,6 +422,16 @@ pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
   parts with emergent, path-dependent behaviour you can't fully predict from the
   pieces (Cynefin-style split). Do not encode until the ratify pass. (Mike,
   2026-07-24.)
+- ⏳ **Capture → doctrine: escalating to the principal is not a rung on the
+  acquisition ladder** — APPLIED 2026-07-26 (this session, Opus, after the
+  principal's correction). `EVIDENCE.md` §13 gained a paragraph before its
+  blocked-from-climbing clause: handing a missing value up sits *beside* the
+  ladder, not on it, and is reached only when the climb is genuinely blocked —
+  the test before escalating is whether an authoritative source exists and has
+  been consulted. **⏳ review queued for a non-author** (self-authored doctrine,
+  REVIEW rule 4). *Delta:* the `EVIDENCE.md` §13 paragraph (landed this commit).
+  *Intent record:* [`2026-07-26-0100-ccrepo-context-column.md`](sessions/2026-07-26-0100-ccrepo-context-column.md)
+  § Addendum. Rides the normal review cycle when a qualifying session takes it.
 - ⏳ **Capture → doctrine: the close all-clear carries the pushed floor run's
   result** — APPLIED 2026-07-23 (queue run 0959, inline Opus). RECORD.md's
   all-clear evidence rule gained a sub-point: when a close pushes, the evidence
