@@ -401,6 +401,89 @@ test('fmtTokens scales; non-positive and non-finite are null, not "0"', () => {
   assert.equal(r.fmtTokens(NaN), null);
 });
 
+// --- --context: session-grain filter (ROADMAP ccrepo v3 ask 2) -----------
+
+test('parseContextAmount: k/m suffixes, decimals, case-insensitive, rejects junk', () => {
+  assert.equal(r.parseContextAmount('100'), 100);
+  assert.equal(r.parseContextAmount('100k'), 100000);
+  assert.equal(r.parseContextAmount('100K'), 100000);
+  assert.equal(r.parseContextAmount('1.5m'), 1500000);
+  assert.equal(r.parseContextAmount('1.5M'), 1500000);
+  assert.equal(r.parseContextAmount('0'), 0);
+  assert.equal(r.parseContextAmount(''), null);
+  assert.equal(r.parseContextAmount('abc'), null);
+  assert.equal(r.parseContextAmount('100kb'), null);
+  assert.equal(r.parseContextAmount('-100k'), null);   // a bare amount is never negative
+});
+
+test('parseContextRange: MIN-MAX, MIN-, -MAX, k/m suffixes', () => {
+  assert.deepEqual(r.parseContextRange('100k-500k'), { min: 100000, max: 500000 });
+  assert.deepEqual(r.parseContextRange('400k-'), { min: 400000, max: null });
+  assert.deepEqual(r.parseContextRange('-100k'), { min: null, max: 100000 });
+  assert.deepEqual(r.parseContextRange('500000-1000000'), { min: 500000, max: 1000000 });
+  assert.deepEqual(r.parseContextRange('1m-'), { min: 1000000, max: null });
+});
+
+test('parseContextRange: a malformed spec is REJECTED with a clear error, never matches everything', () => {
+  // No dash at all — ambiguous, refused rather than guessed.
+  assert.ok(r.parseContextRange('500k').error);
+  // Neither bound present.
+  assert.ok(r.parseContextRange('-').error);
+  // An unparsable bound on either side.
+  assert.ok(r.parseContextRange('abc-500k').error);
+  assert.ok(r.parseContextRange('100k-abc').error);
+  // Lower bound exceeds upper bound.
+  assert.ok(r.parseContextRange('500k-100k').error);
+  // Every error is a human-readable string, not a blank/undefined message.
+  for (const bad of ['500k', '-', 'abc-500k', '100k-abc', '500k-100k']) {
+    assert.equal(typeof r.parseContextRange(bad).error, 'string');
+    assert.ok(r.parseContextRange(bad).error.length > 10);
+  }
+});
+
+test('sessionPeaks + buildContextFilter: SESSION-grain, not message-grain', () => {
+  // Two sessions: s1 ramps 100 → 900 (peak 900), s2 sits flat at 300. A range
+  // that only 's1 at its peak' falls in must admit EVERY message of s1 —
+  // including its early, low-context messages — and exclude s2 entirely. A
+  // message-grain filter would instead admit s1's 100-context message under a
+  // low band too, which is exactly the near-meaningless reading the design
+  // rules out.
+  const evs = [
+    mkEv({ session: 's1', context: 100 }),
+    mkEv({ session: 's1', context: 900 }),
+    mkEv({ session: 's2', context: 300 }),
+  ];
+  const peaks = r.sessionPeaks(evs);
+  assert.equal(peaks.get('s1'), 900);
+  assert.equal(peaks.get('s2'), 300);
+  const high = r.buildContextFilter({ min: 500, max: null }, peaks); // peak >= 500
+  assert.deepEqual(evs.filter(high).map((e) => e.context), [100, 900]);   // BOTH of s1's messages
+  const mid = r.buildContextFilter({ min: 200, max: 400 }, peaks);
+  assert.deepEqual(evs.filter(mid).map((e) => e.session), ['s2']);
+  // No range ⇒ everything passes.
+  assert.equal(evs.filter(r.buildContextFilter(null, peaks)).length, 3);
+});
+
+test('contract: --context filters sessions by peak (session-grain), not messages, and pairs with -g session', () => {
+  const dest = makeCcrepoArchive();   // one session, one message, 1e6-token context
+  const inBand = runCcrepoJson(dest, ['--from-archive', '--dest', dest, '-g', 'session', '--context', '500k-']);
+  assert.equal(inBand.rows.length, 1);
+  const outOfBand = runCcrepoJson(dest, ['--from-archive', '--dest', dest, '-g', 'session', '--context', '-500k']);
+  assert.equal(outOfBand.rows.length, 0);
+  assert.equal(outOfBand.meta.total.sessions, 0, 'TOTAL also reflects the filtered scope, same as any other filter');
+  assert.equal(inBand.meta.filters.context, '500k-');
+});
+
+test('contract: a malformed --context exits 2 with a clear error, not a silent match-everything run', () => {
+  const dest = makeCcrepoArchive();
+  const script = pathMod.join(__dirname, 'ccrepo');
+  assert.throws(() => {
+    require('node:child_process').execFileSync('node',
+      [script, '--from-archive', '--dest', dest, '--context', 'nonsense', '--fx', 'usd', '--no-billing'],
+      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  }, /Command failed/);
+});
+
 test('treeRows walks pre-order with depth; leafRows gives full key paths', () => {
   const evs = [
     mkEv({ repo: 'A', model: 'opus-4-8', session: 's1', cost: 2 }),
@@ -961,9 +1044,16 @@ test('requiring ccrepo never acts on the host argv (help/validation live in main
 
 const SCRIPT = path.join(__dirname, 'ccrepo');
 
+// Interim bump (was 40): --context (ROADMAP ccrepo v3 ask 2) adds one flag
+// line to the still-flat OPTIONS block. Ask 5 resections the whole surface
+// and rebases this guard on a fully-grounded figure at that point — this
+// interim number is exactly old-budget + 1 new line, not a fitted afterthought.
+const HELP_LINE_BUDGET = 41;
+
 test('--help is a concise digest that points at the man page', () => {
   const help = execFileSync('node', [SCRIPT, '-h'], { encoding: 'utf8' });
-  assert.ok(help.split('\n').length <= 40, '--help should stay a one-screen digest');
+  assert.ok(help.split('\n').length <= HELP_LINE_BUDGET,
+    `--help should stay within its grounded line budget (${HELP_LINE_BUDGET})`);
   assert.match(help, /man ccrepo/, '--help must point at the full manual');
   // Rationale + worked examples belong in the page, not the digest.
   assert.ok(!/^EXAMPLES$/m.test(help), '--help must not carry a worked EXAMPLES block');

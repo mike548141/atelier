@@ -1,4 +1,4 @@
-.TH CCREPO 1 "2026-07-23" "atelier instruments" "User Commands"
+.TH CCREPO 1 "2026-07-26" "atelier instruments" "User Commands"
 .SH NAME
 ccrepo \- Claude Code usage totals, grouped and filtered any way you like
 .SH SYNOPSIS
@@ -208,6 +208,33 @@ Include only messages on or after this local date.
 .BI \-\-until " YYYYMMDD"
 Include only messages on or before this local date.
 .TP
+.BI \-\-context " range"
+Restrict to whichever
+.B sessions
+had a peak context window in
+.IR range \(em
+admitting every message of a matching session, never a per-message test. This
+is the one filter whose grain is not the message; see
+.B CONTEXT SIZE
+below.
+.I range
+is
+.IR MIN\-MAX ,
+.IR MIN\- ,
+or
+.IR \-MAX ,
+each bound an integer or decimal with an optional
+.I k
+(\(mu1,000) or
+.I m
+(\(mu1,000,000) suffix, e.g.
+.IR "\-\-context 100k\-500k" ,
+.IR "\-\-context 400k\-" ,
+or
+.IR "\-\-context \-100k" .
+A spec with no dash, no bound on either side, or a lower bound above the upper
+one is refused with an error, never silently matched as everything.
+.TP
 .BI \-z " tz" "\fR, \fP" \-\-timezone " tz"
 Passed through to
 .BR ccusage (1)
@@ -367,6 +394,17 @@ largest window any of its threads reached, the main thread and its subagents
 alike. That answers "did any window get large"; to read the main thread on its
 own, filter with
 .BR "\-\-kind main" .
+.PP
+.B \-\-context
+filters on exactly this peak, and only at this grain \(em by
+.BR session ,
+never by message. A message-grain reading would be near-meaningless: every
+session ramps up through every band below its eventual peak, so almost every
+session would match almost every band almost everywhere. Pairs directly with
+.IR "\-g session" :
+.I "\-g session \-\-context 500k\-"
+answers "which sessions blew past 500k", the question that otherwise needs an
+ad-hoc script.
 .SH COST AND RECONCILIATION
 The built-in price table records, per model, the USD list price per million
 .I input
@@ -577,6 +615,9 @@ Main-thread spend versus subagent spend.
 .TP
 .B ccrepo \-g repo \-\-sort name
 Repos listed alphabetically instead of by cost.
+.TP
+.B ccrepo \-g session \-\-context 500k\-
+Sessions whose peak context window reached 500k tokens or more.
 .TP
 .B ccrepo \-\-fx usd \-\-no\-reconcile
 Raw list-price figures, offline, with no ccusage cross-check.

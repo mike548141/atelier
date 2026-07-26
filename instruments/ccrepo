@@ -342,6 +342,75 @@ function contextStats(sessions) {
   };
 }
 
+// --- context-size filter (--context) --------------------------------------
+//
+// The first filter whose unit isn't the message. Context is a per-session
+// PEAK (see above), so --context selects SESSIONS whose peak falls in the
+// band and admits all of their messages — never a per-message test. A
+// message-grain reading would be near-meaningless: every session ramps
+// through every band below its peak, so almost every session would match
+// almost every band. See ccrepo.design.md §4 / --help / man ccrepo.
+
+// A bare amount: an integer or decimal, optionally suffixed k (×1e3) or m
+// (×1e6) — same scale steps fmtTokens renders back out.
+const CONTEXT_AMOUNT = /^(\d+(?:\.\d+)?)([km])?$/i;
+function parseContextAmount(s) {
+  const m = CONTEXT_AMOUNT.exec(s);
+  if (!m) return null;
+  const n = Number(m[1]);
+  if (!Number.isFinite(n)) return null;
+  const mult = m[2] ? (m[2].toLowerCase() === 'k' ? 1e3 : 1e6) : 1;
+  return n * mult;
+}
+// Parse a `--context` spec — MIN-MAX, MIN-, or -MAX (k/m suffixes) — into
+// { min, max } in raw tokens (either null ⇒ open-ended), or { error } for a
+// malformed spec. Rejected outright rather than silently matching everything:
+// no dash, neither bound present, an unparsable bound, or min > max.
+function parseContextRange(spec) {
+  const s = String(spec == null ? '' : spec).trim();
+  const parts = s.split('-');
+  if (parts.length !== 2) {
+    return { error: `malformed --context range '${spec}': want MIN-MAX, MIN-, or -MAX, e.g. 100k-500k, 400k-, -100k` };
+  }
+  const [loRaw, hiRaw] = parts.map((p) => p.trim());
+  const min = loRaw === '' ? null : parseContextAmount(loRaw);
+  const max = hiRaw === '' ? null : parseContextAmount(hiRaw);
+  if (loRaw !== '' && min === null) {
+    return { error: `malformed --context lower bound '${loRaw}' in '${spec}': want a number with an optional k/m suffix` };
+  }
+  if (hiRaw !== '' && max === null) {
+    return { error: `malformed --context upper bound '${hiRaw}' in '${spec}': want a number with an optional k/m suffix` };
+  }
+  if (min === null && max === null) return { error: `--context '${spec}' has no bound on either side` };
+  if (min !== null && max !== null && min > max) {
+    return { error: `--context '${spec}': lower bound ${min} exceeds upper bound ${max}` };
+  }
+  return { min, max };
+}
+// Per-session peak context over a set of events (reuses the same bumpPeak the
+// tree nodes use, over a flat Map rather than a node). The caller decides the
+// scope: main() computes this over the date-scoped (not yet dimension- or
+// context-filtered) event set, so --context reads as "peak within the range
+// you're viewing", consistent with how --since/--until already bound scope
+// before the other filters apply.
+function sessionPeaks(events) {
+  const m = new Map();
+  for (const e of events) bumpPeak(m, e.session, e.context);
+  return m;
+}
+// Session-grain predicate: keep an event iff its session's peak (from a
+// pre-computed `peaks` map) falls in `range`. No range ⇒ everything passes.
+function buildContextFilter(range, peaks) {
+  if (!range) return () => true;
+  return (e) => {
+    const p = peaks.get(e.session);
+    if (p === undefined) return false;
+    if (range.min !== null && p < range.min) return false;
+    if (range.max !== null && p > range.max) return false;
+    return true;
+  };
+}
+
 // --- N-level grouping ----------------------------------------------------
 
 const node = () => ({ agg: zeroAgg(), sessions: new Map(), children: new Map() });
@@ -1048,6 +1117,13 @@ const since = takeValue('--since');
 const until = takeValue('--until');
 const tz = takeValue('-z', '--timezone');
 
+// --context is session-grain (see the comment above buildContextFilter), not a
+// FILTER_FLAGS entry: it needs a precomputed peaks map, not a plain per-message
+// getter. Parsed once here so a malformed spec fails in checkArgs like every
+// other bad argument, not deep inside main().
+const contextArg = takeValue('--context');
+const contextRange = contextArg != null ? parseContextRange(contextArg) : null;
+
 function parseSort(arg, ks) {
   if (!arg) return ks.map(() => null);
   const parts = arg.split(',').map((s) => s.trim()).filter(Boolean).map((p) => {
@@ -1078,6 +1154,7 @@ OPTIONS
   --session <list>     Filter by session UUID prefix, e.g. --session 01c3,ff97
   --since <YYYYMMDD>   On or after this local date
   --until <YYYYMMDD>   On or before this local date
+  --context <range>    SESSION peak (not per-message): 100k-500k, 400k-, -100k
   -z, --timezone <tz>  Timezone for the ccusage cross-check
   --sort <list>        Per-level, aligned to -g: cost·tokens·count·name·time
                        (+ :asc/:desc). Default: time chronological, else cost desc.
@@ -1116,6 +1193,7 @@ function checkArgs() {
       process.exit(2);
     }
   }
+  if (contextRange && contextRange.error) { console.error(contextRange.error); process.exit(2); }
   if (asJson && asCsv) { console.error('--json and --csv are mutually exclusive; pick one.'); process.exit(2); }
   if (forcedRate !== null && !converted) {
     console.error('--rate has no effect on USD figures; drop it or pick a non-USD currency.');
@@ -1330,6 +1408,7 @@ function buildMeta(ctx) {
   const filters = {};
   for (const [dim, v] of Object.entries(ctx.filterSpecs)) filters[dim] = v;
   if (ctx.since || ctx.until) filters.date = { since: ctx.since || null, until: ctx.until || null };
+  if (ctx.contextArg != null) filters.context = ctx.contextArg;    // session-peak spec, verbatim
   return {
     currency: ctx.currency,
     rate: ctx.converted ? ctx.rate : null,
@@ -1436,7 +1515,15 @@ async function main() {
     return true;
   };
   const reconEvents = events.filter(dateOk);            // ccusage-comparable scope
-  const dispEvents = reconEvents.filter(dimFilter);      // fully filtered for display
+
+  // --context is session-grain: peaks are computed once over reconEvents (the
+  // date-scoped set, same scope --since/--until already bound), THEN a session
+  // qualifies or not as a whole — never a per-message test, and never scoped by
+  // the OTHER filters (a --kind main run still judges a session by its real,
+  // whole peak). See buildContextFilter's comment and ccrepo.design.md §4.
+  const contextPeaks = contextArg != null ? sessionPeaks(reconEvents) : null;
+  const contextFilter = buildContextFilter(contextRange, contextPeaks);
+  const dispEvents = reconEvents.filter((e) => dimFilter(e) && contextFilter(e)); // fully filtered for display
 
   // FX rate.
   let rate = 1, rateSource = 'native', usdRates = null;
@@ -1507,7 +1594,7 @@ async function main() {
 
   const ctx = {
     keys, sortSpecs, currency, rate, converted, rateSource,
-    billing: billingView, actualUSD, unpriced, recon, spendRecon, filterSpecs, since, until, range,
+    billing: billingView, actualUSD, unpriced, recon, spendRecon, filterSpecs, contextArg, since, until, range,
     source: fromArchive ? 'archive' : 'live', archiveRoot: fromArchive ? archiveRoot() : null,
     evicted, materialise, rollupStats, rollupOff: fromArchive && noRollup,
   };
@@ -1526,6 +1613,7 @@ module.exports = {
   PRICING, priceBase, priceEntry, baseAt, messageCost, loadPricing,
   zeroAgg, addTo, cacheHitRate, label,
   quantile, contextStats, bumpPeak, fmtTokens,
+  parseContextAmount, parseContextRange, sessionPeaks, buildContextFilter,
   DIMS, TIME_DIMS, globMatch, buildDimFilter,
   groupTree, sortedEntries, treeRows, leafRows,
   eventFrom, keepRicher, readAllEvents, reconcile,
