@@ -5,6 +5,26 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-07-26 — cctranscript reports a session's context size and agent count)
+- **Context size on the summary line** — `206 turns · 24 you · 182 Claude ·
+  477k context · 12h2m`. Counted as `input + cache_creation + cache_read`,
+  because in a long session nearly every token arrives as a **cached read**:
+  `input_tokens` alone renders a 477k conversation as single digits. Reports the
+  **peak**, not the last request, so a compacted session still shows what it
+  held; `--json` carries `context.peak` and `context.final` separately, keeping
+  the divergence visible. A log with no usage records omits the figure rather
+  than claiming zero.
+- **Subagent count on the same line**, read from the spawn tool calls (`Agent`,
+  and the legacy `Task` name) rather than from the sibling `subagents/`
+  directory of per-agent logs. That directory is the stricter source, but
+  `--from-archive` resolves a single file, so a directory-sourced count would
+  silently read **zero** there — a figure that holds in both modes beats an
+  exact one that holds in only the live mode. Read as a ceiling: a skipped or
+  stopped spawn still counts. `--json` adds `agents.byType`.
+- Both tallies are taken **before** the view gating, so `--tools`/`--think`
+  change what you see and never what the header reports. Sessions with no
+  agents omit the chip: a figure printed on every header stops being read.
+
 ### Changed (2026-07-25 — enforcement propagates by call, not by copy: ADR 0008)
 - **`tools/floor.py`** — ONE registry of which checks run, read by both planes
   (pre-commit hook: staged diff at full cover; CI: whole tree, leakscan

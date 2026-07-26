@@ -22,6 +22,8 @@
  * the peak of (input + cache_creation + cache_read) across the session's
  * requests, since a cached prefix still occupies the window. --json carries the
  * peak and the final size separately; they diverge when a session was compacted.
+ * Sessions that spawned subagents carry a count of them too, read from the spawn
+ * tool calls (so it's a ceiling: agents started, not agents finished).
  *
  * By default it reads the live logs, which Claude Code prunes after
  * `cleanupPeriodDays`. --from-archive points every view at the compressed mirror
@@ -355,24 +357,48 @@ function contextOf(usage) {
     + (usage.cache_read_input_tokens || 0);
 }
 
+// Spawning a subagent is a tool call like any other, under whichever name the
+// harness of the day used (Agent now, Task in older logs).
+const AGENT_TOOLS = new Set(['Agent', 'Task']);
+
 // Build the ordered list of turns from a session log, plus how big the context
-// grew. `peak` is the high-water mark and `final` the last request's size; they
-// differ when the session was compacted, where the honest headline is the peak
-// (how much the session actually held) rather than what survived the compact.
-// Sidechains aren't filtered out: subagents log to their own files, so every
-// usage record in one log belongs to the thread that log *is*.
+// grew and how many subagents were started.
+//
+// `context.peak` is the high-water mark and `context.final` the last request's
+// size; they differ when the session was compacted, where the honest headline
+// is the peak (how much the session actually held) rather than what survived
+// the compact. Sidechains aren't filtered out: subagents log to their own
+// files, so every usage record in one log belongs to the thread that log *is*.
+//
+// `agents.spawned` counts the spawn *calls*, which is a ceiling on the agents
+// that finished — a run the principal skipped or a TaskStop'd one still counts
+// here. The stricter count (one log per agent that actually ran) lives in a
+// sibling <session-uuid>/subagents/ directory this tool never opens, and
+// couldn't: --from-archive resolves a single file, so a directory-sourced count
+// would silently read zero there. A ceiling that works in both modes beats an
+// exact figure that's honest in only one.
 function readTurns(file) {
   const turns = [];
   const context = { peak: 0, final: 0 };
+  const agents = { spawned: 0, byType: {} };
   const lines = readLogText(file).split('\n');
   for (const ln of lines) {
     if (!ln.trim()) continue;
     let o; try { o = JSON.parse(ln); } catch { continue; }
     const ts = o.timestamp;
 
+    // Session-level tallies, taken before the view gating below: what the
+    // session cost and how wide it ran are facts about the session, not about
+    // whether you asked to *see* its thinking or its tool calls.
     if (o.type === 'assistant') {
       const ctx = contextOf(o.message && o.message.usage);
       if (ctx) { context.peak = Math.max(context.peak, ctx); context.final = ctx; }
+      for (const b of (o.message && Array.isArray(o.message.content) ? o.message.content : [])) {
+        if (b.type !== 'tool_use' || !AGENT_TOOLS.has(b.name)) continue;
+        agents.spawned++;
+        const kind = (b.input && b.input.subagent_type) || 'unspecified';
+        agents.byType[kind] = (agents.byType[kind] || 0) + 1;
+      }
     }
 
     if (o.type === 'user' && !o.toolUseResult) {
@@ -398,7 +424,7 @@ function readTurns(file) {
       }
     }
   }
-  return { turns, context };
+  return { turns, context, agents };
 }
 
 // Number the citable turns in place: each prompt is exchange N (the ▸ N rule),
@@ -648,7 +674,7 @@ function runTranscript() {
   // Judged by the file, not the flag, so an explicit .jsonl.gz path is tagged
   // as archive-sourced too.
   const fromArchive = chosen.file.endsWith('.gz');
-  const { turns: read, context } = readTurns(chosen.file);
+  const { turns: read, context, agents } = readTurns(chosen.file);
   const turns = numberTurns(read);
 
   if (asJson) {
@@ -657,6 +683,7 @@ function runTranscript() {
       source: fromArchive ? 'archive' : 'live',
       timezone: useUtc ? 'UTC' : 'local',
       context: { peak: context.peak || null, final: context.final || null },
+      agents,
       turns: turns.map((t) => ({ ref: t.ref || null, role: t.role, model: t.model || null, timestamp: t.ts, text: t.text })),
     }, null, 2));
     return;
@@ -678,6 +705,9 @@ function runTranscript() {
   const parts = [`${turns.length} turns`, `${count('you')} you`, `${count('claude')} Claude`];
   if (showThink && count('think')) parts.push(`${count('think')} thinking`);
   if (showTools && count('tool')) parts.push(`${count('tool')} tool`);
+  // How wide the session ran. Omitted at zero rather than printed as "0 agents":
+  // most sessions spawn none, and a chip that's always there stops being read.
+  if (agents.spawned) parts.push(`${agents.spawned} agent${agents.spawned === 1 ? '' : 's'}`);
   // How full the window got. Absent from a log with no usage records (an old
   // or synthetic one), where a silent omission beats a fabricated 0.
   const ctxChip = fmtTokens(context.peak);

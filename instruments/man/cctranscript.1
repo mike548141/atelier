@@ -71,6 +71,21 @@ carries both, as
 A log with no usage records (an older or synthetic one) simply omits the figure
 instead of reporting a context of zero.
 .PP
+A session that started subagents reports how many, counted from the spawn tool
+calls in the log rather than from the sibling
+.I subagents/
+directory of per-agent logs. That directory is the stricter source \(em one log
+per agent that actually ran \(em but
+.B \-\-from\-archive
+resolves a single file, so a directory-sourced count would silently read zero
+there; a figure that holds in both modes is worth more than an exact one that
+holds in only the live mode. Read it as a ceiling, then: a spawn the operator
+skipped, or one stopped mid-run, still counts. Sessions that started none omit
+the figure, and
+.B \-\-json
+carries the breakdown by subagent type as
+.IR agents.byType .
+.PP
 The live logs are ephemeral: Claude Code deletes them after
 .I cleanupPeriodDays
 (default 30). With
@@ -176,7 +191,9 @@ forces it on.
 Emit a machine-readable array of turns instead of the human view, alongside the
 session's
 .I context
-peak and final size. Never styled; safe to pipe into
+peak and final size and its
+.I agents
+count. Never styled; safe to pipe into
 .BR jq (1).
 .TP
 .BR \-h ", " \-\-help

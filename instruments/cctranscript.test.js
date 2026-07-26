@@ -158,25 +158,49 @@ test('contract: context peak and final come off the usage records', () => {
   assert.equal(j.context.final, 2105);
 });
 
+test('contract: subagent spawns are counted under either tool name, with their types', () => {
+  const j = runJson();
+  assert.equal(j.agents.spawned, 2);                        // Agent + the legacy Task name
+  assert.deepEqual(j.agents.byType, { Explore: 1, unspecified: 1 });
+  // The count is a property of the session, not of the view: it must not move
+  // when the flags that gate *rendering* tool turns change.
+  assert.equal(runJson('--full').agents.spawned, 2);
+});
+
 test('the summary line reports the context peak; a log without usage omits it', () => {
   const head = (file) => execFileSync('node', [SCRIPT, '--no-color', file], { encoding: 'utf8' })
     .split('\n').filter((l) => l.trim())[1];
   assert.match(head(FIXTURE), /12k context/);
+  assert.match(head(FIXTURE), /2 agents/);
 
   // Same fixture with the usage records stripped — an older log, or a
   // synthetic one. The chip disappears rather than claiming a context of 0.
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cctranscript-nousage-'));
-  const bare = path.join(dir, 'bare.jsonl');
-  fs.writeFileSync(bare, fs.readFileSync(FIXTURE, 'utf8')
-    .replace(/"usage":\{[^}]*\},/g, ''));
+  const bare = variant('nousage', (t) => t.replace(/"usage":\{[^}]*\},/g, ''));
   assert.ok(!/context/.test(head(bare)), 'no usage records → no context chip');
+
+  // Most sessions spawn nothing, so a "0 agents" chip on every header would be
+  // noise that stops being read. One agent isn't "1 agents".
+  const none = variant('noagents', (t) => t.replace(/,\{"type":"tool_use","name":"(Agent|Task)"[^}]*\}\}/g, ''));
+  assert.ok(!/agent/.test(head(none)), 'no spawns → no agent chip');
+  const one = variant('oneagent', (t) => t.replace(/,\{"type":"tool_use","name":"Task"[^}]*\}\}/, ''));
+  assert.match(head(one), /1 agent /);
 });
+
+// A throwaway copy of the fixture with an edit applied — for the cases that
+// need a log the fixture deliberately isn't (no usage records, no spawns).
+function variant(tag, edit) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), `cctranscript-${tag}-`));
+  const file = path.join(dir, `${tag}.jsonl`);
+  fs.writeFileSync(file, edit(fs.readFileSync(FIXTURE, 'utf8')));
+  return file;
+}
 
 test('contract: --tools admits tool calls and tool-result carriers, in order', () => {
   const j = runJson('--tools');
-  assert.deepEqual(roles(j), ['you', 'claude', 'tool', 'result', 'claude']);
+  assert.deepEqual(roles(j), ['you', 'claude', 'tool', 'tool', 'tool', 'result', 'claude']);
   assert.ok(j.turns[2].text.startsWith('Edit'));      // tool_use summarised
-  assert.match(j.turns[3].text, /file edited/);       // result carrier
+  assert.match(j.turns[3].text, /Agent.*other parsers/); // a spawn is a tool call like any other
+  assert.match(j.turns[5].text, /file edited/);       // result carrier
 });
 
 test('contract: --think admits thinking blocks (only)', () => {
@@ -204,9 +228,9 @@ test('requiring cctranscript never acts on the host argv (help lives in the CLI 
 
 test('contract: --full admits thinking, tools, and results together', () => {
   const j = runJson('--full');
-  assert.deepEqual(roles(j), ['you', 'think', 'claude', 'tool', 'result', 'claude']);
+  assert.deepEqual(roles(j), ['you', 'think', 'claude', 'tool', 'tool', 'tool', 'result', 'claude']);
   // Refs number only prompts and text replies; think/tool/result stay null.
-  assert.deepEqual(j.turns.map((t) => t.ref), ['1', null, '1.1', null, null, '1.2']);
+  assert.deepEqual(j.turns.map((t) => t.ref), ['1', null, '1.1', null, null, null, null, '1.2']);
 });
 
 // --- archive mode: reading ccarchive's compressed mirror ----------------
