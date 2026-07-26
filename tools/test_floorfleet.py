@@ -140,6 +140,55 @@ class EvaluateTest(unittest.TestCase):
         self.assertEqual(info.state, "absent")
 
 
+class TrackedShimTest(unittest.TestCase):
+    """The tracked shim is a file in the REPO, so unlike the installed hook it
+    is answerable on the remote plane. This is the half of the hook question
+    git actually transports; only core.hooksPath stays machine-local."""
+
+    def _repo(self, tmp: str, shim: str | None) -> Path:
+        repo = Path(tmp) / "child"
+        (repo / ".github" / "workflows").mkdir(parents=True)
+        (repo / ".github" / "workflows" / "floor.yml").write_text(THIN_CALLER)
+        if shim is not None:
+            p = repo / floorfleet.SHIM_PATH
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(shim)
+        return repo
+
+    def test_shim_routing_through_the_registry_is_current(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = self._repo(td, "#!/bin/sh\nexec python3 tools/floor.py --plane hook\n")
+            self.assertEqual(floorfleet.evaluate(repo, remote=False).shim, "current")
+
+    def test_shim_naming_scanners_itself_is_legacy(self):
+        # The same distinction classify() draws for the workflow: a copy that
+        # will go stale is not the same as calling the one registry.
+        with tempfile.TemporaryDirectory() as td:
+            repo = self._repo(td, "#!/bin/sh\npython3 tools/secretscan.py --staged\n")
+            self.assertEqual(floorfleet.evaluate(repo, remote=False).shim, "legacy")
+
+    def test_no_tracked_shim_is_absent(self):
+        with tempfile.TemporaryDirectory() as td:
+            self.assertEqual(floorfleet.evaluate(self._repo(td, None), remote=False).shim,
+                             "absent")
+
+    def test_shim_gap_is_named_and_kept_distinct_from_the_local_hook(self):
+        # The two must not blur: one travels with a clone, the other never does,
+        # and a reader who conflates them will over-claim on the remote plane.
+        infos = [floorfleet.ChildFloor("a", "/a", "wired", "ok",
+                                       hook="none", shim="absent")]
+        out = floorfleet.render(infos, remote=True)
+        self.assertIn("Tracked shim missing or stale", out)
+        self.assertIn("Local hook gaps", out)
+        self.assertIn("core.hooksPath never", out)
+
+    def test_a_current_shim_reports_no_gap(self):
+        infos = [floorfleet.ChildFloor("a", "/a", "wired", "ok",
+                                       hook="tracked", shim="current")]
+        out = floorfleet.render(infos, remote=True)
+        self.assertNotIn("Tracked shim missing", out)
+
+
 class RenderTest(unittest.TestCase):
     def test_unguarded_repos_are_named_not_just_counted(self):
         infos = [

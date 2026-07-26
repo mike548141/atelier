@@ -55,11 +55,15 @@ WHAT THIS CANNOT SEE — read before trusting a clean board
 - **Wired is not passing.** This proves a repo CALLS the floor, never that the
   floor is green there. A wired repo with 40 findings shows as wired. Whether the
   checks pass is that repo's CI run, and deliberately not this tool's claim.
-- **The hook column is machine-local, always.** git transports neither hooks nor
-  config, so a clean hook column here says nothing about any other machine or any
-  fresh clone. `--remote` cannot help: hooks are not in the repo. This is a real
-  residual, not a limitation to route around — CI is the backstop precisely
-  because the hook cannot be guaranteed.
+- **The hook question is now two columns, and only one of them is local.** Since
+  the shim became a tracked file, `shim:` reports whether `.githooks/pre-commit`
+  is in the repo and routes through the registry — a fact about the REPO, so
+  under `--remote` it is a genuine estate-wide claim, and a fresh clone gets it.
+  `hook:` remains machine-local, because what git will not transport is
+  `core.hooksPath`: the config that makes the tracked shim actually run. So the
+  residual has shrunk from "hooks are unknowable remotely" to "whether this
+  clone points at them is unknowable remotely" — real, but much smaller. CI
+  stays the backstop precisely because that last step cannot be guaranteed.
 - **Discovery is one level under the search roots**, and only repos carrying an
   atelier pin in CLAUDE.md. A child nested deeper, or one that never took a pin,
   is invisible here — it will not show as a red, it will not show at all. That is
@@ -133,6 +137,7 @@ class ChildFloor:
     state: str
     detail: str
     hook: str = "unknown"
+    shim: str = "unknown"
     advisory: list[str] = field(default_factory=list)
     disabled: dict[str, str] = field(default_factory=dict)
 
@@ -176,6 +181,24 @@ def _read_remote(child: Path, rel: str) -> str | None:
         return None
 
 
+SHIM_PATH = ".githooks/pre-commit"
+
+
+def shim_state(read, child: Path) -> str:
+    """Is the *tracked* pre-commit shim in the repo, and does it route through
+    the registry rather than naming scanners itself?
+
+    Unlike `hook_state` this is answerable on **either plane**, because
+    `.githooks/pre-commit` is a file in the repository. It is the half of the
+    hook question git actually transports: a fresh clone gets the shim, and all
+    that remains machine-local is whether `core.hooksPath` points at it.
+    """
+    text = read(child, SHIM_PATH)
+    if text is None:
+        return "absent"
+    return "current" if "floor.py" in text else "legacy"
+
+
 def hook_state(child: Path) -> str:
     """Is a scan hook installed in THIS clone, and does it route through the
     registry? Machine-local by nature — see the docstring's residual."""
@@ -216,13 +239,17 @@ def evaluate(child: Path, remote: bool) -> ChildFloor:
             detail += " (unreadable .atelier-floor.json)"
 
     return ChildFloor(name=child.name, path=str(child), state=state, detail=detail,
-                      hook=hook_state(child), advisory=advisory, disabled=disabled)
+                      hook=hook_state(child), shim=shim_state(read, child),
+                      advisory=advisory, disabled=disabled)
 
 
 ICON = {"wired": "✅", "pinned": "📌", "vendored": "🛑", "absent": "🛑",
         "unknown": "⚠️"}
 HOOK_ICON = {"tracked": "✅", "installed": "✅", "legacy": "⚠️", "none": "❌",
              "unknown": "⚠️"}
+# The tracked shim, unlike the installed hook, is a fact about the REPO — so on
+# --remote these icons carry an estate-wide claim, not a machine-local one.
+SHIM_ICON = {"current": "✅", "legacy": "⚠️", "absent": "❌", "unknown": "⚠️"}
 
 
 def render(infos: list[ChildFloor], remote: bool) -> str:
@@ -231,7 +258,8 @@ def render(infos: list[ChildFloor], remote: bool) -> str:
     width = max((len(i.name) for i in infos), default=10)
     for i in sorted(infos, key=lambda x: (x.ok, x.name.lower())):
         lines.append(f"  {ICON.get(i.state, '?')} {i.name:<{width}}  "
-                     f"{i.state:<9} {HOOK_ICON.get(i.hook, '?')} hook:{i.hook:<9} "
+                     f"{i.state:<9} {SHIM_ICON.get(i.shim, '?')} shim:{i.shim:<8} "
+                     f"{HOOK_ICON.get(i.hook, '?')} hook:{i.hook:<9} "
                      f"{i.detail}")
         for name in i.advisory:
             lines.append(f"      ⚠️  {name} advisory — declared, still visible")
@@ -251,11 +279,17 @@ def render(infos: list[ChildFloor], remote: bool) -> str:
     else:
         lines.append(f"  all {len(infos)} children call atelier's floor ✓")
 
+    shimless = [i.name for i in infos if i.shim in ("absent", "legacy")]
+    if shimless:
+        lines.append("")
+        lines.append(f"  Tracked shim missing or stale ({plane} — travels with a "
+                     "clone): " + ", ".join(shimless))
+
     hookless = [i.name for i in infos if i.hook in ("none", "legacy")]
     if hookless:
         lines.append("")
-        lines.append("  Local hook gaps (this machine only — hooks never travel): "
-                     + ", ".join(hookless))
+        lines.append("  Local hook gaps (this machine only — core.hooksPath never "
+                     "travels): " + ", ".join(hookless))
     return "\n".join(lines)
 
 

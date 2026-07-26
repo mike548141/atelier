@@ -412,13 +412,11 @@ recorded so it is a **choice** rather than something that quietly evaporates.
       obvious counter: it is also the legitimate escape hatch, and making it
       painful invites worse workarounds.
 
-- [ ] **`floorfleet --remote` could check the tracked hook, and currently
-      doesn't.** Hooks used to be untracked, so the remote plane could say
-      nothing about them — but `.githooks/pre-commit` is now *in the repo*. The
-      remote plane could verify the tracked shim exists and is the current one,
-      leaving only `core.hooksPath` (genuinely per-clone) unknowable. A small
-      change that moves a chunk of the hook question from "machine-local only" to
-      "answerable estate-wide".
+The **tracked-shim check** landed 2026-07-26 — `floorfleet` now reports
+`shim:` (a repo fact, so `--remote` carries it estate-wide; all 13 children
+`current`) separately from `hook:` (still machine-local, since
+`core.hooksPath` never travels) → detail in
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 - [~] **`linkscan` could name the fix for its commonest class.** *(claimed
       2026-07-26-0845, wt: none — inline on main)* One repo carried
