@@ -1270,22 +1270,6 @@ The **time-bounded price table** (ask 1) landed 2026-07-26 (`7cf8163`, merged
 2026-08-31, so the section below is kept only for the reasoning. The three
 open asks:
 
-- [~] **2. Filter by context size, between two figures.** *(claimed
-      2026-07-26-0702, wt: ccrepo-v3 · at: implemented + tested in the worktree,
-      UNCOMMITTED and unverified by the orchestrator when the 0702 session
-      closed — re-run the floor and read the diff before trusting it)* `--context 100k-500k`,
-      open-ended either end (`--context 400k-`, `--context -100k`), `k`/`m`
-      suffixes — one selector flag rather than a `--context-min`/`--context-max`
-      pair, matching how the other filters read as *what they select*.
-      **The grain needs stating in `--help`, because it is the first filter whose
-      unit isn't the message:** context is a **per-session peak** (design §4), so
-      this selects *sessions* whose peak falls in the band and admits all their
-      messages. The message-grain reading is available but near-meaningless —
-      every session ramps up through every band beneath its peak, so a
-      message-level filter matches almost every session at almost every band.
-      Pairs directly with (3): `-g session --context 500k-` is "which sessions
-      blew past 500k", the exact question that needed an ad-hoc script on
-      2026-07-26.
 - [~] **4. Multi-column sort — half of this exists, and the syntax collided.**
       *(claimed 2026-07-26-0702, wt: ccrepo-v3 · at: NOT started — `--top` and
       the within-level multi-key separator are both still open)*
