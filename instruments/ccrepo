@@ -64,10 +64,21 @@ const symbolFor = (code) => SYMBOLS[code] || '';
 // and came out to a clean round number, so the multiplier model is exact. Update
 // here (or drop ~/.claude/ccrepo-pricing.json to override) when list prices move;
 // the reconciliation footnote tells you when they have.
+//
+// Two entries carry a date the rest don't:
+//   opus-5   — added 2026-07-26 from Anthropic's published list ($5/$25 per MTok,
+//              same as opus-4-8). Before this, opus-5 fell through unpriced and
+//              1,314 messages in one live drive counted at $0 — the ⚠ footnote
+//              was firing, which is how it surfaced.
+//   sonnet-5 — $2 is the INTRODUCTORY rate, published as running through
+//              2026-08-31; the standard rate is $3. This will silently
+//              under-price sonnet-5 from 2026-09-01 unless changed. The ccusage
+//              cross-check will flag the drift, but it should not have to.
 const PRICING = {
+  'opus-5': 5,
   'opus-4-8': 5,
   'fable-5': 10,
-  'sonnet-5': 2,
+  'sonnet-5': 2,        // intro rate — reverts to 3 on 2026-09-01, see above
   'sonnet-4': 3,
   'haiku-4-5': 1,
 };

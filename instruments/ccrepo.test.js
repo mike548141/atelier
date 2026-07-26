@@ -53,7 +53,11 @@ test('isoWeek follows ISO-8601 (Mon start, week 1 holds Jan 4)', () => {
 // --- pricing -------------------------------------------------------------
 
 test('priceBase uses longest-prefix match; null for unpriced', () => {
+  assert.equal(r.priceBase('opus-5'), 5);
   assert.equal(r.priceBase('opus-4-8'), 5);
+  // 'opus-5' must not swallow 'opus-4-8' (or vice versa) — they're siblings, not
+  // prefixes of each other, and both must resolve to their own entry.
+  assert.equal(r.priceBase('opus-4-7'), null, 'an unlisted opus stays unpriced, not silently $5');
   assert.equal(r.priceBase('fable-5'), 10);
   assert.equal(r.priceBase('sonnet-5'), 2);
   assert.equal(r.priceBase('sonnet-4-6'), 3);   // 'sonnet-4' beats 'sonnet-5' by prefix

@@ -1068,22 +1068,44 @@ precompute ledger** (`8a31b95`, 3.1× warm speedup, `rollup==recompute` proven
 live, per-file keying, transparent-by-default confirmed by Mike) closed
 2026-07-23 → [`ROADMAP-DONE.md`](ROADMAP-DONE.md); the **context-size column**
 (`Context med/max` — per-session peak windows, median beside max, with the full
-distribution in `--json`/`--csv`) closed 2026-07-26. ccrepo strand closed but
-for the price-table gap below.
+distribution in `--json`/`--csv`) closed 2026-07-26; the **`opus-5` price gap**
+(found and closed the same day — see below) closed 2026-07-26. ccrepo strand
+closed but for the dated price-table watch below.
 
-#### 🎯 `opus-5` has no price — live totals understate (found 2026-07-26)
+#### ⏳ `sonnet-5` is priced at the introductory rate — reverts 2026-09-01
 
-The price table carries `opus-4-8`, `fable-5`, `sonnet-5`, `sonnet-4` and
-`haiku-4-5` but **not `opus-5`**, so every run prints `⚠ Unpriced model(s):
-opus-5` and counts those messages at **$0**. On the live logs that was 1,314
-messages in one drive — real spend reading as free, and growing as more work
-moves to opus-5.
+`sonnet-5` is in the table at **$2**/MTok input. That is Anthropic's *introductory*
+rate, published as running **through 2026-08-31**; the standard rate is **$3**.
+From 2026-09-01 ccrepo will under-price every sonnet-5 message by a third until
+the entry is changed to `3`.
 
-Not fixed when found, deliberately: a price must come from Anthropic's published
-list, and fitting one to the observed cost would be inventing a number and
-calling it grounded — exactly what the price table's own comment forbids. Needs
-the list price. The `⚠` footnote is doing its job in the meantime, which is why
-this is a gap rather than a silent error.
+This is a **dated edit, not a judgement call** — the number is published, so
+there is nothing to decide, only something to remember. The ccusage cross-check
+will catch it (the footnote will start showing a per-model sonnet-5 delta), but
+a reconciliation alarm firing on a known, diarised date is a worse outcome than
+just making the edit. Not pre-applied, because $2 is genuinely correct today and
+changing it now would make ccrepo wrong for the next five weeks.
+
+Resolved, same session (2026-07-26) — kept for the reasoning, which generalises:
+
+#### ✅ `opus-5` had no price — live totals understated (found + fixed 2026-07-26)
+
+The price table carried `opus-4-8`, `fable-5`, `sonnet-5`, `sonnet-4` and
+`haiku-4-5` but **not `opus-5`**, so every run printed `⚠ Unpriced model(s):
+opus-5` and counted those messages at **$0** — 1,314 messages in one live drive.
+
+Initially filed as needing Mike, on the grounds that a price must come from
+Anthropic's published list and fitting one to observed cost would be inventing a
+number. **Mike pushed back — the other prices came from somewhere, so why not
+this one** — and he was right: the published list price was one lookup away
+(`claude-api` skill → $5/$25 per MTok, same as `opus-4-8`). The escalation was
+the error, not the caution. *The rule that survives:* never fit a price to your
+own measurement; **do** go and read the published one. Those are different acts,
+and only the first needed escalating.
+
+Confirmed independently rather than assumed: with the entry added, the ccusage
+cross-check moved to **Δ +$0.00 (+0.00%) across all 420 sessions**. The oracle
+agreed to the cent with a number taken from the list, not fitted to the logs.
 
 Completed instruments work (ccrepo actuals/breakdown, ccarchive integrity/audit,
 the **man-page convention rollout — ccarchive worked example + cctranscript +
