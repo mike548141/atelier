@@ -195,24 +195,84 @@ function cacheHitRate(agg) {
   return denom ? (agg.cacheReadTokens || 0) / denom : null;
 }
 
+// --- context size --------------------------------------------------------
+//
+// Context is the one metric here that must NOT be summed. Every message carries
+// the whole cached prefix, so adding message context sizes counts the same window
+// over and over — a session's "total context" is a meaningless multiple of itself.
+// The two figures that do mean something are computed over *per-session peaks*:
+//
+//   max    — the worst window any session in the group reached (the alarm)
+//   median — what a typical session in the group weighs (the habit)
+//
+// Neither alone is honest. A group of 11 sessions with one 578k blow-out and a
+// 108k median reads as dangerous on max and calm on median; both together say
+// "usually fine, once wasn't" — which is the actual situation. (Measured on live
+// logs 2026-07-26; that pair is a real repo, not a hypothetical.)
+//
+// Peak *per session*, not per message: every session ramps from near-empty, so a
+// message-grain median understates the weight sessions actually reach (122k vs
+// 168k across the live set). Same definition cctranscript(1) headlines per
+// session, so the two tools agree on what "context" means.
+// Linear-interpolated quantile over an ascending array (numpy's default method),
+// so the median is the usual average-of-the-two-middles and p90 doesn't jump in
+// steps on small groups. `sorted` must already be ascending.
+function quantile(sorted, p) {
+  if (!sorted.length) return null;
+  const idx = (sorted.length - 1) * p;
+  const lo = Math.floor(idx), hi = Math.ceil(idx);
+  return lo === hi ? sorted[lo] : sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
+}
+// Every context figure for a node, from its session→peak map. The table shows
+// median and max; --json/--csv carry the whole distribution, because a terminal
+// column is width-bound and a data file isn't — p90 is what tells you whether a
+// high max is one outlier or a fat tail, and mean-vs-median is the skew tell.
+// All-zero peaks (a slice with no usage record) report null, never a fake 0.
+function contextStats(sessions) {
+  const peaks = [...sessions.values()].filter((v) => v > 0).sort((a, b) => a - b);
+  if (!peaks.length) {
+    return { sessions: 0, min: null, p25: null, median: null, p75: null, p90: null, max: null, mean: null };
+  }
+  return {
+    sessions: peaks.length,
+    min: peaks[0],
+    p25: quantile(peaks, 0.25),
+    median: quantile(peaks, 0.5),
+    p75: quantile(peaks, 0.75),
+    p90: quantile(peaks, 0.9),
+    max: peaks[peaks.length - 1],
+    mean: peaks.reduce((s, x) => s + x, 0) / peaks.length,
+  };
+}
+
 // --- N-level grouping ----------------------------------------------------
 
-const node = () => ({ agg: zeroAgg(), sessions: new Set(), children: new Map() });
+const node = () => ({ agg: zeroAgg(), sessions: new Map(), children: new Map() });
+
+// Raise a session's high-water context mark within one node. A Map keyed by
+// session gives the distinct Sessions count (.size, exactly as the old Set did)
+// AND the per-session peaks the context column needs, for one entry per session
+// per node — bounded by session count, not message count.
+function bumpPeak(sessions, session, context) {
+  const prev = sessions.get(session);
+  if (prev === undefined || (context || 0) > prev) sessions.set(session, context || 0);
+}
 
 // Fold events into a tree keyed by the ordered `keys`. Every node (root included)
-// carries its own rolled-up agg and a Set of distinct session IDs — so a
-// "Sessions" count is always distinct, never a sum of child slices. keys=[] ⇒
-// just the root (a single grand total).
+// carries its own rolled-up agg and a Map of distinct session IDs → peak context —
+// so a "Sessions" count is always distinct, never a sum of child slices, and the
+// context figures are peaks-of-peaks rather than a nonsense sum. keys=[] ⇒ just
+// the root (a single grand total).
 function groupTree(events, keys) {
   const root = node();
   for (const e of events) {
-    addTo(root.agg, e); root.sessions.add(e.session);
+    addTo(root.agg, e); bumpPeak(root.sessions, e.session, e.context);
     let cur = root;
     for (const k of keys) {
       const kv = String(DIMS[k] ? DIMS[k](e) : '—');
       let ch = cur.children.get(kv);
       if (!ch) { ch = node(); cur.children.set(kv, ch); }
-      addTo(ch.agg, e); ch.sessions.add(e.session);
+      addTo(ch.agg, e); bumpPeak(ch.sessions, e.session, e.context);
       cur = ch;
     }
   }
@@ -241,13 +301,15 @@ function sortedEntries(nd, dimName, spec) {
   return entries;
 }
 
-// Pre-order rows for the indented tree: one row per node with its depth.
+// Pre-order rows for the indented tree: one row per node with its depth. Rows
+// carry the session→peak map itself, not just its size, so the renderer can ask
+// for the context figures (and the richer JSON distribution) without re-walking.
 function treeRows(root, keys, specs) {
   const rows = [];
   (function walk(nd, depth) {
     if (depth >= keys.length) return;
     for (const [k, child] of sortedEntries(nd, keys[depth], specs[depth])) {
-      rows.push({ depth: depth + 1, label: k, sessions: child.sessions.size, agg: child.agg });
+      rows.push({ depth: depth + 1, label: k, sessions: child.sessions.size, peaks: child.sessions, agg: child.agg });
       walk(child, depth + 1);
     }
   })(root, 0);
@@ -256,9 +318,9 @@ function treeRows(root, keys, specs) {
 // Leaf rows (full key path) for flat / JSON / CSV — no subtotals.
 function leafRows(root, keys, specs) {
   const out = [];
-  if (!keys.length) { out.push({ path: [], sessions: root.sessions.size, agg: root.agg }); return out; }
+  if (!keys.length) { out.push({ path: [], sessions: root.sessions.size, peaks: root.sessions, agg: root.agg }); return out; }
   (function walk(nd, depth, path) {
-    if (depth >= keys.length) { out.push({ path, sessions: nd.sessions.size, agg: nd.agg }); return; }
+    if (depth >= keys.length) { out.push({ path, sessions: nd.sessions.size, peaks: nd.sessions, agg: nd.agg }); return; }
     for (const [k, child] of sortedEntries(nd, keys[depth], specs[depth])) walk(child, depth + 1, [...path, k]);
   })(root, 0, []);
   return out;
@@ -374,7 +436,14 @@ function readLogText(file) {
 // are folded into a recipe signature and a change to either rebuilds the whole
 // ledger (rare, and exactly when you *want* a recompute). Machine-local, never in
 // a repo — the same class as ~/.claude/ccrepo-pricing.json / ccrepo-billing.json.
-const ROLLUP_SCHEMA = 'ccrepo-rollup/1';
+// Bump this whenever a cached event gains or changes a FIELD. A ledger written by
+// an older schema is discarded wholesale rather than read: the fingerprint check
+// only proves the source file is unchanged, so a cached event missing a new field
+// would sail through as valid and report a confident zero. (/2 added `context`;
+// without the bump, every warm archive run would have shown 0 context forever.)
+// The recipe signature is the other half of this — it catches changed *values*
+// (price table, covers list); the schema catches changed *shape*.
+const ROLLUP_SCHEMA = 'ccrepo-rollup/2';
 function rollupFile() {
   return process.env.CCREPO_ROLLUP || path.join(os.homedir(), '.claude', 'ccrepo-rollup.json');
 }
@@ -488,6 +557,12 @@ function eventFrom(o, ctx) {
   const create = (w5 + w1) || (u.cache_creation_input_tokens || 0);
   const total = input + output + cacheRead + create;
   const model = shortModel(msg.model);
+  // Context size at the moment of this request: everything the model was *sent*,
+  // however it was billed — the cached prefix (cache_read) and freshly-cached
+  // blocks (cache_creation) are in the window just as much as fresh input is.
+  // Output is excluded: it isn't in the window the request was served against.
+  // (Same definition cctranscript(1) reports per session, deliberately.)
+  const context = input + cacheRead + create;
   const { cost, priced } = messageCost(model, { input, output, cacheRead, write5m: w5, write1h: w1 }, ctx && ctx.pricing);
   const covered = ctx && ctx.covers ? ctx.covers(model) : false;
   return {
@@ -503,7 +578,7 @@ function eventFrom(o, ctx) {
     version: o.version || '',
     agent: o.agent || '',
     ts: o.timestamp || '',
-    priced, total,
+    priced, total, context,
     messages: 1,               // one event = one (deduped) assistant message
     inputTokens: input, outputTokens: output,
     cacheCreationTokens: create, cacheReadTokens: cacheRead,
@@ -906,10 +981,10 @@ OPTIONS
   --no-reconcile       Skip the ccusage cross-check (faster / offline)
   -h, --help           This summary
 
-Totals Claude Code usage from ~/.claude/projects/ logs, priced per message and
-reconciled against ccusage. Cost is an API-equivalent estimate (list prices) in
-NZD by default, not your bill. Full manual, with the cost, reconciliation and
-billing detail plus examples:  man ccrepo`;
+Totals usage from ~/.claude/projects/ logs, priced per message and reconciled
+against ccusage. Cost is an API-equivalent estimate (list prices), NZD by
+default, not your bill. Context med/max = median and largest per-session peak
+window, never summed; --json/--csv carry the full distribution.  man ccrepo`;
 
 function checkArgs() {
   if (has('-h') || has('--help')) { console.log(HELP); process.exit(0); }
@@ -938,12 +1013,26 @@ function checkArgs() {
 
 // --- output --------------------------------------------------------------
 
+// Short token count for the context column — full digits would make the widest
+// column in the table out of a figure read at a glance. Same scale steps as
+// cctranscript(1)'s, so a peak reads identically in both tools.
+function fmtTokens(n) {
+  if (!Number.isFinite(n) || n <= 0) return null;
+  if (n >= 1e6) return `${(n / 1e6).toFixed(1)}M`;
+  if (n >= 1e4) return `${Math.round(n / 1e3)}k`;
+  if (n >= 1e3) return `${(n / 1e3).toFixed(1)}k`;
+  return String(n);
+}
+
 function fmts(rate, currency) {
   const sym = symbolFor(currency);
   return {
     n: (x) => (x || 0).toLocaleString('en-NZ'),
     money: (usd) => sym + ((usd || 0) * rate).toLocaleString('en-NZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
     pct: (x) => x === null ? '—' : (x * 100).toFixed(1) + '%',
+    // "179k/528k" — the group's typical session weight and its worst one. Both,
+    // because either alone misreads (see the contextStats comment).
+    ctx: (st) => st.max === null ? '—' : `${fmtTokens(st.median) || '0'}/${fmtTokens(st.max) || '0'}`,
   };
 }
 
@@ -951,7 +1040,7 @@ function metricHeads(currency, billing) {
   const h = [
     { head: 'Sessions', align: 'r' }, { head: 'Messages', align: 'r' }, { head: 'Input', align: 'r' }, { head: 'Output', align: 'r' },
     { head: 'Cache Create', align: 'r' }, { head: 'Cache Read', align: 'r' }, { head: 'Cache Hit', align: 'r' },
-    { head: 'Total Tokens', align: 'r' },
+    { head: 'Total Tokens', align: 'r' }, { head: 'Context med/max', align: 'r' },
     { head: billing ? `Est (${currency})` : `Cost (${currency})`, align: 'r' },
   ];
   if (billing) h.push({ head: `Actual (${currency})`, align: 'r' });
@@ -1002,11 +1091,11 @@ function spendFootnote(sr, billing, money) {
 
 function renderHuman(root, ctx) {
   const { keys, currency, rate, converted, rateSource, billing, actualUSD, unpriced, recon, spendRecon } = ctx;
-  const { n, money, pct } = fmts(rate, currency);
+  const { n, money, pct, ctx: fctx } = fmts(rate, currency);
   const mHeads = metricHeads(currency, billing);
-  const mCells = (sessions, agg) => {
+  const mCells = (sessions, agg, peaks) => {
     const c = [n(sessions), n(agg.messages), n(agg.inputTokens), n(agg.outputTokens), n(agg.cacheCreationTokens),
-      n(agg.cacheReadTokens), pct(cacheHitRate(agg)), n(agg.totalTokens), money(agg.cost)];
+      n(agg.cacheReadTokens), pct(cacheHitRate(agg)), n(agg.totalTokens), fctx(contextStats(peaks)), money(agg.cost)];
     if (billing) c.push(money(actualUSD(agg) || 0));
     return c;
   };
@@ -1016,18 +1105,18 @@ function renderHuman(root, ctx) {
     cols = [...keys.map((k) => ({ head: k, align: 'l' })), ...mHeads];
     dataRows = leafRows(root, keys, ctx.sortSpecs).map((lf) => {
       const pathCells = keys.map((_, i) => lf.path[i] == null ? '' : lf.path[i]);
-      return { cells: [...pathCells, ...mCells(lf.sessions, lf.agg)] };
+      return { cells: [...pathCells, ...mCells(lf.sessions, lf.agg, lf.peaks)] };
     });
   } else {
     const head = keys.length ? keys.join(' › ') : 'Total';
     cols = [{ head, align: 'l' }, ...mHeads];
     dataRows = treeRows(root, keys, ctx.sortSpecs).map((r) => ({
-      cells: ['· '.repeat(r.depth - 1) + r.label, ...mCells(r.sessions, r.agg)],
+      cells: ['· '.repeat(r.depth - 1) + r.label, ...mCells(r.sessions, r.agg, r.peaks)],
       rule: r.depth === 1 && keys.length > 1,
     }));
   }
   const totalLeft = flat && keys.length ? ['TOTAL', ...Array(keys.length - 1).fill('')] : ['TOTAL'];
-  const totalRow = { cells: [...totalLeft, ...mCells(root.sessions.size, root.agg)] };
+  const totalRow = { cells: [...totalLeft, ...mCells(root.sessions.size, root.agg, root.sessions)] };
   printMatrix(cols, dataRows, totalRow);
 
   // Footnotes.
@@ -1074,21 +1163,48 @@ function renderHuman(root, ctx) {
     console.log(`  Cost is an API-equivalent estimate (list prices), not your subscription bill.`);
   }
   console.log(`  Cache Hit = cache reads ÷ (input + cache create + cache read).`);
+  console.log(`  Context med/max = median and largest per-session peak window (input + cache create + cache read at one request); never summed — every message carries the whole cached prefix.`);
+  console.log(`  Context has no % — the logs record the model but not its window size (200k vs 1M variants log identically), so a share-of-window figure would be a guess. --json carries the full distribution.`);
   console.log(`  Sessions is a distinct count at every level; Messages counts (deduped) assistant messages. Branch/kind/version are attributed per message.`);
   if (ctx.unmatchedNote) console.log(`  ${ctx.unmatchedNote}`);
   console.log();
 }
 
-function metricObj(agg, sessions, ctx) {
+// One row's metrics for --json/--csv. Deliberately WIDER than the table: the
+// terminal is width-bound and a data file isn't, so everything computed that a
+// consumer could want ships here even when no column fits it — the whole context
+// distribution (the table shows two of its seven figures), and, under a billing
+// config, the covered/uncovered split the Actual figure is derived from, so the
+// apportionment can be re-derived rather than taken on trust.
+//
+// Flat keys, not nested objects: the design's tidy-shape promise (one record per
+// leaf, straight into jq/pandas/sqlite) is what makes --csv a free by-product of
+// the same builder. A `context` sub-object would break that for no gain.
+function metricObj(agg, sessions, ctx, peaks) {
   const round2 = (x) => Math.round((x || 0) * 100) / 100;
+  const cs = contextStats(peaks || new Map());
+  const tok = (x) => x === null ? null : Math.round(x);
   const o = {
     sessions, messages: agg.messages,
     inputTokens: agg.inputTokens, outputTokens: agg.outputTokens,
     cacheCreationTokens: agg.cacheCreationTokens, cacheReadTokens: agg.cacheReadTokens,
     cacheHitRate: cacheHitRate(agg), totalTokens: agg.totalTokens,
+    // Per-session peak windows. contextSessions can be < sessions when a slice
+    // holds messages with no usage record — stated, not silently folded in.
+    contextSessions: cs.sessions,
+    contextMin: tok(cs.min), contextP25: tok(cs.p25), contextMedian: tok(cs.median),
+    contextP75: tok(cs.p75), contextP90: tok(cs.p90), contextMax: tok(cs.max),
+    contextMean: tok(cs.mean),
     cost: round2(agg.cost * ctx.rate),
   };
-  if (ctx.billing) o.actual = round2((ctx.actualUSD(agg) || 0) * ctx.rate);
+  if (ctx.billing) {
+    o.actual = round2((ctx.actualUSD(agg) || 0) * ctx.rate);
+    // The two inputs behind `actual`: tokens on plan-covered models (which cost
+    // $0 marginal and set the apportionment basis) and the per-token spend on
+    // models the plan doesn't cover (which is added on top, not apportioned).
+    o.coveredTokens = agg.coveredTokens || 0;
+    o.uncoveredCost = round2((agg.uncoveredCost || 0) * ctx.rate);
+  }
   return o;
 }
 
@@ -1143,15 +1259,22 @@ function outputJson(root, ctx) {
   const rows = leafRows(root, ctx.keys, ctx.sortSpecs).map((lf) => {
     const o = {};
     ctx.keys.forEach((k, i) => { o[k] = lf.path[i]; });
-    Object.assign(o, metricObj(lf.agg, lf.sessions, ctx));
+    Object.assign(o, metricObj(lf.agg, lf.sessions, ctx, lf.peaks));
     return o;
   });
-  console.log(JSON.stringify({ meta: buildMeta(ctx), rows }, null, 2));
+  // The grand total as its own record, not a row: --json promises one record per
+  // leaf with no subtotals mixed in (a machine re-aggregates), but the whole-set
+  // context distribution can't be re-aggregated from leaves — peaks-of-peaks
+  // don't recompose once sessions are split across groups. So it ships in meta.
+  const total = metricObj(root.agg, root.sessions.size, ctx, root.sessions);
+  console.log(JSON.stringify({ meta: { ...buildMeta(ctx), total }, rows }, null, 2));
 }
 
 function outputCsv(root, ctx) {
   const metricCols = ['sessions', 'messages', 'inputTokens', 'outputTokens', 'cacheCreationTokens',
-    'cacheReadTokens', 'cacheHitRate', 'totalTokens', 'cost', ...(ctx.billing ? ['actual'] : [])];
+    'cacheReadTokens', 'cacheHitRate', 'totalTokens',
+    'contextSessions', 'contextMin', 'contextP25', 'contextMedian', 'contextP75', 'contextP90', 'contextMax', 'contextMean',
+    'cost', ...(ctx.billing ? ['actual', 'coveredTokens', 'uncoveredCost'] : [])];
   const header = [...ctx.keys, ...metricCols];
   const esc = (v) => {
     const s = v == null ? '' : String(v);
@@ -1159,7 +1282,7 @@ function outputCsv(root, ctx) {
   };
   const lines = [header.map(esc).join(',')];
   for (const lf of leafRows(root, ctx.keys, ctx.sortSpecs)) {
-    const m = metricObj(lf.agg, lf.sessions, ctx);
+    const m = metricObj(lf.agg, lf.sessions, ctx, lf.peaks);
     const row = [...ctx.keys.map((_, i) => lf.path[i]), ...metricCols.map((k) => m[k])];
     lines.push(row.map(esc).join(','));
   }
@@ -1284,6 +1407,7 @@ module.exports = {
   symbolFor, shortModel, timeBucket, isoWeek,
   PRICING, priceBase, messageCost, loadPricing,
   zeroAgg, addTo, cacheHitRate, label,
+  quantile, contextStats, bumpPeak, fmtTokens,
   DIMS, TIME_DIMS, globMatch, buildDimFilter,
   groupTree, sortedEntries, treeRows, leafRows,
   eventFrom, keepRicher, readAllEvents, reconcile,

@@ -15,7 +15,7 @@ drives Chrome via Playwright); each documents its own runtime.
 
 | Instrument      | Verb      | What it does                                                         |
 |-----------------|-----------|---------------------------------------------------------------------|
-| `ccrepo`        | observe   | Claude Code token & cost totals, grouped/filtered any way (`-g repo,model`, `--branch`, message-grain cost reconciled against ccusage). Reads the live logs, or ccarchive's mirror (`--from-archive`). |
+| `ccrepo`        | observe   | Claude Code token & cost totals, grouped/filtered any way (`-g repo,model`, `--branch`, message-grain cost reconciled against ccusage), plus how large sessions' context windows got. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
 | `cctranscript`  | observe   | Timestamped transcript of a session — the timestamps the chat UI hides, plus how big its context grew. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
 | `ccarchive`     | preserve  | Durably mirror every raw `.jsonl` transcript into a compressed, append-only archive that outlives Claude Code's cleanup. |
 | `browser-fetch` | extend    | A browser (fresh headless, or the operator's own Chrome) when `WebFetch`/curl are blocked. MCP server; see its own README. |
@@ -133,6 +133,30 @@ against `ccusage session` and prints the drift (`Δ` in $ and %, largest
 per-model). A small drift is expected (token-counting edge cases); a large one
 means the price table has gone stale — the guard says so instead of lying
 quietly. `--no-reconcile` skips the ccusage call.
+
+**Context med/max** answers the question the token columns don't: not how much a
+group *consumed* but how *large its windows got*. Context at one request is
+everything sent — input + cache create + cache read, the cached prefix included,
+output excluded — the same definition `cctranscript` reports per session. It is
+the one metric here that's **never summed**: every message carries the session's
+whole cached prefix, so a "total context" would be that window counted over and
+over. Each session contributes its *peak*, and the column shows the **median**
+(what a typical session weighs) beside the **max** (the worst one). Both, because
+either alone misreads — a repo sitting at 110k that once hit 578k reads dangerous
+on max, calm on median; the pair says *usually fine, once wasn't*. There's no
+percentage-of-window: the logs name the model but not its window size, and the
+200k and 1M variants log identically, so a share figure would be a guess.
+
+**The machine-readable forms are wider than the table, on purpose** — a terminal
+column is width-bound and a data file isn't, so everything computed ships in
+`--json`/`--csv` even where no column fits it: the full context distribution
+(`contextMin/P25/Median/P75/P90/Max/Mean`, where the table shows two of the
+seven — `contextP90` is what separates a lone outlier from a fat tail), and,
+under a billing config, the `coveredTokens`/`uncoveredCost` split that `Actual`
+is derived from, so the apportionment can be re-derived rather than trusted. The
+grand total rides in `meta.total`, not as a row: leaf records stay subtotal-free,
+and peaks genuinely can't be re-aggregated from leaves once a session is split
+across groups.
 
 ## ccrepo billing model — Actual vs Est
 

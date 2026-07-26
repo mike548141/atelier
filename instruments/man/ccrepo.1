@@ -226,9 +226,47 @@ Emit tidy JSON: a
 block plus one record per leaf, each dimension its own field. Mutually
 exclusive with
 .BR \-\-csv .
+.IP
+These records are deliberately
+.B wider than the table:
+a terminal column is width-bound and a data file is not, so every figure that
+was computed ships here even where no column could fit it. Beyond the table's
+metrics that means the whole context distribution \(em
+.IR contextSessions ,
+.IR contextMin ,
+.IR contextP25 ,
+.IR contextMedian ,
+.IR contextP75 ,
+.IR contextP90 ,
+.I contextMax
+and
+.I contextMean
+\(em where the table shows two of those figures.
+.I contextP90
+is what distinguishes a lone outlier from a fat tail;
+.I contextMean
+against
+.I contextMedian
+is the skew tell. Under a billing config the records also carry
+.I coveredTokens
+and
+.IR uncoveredCost ,
+the two inputs the
+.I Actual
+figure is derived from, so the apportionment can be re-derived rather than
+taken on trust.
+.IP
+The grand total ships as
+.I meta.total
+rather than as a row, because
+.B \-\-json
+promises one record per leaf with no subtotals mixed in \(em and because the
+whole-set context figures genuinely cannot be re-aggregated from the leaves:
+peaks do not recompose once a session is split across groups.
 .TP
 .B \-\-csv
-Emit the same tidy shape as CSV. Mutually exclusive with
+Emit the same tidy shape as CSV, carrying the same wide field set. Mutually
+exclusive with
 .BR \-\-json .
 .SS Currency
 .TP
@@ -258,6 +296,66 @@ and report the estimate only, even when a plan config is present.
 .TP
 .BR \-h ", " \-\-help
 Print a concise usage digest and exit. This manual is the full reference.
+.SH CONTEXT SIZE
+The
+.B Context med/max
+column answers a different question from the token columns beside it: not how
+much a group
+.I consumed
+but how
+.I large the windows got
+\(em the signal that a session is running heavy and heading for a compaction.
+.PP
+Context at one request is everything the model was
+.BR sent :
+input plus cache-creation plus cache-read tokens. The cached prefix counts \(em
+it is in the window however it was billed \(em so reading
+.I input_tokens
+alone would show a long session as tiny. Output is excluded: it was not in the
+window the request was served against. This is the same definition
+.BR cctranscript (1)
+reports per session, so a peak reads identically in both tools.
+.PP
+Context is the one metric here that is
+.B never summed.
+Every message in a session carries that session's whole cached prefix, so adding
+message context sizes counts the same window over and over; a "total context"
+would be a meaningless multiple of itself. Instead each session contributes its
+.BR peak ,
+and the column reports two figures over those peaks:
+.TP
+.B median
+What a typical session in the group weighs \(em the habit.
+.TP
+.B max
+The largest window any session in the group reached \(em the alarm.
+.PP
+Both, because either alone misreads. A group whose sessions sit around 110k but
+which once reached 578k looks dangerous on the max and calm on the median; the
+pair says "usually fine, once wasn't", which is the actual situation. The mean
+is not shown \(em it is dragged by exactly those outliers \(em but it ships in
+.BR \-\-json .
+.PP
+Peaks are per
+.IR session ,
+not per message, because every session ramps up from near-empty: a message-grain
+median understates the weight sessions actually reach. When a session is split
+across groups (it ran on two branches, say) each slice reports the largest window
+reached while in that slice, which is what a per-slice reading means; the parent
+row still reports the session's true peak.
+.PP
+There is deliberately
+.B no percentage-of-window
+figure. The logs record which model served a request but not the size of its
+context window, and the 200k and 1M variants of a model log under identical
+names \(em so a share-of-window figure could not be computed, only guessed.
+The absolute token count is the honest form.
+.PP
+Subagent logs are folded into their parent session, so a session's peak is the
+largest window any of its threads reached, the main thread and its subagents
+alike. That answers "did any window get large"; to read the main thread on its
+own, filter with
+.BR "\-\-kind main" .
 .SH COST AND RECONCILIATION
 The built-in price table records, per model, the USD list price per million
 .I input

@@ -143,6 +143,10 @@ test('eventFrom parses tokens, splits cache write, computes cost, tags dimension
   assert.equal(e.messages, 1);                // one event = one message
   assert.ok(Math.abs(e.cost - 0.0031) < 1e-12);
   assert.equal(e.priced, true);
+  // Context = everything SENT (input + cache read + cache create), output excluded:
+  // output isn't in the window the request was served against. 100 + 1000 + 100.
+  assert.equal(e.context, 1200);
+  assert.notEqual(e.context, e.totalTokens);   // and so is never just the token total
 });
 
 test('eventFrom marks subagents (path flag OR isSidechain) and skips non-assistant', () => {
@@ -243,6 +247,91 @@ test('sortedEntries: cost desc default, time asc default, spec overrides', () =>
     mkEv({ session: 'b', ts: '2026-06-15T12:00:00Z' }),
   ], ['month']);
   assert.deepEqual(r.sortedEntries(byMonth, 'month', null).map((e) => e[0]), ['2026-06', '2026-07']); // time asc
+});
+
+// --- context size (per-session peak windows) -----------------------------
+
+test('quantile interpolates linearly; median is the average of the two middles', () => {
+  const s = [10, 20, 30, 40];
+  assert.equal(r.quantile(s, 0), 10);
+  assert.equal(r.quantile(s, 1), 40);
+  assert.equal(r.quantile(s, 0.5), 25);            // (20+30)/2, not a bare middle pick
+  assert.equal(r.quantile([10, 20, 30], 0.5), 20); // odd length → the true middle
+  assert.equal(r.quantile(s, 0.25), 17.5);         // interpolated, not step-wise
+  assert.equal(r.quantile([], 0.5), null);
+});
+
+test('bumpPeak keeps the high-water mark per session, never a sum', () => {
+  const m = new Map();
+  r.bumpPeak(m, 's1', 100);
+  r.bumpPeak(m, 's1', 500);
+  r.bumpPeak(m, 's1', 200);   // a later, smaller window must not lower the peak…
+  assert.equal(m.get('s1'), 500);
+  assert.equal(m.size, 1);    // …nor add a second entry (Sessions stays a distinct count)
+  r.bumpPeak(m, 's2', undefined);
+  assert.equal(m.get('s2'), 0);  // a missing context is 0, not NaN/undefined
+});
+
+test('contextStats summarises session peaks; empty and all-zero report null', () => {
+  const st = r.contextStats(new Map([['a', 100], ['b', 200], ['c', 300], ['d', 400]]));
+  assert.equal(st.sessions, 4);
+  assert.equal(st.min, 100);
+  assert.equal(st.median, 250);
+  assert.equal(st.max, 400);
+  assert.equal(st.mean, 250);
+  // A slice whose messages carried no usage record reports nothing, not a fake 0.
+  for (const empty of [new Map(), new Map([['a', 0], ['b', 0]])]) {
+    const z = r.contextStats(empty);
+    assert.equal(z.sessions, 0);
+    assert.equal(z.median, null);
+    assert.equal(z.max, null);
+  }
+  // Zero-peak sessions are excluded from the stats, not counted as tiny sessions.
+  assert.equal(r.contextStats(new Map([['a', 0], ['b', 400]])).sessions, 1);
+  assert.equal(r.contextStats(new Map([['a', 0], ['b', 400]])).min, 400);
+});
+
+test('groupTree tracks context as peaks-of-peaks, never a sum', () => {
+  const evs = [
+    mkEv({ repo: 'A', session: 's1', context: 100 }),
+    mkEv({ repo: 'A', session: 's1', context: 900 }),  // same session, bigger window
+    mkEv({ repo: 'A', session: 's2', context: 300 }),
+    mkEv({ repo: 'B', session: 's3', context: 500 }),
+  ];
+  const root = r.groupTree(evs, ['repo']);
+  const A = root.children.get('A');
+  // s1's four messages carry 1000 tokens of context between them, but the session
+  // only ever held 900 — summing would invent a window that never existed.
+  assert.equal(A.sessions.get('s1'), 900);
+  assert.equal(r.contextStats(A.sessions).max, 900);
+  assert.equal(r.contextStats(A.sessions).median, 600);   // peaks 300 and 900
+  assert.equal(A.sessions.size, 2);                       // Sessions count unaffected
+  // The root is the max across groups, not the sum of them.
+  assert.equal(r.contextStats(root.sessions).max, 900);
+  assert.equal(r.contextStats(root.sessions).sessions, 3);
+});
+
+test('a session split across groups keeps a real peak in each slice', () => {
+  // One session that ran on two branches: each slice reports the largest window
+  // reached *while on that branch*, which is what a per-branch reading means.
+  const evs = [
+    mkEv({ session: 's1', branch: 'main', context: 100 }),
+    mkEv({ session: 's1', branch: 'feature', context: 800 }),
+  ];
+  const root = r.groupTree(evs, ['branch']);
+  assert.equal(r.contextStats(root.children.get('main').sessions).max, 100);
+  assert.equal(r.contextStats(root.children.get('feature').sessions).max, 800);
+  assert.equal(root.sessions.size, 1);                    // still one distinct session
+  assert.equal(r.contextStats(root.sessions).max, 800);   // whose true peak is 800
+});
+
+test('fmtTokens scales; non-positive and non-finite are null, not "0"', () => {
+  assert.equal(r.fmtTokens(934000), '934k');
+  assert.equal(r.fmtTokens(1_250_000), '1.3M');
+  assert.equal(r.fmtTokens(1500), '1.5k');
+  assert.equal(r.fmtTokens(950), '950');
+  assert.equal(r.fmtTokens(0), null);
+  assert.equal(r.fmtTokens(NaN), null);
 });
 
 test('treeRows walks pre-order with depth; leafRows gives full key paths', () => {
@@ -525,6 +614,48 @@ test('contract: --from-archive prices a .gz mirror; ccusage cross-check is off',
   assert.ok(Math.abs(row.cost - 30) < 1e-9);         // $30 at usd (rate 1)
 });
 
+test('contract: --json/--csv carry the whole context distribution, not just med/max', () => {
+  const dest = makeCcrepoArchive();
+  const j = runCcrepoJson(dest, ['--from-archive', '--dest', dest, '-g', 'repo']);
+  const row = j.rows.find((x) => x.repo === 'synthetic-ccrepo');
+  // The log's one message: 1e6 input, 1e6 output, no cache. Context is what was
+  // SENT — 1e6 — so it is deliberately NOT the 2e6 token total.
+  assert.equal(row.contextMax, 1000000);
+  assert.equal(row.contextMedian, 1000000);
+  assert.equal(row.totalTokens, 2000000);
+  // Everything a consumer could want, even where no terminal column fits it.
+  for (const k of ['contextSessions', 'contextMin', 'contextP25', 'contextMedian',
+    'contextP75', 'contextP90', 'contextMax', 'contextMean']) {
+    assert.ok(k in row, `${k} missing from the tidy row`);
+  }
+  // The grand total ships in meta: peaks-of-peaks can't be re-aggregated from
+  // leaves once sessions are split across groups, so a machine can't derive it.
+  assert.equal(j.meta.total.contextMax, 1000000);
+  assert.equal(j.meta.total.sessions, 1);
+});
+
+test('contract: the rollup schema bump discards a ledger written before `context`', () => {
+  // A pre-/2 ledger's cached events have no `context` field. The (mtime,size)
+  // fingerprint would pass, so without the schema check they'd be served as valid
+  // and every warm archive run would report a confident 0 context, forever.
+  const dest = makeCcrepoArchive();
+  const led = pathMod.join(fs.mkdtempSync(pathMod.join(os.tmpdir(), 'ccrepo-oldled-')), 'rollup.json');
+  const args = ['--from-archive', '--dest', dest, '-g', 'repo'];
+  runCcrepoJson(dest, args, { CCREPO_ROLLUP: led });                 // populate at the current schema
+  const ledger = JSON.parse(fs.readFileSync(led, 'utf8'));
+  assert.equal(ledger.schema, 'ccrepo-rollup/2');
+  // Rewind it to the old schema, stripping `context` exactly as a v1 ledger lacked it.
+  ledger.schema = 'ccrepo-rollup/1';
+  for (const root of Object.values(ledger.roots)) {
+    for (const f of Object.values(root.files)) for (const e of f.events) delete e.context;
+  }
+  fs.writeFileSync(led, JSON.stringify(ledger));
+  const after = runCcrepoJson(dest, args, { CCREPO_ROLLUP: led });
+  assert.equal(after.meta.rollup.misses, 1, 'the stale-schema ledger must be re-read, not trusted');
+  assert.equal(after.meta.rollup.hits, 0);
+  assert.equal(after.rows.find((x) => x.repo === 'synthetic-ccrepo').contextMax, 1000000);
+});
+
 test('contract: --dest alone implies --from-archive', () => {
   const dest = makeCcrepoArchive();
   const j = runCcrepoJson(dest, ['--dest', dest, '-g', 'repo']);
@@ -576,13 +707,13 @@ test('recipeSig is stable under key order and reflects pricing + covers changes'
 
 test('loadRollup: absent ⇒ fresh; wrong schema ⇒ fresh; malformed ⇒ fresh + warning', () => {
   const fresh = r.loadRollup(pathMod.join(os.tmpdir(), 'no-such-rollup-xyz.json'));
-  assert.deepEqual(fresh, { schema: 'ccrepo-rollup/1', roots: {} });
+  assert.deepEqual(fresh, { schema: 'ccrepo-rollup/2', roots: {} });
   const dir = fs.mkdtempSync(pathMod.join(os.tmpdir(), 'ccrepo-rollup-u-'));
   const wrong = pathMod.join(dir, 'w.json'); fs.writeFileSync(wrong, JSON.stringify({ schema: 'other', roots: {} }));
   assert.deepEqual(r.loadRollup(wrong).roots, {});
   const bad = pathMod.join(dir, 'b.json'); fs.writeFileSync(bad, '{ not json');
   const q = quietErr(() => r.loadRollup(bad));
-  assert.deepEqual(q.result, { schema: 'ccrepo-rollup/1', roots: {} });
+  assert.deepEqual(q.result, { schema: 'ccrepo-rollup/2', roots: {} });
   assert.match(q.msgs.join(' '), /rebuilding/);
 });
 

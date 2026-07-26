@@ -130,6 +130,67 @@ in measurement, not estimate:
   one-sided sessions are reported as a scope gap (`myOnly`/`cuOnly`), never as
   drift.
 
+### Context size (2026-07-26) — added as a peak, not a sum
+
+Mike asked for a reading of "when window sizes are getting large", and named the
+three candidate shapes himself: group total, average/median, or max. Measured
+across the live logs (419 sessions, 107,902 assistant messages) before choosing:
+
+| Repo | Sessions | Mean | Median | Max |
+|---|---:|---:|---:|---:|
+| ros | 239 | 191k | 179k | 528k |
+| shed | 11 | 238k | **108k** | **578k** |
+| hitchbots_guide | 5 | 470k | 283k | 934k |
+
+- **Sum is meaningless** and was rightly doubted: every message carries the whole
+  cached prefix, so summing message context sizes counts one window repeatedly.
+  Context is the only metric here that must not go through `addTo`.
+- **Median and max are both needed.** `shed` is the case that settled it: max 578k
+  reads as the scariest repo on the board, median 108k reads as the calmest. One
+  blow-out against a light habit — a fact neither figure states alone. So the
+  column carries `median/max` in one cell, spending one column rather than two.
+- **Mean is out** of the table (dragged by exactly those outliers: `shed` 238k vs
+  a 108k median) but ships in `--json`.
+- **Grain is per-session peak, not per-message.** Sessions ramp from near-empty,
+  so a message-grain median understates what sessions actually reach: 122k
+  against 168k across the same set. Matches what `cctranscript` already
+  headlines, so "context" means one thing across the instruments.
+
+**A percentage of window can't be built, and that's now recorded rather than
+re-derived.** The obvious framing — 148k is 74% of a 200k window but 15% of a 1M
+one — dies on the logs: every model string is bare (`claude-opus-5`,
+`claude-opus-4-8`, …) with no `[1m]` marker, so the 200k and 1M variants are
+indistinguishable. The observed 934k peak proves 1M sessions are in there;
+nothing says which. Absolute tokens is the only honest form. Revisit only if the
+logs ever start recording the window.
+
+Implementation: each tree node's `sessions` Set became a **Map of session → peak**
+— same `.size` for the distinct Sessions count, plus the peaks the column needs,
+at one entry per session per node (bounded by session count, not message count).
+`ROLLUP_SCHEMA` went to `/2`: the file fingerprint only proves the *source* is
+unchanged, so a v1-cached event lacking the new `context` field would have passed
+as valid and reported a confident zero on every warm archive run.
+
+### Machine-readable output is deliberately wider than the table (2026-07-26)
+
+Mike's follow-on: the machine-readable form should carry everything useful, since
+it isn't width-bound like the terminal. So `--json`/`--csv` carry the **full**
+context distribution (`contextSessions/Min/P25/Median/P75/P90/Max/Mean`) where the
+table shows two of the seven — `p90` is what separates a lone outlier from a fat
+tail, and mean-vs-median is the skew tell. `shed` again proves it earns its place:
+min 32k, median 110k, **p90 526k**, max 578k — a genuinely bimodal repo, which the
+two-figure column alone would read as one freak session.
+
+Under a billing config the records also carry `coveredTokens` and `uncoveredCost`,
+the two inputs `Actual` is apportioned from, so a consumer can re-derive it rather
+than trust it. Fields stay **flat**, not nested under a `context` object: §7's
+tidy-shape promise is what makes `--csv` a free by-product of the same builder.
+
+The grand total ships as `meta.total` rather than as a row — leaf records stay
+subtotal-free per §7, *and* the whole-set context figures genuinely can't be
+re-aggregated downstream: peaks don't recompose once a session is split across
+groups. A machine can re-sum tokens; it cannot re-derive a peak.
+
 ## 5. Filters — mirror the grouping vocabulary
 
 Filters pick which messages/sessions enter; grouping arranges them. **AND across
