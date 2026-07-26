@@ -23,6 +23,11 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   stopped spawn still counts. `--json` adds `agents.byType`.
 - Both tallies are taken **before** the view gating, so `--tools`/`--think`
   change what you see and never what the header reports.
+- The time span joins its two clock times with the word **to**, not an en dash —
+  a dash between two colon-heavy times reads as punctuation to decode rather
+  than a span to skim. Mike's call, and **scoped to this CLI's header**: not a
+  house convention, not propagated to the other instruments. (Written out rather
+  than shown: two literal clock times side by side trip leakscan's IPv6 rule.)
 - **The agent count always prints, including `0 agents`** — Mike's call, on the
   ground that the summary line gets read by *comparing* sessions, and a chip
   that vanishes at zero makes two headers line up differently for the reader to

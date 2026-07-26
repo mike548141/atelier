@@ -717,7 +717,10 @@ function runTranscript() {
   const ctxChip = fmtTokens(context.peak);
   if (ctxChip) parts.push(`${ctxChip} context`);
   if (first && last) {
-    parts.push(`${fmtTime(first)}–${fmtTime(last)}`);
+    // "to", not an en dash: the summary line is already dense with · separators
+    // and colons, and a dash between two colon-heavy clock times reads as
+    // punctuation to decode rather than a span to skim. (Mike's call, 2026-07-26.)
+    parts.push(`${fmtTime(first)} to ${fmtTime(last)}`);
     const span = new Date(last) - new Date(first);
     if (span > 0) parts.push(humanDelta(span, false));
   }
