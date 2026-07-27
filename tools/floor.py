@@ -410,13 +410,22 @@ class Config:
     # it as config rather than special-casing the parent is what lets atelier run
     # the SAME floor it ships: a parent with its own private list would be the
     # two-lists bug all over again, one level up.
+    #
+    # A narrowed scope reduces cover, so it is read out estate-wide on the
+    # `floorfleet` board and in its --json (the 🔎 line). Say it here only
+    # because it is true here: this comment previously claimed estate-wide
+    # visibility that `floorfleet` did not implement, which is the honesty
+    # defect the apex forbids and was the reason a shrunken scope went
+    # unreported (ADR 0008 cold pass, EP1/EP2).
     scope: dict[str, tuple[str, ...]] = field(default_factory=dict)
     # Per-scanner extra arguments — for a check that needs tuning to a repo's
     # subject matter rather than its layout. A networking repo disabling
     # leakscan's IP/MAC rules is the worked case: those shapes are legitimate
     # CONTENT there, not leaked estate data. This genuinely weakens a check,
-    # which is why it lives in a committed file that `floorfleet` reads out
-    # estate-wide — declared and visible, never quietly applied.
+    # which is why it lives in a committed file and is read out estate-wide by
+    # `floorfleet` (the 🔧 line) — declared and visible, never quietly applied.
+    # `tools/test_floorfleet.py` pins both lines, so the claim stays checkable
+    # rather than becoming true once and drifting back.
     flags: dict[str, tuple[str, ...]] = field(default_factory=dict)
     # Checks the CHILD declares and ships — see THE REPO-LOCAL SEAM. Held as
     # Scanners so every stage below (plan, scope, render, run) treats them
@@ -734,14 +743,43 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
             scanner.hook if plane == "hook" else scanner.ci
         )
 
+        declared = subtrees(root, cfg, scanner.name)
+        missing = [p for p in declared if not (root / p).exists()]
+        trees = [p for p in declared if (root / p).exists()]
+
+        # A declared path that does not resolve REDUCES a check's cover, and for
+        # a scanner with no advisory form that is precisely the softening the
+        # child may never make (`Config.validate`, and the module docstring's
+        # boundary/integrity rule). Skipping it instead — the branch below —
+        # meant one typo in a `scope` path turned secretscan or leakscan off and
+        # the run still exited 0. This is the same call already made for an empty
+        # `local.*.scope` ("narrowing a check to nothing is a silent hole, not a
+        # scope") and for an absolute path in --staged mode; it is the rest of
+        # that class. Registry defaults for these scanners are the repo root, so
+        # only an explicit declaration can reach here.
+        if missing and scanner.advisory is None:
+            print(
+                f"floor: {scanner.name} is scoped to "
+                f"{', '.join(repr(p) for p in missing)}, which "
+                f"{'does' if len(missing) == 1 else 'do'} not exist in this repo "
+                "— BLOCKING (fail closed).\n"
+                f"  {scanner.name} has no advisory form, so a scope that reads "
+                "nothing is a silent hole, not a narrower check.\n"
+                f"  Fix the path in {CONFIG_NAME}, or remove the "
+                f"`scope.{scanner.name}` entry to scan the whole repo.",
+                file=sys.stderr,
+            )
+            results.append(Result(scanner.name, "enforced", 1, "scope resolves to nothing",
+                                  local=scanner.is_local))
+            continue
+
         # A check scoped to a subtree has nothing to read in a repo that keeps
         # none. The scanners exit 2 (environment error) on a missing path, which
         # would block every code-only repo — so skip, but SAY SO, and let
         # floorfleet surface it estate-wide. A repo whose records simply live
         # somewhere else sets `docs` (or a per-scanner `scope`); this branch is
         # what makes that misconfiguration visible instead of silently uncovered.
-        declared = subtrees(root, cfg, scanner.name)
-        trees = [p for p in declared if (root / p).exists()]
+        # Reached only by softenable checks now: the guard above claims the rest.
         if not trees:
             results.append(Result(scanner.name, "skipped", 0,
                                   f"no {', '.join(declared)} tree in this repo",

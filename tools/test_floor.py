@@ -470,6 +470,48 @@ class InvocationTest(unittest.TestCase):
             # ...and the markers are not lost, just relocated to stderr.
             self.assertIn("::group::", r.stderr)
 
+    def test_unresolvable_scope_blocks_a_check_that_may_not_be_softened(self):
+        """ADR 0008 cold pass, EP1. A one-character typo in a `scope` path used
+        to turn secretscan or leakscan off and still exit 0 — the skip branch
+        below, reached by a check that has no advisory form precisely because it
+        may never be softened. Same call as an empty `local.*.scope` and as an
+        absolute path in --staged mode: this is the rest of that class."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / floor.CONFIG_NAME).write_text(
+                json.dumps({"scope": {"secretscan": ["nosuchtree"]}}), encoding="utf-8")
+            r = self._run("--plane", "ci", "--root", td)
+            self.assertEqual(r.returncode, 1, r.stdout)
+            self.assertIn("secretscan", r.stderr)
+            self.assertIn("nosuchtree", r.stderr)
+            # The remedy has to name both ways out, or it reads as "your repo is
+            # broken" rather than "your config drifted".
+            self.assertIn(floor.CONFIG_NAME, r.stderr)
+            self.assertIn("scope.secretscan", r.stderr)
+
+    def test_partial_scope_drift_blocks_too(self):
+        """One of two declared paths going missing halves a boundary check's
+        cover. The finding was written about a scope resolving to NOTHING; the
+        class is any declared path that does not resolve."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            (Path(td) / floor.CONFIG_NAME).write_text(
+                json.dumps({"scope": {"secretscan": ["docs", "gone"]}}), encoding="utf-8")
+            r = self._run("--plane", "ci", "--root", td)
+            self.assertEqual(r.returncode, 1, r.stdout)
+            self.assertIn("gone", r.stderr)
+
+    def test_a_softenable_check_still_skips_a_missing_tree(self):
+        """The other half of the guard, and the reason it is not blanket: the
+        skip exists so a code-only repo is not blocked by the prose checks. Only
+        the no-advisory-form scanners lose it."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / floor.CONFIG_NAME).write_text(
+                json.dumps({"scope": {"wrapscan": ["nosuchtree"]}}), encoding="utf-8")
+            r = self._run("--plane", "ci", "--root", td, "--json")
+            self.assertEqual(r.returncode, 0, r.stderr)
+            results = {x["name"]: x for x in json.loads(r.stdout)["results"]}
+            self.assertEqual(results["wrapscan"]["state"], "skipped")
+
     def test_missing_records_tree_skips_visibly(self):
         """A code-only repo has no dating discipline to check. It must not be
         BLOCKED (the scanners exit 2 on a missing path) and must not be silently

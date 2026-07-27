@@ -141,6 +141,48 @@ class EvaluateTest(unittest.TestCase):
         self.assertEqual(info.local, {"tripwire": "estate tokens never enter a commit"})
         self.assertIn("➕ tripwire local", floorfleet.render([info], remote=False))
 
+    def test_reports_cover_reductions_not_only_removals(self):
+        """ADR 0008 cold pass, EP1/EP2: `scope` and `flags` narrow a check
+        without removing it, and were the one softening no board read — so a
+        boundary check could be reduced to a subtree, or to nothing, and read
+        green estate-wide. floor.py's own docstring claimed otherwise."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = self._repo(td, THIN_CALLER, {
+                "scope": {"leakscan": ["subtree/"]},
+                "flags": {"leakscan": ["--disable", "ipv4"]},
+            })
+            info = floorfleet.evaluate(repo, remote=False)
+        self.assertEqual(info.scope, {"leakscan": ["subtree/"]})
+        self.assertEqual(info.flags, {"leakscan": ["--disable", "ipv4"]})
+        board = floorfleet.render([info], remote=False)
+        self.assertIn("🔎 leakscan scoped to subtree/", board)
+        self.assertIn("🔧 leakscan flags --disable ipv4", board)
+
+    def test_a_moved_records_tree_is_reported_but_the_default_is_not(self):
+        """A non-default `docs` silently re-points every docs-scoped check. The
+        default is the other half: printing it for all 13 children would be
+        noise that buries the one child that moved."""
+        with tempfile.TemporaryDirectory() as td:
+            moved = floorfleet.evaluate(
+                self._repo(td, THIN_CALLER, {"docs": "records"}), remote=False)
+        with tempfile.TemporaryDirectory() as td:
+            plain = floorfleet.evaluate(
+                self._repo(td, THIN_CALLER, {"docs": floorfleet.DEFAULT_DOCS}),
+                remote=False)
+        self.assertIn("📁 records tree is records", floorfleet.render([moved], False))
+        self.assertNotIn("📁", floorfleet.render([plain], False))
+
+    def test_a_malformed_scope_block_does_not_crash_the_board(self):
+        """Same contract as the local block below: report what the config SAYS,
+        stay readable against a malformed one, and let floor.py do the blocking
+        where the repo actually is."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = self._repo(td, THIN_CALLER,
+                              {"scope": {"a": 7, "b": "bare-string"}, "flags": []})
+            info = floorfleet.evaluate(repo, remote=False)
+        self.assertEqual(info.scope, {"b": ["bare-string"]})
+        self.assertEqual(info.flags, {})
+
     def test_a_malformed_local_block_does_not_crash_the_board(self):
         """floor.py blocks on a bad config, where the repo is. This tool reads
         text off a default branch and must still render the other 12 children —

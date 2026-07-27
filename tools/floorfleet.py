@@ -103,6 +103,9 @@ import pins  # noqa: E402  — the shared fleet-discovery building block
 
 FLOOR_PATH = ".github/workflows/floor.yml"
 CONFIG_PATH = ".atelier-floor.json"
+# Mirrors floor.py's `Config.docs` default. Only a departure from it is worth a
+# board line: every repo declaring the default would be noise, not signal.
+DEFAULT_DOCS = "docs"
 
 # The caller line a wired repo carries. Owner is matched loosely so an adopter
 # pointing at their own atelier fork still classifies as wired rather than
@@ -151,6 +154,17 @@ class ChildFloor:
     # rule the estate cannot reason about — and unlike a fleet check, nobody
     # else's floor will ever mention it.
     local: dict[str, str] = field(default_factory=dict)  # name -> why
+    # WHERE a check looks and WHAT ARGUMENTS it gets. Both narrow a check's
+    # cover without removing it, so before this they were the one softening no
+    # board read — `floor.py` claimed they were "read out estate-wide by
+    # floorfleet" and they were not (ADR 0008 cold pass, EP1/EP2). A reduced
+    # boundary check is at least as reviewable as a removed one.
+    scope: dict[str, list[str]] = field(default_factory=dict)   # name -> paths
+    flags: dict[str, list[str]] = field(default_factory=dict)   # name -> argv
+    # The records tree the prose checks read. Only surfaced when the child moved
+    # it off the default: a non-default `docs` silently re-points every
+    # docs-scoped check, and a `docs` naming no real tree skips them all.
+    docs: str = ""
 
     @property
     def ok(self) -> bool:
@@ -233,6 +247,22 @@ def hook_state(child: Path) -> str:
     return "none"
 
 
+def _str_lists(raw: object) -> dict[str, list[str]]:
+    """`scope`/`flags` as declared: name -> list of strings. Same contract as
+    `local` below — report what the config SAYS, never what floor.py would make
+    of it, and stay readable against a malformed one. A bare string is accepted
+    for the same reason floor.py accepts it."""
+    if not isinstance(raw, dict):
+        return {}
+    out: dict[str, list[str]] = {}
+    for name, value in raw.items():
+        if isinstance(value, str):
+            out[str(name)] = [value]
+        elif isinstance(value, list):
+            out[str(name)] = [str(v) for v in value]
+    return out
+
+
 def evaluate(child: Path, remote: bool) -> ChildFloor:
     read = _read_remote if remote else _read_local
     state, detail = classify(read(child, FLOOR_PATH))
@@ -240,11 +270,18 @@ def evaluate(child: Path, remote: bool) -> ChildFloor:
     advisory: list[str] = []
     disabled: dict[str, str] = {}
     local: dict[str, str] = {}
+    scope: dict[str, list[str]] = {}
+    flags: dict[str, list[str]] = {}
+    docs = ""
     raw = read(child, CONFIG_PATH)
     if raw:
         try:
             cfg = json.loads(raw)
             advisory = list(cfg.get("advisory", []) or [])
+            scope = _str_lists(cfg.get("scope"))
+            flags = _str_lists(cfg.get("flags"))
+            raw_docs = cfg.get("docs")
+            docs = str(raw_docs) if isinstance(raw_docs, str) else ""
             d = cfg.get("disabled", {}) or {}
             disabled = {k: str(v) for k, v in d.items()} if isinstance(d, dict) else {}
             loc = cfg.get("local", {}) or {}
@@ -260,7 +297,8 @@ def evaluate(child: Path, remote: bool) -> ChildFloor:
 
     return ChildFloor(name=child.name, path=str(child), state=state, detail=detail,
                       hook=hook_state(child), shim=shim_state(read, child),
-                      advisory=advisory, disabled=disabled, local=local)
+                      advisory=advisory, disabled=disabled, local=local,
+                      scope=scope, flags=flags, docs=docs)
 
 
 ICON = {"wired": "✅", "pinned": "📌", "vendored": "🛑", "absent": "🛑",
@@ -287,6 +325,18 @@ def render(infos: list[ChildFloor], remote: bool) -> str:
             lines.append(f"      ⏭  {name} disabled — {why}")
         for name, why in i.local.items():
             lines.append(f"      ➕ {name} local — {why or 'no reason declared'}")
+        # Cover reductions, printed beside the removals. `scope` is what a check
+        # READS and `flags` is how it RUNS; either can shrink a boundary check
+        # to a subtree, or to nothing, without ever appearing as `disabled`.
+        for name, paths in i.scope.items():
+            lines.append(f"      🔎 {name} scoped to {', '.join(paths)} — "
+                         "reads nothing outside this")
+        for name, argv in i.flags.items():
+            lines.append(f"      🔧 {name} flags {' '.join(argv)} — "
+                         "check runs modified")
+        if i.docs and i.docs != DEFAULT_DOCS:
+            lines.append(f"      📁 records tree is {i.docs}, not "
+                         f"{DEFAULT_DOCS} — every docs-scoped check follows it")
 
     bad = [i for i in infos if not i.ok]
     lines.append("")
