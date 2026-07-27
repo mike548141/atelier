@@ -1186,52 +1186,39 @@ The header's summary line gained a **context size** and a **subagent count**
 2026-07-26 (`19ef66d`, `2e8efb5`, `ae56b75`) → detail in
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md) at next harvest. Open strands:
 
-- [ ] 🎯 **Search across transcripts — regex or plain term, scoped by the flags
-      that already exist (Mike, 2026-07-26).** *"Something that lets you search
-      all the transcripts using regex or for a simple term. If you give
-      cctranscript a command like `--repo` that limits the scope to search
-      within."* Today cctranscript resolves **one** session and renders it; there
-      is no way to ask *which* session said a thing. That is the gap — the tool
-      can answer "what happened in this session" but not "where did we discuss
-      X", which is the question you actually have when you can't remember the
-      session.
-      Grounded in the current surface rather than sketched from scratch — the
-      scoping half is **already built** and should be reused verbatim, not
-      reinvented: `--repo <name>`, `--all`, `-n/--last <k>`, `--from-archive`
-      /`--dest`, and the `--list` machinery that already walks candidate sessions
-      per repo. So the new surface is plausibly one flag plus a mode, not a
-      subcommand.
-      **Questions to settle at design time, none pre-decided:**
-      - **What is a match's unit?** A turn is the natural answer (the tool's
-        whole model is timestamped turns, and `--json` already emits an array of
-        them), but a hit inside a 3,000-line tool result is not a turn you want
-        printed. Likely: match at turn grain, *display* a bounded excerpt.
-      - **What is searched by default?** Prompts and replies only, or also
-        thinking and tool results? The `--tools`/`--think`/`--full` gating already
-        names those layers, so the honest default is probably "what the current
-        view shows", with the gates widening the search the same way they widen
-        the render — one vocabulary, not two. Worth stating explicitly, because a
-        search that silently skips tool output will be quietly wrong the first
-        time someone greps for a filename.
-      - **Regex or plain, and how does the user say which?** A plain term is the
-        common case and a regex is the powerful one; treat a plain string as
-        literal by default and take a regex behind its own flag, rather than
-        guessing from the string's shape (a path with a `.` in it must not
-        silently become a wildcard).
-      - **Output shape.** Probably a `--list`-like index of hits (session, time,
-        one-line excerpt) rather than full renders, since the point is to *find*
-        the session you then open normally. `--json` should carry it too.
-      - **Cost and eviction.** This is the first cctranscript operation that
-        reads **every** file rather than resolving one, which changes its
-        relationship to the archive: an iCloud-evicted mirror can no longer be
-        ignored. The `--materialise` asymmetry documented in
-        [`instruments/README.md`](../instruments/README.md) is justified *on the
-        grounds that cctranscript never bulk-reads* — a search would make that
-        justification stale, so the flag-vocabulary note has to be revisited in
-        the same change, not afterwards.
-      - Whether ccrepo's `--since`/`--until` should join the scoping vocabulary
-        here (flags-follow-operation says yes only if the operation is genuinely
-        shared).
+- [ ] **Search across transcripts — DESIGN DONE 2026-07-27, BUILD not started
+      (Mike's ask, 2026-07-26).** *"Something that lets you search all the
+      transcripts using regex or for a simple term. If you give cctranscript a
+      command like `--repo` that limits the scope to search within."* The design
+      pass is done →
+      [`instruments/cctranscript.search.design.md`](../instruments/cctranscript.search.design.md):
+      surface (`--search` + `--regex`/`--case`), match unit, excerpting, output
+      shape, cost, eviction and DONE conditions are all settled there. **No
+      decision is left open for Mike** — the six questions the roadmap posed are
+      answered on measured evidence, and the seventh (`--materialise`) turned out
+      to be settled already by the ratified flags-follow-operation rule rather
+      than open at all. What remains is the build.
+      **Two roadmap premises were corrected by measurement:**
+      - **The thinking layer is not searchable, because it is not written.**
+        24,856 thinking blocks in the live store, **9 carry text**, all between
+        2026-06-05 and 2026-07-04; every block since is signature-only. So
+        "should `--think` widen the search" is void, not a design choice — and
+        the same finding means `--think` renders nothing on current sessions
+        (separate strand below).
+      - **Search is I/O-bound, not parse-bound**, so "reads every file" costs far
+        less than the framing implied: ≈2 s live (440 sessions / 500 MB), ≈5 s
+        archive. Prefiltering raw lines and parsing only the survivors runs at
+        the bare-read floor; the obvious parse-everything implementation costs
+        5.9 s for the same answer. An index is therefore deferred, not needed.
+      Third measured input, recorded because it inverts an optimisation: matching
+      case-insensitively with a `/i` regex is free (1.8 s), lowercasing the text
+      first is not (4.3 s), and the fastest option of all — decoding as latin1,
+      0.9 s — is **rejected**, because it silently fails on macrons and this
+      estate writes te reo Māori with them.
+      Review **WARRANTED when this moves from design to build** (the build edits
+      the `instruments/README.md` flag-vocabulary note, the worked example of a
+      ratified rule); the design pass itself authored no doctrine, so nothing is
+      queued yet.
 
 Two further strands stay open, both deliberately not built:
 
@@ -1287,6 +1274,26 @@ day:
       an outcome. If none of those separates the cases cleanly, say so and leave
       the pair as it stands rather than shipping a third number that guesses —
       the same call the started-vs-finished split already made once.
+
+Two more surfaced by the search design pass (2026-07-27), neither its to fix:
+
+- [ ] **`--think` is a flag that no longer does anything.** The harness stopped
+      writing thinking text to the log — blocks carry a `signature` and no
+      content, so `readTurns`' `(b.thinking || '').trim()` gate finds nothing to
+      render. Confirmed behaviourally as well as by census (9 text-bearing blocks
+      in 24,856, none after 2026-07-04). A flag that silently does nothing is the
+      defect; the fix is not obvious and is a judgement call about how loud to
+      be — a `NOTES` line in the man page, or a one-line notice when `--think` is
+      passed against a log with no thinking text. Grounding →
+      [`cctranscript.search.design.md`](../instruments/cctranscript.search.design.md) §5.
+- [ ] **Subagent logs are outside every cctranscript view.** There are 417 in the
+      live store and ccarchive mirrors them, but `allSessions()` walks one
+      directory level, so they are in neither `--list` nor (as designed) search.
+      *"Where did the agent find X"* is a plausible question the tool can't
+      answer. Deferred rather than smuggled into the search build: a subagent log
+      has no identity in the `--repo`/session vocabulary yet, and giving it one is
+      a larger change than a flag. A `--agents` widening is the obvious shape if
+      it's wanted.
 
 ### ccrepo (Mike, 2026-07-17)
 
