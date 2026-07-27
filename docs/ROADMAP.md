@@ -1152,6 +1152,49 @@ What remains is Mike's:
   operator note: the shrink guard covers memory files uniformly, so a
   legitimately condensed memory file needs `--force` — safe-over-silent.
   Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
+- [ ] **Capture the subagent `.meta.json` sidecar (Mike ruled 2026-07-28 — a new
+  capture class, not covered by the 2026-07-23 metadata ruling).** Each
+  `<uuid>/subagents/agent-<id>.jsonl` has a `.meta.json` beside it that ccarchive
+  does **not** take: `captureClass()` is an allowlist of `.jsonl` at any depth,
+  `tool-results/*`, `toolu_*` and `memory/*.md`, and a `.meta.json` matches none
+  of them. Measured 2026-07-28: **425 live sidecars, 0 archived, 66 KB total
+  (mean 155 bytes)** — the cost is a rounding error.
+  **What the file actually holds** (censused across all 425, so this is the real
+  key set, not one sample): `agentType` and `description` 425/425 · `toolUseId`
+  425/425 · `spawnDepth` 424/425 (values 1 and 2) · `model` 185/425 ·
+  `worktreePath`/`worktreeBranch` 31/425 · `parentAgentId` 9/425. Two of those
+  are load-bearing and unavailable anywhere else: **`toolUseId` is the join key
+  back to the spawning `tool_use` block in the parent session log**, and
+  `spawnDepth`/`parentAgentId` resolve the nesting ambiguity `cctranscript`'s
+  own `finishedAgents` comment names (an agent that spawns its own agent logs
+  into the same directory). `model` is the tier an agent actually ran on — the
+  fact the queue-run tier discipline is asserted against.
+  Build notes: a new class in `captureClass()` (**decide name-matched
+  `*.meta.json` at any depth vs scoped to `subagents/` — 0 exist elsewhere
+  today, so either is honest and the allowlist's own style argues for the
+  narrower one**); the man-page CAPTURE section updated the way the 2026-07-23
+  widening was; restore mapping; manifest/integrity inclusion; and check whether
+  the shrink guard behaves sanely on a 155-byte JSON file that can legitimately
+  be rewritten.
+- [ ] **Backfill the sidecars for already-archived transcripts — measured to be
+  FREE, and this item exists to verify that rather than to build it (Mike asked
+  2026-07-28).** The obvious reading is that a separate one-shot backfill pass is
+  owed. Checked against the artefact instead of reasoned: `archiveOnce` walks the
+  **whole live tree** each run via `listCaptured(srcRoot)`, and `shouldArchive`
+  returns true whenever `destMtimeMs === null` — i.e. no mirror exists yet. So
+  the first daily run after the capture class lands archives **every sidecar
+  still on disk**, with no new code, no flag and no separate pass. The work here
+  is therefore: confirm the first run picks them up, and state the count.
+  **Two honest limits, both measured, neither fixable:**
+  - Backfill reaches only what is **still live**. Of 418 archived subagent logs,
+    **417 have their sidecar still on disk and 1 does not** — that one is gone
+    for good, because the archive never held it and the live copy is deleted.
+  - The clock is real but **slow, and should not be dressed up as urgent**:
+    `cleanupPeriodDays` is **395** on this machine, so pruning is roughly annual.
+    The single existing loss shows decay is nonzero, not that it is imminent.
+  A corollary worth stating: this is the general shape for *any* future capture
+  widening — a new class self-backfills over the live window, and the only
+  permanent loss is whatever was pruned before it shipped.
 - [ ] **ccarchive: encryption at rest — BUILD not started; one decision open (🎯 Mike)**
   The **design pass is done** (2026-07-26, `d913698`/`7701a62`) →
   [`instruments/ccarchive.encryption.design.md`](../instruments/ccarchive.encryption.design.md),
@@ -1274,6 +1317,15 @@ day:
       an outcome. If none of those separates the cases cleanly, say so and leave
       the pair as it stands rather than shipping a third number that guesses —
       the same call the started-vs-finished split already made once.
+      **One of the three candidates is now closed (measured 2026-07-28): the
+      `.meta.json` sidecar records no outcome.** A census of all 425 live
+      sidecars finds `agentType`, `description`, `toolUseId`, `spawnDepth`,
+      `model`, `worktreePath`/`worktreeBranch` and `parentAgentId` — and **no
+      key matching status / outcome / result / error / exit / completion at
+      all**. The sidecar is written at *spawn* and describes the intent, not the
+      ending. So the third figure, if it ever exists, must come from the agent
+      log's own tail; the remaining candidate is the first one. Recorded here so
+      the measurement isn't repeated.
 
 Two more surfaced by the search design pass (2026-07-27), neither its to fix:
 
