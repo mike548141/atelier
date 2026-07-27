@@ -322,6 +322,11 @@ class ConfigError(RuntimeError):
 
 
 PLANES = ("hook", "ci")
+# Every key a `local.<name>` declaration may carry. Kept beside the parser that
+# reads them so adding a key here and reading it there stay one edit apart —
+# a key added to the parser but not to this set would be rejected as unknown,
+# which fails in the safe direction (loudly, at parse time).
+LOCAL_KEYS = frozenset({"run", "why", "planes", "args", "scope"})
 
 
 def _load_local(raw: object) -> tuple[Scanner, ...]:
@@ -351,6 +356,22 @@ def _load_local(raw: object) -> tuple[Scanner, ...]:
             raise ConfigError(
                 f"{CONFIG_NAME}: `local.{name}` must be an object with at least "
                 "`run` and `why`"
+            )
+
+        # Unknown keys were read past in silence, which relaxed this file's own
+        # "a config cannot quietly mean less than it says" invariant exactly
+        # where it is enforced for top-level scanner names. The cost is not
+        # cosmetic: a `planes` typo leaves the default in place, so a tripwire
+        # meant for the hook alone also runs on CI, and an `args` typo silently
+        # drops the arguments so the check runs against nothing (local seam cold
+        # pass, LS4). Same fail-closed shape as an unknown scanner name.
+        unknown_keys = sorted(set(decl) - LOCAL_KEYS)
+        if unknown_keys:
+            raise ConfigError(
+                f"{CONFIG_NAME}: `local.{name}` has unknown "
+                f"{', '.join(repr(k) for k in unknown_keys)} "
+                f"(known: {', '.join(sorted(LOCAL_KEYS))}). A typo here changes "
+                "which planes run or drops the check's arguments, silently."
             )
 
         run = str(decl.get("run", "") or "").strip()
@@ -592,6 +613,27 @@ class Result:
         return self.state == "enforced" and self.rc != 0
 
 
+def _wc(text: str) -> str:
+    """Encode a value for interpolation into a GitHub Actions `::` workflow
+    command.
+
+    Actions parses its log commands line by line, so a newline inside an
+    interpolated value ENDS the command and lets whatever follows be read as a
+    fresh one. Before the repo-local seam this channel only ever carried
+    hardcoded registry strings; the seam feeds it child-authored `name`/`why`
+    text, and on a repo whose CI runs against pull requests that text can come
+    from a contributor — a `why` carrying a newline plus `::error::` injects a
+    spoofed annotation into the base repo's log (local seam cold pass, LS1).
+
+    `%25` goes first or it would re-encode the escapes produced after it. This
+    is GitHub's own documented mitigation for the workflow-command-injection
+    class, so it belongs at the point of interpolation rather than in a
+    validator someone can forget to call."""
+    return (text.replace("%", "%25")
+                .replace("\r", "%0D")
+                .replace("\n", "%0A"))
+
+
 def resolve_tools_dir(explicit: str | None) -> Path:
     """Where atelier's scanners live. Env wins (so a test or CI run can redirect
     without touching a repo's config), then the baked git config, then this
@@ -714,7 +756,13 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
     results: list[Result] = []
     for scanner, state in plan(plane, cfg):
         if state == "disabled":
-            results.append(Result(scanner.name, state, 0, cfg.disabled[scanner.name]))
+            # `local=` here for the same reason the other four branches carry
+            # it: without it a --json consumer cannot tell a disabled LOCAL
+            # check from a disabled fleet one, and the render drops the `· local`
+            # tag that says which repo's decision this was (local seam cold
+            # pass, LS5).
+            results.append(Result(scanner.name, state, 0, cfg.disabled[scanner.name],
+                                  local=scanner.is_local))
             continue
         if state == "skipped":
             reason = ("no licence declared" if scanner.opt_in
@@ -752,6 +800,34 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
             results.append(Result(scanner.name, "enforced", 1, "scanner missing",
                                   local=scanner.is_local))
             continue
+
+        # "`run` must resolve inside the repo" was enforced on the declared
+        # STRING only — `..` and absolute paths are refused at parse time — so a
+        # committed symlink at the run path whose target sits outside the tree
+        # executed out-of-tree code, proved live (local seam cold pass, LS3).
+        # The lexical check cannot see that; only the resolved path can. Marginal
+        # privilege is bounded, since the config author usually owns the repo,
+        # but a stated invariant that holds only against typos and not against
+        # the file system is exactly the kind of overstatement the apex forbids.
+        if scanner.is_local:
+            try:
+                real = path.resolve(strict=True)
+                inside = real.is_relative_to(root.resolve())
+            except (OSError, RuntimeError):
+                inside = False  # a broken or looping symlink is not inside either
+            if not inside:
+                print(
+                    f"floor: {scanner.name} → {scanner.run} resolves outside this "
+                    "repo — BLOCKING (fail closed).\n"
+                    "  The seam runs the repo's OWN committed code. A symlink "
+                    "pointing out of the tree\n"
+                    "  is not this repo's floor, whatever the declared path "
+                    "spells.",
+                    file=sys.stderr,
+                )
+                results.append(Result(scanner.name, "enforced", 1,
+                                      "run resolves outside the repo", local=True))
+                continue
 
         # A non-Python check runs on its own shebang, so it needs the execute
         # bit. Without this it raises PermissionError deep inside subprocess and
@@ -826,12 +902,35 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
         # (`json.loads` on a `::group::` line). Real CI invokes floor.py without
         # --json, so grouping still renders exactly where it is consumed.
         if ci:
-            print(f"::group::{scanner.name} ({state})", file=child_stdout, flush=True)
-        rc = subprocess.run(argv, check=False, stdout=child_stdout).returncode
+            print(f"::group::{_wc(scanner.name)} ({state})",
+                  file=child_stdout, flush=True)
+        try:
+            rc = subprocess.run(argv, check=False, stdout=child_stdout).returncode
+        except OSError as exc:
+            # The exec-bit guard above has a sibling: an EXECUTABLE non-Python
+            # script with no valid shebang raises Errno 8 here and takes the
+            # whole floor down with a traceback — no summary, and any local
+            # check after it never runs. That is fail-closed by exit code but
+            # not by clean message, which is the very failure the exec-bit
+            # guard was written to prevent: a crash reads as broken tooling
+            # rather than as the config error it is (local seam cold pass, LS2).
+            print(
+                f"floor: {scanner.name} → {scanner.run or path.name} could not be "
+                f"executed ({exc.strerror or exc}) — BLOCKING (fail closed).\n"
+                "  An executable script needs a valid shebang line (e.g. "
+                "`#!/usr/bin/env bash`),\n"
+                "  or give it a .py suffix to run under this interpreter.",
+                file=sys.stderr,
+            )
+            results.append(Result(scanner.name, "enforced", 1, "not executable",
+                                  local=scanner.is_local))
+            if ci:
+                print("::endgroup::", file=child_stdout, flush=True)
+            continue
         if ci:
             print("::endgroup::", file=child_stdout, flush=True)
             if rc != 0 and state == "enforced":
-                print(f"::error::{scanner.name} failed — {scanner.why}",
+                print(f"::error::{_wc(scanner.name)} failed — {_wc(scanner.why)}",
                       file=child_stdout, flush=True)
         # Read off the argv actually invoked, not off the plane name — the
         # rendered command is the only thing that knows what cover this run had.

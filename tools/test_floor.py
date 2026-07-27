@@ -313,6 +313,31 @@ class LocalSeamTest(unittest.TestCase):
             with self.assertRaises(floor.ConfigError):
                 _cfg({"local": {"t": {"run": bad, "why": "w"}}})
 
+    def test_unknown_keys_in_a_local_declaration_are_refused(self):
+        """Local seam cold pass, LS4. Extras were read past in silence, which
+        relaxed this file's own "a config cannot quietly mean less than it says"
+        rule exactly where it IS enforced for scanner names. The failures are
+        not cosmetic: a `planes` typo leaves the default in place, so a
+        hook-only tripwire also runs on CI, and an `args` typo drops the
+        arguments so the check runs against nothing."""
+        for bad in ({"plane": ["hook"]}, {"arg": ["--x"]}, {"scopes": ["src"]},
+                    {"nonsense": 1}):
+            decl = {"run": "tools/t.py", "why": "w", **bad}
+            with self.assertRaises(floor.ConfigError, msg=repr(bad)):
+                _cfg({"local": {"t": decl}})
+
+    def test_every_key_the_parser_reads_is_a_known_key(self):
+        """The set and the parser must not drift apart: a key the parser reads
+        but the set omits would be rejected as unknown the first time a child
+        used it, which fails safely but confusingly."""
+        self.assertEqual(floor.LOCAL_KEYS,
+                         frozenset({"run", "why", "planes", "args", "scope"}))
+        # And a fully-populated declaration still parses.
+        cfg = _cfg({"local": {"t": {"run": "tools/t.py", "why": "w",
+                                    "planes": ["hook"], "args": ["--x"],
+                                    "scope": ["src"]}}})
+        self.assertEqual(cfg.local[0].name, "t")
+
     def test_a_local_check_states_what_it_protects(self):
         for bad in ({"run": "x.py"}, {"run": "x.py", "why": "  "}, {"why": "w"}):
             with self.assertRaises(floor.ConfigError):
@@ -400,6 +425,108 @@ class LocalSeamInvocationTest(unittest.TestCase):
             self.assertEqual(r.returncode, 1)
             self.assertIn("fail closed", r.stderr.lower())
             self.assertIn("tripwire", r.stderr)
+
+    def test_a_child_authored_why_cannot_forge_an_actions_annotation(self):
+        """Local seam cold pass, LS1. Actions parses its `::` log commands line
+        by line, so a newline inside an interpolated value ends the command and
+        lets what follows be read as a fresh one. Before the seam this channel
+        carried only hardcoded registry strings; the seam feeds it
+        child-authored text, and on a repo whose CI runs against pull requests
+        that text can come from a contributor.
+
+        GITHUB_ACTIONS is set explicitly rather than inherited: annotation mode
+        is env-gated, so a test that merely runs the floor would pass on a
+        laptop by never entering the branch it means to exercise."""
+        payload = ("legit\n::error::INJECTED spoofed annotation\n"
+                   "::set-output name=x::pwn")
+        with tempfile.TemporaryDirectory() as td:
+            root = self._repo(td, {"run": "tools/tripwire.py", "why": payload},
+                              "import sys; sys.exit(1)")
+            r = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "floor.py"),
+                 "--plane", "ci", "--root", str(root)],
+                capture_output=True, text=True,
+                env={**os.environ, "GITHUB_ACTIONS": "true"},
+            )
+        # The payload must survive as inert TEXT on one line, not as a command.
+        self.assertNotIn("\n::error::INJECTED", r.stdout)
+        self.assertNotIn("\n::set-output", r.stdout)
+        self.assertIn("%0A", r.stdout, "the newline must be encoded, not dropped")
+        # ...and the real annotation is still emitted, or the encoding has
+        # simply broken the feature it was protecting.
+        self.assertIn("::error::tripwire failed", r.stdout)
+
+    def test_a_percent_in_a_why_is_encoded_before_the_newlines(self):
+        """Order matters: encoding `%` after the newline escapes would
+        re-encode the `%` in `%0A` and corrupt every annotation."""
+        self.assertEqual(floor._wc("100%\nx"), "100%25%0Ax")
+
+    def test_a_symlink_out_of_the_tree_does_not_execute(self):
+        """Local seam cold pass, LS3. "`run` must resolve inside the repo" was
+        enforced on the declared STRING only, so a committed symlink whose
+        target sits outside the tree executed out-of-tree code — proved live.
+        The lexical test above cannot see this: it never plants a symlink, so
+        the suite overstated what the guard did."""
+        with tempfile.TemporaryDirectory() as td, \
+                tempfile.TemporaryDirectory() as outside:
+            evil = Path(outside) / "EVIL.py"
+            evil.write_text("open('" + str(Path(outside) / "ran") + "', 'w').close()",
+                            encoding="utf-8")
+            root = self._repo(td, {"run": "tools/tripwire.py", "why": "w"})
+            link = root / "tools" / "tripwire.py"
+            link.parent.mkdir(parents=True, exist_ok=True)
+            link.symlink_to(evil)
+            r = self._floor(root)
+            self.assertEqual(r.returncode, 1)
+            self.assertIn("resolves outside", r.stderr)
+            self.assertFalse((Path(outside) / "ran").exists(),
+                             "out-of-tree code must not have executed")
+
+    def test_a_symlink_staying_inside_the_tree_still_runs(self):
+        """The complement — the guard must not break the legitimate case of a
+        repo symlinking its own committed script."""
+        with tempfile.TemporaryDirectory() as td:
+            root = self._repo(td, {"run": "tools/tripwire.py", "why": "w"},
+                              "import sys; sys.exit(0)", name="tools/real.py")
+            (root / "tools" / "tripwire.py").symlink_to(root / "tools" / "real.py")
+            r = self._floor(root)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            got = {x["name"]: x for x in json.loads(r.stdout)["results"]}["tripwire"]
+            self.assertEqual(got["state"], "enforced")
+
+    def test_an_unrunnable_script_blocks_cleanly_instead_of_crashing(self):
+        """Local seam cold pass, LS2. The exec-bit guard had an unguarded
+        sibling: an EXECUTABLE non-Python script with no valid shebang raised
+        Errno 8 out of subprocess and took the whole floor down with a
+        traceback — no summary, and any local check after it never ran. That is
+        fail-closed by exit code but not by clean message, which is precisely
+        what the exec-bit guard exists to avoid."""
+        with tempfile.TemporaryDirectory() as td:
+            root = self._repo(td, {"run": "tools/tripwire.sh", "why": "w"},
+                              "this is not a script", name="tools/tripwire.sh")
+            (root / "tools" / "tripwire.sh").chmod(0o755)
+            r = self._floor(root)
+            self.assertEqual(r.returncode, 1)
+            self.assertNotIn("Traceback", r.stderr)
+            self.assertIn("shebang", r.stderr)
+            # The summary must survive: a floor that dies mid-list has reported
+            # nothing about the checks that never got to run.
+            self.assertIn("tripwire", r.stdout)
+
+    def test_a_disabled_local_check_keeps_its_local_marking(self):
+        """Local seam cold pass, LS5. Every other branch passes `local=`; the
+        disabled one did not, so a --json consumer could not tell a disabled
+        LOCAL check from a disabled fleet one, and the render dropped the
+        `· local` tag that says whose decision it was."""
+        with tempfile.TemporaryDirectory() as td:
+            root = self._repo(td, {"run": "tools/tripwire.py", "why": "w"},
+                              "import sys; sys.exit(0)")
+            cfg = json.loads((root / floor.CONFIG_NAME).read_text())
+            cfg["disabled"] = {"tripwire": "probe reason"}
+            (root / floor.CONFIG_NAME).write_text(json.dumps(cfg), encoding="utf-8")
+            r = self._floor(root)
+            got = {x["name"]: x for x in json.loads(r.stdout)["results"]}["tripwire"]
+            self.assertEqual((got["state"], got["local"]), ("disabled", True))
 
     def test_a_failing_local_check_blocks_the_floor(self):
         with tempfile.TemporaryDirectory() as td:
