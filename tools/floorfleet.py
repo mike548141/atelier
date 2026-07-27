@@ -158,6 +158,11 @@ class ChildFloor:
     # rule the estate cannot reason about — and unlike a fleet check, nobody
     # else's floor will ever mention it.
     local: dict[str, str] = field(default_factory=dict)  # name -> why
+    # atelier's own row. It conforms by RUNNING the floor it ships rather than
+    # by calling a shared one, so it is counted and worded separately — but it
+    # is held in the same list and judged by the same `ok`, because a parent
+    # exempt from its own board is how the parent stopped being checked at all.
+    is_parent: bool = False
     # WHERE a check looks and WHAT ARGUMENTS it gets. Both narrow a check's
     # cover without removing it, so before this they were the one softening no
     # board read — `floor.py` claimed they were "read out estate-wide by
@@ -251,6 +256,75 @@ def hook_state(child: Path) -> str:
     return "none"
 
 
+# The parent runs the floor from its OWN ci.yml, not through a caller — it
+# holds the reusable workflow rather than pointing at one. Matching a caller
+# line would therefore never fit it, and running the child classifier over its
+# floor.yml reads the reusable workflow's scanner names as a stale vendored
+# copy: exactly backwards.
+PARENT_RUN_RE = re.compile(r"floor\.py\s+--plane\s+ci\b")
+PARENT_WORKFLOWS = ".github/workflows"
+
+
+def _repo_name(repo: Path) -> str:
+    """The repo's name, not the directory's. These differ inside a git worktree,
+    and this repo's own doctrine says to take a worktree for write-heavy work —
+    so the naive basename would label the parent row with a branch-shaped
+    scratch name on exactly the sessions most likely to be changing the floor.
+    `--git-common-dir` points at the main checkout's .git from any worktree."""
+    try:
+        out = subprocess.run(["git", "-C", str(repo), "rev-parse",
+                              "--git-common-dir"],
+                             capture_output=True, text=True, check=False)
+        if out.returncode == 0 and out.stdout.strip():
+            common = Path(out.stdout.strip())
+            if not common.is_absolute():
+                common = (repo / common)
+            return common.resolve().parent.name
+    except OSError:
+        pass
+    return repo.name
+
+
+def evaluate_parent(atelier: Path) -> ChildFloor:
+    """atelier's own row.
+
+    Discovery walks CHILDREN, so the repo that defines the floor was
+    structurally invisible to the board whose whole purpose is proving
+    conformance — a parent that quietly dropped its own floor is precisely what
+    ADR 0008 says enumeration must catch, and nothing would have. That is the
+    same defect as an unwired child, one level up (roadmap A5b; A5a was its
+    other half, where the parent genuinely was not running the floor it ships).
+
+    Conformance means something different here and the row says which: a child
+    proves it CALLS the shared floor, while the parent proves it RUNS the floor
+    it ships, over its own tree, with its scoping declared the way a child
+    declares it."""
+    text = ""
+    wf = atelier / PARENT_WORKFLOWS
+    if wf.is_dir():
+        for path in sorted(wf.glob("*.yml")):
+            # floor.yml is the reusable workflow the CHILDREN call; it proves
+            # nothing about whether the parent runs the floor over itself.
+            if path.name == "floor.yml":
+                continue
+            try:
+                text += path.read_text(encoding="utf-8")
+            except OSError:
+                continue
+    if PARENT_RUN_RE.search(text):
+        state, detail = "wired", "runs the floor it ships, over its own tree"
+    else:
+        state, detail = "absent", ("ships the floor and does not run it — "
+                                   "no `floor.py --plane ci` in its own workflows")
+    info = _read_declarations(atelier, _read_local, state, detail)
+    info.name = f"{_repo_name(atelier)} (parent)"
+    info.path = str(atelier)
+    info.is_parent = True
+    info.hook = hook_state(atelier)
+    info.shim = shim_state(_read_local, atelier)
+    return info
+
+
 def terms_state() -> tuple[bool, str]:
     """Does this machine carry the leakscan term list? Returns (present, detail).
 
@@ -282,17 +356,18 @@ def _str_lists(raw: object) -> dict[str, list[str]]:
     return out
 
 
-def evaluate(child: Path, remote: bool) -> ChildFloor:
-    read = _read_remote if remote else _read_local
-    state, detail = classify(read(child, FLOOR_PATH))
-
+def _read_declarations(repo: Path, read, state: str, detail: str) -> ChildFloor:
+    """The `.atelier-floor.json` half of a row, shared by the child path and the
+    parent path. Only how a repo's floor is WIRED differs between them; what it
+    declares is the same file in the same format, and reading it twice in two
+    places is how the two rows would come to disagree."""
     advisory: list[str] = []
     disabled: dict[str, str] = {}
     local: dict[str, str] = {}
     scope: dict[str, list[str]] = {}
     flags: dict[str, list[str]] = {}
     docs = ""
-    raw = read(child, CONFIG_PATH)
+    raw = read(repo, CONFIG_PATH)
     if raw:
         try:
             cfg = json.loads(raw)
@@ -314,10 +389,16 @@ def evaluate(child: Path, remote: bool) -> ChildFloor:
         except ValueError:
             detail += " (unreadable .atelier-floor.json)"
 
-    return ChildFloor(name=child.name, path=str(child), state=state, detail=detail,
-                      hook=hook_state(child), shim=shim_state(read, child),
+    return ChildFloor(name=repo.name, path=str(repo), state=state, detail=detail,
+                      hook=hook_state(repo), shim=shim_state(read, repo),
                       advisory=advisory, disabled=disabled, local=local,
                       scope=scope, flags=flags, docs=docs)
+
+
+def evaluate(child: Path, remote: bool) -> ChildFloor:
+    read = _read_remote if remote else _read_local
+    state, detail = classify(read(child, FLOOR_PATH))
+    return _read_declarations(child, read, state, detail)
 
 
 ICON = {"wired": "✅", "pinned": "📌", "vendored": "🛑", "absent": "🛑",
@@ -333,7 +414,9 @@ def render(infos: list[ChildFloor], remote: bool) -> str:
     plane = "GitHub default branches" if remote else "local working copies"
     lines = [f"atelier floor — estate conformance  ({plane})", ""]
     width = max((len(i.name) for i in infos), default=10)
-    for i in sorted(infos, key=lambda x: (x.ok, x.name.lower())):
+    # Parent first, then failures, then the rest — the two rows a reader needs
+    # before the ones that are fine.
+    for i in sorted(infos, key=lambda x: (not x.is_parent, x.ok, x.name.lower())):
         lines.append(f"  {ICON.get(i.state, '?')} {i.name:<{width}}  "
                      f"{i.state:<9} {SHIM_ICON.get(i.shim, '?')} shim:{i.shim:<8} "
                      f"{HOOK_ICON.get(i.hook, '?')} hook:{i.hook:<9} "
@@ -367,8 +450,18 @@ def render(infos: list[ChildFloor], remote: bool) -> str:
         lines.append("")
         lines.append("  Wire one with the thin caller in "
                      "docs/build/templates/workflows/floor.yml")
+        if any(i.is_parent for i in bad):
+            # Worth its own line: the parent's remedy is not a caller, so the
+            # advice above does not fit it, and a parent that ships a floor it
+            # does not run is the failure with the widest reach.
+            lines.append("  The PARENT's remedy is different: it runs the floor "
+                         "it ships, so its own")
+            lines.append("  workflow needs `python3 tools/floor.py --plane ci "
+                         "--root .`")
     else:
-        lines.append(f"  all {len(infos)} children call atelier's floor ✓")
+        kids = sum(1 for i in infos if not i.is_parent)
+        lines.append(f"  all {kids} children call atelier's floor ✓  "
+                     "(and the parent runs it)")
 
     # The personal-data half of leakscan, reported as what it actually is: a
     # fact about THIS MACHINE, not about any repo. A per-child column would have
@@ -499,6 +592,13 @@ def main(argv: list[str] | None = None) -> int:
 
     infos = [evaluate(c, args.remote) for c in
              sorted(children, key=lambda p: p.name.lower())]
+    # The parent goes on its own board. Discovery walks children, so without
+    # this the one repo that DEFINES the floor is the one repo never checked
+    # against it (roadmap A5b). Read locally even under --remote: --remote
+    # answers "what runs on GitHub's default branch" for repos this machine may
+    # not hold, whereas the parent is the checkout this tool is running from,
+    # and claiming a remote reading of it would be the stronger claim.
+    infos.insert(0, evaluate_parent(atelier))
 
     if args.json:
         terms_present, terms_detail = terms_state()

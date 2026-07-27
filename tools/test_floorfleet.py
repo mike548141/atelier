@@ -258,6 +258,88 @@ class TrackedShimTest(unittest.TestCase):
         self.assertNotIn("Tracked shim missing", out)
 
 
+class ParentRowTest(unittest.TestCase):
+    """atelier's own conformance — roadmap A5b.
+
+    Discovery walks CHILDREN, so the repo that defines the floor was the one
+    repo the board never checked. A parent that quietly dropped its own floor
+    is exactly what ADR 0008 says enumeration must catch, and nothing would
+    have. A5a was the other half of the same defect, where the parent genuinely
+    was not running the floor it ships."""
+
+    def _atelier(self, ci_body: str) -> Path:
+        td = tempfile.mkdtemp()
+        root = Path(td) / "atelier"
+        (root / ".github" / "workflows").mkdir(parents=True)
+        # The reusable workflow the children call. It proves nothing about
+        # whether the parent runs the floor over ITSELF, which is the point.
+        (root / ".github" / "workflows" / "floor.yml").write_text(
+            "jobs:\n  floor:\n    steps:\n"
+            "      - run: python3 atelier/tools/floor.py --plane ci --root repo\n")
+        (root / ".github" / "workflows" / "ci.yml").write_text(ci_body)
+        return root
+
+    def test_a_parent_that_runs_its_own_floor_is_wired(self):
+        root = self._atelier("jobs:\n  t:\n    steps:\n"
+                             "      - run: python3 tools/floor.py --plane ci --root .\n")
+        info = floorfleet.evaluate_parent(root)
+        self.assertEqual(info.state, "wired")
+        self.assertTrue(info.ok)
+        self.assertTrue(info.is_parent)
+
+    def test_a_parent_that_ships_the_floor_and_drops_it_is_caught(self):
+        root = self._atelier("jobs:\n  t:\n    steps:\n      - run: echo nothing\n")
+        info = floorfleet.evaluate_parent(root)
+        self.assertEqual(info.state, "absent")
+        self.assertFalse(info.ok, "--check must red on this")
+        self.assertIn("does not run it", info.detail)
+
+    def test_the_reusable_workflow_alone_does_not_count_as_conformance(self):
+        """floor.yml runs the floor over the CALLER's tree, never the parent's.
+        Reading it as proof would be the exact self-exemption A5a was."""
+        root = self._atelier("jobs:\n  t:\n    steps:\n      - run: echo nothing\n")
+        self.assertEqual(floorfleet.evaluate_parent(root).state, "absent")
+
+    def test_the_parent_is_not_counted_among_the_children(self):
+        parent = floorfleet.ChildFloor(name="atelier (parent)", path="/a",
+                                       state="wired", detail="d", is_parent=True)
+        child = floorfleet.ChildFloor(name="kid", path="/k",
+                                      state="wired", detail="d")
+        board = floorfleet.render([parent, child], remote=False)
+        self.assertIn("all 1 children", board)
+        # ...and it leads the board: a reader wants the parent and the failures
+        # before the rows that are fine.
+        rows = [ln for ln in board.splitlines() if "wired" in ln]
+        self.assertIn("(parent)", rows[0])
+
+    def test_the_parents_remedy_is_stated_separately(self):
+        """The "wire a thin caller" advice does not fit the parent — it holds
+        the reusable workflow rather than calling one."""
+        parent = floorfleet.ChildFloor(name="atelier (parent)", path="/a",
+                                       state="absent", detail="d", is_parent=True)
+        board = floorfleet.render([parent], remote=False)
+        self.assertIn("PARENT's remedy is different", board)
+        self.assertIn("--plane ci --root .", board)
+
+    def test_the_row_is_named_for_the_repo_not_the_worktree(self):
+        """This repo's own doctrine says take a worktree for write-heavy work,
+        so the naive basename would mislabel the parent row on exactly the
+        sessions most likely to be changing the floor."""
+        with tempfile.TemporaryDirectory() as td:
+            main = Path(td) / "atelier"
+            main.mkdir()
+            subprocess.run(["git", "-C", str(main), "init", "-q"], check=True)
+            (main / "f").write_text("x")
+            for args in (["add", "f"],
+                         ["-c", "user.email=t@example.invalid",  # leakscan:allow: RFC-2606 fixture identity for a throwaway test repo
+                          "-c", "user.name=t", "commit", "-qm", "x"]):
+                subprocess.run(["git", "-C", str(main), *args], check=True)
+            wt = Path(td) / "wt-scratch-name"
+            subprocess.run(["git", "-C", str(main), "worktree", "add", "-q",
+                            str(wt), "-b", "scratch"], check=True)
+            self.assertEqual(floorfleet._repo_name(wt), "atelier")
+
+
 class TermsStateTest(unittest.TestCase):
     """The personal-data half of leakscan, reported as a MACHINE fact.
 
