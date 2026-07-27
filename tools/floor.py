@@ -34,14 +34,22 @@ A scanner is not invoked identically everywhere, and pretending otherwise would
 be the wrong kind of uniformity:
 
   hook  a pre-commit gate on a real machine. Boundary scanners read only the
-        STAGED diff so the commit hot path stays fast, and leakscan has its
-        machine-local term list, so its cover is FULL.
+        STAGED diff so the commit hot path stays fast, and leakscan runs with
+        --require-terms, so its cover is FULL or the commit does not happen.
+        That flag is what makes this paragraph a fact: until it was added, a
+        clone with no term list silently got the CI-grade cover described
+        below while every artefact here claimed otherwise, and the floor still
+        printed a green tick (ADR 0008 cold pass, EP3). A machine can hold the
+        list; that is exactly what distinguishes this plane from the next.
   ci    a backstop on a runner nobody configured. Reads the whole TREE (the
         scanners read files, not the log, and a rename breaks a link outside the
         diff). leakscan runs STRUCTURAL-ONLY here and always will: its literal
         person/estate term list is machine-local by design and must never enter
         a repo or a runner (`SECRETS.md`). A degraded, *declared* CI cover is the
-        honest answer; the full cover lives on the hook.
+        honest answer; the full cover lives on the hook. Declared in prose is
+        not enough on its own, so the result also renders 🟡 partial here
+        rather than ✅ — identical output for materially different cover is the
+        claim, not the check (`Scanner.full_cover_flag`).
 
 Both planes read this one registry, so a scanner added here reaches every child's
 hook and every child's CI at once, with no child edit.
@@ -207,6 +215,13 @@ class Scanner:
     # `scope` map: the child is declaring the check and where it looks in one
     # place, and there is no fleet-wide default to override.
     scope_paths: tuple[str, ...] = ()
+    # The flag that makes this check's cover COMPLETE, for a check whose cover
+    # depends on an input the repo does not carry. A plane whose template omits
+    # it still passes, but it passes on less — so the result renders as partial
+    # rather than as a plain green tick. Without this the two-plane design was
+    # asserted and never shown: a structural-only leakscan rendered `✅
+    # enforced`, identical to a full-cover one (ADR 0008 cold pass, EP3).
+    full_cover_flag: str | None = None
 
     @property
     def is_local(self) -> bool:
@@ -224,10 +239,19 @@ SCANNERS: tuple[Scanner, ...] = (
     ),
     Scanner(
         "leakscan",
-        hook=["--staged", "--root", "{root}", "{scope}"],
+        # --require-terms is what makes "the full cover lives on the hook" a
+        # fact rather than a claim. Without it a clone with no machine-local
+        # term list silently degraded to a structural-only scan and still
+        # rendered `✅ enforced` — CI-grade cover from the plane the design
+        # says carries the personal-data boundary. It fails closed with the
+        # remedy leakscan already prints; the term list lives in ~/.claude/,
+        # outside every repo, so this costs one onboarding step and nothing in
+        # CI, which runs the ci template below.
+        hook=["--staged", "--root", "{root}", "--require-terms", "{scope}"],
         ci=["--root", "{root}", "{scope}"],  # structural-only: no --require-terms
         advisory=None,  # the personal-data boundary is not a re-baselining matter
         why="no personal/estate data enters a repo that can go public",
+        full_cover_flag="--require-terms",
     ),
     Scanner(
         "linkscan",
@@ -556,6 +580,12 @@ class Result:
     rc: int
     reason: str = ""
     local: bool = False  # declared by this repo, not inherited from the fleet
+    # Why this pass covers less than the check's full form, when it does. A
+    # partial pass is still a pass and still blocks on what it did check — but
+    # it must not render as a plain green tick, because a reader who cannot
+    # tell full cover from partial has been told the check ran, not what it
+    # checked (ADR 0008 cold pass, EP3).
+    partial: str = ""
 
     @property
     def failed(self) -> bool:
@@ -803,7 +833,14 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
             if rc != 0 and state == "enforced":
                 print(f"::error::{scanner.name} failed — {scanner.why}",
                       file=child_stdout, flush=True)
-        results.append(Result(scanner.name, state, rc, local=scanner.is_local))
+        # Read off the argv actually invoked, not off the plane name — the
+        # rendered command is the only thing that knows what cover this run had.
+        partial = ""
+        if scanner.full_cover_flag and scanner.full_cover_flag not in argv:
+            partial = (f"partial cover — no {scanner.full_cover_flag} on the "
+                       f"{plane} plane")
+        results.append(Result(scanner.name, state, rc, local=scanner.is_local,
+                              partial=partial))
     return results
 
 
@@ -811,8 +848,13 @@ def render(results: list[Result], plane: str) -> str:
     icon = {"enforced": "✅", "advisory": "⚠️ ", "disabled": "⏭ ", "skipped": "⏭ "}
     lines = [f"atelier floor — {plane} plane"]
     for r in results:
-        mark = "❌" if r.failed else icon[r.state]
-        note = f"  ({r.reason})" if r.reason else ""
+        # A partial pass gets its own mark. It passed and it blocks, so it is
+        # not ❌ — but rendering it ✅ beside a full-cover check is the exact
+        # claim EP3 caught: identical output for materially different cover.
+        mark = "❌" if r.failed else ("🟡" if r.partial and not r.failed
+                                      else icon[r.state])
+        note = f"  ({r.reason})" if r.reason else (
+            f"  ({r.partial})" if r.partial else "")
         # A local check is marked, not segregated: it blocks the same commit as
         # a fleet check, so it belongs in the same list — but a reader must be
         # able to tell which line came from this repo's own decision.

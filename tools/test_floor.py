@@ -75,13 +75,32 @@ class RegistryTest(unittest.TestCase):
             self.assertIsNotNone(floor.BY_NAME[name].advisory,
                                  f"{name} needs an advisory form for adoption")
 
-    def test_leakscan_never_demands_the_machine_local_term_list(self):
+    def test_ci_never_demands_the_machine_local_term_list(self):
         """--require-terms would demand a list CI cannot (and must not) hold:
         the person/estate terms are machine-local by design (SECRETS.md). CI's
         structural-only cover is the honest degradation — but only as long as
-        nobody 'strengthens' it here, which would red every child at once."""
-        for form in (floor.BY_NAME["leakscan"].hook, floor.BY_NAME["leakscan"].ci):
-            self.assertNotIn("--require-terms", form)
+        nobody 'strengthens' it here, which would red every child at once.
+
+        Narrowed from a both-planes ban (ADR 0008 cold pass, EP3). The ban is
+        right for CI and was wrong for the hook: it read the two planes as one
+        and so forbade the flag on the plane the design says carries the full
+        cover. A developer machine can hold the list; a runner cannot."""
+        self.assertNotIn("--require-terms", floor.BY_NAME["leakscan"].ci)
+
+    def test_the_hook_plane_demands_the_term_list_it_claims_to_have(self):
+        """The complement, and the reason the ban above had to be narrowed
+        rather than deleted. "The full cover lives on the hook" was asserted in
+        the registry, the workflow header and ADR 0008, and enforced nowhere —
+        a clone with no term list got CI-grade cover from its pre-commit gate
+        while every artefact said otherwise, and the floor still printed
+        `✅ leakscan enforced`."""
+        self.assertIn("--require-terms", floor.BY_NAME["leakscan"].hook)
+
+    def test_a_plane_without_full_cover_does_not_render_as_a_plain_pass(self):
+        """The measurement half of the same ruling: CI stays structural-only,
+        so it must SAY so rather than render identically to a full-cover run."""
+        self.assertEqual(floor.BY_NAME["leakscan"].full_cover_flag,
+                         "--require-terms")
 
     def test_advisory_form_actually_softens(self):
         """An 'advisory' state that still blocked would be the worst outcome:

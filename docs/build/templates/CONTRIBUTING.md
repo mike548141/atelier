@@ -20,6 +20,22 @@ git config core.hooksPath .githooks
 git config hooks.atelierTools "<atelier-path>/tools"
 ```
 
+Once per **machine**, not per clone — the personal-data half of `leakscan`:
+
+```sh
+cp "<atelier-path>/tools/leakscan-terms.example.txt" ~/.claude/leakscan-terms.txt
+# then fill it in with your estate's literal sensitive strings
+```
+
+This list is what `leakscan` matches your own names, addresses and identifiers
+against; the shipped structural patterns only catch the *shape* of sensitive
+data. It lives in `~/.claude/`, outside every repo, because the list itself is
+the leak if committed. The hook runs `leakscan --require-terms`, so **without
+it your first commit blocks** rather than passing on half a check — that block
+is deliberate, and it is not a broken tool. CI has no such list and never will,
+which is why CI's `leakscan` is structural-only and reports itself as partial
+cover rather than as a clean pass.
+
 Prove it landed — this should print the checks and their state, not an error:
 
 ```sh

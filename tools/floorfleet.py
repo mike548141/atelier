@@ -100,6 +100,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import pins  # noqa: E402  — the shared fleet-discovery building block
+# Imported for its term-list resolution ONLY, so the board and the scanner
+# cannot disagree about where the list lives. Re-implementing the lookup here
+# would be the two-lists bug this whole design exists to avoid.
+import leakscan  # noqa: E402
 
 FLOOR_PATH = ".github/workflows/floor.yml"
 CONFIG_PATH = ".atelier-floor.json"
@@ -247,6 +251,21 @@ def hook_state(child: Path) -> str:
     return "none"
 
 
+def terms_state() -> tuple[bool, str]:
+    """Does this machine carry the leakscan term list? Returns (present, detail).
+
+    Asked through leakscan's own resolver so the answer cannot drift from the
+    scanner's. This is the measurement half of the two-plane design: the hook
+    plane now REFUSES to pass without a term list, so the board reporting the
+    list's absence is what turns "the hook has full cover" from an inference
+    into something an operator can see before their first commit fails."""
+    path = leakscan.resolve_terms_path(None)
+    if path is None:
+        return False, (f"absent on this machine (looked for $ATELIER_LEAKSCAN_TERMS, "
+                       f"then {leakscan.DEFAULT_LOCAL_TERMS})")
+    return True, f"present at {path}"
+
+
 def _str_lists(raw: object) -> dict[str, list[str]]:
     """`scope`/`flags` as declared: name -> list of strings. Same contract as
     `local` below — report what the config SAYS, never what floor.py would make
@@ -350,6 +369,26 @@ def render(infos: list[ChildFloor], remote: bool) -> str:
                      "docs/build/templates/workflows/floor.yml")
     else:
         lines.append(f"  all {len(infos)} children call atelier's floor ✓")
+
+    # The personal-data half of leakscan, reported as what it actually is: a
+    # fact about THIS MACHINE, not about any repo. A per-child column would have
+    # been the wrong shape — the term list lives in ~/.claude/, outside every
+    # repo, so it is identical for all of them and belongs on the board once.
+    # Under --remote the child rows describe GitHub's default branches while
+    # this line still describes the machine you are standing on; the wording
+    # says so rather than leaving a reader to infer it.
+    present, terms_detail = terms_state()
+    lines.append("")
+    if present:
+        lines.append(f"  ✅ personal-data term list: {terms_detail}")
+        lines.append("     hook-plane leakscan has full cover on this machine.")
+    else:
+        lines.append(f"  ❌ personal-data term list: {terms_detail}")
+        lines.append("     Every repo's hook-plane leakscan BLOCKS until one "
+                     "exists — leakscan refuses to")
+        lines.append("     report a structural-only scan as a pass. Copy "
+                     "tools/leakscan-terms.example.txt")
+        lines.append(f"     to {leakscan.DEFAULT_LOCAL_TERMS} and fill it in.")
 
     shimless = [i.name for i in infos if i.shim in ("absent", "legacy")]
     if shimless:
@@ -462,7 +501,11 @@ def main(argv: list[str] | None = None) -> int:
              sorted(children, key=lambda p: p.name.lower())]
 
     if args.json:
+        terms_present, terms_detail = terms_state()
         print(json.dumps({"plane": "remote" if args.remote else "local",
+                          # Machine-local, not per-child — see terms_state().
+                          "terms": {"present": terms_present,
+                                    "detail": terms_detail},
                           "children": [asdict(i) for i in infos]}, indent=2))
     else:
         print(render(infos, args.remote))

@@ -18,16 +18,19 @@ Zero third-party deps, same as the rest of the suite.
 """
 
 import json
+import os
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 TOOLS_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS_DIR))
 
 import floorfleet  # noqa: E402
+import leakscan  # noqa: E402  — to pin that the board reuses its term lookup
 
 THIN_CALLER = """\
 name: floor
@@ -253,6 +256,47 @@ class TrackedShimTest(unittest.TestCase):
                                        hook="tracked", shim="current")]
         out = floorfleet.render(infos, remote=True)
         self.assertNotIn("Tracked shim missing", out)
+
+
+class TermsStateTest(unittest.TestCase):
+    """The personal-data half of leakscan, reported as a MACHINE fact.
+
+    A per-child column would have been the wrong shape: the term list lives in
+    ~/.claude/, outside every repo, so it is identical for all of them. It goes
+    on the board once, and it is what turns "the hook has full cover" from an
+    inference off the block into something an operator can see first."""
+
+    def _render_with(self, terms: str | None) -> str:
+        env = dict(os.environ)
+        env.pop("ATELIER_LEAKSCAN_TERMS", None)
+        if terms is not None:
+            env["ATELIER_LEAKSCAN_TERMS"] = terms
+        else:
+            env["HOME"] = tempfile.mkdtemp()
+        with mock.patch.dict(os.environ, env, clear=True):
+            return floorfleet.render([], remote=False)
+
+    def test_a_present_list_is_reported_as_full_cover(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "terms.txt"
+            p.write_text("zzz-nonsense-term\n", encoding="utf-8")
+            board = self._render_with(str(p))
+        self.assertIn("✅ personal-data term list", board)
+        self.assertIn("full cover on this machine", board)
+
+    def test_an_absent_list_is_reported_with_the_remedy(self):
+        board = self._render_with(None)
+        self.assertIn("❌ personal-data term list", board)
+        # Naming the consequence matters as much as the state: an operator who
+        # reads only "absent" does not know their next commit will block.
+        self.assertIn("BLOCKS", board)
+        self.assertIn("leakscan-terms.example.txt", board)
+
+    def test_the_board_asks_leakscan_rather_than_reimplementing_the_lookup(self):
+        """Two lookups that can disagree is the two-lists bug this whole design
+        exists to avoid — the board would report cover the scanner does not have."""
+        self.assertIs(floorfleet.leakscan.resolve_terms_path,
+                      leakscan.resolve_terms_path)
 
 
 class RenderTest(unittest.TestCase):

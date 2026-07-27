@@ -49,8 +49,19 @@ def _registry_scanners() -> list[str]:
     return [s.name for s in floor.SCANNERS]
 
 
+# The hook plane runs leakscan with --require-terms, so these tests need a term
+# list or every "clean commit passes" case blocks. Pin one INSIDE the fixture
+# rather than inheriting the machine's: without this the suite passes on a
+# developer laptop (which has ~/.claude/leakscan-terms.txt) and fails on every
+# CI runner (which must never have one) — an env-gated split where the local run
+# is the misleading half. Deliberately nonsense so it matches no fixture here.
+_TERMS = Path(tempfile.mkdtemp(prefix="precommit-terms-")) / "leakscan-terms.txt"
+_TERMS.write_text("zzz-term-that-appears-in-no-fixture\n", encoding="utf-8")
+
+
 def _git(repo: Path, *args: str, env: dict | None = None) -> subprocess.CompletedProcess:
     e = os.environ.copy()
+    e["ATELIER_LEAKSCAN_TERMS"] = str(_TERMS)
     if env:
         e.update(env)
     return subprocess.run(
@@ -187,6 +198,28 @@ class PreCommitHookTest(unittest.TestCase):
         r = self._commit(env={"ATELIER_TOOLS": ""})
         self.assertEqual(r.returncode, 0, f"clean commit must pass; stderr: {r.stderr}")
         self.assertEqual(self._commit_count(), 1)
+
+    def test_a_clone_with_no_term_list_blocks_rather_than_half_scanning(self):
+        """ADR 0008 cold pass, EP3. "The full cover lives on the hook" was the
+        design's stated asymmetry with CI, and nothing enforced it: with no
+        machine-local term list leakscan degraded to a structural-only scan, and
+        the floor printed `✅ leakscan enforced` ten lines under leakscan's own
+        warning. A clone got CI-grade cover from the plane that is supposed to
+        carry the personal-data boundary, with no signal anywhere.
+
+        The block is the point: this is the boundary the public-repo rule
+        depends on, so a partial scan must not be reportable as a pass."""
+        _git(self.repo, "config", "hooks.atelierTools", str(TOOLS_DIR))
+        (self.repo / "README.md").write_text("clean content\n")
+        r = self._commit(env={"ATELIER_TOOLS": "",
+                              "ATELIER_LEAKSCAN_TERMS": "/nonexistent/terms.txt",
+                              "HOME": self._tmp})
+        self.assertNotEqual(r.returncode, 0,
+                            "a structural-only hook scan must not pass as full cover")
+        self.assertEqual(self._commit_count(), 0)
+        # The remedy has to travel with the block, or a fresh clone reads this
+        # as broken tooling and reaches for --no-verify.
+        self.assertIn("--require-terms", r.stderr)
 
     # -- 3. env resolution wins over config ------------------------------------
 
