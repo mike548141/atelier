@@ -27,6 +27,303 @@ queued **in the commit that lands the work** — landing = queuing, so no
 window exists where landed doctrine sits unpointed and untracked (AWA2
 ruling, 2026-07-23; its enacting batch exercised exactly that window).
 
+## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
+
+**What this is.** ADR 0008 made enforcement propagate *by call, not by copy*,
+and the rollout landed. This section is the follow-on programme: the holes the
+rollout left, the nine cold review verdicts of 2026-07-26 consolidated into
+buildable work, and the doctrine gaps that let each hole open. Grounded in a
+sweep of every session transcript 2026-07-23 → 2026-07-27 (60 sessions; the
+25th is a gap day), with every claim re-verified against the live repos rather
+than inherited from a record.
+
+**The finding that organises it.** The defect ADR 0008 exists to end kept
+reappearing *inside the fix*: **a check that runs, exits 0, and covers
+nothing.** It appeared in the registry wiring (absolute paths matched no staged
+path), in the boundary scanners (a `--staged` absolute path scanned nothing), in
+the nested-worktree exemptions, and — per the cold passes — in `scope`, in the
+hook plane's `leakscan`, and in `floorfleet`'s own conformance claim. It is one
+class, and the tracks below are ordered by how much of it each closes.
+
+**Sequencing: A → B → C, then D and E.** A is the only track with live
+exposure; B stops it recurring; C stops the slow decay. D and E are real and
+neither is bleeding. **Ruling cadence** (Mike, 2026-07-27): the 56 cold-pass
+findings are ruled *at the point of work*, batched per item, in plain language
+with impacts — not in one cold sitting, which would be an under-contextualised
+ask. Three exceptions are ruled up front because they are live fail-opens whose
+fix shape genuinely branches: EP1, EP3, and the `advisory` schema change (C1).
+
+This section is **refs only** where the work is already queued elsewhere — it
+points, it does not restate (thin anchor, fat pointer). New work is written out
+in the track that owns it.
+
+### Track A — close the fail-opens 🔥
+
+*The floor can report green while checking nothing. The only track with real
+exposure.* Findings are counsel from the 2026-07-26 rule-4 Fable passes; the
+rulings are Mike's (REVIEW rule 3), and each application earns a further cold
+pass while a MAJOR stands.
+
+> 📦 **1 completed item** in this track → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
+>   (A5a — the parent was not running the floor it ships; fixed 2026-07-27).
+>   Its unfixed half is A5b, immediately below.
+
+- [ ] **A5b — give `floorfleet` a parent row.** Discovery walks *children*, so
+      atelier is structurally invisible to the board that exists to prove
+      conformance. A parent that drops the floor is exactly the case ADR 0008
+      says enumeration must catch, and today nothing would. Same defect one
+      level up.
+- [ ] 🎯 **A1 — EP1 (MAJOR): a `scope` path that resolves to nothing silently
+      disables the check.** A one-character typo in a path turns `secretscan`
+      and `leakscan` off and the run exits 0 — proven live with a planted
+      credential fixture: exit 1 with no config, exit 0 with the path
+      misspelt. It hits the two checks the design says may **never** be
+      softened, and `floorfleet` does not read `scope`/`flags` at all (EP2), so
+      nothing anywhere reports the reduction. **Fix shape:** an unresolvable
+      scope path is a hard config error, not a skip — the same call already
+      made for absolute paths in `--staged` mode. **The ruling needed:** that
+      change reds any child whose declared scope has drifted, so it is a
+      fail-closed choice with an immediate blast radius, not a silent
+      improvement. Verdict:
+      [ADR 0008 cold pass](reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md).
+- [ ] 🎯 **A2 — EP3 (MAJOR): the hook plane's `leakscan` cover is asserted,
+      never enforced.** With no machine-local term list, `leakscan` degrades to
+      a structural-only pass — and the board still renders `✅ enforced`, with
+      no signal anywhere that the personal-data half of the check did not run.
+      `--require-terms` exists for precisely this and is used on no line.
+      **The ruling needed:** requiring terms fails closed on any machine or
+      runner without a term list — which is every CI runner by design, and any
+      fresh clone. So the honest options are (a) require terms on the hook
+      plane only, (b) render a degraded pass as degraded rather than enforced,
+      or (c) both. Same verdict file as A1.
+- [ ] **A3 — EP2 (minor, but it is doctrine asserting cover it lacks):**
+      `floor.py`'s own docstring states that `flags`/`scope` are *"read out
+      estate-wide by `floorfleet`"*. They are not — the board reads
+      `advisory`/`disabled`/`local` only. A false claim inside the file that
+      defines the registry is the honesty defect the apex forbids, and it is
+      load-bearing for A1: it is *why* a shrunken scope goes unreported.
+- [ ] **A4 — LS1–LS3 (MEDIUM ×3), the repo-local seam's edges.** All three sit
+      on live enforcement code in every repo:
+      **LS1** a child-authored `why`/`name` is emitted verbatim into the GitHub
+      Actions log-command stream, so a newline-laden value injects spoofed
+      `error`/output lines — before the seam this channel carried only trusted
+      registry strings; fix is to encode the three control sequences.
+      **LS2** an executable non-Python script with no valid shebang crashes the
+      whole floor with an uncaught traceback — the exact failure the exec-bit
+      guard was written to prevent for the sibling error; fail-closed by exit
+      code, not by clean message.
+      **LS3** *"`run` must resolve inside the repo"* is enforced on the path
+      string only, so a committed symlink whose target is outside the tree
+      executes out-of-tree code (proved live); the guard's own test exercises
+      lexical strings only, which overstates it.
+      Plus **LS4** (unknown keys in a local declaration are silently ignored, so
+      a typo quietly changes which planes run) and **LS5** (a disabled local
+      check loses its `local` marking in the render and JSON). Verdict:
+      [floor local seam cold pass](reviews/2026-07-26-2215-floor-local-seam-cold.md).
+
+### Track B — make the enumerator real
+
+*`floorfleet` is what turns "I hope the policy propagated" into "I know it did",
+and nothing runs it.* Three of the four items below already have costed entries
+further down this file; they are pointed at, not restated.
+
+- **B1 — schedule the conformance check.** Four costed options, one explicitly
+  rejected → § *🎯 Schedule the conformance check* below. **Blocked on one
+  unwritten fact**: which repo is the "private estate-root repo" the doctrine
+  keeps referencing. Answer that first — it is reusable well beyond this item.
+- **B2 — `--status` mode** (wired *and* passing, not just wired) and
+  **B3 — the Actions-disabled blind spot** → § *For your consideration* and
+  § *the ranked residual* item 4 below.
+- [ ] **B4 — the roadmap-deletion guard.** `sizescan` catches the two adjacent
+      failures — an un-harvested completed item, and a live checkbox buried in
+      the archive. An item **removed from `ROADMAP.md` that arrives nowhere
+      passes every check.** The tri-state grammar forbids it with no forcing
+      function; this is the fourth member of that family. It must fingerprint
+      *content*, not titles: the 2026-07-26 audit walked 362 commits and found
+      title-matching has a near-total false-positive rate, because a healthy
+      roadmap rewrites titles and re-homes items and both look identical to
+      deletion. Advisory-only is the lean — it fails loudly at the one moment
+      the committing session could still say *"wait, that was not a
+      duplicate"*, without the cry-wolf trap that gets a guard `allow`-markered
+      into silence.
+
+### Track C — kill the advisory decay
+
+*An advisory still standing in a month is the "honour it manually" failure
+wearing a new hat — the precise decay ADR 0008 exists to end.* Measured
+2026-07-27: **11 advisory declarations across 8 children**, none carrying a
+reason, none carrying a date.
+
+- [ ] 🎯 **C1 — `advisory` takes a reason and an expiry.** Today `disabled`
+      requires a stated reason and `advisory` is a bare list of scanner names,
+      so a declaration carries no *why* and no review date and can sit
+      indefinitely. **Fix shape:** same mapping form as `disabled`, plus an
+      optional `review-by`, with `floorfleet` ageing them so the board retires
+      declarations rather than accumulating them. **Ruled up front** because it
+      is a schema change every child's config must migrate to, and whether a
+      missing date is a warn or a hard error is the branch.
+- [ ] **C2 — retire the 11.** One child already proved it is a single pass:
+      four advisories to zero, sixty findings cleared, and the honest breakdown
+      matters more than the count — only a handful were genuine, the rest were
+      product nouns that wanted inline-coding rather than re-spelling, and
+      rhetorical relative-time words that wanted rewording rather than an
+      allow-marker (so no exemption debt was left behind). That is the
+      transferable recipe.
+- [ ] **C3 — a sanctioned adoption path.** A repo whose existing content
+      already fails the gate **cannot commit the change that installs the
+      gate.** It happened twice during the rollout and was resolved with a
+      documented one-time bypass — defensible once, but it is now an
+      undocumented pattern that recurs on *every* future adoption. Decide the
+      pattern before the next adoption, not during it: either a sanctioned
+      bootstrap, or an adopt mode that installs the hygiene checks
+      advisory-first and tightens on re-baseline.
+- [ ] **C4 — make the local bypass visible.** With CI as backstop rather than
+      gate, `--no-verify` is the one route that reaches history unscanned, and
+      nothing observes it. Idea: CI flags a pushed commit that would not have
+      passed the hook, so a bypass is a recorded event rather than a private
+      one. Weigh honestly against it also being the legitimate escape hatch —
+      making it painful invites worse workarounds.
+
+### Track D — finish the registry
+
+*Two scanners exist outside the registry, which is the ADR 0008 defect one
+level up: a check wired into atelier's own workflow reaches no child, and the
+child template's promise that "a new check arrives on the next push" holds for
+registry checks only.*
+
+- [ ] 🎯 **D1 — `pathscan`: promote with a corrected scope, or retire it.** It
+      runs as a bespoke advisory step in atelier's own `ci.yml`, outside the
+      registry, so no child has ever run it. The cold pass returned 2 MAJOR:
+      the wired scope cannot see the corpus that motivated the tool, and the
+      baseline is ~97% record-store content, so the gateable surface is a small
+      fraction of what it reports. Verdict:
+      [pathscan S2 cold pass](reviews/2026-07-26-2215-pathscan-s2-cold.md).
+- [ ] 🎯 **D2 — `stampscan`: fix at the parser, or shelve it.** Built, tested,
+      and **not wireable as built** — re-verified 2026-07-27, the live tree
+      exits 2 today. Three MAJOR: marker recognition is context-blind, so any
+      document that *describes* the syntax reds the scan as a config error that
+      `--warn` cannot suppress; a narrowing declaration accepts narrowing to
+      nothing, so one word vacates the whole check while it reports clean; and
+      the template ships markers whose source cannot resolve in any scaffolded
+      child, which would red future scaffolds estate-wide once registry-wired.
+      Reviewer's counsel is explicit — **do not wire, not even advisory** —
+      until the parser strips fenced and inline code, an ignore file ships, and
+      the narrow-to-nothing hole is closed or explicitly accepted. Verdict:
+      [stampscan S4 cold pass](reviews/2026-07-26-2215-stampscan-s4-cold.md).
+- [ ] 🎯 **D3 — `signscan` cannot fail CI.** It is invoked with `--warn` on
+      both planes, so an unsigned commit produces an annotation and never a
+      red. That is the deliberate warn-first rollout state and it has outlived
+      its purpose; the flip is Mike's, and it pairs with his key rotations.
+- [ ] **D4 — the repo-local seam has no adopters.** The extension point landed
+      2026-07-26 and **no repo declares a `local` check** (verified
+      2026-07-27). The case that motivated it — a networking child's
+      estate-token tripwire, whose blocklist can never live in a shared public
+      repo — is still switched off, with CI as the only remaining net. That
+      wiring is the child repo's own work, not atelier's, but the seam is not
+      proven until something uses it.
+
+### Track E — precision, so findings stay believed
+
+*Every false positive on a correct line trains someone to allow-marker it, and
+that is how a scanner's output stops being read. These are tool defects, not
+adopter mistakes.*
+
+- [ ] **E1 — `licenscan` is silent exactly where it matters most.** With an
+      unrecognised licence it stops at *"licence unrecognised"* and verifies
+      nothing further — it does not fall back to flagging vendored copyleft,
+      and an allow-marker does not restore the header checks. Proven against a
+      fixture. Three proprietary children are therefore `disabled`, and a
+      proprietary repo going public is *precisely* when contamination detection
+      matters. Full reproduction and fix shape → § *Licence gate* below.
+- [ ] **E2 — `licenscan` flags correct PyPI trove classifiers.** The repo was
+      right and the tool was wrong; every Python package carries these, so it
+      recurs by construction → § *Licence gate* below.
+- [ ] **E3 — `secretscan` suppresses one public-key line shape but not key
+      fingerprints**, which accounted for two of eight findings in one child.
+      Widening a security scanner's blind spot is atelier's call, not a child's
+      — which is why it was correctly left unchanged there and belongs here.
+- [ ] **E4 — `leakscan` reads two clock times side by side as an IPv6
+      address.** Recurs wherever a record quotes a rendered time span → already
+      queued under § *Boundary findings* below; carried here because it is the
+      same class as E3 and should be ruled with it.
+- [ ] 🎯 **E5 — write down "describe, don't quote" as a standing rule for
+      record prose.** It has now bitten three separate scanners in three weeks:
+      example credentials, a literal open-source licence tag quoted in a
+      roadmap entry, and a stamp marker mentioned in a review file — each time
+      the scanner was *correct* and the prose was the defect. It is already the
+      answer for example credentials; the general form belongs in `RECORD.md`.
+      **Recurrence, not severity, is the trigger** — three instances of a
+      trivial failure is a defect in the system producing it.
+
+### The thing underneath all of it — state-tracking, not reasoning
+
+Two independent sessions reached the same diagnosis in the same 24 hours, in
+their own words: **not degraded reasoning, degraded state-tracking.** Every
+failure was a stale belief, sincerely held, that had once been true — the
+session record *was* accurate, those sections *were* duplicates by heading, the
+work *had* been ready to close. In a long session the cheapest source of "what
+is true" is what is already in context, and context is dense with things that
+were true; verification costs a tool call and recall is free.
+
+- [ ] **The mechanisable form of it:** any claim about *current state* comes
+      from a fresh read, never from context. `RECORD.md` already says this for
+      one case — the all-clear is the pushed floor run, not the local scan —
+      and the general rule is the same shape. A close-out that is mechanical
+      rather than narrative is the concrete change.
+- [ ] **The measurement that supports it, and its limits.** Median session
+      length rose ~62% inside that window, the largest 2.7×, the share over 2 MB
+      from 11% to 28%. Correlation only: n=18, causation not isolated,
+      compaction untested, harness changes unchecked, and a higher personal
+      working pace would produce the same signature with nothing model-side
+      changing. Recorded as a lead for the history-mining pass, not a finding.
+- [ ] **Aggravating factor worth keeping:** both failing sessions were making
+      multi-repo state changes, where reality moves underneath the session. A
+      long session doing pure analysis would not show this — which is testable,
+      and is why the simpler story ("long sessions are worse") should be
+      resisted.
+
+The queued history-mining pass (§ *Mine the estate's own history for repeat
+offences*) is the instrument that would test this properly, by correlating each
+recorded failure against position-in-session and session length.
+
+### Doctrine forcing functions the programme depends on
+
+Each of these is a rule that exists in practice and has no forcing function, so
+it keeps being broken. All are self-authored doctrine when they land ⇒ rule-4
+`⏳` in the landing commit, and that review is Fable's.
+
+- **Which tier reviews** — the rule that cost a whole three-verdict pass →
+  § *Doctrine — review-owed* below.
+- **A state change and the bookkeeping the floor demands of it ship together**
+  — three instances now, from two directions → § *Doctrine candidate — the
+  harvest rides the `[x]` commit* below.
+- **Bulk deletion from a record store is a show-first action** — Mike's call,
+  it narrows agent autonomy → § *For your consideration* below.
+- [ ] **The `⏳` pointer steered its own reviewer.** Two queued pointers
+      carried their authors' full reviewer agendas inline, against the
+      ROADMAP's own refs-only ceiling; the taker read them before a brief
+      existed to defer them, and it measurably steered the pass — two of three
+      seeded questions pointed away from the load-bearing problem. The ceiling
+      is stated in this file's own preamble and was not enforced by anything.
+- [ ] **ZL1 (MAJOR) — the surface that binds the apex at session start is
+      stale.** `skills/session-onramp/SKILL.md` still teaches the pre-Zeroth
+      three-element Laws, contradicting `00-APEX.md` at HEAD. A prior sweep
+      proves the surface was known. The wider finding (AW2) is that at least
+      seven in-repo apex restatements describe the superseded shape, while the
+      queued propagation item covers children's floors only — so the rest is
+      silently stale, against the sweep-in-the-same-commit rule the delta
+      itself cites. Verdict:
+      [apex Zeroth Law cold pass](reviews/2026-07-26-2215-apex-zeroth-law-cold.md).
+
+### Coverage the programme does not yet reach
+
+- **Three public repos in the account have no scanning at all** → § *the ranked
+  residual* item 3 below. Public and unscanned is the combination that matters:
+  the question is not "are they tidy" but "is anything in a public repo that
+  should not be public".
+- **The boundary findings** — the only open items with real exposure →
+  § *Boundary findings surfaced by the measurement* below.
+
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
 
 **Rolled out 2026-07-25.** All 13 children call the floor; `floorfleet --remote
