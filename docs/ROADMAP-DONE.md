@@ -2461,3 +2461,91 @@ in [`ROADMAP.md`](ROADMAP.md); this is the design pass's completed detail only.
     and nothing would catch it recurring on a fresh clone or a new machine.
     Carried as **A5b** on the live roadmap. Same defect one level up, which is
     the shape ADR 0008 exists to end.
+
+## Policy-as-code programme — Track A: the fail-opens closed (done 2026-07-27)
+
+Landed in worktree `track-a-fail-opens`, four commits, session record
+[`2026-07-27-2301-track-a-fail-opens`](sessions/2026-07-27-2301-track-a-fail-opens.md).
+Findings were counsel from the 2026-07-26 rule-4 Fable passes; the rulings were
+Mike's (REVIEW rule 3). Tests 694 → 720, green in **both** environments (with a
+machine term list, and with none). Every fix was driven live against the probe
+that proved the defect, not asserted from the diff.
+
+**The rulings, and the two measurements that decided them.** Both 🎯 items were
+walked through in plain language first, and in both cases the roadmap's own
+statement of the cost was wrong in the direction that made the strong fix
+affordable.
+
+- **A1/EP1** — the roadmap warned of "an immediate blast radius". Measured: of
+  19 repos, **2** declare `scope`/`flags` and **all four declared paths
+  resolve**; of 14 with a floor config, **0** lack their records tree. The
+  structural reason it is safe: every no-advisory-form scanner defaults to the
+  repo **root**, which always resolves, so the skip branch reaches a boundary
+  check only through an *explicit* declaration — and the three docs-scoped
+  scanners that need the skip are all advisory-capable. The cases do not
+  overlap. **Zero children red.** Ruled **(a)+(c)**; (b), the stated-reason
+  requirement, deferred to ride with C1's schema change rather than be decided
+  twice.
+- **A2/EP3** — the roadmap said requiring terms "fails closed on … every CI
+  runner by design". Not for a hook-plane change: both workflows invoke
+  `--plane ci` and the hook template is never invoked by CI; no test ran a real
+  hook-plane `leakscan`. Ruled **(c)** — Mike asked why (a) was recommended
+  over (c), was told that (a) makes the degraded-render path unreachable on the
+  hook plane, and ruled (c) anyway for **measurement over inference**.
+
+- [x] **A1 — a `scope` path resolving to nothing silently disabled the check.**
+  Now a hard config error for any scanner with no advisory form; the skip
+  survives for the softenable docs-scoped checks, which is the case it was
+  written for. **Extended past the finding as written:** the review described a
+  scope resolving to *nothing*, but the class is *any* declared path that does
+  not resolve — one of two paths going missing halves a boundary check's cover
+  the same way, so partial drift blocks too. `floorfleet` now reads `scope`,
+  `flags` and a non-default `docs` on the board and in `--json`.
+- [x] **A2 — the hook plane's `leakscan` cover was asserted, never enforced.**
+  The hook template runs `leakscan --require-terms`. A `Scanner` may name the
+  flag giving it full cover, so a plane omitting it renders **🟡 partial**
+  rather than ✅ — CI's `leakscan` is structural-only permanently and now says
+  so every run. `floorfleet` reports whether **this machine** carries a term
+  list: a machine fact, not a per-child one, so it goes on the board once and
+  asks `leakscan`'s own resolver rather than re-implementing the lookup.
+- [x] **A3 — `floor.py` asserted cover it lacked.** Its docstring claimed
+  `flags` was *"read out estate-wide by floorfleet"* when floorfleet read
+  neither key. Settled by A1 **at the mechanism** rather than by softening the
+  sentence, and pinned by tests so it stays checkable instead of becoming true
+  once and drifting back.
+- [x] **A4 — LS1–LS5, the repo-local seam's edges.** LS1 Actions log-command
+  injection through a child-authored `why`, encoded at the point of
+  interpolation. LS2 an executable non-Python script with no shebang crashed
+  the floor with a traceback — now a clean BLOCK with the summary preserved.
+  LS3 a committed symlink executed out-of-tree code; realpath containment now
+  enforced, and the old test exercised lexical strings only, so it overstated
+  the guard. LS4 unknown keys in a local declaration read past in silence — not
+  cosmetic, since a `planes` typo runs a hook-only check on CI. LS5 a disabled
+  local check lost its `local` marking.
+- [x] **A5b — `floorfleet` has a parent row.** Classified on whether the
+  parent's own workflows invoke `floor.py --plane ci`, with `floor.yml`
+  excluded from that search: it runs the floor over the *caller's* tree, never
+  the parent's, so reading it as proof would be the self-exemption A5a was.
+  Named from the repo rather than the directory, since those differ in a
+  worktree and this repo's doctrine says to take one for write-heavy work.
+
+**Two things the work surfaced that were not in the brief**, both fixed here:
+
+- **A contract test asserted the opposite of the ruling.** The registry test
+  banned `--require-terms` on **both** planes, reading the two planes as one —
+  right for CI, wrong for the hook, where it forbade the flag on the plane the
+  design says carries the full cover. Narrowed to CI with its complement added,
+  not deleted.
+- **Three pre-commit tests were passing *because* the hook was degraded**, and
+  were env-gated in the misleading direction: green on a laptop holding
+  `~/.claude/leakscan-terms.txt`, red on every CI runner. They now pin a term
+  list inside the fixture. Every suite run was done twice, and the LS1 test
+  sets `GITHUB_ACTIONS` explicitly rather than inheriting it, because
+  annotation mode is env-gated and a test that merely runs the floor would pass
+  by never entering the branch it means to exercise.
+
+**Estate consequence, deliberate.** A new machine or fresh clone now blocks on
+its first commit until `~/.claude/leakscan-terms.txt` exists. Documented as a
+once-per-machine step in the child CONTRIBUTING template, which said only "two
+lines" before, and worded so the block reads as intended rather than as broken
+tooling.

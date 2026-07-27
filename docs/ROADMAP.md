@@ -64,62 +64,22 @@ exposure.* Findings are counsel from the 2026-07-26 rule-4 Fable passes; the
 rulings are Mike's (REVIEW rule 3), and each application earns a further cold
 pass while a MAJOR stands.
 
-> 📦 **1 completed item** in this track → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
->   (A5a — the parent was not running the floor it ships; fixed 2026-07-27).
->   Its unfixed half is A5b, immediately below.
+> 📦 **All 6 items complete** → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
+>   (A5a fixed 2026-07-27; A1–A4 + A5b landed 2026-07-27, worktree
+>   `track-a-fail-opens`). Track closed — the fail-opens are shut, each fix
+>   driven live against the probe that proved the defect.
 
-- [ ] **A5b — give `floorfleet` a parent row.** Discovery walks *children*, so
-      atelier is structurally invisible to the board that exists to prove
-      conformance. A parent that drops the floor is exactly the case ADR 0008
-      says enumeration must catch, and today nothing would. Same defect one
-      level up.
-- [ ] 🎯 **A1 — EP1 (MAJOR): a `scope` path that resolves to nothing silently
-      disables the check.** A one-character typo in a path turns `secretscan`
-      and `leakscan` off and the run exits 0 — proven live with a planted
-      credential fixture: exit 1 with no config, exit 0 with the path
-      misspelt. It hits the two checks the design says may **never** be
-      softened, and `floorfleet` does not read `scope`/`flags` at all (EP2), so
-      nothing anywhere reports the reduction. **Fix shape:** an unresolvable
-      scope path is a hard config error, not a skip — the same call already
-      made for absolute paths in `--staged` mode. **The ruling needed:** that
-      change reds any child whose declared scope has drifted, so it is a
-      fail-closed choice with an immediate blast radius, not a silent
-      improvement. Verdict:
-      [ADR 0008 cold pass](reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md).
-- [ ] 🎯 **A2 — EP3 (MAJOR): the hook plane's `leakscan` cover is asserted,
-      never enforced.** With no machine-local term list, `leakscan` degrades to
-      a structural-only pass — and the board still renders `✅ enforced`, with
-      no signal anywhere that the personal-data half of the check did not run.
-      `--require-terms` exists for precisely this and is used on no line.
-      **The ruling needed:** requiring terms fails closed on any machine or
-      runner without a term list — which is every CI runner by design, and any
-      fresh clone. So the honest options are (a) require terms on the hook
-      plane only, (b) render a degraded pass as degraded rather than enforced,
-      or (c) both. Same verdict file as A1.
-- [ ] **A3 — EP2 (minor, but it is doctrine asserting cover it lacks):**
-      `floor.py`'s own docstring states that `flags`/`scope` are *"read out
-      estate-wide by `floorfleet`"*. They are not — the board reads
-      `advisory`/`disabled`/`local` only. A false claim inside the file that
-      defines the registry is the honesty defect the apex forbids, and it is
-      load-bearing for A1: it is *why* a shrunken scope goes unreported.
-- [ ] **A4 — LS1–LS3 (MEDIUM ×3), the repo-local seam's edges.** All three sit
-      on live enforcement code in every repo:
-      **LS1** a child-authored `why`/`name` is emitted verbatim into the GitHub
-      Actions log-command stream, so a newline-laden value injects spoofed
-      `error`/output lines — before the seam this channel carried only trusted
-      registry strings; fix is to encode the three control sequences.
-      **LS2** an executable non-Python script with no valid shebang crashes the
-      whole floor with an uncaught traceback — the exact failure the exec-bit
-      guard was written to prevent for the sibling error; fail-closed by exit
-      code, not by clean message.
-      **LS3** *"`run` must resolve inside the repo"* is enforced on the path
-      string only, so a committed symlink whose target is outside the tree
-      executes out-of-tree code (proved live); the guard's own test exercises
-      lexical strings only, which overstates it.
-      Plus **LS4** (unknown keys in a local declaration are silently ignored, so
-      a typo quietly changes which planes run) and **LS5** (a disabled local
-      check loses its `local` marking in the render and JSON). Verdict:
-      [floor local seam cold pass](reviews/2026-07-26-2215-floor-local-seam-cold.md).
+- ⏳ **Review queued — Track A application (A1–A5b).** Rule 4: each application
+      earns a further cold pass while a MAJOR stood, and two did (EP1, EP3).
+      **Delta:** `tools/floor.py`, `tools/floorfleet.py`, `tools/test_floor.py`,
+      `tools/test_floorfleet.py`, `tools/test_precommit.py`,
+      `docs/build/templates/CONTRIBUTING.md`. **Intent record:**
+      [`2026-07-27-2301-track-a-fail-opens`](sessions/2026-07-27-2301-track-a-fail-opens.md).
+      **Verdicts applied:**
+      [ADR 0008 cold pass](reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md)
+      (EP1, EP2, EP3) and
+      [floor local seam cold pass](reviews/2026-07-26-2215-floor-local-seam-cold.md)
+      (LS1–LS5). Not spawned by the applying session.
 
 ### Track B — make the enumerator real
 
