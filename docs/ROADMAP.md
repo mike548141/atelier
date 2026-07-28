@@ -69,18 +69,23 @@ pass while a MAJOR stands.
 >   `track-a-fail-opens`). Track closed — the fail-opens are shut, each fix
 >   driven live against the probe that proved the defect.
 
-- ⏳ (claimed 2026-07-28-0123, wt: atelier-review-0123-take) **Review queued —
-      Track A application (A1–A5b).** Rule 4: each application
-      earns a further cold pass while a MAJOR stood, and two did (EP1, EP3).
-      **Delta:** `tools/floor.py`, `tools/floorfleet.py`, `tools/test_floor.py`,
-      `tools/test_floorfleet.py`, `tools/test_precommit.py`,
-      `docs/build/templates/CONTRIBUTING.md`. **Intent record:**
+- [ ] 🎯 REVIEWED 2026-07-28 (rule-4 Fable cold pass): PASS-WITH-FINDINGS
+      1M/4m/4n —
+      [verdict](reviews/2026-07-28-0123-track-a-application-cold.md);
+      TA1–TA9 await Mike's ruling (REVIEW rule 3; the MAJOR keeps the
+      cycle open past the next application). All five rulings verified
+      faithfully applied and every live proof reproduced, both suites
+      green with and without a machine term list. The MAJOR (TA1, proven
+      live): a declared `scope` path that *resolves*, but not to this
+      repo's tree (`/etc`, `..`), still vacates a boundary check — a
+      staged secret passes ✅ on the hook plane — the adjacent member of
+      the ruled class, open under a shut-class claim. **Intent record:**
       [`2026-07-27-2301-track-a-fail-opens`](sessions/2026-07-27-2301-track-a-fail-opens.md).
       **Verdicts applied:**
       [ADR 0008 cold pass](reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md)
       (EP1, EP2, EP3) and
       [floor local seam cold pass](reviews/2026-07-26-2215-floor-local-seam-cold.md)
-      (LS1–LS5). Not spawned by the applying session.
+      (LS1–LS5).
 
 ### Track B — make the enumerator real
 
