@@ -78,3 +78,103 @@ re-litigated — what is reviewable is whether the application implemented
 them faithfully, which is reconcile-step work).
 
 ---
+
+# Verdict — PASS-WITH-FINDINGS (0 MAJOR / 1 minor / 3 notes)
+
+- **Date:** 2026-07-28, verdict committed before any deferred material was
+  opened (intent record, prior verdict, and `f3a3cd4`'s harvest hunks all
+  unread at this point; a reconcile addendum follows below).
+- **Provenance, repeated per rule 4:** reviewer is a Mike-spawned "do any
+  review work" session on Fable, author of nothing in the TA chain; the
+  applier did not spawn this review. Claim `d930d7b`.
+- **Terminal per the close rule:** no MAJOR finding, so the Track A review
+  cycle **closes** with this pass. The findings below are decided into the
+  backlog — the decisions are Mike's (the delta is enforcement code and
+  self-authored doctrine; rule 3 applies).
+
+## What was re-run, and what it proved
+
+Every live claim in the delta's commit messages was re-exercised, not read:
+
+- **Suites:** 759 tools tests + 207 instruments tests green at HEAD; 733
+  green re-run at `d80f9d8` in a detached worktree, matching that commit's
+  claimed count exactly. (A first re-run from a bare `git archive` failed on
+  39 errors — environmental, no `.git` context; stated so the record shows
+  the false leg was the probe's, not the work's.)
+- **TA1 red legs, both members:** `{"scope": {"secretscan": ["/etc"]}}`
+  exits 0 at `3fb6437` (pre-fix) and 1 at HEAD with the parse-time message;
+  a relative in-tree symlink pointing outside exits 0 at `3fb6437` and 1 at
+  HEAD with the run-guard message. The defect and both shut doors reproduce.
+- **TA5 red leg:** `evaluate_parent` over a fixture whose only floor line is
+  commented out classifies `wired` at `d80f9d8^` and `absent` at HEAD.
+- **TA6:** importing `test_precommit` at HEAD creates no temp artefact.
+- **TA7 live leg:** `floorfleet` run from *this* review's worktree renders
+  the parent row labelled `atelier (parent)` plus 13 children, all wired —
+  the exact claim in `d80f9d8`.
+- **Blast radius (`321bbd3`):** re-measured against the live estate — 14
+  configs, 2 declaring `scope`, 4 unique declared paths, all relative and
+  in-tree. Exact match, which matters on a programme whose figures have been
+  wrong in both directions before.
+- **TA9 self-compliance:** push telemetry shows the pointer commit
+  `f3a3cd4` left in the same push as the four work commits (02:17:13Z), so
+  the grammar the delta wrote ("never in a follow-up push") was met by the
+  delta itself. `3fb6437` was pushed alone at 01:54Z, before TA1's ruling,
+  consistent with its honesty-repair framing.
+- **Floor:** the pre-commit scan ran green on this review's own commits.
+- `/security-review` discharge: landed-delta review, no pending diff the
+  scanner can be aimed at; the mechanical floor here is the scan suite and
+  the test suites above (grounds per the brief).
+
+## Lens findings
+
+**TAA1 (minor — correctness/honesty, lens 2).** `321bbd3` shut both
+outside-the-repo members of the scope class but the series landed without
+updating the class-members comment `3fb6437` had written a few lines below,
+which continued to assert both members "(open)" and "TA1; awaiting a
+ruling" through `f204fba`/`f3a3cd4` — the landed state under review claimed
+two fail-opens were open after its own earlier commit had shut them. An
+out-of-delta commit (`549930b`) later appended a correcting tail, but only
+the tail: at HEAD the same paragraph still labels the two members "(open —
+`/etc` and `..` both pass `.exists()` …)" and then says "both the
+outside-the-repo members are shut above". A comment in the enforcement
+plane asserting a fail-open exists where none does is the same record-drift
+class TA8 fixes, in the opposite direction. Remedy: a two-line comment edit
+re-labelling the members shut, with the TA1 pointer kept.
+
+**TAA2 (note — completeness, lens 3).** The TA3 note shares `Result.partial`
+with the TA4 cover note via `elif`, so a scanner with its full-cover flag
+absent *and* scope paths missing would report only the cover note — the
+scope-drift signal this fix exists to surface would be silently dropped.
+Unreachable today: the only scanner with a `full_cover_flag` has no
+advisory form, so its missing scope blocks at the guard first. But nothing
+pins that invariant; a future softenable scanner with a cover flag re-opens
+a silent-shrink hole inside the fix for one. A joined note, or a comment
+naming the invariant, closes it.
+
+**TAA3 (note — doctrine grammar, lens 1; decision Mike's).** After the TA
+pointer was queued, `549930b` touched four of its delta files and did not
+widen the TA delta list — it queued its *own* `⏳` over the same files
+instead. Coverage is complete across the two open reviews, but AW6's
+grammar ("a later commit that touches a queued delta's doctrine surfaces
+widens the pointer's delta list") does not say whether a second queued
+pointer discharges the widening duty. Same shape as the gap TA9 closed for
+"the same commit". Worth a one-line grammar clarification if a third case
+appears; recorded here as the second.
+
+**TAA4 (observation — positive).** The delta's guards fail in the safe
+direction throughout: the comment-stripping lexer can only *remove* text,
+so it can lose a match (false `absent`, a red the operator investigates)
+but cannot manufacture one (false `wired`, a green that hides a dropped
+floor); `_inside` resolves both sides and returns not-inside on `OSError`/
+`ValueError`; the outside-guard's hardcoded `enforced`-on-block follows the
+existing "scanner missing" idiom for hard config failures. No security
+finding; the lens ran at both altitudes over the guard code, path handling,
+and the fixture git usage.
+
+## Verdict
+
+The nine rulings were applied faithfully on the evidence available cold:
+every mechanical claim re-ran true, the tests pin both the defect and the
+over-correction directions, and the one substantive lapse (TAA1) is the
+delta failing its own honesty bar in a comment, not in behaviour. Cycle
+closed; TAA1–TAA3 to Mike.
