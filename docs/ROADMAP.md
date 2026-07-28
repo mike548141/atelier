@@ -74,20 +74,24 @@ pass while a MAJOR stands.
 >   probe that proved the defect. What remains below is Mike's ruling on the
 >   terminal pass's residue, not work.
 
-- [ ] 🎯 **TA-application-pass residue — TAA1–TAA3, Mike's ruling.** The
-      terminal cold pass returned 0 MAJOR / 1 minor / 3 notes
+- [ ] **TA-application-pass residue — TAA1–TAA3, RULED 2026-07-28 (Mike,
+      plain-language walk-through with per-option impacts).** The terminal
+      cold pass returned 0 MAJOR / 1 minor / 3 notes
       ([verdict](reviews/2026-07-28-1136-ta-application-cold.md)); the cycle
-      is closed, and per rule 3 the residue is Mike's to decide. In plain
-      language: **TAA1** (minor) — a comment in `floor.py`'s scope guard
-      still labels two fail-opens "(open)" that the same series shut; a
-      two-line comment edit makes it true (reviewer counsel: fix). **TAA2**
-      (note) — the two 🟡 notes share one report field via `elif`, so a
-      future softenable scanner with a cover flag would silently drop its
-      scope-drift note; a comment naming the invariant, or a joined note,
-      pins it. **TAA3** (note) — AW6 doesn't say whether a second queued
-      pointer over the same files discharges the delta-list widening duty;
-      second recorded case, a third earns the one-line grammar
-      clarification.
+      is closed, and per rule 3 the residue was Mike's to decide.
+      **TAA1** (minor) — a comment in `floor.py`'s scope guard still labels
+      two fail-opens "(open)" that the same series shut → **FIX**: two-line
+      comment edit re-labelling both members shut, TA1 pointer kept.
+      **TAA2** (note) — the two 🟡 notes share one report field via `elif`,
+      so a future softenable scanner with a cover flag would silently drop
+      its scope-drift note → **JOIN THE NOTES** (chosen over the
+      comment-only variant: same cost, and a joined note can't decay the way
+      a comment relies on a future reader honouring it).
+      **TAA3** (note) — AW6 doesn't say whether a second queued pointer over
+      the same files discharges the delta-list widening duty → **HOLD for a
+      third instance**, per the reviewer's counsel and the >2 promotion
+      rule; this is the second recorded case.
+      **Work owed: TAA1 + TAA2.**
 
 ### Track B — make the enumerator real
 
@@ -170,22 +174,28 @@ undercount — the fourth wrong blast radius on this programme and the first tha
 >   A1(b); rule-4 cold pass 2026-07-28, 0 MAJOR — terminal) →
 >   [`ROADMAP-DONE.md`](ROADMAP-DONE.md). What remains of C1 is C1b below —
 >   the migration and the removal of the transition spelling.
-- [ ] 🎯 **C1-pass residue — C1F1–C1F3, Mike's ruling.** The terminal pass
+- [ ] **C1-pass residue — C1F1–C1F3, RULED 2026-07-28 (Mike, plain-language
+      walk-through with per-option impacts).** The terminal pass
       returned 0 MAJOR / 1 minor / 2 notes
       ([verdict](reviews/2026-07-28-1204-c1-advisory-cold.md)); cycle
-      closed, residue Mike's per rule 3. In plain language: **C1F1**
-      (minor) — on the floor's human line, an advisory's `why` displaces
-      the "N of M scope paths missing" drift note (it survives only in
-      `--json`), so a softened check with shrinking cover shows the reason
-      but not the shrink; joining the notes fixes it (reviewer counsel:
-      fix). **C1F2** (note) — the record says an expired advisory shows
-      how many days it has stood "on the floor and the board", but the
-      count renders on the board only; add the count to the floor line or
-      correct the claim — either answer works, one of them should land.
+      closed, residue Mike's per rule 3.
+      **C1F1** (minor) — on the floor's human line, an advisory's `why`
+      displaces the "N of M scope paths missing" drift note (it survives
+      only in `--json`), so a softened check with shrinking cover shows the
+      reason but not the shrink → **JOIN THE NOTES**, restoring the TA3 fix
+      exactly where the board is worst-informed.
+      **C1F2** (note) — the record says an expired advisory shows how many
+      days it has stood "on the floor and the board", but the count renders
+      on the board only → **ADD THE COUNT TO THE FLOOR LINE** (chosen over
+      correcting the record: it makes both true, and puts the ageing
+      pressure at commit time rather than on a board someone must go and
+      look at).
       **C1F3** (note) — config-authored strings (`why`, disabled reasons)
       print raw to terminals; a hostile child config could embed escape
-      sequences. Pre-existing class, two fields wider now; stripping C0
-      controls at parse closes the class if ever wanted.
+      sequences → **STRIP C0 CONTROLS AT PARSE**, closing the pre-existing
+      class as well as C1's two new fields. Low priority while the estate is
+      single-owner; it becomes real on first outside adoption.
+      **Work owed: all three.**
 - [ ] 🎯 **C1b — migrate the 17, then delete the legacy spelling.** Phase 1
       deliberately did not write the declarations: a `review-by` is a
       commitment about when a backlog gets cleared, which is the principal's to
@@ -217,23 +227,30 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       passed the hook, so a bypass is a recorded event rather than a private
       one. Weigh honestly against it also being the legitimate escape hatch —
       making it painful invites worse workarounds.
-- [ ] 🎯 **Estate-root widening pass residue — ER1–ER4, Mike's ruling.**
+- [ ] **Estate-root widening pass residue — ER1–ER4, RULED 2026-07-28 (Mike,
+      plain-language walk-through with per-option impacts).**
       The rule-4 pass ran 2026-07-28: **0 MAJOR / 1 minor / 3 notes, cycle
       CLOSED** ([verdict](reviews/2026-07-28-1216-estate-root-widening-cold.md));
       every count re-swept independently (63/19 exact; zero new mentions
-      since landing). In plain language: **ER1** (minor) — the widened rule
-      is silent at the private→public *flip*: a private child's onramp
-      names the root by design, and nothing says the making-public
-      confirmation includes scrubbing that name first — yet pre-flip is the
-      one moment a scrub buys everything back (reviewer counsel: one line
-      in the always-stop floor's making-public entry). **ER2** (note) —
-      "reference it by local-path convention" points at a convention no
-      text says where to find; one sentence closes it. **ER3** (note) — the
-      "10 lines beside what it holds" figure is net-dependent (8–9 on
-      re-sweep); restate as approximate or pin the net. **ER4** (note) —
-      the intent-record pointer links a file that does not contain the
-      record (the record is the SESSIONS.md entry); addendum pointers
-      should say so.
+      since landing).
+      **ER1** (minor) — the widened rule is silent at the private→public
+      *flip*: a private child's onramp names the root by design, and nothing
+      says the making-public confirmation includes scrubbing that name first
+      — yet pre-flip is the one moment a scrub buys everything back →
+      **ADD THE SCRUB to the always-stop floor's making-public entry**
+      (one line; closes the same hole the widening closed, one transition on).
+      **ER2** (note) — "reference it by local-path convention" points at a
+      convention no text says where to find → **ADD ONE SENTENCE** saying
+      each estate defines it in its own private root's onramp; an adopter
+      cannot otherwise discharge the rule.
+      **ER3** (note) — the "10 lines beside what it holds" figure is
+      net-dependent (8–9 on re-sweep) → **RESTATE AS APPROXIMATE**, so a
+      soft figure cannot harden into a wrong one.
+      **ER4** (note) — the intent-record pointer links a file that does not
+      contain the record (the record is the SESSIONS.md entry) →
+      **FIX THE POINTER CONVENTION**: addendum pointers say "the SESSIONS.md
+      entry of \<date\>" rather than linking the file the entry extends.
+      **Work owed: all four.**
 - [ ] 🎯 **C5 — a forcing function for the estate-root name.** The rule was
       widened to bind *any* public tree including atelier's own
       (`PROPAGATION.md`, 2026-07-28 — it had exempted the parent by naming
@@ -516,28 +533,37 @@ the mechanism works.
 These are **real findings the guards were never run to catch**, not rollout
 blockers to wave through. Each needs eyes before its repo can go green.
 
-- [ ] 🎯 **secretscan pass residue — SF1–SF4, Mike's ruling.** The rule-4
+- [ ] **secretscan pass residue — SF1–SF4, RULED 2026-07-28 (Mike,
+      plain-language walk-through with per-option impacts and a live
+      six-shape probe).** The rule-4
       pass ran 2026-07-28 (Fable): **0 MAJOR / 1 minor / 3 notes, cycle
       CLOSED** ([verdict](reviews/2026-07-28-1220-secretscan-fragment-cold.md)).
       All four red legs reproduced old-vs-new; the FP fixes hold; the
-      estate figures verified (the 26→4 delta is the ruled untrack). In
-      plain language, one family decision and two smaller calls:
-      **SF1+SF2** (minor+note, rule together) — the low-charset-diversity
-      family: the new kebab exemption un-flags hyphenated passphrases
-      (`password=<diceware-style>` was caught before, is clean now; the
-      snake twin was already exempt), and the pre-existing lowercase-hex
-      gap is half its stated size (digit-leading hex already flags;
-      letter-leading slips). Reviewer counsel: whole-shape carve-outs in
-      assigned context — full-match 32+ hex, and 4+ hyphenated lowercase
-      words — are not identifier/slug-suppressed; cry-wolf risk is git
-      SHAs, which rarely sit assigned to credential-named keys. Also
-      carried: the triage record's "entropy net catches ≥32 chars" aside
-      is true only for mixed-class values — probed false for this family.
+      estate figures verified (the 26→4 delta is the ruled untrack).
+      **SF1+SF2** (minor+note, ruled together as one low-charset-diversity
+      family) — the new kebab exemption un-flags hyphenated passphrases
+      (caught before, clean now; the snake twin was already exempt), and the
+      pre-existing lowercase-hex gap is half its stated size (digit-leading
+      hex already flags; letter-leading slips) → **TAKE BOTH WHOLE-SHAPE
+      CARVE-OUTS**: in assigned-secret context, a full-match 32+ lowercase
+      hex value and a 4+ hyphenated/underscored lowercase-word value are not
+      identifier/slug-suppressed. Cry-wolf risk is git SHAs, which rarely sit
+      assigned to credential-named keys. **Ruled on a live probe, recorded
+      because it sharpens the case**: of six credential-shaped assignments,
+      four passed clean — both passphrase spellings and both letter-leading
+      hex values — while only the digit-leading hex and the mixed-class
+      password flagged. **Also carried, and it corrects a record**: the
+      triage's "entropy net catches ≥32 chars regardless of key name" aside
+      is true only for mixed-class values, and was probed false for this
+      family — two 32-character values in the probe did not flag.
       **SF3** (note) — the corpus re-scan question answered: sound
-      regression floor, insufficient acceptance test; counsel is a
-      standing canary suite of credential *shapes* that must always flag,
-      run beside the corpus re-scan on gate changes (it would have caught
-      SF1). **SF4** (note) — resolved at reconcile, no action.
+      regression floor, insufficient acceptance test → **BUILD THE CANARY
+      SUITE**: a standing fixture set of credential *shapes* (env-var, hex,
+      base64, passphrase, connection string) that must always flag, run
+      beside the corpus re-scan on gate changes. It would have caught SF1.
+      **SF4** (note) — resolved at reconcile, no action.
+      **Work owed: SF1+SF2 carve-outs, SF3 canary suite, and the triage
+      record's entropy aside corrected.**
 - [ ] **The four archetypes need naming as a class.** Every defect above, and
       both false positives already recorded below, are the same error: a rule
       deciding on a *fragment* of a value instead of its *whole shape*. Worth
