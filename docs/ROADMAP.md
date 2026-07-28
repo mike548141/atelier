@@ -72,7 +72,8 @@ pass while a MAJOR stands.
 >   fix driven live against the probe that proved the defect. The one item
 >   still open below is the next cycle's review, not work.
 
-- [ ] ⏳ **review queued** — the TA1–TA9 application (rule-4 cold pass, Fable).
+- [~] ⏳ **review queued** — the TA1–TA9 application (rule-4 cold pass, Fable).
+      (claimed 2026-07-28-1134, wt: ta-application-cold-pass)
       The reviewed cycle carried a MAJOR, so it stays open and this application
       earns its own pass; REVIEW.md was also edited here, which is
       self-authored doctrine. Commits `3fb6437`, `321bbd3`, `0ca4b75`,
