@@ -162,11 +162,33 @@ plans and financial constraints, credentials, shared tooling) live in a separate
 **private estate-root repo** — the knowing-root that atelier deliberately is not
 (atelier is public and holds no inventory). Every child inherits both pointers:
 up to atelier for *how we work*, up to the estate root for *what the estate has*.
-The estate root is named only in a **private** child's own onramp — never in this
-public canonical text, and never in a **public** child's tree: a public child
-references it by a local-path convention, so the repo's name is never coupled to
-the sensitive posture it holds (RECORD's name↔posture split). Its contents are
-never copied down into any child.
+The estate root is named only in a **private** child's own onramp — never in any
+public tree, so the repo's name is never coupled to the sensitive posture it
+holds (RECORD's name↔posture split). A public tree references it by a local-path
+convention instead. Its contents are never copied down into any child.
+
+**"Any public tree" includes atelier's own, records and all** — and it has to be
+said, because the narrower wording did not hold. This rule previously read
+*"never in this public canonical text, and never in a public child's tree"*,
+which binds the doctrine prose and the children and quietly exempts the one
+public repo doing most of the writing: atelier itself. The doctrine stayed
+clean and the **records** did not. As of 2026-07-28 `CHANGELOG.md`,
+`docs/SESSIONS.md` and `docs/ROADMAP-DONE.md` name the estate root in eight
+places, twice beside exactly what it holds — the financial inventory, the
+credential registry. That is the coupling this rule exists to prevent, written
+by sessions that were following the rule as it was worded.
+
+The scrub is **forward-only** (Mike's ruling, 2026-07-28): the mentions already
+pushed stay. A public repo cannot be un-published, and rewriting eight records
+would buy nothing back from forks, clones and caches while costing the
+history's integrity. What changes is that no *new* mention is written. Naming
+the leak's location precisely is itself safe here — this text already says the
+root is private and holds credentials; what it withholds is which repo that is.
+
+The general lesson is the one the policy-as-code programme keeps re-learning: a
+boundary is only as good as the place it is enforced, and a rule that names
+*categories* of repo will exempt whichever category the writer is standing in.
+Bind the property — public — not the role.
 When atelier's apex, floor, concurrency, or estate-pointer doctrine changes, the
 block's wording is part of what a pin bump reviews.
 

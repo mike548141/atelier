@@ -147,6 +147,25 @@ reason, none carrying a date.
       passed the hook, so a bypass is a recorded event rather than a private
       one. Weigh honestly against it also being the legitimate escape hatch —
       making it painful invites worse workarounds.
+- [ ] **C5 — a forcing function for the estate-root name.** The rule was
+      widened to bind *any* public tree including atelier's own
+      (`PROPAGATION.md`, 2026-07-28 — it had exempted the parent by naming
+      categories of repo instead of the property, and eight record mentions
+      followed). Widening the words is not a forcing function: this is the
+      fourth rule in the programme found broken *because nothing enforced it*.
+      **The measurement that shapes the fix:** a bare literal term is a
+      cry-wolf trap — the root's name is also an ordinary English word, so
+      "shed light on" would red the floor. Repo-reference *shapes* are the
+      durable pattern instead (`<owner>/<name>`, `~/.pets/<name>`,
+      `<name>@<sha>`, possessive), which is grounded in how a repo gets
+      referenced rather than in today's hit count. Cheapest home is a
+      `regex:` line in the machine-local `leakscan` term list, which catches
+      new mentions on the hook plane and leaves history alone — matching the
+      forward-only ruling exactly, since `--staged` reads added lines only.
+      **Not done here** because that list is personal config outside the repo
+      and is Mike's to change. Watch the C3 interaction: a future wholesale
+      rewrite of a record that already carries a mention would re-add those
+      lines and block, which is the adoption-bootstrap problem in miniature.
 
 ### Track D — finish the registry
 
