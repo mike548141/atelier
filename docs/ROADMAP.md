@@ -405,7 +405,8 @@ the mechanism works.
 These are **real findings the guards were never run to catch**, not rollout
 blockers to wave through. Each needs eyes before its repo can go green.
 
-- [ ] ⏳ **REVIEW OWED — `secretscan` fragment-match exemptions (2026-07-28).**
+- [~] ⏳ **REVIEW OWED — `secretscan` fragment-match exemptions (2026-07-28).**
+      (claimed 2026-07-28-1216, wt: secretscan-fragment-cold-pass)
       Triage of the `assigned-secret` class found the gate reporting the *safe*
       pattern while missing the credential beside it: four suppression rules
       matched on a fragment (a `\b` that cannot see past `_`, an unclosed
