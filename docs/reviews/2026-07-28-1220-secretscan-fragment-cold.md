@@ -122,3 +122,38 @@ The four fragment-match fixes are real, each red leg reproduces, the FP
 fixes hold, and the honesty discipline held everywhere except the one
 sentence SF1 names. **Cycle closes** (0 MAJOR, terminal rule); SF1–SF4 to
 Mike, with SF1+SF2 best ruled together as one family.
+
+---
+
+## Reconcile (verdict committed first; the triage session record now open)
+
+**SF4 resolves as hypothesised.** The 25 → 26 figure was true at landing;
+the second repo's hits sat mostly in the tracked data export that Mike
+subsequently ruled **untrack-only** (the triage record and `e766c0f`), so
+today's working-tree scan measures 4. The claim was accurate at its time;
+no correction owed. The record's own honesty devices (the nearly-published
+real test values, the credit not taken for an already-closed gap, the
+scanner-green-is-the-failure-mode framing on the export) all check out
+against what this pass could verify independently.
+
+**One record claim my probes contradict, and it bears on the ruling.** The
+triage's aside says the high-entropy net "already catches anything ≥32
+characters regardless of key name", bounding defect A's reach to the
+12–31 band. That is true only for *mixed-class* values: my 32-character
+lowercase-hex probe does **not** flag at any key name, because
+low-charset-diversity values fail the entropy/mixed-class bar — which is
+precisely the SF1/SF2 family. The band framing under-states the gap for
+exactly the shapes awaiting Mike's ruling; worth carrying into that
+ruling rather than correcting the record alone.
+
+**SF1–SF3 stand unchanged.** The triage record does not mention the
+hyphenated-passphrase cost (SF1), consistent with it being unseen rather
+than weighed; its corpus-tuning trade statement matches SF3's assessment
+and SF3's canary-suite counsel answers the question it poses. The
+"finding 2b" remediation queue (15 live assignments, rotate-then-remove)
+is out of this pass's scope and correctly tracked in the estate root.
+
+**Verdict after reconcile: unchanged — PASS-WITH-FINDINGS, 0 MAJOR /
+1 minor / 3 notes; the cycle CLOSES** (no-MAJOR terminal rule). SF1–SF4
+decided into the backlog for Mike; SF1+SF2 (with the band correction
+above) are one low-charset-diversity family and best ruled as one.
