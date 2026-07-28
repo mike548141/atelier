@@ -107,7 +107,8 @@ further down this file; they are pointed at, not restated.
 - **B2 — `--status` mode** (wired *and* passing, not just wired) and
   **B3 — the Actions-disabled blind spot** → § *For your consideration* and
   § *the ranked residual* item 4 below.
-- [ ] **B4 — the roadmap-deletion guard.** `sizescan` catches the two adjacent
+- [~] **B4 — the roadmap-deletion guard.** (claimed 2026-07-28-1233,
+      wt: track-b-enumerator.) `sizescan` catches the two adjacent
       failures — an un-harvested completed item, and a live checkbox buried in
       the archive. An item **removed from `ROADMAP.md` that arrives nowhere
       passes every check.** The tri-state grammar forbids it with no forcing
@@ -612,7 +613,9 @@ Four ways, same goal, very different blast radius:
       private estate, living in the **public** repo's secret store. GitHub does
       withhold secrets from fork PRs, so it is not trivially stealable, but it is
       the largest concentration of the four. Needs rotation discipline.
-- [ ] **B — scheduled workflow in a PRIVATE repo.** Identical automation and
+- [~] **B — scheduled workflow in a PRIVATE repo.** **CHOSEN by Mike
+      2026-07-28** (claimed 2026-07-28-1233, wt: track-b-enumerator).
+      Identical automation and
       identical benefit to A, with the token in a private secret store instead of
       the public one. Runs on GitHub's schedule regardless of whether any machine
       is on. Open question: which repo hosts it — the doctrine references a
@@ -747,8 +750,10 @@ a stated reason (below); one needed a false-positive marker.
 Suggestions the rollout surfaced that were never queued. None is urgent; each is
 recorded so it is a **choice** rather than something that quietly evaporates.
 
-- [ ] **`floorfleet` proves a repo CALLS the floor, never that its floor is
-      GREEN.** That limit is stated honestly in the tool, and it means the board
+- [~] **`floorfleet` proves a repo CALLS the floor, never that its floor is
+      GREEN.** (B2 — claimed 2026-07-28-1233, wt: track-b-enumerator; taken
+      together with B3, which is the same defect one level down.)
+      That limit is stated honestly in the tool, and it means the board
       can read "all 13 ✓" while several repos are failing every run. Idea: a
       `--status` mode reading each child's latest floor run conclusion via
       `gh run list`, giving one board that answers *wired **and** passing*.
