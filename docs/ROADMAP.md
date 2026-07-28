@@ -64,28 +64,26 @@ exposure.* Findings are counsel from the 2026-07-26 rule-4 Fable passes; the
 rulings are Mike's (REVIEW rule 3), and each application earns a further cold
 pass while a MAJOR stands.
 
-> 📦 **All 6 items complete** → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
->   (A5a fixed 2026-07-27; A1–A4 + A5b landed 2026-07-27, worktree
->   `track-a-fail-opens`). Track closed — the fail-opens are shut, each fix
->   driven live against the probe that proved the defect.
+> 📦 **All 6 items complete, plus both cold passes** →
+>   [`ROADMAP-DONE.md`](ROADMAP-DONE.md) (A5a fixed 2026-07-27; A1–A4 + A5b
+>   landed 2026-07-27, worktree `track-a-fail-opens`; the application's own
+>   pass ruled and applied 2026-07-28, TA1–TA9, worktree
+>   `ta-findings-application`). Track closed — the fail-opens are shut, each
+>   fix driven live against the probe that proved the defect. The one item
+>   still open below is the next cycle's review, not work.
 
-- [ ] 🎯 REVIEWED 2026-07-28 (rule-4 Fable cold pass): PASS-WITH-FINDINGS
-      1M/4m/4n —
-      [verdict](reviews/2026-07-28-0123-track-a-application-cold.md);
-      TA1–TA9 await Mike's ruling (REVIEW rule 3; the MAJOR keeps the
-      cycle open past the next application). All five rulings verified
-      faithfully applied and every live proof reproduced, both suites
-      green with and without a machine term list. The MAJOR (TA1, proven
-      live): a declared `scope` path that *resolves*, but not to this
-      repo's tree (`/etc`, `..`), still vacates a boundary check — a
-      staged secret passes ✅ on the hook plane — the adjacent member of
-      the ruled class, open under a shut-class claim. **Intent record:**
-      [`2026-07-27-2301-track-a-fail-opens`](sessions/2026-07-27-2301-track-a-fail-opens.md).
-      **Verdicts applied:**
-      [ADR 0008 cold pass](reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md)
-      (EP1, EP2, EP3) and
-      [floor local seam cold pass](reviews/2026-07-26-2215-floor-local-seam-cold.md)
-      (LS1–LS5).
+- [ ] ⏳ **review queued** — the TA1–TA9 application (rule-4 cold pass, Fable).
+      The reviewed cycle carried a MAJOR, so it stays open and this application
+      earns its own pass; REVIEW.md was also edited here, which is
+      self-authored doctrine. Commits `3fb6437`, `321bbd3`, `0ca4b75`,
+      `d80f9d8`, `f204fba` and this one. Files in the delta: `tools/floor.py`,
+      `tools/floorfleet.py`, `tools/test_floor.py`, `tools/test_floorfleet.py`,
+      `tools/test_precommit.py`, `docs/method/REVIEW.md`,
+      `docs/sessions/2026-07-27-2301-track-a-fail-opens.md`. **Intent record:**
+      [`2026-07-28-0214-ta-findings-application`](sessions/2026-07-28-0214-ta-findings-application.md).
+      **Prior verdict:**
+      [Track A application cold pass](reviews/2026-07-28-0123-track-a-application-cold.md).
+      Not spawned by the applier session.
 
 ### Track B — make the enumerator real
 

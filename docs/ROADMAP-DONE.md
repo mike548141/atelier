@@ -2549,3 +2549,59 @@ its first commit until `~/.claude/leakscan-terms.txt` exists. Documented as a
 once-per-machine step in the child CONTRIBUTING template, which said only "two
 lines" before, and worded so the block reads as intended rather than as broken
 tooling.
+
+### The application's own cold pass — TA1–TA9 (done 2026-07-28)
+
+- [x] **REVIEWED 2026-07-28** (rule-4 Fable cold pass): PASS-WITH-FINDINGS
+  1M/4m/4n —
+  [verdict](reviews/2026-07-28-0123-track-a-application-cold.md). Ruled by Mike
+  the same day (TA1 → (a); TA2–TA9 → fix all eight) and applied in worktree
+  `ta-findings-application`, session record
+  [`2026-07-28-0214-ta-findings-application`](sessions/2026-07-28-0214-ta-findings-application.md).
+  All nine applied, none deferred. Tests 720 → 733 Python (+207 node), green in
+  both environments.
+
+**The MAJOR, and the third measurement that decided a ruling.** TA1: the A1
+scope guard tested path *existence*, not membership, so a declared scope that
+resolved somewhere else — `/etc`, `..`, or an in-tree symlink pointing out —
+passed the guard, rendered on the hook plane to a prefix matching nothing in
+the staged diff, and exited 0. A boundary check vacated under a green tick.
+The same commit series had closed exactly this lexical-vs-resolved gap for
+`local.run` (LS3) and left fleet `scope` with neither half, so the asymmetry
+sat inside one diff — and the guard's own comment claimed the class was shut.
+
+Measured before costing, and the pattern held a third time: 14 configs across
+the estate, 2 declaring `scope`, 4 declared paths, **every one relative and
+in-tree**. Zero migrations, so the thorough fix (validate at parse, both
+spellings, plus resolved containment for the symlink member) cost no more than
+the narrow one. The cheap-vs-thorough trade this programme keeps expecting has
+now failed to materialise four times.
+
+**Applied beyond the letter of the ruling, named as such.** `local.*.scope`
+feeds the same `subtrees`/`_render` path as fleet `scope` and carried the
+identical hazard. The ruling named only fleet `scope`, but guarding one
+spelling of "where does this check look" while leaving its siblings open *is*
+the finding, so the rule was applied to both.
+
+**Fixed at the claim rather than the mechanism, also named.** TA4: the 🟡
+partial-cover note was read off argv and asserted a cover *level*, which the
+scanner's own output could contradict on a machine holding a term list. The
+floor cannot observe real cover without capturing child output, and streaming
+scanner prose live is worth more than closing a gap that errs toward claiming
+*less*. The note now states the invocation, which is true in both
+environments; the 🟡 stays because a real runner holds no list.
+
+**The rest.** TA2 rode free (rejected at parse, so an absolute scope never
+reaches the scanner that used to crash on it). TA3 gives partial scope drift on
+a *softenable* check a 🟡 and a "N of M scope paths missing" note — it must not
+block, but shrunken cover reported as full is what this whole track is about.
+TA5: `PARENT_RUN_RE` matched inside comments, so a parent that commented out
+its floor step read `wired` on the board built to catch exactly that; comments
+are now stripped by a quote-aware lexer, with both over-corrections pinned.
+TA6 moved a module-import side effect into `setUpModule`. TA7: the board could
+not discover children when run from a worktree — the mode this repo's doctrine
+prescribes for write-heavy work — because the default search root was the
+worktree's parent; it now resolves the main checkout, the same way the parent
+row's label already did. TA8 restored EP2's MAJOR grade in the intent record.
+TA9 gave AWA2 a grammar for multi-commit landings: the landing commit is the
+one that *completes* the series.
