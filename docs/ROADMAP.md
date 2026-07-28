@@ -147,6 +147,16 @@ reason, none carrying a date.
       passed the hook, so a bypass is a recorded event rather than a private
       one. Weigh honestly against it also being the legitimate escape hatch —
       making it painful invites worse workarounds.
+- ⏳ **Review queued — the estate-root naming rule, widened.** Self-authored
+      doctrine ⇒ rule-4 pass. **Delta:** `docs/method/PROPAGATION.md` (the
+      estate-resources paragraph). **Intent record:** the 2026-07-28 addendum
+      on
+      [`2026-07-27-2301-track-a-fail-opens`](sessions/2026-07-27-2301-track-a-fail-opens.md).
+      The rule bound categories of repo and so exempted the public parent that
+      was breaking it; now bound to the property. Scrub is forward-only
+      (Mike's ruling) — the reviewer should test that call, and whether naming
+      the leak's location in public text is itself sound. Not spawned by the
+      authoring session.
 - [ ] **C5 — a forcing function for the estate-root name.** The rule was
       widened to bind *any* public tree including atelier's own
       (`PROPAGATION.md`, 2026-07-28 — it had exempted the parent by naming
