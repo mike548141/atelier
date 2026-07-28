@@ -381,6 +381,29 @@ the mechanism works.
 These are **real findings the guards were never run to catch**, not rollout
 blockers to wave through. Each needs eyes before its repo can go green.
 
+- [ ] ⏳ **REVIEW OWED — `secretscan` fragment-match exemptions (2026-07-28).**
+      Triage of the `assigned-secret` class found the gate reporting the *safe*
+      pattern while missing the credential beside it: four suppression rules
+      matched on a fragment (a `\b` that cannot see past `_`, an unclosed
+      templating marker, a stray bracket, a path test demanding a file
+      extension) rather than a whole shape. Fixed and pinned with 12 tests.
+      **Queued, not spawned** — REVIEW rule 4 binds the author out, and this is
+      the security floor, so it wants an independent pass at a tier matched to
+      the stakes (`ECONOMICS.md`). Aim the reviewer at the one real trade: every
+      widened rule was validated by re-scanning the estate and fixing the three
+      false positives the fix itself introduced — is *re-scan the corpus* a
+      sound acceptance test for a security gate, or does it just tune the gate
+      to one estate's content? Second question worth its own look: a lowercase
+      hex secret is still exempted as identifier-shaped. That gap is
+      **pre-existing and untouched here** — deliberately, because closing it
+      trips every lowercase word in the corpus — but it is now the widest
+      remaining hole and should be ruled on rather than inherited.
+- [ ] **The four archetypes need naming as a class.** Every defect above, and
+      both false positives already recorded below, are the same error: a rule
+      deciding on a *fragment* of a value instead of its *whole shape*. Worth
+      stating once in doctrine rather than four times in code comments, if a
+      fifth instance appears.
+
 Deliberately generic here: atelier is public, so naming which private repo holds
 committed credentials — and in which file — is reconnaissance, not a record. The
 per-repo detail belongs in the operator's private estate-root repo, and the
