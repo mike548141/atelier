@@ -92,9 +92,14 @@ and nothing runs it.* Three of the four items below already have costed entries
 further down this file; they are pointed at, not restated.
 
 - **B1 — schedule the conformance check.** Four costed options, one explicitly
-  rejected → § *🎯 Schedule the conformance check* below. **Blocked on one
-  unwritten fact**: which repo is the "private estate-root repo" the doctrine
-  keeps referencing. Answer that first — it is reusable well beyond this item.
+  rejected → § *🎯 Schedule the conformance check* below. **UNBLOCKED
+  2026-07-28**: the fact was never unknown so much as never written down. The
+  operator confirmed it, and it is now recorded in the estate root's own records
+  where it belongs. It stays unnamed here, and that is not an oversight —
+  `PROPAGATION.md` binds *any* public tree including atelier's own, so writing
+  the answer into this file to close a blocker would be committing the breach
+  the blocker exists to avoid. A public tree references it by local-path
+  convention. B1 can now proceed.
 - **B2 — `--status` mode** (wired *and* passing, not just wired) and
   **B3 — the Actions-disabled blind spot** → § *For your consideration* and
   § *the ranked residual* item 4 below.
@@ -410,12 +415,10 @@ per-repo detail belongs in the operator's private estate-root repo, and the
 triage list lives there. Only the *classes* are named below, because the classes
 are what generalise to any adopter.
 
-- [ ] **High-entropy hits in a tracked data export.** A business-system export
-      committed to a repo, carrying token-shaped values. The decision tree is the
-      transferable part: check what the export actually contains, then choose
-      between allow-marker, ignore-glob, history rewrite, or rotation — and note
-      that deleting the file is not one of the options, because history is
-      forever.
+> 📦 **1 completed item** in this section → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
+>   (the tracked data export — ruled, executed, and the three things its triage
+>   surfaced that the original entry could not have known).
+
 - [ ] **`assigned-secret` findings in service configuration.** Self-hosted
       service configs with credential-shaped assignments. Same tree; the usual
       right answer is a secret-store or env reference, plus rotation if the value
