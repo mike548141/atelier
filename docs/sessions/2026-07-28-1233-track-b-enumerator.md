@@ -97,3 +97,26 @@ commit. `floorfleet --remote --check` exits 0 (conformance intact);
   waits for a credential is the exact failure the item exists to close.
 - 🎯 The five red child floors, and B4's next step (fund the discriminator, or
   leave it as a hand-run tool before deliberate bulk deletions).
+
+## Addendum — the B4 pointer, re-read at Mike's request (`7ca1f1d`)
+
+Mike asked for the B4 review to be queued. It already was, in its landing
+commit — but re-reading it found the pointer breaching the ROADMAP's own
+**refs-only** ceiling: it seeded the pass's first question and volunteered the
+author's doubt about his own verdict, which is precisely the material a taker is
+supposed to meet cold.
+
+🔎 **That is the third recorded instance of the same failure, and the sharpest
+one.** The finding that records the first two lives in this same file and was
+read hours earlier in this same session. Refs-only survived being *written down
+as an open finding* and was then broken by the session that had just read it —
+which is the argument for a forcing function rather than for restating the rule
+again. The finding was updated to carry the third instance and a fix shape
+(`reviewscan` knows the `⏳` grammar; a field not in {delta, intent record,
+tier} is a finding), left as Mike's call to fund.
+
+Two smaller corrections rode with it: both pointers named `SESSIONS.md` as their
+intent record when the record is the session *file* — **ER4's exact shape,
+reproduced before ER4 has even been ruled on** — and the B2+B3 delta list was
+widened to what actually landed rather than the subset that existed when the
+pointer was first written.
