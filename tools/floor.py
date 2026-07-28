@@ -860,9 +860,19 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
         # meant one typo in a `scope` path turned secretscan or leakscan off and
         # the run still exited 0. This is the same call already made for an empty
         # `local.*.scope` ("narrowing a check to nothing is a silent hole, not a
-        # scope") and for an absolute path in --staged mode; it is the rest of
-        # that class. Registry defaults for these scanners are the repo root, so
-        # only an explicit declaration can reach here.
+        # scope") and for an absolute path in --staged mode.
+        #
+        # It is ONE member of that class, not the rest of it. The class is
+        # "a declared scope that reads something other than the tree it names",
+        # and this guard shuts only the first of its three members: does not
+        # resolve (shut here) / resolves OUTSIDE the repo (open — `/etc` and
+        # `..` both pass `.exists()`, render to a prefix that matches no staged
+        # path, and exit 0 clean) / resolves outside via an in-tree symlink
+        # (open). `local.run` has the lexical half of this check
+        # (`is_absolute()` / `..`) and fleet `scope` has neither half — the
+        # asymmetry is real and named, not designed. Track A application cold
+        # pass, TA1; awaiting a ruling. Registry defaults for these scanners are
+        # the repo root, so only an explicit declaration can reach here.
         if missing and scanner.advisory is None:
             print(
                 f"floor: {scanner.name} is scoped to "
