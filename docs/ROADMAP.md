@@ -181,7 +181,8 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       one. Weigh honestly against it also being the legitimate escape hatch —
       making it painful invites worse workarounds.
 - ⏳ **Review queued — the estate-root naming rule, widened.** Self-authored
-      doctrine ⇒ rule-4 pass. **Delta:** `docs/method/PROPAGATION.md` (the
+      doctrine ⇒ rule-4 pass.
+      (claimed 2026-07-28-1210, wt: estate-root-widening-cold-pass) **Delta:** `docs/method/PROPAGATION.md` (the
       estate-resources paragraph). **Intent record:** the 2026-07-28 addendum
       on
       [`2026-07-27-2301-track-a-fail-opens`](sessions/2026-07-27-2301-track-a-fail-opens.md).
