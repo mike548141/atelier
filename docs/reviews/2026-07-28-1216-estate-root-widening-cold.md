@@ -104,3 +104,28 @@ rule); ER1–ER3 to Mike.
 ---
 
 ## Reconcile (verdict committed first; the intent-record addendum now open)
+
+**The intent record reconciles clean.** The 2026-07-28 SESSIONS.md
+addendum entry tells the same story the paragraph and both commit
+messages tell, with the pre-landing pass's three corrections carried
+honestly (the 8→63 undercount stamped, not swapped; the C5 premise
+correction; the widened rule broken by its own widening commit, recorded
+as evidence for C5). Every figure it states reproduced under this pass's
+independent sweep except the net-dependent "10" (ER3, unchanged).
+
+**ER4 (note, new at reconcile — pointer precision):** the queue pointer
+and the addendum's own link name
+`sessions/2026-07-27-2301-track-a-fail-opens.md` as the intent record's
+home, but that file contains no addendum — the record is the SESSIONS.md
+*entry* itself. A taker meeting the pointer cold greps the named file and
+finds nothing (this one did). Cheap fix: pointers to addendum-entries say
+"the SESSIONS.md entry of <date>" rather than linking the file the entry
+extends.
+
+**ER1, ER2 stand** — the addendum, like the paragraph, is silent at the
+private→public flip and does not say where the local-path convention
+lives.
+
+**Verdict after reconcile: unchanged — PASS-WITH-FINDINGS, 0 MAJOR /
+1 minor / 3 notes (ER4 added at reconcile). The cycle CLOSES** (no-MAJOR
+terminal rule); ER1–ER4 decided into the backlog for Mike.
