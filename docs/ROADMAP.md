@@ -129,18 +129,26 @@ reason, none carrying a date. (The 2026-07-27 figure of 11 across 8 was an
 undercount — the fourth wrong blast radius on this programme and the first that
 *understated* the work; see the C1 session record.)
 
-> 📦 **C1 phase 1 complete** (schema, expiry, A1(b)) →
+> 📦 **C1 phase 1 complete, and its review cycle CLOSED** (schema, expiry,
+>   A1(b); rule-4 cold pass 2026-07-28, 0 MAJOR — terminal) →
 >   [`ROADMAP-DONE.md`](ROADMAP-DONE.md). What remains of C1 is C1b below —
 >   the migration and the removal of the transition spelling.
-- [~] ⏳ **review queued** — C1 phase 1 and A1(b) (rule-4 cold pass, Fable).
-      (claimed 2026-07-28-1201, wt: c1-advisory-cold-pass)
-      Self-authored doctrine and enforcement code. Commit `549930b` and the
-      records commit that completes the series. Files in the delta:
-      `tools/floor.py`, `tools/floorfleet.py`, `tools/test_floor.py`,
-      `tools/test_floorfleet.py`, `docs/build/templates/CONTRIBUTING.md`.
-      **Intent record:**
-      [`2026-07-28-0244-c1-advisory-schema`](sessions/2026-07-28-0244-c1-advisory-schema.md).
-      Not spawned by the applier session.
+- [ ] 🎯 **C1-pass residue — C1F1–C1F3, Mike's ruling.** The terminal pass
+      returned 0 MAJOR / 1 minor / 2 notes
+      ([verdict](reviews/2026-07-28-1204-c1-advisory-cold.md)); cycle
+      closed, residue Mike's per rule 3. In plain language: **C1F1**
+      (minor) — on the floor's human line, an advisory's `why` displaces
+      the "N of M scope paths missing" drift note (it survives only in
+      `--json`), so a softened check with shrinking cover shows the reason
+      but not the shrink; joining the notes fixes it (reviewer counsel:
+      fix). **C1F2** (note) — the record says an expired advisory shows
+      how many days it has stood "on the floor and the board", but the
+      count renders on the board only; add the count to the floor line or
+      correct the claim — either answer works, one of them should land.
+      **C1F3** (note) — config-authored strings (`why`, disabled reasons)
+      print raw to terminals; a hostile child config could embed escape
+      sequences. Pre-existing class, two fields wider now; stripping C0
+      controls at parse closes the class if ever wanted.
 - [ ] 🎯 **C1b — migrate the 17, then delete the legacy spelling.** Phase 1
       deliberately did not write the declarations: a `review-by` is a
       commitment about when a backlog gets cleared, which is the principal's to

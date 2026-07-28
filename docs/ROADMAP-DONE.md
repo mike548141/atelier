@@ -2701,3 +2701,23 @@ mid-series, and landed still claiming "(open)" two members that `321bbd3`
 had shut — with the out-of-delta C1 commit later appending a correcting
 tail while leaving the "(open)" labels. Same comment, three states, none
 true at its landing.
+
+### C1 phase 1's cold pass — C1F1–C1F3 (done 2026-07-28)
+
+- [x] **REVIEWED 2026-07-28** (rule-4 Fable cold pass, same taker session as
+  the Track A terminal pass — author of nothing in either chain):
+  **PASS-WITH-FINDINGS 0 MAJOR / 1 minor / 2 notes** —
+  [verdict](reviews/2026-07-28-1204-c1-advisory-cold.md). **The C1 phase-1
+  review cycle CLOSED** (no-MAJOR terminal rule); residue C1F1–C1F3 queued
+  🎯 for Mike beside C1b.
+
+Every claim re-ran true before the intent record was opened: eight parse
+edges refused by message with rc 1 and zero tracebacks; the three render
+states live (expired 🔴 with rc 0 — red, never blocking, as ruled); all
+four A1(b) edges as ruled; the estate measurement exact (17 advisory
+declarations across 10 children, and exactly 17 🟡 unmigrated rows on the
+live board); 747 green at `549930b`; the pointer pushed with its landing
+commit. The one substantive finding (C1F1) is a render displacement: the
+new advisory `why` occupies the note slot the TA3 drift warning uses, so a
+softened check with a half-resolving scope shows its reason but not its
+shrink outside `--json`.
