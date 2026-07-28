@@ -375,12 +375,27 @@ it keeps being broken. All are self-authored doctrine when they land ⇒ rule-4
   harvest rides the `[x]` commit* below.
 - **Bulk deletion from a record store is a show-first action** — Mike's call,
   it narrows agent autonomy → § *For your consideration* below.
-- [ ] **The `⏳` pointer steered its own reviewer.** Two queued pointers
-      carried their authors' full reviewer agendas inline, against the
-      ROADMAP's own refs-only ceiling; the taker read them before a brief
-      existed to defer them, and it measurably steered the pass — two of three
-      seeded questions pointed away from the load-bearing problem. The ceiling
-      is stated in this file's own preamble and was not enforced by anything.
+- [ ] 🎯 **The `⏳` pointer steered its own reviewer — THIRD instance,
+      2026-07-28.** Two queued pointers carried their authors' full reviewer
+      agendas inline, against the ROADMAP's own refs-only ceiling; the taker
+      read them before a brief existed to defer them, and it measurably steered
+      the pass — two of three seeded questions pointed away from the
+      load-bearing problem. The ceiling is stated in this file's own preamble
+      and was not enforced by anything.
+      **A third instance arrived on 2026-07-28, and it is the sharpest
+      evidence yet, because the author had read this very finding hours
+      earlier.** The B4 pointer was queued carrying a seeded first question
+      ("is a 26.9% firing rate the right ground for *do not wire*") plus the
+      author's own doubt about his verdict. Refs-only survived being *written
+      down as an open finding*, in the same file, in the same session that
+      then broke it. Stripped on the next commit when Mike asked for the
+      review to be queued and it was re-read.
+      **By this file's own recurrence rule** — three instances of a trivial
+      failure is a defect in the system producing it, not in the person — the
+      argument for a forcing function is now made. Cheapest shape: the `⏳`
+      grammar admits a fixed set of fields (delta · intent record · tier) and
+      anything else in a pointer is a finding, which `reviewscan` is already
+      the natural home for. **Mike's call whether to fund it.**
 - [ ] **ZL1 (MAJOR) — the surface that binds the apex at session start is
       stale.** `skills/session-onramp/SKILL.md` still teaches the pre-Zeroth
       three-element Laws, contradicting `00-APEX.md` at HEAD. A prior sweep
@@ -822,22 +837,24 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
 
 ## Doctrine — review-owed
 
-- ⏳ **B4 — `harvestscan`, the roadmap-deletion guard.** Delta:
-  `tools/harvestscan.py`, `tools/test_harvestscan.py`, and the B4 entry in
-  [`ROADMAP.md`](ROADMAP.md) carrying its measurement. Intent record: the
-  2026-07-28 Track B session entry in [`SESSIONS.md`](SESSIONS.md). Cold pass
-  owed per rule 4; the tier bar applies. **The pass's first question is whether
-  a 26.9% firing rate is the right ground for "do not wire" or whether the
-  measurement itself is mis-shaped** — the author reached that verdict on his
-  own instrument.
+- ⏳ **B4 — the roadmap-deletion guard: the item, and the work addressing it**
+  (queued at Mike's request, 2026-07-28). Delta: `tools/harvestscan.py` ·
+  `tools/test_harvestscan.py` · the B4 entry in this file, which carries both
+  the measurement and the not-wired verdict. Intent record:
+  [`sessions/2026-07-28-1233-track-b-enumerator.md`](sessions/2026-07-28-1233-track-b-enumerator.md).
+  Cold pass owed per rule 4; the tier bar applies (cold review passes run on
+  Fable).
 
 - ⏳ **B2 + B3 — `floorfleet --status`, the compliance half of the board.**
-  Delta: `tools/floorfleet.py` (`classify_run`, `read_run`, `ChildFloor.green`,
-  the `--status` flag and its render), `tools/test_floorfleet.py`
-  (`RunStatusTest`). Intent record: the 2026-07-28 Track B session entry in
-  [`SESSIONS.md`](SESSIONS.md), and the harvest in
-  [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Cold pass owed per rule 4 — the tier
-  bar applies (cold review passes run on Fable).
+  Delta: `tools/floorfleet.py` (`classify_run`, `read_run`, `_gh_json`,
+  `_gh_list`, `discover_github`, `stub_checkout`, `ChildFloor.green`, the
+  `--status` and `--from-github` flags and their render) ·
+  `tools/test_floorfleet.py` (`RunStatusTest`, `RemoteDiscoveryTest`,
+  `GhReadTest`) · the estate-root repo's `estate-conformance.yml`, which is the
+  consumer B1 built on it. Intent record:
+  [`sessions/2026-07-28-1233-track-b-enumerator.md`](sessions/2026-07-28-1233-track-b-enumerator.md),
+  and the harvest in [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Cold pass owed per
+  rule 4 — the tier bar applies (cold review passes run on Fable).
 
 - [ ] 🎯 **Write down which tier reviews — the rule exists in practice and
   nowhere as a rule** (Mike's ruling, 2026-07-26, after an Opus session took
