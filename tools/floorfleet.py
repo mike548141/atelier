@@ -83,10 +83,15 @@ WHAT THIS CANNOT SEE — read before trusting a clean board
   residual has shrunk from "hooks are unknowable remotely" to "whether this
   clone points at them is unknowable remotely" — real, but much smaller. CI
   stays the backstop precisely because that last step cannot be guaranteed.
-- **Discovery is one level under the search roots**, and only repos carrying an
-  atelier pin in CLAUDE.md. A child nested deeper, or one that never took a pin,
-  is invisible here — it will not show as a red, it will not show at all. That is
-  the one absence this tool cannot report on itself.
+- **Discovery is one level under the search roots by default**, and only repos
+  carrying an atelier pin in CLAUDE.md. A child nested deeper, or one that never
+  took a pin, is invisible — not red, just absent. This was the one absence the
+  tool could not report on itself, and `--from-github <owner>` is the answer:
+  it enumerates the ACCOUNT rather than a directory, so a repo that exists and
+  was never cloned here is seen, and repos carrying no pin are listed as
+  unenrolled rather than passed over in silence. It is also the only mode that
+  works with no local clones at all, which is what a scheduled run needs.
+  What still escapes even that: a repo in a different account or org.
 - **Without `--status` it reads workflow TEXT only.** A repo whose floor.yml
   calls the reusable workflow inside a job that never runs — a condition, a
   disabled workflow, or GitHub Actions switched off for the whole repo — reads as
@@ -107,6 +112,9 @@ Usage:
   floorfleet                 discover children + report
   floorfleet --remote        read each repo's default branch from GitHub
   floorfleet --status        also read each repo's latest floor RUN
+  floorfleet --from-github <owner>
+                             discover the estate from GitHub, not from local
+                             directories (implies --remote; needs no clones)
   floorfleet --check         exit 1 if any child is unguarded
   floorfleet --child <path>  report only the named child
   floorfleet --json          machine-readable
@@ -122,6 +130,7 @@ import json
 import re
 import subprocess
 import sys
+import tempfile
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
@@ -257,10 +266,9 @@ def _slug(child: Path) -> str | None:
     return m.group(1) if m else None
 
 
-def _read_remote(child: Path, rel: str) -> str | None:
-    slug = _slug(child)
-    if not slug:
-        return None
+def _read_remote_slug(slug: str, rel: str) -> str | None:
+    """One file from a repo's default branch, by slug. The contents endpoint
+    returns base64, so this is the one read that is deliberately not JSON."""
     r = subprocess.run(
         ["gh", "api", f"repos/{slug}/contents/{rel}", "--jq", ".content"],
         capture_output=True, text=True, check=False,
@@ -273,22 +281,59 @@ def _read_remote(child: Path, rel: str) -> str | None:
         return None
 
 
-def _gh_json(path: str, *jq: str) -> object | None:
+def _read_remote(child: Path, rel: str) -> str | None:
+    slug = _slug(child)
+    return _read_remote_slug(slug, rel) if slug else None
+
+
+def _gh_json(path: str) -> object | None:
     """One `gh api` read, parsed. None on any failure — never a partial answer.
 
     Deliberately swallows the error rather than raising: every caller's fallback
     is the same, and it is `unknown`, which this tool already treats as
-    not-green. A read we could not make must never become a pass."""
-    cmd = ["gh", "api", path]
-    for j in jq:
-        cmd += ["--jq", j]
-    r = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    not-green. A read we could not make must never become a pass.
+
+    Takes NO `--jq`, and that is load-bearing rather than a simplification.
+    `--jq .sha` prints a BARE string — `a8f667e…`, unquoted — which is not valid
+    JSON, so parsing it here returned None and the caller read that as "could
+    not determine the head", silently. The `behind` check was inert for exactly
+    that reason on its first live run. Callers select fields from the parsed
+    object instead; `_read_remote_slug` handles the one endpoint whose payload
+    is genuinely not JSON."""
+    r = subprocess.run(["gh", "api", path],
+                       capture_output=True, text=True, check=False)
     if r.returncode != 0 or not r.stdout.strip():
         return None
     try:
         return json.loads(r.stdout)
     except ValueError:
         return None
+
+
+def _gh_list(path: str) -> list[dict]:
+    """Every page of a list endpoint, as dicts. [] on any failure.
+
+    Paginated deliberately: a page-1-only read of an account's repos is an
+    enumeration that silently stops at 100, and this tool's whole claim is that
+    it enumerates. `--jq '.[]'` emits one compact object per line, which is what
+    makes `--paginate` parseable — the raw paginated body is several JSON arrays
+    concatenated, which is not valid JSON."""
+    r = subprocess.run(["gh", "api", "--paginate", "--jq", ".[]", path],
+                       capture_output=True, text=True, check=False)
+    if r.returncode != 0:
+        return []
+    out: list[dict] = []
+    for line in r.stdout.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            obj = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(obj, dict):
+            out.append(obj)
+    return out
 
 
 # The conclusions that mean the floor ran and did not pass. `cancelled` and
@@ -701,8 +746,9 @@ def read_run(child: Path, workflow: str) -> tuple[str, str]:
     branch = repo.get("default_branch") if isinstance(repo, dict) else None
     head_sha = None
     if branch:
-        ref = _gh_json(f"repos/{slug}/commits/{branch}", ".sha")
-        head_sha = ref if isinstance(ref, str) else None
+        commit = _gh_json(f"repos/{slug}/commits/{branch}")
+        if isinstance(commit, dict) and isinstance(commit.get("sha"), str):
+            head_sha = commit["sha"]
 
     listing = _gh_json(f"repos/{slug}/actions/workflows")
     wf_state = None
@@ -730,6 +776,80 @@ def read_run(child: Path, workflow: str) -> tuple[str, str]:
     return (state, detail, authority)
 
 
+def discover_github(owner: str) -> tuple[list[tuple[str, str]], list[str]]:
+    """Enumerate the estate from GITHUB rather than from a directory listing.
+
+    WHY THIS EXISTS. `--remote` reads each repo's CONTENT from GitHub, but
+    discovery was still a walk of the directories beside this checkout — so the
+    estate this tool could see was the estate that happened to be cloned on one
+    laptop. Two consequences, and the second is why B1 needed it:
+
+      - The tool's own documented blind spot: a repo that exists and was never
+        cloned here is not reported as a red, it is not reported AT ALL. An
+        absence that cannot raise its hand is the exact failure this board was
+        built to end, and it had one of its own.
+      - A scheduled run on a GitHub runner has NO local children, so the
+        conformance check specified in roadmap B1 would have discovered nothing
+        and exited 2. Fail-safe, but not a check.
+
+    Returns (children, outsiders): children are (slug, CLAUDE.md text) for every
+    repo carrying an atelier pin; outsiders are the account's other repo slugs,
+    reported so a repo that never adopted the floor is visible as a choice
+    rather than as silence."""
+    # BOTH endpoints, unioned. `users/{owner}/repos` returns PUBLIC repos only —
+    # on this estate that is 4 of 20 — while `user/repos` sees private ones but
+    # only for the authenticated account. Taking either alone silently
+    # under-enumerates, and under-enumeration is this tool's cardinal failure:
+    # the repos it cannot see are reported as nothing at all, not as a red.
+    seen: dict[str, dict] = {}
+    for endpoint in (f"users/{owner}/repos?per_page=100&type=owner",
+                     "user/repos?per_page=100&affiliation=owner"):
+        for repo in _gh_list(endpoint):
+            slug = repo.get("full_name", "")
+            if slug.split("/")[0].lower() == owner.lower():
+                seen[slug] = repo
+    if not seen:
+        return ([], [])
+
+    children: list[tuple[str, str]] = []
+    outsiders: list[str] = []
+    for repo in seen.values():
+        if repo.get("archived"):
+            continue
+        slug = repo.get("full_name")
+        if not slug or slug.split("/")[-1] == "atelier":
+            continue
+        text = _read_remote_slug(slug, "CLAUDE.md") or ""
+        if pins.PIN_RE.search(text):
+            children.append((slug, text))
+        else:
+            outsiders.append(slug)
+    return (children, outsiders)
+
+
+def stub_checkout(root: Path, slug: str, claude_md: str) -> Path:
+    """A minimal local repo standing in for a remotely-discovered child.
+
+    Everything downstream of discovery is path-shaped — it asks a directory for
+    its origin remote and then reads the ANSWERS from GitHub. Rather than thread
+    a second repo representation through all of it, a discovered child is
+    materialised as a stub carrying exactly two facts that came from GitHub: its
+    origin URL and its CLAUDE.md. No content claim is ever read from the stub;
+    `--from-github` forces the remote plane, so every reported fact still comes
+    from the default branch. The one column that genuinely cannot survive this
+    is the local hook, and it is reported as unavailable rather than as absent —
+    a stub has no hook, and calling that a finding would be a false red on every
+    row."""
+    d = root / slug.split("/")[-1]
+    d.mkdir(parents=True, exist_ok=True)
+    quiet = {"capture_output": True, "check": False}
+    subprocess.run(["git", "-C", str(d), "init", "-q"], **quiet)
+    subprocess.run(["git", "-C", str(d), "remote", "add", "origin",
+                    f"https://github.com/{slug}.git"], **quiet)
+    (d / "CLAUDE.md").write_text(claude_md, encoding="utf-8")
+    return d
+
+
 def evaluate(child: Path, remote: bool, status: bool = False) -> ChildFloor:
     read = _read_remote if remote else _read_local
     state, detail = classify(read(child, FLOOR_PATH))
@@ -744,7 +864,10 @@ def evaluate(child: Path, remote: bool, status: bool = False) -> ChildFloor:
 ICON = {"wired": "✅", "pinned": "📌", "vendored": "🛑", "absent": "🛑",
         "unknown": "⚠️"}
 HOOK_ICON = {"tracked": "✅", "installed": "✅", "legacy": "⚠️", "none": "❌",
-             "unknown": "⚠️"}
+             "unknown": "⚠️",
+             # --from-github: there is no working copy to ask, and saying so is
+             # not the same as saying the hook is missing.
+             "n/a": "—"}
 # The tracked shim, unlike the installed hook, is a fact about the REPO — so on
 # --remote these icons carry an estate-wide claim, not a machine-local one.
 SHIM_ICON = {"current": "✅", "legacy": "⚠️", "absent": "❌", "unknown": "⚠️"}
@@ -1001,6 +1124,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--child", action="append", help="report only this child path")
     p.add_argument("--remote", action="store_true",
                    help="read each repo's default branch from GitHub via gh")
+    p.add_argument("--from-github", metavar="OWNER",
+                   help="discover the estate from GitHub instead of from the "
+                        "directories beside this checkout (implies --remote; "
+                        "the only mode that works with no local clones)")
     p.add_argument("--status", action="store_true",
                    help="also read each repo's latest floor RUN — wired and "
                         "passing, not just wired (needs gh Actions read)")
@@ -1025,7 +1152,24 @@ def main(argv: list[str] | None = None) -> int:
               file=sys.stderr)
         return 2
 
-    if args.child:
+    # Held open for the whole run: the stubs must outlive discovery, because
+    # every downstream read asks a directory for its origin remote.
+    scratch: tempfile.TemporaryDirectory | None = None
+    outsiders: list[str] = []
+    if args.from_github:
+        args.remote = True  # a stub has no content to read locally
+        found, outsiders = discover_github(args.from_github)
+        if not found:
+            print(f"floorfleet: no atelier children found in the {args.from_github} "
+                  "account on GitHub", file=sys.stderr)
+            print("floorfleet: check `gh auth status` — a token that cannot see "
+                  "the private repos sees an empty estate, which must never "
+                  "read as a clean one.", file=sys.stderr)
+            return 2
+        scratch = tempfile.TemporaryDirectory(prefix="floorfleet-")
+        children = [stub_checkout(Path(scratch.name), slug, text)
+                    for slug, text in found]
+    elif args.child:
         children = []
         for c in args.child:
             p = Path(c).expanduser()
@@ -1052,6 +1196,12 @@ def main(argv: list[str] | None = None) -> int:
 
     infos = [evaluate(c, args.remote, args.status) for c in
              sorted(children, key=lambda p: p.name.lower())]
+    if args.from_github:
+        # The one column a stub cannot answer. Reported as unavailable, never as
+        # absent: `core.hooksPath` is a fact about a working copy, and this mode
+        # deliberately has none, so a red here would be a false one on every row.
+        for i in infos:
+            i.hook = "n/a"
     # The parent goes on its own board. Discovery walks children, so without
     # this the one repo that DEFINES the floor is the one repo never checked
     # against it (roadmap A5b). Read locally even under --remote: --remote
@@ -1071,18 +1221,38 @@ def main(argv: list[str] | None = None) -> int:
             parent.run, parent.run_detail = (
                 "unknown", "no workflow of its own runs the floor — there is "
                            "no run history to read")
+    if args.from_github:
+        parent.hook = "n/a"
     infos.insert(0, parent)
 
     if args.json:
         terms_present, terms_detail = terms_state()
         print(json.dumps({"plane": "remote" if args.remote else "local",
                           "status": bool(args.status),
+                          "discovery": args.from_github or "local",
+                          # Repos in the account carrying no atelier pin. Not
+                          # findings — a scope decision, surfaced so it stays a
+                          # decision rather than an absence nobody sees.
+                          "unenrolled": outsiders,
                           # Machine-local, not per-child — see terms_state().
                           "terms": {"present": terms_present,
                                     "detail": terms_detail},
                           "children": [asdict(i) for i in infos]}, indent=2))
     else:
         print(render(infos, args.remote, args.status))
+        if outsiders:
+            print()
+            print(f"  {len(outsiders)} repo(s) in the {args.from_github} "
+                  "account carry no atelier pin, so they are")
+            print("  outside this board entirely — not red, not counted, not "
+                  "scanned by anything:")
+            for slug in sorted(outsiders):
+                print(f"    - {slug}")
+            print("  Adopting them is a scope decision, not a defect fix. This "
+                  "line exists so it")
+            print("  stays a decision rather than an absence nobody sees.")
+    if scratch is not None:
+        scratch.cleanup()
 
     if not args.check:
         return 0

@@ -17,6 +17,7 @@ The classification tests below are all shaped around that. In particular:
 Zero third-party deps, same as the rest of the suite.
 """
 
+import inspect
 import json
 import os
 import subprocess
@@ -609,7 +610,12 @@ class RunStatusTest(unittest.TestCase):
             "actions/permissions": {"enabled": True},
             "actions/workflows": self.LISTING,
             self.RUNS_KEY: self.GREEN,
-            "commits/main": "aaaa1111",
+            # The real payload shape. An earlier draft of this fixture returned
+            # the bare sha, which is what the buggy `--jq .sha` call LOOKED like
+            # it produced — so the mock agreed with the defect and the test
+            # passed over it. A fixture that models the wrong contract proves
+            # the wrong thing.
+            "commits/main": {"sha": "aaaa1111"},
             "repos/o/r": {"default_branch": "main"},
         })
         self.assertEqual(state, "passing")
@@ -667,7 +673,7 @@ class RunStatusTest(unittest.TestCase):
             "actions/workflows": self.LISTING,
             self.RUNS_KEY: self.GREEN,
             "repos/o/r": {"default_branch": "main"},
-            "commits/main": "bbbb2222",
+            "commits/main": {"sha": "bbbb2222"},
         })
         self.assertEqual(state, "behind")
         self.assertIn("unscanned", detail)
@@ -716,6 +722,100 @@ class RunStatusTest(unittest.TestCase):
         out = floorfleet.render(infos, remote=False)
         self.assertNotIn("run:", out)
         self.assertNotIn("PROVEN GREEN", out)
+
+
+class RemoteDiscoveryTest(unittest.TestCase):
+    """--from-github (roadmap B1): enumerate the estate from GitHub, not from
+    whatever happens to be cloned beside this checkout.
+
+    B1 assumed the scheduled conformance check was small wiring because
+    `--remote` was assumed to be remote end-to-end. It was not: `--remote` read
+    CONTENT remotely and still DISCOVERED children by listing directories, so on
+    a GitHub runner it would have found nothing. Same shape as the defect this
+    whole programme keeps finding — a check that looks like it covers something
+    and does not."""
+
+    def test_both_listings_are_unioned_because_either_alone_under_enumerates(self):
+        """The live failure: `users/{owner}/repos` returns PUBLIC repos only —
+        4 of 20 on this estate. A tool whose claim is enumeration must never
+        quietly enumerate a quarter of the estate."""
+        public = [{"full_name": "o/pub", "archived": False}]
+        private = [{"full_name": "o/priv", "archived": False}]
+
+        def listings(path):
+            return public if path.startswith("users/") else private
+
+        with mock.patch.object(floorfleet, "_gh_list", side_effect=listings), \
+             mock.patch.object(floorfleet, "_read_remote_slug",
+                               return_value="pin: atelier@abc1234"):
+            children, outsiders = floorfleet.discover_github("o")
+        self.assertEqual(sorted(s for s, _ in children), ["o/priv", "o/pub"])
+        self.assertEqual(outsiders, [])
+
+    def test_repos_from_another_account_are_not_counted_as_this_estate(self):
+        with mock.patch.object(floorfleet, "_gh_list",
+                               return_value=[{"full_name": "someone/else"}]), \
+             mock.patch.object(floorfleet, "_read_remote_slug",
+                               return_value="pin: atelier@abc1234"):
+            children, outsiders = floorfleet.discover_github("o")
+        self.assertEqual(children, [])
+        self.assertEqual(outsiders, [])
+
+    def test_a_repo_without_a_pin_is_an_outsider_not_a_child(self):
+        repos = [{"full_name": "o/child"}, {"full_name": "o/stranger"}]
+
+        def claude(slug, rel):
+            return "atelier@abc1234" if slug == "o/child" else None
+
+        with mock.patch.object(floorfleet, "_gh_list", return_value=repos), \
+             mock.patch.object(floorfleet, "_read_remote_slug",
+                               side_effect=claude):
+            children, outsiders = floorfleet.discover_github("o")
+        self.assertEqual([s for s, _ in children], ["o/child"])
+        self.assertEqual(outsiders, ["o/stranger"])
+
+    def test_archived_repos_are_skipped(self):
+        with mock.patch.object(floorfleet, "_gh_list", return_value=[
+                {"full_name": "o/old", "archived": True}]), \
+             mock.patch.object(floorfleet, "_read_remote_slug",
+                               return_value="atelier@abc1234"):
+            children, outsiders = floorfleet.discover_github("o")
+        self.assertEqual((children, outsiders), ([], []))
+
+    def test_a_stub_checkout_answers_the_slug_lookup(self):
+        """Everything downstream asks a directory for its origin remote, so the
+        stub has to satisfy exactly that and nothing more."""
+        with tempfile.TemporaryDirectory() as td:
+            d = floorfleet.stub_checkout(Path(td), "o/thing", "atelier@abc1234")
+            self.assertEqual(floorfleet._slug(d), "o/thing")
+            self.assertIn("atelier@abc1234",
+                          (d / "CLAUDE.md").read_text(encoding="utf-8"))
+
+    def test_the_local_hook_column_is_unavailable_not_absent(self):
+        info = floorfleet.ChildFloor("a", "/a", "wired", "ok", hook="n/a")
+        out = floorfleet.render([info], remote=True)
+        self.assertIn("hook:n/a", out)
+        # ...and must not be swept into the gap list, which would be a false red
+        # on every row in this mode.
+        self.assertNotIn("Local hook gaps", out)
+
+
+class GhReadTest(unittest.TestCase):
+    def test_a_scalar_jq_projection_is_not_parseable_as_json(self):
+        """Regression. `_gh_json(path, '.sha')` printed a BARE sha — not valid
+        JSON — so the parse failed, the caller read None as 'head unknown', and
+        the `behind` check was inert on its first live run without ever
+        erroring. The helper takes no --jq at all now; this pins why."""
+        self.assertEqual(
+            len(inspect.signature(floorfleet._gh_json).parameters), 1)
+        with self.assertRaises(ValueError):
+            json.loads("a8f667e26e29e765e0be276a2edefaeb5ac9047c")
+
+    def test_a_failed_read_is_none_not_a_guess(self):
+        fail = subprocess.CompletedProcess([], 1, stdout="", stderr="boom")
+        with mock.patch.object(subprocess, "run", return_value=fail):
+            self.assertIsNone(floorfleet._gh_json("repos/o/r"))
+            self.assertEqual(floorfleet._gh_list("user/repos"), [])
 
 
 if __name__ == "__main__":
