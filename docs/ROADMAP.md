@@ -392,10 +392,69 @@ it keeps being broken. All are self-authored doctrine when they land ⇒ rule-4
       review to be queued and it was re-read.
       **By this file's own recurrence rule** — three instances of a trivial
       failure is a defect in the system producing it, not in the person — the
-      argument for a forcing function is now made. Cheapest shape: the `⏳`
-      grammar admits a fixed set of fields (delta · intent record · tier) and
-      anything else in a pointer is a finding, which `reviewscan` is already
-      the natural home for. **Mike's call whether to fund it.**
+      argument for a forcing function is made. **Mike funded it 2026-07-28**;
+      specified as its own item immediately below, deliberately left unclaimed
+      for a fresh session.
+
+- [ ] **FUNDED (Mike, 2026-07-28) — mechanise the `⏳` pointer grammar.**
+      Unclaimed on purpose: this is the work that closes the finding directly
+      above, and it wants a session that did not write the breach.
+
+      **A correction to carry, because it changes where this goes.** The first
+      sketch said "`reviewscan` is the natural home". It is not, and the
+      premise was never checked before being written down — the same shape as
+      the two false blockers this programme already records. `reviewscan`
+      **explicitly refuses to lint ROADMAP sections**, and that refusal is a
+      recorded decision (the 2026-07-18-0820 record), on the grounds that a
+      lint demanding structure under every roadmap heading fires on prose and
+      gets trained away. Honouring that rejection is in its module docstring.
+      The tool that *already* parses `⏳` list items in `ROADMAP.md` is
+      **`sizescan`** (`_LIVE_ITEM`, for harvest integrity), and
+      `harvestscan.is_pointer()` already isolates pointers from work items —
+      two existing building blocks rather than a new tool.
+
+      **First question the work must answer, not assume:** is this the same
+      rung the 0820 record rejected? Arguably not — that rejection was about
+      demanding a field under *every roadmap heading*, whereas this binds only
+      the `⏳` item type, of which there are rarely more than three at a time
+      and whose form is formulaic by definition. But that argument is the
+      author's, it is exactly the kind that has been wrong here before, and it
+      should be tested rather than inherited.
+
+      **What is actually mechanisable.** "A field outside {delta, intent
+      record, tier}" sounds crisp and is not detectable — the failure is
+      *evaluative* content, which is judgement. What the three real instances
+      share is narrower and testable: a **seeded question** or an explicit
+      **instruction to the reviewer**. Instance 1 carried *"Aim a reviewer at
+      the one real trade … Is that right for a security floor?"*; instance 3
+      carried *"the pass's first question is whether …"*. A question mark
+      inside a `⏳` item, plus a short phrase list of reviewer-direction
+      forms, catches all three.
+
+      **Acceptance corpus — located, not assumed.** Instance 3 is recoverable
+      as a pair (`ff8080b` wrote it, `7ca1f1d` stripped it), which gives a
+      must-flag and a must-stay-silent version of the same pointer. **Instance
+      1 is still LIVE in this file** — the ADR 0008 entry's *"Aim a reviewer
+      at the one real trade … Is that right for a security floor?"* — so the
+      guard has a real specimen to prove itself against on day one, and a real
+      finding to fix. Instance 2 was not located this session; find it or
+      record that it could not be found, rather than inheriting "two" on
+      faith.
+
+      🔎 **And that live specimen already breaks the obvious scoping.** The
+      ADR 0008 entry carries a reviewer agenda but is marked `[ ]`, with
+      "review owed" *mid-body* rather than in its lead — so a guard scoped to
+      the `⏳` marker alone would miss the one instance still standing.
+      `harvestscan.is_pointer()` has the same limit (marker, or lead-6-words).
+      Settle the scope before the detector: **what makes an item a
+      queued-review pointer** is the prior question, and getting it wrong
+      makes the check cover nothing while reporting clean — this programme's
+      organising defect, which it would be embarrassing to reproduce in the
+      guard against reproducing failures.
+
+      **Advisory first**, whatever the scope: a pointer is fixable in the same
+      commit that writes it, so the warning lands at the one moment it costs
+      nothing.
 - [ ] **ZL1 (MAJOR) — the surface that binds the apex at session start is
       stale.** `skills/session-onramp/SKILL.md` still teaches the pre-Zeroth
       three-element Laws, contradicting `00-APEX.md` at HEAD. A prior sweep
