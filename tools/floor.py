@@ -329,6 +329,40 @@ PLANES = ("hook", "ci")
 LOCAL_KEYS = frozenset({"run", "why", "planes", "args", "scope"})
 
 
+def _inside(root: Path, candidate: Path) -> bool:
+    """Is `candidate` the root itself or a path beneath it, after symlinks?
+
+    Both sides resolved, then compared as paths rather than strings —
+    `commonpath` treats components as components, so `/x/repo2` is not inside
+    `/x/repo` however the prefixes read."""
+    try:
+        r, c = root.resolve(), candidate.resolve()
+        return os.path.commonpath([r, c]) == str(r)
+    except (OSError, ValueError):
+        # ValueError: different drives/roots — genuinely not inside. OSError: a
+        # broken or looping symlink. Neither is a tree this repo can vouch for.
+        return False
+
+
+def _reject_escaping_scope(where: str, path: str) -> None:
+    """Refuse a scope path that names somewhere other than this repo's tree.
+
+    The lexical half of the membership rule — absolute paths and `..` — held
+    against a string, before any file system is consulted. `local.run` has had
+    exactly this check since the local seam landed; fleet `scope` had neither
+    this nor the resolved half, which is the asymmetry TA1 named inside a
+    single diff. The resolved half lives at the run guard, where a root to
+    resolve against exists."""
+    p = PurePosixPath(path)
+    if p.is_absolute() or ".." in p.parts:
+        raise ConfigError(
+            f"{CONFIG_NAME}: `{where}` must be a path INSIDE the repo, got "
+            f"{path!r}. A scope that names another tree does not narrow the "
+            "check, it points it somewhere else — and on the hook plane it "
+            "matches nothing at all, which exits 0 and reads as a clean pass."
+        )
+
+
 def _load_local(raw: object) -> tuple[Scanner, ...]:
     """Parse the `local` block into Scanners — the child's own checks.
 
@@ -565,6 +599,22 @@ class Config:
                         f"declare it in `local.{name}.{'scope' if key == 'scope' else 'args'}` "
                         "instead, where the check itself is defined"
                     )
+        # A scope path must name a tree INSIDE this repo, and this is the lexical
+        # half of that — the same check `local.run` already carries, for the same
+        # reason. Without it a declared path that merely EXISTS passes the run
+        # guard: `/etc` renders to a staged prefix matching nothing and a scan
+        # that matches nothing exits 0, so a boundary check reads ✅ while
+        # covering none of the diff (Track A application cold pass, TA1, ruled
+        # (a) 2026-07-28). Checked here rather than at the guard so it blocks on
+        # every plane and for softenable scanners too — the guard is reached only
+        # by checks that have no advisory form.
+        for name, paths in self.scope.items():
+            for p in paths:
+                _reject_escaping_scope(f"scope.{name}", p)
+        # Both spellings, because both feed `subtrees` and render identically.
+        for scanner in self.local:
+            for p in scanner.scope_paths:
+                _reject_escaping_scope(f"local.{scanner.name}.scope", p)
         for name in self.advisory:
             if name in self.disabled:
                 raise ConfigError(
@@ -850,6 +900,32 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
         )
 
         declared = subtrees(root, cfg, scanner.name)
+        # The resolved half of the membership rule (TA1, ruled (a)). The lexical
+        # half at `Config.validate` cannot see a symlink: `scope: ["logs"]` where
+        # `logs` -> /var/log is a relative, `..`-free path that exists, and would
+        # otherwise render as a scanned tree outside the repo. `os.path.commonpath`
+        # rather than a string prefix so a sibling named like the root (`../repo2`
+        # beside `repo`) cannot pass on spelling alone.
+        outside = [p for p in declared if (root / p).exists()
+                   and not _inside(root, root / p)]
+        if outside:
+            print(
+                f"floor: {scanner.name} is scoped to "
+                f"{', '.join(repr(p) for p in outside)}, which "
+                f"{'resolves' if len(outside) == 1 else 'resolve'} OUTSIDE this "
+                "repo — BLOCKING (fail closed).\n"
+                "  A scope names a subtree of this repo. Pointing a check at "
+                "another tree does not narrow it, and on the hook plane it "
+                "matches nothing and exits 0 — a green tick over an unscanned "
+                "diff.\n"
+                f"  Fix the path in {CONFIG_NAME}, or remove the "
+                f"`scope.{scanner.name}` entry to scan the whole repo.",
+                file=sys.stderr,
+            )
+            results.append(Result(scanner.name, "enforced", 1, "scope resolves outside the repo",
+                                  local=scanner.is_local))
+            continue
+
         missing = [p for p in declared if not (root / p).exists()]
         trees = [p for p in declared if (root / p).exists()]
 

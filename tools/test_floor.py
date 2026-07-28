@@ -621,7 +621,9 @@ class InvocationTest(unittest.TestCase):
         to turn secretscan or leakscan off and still exit 0 — the skip branch
         below, reached by a check that has no advisory form precisely because it
         may never be softened. Same call as an empty `local.*.scope` and as an
-        absolute path in --staged mode: this is the rest of that class."""
+        absolute path in --staged mode. This is ONE member of that class; the
+        two that resolve-but-outside are pinned by the three tests below
+        (TA1)."""
         with tempfile.TemporaryDirectory() as td:
             (Path(td) / floor.CONFIG_NAME).write_text(
                 json.dumps({"scope": {"secretscan": ["nosuchtree"]}}), encoding="utf-8")
@@ -645,6 +647,73 @@ class InvocationTest(unittest.TestCase):
             r = self._run("--plane", "ci", "--root", td)
             self.assertEqual(r.returncode, 1, r.stdout)
             self.assertIn("gone", r.stderr)
+
+    def test_scope_outside_the_repo_is_refused_at_parse(self):
+        """Track A application cold pass, TA1 (MAJOR), ruled (a). A scope path
+        that RESOLVES but not to this repo's tree used to pass the existence
+        guard, render on the hook plane to a prefix matching nothing in the
+        staged diff, and exit 0 — a boundary check vacated under a ✅. Refused
+        at config load, so it blocks on BOTH planes and by message, never by
+        the traceback an absolute path used to take on CI (TA2)."""
+        for bad in ("/etc", "..", "../sibling"):
+            for plane in ("hook", "ci"):
+                with self.subTest(scope=bad, plane=plane):
+                    with tempfile.TemporaryDirectory() as td:
+                        (Path(td) / floor.CONFIG_NAME).write_text(
+                            json.dumps({"scope": {"secretscan": [bad]}}),
+                            encoding="utf-8")
+                        r = self._run("--plane", plane, "--root", td)
+                        self.assertEqual(r.returncode, 1, r.stdout)
+                        self.assertIn("INSIDE the repo", r.stderr)
+                        self.assertIn("scope.secretscan", r.stderr)
+                        # Fail-closed by config error, not by crash: a traceback
+                        # reads as broken tooling rather than a fixable config.
+                        self.assertNotIn("Traceback", r.stderr)
+
+    def test_scope_escaping_via_symlink_blocks_at_the_guard(self):
+        """The member the lexical check cannot see: a relative, `..`-free path
+        that exists and points out of the tree. Caught where a root exists to
+        resolve against, and it must block rather than skip — this is a check
+        with no advisory form reading a tree that is not the repo."""
+        with tempfile.TemporaryDirectory() as td:
+            outside = Path(td) / "outside"
+            outside.mkdir()
+            root = Path(td) / "repo"
+            root.mkdir()
+            (root / "logs").symlink_to(outside)
+            (root / floor.CONFIG_NAME).write_text(
+                json.dumps({"scope": {"secretscan": ["logs"]}}), encoding="utf-8")
+            r = self._run("--plane", "hook", "--root", str(root))
+            self.assertEqual(r.returncode, 1, r.stdout)
+            self.assertIn("OUTSIDE this repo", r.stderr)
+
+    def test_an_in_tree_scope_is_still_accepted(self):
+        """The guard must not become "no scope override works". atelier and one
+        child both declare in-tree scopes today; measured at ruling time, every
+        live declaration in the estate passes this unchanged."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            (Path(td) / floor.CONFIG_NAME).write_text(
+                json.dumps({"scope": {"secretscan": ["docs"]}}), encoding="utf-8")
+            r = self._run("--plane", "ci", "--root", td, "--json")
+            self.assertEqual(r.returncode, 0, r.stderr)
+            results = {x["name"]: x for x in json.loads(r.stdout)["results"]}
+            self.assertEqual(results["secretscan"]["state"], "enforced")
+
+    def test_local_scope_is_held_to_the_same_rule(self):
+        """`local.*.scope` feeds the same `subtrees`/`_render` path as a fleet
+        `scope`, so it carries the same hazard and the same check. `local.run`
+        was already validated this way — the point of TA1 is that one spelling
+        of "where does this check look" was guarded and the others were not."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "check.py").write_text("import sys; sys.exit(0)\n", encoding="utf-8")
+            (Path(td) / floor.CONFIG_NAME).write_text(json.dumps({"local": {"t": {
+                "run": "check.py", "why": "pins a repo-local invariant",
+                "scope": ["../elsewhere"]}}}), encoding="utf-8")
+            r = self._run("--plane", "ci", "--root", td)
+            self.assertEqual(r.returncode, 1, r.stdout)
+            self.assertIn("local.t.scope", r.stderr)
+            self.assertIn("INSIDE the repo", r.stderr)
 
     def test_a_softenable_check_still_skips_a_missing_tree(self):
         """The other half of the guard, and the reason it is not blanket: the
