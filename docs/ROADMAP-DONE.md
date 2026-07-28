@@ -2605,3 +2605,50 @@ worktree's parent; it now resolves the main checkout, the same way the parent
 row's label already did. TA8 restored EP2's MAJOR grade in the intent record.
 TA9 gave AWA2 a grammar for multi-commit landings: the landing commit is the
 one that *completes* the series.
+
+## Policy-as-code programme — Track C: C1, the advisory grows an end date (done 2026-07-28)
+
+- [x] **C1 — `advisory` takes a reason and an expiry** (phase 1). Ruled by Mike
+  2026-07-28 (both fields hard-required · transition window rather than a flag
+  day · a passed date reds the board and blocks nothing), applied the same day
+  in `worktree-c1-advisory-schema`, session record
+  [`2026-07-28-0244-c1-advisory-schema`](sessions/2026-07-28-0244-c1-advisory-schema.md).
+  **A1 option (b)** was deferred out of the A1 ruling into C1 and ruled with
+  it. 747 tests green. *Phase 1 only — the 17 declarations are not migrated and
+  the legacy spelling is not yet removed; both live at C1b on the hot path.*
+
+**What changed.** `advisory` was a bare list of scanner names carrying neither a
+reason nor a review date, so nothing distinguished "three days into adopting
+this check" from "softened in March and forgotten". `disabled` — the harder and
+more visible opt-out — had demanded a stated reason all along; the softer one
+demanded nothing, which is backwards. It is now `{name: {why, review-by}}` with
+both required and the date validated as a real ISO 8601 date at parse, which is
+what lets the ageing comparison downstream be a plain string compare.
+
+**Expiry is reporting pressure, never a block.** A passed `review-by` renders 🔴
+on the floor and on the fleet board — with the number of days it has been
+standing, because "expired" reads identically on day one and day two hundred —
+and exits 0. A commit failing because of a date somebody set months earlier is
+how a forcing function turns into a `--no-verify` habit.
+
+**The transition was the real design decision.** Children fetch `atelier@main`
+at CI run time, so a hard error on the old spelling would have broken all ten
+children's CI the afternoon it landed. The bare list still parses, marks itself
+`legacy`, and renders 🟡 on every run and every board row. That debt is tracked
+at C1b, not left implicit: a transition spelling still parsing in a month would
+be C1's own decay one level up, which would be a fine joke and a real defect.
+
+**A1(b).** Narrowing a check that may never be softened now states why — `scope`
+gains a `{paths, why}` form, with the `why` required only for the five
+boundary/integrity scanners, since narrowing a prose check is an ordinary
+layout fact. No `review-by`: a narrowed scope is a permanent structural fact
+about a repo, not dated debt waiting to be cleared. Estate reach: one
+declaration.
+
+**The measurement, and a pattern worth naming.** The roadmap said 11 advisory
+declarations across 8 children; the sweep found **17 across 10**. That is the
+fourth blast-radius figure this programme has stated wrongly — and the first
+that *understated* the work, where the previous three all made a strong fix look
+more expensive than it was. The lesson is not "the roadmap is optimistic", it is
+that its numbers are not an input a ruling can rest on, in either direction, and
+that re-measuring costs minutes.

@@ -114,19 +114,34 @@ further down this file; they are pointed at, not restated.
 ### Track C — kill the advisory decay
 
 *An advisory still standing in a month is the "honour it manually" failure
-wearing a new hat — the precise decay ADR 0008 exists to end.* Measured
-2026-07-27: **11 advisory declarations across 8 children**, none carrying a
-reason, none carrying a date.
+wearing a new hat — the precise decay ADR 0008 exists to end.* Re-measured
+2026-07-28: **17 advisory declarations across 10 children**, none carrying a
+reason, none carrying a date. (The 2026-07-27 figure of 11 across 8 was an
+undercount — the fourth wrong blast radius on this programme and the first that
+*understated* the work; see the C1 session record.)
 
-- [ ] 🎯 **C1 — `advisory` takes a reason and an expiry.** Today `disabled`
-      requires a stated reason and `advisory` is a bare list of scanner names,
-      so a declaration carries no *why* and no review date and can sit
-      indefinitely. **Fix shape:** same mapping form as `disabled`, plus an
-      optional `review-by`, with `floorfleet` ageing them so the board retires
-      declarations rather than accumulating them. **Ruled up front** because it
-      is a schema change every child's config must migrate to, and whether a
-      missing date is a warn or a hard error is the branch.
-- [ ] **C2 — retire the 11.** One child already proved it is a single pass:
+> 📦 **C1 phase 1 complete** (schema, expiry, A1(b)) →
+>   [`ROADMAP-DONE.md`](ROADMAP-DONE.md). What remains of C1 is C1b below —
+>   the migration and the removal of the transition spelling.
+- [ ] ⏳ **review queued** — C1 phase 1 and A1(b) (rule-4 cold pass, Fable).
+      Self-authored doctrine and enforcement code. Commit `549930b` and the
+      records commit that completes the series. Files in the delta:
+      `tools/floor.py`, `tools/floorfleet.py`, `tools/test_floor.py`,
+      `tools/test_floorfleet.py`, `docs/build/templates/CONTRIBUTING.md`.
+      **Intent record:**
+      [`2026-07-28-0244-c1-advisory-schema`](sessions/2026-07-28-0244-c1-advisory-schema.md).
+      Not spawned by the applier session.
+- [ ] 🎯 **C1b — migrate the 17, then delete the legacy spelling.** Phase 1
+      deliberately did not write the declarations: a `review-by` is a
+      commitment about when a backlog gets cleared, which is the principal's to
+      set rather than the applier's to invent, and inventing one across ten
+      repos would be fitting a number to turn a board green. **Blocked on one
+      decision from Mike — the review horizon.** After that the migration is
+      mechanical (17 declarations, 10 repos, several private). **Phase 2 —
+      removing the legacy bare-list spelling from `floor.py` — is blocked on
+      the migration**, and must not be skipped: a transition spelling still
+      parsing in a month is C1's own decay, one level up.
+- [ ] **C2 — retire the 17.** One child already proved it is a single pass:
       four advisories to zero, sixty findings cleared, and the honest breakdown
       matters more than the count — only a handful were genuine, the rest were
       product nouns that wanted inline-coding rather than re-spelling, and
