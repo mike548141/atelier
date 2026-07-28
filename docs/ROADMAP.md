@@ -69,7 +69,8 @@ pass while a MAJOR stands.
 >   `track-a-fail-opens`). Track closed — the fail-opens are shut, each fix
 >   driven live against the probe that proved the defect.
 
-- ⏳ **Review queued — Track A application (A1–A5b).** Rule 4: each application
+- ⏳ (claimed 2026-07-28-0123, wt: atelier-review-0123-take) **Review queued —
+      Track A application (A1–A5b).** Rule 4: each application
       earns a further cold pass while a MAJOR stood, and two did (EP1, EP3).
       **Delta:** `tools/floor.py`, `tools/floorfleet.py`, `tools/test_floor.py`,
       `tools/test_floorfleet.py`, `tools/test_precommit.py`,
