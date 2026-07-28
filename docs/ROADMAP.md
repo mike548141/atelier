@@ -104,9 +104,20 @@ further down this file; they are pointed at, not restated.
   the answer into this file to close a blocker would be committing the breach
   the blocker exists to avoid. A public tree references it by local-path
   convention. B1 can now proceed.
-- **B2 — `--status` mode** (wired *and* passing, not just wired) and
-  **B3 — the Actions-disabled blind spot** → § *For your consideration* and
-  § *the ranked residual* item 4 below.
+- **B2 — `--status` mode** (wired *and* passing) and **B3 — the
+  Actions-disabled blind spot**: **BOTH DONE 2026-07-28**, landed together
+  because they are one defect — a board answering *is it wired* while reading
+  as though it answered *is it working*. ⏳ **review queued**, see the entry in
+  § *Doctrine — review-owed*. The first live run is the finding: **5 of 14
+  repos read `wired ✅` and had been RED on their default branches since the
+  2026-07-25 rollout**, unnoticed for three days. Detail →
+  [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
+- [ ] 🎯 **The five red floors themselves are now open work.** `--status` found
+      them; it does not fix them. Each is a real finding in a child repo and
+      each is that repo's own call to clear (the same reasoning as the
+      bootstrap reds already recorded below). Deliberately not named here with
+      their posture — that join is the breach this file already records three
+      times.
 - [~] **B4 — the roadmap-deletion guard.** (claimed 2026-07-28-1233,
       wt: track-b-enumerator.) `sizescan` catches the two adjacent
       failures — an un-harvested completed item, and a live checkbox buried in
@@ -572,11 +583,16 @@ visible to anyone. **Whether to adopt them is a scope decision, not a defect
 fix.** The relevant question is not "are they tidy" but "is anything in a public
 repo that should not be public", which is exactly what the scanners answer.
 
-**4. A blind spot worth closing cheaply.** `floorfleet` reads the workflow
-*file*, so a repo with GitHub **Actions disabled** reads as perfectly wired while
-running nothing. One `gh api repos/{owner}/{repo}/actions/permissions` call per
-child would catch it. Small, and it removes a way for the board to be confidently
-wrong — which is worse than the board being unavailable.
+**4. A blind spot worth closing cheaply.** **CLOSED 2026-07-28 as B3** — and
+the proposed shape was costlier than it needed to be. The suggestion was one
+`gh api repos/{owner}/{repo}/actions/permissions` call per child; that endpoint
+requires GitHub's **Administration** permission, which is the repo-*settings*
+permission, so taking it would have widened the scheduled check's token across
+the whole private estate for one boolean. It is used when the token happens to
+carry it and inferred from run history when it does not — a floor that has never
+run is the same practical absence whatever switched it off — and the board
+declares which authority answered. Detail →
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 **5. `advisory` needs a stated reason and an expiry.** `disabled` requires a
 reason; `advisory` does not, and neither carries a review date. So an advisory
@@ -750,17 +766,6 @@ a stated reason (below); one needed a false-positive marker.
 Suggestions the rollout surfaced that were never queued. None is urgent; each is
 recorded so it is a **choice** rather than something that quietly evaporates.
 
-- [~] **`floorfleet` proves a repo CALLS the floor, never that its floor is
-      GREEN.** (B2 — claimed 2026-07-28-1233, wt: track-b-enumerator; taken
-      together with B3, which is the same defect one level down.)
-      That limit is stated honestly in the tool, and it means the board
-      can read "all 13 ✓" while several repos are failing every run. Idea: a
-      `--status` mode reading each child's latest floor run conclusion via
-      `gh run list`, giving one board that answers *wired **and** passing*.
-      Cheap (one API call per child) and it closes the gap between conformance
-      and compliance, which are currently two separate questions with only one
-      instrument.
-
 - [ ] **Adoption is a chicken-and-egg problem and I improvised twice.** A repo
       whose existing content already fails the gate **cannot commit the change
       that installs the gate**. It happened on two repos and I resolved it with a
@@ -792,6 +797,14 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
 → detail in [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
 ## Doctrine — review-owed
+
+- ⏳ **B2 + B3 — `floorfleet --status`, the compliance half of the board.**
+  Delta: `tools/floorfleet.py` (`classify_run`, `read_run`, `ChildFloor.green`,
+  the `--status` flag and its render), `tools/test_floorfleet.py`
+  (`RunStatusTest`). Intent record: the 2026-07-28 Track B session entry in
+  [`SESSIONS.md`](SESSIONS.md), and the harvest in
+  [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Cold pass owed per rule 4 — the tier
+  bar applies (cold review passes run on Fable).
 
 - [ ] 🎯 **Write down which tier reviews — the rule exists in practice and
   nowhere as a rule** (Mike's ruling, 2026-07-26, after an Opus session took

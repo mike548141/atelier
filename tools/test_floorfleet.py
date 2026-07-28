@@ -565,5 +565,158 @@ class WorktreeDiscoveryTest(unittest.TestCase):
             self.assertEqual(floorfleet.main_checkout(Path(td)), Path(td))
 
 
+class RunStatusTest(unittest.TestCase):
+    """--status: the COMPLIANCE half (roadmap B2 + B3).
+
+    The defect these close is one defect: a board that answers 'is the floor
+    wired' while reading as though it answered 'is the floor working'. On the
+    first live run of this code, 5 of 14 repos reported `wired ✅` and had been
+    RED on their default branch for three days. Wiring is a fact about a FILE;
+    a file cannot tell you the runner was ever switched on, or that it passed.
+
+    `classify_run` is pure so every branch is driven offline — the selftest does
+    that. What is tested here is the layer around it: that the gathering asks
+    the right questions, that a missing permission degrades honestly instead of
+    turning into a green, and that the exit code widens only when asked."""
+
+    def _read(self, responses: dict):
+        """Stand in for `gh api`, keyed by a substring of the endpoint.
+
+        Longest key first: the runs endpoint contains the workflows endpoint as
+        a prefix, so insertion order would silently hand the listing's payload
+        to the runs call and every green case would read as `no-runs`."""
+        def fake(path: str, *jq: str):
+            for key in sorted(responses, key=len, reverse=True):
+                if key in path:
+                    return responses[key]
+            return None
+        return fake
+
+    def _run_state(self, responses: dict, workflow: str = "floor.yml"):
+        with mock.patch.object(floorfleet, "_slug", return_value="o/r"), \
+             mock.patch.object(floorfleet, "_gh_json",
+                               side_effect=self._read(responses)):
+            return floorfleet.read_run(Path("/repo"), workflow)
+
+    RUNS_KEY = "actions/workflows/floor.yml/runs"
+    GREEN = {"workflow_runs": [{"status": "completed", "conclusion": "success",
+                                "head_sha": "aaaa1111"}]}
+    LISTING = {"workflows": [{"path": ".github/workflows/floor.yml",
+                              "state": "active"}]}
+
+    def test_a_green_run_on_the_current_head_is_passing(self):
+        state, _, authority = self._run_state({
+            "actions/permissions": {"enabled": True},
+            "actions/workflows": self.LISTING,
+            self.RUNS_KEY: self.GREEN,
+            "commits/main": "aaaa1111",
+            "repos/o/r": {"default_branch": "main"},
+        })
+        self.assertEqual(state, "passing")
+        self.assertEqual(authority, "repo-switch")
+
+    def test_a_red_floor_is_not_reported_as_wired_and_fine(self):
+        """The live finding, pinned: this is the case that was invisible."""
+        state, detail, _ = self._run_state({
+            "actions/permissions": {"enabled": True},
+            "actions/workflows": self.LISTING,
+            self.RUNS_KEY: {"workflow_runs": [
+                {"status": "completed", "conclusion": "failure",
+                 "head_sha": "aaaa1111"}]},
+            "repos/o/r": {"default_branch": "main"},
+        })
+        self.assertEqual(state, "failing")
+        self.assertIn("RED", detail)
+
+    def test_actions_disabled_for_the_repo_is_read_authoritatively(self):
+        state, detail, authority = self._run_state({
+            "actions/permissions": {"enabled": False},
+        })
+        self.assertEqual(state, "actions-off")
+        self.assertEqual(authority, "repo-switch")
+        self.assertIn("DISABLED", detail)
+
+    def test_a_missing_administration_permission_degrades_it_does_not_green(self):
+        """B3's blind spot must stay closed on a token that CANNOT read the
+        repo-level Actions switch — otherwise closing it would have cost a
+        repo-settings permission across the whole private estate."""
+        state, detail, authority = self._run_state({
+            # No `actions/permissions` key: the read 403s and returns None.
+            "actions/workflows": self.LISTING,
+            self.RUNS_KEY: {"workflow_runs": []},
+            "repos/o/r": {"default_branch": "main"},
+        })
+        self.assertEqual(state, "no-runs")
+        self.assertEqual(authority, "inferred")
+        self.assertNotIn(state, ("passing",))
+        self.assertIn("NEVER run", detail)
+
+    def test_a_workflow_disabled_by_hand_is_caught_without_the_switch(self):
+        state, _, _ = self._run_state({
+            "actions/workflows": {"workflows": [
+                {"path": ".github/workflows/floor.yml",
+                 "state": "disabled_manually"}]},
+            self.RUNS_KEY: {"workflow_runs": []},
+            "repos/o/r": {"default_branch": "main"},
+        })
+        self.assertEqual(state, "actions-off")
+
+    def test_a_green_run_on_an_older_commit_is_behind_not_passing(self):
+        state, detail, _ = self._run_state({
+            "actions/permissions": {"enabled": True},
+            "actions/workflows": self.LISTING,
+            self.RUNS_KEY: self.GREEN,
+            "repos/o/r": {"default_branch": "main"},
+            "commits/main": "bbbb2222",
+        })
+        self.assertEqual(state, "behind")
+        self.assertIn("unscanned", detail)
+
+    def test_a_repo_with_no_remote_is_unknown_not_green(self):
+        with mock.patch.object(floorfleet, "_slug", return_value=None):
+            state, _, _ = floorfleet.read_run(Path("/repo"), "floor.yml")
+        self.assertEqual(state, "unknown")
+
+    def test_only_passing_counts_as_green(self):
+        for state in ("failing", "actions-off", "no-runs", "unregistered",
+                      "behind", "no-result", "running", "unknown"):
+            info = floorfleet.ChildFloor("x", "/x", "wired", "", run=state)
+            self.assertFalse(info.green, f"{state} must not count as green")
+        self.assertTrue(
+            floorfleet.ChildFloor("x", "/x", "wired", "", run="passing").green)
+
+    def test_conformance_and_compliance_are_reported_separately(self):
+        infos = [floorfleet.ChildFloor("a", "/a", "wired", "ok", run="failing",
+                                       run_detail="RED"),
+                 floorfleet.ChildFloor("b", "/b", "wired", "ok", run="passing",
+                                       run_detail="green")]
+        out = floorfleet.render(infos, remote=True, status=True)
+        # Both claims present, and neither swallowed by the other.
+        self.assertIn("all 2 children call atelier's floor", out)
+        self.assertIn("NOT PROVEN GREEN", out)
+        self.assertIn("1 of 2", out)
+
+    def test_inferred_authority_is_declared_on_the_board(self):
+        infos = [floorfleet.ChildFloor("a", "/a", "wired", "ok", run="passing",
+                                       run_authority="inferred")]
+        out = floorfleet.render(infos, remote=True, status=True)
+        self.assertIn("INFERRED", out)
+        self.assertIn("Administration", out)
+
+    def test_a_read_authority_is_not_advertised_as_a_caveat(self):
+        infos = [floorfleet.ChildFloor("a", "/a", "wired", "ok", run="passing",
+                                       run_authority="repo-switch")]
+        self.assertNotIn("INFERRED",
+                         floorfleet.render(infos, remote=True, status=True))
+
+    def test_without_status_the_board_is_unchanged(self):
+        """--check's existing meaning must not move under anyone standing on
+        it: conformance alone, exactly as before."""
+        infos = [floorfleet.ChildFloor("a", "/a", "wired", "ok")]
+        out = floorfleet.render(infos, remote=False)
+        self.assertNotIn("run:", out)
+        self.assertNotIn("PROVEN GREEN", out)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -45,16 +45,35 @@ STATES
   absent     no floor.yml at all: this repo's CI enforces nothing
   unknown    could not be read (no remote, gh failure, unreadable tree)
 
+RUN STATES (--status only — the compliance question, not the conformance one)
+  passing       the floor is green on the default branch
+  failing       the floor ran and did not pass — this repo is RED
+  behind        the last GREEN run was an older commit: newer ones are unscanned
+  actions-off   Actions disabled for the repo, or the floor workflow disabled
+  no-runs       the floor workflow has never run once
+  unregistered  floor.yml is in the tree but GitHub lists no such workflow
+  running       a run is in flight; no conclusion yet
+  no-result     cancelled or skipped — not a failure, and not proof of a pass
+  unknown       could not read (no remote, no Actions permission, gh failure)
+
 Exit codes (fail-safe — an estate we could not verify is never reported green):
   0  every child is wired (or pinned, which is a declared choice)
   1  at least one child is vendored, absent, or unknown — with --check
   2  environment error (not an atelier checkout, nothing discovered)
 
+  With `--status`, exit 1 also covers any repo whose floor is not `passing`.
+  Only `passing` is green: `unknown` is a red, because the whole posture of this
+  tool is that an unproven floor is never reported as a proven one.
+
 WHAT THIS CANNOT SEE — read before trusting a clean board
 ----------------------------------------------------------
-- **Wired is not passing.** This proves a repo CALLS the floor, never that the
-  floor is green there. A wired repo with 40 findings shows as wired. Whether the
-  checks pass is that repo's CI run, and deliberately not this tool's claim.
+- **Wired is not passing — use `--status` to ask the second question.** By
+  default this proves a repo CALLS the floor and nothing more: a wired repo with
+  40 findings shows as wired. `--status` adds the compliance half, reading each
+  repo's latest floor run so the board answers *wired **and** passing*. What
+  remains outside even that: a run's conclusion is GitHub's word for it, and a
+  floor that passed because half its checks were `disabled` still concludes
+  success — which is why the advisory/disabled lines above it are not decoration.
 - **The hook question is now two columns, and only one of them is local.** Since
   the shim became a tracked file, `shim:` reports whether `.githooks/pre-commit`
   is in the repo and routes through the registry — a fact about the REPO, so
@@ -68,9 +87,15 @@ WHAT THIS CANNOT SEE — read before trusting a clean board
   atelier pin in CLAUDE.md. A child nested deeper, or one that never took a pin,
   is invisible here — it will not show as a red, it will not show at all. That is
   the one absence this tool cannot report on itself.
-- It reads workflow TEXT. A repo whose floor.yml calls the reusable workflow
-  inside a job that never runs (a condition, a disabled workflow) reads as wired.
-  Detecting that needs the Actions API and is not attempted.
+- **Without `--status` it reads workflow TEXT only.** A repo whose floor.yml
+  calls the reusable workflow inside a job that never runs — a condition, a
+  disabled workflow, or GitHub Actions switched off for the whole repo — reads as
+  wired, because wiring is a fact about a FILE and a file cannot tell you the
+  runner was ever switched on. `--status` closes this: a repo with Actions off
+  reports `actions-off` or `no-runs`, never green. The repo-level switch is read
+  authoritatively when the token carries the **Administration** permission and
+  inferred from run history when it does not; the board says which it used
+  rather than leaving a reader to assume the stronger one.
 - **A local check is reported as DECLARED, never as working.** The `➕` lines
   come from the child's `.atelier-floor.json` — its own checks, whose code this
   tool never fetches and could not run. Whether the script is there at all is
@@ -81,6 +106,7 @@ WHAT THIS CANNOT SEE — read before trusting a clean board
 Usage:
   floorfleet                 discover children + report
   floorfleet --remote        read each repo's default branch from GitHub
+  floorfleet --status        also read each repo's latest floor RUN
   floorfleet --check         exit 1 if any child is unguarded
   floorfleet --child <path>  report only the named child
   floorfleet --json          machine-readable
@@ -177,10 +203,39 @@ class ChildFloor:
     # it off the default: a non-default `docs` silently re-points every
     # docs-scoped check, and a `docs` naming no real tree skips them all.
     docs: str = ""
+    # --status only. Conformance (`state`) and compliance (`run`) are two
+    # different questions and this tool used to answer only the first; they are
+    # held in separate fields for the same reason they are two questions.
+    # "" means --status was not asked for, which is NOT the same as "unknown".
+    run: str = ""
+    run_detail: str = ""
+    # Which authority answered the Actions-off question: "repo-switch" when the
+    # `actions/permissions` read succeeded, "inferred" when it did not and the
+    # answer rests on run history instead. Reported rather than assumed, because
+    # a board that cannot say how well it knows something is the same failure as
+    # a board that reports green on nothing.
+    run_authority: str = ""
+    # Which workflow file carries the floor. `floor.yml` for a child that calls
+    # the reusable one; whichever of its own workflows actually runs `floor.py`
+    # for the parent, which does not use a caller at all.
+    workflow: str = ""
 
     @property
     def ok(self) -> bool:
+        """CONFORMANCE — does this repo call the floor? Unchanged, deliberately:
+        `--check` without `--status` must keep meaning exactly what it meant."""
         return self.state in ("wired", "pinned")
+
+    @property
+    def green(self) -> bool:
+        """CONFORMANCE **and** COMPLIANCE — wired, and proven to be passing.
+
+        Fail-safe by construction: every state that is not literally `passing`
+        is not green, including `unknown`. The board exists because absences do
+        not raise their hands, so an unread answer counts as a red one."""
+        if not self.ok:
+            return False
+        return self.run in ("", "passing")
 
 
 def _read_local(child: Path, rel: str) -> str | None:
@@ -216,6 +271,105 @@ def _read_remote(child: Path, rel: str) -> str | None:
         return base64.b64decode(r.stdout.strip()).decode("utf-8", "replace")
     except (ValueError, UnicodeError):
         return None
+
+
+def _gh_json(path: str, *jq: str) -> object | None:
+    """One `gh api` read, parsed. None on any failure — never a partial answer.
+
+    Deliberately swallows the error rather than raising: every caller's fallback
+    is the same, and it is `unknown`, which this tool already treats as
+    not-green. A read we could not make must never become a pass."""
+    cmd = ["gh", "api", path]
+    for j in jq:
+        cmd += ["--jq", j]
+    r = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    if r.returncode != 0 or not r.stdout.strip():
+        return None
+    try:
+        return json.loads(r.stdout)
+    except ValueError:
+        return None
+
+
+# The conclusions that mean the floor ran and did not pass. `cancelled` and
+# `skipped` are held apart deliberately: they are not failures, but they are not
+# evidence of a green floor either, and this tool's whole posture is that an
+# unproven floor is never reported as proven.
+FAILED_CONCLUSIONS = {"failure": "FAILED", "timed_out": "TIMED OUT",
+                      "startup_failure": "FAILED TO START",
+                      "stale": "went STALE"}
+INCONCLUSIVE = {"cancelled", "skipped", "neutral", "action_required", None}
+
+
+def classify_run(enabled: bool | None, wf_state: str | None,
+                 latest: dict | None, head_sha: str | None,
+                 runs_readable: bool) -> tuple[str, str]:
+    """(state, detail) for one repo's floor RUN — the compliance question, as
+    distinct from the conformance question `classify` answers.
+
+    Pure, so the selftest drives every branch offline. Inputs:
+      enabled        repo-level Actions switch: True / False / None (the
+                     `actions/permissions` read needs the **Administration**
+                     permission, which this tool deliberately does not require —
+                     None means "not authorised to ask", not "fine").
+      wf_state       'active' | 'disabled_manually' | 'disabled_inactivity' |
+                     'missing' | None (unreadable)
+      latest         newest run on the default branch, or None if none exist
+      head_sha       default-branch head, or None if not read
+      runs_readable  whether the runs listing succeeded at all
+
+    WHY THE ORDER IS THE ORDER. Each branch above the next is a strictly better
+    authority for the same question, so the first one that can answer does. The
+    failure this closes is a board that read `wired ✅` for a repo running
+    nothing at all (roadmap B3): wiring is a fact about a FILE, and a file
+    cannot tell you the runner was ever switched on."""
+    if enabled is False:
+        return ("actions-off",
+                "GitHub Actions is DISABLED for this repo — the floor is wired "
+                "and cannot run")
+    if wf_state is None and not runs_readable:
+        return ("unknown",
+                "could not read this repo's Actions — the token needs the "
+                "Actions permission (read)")
+    if wf_state == "missing":
+        return ("unregistered",
+                "floor.yml is in the tree but GitHub lists no such workflow — "
+                "it has never landed on the default branch or never parsed")
+    if wf_state in ("disabled_manually", "disabled_inactivity"):
+        why = ("switched off by hand" if wf_state == "disabled_manually"
+               else "auto-disabled by GitHub for repository inactivity")
+        return ("actions-off", f"the floor workflow is disabled — {why}")
+    if latest is None:
+        # The inferential half of the Actions-off signal, and the reason this
+        # tool does not need the Administration permission to close B3: a floor
+        # that has never run once is the same practical absence, whether the
+        # cause is a repo-level switch or something else.
+        hedge = ("" if enabled is True else
+                 " (repo-level Actions switch not readable — see the footer)")
+        return ("no-runs",
+                f"the floor workflow has NEVER run{hedge}")
+    if latest.get("status") != "completed":
+        return ("running", f"a run is {latest.get('status')} right now — "
+                           "no conclusion yet")
+    conclusion = latest.get("conclusion")
+    if conclusion in FAILED_CONCLUSIONS:
+        return ("failing", f"the last floor run {FAILED_CONCLUSIONS[conclusion]}"
+                           " — this repo's floor is RED on its default branch")
+    if conclusion in INCONCLUSIVE:
+        ended = conclusion or "with no conclusion"
+        return ("no-result",
+                f"the last floor run ended {ended} — nothing was proven")
+    if conclusion != "success":
+        return ("unknown", f"unrecognised run conclusion {conclusion!r}")
+    ran_on = latest.get("head_sha") or ""
+    if head_sha and ran_on and ran_on != head_sha:
+        # A green run against an older commit is the quietest way for this board
+        # to be confidently wrong: it says PASSING about code that was never
+        # scanned. Same family as the two defects above, one step subtler.
+        return ("behind", f"last GREEN run was {ran_on[:8]}, but the default "
+                          f"branch is now {head_sha[:8]} — newer commits are "
+                          "unscanned")
+    return ("passing", "the floor is green on the default branch")
 
 
 SHIM_PATH = ".githooks/pre-commit"
@@ -343,6 +497,11 @@ def evaluate_parent(atelier: Path) -> ChildFloor:
     it ships, over its own tree, with its scoping declared the way a child
     declares it."""
     text = ""
+    # WHICH workflow carries the floor, not just whether one does. --status has
+    # to ask GitHub for a named workflow's runs, and the parent does not use the
+    # caller filename its children do, so the run question is unanswerable for
+    # the parent without this. Recorded per-file rather than inferred later.
+    carrier = ""
     wf = atelier / PARENT_WORKFLOWS
     if wf.is_dir():
         for path in sorted(wf.glob("*.yml")):
@@ -354,9 +513,12 @@ def evaluate_parent(atelier: Path) -> ChildFloor:
                 # Newline-joined: concatenating raw would splice one file's
                 # last line onto the next file's first and could manufacture a
                 # match across a boundary that exists in neither file.
-                text += path.read_text(encoding="utf-8") + "\n"
+                body = path.read_text(encoding="utf-8") + "\n"
             except OSError:
                 continue
+            text += body
+            if not carrier and PARENT_RUN_RE.search(_live_yaml(body)):
+                carrier = path.name
     if PARENT_RUN_RE.search(_live_yaml(text)):
         state, detail = "wired", "runs the floor it ships, over its own tree"
     else:
@@ -368,6 +530,7 @@ def evaluate_parent(atelier: Path) -> ChildFloor:
     info.is_parent = True
     info.hook = hook_state(atelier)
     info.shim = shim_state(_read_local, atelier)
+    info.workflow = carrier
     return info
 
 
@@ -507,10 +670,75 @@ def _read_declarations(repo: Path, read, state: str, detail: str) -> ChildFloor:
                       scope=scope, flags=flags, docs=docs)
 
 
-def evaluate(child: Path, remote: bool) -> ChildFloor:
+def read_run(child: Path, workflow: str) -> tuple[str, str]:
+    """Gather the Actions facts for one repo and hand them to `classify_run`.
+
+    All the I/O lives here so the decision stays pure and testable — the same
+    split `classify` already uses. Three reads, and the tool is designed to work
+    with only two of them authorised:
+
+      actions/permissions  the repo-level Actions switch. Needs the
+                           **Administration** permission, which is the
+                           repo-SETTINGS permission — a large step up from
+                           read-only content for one boolean. Treated as
+                           optional on purpose: when it 403s we fall through to
+                           the inferential signal (a floor that has never run)
+                           rather than requiring a wider token estate-wide.
+      actions/workflows    per-workflow state. Needs **Actions** (read).
+      .../runs             the newest run on the default branch. Same.
+
+    The default-branch head comes from the repo read, so a green run against an
+    older commit reports as `behind` rather than as a pass."""
+    slug = _slug(child)
+    if not slug:
+        return ("unknown", "no origin remote — nothing to ask GitHub about", "")
+
+    perms = _gh_json(f"repos/{slug}/actions/permissions")
+    enabled = perms.get("enabled") if isinstance(perms, dict) else None
+    authority = "repo-switch" if isinstance(enabled, bool) else "inferred"
+
+    repo = _gh_json(f"repos/{slug}")
+    branch = repo.get("default_branch") if isinstance(repo, dict) else None
+    head_sha = None
+    if branch:
+        ref = _gh_json(f"repos/{slug}/commits/{branch}", ".sha")
+        head_sha = ref if isinstance(ref, str) else None
+
+    listing = _gh_json(f"repos/{slug}/actions/workflows")
+    wf_state = None
+    if isinstance(listing, dict):
+        want = f".github/workflows/{workflow}"
+        wf_state = "missing"
+        for w in listing.get("workflows", []):
+            if w.get("path") == want:
+                wf_state = w.get("state")
+                break
+
+    runs_readable = False
+    latest = None
+    q = f"repos/{slug}/actions/workflows/{workflow}/runs?per_page=1"
+    if branch:
+        q += f"&branch={branch}"
+    got = _gh_json(q)
+    if isinstance(got, dict) and "workflow_runs" in got:
+        runs_readable = True
+        runs = got.get("workflow_runs") or []
+        latest = runs[0] if runs else None
+
+    state, detail = classify_run(enabled, wf_state, latest, head_sha,
+                                 runs_readable)
+    return (state, detail, authority)
+
+
+def evaluate(child: Path, remote: bool, status: bool = False) -> ChildFloor:
     read = _read_remote if remote else _read_local
     state, detail = classify(read(child, FLOOR_PATH))
-    return _read_declarations(child, read, state, detail)
+    info = _read_declarations(child, read, state, detail)
+    info.workflow = "floor.yml"
+    if status:
+        info.run, info.run_detail, info.run_authority = \
+            read_run(child, info.workflow)
+    return info
 
 
 ICON = {"wired": "✅", "pinned": "📌", "vendored": "🛑", "absent": "🛑",
@@ -520,19 +748,35 @@ HOOK_ICON = {"tracked": "✅", "installed": "✅", "legacy": "⚠️", "none": "
 # The tracked shim, unlike the installed hook, is a fact about the REPO — so on
 # --remote these icons carry an estate-wide claim, not a machine-local one.
 SHIM_ICON = {"current": "✅", "legacy": "⚠️", "absent": "❌", "unknown": "⚠️"}
+# Only `passing` is green. `behind` and `no-result` are amber because something
+# ran; everything else is a red, including `unknown` — see ChildFloor.green.
+RUN_ICON = {"passing": "✅", "failing": "🛑", "actions-off": "🛑",
+            "no-runs": "🛑", "unregistered": "🛑", "behind": "⚠️",
+            "no-result": "⚠️", "running": "⏳", "unknown": "⚠️"}
 
 
-def render(infos: list[ChildFloor], remote: bool) -> str:
+def render(infos: list[ChildFloor], remote: bool, status: bool = False) -> str:
     plane = "GitHub default branches" if remote else "local working copies"
-    lines = [f"atelier floor — estate conformance  ({plane})", ""]
+    heading = "estate conformance" + (" + compliance" if status else "")
+    lines = [f"atelier floor — {heading}  ({plane})", ""]
     width = max((len(i.name) for i in infos), default=10)
     # Parent first, then failures, then the rest — the two rows a reader needs
     # before the ones that are fine.
-    for i in sorted(infos, key=lambda x: (not x.is_parent, x.ok, x.name.lower())):
+    # With --status the sort leads on `green`, not `ok`: a wired repo whose
+    # floor is red is now one of the rows a reader needs first, and sorting it
+    # among the healthy ones would re-hide exactly what --status exists to show.
+    for i in sorted(infos, key=lambda x: (not x.is_parent,
+                                          x.green if status else x.ok,
+                                          x.name.lower())):
         lines.append(f"  {ICON.get(i.state, '?')} {i.name:<{width}}  "
                      f"{i.state:<9} {SHIM_ICON.get(i.shim, '?')} shim:{i.shim:<8} "
                      f"{HOOK_ICON.get(i.hook, '?')} hook:{i.hook:<9} "
                      f"{i.detail}")
+        if status:
+            # Its own line, not another column: the run detail is a sentence
+            # (which commit, which conclusion) and the row is already at width.
+            lines.append(f"      {RUN_ICON.get(i.run, '?')} run:{i.run:<12} "
+                         f"{i.run_detail}")
         # The C1 line. An advisory is tracked debt, so the board shows the debt:
         # why it was taken on and when it was due. A passed date goes 🔴 and
         # says how long it has been standing — the board is the whole forcing
@@ -591,6 +835,35 @@ def render(infos: list[ChildFloor], remote: bool) -> str:
         kids = sum(1 for i in infos if not i.is_parent)
         lines.append(f"  all {kids} children call atelier's floor ✓  "
                      "(and the parent runs it)")
+
+    if status:
+        # Reported SEPARATELY from conformance, never folded into it. They are
+        # two questions — "does this repo call the floor" and "is that floor
+        # green" — and the roadmap item exists because one board answered only
+        # the first while reading like it answered both.
+        unproven = [i for i in infos if i.run != "passing"]
+        lines.append("")
+        if unproven:
+            lines.append(f"  {len(unproven)} of {len(infos)} repo(s) are wired "
+                         "but NOT PROVEN GREEN:")
+            for i in unproven:
+                lines.append(f"    - {i.name}: {i.run} — {i.run_detail}")
+        else:
+            lines.append(f"  all {len(infos)} floors are GREEN on their default "
+                         "branches ✓")
+
+        # The honesty line. Without it, "no repo has Actions disabled" reads as
+        # a checked fact when it may be an unasked question.
+        inferred = [i.name for i in infos if i.run_authority == "inferred"]
+        if inferred:
+            lines.append("")
+            lines.append(f"  ⚠️  Actions-off was INFERRED (not read) for "
+                         f"{len(inferred)} repo(s): the token cannot read the "
+                         "repo-level")
+            lines.append("     Actions switch, which needs the Administration "
+                         "permission. A floor that has never")
+            lines.append("     run still shows as a red here, so the blind spot "
+                         "is covered — but by inference.")
 
     # The personal-data half of leakscan, reported as what it actually is: a
     # fact about THIS MACHINE, not about any repo. A per-child column would have
@@ -664,6 +937,53 @@ def _selftest() -> int:
     check("unrecognised floor", classify("name: floor\njobs:\n  x:\n    steps: []\n")[0],
           "unknown")
 
+    # --status: every branch of the run classifier, offline. The three that
+    # matter most are the ones a board would previously have shown as green —
+    # Actions switched off, a floor that never ran, and a green run against a
+    # commit that is no longer the head.
+    def run(enabled=True, wf="active", latest=None, head=None, readable=True):
+        return classify_run(enabled, wf, latest, head, readable)
+
+    def completed(conclusion, sha="aaaa1111"):
+        return {"status": "completed", "conclusion": conclusion, "head_sha": sha}
+
+    check("actions off (repo)", run(enabled=False)[0], "actions-off")
+    check("actions off (workflow)", run(wf="disabled_manually")[0], "actions-off")
+    check("auto-disabled", run(wf="disabled_inactivity")[0], "actions-off")
+    check("never ran", run(latest=None)[0], "no-runs")
+    check("no such workflow", run(wf="missing")[0], "unregistered")
+    check("nothing readable", run(enabled=None, wf=None, readable=False)[0],
+          "unknown")
+    check("green", run(latest=completed("success"), head="aaaa1111")[0],
+          "passing")
+    check("red", run(latest=completed("failure"))[0], "failing")
+    check("timed out", run(latest=completed("timed_out"))[0], "failing")
+    check("cancelled", run(latest=completed("cancelled"))[0], "no-result")
+    check("in flight", run(latest={"status": "in_progress"})[0], "running")
+    # The subtle one: a SUCCESS conclusion that proves nothing about the code
+    # sitting on the branch today.
+    check("green but behind",
+          run(latest=completed("success", "aaaa1111"), head="bbbb2222")[0],
+          "behind")
+    # ...and its mirror: no head read means no staleness claim, not a false one.
+    check("green, head unknown",
+          run(latest=completed("success"), head=None)[0], "passing")
+
+    # The fail-safe contract `--check --status` rests on: only `passing` is
+    # green, and `unknown` must never slip through as one.
+    for state in ("failing", "actions-off", "no-runs", "unregistered",
+                  "behind", "no-result", "running", "unknown"):
+        info = ChildFloor(name="x", path="/x", state="wired", detail="",
+                          run=state)
+        check(f"green({state})", str(info.green), "False")
+    check("green(passing)",
+          str(ChildFloor(name="x", path="/x", state="wired", detail="",
+                         run="passing").green), "True")
+    # A repo that is not even wired is never green, whatever its runs say.
+    check("green(unwired+passing)",
+          str(ChildFloor(name="x", path="/x", state="absent", detail="",
+                         run="passing").green), "False")
+
     for f in fails:
         print(f"floorfleet selftest FAIL: {f}", file=sys.stderr)
     print(f"floorfleet selftest: {'FAILED' if fails else 'ok'} "
@@ -681,8 +1001,12 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--child", action="append", help="report only this child path")
     p.add_argument("--remote", action="store_true",
                    help="read each repo's default branch from GitHub via gh")
+    p.add_argument("--status", action="store_true",
+                   help="also read each repo's latest floor RUN — wired and "
+                        "passing, not just wired (needs gh Actions read)")
     p.add_argument("--check", action="store_true",
-                   help="exit 1 if any child is not running the floor")
+                   help="exit 1 if any child is not running the floor "
+                        "(with --status, also if any floor is not green)")
     p.add_argument("--json", action="store_true", help="machine-readable")
     p.add_argument("--selftest", action="store_true")
     return p
@@ -726,7 +1050,7 @@ def main(argv: list[str] | None = None) -> int:
               file=sys.stderr)
         return 2
 
-    infos = [evaluate(c, args.remote) for c in
+    infos = [evaluate(c, args.remote, args.status) for c in
              sorted(children, key=lambda p: p.name.lower())]
     # The parent goes on its own board. Discovery walks children, so without
     # this the one repo that DEFINES the floor is the one repo never checked
@@ -734,19 +1058,40 @@ def main(argv: list[str] | None = None) -> int:
     # answers "what runs on GitHub's default branch" for repos this machine may
     # not hold, whereas the parent is the checkout this tool is running from,
     # and claiming a remote reading of it would be the stronger claim.
-    infos.insert(0, evaluate_parent(atelier))
+    parent = evaluate_parent(atelier)
+    # The parent's CONFORMANCE is read locally (above), but its run history only
+    # exists on GitHub — so --status asks the same question of it as of any
+    # child. A parent exempt from its own board is how the parent stopped being
+    # checked at all; that argument does not weaken for the run column.
+    if args.status:
+        if parent.workflow:
+            parent.run, parent.run_detail, parent.run_authority = \
+                read_run(main_checkout(atelier), parent.workflow)
+        else:
+            parent.run, parent.run_detail = (
+                "unknown", "no workflow of its own runs the floor — there is "
+                           "no run history to read")
+    infos.insert(0, parent)
 
     if args.json:
         terms_present, terms_detail = terms_state()
         print(json.dumps({"plane": "remote" if args.remote else "local",
+                          "status": bool(args.status),
                           # Machine-local, not per-child — see terms_state().
                           "terms": {"present": terms_present,
                                     "detail": terms_detail},
                           "children": [asdict(i) for i in infos]}, indent=2))
     else:
-        print(render(infos, args.remote))
+        print(render(infos, args.remote, args.status))
 
-    return 1 if (args.check and any(not i.ok for i in infos)) else 0
+    if not args.check:
+        return 0
+    # --status widens what `--check` demands, and says so in its help. Without
+    # it the exit code answers conformance alone, exactly as before; nothing
+    # that relied on the old meaning changes behaviour.
+    failed = (not i.green for i in infos) if args.status \
+        else (not i.ok for i in infos)
+    return 1 if any(failed) else 0
 
 
 if __name__ == "__main__":

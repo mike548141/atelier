@@ -2760,3 +2760,51 @@ the cost went unnamed. The pass also corrected two figures at reconcile:
 the lowercase-hex gap is half its stated size (letter-leading only), and
 the "entropy net catches ≥32 chars" aside holds only for mixed-class
 values.
+
+## Policy-as-code programme — Track B: the board learned to say "and passing" (done 2026-07-28)
+
+### B2 + B3 — conformance and compliance, held apart (done 2026-07-28)
+
+- [x] **`floorfleet` proves a repo CALLS the floor, never that its floor is
+  GREEN.** (B2.) `--status` now reads each repo's latest floor run and reports
+  it as a separate claim from wiring — `passing`, `failing`, `behind`,
+  `actions-off`, `no-runs`, `unregistered`, `running`, `no-result`, `unknown`.
+  Only `passing` is green; `unknown` is a red, so a board that could not read
+  an answer never renders one.
+- [x] **A blind spot worth closing cheaply** — a repo with Actions disabled
+  reading as perfectly wired while running nothing. (B3, ranked-residual item
+  4.) Closed in the same change, because it is the same defect: wiring is a
+  fact about a FILE, and a file cannot tell you the runner was ever switched
+  on, or that it passed.
+
+**The first live run is the whole argument for the item.** `--remote --status`
+against the estate: all 13 children reported `wired ✅` — and **5 of 14 repos
+had been RED on their default branch since the 2026-07-25 rollout**, three days
+unnoticed, every one of them showing as fully conformant on the old board. The
+roadmap entry predicted this exactly ("the board can read 'all 13 ✓' while
+several repos are failing every run"); it was not a hypothetical.
+
+**The proposed shape for B3 was costlier than it needed to be, and that is
+worth keeping.** The entry suggested one `actions/permissions` call per child.
+That endpoint requires GitHub's **Administration** permission — the
+repo-*settings* permission — so adopting it as a requirement would have widened
+the scheduled check's token across the entire private estate to learn one
+boolean. Instead the switch is read authoritatively **when the token happens to
+carry that permission** and inferred from run history when it does not: a floor
+that has never run once is the same practical absence whatever caused it. The
+board then **declares which authority answered**, because a board that cannot
+say how well it knows something is the same failure as one that reports green
+on nothing. Permission requirements were read from GitHub's published
+fine-grained-PAT reference rather than assumed.
+
+**Design notes worth carrying.** `classify_run` is pure and the selftest drives
+every branch offline, mirroring the split `classify` already used — the I/O
+sits in `read_run`. `--check` without `--status` keeps its exact previous
+meaning (conformance alone), so nothing standing on the old exit code moved;
+`--status` widens it to require green. `behind` was added beyond the item's
+ask: a SUCCESS conclusion against a commit that is no longer the branch head
+says PASSING about code that was never scanned, which is the same
+confidently-wrong family one step subtler. The parent row gained a `workflow`
+field because atelier runs the floor from its own `ci.yml` rather than the
+caller filename its children use, so its run history was otherwise
+unaddressable. 12 new tests; suite 759 → 771, all green.
