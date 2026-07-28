@@ -79,8 +79,18 @@ SKIP_DIR_NAMES = {".git", "node_modules", "__pycache__", ".venv", "venv",
 # The key-name half of the ASSIGNED-secret heuristic: a word that means "this is
 # a credential". Bounded so `password`, `api_key`, `client-secret`, `authToken`
 # all hit but plain `key`/`id` (too generic, huge FP) do not.
+# The leading boundary is NOT a plain `\b`. `_` is a word character, so `\b`
+# never matches between `REDIS` and `PASSWORD` — which silently exempted every
+# prefixed environment variable (`REDIS_PASSWORD`, `POSTGRES_PASSWORD`,
+# `DB_TOKEN`), the single most common shape a real credential takes in compose
+# and `.env` files. Found 2026-07-28 with 15 live assignments unflagged across
+# the estate. So: a word boundary, OR an underscore prefix, OR a camelCase hump
+# (`redisPassword`). The hump is matched case-SENSITIVELY via `(?-i:…)` — under
+# the pattern's global `(?i)` a case-insensitive lookbehind would also fire
+# inside `BYPASS` and re-introduce the false positives `\b` was there to stop.
+_LEAD = r"(?:\b|_|(?-i:(?<=[a-z0-9])(?=[A-Z])))"
 SECRET_KEY_RX = re.compile(
-    r"(?i)\b("
+    r"(?i)" + _LEAD + r"("
     r"pass(?:word|wd|phrase)?"
     r"|secret(?:[_-]?key)?"
     r"|token"
@@ -97,12 +107,29 @@ SECRET_KEY_RX = re.compile(
 # secrets don't carry ':' (auth/connection strings are the basic-auth-url rule).
 
 # Values that are indirections or placeholders, never a real secret. Checked
-# case-insensitively; a substring match is enough for the templating markers.
+# case-insensitively; a substring match is enough for the word-shaped markers.
 PLACEHOLDER_SUBSTRINGS = (
     "example", "changeme", "change-me", "change_me", "placeholder", "redacted",
     "your-", "your_", "yourtoken", "yourkey", "my-secret", "dummy", "sample",
     "xxxxxx", "todo", "fixme", "notreal", "fake", "test-token", "test_token",
-    "******", "……", "...", "<", ">", "{{", "}}", "${", "$(", "%(",
+    "******", "……", "...",
+)
+
+# Templating markers are NOT substring-matched. They used to be — `${`, `$(`,
+# `%(`, `<`, `>`, `{{`, `}}` sat in the tuple above — and an OPENING marker
+# occurring anywhere in a value was enough to write it off as a template. A
+# randomly generated 60-char key that happened to contain the two characters
+# `$(` was therefore exempted by coincidence, which is exactly how a real
+# NetBox SECRET_KEY (entropy 5.29) went unflagged (found 2026-07-28). Requiring
+# the marker to be CLOSED keeps genuine templates suppressed and makes chance
+# collisions harmless: a real secret would have to contain the opener *and* a
+# matching closer, with no intervening delimiter, to slip through.
+TEMPLATE_RX = re.compile(
+    r"\$\{[^{}]*\}"        # ${VAR}
+    r"|\$\([^()]*\)"       # $(command)
+    r"|%\([^()]*\)"        # %(python)s
+    r"|\{\{[^{}]*\}\}"     # {{ template }}
+    r"|<[^<>]{1,64}>"      # <placeholder>
 )
 PLACEHOLDER_EXACT = frozenset({
     "none", "null", "nil", "undefined", "true", "false", "password", "secret",
@@ -191,6 +218,31 @@ PUBLIC_KEY_RX = re.compile(
 # upper+lower+digit signature of real key material (so `Gk8xQvie2mNfR7pL` stays).
 IDENTIFIER_RX = re.compile(r"[A-Za-z_][A-Za-z0-9_.]*$")
 
+# An absolute, multi-segment, path-shaped value — `/run/secrets/netbox_key`.
+# Deliberately excludes the base64 padding/alphabet extras (`+`, `=`) so a
+# standard-base64 secret cannot masquerade as a path on shape alone.
+ABS_PATH_RX = re.compile(r"/(?:[A-Za-z0-9._@-]+/)+[A-Za-z0-9._@-]+")
+
+# A code expression used as a value: `get_secret()`, `os.getenv("KEY")`,
+# `inv.effective(device).factory_password`, `function(a){return`. Defined by its
+# CHARACTER SET — code is built from identifiers, dots, calls, subscripts and
+# braces. `{}` and `$` are in the set because JS puts them in ordinary
+# expressions (`encodeShortlist({`, jQuery's `$`); omitting them flagged
+# vendored minified JS as credentials. Random key material still fails the set:
+# it carries `% # ! @ +`, which no identifier expression contains.
+# `-` is admitted because prose fragments land here too — a comment reading
+# `# without password= (live-proven 2026-07-04)` yields the value `(live-proven`.
+# It stays safe because a value must ALSO contain a bracket to be called code,
+# and the base64url alphabet (`A-Za-z0-9-_`) has no brackets at all.
+CODE_EXPR_RX = re.compile(r"[A-Za-z0-9_.\-()\[\]{}$'\"]+")
+
+# kebab-case is the same class of thing as snake_case: a slug or enum value
+# (`yes-access-request`), not key material. IDENTIFIER_RX covers the snake form,
+# but `-` is not an identifier character so the hyphenated twin needs saying.
+# Deliberately letters-only — admitting digits would swallow lowercase hex
+# secrets, which is a real (pre-existing) gap and not one to widen.
+SLUG_RX = re.compile(r"[a-z]+(?:[-_][a-z]+)+")
+
 
 @dataclass
 class Finding:
@@ -234,6 +286,8 @@ def _is_placeholder(value: str) -> bool:
         return True
     if any(sub in low for sub in PLACEHOLDER_SUBSTRINGS):
         return True
+    if TEMPLATE_RX.search(value):
+        return True
     # a run of one repeated character (xxxx, ****, ----) is never a real secret
     if len(set(value)) <= 1:
         return True
@@ -246,18 +300,45 @@ def _is_indirection(value: str) -> bool:
 
 def _looks_like_path(value: str) -> bool:
     # `private_key = /etc/ssl/server.key` names a file, not a secret.
-    return ("/" in value and re.search(r"\.[A-Za-z0-9]{1,6}$", value) is not None
-            and " " not in value and not value.startswith("http"))
+    if " " not in value and not value.startswith("http") and "/" in value:
+        if re.search(r"\.[A-Za-z0-9]{1,6}$", value) is not None:
+            return True
+        # An EXTENSIONLESS mount path is the secret-store form we actively want
+        # people to use (`/run/secrets/netbox_key`, a K8s projected volume). The
+        # extension requirement above meant those flagged as high-severity
+        # secrets — so following Docker's recommended pattern is what turned a
+        # repo red, while the plaintext value on the next line stayed green
+        # (found 2026-07-28). Recognise absolute, multi-segment, path-shaped
+        # values; guard with the SAME mixed-class + entropy signature the
+        # high-entropy net uses, so a standard-base64 blob that merely contains
+        # `/` still flags rather than passing as a path.
+        if ABS_PATH_RX.fullmatch(value):
+            return not any(_has_mixed_classes(seg) and shannon(seg) >= HIGH_ENTROPY_MIN
+                           for seg in value.strip("/").split("/"))
+    return False
 
 
 def _looks_like_code_ref(value: str) -> bool:
     """A variable reference, attribute access or call — not a literal secret."""
-    if "(" in value or ")" in value:
+    # The mixed upper+lower+digit signature of key material wins over every code
+    # shape below — `Gk8xQvie2mNf` is a secret even though it is identifier-
+    # shaped. Hoisted to the top so it guards the call/expression branch too.
+    if _has_mixed_classes(value):
+        return False
+    # Testing for a stray `(` or `)` ANYWHERE was the same unclosed-marker bug as
+    # TEMPLATE_RX above: the real NetBox SECRET_KEY carries `(` and `)` among its
+    # random symbols and was written off as a function call (found 2026-07-28).
+    # Require the whole value to be code-SHAPED instead — and to actually contain
+    # a call/attribute/subscript, so a bare word still falls through to the
+    # identifier branch and its own reasoning.
+    if CODE_EXPR_RX.fullmatch(value) and re.search(r"[.()\[\]{}]", value):
+        return True
+    if SLUG_RX.fullmatch(value):
         return True
     # a bare or dotted identifier that lacks the mixed-class signature of key
     # material (admin_password, self.conn.password) — but NOT a mixed-class token
     # that merely happens to be alphanumeric (Gk8xQvie2mNf, a real secret shape)
-    if IDENTIFIER_RX.match(value) and not _has_mixed_classes(value):
+    if IDENTIFIER_RX.match(value):
         return True
     return False
 

@@ -126,6 +126,81 @@ class Assigned(unittest.TestCase):
                       rules("password = Gk8xQvie2mNfR7pLzW3dTaHb"))
 
 
+class BlindSpots2026_07_28(unittest.TestCase):
+    """Four ways a REAL credential slipped past this gate, found together on
+    2026-07-28 when a live NetBox config scanned clean while the commented-out
+    secret-store reference above it was reported high-severity. Each test below
+    failed before that day's fix. They are grouped rather than scattered because
+    they share one root cause: a suppression rule matching on a FRAGMENT (a word
+    boundary, an opening marker, a stray bracket) instead of a whole shape."""
+
+    # A — `_` is a word character, so `\b` never matched between the prefix and
+    # the keyword. Every prefixed env var was exempt: 15 live assignments went
+    # unflagged across the estate.
+    def test_prefixed_env_var_flagged(self):
+        self.assertIn("assigned-secret", rules("REDIS_PASSWORD: Qw82Lmfhtxz47"))
+
+    def test_camel_case_key_flagged(self):
+        self.assertIn("assigned-secret", rules("redisPassword: Gk8xQvie2mNfR7pL"))
+
+    def test_bypass_still_not_a_password_key(self):
+        # the camelCase hump must stay case-SENSITIVE, or `BYPASS` matches `PASS`
+        # and re-introduces the false positives the word boundary existed to stop
+        self.assertNotIn("assigned-secret", rules("if bypass: SomeValue123abc"))
+
+    # B — the extension requirement meant the secret-store form we WANT people to
+    # use was reported as a high-severity secret.
+    def test_extensionless_secret_mount_not_flagged(self):
+        self.assertNotIn("assigned-secret",
+                         rules("SECRET_KEY: /run/secrets/netbox_key"))
+
+    def test_base64_blob_containing_slash_still_flagged(self):
+        # a path-shaped exemption must not become a way to smuggle key material
+        self.assertIn("assigned-secret",
+                      rules("password: /aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3zA5bC7/x"))
+
+    # C — an OPENING templating marker anywhere in a value wrote it off as a
+    # template. A random key containing the two characters `$(` was exempt.
+    # The value below is SYNTHETIC — same shape as the live key that exposed
+    # this (symbol-rich, `$(` and unbalanced parens, no closing brace), never
+    # the value itself. Quoting a real credential to prove a scanner catches
+    # real credentials would leak it into a public repo.
+    def test_real_key_containing_unclosed_template_marker_flagged(self):
+        self.assertIn("assigned-secret",
+                      rules("SECRET_KEY: k(z)4tPwqBn$(_x7M2v9c(HdRuLjjbse31"
+                            "y5TgKmpa%2QW#n!8ZX@+U6Fh1B"))
+
+    def test_closed_template_still_not_flagged(self):
+        self.assertNotIn("assigned-secret", rules("password: ${DB_PASSWORD}"))
+        self.assertNotIn("assigned-secret", rules("password: $(vault read pw)"))
+
+    # D — same fragment bug in the code-reference test: a stray `(` or `)`
+    # anywhere meant "function call".
+    def test_stray_bracket_in_key_material_flagged(self):
+        self.assertIn("assigned-secret", rules("password: Gk8(Qvie2mNfR7pLzW3d"))
+
+    def test_genuine_call_still_not_flagged(self):
+        self.assertNotIn("assigned-secret", rules("password: get_secret()"))
+
+    # The three false positives the fix itself introduced, caught by re-scanning
+    # the estate before landing. Each is a shape the old stray-bracket test had
+    # been quietly absorbing.
+    def test_js_function_expression_not_flagged(self):
+        # vendored minified JS: `password:function(a){return a.nodeName…}`
+        self.assertNotIn("assigned-secret",
+                         rules("password:function(a){return a.nodeName}"))
+        self.assertNotIn("assigned-secret",
+                         rules("const token = Buffer.from(JSON.stringify({"))
+
+    def test_kebab_case_enum_not_flagged(self):
+        self.assertNotIn("assigned-secret",
+                         rules('_home(require_message_auth="yes-access-request")'))
+
+    def test_prose_after_key_word_not_flagged(self):
+        self.assertNotIn("assigned-secret",
+                         rules("# without password= (live-proven 2026-07-04); and"))
+
+
 class HighEntropy(unittest.TestCase):
     def test_mixed_class_blob_flagged(self):
         self.assertIn("high-entropy",
