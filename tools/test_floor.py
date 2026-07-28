@@ -715,6 +715,50 @@ class InvocationTest(unittest.TestCase):
             self.assertIn("local.t.scope", r.stderr)
             self.assertIn("INSIDE the repo", r.stderr)
 
+    def test_partial_scope_drift_on_a_softenable_check_is_visible(self):
+        """TA3. The blocking guard covers only checks with no advisory form, so
+        a softenable check whose scope has half stopped resolving used to run on
+        less and print nothing at all — cover shrank with no signal. It must
+        still not block (the code-only-repo case), but it must say so, and the
+        note must reach --json so the fleet board can carry it."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            (Path(td) / floor.CONFIG_NAME).write_text(
+                json.dumps({"scope": {"wrapscan": ["docs", "gone"]}}), encoding="utf-8")
+            r = self._run("--plane", "ci", "--root", td, "--json")
+            self.assertEqual(r.returncode, 0, r.stderr)
+            results = {x["name"]: x for x in json.loads(r.stdout)["results"]}
+            self.assertEqual(results["wrapscan"]["state"], "enforced")
+            self.assertIn("1 of 2 scope paths missing", results["wrapscan"]["partial"])
+            self.assertIn("gone", results["wrapscan"]["partial"])
+
+    def test_a_fully_resolving_scope_carries_no_drift_note(self):
+        """The other direction, or the note becomes wallpaper: a scope whose
+        paths all resolve is full cover for that check and renders plain."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            (Path(td) / floor.CONFIG_NAME).write_text(
+                json.dumps({"scope": {"wrapscan": ["docs"]}}), encoding="utf-8")
+            r = self._run("--plane", "ci", "--root", td, "--json")
+            results = {x["name"]: x for x in json.loads(r.stdout)["results"]}
+            self.assertEqual(results["wrapscan"]["partial"], "")
+
+    def test_the_cover_note_states_the_invocation_not_a_cover_level(self):
+        """TA4. The argv knows what cover was DEMANDED; only the scanner's own
+        output knows what it got. On a machine holding a term list, a ci-plane
+        leakscan reports 'structural + local' while this line used to assert
+        'partial cover' — the delta's own test failed in mirror image. The line
+        now states the invocation, which is true in both environments; the 🟡
+        stays, because a real runner holds no list."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / floor.CONFIG_NAME).write_text("{}", encoding="utf-8")
+            r = self._run("--plane", "ci", "--root", td, "--json")
+            results = {x["name"]: x for x in json.loads(r.stdout)["results"]}
+            note = results["leakscan"]["partial"]
+            self.assertIn("does not pass --require-terms", note)
+            # The claim it must no longer make: that cover WAS partial.
+            self.assertNotIn("partial cover", note)
+
     def test_a_softenable_check_still_skips_a_missing_tree(self):
         """The other half of the guard, and the reason it is not blanket: the
         skip exists so a code-only repo is not blocked by the prose checks. Only

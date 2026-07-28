@@ -1018,12 +1018,35 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
             if rc != 0 and state == "enforced":
                 print(f"::error::{_wc(scanner.name)} failed — {_wc(scanner.why)}",
                       file=child_stdout, flush=True)
-        # Read off the argv actually invoked, not off the plane name — the
-        # rendered command is the only thing that knows what cover this run had.
+        # Read off the argv actually invoked, not off the plane name: the plane
+        # does not determine the invocation, a child's config can vary it.
+        #
+        # What this can and cannot say (TA4). The argv knows what cover was
+        # DEMANDED; only the scanner's own output knows what cover it got. On a
+        # machine that happens to hold a term list, a --plane ci leakscan run
+        # reports "structural + local" while this line used to assert "partial
+        # cover" — the delta's own test (identical output for materially
+        # different cover) failed in mirror image. Floor cannot read the
+        # scanner's answer without capturing child output, and streaming it live
+        # is worth more than closing a gap that errs toward claiming LESS. So
+        # the line states the invocation, which is always true, instead of
+        # asserting a cover level it cannot observe. The 🟡 stays: on a real
+        # runner, which holds no list, the reduced cover is real.
         partial = ""
         if scanner.full_cover_flag and scanner.full_cover_flag not in argv:
-            partial = (f"partial cover — no {scanner.full_cover_flag} on the "
-                       f"{plane} plane")
+            partial = (f"cover not guaranteed — the {plane} plane does not pass "
+                       f"{scanner.full_cover_flag}")
+        # Scope drift on a SOFTENABLE check (TA3). The blocking guard above
+        # covers only checks with no advisory form; a softenable one whose
+        # scope has partly stopped resolving just quietly ran on less, with no
+        # line anywhere and the board showing the declared scope as if it were
+        # the scanned one. It must not block — that is the code-only-repo case
+        # the skip branch exists for — but shrunken cover reported as full is
+        # the defect this whole track is about, so it renders 🟡 and reaches
+        # `--json` and the fleet board by the same route as EP3's.
+        elif missing:
+            partial = (f"{len(missing)} of {len(declared)} scope paths missing "
+                       f"({', '.join(missing)}) — ran on the rest")
         results.append(Result(scanner.name, state, rc, local=scanner.is_local,
                               partial=partial))
     return results
