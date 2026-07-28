@@ -110,8 +110,15 @@ governing who may spawn it:
    record where the reviewer's deferral discipline governs when it is read),
    **in the same commit that lands the work** — landing = queuing, so no
    window exists in which landed doctrine sits unpointed and commits touching
-   its surfaces escape the pointer's delta list (AWA2 ruling, 2026-07-23) —
-   and stop — the
+   its surfaces escape the pointer's delta list (AWA2 ruling, 2026-07-23).
+   Where the work lands as *several* commits, "the landing commit" is the one
+   that completes it — the pointer goes in the last commit of the series, and
+   the window the rule closes is the one between that commit and the next
+   session, not the gaps inside a series still in flight (TA9, 2026-07-28:
+   a four-commit landing queued its pointer three minutes later, meeting the
+   rule's intent while its grammar named no commit). If the series is pushed
+   incrementally, the pointer still lands with the commit that finishes it,
+   never in a follow-up push — and stop — the
    brief is written by the non-author who takes the item, and any spawner
    passing the criterion may take a `⏳` item (the principal opening a fresh
    session and pointing it at the queue is the worked example). The brief

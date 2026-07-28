@@ -140,6 +140,13 @@ merge time.
 
 Rule 4: each application earns a further cold pass while a MAJOR stood, so a
 `⏳` is queued in the landing commit. **Not spawned by this session** — the
-applier does not spawn its own review. Two MAJORs (EP1, EP3) and one minor
-(EP2/A3) from the ADR 0008 pass are now applied, and all five local-seam
-findings; EP4–EP10 remain unapplied and are untouched here.
+applier does not spawn its own review. Three MAJORs (EP1, EP2/A3, EP3) from the
+ADR 0008 pass are now applied, and all five local-seam findings; EP4–EP10
+remain unapplied and are untouched here.
+
+*Corrected 2026-07-28 (TA8, Track A application cold pass): this line read "two
+MAJORs (EP1, EP3) and one minor (EP2/A3)". The ADR 0008 verdict grades EP2
+**MAJOR** — its reconcile narrowed EP2's blame, not its grade. Substance was
+unaffected, EP2 was applied in full, but a record that demotes a MAJOR in
+passing is the drift these records exist to prevent, so the correction is
+stamped rather than silently swapped.*
