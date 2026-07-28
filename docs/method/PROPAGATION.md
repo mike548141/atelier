@@ -172,18 +172,28 @@ said, because the narrower wording did not hold. This rule previously read
 *"never in this public canonical text, and never in a public child's tree"*,
 which binds the doctrine prose and the children and quietly exempts the one
 public repo doing most of the writing: atelier itself. The doctrine stayed
-clean and the **records** did not. As of 2026-07-28 `CHANGELOG.md`,
-`docs/SESSIONS.md` and `docs/ROADMAP-DONE.md` name the estate root in eight
-places, twice beside exactly what it holds — the financial inventory, the
-credential registry. That is the coupling this rule exists to prevent, written
-by sessions that were following the rule as it was worded.
+clean and the **records** did not. Measured 2026-07-28: the estate root is
+named **63 times across 19 files**, and on **10 of those lines** it sits beside
+exactly what it holds — the financial inventory, the credential registry, the
+keychain items. In the three current-truth records alone (`CHANGELOG.md`,
+`docs/SESSIONS.md`, `docs/ROADMAP-DONE.md`) it is 19. That is the coupling this
+rule exists to prevent, written by sessions that were following the rule as it
+was worded.
+
+*(That paragraph first said "eight places … twice beside what it holds",
+counted from a sample rather than a sweep. Corrected on the cold pass before
+landing. The undercount is recorded rather than quietly fixed because it is the
+fourth blast-radius figure this programme has stated wrongly — and the second
+in the direction that flatters the work.)*
 
 The scrub is **forward-only** (Mike's ruling, 2026-07-28): the mentions already
-pushed stay. A public repo cannot be un-published, and rewriting eight records
+pushed stay. A public repo cannot be un-published, and rewriting the records
 would buy nothing back from forks, clones and caches while costing the
-history's integrity. What changes is that no *new* mention is written. Naming
-the leak's location precisely is itself safe here — this text already says the
-root is private and holds credentials; what it withholds is which repo that is.
+history's integrity. The corrected count does not disturb that ruling — it
+strengthens it, since 63 rewrites buy back exactly what 8 would, which is
+nothing. What changes is that no *new* mention is written. Naming the leak's
+location precisely is itself safe here — this text already says the root is
+private and holds credentials; what it withholds is which repo that is.
 
 The general lesson is the one the policy-as-code programme keeps re-learning: a
 boundary is only as good as the place it is enforced, and a rule that names

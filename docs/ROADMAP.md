@@ -152,30 +152,37 @@ reason, none carrying a date.
       estate-resources paragraph). **Intent record:** the 2026-07-28 addendum
       on
       [`2026-07-27-2301-track-a-fail-opens`](sessions/2026-07-27-2301-track-a-fail-opens.md).
-      The rule bound categories of repo and so exempted the public parent that
-      was breaking it; now bound to the property. Scrub is forward-only
-      (Mike's ruling) — the reviewer should test that call, and whether naming
-      the leak's location in public text is itself sound. Not spawned by the
-      authoring session.
-- [ ] **C5 — a forcing function for the estate-root name.** The rule was
+      Not spawned by the authoring session.
+      *(Pointer trimmed to refs on the pre-landing cold pass: it had carried a
+      four-line evaluative account and told the reviewer which calls to test,
+      which is the ceiling above — refs only — and the known "the `⏳` pointer
+      steered its own reviewer" failure already on this roadmap. The account
+      lives in the intent record, where a taker meets it cold.)*
+- [ ] 🎯 **C5 — a forcing function for the estate-root name.** The rule was
       widened to bind *any* public tree including atelier's own
       (`PROPAGATION.md`, 2026-07-28 — it had exempted the parent by naming
-      categories of repo instead of the property, and eight record mentions
+      categories of repo instead of the property, and 63 record mentions
       followed). Widening the words is not a forcing function: this is the
-      fourth rule in the programme found broken *because nothing enforced it*.
-      **The measurement that shapes the fix:** a bare literal term is a
-      cry-wolf trap — the root's name is also an ordinary English word, so
-      "shed light on" would red the floor. Repo-reference *shapes* are the
-      durable pattern instead (`<owner>/<name>`, `~/.pets/<name>`,
-      `<name>@<sha>`, possessive), which is grounded in how a repo gets
-      referenced rather than in today's hit count. Cheapest home is a
-      `regex:` line in the machine-local `leakscan` term list, which catches
-      new mentions on the hook plane and leaves history alone — matching the
+      fourth rule in the programme found broken *because nothing enforced it*,
+      and the widening commit itself then broke it once more, which is the
+      argument for enforcement rather than against it.
+      **The measurement, corrected.** This item previously deferred the
+      cheapest fix on the premise that a bare literal term is a cry-wolf trap,
+      the root's name being also an ordinary English word. **Measured on the
+      cold pass: of all 63 occurrences in this repo, zero are the ordinary
+      English word — every one is a repo reference.** The premise was reasoned
+      from the word, never checked against the corpus, which is the same shape
+      as the two false blockers this programme has already recorded. A literal
+      term is therefore viable and is the cheapest thing that could work;
+      repo-reference *shapes* (`<owner>/<name>`, `~/.pets/<name>`,
+      `<name>@<sha>`, possessive) remain the more durable pattern and the two
+      compose. **Mike's call** — the shape is his, and either way the home is
+      a line in the machine-local `leakscan` term list, which is personal
+      config outside this repo and his to change. That home matches the
       forward-only ruling exactly, since `--staged` reads added lines only.
-      **Not done here** because that list is personal config outside the repo
-      and is Mike's to change. Watch the C3 interaction: a future wholesale
-      rewrite of a record that already carries a mention would re-add those
-      lines and block, which is the adoption-bootstrap problem in miniature.
+      Watch the C3 interaction: a future wholesale rewrite of a record that
+      already carries a mention would re-add those lines and block, which is
+      the adoption-bootstrap problem in miniature.
 
 ### Track D — finish the registry
 
