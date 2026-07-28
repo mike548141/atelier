@@ -2808,3 +2808,88 @@ confidently-wrong family one step subtler. The parent row gained a `workflow`
 field because atelier runs the floor from its own `ci.yml` rather than the
 caller filename its children use, so its run history was otherwise
 unaddressable. 12 new tests; suite 759 → 771, all green.
+
+### B1 — the conformance check runs on a schedule (done 2026-07-28)
+
+- [x] **B — scheduled workflow in a PRIVATE repo.** Mike ruled B on 2026-07-28
+  from four costed options; built and pushed the same day. The estate-root repo
+  hosts a daily workflow that checks out atelier, enumerates the account and
+  asserts the full claim — every repo calls the floor **and** its floor is
+  green. atelier is public, so a token spanning the private estate belongs in
+  the private counterpart's secret store rather than the shop window; GitHub's
+  schedule runs it whether or not a machine is switched on, which local cron
+  (option C) cannot promise.
+
+**The four options as they stood, preserved verbatim** — the decision is only
+legible beside what it was chosen over:
+
+- [x] **A — PAT in atelier's CI.** True continuous enforcement, catches drift
+      within a day, no human in the loop. Cost: a read token spanning the whole
+      private estate, living in the **public** repo's secret store. GitHub does
+      withhold secrets from fork PRs, so it is not trivially stealable, but it is
+      the largest concentration of the four. Needs rotation discipline.
+      *(Not chosen 2026-07-28: B is strictly better for the same outcome.)*
+- [x] **B — scheduled workflow in a PRIVATE repo.** Identical automation and
+      identical benefit to A, with the token in a private secret store instead of
+      the public one. Runs on GitHub's schedule regardless of whether any machine
+      is on. Open question: which repo hosts it — the doctrine references a
+      "private estate-root repo" as atelier's counterpart, but which repo that
+      actually is has never been written down. **Answer that first; it is
+      reusable well beyond this item.** *(CHOSEN 2026-07-28. The open question
+      was answered 2026-07-28 and recorded in the estate root's own records; it
+      stays unnamed in this public tree by the PROPAGATION.md rule.)*
+- [x] **C — scheduled local run (cron/launchd).** `floorfleet --remote --check`,
+      shouting on failure. **No new credential** — uses the existing `gh` login.
+      Failure mode: a machine that is off does not check, so drift can sit for
+      as long as the laptop does. *(Not chosen 2026-07-28: superseded by B,
+      which does not stop checking when a laptop is off.)*
+- [x] **D — add it to the session-close ritual.** Cheapest, zero infrastructure,
+      and *rejected on this session's own evidence*: it is a discipline, not a
+      mechanism, and the entire finding behind ADR 0008 is that a discipline
+      logged as an intention decays silently. Recorded so the option is visibly
+      considered and dismissed, not quietly skipped. *(Rejected 2026-07-25.)*
+
+**The item's costing was wrong, and the reason generalises.** B1 read "the work
+is small: the schedule, `--check` wiring, and a failure message", on the premise
+that `floorfleet --remote` was remote end-to-end. It was not. `--remote` read
+each repo's CONTENT from GitHub and still DISCOVERED children by walking the
+directories beside the atelier checkout — so on a GitHub runner it would have
+found no children and exited 2. Fail-safe, but not a check. Stated at the right
+altitude: **the estate this board could see was the estate that happened to be
+cloned on one laptop.** That is the same class as every other finding in this
+programme, one level further out than any of them.
+
+`--from-github <owner>` was therefore the real work. It also closes the blind
+spot the tool documented about itself — a repo that exists and was never cloned
+here was not reported as a red, it was not reported at all — and it lists repos
+in the account carrying no atelier pin as *unenrolled*, so a repo that never
+adopted the floor is a visible choice rather than silence. Swept on landing: 6
+unenrolled, of which 3 are public (exactly the three already named in the
+roadmap, so that figure was right) and 3 private and untouched since 2016.
+
+**Two bugs found in the building, both the same family as the programme's
+organising finding — a check that runs and covers nothing:**
+
+- `users/{owner}/repos` returns PUBLIC repos only: 4 of 20 here. A tool whose
+  whole claim is enumeration would have enumerated a quarter of the estate and
+  reported clean. Both listings are now unioned and paginated.
+- `_gh_json` accepted a `--jq` projection, and `--jq .sha` prints a BARE string
+  which is not valid JSON. The parse failed, the caller read `None` as "head
+  unknown", and the `behind` check was **inert on its first live run without
+  ever erroring**. The helper now takes no `--jq`. The unit test had agreed with
+  the defect, because its fixture returned the bare sha the buggy call appeared
+  to produce — a fixture that models the wrong contract proves the wrong thing,
+  and that is noted at the fixture rather than silently corrected.
+
+**The token, and what was deliberately not asked for.** `FLOORFLEET_TOKEN`:
+fine-grained, read-only, expiring, **Metadata + Contents + Actions** read.
+`Administration: read` was declined — it would let the board read the repo-level
+Actions switch directly, but it is the repo-*settings* permission and would have
+widened the token across the whole private estate to learn one boolean, when run
+history answers the same question. Minting stays Mike's (always-confirm floor
+action); the agent wires around a secret and never creates one.
+
+**It asserts the full claim and will be red before it is green.** Five children
+were red on their default branches for three days when this landed. Narrowing
+the gate to conformance alone would make the board green by not asking the
+second question, which is precisely the failure the job exists to catch.

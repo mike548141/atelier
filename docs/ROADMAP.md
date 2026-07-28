@@ -95,15 +95,15 @@ pass while a MAJOR stands.
 and nothing runs it.* Three of the four items below already have costed entries
 further down this file; they are pointed at, not restated.
 
-- **B1 — schedule the conformance check.** Four costed options, one explicitly
-  rejected → § *🎯 Schedule the conformance check* below. **UNBLOCKED
-  2026-07-28**: the fact was never unknown so much as never written down. The
-  operator confirmed it, and it is now recorded in the estate root's own records
-  where it belongs. It stays unnamed here, and that is not an oversight —
-  `PROPAGATION.md` binds *any* public tree including atelier's own, so writing
-  the answer into this file to close a blocker would be committing the breach
-  the blocker exists to avoid. A public tree references it by local-path
-  convention. B1 can now proceed.
+- **B1 — schedule the conformance check.** **BUILT 2026-07-28** (Mike ruled
+  option B). The daily workflow is committed and pushed in the estate-root repo;
+  it is blocked on the token only, which is Mike's to mint. Its enabling work —
+  `--from-github`, without which a runner discovers nothing — landed in atelier.
+  Options, ruling, the token spec and the corrected costing → § *🎯 Schedule the
+  conformance check* below. The host repo stays unnamed here and that is not an
+  oversight: `PROPAGATION.md` binds *any* public tree including atelier's own,
+  so writing it into this file would be committing the breach the rule exists to
+  avoid. A public tree references it by local-path convention.
 - **B2 — `--status` mode** (wired *and* passing) and **B3 — the
   Actions-disabled blind spot**: **BOTH DONE 2026-07-28**, landed together
   because they are one defect — a board answering *is it wired* while reading
@@ -624,38 +624,37 @@ Mike's, never the agent's.**
 
 Four ways, same goal, very different blast radius:
 
-- [ ] **A — PAT in atelier's CI.** True continuous enforcement, catches drift
-      within a day, no human in the loop. Cost: a read token spanning the whole
-      private estate, living in the **public** repo's secret store. GitHub does
-      withhold secrets from fork PRs, so it is not trivially stealable, but it is
-      the largest concentration of the four. Needs rotation discipline.
-- [~] **B — scheduled workflow in a PRIVATE repo.** **CHOSEN by Mike
-      2026-07-28** (claimed 2026-07-28-1233, wt: track-b-enumerator).
-      Identical automation and
-      identical benefit to A, with the token in a private secret store instead of
-      the public one. Runs on GitHub's schedule regardless of whether any machine
-      is on. Open question: which repo hosts it — the doctrine references a
-      "private estate-root repo" as atelier's counterpart, but which repo that
-      actually is has never been written down. **Answer that first; it is
-      reusable well beyond this item.**
-- [ ] **C — scheduled local run (cron/launchd).** `floorfleet --remote --check`,
-      shouting on failure. **No new credential** — uses the existing `gh` login.
-      Failure mode: a machine that is off does not check, so drift can sit for
-      as long as the laptop does.
-- [ ] **D — add it to the session-close ritual.** Cheapest, zero infrastructure,
-      and *rejected on this session's own evidence*: it is a discipline, not a
-      mechanism, and the entire finding behind ADR 0008 is that a discipline
-      logged as an intention decays silently. Recorded so the option is visibly
-      considered and dismissed, not quietly skipped.
+**RULED AND BUILT 2026-07-28 — Mike chose B**, the scheduled workflow in the
+private estate-root repo. A (token in atelier's public CI) and C (local cron)
+closed unchosen; D (the session-close ritual) stayed rejected. All four options
+are preserved verbatim with their dispositions in
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md), because a decision is only legible beside
+what it was chosen over.
 
-**Recommendation: B, or C if the preference is to mint nothing.** B is strictly
-better than A for the same outcome. D is not a real option and is listed only to
-close it off.
+- [ ] ⏳ 🎯 **B1 is WIRED and BLOCKED on one thing only: the token.** The
+      scheduled job cannot run until `FLOORFLEET_TOKEN` exists in the
+      estate-root repo's secret store — a fine-grained, read-only, expiring
+      PAT with **Metadata + Contents + Actions** read. **Minting is Mike's,
+      never the agent's** (always-confirm floor action). Until it exists the
+      job fails loudly on every run, which is deliberate: a scheduled check
+      that silently no-ops while it waits for a credential is the exact
+      failure this item exists to close.
+      **`Administration: read` was declined on purpose** — it would let the
+      board read the repo-level Actions switch directly, but it is the
+      repo-*settings* permission and the same question is answerable from run
+      history, so taking it would have widened the token across the private
+      estate for one boolean.
 
-**Whichever is chosen, the work is small:** the schedule, `--check` wiring, and a
-failure message naming which child dropped the floor and what to do about it. The
-credential, if any, is Mike's to create; the agent wires around an existing
-secret and never mints one.
+**What the item got wrong, worth keeping.** It costed the work as "small: the
+schedule, `--check` wiring, and a failure message". The premise was that
+`--remote` was remote end-to-end. It was not: `--remote` read each repo's
+*content* from GitHub and still *discovered* children by listing directories
+beside the atelier checkout, so on a GitHub runner it would have found nothing
+and exited 2 — fail-safe, but not a check. That is the same class as everything
+else this programme keeps finding, one level further out: **the estate this
+board could see was the estate that happened to be cloned on one laptop.**
+`--from-github` was the real work, and it closes the tool's own documented
+blind spot as a side effect.
 
 ### Licence gate — ENABLED estate-wide (Mike ruled 2026-07-25)
 
