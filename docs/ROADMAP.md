@@ -64,27 +64,30 @@ exposure.* Findings are counsel from the 2026-07-26 rule-4 Fable passes; the
 rulings are Mike's (REVIEW rule 3), and each application earns a further cold
 pass while a MAJOR stands.
 
-> 📦 **All 6 items complete, plus both cold passes** →
->   [`ROADMAP-DONE.md`](ROADMAP-DONE.md) (A5a fixed 2026-07-27; A1–A4 + A5b
+> 📦 **All 6 items complete, both cold passes, and the review cycle CLOSED**
+>   → [`ROADMAP-DONE.md`](ROADMAP-DONE.md) (A5a fixed 2026-07-27; A1–A4 + A5b
 >   landed 2026-07-27, worktree `track-a-fail-opens`; the application's own
 >   pass ruled and applied 2026-07-28, TA1–TA9, worktree
->   `ta-findings-application`). Track closed — the fail-opens are shut, each
->   fix driven live against the probe that proved the defect. The one item
->   still open below is the next cycle's review, not work.
+>   `ta-findings-application`; the TA application's terminal cold pass ran
+>   2026-07-28 — 0 MAJOR, so the cycle closes per REVIEW.md's no-MAJOR rule).
+>   Track closed — the fail-opens are shut, each fix driven live against the
+>   probe that proved the defect. What remains below is Mike's ruling on the
+>   terminal pass's residue, not work.
 
-- [~] ⏳ **review queued** — the TA1–TA9 application (rule-4 cold pass, Fable).
-      (claimed 2026-07-28-1134, wt: ta-application-cold-pass)
-      The reviewed cycle carried a MAJOR, so it stays open and this application
-      earns its own pass; REVIEW.md was also edited here, which is
-      self-authored doctrine. Commits `3fb6437`, `321bbd3`, `0ca4b75`,
-      `d80f9d8`, `f204fba` and this one. Files in the delta: `tools/floor.py`,
-      `tools/floorfleet.py`, `tools/test_floor.py`, `tools/test_floorfleet.py`,
-      `tools/test_precommit.py`, `docs/method/REVIEW.md`,
-      `docs/sessions/2026-07-27-2301-track-a-fail-opens.md`. **Intent record:**
-      [`2026-07-28-0214-ta-findings-application`](sessions/2026-07-28-0214-ta-findings-application.md).
-      **Prior verdict:**
-      [Track A application cold pass](reviews/2026-07-28-0123-track-a-application-cold.md).
-      Not spawned by the applier session.
+- [ ] 🎯 **TA-application-pass residue — TAA1–TAA3, Mike's ruling.** The
+      terminal cold pass returned 0 MAJOR / 1 minor / 3 notes
+      ([verdict](reviews/2026-07-28-1136-ta-application-cold.md)); the cycle
+      is closed, and per rule 3 the residue is Mike's to decide. In plain
+      language: **TAA1** (minor) — a comment in `floor.py`'s scope guard
+      still labels two fail-opens "(open)" that the same series shut; a
+      two-line comment edit makes it true (reviewer counsel: fix). **TAA2**
+      (note) — the two 🟡 notes share one report field via `elif`, so a
+      future softenable scanner with a cover flag would silently drop its
+      scope-drift note; a comment naming the invariant, or a joined note,
+      pins it. **TAA3** (note) — AW6 doesn't say whether a second queued
+      pointer over the same files discharges the delta-list widening duty;
+      second recorded case, a third earns the one-line grammar
+      clarification.
 
 ### Track B — make the enumerator real
 

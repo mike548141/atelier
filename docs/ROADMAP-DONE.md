@@ -2674,3 +2674,30 @@ that re-measuring costs minutes.
       at all; the data stays one `git show` away. Deleting is still not one of
       the options — but *untracking* is the shape the mistake actually takes,
       and it looks like a fix on the board.
+
+### The Track A cycle's terminal pass — TAA1–TAA4 (done 2026-07-28)
+
+- [x] **REVIEWED 2026-07-28** (rule-4 Fable cold pass, taken from the queue
+  by a Mike-spawned "do any review work" session — author of nothing in the
+  chain): **PASS-WITH-FINDINGS 0 MAJOR / 1 minor / 3 notes** —
+  [verdict](reviews/2026-07-28-1136-ta-application-cold.md). **The Track A
+  review cycle CLOSED** on this pass (no-MAJOR terminal rule); the residue
+  (TAA1–TAA3) went to the live backlog as a 🎯 ruling item for Mike.
+
+Every live claim in the TA application re-ran true: both TA1 red legs
+(`/etc` scope and the escaping symlink — rc 0 at `3fb6437`, rc 1 at HEAD),
+TA5's wired→absent flip on a commented-out workflow line, TA6's import
+hygiene, TA7's board run from a real worktree (parent + 13 children), the
+`321bbd3` blast radius exact to the row (14 configs / 2 scoping / 4 unique
+paths / 0 failing), 733 green at `d80f9d8`, and 759 + 207 green at HEAD in
+BOTH environments (machine term list present and absent). Push telemetry
+confirmed the TA9 grammar was met by its own series: the pointer left in
+the same push as the completing commits.
+
+The one substantive finding (TAA1) is an honesty lapse in a comment, not in
+behaviour: the scope guard's class-members comment entered the series as an
+overclaim ("the rest of that class"), was corrected to an underclaim
+mid-series, and landed still claiming "(open)" two members that `321bbd3`
+had shut — with the out-of-delta C1 commit later appending a correcting
+tail while leaving the "(open)" labels. Same comment, three states, none
+true at its landing.
