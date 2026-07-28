@@ -178,3 +178,54 @@ every mechanical claim re-ran true, the tests pin both the defect and the
 over-correction directions, and the one substantive lapse (TAA1) is the
 delta failing its own honesty bar in a comment, not in behaviour. Cycle
 closed; TAA1–TAA3 to Mike.
+
+---
+
+## Reconcile (written after the verdict above was committed; the intent
+## record, the prior verdict, and the harvest hunks now opened)
+
+**Ruling faithfulness, verified per ruling.** Mike's rulings were TA1 →
+(a) and TA2–TA9 → fix all eight. TA1's application matches counsel (a) in
+full — lexical refusal at parse plus resolved containment where the path
+exists — and the one extension beyond the ruling's letter (`local.*.scope`
+held to the same rule) is named as a widening *inside* the ruled class in
+the code, the intent record, and the harvest; the "named, not hidden"
+discipline held. TA4's fixed-at-the-claim-not-the-mechanism limit is
+likewise stated in all three places rather than rounded up. TA2, TA3, TA5,
+TA6, TA7 match their rulings as re-proven above; TA8's grounding checks
+out — the ADR 0008 verdict grades EP2 **MAJOR** and its reconcile narrowed
+blame, not grade, so the restored wording is correct; TA9's grammar is in
+REVIEW.md as the intent record describes, and this series obeyed it.
+
+**The environment claim, completed.** The intent record claims both suites
+green with the term list present *and* absent. The cold pass above re-ran
+only the present leg; re-run absent (`HOME` redirected, the env var
+cleared): 759 green at HEAD. The claim reproduces both ways.
+
+**Findings, reconciled — nothing overturned:**
+
+- **TAA1 stands, sharpened.** The intent record closes with "Open from
+  this session: nothing", and neither it nor the harvest mentions the
+  class-members comment `321bbd3` left claiming two shut members open and
+  "awaiting a ruling" that had been made. The prior verdict's TA1 had
+  called out that comment's *overclaim* ("the rest of that class"); the
+  application corrected it into an underclaim and then out-dated it in the
+  same series. Same comment, third state, still not true at landing.
+- **TAA2 stands** as a latent-interaction note; no ruling constrains the
+  `elif` shape, so it contradicts nothing.
+- **TAA3 stands**, and the prior verdict's TA9 is its sibling: TA9 fixed
+  the "which commit" gap in AWA2's grammar, TAA3 records the "which
+  pointer widens" gap. This is the second case; a third earns the
+  one-line clarification.
+- **TAA4 unchanged.**
+
+The intent record's blast-radius table matches my independent re-measure
+row for row (14 / 2 / 4-unique / 0 failing). Its probe table reproduced in
+full under this pass's re-runs.
+
+**Verdict after reconcile: unchanged — PASS-WITH-FINDINGS, 0 MAJOR /
+1 minor / 3 notes. The Track A review cycle CLOSES** (no-MAJOR terminal
+rule; this pass reviewed the application of a MAJOR-carrying pass's
+rulings, and none of its own findings reach MAJOR). TAA1–TAA3 are decided
+into the backlog for Mike; per the terminal rule this close spawns no
+further ceremony.
