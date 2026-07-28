@@ -242,3 +242,65 @@ verdict pre-commit). The security lens ran manually: the workflow-command
 injection surface (LS1) verified closed, the seam's execution surface
 probed (LS3 both directions, TA1's scope escape found adjacent to it),
 term-list secrecy checked end-to-end.
+
+### Reconcile (written after the findings above were committed; the intent
+### record and both prior verdicts now opened)
+
+**Ruling faithfulness — verified per ruling, against the decision stamps:**
+
+| Ruling | Applied as | Verified |
+|---|---|---|
+| A1/EP1 → (a)+(c), (b) deferred to C1 | Board reads `scope`/`flags`/`docs` (a); unresolvable path blocks for no-advisory scanners, widened to partial drift (c); no stated-reason requirement present (b deferred, correctly absent) | ✅ live |
+| A2/EP3 → (c) both halves | `--require-terms` on the hook template; `full_cover_flag` renders 🟡 on the plane that omits it; board reports the machine's term list | ✅ live |
+| A3/EP2 | The false "read out estate-wide" sentence made true at the mechanism, pinned by tests | ✅ live |
+| LS1–LS5 | All five edges closed, each with the probe that proved it | ✅ suite, re-run |
+| A5b | Parent row, `floor.yml` excluded from its evidence | ✅ live |
+
+EP4–EP10 untouched, as the pointer stated. No applied hunk carries doctrine
+beyond its ruling; the one deliberate extension (partial drift blocks too) is
+a widening *inside* the ruled class, named as such in the code and record.
+
+**Findings reconciled against the prior verdicts:**
+
+- **TA1 gains support**: the ADR 0008 verdict's own probe table already
+  recorded "relative non-matching prefix → rc 0, silently clean (see EP1)" —
+  the adjacent class member was visible one pass earlier. The rulings as
+  worded cover only resolve-to-nothing, so TA1 contradicts no ruling; it
+  contradicts the *application's* claim that the guard closes "the rest of
+  that class". EP1's deferred counsel (b) — a stated reason for scoping a
+  no-advisory scanner — would not have prevented the vacate. MAJOR stands.
+- **TA7 confirmed pre-existing**: the ADR 0008 verdict's invocation notes
+  already record the worktree discovery gap and the `--atelier` workaround.
+  Stands as a note, not a defect of this delta.
+- **TA8 (note, new at reconcile) — the intent record misgrades EP2.** It
+  closes with "Two MAJORs (EP1, EP3) and one minor (EP2/A3)"; the ADR 0008
+  verdict grades EP2 **MAJOR** (its reconcile narrowed EP2's *blame*, not
+  its grade). Substance unaffected — EP2 was applied fully — but a record
+  that demotes a MAJOR in passing is the kind of drift the records exist to
+  prevent.
+- **TA9 (note, new at reconcile) — "landing = queuing" met the letter three
+  minutes late.** AWA2 puts the `⏳` in "the same commit that lands the
+  work"; the work landed as four code commits and the pointer arrived in
+  the records commit 3 minutes after the last of them. For a multi-commit
+  landing the rule's grammar doesn't say which commit is "the" landing
+  commit — worth one clarifying line where AWA2 is written down, not a
+  violation.
+
+The intent record's probe table (before/after, eleven rows) reproduced in
+full under this pass's re-runs. Its estate-impact statement (a fresh
+machine blocks on first commit) is accurate and the remedy path it names
+exists.
+
+### Verdict
+
+**PASS-WITH-FINDINGS — 1 MAJOR / 4 minor / 4 notes** (TA1 M; TA2–TA5 m;
+TA6–TA9 n). The five ruled items are all genuinely applied, each fix
+re-proven live against the probe that established its defect, and the
+suites are env-independent in both directions. The MAJOR is not a failure
+to apply a ruling; it is the adjacent member of the ruled class, left open
+while the delta's own comment claims the class shut — under this repo's
+apex that overclaim is the part to treat as load-bearing.
+
+Rule 3: every finding awaits the principal's ruling; this reviewer applied
+nothing. Rule 4 close condition: a MAJOR stands, so the cycle stays open —
+the application of these rulings earns a further cold pass.
