@@ -90,11 +90,16 @@ commit. `floorfleet --remote --check` exits 0 (conformance intact);
   (`floorfleet --status`) and B4 (`harvestscan`). The B4 pointer asks its
   reviewer to test the *verdict* as well as the code — the author reached
   "do not wire" on his own instrument.
-- 🚩 **B1 cannot run until Mike mints `FLOORFLEET_TOKEN`** in the estate-root
-  repo's secret store: fine-grained, read-only, expiring, **Metadata +
-  Contents + Actions** read. Until then the scheduled job fails loudly every
-  day, which is deliberate — a scheduled check that silently no-ops while it
-  waits for a credential is the exact failure the item exists to close.
+- ✅ ~~B1 blocked on the token~~ — **CLEARED the same session.** Mike minted
+  `FLOORFLEET_TOKEN` (read-only, expires 2026-10-27, all repos, actions + code
+  + metadata, no Administration) and set it himself, so the value never passed
+  through an agent. A dispatch run then proved the path on a runner with no
+  local clones: 14 repos enumerated from GitHub, all run statuses read, exit 1
+  on the five red floors — failing for the right reason, not on a config
+  fault. 🔎 **The degraded-authority fallback proved itself in production**:
+  the board printed *"Actions-off was INFERRED (not read) for 14 repo(s)"*,
+  which is the design argument for declining `Administration: read` turned
+  into a demonstrated fact. Full detail in `ROADMAP-DONE.md`.
 - 🎯 The five red child floors, and B4's next step (fund the discriminator, or
   leave it as a hand-run tool before deliberate bulk deletions).
 

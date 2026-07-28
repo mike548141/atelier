@@ -2893,3 +2893,41 @@ action); the agent wires around a secret and never creates one.
 were red on their default branches for three days when this landed. Narrowing
 the gate to conformance alone would make the board green by not asking the
 second question, which is precisely the failure the job exists to catch.
+
+### B1 — the token, and the proof it works (done 2026-07-28)
+
+- [x] **`FLOORFLEET_TOKEN` minted and the scheduled job proven end to end.**
+  Mike minted it the same day: fine-grained, read-only, expiring 2026-10-27,
+  **all repositories owned by the account**, read on actions + code + metadata,
+  no user permissions, **no Administration**. Set into the estate-root repo's
+  secret store by Mike directly, so the value never passed through an agent or a
+  transcript.
+
+**Why "all repositories" rather than the 13 named children — this is the part
+worth keeping.** A token scoped to a named list cannot see repo 14. A new child
+would not appear in the account listing at all, so the board would report it as
+*nothing* rather than as a red — which is precisely the under-enumeration
+failure the whole instrument exists to prevent, reintroduced through its
+credential. Read-only `contents` + `actions` on the owner's own account is a
+modest surface; a list-scoped token would have quietly defeated the tool.
+
+**The proof.** A `workflow_dispatch` run on 2026-07-28 exercised the whole path
+on a GitHub runner with **no local clones of anything**: 13 children plus the
+parent enumerated from GitHub, every repo's latest floor run read, the six
+unenrolled repos listed, and **exit 1 on the five red floors** — failing for the
+right reason rather than on a configuration fault, which is the only distinction
+that makes a red board worth having.
+
+🔎 **The degraded-authority path was proven in production, not merely
+unit-tested.** The board printed *"Actions-off was INFERRED (not read) for 14
+repo(s)"*. The token deliberately carries no `Administration: read`, so the
+repo-level Actions switch is unreadable, and the check fell back to run history
+**and declared that it had done so**. Declining the wider permission was argued
+on the grounds that the same question is answerable more cheaply; that argument
+is now a demonstrated fact rather than a design claim.
+
+One expected non-finding on the board, called out in the workflow's own comments
+before it was ever run: `❌ personal-data term list: absent`. That list is
+machine-local by design — it lives outside every repo — so a runner never has
+one. It gates the HOOK plane on a developer's machine and does not gate this
+job, and the board says so rather than leaving a reader to infer it.

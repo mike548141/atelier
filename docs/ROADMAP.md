@@ -730,19 +730,22 @@ are preserved verbatim with their dispositions in
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md), because a decision is only legible beside
 what it was chosen over.
 
-- [ ] ⏳ 🎯 **B1 is WIRED and BLOCKED on one thing only: the token.** The
-      scheduled job cannot run until `FLOORFLEET_TOKEN` exists in the
-      estate-root repo's secret store — a fine-grained, read-only, expiring
-      PAT with **Metadata + Contents + Actions** read. **Minting is Mike's,
-      never the agent's** (always-confirm floor action). Until it exists the
-      job fails loudly on every run, which is deliberate: a scheduled check
-      that silently no-ops while it waits for a credential is the exact
-      failure this item exists to close.
-      **`Administration: read` was declined on purpose** — it would let the
-      board read the repo-level Actions switch directly, but it is the
-      repo-*settings* permission and the same question is answerable from run
-      history, so taking it would have widened the token across the private
-      estate for one boolean.
+**B1 IS LIVE — token minted and the job PROVEN end to end (2026-07-28).** Mike
+minted `FLOORFLEET_TOKEN` (fine-grained, read-only, expires 2026-10-27, all
+repos, read on actions + code + metadata, no user permissions, **no
+Administration**) and set it in the estate-root repo's secret store. A
+`workflow_dispatch` run then proved the whole path on a runner with **no local
+clones**: 13 children plus the parent enumerated from GitHub, every run status
+read, exit 1 on the five red floors — failing for the right reason, which is the
+only kind of red worth having. Detail →
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md).
+
+> 🔎 **The degraded-authority path proved itself in production, not just in
+> tests.** The board printed *"Actions-off was INFERRED (not read) for 14
+> repo(s)"* — the token deliberately lacks `Administration: read`, so the check
+> fell back to run history **and said so on the board** rather than letting a
+> reader assume the stronger authority. That was the design argument for
+> declining the wider permission; it is now a demonstrated fact.
 
 **What the item got wrong, worth keeping.** It costed the work as "small: the
 schedule, `--check` wiring, and a failure message". The premise was that
