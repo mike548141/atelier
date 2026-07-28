@@ -132,7 +132,8 @@ undercount — the fourth wrong blast radius on this programme and the first tha
 > 📦 **C1 phase 1 complete** (schema, expiry, A1(b)) →
 >   [`ROADMAP-DONE.md`](ROADMAP-DONE.md). What remains of C1 is C1b below —
 >   the migration and the removal of the transition spelling.
-- [ ] ⏳ **review queued** — C1 phase 1 and A1(b) (rule-4 cold pass, Fable).
+- [~] ⏳ **review queued** — C1 phase 1 and A1(b) (rule-4 cold pass, Fable).
+      (claimed 2026-07-28-1201, wt: c1-advisory-cold-pass)
       Self-authored doctrine and enforcement code. Commit `549930b` and the
       records commit that completes the series. Files in the delta:
       `tools/floor.py`, `tools/floorfleet.py`, `tools/test_floor.py`,
