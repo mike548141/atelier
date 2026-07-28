@@ -405,24 +405,28 @@ the mechanism works.
 These are **real findings the guards were never run to catch**, not rollout
 blockers to wave through. Each needs eyes before its repo can go green.
 
-- [~] ⏳ **REVIEW OWED — `secretscan` fragment-match exemptions (2026-07-28).**
-      (claimed 2026-07-28-1216, wt: secretscan-fragment-cold-pass)
-      Triage of the `assigned-secret` class found the gate reporting the *safe*
-      pattern while missing the credential beside it: four suppression rules
-      matched on a fragment (a `\b` that cannot see past `_`, an unclosed
-      templating marker, a stray bracket, a path test demanding a file
-      extension) rather than a whole shape. Fixed and pinned with 12 tests.
-      **Queued, not spawned** — REVIEW rule 4 binds the author out, and this is
-      the security floor, so it wants an independent pass at a tier matched to
-      the stakes (`ECONOMICS.md`). Aim the reviewer at the one real trade: every
-      widened rule was validated by re-scanning the estate and fixing the three
-      false positives the fix itself introduced — is *re-scan the corpus* a
-      sound acceptance test for a security gate, or does it just tune the gate
-      to one estate's content? Second question worth its own look: a lowercase
-      hex secret is still exempted as identifier-shaped. That gap is
-      **pre-existing and untouched here** — deliberately, because closing it
-      trips every lowercase word in the corpus — but it is now the widest
-      remaining hole and should be ruled on rather than inherited.
+- [ ] 🎯 **secretscan pass residue — SF1–SF4, Mike's ruling.** The rule-4
+      pass ran 2026-07-28 (Fable): **0 MAJOR / 1 minor / 3 notes, cycle
+      CLOSED** ([verdict](reviews/2026-07-28-1220-secretscan-fragment-cold.md)).
+      All four red legs reproduced old-vs-new; the FP fixes hold; the
+      estate figures verified (the 26→4 delta is the ruled untrack). In
+      plain language, one family decision and two smaller calls:
+      **SF1+SF2** (minor+note, rule together) — the low-charset-diversity
+      family: the new kebab exemption un-flags hyphenated passphrases
+      (`password=<diceware-style>` was caught before, is clean now; the
+      snake twin was already exempt), and the pre-existing lowercase-hex
+      gap is half its stated size (digit-leading hex already flags;
+      letter-leading slips). Reviewer counsel: whole-shape carve-outs in
+      assigned context — full-match 32+ hex, and 4+ hyphenated lowercase
+      words — are not identifier/slug-suppressed; cry-wolf risk is git
+      SHAs, which rarely sit assigned to credential-named keys. Also
+      carried: the triage record's "entropy net catches ≥32 chars" aside
+      is true only for mixed-class values — probed false for this family.
+      **SF3** (note) — the corpus re-scan question answered: sound
+      regression floor, insufficient acceptance test; counsel is a
+      standing canary suite of credential *shapes* that must always flag,
+      run beside the corpus re-scan on gate changes (it would have caught
+      SF1). **SF4** (note) — resolved at reconcile, no action.
 - [ ] **The four archetypes need naming as a class.** Every defect above, and
       both false positives already recorded below, are the same error: a rule
       deciding on a *fragment* of a value instead of its *whole shape*. Worth

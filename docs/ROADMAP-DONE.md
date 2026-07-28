@@ -2738,3 +2738,25 @@ forward-only rule has held since landing with zero new mentions, and the
 text withholds the name it says it withholds. The minor (ER1) is the
 widening's own lesson one transition further: the rule is silent at the
 private→public flip, the moment a scrub still buys everything back.
+
+### The secretscan fragment-match fix's cold pass — SF1–SF4 (done 2026-07-28)
+
+- [x] **REVIEWED 2026-07-28** (rule-4 Fable cold pass, fourth item for the
+  same non-author taker session; the security floor's requested tier):
+  **PASS-WITH-FINDINGS 0 MAJOR / 1 minor / 3 notes** —
+  [verdict](reviews/2026-07-28-1220-secretscan-fragment-cold.md). **Cycle
+  CLOSED**; residue SF1–SF4 queued 🎯 for Mike, SF1+SF2 as one
+  low-charset-diversity family.
+
+All four red legs reproduced on synthetic fixtures against the pre-fix
+scanner; the three introduced-FP fixes hold with no new false positives
+from the boundary change; the estate re-scan matches the claim (the one
+moved figure is the ruled untrack of the data export); every committed
+test value verified synthetic. The minor (SF1) is live-proven: the
+kebab-slug exemption un-flags hyphenated diceware-style passphrases the
+old scanner caught — the snake-case twin was already exempt, so the fix
+completed a pre-existing hole's spelling rather than opening a class, but
+the cost went unnamed. The pass also corrected two figures at reconcile:
+the lowercase-hex gap is half its stated size (letter-leading only), and
+the "entropy net catches ≥32 chars" aside holds only for mixed-class
+values.
