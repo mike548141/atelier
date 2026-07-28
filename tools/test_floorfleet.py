@@ -423,5 +423,80 @@ class InvocationTest(unittest.TestCase):
             self.assertEqual(r.returncode, 2)
 
 
+class ParentWiringTest(unittest.TestCase):
+    """TA5 — the parent classifier must read live YAML, not commented-out YAML.
+
+    The board exists to catch a parent quietly dropping the floor it ships
+    (A5b). Commenting a step out is the ordinary way anyone disables one, so a
+    classifier that matches inside comments is green at the exact moment it is
+    supposed to be red."""
+
+    def test_a_commented_out_invocation_is_not_wired(self):
+        yml = ("jobs:\n  floor:\n    steps:\n"
+               "      # - run: python3 tools/floor.py --plane ci --root .\n")
+        self.assertIsNone(
+            floorfleet.PARENT_RUN_RE.search(floorfleet._live_yaml(yml)))
+
+    def test_a_live_invocation_is_still_wired(self):
+        yml = ("jobs:\n  floor:\n    steps:\n"
+               "      - run: python3 tools/floor.py --plane ci --root .\n")
+        self.assertIsNotNone(
+            floorfleet.PARENT_RUN_RE.search(floorfleet._live_yaml(yml)))
+
+    def test_a_trailing_comment_cannot_manufacture_a_match(self):
+        """The half a line-start check would miss: a live step whose trailing
+        comment mentions the invocation it replaced."""
+        yml = "      - run: echo hi  # was: floor.py --plane ci --root .\n"
+        self.assertIsNone(
+            floorfleet.PARENT_RUN_RE.search(floorfleet._live_yaml(yml)))
+
+    def test_a_hash_inside_quotes_is_not_a_comment(self):
+        """And the over-correction: stripping every `#` would blind the
+        classifier to a real step that happens to echo one."""
+        yml = ('      - run: echo "#" && python3 tools/floor.py --plane ci\n')
+        self.assertIsNotNone(
+            floorfleet.PARENT_RUN_RE.search(floorfleet._live_yaml(yml)))
+
+
+class WorktreeDiscoveryTest(unittest.TestCase):
+    """TA7 — the board must work from a worktree, the mode this repo's own
+    doctrine prescribes for write-heavy work. The default search root was the
+    checkout's parent, which inside a worktree is `.claude/worktrees/` — so the
+    board reported "no atelier children found" precisely when someone was
+    changing the floor."""
+
+    def test_main_checkout_resolves_through_a_worktree(self):
+        with tempfile.TemporaryDirectory() as td:
+            main = Path(td) / "estate" / "repo"
+            main.mkdir(parents=True)
+            # Identity without an address SHAPE: git takes any string here, and
+            # a literal example address is what leakscan is built to stop —
+            # including in test fixtures, where it is just as committed.
+            for cmd in (["init", "-q"], ["config", "user.email", "fixture"],
+                        ["config", "user.name", "fixture"]):
+                subprocess.run(["git", "-C", str(main), *cmd], check=True,
+                               capture_output=True)
+            (main / "f").write_text("x")
+            subprocess.run(["git", "-C", str(main), "add", "f"], check=True,
+                           capture_output=True)
+            subprocess.run(["git", "-C", str(main), "commit", "-qm", "i"],
+                           check=True, capture_output=True)
+            wt = main / ".claude" / "worktrees" / "scratch"
+            subprocess.run(["git", "-C", str(main), "worktree", "add", "-q",
+                            str(wt), "-b", "scratch"], check=True, capture_output=True)
+
+            self.assertEqual(floorfleet.main_checkout(wt).resolve(), main.resolve())
+            # The search root that follows from it: beside the main checkout,
+            # where siblings actually live — not inside .claude/worktrees/.
+            self.assertEqual(floorfleet.main_checkout(wt).parent.resolve(),
+                             (Path(td) / "estate").resolve())
+            # And it must be an identity for an ordinary checkout.
+            self.assertEqual(floorfleet.main_checkout(main).resolve(), main.resolve())
+
+    def test_a_non_repo_directory_falls_back_to_itself(self):
+        with tempfile.TemporaryDirectory() as td:
+            self.assertEqual(floorfleet.main_checkout(Path(td)), Path(td))
+
+
 if __name__ == "__main__":
     unittest.main()

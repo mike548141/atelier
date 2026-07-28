@@ -55,8 +55,25 @@ def _registry_scanners() -> list[str]:
 # developer laptop (which has ~/.claude/leakscan-terms.txt) and fails on every
 # CI runner (which must never have one) — an env-gated split where the local run
 # is the misleading half. Deliberately nonsense so it matches no fixture here.
-_TERMS = Path(tempfile.mkdtemp(prefix="precommit-terms-")) / "leakscan-terms.txt"
-_TERMS.write_text("zzz-term-that-appears-in-no-fixture\n", encoding="utf-8")
+#
+# Built in setUpModule, not at import (TA6): at module scope this wrote a temp
+# file on EVERY import — including test selections that run none of these tests
+# — and never removed it. The fixture-pinning is the part that matters and is
+# unchanged; only its lifetime is.
+_TERMS: Path | None = None
+_TERMS_DIR: str | None = None
+
+
+def setUpModule() -> None:
+    global _TERMS, _TERMS_DIR
+    _TERMS_DIR = tempfile.mkdtemp(prefix="precommit-terms-")
+    _TERMS = Path(_TERMS_DIR) / "leakscan-terms.txt"
+    _TERMS.write_text("zzz-term-that-appears-in-no-fixture\n", encoding="utf-8")
+
+
+def tearDownModule() -> None:
+    if _TERMS_DIR:
+        shutil.rmtree(_TERMS_DIR, ignore_errors=True)
 
 
 def _git(repo: Path, *args: str, env: dict | None = None) -> subprocess.CompletedProcess:

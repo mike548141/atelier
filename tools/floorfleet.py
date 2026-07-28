@@ -265,12 +265,44 @@ PARENT_RUN_RE = re.compile(r"floor\.py\s+--plane\s+ci\b")
 PARENT_WORKFLOWS = ".github/workflows"
 
 
-def _repo_name(repo: Path) -> str:
-    """The repo's name, not the directory's. These differ inside a git worktree,
-    and this repo's own doctrine says to take a worktree for write-heavy work —
-    so the naive basename would label the parent row with a branch-shaped
-    scratch name on exactly the sessions most likely to be changing the floor.
-    `--git-common-dir` points at the main checkout's .git from any worktree."""
+def _live_yaml(text: str) -> str:
+    """The workflow text with commented-out lines removed.
+
+    TA5: the parent classifier matched anywhere in the concatenated workflow
+    text, so a `ci.yml` whose only floor line was `# - run: python3
+    tools/floor.py --plane ci` classified as `wired`. A parent that disabled
+    its own floor and left the line in a comment — the ordinary way anyone
+    disables a CI step — read GREEN on the board built to catch a parent
+    quietly dropping its floor (A5b). The child classifier does not have this
+    hole because it matches a structural caller line.
+
+    Deliberately a lexer, not a YAML parse: a `#` outside quotes starts a
+    comment, and that is the whole rule the failure needed. Parsing properly
+    would mean a dependency the fleet board has always refused, and the board's
+    idiom is text matching — the defect was that the matching was not
+    line-aware, not that it was textual."""
+    out: list[str] = []
+    for line in text.splitlines():
+        quote = ""
+        for i, ch in enumerate(line):
+            if quote:
+                if ch == quote:
+                    quote = ""
+            elif ch in "\"'":
+                quote = ch
+            elif ch == "#":
+                line = line[:i]
+                break
+        out.append(line)
+    return "\n".join(out)
+
+
+def main_checkout(repo: Path) -> Path:
+    """The main checkout behind `repo`, which IS `repo` unless it is a worktree.
+
+    `--git-common-dir` points at the main checkout's `.git` from any worktree,
+    so its parent is the main checkout itself. Falls back to `repo` whenever
+    git cannot answer — a non-repo directory, or no git on PATH."""
     try:
         out = subprocess.run(["git", "-C", str(repo), "rev-parse",
                               "--git-common-dir"],
@@ -279,10 +311,18 @@ def _repo_name(repo: Path) -> str:
             common = Path(out.stdout.strip())
             if not common.is_absolute():
                 common = (repo / common)
-            return common.resolve().parent.name
+            return common.resolve().parent
     except OSError:
         pass
-    return repo.name
+    return repo
+
+
+def _repo_name(repo: Path) -> str:
+    """The repo's name, not the directory's. These differ inside a git worktree,
+    and this repo's own doctrine says to take a worktree for write-heavy work —
+    so the naive basename would label the parent row with a branch-shaped
+    scratch name on exactly the sessions most likely to be changing the floor."""
+    return main_checkout(repo).name
 
 
 def evaluate_parent(atelier: Path) -> ChildFloor:
@@ -308,10 +348,13 @@ def evaluate_parent(atelier: Path) -> ChildFloor:
             if path.name == "floor.yml":
                 continue
             try:
-                text += path.read_text(encoding="utf-8")
+                # Newline-joined: concatenating raw would splice one file's
+                # last line onto the next file's first and could manufacture a
+                # match across a boundary that exists in neither file.
+                text += path.read_text(encoding="utf-8") + "\n"
             except OSError:
                 continue
-    if PARENT_RUN_RE.search(text):
+    if PARENT_RUN_RE.search(_live_yaml(text)):
         state, detail = "wired", "runs the floor it ships, over its own tree"
     else:
         state, detail = "absent", ("ships the floor and does not run it — "
@@ -581,8 +624,15 @@ def main(argv: list[str] | None = None) -> int:
                 return 2
             children.append(p)
     else:
+        # Search beside the MAIN checkout, not beside this one (TA7). Run from
+        # a worktree the naive `atelier.parent` is `.claude/worktrees/`, which
+        # holds no children, so the board reported "no atelier children found"
+        # in exactly the mode this repo's doctrine prescribes for write-heavy
+        # work — i.e. whenever someone is changing the floor. `_repo_name`
+        # already resolved the main checkout to label the parent row; the
+        # intent reached the label and not the discovery.
         roots = [Path(r).expanduser() for r in args.root] if args.root \
-            else [atelier.parent]
+            else [main_checkout(atelier).parent]
         children = pins.discover(roots, atelier)
 
     if not children:
