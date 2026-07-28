@@ -91,6 +91,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import datetime
 import json
 import re
 import subprocess
@@ -151,7 +152,9 @@ class ChildFloor:
     detail: str
     hook: str = "unknown"
     shim: str = "unknown"
-    advisory: list[str] = field(default_factory=list)
+    # name -> (why, review-by). Empty strings mean a pre-C1 bare-list
+    # declaration, which is exactly what the board needs to show as unmigrated.
+    advisory: dict[str, tuple[str, str]] = field(default_factory=dict)
     disabled: dict[str, str] = field(default_factory=dict)
     # Checks this repo declares for itself (floor.py's repo-local seam). Read
     # here for the same reason `disabled` is: a rule the estate cannot see is a
@@ -383,6 +386,72 @@ def terms_state() -> tuple[bool, str]:
     return True, f"present at {path}"
 
 
+def _today() -> str:
+    """Today in UTC, ISO 8601 — the same clock floor.py ages against, so the
+    board and the hook never disagree about whether a date has passed."""
+    return datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+
+
+def _days_over(review_by: str, today: str) -> str:
+    """How long an expired advisory has been standing, in words. The count is
+    the point: "expired" alone reads the same on day one and day two hundred,
+    and it is the second one that means the declaration was abandoned."""
+    try:
+        days = (datetime.date.fromisoformat(today)
+                - datetime.date.fromisoformat(review_by)).days
+    except ValueError:
+        return "date unreadable"
+    if days < 1:
+        return "today"
+    if days == 1:
+        return "1 day over"
+    return f"{days} days over"
+
+
+def _advisories(raw: object) -> dict[str, tuple[str, str]]:
+    """`advisory` as declared, in either C1 spelling: name -> (why, review-by).
+
+    A bare list is the pre-C1 form and yields empty strings for both, which is
+    what makes an unmigrated declaration visible on the board rather than
+    indistinguishable from a reasoned one. Same contract as everything else
+    read here — report what the config SAYS, never what floor.py would make of
+    it, and stay readable against a malformed one."""
+    if isinstance(raw, (list, tuple)):
+        return {str(name): ("", "") for name in raw}
+    if not isinstance(raw, dict):
+        return {}
+    out: dict[str, tuple[str, str]] = {}
+    for name, decl in raw.items():
+        if isinstance(decl, dict):
+            out[str(name)] = (str(decl.get("why", "") or ""),
+                              str(decl.get("review-by", "") or ""))
+        else:
+            out[str(name)] = ("", "")
+    return out
+
+
+def _scope_paths(raw: object) -> dict[str, list[str]]:
+    """`scope` as declared, in either C1 spelling: name -> list of paths. The
+    A1(b) object form carries a `why` too, which the board does not print — the
+    🔎 line's job is to say where a check looks, and a repo that narrowed a
+    boundary check is already the thing being pointed at."""
+    if not isinstance(raw, dict):
+        return {}
+    out: dict[str, list[str]] = {}
+    for name, value in raw.items():
+        if isinstance(value, str):
+            out[str(name)] = [value]
+        elif isinstance(value, list):
+            out[str(name)] = [str(v) for v in value]
+        elif isinstance(value, dict):
+            paths = value.get("paths")
+            if isinstance(paths, str):
+                out[str(name)] = [paths]
+            elif isinstance(paths, list):
+                out[str(name)] = [str(p) for p in paths]
+    return out
+
+
 def _str_lists(raw: object) -> dict[str, list[str]]:
     """`scope`/`flags` as declared: name -> list of strings. Same contract as
     `local` below — report what the config SAYS, never what floor.py would make
@@ -414,8 +483,8 @@ def _read_declarations(repo: Path, read, state: str, detail: str) -> ChildFloor:
     if raw:
         try:
             cfg = json.loads(raw)
-            advisory = list(cfg.get("advisory", []) or [])
-            scope = _str_lists(cfg.get("scope"))
+            advisory = _advisories(cfg.get("advisory"))
+            scope = _scope_paths(cfg.get("scope"))
             flags = _str_lists(cfg.get("flags"))
             raw_docs = cfg.get("docs")
             docs = str(raw_docs) if isinstance(raw_docs, str) else ""
@@ -464,8 +533,25 @@ def render(infos: list[ChildFloor], remote: bool) -> str:
                      f"{i.state:<9} {SHIM_ICON.get(i.shim, '?')} shim:{i.shim:<8} "
                      f"{HOOK_ICON.get(i.hook, '?')} hook:{i.hook:<9} "
                      f"{i.detail}")
-        for name in i.advisory:
-            lines.append(f"      ⚠️  {name} advisory — declared, still visible")
+        # The C1 line. An advisory is tracked debt, so the board shows the debt:
+        # why it was taken on and when it was due. A passed date goes 🔴 and
+        # says how long it has been standing — the board is the whole forcing
+        # function here, deliberately, because nothing blocks on a review date
+        # (ruled 2026-07-28). An unmigrated bare-list declaration is 🟡: it
+        # cannot state a reason at all, which is the thing being fixed.
+        today = _today()
+        for name, (why, review_by) in sorted(i.advisory.items()):
+            if not review_by:
+                lines.append(
+                    f"      🟡 {name} advisory — no reason or review date "
+                    "(pre-C1 declaration, migrate it)")
+            elif review_by < today:
+                lines.append(
+                    f"      🔴 {name} advisory EXPIRED {review_by} "
+                    f"({_days_over(review_by, today)}) — {why}")
+            else:
+                lines.append(
+                    f"      ⚠️  {name} advisory until {review_by} — {why}")
         for name, why in i.disabled.items():
             lines.append(f"      ⏭  {name} disabled — {why}")
         for name, why in i.local.items():

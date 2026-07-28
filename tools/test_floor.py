@@ -715,6 +715,119 @@ class InvocationTest(unittest.TestCase):
             self.assertIn("local.t.scope", r.stderr)
             self.assertIn("INSIDE the repo", r.stderr)
 
+    def _cfg_run(self, td, cfg, plane="ci", *extra):
+        (Path(td) / floor.CONFIG_NAME).write_text(json.dumps(cfg), encoding="utf-8")
+        return self._run("--plane", plane, "--root", td, *extra)
+
+    def test_advisory_needs_both_a_reason_and_a_review_date(self):
+        """C1, ruled 2026-07-28: both hard-required. `disabled` — the harder,
+        more visible opt-out — has always demanded a reason while `advisory`,
+        the softer and more forgettable one, demanded nothing. Each half is
+        refused separately, and the message says WHICH half is missing: a
+        declaration that is nearly right is the one a writer will re-submit."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            r = self._cfg_run(td, {"advisory": {"wrapscan": {"why": "adopting"}}})
+            self.assertEqual(r.returncode, 1, r.stdout)
+            self.assertIn("review-by", r.stderr)
+
+            r = self._cfg_run(td, {"advisory": {"wrapscan": {"review-by": "2026-12-01"}}})
+            self.assertEqual(r.returncode, 1, r.stdout)
+            self.assertIn("`why`", r.stderr)
+
+            # A bare string reads like the full spelling and is not.
+            r = self._cfg_run(td, {"advisory": {"wrapscan": "adopting the check"}})
+            self.assertEqual(r.returncode, 1, r.stdout)
+            self.assertIn("review date", r.stderr)
+
+    def test_review_by_must_be_a_real_iso_date(self):
+        """The format is validated at parse so the ageing comparison downstream
+        can be a plain string compare — and so a repo cannot declare
+        '01/12/2026' and get an advisory that never expires."""
+        with tempfile.TemporaryDirectory() as td:
+            for bad in ("01/12/2026", "2026-13-01", "soon"):
+                with self.subTest(date=bad):
+                    r = self._cfg_run(td, {"advisory": {
+                        "wrapscan": {"why": "x", "review-by": bad}}})
+                    self.assertEqual(r.returncode, 1, r.stdout)
+
+    def test_an_unknown_advisory_key_is_refused(self):
+        """Same call as the local seam's key check (LS4): a key read past in
+        silence is a declaration its writer believes is doing something."""
+        with tempfile.TemporaryDirectory() as td:
+            r = self._cfg_run(td, {"advisory": {"wrapscan": {
+                "why": "x", "review-by": "2026-12-01", "until": "2027-01-01"}}})
+            self.assertEqual(r.returncode, 1, r.stdout)
+            self.assertIn("'until'", r.stderr)
+
+    def test_an_expired_advisory_reports_but_never_blocks(self):
+        """The ruled shape of expiry (2026-07-28): the board goes red, nothing
+        fails. A commit blocked by a date somebody set months earlier is how a
+        forcing function becomes a --no-verify habit, so the pressure is
+        visibility, not breakage."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            r = self._cfg_run(td, {"advisory": {"wrapscan": {
+                "why": "adopting", "review-by": "2020-01-01"}}}, "ci", "--json")
+            self.assertEqual(r.returncode, 0, r.stderr)
+            results = {x["name"]: x for x in json.loads(r.stdout)["results"]}
+            self.assertTrue(results["wrapscan"]["expired"])
+            self.assertEqual(results["wrapscan"]["state"], "advisory")
+            self.assertEqual(results["wrapscan"]["review_by"], "2020-01-01")
+
+    def test_a_live_advisory_is_not_expired(self):
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            r = self._cfg_run(td, {"advisory": {"wrapscan": {
+                "why": "adopting", "review-by": "2999-01-01"}}}, "ci", "--json")
+            results = {x["name"]: x for x in json.loads(r.stdout)["results"]}
+            self.assertFalse(results["wrapscan"]["expired"])
+            self.assertEqual(results["wrapscan"]["reason"], "adopting")
+
+    def test_the_legacy_bare_list_still_parses_and_says_it_is_legacy(self):
+        """The transition (ruled 2026-07-28). Children fetch atelier@main at CI
+        run time, so a hard error on the old spelling would break every child's
+        CI the afternoon this lands. The bare list parses, marks itself, and
+        becomes an error in phase 2 — a transition, not a dialect."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            r = self._cfg_run(td, {"advisory": ["wrapscan"]}, "ci", "--json")
+            self.assertEqual(r.returncode, 0, r.stderr)
+            results = {x["name"]: x for x in json.loads(r.stdout)["results"]}
+            self.assertTrue(results["wrapscan"]["legacy"])
+            self.assertEqual(results["wrapscan"]["state"], "advisory")
+            self.assertFalse(results["wrapscan"]["expired"])
+
+    def test_narrowing_a_boundary_check_states_why(self):
+        """A1 option (b), deferred out of the A1 ruling into C1 and ruled there
+        (2026-07-28). A `scope` on a check that may never be softened is a cover
+        decision, so it goes on the record like a disabled one."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            r = self._cfg_run(td, {"scope": {"leakscan": {"paths": ["docs"]}}})
+            self.assertEqual(r.returncode, 1, r.stdout)
+            self.assertIn("needs a `why`", r.stderr)
+
+            r = self._cfg_run(td, {"scope": {"leakscan": {
+                "paths": ["docs"], "why": "only docs/ is shareable here"}}})
+            self.assertEqual(r.returncode, 0, r.stderr)
+
+    def test_a_softenable_scope_needs_no_reason(self):
+        """The other side of A1(b), or the rule becomes ceremony: narrowing a
+        prose check is an ordinary layout fact, not a cover decision."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            r = self._cfg_run(td, {"scope": {"wrapscan": {"paths": ["docs"]}}})
+            self.assertEqual(r.returncode, 0, r.stderr)
+
+    def test_a_legacy_scope_list_is_exempt_for_the_transition(self):
+        """It cannot carry a `why` at all, so holding it to A1(b) would be the
+        flag day the transition exists to avoid."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            r = self._cfg_run(td, {"scope": {"leakscan": ["docs"]}})
+            self.assertEqual(r.returncode, 0, r.stderr)
+
     def test_partial_scope_drift_on_a_softenable_check_is_visible(self):
         """TA3. The blocking guard covers only checks with no advisory form, so
         a softenable check whose scope has half stopped resolving used to run on

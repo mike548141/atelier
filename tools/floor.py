@@ -64,7 +64,22 @@ does not enforce a check must SAY SO, in a committed file
   advisory   the check runs and reports, but does not block. For a repo
              RE-BASELINING onto a newly-adopted hygiene check — the first red is
              the signal, and this is how you keep the signal while you work
-             through it. Tracked debt, not a hole.
+             through it. Tracked debt, not a hole — and it states BOTH what the
+             debt is and when it comes due:
+
+               "advisory": {
+                 "wrapscan": {"why": "adopting the check; 60 findings to
+                                      clear", "review-by": "2026-09-01"}
+               }
+
+             Both fields are required (C1, ruled 2026-07-28). Until C1 the key
+             was a bare list of scanner names carrying neither, so nothing
+             distinguished three-days-into-a-cleanup from softened-and-forgotten
+             — the exact decay ADR 0008 exists to end, and `disabled` (the
+             HARDER opt-out) had demanded a reason all along. A passed
+             `review-by` goes red on the fleet board and blocks NOTHING: a
+             commit failing on a date set months earlier is how a forcing
+             function becomes a --no-verify habit.
   disabled   the check does not run. A deliberate, reviewable choice on the
              record, with a stated reason.
 
@@ -173,18 +188,63 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import datetime
 import json
 import os
+import re
 import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 
 CONFIG_NAME = ".atelier-floor.json"
+ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 # Placeholders resolved per invocation: {root} = the repo being scanned,
 # {docs} = its records tree (configurable — not every child keeps records in
 # docs/), {licence} = the SPDX id a publish-ready repo asserts.
+
+
+@dataclass(frozen=True)
+class Advisory:
+    """A softened check, with the two facts that stop it becoming permanent.
+
+    `advisory` used to be a bare list of scanner names, carrying no reason and
+    no review date — so nothing distinguished "we are three days into adopting
+    this check" from "someone softened it and left". `disabled`, the *harder*
+    and more visible opt-out, has always required a stated reason; the softer
+    one required nothing, which is backwards (Track C, C1, ruled 2026-07-28).
+
+    `legacy` marks a declaration still in the bare-list spelling. Those parse
+    during the transition and render 🟡 every run, so the estate migrates
+    without a flag day; the spelling becomes a hard error once the board is
+    clean (C1 phase 2). A declaration in the NEW spelling is held to the full
+    rule immediately — there is no half-migrated state to reason about."""
+    why: str = ""
+    review_by: str | None = None  # ISO 8601 date, per CONVENTIONS.md
+    legacy: bool = False
+
+    def expired(self, today: str) -> bool:
+        """Has the review date passed? String comparison is exact for ISO 8601
+        dates and needs no timezone reasoning — the format is validated at parse
+        precisely so this stays true."""
+        return self.review_by is not None and self.review_by < today
+
+
+@dataclass(frozen=True)
+class Scope:
+    """WHERE a check looks in this repo, and — for a check that may not be
+    softened — WHY it was narrowed.
+
+    Narrowing a boundary or integrity scanner reduces cover on exactly the
+    checks a child may never soften, so it states its reason the same way a
+    disabled check does (A1 option (b), deferred out of the A1 ruling into C1
+    and ruled there, 2026-07-28). No `review-by`: unlike an advisory, a narrowed
+    scope is a permanent structural fact about a repo — its shareable subtree is
+    smaller than its tree — not dated debt waiting to be cleared."""
+    paths: tuple[str, ...] = ()
+    why: str = ""
+    legacy: bool = False
 
 
 @dataclass(frozen=True)
@@ -344,6 +404,142 @@ def _inside(root: Path, candidate: Path) -> bool:
         return False
 
 
+def _today() -> str:
+    """Today, as an ISO 8601 date in UTC. UTC because the estate's records are
+    stamped that way (`CONVENTIONS.md`) and because a review date that flips a
+    day early or late depending on the committer's timezone would make the
+    board disagree with itself across machines."""
+    return datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+
+
+def _load_advisory(raw: object) -> dict[str, Advisory]:
+    """Parse `advisory`, accepting both spellings during the C1 transition.
+
+      ["wrapscan"]                                  legacy — parses, renders 🟡
+      {"wrapscan": {"why": "...", "review-by": "2026-09-01"}}   the rule
+
+    The legacy form exists so the schema can land without breaking every
+    child's CI on the same afternoon (children fetch atelier@main at run time,
+    so a hard error here is a flag day for the whole estate). It is a
+    transition, not a dialect: phase 2 removes it."""
+    if raw is None:
+        return {}
+    if isinstance(raw, (list, tuple)):
+        return {str(name): Advisory(legacy=True) for name in raw}
+    if not isinstance(raw, dict):
+        raise ConfigError(
+            f"{CONFIG_NAME}: `advisory` must be an object of "
+            '{"scanner": {"why": ..., "review-by": ...}}'
+        )
+
+    out: dict[str, Advisory] = {}
+    for name, decl in raw.items():
+        name = str(name)
+        if isinstance(decl, str):
+            # The near-miss worth naming: a reason with no date reads like the
+            # full spelling and is not. Say which half is missing.
+            raise ConfigError(
+                f"{CONFIG_NAME}: `advisory.{name}` is a bare reason — it also "
+                'needs a review date: {"why": ..., "review-by": "YYYY-MM-DD"}'
+            )
+        if not isinstance(decl, dict):
+            raise ConfigError(
+                f"{CONFIG_NAME}: `advisory.{name}` must be an object with "
+                "`why` and `review-by`"
+            )
+        why = str(decl.get("why", "") or "").strip()
+        if not why:
+            raise ConfigError(
+                f"{CONFIG_NAME}: `advisory.{name}` needs a `why` — a softened "
+                "check nobody can state the point of is one nobody will "
+                "re-enable, and it prints on the fleet board with nothing "
+                "beside it"
+            )
+        review_by = decl.get("review-by")
+        if not review_by:
+            raise ConfigError(
+                f"{CONFIG_NAME}: `advisory.{name}` needs a `review-by` date — "
+                "an advisory with no end is the 'honour it manually' failure "
+                "wearing a new hat, which is the decay this rule exists to end"
+            )
+        review_by = str(review_by)
+        if not ISO_DATE_RE.match(review_by):
+            raise ConfigError(
+                f"{CONFIG_NAME}: `advisory.{name}.review-by` must be an ISO "
+                f"8601 date (YYYY-MM-DD), got {review_by!r}"
+            )
+        try:
+            datetime.date.fromisoformat(review_by)
+        except ValueError as e:
+            raise ConfigError(
+                f"{CONFIG_NAME}: `advisory.{name}.review-by` is not a real "
+                f"date: {review_by!r}"
+            ) from e
+        unknown = sorted(set(decl) - {"why", "review-by"})
+        if unknown:
+            # Same call as the local seam's key check (LS4): a key read past in
+            # silence is a declaration the writer believes is doing something.
+            raise ConfigError(
+                f"{CONFIG_NAME}: `advisory.{name}` has unknown "
+                f"{', '.join(repr(k) for k in unknown)} (known: 'why', "
+                "'review-by')"
+            )
+        out[name] = Advisory(why=why, review_by=review_by)
+    return out
+
+
+def _load_scope(raw: object) -> dict[str, Scope]:
+    """Parse `scope`, accepting both spellings during the same transition.
+
+      {"leakscan": ["tiki/"]}                       legacy — parses, renders 🟡
+      {"leakscan": {"paths": ["tiki/"], "why": "..."}}          the rule
+
+    The `why` is required only for a scanner with no advisory form; a softenable
+    check's scope is an ordinary layout fact (A1(b), ruled 2026-07-28). That
+    condition cannot be checked here — the registry lookup lives on Config — so
+    it is enforced in `Config.validate`."""
+    if raw is None:
+        return {}
+    if not isinstance(raw, dict):
+        raise ConfigError(f"{CONFIG_NAME}: `scope` must be an object")
+
+    out: dict[str, Scope] = {}
+    for name, decl in raw.items():
+        name = str(name)
+        if isinstance(decl, (str, list, tuple)):
+            entries = [decl] if isinstance(decl, str) else list(decl or ())
+            if not entries:
+                raise ConfigError(
+                    f"{CONFIG_NAME}: `scope.{name}` is empty — an override that "
+                    "narrows a check to nothing is a silent hole, not a scope"
+                )
+            out[name] = Scope(paths=tuple(str(e) for e in entries), legacy=True)
+            continue
+        if not isinstance(decl, dict):
+            raise ConfigError(
+                f"{CONFIG_NAME}: `scope.{name}` must be a list of paths, or an "
+                "object with `paths` and `why`"
+            )
+        raw_paths = decl.get("paths", [])
+        if isinstance(raw_paths, str):
+            raw_paths = [raw_paths]
+        paths = tuple(str(p) for p in (raw_paths or ()))
+        if not paths:
+            raise ConfigError(
+                f"{CONFIG_NAME}: `scope.{name}.paths` is empty — an override "
+                "that narrows a check to nothing is a silent hole, not a scope"
+            )
+        unknown = sorted(set(decl) - {"paths", "why"})
+        if unknown:
+            raise ConfigError(
+                f"{CONFIG_NAME}: `scope.{name}` has unknown "
+                f"{', '.join(repr(k) for k in unknown)} (known: 'paths', 'why')"
+            )
+        out[name] = Scope(paths=paths,
+                          why=str(decl.get("why", "") or "").strip())
+    return out
+
+
 def _reject_escaping_scope(where: str, path: str) -> None:
     """Refuse a scope path that names somewhere other than this repo's tree.
 
@@ -480,7 +676,7 @@ def _load_local(raw: object) -> tuple[Scanner, ...]:
 class Config:
     docs: str = "docs"
     licence: str | None = None
-    advisory: tuple[str, ...] = ()
+    advisory: dict[str, Advisory] = field(default_factory=dict)
     disabled: dict[str, str] = field(default_factory=dict)  # name -> reason
     # Per-scanner overrides of WHERE a check looks. atelier itself needs this
     # (its prose checks are scoped to the doctrine surface, not all of docs/) and
@@ -496,7 +692,7 @@ class Config:
     # visibility that `floorfleet` did not implement, which is the honesty
     # defect the apex forbids and was the reason a shrunken scope went
     # unreported (ADR 0008 cold pass, EP1/EP2).
-    scope: dict[str, tuple[str, ...]] = field(default_factory=dict)
+    scope: dict[str, Scope] = field(default_factory=dict)
     # Per-scanner extra arguments — for a check that needs tuning to a repo's
     # subject matter rather than its layout. A networking repo disabling
     # leakscan's IP/MAC rules is the worked case: those shapes are legitimate
@@ -511,6 +707,36 @@ class Config:
     # identically to a fleet check; the only thing that differs is where the
     # script is found.
     local: tuple[Scanner, ...] = ()
+
+    def __post_init__(self) -> None:
+        """Accept the shorthand shapes a caller naturally reaches for, and hold
+        exactly one shape internally.
+
+        `Config(advisory=["wrapscan"], scope={"leakscan": ("tiki/",)})` is what
+        every construction site in the selftest and the tests already says, and
+        what a reader writes without thinking. Normalising here means the rest
+        of this module — plan, subtrees, render, validate — sees `Advisory` and
+        `Scope` and never a union, which is the property that makes the C1
+        fields safe to reason about. The JSON loaders stay the strict door:
+        they are where a REPO's declaration is judged, and they reject what
+        this accepts, because a config file is a claim and a keyword argument
+        is just a shorthand."""
+        if isinstance(self.advisory, (list, tuple, set)):
+            self.advisory = {str(n): Advisory(legacy=True) for n in self.advisory}
+        else:
+            self.advisory = {
+                str(n): (v if isinstance(v, Advisory) else Advisory(legacy=True))
+                for n, v in dict(self.advisory).items()}
+        normalised: dict[str, Scope] = {}
+        for name, value in dict(self.scope).items():
+            if isinstance(value, Scope):
+                normalised[str(name)] = value
+            elif isinstance(value, str):
+                normalised[str(name)] = Scope(paths=(value,), legacy=True)
+            else:
+                normalised[str(name)] = Scope(
+                    paths=tuple(str(p) for p in (value or ())), legacy=True)
+        self.scope = normalised
 
     def scanner(self, name: str) -> Scanner | None:
         """The registered scanner or the child's local check of that name. One
@@ -537,7 +763,7 @@ class Config:
 
         docs = raw.get("docs", "docs")
         licence = raw.get("licence") or None
-        advisory = tuple(raw.get("advisory", []) or ())
+        advisory = _load_advisory(raw.get("advisory", {}))
 
         # `disabled` takes {name: reason}. A bare list is refused rather than
         # accepted with an empty reason: the reason is the whole point of making
@@ -569,7 +795,7 @@ class Config:
 
         cfg = Config(docs=docs, licence=licence, advisory=advisory,
                      disabled=disabled,
-                     scope=_str_map("scope", allow_empty=False),
+                     scope=_load_scope(raw.get("scope", {})),
                      flags=_str_map("flags", allow_empty=False),
                      local=_load_local(raw.get("local", {}) or {}))
         cfg.validate()
@@ -608,9 +834,23 @@ class Config:
         # (a) 2026-07-28). Checked here rather than at the guard so it blocks on
         # every plane and for softenable scanners too — the guard is reached only
         # by checks that have no advisory form.
-        for name, paths in self.scope.items():
-            for p in paths:
+        for name, sc in self.scope.items():
+            for p in sc.paths:
                 _reject_escaping_scope(f"scope.{name}", p)
+            # A1(b): narrowing a check that may NEVER be softened states why.
+            # Only checkable here, where the registry lookup lives. Legacy
+            # spellings are exempt for the length of the transition — they
+            # cannot carry a `why` at all, and the 🟡 they render is the
+            # migration prompt.
+            scanner = self.scanner(name)
+            if (not sc.legacy and not sc.why
+                    and scanner is not None and scanner.advisory is None):
+                raise ConfigError(
+                    f"{CONFIG_NAME}: `scope.{name}` needs a `why` — {name} is a "
+                    "boundary or integrity check that may never be softened, so "
+                    "narrowing where it looks is a cover decision on the record, "
+                    "not a layout detail."
+                )
         # Both spellings, because both feed `subtrees` and render identically.
         for scanner in self.local:
             for p in scanner.scope_paths:
@@ -657,6 +897,16 @@ class Result:
     # tell full cover from partial has been told the check ran, not what it
     # checked (ADR 0008 cold pass, EP3).
     partial: str = ""
+    # C1: a softened check carries its reason and its review date wherever it
+    # is reported, and says when that date has passed. An expired advisory
+    # NEVER blocks — a commit failing on a date somebody set months earlier is
+    # how a forcing function turns into a --no-verify habit — so this is a
+    # reporting state only, red on the board and nowhere else (ruled
+    # 2026-07-28). `legacy` marks the pre-C1 spelling, still parsing through
+    # the transition.
+    review_by: str = ""
+    expired: bool = False
+    legacy: bool = False
 
     @property
     def failed(self) -> bool:
@@ -714,8 +964,8 @@ def subtrees(root: Path, cfg: Config, name: str) -> list[str]:
     if it declared one, else its registered default — the whole repo, or the
     repo's records tree."""
     override = cfg.scope.get(name)
-    if override:
-        return list(override)
+    if override and override.paths:
+        return list(override.paths)
     scanner = cfg.scanner(name)
     if scanner is not None and scanner.scope_paths:
         return list(scanner.scope_paths)
@@ -947,8 +1197,10 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
         # (open). `local.run` has the lexical half of this check
         # (`is_absolute()` / `..`) and fleet `scope` has neither half — the
         # asymmetry is real and named, not designed. Track A application cold
-        # pass, TA1; awaiting a ruling. Registry defaults for these scanners are
-        # the repo root, so only an explicit declaration can reach here.
+        # pass, TA1, ruled (a) and closed 2026-07-28 — both the outside-the-repo
+        # members are shut above; this branch keeps the does-not-resolve one.
+        # Registry defaults for these scanners are the repo root, so only an
+        # explicit declaration can reach here.
         if missing and scanner.advisory is None:
             print(
                 f"floor: {scanner.name} is scoped to "
@@ -1047,8 +1299,14 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
         elif missing:
             partial = (f"{len(missing)} of {len(declared)} scope paths missing "
                        f"({', '.join(missing)}) — ran on the rest")
-        results.append(Result(scanner.name, state, rc, local=scanner.is_local,
-                              partial=partial))
+        adv = cfg.advisory.get(scanner.name) if state == "advisory" else None
+        results.append(Result(
+            scanner.name, state, rc, local=scanner.is_local, partial=partial,
+            reason=(adv.why if adv else ""),
+            review_by=(adv.review_by or "" if adv else ""),
+            expired=bool(adv and adv.expired(_today())),
+            legacy=bool(adv and adv.legacy),
+        ))
     return results
 
 
@@ -1061,8 +1319,24 @@ def render(results: list[Result], plane: str) -> str:
         # claim EP3 caught: identical output for materially different cover.
         mark = "❌" if r.failed else ("🟡" if r.partial and not r.failed
                                       else icon[r.state])
+        # An advisory carries its reason and its end date on the line. Expired
+        # is 🔴 and says so — it does not block (a commit failing on a date set
+        # months ago is how a forcing function becomes a --no-verify habit), it
+        # just stops looking like a decision anyone is still standing behind.
+        if r.state == "advisory" and not r.failed:
+            if r.legacy:
+                mark = "🟡"
+            elif r.expired:
+                mark = "🔴"
         note = f"  ({r.reason})" if r.reason else (
             f"  ({r.partial})" if r.partial else "")
+        if r.state == "advisory":
+            if r.legacy:
+                note += ("  ⚠️  no reason or review date — pre-C1 declaration, "
+                         "migrate it")
+            elif r.review_by:
+                note += (f"  [review by {r.review_by}"
+                         + (" — PASSED]" if r.expired else "]"))
         # A local check is marked, not segregated: it blocks the same commit as
         # a fleet check, so it belongs in the same list — but a reader must be
         # able to tell which line came from this repo's own decision.

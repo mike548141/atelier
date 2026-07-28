@@ -48,6 +48,22 @@ applies here with no edit. To run a check **advisory** while re-baselining, or
 to scope one to part of the tree, declare it in `.atelier-floor.json` at the
 repo root — never by removing a check.
 
+An advisory is *tracked debt*, so it states what the debt is and when it comes
+due — both required:
+
+```json
+"advisory": {
+  "wrapscan": {"why": "adopting the check; ~60 findings to clear",
+               "review-by": "2026-09-01"}
+}
+```
+
+When the date passes the repo goes **red on the fleet board** and nothing
+blocks — the pressure is visibility, not a broken commit on a date nobody
+remembers setting. Narrowing a check that may never be softened (`secretscan`,
+`leakscan`, `linkscan`, `reviewscan`, `licenscan`) also states its reason:
+`"scope": {"leakscan": {"paths": ["src"], "why": "..."}}`.
+
 That file is also where this repo adds a check of its **own**, under `local`:
 a rule that is genuinely repo-specific and could never be fleet-wide. Give it
 a `run` path inside this repo and a `why`; it then runs beside the shared

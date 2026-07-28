@@ -127,7 +127,9 @@ class EvaluateTest(unittest.TestCase):
             })
             info = floorfleet.evaluate(repo, remote=False)
         self.assertEqual(info.state, "wired")
-        self.assertEqual(info.advisory, ["wrapscan"])
+        # Pre-C1 bare-list spelling: empty why and empty review-by, which is
+        # exactly what marks it unmigrated on the board.
+        self.assertEqual(info.advisory, {"wrapscan": ("", "")})
         self.assertEqual(info.disabled, {"spellscan": "no prose in this repo"})
 
     def test_reports_a_repos_own_declared_checks(self):
@@ -421,6 +423,71 @@ class InvocationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             r = self._run("--root", td, "--atelier", str(TOOLS_DIR.parent))
             self.assertEqual(r.returncode, 2)
+
+
+class AdvisoryAgeingTest(unittest.TestCase):
+    """C1 — the board is the whole forcing function for an expired advisory,
+    because nothing blocks on a review date (ruled 2026-07-28). If it does not
+    distinguish live from expired from unmigrated, the ruling has no teeth
+    anywhere."""
+
+    def test_both_spellings_are_read(self):
+        self.assertEqual(floorfleet._advisories(["wrapscan"]),
+                         {"wrapscan": ("", "")})
+        self.assertEqual(
+            floorfleet._advisories({"wrapscan": {"why": "adopting",
+                                                 "review-by": "2026-12-01"}}),
+            {"wrapscan": ("adopting", "2026-12-01")})
+
+    def test_a_malformed_declaration_stays_readable(self):
+        """Same contract as everything else the board reads: report what the
+        config says, never crash on one. floor.py is what blocks on a bad
+        config, and it runs where the repo is."""
+        self.assertEqual(floorfleet._advisories("wrapscan"), {})
+        self.assertEqual(floorfleet._advisories({"wrapscan": 7}),
+                         {"wrapscan": ("", "")})
+
+    def test_days_over_counts_rather_than_just_saying_expired(self):
+        """'Expired' reads identically on day one and day two hundred, and it
+        is the second that means the declaration was abandoned."""
+        self.assertEqual(floorfleet._days_over("2026-07-01", "2026-07-01"), "today")
+        self.assertEqual(floorfleet._days_over("2026-07-01", "2026-07-02"), "1 day over")
+        self.assertEqual(floorfleet._days_over("2026-07-01", "2026-07-31"), "30 days over")
+        self.assertEqual(floorfleet._days_over("nonsense", "2026-07-31"),
+                         "date unreadable")
+
+    def test_scope_paths_read_from_either_spelling(self):
+        """A1(b)'s object form must not blind the 🔎 cover-reduction line — a
+        board that stopped showing a narrowed boundary scope because the config
+        gained a key would be the EP1/EP2 defect returning by the back door."""
+        self.assertEqual(floorfleet._scope_paths({"leakscan": ["tiki/"]}),
+                         {"leakscan": ["tiki/"]})
+        self.assertEqual(
+            floorfleet._scope_paths({"leakscan": {"paths": ["tiki/"],
+                                                  "why": "vendor tree"}}),
+            {"leakscan": ["tiki/"]})
+        self.assertEqual(floorfleet._scope_paths({"leakscan": "tiki/"}),
+                         {"leakscan": ["tiki/"]})
+
+    def _render_one(self, advisory):
+        info = floorfleet.ChildFloor(name="child", path="/x", state="wired",
+                                     detail="calls atelier's floor @main",
+                                     advisory=advisory)
+        return floorfleet.render([info], remote=False)
+
+    def test_the_three_states_render_differently(self):
+        live = self._render_one({"wrapscan": ("adopting", "2999-01-01")})
+        self.assertIn("advisory until 2999-01-01", live)
+        self.assertNotIn("🔴", live)
+
+        expired = self._render_one({"wrapscan": ("adopting", "2020-01-01")})
+        self.assertIn("🔴", expired)
+        self.assertIn("EXPIRED 2020-01-01", expired)
+        self.assertIn("days over", expired)
+
+        legacy = self._render_one({"wrapscan": ("", "")})
+        self.assertIn("🟡", legacy)
+        self.assertIn("migrate it", legacy)
 
 
 class ParentWiringTest(unittest.TestCase):
