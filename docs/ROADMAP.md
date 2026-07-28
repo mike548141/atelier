@@ -180,18 +180,23 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       passed the hook, so a bypass is a recorded event rather than a private
       one. Weigh honestly against it also being the legitimate escape hatch —
       making it painful invites worse workarounds.
-- ⏳ **Review queued — the estate-root naming rule, widened.** Self-authored
-      doctrine ⇒ rule-4 pass.
-      (claimed 2026-07-28-1210, wt: estate-root-widening-cold-pass) **Delta:** `docs/method/PROPAGATION.md` (the
-      estate-resources paragraph). **Intent record:** the 2026-07-28 addendum
-      on
-      [`2026-07-27-2301-track-a-fail-opens`](sessions/2026-07-27-2301-track-a-fail-opens.md).
-      Not spawned by the authoring session.
-      *(Pointer trimmed to refs on the pre-landing cold pass: it had carried a
-      four-line evaluative account and told the reviewer which calls to test,
-      which is the ceiling above — refs only — and the known "the `⏳` pointer
-      steered its own reviewer" failure already on this roadmap. The account
-      lives in the intent record, where a taker meets it cold.)*
+- [ ] 🎯 **Estate-root widening pass residue — ER1–ER4, Mike's ruling.**
+      The rule-4 pass ran 2026-07-28: **0 MAJOR / 1 minor / 3 notes, cycle
+      CLOSED** ([verdict](reviews/2026-07-28-1216-estate-root-widening-cold.md));
+      every count re-swept independently (63/19 exact; zero new mentions
+      since landing). In plain language: **ER1** (minor) — the widened rule
+      is silent at the private→public *flip*: a private child's onramp
+      names the root by design, and nothing says the making-public
+      confirmation includes scrubbing that name first — yet pre-flip is the
+      one moment a scrub buys everything back (reviewer counsel: one line
+      in the always-stop floor's making-public entry). **ER2** (note) —
+      "reference it by local-path convention" points at a convention no
+      text says where to find; one sentence closes it. **ER3** (note) — the
+      "10 lines beside what it holds" figure is net-dependent (8–9 on
+      re-sweep); restate as approximate or pin the net. **ER4** (note) —
+      the intent-record pointer links a file that does not contain the
+      record (the record is the SESSIONS.md entry); addendum pointers
+      should say so.
 - [ ] 🎯 **C5 — a forcing function for the estate-root name.** The rule was
       widened to bind *any* public tree including atelier's own
       (`PROPAGATION.md`, 2026-07-28 — it had exempted the parent by naming

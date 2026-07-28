@@ -2721,3 +2721,20 @@ commit. The one substantive finding (C1F1) is a render displacement: the
 new advisory `why` occupies the note slot the TA3 drift warning uses, so a
 softened check with a half-resolving scope shows its reason but not its
 shrink outside `--json`.
+
+### The estate-root widening's cold pass — ER1–ER4 (done 2026-07-28)
+
+- [x] **REVIEWED 2026-07-28** (rule-4 Fable cold pass, third item taken by
+  the same non-author taker session): **PASS-WITH-FINDINGS 0 MAJOR /
+  1 minor / 3 notes** —
+  [verdict](reviews/2026-07-28-1216-estate-root-widening-cold.md). **Cycle
+  CLOSED** (no-MAJOR terminal rule); residue ER1–ER4 queued 🎯 for Mike.
+
+The paragraph's evidence re-ran clean: the 63-across-19 sweep reproduces
+exactly at word boundaries (a naive substring sweep returns 471 — matching
+inside ordinary words — which vindicates the *shape* of C5's cry-wolf
+concern while confirming the measured zero-ordinary-word claim), the
+forward-only rule has held since landing with zero new mentions, and the
+text withholds the name it says it withholds. The minor (ER1) is the
+widening's own lesson one transition further: the rule is silent at the
+private→public flip, the moment a scrub still buys everything back.
