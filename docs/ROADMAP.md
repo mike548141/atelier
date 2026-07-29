@@ -321,6 +321,69 @@ registry checks only.*
 that is how a scanner's output stops being read. These are tool defects, not
 adopter mistakes.*
 
+> 🎯 **The track's own premise was corrected by Mike, 2026-07-28 — it assumed
+> one dial.** Precision is only forced to trade against coverage while a
+> scanner's sole response is *block*. Mike stated the floor's purpose plainly
+> — find every secret, credential, private key and piece of personal data, so
+> none of it reaches a public or insecure place — and that intent is not
+> reachable in a detect-and-block-only design. E6 below is the correction; E1–E5
+> stay real defects and are unaffected.
+
+- [ ] 🎯 **E6 — the floor's posture, and the dial that makes it reachable.
+      RULED 2026-07-28 (Mike), three parts, all his call, none built.**
+
+      **What was found.** The two boundary scanners hold *opposite* postures
+      and nothing records that they differ. `leakscan` states its own at
+      `leakscan.py`: over-flagging is fail-safe, because a false positive
+      costs an allow-marker and a false negative costs a leak. `secretscan`
+      states no posture at all and its docstring sells the reverse — context
+      plus entropy as *precision* against raw entropy scanning. So the
+      scanner guarding personal data is tuned to over-flag and the scanner
+      guarding credentials is tuned to under-flag, which is backwards on
+      risk: a leaked credential is actively exploitable in a way an address
+      is not. No record shows that asymmetry being decided; it accumulated.
+
+      **Why the narrowing happened — a design gap, not a judgement call.**
+      `secretscan`'s `severity` field is decorative (`"high" | "medium" —
+      advisory; any hit still blocks`), and the exit is a block on *any*
+      finding. With one dial, the only way to avoid crying wolf on every git
+      SHA and hex blob is to shrink detection — which is exactly what the
+      `SLUG_RX` comment records itself doing ("deliberately letters-only …
+      a real (pre-existing) gap and not one to widen"). **That decision was
+      the principal's to make and was recorded as a code comment**, where it
+      never reached him. Named as its own failure shape: a coverage
+      narrowing settled at tool altitude.
+
+      - [ ] **E6a — write the posture into `SECRETS.md` as doctrine.** Mike's
+            stated intent becomes the posture both scanners answer to, so the
+            asymmetry is a decision rather than an accident and the next agent
+            inherits it instead of a docstring. Self-authored doctrine ⇒
+            rule-4 `⏳` queued in the landing commit.
+      - [ ] **E6b — give `secretscan` a real advisory tier.** High-confidence
+            hits block as they do now; context-free entropy hits report and
+            exit 0. The blocking set never shrinks — everything the tier adds
+            is coverage that does not exist today. This is what lets detection
+            widen to the stated intent without the cry-wolf tax. Weigh against
+            `leakscan` having no advisory form by design: the argument that it
+            does not weaken the gate is that the blocking set is unchanged,
+            and that argument should be tested at review rather than assumed.
+      - [ ] **E6c — generalise the SF1+SF2 carve-outs into a rule.** As ruled
+            they are two named shapes; the rule behind them is that **in
+            credential-key context, low character variety is not evidence of
+            innocence.** Covers both ruled shapes plus the ones nobody has
+            enumerated. Supersedes the two-shape framing recorded under the
+            secretscan residue; that entry stays as the grounding.
+
+      **The split that makes the intent affordable** (recorded because it is
+      the reasoning, not the instruction): credential-key context is nearly
+      free to widen, because the key name has already done the filtering;
+      the context-free path is where SHAs, file hashes, hex data and base64
+      blobs live, and that is the path the advisory tier serves. The three
+      hard cases Mike named land as — examples → placeholder detection plus
+      the queued "describe, don't quote" rule (E5); file hashes and hex data
+      → separated by context already, since neither sits under a
+      credential-named key.
+
 - [ ] **E1 — `licenscan` is silent exactly where it matters most.** With an
       unrecognised licence it stops at *"licence unrecognised"* and verifies
       nothing further — it does not fall back to flagging vendored copyleft,
@@ -564,6 +627,11 @@ blockers to wave through. Each needs eyes before its repo can go green.
       **SF4** (note) — resolved at reconcile, no action.
       **Work owed: SF1+SF2 carve-outs, SF3 canary suite, and the triage
       record's entropy aside corrected.**
+      **Superseded in shape, not in substance (Mike, 2026-07-28):** the two
+      named carve-outs are now a special case of the general rule ruled under
+      **E6c** — in credential-key context, low character variety is not
+      evidence of innocence. Build to E6c; this entry is the grounding for
+      why, and the probe evidence above still stands.
 - [ ] **The four archetypes need naming as a class.** Every defect above, and
       both false positives already recorded below, are the same error: a rule
       deciding on a *fragment* of a value instead of its *whole shape*. Worth
