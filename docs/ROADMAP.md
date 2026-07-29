@@ -414,14 +414,21 @@ adopter mistakes.*
       → separated by context already, since neither sits under a
       credential-named key.
 
-      **⏳ Review queued for a non-author** (Mike asked for a cold pass on the
-      intent itself, 2026-07-28; the session that recorded it co-authored the
-      framing, so REVIEW rule 4 binds it out). Cold review passes run on
-      **Fable**. *(claimed 2026-07-29-1243, wt: e6-intent-cold-pass)* *Delta:* the E6 block in this file (commits `0e58850` and the
-      commit landing E6d). *Intent record:*
-      [`2026-07-29-0637-floor-posture-and-review-rulings`](sessions/2026-07-29-0637-floor-posture-and-review-rulings.md).
-      Nothing is built, so this is a design/intent pass (REVIEW.md § *Review
-      the design, not only the build*).
+      🎯 **REVIEWED 2026-07-29 (rule-4 Fable cold pass, design/intent):
+      PASS-WITH-FINDINGS — 1 MAJOR / 2 MODERATE / 1 minor / 2 notes;
+      EI1–EI6 are Mike's to rule** (rule 3: the intent is doctrine by
+      function; the reviewer applied nothing). The direction stands; the
+      MAJOR (EI1) is a build precondition on E6b — the advisory tier
+      needs a named consumer before detection widens into it, else the
+      tier is cover for the very miss the intent exists to close. EI2:
+      public children must not publish estate-detail impact declarations.
+      EI3: the severity matrix and the undeclared-repo default are Mike's
+      rulings, not the builder's. Verdict + per-finding counsel:
+      [E6 intent cold pass](reviews/2026-07-29-1243-e6-intent-cold.md).
+      Cycle open pending rulings. The companion sweep the intent record
+      itself flags — whether `leakscan` reaches the PII half of the
+      stated intent as `secretscan` reaches the credential half — is
+      endorsed by the pass as real open work, not folded into it.
 
 - [ ] **E1 — `licenscan` is silent exactly where it matters most.** With an
       unrecognised licence it stops at *"licence unrecognised"* and verifies
