@@ -1040,7 +1040,8 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
 ## Doctrine — review-owed
 
 - ⏳ **B4 — the roadmap-deletion guard: the item, and the work addressing it**
-  (queued at Mike's request, 2026-07-28). Delta: `tools/harvestscan.py` ·
+  (queued at Mike's request, 2026-07-28).
+  *(claimed 2026-07-29-1306, wt: b4-harvestscan-cold-pass)* Delta: `tools/harvestscan.py` ·
   `tools/test_harvestscan.py` · the B4 entry in this file, which carries both
   the measurement and the not-wired verdict. Intent record:
   [`sessions/2026-07-28-1233-track-b-enumerator.md`](sessions/2026-07-28-1233-track-b-enumerator.md).
