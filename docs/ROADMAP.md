@@ -1547,6 +1547,42 @@ learning applied to failures rather than techniques.
 join (see the enforcement-propagation section for the sketch and its
 false-positive caveat).
 
+### The ladder landed; two pieces of work fall out of it (Mike, 2026-07-29)
+
+**The ask, in Mike's words:** *"As sessions are still running into the issue
+when it is written down 3 times. How do we make it structural, mechanical, or
+policy as code to stop the same issue recurring that the doctrine already warns
+the sessions about"* — and, separately, *"I don't think we should be repeating
+the same point in 3 different places i.e. our DRY principle."*
+
+Both are answered in doctrine now — `method/PROPAGATION.md` gained *When a rule
+keeps breaking — climb, never restate* (three rungs: framing → mechanise at the
+moment of failure → **remove the situation**) and *One statement, stamped copies
+— never three originals*. The third rung is the new one, and it is what this
+session actually did to the review deferral: not a better label, but moving the
+bytes so the failure has nowhere to happen. What the doctrine cannot do by
+itself is the two things below.
+
+- [ ] 🎯 **R1 — the recurrence count has to become mechanical, and the mining
+      pass earns a cadence rather than one run.** The registry's promotion rule
+      (recurrence, not severity, earns a check) never fires, because nothing
+      can answer *how many times has this broken?* — recurrence is currently
+      noticed by somebody's unease, which is exactly how a rule reaches its
+      third occurrence unpromoted. The retrospective sweep above tells us about
+      the past; the defect is continuous. Decide the cadence and what triggers
+      it (a scheduled run, or a check at review close), then wire it.
+- [ ] **R2 — find the actual triplications before consolidating any of them.**
+      Mike's premise is that points are stated three times over; this session
+      wrote the *rule* for handling that but did **not** survey the corpus, and
+      guessing which passages are redundant is how a consolidation drops two of
+      three real facets. The work: a duplication pass over `docs/method/` +
+      `docs/build/` + the stamped copies in `skills/` and `templates/`, keyed on
+      claims rather than phrases, producing a ranked list of *independent*
+      restatements (the defect) separated from *stamped* copies (the mechanism
+      working). Pairs with D2 — `stampscan` exists to watch the second class and
+      is shelved, so the stamp discipline is currently convention watched by
+      nothing.
+
 
 Source: <https://thenewstack.io/engineering-ai-slop-registry/> (Aviator). A
 mechanism for AI+human engineering that fits atelier's "mechanism before more
@@ -2270,6 +2306,30 @@ public as a **named worked example** (README "If you're adopting this"). What wa
 
 Completed sharing work (public release, the plugin bundle widening, atelier's own
 CI, child-CI scanner floor, linkscan build + wiring) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
+
+### ⏳ Cold passes owed from the 2026-07-29 publish-surface + deferral session
+
+Three rule-4 pointers, **refs only** — the account lives in the intent record
+so a taker meets the work cold. Author: the 2026-07-29 1418 session (Opus 5),
+which authored all three deltas and therefore spawns none of these reviews.
+Intent record:
+[`sessions/2026-07-29-1418-publish-surface-and-deferral.md`](sessions/2026-07-29-1418-publish-surface-and-deferral.md).
+
+- ⏳ **The deferral delta** — `3acf7d2`: `method/REVIEW.md` rules 1–2 and
+  lifecycle steps 1/3, `skills/review-brief/SKILL.md`,
+  `docs/build/templates/docs/reviews/README.md`, `tools/reviewscan.py` +
+  `tools/test_reviewscan.py`, the `reviewscan` registry `why` in
+  `tools/floor.py`.
+- ⏳ **The publication-surface delta** — `a9ab2cf`: `docs/build/REPO-STANDARD.md`,
+  `docs/method/TOOLBOX.md`, `docs/build/templates/gitignore`,
+  `skills/create-repo/SKILL.md`, `.gitignore`, and the untracking of
+  `.claude/settings.json`.
+- ⏳ **`publishscan`, first-of-kind tooling** — `8bdcfaa`:
+  `tools/publishscan.py`, `tools/test_publishscan.py`, its registry entry in
+  `tools/floor.py`, `tools/README.md`.
+- ⏳ **The recurrence-ladder delta** — `method/PROPAGATION.md`'s two new
+  sections (*When a rule keeps breaking* and *One statement, stamped copies*),
+  landed with this pointer.
 
 ### Publication surface — what a public repo reveals about its own defences (2026-07-29)
 
