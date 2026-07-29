@@ -71,6 +71,13 @@ act on, not a transcript. Every field takes work that isn't built yet:
   not "tests pass".
 - **Non-goals** — what's correctly out of scope.
 
+**Deferred material goes in its own file**, `<brief>.deferred.md` — never a
+section below a divider in the brief. Reading is atomic: a deferred section is
+consumed by the act of reading the brief it sits in, so the reviewer cannot
+comply even when it wants to. Open the sibling only once your findings are
+durably written, then fold it into the brief below the verdict and delete it.
+`reviewscan` reds a brief carrying a deferred section with no verdict.
+
 Keep Fable sessions short and pre-scoped
 (`<atelier-path>/docs/method/ECONOMICS.md`): hand it the scoped subject,
 ask for findings, apply fixes back on Opus.

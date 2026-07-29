@@ -145,6 +145,98 @@ class ExitCodeTest(unittest.TestCase):
         r = self.run_tool("--selftest")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
 
+    def test_misplaced_deferral_reds_the_exit_code(self):
+        """The check has to BLOCK, not just print — it is a floor scanner."""
+        with tempfile.TemporaryDirectory() as s:
+            r = make_reviews(Path(s))
+            (r / "2026-07-29-1200-leaky.md").write_text(
+                "# Brief\n\n## Deferred — seeded questions\n\nQ1\n")
+            res = self.run_tool("--root", s, s)
+            self.assertEqual(res.returncode, 1, res.stdout + res.stderr)
+            self.assertIn("2026-07-29-1200-leaky.md", res.stdout)
+            self.assertIn(".deferred.md", res.stdout)
+
+
+def make_reviews(td: Path) -> Path:
+    d = td / "docs" / "reviews"
+    d.mkdir(parents=True)
+    return d
+
+
+class DeferralScopeTest(unittest.TestCase):
+    """Check 2's scope: which files are briefs at all."""
+
+    def test_readme_and_deferred_siblings_are_not_briefs(self):
+        """The sibling file is the REMEDY — linting it would forbid the fix."""
+        with tempfile.TemporaryDirectory() as s:
+            d = make_reviews(Path(s))
+            (d / "2026-07-29-1200-a.md").write_text("# Brief\n")
+            (d / "2026-07-29-1200-a.deferred.md").write_text(
+                "## Deferred — seeded questions\n\nQ1\n")
+            (d / "README.md").write_text("## Deferred — index\n")
+            names = [b.name for b in reviewscan.find_briefs([Path(s)])]
+            self.assertEqual(names, ["2026-07-29-1200-a.md"])
+
+    def test_templates_tree_is_skipped(self):
+        with tempfile.TemporaryDirectory() as s:
+            d = Path(s) / "docs" / "build" / "templates" / "docs" / "reviews"
+            d.mkdir(parents=True)
+            (d / "2026-07-29-1200-example.md").write_text(
+                "## Deferred — a shipped EXAMPLE, not a live brief\n")
+            self.assertEqual(reviewscan.find_briefs([Path(s)]), [])
+
+    def test_brief_and_dir_passed_directly_are_scanned(self):
+        with tempfile.TemporaryDirectory() as s:
+            d = make_reviews(Path(s))
+            b = d / "2026-07-29-1200-a.md"
+            b.write_text("# Brief\n")
+            self.assertEqual(reviewscan.find_briefs([b]), [b])
+            self.assertEqual(reviewscan.find_briefs([d]), [b])
+
+
+class DeferralPlacementTest(unittest.TestCase):
+    """Check 2's judgement: a deferred SECTION with no verdict beneath it."""
+
+    def brief(self, body: str) -> bool:
+        with tempfile.TemporaryDirectory() as s:
+            d = make_reviews(Path(s))
+            p = d / "2026-07-29-1200-x.md"
+            p.write_text(body)
+            return reviewscan.scan_brief(p)
+
+    def test_deferred_section_with_no_verdict_fails(self):
+        self.assertFalse(self.brief("# B\n\n## Deferred — seeded\n\nQ1\n"))
+
+    def test_deferred_section_below_a_verdict_passes(self):
+        """A finished record whose deferral was folded back in (rule 1)."""
+        self.assertTrue(
+            self.brief("# B\n\n## Deferred\n\n## Verdict — PASS\n"))
+
+    def test_verdict_spellings_the_corpus_actually_uses(self):
+        for heading in ("## Verdict", "# Verdict — PASS-WITH-FINDINGS",
+                        "## Cold verdict (Fable, 2026-07-26)"):
+            with self.subTest(heading=heading):
+                self.assertTrue(
+                    self.brief(f"# B\n\n## Deferred\n\n{heading}\n\nx\n"))
+
+    def test_prose_about_deferral_is_not_a_section(self):
+        """A brief DECLARING what it saw early must not be punished for it."""
+        self.assertTrue(self.brief(
+            "# B\n\n- **Deferral exposure** — named, not denied: the taker\n"
+            "  opened the shared intent record before this brief.\n"))
+
+    def test_fenced_heading_is_an_example_not_a_section(self):
+        self.assertTrue(self.brief(
+            "# B\n\nThe shape to avoid:\n\n```\n## Deferred — seeded\n```\n"))
+
+    def test_allow_marker_exempts(self):
+        self.assertTrue(self.brief(
+            "# B\n\n<!-- reviewscan:allow: historic record -->\n"
+            "## Deferred — seeded\n"))
+
+    def test_brief_with_no_deferred_material_passes(self):
+        self.assertTrue(self.brief("# B\n\n## Scope\n\nfour lenses\n"))
+
 
 if __name__ == "__main__":
     unittest.main()

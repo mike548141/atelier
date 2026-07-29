@@ -325,7 +325,8 @@ SCANNERS: tuple[Scanner, ...] = (
         hook=["--root", "{root}", "{scope}"],
         ci=["--root", "{root}", "{scope}"],
         advisory=None,  # REVIEW.md: omission IS the bug, so it cannot be advisory
-        why="a new decision record states its review judgement",
+        why="a decision record states its review judgement, and a review "
+            "brief keeps deferred material in a sibling file",
     ),
     Scanner(
         "sizescan",
