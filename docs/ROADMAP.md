@@ -1047,17 +1047,20 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   Cold pass owed per rule 4; the tier bar applies (cold review passes run on
   Fable).
 
-- ⏳ **B2 + B3 — `floorfleet --status`, the compliance half of the board.**
-  *(claimed 2026-07-29-1251, wt: b2b3-floorfleet-status-cold-pass)*
-  Delta: `tools/floorfleet.py` (`classify_run`, `read_run`, `_gh_json`,
-  `_gh_list`, `discover_github`, `stub_checkout`, `ChildFloor.green`, the
-  `--status` and `--from-github` flags and their render) ·
-  `tools/test_floorfleet.py` (`RunStatusTest`, `RemoteDiscoveryTest`,
-  `GhReadTest`) · the estate-root repo's `estate-conformance.yml`, which is the
-  consumer B1 built on it. Intent record:
-  [`sessions/2026-07-28-1233-track-b-enumerator.md`](sessions/2026-07-28-1233-track-b-enumerator.md),
-  and the harvest in [`ROADMAP-DONE.md`](ROADMAP-DONE.md). Cold pass owed per
-  rule 4 — the tier bar applies (cold review passes run on Fable).
+- [ ] 🎯 **B2 + B3 — REVIEWED 2026-07-29 (rule-4 Fable cold pass):
+  PASS-WITH-FINDINGS — 1 MAJOR / 2 minor / 2 notes; FS1–FS5 are Mike's to
+  rule** (the board is enforcement doctrine by function). The build is
+  sound — fail-safe core selftested branch-by-branch, `--check`
+  compatibility proven live, the refused Administration permission
+  verified as the right least-privilege call, consumer mode run end to
+  end from this machine (exit 1 on today's four reds, enumeration
+  complete with the live token). The MAJOR (FS1) is the work's own defect
+  class one level up: discovery declares no authority — a partial-sight
+  token quietly renders a smaller, cleaner board, and a child whose
+  `CLAUDE.md` read *fails* is confidently listed as "carries no atelier
+  pin". Verdict + per-finding counsel:
+  [B2+B3 cold pass](reviews/2026-07-29-1251-b2b3-floorfleet-status-cold.md).
+  Cycle open pending rulings.
 
 - [ ] 🎯 **Write down which tier reviews — the rule exists in practice and
   nowhere as a rule** (Mike's ruling, 2026-07-26, after an Opus session took
