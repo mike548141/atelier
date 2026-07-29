@@ -1048,6 +1048,7 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   Fable).
 
 - ⏳ **B2 + B3 — `floorfleet --status`, the compliance half of the board.**
+  *(claimed 2026-07-29-1251, wt: b2b3-floorfleet-status-cold-pass)*
   Delta: `tools/floorfleet.py` (`classify_run`, `read_run`, `_gh_json`,
   `_gh_list`, `discover_github`, `stub_checkout`, `ChildFloor.green`, the
   `--status` and `--from-github` flags and their render) ·
