@@ -213,3 +213,26 @@ function; its author also wrote the tests that judge it)
 FS1–FS5 await rulings; the reviewer applied nothing. Cycle stays open
 (1 MAJOR): rulings → application (own rule-4 pointer) → terminal pass.
 
+## Rulings (Mike, 2026-07-29, plain-language walk-through with per-option
+impacts; recorded verbatim by the reviewer, applied by no one yet)
+
+- **FS1 — RULED: accept both legs.** floorfleet gains a
+  discovery-authority footer (which listings answered, per-listing
+  counts, a warning when the private-capable listing returns nothing);
+  a child whose `CLAUDE.md` read fails renders as an `unknown` row,
+  never as an outsider; the consumer's token spec states the all-repos
+  grant requirement beside its permissions.
+- **FS2 — RULED: accept.** The not-proven-green headline filters on
+  wired-ness (or drops the word "wired").
+- **FS3 — RULED: accept.** A footer line declares skipped archived
+  repos by count.
+- **FS4 — RULED: accept.** `read_run`'s annotation corrected to the
+  3-tuple it returns.
+- **FS5 — RULED: accept.** `green()`'s docstring names the no-`--status`
+  sentinel, and a selftest leg pins `green("") == ok`.
+
+**Application owed:** all five land together as one build item; the
+applier queues its rule-4 pointer in the landing commit. FS1 changes
+board behaviour, so its application is code + tests, reviewable on the
+same footing as B2+B3 were.
+

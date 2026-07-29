@@ -1061,19 +1061,17 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   Cycle open pending rulings.
 
 - [ ] 🎯 **B2 + B3 — REVIEWED 2026-07-29 (rule-4 Fable cold pass):
-  PASS-WITH-FINDINGS — 1 MAJOR / 2 minor / 2 notes; FS1–FS5 are Mike's to
-  rule** (the board is enforcement doctrine by function). The build is
-  sound — fail-safe core selftested branch-by-branch, `--check`
-  compatibility proven live, the refused Administration permission
-  verified as the right least-privilege call, consumer mode run end to
-  end from this machine (exit 1 on today's four reds, enumeration
-  complete with the live token). The MAJOR (FS1) is the work's own defect
-  class one level up: discovery declares no authority — a partial-sight
-  token quietly renders a smaller, cleaner board, and a child whose
-  `CLAUDE.md` read *fails* is confidently listed as "carries no atelier
-  pin". Verdict + per-finding counsel:
+  PASS-WITH-FINDINGS — 1 MAJOR / 2 minor / 2 notes. FS1–FS5 RULED
+  2026-07-29 (Mike): all accepted, FS1 both legs** — floorfleet gains a
+  discovery-authority footer (which listings answered, counts, warning
+  when the private-capable listing is empty); an unreadable `CLAUDE.md`
+  renders `unknown`, never "no pin"; the consumer's token spec states
+  the all-repos grant; plus the headline filter (FS2), the archived-skip
+  footer line (FS3), the annotation (FS4) and the `green("")` docstring +
+  selftest leg (FS5). Rulings verbatim + counsel:
   [B2+B3 cold pass](reviews/2026-07-29-1251-b2b3-floorfleet-status-cold.md).
-  Cycle open pending rulings.
+  **Application owed as one build item (code + tests); the applier
+  queues its rule-4 pointer in the landing commit.**
 
 - [ ] 🎯 **Write down which tier reviews — the rule exists in practice and
   nowhere as a rule** (Mike's ruling, 2026-07-26, after an Opus session took
