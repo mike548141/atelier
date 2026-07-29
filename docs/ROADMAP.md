@@ -417,7 +417,7 @@ adopter mistakes.*
       **⏳ Review queued for a non-author** (Mike asked for a cold pass on the
       intent itself, 2026-07-28; the session that recorded it co-authored the
       framing, so REVIEW rule 4 binds it out). Cold review passes run on
-      **Fable**. *Delta:* the E6 block in this file (commits `0e58850` and the
+      **Fable**. *(claimed 2026-07-29-1243, wt: e6-intent-cold-pass)* *Delta:* the E6 block in this file (commits `0e58850` and the
       commit landing E6d). *Intent record:*
       [`2026-07-29-0637-floor-posture-and-review-rulings`](sessions/2026-07-29-0637-floor-posture-and-review-rulings.md).
       Nothing is built, so this is a design/intent pass (REVIEW.md § *Review
