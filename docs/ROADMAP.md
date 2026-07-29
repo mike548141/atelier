@@ -2150,10 +2150,14 @@ applied 2026-07-21**; the fleet-wide `hooks.atelierTools` fix) →
       separate floor-adoption step.
       **At the same bump, untrack `.claude/settings.json`** (Mike's 2026-07-29
       ruling ⓑ, Sharing § Publication surface): `git rm --cached` it and take
-      the reworked ignore lines from the template. Eight private children track
-      it today; `rpi` and atelier are already done. On a private child this is
-      latent, not live — which is the point of doing it before any flip rather
-      than during one.
+      the reworked ignore lines from the template. **Eleven children track it**
+      (swept 2026-07-29, not estimated: Baby Brain, FoodTracker, docker-heap,
+      ec2_builder, hitchbots_guide, homenetwork, kainga, nova, numen, ros,
+      shed); `rpi` and atelier are done. On a private child this is latent, not
+      live — which is the point of doing it before any flip rather than during
+      one. `publishscan` reds each of them the moment they take the registry,
+      so a child that cannot clean up in the same bump declares it **advisory
+      with a `why` and a `review-by`** rather than being blocked mid-work.
 
 - [ ] 🎯 **Nothing catches a roadmap item that is deleted rather than harvested**
       — Mike's standing worry ("losing the queue of ideas"), audited in full
@@ -2299,15 +2303,19 @@ applied 2026-07-29** — atelier + all four doctrine surfaces done, children at
 their next pin bump. Full ruling, its named cost, and what it does not undo →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § Sharing.
 
-- [ ] 🎯 **P2 — `publishscan`: make the class mechanical, not a memory.** A
-      check that reds when a repo *tracks* a file whose publication weakens it —
-      the allowlist, MCP server configs, editor/agent local config, anything in
-      the recon class. This is the guard that would have caught F1 in every repo
-      at once instead of one repo's cold pass catching it once. Sequencing:
-      build → advisory → registry-wired blocking, the `datescan` rollout shape.
-      Deliberate non-goal: it does not judge *content* (that is leakscan's job)
-      — only whether the path is tracked at all, which is the reliable
-      mechanical fact.
+**P2 — `publishscan` built and registry-wired blocking, 2026-07-29.** The class
+is mechanical now rather than a memory: it judges the **path**, not the
+contents — the one question no other scanner here asks, and the reason both
+content scanners passed `rpi`'s allowlist correctly. Build detail, provenance
+per pattern, and the stated residual →
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md) § Sharing. Its cold pass is queued below.
+
+- [ ] **P2a — teach `publishscan` the shapes the fleet actually has.** The
+      denylist was written from one finding plus standard practice, which is
+      the honest starting point and not a survey. The sweep that grounds a
+      second round is P7's (transcripts + session logs) plus a tracked-file
+      pass over all twelve repos — what else is tracked that nobody would
+      publish deliberately?
 - [ ] 🎯 **P3 — the floor does not know whether a repo is public, and it should
       (ADR-worthy).** Mike, 2026-07-29: *"we will need additional guards, or to
       run the existing guards at a higher level of protection for public vs

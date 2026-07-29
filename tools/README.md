@@ -70,6 +70,15 @@ can't make; the review practice owns it. Roadmap sections aren't scanned at
 all (deliberate — see the tool's docstring), so a design entry there rests on
 convention alone.
 
+**publishscan** judges the **path, never the contents** — the one scanner here
+that does. It cannot tell you a tracked `.env` is empty or a tracked allowlist
+is harmless; it says the file should not be in the repo at all. It is a
+denylist, so it knows only the shapes it was taught, and it deliberately
+*allows* the guard declarations (`.atelier-floor.json`, the `.<scanner>ignore`
+files) that also map where the defences are weak — they must travel for the
+floor to run, so that exposure is accepted and mitigated by requiring a stated
+reason for every exemption, not by hiding the files.
+
 The scans are the mechanical floor, not the whole boundary: the human
 pre-publish scrub (and the review practice) owns the residual above.
 
@@ -541,6 +550,38 @@ A path arg may be a tree, a `docs/decisions/` dir itself, or a single record
 file — an explicitly-named path is scanned, never silently matched by nothing
 (the 2026-07-21 cold pass's RS1). The review line must carry a non-empty
 value, and a `review:` quoted inside a code fence doesn't count (RS2/RS3).
+
+## `publishscan.py` — no machine-local config is tracked
+
+Every other scanner here asks *does this file contain something private?* This
+one asks *does publishing this file, whatever it holds, help someone attack the
+repo?* They come apart: `rpi`'s committed `.claude/settings.json` published the
+exact list of commands an AI session runs **unprompted** — while going public
+opened untrusted inbound (issues, PRs) into those sessions — and both content
+scanners passed it correctly, because it holds no credential and no personal
+fact. **The exposure was the file's presence, not its contents** (rpi F1,
+2026-07-29; Mike ruled the same day that the allowlist is untracked
+*everywhere*, not only on public repos, because a visibility-conditional rule
+becomes wrong at the moment of the flip).
+
+Patterns carry their provenance in the source: the `.claude/settings*.json`
+pair is grounded in that finding; `.mcp.json`, `.env*`, `.envrc`, `.netrc`,
+`.npmrc`, `.pypirc` and editor-local config are standard practice, named as
+such rather than dressed up as findings. Hatch: a glob in
+`.publishscanignore` — there is deliberately **no line marker**, because a
+reason written inside a file that should not exist is an exemption no reviewer
+would ever see.
+
+```sh
+python3 tools/publishscan.py --root .            # the tracked set (CI plane)
+python3 tools/publishscan.py --root . --staged   # what this commit adds (hook)
+python3 tools/publishscan.py --root . --warn     # advisory while a repo cleans up
+python3 tools/publishscan.py --selftest          # prove it against fixtures
+```
+
+A tree with no git skips visibly at exit 0 — not a fail-open, since nothing is
+tracked and so nothing can be published from it. Every *other* git failure (git
+absent, repo corrupt) is exit 2: a broken scan is not a pass.
 
 ## `datescan.py` — absolute-UTC dating discipline (FIRST-OF-KIND, advisory only)
 

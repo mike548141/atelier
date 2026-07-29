@@ -329,6 +329,24 @@ SCANNERS: tuple[Scanner, ...] = (
             "brief keeps deferred material in a sibling file",
     ),
     Scanner(
+        "publishscan",
+        # No {scope}: this scanner's unit is the repo's TRACKED SET, not a path
+        # list. Narrowing it by directory would be the fail-open the whole
+        # ADR 0008 programme exists to end — a check that runs, exits 0, and
+        # covers nothing, here by pointing away from the one file that matters.
+        hook=["--staged", "--root", "{root}"],
+        ci=["--root", "{root}"],
+        # Advisory IS offered, unlike its sibling boundary checks, and for a
+        # reason that is about adoption rather than severity: eleven children
+        # track the allowlist today, and a blocking check landing by
+        # propagation would red their next commit for a file they have not yet
+        # been told about. A child declares it advisory while it cleans up,
+        # with a `why` and a `review-by` like any other advisory declaration.
+        advisory=["--warn", "--root", "{root}"],
+        why="no machine-local config is tracked — publishing an agent's "
+            "unprompted-command allowlist maps its unattended reach",
+    ),
+    Scanner(
         "sizescan",
         hook=["--check", "--root", "{root}", "{scope}"],
         ci=["--check", "--root", "{root}", "{scope}"],
