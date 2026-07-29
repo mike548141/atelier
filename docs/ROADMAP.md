@@ -367,6 +367,36 @@ adopter mistakes.*
             `leakscan` having no advisory form by design: the argument that it
             does not weaken the gate is that the blocking set is unchanged,
             and that argument should be tested at review rather than assumed.
+            **Tiered on two axes, not one — see E6d.**
+      - [ ] **E6d — impact is the second axis. RULED 2026-07-28 (Mike).** The
+            tier must weigh *risk*, not confidence alone: a mid-confidence hit
+            on a credential that opens the whole estate outranks a
+            high-confidence hit on something insignificant. **The field the
+            code calls `severity` is already confidence wearing severity's
+            name** — `gcp-oauth-secret` is graded `medium` because its
+            *pattern* is less specific, and `stripe-key` grades `sk_live_` and
+            `sk_test_` identically while the token itself states its own blast
+            radius. Three rulings:
+            **(i) Escalate only.** Impact may raise a finding's response,
+            never lower it. A high-confidence hit on something trivial still
+            blocks exactly as today. Grounds: the downward direction is where
+            a "this one doesn't matter" lane would live, and that assessment
+            has been wrong here before; examples and fixtures are already
+            served by placeholder detection and allow-markers, which force a
+            written reason. Quieting comes from E6b's confidence tier, never
+            from impact.
+            **(ii) Repo-declared, via the seam that already exists.** Impact
+            is *least* knowable exactly where it matters most: a shared
+            scanner can class a vendor credential by construction, but cannot
+            know what a home-grown `password=` opens. Only the repo knows, so
+            the declaration rides the repo-local floor seam — which has **no
+            adopters** (D4), and whose motivating case was a networking
+            child's estate-token tripwire. That case is an impact declaration
+            in all but name; adopting this proves the seam.
+            **(iii) `confidence` × `impact` = `severity`, computed.** Rename
+            the mislabelled field, add the second axis, and let the computed
+            result drive block-vs-report — so the field stops misdescribing
+            what it holds, which is how it came to be read as impact at all.
       - [ ] **E6c — generalise the SF1+SF2 carve-outs into a rule.** As ruled
             they are two named shapes; the rule behind them is that **in
             credential-key context, low character variety is not evidence of
@@ -383,6 +413,15 @@ adopter mistakes.*
       the queued "describe, don't quote" rule (E5); file hashes and hex data
       → separated by context already, since neither sits under a
       credential-named key.
+
+      **⏳ Review queued for a non-author** (Mike asked for a cold pass on the
+      intent itself, 2026-07-28; the session that recorded it co-authored the
+      framing, so REVIEW rule 4 binds it out). Cold review passes run on
+      **Fable**. *Delta:* the E6 block in this file (commits `0e58850` and the
+      commit landing E6d). *Intent record:*
+      [`2026-07-29-0637-floor-posture-and-review-rulings`](sessions/2026-07-29-0637-floor-posture-and-review-rulings.md).
+      Nothing is built, so this is a design/intent pass (REVIEW.md § *Review
+      the design, not only the build*).
 
 - [ ] **E1 — `licenscan` is silent exactly where it matters most.** With an
       unrecognised licence it stops at *"licence unrecognised"* and verifies
