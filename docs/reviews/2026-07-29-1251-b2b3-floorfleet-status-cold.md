@@ -188,5 +188,28 @@ state it renders green without having read evidence.
 
 ## Reconcile (written after the findings above were committed)
 
-*(appended after the intent record and harvest were opened)*
+Opened after the findings commit: the intent record
+(`sessions/2026-07-28-1233-track-b-enumerator.md`) and the Track B harvest
+in `ROADMAP-DONE.md`.
+
+- **No contradiction, and no pre-emption:** FS1 appears nowhere in the
+  author's account — the union fix addressed the *endpoint* under-
+  enumeration; the *token-altitude* recurrence and the unreadable-vs-
+  unpinned conflation were not seen. FS2–FS5 likewise unclaimed.
+- **The author's own honesty notes check out:** the union bug and the
+  bare-`--jq` bug are recorded as found-in-building with the fixture
+  mea-culpa ("the unit test had agreed with the defect"), which matches
+  the tests as they now stand; the degraded-authority footer's production
+  proof is quoted in the roadmap and both directions were observed live
+  by this pass.
+- **Worth carrying to the B4 pass (queued next):** the intent record's
+  addendum documents the B4 pointer's refs-only breach and its
+  correction — the pointer this taker reads is the corrected one; the
+  breach history itself is already tracked as the third-instance finding.
+
+## Decision — Mike's (rule 3 reach: the board is enforcement doctrine by
+function; its author also wrote the tests that judge it)
+
+FS1–FS5 await rulings; the reviewer applied nothing. Cycle stays open
+(1 MAJOR): rulings → application (own rule-4 pointer) → terminal pass.
 
