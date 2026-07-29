@@ -1039,14 +1039,21 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
 
 ## Doctrine — review-owed
 
-- ⏳ **B4 — the roadmap-deletion guard: the item, and the work addressing it**
-  (queued at Mike's request, 2026-07-28).
-  *(claimed 2026-07-29-1306, wt: b4-harvestscan-cold-pass)* Delta: `tools/harvestscan.py` ·
-  `tools/test_harvestscan.py` · the B4 entry in this file, which carries both
-  the measurement and the not-wired verdict. Intent record:
-  [`sessions/2026-07-28-1233-track-b-enumerator.md`](sessions/2026-07-28-1233-track-b-enumerator.md).
-  Cold pass owed per rule 4; the tier bar applies (cold review passes run on
-  Fable).
+- [ ] 🎯 **B4 — REVIEWED 2026-07-29 (rule-4 Fable cold pass):
+  PASS-WITH-FINDINGS — 1 MAJOR / 2 minor / 2 notes; HV1–HV5 are Mike's to
+  rule.** The tool is sound and every recorded figure reproduced exactly
+  (105/391 = 26.9%, 158 items; `dd7fcb74` = 2 including the real loss).
+  The MAJOR sits on the **verdict**: "do not wire, not even advisory" was
+  generalised from the unscoped measurement alone — this pass measured
+  the named-but-unmeasured bulk-delete scope over the same history and
+  found **6 in-scope commits ever, 3 warns, every warn a diff meriting
+  eyes, the motivating incident caught** (~0.8% of commits vs the 26.9%
+  behind the fatigue argument). Sharper still: the entry's first-ranked
+  "delete-only" shape would have *missed* the incident (`dd7fcb74` was
+  +48/−184) — the workable scope is net line loss. Wire-scoped vs stay
+  shelved is re-put to Mike with the numbers. Verdict + counsel:
+  [B4 cold pass](reviews/2026-07-29-1306-b4-harvestscan-cold.md).
+  Cycle open pending rulings.
 
 - [ ] 🎯 **B2 + B3 — REVIEWED 2026-07-29 (rule-4 Fable cold pass):
   PASS-WITH-FINDINGS — 1 MAJOR / 2 minor / 2 notes; FS1–FS5 are Mike's to
