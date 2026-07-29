@@ -175,3 +175,31 @@ HV1's numbers are new evidence, not a re-reading.
 
 HV1–HV5 await rulings; nothing applied. Cycle stays open (1 MAJOR):
 rulings → application (own rule-4 pointer) → terminal pass.
+
+## Rulings (Mike, 2026-07-29, plain-language walk-through with per-option
+impacts; recorded verbatim by the reviewer, applied by no one yet)
+
+- **HV1 — RULED: wire it, scoped, advisory.** The shelf verdict is
+  overturned on the pass's measurement: `harvestscan` joins the registry
+  scoped to net-bulk-delete roadmap commits (≥50 net lines removed),
+  warn-only, never blocking (its threshold is honestly ungrounded, so a
+  block would overclaim). Evidence basis: 6 in-scope commits in the
+  391-commit history, 3 warns, all justified, the motivating incident
+  caught; strict delete-only rejected because it misses the incident
+  (+48/−184).
+- **HV2 — RULED: accept.** The `is_pointer` exclusion's dependency on
+  the FUNDED `reviewscan` ⏳-grammar check is named in the item; the two
+  are decided/built together.
+- **HV3 — RULED: accept.** The survivor search is widened to the record
+  stores that actually receive harvests (`docs/sessions/`,
+  `docs/reviews/`), with the effect measured by the replay harness
+  before landing; the docstring names exactly what is searched.
+- **HV4 — RULED: accept.** The usage wording is corrected, and the
+  wiring build handles the staged-vs-working-tree seam properly (the
+  hook plane reads staged content).
+- **HV5 — LAPSED under HV1.** With the guard wired there is no shelf to
+  carry a hand-run trigger for.
+
+**Application owed:** one wiring build item (scope logic + tests +
+registry entry + HV2–HV4 folds); it queues its rule-4 pointer in the
+landing commit.

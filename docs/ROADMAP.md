@@ -1045,20 +1045,23 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
 ## Doctrine — review-owed
 
 - [ ] 🎯 **B4 — REVIEWED 2026-07-29 (rule-4 Fable cold pass):
-  PASS-WITH-FINDINGS — 1 MAJOR / 2 minor / 2 notes; HV1–HV5 are Mike's to
-  rule.** The tool is sound and every recorded figure reproduced exactly
-  (105/391 = 26.9%, 158 items; `dd7fcb74` = 2 including the real loss).
-  The MAJOR sits on the **verdict**: "do not wire, not even advisory" was
-  generalised from the unscoped measurement alone — this pass measured
-  the named-but-unmeasured bulk-delete scope over the same history and
-  found **6 in-scope commits ever, 3 warns, every warn a diff meriting
-  eyes, the motivating incident caught** (~0.8% of commits vs the 26.9%
-  behind the fatigue argument). Sharper still: the entry's first-ranked
-  "delete-only" shape would have *missed* the incident (`dd7fcb74` was
-  +48/−184) — the workable scope is net line loss. Wire-scoped vs stay
-  shelved is re-put to Mike with the numbers. Verdict + counsel:
+  PASS-WITH-FINDINGS — 1 MAJOR / 2 minor / 2 notes; every recorded
+  figure reproduced exactly. HV1–HV5 RULED 2026-07-29 (Mike): the shelf
+  verdict is OVERTURNED on the pass's measurement — WIRE `harvestscan`,
+  scoped and advisory:** registry entry firing only on net-bulk-delete
+  roadmap commits (≥50 net lines removed), warn-only, never blocking.
+  Evidence: 6 in-scope commits in the 391-commit history, 3 warns, all
+  justified, the `dd7fcb74` incident caught; strict delete-only rejected
+  (it misses the incident, +48/−184). HV2 — the pointer exclusion's
+  dependency on the FUNDED `reviewscan` ⏳-grammar check is named and
+  they build together. HV3 — survivor search widened to
+  `docs/sessions/` + `docs/reviews/`, effect measured by the replay
+  harness before landing. HV4 — usage wording + the staged-vs-working
+  seam handled in the wiring build. HV5 lapsed under HV1. Rulings
+  verbatim + counsel:
   [B4 cold pass](reviews/2026-07-29-1306-b4-harvestscan-cold.md).
-  Cycle open pending rulings.
+  **Application owed as one wiring build item (scope + tests + registry
+  + HV2–HV4 folds); it queues its rule-4 pointer at landing.**
 
 - [ ] 🎯 **B2 + B3 — REVIEWED 2026-07-29 (rule-4 Fable cold pass):
   PASS-WITH-FINDINGS — 1 MAJOR / 2 minor / 2 notes. FS1–FS5 RULED
