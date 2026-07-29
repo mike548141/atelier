@@ -45,12 +45,30 @@ This is atelier's layering applied to tools:
 
 ## The command allowlist is part of this
 
-A repo's committed `.claude/settings.json` allowlist is the machine-checkable
-half of the manifest for *shell commands* — the commands the agent may run
-unprompted. It's the "approved" column for the command layer. The manifest in
-this doctrine sits one level up: it also covers higher-level tools and connected
-services that aren't single shell commands, and it says how to acquire the ones
-that are approved but absent.
+A repo's `.claude/settings.json` allowlist is the machine-checkable half of the
+manifest for *shell commands* — the commands the agent may run unprompted. It's
+the "approved" column for the command layer. The manifest in this doctrine sits
+one level up: it also covers higher-level tools and connected services that
+aren't single shell commands, and it says how to acquire the ones that are
+approved but absent.
+
+**The allowlist is machine-local, never committed** (Mike ruled 2026-07-29;
+grounded in `rpi`'s post-flip cold pass, F1). It is a list of what runs
+*without a human in the loop*, so publishing it converts prompt-injection
+reconnaissance from a guess into a plan — the same reasoning that stops a
+public repo naming the estate-root repo. The content scanners cannot help here:
+the file holds no credential and no personal fact, so `secretscan` and
+`leakscan` correctly pass it. **The exposure is the file's existence in the
+tree, not its contents** — which is why the guard for this class has to ask a
+different question from every scanner that came before it. The rule is uniform
+rather than public-only: a visibility-conditional rule becomes wrong at the
+moment of the flip, which is the moment attention is elsewhere.
+
+The cost is real and named: the allowlist stops being a shared, reviewable
+record of what a repo's sessions may do unprompted, and each clone re-prompts
+until it is seeded from the template. That trade was taken deliberately — the
+reviewable record can be rebuilt from a template that is *not* per-repo state,
+whereas a published allowlist cannot be unpublished.
 
 *Bearing: the concrete instance for this estate is captured machine-local (the
 digital-estate map + the per-repo allowlists already record most of it); this

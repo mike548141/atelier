@@ -113,9 +113,13 @@ git config user.email "<git_identity.email>"
    `workflows/ci-<type>.yml`→`.github/workflows/ci.yml`, and (for any repo
    inheriting house doctrine) `workflows/floor.yml`→`.github/workflows/floor.yml`
    — the scanner floor that runs atelier's public tools in CI (step 6). Put the
-   product in its subfolder (`site/`, `src/`, …). Do **not** commit
-   `.claude/settings.local.json` (copy it in, but it stays gitignored — one
-   person's ergonomics).
+   product in its subfolder (`site/`, `src/`, …). Do **not** commit **either**
+   `.claude/` settings file — copy both in for the ergonomics, both stay
+   gitignored: `settings.local.json` because it is one person's preferences,
+   and `settings.json` because an allowlist of what runs *unprompted* is
+   reconnaissance once published (Mike ruled 2026-07-29; the template gitignore
+   already covers both, so this is a check that the seeded ignore file was not
+   trimmed).
 4. **Fill placeholders with grounded content** — never leave a lorem-ipsum
    ARCHITECTURE. Can't ground a doc yet? Stub with a visible `<!-- TODO -->` and
    say so (the apex applied to repo docs). LICENSE seeds from the templates
@@ -228,9 +232,10 @@ new repo never regrows the merged-branch-lingers class.
 ## Process — standardise an existing repo
 
 Follow REPO-STANDARD's "standardise" process. In short: **audit** against the file
-set; apply the **safe mechanical** bits uniformly (committed
-`.claude/settings.json`, `.gitignore` hygiene, `git rm --cached` any committed OS
-litter or `settings.local.json`); for **content docs** write only what you can
+set; apply the **safe mechanical** bits uniformly (`.gitignore` hygiene,
+`git rm --cached` any committed OS litter **or either `.claude/settings*.json`**
+— a repo standardised before 2026-07-29 will still be tracking the allowlist);
+for **content docs** write only what you can
 ground, else stub-and-flag — don't churn blindly. If the repo inherits house
 doctrine and lacks the block, **stamp it** (step 5 above) at the current source
 SHA/version. Commit; offer the push if the principal operates it as a remote.
