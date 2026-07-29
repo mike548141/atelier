@@ -92,13 +92,21 @@ applied to repo docs: a claim no stronger than its evidence — see
   is `method/REVIEW.md`'s security lens. Seed from `templates/SECURITY.md`; atelier's
   own root `SECURITY.md` is the worked example. (Grounded: the 2026-07-22
   security-canon gap map.)
-- **.gitignore** — always ignores OS litter and the *personal* Claude settings
-  (`.claude/settings.local.json`); add language litter per type
-  (`__pycache__/`, `node_modules/`, `.venv/`).
-- **.claude/settings.json** — the **committed** permission allowlist, so routine
-  commands (test/build/lint) don't prompt on every run. The personal
-  `.claude/settings.local.json` (e.g. an accept-edits default) stays **gitignored**
-  — it is one person's ergonomics, not the repo's policy.
+- **.gitignore** — always ignores OS litter and **both** Claude settings files
+  (`.claude/settings.json`, `.claude/settings.local.json`); add language litter
+  per type (`__pycache__/`, `node_modules/`, `.venv/`).
+- **.claude/settings.json** — the permission allowlist: the commands a session
+  runs **unprompted**. **Not committed** (Mike ruled 2026-07-29, after `rpi`'s
+  post-flip cold pass found the published list). Publishing it maps an agent's
+  unattended reach for anyone who can open an issue or a PR — a
+  *reconnaissance* exposure, not a secrets one, which is exactly why the
+  content scanners all report it clean. Seed a clone from
+  `templates/claude/settings.json` and let it stay untracked. The rule is
+  **uniform, not visibility-conditional** — a rule that binds only on public
+  repos becomes silently wrong the day a private repo flips, and every repo
+  here is a candidate to flip. Named cost: the allowlist is no longer a shared
+  reviewable record of what runs unprompted, and a fresh clone re-prompts until
+  it is seeded.
 - **.github/workflows/ci.yml** — a *real* correctness gate sized to the repo.
   **Honest CI** is the rule: it must actually gate correctness, and where it
   *cannot* cover something (does the page look right? does the radio associate?),

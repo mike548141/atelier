@@ -5,8 +5,14 @@
 *.swp
 *~
 
-# Claude Code personal settings (the shared allowlist in
-# .claude/settings.json IS committed; the local override is not)
+# Claude Code session settings — NEITHER file is committed (Mike ruled
+# 2026-07-29, option ⓑ: untrack everywhere, one uniform rule). The allowlist
+# names the commands a session runs UNPROMPTED; published, it maps an agent's
+# unattended reach for anyone who can open an issue or a PR. A
+# visibility-conditional rule would silently become wrong the day a repo flips,
+# so the rule does not depend on visibility. Seed a new clone from
+# docs/build/templates/claude/settings.json.
+.claude/settings.json
 .claude/settings.local.json
 
 # Harness-native worktrees land here — a sibling session's live worktree is

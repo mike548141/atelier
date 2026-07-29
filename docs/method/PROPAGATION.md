@@ -320,3 +320,82 @@ the standard before it is trusted (`REVIEW.md` carries the lifecycle;
 a floor that is inlined still only *inform* the agent; the review loop is what
 *catches* the session that ignored them. Do not mistake the anchor for the
 enforcement.
+
+## When a rule keeps breaking — climb, never restate
+
+*Mike, 2026-07-29: sessions keep hitting an issue that is written down three
+times. Writing it a fourth time reaches exactly the readers the first three
+reached.* Three rungs, cheapest first — **stop at the first that fits**. All
+three change the *system*; none changes the wording, which is the move that
+feels like progress and reliably is not.
+
+1. **Framing — was the rule findable from where the reader stood?** A rule can
+   be present, correct, and still invisible to the person who needed it,
+   because its grammar assumed a situation they were not in. Grounded: the
+   review trigger was phrased around *a change*, so a reader holding a design
+   rather than a diff found every sentence shaped for the diff and concluded
+   the answer was no (Mike, 2026-07-19; `REVIEW.md`). The fix lands at the
+   point of use — re-key the trigger — never in a louder sentence.
+
+2. **Mechanise at the moment of failure.** Can a check see the instant the rule
+   breaks? Then build it, and aim it at the **trigger**, not at the rule text:
+   all three occurrences of the private-repo × posture join happened at one
+   identical moment, and a check aimed at that moment would have caught all
+   three. Recurrence, not severity, is what earns a check — a severe-but-once
+   failure is a judgement call; a trivial-but-thrice failure is a defect in the
+   system that keeps producing it. `reviewscan`'s review-line lint is the
+   worked example: a rule that had been written three times became a check
+   once, and stopped recurring.
+
+3. **Remove the situation.** Where no check can see the failure, ask whether
+   the *arrangement that produces it* can be deleted. This rung is the newest
+   and the least reached for. Worked example, 2026-07-29: cold reviewers kept
+   reading a brief's deferred section before committing their own findings.
+   Rungs 1 and 2 both had answers — reword the label, lint the label — and both
+   would have failed, because **reading a file is atomic** and the label sat
+   inside the very thing it warned about. The fix was to move the bytes: the
+   deferred material into a sibling file, so the failure has nowhere left to
+   happen (`REVIEW.md` rule 1). The question that finds this rung: *what would
+   have to stop being true for this failure to be impossible?*
+
+**The ladder only gets climbed if the trigger is countable.** Nothing here can
+currently answer "how many times has this broken?" — recurrence is noticed by
+someone's unease, which is how a rule reaches its third occurrence unpromoted.
+Making the count mechanical is the anti-slop registry's mining work, and it
+earns a **cadence rather than one pass**: a survey run once tells you about the
+past, and the defect this rung addresses is continuous. Until that runs, treat
+a second occurrence you *happen* to notice as the trigger — the ladder is
+cheap, and rung 1 costs a paragraph.
+
+## One statement, stamped copies — never three originals
+
+*Mike, 2026-07-29: the same point should not sit in three different places;
+where three repeats say slightly different things, consolidate them into one
+clean statement that covers all of it.* Agreed, with the distinction that
+decides which repetitions are defects and which are the mechanism working:
+
+- **Three independent statements of one rule is the defect.** They drift apart
+  the moment one is edited; none is canonical, so a reader who finds one has no
+  way to know the other two exist, and whoever fixes one leaves two wrong.
+  Consolidate: merge the angles into a single statement in the file that owns
+  the subject — *covering* all three readings, not picking one and deleting the
+  rest, since three formulations usually means three real facets and a
+  consolidation that drops two is a silent scope-cut.
+
+- **One canonical statement plus copies at the point of use is correct**, and
+  frequently necessary: rung 1 above says non-compliance is usually a
+  findability failure, and a pointer is less findable than a sentence sitting
+  where the reader already is. The copy is legitimate only when it is
+  **stamped** — marked as a copy, naming its canonical source, and
+  narrowing-free: it may compress the parent, never contradict it. The child
+  doctrine block, `skills/review-brief`, and the reviews-README template all
+  carry that header for this reason.
+
+- **The failure mode of a stamped copy is drift**, and it is real rather than
+  theoretical: the review-brief skill was found still carrying an
+  artefact-shaped trigger its parent had already retired (2026-07-19 F3), and
+  the reviews template had drifted the same way one sweep earlier. `stampscan`
+  was built to catch exactly this class and is **shelved on a parser defect**
+  (ROADMAP D2) — so as at 2026-07-29 the stamp discipline is convention,
+  watched by nothing. Said plainly here rather than implied away: an unwatched
+  convention is rung 1 territory, not rung 2.

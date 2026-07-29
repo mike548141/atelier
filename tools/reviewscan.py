@@ -1,6 +1,38 @@
 #!/usr/bin/env python3
-"""reviewscan — the mechanical check that a decision record states its review
-judgement.
+"""reviewscan — the mechanical half of REVIEW.md. Two checks, one doctrine
+file: a decision record states its review judgement, and a review brief keeps
+its deferred material out of the reviewer's way.
+
+CHECK 2 — DEFERRED MATERIAL IS NOT IN THE BRIEF (added 2026-07-29, Mike)
+------------------------------------------------------------------------
+REVIEW.md rule 1 defers the author's seeded questions until the reviewer's own
+findings are durably written. Until now the deferral was a *section below a
+divider in the brief itself*, and rule 1 called that structural. It was not.
+**Reading is atomic**: a reviewer told to read the brief reads the whole file,
+so the deferred section is consumed by the very act it was meant to survive,
+and its "open only after…" label sits inside the thing it warns about. The
+rule was unfollowable, not merely unfollowed — nobody can know where the
+divider falls without reading past it. It had already leaked once through a
+side channel (the 2026-07-21 pass, where a pending-changes scanner swept the
+dirty brief and fed its deferred section back to the reviewer pre-draft).
+
+So deferred material moves to a sibling file, `<brief>.deferred.md`, and this
+check reds a brief that carries a deferred SECTION with no verdict beneath it
+— catching the defect when the AUTHOR writes it, before any reviewer is
+exposed. A brief that already has its verdict is a finished record whose
+deferral was folded back in (rule 1's "split for the duration, merged at
+rest"), so it passes.
+
+What this check deliberately does NOT do: demand the fold-back. A reviewer
+commits its findings BEFORE opening the deferred file — that is the whole
+point of the sequence — so at that moment the brief legitimately has a verdict
+heading and the sibling file still exists. A fold-back lint would fire exactly
+on correct behaviour at exactly the prescribed moment, which is how a check
+gets trained away (Track E). The fold-back stays a convention, honestly named
+here rather than half-enforced.
+
+CHECK 1 — A DECISION RECORD STATES ITS REVIEW JUDGEMENT
+--------------------------------------------------------
 
 REVIEW.md's remedy for the invisible-decline failure mode: where a repo records
 design or direction durably, each record carries a review line — a queued
@@ -81,6 +113,18 @@ ALLOW_MARKER = "reviewscan:allow:"
 
 FENCE = re.compile(r"^\s*(```|~~~)")
 
+# Check 2. A HEADING, never prose: "Deferral exposure — named, not denied" is a
+# brief honestly declaring what it saw early, and reddening that would punish
+# the disclosure the doctrine asks for. Only a section heading declares that
+# deferred CONTENT is sitting in this file.
+DEFERRED_HEADING = re.compile(r"^#{1,6}\s*Deferred\b", re.IGNORECASE)
+
+# Any heading carrying the word — "## Verdict", "# Verdict — PASS", "## Cold
+# verdict (Fable, 2026-07-26)". Matching the word rather than one house
+# spelling: the corpus already writes it three ways, and a lint that only knows
+# one of them reds finished records for their typography.
+VERDICT_HEADING = re.compile(r"^#{1,6}\s.*\bverdict\b", re.IGNORECASE)
+
 
 def scan_record(path: Path) -> bool:
     """True if the record satisfies the rule (has the line, or is exempt)."""
@@ -97,6 +141,65 @@ def scan_record(path: Path) -> bool:
         if not in_fence and REVIEW_LINE.match(line):
             return True
     return False
+
+
+def scan_brief(path: Path) -> bool:
+    """True if the brief satisfies rule 1's placement rule (or is exempt).
+
+    Fails only for the one mechanically-reliable shape: a deferred SECTION
+    present in a brief that has no verdict yet — i.e. deferred content sitting
+    where a reviewer will read it before its findings exist.
+    """
+    text = path.read_text(encoding="utf-8", errors="replace")
+    if ALLOW_MARKER in text:
+        return True
+    in_fence = False
+    has_deferred = has_verdict = False
+    for line in text.splitlines():
+        if FENCE.match(line):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        if DEFERRED_HEADING.match(line):
+            has_deferred = True
+        elif VERDICT_HEADING.match(line):
+            has_verdict = True
+    return has_verdict or not has_deferred
+
+
+def _is_reviews_dir(p: Path) -> bool:
+    return (p.is_dir() and p.name == "reviews" and p.parent.name == "docs"
+            and "templates" not in p.parts)
+
+
+def _dir_briefs(reviews_dir: Path) -> list[Path]:
+    """Review briefs in a reviews dir.
+
+    Skips README.md (the dir's own index, not a brief) and `*.deferred.md`
+    (the sibling this rule EXISTS to create — reddening it would forbid the
+    remedy).
+    """
+    return [f for f in sorted(reviews_dir.glob("*.md"))
+            if f.name != "README.md" and not f.name.endswith(".deferred.md")]
+
+
+def find_briefs(paths: list[Path]) -> list[Path]:
+    """Review briefs in scope — same three invocation shapes as find_records."""
+    briefs: list[Path] = []
+    for base in paths:
+        if base.is_file():
+            if (_is_reviews_dir(base.parent) and base.suffix == ".md"
+                    and base.name != "README.md"
+                    and not base.name.endswith(".deferred.md")):
+                briefs.append(base)
+        elif _is_reviews_dir(base):
+            briefs.extend(_dir_briefs(base))
+        else:
+            for reviews_dir in sorted(base.rglob("docs/reviews")):
+                if _is_reviews_dir(reviews_dir):
+                    briefs.extend(_dir_briefs(reviews_dir))
+    return sorted(dict.fromkeys(briefs))
 
 
 def _dir_records(decisions_dir: Path) -> list[Path]:
@@ -139,12 +242,19 @@ def find_records(paths: list[Path]) -> list[Path]:
 def run(paths: list[Path], root: Path, as_json: bool) -> int:
     records = find_records(paths)
     failures = [r for r in records if not scan_record(r)]
+    briefs = find_briefs(paths)
+    misplaced = [b for b in briefs if not scan_brief(b)]
     if as_json:
         print(json.dumps({
             "checked": [str(r.relative_to(root)) for r in records],
             "failures": [str(r.relative_to(root)) for r in failures],
+            "briefs_checked": [str(b.relative_to(root)) for b in briefs],
+            "briefs_misplaced_deferral": [
+                str(b.relative_to(root)) for b in misplaced],
         }, indent=2))
-    elif failures:
+        return 1 if (failures or misplaced) else 0
+
+    if failures:
         for r in failures:
             print(f"✗ {r.relative_to(root)} — no review line. Add one:")
         print()
@@ -153,11 +263,25 @@ def run(paths: list[Path], root: Path, as_json: bool) -> int:
         print("  **Review**: not warranted — <grounds>")
         print("Omission is the bug: a blank can't be disagreed with. A genuine")
         print(f"exception carries `{ALLOW_MARKER} <reason>` on a line.")
-    else:
-        n = len(records)
-        print(f"✓ reviewscan clean — {n} post-{BOUNDARY} decision record(s) "
-              "carry a review line.")
-    return 1 if failures else 0
+    if misplaced:
+        if failures:
+            print()
+        for b in misplaced:
+            print(f"✗ {b.relative_to(root)} — deferred section inside the "
+                  "brief, with no verdict yet.")
+        print()
+        print("REVIEW.md rule 1: deferred material lives in a SIBLING file,")
+        print("not below a divider — reading is atomic, so a deferred section")
+        print("is consumed by the act of reading the brief it sits in.")
+        print("  mv the section into <brief>.deferred.md and point at it;")
+        print("  the reviewer opens it only once its findings are written,")
+        print("  then folds it back below the verdict and deletes it.")
+        print(f"A genuine exception carries `{ALLOW_MARKER} <reason>`.")
+    if not failures and not misplaced:
+        print(f"✓ reviewscan clean — {len(records)} post-{BOUNDARY} decision "
+              f"record(s) carry a review line; {len(briefs)} review brief(s) "
+              "keep deferred material out of the brief.")
+    return 1 if (failures or misplaced) else 0
 
 
 def selftest() -> int:
@@ -183,22 +307,49 @@ def selftest() -> int:
         (tpl / "2026-07-25-1500-shipped-example.md").write_text(
             "# A dated example inside a templates tree — must be skipped\n")
 
+        r = Path(td) / "docs" / "reviews"
+        r.mkdir(parents=True)
+        (r / "2026-07-29-1200-leaky.md").write_text(
+            "# Brief\n\n## Deferred — seeded questions\n\nQ1\n")
+        (r / "2026-07-29-1300-split.md").write_text(
+            "# Brief\n\nDeferred material: 2026-07-29-1300-split.deferred.md\n")
+        (r / "2026-07-29-1300-split.deferred.md").write_text(
+            "## Deferred — seeded questions\n\nQ1\n")
+        (r / "2026-07-29-1400-finished.md").write_text(
+            "# Brief\n\n## Deferred — folded back\n\n## Cold verdict\n\nPASS\n")
+        (r / "2026-07-29-1500-prose.md").write_text(
+            "# Brief\n\n- **Deferral exposure** — named, not denied: …\n")
+        (r / "2026-07-29-1600-fenced.md").write_text(
+            "# Brief\n\n```\n## Deferred — an EXAMPLE of the heading\n```\n")
+        (r / "README.md").write_text("## Deferred — index, not a brief\n")
+
         records = find_records([Path(td)])
-        failures = [r.name for r in records if not scan_record(r)]
-        ok = (sorted(r.name for r in records) == [
+        failures = [rec.name for rec in records if not scan_record(rec)]
+        briefs = find_briefs([Path(td)])
+        misplaced = [b.name for b in briefs if not scan_brief(b)]
+        ok = (sorted(rec.name for rec in records) == [
                   "2026-07-25-1200-good.md", "2026-07-25-1300-bad.md",
                   "2026-07-25-1400-exempt.md"]
-              and failures == ["2026-07-25-1300-bad.md"])
+              and failures == ["2026-07-25-1300-bad.md"]
+              and sorted(b.name for b in briefs) == [
+                  "2026-07-29-1200-leaky.md", "2026-07-29-1300-split.md",
+                  "2026-07-29-1400-finished.md", "2026-07-29-1500-prose.md",
+                  "2026-07-29-1600-fenced.md"]
+              and misplaced == ["2026-07-29-1200-leaky.md"])
         print("reviewscan selftest:", "OK" if ok else "FAILED")
         if not ok:
-            print("  in scope:", sorted(r.name for r in records))
+            print("  in scope:", sorted(rec.name for rec in records))
             print("  failures:", failures)
+            print("  briefs:", sorted(b.name for b in briefs))
+            print("  misplaced:", misplaced)
         return 0 if ok else 1
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
-        description="check decision records carry a review line (REVIEW.md)")
+        description="REVIEW.md's mechanical half: decision records carry a "
+                    "review line, and review briefs keep deferred material in "
+                    "a sibling file")
     ap.add_argument("paths", nargs="*",
                     help="files or directories to scan (default: --root)")
     ap.add_argument("--root", default=".",

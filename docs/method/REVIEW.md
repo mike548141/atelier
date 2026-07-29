@@ -58,20 +58,54 @@ work is self-authored doctrine — rule 3 however the review was spawned, rule 4
 governing who may spawn it:
 
 1. **The author's questions are a floor, never a fence — and the deferral is
-   structural, not willpower.** The author may seed attack questions — it knows
+   split, not merely labelled.** The author may seed attack questions — it knows
    where the hard trade-offs were — but seeded questions influence by their very
    existence: their topic and tone suggest where "the risk" lives, and a
-   reviewer cannot un-read them. So they sit in a **deferred section of the
-   brief, below the divider**, which the reviewer opens only after its own
-   attack surface is committed (the same shape rule 2 gives prior verdicts).
-   The reviewer names the load-bearing assumptions *itself* as its first act
-   (lens 1 below), and treats the brief's framing, including its account of
-   *what the work is*, as itself attackable (a "grounded in X" in a brief is
-   the author's claim to test, not settled scope).
+   reviewer cannot un-read them. So they sit in a **separate file**,
+   `docs/reviews/<date>-<HHMM>-<slug>.deferred.md`, which the reviewer opens as
+   a deliberate second act once its own findings are durably written (the same
+   shape rule 2 gives prior verdicts). The reviewer names the load-bearing
+   assumptions *itself* as its first act (lens 1 below), and treats the brief's
+   framing, including its account of *what the work is*, as itself attackable
+   (a "grounded in X" in a brief is the author's claim to test, not settled
+   scope).
+
+   **Why a separate file and not a section below a divider** (Mike, 2026-07-29;
+   this rule previously said "a deferred section of the brief, below the
+   divider" and called that structural). **Reading is atomic.** A reviewer told
+   to read the brief reads the whole file, so a deferred section is consumed by
+   the act it is meant to survive, and its *open only after…* label ends up
+   inside the thing it warns about — the rule was **unfollowable**, not merely
+   unfollowed, because nobody can know where the divider falls without reading
+   past it. Live-proven once already, on this doctrine's own surface: the
+   2026-07-21 cold pass ran a pending-changes scanner over a dirty brief and
+   the scanner fed the deferred section back into the reviewer pre-draft (SL2,
+   *Security & privacy* below).
+
+   **What the split buys, stated honestly.** It makes early exposure a
+   deliberate act that leaves a trace, instead of the unavoidable default; it
+   does not make early exposure impossible. Only a **context partition** does
+   that: where a review runs under an orchestrator, the deferred bytes stay
+   with the orchestrator and reach the reviewer on receipt of its committed
+   findings — the required shape for rule-4 doctrine passes run that way, and
+   the one arrangement that may honestly be called structural. Call the rest
+   what it is: a strong default with an audit trail.
+
+   **Split for the duration, merged at rest.** When the verdict lands, the
+   deferred file is folded into the brief below the verdict and deleted, so
+   the durable record keeps the one-file property (`EVIDENCE` §9) and the
+   ask, the deferral and the answer cannot drift apart. `tools/reviewscan.py`
+   holds the mechanical half: a brief carrying a deferred *section* with no
+   verdict beneath it reds the floor, which catches the defect at the moment
+   the author writes it, before any reviewer is exposed.
 2. **Barred from prior reviews until its own findings are committed** —
    committed meaning *durably written to its draft*, before any prior verdict
    is opened. An earlier verdict is another channel for the author's framing;
    the reviewer reads it only after that point — to reconcile, never to anchor.
+   Rule 1's split applies here for the same reason it applies there: a new
+   brief **points at** the prior verdict's file, never quotes or summarises it
+   inline, because an inlined quote is read whether or not the reviewer meant
+   to open it.
    Verifying a prior review's decisions (its `[fixed]` claims) is
    reconcile-step work, done after that point — not licence to read early.
 3. **Findings on self-authored *doctrine* are the principal's to decide,
@@ -238,16 +272,20 @@ throwaway chat:
    and the
    **specific assumptions to attack**. Add a `[ ]` pointer in the ROADMAP. The
    brief is *ask on top*. **When the brief is written by, or on the framing of,
-   the work's author**, the independence rules bind: seeded questions go in a
-   deferred section below the divider, opened by the reviewer only after its own
-   attack surface is committed — a floor, never a fence — and the brief's
-   framing is itself attackable (see *Independence is more than fresh context*).
+   the work's author**, the independence rules bind: seeded questions go in the
+   sibling `.deferred.md` file — never below a divider in the brief — opened by
+   the reviewer only after its own findings are durably written; a floor, never
+   a fence; and the brief's framing is itself attackable (see *Independence is
+   more than fresh context*).
 2. **Run** — the reviewer reads the repo and the brief and reviews deep, not
    fast. Findings get stable IDs so nothing is lost in synthesis.
 3. **Verdict** — the reviewer's output (per-question answers, findings, a
    follow-up checklist) is appended to the **same file**, below a `---`
    divider. *Answer below the ask.* One file holds the whole exchange, so the
-   question and its answer can never drift apart (EVIDENCE §9).
+   question and its answer can never drift apart (EVIDENCE §9). Any
+   `.deferred.md` sibling is folded in below the verdict and deleted at this
+   step — the split exists to protect the reviewer during the run, and the
+   record it leaves behind is one file, as it always was.
 4. **Decision** — each finding is tagged **[fixed]** (done this session),
    **[backlog]** (a named ROADMAP slice), or **[rejected: grounds]** — the
    builder/owner may disagree with a finding, but the disagreement and its
@@ -392,9 +430,13 @@ whichever path the economics favour:
   the review as a background agent and verifies as it goes, no context switch.
   (This is how the atelier foundation review ran.) The spawn prompt *is* a brief,
   and the spawning session is usually the work's author with its framing at its
-  warmest — so the independence rules bind it in full: seeded questions deferred
-  (a section or file the reviewer opens only after committing its own attack
-  surface), never a fence. One carve-out: **self-authored doctrine cannot take
+  warmest — so the independence rules bind it in full: seeded questions
+  deferred to the sibling `.deferred.md` file, opened only after the
+  reviewer's own findings are durably written, never a fence. This path is
+  also where rule 1's **context partition** is cheapest to actually run: the
+  spawning session holds the deferred material and hands it over on receipt of
+  the agent's findings, so the bytes never enter the reviewer's context early
+  at all. One carve-out: **self-authored doctrine cannot take
   this path at all** — rule 4 requires its review be spawned by a non-author.
 - **Batched queue** — when they don't, queue the briefs and run them together
   later. The carve-out reaches here too: an author-queued, author-scheduled

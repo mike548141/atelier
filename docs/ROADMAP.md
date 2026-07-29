@@ -1547,6 +1547,42 @@ learning applied to failures rather than techniques.
 join (see the enforcement-propagation section for the sketch and its
 false-positive caveat).
 
+### The ladder landed; two pieces of work fall out of it (Mike, 2026-07-29)
+
+**The ask, in Mike's words:** *"As sessions are still running into the issue
+when it is written down 3 times. How do we make it structural, mechanical, or
+policy as code to stop the same issue recurring that the doctrine already warns
+the sessions about"* — and, separately, *"I don't think we should be repeating
+the same point in 3 different places i.e. our DRY principle."*
+
+Both are answered in doctrine now — `method/PROPAGATION.md` gained *When a rule
+keeps breaking — climb, never restate* (three rungs: framing → mechanise at the
+moment of failure → **remove the situation**) and *One statement, stamped copies
+— never three originals*. The third rung is the new one, and it is what this
+session actually did to the review deferral: not a better label, but moving the
+bytes so the failure has nowhere to happen. What the doctrine cannot do by
+itself is the two things below.
+
+- [ ] 🎯 **R1 — the recurrence count has to become mechanical, and the mining
+      pass earns a cadence rather than one run.** The registry's promotion rule
+      (recurrence, not severity, earns a check) never fires, because nothing
+      can answer *how many times has this broken?* — recurrence is currently
+      noticed by somebody's unease, which is exactly how a rule reaches its
+      third occurrence unpromoted. The retrospective sweep above tells us about
+      the past; the defect is continuous. Decide the cadence and what triggers
+      it (a scheduled run, or a check at review close), then wire it.
+- [ ] **R2 — find the actual triplications before consolidating any of them.**
+      Mike's premise is that points are stated three times over; this session
+      wrote the *rule* for handling that but did **not** survey the corpus, and
+      guessing which passages are redundant is how a consolidation drops two of
+      three real facets. The work: a duplication pass over `docs/method/` +
+      `docs/build/` + the stamped copies in `skills/` and `templates/`, keyed on
+      claims rather than phrases, producing a ranked list of *independent*
+      restatements (the defect) separated from *stamped* copies (the mechanism
+      working). Pairs with D2 — `stampscan` exists to watch the second class and
+      is shelved, so the stamp discipline is currently convention watched by
+      nothing.
+
 
 Source: <https://thenewstack.io/engineering-ai-slop-registry/> (Aviator). A
 mechanism for AI+human engineering that fits atelier's "mechanism before more
@@ -2148,6 +2184,16 @@ applied 2026-07-21**; the fleet-wide `hooks.atelierTools` fix) →
       case. A child that still reds does so on un-harvested `[x]` items, its own
       harvest lane. faves and ros run bespoke CI without `sizescan --check` — a
       separate floor-adoption step.
+      **At the same bump, untrack `.claude/settings.json`** (Mike's 2026-07-29
+      ruling ⓑ, Sharing § Publication surface): `git rm --cached` it and take
+      the reworked ignore lines from the template. **Eleven children track it**
+      (swept 2026-07-29, not estimated: Baby Brain, FoodTracker, docker-heap,
+      ec2_builder, hitchbots_guide, homenetwork, kainga, nova, numen, ros,
+      shed); `rpi` and atelier are done. On a private child this is latent, not
+      live — which is the point of doing it before any flip rather than during
+      one. `publishscan` reds each of them the moment they take the registry,
+      so a child that cannot clean up in the same bump declares it **advisory
+      with a `why` and a `review-by`** rather than being blocked mid-work.
 
 - [ ] 🎯 **Nothing catches a roadmap item that is deleted rather than harvested**
       — Mike's standing worry ("losing the queue of ideas"), audited in full
@@ -2260,6 +2306,118 @@ public as a **named worked example** (README "If you're adopting this"). What wa
 
 Completed sharing work (public release, the plugin bundle widening, atelier's own
 CI, child-CI scanner floor, linkscan build + wiring) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
+
+### ⏳ Cold passes owed from the 2026-07-29 publish-surface + deferral session
+
+Three rule-4 pointers, **refs only** — the account lives in the intent record
+so a taker meets the work cold. Author: the 2026-07-29 1418 session (Opus 5),
+which authored all three deltas and therefore spawns none of these reviews.
+Intent record:
+[`sessions/2026-07-29-1418-publish-surface-and-deferral.md`](sessions/2026-07-29-1418-publish-surface-and-deferral.md).
+
+- ⏳ **The deferral delta** — `3acf7d2`: `method/REVIEW.md` rules 1–2 and
+  lifecycle steps 1/3, `skills/review-brief/SKILL.md`,
+  `docs/build/templates/docs/reviews/README.md`, `tools/reviewscan.py` +
+  `tools/test_reviewscan.py`, the `reviewscan` registry `why` in
+  `tools/floor.py`.
+- ⏳ **The publication-surface delta** — `a9ab2cf`: `docs/build/REPO-STANDARD.md`,
+  `docs/method/TOOLBOX.md`, `docs/build/templates/gitignore`,
+  `skills/create-repo/SKILL.md`, `.gitignore`, and the untracking of
+  `.claude/settings.json`.
+- ⏳ **`publishscan`, first-of-kind tooling** — `8bdcfaa`:
+  `tools/publishscan.py`, `tools/test_publishscan.py`, its registry entry in
+  `tools/floor.py`, `tools/README.md`.
+- ⏳ **The recurrence-ladder delta** — `method/PROPAGATION.md`'s two new
+  sections (*When a rule keeps breaking* and *One statement, stamped copies*),
+  landed with this pointer.
+
+### Publication surface — what a public repo reveals about its own defences (2026-07-29)
+
+*`review:` this section states direction, so it carries a review judgement:
+**queued** — the doctrine deltas it drives (the allowlist amendment, the
+publication-surface class) each queue their own `⏳` pointer at their landing
+commit; the section itself is refs + work, not doctrine.*
+
+**Where this came from.** `rpi` flipped PUBLIC on 2026-07-29 and its post-flip
+cold pass (0 MAJOR, 11 findings) found F1: the committed `.claude/settings.json`
+published the exact list of commands an AI session runs **unprompted**, at the
+same moment going public opened untrusted inbound (issues, PRs) into those
+sessions. `rpi` fixed it locally — and by doing so **diverged from this repo's
+doctrine**, which mandates committing that file in four places
+([`REPO-STANDARD.md`](build/REPO-STANDARD.md), [`TOOLBOX.md`](method/TOOLBOX.md),
+`templates/gitignore`, `skills/create-repo`). The child was right and the parent
+was wrong, and nothing carried that upward — the resolved-upward rule
+(`method/PROPAGATION.md`) working only because Mike happened to ask.
+
+**The class this opened, and why it is bigger than one file.** The estate's
+guard files are *self-describing*: a repo that publishes where its checks are
+switched off, or what its agent may do without asking, hands a reader a map. It
+is a **reconnaissance** exposure, not a secrets one — secretscan and leakscan
+both correctly report clean on every file below, because none of them contain a
+credential or a personal fact. That is the gap: **the existing floor asks "does
+this file contain something private?", and never "does publishing this file
+weaken the repo?"**
+
+**P1 — the command allowlist: RULED ⓑ (untrack everywhere, uniform) and
+applied 2026-07-29** — atelier + all four doctrine surfaces done, children at
+their next pin bump. Full ruling, its named cost, and what it does not undo →
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md) § Sharing.
+
+**P2 — `publishscan` built and registry-wired blocking, 2026-07-29.** The class
+is mechanical now rather than a memory: it judges the **path**, not the
+contents — the one question no other scanner here asks, and the reason both
+content scanners passed `rpi`'s allowlist correctly. Build detail, provenance
+per pattern, and the stated residual →
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md) § Sharing. Its cold pass is queued below.
+
+- [ ] **P2a — teach `publishscan` the shapes the fleet actually has.** The
+      denylist was written from one finding plus standard practice, which is
+      the honest starting point and not a survey. The sweep that grounds a
+      second round is P7's (transcripts + session logs) plus a tracked-file
+      pass over all twelve repos — what else is tracked that nobody would
+      publish deliberately?
+- [ ] 🎯 **P3 — the floor does not know whether a repo is public, and it should
+      (ADR-worthy).** Mike, 2026-07-29: *"we will need additional guards, or to
+      run the existing guards at a higher level of protection for public vs
+      private repos."* Today visibility appears in the registry only as prose
+      (`licenscan` is described as a publish gate; the `leakscan` `why` line
+      says "a repo that **can** go public"). Nothing reads the actual state, so
+      the same declaration means two very different risk positions. The shape to
+      decide: visibility becomes a **declared, verifiable input** to `floor.py`
+      (declared in `.atelier-floor.json`, cross-checked against the platform so
+      a stale declaration is itself a finding), and on a public repo the floor
+      tightens — advisory checks lose their advisory hatch, `licenscan` becomes
+      mandatory, `publishscan` (P2) engages. Open question this must answer:
+      what happens to a repo whose declaration says private and whose platform
+      says public — that is a **live breach**, and the floor should say so
+      loudly rather than fail on a config mismatch.
+- [ ] **P4 — `rpi` F9, routed upward: the ci plane calls `leakscan` without
+      `--require-terms`.** Every child's CI run therefore self-reports "cover not
+      guaranteed". The fix belongs in atelier's registry, not any child — it
+      pairs with Track D's registry work; the design question is whether CI can
+      carry a term list at all (the list lives in `~/.claude/`, outside every
+      repo, which is why the ci plane was left structural-only in the first
+      place). If it cannot, the honest fix is a rendering change so "structural
+      only" stops reading like a defect.
+- [ ] **P5 — `rpi` F10, routed upward: the publish-safety checklist gates repo
+      *content*, never platform *settings*.** ADR 0009's six gates cover what a
+      repo contains; nothing covers what GitHub exposes — wiki (a second git
+      repo the floor never sees), actions policy, fork-PR approval,
+      vulnerability reporting, rulesets. Every settings-level finding in the
+      `rpi` pass walked through that gap. Owed **before `ros`/`faves` flip**.
+- [ ] ⏳ **P6 — `rpi` F5: estate-internal context accumulating in public
+      records. Mike's ruling owed.** Session logs naming sibling repos and their
+      scan states; workflow detail published as a matter of course. This repo
+      already holds the narrower rule (never join a private repo's *name* to its
+      *security posture* — the invariant breached three times); F5 asks the
+      wider question: is estate-internal context in a public record **accepted
+      transparency** or a records-convention defect? ADR-worthy either way, and
+      the ruling binds every repo heading public, not just `rpi`.
+- [ ] **P7 — harvest the `rpi` publication properly.** This section mined the
+      cold review only. The transcripts and session logs of the flip are
+      unread, and they are the richest source (what an agent *thought*, not what
+      it committed). Own session; pairs with the recurrence-mining item in the
+      anti-slop registry section, which needs the same sources.
 
 ## Open questions
 

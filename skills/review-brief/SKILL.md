@@ -90,3 +90,11 @@ re-driven the same session**. Close with a verdict — **PASS**,
 **PASS-WITH-FINDINGS**, or **FAIL** — appended below a divider in the brief, so
 the brief and its verdict live together as the record. A finding you fixed but did
 not re-drive is not closed.
+
+**Deferred material lives in its own file** — `<slug>.deferred.md`, never a
+section below a divider in the brief. Reading is atomic: a deferred section is
+consumed by the act of reading the brief it sits in, which made the old rule
+unfollowable rather than merely unfollowed. Open the sibling file only once
+your own findings are durably written, then fold it into the brief below the
+verdict and delete it — split for the duration, one file at rest.
+`reviewscan` reds a brief that carries a deferred section with no verdict.
