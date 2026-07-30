@@ -2153,6 +2153,75 @@ the **man-page convention rollout — ccarchive worked example + cctranscript +
 ccrepo, all installed CLIs now carry a `man/<tool>.1` + trimmed `--help`, closed
 2026-07-21**) → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
 
+## Observability of the collaboration itself (2026-07-30)
+
+*`review:` refs + open work, not doctrine — the doctrine candidate below queues
+its own `⏳` when and if it lands. Account:
+[`sessions/2026-07-30-0301-context-atlas-and-trust-window-analysis.md`](sessions/2026-07-30-0301-context-atlas-and-trust-window-analysis.md).*
+
+**Where this came from.** A session-telemetry analysis across all 470 priced
+sessions found that context size does **not** degrade the work (tool-failure
+rate flat from 28k to 934k, ρ = −0.05; the apparent link is a length effect at
+ρ = 0.85 against message count), and that what context genuinely causes —
+overflow and forced compaction — is confined to the deepest handful of sessions.
+Then the same instrument was pointed at three days the principal named as
+trust-damaging, and reported them **cleaner than baseline**.
+
+- [ ] 🎯 **Doctrine candidate — the mechanical instruments cannot see a trust
+      failure, and `EVIDENCE.md` should say so.** Tool errors, dropped
+      connections and exhausted windows measure whether the machinery ran.
+      Trust is damaged by work that ran perfectly and was wrong, unverified, or
+      not the agent's decision to make. Grounded and repeatable: on the named
+      days every harness error class was at or below the estate rate (tool
+      failures 0.71×, zero limits, zero overflow, zero compaction) while the
+      principal's own corrective language carried *trust* markers at 5.8× and
+      frustration at 3.9×. Self-authored doctrine ⇒ rule-4 `⏳` at landing.
+      Not written at the finding session's wrap — it deserves its own scope
+      rather than a fifth review queued at close.
+- [ ] 🎯 **Doctrine candidate — evidence hygiene: a scanner that greps for the
+      name of a failure finds the sessions that discussed it.** The first cut of
+      the incident scanner text-matched a refusal string and counted its own
+      scanning session, inflating one class threefold. The general rule: when an
+      agent analyses its own logs it is **inside its own corpus**, so a signal
+      must key to a marker the harness sets, never to prose. Pairs with the
+      item above; same `⏳` obligation. Second worked example the same session —
+      a tool-use profile that grouped by parent directory filed every repo's
+      subagent work into one bucket and reported a research-heavy repo as 2%
+      research against a corrected 50.6%.
+- [ ] **The forward test the trust analysis could not run.** The surviving
+      hypothesis is *distance without a review step, on work that changes
+      things* — orchestrated fleets are one route, long solo autonomous runs
+      another (the worst session had no subagents and ran 12 assistant messages
+      per turn of the principal's). It is fitted after the fact on five
+      incidents and is **not proof**. Three hypotheses were falsified by a
+      like-for-like control repo (a new model tier, a new harness version, and
+      context size — all clean on the same days in build-heavy established
+      work); a fourth falsification was **withdrawn** when the principal
+      identified the control as a week-old research repo, confirmed by
+      re-profiling. The test: keep the review tier running on change-work
+      through a period when it would otherwise lapse, and see whether the
+      signature stays down. Distinguishes "the reviewer was missing" from "the
+      model was new", which this data structurally cannot.
+- [ ] **Session hygiene, measured: cap messages, not minutes.** Message count vs
+      peak context ρ = +0.877; elapsed wall-clock ρ = +0.525; no session
+      estate-wide is short-but-deep (<30 messages, >250k peak). A session
+      deliberately shortened 84% in time but only 58% in messages saw peak
+      context **rise**. Belongs in `ECONOMICS.md` § session hygiene if it
+      survives review; the larger lever is still what gets read in early.
+- [ ] **The Context Atlas is a first mockup, unrefined, and the archive run is
+      owed.** Interactive page over all priced sessions — context spectrum
+      rowed by repo, per-session drill-down, atelier's own doctrine-load cost
+      plotted on the same axis (`method/` ≈ 81k tokens, the full binding set
+      ≈ 163k, every file under `docs/` ≈ 854k, against a median session peak of
+      ~168k). Held outside this repo: it carries per-repo cost and usage detail
+      that is estate context, not doctrine. Known weak points named by its
+      author: the beeswarm crowds where most sessions sit, and one column lumps
+      routine tool failures with genuinely disruptive limit hits. The principal
+      asked for a run against the archive once refined — **not done**, overtaken
+      by the trust-window question. Note the archive is currently a near-mirror,
+      not a superset (1,404 archived files, 892 of them transcripts, against 902
+      live), so the run adds reach only once pruning has actually bitten.
+
 ## File-size hygiene (new 2026-07-14)
 
 The generalised anti-bloat work. `sizescan` flags relocatable **cold content** on
