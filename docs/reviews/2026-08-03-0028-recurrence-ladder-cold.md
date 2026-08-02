@@ -135,3 +135,19 @@ sweeps run over `docs/method/` and the ROADMAP.
 Rule 3: counsel labelled; decisions the principal's. No MAJOR — this pass
 alone would close at its application; the batch stays open on the sibling
 MAJORs.
+
+### Reconcile addendum (intent record opened after all four verdicts)
+
+The shared intent record
+(`sessions/2026-07-29-1418-publish-surface-and-deferral.md`) was opened only
+after all four queued verdicts were committed in this worktree, per rule 1's
+sequence. Reconciliation changed no finding. Batch-level notes: the record's
+"four places" framing matches PS1's diagnosis — the delta amended all four
+*files* but missed the second mandate-site inside REPO-STANDARD; the record's
+twelve-repos and the publishscan commit's eleven-children counts are
+consistent (atelier untracked itself in between); the record's § Owed says
+"three cold passes queued" while four pointers landed — the RL4 count slip
+originates in the record and is left standing there as history, with the
+live ROADMAP header corrected at this batch's close. The record's honest
+notes (the split is not structural; the denylist limits; the no-git catch)
+agree with, and partly pre-state, DF4 and the pass-2/pass-3 lens results.
