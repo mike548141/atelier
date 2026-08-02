@@ -2421,6 +2421,18 @@ reviewer pre-findings (the SL2 channel class, second live instance).
   RL1–RL3 await Mike's ruling; no MAJOR ⇒ the ruling application is
   terminal for this delta.
 
+### ⏳ Application reviews owed from the 2026-08-02 rulings application
+
+Rule-4 pointers, **refs only** — the rulings live in the verdict files, which
+serve as the intent records; a taker meets the applications cold. Author of
+both application deltas: the 2026-08-02 taker session (Fable), which also
+authored the verdicts (the neutral-applier preference not met — Mike's
+in-session fix-now rulings directed it) and therefore spawns neither review.
+
+- ⏳ **The `publishscan` application** — the commit adding this pointer:
+  `tools/publishscan.py`, `tools/test_publishscan.py`. Rulings PB1–PB4 in
+  [the verdict](reviews/2026-08-02-2313-publishscan-cold.md).
+
 ### Publication surface — what a public repo reveals about its own defences (2026-07-29)
 
 *`review:` this section states direction, so it carries a review judgement:

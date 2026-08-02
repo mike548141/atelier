@@ -43,7 +43,11 @@ WHAT THIS DOES NOT COVER — read before trusting a clean run
 THE PATTERNS, WITH THEIR PROVENANCE
 ------------------------------------
 Grounding is per-pattern, because this repo does not invent rules to fill a
-heading. Two tiers, both stated rather than blurred:
+heading. Every pattern matches AT ANY DEPTH — these files are machine-local
+wherever they sit, and a monorepo's `packages/api/.npmrc` is the same finding
+as a root `.npmrc` (PB1, the 2026-08-02 cold pass: the first cut matched most
+entries at the repo root only, because `fnmatch` globs are not path-aware).
+Two tiers, both stated rather than blurred:
 
   * FOUND HERE — a real finding in this estate.
       `.claude/settings.json`, `.claude/settings.local.json`
@@ -63,7 +67,11 @@ heading. Two tiers, both stated rather than blurred:
 
 HATCHES
 -------
-A glob in `.publishscanignore` exempts a path. There is deliberately NO
+A glob in `.publishscanignore` exempts a path, and every glob line MUST carry
+a trailing `# reason` — a bare glob is a config error (exit 2), because the
+accepted-exposure story above rests on every exemption stating its reason
+where a reviewer reads it (PB2: the first cut claimed that requirement
+without enforcing it). There is deliberately NO
 `publishscan:allow:` line marker: the marker convention works by writing a
 reason INTO the offending file, and this scanner's whole finding is that the
 file should not be in the repo at all — a marker inside it would be an
@@ -101,27 +109,43 @@ NEVER_PUBLISH: tuple[tuple[str, str], ...] = (
      "connected-service endpoints and server inventory"),
     (".env", "environment file — the canonical secret carrier"),
     (".env.*", "environment file — the canonical secret carrier"),
-    ("*/.env", "environment file — the canonical secret carrier"),
     (".envrc", "direnv environment — machine-local by definition"),
     (".netrc", "credential-bearing tool config"),
     (".npmrc", "credential-bearing tool config (auth tokens)"),
     (".pypirc", "credential-bearing tool config (upload tokens)"),
     (".vscode/settings.json", "editor-local config: local paths, tool config"),
     (".idea/*", "editor-local config: local paths, tool config"),
-    (".idea/**/*", "editor-local config: local paths, tool config"),
 )
 
 
+class BadIgnoreFile(Exception):
+    """A glob line without a trailing `# reason` — a config error, not a pass."""
+
+
 def load_ignores(root: Path) -> list[str]:
-    """Globs from .publishscanignore — blank lines and `#` comments skipped."""
+    """Globs from .publishscanignore — blank lines and `#` comments skipped.
+
+    Every glob line must carry a trailing `# reason` on the SAME line: the
+    accepted-exposure mitigation is that a reviewer reading the tree sees why
+    each exemption exists, and a comment on a neighbouring line does not bind
+    to the glob it happens to sit near. A bare glob raises (exit 2 upstream).
+    """
     f = root / IGNORE_FILE
     if not f.is_file():
         return []
     out = []
-    for line in f.read_text(encoding="utf-8", errors="replace").splitlines():
-        line = line.strip()
-        if line and not line.startswith("#"):
-            out.append(line)
+    for n, raw in enumerate(
+            f.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        glob, _, reason = line.partition("#")
+        glob = glob.strip()
+        if not reason.strip():
+            raise BadIgnoreFile(
+                f"{IGNORE_FILE}:{n}: '{glob}' has no trailing '# reason' — "
+                "every exemption states its reason where a reviewer reads it")
+        out.append(glob)
     return out
 
 
@@ -130,9 +154,14 @@ def _ignored(path: str, globs: list[str]) -> bool:
 
 
 def matches(path: str) -> str | None:
-    """The reason this path must not be tracked, or None."""
+    """The reason this path must not be tracked, or None.
+
+    Each pattern is tried at the repo root AND at any depth (`*/` + glob —
+    `fnmatch`'s `*` spans `/`, which is also why the depth form needs no
+    `**`). A machine-local file is machine-local wherever it sits.
+    """
     for glob, why in NEVER_PUBLISH:
-        if fnmatch.fnmatch(path, glob):
+        if fnmatch.fnmatch(path, glob) or fnmatch.fnmatch(path, "*/" + glob):
             return why
     return None
 
@@ -161,6 +190,14 @@ def _git(root: Path, *args: str) -> list[str]:
     return [ln for ln in r.stdout.splitlines() if ln]
 
 
+def repo_top(root: Path) -> Path:
+    """The repo's top level. A --root inside the repo rebases to it: this
+    scanner's unit is the repo's tracked set, and a silent subtree scan
+    would report 'N tracked path(s)' while root-anchored patterns matched
+    nothing (PB3)."""
+    return Path(_git(root, "rev-parse", "--show-toplevel")[0])
+
+
 def tracked_paths(root: Path, staged: bool) -> list[str]:
     """The paths this plane judges.
 
@@ -177,7 +214,12 @@ def tracked_paths(root: Path, staged: bool) -> list[str]:
 
 def run(root: Path, staged: bool, warn: bool, as_json: bool) -> int:
     try:
-        paths = tracked_paths(root, staged)
+        top = repo_top(root)
+        if top.resolve() != root.resolve():
+            print(f"publishscan: --root is inside the repo — scanning the "
+                  f"full tracked set from {top}")
+        paths = tracked_paths(top, staged)
+        globs = load_ignores(top)
     except NotARepo:
         if as_json:
             print(json.dumps({"scanned": 0, "staged": staged,
@@ -187,10 +229,12 @@ def run(root: Path, staged: bool, warn: bool, as_json: bool) -> int:
             print("✓ publishscan — not a git repository, so nothing is "
                   "tracked and nothing can be published from here.")
         return 0
+    except BadIgnoreFile as e:
+        print(f"publishscan: {e}", file=sys.stderr)
+        return 2
     except RuntimeError as e:
         print(f"publishscan: {e}", file=sys.stderr)
         return 2
-    globs = load_ignores(root)
     findings = [(p, why) for p in paths
                 if not _ignored(p, globs) and (why := matches(p))]
 
@@ -213,9 +257,11 @@ def run(root: Path, staged: bool, warn: bool, as_json: bool) -> int:
         print()
         print("Already-pushed history cannot be unpublished — untracking stops")
         print("the next commit, it does not recall the last one. A deliberate")
-        print(f"exception: add a glob to {IGNORE_FILE} (no line marker exists,")
-        print("on purpose — a reason written inside an unpublishable file is")
-        print("an exemption nobody reviewing the tree would ever see).")
+        print(f"exception: add a glob to {IGNORE_FILE} with a trailing")
+        print(f"'# reason' on the same line (e.g. `{findings[0][0]}  # kept:")
+        print("<why>`) — a bare glob is a config error, and no line marker")
+        print("exists on purpose: a reason written inside an unpublishable")
+        print("file is an exemption nobody reviewing the tree would see).")
         if warn:
             print()
             print("  (--warn: advisory only — not blocking this build.)")
@@ -230,7 +276,11 @@ def selftest() -> int:
     """Prove the tool against its own fixtures — red, green and hatch legs."""
     red = [".claude/settings.json", ".claude/settings.local.json",
            ".mcp.json", ".env", ".env.production", "sub/.env", ".envrc",
-           ".npmrc", ".vscode/settings.json", ".idea/workspace.xml"]
+           ".npmrc", ".vscode/settings.json", ".idea/workspace.xml",
+           # Any depth — the PB1 probes that passed green in the first cut.
+           "packages/api/.npmrc", "sub/.env.production", "docs/.envrc",
+           "services/x/.claude/settings.json", "sub/.mcp.json",
+           "apps/web/.vscode/settings.json", "x/.idea/workspace.xml"]
     green = [
         # The self-describing guard files this tool deliberately allows: they
         # MUST travel for the floor to run, and hiding them would weaken the
