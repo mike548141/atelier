@@ -54,3 +54,98 @@
   The security lens runs manually — this delta's surface *is* an
   information-flow control (what a reviewer may read when), so lens 4 runs at
   design altitude on the flow itself, plus code altitude on the validator.
+
+---
+
+## Verdict — PASS-WITH-FINDINGS (0 MAJOR / 1 minor / 3 notes)
+
+Reviewer: the taking session (Fable; spawn provenance and the partial
+exposure caveat in the brief). This pass carries one unusual piece of
+evidence: the reviewer *operated* the delta all session — four briefs and
+verdicts run under its rules — and its failure mode fired live once (a
+records-sweeping grep fed author-account bytes to this reviewer pre-findings,
+disclosed in the pass-1 verdict). That incident is confirmatory, not
+damning: it is precisely the residual the delta itself names — the split
+makes early exposure deliberate-or-accidental-but-traceable, and only a
+context partition is structural. The doctrine predicted its own leak class
+honestly.
+
+### Findings
+
+- **DF1 — minor (overclaim of the mechanical half's reach).** The guard is
+  vocabulary-anchored and the doctrine does not say so. `DEFERRED_HEADING`
+  fires only on headings *beginning* "Deferred". Probes at HEAD: `## Seeded
+  questions — open only after findings` GREEN; `## Author's deferred
+  questions` GREEN (the word present, not the prefix); `## Questions to
+  defer` GREEN. Yet REVIEW.md rule 1, the SKILL, and the template README all
+  state flatly "`reviewscan` reds a brief carrying a deferred section with
+  no verdict" — no vocabulary caveat. The population the net exists to catch
+  (an author on old habits, not using the SKILL's canonical shape) is the
+  population least likely to write the canonical heading. The module
+  docstring's "the one mechanically-reliable shape" gestures at the
+  narrowing but never names it. *Counsel:* either widen the trigger
+  (`\bdeferred\b|\bseeded\b` anywhere in a heading — re-testing the honest
+  disclosure headings stay green), or add one sentence to the three doctrine
+  surfaces naming the canonical-vocabulary anchor. The choice is the
+  principal's (rule 3); this reviewer leans widen-plus-caveat: cheap, and
+  the false-red risk is bounded by the fence and prose exclusions already
+  tested.
+- **DF2 — note (test fixture vs name).** `test_deferred_section_below_a_
+  verdict_passes` writes the deferred section *above* the verdict heading;
+  the check is order-blind, so it passes, and order-blindness is actually
+  correct (once any verdict exists, the exposure window is over) — but the
+  fixture demonstrates the opposite of its name. Rename or reorder the
+  fixture so the suite documents the intended at-rest shape.
+- **DF3 — note (one marker, two checks).** `reviewscan:allow:` anywhere in a
+  brief exempts it from check 2 as well as check 1 — a marker placed for a
+  review-line reason silently waives the deferral guard too. Scoped markers
+  (`reviewscan:allow:deferral:`) would keep the waivers separable; note
+  only, since briefs rarely carry the marker.
+- **DF4 — note (the "trace" is thinner than it reads).** Rule 1's "a
+  deliberate act that leaves a trace" — the trace is the *session
+  transcript*, not the durable record; nothing in git records an early
+  opening unless the reviewer discloses it (as this session did). For an
+  adopter reviewing by hand there is no trace at all. One clause naming
+  where the trace lives would keep the claim exact.
+
+### Lens results
+
+1. **Approach & assumptions** — the diagnosis is right and crisply argued:
+   reading is atomic, so a below-the-divider deferral is consumed by the act
+   it must survive; "unfollowable, not merely unfollowed" is the correct
+   category, and the cure moves bytes rather than words. Assumption 1 holds.
+   Assumption 2 (honesty boundary) holds on all six surfaces — the
+   what-the-split-does-not-buy paragraph is exactly the overclaim-refusal
+   the apex demands — with DF4's clause as the one soft spot. Assumption 4
+   (no fold-back lint) survives attack: any lint on the orphan window fires
+   on prescribed behaviour between the verdict commit and the fold commit;
+   the residual (a permanently unfolded orphan is invisible) is real,
+   accepted, and named in the module docstring.
+2. **Correctness & quality** — check-2 logic verified by probe and suite:
+   canonical shape reds the exit code, fenced examples and prose disclosures
+   stay green, README/siblings/templates correctly out of scope, verdict
+   spellings matched generously (the right asymmetry — false reds punish
+   finished records). DF1 is the reach gap; DF2 the fixture mislabel.
+3. **Completeness / harvest** — six surfaces swept at HEAD; no seventh
+   surface teaches the old form (all surviving "below a divider" text is
+   negation or the verdict-placement rule, which is distinct and correct).
+   The corpus claim re-run: 79 briefs green at HEAD (76 at the delta, plus
+   this session's three).
+4. **Security & privacy** — the delta *is* an information-flow control, and
+   at design altitude it is an improvement with its limits stated (partition
+   named as the only structural form). Code altitude: pure-stdlib text
+   scanning, no execution of scanned content, fence handling prevents
+   example-triggered reds. This session's live leak (pass 1) demonstrates
+   the stated residual, not a new defect. `/security-review` discharged in
+   the brief.
+
+### Grounding re-run
+
+`python3 -m unittest discover -s tools -p test_reviewscan.py` OK;
+red-then-green re-driven via `scan_brief` probes (canonical red, folded
+green); full-corpus run green at HEAD; the registry `why` renders in the
+floor output of every commit this session made.
+
+Rule 3: counsel labelled; decisions the principal's. No MAJOR — under the
+close rule this pass alone would let the cycle close at its application;
+the *batch* stays open on the two MAJORs in the sibling passes.
