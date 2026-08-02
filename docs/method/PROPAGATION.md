@@ -325,7 +325,12 @@ enforcement.
 
 *Mike, 2026-07-29: sessions keep hitting an issue that is written down three
 times. Writing it a fourth time reaches exactly the readers the first three
-reached.* Three rungs, cheapest first — **stop at the first that fits**. All
+reached.* Three rungs, cheapest first — **stop at the first that fits**,
+where *fits* means **would have prevented the recorded occurrences**: test
+the rung against the incidents before stopping on it, because rung 1 always
+fits in the weak sense (a rewording is always available) and the worked
+example below is one where rungs 1 and 2 both had answers that would have
+failed (RL1, 2026-08-02). All
 three change the *system*; none changes the wording, which is the move that
 feels like progress and reliably is not.
 
@@ -365,7 +370,12 @@ Making the count mechanical is the anti-slop registry's mining work, and it
 earns a **cadence rather than one pass**: a survey run once tells you about the
 past, and the defect this rung addresses is continuous. Until that runs, treat
 a second occurrence you *happen* to notice as the trigger — the ladder is
-cheap, and rung 1 costs a paragraph.
+cheap, and rung 1 costs a paragraph. Two thresholds, two acts, deliberately
+(RL3, 2026-08-02): a *second* noticed occurrence triggers climbing this
+ladder, while the **>2 promotion rule** (act at the third instance) governs
+promoting a recurring pattern into doctrine — the ladder is cheap enough to
+start early; minting doctrine is not. Both stand until R1 makes the count
+mechanical.
 
 ## One statement, stamped copies — never three originals
 

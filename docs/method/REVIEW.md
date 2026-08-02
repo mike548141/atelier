@@ -389,7 +389,10 @@ the grammar at the point of asking; this section no longer has to rescue a reade
 the previous wording had already turned away. When a written rule keeps being
 broken, suspect its framing before its enforcement — restating it louder assumes
 non-compliance, where checking the grammar asks whether the rule was ever
-findable from where the reader stood. (Mike, 2026-07-19.)
+findable from where the reader stood. (Mike, 2026-07-19. Canonical statement:
+`PROPAGATION.md` § *When a rule keeps breaking*, rung 1 — this paragraph is
+the grounded instance it cites, kept here with the incident; a stamped
+pointer, not a second source. RL2, 2026-08-02.)
 
 **Enforcement is structural where a machine can reach it, conventional where
 it can't — stated per surface, because the written rule demonstrably did not
