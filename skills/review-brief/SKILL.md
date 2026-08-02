@@ -97,4 +97,7 @@ consumed by the act of reading the brief it sits in, which made the old rule
 unfollowable rather than merely unfollowed. Open the sibling file only once
 your own findings are durably written, then fold it into the brief below the
 verdict and delete it — split for the duration, one file at rest.
-`reviewscan` reds a brief that carries a deferred section with no verdict.
+`reviewscan` reds a brief that carries a deferred section with no verdict —
+keyed on `deferred`/`seeded` heading vocabulary, so use those words for the
+section name; a renamed section escapes the net (the doctrine names this
+limit).

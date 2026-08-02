@@ -76,7 +76,9 @@ section below a divider in the brief. Reading is atomic: a deferred section is
 consumed by the act of reading the brief it sits in, so the reviewer cannot
 comply even when it wants to. Open the sibling only once your findings are
 durably written, then fold it into the brief below the verdict and delete it.
-`reviewscan` reds a brief carrying a deferred section with no verdict.
+`reviewscan` reds a brief carrying a deferred section with no verdict (keyed
+on `deferred`/`seeded` heading vocabulary — name the section with those
+words; a renamed section escapes the net).
 
 Keep Fable sessions short and pre-scoped
 (`<atelier-path>/docs/method/ECONOMICS.md`): hand it the scoped subject,
