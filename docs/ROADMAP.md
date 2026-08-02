@@ -462,6 +462,67 @@ adopter mistakes.*
       **Recurrence, not severity, is the trigger** — three instances of a
       trivial failure is a defect in the system producing it.
 
+### Track F — the guard governance model (Mike, 2026-08-02)
+
+*What a child repo may do when it meets a shared guard, and what it may never
+do. Several items already on this board turn out to be instances of one frame
+nobody had named.*
+
+- [ ] 🎯 **F1 — rebuild the block-vs-advise model from base.** Origin: E6d's
+      **escalate-only** ruling. **That ruling stands** (Mike, 2026-08-02) —
+      nothing is reverted and no work is blocked on this. But Mike is no
+      longer confident it was the right call, so the model underneath it is
+      rebuilt from first principles rather than patched. Recorded as an open
+      action at his instruction, not as a reversal.
+
+      **The decomposition Mike gave is finer than the one E6d encodes.** E6d
+      tiers on confidence × impact. Mike splits it three ways:
+      (1) how confident are we that the **identification** is correct — is
+      this actually a secret; (2) *given* the identification is true, what is
+      the **probability** of a risk or issue eventuating; (3) given it is
+      true, what is the **impact** if it does. E6d collapses (2) into (3). A
+      correctly-identified credential can carry low probability of harm —
+      already rotated, expired, scoped to nothing — and that is a different
+      question from how bad the harm would be. Whether the split changes the
+      response model is the review's to say, not this entry's.
+
+      **The vocabulary Mike named, recorded as scope — not as answers:**
+      **DRY for policy-as-code** — children *run* the shared guards from
+      atelier and never copy them out; they may *add* their own for needs the
+      shared set does not cover · **a child cannot reduce a shared guard**,
+      but may reason about exclusions and acceptance · **declare acceptance
+      or deferment** — today one spelling covers both · **report a false
+      positive** — a route back to the guard's owner · **resolve vs scope vs
+      soften** — three responses to a finding, with no written taxonomy ·
+      **side-stepping** — a guard not wired in, overruled, or ignored.
+
+      **Existing items that are instances of this frame** (mapped here, not
+      moved — each keeps its own home and owner): run-not-copy is ADR 0008,
+      landed, with the repo-local seam for the *add your own* half still at
+      **zero adopters (D4)** · cannot-reduce is REPO-STANDARD's
+      narrow-not-contradict layering · acceptance-and-deferment is C1's
+      `why` + `review-by` and `disabled`'s reason, plus **C2** retiring the
+      17 · false-positive reporting is **E1–E4**, every one of them found ad
+      hoc with no route back · resolve-vs-scope-vs-soften is what **Track A**
+      met as scope fail-opens and C1 met as advisory · side-stepping is
+      **C4** (`--no-verify` unobserved), the Actions-disabled blind spot,
+      Track A's scope-covering-nothing, and an advisory that never expires.
+      That six of this board's open items are one frame is the finding; the
+      frame is Mike's, not an agent's synthesis of it.
+
+      **Deliberately not pre-solved.** Mike asked for the review to run on the
+      *origin problem and possible solutions*, ahead of any design — review as
+      an input, not a gate. No candidate model is written here on purpose: an
+      entry that proposed one would steer the pass it is queuing, which is the
+      breach this file has now recorded three times.
+
+      **⏳ Review queued for a non-author.** Cold passes run on **Fable**.
+      *Delta:* this item (records-only; nothing built, nothing to diff).
+      *Intent record:*
+      [`2026-08-02-2340-guard-governance-frame`](sessions/2026-08-02-2340-guard-governance-frame.md).
+      Design/intent pass per REVIEW.md § *Review the design, not only the
+      build*.
+
 ### The thing underneath all of it — state-tracking, not reasoning
 
 Two independent sessions reached the same diagnosis in the same 24 hours, in
