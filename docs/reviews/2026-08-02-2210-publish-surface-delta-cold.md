@@ -161,3 +161,18 @@ originates in the record and is left standing there as history, with the
 live ROADMAP header corrected at this batch's close. The record's honest
 notes (the split is not structural; the denylist limits; the no-git catch)
 agree with, and partly pre-state, DF4 and the pass-2/pass-3 lens results.
+
+### Decisions (Mike, 2026-08-02, in-session walk-through)
+
+- **PS1 [fixed]** — ruled *fix now*: REPO-STANDARD standardise step 2 no
+  longer instructs the committed allowlist; wording matches the skill's
+  stamped copy. Applied in this batch's publish-surface application commit.
+- **PS2 [fixed]** — ruled *accept + name it*: the residual (the seed template
+  stays published, mapping the estate default) is now named in TOOLBOX's
+  named-cost paragraph.
+- **PS3 [fixed]** — ruled *narrow it*: `templates/claude/settings.local.json`
+  now seeds `acceptEdits` only; no blanket `Bash` grant in the published
+  default.
+
+MAJOR cycle: the application queues its own rule-4 `⏳` pointer in the
+application commit; a non-author reviews the applied wording.

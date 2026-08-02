@@ -165,3 +165,19 @@ originates in the record and is left standing there as history, with the
 live ROADMAP header corrected at this batch's close. The record's honest
 notes (the split is not structural; the denylist limits; the no-git catch)
 agree with, and partly pre-state, DF4 and the pass-2/pass-3 lens results.
+
+### Decisions (Mike, 2026-08-02, in-session walk-through)
+
+- **DF1 [fixed]** — ruled *widen + caveat*: the trigger matches
+  `deferred`/`seeded` anywhere in a heading (verdict wins on dual-word
+  headings); REVIEW.md, the SKILL and the template README name the
+  vocabulary anchor.
+- **DF2 [fixed]** — fixture reordered to the at-rest shape; order-blindness
+  kept and documented as deliberate in its own test.
+- **DF3 [fixed]** — check 2's exemption scoped to
+  `reviewscan:allow:deferral:`; an unscoped marker no longer waives it
+  (suite-proven both legs).
+- **DF4 [fixed]** — the trace claim names where the trace lives.
+
+No MAJOR ⇒ this application is terminal: **cycle CLOSED** at this
+application (REVIEW.md close rule).

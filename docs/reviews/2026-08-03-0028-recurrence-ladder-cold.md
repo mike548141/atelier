@@ -151,3 +151,17 @@ originates in the record and is left standing there as history, with the
 live ROADMAP header corrected at this batch's close. The record's honest
 notes (the split is not structural; the denylist limits; the no-git catch)
 agree with, and partly pre-state, DF4 and the pass-2/pass-3 lens results.
+
+### Decisions (Mike, 2026-08-02, in-session walk-through)
+
+- **RL1 [fixed]** — ruled *apply*: "fits" defined as would-have-prevented-
+  the-recorded-occurrences, tested against the incidents.
+- **RL2 [fixed]** — ruled *apply*: REVIEW.md's framing-trap paragraph
+  stamped as the grounded instance; PROPAGATION canonical.
+- **RL3 [fixed]** — ruled *apply*: two thresholds, two acts, both named in
+  the countable-trigger paragraph.
+- **RL4 [fixed]** — records count corrected at the review batch's close
+  (Three → Four).
+
+No MAJOR ⇒ this application is terminal: **cycle CLOSED** at this
+application.
