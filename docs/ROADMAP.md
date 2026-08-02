@@ -2388,17 +2388,17 @@ Intent record:
   lifecycle steps 1/3, `skills/review-brief/SKILL.md`,
   `docs/build/templates/docs/reviews/README.md`, `tools/reviewscan.py` +
   `tools/test_reviewscan.py`, the `reviewscan` registry `why` in
-  `tools/floor.py`.
+  `tools/floor.py`. (claimed 2026-08-02-2200, wt: cold-passes-0729)
 - ⏳ **The publication-surface delta** — `a9ab2cf`: `docs/build/REPO-STANDARD.md`,
   `docs/method/TOOLBOX.md`, `docs/build/templates/gitignore`,
   `skills/create-repo/SKILL.md`, `.gitignore`, and the untracking of
-  `.claude/settings.json`.
+  `.claude/settings.json`. (claimed 2026-08-02-2200, wt: cold-passes-0729)
 - ⏳ **`publishscan`, first-of-kind tooling** — `8bdcfaa`:
   `tools/publishscan.py`, `tools/test_publishscan.py`, its registry entry in
-  `tools/floor.py`, `tools/README.md`.
+  `tools/floor.py`, `tools/README.md`. (claimed 2026-08-02-2200, wt: cold-passes-0729)
 - ⏳ **The recurrence-ladder delta** — `method/PROPAGATION.md`'s two new
   sections (*When a rule keeps breaking* and *One statement, stamped copies*),
-  landed with this pointer.
+  landed with this pointer. (claimed 2026-08-02-2200, wt: cold-passes-0729)
 
 ### Publication surface — what a public repo reveals about its own defences (2026-07-29)
 
