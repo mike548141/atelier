@@ -2432,6 +2432,11 @@ in-session fix-now rulings directed it) and therefore spawns neither review.
 - ⏳ **The `publishscan` application** — the commit adding this pointer:
   `tools/publishscan.py`, `tools/test_publishscan.py`. Rulings PB1–PB4 in
   [the verdict](reviews/2026-08-02-2313-publishscan-cold.md).
+- ⏳ **The publish-surface application** — the commit adding this pointer:
+  `docs/build/REPO-STANDARD.md` (standardise step 2), `docs/method/TOOLBOX.md`
+  (the residual clause), `docs/build/templates/claude/settings.local.json`
+  (narrowed). Rulings PS1–PS3 in
+  [the verdict](reviews/2026-08-02-2210-publish-surface-delta-cold.md).
 
 ### Publication surface — what a public repo reveals about its own defences (2026-07-29)
 

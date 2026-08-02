@@ -223,9 +223,12 @@ applied to repo docs: a claim no stronger than its evidence — see
 ## Process — standardise an existing repo
 
 1. **Audit** against the file set: what's present, what's missing, what's wrong.
-2. Apply the **safe mechanical** bits uniformly — committed
-   `.claude/settings.json`, `.gitignore` hygiene, remove any committed OS litter
-   or personal settings (`git rm --cached`). These are low-risk and uniform.
+2. Apply the **safe mechanical** bits uniformly — `.gitignore` hygiene, and
+   `git rm --cached` any committed OS litter **or either `.claude/`
+   settings file** (a repo standardised before 2026-07-29 will still be
+   tracking the allowlist — this step previously said to *commit* it, until
+   the 2026-08-02 cold pass caught the sentence outliving the ruling, PS1).
+   These are low-risk and uniform.
 3. For **content docs** (ARCHITECTURE / ROADMAP / ADRs): write only what you can
    ground in the actual project. Otherwise stub-and-flag. **Don't churn blindly**
    — a plausible-but-wrong doc is a regression, not progress.
