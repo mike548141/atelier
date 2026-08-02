@@ -2383,8 +2383,13 @@ landing commit's own count slip, RL4, corrected at this batch's close), taken
 2026-08-02 by a qualifying Fable session (started by Mike, pointed at the
 queue; the author session neither started nor instructed it). All four run
 cold from the refs-only pointers; the shared intent record opened only after
-all four verdicts were committed. **All findings await Mike's ruling (rule 3);
-nothing was applied.** One process incident disclosed in every verdict: a
+all four verdicts were committed. **Mike ruled all 13 findings in-session
+(2026-08-02, per-finding walk-through) and the taker session applied them
+the same sitting** — decisions stamped in each verdict; the two 0-MAJOR
+cycles (deferral, recurrence ladder) are CLOSED at their terminal
+applications; the two MAJOR cycles' applications queue their own rule-4
+pointers (§ *Application reviews* below). One process incident disclosed in
+every verdict: a
 records-sweeping grep fed the author's `SESSIONS.md` index entry to the
 reviewer pre-findings (the SL2 channel class, second live instance).
 
@@ -2395,31 +2400,50 @@ reviewer pre-findings (the SL2 channel class, second live instance).
   retired — a standardiser following canon re-commits the exposure. PS2: the
   identical-bytes seed template residual is real but unnamed where the cost
   is named. PS3: the seeded `settings.local.json` template publishes a
-  maximal unattended grant. PS1–PS3 await Mike's ruling; the MAJOR keeps
-  this delta's cycle open past its application.
+  maximal unattended grant. RULED + APPLIED 2026-08-02 (all three as
+  counselled, stamped in the verdict); the MAJOR keeps the cycle open —
+  the application's own review is queued below.
 - 🎯 REVIEWED 2026-08-02 (rule-4 Fable cold pass): PASS-WITH-FINDINGS
   1M/1m/2n — [verdict](reviews/2026-08-02-2313-publishscan-cold.md).
   **`publishscan`** (`8bdcfaa`). PB1 MAJOR: `fnmatch` globs are not
   path-aware, so most never-publish entries match at the repo root only —
   nested `.npmrc`, `.env` variants, `.mcp.json` pass green. PB2: the
   stated reason-required mitigation on `.publishscanignore` is unenforced.
-  PB1–PB4 await Mike's ruling; the MAJOR keeps this cycle open past its
-  application.
+  RULED + APPLIED 2026-08-02 (all four as counselled, stamped in the
+  verdict); the MAJOR keeps the cycle open — the application's own review
+  is queued below.
 - 🎯 REVIEWED 2026-08-02 (rule-4 Fable cold pass): PASS-WITH-FINDINGS
   0M/1m/3n — [verdict](reviews/2026-08-02-2348-deferral-delta-cold.md).
   **The deferral delta** (`3acf7d2`). Core diagnosis and honesty discipline
   verified sound; DF1: the deferred-heading guard is vocabulary-anchored
   (prefix-only) while three doctrine surfaces claim unqualified cover.
-  DF1–DF4 await Mike's ruling; no MAJOR ⇒ the ruling application is
-  terminal for this delta.
+  RULED + APPLIED 2026-08-02; no MAJOR ⇒ terminal application — **cycle
+  CLOSED**.
 - 🎯 REVIEWED 2026-08-02 (rule-4 Fable cold pass): PASS-WITH-FINDINGS
   0M/3m/1n — [verdict](reviews/2026-08-03-0028-recurrence-ladder-cold.md).
   **The recurrence-ladder delta** (`4015e06`). RL1: the stop-at-first-fit
   rule lacks its own fitness test. RL2: rung 1 has an unmarked second
   original in REVIEW.md. RL3: two recurrence thresholds unreconciled.
   RL4 [fixed at this close]: the Three-over-four pointer count above.
-  RL1–RL3 await Mike's ruling; no MAJOR ⇒ the ruling application is
-  terminal for this delta.
+  RULED + APPLIED 2026-08-02; no MAJOR ⇒ terminal application — **cycle
+  CLOSED**.
+
+### ⏳ Application reviews owed from the 2026-08-02 rulings application
+
+Rule-4 pointers, **refs only** — the rulings live in the verdict files, which
+serve as the intent records; a taker meets the applications cold. Author of
+both application deltas: the 2026-08-02 taker session (Fable), which also
+authored the verdicts (the neutral-applier preference not met — Mike's
+in-session fix-now rulings directed it) and therefore spawns neither review.
+
+- ⏳ **The `publishscan` application** — the commit adding this pointer:
+  `tools/publishscan.py`, `tools/test_publishscan.py`. Rulings PB1–PB4 in
+  [the verdict](reviews/2026-08-02-2313-publishscan-cold.md).
+- ⏳ **The publish-surface application** — the commit adding this pointer:
+  `docs/build/REPO-STANDARD.md` (standardise step 2), `docs/method/TOOLBOX.md`
+  (the residual clause), `docs/build/templates/claude/settings.local.json`
+  (narrowed). Rulings PS1–PS3 in
+  [the verdict](reviews/2026-08-02-2210-publish-surface-delta-cold.md).
 
 ### Publication surface — what a public repo reveals about its own defences (2026-07-29)
 

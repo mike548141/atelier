@@ -83,7 +83,10 @@ governing who may spawn it:
    *Security & privacy* below).
 
    **What the split buys, stated honestly.** It makes early exposure a
-   deliberate act that leaves a trace, instead of the unavoidable default; it
+   deliberate act that leaves a trace — in the session transcript, or in the
+   reviewer's own disclosure; nothing in the durable record shows an early
+   opening unless the reviewer says so, and a hand reviewer leaves no trace
+   at all (DF4, 2026-08-02) — instead of the unavoidable default; it
    does not make early exposure impossible. Only a **context partition** does
    that: where a review runs under an orchestrator, the deferred bytes stay
    with the orchestrator and reach the reviewer on receipt of its committed
@@ -97,7 +100,11 @@ governing who may spawn it:
    ask, the deferral and the answer cannot drift apart. `tools/reviewscan.py`
    holds the mechanical half: a brief carrying a deferred *section* with no
    verdict beneath it reds the floor, which catches the defect at the moment
-   the author writes it, before any reviewer is exposed.
+   the author writes it, before any reviewer is exposed. The guard keys on
+   heading vocabulary (`deferred`/`seeded`, anywhere in a heading — widened
+   from a prefix anchor by DF1, 2026-08-02): a section renamed to use
+   neither word escapes it, so the check covers the canonical shapes, not
+   every possible one — the SKILL's template is the vocabulary source.
 2. **Barred from prior reviews until its own findings are committed** —
    committed meaning *durably written to its draft*, before any prior verdict
    is opened. An earlier verdict is another channel for the author's framing;
@@ -382,7 +389,10 @@ the grammar at the point of asking; this section no longer has to rescue a reade
 the previous wording had already turned away. When a written rule keeps being
 broken, suspect its framing before its enforcement — restating it louder assumes
 non-compliance, where checking the grammar asks whether the rule was ever
-findable from where the reader stood. (Mike, 2026-07-19.)
+findable from where the reader stood. (Mike, 2026-07-19. Canonical statement:
+`PROPAGATION.md` § *When a rule keeps breaking*, rung 1 — this paragraph is
+the grounded instance it cites, kept here with the incident; a stamped
+pointer, not a second source. RL2, 2026-08-02.)
 
 **Enforcement is structural where a machine can reach it, conventional where
 it can't — stated per surface, because the written rule demonstrably did not

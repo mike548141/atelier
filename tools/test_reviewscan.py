@@ -207,10 +207,32 @@ class DeferralPlacementTest(unittest.TestCase):
     def test_deferred_section_with_no_verdict_fails(self):
         self.assertFalse(self.brief("# B\n\n## Deferred — seeded\n\nQ1\n"))
 
+    def test_synonym_headings_also_red(self):
+        """DF1 (2026-08-02 cold pass): the first cut was prefix-anchored, so
+        the authors this net exists to catch — the ones not on the canonical
+        vocabulary — escaped it."""
+        for heading in ("## Seeded questions — open after findings",
+                        "## Author's deferred questions",
+                        "### Questions seeded by the author"):
+            with self.subTest(heading=heading):
+                self.assertFalse(self.brief(f"# B\n\n{heading}\n\nQ1\n"))
+
     def test_deferred_section_below_a_verdict_passes(self):
-        """A finished record whose deferral was folded back in (rule 1)."""
+        """A finished record whose deferral was folded back in (rule 1) —
+        the at-rest shape: verdict first, folded deferral beneath it."""
+        self.assertTrue(
+            self.brief("# B\n\n## Verdict — PASS\n\n## Deferred\n"))
+
+    def test_order_blindness_is_deliberate(self):
+        """Deferred above the verdict also passes: once ANY verdict exists,
+        the exposure window is over, so order carries no signal (DF2)."""
         self.assertTrue(
             self.brief("# B\n\n## Deferred\n\n## Verdict — PASS\n"))
+
+    def test_dual_word_heading_counts_as_verdict(self):
+        """'## Verdict — deferred folded in' is a verdict heading."""
+        self.assertTrue(
+            self.brief("# B\n\n## Verdict — deferred folded in\n\nx\n"))
 
     def test_verdict_spellings_the_corpus_actually_uses(self):
         for heading in ("## Verdict", "# Verdict — PASS-WITH-FINDINGS",
@@ -229,9 +251,16 @@ class DeferralPlacementTest(unittest.TestCase):
         self.assertTrue(self.brief(
             "# B\n\nThe shape to avoid:\n\n```\n## Deferred — seeded\n```\n"))
 
-    def test_allow_marker_exempts(self):
+    def test_scoped_allow_marker_exempts(self):
         self.assertTrue(self.brief(
-            "# B\n\n<!-- reviewscan:allow: historic record -->\n"
+            "# B\n\n<!-- reviewscan:allow:deferral: historic record -->\n"
+            "## Deferred — seeded\n"))
+
+    def test_unscoped_marker_does_not_waive_the_deferral_check(self):
+        """DF3: a marker placed for a review-line reason must not silently
+        waive this check too — the waivers stay separable."""
+        self.assertFalse(self.brief(
+            "# B\n\n<!-- reviewscan:allow: review-line reason -->\n"
             "## Deferred — seeded\n"))
 
     def test_brief_with_no_deferred_material_passes(self):

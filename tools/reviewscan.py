@@ -116,8 +116,19 @@ FENCE = re.compile(r"^\s*(```|~~~)")
 # Check 2. A HEADING, never prose: "Deferral exposure — named, not denied" is a
 # brief honestly declaring what it saw early, and reddening that would punish
 # the disclosure the doctrine asks for. Only a section heading declares that
-# deferred CONTENT is sitting in this file.
-DEFERRED_HEADING = re.compile(r"^#{1,6}\s*Deferred\b", re.IGNORECASE)
+# deferred CONTENT is sitting in this file. The words `deferred`/`seeded`
+# anywhere in the heading, not a "Deferred" prefix: the first cut was
+# prefix-anchored and "## Seeded questions" or "## Author's deferred
+# questions" passed green (DF1, the 2026-08-02 cold pass) — and the authors
+# this net exists to catch are exactly the ones not using the canonical
+# vocabulary. A renamed section using neither word still escapes; that limit
+# is named in REVIEW.md rule 1 rather than implied away.
+DEFERRED_HEADING = re.compile(r"^#{1,6}\s.*\b(deferred|seeded)\b",
+                              re.IGNORECASE)
+
+# Check 2's exemption is SCOPED: an unscoped `reviewscan:allow:` placed for a
+# review-line reason must not silently waive the deferral guard too (DF3).
+DEFERRAL_ALLOW = "reviewscan:allow:deferral:"
 
 # Any heading carrying the word — "## Verdict", "# Verdict — PASS", "## Cold
 # verdict (Fable, 2026-07-26)". Matching the word rather than one house
@@ -151,7 +162,7 @@ def scan_brief(path: Path) -> bool:
     where a reviewer will read it before its findings exist.
     """
     text = path.read_text(encoding="utf-8", errors="replace")
-    if ALLOW_MARKER in text:
+    if DEFERRAL_ALLOW in text:
         return True
     in_fence = False
     has_deferred = has_verdict = False
@@ -161,10 +172,12 @@ def scan_brief(path: Path) -> bool:
             continue
         if in_fence:
             continue
-        if DEFERRED_HEADING.match(line):
-            has_deferred = True
-        elif VERDICT_HEADING.match(line):
+        # Verdict wins on a dual-word heading ("## Verdict — deferred folded
+        # in"): it IS a verdict heading, and any verdict passes the file.
+        if VERDICT_HEADING.match(line):
             has_verdict = True
+        elif DEFERRED_HEADING.match(line):
+            has_deferred = True
     return has_verdict or not has_deferred
 
 
@@ -276,7 +289,8 @@ def run(paths: list[Path], root: Path, as_json: bool) -> int:
         print("  mv the section into <brief>.deferred.md and point at it;")
         print("  the reviewer opens it only once its findings are written,")
         print("  then folds it back below the verdict and deletes it.")
-        print(f"A genuine exception carries `{ALLOW_MARKER} <reason>`.")
+        print(f"A genuine exception carries `{DEFERRAL_ALLOW} <reason>` —")
+        print("scoped, so a review-line exemption does not waive this check.")
     if not failures and not misplaced:
         print(f"✓ reviewscan clean — {len(records)} post-{BOUNDARY} decision "
               f"record(s) carry a review line; {len(briefs)} review brief(s) "

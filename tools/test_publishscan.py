@@ -50,6 +50,27 @@ class PatternTest(unittest.TestCase):
             with self.subTest(path=p):
                 self.assertIsNotNone(publishscan.matches(p))
 
+    def test_patterns_match_at_any_depth(self):
+        """PB1 (2026-08-02 cold pass): the first cut matched most entries at
+        the repo root only — fnmatch globs are not path-aware, so the listed
+        files passed green one directory down. Machine-local is machine-local
+        wherever it sits."""
+        for p in ("packages/api/.npmrc", "sub/.env.production",
+                  "docs/.envrc", "services/x/.claude/settings.json",
+                  "sub/.mcp.json", "a/b/c/.netrc", "x/.pypirc",
+                  "apps/web/.vscode/settings.json", "x/.idea/workspace.xml",
+                  "y/.claude/settings.local.json"):
+            with self.subTest(path=p):
+                self.assertIsNotNone(publishscan.matches(p))
+
+    def test_depth_matching_does_not_overreach(self):
+        """Names that merely contain the letters stay green at any depth."""
+        for p in ("src/env.py", "environments/prod/main.tf",
+                  "docs/build/templates/claude/settings.json",
+                  "docs/envrc-notes.md", "conf/renv.lock"):
+            with self.subTest(path=p):
+                self.assertIsNone(publishscan.matches(p))
+
     def test_guard_declarations_are_deliberately_allowed(self):
         """They map where the defences are weak AND must travel to work.
 
@@ -121,14 +142,41 @@ class HatchAndModeTest(unittest.TestCase):
             [sys.executable, str(TOOLS / "publishscan.py"), *args],
             capture_output=True, text=True)
 
-    def test_ignore_file_exempts(self):
+    def test_ignore_file_exempts_with_a_reason(self):
+        with tempfile.TemporaryDirectory() as s:
+            root = git_repo(Path(s))
+            add(root, ".mcp.json")
+            add(root, ".publishscanignore",
+                ".mcp.json  # deliberate: fixture endpoint list, no live data\n")
+            subprocess.run(["git", "-C", s, "commit", "-qm", "x"], check=True,
+                           capture_output=True)
+            self.assertEqual(self.run_tool("--root", s).returncode, 0)
+
+    def test_bare_ignore_glob_is_a_config_error(self):
+        """PB2: the stated mitigation — every exemption carries its reason —
+        is enforced, not claimed. A broken scan is not a pass: exit 2."""
         with tempfile.TemporaryDirectory() as s:
             root = git_repo(Path(s))
             add(root, ".mcp.json")
             add(root, ".publishscanignore", "# deliberate\n.mcp.json\n")
             subprocess.run(["git", "-C", s, "commit", "-qm", "x"], check=True,
                            capture_output=True)
-            self.assertEqual(self.run_tool("--root", s).returncode, 0)
+            r = self.run_tool("--root", s)
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn("reason", r.stderr)
+
+    def test_subdir_root_rebases_to_the_repo_top(self):
+        """PB3: --root inside the repo must not silently scan a subtree that
+        the root-anchored patterns can never match."""
+        with tempfile.TemporaryDirectory() as s:
+            root = git_repo(Path(s))
+            add(root, ".claude/settings.json", '{"permissions":{}}\n')
+            add(root, "docs/README.md")
+            subprocess.run(["git", "-C", s, "commit", "-qm", "x"], check=True,
+                           capture_output=True)
+            r = self.run_tool("--root", str(Path(s) / "docs"))
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            self.assertIn(".claude/settings.json", r.stdout)
 
     def test_warn_never_blocks_but_still_reports(self):
         with tempfile.TemporaryDirectory() as s:

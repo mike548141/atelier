@@ -153,3 +153,19 @@ originates in the record and is left standing there as history, with the
 live ROADMAP header corrected at this batch's close. The record's honest
 notes (the split is not structural; the denylist limits; the no-git catch)
 agree with, and partly pre-state, DF4 and the pass-2/pass-3 lens results.
+
+### Decisions (Mike, 2026-08-02, in-session walk-through)
+
+- **PB1 [fixed]** — ruled *fix now*: every pattern matches at any depth
+  (glob OR `*/`+glob); the probe rows are the suite's red leg; blocking
+  reach widens at children's next pin bump with the advisory hatch as the
+  cleanup path.
+- **PB2 [fixed]** — ruled *enforce it*: a bare glob in `.publishscanignore`
+  is a config error (exit 2); the remediation text teaches the reasoned
+  form.
+- **PB3 [fixed]** — ruled *fix*: `--root` inside the repo rebases to the
+  top level and says so.
+- **PB4 [fixed]** — ruled *fix*: the redundant `.idea/**/*` row dropped.
+
+MAJOR cycle: the application queues its own rule-4 `⏳` pointer in the
+application commit; a non-author reviews the applied code.
