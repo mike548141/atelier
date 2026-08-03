@@ -22,7 +22,10 @@ person-specific name, it is a *shape*. Two detector classes:
     long, high-entropy, and not an obvious placeholder or indirection. This is
     the workhorse for home-grown secrets that match no vendor format. Context
     (the key name) plus entropy is far more precise than raw entropy scanning,
-    which drowns in git hashes and base64 blobs.
+    which drowns in git hashes and base64 blobs. In this context — and ONLY
+    here, because the key name has already done the filtering — low character
+    variety is not evidence of innocence (E6c, ruled 2026-07-28): a 32+ char
+    single-case hex value and a four-word passphrase are credentials, not names.
 
 Deliberately does NOT flag the safe indirection patterns — `!secret foo` (tiki),
 `${VAR}`, `$(cmd)`, `<placeholder>` — because those are the *correct* way to
@@ -240,8 +243,62 @@ CODE_EXPR_RX = re.compile(r"[A-Za-z0-9_.\-()\[\]{}$'\"]+")
 # (`yes-access-request`), not key material. IDENTIFIER_RX covers the snake form,
 # but `-` is not an identifier character so the hyphenated twin needs saying.
 # Deliberately letters-only — admitting digits would swallow lowercase hex
-# secrets, which is a real (pre-existing) gap and not one to widen.
+# secrets. That was recorded here as a gap left open; it is now closed for the
+# path that matters, one level up: in assigned-secret context the E6c carve-outs
+# below run FIRST, so neither this rule nor IDENTIFIER_RX can suppress a
+# credential-shaped value under a credential-named key.
 SLUG_RX = re.compile(r"[a-z]+(?:[-_][a-z]+)+")
+
+# ---------------------------------------------------------------------------
+# E6c — in credential-key context, low character variety is NOT evidence of
+# innocence (ruled 2026-07-28, generalising the SF1+SF2 carve-outs).
+#
+# Every suppression above reads low character variety as innocence: the
+# identifier rule, the slug rule, the mixed-class hoist, the entropy floor. That
+# is sound where there is no context — a bare single-case hex run really is
+# usually a git SHA. It is NOT sound once a key name has already said
+# "credential": the key name has done the filtering, so variety carries no
+# further information about innocence, and reading it as innocence is how these
+# slipped past (live-probed 2026-07-28: of six credential-shaped assignments,
+# four passed clean — both passphrase spellings and both letter-leading hex
+# values — while only the digit-leading hex and the mixed-class password
+# flagged).
+#
+# The rule is implemented as WHOLE-SHAPE carve-outs rather than by switching the
+# suppressions off wholesale, because the suppressions still have a real job in
+# this context: `password=admin_password` and `password=get_secret()` are code
+# references, not credentials, and re-flagging them would be the cry-wolf the
+# 2026-07-28 fragment fixes were about. What separates the two is not character
+# variety but whole shape — LENGTH and PART COUNT. Both thresholds below come
+# from the ruling and from HIGH_ENTROPY_RX's existing 32; neither is fitted to a
+# measurement.
+#
+# These are the ruled shapes generalised, not an exhaustive enumeration. A new
+# low-variety credential shape belongs here, not in a new suppression exception.
+
+# An unbroken alphanumeric run at key-material length. Covers the ruled shape
+# (32+ lowercase hex, letter-leading AND digit-leading) and its siblings the
+# ruling did not have to enumerate: uppercase hex, base32 TOTP seeds, long
+# single-case alnum keys. Names simply do not run 32 characters unbroken; keys
+# do. Cry-wolf case is the git SHA, which the ruling weighed: SHAs rarely sit
+# assigned to a credential-named key, and in the context-free net (where they do
+# live) nothing changes.
+LOW_VARIETY_KEY_RX = re.compile(r"[A-Za-z0-9]{32,}")
+
+# Four or more separator-joined lowercase words — the diceware/passphrase shape
+# real people really use. Both spellings, because the kebab exemption (SLUG_RX)
+# and its snake twin (IDENTIFIER_RX) each swallow one of them. Four parts, not
+# two or three: `admin_password`, `require_message_auth` and
+# `yes-access-request` are names, and stay suppressed.
+PASSPHRASE_RX = re.compile(r"[a-z]+(?:[-_][a-z]+){3,}")
+
+
+def _low_variety_credential_shape(value: str) -> bool:
+    """E6c: a whole shape that is credential material whose ONLY innocence
+    signal is low character variety. True here means the variety-reading gates
+    below do not get a say."""
+    return (LOW_VARIETY_KEY_RX.fullmatch(value) is not None
+            or PASSPHRASE_RX.fullmatch(value) is not None)
 
 
 @dataclass
@@ -348,6 +405,13 @@ def _assigned_is_secret(value: str) -> bool:
         return False
     if _is_placeholder(value) or _is_indirection(value) or _looks_like_path(value):
         return False
+    # E6c, decided BEFORE every gate that reads character variety as innocence —
+    # the code-ref/slug/identifier suppressions below AND the entropy floor,
+    # which is itself a variety measure. Placeholder/indirection/path stay above
+    # it deliberately: those are statements about what the value *is for*, not
+    # about its variety, so `${DB_PASSWORD}` and `/run/secrets/x` keep passing.
+    if _low_variety_credential_shape(value):
+        return True
     if _looks_like_code_ref(value):
         return False
     # A value with whitespace-free high entropy, or mixed classes at length, is
@@ -594,6 +658,10 @@ def _selftest() -> int:
         "github: ghp_012345678901234567890123456789abcdef",    # secretscan:allow: selftest fixture
         'password = "Gk8xQvie2mNfR7pLzW3dTaHb"',                # secretscan:allow: selftest fixture
         "slack xoxb-1234567890-abcdefghijklmno",                # secretscan:allow: selftest fixture
+        # E6c — low variety is not innocence under a credential-named key.
+        # Both were clean before 2026-07-28; the git SHA below is the control.
+        "api_key = deadbeefcafef00d0123456789abcdef",           # secretscan:allow: selftest fixture
+        "password=correct-horse-battery-staple",                # secretscan:allow: selftest fixture
     ]
     should_pass = [
         "password = changeme",                     # placeholder

@@ -24,6 +24,95 @@ def rules(text, disabled=frozenset()):
     return {f.rule for f in scan(text, disabled)}
 
 
+# ===========================================================================
+# THE CANARY SUITE — credential SHAPES that must ALWAYS flag.
+#
+# CONTRACT: a canary going quiet is a DETECTION REGRESSION, never a fixture to
+# update casually. If a gate change makes one of these pass clean, the gate
+# change is wrong until a principal rules otherwise — do not edit the canary to
+# match the new behaviour, and do not delete one to make a suite green.
+#
+# Why it exists (SF3, ruled 2026-07-28): the acceptance test for the 2026-07-28
+# gate change was "re-scan the estate's corpus". That is a sound regression
+# floor and an INSUFFICIENT acceptance test — a suppression validated against
+# one estate's true secrets (all mixed-class, as it happened) cannot see the
+# credential shapes that estate does not hold. SF1 is the live demonstration: a
+# new kebab-slug exemption silently un-flagged diceware-style passphrases, and
+# the corpus re-scan could not have noticed because no repo held one. This set
+# would have caught it — the passphrase canaries below are red at that commit.
+#
+# The five families are the ruled ones: env-var assignment, hex, base64,
+# passphrase, connection string. Adding a family is welcome. Removing one, or
+# weakening one, is a decision, not a refactor.
+# ===========================================================================
+CANARIES = (
+    # --- env-var assignment: the single most common shape a real credential
+    # takes in compose/.env files. `_` is a word character, which is how every
+    # prefixed env var was once exempt (2026-07-28, 15 live assignments).
+    ("env-var, prefixed", "REDIS_PASSWORD: Qw82Lmfhtxz47"),
+    ("env-var, exported", "export DB_TOKEN=Zx91Kdms4hq82Tvb"),
+    ("env-var, camelCase key", "redisPassword: Gk8xQvie2mNfR7pL"),
+
+    # --- hex: single-case hex reads as a git SHA to every variety-based gate,
+    # so both leading forms are pinned. Letter-leading was the proven gap
+    # (E6c/SF2); digit-leading flagged only by accident of the identifier rule
+    # requiring a letter start, which is not a guarantee worth trusting.
+    ("hex, digit-leading", "password = 0f3a1c2b4d5e6f7a8b9c0d1e2f3a4b5c"),
+    ("hex, letter-leading", "api_key = deadbeefcafef00d0123456789abcdef"),
+    ("hex, uppercase", "SECRET_KEY=ABCDEF0123456789ABCDEF0123456789"),
+
+    # --- base64 / base64url key material, assigned and context-free.
+    ("base64url, assigned", "client_secret: aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3zA5bC7"),
+    ("base64, padded blob", "auth_token = QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVow=="),
+    ("base64, context-free blob", "blob aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3zA5bC7"),
+
+    # --- passphrase: the SF1 shape. BOTH spellings, because the kebab
+    # exemption and its snake twin each swallow one of them.
+    ("passphrase, hyphenated", "password=correct-horse-battery-staple"),
+    ("passphrase, underscored", "password=correct_horse_battery_staple"),
+
+    # --- connection string: the credential is embedded in a URL, so no key
+    # name announces it.
+    ("connection string, postgres",
+     "DATABASE_URL=postgres://svc:s3cr3tpwd@db.internal:5432/app"),
+    ("connection string, amqp", "broker = amqp://worker:Hq83zLmt4x@rabbit:5672/"),
+
+    # --- vendor formats: unambiguous by construction, and the cheapest thing
+    # in the tool to break with a regex tidy-up.
+    ("vendor, AWS key id", "aws_access_key_id = AKIAIOSFODNN7EXAMPLE"),
+    ("vendor, GitHub token", "token: ghp_012345678901234567890123456789abcdef"),
+    ("vendor, private-key header", "-----BEGIN OPENSSH PRIVATE KEY-----"),
+)
+
+
+class CanarySuite(unittest.TestCase):
+    """Standing detection canaries — see the CONTRACT comment above CANARIES.
+
+    Run beside the corpus re-scan on every gate change. The corpus proves you
+    did not break this estate; the canaries prove you did not break detection.
+    """
+
+    def test_every_canary_flags(self):
+        for name, line in CANARIES:
+            with self.subTest(canary=name):
+                found = scan(line)
+                self.assertTrue(
+                    found,
+                    f"CANARY WENT QUIET: {name!r} no longer flags. This is a "
+                    f"detection regression in the gate, not a stale fixture — "
+                    f"fix the gate, do not edit this canary.")
+
+    def test_canary_set_is_not_silently_shrunk(self):
+        """Deleting a canary is the easy way to make this suite green again.
+
+        The count is pinned so that doing it has to be deliberate: raise the
+        number when you ADD a family, and treat any need to lower it as a
+        decision for a principal, with the reason written down.
+        """
+        self.assertGreaterEqual(len(CANARIES), 16)
+        self.assertEqual(len(set(CANARIES)), len(CANARIES), "duplicate canary")
+
+
 class Named(unittest.TestCase):
     def test_private_key_header(self):
         self.assertIn("private-key-header",
@@ -199,6 +288,113 @@ class BlindSpots2026_07_28(unittest.TestCase):
     def test_prose_after_key_word_not_flagged(self):
         self.assertNotIn("assigned-secret",
                          rules("# without password= (live-proven 2026-07-04); and"))
+
+
+class LowVarietyIsNotInnocence(unittest.TestCase):
+    """E6c — in credential-key context, low character variety is NOT evidence
+    of innocence (ruled 2026-07-28, generalising the SF1+SF2 carve-outs).
+
+    Every suppression in the assigned path reads low variety as innocence: the
+    identifier rule, the slug rule, the mixed-class hoist, the entropy floor.
+    That is sound with no context and unsound once a key name has said
+    "credential" — the key name has already done the filtering.
+
+    THE SIX-SHAPE PROBE, reconstructed. Mike ruled on a live probe of six
+    credential-shaped assignments: four passed CLEAN before this change — both
+    passphrase spellings and both letter-leading hex values — while only the
+    digit-leading hex and the mixed-class password flagged. All six flag now.
+    Re-run against `secretscan.py` before this change and the four marked below
+    are red legs.
+    """
+
+    # --- probe 1/6: flagged before, by accident of the identifier rule
+    # requiring a letter/underscore start. Pinned so the accident becomes a
+    # guarantee.
+    def test_probe_digit_leading_hex(self):
+        self.assertIn("assigned-secret",
+                      rules("password = 0f3a1c2b4d5e6f7a8b9c0d1e2f3a4b5c"))
+
+    # --- probe 2/6 and 3/6: RED LEGS. Letter-leading hex was the proven gap —
+    # roughly 6 in 16 random hex keys start with a letter.
+    def test_probe_letter_leading_hex(self):
+        self.assertIn("assigned-secret",
+                      rules("api_key = deadbeefcafef00d0123456789abcdef"))
+
+    def test_probe_letter_leading_hex_env_var(self):
+        self.assertIn("assigned-secret",
+                      rules("DB_PASSWORD=abcdef0123456789abcdef0123456789"))
+
+    # --- probe 4/6 and 5/6: RED LEGS. The SF1 shape. The kebab exemption
+    # un-flagged the hyphenated spelling; the identifier rule had long exempted
+    # the snake twin. Both are diceware shapes real people really use.
+    def test_probe_hyphenated_passphrase(self):
+        self.assertIn("assigned-secret",
+                      rules("password=correct-horse-battery-staple"))
+
+    def test_probe_underscored_passphrase(self):
+        self.assertIn("assigned-secret",
+                      rules("password=correct_horse_battery_staple"))
+
+    # --- probe 6/6: the control — flagged before and still flags.
+    def test_probe_mixed_class_password(self):
+        self.assertIn("assigned-secret",
+                      rules("password = Gk8xQvie2mNfR7pLzW3dTaHb"))
+
+    # --- the generalisation: shapes the ruling did not have to enumerate but
+    # which are the same error. E6c is a rule, not two carve-outs.
+    def test_uppercase_hex_value(self):
+        self.assertIn("assigned-secret",
+                      rules("SECRET_KEY=ABCDEF0123456789ABCDEF0123456789"))
+
+    def test_base32_seed_value(self):
+        # a TOTP seed: uppercase + digits, no lowercase → identifier-shaped to
+        # every variety gate
+        self.assertIn("assigned-secret",
+                      rules("totp_secret: JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP"))
+
+    def test_all_lowercase_key_material(self):
+        self.assertIn("assigned-secret",
+                      rules("auth_token = qwertzuiopasdfghjklyxcvbnmqwertz"))
+
+    def test_five_word_passphrase(self):
+        self.assertIn("assigned-secret",
+                      rules("passphrase: staple-battery-horse-correct-blue"))
+
+    # --- the blocking set only WIDENS: everything the suppressions exist for
+    # still passes. The discriminator is whole shape (length, part count), not
+    # character variety.
+    def test_code_reference_still_not_flagged(self):
+        self.assertNotIn("assigned-secret",
+                         rules("host=h, password=admin_password, port=80"))
+        self.assertNotIn("assigned-secret",
+                         rules("password = inv.effective(device).factory_password"))
+        self.assertNotIn("assigned-secret", rules("password: get_secret()"))
+
+    def test_three_part_slug_still_not_flagged(self):
+        # `yes-access-request` and `require_message_auth` are names. Four parts
+        # is the line, and it is the ruled one.
+        self.assertNotIn("assigned-secret",
+                         rules('_home(require_message_auth="yes-access-request")'))
+
+    def test_placeholder_wins_over_the_carve_out(self):
+        # placeholder/indirection/path are statements about what a value is
+        # FOR, not about its variety, so they stay above E6c.
+        self.assertNotIn("assigned-secret",
+                         rules("password = changeme-changeme-changeme-changeme"))
+        self.assertNotIn("assigned-secret",
+                         rules("password = example-value-goes-here"))
+        self.assertNotIn("assigned-secret", rules("password: ${DB_PASSWORD}"))
+        self.assertNotIn("assigned-secret",
+                         rules("SECRET_KEY: /run/secrets/netbox_key"))
+
+    def test_context_free_path_is_unchanged(self):
+        # E6c is scoped to credential-key context. A bare git SHA in prose —
+        # the cry-wolf case the ruling weighed — must stay silent, because
+        # nothing named it a credential.
+        self.assertEqual(set(),
+                         rules("commit 9f3a1c2b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f90"))
+        self.assertEqual(set(), rules("sha256 deadbeefcafef00d0123456789abcdef"))
+        self.assertEqual(set(), rules("slug: correct-horse-battery-staple"))
 
 
 class HighEntropy(unittest.TestCase):
