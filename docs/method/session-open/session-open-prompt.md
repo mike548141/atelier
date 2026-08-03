@@ -1,8 +1,10 @@
-Lets do some work! I have a long list of work queued up in this repo. Please
-maximise my claude plan use by opening a session, giving it a prompt, and when
-its completes starting another.
+Lets do some work! I have a long list of work queued up in this repo, you
+should use sub-agents where they are useful, safe and appropriate.
 
-Lets use a opus 5 session to orchestrate and any model you choose as
+Carry on with any work in queue thats not claimed and you are capable of until
+the economics suggest a new session, or you do for other reasons.
+
+Lets use a fable 5 session to orchestrate and any model you choose as
 appropriate for agents doing the work. You are allowed to use any model for
 orchestration and/or agents. I will have multiple parallel sessions so take
 appropriate precautions like using worktrees and watching for changes
