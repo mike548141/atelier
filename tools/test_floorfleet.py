@@ -17,7 +17,10 @@ The classification tests below are all shaped around that. In particular:
 Zero third-party deps, same as the rest of the suite.
 """
 
+import base64
+import contextlib
 import inspect
+import io
 import json
 import os
 import subprocess
@@ -205,6 +208,19 @@ class EvaluateTest(unittest.TestCase):
             (repo / floorfleet.CONFIG_PATH).write_text("{ broken")
             info = floorfleet.evaluate(repo, remote=False)
         self.assertIn("unreadable", info.detail)
+
+    def test_a_repo_with_no_declarations_file_still_renders(self):
+        """Found while applying FS1. `advisory` was initialised as a bare list
+        and only became the C1 dict when a config was read, so a child carrying
+        no `.atelier-floor.json` crashed `render` with an AttributeError — the
+        board taken down by the very absence it exists to report. Every child on
+        this estate happens to carry the file, so nothing walked the path."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "bare"
+            repo.mkdir()
+            info = floorfleet.evaluate(repo, remote=False)
+        self.assertEqual(info.advisory, {})
+        self.assertIn("bare", floorfleet.render([info], remote=False))
 
     def test_missing_floor_reports_absent(self):
         with tempfile.TemporaryDirectory() as td:
@@ -715,6 +731,50 @@ class RunStatusTest(unittest.TestCase):
         self.assertNotIn("INFERRED",
                          floorfleet.render(infos, remote=True, status=True))
 
+    def test_an_unwired_repo_is_not_counted_under_wired_but_not_green(self):
+        """FS2. `unproven` filtered every row, so a repo with no floor at all —
+        run `unregistered` — was counted in the sentence that says 'are wired
+        but NOT PROVEN GREEN'. The line built to be read first misdescribed
+        exactly the worst rows."""
+        infos = [floorfleet.ChildFloor("a", "/a", "wired", "ok", run="passing",
+                                       run_detail="green"),
+                 floorfleet.ChildFloor("b", "/b", "absent", "no floor.yml",
+                                       run="unregistered",
+                                       run_detail="never landed")]
+        out = floorfleet.render(infos, remote=True, status=True)
+        # The old line: "1 of 2 repo(s) are wired but NOT PROVEN GREEN",
+        # counting the repo that is not wired at all.
+        self.assertNotIn("NOT PROVEN GREEN", out)
+        # The wired one is green, so the wired half is clean...
+        self.assertIn("all 1 wired floor(s) are GREEN", out)
+        # ...and the unwired one is still impossible to miss, in the
+        # conformance block where it belongs, plus a note so the wired-only
+        # denominator can never read as the whole estate.
+        self.assertIn("1 of 2 repo(s) are NOT running atelier's floor", out)
+        self.assertIn("not wired at all", out)
+
+    def test_a_wired_but_red_repo_is_still_counted(self):
+        infos = [floorfleet.ChildFloor("a", "/a", "wired", "ok", run="failing",
+                                       run_detail="RED"),
+                 floorfleet.ChildFloor("b", "/b", "absent", "no floor.yml",
+                                       run="unregistered", run_detail="none")]
+        out = floorfleet.render(infos, remote=True, status=True)
+        self.assertIn("1 of 1 WIRED repo(s) are NOT PROVEN GREEN", out)
+
+    def test_the_no_status_sentinel_collapses_to_conformance(self):
+        """FS5's contract, as a unit test as well as a selftest leg: `run == ""`
+        means --status was not asked for, NOT `unknown`, so `green` is `ok`."""
+        self.assertTrue(
+            floorfleet.ChildFloor("a", "/a", "wired", "", run="").green)
+        self.assertFalse(
+            floorfleet.ChildFloor("a", "/a", "absent", "", run="").green)
+        self.assertIn("was not asked for", floorfleet.ChildFloor.green.__doc__)
+
+    def test_read_run_is_annotated_with_what_it_returns(self):
+        """FS4: annotated `tuple[str, str]`, returning three on every path."""
+        hints = floorfleet.read_run.__annotations__
+        self.assertEqual(str(hints["return"]).count("str"), 3)
+
     def test_without_status_the_board_is_unchanged(self):
         """--check's existing meaning must not move under anyone standing on
         it: conformance alone, exactly as before."""
@@ -735,6 +795,19 @@ class RemoteDiscoveryTest(unittest.TestCase):
     whole programme keeps finding — a check that looks like it covers something
     and does not."""
 
+    @staticmethod
+    def _reads(mapping):
+        """Stand in for the CLAUDE.md read, keyed by slug.
+
+        Values are (outcome, text) pairs — the three-outcome contract. A plain
+        `None` return is exactly the conflation FS1(b) is about, so this helper
+        will not let a test express one by accident."""
+        def fake(slug, rel):
+            return mapping.get(slug, (floorfleet.READ_MISSING, None))
+        return fake
+
+    PINNED = (floorfleet.READ_OK, "pin: atelier@abc1234")
+
     def test_both_listings_are_unioned_because_either_alone_under_enumerates(self):
         """The live failure: `users/{owner}/repos` returns PUBLIC repos only —
         4 of 20 on this estate. A tool whose claim is enumeration must never
@@ -746,41 +819,205 @@ class RemoteDiscoveryTest(unittest.TestCase):
             return public if path.startswith("users/") else private
 
         with mock.patch.object(floorfleet, "_gh_list", side_effect=listings), \
-             mock.patch.object(floorfleet, "_read_remote_slug",
-                               return_value="pin: atelier@abc1234"):
-            children, outsiders = floorfleet.discover_github("o")
-        self.assertEqual(sorted(s for s, _ in children), ["o/priv", "o/pub"])
-        self.assertEqual(outsiders, [])
+             mock.patch.object(floorfleet, "_read_remote_slug_result",
+                               return_value=self.PINNED):
+            found = floorfleet.discover_github("o")
+        self.assertEqual(sorted(s for s, _ in found.children),
+                         ["o/priv", "o/pub"])
+        self.assertEqual(found.outsiders, [])
 
     def test_repos_from_another_account_are_not_counted_as_this_estate(self):
         with mock.patch.object(floorfleet, "_gh_list",
                                return_value=[{"full_name": "someone/else"}]), \
-             mock.patch.object(floorfleet, "_read_remote_slug",
-                               return_value="pin: atelier@abc1234"):
-            children, outsiders = floorfleet.discover_github("o")
-        self.assertEqual(children, [])
-        self.assertEqual(outsiders, [])
+             mock.patch.object(floorfleet, "_read_remote_slug_result",
+                               return_value=self.PINNED):
+            found = floorfleet.discover_github("o")
+        self.assertEqual(found.children, [])
+        self.assertEqual(found.outsiders, [])
 
     def test_a_repo_without_a_pin_is_an_outsider_not_a_child(self):
+        """An outsider is a repo we READ and found no pin in — nothing weaker.
+        This test used to assert `None ⇒ outsider`, which baked the FS1(b)
+        conflation into the suite: it agreed that a refused read was a scope
+        decision."""
         repos = [{"full_name": "o/child"}, {"full_name": "o/stranger"}]
 
-        def claude(slug, rel):
-            return "atelier@abc1234" if slug == "o/child" else None
+        with mock.patch.object(floorfleet, "_gh_list", return_value=repos), \
+             mock.patch.object(
+                 floorfleet, "_read_remote_slug_result",
+                 side_effect=self._reads({
+                     "o/child": (floorfleet.READ_OK, "atelier@abc1234"),
+                     "o/stranger": (floorfleet.READ_OK, "no pin here"),
+                 })):
+            found = floorfleet.discover_github("o")
+        self.assertEqual([s for s, _ in found.children], ["o/child"])
+        self.assertEqual(found.outsiders, ["o/stranger"])
+        self.assertEqual(found.unreadable, [])
+
+    def test_a_repo_with_no_claude_md_at_all_is_still_an_outsider(self):
+        """404 IS an answer: the repo was readable and the file is not there.
+        Separating unreadable from unpinned must not turn every unenrolled repo
+        into an `unknown` row — that would be the same defect mirrored."""
+        with mock.patch.object(floorfleet, "_gh_list",
+                               return_value=[{"full_name": "o/stranger"}]), \
+             mock.patch.object(
+                 floorfleet, "_read_remote_slug_result",
+                 return_value=(floorfleet.READ_MISSING, None)):
+            found = floorfleet.discover_github("o")
+        self.assertEqual(found.outsiders, ["o/stranger"])
+        self.assertEqual(found.unreadable, [])
+
+    def test_an_unreadable_claude_md_is_unknown_not_unenrolled(self):
+        """FS1(b). A 403, a rate limit or a transient error is a read we could
+        not make. Listing it as 'carries no atelier pin' is a confident wrong
+        claim about a repo nobody could see — and it is this tool's own posture
+        (`a read we could not make must never become a pass`) inverted."""
+        repos = [{"full_name": "o/child"}, {"full_name": "o/refused"}]
 
         with mock.patch.object(floorfleet, "_gh_list", return_value=repos), \
-             mock.patch.object(floorfleet, "_read_remote_slug",
-                               side_effect=claude):
-            children, outsiders = floorfleet.discover_github("o")
-        self.assertEqual([s for s, _ in children], ["o/child"])
-        self.assertEqual(outsiders, ["o/stranger"])
+             mock.patch.object(
+                 floorfleet, "_read_remote_slug_result",
+                 side_effect=self._reads({
+                     "o/child": (floorfleet.READ_OK, "atelier@abc1234"),
+                     "o/refused": (floorfleet.READ_FAILED, None),
+                 })):
+            found = floorfleet.discover_github("o")
+        self.assertEqual([s for s, _ in found.children], ["o/child"])
+        self.assertEqual(found.unreadable, ["o/refused"])
+        self.assertNotIn("o/refused", found.outsiders)
 
-    def test_archived_repos_are_skipped(self):
+    def test_an_unreadable_repo_is_a_red_row_not_a_silence(self):
+        row = floorfleet.unreadable_row("o/refused", status=True)
+        self.assertEqual(row.state, "unknown")
+        self.assertFalse(row.ok)      # so --check exits 1 on it
+        self.assertFalse(row.green)
+        out = floorfleet.render([row], remote=True, status=True)
+        self.assertIn("o/refused", out)
+        self.assertIn("NOT running atelier's floor", out)
+
+    def test_archived_repos_are_skipped_and_counted(self):
+        """Skipping is deliberate; skipping SILENTLY is FS3. A
+        decommissioned-but-still-pinned child otherwise leaves no line at all,
+        on the board whose doctrine is that absences raise their hands."""
         with mock.patch.object(floorfleet, "_gh_list", return_value=[
                 {"full_name": "o/old", "archived": True}]), \
-             mock.patch.object(floorfleet, "_read_remote_slug",
-                               return_value="atelier@abc1234"):
-            children, outsiders = floorfleet.discover_github("o")
-        self.assertEqual((children, outsiders), ([], []))
+             mock.patch.object(floorfleet, "_read_remote_slug_result",
+                               return_value=self.PINNED):
+            found = floorfleet.discover_github("o")
+        self.assertEqual((found.children, found.outsiders), ([], []))
+        self.assertEqual(found.archived, 1)
+
+    def test_the_archived_skip_gets_a_footer_line(self):
+        found = floorfleet.Discovery(archived=2, listings=[
+            floorfleet.Listing("users/o/repos", "public repos only", 4, False),
+            floorfleet.Listing("user/repos", "public + private", 20, True)])
+        out = floorfleet.render([floorfleet.ChildFloor("a", "/a", "wired", "ok")],
+                                remote=True, discovery=found)
+        self.assertIn("2 archived repo(s) skipped", out)
+
+
+class DiscoveryAuthorityTest(unittest.TestCase):
+    """FS1(a): discovery declares WHICH listings answered and with how many.
+
+    The run column has declared its authority since B3 (`repo-switch` vs
+    `inferred`); discovery declared nothing, and the empty-estate guard fires
+    only at ZERO children — so a token seeing some-but-not-all repos rendered a
+    smaller, cleaner board with fewer reds and said nothing about it."""
+
+    LISTINGS = [floorfleet.Listing("users/o/repos", "public repos only", 4,
+                                   False),
+                floorfleet.Listing("user/repos", "public + private", 20, True)]
+
+    def _render(self, discovery):
+        return floorfleet.render(
+            [floorfleet.ChildFloor("a", "/a", "wired", "ok")],
+            remote=True, discovery=discovery)
+
+    def test_each_listing_is_named_with_its_count(self):
+        out = self._render(floorfleet.Discovery(listings=self.LISTINGS))
+        self.assertIn("Discovery authority", out)
+        self.assertIn("users/o/repos", out)
+        self.assertIn("4 repo(s)", out)
+        self.assertIn("user/repos", out)
+        self.assertIn("20 repo(s)", out)
+
+    def test_an_empty_private_capable_listing_is_a_loud_warning(self):
+        """The partial-sight case that used to render clean: the guard only
+        fires at zero children, and four public repos are not zero."""
+        blind = floorfleet.Discovery(listings=[
+            floorfleet.Listing("users/o/repos", "public repos only", 4, False),
+            floorfleet.Listing("user/repos", "public + private", 0, True)])
+        self.assertTrue(blind.private_blind)
+        out = self._render(blind)
+        self.assertIn("PRIVATE-CAPABLE listing returned NOTHING", out)
+        # And the remedy names the grant, not just the permissions (FS1).
+        self.assertIn("ALL", out)
+        self.assertIn("repositories owned by the account", out)
+
+    def test_a_listing_that_answered_raises_no_caveat(self):
+        out = self._render(floorfleet.Discovery(listings=self.LISTINGS))
+        self.assertNotIn("returned NOTHING", out)
+
+    def test_local_discovery_prints_no_github_authority_block(self):
+        out = floorfleet.render(
+            [floorfleet.ChildFloor("a", "/a", "wired", "ok")], remote=False)
+        self.assertNotIn("Discovery authority", out)
+
+    def test_unreadable_repos_are_declared_in_the_footer(self):
+        out = self._render(floorfleet.Discovery(listings=self.LISTINGS,
+                                                unreadable=["o/refused"]))
+        self.assertIn("1 repo(s) unreadable", out)
+
+    def test_the_counts_print_even_at_zero(self):
+        """A known zero is a fact. A line that appears only when it is non-zero
+        has to be noticed to be read, and two runs stop being comparable."""
+        out = self._render(floorfleet.Discovery(listings=self.LISTINGS))
+        self.assertIn("0 archived repo(s) skipped", out)
+        self.assertIn("0 repo(s) unreadable", out)
+
+    def test_from_github_end_to_end_puts_an_unreadable_repo_on_the_board(self):
+        """The wiring, not just the pieces: a repo discovery could not read
+        must reach the printed board as a row and must red `--check`. Before
+        FS1 it reached the board as a line in the *unenrolled* list — a
+        confident claim that it had chosen not to adopt the floor."""
+        found = floorfleet.Discovery(
+            children=[("o/child", "atelier@abc1234")],
+            outsiders=["o/stranger"], unreadable=["o/refused"],
+            listings=self.LISTINGS, archived=1)
+
+        def content(child, rel):
+            return THIN_CALLER if rel == floorfleet.FLOOR_PATH else None
+
+        buf = io.StringIO()
+        with mock.patch.object(floorfleet, "discover_github",
+                               return_value=found), \
+             mock.patch.object(floorfleet, "_read_remote", side_effect=content), \
+             contextlib.redirect_stdout(buf):
+            code = floorfleet.main(["--atelier", str(TOOLS_DIR.parent),
+                                    "--from-github", "o", "--check"])
+        out = buf.getvalue()
+        self.assertIn("o/refused", out)
+        self.assertIn("NOT running atelier's floor", out)
+        self.assertIn("Discovery authority", out)
+        self.assertIn("1 archived repo(s) skipped", out)
+        # ...and it is NOT in the unenrolled list, which is the claim we cannot
+        # make about a repo we could not read.
+        unenrolled = out.split("carry no atelier pin")[-1]
+        self.assertIn("o/stranger", unenrolled)
+        self.assertNotIn("o/refused", unenrolled)
+        self.assertEqual(code, 1)
+
+    def test_the_grant_requirement_is_stated_where_a_consumer_reads_it(self):
+        """The token spec leg of FS1: a consumer wiring a scheduled run must be
+        told the grant scope, not only the permissions — a named-list grant
+        cannot see repo 14, so a new child reads as nothing rather than red."""
+        def flat(text):
+            return " ".join(text.split())  # both are wrapped for reading
+
+        self.assertIn("ALL repositories owned by the account",
+                      flat(floorfleet.build_parser().format_help()))
+        self.assertIn("ALL repositories owned by the account",
+                      flat(floorfleet.__doc__))
 
     def test_a_stub_checkout_answers_the_slug_lookup(self):
         """Everything downstream asks a directory for its origin remote, so the
@@ -816,6 +1053,44 @@ class GhReadTest(unittest.TestCase):
         with mock.patch.object(subprocess, "run", return_value=fail):
             self.assertIsNone(floorfleet._gh_json("repos/o/r"))
             self.assertEqual(floorfleet._gh_list("user/repos"), [])
+
+    def _content(self, code, stdout="", stderr=""):
+        done = subprocess.CompletedProcess([], code, stdout=stdout,
+                                           stderr=stderr)
+        with mock.patch.object(subprocess, "run", return_value=done):
+            return floorfleet._read_remote_slug_result("o/r", "CLAUDE.md")
+
+    def test_a_404_is_an_answer_and_says_the_file_is_missing(self):
+        self.assertEqual(self._content(1, stderr="gh: Not Found (HTTP 404)"),
+                         (floorfleet.READ_MISSING, None))
+
+    def test_a_403_is_not_an_answer(self):
+        """The FS1(b) split at its source. 403, rate limit, 5xx and a failure
+        with no HTTP status at all (no gh, no network, not authenticated) are
+        all reads we could not make — and this tool never lets one of those
+        become a claim."""
+        for stderr in ("gh: Resource not accessible (HTTP 403)",
+                       "gh: API rate limit exceeded (HTTP 403)",
+                       "gh: Server Error (HTTP 502)",
+                       "dial tcp: lookup api.github.com: no such host"):
+            self.assertEqual(self._content(1, stderr=stderr)[0],
+                             floorfleet.READ_FAILED, stderr)
+
+    def test_a_successful_read_is_decoded(self):
+        payload = base64.b64encode(b"atelier@abc1234").decode()
+        self.assertEqual(self._content(0, stdout=payload + "\n"),
+                         (floorfleet.READ_OK, "atelier@abc1234"))
+
+    def test_undecodable_content_is_a_failed_read_not_an_empty_one(self):
+        self.assertEqual(self._content(0, stdout="!!!not base64!!!")[0],
+                         floorfleet.READ_FAILED)
+
+    def test_the_thin_wrapper_still_collapses_to_text_or_none(self):
+        """The content reads keep the two-outcome shape on purpose: an absent
+        floor.yml and an unreadable one both classify as not-wired."""
+        with mock.patch.object(floorfleet, "_read_remote_slug_result",
+                               return_value=(floorfleet.READ_FAILED, None)):
+            self.assertIsNone(floorfleet._read_remote_slug("o/r", "x"))
 
 
 if __name__ == "__main__":

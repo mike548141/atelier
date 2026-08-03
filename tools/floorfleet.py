@@ -92,6 +92,22 @@ WHAT THIS CANNOT SEE — read before trusting a clean board
   unenrolled rather than passed over in silence. It is also the only mode that
   works with no local clones at all, which is what a scheduled run needs.
   What still escapes even that: a repo in a different account or org.
+- **Discovery has an authority too, and `--from-github` declares it.** A token
+  that can see some-but-not-all repos renders a SMALLER, CLEANER board — fewer
+  rows, fewer reds — and the empty-estate guard only fires at zero. So the
+  footer names which listings answered and with how many repos, warns when the
+  private-capable listing returned nothing, and counts the archived repos it
+  skipped. **The token this mode expects is granted ALL repositories owned by
+  the account** (read on metadata + contents + actions; no Administration). A
+  token scoped to a named list cannot see repo 14 — a new child would be missing
+  from the listing entirely, so the board would report it as nothing rather than
+  as a red, which is the under-enumeration failure this instrument exists to
+  prevent, reintroduced through its credential. Consumers scheduling this run
+  should state that grant beside the permissions in their token spec.
+- **A repo whose CLAUDE.md cannot be READ is `unknown`, never "no pin".** A 403,
+  a rate limit or a transient error is a read we could not make; calling it a
+  scope decision would be this tool's own posture inverted. Such a repo gets a
+  row, counts as not-verified, and reds `--check`.
 - **Without `--status` it reads workflow TEXT only.** A repo whose floor.yml
   calls the reusable workflow inside a job that never runs — a condition, a
   disabled workflow, or GitHub Actions switched off for the whole repo — reads as
@@ -114,7 +130,8 @@ Usage:
   floorfleet --status        also read each repo's latest floor RUN
   floorfleet --from-github <owner>
                              discover the estate from GitHub, not from local
-                             directories (implies --remote; needs no clones)
+                             directories (implies --remote; needs no clones;
+                             needs a token granted ALL the account's repos)
   floorfleet --check         exit 1 if any child is unguarded
   floorfleet --child <path>  report only the named child
   floorfleet --json          machine-readable
@@ -241,7 +258,15 @@ class ChildFloor:
 
         Fail-safe by construction: every state that is not literally `passing`
         is not green, including `unknown`. The board exists because absences do
-        not raise their hands, so an unread answer counts as a red one."""
+        not raise their hands, so an unread answer counts as a red one.
+
+        ONE EXCEPTION, AND IT IS THE COMPATIBILITY CONTRACT: `run == ""` is the
+        sentinel for "`--status` was not asked for", not for "unknown", so it
+        collapses to `ok` — `--check` without `--status` keeps meaning exactly
+        what it meant before the run column existed. Named here rather than left
+        to the field comment, because the docstring's absolute claim read as
+        covering it and did not (FS5); the selftest pins `green("") == ok` in
+        both directions."""
         if not self.ok:
             return False
         return self.run in ("", "passing")
@@ -266,19 +291,60 @@ def _slug(child: Path) -> str | None:
     return m.group(1) if m else None
 
 
-def _read_remote_slug(slug: str, rel: str) -> str | None:
-    """One file from a repo's default branch, by slug. The contents endpoint
-    returns base64, so this is the one read that is deliberately not JSON."""
+# A file read has three outcomes, not two. Collapsing the last two is FS1(b):
+# a repo whose CLAUDE.md we were REFUSED is not a repo that HAS no CLAUDE.md,
+# and the second reading turns a read we could not make into a scope decision.
+READ_OK = "ok"           # the file was read (possibly empty)
+READ_MISSING = "missing"  # the repo answered, and the file is not there (404)
+READ_FAILED = "failed"    # we were not allowed, or not able, to ask
+# `gh` reports the status in its stderr line — `gh: Not Found (HTTP 404)`.
+HTTP_STATUS_RE = re.compile(r"\(HTTP (\d{3})\)")
+
+
+def _read_remote_slug_result(slug: str, rel: str) -> tuple[str, str | None]:
+    """(outcome, text) for one file on a repo's default branch, by slug.
+
+    The contents endpoint returns base64, so this is the one read that is
+    deliberately not JSON.
+
+    WHY THE OUTCOME IS SEPARATE FROM THE TEXT. `None` used to mean both "no such
+    file" and "could not read", and discovery read the pair as "no atelier pin"
+    — a confident wrong claim about a repo nobody could see (FS1(b)). Only a
+    **404** is an answer: the repo was readable and the file is genuinely absent.
+    Every other ending — 403, a rate limit, a 5xx, no HTTP status at all
+    (network, no `gh`, not authenticated) — is a read we could not make, and
+    this tool's posture is that such a read never becomes a pass.
+
+    Unparseable means failed for the same reason: base64 we cannot decode is not
+    evidence of anything. An EMPTY file is `ok` with empty text, because that is
+    a fact we actually read."""
     r = subprocess.run(
         ["gh", "api", f"repos/{slug}/contents/{rel}", "--jq", ".content"],
         capture_output=True, text=True, check=False,
     )
-    if r.returncode != 0 or not r.stdout.strip():
-        return None
+    if r.returncode != 0:
+        m = HTTP_STATUS_RE.search(r.stderr or "")
+        if m and m.group(1) == "404":
+            return (READ_MISSING, None)
+        return (READ_FAILED, None)
+    body = r.stdout.strip()
+    if not body:
+        return (READ_OK, "")
     try:
-        return base64.b64decode(r.stdout.strip()).decode("utf-8", "replace")
+        return (READ_OK, base64.b64decode(body).decode("utf-8", "replace"))
     except (ValueError, UnicodeError):
-        return None
+        return (READ_FAILED, None)
+
+
+def _read_remote_slug(slug: str, rel: str) -> str | None:
+    """The text, or None if it could not be read for ANY reason.
+
+    Kept for the content reads — a floor.yml that is absent and one that is
+    unreadable both classify as not-wired, so the distinction buys nothing
+    there. Discovery calls `_read_remote_slug_result` instead, because there the
+    distinction is the whole finding."""
+    outcome, text = _read_remote_slug_result(slug, rel)
+    return text if outcome == READ_OK else None
 
 
 def _read_remote(child: Path, rel: str) -> str | None:
@@ -681,7 +747,13 @@ def _read_declarations(repo: Path, read, state: str, detail: str) -> ChildFloor:
     parent path. Only how a repo's floor is WIRED differs between them; what it
     declares is the same file in the same format, and reading it twice in two
     places is how the two rows would come to disagree."""
-    advisory: list[str] = []
+    # A DICT, not a list — the C1 form. It was initialised as a bare list here
+    # while every reader (`ChildFloor.advisory`, `render`) expects the mapping
+    # `_advisories` produces, so a repo carrying NO `.atelier-floor.json` took
+    # the board down with an AttributeError instead of rendering a row. Found
+    # while applying FS1: every child on this estate happens to carry the file,
+    # so the crash path was never walked.
+    advisory: dict[str, tuple[str, str]] = {}
     disabled: dict[str, str] = {}
     local: dict[str, str] = {}
     scope: dict[str, list[str]] = {}
@@ -715,8 +787,12 @@ def _read_declarations(repo: Path, read, state: str, detail: str) -> ChildFloor:
                       scope=scope, flags=flags, docs=docs)
 
 
-def read_run(child: Path, workflow: str) -> tuple[str, str]:
+def read_run(child: Path, workflow: str) -> tuple[str, str, str]:
     """Gather the Actions facts for one repo and hand them to `classify_run`.
+
+    Returns (state, detail, authority) — three, on every path. The annotation
+    said two while every `return` handed back three (FS4); the callers were
+    right and the type was wrong.
 
     All the I/O lives here so the decision stays pure and testable — the same
     split `classify` already uses. Three reads, and the tool is designed to work
@@ -776,7 +852,61 @@ def read_run(child: Path, workflow: str) -> tuple[str, str]:
     return (state, detail, authority)
 
 
-def discover_github(owner: str) -> tuple[list[tuple[str, str]], list[str]]:
+@dataclass
+class Listing:
+    """One account listing, and what it actually returned.
+
+    Counted per listing rather than only after the union, because the union is
+    where a partial answer stops being visible: a token that can see four public
+    repos and no private ones produces a smaller, tidier board and, before FS1,
+    said nothing at all about it."""
+    endpoint: str
+    sees: str
+    count: int
+    private_capable: bool
+
+
+@dataclass
+class Discovery:
+    """The result of enumerating an account, WITH the authority behind it.
+
+    `children`/`outsiders` are the answer; `listings`, `archived` and
+    `unreadable` are how well the answer is known. The board declares run
+    authority already (`repo-switch` vs `inferred`); this is the same
+    declaration one level up, for discovery — the level at which a quiet
+    partial answer is worst, because a repo nobody enumerated is reported as
+    nothing at all rather than as a red."""
+    children: list[tuple[str, str]] = field(default_factory=list)
+    outsiders: list[str] = field(default_factory=list)
+    # Repos whose CLAUDE.md read FAILED. Not outsiders — see FS1(b).
+    unreadable: list[str] = field(default_factory=list)
+    listings: list[Listing] = field(default_factory=list)
+    archived: int = 0
+
+    @property
+    def private_blind(self) -> bool:
+        """Did every private-capable listing come back empty? That is either a
+        genuinely all-public account or a token that cannot see the estate, and
+        the board cannot tell which — so it says so rather than rendering the
+        smaller answer clean."""
+        capable = [x for x in self.listings if x.private_capable]
+        return bool(capable) and not any(x.count for x in capable)
+
+
+# The two account listings, held as data so the footer can report which one
+# answered and with what count. `users/{owner}/repos` sees PUBLIC repos only;
+# `user/repos` is the one that can see private repos, and only for the
+# authenticated account — so an empty answer from it is the signal that the
+# token is looking at less than the estate.
+ACCOUNT_LISTINGS = (
+    ("users/{owner}/repos", "?per_page=100&type=owner",
+     "public repos only", False),
+    ("user/repos", "?per_page=100&affiliation=owner",
+     "public + private, authenticated account", True),
+)
+
+
+def discover_github(owner: str) -> Discovery:
     """Enumerate the estate from GITHUB rather than from a directory listing.
 
     WHY THIS EXISTS. `--remote` reads each repo's CONTENT from GitHub, but
@@ -792,39 +922,62 @@ def discover_github(owner: str) -> tuple[list[tuple[str, str]], list[str]]:
         conformance check specified in roadmap B1 would have discovered nothing
         and exited 2. Fail-safe, but not a check.
 
-    Returns (children, outsiders): children are (slug, CLAUDE.md text) for every
-    repo carrying an atelier pin; outsiders are the account's other repo slugs,
+    Returns a `Discovery`: children are (slug, CLAUDE.md text) for every repo
+    carrying an atelier pin; outsiders are the account's other repo slugs,
     reported so a repo that never adopted the floor is visible as a choice
-    rather than as silence."""
+    rather than as silence; and `listings`/`archived`/`unreadable` carry the
+    AUTHORITY behind all of it, so a partial answer cannot pass for a clean
+    estate.
+
+    THE TOKEN THIS EXPECTS. A credential granted **all repositories owned by the
+    account** (read on metadata + contents + actions). A token scoped to a named
+    list of repos cannot see repo 14: a new child would be missing from the
+    account listing entirely, so the board would report it as nothing rather
+    than as a red — the under-enumeration failure this instrument exists to
+    prevent, reintroduced through its credential. The footer declares what the
+    listings actually returned so a narrowed token shows up as a caveat instead
+    of as a tidier board."""
     # BOTH endpoints, unioned. `users/{owner}/repos` returns PUBLIC repos only —
     # on this estate that is 4 of 20 — while `user/repos` sees private ones but
     # only for the authenticated account. Taking either alone silently
     # under-enumerates, and under-enumeration is this tool's cardinal failure:
     # the repos it cannot see are reported as nothing at all, not as a red.
+    found = Discovery()
     seen: dict[str, dict] = {}
-    for endpoint in (f"users/{owner}/repos?per_page=100&type=owner",
-                     "user/repos?per_page=100&affiliation=owner"):
-        for repo in _gh_list(endpoint):
-            slug = repo.get("full_name", "")
-            if slug.split("/")[0].lower() == owner.lower():
-                seen[slug] = repo
+    for path, query, sees, private_capable in ACCOUNT_LISTINGS:
+        endpoint = path.format(owner=owner)
+        mine = [r for r in _gh_list(endpoint + query)
+                if str(r.get("full_name", "")).split("/")[0].lower()
+                == owner.lower()]
+        found.listings.append(Listing(endpoint=endpoint, sees=sees,
+                                      count=len(mine),
+                                      private_capable=private_capable))
+        for repo in mine:
+            seen[repo["full_name"]] = repo
     if not seen:
-        return ([], [])
+        return found
 
-    children: list[tuple[str, str]] = []
-    outsiders: list[str] = []
     for repo in seen.values():
         if repo.get("archived"):
+            # Counted, not just skipped: a decommissioned-but-still-pinned child
+            # otherwise leaves the board with no line at all, on the board whose
+            # doctrine is that absences raise their hands (FS3).
+            found.archived += 1
             continue
         slug = repo.get("full_name")
         if not slug or slug.split("/")[-1] == "atelier":
             continue
-        text = _read_remote_slug(slug, "CLAUDE.md") or ""
-        if pins.PIN_RE.search(text):
-            children.append((slug, text))
+        outcome, text = _read_remote_slug_result(slug, "CLAUDE.md")
+        if outcome == READ_FAILED:
+            # We do not know whether this repo is enrolled. Saying "no atelier
+            # pin" here would be the tool's own posture inverted — a read we
+            # could not make becoming a decision about scope (FS1(b)).
+            found.unreadable.append(slug)
+        elif pins.PIN_RE.search(text or ""):
+            found.children.append((slug, text or ""))
         else:
-            outsiders.append(slug)
-    return (children, outsiders)
+            found.outsiders.append(slug)
+    return found
 
 
 def stub_checkout(root: Path, slug: str, claude_md: str) -> Path:
@@ -848,6 +1001,26 @@ def stub_checkout(root: Path, slug: str, claude_md: str) -> Path:
                     f"https://github.com/{slug}.git"], **quiet)
     (d / "CLAUDE.md").write_text(claude_md, encoding="utf-8")
     return d
+
+
+def unreadable_row(slug: str, status: bool = False) -> ChildFloor:
+    """A repo whose CLAUDE.md we could not read, as a board row (FS1(b)).
+
+    `unknown` on both questions, deliberately. We do not know whether it is an
+    atelier child, so we cannot say it is unenrolled; we cannot read its floor,
+    so we certainly cannot say it is green. `ok` is False, which means `--check`
+    exits 1 on it — an estate we could not verify is never reported green, and
+    the alternative is the confident wrong claim this finding is about."""
+    row = ChildFloor(
+        name=slug, path="", state="unknown",
+        detail="could not read this repo's CLAUDE.md (403, rate limit or "
+               "transient error) — enrolment UNKNOWN, not absent",
+        hook="n/a", shim="unknown")
+    if status:
+        row.run = "unknown"
+        row.run_detail = ("not read — discovery could not reach this repo, so "
+                          "nothing was asked of its Actions")
+    return row
 
 
 def evaluate(child: Path, remote: bool, status: bool = False) -> ChildFloor:
@@ -878,7 +1051,8 @@ RUN_ICON = {"passing": "✅", "failing": "🛑", "actions-off": "🛑",
             "no-result": "⚠️", "running": "⏳", "unknown": "⚠️"}
 
 
-def render(infos: list[ChildFloor], remote: bool, status: bool = False) -> str:
+def render(infos: list[ChildFloor], remote: bool, status: bool = False,
+           discovery: Discovery | None = None) -> str:
     plane = "GitHub default branches" if remote else "local working copies"
     heading = "estate conformance" + (" + compliance" if status else "")
     lines = [f"atelier floor — {heading}  ({plane})", ""]
@@ -964,16 +1138,26 @@ def render(infos: list[ChildFloor], remote: bool, status: bool = False) -> str:
         # two questions — "does this repo call the floor" and "is that floor
         # green" — and the roadmap item exists because one board answered only
         # the first while reading like it answered both.
-        unproven = [i for i in infos if i.run != "passing"]
+        # Filtered on WIRED-ness, not on every row (FS2). `unproven` used to run
+        # over all of them, so a repo with no floor at all — run `unregistered`
+        # — was counted under "are wired but NOT PROVEN GREEN". The sentence
+        # built to be read first misdescribed exactly the worst rows; those rows
+        # are named in the conformance block above, which is where they belong.
+        wired = [i for i in infos if i.ok]
+        unproven = [i for i in wired if i.run != "passing"]
         lines.append("")
         if unproven:
-            lines.append(f"  {len(unproven)} of {len(infos)} repo(s) are wired "
-                         "but NOT PROVEN GREEN:")
+            lines.append(f"  {len(unproven)} of {len(wired)} WIRED repo(s) are "
+                         "NOT PROVEN GREEN:")
             for i in unproven:
                 lines.append(f"    - {i.name}: {i.run} — {i.run_detail}")
-        else:
-            lines.append(f"  all {len(infos)} floors are GREEN on their default "
-                         "branches ✓")
+        elif wired:
+            lines.append(f"  all {len(wired)} wired floor(s) are GREEN on their "
+                         "default branches ✓")
+        if bad:
+            # So the wired-only denominator can never read as the whole estate.
+            lines.append(f"  ({len(bad)} repo(s) are not wired at all — no floor "
+                         "to prove either way; listed above.)")
 
         # The honesty line. Without it, "no repo has Actions disabled" reads as
         # a checked fact when it may be an unasked question.
@@ -987,6 +1171,40 @@ def render(infos: list[ChildFloor], remote: bool, status: bool = False) -> str:
                          "permission. A floor that has never")
             lines.append("     run still shows as a red here, so the blind spot "
                          "is covered — but by inference.")
+
+    # WHERE THIS BOARD'S ESTATE LIST CAME FROM, and how well it is known. The
+    # run column has declared its authority since B3; discovery did not, and
+    # that is the same defect one level up (FS1(a)): a token that sees
+    # some-but-not-all repos renders a SMALLER, CLEANER board — fewer rows,
+    # fewer reds — with nothing saying so. The empty-estate guard only fires
+    # when zero children are found, which is the one case that already stops.
+    if discovery is not None:
+        lines.append("")
+        lines.append("  Discovery authority — which listings answered, and with "
+                     "how many repos:")
+        for entry in discovery.listings:
+            lines.append(f"    · {entry.endpoint} ({entry.sees}): "
+                         f"{entry.count} repo(s)")
+        # Both counts print even at ZERO. They are known zeros, not unknowns,
+        # and a fixed field set is what makes two runs comparable — a line that
+        # appears only when it is non-zero has to be NOTICED to be read.
+        # FS3: skipping archived repos is a decision, and a decision gets a
+        # line; a decommissioned-but-still-pinned child otherwise just vanishes.
+        lines.append(f"    · {discovery.archived} archived repo(s) skipped — "
+                     "not asked for a floor")
+        lines.append(f"    · {len(discovery.unreadable)} repo(s) unreadable — "
+                     "a failed read is an unknown row, never an outsider")
+        if discovery.private_blind:
+            lines.append("  ⚠️  the PRIVATE-CAPABLE listing returned NOTHING. "
+                         "Either this account is")
+            lines.append("     all-public, or this token cannot see the estate "
+                         "— and this board cannot")
+            lines.append("     tell which. A partial estate renders as a "
+                         "smaller, cleaner board, which is")
+            lines.append("     the failure this tool exists to prevent. The "
+                         "token must be granted ALL")
+            lines.append("     repositories owned by the account, not a named "
+                         "list: a list cannot see repo 14.")
 
     # The personal-data half of leakscan, reported as what it actually is: a
     # fact about THIS MACHINE, not about any repo. A per-child column would have
@@ -1106,6 +1324,36 @@ def _selftest() -> int:
     check("green(unwired+passing)",
           str(ChildFloor(name="x", path="/x", state="absent", detail="",
                          run="passing").green), "False")
+    # The `""` sentinel: --status was not asked for, so the run column cannot
+    # speak and `green` collapses to `ok`. That collapse IS the --check
+    # compatibility contract, and it was documented at the field and pinned by
+    # nothing (FS5) — so both directions are pinned here.
+    check("green(no --status, wired)",
+          str(ChildFloor(name="x", path="/x", state="wired", detail="",
+                         run="").green), "True")
+    check("green(no --status, unwired)",
+          str(ChildFloor(name="x", path="/x", state="absent", detail="",
+                         run="").green), "False")
+
+    # Discovery authority (FS1). A private-capable listing that returned nothing
+    # is a caveat, not a clean estate; and a repo we could not read is a red row
+    # rather than a scope decision.
+    def listing(count, private_capable):
+        return Listing(endpoint="e", sees="s", count=count,
+                       private_capable=private_capable)
+
+    check("private-blind token",
+          str(Discovery(listings=[listing(4, False),
+                                  listing(0, True)]).private_blind), "True")
+    check("private listing answered",
+          str(Discovery(listings=[listing(4, False),
+                                  listing(20, True)]).private_blind), "False")
+    check("no listings makes no claim",
+          str(Discovery().private_blind), "False")
+    check("unreadable child is not ok",
+          str(unreadable_row("o/r").ok), "False")
+    check("unreadable child is not green",
+          str(unreadable_row("o/r", status=True).green), "False")
 
     for f in fails:
         print(f"floorfleet selftest FAIL: {f}", file=sys.stderr)
@@ -1127,7 +1375,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--from-github", metavar="OWNER",
                    help="discover the estate from GitHub instead of from the "
                         "directories beside this checkout (implies --remote; "
-                        "the only mode that works with no local clones)")
+                        "the only mode that works with no local clones). Needs "
+                        "a token granted ALL repositories owned by the account "
+                        "— a named-list grant cannot see a repo it was not told "
+                        "about, and this board would report it as nothing "
+                        "rather than as a red")
     p.add_argument("--status", action="store_true",
                    help="also read each repo's latest floor RUN — wired and "
                         "passing, not just wired (needs gh Actions read)")
@@ -1156,19 +1408,27 @@ def main(argv: list[str] | None = None) -> int:
     # every downstream read asks a directory for its origin remote.
     scratch: tempfile.TemporaryDirectory | None = None
     outsiders: list[str] = []
+    discovery: Discovery | None = None
     if args.from_github:
         args.remote = True  # a stub has no content to read locally
-        found, outsiders = discover_github(args.from_github)
-        if not found:
+        discovery = discover_github(args.from_github)
+        outsiders = discovery.outsiders
+        if not discovery.children:
             print(f"floorfleet: no atelier children found in the {args.from_github} "
                   "account on GitHub", file=sys.stderr)
+            # The listing counts, on the failure path too: "nothing found" and
+            # "nothing visible to this token" look identical without them.
+            for entry in discovery.listings:
+                print(f"floorfleet:   {entry.endpoint} ({entry.sees}) returned "
+                      f"{entry.count} repo(s)", file=sys.stderr)
             print("floorfleet: check `gh auth status` — a token that cannot see "
                   "the private repos sees an empty estate, which must never "
-                  "read as a clean one.", file=sys.stderr)
+                  "read as a clean one. The token needs read on ALL "
+                  "repositories owned by the account.", file=sys.stderr)
             return 2
         scratch = tempfile.TemporaryDirectory(prefix="floorfleet-")
         children = [stub_checkout(Path(scratch.name), slug, text)
-                    for slug, text in found]
+                    for slug, text in discovery.children]
     elif args.child:
         children = []
         for c in args.child:
@@ -1196,6 +1456,12 @@ def main(argv: list[str] | None = None) -> int:
 
     infos = [evaluate(c, args.remote, args.status) for c in
              sorted(children, key=lambda p: p.name.lower())]
+    if discovery is not None and discovery.unreadable:
+        # A repo we could not read is a ROW, not a silence and not an outsider
+        # (FS1(b)). It is `unknown` on both questions and therefore red under
+        # --check, which is the direction this tool fails in by design.
+        infos.extend(unreadable_row(slug, args.status)
+                     for slug in sorted(discovery.unreadable))
     if args.from_github:
         # The one column a stub cannot answer. Reported as unavailable, never as
         # absent: `core.hooksPath` is a fact about a working copy, and this mode
@@ -1234,12 +1500,22 @@ def main(argv: list[str] | None = None) -> int:
                           # findings — a scope decision, surfaced so it stays a
                           # decision rather than an absence nobody sees.
                           "unenrolled": outsiders,
+                          # HOW WELL the estate list is known, not just what it
+                          # contains — the machine-readable half of the footer.
+                          # A consumer reading this JSON must be able to tell a
+                          # clean board from a board a narrow token made clean.
+                          "discovery_authority": None if discovery is None else {
+                              "listings": [asdict(e) for e in discovery.listings],
+                              "archived": discovery.archived,
+                              "unreadable": discovery.unreadable,
+                              "private_blind": discovery.private_blind,
+                          },
                           # Machine-local, not per-child — see terms_state().
                           "terms": {"present": terms_present,
                                     "detail": terms_detail},
                           "children": [asdict(i) for i in infos]}, indent=2))
     else:
-        print(render(infos, args.remote, args.status))
+        print(render(infos, args.remote, args.status, discovery))
         if outsiders:
             print()
             print(f"  {len(outsiders)} repo(s) in the {args.from_github} "
