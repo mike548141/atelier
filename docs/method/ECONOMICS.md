@@ -296,6 +296,20 @@ floor's evidence (scanners, tests, the orchestrator's review) shows the tier
 genuinely does that class of work; extraction-from-practice applies to tier
 claims as much as to doctrine.
 
+That trial has paid out for two classes. **The mid tier — Sonnet, as this
+estate currently fills it — is the standing executor for well-floored builds of
+*known* patterns and for prescriptively-reviewed fixes** (four recorded runs,
+nine dispatched items, one failure: `ROADMAP-DONE.md` § *Third-seat executor
+trial*, runs of 2026-07-23). The discriminator is **floor density, not nominal
+class**: a
+silent-failure-class scanner change cleared on the mid tier because 41 tests
+plus a review naming exactly what to change floored it, while the one item that
+failed was a *novel* mechanism whose floor was necessarily thin — fixtures
+cannot cover a failure mode nobody has met yet — so its defect reached head and
+took an orchestrator correction. This therefore does **not** generalise to any
+first-of-kind build: a fresh build of a known pattern is in class, a novel
+mechanism keeps capable-tier verify-at-merge earning its keep.
+
 ## Triggering reviews — inline or batched
 
 When economics allow, the building session may **spawn a review as a background

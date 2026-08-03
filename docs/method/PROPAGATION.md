@@ -165,7 +165,10 @@ up to atelier for *how we work*, up to the estate root for *what the estate has*
 The estate root is named only in a **private** child's own onramp — never in any
 public tree, so the repo's name is never coupled to the sensitive posture it
 holds (RECORD's name↔posture split). A public tree references it by a local-path
-convention instead. Its contents are never copied down into any child.
+convention instead. That convention is defined **per estate, not here**: each
+estate states its own in its private root's onramp — the one place the name may
+appear — so a child inherits the reference form from the same place it inherits
+the name. Its contents are never copied down into any child.
 
 **"Any public tree" includes atelier's own, records and all** — and it has to be
 said, because the narrower wording did not hold. This rule previously read
@@ -173,9 +176,12 @@ said, because the narrower wording did not hold. This rule previously read
 which binds the doctrine prose and the children and quietly exempts the one
 public repo doing most of the writing: atelier itself. The doctrine stayed
 clean and the **records** did not. Measured 2026-07-28: the estate root is
-named **63 times across 19 files**, and on **10 of those lines** it sits beside
+named **63 times across 19 files** (both exact, and both reproduced on an
+independent re-sweep), and on roughly **8–10 of those lines** it sits beside
 exactly what it holds — the financial inventory, the credential registry, the
-keychain items. In the three current-truth records alone (`CHANGELOG.md`,
+keychain items. That last figure is approximate on purpose: it moves with which
+co-occurrence nouns the sweep counts, and a soft figure stated as a hard one is
+how figures here have gone wrong before. In the three current-truth records alone (`CHANGELOG.md`,
 `docs/SESSIONS.md`, `docs/ROADMAP-DONE.md`) it is 19. That is the coupling this
 rule exists to prevent, written by sessions that were following the rule as it
 was worded.

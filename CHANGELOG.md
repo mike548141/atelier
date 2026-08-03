@@ -5,6 +5,18 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-08-03 — ER1–ER4 applied; the mid tier earns its seat)
+- **The making-public confirmation now includes the pre-flip scrub** of the
+  estate-root name (`AUTONOMY.md`); `PROPAGATION.md` says where the local-path
+  convention is defined (per estate, in its private root's onramp) and restates
+  the co-occurrence figure as approximate; `RECORD.md` fixes the addendum
+  pointer convention — name "the `SESSIONS.md` entry of a date", never the file
+  the addendum extends. (ER1–ER4, ruled 2026-07-28.)
+- **`ECONOMICS.md` promotes the mid tier to standing executor** for well-floored
+  builds of known patterns and prescriptively-reviewed fixes — four recorded
+  trial runs, discriminator floor density, explicitly not any first-of-kind
+  build.
+
 ### Added (2026-08-03 — the boundary's posture becomes doctrine)
 - **`SECRETS.md` now states the posture both boundary scans answer to**: find
   every secret, credential, private key and piece of personal data, so none of

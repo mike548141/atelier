@@ -240,30 +240,6 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       passed the hook, so a bypass is a recorded event rather than a private
       one. Weigh honestly against it also being the legitimate escape hatch —
       making it painful invites worse workarounds.
-- [~] (claimed 2026-08-03-2016, wt: qr0804-docs — agent worktree, Fable-orchestrated run) **Estate-root widening pass residue — ER1–ER4, RULED 2026-07-28 (Mike,
-      plain-language walk-through with per-option impacts).**
-      The rule-4 pass ran 2026-07-28: **0 MAJOR / 1 minor / 3 notes, cycle
-      CLOSED** ([verdict](reviews/2026-07-28-1216-estate-root-widening-cold.md));
-      every count re-swept independently (63/19 exact; zero new mentions
-      since landing).
-      **ER1** (minor) — the widened rule is silent at the private→public
-      *flip*: a private child's onramp names the root by design, and nothing
-      says the making-public confirmation includes scrubbing that name first
-      — yet pre-flip is the one moment a scrub buys everything back →
-      **ADD THE SCRUB to the always-stop floor's making-public entry**
-      (one line; closes the same hole the widening closed, one transition on).
-      **ER2** (note) — "reference it by local-path convention" points at a
-      convention no text says where to find → **ADD ONE SENTENCE** saying
-      each estate defines it in its own private root's onramp; an adopter
-      cannot otherwise discharge the rule.
-      **ER3** (note) — the "10 lines beside what it holds" figure is
-      net-dependent (8–9 on re-sweep) → **RESTATE AS APPROXIMATE**, so a
-      soft figure cannot harden into a wrong one.
-      **ER4** (note) — the intent-record pointer links a file that does not
-      contain the record (the record is the SESSIONS.md entry) →
-      **FIX THE POINTER CONVENTION**: addendum pointers say "the SESSIONS.md
-      entry of \<date\>" rather than linking the file the entry extends.
-      **Work owed: all four.**
 - [ ] 🎯 **C5 — a forcing function for the estate-root name.** The rule was
       widened to bind *any* public tree including atelier's own
       (`PROPAGATION.md`, 2026-07-28 — it had exempted the parent by naming
@@ -1262,6 +1238,13 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
 
 ## Doctrine — review-owed
 
+- ⏳ **Rule-4 review queued (tier: Fable) — the mid-tier standing-executor
+  doctrine.** *Delta:* `docs/method/ECONOMICS.md` § *The orchestrated-run
+  tier split*, the standing-executor paragraph (landed 2026-08-03, this
+  merge). *Intent record:* [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
+  § *Third-seat executor trial* (runs 1–4, 2026-07-23) + Mike's trial
+  instruction of 2026-07-23 (`dadde1d`).
+
 - ⏳ **Rule-4 review queued (tier: Fable) — the E6 application, E6a slice.**
   *Delta:* `docs/method/SECRETS.md` § *The boundary's posture — over-flag,
   because detection enables everything* (landed 2026-08-03, this merge).
@@ -1622,79 +1605,14 @@ Built 2026-07-22 as ratified (CONCURRENCY § Orchestrated queue runs +
 ECONOMICS § tier split + plugin-bundled `queue-run` skill) →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md). What remains open is its review:
 
-- [ ] **Third-seat executor trial (Mike, 2026-07-23, per `dadde1d`)** — on the
-  next queue run, dispatch one or two *routine, well-floored* items to the
-  mid tier (Sonnet) instead of the workhorse; orchestrator reviews as normal.
-  Keep the step-down only on the floor's evidence (scanners/tests/review all
-  green, no hand-up); record the outcome either way — tier claims are
-  extracted from practice, not assumed. Fan-out sub-agents on the cheapest
-  genuinely-capable tier is already standing practice (no trial needed).
-  - **Run 1 outcome — 2026-07-23 (Opus-orchestrated queue run):** two items
-    dispatched to Sonnet — the **cc-tools vocab audit** (`85b17dd`: clean
-    single-file delivery, zero-drift finding correct on my review, 160/160 node
-    tests, recommendation correctly *held as a recommendation* not baked) and
-    the **S3 datescan build** (`6077972`: `tools/datescan.py` + 41 tests, suite
-    372 green, advisory wiring correct, honest baseline reported, exemption
-    limits documented honestly). **Both PASSED the orchestrator review with no
-    hand-up and no rework** — first positive data point that Sonnet genuinely
-    does the routine-docs and first-of-kind-scanner classes under the floor.
-    **One run ≠ a standing tier claim** (extracted-from-practice wants
-    corroboration): leave the trial open for a second run's data before
-    promoting Sonnet to the standing executor seat for these classes. Note for
-    contrast: the doctrine-text apex sweep + the correctness-sensitive ccrepo
-    ledger were kept on **Opus** this run (doctrine-text + silent-failure class
-    → capable tier, per ECONOMICS QR5) — the split behaved exactly as the tier
-    rule predicts.
-  - **Run 2 outcome — 2026-07-23 (0618 Opus-orchestrated queue run):** two more
-    Sonnet items — the **S1 wrapscan** and **S5 spellscan** first-of-kind scanner
-    builds (`72e8ecb`/`760260473`, advisory-only, 40+60 tests, suite 472). **Both
-    PASSED** the orchestrator review no-rework, each surfacing an honest judgement
-    call left to its ⏳ review. (Recorded in the 0618 session entry as "run 2" but
-    not folded into this trial record until the 0707 run — reconciled here.)
-  - **Run 3 outcome — 2026-07-23 (0707 Opus-orchestrated queue run):** one item
-    to Sonnet — **applying the datescan DSR1–DSR8 review findings + re-baseline**
-    (`b7b292c`). This is a *step up* from run 1's classes: not a fresh build or a
-    docs audit but **modifying scanner detection logic** (a silent-failure class,
-    the kind ECONOMICS QR5 nominally routes to the capable tier). It was
-    dispatched to Sonnet because it was **exceptionally well-floored** — 41
-    existing tests + selftest + a cold review naming exactly what to change — and
-    the orchestrator (Opus) re-verified the suite and read the risk-bearing DSR3
-    logic + header before merge. **PASSED with no rework**: all eight findings
-    applied, baseline 60→0, and Sonnet independently **caught three further real
-    bugs** the review hadn't named, declared the DSR3 silent-miss trade honestly
-    in-header, and correctly *declined to guess* an un-derivable date (left an
-    honest `allow`). **Reading:** the discriminator that worked was the *floor
-    density*, not the nominal class — a well-floored silent-failure task with a
-    prescriptive review is safely Sonnet-with-Opus-verify; a *thinly*-floored one
-    still isn't. **Three runs now agree** (five Sonnet items, zero rework): the
-    docs-audit, fresh-scanner-build, and prescriptively-reviewed-fix classes all
-    clear the floor. This is now enough corroboration to **write Sonnet into
-    ECONOMICS as the standing executor** for those classes — a small doctrine edit
-    (self-authored ⇒ rule-4 ⏳ at landing) that a future session should take; the
-    one guardrail the data supports is *floor density, not nominal class*, so the
-    doctrine line must say "well-floored + prescriptively-reviewed", not "any
-    routine work". The two first-of-kind *reviews* this run stayed on **Opus**
-    (gate-flip judgement → capable tier) — split held as predicted.
-  - **Run 4 outcome — 2026-07-23 (0959 Opus-orchestrated queue run) — NOT a
-    clean sweep, and the exception is the useful data.** Four Sonnet items: the
-    two review-applies (wrapscan, spellscan — prescriptively-reviewed-fix) and
-    the **pathscan (S2)** build (fresh build of a *known* pattern — reused
-    linkscan-shaped path resolution) all **PASSED no-rework**. The fourth,
-    **stampscan (S4)**, did **not**: a genuinely-new mechanism (marker parsing)
-    whose failure mode — parsing its own documentation as real markers and
-    exit-2-blocking the floor — its fixtures couldn't anticipate. The defect
-    surfaced **at head** and needed an orchestrator correction (unwire). This
-    *confirms* the tier split's safety logic (catchable failure caught by
-    floor + Opus review, precisely where the split says to pay for capability)
-    and **sharpens the promotion line**: the discriminator is **floor density,
-    not nominal class** — a fresh build of a *known* pattern is Sonnet-safe, a
-    fresh build of a *novel mechanism* keeps Opus-verify-at-merge earning its
-    keep (its floor is necessarily thin — fixtures can't cover an unknown
-    failure mode). So the standing-executor doctrine line (still owed, future
-    session) should read "well-floored builds of *known* patterns +
-    prescriptively-reviewed fixes", and must **not** generalise to "any
-    first-of-kind build". Four runs of data now; the promotion edit stays a
-    future session's rule-4 doctrine act.
+**Third-seat executor trial — CONCLUDED 2026-08-03.** Four runs, nine
+dispatched items, one failure; the promotion the data supported is now doctrine
+(`ECONOMICS.md` § *The orchestrated-run tier split* — mid tier as standing
+executor for well-floored known-pattern builds + prescriptively-reviewed fixes,
+discriminator floor density; rule-4 `⏳` queued in § *Doctrine — review-owed*).
+Run detail harvested verbatim → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
+§ *Third-seat executor trial*.
+
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 
