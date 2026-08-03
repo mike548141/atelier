@@ -84,5 +84,32 @@ this), recorded here so the dependency is explicit: **PS1's fix propagates
 by pin bump, not by this commit.** No action beyond what the board already
 tracks.
 
-*(Reconcile against the 2026-08-02 verdict follows in a separate commit —
-the prior verdict stays unopened until the findings above are committed.)*
+## Faithfulness to the rulings (written at reconcile, below)
+
+- **PS1 ✅** — the counsel was "delete the clause, add the skill's
+  pre-2026-07-29 note to the canonical text"; the application did exactly
+  that, and the sweep above confirms no sixth surface survives.
+- **PS2 ✅** — the counsel was one sentence in TOOLBOX's named-cost
+  paragraph; the application wrote the residual in full, including the
+  sharpest form ("a repo whose live allowlist never diverges from seed is
+  still described exactly"), which is the prior verdict's own observation
+  carried into the doctrine honestly.
+- **PS3 ✅** — the counsel offered narrow-or-mark-deliberate; the ruling
+  chose narrow, and the applied template keeps `acceptEdits` only. The
+  `WebSearch` grant fell with the `allow` block — entailed by the ruling,
+  coverage-checked (no `allow` block remains anywhere in the templates).
+
+## Reconcile (prior verdict opened after the findings were committed)
+
+Nothing overturned. PSA1 turns out to sit exactly on the prior PS3's closing
+clause (the local template "is outside publishscan's allowlisted-template
+reasoning, argued for `settings.json` only") — the application narrowed the
+grant but the residual-naming clause still reads singular; PSA1 stands as the
+precision residue of that, not a new class. Verified while reconciling:
+`publishscan` does not flag the tracked local template
+(`templates/claude/` ≠ `.claude/` at any depth), so no fixture change is
+owed. PSA2 matches the prior verdict's own pin-bump framing.
+
+**Disposition: terminal.** 0 MAJOR ⇒ the publish-surface cycle **closes**
+per REVIEW.md's no-MAJOR rule. PSA1–PSA2 are residue for Mike (rule 3);
+counsel recorded, nothing applied by this session.
