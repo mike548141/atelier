@@ -382,6 +382,38 @@ SCANNERS: tuple[Scanner, ...] = (
         default_scope="docs",
     ),
     Scanner(
+        "harvestscan",
+        # SCOPED, and the scope is the whole reason this is here at all. Its
+        # unscoped form fired on one roadmap commit in four and was shelved on
+        # its author's own counsel; its cold pass measured the variant the
+        # shelving never did and the principal overturned the verdict on that
+        # measurement (HV1, 2026-07-29). `--only-bulk-deletes` is the ruling:
+        # 6 in-scope commits in the whole history, 3 warns, all justified.
+        # `--staged` is the plane — the index is what the commit is about to be.
+        hook=["--staged", "--only-bulk-deletes", "--root", "{root}"],
+        # CI compares HEAD against its parent: the working tree IS HEAD there,
+        # so `--against HEAD^` asks the same question the hook asks of the index.
+        ci=["--against", "HEAD^", "--only-bulk-deletes", "--root", "{root}"],
+        # Its one form is warn-only — it never returns non-zero on a finding,
+        # because its similarity threshold is honestly ungrounded and a check
+        # that cannot ground its constant may not red a build. Declaring the
+        # advisory form identical to the enforced one says that here rather
+        # than leaving the registry implying a block it will never make.
+        advisory=["--staged", "--only-bulk-deletes", "--root", "{root}"],
+        why="a roadmap item removed in a bulk deletion arrived somewhere",
+    ),
+    Scanner(
+        "pointerscan",
+        hook=["--root", "{root}", "{scope}"],
+        ci=["--root", "{root}", "{scope}"],
+        # Warn-only for the same reason: both detectors read judgement-adjacent
+        # text, and the honest posture is to warn at the moment the fix is free
+        # — a pointer is fixable in the commit that writes it.
+        advisory=["--root", "{root}", "{scope}"],
+        why="a queued-review pointer stays refs-only and stays true",
+        default_scope="docs",
+    ),
+    Scanner(
         "licenscan",
         hook=["--expect", "{licence}", "{scope}"],
         ci=["--expect", "{licence}", "{scope}"],

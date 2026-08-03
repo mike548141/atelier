@@ -708,6 +708,69 @@ usage/config error. Escape hatches mirror the sibling scanners:
 `<!-- spellscan:allow: <reason> -->` per line, a glob in `.spellscanignore` per
 path.
 
+## `harvestscan.py` — a removed roadmap item arrived somewhere (advisory only)
+
+The third member of `sizescan`'s family, and the only one that loses work: an
+item **removed** from `ROADMAP.md` that arrives nowhere. Every other check reads
+a file as it stands; this failure exists only as a difference between two
+versions. It fingerprints an item's *content*, never its title — a healthy
+roadmap retitles and re-homes constantly, and title-matching was measured at a
+near-total false-positive rate.
+
+**Scoped, and the scope is why it is wired at all.** Unscoped it fired on one
+roadmap commit in four and was shelved on its author's own counsel. Its cold
+pass measured the variant the shelving never did, and the principal overturned
+the verdict on that measurement (HV1, 2026-07-29): scoped to
+`--only-bulk-deletes` — a change shedding ≥ 50 **net** lines from `ROADMAP.md` —
+the whole history holds 6 in-scope commits, of which 3 warn, including the
+incident that motivated it. Net, not delete-only: that incident was +48/−184.
+
+```sh
+python3 tools/harvestscan.py --root . --staged --only-bulk-deletes  # the hook plane
+python3 tools/harvestscan.py --root . .        # working tree vs HEAD, no gate
+python3 tools/harvestscan.py --against <rev>   # against another revision
+python3 tools/harvestscan.py --replay          # re-measure over the whole history
+python3 tools/harvestscan.py --selftest        # prove the matching logic offline
+```
+
+Exit codes: `0` always for findings — **warn-only, never blocking**, because its
+similarity threshold is honestly ungrounded and a check that cannot ground its
+constant may not red a build · `2` usage/config error.
+
+## `pointerscan.py` — the queued-review pointer, refs-only and true (advisory only)
+
+Two guards on one parse of `ROADMAP.md`'s queued-review pointers:
+
+- **grammar** — a pointer that seeds the reviewer's first question steers the
+  pass it is queuing, against the ceiling `ROADMAP.md` and `REVIEW.md` both
+  state. Fires on a question inside a pointer, plus a short list of
+  reviewer-direction forms. Pass type and tier are **lawful** fields: they route
+  the review; they say nothing about the delta's merits.
+- **cycle state** — an item asserting a review is owed while carrying the verdict
+  of the review that ran, with the state it is *actually* in named (reviewed,
+  ruled, applied) rather than only the contradiction.
+
+The scope decision — **what makes an item a queued-review pointer** — is settled
+in the module docstring on the four recorded specimens, and it is the load-bearing
+part: the marker glyph alone misses the specimen that was still live when this
+shipped. `harvestscan` imports that decision rather than keeping a second copy.
+
+It lints **no field into existence** anywhere — the 2026-07-18-0820 record
+rejected a lint demanding a review line under every roadmap heading, and
+`reviewscan` honours that refusal. This forbids content in one narrow,
+self-identifying item type instead, which is a different rung.
+
+```sh
+python3 tools/pointerscan.py --root . docs   # explicit — the floor's invocation
+python3 tools/pointerscan.py --json          # machine-readable
+python3 tools/pointerscan.py --selftest      # prove the rules on the specimens
+```
+
+Exit codes: `0` always for findings — **warn-only**; a pointer is fixable in the
+commit that writes it, which is the one moment the fix costs nothing · `2`
+usage/config error. Escape hatch: `pointerscan:allow: <reason>` anywhere in the
+item.
+
 ## Tests
 
 ```sh

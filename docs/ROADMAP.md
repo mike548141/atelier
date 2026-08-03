@@ -180,6 +180,14 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       `why`/reason strings raw — and the C1F3 finding text itself says the
       class reaches "both floor and board". Small fix at floorfleet's parse
       seam; rides the next floorfleet touch, or its application pass.
+- [ ] 🎯 **A warn-only registry scanner renders `✅ enforced` on the floor
+      board** (handed up by the 2026-08-03 pointer-grammar build, deliberately
+      not decided there — past its minimal-hunk scope). Both new advisory
+      entries exit 0 always, so the render shows the same green tick it shows
+      a blocking scanner while printing findings — the "identical output for
+      materially different cover" shape EP3 named for leakscan's planes. The
+      fix wants a third render state in `floor.py`; EP3's ruling may settle
+      both at once, so decide them together.
 - [ ] 🎯 **C1b — migrate the 17, then delete the legacy spelling.** Phase 1
       deliberately did not write the declarations: a `review-by` is a
       commitment about when a backlog gets cleared, which is the principal's to
@@ -612,122 +620,23 @@ it keeps being broken. All are self-authored doctrine when they land ⇒ rule-4
   § *Doctrine — review-owed*.
 - **Bulk deletion from a record store is a show-first action** — Mike's call,
   it narrows agent autonomy → § *For your consideration* below.
-- [ ] 🎯 **The `⏳` pointer steered its own reviewer — THIRD instance,
-      2026-07-28.** Two queued pointers carried their authors' full reviewer
-      agendas inline, against the ROADMAP's own refs-only ceiling; the taker
-      read them before a brief existed to defer them, and it measurably steered
-      the pass — two of three seeded questions pointed away from the
-      load-bearing problem. The ceiling is stated in this file's own preamble
-      and was not enforced by anything.
-      **A third instance arrived on 2026-07-28, and it is the sharpest
-      evidence yet, because the author had read this very finding hours
-      earlier.** The B4 pointer was queued carrying a seeded first question
-      ("is a 26.9% firing rate the right ground for *do not wire*") plus the
-      author's own doubt about his verdict. Refs-only survived being *written
-      down as an open finding*, in the same file, in the same session that
-      then broke it. Stripped on the next commit when Mike asked for the
-      review to be queued and it was re-read.
-      **By this file's own recurrence rule** — three instances of a trivial
-      failure is a defect in the system producing it, not in the person — the
-      argument for a forcing function is made. **Mike funded it 2026-07-28**;
-      specified as its own item immediately below, deliberately left unclaimed
-      for a fresh session.
 
-- [~] (claimed 2026-08-03-2016, wt: qr0804-grammar — agent worktree, Fable-orchestrated run) **FUNDED (Mike, 2026-07-28) — mechanise the `⏳` pointer grammar.**
-      Unclaimed on purpose: this is the work that closes the finding directly
-      above, and it wants a session that did not write the breach.
+**The `⏳` pointer grammar — MECHANISED 2026-08-03** (the FUNDED build,
+closing the THIRD-instance finding, one build with the B4 wiring per HV2):
+`tools/pointerscan.py` carries both detectors (grammar + cycle state),
+advisory-first, registry-wired; the scope question settled on four recorded
+specimens (marker glyph in bullet or state prefix, or a review-obligation
+phrase in an emphasis run; `[x]` never a pointer); pass type ruled a lawful
+fourth field beside {delta, intent record, tier} (FG6's boundary specimen
+passes clean); **instance 2 LOCATED** — the pathscan S2 first-of-kind pointer,
+three seeded questions, live 2026-07-24→27. The recorded counts were wrong in
+both directions and are corrected in the harvest: the five stale residues were
+seven (two still live at HEAD, fixed 2026-08-03), the three grammar instances
+were 19 across history. Day-one proof: the live tree warned on exactly the
+specimens the build was funded to catch, fixed in the landing merge. Entries →
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The ⏳ pointer grammar mechanised*;
+rule-4 `⏳` queued in § *Doctrine — review-owed*.
 
-      **A correction to carry, because it changes where this goes.** The first
-      sketch said "`reviewscan` is the natural home". It is not, and the
-      premise was never checked before being written down — the same shape as
-      the two false blockers this programme already records. `reviewscan`
-      **explicitly refuses to lint ROADMAP sections**, and that refusal is a
-      recorded decision (the 2026-07-18-0820 record), on the grounds that a
-      lint demanding structure under every roadmap heading fires on prose and
-      gets trained away. Honouring that rejection is in its module docstring.
-      The tool that *already* parses `⏳` list items in `ROADMAP.md` is
-      **`sizescan`** (`_LIVE_ITEM`, for harvest integrity), and
-      `harvestscan.is_pointer()` already isolates pointers from work items —
-      two existing building blocks rather than a new tool.
-
-      **First question the work must answer, not assume:** is this the same
-      rung the 0820 record rejected? Arguably not — that rejection was about
-      demanding a field under *every roadmap heading*, whereas this binds only
-      the `⏳` item type, of which there are rarely more than three at a time
-      and whose form is formulaic by definition. But that argument is the
-      author's, it is exactly the kind that has been wrong here before, and it
-      should be tested rather than inherited.
-
-      **What is actually mechanisable.** "A field outside {delta, intent
-      record, tier}" sounds crisp and is not detectable — the failure is
-      *evaluative* content, which is judgement. What the three real instances
-      share is narrower and testable: a **seeded question** or an explicit
-      **instruction to the reviewer**. Instance 1 carried *"Aim a reviewer at
-      the one real trade … Is that right for a security floor?"*; instance 3
-      carried *"the pass's first question is whether …"*. A question mark
-      inside a `⏳` item, plus a short phrase list of reviewer-direction
-      forms, catches all three.
-
-      **Acceptance corpus — located, not assumed.** Instance 3 is recoverable
-      as a pair (`ff8080b` wrote it, `7ca1f1d` stripped it), which gives a
-      must-flag and a must-stay-silent version of the same pointer. **Instance
-      1 is still LIVE in this file** — the ADR 0008 entry's *"Aim a reviewer
-      at the one real trade … Is that right for a security floor?"* — so the
-      guard has a real specimen to prove itself against on day one, and a real
-      finding to fix. Instance 2 was not located this session; find it or
-      record that it could not be found, rather than inheriting "two" on
-      faith. **A boundary specimen joined the corpus by the FG6 ruling
-      (Mike, 2026-08-03):** the F1 pointer carried *"Design/intent pass per
-      REVIEW.md §…"* — an instruction to the reviewer, but a procedural one
-      (pass type), not evaluative and not a seeded question. Whether
-      pass-type is a lawful fourth field beside {delta, intent record, tier}
-      is this build's to settle, decided on the corpus rather than pre-ruled.
-
-      🔎 **And that live specimen already breaks the obvious scoping.** The
-      ADR 0008 entry carries a reviewer agenda but is marked `[ ]`, with
-      "review owed" *mid-body* rather than in its lead — so a guard scoped to
-      the `⏳` marker alone would miss the one instance still standing.
-      `harvestscan.is_pointer()` has the same limit (marker, or lead-6-words).
-      Settle the scope before the detector: **what makes an item a
-      queued-review pointer** is the prior question, and getting it wrong
-      makes the check cover nothing while reporting clean — this programme's
-      organising defect, which it would be embarrassing to reproduce in the
-      guard against reproducing failures.
-
-      **A second detector rides the same scope decision — the stale pointer
-      (Mike, 2026-08-03).** The grammar check above asks *what may a pointer
-      say*; the same parse answers *is the pointer still true*. An item
-      claiming a review is owed while a matching `docs/reviews/` verdict
-      exists is a mechanically detectable contradiction. Raised by a `ros`
-      session as atelier's call, correctly — the guard is shared-floor, not
-      child-local. It needs the same prior question settled and reuses the
-      same two building blocks, so this is one build, not two; splitting it
-      would make a third original of *what makes an item a queued-review
-      pointer*.
-
-      **The count was wrong on first telling, and the corrected count does
-      not clear the threshold.** The raising session said four instances and
-      read that as past promote-at-three. A sweep of this file found
-      **five** — all in § *Doctrine — review-owed*, all from **one commit**
-      (`98cef9e`, the nine-pass queue take), which prepended verdicts to nine
-      items and stripped the stale wording from only four. One occurrence
-      with five residues is not five recurrences: the ladder's threshold is
-      **not** met, and the case for wiring rests on the detection being
-      near-free once the scope is settled. Recorded this way so a later
-      session does not inherit "past the threshold" on faith.
-
-      **The residue named a sharper defect than the one detected.** All five
-      said "review queued" when the review had run and what was owed was
-      Mike's *ruling*. Existence-of-verdict catches the contradiction; reading
-      the cycle states — owed → reviewed → ruled → applied → closed — says
-      which state the item is actually in. Which of the two the guard carries
-      is the build's to settle. **Acceptance corpus:** the five were cleaned
-      in the commit adding this paragraph, giving a must-flag/must-stay-silent
-      git pair in the same shape as instance 3's, rather than a live specimen.
-
-      **Advisory first**, whatever the scope: a pointer is fixable in the same
-      commit that writes it, so the warning lands at the one moment it costs
-      nothing.
 - [ ] **ZL1 (MAJOR) — the surface that binds the apex at session start is
       stale.** `skills/session-onramp/SKILL.md` still teaches the pre-Zeroth
       three-element Laws, contradicting `00-APEX.md` at HEAD. A prior sweep
@@ -761,16 +670,16 @@ the mechanism works.
 - [ ] 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS
       3M/5m/1L/1n — [verdict](reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md);
       EP1–EP10 await Mike's ruling (REVIEW rule 3; MAJORs keep the cycle open
-      past the application). **ADR 0008 review owed** — self-authored, so this session may not review
-      it (REVIEW.md rule 4). Aim a reviewer at the one real trade: moving every
-      repo onto a floating `@main` caller swaps a slow silent failure for a fast
-      loud estate-wide one. Is that right for a security floor?
+      past the application). **State: reviewed — the ruling is what is owed,
+      then the application.** The pre-review wording this item carried (a
+      reviewer agenda with a seeded question) was the pointer-grammar corpus's
+      last live specimen; stripped 2026-08-03 on `pointerscan`'s day-one
+      warning, exactly as the FUNDED build's entry said it should be.
       **⚠️ An Opus pass ran on 2026-07-26 0647 UTC and was NOT ACCEPTED** — reviews
-      run on the wrong tier (Mike, 2026-07-26): cold review passes are Fable's.
-      The item is re-queued unchanged and still awaits its first accepted review.
-      The withdrawn pass is preserved as history under `docs/reviews/withdrawn/`
-      and is **not reading for the redo** — open it only after your own verdict
-      is written and committed.
+      run on the wrong tier (Mike, 2026-07-26): cold review passes are Fable's;
+      the accepted Fable pass is the verdict linked above. The withdrawn pass
+      is preserved as history under `docs/reviews/withdrawn/` and its findings
+      die with it.
 - [ ] **Two children were bootstrapped with `--no-verify`** — the gate they were
       installing already failed on their pre-existing content, so it blocked its
       own installation. Once is the honest resolution; twice would not be. Both
@@ -1207,6 +1116,19 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
 
 ## Doctrine — review-owed
 
+- ⏳ **Rule-4 review queued (tier: Fable; pass type: code/design cold pass) —
+  the pointer-grammar build + the B4 `harvestscan` wiring (one build, HV2;
+  the B4 cycle's MAJOR keeps that cycle open past this application).**
+  *Delta:* `tools/pointerscan.py` + `tools/test_pointerscan.py` (new);
+  `tools/harvestscan.py` + `tools/test_harvestscan.py` (HV1 scope, HV2–HV4
+  folds, `--replay`); the two registry entries in `tools/floor.py` +
+  `tools/test_floor.py`; `tools/README.md`; `CHANGELOG.md`; the three
+  specimen fixes in this file (all landed 2026-08-03, this merge).
+  *Intent record:* [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The ⏳ pointer
+  grammar mechanised* (the FUNDED entry + corrections, harvested at landing)
+  + the [B4 cold pass](reviews/2026-07-29-1306-b4-harvestscan-cold.md)
+  rulings HV1–HV5 (Mike, 2026-07-29).
+
 - ⏳ **Rule-4 review queued (tier: Fable) — the FS1–FS5 application on
   `floorfleet` (the B2+B3 cycle's application pass; the FS1 MAJOR keeps the
   cycle open past it).** *Delta:* `tools/floorfleet.py` +
@@ -1249,24 +1171,6 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *Doctrine — the harvest rides the
   `[x]` commit* + the SESSIONS.md entry of 2026-08-03 (orchestrated run).
 
-- [~] (claimed 2026-08-03-2016, wt: qr0804-grammar — agent worktree, Fable-orchestrated run) 🎯 **B4 — REVIEWED 2026-07-29 (rule-4 Fable cold pass):
-  PASS-WITH-FINDINGS — 1 MAJOR / 2 minor / 2 notes; every recorded
-  figure reproduced exactly. HV1–HV5 RULED 2026-07-29 (Mike): the shelf
-  verdict is OVERTURNED on the pass's measurement — WIRE `harvestscan`,
-  scoped and advisory:** registry entry firing only on net-bulk-delete
-  roadmap commits (≥50 net lines removed), warn-only, never blocking.
-  Evidence: 6 in-scope commits in the 391-commit history, 3 warns, all
-  justified, the `dd7fcb74` incident caught; strict delete-only rejected
-  (it misses the incident, +48/−184). HV2 — the pointer exclusion's
-  dependency on the FUNDED `reviewscan` ⏳-grammar check is named and
-  they build together. HV3 — survivor search widened to
-  `docs/sessions/` + `docs/reviews/`, effect measured by the replay
-  harness before landing. HV4 — usage wording + the staged-vs-working
-  seam handled in the wiring build. HV5 lapsed under HV1. Rulings
-  verbatim + counsel:
-  [B4 cold pass](reviews/2026-07-29-1306-b4-harvestscan-cold.md).
-  **Application owed as one wiring build item (scope + tests + registry
-  + HV2–HV4 folds); it queues its rule-4 pointer at landing.**
 
 
 - [ ] 🎯 **Write down which tier reviews — the rule exists in practice and
@@ -1892,8 +1796,9 @@ USE — a possible future heuristic extension.)*
       3 medium / 2 low (reviewer's scale; no MAJOR label used) —
       [verdict](reviews/2026-07-26-2215-floor-local-seam-cold.md); LS1–LS5
       await Mike's ruling (rule 3).
-      **The repo-local floor seam — review owed** (self-authored, so this
-      session may not review it — REVIEW.md rule 4). *Delta:* `tools/floor.py`
+      **The repo-local floor seam — state: reviewed; the ruling is what is
+      owed** (stale "review owed" wording stripped 2026-08-03 on
+      `pointerscan`'s day-one warning). *Delta:* `tools/floor.py`
       (`local` block, `_load_local`, the `is_local` path through plan/run/render,
       `_interpreter`), `tools/floorfleet.py` (`➕` board line), their two test
       files, `docs/build/REPO-STANDARD.md`, `docs/build/templates/CONTRIBUTING.md`,
@@ -2662,8 +2567,11 @@ per pattern, and the stated residual →
       repo the floor never sees), actions policy, fork-PR approval,
       vulnerability reporting, rulesets. Every settings-level finding in the
       `rpi` pass walked through that gap. Owed **before `ros`/`faves` flip**.
-- [ ] ⏳ **P6 — `rpi` F5: estate-internal context accumulating in public
-      records. Mike's ruling owed.** Session logs naming sibling repos and their
+- [ ] 🎯 **P6 — `rpi` F5: estate-internal context accumulating in public
+      records. Mike's ruling owed** (was mis-marked `⏳` — the queue glyph means
+      a review is queued for a taker, and what is owed here is a decision;
+      re-marked 2026-08-03 on `pointerscan`'s day-one warning). Session logs
+      naming sibling repos and their
       scan states; workflow detail published as a matter of course. This repo
       already holds the narrower rule (never join a private repo's *name* to its
       *security posture* — the invariant breached three times); F5 asks the

@@ -75,6 +75,30 @@ class RegistryTest(unittest.TestCase):
             self.assertIsNotNone(floor.BY_NAME[name].advisory,
                                  f"{name} needs an advisory form for adoption")
 
+    def test_the_two_warn_only_checks_are_scoped_as_ruled(self):
+        """`harvestscan` and `pointerscan` are in the registry on one condition:
+        they never block. Both express that in the tool (findings exit 0), so
+        the registry's job is to carry the SCOPE that made wiring defensible.
+
+        For harvestscan that scope is the whole argument: unscoped it fired on
+        one roadmap commit in four and was shelved on its author's own counsel;
+        `--only-bulk-deletes` is what the principal overturned that verdict on
+        (HV1, 2026-07-29). Losing the flag here would silently restore the 26.9%
+        firing rate the shelving was about."""
+        harvest = floor.BY_NAME["harvestscan"]
+        for plane in (harvest.hook, harvest.ci, harvest.advisory):
+            self.assertIn("--only-bulk-deletes", plane)
+        # The hook reads the INDEX — what the commit is about to be. CI's
+        # working tree IS HEAD, so it asks the same question of HEAD^.
+        self.assertIn("--staged", harvest.hook)
+        self.assertIn("HEAD^", harvest.ci)
+        self.assertNotIn("--staged", harvest.ci)
+
+    def test_the_pointer_guards_read_the_records_tree(self):
+        pointer = floor.BY_NAME["pointerscan"]
+        self.assertEqual(pointer.default_scope, "docs")
+        self.assertIsNotNone(pointer.advisory)
+
     def test_ci_never_demands_the_machine_local_term_list(self):
         """--require-terms would demand a list CI cannot (and must not) hold:
         the person/estate terms are machine-local by design (SECRETS.md). CI's

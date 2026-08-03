@@ -5,6 +5,58 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-08-03 — the queued-review pointer gets a forcing function)
+- **`tools/pointerscan.py` — two advisory guards on the `⏳` pointer.** *Grammar:*
+  a pointer that seeds the reviewer's first question steers the pass it is
+  queuing, against the refs-only ceiling `ROADMAP.md` and `REVIEW.md` both state;
+  recorded three times, the third written hours after its author read the finding
+  recording the first two. *Cycle state:* an item asserting a review is owed while
+  carrying the verdict of the review that ran, with the state it is actually in
+  named — reviewed, ruled, applied — because all five recorded residues said
+  "review queued" when what was owed was the principal's ruling.
+- **The scope decision is the deliverable, not the regexes.** *What makes an item
+  a queued-review pointer* is settled in the module docstring on four recorded
+  specimens: the marker glyph in the bullet or the state prefix, **or** a
+  review-obligation phrase inside an emphasis run. Scoping to the glyph alone
+  provably misses the one specimen still standing when this landed, which would
+  have been a check that runs, exits 0 and covers nothing.
+- **Pass type ruled a lawful field** beside {delta, intent record, tier}: tier is
+  already lawful and is the same class of fact — both route the review, neither
+  says anything about the delta's merits, and the ceiling forbids an evaluative
+  *account*, not routing.
+- **It lints no field into existence.** The 2026-07-18 record rejected a lint
+  demanding a review line under every roadmap heading, and `reviewscan` honours
+  that refusal. This forbids content in one narrow, self-identifying item type —
+  a different rung, and it is its own tool rather than a fold into `sizescan`,
+  whose advisory declaration would otherwise silently soften it too.
+- **On day one it found three live findings**, including a stale residue in a
+  section the recorded sweep of "five" had not looked in.
+
+### Changed (2026-08-03 — B4's shelf verdict overturned; `harvestscan` joins the registry)
+- **`harvestscan` is wired, scoped and warn-only** (HV1, ruled 2026-07-29). The
+  author's own "do not wire, not even advisory" rested on the *unscoped*
+  measurement; its cold pass measured a variant the entry had named but never
+  measured. Scoped to commits shedding ≥ 50 **net** lines from `ROADMAP.md`, the
+  whole history holds 6 in-scope commits, of which 3 warn — all justified, and
+  the motivating incident caught. Net, not delete-only: that incident was
+  +48/−184, so the entry's first-ranked variant would have missed it.
+- **The pointer exclusion is `pointerscan`'s test now** (HV2). The copy inside
+  `harvestscan` read the marker or the item's first six words, and the recorded
+  corpus has four pointer shapes of which that saw two — so it was forgiving
+  items nothing then policed.
+- **The survivor search reaches the stores that actually receive harvests**
+  (HV3) — `docs/sessions/` and `docs/reviews/`, and their **prose**, not only
+  their list items. Widening the file list alone was measurably inert: those
+  stores hold almost no checkbox items, so a harvest written up as a paragraph
+  still read as vanished.
+- **The plane wording says what is read** (HV4): `--staged` reads the INDEX —
+  what the commit is about to be — and the default reads the working tree. The
+  old wording said "staged/working" while the code read the working tree only.
+- **The replay harness ships** (`--replay`). The cold pass had to rebuild it from
+  the tool's pure functions to check the recorded figures, and HV3 required the
+  effect of widening to be measured before landing; neither is possible against a
+  harness that lives only in a session's scratch space.
+
 ### Changed (2026-08-03 — joined notes, ageing on the line, control strip)
 - **The floor's human line stopped choosing between its notes** (TAA2 + C1F1
   as one design): an advisory's `why`, its scope-drift note and its cover
