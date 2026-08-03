@@ -367,11 +367,15 @@ adopter mistakes.*
       never reached him. Named as its own failure shape: a coverage
       narrowing settled at tool altitude.
 
-      - [~] (claimed 2026-08-03-2016, wt: qr0804-e6a — agent worktree, Fable-orchestrated run) **E6a — write the posture into `SECRETS.md` as doctrine.** Mike's
-            stated intent becomes the posture both scanners answer to, so the
-            asymmetry is a decision rather than an accident and the next agent
-            inherits it instead of a docstring. Self-authored doctrine ⇒
-            rule-4 `⏳` queued in the landing commit.
+      - **E6a — DONE 2026-08-03** (orchestrated run): the posture is doctrine
+            — `SECRETS.md` § *The boundary's posture* states Mike's intent as
+            the bar both scans answer to, over-flag as the fail-safe
+            direction, the leakscan/secretscan asymmetry as
+            found-and-decided, EI5's grounding (rotation presupposes
+            detection), coverage narrowing as the principal's decision never
+            a code comment, and the advisory dial as decided-not-built with
+            EI1's consumer precondition. Rule-4 `⏳` queued at landing
+            (§ *Doctrine — review-owed*).
       - [ ] **E6b — give `secretscan` a real advisory tier.** High-confidence
             hits block as they do now; context-free entropy hits report and
             exit 0. The blocking set never shrinks — everything the tier adds
@@ -1257,6 +1261,13 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
       grounding bar in `CLAUDE.md`).
 
 ## Doctrine — review-owed
+
+- ⏳ **Rule-4 review queued (tier: Fable) — the E6 application, E6a slice.**
+  *Delta:* `docs/method/SECRETS.md` § *The boundary's posture — over-flag,
+  because detection enables everything* (landed 2026-08-03, this merge).
+  *Intent record:* ROADMAP Track E § E6 (Mike's rulings 2026-07-28) + the
+  [E6 intent cold pass](reviews/2026-07-29-1243-e6-intent-cold.md) rulings
+  EI1–EI6 (2026-07-29).
 
 - ⏳ **Rule-4 review queued (tier: Fable) — the landing-equals-bookkeeping
   preamble clauses.** *Delta:* the two new sentences in this file's

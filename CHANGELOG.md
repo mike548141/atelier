@@ -5,6 +5,16 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-08-03 — the boundary's posture becomes doctrine)
+- **`SECRETS.md` now states the posture both boundary scans answer to**: find
+  every secret, credential, private key and piece of personal data, so none of
+  it reaches a public or insecure place. Over-flagging is the fail-safe
+  direction for both scans by decision (the historical opposite tunings are
+  recorded as found-and-decided); a coverage narrowing is the principal's
+  decision, never a code comment; the credential scan's advisory tier is
+  recorded as decided-not-built, gated on naming its findings' consumer.
+  (E6a — ruled 2026-07-28/29, landed by the 2026-08-03 orchestrated run.)
+
 ### Added (2026-07-26 — the floor grows a repo-local extension point)
 - **A child repo may now ADD a check, not only subtract one.** `.atelier-floor.json`
   gains a `local` block declaring checks the repo owns and ships: `run` (a path
