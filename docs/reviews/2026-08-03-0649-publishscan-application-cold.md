@@ -104,5 +104,37 @@ config-authored strings) — recorded so publishscan's two config-authored
 surfaces (glob text in errors, finding paths in output) are named in that
 fix's scope rather than discovered after it closes. No separate work item.
 
-*(Reconcile against the 2026-08-02 verdict follows in a separate commit —
-the prior verdict stays unopened until the findings above are committed.)*
+## Faithfulness to the rulings (written at reconcile, below)
+
+- **PB1 ✅** applied exactly as ruled — `glob OR */+glob`, probe rows as the
+  permanent red leg in both suite and selftest.
+- **PB2 ✅** enforced at parse, exit 2, same-line binding stated; the
+  remediation text teaches the reasoned form (`# kept: <why>`), which the
+  ruling required.
+- **PB3 ✅** rebase + named in output. The ruling did not specify the stream;
+  the application chose stdout, which is where PA1 lives — the defect is the
+  application's, not the ruling's.
+- **PB4 ✅** `.idea/**/*` dropped as ruled. **One removal no ruling named:**
+  the application also dropped `*/.env`, as redundant under PB1's depth form.
+  Verified coverage-neutral — `sub/.env` stays in the selftest red leg and
+  passes — so this is faithful consolidation, recorded here because a silent
+  extension of a ruling is the thing this section exists to catch.
+
+No ruling was skipped, softened, or quietly extended beyond the verified-
+neutral row above.
+
+## Reconcile (prior verdict opened after the findings were committed)
+
+Nothing overturned. PA2's shape was not weighed in the 2026-08-02 pass —
+PB1's probes were credential carriers (`packages/api/.npmrc`,
+`sub/.env.production`); `.env.example` appears nowhere in that verdict, so
+PA2 stands as new rather than re-litigation. Note the counsel/ruling split
+PB1 carried: counsel proposed basename-at-any-depth matching (`.env*`),
+Mike's ruling chose `glob OR */+glob` — the application implements the
+ruling, correctly. The prior verdict's untouched residuals (P2a's fleet
+sweep, the no-`{scope}` registry grounds) remain untouched by this pass.
+
+**Disposition: terminal.** 0 MAJOR ⇒ the publishscan cycle **closes** per
+REVIEW.md's no-MAJOR rule. PA1–PA4 are residue for Mike's ruling (rule 3 —
+policy-as-code is doctrine by function); counsel is recorded per finding and
+nothing is applied by this session.
