@@ -5,6 +5,16 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-08-03 — low variety is not innocence)
+- **`secretscan` no longer treats low character variety as evidence of
+  innocence in credential-key context** (E6c, generalising the ruled SF1+SF2
+  carve-outs): in assigned-secret context, a 32+ unbroken alphanumeric run or
+  a four-plus-word separator-joined passphrase flags regardless of the
+  identifier/slug suppressions; the ruled six-shape probe went two-of-six to
+  six-of-six and the blocking set only widened. A 16-shape **canary suite**
+  (SF3) now pins the gate: a canary going quiet is a detection regression,
+  never a fixture to update.
+
 ### Changed (2026-08-03 — ER1–ER4 applied; the mid tier earns its seat)
 - **The making-public confirmation now includes the pre-flip scrub** of the
   estate-root name (`AUTONOMY.md`); `PROPAGATION.md` says where the local-path

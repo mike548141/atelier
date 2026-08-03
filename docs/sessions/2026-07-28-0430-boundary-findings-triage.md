@@ -91,6 +91,10 @@ the credit was not this session's to take. It also corrected this session's own
 framing — the high-entropy net already catches anything ≥32 characters
 regardless of key name, so defect (1) only ever mattered for credentials in the
 **12–31 character band**: short service passwords, not tokens.
+*(Correction 2026-08-03, per the SF ruling: the ≥32 aside is true only for
+mixed-class values — probed false for single-class values, two 32-character
+probes did not flag. The E6c carve-outs now close that family in assigned
+context.)*
 
 **A ruling was executed in a form the file could not hold.** Mike ruled
 allow-marker for the tracked data export. Tested rather than assumed: in a

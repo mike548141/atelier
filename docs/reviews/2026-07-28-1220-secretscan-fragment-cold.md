@@ -77,7 +77,7 @@ delta's author.
 ## Findings
 
 **SF1 (minor — lens 4, live-proven): the kebab-slug suppression swallows
-hyphenated passphrases.** `password=correct-horse-battery-staple` — a
+hyphenated passphrases.** `password=correct-horse-battery-staple` — a <!-- secretscan:allow: the verdict's own synthetic specimen (the canonical diceware example); E6c now flags this shape by design, which is this finding fixed -->
 diceware-style shape real people really use — was flagged by the old
 scanner and is clean under the new one (`SLUG_RX`). Grading honestly: the
 snake_case twin was *already* exempt via the identifier rule, so this

@@ -390,12 +390,18 @@ adopter mistakes.*
             the mislabelled field, add the second axis, and let the computed
             result drive block-vs-report — so the field stops misdescribing
             what it holds, which is how it came to be read as impact at all.
-      - [~] (claimed 2026-08-03-2016, wt: qr0804-secretscan — agent worktree, Fable-orchestrated run) **E6c — generalise the SF1+SF2 carve-outs into a rule.** As ruled
-            they are two named shapes; the rule behind them is that **in
-            credential-key context, low character variety is not evidence of
-            innocence.** Covers both ruled shapes plus the ones nobody has
-            enumerated. Supersedes the two-shape framing recorded under the
-            secretscan residue; that entry stays as the grounding.
+      - **E6c — DONE 2026-08-03** (orchestrated run, with the SF residue in
+            one build): whole-shape carve-outs decided before every
+            variety-reading gate in assigned-secret context — an unbroken
+            32+ alphanumeric run (both hex leading forms, uppercase,
+            base32) and a four-plus separator-joined word passphrase (both
+            spellings) are no longer identifier/slug-suppressed; the ruled
+            six-shape probe went 2/6 → 6/6, the blocking set only widened,
+            and placeholder/indirection/path suppression keeps precedence
+            (statements of what a value is *for*, not its variety). SF3's
+            canary suite (16 shapes, count pinned, contract stated) now
+            guards the gate. Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
+            § *secretscan residue + E6c*.
 
       **The split that makes the intent affordable** (recorded because it is
       the reasoning, not the instruction): credential-key context is nearly
@@ -812,42 +818,6 @@ the mechanism works.
 These are **real findings the guards were never run to catch**, not rollout
 blockers to wave through. Each needs eyes before its repo can go green.
 
-- [~] (claimed 2026-08-03-2016, wt: qr0804-secretscan — agent worktree, Fable-orchestrated run) **secretscan pass residue — SF1–SF4, RULED 2026-07-28 (Mike,
-      plain-language walk-through with per-option impacts and a live
-      six-shape probe).** The rule-4
-      pass ran 2026-07-28 (Fable): **0 MAJOR / 1 minor / 3 notes, cycle
-      CLOSED** ([verdict](reviews/2026-07-28-1220-secretscan-fragment-cold.md)).
-      All four red legs reproduced old-vs-new; the FP fixes hold; the
-      estate figures verified (the 26→4 delta is the ruled untrack).
-      **SF1+SF2** (minor+note, ruled together as one low-charset-diversity
-      family) — the new kebab exemption un-flags hyphenated passphrases
-      (caught before, clean now; the snake twin was already exempt), and the
-      pre-existing lowercase-hex gap is half its stated size (digit-leading
-      hex already flags; letter-leading slips) → **TAKE BOTH WHOLE-SHAPE
-      CARVE-OUTS**: in assigned-secret context, a full-match 32+ lowercase
-      hex value and a 4+ hyphenated/underscored lowercase-word value are not
-      identifier/slug-suppressed. Cry-wolf risk is git SHAs, which rarely sit
-      assigned to credential-named keys. **Ruled on a live probe, recorded
-      because it sharpens the case**: of six credential-shaped assignments,
-      four passed clean — both passphrase spellings and both letter-leading
-      hex values — while only the digit-leading hex and the mixed-class
-      password flagged. **Also carried, and it corrects a record**: the
-      triage's "entropy net catches ≥32 chars regardless of key name" aside
-      is true only for mixed-class values, and was probed false for this
-      family — two 32-character values in the probe did not flag.
-      **SF3** (note) — the corpus re-scan question answered: sound
-      regression floor, insufficient acceptance test → **BUILD THE CANARY
-      SUITE**: a standing fixture set of credential *shapes* (env-var, hex,
-      base64, passphrase, connection string) that must always flag, run
-      beside the corpus re-scan on gate changes. It would have caught SF1.
-      **SF4** (note) — resolved at reconcile, no action.
-      **Work owed: SF1+SF2 carve-outs, SF3 canary suite, and the triage
-      record's entropy aside corrected.**
-      **Superseded in shape, not in substance (Mike, 2026-07-28):** the two
-      named carve-outs are now a special case of the general rule ruled under
-      **E6c** — in credential-key context, low character variety is not
-      evidence of innocence. Build to E6c; this entry is the grounding for
-      why, and the probe evidence above still stands.
 - [ ] **The four archetypes need naming as a class.** Every defect above, and
       both false positives already recorded below, are the same error: a rule
       deciding on a *fragment* of a value instead of its *whole shape*. Worth
@@ -1273,12 +1243,17 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   § *Third-seat executor trial* (runs 1–4, 2026-07-23) + Mike's trial
   instruction of 2026-07-23 (`dadde1d`).
 
-- ⏳ **Rule-4 review queued (tier: Fable) — the E6 application, E6a slice.**
-  *Delta:* `docs/method/SECRETS.md` § *The boundary's posture — over-flag,
-  because detection enables everything* (landed 2026-08-03, this merge).
+- ⏳ **Rule-4 review queued (tier: Fable) — the E6 application, E6a + E6c
+  slices.** *Delta:* `docs/method/SECRETS.md` § *The boundary's posture —
+  over-flag, because detection enables everything* (landed 2026-08-03); the
+  E6c/SF carve-outs + canary suite in `tools/secretscan.py` +
+  `tools/test_secretscan.py` (landed 2026-08-03); the specimen allow-marker
+  in the SF verdict and the triage record's dated correction (same merge).
   *Intent record:* ROADMAP Track E § E6 (Mike's rulings 2026-07-28) + the
   [E6 intent cold pass](reviews/2026-07-29-1243-e6-intent-cold.md) rulings
-  EI1–EI6 (2026-07-29).
+  EI1–EI6 (2026-07-29) + the
+  [SF verdict](reviews/2026-07-28-1220-secretscan-fragment-cold.md) rulings
+  (2026-07-28).
 
 - ⏳ **Rule-4 review queued (tier: Fable) — the landing-equals-bookkeeping
   preamble clauses.** *Delta:* the two new sentences in this file's
