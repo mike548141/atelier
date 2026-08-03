@@ -3229,3 +3229,33 @@ verbatim below. (Moved from ROADMAP.md 2026-08-03.)
       **E6c** — in credential-key context, low character variety is not
       evidence of innocence. Build to E6c; this entry is the grounding for
       why, and the probe evidence above still stands.
+
+## B2+B3 FS rulings applied — the board carries its authority (done 2026-08-03)
+
+FS1–FS5 ruled 2026-07-29 (Mike, all accepted, FS1 both legs), applied
+2026-08-03 by the orchestrated run: discovery authority printed beside the
+answer (footer + `--json`, loud warning on an empty private-capable listing),
+the three-outcome remote read (`unknown` rows red `--check`; only HTTP 404
+means "not enrolled"), the token spec's all-repos grant stated on every
+surface atelier carries, the wired-denominator headline, archived/unreadable
+counts printed even at zero, and the `green("")` docstring + selftest legs.
+One out-of-scope crash fix landed with it: a repo carrying no
+`.atelier-floor.json` felled `render` (advisory initialised as a bare list
+where every reader expects the C1 dict) — the board felled by the very
+absence it exists to report; fixed with a test. Suite +22 (66 → 88 in
+floorfleet's own file); live `--from-github` end-to-end run clean. The
+application's rule-4 pointer is queued (the FS1 MAJOR keeps the cycle open).
+Ruling entry preserved verbatim below. (Moved from ROADMAP.md 2026-08-03.)
+
+- [x] (2026-08-03: applied, pointer queued) 🎯 **B2 + B3 — REVIEWED 2026-07-29 (rule-4 Fable cold pass):
+  PASS-WITH-FINDINGS — 1 MAJOR / 2 minor / 2 notes. FS1–FS5 RULED
+  2026-07-29 (Mike): all accepted, FS1 both legs** — floorfleet gains a
+  discovery-authority footer (which listings answered, counts, warning
+  when the private-capable listing is empty); an unreadable `CLAUDE.md`
+  renders `unknown`, never "no pin"; the consumer's token spec states
+  the all-repos grant; plus the headline filter (FS2), the archived-skip
+  footer line (FS3), the annotation (FS4) and the `green("")` docstring +
+  selftest leg (FS5). Rulings verbatim + counsel:
+  [B2+B3 cold pass](reviews/2026-07-29-1251-b2b3-floorfleet-status-cold.md).
+  **Application owed as one build item (code + tests); the applier
+  queues its rule-4 pointer in the landing commit.**

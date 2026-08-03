@@ -125,6 +125,12 @@ further down this file; they are pointed at, not restated.
   repos read `wired ✅` and had been RED on their default branches since the
   2026-07-25 rollout**, unnoticed for three days. Detail →
   [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
+- [ ] **The scheduled consumer's workflow still owes its token-spec comment**
+      — FS1's all-repos grant statement is applied on every surface atelier
+      carries (module docstring, `--from-github` help + docstring, the
+      empty-estate failure message, 2026-08-03); the one remaining surface
+      is the consuming workflow's permissions comment in the private
+      estate-root repo, a one-line edit that repo owes itself.
 - [ ] 🎯 **The five red floors themselves are now open work.** `--status` found
       them; it does not fix them. Each is a real finding in a child repo and
       each is that repo's own call to clear (the same reasoning as the
@@ -1236,6 +1242,21 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
 
 ## Doctrine — review-owed
 
+- ⏳ **Rule-4 review queued (tier: Fable) — the FS1–FS5 application on
+  `floorfleet` (the B2+B3 cycle's application pass; the FS1 MAJOR keeps the
+  cycle open past it).** *Delta:* `tools/floorfleet.py` +
+  `tools/test_floorfleet.py` (landed 2026-08-03, this merge) — the
+  discovery-authority footer + `--json` field, the three-outcome remote
+  read with `unknown` rows that red `--check`, the token-spec statement in
+  four surfaces, the wired-denominator headline, the archived/unreadable
+  footer counts, the `green("")` docstring + selftest legs, and one
+  out-of-scope crash fix (a repo with no floor config felled `render`;
+  advisory initialised as a list where every reader expects the C1 dict).
+  *Intent record:*
+  [B2+B3 cold pass](reviews/2026-07-29-1251-b2b3-floorfleet-status-cold.md)
+  rulings FS1–FS5 (Mike, 2026-07-29) + the harvested ruling entry in
+  [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *B2+B3 FS rulings applied*.
+
 - ⏳ **Rule-4 review queued (tier: Fable) — the mid-tier standing-executor
   doctrine.** *Delta:* `docs/method/ECONOMICS.md` § *The orchestrated-run
   tier split*, the standing-executor paragraph (landed 2026-08-03, this
@@ -1282,18 +1303,6 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   **Application owed as one wiring build item (scope + tests + registry
   + HV2–HV4 folds); it queues its rule-4 pointer at landing.**
 
-- [~] (claimed 2026-08-03-2016, wt: qr0804-floorfleet — agent worktree, Fable-orchestrated run) 🎯 **B2 + B3 — REVIEWED 2026-07-29 (rule-4 Fable cold pass):
-  PASS-WITH-FINDINGS — 1 MAJOR / 2 minor / 2 notes. FS1–FS5 RULED
-  2026-07-29 (Mike): all accepted, FS1 both legs** — floorfleet gains a
-  discovery-authority footer (which listings answered, counts, warning
-  when the private-capable listing is empty); an unreadable `CLAUDE.md`
-  renders `unknown`, never "no pin"; the consumer's token spec states
-  the all-repos grant; plus the headline filter (FS2), the archived-skip
-  footer line (FS3), the annotation (FS4) and the `green("")` docstring +
-  selftest leg (FS5). Rulings verbatim + counsel:
-  [B2+B3 cold pass](reviews/2026-07-29-1251-b2b3-floorfleet-status-cold.md).
-  **Application owed as one build item (code + tests); the applier
-  queues its rule-4 pointer in the landing commit.**
 
 - [ ] 🎯 **Write down which tier reviews — the rule exists in practice and
   nowhere as a rule** (Mike's ruling, 2026-07-26, after an Opus session took

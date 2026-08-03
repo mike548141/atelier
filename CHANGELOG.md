@@ -5,6 +5,17 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-08-03 — the board says which authority answered)
+- **`floorfleet` now carries its discovery authority beside its answer**
+  (FS1–FS5 applied): a footer states which listings answered with counts,
+  archived and unreadable tallies print even at zero, and an empty
+  private-capable listing warns loudly. A remote read now has three outcomes —
+  only HTTP 404 means "not enrolled"; auth/rate-limit/server failures render
+  `unknown` rows that red `--check` instead of masquerading as outsiders. The
+  token spec states the all-repos grant on every surface the repo carries.
+  Plus one crash fix: a repo carrying no floor config no longer fells the
+  board that exists to report it.
+
 ### Changed (2026-08-03 — low variety is not innocence)
 - **`secretscan` no longer treats low character variety as evidence of
   innocence in credential-key context** (E6c, generalising the ruled SF1+SF2
