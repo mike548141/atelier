@@ -134,6 +134,168 @@ class SimilarityTest(unittest.TestCase):
         self.assertEqual(harvestscan.similarity(["a"], []), 0.0)
 
 
+class PointerExclusionTest(unittest.TestCase):
+    """HV2 — the exclusion is `pointerscan`'s test now, not a second copy.
+
+    The copy that lived here read the marker or the item's first six words. The
+    recorded corpus has four pointer shapes and that saw two, so the exclusion
+    was forgiving items nothing then policed — a fail-open, and the reason the
+    cold pass made these two build together."""
+
+    def test_the_two_tools_cannot_disagree(self):
+        """Delegation, proved by changing the answer at the source: narrow
+        pointerscan's test and this file's exclusion narrows with it. A second
+        copy here would pass every other test in this class and still drift."""
+        import pointerscan
+        original = pointerscan.is_pointer
+        try:
+            pointerscan.is_pointer = lambda marker, body: False
+            self.assertFalse(harvestscan.is_pointer("⏳", "anything"))
+        finally:
+            pointerscan.is_pointer = original
+        self.assertTrue(harvestscan.is_pointer("⏳", "anything"))
+
+    def test_a_shape_the_old_copy_missed_is_now_excluded(self):
+        """Shape (c): the obligation stated mid-body, in an emphasis run, with
+        no marker glyph anywhere. Six-lead-words never saw it."""
+        body = ("REVIEWED 2026-07-26: PASS-WITH-FINDINGS. **ADR 0008 review "
+                "owed** — self-authored, so this session may not review it, "
+                "and the delta is the enforcement propagation rollout.")
+        self.assertEqual(harvestscan.vanished(item(body), []), [])
+
+    def test_an_ordinary_work_item_is_still_reported(self):
+        """The exclusion widened; it must not have swallowed the guard."""
+        self.assertEqual(len(harvestscan.vanished(item(ITEM), [])), 1)
+
+
+class GitBackedTest(unittest.TestCase):
+    """HV1 + HV3 + HV4 need a real repo: the gate, the widened survivor search
+    and the staged plane are all git questions."""
+
+    def _repo(self, td):
+        root = Path(td)
+        def g(*a):
+            subprocess.run(["git", "-C", str(root), *a], check=True,
+                           capture_output=True)
+        g("init", "-q", "-b", "main")
+        g("config", "user.email", "t@example.invalid")  # leakscan:allow: RFC-2606 fixture identity for a throwaway test repo
+        g("config", "user.name", "T")
+        g("config", "commit.gpgsign", "false")
+        (root / "docs").mkdir()
+        (root / "docs" / "sessions").mkdir()
+        return root, g
+
+    def test_the_index_is_what_the_hook_reads(self):
+        """HV4. The old wording said "staged/working" as if interchangeable;
+        survivors came from the working tree only. An item deleted from the
+        roadmap and harvested in an UNSTAGED edit has not survived anything the
+        commit is about to make."""
+        with tempfile.TemporaryDirectory() as td:
+            root, g = self._repo(td)
+            (root / "docs" / "ROADMAP.md").write_text(item(ITEM))
+            (root / "docs" / "ROADMAP-DONE.md").write_text("# done\n")
+            g("add", "-A")
+            g("commit", "-qm", "start")
+            # Stage the removal; write the harvest but do NOT stage it.
+            (root / "docs" / "ROADMAP.md").write_text("# empty\n")
+            g("add", "docs/ROADMAP.md")
+            (root / "docs" / "ROADMAP-DONE.md").write_text(item(ITEM))
+            staged = harvestscan.scan(root, "HEAD", source=harvestscan.INDEX)
+            self.assertEqual(len(staged), 1, "the index has no survivor")
+            working = harvestscan.scan(root, "HEAD",
+                                       source=harvestscan.WORKTREE)
+            self.assertEqual(working, [], "the working tree does")
+
+    def test_the_survivor_search_reaches_session_records(self):
+        """HV3. The docstring claimed "anywhere in the tracked records" while
+        the search was two files, so an item harvested into a session record
+        read as vanished."""
+        with tempfile.TemporaryDirectory() as td:
+            root, g = self._repo(td)
+            (root / "docs" / "ROADMAP.md").write_text(item(ITEM))
+            g("add", "-A")
+            g("commit", "-qm", "start")
+            (root / "docs" / "ROADMAP.md").write_text("# empty\n")
+            (root / "docs" / "sessions" / "2026-08-04-0000-x.md").write_text(
+                f"## What happened\n\n{ITEM}\n")
+            g("add", "-A")
+            narrow = harvestscan.scan(root, "HEAD",
+                                      stores=harvestscan.DEFAULT_RECORDS,
+                                      source=harvestscan.INDEX)
+            self.assertEqual(len(narrow), 1)
+            wide = harvestscan.scan(root, "HEAD", source=harvestscan.INDEX)
+            self.assertEqual(wide, [], "the session record IS the harvest")
+
+    def test_a_harvest_written_as_PROSE_counts_as_a_survivor(self):
+        """The half of HV3 that made the widening real. A harvest into a session
+        record is almost never a checkbox item — it is a paragraph in a
+        write-up — so widening the FILE list without widening the extractor was
+        measurably inert: over the whole history it changed the firing set by
+        exactly nothing."""
+        with tempfile.TemporaryDirectory() as td:
+            root, g = self._repo(td)
+            (root / "docs" / "ROADMAP.md").write_text(item(ITEM))
+            g("add", "-A")
+            g("commit", "-qm", "start")
+            (root / "docs" / "ROADMAP.md").write_text("# empty\n")
+            (root / "docs" / "sessions" / "2026-08-04-0000-x.md").write_text(
+                f"## What happened\n\n{ITEM}\n")     # prose, no bullet
+            g("add", "-A")
+            self.assertEqual(
+                harvestscan.scan(root, "HEAD", source=harvestscan.INDEX), [])
+
+    def test_the_roadmap_itself_is_read_as_items_never_as_prose(self):
+        """Deliberately asymmetric. Fingerprinting the WATCHED roadmap's own
+        prose would let a removed item 'survive' in a section heading's
+        narration — a false negative in the one file the guard exists for."""
+        with tempfile.TemporaryDirectory() as td:
+            root, g = self._repo(td)
+            (root / "docs" / "ROADMAP.md").write_text(item(ITEM))
+            g("add", "-A")
+            g("commit", "-qm", "start")
+            # The item goes; a PARAGRAPH of the same words stays behind.
+            (root / "docs" / "ROADMAP.md").write_text(f"## Notes\n\n{ITEM}\n")
+            g("add", "-A")
+            self.assertEqual(
+                len(harvestscan.scan(root, "HEAD", source=harvestscan.INDEX)), 1)
+
+    def test_only_tracked_files_count_as_survivors(self):
+        """An untracked scratch file is not a record. Letting one count would
+        be a guard passing on content nobody is committing."""
+        with tempfile.TemporaryDirectory() as td:
+            root, g = self._repo(td)
+            (root / "docs" / "ROADMAP.md").write_text(item(ITEM))
+            g("add", "-A")
+            g("commit", "-qm", "start")
+            (root / "docs" / "ROADMAP.md").write_text("# empty\n")
+            g("add", "docs/ROADMAP.md")
+            (root / "docs" / "sessions" / "scratch.md").write_text(ITEM)
+            self.assertEqual(
+                len(harvestscan.scan(root, "HEAD",
+                                     source=harvestscan.INDEX)), 1)
+
+    def test_net_line_loss_counts_removals_minus_additions(self):
+        """HV1's scope is NET loss, not delete-only: the incident this guard
+        exists for was +48/-184, and a delete-only scope would have missed it.
+        The sign convention is what that turns on."""
+        with tempfile.TemporaryDirectory() as td:
+            root, g = self._repo(td)
+            (root / "docs" / "ROADMAP.md").write_text("x\n" * 100)
+            g("add", "-A")
+            g("commit", "-qm", "start")
+            (root / "docs" / "ROADMAP.md").write_text("y\n" * 20)
+            g("add", "-A")
+            loss = harvestscan.net_line_loss(
+                root, harvestscan.GATE_RECORDS, "HEAD", harvestscan.INDEX)
+            self.assertEqual(loss, 80)
+            # ...and a commit that GROWS the roadmap has negative loss, so it
+            # can never pass the gate however large it is.
+            (root / "docs" / "ROADMAP.md").write_text("z\n" * 500)
+            g("add", "-A")
+            self.assertLess(harvestscan.net_line_loss(
+                root, harvestscan.GATE_RECORDS, "HEAD", harvestscan.INDEX), 0)
+
+
 class InvocationTest(unittest.TestCase):
     def _run(self, *args):
         return subprocess.run(
@@ -144,11 +306,23 @@ class InvocationTest(unittest.TestCase):
         self.assertEqual(self._run("--selftest").returncode, 0)
 
     def test_it_never_fails_a_build(self):
-        """Advisory by construction. It is not wired anywhere yet, and if it
-        ever is, this is the contract it goes in under."""
+        """Advisory by construction, and now that it is IN the registry this is
+        the contract it went in under (HV1: warn-only, never blocking)."""
         with tempfile.TemporaryDirectory() as td:
             r = self._run("--root", td, ".")
             self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+
+    def test_the_bulk_gate_says_when_it_is_out_of_scope(self):
+        """A guard that silently does nothing is indistinguishable from one
+        that ran and found nothing. It says which."""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            subprocess.run(["git", "-C", str(root), "init", "-q", "-b", "main"],
+                           check=True, capture_output=True)
+            r = self._run("--root", str(root), "--staged",
+                          "--only-bulk-deletes")
+            self.assertEqual(r.returncode, 0)
+            self.assertIn("not in scope", r.stdout)
 
     def test_a_missing_root_is_an_error_not_a_silent_pass(self):
         self.assertEqual(self._run("--root", "/no/such/dir").returncode, 2)
