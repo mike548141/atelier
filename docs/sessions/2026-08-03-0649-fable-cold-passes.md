@@ -66,3 +66,28 @@ entries committed; both application cycles closed; F1 reviewed with counsel
 queued for Mike's ruling. The `leakscan`-reaches-the-PII-half sweep is still
 unswept (fourth carry, per the F1 reconcile). Worktree merged to `main` and
 removed; pushed floor verified green.
+
+## Addendum — all twelve residue findings ruled and applied (2026-08-03)
+
+Mike ruled PA1–PA4, PSA1–PSA2 and FG1–FG6 through the per-finding
+walk-through, every one as counselled. Application, same session, worktree
+`rulings-apply-0803`:
+
+- **PA1+PA3** landed as one publishscan commit — notice to stderr,
+  `rebased_to` in the JSON (always present, null at top), a glued `#` in an
+  ignore glob now a loud config error; suite 20/20, selftest, live scan all
+  green. The two "next touch" rulings (PA3, PSA1) were discharged
+  immediately because this batch *was* the next touch of both files — the
+  intent of those rulings was no-standalone-commit, and none was spent.
+- **PA2** recorded as a deliberate no-change; **PA4** named into C1F3's
+  scope; **PSA1** applied in TOOLBOX; **PSA2** accepted as recorded.
+- **FG1–FG6** written into the F1 entry as binding rebuild input: C3 mapped
+  into the instance list, the P3 boundary declaration required, the
+  provenance hypothesis named as the starting point (E6d unchanged), the
+  granularity axis + acceptance/deferment definitions, prior-art check at
+  pickup, FP-route-as-specialisation, and the FG6 boundary specimen handed
+  to the funded pointer-grammar corpus.
+- Both `[x]` items harvested to ROADMAP-DONE in the same commit that marked
+  them; decision stamps appended to all three verdicts. Terminal
+  applications of no-MAJOR passes: no new pointers queued, and the F1
+  rebuild remains open work that will queue its own when it lands.

@@ -69,11 +69,13 @@ record of what a repo's sessions may do unprompted, and each clone re-prompts
 until it is seeded from the template. That trade was taken deliberately — the
 reviewable record can be rebuilt from a template that is *not* per-repo state,
 whereas a published allowlist cannot be unpublished. The residual is also
-named (PS2, ruled 2026-08-02): the seed template itself stays published, so
-the estate *default* remains mapped — a repo whose live allowlist never
-diverges from seed is still described exactly by the public template. What
-the untracking hides is each repo's divergence from that default, not the
-default itself.
+named (PS2 ruled 2026-08-02; PSA1 ruled 2026-08-03): the seed templates
+themselves stay published, so the estate *default* remains mapped — a repo
+whose live allowlist never diverges from seed is still described exactly by
+the public template, and the sibling `settings.local.json` template
+discloses one further default (`acceptEdits` — edits apply without per-edit
+approval). What the untracking hides is each repo's divergence from those
+defaults, not the defaults themselves.
 
 *Bearing: the concrete instance for this estate is captured machine-local (the
 digital-estate map + the per-repo allowlists already record most of it); this

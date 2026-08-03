@@ -2979,3 +2979,45 @@ before it was ever run: `❌ personal-data term list: absent`. That list is
 machine-local by design — it lives outside every repo — so a runner never has
 one. It gates the HOOK plane on a developer's machine and does not gate this
 job, and the board says so rather than leaving a reader to infer it.
+
+### The two application passes — PA1–PA4, PSA1–PSA2 (done 2026-08-03)
+
+The 2026-08-02 rulings application earned two rule-4 cold passes; both ran
+2026-08-03 by a Mike-spawned Fable taker and both cycles closed terminal
+(no MAJOR). Mike ruled all six residue findings the same day, each as
+counselled, and the application landed within the hour.
+
+- **PA1 [fixed]** — the PB3 rebase notice corrupted `--json` output under a
+  subdir `--root` (reproduced: `json.load` raised on the prose-then-document
+  stdout). The notice now prints to stderr and the JSON carries
+  `rebased_to` — always present, `null` when `--root` was already the top,
+  so the field set stays comparable run to run. The breaking probe is now a
+  test.
+- **PA2 [no change, decided]** — depth matching reds `config/.env.example`
+  anywhere, and that shape is conventionally a deliberately-tracked
+  template. Ruled leave-the-pattern: a name-shape carve-out is a permanent
+  blind spot in a security scanner (SF1's lesson — real values get pasted
+  into templates), and the reasoned ignore line is the designed,
+  reviewable answer. If FP reports accumulate, Track E weighs them with
+  data.
+- **PA3 [fixed]** — a `#` glued to a glob silently truncated the exemption
+  to a *different path* than written. Ruled fix-at-next-parser-touch, and
+  the PA1 commit *was* the next touch, so it was discharged there: a
+  no-space `#` is a loud config error (exit 2), tested.
+- **PA4 [folded]** — publishscan's config-authored strings (globs echoed in
+  errors, finding paths in output) print raw to terminals — C1F3's class.
+  Named into C1F3's fix scope so one strip-at-parse change closes the class
+  everywhere; no separate work item.
+- **PSA1 [fixed]** — TOOLBOX's residual clause said "template", singular;
+  two templates publish, and the local one discloses the `acceptEdits`
+  default mode. The clause now names both and the mode bit. Ruled
+  fix-at-next-TOOLBOX-touch; the records commit was that touch.
+- **PSA2 [accepted]** — PS1's corrected standardise instruction reaches
+  children at their next pin bump, with each child's own `publishscan` as
+  the interim guard. That is the designed propagation model; the finding's
+  value was making the dependency explicit, and it is now written in the
+  verdict and here.
+
+Verdicts:
+[publishscan application](reviews/2026-08-03-0649-publishscan-application-cold.md) ·
+[publish-surface application](reviews/2026-08-03-0653-publish-surface-application-cold.md).

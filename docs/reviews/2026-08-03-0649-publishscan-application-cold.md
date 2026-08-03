@@ -138,3 +138,19 @@ sweep, the no-`{scope}` registry grounds) remain untouched by this pass.
 REVIEW.md's no-MAJOR rule. PA1–PA4 are residue for Mike's ruling (rule 3 —
 policy-as-code is doctrine by function); counsel is recorded per finding and
 nothing is applied by this session.
+
+## Decisions (Mike, 2026-08-03, plain-language walk-through)
+
+- **PA1 [fixed]** — ruled stderr + JSON key: the rebase notice prints to
+  stderr; the JSON carries `rebased_to` (always present, `null` at top so
+  the field set stays comparable). The breaking probe is now a test.
+  Applied in the PA1+PA3 commit.
+- **PA2 [rejected: deliberate]** — ruled leave-the-pattern: no name-shape
+  carve-out in a security scanner; the reasoned ignore line is the designed
+  answer, and Track E weighs any accumulating FP reports with data.
+- **PA3 [fixed]** — ruled reject-at-next-parser-touch; the PA1 commit was
+  that touch, so discharged there: a `#` glued to a glob is a loud config
+  error (exit 2), tested.
+- **PA4 [folded]** — publishscan's config-authored surfaces named into
+  C1F3's strip-at-parse scope (recorded in the C1F3 roadmap entry); no
+  separate work item.

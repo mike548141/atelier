@@ -203,3 +203,24 @@ itself. FG1–FG6 are counsel for Mike's ruling (rule 3); they are input to
 the F1 rebuild at pickup, per his review-as-input instruction. The rebuilt
 model, when it lands, is self-authored doctrine and queues its own rule-4
 pointer as always.
+
+## Decisions (Mike, 2026-08-03, plain-language walk-through — all as counselled)
+
+- **FG1 [applied]** — C3 mapped into the F1 instance list (with the
+  bootstrapped children); the rebuilt model must state whether P3's
+  posture-by-visibility is inside or outside its scope.
+- **FG2 [adopted as working hypothesis]** — the rebuild starts from
+  provenance-not-direction (tool-lowering forbidden; declared, reasoned,
+  expiring lowering lawful) and must test it rather than inherit it. E6d
+  stands unchanged until the rebuild lands.
+- **FG3 [applied]** — the model's vocabulary gains the granularity axis and
+  the definitions: acceptance = indefinite + reason; deferment = temporary +
+  expiry.
+- **FG4 [accepted]** — axes checked against CVSS / CodeQL / Semgrep
+  vocabulary at build pickup, verified then.
+- **FG5 [accepted]** — the FP route specialises resolved-upward; no second
+  original.
+- **FG6 [handed to the grammar build]** — the F1 pointer's pass-type line
+  joins the acceptance corpus as a boundary specimen; the build decides.
+
+All six recorded in the F1 roadmap entry as binding input to the rebuild.
