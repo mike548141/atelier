@@ -74,7 +74,7 @@ pass while a MAJOR stands.
 >   probe that proved the defect. What remains below is Mike's ruling on the
 >   terminal pass's residue, not work.
 
-- [ ] **TA-application-pass residue — TAA1–TAA3, RULED 2026-07-28 (Mike,
+- [~] (claimed 2026-08-03-2016, wt: qr0804-floor — agent worktree, Fable-orchestrated run) **TA-application-pass residue — TAA1–TAA3, RULED 2026-07-28 (Mike,
       plain-language walk-through with per-option impacts).** The terminal
       cold pass returned 0 MAJOR / 1 minor / 3 notes
       ([verdict](reviews/2026-07-28-1136-ta-application-cold.md)); the cycle
@@ -174,7 +174,7 @@ undercount — the fourth wrong blast radius on this programme and the first tha
 >   A1(b); rule-4 cold pass 2026-07-28, 0 MAJOR — terminal) →
 >   [`ROADMAP-DONE.md`](ROADMAP-DONE.md). What remains of C1 is C1b below —
 >   the migration and the removal of the transition spelling.
-- [ ] **C1-pass residue — C1F1–C1F3, RULED 2026-07-28 (Mike, plain-language
+- [~] (claimed 2026-08-03-2016, wt: qr0804-floor — agent worktree, Fable-orchestrated run) **C1-pass residue — C1F1–C1F3, RULED 2026-07-28 (Mike, plain-language
       walk-through with per-option impacts).** The terminal pass
       returned 0 MAJOR / 1 minor / 2 notes
       ([verdict](reviews/2026-07-28-1204-c1-advisory-cold.md)); cycle
@@ -231,7 +231,7 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       passed the hook, so a bypass is a recorded event rather than a private
       one. Weigh honestly against it also being the legitimate escape hatch —
       making it painful invites worse workarounds.
-- [ ] **Estate-root widening pass residue — ER1–ER4, RULED 2026-07-28 (Mike,
+- [~] (claimed 2026-08-03-2016, wt: qr0804-docs — agent worktree, Fable-orchestrated run) **Estate-root widening pass residue — ER1–ER4, RULED 2026-07-28 (Mike,
       plain-language walk-through with per-option impacts).**
       The rule-4 pass ran 2026-07-28: **0 MAJOR / 1 minor / 3 notes, cycle
       CLOSED** ([verdict](reviews/2026-07-28-1216-estate-root-widening-cold.md));
@@ -358,7 +358,7 @@ adopter mistakes.*
       never reached him. Named as its own failure shape: a coverage
       narrowing settled at tool altitude.
 
-      - [ ] **E6a — write the posture into `SECRETS.md` as doctrine.** Mike's
+      - [~] (claimed 2026-08-03-2016, wt: qr0804-e6a — agent worktree, Fable-orchestrated run) **E6a — write the posture into `SECRETS.md` as doctrine.** Mike's
             stated intent becomes the posture both scanners answer to, so the
             asymmetry is a decision rather than an accident and the next agent
             inherits it instead of a docstring. Self-authored doctrine ⇒
@@ -401,7 +401,7 @@ adopter mistakes.*
             the mislabelled field, add the second axis, and let the computed
             result drive block-vs-report — so the field stops misdescribing
             what it holds, which is how it came to be read as impact at all.
-      - [ ] **E6c — generalise the SF1+SF2 carve-outs into a rule.** As ruled
+      - [~] (claimed 2026-08-03-2016, wt: qr0804-secretscan — agent worktree, Fable-orchestrated run) **E6c — generalise the SF1+SF2 carve-outs into a rule.** As ruled
             they are two named shapes; the rule behind them is that **in
             credential-key context, low character variety is not evidence of
             innocence.** Covers both ruled shapes plus the ones nobody has
@@ -637,7 +637,7 @@ it keeps being broken. All are self-authored doctrine when they land ⇒ rule-4
       specified as its own item immediately below, deliberately left unclaimed
       for a fresh session.
 
-- [ ] **FUNDED (Mike, 2026-07-28) — mechanise the `⏳` pointer grammar.**
+- [~] (claimed 2026-08-03-2016, wt: qr0804-grammar — agent worktree, Fable-orchestrated run) **FUNDED (Mike, 2026-07-28) — mechanise the `⏳` pointer grammar.**
       Unclaimed on purpose: this is the work that closes the finding directly
       above, and it wants a session that did not write the breach.
 
@@ -793,7 +793,7 @@ the mechanism works.
 These are **real findings the guards were never run to catch**, not rollout
 blockers to wave through. Each needs eyes before its repo can go green.
 
-- [ ] **secretscan pass residue — SF1–SF4, RULED 2026-07-28 (Mike,
+- [~] (claimed 2026-08-03-2016, wt: qr0804-secretscan — agent worktree, Fable-orchestrated run) **secretscan pass residue — SF1–SF4, RULED 2026-07-28 (Mike,
       plain-language walk-through with per-option impacts and a live
       six-shape probe).** The rule-4
       pass ran 2026-07-28 (Fable): **0 MAJOR / 1 minor / 3 notes, cycle
@@ -870,7 +870,7 @@ are what generalise to any adopter.
 
 ### Doctrine candidate — the harvest rides the `[x]` commit (found 2026-07-26)
 
-- [ ] **State, at the point of use, that marking `[x]` and harvesting to
+- [~] (claimed 2026-08-03-2016, wt: none — inline on the orchestrator; closes in the commit that lands it) **State, at the point of use, that marking `[x]` and harvesting to
       ROADMAP-DONE are one commit — not two.** The ROADMAP preamble defines the
       `[x]` state but says nothing about *when* the harvest happens, and the
       cold-content gate fires the moment an `[x]` lands on the hot path. So
@@ -1287,7 +1287,7 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
 
 ## Doctrine — review-owed
 
-- [ ] 🎯 **B4 — REVIEWED 2026-07-29 (rule-4 Fable cold pass):
+- [~] (claimed 2026-08-03-2016, wt: qr0804-grammar — agent worktree, Fable-orchestrated run) 🎯 **B4 — REVIEWED 2026-07-29 (rule-4 Fable cold pass):
   PASS-WITH-FINDINGS — 1 MAJOR / 2 minor / 2 notes; every recorded
   figure reproduced exactly. HV1–HV5 RULED 2026-07-29 (Mike): the shelf
   verdict is OVERTURNED on the pass's measurement — WIRE `harvestscan`,
@@ -1306,7 +1306,7 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   **Application owed as one wiring build item (scope + tests + registry
   + HV2–HV4 folds); it queues its rule-4 pointer at landing.**
 
-- [ ] 🎯 **B2 + B3 — REVIEWED 2026-07-29 (rule-4 Fable cold pass):
+- [~] (claimed 2026-08-03-2016, wt: qr0804-floorfleet — agent worktree, Fable-orchestrated run) 🎯 **B2 + B3 — REVIEWED 2026-07-29 (rule-4 Fable cold pass):
   PASS-WITH-FINDINGS — 1 MAJOR / 2 minor / 2 notes. FS1–FS5 RULED
   2026-07-29 (Mike): all accepted, FS1 both legs** — floorfleet gains a
   discovery-authority footer (which listings answered, counts, warning
