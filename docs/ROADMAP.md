@@ -426,8 +426,36 @@ adopter mistakes.*
       The companion sweep the intent record itself flags — whether
       `leakscan` reaches the PII half of the stated intent as
       `secretscan` reaches the credential half — is endorsed by the pass
-      as real open work, not folded into it.
+      as real open work, not folded into it. **Ran 2026-08-03 → E7 below.**
 
+- [ ] 🎯 **E7 — the PII-half sweep ran 2026-08-03 (fourth carry, discharged):
+      leakscan reaches the PII half PARTIALLY — materially behind the
+      credential half.** Full findings, class-level and probe-verified:
+      [sweep record](sessions/2026-08-03-2050-leakscan-pii-sweep.md).
+      Headlines: leakscan has **no label/assignment context layer and no
+      placeholder suppression** — a block of values under explicit
+      personal-data key names (DOB, bank account, passport, medication,
+      NHI, plate) probes completely clean, while E6's own reasoning says
+      key context is nearly free to widen (**G1**, the highest-value fix);
+      **file paths are never scanned** (**G2** — zero FPs measured over the
+      repo's own 390 tracked paths); **binary media are skipped silently**
+      — a synthetic image carrying GPS metadata, a name and an address
+      scans clean (**G3**, whose honest fix is an advisory-shaped notice,
+      in recorded tension with E6a's "leakscan gains no advisory form" —
+      Mike's to weigh, not resolved here); financial identifiers (**G4**),
+      international phone (**G5**), term-list form fragility — a listed
+      name's slug/camel/snake/split forms all pass (**G6**), one bracketed
+      NZ phone form (**G7**). Six defects in existing rules, led by
+      **D1**: an allow-marker written for a structural FP silences the
+      machine-local term list on the same line — the highest-confidence
+      layer switched off exactly where a human judged the line safe for a
+      different reason. **D2** confirms E4's class is wider than recorded
+      (any three-plus colon-separated hex-ish groups, not just clock
+      times). The don't-add list (bare dates, context-free ID shapes, NER
+      names, schedule prose, low-precision coordinates) is part of the
+      finding. **G1–G7 and D1–D6 await Mike's ruling**; the term-list
+      plane-split consequence is recorded as decided design worth holding
+      in view.
 - [ ] **E1 — `licenscan` is silent exactly where it matters most.** With an
       unrecognised licence it stops at *"licence unrecognised"* and verifies
       nothing further — it does not fall back to flagging vendored copyleft,
