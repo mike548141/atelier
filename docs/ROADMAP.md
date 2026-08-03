@@ -644,6 +644,37 @@ it keeps being broken. All are self-authored doctrine when they land ⇒ rule-4
       organising defect, which it would be embarrassing to reproduce in the
       guard against reproducing failures.
 
+      **A second detector rides the same scope decision — the stale pointer
+      (Mike, 2026-08-03).** The grammar check above asks *what may a pointer
+      say*; the same parse answers *is the pointer still true*. An item
+      claiming a review is owed while a matching `docs/reviews/` verdict
+      exists is a mechanically detectable contradiction. Raised by a `ros`
+      session as atelier's call, correctly — the guard is shared-floor, not
+      child-local. It needs the same prior question settled and reuses the
+      same two building blocks, so this is one build, not two; splitting it
+      would make a third original of *what makes an item a queued-review
+      pointer*.
+
+      **The count was wrong on first telling, and the corrected count does
+      not clear the threshold.** The raising session said four instances and
+      read that as past promote-at-three. A sweep of this file found
+      **five** — all in § *Doctrine — review-owed*, all from **one commit**
+      (`98cef9e`, the nine-pass queue take), which prepended verdicts to nine
+      items and stripped the stale wording from only four. One occurrence
+      with five residues is not five recurrences: the ladder's threshold is
+      **not** met, and the case for wiring rests on the detection being
+      near-free once the scope is settled. Recorded this way so a later
+      session does not inherit "past the threshold" on faith.
+
+      **The residue named a sharper defect than the one detected.** All five
+      said "review queued" when the review had run and what was owed was
+      Mike's *ruling*. Existence-of-verdict catches the contradiction; reading
+      the cycle states — owed → reviewed → ruled → applied → closed — says
+      which state the item is actually in. Which of the two the guard carries
+      is the build's to settle. **Acceptance corpus:** the five were cleaned
+      in the commit adding this paragraph, giving a must-flag/must-stay-silent
+      git pair in the same shape as instance 3's, rather than a live specimen.
+
       **Advisory first**, whatever the scope: a pointer is fixable in the same
       commit that writes it, so the warning lands at the one moment it costs
       nothing.
@@ -1262,10 +1293,11 @@ pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
   blocked-from-climbing clause: handing a missing value up sits *beside* the
   ladder, not on it, and is reached only when the climb is genuinely blocked —
   the test before escalating is whether an authoritative source exists and has
-  been consulted. **⏳ review queued for a non-author** (self-authored doctrine,
-  REVIEW rule 4). *Delta:* the `EVIDENCE.md` §13 paragraph (landed this commit).
+  been consulted. **Review queued at landing** (self-authored doctrine,
+  REVIEW rule 4) — **taken**; the verdict is above. *Delta:* the `EVIDENCE.md`
+  §13 paragraph (landed this commit).
   *Intent record:* [`2026-07-26-0100-ccrepo-context-column.md`](sessions/2026-07-26-0100-ccrepo-context-column.md)
-  § Addendum. Rides the normal review cycle when a qualifying session takes it.
+  § Addendum.
 - 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS 1M/4m
   — [verdict](reviews/2026-07-26-2215-record-pushed-floor-cold.md); RF1–RF5
   await Mike's ruling (rule 3; the MAJOR keeps the cycle open past the
@@ -1274,12 +1306,13 @@ pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
   all-clear evidence rule gained a sub-point: when a close pushes, the evidence
   is the *floor at head*, not the local scan ("green locally, floor run pending"
   is honest; "all green" before the head run reports is a claim past its
-  evidence). **⏳ review queued for a non-author** (self-authored doctrine, REVIEW
-  rule 4). *Delta:* the RECORD.md all-clear "floor at head" sub-point (landed this
+  evidence). **Review queued at landing** (self-authored doctrine, REVIEW
+  rule 4) — **taken**; the verdict is above. *Delta:* the RECORD.md all-clear
+  "floor at head" sub-point (landed this
   commit). *Intent record:* this capture line + its grounding (`165c40f`: a 00:47
   close pushed a 🎯-closed item and left the floor red — reviewscan since 00:06 +
   an un-harvested `[x]` — and the next session inherited the debt to restore
-  green). Rides the normal review cycle when a qualifying session takes it.
+  green).
 - 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS 0M/3m/2n
   — [verdict](reviews/2026-07-26-2215-apex-accountability-cold.md); AA1–AA5
   await Mike's ruling (rule 3; no MAJOR ⇒ the ruling application is terminal).
@@ -1290,12 +1323,12 @@ pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
   *Accountable*) — the principal funds the work, the world attributes the product
   to him, and the liabilities (privacy, copyright/IP, licence/contract) fall on
   him; the reserved decisions are his *because their consequences are*. The
-  section previously asserted the reservation without naming its source. **⏳
-  review queued for a non-author** (self-authored apex doctrine, REVIEW rule 4).
+  section previously asserted the reservation without naming its source.
+  **Review queued at landing** (self-authored apex doctrine, REVIEW rule 4) —
+  **taken**; the verdict is above.
   *Delta:* the accountability-grounding paragraph (landed this commit). *Intent
   record:* Mike's reading that the principal's authority is born of the
-  principal's accountability. Rides the normal review cycle when a qualifying
-  session takes it.
+  principal's accountability.
 - 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS 1M/2m/2n
   — [verdict](reviews/2026-07-26-2215-apex-zeroth-law-cold.md); ZL1–ZL5 await
   Mike's ruling (rule 3; the MAJOR — the session-onramp skill still teaches the
@@ -1315,15 +1348,15 @@ pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
   Mike first ruled *renumber (move-down-one)* via a decision prompt (applied
   `572dddd`), then changed his mind to this Zeroth form — so numbers 1/2/3 keep
   their historical meaning and the earlier "off-by-one against past records"
-  concern is **void**. **⏳ review queued for a non-author** (self-authored apex
-  doctrine, REVIEW rule 4). *Delta:* Zeroth law + prose in `00-APEX.md`;
+  concern is **void**. **Review queued at landing** (self-authored apex
+  doctrine, REVIEW rule 4) — **taken**; the verdict is above.
+  *Delta:* Zeroth law + prose in `00-APEX.md`;
   `README.md` + `method/README.md` restored to "Three Laws, with Asimov's Zeroth
   Law read above them". The `PROPAGATION.md` + `build/templates/CLAUDE.md`
   floor-ordering summary keeps "avoid harm to humanity → avoid harm to a person →
   obey → self-preserve" (accurate under the Zeroth; generic "the Laws" wording,
   no count claim). **Child floor propagation** rides the existing gated
-  "Propagate the widened apex floor to the fleet children" item below. Rides the
-  normal review cycle when a qualifying session takes it.
+  "Propagate the widened apex floor to the fleet children" item below.
 - 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS 0M/3m/2n
   — [verdict](reviews/2026-07-26-2215-principles-way-out-cold.md); WO1–WO5
   await Mike's ruling (rule 3; no MAJOR ⇒ the ruling application is terminal).
@@ -1335,9 +1368,9 @@ pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
   the exit exists. Grounded in atelier's own practice — zero-dependency tooling
   as the limit case, browser-fetch as the documented dependency exception — and
   cross-linked to REACH (escalate-cheapest-first, never mint access you can't
-  withdraw). **⏳ review queued for a non-author** (self-authored doctrine, REVIEW
-  rule 4). *Delta:* one bullet in `PRINCIPLES.md` §1. Rides the normal review
-  cycle when a qualifying session takes it.
+  withdraw). **Review queued at landing** (self-authored doctrine, REVIEW
+  rule 4) — **taken**; the verdict is above. *Delta:* one bullet in
+  `PRINCIPLES.md` §1.
 - [ ] **Propagate the widened apex floor to the fleet children** — the remaining
   half (the in-repo restatement sweep is DONE, `a4740c4`, →
   [`ROADMAP-DONE.md`](ROADMAP-DONE.md)). Each child copies the floor block
