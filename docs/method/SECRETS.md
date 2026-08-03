@@ -182,6 +182,61 @@ Everywhere else holds a **reference**, never the value.
   is *safe by construction* and the scans skip it; a bare value is the thing they
   exist to catch.
 
+## The boundary's posture — over-flag, because detection enables everything
+
+The two scans answer to one stated intent (Mike, 2026-07-28): **find every
+secret, credential, private key and piece of personal data, so none of it
+reaches a public or insecure place.** That is the bar they are judged against —
+not a low false-positive count, and not a quiet log.
+
+**Over-flagging is the fail-safe direction.** A false positive costs an
+allow-marker carrying a written reason; a false negative costs a leak. The two
+costs are not comparable, so where a tuning call is genuinely uncertain, the
+scan flags. This was already `leakscan`'s posture, stated in its own source; it
+is now **both** scans' posture by decision. The decision was needed because the
+two had drifted into opposite tunings with nothing recording the difference —
+the personal-data scan tuned to over-flag, the credential scan tuned for
+precision with no posture stated at all. That is backwards on risk, and nobody
+chose it; it accumulated. It is written here as found-and-decided so the next
+hand inherits a posture rather than a docstring.
+
+**Rotation presupposes detection.** Every duty below — watch, roll on
+confidence, rotate on cadence — is dischargeable only against what the boundary
+actually catches. *Detect → rotate → the burn cost is minutes* has no first
+term if the detector was tuned to stay quiet, and the cadence leg bounds the
+undetected window only for exposures something is capable of noticing.
+Detection is the enabling half of this doctrine, which is why its posture is
+stated here and not left to the tools. This, and not any
+credential-versus-personal-data risk ranking, is what the posture rests on: the
+ranking is contestable — a credential re-mints, a published address never does
+— and the posture holds whichever way that argument lands.
+
+**Narrowing coverage is the principal's decision.** Keeping detection
+deliberately narrower than the stated intent changes what the boundary
+promises, so it is the call of whoever owns the risk, recorded where they will
+meet it — the roadmap or an ADR. Settling it at tool altitude, as a comment
+beside the pattern that does the narrowing, is how a gap becomes invisible:
+it happened here in the credential scan, and it took a review to find. Name the
+narrowing and its cost in prose; never let the code comment be the record.
+
+**The dial that makes the intent affordable — decided, not yet built.** While a
+scan's only response is *block*, widening detection buys coverage at the price
+of crying wolf, and that price is what drove the narrowing above. The decided
+direction (2026-07-28) is an advisory tier in the credential scan:
+high-confidence hits block exactly as they do today — **the blocking set never
+shrinks** — while context-free entropy hits report and exit clean, so coverage
+can widen into the noisy path without weakening the gate. It is not built, and
+it may not be built until its design names where advisory findings surface
+durably and whether they must be acknowledged (2026-07-29): an advisory finding
+nobody reads is cover, not coverage. `leakscan` gains no advisory form, and
+that asymmetry is now decided rather than incidental — the fit being that a
+leak of personal data is the one exposure no rotation undoes.
+
+Grounding: [`../ROADMAP.md`](../ROADMAP.md) § *Track E — E6*, ruled by Mike
+2026-07-28, and the intent cold pass
+[`../reviews/2026-07-29-1243-e6-intent-cold.md`](../reviews/2026-07-29-1243-e6-intent-cold.md)
+(EI5, EI6), ruled 2026-07-29.
+
 ## Rotation cadence bounds the undetected window
 
 Rotation is not only an incident response. Because internal rotation is cheap
