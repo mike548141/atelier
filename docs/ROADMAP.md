@@ -516,12 +516,25 @@ nobody had named.*
       entry that proposed one would steer the pass it is queuing, which is the
       breach this file has now recorded three times.
 
-      **⏳ Review queued for a non-author.** Cold passes run on **Fable**.
-      *Delta:* this item (records-only; nothing built, nothing to diff).
-      *Intent record:*
+      🎯 **REVIEWED 2026-08-03 (rule-4 Fable design/intent cold pass):
+      PASS-WITH-FINDINGS — 0 MAJOR / 2 MODERATE / 1 minor / 3 notes.
+      FG1–FG6 await Mike's ruling (REVIEW rule 3); they are counsel feeding
+      the rebuild at pickup, per the review-as-input instruction.** The
+      frame survives attack and matches the state of practice
+      (confidence · likelihood · impact is the canonical scanner/risk
+      structure; repo-declared impact is CVSS's environmental score in
+      another vocabulary). Headlines: FG1 — the instance mapping
+      under-counts; C3 (adoption/first-contact) is the missing case a
+      steady-state-only model would distort around, and P3 sits on the
+      boundary undeclared. FG2 — the split does change the response model:
+      the downgrade lane escalate-only forbids already exists spelled as
+      exemption, so the durable invariant is provenance (declared, reasoned,
+      expiring), not direction. FG3 — granularity is a missing axis;
+      acceptance vs deferment are already distinct at line vs check level.
+      Full findings + reconcile:
+      [F1 intent cold pass](reviews/2026-08-03-0657-f1-guard-governance-intent-cold.md).
+      Intent record:
       [`2026-08-02-2340-guard-governance-frame`](sessions/2026-08-02-2340-guard-governance-frame.md).
-      Design/intent pass per REVIEW.md § *Review the design, not only the
-      build*.
 
 ### The thing underneath all of it — state-tracking, not reasoning
 
@@ -2642,22 +2655,33 @@ reviewer pre-findings (the SL2 channel class, second live instance).
   RULED + APPLIED 2026-08-02; no MAJOR ⇒ terminal application — **cycle
   CLOSED**.
 
-### ⏳ Application reviews owed from the 2026-08-02 rulings application
+### Application-review residue from the 2026-08-02 rulings application
 
-Rule-4 pointers, **refs only** — the rulings live in the verdict files, which
-serve as the intent records; a taker meets the applications cold. Author of
-both application deltas: the 2026-08-02 taker session (Fable), which also
-authored the verdicts (the neutral-applier preference not met — Mike's
-in-session fix-now rulings directed it) and therefore spawns neither review.
+Both application cold passes ran 2026-08-03 (rule-4 Fable taker; neither
+review spawned by the applications' author). **Both cycles are CLOSED** —
+no MAJOR on either terminal pass. What remains is Mike's ruling on the
+residue, not review work.
 
-- ⏳ **The `publishscan` application** — the commit adding this pointer:
-  `tools/publishscan.py`, `tools/test_publishscan.py`. Rulings PB1–PB4 in
-  [the verdict](reviews/2026-08-02-2313-publishscan-cold.md).
-- ⏳ **The publish-surface application** — the commit adding this pointer:
-  `docs/build/REPO-STANDARD.md` (standardise step 2), `docs/method/TOOLBOX.md`
-  (the residual clause), `docs/build/templates/claude/settings.local.json`
-  (narrowed). Rulings PS1–PS3 in
-  [the verdict](reviews/2026-08-02-2210-publish-surface-delta-cold.md).
+- [ ] 🎯 REVIEWED 2026-08-03 (rule-4 Fable cold pass): PASS-WITH-FINDINGS
+  0M/1m/3n —
+  [verdict](reviews/2026-08-03-0649-publishscan-application-cold.md).
+  **The `publishscan` application** (`c85285b`). PB1–PB4 all applied
+  faithfully; **cycle CLOSED** (terminal, no MAJOR). Residue awaits Mike:
+  PA1 (minor) — the PB3 rebase notice prints to stdout and corrupts
+  `--json` output under a subdir `--root` (latent on the live floor; the
+  registry always passes the true root); PA2 — depth matching widens the
+  `.env.example` false-positive surface, counsel is leave-the-pattern;
+  PA3 — a glob containing `#` silently misparses; PA4 — ignore-file
+  strings print raw (C1F3's class, named into that fix's scope).
+- [ ] 🎯 REVIEWED 2026-08-03 (rule-4 Fable cold pass): PASS 0M/0m/2n —
+  [verdict](reviews/2026-08-03-0653-publish-surface-application-cold.md).
+  **The publish-surface application** (`62bb1c1`). PS1–PS3 applied
+  faithfully; the PS1 mandate-site class swept closed at HEAD; **cycle
+  CLOSED** (terminal, no MAJOR). Residue awaits Mike: PSA1 — the TOOLBOX
+  residual clause says "template", singular, while two templates publish
+  (the local one now discloses only the `acceptEdits` default); PSA2 —
+  PS1's fix reaches children by pin bump only, recorded as the explicit
+  dependency.
 
 ### Publication surface — what a public repo reveals about its own defences (2026-07-29)
 
