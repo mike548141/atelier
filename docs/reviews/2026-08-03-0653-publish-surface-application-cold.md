@@ -113,3 +113,13 @@ owed. PSA2 matches the prior verdict's own pin-bump framing.
 **Disposition: terminal.** 0 MAJOR ⇒ the publish-surface cycle **closes**
 per REVIEW.md's no-MAJOR rule. PSA1–PSA2 are residue for Mike (rule 3);
 counsel recorded, nothing applied by this session.
+
+## Decisions (Mike, 2026-08-03, plain-language walk-through)
+
+- **PSA1 [fixed]** — ruled fix-at-next-TOOLBOX-touch; the rulings-application
+  records commit was that touch. The residual clause now says "templates",
+  and names the `acceptEdits` mode-bit disclosure the local template
+  carries.
+- **PSA2 [accepted]** — pin-bump propagation accepted as the designed
+  mechanism; the dependency is recorded here and in the roadmap, no new
+  work item.

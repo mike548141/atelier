@@ -193,8 +193,12 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       **C1F3** (note) — config-authored strings (`why`, disabled reasons)
       print raw to terminals; a hostile child config could embed escape
       sequences → **STRIP C0 CONTROLS AT PARSE**, closing the pre-existing
-      class as well as C1's two new fields. Low priority while the estate is
-      single-owner; it becomes real on first outside adoption.
+      class as well as C1's two new fields. Scope widened by the PA4 ruling
+      (Mike, 2026-08-03): `publishscan`'s two config-authored surfaces —
+      ignore-file globs echoed in error messages, and finding paths in
+      output — are in this fix's scope, so one change closes the class
+      everywhere. Low priority while the estate is single-owner; it becomes
+      real on first outside adoption.
       **Work owed: all three.**
 - [ ] 🎯 **C1b — migrate the 17, then delete the legacy spelling.** Phase 1
       deliberately did not write the declarations: a `review-by` is a
@@ -506,8 +510,13 @@ nobody had named.*
       hoc with no route back · resolve-vs-scope-vs-soften is what **Track A**
       met as scope fail-opens and C1 met as advisory · side-stepping is
       **C4** (`--no-verify` unobserved), the Actions-disabled blind spot,
-      Track A's scope-covering-nothing, and an advisory that never expires.
-      That six of this board's open items are one frame is the finding; the
+      Track A's scope-covering-nothing, and an advisory that never expires ·
+      **adoption/first-contact is C3** and the two `--no-verify`-bootstrapped
+      children — a repo meeting a guard its existing content already fails,
+      twice resolved by documented bypass (mapped in by the FG1 ruling,
+      2026-08-03: the cold pass found the original list was steady-state
+      only, and adoption is the case a model built without it would distort
+      around). That these open items are one frame is the finding; the
       frame is Mike's, not an agent's synthesis of it.
 
       **Deliberately not pre-solved.** Mike asked for the review to run on the
@@ -535,6 +544,33 @@ nobody had named.*
       [F1 intent cold pass](reviews/2026-08-03-0657-f1-guard-governance-intent-cold.md).
       Intent record:
       [`2026-08-02-2340-guard-governance-frame`](sessions/2026-08-02-2340-guard-governance-frame.md).
+
+      **FG1–FG6 RULED 2026-08-03 (Mike, plain-language walk-through; every
+      finding as counselled). These bind the rebuild at pickup:**
+      **FG1** — C3 is mapped into the instance list above, and the rebuilt
+      model must *state* whether posture-by-visibility (P3) is inside or
+      outside its scope — either answer, never silence.
+      **FG2** — the rebuild's working hypothesis is **provenance, not
+      direction**: tool-initiated lowering of a response stays forbidden; a
+      declared, reasoned, expiring, principal-visible lowering is lawful
+      (C1's existing machinery — a downward claim rots, so it carries
+      expiry; an upward move needs none). A hypothesis to *test* at design,
+      not inherit; E6d stands unchanged until the rebuild lands.
+      **FG3** — the model's vocabulary gains the granularity axis (line /
+      check / repo) and the definitions the one-spelling ambiguity blurred:
+      **acceptance is indefinite with a reason; deferment is temporary with
+      an expiry**.
+      **FG4** — the axes are checked against prior-art vocabulary (CVSS
+      exploitability/impact/environmental, CodeQL precision ×
+      security-severity, Semgrep confidence × severity) at pickup, verified
+      then rather than trusted from the pass.
+      **FG5** — the false-positive route is a pointer-carrying
+      specialisation of PROPAGATION's resolved-upward rule, never a second
+      original.
+      **FG6** — the F1 pointer's "design/intent pass per REVIEW.md §" line
+      is handed to the funded pointer-grammar build as a boundary specimen
+      (procedural pass-type vs evaluative steering); the build decides the
+      boundary with its corpus, not this entry.
 
 ### The thing underneath all of it — state-tracking, not reasoning
 
@@ -644,7 +680,12 @@ it keeps being broken. All are self-authored doctrine when they land ⇒ rule-4
       guard has a real specimen to prove itself against on day one, and a real
       finding to fix. Instance 2 was not located this session; find it or
       record that it could not be found, rather than inheriting "two" on
-      faith.
+      faith. **A boundary specimen joined the corpus by the FG6 ruling
+      (Mike, 2026-08-03):** the F1 pointer carried *"Design/intent pass per
+      REVIEW.md §…"* — an instruction to the reviewer, but a procedural one
+      (pass type), not evaluative and not a seeded question. Whether
+      pass-type is a lawful fourth field beside {delta, intent record, tier}
+      is this build's to settle, decided on the corpus rather than pre-ruled.
 
       🔎 **And that live specimen already breaks the obvious scoping.** The
       ADR 0008 entry carries a reviewer agenda but is marked `[ ]`, with
@@ -2655,33 +2696,12 @@ reviewer pre-findings (the SL2 channel class, second live instance).
   RULED + APPLIED 2026-08-02; no MAJOR ⇒ terminal application — **cycle
   CLOSED**.
 
-### Application-review residue from the 2026-08-02 rulings application
+### Application reviews from the 2026-08-02 rulings application
 
-Both application cold passes ran 2026-08-03 (rule-4 Fable taker; neither
-review spawned by the applications' author). **Both cycles are CLOSED** —
-no MAJOR on either terminal pass. What remains is Mike's ruling on the
-residue, not review work.
-
-- [ ] 🎯 REVIEWED 2026-08-03 (rule-4 Fable cold pass): PASS-WITH-FINDINGS
-  0M/1m/3n —
-  [verdict](reviews/2026-08-03-0649-publishscan-application-cold.md).
-  **The `publishscan` application** (`c85285b`). PB1–PB4 all applied
-  faithfully; **cycle CLOSED** (terminal, no MAJOR). Residue awaits Mike:
-  PA1 (minor) — the PB3 rebase notice prints to stdout and corrupts
-  `--json` output under a subdir `--root` (latent on the live floor; the
-  registry always passes the true root); PA2 — depth matching widens the
-  `.env.example` false-positive surface, counsel is leave-the-pattern;
-  PA3 — a glob containing `#` silently misparses; PA4 — ignore-file
-  strings print raw (C1F3's class, named into that fix's scope).
-- [ ] 🎯 REVIEWED 2026-08-03 (rule-4 Fable cold pass): PASS 0M/0m/2n —
-  [verdict](reviews/2026-08-03-0653-publish-surface-application-cold.md).
-  **The publish-surface application** (`62bb1c1`). PS1–PS3 applied
-  faithfully; the PS1 mandate-site class swept closed at HEAD; **cycle
-  CLOSED** (terminal, no MAJOR). Residue awaits Mike: PSA1 — the TOOLBOX
-  residual clause says "template", singular, while two templates publish
-  (the local one now discloses only the `acceptEdits` default); PSA2 —
-  PS1's fix reaches children by pin bump only, recorded as the explicit
-  dependency.
+> 📦 **Both cold passes ran 2026-08-03, both cycles CLOSED (terminal, no
+>   MAJOR), all six residue findings RULED and applied the same day** →
+>   [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The two application passes —
+>   PA1–PA4, PSA1–PSA2*. Nothing open remains in this section.
 
 ### Publication surface — what a public repo reveals about its own defences (2026-07-29)
 
