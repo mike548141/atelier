@@ -25,7 +25,16 @@ delta's doctrine surfaces — even for hygiene — widens the pointer's delta
 list in the same commit (AW6 ruling, 2026-07-23). The pointer itself is
 queued **in the commit that lands the work** — landing = queuing, so no
 window exists where landed doctrine sits unpointed and untracked (AWA2
-ruling, 2026-07-23; its enacting batch exercised exactly that window).
+ruling, 2026-07-23; its enacting batch exercised exactly that window). The same
+landing-equals-bookkeeping rule binds the other two state changes (enacted
+2026-08-03; grounding harvested to `ROADMAP-DONE.md`): an `[x]` and its harvest
+to `ROADMAP-DONE.md` are **one commit**, never two — the cold-content gate fires
+the moment an `[x]` lands on the hot path, so a later harvest leaves the pushed
+floor red for the window between them (2026-07-26: `d847866` red, `0485540`
+green). And an **inline claim** (`wt: none`) **closes in the commit that lands
+its work** — a worktree merge forces a return to this file, an inline claim has
+no such forcing step, and the one item that skipped the worktree skipped its
+close with it (2026-07-26, cleared hours after `b89a306` had shipped).
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
 
@@ -612,8 +621,10 @@ it keeps being broken. All are self-authored doctrine when they land ⇒ rule-4
 - **Which tier reviews** — the rule that cost a whole three-verdict pass →
   § *Doctrine — review-owed* below.
 - **A state change and the bookkeeping the floor demands of it ship together**
-  — three instances now, from two directions → § *Doctrine candidate — the
-  harvest rides the `[x]` commit* below.
+  — enacted 2026-08-03 as two preamble clauses in this file (the `[x]`/harvest
+  single commit, and the inline-claim close); grounding harvested to
+  [`ROADMAP-DONE.md`](ROADMAP-DONE.md), rule-4 `⏳` queued in
+  § *Doctrine — review-owed*.
 - **Bulk deletion from a record store is a show-first action** — Mike's call,
   it narrows agent autonomy → § *For your consideration* below.
 - [ ] 🎯 **The `⏳` pointer steered its own reviewer — THIRD instance,
@@ -867,46 +878,6 @@ are what generalise to any adopter.
       require more than two colon-separated groups, or whether describe-don't-
       quote is simply the standing answer for record prose (it already is for
       example credentials).
-
-### Doctrine candidate — the harvest rides the `[x]` commit (found 2026-07-26)
-
-- [~] (claimed 2026-08-03-2016, wt: none — inline on the orchestrator; closes in the commit that lands it) **State, at the point of use, that marking `[x]` and harvesting to
-      ROADMAP-DONE are one commit — not two.** The ROADMAP preamble defines the
-      `[x]` state but says nothing about *when* the harvest happens, and the
-      cold-content gate fires the moment an `[x]` lands on the hot path. So
-      marking three items done in one commit and harvesting in the next leaves a
-      window in which the **pushed** floor is red — which is exactly what
-      happened on 2026-07-26 (`d847866` red, `0485540` green). Local scans were
-      green throughout, because the harvest was already done on disk before the
-      first push was checked; only the pushed floor saw the window.
-      **This is the same shape as a ruling already made**, which is what makes it
-      a candidate rather than a one-off: AWA2 put the `⏳` pointer *in the commit
-      that lands the work* so no window exists where landed doctrine sits
-      unpointed. Same argument, different marker — an `[x]` and its harvest
-      belong in one commit so no window exists where a completed item sits
-      stranded on the hot path. Both are instances of a more general rule worth
-      naming if a third case appears: **a state change and the bookkeeping the
-      floor demands of it ship together.**
-      Not enacted here on purpose: this is doctrine, and REVIEW rule 4 binds the
-      author out of reviewing it, so a future session should write it into the
-      preamble and queue its `⏳` in the landing commit (per AWA2 itself).
-
-      **A third instance arrived the same day, from the opposite direction — and
-      it names the mechanism.** A post-outage recovery sweep found one item still
-      `[~]` **claimed** whose work had shipped hours earlier (`b89a306`). Of the
-      three states that is the worst to leave behind: a later session reads `[~]`
-      as *a live session owns this* and skips it, so delivered work sits looking
-      permanently in progress. The reason it was missed is structural, not
-      carelessness — **every other item that run was claimed with a worktree, and
-      merging the worktree forced a return to the roadmap. This one was claimed
-      `wt: none — inline on main`, so nothing ever forced the return.** The
-      forcing function was the worktree, and the item that skipped the worktree
-      skipped the closing step with it. So the rule wants a second clause aimed
-      at exactly that case: **an inline claim is closed in the commit that lands
-      its work**, because there is no merge step later to remember it. Same
-      family as the `[x]`/harvest pairing above — a state change and its
-      bookkeeping ship together — and the same reason it keeps recurring: the
-      bookkeeping is only reliable when something *makes* you do it.
 
 ### Candidate invariant — the public-record join, breached three times
 
@@ -1286,6 +1257,14 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
       grounding bar in `CLAUDE.md`).
 
 ## Doctrine — review-owed
+
+- ⏳ **Rule-4 review queued (tier: Fable) — the landing-equals-bookkeeping
+  preamble clauses.** *Delta:* the two new sentences in this file's
+  checkbox-states preamble paragraph — the `[x]`/harvest single commit, and
+  the inline-claim close (landed 2026-08-03, the enacting commit is named in
+  the session record). *Intent record:* the harvested entry in
+  [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *Doctrine — the harvest rides the
+  `[x]` commit* + the SESSIONS.md entry of 2026-08-03 (orchestrated run).
 
 - [~] (claimed 2026-08-03-2016, wt: qr0804-grammar — agent worktree, Fable-orchestrated run) 🎯 **B4 — REVIEWED 2026-07-29 (rule-4 Fable cold pass):
   PASS-WITH-FINDINGS — 1 MAJOR / 2 minor / 2 notes; every recorded
