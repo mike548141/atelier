@@ -77,7 +77,8 @@ does not enforce a check must SAY SO, in a committed file
              distinguished three-days-into-a-cleanup from softened-and-forgotten
              — the exact decay ADR 0008 exists to end, and `disabled` (the
              HARDER opt-out) had demanded a reason all along. A passed
-             `review-by` goes red on the fleet board and blocks NOTHING: a
+             `review-by` goes red on the floor line AND on the fleet board,
+             both saying how many days it has stood, and blocks NOTHING: a
              commit failing on a date set months earlier is how a forcing
              function becomes a --no-verify habit.
   disabled   the check does not run. A deliberate, reviewable choice on the
@@ -199,6 +200,9 @@ from pathlib import Path, PurePosixPath
 
 CONFIG_NAME = ".atelier-floor.json"
 ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+# C0 controls plus DEL. Config-authored text reaches a terminal verbatim, so
+# these are stripped at the parse seam — see `_strip_controls`.
+CONTROL_CHARS_RE = re.compile(r"[\x00-\x1f\x7f]")
 
 # Placeholders resolved per invocation: {root} = the repo being scanned,
 # {docs} = its records tree (configurable — not every child keeps records in
@@ -429,6 +433,54 @@ def _today() -> str:
     day early or late depending on the committer's timezone would make the
     board disagree with itself across machines."""
     return datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+
+
+def _days_over(review_by: str, today: str) -> str:
+    """How long an expired advisory has been standing, in words.
+
+    Wording is deliberately identical to `floorfleet._days_over`: the floor
+    line and the fleet board describe the same declaration, and two spellings
+    of the same age would read as two different facts. (Kept as a twin rather
+    than a shared import because the board reads child configs directly and
+    does not otherwise depend on this module; if a third caller appears, hoist
+    it.)"""
+    try:
+        days = (datetime.date.fromisoformat(today)
+                - datetime.date.fromisoformat(review_by)).days
+    except ValueError:
+        return "date unreadable"
+    if days < 1:
+        return "today"
+    if days == 1:
+        return "1 day over"
+    return f"{days} days over"
+
+
+def _strip_controls(value: object) -> object:
+    """Remove C0 control characters (and DEL) from every string in a parsed
+    config document — keys and values, at any depth.
+
+    A child's `.atelier-floor.json` is text an operator READS: the `why` on an
+    advisory, the reason on a disabled check, a local check's description, all
+    print straight to a terminal from here and from the fleet board. A hostile
+    or careless child could embed ANSI escape sequences in any of them and
+    repaint, clear or spoof the surrounding output — a green tick over a red
+    result is one `\\x1b[` away. Stripping at the parse seam closes the whole
+    class at once, including the fields that predate it (`disabled` reasons
+    always printed raw), rather than per field as each new one is noticed
+    (C1 cold pass, C1F3, ruled STRIP C0 CONTROLS AT PARSE 2026-07-28).
+
+    Dropped, not escaped: these characters have no legitimate place in a path,
+    a scanner name or a one-line reason, so there is nothing to preserve. It
+    also means `_wc`'s newline encoding below can no longer be reached from a
+    config string — belt and braces, deliberately kept."""
+    if isinstance(value, str):
+        return CONTROL_CHARS_RE.sub("", value)
+    if isinstance(value, dict):
+        return {_strip_controls(k): _strip_controls(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_strip_controls(v) for v in value]
+    return value
 
 
 def _load_advisory(raw: object) -> dict[str, Advisory]:
@@ -777,6 +829,11 @@ class Config:
             raw = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, ValueError) as e:
             raise ConfigError(f"{CONFIG_NAME} is unreadable: {e}") from e
+        # ONE seam for the whole document (C1F3). Every string below — reasons,
+        # `why` lines, scanner names, scope paths, local check descriptions —
+        # reaches an operator's terminal, and a per-field strip is a list that
+        # goes stale the next time a field is added.
+        raw = _strip_controls(raw)
         if not isinstance(raw, dict):
             raise ConfigError(f"{CONFIG_NAME} must be a JSON object")
 
@@ -920,11 +977,19 @@ class Result:
     # is reported, and says when that date has passed. An expired advisory
     # NEVER blocks — a commit failing on a date somebody set months earlier is
     # how a forcing function turns into a --no-verify habit — so this is a
-    # reporting state only, red on the board and nowhere else (ruled
-    # 2026-07-28). `legacy` marks the pre-C1 spelling, still parsing through
-    # the transition.
+    # reporting state only: red on the floor line and on the board, and nowhere
+    # in the exit code (ruled 2026-07-28). `legacy` marks the pre-C1 spelling,
+    # still parsing through the transition.
     review_by: str = ""
     expired: bool = False
+    # How long an expired advisory has been standing, in words ("3 days over"),
+    # empty while it is live. "Expired" alone reads the same on day one and day
+    # two hundred, and it is the second that means the declaration was
+    # abandoned — so the count belongs on the commit-time line too, not only on
+    # a board somebody has to go and look at (C1 cold pass, C1F2, ruled
+    # 2026-07-28). Always present, empty when there is nothing to say, so a
+    # --json consumer's field set stays comparable run to run.
+    days_over: str = ""
     legacy: bool = False
 
     @property
@@ -1207,19 +1272,18 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
         # `local.*.scope` ("narrowing a check to nothing is a silent hole, not a
         # scope") and for an absolute path in --staged mode.
         #
-        # It is ONE member of that class, not the rest of it. The class is
-        # "a declared scope that reads something other than the tree it names",
-        # and this guard shuts only the first of its three members: does not
-        # resolve (shut here) / resolves OUTSIDE the repo (open — `/etc` and
-        # `..` both pass `.exists()`, render to a prefix that matches no staged
-        # path, and exit 0 clean) / resolves outside via an in-tree symlink
-        # (open). `local.run` has the lexical half of this check
-        # (`is_absolute()` / `..`) and fleet `scope` has neither half — the
-        # asymmetry is real and named, not designed. Track A application cold
-        # pass, TA1, ruled (a) and closed 2026-07-28 — both the outside-the-repo
-        # members are shut above; this branch keeps the does-not-resolve one.
-        # Registry defaults for these scanners are the repo root, so only an
-        # explicit declaration can reach here.
+        # It is ONE member of that class, and the class is shut end to end. The
+        # class is "a declared scope that reads something other than the tree it
+        # names", and all three of its members now block: does not resolve (shut
+        # here) / resolves OUTSIDE the repo — `/etc`, `..` (shut lexically at
+        # parse by `_reject_escaping_scope`, so it blocks on every plane and for
+        # softenable scanners too) / resolves outside via an in-tree symlink
+        # (shut by the outside guard above, which resolves both sides). Fleet
+        # `scope` now carries BOTH halves of the membership rule, the same
+        # lexical half `local.run` has always had — the asymmetry TA1 named is
+        # closed, not merely described. Track A application cold pass, TA1,
+        # ruled (a) and closed 2026-07-28. Registry defaults for these scanners
+        # are the repo root, so only an explicit declaration can reach here.
         if missing and scanner.advisory is None:
             print(
                 f"floor: {scanner.name} is scoped to "
@@ -1303,10 +1367,21 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
         # the line states the invocation, which is always true, instead of
         # asserting a cover level it cannot observe. The 🟡 stays: on a real
         # runner, which holds no list, the reduced cover is real.
-        partial = ""
+        # Cover notes ACCUMULATE — they never displace one another. The two
+        # notes below shared this one field through an `elif`, so a check with
+        # an absent cover flag AND a shrunken scope reported only the first and
+        # dropped the second in silence. Unreachable today (the only scanner
+        # with a `full_cover_flag` has no advisory form, so a missing scope
+        # blocks at the guard above before it gets here) — but nothing pinned
+        # that invariant, and a future softenable scanner with a cover flag
+        # would re-open a silent-shrink hole inside the fix built to close one.
+        # A joined note cannot decay the way a comment naming the invariant
+        # relies on a future reader honouring it (TA-application cold pass,
+        # TAA2, ruled JOIN THE NOTES 2026-07-28).
+        notes: list[str] = []
         if scanner.full_cover_flag and scanner.full_cover_flag not in argv:
-            partial = (f"cover not guaranteed — the {plane} plane does not pass "
-                       f"{scanner.full_cover_flag}")
+            notes.append(f"cover not guaranteed — the {plane} plane does not "
+                         f"pass {scanner.full_cover_flag}")
         # Scope drift on a SOFTENABLE check (TA3). The blocking guard above
         # covers only checks with no advisory form; a softenable one whose
         # scope has partly stopped resolving just quietly ran on less, with no
@@ -1315,15 +1390,22 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
         # the skip branch exists for — but shrunken cover reported as full is
         # the defect this whole track is about, so it renders 🟡 and reaches
         # `--json` and the fleet board by the same route as EP3's.
-        elif missing:
-            partial = (f"{len(missing)} of {len(declared)} scope paths missing "
-                       f"({', '.join(missing)}) — ran on the rest")
+        if missing:
+            notes.append(f"{len(missing)} of {len(declared)} scope paths "
+                         f"missing ({', '.join(missing)}) — ran on the rest")
+        partial = "; ".join(notes)
         adv = cfg.advisory.get(scanner.name) if state == "advisory" else None
+        today = _today()
+        expired = bool(adv and adv.expired(today))
         results.append(Result(
             scanner.name, state, rc, local=scanner.is_local, partial=partial,
             reason=(adv.why if adv else ""),
             review_by=(adv.review_by or "" if adv else ""),
-            expired=bool(adv and adv.expired(_today())),
+            expired=expired,
+            # Computed here, where `today` is known, so `render` stays a pure
+            # function of the results it is handed.
+            days_over=(_days_over(adv.review_by or "", today) if expired
+                       else ""),
             legacy=bool(adv and adv.legacy),
         ))
     return results
@@ -1347,15 +1429,27 @@ def render(results: list[Result], plane: str) -> str:
                 mark = "🟡"
             elif r.expired:
                 mark = "🔴"
-        note = f"  ({r.reason})" if r.reason else (
-            f"  ({r.partial})" if r.partial else "")
+        # Both notes, joined — never one instead of the other. `reason` (an
+        # advisory's `why`) used to be preferred over `partial` (the cover or
+        # scope-drift note), and C1 populates `reason` for EVERY advisory
+        # result, so a softened check with a shrinking scope showed the excuse
+        # and hid the shrink; the drift note survived only in --json. A
+        # softened check whose cover is quietly shrinking is the board's
+        # worst-informed case, which is exactly where the note was being
+        # dropped (C1 cold pass, C1F1, ruled JOIN THE NOTES 2026-07-28).
+        said = [s for s in (r.reason, r.partial) if s]
+        note = f"  ({'; '.join(said)})" if said else ""
         if r.state == "advisory":
             if r.legacy:
                 note += ("  ⚠️  no reason or review date — pre-C1 declaration, "
                          "migrate it")
             elif r.review_by:
+                # How long it has stood, not just that it stood too long: the
+                # count is what separates "expired on Friday" from "abandoned
+                # in March", and it belongs where a commit is being made (C1F2).
                 note += (f"  [review by {r.review_by}"
-                         + (" — PASSED]" if r.expired else "]"))
+                         + (f" — PASSED, {r.days_over}]" if r.expired
+                            else "]"))
         # A local check is marked, not segregated: it blocks the same commit as
         # a fleet check, so it belongs in the same list — but a reader must be
         # able to tell which line came from this repo's own decision.
@@ -1511,6 +1605,35 @@ def _selftest() -> int:
                                   "disabled": {"wrapscan": "x"}})
     rejects("disabled as a list", {"disabled": ["spellscan"]})
     rejects("not an object", [1, 2, 3])
+
+    # Config-authored text cannot carry terminal escapes to an operator's
+    # screen (C1F3). Checked here as well as in the suite because the selftest
+    # is what a child runs when it doubts its own floor.
+    with tempfile.TemporaryDirectory() as td:
+        p = Path(td)
+        (p / CONFIG_NAME).write_text(json.dumps(
+            {"advisory": {"wrapscan": {"why": "clearing\x1b[2J backlog",
+                                       "review-by": "2999-01-01"}},
+             "disabled": {"spellscan": "no prose\x07 here"}}), encoding="utf-8")
+        loaded = Config.load(p)
+    check("escape sequences stripped from a why",
+          "\x1b" not in loaded.advisory["wrapscan"].why)
+    check("escape sequences stripped from a disabled reason",
+          "\x07" not in loaded.disabled["spellscan"])
+
+    # An advisory reason must not displace a cover note on the same line
+    # (C1F1): both are true, so both print.
+    joined = render([Result("wrapscan", "advisory", 0, reason="clearing backlog",
+                            partial="1 of 2 scope paths missing (gone) — ran "
+                                    "on the rest",
+                            review_by="2999-01-01")], "hook")
+    check("an advisory reason does not displace the drift note",
+          "clearing backlog" in joined and "scope paths missing" in joined)
+    aged = render([Result("wrapscan", "advisory", 0, reason="clearing backlog",
+                          review_by="2020-01-01", expired=True,
+                          days_over=_days_over("2020-01-01", _today()))], "hook")
+    check("an expired advisory says how long it has stood",
+          "PASSED," in aged and "over]" in aged)
 
     # A missing config is full enforcement, not an error.
     with tempfile.TemporaryDirectory() as td:

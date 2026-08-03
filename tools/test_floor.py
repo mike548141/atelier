@@ -436,7 +436,19 @@ class LocalSeamInvocationTest(unittest.TestCase):
 
         GITHUB_ACTIONS is set explicitly rather than inherited: annotation mode
         is env-gated, so a test that merely runs the floor would pass on a
-        laptop by never entering the branch it means to exercise."""
+        laptop by never entering the branch it means to exercise.
+
+        TWO guards now stand between that payload and the log, and the outer
+        one moved. C1F3's parse-time strip (ruled 2026-07-28) drops C0
+        controls from every config string, so the newline is GONE before `_wc`
+        is reached — the payload arrives as inert text on one line rather than
+        as an encoded `%0A`. `_wc` is kept and still pinned directly below: it
+        guards the interpolation point itself, which is where a string from
+        some future source that never passed through the config parser would
+        arrive. The property under test is unchanged — no forged annotation
+        reaches the log — but it is now met by removal rather than encoding,
+        and that is stated here rather than left for the next reader to
+        rediscover from a mysteriously absent `%0A`."""
         payload = ("legit\n::error::INJECTED spoofed annotation\n"
                    "::set-output name=x::pwn")
         with tempfile.TemporaryDirectory() as td:
@@ -448,13 +460,28 @@ class LocalSeamInvocationTest(unittest.TestCase):
                 capture_output=True, text=True,
                 env={**os.environ, "GITHUB_ACTIONS": "true"},
             )
-        # The payload must survive as inert TEXT on one line, not as a command.
+        # The load-bearing assertions, unchanged: Actions reads a `::` command
+        # only at the START of a line, so a payload that cannot open a line
+        # cannot forge one.
         self.assertNotIn("\n::error::INJECTED", r.stdout)
         self.assertNotIn("\n::set-output", r.stdout)
-        self.assertIn("%0A", r.stdout, "the newline must be encoded, not dropped")
-        # ...and the real annotation is still emitted, or the encoding has
-        # simply broken the feature it was protecting.
+        # It survives as inert text on the real annotation's line — not
+        # silently swallowed, which would hide a hostile `why` from the
+        # operator who most needs to see it.
+        self.assertIn("INJECTED spoofed annotation", r.stdout)
+        self.assertNotIn("\x0a::", r.stdout.split("::error::tripwire failed")[1])
+        # ...and the real annotation is still emitted, or the guard has simply
+        # broken the feature it was protecting.
         self.assertIn("::error::tripwire failed", r.stdout)
+
+    def test_the_interpolation_point_still_encodes_newlines_itself(self):
+        """The inner guard, pinned on its own now that the parse-time strip
+        means the end-to-end test above can no longer reach it. `_wc` is the
+        mitigation at the point of interpolation, which is where a string that
+        never came through `Config.load` would arrive — a registry `why`, a
+        future field, a scanner name read from somewhere else."""
+        self.assertEqual(floor._wc("legit\n::error::INJECTED"),
+                         "legit%0A::error::INJECTED")
 
     def test_a_percent_in_a_why_is_encoded_before_the_newlines(self):
         """Order matters: encoding `%` after the newline escapes would
@@ -912,6 +939,254 @@ class InvocationTest(unittest.TestCase):
             self.assertEqual(r.returncode, 1)
             self.assertIn("fail closed", r.stderr.lower())
             self.assertIn("secretscan", r.stderr)
+
+
+class ScopeGuardHonestyTest(unittest.TestCase):
+    """The guard's own comment must not claim a door it shut is still open.
+
+    TAA1 (minor, ruled FIX 2026-07-28). One commit in the TA series shut both
+    outside-the-repo members of the scope class; the series landed without
+    updating the class-members comment a few lines below, which went on
+    asserting both were "(open)" — the enforcement plane advertising two
+    fail-opens that no longer existed. That is the record-drift class TA8
+    fixes, running the opposite way, and it is the one claim no behaviour test
+    can catch, which is why the assertion is made against the source text.
+
+    The behaviour these three members describe is pinned by the three TA1
+    tests in InvocationTest above; this pins that the prose beside them agrees.
+    """
+
+    def _guard_comment(self) -> str:
+        src = (TOOLS_DIR / "floor.py").read_text(encoding="utf-8")
+        self.assertIn("It is ONE member of that class", src)
+        return src.split("It is ONE member of that class")[1].split(
+            "if missing and")[0]
+
+    def test_no_member_of_the_scope_class_is_labelled_open(self):
+        comment = self._guard_comment()
+        self.assertNotIn("(open", comment)
+        self.assertNotIn("has neither half", comment)
+
+    def test_the_ta1_pointer_survives_the_correction(self):
+        """The ruling kept the pointer deliberately: a reader who meets this
+        guard needs the finding that produced it, or the next correction has
+        to be rediscovered from scratch."""
+        self.assertIn("TA1", self._guard_comment())
+
+
+class ReportedNoteTest(unittest.TestCase):
+    """One line, every note that is true of it.
+
+    Two findings from two cold passes, one shape: a report field that held one
+    note at a time. `Result.partial` chose the cover note OR the scope-drift
+    note (TAA2), and the human line chose an advisory's reason OR whatever
+    `partial` held (C1F1). Both drop the SHRINK and keep the excuse, which is
+    the wrong half to lose — a softened check whose cover is quietly shrinking
+    is the case the board is least able to see. Ruled JOIN THE NOTES,
+    2026-07-28, and implemented as one design.
+    """
+
+    def _run(self, *args: str) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            [sys.executable, str(TOOLS_DIR / "floor.py"), *args],
+            capture_output=True, text=True,
+        )
+
+    def test_a_cover_note_and_a_drift_note_are_both_reported(self):
+        """TAA2. Unreachable through a config today — the only scanner with a
+        `full_cover_flag` has no advisory form, so a missing scope path blocks
+        at the guard before this code is reached. That is precisely why it is
+        pinned: the invariant holding it shut is a registry fact nobody has
+        promised to keep, and a future softenable scanner with a cover flag
+        would silently re-open a shrink hole inside the fix built to close one.
+        A note that joins cannot decay; a comment saying "mind this" can."""
+        import dataclasses
+        from unittest import mock
+
+        covered = dataclasses.replace(floor.BY_NAME["wrapscan"],
+                                      full_cover_flag="--require-terms")
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "docs").mkdir()
+            (root / "docs" / "a.md").write_text("fine\n", encoding="utf-8")
+            cfg = floor.Config(scope={"wrapscan": ("docs", "gone")})
+            with mock.patch.object(floor, "SCANNERS", (covered,)), \
+                    mock.patch.object(floor, "BY_NAME", {"wrapscan": covered}):
+                results = floor.run("ci", root, TOOLS_DIR, cfg, ci=False)
+        self.assertEqual(len(results), 1)
+        note = results[0].partial
+        # Both, not either: the cover note used to win and the drift note
+        # vanished with it.
+        self.assertIn("--require-terms", note)
+        self.assertIn("1 of 2 scope paths missing", note)
+        self.assertIn("gone", note)
+
+    def test_a_drift_note_alone_still_reads_as_one_note(self):
+        """The other direction, or joining becomes punctuation nobody trusts:
+        one true note renders exactly as it did before, with no separator."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            (Path(td) / floor.CONFIG_NAME).write_text(
+                json.dumps({"scope": {"wrapscan": ["docs", "gone"]}}),
+                encoding="utf-8")
+            r = self._run("--plane", "ci", "--root", td, "--json")
+            results = {x["name"]: x for x in json.loads(r.stdout)["results"]}
+        note = results["wrapscan"]["partial"]
+        self.assertTrue(note.startswith("1 of 2 scope paths missing"), note)
+        self.assertNotIn(";", note)
+
+    def test_an_advisory_reason_does_not_displace_the_drift_note(self):
+        """C1F1. C1 populates `reason` for every advisory result, so from the
+        day it landed a softened check with a half-missing scope rendered
+        `🟡 … (clearing backlog) [review by …]` — the visible cause was the
+        advisory and the actual mark was the drift's, which survived only in
+        --json."""
+        line = floor.render([floor.Result(
+            "wrapscan", "advisory", 0, reason="clearing backlog",
+            partial="1 of 2 scope paths missing (gone) — ran on the rest",
+            review_by="2999-01-01")], "hook")
+        self.assertIn("clearing backlog", line)
+        self.assertIn("1 of 2 scope paths missing", line)
+        self.assertIn("[review by 2999-01-01]", line)
+
+    def test_a_line_with_neither_note_stays_bare(self):
+        line = floor.render(
+            [floor.Result("secretscan", "enforced", 0)], "hook")
+        self.assertNotIn("(", line.split("\n")[1])
+
+    def test_an_expired_advisory_shows_how_long_it_has_stood(self):
+        """C1F2, ruled ADD THE COUNT TO THE FLOOR LINE (2026-07-28). The
+        commit and the intent record both claimed the count rendered "on the
+        floor and on the board"; `_days_over` lived only in floorfleet and the
+        floor line said `— PASSED]` with no count. "Expired" reads the same on
+        day one and day two hundred, and it is day two hundred that means the
+        declaration was abandoned — so the count goes where the commit is
+        being made, not only on a board someone has to go and look at."""
+        line = floor.render([floor.Result(
+            "wrapscan", "advisory", 0, reason="adopting",
+            review_by="2020-01-01", expired=True,
+            days_over=floor._days_over("2020-01-01", "2020-03-01"))], "hook")
+        self.assertIn("[review by 2020-01-01 — PASSED, 60 days over]", line)
+        self.assertIn("🔴", line)
+
+    def test_the_count_reads_the_same_as_the_fleet_board(self):
+        """One declaration, one age. Two spellings of the same fact across the
+        floor and the board would read as two different facts, so the wording
+        is pinned against floorfleet's rather than merely intended to match."""
+        sys.path.insert(0, str(TOOLS_DIR))
+        import floorfleet  # noqa: E402
+        for review_by, today in (("2020-01-01", "2020-01-01"),
+                                 ("2020-01-01", "2020-01-02"),
+                                 ("2020-01-01", "2021-06-15"),
+                                 ("not-a-date", "2020-01-01")):
+            with self.subTest(review_by=review_by, today=today):
+                self.assertEqual(floor._days_over(review_by, today),
+                                 floorfleet._days_over(review_by, today))
+
+    def test_a_live_advisory_carries_no_count(self):
+        line = floor.render([floor.Result(
+            "wrapscan", "advisory", 0, reason="adopting",
+            review_by="2999-01-01")], "hook")
+        self.assertIn("[review by 2999-01-01]", line)
+        self.assertNotIn("PASSED", line)
+
+    def test_the_count_reaches_json_as_a_stable_field(self):
+        """Always present, empty when there is nothing to say — a --json
+        consumer compares two runs field for field."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            (Path(td) / floor.CONFIG_NAME).write_text(json.dumps(
+                {"advisory": {"wrapscan": {"why": "adopting",
+                                           "review-by": "2020-01-01"},
+                              "spellscan": {"why": "adopting",
+                                            "review-by": "2999-01-01"}}}),
+                encoding="utf-8")
+            r = self._run("--plane", "ci", "--root", td, "--json")
+            self.assertEqual(r.returncode, 0, r.stderr)
+            results = {x["name"]: x for x in json.loads(r.stdout)["results"]}
+        self.assertIn("days over", results["wrapscan"]["days_over"])
+        self.assertEqual(results["spellscan"]["days_over"], "")
+        self.assertEqual(results["secretscan"]["days_over"], "")
+
+    def test_the_expired_line_is_rendered_end_to_end(self):
+        """The render path as the hook actually drives it — the human line
+        goes to stderr, and an expired advisory still exits 0."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            (Path(td) / floor.CONFIG_NAME).write_text(json.dumps(
+                {"advisory": {"wrapscan": {"why": "adopting",
+                                           "review-by": "2020-01-01"}}}),
+                encoding="utf-8")
+            r = self._run("--plane", "ci", "--root", td)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertIn("PASSED,", r.stderr)
+            self.assertIn("days over]", r.stderr)
+
+
+class ControlCharacterTest(unittest.TestCase):
+    """A child's config is text an operator READS.
+
+    Every `why`, every disabled reason, every local check's description prints
+    straight to a terminal from the floor and from the fleet board, and a
+    hostile or careless child could put ANSI escapes in any of them — enough
+    to clear the screen, or repaint a red result green. C1F3 (ruled STRIP C0
+    CONTROLS AT PARSE, 2026-07-28) closes it at the parse seam so the whole
+    class goes at once, including the `disabled` reasons that predate C1.
+    """
+
+    def test_a_why_cannot_carry_an_escape_sequence(self):
+        cfg = _cfg({"advisory": {"wrapscan": {
+            "why": "clearing\x1b[2J\x1b[H backlog", "review-by": "2999-01-01"}}})
+        self.assertEqual(cfg.advisory["wrapscan"].why, "clearing[2J[H backlog")
+
+    def test_a_disabled_reason_cannot_either(self):
+        """The pre-existing half of the class: `disabled` reasons have printed
+        raw since long before C1 added two more fields to the same surface."""
+        cfg = _cfg({"disabled": {"spellscan": "no prose\x07\x1b]0;owned\x07"}})
+        self.assertNotIn("\x1b", cfg.disabled["spellscan"])
+        self.assertNotIn("\x07", cfg.disabled["spellscan"])
+
+    def test_a_scope_why_and_a_local_why_cannot_either(self):
+        """Strip at the seam, not per field — the point of the ruling. These
+        two were never named in the finding and are covered anyway."""
+        cfg = _cfg({"scope": {"leakscan": {"paths": ["docs"],
+                                           "why": "only docs\x1b[31m here"}},
+                    "local": {"t": {"run": "check.py",
+                                    "why": "pins a thing\x08\x08\x08"}}})
+        self.assertNotIn("\x1b", cfg.scope["leakscan"].why)
+        self.assertNotIn("\x08", cfg.local[0].why)
+
+    def test_keys_are_stripped_as_well_as_values(self):
+        """A scanner NAME is echoed in the unknown-scanner error, so it is the
+        same surface. Stripped, it no longer matches a real scanner and the
+        config fails closed by message — which is the safe direction."""
+        with self.assertRaises(floor.ConfigError) as caught:
+            _cfg({"disabled": {"spell\x1b[2Kscan": "why"}})
+        self.assertNotIn("\x1b", str(caught.exception))
+
+    def test_a_control_free_config_is_untouched(self):
+        """The other direction: stripping must not quietly rewrite an honest
+        declaration."""
+        cfg = _cfg({"advisory": {"wrapscan": {
+            "why": "adopting the check; 60 findings to clear",
+            "review-by": "2999-01-01"}}})
+        self.assertEqual(cfg.advisory["wrapscan"].why,
+                         "adopting the check; 60 findings to clear")
+
+    def test_the_rendered_line_carries_no_control_characters(self):
+        """End to end, which is the claim that actually matters: what reaches
+        the terminal is clean."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            (Path(td) / floor.CONFIG_NAME).write_text(json.dumps(
+                {"disabled": {"spellscan": "no prose\x1b[2J\x1b[H"}}),
+                encoding="utf-8")
+            r = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "floor.py"),
+                 "--plane", "ci", "--root", td],
+                capture_output=True, text=True)
+        self.assertIn("spellscan", r.stderr)
+        self.assertNotIn("\x1b", r.stderr)
 
 
 if __name__ == "__main__":

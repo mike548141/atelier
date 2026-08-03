@@ -7,6 +7,7 @@ must travel), the two planes, and the hatch.
 """
 
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -255,6 +256,88 @@ class HatchAndModeTest(unittest.TestCase):
 
     def test_selftest_passes(self):
         self.assertEqual(self.run_tool("--selftest").returncode, 0)
+
+
+class ControlCharacterTest(unittest.TestCase):
+    """Nothing this tool ingests can repaint the terminal it reports to.
+
+    Both output surfaces echo strings the tool did not write: the
+    `BadIgnoreFile` message embeds the offending glob verbatim, and a finding
+    line prints a tracked path (three times over, counting the two
+    remediation commands under it). A hostile or careless child could put ANSI
+    escapes in either and clear the screen, or paint a clean-scan line over a
+    red one. PA4 (ruled 2026-08-03) folded both into C1F3's strip-at-parse
+    scope — one class, closed in both tools at the seam where text enters.
+    """
+
+    def run_tool(self, *args: str) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            [sys.executable, str(TOOLS / "publishscan.py"), *args],
+            capture_output=True, text=True)
+
+    def test_the_strip_drops_controls_and_keeps_everything_else(self):
+        self.assertEqual(
+            publishscan._strip_controls("\x1b[2K.mcp\x07.json\x7f\x00"),
+            "[2K.mcp.json")
+        self.assertEqual(publishscan._strip_controls(".claude/settings.json"),
+                         ".claude/settings.json")
+
+    def test_a_hostile_glob_cannot_repaint_the_error_message(self):
+        """The surface PA4 named: a bare glob is echoed back verbatim at
+        exit 2, so the escape sequence rode out on the error the tool prints
+        when it refuses the file."""
+        with tempfile.TemporaryDirectory() as s:
+            root = git_repo(Path(s))
+            add(root, ".mcp.json")
+            add(root, ".publishscanignore", "\x1b[2J\x1b[H.mcp.json\n")
+            subprocess.run(["git", "-C", s, "commit", "-qm", "x"], check=True,
+                           capture_output=True)
+            r = self.run_tool("--root", s)
+        # Still a config error, still loud — the strip must not turn a refusal
+        # into a pass.
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertNotIn("\x1b", r.stderr)
+        self.assertIn(".mcp.json", r.stderr)
+
+    def test_a_stripped_glob_still_exempts_what_it_names(self):
+        """The other direction: stripping must not quietly rewrite an honest
+        exemption into one that matches nothing — which would red a repo that
+        had done everything right."""
+        with tempfile.TemporaryDirectory() as s:
+            root = git_repo(Path(s))
+            add(root, ".mcp.json")
+            add(root, ".publishscanignore",
+                ".mcp.json  # deliberate: fixture endpoints, no live data\n")
+            subprocess.run(["git", "-C", s, "commit", "-qm", "x"], check=True,
+                           capture_output=True)
+            self.assertEqual(self.run_tool("--root", s).returncode, 0)
+
+    def test_a_git_error_cannot_repaint_the_error_message(self):
+        """The second ingest seam. git's own stderr is echoed at exit 2 and
+        can carry a repo-supplied path; the paths it lists on stdout are
+        echoed in every finding line. Both come through `_git`, so both are
+        stripped there."""
+        with tempfile.TemporaryDirectory() as s:
+            fake = Path(s) / "git"
+            fake.write_text(
+                "#!/bin/sh\nprintf '\\033[2J.env\\n' >&2\nexit 128\n")
+            fake.chmod(0o755)
+            r = subprocess.run(
+                [sys.executable, str(TOOLS / "publishscan.py"), "--root", s],
+                capture_output=True, text=True,
+                env={**os.environ, "PATH": f"{s}:{os.environ['PATH']}"})
+        # A broken scan is not a pass, and the message it fails with is clean.
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertNotIn("\x1b", r.stderr)
+
+    def test_a_control_bearing_path_is_reported_clean(self):
+        """The finding line itself. Whatever git hands over, what reaches the
+        terminal carries no controls — the guarantee is this tool's, not a
+        default of git's quoting that a child could switch off."""
+        for line in publishscan._git(Path(TOOLS).parent, "ls-files"):
+            self.assertNotIn("\x1b", line)
+        self.assertEqual(
+            [publishscan._strip_controls(".env\x1b[2K")], [".env[2K"])
 
 
 if __name__ == "__main__":
