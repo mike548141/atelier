@@ -139,9 +139,22 @@ def load_ignores(root: Path) -> list[str]:
         line = raw.strip()
         if not line or line.startswith("#"):
             continue
-        glob, _, reason = line.partition("#")
-        glob = glob.strip()
-        if not reason.strip():
+        idx = line.find("#")
+        if idx == -1:
+            raise BadIgnoreFile(
+                f"{IGNORE_FILE}:{n}: '{line}' has no trailing '# reason' — "
+                "every exemption states its reason where a reviewer reads it")
+        if not line[idx - 1].isspace():
+            # A '#' with no space before it would silently truncate the glob
+            # into an exemption for a DIFFERENT path than written (PA3, ruled
+            # 2026-08-03). A glob cannot contain '#'; the failure is loud.
+            raise BadIgnoreFile(
+                f"{IGNORE_FILE}:{n}: put a space before '# reason' — a glob "
+                "may not contain '#', and a '#' glued to the glob would "
+                "silently exempt a different path than written")
+        glob = line[:idx].strip()
+        reason = line[idx + 1:].strip()
+        if not reason:
             raise BadIgnoreFile(
                 f"{IGNORE_FILE}:{n}: '{glob}' has no trailing '# reason' — "
                 "every exemption states its reason where a reviewer reads it")
@@ -213,11 +226,15 @@ def tracked_paths(root: Path, staged: bool) -> list[str]:
 
 
 def run(root: Path, staged: bool, warn: bool, as_json: bool) -> int:
+    rebased = False
     try:
         top = repo_top(root)
         if top.resolve() != root.resolve():
+            rebased = True
+            # Stderr, not stdout: --json consumers parse stdout, and a prose
+            # line before the document breaks them (PA1, ruled 2026-08-03).
             print(f"publishscan: --root is inside the repo — scanning the "
-                  f"full tracked set from {top}")
+                  f"full tracked set from {top}", file=sys.stderr)
         paths = tracked_paths(top, staged)
         globs = load_ignores(top)
     except NotARepo:
@@ -239,9 +256,12 @@ def run(root: Path, staged: bool, warn: bool, as_json: bool) -> int:
                 if not _ignored(p, globs) and (why := matches(p))]
 
     if as_json:
+        # rebased_to is always present (null when --root was already the top)
+        # so the field set stays comparable run to run.
         print(json.dumps({
             "scanned": len(paths),
             "staged": staged,
+            "rebased_to": str(top) if rebased else None,
             "findings": [{"path": p, "why": w} for p, w in findings],
         }, indent=2))
         return 0 if (warn or not findings) else 1

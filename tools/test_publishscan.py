@@ -165,6 +165,39 @@ class HatchAndModeTest(unittest.TestCase):
             self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
             self.assertIn("reason", r.stderr)
 
+    def test_glued_hash_glob_is_a_config_error(self):
+        """PA3 (ruled 2026-08-03): a '#' glued to the glob used to silently
+        truncate it into an exemption for a different path than written."""
+        with tempfile.TemporaryDirectory() as s:
+            root = git_repo(Path(s))
+            add(root, ".mcp.json")
+            add(root, ".publishscanignore", "foo#bar.md # deliberate\n")
+            subprocess.run(["git", "-C", s, "commit", "-qm", "x"], check=True,
+                           capture_output=True)
+            r = self.run_tool("--root", s)
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn("space before", r.stderr)
+
+    def test_json_parses_under_subdir_root_and_names_the_rebase(self):
+        """PA1 (ruled 2026-08-03): the rebase notice went to stdout and broke
+        --json consumers; it now goes to stderr and the JSON carries
+        rebased_to (always present; null when --root was already the top)."""
+        import json as _json
+        with tempfile.TemporaryDirectory() as s:
+            root = git_repo(Path(s))
+            add(root, ".claude/settings.json", '{"permissions":{}}\n')
+            add(root, "docs/README.md")
+            subprocess.run(["git", "-C", s, "commit", "-qm", "x"], check=True,
+                           capture_output=True)
+            r = self.run_tool("--root", str(Path(s) / "docs"), "--json")
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            doc = _json.loads(r.stdout)  # would raise before the fix
+            self.assertTrue(doc["rebased_to"])
+            self.assertIn("--root is inside the repo", r.stderr)
+            top = self.run_tool("--root", s, "--json")
+            self.assertIsNone(_json.loads(top.stdout)["rebased_to"])
+            self.assertNotIn("--root is inside the repo", top.stderr)
+
     def test_subdir_root_rebases_to_the_repo_top(self):
         """PB3: --root inside the repo must not silently scan a subtree that
         the root-anchored patterns can never match."""
