@@ -178,5 +178,28 @@ discharged with grounds: it reads pending diffs, and the only pending
 change here is this brief (the SL2 trap); a records delta has no surface it
 can reach.
 
-*(Reconcile against the intent record follows in a separate commit — the
-record stays unopened until the findings above are committed.)*
+## Reconcile (intent record opened after the findings were committed)
+
+Nothing overturned; two things sharpened.
+
+- The record names its own feared failure direction: the six-item mapping is
+  the agent's synthesis, and "if the mapping is wrong it is wrong in a way
+  that makes the frame look better-grounded than it is." **Measured, the
+  error ran the other way** — every mapped anchor verified real, and the
+  mapping *under*-counts (FG1: C3 and the bootstrap children are missing;
+  P3 undeclared on the boundary). The frame is better-grounded than the
+  entry claims, which is the good direction to be wrong in.
+- The record's EI3 note — Mike's doubt and the E6 reviewer's reservation
+  landing on the same soft spot independently — is exactly where FG2 lands
+  a third time: three independent hands on the same joint is strong
+  evidence the confidence/probability/impact seam is the load-bearing one.
+- Carried forward, now for the **fourth** time by the record's own count:
+  the `leakscan`-reaches-the-PII-half sweep (flagged 2026-07-29, endorsed
+  by the E6 intent pass, unswept). Out of this pass's scope, but a
+  companion the F1 rebuild will trip over if it is still undone at pickup.
+
+**Disposition.** 0 MAJOR — no further cold pass is owed on the F1 entry
+itself. FG1–FG6 are counsel for Mike's ruling (rule 3); they are input to
+the F1 rebuild at pickup, per his review-as-input instruction. The rebuilt
+model, when it lands, is self-authored doctrine and queues its own rule-4
+pointer as always.
