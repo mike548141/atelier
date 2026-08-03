@@ -91,11 +91,15 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
 
 IGNORE_FILE = ".publishscanignore"
+# C0 controls plus DEL — stripped from everything this tool ingests, at the
+# ingest seam. See `_strip_controls`.
+CONTROL_CHARS_RE = re.compile(r"[\x00-\x1f\x7f]")
 
 # (glob, why). The glob is matched against repo-relative POSIX paths.
 NEVER_PUBLISH: tuple[tuple[str, str], ...] = (
@@ -122,6 +126,27 @@ class BadIgnoreFile(Exception):
     """A glob line without a trailing `# reason` — a config error, not a pass."""
 
 
+def _strip_controls(text: str) -> str:
+    """Drop C0 control characters (and DEL) from text this tool ingests.
+
+    Both of this scanner's output surfaces echo strings it did not write. The
+    `BadIgnoreFile` message embeds the offending glob verbatim, and a finding
+    line prints the tracked path — so a hostile or careless child could put
+    ANSI escape sequences in a `.publishscanignore` glob or a filename and
+    repaint an operator's terminal, up to painting a clean-scan line over a
+    red one. Stripping at the seam where the text ENTERS closes both surfaces
+    at once, rather than at each of the six print sites that echo it (C1 cold
+    pass, C1F3, ruled STRIP C0 CONTROLS AT PARSE 2026-07-28; widened to this
+    tool by the PA4 ruling 2026-08-03, so one change closes the class
+    everywhere).
+
+    Same rule, same spelling as `floor.py`'s `_strip_controls`: dropped, not
+    escaped. None of these characters belongs in a path or a glob, so nothing
+    is lost — and a stripped path cannot match a never-publish pattern that
+    the unstripped one missed, since the patterns hold no controls either."""
+    return CONTROL_CHARS_RE.sub("", text)
+
+
 def load_ignores(root: Path) -> list[str]:
     """Globs from .publishscanignore — blank lines and `#` comments skipped.
 
@@ -136,7 +161,10 @@ def load_ignores(root: Path) -> list[str]:
     out = []
     for n, raw in enumerate(
             f.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
-        line = raw.strip()
+        # The ingest seam for this file: everything downstream — the glob that
+        # is matched, and the glob echoed back in an error — is control-free
+        # from here on (C1F3/PA4).
+        line = _strip_controls(raw).strip()
         if not line or line.startswith("#"):
             continue
         idx = line.find("#")
@@ -187,7 +215,7 @@ def _git(root: Path, *args: str) -> list[str]:
     r = subprocess.run(["git", "-C", str(root), *args],
                        capture_output=True, text=True)
     if r.returncode != 0:
-        err = r.stderr.strip()
+        err = _strip_controls(r.stderr).strip()
         # A tree with no git is not a DEGRADED scan, it is a complete scan of
         # an empty tracked set: nothing is tracked, so nothing can be published
         # through git, and "no never-publish path is tracked" is simply true.
@@ -200,7 +228,12 @@ def _git(root: Path, *args: str) -> list[str]:
         if "not a git repository" in err.lower():
             raise NotARepo(err)
         raise RuntimeError(err or "git failed")
-    return [ln for ln in r.stdout.splitlines() if ln]
+    # The other ingest seam: a tracked path is printed in every finding line
+    # and in the two remediation commands below it. git quotes most exotic
+    # bytes on its own, but that is git's default and not this tool's
+    # guarantee, so the guarantee is made here (C1F3/PA4).
+    return [stripped for ln in r.stdout.splitlines()
+            if (stripped := _strip_controls(ln))]
 
 
 def repo_top(root: Path) -> Path:
@@ -314,12 +347,16 @@ def selftest() -> int:
     bad_red = [p for p in red if matches(p) is None]
     bad_green = [p for p in green if matches(p) is not None]
     hatch_ok = _ignored(".mcp.json", [".mcp.json"])
-    ok = not bad_red and not bad_green and hatch_ok
+    # Nothing this tool ingests can repaint the terminal it reports to
+    # (C1F3/PA4). Checked here too: the selftest is what a child runs offline.
+    controls_ok = _strip_controls("\x1b[2K.mcp\x07.json\x7f") == "[2K.mcp.json"
+    ok = not bad_red and not bad_green and hatch_ok and controls_ok
     print("publishscan selftest:", "OK" if ok else "FAILED")
     if not ok:
         print("  missed (should red):", bad_red)
         print("  false positives (should pass):", bad_green)
         print("  ignore-file hatch works:", hatch_ok)
+        print("  control characters stripped:", controls_ok)
     return 0 if ok else 1
 
 

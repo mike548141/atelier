@@ -3259,3 +3259,68 @@ Ruling entry preserved verbatim below. (Moved from ROADMAP.md 2026-08-03.)
   [B2+B3 cold pass](reviews/2026-07-29-1251-b2b3-floorfleet-status-cold.md).
   **Application owed as one build item (code + tests); the applier
   queues its rule-4 pointer in the landing commit.**
+
+## TAA + C1F residues applied — the floor line tells the whole truth (done 2026-08-03)
+
+Both ruled 2026-07-28 (Mike, plain-language walk-throughs), both cycles
+already CLOSED
+([TA application verdict](reviews/2026-07-28-1136-ta-application-cold.md) ·
+[C1 advisory verdict](reviews/2026-07-28-1204-c1-advisory-cold.md)); applied
+2026-08-03 by the orchestrated run as terminal applications — no pointers
+queued. TAA1: the scope-guard comment re-labelled, all class members shut,
+pinned by a source-text test. TAA2 + C1F1 unified as one note-joining design
+(the `elif` is gone; `why`, drift and cover notes join on the line). C1F2:
+`days_over` on the floor line, twinned with floorfleet's wording and pinned
+equal by test. C1F3 + PA4: C0 controls stripped at both ruled parse seams
+(floor's whole-document config ingest; publishscan's ignore-file and output
+surfaces) — drop-don't-escape, with the interpolation-point encoding kept as
+the layered inner guard and the LS1 security test rewritten to say so.
+Residue found honestly at application: `floorfleet` parses child configs
+through its own seam and remains an open surface of the class — recorded as
+a live Track C item. Suite +23. Both ruling entries preserved verbatim below.
+(Moved from ROADMAP.md 2026-08-03.)
+
+- [x] (2026-08-03: applied, terminal) **TA-application-pass residue — TAA1–TAA3, RULED 2026-07-28 (Mike,
+      plain-language walk-through with per-option impacts).** The terminal
+      cold pass returned 0 MAJOR / 1 minor / 3 notes
+      ([verdict](reviews/2026-07-28-1136-ta-application-cold.md)); the cycle
+      is closed, and per rule 3 the residue was Mike's to decide.
+      **TAA1** (minor) — a comment in `floor.py`'s scope guard still labels
+      two fail-opens "(open)" that the same series shut → **FIX**: two-line
+      comment edit re-labelling both members shut, TA1 pointer kept.
+      **TAA2** (note) — the two 🟡 notes share one report field via `elif`,
+      so a future softenable scanner with a cover flag would silently drop
+      its scope-drift note → **JOIN THE NOTES** (chosen over the
+      comment-only variant: same cost, and a joined note can't decay the way
+      a comment relies on a future reader honouring it).
+      **TAA3** (note) — AW6 doesn't say whether a second queued pointer over
+      the same files discharges the delta-list widening duty → **HOLD for a
+      third instance**, per the reviewer's counsel and the >2 promotion
+      rule; this is the second recorded case.
+      **Work owed: TAA1 + TAA2.**
+- [x] (2026-08-03: applied, terminal) **C1-pass residue — C1F1–C1F3, RULED 2026-07-28 (Mike, plain-language
+      walk-through with per-option impacts).** The terminal pass
+      returned 0 MAJOR / 1 minor / 2 notes
+      ([verdict](reviews/2026-07-28-1204-c1-advisory-cold.md)); cycle
+      closed, residue Mike's per rule 3.
+      **C1F1** (minor) — on the floor's human line, an advisory's `why`
+      displaces the "N of M scope paths missing" drift note (it survives
+      only in `--json`), so a softened check with shrinking cover shows the
+      reason but not the shrink → **JOIN THE NOTES**, restoring the TA3 fix
+      exactly where the board is worst-informed.
+      **C1F2** (note) — the record says an expired advisory shows how many
+      days it has stood "on the floor and the board", but the count renders
+      on the board only → **ADD THE COUNT TO THE FLOOR LINE** (chosen over
+      correcting the record: it makes both true, and puts the ageing
+      pressure at commit time rather than on a board someone must go and
+      look at).
+      **C1F3** (note) — config-authored strings (`why`, disabled reasons)
+      print raw to terminals; a hostile child config could embed escape
+      sequences → **STRIP C0 CONTROLS AT PARSE**, closing the pre-existing
+      class as well as C1's two new fields. Scope widened by the PA4 ruling
+      (Mike, 2026-08-03): `publishscan`'s two config-authored surfaces —
+      ignore-file globs echoed in error messages, and finding paths in
+      output — are in this fix's scope, so one change closes the class
+      everywhere. Low priority while the estate is single-owner; it becomes
+      real on first outside adoption.
+      **Work owed: all three.**

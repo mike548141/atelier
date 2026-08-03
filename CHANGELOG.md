@@ -5,6 +5,20 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-08-03 — joined notes, ageing on the line, control strip)
+- **The floor's human line stopped choosing between its notes** (TAA2 + C1F1
+  as one design): an advisory's `why`, its scope-drift note and its cover
+  note now join on the line instead of an `elif` picking one; an expired
+  advisory's days-over count prints on the floor line, not the board alone
+  (C1F2), so the ageing pressure lands at commit time.
+- **Config-authored strings are stripped of C0 controls at the parse seam**
+  (C1F3 + PA4): `floor.py` strips the whole parsed config document;
+  `publishscan` strips ignore-file lines and git output. A hostile child
+  config's escape sequences arrive as inert visible text — removal at
+  ingest, with the interpolation-point encoding kept as the inner guard.
+- The scope guard's comment stopped calling two shut fail-opens "(open)"
+  (TAA1), pinned by a source-text test.
+
 ### Changed (2026-08-03 — the board says which authority answered)
 - **`floorfleet` now carries its discovery authority beside its answer**
   (FS1–FS5 applied): a footer states which listings answered with counts,

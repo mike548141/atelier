@@ -83,24 +83,6 @@ pass while a MAJOR stands.
 >   probe that proved the defect. What remains below is Mike's ruling on the
 >   terminal pass's residue, not work.
 
-- [~] (claimed 2026-08-03-2016, wt: qr0804-floor — agent worktree, Fable-orchestrated run) **TA-application-pass residue — TAA1–TAA3, RULED 2026-07-28 (Mike,
-      plain-language walk-through with per-option impacts).** The terminal
-      cold pass returned 0 MAJOR / 1 minor / 3 notes
-      ([verdict](reviews/2026-07-28-1136-ta-application-cold.md)); the cycle
-      is closed, and per rule 3 the residue was Mike's to decide.
-      **TAA1** (minor) — a comment in `floor.py`'s scope guard still labels
-      two fail-opens "(open)" that the same series shut → **FIX**: two-line
-      comment edit re-labelling both members shut, TA1 pointer kept.
-      **TAA2** (note) — the two 🟡 notes share one report field via `elif`,
-      so a future softenable scanner with a cover flag would silently drop
-      its scope-drift note → **JOIN THE NOTES** (chosen over the
-      comment-only variant: same cost, and a joined note can't decay the way
-      a comment relies on a future reader honouring it).
-      **TAA3** (note) — AW6 doesn't say whether a second queued pointer over
-      the same files discharges the delta-list widening duty → **HOLD for a
-      third instance**, per the reviewer's counsel and the >2 promotion
-      rule; this is the second recorded case.
-      **Work owed: TAA1 + TAA2.**
 
 ### Track B — make the enumerator real
 
@@ -189,32 +171,15 @@ undercount — the fourth wrong blast radius on this programme and the first tha
 >   A1(b); rule-4 cold pass 2026-07-28, 0 MAJOR — terminal) →
 >   [`ROADMAP-DONE.md`](ROADMAP-DONE.md). What remains of C1 is C1b below —
 >   the migration and the removal of the transition spelling.
-- [~] (claimed 2026-08-03-2016, wt: qr0804-floor — agent worktree, Fable-orchestrated run) **C1-pass residue — C1F1–C1F3, RULED 2026-07-28 (Mike, plain-language
-      walk-through with per-option impacts).** The terminal pass
-      returned 0 MAJOR / 1 minor / 2 notes
-      ([verdict](reviews/2026-07-28-1204-c1-advisory-cold.md)); cycle
-      closed, residue Mike's per rule 3.
-      **C1F1** (minor) — on the floor's human line, an advisory's `why`
-      displaces the "N of M scope paths missing" drift note (it survives
-      only in `--json`), so a softened check with shrinking cover shows the
-      reason but not the shrink → **JOIN THE NOTES**, restoring the TA3 fix
-      exactly where the board is worst-informed.
-      **C1F2** (note) — the record says an expired advisory shows how many
-      days it has stood "on the floor and the board", but the count renders
-      on the board only → **ADD THE COUNT TO THE FLOOR LINE** (chosen over
-      correcting the record: it makes both true, and puts the ageing
-      pressure at commit time rather than on a board someone must go and
-      look at).
-      **C1F3** (note) — config-authored strings (`why`, disabled reasons)
-      print raw to terminals; a hostile child config could embed escape
-      sequences → **STRIP C0 CONTROLS AT PARSE**, closing the pre-existing
-      class as well as C1's two new fields. Scope widened by the PA4 ruling
-      (Mike, 2026-08-03): `publishscan`'s two config-authored surfaces —
-      ignore-file globs echoed in error messages, and finding paths in
-      output — are in this fix's scope, so one change closes the class
-      everywhere. Low priority while the estate is single-owner; it becomes
-      real on first outside adoption.
-      **Work owed: all three.**
+- [ ] **C1F3 residue — `floorfleet` is a third open surface of the class**
+      (found at the 2026-08-03 application). The C1F3 strip landed at the two
+      ruled parse seams (`floor.py`'s whole-document config ingest,
+      `publishscan`'s ignore-file and output surfaces), but `floorfleet`
+      reads child `.atelier-floor.json` files through its own parsers, not
+      `floor.Config.load`, so the board still prints child-authored
+      `why`/reason strings raw — and the C1F3 finding text itself says the
+      class reaches "both floor and board". Small fix at floorfleet's parse
+      seam; rides the next floorfleet touch, or its application pass.
 - [ ] 🎯 **C1b — migrate the 17, then delete the legacy spelling.** Phase 1
       deliberately did not write the declarations: a `review-by` is a
       commitment about when a backlog gets cleared, which is the principal's to
