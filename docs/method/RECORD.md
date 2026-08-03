@@ -81,6 +81,14 @@ stopped instead of re-deriving it:
   carries almost no entropy.)* Open the detail file only when a line needs
   unpacking. This keeps the always-loaded index cheap (token discipline)
   without losing depth.
+  - **A pointer to an addendum entry names the entry, not the file it extends.**
+    When a later session appends a `SESSIONS.md` entry continuing earlier work,
+    whatever points at it — a roadmap item, a review brief, a queue line — says
+    *the `SESSIONS.md` entry of `<date>`*. Linking the earlier session's detail
+    file sends the reader to a file the addendum was never written into: they
+    grep it, find nothing, and read the work with no intent record. (Grounded
+    2026-07-28: a cold pass followed exactly that pointer, found the named file
+    empty of the record, and reached its verdict before the addendum surfaced.)
 - **Finish the sequence, then *declare* the close.** When the agent judges a
   **sequence of work** done, it does the full tidy-up **unprompted** and *says
   the session is ready to close* — the principal closes on the agent's signal,

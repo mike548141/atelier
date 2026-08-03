@@ -51,6 +51,11 @@ are hard or impossible to undo:
     its visibility as a fact in its `CLAUDE.md` (a **public** repo means *every*
     push is publication), and it is verifiable: `gh repo view <owner/repo> --json
     visibility`. State it *and* be able to check it (legibility).
+  - **The confirmation includes the pre-flip scrub.** A private repo may name the
+    **estate-root repo** in its own onramp by design (PROPAGATION); the flip
+    publishes every one of those mentions at once. Pre-flip is the one moment a
+    scrub buys everything back — nothing is published yet — so scrubbing that
+    name is part of the making-public confirmation, not a follow-up to it.
 - **Recoverability ends at push once anything downstream consumes it.** A pushed
   commit a peer, CI, or a deploy has already pulled is not revert-clean; a pushed
   **secret is burned** even after a history rewrite. So: a commit that contains a
