@@ -44,8 +44,18 @@ to change for the widening to be real. The file list, obviously — and the
 extractor, less obviously: a harvest into a session record is almost never a
 checkbox item, it is a paragraph, so widening the files alone was **measurably
 inert**. Replayed over the whole history it changed the firing set by exactly
-nothing until `paragraphs()` was applied to the destinations. With both, the
-gated firing set drops from 17 reported items to 15.
+nothing until `paragraphs()` was applied to the destinations.
+
+Measured over the 429 commits touching the records, with the pointer exclusion
+held constant, so the two folds can be read apart (`--replay`, no gate):
+
+  as it shipped: items only, two files ........ fired on 107 (24.9%), 160 items
+  + wider file list, items only ............... fired on 107 (24.9%), 160 items
+  + prose in the destinations ................. fired on  88 (20.5%), 132 items
+
+and the HV2 fold — the widened pointer exclusion — is worth a further 3 commits
+and 5 items on top (85, 19.8%, 127). Under the shipped gate all of that
+collapses to one number: 6 in scope, 3 warn, and 15 items rather than 17.
 
 MEASURED, SHELVED, THEN WIRED — SCOPED AND ADVISORY
 ----------------------------------------------------
