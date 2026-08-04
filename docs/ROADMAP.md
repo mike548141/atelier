@@ -185,9 +185,12 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       not decided there — past its minimal-hunk scope). Both new advisory
       entries exit 0 always, so the render shows the same green tick it shows
       a blocking scanner while printing findings — the "identical output for
-      materially different cover" shape EP3 named for leakscan's planes. The
-      fix wants a third render state in `floor.py`; EP3's ruling may settle
-      both at once, so decide them together.
+      materially different cover" shape EP3 named for leakscan's planes.
+      **RULED 2026-08-04 (Mike): build the third render state** — advisory
+      and warn-only entries render distinctly on every plane, so the board
+      stops overstating cover; small `floor.py` change plus tests, and EP3
+      inherits a consistent precedent when it is ruled rather than being
+      waited on. Work owed: one small build item.
 - [ ] 🎯 **C1b — migrate the 17, then delete the legacy spelling.** Phase 1
       deliberately did not write the declarations: a `review-by` is a
       commitment about when a backlog gets cleared, which is the principal's to
@@ -340,6 +343,12 @@ adopter mistakes.*
             does not weaken the gate is that the blocking set is unchanged,
             and that argument should be tested at review rather than assumed.
             **Tiered on two axes, not one — see E6d.**
+            **UNBLOCKED 2026-08-04 (Mike, proposals ruled at pickup per
+            EI1/EI3): the named consumer is the CI plane + board count** —
+            commit-time print, every push re-prints all advisory findings
+            tree-wide, and the floor board carries a persistent
+            `🟡 N advisory finding(s)` count that cannot quietly vanish.
+            No new artefact class. Buildable now, after E6a (landed).
       - [ ] **E6d — impact is the second axis. RULED 2026-07-28 (Mike).** The
             tier must weigh *risk*, not confidence alone: a mid-confidence hit
             on a credential that opens the whole estate outranks a
@@ -369,6 +378,17 @@ adopter mistakes.*
             the mislabelled field, add the second axis, and let the computed
             result drive block-vs-report — so the field stops misdescribing
             what it holds, which is how it came to be read as impact at all.
+            **SCALE RULED 2026-08-04 (Mike, the EI3 proposal as brought):
+            three repo-declared levels — `estate` / `repo` / `local`,
+            undeclared defaults to `repo`** (the middle: silence neither
+            inflates nor waives), class terms only in public trees. Computed
+            response: high confidence blocks as today at any impact;
+            low + `estate` escalates to block; low + `repo` or `local` is
+            advisory. Nothing ever de-escalates below today's behaviour;
+            the F1 rebuild may revisit the model (FG2). **Sequencing ruled
+            with it: the build pairs with one child's first impact
+            declaration** — the estate-token tripwire case — proving the D4
+            seam and the axis together.
       - **E6c — DONE 2026-08-03** (orchestrated run, with the SF residue in
             one build): whole-shape carve-outs decided before every
             variety-reading gate in assigned-secret context — an unbroken
