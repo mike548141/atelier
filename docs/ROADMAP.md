@@ -707,9 +707,26 @@ the mechanism works.
 
 - [ ] 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS
       3M/5m/1L/1n — [verdict](reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md);
-      EP1–EP10 await Mike's ruling (REVIEW rule 3; MAJORs keep the cycle open
-      past the application). **State: reviewed — the ruling is what is owed,
-      then the application.** The pre-review wording this item carried (a
+      **EP1–EP10 RULED 2026-08-04 (Mike, plain-language walk-through).
+      EP1+EP2 as (a)+(b)+(c)** — `scope`/`flags`/non-default `docs` gain
+      board and `--json` columns; scoping a never-softened scanner requires
+      a stated reason exactly as `disabled` does; and a scope resolving to
+      nothing on `secretscan`/`leakscan` is refused rather than skipped,
+      closing the one-typo-runs-nowhere door. The false "floorfleet reads it
+      out estate-wide" claim is fixed by making it true. **EP3: add
+      `--require-terms` to the hook template** — a clone without the
+      machine-local term list blocks with the remedy printed, making "full
+      cover lives on the hook" true; the one-time first-run sharpness is
+      accepted as the boundary the public-repo rule depends on.
+      **EP4–EP10 all as counselled** (pin needs both edits + honest board
+      wording; selftest loop gains `--root repo` + a decided proving story
+      for `local` checks; the ADR gains its seam clause and the
+      floating-`@main` control clause — the control is atelier `main`'s own
+      protection; trigger-shape joins the concession; a `python3` guard;
+      the prove-it-landed command prints `core.hooksPath`). **Work owed:
+      one application build item; the MAJORs keep the cycle open, so the
+      application earns its own rule-4 cold pass and queues the pointer at
+      landing.** State before this ruling: reviewed. The pre-review wording this item carried (a
       reviewer agenda with a seeded question) was the pointer-grammar corpus's
       last live specimen; stripped 2026-08-03 on `pointerscan`'s day-one
       warning, exactly as the FUNDED build's entry said it should be.
