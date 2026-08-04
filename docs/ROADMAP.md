@@ -723,18 +723,18 @@ the mechanism works.
 
 - [ ] 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS
       3M/5m/1L/1n — [verdict](reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md);
-      **EP1–EP10 RULED 2026-08-04 (Mike, plain-language walk-through).
-      EP1+EP2 as (a)+(b)+(c)** — `scope`/`flags`/non-default `docs` gain
-      board and `--json` columns; scoping a never-softened scanner requires
-      a stated reason exactly as `disabled` does; and a scope resolving to
-      nothing on `secretscan`/`leakscan` is refused rather than skipped,
-      closing the one-typo-runs-nowhere door. The false "floorfleet reads it
-      out estate-wide" claim is fixed by making it true. **EP3: add
-      `--require-terms` to the hook template** — a clone without the
-      machine-local term list blocks with the remedy printed, making "full
-      cover lives on the hook" true; the one-time first-run sharpness is
-      accepted as the boundary the public-repo rule depends on.
-      **EP4–EP10 all as counselled** (pin needs both edits + honest board
+      **EP1–EP10 RULED 2026-08-04 (Mike, plain-language walk-through) — and
+      the sitting then found the MAJORs' substance already closed.** Track A
+      (2026-07-27, A1–A3) had ruled and applied EP1(a)+(c), EP2-at-the-
+      mechanism, and EP3 (the hook template carries `--require-terms`,
+      `floor.py:314`); this entry's "EP1–EP10 await Mike's ruling" was
+      therefore stale for the MAJORs — the cycle-state residue class again,
+      in wording too coarse for `pointerscan` to parse. **What today's
+      ruling actually adds: EP1(b)** — a stated reason to `scope`/`flags` a
+      never-softened scanner, exactly as `disabled` requires. It was
+      deferred 2026-07-27 to ride C1's schema change and did not ride it
+      (verified absent at HEAD); Mike ruled it IN today, no longer deferred.
+      **And EP4–EP10, all as counselled** (pin needs both edits + honest board
       wording; selftest loop gains `--root repo` + a decided proving story
       for `local` checks; the ADR gains its seam clause and the
       floating-`@main` control clause — the control is atelier `main`'s own
@@ -1891,11 +1891,14 @@ USE — a possible future heuristic extension.)*
       a checklist entry even is. Do not read the scanner seam as covering it.
 - [ ] 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS
       3 medium / 2 low (reviewer's scale; no MAJOR label used) —
-      [verdict](reviews/2026-07-26-2215-floor-local-seam-cold.md); LS1–LS5
-      await Mike's ruling (rule 3).
-      **The repo-local floor seam — state: reviewed; the ruling is what is
-      owed** (stale "review owed" wording stripped 2026-08-03 on
-      `pointerscan`'s day-one warning). *Delta:* `tools/floor.py`
+      [verdict](reviews/2026-07-26-2215-floor-local-seam-cold.md).
+      **State: RULED AND APPLIED — LS1–LS5 landed 2026-07-27 as Track A's
+      A4** (encoding at the interpolation point, the OSError wrap, realpath
+      containment + symlink tests, unknown-key refusal, the disabled-local
+      marking — all verified at HEAD 2026-08-04). This item's "await Mike's
+      ruling" was stale from that date: the second cycle-state residue this
+      sitting found hiding in coarse wording. Kept only as the verdict
+      pointer; no work owed. *Delta:* `tools/floor.py`
       (`local` block, `_load_local`, the `is_local` path through plan/run/render,
       `_interpreter`), `tools/floorfleet.py` (`➕` board line), their two test
       files, `docs/build/REPO-STANDARD.md`, `docs/build/templates/CONTRIBUTING.md`,
