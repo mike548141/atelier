@@ -195,12 +195,17 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       deliberately did not write the declarations: a `review-by` is a
       commitment about when a backlog gets cleared, which is the principal's to
       set rather than the applier's to invent, and inventing one across ten
-      repos would be fitting a number to turn a board green. **Blocked on one
-      decision from Mike — the review horizon.** After that the migration is
-      mechanical (17 declarations, 10 repos, several private). **Phase 2 —
-      removing the legacy bare-list spelling from `floor.py` — is blocked on
-      the migration**, and must not be skipped: a transition spelling still
-      parsing in a month is C1's own decay, one level up.
+      repos would be fitting a number to turn a board green.
+      **UNBLOCKED 2026-08-04 — Mike set the horizon: `review-by 2026-09-01`,
+      one uniform month.** Chosen over the counselled three months: he took
+      the aggressive date knowingly; the recorded risk is a wall of overdue
+      flags training readers to ignore the board, and the mitigation is C2's
+      proven retirement recipe clearing most before the date. The migration
+      is now mechanical (17 declarations, 10 repos, several private — reasons
+      per declaration stated honestly, never invented). **Phase 2 — removing
+      the legacy bare-list spelling from `floor.py` — follows the migration**
+      and must not be skipped: a transition spelling still parsing after the
+      horizon is C1's own decay, one level up.
 - [ ] **C2 — retire the 17.** One child already proved it is a single pass:
       four advisories to zero, sixty findings cleared, and the honest breakdown
       matters more than the count — only a handful were genuine, the rest were
@@ -1264,11 +1269,14 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   the point of use — in `REVIEW.md` beside rule 4's spawn criterion (the moment a
   session decides whether it may take a `⏳` item) and in the ROADMAP header's
   `⏳` legend, so tier is checked at *selection*, not discovered at rejection.
-  Worth deciding at the same time: whether the tier bar is Fable-specific or
-  "the tier the principal names per run" (`ECONOMICS.md`'s existing shape), and
-  whether a session that cannot honour it should stop rather than proceed.
-  Self-authored doctrine when it lands ⇒ rule-4 `⏳` at landing — **and that
-  review is Fable's.**
+  **RULED 2026-08-04 (Mike): the bar is principal-named** — "cold reviews run
+  on the tier the principal names — currently Fable", stated at rule 4's
+  spawn criterion and in the `⏳` legend, **with the stop clause**: a session
+  that cannot honour the bar stops rather than proceeds (the clause that
+  would have saved the rejected three-verdict pass). Survives model
+  generations without a doctrine edit; matches ECONOMICS' per-run framing.
+  Work owed: one small doctrine edit. Self-authored when it lands ⇒ rule-4
+  `⏳` at landing — and that review is Fable's.
 
 - [ ] 🎯 **Promote the withdrawn-pass convention into `REVIEW.md`, or leave it
   local** (Mike's ruling, 2026-07-26: a rejected pass's outputs happened, and we
@@ -1277,11 +1285,11 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   [`reviews/withdrawn/README.md`](reviews/withdrawn/README.md): preserved
   verbatim under a `⛔ WITHDRAWN` banner, quarantined out of `docs/reviews/`,
   never handed to a taker as a queue ref, read-after-your-own-verdict-not-before,
-  and *findings die with the pass*. Open question is whether that is a directory
-  convention or doctrine — it decides the general case (a pass rejected on
-  content, on scope, or half-finished), and it sits directly against rule 2's
-  contamination bar, so promoting it is a doctrine act. Self-authored if
-  promoted ⇒ rule-4 `⏳` at landing.
+  and *findings die with the pass*. **RULED 2026-08-04 (Mike): PROMOTE** — one
+  `REVIEW.md` paragraph covering the general case (a pass rejected on
+  content, on scope, or half-finished), the directory README staying as the
+  worked mechanics. Work owed: one small doctrine edit; self-authored ⇒
+  rule-4 `⏳` at landing.
 
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
 COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin
@@ -2678,6 +2686,12 @@ per pattern, and the stated residual →
       wider question: is estate-internal context in a public record **accepted
       transparency** or a records-convention defect? ADR-worthy either way, and
       the ruling binds every repo heading public, not just `rpi`.
+      **RULED 2026-08-04 (Mike): it gets the ADR sitting.** An agent drafts
+      the ADR with both postures argued and costed (open-estate transparency
+      with the name×posture join as the only bar, vs class-level
+      estate-internal detail in public records with its writing friction);
+      Mike rules in the ADR, nothing changes until then. Work owed: one
+      ADR draft item.
 - [ ] **P7 — harvest the `rpi` publication properly.** This section mined the
       cold review only. The transcripts and session logs of the flip are
       unread, and they are the richest source (what an agent *thought*, not what
