@@ -252,6 +252,12 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       Watch the C3 interaction: a future wholesale rewrite of a record that
       already carries a mention would re-add those lines and block, which is
       the adoption-bootstrap problem in miniature.
+      **RULED 2026-08-04 (Mike): BOTH, COMPOSED** — the bare literal term
+      plus the repo-reference shapes, in the machine-local term list.
+      Execution is a config edit outside every repo (any session on the
+      operator's machine at his ask), verified with a staged probe;
+      forward-only by construction, and the C3 interaction above stands
+      recorded.
 
 ### Track D — finish the registry
 
@@ -267,6 +273,11 @@ registry checks only.*
       baseline is ~97% record-store content, so the gateable surface is a small
       fraction of what it reports. Verdict:
       [pathscan S2 cold pass](reviews/2026-07-26-2215-pathscan-s2-cold.md).
+      **RULED 2026-08-04 (Mike): FUND THE RESCOPE** — chosen over the
+      counselled retire-to-hand-run. Rework the scope to reach the corpus
+      that motivated the tool, then promote to the registry so children get
+      it; the rescope answers the verdict's two MAJORs before any wiring.
+      Work owed: one build item.
 - [ ] 🎯 **D2 — `stampscan`: fix at the parser, or shelve it.** Built, tested,
       and **not wireable as built** — re-verified 2026-07-27, the live tree
       exits 2 today. Three MAJOR: marker recognition is context-blind, so any
@@ -279,6 +290,10 @@ registry checks only.*
       until the parser strips fenced and inline code, an ignore file ships, and
       the narrow-to-nothing hole is closed or explicitly accepted. Verdict:
       [stampscan S4 cold pass](reviews/2026-07-26-2215-stampscan-s4-cold.md).
+      **RULED 2026-08-04 (Mike): FUND THE FIXES NOW** — chosen over the
+      counselled shelve. All three preconditions built (code-span-aware
+      parsing, the ignore file, narrow-to-nothing closed), then wire
+      advisory per the reviewer's bar. Work owed: one build item.
 - [ ] 🎯 **D3 — `signscan` cannot fail CI.** It is invoked with `--warn` on
       both planes, so an unsigned commit produces an annotation and never a
       red. That is the deliberate warn-first rollout state and it has outlived
@@ -498,6 +513,10 @@ adopter mistakes.*
       fingerprints**, which accounted for two of eight findings in one child.
       Widening a security scanner's blind spot is atelier's call, not a child's
       — which is why it was correctly left unchanged there and belongs here.
+      **RULED 2026-08-04 (Mike): SUPPRESS the fingerprint shape** — public
+      material by definition, whole-shape not fragment, with canary-style
+      tests both directions so the suppression cannot quietly widen. Rides
+      the next secretscan build item.
 - [ ] **E4 — `leakscan` reads two clock times side by side as an IPv6
       address.** Recurs wherever a record quotes a rendered time span → already
       queued under § *Boundary findings* below; carried here because it is the
@@ -510,6 +529,10 @@ adopter mistakes.*
       answer for example credentials; the general form belongs in `RECORD.md`.
       **Recurrence, not severity, is the trigger** — three instances of a
       trivial failure is a defect in the system producing it.
+      **RULED 2026-08-04 (Mike): WRITE IT** — the fourth instance arrived
+      the day before (the E7 sweep record had to describe every probe shape
+      to avoid its own subject scanners). One `RECORD.md` rule;
+      self-authored ⇒ rule-4 `⏳` at landing.
 
 ### Track F — the guard governance model (Mike, 2026-08-02)
 
@@ -1060,6 +1083,12 @@ a stated reason (below); one needed a false-positive marker.
       message, and it removes the class. **Mike's call** — it narrows agent
       autonomy in a place the standing grant currently covers, so it is his to
       make, not something to self-adopt.
+      **RULED 2026-08-04 (Mike): ADOPT.** The rule becomes doctrine — before
+      removing a block from a record store, diff it and show what goes, or
+      ask; `harvestscan`'s ≥50-net-line warn is the mechanical net beneath
+      it and this rule covers what the net cannot see. Work owed: one
+      doctrine edit (home: `RECORD.md`, cross-linked from `AUTONOMY.md`);
+      self-authored ⇒ rule-4 `⏳` at landing.
 
 Suggestions the rollout surfaced that were never queued. None is urgent; each is
 recorded so it is a **choice** rather than something that quietly evaporates.
