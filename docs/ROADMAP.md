@@ -438,9 +438,27 @@ adopter mistakes.*
       (any three-plus colon-separated hex-ish groups, not just clock
       times). The don't-add list (bare dates, context-free ID shapes, NER
       names, schedule prose, low-precision coordinates) is part of the
-      finding. **G1–G7 and D1–D6 await Mike's ruling**; the term-list
-      plane-split consequence is recorded as decided design worth holding
-      in view.
+      finding. The term-list plane-split consequence is recorded as decided
+      design worth holding in view.
+      **RULED 2026-08-04 (Mike, plain-language walk-through, all as
+      counselled): D1 fixed as (a)** — allow-markers exempt structural rules
+      only, the term list always runs (a term-list misfire is fixed in the
+      list itself, which is the operator's own config); **D2 fixed as (a)**
+      — the IPv6-shape rule requires `::` or four-plus groups, with
+      must-flag/must-pass tests both directions (this ruling also settles
+      E4 below — one fix, both entries); **D3–D6 all fixed** (safe-set
+      widening, address suffix guard, MAC dedupe, exact all-zeroes match);
+      **G1, G2, G4, G6, G7 funded** (the key-context layer with placeholder
+      suppression and its own canary suite; path scanning; Luhn-checked
+      cards + IBAN + NZ hyphenated bank shape with bare-digit forms staying
+      key-context-only; term-list derived forms documented with opt-in
+      derivation; the bracketed phone form); **G5 deferred** — NZ forms are
+      covered, international numbers are rare here, revisit on first real
+      miss; **G3 ruled BLOCKING** — an unscannable or metadata-bearing
+      binary blocks and a legitimate image carries a one-time reasoned
+      marker, keeping E6a's no-advisory-form decision intact rather than
+      carving it. **Work owed: one leakscan build item (D-fixes + G-builds,
+      tests + canaries); it queues its rule-4 pointer at landing.**
 - [ ] **E1 — `licenscan` is silent exactly where it matters most.** With an
       unrecognised licence it stops at *"licence unrecognised"* and verifies
       nothing further — it does not fall back to flagging vendored copyleft,
@@ -732,10 +750,11 @@ are what generalise to any adopter.
       positive class as the bullet above, and it will recur wherever a record
       quotes a rendered time range. Resolved that day by **describing the format
       instead of quoting it** — the cheaper move, and the one that leaves no
-      exemption behind. Open question for triage: whether the `ipv6` rule should
-      require more than two colon-separated groups, or whether describe-don't-
-      quote is simply the standing answer for record prose (it already is for
-      example credentials).
+      exemption behind. The triage question is **RULED 2026-08-04 via E7's D2
+      (Mike)**: tighten the rule — `::` or four-plus groups — rather than rely
+      on describe-don't-quote alone; the sweep confirmed the FP class is wider
+      than clock times (port maps, ratios, hex colour triplets). Rides the E7
+      leakscan build item.
 
 ### Candidate invariant — the public-record join, breached three times
 
