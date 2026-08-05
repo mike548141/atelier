@@ -3535,7 +3535,11 @@ queued its own rule-4 pointer while this take was in flight; the same taker
 claimed and ran it — the sitting's five doctrine edits, PASS 0 MAJOR,
 cycle closed
 ([verdict](reviews/2026-08-05-1301-sitting-five-edits-cold.md)). Its pointer
-is likewise preserved in the verdict's brief section.
+is likewise preserved in the verdict's brief section. **A seventh followed**: the
+F1/`GUARDS.md` + twelve-scanner allowances landing queued its pointer while
+the sixth was closing; same taker, PASS-WITH-FINDINGS 0 MAJOR, F1's review
+cycle closed
+([verdict](reviews/2026-08-05-1320-f1-guards-allowances-cold.md)).
 ## The 2026-08-04 sitting's five small doctrine edits (done 2026-08-05)
 
 All five ruled 2026-08-04 at the decision sitting; delivered 2026-08-05 in one
