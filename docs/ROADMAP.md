@@ -273,6 +273,13 @@ registry checks only.*
       mid-pass widens a delta a pinned reviewer can no longer see). Rides
       the next floor.py touch after that cycle closes; the blocking flip
       stays a separate later ruling.
+- [ ] **D2 residue (b) — stampscan joins the GUARDS allowance model.** The
+      D2 build and the F1/allowances sweep landed the same day in
+      parallel sessions, so stampscan — the eleventh scanner — missed
+      the sweep that put the other ten onto the model: its ignore-file
+      loader does not yet require a stated reason per glob, and it
+      prints no suppression tally. Small alignment build; rides the
+      next stampscan touch or its queued application pass.
 - [ ] **D2 residue — stampscan registry wiring stays barred on ST3.** The
       advisory wiring landed 2026-08-05 (atelier `ci.yml` only, the
       reviewer's bar step 1); registry wiring — which reaches every child
