@@ -149,6 +149,66 @@ items), and the right trade at this corpus; recorded as the gate's stated
 residual so a future roadmap style shift (terse items) re-opens the
 question rather than inheriting the number.
 
-## Faithfulness to the HV rulings (written at reconcile, below)
+## Faithfulness to the HV rulings (written at reconcile)
+
+- **HV1 (wire it, scoped, advisory) — faithful.** Registry entry scoped
+  `--only-bulk-deletes` on all three planes, warn-only, with the scope
+  pinned by a test whose docstring carries the ruling's why. The gate reads
+  `ROADMAP.md` alone rather than the watched pair; that is a refinement
+  inside the ruling's letter ("net lines removed from ROADMAP.md"), made
+  because pair-netting cancels a harvest to zero — measured (1 in-scope
+  commit vs 6) and documented at `GATE_RECORDS`.
+- **HV2 (single-source the pointer decision) — faithful and structural.**
+  `harvestscan.is_pointer` delegates to `pointerscan`; cross-pinned tests
+  in both suites make a narrowing there fail here.
+- **HV3 (widen the survivor search, measure first) — faithful, and honest
+  about the ruling being insufficient as written.** The file-list widening
+  alone was measurably inert; the paragraphs extractor on destinations is
+  what made it real, the effect measured over the ungated history
+  (107 → 85 firing commits) before landing, per the ruling's measure-first
+  condition.
+- **HV4 (plane wording + staged seam) — faithful in `harvestscan`** (the
+  INDEX/WORKTREE vocabulary, `read_source`, the `git show :path` index
+  read — proven live in this pass). PG1 is the same wording class
+  re-imported into the sibling tool's docstring in the same build.
+- **HV5 — lapsed under HV1 as ruled**; the guard is wired, no shelf
+  carrier exists or is needed.
 
 ## Reconcile (intent records opened after the findings above were committed)
+
+Opened after the findings commit: `ROADMAP-DONE.md` § *The `⏳` pointer
+grammar mechanised + B4 wired* (with the three preserved source entries)
+and the B4 verdict (`2026-07-29-1306-b4-harvestscan-cold.md`, HV1–HV5
+rulings).
+
+- **No contradictions.** The account's claims all reproduced where this
+  pass re-ran them: the shipped-config replay figures, the day-one findings
+  fixed in the landing merge (the live tree is clean at HEAD), the
+  acceptance pairs (must-flag / must-stay-silent specimens now pinned in
+  the selftest), the FG6 boundary specimen passing clean, and the corrected
+  plane wording in `harvestscan`.
+- **Not re-run by this pass, recorded honestly:** the corpus corrections'
+  wide figures (19 grammar defects across 424 roadmap revisions; the
+  seven-residue recount; instance 2's location) rest on the author's sweep
+  and spot-checks. The acceptance bar this pass held was the specimen
+  pairs, the live tree, and the replays — those all hold.
+- **PG1 against the account:** the intent record itself records HV4 as
+  "plane wording fixed" and the ruling required the hook plane to read
+  staged content *for the wired guard* — which `harvestscan` honours. The
+  ruling did not bind `pointerscan`; its hygiene-class working-tree read is
+  conventional. The finding stands as a wording defect with a proven
+  false-clean window, not a ruling breach.
+- **PG4 against the account:** the account's own corpus corrections show
+  the residue class recurring in ruling-state wording ("reviewed — the
+  ruling is what is owed" fixes; the EP/LS discoveries at the 2026-08-04
+  sitting). Converges with, and does not answer, the note.
+
+## Disposition — both cycles CLOSE (0 MAJOR); findings to Mike
+
+This pass is the B4 cycle's application pass (its HV1 MAJOR held the cycle
+open) and the FUNDED pointer-grammar build's first cold pass. It returns
+**0 MAJOR**, so per REVIEW.md's no-MAJOR rule **both cycles close —
+terminal**. PG1–PG7 are counsel to Mike (rule 3): PG1 wants a one-sentence
+docstring fix, PG2 a document-or-drop, PG3–PG7 are recorded observations
+with no work owed unless he funds it.
+
