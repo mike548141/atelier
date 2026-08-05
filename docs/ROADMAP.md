@@ -1203,6 +1203,7 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   [`sessions/2026-08-05-1150-guard-governance-allowances.md`](sessions/2026-08-05-1150-guard-governance-allowances.md)
   + the [F1 intent cold pass](reviews/2026-08-03-0657-f1-guard-governance-intent-cold.md)
   rulings FG1–FG6 (Mike, 2026-08-03) and the D1 ruling (Mike, 2026-08-04).
+  (claimed 2026-08-05-1310, wt: fable-cold-passes-0805)
 
 
 
