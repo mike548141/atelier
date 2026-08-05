@@ -1134,64 +1134,31 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
 
 ## Doctrine — review-owed
 
-- ⏳ **Rule-4 review queued (tier: Fable; pass type: code/design cold pass) —
-  the pointer-grammar build + the B4 `harvestscan` wiring (one build, HV2;
-  the B4 cycle's MAJOR keeps that cycle open past this application).**
-  *Delta:* `tools/pointerscan.py` + `tools/test_pointerscan.py` (new);
-  `tools/harvestscan.py` + `tools/test_harvestscan.py` (HV1 scope, HV2–HV4
-  folds, `--replay`); the two registry entries in `tools/floor.py` +
-  `tools/test_floor.py`; `tools/README.md`; `CHANGELOG.md`; the three
-  specimen fixes in this file (all landed 2026-08-03, this merge).
-  *Intent record:* [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The ⏳ pointer
-  grammar mechanised* (the FUNDED entry + corrections, harvested at landing)
-  + the [B4 cold pass](reviews/2026-07-29-1306-b4-harvestscan-cold.md)
-  rulings HV1–HV5 (Mike, 2026-07-29). (claimed 2026-08-05-1155, wt:
-  fable-cold-passes-0805)
-
-- ⏳ **Rule-4 review queued (tier: Fable) — the FS1–FS5 application on
-  `floorfleet` (the B2+B3 cycle's application pass; the FS1 MAJOR keeps the
-  cycle open past it).** *Delta:* `tools/floorfleet.py` +
-  `tools/test_floorfleet.py` (landed 2026-08-03, this merge) — the
-  discovery-authority footer + `--json` field, the three-outcome remote
-  read with `unknown` rows that red `--check`, the token-spec statement in
-  four surfaces, the wired-denominator headline, the archived/unreadable
-  footer counts, the `green("")` docstring + selftest legs, and one
-  out-of-scope crash fix (a repo with no floor config felled `render`;
-  advisory initialised as a list where every reader expects the C1 dict).
-  *Intent record:*
-  [B2+B3 cold pass](reviews/2026-07-29-1251-b2b3-floorfleet-status-cold.md)
-  rulings FS1–FS5 (Mike, 2026-07-29) + the harvested ruling entry in
-  [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *B2+B3 FS rulings applied*.
-  (claimed 2026-08-05-1155, wt: fable-cold-passes-0805)
-
-- ⏳ **Rule-4 review queued (tier: Fable) — the mid-tier standing-executor
-  doctrine.** *Delta:* `docs/method/ECONOMICS.md` § *The orchestrated-run
-  tier split*, the standing-executor paragraph (landed 2026-08-03, this
-  merge). *Intent record:* [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
-  § *Third-seat executor trial* (runs 1–4, 2026-07-23) + Mike's trial
-  instruction of 2026-07-23 (`dadde1d`). (claimed 2026-08-05-1155, wt:
-  fable-cold-passes-0805)
-
-- ⏳ **Rule-4 review queued (tier: Fable) — the E6 application, E6a + E6c
-  slices.** *Delta:* `docs/method/SECRETS.md` § *The boundary's posture —
-  over-flag, because detection enables everything* (landed 2026-08-03); the
-  E6c/SF carve-outs + canary suite in `tools/secretscan.py` +
-  `tools/test_secretscan.py` (landed 2026-08-03); the specimen allow-marker
-  in the SF verdict and the triage record's dated correction (same merge).
-  *Intent record:* ROADMAP Track E § E6 (Mike's rulings 2026-07-28) + the
-  [E6 intent cold pass](reviews/2026-07-29-1243-e6-intent-cold.md) rulings
-  EI1–EI6 (2026-07-29) + the
-  [SF verdict](reviews/2026-07-28-1220-secretscan-fragment-cold.md) rulings
-  (2026-07-28). (claimed 2026-08-05-1155, wt: fable-cold-passes-0805)
-
-- ⏳ **Rule-4 review queued (tier: Fable) — the landing-equals-bookkeeping
-  preamble clauses.** *Delta:* the two new sentences in this file's
-  checkbox-states preamble paragraph — the `[x]`/harvest single commit, and
-  the inline-claim close (landed 2026-08-03, the enacting commit is named in
-  the session record). *Intent record:* the harvested entry in
-  [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *Doctrine — the harvest rides the
-  `[x]` commit* + the SESSIONS.md entry of 2026-08-03 (orchestrated run).
-  (claimed 2026-08-05-1155, wt: fable-cold-passes-0805)
+- [ ] 🎯 **Five rule-4 Fable cold passes ran 2026-08-05 — every queued cycle
+  CLOSED (0 MAJOR each); the residue findings await Mike's ruling.** The
+  taker was a Mike-spawned session; the five pointers are harvested to
+  [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The 2026-08-05 queue take*.
+  Verdicts, most substantial first:
+  the FS application closed the B2+B3 cycle
+  ([verdict](reviews/2026-08-05-1244-fs-application-cold.md)) — FF1, a
+  missing-`gh` crash on the remote plane against the tool's documented
+  read-failure contract, and FF4, a standing private-repo × posture join
+  in the prior FS verdict's live-board section, the candidate-invariant
+  item's fourth instance, counsel a classes-only rewrite at HEAD;
+  the pointer-grammar + B4 wiring pass closed both its cycles
+  ([verdict](reviews/2026-08-05-1238-pointer-grammar-b4-wiring-cold.md)) —
+  PG1, a plane claim in `pointerscan`'s docstring its hook invocation does
+  not honour (HV4's wording class re-imported), PG2, an undocumented
+  file-level allow hatch, PG3–PG7 recorded observations;
+  the E6 application closed the E6 intent cycle
+  ([verdict](reviews/2026-08-05-1253-e6-application-cold.md)) — EA1–EA3
+  notes, six-shape probe reproduced 6/6;
+  the mid-tier standing-executor doctrine
+  ([verdict](reviews/2026-08-05-1248-mid-tier-standing-executor-cold.md))
+  — promotion provenance verified sound, MT2–MT3 notes;
+  the landing-equals-bookkeeping clauses
+  ([verdict](reviews/2026-08-05-1258-landing-equals-bookkeeping-cold.md))
+  — LB1–LB2 notes. All five terminal: no new pointers.
 
 
 
