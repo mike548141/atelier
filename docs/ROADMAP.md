@@ -2708,7 +2708,7 @@ per pattern, and the stated residual →
       repo the floor never sees), actions policy, fork-PR approval,
       vulnerability reporting, rulesets. Every settings-level finding in the
       `rpi` pass walked through that gap. Owed **before `ros`/`faves` flip**.
-- [~] 🎯 **P6 — `rpi` F5: estate-internal context accumulating in public
+- [ ] 🎯 **P6 — `rpi` F5: estate-internal context accumulating in public
       records. Mike's ruling owed** (was mis-marked `⏳` — the queue glyph means
       a review is queued for a taker, and what is owed here is a decision;
       re-marked 2026-08-03 on `pointerscan`'s day-one warning). Session logs
@@ -2724,7 +2724,31 @@ per pattern, and the stated residual →
       with the name×posture join as the only bar, vs class-level
       estate-internal detail in public records with its writing friction);
       Mike rules in the ADR, nothing changes until then. Work owed: one
-      ADR draft item. (claimed 2026-08-05-1233, wt: p6-publication-posture)
+      ADR draft item.
+      **DRAFTED 2026-08-05** →
+      [`2026-08-05-1233-estate-internal-context-in-public-records.md`](decisions/2026-08-05-1233-estate-internal-context-in-public-records.md).
+      Both postures argued and costed against a measurement of this repo's own
+      record, plus a third shape the measurement surfaced (bind by surface, not
+      by repo). Three results move the decision: the exposure is ~96% a
+      *records* phenomenon and ~4% doctrine, so the friction lands on session
+      closes; the narrow join rule is broadly holding and what accumulates is
+      the adjacent name × *operational state* band; and retrofit is unavailable
+      (pushed history is permanent), so every option binds forward only. F5's
+      second half — published internal *workflow* — is restated from the source
+      finding, which the earlier harvest here had dropped; it is not symmetric
+      with the first half, because publishing method is this repo's purpose.
+      **Remaining: Mike's ruling, written into the ADR's Decision + Rejected
+      sections** (left deliberately unfilled — a drafter cannot fill them
+      without pre-empting the ruling). Whatever doctrine edit acceptance drives
+      is self-authored ⇒ rule-4 `⏳` at *that* landing, not this one.
+- [ ] **The `docs/decisions/` index has drifted — five ADRs unlisted.** Found
+      2026-08-05 while adding the P6 draft's entry: the five records dated
+      2026-07-18 → 2026-07-23 are absent from `decisions/README.md`'s index,
+      which is the only map of that directory. Not fixed at discovery — each
+      line is a one-sentence distillation of a whole ADR, so it is a read, not
+      a typo sweep. Cheap but not free; own small item. Worth asking at pickup
+      whether the index should be generated rather than hand-maintained, since
+      this is the failure mode a hand-maintained index has.
 - [ ] **P7 — harvest the `rpi` publication properly.** This section mined the
       cold review only. The transcripts and session logs of the flip are
       unread, and they are the richest source (what an agent *thought*, not what

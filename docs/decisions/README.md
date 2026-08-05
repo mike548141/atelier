@@ -33,3 +33,8 @@ ADR replaces it (the full lifecycle is `method/RECORD.md`).
 - [0008](0008-enforcement-is-called-not-copied.md) — a child repo *calls* atelier's enforcement floor instead of copying it; non-enforcement must be declared, and conformance is enumerated by `floorfleet`, never assumed.
 - [2026-07-13](2026-07-13-coordination-free-record-identifiers.md) — record identifiers are date + slug (+ start time for session logs), never a next-N counter; legacy numbered files keep their names.
 - [2026-07-15](2026-07-15-1327-timestamps-utc-at-rest.md) — timestamps are UTC at rest, local + labelled on presentation; record identifiers UTC-forward; foreign data kept as-is with its zone as metadata (ELT). Time's instance of `method/CONVENTIONS.md`.
+- [2026-08-05](2026-08-05-1233-estate-internal-context-in-public-records.md) — **draft, ruling owed** — is estate-internal context in a public record accepted transparency or a records-convention defect? Both postures costed against a measurement; P6's funded ADR draft.
+
+*Index drift noted 2026-08-05: five ADRs dated 2026-07-18 → 2026-07-23 are
+absent from this index. Recorded in `ROADMAP.md`, not fixed here — writing five
+summaries is its own read, not this ADR's scope.*
