@@ -933,64 +933,6 @@ a stated reason (below); one needed a false-positive marker.
 
 > 📦 **2 completed items** in this section → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
 
-- [~] **licenscan gap — support proprietary / `LicenseRef-*` licences.**
-      (claimed 2026-08-05-1243, wt: queue-batch-0806)
-      A proprietary repo going public is *precisely* when copyleft-contamination
-      detection matters most, and today the tool is **silent exactly there**.
-
-      **Reproduction (2026-07-25, run before disabling the gate on 3 repos).**
-      A fixture with a proprietary `LICENSE` ("ALL RIGHTS RESERVED") plus a
-      source file carrying an SPDX header declaring GPL-2.0 (written literally in
-      the fixture, described here — a real tag in this file trips licenscan, as
-      it did on the first draft of this entry):
-
-      - `licenscan --expect LicenseRef-Proprietary .` reports **one** finding —
-        `LICENSE:1 [unknown-license]` — and **never mentions the GPL file**. It
-        stops at "repo licence unrecognised" and verifies nothing further.
-      - Appending `licenscan:allow:` to the LICENSE line does **not** restore
-        the file-header checks: the finding persists and the GPL file stays
-        invisible. So there is no in-repo workaround; the fix must be in the tool.
-
-      **Why this is a real hole, not a cosmetic one.** A vendored strong-copyleft
-      file cannot be relicensed on the way out. In an Apache repo licenscan
-      catches that; in a proprietary repo — the one most likely to be scrubbed
-      and published deliberately — it catches nothing, while *appearing* to be a
-      configured gate. A check that is off is a decision; a check that runs and
-      covers nothing is the failure class this repo keeps closing.
-
-      **Fix shape.** Accept an unrecognised or `LicenseRef-*` repo licence as a
-      *declared* licence: skip the "which known SPDX licence is this" comparison
-      (which genuinely cannot be answered), and still run the per-file header
-      incompatibility checks, which do not depend on recognising the repo
-      licence — only on knowing it is not the copyleft one found. **Test to
-      write with it:** the fixture above must report the GPL file.
-
-      **Unblocks the 3 repos currently `disabled` with a stated reason**, and
-      those declarations should be retired in the same change rather than left
-      standing (see the advisory/disabled ageing item).
-- [~] **licenscan gap — map known PyPI trove classifiers to SPDX ids.**
-      (claimed 2026-08-05-1243, wt: queue-batch-0806)
-      `"License :: OSI Approved :: Apache Software License"` is the **correct**
-      PyPI trove classifier for Apache-2.0 — established packaging practice, not
-      an error — but licenscan reads it as an unrecognised declaration and blocks.
-
-      **Evidence (2026-07-25).** One child hit this with a `pyproject.toml` that
-      *already* carried a correct SPDX `license` field; the classifier beside it
-      was flagged anyway. Marked in place with the reason, because the repo was
-      right and the tool was wrong.
-
-      **Why it matters beyond one repo.** Every Python package in the estate will
-      carry these classifiers, so this recurs by construction — and each recurrence
-      trains someone to reach for an allow-marker on a *correct* line, which is
-      how a scanner's findings stop being believed.
-
-      **Fix shape.** A small lookup from the OSI-approved trove classifier strings
-      to their SPDX ids, applied before the unrecognised-declaration check. The
-      set is small, stable and published. Where a classifier is genuinely
-      ambiguous (a family name covering several versions), degrade to the existing
-      unknown-declaration *warn* rather than guessing a version — friction, never
-      a silent pass. **Test to write with it:** the Apache trove classifier
-      alongside an Apache-2.0 `license` field reports clean.
 - [ ] **2 repos still owe the declaration — blocked by their own reds.** Their
       hooks refused the commit on pre-existing findings (broken internal links,
       decision records with no review line). **Deliberately not forced:** those
@@ -1211,6 +1153,15 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   landing) + the
   [apex Zeroth Law cold pass](reviews/2026-07-26-2215-apex-zeroth-law-cold.md)
   (ZL1).
+
+- ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass) — the
+  licenscan E1+E2 build (a custom/LicenseRef licence keeps the header
+  checks; trove classifiers resolve).** *Delta:* `tools/licenscan.py` +
+  `tools/test_licenscan.py` (37 → 52 tests) + the CHANGELOG entry (landed
+  2026-08-05, this commit). *Intent record:*
+  [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The licence gate learns
+  proprietary* (the two items verbatim — fix shapes and required tests
+  stated in the items, evidence of 2026-07-25 — harvested at landing).
 
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
 COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin

@@ -18,7 +18,9 @@ Three checks, in rising specificity:
 
   1. LICENSE present and recognised. A repo about to go public with no LICENSE
      file defaults to "all rights reserved" — the opposite of what an open repo
-     intends. An unrecognised LICENSE means we can't verify the rest.
+     intends. A LICENSE we can't name is still a LICENSE: it is read as a
+     DECLARED custom licence (proprietary, or an explicit SPDX `LicenseRef-`
+     id), which means check 2 can't run against it but check 3 still does.
 
   2. Every licence DECLARATION agrees with LICENSE. Metadata that names a licence
      — pyproject.toml, package.json, Cargo.toml, *.gemspec, setup.cfg, a README
@@ -41,10 +43,14 @@ matched", not "licence-safe"): a vendored file carrying the traditional PROSE
 licence header with no `SPDX-License-Identifier` tag — the commonest real-world
 copyleft shape — is invisible to check 3; the human pre-publish scrub owns that
 case. Dual-licence expressions (`MIT OR Apache-2.0`) and `LicenseRef-` custom
-ids degrade conservatively to an unknown-declaration warn (friction, never a
-false pass). A legitimately bundled copyleft component (the NOTICE case) will
-block — the allow-marker / .licenscanignore hatch, with its reason recorded, is
-the sanctioned way to express "bundled, not relicensed".
+ids *in a metadata declaration* degrade conservatively to an unknown-declaration
+warn (friction, never a false pass). Under a custom repo licence the only
+per-file judgement made is the copyleft one: a permissive foreign header is left
+unremarked, because "differs from the repo licence" is unanswerable when the
+repo licence has no name to differ from. A legitimately bundled copyleft
+component (the NOTICE case) will block — the allow-marker / .licenscanignore
+hatch, with its reason recorded, is the sanctioned way to express "bundled, not
+relicensed".
 
 Exit codes (fail-safe — anything but a clean, verifiable scan is non-zero):
   0  clean — one coherent, recognised licence, no incompatible headers
@@ -76,6 +82,20 @@ SKIP_DIR_NAMES = {".git", "node_modules", "__pycache__", ".venv", "venv",
 # Filenames that carry the canonical licence text.
 LICENSE_FILENAMES = ("LICENSE", "LICENSE.txt", "LICENSE.md", "LICENCE",
                      "LICENCE.txt", "LICENCE.md", "COPYING", "COPYING.txt")
+
+# Stand-in id for a LICENSE that is present and deliberate but not a listed SPDX
+# licence — proprietary/all-rights-reserved, or a house-custom text. SPDX's own
+# spelling for "not on the list" is a LicenseRef- id, so we borrow it rather than
+# invent a word. It is a DECLARED licence: we cannot say WHICH licence it is, but
+# we can still say it is not the copyleft licence a vendored file carries.
+CUSTOM_LICENSE = "LicenseRef-UNRECOGNISED"
+
+# An explicit SPDX LicenseRef- id written into the LICENSE body. That is a
+# deliberate custom declaration, not a failure to recognise, so it draws no
+# unknown-license finding of its own.
+# The trailing class stops at an alphanumeric so a sentence-final full stop
+# ("...under LicenseRef-Acme-EULA.") doesn't become part of the id.
+_LICENSEREF_ID = re.compile(r"(?i)\b(LicenseRef-[A-Za-z0-9.\-]*[A-Za-z0-9])")
 
 # ---- SPDX classification -------------------------------------------------------
 # The three families that decide compatibility. Permissive code flows anywhere;
@@ -161,11 +181,48 @@ _SPDX_ALIASES = {
 }
 
 
+# PyPI trove classifiers — the `License :: OSI Approved :: <name>` strings a
+# Python package declares in `classifiers`. This is a small, published, stable
+# set, and it is the CORRECT way for a Python package to name its licence, so
+# reading one as an unrecognised declaration blocked repos that had done the
+# right thing (evidence 2026-07-25: "Apache Software License" IS Apache-2.0).
+# Only the unambiguous entries appear here. A family name covering several
+# versions — "BSD License", the unversioned "GNU General Public License (GPL)",
+# "GNU Library or Lesser General Public License (LGPL)" — is absent ON PURPOSE
+# so it falls through to the unknown-declaration warn rather than being guessed
+# a version. Friction, never a silent pass. Entries whose SPDX id is outside our
+# family tables (MPL-1.1, LGPL-2.0) are likewise absent: mapping to an id the
+# compatibility check cannot classify would buy nothing.
+_TROVE_CLASSIFIERS = {
+    "apache software license": "Apache-2.0",
+    "mit license": "MIT",
+    "isc license (iscl)": "ISC",
+    "mozilla public license 2.0 (mpl 2.0)": "MPL-2.0",
+    "eclipse public license 2.0 (epl-2.0)": "EPL-2.0",
+    "boost software license 1.0 (bsl-1.0)": "BSL-1.0",
+    "zlib/libpng license": "Zlib",
+    "the unlicense (unlicense)": "Unlicense",
+    "gnu general public license v2 (gplv2)": "GPL-2.0",
+    "gnu general public license v2 or later (gplv2+)": "GPL-2.0",
+    "gnu general public license v3 (gplv3)": "GPL-3.0",
+    "gnu general public license v3 or later (gplv3+)": "GPL-3.0",
+    "gnu lesser general public license v3 (lgplv3)": "LGPL-3.0",
+    "gnu lesser general public license v3 or later (lgplv3+)": "LGPL-3.0",
+    "gnu affero general public license v3": "AGPL-3.0",
+    "gnu affero general public license v3 or later (agplv3+)": "AGPL-3.0",
+}
+
+
 def normalise_spdx(raw: str) -> str | None:
     """A metadata licence string → canonical SPDX id, or None if unrecognised.
     Strips the OSI classifier prefix and common decoration first."""
-    s = raw.strip().strip("\"'").lower()
+    s = re.sub(r"\s+", " ", raw.strip().strip("\"'").lower())
     s = s.replace("license :: osi approved ::", "").strip()
+    # A trove classifier is a licence NAME, not an SPDX id — resolve it before
+    # the generic decoration-stripping below reduces "Apache Software License"
+    # to the unrecognised "apache software".
+    if s in _TROVE_CLASSIFIERS:
+        return _TROVE_CLASSIFIERS[s]
     s = re.sub(r"\s+license$", "", s).strip()
     # Modern SPDX writes GPL-family ids with an -only/-or-later suffix (and the
     # deprecated `GPL-2.0+` form). Our family tables key on the base id, and
@@ -291,6 +348,11 @@ def compatibility(repo: str, header: str) -> str:
 class Report:
     repo_license: str | None = None
     repo_license_path: str = ""
+    # Set only when a LICENSE exists but is NOT a known SPDX licence: the custom
+    # id it names, or CUSTOM_LICENSE. `repo_license is None` alone can't tell
+    # "no LICENSE at all" from "a LICENSE we can't name", and those two want
+    # opposite treatment downstream.
+    repo_license_declared: str | None = None
     findings: list[Finding] = field(default_factory=list)
 
     @property
@@ -317,17 +379,31 @@ def scan_repo(root: Path, files: list[tuple[str, str]],
         rep.repo_license_path = rel
         rep.repo_license = identify_license_text(txt)
         if rep.repo_license is None:
-            rep.findings.append(Finding(
-                "unknown-license", "medium",
-                "LICENSE text not recognised as a known SPDX licence — cannot "
-                "verify declarations/headers against it.", rel, 1))
+            # A LICENSE we can't name is still a declaration. Record it as a
+            # custom licence so the header checks below still run: the case the
+            # old early-stop covered in silence — a proprietary repo about to
+            # publish a vendored copyleft file — is the worst one there is.
+            m = _LICENSEREF_ID.search(txt)
+            rep.repo_license_declared = m.group(1) if m else CUSTOM_LICENSE
+            if m is None and ALLOW_MARKER not in txt:
+                rep.findings.append(Finding(
+                    "unknown-license", "medium",
+                    "LICENSE text not recognised as a known SPDX licence — read "
+                    "as a declared custom licence: foreign SPDX headers are still "
+                    "checked, declarations can't be verified against it. If that "
+                    f"is intended, add '{ALLOW_MARKER}: <reason>' to a line of "
+                    "LICENSE, or name an explicit SPDX LicenseRef- id in it.",
+                    rel, 1))
 
     if expect is not None:
         want = normalise_spdx(expect) or expect
-        if rep.repo_license is not None and rep.repo_license != want:
+        actual = rep.repo_license or rep.repo_license_declared
+        if actual is not None and actual != want:
+            named = (actual if rep.repo_license is not None
+                     else f"not a recognised SPDX licence ({actual})")
             rep.findings.append(Finding(
                 "expect-mismatch", "high",
-                f"LICENSE is {rep.repo_license} but --expect {want} was asserted.",
+                f"LICENSE is {named} but --expect {want} was asserted.",
                 rep.repo_license_path, 1))
 
     # 2/3. every declaration + header must agree with (or be compatible with) it.
@@ -343,7 +419,23 @@ def scan_repo(root: Path, files: list[tuple[str, str]],
                     f"SPDX id — can't verify it.", d.path, d.line))
                 continue
             if repo is None:
-                continue  # nothing to compare against; no-license already flagged
+                custom = rep.repo_license_declared
+                if custom is None:
+                    continue  # no LICENSE at all; no-license already flagged
+                # The repo licence has no SPDX name, so "does this differ from
+                # it" is unanswerable — but the copyleft judgement doesn't need
+                # the name. A custom/proprietary licence does not carry GPL/
+                # AGPL/LGPL/MPL terms forward, so vendored copyleft under it is
+                # the same poison pill as copyleft under a permissive licence.
+                if d.source == "spdx-header" and d.spdx in COPYLEFT:
+                    rep.findings.append(Finding(
+                        "incompatible", "high",
+                        f"file carries SPDX header {d.spdx} ({family(d.spdx)}) "
+                        f"but the repo licence is {custom} — copyleft code "
+                        f"cannot be relicensed under a licence that does not "
+                        f"carry its terms forward. Bundled deliberately? Say so "
+                        f"with an allow marker.", d.path, d.line))
+                continue
             if d.source == "spdx-header":
                 verdict = compatibility(repo, d.spdx)
                 if verdict == "block":
@@ -405,7 +497,7 @@ def collect_files(root: Path, globs: list[str]) -> list[tuple[str, str]]:
 
 def render_human(rep: Report) -> str:
     lines: list[str] = []
-    lic = rep.repo_license or "unrecognised"
+    lic = rep.repo_license or rep.repo_license_declared or "unrecognised"
     if rep.clean:
         return f"✓ licenscan clean — repo licence {lic}, all declarations agree."
     lines.append(f"✗ licenscan: {len(rep.findings)} finding(s) — repo licence "
@@ -449,6 +541,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({
             "clean": rep.clean,
             "repo_license": rep.repo_license,
+            "repo_license_declared": rep.repo_license_declared,
             "repo_license_path": rep.repo_license_path,
             "findings": [asdict(f) for f in rep.findings],
         }, indent=2))
@@ -465,6 +558,8 @@ def _selftest() -> int:
     mit = ("MIT License\n\nPermission is hereby granted, free of charge, to any "
            "person obtaining a copy of this software")
     gpl3 = "GNU GENERAL PUBLIC LICENSE\nVersion 3, 29 June 2007"
+    proprietary = ("Copyright (c) 2026 Fictional Holdings. ALL RIGHTS RESERVED.\n"
+                   "No licence to copy, modify or redistribute is granted.")
 
     checks: list[tuple[str, bool]] = []
 
@@ -489,6 +584,29 @@ def _selftest() -> int:
     ], None)
     checks.append(("-only copyleft still blocks",
                    any(f.kind == "incompatible" for f in only_poison.findings)))
+
+    # E2: the OSI trove classifier is the CORRECT declaration for a Python
+    # package — it must resolve, and an ambiguous family name must not.
+    checks.append(("norm trove apache",
+                   normalise_spdx("License :: OSI Approved :: Apache Software "
+                                  "License") == "Apache-2.0"))
+    checks.append(("norm trove gplv3",
+                   normalise_spdx("License :: OSI Approved :: GNU General Public "
+                                  "License v3 (GPLv3)") == "GPL-3.0"))
+    checks.append(("norm trove bsd stays ambiguous",
+                   normalise_spdx("License :: OSI Approved :: BSD License") is None))
+
+    # E1: an unrecognised (proprietary) LICENSE is a DECLARED licence — the
+    # header checks must still run under it, which is where the silence hurt.
+    prop = scan_repo(Path("."), [
+        ("LICENSE", proprietary),
+        ("vendor/w.c", "/* SPDX-License-Identifier: GPL-2.0 */\n"),  # licenscan:allow: selftest fixture, not a real header
+    ], None)
+    checks.append(("proprietary repo still blocks copyleft",
+                   any(f.kind == "incompatible" for f in prop.findings)))
+    checks.append(("proprietary repo declares a custom licence",
+                   prop.repo_license is None
+                   and prop.repo_license_declared == CUSTOM_LICENSE))
 
     # clean repo: apache LICENSE + agreeing pyproject
     clean = scan_repo(Path("."), [

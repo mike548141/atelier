@@ -5,6 +5,37 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-08-05 — licenscan under a licence it can't name, and the classifier that was right all along)
+- **A LICENSE we can't name is still a LICENSE** (E1). An unrecognised body used
+  to end the scan at one medium `unknown-license` finding: the per-file SPDX
+  header checks never ran, and an allow marker on the LICENSE line didn't
+  restore them. The silence covered the worst case there is — a proprietary
+  repo publishing a vendored copyleft file. The body is now read as a
+  *declared* custom licence (`LicenseRef-UNRECOGNISED`, or an explicit
+  `LicenseRef-` id it names). Which known licence it is stays unanswerable and
+  is no longer asked; whether it carries GPL/AGPL/LGPL/MPL terms forward is
+  answerable — it does not — so copyleft under it blocks exactly as it does
+  under a permissive licence.
+- **The allow marker now means what it says.** On a LICENSE line it retires the
+  unrecognised-body warn and leaves the header checks running; an explicit
+  `LicenseRef-` id needs no marker at all, being a deliberate declaration
+  rather than a failure to recognise. `--expect` compares against the custom
+  id too, so a CI assertion of Apache-2.0 can't pass on an unnameable body.
+- **PyPI trove classifiers resolve to SPDX ids** (E2).
+  `License :: OSI Approved :: Apache Software License` is the *correct* way a
+  Python package names Apache-2.0, and licenscan read it as an unrecognised
+  declaration and blocked — friction aimed at a repo that had done the right
+  thing. Sixteen unambiguous classifiers now map before the
+  unrecognised-declaration check. Ambiguous family names — `BSD License`, the
+  unversioned `GPL`/`LGPL` — are absent on purpose and still degrade to the
+  warn: friction, never a guessed version.
+- **What it still won't say**: under a custom repo licence, metadata
+  declarations aren't compared (there is no id to compare with) and a
+  permissive foreign header goes unremarked — only the copyleft call is made.
+- `tools/test_licenscan.py` 37 → 52 tests; `--selftest` gains the proprietary
+  poison-pill and classifier cases, so a box without the unittest file proves
+  both.
+
 ### Added (2026-08-03 — the queued-review pointer gets a forcing function)
 - **`tools/pointerscan.py` — two advisory guards on the `⏳` pointer.** *Grammar:*
   a pointer that seeds the reviewer's first question steers the pass it is

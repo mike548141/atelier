@@ -3679,3 +3679,86 @@ Item verbatim as closed:
       the workflow's token comment now states the all-repos grant and
       why a selected-repos token under-enumerates, committed and pushed
       in that repo. (Moved from ROADMAP.md 2026-08-05.)
+
+## The licence gate learns proprietary — E1 + E2 (done 2026-08-05)
+
+Both licence-gate items delivered 2026-08-05 (wt: queue-batch-0806),
+built to the fix shapes and required tests the items themselves state.
+E1: an unrecognised LICENSE body is read as a declared custom licence
+(an explicit `LicenseRef-` id where the body names one, otherwise a
+sentinel); the per-file SPDX-header checks keep running, and a vendored
+strong-copyleft header under a custom licence blocks as the poison pill
+it is. The allow marker now retires only the unrecognised-body warn,
+never the header checks, and `--expect` compares the declared id too.
+The item's reproduction fixture now reports the copyleft file (run
+end-to-end at delivery). E2: sixteen unambiguous OSI trove classifiers
+resolve to SPDX ids before the unknown-declaration check; ambiguous
+family names deliberately stay on the warn. Module tests 37 → 52, full
+suite green, live tree clean. Honest limits recorded in the module
+docstring: under a custom licence only the copyleft judgement is made
+(metadata declarations have no id to compare against; a permissive
+foreign header goes unremarked), and a proprietary repo still exits 1
+until its LICENSE carries an allow marker or an explicit `LicenseRef-`
+id — deliberate friction, both remedies stated in the finding message.
+The three children `disabled` on exactly this gap are now unblocked;
+retiring those declarations is each child's own act at its next floor
+touch, per the advisory/disabled ageing item. Items verbatim:
+
+- [x] **licenscan gap — support proprietary / `LicenseRef-*` licences.**
+      (claimed 2026-08-05-1243, wt: queue-batch-0806)
+      A proprietary repo going public is *precisely* when copyleft-contamination
+      detection matters most, and today the tool is **silent exactly there**.
+
+      **Reproduction (2026-07-25, run before disabling the gate on 3 repos).**
+      A fixture with a proprietary `LICENSE` ("ALL RIGHTS RESERVED") plus a
+      source file carrying an SPDX header declaring GPL-2.0 (written literally in
+      the fixture, described here — a real tag in this file trips licenscan, as
+      it did on the first draft of this entry):
+
+      - `licenscan --expect LicenseRef-Proprietary .` reports **one** finding —
+        `LICENSE:1 [unknown-license]` — and **never mentions the GPL file**. It
+        stops at "repo licence unrecognised" and verifies nothing further.
+      - Appending `licenscan:allow:` to the LICENSE line does **not** restore
+        the file-header checks: the finding persists and the GPL file stays
+        invisible. So there is no in-repo workaround; the fix must be in the tool.
+
+      **Why this is a real hole, not a cosmetic one.** A vendored strong-copyleft
+      file cannot be relicensed on the way out. In an Apache repo licenscan
+      catches that; in a proprietary repo — the one most likely to be scrubbed
+      and published deliberately — it catches nothing, while *appearing* to be a
+      configured gate. A check that is off is a decision; a check that runs and
+      covers nothing is the failure class this repo keeps closing.
+
+      **Fix shape.** Accept an unrecognised or `LicenseRef-*` repo licence as a
+      *declared* licence: skip the "which known SPDX licence is this" comparison
+      (which genuinely cannot be answered), and still run the per-file header
+      incompatibility checks, which do not depend on recognising the repo
+      licence — only on knowing it is not the copyleft one found. **Test to
+      write with it:** the fixture above must report the GPL file.
+
+      **Unblocks the 3 repos currently `disabled` with a stated reason**, and
+      those declarations should be retired in the same change rather than left
+      standing (see the advisory/disabled ageing item).
+- [x] **licenscan gap — map known PyPI trove classifiers to SPDX ids.**
+      (claimed 2026-08-05-1243, wt: queue-batch-0806)
+      `"License :: OSI Approved :: Apache Software License"` is the **correct**
+      PyPI trove classifier for Apache-2.0 — established packaging practice, not
+      an error — but licenscan reads it as an unrecognised declaration and blocks.
+
+      **Evidence (2026-07-25).** One child hit this with a `pyproject.toml` that
+      *already* carried a correct SPDX `license` field; the classifier beside it
+      was flagged anyway. Marked in place with the reason, because the repo was
+      right and the tool was wrong.
+
+      **Why it matters beyond one repo.** Every Python package in the estate will
+      carry these classifiers, so this recurs by construction — and each recurrence
+      trains someone to reach for an allow-marker on a *correct* line, which is
+      how a scanner's findings stop being believed.
+
+      **Fix shape.** A small lookup from the OSI-approved trove classifier strings
+      to their SPDX ids, applied before the unrecognised-declaration check. The
+      set is small, stable and published. Where a classifier is genuinely
+      ambiguous (a family name covering several versions), degrade to the existing
+      unknown-declaration *warn* rather than guessing a version — friction, never
+      a silent pass. **Test to write with it:** the Apache trove classifier
+      alongside an Apache-2.0 `license` field reports clean.
