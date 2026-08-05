@@ -460,6 +460,65 @@ class Allow(unittest.TestCase):
         self.assertEqual(
             [], scan("aws AKIAIOSFODNN7EXAMPLE  # secretscan:allow: doc example"))
 
+    # Rule (c) — reasoned. Tightened 2026-08-05: a marker with no reason is a
+    # mention, not an exemption.
+    def test_bare_marker_without_reason_does_not_exempt(self):
+        found = scan("aws AKIAIOSFODNN7EXAMPLE  # secretscan:allow")
+        self.assertEqual(["aws-access-key-id"], [f.rule for f in found])
+
+    def test_marker_with_empty_reason_does_not_exempt(self):
+        self.assertTrue(scan("aws AKIAIOSFODNN7EXAMPLE  # secretscan:allow:"))
+
+    def test_dual_marker_needs_its_own_reason(self):
+        # The exact loose form found live on 2026-08-05: only the SECOND
+        # marker carried a reason, and the first was silently honoured anyway.
+        self.assertTrue(
+            scan("aws AKIAIOSFODNN7EXAMPLE  # secretscan:allow / leakscan:allow: fixture"))
+        self.assertEqual([], scan(
+            "aws AKIAIOSFODNN7EXAMPLE  # secretscan:allow: fixture / leakscan:allow: fixture"))
+
+    # Rule (a) — narrow.
+    def test_scoped_marker_exempts_only_its_own_rule(self):
+        found = scan("aws AKIAIOSFODNN7EXAMPLE and ghp_012345678901234567890123456789abcdef"
+                     "  # secretscan:allow:aws-access-key-id: documented example")
+        self.assertNotIn("aws-access-key-id", {f.rule for f in found})
+        self.assertIn("github-token", {f.rule for f in found})
+
+    def test_scoped_marker_naming_no_real_rule_exempts_nothing(self):
+        self.assertTrue(scan("aws AKIAIOSFODNN7EXAMPLE  # secretscan:allow:not-a-rule: typo"))
+
+
+class Suppression(unittest.TestCase):
+    """Rule (b) — a suppressed finding is counted, never silently dropped."""
+
+    def test_marker_suppressions_are_counted_per_rule(self):
+        tally = ss.Tally()
+        ss.scan_text("t", "aws AKIAIOSFODNN7EXAMPLE  # secretscan:allow: fixture\n",
+                     frozenset(), tally)
+        self.assertEqual({"aws-access-key-id": 1}, tally.by_marker)
+
+    def test_suppression_count_is_taken_after_dedupe(self):
+        # A named hit and an entropy hit fire on the same token; dedupe drops
+        # the entropy one. Counting before dedupe would report 2 suppressions
+        # where the scan only ever had 1 finding to suppress.
+        tally = ss.Tally()
+        ss.scan_text("t", "github: ghp_012345678901234567890123456789abcdef"
+                          "  # secretscan:allow: fixture\n", frozenset(), tally)
+        self.assertEqual(1, tally.marker_total)
+
+    def test_clean_tally_reports_known_zeros(self):
+        summary = ss.Tally().summary()
+        self.assertIn("0 by allow-marker", summary)
+        self.assertIn("0 file(s) by .secretscanignore", summary)
+        self.assertIn("0 rule(s) disabled", summary)
+
+    def test_render_reports_suppression_on_a_clean_run(self):
+        tally = ss.Tally()
+        tally.note_marker("github-token")
+        out = ss.render_human([], tally)
+        self.assertIn("clean", out)
+        self.assertIn("1 by allow-marker", out)
+
 
 class Redact(unittest.TestCase):
     def test_named_keeps_prefix_not_full_value(self):

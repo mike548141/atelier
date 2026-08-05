@@ -38,7 +38,7 @@ TRACKED_HOOK = TOOLS_DIR.parent / ".githooks" / "pre-commit"
 # [high/named]. (Do NOT use AWS's published example SECRET key wJalr…: the
 # scanner correctly ignores known documentation dummies, which made the first
 # live proof look like a miss.)
-PLANTED_SECRET = 'aws_key = "AKIAIOSFODNN7EXAMPLE"\n'  # secretscan:allow / leakscan:allow: test fixture
+PLANTED_SECRET = 'aws_key = "AKIAIOSFODNN7EXAMPLE"\n'  # secretscan:allow: test fixture / leakscan:allow: test fixture
 
 
 def _registry_scanners() -> list[str]:

@@ -59,12 +59,69 @@ import os
 import re
 import subprocess
 import sys
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from pathlib import Path
 
 # A line carrying this marker is intentionally exempt (e.g. a documented example
 # credential, or a known-public test key). Keep the reason on the same line.
+#
+# GOVERNED BY `method/GUARDS.md` — narrow, noisy, reasoned. Same contract as
+# leakscan next door:
+#
+#   * NARROW. `secretscan:allow: <reason>` exempts every rule on the line;
+#     `secretscan:allow:<rule>: <reason>` exempts only that one, named as the
+#     finding names it (`aws-access-key-id`, `assigned-secret`, `high-entropy`,
+#     …). A scoped name matching no rule exempts NOTHING — a typo fails closed.
+#   * REASONED. Colon plus a non-empty reason, or it is a mention rather than
+#     an exemption. Tightened 2026-08-05; a bare marker used to exempt.
+#   * NOISY. Every suppression is counted and reported (`Tally`).
 ALLOW_MARKER = "secretscan:allow"
+
+ALLOW_RX = re.compile(
+    r"\b" + re.escape(ALLOW_MARKER) + r"(?::(?P<rule>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>\S)")
+
+
+def parse_allow(line: str) -> str | None:
+    """The scope of the line's allow-marker, or None if it carries none.
+
+    `""` means every rule; a rule name means just that one. A marker with no
+    reason returns None — it is a mention, not an exemption."""
+    m = ALLOW_RX.search(line)
+    if not m:
+        return None
+    return m.group("rule") or ""
+
+
+@dataclass
+class Tally:
+    """What the scan removed AFTER finding it — rule (b) of `method/GUARDS.md`.
+
+    A guard that subtracts silently prints the same clean tick for "nothing
+    matched" and "everything matched and was exempted"."""
+    by_marker: dict[str, int] = field(default_factory=dict)
+    files_by_glob: int = 0
+    disabled_rules: tuple[str, ...] = ()
+
+    @property
+    def marker_total(self) -> int:
+        return sum(self.by_marker.values())
+
+    def note_marker(self, rule: str) -> None:
+        self.by_marker[rule] = self.by_marker.get(rule, 0) + 1
+
+    def summary(self) -> str:
+        """One stable line, known zeros printed, so two runs compare."""
+        parts = [f"{self.marker_total} by allow-marker",
+                 f"{self.files_by_glob} file(s) by .secretscanignore",
+                 f"{len(self.disabled_rules)} rule(s) disabled"]
+        line = "  suppressed: " + " · ".join(parts)
+        if self.by_marker:
+            detail = ", ".join(f"{r}×{n}" for r, n in sorted(self.by_marker.items()))
+            line += f"\n    allow-marker breakdown: {detail}"
+        if self.disabled_rules:
+            line += f"\n    disabled: {', '.join(self.disabled_rules)}"
+        return line
+
 
 # Paths never worth scanning. Hardcode-skip ONLY names that are never
 # human-authored content — VCS, dependency, and tool-cache dirs. `build`/`dist`
@@ -423,11 +480,18 @@ def _assigned_is_secret(value: str) -> bool:
 
 
 def scan_text(path: str, text: str,
-              disabled: frozenset[str] = frozenset()) -> list[Finding]:
+              disabled: frozenset[str] = frozenset(),
+              tally: Tally | None = None) -> list[Finding]:
     findings: list[Finding] = []
+    # Line -> allowance scope, collected as we go. The subtraction happens
+    # AFTER dedupe (rule b, find first and subtract second): suppressing at
+    # match time would also count entropy hits that dedupe was about to drop,
+    # inflating the very number this exists to make trustworthy.
+    allow_by_line: dict[int, str] = {}
     for lineno, line in enumerate(text.splitlines(), start=1):
-        if ALLOW_MARKER in line:
-            continue
+        scope = parse_allow(line)
+        if scope is not None:
+            allow_by_line[lineno] = scope
 
         for pat in NAMED:
             if pat.name in disabled:
@@ -454,7 +518,15 @@ def scan_text(path: str, text: str,
                                             redact(span, "entropy")))
     # A named/assigned hit and a bare entropy hit often fire on the same token;
     # keep the more specific one so the report isn't doubled.
-    return _dedupe_same_span(findings)
+    kept: list[Finding] = []
+    for f in _dedupe_same_span(findings):
+        scope = allow_by_line.get(f.line)
+        if scope is not None and scope in ("", f.rule):
+            if tally is not None:
+                tally.note_marker(f.rule)
+            continue
+        kept.append(f)
+    return kept
 
 
 def _dedupe_same_span(findings: list[Finding]) -> list[Finding]:
@@ -495,7 +567,8 @@ def _ignored(rel: str, globs: list[str]) -> bool:
                for g in globs)
 
 
-def iter_files(paths: list[Path], root: Path, globs: list[str]):
+def iter_files(paths: list[Path], root: Path, globs: list[str],
+               tally: Tally | None = None):
     for base in paths:
         if base.is_file():
             files = [base]
@@ -513,20 +586,23 @@ def iter_files(paths: list[Path], root: Path, globs: list[str]):
             except ValueError:
                 rel = str(p)
             if _ignored(rel, globs):
+                if tally is not None:
+                    tally.files_by_glob += 1
                 continue
             yield p, rel
 
 
 def scan_paths(paths: list[Path], root: Path,
-               disabled: frozenset[str] = frozenset()) -> list[Finding]:
+               disabled: frozenset[str] = frozenset(),
+               tally: Tally | None = None) -> list[Finding]:
     globs = load_ignore_globs(root)
     findings: list[Finding] = []
-    for p, rel in iter_files(paths, root, globs):
+    for p, rel in iter_files(paths, root, globs, tally):
         data = p.read_bytes()
         if _looks_binary(data):
             continue
         findings.extend(scan_text(rel, data.decode("utf-8", errors="replace"),
-                                  disabled))
+                                  disabled, tally))
     return findings
 
 
@@ -551,18 +627,25 @@ def staged_added_lines() -> dict[str, str]:
     return {path: "\n".join(lines) for path, lines in files.items() if lines}
 
 
-def render_human(findings: list[Finding]) -> str:
+def render_human(findings: list[Finding], tally: Tally | None = None) -> str:
     lines: list[str] = []
     if not findings:
         lines.append("✓ secretscan clean — no credentials in the scanned lines.")
+        if tally is not None:
+            lines.append(tally.summary())
         return "\n".join(lines)
     lines.append(f"✗ secretscan: {len(findings)} finding(s) — commit blocked.\n")
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
         lines.append(f"  {f.path}:{f.line}  [{f.severity}/{f.kind}] {f.rule} → {f.excerpt}")
+    if tally is not None:
+        lines.append("")
+        lines.append(tally.summary())
     lines.append("\n  A true positive: remove the secret, move it to the secret store")
     lines.append("  (e.g. a `!secret`/env reference), and ROTATE it — commit history is forever.")
-    lines.append(f"  A false positive: append '# {ALLOW_MARKER}: <reason>' to the line,")
-    lines.append("  or add a path glob to .secretscanignore.")
+    lines.append(f"  A false positive: append '# {ALLOW_MARKER}: <reason>' to the line")
+    lines.append(f"  (or '# {ALLOW_MARKER}:<rule>: <reason>' to exempt just one rule —")
+    lines.append("  the narrowest allowance that covers the case), or add a path glob")
+    lines.append("  to .secretscanignore. A marker with no reason exempts nothing.")
     return "\n".join(lines)
 
 
@@ -596,6 +679,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"secretscan: unknown rule(s) in --disable: {', '.join(sorted(unknown))}",
               file=sys.stderr)
         return 2
+    # A scope reduction taken at invocation is an allowance too, and rule (b)
+    # says one nobody can see is one nobody reviewed — so `--disable` reports
+    # itself in the output rather than narrowing the scan invisibly.
+    tally = Tally(disabled_rules=tuple(sorted(disabled)))
 
     if args.staged:
         try:
@@ -623,8 +710,12 @@ def main(argv: list[str] | None = None) -> int:
             staged = {path: text for path, text in staged.items()
                       if path.startswith(prefixes) or path in args.paths}
         globs = load_ignore_globs(root)
-        findings = [f for path, text in staged.items() if not _ignored(path, globs)
-                    for f in scan_text(path, text, disabled)]
+        findings = []
+        for path, text in staged.items():
+            if _ignored(path, globs):
+                tally.files_by_glob += 1
+                continue
+            findings.extend(scan_text(path, text, disabled, tally))
     else:
         targets = [Path(p) for p in (args.paths or [str(root)])]
         missing = [str(p) for p in targets if not p.exists()]
@@ -635,15 +726,21 @@ def main(argv: list[str] | None = None) -> int:
             print(f"secretscan: path does not exist: {', '.join(missing)}",
                   file=sys.stderr)
             return 2
-        findings = scan_paths(targets, root, disabled)
+        findings = scan_paths(targets, root, disabled, tally)
 
     if args.json:
         print(json.dumps({
             "clean": not findings,
             "findings": [asdict(f) for f in findings],
+            "suppressed": {
+                "by_allow_marker": tally.marker_total,
+                "by_allow_marker_rule": tally.by_marker,
+                "files_by_ignore_glob": tally.files_by_glob,
+                "disabled_rules": list(tally.disabled_rules),
+            },
         }, indent=2))
     else:
-        print(render_human(findings))
+        print(render_human(findings, tally))
 
     return 1 if findings else 0
 
@@ -653,8 +750,8 @@ def _selftest() -> int:
     where the unittest file isn't shipped. Fixtures are fictional/example
     credentials — the shapes are the point."""
     should_flag = [
-        "aws_key = AKIAIOSFODNN7EXAMPLE",                       # secretscan:allow / leakscan:allow: selftest fixture
-        "-----BEGIN OPENSSH PRIVATE KEY-----",                  # secretscan:allow / leakscan:allow: selftest fixture
+        "aws_key = AKIAIOSFODNN7EXAMPLE",                       # secretscan:allow: selftest fixture / leakscan:allow: selftest fixture
+        "-----BEGIN OPENSSH PRIVATE KEY-----",                  # secretscan:allow: selftest fixture / leakscan:allow: selftest fixture
         "github: ghp_012345678901234567890123456789abcdef",    # secretscan:allow: selftest fixture
         'password = "Gk8xQvie2mNfR7pLzW3dTaHb"',                # secretscan:allow: selftest fixture
         "slack xoxb-1234567890-abcdefghijklmno",                # secretscan:allow: selftest fixture
