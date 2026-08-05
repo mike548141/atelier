@@ -8,8 +8,17 @@ Lets use a fable 5 session to orchestrate and any model you choose as
 appropriate for agents doing the work. You are allowed to use any model for
 orchestration and/or agents. I will have multiple parallel sessions so take
 appropriate precautions like using worktrees and watching for changes
-in-flight. If I accidentally start the orchestration session as a different
-model then stop and we will change models.
+in-flight.
+
+* You must check and prove your facts.
+
+* I want you to challenge my ideas, my logic & thinking, my prompts and even
+  my rulings to make them better. You can't over-rule, ignore, or act against
+  my rulings but I want you to raise concerns and opportunities to improve
+  with the principal (me).
+
+* If I accidentally start the orchestration session as a different model then
+  stop and we will change models.
 
 * Claim your work and if work is claimed then don't work on it even if I've
   just told you too.
