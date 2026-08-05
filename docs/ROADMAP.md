@@ -1177,7 +1177,7 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   small doctrine edits* (the five ruled items verbatim, harvested at
   landing) + the
   [apex Zeroth Law cold pass](reviews/2026-07-26-2215-apex-zeroth-law-cold.md)
-  (ZL1).
+  (ZL1). (claimed 2026-08-05-1300, wt: fable-cold-passes-0805)
 
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
 COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin
