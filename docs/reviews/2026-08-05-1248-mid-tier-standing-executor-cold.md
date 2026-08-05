@@ -70,3 +70,36 @@ invisible to `git log` on the file and cost this pass a trace; nothing
 owed.
 
 ## Reconcile (intent records opened after the findings above were committed)
+
+Opened after the findings commit: `ROADMAP-DONE.md` § *Third-seat executor
+trial* (runs 1–4 verbatim) and the `dadde1d` trial-instruction paraphrase
+that entry carries.
+
+- **MT1 resolved — provenance is sound, three layers deep.** The trial
+  Mike opened set the bar in advance ("keep the step-down only on the
+  floor's evidence, record the outcome either way"); run 3's own record
+  prescribed the promotion wording and explicitly deferred the edit to "a
+  future session's rule-4 doctrine act"; run 4 sharpened the boundary and
+  repeated the deferral. The 2026-08-03 orchestrated run — not the trial's
+  author sessions — performed that act with this rule-4 pointer queued at
+  landing, and this pass now puts it before Mike. No overstep found.
+- **Every figure verifies against the run records:** four runs; 2+2+1+4 =
+  nine dispatched items; the one failure is run 4's novel-mechanism build,
+  whose defect reached head and took an orchestrator correction, exactly
+  as the paragraph says; the 41-tests worked example is run 3's
+  prescriptively-reviewed fix, character for character.
+- **The extraction is faithful to the point of near-verbatim**: the two
+  classes, the discriminator ("floor density, not nominal class"), and the
+  no-first-of-kind fence are the trial record's own prescriptions (runs 3
+  and 4), not the promoting session's invention — extraction-from-practice
+  in its cleanest recorded form.
+- **MT2 stands, softened**: the run records themselves are the
+  recording mechanism practice already uses; the paragraph could name that
+  expectation but the practice exists without it.
+
+## Disposition — the cycle CLOSES (0 MAJOR); notes to Mike
+
+A doctrine cold pass with **0 MAJOR** — the cycle **closes, terminal**, per
+REVIEW.md's no-MAJOR rule. MT1 resolved in the delta's favour; MT2 and MT3
+are recorded observations, no work owed unless Mike funds the MT2 wording
+line.
