@@ -93,3 +93,37 @@ itself names, a listing surface (or a floorfleet line) is the natural
 build. Recorded so the claim is not read as a built feature.
 
 ## Reconcile (intent records opened after the findings above were committed)
+
+Opened after the findings commit: the authoring session record
+(`2026-08-05-1150-guard-governance-allowances.md`), the F1 intent cold
+pass rulings FG1–FG6, and the D1 ruling in E7.
+
+- **No contradictions; the account is unusually self-incriminating and
+  checks out.** The survey figures (rule (c) in 3 of 12 markers, 1 of 8
+  loaders; rule (b) in 1 of 12, `stampscan` the exemplar; `floor.py`
+  already complete), the three defects the build caught — including the
+  author's own `\S` regex failing rule (c) inside the change enforcing
+  it, which this pass's reasonless-marker probe confirms fixed — and the
+  stanza-or-trailing reason call with all 31 live glob entries passing
+  unchanged.
+- **GA1 is grounded in the account's own diagnosis**: "the convention
+  lived as twelve copy-pasted module headers … whichever variant got
+  copied next propagated" — the delivery reproduces that mechanism for
+  the loader, which is why the finding asks for a decision rather than
+  assuming the refactor.
+- **GA2's count is wider than the account's** and both are right: the
+  author recorded 3 identity-line findings from D1; the C5 term-list
+  composition landed after their session, and at this pass's HEAD the
+  full-tree local scan reports 89 — the same class, widened exactly as
+  the C5 ruling predicted. Forward-only holds on both counts.
+- **FG2's handling matches its ruling precisely**: hypothesis tested at
+  design, E6d(i) supersession asked of Mike in three places, nothing
+  reverted unilaterally.
+
+## Disposition — the F1 review cycle CLOSES (0 MAJOR); rulings stay Mike's
+
+A code/design cold pass returning **0 MAJOR** — the F1 cycle **closes,
+terminal** per the no-MAJOR rule. The two 🎯 items the delta itself
+queued (the E6d(i) supersession confirmation; the D1 identity-lines
+consequence) are decision-owed, not review-owed, and stand untouched.
+GA1 (minor) and GA2–GA3 (notes) join the day's ruling round.
