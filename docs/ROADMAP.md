@@ -107,7 +107,8 @@ further down this file; they are pointed at, not restated.
   repos read `wired ✅` and had been RED on their default branches since the
   2026-07-25 rollout**, unnoticed for three days. Detail →
   [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
-- [ ] **The scheduled consumer's workflow still owes its token-spec comment**
+- [~] **The scheduled consumer's workflow still owes its token-spec comment**
+      (claimed 2026-08-05-1243, wt: queue-batch-0806)
       — FS1's all-repos grant statement is applied on every surface atelier
       carries (module docstring, `--from-github` help + docstring, the
       empty-estate failure message, 2026-08-03); the one remaining surface
@@ -227,7 +228,8 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       passed the hook, so a bypass is a recorded event rather than a private
       one. Weigh honestly against it also being the legitimate escape hatch —
       making it painful invites worse workarounds.
-- [ ] 🎯 **C5 — a forcing function for the estate-root name.** The rule was
+- [~] 🎯 **C5 — a forcing function for the estate-root name.**
+      (claimed 2026-08-05-1243, wt: queue-batch-0806) The rule was
       widened to bind *any* public tree including atelier's own
       (`PROPAGATION.md`, 2026-07-28 — it had exempted the parent by naming
       categories of repo instead of the property, and 63 record mentions
@@ -266,7 +268,8 @@ level up: a check wired into atelier's own workflow reaches no child, and the
 child template's promise that "a new check arrives on the next push" holds for
 registry checks only.*
 
-- [ ] 🎯 **D1 — `pathscan`: promote with a corrected scope, or retire it.** It
+- [~] 🎯 **D1 — `pathscan`: promote with a corrected scope, or retire it.**
+      (claimed 2026-08-05-1243, wt: queue-batch-0806) It
       runs as a bespoke advisory step in atelier's own `ci.yml`, outside the
       registry, so no child has ever run it. The cold pass returned 2 MAJOR:
       the wired scope cannot see the corpus that motivated the tool, and the
@@ -278,7 +281,8 @@ registry checks only.*
       that motivated the tool, then promote to the registry so children get
       it; the rescope answers the verdict's two MAJORs before any wiring.
       Work owed: one build item.
-- [ ] 🎯 **D2 — `stampscan`: fix at the parser, or shelve it.** Built, tested,
+- [~] 🎯 **D2 — `stampscan`: fix at the parser, or shelve it.**
+      (claimed 2026-08-05-1243, wt: queue-batch-0806) Built, tested,
       and **not wireable as built** — re-verified 2026-07-27, the live tree
       exits 2 today. Three MAJOR: marker recognition is context-blind, so any
       document that *describes* the syntax reds the scan as a config error that
@@ -521,8 +525,9 @@ adopter mistakes.*
       address.** Recurs wherever a record quotes a rendered time span → already
       queued under § *Boundary findings* below; carried here because it is the
       same class as E3 and should be ruled with it.
-- [ ] 🎯 **E5 — write down "describe, don't quote" as a standing rule for
-      record prose.** It has now bitten three separate scanners in three weeks:
+- [~] 🎯 **E5 — write down "describe, don't quote" as a standing rule for
+      record prose.** (claimed 2026-08-05-1243, wt: queue-batch-0806)
+      It has now bitten three separate scanners in three weeks:
       example credentials, a literal open-source licence tag quoted in a
       roadmap entry, and a stamp marker mentioned in a review file — each time
       the scanner was *correct* and the prose was the defect. It is already the
@@ -703,8 +708,8 @@ specimens the build was funded to catch, fixed in the landing merge. Entries →
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The ⏳ pointer grammar mechanised*;
 rule-4 `⏳` queued in § *Doctrine — review-owed*.
 
-- [ ] **ZL1 (MAJOR) — the surface that binds the apex at session start is
-      stale.** `skills/session-onramp/SKILL.md` still teaches the pre-Zeroth
+- [~] **ZL1 (MAJOR) — the surface that binds the apex at session start is
+      stale.** (claimed 2026-08-05-1243, wt: queue-batch-0806) `skills/session-onramp/SKILL.md` still teaches the pre-Zeroth
       three-element Laws, contradicting `00-APEX.md` at HEAD. A prior sweep
       proves the surface was known. The wider finding (AW2) is that at least
       seven in-repo apex restatements describe the superseded shape, while the
@@ -991,7 +996,8 @@ a stated reason (below); one needed a false-positive marker.
 
 > 📦 **2 completed items** in this section → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
 
-- [ ] **licenscan gap — support proprietary / `LicenseRef-*` licences.**
+- [~] **licenscan gap — support proprietary / `LicenseRef-*` licences.**
+      (claimed 2026-08-05-1243, wt: queue-batch-0806)
       A proprietary repo going public is *precisely* when copyleft-contamination
       detection matters most, and today the tool is **silent exactly there**.
 
@@ -1025,7 +1031,8 @@ a stated reason (below); one needed a false-positive marker.
       **Unblocks the 3 repos currently `disabled` with a stated reason**, and
       those declarations should be retired in the same change rather than left
       standing (see the advisory/disabled ageing item).
-- [ ] **licenscan gap — map known PyPI trove classifiers to SPDX ids.**
+- [~] **licenscan gap — map known PyPI trove classifiers to SPDX ids.**
+      (claimed 2026-08-05-1243, wt: queue-batch-0806)
       `"License :: OSI Approved :: Apache Software License"` is the **correct**
       PyPI trove classifier for Apache-2.0 — established packaging practice, not
       an error — but licenscan reads it as an unrecognised declaration and blocks.
@@ -1057,8 +1064,9 @@ a stated reason (below); one needed a false-positive marker.
 
 ### For your consideration — ideas raised this session, not yet decided (2026-07-25)
 
-- [ ] 🎯 **Doctrine candidate — bulk deletion from a record store is a
-      show-first action, regardless of who created the mess.** Grounded in a
+- [~] 🎯 **Doctrine candidate — bulk deletion from a record store is a
+      show-first action, regardless of who created the mess.**
+      (claimed 2026-08-05-1243, wt: queue-batch-0806) Grounded in a
       worked example from this session: I created 185 lines of duplicate roadmap
       sections, then removed them having compared **heading names only**, and
       asserted "duplicates" in the commit message without diffing a single body.
@@ -1283,8 +1291,8 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
 
 
 
-- [ ] 🎯 **Write down which tier reviews — the rule exists in practice and
-  nowhere as a rule** (Mike's ruling, 2026-07-26, after an Opus session took
+- [~] 🎯 **Write down which tier reviews — the rule exists in practice and
+  nowhere as a rule** (claimed 2026-08-05-1243, wt: queue-batch-0806) (Mike's ruling, 2026-07-26, after an Opus session took
   three `⏳` items and had the whole pass rejected on tier grounds). The
   convention is real and consistent: `SESSIONS.md` shows an unbroken run of
   `(Fable)` cold-review entries, and `REVIEW.md` already quotes Mike's
@@ -1311,8 +1319,8 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   Work owed: one small doctrine edit. Self-authored when it lands ⇒ rule-4
   `⏳` at landing — and that review is Fable's.
 
-- [ ] 🎯 **Promote the withdrawn-pass convention into `REVIEW.md`, or leave it
-  local** (Mike's ruling, 2026-07-26: a rejected pass's outputs happened, and we
+- [~] 🎯 **Promote the withdrawn-pass convention into `REVIEW.md`, or leave it
+  local** (claimed 2026-08-05-1243, wt: queue-batch-0806) (Mike's ruling, 2026-07-26: a rejected pass's outputs happened, and we
   do not rewrite history — recover them, keep them, make them unreadable as
   "done"). The handling is now written and live in
   [`reviews/withdrawn/README.md`](reviews/withdrawn/README.md): preserved
