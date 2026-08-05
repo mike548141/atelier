@@ -110,13 +110,6 @@ further down this file; they are pointed at, not restated.
   repos read `wired ✅` and had been RED on their default branches since the
   2026-07-25 rollout**, unnoticed for three days. Detail →
   [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
-- [~] **The scheduled consumer's workflow still owes its token-spec comment**
-      (claimed 2026-08-05-1243, wt: queue-batch-0806)
-      — FS1's all-repos grant statement is applied on every surface atelier
-      carries (module docstring, `--from-github` help + docstring, the
-      empty-estate failure message, 2026-08-03); the one remaining surface
-      is the consuming workflow's permissions comment in the private
-      estate-root repo, a one-line edit that repo owes itself.
 - [ ] 🎯 **The five red floors themselves are now open work.** `--status` found
       them; it does not fix them. Each is a real finding in a child repo and
       each is that repo's own call to clear (the same reasoning as the
@@ -231,38 +224,6 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       passed the hook, so a bypass is a recorded event rather than a private
       one. Weigh honestly against it also being the legitimate escape hatch —
       making it painful invites worse workarounds.
-- [~] 🎯 **C5 — a forcing function for the estate-root name.**
-      (claimed 2026-08-05-1243, wt: queue-batch-0806) The rule was
-      widened to bind *any* public tree including atelier's own
-      (`PROPAGATION.md`, 2026-07-28 — it had exempted the parent by naming
-      categories of repo instead of the property, and 63 record mentions
-      followed). Widening the words is not a forcing function: this is the
-      fourth rule in the programme found broken *because nothing enforced it*,
-      and the widening commit itself then broke it once more, which is the
-      argument for enforcement rather than against it.
-      **The measurement, corrected.** This item previously deferred the
-      cheapest fix on the premise that a bare literal term is a cry-wolf trap,
-      the root's name being also an ordinary English word. **Measured on the
-      cold pass: of all 63 occurrences in this repo, zero are the ordinary
-      English word — every one is a repo reference.** The premise was reasoned
-      from the word, never checked against the corpus, which is the same shape
-      as the two false blockers this programme has already recorded. A literal
-      term is therefore viable and is the cheapest thing that could work;
-      repo-reference *shapes* (`<owner>/<name>`, `~/.pets/<name>`,
-      `<name>@<sha>`, possessive) remain the more durable pattern and the two
-      compose. **Mike's call** — the shape is his, and either way the home is
-      a line in the machine-local `leakscan` term list, which is personal
-      config outside this repo and his to change. That home matches the
-      forward-only ruling exactly, since `--staged` reads added lines only.
-      Watch the C3 interaction: a future wholesale rewrite of a record that
-      already carries a mention would re-add those lines and block, which is
-      the adoption-bootstrap problem in miniature.
-      **RULED 2026-08-04 (Mike): BOTH, COMPOSED** — the bare literal term
-      plus the repo-reference shapes, in the machine-local term list.
-      Execution is a config edit outside every repo (any session on the
-      operator's machine at his ask), verified with a staged probe;
-      forward-only by construction, and the C3 interaction above stands
-      recorded.
 
 ### Track D — finish the registry
 
