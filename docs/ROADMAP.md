@@ -1233,7 +1233,8 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   *Intent record:* [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The ⏳ pointer
   grammar mechanised* (the FUNDED entry + corrections, harvested at landing)
   + the [B4 cold pass](reviews/2026-07-29-1306-b4-harvestscan-cold.md)
-  rulings HV1–HV5 (Mike, 2026-07-29).
+  rulings HV1–HV5 (Mike, 2026-07-29). (claimed 2026-08-05-1155, wt:
+  fable-cold-passes-0805)
 
 - ⏳ **Rule-4 review queued (tier: Fable) — the FS1–FS5 application on
   `floorfleet` (the B2+B3 cycle's application pass; the FS1 MAJOR keeps the
@@ -1249,13 +1250,15 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   [B2+B3 cold pass](reviews/2026-07-29-1251-b2b3-floorfleet-status-cold.md)
   rulings FS1–FS5 (Mike, 2026-07-29) + the harvested ruling entry in
   [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *B2+B3 FS rulings applied*.
+  (claimed 2026-08-05-1155, wt: fable-cold-passes-0805)
 
 - ⏳ **Rule-4 review queued (tier: Fable) — the mid-tier standing-executor
   doctrine.** *Delta:* `docs/method/ECONOMICS.md` § *The orchestrated-run
   tier split*, the standing-executor paragraph (landed 2026-08-03, this
   merge). *Intent record:* [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
   § *Third-seat executor trial* (runs 1–4, 2026-07-23) + Mike's trial
-  instruction of 2026-07-23 (`dadde1d`).
+  instruction of 2026-07-23 (`dadde1d`). (claimed 2026-08-05-1155, wt:
+  fable-cold-passes-0805)
 
 - ⏳ **Rule-4 review queued (tier: Fable) — the E6 application, E6a + E6c
   slices.** *Delta:* `docs/method/SECRETS.md` § *The boundary's posture —
@@ -1267,7 +1270,7 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   [E6 intent cold pass](reviews/2026-07-29-1243-e6-intent-cold.md) rulings
   EI1–EI6 (2026-07-29) + the
   [SF verdict](reviews/2026-07-28-1220-secretscan-fragment-cold.md) rulings
-  (2026-07-28).
+  (2026-07-28). (claimed 2026-08-05-1155, wt: fable-cold-passes-0805)
 
 - ⏳ **Rule-4 review queued (tier: Fable) — the landing-equals-bookkeeping
   preamble clauses.** *Delta:* the two new sentences in this file's
@@ -1276,6 +1279,7 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   the session record). *Intent record:* the harvested entry in
   [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *Doctrine — the harvest rides the
   `[x]` commit* + the SESSIONS.md entry of 2026-08-03 (orchestrated run).
+  (claimed 2026-08-05-1155, wt: fable-cold-passes-0805)
 
 
 
