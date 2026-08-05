@@ -2708,7 +2708,7 @@ per pattern, and the stated residual →
       repo the floor never sees), actions policy, fork-PR approval,
       vulnerability reporting, rulesets. Every settings-level finding in the
       `rpi` pass walked through that gap. Owed **before `ros`/`faves` flip**.
-- [ ] 🎯 **P6 — `rpi` F5: estate-internal context accumulating in public
+- [~] 🎯 **P6 — `rpi` F5: estate-internal context accumulating in public
       records. Mike's ruling owed** (was mis-marked `⏳` — the queue glyph means
       a review is queued for a taker, and what is owed here is a decision;
       re-marked 2026-08-03 on `pointerscan`'s day-one warning). Session logs
@@ -2724,7 +2724,7 @@ per pattern, and the stated residual →
       with the name×posture join as the only bar, vs class-level
       estate-internal detail in public records with its writing friction);
       Mike rules in the ADR, nothing changes until then. Work owed: one
-      ADR draft item.
+      ADR draft item. (claimed 2026-08-05-1233, wt: p6-publication-posture)
 - [ ] **P7 — harvest the `rpi` publication properly.** This section mined the
       cold review only. The transcripts and session logs of the flip are
       unread, and they are the richest source (what an agent *thought*, not what
