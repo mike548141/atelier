@@ -62,3 +62,28 @@ close the read-alone gap. Mike's call whether the preamble's density can
 afford it.
 
 ## Reconcile (intent records opened after the findings above were committed)
+
+Opened after the findings commit: `ROADMAP-DONE.md` § *Doctrine — the
+harvest rides the `[x]` commit* (the full candidate history: the
+2026-07-26 window, the AWA2 lineage, the third-instance mechanism
+analysis) and the SESSIONS.md index line of the 2026-08-03 orchestrated
+run. The session record's body was not opened beyond that line —
+proportionate to a two-sentence delta, and it keeps the author's
+evaluative account unread.
+
+- **No contradictions.** The harvested entry's mechanism analysis is the
+  same one this pass reconstructed cold from the commit (the worktree as
+  the missing forcing function); the enacting commit's practise-what-it-
+  lands shape is claimed by the account and verified here independently.
+- **One count discrepancy, cosmetic:** the index line says "four rule-4
+  `⏳` pointers queued" — four rode the run's merges, and the fifth (this
+  pass's own pointer) rode the doctrine's enacting commit, stated
+  separately in the harvested entry. The queue this taker met held five.
+  Nothing owed; recorded so the numbers reconcile on paper.
+
+## Disposition — the cycle CLOSES (0 MAJOR); notes to Mike
+
+A doctrine cold pass returning **0 MAJOR** — the cycle **closes,
+terminal**. LB1 (a future mechanical form for the inline-claim clause,
+ladder at one instance) and LB2 (the legend's read-alone gap) are counsel
+to Mike; nothing is owed unless he funds either.
