@@ -309,3 +309,30 @@ class SelfTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Allowances(unittest.TestCase):
+    """GUARDS.md — narrow, noisy, reasoned."""
+
+    def _long(self, suffix=""):
+        return "x " * 50 + suffix
+
+    def test_marker_with_reason_exempts_and_is_counted(self):
+        tally = ws.Tally()
+        found = ws.scan_text(
+            "t", self._long("<!-- wrapscan:allow: an unbreakable table row -->") + "\n",
+            ws.LINE_LIMIT, tally)
+        self.assertEqual([], found)
+        self.assertEqual(1, tally.by_marker)
+
+    # Rule (c) — a marker with no reason is a mention, not an exemption.
+    def test_bare_marker_without_reason_does_not_exempt(self):
+        found = ws.scan_text("t", self._long("<!-- wrapscan:allow -->") + "\n")
+        self.assertEqual(1, len(found))
+
+    def test_prose_mention_does_not_exempt(self):
+        found = ws.scan_text("t", self._long("we discussed wrapscan:allow here") + "\n")
+        self.assertEqual(1, len(found))
+
+    def test_clean_tally_reports_known_zeros(self):
+        self.assertIn("0 by allow-marker", ws.Tally().summary())

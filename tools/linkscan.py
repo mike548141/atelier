@@ -51,7 +51,7 @@ import os
 import re
 import sys
 import unicodedata
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, field, asdict
 from pathlib import Path, PurePosixPath
 from urllib.parse import unquote
 
@@ -59,6 +59,49 @@ from urllib.parse import unquote
 # dangling pointer in a doc, or a template placeholder). Keep the reason on the
 # same line so the exemption is self-documenting and greppable.
 ALLOW_MARKER = "linkscan:allow"
+
+ALLOW_RX = re.compile(
+    r"\b" + re.escape(ALLOW_MARKER) + r"(?::(?P<rule>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>\S)")
+
+
+def parse_allow(line: str) -> str | None:
+    """The scope of the line's allow-marker, or None if it carries none.
+
+    `""` means every rule on the line; a rule name means just that one. A
+    marker with no reason returns None — it is a mention, not an exemption
+    (`method/GUARDS.md`, rule c)."""
+    m = ALLOW_RX.search(line)
+    if not m:
+        return None
+    return m.group("rule") or ""
+
+
+@dataclass
+class Tally:
+    """What the scan removed AFTER finding it — rule (b) of `method/GUARDS.md`.
+
+    A guard that subtracts silently prints the same clean tick for "nothing
+    matched" and "everything matched and was exempted"."""
+    by_marker: dict[str, int] = field(default_factory=dict)
+    files_by_glob: int = 0
+
+    @property
+    def marker_total(self) -> int:
+        return sum(self.by_marker.values())
+
+    def note_marker(self, rule: str) -> None:
+        self.by_marker[rule] = self.by_marker.get(rule, 0) + 1
+
+    def summary(self) -> str:
+        """One stable line, known zeros printed, so two runs compare."""
+        line = ("  suppressed: "
+                f"{self.marker_total} by allow-marker · "
+                f"{self.files_by_glob} file(s) by .linkscanignore")
+        if self.by_marker:
+            detail = ", ".join(f"{r}×{n}" for r, n in sorted(self.by_marker.items()))
+            line += f"\n    allow-marker breakdown: {detail}"
+        return line
+
 
 # Only these extensions are parsed for links and headings; everything else is a
 # link *target* (checked for existence) but never a *source*.
@@ -218,13 +261,16 @@ def _strip_inline_code(line: str) -> str:
     return "".join(out)
 
 
-def iter_links(text: str):
+def iter_links(text: str, allow_by_line: dict[int, str] | None = None):
     """Yield (lineno, raw_destination) for every inline link/image destination
-    in a Markdown file, skipping fenced and inline code and `linkscan:allow`
-    lines."""
+    in a Markdown file, skipping fenced and inline code. Allow-markered lines
+    are still yielded: the finding is formed first and subtracted afterwards
+    (`method/GUARDS.md`, rule b), so the exemption can be counted. Scopes are
+    recorded into `allow_by_line` for the caller to apply."""
     for lineno, line in _content_lines(text):
-        if ALLOW_MARKER in line:
-            continue
+        scope = parse_allow(line)
+        if scope is not None and allow_by_line is not None:
+            allow_by_line[lineno] = scope
         for m in _LINK.finditer(_strip_inline_code(line)):
             dest = m.group(1).strip()
             if dest.startswith("<") and dest.endswith(">"):
@@ -349,11 +395,13 @@ def _check_anchor(rel: str, lineno: int, dest: str, anchor: str,
 
 
 def check_file(md_file: Path, root: Path, text: str,
-               slug_cache: dict[Path, set[str]]) -> list[Finding]:
+               slug_cache: dict[Path, set[str]],
+               tally: "Tally | None" = None) -> list[Finding]:
     rel = _rel(md_file, root)
     own_slugs: set[str] | None = None
     findings: list[Finding] = []
-    for lineno, dest in iter_links(text):
+    allow_by_line: dict[int, str] = {}
+    for lineno, dest in iter_links(text, allow_by_line):
         if not dest or is_external(dest):
             continue
         path, anchor = split_target(dest)
@@ -399,7 +447,17 @@ def check_file(md_file: Path, root: Path, text: str,
                               f"in {_rel(target, root)}")
             if f:
                 findings.append(f)
-    return findings
+    # SUBTRACT SECOND (rule b): every finding is fully formed above, so an
+    # exemption is counted here rather than vanishing at extraction time.
+    kept: list[Finding] = []
+    for f in findings:
+        scope = allow_by_line.get(f.line)
+        if scope is not None and scope in ("", f.kind):
+            if tally is not None:
+                tally.note_marker(f.kind)
+            continue
+        kept.append(f)
+    return kept
 
 
 def _rel(p: Path, root: Path) -> str:
@@ -426,7 +484,8 @@ def _ignored(rel: str, globs: list[str]) -> bool:
                for g in globs)
 
 
-def iter_markdown(paths: list[Path], root: Path, globs: list[str]):
+def iter_markdown(paths: list[Path], root: Path, globs: list[str],
+                  tally: "Tally | None" = None):
     for base in paths:
         if base.is_file():
             candidates = [base]
@@ -437,31 +496,40 @@ def iter_markdown(paths: list[Path], root: Path, globs: list[str]):
             if p.suffix.lower() not in MARKDOWN_SUFFIXES:
                 continue
             if _ignored(_rel(p, root), globs):
+                if tally is not None:
+                    tally.files_by_glob += 1
                 continue
             yield p
 
 
-def scan_paths(paths: list[Path], root: Path) -> list[Finding]:
+def scan_paths(paths: list[Path], root: Path,
+               tally: "Tally | None" = None) -> list[Finding]:
     globs = load_ignore_globs(root)
     slug_cache: dict[Path, set[str]] = {}
     findings: list[Finding] = []
-    for md in iter_markdown(paths, root, globs):
+    for md in iter_markdown(paths, root, globs, tally):
         text = md.read_text(encoding="utf-8", errors="replace")
-        findings.extend(check_file(md, root, text, slug_cache))
+        findings.extend(check_file(md, root, text, slug_cache, tally))
     return findings
 
 
-def render_human(findings: list[Finding]) -> str:
+def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     if not findings:
-        return "✓ linkscan clean — every internal link resolves."
+        out = "✓ linkscan clean — every internal link resolves."
+        return out + ("\n" + tally.summary() if tally is not None else "")
     lines = [f"✗ linkscan: {len(findings)} broken internal link(s).\n"]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
         lines.append(f"  {f.path}:{f.line}  [{f.kind}] {f.target} → {f.detail}")
         if f.suggest:
             lines.append(f"      ↳ did you mean: {f.suggest}")
+    if tally is not None:
+        lines.append("")
+        lines.append(tally.summary())
     lines.append("\n  A real break: fix the path/anchor (or the moved/renamed target).")
     lines.append(f"  A deliberate dangling pointer: append '<!-- {ALLOW_MARKER}: <reason> -->'")
-    lines.append("  to the line, or add a path glob to .linkscanignore.")
+    lines.append(f"  to the line (or '{ALLOW_MARKER}:<kind>: <reason>' for just one of")
+    lines.append("  missing-file/missing-anchor/outside-root), or add a path glob to")
+    lines.append("  .linkscanignore. A marker with no reason exempts nothing.")
     return "\n".join(lines)
 
 
@@ -492,8 +560,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"linkscan: path does not exist: {', '.join(missing)}",
               file=sys.stderr)
         return 2
+    tally = Tally()
     try:
-        findings = scan_paths(targets, root)
+        findings = scan_paths(targets, root, tally)
     except OSError as e:
         print(f"linkscan: cannot read {e.filename}: {e.strerror}", file=sys.stderr)
         return 2
@@ -502,9 +571,14 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({
             "clean": not findings,
             "findings": [asdict(f) for f in findings],
+            "suppressed": {
+                "by_allow_marker": tally.marker_total,
+                "by_allow_marker_rule": tally.by_marker,
+                "files_by_ignore_glob": tally.files_by_glob,
+            },
         }, indent=2))
     else:
-        print(render_human(findings))
+        print(render_human(findings, tally))
 
     return 1 if findings else 0
 

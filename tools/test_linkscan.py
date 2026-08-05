@@ -46,9 +46,14 @@ class InlineCode(unittest.TestCase):
         got = [d for _, d in linkscan.iter_links(text)]
         self.assertEqual(got, ["there.md"])
 
-    def test_allow_marker_skips_line(self):
+    def test_allow_marker_records_scope_and_still_yields_the_link(self):
+        # The subtraction moved from extraction time to finding time
+        # (GUARDS.md rule b: find first, subtract second) so the exemption can
+        # be COUNTED. The link is yielded; check_file drops the finding.
         text = "[dangling](gone.md) <!-- linkscan:allow: intentional -->\n"
-        self.assertEqual(list(linkscan.iter_links(text)), [])
+        scopes: dict[int, str] = {}
+        self.assertEqual([(1, "gone.md")], list(linkscan.iter_links(text, scopes)))
+        self.assertEqual({1: ""}, scopes)
 
 
 class TargetSplit(unittest.TestCase):
@@ -354,3 +359,45 @@ class ReviewFindings(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Allowances(unittest.TestCase):
+    """GUARDS.md — narrow, noisy, reasoned."""
+
+    def _scan(self, text):
+        d = Path(tempfile.mkdtemp(prefix="linkscan-allow-"))
+        self.addCleanup(__import__("shutil").rmtree, d, True)
+        (d / "a.md").write_text(text, encoding="utf-8")
+        tally = linkscan.Tally()
+        return linkscan.scan_paths([d], d, tally), tally
+
+    def test_marker_with_reason_exempts_and_is_counted(self):
+        findings, tally = self._scan(
+            "[dangling](gone.md) <!-- linkscan:allow: intentional -->\n")
+        self.assertEqual([], findings)
+        self.assertEqual(1, tally.marker_total)
+        self.assertEqual({"missing-file": 1}, tally.by_marker)
+
+    # Rule (c) — a marker with no reason is a mention, not an exemption.
+    def test_bare_marker_without_reason_does_not_exempt(self):
+        findings, _ = self._scan("[dangling](gone.md) <!-- linkscan:allow -->\n")
+        self.assertEqual(1, len(findings))
+
+    def test_prose_mention_does_not_exempt(self):
+        findings, _ = self._scan(
+            "we use linkscan:allow here; see [dangling](gone.md)\n")
+        self.assertEqual(1, len(findings))
+
+    # Rule (a) — a marker for one kind must not exempt another.
+    def test_scoped_marker_exempts_only_its_own_kind(self):
+        findings, _ = self._scan(
+            "[x](gone.md) <!-- linkscan:allow:missing-anchor: wrong kind -->\n")
+        self.assertEqual(["missing-file"], [f.kind for f in findings])
+
+    def test_scoped_marker_matching_the_kind_exempts(self):
+        findings, _ = self._scan(
+            "[x](gone.md) <!-- linkscan:allow:missing-file: deliberate -->\n")
+        self.assertEqual([], findings)
+
+    def test_clean_tally_reports_known_zeros(self):
+        self.assertIn("0 by allow-marker", linkscan.Tally().summary())

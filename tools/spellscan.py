@@ -147,10 +147,50 @@ import fnmatch
 import json
 import re
 import sys
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
 ALLOW_MARKER = "spellscan:allow"
+
+ALLOW_RX = re.compile(
+    r"\b" + re.escape(ALLOW_MARKER) + r"(?::(?P<rule>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>\S)")
+
+
+def parse_allow(line: str) -> str | None:
+    """The scope of the line's allow-marker, or None if it carries none.
+
+    `""` means everything on the line; a name means just that one. A marker
+    with no reason returns None — a mention, not an exemption
+    (`method/GUARDS.md`, rule c)."""
+    m = ALLOW_RX.search(line)
+    if not m:
+        return None
+    return m.group("rule") or ""
+
+
+@dataclass
+class Tally:
+    """What the scan removed AFTER finding it — rule (b) of `method/GUARDS.md`."""
+    by_marker: dict[str, int] = field(default_factory=dict)
+    files_by_glob: int = 0
+
+    @property
+    def marker_total(self) -> int:
+        return sum(self.by_marker.values())
+
+    def note_marker(self, rule: str) -> None:
+        self.by_marker[rule] = self.by_marker.get(rule, 0) + 1
+
+    def summary(self) -> str:
+        """One stable line, known zeros printed, so two runs compare."""
+        line = ("  suppressed: "
+                f"{self.marker_total} by allow-marker · "
+                f"{self.files_by_glob} file(s) by .spellscanignore")
+        if self.by_marker:
+            detail = ", ".join(f"{r}×{n}" for r, n in sorted(self.by_marker.items()))
+            line += f"\n    allow-marker breakdown: {detail}"
+        return line
+
 
 MARKDOWN_SUFFIXES = {".md", ".markdown"}
 
@@ -415,11 +455,15 @@ def _match_case(original: str, nz: str) -> str:
     return nz
 
 
-def scan_text(path: str, text: str) -> list[Finding]:
+def scan_text(path: str, text: str, tally: "Tally | None" = None) -> list[Finding]:
     findings: list[Finding] = []
+    # Line -> allowance scope. Recorded, not acted on, so the finding forms
+    # first and the exemption is counted rather than vanishing (rule b).
+    allow_by_line: dict[int, str] = {}
     for lineno, raw_line in _content_lines(text):
-        if ALLOW_MARKER in raw_line:
-            continue
+        scope = parse_allow(raw_line)
+        if scope is not None:
+            allow_by_line[lineno] = scope
         if _is_blockquote(raw_line):
             continue
         line = _strip_inline_code(raw_line)
@@ -439,7 +483,18 @@ def scan_text(path: str, text: str) -> list[Finding]:
             findings.append(Finding(
                 path, lineno, "us-spelling", word, suggestion,
                 f"US spelling — NZ-English prose uses {suggestion!r}"))
-    return findings
+    # SUBTRACT SECOND. The scope names the WORD (`spellscan:allow:color:`),
+    # which is the narrowest unit this scanner has: a marker written for one
+    # US spelling must not also exempt a different one on the same line.
+    kept: list[Finding] = []
+    for f in findings:
+        scope = allow_by_line.get(f.line)
+        if scope is not None and scope.lower() in ("", f.match.lower()):
+            if tally is not None:
+                tally.note_marker(f.match.lower())
+            continue
+        kept.append(f)
+    return kept
 
 
 def load_ignore_globs(root: Path) -> list[str]:
@@ -466,7 +521,8 @@ def _rel(p: Path, root: Path) -> str:
         return str(p)
 
 
-def iter_markdown(paths: list[Path], root: Path, globs: list[str]):
+def iter_markdown(paths: list[Path], root: Path, globs: list[str],
+                  tally: "Tally | None" = None):
     for base in paths:
         if base.is_file():
             candidates = [base]
@@ -477,25 +533,32 @@ def iter_markdown(paths: list[Path], root: Path, globs: list[str]):
             if p.suffix.lower() not in MARKDOWN_SUFFIXES:
                 continue
             if _ignored(_rel(p, root), globs):
+                if tally is not None:
+                    tally.files_by_glob += 1
                 continue
             yield p
 
 
-def scan_paths(paths: list[Path], root: Path) -> list[Finding]:
+def scan_paths(paths: list[Path], root: Path,
+               tally: "Tally | None" = None) -> list[Finding]:
     globs = load_ignore_globs(root)
     findings: list[Finding] = []
-    for md in iter_markdown(paths, root, globs):
+    for md in iter_markdown(paths, root, globs, tally):
         text = md.read_text(encoding="utf-8", errors="replace")
-        findings.extend(scan_text(_rel(md, root), text))
+        findings.extend(scan_text(_rel(md, root), text, tally))
     return findings
 
 
-def render_human(findings: list[Finding]) -> str:
+def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     if not findings:
-        return "✓ spellscan clean — no US spellings found."
+        out = "✓ spellscan clean — no US spellings found."
+        return out + ("\n" + tally.summary() if tally is not None else "")
     lines = [f"✗ spellscan: {len(findings)} finding(s)."]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
         lines.append(f"  {f.path}:{f.line}  [{f.kind}] {f.match!r} → {f.suggestion!r}")
+    if tally is not None:
+        lines.append("")
+        lines.append(tally.summary())
     lines.append("\n  A real US spelling: replace with the NZ-English form.")
     lines.append(f"  A legit API/tool term: inline-code it, add to ALLOWLIST_PHRASES,")
     lines.append(f"  or append '<!-- {ALLOW_MARKER}: <reason> -->' to the line, or add")
@@ -541,8 +604,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"spellscan: path does not exist: {', '.join(missing)}",
               file=sys.stderr)
         return 2
+    tally = Tally()
     try:
-        findings = scan_paths(targets, root)
+        findings = scan_paths(targets, root, tally)
     except OSError as e:
         print(f"spellscan: cannot read {e.filename}: {e.strerror}", file=sys.stderr)
         return 2
@@ -552,9 +616,14 @@ def main(argv: list[str] | None = None) -> int:
             "clean": not findings,
             "warn": args.warn,
             "findings": [asdict(f) for f in findings],
+            "suppressed": {
+                "by_allow_marker": tally.marker_total,
+                "by_allow_marker_rule": tally.by_marker,
+                "files_by_ignore_glob": tally.files_by_glob,
+            },
         }, indent=2))
     else:
-        print(render_human(findings))
+        print(render_human(findings, tally))
         if findings and args.warn:
             print("\n  (--warn: advisory only — not blocking this build.)")
 

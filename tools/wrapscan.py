@@ -192,13 +192,45 @@ import fnmatch
 import json
 import re
 import sys
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
 # A line carrying this marker is intentionally exempt from every check on
 # that line. Keep the reason on the same line so the exemption is
 # self-documenting and greppable, same contract as the sibling scanners.
 ALLOW_MARKER = "wrapscan:allow"
+
+ALLOW_RX = re.compile(
+    r"\b" + re.escape(ALLOW_MARKER) + r":[ \t]*(?P<reason>\S)")
+
+
+def parse_allow(line: str) -> bool:
+    """True if the line carries a REASONED allow-marker.
+
+    wrapscan has exactly one rule (a line is over width or it is not), so the
+    line IS the narrowest allowance available — there is no sub-rule to scope
+    to, and inventing one would be ceremony, not narrowness
+    (`method/GUARDS.md`, rule a). A marker with no reason does not exempt
+    (rule c)."""
+    return ALLOW_RX.search(line) is not None
+
+
+@dataclass
+class Tally:
+    """What the scan removed AFTER finding it — rule (b) of `method/GUARDS.md`."""
+    by_marker: int = 0
+    files_by_glob: int = 0
+
+    @property
+    def marker_total(self) -> int:
+        return self.by_marker
+
+    def summary(self) -> str:
+        """One stable line, known zeros printed, so two runs compare."""
+        return ("  suppressed: "
+                f"{self.by_marker} by allow-marker · "
+                f"{self.files_by_glob} file(s) by .wrapscanignore")
+
 
 # Only these extensions are scanned — dated/doc prose is Markdown, not code
 # or config. Matches datescan's/linkscan's MARKDOWN_SUFFIXES.
@@ -343,13 +375,20 @@ def _is_exempt(line: str, limit: int = LINE_LIMIT) -> bool:
             or _is_marker_padding_overflow(line, limit))
 
 
-def scan_text(path: str, text: str, limit: int = LINE_LIMIT) -> list[Finding]:
+def scan_text(path: str, text: str, limit: int = LINE_LIMIT,
+              tally: "Tally | None" = None) -> list[Finding]:
     findings: list[Finding] = []
     for lineno, line in _content_lines(text):
-        if ALLOW_MARKER in line:
-            continue
+        allowed = parse_allow(line)
         length = len(line)
         if length <= limit:
+            continue
+        # FIND FIRST, SUBTRACT SECOND (rule b): the over-width line is
+        # measured before the allowance is consulted, so the exemption is
+        # counted instead of disappearing at the top of the loop.
+        if allowed:
+            if tally is not None:
+                tally.by_marker += 1
             continue
         if _is_exempt(line, limit):
             continue
@@ -386,7 +425,8 @@ def _rel(p: Path, root: Path) -> str:
         return str(p)
 
 
-def iter_markdown(paths: list[Path], root: Path, globs: list[str]):
+def iter_markdown(paths: list[Path], root: Path, globs: list[str],
+                  tally: "Tally | None" = None):
     for base in paths:
         if base.is_file():
             candidates = [base]
@@ -397,28 +437,37 @@ def iter_markdown(paths: list[Path], root: Path, globs: list[str]):
             if p.suffix.lower() not in MARKDOWN_SUFFIXES:
                 continue
             if _ignored(_rel(p, root), globs):
+                if tally is not None:
+                    tally.files_by_glob += 1
                 continue
             yield p
 
 
-def scan_paths(paths: list[Path], root: Path, limit: int = LINE_LIMIT) -> list[Finding]:
+def scan_paths(paths: list[Path], root: Path, limit: int = LINE_LIMIT,
+               tally: "Tally | None" = None) -> list[Finding]:
     globs = load_ignore_globs(root)
     findings: list[Finding] = []
-    for md in iter_markdown(paths, root, globs):
+    for md in iter_markdown(paths, root, globs, tally):
         text = md.read_text(encoding="utf-8", errors="replace")
-        findings.extend(scan_text(_rel(md, root), text, limit))
+        findings.extend(scan_text(_rel(md, root), text, limit, tally))
     return findings
 
 
-def render_human(findings: list[Finding], limit: int) -> str:
+def render_human(findings: list[Finding], limit: int,
+                 tally: "Tally | None" = None) -> str:
     if not findings:
-        return f"✓ wrapscan clean — no prose lines over {limit} columns."
+        out = f"✓ wrapscan clean — no prose lines over {limit} columns."
+        return out + ("\n" + tally.summary() if tally is not None else "")
     lines = [f"✗ wrapscan: {len(findings)} finding(s) (limit {limit} columns)."]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
         lines.append(f"  {f.path}:{f.line}  [{f.length} cols] {f.detail}")
+    if tally is not None:
+        lines.append("")
+        lines.append(tally.summary())
     lines.append("\n  A real over-wrap: rewrap the prose at the house width (~80 cols).")
     lines.append(f"  A deliberate exemption: append '<!-- {ALLOW_MARKER}: <reason> -->'")
     lines.append("  to the line, or add a path glob to .wrapscanignore.")
+    lines.append("  A marker with no reason exempts nothing.")
     return "\n".join(lines)
 
 
@@ -463,8 +512,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"wrapscan: path does not exist: {', '.join(missing)}",
               file=sys.stderr)
         return 2
+    tally = Tally()
     try:
-        findings = scan_paths(targets, root, args.limit)
+        findings = scan_paths(targets, root, args.limit, tally)
     except OSError as e:
         print(f"wrapscan: cannot read {e.filename}: {e.strerror}", file=sys.stderr)
         return 2
@@ -475,9 +525,13 @@ def main(argv: list[str] | None = None) -> int:
             "warn": args.warn,
             "limit": args.limit,
             "findings": [asdict(f) for f in findings],
+            "suppressed": {
+                "by_allow_marker": tally.by_marker,
+                "files_by_ignore_glob": tally.files_by_glob,
+            },
         }, indent=2))
     else:
-        print(render_human(findings, args.limit))
+        print(render_human(findings, args.limit, tally))
         if findings and args.warn:
             print("\n  (--warn: advisory only — not blocking this build.)")
 

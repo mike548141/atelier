@@ -376,3 +376,33 @@ class SelfTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Allowances(unittest.TestCase):
+    """GUARDS.md — narrow, noisy, reasoned."""
+
+    def test_marker_with_reason_exempts_and_is_counted(self):
+        tally = ss.Tally()
+        found = ss.scan_text(
+            "t", "the color choice <!-- spellscan:allow: quoting an API field -->\n",
+            tally)
+        self.assertEqual([], found)
+        self.assertEqual({"color": 1}, tally.by_marker)
+
+    # Rule (c) — a marker with no reason is a mention, not an exemption.
+    def test_bare_marker_without_reason_does_not_exempt(self):
+        self.assertTrue(ss.scan_text("t", "the color choice <!-- spellscan:allow -->\n"))
+
+    def test_prose_mention_does_not_exempt(self):
+        self.assertTrue(ss.scan_text(
+            "t", "we use the spellscan:allow marker for color words\n"))
+
+    # Rule (a) — the word is the narrowest unit this scanner has.
+    def test_scoped_marker_exempts_only_its_own_word(self):
+        found = ss.scan_text(
+            "t", "the color and the organized plan "
+                 "<!-- spellscan:allow:color: an API field name -->\n")
+        self.assertEqual(["organized"], [f.match for f in found])
+
+    def test_clean_tally_reports_known_zeros(self):
+        self.assertIn("0 by allow-marker", ss.Tally().summary())
