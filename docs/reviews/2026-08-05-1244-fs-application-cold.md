@@ -24,7 +24,7 @@ is not re-found here; the five-red-floors work is the children's own. Board
 output from the live run is held in the session scratchpad and reported
 here in classes only, per the private-repo × posture join rule.
 
-# Verdict — PASS-WITH-FINDINGS · 0 MAJOR / 1 MODERATE / 0 minor / 2 notes
+# Verdict — PASS-WITH-FINDINGS · 0 MAJOR / 2 MODERATE / 0 minor / 2 notes
 
 **What was verified live at HEAD, not read from the delta's account:**
 
@@ -96,6 +96,77 @@ machine's clone.** Documented correctly in the docstring's residual (and
 the mixed-plane row (remote shim, local hook) is the one place a reader
 must hold two planes in one line, and the board's wording carries it.
 
+**FF4 (MODERATE, found at reconcile) — the prior FS verdict carries the
+private-repo × posture join, on public main, and has since 2026-07-29.**
+The B2+B3 verdict's *Re-run and verified* section
+(`reviews/2026-07-29-1251-b2b3-floorfleet-status-cold.md:121`) names four
+children beside their not-proven-green run state; all four verified
+private (visibility read live, detail in the session scratchpad only).
+This is the exact join `ROADMAP.md` § *Candidate invariant* records as
+breached three times and deliberately avoids ("naming which private repo
+holds …" — the classes-only rule this verdict follows), and it recurred at
+the recorded trigger moment: summarising fleet scan state into an atelier
+record. Not this delta's defect — the verdict predates the application —
+but the pass's scope is the whole commitment, and a standing instance in
+the same cycle's own record store is in it. Counsel: rewrite that
+section's line to the classes-only form (count, not names) at HEAD —
+history keeps the old text as it keeps everything — and count this as the
+invariant item's **fourth instance**, which is further evidence for
+mechanising the join check it already proposes. The names are not
+restated here; the file:line ref is the pointer.
+
 ## Faithfulness to the FS rulings (written at reconcile)
 
+- **FS1(a) — faithful.** Discovery-authority footer with per-listing
+  endpoint + count, archived and unreadable counts printed at zero, the
+  private-blind warning, and the `discovery_authority` JSON block; the
+  empty-estate failure path prints the listing counts too.
+- **FS1(b) — faithful.** The three-outcome read; only HTTP 404 is
+  `missing`; a failed read renders an `unknown` row that is neither ok nor
+  green (selftest-pinned) and reds `--check`. The old outsider conflation
+  is gone from discovery; the content reads keep the two-outcome helper
+  with the reason stated.
+- **FS1 token spec — faithful on every surface atelier carries** (module
+  docstring, `--from-github` help, `discover_github` docstring,
+  empty-estate message). The consuming workflow's comment in the
+  estate-root repo is the remaining surface and is already tracked as its
+  own ROADMAP item — not re-found here.
+- **FS2 — faithful.** `unproven` filters on `i.ok`; the not-wired count is
+  fenced in its own line so the denominator cannot read as the estate.
+- **FS3 — faithful.** The archived count prints, at zero too.
+- **FS4 — faithful.** The 3-tuple annotation matches every return.
+- **FS5 — faithful.** The sentinel is named in `green()`'s docstring as
+  the compatibility contract and pinned both directions in the selftest.
+
 ## Reconcile (intent records opened after the findings above were committed)
+
+Opened after the findings commit: the FS verdict
+(`2026-07-29-1251-b2b3-floorfleet-status-cold.md`, rulings FS1–FS5) and
+the harvested entry (`ROADMAP-DONE.md` § *B2+B3 FS rulings applied*).
+
+- **No contradictions; no pre-emption.** FF1 appears in neither the
+  verdict nor the account: the FS pass verified the `gh`/`git` calls are
+  list-argv (injection surface) but did not probe a missing binary, and
+  the docstring sentence FF1 falsifies was written by this delta.
+- **The account's claims reproduce:** suite growth (+22 in floorfleet's
+  file — 88 collected at HEAD), the crash fix's honesty note, the live
+  `--from-github` end-to-end run (this pass's own live run reproduces the
+  class: all wired, a minority not proven green, exit 1 with
+  `--status --check`).
+- **The C1F3 floorfleet-seam residue** the account records as handed to
+  Track C is confirmed present (child-authored reason strings still print
+  raw through `_advisories` → `render`) and is already a ROADMAP item —
+  kept a non-goal here.
+- **FF4 arose from the reconcile read itself**, recorded above with the
+  restatement withheld.
+
+## Disposition — the B2+B3 cycle CLOSES (0 MAJOR); findings to Mike
+
+This is the B2+B3 cycle's application pass; its FS1 MAJOR held the cycle
+open, and this pass returns **0 MAJOR**, so per REVIEW.md's no-MAJOR rule
+the cycle **closes — terminal**. FF1 (missing-`gh` crash), FF4 (the
+standing join in the prior verdict) and the two notes are counsel to Mike
+(rule 3): FF1 is a small wrapper fix at three call sites; FF4 is a
+classes-only rewrite of one line in a landed record plus a fourth-instance
+tally on the invariant item.
+
