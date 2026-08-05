@@ -29,12 +29,25 @@ def canonical_block() -> str:
     return m.group(1).rstrip()
 
 
+# stampscan's marker lines bracket the stamped block but are not part of it:
+# they are HTML comments, invisible in rendered Markdown, and PROPAGATION's
+# canonical region does not carry them. Dropping them here is what let the
+# template's `stamp:end` move off the `---` divider onto its own line
+# (2026-07-26 cold pass ST7) — that placement compromise existed only to keep
+# this slice verbatim, and it was the reason stampscan had to match its end
+# marker anywhere on a line instead of anchoring it.
+_STAMP_MARKER_LINE = re.compile(r"^\s*<!--\s*stamp:(?:begin|end)\b.*-->\s*$")
+
+
 def template_block() -> str:
-    """The stamped copy: from the block heading to the first --- divider."""
+    """The stamped copy: from the block heading to the first --- divider,
+    with stampscan's marker lines removed."""
     text = TEMPLATE.read_text()
     start = text.index(BLOCK_HEADING)
     end = text.index("\n---", start)
-    return text[start:end].rstrip()
+    body = "\n".join(ln for ln in text[start:end].splitlines()
+                     if not _STAMP_MARKER_LINE.match(ln))
+    return body.rstrip()
 
 
 class TemplateBlockSyncTest(unittest.TestCase):
@@ -47,6 +60,26 @@ class TemplateBlockSyncTest(unittest.TestCase):
             "PROPAGATION.md's canonical text — sync them (canonical wins, "
             "or change PROPAGATION deliberately and re-stamp)",
         )
+
+    def test_stamp_markers_sit_on_their_own_lines(self):
+        """2026-07-26 cold pass ST7. The end marker used to hide inline on the
+        `---` divider (`---<!-- stamp:end -->`) purely to keep the slice above
+        verbatim — and that placement forced stampscan to match its end marker
+        ANYWHERE on a line, which made an inline-code mention of the marker
+        read as a stray end and reddened the floor on ordinary documentation.
+        Both markers now sit on their own lines so the scanner stays anchored;
+        pin that, or the compromise silently returns."""
+        marker_lines = [ln for ln in TEMPLATE.read_text().splitlines()
+                        if "stamp:begin" in ln or "stamp:end" in ln]
+        self.assertEqual(
+            2, len(marker_lines),
+            "the template must carry exactly one stamp:begin/stamp:end pair")
+        for ln in marker_lines:
+            self.assertRegex(
+                ln, r"^<!--\s*stamp:(?:begin|end)\b.*-->$",
+                "a stamp marker must be alone on its line — sharing one with "
+                "other content is what forced stampscan's unanchored end "
+                "regex (ST7)")
 
     def test_block_carries_exactly_the_four_placeholders(self):
         """create-repo fills exactly these; a fifth (or a lost one) means the

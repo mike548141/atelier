@@ -147,16 +147,23 @@ jobs:
       - name: pathscan (named-path resolution — advisory, not yet reviewed)
         run: python3 tools/pathscan.py --warn --root . docs
 
-      # stampscan (S4) is BUILT + tested but deliberately NOT WIRED yet. Its
-      # marker parser recognises stamp markers anywhere it scans — including
-      # prose and code spans that merely *document* the syntax — and treats a
-      # stray/unpaired marker as a hard config error (exit 2) that `--warn` does
-      # NOT suppress. So wiring it (even advisory) would let ordinary docs about
-      # stampscan block the floor (proven live in queue run 0959: a ROADMAP
-      # pointer describing the markers reddened the floor). WIRING WAITS ON its
-      # first-of-kind review (ROADMAP ⏳): the precondition is that it strips
-      # fenced/inline code before marker-hunting (as every sibling scanner does)
-      # so its own documentation can't trip it. Until then it runs by hand only.
+      # stampscan (S4, 2026-07-22 invariant-candidates review): where a child
+      # repo or a template INLINES a floor/pull-quote of canonical doctrine, the
+      # copy must equal its parent — or legitimately narrow it, declared — never
+      # silently drop or contradict an item. REVIEWED (2026-07-26 cold pass,
+      # PASS-WITH-FINDINGS), WIRED ADVISORY-ONLY, HERE AND NOWHERE ELSE. Its
+      # review barred wiring until three preconditions landed, and they have:
+      # the parser strips fenced blocks and inline-code spans before
+      # marker-hunting (ST1 — a doc that merely *documented* the syntax used to
+      # exit 2, and --warn never downgrades a config error), .stampscanignore
+      # ships the house net (ST1), and narrowing-to-nothing is drift (ST2, ruled
+      # 2026-08-04). Deliberately NOT in tools/floor.py's registry: that reaches
+      # every child (ADR 0008) and ST3 is open — the template's source= pins a
+      # path that exists only in atelier, and child-side resolution must be
+      # pin-aware. Do not drop --warn until a separate ruling after an advisory
+      # soak (the wrapscan/datescan precedent).
+      - name: stampscan (inlined-floor drift — advisory, atelier-only)
+        run: python3 tools/stampscan.py --warn --root . .
 
       # --- commit-signature verification (SIGNING.md, ADR 0007) --------------
       # atelier is the trust root, so it verifies against its OWN allowed_signers

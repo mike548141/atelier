@@ -68,8 +68,9 @@ in atelier and is read on demand — never wholesale.
   repo naming the estate's credential/inventory root is reconnaissance.
 - **This repo's visibility:** <visibility fact>. Verify:
   `gh repo view <owner/repo> --json visibility`.
+<!-- stamp:end -->
 
----<!-- stamp:end -->
+---
 
 # <name> — session onramp
 

@@ -3781,3 +3781,46 @@ D1 ruling (allow-markers never exempt the term list) a future self-naming
 line there hard-blocks with no in-repo hatch. The term list is restored to
 its pre-execution state, verified green on the full tree. The re-ruling —
 with these facts on the table — is queued in Track C.
+
+## D2 delivered — stampscan's three preconditions built, wired advisory (done 2026-08-05)
+
+Ruled 2026-08-04 (fund the fixes over the counselled shelve); delivered
+2026-08-05 (wt: queue-batch-0806) to the reviewer's bar, step 1. ST1:
+the parser strips fenced blocks and inline-code spans before marker
+recognition; stripped lines still enter payloads verbatim, so
+comparison is untouched. ST7 taken as part of ST1's remediation: the
+template's end marker moved to its own line, `template_block()` strips
+marker lines, and the end-marker regex anchors to line start. ST2:
+narrowing to nothing is drift however declared; a genuine partial
+narrow still passes. ST4: `source=` confined to `--root`, escape is a
+config error. ST5: the convention has doctrine words now —
+`PROPAGATION.md` states what a stamp is, what `narrow=<reason>`
+declares, and who may declare it; `tools/README.md` gains its section;
+`.stampscanignore` ships the house net (measured at landing: the
+parser fix alone clears the live tree, so the ignore file is the
+standing net for the named residual, not a load-bearing patch). ST6
+honesty fixes taken. Wired advisory in atelier's `ci.yml` only; the
+live tree that exited 2 with five config errors now exits 0 both
+scopes, and the one live stamped pair still reads identical at 52
+lines. Module tests 46 → 65 (+1 in test_templates); full suite green.
+ST3 stays open as the registry-wiring bar — the D2-residue item on the
+live roadmap. Built by an Opus worker to the ruled counsel; verified
+by the orchestrator. Item verbatim:
+
+- [x] 🎯 **D2 — `stampscan`: fix at the parser, or shelve it.**
+      (claimed 2026-08-05-1243, wt: queue-batch-0806) Built, tested,
+      and **not wireable as built** — re-verified 2026-07-27, the live tree
+      exits 2 today. Three MAJOR: marker recognition is context-blind, so any
+      document that *describes* the syntax reds the scan as a config error that
+      `--warn` cannot suppress; a narrowing declaration accepts narrowing to
+      nothing, so one word vacates the whole check while it reports clean; and
+      the template ships markers whose source cannot resolve in any scaffolded
+      child, which would red future scaffolds estate-wide once registry-wired.
+      Reviewer's counsel is explicit — **do not wire, not even advisory** —
+      until the parser strips fenced and inline code, an ignore file ships, and
+      the narrow-to-nothing hole is closed or explicitly accepted. Verdict:
+      [stampscan S4 cold pass](reviews/2026-07-26-2215-stampscan-s4-cold.md).
+      **RULED 2026-08-04 (Mike): FUND THE FIXES NOW** — chosen over the
+      counselled shelve. All three preconditions built (code-span-aware
+      parsing, the ignore file, narrow-to-nothing closed), then wire
+      advisory per the reviewer's bar. Work owed: one build item.

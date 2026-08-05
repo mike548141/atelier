@@ -267,23 +267,14 @@ registry checks only.*
       that motivated the tool, then promote to the registry so children get
       it; the rescope answers the verdict's two MAJORs before any wiring.
       Work owed: one build item.
-- [~] 🎯 **D2 — `stampscan`: fix at the parser, or shelve it.**
-      (claimed 2026-08-05-1243, wt: queue-batch-0806) Built, tested,
-      and **not wireable as built** — re-verified 2026-07-27, the live tree
-      exits 2 today. Three MAJOR: marker recognition is context-blind, so any
-      document that *describes* the syntax reds the scan as a config error that
-      `--warn` cannot suppress; a narrowing declaration accepts narrowing to
-      nothing, so one word vacates the whole check while it reports clean; and
-      the template ships markers whose source cannot resolve in any scaffolded
-      child, which would red future scaffolds estate-wide once registry-wired.
-      Reviewer's counsel is explicit — **do not wire, not even advisory** —
-      until the parser strips fenced and inline code, an ignore file ships, and
-      the narrow-to-nothing hole is closed or explicitly accepted. Verdict:
-      [stampscan S4 cold pass](reviews/2026-07-26-2215-stampscan-s4-cold.md).
-      **RULED 2026-08-04 (Mike): FUND THE FIXES NOW** — chosen over the
-      counselled shelve. All three preconditions built (code-span-aware
-      parsing, the ignore file, narrow-to-nothing closed), then wire
-      advisory per the reviewer's bar. Work owed: one build item.
+- [ ] **D2 residue — stampscan registry wiring stays barred on ST3.** The
+      advisory wiring landed 2026-08-05 (atelier `ci.yml` only, the
+      reviewer's bar step 1); registry wiring — which reaches every child
+      (ADR 0008) — waits on the child-side `source=` resolution story:
+      pin-aware (a child at `atelier@<SHA>` may lawfully differ from
+      atelier@main), and `create-repo` taught that the markers are
+      load-bearing scaffold content. Any blocking flip is a separate later
+      ruling after an advisory soak (the wrapscan/datescan precedent).
 - [ ] 🎯 **D3 — `signscan` cannot fail CI.** It is invoked with `--warn` on
       both planes, so an unsigned commit produces an annotation and never a
       red. That is the deliberate warn-first rollout state and it has outlived
@@ -1184,6 +1175,19 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The licence gate learns
   proprietary* (the two items verbatim — fix shapes and required tests
   stated in the items, evidence of 2026-07-25 — harvested at landing).
+
+- ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass, the
+  D2 application; the ST cycle's three MAJORs keep it open past this).**
+  *Delta:* `tools/stampscan.py` + `tools/test_stampscan.py` (46 → 65) +
+  `tools/test_templates.py` (37 → 38, `template_block` strips markers) +
+  `.stampscanignore` (new) + `docs/build/templates/CLAUDE.md` (end marker
+  to its own line) + `docs/method/PROPAGATION.md` (the stamp-convention
+  paragraph) + `tools/README.md` (the stampscan section) + the advisory
+  step in `.github/workflows/ci.yml` + the CHANGELOG entry (landed
+  2026-08-05, this commit). *Intent record:*
+  [stampscan S4 cold pass](reviews/2026-07-26-2215-stampscan-s4-cold.md)
+  (ST1–ST7) + the D2 ruling of 2026-08-04, harvested with the item to
+  [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *D2 delivered*.
 
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
 COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin

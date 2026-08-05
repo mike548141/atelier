@@ -5,6 +5,55 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-08-05 — stampscan's wiring blocker cleared; the convention gets its doctrine)
+- **A document about stampscan is no longer a stamp** (ST1, the wiring
+  blocker). The marker parser read markers anywhere it scanned — prose,
+  fences, code spans alike — and a stray marker is a config error `--warn`
+  never downgrades, so ordinary documentation reddened the whole floor and
+  the scanner was unwired within three days of being built. It now strips
+  fenced blocks and inline code spans before marker-hunting, as every
+  sibling does. Recognition only: a stripped line still enters a payload
+  verbatim, so comparison is untouched. Named residual: a raw, line-start
+  HTML-comment marker in bare prose still reads as live — defensible because
+  rendered Markdown hides raw HTML comments, so real documentation uses a
+  code span.
+- **The end marker is anchored again** (ST7). It was matched by a bare
+  search anywhere on a line, forced by the template closing its stamp inline
+  on a divider to keep a frozen test's verbatim slice intact — and that
+  search-anywhere match was the widest single contributor to the false
+  stray-ends above. `test_templates.py`'s `template_block()` now strips
+  marker lines, the template's end marker sits on its own line, the regex
+  anchors, and a new test pins the placement so the compromise can't return.
+- **Narrowing to nothing is drift** (ST2, ruled 2026-08-04). An empty
+  stamped block passed clean with any `narrow=` token — one word could
+  vacate an entire inlined floor while the check reported green. Empty is
+  now drift however it is declared. A genuine partial narrow still passes.
+- **`source=` is confined to `--root`** (ST4). It accepted `../` traversal,
+  and pathlib silently discards the root for an absolute path — a crafted
+  stamp could aim the scanner at any file on the machine and get one of its
+  lines echoed back in the drift hint. Escaping the root is now a config
+  error (`unconfined-source`).
+- **The convention that "borders on a doctrine act" is now written down**
+  (ST5). `PROPAGATION.md` states what a stamp is, what `narrow=<reason>`
+  declares, that narrowing to nothing is drift, and who may declare a
+  narrowing — the child repo, in its own tree, with the reason written
+  down. `tools/README.md` gains its section; `.stampscanignore` ships the
+  house net. Measured while landing it: the parser fix alone clears the
+  live tree, so the ignore file is the standing net for the residual, not a
+  load-bearing patch.
+- **Honesty fixes** (ST6): the duplicate-line residual overstated — a
+  greedy two-pointer subsequence test is exact for membership, and
+  adversarial probes agreed; what it lacks is which occurrence matched, a
+  hint-quality limit only. `render_human` de-duplicates note kinds.
+- **Wired advisory in atelier's own `ci.yml`, and nowhere else.** Not in
+  `floor.py`'s registry: that reaches every child at once (ADR 0008), and
+  ST3 is open — the template's stamp pins a `source=` path that exists only
+  in atelier, and the child-side resolution story must be pin-aware, since
+  a child pinned at a SHA may lawfully differ from atelier@main.
+- `tools/test_stampscan.py` 46 → 65 tests; `tools/test_templates.py`
+  37 → 38; `--selftest` gains the ST1/ST2/ST4 cases so a box without the
+  unittest file proves them too.
+
 ### Fixed (2026-08-05 — licenscan under a licence it can't name, and the classifier that was right all along)
 - **A LICENSE we can't name is still a LICENSE** (E1). An unrecognised body used
   to end the scan at one medium `unknown-license` finding: the per-file SPDX

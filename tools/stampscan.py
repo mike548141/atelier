@@ -12,11 +12,25 @@ C3` (nothing kept the stamped block equal to PROPAGATION's canonical text),
 `foundation Q2` (a pull-quote listed 4 of 6 floor items) — three real findings
 a human reviewer had to catch by eye, each time.
 
-FIRST-OF-KIND, ADVISORY, NOT WIRED. This scanner has not yet earned an
-independent review. It is NOT wired into CI, `floor.yml`, or the pre-commit
-hook by this change — that wiring is a separate, deliberate act for whoever
-promotes it, matching wrapscan's and datescan's own rollout discipline
-(reviewed first, wired `--warn`-only after, never blocking before review).
+REVIEWED, WIRED ADVISORY IN ATELIER ONLY. The first-of-kind cold pass ran
+2026-07-26 (`docs/reviews/2026-07-26-2215-stampscan-s4-cold.md`,
+PASS-WITH-FINDINGS: 3 MAJOR, 3 MINOR, 1 NIT) and the principal ruled its
+counsel built on 2026-08-04. This file carries the three stated wiring
+preconditions — ST1 (code-context-blind marker recognition, fixed below),
+ST1's `.stampscanignore` companion at the repo root, and ST2 (narrowing to
+nothing is drift) — which is exactly what the reviewer's step 1 asks for:
+`--warn` in atelier's OWN `ci.yml` as a hand step, like pathscan's.
+
+It is deliberately NOT in the `floor.py` registry, NOT in the reusable
+`floor.yml`, and NOT in the pre-commit hook. Registry wiring reaches every
+child (ADR 0008 — enforcement propagates by call), and ST3 is still open:
+the template's stamp pins `source=docs/method/PROPAGATION.md`, a path that
+exists only in atelier, so any scaffolded child that ran this scanner would
+exit 2. The child-side resolution story must also be PIN-aware (a child
+pinned at `atelier@<SHA>` may lawfully differ from atelier@main), and
+`create-repo` must learn the markers are load-bearing scaffold content.
+Blocking is a separate, later ruling after an advisory soak — wrapscan's
+and datescan's rollout discipline, unchanged.
 
 THE NEW MECHANISM — a stamp/region marker pair:
 
@@ -56,7 +70,9 @@ THE CHECK, per stamped block found in a scanned file:
      extracting the lines strictly between them (see FENCED-PRESENTATION
      STRIPPING). Either failing to resolve is a FAIL-SAFE CONFIG ERROR
      (exit 2), never a silent pass — a stamp pointing nowhere is worse than
-     no stamp at all.
+     no stamp at all. The resolved `source` must also sit INSIDE `--root`
+     (see SOURCE CONFINEMENT below); one that escapes is the same class of
+     config error.
   3. Compare payload to canonical region, per line, trailing whitespace
      ignored and a leading/trailing run of BLANK lines trimmed from each
      side first (a lone separator line touching a delimiter is formatting,
@@ -81,6 +97,15 @@ THE CHECK, per stamped block found in a scanned file:
          REGARDLESS of a `narrow=` declaration — declaring narrow intent
          does not excuse an actual addition or contradiction; only a genuine
          subset counts as "legitimate".
+       - one BOUNDARY case sits above all of the above: an EMPTY payload
+         (0 of N canonical lines kept, N > 0) is DRIFT, RED, regardless of
+         a `narrow=` declaration. Narrowing to nothing is not a narrowing —
+         it is vacating the floor, and one token would otherwise delete a
+         whole inlined floor while the scanner reported clean (2026-07-26
+         cold pass ST2; ruled by the principal 2026-08-04, so the doctrine
+         act is recorded rather than inferred from a subsequence identity).
+         A genuine PARTIAL narrow — one or more canonical lines kept, in
+         order — still passes exactly as before.
 
 FENCED-PRESENTATION STRIPPING: a canonical region is sometimes shown inside a
 fenced code block in its own doc (PROPAGATION.md presents the floor block
@@ -93,6 +118,46 @@ real Markdown fence parser — a region whose real content happens to start or
 end with a line that merely LOOKS like a fence delimiter would be
 mis-stripped. Accepted for a first-of-kind tool; the one live pair this
 change wires (PROPAGATION.md's floor region) exercises exactly this path.
+
+CODE-CONTEXT BLINDNESS, AND ITS FIX (2026-07-26 cold pass ST1/ST7): markers
+are hunted only OUTSIDE fenced code blocks and outside inline `code spans`,
+exactly as datescan/linkscan/pathscan/wrapscan already do — because a document
+that merely DOCUMENTS this syntax is not a stamp, and reading it as one made
+the scanner unwireable (a stray/unpaired marker is a config error, and
+`--warn` never suppresses one, so any doc about stampscan reddened the whole
+floor). Two properties make this safe:
+
+  * The stripping is for RECOGNITION ONLY. A stripped line still enters a
+    stamp's payload VERBATIM, so a stamped block whose content contains a
+    fenced example or a code span is compared character for character,
+    unaffected. Only the question "is this line a marker?" sees the
+    stripped view.
+  * BOTH markers are now anchored at line start (`stamp:end` was previously
+    a bare `.search()` anywhere on a line — forced by a placement compromise
+    in `docs/build/templates/CLAUDE.md`, which closed its stamp inline on a
+    `---` divider to avoid disturbing a frozen verbatim slice in
+    `tools/test_templates.py`. ST7 took the cleaner fix: `template_block()`
+    now strips marker lines, the template's `stamp:end` moved to its own
+    line, and the regex re-anchored. That single change removes the widest
+    contributor to the stray-end class — an inline-code MENTION of the end
+    marker used to trip it.)
+
+NAMED RESIDUAL of that fix: a RAW, line-start HTML-comment marker sitting in
+bare prose — not fenced, not in a code span — is still read as a live marker,
+because at that point it is indistinguishable from one. This is defensible
+rather than merely tolerated: rendered Markdown HIDES a raw HTML comment, so
+genuine documentation of the syntax has to use a code span or a fence to be
+visible to a reader at all. A raw marker in prose is invisible prose — the
+failure mode is self-correcting for anyone who looks at the rendered page.
+The repo-level companion is `.stampscanignore`, which nets the stores that
+quote probe material raw by nature (`docs/reviews/`, `.claude/worktrees/`).
+
+SOURCE CONFINEMENT (2026-07-26 cold pass ST4): a resolved `source=` must sit
+inside `--root`. `root / source` alone accepts `../` traversal, and pathlib
+silently DISCARDS `root` for an absolute right-hand side — so a crafted
+stamped document could aim the scanner at any file on the machine and get one
+line of it echoed back in the drift hint. Out-of-root now fails as a config
+error (exit 2), matching the fail-safe posture the tool takes everywhere else.
 
 EXEMPTIONS — same shape as every sibling scanner:
 
@@ -127,11 +192,23 @@ STATED RESIDUAL, HONESTLY (do not round this to "solved"):
     cannot and does not distinguish "reworded" from "contradicted" — both
     are reported as the same `drift` kind; only a human reading the diff
     can tell which.
-  * The ordered-subsequence check is a standard greedy two-pointer match; it
-    does not handle a canonical region containing duplicate lines specially
-    — a duplicate line could be consumed by the wrong occurrence in a
-    pathological case. Not expected to bite on prose floor blocks in
-    practice, and not exercised by the one live pair this change wires.
+  * The ordered-subsequence check is a standard greedy two-pointer match,
+    and it is EXACT for subsequence membership — duplicate lines included.
+    (An earlier version of this residual claimed a duplicate line "could be
+    consumed by the wrong occurrence in a pathological case". That was
+    wrong: greedy leftmost matching never rejects a genuine subsequence, and
+    the cold pass's adversarial duplicate probes all returned correct
+    answers. Erring safe does not make an overstated residual true —
+    2026-07-26 cold pass ST6a.) What the check genuinely does not carry is
+    WHICH occurrence of a duplicated line matched, so where a region repeats
+    a line the drift hint below may name a different occurrence than a human
+    would pick. The verdict is unaffected.
+  * A fenced code block that OPENS inside a stamped payload and never closes
+    swallows the rest of the file for marker recognition (the sibling
+    scanners' shared fence convention), so the block's real `stamp:end` reads
+    as never-arriving — an unterminated-stamp config error. That fails safe
+    and loudly, which is the right direction, but the message will name the
+    stamp rather than the unclosed fence that caused it.
   * A `region` name is resolved by its FIRST matching begin/end pair in the
     canonical source; a source file with two regions sharing one name is
     unsupported (first one wins, silently) — not exercised today, named so
@@ -150,7 +227,8 @@ not, matching the sibling scanners' "a broken scan is not a pass"):
      allow-marked); or --warn was given and only drift findings exist
   1  drift finding(s) present, and --warn was NOT given
   2  usage / config error — malformed stamp, unresolvable source or region,
-     bad CLI arguments (NEVER downgraded by --warn)
+     a source resolving outside --root, bad CLI arguments (NEVER downgraded
+     by --warn)
 
 Zero third-party dependencies; stdlib only, so a peer who adopts atelier can
 run it with the system python3 and no install — and CI needs nothing but
@@ -197,19 +275,27 @@ _STAMP_BEGIN_RX = re.compile(
     r"^<!--\s*stamp:begin\s+source=(?P<source>\S+)\s+region=(?P<region>\S+)"
     r"(?:\s+narrow=(?P<narrow>.+?))?\s*-->"
 )
-# stamp:end is deliberately matched by SEARCH, not anchored to line-start —
-# the one live pair this change wires needs it to trail arbitrary prefix
-# content on its own line (docs/build/templates/CLAUDE.md closes its stamp
-# on the same line as the file's pre-existing `---` section divider,
-# `---<!-- stamp:end -->`, so as not to add a new line inside the exact span
-# a pre-existing, unrelated frozen test — tools/test_templates.py's
-# `template_block()` — slices verbatim; see module header, STATED RESIDUAL).
-_STAMP_END_RX = re.compile(r"<!--\s*stamp:end\s*-->")
+# stamp:end is anchored at line start, exactly like stamp:begin. It used to
+# be a bare `.search()` — the one live pair closed its stamp inline on a `---`
+# divider so as not to disturb the span a frozen test (tools/test_templates.py
+# `template_block()`) sliced verbatim. ST7 (2026-07-26 cold pass) took the
+# cleaner fix instead: that test now strips marker lines, so the template's
+# stamp:end sits on its own line and this regex can anchor. Search-anywhere was
+# the widest single contributor to the stray-end class an inline-code MENTION
+# of the marker used to trip (see module header, CODE-CONTEXT BLINDNESS).
+_STAMP_END_RX = re.compile(r"^<!--\s*stamp:end\s*-->")
 
-# Fenced-presentation stripping (see module header). Matches the sibling
-# scanners' own fence regex (`^(`{3,}|~{3,})`), plus an optional info string
-# on the opener only (` ```markdown `), and requires a bare closer.
+# Fenced-presentation stripping for a CANONICAL REGION (see module header).
+# Matches the sibling scanners' own fence regex (`^(`{3,}|~{3,})`), plus an
+# optional info string on the opener only (` ```markdown `), and requires a
+# bare closer.
 _FENCE_OPEN_RX = re.compile(r"^(`{3,}|~{3,})\S*$")
+
+# Fence tracking for MARKER RECOGNITION — the sibling scanners' shared regex
+# and pairing rule (datescan/linkscan/wrapscan/pathscan all carry this exact
+# pair): a fence closes only on a run of the same character at least as long
+# as the opener, with no trailing info string.
+_FENCE = re.compile(r"^(`{3,}|~{3,})")
 
 
 def _region_markers(name: str) -> tuple["re.Pattern[str]", "re.Pattern[str]"]:
@@ -236,7 +322,8 @@ class Finding:
     path: str
     line: int
     kind: str    # "identical" | "narrow" | "skipped" | "drift"
-                 # | "missing-source" | "missing-region" | "malformed"
+                 # | "missing-source" | "unconfined-source"
+                 # | "missing-region" | "malformed"
     source: str | None
     region: str | None
     detail: str
@@ -244,24 +331,79 @@ class Finding:
 
 # ---------------------------------------------------------------- parsing --
 
+def _strip_inline_code(line: str) -> str:
+    """Blank out inline `code spans`, preserving the line's length so column
+    positions still line up. Identical to datescan's and linkscan's helper —
+    backtick runs must match in length (CommonMark)."""
+    out: list[str] = []
+    i = 0
+    n = len(line)
+    while i < n:
+        if line[i] == "`":
+            j = i
+            while j < n and line[j] == "`":
+                j += 1
+            ticks = line[i:j]
+            close = line.find(ticks, j)
+            if close != -1 and line[close:close + len(ticks)] == ticks \
+                    and (close + len(ticks) >= n or line[close + len(ticks)] != "`"):
+                out.append(" " * (close + len(ticks) - i))
+                i = close + len(ticks)
+                continue
+        out.append(line[i])
+        i += 1
+    return "".join(out)
+
+
 def _content_lines(text: str):
+    """Yield `(lineno, raw_line, scan_line)` for every line in `text`.
+
+    `scan_line` is the line as MARKER RECOGNITION should see it: empty inside
+    a fenced code block, and with inline `code spans` blanked out elsewhere,
+    so a document that merely *documents* the stamp syntax is not read as
+    carrying stamps (2026-07-26 cold pass ST1 — the wiring blocker). Fence
+    pairing matches datescan/linkscan/wrapscan/pathscan exactly.
+
+    `raw_line` is untouched. Payload accumulation uses it, so a stripped line
+    still enters a stamped block VERBATIM and payload comparison is
+    unaffected — the stripping decides "is this a marker?", nothing else."""
+    in_fence = False
+    fence_char = ""
+    fence_len = 0
     for lineno, line in enumerate(text.splitlines(), start=1):
-        yield lineno, line
+        stripped = line.lstrip()
+        m = _FENCE.match(stripped)
+        if in_fence:
+            if m and m.group(1)[0] == fence_char and len(m.group(1)) >= fence_len \
+                    and stripped.rstrip() == m.group(1):
+                in_fence = False
+            yield lineno, line, ""
+            continue
+        if m:
+            in_fence = True
+            fence_char = m.group(1)[0]
+            fence_len = len(m.group(1))
+            yield lineno, line, ""
+            continue
+        yield lineno, line, _strip_inline_code(line)
 
 
 def find_stamp_blocks(path: str, text: str) -> tuple[list[StampBlock], list[Finding]]:
     """Parse every `stamp:begin ... stamp:end` pair in `text`. Returns
     (blocks, malformed_findings) — malformed markers (unterminated, nested,
     or a stray end) are reported as `malformed` findings, never silently
-    dropped."""
+    dropped.
+
+    Markers (and the allow marker) are recognised on the CODE-STRIPPED view
+    of each line; payloads accumulate the RAW line (see `_content_lines`)."""
     blocks: list[StampBlock] = []
     malformed: list[Finding] = []
     open_stamp: dict | None = None
 
-    for lineno, raw_line in _content_lines(text):
-        stripped = raw_line.strip()
+    for lineno, raw_line, scan_line in _content_lines(text):
+        stripped = scan_line.strip()
         m_begin = _STAMP_BEGIN_RX.match(stripped)
-        m_end = _STAMP_END_RX.search(stripped)
+        m_end = _STAMP_END_RX.match(stripped)
 
         if m_begin:
             if open_stamp is not None:
@@ -276,7 +418,7 @@ def find_stamp_blocks(path: str, text: str) -> tuple[list[StampBlock], list[Find
                 "region": m_begin.group("region"),
                 "narrow": m_begin.group("narrow"),
                 "payload": [],
-                "allow": bool(ALLOW_MARKER_RX.search(raw_line)),
+                "allow": bool(ALLOW_MARKER_RX.search(scan_line)),
             }
             continue
 
@@ -294,7 +436,7 @@ def find_stamp_blocks(path: str, text: str) -> tuple[list[StampBlock], list[Find
             continue
 
         if open_stamp is not None:
-            if ALLOW_MARKER_RX.search(raw_line):
+            if ALLOW_MARKER_RX.search(scan_line):
                 open_stamp["allow"] = True
             open_stamp["payload"].append(raw_line)
 
@@ -339,9 +481,10 @@ def extract_region(text: str, region: str) -> list[str] | None:
 
 def _is_ordered_subsequence(sub: list[str], full: list[str]) -> bool:
     """True if `sub` can be obtained from `full` by deleting zero or more
-    lines only — never reordering, adding, or altering one. Standard
-    greedy two-pointer subsequence check (see STATED RESIDUAL for the
-    duplicate-line caveat)."""
+    lines only — never reordering, adding, or altering one. Standard greedy
+    two-pointer subsequence check, which is EXACT for membership including
+    duplicated lines (see STATED RESIDUAL — the only thing it does not carry
+    is which occurrence of a duplicate matched)."""
     it = iter(full)
     return all(x in it for x in sub)
 
@@ -402,6 +545,22 @@ def evaluate_block(block: StampBlock, canonical: list[str]) -> Finding:
                        f"matches canonical region '{block.region}' "
                        f"({len(parent)} lines)")
 
+    if not child and parent:
+        # Narrowing to NOTHING is not a narrowing — it vacates the floor the
+        # stamp exists to hold, and one `narrow=` token would otherwise
+        # delete a whole inlined floor while this scanner reported clean
+        # (2026-07-26 cold pass ST2; ruled 2026-08-04). Checked BEFORE the
+        # subsequence branch, because the empty list is vacuously an ordered
+        # subsequence of everything.
+        return Finding(
+            block.path, block.line, "drift", block.source, block.region,
+            f"the stamped block is EMPTY — 0 of {len(parent)} canonical "
+            f"lines kept" + (f" despite narrow={block.narrow!r}" if block.narrow
+                              else "") + ". Narrowing to nothing is not a "
+            "narrowing: a narrow= declaration does not cover it. Restore the "
+            "canonical text, or remove the stamp markers if this block is no "
+            "longer a stamped copy.")
+
     if _is_ordered_subsequence(child, parent):
         if block.narrow:
             return Finding(
@@ -449,6 +608,28 @@ def _rel(p: Path, root: Path) -> str:
         return str(p)
 
 
+def resolve_source(root: Path, source: str) -> tuple[str | None, str | None]:
+    """Resolve a stamp's `source=` against `root` and read it. Returns
+    `(text, error_kind)` — the text on success, or `(None, kind)` where kind
+    is `"unconfined-source"` or `"missing-source"`.
+
+    CONFINEMENT (2026-07-26 cold pass ST4): the resolved path must sit inside
+    `root`. `root / source` alone accepts `../` traversal, and pathlib
+    silently DISCARDS `root` when the right-hand side is absolute — so a
+    crafted stamped document could aim the scanner at any file on the machine
+    and have one of its lines echoed back in the drift hint. Escaping the root
+    is a config error, matching the fail-safe posture everywhere else."""
+    root = root.resolve()
+    candidate = (root / source).resolve()
+    try:
+        candidate.relative_to(root)
+    except ValueError:
+        return None, "unconfined-source"
+    if not candidate.is_file():
+        return None, "missing-source"
+    return candidate.read_text(encoding="utf-8", errors="replace"), None
+
+
 def iter_markdown(paths: list[Path], root: Path, globs: list[str]):
     for base in paths:
         if base.is_file():
@@ -467,7 +648,7 @@ def iter_markdown(paths: list[Path], root: Path, globs: list[str]):
 def scan_paths(paths: list[Path], root: Path) -> list[Finding]:
     globs = load_ignore_globs(root)
     findings: list[Finding] = []
-    source_cache: dict[str, str] = {}
+    source_cache: dict[str, tuple[str | None, str | None]] = {}
 
     for md in iter_markdown(paths, root, globs):
         rel = _rel(md, root)
@@ -476,21 +657,21 @@ def scan_paths(paths: list[Path], root: Path) -> list[Finding]:
         findings.extend(malformed)
 
         for block in blocks:
-            source_path = root / block.source
             if block.source not in source_cache:
-                if not source_path.is_file():
-                    source_cache[block.source] = None  # type: ignore[assignment]
-                else:
-                    source_cache[block.source] = source_path.read_text(
-                        encoding="utf-8", errors="replace")
-            source_text = source_cache[block.source]
+                source_cache[block.source] = resolve_source(root, block.source)
+            source_text, source_error = source_cache[block.source]
 
             if source_text is None:
+                if source_error == "unconfined-source":
+                    detail = (f"canonical source resolves OUTSIDE --root: "
+                              f"{block.source} (--root {root}) — a stamp may "
+                              f"only point at a file inside the scanned tree")
+                else:
+                    detail = (f"canonical source does not resolve: "
+                              f"{block.source} (resolved against --root {root})")
                 findings.append(Finding(
-                    block.path, block.line, "missing-source", block.source,
-                    block.region,
-                    f"canonical source does not resolve: {block.source} "
-                    f"(resolved against --root {root})"))
+                    block.path, block.line, source_error, block.source,
+                    block.region, detail))
                 continue
 
             canonical = extract_region(source_text, block.region)
@@ -509,7 +690,8 @@ def scan_paths(paths: list[Path], root: Path) -> list[Finding]:
 
 # -------------------------------------------------------------- reporting --
 
-_CONFIG_ERROR_KINDS = {"missing-source", "missing-region", "malformed"}
+_CONFIG_ERROR_KINDS = {"missing-source", "unconfined-source",
+                       "missing-region", "malformed"}
 _DRIFT_KINDS = {"drift"}
 _CLEAN_KINDS = {"identical", "narrow", "skipped"}
 
@@ -536,8 +718,12 @@ def render_human(findings: list[Finding]) -> str:
     if not errors and not drifts:
         lines.append(f"✓ stampscan clean — {len(notes)} stamped block(s) verified.")
     if notes:
+        # De-duplicated kinds (ST6c): the summary names WHICH dispositions
+        # occurred, not one repeat per block — "identical, identical, …" for
+        # a healthy tree of stamps was noise, and the per-block lines below
+        # already carry the detail.
         lines.append(f"  ({len(notes)} note(s): "
-                      + ", ".join(sorted(f"{f.kind}" for f in notes)) + ")")
+                      + ", ".join(sorted({f.kind for f in notes})) + ")")
         for f in sorted(notes, key=lambda x: (x.path, x.line)):
             lines.append(f"    {f.path}:{f.line}  [{f.kind}] {f.detail}")
     if drifts:
@@ -685,6 +871,18 @@ def _selftest() -> int:
         print(f"FAIL: contradiction case got {[f.kind for f in findings_contra]}")
         ok = False
 
+    # An EMPTY payload -> drift, `narrow=` or not (ST2). Narrowing to
+    # nothing is not a narrowing.
+    (tmp / "docs" / "child_empty.md").write_text(
+        "<!-- stamp:begin source=docs/PARENT.md region=floor narrow=we-dropped-it-all -->\n"
+        "<!-- stamp:end -->\n"
+    )
+    findings_empty = scan_paths([tmp / "docs" / "child_empty.md"], tmp)
+    ok_empty = [f.kind for f in findings_empty] == ["drift"]
+    if not ok_empty:
+        print(f"FAIL: empty-narrow case got {[f.kind for f in findings_empty]}")
+        ok = False
+
     # Missing canonical source -> fail-safe config error.
     (tmp / "docs" / "child_missing.md").write_text(
         "<!-- stamp:begin source=docs/NOPE.md region=floor -->\n"
@@ -695,6 +893,38 @@ def _selftest() -> int:
     ok_missing = [f.kind for f in findings_missing] == ["missing-source"]
     if not ok_missing:
         print(f"FAIL: missing-source case got {[f.kind for f in findings_missing]}")
+        ok = False
+
+    # A source escaping --root -> fail-safe config error, not a scan (ST4).
+    (tmp / "docs" / "child_escape.md").write_text(
+        "<!-- stamp:begin source=../../etc/hosts region=floor -->\n"
+        "- item one\n"
+        "<!-- stamp:end -->\n"
+    )
+    findings_escape = scan_paths([tmp / "docs" / "child_escape.md"], tmp)
+    ok_escape = [f.kind for f in findings_escape] == ["unconfined-source"]
+    if not ok_escape:
+        print(f"FAIL: unconfined-source case got {[f.kind for f in findings_escape]}")
+        ok = False
+
+    # A doc that merely DOCUMENTS the syntax is not a stamp (ST1) — fenced
+    # examples and inline-code mentions alike. This is the wiring blocker.
+    (tmp / "docs" / "about_stamps.md").write_text(
+        "# How stamps work\n\n"
+        "A child wraps the block in a marker pair:\n\n"
+        "```markdown\n"
+        "<!-- stamp:begin source=docs/PARENT.md region=floor -->\n"
+        "...the inlined block...\n"
+        "<!-- stamp:end -->\n"
+        "```\n\n"
+        "The closer is `<!-- stamp:end -->`, and the opener is "
+        "`<!-- stamp:begin source=x region=y -->`.\n"
+    )
+    findings_doc = scan_paths([tmp / "docs" / "about_stamps.md"], tmp)
+    ok_doc = findings_doc == []
+    if not ok_doc:
+        print(f"FAIL: documentation-of-syntax case got "
+              f"{[f.kind for f in findings_doc]}")
         ok = False
 
     # main() plumbing: a config error always exits 2, --warn or not; a drift
