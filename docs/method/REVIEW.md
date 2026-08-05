@@ -162,7 +162,17 @@ governing who may spawn it:
    never in a follow-up push — and stop — the
    brief is written by the non-author who takes the item, and any spawner
    passing the criterion may take a `⏳` item (the principal opening a fresh
-   session and pointing it at the queue is the worked example). The brief
+   session and pointing it at the queue is the worked example). **Tier is
+   checked at selection, alongside the criterion: cold review passes run on
+   the tier the principal names — currently Fable** (the principal's ruling,
+   2026-08-04; the bar survives model generations without a doctrine edit).
+   A session that cannot honour the bar **stops** — it neither takes the
+   item on a lower tier nor proceeds hoping the pass will be accepted;
+   tier is set by the work's risk, never by what is available
+   (`ECONOMICS.md` § *One doctrine, tiered authority*). Grounding: a
+   wrong-tier session once took three `⏳` items in one pass and the whole
+   pass was rejected on tier grounds, findings unread (2026-07-26) — the
+   stop clause is what would have saved it. The brief
    states its spawn provenance — who spawned the review and the
    author's non-involvement — and the verdict repeats it; a rule-4 pass with
    no provenance trail is unauditable, and unauditable is non-compliant.
@@ -334,6 +344,22 @@ no MAJOR finding** — what remains is decided into the backlog, and that
 application does not spawn another full ceremony. The escape valve if it *isn't*
 converging: when the MAJOR count is not falling from pass to pass, do not keep
 cranking — stop and ask the principal for direction.
+
+**A pass that is not accepted is withdrawn, never deleted** (the principal's
+ruling, 2026-07-26, promoted to doctrine 2026-08-05). The general case covers a
+pass rejected on its content, rejected on how it was run (wrong tier, broken
+scope, contaminated spawn), or abandoned half-finished: the pass *happened*,
+and this repo does not rewrite history — so its outputs are preserved verbatim
+under a withdrawal banner naming who rejected it, when, and on what ground,
+and quarantined out of the live verdict store so no reader meets an unaccepted
+verdict beside accepted ones. Three consequences bind: the item's `⏳` stands
+(a withdrawn file answers nothing); the withdrawn pass is never handed to the
+redo's reviewer as reading — its framing is the contamination rule 2 exists to
+prevent, so the accepted reviewer may open it only after their own verdict is
+written and committed; and **findings die with the pass** — nothing a
+withdrawn pass queued carries forward, because a real defect will be found
+independently by the accepted pass, and that independence is the point of the
+redo. The worked mechanics live in `docs/reviews/withdrawn/README.md`.
 
 ## Whether work earns a review at all — calibrate to risk
 

@@ -177,3 +177,10 @@ human beat before an apply) — but the default is broad.
 Before deleting or overwriting something the agent didn't create, look at it
 first — if what's there contradicts how it was described, surface that instead
 of proceeding.
+
+One class is stricter, and it binds even on the agent's own creations: **bulk
+deletion from a record store is a show-first action** — diff the block and
+show what goes, or ask, before it is removed (`RECORD.md` § the roadmap
+section carries the rule and its grounding; the principal's ruling,
+2026-08-04). The standing grant covers routine commits and pushes; it does
+not cover silently removing the record of the principal's decisions.

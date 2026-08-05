@@ -3510,3 +3510,106 @@ The three source entries preserved verbatim below.
   **Application owed as one wiring build item (scope + tests + registry
   + HV2–HV4 folds); it queues its rule-4 pointer at landing.**
 
+
+## The 2026-08-04 sitting's five small doctrine edits (done 2026-08-05)
+
+All five ruled 2026-08-04 at the decision sitting; delivered 2026-08-05 in one
+landing (wt: queue-batch-0806). What landed: the tier bar + stop clause at
+`REVIEW.md` rule 4's spawn criterion and this repo's `⏳` legend; the
+withdrawn-pass general case closing `REVIEW.md`'s lifecycle section; the
+show-first bulk-deletion rule in `RECORD.md` with the `AUTONOMY.md`
+cross-link; describe-don't-quote as a `RECORD.md` standing rule; the
+session-onramp apex block re-taught to the Zeroth form, with the
+restatement-sweep surface list written into `PRINCIPLES.md` §6 (plugin
+surfaces included — the checklist-widening sweep found session-onramp the
+only Laws restatement under `skills/` + `commands/`). Rule-4 `⏳` queued at
+landing as one batch pointer (§ *Doctrine — review-owed*). Items verbatim:
+
+- [x] 🎯 **E5 — write down "describe, don't quote" as a standing rule for
+      record prose.** (claimed 2026-08-05-1243, wt: queue-batch-0806)
+      It has now bitten three separate scanners in three weeks:
+      example credentials, a literal open-source licence tag quoted in a
+      roadmap entry, and a stamp marker mentioned in a review file — each time
+      the scanner was *correct* and the prose was the defect. It is already the
+      answer for example credentials; the general form belongs in `RECORD.md`.
+      **Recurrence, not severity, is the trigger** — three instances of a
+      trivial failure is a defect in the system producing it.
+      **RULED 2026-08-04 (Mike): WRITE IT** — the fourth instance arrived
+      the day before (the E7 sweep record had to describe every probe shape
+      to avoid its own subject scanners). One `RECORD.md` rule;
+      self-authored ⇒ rule-4 review queued at landing. DELIVERED 2026-08-05:
+      `RECORD.md` § *Describe, don't quote*, with the deliberate-content
+      carve-out (fixtures and canaries quote by design; the rule binds record
+      stores and the doctrine surface). (Moved from ROADMAP.md 2026-08-05.)
+- [x] **ZL1 (MAJOR) — the surface that binds the apex at session start is
+      stale.** (claimed 2026-08-05-1243, wt: queue-batch-0806)
+      `skills/session-onramp/SKILL.md` still taught the pre-Zeroth
+      three-element Laws, contradicting `00-APEX.md` at HEAD. A prior sweep
+      proves the surface was known. The wider finding (AW2) is that at least
+      seven in-repo apex restatements described the superseded shape, while the
+      queued propagation item covers children's floors only — so the rest was
+      silently stale, against the sweep-in-the-same-commit rule the delta
+      itself cites. Verdict:
+      [apex Zeroth Law cold pass](reviews/2026-07-26-2215-apex-zeroth-law-cold.md).
+      **RULED 2026-08-04 (Mike): fix the skill's apex block AND widen the
+      restatement-sweep checklist to the plugin surfaces (skills/,
+      commands/)** — the second miss of the same class ends here, and the
+      widened checklist is the instrument the planned Laws removal will
+      itself need. DELIVERED 2026-08-05: the skill's Laws bullet carries the
+      Zeroth form (matching the child floor block's ordering); the surface
+      list lives in `PRINCIPLES.md` §6; the widened sweep ran and found no
+      other stale restatement on the plugin surfaces.
+      (Moved from ROADMAP.md 2026-08-05.)
+- [x] 🎯 **Write down which tier reviews — the rule exists in practice and
+  nowhere as a rule** (claimed 2026-08-05-1243, wt: queue-batch-0806)
+  (Mike's ruling, 2026-07-26, after an Opus session took
+  three `⏳` items and had the whole pass rejected on tier grounds). The
+  convention was real and consistent: `SESSIONS.md` shows an unbroken run of
+  `(Fable)` cold-review entries, and `REVIEW.md` already quotes Mike's
+  2026-07-18 ruling naming *"Fable reviewers"* — but it was quoted inside
+  *Review the design, not only the build*, where it is doing different work.
+  Nothing stated the reviewer-tier bar as a rule a session must satisfy
+  before taking a `⏳` item. **This is the rule-grammar failure this repo
+  already has a name for**: the fact was on the page and was not findable
+  *as a rule* from where the reader stood.
+  **RULED 2026-08-04 (Mike): the bar is principal-named** — "cold reviews run
+  on the tier the principal names — currently Fable", stated at rule 4's
+  spawn criterion and in the `⏳` legend, **with the stop clause**: a session
+  that cannot honour the bar stops rather than proceeds. Survives model
+  generations without a doctrine edit; matches ECONOMICS' per-run framing.
+  DELIVERED 2026-08-05 at both points of use. (Moved from ROADMAP.md
+  2026-08-05.)
+- [x] 🎯 **Promote the withdrawn-pass convention into `REVIEW.md`, or leave it
+  local** (claimed 2026-08-05-1243, wt: queue-batch-0806)
+  (Mike's ruling, 2026-07-26: a rejected pass's outputs happened, and we
+  do not rewrite history — recover them, keep them, make them unreadable as
+  "done"). The handling was already written and live in
+  [`reviews/withdrawn/README.md`](reviews/withdrawn/README.md): preserved
+  verbatim under a withdrawal banner, quarantined out of `docs/reviews/`,
+  never handed to a taker as a queue ref,
+  read-after-your-own-verdict-not-before, and *findings die with the pass*.
+  **RULED 2026-08-04 (Mike): PROMOTE** — one `REVIEW.md` paragraph covering
+  the general case (a pass rejected on content, on scope, or half-finished),
+  the directory README staying as the worked mechanics. DELIVERED 2026-08-05:
+  the paragraph closes `REVIEW.md`'s lifecycle section.
+  (Moved from ROADMAP.md 2026-08-05.)
+- [x] 🎯 **Doctrine candidate — bulk deletion from a record store is a
+      show-first action, regardless of who created the mess.**
+      (claimed 2026-08-05-1243, wt: queue-batch-0806) Grounded in a
+      worked example: a session created 185 lines of duplicate roadmap
+      sections, then removed them having compared **heading names only**, and
+      asserted "duplicates" in the commit message without diffing a single
+      body. Mike challenged it. The diff took thirty seconds and showed three
+      sections byte-identical, one correctly superseded — and **one a genuine
+      loss**, a completed item whose only roadmap trace went with it. Two
+      things made it feel safe and neither holds: *"it's my own mess"* (the
+      sections encoded **Mike's** rulings, not the agent's drafts) and *"git
+      remembers"* (git remembers the text, not that the work was supposed to
+      happen).
+      **RULED 2026-08-04 (Mike): ADOPT.** The rule becomes doctrine — before
+      removing a block from a record store, diff it and show what goes, or
+      ask; `harvestscan`'s bulk-deletion warn is the mechanical net beneath
+      it and this rule covers what the net cannot see. DELIVERED 2026-08-05:
+      `RECORD.md` carries the rule and its grounding; `AUTONOMY.md`
+      § *Before you destroy or overwrite* carries the cross-link and names
+      the grant boundary. (Moved from ROADMAP.md 2026-08-05.)

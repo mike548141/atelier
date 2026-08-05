@@ -183,6 +183,25 @@ de-cased principle):
 - **Full specs of pending features live in a `SPECS.md`** grepped on demand,
   never loaded whole.
 
+**Bulk deletion from a record store is a show-first action, regardless of who
+created the mess** (the principal's ruling, 2026-08-04). Before removing a
+block from a record store — ROADMAP, SESSIONS, ADRs, reviews — either diff it
+and show the principal what goes, or ask. One message, and it removes the
+class. Two intuitions make an unshown deletion feel safe, and neither holds:
+*"it's my own mess"* — the sections encode the **principal's** rulings, not
+the agent's drafts, and deleting the record of another party's decisions is a
+different act from deleting your own working notes; *"git remembers"* — git
+remembers the *text*, not that the work was supposed to happen, and a roadmap
+item that vanishes means the work does not get done, which is closer to
+irreversible than the mechanism suggests. Recoverability of bytes is the wrong
+test for a record store. (Grounded 2026-07-25: a 185-line "duplicates"
+removal, compared by heading names only, was diffed on challenge — thirty
+seconds — and one of the five sections was a genuine loss, a completed item
+whose only roadmap trace went with it.) The mechanical net beneath this rule
+is `tools/harvestscan.py`'s bulk-deletion warn; the rule covers what the net
+cannot see, and `AUTONOMY.md` § *Before you destroy or overwrite* carries the
+same duty at the general layer.
+
 This is one pattern the whole record shares: **current-truth files stay lean;
 history relocates to an on-demand store.** SESSIONS (index + `docs/sessions/`),
 ROADMAP (open + `ROADMAP-DONE.md`), a README that points into `docs/` — the same
@@ -213,6 +232,26 @@ time is meaningless to the reader who finds it three weeks later, and ambiguous
 across models with different cutoffs. (EVIDENCE §7.) And the absolute date is
 the **UTC** date (ADR 2026-07-15): an NZ morning is still the previous UTC day,
 so the prose date matches the record's own UTC identifier, not the wall clock.
+
+## Describe, don't quote — record prose never carries the shapes the floor hunts
+
+When record prose needs to reference something a floor scanner exists to
+catch — an example credential, a licence tag, a stamp or allow-marker's
+literal syntax, an address-, phone- or network-shaped string, a probe input —
+**describe the shape; never quote it literally.** A scanner that flags such a
+line is *correct*: the value's shape is what it scans for, and prose context
+is precisely what a fail-safe scanner must not trust. Quoting therefore costs
+an allow-marker on a line that was never wrong, and every such marker trains
+readers to reach for exemptions — which is how a scanner's findings stop
+being believed. Describing is the cheaper move and leaves no exemption debt
+behind. (Ruled by the principal 2026-08-04 on **recurrence, not severity** —
+four instances in three weeks, each trivial alone: an example credential, a
+literal licence tag in a roadmap entry, a stamp marker mentioned in a review
+file, and a sweep record that had to describe every probe shape to avoid its
+own subject scanners. Three instances of a trivial failure is a defect in the
+system producing it.) The carve-out is deliberate content: a test fixture or
+canary *inside a tool's own suite* quotes shapes by design; the rule binds
+the record stores and doctrine surface, where prose is read, not executed.
 
 ## The record is public — keep private repos generic
 

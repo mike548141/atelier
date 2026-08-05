@@ -232,7 +232,15 @@ must carry its own evidence.
   dated and attributed; claims state what would prove them wrong and when that
   check runs. *The cautionary case:* a "proven" comment committed shortly after
   its proof was quietly voided — an undated, untested claim is a future lie. When
-  a learning is refined, sweep the stale claims in the *same* commit. (This is
+  a learning is refined, sweep the stale claims in the *same* commit. **The
+  sweep's surface list is the whole repo, stated here because two sweeps have
+  now treated "in-repo restatements" as `docs/` only** (the second miss left
+  the session-onramp skill teaching a superseded apex — ZL1, ruled
+  2026-08-04): the doctrine surface (`docs/`), the **plugin surfaces**
+  (`skills/`, `commands/`), the templates (`docs/build/templates/`), and —
+  via the propagation lane, at each child's next pin bump — children's
+  inlined floor blocks. A restatement surface not on this list is added to
+  it, not swept by memory. (This is
   [`EVIDENCE.md`](EVIDENCE.md) at the system-behaviour layer.)
 
 ## 7. Reproducibility — infrastructure is code
