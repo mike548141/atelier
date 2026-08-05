@@ -300,7 +300,7 @@ gates.
 
 | Check | Catches | Severity |
 |---|---|---|
-| **LICENSE present + recognised** | an open repo with no LICENSE (all-rights-reserved by default), or a LICENSE body no known SPDX licence matches (can't verify the rest) | high / medium |
+| **LICENSE present + recognised** | an open repo with no LICENSE (all-rights-reserved by default), or a LICENSE body no known SPDX licence matches (read as a declared custom licence since 2026-08-05 — the per-file header checks keep running; only declaration comparison is skipped) | high / medium |
 | **Declarations agree** | metadata that names a *different* licence than LICENSE — `pyproject.toml`, `package.json`, `Cargo.toml`, `*.gemspec`, `setup.cfg`, a README shields.io badge — i.e. the repo contradicting itself | high |
 | **No incompatible header** | a file with an `SPDX-License-Identifier` differing from the repo licence — copyleft (GPL/AGPL/LGPL/MPL) into a permissive repo is a **block** (can't be relicensed on publish); permissive-into-permissive is a warn | high / medium |
 

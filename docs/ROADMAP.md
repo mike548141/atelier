@@ -1171,7 +1171,9 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   licenscan E1+E2 build (a custom/LicenseRef licence keeps the header
   checks; trove classifiers resolve).** *Delta:* `tools/licenscan.py` +
   `tools/test_licenscan.py` (37 → 52 tests) + the CHANGELOG entry (landed
-  2026-08-05, this commit). *Intent record:*
+  2026-08-05) + the corrected check-1 row in `tools/README.md` (landed in
+  the follow-up commit, same session — the row still described the
+  pre-E1 silence). *Intent record:*
   [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The licence gate learns
   proprietary* (the two items verbatim — fix shapes and required tests
   stated in the items, evidence of 2026-07-25 — harvested at landing).
