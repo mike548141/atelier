@@ -147,7 +147,7 @@ class EndToEnd(unittest.TestCase):
 
     def test_ignore_glob(self):
         self._write("skip.md", "# T\n[x](gone.md)\n")
-        (self.tmp / ".linkscanignore").write_text("skip.md\n")
+        (self.tmp / ".linkscanignore").write_text("# a reasoned fixture exemption\nskip.md\n")
         self.assertEqual(linkscan.scan_paths([self.tmp], self.tmp), [])
 
     def test_fenced_link_skipped(self):

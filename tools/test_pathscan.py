@@ -328,7 +328,7 @@ class WholeTreeAndExitCodes(unittest.TestCase):
         self._write("docs/note.md", "see `tools/ghost.py`\n")
         self.assertEqual(
             1, self._main(["--root", str(self.tmp), str(self.tmp / "docs")]))
-        self._write(".pathscanignore", "docs/note.md\n")
+        self._write(".pathscanignore", "# a reasoned fixture exemption\ndocs/note.md\n")
         self.assertEqual(
             0, self._main(["--root", str(self.tmp), str(self.tmp / "docs")]))
 

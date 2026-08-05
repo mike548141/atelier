@@ -268,7 +268,7 @@ class Hatches(_TreeTest):
 
     def test_sizescanignore_glob_skips(self):
         self.write_text("docs/ROADMAP.md", _cold(1, 5))
-        (self.tmp / ".sizescanignore").write_text("docs/ROADMAP.md\n")
+        (self.tmp / ".sizescanignore").write_text("# a reasoned fixture exemption\ndocs/ROADMAP.md\n")
         self.assertEqual(self.flagged(), [])
 
 

@@ -346,7 +346,7 @@ class WholeTree(unittest.TestCase):
         self._write("docs/note.md", "an artifact here\n")
         self.assertEqual(
             1, self._main(["--root", str(self.tmp), str(self.tmp / "docs")]))
-        self._write(".spellscanignore", "docs/note.md\n")
+        self._write(".spellscanignore", "# a reasoned fixture exemption\ndocs/note.md\n")
         self.assertEqual(
             0, self._main(["--root", str(self.tmp), str(self.tmp / "docs")]))
 

@@ -605,7 +605,7 @@ class WholeTree(unittest.TestCase):
         os.chdir(self.tmp)
         try:
             self.assertEqual(1, self._main(["--root", "repo", "repo"]))
-            self._write("repo/.secretscanignore", "docs/fixture.md\n")
+            self._write("repo/.secretscanignore", "# a reasoned fixture exemption\ndocs/fixture.md\n")
             self.assertEqual(0, self._main(["--root", "repo", "repo"]))
         finally:
             os.chdir(old)

@@ -326,7 +326,7 @@ class WholeTree(unittest.TestCase):
         self._write("docs/note.md", "shipped yesterday\n")
         self.assertEqual(
             1, self._main(["--root", str(self.tmp), str(self.tmp / "docs")]))
-        self._write(".datescanignore", "docs/note.md\n")
+        self._write(".datescanignore", "# a reasoned fixture exemption\ndocs/note.md\n")
         self.assertEqual(
             0, self._main(["--root", str(self.tmp), str(self.tmp / "docs")]))
 

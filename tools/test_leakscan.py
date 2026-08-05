@@ -279,7 +279,7 @@ class WholeTree(unittest.TestCase):
         os.chdir(self.tmp)
         try:
             self.assertEqual(1, self._main(["--root", "repo", "repo"]))
-            self._write("repo/.leakscanignore", "docs/fixture.md\n")
+            self._write("repo/.leakscanignore", "# a reasoned fixture exemption\ndocs/fixture.md\n")
             self.assertEqual(0, self._main(["--root", "repo", "repo"]))
         finally:
             os.chdir(old)
@@ -322,3 +322,48 @@ class StagedAbsolutePathTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class IgnoreFileReasons(unittest.TestCase):
+    """GUARDS.md rule (c) — an ignore glob is the widest allowance a scanner
+    grants, so it is the last place an unexplained exemption should be
+    possible. Enforced 2026-08-05; previously any bare glob was honoured."""
+
+    def setUp(self):
+        import tempfile, shutil
+        self.tmp = pathlib.Path(tempfile.mkdtemp(prefix="leakscan-ign-"))
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+
+    def _write(self, body):
+        (self.tmp / ".leakscanignore").write_text(body, encoding="utf-8")
+        return ls.load_ignore_globs(self.tmp)
+
+    def test_stanza_comment_is_a_reason(self):
+        self.assertEqual(["docs/x.md"], self._write("# frozen history\ndocs/x.md\n"))
+
+    def test_trailing_comment_is_a_reason(self):
+        self.assertEqual(["docs/x.md"], self._write("docs/x.md  # frozen history\n"))
+
+    def test_several_globs_share_one_stanza_comment(self):
+        # The live files do this: one reason covering a group of globs.
+        self.assertEqual(["a.md", "b.md"], self._write("# both are fixtures\na.md\nb.md\n"))
+
+    def test_bare_glob_with_no_reason_is_refused(self):
+        with self.assertRaises(ls.IgnoreFileError):
+            self._write("docs/x.md\n")
+
+    def test_blank_line_ends_the_stanza(self):
+        # A comment cannot reason a glob it has been separated from.
+        with self.assertRaises(ls.IgnoreFileError):
+            self._write("# covers the one below\na.md\n\nb.md\n")
+
+    def test_error_names_every_unreasoned_line(self):
+        with self.assertRaises(ls.IgnoreFileError) as cm:
+            self._write("a.md\nb.md\n")
+        self.assertEqual(2, len(cm.exception.entries))
+
+    def test_main_exits_2_on_an_unreasoned_ignore_file(self):
+        # A broken scan is not a pass.
+        (self.tmp / ".leakscanignore").write_text("docs/x.md\n", encoding="utf-8")
+        (self.tmp / "doc.md").write_text("clean\n", encoding="utf-8")
+        self.assertEqual(2, ls.main(["--root", str(self.tmp), str(self.tmp)]))

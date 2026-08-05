@@ -378,15 +378,57 @@ def count_lines(text: str) -> int:
     return len(text.splitlines())
 
 
+class IgnoreFileError(ValueError):
+    """An ignore file granted an exemption with no reason stated anywhere."""
+
+    def __init__(self, filename: str, entries: list[tuple[int, str]]):
+        self.filename = filename
+        self.entries = entries
+        detail = "; ".join(f"line {n}: '{g}'" for n, g in entries)
+        super().__init__(
+            f"{filename}: {len(entries)} glob(s) with no stated reason — "
+            f"{detail}. Every exemption states its reason where a reviewer "
+            f"reads it (method/GUARDS.md): put a comment above the stanza, or "
+            f"a trailing '# reason' on the line.")
+
+
 def load_ignore_globs(root: Path) -> list[str]:
+    """Globs from `.sizescanignore`, each of which MUST carry a stated reason.
+
+    GUARDS.md rule (c): an ignore glob is the widest allowance this scanner
+    grants — a whole path, every rule, indefinitely — so it is the last place
+    an unexplained exemption should be possible. A glob is reasoned if it
+    carries a trailing `# reason` (publishscan's form) OR sits under a comment
+    block in its own stanza, which is how this estate's ignore files already
+    document themselves and is the better documentation of the two. A blank
+    line ends a stanza, so a bare glob under no comment at all is refused.
+
+    An unreasoned glob is a CONFIG ERROR, not a warning: a scan that silently
+    honours an exemption nobody explained is the failure the rule exists to
+    stop. Callers surface it as exit 2 — a broken scan is not a pass."""
     f = root / ".sizescanignore"
     if not f.exists():
         return []
     globs: list[str] = []
-    for raw in f.read_text(encoding="utf-8", errors="replace").splitlines():
+    unreasoned: list[tuple[int, str]] = []
+    stanza_reason = False
+    for n, raw in enumerate(f.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
         line = raw.strip()
-        if line and not line.startswith("#"):
-            globs.append(line)
+        if not line:
+            stanza_reason = False
+            continue
+        if line.startswith("#"):
+            stanza_reason = True
+            continue
+        glob, _, trailing = line.partition("#")
+        glob = glob.strip()
+        if not glob:
+            continue
+        if not trailing.strip() and not stanza_reason:
+            unreasoned.append((n, glob))
+        globs.append(glob)
+    if unreasoned:
+        raise IgnoreFileError(".sizescanignore", unreasoned)
     return globs
 
 
@@ -569,7 +611,7 @@ def render_human(findings: list[Finding], files_allowed: int = 0,
     return "\n".join(lines)
 
 
-def main(argv: list[str] | None = None) -> int:
+def _main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         prog="sizescan",
         description="Flag current-truth files (roadmap, session index, README…) "
@@ -809,6 +851,18 @@ def _selftest() -> int:
     shutil.rmtree(tmp, ignore_errors=True)
     return 0 if ok else 1
 
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Exit 2 on an ignore file that grants an exemption with no reason.
+
+    A broken scan is not a pass (the house exit-code contract), and an
+    unexplained exemption makes the scan's own scope untrustworthy."""
+    try:
+        return _main(argv)
+    except IgnoreFileError as e:
+        print(f"sizescan: {e}", file=sys.stderr)
+        return 2
 
 if __name__ == "__main__":
     sys.exit(main())

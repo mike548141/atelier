@@ -246,7 +246,7 @@ class ScanPaths(unittest.TestCase):
         _write(self.tmp, "docs/child.md", _child_text(["a"]))  # silent drop
         findings = ss.scan_paths([self.tmp / "docs"], self.tmp)
         self.assertEqual(["drift"], [f.kind for f in findings])
-        _write(self.tmp, ".stampscanignore", "docs/child.md\n")
+        _write(self.tmp, ".stampscanignore", "# a reasoned fixture exemption\ndocs/child.md\n")
         findings = ss.scan_paths([self.tmp / "docs"], self.tmp)
         self.assertEqual([], findings)
 
