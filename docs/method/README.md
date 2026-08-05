@@ -75,6 +75,15 @@ Read in this order:
     `PRINCIPLES §6`; tiki is the named exemplar. *(review-owed; draft authored
     2026-07-20.)*
 
+16. **`GUARDS.md`** — how a guard's findings are *governed* (not detected): the
+    three assessment axes (identification confidence · probability of harm ·
+    impact of harm), assessment kept separate from response, the granularity
+    ladder (line/check/repo) that makes "as narrow as possible" checkable, and
+    **provenance not direction** — a guard may never lower its own response,
+    a declared/reasoned/visible act may, with an expiry where the claim rots.
+    Carries the estate's standing requirement on every allowance: **narrow,
+    noisy, reasoned**. *(rule-4 review queued, 2026-08-05.)*
+
 **Meta — how the doctrine is enforced, recorded, and propagated:**
 
 - **`GLOSSARY.md`** — the shared language: load-bearing terms defined once or
