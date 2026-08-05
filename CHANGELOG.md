@@ -5,6 +5,56 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-08-05 — guard governance, and every allowance made narrow, noisy and reasoned)
+- **`docs/method/GUARDS.md` — how a guard's findings are *governed*.** Track F/F1
+  rebuilt against Mike's three rules for granting an exception: as **narrow** an
+  allowance as possible, **noisy** (it fails as it is scanned, and the exceptions
+  are then applied to remove the expected, explicitly accepted noise), and
+  **reasoned**. Three assessment axes (identification confidence · probability of
+  harm · impact of harm) with undeclared axes defaulting to worst-case;
+  assessment kept separate from response; a granularity ladder (line / check /
+  repo) that is what makes "as narrow as possible" checkable at all; acceptance
+  (indefinite + reason) distinguished from deferment (temporary + expiry).
+  Discharges FG1–FG6. The load-bearing change is **provenance, not direction**: a
+  guard may never lower its own response, but a declared, reasoned,
+  principal-visible act may — carrying an expiry where the claim rots. Tested
+  rather than inherited, as ruled: a lawful downward lane already existed in
+  three places, so escalate-only never described this estate. Prior art verified
+  at pickup (Semgrep's confidence/likelihood/impact, CodeQL's precision vs
+  problem.severity, CVSS v4.0's Threat and Environmental groups).
+
+### Changed (2026-08-05 — all twelve scanners onto the model)
+- **Every allow-marker now needs a stated reason.** `\b<marker>:\s*\w` — the
+  form `datescan`/`pathscan`/`stampscan` already used — in the nine that
+  accepted a bare substring match. A marker with no reason is a *mention*.
+- **Rule-scoped markers where a scanner has more than one rule**
+  (`leakscan:allow:ipv4: <reason>`), so a marker written for a false-positive
+  email no longer silently exempts a MAC address on the same line. Deliberately
+  NOT added where a scanner has one rule; the reason is stated in each
+  `parse_allow` docstring so the asymmetry reads as a decision.
+- **Every scanner reports what it suppressed**, with known zeros printed so two
+  runs compare side by side. 37 suppressions in leakscan, 14 in secretscan, 4
+  declarations in licenscan — all previously behind a bare `✓ clean`.
+  `--disable` names the rules it disabled, too.
+- **An ignore glob must state its reason** in all ten loaders — trailing
+  `# reason` or a stanza comment — and an unreasoned one is exit 2, not a
+  warning. All 31 live entries pass unchanged.
+- **D1 applied** (Mike, 2026-08-04): an allow-marker exempts structural rules
+  only; the machine-local term list always runs.
+
+### Fixed (2026-08-05)
+- **A prose mention was holding a live exemption.** A session log reading
+  a loopback address followed by the words "marked `leakscan:allow`" was exempt because the sentence
+  mentioned the marker. CI runs leakscan structural-only full-tree; it would
+  have gone red there.
+- **A dual-marker form where only the second marker carried a reason**
+  (`# secretscan:allow / leakscan:allow: fixture`) was honoured on a substring
+  match, in three live lines including the pre-commit test's planted secret.
+- **The reason character class was `\S`, which accepts `-->`** — so
+  `<!-- datescan:allow: -->`, a marker with no reason in the commonest Markdown
+  spelling, parsed and exempted. Caught by datescan's own DSR8 test; corrected
+  in all seven scanners it had reached.
+
 ### Added (2026-08-03 — the queued-review pointer gets a forcing function)
 - **`tools/pointerscan.py` — two advisory guards on the `⏳` pointer.** *Grammar:*
   a pointer that seeds the reviewer's first question steers the pass it is

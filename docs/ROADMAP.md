@@ -449,7 +449,18 @@ adopter mistakes.*
       finding. The term-list plane-split consequence is recorded as decided
       design worth holding in view.
       **RULED 2026-08-04 (Mike, plain-language walk-through, all as
-      counselled): D1 fixed as (a)** — allow-markers exempt structural rules
+      counselled): D1 fixed as (a) — APPLIED 2026-08-05** (`tools/leakscan.py`;
+      no test had covered it, pinned now). **🎯 Consequence for Mike, surfaced
+      not worked around:** three lines carrying the author's own published git
+      identity (ADR 0005's named worked example) now report against the term
+      list. The marker on them is exempting the *structural* email rule for the
+      SAME reason (ADR 0005) — not the different-reason case D1 was ruled
+      against — and the machine-local term list cannot express "this name is
+      public in *this* repo". Hook plane (`--staged`) and CI plane
+      (structural-only) are both unaffected; only a local full-cover scan is
+      red. Options when ruled: narrow the term list, or let a marker name the
+      term-list scope explicitly so silencing the highest-confidence layer can
+      never happen by accident. — allow-markers exempt structural rules
       only, the term list always runs (a term-list misfire is fixed in the
       list itself, which is the operator's own config); **D2 fixed as (a)**
       — the IPv6-shape rule requires `::` or four-plus groups, with
@@ -496,7 +507,27 @@ adopter mistakes.*
 do. Several items already on this board turn out to be instances of one frame
 nobody had named.*
 
-- [ ] 🎯 **F1 — rebuild the block-vs-advise model from base.** Origin: E6d's
+- [ ] 🎯 **F1 — rebuild the block-vs-advise model from base. REBUILT
+      2026-08-05 as [`method/GUARDS.md`](method/GUARDS.md); STAYS OPEN until
+      the two rulings below are Mike's** (the P6 precedent — the work is
+      delivered, the ruling is what remains owed), picked up under
+      Mike's instruction to apply his three allowance rules (narrow · noisy ·
+      reasoned) to every scanner — the rules are the stated intent this entry
+      deliberately left blank so the cold pass would not be steered, and the
+      pass has since run and been ruled. FG1–FG6 all discharged; FG4's prior-art
+      check moved two claims (Semgrep carries the full three-way split as
+      distinct fields and computes severity from likelihood × impact; CVSS v4.0
+      quarantines time-varying metrics into its Threat group, independently
+      grounding the expiry rule). Rule-4 `⏳` queued below — self-authored
+      doctrine, so the review is not this session's to take.
+      **🎯 TWO THINGS OWED TO MIKE, both recorded and neither assumed:**
+      **(1)** the model supersedes **E6d(i)**'s escalate-only *wording* — the
+      substance is kept, the direction-constraint is replaced by the
+      provenance-constraint FG2 ruled as the hypothesis to test, and the test
+      is written out in the doc. E6d(ii)/(iii) untouched. **(2)** D1's
+      consequence, below. Account:
+      [`sessions/2026-08-05-1150-guard-governance-allowances.md`](sessions/2026-08-05-1150-guard-governance-allowances.md).
+      Origin: E6d's
       **escalate-only** ruling. **That ruling stands** (Mike, 2026-08-02) —
       nothing is reverted and no work is blocked on this. But Mike is no
       longer confident it was the right call, so the model underneath it is
@@ -1159,6 +1190,19 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   the landing-equals-bookkeeping clauses
   ([verdict](reviews/2026-08-05-1258-landing-equals-bookkeeping-cold.md))
   — LB1–LB2 notes. All five terminal: no new pointers.
+
+- ⏳ **Rule-4 review queued (tier: Fable; pass type: code/design cold pass) —
+  the F1 guard-governance rebuild + Mike's three allowance rules enforced
+  across all twelve scanners.** *Delta:* `docs/method/GUARDS.md` (new) +
+  `docs/method/README.md`; `tools/leakscan.py`, `secretscan.py`, `linkscan.py`,
+  `spellscan.py`, `wrapscan.py`, `datescan.py`, `pathscan.py`, `licenscan.py`,
+  `sizescan.py`, `pointerscan.py`, `reviewscan.py`, `stampscan.py` and their
+  tests; one marker fix in
+  `docs/sessions/2026-07-12-45-browser-fetch-adopted.md` (all landed
+  2026-08-05, this merge). *Intent record:*
+  [`sessions/2026-08-05-1150-guard-governance-allowances.md`](sessions/2026-08-05-1150-guard-governance-allowances.md)
+  + the [F1 intent cold pass](reviews/2026-08-03-0657-f1-guard-governance-intent-cold.md)
+  rulings FG1–FG6 (Mike, 2026-08-03) and the D1 ruling (Mike, 2026-08-04).
 
 
 
