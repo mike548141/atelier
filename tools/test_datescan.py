@@ -343,3 +343,32 @@ class SelfTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Allowances(unittest.TestCase):
+    """GUARDS.md — narrow, noisy, reasoned."""
+
+    def test_scoped_marker_exempts_only_its_own_kind(self):
+        # A marker written for the relative-time word must not also exempt a
+        # non-ISO date sitting on the same line.
+        got = kinds("filed yesterday on 03/04/2026  "
+                    "<!-- datescan:allow:relative-time-word: quoting a source -->")
+        self.assertNotIn("relative-time-word", got)
+        self.assertIn("non-iso-date", got)
+
+    def test_unscoped_marker_still_exempts_everything_on_the_line(self):
+        self.assertEqual([], kinds("filed yesterday on 03/04/2026  "
+                                   "<!-- datescan:allow: verbatim quotation -->"))
+
+    def test_suppressions_are_counted_per_kind(self):
+        tally = ds.Tally()
+        ds.scan_text("t", "filed yesterday  <!-- datescan:allow: quoted -->\n", tally)
+        self.assertEqual({"relative-time-word": 1}, tally.by_marker)
+
+    def test_html_comment_close_is_not_a_reason(self):
+        # `\S` would accept `-->` as the reason; the house form needs `\w`.
+        self.assertIsNone(ds.parse_allow("x <!-- datescan:allow: -->"))
+        self.assertEqual("", ds.parse_allow("x <!-- datescan:allow: real reason -->"))
+
+    def test_clean_tally_reports_known_zeros(self):
+        self.assertIn("0 by allow-marker", ds.Tally().summary())

@@ -201,7 +201,7 @@ from pathlib import Path
 ALLOW_MARKER = "wrapscan:allow"
 
 ALLOW_RX = re.compile(
-    r"\b" + re.escape(ALLOW_MARKER) + r":[ \t]*(?P<reason>\S)")
+    r"\b" + re.escape(ALLOW_MARKER) + r":[ \t]*(?P<reason>\w)")
 
 
 def parse_allow(line: str) -> bool:

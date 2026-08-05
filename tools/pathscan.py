@@ -193,7 +193,7 @@ import fnmatch
 import json
 import re
 import sys
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
 # A line carrying this marker is intentionally exempt from every check on
@@ -202,6 +202,50 @@ from pathlib import Path
 # does not silently exempt the line.
 ALLOW_MARKER = "pathscan:allow"
 ALLOW_MARKER_RX = re.compile(r"\b" + re.escape(ALLOW_MARKER) + r":\s*\w")
+
+ALLOW_SCOPE_RX = re.compile(
+    r"\b" + re.escape(ALLOW_MARKER) + r"(?::(?P<kind>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>\w)")
+
+
+def parse_allow(line: str) -> str | None:
+    """The scope of the line's allow-marker, or None if it carries none.
+
+    `""` is the only scope: this scanner has one finding kind, so the line
+    already IS the narrowest allowance and a sub-rule would be ceremony
+    rather than narrowness (`method/GUARDS.md`, rule a).
+    A marker with no reason returns None — a mention, not an exemption."""
+    m = ALLOW_SCOPE_RX.search(line)
+    if not m:
+        return None
+    return m.group("kind") or ""
+
+
+@dataclass
+class Tally:
+    """What the scan removed AFTER finding it — rule (b) of `method/GUARDS.md`.
+
+    A guard that subtracts silently prints the same clean tick for "nothing
+    matched" and "everything matched and was exempted"."""
+    by_marker: dict[str, int] = field(default_factory=dict)
+    files_by_glob: int = 0
+
+    @property
+    def marker_total(self) -> int:
+        return sum(self.by_marker.values())
+
+    def note_marker(self, kind: str) -> None:
+        self.by_marker[kind] = self.by_marker.get(kind, 0) + 1
+
+    def summary(self) -> str:
+        """One stable line, known zeros printed, so two runs compare."""
+        line = ("  suppressed: "
+                f"{self.marker_total} by allow-marker · "
+                f"{self.files_by_glob} file(s) by .pathscanignore")
+        if self.by_marker:
+            detail = ", ".join(f"{k}×{n}" for k, n in sorted(self.by_marker.items()))
+            line += f"\n    allow-marker breakdown: {detail}"
+        return line
+
 
 # Only these extensions are scanned as SOURCE files — dated/dotted repo docs,
 # not code or config elsewhere. Matches linkscan/datescan's MARKDOWN_SUFFIXES.
@@ -428,13 +472,17 @@ def _resolves(root: Path, md_file: Path, token: str) -> bool:
     return False
 
 
-def scan_text(md_file: Path, root: Path, text: str) -> list[Finding]:
+def scan_text(md_file: Path, root: Path, text: str,
+              tally: "Tally | None" = None) -> list[Finding]:
     rel = _rel(md_file, root)
     findings: list[Finding] = []
     seen_on_line: set[tuple[int, str]] = set()
+    # Line -> allowance scope, recorded rather than acted on (rule b).
+    allow_by_line: dict[int, str] = {}
     for lineno, raw_line in _content_lines(text):
-        if ALLOW_MARKER_RX.search(raw_line):
-            continue
+        scope = parse_allow(raw_line)
+        if scope is not None:
+            allow_by_line[lineno] = scope
         if _is_stub_marked(raw_line):
             continue
         for token in iter_candidates(raw_line):
@@ -449,7 +497,15 @@ def scan_text(md_file: Path, root: Path, text: str) -> list[Finding]:
                 f"{token} does not exist (checked repo-root-relative, "
                 f"relative to {rel}'s own directory, and relative to its "
                 "outermost enclosing docs/ directory)"))
-    return findings
+    # SUBTRACT SECOND. One finding kind, so the line is the whole scope.
+    kept: list[Finding] = []
+    for f in findings:
+        if allow_by_line.get(f.line) is not None:
+            if tally is not None:
+                tally.note_marker(f.kind)
+            continue
+        kept.append(f)
+    return kept
 
 
 def load_ignore_globs(root: Path) -> list[str]:
@@ -476,7 +532,8 @@ def _rel(p: Path, root: Path) -> str:
         return str(p)
 
 
-def iter_markdown(paths: list[Path], root: Path, globs: list[str]):
+def iter_markdown(paths: list[Path], root: Path, globs: list[str],
+                  tally: "Tally | None" = None):
     for base in paths:
         if base.is_file():
             candidates = [base]
@@ -487,25 +544,32 @@ def iter_markdown(paths: list[Path], root: Path, globs: list[str]):
             if p.suffix.lower() not in MARKDOWN_SUFFIXES:
                 continue
             if _ignored(_rel(p, root), globs):
+                if tally is not None:
+                    tally.files_by_glob += 1
                 continue
             yield p
 
 
-def scan_paths(paths: list[Path], root: Path) -> list[Finding]:
+def scan_paths(paths: list[Path], root: Path,
+               tally: "Tally | None" = None) -> list[Finding]:
     globs = load_ignore_globs(root)
     findings: list[Finding] = []
-    for md in iter_markdown(paths, root, globs):
+    for md in iter_markdown(paths, root, globs, tally):
         text = md.read_text(encoding="utf-8", errors="replace")
-        findings.extend(scan_text(md, root, text))
+        findings.extend(scan_text(md, root, text, tally))
     return findings
 
 
-def render_human(findings: list[Finding]) -> str:
+def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     if not findings:
-        return "✓ pathscan clean — every candidate repo-path reference resolves."
+        out = "✓ pathscan clean — every candidate repo-path reference resolves."
+        return out + ("\n" + tally.summary() if tally is not None else "")
     lines = [f"✗ pathscan: {len(findings)} finding(s)."]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
         lines.append(f"  {f.path}:{f.line}  [{f.kind}] {f.target} → {f.detail}")
+    if tally is not None:
+        lines.append("")
+        lines.append(tally.summary())
     lines.append("\n  A real stale path: fix the reference (or restore/rename the target).")
     lines.append("  A false positive or deliberate stub: append "
                  f"'<!-- {ALLOW_MARKER}: <reason> -->' to the line, or add a "
@@ -554,8 +618,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"pathscan: path does not exist: {', '.join(missing)}",
               file=sys.stderr)
         return 2
+    tally = Tally()
     try:
-        findings = scan_paths(targets, root)
+        findings = scan_paths(targets, root, tally)
     except OSError as e:
         print(f"pathscan: cannot read {e.filename}: {e.strerror}", file=sys.stderr)
         return 2
@@ -565,9 +630,14 @@ def main(argv: list[str] | None = None) -> int:
             "clean": not findings,
             "warn": args.warn,
             "findings": [asdict(f) for f in findings],
+            "suppressed": {
+                "by_allow_marker": tally.marker_total,
+                "by_allow_marker_rule": tally.by_marker,
+                "files_by_ignore_glob": tally.files_by_glob,
+            },
         }, indent=2))
     else:
-        print(render_human(findings))
+        print(render_human(findings, tally))
         if findings and args.warn:
             print("\n  (--warn: advisory only — not blocking this build.)")
 

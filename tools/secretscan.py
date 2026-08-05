@@ -78,7 +78,7 @@ from pathlib import Path
 ALLOW_MARKER = "secretscan:allow"
 
 ALLOW_RX = re.compile(
-    r"\b" + re.escape(ALLOW_MARKER) + r"(?::(?P<rule>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>\S)")
+    r"\b" + re.escape(ALLOW_MARKER) + r"(?::(?P<rule>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>\w)")
 
 
 def parse_allow(line: str) -> str | None:

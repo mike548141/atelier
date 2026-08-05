@@ -358,3 +358,19 @@ class SelfTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Allowances(unittest.TestCase):
+    """GUARDS.md — narrow, noisy, reasoned."""
+
+    def test_html_comment_close_is_not_a_reason(self):
+        self.assertIsNone(ps.parse_allow("x <!-- pathscan:allow: -->"))
+        self.assertEqual("", ps.parse_allow("x <!-- pathscan:allow: real reason -->"))
+
+    def test_bare_marker_without_reason_is_not_an_allowance(self):
+        self.assertIsNone(ps.parse_allow("x <!-- pathscan:allow -->"))
+
+    def test_clean_tally_reports_known_zeros(self):
+        summary = ps.Tally().summary()
+        self.assertIn("0 by allow-marker", summary)
+        self.assertIn("0 file(s) by .pathscanignore", summary)
