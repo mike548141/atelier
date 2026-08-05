@@ -133,6 +133,88 @@ class FindStampBlocks(unittest.TestCase):
         self.assertFalse(blocks[0].allow)
 
 
+class CodeContextBlindness(unittest.TestCase):
+    """2026-07-26 cold pass ST1/ST7 — the wiring blocker. A document that
+    merely DOCUMENTS the marker syntax is not a stamp. Markers are recognised
+    only outside fenced code blocks and outside inline `code spans`, and both
+    markers are anchored at line start."""
+
+    def test_fenced_marker_pair_is_not_a_stamp(self):
+        text = ("# How stamps work\n\n"
+                "```markdown\n"
+                "<!-- stamp:begin source=docs/PARENT.md region=floor -->\n"
+                "...the inlined block...\n"
+                "<!-- stamp:end -->\n"
+                "```\n")
+        blocks, malformed = ss.find_stamp_blocks("t.md", text)
+        self.assertEqual([], blocks)
+        self.assertEqual([], malformed)
+
+    def test_tilde_fenced_marker_pair_is_not_a_stamp(self):
+        text = ("~~~\n"
+                "<!-- stamp:begin source=x.md region=floor -->\n"
+                "<!-- stamp:end -->\n"
+                "~~~\n")
+        blocks, malformed = ss.find_stamp_blocks("t.md", text)
+        self.assertEqual([], blocks)
+        self.assertEqual([], malformed)
+
+    def test_inline_code_mention_of_end_marker_is_not_a_stray_end(self):
+        """The exact shape that reddened the floor: a brief writing
+        `` `<!-- stamp:end -->` `` in prose used to read as a stray end."""
+        text = "The closer is `<!-- stamp:end -->`, written on its own line.\n"
+        blocks, malformed = ss.find_stamp_blocks("t.md", text)
+        self.assertEqual([], blocks)
+        self.assertEqual([], malformed)
+
+    def test_inline_code_mention_of_begin_marker_is_not_a_stamp(self):
+        text = "Open with `<!-- stamp:begin source=x region=y -->` at line start.\n"
+        blocks, malformed = ss.find_stamp_blocks("t.md", text)
+        self.assertEqual([], blocks)
+        self.assertEqual([], malformed)
+
+    def test_end_marker_is_anchored_at_line_start(self):
+        """ST7: an end marker trailing other content no longer closes a
+        stamp — the compromise that forced the unanchored regex is gone."""
+        text = ("<!-- stamp:begin source=x.md region=floor -->\n"
+                "a\n"
+                "---<!-- stamp:end -->\n")
+        blocks, malformed = ss.find_stamp_blocks("t.md", text)
+        self.assertEqual([], blocks)
+        self.assertEqual(1, len(malformed))
+        self.assertIn("never closed", malformed[0].detail)
+
+    def test_stripped_lines_still_enter_the_payload_verbatim(self):
+        """Recognition-only: a payload line carrying a code span or a whole
+        fenced example is compared character for character, unchanged."""
+        text = ("<!-- stamp:begin source=x.md region=floor -->\n"
+                "run `python3 tools/floor.py --plane ci`\n"
+                "```sh\n"
+                "echo hi\n"
+                "```\n"
+                "<!-- stamp:end -->\n")
+        blocks, malformed = ss.find_stamp_blocks("t.md", text)
+        self.assertEqual([], malformed)
+        self.assertEqual(
+            ["run `python3 tools/floor.py --plane ci`",
+             "```sh", "echo hi", "```"],
+            blocks[0].payload)
+
+    def test_documented_syntax_in_a_real_scan_is_clean(self):
+        import shutil
+        import tempfile
+        tmp = ss.Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        _write(tmp, "docs/about.md",
+               "Wrap the block in `<!-- stamp:begin ... -->` and "
+               "`<!-- stamp:end -->`.\n\n"
+               "```markdown\n"
+               "<!-- stamp:begin source=docs/GONE.md region=floor -->\n"
+               "<!-- stamp:end -->\n"
+               "```\n")
+        self.assertEqual([], ss.scan_paths([tmp / "docs"], tmp))
+
+
 class OrderedSubsequence(unittest.TestCase):
     def test_equal_is_subsequence(self):
         self.assertTrue(ss._is_ordered_subsequence(["a", "b"], ["a", "b"]))
@@ -208,6 +290,43 @@ class EvaluateBlock(unittest.TestCase):
         f = ss.evaluate_block(self._block(["c", "a", "b"]), canonical)
         self.assertEqual("drift", f.kind)
 
+    def test_empty_payload_with_narrow_is_drift(self):
+        """ST2, ruled 2026-08-04: narrowing to NOTHING is not a narrowing —
+        one token must not vacate a whole inlined floor and report clean."""
+        canonical = ["a", "b", "c"]
+        f = ss.evaluate_block(
+            self._block([], narrow="we-dropped-everything"), canonical)
+        self.assertEqual("drift", f.kind)
+        self.assertIn("0 of 3", f.detail)
+
+    def test_empty_payload_without_narrow_is_drift(self):
+        canonical = ["a", "b", "c"]
+        f = ss.evaluate_block(self._block([]), canonical)
+        self.assertEqual("drift", f.kind)
+
+    def test_blank_only_payload_with_narrow_is_drift(self):
+        """The boundary is what SURVIVES normalisation — a payload of blank
+        lines trims to empty and must not slip past as a narrow."""
+        canonical = ["a", "b", "c"]
+        f = ss.evaluate_block(self._block(["", "   ", ""], narrow="x"),
+                              canonical)
+        self.assertEqual("drift", f.kind)
+
+    def test_genuine_partial_narrow_still_passes(self):
+        """The other direction of ST2: keeping ONE canonical line, in order,
+        with a declared reason, is still a legitimate narrow."""
+        canonical = ["a", "b", "c"]
+        f = ss.evaluate_block(self._block(["b"], narrow="only-b-applies-here"),
+                              canonical)
+        self.assertEqual("narrow", f.kind)
+        self.assertIn("1 of 3", f.detail)
+
+    def test_empty_child_against_empty_canonical_is_identical(self):
+        """An empty canonical region genuinely has nothing to keep — that is
+        equality, not a vacated floor."""
+        f = ss.evaluate_block(self._block([], narrow="x"), [])
+        self.assertEqual("identical", f.kind)
+
     def test_allow_marker_skips_regardless_of_content(self):
         canonical = ["a", "b", "c"]
         f = ss.evaluate_block(
@@ -255,6 +374,43 @@ class ScanPaths(unittest.TestCase):
         _write(self.tmp, "docs/child.txt", _child_text(["a", "b"]))
         findings = ss.scan_paths([self.tmp / "docs"], self.tmp)
         self.assertEqual([], findings)
+
+    def test_traversal_source_is_a_config_error(self):
+        """ST4: `root / source` accepts `../`. A stamp may only point at a
+        file inside the scanned tree."""
+        outside = self.tmp.parent / f"{self.tmp.name}-outside"
+        outside.mkdir()
+        self.addCleanup(lambda: __import__("shutil").rmtree(
+            outside, ignore_errors=True))
+        (outside / "SECRET.md").write_text(_parent_text(["TOP-SECRET-LINE"]))
+        _write(self.tmp, "docs/child.md",
+               _child_text(["x"], source=f"../{outside.name}/SECRET.md"))
+        findings = ss.scan_paths([self.tmp / "docs" / "child.md"], self.tmp)
+        self.assertEqual(["unconfined-source"], [f.kind for f in findings])
+        # And nothing from the out-of-root file is echoed back.
+        self.assertNotIn("TOP-SECRET-LINE", findings[0].detail)
+
+    def test_absolute_source_is_a_config_error(self):
+        """pathlib silently DISCARDS the root for an absolute right-hand
+        side, so this escaped without ever looking like traversal."""
+        outside = self.tmp.parent / f"{self.tmp.name}-abs"
+        outside.mkdir()
+        self.addCleanup(lambda: __import__("shutil").rmtree(
+            outside, ignore_errors=True))
+        (outside / "SECRET.md").write_text(_parent_text(["a"]))
+        _write(self.tmp, "docs/child.md",
+               _child_text(["a"], source=str(outside / "SECRET.md")))
+        findings = ss.scan_paths([self.tmp / "docs" / "child.md"], self.tmp)
+        self.assertEqual(["unconfined-source"], [f.kind for f in findings])
+
+    def test_in_root_source_still_resolves(self):
+        """The confinement check must not break the ordinary case, including
+        a source reached by a path with a `..` segment that stays inside."""
+        _write(self.tmp, "docs/PARENT.md", _parent_text(["a", "b"]))
+        _write(self.tmp, "docs/child.md",
+               _child_text(["a", "b"], source="docs/sub/../PARENT.md"))
+        findings = ss.scan_paths([self.tmp / "docs" / "child.md"], self.tmp)
+        self.assertEqual(["identical"], [f.kind for f in findings])
 
     def test_multiple_stamps_same_source_cached_and_evaluated(self):
         _write(self.tmp, "docs/PARENT.md", _parent_text(["a", "b"]))
@@ -311,6 +467,25 @@ class MainCli(unittest.TestCase):
         self.assertEqual(
             2, self._main(["--warn", "--root", str(self.tmp), str(self.tmp / "docs")]))
 
+    def test_unconfined_source_exits_two_even_with_warn(self):
+        outside = self.tmp.parent / f"{self.tmp.name}-cli"
+        outside.mkdir()
+        self.addCleanup(lambda: __import__("shutil").rmtree(
+            outside, ignore_errors=True))
+        (outside / "SECRET.md").write_text(_parent_text(["a"]))
+        _write(self.tmp, "docs/child.md",
+               _child_text(["a"], source=f"../{outside.name}/SECRET.md"))
+        self.assertEqual(
+            2, self._main(["--warn", "--root", str(self.tmp),
+                           str(self.tmp / "docs")]))
+
+    def test_empty_narrow_drift_exits_one_without_warn(self):
+        _write(self.tmp, "docs/PARENT.md", _parent_text(["a", "b"]))
+        _write(self.tmp, "docs/child.md",
+               _child_text([], narrow="dropped-the-lot"))
+        self.assertEqual(
+            1, self._main(["--root", str(self.tmp), str(self.tmp / "docs")]))
+
     def test_nonexistent_scan_path_is_config_error(self):
         self.assertEqual(
             2, self._main(["--root", str(self.tmp), str(self.tmp / "gone")]))
@@ -344,6 +519,24 @@ class MainCli(unittest.TestCase):
         _write(self.tmp, "README.md",
                _child_text(["x"], source="docs/PARENT.md"))  # outside docs, must be ignored by default scope
         self.assertEqual(1, self._main(["--root", str(self.tmp)]))
+
+
+class RenderHuman(unittest.TestCase):
+    def _note(self, path, kind="identical"):
+        return ss.Finding(path, 1, kind, "p.md", "floor", "detail")
+
+    def test_note_kinds_are_de_duplicated(self):
+        """ST6c: the summary names WHICH dispositions occurred, not one
+        repeat per block — 'identical, identical, identical' was noise."""
+        out = ss.render_human([self._note("a.md"), self._note("b.md"),
+                               self._note("c.md")])
+        self.assertIn("(3 note(s): identical)", out)
+
+    def test_distinct_note_kinds_all_named(self):
+        out = ss.render_human([self._note("a.md", "identical"),
+                               self._note("b.md", "narrow"),
+                               self._note("c.md", "narrow")])
+        self.assertIn("(3 note(s): identical, narrow)", out)
 
 
 class SelfTest(unittest.TestCase):

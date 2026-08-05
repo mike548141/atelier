@@ -55,6 +55,129 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   spelling, parsed and exempted. Caught by datescan's own DSR8 test; corrected
   in all seven scanners it had reached.
 
+### Changed (2026-08-05 — pathscan reaches the corpus that motivated it)
+- **A fourth anchor, and the root files are finally in scope** (PS1). A file
+  with no `docs/` ancestor now resolves candidates against the repo's
+  `docs/` tree — the docs-relative shorthand every root file in this house
+  actually writes. Before it, the scanner could not see its own motivating
+  case: S2's first citation is a root README naming `docs/decisions/`, and
+  the wired step scanned `docs/` only. Anchors 3 and 4 are mutually
+  exclusive by construction, and the finding text names whichever was tried.
+- **The gateable surface is stated, and it is not the default.** Records
+  (`docs/reviews/`, `docs/sessions/`, and — named explicitly —
+  `CHANGELOG.md` and `ROADMAP-DONE.md`) legitimately name the tree as it
+  stood when written; with no time axis they can never come clean without
+  allow-markers that would falsify the record. The doctrine surface plus
+  the live root files can, and now does: the advisory CI step scans exactly
+  that surface, at zero findings on landing day.
+- **Extensionless tokens get a `.md`/`.markdown` retry** (deferred Q2) —
+  GitHub's directory-index convention, so `tools/README` finds
+  `tools/README.md`. Grounded in the convention, not the count, and
+  monotone-safe. **Date/time placeholders are exempt** (PS3): `YYYY`/`HHMM`
+  in a token is a naming template, not a claim. `MM`/`DD` alone are not
+  cues.
+- **The docstring stops overclaiming** (PS8). It said the heuristic caught
+  "every cited occurrence"; B11 — seed from a bare single-segment
+  directory token — is a shape the regex cannot match at all. Two of
+  three, now said plainly. The single-segment floor was always defensible;
+  the claim was not.
+- **Four named limits added, none of them new behaviour** (PS2, PS3, PS6,
+  PS7): emphasis-wrapped paths are invisible; a `TODO` about something
+  else masks a real break on its line; indented code blocks *are* scanned;
+  the line-local blanking pass misses a placeholder span that wraps. Plus
+  the silent false negative all four anchors buy — existence somewhere is
+  not correctness.
+- **The gated surface's residual is burnt to zero**: the review's one live
+  true positive fixed (`docs/build/README.md` named a scanner by its
+  pre-rename path) and the false positives marked with written reasons —
+  including four in decision records, where a marker annotates and the
+  record stays verbatim.
+- `tools/test_pathscan.py` 53 → 73 tests; `--selftest` gains a root-file
+  probe so anchor 4 and the index retry are proven on a box without the
+  unittest file. Registry promotion (PS5) is deliberately NOT in this
+  delta — it waits on the open floor.py cold pass — and the scanner stays
+  advisory; the flip is still a decision.
+
+### Fixed (2026-08-05 — stampscan's wiring blocker cleared; the convention gets its doctrine)
+- **A document about stampscan is no longer a stamp** (ST1, the wiring
+  blocker). The marker parser read markers anywhere it scanned — prose,
+  fences, code spans alike — and a stray marker is a config error `--warn`
+  never downgrades, so ordinary documentation reddened the whole floor and
+  the scanner was unwired within three days of being built. It now strips
+  fenced blocks and inline code spans before marker-hunting, as every
+  sibling does. Recognition only: a stripped line still enters a payload
+  verbatim, so comparison is untouched. Named residual: a raw, line-start
+  HTML-comment marker in bare prose still reads as live — defensible because
+  rendered Markdown hides raw HTML comments, so real documentation uses a
+  code span.
+- **The end marker is anchored again** (ST7). It was matched by a bare
+  search anywhere on a line, forced by the template closing its stamp inline
+  on a divider to keep a frozen test's verbatim slice intact — and that
+  search-anywhere match was the widest single contributor to the false
+  stray-ends above. `test_templates.py`'s `template_block()` now strips
+  marker lines, the template's end marker sits on its own line, the regex
+  anchors, and a new test pins the placement so the compromise can't return.
+- **Narrowing to nothing is drift** (ST2, ruled 2026-08-04). An empty
+  stamped block passed clean with any `narrow=` token — one word could
+  vacate an entire inlined floor while the check reported green. Empty is
+  now drift however it is declared. A genuine partial narrow still passes.
+- **`source=` is confined to `--root`** (ST4). It accepted `../` traversal,
+  and pathlib silently discards the root for an absolute path — a crafted
+  stamp could aim the scanner at any file on the machine and get one of its
+  lines echoed back in the drift hint. Escaping the root is now a config
+  error (`unconfined-source`).
+- **The convention that "borders on a doctrine act" is now written down**
+  (ST5). `PROPAGATION.md` states what a stamp is, what `narrow=<reason>`
+  declares, that narrowing to nothing is drift, and who may declare a
+  narrowing — the child repo, in its own tree, with the reason written
+  down. `tools/README.md` gains its section; `.stampscanignore` ships the
+  house net. Measured while landing it: the parser fix alone clears the
+  live tree, so the ignore file is the standing net for the residual, not a
+  load-bearing patch.
+- **Honesty fixes** (ST6): the duplicate-line residual overstated — a
+  greedy two-pointer subsequence test is exact for membership, and
+  adversarial probes agreed; what it lacks is which occurrence matched, a
+  hint-quality limit only. `render_human` de-duplicates note kinds.
+- **Wired advisory in atelier's own `ci.yml`, and nowhere else.** Not in
+  `floor.py`'s registry: that reaches every child at once (ADR 0008), and
+  ST3 is open — the template's stamp pins a `source=` path that exists only
+  in atelier, and the child-side resolution story must be pin-aware, since
+  a child pinned at a SHA may lawfully differ from atelier@main.
+- `tools/test_stampscan.py` 46 → 65 tests; `tools/test_templates.py`
+  37 → 38; `--selftest` gains the ST1/ST2/ST4 cases so a box without the
+  unittest file proves them too.
+
+### Fixed (2026-08-05 — licenscan under a licence it can't name, and the classifier that was right all along)
+- **A LICENSE we can't name is still a LICENSE** (E1). An unrecognised body used
+  to end the scan at one medium `unknown-license` finding: the per-file SPDX
+  header checks never ran, and an allow marker on the LICENSE line didn't
+  restore them. The silence covered the worst case there is — a proprietary
+  repo publishing a vendored copyleft file. The body is now read as a
+  *declared* custom licence (`LicenseRef-UNRECOGNISED`, or an explicit
+  `LicenseRef-` id it names). Which known licence it is stays unanswerable and
+  is no longer asked; whether it carries GPL/AGPL/LGPL/MPL terms forward is
+  answerable — it does not — so copyleft under it blocks exactly as it does
+  under a permissive licence.
+- **The allow marker now means what it says.** On a LICENSE line it retires the
+  unrecognised-body warn and leaves the header checks running; an explicit
+  `LicenseRef-` id needs no marker at all, being a deliberate declaration
+  rather than a failure to recognise. `--expect` compares against the custom
+  id too, so a CI assertion of Apache-2.0 can't pass on an unnameable body.
+- **PyPI trove classifiers resolve to SPDX ids** (E2).
+  `License :: OSI Approved :: Apache Software License` is the *correct* way a
+  Python package names Apache-2.0, and licenscan read it as an unrecognised
+  declaration and blocked — friction aimed at a repo that had done the right
+  thing. Sixteen unambiguous classifiers now map before the
+  unrecognised-declaration check. Ambiguous family names — `BSD License`, the
+  unversioned `GPL`/`LGPL` — are absent on purpose and still degrade to the
+  warn: friction, never a guessed version.
+- **What it still won't say**: under a custom repo licence, metadata
+  declarations aren't compared (there is no id to compare with) and a
+  permissive foreign header goes unremarked — only the copyleft call is made.
+- `tools/test_licenscan.py` 37 → 52 tests; `--selftest` gains the proprietary
+  poison-pill and classifier cases, so a box without the unittest file proves
+  both.
+
 ### Added (2026-08-03 — the queued-review pointer gets a forcing function)
 - **`tools/pointerscan.py` — two advisory guards on the `⏳` pointer.** *Grammar:*
   a pointer that seeds the reviewer's first question steers the pass it is

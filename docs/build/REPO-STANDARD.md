@@ -93,7 +93,7 @@ applied to repo docs: a claim no stronger than its evidence — see
   own root `SECURITY.md` is the worked example. (Grounded: the 2026-07-22
   security-canon gap map.)
 - **.gitignore** — always ignores OS litter and **both** Claude settings files
-  (`.claude/settings.json`, `.claude/settings.local.json`); add language litter
+  (`.claude/settings.json`, `.claude/settings.local.json`); add language litter <!-- pathscan:allow: both files are gitignored by design — never on disk in a fresh checkout -->
   per type (`__pycache__/`, `node_modules/`, `.venv/`).
 - **.claude/settings.json** — the permission allowlist: the commands a session
   runs **unprompted**. **Not committed** (Mike ruled 2026-07-29, after `rpi`'s

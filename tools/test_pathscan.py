@@ -178,17 +178,186 @@ class AllowMarker(unittest.TestCase):
         self.assertEqual(1, len(findings))
 
 
+class DocumentedBlindSpots(unittest.TestCase):
+    """Characterisation tests for the limits the module docstring NAMES
+    (PS2, PS6, PS7). These pin documented behaviour, not desired behaviour —
+    if one of them starts failing the docstring is what needs updating."""
+
+    def _findings(self, text):
+        return ps.scan_text(ps.Path("/nonexistent-root-xyz/t.md"),
+                            ps.Path("/nonexistent-root-xyz"), text)
+
+    def test_bold_wrapped_path_is_invisible(self):
+        # PS2: the lookbehind excludes `*`, so no match starts inside `**`.
+        self.assertEqual([], cand("see **docs/ghost.md** for the rule"))
+
+    def test_underscore_wrapped_path_is_invisible(self):
+        # PS2: `_` is a word character, so the token starts at the `_`.
+        self.assertNotIn("docs/ghost.md", cand("see _docs/ghost.md_ here"))
+
+    def test_bold_plus_backticks_is_caught(self):
+        # PS2's stated exception — backticks give a clean boundary.
+        self.assertIn("docs/ghost.md", cand("see **`docs/ghost.md`** here"))
+
+    def test_todo_about_something_else_masks_a_real_break(self):
+        # PS6: the stub cue is LINE-level; this is its cost, documented.
+        self.assertEqual(
+            [], self._findings("fix `docs/ghost.md` — TODO tidy the prose\n"))
+
+    def test_indented_code_block_is_scanned(self):
+        # PS7: only FENCED blocks are exempt. An indented block is scanned.
+        findings = self._findings("prose\n\n    see `docs/ghost.md` indented\n")
+        self.assertEqual(1, len(findings))
+        self.assertEqual("docs/ghost.md", findings[0].target)
+
+
+class DatePlaceholderExemption(unittest.TestCase):
+    """PS3: a token carrying a literal uppercase `YYYY`/`HHMM` segment is a
+    naming-convention TEMPLATE, not a claim that such a file exists. Live on
+    docs/build/templates/docs/decisions/template.md, where the token also
+    sits inside a `<...>` placeholder span that WRAPS across a line break —
+    so the line-local blanking pass never sees it."""
+
+    def test_full_date_time_template_exempt(self):
+        self.assertEqual(
+            [], cand("queued — docs/reviews/YYYY-MM-DD-HHMM-slug.md · or ·"))
+
+    def test_yyyy_alone_exempt(self):
+        self.assertEqual([], cand("see `docs/sessions/YYYY-MM-DD-slug.md`"))
+
+    def test_hhmm_alone_exempt(self):
+        self.assertEqual([], cand("see `docs/reviews/HHMM-slug.md`"))
+
+    def test_lowercase_is_not_a_cue(self):
+        # Case-SENSITIVE by design: `yyyy` in a real filename must not buy
+        # a silent exemption.
+        self.assertIn("docs/notes/yyyy-thing.md",
+                      cand("see `docs/notes/yyyy-thing.md`"))
+
+    def test_mm_dd_alone_are_not_cues(self):
+        # Deliberately narrow — two-letter uppercase runs occur in real
+        # filenames, so MM/DD alone must not exempt.
+        self.assertIn("docs/method/MM-DD.md", cand("see `docs/method/MM-DD.md`"))
+
+
+class DirectoryIndexRetry(unittest.TestCase):
+    """Deferred-Q2 counsel: an EXTENSIONLESS token is retried with
+    `.md`/`.markdown` appended under every anchor — GitHub's directory-index
+    convention (`tools/README` is really `tools/README.md`). Monotone-safe:
+    the retry can only drop findings, never invent one."""
+
+    def setUp(self):
+        import shutil
+        import tempfile
+        self.tmp = ps.Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+
+    def _write(self, rel, text):
+        p = self.tmp / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text)
+
+    def test_bare_readme_resolves_to_md(self):
+        self._write("tools/README.md", "# tools\n")
+        self._write("docs/note.md", "see `tools/README` for the index\n")
+        self.assertEqual([], ps.scan_paths([self.tmp / "docs"], self.tmp))
+
+    def test_bare_readme_resolves_to_markdown(self):
+        self._write("tools/README.markdown", "# tools\n")
+        self._write("docs/note.md", "see `tools/README` for the index\n")
+        self.assertEqual([], ps.scan_paths([self.tmp / "docs"], self.tmp))
+
+    def test_extensionless_with_no_md_still_flagged(self):
+        # The retry is not a blanket pass: nothing on disk, still a finding.
+        self._write("docs/note.md", "see `docs/decisions/0001` for the call\n")
+        findings = ps.scan_paths([self.tmp / "docs"], self.tmp)
+        self.assertEqual(1, len(findings))
+        self.assertEqual("docs/decisions/0001", findings[0].target)
+
+    def test_token_with_extension_is_not_retried(self):
+        # `tools/ghost.py` must NOT be satisfied by `tools/ghost.py.md`.
+        self._write("tools/ghost.py.md", "# decoy\n")
+        self._write("docs/note.md", "see `tools/ghost.py` here\n")
+        findings = ps.scan_paths([self.tmp / "docs"], self.tmp)
+        self.assertEqual(1, len(findings))
+        self.assertEqual("tools/ghost.py", findings[0].target)
+
+
+class RootFileDocsRelativeAnchor(unittest.TestCase):
+    """PS1 — anchor 4. A file with NO `docs/` ancestor (a ROOT file) writes
+    docs-relative shorthand exactly as a file inside docs/ does, but has no
+    enclosing docs/ for anchor 3 to find. `<root>/docs` is that anchor.
+    Mutually exclusive with anchor 3 by construction."""
+
+    def setUp(self):
+        import shutil
+        import tempfile
+        self.tmp = ps.Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+
+    def _write(self, rel, text):
+        p = self.tmp / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text)
+
+    def test_root_readme_resolves_docs_relative_shorthand(self):
+        # The live shape: README.md:51 writes `method/REVIEW.md`, meaning
+        # docs/method/REVIEW.md — 51 of 64 doctrine-surface findings were
+        # this one shape before anchor 4.
+        self._write("docs/method/REVIEW.md", "# review\n")
+        self._write("README.md", "see `method/REVIEW.md` for the rules\n")
+        self.assertEqual(
+            [], ps.scan_paths([self.tmp / "README.md"], self.tmp))
+
+    def test_non_root_file_outside_docs_also_gets_the_anchor(self):
+        # The rule is "no docs/ ancestor", not "at the repo root" — a file
+        # under tools/ writes the same shorthand.
+        self._write("docs/method/REVIEW.md", "# review\n")
+        self._write("tools/README.md", "see `method/REVIEW.md` here\n")
+        self.assertEqual(
+            [], ps.scan_paths([self.tmp / "tools" / "README.md"], self.tmp))
+
+    def test_root_file_still_flags_a_genuine_break(self):
+        # Anchor 4 widens resolution; it must not blanket-pass.
+        self._write("docs/method/REVIEW.md", "# review\n")
+        self._write("README.md", "see `method/GHOST.md` for the rules\n")
+        findings = ps.scan_paths([self.tmp / "README.md"], self.tmp)
+        self.assertEqual(1, len(findings))
+        self.assertEqual("method/GHOST.md", findings[0].target)
+
+    def test_finding_detail_names_the_anchor_actually_tried(self):
+        self._write("README.md", "see `method/GHOST.md` for the rules\n")
+        findings = ps.scan_paths([self.tmp / "README.md"], self.tmp)
+        self.assertIn("docs-relative shorthand", findings[0].detail)
+
+    def test_doc_under_docs_keeps_the_enclosing_anchor_wording(self):
+        self._write("docs/note.md", "see `method/GHOST.md` here\n")
+        findings = ps.scan_paths([self.tmp / "docs"], self.tmp)
+        self.assertIn("outermost enclosing docs/", findings[0].detail)
+
+    def test_root_level_markdown_is_scannable(self):
+        # PS4 prep: the gate scope the review recommends is the doctrine
+        # surface PLUS root-level *.md, so root files must scan as explicit
+        # targets even though the DEFAULT scope is docs/ only.
+        self._write("README.md", "see `tools/ghost.py` from the root\n")
+        findings = ps.scan_paths([self.tmp / "README.md"], self.tmp)
+        self.assertEqual(1, len(findings))
+        self.assertEqual("README.md", findings[0].path)
+
+
 class DualResolution(unittest.TestCase):
-    """A bare-prose path resolves if it exists under ANY of three anchors —
-    the scan root, the linking file's own directory, or its nearest
-    enclosing docs/ directory (module docstring, THE CHECK step 5) — found
+    """A bare-prose path resolves if it exists under ANY of four anchors —
+    the scan root, the linking file's own directory, and then EITHER its
+    outermost enclosing docs/ directory (a file under docs/) OR
+    `<root>/docs` (a file outside it) — see module docstring, THE CHECK
+    step 5, and RootFileDocsRelativeAnchor above for the fourth. Found
     necessary by running this scanner over atelier's own corpus:
     docs/build/REPO-STANDARD.md routinely drops the `docs/` prefix and
     writes `method/RECORD.md`, meaning `docs/method/RECORD.md` — NOT
     sibling-relative to its own directory (docs/build/), which has no
     method/ child — while README.md at the repo root writes the same
-    target root-relative as `docs/method/RECORD.md`. All three anchors
-    must be tried."""
+    target root-relative as `docs/method/RECORD.md`. Every anchor that
+    applies must be tried."""
 
     def setUp(self):
         import shutil

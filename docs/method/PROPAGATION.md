@@ -152,6 +152,37 @@ in atelier and is read on demand — never wholesale.
 ```
 <!-- floor:end -->
 
+**The markers bracketing that block are a stamp, and they are mechanical.** The
+`floor:begin` / `floor:end` HTML comments above name this text as a canonical
+**region**; a child that inlines it wraps its copy in a matching
+`stamp:begin source=… region=…` / `stamp:end` pair. Both are HTML comments —
+invisible in rendered Markdown — so stamping changes not one visible character
+of the text it brackets. `tools/stampscan.py` reads the pair and compares the
+copy against this region, which is what turns "a pin bump reviews this wording
+too" from a hope into a check. It was a hope for a while: the `create-repo` C3
+finding was precisely that nothing mechanical diffed the copy against its
+canonical text.
+
+A copy may **narrow** — carry genuinely less than the canonical region — but
+only by *declaring* it, with `narrow=<reason>` on the copy's own begin marker.
+The declaration is the entire signal, because a silent drop and a legitimate
+omission are mechanically identical (both are the canonical text minus some
+lines); undeclared, a drop reds. Three boundaries on that:
+
+- **Narrowing to nothing is not a narrowing.** An empty stamped block is drift
+  however it is declared. A floor exists to bind even where nothing else is
+  read, and one token must not be able to vacate all of it while the check
+  reports clean (2026-07-26 cold pass ST2, ruled 2026-08-04).
+- **A declaration excuses omission only.** A reworded, reordered, or added line
+  reds regardless of `narrow=` — the scanner cannot tell a harmless reword from
+  a contradiction, and will not pretend to.
+- **Who may declare it: the child, in its own tree, with the reason written
+  down.** Narrowing is the child repo's call about its own needs — never
+  atelier's on a child's behalf, and never a bare `narrow=` with no stated
+  reason. The reason is unverifiable by machine, exactly like every
+  `<name>scan:allow:` marker in the house; what it buys is a name attached to
+  the decision. atelier's own stamped copies narrow nothing.
+
 The inlined floor is a **narrowing-free restatement** of the apex + AUTONOMY
 floor, and the concurrency line restates `CONCURRENCY.md`'s flipped prior
 (assume concurrent; worktree by default for heavy writes), sync bookends,

@@ -245,5 +245,5 @@ inline a short floor of it and point up (see the propagation mechanism); they
 never restate it in full — one source of truth. The estate-specific *bearing* of
 the honesty principle (how `tiki` acts on untrustworthy data — the diagnose
 discriminator doctrine, the phantom-success class of bug) stays in ros
-`docs/PRINCIPLES.md` §0 as a bearing that points here. Children point up; the
+`docs/PRINCIPLES.md` §0 as a bearing that points here. Children point up; the <!-- pathscan:allow: a path in the external ros repo, not atelier's own tree -->
 parent never points down for truth.*

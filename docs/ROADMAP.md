@@ -168,6 +168,28 @@ undercount — the fourth wrong blast radius on this programme and the first tha
 >   A1(b); rule-4 cold pass 2026-07-28, 0 MAJOR — terminal) →
 >   [`ROADMAP-DONE.md`](ROADMAP-DONE.md). What remains of C1 is C1b below —
 >   the migration and the removal of the transition spelling.
+- [ ] 🎯 **C5 re-ruling owed — the composed term-list execution was reverted
+      on falsifying measurement (2026-08-05, same session).** The BOTH-
+      COMPOSED ruling of 2026-08-04 was executed and probe-verified, then
+      reverted hours later when three of its premises failed on contact:
+      forward-only held on the hook plane only (a local full-tree leakscan
+      run — the ci-plane floor that reviewers re-run as a brief obligation —
+      went red with 86 term findings across this repo's frozen records,
+      while three Fable passes were in flight expecting it green); the
+      zero-ordinary-English measurement is stale (a tool docstring now uses
+      the word as plain English — the 63-occurrence corpus was records-only
+      and predates it); and the estate root's own records carry ~364
+      self-references, which under E7's D1 ruling (allow-markers never
+      exempt the term list) would hard-block that repo's future self-naming
+      lines with no in-repo hatch. Full account:
+      [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *C5 executed* (correction).
+      **Options for the re-ruling, none pre-chosen:** per-term path/repo
+      scoping in the term-list syntax (a small leakscan build — rides the
+      next leakscan touch, currently the guard-governance session's
+      surface); shapes-only with a records carve-out; accept local
+      full-tree reds (measured cost: it broke live re-run obligations the
+      day it landed); or decline the literal term and keep the join guard
+      as write-time discipline plus review sweeps. Mike's call.
 - [ ] **C1F3 residue — `floorfleet` is a third open surface of the class**
       (found at the 2026-08-03 application). The C1F3 strip landed at the two
       ruled parse seams (`floor.py`'s whole-document config ingest,
@@ -232,36 +254,33 @@ level up: a check wired into atelier's own workflow reaches no child, and the
 child template's promise that "a new check arrives on the next push" holds for
 registry checks only.*
 
-- [~] 🎯 **D1 — `pathscan`: promote with a corrected scope, or retire it.**
-      (claimed 2026-08-05-1243, wt: queue-batch-0806) It
-      runs as a bespoke advisory step in atelier's own `ci.yml`, outside the
-      registry, so no child has ever run it. The cold pass returned 2 MAJOR:
-      the wired scope cannot see the corpus that motivated the tool, and the
-      baseline is ~97% record-store content, so the gateable surface is a small
-      fraction of what it reports. Verdict:
+- [ ] 🎯 **D1 — `pathscan`: promote with a corrected scope, or retire it.**
+      **RULED 2026-08-04 (Mike): FUND THE RESCOPE**, chosen over the
+      counselled retire-to-hand-run; the verdict is the
       [pathscan S2 cold pass](reviews/2026-07-26-2215-pathscan-s2-cold.md).
-      **RULED 2026-08-04 (Mike): FUND THE RESCOPE** — chosen over the
-      counselled retire-to-hand-run. Rework the scope to reach the corpus
-      that motivated the tool, then promote to the registry so children get
-      it; the rescope answers the verdict's two MAJORs before any wiring.
-      Work owed: one build item.
-- [~] 🎯 **D2 — `stampscan`: fix at the parser, or shelve it.**
-      (claimed 2026-08-05-1243, wt: queue-batch-0806) Built, tested,
-      and **not wireable as built** — re-verified 2026-07-27, the live tree
-      exits 2 today. Three MAJOR: marker recognition is context-blind, so any
-      document that *describes* the syntax reds the scan as a config error that
-      `--warn` cannot suppress; a narrowing declaration accepts narrowing to
-      nothing, so one word vacates the whole check while it reports clean; and
-      the template ships markers whose source cannot resolve in any scaffolded
-      child, which would red future scaffolds estate-wide once registry-wired.
-      Reviewer's counsel is explicit — **do not wire, not even advisory** —
-      until the parser strips fenced and inline code, an ignore file ships, and
-      the narrow-to-nothing hole is closed or explicitly accepted. Verdict:
-      [stampscan S4 cold pass](reviews/2026-07-26-2215-stampscan-s4-cold.md).
-      **RULED 2026-08-04 (Mike): FUND THE FIXES NOW** — chosen over the
-      counselled shelve. All three preconditions built (code-span-aware
-      parsing, the ignore file, narrow-to-nothing closed), then wire
-      advisory per the reviewer's bar. Work owed: one build item.
+      **THE RESCOPE LANDED 2026-08-05** (wt: queue-batch-0806): the fourth
+      anchor and root-file scope (PS1), the doctrine-surface gate story
+      with records named out (PS4), the directory-index retry (deferred
+      Q2), the date-placeholder exemption (PS3), the docstring corrections
+      (PS8 + PS2/PS6/PS7), and the gate-scope residual burnt to zero (the
+      one true positive fixed, six false positives marked with written
+      reasons). Tests 53 → 73; the advisory `ci.yml` step now scans the
+      gateable surface. Detail → the rescope `⏳` pointer's delta and
+      CHANGELOG entry. **Remaining work owed: the registry promotion
+      (PS5)** — one `tools/floor.py` line retiring the bespoke step, so
+      children get the check; deliberately deferred while the open
+      floor.py cold pass runs (touching a claimed pointer's surface
+      mid-pass widens a delta a pinned reviewer can no longer see). Rides
+      the next floor.py touch after that cycle closes; the blocking flip
+      stays a separate later ruling.
+- [ ] **D2 residue — stampscan registry wiring stays barred on ST3.** The
+      advisory wiring landed 2026-08-05 (atelier `ci.yml` only, the
+      reviewer's bar step 1); registry wiring — which reaches every child
+      (ADR 0008) — waits on the child-side `source=` resolution story:
+      pin-aware (a child at `atelier@<SHA>` may lawfully differ from
+      atelier@main), and `create-repo` taught that the markers are
+      load-bearing scaffold content. Any blocking flip is a separate later
+      ruling after an advisory soak (the wrapscan/datescan precedent).
 - [ ] 🎯 **D3 — `signscan` cannot fail CI.** It is invoked with `--warn` on
       both planes, so an unsigned commit produces an annotation and never a
       red. That is the deliberate warn-first rollout state and it has outlived
@@ -964,64 +983,6 @@ a stated reason (below); one needed a false-positive marker.
 
 > 📦 **2 completed items** in this section → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
 
-- [~] **licenscan gap — support proprietary / `LicenseRef-*` licences.**
-      (claimed 2026-08-05-1243, wt: queue-batch-0806)
-      A proprietary repo going public is *precisely* when copyleft-contamination
-      detection matters most, and today the tool is **silent exactly there**.
-
-      **Reproduction (2026-07-25, run before disabling the gate on 3 repos).**
-      A fixture with a proprietary `LICENSE` ("ALL RIGHTS RESERVED") plus a
-      source file carrying an SPDX header declaring GPL-2.0 (written literally in
-      the fixture, described here — a real tag in this file trips licenscan, as
-      it did on the first draft of this entry):
-
-      - `licenscan --expect LicenseRef-Proprietary .` reports **one** finding —
-        `LICENSE:1 [unknown-license]` — and **never mentions the GPL file**. It
-        stops at "repo licence unrecognised" and verifies nothing further.
-      - Appending `licenscan:allow:` to the LICENSE line does **not** restore
-        the file-header checks: the finding persists and the GPL file stays
-        invisible. So there is no in-repo workaround; the fix must be in the tool.
-
-      **Why this is a real hole, not a cosmetic one.** A vendored strong-copyleft
-      file cannot be relicensed on the way out. In an Apache repo licenscan
-      catches that; in a proprietary repo — the one most likely to be scrubbed
-      and published deliberately — it catches nothing, while *appearing* to be a
-      configured gate. A check that is off is a decision; a check that runs and
-      covers nothing is the failure class this repo keeps closing.
-
-      **Fix shape.** Accept an unrecognised or `LicenseRef-*` repo licence as a
-      *declared* licence: skip the "which known SPDX licence is this" comparison
-      (which genuinely cannot be answered), and still run the per-file header
-      incompatibility checks, which do not depend on recognising the repo
-      licence — only on knowing it is not the copyleft one found. **Test to
-      write with it:** the fixture above must report the GPL file.
-
-      **Unblocks the 3 repos currently `disabled` with a stated reason**, and
-      those declarations should be retired in the same change rather than left
-      standing (see the advisory/disabled ageing item).
-- [~] **licenscan gap — map known PyPI trove classifiers to SPDX ids.**
-      (claimed 2026-08-05-1243, wt: queue-batch-0806)
-      `"License :: OSI Approved :: Apache Software License"` is the **correct**
-      PyPI trove classifier for Apache-2.0 — established packaging practice, not
-      an error — but licenscan reads it as an unrecognised declaration and blocks.
-
-      **Evidence (2026-07-25).** One child hit this with a `pyproject.toml` that
-      *already* carried a correct SPDX `license` field; the classifier beside it
-      was flagged anyway. Marked in place with the reason, because the repo was
-      right and the tool was wrong.
-
-      **Why it matters beyond one repo.** Every Python package in the estate will
-      carry these classifiers, so this recurs by construction — and each recurrence
-      trains someone to reach for an allow-marker on a *correct* line, which is
-      how a scanner's findings stop being believed.
-
-      **Fix shape.** A small lookup from the OSI-approved trove classifier strings
-      to their SPDX ids, applied before the unrecognised-declaration check. The
-      set is small, stable and published. Where a classifier is genuinely
-      ambiguous (a family name covering several versions), degrade to the existing
-      unknown-declaration *warn* rather than guessing a version — friction, never
-      a silent pass. **Test to write with it:** the Apache trove classifier
-      alongside an Apache-2.0 `license` field reports clean.
 - [ ] **2 repos still owe the declaration — blocked by their own reds.** Their
       hooks refused the commit on pre-existing findings (broken internal links,
       decision records with no review line). **Deliberately not forced:** those
@@ -1214,6 +1175,44 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   removal can start from), SE2 notes the tier bar now lives on three
   mutually-consistent surfaces. Terminal; SE1–SE2 join the ruling round
   above.
+
+- ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass) — the
+  licenscan E1+E2 build (a custom/LicenseRef licence keeps the header
+  checks; trove classifiers resolve).** *Delta:* `tools/licenscan.py` +
+  `tools/test_licenscan.py` (37 → 52 tests) + the CHANGELOG entry (landed
+  2026-08-05) + the corrected check-1 row in `tools/README.md` (landed in
+  the follow-up commit, same session — the row still described the
+  pre-E1 silence). *Intent record:*
+  [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The licence gate learns
+  proprietary* (the two items verbatim — fix shapes and required tests
+  stated in the items, evidence of 2026-07-25 — harvested at landing).
+
+- ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass, the
+  D2 application; the ST cycle's three MAJORs keep it open past this).**
+  *Delta:* `tools/stampscan.py` + `tools/test_stampscan.py` (46 → 65) +
+  `tools/test_templates.py` (37 → 38, `template_block` strips markers) +
+  `.stampscanignore` (new) + `docs/build/templates/CLAUDE.md` (end marker
+  to its own line) + `docs/method/PROPAGATION.md` (the stamp-convention
+  paragraph) + `tools/README.md` (the stampscan section) + the advisory
+  step in `.github/workflows/ci.yml` + the CHANGELOG entry (landed
+  2026-08-05, this commit). *Intent record:*
+  [stampscan S4 cold pass](reviews/2026-07-26-2215-stampscan-s4-cold.md)
+  (ST1–ST7) + the D2 ruling of 2026-08-04, harvested with the item to
+  [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *D2 delivered*.
+
+- ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass, the
+  D1 rescope application; the PS cycle's three MAJORs keep it open past
+  this).** *Delta:* `tools/pathscan.py` + `tools/test_pathscan.py`
+  (53 → 73) + the rescoped advisory step in `.github/workflows/ci.yml` +
+  the residual burn-down (the path fix in `docs/build/README.md`; reasoned
+  allow-markers in `docs/build/REPO-STANDARD.md`, `docs/method/00-APEX.md`,
+  `docs/method/EVIDENCE.md`, `docs/method/TOOLBOX.md`,
+  `docs/decisions/0006-instruments-in-atelier.md`, and the 2026-07-19
+  review-trigger decision record) + the CHANGELOG entry (landed
+  2026-08-05, this commit). *Intent record:*
+  [pathscan S2 cold pass](reviews/2026-07-26-2215-pathscan-s2-cold.md)
+  (PS1–PS8 + deferred Q2) + the D1 ruling of 2026-08-04 on the live item
+  (Track D).
 
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
 COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin

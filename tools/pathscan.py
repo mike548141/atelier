@@ -12,18 +12,30 @@ existed), `post-method B14` (an ACCESS pointer at a map that doesn't exist),
 `post-method B11` ("seed from `templates/`" — no such dir). All three are bare
 prose, none is a Markdown link — exactly the gap `linkscan` cannot see.
 
-FIRST-OF-KIND, NOT YET WIRED, NOT YET REVIEWED. This tool stands alone: it is
-not invoked from `ci.yml`, `docs/build/templates/floor.yml`, or the
-pre-commit hook. It ships with `--warn` support so a future advisory wiring
-needs no code change, matching `datescan`'s rollout shape — but wiring it in
-is a decision for whoever reviews it, not this build.
+STATUS — WIRED ADVISORY, REVIEWED ONCE, NOT GATING. It is invoked from
+`ci.yml` with `--warn` (never blocks), and is NOT in `tools/floor.py`'s
+registry — a bespoke step, which the review flagged (PS5) as the
+vendored-policy shape the registry exists to end; promoting it is a later,
+separate phase. Its first-of-kind cold review (rule 4, Fable, 2026-07-26)
+returned PASS-WITH-FINDINGS — 3 MAJOR, 5 MINOR — and recommended KEEPING IT
+ADVISORY until four preconditions land. This delta is the funded rescope
+(Mike's ruling, 2026-08-04) discharging three of them: the fourth anchor and
+root-file scope (PS1), the gated-surface residual burn-down (one true
+positive fixed, the false positives marked), and the docstring corrections
+(PS2, PS3, PS6, PS7, PS8). Registry promotion (PS5) is explicitly deferred.
+THE FLIP TO BLOCKING IS STILL A DECISION, not this build's to take.
 
 THE CHECK, deliberately narrow (a broad flaky path-guesser is worse than a
 sharp honest one):
 
   1. Read each Markdown file outside fenced (``` ```) code blocks — a fenced
      block is an illustrative example, not a live claim (matches every
-     sibling scanner).
+     sibling scanner). Only FENCED blocks are exempt: an INDENTED (four-space)
+     code block is still scanned, so a path inside one is a live claim as far
+     as this scanner is concerned. That is a knowing limit, not an oversight —
+     the sibling scanners share it — but it is worth stating plainly here
+     because step 1's rationale ("a fenced block is an illustrative example")
+     would otherwise read as if example-exemption were general.
 
   2. Blank out two things that are NOT this scanner's job before hunting for
      candidates, so their content can't seed a false one:
@@ -58,23 +70,36 @@ sharp honest one):
      `.json`, `.sh`, `.txt`). This is the load-bearing heuristic — see
      DETECTION HEURISTIC below for why, and its stated failure modes.
 
-  5. A candidate is resolved against THREE anchors, and passes if it exists
+  5. A candidate is resolved against FOUR anchors, and passes if it exists
      under ANY of them (see `_resolves` for the full rationale):
        - the SCAN ROOT — `README.md` at the repo root writes `docs/decisions/`
          root-relative;
        - the CANDIDATE FILE's OWN DIRECTORY — matches `linkscan`'s
          link-relative convention;
-       - the OUTERMOST ENCLOSING `docs/` DIRECTORY, at whatever depth the
-         referencing file sits — a doc `docs/build/REPO-STANDARD.md` still
-         writes `method/RECORD.md` meaning `docs/method/RECORD.md`, dropping
-         the `docs/` prefix regardless of its OWN nesting under `docs/build/`
-         (OUTERMOST, not nearest — see `_outermost_named_ancestor` on why:
-         `docs/build/templates/docs/` is itself a nested `docs`-named dir).
-     Running this scanner over the live repo found this last anchor was not
-     optional — before it, roughly 6 in 10 findings were this exact shape
-     (see STATED RESIDUAL). Widening what counts as "resolves" can only ever
-     DROP a finding, never invent one: a genuinely broken path fails under
-     all three and is still flagged.
+       - for a file UNDER `docs/`: the OUTERMOST ENCLOSING `docs/` DIRECTORY,
+         at whatever depth the referencing file sits — a doc
+         `docs/build/REPO-STANDARD.md` still writes `method/RECORD.md` meaning
+         `docs/method/RECORD.md`, dropping the `docs/` prefix regardless of
+         its OWN nesting under `docs/build/` (OUTERMOST, not nearest — see
+         `_outermost_named_ancestor` on why: `docs/build/templates/docs/` is
+         itself a nested `docs`-named dir);
+       - for a file NOT under `docs/`: `<root>/docs/` — DOCS-RELATIVE
+         SHORTHAND, the dominant convention in this house's ROOT files. A root
+         `README.md` or `CHANGELOG.md` writes `method/REVIEW.md` meaning
+         `docs/method/REVIEW.md` exactly the way a doc inside `docs/` does;
+         it just has no `docs/` ancestor for anchor 3 to find. Without this
+         anchor the root files a gate most wants to cover false-positive
+         wholesale (51 of 64 findings on the doctrine surface + root `*.md`
+         were this one shape before it was added).
+     Each candidate is also retried with `.md`/`.markdown` APPENDED under
+     every anchor when the token has no extension at all — GitHub's
+     directory-index convention, so `tools/README` finds `tools/README.md`
+     (see STATED RESIDUAL for the silent-mask cost this buys).
+     Running this scanner over the live repo found anchors 3 and 4 were not
+     optional. Widening what counts as "resolves" can only ever DROP a
+     finding, never invent one: a genuinely broken path fails under all four
+     and is still flagged. The flip side is a real, named cost — see the
+     silent-false-negative bullet under STATED RESIDUAL.
 
 DETECTION HEURISTIC — the genuinely hard, judgement-heavy part, stated
 honestly, not rounded up:
@@ -85,9 +110,17 @@ honestly, not rounded up:
   picked because it is the cheapest test that rejects the dominant false-
   positive shape (an ordinary fraction, ratio, or date-as-numerals: `3/4`,
   `50/50`, `23/07/2026` start with neither a repo dir nor end in a doc
-  extension, so none of them become candidates) while still catching every
-  cited occurrence (`docs/decisions/`, `templates/`, an ACCESS-style pointer)
-  without a repo-specific allowlist of "real" paths to maintain.
+  extension, so none of them become candidates) while still catching two of
+  the three cited occurrences (`docs/decisions/` and the ACCESS-style
+  pointer) without a repo-specific allowlist of "real" paths to maintain.
+
+  THE THIRD CITED OCCURRENCE IS NOT CAUGHT, and an earlier version of this
+  paragraph claimed it was. B11 as the intent record states it — "seed from
+  `templates/`" — is a SINGLE-segment token, and `_PATH_TOKEN` requires two
+  or more `/`-separated segments, so it yields no candidate at all. The
+  single-segment floor is itself a deliberate, defensible choice (see the
+  first FALSE NEGATIVE below); the overclaim was the defect, and it is
+  corrected here rather than quietly dropped.
 
   FALSE POSITIVES (a candidate that isn't really a repo-path claim), named:
     - A path-shaped mention of ANOTHER project's tree that happens to share a
@@ -110,7 +143,28 @@ honestly, not rounded up:
       dotted abbreviation and version number in ordinary prose ("e.g.",
       "v1.2.3") as a one-segment "path".
     - A path built by string concatenation, a variable, or split across a
-      line-wrap is invisible to a line-local regex.
+      line-wrap is invisible to a line-local regex. The same line-local limit
+      applies to the BLANKING pass of step 2, in the opposite direction: an
+      angle-bracket placeholder span that WRAPS across a line break is never
+      matched by `_ANGLE_PLACEHOLDER`, so a path sitting inside it is not
+      blanked and is scanned as if it were a live claim — a false POSITIVE
+      arising from the same one-line horizon. The date-placeholder exemption
+      below covers the common shape of this; the allow marker covers the rest.
+    - EMPHASIS-WRAPPED paths are invisible: `**docs/x.md**`, `*docs/x.md*`
+      and `_docs/x.md_` all fail to match, because `_PATH_TOKEN`'s lookbehind
+      excludes `*`, and an underscore is itself a word character, so no match
+      can start inside the emphasis run. Emphasis PLUS backticks — the shape
+      `` **`docs/x.md`** `` — IS caught: the backticks give a clean
+      boundary. Emphasis runs are not stripped before token-hunting: the
+      house names paths in backticks, so this shape is rare here, and
+      stripping `*`/`_` runs correctly (they nest, and `_` is legal inside a
+      filename) is more machinery than the class earns. A named gap, not a
+      fixed one.
+    - A genuinely broken path sharing a line with a `TODO` cue about
+      something ELSE scans clean. The stub exemption below is LINE-level by
+      design (the narrowing is stated there), and this is its cost:
+      ``fix `docs/ghost.md` — TODO tidy this prose later`` yields no finding
+      even though the TODO was never about the path.
     - A genuinely broken reference that avoids both legs of the heuristic —
       no known top-dir prefix, no known extension (a bare directory name with
       no extension, one level deep, e.g. a made-up `foo/bar` with neither
@@ -145,7 +199,14 @@ EXEMPTIONS, same three-layer shape as the sibling scanners:
     immediately followed by an ellipsis (`…` or `...`) is skipped — a
     "truncated for brevity" marker, e.g. `` `docs/reviews/2026-07-10-…` ``
     (found live on this repo's own baseline run), the same shape-not-claim
-    signal as `path/to/thing`.
+    signal as `path/to/thing`; and a token carrying a DATE/TIME PLACEHOLDER
+    segment — the literal uppercase `YYYY` or `HHMM` — is skipped, because
+    `docs/reviews/YYYY-MM-DD-HHMM-slug.md` is a naming-convention TEMPLATE,
+    not a claim that some file of that literal name exists. Deliberately
+    narrow: only `YYYY` and `HHMM` are cues. `MM` and `DD` alone are not,
+    because two-letter uppercase runs occur in ordinary filenames and would
+    exempt real paths; a template that reaches for `MM`/`DD` in practice
+    always writes `YYYY` first.
   * THE ALLOW MARKER / IGNORE FILE. `pathscan:allow: <reason>` anywhere on a
     line exempts every candidate on that line — same tightened contract as
     `datescan` (word-boundary, colon, non-empty reason so a bare mention of
@@ -154,27 +215,62 @@ EXEMPTIONS, same three-layer shape as the sibling scanners:
 
 STATED RESIDUAL, HONESTLY (do not round this to "solved" or "clean"):
 
-  * This is a FIRST-OF-KIND, UNREVIEWED heuristic. Its accuracy is unproven —
-    see DETECTION HEURISTIC above for the named false-positive and false-
-    negative shapes. A noisy baseline on first run against this repo's own
-    docs is EXPECTED, not a bug to silently round away.
-  * Triple-anchor resolution (root / own-directory / nearest-docs-ancestor,
-    see THE CHECK step 5) closes the dominant noise source found on this
+  * This is a FIRST-OF-KIND heuristic, reviewed ONCE (see STATUS above). Its
+    accuracy is bounded, not proven — see DETECTION HEURISTIC above for the
+    named false-positive and false-negative shapes, several of which the
+    review added because the first version of this header missed them. A
+    noisy baseline over this repo's own RECORDS is EXPECTED and permanent,
+    not a bug to silently round away; see SCOPE below for which surface that
+    noise does and does not live on.
+  * Four-anchor resolution (root / own-directory / enclosing-docs / root-docs,
+    see THE CHECK step 5) closes the dominant noise sources found on this
     repo's own corpus, but is still a fixed set of heuristic anchors, not a
     grammar: a path meant relative to some OTHER file's directory, or a
     repo whose doc tree isn't named `docs/`, still won't resolve and is
-    flagged even if a human reader would understand it from context.
-  * A bare `README` mention with no extension (`tools/README`,
-    `instruments/README`, GitHub's own directory-index convention) is NOT
-    tried with `.md`/`.markdown` appended — a named gap, not a guess added
-    to close it; `tools/README.md` is the real file, `tools/README` alone
-    stays flagged.
+    flagged even if a human reader would understand it from context. The
+    `docs` name is hard-coded in anchors 3 and 4 — atelier-shaped, and a
+    stated residual for any adopter whose doc tree is named otherwise.
+  * SILENT FALSE NEGATIVE, the price of every widening above: because a
+    candidate passes if it resolves under ANY anchor, a reference that is
+    genuinely WRONG can be masked by a same-named file under a different
+    anchor. `method/RECORD.md` written from a root file, meaning some other
+    repo's `method/RECORD.md`, resolves against `<root>/docs/` and scans
+    clean. The scanner checks EXISTENCE SOMEWHERE, not correctness — it can
+    prove a path is broken, never that it is right.
+  * A bare mention with no extension at all (`tools/README`,
+    `instruments/README` — GitHub's directory-index convention) IS now
+    retried with `.md`/`.markdown` appended under every anchor, so
+    `tools/README` finds `tools/README.md`. Monotone-safe (it can only drop
+    findings) and grounded in the convention, not in the count. Its cost is
+    the masking class above in miniature: a reference to a genuinely absent
+    DIRECTORY `foo/bar` scans clean if a file `foo/bar.md` happens to exist.
+    Only a fully extensionless token is retried; `docs/decisions/0001` is
+    tried as `0001.md` and, no such file existing, stays flagged.
   * Directories and files are both accepted as "resolves" — a candidate
     ending in a known extension that turns out to be a directory on disk (or
     vice versa) is NOT distinguished; only existence is checked, matching
     `linkscan`'s own file-vs-directory looseness.
-  * Only `docs/**` Markdown is scanned by default (mirrors `datescan`); code
-    comments, commit messages, and non-Markdown prose are out of scope.
+  * SCOPE, and why the default is not the whole story. With no paths given
+    the scanner walks `<root>/docs` (mirrors `datescan`); code comments,
+    commit messages, and non-Markdown prose are out of scope entirely. But
+    `docs/` alone CANNOT SEE THIS SCANNER'S OWN MOTIVATING CASE — S2's first
+    citation is a ROOT README naming `docs/decisions/`. Root-level `*.md`
+    files are fully scannable (pass them as explicit paths) and, since
+    anchor 4, they come back clean rather than false-positiving wholesale.
+    The scope a GATE should bind on is therefore the DOCTRINE SURFACE plus
+    the root files that are live doctrine — `docs/method docs/build
+    docs/decisions README.md CLAUDE.md SECURITY.md` — all of it prose that
+    is true NOW and must resolve NOW.
+    RECORDS are deliberately NOT gateable, and that includes two root-level
+    `*.md` files: `CHANGELOG.md` and `ROADMAP-DONE.md` are records as much
+    as `docs/reviews/` and `docs/sessions/` are. A record legitimately names
+    the tree as it stood when it was written — since-renamed tools, other
+    repos' trees, ephemeral worktrees, gitignored paths — and this scanner
+    has no time axis, so records can never come clean without mass
+    allow-markers that would falsify the record itself. Scan them advisory
+    or not at all. So `*.md` at the root is NOT the right gate glob; name
+    the live root files. Where the gate is actually wired is a decision for
+    the caller, not a claim made here.
 
 Exit codes (fail-safe — anything but a clean scan is non-zero, UNLESS --warn):
   0  clean; or --warn was given (advisory rollout — never blocks)
@@ -305,6 +401,19 @@ _FENCE = re.compile(r"^(`{3,}|~{3,})")
 # "(none yet)" — see header's STUB exemption.
 _STUB_CUE_RX = re.compile(r"\btodo\b|\(none yet\)", re.IGNORECASE)
 
+# A date/time PLACEHOLDER segment inside a token — the literal uppercase
+# `YYYY` or `HHMM` of a naming-convention template such as
+# `docs/reviews/YYYY-MM-DD-HHMM-slug.md`. Case-SENSITIVE and deliberately
+# narrow: `MM`/`DD` alone are not cues (two-letter uppercase runs occur in
+# real filenames), and a template that uses them writes `YYYY` first anyway.
+# This is the placeholder shape angle-bracket blanking misses when the
+# `<...>` span wraps across a line break — see header, FALSE NEGATIVES.
+_DATE_PLACEHOLDER_RX = re.compile(r"YYYY|HHMM")
+
+# Suffixes tried when an extensionless token might be naming a directory
+# index (GitHub's convention): `tools/README` is really `tools/README.md`.
+_INDEX_SUFFIXES = (".md", ".markdown")
+
 
 @dataclass
 class Finding:
@@ -369,6 +478,8 @@ def _is_placeholder(token: str) -> bool:
     if "*" in token or "?" in token:
         return True
     if token.lower().startswith("path/to"):
+        return True
+    if _DATE_PLACEHOLDER_RX.search(token):
         return True
     return False
 
@@ -443,8 +554,44 @@ def _outermost_named_ancestor(p: Path, name: str) -> Path | None:
     return found
 
 
+def _is_extensionless(token: str) -> bool:
+    """True if the token's LAST segment carries no `.` at all — the shape
+    the directory-index retry applies to. `tools/README` qualifies;
+    `tools/README.md` does not (it already names its extension), and neither
+    does `docs/x.md/y` — only the last segment is inspected, which is where
+    an extension would sit."""
+    return "." not in token.rsplit("/", 1)[-1]
+
+
+def _exists_under(anchor: Path, token: str) -> bool:
+    """Existence of `token` under one anchor, with the directory-index
+    retry: an EXTENSIONLESS token is also tried with `.md`/`.markdown`
+    appended, so a bare `tools/README` finds `tools/README.md` (GitHub's
+    directory-index convention — see module docstring, STATED RESIDUAL, for
+    the masking cost this buys). Monotone: the retry can only ever drop a
+    finding, never invent one."""
+    if (anchor / token).exists():
+        return True
+    if _is_extensionless(token):
+        return any((anchor / (token + s)).exists() for s in _INDEX_SUFFIXES)
+    return False
+
+
+def _docs_anchor(root: Path, md_file: Path) -> Path:
+    """Anchor 3 or anchor 4, whichever applies — they are mutually exclusive
+    by construction. A file UNDER a `docs/` ancestor gets that ancestor
+    (outermost); a file with no such ancestor — a ROOT file — gets
+    `<root>/docs`. See `_resolves`."""
+    docs_dir = _outermost_named_ancestor(md_file, "docs")
+    return docs_dir if docs_dir is not None else root / "docs"
+
+
+def _under_docs(md_file: Path) -> bool:
+    return _outermost_named_ancestor(md_file, "docs") is not None
+
+
 def _resolves(root: Path, md_file: Path, token: str) -> bool:
-    """A candidate resolves if it exists under ANY of three anchors — widening
+    """A candidate resolves if it exists under ANY of four anchors — widening
     what counts as "resolves" can only DROP a finding, never invent one, so
     stacking anchors is safe (see module docstring, THE CHECK step 5):
 
@@ -452,29 +599,42 @@ def _resolves(root: Path, md_file: Path, token: str) -> bool:
          repo root.
       2. The candidate FILE's OWN DIRECTORY — matches linkscan's own
          link-relative convention.
-      3. The OUTERMOST ENCLOSING `docs/` DIRECTORY, whichever depth the
-         referencing file sits at — running this scanner over atelier's own
-         corpus found this is the DOMINANT bare-prose convention: a file two
-         or three levels under docs/ (`docs/build/REPO-STANDARD.md`,
-         `docs/decisions/README.md`) still writes `method/RECORD.md` meaning
-         `docs/method/RECORD.md`, not a path relative to its OWN directory.
-         Anchor #2 alone does not catch this — only the outermost `docs/`
-         ancestor, regardless of nesting depth, does (see
-         `_outermost_named_ancestor` on why OUTERMOST, not nearest).
+      3. (file UNDER `docs/`) The OUTERMOST ENCLOSING `docs/` DIRECTORY,
+         whichever depth the referencing file sits at — running this scanner
+         over atelier's own corpus found this is the DOMINANT bare-prose
+         convention: a file two or three levels under docs/
+         (`docs/build/REPO-STANDARD.md`, `docs/decisions/README.md`) still
+         writes `method/RECORD.md` meaning `docs/method/RECORD.md`, not a
+         path relative to its OWN directory. Anchor #2 alone does not catch
+         this — only the outermost `docs/` ancestor, regardless of nesting
+         depth, does (see `_outermost_named_ancestor` on why OUTERMOST, not
+         nearest).
+      4. (file NOT under `docs/`) `<root>/docs` — DOCS-RELATIVE SHORTHAND.
+         The same convention as anchor 3, written from a file that has no
+         `docs/` ancestor for anchor 3 to find: a root `README.md` or
+         `CHANGELOG.md` writes `method/REVIEW.md` meaning
+         `docs/method/REVIEW.md`. Anchor 3's absence, not a different rule —
+         which is why the two are mutually exclusive, and why a scanner
+         pointed only at `docs/` never needed anchor 4 to exist.
+
+    The masking cost of all this widening is named in the module docstring's
+    STATED RESIDUAL: existence-somewhere is not correctness.
     """
-    if (root / token).exists():
+    if _exists_under(root, token):
         return True
-    if (md_file.parent / token).exists():
+    if _exists_under(md_file.parent, token):
         return True
-    docs_dir = _outermost_named_ancestor(md_file, "docs")
-    if docs_dir is not None and (docs_dir / token).exists():
-        return True
-    return False
+    return _exists_under(_docs_anchor(root, md_file), token)
 
 
 def scan_text(md_file: Path, root: Path, text: str,
               tally: "Tally | None" = None) -> list[Finding]:
     rel = _rel(md_file, root)
+    # Anchors 3 and 4 are mutually exclusive (see _resolves) — name the one
+    # actually tried, so a reader of the finding can check it by hand.
+    docs_anchor_note = ("its outermost enclosing docs/ directory"
+                       if _under_docs(md_file)
+                       else "the repo's docs/ (docs-relative shorthand)")
     findings: list[Finding] = []
     seen_on_line: set[tuple[int, str]] = set()
     # Line -> allowance scope, recorded rather than acted on (rule b).
@@ -495,8 +655,8 @@ def scan_text(md_file: Path, root: Path, text: str,
             findings.append(Finding(
                 rel, lineno, "missing-path", token,
                 f"{token} does not exist (checked repo-root-relative, "
-                f"relative to {rel}'s own directory, and relative to its "
-                "outermost enclosing docs/ directory)"))
+                f"relative to {rel}'s own directory, and relative to "
+                f"{docs_anchor_note})"))
     # SUBTRACT SECOND. One finding kind, so the line is the whole scope.
     kept: list[Finding] = []
     for f in findings:
@@ -616,8 +776,10 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     lines.append("  A false positive or deliberate stub: append "
                  f"'<!-- {ALLOW_MARKER}: <reason> -->' to the line, or add a "
                  "path glob to .pathscanignore.")
-    lines.append("  FIRST-OF-KIND, UNREVIEWED heuristic — see this tool's module "
-                 "docstring for its named false-positive/false-negative modes.")
+    lines.append("  Heuristic detection, reviewed once — see this tool's module "
+                 "docstring for its named false-positive/false-negative modes, "
+                 "and for which surface is worth gating (records never come "
+                 "clean).")
     return "\n".join(lines)
 
 
@@ -628,13 +790,21 @@ def _main(argv: list[str] | None = None) -> int:
                     "backtick-wrapped, not already a Markdown link) resolve.")
     ap.add_argument("paths", nargs="*",
                     help="files/dirs to scan (default: <root>/docs if present, "
-                         "else the whole root)")
+                         "else the whole root). The default is NOT the gateable "
+                         "scope: root-level *.md are scannable and clean, and "
+                         "the surface worth gating is the doctrine surface plus "
+                         "root Markdown — 'docs/method docs/build docs/decisions "
+                         "README.md CLAUDE.md SECURITY.md'. Records "
+                         "(docs/reviews, docs/sessions, CHANGELOG.md) are "
+                         "point-in-time and never come clean; scan them "
+                         "advisory. See the module docstring, STATED RESIDUAL.")
     ap.add_argument("--root", default=".",
                     help="repo root for path resolution and .pathscanignore")
     ap.add_argument("--warn", action="store_true",
                     help="report findings but always exit 0 (advisory / "
-                         "warn-first rollout — this scanner is first-of-kind "
-                         "and not yet reviewed; it must not gate)")
+                         "warn-first rollout — its cold review recommended "
+                         "staying advisory, and the flip to blocking is a "
+                         "decision, not a default)")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--selftest", action="store_true",
                     help="run built-in checks and exit")
@@ -738,6 +908,23 @@ def _selftest() -> int:
     ok = targets == expected
     if not ok:
         print(f"FAIL: got {targets}, expected {expected}")
+
+    # Anchor #4 (docs-relative shorthand from a file with no docs/ ancestor)
+    # and the extensionless directory-index retry — both proved from a ROOT
+    # file, the shape the docs-only default scope cannot reach.
+    (tmp / "tools" / "README.md").write_text("# tools\n")
+    (tmp / "README.md").write_text(
+        "See `method/far.md` — docs-relative shorthand from a root file, "
+        "resolved via <root>/docs/; proves anchor #4.\n"
+        "See `tools/README` — extensionless, retried as tools/README.md.\n"
+        "But `method/ghost.md` resolves under no anchor at all.\n"      # BREAK
+    )
+    root_findings = scan_paths([tmp / "README.md"], tmp)
+    root_targets = sorted(f.target for f in root_findings)
+    if root_targets != ["method/ghost.md"]:
+        print(f"FAIL: root-file scan got {root_targets}, "
+              "expected ['method/ghost.md']")
+        ok = False
 
     # main() plumbing: --warn always exits 0 even with findings; without it,
     # findings exit 1 and a clean scan exits 0.

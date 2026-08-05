@@ -3708,3 +3708,148 @@ Item verbatim as closed:
       the workflow's token comment now states the all-repos grant and
       why a selected-repos token under-enumerates, committed and pushed
       in that repo. (Moved from ROADMAP.md 2026-08-05.)
+
+## The licence gate learns proprietary — E1 + E2 (done 2026-08-05)
+
+Both licence-gate items delivered 2026-08-05 (wt: queue-batch-0806),
+built to the fix shapes and required tests the items themselves state.
+E1: an unrecognised LICENSE body is read as a declared custom licence
+(an explicit `LicenseRef-` id where the body names one, otherwise a
+sentinel); the per-file SPDX-header checks keep running, and a vendored
+strong-copyleft header under a custom licence blocks as the poison pill
+it is. The allow marker now retires only the unrecognised-body warn,
+never the header checks, and `--expect` compares the declared id too.
+The item's reproduction fixture now reports the copyleft file (run
+end-to-end at delivery). E2: sixteen unambiguous OSI trove classifiers
+resolve to SPDX ids before the unknown-declaration check; ambiguous
+family names deliberately stay on the warn. Module tests 37 → 52, full
+suite green, live tree clean. Honest limits recorded in the module
+docstring: under a custom licence only the copyleft judgement is made
+(metadata declarations have no id to compare against; a permissive
+foreign header goes unremarked), and a proprietary repo still exits 1
+until its LICENSE carries an allow marker or an explicit `LicenseRef-`
+id — deliberate friction, both remedies stated in the finding message.
+The three children `disabled` on exactly this gap are now unblocked;
+retiring those declarations is each child's own act at its next floor
+touch, per the advisory/disabled ageing item. Items verbatim:
+
+- [x] **licenscan gap — support proprietary / `LicenseRef-*` licences.**
+      (claimed 2026-08-05-1243, wt: queue-batch-0806)
+      A proprietary repo going public is *precisely* when copyleft-contamination
+      detection matters most, and today the tool is **silent exactly there**.
+
+      **Reproduction (2026-07-25, run before disabling the gate on 3 repos).**
+      A fixture with a proprietary `LICENSE` ("ALL RIGHTS RESERVED") plus a
+      source file carrying an SPDX header declaring GPL-2.0 (written literally in
+      the fixture, described here — a real tag in this file trips licenscan, as
+      it did on the first draft of this entry):
+
+      - `licenscan --expect LicenseRef-Proprietary .` reports **one** finding —
+        `LICENSE:1 [unknown-license]` — and **never mentions the GPL file**. It
+        stops at "repo licence unrecognised" and verifies nothing further.
+      - Appending `licenscan:allow:` to the LICENSE line does **not** restore
+        the file-header checks: the finding persists and the GPL file stays
+        invisible. So there is no in-repo workaround; the fix must be in the tool.
+
+      **Why this is a real hole, not a cosmetic one.** A vendored strong-copyleft
+      file cannot be relicensed on the way out. In an Apache repo licenscan
+      catches that; in a proprietary repo — the one most likely to be scrubbed
+      and published deliberately — it catches nothing, while *appearing* to be a
+      configured gate. A check that is off is a decision; a check that runs and
+      covers nothing is the failure class this repo keeps closing.
+
+      **Fix shape.** Accept an unrecognised or `LicenseRef-*` repo licence as a
+      *declared* licence: skip the "which known SPDX licence is this" comparison
+      (which genuinely cannot be answered), and still run the per-file header
+      incompatibility checks, which do not depend on recognising the repo
+      licence — only on knowing it is not the copyleft one found. **Test to
+      write with it:** the fixture above must report the GPL file.
+
+      **Unblocks the 3 repos currently `disabled` with a stated reason**, and
+      those declarations should be retired in the same change rather than left
+      standing (see the advisory/disabled ageing item).
+- [x] **licenscan gap — map known PyPI trove classifiers to SPDX ids.**
+      (claimed 2026-08-05-1243, wt: queue-batch-0806)
+      `"License :: OSI Approved :: Apache Software License"` is the **correct**
+      PyPI trove classifier for Apache-2.0 — established packaging practice, not
+      an error — but licenscan reads it as an unrecognised declaration and blocks.
+
+      **Evidence (2026-07-25).** One child hit this with a `pyproject.toml` that
+      *already* carried a correct SPDX `license` field; the classifier beside it
+      was flagged anyway. Marked in place with the reason, because the repo was
+      right and the tool was wrong.
+
+      **Why it matters beyond one repo.** Every Python package in the estate will
+      carry these classifiers, so this recurs by construction — and each recurrence
+      trains someone to reach for an allow-marker on a *correct* line, which is
+      how a scanner's findings stop being believed.
+
+      **Fix shape.** A small lookup from the OSI-approved trove classifier strings
+      to their SPDX ids, applied before the unrecognised-declaration check. The
+      set is small, stable and published. Where a classifier is genuinely
+      ambiguous (a family name covering several versions), degrade to the existing
+      unknown-declaration *warn* rather than guessing a version — friction, never
+      a silent pass. **Test to write with it:** the Apache trove classifier
+      alongside an Apache-2.0 `license` field reports clean.
+
+**CORRECTION, same day (2026-08-05, the executing session):** the execution
+above was **REVERTED hours after it landed**, on measurement, and C5 returns
+to the live roadmap as a decision owed. What execution surfaced that the
+ruling's premises did not model: **(a)** forward-only held on the *hook*
+plane only — a local **full-tree** leakscan run (the ci-plane floor
+reviewers re-run as an obligation, and orchestrators run at verification)
+went red with **86 term findings across the frozen records**, because this
+repo's records legitimately reference the estate root and the term list
+cannot tell a new line from a frozen one; three Fable cold passes were in
+flight with that command in their briefs. **(b)** The zero-ordinary-English
+measurement was falsified at HEAD — a tool docstring uses the word as plain
+English (the 63-occurrence corpus predated it and was records-only), so the
+cry-wolf premise the ruling retired is alive after all. **(c)** The
+estate-root repo's own records carry ~364 self-references, and under E7's
+D1 ruling (allow-markers never exempt the term list) a future self-naming
+line there hard-blocks with no in-repo hatch. The term list is restored to
+its pre-execution state, verified green on the full tree. The re-ruling —
+with these facts on the table — is queued in Track C.
+
+## D2 delivered — stampscan's three preconditions built, wired advisory (done 2026-08-05)
+
+Ruled 2026-08-04 (fund the fixes over the counselled shelve); delivered
+2026-08-05 (wt: queue-batch-0806) to the reviewer's bar, step 1. ST1:
+the parser strips fenced blocks and inline-code spans before marker
+recognition; stripped lines still enter payloads verbatim, so
+comparison is untouched. ST7 taken as part of ST1's remediation: the
+template's end marker moved to its own line, `template_block()` strips
+marker lines, and the end-marker regex anchors to line start. ST2:
+narrowing to nothing is drift however declared; a genuine partial
+narrow still passes. ST4: `source=` confined to `--root`, escape is a
+config error. ST5: the convention has doctrine words now —
+`PROPAGATION.md` states what a stamp is, what `narrow=<reason>`
+declares, and who may declare it; `tools/README.md` gains its section;
+`.stampscanignore` ships the house net (measured at landing: the
+parser fix alone clears the live tree, so the ignore file is the
+standing net for the named residual, not a load-bearing patch). ST6
+honesty fixes taken. Wired advisory in atelier's `ci.yml` only; the
+live tree that exited 2 with five config errors now exits 0 both
+scopes, and the one live stamped pair still reads identical at 52
+lines. Module tests 46 → 65 (+1 in test_templates); full suite green.
+ST3 stays open as the registry-wiring bar — the D2-residue item on the
+live roadmap. Built by an Opus worker to the ruled counsel; verified
+by the orchestrator. Item verbatim:
+
+- [x] 🎯 **D2 — `stampscan`: fix at the parser, or shelve it.**
+      (claimed 2026-08-05-1243, wt: queue-batch-0806) Built, tested,
+      and **not wireable as built** — re-verified 2026-07-27, the live tree
+      exits 2 today. Three MAJOR: marker recognition is context-blind, so any
+      document that *describes* the syntax reds the scan as a config error that
+      `--warn` cannot suppress; a narrowing declaration accepts narrowing to
+      nothing, so one word vacates the whole check while it reports clean; and
+      the template ships markers whose source cannot resolve in any scaffolded
+      child, which would red future scaffolds estate-wide once registry-wired.
+      Reviewer's counsel is explicit — **do not wire, not even advisory** —
+      until the parser strips fenced and inline code, an ignore file ships, and
+      the narrow-to-nothing hole is closed or explicitly accepted. Verdict:
+      [stampscan S4 cold pass](reviews/2026-07-26-2215-stampscan-s4-cold.md).
+      **RULED 2026-08-04 (Mike): FUND THE FIXES NOW** — chosen over the
+      counselled shelve. All three preconditions built (code-span-aware
+      parsing, the ignore file, narrow-to-nothing closed), then wire
+      advisory per the reviewer's bar. Work owed: one build item.

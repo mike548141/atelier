@@ -262,4 +262,4 @@ network telemetry, and its instruments — `apply`'s skip-loudly, the read-back
 after a write, `diagnose` returning "unknown" rather than a guessed cause — are
 §14 in force: the "phantom success / phantom failure" bug class is exactly a
 claim emitted stronger than its evidence. That case-law stays in ros
-`docs/PRINCIPLES.md`; this file is the general statement it points up to.*
+`docs/PRINCIPLES.md`; this file is the general statement it points up to.* <!-- pathscan:allow: a path in the external ros repo, not atelier's own tree -->

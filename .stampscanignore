@@ -1,0 +1,26 @@
+# Paths exempt from stampscan (gitignore-style globs, one per line).
+# Keep this list SHORT and reasoned — every entry is a hole in the boundary.
+#
+# Note what this file does NOT do: an ignored path is exempt from being
+# scanned FOR stamped blocks. It is still perfectly usable as a canonical
+# `source=` target — a file can be a source without ever being a stamp.
+
+# Review briefs and verdicts: frozen once landed, and they quote probe
+# material RAW by nature — a pass that reproduces a marker failure mode has to
+# write the marker down to show it. Five config errors came from this store
+# alone before the parser learned about code context, and one brief added
+# another minutes after being written (2026-07-26 cold pass ST1, counsel).
+#
+# Measured honestly, 2026-08-06: the parser fix ALONE now clears the whole
+# live tree — every marker in this store today sits in a fence or a code
+# span, so this entry gates nothing at present. It is kept as the standing net
+# for the named residual (a raw line-start marker in bare prose), because this
+# is precisely the store where that shape is written on purpose, and because
+# these files are frozen — a future brief cannot be re-edited to comply.
+docs/reviews/
+
+# Harness-native worktrees nest INSIDE the repo (.gitignore), so a scan rooted
+# at the repo top re-reads a whole second copy of the tree — another session's
+# in-flight state, whose stamped blocks may be mid-edit by design. The house
+# net every sibling ignore file already carries.
+.claude/worktrees/

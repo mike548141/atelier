@@ -300,7 +300,7 @@ gates.
 
 | Check | Catches | Severity |
 |---|---|---|
-| **LICENSE present + recognised** | an open repo with no LICENSE (all-rights-reserved by default), or a LICENSE body no known SPDX licence matches (can't verify the rest) | high / medium |
+| **LICENSE present + recognised** | an open repo with no LICENSE (all-rights-reserved by default), or a LICENSE body no known SPDX licence matches (read as a declared custom licence since 2026-08-05 — the per-file header checks keep running; only declaration comparison is skipped) | high / medium |
 | **Declarations agree** | metadata that names a *different* licence than LICENSE — `pyproject.toml`, `package.json`, `Cargo.toml`, `*.gemspec`, `setup.cfg`, a README shields.io badge — i.e. the repo contradicting itself | high |
 | **No incompatible header** | a file with an `SPDX-License-Identifier` differing from the repo licence — copyleft (GPL/AGPL/LGPL/MPL) into a permissive repo is a **block** (can't be relicensed on publish); permissive-into-permissive is a warn | high / medium |
 
@@ -770,6 +770,57 @@ Exit codes: `0` always for findings — **warn-only**; a pointer is fixable in t
 commit that writes it, which is the one moment the fix costs nothing · `2`
 usage/config error. Escape hatch: `pointerscan:allow: <reason>` anywhere in the
 item.
+
+## `stampscan.py` — an inlined copy still equals its canonical parent (advisory)
+
+Where a child repo or a template **inlines** a floor or a pull-quote of canonical
+doctrine, the copy must equal its parent — or *legitimately narrow* it, declared
+— never silently drop or contradict an item. The corpus paid for this class three
+times before there was a scanner: `create-repo` C3 (nothing kept the stamped block
+equal to PROPAGATION's canonical text), `method-layer` P1 (an inlined floor
+silently dropped "new trust surfaces"), `foundation` Q2 (a pull-quote listed 4 of
+6 floor items) — each caught by a human reading two files side by side.
+
+The mechanism is a marker pair. The parent names a **region** with
+`<region>:begin` / `<region>:end` HTML comments; the copy wraps itself in
+`stamp:begin source=<path> region=<name>` / `stamp:end`. Both are HTML comments,
+so stamping changes nothing visible. The convention itself is doctrine and lives
+in [`docs/method/PROPAGATION.md`](../docs/method/PROPAGATION.md), beside the one
+region it declares — including who may declare a `narrow=` (the child, with a
+written reason) and the rule that **narrowing to nothing is drift**, not a narrow.
+
+**Markers are recognised only outside fenced code and inline code spans**, like
+every sibling scanner. That is not a nicety: a stray marker is a config error,
+`--warn` never downgrades one, and before the fix any document that merely
+*documented* this syntax reddened the whole floor — which is why the scanner sat
+unwired for two weeks (2026-07-26 cold pass ST1). The named residual is a raw,
+line-start marker in bare prose, which is indistinguishable from a real one;
+rendered Markdown hides raw HTML comments, so genuine documentation uses a code
+span anyway, and `.stampscanignore` nets the stores that quote probe material raw.
+
+```sh
+python3 tools/stampscan.py --warn --root . .   # the advisory CI invocation
+python3 tools/stampscan.py --root . docs       # docs only, gating
+python3 tools/stampscan.py --json              # machine-readable
+python3 tools/stampscan.py --selftest          # prove the engine offline
+```
+
+Exit codes: `0` clean, or `--warn` with drift findings only · `1` drift, without
+`--warn` · `2` usage/config error — a malformed stamp, an unresolvable source or
+region, or a `source=` resolving **outside** `--root` (traversal and absolute
+paths both escaped before; a crafted stamp could aim the scanner at any file on
+the machine and get a line of it echoed in the drift hint). A config error is
+**never** downgraded by `--warn`. Escape hatches: `stampscan:allow: <reason>`
+anywhere inside a stamped block exempts that block; a path glob in
+`.stampscanignore` exempts a file from being scanned for stamps of its own
+(it stays usable as a canonical `source=` target).
+
+**Wired advisory in atelier's own `ci.yml` only** — deliberately *not* in the
+`floor.py` registry, which would reach every child at once (ADR 0008). The
+template ships a stamp pinned at `source=docs/method/PROPAGATION.md`, a path that
+exists only here, so a scaffolded child running it would exit 2; the child-side
+resolution story also has to be **pin-aware**, since a child pinned at
+`atelier@<SHA>` may lawfully differ from atelier@main. That is ST3, still open.
 
 ## Tests
 

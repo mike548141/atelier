@@ -34,7 +34,7 @@ exempted *"a doc line"* as not review-worthy. That template is named in
 broken formulation, propagating by template into every repo in the fleet.
 
 **2. That file was an unmarked fork, and that is the real upstream defect.**
-`templates/CLAUDE.md` carries an explicit header — *"this is a stamped copy, not
+`templates/CLAUDE.md` carries an explicit header — *"this is a stamped copy, not <!-- pathscan:allow: record shorthand for docs/build/templates/, kept verbatim in an accepted record -->
 a second source"* — naming `PROPAGATION.md` as canonical. The reviews template
 carried no such marker. It pointed up for the *lifecycle* while silently
 restating the *trigger* and the *brief format* as if they were its own. So it
@@ -67,7 +67,7 @@ Fix the trigger at its source, then make the downstream copies point at it.
    rule was ever findable from where the reader stood.*
 
 3. **Convert the reviews template from fork to pointer.** It gains the
-   stamped-copy header `templates/CLAUDE.md` already uses, naming
+   stamped-copy header `templates/CLAUDE.md` already uses, naming <!-- pathscan:allow: record shorthand for docs/build/templates/, kept verbatim in an accepted record -->
    `method/REVIEW.md` canonical and recording *why* — with the 2026-07-18 drift
    as the worked example. Its trigger becomes the one commitment question plus a
    thin floor; calibration is explicitly the parent's call. The brief format is
@@ -79,7 +79,7 @@ Fix the trigger at its source, then make the downstream copies point at it.
    being prose.
 
 4. **Follow the noun where it co-owns.** `MODEL-ECONOMICS.md`'s ceremony
-   proportionality and `templates/CONTRIBUTING.md`'s review line are re-nouned
+   proportionality and `templates/CONTRIBUTING.md`'s review line are re-nouned <!-- pathscan:allow: record shorthand for docs/build/templates/, kept verbatim in an accepted record -->
    and point at `REVIEW.md` for the trigger rather than implying their own.
 
 ## Rejected
@@ -120,7 +120,7 @@ Fix the trigger at its source, then make the downstream copies point at it.
 ## Addendum (2026-07-19) — the ros-incident attribution corrected
 
 The cold pass (F4, ruled fixed by the principal) disproves one strand of
-§Context: the incident repo has **never carried** `docs/reviews/README.md`, so
+§Context: the incident repo has **never carried** `docs/reviews/README.md`, so <!-- pathscan:allow: the sentence says the repo has never carried this file — the scanner has no negation axis -->
 the stamped template cannot have misled the 2026-07-18 session — REVIEW.md's
 "three places" are the repo's own review policy, REVIEW.md itself, and session
 memory (the 2026-07-18 intent record states them correctly). The drifted-fork
