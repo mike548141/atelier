@@ -1162,22 +1162,15 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
 
 
 
-- ⏳ **Rule-4 review queued (tier: Fable; pass type: doctrine cold pass) —
-  the five small doctrine edits ruled at the 2026-08-04 sitting, one
-  landing.** *Delta:* `docs/method/REVIEW.md` (the tier bar + stop clause
-  at rule 4's spawn criterion; the withdrawn-pass general-case paragraph
-  closing the lifecycle section); the `⏳` legend sentence in this file's
-  preamble; `docs/method/RECORD.md` (the show-first bulk-deletion rule;
-  the describe-don't-quote rule); `docs/method/AUTONOMY.md` (the
-  show-first cross-link under § *Before you destroy or overwrite*);
-  `docs/method/PRINCIPLES.md` §6 (the restatement-sweep surface list);
-  `skills/session-onramp/SKILL.md` (the apex block's Laws re-taught to
-  the Zeroth form) — all landed 2026-08-05, this commit. *Intent record:*
-  [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The 2026-08-04 sitting's five
-  small doctrine edits* (the five ruled items verbatim, harvested at
-  landing) + the
-  [apex Zeroth Law cold pass](reviews/2026-07-26-2215-apex-zeroth-law-cold.md)
-  (ZL1). (claimed 2026-08-05-1300, wt: fable-cold-passes-0805)
+- [ ] 🎯 **A sixth pass the same day: the sitting's five doctrine edits,
+  reviewed and CLOSED (0 MAJOR)** — the same taker claimed the
+  `queue-batch-0806` landing's pointer and ran it
+  ([verdict](reviews/2026-08-05-1301-sitting-five-edits-cold.md)): every
+  edit verified against its ruling at HEAD, the ZL1-widened sweep run
+  independently and clean (SE1 records the verified baseline the Laws
+  removal can start from), SE2 notes the tier bar now lives on three
+  mutually-consistent surfaces. Terminal; SE1–SE2 join the ruling round
+  above.
 
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
 COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin
