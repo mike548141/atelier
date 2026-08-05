@@ -3529,6 +3529,13 @@ ROADMAP § *Doctrine — review-owed* item of the same date; verdicts:
 The five refs-only pointers this take discharges are preserved in the
 verdicts' brief sections verbatim (each brief opens with its queue ref), so
 the pointer text is not duplicated here.
+
+**Addendum (same session): a sixth pass.** The `queue-batch-0806` landing
+queued its own rule-4 pointer while this take was in flight; the same taker
+claimed and ran it — the sitting's five doctrine edits, PASS 0 MAJOR,
+cycle closed
+([verdict](reviews/2026-08-05-1301-sitting-five-edits-cold.md)). Its pointer
+is likewise preserved in the verdict's brief section.
 ## The 2026-08-04 sitting's five small doctrine edits (done 2026-08-05)
 
 All five ruled 2026-08-04 at the decision sitting; delivered 2026-08-05 in one
