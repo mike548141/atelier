@@ -254,19 +254,25 @@ level up: a check wired into atelier's own workflow reaches no child, and the
 child template's promise that "a new check arrives on the next push" holds for
 registry checks only.*
 
-- [~] 🎯 **D1 — `pathscan`: promote with a corrected scope, or retire it.**
-      (claimed 2026-08-05-1243, wt: queue-batch-0806) It
-      runs as a bespoke advisory step in atelier's own `ci.yml`, outside the
-      registry, so no child has ever run it. The cold pass returned 2 MAJOR:
-      the wired scope cannot see the corpus that motivated the tool, and the
-      baseline is ~97% record-store content, so the gateable surface is a small
-      fraction of what it reports. Verdict:
+- [ ] 🎯 **D1 — `pathscan`: promote with a corrected scope, or retire it.**
+      **RULED 2026-08-04 (Mike): FUND THE RESCOPE**, chosen over the
+      counselled retire-to-hand-run; the verdict is the
       [pathscan S2 cold pass](reviews/2026-07-26-2215-pathscan-s2-cold.md).
-      **RULED 2026-08-04 (Mike): FUND THE RESCOPE** — chosen over the
-      counselled retire-to-hand-run. Rework the scope to reach the corpus
-      that motivated the tool, then promote to the registry so children get
-      it; the rescope answers the verdict's two MAJORs before any wiring.
-      Work owed: one build item.
+      **THE RESCOPE LANDED 2026-08-05** (wt: queue-batch-0806): the fourth
+      anchor and root-file scope (PS1), the doctrine-surface gate story
+      with records named out (PS4), the directory-index retry (deferred
+      Q2), the date-placeholder exemption (PS3), the docstring corrections
+      (PS8 + PS2/PS6/PS7), and the gate-scope residual burnt to zero (the
+      one true positive fixed, six false positives marked with written
+      reasons). Tests 53 → 73; the advisory `ci.yml` step now scans the
+      gateable surface. Detail → the rescope `⏳` pointer's delta and
+      CHANGELOG entry. **Remaining work owed: the registry promotion
+      (PS5)** — one `tools/floor.py` line retiring the bespoke step, so
+      children get the check; deliberately deferred while the open
+      floor.py cold pass runs (touching a claimed pointer's surface
+      mid-pass widens a delta a pinned reviewer can no longer see). Rides
+      the next floor.py touch after that cycle closes; the blocking flip
+      stays a separate later ruling.
 - [ ] **D2 residue — stampscan registry wiring stays barred on ST3.** The
       advisory wiring landed 2026-08-05 (atelier `ci.yml` only, the
       reviewer's bar step 1); registry wiring — which reaches every child
@@ -1190,6 +1196,20 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   [stampscan S4 cold pass](reviews/2026-07-26-2215-stampscan-s4-cold.md)
   (ST1–ST7) + the D2 ruling of 2026-08-04, harvested with the item to
   [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *D2 delivered*.
+
+- ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass, the
+  D1 rescope application; the PS cycle's three MAJORs keep it open past
+  this).** *Delta:* `tools/pathscan.py` + `tools/test_pathscan.py`
+  (53 → 73) + the rescoped advisory step in `.github/workflows/ci.yml` +
+  the residual burn-down (the path fix in `docs/build/README.md`; reasoned
+  allow-markers in `docs/build/REPO-STANDARD.md`, `docs/method/00-APEX.md`,
+  `docs/method/EVIDENCE.md`, `docs/method/TOOLBOX.md`,
+  `docs/decisions/0006-instruments-in-atelier.md`, and the 2026-07-19
+  review-trigger decision record) + the CHANGELOG entry (landed
+  2026-08-05, this commit). *Intent record:*
+  [pathscan S2 cold pass](reviews/2026-07-26-2215-pathscan-s2-cold.md)
+  (PS1–PS8 + deferred Q2) + the D1 ruling of 2026-08-04 on the live item
+  (Track D).
 
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
 COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin

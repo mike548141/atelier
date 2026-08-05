@@ -138,14 +138,21 @@ jobs:
 
       # pathscan (S2, 2026-07-22 invariant-candidates review): a repo path
       # NAMED in bare prose or a backtick span (not a markdown link — that's
-      # linkscan's job) must resolve. FIRST-OF-KIND, WIRED ADVISORY-ONLY: not
-      # yet reviewed (don't-stack), and its bare-prose detection is an unproven
-      # heuristic with a deliberately-noisy baseline (see the tool header's
-      # STATED RESIDUAL), so --warn always exits 0 — it reports the finding
-      # count for review evidence and never blocks. Do not drop --warn until
-      # reviewed (the review decides scope/gate-readiness, as WS1 did wrapscan).
-      - name: pathscan (named-path resolution — advisory, not yet reviewed)
-        run: python3 tools/pathscan.py --warn --root . docs
+      # linkscan's job) must resolve. REVIEWED (2026-07-26 cold pass,
+      # PASS-WITH-FINDINGS; rescope ruled 2026-08-04, landed 2026-08-05) and
+      # WIRED ADVISORY on the gateable surface the review named: the doctrine
+      # surface plus the live root files, where the residual is burnt to zero.
+      # Records (docs/reviews, docs/sessions, CHANGELOG, ROADMAP-DONE) are
+      # deliberately out: they name the tree as it stood when written, and
+      # with no time axis they can never come clean without markers that
+      # would falsify the record. --warn stays until the flip is ruled; the
+      # flip, when it comes, is a floor.py registry line (PS5), not a ci.yml
+      # edit — promotion waits on the open floor.py cold pass.
+      - name: pathscan (named-path resolution — advisory)
+        run: |
+          python3 tools/pathscan.py --warn --root . \
+            docs/method docs/build docs/decisions \
+            README.md CLAUDE.md SECURITY.md
 
       # stampscan (S4, 2026-07-22 invariant-candidates review): where a child
       # repo or a template INLINES a floor/pull-quote of canonical doctrine, the

@@ -45,7 +45,7 @@ This is atelier's layering applied to tools:
 
 ## The command allowlist is part of this
 
-A repo's `.claude/settings.json` allowlist is the machine-checkable half of the
+A repo's `.claude/settings.json` allowlist is the machine-checkable half of the <!-- pathscan:allow: gitignored by design since the P1 untrack ruling — never on disk in a fresh checkout -->
 manifest for *shell commands* — the commands the agent may run unprompted. It's
 the "approved" column for the command layer. The manifest in this doctrine sits
 one level up: it also covers higher-level tools and connected services that

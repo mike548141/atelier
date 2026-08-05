@@ -5,6 +5,49 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-08-05 — pathscan reaches the corpus that motivated it)
+- **A fourth anchor, and the root files are finally in scope** (PS1). A file
+  with no `docs/` ancestor now resolves candidates against the repo's
+  `docs/` tree — the docs-relative shorthand every root file in this house
+  actually writes. Before it, the scanner could not see its own motivating
+  case: S2's first citation is a root README naming `docs/decisions/`, and
+  the wired step scanned `docs/` only. Anchors 3 and 4 are mutually
+  exclusive by construction, and the finding text names whichever was tried.
+- **The gateable surface is stated, and it is not the default.** Records
+  (`docs/reviews/`, `docs/sessions/`, and — named explicitly —
+  `CHANGELOG.md` and `ROADMAP-DONE.md`) legitimately name the tree as it
+  stood when written; with no time axis they can never come clean without
+  allow-markers that would falsify the record. The doctrine surface plus
+  the live root files can, and now does: the advisory CI step scans exactly
+  that surface, at zero findings on landing day.
+- **Extensionless tokens get a `.md`/`.markdown` retry** (deferred Q2) —
+  GitHub's directory-index convention, so `tools/README` finds
+  `tools/README.md`. Grounded in the convention, not the count, and
+  monotone-safe. **Date/time placeholders are exempt** (PS3): `YYYY`/`HHMM`
+  in a token is a naming template, not a claim. `MM`/`DD` alone are not
+  cues.
+- **The docstring stops overclaiming** (PS8). It said the heuristic caught
+  "every cited occurrence"; B11 — seed from a bare single-segment
+  directory token — is a shape the regex cannot match at all. Two of
+  three, now said plainly. The single-segment floor was always defensible;
+  the claim was not.
+- **Four named limits added, none of them new behaviour** (PS2, PS3, PS6,
+  PS7): emphasis-wrapped paths are invisible; a `TODO` about something
+  else masks a real break on its line; indented code blocks *are* scanned;
+  the line-local blanking pass misses a placeholder span that wraps. Plus
+  the silent false negative all four anchors buy — existence somewhere is
+  not correctness.
+- **The gated surface's residual is burnt to zero**: the review's one live
+  true positive fixed (`docs/build/README.md` named a scanner by its
+  pre-rename path) and the false positives marked with written reasons —
+  including four in decision records, where a marker annotates and the
+  record stays verbatim.
+- `tools/test_pathscan.py` 53 → 73 tests; `--selftest` gains a root-file
+  probe so anchor 4 and the index retry are proven on a box without the
+  unittest file. Registry promotion (PS5) is deliberately NOT in this
+  delta — it waits on the open floor.py cold pass — and the scanner stays
+  advisory; the flip is still a decision.
+
 ### Fixed (2026-08-05 — stampscan's wiring blocker cleared; the convention gets its doctrine)
 - **A document about stampscan is no longer a stamp** (ST1, the wiring
   blocker). The marker parser read markers anywhere it scanned — prose,

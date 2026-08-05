@@ -60,7 +60,7 @@ idempotent `instruments/install`, not the folder on `PATH`.
 ## Consequences
 
 - atelier now has a first-class `instruments/` layer; the README structure table
-  and this ADR record the tools/instruments split. Future teammate-support tools
+  and this ADR record the tools/instruments split. Future teammate-support tools <!-- pathscan:allow: a prose slash naming the tools-vs-instruments split, not a path -->
   land here by the purpose rule; infra tools are explicitly out.
 - atelier gains a **Node** runtime dependency for this layer (the `tools/` layer
   stays pure-`python3`). Stated, not silent.
