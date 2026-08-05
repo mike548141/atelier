@@ -166,6 +166,25 @@ from pathlib import Path
 ROADMAP_NAMES = ("ROADMAP.md",)
 
 ALLOW_MARKER = "pointerscan:allow:"
+ALLOW_BASE = "pointerscan:allow"
+
+# GUARDS.md rule (c): a marker only counts with a colon and a non-empty reason,
+# so prose that merely mentions the marker text exempts nothing. Tightened
+# 2026-08-05 — a bare marker used to exempt on a substring match.
+ALLOW_RX = re.compile(
+    r"\b" + re.escape(ALLOW_BASE) + r"(?::(?P<kind>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>\w)")
+
+
+def parse_allow(text: str) -> str | None:
+    """The scope of the allow-marker, or None if there is no reasoned one.
+
+    `""` means the whole item. A marker with no reason returns None — a
+    mention, not an exemption."""
+    m = ALLOW_RX.search(text)
+    if not m:
+        return None
+    return m.group("kind") or ""
+
 
 # Directories holding nothing this repo authors.
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv",
@@ -390,11 +409,18 @@ def cycle_findings(body: str) -> list[str]:
     return [f"says a review is owed while carrying its own verdict — {owed}"]
 
 
-def scan_text(text: str, path: str = "") -> list[Finding]:
-    """Pure, so the selftest and the tests drive it with no filesystem."""
+def scan_text(text: str, path: str = "",
+              suppressed: list[int] | None = None) -> list[Finding]:
+    """Pure, so the selftest and the tests drive it with no filesystem.
+
+    `suppressed` collects one entry per item an allow-marker exempted, so the
+    caller can report the subtraction (`method/GUARDS.md`, rule b) instead of
+    printing the same clean tick either way."""
     out: list[Finding] = []
     for item in parse_items(text):
-        if ALLOW_MARKER in item.body:
+        if parse_allow(item.body) is not None:
+            if suppressed is not None and is_pointer(item.marker, item.body):
+                suppressed.append(1)
             continue
         if not is_pointer(item.marker, item.body):
             continue
@@ -430,20 +456,23 @@ def roadmaps(paths: list[str], root: Path) -> list[Path]:
     return unique
 
 
-def scan(paths: list[str], root: Path) -> list[Finding]:
+def scan(paths: list[str], root: Path,
+         suppressed: list[int] | None = None) -> list[Finding]:
     out: list[Finding] = []
     for p in roadmaps(paths, root):
         try:
             text = p.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
-        if ALLOW_MARKER in text.split("\n")[0]:
+        if parse_allow(text.split("\n")[0]) is not None:
+            if suppressed is not None:
+                suppressed.append(1)
             continue
         try:
             rel = p.resolve().relative_to(root.resolve()).as_posix()
         except ValueError:
             rel = p.as_posix()
-        out.extend(scan_text(text, rel))
+        out.extend(scan_text(text, rel, suppressed))
     return out
 
 
@@ -629,7 +658,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"pointerscan: path does not exist: {raw}", file=sys.stderr)
             return 2
 
-    findings = scan(paths, root)
+    _suppressed: list[int] = []
+    findings = scan(paths, root, _suppressed)
 
     if args.json:
         print(json.dumps({"findings": [asdict(f) for f in findings]}, indent=2))
@@ -638,6 +668,7 @@ def main(argv: list[str] | None = None) -> int:
     if not findings:
         print("✓ pointerscan clean — every queued-review pointer is "
               "refs-only and current.")
+        print(f"  suppressed: {len(_suppressed)} pointer(s) by allow-marker")
         return 0
 
     grammar = [f for f in findings if f.detector == "grammar"]

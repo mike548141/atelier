@@ -269,3 +269,18 @@ class DeferralPlacementTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Allowances(unittest.TestCase):
+    """GUARDS.md rule (c) — a marker with no reason is a mention."""
+
+    def test_bare_marker_without_reason_is_not_an_allowance(self):
+        self.assertIsNone(reviewscan.parse_allow("x reviewscan:allow"))
+        self.assertIsNone(reviewscan.parse_allow("x reviewscan:allow:"))
+
+    def test_marker_with_reason_allows(self):
+        self.assertEqual("", reviewscan.parse_allow("x reviewscan:allow: a reason"))
+
+    def test_deferral_scope_is_parsed_as_its_own_kind(self):
+        self.assertEqual("deferral",
+                         reviewscan.parse_allow("x reviewscan:allow:deferral: grounds"))

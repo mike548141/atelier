@@ -154,6 +154,26 @@ from pathlib import Path
 # exemption is self-documenting.
 ALLOW_MARKER = "sizescan:allow"
 
+# GUARDS.md rule (c): a marker only counts with a colon and a non-empty reason,
+# so prose that merely mentions the marker text exempts nothing. Tightened
+# 2026-08-05 — a bare marker used to exempt on a substring match.
+ALLOW_RX = re.compile(
+    r"\b" + re.escape(ALLOW_MARKER) + r"(?::(?P<kind>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>\w)")
+
+
+def parse_allow(text: str) -> str | None:
+    """The scope of the allow-marker, or None if there is no reasoned one.
+
+    Header-scoped: sizescan exempts a whole FILE, deliberately blunter than
+    the sibling scanners' per-line allows, because a file-level exemption is a
+    deliberate declaration rather than a passing convenience (F2). A marker
+    with no reason returns None — a mention, not an exemption."""
+    m = ALLOW_RX.search(text)
+    if not m:
+        return None
+    return m.group("kind") or ""
+
+
 # A per-file override of the advisory REFERENCE POINT in the HEADER:
 # `sizescan:budget=400` (or `: 400`, or a space). Lets a legitimately long
 # all-current file quiet its size nudge. It does NOT affect the gate — the gate
@@ -397,7 +417,8 @@ def _dir_parts(p: Path, walk_base: Path) -> set[str]:
     return set(rel_parts[:-1])   # intermediate dirs only
 
 
-def iter_candidates(paths: list[Path], root: Path, globs: list[str]):
+def iter_candidates(paths: list[Path], root: Path, globs: list[str],
+                    skipped: list[int] | None = None):
     """Yield candidate files under the given paths, skipping growth-store dirs
     and ignored globs. A file is a candidate iff its basename is a metered
     current-truth file OR a named archive store (integrity-checked, never
@@ -432,12 +453,16 @@ def iter_candidates(paths: list[Path], root: Path, globs: list[str]):
             yield p
 
 
-def scan_paths(paths: list[Path], root: Path) -> list[Finding]:
+def scan_paths(paths: list[Path], root: Path,
+               counts: dict[str, int] | None = None) -> list[Finding]:
     globs = load_ignore_globs(root)
     findings: list[Finding] = []
-    for p in iter_candidates(paths, root, globs):
+    files_allowed = 0
+    skipped: list[int] = []
+    for p in iter_candidates(paths, root, globs, skipped):
         text = p.read_text(encoding="utf-8", errors="replace")
-        if ALLOW_MARKER in _header(text):
+        if parse_allow(_header(text)) is not None:
+            files_allowed += 1
             continue
         if is_archive_store(p.name):
             # Integrity only — an archive store is never size-metered. A live
@@ -463,13 +488,29 @@ def scan_paths(paths: list[Path], root: Path) -> list[Finding]:
         if cold or over:
             findings.append(Finding(_rel(p, root), n, cold, reference, over,
                                     _STORE_HINT.get(p.name, ""), cold > 0))
+    # Rule (b): report the suppression counts through the caller's optional
+    # `counts` dict, so a clean report cannot look identical to one where every
+    # file was exempted. An out-param rather than a changed return type: the
+    # selftest and tests call scan_paths in a dozen places and a tuple return
+    # would churn them all for no gain.
+    if counts is not None:
+        counts["files_allowed"] = files_allowed
+        counts["files_by_glob"] = len(skipped)
     return findings
 
 
-def render_human(findings: list[Finding]) -> str:
+def _suppression_line(files_allowed: int, files_by_glob: int) -> str:
+    """Rule (b): known zeros printed, so two runs can be compared."""
+    return (f"  suppressed: {files_allowed} file(s) by sizescan:allow header · "
+            f"{files_by_glob} file(s) by .sizescanignore")
+
+
+def render_human(findings: list[Finding], files_allowed: int = 0,
+                 files_by_glob: int = 0) -> str:
     if not findings:
         return ("✓ sizescan clean — no relocatable cold content on the hot "
-                "path; archive stores hold no live markers.")
+                "path; archive stores hold no live markers.\n"
+                + _suppression_line(files_allowed, files_by_glob))
     n_cold = sum(1 for f in findings if f.cold_items)
     n_live = sum(1 for f in findings if f.live_items)
     n_gated = sum(1 for f in findings if f.gated)
@@ -523,6 +564,8 @@ def render_human(findings: list[Finding]) -> str:
                  f"size advisory; '{ALLOW_MARKER}' to exempt fully; or a glob in "
                  f".sizescanignore. Neither hatch silences the cold-content gate — "
                  f"for that, harvest the [x] items.")
+    lines.append("")
+    lines.append(_suppression_line(files_allowed, files_by_glob))
     return "\n".join(lines)
 
 
@@ -562,7 +605,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"sizescan: path does not exist: {', '.join(missing)}", file=sys.stderr)
         return 2
     try:
-        findings = scan_paths(targets, root)
+        counts: dict[str, int] = {"files_allowed": 0, "files_by_glob": 0}
+        findings = scan_paths(targets, root, counts)
     except OSError as e:
         print(f"sizescan: cannot read {e.filename}: {e.strerror}", file=sys.stderr)
         return 2
@@ -573,7 +617,8 @@ def main(argv: list[str] | None = None) -> int:
             "findings": [asdict(f) for f in findings],
         }, indent=2))
     else:
-        print(render_human(findings))
+        print(render_human(findings, counts["files_allowed"],
+                           counts["files_by_glob"]))
 
     # Advisory by default: everything is a report, exit 0. --check gives teeth to
     # the ONE thing whose remedy is a pure-win move — relocatable cold content (a

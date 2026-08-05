@@ -242,3 +242,14 @@ class SelfTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Allowances(unittest.TestCase):
+    """GUARDS.md rule (c) — a marker with no reason is a mention."""
+
+    def test_bare_marker_without_reason_is_not_an_allowance(self):
+        self.assertIsNone(lc.parse_allow("# licenscan:allow"))
+        self.assertIsNone(lc.parse_allow("# licenscan:allow:"))
+
+    def test_marker_with_reason_allows(self):
+        self.assertEqual("", lc.parse_allow("# licenscan:allow: vendored"))

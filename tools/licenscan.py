@@ -69,6 +69,24 @@ from pathlib import Path
 # the same line.
 ALLOW_MARKER = "licenscan:allow"
 
+# GUARDS.md rule (c): a marker only counts with a colon and a non-empty reason,
+# so prose that merely mentions the marker text exempts nothing. Tightened
+# 2026-08-05 — a bare marker used to exempt on a substring match.
+ALLOW_RX = re.compile(
+    r"\b" + re.escape(ALLOW_MARKER) + r"(?::(?P<kind>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>\w)")
+
+
+def parse_allow(text: str) -> str | None:
+    """The scope of the allow-marker, or None if there is no reasoned one.
+
+    `""` means every declaration on the line. A marker with no reason
+    returns None — a mention, not an exemption."""
+    m = ALLOW_RX.search(text)
+    if not m:
+        return None
+    return m.group("kind") or ""
+
+
 SKIP_DIR_NAMES = {".git", "node_modules", "__pycache__", ".venv", "venv",
                   ".mypy_cache", ".ruff_cache", ".pytest_cache", "dist",
                   "build", ".idea", ".vscode"}
@@ -221,16 +239,20 @@ def _line_text_at(text: str, pos: int) -> str:
     return text[start:(end if end != -1 else len(text))]
 
 
-def declarations_in(rel: str, text: str) -> list[Declaration]:
+def declarations_in(rel: str, text: str,
+                    suppressed: list[int] | None = None) -> list[Declaration]:
     """Licence declarations a single file makes (not the LICENSE body itself).
     Line numbers come from the match offset, not a re-search for the captured
     text — a captured fragment can recur elsewhere and mislocate the finding."""
     out: list[Declaration] = []
+    if suppressed is None:
+        suppressed = []
     name = rel.rsplit("/", 1)[-1]
 
     def add(source: str, m: "re.Match[str]", raw: str | None = None):
         pos = m.start()
-        if ALLOW_MARKER in _line_text_at(text, pos):
+        if parse_allow(_line_text_at(text, pos)) is not None:
+            suppressed.append(1)
             return
         value = m.group(1) if raw is None else raw
         out.append(Declaration(rel, _line_at(text, pos), source, value,
@@ -292,6 +314,11 @@ class Report:
     repo_license: str | None = None
     repo_license_path: str = ""
     findings: list[Finding] = field(default_factory=list)
+    # Rule (b): declarations an allow-marker removed, and files an ignore glob
+    # skipped. Counted so a clean report cannot look identical to one where
+    # everything was exempted.
+    suppressed_declarations: int = 0
+    files_by_glob: int = 0
 
     @property
     def clean(self) -> bool:
@@ -303,6 +330,7 @@ def scan_repo(root: Path, files: list[tuple[str, str]],
     """`files` is (relpath, text) for every scanned file. Pure — no I/O — so the
     engine is trivially testable."""
     rep = Report()
+    _suppressed: list[int] = []
 
     # 1. locate + identify the LICENSE body.
     license_bodies = [(rel, txt) for rel, txt in files
@@ -335,7 +363,7 @@ def scan_repo(root: Path, files: list[tuple[str, str]],
     for rel, txt in files:
         if rel == rep.repo_license_path:
             continue
-        for d in declarations_in(rel, txt):
+        for d in declarations_in(rel, txt, _suppressed):
             if d.spdx is None:
                 rep.findings.append(Finding(
                     "unknown-declaration", "medium",
@@ -363,6 +391,7 @@ def scan_repo(root: Path, files: list[tuple[str, str]],
                     "mismatch", "high",
                     f"{d.source} declares {d.spdx} but LICENSE is {repo} — the "
                     f"repo contradicts itself.", d.path, d.line))
+    rep.suppressed_declarations = len(_suppressed)
     return rep
 
 
@@ -388,13 +417,16 @@ def _looks_binary(data: bytes) -> bool:
     return b"\x00" in data[:8192]
 
 
-def collect_files(root: Path, globs: list[str]) -> list[tuple[str, str]]:
+def collect_files(root: Path, globs: list[str],
+                  skipped: list[int] | None = None) -> list[tuple[str, str]]:
     out: list[tuple[str, str]] = []
     for p in root.rglob("*"):
         if not p.is_file() or (SKIP_DIR_NAMES & set(p.parts)):
             continue
         rel = str(p.relative_to(root))
         if _ignored(rel, globs):
+            if skipped is not None:
+                skipped.append(1)
             continue
         data = p.read_bytes()
         if _looks_binary(data):
@@ -403,16 +435,25 @@ def collect_files(root: Path, globs: list[str]) -> list[tuple[str, str]]:
     return out
 
 
+def _suppression_line(rep: Report) -> str:
+    """Rule (b): known zeros printed, so two runs can be compared."""
+    return (f"  suppressed: {rep.suppressed_declarations} declaration(s) by "
+            f"allow-marker · {rep.files_by_glob} file(s) by .licenscanignore")
+
+
 def render_human(rep: Report) -> str:
     lines: list[str] = []
     lic = rep.repo_license or "unrecognised"
     if rep.clean:
-        return f"✓ licenscan clean — repo licence {lic}, all declarations agree."
+        return (f"✓ licenscan clean — repo licence {lic}, all declarations agree."
+                + "\n" + _suppression_line(rep))
     lines.append(f"✗ licenscan: {len(rep.findings)} finding(s) — repo licence "
                  f"{lic}. Publish blocked.\n")
     for f in sorted(rep.findings, key=lambda x: (x.severity != "high", x.path, x.line)):
         loc = f"  {f.path}:{f.line}  " if f.path else "  "
         lines.append(f"{loc}[{f.severity}/{f.kind}] {f.message}")
+    lines.append("")
+    lines.append(_suppression_line(rep))
     lines.append(f"\n  A false positive: append '# {ALLOW_MARKER}: <reason>' to the")
     lines.append("  line, or add a path glob to .licenscanignore. Not legal advice —")
     lines.append("  a conservative flag for a human to resolve before going public.")
@@ -442,8 +483,10 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     globs = load_ignore_globs(root)
-    files = collect_files(root, globs)
+    _skipped: list[int] = []
+    files = collect_files(root, globs, _skipped)
     rep = scan_repo(root, files, args.expect)
+    rep.files_by_glob = len(_skipped)
 
     if args.json:
         print(json.dumps({

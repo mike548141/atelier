@@ -110,6 +110,26 @@ RECORD_NAME = re.compile(r"^(\d{4}-\d{2}-\d{2})(?:-\d{4})?-.+\.md$")
 REVIEW_LINE = re.compile(r"^[\s>*-]*(?:\*\*)?[Rr](?:eview|EVIEW)(?:\*\*)?\s*:\s*\S")
 
 ALLOW_MARKER = "reviewscan:allow:"
+ALLOW_BASE = "reviewscan:allow"
+
+# GUARDS.md rule (c): a marker only counts with a colon and a non-empty reason,
+# so prose that merely mentions the marker text exempts nothing. Tightened
+# 2026-08-05 — a bare marker used to exempt on a substring match.
+ALLOW_RX = re.compile(
+    r"\b" + re.escape(ALLOW_BASE) + r"(?::(?P<kind>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>\w)")
+
+
+def parse_allow(text: str) -> str | None:
+    """The scope of the allow-marker, or None if there is no reasoned one.
+
+    `""` means the whole record; `"deferral"` is the DEFERRAL_ALLOW scope
+    that check 2 requires (an unscoped allow must not silently waive the
+    deferral guard too — DF3). A marker with no reason returns None."""
+    m = ALLOW_RX.search(text)
+    if not m:
+        return None
+    return m.group("kind") or ""
+
 
 FENCE = re.compile(r"^\s*(```|~~~)")
 
@@ -137,10 +157,15 @@ DEFERRAL_ALLOW = "reviewscan:allow:deferral:"
 VERDICT_HEADING = re.compile(r"^#{1,6}\s.*\bverdict\b", re.IGNORECASE)
 
 
-def scan_record(path: Path) -> bool:
-    """True if the record satisfies the rule (has the line, or is exempt)."""
+def scan_record(path: Path, suppressed: list[int] | None = None) -> bool:
+    """True if the record satisfies the rule (has the line, or is exempt).
+
+    `suppressed` collects one entry per record an allow-marker exempted, so a
+    clean run can state what it subtracted (`method/GUARDS.md`, rule b)."""
     text = path.read_text(encoding="utf-8", errors="replace")
-    if ALLOW_MARKER in text:
+    if parse_allow(text) is not None:
+        if suppressed is not None:
+            suppressed.append(1)
         return True
     # A `review:` inside a fenced code block is a QUOTED example, not the
     # record's own judgement (RS2) — track fence state and skip fenced lines.
@@ -254,7 +279,8 @@ def find_records(paths: list[Path]) -> list[Path]:
 
 def run(paths: list[Path], root: Path, as_json: bool) -> int:
     records = find_records(paths)
-    failures = [r for r in records if not scan_record(r)]
+    _suppressed: list[int] = []
+    failures = [r for r in records if not scan_record(r, _suppressed)]
     briefs = find_briefs(paths)
     misplaced = [b for b in briefs if not scan_brief(b)]
     if as_json:
@@ -295,6 +321,7 @@ def run(paths: list[Path], root: Path, as_json: bool) -> int:
         print(f"✓ reviewscan clean — {len(records)} post-{BOUNDARY} decision "
               f"record(s) carry a review line; {len(briefs)} review brief(s) "
               "keep deferred material out of the brief.")
+        print(f"  suppressed: {len(_suppressed)} record(s) by allow-marker")
     return 1 if (failures or misplaced) else 0
 
 
