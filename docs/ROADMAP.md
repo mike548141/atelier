@@ -168,6 +168,28 @@ undercount — the fourth wrong blast radius on this programme and the first tha
 >   A1(b); rule-4 cold pass 2026-07-28, 0 MAJOR — terminal) →
 >   [`ROADMAP-DONE.md`](ROADMAP-DONE.md). What remains of C1 is C1b below —
 >   the migration and the removal of the transition spelling.
+- [ ] 🎯 **C5 re-ruling owed — the composed term-list execution was reverted
+      on falsifying measurement (2026-08-05, same session).** The BOTH-
+      COMPOSED ruling of 2026-08-04 was executed and probe-verified, then
+      reverted hours later when three of its premises failed on contact:
+      forward-only held on the hook plane only (a local full-tree leakscan
+      run — the ci-plane floor that reviewers re-run as a brief obligation —
+      went red with 86 term findings across this repo's frozen records,
+      while three Fable passes were in flight expecting it green); the
+      zero-ordinary-English measurement is stale (a tool docstring now uses
+      the word as plain English — the 63-occurrence corpus was records-only
+      and predates it); and the estate root's own records carry ~364
+      self-references, which under E7's D1 ruling (allow-markers never
+      exempt the term list) would hard-block that repo's future self-naming
+      lines with no in-repo hatch. Full account:
+      [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *C5 executed* (correction).
+      **Options for the re-ruling, none pre-chosen:** per-term path/repo
+      scoping in the term-list syntax (a small leakscan build — rides the
+      next leakscan touch, currently the guard-governance session's
+      surface); shapes-only with a records carve-out; accept local
+      full-tree reds (measured cost: it broke live re-run obligations the
+      day it landed); or decline the literal term and keep the join guard
+      as write-time discipline plus review sweeps. Mike's call.
 - [ ] **C1F3 residue — `floorfleet` is a third open surface of the class**
       (found at the 2026-08-03 application). The C1F3 strip landed at the two
       ruled parse seams (`floor.py`'s whole-document config ingest,

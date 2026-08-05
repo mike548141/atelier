@@ -3762,3 +3762,22 @@ touch, per the advisory/disabled ageing item. Items verbatim:
       unknown-declaration *warn* rather than guessing a version — friction, never
       a silent pass. **Test to write with it:** the Apache trove classifier
       alongside an Apache-2.0 `license` field reports clean.
+
+**CORRECTION, same day (2026-08-05, the executing session):** the execution
+above was **REVERTED hours after it landed**, on measurement, and C5 returns
+to the live roadmap as a decision owed. What execution surfaced that the
+ruling's premises did not model: **(a)** forward-only held on the *hook*
+plane only — a local **full-tree** leakscan run (the ci-plane floor
+reviewers re-run as an obligation, and orchestrators run at verification)
+went red with **86 term findings across the frozen records**, because this
+repo's records legitimately reference the estate root and the term list
+cannot tell a new line from a frozen one; three Fable cold passes were in
+flight with that command in their briefs. **(b)** The zero-ordinary-English
+measurement was falsified at HEAD — a tool docstring uses the word as plain
+English (the 63-occurrence corpus predated it and was records-only), so the
+cry-wolf premise the ruling retired is alive after all. **(c)** The
+estate-root repo's own records carry ~364 self-references, and under E7's
+D1 ruling (allow-markers never exempt the term list) a future self-naming
+line there hard-blocks with no in-repo hatch. The term list is restored to
+its pre-execution state, verified green on the full tree. The re-ruling —
+with these facts on the table — is queued in Track C.
