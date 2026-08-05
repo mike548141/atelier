@@ -1191,19 +1191,17 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   ([verdict](reviews/2026-08-05-1258-landing-equals-bookkeeping-cold.md))
   — LB1–LB2 notes. All five terminal: no new pointers.
 
-- ⏳ **Rule-4 review queued (tier: Fable; pass type: code/design cold pass) —
-  the F1 guard-governance rebuild + Mike's three allowance rules enforced
-  across all twelve scanners.** *Delta:* `docs/method/GUARDS.md` (new) +
-  `docs/method/README.md`; `tools/leakscan.py`, `secretscan.py`, `linkscan.py`,
-  `spellscan.py`, `wrapscan.py`, `datescan.py`, `pathscan.py`, `licenscan.py`,
-  `sizescan.py`, `pointerscan.py`, `reviewscan.py`, `stampscan.py` and their
-  tests; one marker fix in
-  `docs/sessions/2026-07-12-45-browser-fetch-adopted.md` (all landed
-  2026-08-05, this merge). *Intent record:*
-  [`sessions/2026-08-05-1150-guard-governance-allowances.md`](sessions/2026-08-05-1150-guard-governance-allowances.md)
-  + the [F1 intent cold pass](reviews/2026-08-03-0657-f1-guard-governance-intent-cold.md)
-  rulings FG1–FG6 (Mike, 2026-08-03) and the D1 ruling (Mike, 2026-08-04).
-  (claimed 2026-08-05-1310, wt: fable-cold-passes-0805)
+- [ ] 🎯 **A seventh pass: the F1/GUARDS.md rebuild + the twelve-scanner
+  allowance rules, reviewed and CLOSED (0 MAJOR)** — the same taker
+  ([verdict](reviews/2026-08-05-1320-f1-guards-allowances-cold.md)):
+  FG1–FG6 and D1 verified at HEAD, the three rules probed live
+  (reasonless marker exempts nothing; reasonless glob exits 2; suppressed
+  counts on every scanner). GA1 (minor) — the reason-required loader is
+  ten per-scanner copies, the propagation mechanism the build's own
+  survey diagnosed; single-source it or record standalone-copies as the
+  decided design. GA2–GA3 notes. The two 🎯 rulings the delta queued
+  (E6d(i) supersession; D1's identity-lines consequence) stand untouched
+  above. Terminal; GA1–GA3 join the ruling round.
 
 
 
