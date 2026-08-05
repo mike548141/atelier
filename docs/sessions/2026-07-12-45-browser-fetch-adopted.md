@@ -12,7 +12,7 @@ Playwright — no git, no README, a `.venv`, "Mike" throughout) became
 `instruments/browser-fetch/`:
 
 - **Pre-public scrub first**: every "Mike" → operator, the pre-SDK/machine
-  history dropped, `127.0.0.1` marked `leakscan:allow`; floor scanners clean
+  history dropped, `127.0.0.1` marked `leakscan:allow`; floor scanners clean <!-- leakscan:allow:ipv4: loopback, in a frozen session record; the prose-mention exemption this line used to rely on stopped counting 2026-08-05 -->
   before the code ever entered the public repo.
 - **Code in atelier, venv outside**: pinned `requirements.txt` (mcp,
   playwright) + `constraints.txt` (`cryptography<46`, Intel-macOS wheels), a

@@ -95,6 +95,76 @@ class Allow(unittest.TestCase):
     def test_inline_allow_marker_exempts_line(self):
         self.assertEqual([], scan("secret a.b@example.com  # leakscan:allow: doc"))
 
+    # Rule (c) — reasoned. A marker with no reason is a mention, not an
+    # exemption. This is the 2026-08-05 tightening: it used to exempt.
+    def test_bare_marker_without_reason_does_not_exempt(self):
+        self.assertIn("email", rules("a.b@example.com  # leakscan:allow"))
+
+    def test_marker_with_empty_reason_does_not_exempt(self):
+        self.assertIn("email", rules("a.b@example.com  # leakscan:allow:"))
+
+    def test_prose_mention_of_the_marker_does_not_exempt(self):
+        self.assertIn("email",
+                      rules("we discussed the leakscan:allow marker; a.b@example.com"))
+
+    # Rule (a) — narrow. A marker written for one rule must not silently
+    # exempt a different leak sitting on the same line.
+    def test_scoped_marker_exempts_only_its_own_rule(self):
+        found = rules("host 172.16.31.7 mac aa:bb:cc:dd:ee:ff  "
+                      "# leakscan:allow:ipv4: rendered example")
+        self.assertNotIn("ipv4", found)
+        self.assertIn("mac-address", found)
+
+    def test_unscoped_marker_still_exempts_every_structural_rule(self):
+        self.assertEqual([], scan("host 172.16.31.7 mac aa:bb:cc:dd:ee:ff  "
+                                  "# leakscan:allow: whole line is a fixture"))
+
+    def test_scoped_marker_naming_no_real_rule_exempts_nothing(self):
+        # A typo fails CLOSED: the finding still reports rather than the
+        # marker silently covering everything or nothing being checked.
+        self.assertIn("ipv4",
+                      rules("host 172.16.31.7  # leakscan:allow:ipv44: typo"))
+
+    def test_reason_containing_a_colon_still_parses_as_unscoped(self):
+        self.assertEqual([], scan("a.b@example.com  # leakscan:allow: see ADR 0005: public"))
+
+    # D1 (Mike ruled 2026-08-04) — an allow-marker exempts STRUCTURAL rules
+    # only; the machine-local term list is the highest-confidence layer and
+    # always runs.
+    def test_allow_marker_does_not_silence_the_local_term_list(self):
+        terms = [("Wairarapa", re.compile(r"\bWairarapa\b", re.IGNORECASE))]
+        found = scan("Wairarapa a.b@example.com  # leakscan:allow: doc", terms)
+        self.assertEqual(["local-term"], [f.rule for f in found])
+
+
+class Suppression(unittest.TestCase):
+    """Rule (b) — a suppressed finding is counted, never silently dropped."""
+
+    def test_marker_suppressions_are_counted_per_rule(self):
+        tally = ls.Tally()
+        ls.scan_text("t", "host 172.16.31.7  # leakscan:allow: fixture\n"
+                          "mail a.b@example.com  # leakscan:allow: fixture\n",
+                     [], frozenset(), tally)
+        self.assertEqual({"ipv4": 1, "email": 1}, tally.by_marker)
+        self.assertEqual(2, tally.marker_total)
+
+    def test_clean_scan_with_no_suppressions_reports_zeros(self):
+        # Known zeros are printed, so two runs can be read side by side.
+        summary = ls.Tally().summary()
+        self.assertIn("0 by allow-marker", summary)
+        self.assertIn("0 file(s) by .leakscanignore", summary)
+        self.assertIn("0 rule(s) disabled", summary)
+
+    def test_summary_names_the_disabled_rules(self):
+        self.assertIn("ipv4", ls.Tally(disabled_rules=("ipv4",)).summary())
+
+    def test_render_reports_suppression_on_a_clean_run(self):
+        tally = ls.Tally()
+        tally.note_marker("email")
+        out = ls.render_human([], None, True, tally)
+        self.assertIn("clean", out)
+        self.assertIn("1 by allow-marker", out)
+
 
 class LoadTerms(unittest.TestCase):
     def test_missing_list_warns(self):

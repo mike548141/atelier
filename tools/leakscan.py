@@ -40,13 +40,53 @@ import os
 import re
 import subprocess
 import sys
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from pathlib import Path
 
 # A line carrying this marker is intentionally exempt (e.g. an illustrative
 # example in doctrine). Keep the reason on the same line so the exemption is
 # self-documenting and greppable.
+#
+# GOVERNED BY `method/GUARDS.md` — narrow, noisy, reasoned:
+#
+#   * NARROW. Two forms. `leakscan:allow: <reason>` exempts every STRUCTURAL
+#     rule on the line; `leakscan:allow:<rule>: <reason>` exempts only that one
+#     (`leakscan:allow:ipv4: rendered example`), so a marker written for a
+#     false-positive email no longer silently exempts a MAC address sitting on
+#     the same line. A scoped name that matches no rule exempts NOTHING — a
+#     typo fails closed and the finding still reports.
+#   * REASONED. The marker only counts with a colon and a non-empty reason, so
+#     prose that merely mentions the marker text does not exempt anything. A
+#     bare `leakscan:allow` with no reason is a MENTION, not an exemption —
+#     tightened 2026-08-05; it used to exempt the whole line.
+#   * NOISY. Every suppression is counted and reported (see `Tally`). The scan
+#     finds first and subtracts second, so a clean run states what it removed
+#     rather than looking identical to a run that found nothing.
+#
+# D1 (Mike ruled 2026-08-04): an allow-marker exempts STRUCTURAL rules only.
+# The machine-local term list always runs — it is the highest-confidence layer,
+# and switching it off because a human judged the line safe for an unrelated
+# structural reason is exactly backwards. A term-list misfire is fixed in the
+# term list, which is the operator's own config.
 ALLOW_MARKER = "leakscan:allow"
+
+# `<marker>[:<rule>]: <non-empty reason>`. The optional rule group cannot
+# swallow a plain reason: `leakscan:allow: a reason` fails the inner `:` after
+# `a` and backtracks to the unscoped form, so both spellings parse correctly.
+ALLOW_RX = re.compile(
+    r"\b" + re.escape(ALLOW_MARKER) + r"(?::(?P<rule>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>\S)")
+
+
+def parse_allow(line: str) -> str | None:
+    """The scope of the line's allow-marker, or None if it carries none.
+
+    Returns `""` for the unscoped form (every structural rule) or the rule name
+    for the scoped form. A marker without a reason returns None — it is a
+    mention, not an exemption."""
+    m = ALLOW_RX.search(line)
+    if not m:
+        return None
+    return m.group("rule") or ""
 
 # Documentation-reserved / non-routable ranges that are safe to appear in
 # shareable docs (RFC 5737 TEST-NET + the unspecified address). Real private
@@ -108,6 +148,41 @@ STRUCTURAL: list[Pattern] = [
 
 
 @dataclass
+class Tally:
+    """What the scan removed AFTER finding it — rule (b) of `method/GUARDS.md`.
+
+    Without this, a guard that subtracts silently prints the same clean tick
+    for "nothing matched" and "forty things matched and every one of them was
+    exempted", which are opposite states of the world. The second is where an
+    allowance has quietly grown past what anyone approved."""
+    by_marker: dict[str, int] = field(default_factory=dict)   # rule name -> hits
+    files_by_glob: int = 0
+    disabled_rules: tuple[str, ...] = ()
+
+    @property
+    def marker_total(self) -> int:
+        return sum(self.by_marker.values())
+
+    def note_marker(self, rule: str) -> None:
+        self.by_marker[rule] = self.by_marker.get(rule, 0) + 1
+
+    def summary(self) -> str:
+        """One stable line, zeros printed. The field set never varies between
+        runs so two runs can be read side by side (a missing field would read
+        as a zero rather than as 'this run did not measure it')."""
+        parts = [f"{self.marker_total} by allow-marker",
+                 f"{self.files_by_glob} file(s) by .leakscanignore",
+                 f"{len(self.disabled_rules)} rule(s) disabled"]
+        line = "  suppressed: " + " · ".join(parts)
+        if self.by_marker:
+            detail = ", ".join(f"{r}×{n}" for r, n in sorted(self.by_marker.items()))
+            line += f"\n    allow-marker breakdown: {detail}"
+        if self.disabled_rules:
+            line += f"\n    disabled: {', '.join(self.disabled_rules)}"
+        return line
+
+
+@dataclass
 class Finding:
     path: str
     line: int
@@ -151,11 +226,11 @@ def load_local_terms(path: Path | None) -> tuple[list[tuple[str, "re.Pattern[str
 
 def scan_text(path: str, text: str,
               local_terms: list[tuple[str, "re.Pattern[str]"]],
-              disabled: frozenset[str] = frozenset()) -> list[Finding]:
+              disabled: frozenset[str] = frozenset(),
+              tally: Tally | None = None) -> list[Finding]:
     findings: list[Finding] = []
     for lineno, line in enumerate(text.splitlines(), start=1):
-        if ALLOW_MARKER in line:
-            continue
+        allow_scope = parse_allow(line)
         for pat in STRUCTURAL:
             if pat.name in disabled:
                 continue
@@ -163,8 +238,16 @@ def scan_text(path: str, text: str,
                 span = m.group(0)
                 if pat.name == "ipv4" and _ipv4_is_safe(span):
                     continue
+                # FIND FIRST, SUBTRACT SECOND (rule b). The hit is fully
+                # formed before the allowance is consulted, so the exemption
+                # can be counted rather than vanishing at the top of the loop.
+                if allow_scope is not None and allow_scope in ("", pat.name):
+                    if tally is not None:
+                        tally.note_marker(pat.name)
+                    continue
                 findings.append(Finding(path, lineno, pat.name, "structural",
                                         pat.severity, redact(span)))
+        # D1: the term list runs on EVERY line, allow-marker or not.
         for term, rx in local_terms:
             if rx.search(line):
                 findings.append(Finding(path, lineno, "local-term", "local",
@@ -193,7 +276,8 @@ def _ignored(rel: str, globs: list[str]) -> bool:
                for g in globs)
 
 
-def iter_files(paths: list[Path], root: Path, globs: list[str]):
+def iter_files(paths: list[Path], root: Path, globs: list[str],
+               tally: Tally | None = None):
     for base in paths:
         if base.is_file():
             files = [base]
@@ -211,21 +295,24 @@ def iter_files(paths: list[Path], root: Path, globs: list[str]):
             except ValueError:
                 rel = str(p)
             if _ignored(rel, globs):
+                if tally is not None:
+                    tally.files_by_glob += 1
                 continue
             yield p, rel
 
 
 def scan_paths(paths: list[Path], root: Path,
                local_terms: list[tuple[str, "re.Pattern[str]"]],
-               disabled: frozenset[str] = frozenset()) -> list[Finding]:
+               disabled: frozenset[str] = frozenset(),
+               tally: Tally | None = None) -> list[Finding]:
     globs = load_ignore_globs(root)
     findings: list[Finding] = []
-    for p, rel in iter_files(paths, root, globs):
+    for p, rel in iter_files(paths, root, globs, tally):
         data = p.read_bytes()
         if _looks_binary(data):
             continue
         findings.extend(scan_text(rel, data.decode("utf-8", errors="replace"),
-                                  local_terms, disabled))
+                                  local_terms, disabled, tally))
     return findings
 
 
@@ -260,20 +347,27 @@ def resolve_terms_path(cli: str | None) -> Path | None:
 
 
 def render_human(findings: list[Finding], warning: str | None,
-                 scanned_local: bool) -> str:
+                 scanned_local: bool, tally: Tally | None = None) -> str:
     lines: list[str] = []
     if warning:
         lines.append(f"⚠ {warning}")
     if not findings:
         cover = "structural + local" if scanned_local else "structural only"
         lines.append(f"✓ leakscan clean ({cover}).")
+        if tally is not None:
+            lines.append(tally.summary())
         return "\n".join(lines)
     lines.append(f"✗ leakscan: {len(findings)} finding(s) — commit blocked.\n")
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
         lines.append(f"  {f.path}:{f.line}  [{f.severity}/{f.kind}] {f.rule} → {f.excerpt}")
+    if tally is not None:
+        lines.append("")
+        lines.append(tally.summary())
     lines.append("\n  A true positive: remove the data (and rotate if it's a secret).")
-    lines.append(f"  A false positive: append '# {ALLOW_MARKER}: <reason>' to the line,")
-    lines.append("  or add a path glob to .leakscanignore.")
+    lines.append(f"  A false positive: append '# {ALLOW_MARKER}: <reason>' to the line")
+    lines.append(f"  (or '# {ALLOW_MARKER}:<rule>: <reason>' to exempt just one rule —")
+    lines.append("  the narrowest allowance that covers the case), or add a path glob")
+    lines.append("  to .leakscanignore. A marker with no reason exempts nothing.")
     return "\n".join(lines)
 
 
@@ -321,6 +415,11 @@ def main(argv: list[str] | None = None) -> int:
         print(f"leakscan: unknown rule(s) in --disable: {', '.join(sorted(unknown))}",
               file=sys.stderr)
         return 2
+    # A scope reduction taken at invocation is itself an allowance, and rule (b)
+    # says a reduction nobody can see is a reduction nobody reviewed — so
+    # `--disable` now reports itself in the output instead of narrowing the scan
+    # silently from a flag nobody reading the result will ever see.
+    tally = Tally(disabled_rules=tuple(sorted(disabled)))
 
     if args.staged:
         try:
@@ -355,8 +454,12 @@ def main(argv: list[str] | None = None) -> int:
         # .leakscanignore applies in staged mode too, so an exemption means the
         # same thing whether you scan the tree or a commit.
         globs = load_ignore_globs(root)
-        findings = [f for path, text in staged.items() if not _ignored(path, globs)
-                    for f in scan_text(path, text, local_terms, disabled)]
+        findings = []
+        for path, text in staged.items():
+            if _ignored(path, globs):
+                tally.files_by_glob += 1
+                continue
+            findings.extend(scan_text(path, text, local_terms, disabled, tally))
     else:
         targets = [Path(p) for p in (args.paths or [str(root)])]
         missing = [str(p) for p in targets if not p.exists()]
@@ -367,7 +470,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"leakscan: path does not exist: {', '.join(missing)}",
                   file=sys.stderr)
             return 2
-        findings = scan_paths(targets, root, local_terms, disabled)
+        findings = scan_paths(targets, root, local_terms, disabled, tally)
 
     if args.json:
         print(json.dumps({
@@ -375,9 +478,15 @@ def main(argv: list[str] | None = None) -> int:
             "scanned_local_terms": scanned_local,
             "warning": warning,
             "findings": [asdict(f) for f in findings],
+            "suppressed": {
+                "by_allow_marker": tally.marker_total,
+                "by_allow_marker_rule": tally.by_marker,
+                "files_by_ignore_glob": tally.files_by_glob,
+                "disabled_rules": list(tally.disabled_rules),
+            },
         }, indent=2))
     else:
-        print(render_human(findings, warning, scanned_local))
+        print(render_human(findings, warning, scanned_local, tally))
 
     return 1 if findings else 0
 
