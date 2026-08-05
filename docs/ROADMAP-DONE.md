@@ -3510,3 +3510,22 @@ The three source entries preserved verbatim below.
   **Application owed as one wiring build item (scope + tests + registry
   + HV2–HV4 folds); it queues its rule-4 pointer at landing.**
 
+
+## The 2026-08-05 queue take — five cold passes, every cycle closed (done 2026-08-05)
+
+The whole rule-4 queue of the 2026-08-03 orchestrated run taken by a
+Mike-spawned Fable session (author sessions uninvolved), claimed on `main`
+before the worktree per CONCURRENCY § Claiming work. All five passes returned
+**0 MAJOR** and every open cycle closed terminal: pointer-grammar build + B4
+wiring (both cycles), the FS application (B2+B3), the mid-tier
+standing-executor doctrine, the E6 application (the intent cycle), and the
+landing-equals-bookkeeping clauses. Findings held for Mike's ruling in the
+ROADMAP § *Doctrine — review-owed* item of the same date; verdicts:
+[pointer-grammar + B4](reviews/2026-08-05-1238-pointer-grammar-b4-wiring-cold.md) ·
+[FS application](reviews/2026-08-05-1244-fs-application-cold.md) ·
+[mid-tier executor](reviews/2026-08-05-1248-mid-tier-standing-executor-cold.md) ·
+[E6 application](reviews/2026-08-05-1253-e6-application-cold.md) ·
+[landing-equals-bookkeeping](reviews/2026-08-05-1258-landing-equals-bookkeeping-cold.md).
+The five refs-only pointers this take discharges are preserved in the
+verdicts' brief sections verbatim (each brief opens with its queue ref), so
+the pointer text is not duplicated here.
