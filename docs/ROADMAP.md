@@ -275,15 +275,21 @@ registry checks only.*
       mid-pass widens a delta a pinned reviewer can no longer see). Rides
       the next floor.py touch after that cycle closes; the blocking flip
       stays a separate later ruling.
-- [ ] **D2 residue (b) — stampscan joins the GUARDS allowance model.** The
-      D2 build and the F1/allowances sweep landed the same day in
-      parallel sessions, so stampscan — the eleventh scanner — missed
-      the sweep that put the other ten onto the model: its ignore-file
-      loader does not yet require a stated reason per glob, and it
-      prints no suppression tally. Small alignment build; rides the
-      next stampscan touch (its application pass ran 2026-08-06 as a
-      review only — SD3 of that verdict independently found the missing
-      tally, so the two items merge at the fix).
+- [ ] **D2 residue (b) — stampscan's suppression tally.** *Corrected
+      2026-08-06 against the tree: the first half of this item was already
+      false when written.* `stampscan` **was** in the F1/allowances sweep —
+      its ignore-file loader is one of the ten that require a stated reason
+      per glob (`tools/stampscan.py`, landed 2026-08-05 in `05b390d`), so
+      there is no loader work outstanding. It also already satisfies rule (b)
+      at the marker level, and did so before the rule existed: an
+      allow-markered block is reported as a `skipped` finding rather than
+      dropped, which is why the sweep deliberately left it alone.
+      **What IS outstanding**, and all that is: it prints no stable
+      suppression line and does not count files skipped by
+      `.stampscanignore`, so a glob-level exemption is still invisible.
+      SD3 of the 2026-08-06 application verdict found the same gap
+      independently; the two merge at the fix. Small alignment build, rides
+      the next stampscan touch.
 - [ ] **D2 residue — stampscan registry wiring stays barred on ST3.** The
       advisory wiring landed 2026-08-05 (atelier `ci.yml` only, the
       reviewer's bar step 1); registry wiring — which reaches every child
