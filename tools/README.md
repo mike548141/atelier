@@ -17,11 +17,14 @@ standing residual, the classes each scan *structurally* cannot catch:
   **paraphrased** personal fact ("the dog", "the house we bought last year"),
   a term not on the machine-local list, or a non-NZ address/phone shape sails
   through. The term list is only as good as its curation.
-- **secretscan** deliberately trades away single-case hex (git SHAs would
-  drown it): a **hex-encoded token outside a secret-named assignment** is not
-  caught, nor is a novel vendor format that is neither assignment-anchored nor
-  high-entropy-mixed-class, nor a literal secret that *begins* like an
-  indirection (`$uperS3cret…` reads as `$VAR`).
+- **secretscan** no longer trades single-case hex away entirely — since E6b
+  (2026-08-06) a **hex-encoded token outside a secret-named assignment** is
+  REPORTED as an advisory finding rather than passing in silence. It still does
+  not *block* on one, so the residual is now about response rather than
+  blindness. Still uncaught in either tier: a novel vendor format that is
+  neither assignment-anchored nor high-entropy-mixed-class, a literal secret
+  that *begins* like an indirection (`$uperS3cret…` reads as `$VAR`), and a
+  context-free credential shorter than 32 characters.
 - **licenscan** sees SPDX-tagged headers and metadata declarations only: a
   vendored file carrying the **traditional prose licence header** with no
   `SPDX-License-Identifier` tag — the commonest real-world copyleft shape — is
@@ -261,12 +264,32 @@ doctrine's other half: **detect → rotate immediately → the burn cost is minu
 | **Named credentials** | vendor formats that are a secret by construction — private-key/PGP headers, AWS/GitHub/Slack/Google/Stripe/Anthropic/OpenAI/Twilio/SendGrid/npm tokens, JWTs, `user:pass@host` URLs | high; flags on shape alone |
 | **Assigned + entropy** | a key that *names* a credential (`password`, `api_key`, `token`, `client_secret`…) assigned a long, high-entropy value that isn't a placeholder or indirection; plus a conservative context-free high-entropy net | medium; the workhorse for home-grown secrets matching no vendor format |
 
+### Two responses (E6b, 2026-08-06)
+
+A finding carries a **response** as well as a rule, and only one of them touches
+the exit code:
+
+| Response | Rules | Exit code |
+|---|---|---|
+| **block** | every named format, `assigned-secret`, and `high-entropy` — unchanged, byte for byte, from before the tier existed | `1` |
+| **advisory** | `low-variety-entropy` — an unbroken 32+ character run with no credential-named key beside it (hex digests, single-case blobs) | `0` |
+
+The blocking set never shrinks; the advisory tier is coverage that did not exist
+before, opened on the path `HIGH_ENTROPY_RX`'s mixed-class requirement had shut.
+An advisory finding nobody reads is cover rather than coverage, so it ships with
+its consumers: the pre-commit hook prints them at the commit that would introduce
+them, every CI push re-prints **all** of them tree-wide, and `floor.py`'s board
+carries a `🟡 N advisory finding(s)` count read from that run's output — no state
+file, so nothing to go stale and nothing to quietly vanish.
+
 It deliberately does **not** flag the safe indirections — `!secret foo` (tiki),
 `${VAR}`, `$(cmd)`, `<placeholder>` — those are the *correct* way to reference a
 secret. It skips variable/attribute/call values (`password=admin_password`),
-public-key material (`ssh-ed25519 …`, `public_key:`), and URL paths, which are
-the dominant false positives in real source. The report prints only a redacted
-fingerprint (length + entropy), never the secret value.
+public-key material (`ssh-ed25519 …`, `public_key:`), **public-key fingerprints**
+(`SHA256:…`, colon-joined hex — public by definition, matched whole-shape so a
+near-miss still flags), and URL paths, which are the dominant false positives in
+real source. The report prints only a redacted fingerprint (length + entropy),
+never the secret value.
 
 ### Usage
 
@@ -278,10 +301,12 @@ python3 tools/secretscan.py --json          # machine-readable, for CI/compositi
 python3 tools/secretscan.py --selftest      # prove the engine on this box
 ```
 
-Exit codes match leakscan (`0` clean · `1` findings · `2` usage/config error).
+Exit codes match leakscan (`0` clean **or advisory-only** · `1` blocking
+findings · `2` usage/config error).
 Escape hatches mirror it too: `# secretscan:allow: <reason>` per line, a glob in
 `.secretscanignore` per path, and `--disable <rule>` to quiet a noisy rule (a
-named rule, `assigned`, or `high-entropy`) while keeping the rest. A true
+named rule, `assigned`, `high-entropy`, or `low-variety-entropy`) while keeping
+the rest. A true
 positive is never just exempted — **remove it, move it to the secret store, and
 rotate it.**
 

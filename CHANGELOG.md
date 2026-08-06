@@ -5,6 +5,62 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-08-06 — secretscan gets a second response, and E3 rides with it)
+- **E6b — the advisory tier is built** (ruled 2026-07-28; unblocked 2026-08-04
+  once its consumer was named, per EI1). A `secretscan` finding now carries a
+  **response** as well as a rule, and only one of them touches the exit code:
+  **block** for every named vendor format, `assigned-secret` and `high-entropy`;
+  **advisory** for the new `low-variety-entropy` rule, which reports and exits 0.
+  The **blocking set never shrinks** — every input that exited non-zero before
+  the tier still does, with the same finding, pinned by a
+  `BlockingSetNeverShrinks` suite that re-runs all 16 canaries against the
+  *response* rather than only against detection.
+  What the tier buys: the narrowing site the E6 intent cold pass named (EI4) is
+  `HIGH_ENTROPY_RX`'s mixed-class requirement, which excluded every single-case
+  run — git SHAs and checksums, but also lowercase-hex *secrets* — from the
+  context-free net entirely. That path now reports on E6c's already-ruled whole
+  shape (an unbroken 32+ alphanumeric run is key material; names do not run 32
+  characters unbroken), so a hex-encoded credential outside an assignment is
+  seen instead of invisible. **No new threshold was introduced** — the length is
+  E6c's, the mixed-class split is the existing net's; only the response is new.
+- **Its three consumers, built with it rather than after it.** EI1's finding was
+  that an advisory finding nobody reads is cover, not coverage:
+  **(1)** the pre-commit hook prints them at the commit that would introduce
+  them; **(2)** every CI push re-prints **all** of them tree-wide (`--plane ci`
+  scans the repo root, pinned by a test so a future `scope.secretscan`
+  narrowing cannot end the guarantee in silence); **(3)** `floor.py`'s board
+  carries `🟡 N advisory finding(s)` on the check's own line. The count is read
+  off **that run's output** — no state file, nothing to go stale, nothing to
+  forget to update. It cannot quietly vanish either: the scanner prints its
+  known zero, and a missing count line renders 🔴 *"the count contract has
+  drifted"* rather than a silent green. The seam is pinned from both sides by
+  `test_floor.py::AdvisoryCountContract`, which runs the real scanner.
+  Tree-wide at landing: **19 advisory findings**, all of them SHA-pinned Actions
+  digests, sha256 checksums and test fixtures. That number is the widening
+  working, not a defect, and it is deliberately left unsuppressed.
+- **E3 — public-key fingerprints no longer block** (ruled 2026-08-04, Mike).
+  `ssh-keygen -l` prints `SHA256:<43 base64 chars>`, which is a mixed-class
+  32+ run at entropy ~5.9 and therefore a *blocking* high-entropy hit — two of
+  eight findings in one child were this shape. A fingerprint is public material
+  by definition: it is published so a key can be verified, and it is one-way.
+  Suppressed **whole-shape, never fragment** — the standing lesson of
+  2026-07-28, when four real credentials walked past suppressions that matched
+  on a fragment. A `SHA256:` prefix in front of a body of the wrong length is
+  not a fingerprint and still blocks. Canaried **both directions** so the
+  carve-out cannot widen in silence, and **counted** in the suppression tally
+  (GUARDS.md rule (b)) rather than applied invisibly, which is more than
+  `PUBLIC_KEY_RX` beside it has ever done. The legacy colon-joined hex MD5 form
+  is recognised too; it produces no finding to suppress today (`:` is not in the
+  entropy net's character class) and is canaried so a future widening cannot
+  start flagging it by accident.
+- Tests 1060 → 1103 (`test_secretscan` 89 → 122, `test_floor` 98 → 108). One
+  existing contract changed **deliberately and on the record**:
+  `test_context_free_path_is_unchanged` asserted *no finding of any kind* on a
+  bare git SHA, which was right while `block` was a finding's only possible
+  response. It is now `test_context_free_blocking_set_is_unchanged` — the claim
+  E6c actually made — with the advisory half asserted separately rather than
+  left unpinned.
+
 ### Fixed (2026-08-06 — the queue take's ruled findings applied)
 The 2026-08-06 rule-4 cold passes returned 0 MAJOR each (all three cycles
 closed); Mike ruled the residue the same day and these are the fixes, each
