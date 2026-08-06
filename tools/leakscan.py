@@ -8,12 +8,20 @@ A rule enforced by intent alone fails the first tired session. This is the
 machine that enforces it: a denylist scan run as a pre-commit hook and in CI, so
 a leak fails the commit instead of reaching the remote.
 
-Two layers, split so the scanner itself leaks nothing:
+Three layers, split so the scanner itself leaks nothing:
 
   * STRUCTURAL patterns (in this file, shareable) match the *shape* of sensitive
     data — an email, an IPv4, a MAC, a private-key header — naming no real
     value. They need no secrets, so they ALWAYS run: partial cover even with no
     local list (graceful degradation).
+
+  * KEY CONTEXT (`pii-key-context`) reads the *label* rather than the value: a
+    non-placeholder value assigned to an explicit personal-data key name (date
+    of birth, bank account, passport, NHI, medication, plate) is a finding even
+    though the value alone matches no shape. Personal data has no entropy
+    signature — unlike a credential, a date of birth is indistinguishable from
+    any other date — so label context is the only available analogue of
+    secretscan's context-free net. Added 2026-08-04 (ruled), sweep gap G1.
 
   * LITERAL terms (machine-local, never in a repo) are the actual names,
     addresses, medications, device IDs and deal figures unique to one person's
@@ -21,6 +29,11 @@ Two layers, split so the scanner itself leaks nothing:
     $ATELIER_LEAKSCAN_TERMS or ~/.claude/leakscan-terms.txt — outside every repo.
     Absent ⇒ the scan says so LOUDLY and runs structural-only, never silently
     weaker (legibility).
+
+All three run over file CONTENT *and* over each file's repo-relative PATH — a
+file whose *name* carries an address or a person's name leaks exactly as much as
+one whose body does, and until 2026-08-04 the name was never read (gap G2). Path
+findings report at line 0.
 
 Exit codes (fail-safe — anything but a clean scan is non-zero):
   0  clean
@@ -89,9 +102,46 @@ def parse_allow(line: str) -> str | None:
     return m.group("rule") or ""
 
 # Documentation-reserved / non-routable ranges that are safe to appear in
-# shareable docs (RFC 5737 TEST-NET + the unspecified address). Real private
+# shareable docs (RFC 5737 TEST-NET + the loopback net). Real private
 # addresses are NOT here — those are estate topology and must be flagged.
-SAFE_IP_PREFIXES = ("192.0.2.", "198.51.100.", "203.0.113.", "0.0.0.0")
+#
+# PREFIXES are network prefixes and end in a dot, so the match is genuinely
+# "inside this network" and cannot run past an octet boundary. D6 (ruled
+# 2026-08-04): the unspecified address used to sit in this tuple, where the
+# startswith test exempted anything merely BEGINNING with those characters —
+# an octet of two or three digits in the last position was exempt for free.
+# Fixed-value addresses belong in the exact set below, matched exactly.
+SAFE_IP_PREFIXES = ("192.0.2.", "198.51.100.", "203.0.113.", "127.")
+
+
+def _netmask_literals() -> frozenset[str]:
+    """Every contiguous IPv4 netmask, 0.0.0.0 through 255.255.255.255.
+
+    Computed rather than listed: the set is exactly 33 values, none of which is
+    assignable to a host, so naming them by construction is both complete and
+    impossible to get subtly wrong. This is D3's "common netmask literals" —
+    networking prose that quotes a mask was a guaranteed allow-marker generator.
+    """
+    out = set()
+    for bits in range(33):
+        v = (0xFFFFFFFF << (32 - bits)) & 0xFFFFFFFF
+        out.add(".".join(str((v >> s) & 0xFF) for s in (24, 16, 8, 0)))
+    return frozenset(out)
+
+
+# D3 (ruled 2026-08-04): widen the safe set past the doc ranges. These are
+# addresses that carry NO estate topology — a netmask, the unspecified and
+# broadcast addresses, and the well-known public resolvers every network doc
+# names. Flagging them produced findings whose only possible resolution was an
+# allow-marker, which is the false-positive class GUARDS.md says to fix at the
+# rule. Note what is deliberately absent: RFC 1918 space, CGNAT and link-local
+# are real topology and still flag.
+SAFE_IP_EXACT = _netmask_literals() | frozenset({
+    "8.8.8.8", "8.8.4.4",            # Google Public DNS
+    "1.1.1.1", "1.0.0.1",            # Cloudflare
+    "9.9.9.9", "149.112.112.112",    # Quad9
+    "208.67.222.222", "208.67.220.220",  # OpenDNS
+})
 
 DEFAULT_LOCAL_TERMS = "~/.claude/leakscan-terms.txt"
 
@@ -120,6 +170,48 @@ def _p(name: str, severity: str, rx: str, flags: int = 0) -> Pattern:
     return Pattern(name, severity, re.compile(rx, flags))
 
 
+# --- the personal-data key vocabulary (G1) -------------------------------
+#
+# The mirror of secretscan's credential-key rule, for the other half of the
+# boundary. Every alternative below is a key name that ANNOUNCES its value as
+# personal data, so the value needs no shape of its own — which is the whole
+# point: a date of birth is shaped like every other date, a passport number
+# like every other SKU, and the sweep's don't-add list rules out detecting
+# those context-free (letters-plus-digits is the shape of ticket refs; a bare
+# date rule fires on every record in the estate).
+#
+# The vocabulary is deliberately COMPOUND where a bare word would be ambiguous:
+# `bank_account` and `account_number`, never bare `account`; `number_plate` and
+# `rego`, never bare `plate` (which lives inside `template`); `home_address`,
+# never bare `address` (an IP or a memory address is not personal data); an IRD
+# key must name itself a number, because the bare three letters are also how a
+# sentence labels a clause about the tax department, and the digits themselves
+# are the `nz-ird` rule's job.
+#
+# ONE KEY WAS TRIED AND WITHDRAWN, measured against this repo: the
+# diagnosis/diagnoses pair. It is a genuine health key and it is also how every
+# root-cause paragraph in the estate opens — three live false positives in
+# records on the first tree-wide run. Health cover comes from the medication,
+# prescription, allergy and blood-type keys instead. Left here as a note
+# because the next person to widen this vocabulary will reach for it again.
+_KEY_LEAD = r"(?:\b|_|(?-i:(?<=[a-z0-9])(?=[A-Z])))"
+PII_KEY_RX = (
+    r"(?i)" + _KEY_LEAD + r"(?P<key>"
+    r"d\.?o\.?b|dates?[_ -]?of[_ -]?birth|birth[_ -]?dates?|birthdays?"
+    r"|bank[_ -]?accounts?|accounts?[_ -]?(?:number|no)|acct[_ -]?(?:number|no)"
+    r"|iban|bsb|sort[_ -]?code|routing[_ -]?number"
+    r"|cards?[_ -]?number|credit[_ -]?card|cardholder|cvv|cvc"
+    r"|passports?(?:[_ -]?(?:number|no))?"
+    r"|drivers?'?[_ -]?licen[cs]e|licen[cs]e[_ -]?(?:number|no|plate)"
+    r"|number[_ -]?plate|vehicle[_ -]?plate|rego"
+    r"|nhi(?:[_ -]?number)?|nhs[_ -]?number|medicare|ssn|social[_ -]?security"
+    r"|tax[_ -]?(?:file[_ -]?)?(?:number|id)|tfn|ird[_ -]?(?:number|no)"
+    r"|medications?|prescriptions?|blood[_ -]?type|allerg(?:y|ies)"
+    r"|patients?(?:[_ -]?name)?|next[_ -]?of[_ -]?kin|emergency[_ -]?contact"
+    r"|maiden[_ -]?name|mothers?'?[_ -]?maiden"
+    r"|(?:home|street|postal|residential|physical)[_ -]?address"
+    r")\b\s*[:=]\s*[\"']?(?P<value>[^\s\"'`,;:]{2,})")
+
 # Structural patterns. Ordered high→medium. Tuned to catch real estate/PII shapes
 # while keeping false positives survivable (fail-safe favours over-flagging: a
 # false positive costs a `leakscan:allow`, a false negative costs a leak).
@@ -130,21 +222,78 @@ STRUCTURAL: list[Pattern] = [
     _p("jwt", "high", r"\beyJ[A-Za-z0-9_-]{6,}\.eyJ[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{6,}"),
     _p("email", "high",
        r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"),
+    # G1 — the key-context layer. High: the label has already done the
+    # filtering, so a surviving hit is about as confident as this tool gets.
+    _p("pii-key-context", "high", PII_KEY_RX),
+    # G4 — financial identifiers. Card and IBAN are SELF-VALIDATING (Luhn and
+    # ISO 7064 mod-97 respectively, both applied in VALIDATORS below), which is
+    # what keeps a long digit run from being a false-positive engine. The
+    # grouped alternative exists so the space- and hyphen-separated spellings
+    # of a card are caught without letting a single-space separator stitch an
+    # arbitrary numeric table row into a sixteen-digit "card".
+    _p("payment-card", "high",
+       r"(?<![\d-])(?:\d{13,19}|\d{4}(?:[ -]\d{4}){2,3}(?:[ -]\d{1,3})?)(?![\d-])"),
+    _p("iban", "high", r"\b[A-Z]{2}\d{2}[A-Z0-9]{11,30}\b"),
     _p("mac-address", "high",
        r"\b(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\b"),
     _p("ipv4", "medium", r"\b(?:\d{1,3}\.){3}\d{1,3}\b"),
+    # D2 (ruled 2026-08-04, and E4 with it): require `::` OR four-plus groups.
+    # The old rule took any THREE colon-separated hex-ish groups, which is also
+    # the shape of `HH:MM:SS`, a port map, a ratio and a hex colour triplet —
+    # a false-positive class the sweep confirmed is far wider than the two
+    # clock times originally recorded. The compressed form additionally
+    # requires TWO hex groups in total, so a Python slice (`a[::2]`) and a bare
+    # loopback/unspecified address are not addresses this rule reports.
     _p("ipv6", "medium",
-       r"\b(?:[0-9A-Fa-f]{1,4}:){2,7}[0-9A-Fa-f]{1,4}\b"),
+       r"(?<![0-9A-Za-z:])(?:"
+       r"[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4}){1,6}::"
+       r"(?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4}){0,5})?"
+       r"|[0-9A-Fa-f]{1,4}::[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4}){0,5}"
+       r"|::[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4}){1,5}"
+       r"|[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4}){3,7}"
+       r")(?![0-9A-Za-z:])"),
+    # G4 — the NZ bank account in its hyphenated field form (bank-branch-
+    # account-suffix). The COMPACT all-digit form stays key-context-only per
+    # the ruling: bare eight-to-sixteen digit runs are the don't-add list.
+    _p("nz-bank-account", "medium", r"\b\d{2}-\d{4}-\d{7}-\d{2,3}\b"),
+    # G7 — the bracketed area-code form (landline or mobile prefix in
+    # parentheses), the one common NZ spelling the rule missed.
     _p("nz-phone", "medium",
-       r"(?<!\d)(?:\+64[\s-]?|0)(?:2\d|[3-9])[\s-]?\d{3}[\s-]?\d{3,4}(?!\d)"),
+       r"(?<!\d)(?:"
+       r"(?:\+64[\s-]?|0)(?:2\d|[3-9])"
+       r"|\((?:\+64[\s-]?)?0?(?:2\d|[3-9])\)"
+       r")[\s-]?\d{3}[\s-]?\d{3,4}(?!\d)"),
+    # D4 (ruled 2026-08-04): the abbreviated and bare-word suffixes now need at
+    # least one capitalised word in front of them. Without it, a low number
+    # beside an abbreviation or an ordinary English word — a figure reference,
+    # a count of somethings — read as an address. The distinctive full-word
+    # suffixes keep the permissive form, so a number and a bare Terrace or
+    # Crescent still flags with no street name in front of it.
     _p("nz-address", "medium",
-       r"\b\d{1,4}[A-Za-z]?\s+(?:[A-Z][a-z]+\s+){0,2}"
-       r"(?:Street|St|Road|Rd|Avenue|Ave|Lane|Ln|Drive|Dr|Place|Pl|"
-       r"Terrace|Tce|Way|Close|Crescent|Cres|Grove|Hill|Green)\b"),
+       r"\b\d{1,4}[A-Za-z]?\s+(?:"
+       r"(?:[A-Z][a-z]+\s+){0,2}"
+       r"(?:Street|Road|Avenue|Lane|Drive|Terrace|Crescent)"
+       r"|(?:[A-Z][a-z]+\s+){1,2}"
+       r"(?:St|Rd|Ave|Ln|Dr|Pl|Tce|Cres|Place|Way|Close|Grove|Hill|Green)"
+       r")\b"),
     _p("coordinates", "medium",
        r"[-+]?\d{1,2}\.\d{4,}\s*,\s*[-+]?\d{1,3}\.\d{4,}"),
     _p("nz-ird", "medium", r"\b\d{2,3}-\d{3}-\d{3}\b"),
 ]
+
+# D5 (ruled 2026-08-04): one span, one finding. A MAC address is six colon-
+# separated hex pairs, which is also a valid four-plus-group IPv6 shape, so the
+# same twelve characters reported twice — cosmetic, but a duplicated finding
+# teaches a reader to skim the list, which is how a real second finding gets
+# missed. The shadowing rule wins; the shadowed one skips any span it overlaps.
+#
+# Shadow spans are computed from the REGEX ALONE, before allow-markers are
+# consulted: if a MAC is exempted on the line, the ipv6 rule must not step in
+# and re-report the exact characters the exemption was written for. A DISABLED
+# shadower casts no shadow, so `--disable mac-address` leaves no blind spot.
+SHADOWED_BY: dict[str, tuple[str, ...]] = {
+    "ipv6": ("mac-address",),
+}
 
 
 @dataclass
@@ -200,12 +349,134 @@ def redact(match: str) -> str:
 
 
 def _ipv4_is_safe(text: str) -> bool:
-    return any(text.startswith(pfx) for pfx in SAFE_IP_PREFIXES) or text == "0.0.0.0"
+    """D6: exact values match EXACTLY; only network prefixes match by prefix."""
+    return text in SAFE_IP_EXACT or any(text.startswith(p) for p in SAFE_IP_PREFIXES)
+
+
+# --- placeholder suppression (G1's other half) ---------------------------
+#
+# The key-context rule fires on a LABEL, so without this it would fire on every
+# piece of documentation that shows the label — a template, an example config,
+# a fill-in-the-blank form. secretscan learned the same lesson on the
+# credential half; leakscan had no suppression of any kind before 2026-08-04.
+# The list is intentionally the PII-flavoured one, not a copy of secretscan's:
+# the shapes that stand in for a person's data are format specs and fill-mes,
+# not `${VAR}` env indirection (though that is covered too).
+PLACEHOLDER_SUBSTRINGS = (
+    "example", "placeholder", "redacted", "changeme", "change-me", "change_me",
+    "sample", "dummy", "fake", "notreal", "fictional", "your-", "your_",
+    "yourname", "todo", "fixme", "xxxx", "****", "……", "...", "n/a",
+)
+PLACEHOLDER_EXACT = frozenset({
+    "", "-", "?", "…", "0", "none", "null", "nil", "undefined", "unknown",
+    "true", "false", "na", "n/a", "tbc", "tbd", "redacted", "anonymous",
+})
+# Templating markers must be CLOSED to count — the open-marker bug secretscan
+# hit on 2026-07-28, where a real value containing a stray `$(` was written off
+# as a template. Same trap, so the same shape of fix.
+TEMPLATE_RX = re.compile(
+    r"\$\{[^{}]*\}|\$\([^()]*\)|%\([^()]*\)|\{\{[^{}]*\}\}|<[^<>]{1,64}>")
+# A FORMAT SPEC is a placeholder that looks like data: `yyyy-mm-dd`,
+# `dd/mm/yyyy`, `nnn-nnn-nnn`. Letters drawn only from the format alphabet,
+# with no digits at all — real data of these classes always carries digits.
+_FORMAT_ALPHABET = set("ymdhnsx#-/. ")
+
+
+def _is_format_spec(value: str) -> bool:
+    low = value.lower()
+    return (any(c.isalpha() for c in low)
+            and not any(c.isdigit() for c in low)
+            and set(low) <= _FORMAT_ALPHABET)
+
+
+def _is_placeholder(value: str) -> bool:
+    low = value.lower().strip("\"'")
+    if low in PLACEHOLDER_EXACT:
+        return True
+    if any(sub in low for sub in PLACEHOLDER_SUBSTRINGS):
+        return True
+    if TEMPLATE_RX.search(value) or _is_format_spec(value):
+        return True
+    # `!secret foo`, `$VAR`, `env:FOO` — a REFERENCE to data held elsewhere is
+    # the pattern we want people to use, never the data itself.
+    if re.match(r"^(?:!\s*secret\b|\$[A-Za-z_{(]|env:|vault:|sops:|@@)", value):
+        return True
+    # a run of one repeated character (xxxx, ----, 0000) is never real data
+    if len(set(value)) <= 1:
+        return True
+    return False
+
+
+def _luhn_ok(text: str) -> bool:
+    """The card-number check digit (ISO/IEC 7812), plus a brand-prefix guard.
+
+    Luhn alone lets one random digit run in ten through; requiring the issuer
+    identifier to start 2–6 (the assigned major-industry range for payment
+    cards) drops that again without excluding any real card. Together they are
+    what makes a bare digit run safe to flag at all — the sweep's don't-add
+    list rules out bare-digit rules that self-validate against nothing."""
+    digits = [int(c) for c in text if c.isdigit()]
+    if not 13 <= len(digits) <= 19 or digits[0] not in (2, 3, 4, 5, 6):
+        return False
+    total = 0
+    for i, d in enumerate(reversed(digits)):
+        if i % 2:
+            d *= 2
+            if d > 9:
+                d -= 9
+        total += d
+    return total % 10 == 0
+
+
+def _iban_ok(text: str) -> bool:
+    """ISO 13616 / 7064 mod-97 check: rotate the first four characters to the
+    end, map letters to two-digit numbers, and require a remainder of 1."""
+    if not 15 <= len(text) <= 34:
+        return False
+    rotated = text[4:] + text[:4]
+    try:
+        numeric = "".join(str(int(c, 36)) for c in rotated)
+    except ValueError:
+        return False
+    return int(numeric) % 97 == 1
+
+
+# Per-rule post-match validators: the regex says "this is the right SHAPE", the
+# validator says "and it is not one of the shapes we ruled out". Keeping them
+# beside the patterns means a rule's exclusions are readable in one place
+# rather than accreting as special cases inside the scan loop. A rule with no
+# entry here keeps every match.
+VALIDATORS: dict[str, "object"] = {
+    "ipv4": lambda m: not _ipv4_is_safe(m.group(0)),
+    "payment-card": lambda m: _luhn_ok(m.group(0)),
+    "iban": lambda m: _iban_ok(m.group(0)),
+    "pii-key-context": lambda m: not _is_placeholder(m.group("value")),
+}
+
+
+def derived_form_regex(term: str) -> "re.Pattern[str]":
+    """G6 — the OPT-IN derived-form matcher behind a `forms:` term.
+
+    A name leaks as a slug, a localpart or an identifier far more often than as
+    the canonical spaced literal: the sweep probed a listed name's slug,
+    camel-case, snake-case and double-spaced forms and every one passed clean.
+    This joins the term's words with `[\\s._-]*`, so one term covers
+    `jane-q-public`, `jane_q_public`, `jane.q.public`, `janeQPublic`,
+    `janeqpublic` and any whitespace run between the words.
+
+    OPT-IN, and it stays opt-in: the zero-separator form means a short or
+    common-word term can start matching inside ordinary compounds, and only the
+    operator holding the real list can judge that. Word boundaries still bound
+    both ends. LIMIT, stated because it is not obvious: scanning is line-based,
+    so a name split ACROSS lines is still not matched by anything."""
+    parts = [re.escape(p) for p in term.split() if p]
+    return re.compile(r"\b" + r"[\s._-]*".join(parts) + r"\b", re.IGNORECASE)
 
 
 def load_local_terms(path: Path | None) -> tuple[list[tuple[str, "re.Pattern[str]"]], str | None]:
     """Return (compiled terms, warning). Each line is a case-insensitive
-    whole-word literal, unless prefixed `regex:` for a raw pattern. `#` comments
+    whole-word literal, unless prefixed `regex:` for a raw pattern or `forms:`
+    for a literal plus its derived separator/case variants (G6). `#` comments
     and blank lines are ignored."""
     if path is None:
         return [], (
@@ -219,9 +490,29 @@ def load_local_terms(path: Path | None) -> tuple[list[tuple[str, "re.Pattern[str
         if line.startswith("regex:"):
             body = line[len("regex:"):].strip()
             terms.append((body, re.compile(body, re.IGNORECASE)))
+        elif line.startswith("forms:"):
+            body = line[len("forms:"):].strip()
+            terms.append((body, derived_form_regex(body)))
         else:
             terms.append((line, re.compile(r"\b" + re.escape(line) + r"\b", re.IGNORECASE)))
     return terms, None
+
+
+BY_NAME: dict[str, Pattern] = {p.name: p for p in STRUCTURAL}
+
+
+def _shadow_spans(line: str, disabled: frozenset[str]) -> dict[str, list[tuple[int, int]]]:
+    """D5 — per shadowed rule, the spans another rule has already claimed."""
+    out: dict[str, list[tuple[int, int]]] = {}
+    for shadowed, shadowers in SHADOWED_BY.items():
+        if shadowed in disabled:
+            continue
+        spans = [m.span()
+                 for name in shadowers if name not in disabled
+                 for m in BY_NAME[name].regex.finditer(line)]
+        if spans:
+            out[shadowed] = spans
+    return out
 
 
 def scan_text(path: str, text: str,
@@ -231,12 +522,19 @@ def scan_text(path: str, text: str,
     findings: list[Finding] = []
     for lineno, line in enumerate(text.splitlines(), start=1):
         allow_scope = parse_allow(line)
+        shadows = _shadow_spans(line, disabled)
         for pat in STRUCTURAL:
             if pat.name in disabled:
                 continue
+            validator = VALIDATORS.get(pat.name)
+            claimed = shadows.get(pat.name, ())
             for m in pat.regex.finditer(line):
                 span = m.group(0)
-                if pat.name == "ipv4" and _ipv4_is_safe(span):
+                # The shape matched; now the rule's own exclusions (safe IP
+                # ranges, a failed checksum, a placeholder value) get a say.
+                if validator is not None and not validator(m):
+                    continue
+                if any(s < m.end() and m.start() < e for s, e in claimed):
                     continue
                 # FIND FIRST, SUBTRACT SECOND (rule b). The hit is fully
                 # formed before the allowance is consulted, so the exemption
@@ -253,6 +551,25 @@ def scan_text(path: str, text: str,
                 findings.append(Finding(path, lineno, "local-term", "local",
                                         "high", f"term:{term[:2]}…"))
     return findings
+
+
+def scan_path_name(rel: str,
+                   local_terms: list[tuple[str, "re.Pattern[str]"]],
+                   disabled: frozenset[str] = frozenset(),
+                   tally: Tally | None = None) -> list[Finding]:
+    """G2 — run the same rule set over the repo-relative PATH, reporting at
+    line 0.
+
+    A file whose NAME carries an address, a person or a phone number leaks
+    exactly as much as one whose body does, and the name was never read before
+    2026-08-04. Measured cost when the sweep proposed it: zero findings over
+    this repo's 390 tracked paths.
+
+    A path cannot carry an inline allow-marker, so the only hatch here is
+    `.leakscanignore` — which callers apply before this runs, so a path already
+    exempted by a glob never reaches it."""
+    return [Finding(rel, 0, f.rule, f.kind, f.severity, f.excerpt)
+            for f in scan_text(rel, rel, local_terms, disabled, tally)]
 
 
 def _looks_binary(data: bytes) -> bool:
@@ -350,6 +667,9 @@ def scan_paths(paths: list[Path], root: Path,
     globs = load_ignore_globs(root)
     findings: list[Finding] = []
     for p, rel in iter_files(paths, root, globs, tally):
+        # G2: the path is scanned whatever the contents turn out to be — a
+        # binary's NAME is readable even when its body is not.
+        findings.extend(scan_path_name(rel, local_terms, disabled, tally))
         data = p.read_bytes()
         if _looks_binary(data):
             continue
@@ -401,7 +721,10 @@ def render_human(findings: list[Finding], warning: str | None,
         return "\n".join(lines)
     lines.append(f"✗ leakscan: {len(findings)} finding(s) — commit blocked.\n")
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
-        lines.append(f"  {f.path}:{f.line}  [{f.severity}/{f.kind}] {f.rule} → {f.excerpt}")
+        # Line 0 means the hit is in the PATH itself (G2) — say so, because
+        # ':0' would otherwise read as a line number nobody can open.
+        where = f"{f.path}:{f.line}" if f.line else f"{f.path} (in the path name)"
+        lines.append(f"  {where}  [{f.severity}/{f.kind}] {f.rule} → {f.excerpt}")
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
@@ -501,6 +824,9 @@ def _main(argv: list[str] | None = None) -> int:
             if _ignored(path, globs):
                 tally.files_by_glob += 1
                 continue
+            # G2 on the hot path too: a leak in a NEW file's name reaches the
+            # remote by the same commit as one in its body.
+            findings.extend(scan_path_name(path, local_terms, disabled, tally))
             findings.extend(scan_text(path, text, local_terms, disabled, tally))
     else:
         targets = [Path(p) for p in (args.paths or [str(root)])]
@@ -543,6 +869,12 @@ def _selftest() -> int:
         ("mac aa:bb:cc:dd:ee:ff", "mac-address", True),            # leakscan:allow: selftest fixture
         ("version 1.2.3 released", None, False),              # semver, not an IP
         ("secret@host.com  # leakscan:allow: doc example", None, False),
+        ("uplink fd00:1234:5678::abcd", "ipv6", True),              # leakscan:allow: selftest fixture
+        ("ran 03:04:05 to 03:04:09", None, False),            # D2: clock times
+        ("netmask 255.255.255.0 applies", None, False),       # D3: not topology
+        ("dob = 1984-02-29", "pii-key-context", True),              # leakscan:allow: selftest fixture
+        ("passport_number: <redacted>", None, False),         # G1 placeholder
+        ("card 4111111111111111 on file", "payment-card", True),    # leakscan:allow: selftest fixture
     ]
     ok = True
     for text, expect_rule, expect_hit in cases:

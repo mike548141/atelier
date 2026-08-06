@@ -8,6 +8,34 @@
 # Format: one entry per line. '#' comments and blank lines are ignored.
 #   - a plain line is a literal, matched case-insensitively on whole words
 #   - a line prefixed 'regex:' is a raw regular expression
+#   - a line prefixed 'forms:' is a literal PLUS its derived forms (below)
+#
+# DERIVED FORMS ('forms:') — opt in, per term.
+#
+# A plain literal matches the canonical spelling and nothing else. Names do not
+# leak that way: they leak as slugs in filenames, as camel-case identifiers, as
+# snake_case config keys, as email localparts, or with a stray double space. A
+# 2026-08-03 sweep probed exactly those forms of a listed name and every one of
+# them passed clean.
+#
+# 'forms:' closes that. It matches the term's words joined by ANY run of
+# whitespace, dots, underscores or hyphens — INCLUDING none at all — so one
+# entry covers the slug, snake, dotted, camel-case, run-together and
+# double-spaced spellings at once. Word boundaries still apply at both ends.
+#
+#   forms:Jane Q Public
+#     matches   jane-q-public · jane_q_public · jane.q.public · janeQPublic
+#               JaneQPublic · janeqpublic · Jane  Q  Public
+#     ignores   jane-public (a word missing) · janeqpublicity (no boundary)
+#
+# WHY IT IS OPT-IN, and why it should stay that way for some terms: allowing
+# zero separators means a short term, or one built from ordinary words, can
+# start matching inside unrelated compounds. Only you can see your real list, so
+# only you can judge that. Use 'forms:' for people and device names; keep plain
+# literals for terms that are already common words.
+#
+# LIMIT, stated because it is not obvious: scanning is line-based, so a name
+# split ACROSS two lines is matched by nothing, derived forms included.
 #
 # What belongs here (the specifics the shareable structural patterns can't know):
 #
@@ -19,7 +47,15 @@
 #
 # Examples (fictional — replace):
 # Jane Q Public
+# forms:Jane Q Public                 # + its slug/camel/snake/dotted forms
 # 742 Evergreen Terrace
 # Widgets Holdings Ltd
 # regex:acme-[a-z]{2,4}\d{2}          # a device-hostname family
 # regex:10\.4\.\d{1,3}\.\d{1,3}       # a real internal subnet
+#
+# WHAT THIS FILE DOES NOT NEED TO HOLD. The shareable structural rules already
+# cover the SHAPES: emails, IPs, MACs, IPv6, NZ phone and street addresses,
+# coordinates, IRD, payment cards (Luhn-checked), IBANs, the NZ hyphenated bank
+# account, and any value assigned to an explicit personal-data key name (date of
+# birth, bank account, passport, licence, NHI, medication, plate). Put the
+# LITERALS here — the specifics no shape can know.
