@@ -35,9 +35,13 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   known zero, and a missing count line renders 🔴 *"the count contract has
   drifted"* rather than a silent green. The seam is pinned from both sides by
   `test_floor.py::AdvisoryCountContract`, which runs the real scanner.
-  Tree-wide at landing: **19 advisory findings**, all of them SHA-pinned Actions
-  digests, sha256 checksums and test fixtures. That number is the widening
-  working, not a defect, and it is deliberately left unsuppressed.
+  Tree-wide at landing: **21 advisory findings**, counted from the run rather
+  than estimated — 12 SHA-pinned Actions digests (workflows and the `create-repo`
+  workflow templates), 2 sha256 checksums in an instrument's tests, and 7 test
+  and selftest fixtures, 4 of which this change itself added. Every one of them
+  is a hash. That number is the widening working, not a defect, and it is
+  deliberately left unsuppressed: a board that reads 🟡 21 is the ruling's
+  "persistent count that cannot quietly vanish" doing its job on day one.
 - **E3 — public-key fingerprints no longer block** (ruled 2026-08-04, Mike).
   `ssh-keygen -l` prints `SHA256:<43 base64 chars>`, which is a mixed-class
   32+ run at entropy ~5.9 and therefore a *blocking* high-entropy hit — two of
