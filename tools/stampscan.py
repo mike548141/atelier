@@ -275,6 +275,19 @@ _STAMP_BEGIN_RX = re.compile(
     r"^<!--\s*stamp:begin\s+source=(?P<source>\S+)\s+region=(?P<region>\S+)"
     r"(?:\s+narrow=(?P<narrow>.+?))?\s*-->"
 )
+
+
+def _narrow_of(m: "re.Match[str]") -> str | None:
+    """The declared narrow reason, or None. Whitespace-only is None (SD4,
+    ruled 2026-08-06): the raw capture could hold a lone space, which read
+    as a truthy "declaration" — below even the stated shallow-trust bar of
+    "any non-empty token". The marker still parses (so the diagnostics stay
+    a clear silent-drop drift, not a confusing stray-end config error);
+    only the declaration is void."""
+    raw = m.group("narrow")
+    if raw is None:
+        return None
+    return raw.strip() or None
 # stamp:end is anchored at line start, exactly like stamp:begin. It used to
 # be a bare `.search()` — the one live pair closed its stamp inline on a `---`
 # divider so as not to disturb the span a frozen test (tools/test_templates.py
@@ -416,7 +429,7 @@ def find_stamp_blocks(path: str, text: str) -> tuple[list[StampBlock], list[Find
                 "line": lineno,
                 "source": m_begin.group("source"),
                 "region": m_begin.group("region"),
-                "narrow": m_begin.group("narrow"),
+                "narrow": _narrow_of(m_begin),
                 "payload": [],
                 "allow": bool(ALLOW_MARKER_RX.search(scan_line)),
             }
@@ -454,22 +467,30 @@ def extract_region(text: str, region: str) -> list[str] | None:
     `<!-- <region>:end -->` in `text`, stripping a bracketing fenced-code
     presentation if present (see FENCED-PRESENTATION STRIPPING). Returns
     None if the region's begin/end pair does not resolve — a missing region
-    is a fail-safe config error, not an empty result."""
+    is a fail-safe config error, not an empty result.
+
+    Region markers are recognised on the same CODE-STRIPPED view the stamp
+    markers use (SD1, ruled 2026-08-06 — the ST1 fix previously covered the
+    child side only): a fenced EXAMPLE of the region markers sitting above
+    the real region used to bind first, so an identical copy read as drift
+    against the example's text. Payload lines are still the RAW lines, so
+    a region whose content is presented inside a fence (the live
+    PROPAGATION.md shape) extracts verbatim exactly as before."""
     begin_rx, end_rx = _region_markers(region)
-    lines = text.splitlines()
+    entries = list(_content_lines(text))
     start_idx = None
     end_idx = None
-    for i, line in enumerate(lines):
+    for i, (_, _raw, scan) in enumerate(entries):
         if start_idx is None:
-            if begin_rx.match(line.strip()):
+            if begin_rx.match(scan.strip()):
                 start_idx = i
             continue
-        if end_idx is None and end_rx.match(line.strip()):
+        if end_idx is None and end_rx.match(scan.strip()):
             end_idx = i
             break
     if start_idx is None or end_idx is None:
         return None
-    payload = lines[start_idx + 1:end_idx]
+    payload = [raw for _, raw, _ in entries[start_idx + 1:end_idx]]
     if payload and _FENCE_OPEN_RX.match(payload[0].strip()) \
             and payload[-1].strip().rstrip("`~") == "" \
             and payload[-1].strip()[:1] == payload[0].strip()[:1]:
@@ -672,7 +693,8 @@ def resolve_source(root: Path, source: str) -> tuple[str | None, str | None]:
     return candidate.read_text(encoding="utf-8", errors="replace"), None
 
 
-def iter_markdown(paths: list[Path], root: Path, globs: list[str]):
+def iter_markdown(paths: list[Path], root: Path, globs: list[str],
+                  skipped: list[int] | None = None):
     for base in paths:
         if base.is_file():
             candidates = [base]
@@ -683,16 +705,19 @@ def iter_markdown(paths: list[Path], root: Path, globs: list[str]):
             if p.suffix.lower() not in MARKDOWN_SUFFIXES:
                 continue
             if _ignored(_rel(p, root), globs):
+                if skipped is not None:
+                    skipped.append(1)
                 continue
             yield p
 
 
-def scan_paths(paths: list[Path], root: Path) -> list[Finding]:
+def scan_paths(paths: list[Path], root: Path,
+               skipped: list[int] | None = None) -> list[Finding]:
     globs = load_ignore_globs(root)
     findings: list[Finding] = []
     source_cache: dict[str, tuple[str | None, str | None]] = {}
 
-    for md in iter_markdown(paths, root, globs):
+    for md in iter_markdown(paths, root, globs, skipped):
         rel = _rel(md, root)
         text = md.read_text(encoding="utf-8", errors="replace")
         blocks, malformed = find_stamp_blocks(rel, text)
@@ -738,13 +763,24 @@ _DRIFT_KINDS = {"drift"}
 _CLEAN_KINDS = {"identical", "narrow", "skipped"}
 
 
-def render_human(findings: list[Finding]) -> str:
+def _suppression_line(findings: list[Finding], files_by_glob: int) -> str:
+    """Rule (b) of `method/GUARDS.md`, known zeros printed (SD3, ruled
+    2026-08-06): allow-skipped blocks were already visible as notes, but
+    files skipped wholesale by `.stampscanignore` were silent — a whole
+    exempted store looked identical to one with nothing in it."""
+    skipped_blocks = sum(1 for f in findings if f.kind == "skipped")
+    return (f"  suppressed: {skipped_blocks} block(s) by allow-marker · "
+            f"{files_by_glob} file(s) by .stampscanignore")
+
+
+def render_human(findings: list[Finding], files_by_glob: int = 0) -> str:
     errors = [f for f in findings if f.kind in _CONFIG_ERROR_KINDS]
     drifts = [f for f in findings if f.kind in _DRIFT_KINDS]
     notes = [f for f in findings if f.kind in _CLEAN_KINDS]
 
     if not findings:
-        return "✓ stampscan clean — no stamped blocks found."
+        return ("✓ stampscan clean — no stamped blocks found.\n"
+                + _suppression_line(findings, files_by_glob))
 
     lines: list[str] = []
     if errors:
@@ -768,6 +804,7 @@ def render_human(findings: list[Finding]) -> str:
                       + ", ".join(sorted({f.kind for f in notes})) + ")")
         for f in sorted(notes, key=lambda x: (x.path, x.line)):
             lines.append(f"    {f.path}:{f.line}  [{f.kind}] {f.detail}")
+    lines.append(_suppression_line(findings, files_by_glob))
     if drifts:
         lines.append(
             "\n  A real drift: make the block equal its canonical region, or "
@@ -822,8 +859,9 @@ def _main(argv: list[str] | None = None) -> int:
         print(f"stampscan: path does not exist: {', '.join(missing)}",
               file=sys.stderr)
         return 2
+    _skipped: list[int] = []
     try:
-        findings = scan_paths(targets, root)
+        findings = scan_paths(targets, root, _skipped)
     except OSError as e:
         print(f"stampscan: cannot read {e.filename}: {e.strerror}", file=sys.stderr)
         return 2
@@ -836,9 +874,14 @@ def _main(argv: list[str] | None = None) -> int:
             "clean": not errors and not drifts,
             "warn": args.warn,
             "findings": [asdict(f) for f in findings],
+            "suppressed": {
+                "blocks_by_allow_marker":
+                    sum(1 for f in findings if f.kind == "skipped"),
+                "files_by_ignore_glob": len(_skipped),
+            },
         }, indent=2))
     else:
-        print(render_human(findings))
+        print(render_human(findings, len(_skipped)))
         if drifts and args.warn and not errors:
             print("\n  (--warn: advisory only — drift not blocking this build.)")
 

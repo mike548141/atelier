@@ -263,8 +263,10 @@ registry checks only.*
       with records named out (PS4), the directory-index retry (deferred
       Q2), the date-placeholder exemption (PS3), the docstring corrections
       (PS8 + PS2/PS6/PS7), and the gate-scope residual burnt to zero (the
-      one true positive fixed, six false positives marked with written
-      reasons). Tests 53 → 73; the advisory `ci.yml` step now scans the
+      one true positive fixed; the false positives marked with written
+      reasons — 10 findings as the tally counts them, on 8 marker lines
+      across 6 files; the findings figure is the denominator the scan
+      itself reports, PD2 ruling 2026-08-06). Tests 53 → 73; the advisory `ci.yml` step now scans the
       gateable surface. Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
       § *The 2026-08-06 queue take* (the pointer's delta, harvested at
       the review) and the CHANGELOG entry. **Remaining work owed: the
@@ -275,21 +277,12 @@ registry checks only.*
       mid-pass widens a delta a pinned reviewer can no longer see). Rides
       the next floor.py touch after that cycle closes; the blocking flip
       stays a separate later ruling.
-- [ ] **D2 residue (b) — stampscan's suppression tally.** *Corrected
-      2026-08-06 against the tree: the first half of this item was already
-      false when written.* `stampscan` **was** in the F1/allowances sweep —
-      its ignore-file loader is one of the ten that require a stated reason
-      per glob (`tools/stampscan.py`, landed 2026-08-05 in `05b390d`), so
-      there is no loader work outstanding. It also already satisfies rule (b)
-      at the marker level, and did so before the rule existed: an
-      allow-markered block is reported as a `skipped` finding rather than
-      dropped, which is why the sweep deliberately left it alone.
-      **What IS outstanding**, and all that is: it prints no stable
-      suppression line and does not count files skipped by
-      `.stampscanignore`, so a glob-level exemption is still invisible.
-      SD3 of the 2026-08-06 application verdict found the same gap
-      independently; the two merge at the fix. Small alignment build, rides
-      the next stampscan touch.
+> 📦 **D2 residue (b) — stampscan joins the GUARDS allowance model —
+>   DELIVERED 2026-08-06** with the SD3 ruling (the tally was the only work
+>   owed; the loader half was already landed — a parallel session's close
+>   (`21f4b36`) independently corrected the same stale claim minutes before
+>   this merge, from the tree not the entry) →
+>   [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The 2026-08-06 queue take*.
 - [ ] **D2 residue — stampscan registry wiring stays barred on ST3.** The
       advisory wiring landed 2026-08-05 (atelier `ci.yml` only, the
       reviewer's bar step 1); registry wiring — which reaches every child
@@ -1193,36 +1186,13 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   mutually-consistent surfaces. Terminal; SE1–SE2 join the ruling round
   above.
 
-- [~] 🎯 **Three rule-4 Fable code cold passes ran 2026-08-06 — every
-  remaining queued cycle CLOSED (0 MAJOR each); the residue findings RULED
-  2026-08-06 (Mike, AskUserQuestion walk-through) — application in flight.**
-  (claimed 2026-08-06-1017, wt: ruled-fixes-0806) The taker was a Mike-spawned Fable session, author of
-  none of the three deltas; the three pointers are harvested to
-  [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The 2026-08-06 queue take*.
-  Verdicts:
-  the licenscan E1+E2 build
-  ([verdict](reviews/2026-08-06-0903-licenscan-e1e2-cold.md)) — LC1
-  (MODERATE), the unknown-license suppression keys on a raw substring, so
-  a reasonless marker or a prose mention of the marker text silently
-  retires the warn, against the same file's own GUARDS rule (c)
-  tightening; LC2, that suppression is invisible to the rule (b) tally;
-  LC3, two allowance tests sit after the unittest main block (merge
-  placement) so direct runs silently drop them; LC4–LC5 notes;
-  the stampscan D2 application, the ST cycle closed
-  ([verdict](reviews/2026-08-06-0938-stampscan-d2-application-cold.md)) —
-  SD1 (MODERATE), the ST1 fix is half-applied: canonical-region extraction
-  is code-context blind, so a fenced example of region markers above the
-  real region binds first (probe-verified; latent on the live tree); SD2
-  (MODERATE), `PROPAGATION.md` § skills still says stampscan is shelved on
-  a parser defect and the stamp discipline watched by nothing, falsified
-  by the delta itself; SD3, ignore-glob skips print no suppression tally;
-  SD4, `narrow=` accepts a whitespace-only reason; SD5–SD6 notes;
-  the pathscan D1 rescope application, the PS cycle closed
-  ([verdict](reviews/2026-08-06-1002-pathscan-d1-application-cold.md)) —
-  PD1, three merge-added allowance tests after the unittest main block
-  (same fix as LC3); PD2–PD3 notes. All three terminal: no new pointers;
-  open work (ST3-barred registry wiring, D2 residue b, PS5 promotion, the
-  blocking flips) is unchanged by the closes.
+> 📦 **The 2026-08-06 queue take is fully closed** — three rule-4 code cold
+>   passes (licenscan E1+E2, stampscan D2 application, pathscan D1
+>   application), 0 MAJOR each, all three cycles terminal; LC/SD/PD residue
+>   RULED 2026-08-06 (Mike, plain-language walk-through) and APPLIED the
+>   same day (wt: ruled-fixes-0806) — 11 fixed, 3 accepted as recorded,
+>   decisions stamped in the verdicts →
+>   [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The 2026-08-06 queue take*.
 
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
 COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin

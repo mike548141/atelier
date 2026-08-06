@@ -190,12 +190,15 @@ _SPDX_ALIASES = {
     "0bsd": "0BSD", "zlib": "Zlib",
     "mpl-2.0": "MPL-2.0", "mpl 2.0": "MPL-2.0", "mozilla public license 2.0": "MPL-2.0",
     "epl-2.0": "EPL-2.0",
-    "lgpl-3.0": "LGPL-3.0", "lgpl-3.0-or-later": "LGPL-3.0", "lgplv3": "LGPL-3.0",
+    # No -only/-or-later entries here: normalise_spdx strips those suffixes
+    # (and a trailing `+`) BEFORE this lookup, so such keys are unreachable
+    # dead entries (LC4, ruled 2026-08-06 — five were removed).
+    "lgpl-3.0": "LGPL-3.0", "lgplv3": "LGPL-3.0",
     "lgpl-2.1": "LGPL-2.1", "lgplv2.1": "LGPL-2.1",
-    "gpl-3.0": "GPL-3.0", "gpl-3.0-or-later": "GPL-3.0", "gpl-3.0-only": "GPL-3.0",
+    "gpl-3.0": "GPL-3.0",
     "gplv3": "GPL-3.0", "gpl3": "GPL-3.0",
-    "gpl-2.0": "GPL-2.0", "gpl-2.0-or-later": "GPL-2.0", "gplv2": "GPL-2.0",
-    "agpl-3.0": "AGPL-3.0", "agpl-3.0-or-later": "AGPL-3.0", "agplv3": "AGPL-3.0",
+    "gpl-2.0": "GPL-2.0", "gplv2": "GPL-2.0",
+    "agpl-3.0": "AGPL-3.0", "agplv3": "AGPL-3.0",
 }
 
 
@@ -413,15 +416,23 @@ def scan_repo(root: Path, files: list[tuple[str, str]],
             # publish a vendored copyleft file — is the worst one there is.
             m = _LICENSEREF_ID.search(txt)
             rep.repo_license_declared = m.group(1) if m else CUSTOM_LICENSE
-            if m is None and ALLOW_MARKER not in txt:
-                rep.findings.append(Finding(
-                    "unknown-license", "medium",
-                    "LICENSE text not recognised as a known SPDX licence — read "
-                    "as a declared custom licence: foreign SPDX headers are still "
-                    "checked, declarations can't be verified against it. If that "
-                    f"is intended, add '{ALLOW_MARKER}: <reason>' to a line of "
-                    "LICENSE, or name an explicit SPDX LicenseRef- id in it.",
-                    rel, 1))
+            if m is None:
+                # GUARDS rule (c): only a REASONED marker retires this warn —
+                # a bare marker or a prose mention of the marker text exempts
+                # nothing (LC1, ruled 2026-08-06; this site previously keyed
+                # on a raw substring). Rule (b): the retirement is tallied,
+                # never silent (LC2).
+                if any(parse_allow(ln) is not None for ln in txt.splitlines()):
+                    _suppressed.append(1)
+                else:
+                    rep.findings.append(Finding(
+                        "unknown-license", "medium",
+                        "LICENSE text not recognised as a known SPDX licence — read "
+                        "as a declared custom licence: foreign SPDX headers are still "
+                        "checked, declarations can't be verified against it. If that "
+                        f"is intended, add '{ALLOW_MARKER}: <reason>' to a line of "
+                        "LICENSE, or name an explicit SPDX LicenseRef- id in it.",
+                        rel, 1))
 
     if expect is not None:
         want = normalise_spdx(expect) or expect

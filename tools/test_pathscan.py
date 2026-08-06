@@ -520,17 +520,13 @@ class WholeTreeAndExitCodes(unittest.TestCase):
         self.assertEqual("missing-path", payload["findings"][0]["kind"])
 
 
-class SelfTest(unittest.TestCase):
-    def test_selftest_passes(self):
-        self.assertEqual(0, ps._selftest())
-
-
-if __name__ == "__main__":
-    unittest.main()
-
-
 class Allowances(unittest.TestCase):
-    """GUARDS.md — narrow, noisy, reasoned."""
+    """GUARDS.md — narrow, noisy, reasoned.
+
+    (Moved above the __main__ block 2026-08-06, PD1: defined after
+    `unittest.main()` by the 0228793 merge, these ran under discovery but
+    were silently dropped by a direct `python3 tools/test_pathscan.py`
+    run.)"""
 
     def test_html_comment_close_is_not_a_reason(self):
         self.assertIsNone(ps.parse_allow("x <!-- pathscan:allow: -->"))
@@ -543,3 +539,12 @@ class Allowances(unittest.TestCase):
         summary = ps.Tally().summary()
         self.assertIn("0 by allow-marker", summary)
         self.assertIn("0 file(s) by .pathscanignore", summary)
+
+
+class SelfTest(unittest.TestCase):
+    def test_selftest_passes(self):
+        self.assertEqual(0, ps._selftest())
+
+
+if __name__ == "__main__":
+    unittest.main()
