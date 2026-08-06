@@ -33,6 +33,18 @@ name: floor
 # passing quietly. A repo-specific rule belongs here; a rule other repos would
 # want belongs in atelier's registry.
 #
+# PINNING THIS REPO TO A FIXED ATELIER IS TWO EDITS, NOT ONE (ADR 0008 cold
+# pass, EP4). The `uses:` line below floats at `@main` on purpose — the scanners
+# are a security floor and newest is safest. If you accept the staleness trade
+# and want reproducible CI, pin BOTH:
+#   uses: mike548141/atelier/.github/workflows/floor.yml@<sha>   # the transport
+#   with:
+#     atelier-ref: <sha>                                        # the policy
+# Pinning only `uses:` freezes the workflow FILE and nothing else: it checks
+# atelier out at `atelier-ref`, which defaults to `main`, so the registry and
+# every scanner still come from atelier's tip. Same SHA in both places, bumped
+# together — a `uses:` pin on its own is not a frozen floor, however it reads.
+#
 # ADOPTING THIS ON AN OLDER REPO? Expect a first red — that red is the signal, not
 # a defect. Work through it, or declare the hygiene checks advisory in
 # `.atelier-floor.json` while you do, which keeps the finding visible instead of

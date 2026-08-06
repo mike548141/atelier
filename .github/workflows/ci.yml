@@ -87,12 +87,19 @@ jobs:
       # tools/floor.py is selftested here without anyone remembering to add a
       # line. signscan is selftested explicitly — it is deliberately not in the
       # registry (it needs a trust list resolved from a pin, not a tree).
+      #
+      # `$3!="local"` matches the reusable workflow children run, for the same
+      # reason (ADR 0008 cold pass, EP5): a local check is the declaring repo's
+      # own code and its own CI's job to prove. atelier declares none today, and
+      # the parent is not special — the day it does, this loop must behave the
+      # way every child's does rather than surprise-redding on a script that was
+      # never asked to answer `--selftest`.
       - name: scanner selftests
         run: |
           python3 tools/floor.py --selftest
           python3 tools/floorfleet.py --selftest
           python3 tools/signscan.py --selftest
-          for s in $(python3 tools/floor.py --list --plane ci | awk '$2!="disabled"{print $1}'); do
+          for s in $(python3 tools/floor.py --list --plane ci | awk '$2!="disabled" && $3!="local"{print $1}'); do
             python3 "tools/$s.py" --selftest
           done
 

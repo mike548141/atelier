@@ -23,9 +23,12 @@ name: floor (reusable)
 # scanners are a security FLOOR and newest is safest: a tightened scanner that
 # newly flags a repo has found a latent issue that was always there, not spooky
 # drift. Floating also keeps the doctrine pin in a child's CLAUDE.md the only SHA
-# to keep in sync. A child wanting reproducible CI pins the `uses:` line instead —
-# and thereby opts back into the staleness this file exists to remove, which is a
-# real trade to make deliberately, not a default.
+# to keep in sync. A child wanting reproducible CI opts back into the staleness
+# this file exists to remove — a real trade to make deliberately, not a default —
+# and it takes TWO edits, not one (ADR 0008 cold pass, EP4): `uses:@<sha>` freezes
+# the transport, and `atelier-ref: <sha>` below freezes the POLICY. Pinning only
+# the `uses:` line leaves this workflow checking atelier out at `main` twenty
+# lines down, so the registry and every scanner still arrive from the tip.
 #
 # HONEST SCOPE — what CI can prove is not everything the hook proves:
 #   - secretscan runs at FULL cover: no machine-local state needed.
@@ -57,8 +60,10 @@ on:
         default: ""
       atelier-ref:
         description: >-
-          Which atelier to run. Defaults to main (newest scanner = safest). Pin a
-          SHA only if you have accepted the staleness trade above.
+          Which atelier to run — the registry and the scanners, as opposed to
+          this file. Defaults to main (newest scanner = safest). Pin a SHA only
+          if you have accepted the staleness trade above, and pin the caller's
+          `uses:` line to the SAME SHA: either alone is a half-pin.
         type: string
         required: false
         default: main
@@ -99,10 +104,26 @@ jobs:
       # fetched scanner that cannot detect its own fixtures must go red HERE, not
       # pass green below. The registry drives this too, so a new scanner is
       # selftested without anyone remembering to add a line.
+      #
+      # `--root repo` because the registry is enumerated FOR THE CALLING REPO,
+      # not for the runner's workspace (ADR 0008 cold pass, EP5). Without it the
+      # list resolved `.` — the workspace holding repo/ and atelier/ as siblings
+      # and no config at all — so the `disabled` filter one column over was inert
+      # and read as though it were working.
+      #
+      # `$3!="local"` skips the child's OWN checks, deliberately: the child's CI
+      # owns proving its own check. atelier does not ship that code, never
+      # reviewed it, and cannot say what `--selftest` should mean for a shell
+      # script a repo wrote for itself — so requiring the answer here would
+      # impose a new contract on every repo using the local seam, to prove
+      # something the repo is better placed to prove. Fleet scanners are
+      # atelier's to prove, and this loop proves them. (The applier's pick
+      # within the ruling: the counsel offered this or a mandatory
+      # `--selftest`; this one imposes nothing new on children.)
       - name: scanner selftests
         run: |
           python3 atelier/tools/floor.py --selftest
-          for s in $(python3 atelier/tools/floor.py --list --plane ci | awk '$2!="disabled"{print $1}'); do
+          for s in $(python3 atelier/tools/floor.py --list --plane ci --root repo | awk '$2!="disabled" && $3!="local"{print $1}'); do
             python3 "atelier/tools/$s.py" --selftest
           done
 

@@ -36,11 +36,19 @@ is deliberate, and it is not a broken tool. CI has no such list and never will,
 which is why CI's `leakscan` is structural-only and reports itself as partial
 cover rather than as a clean pass.
 
-Prove it landed — this should print the checks and their state, not an error:
+Prove it landed — two claims, and the second is the one that bites. The first
+line must print `.githooks`, not nothing; the second must print the checks and
+their state, not an error:
 
 ```sh
+git config --get core.hooksPath
 python3 "<atelier-path>/tools/floor.py" --list --plane hook
 ```
+
+The registry line alone proves the tools path resolves and the config parses —
+it does *not* prove git will ever invoke the hook. With `core.hooksPath` unset
+or mistyped, that command prints a clean registry while every commit goes
+unscanned, which is exactly the gap this section exists to close.
 
 The hook names no scanner: it is a shim over `<atelier-path>/tools/floor.py`,
 the one registry that this repo's CI reads too, so a check added upstream
@@ -60,9 +68,21 @@ due — both required:
 
 When the date passes the repo goes **red on the fleet board** and nothing
 blocks — the pressure is visibility, not a broken commit on a date nobody
-remembers setting. Narrowing a check that may never be softened (`secretscan`,
-`leakscan`, `linkscan`, `reviewscan`, `licenscan`) also states its reason:
-`"scope": {"leakscan": {"paths": ["src"], "why": "..."}}`.
+remembers setting.
+
+Reducing what a check **covers** on one that may never be softened
+(`secretscan`, `leakscan`, `linkscan`, `reviewscan`, `licenscan`) also states
+its reason — both the tree it reads and the arguments it runs with, because
+either can shrink real cover without the check ever appearing as disabled:
+
+```json
+"scope": {"leakscan": {"paths": ["src"], "why": "only src/ is shareable"}},
+"flags": {"leakscan": {"args": ["--disable", "ipv4"],
+                       "why": "IP shapes are content in a networking repo"}}
+```
+
+On a check that *can* re-baseline, both keys stay reason-free: pointing a prose
+check at part of the tree is an ordinary layout fact.
 
 That file is also where this repo adds a check of its **own**, under `local`:
 a rule that is genuinely repo-specific and could never be fleet-wide. Give it
