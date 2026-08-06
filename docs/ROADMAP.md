@@ -2671,15 +2671,6 @@ per pattern, and the stated residual →
       sections** (left deliberately unfilled — a drafter cannot fill them
       without pre-empting the ruling). Whatever doctrine edit acceptance drives
       is self-authored ⇒ rule-4 `⏳` at *that* landing, not this one.
-- [~] **The `docs/decisions/` index has drifted — five ADRs unlisted.**
-      (claimed 2026-08-06-1222, wt: decisions-index-0806) Found
-      2026-08-05 while adding the P6 draft's entry: the five records dated
-      2026-07-18 → 2026-07-23 are absent from `decisions/README.md`'s index,
-      which is the only map of that directory. Not fixed at discovery — each
-      line is a one-sentence distillation of a whole ADR, so it is a read, not
-      a typo sweep. Cheap but not free; own small item. Worth asking at pickup
-      whether the index should be generated rather than hand-maintained, since
-      this is the failure mode a hand-maintained index has.
 - [ ] **P7 — harvest the `rpi` publication properly.** This section mined the
       cold review only. The transcripts and session logs of the flip are
       unread, and they are the richest source (what an agent *thought*, not what

@@ -3903,3 +3903,17 @@ entry's loader half having already landed in the ten-loader sweep
   loader does not yet require a stated reason per glob, and it
   prints no suppression tally. Small alignment build; rides the
   next stampscan touch.
+
+## The decisions index catches up — five ADRs listed (done 2026-08-06)
+
+The `docs/decisions/README.md` index was missing the five records dated
+2026-07-18 → 2026-07-23 (found 2026-08-05 while adding the P6 draft's entry;
+the index is the only map of that directory). Fixed 2026-08-06 (wt:
+decisions-index-0806): each missing ADR read in full and distilled to a
+one-line entry in the established style; the two same-day 2026-07-21 records
+disambiguated with their full `YYYY-MM-DD-HHMM` identifiers (no prior
+precedent existed); the stale drift footnote removed in the same commit
+because the fix falsified it. `linkscan` exit 0; full floor green at the
+merge. The item's open question — should this index be generated rather than
+hand-maintained, since drift is exactly the failure mode a hand-maintained
+index has — was put to Mike at this session's close rather than left queued.
