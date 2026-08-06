@@ -35,6 +35,7 @@ sys.path.insert(0, str(TOOLS_DIR))
 
 import floorfleet  # noqa: E402
 import leakscan  # noqa: E402  — to pin that the board reuses its term lookup
+import floor  # noqa: E402  — to pin that the board reuses its C1F3 strip
 
 THIN_CALLER = """\
 name: floor
@@ -1116,6 +1117,91 @@ class GhReadTest(unittest.TestCase):
         with mock.patch.object(floorfleet, "_read_remote_slug_result",
                                return_value=(floorfleet.READ_FAILED, None)):
             self.assertIsNone(floorfleet._read_remote_slug("o/r", "x"))
+
+
+class ControlCharacterTest(unittest.TestCase):
+    """C1F3's third surface — the board (residue found at the 2026-08-03
+    application, closed here).
+
+    The strip landed at the two ruled parse seams: floor.py's whole-document
+    config ingest and publishscan's ignore-file and output surfaces. This tool
+    was missed, and it is the one that reads OTHER repos' configs — text this
+    operator did not write, off default branches they may not control, printed
+    straight to their terminal. An advisory `why` carrying `\\x1b[2J` can clear
+    the screen; `\\x1b[1A` can overwrite the row above it. The board's entire
+    job is to be believed about which repos are guarded, and repainting the
+    rows around yours is a cheap way to be believed wrongly. The finding's own
+    text said the class reaches "both floor and board".
+
+    Same treatment as floor.py's, and literally the same function
+    (`floor.strip_controls`): one seam over the parsed document, before any
+    reader below it. A second copy here is the per-surface list the shared
+    function exists instead of — one would gain a case and the other would not,
+    and nothing would say which.
+    """
+
+    def _board(self, config: dict) -> str:
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "child"
+            (repo / ".github" / "workflows").mkdir(parents=True)
+            (repo / ".github" / "workflows" / "floor.yml").write_text(THIN_CALLER)
+            (repo / floorfleet.CONFIG_PATH).write_text(json.dumps(config))
+            info = floorfleet.evaluate(repo, remote=False)
+        return floorfleet.render([info], remote=False)
+
+    def test_a_hostile_advisory_reason_cannot_repaint_the_board(self):
+        out = self._board({"advisory": {"wrapscan": {
+            "why": "adopting\x1b[2J\x1b[1A the check", "review-by": "2999-01-01"}}})
+        self.assertNotIn("\x1b", out)
+        self.assertNotIn("\x07", out)
+        # Neutralised, not dropped: the declaration still reports.
+        self.assertIn("wrapscan", out)
+        self.assertIn("adopting", out)
+
+    def test_a_hostile_disabled_reason_is_neutralised(self):
+        out = self._board({"disabled": {"spellscan": "no prose\x07\x1b[31m here"}})
+        self.assertNotIn("\x1b", out)
+        self.assertNotIn("\x07", out)
+        self.assertIn("spellscan", out)
+
+    def test_a_hostile_local_check_description_is_neutralised(self):
+        """The newest of the three surfaces, and the one a per-field strip
+        would most likely have missed — the local seam post-dates C1F3."""
+        out = self._board({"local": {"tripwire": {
+            "run": "tools/tripwire.py",
+            "why": "estate tokens\x1b[2K never enter a commit"}}})
+        self.assertNotIn("\x1b", out)
+        self.assertIn("tripwire", out)
+
+    def test_an_ordinary_reason_renders_unchanged(self):
+        """The other direction, and the one that stops the fix from being a
+        blunt instrument: normal text — punctuation, macrons, em dashes — must
+        survive byte for byte, or the board starts misquoting the declarations
+        it exists to report."""
+        why = "adopting the check — 60 findings to clear (Māori place names)"
+        out = self._board({"advisory": {"wrapscan": {
+            "why": why, "review-by": "2999-01-01"}}})
+        self.assertIn(why, out)
+
+    def test_the_strip_is_floors_own(self):
+        """Pinned rather than intended: two sanitisers for one class is how the
+        class reopens on whichever surface stops being updated."""
+        self.assertIs(floorfleet.floor.strip_controls, floor.strip_controls)
+
+    def test_a_non_object_config_stays_a_row_rather_than_a_crash(self):
+        """Caught while wiring the strip above. `json.loads` on a top-level
+        ARRAY returned a list, and the next line called `.get` on it — an
+        AttributeError outside the `except ValueError`, which took the whole
+        board down rather than marking one repo unreadable. Same landing as
+        unparseable JSON now: this tool reports, floor.py blocks."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "child"
+            (repo / ".github" / "workflows").mkdir(parents=True)
+            (repo / ".github" / "workflows" / "floor.yml").write_text(THIN_CALLER)
+            (repo / floorfleet.CONFIG_PATH).write_text('["wrapscan"]')
+            info = floorfleet.evaluate(repo, remote=False)
+        self.assertIn("unreadable", info.detail)
+        self.assertEqual(info.advisory, {})
 
 
 if __name__ == "__main__":

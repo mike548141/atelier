@@ -220,7 +220,7 @@ from pathlib import Path, PurePosixPath
 CONFIG_NAME = ".atelier-floor.json"
 ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 # C0 controls plus DEL. Config-authored text reaches a terminal verbatim, so
-# these are stripped at the parse seam — see `_strip_controls`.
+# these are stripped at the parse seam — see `strip_controls`.
 CONTROL_CHARS_RE = re.compile(r"[\x00-\x1f\x7f]")
 
 # Placeholders resolved per invocation: {root} = the repo being scanned,
@@ -566,7 +566,7 @@ def _days_over(review_by: str, today: str) -> str:
     return f"{days} days over"
 
 
-def _strip_controls(value: object) -> object:
+def strip_controls(value: object) -> object:
     """Remove C0 control characters (and DEL) from every string in a parsed
     config document — keys and values, at any depth.
 
@@ -583,13 +583,21 @@ def _strip_controls(value: object) -> object:
     Dropped, not escaped: these characters have no legitimate place in a path,
     a scanner name or a one-line reason, so there is nothing to preserve. It
     also means `_wc`'s newline encoding below can no longer be reached from a
-    config string — belt and braces, deliberately kept."""
+    config string — belt and braces, deliberately kept.
+
+    PUBLIC because `floorfleet` calls it. The C1F3 ruling named "both floor and
+    board", and the board reads the same child `.atelier-floor.json` through
+    its own tolerant parsers — so it prints the same child-authored strings to
+    the same terminal, and had none of this. A second copy of the sanitiser
+    over there would be exactly the per-surface list this function exists
+    instead of: one of the two would gain a case and the other would not, and
+    nothing would say which. One seam, two callers."""
     if isinstance(value, str):
         return CONTROL_CHARS_RE.sub("", value)
     if isinstance(value, dict):
-        return {_strip_controls(k): _strip_controls(v) for k, v in value.items()}
+        return {strip_controls(k): strip_controls(v) for k, v in value.items()}
     if isinstance(value, list):
-        return [_strip_controls(v) for v in value]
+        return [strip_controls(v) for v in value]
     return value
 
 
@@ -1013,7 +1021,7 @@ class Config:
         # `why` lines, scanner names, scope paths, local check descriptions —
         # reaches an operator's terminal, and a per-field strip is a list that
         # goes stale the next time a field is added.
-        raw = _strip_controls(raw)
+        raw = strip_controls(raw)
         if not isinstance(raw, dict):
             raise ConfigError(f"{CONFIG_NAME} must be a JSON object")
 
