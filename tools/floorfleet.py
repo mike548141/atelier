@@ -39,7 +39,9 @@ column and for a quick pass while working.
 
 STATES
   wired      calls atelier's reusable floor — new checks arrive automatically
-  pinned     calls it at a fixed SHA: propagation is deliberately frozen here
+  pinned     calls it at a fixed SHA. That freezes the WORKFLOW; the scanners
+             and the registry still float unless the caller also passes
+             `atelier-ref: <sha>`, which this state cannot see (EP4)
   vendored   a floor.yml that names scanners itself — the pre-ADR-0008 copy, and
              the state that produced the incident. It will go stale, silently.
   absent     no floor.yml at all: this repo's CI enforces nothing
@@ -110,7 +112,8 @@ WHAT THIS CANNOT SEE — read before trusting a clean board
   row, counts as not-verified, and reds `--check`.
 - **Without `--status` it reads workflow TEXT only.** A repo whose floor.yml
   calls the reusable workflow inside a job that never runs — a condition, a
-  disabled workflow, or GitHub Actions switched off for the whole repo — reads as
+  disabled workflow, a trigger that fires on nothing (`workflow_dispatch` alone),
+  or GitHub Actions switched off for the whole repo — reads as
   wired, because wiring is a fact about a FILE and a file cannot tell you the
   runner was ever switched on. `--status` closes this: a repo with Actions off
   reports `actions-off` or `no-runs`, never green. The repo-level switch is read
@@ -190,7 +193,15 @@ def classify(floor_text: str | None) -> tuple[str, str]:
         ref = m.group("ref")
         if ref == "main":
             return "wired", "calls atelier's floor @main"
-        return "pinned", f"calls atelier's floor @{ref} — propagation frozen here"
+        # NOT "propagation frozen here", which is what this said and is not what
+        # a `uses:` pin does (ADR 0008 cold pass, EP4). The reusable workflow
+        # checks atelier out at its `atelier-ref` input, default `main` — so a
+        # pinned caller freezes the transport and still runs the registry and
+        # the scanners from atelier's tip. Only `atelier-ref: <sha>` alongside
+        # freezes the policy, and this tool reads the `uses:` line, not the
+        # `with:` block, so it cannot tell which of the two a repo did.
+        return ("pinned", f"calls atelier's floor @{ref} — workflow pinned; "
+                          "scanners still float unless atelier-ref is set too")
     if SCANNER_RE.search(body):
         return "vendored", "names scanners itself — a copy that will go stale"
     return "unknown", "floor.yml present but neither a caller nor a copy"
@@ -726,11 +737,19 @@ def _scope_paths(raw: object) -> dict[str, list[str]]:
     return out
 
 
-def _str_lists(raw: object) -> dict[str, list[str]]:
-    """`scope`/`flags` as declared: name -> list of strings. Same contract as
-    `local` below — report what the config SAYS, never what floor.py would make
-    of it, and stay readable against a malformed one. A bare string is accepted
-    for the same reason floor.py accepts it."""
+def _flag_args(raw: object) -> dict[str, list[str]]:
+    """`flags` as declared, in either spelling: name -> list of arguments. Same
+    contract as `local` below — report what the config SAYS, never what floor.py
+    would make of it, and stay readable against a malformed one. A bare string is
+    accepted for the same reason floor.py accepts it.
+
+    The object form carries a `why` too, which the board does not print, exactly
+    as `_scope_paths` does not print `scope`'s: the 🔧 line's job is to say the
+    check runs modified, and a repo that tuned a boundary check is already the
+    thing being pointed at. Reading BOTH spellings is the load-bearing half —
+    the reasoned form is the one EP1(b) pushes children towards, and a board
+    that only understood the old one would go quiet exactly as the estate
+    adopted the new one."""
     if not isinstance(raw, dict):
         return {}
     out: dict[str, list[str]] = {}
@@ -739,6 +758,12 @@ def _str_lists(raw: object) -> dict[str, list[str]]:
             out[str(name)] = [value]
         elif isinstance(value, list):
             out[str(name)] = [str(v) for v in value]
+        elif isinstance(value, dict):
+            args = value.get("args")
+            if isinstance(args, str):
+                out[str(name)] = [args]
+            elif isinstance(args, list):
+                out[str(name)] = [str(a) for a in args]
     return out
 
 
@@ -765,7 +790,7 @@ def _read_declarations(repo: Path, read, state: str, detail: str) -> ChildFloor:
             cfg = json.loads(raw)
             advisory = _advisories(cfg.get("advisory"))
             scope = _scope_paths(cfg.get("scope"))
-            flags = _str_lists(cfg.get("flags"))
+            flags = _flag_args(cfg.get("flags"))
             raw_docs = cfg.get("docs")
             docs = str(raw_docs) if isinstance(raw_docs, str) else ""
             d = cfg.get("disabled", {}) or {}

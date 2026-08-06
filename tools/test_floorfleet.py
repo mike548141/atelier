@@ -77,11 +77,21 @@ class ClassifyTest(unittest.TestCase):
         self.assertIn("stale", detail)
 
     def test_pinned_caller_is_distinguished_from_floating(self):
-        """A pin is a legitimate, deliberate choice — but it freezes propagation,
-        so it must not be reported identically to a floating caller."""
+        """A pin is a legitimate, deliberate choice and must not be reported
+        identically to a floating caller.
+
+        What it must NOT say is "propagation frozen here", which is what this
+        line said until the cold pass drove it (ADR 0008, EP4): the reusable
+        workflow checks atelier out at its `atelier-ref` input, default `main`,
+        so a `uses:` pin freezes the transport while the registry and every
+        scanner still arrive from the tip. The board reads the `uses:` line and
+        not the `with:` block, so it cannot tell a half-pin from a real one —
+        and the honest detail is the one that says so."""
         state, detail = floorfleet.classify(THIN_CALLER.replace("@main", "@abc1234"))
         self.assertEqual(state, "pinned")
-        self.assertIn("frozen", detail)
+        self.assertIn("workflow pinned", detail)
+        self.assertIn("atelier-ref", detail)
+        self.assertNotIn("propagation frozen", detail)
 
     def test_adopter_fork_is_still_wired(self):
         forked = THIN_CALLER.replace("mike548141", "another-owner")
@@ -485,6 +495,21 @@ class AdvisoryAgeingTest(unittest.TestCase):
             {"leakscan": ["tiki/"]})
         self.assertEqual(floorfleet._scope_paths({"leakscan": "tiki/"}),
                          {"leakscan": ["tiki/"]})
+
+    def test_flag_args_read_from_either_spelling(self):
+        """The same guard on the 🔧 line, for EP1(b)'s object form (ruled
+        2026-08-04). This one matters more than its twin: EP1(b) actively pushes
+        children off the bare list onto the reasoned spelling, so a board that
+        only understood the old one would go quiet exactly as the estate
+        adopted the new one."""
+        self.assertEqual(floorfleet._flag_args({"leakscan": ["--disable", "ipv4"]}),
+                         {"leakscan": ["--disable", "ipv4"]})
+        self.assertEqual(
+            floorfleet._flag_args({"leakscan": {"args": ["--disable", "ipv4"],
+                                                "why": "IPs are content here"}}),
+            {"leakscan": ["--disable", "ipv4"]})
+        self.assertEqual(floorfleet._flag_args({"leakscan": "--disable"}),
+                         {"leakscan": ["--disable"]})
 
     def _render_one(self, advisory):
         info = floorfleet.ChildFloor(name="child", path="/x", state="wired",
