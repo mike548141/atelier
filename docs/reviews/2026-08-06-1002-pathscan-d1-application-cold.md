@@ -116,4 +116,28 @@ stays a separate later ruling.
 
 ## Reconcile (intent record opened after the findings above were committed)
 
-*Appended post-commit.*
+Opened the S2 verdict (revised counts: 3 MAJOR — PS1, PS4, PS8; 5 MINOR —
+PS2, PS3, PS5, PS6, PS7; Q2 deferred) and the D1 ruling only after the
+verdict above was committed. Reconciliation:
+
+- **All three MAJORs are discharged by the delta, verifiably at HEAD.**
+  PS1: anchor 4 + the root-file scope, with the S2-cited motivating case
+  (a root README naming `docs/decisions/`) now inside the scanned gate
+  surface. PS4: the gate story is stated in the docstring's SCOPE section,
+  the argparse help, and the ci.yml comment — records named out with the
+  reason, not just omitted. PS8: the overclaim corrected in place, the
+  correction narrated rather than silently dropped.
+- **All four docstring-honesty MINORs (PS2/PS3/PS6/PS7) present as named
+  limits**; PS3 additionally got the date-placeholder exemption, and the
+  probe set above exercised each documented mode. PS5 deferred exactly as
+  the delta says, verified absent from the registry.
+- **Q2 (deferred at the S2 pass) is delivered** as the directory-index
+  retry, monotone-safe and bounded to fully extensionless tokens, with the
+  masking cost named in the residual.
+- No claim in the intent record failed re-run; nothing above is
+  contradicted by it.
+
+**Final: PASS-WITH-FINDINGS — 0 MAJOR / 0 MODERATE / 1 minor / 2 notes.
+Terminal; the pathscan S2/D1 review cycle CLOSES. PD1–PD3 await the
+principal's ruling. PS5 (registry promotion) and the blocking flip stay
+open as work, unaffected by the cycle close.**
