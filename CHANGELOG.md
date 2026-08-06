@@ -5,6 +5,79 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-08-06 — leakscan reaches for the PII half: the E7 build)
+The 2026-08-03 sweep found `leakscan` **materially behind** `secretscan`:
+two layers against three, no label context, no placeholder suppression, and
+a block of values under explicit personal-data key names probing completely
+clean. Mike ruled the fixes on 2026-08-04; this is that build. Every new
+rule ships with must-flag *and* must-pass tests.
+- **The missing third layer — `pii-key-context`** (G1, the highest-value
+  fix by a wide margin). A non-placeholder value assigned to an explicit
+  personal-data key name is now a finding even when the value alone matches
+  no shape at all: date of birth, bank account, passport, driver licence,
+  NHI, tax number, medication, prescription, allergy, blood type, patient,
+  next of kin, emergency contact, maiden name, home address, plate. This is
+  the only possible net for those classes — the sweep's own don't-add list
+  rules out detecting any of them by shape, because letters-plus-digits is
+  also the shape of a SKU and a bare date rule would fire on every record
+  in the estate. It ships **with placeholder suppression** (leakscan had
+  none of any kind before now) and with **its own canary suite**, on
+  secretscan's SF3 pattern: 27 shapes enumerated, the count pinned, and the
+  contract written down — a canary going quiet is a detection regression,
+  never a fixture to update. Thirteen placeholder shapes are pinned the
+  other way, so the two suites are each other's guard rails.
+- **File PATHS are scanned, not just contents** (G2). A file whose *name*
+  carries an address or a person leaks exactly as much as one whose body
+  does, and the name was never read. All three layers now run over each
+  repo-relative path, reported at line 0 and rendered as such. Measured
+  cost, before and now: **zero findings** across this repo's whole tree.
+  A binary's name is read even though its body cannot be.
+- **Financial identifiers as a class** (G4): payment cards with a **Luhn**
+  check and an issuer-range guard, IBANs by **ISO 7064 mod-97**, and the NZ
+  hyphenated bank-account field shape. The self-validating checks are what
+  make a digit run safe to flag at all; the **compact all-digit forms stay
+  key-context-only**, as ruled.
+- **Term-list derived forms** (G6), **opt-in per term** via a new `forms:`
+  prefix: one entry now covers a name's slug, snake, dotted, camel-case,
+  run-together and double-spaced spellings — the forms a name actually
+  leaks as. Opt-in stays opt-in (zero-separator matching is the operator's
+  judgement to make, not the tool's), and `tools/leakscan-terms.example.txt`
+  documents it with the line-based limit stated.
+- **The bracketed NZ phone form** (G7) — the one common spelling missed.
+
+### Fixed (2026-08-06 — six defects in leakscan's existing rules)
+- **The IPv6 rule stops reading punctuation as an address** (D2, and **E4**
+  with it — one fix, both entries). It fired on any three colon-separated
+  hex-ish groups, which is also a clock time, a port map, a ratio and a hex
+  colour triplet — a false-positive class far wider than the two clock
+  times originally recorded. It now requires a compression marker or four
+  or more groups, with both directions pinned; a Python slice and a C++
+  scope resolution are not addresses either. Real and compressed addresses,
+  including the ULA shapes the estate uses, still flag.
+- **The IPv4 safe set widens to what carries no topology** (D3): every
+  contiguous netmask (computed, not listed), the unspecified and broadcast
+  addresses, the loopback net and the well-known public resolvers. These
+  produced findings whose only possible resolution was an allow-marker,
+  which is the class `GUARDS.md` says to fix at the rule. RFC 1918, CGNAT
+  and link-local space are deliberately still flagged.
+- **The address rule stops reading figure references as addresses** (D4):
+  abbreviated and ordinary-word street suffixes now require at least one
+  capitalised word in front of them. The distinctive full-word suffixes
+  keep the permissive form.
+- **MAC addresses report once** (D5). Six colon-separated hex pairs are
+  also a valid IPv6 shape, so the same characters reported twice. The
+  narrower rule wins, an exempted MAC is not re-reported by the wider one,
+  and disabling the narrower rule leaves no blind spot.
+- **Fixed-value safe addresses match exactly** (D6): the safe-set test was
+  a prefix match, so a longer final octet was exempt for free. Network
+  prefixes still match by prefix, which is the correct semantics for them.
+- Two live allow-markers in the tree are now unnecessary as a result (a
+  rendered clock time, and a MAC's IPv6 double-report). Left in place —
+  removing them is a separate, deliberate edit.
+- **NOT built, and untouched:** G3 (binary/media blocking, ruled but a
+  separate and larger behaviour change) and G5 (international phone,
+  deferred by ruling).
+
 ### Fixed (2026-08-06 — the queue take's ruled findings applied)
 The 2026-08-06 rule-4 cold passes returned 0 MAJOR each (all three cycles
 closed); Mike ruled the residue the same day and these are the fixes, each

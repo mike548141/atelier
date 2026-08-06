@@ -455,64 +455,43 @@ adopter mistakes.*
       `secretscan` reaches the credential half — is endorsed by the pass
       as real open work, not folded into it. **Ran 2026-08-03 → E7 below.**
 
-- [~] 🎯 **E7 — the PII-half sweep ran 2026-08-03 (fourth carry, discharged):
-      leakscan reaches the PII half PARTIALLY — materially behind the
-      credential half.** (claimed 2026-08-06-1222, wt: e7-leakscan-build-0806)
-      Full findings, class-level and probe-verified:
+- 🎯 **E7 — RULED 2026-08-04 and the funded build DELIVERED 2026-08-06**
+      (wt: e7-leakscan-build-0806): D2–D6 fixed as ruled (D1 had landed
+      2026-08-05) and G1/G2/G4/G6/G7 built — the key-context layer with
+      placeholder suppression and its own canary suite, path scanning on
+      both planes, Luhn-checked cards + mod-97 IBAN + the NZ hyphenated
+      bank shape, opt-in derived name forms, the bracketed phone form —
+      with must-flag/must-pass tests (leakscan suite 53 → 114; tree
+      structural run exit 0). E4 and the clock-times boundary entry close
+      with the same fix. G5 stays deferred (revisit on first real miss).
+      Rulings verbatim + build detail and stated limits →
+      [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *E7 built*; sweep record:
       [sweep record](sessions/2026-08-03-2050-leakscan-pii-sweep.md).
-      Headlines: leakscan has **no label/assignment context layer and no
-      placeholder suppression** — a block of values under explicit
-      personal-data key names (DOB, bank account, passport, medication,
-      NHI, plate) probes completely clean, while E6's own reasoning says
-      key context is nearly free to widen (**G1**, the highest-value fix);
-      **file paths are never scanned** (**G2** — zero FPs measured over the
-      repo's own 390 tracked paths); **binary media are skipped silently**
-      — a synthetic image carrying GPS metadata, a name and an address
-      scans clean (**G3**, whose honest fix is an advisory-shaped notice,
-      in recorded tension with E6a's "leakscan gains no advisory form" —
-      Mike's to weigh, not resolved here); financial identifiers (**G4**),
-      international phone (**G5**), term-list form fragility — a listed
-      name's slug/camel/snake/split forms all pass (**G6**), one bracketed
-      NZ phone form (**G7**). Six defects in existing rules, led by
-      **D1**: an allow-marker written for a structural FP silences the
-      machine-local term list on the same line — the highest-confidence
-      layer switched off exactly where a human judged the line safe for a
-      different reason. **D2** confirms E4's class is wider than recorded
-      (any three-plus colon-separated hex-ish groups, not just clock
-      times). The don't-add list (bare dates, context-free ID shapes, NER
-      names, schedule prose, low-precision coordinates) is part of the
-      finding. The term-list plane-split consequence is recorded as decided
-      design worth holding in view.
-      **RULED 2026-08-04 (Mike, plain-language walk-through, all as
-      counselled): D1 fixed as (a) — APPLIED 2026-08-05** (`tools/leakscan.py`;
-      no test had covered it, pinned now). **🎯 Consequence for Mike, surfaced
-      not worked around:** three lines carrying the author's own published git
-      identity (ADR 0005's named worked example) now report against the term
-      list. The marker on them is exempting the *structural* email rule for the
-      SAME reason (ADR 0005) — not the different-reason case D1 was ruled
-      against — and the machine-local term list cannot express "this name is
-      public in *this* repo". Hook plane (`--staged`) and CI plane
-      (structural-only) are both unaffected; only a local full-cover scan is
-      red. Options when ruled: narrow the term list, or let a marker name the
-      term-list scope explicitly so silencing the highest-confidence layer can
-      never happen by accident. — allow-markers exempt structural rules
-      only, the term list always runs (a term-list misfire is fixed in the
-      list itself, which is the operator's own config); **D2 fixed as (a)**
-      — the IPv6-shape rule requires `::` or four-plus groups, with
-      must-flag/must-pass tests both directions (this ruling also settles
-      E4 below — one fix, both entries); **D3–D6 all fixed** (safe-set
-      widening, address suffix guard, MAC dedupe, exact all-zeroes match);
-      **G1, G2, G4, G6, G7 funded** (the key-context layer with placeholder
-      suppression and its own canary suite; path scanning; Luhn-checked
-      cards + IBAN + NZ hyphenated bank shape with bare-digit forms staying
-      key-context-only; term-list derived forms documented with opt-in
-      derivation; the bracketed phone form); **G5 deferred** — NZ forms are
-      covered, international numbers are rare here, revisit on first real
-      miss; **G3 ruled BLOCKING** — an unscannable or metadata-bearing
-      binary blocks and a legitimate image carries a one-time reasoned
-      marker, keeping E6a's no-advisory-form decision intact rather than
-      carving it. **Work owed: one leakscan build item (D-fixes + G-builds,
-      tests + canaries); it queues its rule-4 pointer at landing.**
+      Rule-4 ⏳ queued (§ *Doctrine — review-owed*).
+- [ ] 🎯 **E7 residue — G3 (binary media) is ruled and not yet built.**
+      Mike ruled G3 BLOCKING (2026-08-04): an unscannable or
+      metadata-bearing binary blocks, a legitimate image carries a
+      one-time reasoned marker, keeping E6a's no-advisory-form decision
+      intact. The 2026-08-06 build deliberately did not take it — the
+      ruling's funded list named G1/G2/G4/G6/G7, and G3 changes behaviour
+      for every binary in every adopting tree, a blast radius that
+      deserves its own landing. Whether it rides the next leakscan touch
+      or gets its own item is Mike's call, put at this session's close.
+      (The build did add path-name scanning, so a binary's NAME is now
+      read even while its body is not.)
+- [ ] 🎯 **D1's consequence — the author's published-identity lines red
+      the local full-cover plane (ruling owed).** Three lines carrying
+      the author's own published git identity (ADR 0005's named worked
+      example) report against the machine-local term list: the marker on
+      them exempts the *structural* email rule for the SAME reason
+      (ADR 0005) — not the different-reason case D1 was ruled against —
+      and the term list cannot express "this name is public in *this*
+      repo". Hook plane (`--staged`) and CI plane (structural-only) are
+      both unaffected; only a local full-cover scan is red (re-measured
+      at the 2026-08-06 build: the same 3 findings, byte-identical
+      before and after). Options when ruled: narrow the term list, or
+      let a marker name the term-list scope explicitly so silencing the
+      highest-confidence layer can never happen by accident.
 - **E1 + E2 — DONE 2026-08-05** (`ae056a2`, wt: queue-batch-0806): an
       unrecognised licence now keeps the header checks (E1), and the sixteen
       unambiguous OSI trove classifiers resolve instead of flagging (E2).
@@ -530,11 +509,11 @@ adopter mistakes.*
       material by definition, whole-shape not fragment, with canary-style
       tests both directions so the suppression cannot quietly widen. Rides
       the next secretscan build item.
-- [~] **E4 — `leakscan` reads two clock times side by side as an IPv6
-      address.** (claimed 2026-08-06-1222, wt: e7-leakscan-build-0806 — rides
-      the E7 build, one fix both entries per the D2 ruling) Recurs wherever a record quotes a rendered time span → already
-      queued under § *Boundary findings* below; carried here because it is the
-      same class as E3 and should be ruled with it.
+- **E4 — FIXED 2026-08-06 with E7's D2** (one fix, both entries): the
+      IPv6-shape rule now requires `::` or four-plus groups; clock times,
+      port maps, ratios and hex colour triplets pass, real addresses still
+      flag, tests both directions. → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
+      § *E7 built*.
 
 ### Track F — the guard governance model (Mike, 2026-08-02)
 
@@ -834,18 +813,10 @@ are what generalise to any adopter.
       markers on one line, no base64 body: documentation describing a key file's
       format. Resolved; wants an allow-marker, never rotation. Recorded because
       it is the archetypal false positive of this rule and will recur.
-- [~] **Two clock times side by side read as an IPv6 address** (claimed
-      2026-08-06-1222, wt: e7-leakscan-build-0806) (found 2026-07-26,
-      writing a CHANGELOG line about a CLI that prints a time span). `HH:MM:SS to
-      HH:MM:SS` trips the structural `ipv6` rule twice. Same archetypal-false-
-      positive class as the bullet above, and it will recur wherever a record
-      quotes a rendered time range. Resolved that day by **describing the format
-      instead of quoting it** — the cheaper move, and the one that leaves no
-      exemption behind. The triage question is **RULED 2026-08-04 via E7's D2
-      (Mike)**: tighten the rule — `::` or four-plus groups — rather than rely
-      on describe-don't-quote alone; the sweep confirmed the FP class is wider
-      than clock times (port maps, ratios, hex colour triplets). Rides the E7
-      leakscan build item.
+- **Two clock times read as an IPv6 address — FIXED 2026-08-06** (found
+      2026-07-26; ruled 2026-08-04 via E7's D2; one landing with E4): the
+      rule now requires `::` or four-plus groups, must-flag/must-pass tests
+      both directions. → [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *E7 built*.
 
 ### Candidate invariant — the public-record join, breached three times
 
@@ -1253,6 +1224,15 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
 >   same day (wt: ruled-fixes-0806) — 11 fixed, 3 accepted as recorded,
 >   decisions stamped in the verdicts →
 >   [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The 2026-08-06 queue take*.
+
+- ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass) — the
+  E7 leakscan build (D2–D6 fixes + the G1/G2/G4/G6/G7 builds).** *Delta:*
+  `tools/leakscan.py` + `tools/test_leakscan.py` (53 → 114) +
+  `tools/leakscan-terms.example.txt` (the `forms:` syntax) + the CHANGELOG
+  entry (landed 2026-08-06, this commit). *Intent record:*
+  [sweep record](sessions/2026-08-03-2050-leakscan-pii-sweep.md) + the
+  2026-08-04 E7 ruling, harvested with the item to
+  [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *E7 built*.
 
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
 COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin

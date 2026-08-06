@@ -3917,3 +3917,64 @@ because the fix falsified it. `linkscan` exit 0; full floor green at the
 merge. The item's open question — should this index be generated rather than
 hand-maintained, since drift is exactly the failure mode a hand-maintained
 index has — was put to Mike at this session's close rather than left queued.
+
+## E7 built — leakscan's funded PII fixes land (done 2026-08-06)
+
+The 2026-08-03 sweep found leakscan materially behind the credential half;
+Mike ruled every finding 2026-08-04 and the funded build landed 2026-08-06
+(wt: e7-leakscan-build-0806, one commit, its rule-4 pointer queued at this
+landing). **The ruling, verbatim from the item:** D1 fixed as (a) — applied
+2026-08-05 — allow-markers exempt structural rules only, the term list
+always runs; D2 fixed as (a) — the IPv6-shape rule requires `::` or
+four-plus groups (settling E4 and the clock-times boundary entry, one fix,
+three entries); D3–D6 all fixed (safe-set widening, address suffix guard,
+MAC dedupe, exact all-zeroes match); G1, G2, G4, G6, G7 funded (the
+key-context layer with placeholder suppression and its own canary suite;
+path scanning; Luhn-checked cards + IBAN + the NZ hyphenated bank shape
+with bare-digit forms staying key-context-only; term-list derived forms
+documented with opt-in derivation; the bracketed phone form); G5 deferred —
+revisit on first real miss; G3 ruled BLOCKING — an unscannable or
+metadata-bearing binary blocks and a legitimate image carries a one-time
+reasoned marker, keeping E6a's no-advisory-form decision intact.
+
+**What the build delivered.** A third layer (`pii-key-context`) reads
+labels rather than values — personal data has no entropy signature, so the
+key name is the only available analogue of secretscan's context-free net —
+guarded by a 27-shape canary suite with 13 pinned placeholder shapes as its
+counterweight. All three layers now run over each file's repo-relative
+PATH as well as its content (line 0, rendered "in the path name"; a
+binary's name is read even though its body is not). Cards are Luhn-checked
+with an issuer-digit guard, IBANs mod-97-validated, and a generic
+`SHADOWED_BY` mechanism stops a MAC being re-reported as IPv6 — shadow
+spans computed before allow-markers so an exempted MAC leaves no blind
+spot, and a disabled shadower casts no shadow. `forms:` terms match
+slug/snake/dotted/camel/run-together spellings, opt-in only. The IPv4 safe
+set gained all 33 computed netmasks, the broadcast/unspecified addresses,
+the loopback net and eight public resolvers — RFC 1918, CGNAT and
+link-local still flag.
+
+**Verification.** Suite 1060 → 1121 (leakscan 53 → 114), exit 0; tree
+structural run exit 0; selftest exit 0; hook-plane floor exit 0; the
+local full-cover plane's 3 pre-existing findings (the published-identity
+lines, D1's recorded consequence) measured byte-identical before and
+after. The sweep's probe block now flags end to end on `pii-key-context`.
+
+**Honest limits, stated by the build.** Two G1 keys were tried and
+withdrawn against measured false positives (`diagnosis` opens every
+root-cause paragraph in the estate — 3 live FPs; bare `ird` matched prose
+— now compound-only), reasons written into the code. Path scanning is
+literal per the ruling: a hyphen-slugged address in a filename is not
+caught (names-in-slugs are `forms:`' job; addresses-in-slugs are nobody's),
+and a path has no inline marker hatch — `.leakscanignore` is the only
+escape. The initials form of a name is outside G6 as ruled. The
+RFC 3849 IPv6 documentation prefix flags — not ruled safe, left fail-safe
+(and quoting it in this very entry turned the harvest commit red until the
+line was reworded to describe it: the describe-don't-quote rule earning its
+keep on the rule's own paperwork). Amex's 4-6-5 grouped spelling is
+unmatched (the bare 15-digit form is caught); a Luhn-valid run with an
+issuer digit outside 2–6 passes.
+Derivation is line-based — a name split across lines matches nothing.
+Four allow-markers in the tree are now dead weight (three loopback
+markers D3 obsoleted, one clock-time marker D2 obsoleted) — left in place
+deliberately: three sit in frozen records and instruments outside the
+build's file scope; noted in the CHANGELOG for a separate deliberate edit.
