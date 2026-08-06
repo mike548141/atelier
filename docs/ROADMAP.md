@@ -190,28 +190,31 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       full-tree reds (measured cost: it broke live re-run obligations the
       day it landed); or decline the literal term and keep the join guard
       as write-time discipline plus review sweeps. Mike's call.
-- [~] **C1F3 residue — `floorfleet` is a third open surface of the class**
-      (claimed 2026-08-06-1222, wt: floor-render-batch-0806)
-      (found at the 2026-08-03 application). The C1F3 strip landed at the two
-      ruled parse seams (`floor.py`'s whole-document config ingest,
-      `publishscan`'s ignore-file and output surfaces), but `floorfleet`
-      reads child `.atelier-floor.json` files through its own parsers, not
-      `floor.Config.load`, so the board still prints child-authored
-      `why`/reason strings raw — and the C1F3 finding text itself says the
-      class reaches "both floor and board". Small fix at floorfleet's parse
-      seam; rides the next floorfleet touch, or its application pass.
-- [~] 🎯 **A warn-only registry scanner renders `✅ enforced` on the floor
-      board** (claimed 2026-08-06-1222, wt: floor-render-batch-0806) (handed
-      up by the 2026-08-03 pointer-grammar build, deliberately
-      not decided there — past its minimal-hunk scope). Both new advisory
-      entries exit 0 always, so the render shows the same green tick it shows
-      a blocking scanner while printing findings — the "identical output for
-      materially different cover" shape EP3 named for leakscan's planes.
-      **RULED 2026-08-04 (Mike): build the third render state** — advisory
-      and warn-only entries render distinctly on every plane, so the board
-      stops overstating cover; small `floor.py` change plus tests, and EP3
-      inherits a consistent precedent when it is ruled rather than being
-      waited on. Work owed: one small build item.
+- **C1F3 residue — CLOSED 2026-08-06** (wt: floor-render-batch-0806):
+      `floorfleet` now strips child-authored `why`/reason strings through
+      the same public `floor.strip_controls` the two ruled seams use —
+      proved against the fork as control (five ESC, a BEL and a NUL from
+      one child's declarations were reaching the terminal; now zero, with
+      ordinary text byte-identical) — plus a latent board-wide crash on an
+      array-shaped child config fixed en route. Detail →
+      [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The floor-render batch*.
+- [ ] **floorfleet's remaining child-authored text surfaces.** The C1F3
+      strip covered the `.atelier-floor.json` seam as ruled; `classify`/
+      `_live_yaml` still read child `floor.yml` text and the caller `ref`
+      reaches the board detail line unstripped. A separate, narrower
+      question — same class, smaller surface; rides the next floorfleet
+      touch.
+- 🎯 **A warn-only registry scanner rendered `✅ enforced` — RULED
+      2026-08-04 and BUILT 2026-08-06** (wt: floor-render-batch-0806): the
+      board now has three legible states — `✅ enforced`, `advisory` (a
+      child's softening), and `👁️ warn-only` (the parent's own warn-first
+      wiring, "reports findings, can never block this build") — on every
+      plane and in `--json`/`--list`, derived from the registry argv
+      itself, never a hand-maintained list, pinned both directions by
+      selftest + suite. Exit codes unchanged: a warn-only check's
+      environment error still blocks. E6b's 🟡 advisory-count note shares
+      no wording. Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
+      § *The floor-render batch*.
 - [ ] 🎯 **C1b — migrate the 17, then delete the legacy spelling.** Phase 1
       deliberately did not write the declarations: a `review-by` is a
       commitment about when a backlog gets cleared, which is the principal's to
@@ -256,9 +259,15 @@ level up: a check wired into atelier's own workflow reaches no child, and the
 child template's promise that "a new check arrives on the next push" holds for
 registry checks only.*
 
-- [~] 🎯 **D1 — `pathscan`: promote with a corrected scope, or retire it.**
-      (claimed 2026-08-06-1222 — the PS5 registry promotion only, wt:
-      floor-render-batch-0806)
+- 🎯 **D1 — `pathscan`: promoted 2026-08-06 (PS5 delivered, wt:
+      floor-render-batch-0806).** The registry line replaced atelier's
+      bespoke `ci.yml` step — equivalence proved (same 1 finding, same 10
+      suppressions), scope moved to `.atelier-floor.json`, children get
+      the check warn-only at their next push, and the board renders it
+      `👁️ warn-only` honestly. The blocking flip stays a separate later
+      ruling; its one open finding was fixed at this landing (a
+      distillation in `decisions/README.md` had dropped a path's
+      template prefix). Original ruling kept below for the record.
       **RULED 2026-08-04 (Mike): FUND THE RESCOPE**, chosen over the
       counselled retire-to-hand-run; the verdict is the
       [pathscan S2 cold pass](reviews/2026-07-26-2215-pathscan-s2-cold.md).
@@ -273,14 +282,8 @@ registry checks only.*
       itself reports, PD2 ruling 2026-08-06). Tests 53 → 73; the advisory `ci.yml` step now scans the
       gateable surface. Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
       § *The 2026-08-06 queue take* (the pointer's delta, harvested at
-      the review) and the CHANGELOG entry. **Remaining work owed: the
-      registry promotion
-      (PS5)** — one `tools/floor.py` line retiring the bespoke step, so
-      children get the check; deliberately deferred while the open
-      floor.py cold pass runs (touching a claimed pointer's surface
-      mid-pass widens a delta a pinned reviewer can no longer see). Rides
-      the next floor.py touch after that cycle closes; the blocking flip
-      stays a separate later ruling.
+      the review) and the CHANGELOG entry. **PS5 delivered 2026-08-06**
+      (above); the blocking flip stays a separate later ruling.
 > 📦 **D2 residue (b) — stampscan joins the GUARDS allowance model —
 >   DELIVERED 2026-08-06** with the SD3 ruling (the tally was the only work
 >   owed; the loader half was already landed — a parallel session's close
@@ -1211,6 +1214,18 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
 >   same day (wt: ruled-fixes-0806) — 11 fixed, 3 accepted as recorded,
 >   decisions stamped in the verdicts →
 >   [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The 2026-08-06 queue take*.
+
+- ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass) — the
+  floor-render batch (third render state + the PS5 pathscan promotion +
+  the C1F3 floorfleet strip).** *Delta:* `tools/floor.py` +
+  `tools/floorfleet.py` + their two test files (suite 1178 → 1200) +
+  `.github/workflows/ci.yml` (bespoke pathscan step retired) +
+  `.atelier-floor.json` (the pathscan scope) + the reworded 2026-07-19
+  line in `docs/decisions/README.md` + the CHANGELOG entry (landed
+  2026-08-06, this commit). *Intent record:* the 2026-08-04 rulings on
+  the render item and D1/PS5 (Track C / Track D) + the C1F3 finding, all
+  harvested with their items to [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
+  § *The floor-render batch*.
 
 - ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass, the
   EP application; the EP cycle's three MAJORs keep it open past this).**

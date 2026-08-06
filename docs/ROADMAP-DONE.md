@@ -4094,3 +4094,64 @@ tests pass, empty diff).
 (Mike, 2026-07-26); the accepted Fable verdict is the review linked from
 the item, and the withdrawn pass stays quarantined under
 `docs/reviews/withdrawn/`, its findings dead.
+
+## The floor-render batch — three states, PS5, and the C1F3 strip (done 2026-08-06)
+
+Three floor-plumbing items, all ruled or queued, landed as one delta (wt:
+floor-render-batch-0806, two commits, rule-4 pointer queued at the
+landing).
+
+**The third render state (ruled 2026-08-04).** A warn-only registry entry
+— `harvestscan`, `pointerscan`, now `pathscan` — rendered the same
+`✅ enforced` a blocking scanner earns while printing findings, the
+"identical output for materially different cover" shape EP3 named. The
+board now shows three states on every plane and in `--json`/`--list`:
+`✅ enforced`, `advisory`, and `👁️ warn-only` ("reports findings, can
+never block this build"). Warn-only is derived from the registry argv
+itself (or a `warn_only` field for checks with no blocking form), never a
+hand-maintained list, and the two statements of the fact are pinned to
+each other both directions by selftest + suite — a future warn-first line
+renders correctly with no second edit, and cannot be wired warn-first
+while the board claims enforcement. Exit codes unchanged: `Result.failed`
+includes warn-only, so an unreadable tree or config error still blocks —
+the render fix does not quietly turn an environment error into a pass.
+E6b's 🟡 advisory-count note (a blocking check that also reported) shares
+no wording with 👁️ (a check that gates nothing, ever); a child declaring
+a warn-only check `advisory` renders `advisory`, deliberately — the state
+names what ran.
+
+**PS5 — pathscan promoted (the D1 ruling's deferred half).** The bespoke
+`ci.yml` step was the vendored-policy shape one level up: a check the
+parent ran and no child had ever heard of. One registry line replaced it —
+equivalence proved, not asserted (same 1 finding, same 10 suppressions;
+0.18s on atelier's scope) — with atelier's scope moved to
+`.atelier-floor.json` beside its wrapscan/spellscan twins, and a `docs`
+default for children. Warn-only stays; the blocking flip is a separate
+later ruling, now a one-argument change that reaches the whole estate.
+The check's one live finding was fixed at the landing rather than left to
+the flip: the 2026-07-19 index line this session's own decisions-index
+worker wrote had dropped a path's `build/templates/` prefix, naming a
+file that does not exist — the promoted check caught the session's own
+work within hours of both landing.
+
+**C1F3 — the floorfleet strip.** floorfleet read child
+`.atelier-floor.json` files through its own parsers and printed
+child-authored `why`/reason/description strings raw. Proved against the
+fork as control: five ESC (including clear-screen and cursor-up), a BEL
+and a NUL from one child's declarations reached the terminal; with the
+strip, zero, and ordinary text — em dashes, macrons — byte-identical.
+`floor._strip_controls` was made public and shared rather than twinned (a
+second copy is the per-surface list the function exists instead of), and
+a latent crash was fixed en route: an array-shaped child config took the
+whole board down with an AttributeError instead of marking one row
+unreadable. Two existing tests that looped asserting literal "enforced"
+now read the expected state off the registry, so they keep asking their
+real question. Residue queued, not buried: `classify`/`_live_yaml` and
+the caller-`ref` detail line are further child-authored text surfaces the
+ruled seam did not cover — same class, narrower surface, own small item.
+
+**Verification at the branch:** suite 1178 → 1200 exit 0; floor selftest
+13 scanners 0 failures; hook plane exit 0 with the three states
+rendering; ci plane exit 1 byte-identical to the fork's pre-existing
+term findings, pathscan absent from the blocked list; floorfleet
+`--check` exit 0; floorfleet selftest exit 0.

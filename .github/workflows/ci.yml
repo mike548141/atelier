@@ -152,26 +152,25 @@ jobs:
       # from the plane's whole-tree scope — which is exactly why it is written
       # down: a future `scope.secretscan` narrowing in .atelier-floor.json would
       # end the tree-wide guarantee without touching this file.
+      # pathscan (S2, 2026-07-22 invariant-candidates review) USED TO BE A
+      # BESPOKE STEP HERE, and is now a registry line — PS5, the promotion D1
+      # deferred while a floor.py cold pass cycle was open (ruled 2026-08-04,
+      # rescope landed 2026-08-05, cycle closed 2026-08-06). It ran in atelier's
+      # own workflow and nowhere else, which is the vendored-policy shape ADR
+      # 0008 exists to end one level up: a check the parent enforces and no
+      # child has ever heard of. One `tools/floor.py` line replaced it, so it
+      # arrives in every child's hook and CI on their next push.
+      #
+      # The scope it ran with — the doctrine surface plus the live root files,
+      # records deliberately out — moved to `.atelier-floor.json`'s `scope`
+      # block, exactly where this repo already declares wrapscan's and
+      # spellscan's. It stays WARN-ONLY: `--warn` is in the registry template,
+      # and the board now renders it `👁️ warn-only` rather than the
+      # `✅ enforced` a blocking check earns. The flip to blocking is still a
+      # separate ruling, and it is now a one-argument change that reaches the
+      # whole estate at once.
       - name: scanner floor (registry-driven)
         run: python3 tools/floor.py --plane ci --root .
-
-      # pathscan (S2, 2026-07-22 invariant-candidates review): a repo path
-      # NAMED in bare prose or a backtick span (not a markdown link — that's
-      # linkscan's job) must resolve. REVIEWED (2026-07-26 cold pass,
-      # PASS-WITH-FINDINGS; rescope ruled 2026-08-04, landed 2026-08-05) and
-      # WIRED ADVISORY on the gateable surface the review named: the doctrine
-      # surface plus the live root files, where the residual is burnt to zero.
-      # Records (docs/reviews, docs/sessions, CHANGELOG, ROADMAP-DONE) are
-      # deliberately out: they name the tree as it stood when written, and
-      # with no time axis they can never come clean without markers that
-      # would falsify the record. --warn stays until the flip is ruled; the
-      # flip, when it comes, is a floor.py registry line (PS5), not a ci.yml
-      # edit — promotion waits on the open floor.py cold pass.
-      - name: pathscan (named-path resolution — advisory)
-        run: |
-          python3 tools/pathscan.py --warn --root . \
-            docs/method docs/build docs/decisions \
-            README.md CLAUDE.md SECURITY.md
 
       # stampscan (S4, 2026-07-22 invariant-candidates review): where a child
       # repo or a template INLINES a floor/pull-quote of canonical doctrine, the

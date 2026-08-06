@@ -160,6 +160,14 @@ import pins  # noqa: E402  — the shared fleet-discovery building block
 # cannot disagree about where the list lives. Re-implementing the lookup here
 # would be the two-lists bug this whole design exists to avoid.
 import leakscan  # noqa: E402
+# Same bargain, for the two things this board and that gate must agree on to the
+# character: how a child's config text is made safe to print (`strip_controls`,
+# C1F3) and how long an expired advisory has been standing (`_days_over`). This
+# is NOT an import of floor's PARSERS — the ones below stay deliberately
+# tolerant, because a malformed child config is floor.py's to block and this
+# tool's to keep reporting on. It is an import of the two answers that would
+# read as two different facts if they were spelled twice.
+import floor  # noqa: E402
 
 FLOOR_PATH = ".github/workflows/floor.yml"
 CONFIG_PATH = ".atelier-floor.json"
@@ -680,7 +688,16 @@ def _today() -> str:
 def _days_over(review_by: str, today: str) -> str:
     """How long an expired advisory has been standing, in words. The count is
     the point: "expired" alone reads the same on day one and day two hundred,
-    and it is the second one that means the declaration was abandoned."""
+    and it is the second one that means the declaration was abandoned.
+
+    Still a twin of `floor._days_over` rather than an import of it, and the
+    reason has narrowed: this module now imports floor (for `strip_controls`,
+    C1F3), so "the board does not otherwise depend on that module" is no longer
+    what keeps the copy here. What keeps it is that the drift the copy risks is
+    already pinned shut from the other side — `test_floor.py`'s
+    `test_the_count_reads_the_same_as_the_fleet_board` asserts the two spell
+    the same age for the same dates — so hoisting would buy nothing a test does
+    not already guarantee."""
     try:
         days = (datetime.date.fromisoformat(today)
                 - datetime.date.fromisoformat(review_by)).days
@@ -787,7 +804,28 @@ def _read_declarations(repo: Path, read, state: str, detail: str) -> ChildFloor:
     raw = read(repo, CONFIG_PATH)
     if raw:
         try:
-            cfg = json.loads(raw)
+            # ONE seam for the whole document, and the SAME one floor.py uses
+            # (C1F3 residue, found at the 2026-08-03 application). The strip
+            # landed at the two ruled parse seams — floor.py's config ingest and
+            # publishscan's — and this third one was missed: everything below
+            # reads child-authored text off a repo this operator does not
+            # control, and prints it straight to their terminal. An advisory
+            # `why`, a disabled reason, a local check's description carrying
+            # `\x1b[` can repaint, clear or spoof the rows around it, and this
+            # board's whole job is to be believed about which repos are
+            # guarded. The finding's own text said the class reaches "both
+            # floor and board"; this is the board half.
+            #
+            # Applied to the PARSED document rather than the raw text so it
+            # cannot corrupt JSON's own escapes, and BEFORE the readers below
+            # so every one of them — including any added later — is covered
+            # without remembering to be.
+            cfg = floor.strip_controls(json.loads(raw))
+            if not isinstance(cfg, dict):
+                # A non-object config is malformed, and this tool reports
+                # rather than blocks — floor.py is what refuses to scan on one,
+                # where the repo is. Same landing as unparseable JSON.
+                raise ValueError("not a JSON object")
             advisory = _advisories(cfg.get("advisory"))
             scope = _scope_paths(cfg.get("scope"))
             flags = _flag_args(cfg.get("flags"))
