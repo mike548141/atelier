@@ -116,5 +116,30 @@ ruling round; none blocks the close.
 
 ## Reconcile (intent record opened after the findings above were committed)
 
-*Appended post-commit; see the reconcile section below the first
-committed verdict.*
+Opened `ROADMAP-DONE.md` § *The licence gate learns proprietary* only after
+the verdict above was committed (`732aa11`). Reconciliation:
+
+- **E1 fix shape honoured exactly**: declared-licence reading, header
+  checks kept running, copyleft-only judgement under a nameless licence —
+  all as the item specified, and the item's required test (the proprietary
+  fixture must report the GPL file) exists twice over (unittest +
+  `--selftest`), re-run green here.
+- **E2 fix shape honoured exactly**: lookup before the
+  unrecognised-declaration check, ambiguous family names deliberately
+  degrade to the warn; the required clean-classifier test exists and
+  passes.
+- **The reproduction sharpens LC1 rather than excusing it.** The item's
+  2026-07-25 reproduction appended a bare `licenscan:allow:` (no reason)
+  and correctly got nothing; the delivered fix makes exactly that
+  reasonless form effective. So the build satisfied the *item* while
+  crossing the rule (c) tightening that landed the same day in the same
+  file — LC1 stands as written, now with its likely origin visible.
+- **"Module tests 37 → 52, full suite green, live tree clean"** — the
+  live-tree and suite claims reproduce (licenscan clean on this tree;
+  54/54 under discovery); the count is the direct-run figure per LC3.
+- No claim in the intent record failed re-run; no finding above is
+  contradicted by it.
+
+**Final: PASS-WITH-FINDINGS — 0 MAJOR / 1 MODERATE / 2 minor / 2 notes.
+Terminal; the licenscan E1+E2 cycle CLOSES. LC1–LC5 await the
+principal's ruling.**
