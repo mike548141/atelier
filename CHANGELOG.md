@@ -5,6 +5,77 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-08-06 — the ADR 0008 cold pass applied: EP1(b), EP9)
+Mike ruled EP1–EP10 on 2026-08-04, all as counselled. The three MAJORs'
+substance had already landed on 2026-07-27; what this build adds is the one
+MAJOR residue and the seven smaller findings.
+- **`flags` on a check that may never be softened states a reason** (EP1(b)),
+  in the same object spelling `scope` has carried since C1:
+  `{"args": [...], "why": "..."}`. `scope` says where a check LOOKS and
+  `flags` says how it RUNS, and both shrink real cover on the boundary and
+  integrity checks a child may not turn off — `scope` gained the rule on
+  2026-07-28 and `flags` did not. It matters because `FORBIDDEN_FLAGS` is a
+  **blocklist** of four mode arguments, and blocklists underblock: a rule
+  switched off by name, or a positional matching no staged path, reduces cover
+  without touching the list. A missing reason is a config error, so it fails
+  closed with the working spelling named in the remedy. A softenable check's
+  `flags` stay reason-free, and the pre-C1 bare-list spelling still parses for
+  the length of the transition. `floorfleet` reads both spellings, so the 🔧
+  cover-reduction line does not go quiet as the estate migrates.
+  **Measured blast radius, not estimated:** two such declarations exist
+  estate-wide — one in the exempt legacy spelling, one already carrying a
+  reason. **No repo goes red at its next push.** The forcing function arrives
+  with C1 phase 2, when the legacy spelling becomes an error.
+- **A missing `python3` blocks with a remedy that is not the bypass** (EP9).
+  The hook guarded `floor.py`'s absence with a three-line fix and the
+  interpreter's with nothing, so on a machine without `python3` the only
+  actionable line a contributor saw was `--no-verify`. Fail-closed was never
+  in doubt; being told how to skip scanning instead of how to scan was. Driven
+  by a real commit on a PATH carrying git and no interpreter.
+
+### Fixed (2026-08-06 — four things ADR 0008's surfaces claimed but did not do)
+- **A deliberate pin is TWO edits, and now says so** (EP4). The ADR's own
+  escape hatch from the accepted estate-wide blast radius is "children may pin
+  deliberately" — and pinning `uses:` does not do that: the reusable workflow
+  checks atelier out at `atelier-ref`, default `main`, so a `uses:`-only pin
+  freezes the transport while the registry and every scanner still arrive from
+  the tip. Documented at both points of use, and `floorfleet`'s board detail
+  now reads *"workflow pinned; scanners still float unless atelier-ref is set
+  too"* rather than the flatly untrue *"propagation frozen here"*.
+- **The registry-driven selftest loop reads the calling repo** (EP5). It
+  enumerated the runner's *workspace* — which holds `repo/` and `atelier/` as
+  siblings and no config at all — so the `disabled` filter beside it was inert
+  and read as though it were working. Now `--root repo`. The second half was a
+  decision the counsel left open, taken here: the loop **skips `local` checks**
+  with a comment saying the child's own CI owns proving its own check, because
+  atelier neither ships nor reviewed that code and demanding a `--selftest`
+  answer would impose a new contract on every repo using the seam. atelier's
+  own `ci.yml` takes the same skip — the parent is not special, and the day it
+  declares a local check its CI must not surprise-red.
+- **The prove-it-landed command proves the claim that bites** (EP10). It
+  printed the registry, which proves the tools path resolves and the config
+  parses — and not that git will ever invoke the hook. It now prints
+  `git config --get core.hooksPath` first: with that unset or mistyped, a clean
+  registry prints while every commit goes unscanned.
+- **`floorfleet`'s stated blind spots name trigger shape** (EP8). A caller
+  whose `on:` carries only `workflow_dispatch` reads `wired ✅` while nothing
+  runs on push. The concession named conditions and disabled workflows and not
+  this; the classifier is unchanged, its honesty is not.
+
+### Changed (2026-08-06 — ADR 0008 gains two clauses it was missing)
+Both appended and dated rather than rewritten — it is a decision record.
+- **Decision 6: a repo may ADD a check of its own, never soften one** (EP6).
+  The repo-local `local` seam landed on 2026-07-26 with its doctrine written at
+  every point of use except this one, so the record described only subtraction
+  and a reader concluded the seam did not exist.
+- **A named control for the floating `@main`** (EP7). The consequence list
+  accepted the estate-wide blast radius without ever naming what holds it: the
+  control is atelier `main`'s own protection — branch protection, signed
+  commits, review on the registry — and a compromise there is **arbitrary code
+  in every child's CI**, not merely a broken floor. That is the reason the
+  signing trust root is pinned while the scanners float; the two calls point
+  opposite ways on purpose.
+
 ### Added (2026-08-06 — leakscan reaches for the PII half: the E7 build)
 The 2026-08-03 sweep found `leakscan` **materially behind** `secretscan`:
 two layers against three, no label context, no placeholder suppression, and
