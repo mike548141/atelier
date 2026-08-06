@@ -89,6 +89,25 @@ does not enforce a check must SAY SO, in a committed file
 nobody can see. **A guard that is off and known is a decision; a guard that is
 off and unseen is the failure this file exists to end.**
 
+Two more keys change how much a check COVERS without removing it — `scope`
+(where it looks) and `flags` (how it runs). Neither is an opt-out, so neither
+has the two states above; but on a check that may never be softened, both state
+a reason, in the same object spelling `advisory` uses:
+
+  "scope": {"leakscan": {"paths": ["src"], "why": "only src/ is shareable"}}
+  "flags": {"leakscan": {"args": ["--disable", "ipv4"], "why": "IPs are
+                          content in a networking repo"}}
+
+Reason required because the effect is the same as a partial disable and the
+route is quieter: `flags` refuses the four mode-changing arguments by blocklist
+(`FORBIDDEN_FLAGS`), and a blocklist underblocks — a rule switched off by name,
+or a positional matching no staged path, shrinks cover without touching it
+(ADR 0008 cold pass, EP1; `scope` ruled 2026-07-28, `flags` 2026-08-04). On a
+SOFTENABLE check both keys stay reason-free: narrowing a prose check to the
+doctrine surface is an ordinary layout fact, and demanding a sentence for it
+would make the rule ceremony. Bare-list spellings still parse through the C1
+transition; they cannot carry a reason at all.
+
 Which checks may be softened is NOT the child's call. The boundary scanners
 (secretscan, leakscan) and the integrity scanners (linkscan, reviewscan,
 sizescan) have no advisory form here: a burned secret, a leaked personal fact and
@@ -247,6 +266,27 @@ class Scope:
     scope is a permanent structural fact about a repo — its shareable subtree is
     smaller than its tree — not dated debt waiting to be cleared."""
     paths: tuple[str, ...] = ()
+    why: str = ""
+    legacy: bool = False
+
+
+@dataclass(frozen=True)
+class Flags:
+    """HOW a check runs in this repo, and — for a check that may not be
+    softened — WHY it was tuned.
+
+    `scope`'s twin, and deliberately the same shape. The cold pass counselled
+    the reason on *both* keys (ADR 0008 cold pass, EP1 counsel (b), ruled
+    2026-08-04): either one can shrink a boundary check's real cover without
+    ever appearing as `disabled` — `scope` by pointing it at less tree, `flags`
+    by turning rules off or appending a positional that matches nothing. The
+    `scope` half landed with C1 (2026-07-28); this is the half that did not.
+
+    Also like `scope`, and unlike an advisory: no `review-by`. A repo whose
+    subject matter makes a rule a false positive — the networking case, where
+    IP and MAC shapes are legitimate content — is stating a permanent fact
+    about itself, not dated debt waiting to be cleared."""
+    args: tuple[str, ...] = ()
     why: str = ""
     legacy: bool = False
 
@@ -681,6 +721,62 @@ def _load_scope(raw: object) -> dict[str, Scope]:
     return out
 
 
+def _load_flags(raw: object) -> dict[str, Flags]:
+    """Parse `flags`, accepting both spellings on the same transition terms.
+
+      {"leakscan": ["--disable", "ipv4"]}            legacy — parses
+      {"leakscan": {"args": ["--disable", "ipv4"], "why": "..."}}    the rule
+
+    `args` rather than `flags` for the inner key: it is the word the local seam
+    already uses for exactly this thing (`local.<name>.args`), and
+    `flags.leakscan.flags` would read as a typo. As with `scope`, the `why` is
+    required only for a scanner with no advisory form, and that condition needs
+    the registry lookup — so it is enforced in `Config.validate` (EP1(b), ruled
+    2026-08-04)."""
+    if raw is None:
+        return {}
+    if not isinstance(raw, dict):
+        raise ConfigError(f"{CONFIG_NAME}: `flags` must be an object")
+
+    out: dict[str, Flags] = {}
+    for name, decl in raw.items():
+        name = str(name)
+        if isinstance(decl, (str, list, tuple)):
+            entries = [decl] if isinstance(decl, str) else list(decl or ())
+            if not entries:
+                raise ConfigError(
+                    f"{CONFIG_NAME}: `flags.{name}` is empty — a declaration "
+                    "with no arguments in it tunes nothing, and reads as though "
+                    "it did"
+                )
+            out[name] = Flags(args=tuple(str(e) for e in entries), legacy=True)
+            continue
+        if not isinstance(decl, dict):
+            raise ConfigError(
+                f"{CONFIG_NAME}: `flags.{name}` must be a list of arguments, or "
+                "an object with `args` and `why`"
+            )
+        raw_args = decl.get("args", [])
+        if isinstance(raw_args, str):
+            raw_args = [raw_args]
+        args = tuple(str(a) for a in (raw_args or ()))
+        if not args:
+            raise ConfigError(
+                f"{CONFIG_NAME}: `flags.{name}.args` is empty — a declaration "
+                "with no arguments in it tunes nothing, and reads as though it "
+                "did"
+            )
+        unknown = sorted(set(decl) - {"args", "why"})
+        if unknown:
+            raise ConfigError(
+                f"{CONFIG_NAME}: `flags.{name}` has unknown "
+                f"{', '.join(repr(k) for k in unknown)} (known: 'args', 'why')"
+            )
+        out[name] = Flags(args=args,
+                          why=str(decl.get("why", "") or "").strip())
+    return out
+
+
 def _reject_escaping_scope(where: str, path: str) -> None:
     """Refuse a scope path that names somewhere other than this repo's tree.
 
@@ -842,7 +938,11 @@ class Config:
     # `floorfleet` (the 🔧 line) — declared and visible, never quietly applied.
     # `tools/test_floorfleet.py` pins both lines, so the claim stays checkable
     # rather than becoming true once and drifting back.
-    flags: dict[str, tuple[str, ...]] = field(default_factory=dict)
+    #
+    # And on a check that may NEVER be softened it states a reason, exactly as
+    # `scope` does and for the same reason — both keys reduce real cover on the
+    # checks a child may not turn off (EP1(b), ruled 2026-08-04).
+    flags: dict[str, Flags] = field(default_factory=dict)
     # Checks the CHILD declares and ships — see THE REPO-LOCAL SEAM. Held as
     # Scanners so every stage below (plan, scope, render, run) treats them
     # identically to a fleet check; the only thing that differs is where the
@@ -878,6 +978,16 @@ class Config:
                 normalised[str(name)] = Scope(
                     paths=tuple(str(p) for p in (value or ())), legacy=True)
         self.scope = normalised
+        flagged: dict[str, Flags] = {}
+        for name, value in dict(self.flags).items():
+            if isinstance(value, Flags):
+                flagged[str(name)] = value
+            elif isinstance(value, str):
+                flagged[str(name)] = Flags(args=(value,), legacy=True)
+            else:
+                flagged[str(name)] = Flags(
+                    args=tuple(str(a) for a in (value or ())), legacy=True)
+        self.flags = flagged
 
     def scanner(self, name: str) -> Scanner | None:
         """The registered scanner or the child's local check of that name. One
@@ -924,25 +1034,10 @@ class Config:
             raise ConfigError(f"{CONFIG_NAME}: `disabled` must be an object")
         disabled = {k: str(v) for k, v in raw_disabled.items()}
 
-        def _str_map(key: str, allow_empty: bool) -> dict[str, tuple[str, ...]]:
-            raw_map = raw.get(key, {}) or {}
-            if not isinstance(raw_map, dict):
-                raise ConfigError(f"{CONFIG_NAME}: `{key}` must be an object")
-            out: dict[str, tuple[str, ...]] = {}
-            for k, v in raw_map.items():
-                entries = [v] if isinstance(v, str) else list(v or ())
-                if not entries and not allow_empty:
-                    raise ConfigError(
-                        f"{CONFIG_NAME}: `{key}.{k}` is empty — an override that "
-                        "narrows a check to nothing is a silent hole, not a scope"
-                    )
-                out[k] = tuple(str(e) for e in entries)
-            return out
-
         cfg = Config(docs=docs, licence=licence, advisory=advisory,
                      disabled=disabled,
                      scope=_load_scope(raw.get("scope", {})),
-                     flags=_str_map("flags", allow_empty=False),
+                     flags=_load_flags(raw.get("flags", {})),
                      local=_load_local(raw.get("local", {}) or {}))
         cfg.validate()
         return cfg
@@ -1020,13 +1115,31 @@ class Config:
         # A flag that changes what a check MEANS is not a scoping decision, and
         # must not be reachable by this route: `--warn` here would be a silent
         # advisory downgrade that bypasses every guard on `advisory` above.
-        for name, extra in self.flags.items():
-            bad = sorted(FORBIDDEN_FLAGS.intersection(extra))
+        for name, fl in self.flags.items():
+            bad = sorted(FORBIDDEN_FLAGS.intersection(fl.args))
             if bad:
                 raise ConfigError(
                     f"{CONFIG_NAME}: `flags.{name}` may not contain "
                     f"{', '.join(bad)} — that changes what the check means, not "
                     "where it looks. To soften a check, declare it `advisory`."
+                )
+            # EP1(b), ruled 2026-08-04 — the twin of the `scope` rule above, and
+            # the half C1 did not carry. `FORBIDDEN_FLAGS` is a blocklist, so it
+            # stops the four arguments we know weaken a check and nothing else:
+            # a rule switched off by name, or a positional matching no staged
+            # path, shrinks cover without touching it. On a check that may never
+            # be softened that is a cover decision, so it goes on the record the
+            # way a disabled one does. Legacy list spellings are exempt for the
+            # length of the transition — they cannot carry a `why` at all.
+            scanner = self.scanner(name)
+            if (not fl.legacy and not fl.why
+                    and scanner is not None and scanner.advisory is None):
+                raise ConfigError(
+                    f"{CONFIG_NAME}: `flags.{name}` needs a `why` — {name} is a "
+                    "boundary or integrity check that may never be softened, so "
+                    "tuning how it runs is a cover decision on the record, not a "
+                    "layout detail. Write it as "
+                    f'`"{name}": {{"args": [...], "why": "..."}}`.'
                 )
 
 
@@ -1166,7 +1279,9 @@ def _render(args: list[str], root: Path, cfg: Config,
         out.append(a.format(root=str(root),
                             scope=scoped[0] if scoped else str(root),
                             licence=cfg.licence or ""))
-    out.extend(cfg.flags.get(name or "", ()))
+    extra = cfg.flags.get(name or "")
+    if extra is not None:
+        out.extend(extra.args)
     return out
 
 
@@ -1658,6 +1773,20 @@ def _selftest() -> int:
     check("flags stay local to their scanner",
           "--disable" not in _render(BY_NAME["secretscan"].hook, root,
                                      flagged, "secretscan"))
+    # The reasoned spelling renders identically — the `why` is a record, never
+    # an argument, so it must never reach the scanner's argv (EP1(b)).
+    with tempfile.TemporaryDirectory() as td:
+        p = Path(td)
+        (p / CONFIG_NAME).write_text(json.dumps(
+            {"flags": {"leakscan": {"args": ["--disable", "ipv4"],
+                                    "why": "IPs are content here"}}}),
+            encoding="utf-8")
+        reasoned = Config.load(p)
+    argv = _render(BY_NAME["leakscan"].hook, root, reasoned, "leakscan")
+    check("a reasoned flags override still appends its args",
+          argv[-2:] == ["--disable", "ipv4"])
+    check("a flags reason never reaches the scanner",
+          "IPs are content here" not in argv)
 
     # THE REPO-LOCAL SEAM — it must only ever ADD.
     tripwire = {"local": {"tripwire": {"run": "tools/tripwire.py",
@@ -1715,6 +1844,11 @@ def _selftest() -> int:
     # bypasses every guard on `advisory`, on a scanner that has no advisory form.
     rejects("softening flag smuggled in", {"flags": {"secretscan": ["--warn"]}})
     rejects("mode flag smuggled in", {"flags": {"sizescan": ["--json"]}})
+    # EP1(b). The blocklist above stops four known arguments; this is what
+    # stops the rest going unremarked on a check nobody may soften.
+    rejects("reasonless flags on an unsoftenable check",
+            {"flags": {"leakscan": {"args": ["--disable", "ipv4"]}}})
+    rejects("empty flags override", {"flags": {"leakscan": []}})
     rejects("reasonless disable", {"disabled": {"spellscan": "  "}})
     rejects("unsoftenable advisory", {"advisory": ["secretscan"]})
     rejects("advisory+disabled", {"advisory": ["wrapscan"],

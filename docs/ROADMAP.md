@@ -738,37 +738,22 @@ the mechanism works.
 > 📦 **2 completed items** in this section → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
 >   (the 13-repo wiring, and the repo-specific scoping preserved with it).
 
-- [~] (claimed 2026-08-06-1222, wt: ep-application-0806 — the ruled
-      application build) 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS
-      3M/5m/1L/1n — [verdict](reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md);
-      **EP1–EP10 RULED 2026-08-04 (Mike, plain-language walk-through) — and
-      the sitting then found the MAJORs' substance already closed.** Track A
-      (2026-07-27, A1–A3) had ruled and applied EP1(a)+(c), EP2-at-the-
-      mechanism, and EP3 (the hook template carries `--require-terms`,
-      `floor.py:314`); this entry's "EP1–EP10 await Mike's ruling" was
-      therefore stale for the MAJORs — the cycle-state residue class again,
-      in wording too coarse for `pointerscan` to parse. **What today's
-      ruling actually adds: EP1(b)** — a stated reason to `scope`/`flags` a
-      never-softened scanner, exactly as `disabled` requires. It was
-      deferred 2026-07-27 to ride C1's schema change and did not ride it
-      (verified absent at HEAD); Mike ruled it IN today, no longer deferred.
-      **And EP4–EP10, all as counselled** (pin needs both edits + honest board
-      wording; selftest loop gains `--root repo` + a decided proving story
-      for `local` checks; the ADR gains its seam clause and the
-      floating-`@main` control clause — the control is atelier `main`'s own
-      protection; trigger-shape joins the concession; a `python3` guard;
-      the prove-it-landed command prints `core.hooksPath`). **Work owed:
-      one application build item; the MAJORs keep the cycle open, so the
-      application earns its own rule-4 cold pass and queues the pointer at
-      landing.** State before this ruling: reviewed. The pre-review wording this item carried (a
-      reviewer agenda with a seeded question) was the pointer-grammar corpus's
-      last live specimen; stripped 2026-08-03 on `pointerscan`'s day-one
-      warning, exactly as the FUNDED build's entry said it should be.
-      **⚠️ An Opus pass ran on 2026-07-26 0647 UTC and was NOT ACCEPTED** — reviews
-      run on the wrong tier (Mike, 2026-07-26): cold review passes are Fable's;
-      the accepted Fable pass is the verdict linked above. The withdrawn pass
-      is preserved as history under `docs/reviews/withdrawn/` and its findings
-      die with it.
+- 🎯 **EP1–EP10 — RULED 2026-08-04 and the application DELIVERED
+      2026-08-06** (wt: ep-application-0806): EP1(b)'s `flags` half built —
+      the `scope` half was found already landed 2026-07-28 in C1 phase 1's
+      A1(b), so the ruling entry's "verified absent at HEAD" was itself the
+      cycle-state residue class, corrected from the tree — and EP4–EP10 all
+      applied as counselled; EP1(a)/(c), EP2 and EP3 verified present
+      rather than redone. Blast radius measured, not estimated: zero repos
+      red at their next push. One deferral surfaced to Mike at this
+      session's close: the new `flags` reason mirrors `scope`'s C1 legacy
+      exemption, so the ruled forcing function arrives with C1 phase 2,
+      not now. Verdict:
+      [ADR 0008 cold pass](reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md);
+      detail + the withdrawn-Opus-pass history →
+      [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The EP application*. The
+      MAJORs keep the cycle open — the application's rule-4 pointer is
+      queued in § *Doctrine — review-owed*.
 - [ ] **Two children were bootstrapped with `--no-verify`** — the gate they were
       installing already failed on their pre-existing content, so it blocked its
       own installation. Once is the honest resolution; twice would not be. Both
@@ -1226,6 +1211,21 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
 >   same day (wt: ruled-fixes-0806) — 11 fixed, 3 accepted as recorded,
 >   decisions stamped in the verdicts →
 >   [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The 2026-08-06 queue take*.
+
+- ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass, the
+  EP application; the EP cycle's three MAJORs keep it open past this).**
+  *Delta:* `tools/floor.py` + `tools/floorfleet.py` +
+  `tools/pre-commit.sample` + `.githooks/pre-commit` +
+  `.github/workflows/floor.yml` + `.github/workflows/ci.yml` +
+  `docs/build/templates/workflows/floor.yml` +
+  `docs/build/templates/CONTRIBUTING.md` +
+  `docs/decisions/0008-enforcement-is-called-not-copied.md` (Decision 6 +
+  the Consequences control clause) + the four test files (suite
+  1164 → 1178) + the CHANGELOG entry (landed 2026-08-06, this commit).
+  *Intent record:*
+  [ADR 0008 cold pass](reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md)
+  (EP1–EP10) + the 2026-08-04 ruling, harvested with the item to
+  [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The EP application*.
 
 - ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass) — the
   E6b secretscan advisory tier + the E3 fingerprint carve-out.** *Delta:*

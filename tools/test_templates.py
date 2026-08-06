@@ -156,6 +156,17 @@ class ChildFloorWorkflowTest(unittest.TestCase):
         will otherwise reach for --no-verify."""
         self.assertIn(".atelier-floor.json", self.text)
 
+    def test_a_deliberate_pin_is_documented_as_two_edits(self):
+        """ADR 0008 cold pass, EP4. The ADR's own escape hatch from the accepted
+        estate-wide blast radius is "children may pin deliberately" — and pinning
+        the `uses:` ref does not do that. The reusable workflow checks atelier out
+        at `atelier-ref`, default `main`, so a `uses:`-only pin freezes the
+        transport and still runs the registry and the scanners from atelier's
+        tip. The reader who acts on the mitigation is exactly the reader this
+        must not mislead, so the pairing is documented where the pin is made."""
+        self.assertIn("atelier-ref", self.text)
+        self.assertRegex(self.text, r"(?i)two edits")
+
     def test_false_positive_hatches_documented(self):
         """2026-07-11 review N6: a child whose own tree legitimately trips a
         scanner (its own fake-secret fixtures, a committed build-output dir)
@@ -211,6 +222,31 @@ class ReusableFloorWorkflowTest(unittest.TestCase):
         list living one directory from the first — the same bug, smaller."""
         self.assertIn("floor.py --list", self.text)
 
+    def test_the_selftest_loop_enumerates_the_calling_repo(self):
+        """ADR 0008 cold pass, EP5. The loop resolved `.` — the runner's
+        workspace, which holds repo/ and atelier/ as siblings and no config at
+        all — so the `disabled` filter one column over was inert and the child's
+        own declarations were never read. A filter that cannot see the thing it
+        filters reads as covered and is not."""
+        list_lines = [ln for ln in self.runs if "--list" in ln]
+        self.assertTrue(list_lines, "no floor.py --list line found")
+        for ln in list_lines:
+            self.assertIn("--root repo", ln)
+
+    def test_the_selftest_loop_skips_the_childs_own_checks(self):
+        """EP5's second half, decided rather than left ambiguous: the child's
+        own CI owns proving the child's own check. atelier neither ships nor
+        reviewed that code and cannot say what `--selftest` should mean for it,
+        so demanding one here would impose a new contract on every repo using
+        the local seam. The loop skips them and the comment says whose job it
+        is — the state before this was neither, which read as covered."""
+        list_lines = [ln for ln in self.runs if "--list" in ln]
+        for ln in list_lines:
+            self.assertIn('$3!="local"', ln)
+        self.assertTrue("owns proving its own check" in self.text,
+                        "the skip must say WHOSE job the proving is — an "
+                        "unexplained filter reads as an oversight")
+
     def test_least_privilege(self):
         self.assertIn("contents: read", self.text)
 
@@ -224,6 +260,55 @@ class ReusableFloorWorkflowTest(unittest.TestCase):
 
 REVIEWS_TEMPLATE = ROOT / "docs" / "build" / "templates" / "docs" / "reviews" / "README.md"
 REVIEW_SKILL = ROOT / "skills" / "review-brief" / "SKILL.md"
+
+
+class ParentSelftestLoopTest(unittest.TestCase):
+    """.github/workflows/ci.yml — atelier's own copy of the same loop.
+
+    The cold pass named this as EP5's latent inverse: atelier's loop already
+    passed the right root, so the day atelier declares a `local` check its own
+    CI would run `tools/<name>.py --selftest` and go red unless that script
+    happened to answer it. The parent is not special (ADR 0008, decision 5), so
+    it takes the same skip and the same reason.
+    """
+
+    def setUp(self):
+        self.text = (ROOT / ".github" / "workflows" / "ci.yml").read_text()
+
+    def test_the_selftest_loop_skips_local_checks_like_every_child(self):
+        list_lines = [ln for ln in self.text.splitlines() if "--list" in ln]
+        self.assertTrue(list_lines, "no floor.py --list line found in ci.yml")
+        for ln in list_lines:
+            self.assertIn('$3!="local"', ln)
+
+
+class ContributingTemplateTest(unittest.TestCase):
+    """docs/build/templates/CONTRIBUTING.md — the onboarding half of the floor.
+
+    A repo's hook is only as good as the one `git config` line nobody can
+    transport, so what this file tells a fresh clone to run IS the control.
+    """
+
+    def setUp(self):
+        self.text = (ROOT / "docs" / "build" / "templates"
+                     / "CONTRIBUTING.md").read_text()
+
+    def test_the_prove_it_command_proves_git_will_invoke_the_hook(self):
+        """ADR 0008 cold pass, EP10. `floor.py --list` proves the tools path
+        resolves and the config parses — two things — and NOT the third: that
+        git will ever run the hook. With `core.hooksPath` unset or mistyped that
+        command prints a clean registry while every commit goes unscanned, which
+        is the exact residual the surrounding prose already named."""
+        self.assertIn("git config --get core.hooksPath", self.text)
+        self.assertIn("floor.py\" --list --plane hook", self.text)
+
+    def test_cover_reductions_on_an_unsoftenable_check_state_a_reason(self):
+        """EP1(b). A child meets `scope`/`flags` here before it meets floor.py's
+        error message, so this is where the reasoned spelling has to be legible
+        — the block is a forcing function, not a teaching one."""
+        self.assertIn('"scope"', self.text)
+        self.assertIn('"flags"', self.text)
+        self.assertIn('"args"', self.text)
 
 
 class ReviewsTemplateTest(unittest.TestCase):

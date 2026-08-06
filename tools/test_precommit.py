@@ -238,6 +238,39 @@ class PreCommitHookTest(unittest.TestCase):
         # as broken tooling and reaches for --no-verify.
         self.assertIn("--require-terms", r.stderr)
 
+    def test_a_missing_python3_blocks_with_a_remedy_that_is_not_the_bypass(self):
+        """ADR 0008 cold pass, EP9. Fail-closed was never in doubt here — a bare
+        `python3: command not found` still exits non-zero. What was missing is
+        that the ONLY actionable line a contributor saw was the `--no-verify`
+        bypass at the bottom, so the one machine that cannot scan was also the
+        one told how to skip scanning. The interpreter now gets the same guard
+        the registry above it has had all along."""
+        _git(self.repo, "config", "hooks.atelierTools", str(TOOLS_DIR))
+        (self.repo / "README.md").write_text("clean content\n")
+        # A PATH carrying git and nothing else this hook needs. Symlinked rather
+        # than emptied: git must still resolve, or the failure under test is
+        # never reached.
+        bindir = Path(self._tmp) / "bin"
+        bindir.mkdir()
+        git_path = shutil.which("git")
+        self.assertIsNotNone(git_path, "no git on PATH — cannot drive this test")
+        (bindir / "git").symlink_to(git_path)
+        self.assertIsNone(shutil.which("python3", path=str(bindir)),
+                          "fixture PATH must not resolve python3")
+
+        r = self._commit(env={"ATELIER_TOOLS": "", "PATH": str(bindir)})
+        self.assertNotEqual(r.returncode, 0, "no interpreter must block, not skip")
+        self.assertEqual(self._commit_count(), 0)
+        self.assertIn("python3 not found", r.stderr)
+        self.assertIn("fail closed", r.stderr.lower())
+        # The remedy, and the shape of it: a way to FIX the machine, offered
+        # before the way to skip the check.
+        self.assertIn("Install it", r.stderr)
+        self.assertLess(r.stderr.find("Install it"),
+                        r.stderr.find("--no-verify") if "--no-verify" in r.stderr
+                        else len(r.stderr),
+                        "the fix must be printed above the bypass, not below it")
+
     # -- 3. env resolution wins over config ------------------------------------
 
     def test_env_resolution_wins_over_config(self):

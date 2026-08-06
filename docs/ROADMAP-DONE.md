@@ -4033,3 +4033,64 @@ block-as-the-only-response, exactly what E6b was ruled to change. Suite
 1060 → 1103 on the branch; E6d untouched and not foreclosed (`response`
 sits beside the mislabelled `severity` field, leaving E6d(iii) a clean
 site).
+
+## The EP application — the ADR 0008 ruled fixes land (done 2026-08-06)
+
+EP1–EP10 were ruled 2026-08-04 (Mike, plain-language walk-through, all as
+counselled; the sitting found the MAJORs' substance already closed by
+Track A). The application landed 2026-08-06 (wt: ep-application-0806, five
+commits, rule-4 pointer queued at the landing; the cycle's MAJORs keep it
+open past this, so the application earns its own cold pass).
+
+**What landed.** EP1(b): a `flags` declaration on a never-softened scanner
+now requires a stated reason, mirroring the `scope` twin — which was found
+**already landed 2026-07-28** (C1 phase 1's A1(b), commit `549930b`), so
+the ruling entry's "verified absent at HEAD" was half wrong: the
+cycle-state residue class, again, corrected from the tree. Probed nine
+ways in a throwaway repo: reasonless blocks with the working form named,
+reasoned passes, softenable scanners stay reason-free, and a mode-changing
+flag smuggled through the reasoned form still blocks. EP4: a deliberate
+pin is documented as two edits (`uses:@<sha>` and `atelier-ref`), and the
+board's `pinned` detail now says the scanners still float unless both are
+set. EP5: the registry-selftest loop reads `--root repo`, and the proving
+story for `local` checks is DECIDED as skip-with-comment — the child's own
+CI owns proving its check — applied consistently to atelier's own latent
+inverse in `ci.yml`. EP6: ADR 0008 gains Decision 6, the repo-local seam,
+dated and pointing at the seam doctrine in `tools/floor.py`. EP7: the
+Consequences name the control that makes floating `@main` safe — atelier
+`main`'s own protection — and state the compromise consequence at full
+strength (arbitrary code in every child's CI). EP8: trigger shape joins
+floorfleet's stated concession. EP9: the hook guards a missing `python3`
+with a remedy that is not the bypass, both hook copies byte-identical,
+driven by a real commit on a PATH without the interpreter. EP10: the
+prove-it-landed block prints `core.hooksPath` first, closing the "clean
+registry while every commit goes unscanned" gap.
+
+**Blast radius, measured not estimated:** two declarations on unsoftenable
+checks exist across the estate — one legacy-exempt, one already reasoned —
+so zero repos go red at their next push. atelier's own config (softenable
+scopes only) stays green.
+
+**Deferral surfaced, not buried:** the new `flags` reason mirrors
+`scope`'s C1 legacy exemption — a bare-list spelling cannot carry a
+reason, so it parses. The ruled forcing function therefore arrives with C1
+phase 2 (when the legacy spelling dies), not now. Consistency was chosen
+over a split where one key of an old-spelling pair reds and the other
+passes; put to Mike at this session's close in case he wants it to bite
+sooner. Two conventions noted: ConfigError exits 1 (the file's one-class-
+one-code convention; the twin `scope` rule ships the same), and `scope`'s
+older error message does not name the working form while the new `flags`
+one does — an asymmetry left for the application's own cold pass.
+
+**Verification at the branch:** suite 1164 → 1178 exit 0; floor selftest
+12/12; hook plane exit 0; ci plane exit 1 on the pre-existing
+published-identity term findings, proven byte-identical to the fork via a
+clean `git archive` re-run; floorfleet `--check` exit 0 with 15/15 wired
+and the cover-reduction lines rendering; instruments untouched (207 node
+tests pass, empty diff).
+
+**History preserved with the item:** an Opus pass ran on this delta
+2026-07-26 0647 UTC and was NOT ACCEPTED — cold review passes are Fable's
+(Mike, 2026-07-26); the accepted Fable verdict is the review linked from
+the item, and the withdrawn pass stays quarantined under
+`docs/reviews/withdrawn/`, its findings dead.

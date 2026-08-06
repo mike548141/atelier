@@ -79,6 +79,26 @@ hook file travels with the clone and stays current.
 scoping declared in its own `.atelier-floor.json`. A parent with a private list
 is this same bug, one level up.
 
+**6. A repo may ADD a check of its own — it still may never soften one.**
+*(Added 2026-08-06, on the cold pass's EP6. The mechanism landed on 2026-07-26
+in `f526dea`/`76f4acc`, its doctrine written at every point of use — but not
+here, so this record described only subtraction and a reader concluded the seam
+did not exist.)* The `local` block in `.atelier-floor.json` declares checks the
+**child** owns and ships: a rule that is genuinely repo-specific and could never
+be fleet-wide — the forcing case is a tripwire whose blocklist names the estate's
+own tokens, a list that can never live in a shared repo. Such a check runs inside
+the floor, on both planes, from the child's own script. Three properties keep it
+an extension point rather than a hole, and the seam's full doctrine lives with
+the code, in `tools/floor.py` § THE REPO-LOCAL SEAM: it only **adds** (a name
+colliding with a registered scanner is a hard config error, so it cannot replace,
+shadow or weaken a fleet check — `PROPAGATION.md`'s narrow-not-contradict applied
+to enforcement); it fails **closed** (a declared check whose script is missing
+blocks, exactly as a missing shared scanner does); and it is **visible** (local
+checks appear in `--list`, in `--json`, in the render and on the `floorfleet`
+board, so a repo's own rules are estate-legible even though their code is not
+shared). Clause 2 above is unchanged and still binds: `local` is the only way a
+child adds, and nothing here lets it change whether a shared check blocks.
+
 ## Rejected
 
 - **Keep vendoring, add a drift-detector.** Detects staleness *after* it happens
@@ -117,6 +137,25 @@ is this same bug, one level up.
   the gap; CI remains the backstop, because a hook can never be guaranteed.
 - `floorfleet` proves a repo **calls** the floor, never that the floor is green
   there. Conformance and compliance stay separate claims.
+- **The control that makes a floating `@main` safe is atelier `main`'s own
+  protection, not the pin.** *(Added 2026-08-06, on the cold pass's EP7 — the
+  risk was accepted above without ever naming what holds it.)* A floating `uses:`
+  executes atelier's code in every child's CI on every push, unreviewed at read
+  time. Published Actions hardening guidance accepts `@main` for a callee inside
+  the same trust boundary and treats every floating ref outside one as a
+  supply-chain entry point — so this decision rests entirely on the boundary
+  claim, and the boundary is **who can write atelier's `main`**: branch
+  protection, signed commits, and review on the registry are the control, and
+  they are load-bearing in a way the `uses:` line does not show. State the
+  consequence at full strength: a compromise of atelier `main` is **arbitrary
+  code running in every child's CI**, not merely a broken floor. That is a
+  larger blast radius than the "one bad registry change reds the estate" risk
+  accepted at the top of this list, and it is the reason the signing trust root
+  is deliberately pinned while the scanners deliberately float (Rejected, last
+  item; 2026-07-12 review G7) — the two calls point opposite ways on purpose.
+  This is not an argument for pinning the caller: it is the named, checkable
+  control that pinning would not provide either, since a pinned child still runs
+  whatever that SHA contains.
 
 ## Evidence
 

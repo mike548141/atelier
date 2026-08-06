@@ -871,6 +871,76 @@ class InvocationTest(unittest.TestCase):
             r = self._cfg_run(td, {"scope": {"wrapscan": {"paths": ["docs"]}}})
             self.assertEqual(r.returncode, 0, r.stderr)
 
+    def test_tuning_a_boundary_check_states_why(self):
+        """EP1(b), ruled 2026-08-04 — `scope`'s twin, and the half C1 did not
+        carry. `FORBIDDEN_FLAGS` is a blocklist of four mode arguments, so a
+        rule switched off by name still shrinks a boundary check's cover and
+        touches nothing on the list. That is a cover decision, so it goes on
+        the record the way a disabled check does — and the block names the
+        working form, because the remedy is a spelling, not a retreat."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            r = self._cfg_run(td, {"flags": {"leakscan": {
+                "args": ["--disable", "ipv4,ipv6,mac-address"]}}})
+            self.assertEqual(r.returncode, 1, r.stdout)
+            self.assertIn("needs a `why`", r.stderr)
+            self.assertIn('"args"', r.stderr)
+
+            r = self._cfg_run(td, {"flags": {"leakscan": {
+                "args": ["--disable", "ipv4,ipv6,mac-address"],
+                "why": "IP and MAC shapes are content in a networking repo"}}})
+            self.assertEqual(r.returncode, 0, r.stderr)
+
+    def test_a_softenable_flags_override_needs_no_reason(self):
+        """The other side of it, or the rule becomes ceremony: tuning a
+        prose-hygiene check is not a cover decision on a boundary.
+
+        Judged at the parse seam rather than through a real run, because the
+        argument a softenable check would actually be tuned with is that
+        scanner's business — this test is about which declarations the config
+        ACCEPTS, and a real flag would date the moment that scanner's options
+        changed."""
+        cfg = _cfg({"flags": {"datescan": {"args": ["--some-repo-tuning"]}}})
+        self.assertEqual(cfg.flags["datescan"].args, ("--some-repo-tuning",))
+        self.assertEqual(cfg.flags["datescan"].why, "")
+
+    def test_a_legacy_flags_list_is_exempt_for_the_transition(self):
+        """Same terms as the legacy `scope` list below: it cannot carry a `why`
+        at all, so holding it to EP1(b) would break every child that already
+        declares one, on the afternoon this lands."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            r = self._cfg_run(td, {"flags": {"leakscan": ["--disable", "ipv4"]}})
+            self.assertEqual(r.returncode, 0, r.stderr)
+
+    def test_a_reasoned_flags_override_still_tunes_the_check(self):
+        """The reason is a record, never an argument. If the `why` reached argv
+        the scanner would see an unknown option and the block would arrive from
+        the wrong place entirely."""
+        cfg = _cfg({"flags": {"leakscan": {
+            "args": ["--disable", "ipv4"], "why": "IPs are content here"}}})
+        argv = floor._render(floor.BY_NAME["leakscan"].hook, Path("/repo"),
+                             cfg, "leakscan")
+        self.assertEqual(argv[-2:], ["--disable", "ipv4"])
+        self.assertNotIn("IPs are content here", argv)
+
+    def test_rejects_an_empty_flags_override(self):
+        """A declaration with no arguments in it tunes nothing and reads as
+        though it did — the same call as an empty `scope`."""
+        for payload in ({"flags": {"leakscan": []}},
+                        {"flags": {"leakscan": {"args": []}}}):
+            with self.subTest(payload=payload), \
+                    self.assertRaises(floor.ConfigError):
+                _cfg(payload)
+
+    def test_rejects_an_unknown_key_in_a_flags_declaration(self):
+        """Same call as `advisory` and `local`: a key read past in silence is a
+        declaration the writer believes is doing something. A `whys` typo would
+        leave a boundary check tuned with no reason on the record."""
+        with self.assertRaises(floor.ConfigError):
+            _cfg({"flags": {"leakscan": {"args": ["--disable", "ipv4"],
+                                         "whys": "typo"}}})
+
     def test_a_legacy_scope_list_is_exempt_for_the_transition(self):
         """It cannot carry a `why` at all, so holding it to A1(b) would be the
         flag day the transition exists to avoid."""
