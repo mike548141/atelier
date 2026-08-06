@@ -11,7 +11,7 @@
 # alone before the parser learned about code context, and one brief added
 # another minutes after being written (2026-07-26 cold pass ST1, counsel).
 #
-# Measured honestly, 2026-08-06: the parser fix ALONE now clears the whole
+# Measured honestly, 2026-08-05 (UTC — SD6 corrected a local-date stamp): the parser fix ALONE now clears the whole
 # live tree — every marker in this store today sits in a fence or a code
 # span, so this entry gates nothing at present. It is kept as the standing net
 # for the named residual (a raw line-start marker in bare prose), because this

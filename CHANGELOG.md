@@ -5,6 +5,42 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-08-06 — the queue take's ruled findings applied)
+The 2026-08-06 rule-4 cold passes returned 0 MAJOR each (all three cycles
+closed); Mike ruled the residue the same day and these are the fixes, each
+probed both directions:
+- **licenscan's last reasonless hatch closed** (LC1/LC2): the
+  unknown-license suppression keyed on a raw substring, so a bare marker —
+  or prose merely *mentioning* the marker text — silently retired the warn.
+  It now requires the same reasoned marker every other site does, and the
+  retirement is tallied, never silent. Five unreachable `-only`/`-or-later`
+  alias entries removed (LC4) — the suffix strip runs before the lookup.
+- **stampscan's canonical side learns code context** (SD1): region
+  extraction now reads the same fence/code-span-stripped view the stamp
+  hunt does, so a fenced *example* of region markers can no longer shadow
+  the real region (identical copies read as drift against example text —
+  latent, never fired live). The live PROPAGATION shape (markers outside a
+  presentational fence) extracts verbatim as before. A suppression tally
+  with known zeros joins the output (SD3) — first live run made 98
+  silently-skipped files visible — and a whitespace-only `narrow=` is no
+  longer a declaration (SD4; the marker still parses, the declaration is
+  void, so the diagnostic stays a clear silent-drop drift). SD3 discharges
+  what remained of D2 residue (b); its loader half had already landed with
+  the ten-loader sweep.
+- **`PROPAGATION.md` stops contradicting the live tree** (SD2): the
+  stamp-discipline paragraph still said stampscan was "shelved on a parser
+  defect… watched by nothing" — rewritten to the current truth (advisory
+  in atelier, registry wiring barred, blocking a later ruling).
+- **Five stranded tests rejoin every invocation** (LC3/PD1): the 0228793
+  merge left `Allowances` classes below `unittest.main()` in two suites, so
+  direct file runs silently dropped them. Moved up; direct and discovery
+  runs agree again. True suite totals at HEAD: licenscan 56 (incl. 2 new
+  LC1/LC2 tests), stampscan 75 (incl. 10 new SD tests), pathscan 76.
+- Accepted as recorded, not fixed (Mike, same sitting): licenscan's
+  multi-LICENSE first-in-walk pick (LC5, pre-existing), the fence-closer
+  length asymmetry (SD5, cosmetic), and the pathscan/linkscan double-report
+  on broken link-text paths (PD3, deliberate on both sides).
+
 ### Added (2026-08-05 — guard governance, and every allowance made narrow, noisy and reasoned)
 - **`docs/method/GUARDS.md` — how a guard's findings are *governed*.** Track F/F1
   rebuilt against Mike's three rules for granting an exception: as **narrow** an

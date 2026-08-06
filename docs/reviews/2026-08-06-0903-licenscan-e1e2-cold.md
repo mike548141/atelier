@@ -143,3 +143,21 @@ the verdict above was committed (`732aa11`). Reconciliation:
 **Final: PASS-WITH-FINDINGS — 0 MAJOR / 1 MODERATE / 2 minor / 2 notes.
 Terminal; the licenscan E1+E2 cycle CLOSES. LC1–LC5 await the
 principal's ruling.**
+
+---
+
+## Decisions (Mike, 2026-08-06, plain-language walk-through; applied same session, wt: ruled-fixes-0806)
+
+- **LC1 [fixed]** — the unknown-license suppression now requires a reasoned
+  marker (`parse_allow` per line, not a substring); bare-marker and
+  prose-mention probes must-flag in tests.
+- **LC2 [fixed]** — the retirement is tallied (`suppressed_declarations`),
+  with a must-pass test pinning the count.
+- **LC3 [fixed]** — `Allowances` moved above the `__main__` block; direct
+  and discovery runs agree (56 at HEAD, incl. 2 new LC1/LC2 tests); the
+  true totals are recorded in the 2026-08-06 CHANGELOG entry.
+- **LC4 [fixed]** — five dead alias entries removed (the four `-or-later`
+  the finding counted, plus `gpl-3.0-only`, equally unreachable — the
+  count corrected at application).
+- **LC5 [rejected: accepted as recorded]** — pre-existing, rare;
+  name-priority machinery not yet earned by the class.

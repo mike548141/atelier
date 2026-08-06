@@ -3876,3 +3876,30 @@ discharges are preserved in the verdicts' brief sections verbatim (each
 brief opens with its delta and intent-record refs), so the pointer text is
 not duplicated here — the precedent the 2026-08-05 take set, and the shape
 the harvest-integrity gate exists to force.
+
+**The ruling round and its application (same day, 2026-08-06).** Mike ruled
+all fourteen residue findings in a plain-language AskUserQuestion
+walk-through: eleven fixed, three accepted as recorded (LC5 multi-LICENSE
+pick order · SD5 fence-closer asymmetry · PD3 the deliberate
+pathscan/linkscan double-report). Applied the same session
+(wt: ruled-fixes-0806), each fix probed both directions; decisions stamped
+in the three verdicts. Highlights: licenscan's unknown-license suppression
+now requires a reasoned marker and tallies the retirement (LC1/LC2 — its
+last reasonless hatch); stampscan's region extraction reads the
+code-stripped view so a fenced example can never shadow the real region
+(SD1), prints a suppression tally whose first live run surfaced 98
+silently-skipped files (SD3), and voids a whitespace-only `narrow=` (SD4);
+`PROPAGATION.md`'s stamp paragraph rewritten to the current truth (SD2);
+the five merge-stranded tests moved above the `__main__` blocks (LC3/PD1 —
+true totals 56/75/76). **This also closed D2 residue (b)** — stampscan
+joins the GUARDS allowance model; the tally was the only work owed, the
+entry's loader half having already landed in the ten-loader sweep
+(verified at HEAD, the board corrected). Item verbatim:
+
+- **D2 residue (b) — stampscan joins the GUARDS allowance model.** The
+  D2 build and the F1/allowances sweep landed the same day in
+  parallel sessions, so stampscan — the eleventh scanner — missed
+  the sweep that put the other ten onto the model: its ignore-file
+  loader does not yet require a stated reason per glob, and it
+  prints no suppression tally. Small alignment build; rides the
+  next stampscan touch.

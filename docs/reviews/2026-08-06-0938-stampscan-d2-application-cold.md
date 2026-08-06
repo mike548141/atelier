@@ -174,3 +174,27 @@ verdict above was committed. Reconciliation:
 Terminal; the stampscan S4/D2 review cycle CLOSES. SD1–SD6 await the
 principal's ruling. ST3-barred registry wiring, D2 residue (b), and the
 blocking flip stay open as work, unaffected by the cycle close.**
+
+---
+
+## Decisions (Mike, 2026-08-06, plain-language walk-through; applied same session, wt: ruled-fixes-0806)
+
+- **SD1 [fixed]** — `extract_region` reads the code-stripped view
+  (`_content_lines`); fenced-example, inline-code-mention,
+  example-only-is-missing, and fenced-presentation-still-extracts all
+  pinned by tests.
+- **SD2 [fixed]** — the PROPAGATION.md paragraph rewritten to the current
+  truth (advisory in atelier; registry wiring barred on the child-side
+  resolution story; blocking a later ruling), with a correction note.
+- **SD3 [fixed]** — suppression tally with known zeros (blocks by
+  allow-marker · files by ignore glob); first live run surfaced 98
+  silently-skipped files. Discharges what remained of D2 residue (b) —
+  its loader half had already landed with the ten-loader sweep, corrected
+  on the board.
+- **SD4 [fixed]** — a whitespace-only `narrow=` is void (`_narrow_of`);
+  the marker still parses so the diagnostic stays a clear silent-drop
+  drift rather than a stray-end config error.
+- **SD5 [rejected: accepted as recorded]** — cosmetic asymmetry; the live
+  pair exercises the well-formed path.
+- **SD6 [fixed]** — the `.stampscanignore` measurement date corrected to
+  the UTC landing date.

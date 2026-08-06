@@ -141,3 +141,16 @@ verdict above was committed. Reconciliation:
 Terminal; the pathscan S2/D1 review cycle CLOSES. PD1–PD3 await the
 principal's ruling. PS5 (registry promotion) and the blocking flip stay
 open as work, unaffected by the cycle close.**
+
+---
+
+## Decisions (Mike, 2026-08-06, plain-language walk-through; applied same session, wt: ruled-fixes-0806)
+
+- **PD1 [fixed]** — `Allowances` moved above the `__main__` block; direct
+  and discovery runs agree (76 at HEAD); true totals recorded in the
+  2026-08-06 CHANGELOG entry.
+- **PD2 [fixed]** — the burn-down denominator is the tally's own figure:
+  10 findings, on 8 marker lines, across 6 files — stated in the ROADMAP
+  D1 entry.
+- **PD3 [rejected: accepted as recorded]** — the double-report is
+  deliberate on both sides and now documented in this verdict.

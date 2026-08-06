@@ -539,6 +539,129 @@ class RenderHuman(unittest.TestCase):
         self.assertIn("(3 note(s): identical, narrow)", out)
 
 
+class CanonicalSideCodeContext(unittest.TestCase):
+    """SD1 (ruled 2026-08-06): region extraction reads the same code-stripped
+    view the stamp-marker hunt does. A fenced EXAMPLE of the region markers
+    above the real region used to bind first — an identical copy then read
+    as drift against the example's text."""
+
+    def setUp(self):
+        import shutil
+        import tempfile
+        self.tmp = ss.Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+
+    def test_fenced_example_above_real_region_does_not_bind(self):
+        _write(self.tmp, "docs/PARENT.md",
+               "# Parent\n\nHow to mark a region:\n\n"
+               "```markdown\n"
+               "<!-- floor:begin -->\nEXAMPLE TEXT ONLY\n<!-- floor:end -->\n"
+               "```\n\nThe real region:\n\n"
+               "<!-- floor:begin -->\n- real one\n- real two\n<!-- floor:end -->\n")
+        _write(self.tmp, "docs/child.md", _child_text(["- real one", "- real two"]))
+        findings = ss.scan_paths([self.tmp / "docs" / "child.md"], self.tmp)
+        self.assertEqual(["identical"], [f.kind for f in findings])
+
+    def test_inline_code_mention_of_region_marker_does_not_bind(self):
+        _write(self.tmp, "docs/PARENT.md",
+               "The pair is `<!-- floor:begin -->` and `<!-- floor:end -->`.\n\n"
+               "<!-- floor:begin -->\n- real one\n<!-- floor:end -->\n")
+        _write(self.tmp, "docs/child.md", _child_text(["- real one"]))
+        findings = ss.scan_paths([self.tmp / "docs" / "child.md"], self.tmp)
+        self.assertEqual(["identical"], [f.kind for f in findings])
+
+    def test_region_only_inside_a_fence_is_missing(self):
+        # The must-fail direction: markers that exist ONLY as a fenced
+        # example resolve nothing — fail-safe config error, not a match
+        # against example text.
+        _write(self.tmp, "docs/PARENT.md",
+               "```markdown\n"
+               "<!-- floor:begin -->\nEXAMPLE\n<!-- floor:end -->\n"
+               "```\n")
+        _write(self.tmp, "docs/child.md", _child_text(["EXAMPLE"]))
+        findings = ss.scan_paths([self.tmp / "docs" / "child.md"], self.tmp)
+        self.assertEqual(["missing-region"], [f.kind for f in findings])
+
+    def test_fenced_presentation_of_region_content_still_extracts(self):
+        # The live PROPAGATION.md shape must keep working: markers outside a
+        # fence, content inside it — the fence is presentational and
+        # stripped, the content extracts verbatim.
+        _write(self.tmp, "docs/PARENT.md",
+               "<!-- floor:begin -->\n```\n- real one\n- real two\n```\n"
+               "<!-- floor:end -->\n")
+        _write(self.tmp, "docs/child.md", _child_text(["- real one", "- real two"]))
+        findings = ss.scan_paths([self.tmp / "docs" / "child.md"], self.tmp)
+        self.assertEqual(["identical"], [f.kind for f in findings])
+
+
+class NarrowReason(unittest.TestCase):
+    """SD4 (ruled 2026-08-06): a whitespace-only `narrow=` is not a
+    declaration."""
+
+    def test_whitespace_only_narrow_is_not_a_declaration(self):
+        m = ss._STAMP_BEGIN_RX.match(
+            "<!-- stamp:begin source=docs/P.md region=floor narrow= -->")
+        self.assertIsNotNone(m)          # the marker still parses…
+        self.assertIsNone(ss._narrow_of(m))  # …the declaration is void
+
+    def test_real_narrow_reason_still_parses(self):
+        m = ss._STAMP_BEGIN_RX.match(
+            "<!-- stamp:begin source=docs/P.md region=floor narrow=repo-x omits it -->")
+        self.assertEqual("repo-x omits it", ss._narrow_of(m))
+
+    def test_whitespace_narrow_subset_reds_as_silent_drop(self):
+        import shutil
+        import tempfile
+        tmp = ss.Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        _write(tmp, "docs/PARENT.md", _parent_text(["a", "b"]))
+        _write(tmp, "docs/child.md",
+               "<!-- stamp:begin source=docs/PARENT.md region=floor narrow= -->\n"
+               "a\n<!-- stamp:end -->\n")
+        findings = ss.scan_paths([tmp / "docs" / "child.md"], tmp)
+        self.assertEqual(["drift"], [f.kind for f in findings])
+
+
+class SuppressionTally(unittest.TestCase):
+    """SD3 (ruled 2026-08-06): rule (b) — known zeros printed, and files
+    skipped wholesale by `.stampscanignore` are counted, not silent."""
+
+    def setUp(self):
+        import shutil
+        import tempfile
+        self.tmp = ss.Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+
+    def test_clean_output_prints_known_zeros(self):
+        out = ss.render_human([])
+        self.assertIn("suppressed: 0 block(s) by allow-marker", out)
+        self.assertIn("0 file(s) by .stampscanignore", out)
+
+    def test_ignore_glob_skips_are_counted(self):
+        (self.tmp / ".stampscanignore").write_text(
+            "# probe store, quotes markers raw\ndocs/reviews/\n")
+        _write(self.tmp, "docs/PARENT.md", _parent_text(["a"]))
+        _write(self.tmp, "docs/reviews/raw.md", _child_text(["ghost"]))
+        _write(self.tmp, "docs/child.md", _child_text(["a"]))
+        skipped: list[int] = []
+        findings = ss.scan_paths([self.tmp / "docs"], self.tmp, skipped)
+        self.assertEqual(["identical"], [f.kind for f in findings])
+        self.assertEqual(1, len(skipped))
+        out = ss.render_human(findings, len(skipped))
+        self.assertIn("1 file(s) by .stampscanignore", out)
+
+    def test_allow_skipped_blocks_are_counted(self):
+        _write(self.tmp, "docs/PARENT.md", _parent_text(["a"]))
+        _write(self.tmp, "docs/child.md",
+               "<!-- stamp:begin source=docs/PARENT.md region=floor -->\n"
+               "ghost\n<!-- stampscan:allow: probe fixture -->\n"
+               "<!-- stamp:end -->\n")
+        findings = ss.scan_paths([self.tmp / "docs" / "child.md"], self.tmp)
+        self.assertEqual(["skipped"], [f.kind for f in findings])
+        self.assertIn("suppressed: 1 block(s) by allow-marker",
+                      ss.render_human(findings))
+
+
 class SelfTest(unittest.TestCase):
     def test_selftest_passes(self):
         self.assertEqual(0, ss._selftest())

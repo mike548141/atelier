@@ -442,7 +442,12 @@ decides which repetitions are defects and which are the mechanism working:
   theoretical: the review-brief skill was found still carrying an
   artefact-shaped trigger its parent had already retired (2026-07-19 F3), and
   the reviews template had drifted the same way one sweep earlier. `stampscan`
-  was built to catch exactly this class and is **shelved on a parser defect**
-  (ROADMAP D2) — so as at 2026-07-29 the stamp discipline is convention,
-  watched by nothing. Said plainly here rather than implied away: an unwatched
-  convention is rung 1 territory, not rung 2.
+  was built to catch exactly this class; its parser defect was fixed and the
+  scanner **wired advisory in atelier's own CI** (2026-08-05, the D2 ruling —
+  it watches this repo's stamps and warns, without blocking). Registry wiring
+  to children stays barred on the child-side `source=` resolution story
+  (ROADMAP, D2 residue), and the blocking flip is a separate later ruling —
+  so the discipline is watched-advisory here and convention in the children.
+  Said plainly rather than implied away: for a child repo, an unwatched
+  convention is still rung 1 territory, not rung 2. (This paragraph
+  previously recorded the pre-fix state — corrected 2026-08-06, SD2.)

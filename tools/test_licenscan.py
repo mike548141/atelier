@@ -389,17 +389,12 @@ class Expect(unittest.TestCase):
         self.assertTrue(rep.clean)
 
 
-class SelfTest(unittest.TestCase):
-    def test_selftest_passes(self):
-        self.assertEqual(lc._selftest(), 0)
-
-
-if __name__ == "__main__":
-    unittest.main()
-
-
 class Allowances(unittest.TestCase):
-    """GUARDS.md rule (c) — a marker with no reason is a mention."""
+    """GUARDS.md rule (c) — a marker with no reason is a mention.
+
+    (Moved above the __main__ block 2026-08-06, LC3: defined after
+    `unittest.main()`, these ran under discovery but were silently dropped
+    by a direct `python3 tools/test_licenscan.py` run.)"""
 
     def test_bare_marker_without_reason_is_not_an_allowance(self):
         self.assertIsNone(lc.parse_allow("# licenscan:allow"))
@@ -407,3 +402,31 @@ class Allowances(unittest.TestCase):
 
     def test_marker_with_reason_allows(self):
         self.assertEqual("", lc.parse_allow("# licenscan:allow: vendored"))
+
+    def test_bare_marker_in_license_body_does_not_retire_the_warn(self):
+        # LC1 (ruled 2026-08-06): the unknown-license site used a raw
+        # substring test, so a bare marker — or prose merely MENTIONING the
+        # marker text — silently retired the warn. Rule (c): a marker with
+        # no reason is a mention.
+        for body in (PROPRIETARY + "\nlicenscan:allow\n",
+                     PROPRIETARY + "\nTo exempt, write licenscan:allow here.\n"):
+            rep = lc.scan_repo(lc.Path("."), [("LICENSE", body)], None)
+            self.assertIn("unknown-license", kinds(rep))
+            self.assertEqual(rep.suppressed_declarations, 0)
+
+    def test_reasoned_marker_retires_the_warn_and_is_tallied(self):
+        # LC2 (ruled 2026-08-06): the retirement counts in the rule (b)
+        # tally, so a clean report cannot look identical to an exempted one.
+        body = PROPRIETARY + "\n# licenscan:allow: proprietary by design\n"
+        rep = lc.scan_repo(lc.Path("."), [("LICENSE", body)], None)
+        self.assertNotIn("unknown-license", kinds(rep))
+        self.assertEqual(rep.suppressed_declarations, 1)
+
+
+class SelfTest(unittest.TestCase):
+    def test_selftest_passes(self):
+        self.assertEqual(lc._selftest(), 0)
+
+
+if __name__ == "__main__":
+    unittest.main()
