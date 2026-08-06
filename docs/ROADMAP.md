@@ -1185,7 +1185,8 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
 
 - ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass) — the
   licenscan E1+E2 build (a custom/LicenseRef licence keeps the header
-  checks; trove classifiers resolve).** *Delta:* `tools/licenscan.py` +
+  checks; trove classifiers resolve).** (claimed 2026-08-06-0859,
+  wt: fable-cold-passes-0806) *Delta:* `tools/licenscan.py` +
   `tools/test_licenscan.py` (37 → 52 tests) + the CHANGELOG entry (landed
   2026-08-05) + the corrected check-1 row in `tools/README.md` (landed in
   the follow-up commit, same session — the row still described the
@@ -1196,6 +1197,7 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
 
 - ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass, the
   D2 application; the ST cycle's three MAJORs keep it open past this).**
+  (claimed 2026-08-06-0859, wt: fable-cold-passes-0806)
   *Delta:* `tools/stampscan.py` + `tools/test_stampscan.py` (46 → 65) +
   `tools/test_templates.py` (37 → 38, `template_block` strips markers) +
   `.stampscanignore` (new) + `docs/build/templates/CLAUDE.md` (end marker
@@ -1209,7 +1211,7 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
 
 - ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass, the
   D1 rescope application; the PS cycle's three MAJORs keep it open past
-  this).** *Delta:* `tools/pathscan.py` + `tools/test_pathscan.py`
+  this).** (claimed 2026-08-06-0859, wt: fable-cold-passes-0806) *Delta:* `tools/pathscan.py` + `tools/test_pathscan.py`
   (53 → 73) + the rescoped advisory step in `.github/workflows/ci.yml` +
   the residual burn-down (the path fix in `docs/build/README.md`; reasoned
   allow-markers in `docs/build/REPO-STANDARD.md`, `docs/method/00-APEX.md`,
