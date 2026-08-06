@@ -3853,3 +3853,26 @@ by the orchestrator. Item verbatim:
       counselled shelve. All three preconditions built (code-span-aware
       parsing, the ignore file, narrow-to-nothing closed), then wire
       advisory per the reviewer's bar. Work owed: one build item.
+
+## The 2026-08-06 queue take — three cold passes, every cycle closed (done 2026-08-06)
+
+The remaining rule-4 queue — the three pointers the 2026-08-05 queue batch
+landed — taken by a Mike-spawned Fable session (author sessions uninvolved),
+claimed on `main` before the worktree per CONCURRENCY § Claiming work. All
+three passes returned **0 MAJOR** and every open cycle closed terminal: the
+licenscan E1+E2 build (first pass on that delta), the stampscan D2
+application (closing the ST/S4 cycle its three MAJORs had held open), and
+the pathscan D1 rescope application (closing the PS/S2 cycle likewise).
+Findings held for Mike's ruling in the ROADMAP § *Doctrine — review-owed*
+item of the same date; verdicts:
+[licenscan E1+E2](reviews/2026-08-06-0903-licenscan-e1e2-cold.md) ·
+[stampscan D2 application](reviews/2026-08-06-0938-stampscan-d2-application-cold.md) ·
+[pathscan D1 application](reviews/2026-08-06-1002-pathscan-d1-application-cold.md).
+Every live-proven claim in the three deltas re-ran clean, including the
+measured "parser fix alone clears the tree" claim (re-run with the ignore
+file bypassed) and the pathscan gateable-surface scan (clean, 10
+suppressions, each reasoned). The three refs-only pointers this take
+discharges are preserved in the verdicts' brief sections verbatim (each
+brief opens with its delta and intent-record refs), so the pointer text is
+not duplicated here — the precedent the 2026-08-05 take set, and the shape
+the harvest-integrity gate exists to force.

@@ -265,8 +265,10 @@ registry checks only.*
       (PS8 + PS2/PS6/PS7), and the gate-scope residual burnt to zero (the
       one true positive fixed, six false positives marked with written
       reasons). Tests 53 → 73; the advisory `ci.yml` step now scans the
-      gateable surface. Detail → the rescope `⏳` pointer's delta and
-      CHANGELOG entry. **Remaining work owed: the registry promotion
+      gateable surface. Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
+      § *The 2026-08-06 queue take* (the pointer's delta, harvested at
+      the review) and the CHANGELOG entry. **Remaining work owed: the
+      registry promotion
       (PS5)** — one `tools/floor.py` line retiring the bespoke step, so
       children get the check; deliberately deferred while the open
       floor.py cold pass runs (touching a claimed pointer's surface
@@ -279,7 +281,9 @@ registry checks only.*
       the sweep that put the other ten onto the model: its ignore-file
       loader does not yet require a stated reason per glob, and it
       prints no suppression tally. Small alignment build; rides the
-      next stampscan touch or its queued application pass.
+      next stampscan touch (its application pass ran 2026-08-06 as a
+      review only — SD3 of that verdict independently found the missing
+      tally, so the two items merge at the fix).
 - [ ] **D2 residue — stampscan registry wiring stays barred on ST3.** The
       advisory wiring landed 2026-08-05 (atelier `ci.yml` only, the
       reviewer's bar step 1); registry wiring — which reaches every child
@@ -1183,45 +1187,35 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   mutually-consistent surfaces. Terminal; SE1–SE2 join the ruling round
   above.
 
-- ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass) — the
-  licenscan E1+E2 build (a custom/LicenseRef licence keeps the header
-  checks; trove classifiers resolve).** (claimed 2026-08-06-0859,
-  wt: fable-cold-passes-0806) *Delta:* `tools/licenscan.py` +
-  `tools/test_licenscan.py` (37 → 52 tests) + the CHANGELOG entry (landed
-  2026-08-05) + the corrected check-1 row in `tools/README.md` (landed in
-  the follow-up commit, same session — the row still described the
-  pre-E1 silence). *Intent record:*
-  [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The licence gate learns
-  proprietary* (the two items verbatim — fix shapes and required tests
-  stated in the items, evidence of 2026-07-25 — harvested at landing).
-
-- ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass, the
-  D2 application; the ST cycle's three MAJORs keep it open past this).**
-  (claimed 2026-08-06-0859, wt: fable-cold-passes-0806)
-  *Delta:* `tools/stampscan.py` + `tools/test_stampscan.py` (46 → 65) +
-  `tools/test_templates.py` (37 → 38, `template_block` strips markers) +
-  `.stampscanignore` (new) + `docs/build/templates/CLAUDE.md` (end marker
-  to its own line) + `docs/method/PROPAGATION.md` (the stamp-convention
-  paragraph) + `tools/README.md` (the stampscan section) + the advisory
-  step in `.github/workflows/ci.yml` + the CHANGELOG entry (landed
-  2026-08-05, this commit). *Intent record:*
-  [stampscan S4 cold pass](reviews/2026-07-26-2215-stampscan-s4-cold.md)
-  (ST1–ST7) + the D2 ruling of 2026-08-04, harvested with the item to
-  [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *D2 delivered*.
-
-- ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass, the
-  D1 rescope application; the PS cycle's three MAJORs keep it open past
-  this).** (claimed 2026-08-06-0859, wt: fable-cold-passes-0806) *Delta:* `tools/pathscan.py` + `tools/test_pathscan.py`
-  (53 → 73) + the rescoped advisory step in `.github/workflows/ci.yml` +
-  the residual burn-down (the path fix in `docs/build/README.md`; reasoned
-  allow-markers in `docs/build/REPO-STANDARD.md`, `docs/method/00-APEX.md`,
-  `docs/method/EVIDENCE.md`, `docs/method/TOOLBOX.md`,
-  `docs/decisions/0006-instruments-in-atelier.md`, and the 2026-07-19
-  review-trigger decision record) + the CHANGELOG entry (landed
-  2026-08-05, this commit). *Intent record:*
-  [pathscan S2 cold pass](reviews/2026-07-26-2215-pathscan-s2-cold.md)
-  (PS1–PS8 + deferred Q2) + the D1 ruling of 2026-08-04 on the live item
-  (Track D).
+- [ ] 🎯 **Three rule-4 Fable code cold passes ran 2026-08-06 — every
+  remaining queued cycle CLOSED (0 MAJOR each); the residue findings await
+  Mike's ruling.** The taker was a Mike-spawned Fable session, author of
+  none of the three deltas; the three pointers are harvested to
+  [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The 2026-08-06 queue take*.
+  Verdicts:
+  the licenscan E1+E2 build
+  ([verdict](reviews/2026-08-06-0903-licenscan-e1e2-cold.md)) — LC1
+  (MODERATE), the unknown-license suppression keys on a raw substring, so
+  a reasonless marker or a prose mention of the marker text silently
+  retires the warn, against the same file's own GUARDS rule (c)
+  tightening; LC2, that suppression is invisible to the rule (b) tally;
+  LC3, two allowance tests sit after the unittest main block (merge
+  placement) so direct runs silently drop them; LC4–LC5 notes;
+  the stampscan D2 application, the ST cycle closed
+  ([verdict](reviews/2026-08-06-0938-stampscan-d2-application-cold.md)) —
+  SD1 (MODERATE), the ST1 fix is half-applied: canonical-region extraction
+  is code-context blind, so a fenced example of region markers above the
+  real region binds first (probe-verified; latent on the live tree); SD2
+  (MODERATE), `PROPAGATION.md` § skills still says stampscan is shelved on
+  a parser defect and the stamp discipline watched by nothing, falsified
+  by the delta itself; SD3, ignore-glob skips print no suppression tally;
+  SD4, `narrow=` accepts a whitespace-only reason; SD5–SD6 notes;
+  the pathscan D1 rescope application, the PS cycle closed
+  ([verdict](reviews/2026-08-06-1002-pathscan-d1-application-cold.md)) —
+  PD1, three merge-added allowance tests after the unittest main block
+  (same fix as LC3); PD2–PD3 notes. All three terminal: no new pointers;
+  open work (ST3-barred registry wiring, D2 residue b, PS5 promotion, the
+  blocking flips) is unchanged by the closes.
 
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
 COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin
