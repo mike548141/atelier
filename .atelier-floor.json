@@ -3,6 +3,8 @@
   "docs": "docs",
   "scope": {
     "wrapscan": ["docs/method", "docs/build", "docs/decisions"],
-    "spellscan": ["docs/method", "docs/build", "docs/decisions"]
+    "spellscan": ["docs/method", "docs/build", "docs/decisions"],
+    "pathscan": ["docs/method", "docs/build", "docs/decisions",
+                 "README.md", "CLAUDE.md", "SECURITY.md"]
   }
 }

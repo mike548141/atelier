@@ -54,6 +54,38 @@ be the wrong kind of uniformity:
 Both planes read this one registry, so a scanner added here reaches every child's
 hook and every child's CI at once, with no child edit.
 
+THREE STATES, NOT TWO — what a green tick is allowed to mean
+-------------------------------------------------------------
+The board draws a line between three materially different things, on every
+plane and in `--json` and `--list` alike (ruled 2026-08-04):
+
+  ✅ enforced   the check ran and its findings BLOCK. A green tick here is a
+                gate that held.
+  👁️ warn-only  the check ran, reported, and can never block on what it finds —
+                the PARENT's own warn-first wiring, in the registry, for every
+                repo. Not a child's decision and not a softening: there is no
+                stricter form to soften to.
+  ⚠️ advisory   the check runs and reports because THIS CHILD declared it so,
+                with a reason and a review date. A blocking check, softened
+                here, on the record, until a stated date.
+
+Until this landed, warn-only entries rendered `✅ enforced` — the same tick a
+blocking scanner earns — while printing findings nobody had to act on. That is
+EP3's "identical output for materially different cover" one surface over: the
+board claimed gate cover the registry never gave it. The state is DERIVED from
+the registry entry (`Scanner.warns_only`), never from a list of names beside it,
+because a list is the vendored-policy shape this whole file exists to end.
+
+Read the marks precisely — two of them are about findings that do not block, and
+they are not the same fact:
+
+  🟡 secretscan  enforced   (🟡 21 advisory finding(s) — reported, not blocking)
+        a BLOCKING check that also reported findings it deliberately passed on
+        (E6b). This check still gates; these particular findings did not.
+  👁️ pathscan    warn-only  (warn-only wiring — reports findings, can never
+                             block this build)
+        a check that gates NOTHING, whatever it finds, on any repo.
+
 NOTHING IS SILENTLY ABSENT
 --------------------------
 The old opt-out was "delete the run_scan line" — invisible the moment it was
@@ -223,6 +255,15 @@ ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 # these are stripped at the parse seam — see `strip_controls`.
 CONTROL_CHARS_RE = re.compile(r"[\x00-\x1f\x7f]")
 
+# Arguments whose presence in a plane's template means the check REPORTS its
+# findings and never blocks on them. `--warn` is the estate-wide spelling: every
+# scanner that has one prints "(--warn: advisory only — not blocking this
+# build.)" and returns 0 on findings. Read off the argv rather than declared
+# beside it, so a future registry line wired warn-first renders as warn-only
+# with no second edit — and cannot be wired warn-first while the board goes on
+# printing a green enforcement tick (`Scanner.warns_only`).
+WARN_MODE_FLAGS = ("--warn",)
+
 # Placeholders resolved per invocation: {root} = the repo being scanned,
 # {docs} = its records tree (configurable — not every child keeps records in
 # docs/), {licence} = the SPDX id a publish-ready repo asserts.
@@ -334,10 +375,50 @@ class Scanner:
     # asserted and never shown: a structural-only leakscan rendered `✅
     # enforced`, identical to a full-cover one (ADR 0008 cold pass, EP3).
     full_cover_flag: str | None = None
+    # This check has NO blocking form at all: its registry argv IS its warn
+    # form and it exits 0 whatever it finds. Set only where there is no flag in
+    # the argv to read it off — harvestscan and pointerscan were BUILT warn-only
+    # (an ungrounded similarity threshold; judgement-adjacent prose), so their
+    # templates carry nothing to derive from. The declaration is not
+    # free-floating: `_selftest` and `test_floor.py` pin it against the
+    # registry's own statement of the same fact — a check with no blocking form
+    # declares `advisory` identical to its `hook` form, which is exactly how
+    # both entries already said it in prose. Declared and derived must agree, in
+    # both directions, or the selftest fails.
+    warn_only: bool = False
 
     @property
     def is_local(self) -> bool:
         return self.run is not None
+
+    def warns_only(self, plane: str) -> bool:
+        """Can this check's FINDINGS block, on this plane?
+
+        The third render state (ruled 2026-08-04). A check wired warn-first
+        exits 0 on every finding it reports, so it rendered `✅ enforced` —
+        the same green tick a blocking scanner earns — while printing findings
+        nobody had to act on. That is EP3's "identical output for materially
+        different cover", one surface over: the board was claiming gate cover
+        it did not have.
+
+        Derived, never listed. A hand-maintained set of names would drift the
+        first time a registry line changed and nothing would say so, which is
+        the vendored-policy shape this whole file exists to end. Two honest
+        sources, both ON the entry: the flag in the plane's own argv (so
+        wiring `--warn` into a registry line cannot leave the board claiming
+        the check gates), and `warn_only` for the checks that carry no flag
+        because they have no blocking form to switch off.
+
+        What this does NOT say: that the check can never fail. `--warn` is
+        about FINDINGS. An environment error, a missing tree, an unparseable
+        input still exit non-zero and still block — see `Result.failed`, which
+        is deliberately unchanged by this state. A warn-only check that
+        returns non-zero has failed for a reason its warn flag was never
+        about."""
+        argv = self.hook if plane == "hook" else self.ci
+        if argv is None:
+            return False
+        return self.warn_only or any(f in argv for f in WARN_MODE_FLAGS)
 
 
 # The registry. Adding a line here is how a new policy reaches the whole estate.
@@ -456,6 +537,12 @@ SCANNERS: tuple[Scanner, ...] = (
         # than leaving the registry implying a block it will never make.
         advisory=["--staged", "--only-bulk-deletes", "--root", "{root}"],
         why="a roadmap item removed in a bulk deletion arrived somewhere",
+        # …and now the board says it too. The line above stated the fact in a
+        # comment while the render printed `✅ enforced` beside it, which is
+        # the gap between a registry that knows and a reader who is told.
+        # There is no `--warn` in the argv to derive this from: harvestscan has
+        # no blocking form at all, so the flag was never needed.
+        warn_only=True,
     ),
     Scanner(
         "pointerscan",
@@ -466,6 +553,43 @@ SCANNERS: tuple[Scanner, ...] = (
         # — a pointer is fixable in the commit that writes it.
         advisory=["--root", "{root}", "{scope}"],
         why="a queued-review pointer stays refs-only and stays true",
+        default_scope="docs",
+        warn_only=True,  # same as harvestscan: no blocking form, no flag to read
+    ),
+    Scanner(
+        "pathscan",
+        # PS5 — the registry promotion (D1, ruled FUND THE RESCOPE 2026-08-04;
+        # the rescope landed 2026-08-05). Until this line, pathscan ran from a
+        # bespoke step in atelier's OWN ci.yml and reached no child: a check
+        # wired into the parent's workflow and nowhere else is the vendored-
+        # policy shape ADR 0008 exists to end, one level up. One registry entry
+        # retires that step, and the check arrives in every child's hook and
+        # every child's CI on their next push, with no child edit. That is the
+        # point of the promotion and it should be read as its cost too: eleven
+        # children get a new line of output they did not ask for. Warn-only is
+        # what makes that affordable.
+        #
+        # WHOLE TREE ON BOTH PLANES, like linkscan and for the same reason: a
+        # rename breaks a NAMED path outside the diff that caused it, so the
+        # staged set is the wrong question here.
+        hook=["--warn", "--root", "{root}", "{scope}"],
+        ci=["--warn", "--root", "{root}", "{scope}"],
+        # `--warn` is in the template, not beside it. THE FLIP TO BLOCKING IS A
+        # SEPARATE RULING (D1's own words) and this line must not be mistaken
+        # for it — dropping `--warn` here is the whole flip, on every repo at
+        # once, which is precisely why it is one visible argument rather than a
+        # property somewhere else. `warns_only` reads it back off the argv, so
+        # the board cannot go on printing an enforcement tick over it.
+        advisory=["--warn", "--root", "{root}", "{scope}"],
+        why="a repo path named in prose or a backtick span still resolves",
+        # The records tree, matching its sibling prose checks — and matching
+        # the review's own scope finding, which named records OUT: they name
+        # the tree as it stood when they were written and can never come clean
+        # without markers that would falsify the record. A repo whose gateable
+        # surface is narrower (atelier's is — its doctrine dirs plus its live
+        # root files) declares it in `.atelier-floor.json`, exactly as it
+        # already does for wrapscan and spellscan. The registry cannot know a
+        # child's root files, so it does not guess at them.
         default_scope="docs",
     ),
     Scanner(
@@ -1154,7 +1278,7 @@ class Config:
 @dataclass
 class Result:
     name: str
-    state: str  # enforced | advisory | disabled | skipped
+    state: str  # enforced | warn-only | advisory | disabled | skipped
     rc: int
     reason: str = ""
     local: bool = False  # declared by this repo, not inherited from the fleet
@@ -1193,7 +1317,19 @@ class Result:
 
     @property
     def failed(self) -> bool:
-        return self.state == "enforced" and self.rc != 0
+        """`warn-only` is here on purpose, and it is the one line in this delta
+        that changes NOTHING about what blocks.
+
+        A warn-only check's flag is about its FINDINGS: it reports them and
+        returns 0. A non-zero exit from one therefore means something else
+        entirely went wrong — an unreadable tree, a missing input, a config
+        error `--warn` was never asked to downgrade — and that has always
+        blocked, because these checks used to carry the `enforced` state. A
+        render distinction that quietly turned an environment error into a
+        pass would be a softening nobody ruled, hidden inside a fix for
+        overstated cover. So the state is a render fact; the exit code is
+        untouched."""
+        return self.state in ("enforced", "warn-only") and self.rc != 0
 
 
 def _wc(text: str) -> str:
@@ -1326,7 +1462,17 @@ def plan(plane: str, cfg: Config) -> list[tuple[Scanner, str]]:
         elif s.opt_in and not cfg.licence:
             out.append((s, "skipped"))
         elif s.name in cfg.advisory:
+            # Deliberately ABOVE warn-only, even though a child softening a
+            # check that never blocked changes nothing about the exit code.
+            # The state names what actually RAN, and an advisory declaration
+            # does select the advisory argv — harvestscan's differs from its
+            # ci form, so this is not always a no-op. Reporting the child's
+            # own declaration is also the more informative of the two facts:
+            # the registry's warn-only wiring is visible from `--list` on any
+            # repo, and this declaration is visible nowhere else.
             out.append((s, "advisory"))
+        elif s.warns_only(plane):
+            out.append((s, "warn-only"))
         else:
             out.append((s, "enforced"))
     return out
@@ -1565,7 +1711,11 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
             continue
         if ci:
             print("::endgroup::", file=child_stdout, flush=True)
-            if rc != 0 and state == "enforced":
+            # `warn-only` included for the same reason it counts as `failed`:
+            # a warn-first check returning non-zero has hit something its warn
+            # flag was never about, and that reds the build. An annotation is
+            # how a runner reader finds out which step did it.
+            if rc != 0 and state in ("enforced", "warn-only"):
                 print(f"::error::{_wc(scanner.name)} failed — {_wc(scanner.why)}",
                       file=child_stdout, flush=True)
         # Read off the argv actually invoked, not off the plane name: the plane
@@ -1627,8 +1777,18 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
     return results
 
 
+# The note a warn-only line carries, every run. Deliberately shares no wording
+# with E6b's advisory-count note above it: that one says "advisory finding(s)"
+# and sits on a check whose state is still `enforced`, this one says "warn-only"
+# and sits on a check that has no enforcing form. A reader must be able to tell
+# "blocking check that also reported findings it passed on" from "check that can
+# never block", and two notes both spelled "advisory" would not let them.
+WARN_ONLY_NOTE = "warn-only wiring — reports findings, can never block this build"
+
+
 def render(results: list[Result], plane: str) -> str:
-    icon = {"enforced": "✅", "advisory": "⚠️ ", "disabled": "⏭ ", "skipped": "⏭ "}
+    icon = {"enforced": "✅", "warn-only": "👁️ ", "advisory": "⚠️ ",
+            "disabled": "⏭ ", "skipped": "⏭ "}
     lines = [f"atelier floor — {plane} plane"]
     for r in results:
         # A partial pass gets its own mark. It passed and it blocks, so it is
@@ -1676,7 +1836,12 @@ def render(results: list[Result], plane: str) -> str:
         # softened check whose cover is quietly shrinking is the board's
         # worst-informed case, which is exactly where the note was being
         # dropped (C1 cold pass, C1F1, ruled JOIN THE NOTES 2026-07-28).
-        said = [s for s in (r.reason, r.partial, advisory_note) if s]
+        # The third state's own note. It rides in the SAME joined list as every
+        # other note (C1F1's rule — notes accumulate, never displace), so a
+        # warn-only check with a shrinking scope says both things.
+        warn_note = (WARN_ONLY_NOTE
+                     if r.state == "warn-only" and not r.failed else "")
+        said = [s for s in (r.reason, warn_note, r.partial, advisory_note) if s]
         note = f"  ({'; '.join(said)})" if said else ""
         if r.state == "advisory":
             if r.legacy:
@@ -1730,11 +1895,35 @@ def _selftest() -> int:
     for name in ("sizescan", "datescan", "wrapscan", "spellscan"):
         check(f"{name} can re-baseline", BY_NAME[name].advisory is not None)
 
+    # THE THIRD RENDER STATE, and the invariant that keeps it derived rather
+    # than declared. A check with no blocking form says so twice — once in the
+    # registry shape (its `advisory` form IS its enforced form: softening it
+    # changes nothing) and once in the state the board prints. If those two
+    # ever disagree, one of them is lying to a reader, so they are pinned to
+    # each other in BOTH directions: a new warn-first entry that forgets
+    # `warn_only=True` fails here, and so does a `warn_only=True` on an entry
+    # that does have a stricter form to fall back to.
+    for s in SCANNERS:
+        same_form = s.advisory is not None and s.advisory == s.hook
+        check(f"{s.name}: warn-only render matches the registry's own shape",
+              same_form == s.warns_only("hook"))
+    check("a warn flag in the argv is enough on its own",
+          BY_NAME["pathscan"].warns_only("ci")
+          and not BY_NAME["pathscan"].warn_only)
+    check("a check with no warn flag can still be warn-only",
+          BY_NAME["harvestscan"].warns_only("ci")
+          and "--warn" not in BY_NAME["harvestscan"].ci)
+    check("a blocking check is not warn-only on either plane",
+          not any(BY_NAME["secretscan"].warns_only(p) for p in PLANES))
+
     default = Config()
     states = {s.name: st for s, st in plan("ci", default)}
     check("default enforces secretscan", states["secretscan"] == "enforced")
     check("default enforces sizescan", states["sizescan"] == "enforced")
     check("licenscan is opt-in", states["licenscan"] == "skipped")
+    for name in ("harvestscan", "pointerscan", "pathscan"):
+        check(f"{name} plans as warn-only, not as enforced",
+              states[name] == "warn-only")
 
     cfg = Config(advisory=("wrapscan",), disabled={"spellscan": "no prose"})
     states = {s.name: st for s, st in plan("ci", cfg)}
@@ -1892,6 +2081,33 @@ def _selftest() -> int:
                           days_over=_days_over("2020-01-01", _today()))], "hook")
     check("an expired advisory says how long it has stood",
           "PASSED," in aged and "over]" in aged)
+
+    # The three states must be DISTINGUISHABLE, not merely different internally.
+    board = render([Result("linkscan", "enforced", 0),
+                    Result("pathscan", "warn-only", 0),
+                    Result("wrapscan", "advisory", 0, reason="re-baselining",
+                           review_by="2999-01-01"),
+                    Result("secretscan", "enforced", 0, advisory=3)], "hook")
+    check("a blocking check still reads as a plain green tick",
+          "✅ linkscan    enforced" in board)
+    check("a warn-only check does not read as enforced",
+          "👁️  pathscan    warn-only" in board and WARN_ONLY_NOTE in board)
+    check("a child's advisory declaration stays its own state",
+          "⚠️  wrapscan    advisory" in board)
+    # The collision E6b's note could have caused: a BLOCKING check reporting
+    # findings it passed on must not read like a check that cannot block.
+    check("advisory findings on a blocking check are not warn-only",
+          "🟡 secretscan  enforced" in board
+          and "3 advisory finding(s)" in board)
+    check("the two non-blocking notes share no wording",
+          "advisory finding" not in WARN_ONLY_NOTE)
+    # And the exit code is untouched: warn-only is a render fact, not a
+    # softening. An environment error still blocks, exactly as it did when
+    # these checks carried the `enforced` state.
+    check("a warn-only check that errors still blocks",
+          Result("pathscan", "warn-only", 2).failed)
+    check("a warn-only check that passes does not",
+          not Result("pathscan", "warn-only", 0).failed)
 
     # A missing config is full enforcement, not an error.
     with tempfile.TemporaryDirectory() as td:

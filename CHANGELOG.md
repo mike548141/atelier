@@ -5,6 +5,91 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-08-07 — the third render state, and pathscan reaches the estate)
+Three ruled items on one surface, landed together because they are one story:
+the board was overstating how much of the floor actually gates.
+- **A warn-only check no longer wears a blocking check's green tick** (ruled
+  2026-08-04 by Mike: *build the third render state*; handed up by the
+  2026-08-03 pointer-grammar build, which correctly refused to decide it).
+  `harvestscan` and `pointerscan` exit 0 whatever they find — deliberately,
+  and the registry said so in prose — while the floor printed `✅ enforced`
+  beside them, the same mark a scanner that blocks earns. That is EP3's
+  *identical output for materially different cover* moved off leakscan's two
+  planes and onto the registry itself, on every repo in the estate. The board
+  now draws three states, on the hook render, the ci render, `--json` and
+  `--list` alike:
+
+      ✅ linkscan    enforced
+      👁️  pathscan    warn-only  (warn-only wiring — reports findings, can
+                                  never block this build)
+      ⚠️  wrapscan    advisory   (adopting the check)  [review by 2026-09-01]
+
+  The wording is pinned against E6b's 🟡 *"N advisory finding(s) — reported,
+  not blocking"*, which lands on a check that **does** gate and let these
+  particular findings through. Both notes are about findings that did not
+  block and they mean opposite things about cover, so they share no vocabulary
+  and the state column is the discriminator.
+  **Derived, never listed.** A set of warn-only names beside the registry would
+  drift the first time a line changed and nothing would say so — the
+  vendored-policy shape `floor.py` exists to end. The state comes off the entry
+  two ways: `--warn` in the plane's own argv, or a `warn_only` declaration for
+  the checks that have no blocking form to switch off and so carry no flag to
+  read. The two are pinned to each other in **both** directions by the selftest
+  and the suite, against the registry's own second statement of the same fact
+  (a check with no blocking form declares `advisory` identical to its enforced
+  form).
+  **What this does NOT change: any exit code.** `--warn` is about FINDINGS. A
+  warn-only check returning non-zero has hit something its warn flag was never
+  about — an unreadable tree, a missing input, a config error — and that still
+  blocks, exactly as it did when these entries carried `enforced`. A render fix
+  that quietly turned an environment error into a pass would be an unruled
+  softening hiding inside a fix for overstated cover.
+- **`pathscan` is in the registry — PS5, and it reaches every child** (D1,
+  ruled FUND THE RESCOPE 2026-08-04; the rescope landed 2026-08-05 and the
+  promotion was held only while a `floor.py` cold pass cycle was open — every
+  cycle closed 2026-08-06). It ran from a bespoke step in atelier's own
+  `ci.yml` and **nowhere else**: a check the parent enforces and no child has
+  ever heard of, which is ADR 0008's vendored-policy defect one level up. One
+  registry line retires that step. **Say the cost plainly: this arrives in
+  every child's hook and every child's CI on their next push, with no child
+  edit — that is the point of the promotion, and eleven children get output
+  they did not ask for.** Warn-only is what makes it affordable, and it is
+  warn-only because `--warn` is in the registry template rather than beside it:
+  **the flip to blocking is still a separate ruling**, now a one-argument
+  change that would reach the whole estate at once. The scope the bespoke step
+  ran with — the doctrine surface plus the live root files, records
+  deliberately out because they can never come clean without markers that would
+  falsify the record — moved to `.atelier-floor.json`, exactly where wrapscan's
+  and spellscan's already live. The registry default for a child is the records
+  tree, like its sibling prose checks; it does not guess at a child's root
+  files. Verified against the retired step: same 1 finding, same 10
+  suppressions, byte for byte.
+
+### Fixed (2026-08-07 — C1F3's third surface: the fleet board)
+- **`floorfleet` sanitises child-authored config text before printing it**
+  (C1F3 residue, found at the 2026-08-03 application). The strip landed at the
+  two ruled parse seams — `floor.py`'s whole-document config ingest and
+  `publishscan`'s ignore-file and output surfaces — and the board was missed,
+  because it reads child `.atelier-floor.json` files through its **own**
+  tolerant parsers rather than `floor.Config.load`. It is also the surface that
+  reads repos this operator does not control. Measured on the fixture, both
+  directions: before, five ANSI escapes, a BEL and a NUL from one child's
+  `why`, disabled reason and local-check description reached the terminal
+  verbatim — `\x1b[2J` clears the screen, `\x1b[1A` overwrites the row above,
+  `\x1b[32m` repaints the rows after it green, on a board whose whole job is to
+  be believed about which repos are guarded. After: zero, with ordinary text —
+  em dashes, macrons, the reasons themselves — byte-identical. The finding's
+  own text said the class reaches *"both floor and board"*.
+  Applied with **`floor.strip_controls` itself**, made public for the purpose,
+  over the parsed document before any reader below it. A second copy here would
+  be exactly the per-surface list the shared function exists instead of: one
+  would gain a case, the other would not, and nothing would say which.
+- **A child config that is a JSON array no longer takes the whole board down.**
+  Caught while wiring the strip: `json.loads` returned a list and the next line
+  called `.get` on it, an `AttributeError` outside the `except ValueError` that
+  was meant to contain a bad config. It now lands where unparseable JSON does —
+  that repo's row reads unreadable, and the other fifteen still render.
+
 ### Added (2026-08-06 — the ADR 0008 cold pass applied: EP1(b), EP9)
 Mike ruled EP1–EP10 on 2026-08-04, all as counselled. The three MAJORs'
 substance had already landed on 2026-07-27; what this build adds is the one

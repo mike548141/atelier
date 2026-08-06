@@ -147,14 +147,22 @@ class ConfigTest(unittest.TestCase):
     def test_absent_config_enforces_everything(self):
         """A repo that has declared nothing has opted out of nothing. The old
         mechanism defaulted the other way: a scanner nobody had added simply
-        never ran, and looked identical to one deliberately removed."""
+        never ran, and looked identical to one deliberately removed.
+
+        "Everything" now means every check RUNS at its registered strength,
+        which for three of them is warn-only — the parent's own wiring, not an
+        opt-out, and nothing a child declared. The expectation is read off the
+        registry rather than spelled "enforced" here so this test keeps asking
+        its real question (did an absent config soften anything?) instead of
+        turning into a second, staler copy of the registry."""
         with tempfile.TemporaryDirectory() as td:
             cfg = floor.Config.load(Path(td))
         states = _states("ci", cfg)
         for s in floor.SCANNERS:
             if s.opt_in:
                 continue
-            self.assertEqual(states[s.name], "enforced", f"{s.name} must default on")
+            want = "warn-only" if s.warns_only("ci") else "enforced"
+            self.assertEqual(states[s.name], want, f"{s.name} must default on")
 
     def test_advisory_and_disabled_are_honoured(self):
         cfg = _cfg({"advisory": ["wrapscan"], "disabled": {"spellscan": "no prose"}})
@@ -320,7 +328,11 @@ class LocalSeamTest(unittest.TestCase):
         self.assertEqual(len(states), len(floor.SCANNERS) + 1)
         for s in floor.SCANNERS:
             if not s.opt_in:
-                self.assertEqual(states[s.name], "enforced", f"{s.name} must be untouched")
+                # Untouched means "the state the registry gives it", which for
+                # the warn-only three is not `enforced` — read off the entry so
+                # this asserts non-interference rather than a frozen list.
+                want = "warn-only" if s.warns_only("ci") else "enforced"
+                self.assertEqual(states[s.name], want, f"{s.name} must be untouched")
 
     def test_a_local_check_may_not_shadow_a_fleet_scanner(self):
         """The load-bearing guard. If `local` could take a registered name, a
@@ -1418,6 +1430,219 @@ class ControlCharacterTest(unittest.TestCase):
                 capture_output=True, text=True)
         self.assertIn("spellscan", r.stderr)
         self.assertNotIn("\x1b", r.stderr)
+
+
+class ThirdRenderStateTest(unittest.TestCase):
+    """A warn-only check must not wear a blocking check's green tick.
+
+    Handed up by the 2026-08-03 pointer-grammar build and RULED 2026-08-04
+    (Mike): build the third render state. Two registry entries — harvestscan
+    and pointerscan — exit 0 whatever they find, and the board printed
+    `✅ enforced` beside them while their own output listed findings. That is
+    EP3's "identical output for materially different cover", moved from
+    leakscan's two planes onto the registry itself: the board was claiming gate
+    cover the registry never gave it, on every repo in the estate.
+
+    Three states, and the tests below pin each one's render on every surface:
+    a check that BLOCKS, a check the PARENT wired warn-first, and a check THIS
+    CHILD softened with a reason and a date.
+    """
+
+    def _board(self, plane="hook"):
+        return floor.render(
+            [floor.Result("linkscan", "enforced", 0),
+             floor.Result("pathscan", "warn-only", 0),
+             floor.Result("wrapscan", "advisory", 0, reason="re-baselining",
+                          review_by="2999-01-01")], plane)
+
+    def test_the_three_states_render_distinctly(self):
+        board = self._board()
+        self.assertIn("✅ linkscan", board)
+        self.assertIn("👁️  pathscan", board)
+        self.assertIn("⚠️  wrapscan", board)
+        for word in ("enforced", "warn-only", "advisory"):
+            self.assertIn(word, board)
+
+    def test_a_warn_only_line_says_it_can_never_block(self):
+        """The mark alone is not enough — an icon is a convention a reader has
+        to have been taught. The words carry it for a first-time reader."""
+        self.assertIn(floor.WARN_ONLY_NOTE, self._board())
+        self.assertIn("can never block", floor.WARN_ONLY_NOTE)
+
+    def test_warn_only_shares_no_wording_with_the_advisory_count_note(self):
+        """The collision this delta had to avoid, and the reason the wording is
+        pinned rather than merely chosen.
+
+        E6b landed a 🟡 note on BLOCKING checks that report findings they pass
+        on ("21 advisory finding(s) — reported, not blocking"). Both notes are
+        about findings that did not block, and they mean opposite things about
+        cover: one check gates and let these particular findings through, the
+        other gates nothing at all, ever. If both said "advisory", the board
+        would have replaced one indistinguishable pair with another."""
+        self.assertNotIn("advisory", floor.WARN_ONLY_NOTE)
+        board = floor.render(
+            [floor.Result("secretscan", "enforced", 0, advisory=3),
+             floor.Result("pathscan", "warn-only", 0)], "ci")
+        self.assertIn("🟡 secretscan  enforced", board)
+        self.assertIn("3 advisory finding(s)", board)
+        self.assertIn("👁️  pathscan    warn-only", board)
+        # The discriminator a reader actually uses: the STATE column.
+        self.assertNotIn("advisory finding", board.split("\n")[2])
+
+    def test_both_planes_agree(self):
+        for plane in ("hook", "ci"):
+            with self.subTest(plane=plane):
+                states = _states(plane, floor.Config())
+                for name in ("harvestscan", "pointerscan", "pathscan"):
+                    self.assertEqual(states[name], "warn-only", name)
+                self.assertEqual(states["linkscan"], "enforced")
+
+    def test_the_state_reaches_json(self):
+        """A --json consumer must be able to tell the three apart too, without
+        parsing prose. The state string carries it — no new field, so the field
+        set stays comparable run to run."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            r = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "floor.py"),
+                 "--plane", "ci", "--root", td, "--json"],
+                capture_output=True, text=True)
+        results = {x["name"]: x for x in json.loads(r.stdout)["results"]}
+        self.assertEqual(results["pointerscan"]["state"], "warn-only")
+        self.assertEqual(results["linkscan"]["state"], "enforced")
+
+    def test_the_state_reaches_list(self):
+        r = subprocess.run(
+            [sys.executable, str(TOOLS_DIR / "floor.py"),
+             "--list", "--plane", "ci"], capture_output=True, text=True)
+        self.assertRegex(r.stdout, r"harvestscan warn-only")
+        self.assertRegex(r.stdout, r"linkscan +enforced")
+
+    def test_the_ci_selftest_loop_still_picks_up_a_warn_only_check(self):
+        """ci.yml (and the reusable workflow children run) drive their
+        prove-the-instrument loop off `--list`, filtering column 2 for
+        `disabled` and column 3 for `local`. A new state word in column 2 must
+        not fall out of that filter — a promoted scanner that stopped being
+        selftested would be the quiet regression this delta could most easily
+        have caused."""
+        r = subprocess.run(
+            [sys.executable, str(TOOLS_DIR / "floor.py"),
+             "--list", "--plane", "ci"], capture_output=True, text=True)
+        selected = [line.split()[0] for line in r.stdout.splitlines()
+                    if line.split()[1] != "disabled" and line.split()[2] != "local"]
+        for name in ("harvestscan", "pointerscan", "pathscan"):
+            self.assertIn(name, selected)
+
+    def test_warn_only_is_derived_from_the_entry_not_a_list_of_names(self):
+        """The design constraint the ruling carried: a hand-maintained set of
+        warn-only names drifts the first time a registry line changes, and
+        nothing says so — the vendored-policy shape floor.py exists to end.
+
+        Two derivations, both ON the entry, and the registry states the same
+        fact a second way (a check with no blocking form declares `advisory`
+        identical to its enforced form). They are pinned to each other in both
+        directions, so neither can move alone."""
+        for s in floor.SCANNERS:
+            with self.subTest(scanner=s.name):
+                same_form = s.advisory is not None and s.advisory == s.hook
+                self.assertEqual(same_form, s.warns_only("hook"))
+        # Derived from the argv: no `warn_only` declaration on this entry.
+        self.assertFalse(floor.BY_NAME["pathscan"].warn_only)
+        self.assertTrue(floor.BY_NAME["pathscan"].warns_only("ci"))
+        # Declared, because there is no flag to read: harvestscan has no
+        # blocking form to switch off, so it never needed one.
+        self.assertNotIn("--warn", floor.BY_NAME["harvestscan"].ci)
+        self.assertTrue(floor.BY_NAME["harvestscan"].warns_only("ci"))
+
+    def test_warn_only_does_not_soften_the_exit_code(self):
+        """The one thing this delta must NOT do. `--warn` is about FINDINGS; a
+        non-zero exit from a warn-first check means something else went wrong —
+        an unreadable tree, a missing input, a config error `--warn` never
+        downgrades — and that blocked before this state existed, because these
+        checks carried `enforced`. A render fix that quietly turned an
+        environment error into a pass would be an unruled softening hiding
+        inside a fix for overstated cover."""
+        self.assertTrue(floor.Result("pathscan", "warn-only", 2).failed)
+        self.assertFalse(floor.Result("pathscan", "warn-only", 0).failed)
+        board = floor.render([floor.Result("pathscan", "warn-only", 2)], "ci")
+        self.assertIn("❌ pathscan", board)
+        self.assertIn("BLOCKED by: pathscan", board)
+        # …and the reassuring note is gone, because it is no longer true of
+        # this run: the check did block.
+        self.assertNotIn(floor.WARN_ONLY_NOTE, board)
+
+    def test_a_child_declaration_still_wins_the_state_column(self):
+        """A child may declare a warn-only check `advisory`, and the state
+        column says so rather than the registry's warn-only. Deliberate: the
+        state names what actually RAN, and the declaration does select the
+        advisory argv (harvestscan's differs from its ci form, so this is not
+        always a no-op). The registry's wiring is readable from `--list` on any
+        repo; the child's declaration is readable nowhere else."""
+        cfg = _cfg({"advisory": {"pointerscan": {
+            "why": "re-baselining", "review-by": "2999-01-01"}}})
+        self.assertEqual(_states("ci", cfg)["pointerscan"], "advisory")
+
+
+class PathscanPromotionTest(unittest.TestCase):
+    """PS5 — pathscan moves from a bespoke atelier CI step into the registry.
+
+    D1, ruled FUND THE RESCOPE 2026-08-04; the rescope landed 2026-08-05 and
+    the promotion was held only while a floor.py cold pass cycle was open.
+    Until this, pathscan ran in atelier's own ci.yml and NOWHERE ELSE: a check
+    the parent enforces and no child has ever heard of, which is ADR 0008's
+    vendored-policy defect one level up. The registry line is what reaches
+    them — on their next push, with no child edit.
+    """
+
+    def test_pathscan_is_in_the_registry_on_both_planes(self):
+        self.assertIn("pathscan", floor.BY_NAME)
+        s = floor.BY_NAME["pathscan"]
+        self.assertIsNotNone(s.hook)
+        self.assertIsNotNone(s.ci)
+
+    def test_the_promotion_did_not_smuggle_in_the_blocking_flip(self):
+        """D1's own words: the flip to blocking stays a separate later ruling.
+        `--warn` is in every one of this entry's forms, so promoting the check
+        and gating on it remain two distinct, visible edits."""
+        s = floor.BY_NAME["pathscan"]
+        for argv in (s.hook, s.ci, s.advisory):
+            self.assertIn("--warn", argv)
+        self.assertTrue(s.warns_only("hook") and s.warns_only("ci"))
+
+    def test_pathscan_renders_warn_only_not_enforced(self):
+        for plane in ("hook", "ci"):
+            self.assertEqual(_states(plane, floor.Config())["pathscan"],
+                             "warn-only")
+
+    def test_the_registry_reproduces_the_step_it_retired(self):
+        """The scope the bespoke step ran with — the doctrine surface plus the
+        live root files, records deliberately out — now lives in atelier's
+        `.atelier-floor.json`, exactly where wrapscan's and spellscan's already
+        do. Asserted against the repo's own config so a scope narrowed later
+        cannot silently drop half the surface the review ruled on."""
+        repo = TOOLS_DIR.parent
+        cfg = floor.Config.load(repo)
+        self.assertEqual(
+            floor.subtrees(repo, cfg, "pathscan"),
+            ["docs/method", "docs/build", "docs/decisions",
+             "README.md", "CLAUDE.md", "SECURITY.md"])
+
+    def test_the_registry_default_is_the_records_tree(self):
+        """What a CHILD gets, which is the whole point of the promotion. The
+        registry cannot know a child's root files, so it does not guess at
+        them — it defaults to the records tree like its sibling prose checks,
+        and a repo whose named paths live elsewhere widens it with `scope`."""
+        self.assertEqual(floor.BY_NAME["pathscan"].default_scope, "docs")
+
+    def test_pathscan_answers_selftest(self):
+        """The registry drives a prove-the-instrument loop over every
+        non-disabled, non-local entry. A promoted scanner that could not answer
+        `--selftest` would red every child's CI on the push that reached
+        them."""
+        r = subprocess.run(
+            [sys.executable, str(TOOLS_DIR / "pathscan.py"), "--selftest"],
+            capture_output=True, text=True)
+        self.assertEqual(0, r.returncode, r.stdout + r.stderr)
 
 
 if __name__ == "__main__":
