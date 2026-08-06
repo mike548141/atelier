@@ -387,13 +387,26 @@ class LowVarietyIsNotInnocence(unittest.TestCase):
         self.assertNotIn("assigned-secret",
                          rules("SECRET_KEY: /run/secrets/netbox_key"))
 
-    def test_context_free_path_is_unchanged(self):
-        # E6c is scoped to credential-key context. A bare git SHA in prose —
-        # the cry-wolf case the ruling weighed — must stay silent, because
-        # nothing named it a credential.
-        self.assertEqual(set(),
-                         rules("commit 9f3a1c2b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f90"))
-        self.assertEqual(set(), rules("sha256 deadbeefcafef00d0123456789abcdef"))
+    def test_context_free_blocking_set_is_unchanged(self):
+        # E6c is scoped to credential-key context; nothing it did makes a bare
+        # git SHA in prose BLOCK, because nothing named it a credential.
+        #
+        # CONTRACT CHANGED DELIBERATELY, 2026-08-06 (E6b). This test read
+        # `assertEqual(set(), ...)` — no finding of any kind — which was the
+        # right assertion while `block` was the only response a finding could
+        # carry. E6b gives the context-free path a second response, and the git
+        # SHA is precisely what it reports: E6c's own comment said "in the
+        # context-free net (where they do live) nothing changes", and E6b is the
+        # ruled change. So the claim is narrowed to the one E6c actually made —
+        # the CRY-WOLF case stays out of the gate — and the advisory half is
+        # asserted a few lines down rather than left unpinned.
+        for line in ("commit 9f3a1c2b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f90",
+                     "sha256 deadbeefcafef00d0123456789abcdef"):
+            self.assertEqual([], [f.rule for f in scan(line) if f.blocks], line)
+        # The passphrase shape stays SILENT context-free — not advisory either.
+        # Four-part kebab slugs are everywhere in prose and filenames, so
+        # widening to them would be the cry-wolf tax the tier exists to avoid,
+        # and E6b widened the alphanumeric-run shape only.
         self.assertEqual(set(), rules("slug: correct-horse-battery-staple"))
 
 
@@ -426,6 +439,272 @@ class HighEntropy(unittest.TestCase):
     def test_public_key_field_not_flagged(self):
         self.assertNotIn("high-entropy",
                          rules("public_key: ANS5EE79aBcDeFgHiJkLmNoPqRsTuVwXyZ012345678="))
+
+
+class AdvisoryTier(unittest.TestCase):
+    """E6b — a second response, and the coverage it buys.
+
+    The item's own test, which the roadmap asked to be tested rather than
+    assumed: *does an advisory tier weaken the gate?* The answer has two halves
+    and both are pinned below — the blocking set is byte-for-byte unchanged
+    (`BlockingSetNeverShrinks`), and the tier only ever ADDS findings that did
+    not exist before.
+    """
+
+    # Shapes that were SILENT before the tier and are now reported. Each is a
+    # single-case run at key-material length: exactly what `HIGH_ENTROPY_RX`'s
+    # mixed-class requirement excluded, which the E6 intent cold pass (EI4)
+    # named as the real narrowing site.
+    WIDENED = (
+        ("lowercase hex, 40 (git SHA / sha1)",
+         "commit 9f3a1c2b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f90"),
+        ("lowercase hex, 64 (sha256 digest / hex-encoded key)",
+         "digest 4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5"),
+        ("uppercase hex", "CONST DEADBEEFCAFEF00D0123456789ABCDEF0123456789ABCDEF01"),
+        ("uppercase alnum (base32 seed, no key name)",
+         "seed JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP"),
+        ("lowercase alnum", "blob qwertzuiopasdfghjklyxcvbnmqwertz"),
+        ("all-caps constant at length",
+         "CONST ABCDEFGHIJKLMNOPQRSTUVWXYZ012345"),
+    )
+
+    def test_widened_shapes_are_reported(self):
+        for name, line in self.WIDENED:
+            with self.subTest(shape=name):
+                found = scan(line)
+                self.assertTrue(found, f"{name}: reported nothing at all")
+                self.assertEqual([ss.LOW_VARIETY_RULE], [f.rule for f in found])
+
+    def test_widened_shapes_never_block(self):
+        for name, line in self.WIDENED:
+            with self.subTest(shape=name):
+                self.assertEqual([], [f.rule for f in scan(line) if f.blocks])
+
+    def test_findings_default_to_blocking(self):
+        """A rule that forgets to state its response must fail INTO the gate."""
+        f = ss.Finding("t", 1, "r", "named", "high", "x")
+        self.assertEqual(ss.RESPONSE_BLOCK, f.response)
+        self.assertTrue(f.blocks)
+
+    def test_advisory_only_run_exits_zero(self):
+        findings = scan("commit 9f3a1c2b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f90")
+        self.assertTrue(findings)
+        self.assertFalse(any(f.blocks for f in findings))
+
+    def test_short_run_still_silent(self):
+        # The length bar is E6c's ruled 32, not a number fitted to this tree.
+        self.assertEqual(set(), rules("commit 9f3a1c2b4d5e6f7a"))
+
+    def test_placeholder_is_not_even_advisory(self):
+        self.assertEqual(set(), rules("x xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"))
+        self.assertEqual(set(), rules("v exampleexampleexampleexampleexample"))
+
+    def test_public_key_line_is_not_even_advisory(self):
+        self.assertEqual(
+            set(),
+            rules("sshkey: ssh-ed25519 aaaac3nzac1lzdi1nte5aaaaie4y7ehsskv3kr1te1"))
+
+    def test_allow_marker_reaches_the_advisory_rule_by_name(self):
+        # Rule (a) of GUARDS.md: the narrowest allowance that covers the case.
+        line = ("commit 9f3a1c2b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f90"
+                f"  # secretscan:allow:{ss.LOW_VARIETY_RULE}: a commit id")
+        self.assertEqual([], scan(line))
+
+    def test_disable_reaches_the_advisory_rule(self):
+        self.assertIn(ss.LOW_VARIETY_RULE, ss.ALL_RULES)
+        self.assertEqual(
+            set(), rules("commit 9f3a1c2b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f90",
+                         frozenset({ss.LOW_VARIETY_RULE})))
+
+    def test_disabling_advisory_leaves_the_blocking_net_alone(self):
+        self.assertIn("high-entropy",
+                      rules("blob aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3zA5bC7",
+                            frozenset({ss.LOW_VARIETY_RULE})))
+
+    def test_a_blocking_hit_wins_dedupe_over_an_advisory_hit(self):
+        # The same 32-char hex run is BOTH an assigned-secret (blocking, E6c)
+        # and a low-variety context-free run (advisory). Reported once, as the
+        # blocking finding — a line that blocks must never also appear in the
+        # advisory list, where a reader could take it for the whole story.
+        fs = scan("api_key = deadbeefcafef00d0123456789abcdef")
+        self.assertEqual(["assigned-secret"], [f.rule for f in fs])
+        self.assertTrue(all(f.blocks for f in fs))
+
+
+class AdvisoryRender(unittest.TestCase):
+    """The reader must never mistake an advisory finding for a blocking one.
+
+    That is a claim about OUTPUT, so it is tested on output. EI1's warning was
+    that an advisory finding nobody reads is cover rather than coverage; a block
+    that reads like the blocking block is the same failure by another route.
+    """
+
+    def _advisory(self):
+        return scan("commit 9f3a1c2b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f90")
+
+    def test_clean_run_with_advisory_still_says_clean(self):
+        out = ss.render_human(self._advisory(), ss.Tally())
+        self.assertIn("✓ secretscan clean", out)
+        self.assertNotIn("commit blocked", out)
+
+    def test_advisory_block_states_it_does_not_block(self):
+        out = ss.render_human(self._advisory(), ss.Tally())
+        self.assertIn("none of these blocked anything", out)
+        self.assertIn("🟡", out)
+        self.assertIn(ss.LOW_VARIETY_RULE, out)
+
+    def test_advisory_never_wears_the_blocking_markers(self):
+        out = ss.render_human(self._advisory(), ss.Tally())
+        for blocking_marker in ("✗", "commit blocked"):
+            self.assertNotIn(blocking_marker, out)
+
+    def test_both_kinds_together_stay_separable(self):
+        findings = scan("aws AKIAIOSFODNN7EXAMPLE") + self._advisory()
+        out = ss.render_human(findings, ss.Tally())
+        self.assertIn("✗ secretscan: 1 finding(s) — commit blocked.", out)
+        self.assertIn(f"{ss.ADVISORY_COUNT_PREFIX} 1 finding(s)", out)
+        # The blocking count must not absorb the advisory one.
+        self.assertNotIn("2 finding(s) — commit blocked", out)
+
+    def test_count_line_is_machine_readable_for_the_board(self):
+        out = ss.render_human(self._advisory(), ss.Tally())
+        self.assertIn(f"{ss.ADVISORY_COUNT_PREFIX} 1 finding(s)", out)
+
+    def test_zero_advisory_still_prints_the_count(self):
+        """The known-zero rule, and the board's drift guard.
+
+        A count line printed only when non-zero makes "no line" ambiguous
+        between nothing-found and wording-drifted — and floor.py's board reads
+        this line. Printing the zero is what turns a vanished count into a
+        visible defect instead of a quiet green."""
+        out = ss.render_human([], ss.Tally())
+        self.assertIn(f"{ss.ADVISORY_COUNT_PREFIX} 0 finding(s)", out)
+        self.assertNotIn("🟡", out)     # no detail block with nothing to detail
+
+
+class BlockingSetNeverShrinks(unittest.TestCase):
+    """The E6b invariant, pinned as an invariant rather than argued in prose.
+
+    CONTRACT: every input here exited NON-ZERO before the advisory tier existed
+    and must exit non-zero after it, with the same rule firing. A line moving
+    from this set into the advisory set is a gate weakening — it is a decision
+    for a principal, never a test edit.
+
+    E3 is the ONE ruled subtraction (2026-08-04, Mike) and it is scoped to a
+    whole shape that is public material by definition; `Fingerprints` below
+    pins both of its directions.
+    """
+
+    def test_every_canary_still_blocks(self):
+        # The canary suite proves detection; this proves the RESPONSE those
+        # canaries earn did not quietly soften underneath them.
+        for name, line in CANARIES:
+            with self.subTest(canary=name):
+                self.assertTrue(
+                    any(f.blocks for f in scan(line)),
+                    f"{name!r} still reports, but no longer BLOCKS — the "
+                    f"advisory tier has absorbed a blocking finding.")
+
+    def test_mixed_class_entropy_blob_still_blocks(self):
+        fs = scan("blob aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3zA5bC7")
+        self.assertEqual(["high-entropy"], [f.rule for f in fs])
+        self.assertTrue(all(f.blocks for f in fs))
+
+    def test_assigned_low_variety_still_blocks_not_advises(self):
+        # E6c's carve-outs live in ASSIGNED context and are blocking findings.
+        # The advisory tier must not have captured them on its way past.
+        for line in ("api_key = deadbeefcafef00d0123456789abcdef",
+                     "password=correct-horse-battery-staple",
+                     "SECRET_KEY=ABCDEF0123456789ABCDEF0123456789"):
+            with self.subTest(line=line):
+                fs = scan(line)
+                self.assertEqual(["assigned-secret"], [f.rule for f in fs])
+                self.assertTrue(all(f.blocks for f in fs))
+
+
+class Fingerprints(unittest.TestCase):
+    """E3 — public-key fingerprints are public material and are suppressed.
+
+    RULED 2026-08-04 (Mike): suppress the shape, whole-shape never fragment,
+    with canaries BOTH directions so the suppression cannot quietly widen. The
+    second direction is the one that matters: a value that merely resembles a
+    fingerprint, or wears its prefix, is a credential until its whole shape says
+    otherwise.
+
+    Every value below is synthetic. A fingerprint is not itself sensitive, but
+    quoting a real one would tie this public repo to a real key, and the shape
+    is the entire point of the test.
+    """
+
+    # Synthetic 43-char base64 bodies — the length ssh-keygen prints for a
+    # SHA-256 digest (32 bytes, unpadded base64).
+    FP256 = "aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3zA5bC7dE9f"
+    FPMD5 = "16:27:ac:a5:76:28:2d:36:63:1b:56:4d:eb:df:a6:48"
+
+    def test_fixture_body_is_the_real_fingerprint_length(self):
+        """If this drifts, every suppression test below proves nothing."""
+        self.assertEqual(43, len(self.FP256))
+
+    # --- direction 1: the shape is suppressed, and would otherwise have blocked
+    def test_sha256_fingerprint_alone_is_suppressed(self):
+        self.assertEqual([], scan(f"SHA256:{self.FP256}"))
+
+    def test_sha256_fingerprint_in_a_keygen_line_is_suppressed(self):
+        self.assertEqual([], scan(f"2048 SHA256:{self.FP256} user@host (RSA)"))
+
+    def test_the_body_alone_would_have_blocked(self):
+        # Proves the suppression is doing real work rather than describing a
+        # line that was already clean.
+        self.assertIn("high-entropy", rules(f"blob {self.FP256}"))
+
+    def test_md5_hex_fingerprint_is_recognised_both_spellings(self):
+        self.assertEqual([], scan(f"MD5:{self.FPMD5}"))
+        self.assertEqual([], scan(f"fingerprint {self.FPMD5}"))
+        self.assertTrue(ss.FINGERPRINT_RX.search(f"MD5:{self.FPMD5}"))
+        self.assertTrue(ss.FINGERPRINT_RX.search(self.FPMD5))
+
+    def test_suppression_is_counted_never_silent(self):
+        # GUARDS.md rule (b): find first, subtract second, and report the
+        # subtraction. A carve-out nobody can see growing is the failure mode.
+        tally = ss.Tally()
+        ss.scan_text("t", f"host key SHA256:{self.FP256}\n", frozenset(), tally)
+        self.assertEqual(1, tally.fingerprints)
+        self.assertIn("1 public-key fingerprint(s)", tally.summary())
+
+    def test_zero_count_is_still_printed(self):
+        self.assertIn("0 public-key fingerprint(s)", ss.Tally().summary())
+
+    # --- direction 2: a NEAR-fingerprint that is a credential must still flag.
+    # This is the half that stops the carve-out widening in silence.
+    def test_wrong_body_length_still_blocks(self):
+        for body in (self.FP256 + "ZZZZ", self.FP256[:-6]):
+            with self.subTest(length=len(body)):
+                fs = scan(f"SHA256:{body}")
+                self.assertTrue(any(f.blocks for f in fs),
+                                "a SHA256: prefix is not a fingerprint on its own")
+
+    def test_prefix_without_the_separator_still_blocks(self):
+        self.assertTrue(any(f.blocks for f in scan(f"SHA256{self.FP256}")))
+
+    def test_a_credential_under_a_key_name_still_blocks(self):
+        # The carve-out lives on the context-free entropy path only. A value a
+        # key name has already called a credential is never reached by it.
+        self.assertIn("assigned-secret",
+                      rules("api_key = Gk8xQvie2mNfR7pLzW3dTaHbXy4Wz9Qm"))
+
+    def test_a_vendor_token_beside_a_fingerprint_still_blocks(self):
+        fs = scan(f"SHA256:{self.FP256} AKIAIOSFODNN7EXAMPLE")
+        self.assertEqual(["aws-access-key-id"], [f.rule for f in fs])
+
+    def test_short_hex_pair_run_is_not_a_fingerprint(self):
+        # Fifteen pairs, not sixteen — a MAC address or a truncated dump is
+        # not a digest, and the whole-shape rule is what says so.
+        short = ":".join(["ab"] * 15)
+        self.assertIsNone(ss.FINGERPRINT_RX.search(short))
+
+    def test_private_key_header_is_untouched_by_the_public_carve_out(self):
+        self.assertIn("private-key-header",
+                      rules("-----BEGIN OPENSSH PRIVATE KEY-----"))
 
 
 class Dedupe(unittest.TestCase):
