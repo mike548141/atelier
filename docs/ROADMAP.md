@@ -190,7 +190,8 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       full-tree reds (measured cost: it broke live re-run obligations the
       day it landed); or decline the literal term and keep the join guard
       as write-time discipline plus review sweeps. Mike's call.
-- [ ] **C1F3 residue — `floorfleet` is a third open surface of the class**
+- [~] **C1F3 residue — `floorfleet` is a third open surface of the class**
+      (claimed 2026-08-06-1222, wt: floor-render-batch-0806)
       (found at the 2026-08-03 application). The C1F3 strip landed at the two
       ruled parse seams (`floor.py`'s whole-document config ingest,
       `publishscan`'s ignore-file and output surfaces), but `floorfleet`
@@ -199,8 +200,9 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       `why`/reason strings raw — and the C1F3 finding text itself says the
       class reaches "both floor and board". Small fix at floorfleet's parse
       seam; rides the next floorfleet touch, or its application pass.
-- [ ] 🎯 **A warn-only registry scanner renders `✅ enforced` on the floor
-      board** (handed up by the 2026-08-03 pointer-grammar build, deliberately
+- [~] 🎯 **A warn-only registry scanner renders `✅ enforced` on the floor
+      board** (claimed 2026-08-06-1222, wt: floor-render-batch-0806) (handed
+      up by the 2026-08-03 pointer-grammar build, deliberately
       not decided there — past its minimal-hunk scope). Both new advisory
       entries exit 0 always, so the render shows the same green tick it shows
       a blocking scanner while printing findings — the "identical output for
@@ -254,7 +256,9 @@ level up: a check wired into atelier's own workflow reaches no child, and the
 child template's promise that "a new check arrives on the next push" holds for
 registry checks only.*
 
-- [ ] 🎯 **D1 — `pathscan`: promote with a corrected scope, or retire it.**
+- [~] 🎯 **D1 — `pathscan`: promote with a corrected scope, or retire it.**
+      (claimed 2026-08-06-1222 — the PS5 registry promotion only, wt:
+      floor-render-batch-0806)
       **RULED 2026-08-04 (Mike): FUND THE RESCOPE**, chosen over the
       counselled retire-to-hand-run; the verdict is the
       [pathscan S2 cold pass](reviews/2026-07-26-2215-pathscan-s2-cold.md).
@@ -351,7 +355,8 @@ adopter mistakes.*
             a code comment, and the advisory dial as decided-not-built with
             EI1's consumer precondition. Rule-4 `⏳` queued at landing
             (§ *Doctrine — review-owed*).
-      - [ ] **E6b — give `secretscan` a real advisory tier.** High-confidence
+      - [~] **E6b — give `secretscan` a real advisory tier.** (claimed
+            2026-08-06-1222, wt: e6b-secretscan-advisory-0806) High-confidence
             hits block as they do now; context-free entropy hits report and
             exit 0. The blocking set never shrinks — everything the tier adds
             is coverage that does not exist today. This is what lets detection
@@ -450,9 +455,10 @@ adopter mistakes.*
       `secretscan` reaches the credential half — is endorsed by the pass
       as real open work, not folded into it. **Ran 2026-08-03 → E7 below.**
 
-- [ ] 🎯 **E7 — the PII-half sweep ran 2026-08-03 (fourth carry, discharged):
+- [~] 🎯 **E7 — the PII-half sweep ran 2026-08-03 (fourth carry, discharged):
       leakscan reaches the PII half PARTIALLY — materially behind the
-      credential half.** Full findings, class-level and probe-verified:
+      credential half.** (claimed 2026-08-06-1222, wt: e7-leakscan-build-0806)
+      Full findings, class-level and probe-verified:
       [sweep record](sessions/2026-08-03-2050-leakscan-pii-sweep.md).
       Headlines: leakscan has **no label/assignment context layer and no
       placeholder suppression** — a block of values under explicit
@@ -507,26 +513,26 @@ adopter mistakes.*
       marker, keeping E6a's no-advisory-form decision intact rather than
       carving it. **Work owed: one leakscan build item (D-fixes + G-builds,
       tests + canaries); it queues its rule-4 pointer at landing.**
-- [ ] **E1 — `licenscan` is silent exactly where it matters most.** With an
-      unrecognised licence it stops at *"licence unrecognised"* and verifies
-      nothing further — it does not fall back to flagging vendored copyleft,
-      and an allow-marker does not restore the header checks. Proven against a
-      fixture. Three proprietary children are therefore `disabled`, and a
-      proprietary repo going public is *precisely* when contamination detection
-      matters. Full reproduction and fix shape → § *Licence gate* below.
-- [ ] **E2 — `licenscan` flags correct PyPI trove classifiers.** The repo was
-      right and the tool was wrong; every Python package carries these, so it
-      recurs by construction → § *Licence gate* below.
-- [ ] **E3 — `secretscan` suppresses one public-key line shape but not key
-      fingerprints**, which accounted for two of eight findings in one child.
+- **E1 + E2 — DONE 2026-08-05** (`ae056a2`, wt: queue-batch-0806): an
+      unrecognised licence now keeps the header checks (E1), and the sixteen
+      unambiguous OSI trove classifiers resolve instead of flagging (E2).
+      Rule-4 cold pass 2026-08-06 (0 MAJOR, terminal); LC residue ruled and
+      applied the same day. Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
+      § *The licence gate learns proprietary*. (These two entries stood stale
+      as open work until 2026-08-06 — the cycle-state residue class, corrected
+      from the tree.)
+- [~] **E3 — `secretscan` suppresses one public-key line shape but not key
+      fingerprints** (claimed 2026-08-06-1222, wt: e6b-secretscan-advisory-0806
+      — rides the E6b build per the 2026-08-04 ruling), which accounted for two of eight findings in one child.
       Widening a security scanner's blind spot is atelier's call, not a child's
       — which is why it was correctly left unchanged there and belongs here.
       **RULED 2026-08-04 (Mike): SUPPRESS the fingerprint shape** — public
       material by definition, whole-shape not fragment, with canary-style
       tests both directions so the suppression cannot quietly widen. Rides
       the next secretscan build item.
-- [ ] **E4 — `leakscan` reads two clock times side by side as an IPv6
-      address.** Recurs wherever a record quotes a rendered time span → already
+- [~] **E4 — `leakscan` reads two clock times side by side as an IPv6
+      address.** (claimed 2026-08-06-1222, wt: e7-leakscan-build-0806 — rides
+      the E7 build, one fix both entries per the D2 ruling) Recurs wherever a record quotes a rendered time span → already
       queued under § *Boundary findings* below; carried here because it is the
       same class as E3 and should be ruled with it.
 
@@ -751,7 +757,8 @@ the mechanism works.
 > 📦 **2 completed items** in this section → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
 >   (the 13-repo wiring, and the repo-specific scoping preserved with it).
 
-- [ ] 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS
+- [~] (claimed 2026-08-06-1222, wt: ep-application-0806 — the ruled
+      application build) 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS
       3M/5m/1L/1n — [verdict](reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md);
       **EP1–EP10 RULED 2026-08-04 (Mike, plain-language walk-through) — and
       the sitting then found the MAJORs' substance already closed.** Track A
@@ -827,7 +834,8 @@ are what generalise to any adopter.
       markers on one line, no base64 body: documentation describing a key file's
       format. Resolved; wants an allow-marker, never rotation. Recorded because
       it is the archetypal false positive of this rule and will recur.
-- [ ] **Two clock times side by side read as an IPv6 address** (found 2026-07-26,
+- [~] **Two clock times side by side read as an IPv6 address** (claimed
+      2026-08-06-1222, wt: e7-leakscan-build-0806) (found 2026-07-26,
       writing a CHANGELOG line about a CLI that prints a time span). `HH:MM:SS to
       HH:MM:SS` trips the structural `ipv6` rule twice. Same archetypal-false-
       positive class as the bullet above, and it will recur wherever a record
@@ -2663,7 +2671,8 @@ per pattern, and the stated residual →
       sections** (left deliberately unfilled — a drafter cannot fill them
       without pre-empting the ruling). Whatever doctrine edit acceptance drives
       is self-authored ⇒ rule-4 `⏳` at *that* landing, not this one.
-- [ ] **The `docs/decisions/` index has drifted — five ADRs unlisted.** Found
+- [~] **The `docs/decisions/` index has drifted — five ADRs unlisted.**
+      (claimed 2026-08-06-1222, wt: decisions-index-0806) Found
       2026-08-05 while adding the P6 draft's entry: the five records dated
       2026-07-18 → 2026-07-23 are absent from `decisions/README.md`'s index,
       which is the only map of that directory. Not fixed at discovery — each
