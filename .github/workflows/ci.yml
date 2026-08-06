@@ -133,6 +133,18 @@ jobs:
       # Per-gate history — when each check was flipped blocking, which review
       # passed it, and its stated residual — lives in CHANGELOG.md and each
       # tool's own docstring. It is deliberately not duplicated here.
+      #
+      # THIS STEP IS ALSO E6b's SECOND CONSUMER LEG (ruled 2026-08-04). The
+      # hook plane sees a value once — at the commit that puts it into history —
+      # so an advisory finding there is one easily-missed line at the worst
+      # possible moment (E6 intent cold pass, EI1). The CI plane is the half
+      # that repeats: `--plane ci` runs secretscan at FULL TREE cover, so every
+      # push re-prints ALL of the repo's advisory findings, not just the ones a
+      # given commit touched, and the floor board underneath them carries the
+      # count. Nothing needs adding here for that to hold — the property comes
+      # from the plane's whole-tree scope — which is exactly why it is written
+      # down: a future `scope.secretscan` narrowing in .atelier-floor.json would
+      # end the tree-wide guarantee without touching this file.
       - name: scanner floor (registry-driven)
         run: python3 tools/floor.py --plane ci --root .
 

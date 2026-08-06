@@ -3978,3 +3978,58 @@ Four allow-markers in the tree are now dead weight (three loopback
 markers D3 obsoleted, one clock-time marker D2 obsoleted) — left in place
 deliberately: three sit in frozen records and instruments outside the
 build's file scope; noted in the CHANGELOG for a separate deliberate edit.
+
+## E6b built — secretscan's second response, and E3's carve-out (done 2026-08-06)
+
+E6b (ruled 2026-07-28; consumer named by Mike 2026-08-04 as the build's
+precondition) landed 2026-08-06 (wt: e6b-secretscan-advisory-0806, four
+commits, rule-4 pointer queued at this landing). Every finding now carries
+a `response` — `block` for the named vendor formats, `assigned-secret` and
+the mixed-class entropy net, byte for byte as before and pinned by tests;
+`advisory` for the new `low-variety-entropy` rule, which reports E6c's
+already-ruled whole shape (an unbroken 32+ alphanumeric run) on the
+context-free path EI4 named as the real narrowing site, and exits 0. No
+new threshold was introduced anywhere — the length is E6c's, the
+mixed-class split is the existing net's, only the response is new.
+
+**The three consumer legs, all live-verified.** Hook: advisory findings
+print at the commit that introduces them (observed in the build's own
+pre-commit runs). CI: `--plane ci` scans at full-tree cover, so every push
+re-prints all of them — no new step needed; the property is documented in
+`ci.yml` and pinned by a test precisely because a future
+`scope.secretscan` narrowing would end it without touching the workflow.
+Board: `floor.py` reads the count off that run's output via a printed
+contract line (the scanner prints its known zero; a missing line renders
+as a 🔴 "count contract has drifted", never a silent 0 — silence and zero
+must not look alike), pinned from both sides by a contract test that runs
+the real scanner. **Interpretation flagged rather than buried:** the
+ruling's "floor board" was read as `floor.py`'s per-repo board;
+`floorfleet` (which reads wiring and run status, and runs no scanners) was
+deliberately not given a count — put to Mike at this close.
+
+**First live measurement: 21 advisory findings tree-wide, every one a
+hash** — 12 SHA-pinned Actions digests, 2 test checksums, 7 fixtures.
+Left unsuppressed deliberately: a board reading 🟡 21 is the ruling
+working on day one, not a defect.
+
+**E3, riding as ruled:** the public-key fingerprint shape is suppressed
+whole-shape (both ruled spellings), canaried both directions — a
+fingerprint-prefixed body of the wrong length is a credential wearing a
+fingerprint's hat and still blocks — and counted in the tally, never
+silent. The legacy colon-hex form produces nothing to suppress today
+(colons are outside the entropy net's character class); it is recognised
+and canaried anyway so a future widening cannot start flagging it without
+someone deciding to.
+
+**Stated limits and residue.** `PUBLIC_KEY_RX` still subtracts silently —
+queued as its own small item. Docker image digests land in the advisory
+tier (not ruled, so not suppressed). A non-alphanumeric token carrying
+separators still passes both tiers, and the four-word passphrase shape
+stays silent context-free — deliberate, the cry-wolf tax the tier exists
+to avoid. `floor.py` now buffers this one scanner's sub-second output to
+read the count. One test contract was narrowed on purpose and says so in
+code: the old "no finding of any kind on a bare SHA" assertion encoded
+block-as-the-only-response, exactly what E6b was ruled to change. Suite
+1060 → 1103 on the branch; E6d untouched and not foreclosed (`response`
+sits beside the mislabelled `severity` field, leaving E6d(iii) a clean
+site).

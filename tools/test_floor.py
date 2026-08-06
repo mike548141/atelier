@@ -1147,6 +1147,143 @@ class ReportedNoteTest(unittest.TestCase):
             self.assertIn("days over]", r.stderr)
 
 
+class AdvisoryCountContract(unittest.TestCase):
+    """E6b's third consumer leg — the board count, and the seam it rides on.
+
+    The count is read off a printed line rather than an import, because the
+    scanners are self-contained by design. That buys zero coupling and costs
+    exactly one risk: the two files drift and the read silently returns nothing.
+    So the risk is tested from BOTH sides on every push — floor's pattern
+    against the scanner's real output, and floor's -1 against a scanner that
+    printed no count at all — and never argued for in a comment.
+    """
+
+    def _run(self, *args: str) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            [sys.executable, str(TOOLS_DIR / "floor.py"), *args],
+            capture_output=True, text=True,
+        )
+
+    def test_the_registry_declares_who_carries_a_count(self):
+        self.assertTrue(floor.BY_NAME["secretscan"].advisory_count)
+        # It is not a softening: secretscan still may not be made advisory by a
+        # child. The two ideas share a word and nothing else.
+        self.assertIsNone(floor.BY_NAME["secretscan"].advisory)
+        others = [s.name for s in floor.SCANNERS
+                  if s.advisory_count and s.name != "secretscan"]
+        self.assertEqual([], others, "a new count-carrying check needs its own "
+                                     "contract test, not this one by accident")
+
+    def test_floors_pattern_matches_the_scanners_real_output(self):
+        """The seam itself, exercised end to end — no fixture string."""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            # A 40-char single-case hex run with no credential-named key: the
+            # widened context-free shape, reported and never blocking.
+            (root / "note.md").write_text(
+                "see commit 9f3a1c2b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f90\n",
+                encoding="utf-8")
+            out = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "secretscan.py"),
+                 "--root", str(root), str(root)],
+                capture_output=True, text=True)
+        self.assertEqual(0, out.returncode, "an advisory finding must not block")
+        self.assertEqual(1, floor._read_advisory_count(out.stdout))
+
+    def test_a_zero_count_is_read_as_zero_not_as_silence(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "note.md").write_text("nothing here\n", encoding="utf-8")
+            out = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "secretscan.py"),
+                 "--root", str(root), str(root)],
+                capture_output=True, text=True)
+        self.assertEqual(0, floor._read_advisory_count(out.stdout))
+
+    def test_a_missing_count_line_is_minus_one_never_zero(self):
+        """The drift case. If the scanner's wording moves, the board must go
+        LOUD, not quietly green — a silent 0 is the exact failure the whole
+        consumer ruling exists to prevent."""
+        self.assertEqual(-1, floor._read_advisory_count("✓ clean\n"))
+        self.assertEqual(-1, floor._read_advisory_count(""))
+
+    def test_the_board_carries_the_count(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "docs").mkdir()
+            (root / "note.md").write_text(
+                "see commit 9f3a1c2b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f90\n",
+                encoding="utf-8")
+            r = self._run("--plane", "ci", "--root", str(td))
+        self.assertEqual(0, r.returncode, r.stderr)
+        self.assertIn("🟡 1 advisory finding(s) — reported, not blocking",
+                      r.stderr)
+        # 🟡, not ✅ — a clean tick beside a report nobody read is the state
+        # this leg exists to make impossible.
+        self.assertRegex(r.stderr, r"🟡 secretscan\s+enforced")
+
+    def test_a_clean_tree_says_nothing_about_advisories(self):
+        """Zero findings means no note — the board reports what is there, and a
+        permanent '0 advisory findings' line is noise that trains people to
+        skip the line when it is finally non-zero."""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "docs").mkdir()
+            (root / "note.md").write_text("nothing here\n", encoding="utf-8")
+            r = self._run("--plane", "ci", "--root", str(td))
+        self.assertEqual(0, r.returncode, r.stderr)
+        self.assertNotIn("advisory finding(s)", r.stderr)
+        self.assertRegex(r.stderr, r"✅ secretscan\s+enforced")
+
+    def test_the_count_reaches_json_as_an_integer_every_run(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "docs").mkdir()
+            (root / "note.md").write_text("nothing here\n", encoding="utf-8")
+            r = self._run("--plane", "ci", "--root", str(td), "--json")
+            results = {x["name"]: x for x in json.loads(r.stdout)["results"]}
+        # Present on EVERY result, so a --json consumer's field set stays
+        # comparable run to run and check to check.
+        for name, res in results.items():
+            self.assertIn("advisory", res, name)
+            self.assertIsInstance(res["advisory"], int, name)
+        self.assertEqual(0, results["secretscan"]["advisory"])
+
+    def test_the_ci_plane_re_prints_the_whole_tree(self):
+        """Leg 2 of the consumer ruling, pinned where it can be broken.
+
+        The hook plane sees only the staged diff — right for a gate, wrong for
+        a standing report, and EI1's objection was precisely that one commit is
+        the advisory tier's whole surfacing window there. "Every push re-prints
+        ALL advisory findings tree-wide" is true only while the CI template's
+        cover is the repo root, so that is asserted rather than assumed."""
+        root = Path("/repo")
+        cfg = floor.Config()
+        hook = floor._render(floor.BY_NAME["secretscan"].hook, root, cfg,
+                             "secretscan")
+        ci = floor._render(floor.BY_NAME["secretscan"].ci, root, cfg,
+                           "secretscan")
+        self.assertIn("--staged", hook)
+        self.assertNotIn("--staged", ci)
+        self.assertIn(str(root), ci)
+
+    def test_drift_renders_red_and_says_what_broke(self):
+        """A -1 must not read as a passing check with a curious note."""
+        r = floor.Result("secretscan", "enforced", 0, advisory=-1)
+        out = floor.render([r], "ci")
+        self.assertIn("🔴", out)
+        self.assertIn("count contract has drifted", out)
+
+    def test_a_failing_check_still_reads_as_failed(self):
+        """Precedence: ❌ outranks the advisory mark. A check that BLOCKED must
+        never be softened on the board by a note about findings that didn't."""
+        r = floor.Result("secretscan", "enforced", 1, advisory=3)
+        out = floor.render([r], "ci")
+        self.assertIn("❌ secretscan", out)
+        self.assertIn("BLOCKED by: secretscan", out)
+        self.assertIn("3 advisory finding(s)", out)
+
+
 class ControlCharacterTest(unittest.TestCase):
     """A child's config is text an operator READS.
 

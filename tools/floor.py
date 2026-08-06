@@ -279,6 +279,14 @@ class Scanner:
     # `scope` map: the child is declaring the check and where it looks in one
     # place, and there is no fleet-wide default to override.
     scope_paths: tuple[str, ...] = ()
+    # This check reports findings it deliberately does NOT block on, and states
+    # how many on a line this file reads back (`ADVISORY_COUNT_RX`). Set for a
+    # check whose advisory findings must reach the board rather than scroll past
+    # in its own output — E6b's third consumer leg, ruled 2026-08-04: the count
+    # is persistent and cannot quietly vanish. It comes from THIS run's output,
+    # never from a stored number, so there is no state file to go stale and
+    # nothing to forget to update.
+    advisory_count: bool = False
     # The flag that makes this check's cover COMPLETE, for a check whose cover
     # depends on an input the repo does not carry. A plane whose template omits
     # it still passes, but it passes on less — so the result renders as partial
@@ -300,6 +308,13 @@ SCANNERS: tuple[Scanner, ...] = (
         ci=["--root", "{root}", "{scope}"],
         advisory=None,  # a burned secret is burned whatever the repo's visibility
         why="no plaintext credential enters git history",
+        # NOT a softening, and the distinction matters: `advisory=None` above
+        # still says a child may never soften this check. What this adds is the
+        # scanner's OWN second response — findings it reports and passes on —
+        # surfaced on the board so widening detection cannot buy coverage that
+        # nobody ever reads (E6b, and EI1's "an advisory finding nobody reads is
+        # cover, not coverage").
+        advisory_count=True,
     ),
     Scanner(
         "leakscan",
@@ -430,6 +445,29 @@ SCANNERS: tuple[Scanner, ...] = (
 FORBIDDEN_FLAGS = {"--warn", "--check", "--selftest", "--json"}
 
 BY_NAME = {s.name: s for s in SCANNERS}
+
+# THE ADVISORY-COUNT CONTRACT (E6b, third consumer leg).
+#
+# A scanner with `advisory_count=True` prints exactly one line per run stating
+# how many findings it reported without blocking — INCLUDING when that number is
+# zero. This reads it back off the run's own output.
+#
+# Why a printed line rather than an import: the scanners are self-contained by
+# deliberate design (their docstrings say so — a peer can copy one alone), and
+# floor.py runs them as subprocesses so a child repo can point at any tools dir.
+# Coupling them by import would trade that away for one integer. The cost of the
+# looser coupling is that wording drift breaks the read silently — so it does
+# not get to be silent: the scanner prints its known zero, a missing line is
+# recorded as `advisory=-1` ("declared a count, produced none") rather than as 0,
+# and `test_floor.py::AdvisoryCountContract` runs the real scanner and matches
+# this pattern against its real output, from both sides, on every push.
+ADVISORY_COUNT_RX = re.compile(r"advisory:\s*(\d+)\s+finding\(s\)")
+
+
+def _read_advisory_count(output: str) -> int:
+    """The count this run reported, or -1 if the contract line was not there."""
+    m = ADVISORY_COUNT_RX.search(output)
+    return int(m.group(1)) if m else -1
 
 
 class ConfigError(RuntimeError):
@@ -1023,6 +1061,14 @@ class Result:
     # --json consumer's field set stays comparable run to run.
     days_over: str = ""
     legacy: bool = False
+    # How many findings this check REPORTED without blocking on them (E6b).
+    # Always present and always an integer, so a --json consumer's field set
+    # stays comparable run to run — and so does the board line. -1 is the one
+    # value that is not a count: it means the check declares an advisory count
+    # and this run could not read one, which is a drift defect in the contract
+    # between the two files, never a zero. Silence and zero must not look alike;
+    # that is the whole reason the scanner prints its known zero.
+    advisory: int = 0
 
     @property
     def failed(self) -> bool:
@@ -1357,8 +1403,22 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
         if ci:
             print(f"::group::{_wc(scanner.name)} ({state})",
                   file=child_stdout, flush=True)
+        advisory_findings = 0
         try:
-            rc = subprocess.run(argv, check=False, stdout=child_stdout).returncode
+            if scanner.advisory_count:
+                # Captured, then written straight through — the output a reader
+                # sees is byte-identical to the streamed form, one integer later.
+                # Buffering is affordable here and nowhere else: these scanners
+                # finish a whole tree in well under a second, so nothing is lost
+                # that live streaming was protecting.
+                proc = subprocess.run(argv, check=False, stdout=subprocess.PIPE,
+                                      text=True, errors="replace")
+                rc = proc.returncode
+                print(proc.stdout, end="", file=child_stdout, flush=True)
+                advisory_findings = _read_advisory_count(proc.stdout)
+            else:
+                rc = subprocess.run(argv, check=False,
+                                    stdout=child_stdout).returncode
         except OSError as exc:
             # The exec-bit guard above has a sibling: an EXECUTABLE non-Python
             # script with no valid shebang raises Errno 8 here and takes the
@@ -1439,6 +1499,7 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
             days_over=(_days_over(adv.review_by or "", today) if expired
                        else ""),
             legacy=bool(adv and adv.legacy),
+            advisory=advisory_findings,
         ))
     return results
 
@@ -1461,7 +1522,30 @@ def render(results: list[Result], plane: str) -> str:
                 mark = "🟡"
             elif r.expired:
                 mark = "🔴"
-        # Both notes, joined — never one instead of the other. `reason` (an
+        # E6b's board leg. A check that REPORTED findings without blocking on
+        # them says so here, every run, with the number — because the whole
+        # bargain of the advisory tier is that widening detection costs a
+        # printed line rather than a blocked commit, and a line nobody sees is
+        # not a cost, it is cover (EI1). 🟡 rather than ✅: the check passed and
+        # there is something to read, which is what this mark has always meant
+        # on this board. The count is read off THIS run, so it cannot drift from
+        # what the scanner just printed — and it cannot quietly vanish either:
+        # -1 says the count line itself went missing, which is a louder line
+        # than any number, and it takes the 🔴 an expired advisory would.
+        # Only the marks that mean LESS than these are overridden: ❌ and the
+        # expiry 🔴 already say something worse, and keep the line.
+        advisory_note = ""
+        if r.advisory > 0:
+            advisory_note = (f"🟡 {r.advisory} advisory finding(s) — reported, "
+                             "not blocking")
+            if mark not in ("❌", "🔴"):
+                mark = "🟡"
+        elif r.advisory < 0:
+            advisory_note = ("🔴 declares an advisory count and printed none — "
+                             "the count contract has drifted, not the findings")
+            if mark != "❌":
+                mark = "🔴"
+        # Every note, joined — never one instead of another. `reason` (an
         # advisory's `why`) used to be preferred over `partial` (the cover or
         # scope-drift note), and C1 populates `reason` for EVERY advisory
         # result, so a softened check with a shrinking scope showed the excuse
@@ -1469,7 +1553,7 @@ def render(results: list[Result], plane: str) -> str:
         # softened check whose cover is quietly shrinking is the board's
         # worst-informed case, which is exactly where the note was being
         # dropped (C1 cold pass, C1F1, ruled JOIN THE NOTES 2026-07-28).
-        said = [s for s in (r.reason, r.partial) if s]
+        said = [s for s in (r.reason, r.partial, advisory_note) if s]
         note = f"  ({'; '.join(said)})" if said else ""
         if r.state == "advisory":
             if r.legacy:

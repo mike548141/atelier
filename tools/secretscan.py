@@ -27,6 +27,34 @@ person-specific name, it is a *shape*. Two detector classes:
     variety is not evidence of innocence (E6c, ruled 2026-07-28): a 32+ char
     single-case hex value and a four-word passphrase are credentials, not names.
 
+TWO RESPONSES, NOT ONE — the advisory tier (E6b, ruled 2026-07-28, built after
+its consumer was named 2026-08-04). Every finding carries a `response`:
+
+  * BLOCK — the named formats, the assigned-secret workhorse, and the
+    context-free entropy net exactly as they have always fired. **The blocking
+    set never shrinks.** Every input that exited non-zero before this tier
+    existed still exits non-zero, with the same finding.
+  * ADVISORY — reported in full, distinctly, and the exit code stays 0.
+
+Why the tier had to exist before coverage could widen: while `block` was the
+only response, widening detection bought coverage at the price of crying wolf,
+and that price is what drove the narrowing `SECRETS.md` § *The boundary's
+posture* records. The real narrowing site is `HIGH_ENTROPY_RX`'s mixed-class
+requirement (E6 intent cold pass, EI4): single-case runs — git SHAs, checksums
+*and* lowercase-hex secrets — are excluded from the context-free net entirely,
+so a hex-encoded credential outside a secret-named assignment was invisible.
+`low-variety-entropy` is that gap, opened as advisory rather than left shut: the
+same whole-shape reasoning E6c already ruled (an unbroken 32+ alphanumeric run
+is key material, not a name), applied to the path where SHAs actually live, and
+costing a printed line rather than a blocked commit.
+
+An advisory finding nobody reads is cover, not coverage (EI1) — so the tier ships
+with its consumers rather than ahead of them: the pre-commit hook prints them at
+the commit that would introduce them, every CI push re-prints ALL of them
+tree-wide, and `tools/floor.py`'s board carries a `🟡 N advisory finding(s)`
+count read from THIS run's output, never from a stored number. No state file, so
+there is nothing to go stale and nothing to quietly vanish.
+
 Deliberately does NOT flag the safe indirection patterns — `!secret foo` (tiki),
 `${VAR}`, `$(cmd)`, `<placeholder>` — because those are the *correct* way to
 reference a secret without embedding it. Flagging them would train people to
@@ -42,8 +70,8 @@ diff, ignore globs, file iteration) is the price of that zero-coupling; if a
 third scanner ever lands, factor a shared base then, not speculatively now.
 
 Exit codes (fail-safe — anything but a clean scan is non-zero):
-  0  clean
-  1  findings (blocks the commit)
+  0  clean, or advisory findings only (they are REPORTED, never a gate)
+  1  blocking findings (blocks the commit)
   2  usage / config error (a broken scan is NOT a pass)
 
 Zero third-party dependencies; stdlib only.
@@ -101,6 +129,12 @@ class Tally:
     by_marker: dict[str, int] = field(default_factory=dict)
     files_by_glob: int = 0
     disabled_rules: tuple[str, ...] = ()
+    # E3 (ruled 2026-08-04): the public-key-fingerprint carve-out is a
+    # suppression like any other, so it is COUNTED rather than applied in
+    # silence. Without this the shape would be the one allowance in the tool
+    # that a reader cannot see growing — the exact state rule (b) exists to
+    # stop, and the state `PUBLIC_KEY_RX` has been in since it landed.
+    fingerprints: int = 0
 
     @property
     def marker_total(self) -> int:
@@ -109,11 +143,15 @@ class Tally:
     def note_marker(self, rule: str) -> None:
         self.by_marker[rule] = self.by_marker.get(rule, 0) + 1
 
+    def note_fingerprint(self) -> None:
+        self.fingerprints += 1
+
     def summary(self) -> str:
         """One stable line, known zeros printed, so two runs compare."""
         parts = [f"{self.marker_total} by allow-marker",
                  f"{self.files_by_glob} file(s) by .secretscanignore",
-                 f"{len(self.disabled_rules)} rule(s) disabled"]
+                 f"{len(self.disabled_rules)} rule(s) disabled",
+                 f"{self.fingerprints} public-key fingerprint(s)"]
         line = "  suppressed: " + " · ".join(parts)
         if self.by_marker:
             detail = ", ".join(f"{r}×{n}" for r, n in sorted(self.by_marker.items()))
@@ -271,6 +309,50 @@ PUBLIC_KEY_RX = re.compile(
     r"|sshkey|authorized_keys)\b"
     r"|-----BEGIN (?:PUBLIC KEY|CERTIFICATE|[A-Z ]*PUBLIC)")
 
+# E3 (ruled 2026-08-04, Mike): a PUBLIC-KEY FINGERPRINT is public material by
+# definition — it is the value you publish so someone can verify a key they were
+# given, and it is one-way, so possessing it grants nothing. It was blocking:
+# `ssh-keygen -l` prints `SHA256:<43 base64url-ish chars>`, which is 32+ chars of
+# mixed classes at entropy ~5.9 and therefore a high-entropy hit on any line that
+# does not also happen to name `ssh-ed25519`. Two of eight findings in one child
+# were this shape, and widening a security scanner's blind spot is atelier's call
+# rather than the child's — which is why it was correctly left unfixed there.
+#
+# WHOLE SHAPE, NEVER FRAGMENT — the standing lesson of 2026-07-28, where four
+# real credentials walked past suppressions that matched on a fragment (a word
+# boundary, an opening brace, a stray bracket). So this does NOT suppress "a line
+# mentioning SHA256", and does NOT suppress "a value that looks base64". It
+# matches the ENTIRE fingerprint token — the algorithm prefix, the separator, and
+# a body of exactly the digest's length in that encoding — and suppresses only an
+# entropy span lying inside such a token. A `SHA256:` prefix in front of a body
+# of the WRONG length is not a fingerprint and still flags: that is a credential
+# wearing a fingerprint's hat, and it is the direction the canaries pin.
+#
+# Both ruled spellings:
+#   SHA256:<43 base64 chars>            ssh-keygen -l, OpenSSH ≥ 6.8 default
+#   [MD5:]aa:bb:…:pp   (16 hex pairs)   the legacy hex form, still emitted by
+#                                       ssh-keygen -E md5 and by many appliances
+# The MD5 form produces no finding to suppress TODAY — `:` is not in
+# `HIGH_ENTROPY_RX`'s character class, so the colon-joined pairs never form a
+# span. It is recognised anyway, and canaried, so that a future widening of the
+# context-free net cannot start flagging it without someone deciding to.
+FINGERPRINT_RX = re.compile(
+    r"(?i)"
+    r"\bSHA256:[A-Za-z0-9+/]{43}=?(?![A-Za-z0-9+/=])"
+    r"|\bMD5:(?:[0-9a-f]{2}:){15}[0-9a-f]{2}\b"
+    r"|(?<![0-9a-f:])(?:[0-9a-f]{2}:){15}[0-9a-f]{2}(?![0-9a-f:])")
+
+
+def _fingerprint_spans(line: str) -> list[tuple[int, int]]:
+    """Character ranges on this line occupied by a whole public-key fingerprint."""
+    return [m.span() for m in FINGERPRINT_RX.finditer(line)]
+
+
+def _inside_fingerprint(span: tuple[int, int],
+                        fingerprints: list[tuple[int, int]]) -> bool:
+    return any(start <= span[0] and span[1] <= end
+               for start, end in fingerprints)
+
 # A value that is a code reference — a bare/dotted identifier or a function call
 # — is a variable, not a literal secret. `password=admin_password`,
 # `self.conn.password`, `get_secret()` are the dominant false positives in real
@@ -358,6 +440,37 @@ def _low_variety_credential_shape(value: str) -> bool:
             or PASSPHRASE_RX.fullmatch(value) is not None)
 
 
+# ---------------------------------------------------------------------------
+# E6b — the advisory tier (ruled 2026-07-28; consumer ruled 2026-08-04).
+#
+# A finding's RESPONSE is separate from what the scan believes about it — the
+# split `method/GUARDS.md` names, and the one CodeQL ships (@precision describes,
+# @problem.severity decides). Here it takes its simplest useful form: two
+# responses, and only one of them touches the exit code.
+RESPONSE_BLOCK = "block"
+RESPONSE_ADVISORY = "advisory"
+
+# The context-free rule the tier exists to make affordable. Its detection is
+# E6c's ruled whole shape — an unbroken 32+ alphanumeric run is key material,
+# because names do not run 32 characters unbroken — applied on the path E6c
+# deliberately left alone ("in the context-free net, where SHAs live, nothing
+# changes"). E6b is what changes it: the run is now SEEN and REPORTED there,
+# and the mixed-class requirement decides only whether it BLOCKS.
+#
+# No new threshold is introduced, and that is deliberate — a floor fitted to
+# whatever the tree currently measures proves nothing. The length comes from
+# `LOW_VARIETY_KEY_RX`, already ruled; the mixed-class split comes from
+# `HIGH_ENTROPY_RX`, already there. What is new is only the response.
+LOW_VARIETY_RULE = "low-variety-entropy"
+
+# The line `render_human` prints so a reader — and `tools/floor.py`'s board —
+# can both read the count off one run. floor.py matches this prefix rather than
+# importing anything: the scanners are self-contained by design (one is
+# copyable alone), so the coupling is a documented output contract, pinned from
+# both sides by `test_floor.py::AdvisoryCountContract`.
+ADVISORY_COUNT_PREFIX = "secretscan advisory:"
+
+
 @dataclass
 class Finding:
     path: str
@@ -366,6 +479,13 @@ class Finding:
     kind: str          # "named" | "assigned" | "entropy"
     severity: str
     excerpt: str       # redacted — locates the hit, never re-leaks it
+    # "block" | "advisory". Defaulted to block so a new rule that forgets to
+    # say fails SAFE — into the gate, never out of it.
+    response: str = RESPONSE_BLOCK
+
+    @property
+    def blocks(self) -> bool:
+        return self.response == RESPONSE_BLOCK
 
 
 def shannon(s: str) -> float:
@@ -508,14 +628,33 @@ def scan_text(path: str, text: str,
                                             "assigned", "high",
                                             redact(value, "assigned")))
 
-        if "high-entropy" not in disabled and not PUBLIC_KEY_RX.search(line):
+        if not PUBLIC_KEY_RX.search(line):
+            fingerprints = _fingerprint_spans(line)
             for m in HIGH_ENTROPY_RX.finditer(line):
                 span = m.group(0)
-                if (_has_mixed_classes(span) and not _is_placeholder(span)
-                        and shannon(span) >= HIGH_ENTROPY_MIN):
-                    findings.append(Finding(path, lineno, "high-entropy",
+                # E3, checked BEFORE the rule split so the carve-out costs one
+                # decision rather than two, and is counted once either way.
+                if _inside_fingerprint(m.span(), fingerprints):
+                    if tally is not None:
+                        tally.note_fingerprint()
+                    continue
+                if _is_placeholder(span):
+                    continue
+                if _has_mixed_classes(span):
+                    # The blocking net, byte for byte as it has always been.
+                    if ("high-entropy" not in disabled
+                            and shannon(span) >= HIGH_ENTROPY_MIN):
+                        findings.append(Finding(path, lineno, "high-entropy",
+                                                "entropy", "medium",
+                                                redact(span, "entropy"),
+                                                RESPONSE_BLOCK))
+                elif (LOW_VARIETY_RULE not in disabled
+                        and LOW_VARIETY_KEY_RX.fullmatch(span)):
+                    # E6b — the coverage that did not exist before the tier.
+                    findings.append(Finding(path, lineno, LOW_VARIETY_RULE,
                                             "entropy", "medium",
-                                            redact(span, "entropy")))
+                                            redact(span, "entropy"),
+                                            RESPONSE_ADVISORY))
     # A named/assigned hit and a bare entropy hit often fire on the same token;
     # keep the more specific one so the report isn't doubled.
     kept: list[Finding] = []
@@ -547,7 +686,8 @@ def _looks_binary(data: bytes) -> bool:
     return b"\x00" in data[:8192]
 
 
-ALL_RULES = frozenset({p.name for p in NAMED} | {"assigned", "high-entropy"})
+ALL_RULES = frozenset({p.name for p in NAMED}
+                      | {"assigned", "high-entropy", LOW_VARIETY_RULE})
 
 
 class IgnoreFileError(ValueError):
@@ -669,25 +809,73 @@ def staged_added_lines() -> dict[str, str]:
     return {path: "\n".join(lines) for path, lines in files.items() if lines}
 
 
+def advisory_count_line(n: int) -> str:
+    """The one line that always says how many advisory findings this run made.
+
+    ALWAYS printed, zero included — the same reasoning as `Tally.summary`, and
+    the reason the board can be trusted. A line printed only when non-zero makes
+    "no line" mean two different things: nothing found, or the wording drifted
+    and the reader (or `tools/floor.py`) is now parsing a message that no longer
+    exists. Printing the zero collapses that ambiguity, so a count that
+    disappears is a defect somebody can see rather than a quiet green."""
+    return f"  {ADVISORY_COUNT_PREFIX} {n} finding(s) — reported, not blocking."
+
+
+def _render_advisory(advisory: list[Finding]) -> list[str]:
+    """The advisory detail block. Deliberately shares NO wording with the
+    blocking block — not the ✗, not "commit blocked", not the remediation
+    paragraph. A reader skimming two adjacent lists must be able to tell which
+    one stopped the commit without reading either carefully, so the icon, the
+    verb and the framing all differ, and the block states its own exit-code
+    consequence rather than leaving it to be inferred."""
+    lines = ["",
+             "🟡 ADVISORY FINDINGS — none of these blocked anything.",
+             "   Coverage the blocking net does not reach: an unbroken 32+ "
+             "character run with no",
+             "   credential-named key beside it. Most are hashes, digests and "
+             "ids; a hex-encoded",
+             "   credential outside an assignment looks exactly the same, which "
+             "is why these are",
+             "   shown rather than dropped."]
+    for f in sorted(advisory, key=lambda x: (x.path, x.line)):
+        lines.append(f"     {f.path}:{f.line}  [advisory/{f.kind}] {f.rule} → {f.excerpt}")
+    lines.append("   A real secret here: remove it and ROTATE it — advisory "
+                 "describes this scan's")
+    lines.append("   confidence, never the value's safety. Otherwise leave it: "
+                 "the finding costs a")
+    lines.append(f"   line, and '# {ALLOW_MARKER}:{LOW_VARIETY_RULE}: <reason>' "
+                 "is there for a line")
+    lines.append("   that is genuinely noise worth silencing.")
+    return lines
+
+
 def render_human(findings: list[Finding], tally: Tally | None = None) -> str:
+    blocking = [f for f in findings if f.blocks]
+    advisory = [f for f in findings if not f.blocks]
     lines: list[str] = []
-    if not findings:
+    if not blocking:
         lines.append("✓ secretscan clean — no credentials in the scanned lines.")
         if tally is not None:
             lines.append(tally.summary())
+        lines.append(advisory_count_line(len(advisory)))
+        if advisory:
+            lines.extend(_render_advisory(advisory))
         return "\n".join(lines)
-    lines.append(f"✗ secretscan: {len(findings)} finding(s) — commit blocked.\n")
-    for f in sorted(findings, key=lambda x: (x.path, x.line)):
+    lines.append(f"✗ secretscan: {len(blocking)} finding(s) — commit blocked.\n")
+    for f in sorted(blocking, key=lambda x: (x.path, x.line)):
         lines.append(f"  {f.path}:{f.line}  [{f.severity}/{f.kind}] {f.rule} → {f.excerpt}")
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
+    lines.append(advisory_count_line(len(advisory)))
     lines.append("\n  A true positive: remove the secret, move it to the secret store")
     lines.append("  (e.g. a `!secret`/env reference), and ROTATE it — commit history is forever.")
     lines.append(f"  A false positive: append '# {ALLOW_MARKER}: <reason>' to the line")
     lines.append(f"  (or '# {ALLOW_MARKER}:<rule>: <reason>' to exempt just one rule —")
     lines.append("  the narrowest allowance that covers the case), or add a path glob")
     lines.append("  to .secretscanignore. A marker with no reason exempts nothing.")
+    if advisory:
+        lines.extend(_render_advisory(advisory))
     return "\n".join(lines)
 
 
@@ -703,8 +891,9 @@ def _main(argv: list[str] | None = None) -> int:
                     help="repo root for relative paths/.secretscanignore")
     ap.add_argument("--disable", default="",
                     help="comma-separated rules to skip (named rule, 'assigned', "
-                         "or 'high-entropy'). Use to quiet a noisy generic rule "
-                         "while keeping the high-confidence vendor formats.")
+                         f"'high-entropy', or '{LOW_VARIETY_RULE}'). Use to quiet "
+                         "a noisy generic rule while keeping the high-confidence "
+                         "vendor formats.")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--selftest", action="store_true",
                     help="run built-in checks and exit")
@@ -770,21 +959,31 @@ def _main(argv: list[str] | None = None) -> int:
             return 2
         findings = scan_paths(targets, root, disabled, tally)
 
+    blocking = [f for f in findings if f.blocks]
     if args.json:
         print(json.dumps({
+            # `clean` keeps its original meaning — nothing found at all — and
+            # `blocked` is the field that tracks the exit code. Two fields
+            # rather than one redefined field, so a consumer written against
+            # the old shape cannot silently start reading a green tick off a
+            # run that has advisory findings in it.
             "clean": not findings,
+            "blocked": bool(blocking),
+            "counts": {"blocking": len(blocking),
+                       "advisory": len(findings) - len(blocking)},
             "findings": [asdict(f) for f in findings],
             "suppressed": {
                 "by_allow_marker": tally.marker_total,
                 "by_allow_marker_rule": tally.by_marker,
                 "files_by_ignore_glob": tally.files_by_glob,
                 "disabled_rules": list(tally.disabled_rules),
+                "public_key_fingerprints": tally.fingerprints,
             },
         }, indent=2))
     else:
         print(render_human(findings, tally))
 
-    return 1 if findings else 0
+    return 1 if blocking else 0
 
 
 def _selftest() -> int:
@@ -807,19 +1006,35 @@ def _selftest() -> int:
         "api_key = ${API_KEY}",                    # env indirection
         'psk = "!secret wg_home"',                 # tiki secret reference
         "private_key = /etc/ssl/server.key",       # a path, not a secret
-        "commit 9f3a1c2b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f90",  # git SHA (single-case hex)
         "version = 1.2.3",                         # not a secret
         "token = abc  # secretscan:allow: doc example",
+        # E3 — a public-key fingerprint is public material by definition. This
+        # value is a synthetic 43-char base64 body, not any real key's digest.
+        "host key SHA256:aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3zA5bC7dE9f",  # secretscan:allow: selftest fixture
+    ]
+    # E6b — REPORTED and not blocking. A git SHA is the honest exemplar: it is
+    # what the widened context-free net mostly finds, and a hex-encoded
+    # credential is indistinguishable from it, which is the whole argument.
+    should_advise = [
+        "commit 9f3a1c2b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f90",  # git SHA (single-case hex)
+        "checksum deadbeefcafef00d0123456789abcdef01234567",
     ]
     ok = True
     for text in should_flag:
-        if not scan_text("t", text):
-            print(f"FAIL (expected a finding): {text!r}")
+        fs = scan_text("t", text)
+        if not any(f.blocks for f in fs):
+            print(f"FAIL (expected a BLOCKING finding): {text!r}")
             ok = False
     for text in should_pass:
         fs = scan_text("t", text)
         if fs:
             print(f"FAIL (expected clean): {text!r} → {[f.rule for f in fs]}")
+            ok = False
+    for text in should_advise:
+        fs = scan_text("t", text)
+        if not fs or any(f.blocks for f in fs):
+            print(f"FAIL (expected an ADVISORY-only finding): {text!r} → "
+                  f"{[(f.rule, f.response) for f in fs]}")
             ok = False
     print("selftest OK" if ok else "selftest FAILED")
     return 0 if ok else 1

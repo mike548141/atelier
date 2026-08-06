@@ -355,22 +355,22 @@ adopter mistakes.*
             a code comment, and the advisory dial as decided-not-built with
             EI1's consumer precondition. Rule-4 `⏳` queued at landing
             (§ *Doctrine — review-owed*).
-      - [~] **E6b — give `secretscan` a real advisory tier.** (claimed
-            2026-08-06-1222, wt: e6b-secretscan-advisory-0806) High-confidence
-            hits block as they do now; context-free entropy hits report and
-            exit 0. The blocking set never shrinks — everything the tier adds
-            is coverage that does not exist today. This is what lets detection
-            widen to the stated intent without the cry-wolf tax. Weigh against
-            `leakscan` having no advisory form by design: the argument that it
-            does not weaken the gate is that the blocking set is unchanged,
-            and that argument should be tested at review rather than assumed.
-            **Tiered on two axes, not one — see E6d.**
-            **UNBLOCKED 2026-08-04 (Mike, proposals ruled at pickup per
-            EI1/EI3): the named consumer is the CI plane + board count** —
-            commit-time print, every push re-prints all advisory findings
-            tree-wide, and the floor board carries a persistent
-            `🟡 N advisory finding(s)` count that cannot quietly vanish.
-            No new artefact class. Buildable now, after E6a (landed).
+      - **E6b — DONE 2026-08-06** (wt: e6b-secretscan-advisory-0806):
+            every finding now carries a `response`; the blocking set is
+            byte-identical (pinned by tests) and the new
+            `low-variety-entropy` rule reports E6c's ruled whole shape on
+            the context-free path — EI4's named narrowing site — at
+            exit 0. All three ruled consumer legs landed: commit-time
+            print, CI tree-wide re-print on every push (documented and
+            pinned against a future scope narrowing), and the floor
+            board's persistent 🟡 count with a 🔴 drift state so silence
+            and zero can never look alike. First live run: 21 advisory
+            findings tree-wide, every one a hash — a board reading 🟡 is
+            the ruling working on day one. Interpretation made at the
+            build and flagged to Mike: "the floor board" was read as
+            `floor.py`'s per-repo board, not `floorfleet`'s estate board
+            (which runs no scanners). Detail →
+            [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *E6b built*.
       - [ ] **E6d — impact is the second axis. RULED 2026-07-28 (Mike).** The
             tier must weigh *risk*, not confidence alone: a mid-confidence hit
             on a credential that opens the whole estate outranks a
@@ -500,15 +500,17 @@ adopter mistakes.*
       § *The licence gate learns proprietary*. (These two entries stood stale
       as open work until 2026-08-06 — the cycle-state residue class, corrected
       from the tree.)
-- [~] **E3 — `secretscan` suppresses one public-key line shape but not key
-      fingerprints** (claimed 2026-08-06-1222, wt: e6b-secretscan-advisory-0806
-      — rides the E6b build per the 2026-08-04 ruling), which accounted for two of eight findings in one child.
-      Widening a security scanner's blind spot is atelier's call, not a child's
-      — which is why it was correctly left unchanged there and belongs here.
-      **RULED 2026-08-04 (Mike): SUPPRESS the fingerprint shape** — public
-      material by definition, whole-shape not fragment, with canary-style
-      tests both directions so the suppression cannot quietly widen. Rides
-      the next secretscan build item.
+- **E3 — FIXED 2026-08-06 with the E6b build** (ruled 2026-08-04:
+      suppress): whole-shape fingerprint carve-out, both ruled spellings,
+      canaried both directions — a fingerprint-prefixed body of the wrong
+      length still blocks — and the suppression is counted in the tally,
+      never silent. → [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *E6b built*.
+- [ ] **`PUBLIC_KEY_RX` subtracts silently** (found at the E6b build,
+      reported not fixed there): the public-key line suppression predates
+      the GUARDS allowance model's counted-suppression rule — lines it
+      writes off appear in no tally, the one subtraction in the scanner a
+      reader cannot see growing. Small alignment; rides the next
+      secretscan touch.
 - **E4 — FIXED 2026-08-06 with E7's D2** (one fix, both entries): the
       IPv6-shape rule now requires `::` or four-plus groups; clock times,
       port maps, ratios and hex colour triplets pass, real addresses still
@@ -1224,6 +1226,18 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
 >   same day (wt: ruled-fixes-0806) — 11 fixed, 3 accepted as recorded,
 >   decisions stamped in the verdicts →
 >   [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The 2026-08-06 queue take*.
+
+- ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass) — the
+  E6b secretscan advisory tier + the E3 fingerprint carve-out.** *Delta:*
+  `tools/secretscan.py` + `tools/test_secretscan.py` (89 → 122) +
+  `tools/floor.py` + `tools/test_floor.py` (98 → 108, the advisory-count
+  contract) + the consumer note in `.github/workflows/ci.yml` + the
+  corrected check row in `tools/README.md` + the CHANGELOG entry (landed
+  2026-08-06, this commit). *Intent record:*
+  [E6 intent cold pass](reviews/2026-07-29-1243-e6-intent-cold.md)
+  (EI1–EI6) + the E6b consumer ruling and E3 ruling of 2026-08-04,
+  harvested with the items to [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
+  § *E6b built*.
 
 - ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass) — the
   E7 leakscan build (D2–D6 fixes + the G1/G2/G4/G6/G7 builds).** *Delta:*
