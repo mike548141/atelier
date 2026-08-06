@@ -1187,9 +1187,10 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
   mutually-consistent surfaces. Terminal; SE1–SE2 join the ruling round
   above.
 
-- [ ] 🎯 **Three rule-4 Fable code cold passes ran 2026-08-06 — every
-  remaining queued cycle CLOSED (0 MAJOR each); the residue findings await
-  Mike's ruling.** The taker was a Mike-spawned Fable session, author of
+- [~] 🎯 **Three rule-4 Fable code cold passes ran 2026-08-06 — every
+  remaining queued cycle CLOSED (0 MAJOR each); the residue findings RULED
+  2026-08-06 (Mike, AskUserQuestion walk-through) — application in flight.**
+  (claimed 2026-08-06-1017, wt: ruled-fixes-0806) The taker was a Mike-spawned Fable session, author of
   none of the three deltas; the three pointers are harvested to
   [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The 2026-08-06 queue take*.
   Verdicts:
