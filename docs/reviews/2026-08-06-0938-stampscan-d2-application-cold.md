@@ -146,4 +146,31 @@ the blocking flip as a separate later ruling.
 
 ## Reconcile (intent record opened after the findings above were committed)
 
-*Appended post-commit.*
+Opened the S4 verdict and `ROADMAP-DONE.md` § *D2 delivered* only after the
+verdict above was committed. Reconciliation:
+
+- **Every ruled item is where the record says it is.** ST1 (+ST7 folded in,
+  as the reconcile counselled), ST2, ST4, ST5, ST6 — each verified in code
+  and tests at HEAD before the verdict was opened; nothing claimed applied
+  is absent, nothing deferred is quietly present. ST3 stays open exactly as
+  recorded (no registry entry, no hook entry — checked).
+- **The wiring honours the reviewer's conditional bar.** "Do not wire, not
+  even advisory" was conditioned on the three preconditions; all three are
+  built, and the wiring is the bar's step 1 (advisory, atelier's own
+  `ci.yml`, nowhere else). The `--warn`-never-downgrades-a-config-error
+  property the counsel leaned on is live (re-probed).
+- **The harvest's live-proof claims reproduce**: exit-2-to-exit-0 on both
+  scopes, the 52-line identical pair, 65/19-test counts, the
+  parser-fix-alone measurement (re-run with the ignore file bypassed).
+- **SD1 sharpens against the intent record**: the S4 verdict's ST1 framing
+  was "context-blind marker recognition" generally; the application fixed
+  the child-side hunt and left the canonical-side extractor raw-matching.
+  The record does not claim the canonical side was fixed — so this is a
+  gap the application *inherited past*, not an overclaim in it; graded
+  MODERATE on its own merits, unchanged by the reconcile.
+- No claim failed re-run; no finding above is contradicted.
+
+**Final: PASS-WITH-FINDINGS — 0 MAJOR / 2 MODERATE / 2 minor / 2 notes.
+Terminal; the stampscan S4/D2 review cycle CLOSES. SD1–SD6 await the
+principal's ruling. ST3-barred registry wiring, D2 residue (b), and the
+blocking flip stay open as work, unaffected by the cycle close.**
