@@ -11,7 +11,7 @@ principle stripped of its cases is theatre; the cases are what make it teachable
 continuous, then the Laws. It is canonical in [`00-APEX.md`](00-APEX.md) and is
 **not** on the precedence ladder below: it is never traded against a design
 goal; it bounds the whole ladder. What follows resolves collisions *among* the
-design principles §1–8.
+design principles §1–9.
 
 *Estate/product-specific bearings and the decided review case-law live in the
 child repo that produced them (e.g. `ros`); this file is the general statement
@@ -318,6 +318,72 @@ to how often the work will actually recur — and it never buys a shortcut throu
 §0–§2: an "efficient" tool that lies about its result costs more trust than any
 time it saved.
 
+## 9. Data modelling — every fact carries its time dimension
+
+*Added 2026-08-08 (Mike). §1–8 govern the code and the system; this one governs
+the **data the system holds about the world**, which the other eight never
+reached. The gap was structural: code gets a time dimension for free — git
+records when every line was created, changed and removed — so the habit of
+asking "when?" never has to be learned for code. Data has no git. Nothing
+supplies the missing dimension later, and nobody notices it is missing until the
+first question that needs it cannot be answered.*
+
+**The rule: data — application, system or user — carries the time dimension its
+domain implies.** Not a uniform stamp bolted on every table: the *shape* of the
+dimension is context-dependent, and modelling it is part of designing the data,
+alongside its fields and its keys.
+
+- **Two clocks, kept apart.** *World time* is when the thing was true out there;
+  *record time* is when we learned it, wrote it, or last confirmed it. They are
+  different facts and they diverge — you find out on Tuesday about something that
+  happened in March. Collapse them into one column and two whole question classes
+  become unanswerable: "was this true on date X?" (world) and "what did we
+  believe on date X, and how stale is it now?" (record). Most datasets need both;
+  the ones that genuinely need only one should say which, and why.
+- **Model the lifecycle, not a boolean.** An entity's states are transitions with
+  dates, not flags. `closed: true` throws away *when*, cannot represent a
+  reopening, and silently rewrites history the moment it flips. A dated
+  transition survives all three. The generalised case: **wherever a flag answers
+  "is it?", ask whether the real question is "since when, and what before
+  that?"** — if it is, the flag is already lossy.
+- **A hard delete destroys the dimension outright.** Removing the row removes
+  every date attached to it, including the fact that it ever existed. Prefer a
+  dated end-state; where a delete is genuinely required (a privacy erasure), it
+  is a deliberate, recorded act under precedence rule 1 and
+  [`DATA-PROTECTION.md`](DATA-PROTECTION.md), not the default way a thing stops
+  being current.
+- **Open intervals are legitimate; "unknown" is not "none".** "Started, no end
+  yet" is a normal, representable state. So is "we have never established this
+  date". A single null standing for both is a lie the next reader cannot detect —
+  it reads as "no", and the honest answer was "we don't know" (§0 honesty, at the
+  schema layer).
+- **How much dimension — the test is the question, not the ceremony.** Full
+  bitemporal history is the heavyweight end and most data does not earn it. Ask
+  what will be asked of this later — *was it true then · what changed since · how
+  stale is this · what did we believe at the time* — and carry the minimum that
+  answers those. Carrying less is the defect this principle exists to name;
+  carrying more than the questions justify is §2 KISS violated in the other
+  direction.
+
+*Generalised case:* a curated venue guide in this fleet holds records that carry
+one nullable "verified" field and a content-pipeline status — and no world time
+at all. The dataset therefore cannot say when a venue opened, when it entered the
+guide, or distinguish *closed for a refit* from *gone for good*; every one of
+those is a question the domain obviously asks. Nothing is wrong with any single
+record. The dimension was simply never modelled, and no amount of later care
+recovers dates nobody wrote down. **Named as the first retrofit case, not a
+closed one** — the gap is live at the time of writing.
+
+**Where the neighbouring rules sit.** This principle says the dimension must
+*exist*; [`CONVENTIONS.md`](CONVENTIONS.md) says how each stamp is *written*
+once it does (UTC at rest, ISO 8601, labelled deviations) — existence and frame
+are different questions, and neither substitutes for the other. The *state vs
+stateless* situation test below ("undated state is a future lie") is this
+principle's instance for derived snapshots. [`RECORD.md`](RECORD.md) is the same
+instinct already applied to our own record — append-only log, absolute dating
+everywhere — which is why the record can be read cold years later and most
+application data cannot.
+
 ---
 
 ## Trade-offs: precedence and situation tests
@@ -391,7 +457,8 @@ and the Laws are never traded against a design principle.
   the delta is identical everywhere and ring 1 proved it).
 - **State vs stateless.** Re-derive by default. Introduce persistent state only
   when the value is real *and* the staleness is managed (dated snapshots, age
-  checks) — undated state is a future lie (rule 2).
+  checks) — undated state is a future lie (rule 2). This is §9 applied to derived
+  state; §9 carries the general form for data the system holds about the world.
 - **Codified or hand-done?** Every change lands in code first and converges. An
   out-of-band/hand action is allowed only when codifying it is unsafe
   (self-lockout) or as a **logged bridge** carrying a follow-up to codify it —

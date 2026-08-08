@@ -46,8 +46,11 @@ Read in this order:
    installed; keep the personal inventory machine-local.
 11. **`PRINCIPLES.md`** — the design principles (resilience, structure,
    events-over-polling, state/concurrency, security/privacy/cost, legibility,
-   reproducibility) + the precedence ladder + situation tests, with generalised
-   cases. **Canonical here**; `ros` keeps its tiki bearings + review case-law and
+   reproducibility, leverage, data modelling) + the precedence ladder +
+   situation tests, with generalised cases. §9 is the newest and the one the
+   other eight never reached: the data an application holds carries the time
+   dimension its domain implies — code gets one free from git, data does not.
+   **Canonical here**; `ros` keeps its tiki bearings + review case-law and
    points up.
 12. **`ECONOMICS.md`** — match the model to the job by risk (workhorse builds,
    capable tier reviews), the billing states of the marginal token, the
