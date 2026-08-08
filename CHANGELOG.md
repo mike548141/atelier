@@ -5,6 +5,40 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-08-08 — PRINCIPLES §9: data carries its time dimension)
+A new design principle, minted by Mike: **data — application, system or user —
+carries the time dimension its domain implies.** §1–8 govern the code and the
+system; none of them reached the data the system holds about the world. The gap
+was structural rather than an oversight — code gets a time dimension free from
+git, so nobody has to learn to ask "when?" for code, and the habit never
+transfers to data, which has no equivalent. Nothing supplies the dimension
+retroactively, and the absence stays invisible until the first question that
+needs it cannot be answered.
+- **§9 as landed:** two clocks kept apart (*world time* — when it was true out
+  there; *record time* — when we learned it, and how stale that now is);
+  lifecycle transitions with dates instead of booleans, since `closed: true`
+  loses *when*, cannot represent a reopening, and rewrites history as it flips;
+  a hard delete destroys the dimension outright and is a recorded act under
+  precedence rule 1, never the default way a thing stops being current; open
+  intervals are legitimate and "unknown" is not "none" — one null standing for
+  both is undetectable to the next reader; and the dimension is sized by the
+  questions the domain will ask, not by ceremony, so full bitemporality is the
+  heavyweight end most data does not earn.
+- **Seams named, so no rule duplicates another.** `CONVENTIONS.md` governs the
+  *frame* a stamp is read against; §9 governs whether the stamp exists at all —
+  a dataset can satisfy every convention and still be undateable, and that note
+  now sits in both docs. The *state vs stateless* situation test ("undated state
+  is a future lie") is §9's instance for derived snapshots and points up to it.
+  `RECORD.md` is the same instinct already applied to our own record, which is
+  why the record reads cold years later and most application data does not.
+- **Grounded, not invented:** the generalised case is a live fleet dataset whose
+  records carry one nullable "verified" field and no world time — it cannot say
+  when an entity began, when it entered the dataset, or tell a temporary closure
+  from a permanent one. Named in §9 as the first retrofit case and honestly
+  marked **unclosed**. Whether §9 obliges retrofits at all, or binds new designs
+  only, is queued as Mike's ruling (`ROADMAP.md` § *PRINCIPLES §9*); rule-4 `⏳`
+  queued in § *Doctrine — review-owed*.
+
 ### Added (2026-08-07 — the third render state, and pathscan reaches the estate)
 Three ruled items on one surface, landed together because they are one story:
 the board was overstating how much of the floor actually gates.

@@ -1155,7 +1155,49 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
       signing floor; and what the honest ceiling on containment is once a public
       repo has been cloned.
 
+## PRINCIPLES §9 — the time dimension, and what it now obliges (Mike, 2026-08-08)
+
+Mike minted the rule this session: **data — application, system or user — carries
+the time dimension its domain implies.** Code gets one free from git; data has
+none, and the dimension cannot be recovered after the fact. Landed as
+`PRINCIPLES.md` §9 (two clocks kept apart · lifecycle over booleans · no hard
+delete · open intervals ≠ unknown · size the dimension by the questions the domain
+will ask), following the house pattern for a new principle — inline adoption stamp,
+no ADR, as with API-first and mobile-first (both "decided 2026-07-14"). Rule-4 `⏳`
+queued below.
+
+Two consequences the landing does **not** decide:
+
+- [ ] 🎯 **Does §9 bind retrofits, or only new designs?** As written it is a
+      design principle — every *new* data design is measured against it. Whether
+      an existing dataset that predates it inherits a retrofit obligation, and at
+      what priority, is Mike's call. The two honest options: (a) forward-only —
+      §9 binds designs from 2026-08-08, existing datasets carry a recorded gap and
+      are fixed when they are next touched; (b) retrofit-obliged — each child repo
+      holding domain data raises its own item. Cost differs sharply: (a) is free
+      today and pays later in datasets that can never answer a temporal question;
+      (b) spends child-repo sessions now, and for the oldest data the dates are
+      already unrecoverable — a retrofit can only start the clock, never backfill
+      it. Note the asymmetry that makes this worth ruling rather than defaulting:
+      **every day a dataset runs without the dimension is a day of history that
+      cannot be reconstructed later.**
+- [ ] 🎯 **The named first retrofit case is live and unclosed.** A curated venue
+      guide in the fleet carries no world time at all — the generalised case in
+      §9 is drawn from it, unnamed there per `RECORD.md` § *The record is public*.
+      The work belongs in that child repo's roadmap, not this one; raising it
+      there is a decision, not a mechanical follow-up, because it changes a
+      shipped data shape. Blocked on the ruling above.
+
 ## Doctrine — review-owed
+
+- ⏳ **Rule-4 review queued (tier: Fable; pass type: doctrine cold pass) — the
+  `PRINCIPLES.md` §9 time-dimension principle.** *Delta:* `docs/method/PRINCIPLES.md`
+  (new §9 + the §1–8 → §1–9 scope line + the *state vs stateless* situation test
+  now pointing at §9) + `docs/method/README.md` (item 11's principle list) +
+  `docs/method/CONVENTIONS.md` (§ *What lives elsewhere* — the frame-vs-existence
+  seam) + the CHANGELOG entry (landed 2026-08-08, this commit). *Intent record:*
+  the § *PRINCIPLES §9 — the time dimension* item above. Self-authored doctrine ⇒
+  the author may not spawn this pass.
 
 - [ ] 🎯 **Five rule-4 Fable cold passes ran 2026-08-05 — every queued cycle
   CLOSED (0 MAJOR each); the residue findings await Mike's ruling.** The

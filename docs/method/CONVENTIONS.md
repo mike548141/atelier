@@ -69,6 +69,10 @@ STORAGE.)*
 
 - **Time's full case** — UTC-at-rest, identifiers-forward, the foreign-data
   precedence — is the ADR linked above; this table is its one-line home.
+- **Whether a timestamp should exist at all** is not this doc's question.
+  This doc governs the *frame* a value is read against; `PRINCIPLES.md` §9
+  governs whether the data carries a time dimension in the first place. A
+  dataset can satisfy every rule here and still be undateable.
 - **SIGNING's `Z`-anchoring** is the same at-rest rule applied to signing
   timestamps — the instance that drew blood before the rule was general.
 - **NZ English + macrons** also appear in the session onramp (`CLAUDE.md`); this
