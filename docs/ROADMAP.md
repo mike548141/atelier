@@ -831,7 +831,8 @@ adopter mistakes.*
       canaried both directions — a fingerprint-prefixed body of the wrong
       length still blocks — and the suppression is counted in the tally,
       never silent. → [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *E6b built*.
-- [ ] **`PUBLIC_KEY_RX` subtracts silently** (found at the E6b build,
+- [~] **`PUBLIC_KEY_RX` subtracts silently** (claimed 2026-08-09-0813, wt:
+      queue-batch-0809-0813) (found at the E6b build,
       reported not fixed there): the public-key line suppression predates
       the GUARDS allowance model's counted-suppression rule — lines it
       writes off appear in no tally, the one subtraction in the scanner a
@@ -1692,8 +1693,10 @@ subtracted, never what someone *intended* to subtract and failed to.
 
 ### Findings owned here (atelier-side)
 
-- [ ] **atelier's own `scope` block carries no `why`, and the parent is not
-      exempt.** `.atelier-floor.json` narrows `wrapscan`, `spellscan` and
+- [~] **atelier's own `scope` block carries no `why`, and the parent is not
+      exempt.** (claimed 2026-08-09-0813, wt: queue-batch-0809-0813 — the
+      atelier half only; the `ros` `flags.leakscan` half is child work, queued
+      there, never delivered from here) `.atelier-floor.json` narrows `wrapscan`, `spellscan` and
       `pathscan` to three doctrine dirs — a real check-level scope reduction,
       declared and visible on the board, but with no reason travelling with the
       declaration. `ros`'s `scope` entry carries a `why`; atelier's does not,
@@ -1703,7 +1706,8 @@ subtracted, never what someone *intended* to subtract and failed to.
       of the config cannot see. Same defect on `ros`'s `flags.leakscan`
       `--disable ipv4,ipv6,mac-address`: reasoned, but the reason sits in the
       sibling `local.estate-tripwire` entry rather than on the declaration.
-- [ ] **`tools/worktree.py` resolves the branch from the cwd, not per-worktree.**
+- [~] **`tools/worktree.py` resolves the branch from the cwd, not per-worktree.**
+      (claimed 2026-08-09-0813, wt: queue-batch-0809-0813)
       Reproduced 2026-08-09, and the condition is the whole finding: run **from
       inside a linked worktree**, `list` labels that worktree's branch as `main`
       and drops its ahead/behind counts, and `land <feature>` fails
@@ -1716,8 +1720,9 @@ subtracted, never what someone *intended* to subtract and failed to.
       (First written here without the cwd condition, from one observation
       inside the worktree; corrected on reproduction from both sides before
       close, since the condition is what makes it fixable.)
-- [ ] **`remove` compares against local `main`, which a direct push leaves
-      stale.** Same session: after `git push <branch>:main`, `remove` refused —
+- [~] **`remove` compares against local `main`, which a direct push leaves
+      stale.** (claimed 2026-08-09-0813, wt: queue-batch-0809-0813)
+      Same session: after `git push <branch>:main`, `remove` refused —
       *"branch … is not merged into main"* — because local `main` had not moved.
       `git merge-base --is-ancestor HEAD origin/main` said otherwise, correctly.
       The guard is right to exist; its referent should be the remote integration
@@ -2782,8 +2787,9 @@ What remains is Mike's:
   operator note: the shrink guard covers memory files uniformly, so a
   legitimately condensed memory file needs `--force` — safe-over-silent.
   Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
-- [ ] **Capture the subagent `.meta.json` sidecar (Mike ruled 2026-07-28 — a new
-  capture class, not covered by the 2026-07-23 metadata ruling).** Each
+- [~] **Capture the subagent `.meta.json` sidecar (Mike ruled 2026-07-28 — a new
+  capture class, not covered by the 2026-07-23 metadata ruling).**
+  (claimed 2026-08-09-0813, wt: queue-batch-0809-0813) Each
   `<uuid>/subagents/agent-<id>.jsonl` has a `.meta.json` beside it that ccarchive
   does **not** take: `captureClass()` is an allowlist of `.jsonl` at any depth,
   `tool-results/*`, `toolu_*` and `memory/*.md`, and a `.meta.json` matches none
@@ -2806,9 +2812,11 @@ What remains is Mike's:
   widening was; restore mapping; manifest/integrity inclusion; and check whether
   the shrink guard behaves sanely on a 155-byte JSON file that can legitimately
   be rewritten.
-- [ ] **Backfill the sidecars for already-archived transcripts — measured to be
+- [~] **Backfill the sidecars for already-archived transcripts — measured to be
   FREE, and this item exists to verify that rather than to build it (Mike asked
-  2026-07-28).** The obvious reading is that a separate one-shot backfill pass is
+  2026-07-28).** (claimed 2026-08-09-0813, wt: queue-batch-0809-0813 — rides the
+  capture-class landing above) The obvious reading is that a separate one-shot
+  backfill pass is
   owed. Checked against the artefact instead of reasoned: `archiveOnce` walks the
   **whole live tree** each run via `listCaptured(srcRoot)`, and `shouldArchive`
   returns true whenever `destMtimeMs === null` — i.e. no mirror exists yet. So
@@ -2882,8 +2890,9 @@ The header's summary line gained a **context size** and a **subagent count**
 2026-07-26 (`19ef66d`, `2e8efb5`, `ae56b75`) → detail in
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md) at next harvest. Open strands:
 
-- [ ] **Search across transcripts — DESIGN DONE 2026-07-27, BUILD not started
-      (Mike's ask, 2026-07-26).** *"Something that lets you search all the
+- [~] **Search across transcripts — DESIGN DONE 2026-07-27, BUILD not started
+      (Mike's ask, 2026-07-26).** (claimed 2026-08-09-0813, wt:
+      queue-batch-0809-0813) *"Something that lets you search all the
       transcripts using regex or for a simple term. If you give cctranscript a
       command like `--repo` that limits the scope to search within."* The design
       pass is done →
