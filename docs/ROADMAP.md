@@ -372,8 +372,22 @@ adopter mistakes.*
             the ruling working on day one. Interpretation made at the
             build and flagged to Mike: "the floor board" was read as
             `floor.py`'s per-repo board, not `floorfleet`'s estate board
-            (which runs no scanners). Detail →
+            (which runs no scanners). **RULED 2026-08-09 (Mike): the
+            per-repo build stands, AND an estate-wide combined view is
+            funded — built in the private estate-root repo** (unnamed
+            here by standing rule; the same convention as B1's scheduled
+            job), as estate-state reporting rather than atelier
+            machinery. Item queued below. Detail →
             [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *E6b built*.
+      - [ ] **Estate-wide advisory-count view (Mike ruled 2026-08-09).**
+            One screen totalling each repo's secretscan advisory count
+            across the estate. Lives in the private estate-root repo —
+            estate state, not shareable method — so the build is that
+            repo's work; atelier's part, if any, is whatever output
+            contract the view reads (the advisory-count line is already a
+            pinned contract). Pattern precedent: B1's scheduled
+            conformance job, which already enumerates the fleet from
+            GitHub with a read-only token.
       - [ ] **E6d — impact is the second axis. RULED 2026-07-28 (Mike).** The
             tier must weigh *risk*, not confidence alone: a mid-confidence hit
             on a credential that opens the whole estate outranks a
