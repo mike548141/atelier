@@ -1104,6 +1104,63 @@ replacement for it — where they differ, the quote governs.
       allow-markers as *"noise that hides the next real finding"* (recorded
       in C5 above), one layer up: in prose rather than in scanner output.
 
+### COMMUNICATION.md enforced — the first census finding, worked (2026-08-09)
+
+Landed `753adb6`, `e61adc4`. An instance of (a) above, found by measurement
+rather than by the census, and worth reading as evidence for how the census
+should be run: the doc **declared its own unenforced state** in its enforcement
+clause and nobody had priced what that cost.
+
+**What Mike said, verbatim** (2026-08-09), because the trigger was a trust
+failure and not a feature request:
+
+> In all repos you are continuously failing to communicate to a level that
+> lacks honesty, lacks transparency, lacks verification that allows
+> falsehoods, I am talking over many days and many many session. This is
+> actively diminishing my trust in claude and your work
+
+**The measurement.** 6,704 assistant replies of 200+ characters, across 1,094
+session transcripts in 18 repos, 2026-07 to 2026-08: bracketed aside over 25
+chars in 67.2% of replies · uncommon acronym unexpanded 55.5% · sentence over
+35 words 36.8% · bare reference code 17.4%. Of every reference code's **first
+use in a session, 86% arrived with no gloss** (1,457 bare, 236 glossed). The
+rate did not fall after the rules were written; reference-code density **rose**
+over the month, 4.04 → 7.23 per thousand words.
+
+**What landed.** `plainscan.py` — four rules, each carrying its ground: P1
+undefined reference and P2 unexpanded acronym on a published standard
+(digital.govt.nz, expand on first use); P4 buried aside on dated house doctrine
+(COMMUNICATION.md 2026-07-15); P3 long sentence on a **house call**, because two
+plain-language authorities were checked and neither publishes a cap. Warn-only
+on both planes. One engine, two planes: the floor registry for committed prose,
+and a `Stop` hook (`tools/hooks/plain-reply.py`) that lints the agent's own
+reply and blocks it for rewrite.
+
+- [ ] 🎯 **The two house numbers need a ruling before any move to blocking.**
+      Sentence limit (default 35 words repo-side, 45 chat-side) and aside limit
+      (40 / 60 chars). Grounded only as house calls — see P3's note in the
+      module docstring for why nothing published was available to borrow.
+      Calibrated against the corpus: at 45w/60c the Stop hook would have fired
+      on **30.6%** of historical replies; at 40w/50c, 38.6%; at 35w/40c, 48.8%;
+      at 55w/80c, 20.9%.
+- [ ] 🎯 **The `Stop` hook is not installed.** It needs a `settings.json` entry
+      in `~/.claude/`, which changes every session in every repo — Mike's call,
+      not the agent's, and deliberately left undone.
+- [ ] **The backlog.** atelier's own docs return ~7,900 findings, 1,187 of them
+      in `SESSIONS.md` alone. Records are append-only history and rewriting them
+      would be dishonest, so the realistic scope is `docs/method/` +
+      `docs/build/` (the shareable doctrine, ~39 P2 findings across method) and
+      everything written from here on. Needs a decision on scope before effort.
+- [ ] **Generalise the finding, don't just fix this doc.** The census in (a)
+      should treat "the rule declares itself unenforced" as a *search key* —
+      this one was sitting in plain sight in a clause that reads as honesty.
+      ⏳ **Review queued** — COMMUNICATION.md's enforcement clause was rewritten
+      by its own author-session (delta: `docs/method/COMMUNICATION.md`
+      § *The meta-rules that make it work*; intent record: this item; tier:
+      Fable; pass type: cold). Queued one commit late — the doctrine landed in
+      `753adb6` and the pointer here follows it, against the landing-equals-
+      queuing rule stated in this file's preamble.
+
 ### Coverage the programme does not yet reach
 
 - **Three public repos in the account have no scanning at all** → § *the ranked
