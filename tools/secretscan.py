@@ -133,8 +133,17 @@ class Tally:
     # suppression like any other, so it is COUNTED rather than applied in
     # silence. Without this the shape would be the one allowance in the tool
     # that a reader cannot see growing — the exact state rule (b) exists to
-    # stop, and the state `PUBLIC_KEY_RX` has been in since it landed.
+    # stop.
     fingerprints: int = 0
+    # The `PUBLIC_KEY_RX` line carve-out, brought into the same model
+    # 2026-08-09. It predated rule (b) and was the LAST silent subtraction here:
+    # a line naming public key material had its whole entropy pass skipped, so
+    # spans it wrote off appeared in no tally and a clean tick meant either
+    # "nothing matched" or "a growing pile of public-key lines matched and were
+    # all written off". Counted per entropy SPAN, not per line, for the same
+    # reason as `fingerprints`: the unit reported is the would-be finding, which
+    # is what rule (b) says gets produced before the allowance is applied.
+    public_key_spans: int = 0
 
     @property
     def marker_total(self) -> int:
@@ -146,12 +155,21 @@ class Tally:
     def note_fingerprint(self) -> None:
         self.fingerprints += 1
 
+    def note_public_key_span(self) -> None:
+        self.public_key_spans += 1
+
     def summary(self) -> str:
-        """One stable line, known zeros printed, so two runs compare."""
+        """One stable line, known zeros printed, so two runs compare.
+
+        Field ORDER and wording are part of the contract, not cosmetics: the
+        line exists to be read against another run of it, and a field that
+        moves, renames or vanishes at zero breaks that comparison. New
+        mechanisms append."""
         parts = [f"{self.marker_total} by allow-marker",
                  f"{self.files_by_glob} file(s) by .secretscanignore",
                  f"{len(self.disabled_rules)} rule(s) disabled",
-                 f"{self.fingerprints} public-key fingerprint(s)"]
+                 f"{self.fingerprints} public-key fingerprint(s)",
+                 f"{self.public_key_spans} by public-key line"]
         line = "  suppressed: " + " · ".join(parts)
         if self.by_marker:
             detail = ", ".join(f"{r}×{n}" for r, n in sorted(self.by_marker.items()))
@@ -304,6 +322,14 @@ ASSIGNED_ENTROPY_MIN = 3.0    # assigned values get context, so a lower bar
 # shared, so its high-entropy body is not a secret. Suppress the entropy net on
 # these lines. Private-key indicators are deliberately absent: a `private_key:`
 # line must still flag.
+#
+# COUNTED since 2026-08-09 (`Tally.public_key_spans`), which is the only thing
+# that changed: the suppression is the same regex over the same per-line scope,
+# but the entropy spans it writes off are now reported instead of vanishing.
+# It is the WIDEST suppression in the tool — one keyword anywhere on a line
+# exempts every entropy span on it — which is exactly why the count matters:
+# `public_key` sitting in a comment beside a real credential is the growth path,
+# and a reader can now see the number climb.
 PUBLIC_KEY_RX = re.compile(
     r"(?i)\b(?:ssh-(?:ed25519|rsa|dss)|ecdsa-sha2[\w-]*|public[_-]?key|pubkey"
     r"|sshkey|authorized_keys)\b"
@@ -628,33 +654,45 @@ def scan_text(path: str, text: str,
                                             "assigned", "high",
                                             redact(value, "assigned")))
 
-        if not PUBLIC_KEY_RX.search(line):
-            fingerprints = _fingerprint_spans(line)
-            for m in HIGH_ENTROPY_RX.finditer(line):
-                span = m.group(0)
-                # E3, checked BEFORE the rule split so the carve-out costs one
-                # decision rather than two, and is counted once either way.
-                if _inside_fingerprint(m.span(), fingerprints):
-                    if tally is not None:
-                        tally.note_fingerprint()
-                    continue
-                if _is_placeholder(span):
-                    continue
-                if _has_mixed_classes(span):
-                    # The blocking net, byte for byte as it has always been.
-                    if ("high-entropy" not in disabled
-                            and shannon(span) >= HIGH_ENTROPY_MIN):
-                        findings.append(Finding(path, lineno, "high-entropy",
-                                                "entropy", "medium",
-                                                redact(span, "entropy"),
-                                                RESPONSE_BLOCK))
-                elif (LOW_VARIETY_RULE not in disabled
-                        and LOW_VARIETY_KEY_RX.fullmatch(span)):
-                    # E6b — the coverage that did not exist before the tier.
-                    findings.append(Finding(path, lineno, LOW_VARIETY_RULE,
+        # The public-key line carve-out is applied INSIDE the entropy pass
+        # rather than around it (2026-08-09), so the spans it writes off can be
+        # counted — rule (b) of `method/GUARDS.md`: find first, subtract second,
+        # report the subtraction. Skipping the pass wholesale suppressed exactly
+        # the same spans, but silently, and this was the last silent subtraction
+        # in the tool. The suppression itself is unchanged: same regex, same
+        # per-line scope, same precedence ahead of the fingerprint carve-out, so
+        # a line that is both counts once, as a public-key line.
+        public_key_line = bool(PUBLIC_KEY_RX.search(line))
+        fingerprints = () if public_key_line else _fingerprint_spans(line)
+        for m in HIGH_ENTROPY_RX.finditer(line):
+            span = m.group(0)
+            if public_key_line:
+                if tally is not None:
+                    tally.note_public_key_span()
+                continue
+            # E3, checked BEFORE the rule split so the carve-out costs one
+            # decision rather than two, and is counted once either way.
+            if _inside_fingerprint(m.span(), fingerprints):
+                if tally is not None:
+                    tally.note_fingerprint()
+                continue
+            if _is_placeholder(span):
+                continue
+            if _has_mixed_classes(span):
+                # The blocking net, byte for byte as it has always been.
+                if ("high-entropy" not in disabled
+                        and shannon(span) >= HIGH_ENTROPY_MIN):
+                    findings.append(Finding(path, lineno, "high-entropy",
                                             "entropy", "medium",
                                             redact(span, "entropy"),
-                                            RESPONSE_ADVISORY))
+                                            RESPONSE_BLOCK))
+            elif (LOW_VARIETY_RULE not in disabled
+                    and LOW_VARIETY_KEY_RX.fullmatch(span)):
+                # E6b — the coverage that did not exist before the tier.
+                findings.append(Finding(path, lineno, LOW_VARIETY_RULE,
+                                        "entropy", "medium",
+                                        redact(span, "entropy"),
+                                        RESPONSE_ADVISORY))
     # A named/assigned hit and a bare entropy hit often fire on the same token;
     # keep the more specific one so the report isn't doubled.
     kept: list[Finding] = []
@@ -978,6 +1016,7 @@ def _main(argv: list[str] | None = None) -> int:
                 "files_by_ignore_glob": tally.files_by_glob,
                 "disabled_rules": list(tally.disabled_rules),
                 "public_key_fingerprints": tally.fingerprints,
+                "by_public_key_line": tally.public_key_spans,
             },
         }, indent=2))
     else:

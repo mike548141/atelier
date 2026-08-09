@@ -6,6 +6,7 @@ the test is the *shape*, not any real value.
 
 import contextlib
 import io
+import json
 import os
 import shutil
 import tempfile
@@ -705,6 +706,109 @@ class Fingerprints(unittest.TestCase):
     def test_private_key_header_is_untouched_by_the_public_carve_out(self):
         self.assertIn("private-key-header",
                       rules("-----BEGIN OPENSSH PRIVATE KEY-----"))
+
+
+class PublicKeyLineIsCounted(unittest.TestCase):
+    """The `PUBLIC_KEY_RX` line carve-out, brought under rule (b) 2026-08-09.
+
+    It was the last silent subtraction in the tool: a line naming public key
+    material had its whole entropy pass skipped, so the spans it wrote off
+    appeared in no tally and a clean tick could not be told apart from a growing
+    pile of write-offs. Both halves are pinned here — the suppression still
+    suppresses (it is a real allowance, not a formality), and it is now counted.
+
+    Bodies are synthetic. A public key is publishable by definition, but
+    quoting a real one would tie this public repo to a real key, and the shape
+    is the whole point.
+    """
+
+    # Mixed-class, 32+, entropy well over the floor — a blocking hit anywhere
+    # the carve-out does not reach. `test_the_body_alone_would_block` is the
+    # control that keeps that claim honest.
+    BODY = "AAAAC3NzaC1lZDI1NTE5AAAAIQvie2mNfR7pLzW3dTaHbXk8u"
+
+    # --- direction 1: still suppressed, and the suppression does real work
+    def test_the_body_alone_would_block(self):
+        self.assertIn("high-entropy", rules(f"blob {self.BODY}"))
+
+    def test_public_key_line_still_suppresses(self):
+        for line in (f"ssh-ed25519 {self.BODY}",
+                     f"public_key: {self.BODY}",
+                     f"authorized_keys entry {self.BODY}"):
+            with self.subTest(line=line):
+                self.assertEqual([], scan(line))
+
+    # --- the half this item added: the write-off is visible
+    def test_suppressed_span_is_counted(self):
+        tally = ss.Tally()
+        ss.scan_text("t", f"ssh-ed25519 {self.BODY}\n", frozenset(), tally)
+        self.assertEqual(1, tally.public_key_spans)
+        self.assertIn("1 by public-key line", tally.summary())
+
+    def test_zero_count_is_still_printed(self):
+        # Report fields stay stable across runs so two runs compare side by
+        # side — a field that vanishes at zero breaks that.
+        self.assertIn("0 by public-key line", ss.Tally().summary())
+
+    def test_counted_per_span_not_per_line(self):
+        tally = ss.Tally()
+        ss.scan_text("t", f"ssh-rsa {self.BODY} {self.BODY}\n", frozenset(), tally)
+        self.assertEqual(2, tally.public_key_spans)
+
+    def test_advisory_span_on_a_public_key_line_is_counted_too(self):
+        # A single-case run is advisory-tier coverage, not blocking — but it is
+        # still a finding the carve-out removes, so it still gets counted.
+        tally = ss.Tally()
+        single_case = "aaaac3nzac1lzdi1nte5aaaaie4y7ehsskv3kr1te1"
+        self.assertEqual({ss.LOW_VARIETY_RULE}, rules(f"blob {single_case}"))
+        self.assertEqual([], ss.scan_text("t", f"sshkey: {single_case}\n",
+                                         frozenset(), tally))
+        self.assertEqual(1, tally.public_key_spans)
+
+    def test_it_reaches_the_clean_render(self):
+        tally = ss.Tally()
+        tally.note_public_key_span()
+        out = ss.render_human([], tally)
+        self.assertIn("clean", out)
+        self.assertIn("1 by public-key line", out)
+
+    def test_json_reports_it(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "keys.txt"
+            p.write_text(f"ssh-ed25519 {self.BODY}\n")
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                code = ss.main(["--root", d, "--json", str(p)])
+            self.assertEqual(0, code)
+            payload = json.loads(buf.getvalue())
+            self.assertEqual(1, payload["suppressed"]["by_public_key_line"])
+            self.assertEqual([], payload["findings"])
+
+    # --- direction 2: the carve-out must not have widened on the way in
+    def test_a_fingerprint_on_a_public_key_line_counts_once(self):
+        # Both carve-outs match. Public-key is checked first, as it always was,
+        # so the span is counted once and attributed to the wider mechanism —
+        # never counted twice, never counted as neither.
+        tally = ss.Tally()
+        fp = Fingerprints.FP256
+        ss.scan_text("t", f"ssh-ed25519 key SHA256:{fp}\n", frozenset(), tally)
+        self.assertEqual(1, tally.public_key_spans)
+        self.assertEqual(0, tally.fingerprints)
+
+    def test_a_named_credential_on_a_public_key_line_still_blocks(self):
+        # The carve-out is the WIDEST in the tool — one keyword exempts every
+        # entropy span on the line — so what it must never reach is the named
+        # and assigned detectors, which run outside it.
+        fs = scan("# public_key note  AKIAIOSFODNN7EXAMPLE")
+        self.assertEqual(["aws-access-key-id"], [f.rule for f in fs])
+
+    def test_an_assigned_secret_on_a_public_key_line_still_blocks(self):
+        self.assertIn("assigned-secret",
+                      rules("pubkey backup: api_key = Gk8xQvie2mNfR7pLzW3dTaHbXy4Wz9Qm"))
+
+    def test_private_key_line_is_not_a_public_key_line(self):
+        fs = scan(f"private_key = {self.BODY}")
+        self.assertTrue(any(f.blocks for f in fs))
 
 
 class Dedupe(unittest.TestCase):
