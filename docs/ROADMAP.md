@@ -1941,6 +1941,9 @@ whole-tree CI fails, and the failure never reaches the person committing.
   (landed 2026-08-09, this commit). *Intent record:* the § *Estate duplication
   + exception audit* item above. Self-authored doctrine ⇒ the author may not
   spawn this pass.
+  - [ ] **Cold pass RUNNING** — claimed 2026-08-09 0815 UTC by a Mike-spawned
+        Fable session (rule 4's criterion met; brief written by the taker):
+        [`reviews/2026-08-09-0820-child-membership-work-locality-cold.md`](reviews/2026-08-09-0820-child-membership-work-locality-cold.md).
 
 - ⏳ **Rule-4 review queued (tier: Fable; pass type: doctrine cold pass) — the
   `PRINCIPLES.md` §9 time-dimension principle.** *Delta:* `docs/method/PRINCIPLES.md`
@@ -1952,6 +1955,9 @@ whole-tree CI fails, and the failure never reaches the person committing.
   entry for both (this commit). *Intent record:* the § *PRINCIPLES §9 — the time
   dimension* item above, rulings included. Self-authored doctrine ⇒ the author may
   not spawn this pass.
+  - [ ] **Cold pass RUNNING** — claimed 2026-08-09 0815 UTC by a Mike-spawned
+        Fable session (rule 4's criterion met; brief written by the taker):
+        [`reviews/2026-08-09-0821-principles-9-time-dimension-cold.md`](reviews/2026-08-09-0821-principles-9-time-dimension-cold.md).
 
 - ⏳ **Rule-4 review queued (tier: Fable; pass type: doctrine cold pass) — the
   cancelled-run clause under `RECORD.md`'s floor-at-head all-clear.** *Delta:*
@@ -1960,6 +1966,9 @@ whole-tree CI fails, and the failure never reaches the person committing.
   2026-08-09, this commit). *Intent record:* the § *The floor-at-head all-clear
   has a cancelled-run hole* item above. Self-authored doctrine ⇒ the author may
   not spawn this pass.
+  - [ ] **Cold pass RUNNING** — claimed 2026-08-09 0815 UTC by a Mike-spawned
+        Fable session (rule 4's criterion met; brief written by the taker):
+        [`reviews/2026-08-09-0822-record-cancelled-run-clause-cold.md`](reviews/2026-08-09-0822-record-cancelled-run-clause-cold.md).
 
 - [ ] 🎯 **Five rule-4 Fable cold passes ran 2026-08-05 — every queued cycle
   CLOSED (0 MAJOR each); the residue findings await Mike's ruling.**
@@ -2033,6 +2042,9 @@ whole-tree CI fails, and the failure never reaches the person committing.
   the render item and D1/PS5 (Track C / Track D) + the C1F3 finding, all
   harvested with their items to [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
   § *The floor-render batch*.
+  - [ ] **Cold pass RUNNING** — claimed 2026-08-09 0815 UTC by a Mike-spawned
+        Fable session (rule 4's criterion met; brief written by the taker):
+        [`reviews/2026-08-09-0823-floor-render-batch-cold.md`](reviews/2026-08-09-0823-floor-render-batch-cold.md).
 
 - ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass, the
   EP application; the EP cycle's three MAJORs keep it open past this).**
@@ -2052,6 +2064,9 @@ whole-tree CI fails, and the failure never reaches the person committing.
   [ADR 0008 cold pass](reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md)
   (EP1–EP10) + the 2026-08-04 ruling, harvested with the item to
   [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The EP application*.
+  - [ ] **Cold pass RUNNING** — claimed 2026-08-09 0815 UTC by a Mike-spawned
+        Fable session (rule 4's criterion met; brief written by the taker):
+        [`reviews/2026-08-09-0824-ep-application-cold.md`](reviews/2026-08-09-0824-ep-application-cold.md).
 
 - ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass) — the
   E6b secretscan advisory tier + the E3 fingerprint carve-out.** *Delta:*
@@ -2064,6 +2079,9 @@ whole-tree CI fails, and the failure never reaches the person committing.
   (EI1–EI6) + the E6b consumer ruling and E3 ruling of 2026-08-04,
   harvested with the items to [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
   § *E6b built*.
+  - [ ] **Cold pass RUNNING** — claimed 2026-08-09 0815 UTC by a Mike-spawned
+        Fable session (rule 4's criterion met; brief written by the taker):
+        [`reviews/2026-08-09-0825-e6b-advisory-e3-fingerprint-cold.md`](reviews/2026-08-09-0825-e6b-advisory-e3-fingerprint-cold.md).
 
 - ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass) — the
   E7 leakscan build (D2–D6 fixes + the G1/G2/G4/G6/G7 builds).** *Delta:*
@@ -2076,6 +2094,9 @@ whole-tree CI fails, and the failure never reaches the person committing.
   [sweep record](sessions/2026-08-03-2050-leakscan-pii-sweep.md) + the
   2026-08-04 E7 ruling, harvested with the item to
   [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *E7 built*.
+  - [ ] **Cold pass RUNNING** — claimed 2026-08-09 0815 UTC by a Mike-spawned
+        Fable session (rule 4's criterion met; brief written by the taker):
+        [`reviews/2026-08-09-0826-e7-leakscan-build-cold.md`](reviews/2026-08-09-0826-e7-leakscan-build-cold.md).
 
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
 COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin
