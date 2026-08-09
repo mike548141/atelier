@@ -486,19 +486,40 @@ RULE_NAMES = {
 }
 
 
-def render_human(tally: Tally, limit: int = 40) -> str:
+def render_human(tally: Tally, limit: int = 6) -> str:
+    """Human output, deliberately SHORT by default.
+
+    The first run of this scanner on atelier printed 7,379 findings into the
+    pre-commit output. A gate that floods the commit path gets scrolled past,
+    and then every check above it gets scrolled past too — which is precisely
+    the "written down, therefore assumed working" failure this scanner exists
+    to catch, reproduced by the scanner itself on its first outing.
+
+    So the default is a tally plus the worst few files, and `--limit` is how
+    you ask for the list. The count is never hidden; only the recitation is.
+    """
     if not tally.findings:
         return "plainscan: clean — prose is readable on first pass."
     out = []
     counts = tally.by_rule()
     head = "  ".join(f"{k} {RULE_NAMES[k]} ×{v}" for k, v in sorted(counts.items()))
     out.append(f"plainscan: {len(tally.findings)} finding(s) — {head}")
+
+    by_path: dict[str, int] = {}
+    for f in tally.findings:
+        if f.path:
+            by_path[f.path] = by_path.get(f.path, 0) + 1
+    if by_path:
+        worst = sorted(by_path.items(), key=lambda kv: -kv[1])[:3]
+        out.append("  heaviest: " + " · ".join(f"{p} ×{n}" for p, n in worst))
+
     for f in tally.findings[:limit]:
         loc = f"{f.path}:{f.line}" if f.path else f"line {f.line}"
         out.append(f"  [{f.rule}] {loc} — {f.detail}")
         out.append(f"        {f.excerpt}")
     if len(tally.findings) > limit:
-        out.append(f"  … {len(tally.findings) - limit} more")
+        out.append(f"  … {len(tally.findings) - limit} more — "
+                   f"`plainscan --limit 0` for all, `--json` for the set.")
     return "\n".join(out)
 
 
@@ -519,6 +540,10 @@ def _main(argv: list[str] | None = None) -> int:
                     help=f"chars in a mid-sentence bracket (default {ASIDE_LIMIT})")
     ap.add_argument("--rules", default="P1,P2,P3,P4",
                     help="comma-separated subset of P1,P2,P3,P4")
+    ap.add_argument("--limit", type=int, default=6, metavar="N",
+                    help="findings to print in full (default 6; 0 = all). The "
+                         "tally is always printed — this caps the recitation, "
+                         "so the floor's other checks stay readable.")
     ap.add_argument("--selftest", action="store_true", help="run built-in checks")
     args = ap.parse_args(argv)
 
@@ -555,7 +580,8 @@ def _main(argv: list[str] | None = None) -> int:
             "warn": args.warn,
         }, indent=2))
     else:
-        print(render_human(tally))
+        print(render_human(tally, limit=len(tally.findings) if args.limit == 0
+                           else args.limit))
         if tally.findings and args.warn:
             print("\n  (--warn: advisory only — not blocking this build.)")
 
