@@ -2,9 +2,18 @@
   "licence": "Apache-2.0",
   "docs": "docs",
   "scope": {
-    "wrapscan": ["docs/method", "docs/build", "docs/decisions"],
-    "spellscan": ["docs/method", "docs/build", "docs/decisions"],
-    "pathscan": ["docs/method", "docs/build", "docs/decisions",
-                 "README.md", "CLAUDE.md", "SECURITY.md"]
+    "wrapscan": {
+      "paths": ["docs/method", "docs/build", "docs/decisions"],
+      "why": "WS1, ruled 2026-07-23 (wrapscan S1 cold review, Mike's option A): the gate targets doctrine PROSE, and the record/log/review stores are deliberately one-line-per-entry for grep-ability and one-record-per-line diffs. Unscoped, docs/** measured ~6:1 noise to signal, which trains readers to ignore the gate. Cover given up: long prose lines outside the doctrine surface go unflagged."
+    },
+    "spellscan": {
+      "paths": ["docs/method", "docs/build", "docs/decisions"],
+      "why": "Ruled 2026-07-23 (Mike, on the queue-run-0959 spellscan apply): frozen historical record stores are kept VERBATIM — history is not retro-spelled, and the general-sense 'artifact' breaches living there are genuine NZ deviations left as-written on purpose. The gate protects NEW live prose. Cover given up: a US spelling entering a record store is not caught."
+    },
+    "pathscan": {
+      "paths": ["docs/method", "docs/build", "docs/decisions",
+                "README.md", "CLAUDE.md", "SECURITY.md"],
+      "why": "PS4, landed 2026-07-28 (b012884): the gateable surface is the doctrine surface plus the live root files, with the record stores named OUT — a record describes the tree as it stood when written, and having no time axis it can never come clean without markers that would falsify it. Cover given up: a stale path reference inside a record is not flagged, which is the intended trade."
+    }
   }
 }

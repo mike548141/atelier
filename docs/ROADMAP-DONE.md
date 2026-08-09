@@ -4205,3 +4205,102 @@ items moved.*
       as prose beside the reason, with that limit stated in the file rather
       than papered over: nothing will go red when it lapses. See the follow-up
       below.
+
+## spellscan's reason class silently voided live allow-markers — fixed at the class (2026-08-09)
+
+Harvested 2026-08-09: the item below was still `[ ]` on the hot path hours after
+`8276a54` closed it, asserting "the class itself is unfixed and every child
+inherits it" while the tree said otherwise. Third instance of the cycle-state
+residue class since 2026-08-05, and the one where the stale claim was
+*load-bearing* —
+a reader would have concluded the estate still carried a silent false-negative
+in every scanner. Verified before flipping, not taken on the commit message's
+word: **14 regex sites across 12 scanners** now carry the widened class
+(`[\w\"\'“‘]`), enumerated at HEAD — `datescan` and `pathscan` ×2 each (bare
+mention-guard + named-group form), `stampscan` bare, and one apiece in
+`leakscan`, `licenscan`, `linkscan`, `pointerscan`, `reviewscan`, `secretscan`,
+`sizescan`, `spellscan`, `wrapscan`. The three scanners with no allow grammar
+(`harvestscan`, `publishscan`, `signscan`) are correctly untouched. Suite 1210,
+floor exit 0 at `6887118`.
+
+Both of the item's own open threads are closed by the shape of the fix, which is
+why nothing survives to re-queue:
+
+- The 🤔 **open question** — widen to `\S` or narrower — was *answered by the
+  fix*, narrowly: straight and typographic opening quotes are admitted and
+  nothing else, so a documentation mention (`<!-- datescan:allow: -->`) still
+  reads as a mention rather than a live exemption. That is the thing `\w` was
+  protecting, and it is kept.
+- The ⚠️ **sibling-scanner precondition** — "check the siblings before fixing
+  one" — was discharged by fixing at the class rather than the instance. The
+  item's own count of "ten loaders" was low: twelve carry the grammar.
+
+- [x] **A reason that opens with punctuation does not count as a reason.**
+      `ALLOW_RX` ends `:[ \t]*(?P<reason>\w)`, so the first non-space character
+      after the colon must be a word character. A marker written as
+      `spellscan:allow: 'PKI Center' is a company name` — reason first word in
+      quotes — parses as a **mention, not an exemption** (`parse_allow` returns
+      `None`), and the line starts blocking. Found live in a child repo, on two
+      markers that had been exempting correctly for weeks and stopped without
+      anyone touching them; the child's next commit failed an enforced gate on
+      lines it had not edited. Worked around there by reordering the reason to
+      lead with a word; the class itself is unfixed and every child inherits it.
+      🔎 **Two things make this worse than a cosmetic nit.** It is **silent** —
+      a voided marker produces a *finding*, never "your marker did not parse",
+      so the failure presents as a spelling error rather than a grammar
+      rejection, and the obvious response is to reword the *prose*. And a quoted
+      proper noun is the **single most likely** way to open a spellscan reason,
+      because the reason nearly always names the term being allowed — so the
+      false-negative concentrates exactly where the marker is most used.
+      🤔 **Open question, the reason the fix is not obvious:** rule (c) of
+      `method/GUARDS.md` wants a *stated* reason, and `\w` is a cheap proxy for
+      "something was written". Widening to `\S` admits `-` or `.` as a reason.
+      A narrower fix — accept an opening quote, or require *n* word characters
+      anywhere in the remainder — keeps the intent and drops the false negative.
+      ⚠️ **Check the sibling scanners before fixing one.** Ten loaders share this
+      grammar and two of them (`datescan`, `pathscan`) already had their reason
+      character class corrected once; whether the rest carry the same edge is
+      unverified, and a one-scanner fix would leave the estate inconsistent.
+
+*What survives on the hot path, and deliberately: § Estate duplication +
+exception audit's* **Make a voided allowance visible** *item. The fix above
+closed the known cause; a marker that parses as nothing is still
+indistinguishable from no marker, so the next parser gap will also be silent.
+That is instance one of the class, queued not built (`PROPAGATION.md` rung 2).*
+
+## The floor-local-seam cycle's verdict pointer, retired (2026-08-09)
+
+Harvested 2026-08-09 alongside the entry above — the same cycle-state residue
+class, and the fourth instance the board has produced. The bullet had **already
+diagnosed itself** in place ("This item's 'await Mike's ruling' was stale from
+that date: the second cycle-state residue this sitting found hiding in coarse
+wording. Kept only as the verdict pointer; no work owed") and *still* sat on the
+hot path as `[ ] 🎯` — so a reader scanning for Mike's outstanding rulings
+counted a ruling that was made, applied and verified two weeks earlier. Naming
+the residue is not clearing it; the `[x]` is.
+
+Re-verified at HEAD `6887118` before flipping, all five LS fixes traced to live
+code rather than to the claim: encoding at the interpolation point
+(`read_text(encoding="utf-8")`), the OSError wrap, symlink-resolving containment
+(`_inside` resolves both sides then compares with `commonpath`, with symlink
+tests in *both* directions — escaping blocked, staying-inside still runs),
+unknown-key refusal (`LOCAL_KEYS` + the parse-time rejection), and the
+disabled-local `➕` marking in `floorfleet`. Both cited commits exist and say
+what the item says they say.
+
+- [x] 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS
+      3 medium / 2 low (reviewer's scale; no MAJOR label used) —
+      [verdict](reviews/2026-07-26-2215-floor-local-seam-cold.md).
+      **State: RULED AND APPLIED — LS1–LS5 landed 2026-07-27 as Track A's
+      A4** (encoding at the interpolation point, the OSError wrap, realpath
+      containment + symlink tests, unknown-key refusal, the disabled-local
+      marking — all verified at HEAD 2026-08-04). This item's "await Mike's
+      ruling" was stale from that date: the second cycle-state residue this
+      sitting found hiding in coarse wording. Kept only as the verdict
+      pointer; no work owed. *Delta:* `tools/floor.py`
+      (`local` block, `_load_local`, the `is_local` path through plan/run/render,
+      `_interpreter`), `tools/floorfleet.py` (`➕` board line), their two test
+      files, `docs/build/REPO-STANDARD.md`, `docs/build/templates/CONTRIBUTING.md`,
+      `docs/build/templates/workflows/floor.yml`, CHANGELOG. Commits `f526dea`,
+      `76f4acc`. *Intent record:*
+      `sessions/2026-07-26-1120-floor-local-seam.md`.

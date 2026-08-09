@@ -1675,34 +1675,16 @@ all-clear rule) rather than as a new section: read the *conclusion*, never just
       green on a `cancelled` conclusion) is left for evidence: this is instance
       one, and one instance grounds a clause, not a build.
 
-## spellscan's reason class silently voided live allow-markers (found 2026-08-09)
+## spellscan's reason class silently voided live allow-markers — CLOSED 2026-08-09
 
-- [ ] **A reason that opens with punctuation does not count as a reason.**
-      `ALLOW_RX` ends `:[ \t]*(?P<reason>\w)`, so the first non-space character
-      after the colon must be a word character. A marker written as
-      `spellscan:allow: 'PKI Center' is a company name` — reason first word in
-      quotes — parses as a **mention, not an exemption** (`parse_allow` returns
-      `None`), and the line starts blocking. Found live in a child repo, on two
-      markers that had been exempting correctly for weeks and stopped without
-      anyone touching them; the child's next commit failed an enforced gate on
-      lines it had not edited. Worked around there by reordering the reason to
-      lead with a word; the class itself is unfixed and every child inherits it.
-      🔎 **Two things make this worse than a cosmetic nit.** It is **silent** —
-      a voided marker produces a *finding*, never "your marker did not parse",
-      so the failure presents as a spelling error rather than a grammar
-      rejection, and the obvious response is to reword the *prose*. And a quoted
-      proper noun is the **single most likely** way to open a spellscan reason,
-      because the reason nearly always names the term being allowed — so the
-      false-negative concentrates exactly where the marker is most used.
-      🤔 **Open question, the reason the fix is not obvious:** rule (c) of
-      `method/GUARDS.md` wants a *stated* reason, and `\w` is a cheap proxy for
-      "something was written". Widening to `\S` admits `-` or `.` as a reason.
-      A narrower fix — accept an opening quote, or require *n* word characters
-      anywhere in the remainder — keeps the intent and drops the false negative.
-      ⚠️ **Check the sibling scanners before fixing one.** Ten loaders share this
-      grammar and two of them (`datescan`, `pathscan`) already had their reason
-      character class corrected once; whether the rest carry the same edge is
-      unverified, and a one-scanner fix would leave the estate inconsistent.
+Fixed at the class in `8276a54` (14 regex sites across 12 scanners, re-enumerated
+at HEAD before this close), and harvested the same day →
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *spellscan's reason class silently voided
+live allow-markers*. Both of the item's open threads — whether to widen to `\S`,
+and the check-the-siblings precondition — were closed by the shape of the fix
+rather than deferred. The class-level residue it *did* leave open (a marker that
+parses as nothing is indistinguishable from no marker) lives on as § *Estate
+duplication + exception audit*'s **Make a voided allowance visible** item below.
 
 ## Estate duplication + exception audit (Mike commissioned 2026-08-09)
 
@@ -2844,22 +2826,12 @@ USE — a possible future heuristic extension.)*
       review catalogue) has no such seam, and gets one only once
       "Codify V1–V7 as the always-loaded reviewer checklist" (above) decides what
       a checklist entry even is. Do not read the scanner seam as covering it.
-- [ ] 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS
-      3 medium / 2 low (reviewer's scale; no MAJOR label used) —
-      [verdict](reviews/2026-07-26-2215-floor-local-seam-cold.md).
-      **State: RULED AND APPLIED — LS1–LS5 landed 2026-07-27 as Track A's
-      A4** (encoding at the interpolation point, the OSError wrap, realpath
-      containment + symlink tests, unknown-key refusal, the disabled-local
-      marking — all verified at HEAD 2026-08-04). This item's "await Mike's
-      ruling" was stale from that date: the second cycle-state residue this
-      sitting found hiding in coarse wording. Kept only as the verdict
-      pointer; no work owed. *Delta:* `tools/floor.py`
-      (`local` block, `_load_local`, the `is_local` path through plan/run/render,
-      `_interpreter`), `tools/floorfleet.py` (`➕` board line), their two test
-      files, `docs/build/REPO-STANDARD.md`, `docs/build/templates/CONTRIBUTING.md`,
-      `docs/build/templates/workflows/floor.yml`, CHANGELOG. Commits `f526dea`,
-      `76f4acc`. *Intent record:*
-      `sessions/2026-07-26-1120-floor-local-seam.md`.
+- **The floor-local-seam cycle — CLOSED, no ruling owed.** Its verdict pointer
+  was harvested 2026-08-09 → [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The
+  floor-local-seam cycle's verdict pointer, retired*. LS1–LS5 were ruled and
+  applied 2026-07-27 as Track A's A4 and re-verified against live code at HEAD
+  before the close; the `🎯` it carried until that harvest was residue, and it
+  had been inflating the count of rulings Mike was said to owe.
 
 **What atelier ALREADY has (this EXTENDS, doesn't invent):**
 - The **floor scanners** (leakscan/secretscan/signscan/sizescan) ARE always-on
