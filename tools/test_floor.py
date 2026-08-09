@@ -247,8 +247,10 @@ class ScopeAndFlagsTest(unittest.TestCase):
         expressible in config, or the repo keeps a bespoke hook and falls out of
         propagation entirely, which is how this whole defect started."""
         cfg = _cfg({
-            "scope": {"leakscan": ["tiki/"]},
-            "flags": {"leakscan": ["--disable", "ipv4,ipv6,mac-address"]},
+            "scope": {"leakscan": {"paths": ["tiki/"],
+                                   "why": "only tiki/ is shareable"}},
+            "flags": {"leakscan": {"args": ["--disable", "ipv4,ipv6,mac-address"],
+                                   "why": "IP/MAC shapes are content here"}},
         })
         argv = floor._render(floor.BY_NAME["leakscan"].hook, Path("/repo"),
                              cfg, "leakscan")
@@ -277,7 +279,8 @@ class ScopeAndFlagsTest(unittest.TestCase):
         _render emitted absolute paths on both planes and did exactly that — only
         the planted-secret commit tests caught it.
         """
-        cfg = _cfg({"scope": {"leakscan": ["tiki/"]}})
+        cfg = _cfg({"scope": {"leakscan": {"paths": ["tiki/"],
+                                           "why": "only tiki/ is shareable"}}})
         argv = floor._render(floor.BY_NAME["leakscan"].hook, Path("/repo"),
                              cfg, "leakscan")
         self.assertIn("--staged", argv)
@@ -296,7 +299,8 @@ class ScopeAndFlagsTest(unittest.TestCase):
         self.assertEqual(argv, ["--staged", "--root", "/repo"])
 
     def test_flags_stay_local_to_their_scanner(self):
-        cfg = _cfg({"flags": {"leakscan": ["--disable", "ipv4"]}})
+        cfg = _cfg({"flags": {"leakscan": {"args": ["--disable", "ipv4"],
+                                           "why": "fixture"}}})
         argv = floor._render(floor.BY_NAME["secretscan"].hook, Path("/repo"),
                              cfg, "secretscan")
         self.assertNotIn("--disable", argv)
@@ -689,7 +693,8 @@ class InvocationTest(unittest.TestCase):
         (TA1)."""
         with tempfile.TemporaryDirectory() as td:
             (Path(td) / floor.CONFIG_NAME).write_text(
-                json.dumps({"scope": {"secretscan": ["nosuchtree"]}}), encoding="utf-8")
+                json.dumps({"scope": {"secretscan": {
+                    "paths": ["nosuchtree"], "why": "fixture"}}}), encoding="utf-8")
             r = self._run("--plane", "ci", "--root", td)
             self.assertEqual(r.returncode, 1, r.stdout)
             self.assertIn("secretscan", r.stderr)
@@ -706,7 +711,8 @@ class InvocationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             (Path(td) / "docs").mkdir()
             (Path(td) / floor.CONFIG_NAME).write_text(
-                json.dumps({"scope": {"secretscan": ["docs", "gone"]}}), encoding="utf-8")
+                json.dumps({"scope": {"secretscan": {
+                    "paths": ["docs", "gone"], "why": "fixture"}}}), encoding="utf-8")
             r = self._run("--plane", "ci", "--root", td)
             self.assertEqual(r.returncode, 1, r.stdout)
             self.assertIn("gone", r.stderr)
@@ -745,7 +751,8 @@ class InvocationTest(unittest.TestCase):
             root.mkdir()
             (root / "logs").symlink_to(outside)
             (root / floor.CONFIG_NAME).write_text(
-                json.dumps({"scope": {"secretscan": ["logs"]}}), encoding="utf-8")
+                json.dumps({"scope": {"secretscan": {
+                    "paths": ["logs"], "why": "fixture"}}}), encoding="utf-8")
             r = self._run("--plane", "hook", "--root", str(root))
             self.assertEqual(r.returncode, 1, r.stdout)
             self.assertIn("OUTSIDE this repo", r.stderr)
@@ -757,7 +764,8 @@ class InvocationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             (Path(td) / "docs").mkdir()
             (Path(td) / floor.CONFIG_NAME).write_text(
-                json.dumps({"scope": {"secretscan": ["docs"]}}), encoding="utf-8")
+                json.dumps({"scope": {"secretscan": {
+                    "paths": ["docs"], "why": "fixture"}}}), encoding="utf-8")
             r = self._run("--plane", "ci", "--root", td, "--json")
             self.assertEqual(r.returncode, 0, r.stderr)
             results = {x["name"]: x for x in json.loads(r.stdout)["results"]}
@@ -916,14 +924,26 @@ class InvocationTest(unittest.TestCase):
         self.assertEqual(cfg.flags["datescan"].args, ("--some-repo-tuning",))
         self.assertEqual(cfg.flags["datescan"].why, "")
 
-    def test_a_legacy_flags_list_is_exempt_for_the_transition(self):
-        """Same terms as the legacy `scope` list below: it cannot carry a `why`
-        at all, so holding it to EP1(b) would break every child that already
-        declares one, on the afternoon this lands."""
+    def test_a_legacy_flags_list_on_a_boundary_check_now_bites(self):
+        """Mike ruled bite-now (2026-08-09), over the ride-C1-phase-2 deferral
+        this test used to pin: a bare list cannot carry a `why`, which is
+        exactly why it may not tune a never-softened check. The remedy in the
+        error is the reasoned spelling — one line for the affected repo."""
         with tempfile.TemporaryDirectory() as td:
             (Path(td) / "docs").mkdir()
             r = self._cfg_run(td, {"flags": {"leakscan": ["--disable", "ipv4"]}})
-            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertEqual(r.returncode, 1, r.stdout)
+            self.assertIn("needs a `why`", r.stdout + r.stderr)
+
+    def test_a_legacy_flags_list_on_a_softenable_check_still_parses(self):
+        """The bite is scoped to checks with no advisory form; a softenable
+        check's legacy list keeps parsing until C1 phase 2 retires the
+        spelling everywhere — that flag day stays C1's, not EP1(b)'s.
+        Judged at the parse seam: no softenable scanner accepts a bespoke
+        runtime flag, so a full run would test the scanner's argv parser,
+        not this rule."""
+        cfg = _cfg({"flags": {"datescan": ["--some-tuning"]}})
+        self.assertTrue(cfg.flags["datescan"].legacy)
 
     def test_a_reasoned_flags_override_still_tunes_the_check(self):
         """The reason is a record, never an argument. If the `why` reached argv
@@ -953,12 +973,22 @@ class InvocationTest(unittest.TestCase):
             _cfg({"flags": {"leakscan": {"args": ["--disable", "ipv4"],
                                          "whys": "typo"}}})
 
-    def test_a_legacy_scope_list_is_exempt_for_the_transition(self):
-        """It cannot carry a `why` at all, so holding it to A1(b) would be the
-        flag day the transition exists to avoid."""
+    def test_a_legacy_scope_list_on_a_boundary_check_now_bites(self):
+        """The scope twin of the flags bite above (Mike ruled 2026-08-09):
+        narrowing a boundary check without a stated reason is the EP1 hole,
+        whatever spelling carries it."""
         with tempfile.TemporaryDirectory() as td:
             (Path(td) / "docs").mkdir()
             r = self._cfg_run(td, {"scope": {"leakscan": ["docs"]}})
+            self.assertEqual(r.returncode, 1, r.stdout)
+            self.assertIn("needs a `why`", r.stdout + r.stderr)
+
+    def test_a_legacy_scope_list_on_a_softenable_check_still_parses(self):
+        """atelier's own config is this exact shape (wrapscan/spellscan scoped
+        to the doctrine surface, bare lists) — the bite must not reach it."""
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "docs").mkdir()
+            r = self._cfg_run(td, {"scope": {"wrapscan": ["docs"]}})
             self.assertEqual(r.returncode, 0, r.stderr)
 
     def test_partial_scope_drift_on_a_softenable_check_is_visible(self):

@@ -5,6 +5,20 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-08-09 — the reason rule bites the legacy spelling on boundary checks)
+EP1(b) as landed exempted the legacy bare-list `scope`/`flags` spelling —
+it cannot carry a `why` — so the ruled forcing function would only have
+arrived when C1 phase 2 retires that spelling. **Mike ruled bite-now
+(2026-08-09):** on a scanner with no advisory form (secretscan, leakscan,
+linkscan, reviewscan, licenscan) the legacy spelling is now a config
+error naming the reasoned form as the remedy. Softenable checks keep
+parsing the legacy list until C1 phase 2 — that flag day stays C1's.
+Measured blast radius at the ruling: one declaration estate-wide moves
+from exempt to blocked; the fix is its one-line `why`. Six test fixtures
+that used the legacy spelling on boundary scanners moved to the reasoned
+form (their questions unchanged); the two transition-exemption tests now
+pin the bite and its softenable boundary.
+
 ### Changed (2026-08-09 — a cancelled floor run is not an all-clear)
 `RECORD.md` already required a close that pushes to carry the **pushed** floor
 run's result rather than the local scan. The rule had a hole its grounding case

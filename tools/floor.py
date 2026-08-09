@@ -804,8 +804,12 @@ def _load_advisory(raw: object) -> dict[str, Advisory]:
 def _load_scope(raw: object) -> dict[str, Scope]:
     """Parse `scope`, accepting both spellings during the same transition.
 
-      {"leakscan": ["tiki/"]}                       legacy — parses, renders 🟡
+      {"wrapscan": ["docs"]}                        legacy — parses, renders 🟡
       {"leakscan": {"paths": ["tiki/"], "why": "..."}}          the rule
+
+    On a scanner with no advisory form the legacy spelling is REJECTED at
+    `Config.validate` (bite-now, 2026-08-09) — it cannot state a reason, and
+    narrowing a boundary check without one is the hole EP1 named.
 
     The `why` is required only for a scanner with no advisory form; a softenable
     check's scope is an ordinary layout fact (A1(b), ruled 2026-07-28). That
@@ -856,8 +860,11 @@ def _load_scope(raw: object) -> dict[str, Scope]:
 def _load_flags(raw: object) -> dict[str, Flags]:
     """Parse `flags`, accepting both spellings on the same transition terms.
 
-      {"leakscan": ["--disable", "ipv4"]}            legacy — parses
+      {"datescan": ["--some-tuning"]}                legacy — parses
       {"leakscan": {"args": ["--disable", "ipv4"], "why": "..."}}    the rule
+
+    As with `scope`, the legacy spelling is rejected at `Config.validate` on a
+    scanner with no advisory form (bite-now, 2026-08-09).
 
     `args` rather than `flags` for the inner key: it is the word the local seam
     already uses for exactly this thing (`local.<name>.args`), and
@@ -1211,18 +1218,22 @@ class Config:
             for p in sc.paths:
                 _reject_escaping_scope(f"scope.{name}", p)
             # A1(b): narrowing a check that may NEVER be softened states why.
-            # Only checkable here, where the registry lookup lives. Legacy
-            # spellings are exempt for the length of the transition — they
-            # cannot carry a `why` at all, and the 🟡 they render is the
-            # migration prompt.
+            # Only checkable here, where the registry lookup lives. The legacy
+            # bare-list spelling gets NO exemption on these checks (Mike ruled
+            # bite-now, 2026-08-09, over the ride-C1-phase-2 deferral): it
+            # cannot carry a `why`, which is exactly why it may not narrow a
+            # boundary check — the remedy is the reasoned spelling, one line.
+            # Softenable checks keep parsing the legacy form until C1 phase 2
+            # retires that spelling everywhere.
             scanner = self.scanner(name)
-            if (not sc.legacy and not sc.why
+            if (not sc.why
                     and scanner is not None and scanner.advisory is None):
                 raise ConfigError(
                     f"{CONFIG_NAME}: `scope.{name}` needs a `why` — {name} is a "
                     "boundary or integrity check that may never be softened, so "
                     "narrowing where it looks is a cover decision on the record, "
-                    "not a layout detail."
+                    "not a layout detail. Write it as "
+                    f'`"{name}": {{"paths": [...], "why": "..."}}`.'
                 )
         # Both spellings, because both feed `subtrees` and render identically.
         for scanner in self.local:
@@ -1261,10 +1272,12 @@ class Config:
             # a rule switched off by name, or a positional matching no staged
             # path, shrinks cover without touching it. On a check that may never
             # be softened that is a cover decision, so it goes on the record the
-            # way a disabled one does. Legacy list spellings are exempt for the
-            # length of the transition — they cannot carry a `why` at all.
+            # way a disabled one does. The legacy list spelling gets NO
+            # exemption here (Mike ruled bite-now, 2026-08-09) — it cannot
+            # carry a `why`, so on these checks it may not tune anything; the
+            # remedy is the reasoned spelling named below.
             scanner = self.scanner(name)
-            if (not fl.legacy and not fl.why
+            if (not fl.why
                     and scanner is not None and scanner.advisory is None):
                 raise ConfigError(
                     f"{CONFIG_NAME}: `flags.{name}` needs a `why` — {name} is a "

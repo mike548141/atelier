@@ -768,10 +768,13 @@ the mechanism works.
       cycle-state residue class, corrected from the tree — and EP4–EP10 all
       applied as counselled; EP1(a)/(c), EP2 and EP3 verified present
       rather than redone. Blast radius measured, not estimated: zero repos
-      red at their next push. One deferral surfaced to Mike at this
-      session's close: the new `flags` reason mirrors `scope`'s C1 legacy
-      exemption, so the ruled forcing function arrives with C1 phase 2,
-      not now. Verdict:
+      red at their next push. The deferral surfaced at close —
+      the legacy-spelling exemption postponing the forcing function to C1
+      phase 2 — was **RULED 2026-08-09 (Mike): bite now**, and applied
+      the same day: on a never-softened scanner the legacy `scope`/`flags`
+      spelling is a config error naming the reasoned form; softenable
+      checks keep it until C1 phase 2. One declaration estate-wide moves
+      from exempt to blocked. Verdict:
       [ADR 0008 cold pass](reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md);
       detail + the withdrawn-Opus-pass history →
       [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The EP application*. The
@@ -1329,7 +1332,11 @@ all-clear rule) rather than as a new section: read the *conclusion*, never just
   `docs/build/templates/CONTRIBUTING.md` +
   `docs/decisions/0008-enforcement-is-called-not-copied.md` (Decision 6 +
   the Consequences control clause) + the four test files (suite
-  1164 → 1178) + the CHANGELOG entry (landed 2026-08-06, this commit).
+  1164 → 1178) + the CHANGELOG entry (landed 2026-08-06, this commit) +
+  the 2026-08-09 bite-now follow-up on the same surfaces
+  (`tools/floor.py` validate + `tools/test_floor.py`, Mike's ruling at
+  the close walk-through — the legacy-spelling exemption removed for
+  never-softened scanners; delta widened per the landing-commit rule).
   *Intent record:*
   [ADR 0008 cold pass](reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md)
   (EP1–EP10) + the 2026-08-04 ruling, harvested with the item to
