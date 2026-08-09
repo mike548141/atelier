@@ -4304,3 +4304,199 @@ what the item says they say.
       `docs/build/templates/workflows/floor.yml`, CHANGELOG. Commits `f526dea`,
       `76f4acc`. *Intent record:*
       `sessions/2026-07-26-1120-floor-local-seam.md`.
+
+## secretscan's last invisible subtraction (done 2026-08-09)
+
+Track E residue, and the last uncounted subtraction in the scanner.
+`PUBLIC_KEY_RX` skips a line's entropy pass entirely — the deliberate carve-out
+that stops an SSH public key reading as a credential — and it predated the GUARDS
+counted-suppression model, so the lines it wrote off appeared in no tally.
+
+**Whether the finding was even still true was the crux, and it was settled by
+probe.** The clean line already ended `1 public-key fingerprint(s)`, which reads
+like the same thing and is not: that counter is E3's whole-shape fingerprint
+carve-out, incremented *inside* the entropy loop, while `PUBLIC_KEY_RX` skipped
+the loop from outside it. Same 68-char body on two lines, one naming
+`ssh-ed25519` and one not — the first went clean with every tally field at 0, the
+second returned a blocking high-entropy finding. A blocking finding vanished and
+no number moved: precisely the state GUARDS rule (b) exists to forbid.
+
+**What it was hiding on the live tree: two real suppressions** — `allowed_signers`
+and a line in `tools/signscan.py`, both genuine SSH allowed-signers public keys at
+entropy 5.1. So "small alignment" understated it; the green tick had
+under-reported its own subtractions since the carve-out landed.
+
+The fix keeps the suppression byte-identical and changes only what is said about
+it: the carve-out moved *inside* the span loop (same regex, same per-line scope,
+same precedence ahead of the E3 check) so it can count each span before
+continuing. `N by public-key line` is **appended** rather than inserted, and
+prints at zero, because two runs of this board get read side by side. Tests
+122 → 134, both directions plus the widest-suppression cases (a named assigned
+credential on a public-key line still blocks; `private_key =` is not a public-key
+line). Full suite 1210 → 1222, floor `conclusion=success` on the pushed run.
+
+- [x] **`PUBLIC_KEY_RX` subtracts silently** (found at the E6b build,
+      reported not fixed there): the public-key line suppression predates
+      the GUARDS allowance model's counted-suppression rule — lines it
+      writes off appear in no tally, the one subtraction in the scanner a
+      reader cannot see growing. Small alignment; rides the next
+      secretscan touch.
+
+## The parent states its own reasons (done 2026-08-09)
+
+`GUARDS.md` rule (c) binds atelier identically to any child, and atelier's own
+`scope` block had been narrowing three checks with no reason travelling with the
+declaration. Migrated to the reasoned spelling — which also clears the
+atelier-side precondition **C1b phase 2** names, since the legacy bare-list form
+cannot carry a `why` at all.
+
+The reasons were **lifted, never invented**, which is the whole difficulty of
+this class of fix: WS1's 2026-07-23 option-A ruling and its measured ~6:1
+noise-to-signal for an unscoped `docs/**`; Mike's 2026-07-23 frozen-history
+ruling (records are kept verbatim, history is not retro-spelled); and PS4's
+records-named-out ground from `b012884` (a record describes the tree as it stood
+when written, and with no time axis it can never come clean without markers that
+would falsify it). Each declaration also states **what cover is given up**, which
+is the half a scope declaration usually omits.
+
+- [x] **atelier's own `scope` block carries no `why`, and the parent is not
+      exempt.** `.atelier-floor.json` narrows `wrapscan`, `spellscan` and
+      `pathscan` to three doctrine dirs — a real check-level scope reduction,
+      declared and visible on the board, but with no reason travelling with the
+      declaration. `ros`'s `scope` entry carries a `why`; atelier's does not,
+      and `GUARDS.md` rule (c) binds the parent identically.
+
+*The `ros` half of the same finding stayed OPEN and was deliberately not
+delivered from here — work lands in the repo it changes (Mike's ruling,
+2026-08-09). It is owed a queue entry in `ros` and nothing more from an atelier
+session.*
+
+## The subagent metadata sidecar is captured (done 2026-08-09)
+
+Mike ruled this a new capture class on 2026-07-28. The sidecar beside each
+subagent log holds facts recorded nowhere else — `toolUseId`, the join key back
+to the spawning `tool_use` block in the parent session log; `spawnDepth` and
+`parentAgentId`, which resolve the nesting ambiguity cctranscript's own
+finished-agents comment names; and `model`, the tier an agent actually ran on,
+which is the fact the queue-run tier discipline is asserted against.
+
+**The open sub-choice, taken narrow:** scoped to `subagents/`, not name-matched
+`*.meta.json` at any depth. The allowlist's point is that it admits *known*
+classes and leaves the unrecognised out visibly; matching at any depth would
+sweep in a future unrelated artefact sight-unseen. The cost is stated rather than
+buried — if Claude Code moves subagent logs, this class silently goes empty, and
+the drift alarm only fires when the *whole* walk yields nothing. Same exposure
+`tool-results/` already carries: no new blindness, none removed.
+
+**Two of the five build notes needed no code**, and saying so is the honest
+result: restore mapping and manifest/integrity are structural consequences of
+keying everything on `<rel>.gz`. Both were *proved* — a pruned sidecar restores
+byte-identical, a tampered `.gz` is caught as `mismatch`.
+
+**The shrink guard is inert on this class**, which is a better answer than "it's
+fine": it fires only on a rewrite, and 0 of 545 sidecars was rewritten more than
+a second after creation. No size or class exception was carved in — that would
+weaken a working guard for an event never observed. Pinned by a two-halves test:
+a tiny *first* capture is never refused, a shrinking *rewrite* is.
+
+**The backfill is free, verified rather than assumed** — code path plus a
+synthetic run where the sidecar appears with its mtime backdated a *year* and is
+still taken, which is the load-bearing part because it proves age is irrelevant.
+545 sidecars / 87,883 bytes on the first run after the class landed.
+
+**Every recorded figure was stale, all larger** — 425 → 545 sidecars, 66 KB →
+85.8 KB, 418 → 521 archived logs, and 538 → 545 inside a single session because
+agents were spawning while it was counted. Nothing was wrong in *kind*: the key
+census, the zero-archived state and the single permanent loss all held exactly.
+One wording correction: the sidecar *replaces* the `.jsonl` extension rather than
+appending to it, which would have misled anyone building the pairing by
+concatenation. Tests 95 → 99, `mandoc -T lint` exit 0, no new flags.
+
+- [x] **Capture the subagent `.meta.json` sidecar (Mike ruled 2026-07-28 — a new
+  capture class, not covered by the 2026-07-23 metadata ruling).** Each
+  `<uuid>/subagents/agent-<id>.jsonl` has a `.meta.json` beside it that ccarchive
+  does **not** take: `captureClass()` is an allowlist of `.jsonl` at any depth,
+  `tool-results/*`, `toolu_*` and `memory/*.md`, and a `.meta.json` matches none
+  of them.
+- [x] **Backfill the sidecars for already-archived transcripts — measured to be
+  FREE, and this item exists to verify that rather than to build it (Mike asked
+  2026-07-28).** `archiveOnce` walks the whole live tree each run and
+  `shouldArchive` returns true whenever no mirror exists, so the first ordinary
+  run after the capture class lands takes every sidecar still on disk — no new
+  code, no flag, no separate pass.
+
+*The one thing this work FOUND rather than finished stayed on the hot path: the
+real archive exits 1 on every scheduled run, on two legitimately-condensed
+whole-document files. It predates this build, so it was queued, not folded in.*
+
+## worktree.py asks the right questions (done 2026-08-09)
+
+`CONCURRENCY.md` as a command failed at the one cwd an operator is most likely to
+be in when they land work — inside the worktree. `list` labelled that worktree's
+branch `main` and showed no ahead/behind, `land <feature>` said
+`no worktree found`, and `start` produced `<repo>-<old-feature>-<new-feature>`.
+
+**The recorded diagnosis was wrong, and that is the more useful half.** The item
+said the *branch* came from the cwd. It did not — the branch was already
+per-worktree and already correct, which the entry itself half-admitted by noting
+`git branch --show-current` agreed throughout. What came from the cwd was **repo
+identity**: `toplevel(Path.cwd())` answers "which checkout am I in", and three
+call sites spent that answer as "which repo is this". So `collect()` set `is_main`
+true for the *current* tree, and `_feature_worktree()`/`cmd_start()` built the
+directory suffix from the current tree's name. The same correction applies to
+"drops its ahead/behind counts": the counts were computed correctly the whole
+time and merely *suppressed*, because `render_list` gates the `↑/↓` flag on
+`not is_main`. Fixing identity restored them without touching that code — and a
+symptom the entry never mentioned, `start` from inside a worktree, was the same
+root cause.
+
+Identity now comes from the first entry of `git worktree list --porcelain` (git
+always lists the primary tree first), so it no longer depends on where the
+command ran. `_feature_worktree` returns the porcelain **entry** rather than a
+bare path, so callers read the branch off the worktree they matched, and
+`parse_worktrees` finally parses the `HEAD <sha>` line its docstring had claimed
+for a key it never set.
+
+**`remove` asked a ref a direct push never moves.** `git branch --merged <local
+main>` refused a branch that `merge-base --is-ancestor HEAD origin/main` confirms
+is contained — teaching `--force` as the routine escape from a safety check. The
+referent is now `origin/<main>` then local `<main>`, each verified real, with only
+exit 0 counting as merged, and an empty ref list meaning **not merged**. No
+network by default (a direct push already updates the local remote-tracking ref,
+confirmed on the bench); `--fetch` is opt-in.
+
+**One fail-open the switch would have introduced, caught in the same pass:** a
+detached worktree's branch reads as the literal string `"HEAD"`, and `merge-base`
+would have resolved that in the *main* tree — reporting every detached worktree as
+merged and removable. It now checks the detached HEAD sha.
+
+Tests 12 → 27 on the module, suite 1222 → 1237, selftest OK, hook-plane floor exit
+0, and `list` verified byte-identical from both cwds. The tests do the thing the
+bug needed rather than mocking it: a real linked worktree in a temp repo, and a
+bare temp remote proving a branch landed only on `origin/main` is removable while
+a genuinely unmerged one is still refused.
+
+*A baseline discrepancy resolved rather than left as a puzzle: the worker measured
+1222 where this session's opening baseline said 1210. Both were right — the 1210
+predates the secretscan commit in the same batch, which added exactly 12 tests.
+The worker's own hypothesis (an uncollected `test_worktree.py`, which also has 12)
+was a coincidence of numbers.*
+
+- [x] **`tools/worktree.py` resolves the branch from the cwd, not per-worktree.**
+      Reproduced 2026-08-09, and the condition is the whole finding: run **from
+      inside a linked worktree**, `list` labels that worktree's branch as `main`
+      and drops its ahead/behind counts, and `land <feature>` fails
+      `no worktree found`; run from the main checkout, both are correct. The
+      branch itself is never wrong — `git branch --show-current` agrees
+      throughout. *Superseded in its diagnosis on close: the cwd-dependent value
+      was repo identity, not the branch.*
+- [x] **`remove` compares against local `main`, which a direct push leaves
+      stale.** After `git push <branch>:main`, `remove` refused — *"branch … is
+      not merged into main"* — because local `main` had not moved.
+      `git merge-base --is-ancestor HEAD origin/main` said otherwise, correctly.
+      The guard is right to exist; its referent should be the remote integration
+      branch, or it teaches `--force` as the routine escape from a safety check.
+
+*Five pre-existing defects the fix surfaced stayed on the hot path, queued not
+taken — one of them (`list`'s ↑/↓ referent) would change what "behind" means on a
+widely-read board.*

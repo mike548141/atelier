@@ -5,6 +5,87 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-08-09 — worktree.py works from inside a worktree)
+The tool that is CONCURRENCY.md as a command failed at the one cwd an operator
+is most likely to be in when they land work. From inside a linked worktree,
+`list` labelled that worktree's branch `main` and showed no ahead/behind,
+`land <feature>` said `no worktree found`, and `start` produced
+`<repo>-<old-feature>-<new-feature>`. **The recorded diagnosis was wrong and
+the correction is the more useful half:** the branch was already per-worktree
+and already right — what came from the cwd was *repo identity*, because
+`toplevel(Path.cwd())` answers "which checkout am I in" and three sites spent
+it as "which repo is this". The ahead/behind counts were likewise never
+dropped, only suppressed, since `render_list` gates the `↑/↓` flag on
+`not is_main`. Identity now comes from the first entry of `git worktree list
+--porcelain`. Separately, `remove`'s merged-guard asked a ref a direct push
+never moves (`git branch --merged <local main>`), refusing branches that
+`merge-base --is-ancestor HEAD origin/main` confirms are contained — which
+teaches `--force` as the routine escape from a safety check. The referent is
+now `origin/<main>` then local `<main>`, each verified real, an empty ref list
+meaning **not merged**, and no network by default. One fail-open the switch
+would have introduced was caught in the same pass: a detached worktree's branch
+reads as the literal `"HEAD"`, which `merge-base` would have resolved in the
+main tree and called merged. Tests 12 → 27 on the module, suite 1222 → 1237.
+Five pre-existing defects the fix surfaced were queued rather than taken.
+
+
+### Added (2026-08-09 — the subagent metadata sidecar is archived)
+Mike ruled this a new capture class on 2026-07-28 and it is now built.
+Every `<uuid>/subagents/agent-<id>.jsonl` has a sidecar recording facts that
+exist nowhere else: `toolUseId`, the join key back to the spawning `tool_use`
+block in the parent session log; `spawnDepth`/`parentAgentId`, which resolve
+the nesting ambiguity cctranscript's own finished-agents comment names; and
+`model`, the tier an agent actually ran on — the fact the queue-run tier
+discipline is asserted against, held in one copy on a disk with a pruning
+clock. The new `subagent-meta` class is scoped to `subagents/` rather than
+name-matched at any depth: the allowlist admits **known** classes and leaves
+the unrecognised out visibly, and the cost of the narrow reading is recorded
+with it. Two of the item's five build notes needed no code at all — restore
+mapping and manifest/integrity fall out of keying everything on `<rel>.gz` —
+and both were proved rather than reasoned. The shrink guard turns out to be
+**inert** on this class (0 of 545 sidecars rewritten more than a second after
+creation), so no size or class exception was carved into a working guard for
+an event never observed. The backfill needs no code either, verified with a
+sidecar whose mtime was backdated a year and still taken on the next ordinary
+run. Tests 95 → 99, `mandoc -T lint` clean, no new flags. Every recorded
+figure was stale in the same direction — 425 → 545 sidecars, 66 KB → 85.8 KB
+— with the census shape intact, which is the sweep-never-adjust rule paying
+out again.
+
+### Fixed (2026-08-09 — secretscan's last invisible subtraction is counted)
+`PUBLIC_KEY_RX` skips a line's entropy pass entirely, the deliberate carve-out
+that stops an SSH public key reading as a credential. It predated the GUARDS
+counted-suppression model, so the lines it wrote off appeared in no tally.
+Whether the finding was still true was the crux, because the clean line
+already ended `1 public-key fingerprint(s)` — a *different* subtraction (E3's
+whole-shape carve-out, counted inside the entropy loop). Settled by probe, not
+by reading: the same 68-char body naming `ssh-ed25519` went clean with every
+tally at zero, while the bare control returned a blocking finding. A blocking
+finding vanished and no number moved — the exact state GUARDS rule (b) exists
+to forbid. On this tree it was hiding **two** real suppressions, both genuine
+SSH allowed-signers keys. The carve-out now sits inside the span loop so it
+can count what it writes off; the suppression itself is byte-identical. The
+new field is **appended** and prints at zero, because two runs of this board
+get read side by side. Tests 122 → 134; suite 1210 → 1222.
+
+### Changed (2026-08-09 — the parent states its own reasons, and two stale items close)
+`GUARDS.md` rule (c) binds atelier identically to any child, and atelier's own
+`scope` block had been narrowing three checks with no reason travelling with
+the declaration. Migrated to the reasoned spelling — which also clears the
+atelier-side precondition C1b phase 2 names, since the legacy bare-list form
+cannot carry a `why` at all. The reasons were **lifted, never invented**: WS1's
+2026-07-23 option-A ruling with its measured ~6:1 noise-to-signal, Mike's
+2026-07-23 frozen-history ruling, and PS4's records-named-out ground. Each
+declaration also states what cover is given up, the half a scope declaration
+usually omits. Alongside it, two `[ ]` items that the tree had already closed
+came off the hot path — the spellscan reason class (fixed at the class in
+`8276a54`; re-enumerated at HEAD as 14 regex sites across 12 scanners rather
+than taken on the commit message's word) and the floor-local-seam verdict
+pointer, which had **diagnosed itself** as residue in its own text and still
+sat there as `[ ] 🎯`, inflating the count of rulings Mike was said to owe.
+Naming residue is not clearing it.
+
+
 ### Fixed (2026-08-09 — an allowance reason may open with a quote)
 Found by the estate exception audit, from a live failure rather than a read:
 a PUBLIC child's floor went red on a line whose allow-marker read correctly

@@ -831,13 +831,14 @@ adopter mistakes.*
       canaried both directions — a fingerprint-prefixed body of the wrong
       length still blocks — and the suppression is counted in the tally,
       never silent. → [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *E6b built*.
-- [~] **`PUBLIC_KEY_RX` subtracts silently** (claimed 2026-08-09-0813, wt:
-      queue-batch-0809-0813) (found at the E6b build,
-      reported not fixed there): the public-key line suppression predates
-      the GUARDS allowance model's counted-suppression rule — lines it
-      writes off appear in no tally, the one subtraction in the scanner a
-      reader cannot see growing. Small alignment; rides the next
-      secretscan touch.
+- **`PUBLIC_KEY_RX` subtracts silently — FIXED 2026-08-09.** It was a
+      genuinely separate subtraction from the `public-key fingerprint(s)`
+      counter that reads like it (E3's carve-out, counted inside the entropy
+      loop; this one skipped the loop from outside it), settled by probe not by
+      reading. Two real suppressions on the live tree were invisible. Counted
+      now, suppression byte-identical, tests 122 → 134. →
+      [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *secretscan's last invisible
+      subtraction*.
 - **E4 — FIXED 2026-08-06 with E7's D2** (one fix, both entries): the
       IPv6-shape rule now requires `::` or four-plus groups; clock times,
       port maps, ratios and hex colour triplets pass, real addresses still
@@ -1732,40 +1733,63 @@ subtracted, never what someone *intended* to subtract and failed to.
 
 ### Findings owned here (atelier-side)
 
-- [~] **atelier's own `scope` block carries no `why`, and the parent is not
-      exempt.** (claimed 2026-08-09-0813, wt: queue-batch-0809-0813 — the
-      atelier half only; the `ros` `flags.leakscan` half is child work, queued
-      there, never delivered from here) `.atelier-floor.json` narrows `wrapscan`, `spellscan` and
-      `pathscan` to three doctrine dirs — a real check-level scope reduction,
-      declared and visible on the board, but with no reason travelling with the
-      declaration. `ros`'s `scope` entry carries a `why`; atelier's does not,
-      and `GUARDS.md` rule (c) binds the parent identically. The reasons exist
-      (the WS1 ruling, the S1 noise measurement) but live in the ignore-file
-      comments, which is the *other* half of the same rule — a reason a reviewer
-      of the config cannot see. Same defect on `ros`'s `flags.leakscan`
-      `--disable ipv4,ipv6,mac-address`: reasoned, but the reason sits in the
-      sibling `local.estate-tripwire` entry rather than on the declaration.
-- [~] **`tools/worktree.py` resolves the branch from the cwd, not per-worktree.**
-      (claimed 2026-08-09-0813, wt: queue-batch-0809-0813)
-      Reproduced 2026-08-09, and the condition is the whole finding: run **from
-      inside a linked worktree**, `list` labels that worktree's branch as `main`
-      and drops its ahead/behind counts, and `land <feature>` fails
-      `no worktree found`; run from the main checkout, both are correct
-      (`doctrine-adoption-ruling-0809 … [↑2 ↓0]`). The branch itself is never
-      wrong — `git branch --show-current` agrees throughout. This is the cwd a
-      session is *most likely* to be in when it lands work, so the tool's own
-      documented route fails exactly where it is used, and the operator either
-      hand-rolls the push or believes they are on `main`.
-      (First written here without the cwd condition, from one observation
-      inside the worktree; corrected on reproduction from both sides before
-      close, since the condition is what makes it fixable.)
-- [~] **`remove` compares against local `main`, which a direct push leaves
-      stale.** (claimed 2026-08-09-0813, wt: queue-batch-0809-0813)
-      Same session: after `git push <branch>:main`, `remove` refused —
-      *"branch … is not merged into main"* — because local `main` had not moved.
-      `git merge-base --is-ancestor HEAD origin/main` said otherwise, correctly.
-      The guard is right to exist; its referent should be the remote integration
-      branch, or it teaches `--force` as the routine escape from a safety check.
+- **atelier's own `scope` block carries no `why` — MIGRATED 2026-08-09
+      (atelier half).** The three narrowed checks (`wrapscan`, `spellscan`,
+      `pathscan`) now carry the reasoned spelling with the reason on the
+      declaration, and each states what cover is given up. Reasons were lifted,
+      never invented — WS1's 2026-07-23 option-A ruling and its measured ~6:1
+      noise-to-signal, Mike's 2026-07-23 frozen-history ruling, PS4's
+      records-named-out ground (`b012884`). This also clears the atelier-side
+      precondition **C1b phase 2** names. →
+      [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The parent states its own reasons*.
+      ⚠️ **The `ros` half is NOT closed and was deliberately not delivered from
+      here** — `ros`'s `flags.leakscan --disable ipv4,ipv6,mac-address` has the
+      same defect (reasoned, but the reason sits in the sibling
+      `local.estate-tripwire` entry rather than on the declaration). Work lands
+      in the repo it changes (Mike's ruling, 2026-08-09), so it is owed a queue
+      entry in `ros` and nothing more from an atelier session.
+- **`tools/worktree.py` failed from inside a worktree — FIXED 2026-08-09, and
+      this item's own diagnosis was wrong.** The heading said the *branch* was
+      resolved from the cwd; the branch was already per-worktree and already
+      correct (as this entry itself noted). What came from the cwd was **repo
+      identity** — `toplevel(Path.cwd())` answers "which checkout am I in" and
+      three sites spent it as "which repo is this". Likewise the ahead/behind
+      counts were never dropped, only *suppressed*, because `render_list` gates
+      the `↑/↓` flag on `not is_main` and `is_main` was wrongly true. A symptom
+      the entry never listed — `start` producing `<repo>-<old>-<new>` — is the
+      same root cause and is now covered. Identity now comes from the first
+      entry of `git worktree list --porcelain`. →
+      [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *worktree.py asks the right
+      questions*.
+- **`remove` compares against local `main` — FIXED 2026-08-09.** Referent is
+      now `origin/<main>` then local `<main>`, each verified real, and only
+      `merge-base --is-ancestor` exit 0 counts. The guard is not weakened: an
+      empty ref list means **not merged** and it refuses with its own message.
+      No network by default; `--fetch` is opt-in. One fail-open the switch would
+      have introduced was caught in the same pass — a detached worktree's branch
+      reads as the literal `"HEAD"`, which `merge-base` would have resolved in
+      the main tree and called merged.
+- [ ] 🔎 **Five pre-existing `worktree.py` defects, found by that fix and
+      deliberately left** (2026-08-09). Queued rather than taken because each is
+      outside the two claimed items and one of them changes a documented meaning:
+      (a) **`list`'s ↑/↓ carries the same stale-local-`main` referent** `remove`
+      just lost, so a landed branch shows `↑N` forever — fixing it changes what
+      "behind" *means* on this board, which is its own call;
+      (b) **`cmd_land` breaks on a detached worktree** exactly as `remove` would
+      have, sending the literal `"HEAD"` to `git push -u origin HEAD` and
+      `gh pr create --head HEAD`;
+      (c) **`land`'s no-remote hint derives the feature slug as
+      `branch.split('-')[-1]`** — for `queue-batch-0809-0813` it prints
+      `worktree remove 0813`, a command that resolves nothing, when the slug is
+      knowable from the directory name;
+      (d) **harness worktrees under `.claude/worktrees/` cannot be addressed by
+      slug at all** — they are named `<feature>`, not `atelier-<feature>`, so
+      `land`/`remove` can never resolve one, while `list` shows it fine. This is
+      the same nesting that makes `git add -A` unsafe here;
+      (e) **`worktree.py` carries pre-existing 101-column lines** that nothing
+      flags, because `wrapscan` is scoped away from `tools/` — a live instance
+      of the cover the scope declaration in `.atelier-floor.json` now states it
+      gives up.
 - [ ] **Eight children carry a floor block that predates four doctrine
       changes, and nothing mechanical can see it.** Measured 2026-08-09 against
       the canonical region: `Baby Brain`, `FoodTracker`, `docker-heap`,
@@ -2900,52 +2924,51 @@ What remains is Mike's:
   operator note: the shrink guard covers memory files uniformly, so a
   legitimately condensed memory file needs `--force` — safe-over-silent.
   Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
-- [~] **Capture the subagent `.meta.json` sidecar (Mike ruled 2026-07-28 — a new
-  capture class, not covered by the 2026-07-23 metadata ruling).**
-  (claimed 2026-08-09-0813, wt: queue-batch-0809-0813) Each
-  `<uuid>/subagents/agent-<id>.jsonl` has a `.meta.json` beside it that ccarchive
-  does **not** take: `captureClass()` is an allowlist of `.jsonl` at any depth,
-  `tool-results/*`, `toolu_*` and `memory/*.md`, and a `.meta.json` matches none
-  of them. Measured 2026-07-28: **425 live sidecars, 0 archived, 66 KB total
-  (mean 155 bytes)** — the cost is a rounding error.
-  **What the file actually holds** (censused across all 425, so this is the real
-  key set, not one sample): `agentType` and `description` 425/425 · `toolUseId`
-  425/425 · `spawnDepth` 424/425 (values 1 and 2) · `model` 185/425 ·
-  `worktreePath`/`worktreeBranch` 31/425 · `parentAgentId` 9/425. Two of those
-  are load-bearing and unavailable anywhere else: **`toolUseId` is the join key
-  back to the spawning `tool_use` block in the parent session log**, and
-  `spawnDepth`/`parentAgentId` resolve the nesting ambiguity `cctranscript`'s
-  own `finishedAgents` comment names (an agent that spawns its own agent logs
-  into the same directory). `model` is the tier an agent actually ran on — the
-  fact the queue-run tier discipline is asserted against.
-  Build notes: a new class in `captureClass()` (**decide name-matched
-  `*.meta.json` at any depth vs scoped to `subagents/` — 0 exist elsewhere
-  today, so either is honest and the allowlist's own style argues for the
-  narrower one**); the man-page CAPTURE section updated the way the 2026-07-23
-  widening was; restore mapping; manifest/integrity inclusion; and check whether
-  the shrink guard behaves sanely on a 155-byte JSON file that can legitimately
-  be rewritten.
-- [~] **Backfill the sidecars for already-archived transcripts — measured to be
-  FREE, and this item exists to verify that rather than to build it (Mike asked
-  2026-07-28).** (claimed 2026-08-09-0813, wt: queue-batch-0809-0813 — rides the
-  capture-class landing above) The obvious reading is that a separate one-shot
-  backfill pass is
-  owed. Checked against the artefact instead of reasoned: `archiveOnce` walks the
-  **whole live tree** each run via `listCaptured(srcRoot)`, and `shouldArchive`
-  returns true whenever `destMtimeMs === null` — i.e. no mirror exists yet. So
-  the first daily run after the capture class lands archives **every sidecar
-  still on disk**, with no new code, no flag and no separate pass. The work here
-  is therefore: confirm the first run picks them up, and state the count.
-  **Two honest limits, both measured, neither fixable:**
-  - Backfill reaches only what is **still live**. Of 418 archived subagent logs,
-    **417 have their sidecar still on disk and 1 does not** — that one is gone
-    for good, because the archive never held it and the live copy is deleted.
-  - The clock is real but **slow, and should not be dressed up as urgent**:
-    `cleanupPeriodDays` is **395** on this machine, so pruning is roughly annual.
-    The single existing loss shows decay is nonzero, not that it is imminent.
-  A corollary worth stating: this is the general shape for *any* future capture
-  widening — a new class self-backfills over the live window, and the only
-  permanent loss is whatever was pruned before it shipped.
+- **Capture the subagent `.meta.json` sidecar — BUILT 2026-08-09** (Mike
+  ruled it a new capture class 2026-07-28). New `subagent-meta` class in
+  `captureClass()`, scoped to `subagents/` rather than name-matched at any depth
+  — the allowlist admits *known* classes and leaves the unrecognised out
+  visibly, and the cost of the narrow choice is stated with it (if Claude Code
+  moves subagent logs, the class silently goes empty, and only a whole-walk
+  drift alarm exists). Restore mapping and manifest/integrity needed **no code**
+  — structural consequences of keying on `<rel>.gz` — and were proved rather
+  than reasoned. Tests 95 → 99, `mandoc -T lint` exit 0, no new flags.
+  Every recorded figure was stale in the same direction (425 → 545 sidecars,
+  66 KB → 85.8 KB) with the *shape* intact. →
+  [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The subagent metadata sidecar is
+  captured*.
+- **Backfill the sidecars — VERIFIED FREE 2026-08-09**, which is what the
+  item asked for rather than a build. Confirmed two ways without mutating the
+  real archive: the code path (`archiveOnce` rebuilds its work list from a full
+  live walk every run; `shouldArchive` returns true on a null mirror), and a
+  synthetic run where the sidecar appears with its mtime backdated a **year** and
+  is still taken on the next plain run — the backdating being the load-bearing
+  part, since it proves age is irrelevant. Count on the first run after the
+  class landed: **545 sidecars / 87,883 bytes**. Both recorded limits hold — one
+  sidecar is permanently gone, and `cleanupPeriodDays` 395 makes the decay
+  roughly annual, which is real and not urgent.
+- [ ] 🔎 **ccarchive exits 1 on every scheduled run, and the board did not know**
+  (found 2026-08-09 by the sidecar build; **predates it and is not caused by
+  it**). Verified independently, read-only: `--dry-run` exits **1** with
+  `refusedShrink` carrying **two** entries — both per-project memory `.md`
+  files, legitimately condensed, tripping the suspect-shrink guard. The paths
+  are deliberately not named here: they identify a personal project and a
+  private repo, and this repo is public.
+  **Two consequences, both live:** the daily launchd run carries a non-zero exit
+  (so any monitor keyed on exit code has been red or ignored for as long as this
+  has held), and those two mirrors stay frozen at pre-condensation bytes until
+  someone runs `--force`, so the archive is silently stale for them.
+  🤔 **The real question is not the two files, it is the class.** The guard
+  assumes append-only growth, which is true of transcripts and false of any
+  whole-document class — memory `.md` as of 2026-08-09, and the `.meta.json`
+  sidecar the moment Claude Code ever rewrites one. Deliberately **not** fixed at
+  discovery: carving a size or class exception into a working guard to
+  accommodate an event pattern nobody has decided on is fitting the limit to the
+  measurement. Options are (a) exempt whole-document classes from the shrink
+  guard, (b) keep the guard and give the scheduled run a way to succeed with a
+  declared refusal, (c) accept the red and clear it by hand. Same shape reaches
+  `--audit`, which buckets a rewritten whole document as `mutated` rather than
+  `grown`.
 - [ ] **ccarchive: encryption at rest — BUILD not started; one decision open (🎯 Mike)**
   The **design pass is done** (2026-07-26, `d913698`/`7701a62`) →
   [`instruments/ccarchive.encryption.design.md`](../instruments/ccarchive.encryption.design.md),
