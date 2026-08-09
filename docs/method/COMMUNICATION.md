@@ -85,10 +85,34 @@ Grounded in the live instance, not invented to fill a heading:
 - **Maintain it like a record.** When a reply lands notably well or badly,
   that is calibration data — write it back, dated (`EVIDENCE.md` absolute
   dating), so confirmations accumulate instead of evaporating at session end.
-  Enforcement, stated honestly (`PROPAGATION.md`'s clause): write-time
-  discipline is the *only* control — the instance sits outside the reach of
-  every mechanical floor and every review sweep, because the house's own
-  reviews are barred from the person-level layer by design.
+- **Some of it is enforceable, and the split is not where it looks.** This
+  doc said until 2026-08-09 that write-time discipline was the *only* control.
+  That was true of the calibration **document** and was read as true of the
+  **prose it governs**, which was the error. The document is still beyond
+  reach: it lives in the person-level layer, where the house's own reviews are
+  barred by design. The prose is not. Anything a machine can decide without
+  judgement — a reference code used before anything says what it points at, an
+  acronym never expanded, a sentence past a stated length, a bracketed aside
+  buried mid-sentence — is checkable, and `plainscan` checks it on two planes:
+  committed prose through the floor registry, and the agent's own replies
+  through a `Stop` hook that blocks and demands a rewrite.
+
+  **Why the correction was owed rather than optional.** The unenforced half was
+  measured on 2026-08-09 across 6,704 replies in 1,094 transcripts. The rules
+  above were broken in 37% to 67% of replies depending on the rule, and the
+  rate did **not** fall after they were written down — reference-code density
+  rose over the month while the rule against it sat in this file. That is the
+  same shape `floor.py` opens with: a policy nobody could reach was assumed to
+  be working because it was written. Writing a rule is not a control, and a doc
+  that claims write-time discipline is the only available one should first
+  check whether the rule is machine-decidable.
+
+  **What stays judgement, honestly.** Ordering, dosage of tone, whether an icon
+  is apt or noise, whether a survey should have been a recommendation — none of
+  that is checkable, and no scanner should pretend otherwise. The gate covers
+  the mechanical floor of readability, not the calibration itself. A reply can
+  pass every rule here and still land badly; that residue is what the
+  maintained instance above is for.
 - **Person-local, pointed at, never copied.** A repo's CLAUDE.md may carry
   *repo* conventions (locale for its artefacts, commit style); the personal
   layer never travels into a repo — not even a private one, because repos

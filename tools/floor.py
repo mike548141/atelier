@@ -557,6 +557,40 @@ SCANNERS: tuple[Scanner, ...] = (
         warn_only=True,  # same as harvestscan: no blocking form, no flag to read
     ),
     Scanner(
+        "plainscan",
+        # WARN-FIRST VIA THE FLAG, not via `warn_only`. plainscan HAS a blocking
+        # form; it is switched off here, in the registry, by wiring `--warn`
+        # into both planes — so the board derives warn-only from the argv it can
+        # read, which is the mechanism the Scanner docstring prescribes and the
+        # reason `warn_only` exists only for checks with no flag to read.
+        #
+        # WHY IT LANDS SOFT. The corpus this meets was written before the rule
+        # existed. atelier's own docs return 7,940 findings on the first run;
+        # a blocking form would red every commit in the estate on day one and
+        # teach everyone --no-verify, which is worse than no gate at all —
+        # wrapscan and spellscan landed the same way for the same reason.
+        #
+        # WHAT IT IS FOR. `COMMUNICATION.md` was the one doctrine here with no
+        # mechanical floor, and said so in its own enforcement clause. Measured
+        # over 6,704 assistant replies in 1,094 transcripts (2026-08-09), its
+        # rules were broken in 37%-67% of replies and the rate did NOT fall
+        # after they were written down — reference-ID density rose between July
+        # and August while the rule against it sat in doctrine. A principle the
+        # author must remember at write time is not a control.
+        #
+        # TWO OF ITS FOUR RULES CARRY A HOUSE NUMBER (sentence length, aside
+        # length) and neither is a published standard — two plain-language
+        # authorities were checked and neither states a cap. Those defaults are
+        # declared in plainscan.py and are the principal's to rule on. The other
+        # two rules need no number at all.
+        hook=["--warn", "--root", "{root}", "{scope}"],
+        ci=["--warn", "--root", "{root}", "{scope}"],
+        advisory=["--warn", "--root", "{root}", "{scope}"],
+        why="prose the principal reads lands on the first pass — no bare "
+            "reference codes, no unexplained acronyms, no unreadable sentences",
+        default_scope="docs",
+    ),
+    Scanner(
         "pathscan",
         # PS5 — the registry promotion (D1, ruled FUND THE RESCOPE 2026-08-04;
         # the rescope landed 2026-08-05). Until this line, pathscan ran from a

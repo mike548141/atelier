@@ -796,6 +796,60 @@ commit that writes it, which is the one moment the fix costs nothing · `2`
 usage/config error. Escape hatch: `pointerscan:allow: <reason>` anywhere in the
 item.
 
+## `plainscan.py` — prose lands on the first pass (FIRST-OF-KIND, advisory only)
+
+The mechanical floor under `COMMUNICATION.md`, which until 2026-08-09 had none
+and said so in its own enforcement clause. Four rules, each named with what
+grounds it, because two of them carry a house number and two need none:
+
+| Rule | Fires on | Grounded in |
+|---|---|---|
+| **P1** | a short code (`F1`, `C5`, `SL2`) used with nothing saying what it points at | published — digital.govt.nz: expand on first use |
+| **P2** | an uncommon acronym never expanded and absent from `GLOSSARY.md` | published — the same clause |
+| **P3** | a sentence over the word limit (default 35) | **house call** — no plain-language authority checked publishes a cap |
+| **P4** | a bracketed aside over the char limit (default 40) sitting mid-sentence | house doctrine, dated — `COMMUNICATION.md` 2026-07-15 |
+
+**Why it exists.** Doctrine alone was measured and found not to be a control.
+Across 6,704 assistant replies in 1,094 session transcripts, the rules above
+were broken in 37%–67% of replies depending on the rule, and **the rate did not
+fall after they were written down** — reference-ID density rose between July and
+August 2026 while the rule against it sat in doctrine. Of every reference code's
+first use in a session, 86% arrived with no gloss at all.
+
+**Two planes off one engine.** `scan_text()` is the whole rule set and it takes
+a string. The repo plane is this CLI, in the floor registry. The reply plane is
+`tools/hooks/plain-reply.py`, a Claude Code `Stop` hook that lints
+`last_assistant_message` and returns `{"decision": "block"}` so an unreadable
+reply is rewritten before the principal reads it. Same lesson as `floor.py`'s
+registry, one surface over: the rules are not reimplemented per plane.
+
+The reply plane **fails open**, alone among this estate's gates, and the trade is
+stated rather than accidental: `secretscan` failing open burns a credential for
+good, while this failing open lets one clumsy reply through — and a linter that
+can wedge a live session is worse than the defect it catches. It also gives up
+after two blocked rewrites of one turn, saying so visibly in the transcript.
+
+```sh
+python3 tools/plainscan.py                     # scan docs/** (default scope)
+python3 tools/plainscan.py --root . docs       # explicit — the floor's invocation
+python3 tools/plainscan.py --warn              # report findings, always exit 0
+python3 tools/plainscan.py --rules P1,P4       # a subset
+python3 tools/plainscan.py --sentence-limit 45 # the house numbers are flags
+python3 tools/plainscan.py --json              # machine-readable
+python3 tools/plainscan.py --selftest          # prove the engine offline
+```
+
+Exit codes: `0` clean, or any findings under `--warn` · `1` findings · `2`
+usage/config error. Escape hatch: a path glob in `.plainscanignore`. An acronym
+is cleared estate-wide by giving it a `GLOSSARY.md` entry — the designed remedy,
+not an exemption.
+
+**Advisory, deliberately.** It lands `--warn` on both planes in the registry:
+atelier's own docs return ~7,900 findings on the first run, and a blocking form
+would red every commit in the estate on day one and teach everyone
+`--no-verify`. `wrapscan` and `spellscan` landed the same way. The two house
+numbers are the principal's to rule on before any move to blocking.
+
 ## `stampscan.py` — an inlined copy still equals its canonical parent (advisory)
 
 Where a child repo or a template **inlines** a floor or a pull-quote of canonical
