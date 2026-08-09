@@ -189,3 +189,37 @@ conclusion rather than as "the run finished", on both intermediate pushes.
 One rebase conflict, in `docs/ROADMAP.md` § *Doctrine — review-owed*, resolved
 keep-both: the reviewer's closed child-membership cycle is newer truth, and this
 session's new `⏳` pointer sits above it.
+
+## Close — two rulings, and what they did NOT settle
+
+Mike reviewed the state after all three parallel sessions closed, and ruled twice.
+
+**AP1: a ruleset with owner bypass, plus a machine-check.** Applied the same day
+as ruleset `20603641` — `deletion`, `non_fast_forward`, `required_signatures`,
+active on the default branch. The three were chosen so that none can block an
+ordinary signed fast-forward push: the standing direct-push grant is untouched,
+and a parallel session was mid-work when it landed and was unaffected. Proven
+rather than assumed, in both directions — the endpoint AP1 read as `[]` now
+returns all three rules, and a real push succeeded afterwards.
+
+**What the record deliberately does not claim.** AP1 stays OPEN. The machine-check
+Mike also ruled does not exist, so nothing would notice if the ruleset were
+deleted — which is the state AP1 condemned, one layer up. The admin bypass is a
+real limit and was disclosed before he chose it: the control guards against
+accident and third-party push, never against compromise of his own token. And the
+registry-review leg is still post-hoc. ADR 0008's clause is therefore closer to
+true and still not true; re-wording it is a doctrine edit owed its own `⏳`, and it
+was kept out of the platform commit so the record never carries an ADR revision
+with no review behind it.
+
+**The residue round runs in a fresh session.** Offered four approaches — triage
+first, sit as-is, split by severity, or delegate a defined class to the agent —
+Mike took none and scoped the work out of the session that raised it. What the
+next session inherits is now written on the board as measured figures rather than
+recollection, together with the standing expectation that the number shrinks on
+contact: two items closed today had rulings already made, applied and verified.
+
+**Economics.** The session stopped here on Mike's instruction rather than on
+capacity. Five build lanes, nine findings queued, two rulings recorded, and the
+one platform change that closes a live security gap — with the gap honestly
+described as narrowed rather than closed.
