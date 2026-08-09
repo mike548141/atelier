@@ -1651,6 +1651,14 @@ subtracted, never what someone *intended* to subtract and failed to.
       > lie — their omissions are staleness, not a deliberate narrowing. Those
       > eight want pin-bump-and-refresh **first**, in their own sessions; the
       > stamp goes on afterwards, over a block that is actually current.
+      > ✅ **RULED 2026-08-09 — Mike accepted the re-ordering.** No stamps are
+      > retrofitted now, including the four safe ones; the approval given on
+      > the wrong framing is withdrawn rather than half-honoured. The item
+      > stays open at the ordering below, and the live consequence is stated
+      > plainly so it is not lost behind the stamp question: **eight children
+      > are running a safety floor missing its concurrency and estate-resources
+      > rules**, and that is a pin-bump in each of those repos, independent of
+      > stamping and not fixed by it.
       > **Recommended order instead:** (1) settle the child-side `source=`
       > story, which is the only thing that turns a stamp into a check and is
       > genuinely atelier's to decide; (2) each stale child refreshes its block
@@ -1695,33 +1703,19 @@ queueing in its own repo's roadmap by a session working that repo.
       that its copy *"drifted 17 days behind a provider change, and misled a
       session into arguing from a falsified fact"*. The three above carry that
       same falsified claim today.
-- [ ] **Two ignore-globs are deferments filed as acceptances.**
-      `ec2_builder/.secretscanignore` exempts `data/web_server/`, stating in
-      its own reason that the path *holds real TLS private keys* tracked as
-      ROADMAP P0 debt; `homenetwork`'s exempts `_archive/` as a stale capture
-      holding historical keys and passphrases, *"tracked debt to purge"*. Both
-      reasons are honest and both name an intent to fix — which is the
-      definition of a **deferment**, and `GUARDS.md` requires a deferment to
-      carry an expiry. Neither does, so both read as permanent acceptances of a
-      security debt someone meant to clear. Governance defect, not a new
-      exposure: the `ec2_builder` material is separately assessed as
-      decommissioned. The fix is an expiry per glob, set by the principal.
-      > 🎯 **Recommended: `review-by: 2026-09-01` on both**, and Mike asked for
-      > a recommendation rather than a blank field. The date is deliberately
-      > **not a new number** — it is the horizon he already set for the C1b
-      > advisory migration, reused so the estate has *one* review date to look
-      > at instead of a scatter of individually-plausible ones. Grounded in the
-      > class, not the content: both globs are the same shape — frozen captures
-      > holding credential material that is believed dead, where the honest
-      > question is not "is it purged yet" but "has anyone looked again". A
-      > `review-by` is a date to **re-judge**, not a deadline to finish, so it
-      > does not commit either repo to a history rewrite by then; it commits
-      > someone to deciding purge-vs-accept, with the rotation evidence in
-      > hand, on a day that is already in the diary. If he would rather the
-      > date mean *purged*, `2026-11-30` is the honest figure for a planned
-      > history rewrite in two repos — but then it is a delivery commitment and
-      > should be roadmapped in those repos as one. Either way the declarations
-      > are **theirs to write**, in their own trees, per work-locality.
+- [ ] **Give a deferment an expiry at every granularity, not just `advisory`.**
+      Raised by the ruling above. Today `review-by` is a floor-config field, so
+      the only declarable deferment is a whole check. The two cases just dated
+      are path-level, and a line marker has the same hole — `<guard>:allow:` is
+      pure acceptance by construction, which is fine until someone writes one
+      for a thing they mean to fix. Cheapest shape that keeps the ignore-file
+      format: an optional `review-by: YYYY-MM-DD` recognised in the comment
+      block attached to a glob, reported on the floor line and the fleet board
+      exactly as an advisory's expiry is, red when lapsed. Deliberately not
+      built here: it is a scanner-loader change across ten ignore-file readers
+      plus board rendering, and it wants its own session. Until it exists,
+      a path-level deferment's date is a promise, not a gate — which is
+      precisely the thing `GUARDS.md` says a deferment must not be.
 - [ ] **The unreasoned advisories are already in hand — do not re-file.**
       Eight bare-list `advisory` declarations across six repos carry no reason
       and no expiry (`Baby Brain`, `FoodTracker`, `ec2_builder`,

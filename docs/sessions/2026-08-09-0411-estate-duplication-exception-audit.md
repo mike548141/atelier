@@ -188,3 +188,34 @@ reason checks rule (c) and nothing else. Whether the allowance actually
 suppresses is a separate question, and this estate had no way to ask it — the
 suppression counts prove what *was* subtracted, never what someone intended to
 subtract and failed to.
+
+## Addendum 2 — both recommendations ruled, and the expiry could not be declared
+
+Mike took both recommendations at the walk-through.
+
+**The expiry: `2026-09-01`, the re-judge reading.** Landed in all four globs
+across the two repos, in the comment beside each reason, cover unchanged.
+Applying it is what produced the more useful finding: **the date could not be
+declared where it belongs.** `review-by` is a floor-config field on `advisory`
+declarations only — `floor.py` says outright that `scope` and `flags` carry
+none, and an ignore-file glob has no expiry field at all. So `GUARDS.md`
+requires every deferment to expire, while the mechanism can express an expiry
+at **check** granularity and nowhere else. A repo deferring at path or line
+granularity is structurally unable to comply, and the rule has read as
+satisfiable only because nobody had tried to satisfy it at that level. Both
+repos now carry the date as prose with that limit written into the file rather
+than papered over — nothing will go red when it lapses — and the mechanism gap
+is a queued item rather than a silent shortfall.
+
+That is the second time in one audit that a rule looked kept and was not: the
+allowance reasons were all present and nine of them suppressed nothing; the
+expiry requirement is stated estate-wide and cannot be met by two thirds of the
+granularities it applies to. Both were invisible for the same reason — the
+check reads what is *written*, and neither case fails on the writing.
+
+**The stamps: re-ordering accepted, approval withdrawn rather than half-used.**
+No stamps are retrofitted, including the four that could safely take one. The
+consequence is recorded where it will be read rather than left behind the stamp
+question: eight children run a floor missing its concurrency and
+estate-resources rules, 818 commits behind, and that is a pin bump in each of
+those repos — independent of stamping, and not fixed by it.
