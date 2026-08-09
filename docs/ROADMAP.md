@@ -1470,13 +1470,25 @@ widen it. No unreasoned hatch was found anywhere in the estate.
       of the config cannot see. Same defect on `ros`'s `flags.leakscan`
       `--disable ipv4,ipv6,mac-address`: reasoned, but the reason sits in the
       sibling `local.estate-tripwire` entry rather than on the declaration.
-- [ ] **`tools/worktree.py list` misreports the branch.** Observed this session:
-      a worktree on branch `doctrine-adoption-ruling-0809` is listed as `main`,
-      and `land <feature>` then cannot find it (`no worktree found`). The branch
-      itself is correct (`git branch --show-current` agrees); the defect is in
-      the listing/lookup path. Low blast radius, but it breaks the tool's own
-      documented landing route, so a session that trusts it either hand-rolls
-      the push or believes it is on `main`.
+- [ ] **`tools/worktree.py` resolves the branch from the cwd, not per-worktree.**
+      Reproduced 2026-08-09, and the condition is the whole finding: run **from
+      inside a linked worktree**, `list` labels that worktree's branch as `main`
+      and drops its ahead/behind counts, and `land <feature>` fails
+      `no worktree found`; run from the main checkout, both are correct
+      (`doctrine-adoption-ruling-0809 … [↑2 ↓0]`). The branch itself is never
+      wrong — `git branch --show-current` agrees throughout. This is the cwd a
+      session is *most likely* to be in when it lands work, so the tool's own
+      documented route fails exactly where it is used, and the operator either
+      hand-rolls the push or believes they are on `main`.
+      (First written here without the cwd condition, from one observation
+      inside the worktree; corrected on reproduction from both sides before
+      close, since the condition is what makes it fixable.)
+- [ ] **`remove` compares against local `main`, which a direct push leaves
+      stale.** Same session: after `git push <branch>:main`, `remove` refused —
+      *"branch … is not merged into main"* — because local `main` had not moved.
+      `git merge-base --is-ancestor HEAD origin/main` said otherwise, correctly.
+      The guard is right to exist; its referent should be the remote integration
+      branch, or it teaches `--force` as the routine escape from a safety check.
 - [ ] **Eight children carry a floor block that predates four doctrine
       changes, and nothing mechanical can see it.** Measured 2026-08-09 against
       the canonical region: `Baby Brain`, `FoodTracker`, `docker-heap`,
