@@ -21,6 +21,7 @@ Zero third-party deps, same as the rest of the suite.
 """
 
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -271,11 +272,24 @@ class Cli(unittest.TestCase):
 class StopHook(unittest.TestCase):
     """The reply plane: the surface every measured defect was counted on."""
 
+    def setUp(self):
+        """Isolate the block counter.
+
+        These tests used to share one state file with the live install and with
+        each other, so a session id reused across runs carried its block count
+        forward and tripped the give-up path early — the suite failed about one
+        run in three. A flaky gate gets re-run, not read.
+        """
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.env = dict(os.environ,
+                        PLAIN_REPLY_STATE=str(Path(self.tmp.name) / "state.json"))
+
     def fire(self, session, message):
         payload = {"session_id": session, "hook_event_name": "Stop",
                    "last_assistant_message": message}
         r = subprocess.run([sys.executable, str(HOOK)], input=json.dumps(payload),
-                           capture_output=True, text=True)
+                           capture_output=True, text=True, env=self.env)
         self.assertEqual(0, r.returncode, r.stderr)
         return json.loads(r.stdout) if r.stdout.strip() else {}
 

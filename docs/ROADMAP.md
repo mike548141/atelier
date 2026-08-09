@@ -1146,6 +1146,56 @@ in every repo. Detail harvested to
       only bite if plainscan ever moves off warn-only, so the ruling is not
       urgent — but it is owed before any such move, and the chat ruling does
       not cover it. Two planes, two numbers, one decided.
+**P5 — the unintroduced-term rule: BUILT, MEASURED, REJECTED (2026-08-09).**
+Not a stub and not a deferral: it was written, run over the whole corpus, and
+deleted the same day on its own numbers. Recorded because the negative result
+is the useful part.
+
+The trigger was a real reply Mike put up as a test case — *"the interlock says
+render the record's footprint as absent, diff it via sweep's engine ... its
+content is the predicate"*. It passes P1–P4 cleanly and is close to unreadable,
+because six terms are used as though already shared. Short confident sentences
+read as clear while carrying nothing the reader can hold.
+
+The rule was the classic definite-description test: `the X` where X never
+appears earlier in the text. It needs no threshold, and the evidence sits
+entirely inside the document. On the sample it worked — it caught *interlock*,
+*record*, *predicate*.
+
+Then it met the corpus. **90.6% of 6,764 replies fired**, 23,857 findings, and
+two rounds of principled fixes did not move the rate:
+
+| Fix | Firing rate |
+|---|---|
+| First cut | 90.7% |
+| Head-noun shift for `the <X-ed> <Y>'s` | 90.7% |
+| Common adjectives excluded (`the exact wording`) | **90.6%** |
+
+The adjective fix cleared the top of the table and changed nothing overall,
+which is what identified the real cause. The residual terms are *session*,
+*repo*, *roadmap*, *review*, *doctrine*, *estate*, *floor* — checked against
+atelier's own docs, where **`review` appears 5,333 times, `session` 3,858,
+`floor` 2,326**. They are flagged because they appear with "the" before
+appearing without it *in that one reply*.
+
+**Why no fix exists.** The scanner's evidence window is one document; the
+reader's knowledge spans years of working together. English marks shared
+reference with "the", and in a long-running relationship nearly every domain
+noun *is* shared. Nothing inside the text distinguishes a term the reader owns
+from one they have never met, so no amount of list-tuning reaches it. Chasing
+the rate with a findings-per-reply threshold was considered and refused: that
+is fitting a number to the current measurement, which this house forbids.
+
+**What it establishes, and it is worth more than the rule would have been.**
+This defect class is genuinely outside policy-as-code, and now demonstrably so
+rather than assumed. It belongs to part (b) above — doctrine that reaches the
+moment of decision — and it is the first *measured* instance of that half being
+the only available answer. The claim "it can't be automated" was right here,
+and was only worth believing after it was tried.
+
+- [ ] **Carry P5's finding into part (b).** The writing-time rule it argues for:
+      before sending, check every term a reader could not have met, and
+      introduce it once. No scanner can hold this. Wording is owed.
 - [ ] **Watch the live hook for two failure modes**, neither theoretical: a
       rewrite loop the two-block give-up misses, and false blocks on output
       where density is correct — a findings table, a quoted error. Both surface

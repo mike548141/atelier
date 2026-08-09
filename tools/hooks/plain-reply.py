@@ -71,7 +71,13 @@ CHAT_SENTENCE_LIMIT = 45
 CHAT_ASIDE_LIMIT = 60
 
 MAX_BLOCKS = 2
-STATE = Path.home() / ".claude" / ".plain-reply-state.json"
+# Overridable so the suite never touches the live counter. Without this the
+# tests shared one state file with the running install AND with each other, so
+# a session id reused across runs carried its block count forward and the
+# give-up path fired early — the suite failed roughly one run in three, which
+# is the kind of flake that gets re-run rather than read.
+STATE = Path(os.environ.get("PLAIN_REPLY_STATE")
+             or Path.home() / ".claude" / ".plain-reply-state.json")
 STATE_TTL = 6 * 3600
 
 
