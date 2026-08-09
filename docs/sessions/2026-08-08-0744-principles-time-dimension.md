@@ -139,3 +139,37 @@ where each value knows its own age and how expensively it was obtained.
 
 Floor green; the `⏳` pointer's delta extended to cover this commit rather than a
 second pointer raised — one doctrine cycle, one review.
+
+## Addendum 2 · 2026-08-09 — the close itself surfaced a hole in the close rule
+
+Asked to finish the floor run rather than lean on the superseding commit's
+green, which turned a papered-over detail into a recorded finding.
+
+**What happened.** The ruling commit `98a6f37` was pushed; its floor run started;
+~90 seconds later a **parallel session** pushed `00f6f59` and the run ended
+`cancelled`. `ci.yml` sets `concurrency: cancel-in-progress: true`, so this is
+routine, not a fault. The first close cited the superseding commit's green run —
+true, and it does cover this tree since `98a6f37` is its ancestor, but it is
+evidence for a *different* commit and the distinction was not made. Re-running
+attempt 2 against `98a6f37` returned `success`; that is the honest all-clear.
+
+**Why it is worth doctrine.** `RECORD.md`'s existing rule says the evidence is
+the floor **at head**, not the local scan — it never anticipated a *third*
+state. `cancelled` is neither pass nor fail, and the failure mode is silent: a
+session reads "the run finished", sees no red, and closes. The clause landed as
+a sub-bullet at the point of use rather than a new section — the surrounding rule
+is already the right rule, it was just under-specified.
+
+**What was deliberately not built.** The cancellation is correct behaviour;
+`cancel-in-progress` is what stops a busy ref burning Actions minutes on
+superseded trees. So the remedy is reading discipline, not config. A close-time
+probe that refuses to report green on a `cancelled` conclusion is plausible and
+is left unbuilt: one instance grounds a clause, not a build, and if it recurs
+that recurrence is the evidence.
+
+**Concurrency note for whoever reads this cold:** a second session was live on
+this repo throughout the 2026-08-09 work, pushing to `main` in the same working
+copy. Nothing collided — this session's writes were committed and pushed before
+each pause — but the "assume you are not alone" prior was correct, and the
+cancelled run is a *second*, previously unrecorded way a parallel session's push
+touches your work.

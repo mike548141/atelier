@@ -128,6 +128,18 @@ stopped instead of re-deriving it:
       00:47 close pushed a 🎯-closed item and left the floor red — reviewscan
       since 00:06 plus its own un-harvested `[x]` — and the next session
       inherited the debt to restore green, `165c40f`.)
+    - **A *cancelled* run is not a result, and a concurrent session cancels
+      yours as a matter of routine.** The floor workflow runs under
+      `cancel-in-progress: true`, so a second session pushing to the same ref
+      kills the in-flight run for *your* commit — it ends `cancelled`, which is
+      neither pass nor fail, and no run ever reports on the commit you pushed.
+      A later commit's green run is **not** a substitute: it evidences a
+      different tree, and it is only reassuring at all when your commit is an
+      ancestor of it. Read the conclusion, never just "the run finished": on
+      `cancelled`, re-run it against your own SHA and wait for that. (Grounded
+      2026-08-09: a doctrine push went green locally, its head run was cancelled
+      ~90 seconds later by a parallel session's push, and the close cited the
+      superseding commit's green — true, but evidence for someone else's tree.)
   - (See also session hygiene in `ECONOMICS.md`: log where you got to, then
     start fresh rather than dragging a bloated context.)
 

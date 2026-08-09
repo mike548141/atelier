@@ -5,6 +5,24 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-08-09 — a cancelled floor run is not an all-clear)
+`RECORD.md` already required a close that pushes to carry the **pushed** floor
+run's result rather than the local scan. The rule had a hole its grounding case
+could not have shown, found live this session: `ci.yml` runs the floor under
+`cancel-in-progress: true`, so a second session pushing to the same ref cancels
+the in-flight run for the earlier commit. It ends `cancelled` — neither pass nor
+fail — and **no run ever reports on the commit that was pushed**. A later
+commit's green run is not a substitute: it evidences a different tree, and is
+only reassuring at all when your commit is an ancestor of it.
+- Written as a sub-bullet at the point of use, not a new section: read the
+  *conclusion*, never just "the run finished"; on `cancelled`, re-run against
+  your own SHA and wait for that.
+- The cancellation itself is correct behaviour — `cancel-in-progress` is what
+  stops a busy ref burning Actions minutes on superseded trees — so the fix is a
+  reading discipline, not a config change. Whether it recurs often enough to earn
+  a machine check is left to evidence; one instance grounds a clause, not a
+  build. Rule-4 `⏳` queued.
+
 ### Changed (2026-08-09 — §9 ruled: it binds retrofits, and results carry their derivation)
 Mike ruled the two consequences §9 landed without deciding, and added a clause
 the venue-guide case had been sitting on all along.
