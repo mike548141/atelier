@@ -1510,6 +1510,32 @@ inverted-premise ground, and bound what does *not* relax. `faves`'
 its case, draws the venue-vs-person line, and tells a future reader not to
 widen it. No unreasoned hatch was found anywhere in the estate.
 
+**Corrected before close — reasoned is not the same as effective.** The
+sentence above stood for about an hour and was true as written: every
+allowance carries a reason. It also missed the thing that mattered, and only a
+live failure surfaced it — **nine of those well-written markers were exempting
+nothing at all**, in three children (`rpi` ×3, `kainga` ×2, `ros` ×4). Every
+scanner required the reason's first character to match `\w`, so a reason that
+*opened by quoting the flagged token* — `# leakscan:allow: "2 Lane" is a PCIe
+lane count, not an NZ street address` — failed to parse and the finding still
+blocked. Silently, because a voided marker and an absent one produce identical
+output. Fixed at the class in `8276a54` (all 12 scanners, 14 regex sites,
+1210 tests green), which put a public child's red floor back to green with no
+edit in that child — call-not-copy paying out. The audit lesson worth keeping:
+**an exception review that reads the reasons has checked rule (c) and nothing
+else.** Whether an allowance actually suppresses is a separate question, and
+this estate had no way to ask it — the suppression counts prove what *was*
+subtracted, never what someone *intended* to subtract and failed to.
+
+- [ ] **Make a voided allowance visible.** The fix above closes the known
+      cause; it does not close the class. A marker that parses as nothing is
+      indistinguishable from no marker, so the next parser gap will also be
+      silent. Cheapest honest answer: when a line carries the marker *string*
+      but no allowance is recognised, say so — a one-line "marker present but
+      unparseable" note beside the finding, which is where the reader already
+      is. Recurrence, not severity, earns the check (`PROPAGATION.md` rung 2);
+      this is instance one, so it is queued rather than built.
+
 ### Findings owned here (atelier-side)
 
 - [ ] **atelier's own `scope` block carries no `why`, and the parent is not
@@ -1560,6 +1586,32 @@ widen it. No unreasoned hatch was found anywhere in the estate.
       construction, which is the known D2-residue bar seen from the child side.
       The retrofit is the cheap half and is atelier's to ship (`create-repo`
       already emits the markers); the pin bumps stay per-repo human-in-the-loop.
+      > 🚩 **That last sentence was wrong, and Mike approved the retrofit on
+      > it — corrected here before anyone acts.** Checked after he said yes:
+      > `stampscan` is **not in the floor registry at all** (`floor.py` carries
+      > 13 checks; this is not one), it runs only as an `--warn`,
+      > *atelier-only* step in this repo's `ci.yml`. So no child runs it, and
+      > stamping a child today buys **zero** mechanical coverage — it is
+      > preparation, not a fix, and it stays preparation until the D2-residue
+      > bar lifts (child-side `source=` resolution: a child has no
+      > `docs/method/` for `source=docs/method/PROPAGATION.md` to resolve
+      > against). Worse, the retrofit is **not atelier-side**: it is one commit
+      > in each of twelve children, which his own same-day work-locality ruling
+      > puts with those repos' own sessions.
+      > **And it should not be done uniformly even then.** Eight of the twelve
+      > hold a *stale* block. Stamping a known-wrong copy without `narrow=`
+      > records it as canonical-and-clean, and declaring `narrow=` would be a
+      > lie — their omissions are staleness, not a deliberate narrowing. Those
+      > eight want pin-bump-and-refresh **first**, in their own sessions; the
+      > stamp goes on afterwards, over a block that is actually current.
+      > **Recommended order instead:** (1) settle the child-side `source=`
+      > story, which is the only thing that turns a stamp into a check and is
+      > genuinely atelier's to decide; (2) each stale child refreshes its block
+      > at its next pin bump; (3) stamp on the way past. Only four children
+      > (`faves`, `ros`, `rpi`, `shed`) hold a content-correct block that could
+      > be stamped safely today, and `shed` needs its `narrow=` in the same
+      > commit — four child commits for a check nothing runs yet, which is why
+      > even that subset is worth deferring rather than doing.
 - [ ] **`shed` narrows the floor legitimately and undeclarably.** It omits the
       **Estate resources** bullet — correctly, since `shed` *is* the estate root
       and cannot point up to itself — and appends a *How other repos refer to
@@ -1607,6 +1659,22 @@ queueing in its own repo's roadmap by a session working that repo.
       security debt someone meant to clear. Governance defect, not a new
       exposure: the `ec2_builder` material is separately assessed as
       decommissioned. The fix is an expiry per glob, set by the principal.
+      > 🎯 **Recommended: `review-by: 2026-09-01` on both**, and Mike asked for
+      > a recommendation rather than a blank field. The date is deliberately
+      > **not a new number** — it is the horizon he already set for the C1b
+      > advisory migration, reused so the estate has *one* review date to look
+      > at instead of a scatter of individually-plausible ones. Grounded in the
+      > class, not the content: both globs are the same shape — frozen captures
+      > holding credential material that is believed dead, where the honest
+      > question is not "is it purged yet" but "has anyone looked again". A
+      > `review-by` is a date to **re-judge**, not a deadline to finish, so it
+      > does not commit either repo to a history rewrite by then; it commits
+      > someone to deciding purge-vs-accept, with the rotation evidence in
+      > hand, on a day that is already in the diary. If he would rather the
+      > date mean *purged*, `2026-11-30` is the honest figure for a planned
+      > history rewrite in two repos — but then it is a delivery commitment and
+      > should be roadmapped in those repos as one. Either way the declarations
+      > are **theirs to write**, in their own trees, per work-locality.
 - [ ] **The unreasoned advisories are already in hand — do not re-file.**
       Eight bare-list `advisory` declarations across six repos carry no reason
       and no expiry (`Baby Brain`, `FoodTracker`, `ec2_builder`,

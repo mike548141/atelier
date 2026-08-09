@@ -5,6 +5,26 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-08-09 — an allowance reason may open with a quote)
+Found by the estate exception audit, from a live failure rather than a read:
+a PUBLIC child's floor went red on a line whose allow-marker read correctly
+to every human who had reviewed it — `# leakscan:allow: "2 Lane" is a PCIe
+lane count, not an NZ street address`. The reason's first character had to
+match `\w`, so a leading quote made the marker unparseable and the finding
+still blocked — **silently**, because a voided marker and an absent one
+produce identical output. Quoting the flagged token is the clearest way to
+write these reasons, and the rule punished exactly that phrasing; nine live
+markers across three children were void this way. Fixed at the class rather
+than the instance: all 12 scanners carried the same `\w` and all 12 change
+together (14 regex sites), admitting straight and typographic opening
+quotes. What the `\w` protected is kept, and is why this is not a widening
+to `\S` — a documentation mention must never read as a live exemption, so
+`<!-- datescan:allow: -->`, `leakscan:allow: <reason>` and a bare
+`leakscan:allow:` all still exempt nothing. 1210 tests green. The audit
+lesson recorded with it: **reading an allowance's reason checks rule (c) and
+nothing else** — whether it actually suppresses is a separate question the
+estate had no way to ask.
+
 ### Added (2026-08-09 — who is a child, and where work lands)
 Mike ruled both halves during the estate-wide duplication and exception
 audit, and neither was written down — which is how one restated doctrine

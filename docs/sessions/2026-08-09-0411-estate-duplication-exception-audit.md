@@ -131,3 +131,60 @@ defect the first ruling forbids.
 - Floor green on the pushed SHA, conclusion read rather than assumed (the
   cancelled-run clause landed hours earlier applies directly).
 - Self-authored doctrine ⇒ rule-4 `⏳` queued, not spawned.
+
+## Addendum — the audit's own headline finding was wrong by an hour
+
+The section above says *"no unreasoned hatch was found anywhere"*, and it is
+true. It is also the wrong question, and only a live failure showed that.
+
+Queueing the economics finding in the three children hit two things the read
+could not have found:
+
+**`ros` could not commit at all.** Not the queued item — *anything*, including
+an empty commit. atelier's same-day "bite-now" ruling (`4cab670`) made the
+legacy bare-list spelling illegal for narrowing a boundary check, and `ros`
+carried `flags.leakscan` as a bare list, so floor config validation failed
+ahead of every commit. It was the only repo of sixteen in that state, verified
+by validating all sixteen configs directly after a first check — `git commit
+--dry-run` — turned out not to run hooks at all and was silently proving
+nothing. Fixed in `ros`, in `ros`: the args are byte-identical and the reason
+was not invented, it was already written one key over in the same file, in the
+`local.estate-tripwire` entry. Which is the ruling's whole point — a cover
+decision has to be readable where it is declared.
+
+**Nine well-written allowances were exempting nothing.** `rpi`'s floor went red
+on a line untouched by the queued edit:
+
+```
+# leakscan:allow: "2 Lane" is a PCIe lane count, not an NZ street address
+```
+
+Every scanner required the reason's first character to match `\w`, so a reason
+that *opens by quoting the flagged token* — the clearest way to write one —
+failed to parse, and the finding still blocked. Silently: a voided marker and
+an absent one produce identical output, which is why this survived a
+publish-safety review that explicitly triaged that very line. Nine live markers
+across three children were void (`rpi` ×3, `kainga` ×2, `ros` ×4). Fixed at the
+class in `8276a54` — all 12 scanners, 14 regex sites, 1210 tests green — with
+the documentation-mention guard kept, which is what stops it being a one-token
+widening to `\S`. `rpi` went green with **no edit in `rpi`**: call-not-copy
+paying out in the direction it is supposed to.
+
+Two process notes, both corrections to this session's own work:
+
+- **An invalid control nearly closed the question.** `git commit --dry-run`
+  reported all fifteen other children "committable" without running a single
+  hook. The finding survived only because the result looked too clean and got
+  re-checked against `floor.py` directly.
+- **The stamp-retrofit approval rests on a wrong sentence I wrote.** Mike said
+  yes to *"cheap and atelier-side"*; `stampscan` turns out not to be in the
+  floor registry at all, so the retrofit is twelve child commits buying zero
+  mechanical coverage, and eight of the twelve would be stamping a stale block.
+  Corrected in the roadmap item with a recommended ordering, before anyone acts
+  on the approval.
+
+**The lesson, stated for the next exception review:** reading an allowance's
+reason checks rule (c) and nothing else. Whether the allowance actually
+suppresses is a separate question, and this estate had no way to ask it — the
+suppression counts prove what *was* subtracted, never what someone intended to
+subtract and failed to.
