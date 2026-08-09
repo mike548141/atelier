@@ -1767,6 +1767,40 @@ with the floor wired. `python-metaname` is a third-party clone (upstream
 `metaname/python-metaname`), never worked in; the remaining directories are not
 repos. No repo needs an exclusion ruling today.
 
+### Wired is not passing — four estate floors are RED (found at close, 2026-08-09)
+
+The last thing the audit checked, and the one that should have been first.
+`floorfleet` reports **16 of 16 children wired**, which is the number this
+programme has been quoting. `floorfleet --status` — the same tool, one flag on
+— reports **four of them failing on their default branch**: `docker-heap`,
+`homenetwork`, `kainga`, `numen`. Pre-existing, not caused by this session's
+commits: `homenetwork` was verified red across its four preceding runs, and
+this session's edit to its ignore files was proved inert to the result
+(150 findings and 163 files suppressed, identical before and after).
+
+This is `PROPAGATION.md`'s *enumeration, not assumption* one level deeper than
+it currently reaches. "Wired" answers *did the control get installed*; it says
+nothing about *is the control passing*, and a repo can sit red indefinitely
+while every board this estate reads routinely shows it green-ticked. The gap is
+not in the instrument — `--status` exists and works — it is that the flag is
+optional and nothing consults it on a cadence, so a red floor is discovered by
+someone happening to look. Note the asymmetry that lets it persist: the hook
+plane scans only staged files, so these repos **commit cleanly** while their
+whole-tree CI fails, and the failure never reaches the person committing.
+
+- [ ] **Make the estate's floor state answer "passing", not just "wired".**
+      Two candidate shapes, cheapest first: make `--status` the default for the
+      board rather than an opt-in flag, so the honest answer is the one you get
+      without asking; or run the fleet board on a cadence and report the deltas.
+      Not built here — it changes what a widely-read board says, which is a
+      decision, and this session found the state rather than being sent for it.
+- [ ] **Triage the four red floors.** Each belongs to a session in that repo
+      (work-locality), and each needs its own answer — `numen` is archived, so
+      its red may be correct-and-closeable rather than fixable; `kainga` is
+      actively built; `docker-heap` and `homenetwork` hold large frozen
+      captures, which is the `C3` adoption case (a repo whose existing content
+      already fails a guard) rather than a backlog anyone is clearing.
+
 ## Doctrine — review-owed
 
 - ⏳ **Rule-4 review queued (tier: Fable; pass type: doctrine cold pass) — the

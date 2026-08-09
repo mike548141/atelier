@@ -219,3 +219,34 @@ consequence is recorded where it will be read rather than left behind the stamp
 question: eight children run a floor missing its concurrency and
 estate-resources rules, 818 commits behind, and that is a pin bump in each of
 those repos — independent of stamping, and not fixed by it.
+
+## Addendum 3 — wired is not passing
+
+Checked at close, and it should have been checked first. `floorfleet` reports
+**16 of 16 children wired** — the number this programme quotes. The same tool
+with `--status` reports **four failing on their default branch**:
+`docker-heap`, `homenetwork`, `kainga`, `numen`. Pre-existing: `homenetwork`
+was red across its four preceding runs, and this session's edit to its ignore
+files was proved inert rather than assumed so — 150 findings and 163 files
+suppressed, identical before and after.
+
+What lets it persist is an asymmetry nobody is looking at: the hook plane scans
+only **staged** files, so these repos commit cleanly while their whole-tree CI
+fails, and the failure never reaches the person committing. "Wired" answers
+*did the control get installed*. Nothing routine asks *is it passing*, and the
+flag that would is optional.
+
+That makes three findings in one audit with the same shape — a control that
+reads as satisfied and is not:
+
+| Looked kept | Actually |
+|---|---|
+| Every allowance carries a reason | Nine suppressed nothing (parser rejected quote-led reasons) |
+| Every deferment must expire | Expiry is declarable at check granularity only |
+| 16 of 16 floors wired | 4 of 16 are red on their default branch |
+
+None of the three was findable by reading. Each needed the thing to be *run*,
+or *applied*, or *asked a second question*. That is the transferable lesson
+from this audit and it is worth more than any single finding in it: **an
+exception review that reads declarations has audited the writing, not the
+control.**
