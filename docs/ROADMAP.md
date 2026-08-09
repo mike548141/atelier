@@ -416,7 +416,7 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       unilaterally rewritten**: it is another session's landed work and
       may have been ruled; flagged for Mike instead.
       **Why this belongs on the board rather than in a session record:**
-      three independent instances in one week (the two above plus the C5
+      three independent instances on 2026-08-09 (the two above plus the C5
       near-miss) is the signature of a rule with no enforcement, and the
       programme has now recorded that finding five times. Options:
       rewrite the seven live lines and the audit paragraph to
