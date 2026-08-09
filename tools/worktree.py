@@ -15,6 +15,11 @@ right thing the one-liner and the wrong thing hard:
   worktree land [<feature>]  reconcile     -> push the branch + open a PR back to main
   worktree remove <feature>  clean up      -> git worktree remove, guarded against data loss
 
+Every subcommand answers the same from any checkout in the repo — the main one or
+any linked worktree. Repo identity comes from the main working tree (which `git
+worktree list` always names first), never from the cwd, because the cwd when you
+land a line of work is normally the worktree you were working in.
+
 Mechanical guards that encode the doctrine (not left to memory):
   * REFUSES to create a worktree inside an iCloud-synced path (the #1 forgotten
     rule; iCloud + a live .git index = corruption).
@@ -24,7 +29,12 @@ Mechanical guards that encode the doctrine (not left to memory):
     uncommitted changes (the concurrency equivalent of a leaked file handle).
   * `remove` refuses to delete a worktree with uncommitted or unmerged work
     unless you say --force — losing work is the failure mode this whole doctrine
-    exists to prevent.
+    exists to prevent. "Merged" is measured against the *remote* integration
+    branch (`origin/main`) as well as the local one, so work landed by a direct
+    push counts as landed; if neither ref exists the branch is treated as
+    unmerged and removal is refused. The check reads local refs only — no
+    network — so `remove` stays fast and works offline; `--fetch` refreshes
+    `origin/main` first when someone else may have merged the branch for you.
 
 Exit codes (fail-safe — anything but success is non-zero):
   0  success / clean
@@ -95,6 +105,41 @@ def integration_branch(root: Path) -> str:
     return "main"
 
 
+def integration_refs(root: Path, main: str) -> list[str]:
+    """Refs that count as "this work has landed", most authoritative first.
+
+    A direct `git push <branch>:main` moves the remote integration branch and the
+    local remote-tracking ref, but never local `main` — so a guard that only
+    knows local `main` calls landed work unmerged, and teaches --force as the
+    routine way past a safety check. The remote branch is the real integration
+    point, so it is checked first. Local `main` still counts: a merge that has
+    not been pushed yet has still landed.
+
+    Returns short names, verified as real refs. Offline or in a fresh repo,
+    whichever of the two exists is used. If NEITHER resolves the list is empty
+    and the caller must treat the branch as unmerged — refusing to delete work
+    it cannot verify, rather than assuming it is safe.
+    """
+    candidates = ((f"origin/{main}", f"refs/remotes/origin/{main}"),
+                  (main, f"refs/heads/{main}"))
+    return [short for short, full in candidates
+            if git(["-C", str(root), "rev-parse", "--verify", "--quiet", full],
+                   check=False).returncode == 0]
+
+
+def is_merged(root: Path, rev: str, refs: list[str]) -> bool:
+    """True if `rev` is contained in any of `refs`. Empty `refs` → False (fail safe).
+
+    `merge-base --is-ancestor` exits 0 for "contained", 1 for "not", and >1 on
+    error, so only an explicit 0 counts as merged.
+    """
+    for ref in refs:
+        if git(["-C", str(root), "merge-base", "--is-ancestor", rev, ref],
+               check=False).returncode == 0:
+            return True
+    return False
+
+
 def has_remote(root: Path) -> bool:
     return bool(git(["-C", str(root), "remote"], check=False).stdout.strip())
 
@@ -121,7 +166,11 @@ def _now() -> float:
 
 
 def parse_worktrees(root: Path) -> list[dict]:
-    """`git worktree list --porcelain` → a list of {path, head, branch, detached}."""
+    """`git worktree list --porcelain` → a list of {path, head, branch?, detached?}.
+
+    Order is git's: the main working tree first, then the linked worktrees. Each
+    entry's `branch` is that worktree's own branch, whatever cwd we ran from.
+    """
     out = git(["-C", str(root), "worktree", "list", "--porcelain"]).stdout
     entries: list[dict] = []
     cur: dict = {}
@@ -133,6 +182,8 @@ def parse_worktrees(root: Path) -> list[dict]:
             continue
         if line.startswith("worktree "):
             cur = {"path": line[len("worktree "):]}
+        elif line.startswith("HEAD "):
+            cur["head"] = line[len("HEAD "):]
         elif line.startswith("branch "):
             cur["branch"] = line[len("branch "):].rsplit("/", 1)[-1]
         elif line == "detached":
@@ -142,12 +193,30 @@ def parse_worktrees(root: Path) -> list[dict]:
     return entries
 
 
+def main_worktree(root: Path) -> Path:
+    """The repo's primary working tree, from any checkout inside it.
+
+    `rev-parse --show-toplevel` answers "which checkout am I standing in", which
+    is the *linked* worktree whenever a session is inside one — so it must never
+    stand in for "the repo". Using it that way made `list` label the current
+    worktree as main (and hide its ahead/behind counts), and made `land`/`remove`
+    build the <repo>-<feature> directory name out of the linked worktree's own
+    name, so they found no worktree at all. `git worktree list` always names the
+    main working tree first, and says the same thing from every cwd.
+    """
+    entries = parse_worktrees(root)
+    return Path(entries[0]["path"]) if entries else root
+
+
 def collect(root: Path, main: str, stale_days: float) -> list[WorktreeInfo]:
-    main_root = str(toplevel(root))
+    entries = parse_worktrees(root)
+    main_root = entries[0]["path"] if entries else str(root)
     infos: list[WorktreeInfo] = []
-    for e in parse_worktrees(root):
+    for e in entries:
         wt = Path(e["path"])
         is_main = str(wt) == main_root
+        # Per-worktree branch, from that worktree's own porcelain entry — not
+        # from HEAD in the cwd.
         branch = e.get("branch") or "(detached)"
         ahead = behind = 0
         if branch != "(detached)" and branch != main:
@@ -190,7 +259,10 @@ def cmd_start(args) -> int:
               "outside iCloud (default ~/worktrees).", file=sys.stderr)
         return 2
 
-    repo = root.name
+    # The repo's own name, not the name of whichever worktree we're standing in —
+    # otherwise starting a line from inside a worktree yields <repo>-<old>-<new>,
+    # which land/remove can then never resolve.
+    repo = main_worktree(root).name
     path = base / f"{repo}-{args.feature}"
     branch = args.branch or args.feature
     if path.exists():
@@ -251,7 +323,7 @@ def cmd_land(args) -> int:
             print(f"worktree: no worktree found for feature {args.feature!r}.",
                   file=sys.stderr)
             return 1
-        wt = Path(target)
+        wt = Path(target["path"])
     else:
         wt = root  # land the worktree we're standing in
 
@@ -267,7 +339,7 @@ def cmd_land(args) -> int:
 
     if not has_remote(wt):
         print(f"⚠ no remote configured — reconcile locally instead:\n"
-              f"    git -C {_shquote(str(root))} merge {branch}\n"
+              f"    git -C {_shquote(str(main_worktree(root)))} merge {branch}\n"
               f"  then: worktree remove {branch.split('-')[-1]}")
         return 0
 
@@ -302,22 +374,30 @@ def cmd_remove(args) -> int:
         print(f"worktree: no worktree found for feature {args.feature!r}.",
               file=sys.stderr)
         return 1
-    wt = Path(target)
+    wt = Path(target["path"])
 
     dirty = bool(git(["-C", str(wt), "status", "--porcelain"], check=False).stdout.strip())
-    branch = git(["-C", str(wt), "rev-parse", "--abbrev-ref", "HEAD"]).stdout.strip()
-    # `git branch` marks the current branch with '*' and a branch checked out in
-    # another worktree with '+'; strip both so the name matches cleanly.
-    merged = branch in {b.strip().lstrip("*+ ").strip()
-                        for b in git(["-C", str(root), "branch", "--merged", main],
-                                     check=False).stdout.splitlines()}
+    # Read the branch off the worktree we matched. A detached worktree has no
+    # branch to name, so its HEAD commit is what gets checked for containment —
+    # never the string "HEAD", which would resolve in the wrong tree.
+    branch = target.get("branch") or ""
+    head = target.get("head") or git(["-C", str(wt), "rev-parse", "HEAD"]).stdout.strip()
+    rev, label = ((branch, f"branch {branch}") if branch
+                  else (head, f"detached HEAD {head[:9]}"))
+
+    if args.fetch and has_remote(root):
+        git(["-C", str(root), "fetch", "--quiet", "origin", main], check=False)
+    refs = integration_refs(root, main)
+    merged = is_merged(root, rev, refs)
 
     if (dirty or not merged) and not args.force:
         why = []
         if dirty:
             why.append("uncommitted changes")
         if not merged:
-            why.append(f"branch {branch} is not merged into {main}")
+            why.append(f"{label} is not merged into {' or '.join(refs)}" if refs
+                       else f"{label} cannot be verified as merged — neither "
+                            f"origin/{main} nor local {main} exists")
         print(f"worktree: refusing to remove {wt} — {', and '.join(why)}.\n"
               "  Land it first (worktree land), or pass --force to discard the work.",
               file=sys.stderr)
@@ -329,9 +409,18 @@ def cmd_remove(args) -> int:
     except GitError as e:
         print(f"worktree: {e}", file=sys.stderr)
         return 2
-    if args.delete_branch:
-        git(["-C", str(root), "branch", "-D" if args.force else "-d", branch], check=False)
-    print(f"✓ removed {wt}" + (f" and branch {branch}" if args.delete_branch else ""))
+    deleted = False
+    if args.delete_branch and branch:
+        # `git branch -d` measures "merged" against local main itself, so it can
+        # refuse a branch this command just cleared against origin/main. Say so
+        # rather than claiming a deletion that did not happen.
+        bd = git(["-C", str(root), "branch", "-D" if args.force else "-d", branch],
+                 check=False)
+        deleted = bd.returncode == 0
+        if not deleted:
+            print(f"⚠ kept branch {branch} — git refused to delete it: "
+                  f"{(bd.stderr or bd.stdout).strip()}")
+    print(f"✓ removed {wt}" + (f" and branch {branch}" if deleted else ""))
     return 0
 
 
@@ -339,13 +428,21 @@ def cmd_remove(args) -> int:
 # helpers / rendering
 # --------------------------------------------------------------------------- #
 
-def _feature_worktree(root: Path, args) -> str | None:
-    """Find a worktree by feature slug: match a path ending in <repo>-<feature>."""
-    repo = root.name
-    suffix = f"{repo}-{args.feature}"
-    for e in parse_worktrees(root):
+def _feature_worktree(root: Path, args) -> dict | None:
+    """Find a worktree by feature slug: match a directory named <repo>-<feature>.
+
+    <repo> is the *main* working tree's name, so the same slug resolves whether
+    you run from the main checkout or from a linked worktree. Returns the
+    porcelain entry (path, head, branch) so callers read the branch from the
+    worktree they matched, not from their own HEAD.
+    """
+    entries = parse_worktrees(root)
+    if not entries:
+        return None
+    suffix = f"{Path(entries[0]['path']).name}-{args.feature}"
+    for e in entries:
         if Path(e["path"]).name == suffix:
-            return e["path"]
+            return e
     return None
 
 
@@ -405,10 +502,20 @@ def build_parser() -> argparse.ArgumentParser:
                    help="feature slug (default: the worktree you're standing in)")
     p.set_defaults(func=cmd_land)
 
-    p = sub.add_parser("remove", aliases=["clean"], help="remove a worktree (guarded)")
+    p = sub.add_parser(
+        "remove", aliases=["clean"],
+        help="remove a worktree (guarded)",
+        description="Remove a worktree. Refuses if it has uncommitted changes, or "
+                    "if its branch is not contained in origin/<main> or local "
+                    "<main> — so a branch landed by a direct push counts as "
+                    "landed. If neither ref exists the branch counts as unmerged. "
+                    "Reads local refs only (no network) unless --fetch is given.")
     p.add_argument("feature", help="feature slug of the worktree to remove")
     p.add_argument("--force", action="store_true",
                    help="remove even with uncommitted/unmerged work (discards it)")
+    p.add_argument("--fetch", action="store_true",
+                   help="fetch origin/<main> first (touches the network) — use when "
+                        "someone else may have merged the branch on the remote")
     p.add_argument("--delete-branch", action="store_true", help="also delete the branch")
     p.set_defaults(func=cmd_remove)
 
