@@ -2065,6 +2065,46 @@ whole-tree CI fails, and the failure never reaches the person committing.
       guard fires the other way round. Confirm before pricing a fix. The pointers
       belong to a session that has since closed, so the lane is free.
 
+## AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)
+
+**Mike's ruling, 2026-08-09:** *ruleset with owner bypass, plus a machine-check.*
+Taken over full protection (PR-only for every change) and over re-wording the
+clause to the truth. The reasoning he was given: PR-only is the strongest answer
+and makes ADR 0008's clause literally true, but on a solo estate it is friction
+paid on every commit forever; re-wording alone closes the honesty defect and
+leaves the exposure untouched.
+
+**APPLIED the same day — the platform half.** Repository ruleset `20603641`,
+`enforcement: active`, on `~DEFAULT_BRANCH`: `deletion`, `non_fast_forward`,
+`required_signatures`. Verified through the exact endpoint AP1 read as empty —
+`repos/…/rules/branches/main` now returns all three rules. Chosen because none
+of the three can block an ordinary signed fast-forward push, so the standing
+direct-push grant is untouched; a live session was mid-work when it landed and
+was unaffected. Every commit on this machine already verifies (12 of 12 sampled
+`verified=true`), so `required_signatures` was safe to switch on rather than
+aspirational.
+
+- [ ] 🔎 **The machine-check half — the second thing Mike ruled, and it is not
+      built.** Nothing enumerates the boundary that makes the floating `@main`
+      call safe: `floorfleet` reports whether children *call* the floor and is
+      silent on the control protecting what they call. Owed: a parent-row check
+      reading branch-protection/ruleset state and going **RED when absent** — the
+      same absences-raise-their-hands doctrine already applied to children. Until
+      it exists, this control is exactly what AP1 condemned: real today, unwatched
+      tomorrow, and nothing would notice if the ruleset were deleted.
+- [ ] 🔎 **ADR 0008's clause is now closer to true and still not true.** Of its
+      three named legs, one is now in force (branch protection, via the ruleset),
+      one is in force but **bypassable by the admin role** — the bypass Mike ruled
+      for, so the control is a guard against accident and third-party push, never
+      against compromise of his own token — and one remains **post-hoc** (registry
+      changes land directly on `main` under the standing grant; review follows
+      landing). The clause still reads as three flat controls. Re-wording it is a
+      doctrine edit and earns its own `⏳` at landing; it was deliberately not
+      done in the same commit as the platform change, so the record never claims
+      an ADR revision that had no review behind it.
+      ⚠️ **AP1 therefore stays OPEN.** The exposure is narrowed, not closed, and
+      calling it closed would be exactly the rounding the apex forbids.
+
 ## Doctrine — review-owed
 
 - ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass) — the
