@@ -5,6 +5,26 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-08-09 — who is a child, and where work lands)
+Mike ruled both halves during the estate-wide duplication and exception
+audit, and neither was written down — which is how one restated doctrine
+survived in four children while every one of them passed every check.
+`PROPAGATION.md` § *layer-override* now states that **adoption is the
+default**: every repo the principal works an agent in is an atelier child
+unless he rules a specific exclusion, so the enumerating boards' denominator
+is every repo he uses rather than every repo already wired. And it splits
+what a child may hold into three verbs — **add** freely, **never repeat**
+(a restatement is a second original that drifts silently; point up, or use
+a stamped copy), **never conflict** unless the principal rules a specific
+exemption recorded in the child. That last lane was missing: the existing
+bullets could express an unresolved contradiction but not a ruled one, so a
+deliberate exemption read as drift to the next session. `CONCURRENCY.md`
+§ *Stay in your lane* gains work-locality, sharpening its existing
+another-repo fence rather than minting a second original: a fix lands in a
+session working that repo, never delivered sideways by the session that
+found it — but the finder **may queue** the finding and its proposed fix in
+that repo's own roadmap. Queue, never deliver.
+
 ### Added (2026-08-09 — the deliberate term-list hatch)
 Mike ruled the D1-consequence: a leakscan marker whose scope NAMES
 `local-term` explicitly — with a reason — exempts term-list hits on that

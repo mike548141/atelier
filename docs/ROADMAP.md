@@ -1439,7 +1439,134 @@ all-clear rule) rather than as a new section: read the *conclusion*, never just
       green on a `cancelled` conclusion) is left for evidence: this is instance
       one, and one instance grounds a clause, not a build.
 
+## Estate duplication + exception audit (Mike commissioned 2026-08-09)
+
+Two questions, swept across all 16 children: **what repeats or conflicts house
+doctrine**, and **are the guard exceptions well-reasoned and recorded**. Mike
+ruled the governing frame mid-audit — adoption is the default, a child may add
+but never repeat or conflict absent a ruled exemption, and work lands in the
+repo it changes (`PROPAGATION.md` § *Who is a child*, `CONCURRENCY.md` § *Stay
+in your lane*, landed this commit).
+
+**The exception half came back strong and is recorded here so the next sweep
+does not re-derive it.** Every one of the 11 ignore-file globs and ~120 line
+markers read carries a stated reason; the three repo-wide `leakscan` opt-outs
+(`shed`, `derry-hill`, `stewart-drive`) each cite a named ADR, state the
+inverted-premise ground, and bound what does *not* relax. `faves`'
+`.leakscanignore` is the model instance — it argues why globs beat markers for
+its case, draws the venue-vs-person line, and tells a future reader not to
+widen it. No unreasoned hatch was found anywhere in the estate.
+
+### Findings owned here (atelier-side)
+
+- [ ] **atelier's own `scope` block carries no `why`, and the parent is not
+      exempt.** `.atelier-floor.json` narrows `wrapscan`, `spellscan` and
+      `pathscan` to three doctrine dirs — a real check-level scope reduction,
+      declared and visible on the board, but with no reason travelling with the
+      declaration. `ros`'s `scope` entry carries a `why`; atelier's does not,
+      and `GUARDS.md` rule (c) binds the parent identically. The reasons exist
+      (the WS1 ruling, the S1 noise measurement) but live in the ignore-file
+      comments, which is the *other* half of the same rule — a reason a reviewer
+      of the config cannot see. Same defect on `ros`'s `flags.leakscan`
+      `--disable ipv4,ipv6,mac-address`: reasoned, but the reason sits in the
+      sibling `local.estate-tripwire` entry rather than on the declaration.
+- [ ] **`tools/worktree.py list` misreports the branch.** Observed this session:
+      a worktree on branch `doctrine-adoption-ruling-0809` is listed as `main`,
+      and `land <feature>` then cannot find it (`no worktree found`). The branch
+      itself is correct (`git branch --show-current` agrees); the defect is in
+      the listing/lookup path. Low blast radius, but it breaks the tool's own
+      documented landing route, so a session that trusts it either hand-rolls
+      the push or believes it is on `main`.
+- [ ] **Eight children carry a floor block that predates four doctrine
+      changes, and nothing mechanical can see it.** Measured 2026-08-09 against
+      the canonical region: `Baby Brain`, `FoodTracker`, `docker-heap`,
+      `ec2_builder`, `hitchbots_guide`, `homenetwork`, `nova` and `numen` are
+      each missing the **Concurrency**, **Session rhythm** and **Estate
+      resources** bullets outright, and their apex bullet predates both the
+      *adaptation* clause and the *informed confirmation* sentence — four of the
+      seven irreducible floor concerns, absent. All eight pin `atelier@d7e7afc`
+      (2026-07-12, 818 commits back), so this is the pin mechanism working as
+      designed and never being actioned, not a silent rewrite. It is also
+      **undeclared narrowing**: `PROPAGATION.md` reds an undeclared drop, but
+      only inside a stamped block, and none of the eight stamps its copy — the
+      four newest children (`kainga`, `tuhura`, `derry-hill`, `stewart-drive`)
+      do, because `create-repo` stamps at scaffold and the older twelve were
+      never retrofitted. So `stampscan` is blind to 12 of 16 copies by
+      construction, which is the known D2-residue bar seen from the child side.
+      The retrofit is the cheap half and is atelier's to ship (`create-repo`
+      already emits the markers); the pin bumps stay per-repo human-in-the-loop.
+- [ ] **`shed` narrows the floor legitimately and undeclarably.** It omits the
+      **Estate resources** bullet — correctly, since `shed` *is* the estate root
+      and cannot point up to itself — and appends a *How other repos refer to
+      THIS one* bullet in its place. That is exactly the `narrow=<reason>` case
+      the doctrine defines, and it cannot be declared while the block is
+      unstamped. Resolves with the retrofit above.
+
+### Findings owned by the child repos (queue there, do not deliver)
+
+Per the work-locality ruling these are **not** to be fixed from an atelier
+session. They are recorded here only so the estate has one list; each needs
+queueing in its own repo's roadmap by a session working that repo.
+
+- [ ] **The economics-doc duplication — the audit's headline, and Mike's
+      original suspicion, confirmed wider than the repo he named.** House
+      economics doctrine is restated in four children. `faves` was trimmed to
+      repo-local facts on the 2026-08-09 DRY ruling and is now the model: it
+      points up for doctrine and keeps only what atelier cannot hold (this
+      repo's own measurements). The other three have not been:
+      - `ros/docs/MODEL-ECONOMICS.md` (106 lines, **zero** references to <!-- pathscan:allow:missing-path: sibling child repo's own file, outside this checkout by design (work-locality ruling) -->
+        atelier) — restates the whole subject, carries a **two-pool** billing
+        model the parent superseded with billing-state-of-the-marginal-token,
+        and prescribes a fixed model-to-role mapping the house replaced with
+        tier-by-risk. Both are *conflicts*, not merely repeats.
+      - `rpi/docs/MODEL-ECONOMICS.md` (69 lines, zero references) — the same <!-- pathscan:allow:missing-path: sibling child repo's own file, outside this checkout by design (work-locality ruling) -->
+        two-pool table and role mapping, self-described as *"Adapted from the
+        sibling `ros`/`tiki` policy"*. `rpi` is **public**.
+      - `nova/docs/MODEL-ECONOMICS.md` (30 lines) — same conflicts, and it <!-- pathscan:allow:missing-path: sibling child repo's own file, outside this checkout by design (work-locality ruling) -->
+        names `ros` as *"the canonical version"*. A child pointing sideways to
+        a sibling for truth mints a second root, which ADR 0001 forecloses and
+        `PROPAGATION.md` § *layer-override* forbids in the same breath as the
+        parent-never-points-down rule.
+      The failure is already evidenced rather than predicted: `faves` recorded
+      that its copy *"drifted 17 days behind a provider change, and misled a
+      session into arguing from a falsified fact"*. The three above carry that
+      same falsified claim today.
+- [ ] **Two ignore-globs are deferments filed as acceptances.**
+      `ec2_builder/.secretscanignore` exempts `data/web_server/`, stating in
+      its own reason that the path *holds real TLS private keys* tracked as
+      ROADMAP P0 debt; `homenetwork`'s exempts `_archive/` as a stale capture
+      holding historical keys and passphrases, *"tracked debt to purge"*. Both
+      reasons are honest and both name an intent to fix — which is the
+      definition of a **deferment**, and `GUARDS.md` requires a deferment to
+      carry an expiry. Neither does, so both read as permanent acceptances of a
+      security debt someone meant to clear. Governance defect, not a new
+      exposure: the `ec2_builder` material is separately assessed as
+      decommissioned. The fix is an expiry per glob, set by the principal.
+- [ ] **The unreasoned advisories are already in hand — do not re-file.**
+      Eight bare-list `advisory` declarations across six repos carry no reason
+      and no expiry (`Baby Brain`, `FoodTracker`, `ec2_builder`,
+      `hitchbots_guide`, `homenetwork` `wrapscan`; `docker-heap` `sizescan`;
+      `nova` `sizescan` + `wrapscan` + `spellscan`). The board already names
+      each one *"pre-C1 declaration, migrate it"*, and **C1b/C2 are claimed and
+      in flight** with Mike's `review-by 2026-09-01` horizon already set. Listed
+      here only so a later sweep recognises them as covered rather than missed.
+
+**Adoption coverage came back clean.** Cross-checking every project path the
+agent has been used in against the child list: all 12 worked repos are children
+with the floor wired. `python-metaname` is a third-party clone (upstream
+`metaname/python-metaname`), never worked in; the remaining directories are not
+repos. No repo needs an exclusion ruling today.
+
 ## Doctrine — review-owed
+
+- ⏳ **Rule-4 review queued (tier: Fable; pass type: doctrine cold pass) — the
+  child-membership and work-locality rules.** *Delta:*
+  `docs/method/PROPAGATION.md` (§ *layer-override* — the new *Who is a child,
+  and what a child may hold* subsection) + `docs/method/CONCURRENCY.md`
+  (§ *Stay in your lane* — the work-locality paragraphs) + the CHANGELOG entry
+  (landed 2026-08-09, this commit). *Intent record:* the § *Estate duplication
+  + exception audit* item above. Self-authored doctrine ⇒ the author may not
+  spawn this pass.
 
 - ⏳ **Rule-4 review queued (tier: Fable; pass type: doctrine cold pass) — the
   `PRINCIPLES.md` §9 time-dimension principle.** *Delta:* `docs/method/PRINCIPLES.md`
