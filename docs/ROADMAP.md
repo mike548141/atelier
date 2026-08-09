@@ -2105,20 +2105,29 @@ whole-tree CI fails, and the failure never reaches the person committing.
   (EI1–EI6) + the 2026-08-04 rulings in [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
   § *E6b built*.
 
-- ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass) — the
-  E7 leakscan build (D2–D6 fixes + the G1/G2/G4/G6/G7 builds).** *Delta:*
-  `tools/leakscan.py` + `tools/test_leakscan.py` (53 → 114) +
-  `tools/leakscan-terms.example.txt` (the `forms:` syntax) + the CHANGELOG
-  entry (landed 2026-08-06, this commit) + the 2026-08-09 scoped-marker
-  follow-up on the same surfaces (the `local-term` marker scope, Mike's
-  D1-consequence ruling at the close walk-through; suite 114 → 119 in
-  that file; delta widened per the landing-commit rule). *Intent record:*
+- [ ] 🎯 **The E7 leakscan cycle CLOSED 2026-08-09 (0 MAJOR); LK1–LK6 + a
+  G2 reach note await Mike's ruling round.** The rule-4 Fable cold pass
+  (taker: a Mike-spawned session, claimed 0815 UTC) returned
+  PASS-WITH-FINDINGS — 0 MAJOR / 1 MODERATE / 2 minor / 3 note; every
+  re-run reproduced (53 → 114 → 119, 122 at HEAD; full tools suite 1210
+  green; both planes live-probed with a scratch term list; the hard
+  constraint held — counts and classes only, no machine-local term
+  anywhere) →
+  [`reviews/2026-08-09-0826-e7-leakscan-build-cold.md`](reviews/2026-08-09-0826-e7-leakscan-build-cold.md).
+  Notable: LK1 (MODERATE, reviewer argues MAJOR) — a scoped allow-marker
+  with a malformed scope segment backtracks and re-parses as the unscoped
+  all-structural form, silently exempting co-located structural leaks the
+  author never named; latent (no in-tree marker triggers it), bounded (the
+  term layer held in every probe), and unpriced by the 2026-08-04 ruling —
+  it breaks the ruling's *narrow* intent while honouring its letter. LK6
+  (post-reconcile) — the docstring's "a path has no inline marker hatch" is
+  falsified by probe. *Delta:* `tools/leakscan.py` +
+  `tools/test_leakscan.py` + `tools/leakscan-terms.example.txt` + the
+  CHANGELOG entry (landed 2026-08-06) + the 2026-08-09 scoped-marker
+  follow-up. *Intent record:*
   [sweep record](sessions/2026-08-03-2050-leakscan-pii-sweep.md) + the
-  2026-08-04 E7 ruling, harvested with the item to
-  [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *E7 built*.
-  - [ ] **Cold pass RUNNING** — claimed 2026-08-09 0815 UTC by a Mike-spawned
-        Fable session (rule 4's criterion met; brief written by the taker):
-        [`reviews/2026-08-09-0826-e7-leakscan-build-cold.md`](reviews/2026-08-09-0826-e7-leakscan-build-cold.md).
+  2026-08-04 E7 ruling in [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
+  § *E7 built*.
 
 Completed review cycles (Claiming-work, REACH ×3, the independence batch,
 COMMUNICATION, RECORD keep-generic, signing doctrine, PRINCIPLES §8, the plugin
