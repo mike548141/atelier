@@ -1088,29 +1088,39 @@ test('defaultKeyFile is under ~/.claude and CCARCHIVE_KEYFILE overrides it', () 
 // documented exclusions, the external history.jsonl reach-up, and backwards
 // compatibility with an archive written before the classes existed.
 
-// A wider fixture than makeTree(): a transcript, both sidecar shapes (modern
-// tool-results/ and legacy toolu_), two memory .md files, an excluded WebFetch
-// PDF, and the top-level history.jsonl that lives ONE LEVEL ABOVE projects/.
+// A wider fixture than makeTree(): a transcript, a subagent log with its
+// metadata sidecar, both tool-result sidecar shapes (modern tool-results/ and
+// legacy toolu_), two memory .md files, an excluded WebFetch PDF, an excluded
+// .meta.json OUTSIDE subagents/ (the scoping decision, exercised end to end),
+// and the top-level history.jsonl that lives ONE LEVEL ABOVE projects/.
+// Every byte here is synthetic: no real session, agent id or path appears.
 function makeWideTree() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ccarchive-wide-'));
   const src = path.join(dir, 'projects');
   const dest = path.join(dir, 'archive');
   const uuidDir = path.join(src, '-repo-a', 'uuid1');
   fs.mkdirSync(path.join(uuidDir, 'tool-results'), { recursive: true });
+  fs.mkdirSync(path.join(uuidDir, 'subagents'), { recursive: true });
   fs.mkdirSync(path.join(src, '-repo-a', 'memory'), { recursive: true });
   fs.writeFileSync(path.join(src, '-repo-a', 'uuid1.jsonl'), '{"turn":1}\n');
+  fs.writeFileSync(path.join(uuidDir, 'subagents', 'agent-a1.jsonl'), '{"sub":true}\n');
+  fs.writeFileSync(path.join(uuidDir, 'subagents', 'agent-a1.meta.json'),
+    JSON.stringify({ agentType: 'general-purpose', description: 'a synthetic agent',
+      toolUseId: 'toolu_synthetic', spawnDepth: 1, model: 'a-model' }) + '\n');
   fs.writeFileSync(path.join(uuidDir, 'tool-results', 'big-output.txt'), 'LARGE TOOL OUTPUT PAYLOAD\n');
   fs.writeFileSync(path.join(uuidDir, 'toolu_01ABC.json'), '{"legacy":"sidecar"}\n');
   fs.writeFileSync(path.join(src, '-repo-a', 'memory', 'MEMORY.md'), '# index\n- entry\n');
   fs.writeFileSync(path.join(src, '-repo-a', 'memory', 'entry.md'), 'some learned context\n');
   fs.writeFileSync(path.join(src, '-repo-a', 'webfetch-abc.pdf'), '%PDF-1.4 fake\n');   // excluded
+  fs.writeFileSync(path.join(src, '-repo-a', 'stray.meta.json'), '{"outside":"subagents"}\n'); // excluded
   fs.writeFileSync(path.join(dir, 'history.jsonl'), '{"prompt":"hi"}\n');               // above projects/
   return { dir, src, dest };
 }
 
-test('captureClass allowlists transcripts, tool-result sidecars and memory; excludes the rest', () => {
+test('captureClass allowlists transcripts, subagent metadata, tool-result sidecars and memory; excludes the rest', () => {
   assert.equal(cc.captureClass(path.join('-repo', 'uuid.jsonl')), 'transcript');
   assert.equal(cc.captureClass(path.join('-repo', 'uuid', 'subagents', 'a.jsonl')), 'transcript');
+  assert.equal(cc.captureClass(path.join('-repo', 'uuid', 'subagents', 'a.meta.json')), 'subagent-meta');
   assert.equal(cc.captureClass(path.join('-repo', 'uuid', 'tool-results', 'big.txt')), 'tool-result');
   assert.equal(cc.captureClass(path.join('-repo', 'uuid', 'tool-results', 'big.json')), 'tool-result');
   assert.equal(cc.captureClass(path.join('-repo', 'uuid', 'toolu_01ABC.txt')), 'tool-result');
@@ -1122,6 +1132,23 @@ test('captureClass allowlists transcripts, tool-result sidecars and memory; excl
   assert.equal(cc.captureClass(path.join('-repo', 'README.md')), null);   // .md NOT under memory/
 });
 
+// The recorded judgement: the subagent-meta class is matched by name but SCOPED
+// to a subagents/ directory, so an unseen .meta.json elsewhere stays excluded by
+// default like any other unrecognised file. Pinned as a test because the two
+// readings are indistinguishable on today's store (every real sidecar sits under
+// subagents/) and only a test keeps the narrower one from drifting wider.
+test('captureClass scopes the subagent .meta.json to a subagents/ directory, not *.meta.json anywhere', () => {
+  assert.equal(cc.captureClass(path.join('-repo', 'uuid', 'subagents', 'agent-a1.meta.json')), 'subagent-meta');
+  // Nested deeper under subagents/ still counts — the check is on the path, not a fixed depth.
+  assert.equal(cc.captureClass(path.join('-repo', 'uuid', 'subagents', 'nested', 'a.meta.json')), 'subagent-meta');
+  // Outside subagents/, a .meta.json is NOT captured, at any level.
+  assert.equal(cc.captureClass(path.join('-repo', 'stray.meta.json')), null);
+  assert.equal(cc.captureClass(path.join('-repo', 'uuid', 'stray.meta.json')), null);
+  assert.equal(cc.captureClass(path.join('-repo', 'uuid', 'tool-results', 'x.meta.json')), 'tool-result');
+  // A subagents/ file that is neither a log nor a .meta.json is still excluded.
+  assert.equal(cc.captureClass(path.join('-repo', 'uuid', 'subagents', 'scratch.txt')), null);
+});
+
 test('listCaptured mirrors the allowlist across a wide tree and skips the WebFetch PDF', () => {
   const { src } = makeWideTree();
   const found = cc.listCaptured(src).map((p) => path.relative(src, p)).sort();
@@ -1129,6 +1156,8 @@ test('listCaptured mirrors the allowlist across a wide tree and skips the WebFet
     path.join('-repo-a', 'memory', 'MEMORY.md'),
     path.join('-repo-a', 'memory', 'entry.md'),
     path.join('-repo-a', 'uuid1.jsonl'),
+    path.join('-repo-a', 'uuid1', 'subagents', 'agent-a1.jsonl'),
+    path.join('-repo-a', 'uuid1', 'subagents', 'agent-a1.meta.json'),
     path.join('-repo-a', 'uuid1', 'tool-results', 'big-output.txt'),
     path.join('-repo-a', 'uuid1', 'toolu_01ABC.json'),
   ].sort());
@@ -1156,12 +1185,16 @@ test('liveAbsFor redirects an external rel above the source root, mirrors ordina
 test('contract: a wide run captures sidecars, memory and history byte-identical, and verifies', () => {
   const { src, dest, dir } = makeWideTree();
   const j = runJson(src, dest);
-  assert.equal(j.total, 6, '5 under-root captures + the external history.jsonl');
-  assert.equal(j.archived, 6);
-  // The excluded WebFetch PDF is not mirrored.
+  assert.equal(j.total, 8, '7 under-root captures + the external history.jsonl');
+  assert.equal(j.archived, 8);
+  // The excluded WebFetch PDF is not mirrored — nor is a .meta.json outside subagents/.
   assert.ok(!fs.existsSync(path.join(dest, '-repo-a', 'webfetch-abc.pdf.gz')));
+  assert.ok(!fs.existsSync(path.join(dest, '-repo-a', 'stray.meta.json.gz')),
+    'a .meta.json outside subagents/ is not captured (the class is scoped)');
   // Each captured class gunzips back to the exact source bytes.
   const checks = [
+    [path.join(dest, '-repo-a', 'uuid1', 'subagents', 'agent-a1.meta.json.gz'),
+      path.join(src, '-repo-a', 'uuid1', 'subagents', 'agent-a1.meta.json')],
     [path.join(dest, '-repo-a', 'uuid1', 'tool-results', 'big-output.txt.gz'),
       path.join(src, '-repo-a', 'uuid1', 'tool-results', 'big-output.txt')],
     [path.join(dest, '-repo-a', 'uuid1', 'toolu_01ABC.json.gz'),
@@ -1199,7 +1232,7 @@ test('contract: --audit on a wide store matching its archive is clean, every cla
   const r = runCli('--audit', '--source', src, '--dest', dest, '--json');
   assert.equal(r.status, 0);
   const out = JSON.parse(r.stdout);
-  assert.equal(out.synced, 6, 'all five under-root classes plus history are in sync');
+  assert.equal(out.synced, 8, 'all seven under-root captures plus history are in sync');
   assert.equal(out.mutated.length, 0);
   assert.equal(out.renamed.length, 0);
 });
@@ -1231,6 +1264,8 @@ test('contract: full --restore rebuilds sidecars, memory and the external histor
   runJson(src, dest);
   const rels = [
     path.join('-repo-a', 'uuid1.jsonl'),
+    path.join('-repo-a', 'uuid1', 'subagents', 'agent-a1.jsonl'),
+    path.join('-repo-a', 'uuid1', 'subagents', 'agent-a1.meta.json'),
     path.join('-repo-a', 'uuid1', 'tool-results', 'big-output.txt'),
     path.join('-repo-a', 'uuid1', 'toolu_01ABC.json'),
     path.join('-repo-a', 'memory', 'MEMORY.md'),
@@ -1245,7 +1280,7 @@ test('contract: full --restore rebuilds sidecars, memory and the external histor
 
   const r = runRestore(src, dest);
   assert.equal(r.status, 0);
-  assert.equal(r.report.restored.length, 6);
+  assert.equal(r.report.restored.length, 8);
   for (const [rel, bytes] of Object.entries(originals)) {
     assert.deepEqual(fs.readFileSync(path.join(src, rel)), bytes, `${rel} restored byte-identical`);
   }
@@ -1270,6 +1305,100 @@ test('contract: the shrink guard covers new classes — a shrunk memory file is 
   assert.ok(JSON.parse(res.stdout).refusedShrink.includes(rel));
   const forced = runJson(src, dest, '--force');              // the deliberate override
   assert.ok(forced.archived >= 1);
+});
+
+test('contract: a subagent .meta.json is manifested, tamper-detected and restored beside its log', () => {
+  const { src, dest } = makeWideTree();
+  const rel = path.join('-repo-a', 'uuid1', 'subagents', 'agent-a1.meta.json');
+  runJson(src, dest);
+
+  // Manifest/integrity inclusion is structural — the manifest keys on <rel> for
+  // every class alike — so the sidecar carries its own sha256 and raw size.
+  const mf = cc.loadManifest(dest);
+  assert.ok(mf[rel], 'the sidecar is a first-class manifest entry');
+  assert.equal(mf[rel].sha256, cc.sha256(fs.readFileSync(path.join(src, rel))));
+  assert.equal(mf[rel].rawBytes, fs.statSync(path.join(src, rel)).size);
+  assert.equal(runCli('--verify', '--dest', dest, '--json').status, 0);
+
+  // A mutated archive copy is caught, exactly like a transcript's.
+  fs.writeFileSync(path.join(dest, rel + '.gz'), zlib.gzipSync(Buffer.from('{"tampered":1}\n')));
+  const v = runCli('--verify', '--dest', dest, '--json');
+  assert.equal(v.status, 1);
+  assert.deepEqual(JSON.parse(v.stdout).mismatch, [rel]);
+
+  // Restore mapping: an ordinary (non-external) rel, so it comes back beside its
+  // log under subagents/ — never flattened, never under a reserved prefix.
+  const { src: src2, dest: dest2 } = makeWideTree();
+  runJson(src2, dest2);
+  const original = fs.readFileSync(path.join(src2, rel));
+  fs.rmSync(path.join(src2, rel));
+  const r = runRestore(src2, dest2, '--delta');
+  assert.equal(r.status, 0);
+  assert.ok(r.report.restored.some((x) => x.rel === rel), 'the pruned sidecar is a delta-restore target');
+  assert.deepEqual(fs.readFileSync(path.join(src2, rel)), original, 'restored byte-identical, in place');
+});
+
+// The shrink guard on a ~160-byte JSON document that can legitimately be
+// rewritten. Two halves, because only one of them is a real cost: a FIRST
+// capture is never refused however small the file, and only a rewrite that
+// shrinks is. Safe-over-silent, and --force is the documented way through.
+test('contract: the shrink guard ignores a tiny first capture and refuses a shrunk .meta.json rewrite', () => {
+  const { src, dest } = makeWideTree();
+  const rel = path.join('-repo-a', 'uuid1', 'subagents', 'agent-a1.meta.json');
+  const f = path.join(src, rel);
+
+  // Half one: the initial capture of a small file is not a shrink — nothing to
+  // compare against, so no refusal (the guard needs an existing mirror).
+  const first = runJson(src, dest);
+  assert.deepEqual(first.refusedShrink, []);
+
+  // Half two: Claude Code rewrites the sidecar with a field dropped — smaller,
+  // newer, and a legitimate rewrite rather than truncation. Refused, loudly.
+  fs.writeFileSync(f, JSON.stringify({ agentType: 'general-purpose', toolUseId: 'toolu_synthetic' }) + '\n');
+  assert.ok(fs.statSync(f).size < first.files.find((x) => x.rel === rel).rawBytes);
+  const future = (Date.now() + 5000) / 1000;
+  fs.utimesSync(f, future, future);
+  const res = spawnSync('node', [SCRIPT, '--json', '--source', src, '--dest', dest], { encoding: 'utf8' });
+  assert.equal(res.status, 1, 'a shrunk JSON sidecar is refused like any other class');
+  assert.ok(JSON.parse(res.stdout).refusedShrink.includes(rel));
+  // The archived copy is untouched by the refusal — the old bytes still verify.
+  assert.equal(runCli('--verify', '--dest', dest, '--json').status, 0);
+  // --force is the deliberate way through, and the archive verifies after it.
+  const forced = runJson(src, dest, '--force');
+  assert.ok(forced.files.some((x) => x.rel === rel && x.action === 'archived'));
+  assert.equal(runCli('--verify', '--dest', dest, '--json').status, 0);
+});
+
+// Roadmap claim under test (the "backfill is free" item): archiveOnce walks the
+// WHOLE live tree every run and shouldArchive returns true whenever no mirror
+// exists, so a newly-allowlisted class needs no backfill pass, no flag and no
+// new code — the next ordinary run takes every such file still on disk, however
+// old it is. Emulated by a sidecar that appears in the live tree with a long-past
+// mtime after the archive was already written: indistinguishable, to the tool,
+// from one that predated the capture class.
+test('backfill: an ordinary run takes a never-archived sidecar however old its mtime, with no flag', () => {
+  const { src, dest } = makeWideTree();
+  const rel = path.join('-repo-a', 'uuid1', 'subagents', 'agent-a1.meta.json');
+  const bytes = fs.readFileSync(path.join(src, rel));
+  fs.rmSync(path.join(src, rel));
+
+  const first = runJson(src, dest);                  // an archive with no sidecar in it
+  assert.ok(!fs.existsSync(path.join(dest, rel + '.gz')));
+  assert.ok(!cc.loadManifest(dest)[rel]);
+
+  // The sidecar is (back) on disk, last written a year ago — stale by any mtime
+  // reading, yet unarchived: destMtimeMs === null is what decides.
+  fs.writeFileSync(path.join(src, rel), bytes);
+  const yearAgo = (Date.now() - 365 * 24 * 3600 * 1000) / 1000;
+  fs.utimesSync(path.join(src, rel), yearAgo, yearAgo);
+
+  const second = runJson(src, dest);                 // no --force, no new flag
+  assert.equal(second.archived, 1, 'exactly the unarchived sidecar');
+  assert.equal(second.skipped, first.archived, 'everything already archived is left alone');
+  assert.ok(second.files.some((x) => x.rel === rel && x.action === 'archived'));
+  assert.deepEqual(zlib.gunzipSync(fs.readFileSync(path.join(dest, rel + '.gz'))), bytes);
+  assert.ok(cc.loadManifest(dest)[rel], 'and it lands in the manifest on the same run');
+  assert.equal(runCli('--verify', '--dest', dest, '--json').status, 0);
 });
 
 test('compat: an old (jsonl-only) archive still verifies; new-class live files audit as new, not drift', () => {

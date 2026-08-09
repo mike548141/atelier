@@ -1,4 +1,4 @@
-.TH CCARCHIVE 1 "2026-07-23" "atelier instruments" "User Commands"
+.TH CCARCHIVE 1 "2026-08-09" "atelier instruments" "User Commands"
 .SH NAME
 ccarchive \- durably preserve every Claude Code transcript, word for word
 .SH SYNOPSIS
@@ -41,8 +41,8 @@ Claude Code deletes logs older than its
 setting (30 by default), so the history disappears on a rolling window.
 .PP
 .B ccarchive
-mirrors every one of those logs \(em and the offloaded payloads, memory and
-history that go with them (see
+mirrors every one of those logs \(em and the offloaded payloads, subagent
+metadata, memory and history that go with them (see
 .BR CAPTURE ) \(em
 into a compressed, append-only archive that outlives that cleanup. Where
 .BR cctranscript (1)
@@ -88,6 +88,26 @@ while advertising completeness would be dishonest about what it holds.
 Session transcripts, and nested subagent logs beneath the session
 .RI ( <uuid>/subagents/*.jsonl ) \(em
 the core record, at any depth.
+.TP
+.I <uuid>/subagents/*.meta.json
+.B Subagent metadata sidecars.
+Claude Code writes one small JSON file beside each subagent log recording how
+that agent was spawned: its type and description, the
+.I tool_use
+id of the block that spawned it, its spawn depth and parent agent, the model it
+ran on, and any worktree it was given. None of that is recoverable from the
+transcripts alone \(em the
+.I tool_use
+id is the only join back to the spawning block in the parent session log, and
+the depth and parent are what disambiguate an agent that itself spawned agents
+into the same directory. Matched by name
+.RI ( *.meta.json )
+but
+.B scoped to a subagents/ directory,
+so a
+.I .meta.json
+appearing anywhere else stays excluded by default like any other unrecognised
+file, rather than being swept in sight-unseen.
 .TP
 .IR <uuid>/tool-results/* " and " <uuid>/toolu_*
 .B Tool-result sidecars.
@@ -328,6 +348,21 @@ backup with an
 .I older
 modification time \(em is silently left un-archived, since the archived copy
 is newer.
+.PP
+The guard is size-only and applies to every captured class alike. Two of those
+classes are whole documents rather than append-only logs \(em a memory
+.I .md
+and a subagent
+.I .meta.json
+\(em so a legitimate rewrite of one can be smaller than what was recorded and
+will be refused until
+.B \-\-force
+is given. That is safe-over-silent by choice, and it costs little: the guard can
+only fire on a source that is both
+.I newer
+than its mirror and
+.I smaller
+than the recorded size, i.e. on a rewrite, never on a first capture.
 .PP
 The shrink guard's sibling is a
 .B layout-drift alarm :
@@ -632,7 +667,9 @@ captured (read-only). Relocate with
 .TP
 .I <dest>/<rel>/<name>.gz
 An archived file \(em the gzip of one captured source file (a transcript, a
-tool-result sidecar or a memory
+subagent
+.IR .meta.json ,
+a tool-result sidecar or a memory
 .IR .md ).
 .TP
 .I <dest>/_external/history.jsonl.gz

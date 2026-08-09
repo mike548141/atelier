@@ -14,7 +14,10 @@
  * A transcript is not the whole record, though. When a tool output is large,
  * Claude Code offloads the payload to a sidecar file (<uuid>/tool-results/* or,
  * older, <uuid>/toolu_*) and leaves only a pointer in the .jsonl — so a .jsonl
- * alone can dangle a reference to content that was never archived. Per-project
+ * alone can dangle a reference to content that was never archived. Each subagent
+ * log also has a metadata sidecar beside it (<uuid>/subagents/agent-<id>.meta.json)
+ * holding facts recorded nowhere else — the tool_use id that spawned the agent,
+ * its spawn depth and parent, and the model it actually ran on. Per-project
  * auto-memory (<project>/memory/*.md) and the top-level prompt history
  * (~/.claude/history.jsonl, one level ABOVE the projects root) are likewise part
  * of the working record. ccarchive captures all of these classes as raw bytes;
@@ -83,7 +86,7 @@ OPTIONS
   --json                 Machine-readable output (never styled).
   -h, --help             This summary.
 
-Mirror transcripts, tool-result sidecars, memory and history into a compressed, append-only, signed archive; restore too.  man ccarchive`;
+Mirror transcripts, subagent metadata, tool-result sidecars, memory and history into a compressed, append-only, signed archive; restore too.  man ccarchive`;
 
 function takeValue(flag) {
   const i = argv.indexOf(flag);
@@ -119,6 +122,13 @@ function shouldArchive(srcMtimeMs, destMtimeMs) {
 // corruption upstream. After Claude Code's cleanup the archive is the sole
 // durable copy, so an overwrite must never propagate that damage silently —
 // refuse unless the operator forces it (--force).
+//
+// The guard is size-only and class-blind, which is deliberate but worth naming:
+// a memory file or a subagent .meta.json is a whole document, not an append log,
+// so a legitimate rewrite CAN be smaller and would be refused until --force. That
+// is safe-over-silent by choice, and it stays cheap because the guard only fires
+// on a source that is BOTH newer than the mirror AND smaller than the recorded
+// size — a rewrite, never a first capture.
 function isSuspectShrink(srcBytes, manifestEntry) {
   return !!(manifestEntry && typeof manifestEntry.rawBytes === 'number'
     && srcBytes < manifestEntry.rawBytes);
@@ -176,14 +186,24 @@ function walkFiles(root) {
 // and the man page's CAPTURE section states the boundary. Names are matched, not
 // contents or extensions-as-schema: a tool-result payload is opaque bytes, so
 // whatever sits under tool-results/ (or an older toolu_ sibling) is taken as-is.
-//   transcript  — <name>.jsonl at any depth (session logs + nested subagent logs)
-//   tool-result — offloaded large tool outputs: <uuid>/tool-results/* and the
-//                 legacy <uuid>/toolu_* siblings the .jsonl points at
-//   memory      — per-project auto-memory: <project>/memory/*.md
+//   transcript    — <name>.jsonl at any depth (session logs + nested subagent logs)
+//   tool-result   — offloaded large tool outputs: <uuid>/tool-results/* and the
+//                   legacy <uuid>/toolu_* siblings the .jsonl points at
+//   memory        — per-project auto-memory: <project>/memory/*.md
+//   subagent-meta — the metadata sidecar beside each subagent log:
+//                   <uuid>/subagents/agent-<id>.meta.json. Deliberately SCOPED
+//                   to a subagents/ directory rather than matching *.meta.json
+//                   at any depth: the allowlist admits a known class, so an
+//                   as-yet-unseen .meta.json somewhere else stays excluded by
+//                   default (and documented as such) instead of being swept in
+//                   sight-unseen. The narrowing's cost is that if Claude Code
+//                   moves subagent logs out of subagents/, this class silently
+//                   goes empty — the same exposure tool-results/ already carries.
 function captureClass(rel) {
   const name = path.basename(rel);
   const parts = rel.split(path.sep);
   if (name.endsWith('.jsonl')) return 'transcript';
+  if (name.endsWith('.meta.json') && parts.includes('subagents')) return 'subagent-meta';
   if (parts.includes('tool-results')) return 'tool-result';
   if (name.startsWith('toolu_')) return 'tool-result';
   if (name.endsWith('.md') && parts[parts.length - 2] === 'memory') return 'memory';
