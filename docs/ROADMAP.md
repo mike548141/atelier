@@ -185,6 +185,17 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       and false; see the re-measurement below.** Full account:
       [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *C5 executed* (correction).
 
+      - [ ] **Cold pass RUNNING on the re-measurement below** (tier: Fable;
+            pass type: design/intent cold pass), spawned by Mike 2026-08-09
+            because he does not trust the authoring session's findings.
+            Brief:
+            [`reviews/2026-08-09-0708-c5-term-list-remeasure-cold.md`](reviews/2026-08-09-0708-c5-term-list-remeasure-cold.md).
+            *Delta:* the C5 item (this entry) + `f83a6f7`. *Intent record:*
+            [`sessions/2026-08-09-0352-c5-remeasure.md`](sessions/2026-08-09-0352-c5-remeasure.md).
+            **The re-ruling waits on the verdict** — the options below are the
+            authoring session's framing, and whether they are the real options
+            is inside the pass's scope.
+
       **RE-MEASURED 2026-08-09, every plane and every repo on the machine
       (the sweep the reverted execution never ran). One premise is false,
       the other two shrink to numbers.** Probed with a scratch term list
@@ -1850,7 +1861,39 @@ whole-tree CI fails, and the failure never reaches the person committing.
       this change added the rule at the same time. **Worth a sweep**: any repo
       whose allowlist was untracked without an ignore rule is one `add -A` away
       from the same regression, and nothing currently checks for it.
-      Still open: `docker-heap` and `homenetwork` (the `C3` pair, untouched).
+      ✅ **THE SWEEP RAN 2026-08-09 and the answer is ZERO.** All 24 git repos
+      on the machine, every `publishscan` never-publish pattern at any depth,
+      each match classified tracked / untracked-and-ignored /
+      untracked-and-unignored. Result: **29 never-publish files exist, 27 are
+      untracked *and* ignored (safe), 2 are tracked (live findings, below), and
+      none is untracked-and-unignored** — the exposed state has no instances
+      outside the one already fixed. Cross-checked against an independent
+      `find` control, which returned the same 29 paths; every one is a
+      `.claude/settings*.json`, so the standard-practice patterns (`.env`,
+      `.mcp.json`, `.npmrc`, editor config) have no instances estate-wide.
+      `~/worktrees/` holds no worktrees, so nothing hides there.
+      **Do NOT build the check** the item wonders about: `PROPAGATION.md`
+      rung 2 gives recurrence, not severity, and the measured spread is one
+      instance, already remediated in the same commit that caused it
+      (`84d9f1c`). Re-sweeping is one script; a permanent guard on a
+      zero-population class is the noise this estate keeps deciding against.
+      🔎 **What the sweep found instead, and it is worth more:** of the two
+      remaining red floors, **one is red for a cause nobody had named** — its
+      agent allowlist was never untracked at all. Its `.gitignore` covers the
+      `.local` variant only, the shared file is still tracked, and there is no
+      `.publishscanignore`, so `publishscan` exits 1 on it today (verified by
+      running the scanner against that tree; one finding, exit 1). That is the
+      *same half-done shape* as the regression above, one step earlier in the
+      sequence: the ignore rule without the untrack, rather than the untrack
+      without the ignore rule. It is that repo's own work (work-locality), and
+      it is a strictly cheaper fix than the frozen-capture `C3` story that item
+      assumed was the blocker. **Which of the two it is, is deliberately not
+      written here** — both are private, and the join of a private repo's name
+      to its security posture is the breach § *The join C5 guards* records.
+      That withholding is itself grounding for that item: this is the **fourth**
+      instance in one day of the join being the natural thing to write, and the
+      third caught before landing rather than after.
+      Still open: both repos of the `C3` pair.
 
 ## Doctrine — review-owed
 
