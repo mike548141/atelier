@@ -460,9 +460,10 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       (possible live session — its single legacy declaration is the
       remaining migration debt). Two repos had already self-migrated with
       reasons and THEIR OWN later dates (2026-10-01 and 2026-10-31) —
-      surfaced to Mike rather than rewritten: whether the uniform
-      2026-09-01 horizon overrides a repo's own considered date is his
-      call, not the pass's. Phase 2 (delete the legacy spelling from
+      surfaced to Mike rather than rewritten, and **RULED 2026-08-09: the
+      uniform 2026-09-01 was a DEFAULT, not a mandate — repo-set dates
+      stand as of right**, per the mandate-vs-default principle captured
+      below. Phase 2 (delete the legacy spelling from
       `floor.py`) stays open — it now also needs atelier's own config
       migrated (its scope block still uses bare lists, lawful on
       softenable checks). Phase 1
@@ -1335,6 +1336,29 @@ The **tracked-shim check** landed 2026-07-26 — `floorfleet` now reports
 The **suggested-fix** strand closed 2026-07-26: `linkscan` now prints the
 replacement path where it is uniquely computable, advisory-only (`b89a306`)
 → detail in [`ROADMAP-DONE.md`](ROADMAP-DONE.md).
+
+## Principal-set dates: mandate vs default (Mike, 2026-08-09)
+
+- [ ] **Capture → doctrine: when the principal sets a date for the fleet,
+      the ruling states which KIND of date it is.** Mike's rule, captured
+      near-verbatim while resolving the two self-migrated repos' later
+      review-by dates:
+
+      > If I specifically said all child repos must do X by date Y then
+      > they must do it by that date, but the child repos may set an
+      > earlier date or argue for an exemption to something that should
+      > not apply to them. If I set a date as a default then the child
+      > repo could set an alternative date for before, the same, or after.
+
+      So: a **mandate** binds the class — children may only tighten it or
+      argue an exemption; a **default** seeds the value — children may set
+      earlier, the same, or later. The instance that forced it: the C1b
+      2026-09-01 horizon was ruled a DEFAULT (2026-08-09), so the two
+      repo-set later dates stand as of right. Likely doctrine home:
+      `method/GUARDS.md`'s acceptance/deferment vocabulary (a `review-by`
+      is exactly such a date), with the rule that a date-setting ruling
+      names its kind so no future pass has to ask. Principal-authored;
+      doctrine landing queues its review per standing rule.
 
 ## 🤔 Trust-failure handling as a skill — idea to consider (Mike, 2026-08-02)
 
