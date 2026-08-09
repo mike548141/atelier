@@ -1996,6 +1996,15 @@ whole-tree CI fails, and the failure never reaches the person committing.
 
 ## Doctrine — review-owed
 
+- ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass) — the
+  `cctranscript --search` build.** *Delta:* `instruments/cctranscript` +
+  `instruments/cctranscript.test.js` (38 → 62) + `instruments/man/cctranscript.1`
+  + `instruments/README.md` (the `--materialise` / flag-vocabulary note and its
+  table rows) + `instruments/cctranscript.search.design.md` (status banner and the
+  six departed claims) + the CHANGELOG entry (landed 2026-08-09, this commit).
+  *Intent record:* the § *instruments/ — open features* item above, and
+  [`instruments/cctranscript.search.design.md`](../instruments/cctranscript.search.design.md).
+
 - [ ] 🎯 **The child-membership + work-locality cycle CLOSED 2026-08-09
   (0 MAJOR); CM1–CM13 await Mike's ruling round.** The rule-4 Fable cold pass
   (taker: a Mike-spawned session, claimed 0815 UTC) returned
@@ -3026,40 +3035,38 @@ The header's summary line gained a **context size** and a **subagent count**
 2026-07-26 (`19ef66d`, `2e8efb5`, `ae56b75`) → detail in
 [`ROADMAP-DONE.md`](ROADMAP-DONE.md) at next harvest. Open strands:
 
-- [~] **Search across transcripts — DESIGN DONE 2026-07-27, BUILD not started
-      (Mike's ask, 2026-07-26).** (claimed 2026-08-09-0813, wt:
-      queue-batch-0809-0813) *"Something that lets you search all the
-      transcripts using regex or for a simple term. If you give cctranscript a
-      command like `--repo` that limits the scope to search within."* The design
-      pass is done →
-      [`instruments/cctranscript.search.design.md`](../instruments/cctranscript.search.design.md):
-      surface (`--search` + `--regex`/`--case`), match unit, excerpting, output
-      shape, cost, eviction and DONE conditions are all settled there. **No
-      decision is left open for Mike** — the six questions the roadmap posed are
-      answered on measured evidence, and the seventh (`--materialise`) turned out
-      to be settled already by the ratified flags-follow-operation rule rather
-      than open at all. What remains is the build.
-      **Two roadmap premises were corrected by measurement:**
-      - **The thinking layer is not searchable, because it is not written.**
-        24,856 thinking blocks in the live store, **9 carry text**, all between
-        2026-06-05 and 2026-07-04; every block since is signature-only. So
-        "should `--think` widen the search" is void, not a design choice — and
-        the same finding means `--think` renders nothing on current sessions
-        (separate strand below).
-      - **Search is I/O-bound, not parse-bound**, so "reads every file" costs far
-        less than the framing implied: ≈2 s live (440 sessions / 500 MB), ≈5 s
-        archive. Prefiltering raw lines and parsing only the survivors runs at
-        the bare-read floor; the obvious parse-everything implementation costs
-        5.9 s for the same answer. An index is therefore deferred, not needed.
-      Third measured input, recorded because it inverts an optimisation: matching
-      case-insensitively with a `/i` regex is free (1.8 s), lowercasing the text
-      first is not (4.3 s), and the fastest option of all — decoding as latin1,
-      0.9 s — is **rejected**, because it silently fails on macrons and this
-      estate writes te reo Māori with them.
-      Review **WARRANTED when this moves from design to build** (the build edits
-      the `instruments/README.md` flag-vocabulary note, the worked example of a
-      ratified rule); the design pass itself authored no doctrine, so nothing is
-      queued yet.
+- **Search across transcripts — BUILT 2026-08-09** (Mike's ask, 2026-07-26;
+      design pass 2026-07-27). Whole-file regex gate first so a miss is never
+      parsed, UTF-8 throughout, `/i` case-folding, no index. Tests 38 → 62,
+      `mandoc -T lint` exit 0, drift guard green, `--help` still inside its
+      24-line pin. The design's **doctrinal loose end is closed**:
+      `instruments/README.md`'s `--materialise` note argued the flag's *absence*
+      from cctranscript was principled because it "never reads every file", and
+      `--search` **is** the bulk read — so the note now states the
+      flags-follow-operation rule in both directions and the table gains
+      `--search`, `--since`/`--until` and `--top` as genuinely shared vocabulary.
+      → [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *cctranscript learns to search*.
+      ⚠️ **DONE condition 13 is PARTIALLY met, and the design was wrong about
+      why.** §4's "the refs are free" does not hold at file grain — an `N.M` ref
+      counts every preceding turn, so parse-only-the-survivors and exact
+      gate-invariant refs are mutually exclusive. Correctness was chosen, so a
+      file passing the gate is parsed whole: a selective search runs at
+      **1.22–1.32×** a bare read, but a term present in every session reaches
+      **3.7×**. The wall-clock guard was replaced with a structural one
+      (`meta.sessionsParsed`, test-pinned), which is what the 1.5× condition was
+      really protecting. Five further design claims were corrected on contact and
+      are recorded at the top of the design doc rather than edited out of it.
+- [ ] 🔎 **Archive-mode pool construction dominates every `--from-archive` run,
+      and `--search` only made it visible** (found 2026-08-09; **pre-existing**).
+      `--list --from-archive --all` costs **16.4 s before any searching**, and
+      11.5 s of a 13.9 s archive search happens before a single hit is scored.
+      Two causes, both in `sessionRecord`: `isDataless()` spawns one `stat(1)`
+      subprocess **per mirror** (560 of them), and `cwdFromLog()` **fully gunzips
+      every mirror** for a 64 KB cwd sniff — which the sweep then repeats. The
+      fixes are a single batched `stat` and either caching or streaming the sniff.
+      Queued rather than folded into the search build: it is a different file's
+      hot path, and the honest reason `--search` is slow on the archive plane is
+      not the search.
 
 Two further strands stay open, both deliberately not built:
 

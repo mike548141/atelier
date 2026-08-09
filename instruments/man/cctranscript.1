@@ -1,4 +1,4 @@
-.TH CCTRANSCRIPT 1 "2026-07-26" "atelier instruments" "User Commands"
+.TH CCTRANSCRIPT 1 "2026-08-09" "atelier instruments" "User Commands"
 .SH NAME
 cctranscript \- render a timestamped transcript of a Claude Code session
 .SH SYNOPSIS
@@ -10,6 +10,15 @@ cctranscript \- render a timestamped transcript of a Claude Code session
 .RI [ \-\-repo
 .IR name ]
 .RI [ \-\-all ]
+.br
+.B cctranscript \-\-search
+.I term
+.RI [ \-\-regex ]
+.RI [ \-\-case ]
+.RI [ \-\-repo
+.IR name ]
+.RI [ \-\-all ]
+.RI [ options ]
 .br
 .B cctranscript \-\-from\-archive
 .RI [ \-\-dest
@@ -146,6 +155,84 @@ the log, no agent can have run, so
 .B 0 finished
 is proved by the log itself even with no directory to read. (The context figure
 is the case with no such pair to keep aligned, so it simply drops out instead.)
+.SS Searching across sessions
+Rendering answers
+.I "what happened in this session".
+.B \-\-search
+answers the other question \(em
+.I "which session said X"
+\(em which is the one you actually have when you cannot remember the session.
+It sweeps every session the scoping flags admit and prints an index of the turns
+that match, grouped by session, most recent session first and chronological
+within one:
+.PP
+.RS
+.nf
+a1b2c3d4  2026\-07\-26 14:22:07  [atelier]
+   3.2  claude  \(embudgeted against the resolved width\(em
+   7.1  claude  \(emone row per matching turn\(em   (2 hits)
+
+4 hits in 2 sessions \(bu searched prompts+replies \(bu 440 of 440 sessions swept in 2.1 s
+.fi
+.RE
+.PP
+Every row carries the citable
+.IR N . M
+reference for its turn, and that reference is
+.IR gate-invariant :
+only prompts and text replies are numbered, and both are collected whatever
+.BR \-\-tools " or " \-\-think
+say, so a ref printed by a search means the identical turn when you reopen the
+session with default flags. A hit in a tool call or a tool result has no
+reference of its own; it reports the number of the exchange it sits inside, plus
+its layer, rather than a number that would not resolve.
+.PP
+One row per matching
+.IR turn ,
+not per match: a turn hit three times shows the first excerpt and a
+.B (3 hits)
+count, so the output stays proportional to turns rather than to how common the
+term is. The excerpt is a single line, whitespace collapsed, centred on the
+match and fitted to the width. That is unconditional and applies to every layer,
+because no layer is safe to print whole \(em replies top out around 8 KB, but a
+single
+.I prompt
+in the live store reaches 848 KB, since a pasted blob is a prompt.
+.PP
+The term is a
+.B literal
+by default: a path with a
+.B .
+in it must not silently become a wildcard.
+.B \-\-regex
+opts into a regular expression. Matching is
+.B case-insensitive
+by default \(em people search for
+.IR worktree ", not " Worktree
+\(em and
+.B \-\-case
+opts into sensitivity.
+.PP
+Prompts and replies are searched by default, and the gates that widen the render
+widen the search identically:
+.B \-\-tools
+searches tool calls and their results too (in full, not the one-line summary the
+render shows). The tool layers are 31% of the corpus and filenames live there,
+so
+a run that did
+.I not
+search them says so and says how many sessions hold the term there \(em the
+boundary is reported as a count on every run, never as silence. There is no
+default cap on the result set: a long output is honest, and a limit picked from
+today's corpus size would be a fitted number.
+.B \-\-top
+truncates deliberately, and prints what it hid.
+.PP
+The sweep reads every candidate log, which is what
+.B \-\-materialise
+names: an iCloud-evicted archive mirror is skipped and counted by default, and
+.B \-\-materialise
+faults it back.
 .PP
 The live logs are ephemeral: Claude Code deletes them after
 .I cleanupPeriodDays
@@ -195,6 +282,20 @@ Where the archive lives (default: iCloud Drive, or
 Implies
 .BR \-\-from\-archive .
 .TP
+.B \-\-materialise
+With
+.BR \-\-search ,
+also read archive mirrors whose local bytes iCloud has evicted, faulting them
+back down. Without it such mirrors are skipped and the count is printed in the
+summary, so a skipped file is never silently absent from a result set. Same word
+and same meaning as in
+.BR ccarchive (1)
+and
+.BR ccrepo (1);
+it applies to
+.B \-\-search
+alone, because search is this tool's only bulk read.
+.TP
 .BI \-\-repo " name"
 Use sessions from the named repo \(em its folder basename, e.g.
 .I atelier
@@ -210,8 +311,53 @@ for every repo.
 .TP
 .B \-\-all
 With
-.BR \-\-list ,
-list sessions across all repos.
+.BR \-\-list " or " \-\-search ,
+span every repo instead of the current one.
+.TP
+.BI \-\-search " term"
+Search every session the scoping flags admit and print an index of the turns
+that match, instead of rendering one transcript. Literal by default;
+case-insensitive by default. All the scoping options above apply
+.RB ( \-\-repo ", " \-\-all ", " \-\-from\-archive ", " \-\-dest ),
+and a
+.I session
+argument narrows the sweep to that one session, which is how you grep inside a
+transcript you already have. Passing
+.B \-\-list
+as well is harmless and ignored: a search
+.I is
+a list, narrowed.
+.TP
+.B \-\-regex
+Treat the
+.B \-\-search
+term as a regular expression rather than a literal string.
+.TP
+.B \-\-case
+Match case-sensitively. The default folds case.
+.TP
+.BI \-\-since " YYYYMMDD"
+With
+.BR \-\-search ,
+include only hits on or after this local date \(em the same word, and the same
+per-message meaning, as in
+.BR ccrepo (1).
+.TP
+.BI \-\-until " YYYYMMDD"
+With
+.BR \-\-search ,
+include only hits on or before this local date.
+.TP
+.BI \-\-top " n"
+Keep at most
+.I n
+rows per level of the search index \(em at most
+.I n
+sessions, and at most
+.I n
+hits within each \(em after ordering, the same operation as in
+.BR ccrepo (1).
+What it hid is counted and printed. There is no default limit.
 .TP
 .BI \-n ", " \-\-last " k"
 Use the
@@ -254,7 +400,18 @@ session's
 .I context
 peak and final size and its
 .I agents
-started/finished pair. Never styled; safe to pipe into
+started/finished pair. Under
+.B \-\-search
+it emits an array of
+.I sessions
+instead, each holding its
+.I hits
+.RI ( ref ", " role ", " timestamp ", " excerpt ", " hits ),
+under a
+.I meta
+block naming the term, the layers searched, the sessions swept and matched, and
+every skip count \(em zeros included, so two runs compare line for line. Never
+styled; safe to pipe into
 .BR jq (1).
 .TP
 .BR \-h ", " \-\-help
@@ -323,10 +480,38 @@ Render an archived session by UUID prefix, straight from the mirror.
 .TP
 .B cctranscript \-\-json | jq .
 The machine-readable form, for scripting.
+.TP
+.B cctranscript \-\-search worktree
+Which turns in this repo's sessions mention
+.IR worktree .
+.TP
+.B cctranscript \-\-search \-\-all pointerscan
+The same question across every repo.
+.TP
+.B cctranscript \-\-search \-\-tools 'floor.py'
+Include tool calls and results \(em where a filename usually lives.
+.TP
+.B cctranscript \-\-search \-\-regex '\-\-materialis[ez]'
+A pattern rather than a literal.
+.TP
+.B cctranscript \-\-search Māori \-\-case
+Case-sensitive, and non-ASCII terms match: the logs are read as UTF-8.
+.TP
+.B cctranscript \-\-search leakscan \-\-since 20260801 \-\-until 20260809
+Only hits inside a date window, judged on each turn's own timestamp.
+.TP
+.B cctranscript \-\-search \-\-from\-archive \-\-all secretscan
+Search the archive instead \(em including sessions the cleanup has deleted.
+.TP
+.B cctranscript \-\-search \-\-json ADR | jq '.meta'
+What the sweep did: layers, counts and skips.
 .SH EXIT STATUS
 .B 0
 on success, including
-.BR \-\-help " and " \-\-list .
+.BR \-\-help ", " \-\-list ,
+and a
+.B \-\-search
+that finds nothing (an empty result is an answer, not a failure).
 .PP
 .B 1
 when the tool cannot select a session to render: no log at an explicit path, no
@@ -334,6 +519,16 @@ session matching a given UUID or prefix, no sessions for the named repo, no
 Claude sessions found for the current directory, or a
 .B \-n
 index larger than the number of sessions available.
+.PP
+.B 2
+on a bad argument:
+.B \-\-search
+with no term, an invalid
+.B \-\-regex
+pattern, a
+.BR \-\-since / \-\-until
+that is not a date, or a non-positive
+.BR \-\-top .
 .SH NOTES
 The tool reads
 .I ~/.claude/projects/
@@ -347,6 +542,65 @@ On an iCloud-backed archive, macOS may have evicted a file's local bytes
 .B \-\-list
 never bulk-downloads the archive; rendering one evicted session faults just
 that file back from iCloud, deliberately.
+.PP
+.B \-\-think
+cannot widen a search, because there is nothing to widen it to. Claude Code
+stopped writing thinking text to the log: re-measured across the whole live
+store on 2026-08-09, of
+.B 31,800
+thinking blocks exactly
+.B 9
+carry any text, all of them between 2026-06-05 and 2026-07-04, every block since
+carrying a signature and no content. So
+.B \-\-think
+renders no thinking turns on a current session either, and
+.B \-\-search
+does not offer a thinking layer rather than offer one that is always empty.
+.PP
+.BR \-n / \-\-last
+is ignored by
+.BR \-\-search ,
+exactly as it is already ignored by
+.BR \-\-list .
+Both modes return a
+.IR set ,
+not a pick, and making
+.B \-n
+mean "the k-th hit" would give one word two meanings.
+.PP
+A search reports the layer it did
+.I not
+read. Because the sweep must read every byte of every candidate anyway, testing
+the unsearched layers costs nothing, so a run without
+.B \-\-tools
+always says how many sessions hold the term in their tool calls or results \(em
+including when that is none. The count is stated rather than left to be
+inferred.
+.PP
+A search is
+.B gated
+on each log's raw JSON text and only then decoded turn by turn, which is what
+keeps a full sweep at the cost of a bare read. One consequence is worth knowing
+for
+.BR \-\-regex :
+in the raw log a double quote, a backslash and a newline appear in their escaped
+forms, so a pattern that must match one of those should be written against the
+escaped form. A literal
+.B \-\-search
+term needs no such care \(em it is gated on every form it can take, including
+the
+rare
+.BI \eu XXXX
+spelling of a non-ASCII character.
+.PP
+Non-ASCII terms match. The logs are read as
+.BR UTF-8 ,
+never as latin1 \(em decoding them as latin1 is measurably the fastest option
+and
+is rejected precisely because it would silently break a search for a macronised
+word such as
+.IR Māori ,
+which is the text this estate most cares about getting right.
 .PP
 It honours
 .BR NO_COLOR ", " FORCE_COLOR " and " CCARCHIVE_DEST .

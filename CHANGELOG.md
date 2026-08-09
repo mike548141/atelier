@@ -5,6 +5,34 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-08-09 — cctranscript can search every transcript)
+Mike asked for this on 2026-07-26 — *"something that lets you search all the
+transcripts using regex or for a simple term"* — and the design pass settled it
+on 2026-07-27 leaving no decision open for him. `--search`, with
+`--regex`/`--case`, `--since`/`--until`, `--top` and `--materialise`. The shape
+follows the measurements rather than intuition: a whole-file regex **gate**
+first, so a file that misses is never parsed; `/i` case-folding, which is free,
+instead of lowercasing the text, which is not; and **no index**. latin1 decoding
+is the fastest option of all and is rejected outright, because it silently
+corrupts macrons and this estate writes te reo Māori with them — a test pins
+`Māori`/`tohutō` matching while `Maori` does not. Tests 38 → 62.
+**DONE condition 13 is only partially met, and the design was wrong about why:**
+its claim that the `N.M` refs are free does not hold at file grain, since a ref
+counts every preceding turn — so parse-only-the-survivors and exact refs are
+mutually exclusive. Correctness won, a file passing the gate is parsed whole,
+and the honest numbers are 1.22–1.32× a bare read for a selective term against
+3.7× for one present in every session. The flaky wall-clock guard became a
+structural one. A second unmentioned defect: the raw-JSON gate could miss an
+escaped spelling of a term (6 escaped `ā` in the live store against 6,698 raw),
+so literal terms now gate on an alternation of every form the term can take and
+match against the decoded text. The build also closes the design's named
+doctrinal loose end — `instruments/README.md`'s `--materialise` note argued the
+flag's *absence* from cctranscript was principled because it never read every
+file, and `--search` **is** the bulk read, so the note now states the
+flags-follow-operation rule in both directions. Rule-4 pointer queued at
+landing; the item itself said review was warranted at the design-to-build move.
+
+
 ### Fixed (2026-08-09 — worktree.py works from inside a worktree)
 The tool that is CONCURRENCY.md as a command failed at the one cwd an operator
 is most likely to be in when they land work. From inside a linked worktree,

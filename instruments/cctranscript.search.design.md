@@ -1,6 +1,38 @@
 # cctranscript — search across transcripts
 
-Status: **design pass, not built** (2026-07-27). Nothing below is implemented.
+Status: **BUILT 2026-08-09** (design pass 2026-07-27). Everything below is
+implemented except where this banner says otherwise — the document is kept as the
+design of record, not rewritten to match the build, so the places the build
+*departed* from it stay legible.
+
+Six claims below did not survive contact with the code or the live store, and the
+build's own record carries the detail:
+
+- **§4's "the refs are free" is wrong at file grain.** An `N.M` ref counts all
+  preceding turns, so it cannot be computed from surviving lines alone — step 4's
+  "parse only the lines that survive" and exact gate-invariant refs are mutually
+  exclusive. The build chose correctness: a file that passes the gate is parsed
+  whole. **DONE condition 13 is therefore only partially met** — a selective
+  search runs at 1.22–1.32× a bare read, but a term present in every session
+  reaches 3.7×. The flaky wall-clock guard was replaced with a structural one
+  (`meta.sessionsParsed`, pinned by a test), which is the property the 1.5×
+  condition was actually protecting.
+- **§10's raw-line prefilter has an unmentioned false-negative class.** The gate
+  reads raw JSON, where `"`, `\`, newline and occasionally non-ASCII are
+  escaped — the live store holds 6 `ā` sequences against 6,698 raw `ā`. The
+  build gates literal terms on an alternation of every form the term can take
+  (measured free) and matches against the *decoded* text. For `--regex` the
+  limitation is real and documented in NOTES rather than papered over.
+- **§7's illustrated tool row shows the render's one-line summary.** The build
+  excerpts the whole tool input instead: searching one chosen field is precisely
+  the quiet wrongness §5 warns against.
+- **§7 asks for `--top` in one sentence** but it appears in neither §3's surface
+  list nor the DONE conditions. Built as ccrepo's documented per-level
+  truncation, with what was hidden counted and printed.
+- **The corpus figures are stale** — 440 sessions / 500 MB became 556 / 707 MB,
+  and the bare-read floor with them (2.5–4.9 s, not 2.0–2.6 s).
+- **The thinking-block count is stale** — 24,856 became 31,800. The load-bearing
+  parts held exactly: 9 carry text, none after 2026-07-04.
 Asked for by Mike (2026-07-26): *"Something that lets you search all the
 transcripts using regex or for a simple term. If you give cctranscript a command
 like `--repo` that limits the scope to search within."*

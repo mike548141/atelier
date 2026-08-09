@@ -439,6 +439,415 @@ test('isDatalessFlags: SF_DATALESS bit only (mirrors ccarchive)', () => {
   assert.equal(cc.isDatalessFlags(NaN), false);
 });
 
+// --- --search ------------------------------------------------------------
+// Every fixture below is SYNTHETIC and written here in the test: nothing from a
+// real Claude Code log, no real session id, no real path under ~/.claude.
+// Sessions are laid down in a throwaway HOME so the tool's own live-store
+// discovery (~/.claude/projects/<encoded-repo>/<uuid>.jsonl) is what is
+// exercised, rather than a single explicit path.
+
+const you = (text, ts = '2026-01-02T03:04:05.000Z') => ({
+  type: 'user', timestamp: ts, cwd: '/home/dev/synthetic-repo',
+  message: { role: 'user', content: text },
+});
+const claude = (text, ts = '2026-01-02T03:04:20.000Z') => ({
+  type: 'assistant', timestamp: ts,
+  message: { role: 'assistant', model: 'claude-opus-4-8', content: [{ type: 'text', text }] },
+});
+const thinks = (text, ts = '2026-01-02T03:04:10.000Z') => ({
+  type: 'assistant', timestamp: ts,
+  message: { role: 'assistant', model: 'claude-opus-4-8', content: [{ type: 'thinking', thinking: text }] },
+});
+const calls = (name, input, ts = '2026-01-02T03:04:30.000Z') => ({
+  type: 'assistant', timestamp: ts,
+  message: { role: 'assistant', model: 'claude-opus-4-8', content: [{ type: 'tool_use', name, input }] },
+});
+const returns = (out, ts = '2026-01-02T03:04:35.000Z') => ({
+  type: 'user', timestamp: ts, toolUseResult: { stdout: out },
+  message: { role: 'user', content: [{ type: 'tool_result', content: out }] },
+});
+
+const UUID = (n) => `${String(n).repeat(8)}-0000-4000-8000-000000000000`;
+
+// A throwaway live store: HOME points at it, so os.homedir()/.claude/projects is
+// the temp tree. `sessions` is ordered oldest-first and the mtimes are stamped
+// to match, so "most recent session first" is deterministic rather than a race.
+//
+// The stamp is never EARLIER than the log's own last timestamp, because a real
+// log's mtime is its last write — and --search leans on exactly that fact for
+// its --since skip. A fixture that broke the invariant would fail the tool for a
+// property no real store has.
+function makeStore(sessions) {
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'cctranscript-store-'));
+  const dir = path.join(home, '.claude', 'projects', '-home-dev-synthetic-repo');
+  fs.mkdirSync(dir, { recursive: true });
+  let clock = Date.UTC(2026, 0, 2) / 1000;
+  for (const [id, entries] of sessions) {
+    const f = path.join(dir, `${id}.jsonl`);
+    fs.writeFileSync(f, entries.map((o) => JSON.stringify(o)).join('\n') + '\n');
+    const last = Math.max(0, ...entries.map((e) => Date.parse(e.timestamp) / 1000 || 0));
+    const t = Math.max(clock, last);
+    fs.utimesSync(f, t, t);
+    clock += 86400;
+  }
+  return home;
+}
+function runIn(home, ...flags) {
+  return execFileSync('node', [SCRIPT, '--repo', 'synthetic-repo', ...flags],
+    { encoding: 'utf8', env: { ...process.env, HOME: home }, maxBuffer: 96 * 1024 * 1024 });
+}
+const searchJson = (home, ...flags) => JSON.parse(runIn(home, '--json', ...flags));
+// Exit status + stderr for the argument-error cases.
+function failIn(home, ...flags) {
+  try { runIn(home, ...flags); return { code: 0, err: '' }; }
+  catch (e) { return { code: e.status, err: String(e.stderr) }; }
+}
+
+test('search: a literal term matches metacharacters literally; --regex treats them as a pattern', () => {
+  const home = makeStore([
+    [UUID(1), [you('the gate lives in tools/floor.py today')]],
+    [UUID(2), [you('a stray sibling named tools/floorZpy')]],
+    [UUID(3), [you('and the literal string a.b*c[d] as typed')]],
+  ]);
+  // '.' stays a full stop: the literal finds the real path and nothing else.
+  const lit = searchJson(home, '--search', 'tools/floor.py');
+  assert.equal(lit.meta.hits, 1);
+  assert.equal(lit.sessions.length, 1);
+  assert.equal(lit.sessions[0].session, UUID(1));
+  // Same string as a pattern: '.' is a wildcard, so the sibling matches too.
+  const re = searchJson(home, '--search', 'tools/floor.py', '--regex');
+  assert.equal(re.meta.hits, 2);
+  assert.notEqual(lit.meta.hits, re.meta.hits, 'literal and --regex must disagree here');
+  // And the other direction: '*' and '[' as characters vs as syntax.
+  assert.equal(searchJson(home, '--search', 'a.b*c[d]').meta.hits, 1);
+  assert.equal(searchJson(home, '--search', 'a.b*c[d]', '--regex').meta.hits, 0);
+});
+
+test('search: case-insensitive by default; --case narrows to the exact casing', () => {
+  const home = makeStore([
+    [UUID(1), [you('moved the branch to a Worktree first')]],
+    [UUID(2), [you('one worktree per session')]],
+  ]);
+  assert.equal(searchJson(home, '--search', 'worktree').meta.sessionsMatched, 2);
+  const strict = searchJson(home, '--search', 'worktree', '--case');
+  assert.equal(strict.meta.sessionsMatched, 1);
+  assert.equal(strict.sessions[0].session, UUID(2));
+});
+
+test('search: a macronised term survives the round trip, and is not confused with the bare vowel', () => {
+  // The one measured shortcut this design rejects — decoding the log as latin1 —
+  // would make this test fail while halving the sweep. UTF-8 throughout.
+  const home = makeStore([
+    [UUID(1), [you('the tohutō on Māori place names, e.g. Wairarapa')]],
+    [UUID(2), [you('a Maori spelling with no macron at all')]],
+  ]);
+  const hit = searchJson(home, '--search', 'Māori');
+  assert.equal(hit.meta.sessionsMatched, 1);
+  assert.equal(hit.sessions[0].session, UUID(1));
+  assert.match(hit.sessions[0].hits[0].excerpt, /Māori/);
+  // Case folding reaches the macronised letter too, not just ASCII.
+  assert.equal(searchJson(home, '--search', 'māori').meta.sessionsMatched, 1);
+  assert.equal(searchJson(home, '--search', 'tohutō').meta.hits, 1);
+});
+
+test('search: a printed N.M ref resolves to the same turn when the session is reopened with default flags', () => {
+  const home = makeStore([[UUID(5), [
+    you('first ask'), thinks('unnumbered'), claude('first answer'),
+    calls('Bash', { command: 'true' }), claude('the answer that mentions leakscan'),
+    you('second ask'), claude('second answer'),
+  ]]]);
+  const j = searchJson(home, '--search', 'leakscan');
+  assert.equal(j.sessions[0].hits.length, 1);
+  const { ref, cited } = j.sessions[0].hits[0];
+  assert.equal(ref, '1.2');
+  assert.equal(cited, true);
+  // Reopened with NO flags: the same ref, the same text. Gate-invariance is the
+  // whole reason a search ref is worth printing.
+  const reopened = JSON.parse(runIn(home, '--json', UUID(5)));
+  const turn = reopened.turns.find((t) => t.ref === ref);
+  assert.ok(turn, `ref ${ref} must exist in the default render`);
+  assert.match(turn.text, /leakscan/);
+});
+
+test('search: a turn matching three times is one row with a count of 3', () => {
+  const home = makeStore([[UUID(6), [
+    you('sizescan then sizescan again and sizescan once more'),
+  ]]]);
+  const j = searchJson(home, '--search', 'sizescan');
+  assert.equal(j.sessions[0].hits.length, 1, 'one row per matching turn, not per match');
+  assert.equal(j.sessions[0].hits[0].hits, 3);
+  assert.equal(j.meta.hits, 3);
+  assert.match(runIn(home, '--no-color', '--search', 'sizescan'), /\(3 hits\)/);
+});
+
+test('search: an 800 KB prompt yields one bounded single-line excerpt', () => {
+  // No layer is safe to print whole: a pasted blob is a prompt, and the largest
+  // prompt measured in the live store is 848 KB.
+  const filler = 'lorem ipsum dolor sit amet '.repeat(16000);   // ~430 KB each side
+  const home = makeStore([[UUID(7), [you(filler + '\nthe NEEDLE is in here\n' + filler)]]]);
+  const j = searchJson(home, '--search', 'NEEDLE');
+  const ex = j.sessions[0].hits[0].excerpt;
+  assert.ok(!ex.includes('\n'), 'the excerpt is a single line');
+  assert.ok(ex.length <= 160, `excerpt must stay within its budget, got ${ex.length}`);
+  assert.match(ex, /NEEDLE/);
+  assert.match(ex, /^…/); assert.match(ex, /…$/);   // truncated on both sides
+  // And the human row honours the resolved width.
+  for (const line of runIn(home, '--no-color', '--width', '100', '--search', 'NEEDLE').split('\n')) {
+    assert.ok(line.length <= 100, `row overran the width: ${line.length}`);
+  }
+});
+
+test('search: tool layers are unsearched by default, counted anyway, and --tools finds them', () => {
+  const home = makeStore([[UUID(8), [
+    you('unrelated prompt'),
+    calls('Grep', { pattern: 'harvestscan', path: '/home/dev/synthetic-repo' }),
+    returns('matched harvestscan in three files'),
+    claude('done'),
+  ]]]);
+  const off = searchJson(home, '--search', 'harvestscan');
+  assert.equal(off.meta.hits, 0);
+  assert.equal(off.meta.toolOnlySessions, 1, 'the unsearched layer reports as a count, not silence');
+  assert.deepEqual(off.meta.layersSearched, ['prompts', 'replies']);
+  assert.match(runIn(home, '--no-color', '--search', 'harvestscan'),
+    /Tool output not searched: the term is in 1 session's tool calls or results \(add --tools\)/);
+  // A stated zero, not an absent line, when the term really isn't there either.
+  assert.match(runIn(home, '--no-color', '--search', 'nowhere-at-all'),
+    /Tool output not searched: no session holds the term there either/);
+
+  const on = searchJson(home, '--search', 'harvestscan', '--tools');
+  assert.equal(on.meta.hits, 2);                       // the call's input and the result
+  assert.deepEqual(on.sessions[0].hits.map((h) => h.role), ['tool', 'result']);
+  // A tool hit has no citable ref of its own: it cites the exchange it sits in.
+  assert.deepEqual(on.sessions[0].hits.map((h) => h.ref), ['1', '1']);
+  assert.deepEqual(on.sessions[0].hits.map((h) => h.cited), [false, false]);
+  assert.deepEqual(on.meta.layersSearched, ['prompts', 'replies', 'tools']);
+});
+
+test('search: --tools reads the whole tool call, not the one-line render summary', () => {
+  // toolSummary keeps ONE field for the transcript; a search that read only that
+  // would answer "no" for a filename sitting in any of the others.
+  const long = 'x'.repeat(400);
+  const home = makeStore([[UUID(9), [
+    you('go'), calls('Bash', { command: `echo ${long}`, description: 'run publishscan' }),
+  ]]]);
+  assert.equal(cc.toolSummary('Bash', { command: 'echo hi', description: 'run publishscan' }),
+    'Bash  echo hi');                                   // the render's view: one field
+  assert.match(cc.toolSearchText('Bash', { command: 'echo hi', description: 'run publishscan' }),
+    /publishscan/);                                     // the search's view: all of it
+  assert.equal(searchJson(home, '--search', 'publishscan', '--tools').meta.hits, 1);
+});
+
+test('search: --think does not widen the search, because the log holds no thinking text', () => {
+  const home = makeStore([[UUID(1), [
+    you('go'), thinks('a stampscan thought no current log would carry'), claude('done'),
+  ]]]);
+  for (const flags of [[], ['--think'], ['--full']]) {
+    const j = searchJson(home, '--search', 'stampscan', ...flags);
+    assert.equal(j.meta.hits, 0, `--think widened the search under ${flags.join(' ') || 'default'}`);
+    assert.equal(j.meta.thinkingSearched, false);
+    assert.ok(!j.meta.layersSearched.includes('thinking'));
+  }
+  // And the man page says why, rather than leaving a flag that silently does nothing.
+  const page = fs.readFileSync(path.join(__dirname, 'man', 'cctranscript.1'), 'utf8');
+  assert.match(page, /cannot widen a search/);
+  assert.match(page, /31,800\nthinking blocks exactly/);
+  assert.match(page, /carry any text, all of them between 2026-06-05 and 2026-07-04/);
+});
+
+test('search: --since/--until filter on each turn\'s own timestamp, not the file mtime', () => {
+  // A session that spans the --until bound must return only its in-window hits:
+  // mtime is last-activity, so filtering candidates on it alone would drift from
+  // ccrepo(1)'s per-message meaning. --utc pins the day boundary for the test.
+  const home = makeStore([[UUID(2), [
+    you('reviewscan on the second', '2026-01-02T12:00:00.000Z'),
+    claude('reviewscan again on the fifth', '2026-01-05T12:00:00.000Z'),
+  ]]]);
+  const all = searchJson(home, '--utc', '--search', 'reviewscan');
+  assert.equal(all.meta.hits, 2);
+  const early = searchJson(home, '--utc', '--search', 'reviewscan', '--until', '20260103');
+  assert.equal(early.meta.hits, 1);
+  assert.equal(early.sessions[0].hits[0].ref, '1');
+  const late = searchJson(home, '--utc', '--search', 'reviewscan', '--since', '2026-01-04');
+  assert.equal(late.meta.hits, 1, 'dashes are tolerated in the date');
+  assert.equal(late.sessions[0].hits[0].ref, '1.1');
+  // The file was NOT skipped on mtime for --until: its last activity is after
+  // the bound, and a long session can start before one and end after it.
+  assert.equal(early.meta.sessionsSwept, 1);
+  assert.equal(early.meta.skippedOutOfRange, 0);
+});
+
+test('search: --since skips a file whose last activity precedes the window, and counts the skip', () => {
+  const home = makeStore([
+    [UUID(3), [you('linkscan, long ago', '2026-01-02T12:00:00.000Z')]],
+    [UUID(4), [you('linkscan, recently', '2026-01-03T12:00:00.000Z')]],
+  ]);
+  const j = searchJson(home, '--utc', '--search', 'linkscan', '--since', '20260103');
+  assert.equal(j.meta.hits, 1);
+  assert.equal(j.meta.sessionsSwept, 1);
+  assert.equal(j.meta.skippedOutOfRange, 1);   // a pure optimisation, still reported
+  assert.match(runIn(home, '--no-color', '--utc', '--search', 'linkscan', '--since', '20260103'),
+    /1 session\(s\) skipped: last activity precedes --since/);
+});
+
+test('search: --json carries hits, refs and a meta block whose zeros all print', () => {
+  const home = makeStore([[UUID(1), [you('pathscan here'), claude('and pathscan there')]]]);
+  const j = searchJson(home, '--search', 'pathscan');
+  for (const k of ['term', 'regex', 'caseSensitive', 'source', 'layersSearched',
+    'thinkingSearched', 'since', 'until', 'timezone', 'materialise', 'top',
+    'truncatedSessions', 'truncatedRows', 'sessionsInScope', 'sessionsSwept',
+    'sessionsParsed', 'sessionsMatched', 'hits', 'skippedEvicted',
+    'skippedOutOfRange', 'unreadable', 'toolOnlySessions', 'elapsedMs']) {
+    assert.ok(k in j.meta, `meta.${k} must print on every run, zero included`);
+  }
+  assert.equal(j.meta.skippedEvicted, 0);      // a known zero prints as one
+  assert.equal(j.meta.truncatedRows, 0);
+  const [s] = j.sessions;
+  for (const k of ['session', 'repo', 'cwd', 'lastActivity', 'hits']) assert.ok(k in s);
+  for (const k of ['ref', 'cited', 'role', 'timestamp', 'excerpt', 'hits']) assert.ok(k in s.hits[0]);
+});
+
+test('search: the whole-file gate is the cost control — a swept file that misses is never parsed', () => {
+  // This is the regression guard for the one step the implementation must resist
+  // simplifying. Parsing every line of every file costs ~3x the I/O floor for
+  // the identical answer, so the guard is structural (how many files were
+  // parsed) rather than a wall-clock ratio that would be flaky in CI.
+  const sessions = [];
+  for (let i = 1; i <= 12; i++) sessions.push([UUID(i % 10) + `-${i}`, [you(`filler ${i}`)]]);
+  sessions.push(['aaaaaaaa-0000-4000-8000-00000000000f', [you('the licenscan needle')]]);
+  const j = searchJson(makeStore(sessions), '--search', 'licenscan');
+  assert.equal(j.meta.sessionsInScope, 13);
+  assert.equal(j.meta.sessionsSwept, 13);
+  assert.equal(j.meta.sessionsParsed, 1, 'only the file that survived the gate may be parsed');
+  assert.equal(j.meta.hits, 1);
+});
+
+test('search: --top truncates per level and prints what it hid', () => {
+  const home = makeStore([
+    [UUID(1), [you('signscan d')]],
+    [UUID(2), [you('signscan e')]],
+    [UUID(3), [you('signscan a'), claude('signscan b'), claude('signscan c')]],
+  ]);
+  const j = searchJson(home, '--search', 'signscan', '--top', '2');
+  assert.equal(j.sessions.length, 2);
+  assert.equal(j.meta.truncatedSessions, 1);
+  assert.equal(j.meta.truncatedRows, 1);       // the 3-row session keeps 2
+  // The counters above the cut still describe the whole sweep, not the slice.
+  assert.equal(j.meta.sessionsMatched, 3);
+  assert.match(runIn(home, '--no-color', '--search', 'signscan', '--top', '2'),
+    /--top 2: 1 session\(s\) and 1 row\(s\) hidden/);
+});
+
+test('search: sessions are most-recent-first, hits chronological within one', () => {
+  const home = makeStore([
+    [UUID(1), [you('secretscan, older session')]],
+    [UUID(2), [you('secretscan, first turn', '2026-01-02T01:00:00.000Z'),
+               claude('secretscan, second turn', '2026-01-02T02:00:00.000Z')]],
+  ]);
+  const j = searchJson(home, '--search', 'secretscan');
+  assert.deepEqual(j.sessions.map((s) => s.session), [UUID(2), UUID(1)]);
+  assert.deepEqual(j.sessions[0].hits.map((h) => h.ref), ['1', '1.1']);
+});
+
+test('search: bad arguments exit 2 with the reason, never a silent empty result', () => {
+  const home = makeStore([[UUID(1), [you('anything')]]]);
+  const bad = [
+    [['--search', '('], ['--regex'], /not a valid regular expression/],
+    [['--search', 'x', '--since', 'yesterday'], [], /--since takes a date as YYYYMMDD/],
+    [['--search', 'x', '--until', '2026-1-2'], [], /--until takes a date as YYYYMMDD/],
+    [['--search', 'x', '--top', '0'], [], /--top must be a positive integer/],
+    [['--search', ''], [], /--search needs a term/],
+  ];
+  for (const [args, extra, re] of bad) {
+    const { code, err } = failIn(home, ...args, ...extra);
+    assert.equal(code, 2, `expected exit 2 for ${args.join(' ')}`);
+    assert.match(err, re);
+  }
+  // A search that finds nothing is an answer, not a failure.
+  assert.equal(failIn(home, '--search', 'definitely-not-present').code, 0);
+});
+
+test('search: --list alongside --search is redundant, not contradictory — accepted in silence', () => {
+  const home = makeStore([[UUID(1), [you('a floorfleet mention')]]]);
+  const shape = (s) => { const j = JSON.parse(s); delete j.meta.elapsedMs; return j; };
+  assert.deepEqual(shape(runIn(home, '--json', '--list', '--search', 'floorfleet')),
+    shape(runIn(home, '--json', '--search', 'floorfleet')));
+});
+
+test('search: a session argument narrows the sweep to that one session', () => {
+  const home = makeStore([
+    [UUID(1), [you('datescan over here')]],
+    [UUID(2), [you('datescan over there')]],
+  ]);
+  assert.equal(searchJson(home, '--search', 'datescan').meta.sessionsInScope, 2);
+  const one = searchJson(home, '--search', 'datescan', UUID(2));
+  assert.equal(one.meta.sessionsInScope, 1);
+  assert.equal(one.sessions[0].session, UUID(2));
+});
+
+test('search: an evicted archive mirror is skipped and counted; --materialise reads it', () => {
+  const { dest } = makeArchive();
+  const flags = ['--json', '--dest', dest, '--repo', 'synthetic-repo', '--search', 'null check'];
+  const evictedEnv = { ...process.env, CCARCHIVE_SIMULATE_DATALESS: ARCHIVE_UUID };
+  const skipped = JSON.parse(execFileSync('node', [SCRIPT, ...flags], { encoding: 'utf8', env: evictedEnv }));
+  assert.equal(skipped.meta.skippedEvicted, 1);
+  assert.equal(skipped.meta.sessionsSwept, 0);
+  assert.equal(skipped.meta.hits, 0);
+  assert.equal(skipped.sessions.length, 0);
+  assert.match(execFileSync('node', [SCRIPT, '--no-color', ...flags.slice(1)], { encoding: 'utf8', env: evictedEnv }),
+    /1 mirror\(s\) not searched \(evicted\); --materialise reads them/);
+
+  const forced = JSON.parse(execFileSync('node', [SCRIPT, ...flags, '--materialise'],
+    { encoding: 'utf8', env: evictedEnv }));
+  assert.equal(forced.meta.materialise, true);
+  assert.equal(forced.meta.skippedEvicted, 0);
+  assert.equal(forced.meta.sessionsSwept, 1);
+  assert.equal(forced.meta.hits, 2);      // the fixture says it in a prompt and a reply
+  assert.equal(forced.meta.source, 'archive');
+});
+
+test('search: the archive is searched through the gzip, same answer as the live log', () => {
+  const { dest } = makeArchive();
+  const j = JSON.parse(execFileSync('node',
+    [SCRIPT, '--json', '--dest', dest, '--repo', 'synthetic-repo', '--search', 'null check'],
+    { encoding: 'utf8' }));
+  assert.equal(j.meta.source, 'archive');
+  assert.equal(j.meta.hits, 2);
+  assert.deepEqual(j.sessions[0].hits.map((h) => h.ref), ['1', '1.1']);
+});
+
+// --- search units --------------------------------------------------------
+
+test('escapeRegex neutralises every metacharacter that could change a literal search', () => {
+  const re = new RegExp(cc.escapeRegex('a.b*c[d]+e(f)?^$|{g}\\h'));
+  assert.ok(re.test('a.b*c[d]+e(f)?^$|{g}\\h'));
+  assert.ok(!re.test('axbbcd'));
+});
+
+test('rawForms covers the shapes a literal takes inside a raw .jsonl line', () => {
+  assert.deepEqual(cc.rawForms('plain'), ['plain']);          // nothing to escape
+  assert.ok(cc.rawForms('say "hi"').includes('say \\"hi\\"'));
+  assert.ok(cc.rawForms('Māori').includes('M\\u0101ori'));     // the rare escaped spelling
+  assert.ok(cc.rawForms('Māori').includes('Māori'));           // and the common raw one
+});
+
+test('scanText returns the first match and the total count, and survives an empty match', () => {
+  assert.deepEqual(cc.scanText(/ab/, 'xxabyyab'), { count: 2, at: 2, len: 2 });
+  assert.deepEqual(cc.scanText(/zz/, 'nothing'), { count: 0, at: -1, len: 0 });
+  // A pattern that matches the empty string would never advance without the guard.
+  assert.equal(cc.scanText(/a*/, 'baa').count, 3);   // '' at 0, 'aa' at 1, '' at 3
+});
+
+test('excerptAround centres on the match, collapses whitespace, and stays inside the budget', () => {
+  const long = 'a'.repeat(500) + ' TERM ' + 'b'.repeat(500);
+  const ex = cc.excerptAround(long, 501, 4, 40);
+  assert.ok(ex.length <= 40, `got ${ex.length}`);
+  assert.match(ex, /TERM/);
+  assert.equal(ex[0], '…');
+  assert.equal(ex[ex.length - 1], '…');
+  // Short enough to print whole: no ellipses, whitespace collapsed to one line.
+  assert.equal(cc.excerptAround('one\n\ttwo   three', 5, 3, 40), 'one two three');
+});
+
 // --- documentation convention (REPO-STANDARD: concise --help + a man page) --
 
 test('--help is a concise digest that points at the man page', () => {

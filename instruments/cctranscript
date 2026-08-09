@@ -28,6 +28,19 @@
  * the signal — a spawn that was skipped or stopped starts without finishing.
  * Where no per-agent store is reachable, finished is reported unknown, never 0.
  *
+ * --search <term> asks a question OF the set rather than about one session:
+ * which turns, in any session the scoping flags admit, match this term. It is
+ * the same discovery and the same scoping vocabulary as --list, with an excerpt
+ * and a citable N.M reference in place of the first-prompt column. Literal by
+ * default (--regex opts into a pattern), case-insensitive by default (--case
+ * opts out), and --since/--until narrow it to a date range with ccrepo(1)'s
+ * exact meaning. Prompts and replies are searched by default; --tools widens it
+ * the same way it widens the render, and a run that did NOT search the tool
+ * layers reports how many sessions hold the term there, so the boundary is never
+ * silent. Thinking cannot widen a search: the harness stopped writing thinking
+ * text to the log (31,800 blocks in the live store when measured 2026-08-09, 9
+ * with any text, none after 2026-07-04), so there is nothing to search.
+ *
  * By default it reads the live logs, which Claude Code prunes after
  * `cleanupPeriodDays`. --from-archive points every view at the compressed mirror
  * ccarchive(1) maintains instead — same discovery, same rendering, reading
@@ -50,25 +63,25 @@ const argv = process.argv.slice(2);
 const HELP = `cctranscript — timestamped transcript of a Claude Code session
 
 USAGE
-  cctranscript [options] [session]
-
-  session   A UUID, a .jsonl or .jsonl.gz path, or omitted (latest for this repo).
+  cctranscript [options] [session]        # session: UUID, .jsonl[.gz] path, or latest
+  cctranscript --search <term> [options]  # find matching turns across sessions
 
 OPTIONS
-  --from-archive   Read from the ccarchive archive; --dest <dir> sets where.
-  --repo <name>    Use sessions from the named repo (its folder basename).
+  --search <term>  Find turns matching <term>; prints an index of hits.
+  --regex          <term> is a regular expression;  --case  matches case.
+  --since, --until <YYYYMMDD>   Narrow --search to a date range.
+  --top <n>        Keep at most n rows per level of the search index.
   --list           List sessions for the repo and exit (with --repo or --all).
-  --all            With --list, list sessions across all repos.
+  --repo <name>    Use sessions from the named repo (its folder basename).
+  --all            With --list or --search, span every repo.
   -n, --last <k>   Use the k-th most recent session (1 = latest, the default).
-  --tools          Include tool calls and their results (summarised).
-  --think          Include Claude's thinking blocks.
+  --tools          Include tool calls and results;  --think  thinking blocks.
   --full           Everything: prompts, replies, thinking, tools.
-  --utc            Timestamps in UTC (default: your local timezone).
-  --no-delta       Hide the elapsed-time deltas between messages.
-  --width <n>      Wrap width (default: terminal width, capped at 100).
-  --color          Force ANSI colour; --no-color disables it (auto by default).
-  --json           Machine-readable array of turns (never styled).
-  -h, --help       Show this help.
+  --from-archive   Read from the ccarchive archive; --dest <dir> sets where.
+  --materialise    With --search, also read iCloud-evicted archive mirrors.
+  --utc            Timestamps in UTC;  --no-delta  hides elapsed deltas.
+  --width <n>      Wrap width (default: terminal, capped 100);  --color/--no-color.
+  --json           Machine-readable output (never styled).  -h, --help  This help.
 
 Each turn timestamped, from the live logs or ccarchive's mirror.  man cctranscript`;
 
@@ -92,6 +105,21 @@ const lastK = lastArg ? Math.max(1, parseInt(lastArg, 10) || 1) : 1;
 const destArg = takeValue('--dest');
 const archiveMode = argv.includes('--from-archive') || destArg !== null;
 
+// --search turns the --list sweep into "here are the turns that match". It is a
+// mode, not a subcommand: every scoping flag above still applies, and passing
+// --list alongside it is redundant rather than contradictory (search IS a list,
+// narrowed) so it is accepted in silence. --materialise is search's alone: it is
+// the first cctranscript operation that reads every file, which is exactly the
+// condition under which the flag earns its place (flags-follow-operation).
+const searchArg = argv.includes('--search') ? takeValue('--search') : null;
+const doSearch = searchArg !== null && searchArg !== undefined;
+const useRegex = argv.includes('--regex');
+const caseSensitive = argv.includes('--case');
+const materialise = argv.includes('--materialise');
+const sinceArg = takeValue('--since');
+const untilArg = takeValue('--until');
+const topArg = takeValue('--top');
+
 // Colour: explicit flag wins; else on when stdout is a TTY and NO_COLOR is
 // unset. FORCE_COLOR forces it on. Never colour --json (it's a data format).
 const colorFlag = argv.includes('--no-color') ? false : argv.includes('--color') ? true : null;
@@ -106,10 +134,13 @@ const CW = TW - 4;                                       // body width inside th
 
 // Flags that consume the following token, so we don't mistake a value for the
 // positional session argument.
-const OWN_WITH_VALUE = new Set(['--repo', '-n', '--last', '--width', '--dest']);
+const OWN_WITH_VALUE = new Set([
+  '--repo', '-n', '--last', '--width', '--dest', '--search', '--since', '--until', '--top',
+]);
 const OWN_BARE = new Set([
   '--json', '--list', '--all', '--tools', '--think', '--full', '--from-archive',
   '--utc', '--no-delta', '--color', '--no-color', '-h', '--help',
+  '--regex', '--case', '--materialise',
 ]);
 let positional = null;
 for (let i = 0; i < argv.length; i++) {
@@ -349,6 +380,18 @@ function toolSummary(name, input) {
   return name;
 }
 
+// The same tool call as --search sees it: the whole input, not one chosen field.
+// toolSummary above picks the single most telling key for a one-line render; a
+// search that read only that would answer "no" for a filename sitting in any of
+// the others, which is precisely the quiet wrongness --tools exists to avoid.
+function toolSearchText(name, input) {
+  if (input === undefined || input === null) return name;
+  let body;
+  if (typeof input === 'string') body = input;
+  else { try { body = JSON.stringify(input); } catch { body = String(input); } }
+  return body ? `${name}  ${body}` : name;
+}
+
 // Context size at the moment of one request: everything the model was sent,
 // however it was billed. Cached prefix (cache_read) and freshly-cached blocks
 // (cache_creation) are *in* the window — counting input_tokens alone reads a
@@ -413,11 +456,26 @@ function finishedAgents(file, started) {
 // which is the stricter source: one log per agent that actually ran. Both ship,
 // because the gap between them is itself the signal. finished is null when no
 // per-agent store is reachable — unknown, which is not zero.
-function readTurns(file) {
+//
+// `opts` exists for --search, and every field defaults to the render's own
+// behaviour so every existing caller is unchanged:
+//   text        — already-read log text, so a search that has read the file for
+//                 its whole-file gate doesn't read it a second time.
+//   tools/think — override the view gates. Search always collects tool turns
+//                 (so it can report the layer it did NOT search) regardless of
+//                 whether --tools was passed.
+//   untruncated — keep tool text whole. The render clamps a tool result to 120
+//                 characters, which is a display device; searching the clamp
+//                 would silently miss the filename you were grepping for, and
+//                 tool results are a quarter of the corpus.
+function readTurns(file, opts = {}) {
+  const wantTools = opts.tools !== undefined ? opts.tools : showTools;
+  const wantThink = opts.think !== undefined ? opts.think : showThink;
+  const untruncated = !!opts.untruncated;
   const turns = [];
   const context = { peak: 0, final: 0 };
   const agents = { started: 0, finished: null, byType: {} };
-  const lines = readLogText(file).split('\n');
+  const lines = (opts.text !== undefined ? opts.text : readLogText(file)).split('\n');
   for (const ln of lines) {
     if (!ln.trim()) continue;
     let o; try { o = JSON.parse(ln); } catch { continue; }
@@ -440,11 +498,11 @@ function readTurns(file) {
     if (o.type === 'user' && !o.toolUseResult) {
       const text = extractText(o.message && o.message.content).trim();
       if (text) turns.push({ role: 'you', ts, text });
-    } else if (o.type === 'user' && o.toolUseResult && showTools) {
+    } else if (o.type === 'user' && o.toolUseResult && wantTools) {
       let r = o.toolUseResult;
       if (typeof r !== 'string') { try { r = JSON.stringify(r); } catch { r = String(r); } }
       r = r.replace(/\s+/g, ' ').trim();
-      if (r.length > 120) r = r.slice(0, 117) + '…';
+      if (!untruncated && r.length > 120) r = r.slice(0, 117) + '…';
       turns.push({ role: 'result', ts, text: r });
     } else if (o.type === 'assistant') {
       const content = (o.message && o.message.content) || [];
@@ -452,10 +510,13 @@ function readTurns(file) {
       for (const b of Array.isArray(content) ? content : []) {
         if (b.type === 'text' && b.text.trim()) {
           turns.push({ role: 'claude', ts, text: b.text.trim(), model });
-        } else if (b.type === 'thinking' && showThink && (b.thinking || '').trim()) {
+        } else if (b.type === 'thinking' && wantThink && (b.thinking || '').trim()) {
           turns.push({ role: 'think', ts, text: b.thinking.trim(), model });
-        } else if (b.type === 'tool_use' && showTools) {
-          turns.push({ role: 'tool', ts, text: toolSummary(b.name, b.input), model });
+        } else if (b.type === 'tool_use' && wantTools) {
+          turns.push({
+            role: 'tool', ts, model,
+            text: untruncated ? toolSearchText(b.name, b.input) : toolSummary(b.name, b.input),
+          });
         }
       }
     }
@@ -472,11 +533,17 @@ function readTurns(file) {
 // and tool turns stay unnumbered — the citable unit is what a human quotes.
 // A reply arriving before any prompt (e.g. a resumed session) numbers under
 // exchange 0, honestly marking that its prompt isn't in this log.
+//
+// Every turn also gets `encl`, the number of the exchange it sits inside. That
+// is not a citable reference and the render never shows it; --search uses it to
+// place a hit in a thinking block or a tool call, which has no ref of its own,
+// against the exchange you would open to read it.
 function numberTurns(turns) {
   let n = 0, m = 0;
   for (const t of turns) {
     if (t.role === 'you') { n++; m = 0; t.ref = String(n); }
     else if (t.role === 'claude') { m++; t.ref = `${n}.${m}`; }
+    t.encl = String(n);
   }
   return turns;
 }
@@ -674,6 +741,305 @@ function pickSessions() {
   return pool;
 }
 
+// --- search -------------------------------------------------------------
+//
+// WHY THIS IS SHAPED THE WAY IT IS, measured 2026-07-27 and re-measured on the
+// build. Search is I/O-bound, not parse-bound: every byte has to be read to know
+// whether it matches, and reading (with UTF-8 decoding) is the whole budget.
+// So the cost control is a WHOLE-FILE gate — one regex test per file, and a file
+// that misses is never parsed at all. Do not "simplify" this into a walk that
+// JSON.parses every line of every file: that triples the cost for the identical
+// answer (5.9 s against a 2.0 s floor on the corpus as it stood).
+//
+// The other two shape rules, both of which invert the obvious implementation:
+//   * Case-insensitivity is the /i flag, NEVER a lowercased copy of the text.
+//     /i is free (V8 folds case inside the matcher); text.toLowerCase() allocates
+//     a second copy of the whole corpus (1.8 s against 4.3 s).
+//   * The bytes are decoded as UTF-8. Decoding them as latin1 is the single
+//     fastest option measured (0.9 s) and is REJECTED: it silently breaks every
+//     non-ASCII search, and this estate writes macrons on te reo Māori by
+//     standing convention, so the one shortcut that pays is the one that quietly
+//     fails on the text we most care about getting right.
+
+// Escape a literal term so it can be compiled as a pattern: --regex and the
+// default share one matcher, and a path with a '.' in it must never silently
+// become a wildcard.
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// The forms a literal term can take inside a raw .jsonl line. The whole-file
+// gate reads the log's own JSON text, where a quote, a backslash or a newline
+// appears escaped, and where a non-ASCII character *may* (rarely) appear as
+// \uXXXX — 6 such sequences against 6,698 raw ones in the live store, so both
+// are real. Gating on the alternation costs nothing measurable and means the
+// gate can never hide a hit that the decoded text would show.
+function rawForms(term) {
+  const jsonInner = JSON.stringify(term).slice(1, -1);
+  const uEscaped = [...term].map((ch) => (ch.codePointAt(0) > 127
+    ? '\\u' + ch.codePointAt(0).toString(16).padStart(4, '0') : ch)).join('');
+  return [...new Set([term, jsonInner, uEscaped])];
+}
+
+// Two matchers, deliberately not one. `gate` runs against a file's raw JSON and
+// is permissive by design (the escaped forms above); `probe` runs against the
+// DECODED turn text and is exact, so a turn whose text merely contains the
+// literal characters ā is never reported as a hit for a macron.
+function buildMatchers(term) {
+  const flags = caseSensitive ? '' : 'i';
+  try {
+    return {
+      gate: new RegExp(useRegex ? term : rawForms(term).map(escapeRegex).join('|'), flags),
+      probe: new RegExp(useRegex ? term : escapeRegex(term), flags),
+    };
+  } catch (e) {
+    console.error(`--search pattern is not a valid regular expression: ${e.message}`);
+    process.exit(2);
+  }
+}
+
+// First match and total count in one pass. `g.lastIndex++` on a zero-length
+// match is the guard against a pattern like `a*`, which matches everywhere and
+// would otherwise never advance.
+function scanText(probe, s) {
+  const g = new RegExp(probe.source, probe.flags.includes('g') ? probe.flags : probe.flags + 'g');
+  let count = 0, at = -1, len = 0, m;
+  while ((m = g.exec(s)) !== null) {
+    if (count === 0) { at = m.index; len = m[0].length; }
+    count++;
+    if (m.index === g.lastIndex) g.lastIndex++;
+  }
+  return { count, at, len };
+}
+
+// A single-line excerpt centred on the match, whitespace collapsed, fitting
+// `width` columns including its ellipses. Unconditional, and applied to every
+// layer: no layer is safe to print whole — replies top out at 8 KB but a single
+// prompt in the live store reaches 848 KB, because a pasted blob is a prompt.
+function excerptAround(text, at, len, width) {
+  if (width < 12) width = 12;
+  const pad = Math.max(width * 2, 200);
+  const from = Math.max(0, at - pad);
+  const to = Math.min(text.length, at + len + pad);
+  const lead = text.slice(from, at).replace(/\s+/g, ' ');
+  const flat = lead + text.slice(at, to).replace(/\s+/g, ' ');
+  if (from === 0 && to === text.length && flat.length <= width) return flat.trim();
+  // Something is cut, so reserve both ellipsis slots and place the remaining
+  // window with the match about a third in — context after a term is usually
+  // what tells you whether it is the hit you wanted.
+  const inner = Math.max(4, width - 2);
+  const start = Math.max(0, Math.min(lead.length - Math.floor(inner / 3),
+    Math.max(0, flat.length - inner)));
+  const end = Math.min(flat.length, start + inner);
+  const lTrunc = from > 0 || start > 0;
+  const rTrunc = to < text.length || end < flat.length;
+  return (lTrunc ? '…' : '') + flat.slice(start, end).trim() + (rTrunc ? '…' : '');
+}
+
+// --since/--until take ccrepo(1)'s YYYYMMDD (dashes tolerated) and mean exactly
+// what they mean there: a bound on the MESSAGE's own timestamp. A file's mtime
+// is last-activity, not per-message, so filtering candidates on mtime alone
+// would drift from that meaning — mtime is used only as a safe skip for --since
+// (a file whose last activity precedes the window cannot hold a message inside
+// it), and the hits themselves are filtered on their own turn timestamps for
+// both bounds. --until gets no mtime skip on purpose: a long session can start
+// before the bound and end after it.
+function normDate(v, flag) {
+  if (v === null || v === undefined) return null;
+  const s = String(v).replace(/-/g, '');
+  if (!/^\d{8}$/.test(s)) {
+    console.error(`${flag} takes a date as YYYYMMDD, got '${v}'.`);
+    process.exit(2);
+  }
+  return s;
+}
+const dayNum = (iso) => dateOf(iso).replace(/-/g, '');
+
+function runSearch() {
+  const term = searchArg;
+  if (!term) { console.error('--search needs a term (or a pattern, with --regex).'); process.exit(2); }
+  const since = normDate(sinceArg, '--since');
+  const until = normDate(untilArg, '--until');
+  const topN = topArg !== null ? parseInt(topArg, 10) : null;
+  if (topArg !== null && !(Number.isInteger(topN) && topN > 0)) {
+    console.error(`--top must be a positive integer, got '${topArg}'.`);
+    process.exit(2);
+  }
+  const { gate, probe } = buildMatchers(term);
+  const t0 = Date.now();
+
+  const pool = pickSessions();
+  // The layer vocabulary is the render's, not a second one: --tools widens the
+  // search exactly as it widens the transcript. Thinking is absent from this
+  // list whatever the flags say, because the harness stopped writing thinking
+  // text to the log — see NOTES in the man page.
+  const layers = showTools ? 'prompts+replies+tools' : 'prompts+replies';
+  const stats = {
+    sessionsInScope: pool.length, sessionsSwept: 0, sessionsParsed: 0,
+    sessionsMatched: 0, hits: 0, skippedEvicted: 0, skippedOutOfRange: 0,
+    unreadable: 0, toolOnlySessions: 0,
+  };
+  const results = [];
+
+  for (const s of pool) {
+    // An evicted mirror is skipped and COUNTED, never silently absent from a
+    // result set that reads as complete; --materialise faults it back, with the
+    // cost owned by whoever asked for it.
+    if (s.evicted && !materialise) { stats.skippedEvicted++; continue; }
+    if (since && s.mtime && dayNum(new Date(s.mtime).toISOString()) < since) {
+      stats.skippedOutOfRange++; continue;
+    }
+    let text;
+    try { text = readLogText(s.file); } catch { stats.unreadable++; continue; }
+    stats.sessionsSwept++;
+    if (!gate.test(text)) continue;                       // the whole cost control
+
+    // `sessionsParsed` is the honest measure of the cost control, and it is
+    // reported rather than merely believed: a swept file that never parses is
+    // the difference between the I/O floor and three times it. `think: false`
+    // because there is no thinking text in the log to search (see NOTES) — and
+    // collecting empty thinking turns would then have to be excluded from the
+    // unsearched-layer tally below, which is a second way to get it wrong.
+    let read;
+    try { read = readTurns(s.file, { text, tools: true, think: false, untruncated: true }); }
+    catch { stats.unreadable++; continue; }
+    stats.sessionsParsed++;
+    // Numbered over the same you/claude turns the default render numbers, so a
+    // ref printed here means the identical thing when the session is reopened
+    // with no flags at all. Collecting tool turns cannot move it: numberTurns
+    // numbers prompts and text replies only.
+    const turns = numberTurns(read.turns);
+
+    const hits = [];
+    let toolLayerHolds = false;
+    for (const t of turns) {
+      const searched = t.role === 'you' || t.role === 'claude'
+        || (showTools && (t.role === 'tool' || t.role === 'result'));
+      const m = scanText(probe, t.text);
+      if (!m.count) continue;
+      if (!searched) {
+        if (t.role === 'tool' || t.role === 'result') toolLayerHolds = true;
+        continue;
+      }
+      const d = dayNum(t.ts);
+      if (since && (!d || d < since)) continue;
+      if (until && (!d || d > until)) continue;
+      hits.push({
+        // A hit in a tool call or result has no citable ref of its own; it
+        // reports the exchange it sits inside plus its layer, which is the
+        // honest answer rather than a number that would not resolve.
+        ref: t.ref || t.encl || '0', cited: !!t.ref, role: t.role,
+        timestamp: t.ts || null, text: t.text, at: m.at, len: m.len, hits: m.count,
+      });
+    }
+    if (toolLayerHolds) stats.toolOnlySessions++;
+    if (hits.length) {
+      stats.sessionsMatched++;
+      stats.hits += hits.reduce((a, h) => a + h.hits, 0);
+      results.push({ session: s, hits });
+    }
+  }
+
+  // --top truncates per level, the same word and the same operation as ccrepo's:
+  // at most n sessions, and at most n rows within each. Never silently — what
+  // was cut is counted and printed, because a quiet truncation reads as "that is
+  // all there is". There is no DEFAULT cap: a number picked from today's corpus
+  // would be exactly the fitted threshold this estate's own rule forbids.
+  const trunc = { sessions: 0, rows: 0 };
+  let shown = results;
+  if (topN !== null) {
+    trunc.sessions = Math.max(0, results.length - topN);
+    shown = results.slice(0, topN).map((r) => {
+      trunc.rows += Math.max(0, r.hits.length - topN);
+      return { session: r.session, hits: r.hits.slice(0, topN) };
+    });
+  }
+  const elapsedMs = Date.now() - t0;
+
+  if (asJson) { printSearchJson(term, layers, stats, trunc, topN, shown, elapsedMs); return; }
+  printSearchTable(layers, stats, trunc, topN, shown, elapsedMs);
+}
+
+function printSearchJson(term, layers, stats, trunc, topN, shown, elapsedMs) {
+  console.log(JSON.stringify({
+    // The machine format is WIDER than the table, never a different shape
+    // (ccrepo's precedent). Every counter prints, including its zeros, so two
+    // runs can be read side by side.
+    meta: {
+      term, regex: useRegex, caseSensitive,
+      source: archiveMode ? 'archive' : 'live',
+      layersSearched: layers.split('+'),
+      thinkingSearched: false,           // the log holds no thinking text to search
+      since: normDate(sinceArg, '--since'), until: normDate(untilArg, '--until'),
+      timezone: useUtc ? 'UTC' : 'local',
+      materialise, top: topN,
+      truncatedSessions: trunc.sessions, truncatedRows: trunc.rows,
+      ...stats, elapsedMs,
+    },
+    sessions: shown.map((r) => ({
+      session: r.session.id, repo: r.session.label, cwd: r.session.cwd,
+      lastActivity: r.session.mtime ? new Date(r.session.mtime).toISOString() : null,
+      hits: r.hits.map((h) => ({
+        ref: h.ref, cited: h.cited, role: h.role, timestamp: h.timestamp,
+        excerpt: excerptAround(h.text, h.at, h.len, 160), hits: h.hits,
+      })),
+    })),
+  }, null, 2));
+}
+
+function printSearchTable(layers, stats, trunc, topN, shown, elapsedMs) {
+  const REF_W = 5, ROLE_W = 6, INDENT = 5;
+  console.log();
+  for (const r of shown) {
+    const s = r.session;
+    const when = s.mtime
+      ? `${dateOf(new Date(s.mtime).toISOString())} ${fmtTime(new Date(s.mtime).toISOString())}`
+      : '                   ';
+    // Same rule as --list: the repo tag appears when the sweep can span repos.
+    const repoTag = listAll || repoArg ? '  ' + paint(ESC.blue, `[${s.label}]`) : '';
+    console.log(`  ${paint(ESC.cyan, s.id.slice(0, 8))}  ${paint(ESC.dim, when)}${repoTag}`);
+    for (const h of r.hits) {
+      const role = ROLE[h.role] || ROLE.claude;
+      const tally = h.hits > 1 ? `  (${h.hits} hits)` : '';
+      const width = Math.max(12, TW - INDENT - REF_W - 1 - ROLE_W - 2 - tally.length);
+      console.log(' '.repeat(INDENT)
+        + paint(ESC.dim, h.ref.padEnd(REF_W)) + ' '
+        + paint(role.color, role.label.toLowerCase().padEnd(ROLE_W)) + '  '
+        + excerptAround(h.text, h.at, h.len, width)
+        + paint(ESC.dim, tally));
+    }
+    console.log();
+  }
+
+  const secs = (elapsedMs / 1000).toFixed(1);
+  console.log('  ' + paint(ESC.dim, [
+    `${stats.hits} hit${stats.hits === 1 ? '' : 's'} in ${stats.sessionsMatched} session${stats.sessionsMatched === 1 ? '' : 's'}`,
+    `searched ${layers}`,
+    `${stats.sessionsSwept} of ${stats.sessionsInScope} sessions swept in ${secs} s`,
+  ].join(' · ')));
+  // The layer this run did NOT search reports itself as a count, every time,
+  // rather than as silence — the no-silent-caps rule at the point of use. A
+  // stated zero is a fact; an absent line would leave you to infer it.
+  if (!showTools) {
+    console.log('  ' + paint(ESC.dim, stats.toolOnlySessions
+      ? `Tool output not searched: the term is in ${stats.toolOnlySessions} session${stats.toolOnlySessions === 1 ? "'s" : "s'"} tool calls or results (add --tools).`
+      : 'Tool output not searched: no session holds the term there either.'));
+  }
+  if (stats.skippedEvicted) {
+    console.log('  ' + paint(ESC.dim, `${stats.skippedEvicted} mirror(s) not searched (evicted); --materialise reads them.`));
+  }
+  if (stats.skippedOutOfRange) {
+    console.log('  ' + paint(ESC.dim, `${stats.skippedOutOfRange} session(s) skipped: last activity precedes --since.`));
+  }
+  if (stats.unreadable) {
+    console.log('  ' + paint(ESC.dim, `${stats.unreadable} log(s) could not be read.`));
+  }
+  if (topN !== null) {
+    console.log('  ' + paint(ESC.dim, `--top ${topN}: ${trunc.sessions} session(s) and ${trunc.rows} row(s) hidden.`));
+  }
+  console.log();
+}
+
 // --- output -------------------------------------------------------------
 
 function runList() {
@@ -809,13 +1175,16 @@ if (require.main === module) {
     console.log(HELP);
     process.exit(0);
   }
-  if (doList) runList();
+  // --search is a mode, and it wins: --list alongside it is redundant, not
+  // contradictory (search IS a list, narrowed), so it is accepted in silence.
+  if (doSearch) runSearch();
+  else if (doList) runList();
   else runTranscript();
 }
 
 module.exports = {
   friendlyModel, modelColor, humanDelta, fmtTokens, contextOf, wrap, visLen, padLeftTo,
-  styleInline, fmtTime, dateOf, toolSummary, extractText, encodePath, readTurns,
-  numberTurns, defaultArchiveDest, readLogText, isDatalessFlags, sessionRecord,
-  subagentDir, finishedAgents,
+  styleInline, fmtTime, dateOf, toolSummary, toolSearchText, extractText, encodePath,
+  readTurns, numberTurns, defaultArchiveDest, readLogText, isDatalessFlags, sessionRecord,
+  subagentDir, finishedAgents, escapeRegex, rawForms, scanText, excerptAround,
 };

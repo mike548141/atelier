@@ -16,7 +16,7 @@ drives Chrome via Playwright); each documents its own runtime.
 | Instrument      | Verb      | What it does                                                         |
 |-----------------|-----------|---------------------------------------------------------------------|
 | `ccrepo`        | observe   | Claude Code token & cost totals, grouped/filtered any way (`-g repo,model`, `--branch`, message-grain cost reconciled against ccusage), plus how large sessions' context windows got. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
-| `cctranscript`  | observe   | Timestamped transcript of a session — the timestamps the chat UI hides, plus how big its context grew and how many subagents it started vs finished. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
+| `cctranscript`  | observe   | Timestamped transcript of a session — the timestamps the chat UI hides, plus how big its context grew and how many subagents it started vs finished. `--search <term>` asks the other question: which turns, across every session in scope, match a term or a `--regex`. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
 | `ccarchive`     | preserve  | Durably mirror every raw `.jsonl` transcript into a compressed, append-only archive that outlives Claude Code's cleanup. |
 | `browser-fetch` | extend    | A browser (fresh headless, or the operator's own Chrome) when `WebFetch`/curl are blocked. MCP server; see its own README. |
 
@@ -34,40 +34,58 @@ A flag that means the same thing in more than one tool uses the **same word**,
 judged from a user who moves between them. Verified 2026-07-23 by reading all
 three `--help` texts, man pages and argument parsers end to end — the tools
 were already consistent; this table is the standing reference so they stay
-that way.
+that way. Re-verified 2026-08-09, when `cctranscript --search` landed and moved
+three of the rows below.
 
 | Flag | Meaning | `ccarchive` | `cctranscript` | `ccrepo` |
 |------|---------|:-----------:|:---------------:|:--------:|
 | `--dest <dir>` | Where the archive lives (default iCloud Drive, or `$CCARCHIVE_DEST`) | write target | read target (implies `--from-archive`) | read target (implies `--from-archive`) |
 | `--from-archive` | Read `ccarchive`'s mirror instead of the live logs | — (it *is* the archive) | ✅ | ✅ |
-| `--materialise` | Also read an iCloud-evicted (dataless) file, faulting its bytes back | ✅ (`--verify`/`--audit`) | — (see note) | ✅ |
+| `--materialise` | Also read an iCloud-evicted (dataless) file, faulting its bytes back | ✅ (`--verify`/`--audit`) | ✅ (`--search`) | ✅ |
+| `--since` / `--until` | Bound to a local date range (`YYYYMMDD`), judged on each message's own timestamp | — | ✅ (`--search`) | ✅ |
+| `--top <n>` | Keep only the first n rows per level, after ordering | — | ✅ (`--search`) | ✅ |
 | `--json` | Machine-readable output; never styled | ✅ | ✅ | ✅ |
 | `--repo` | The repo dimension | — | `--repo <name>` selects one repo to read | `--repo <list>` filters/groups (comma = OR, `!` excludes, `*` globs) |
 | `-h`, `--help` | One-screen usage summary | ✅ | ✅ | ✅ |
 
-**Note — the `--materialise` asymmetry is deliberate, not a gap.** `ccarchive`
-and `ccrepo` both read *every* file in the archive on an ordinary run (a full
-verify/audit; a full cost total), so an evicted mirror is a bulk-download risk
-worth a skip-by-default/opt-in-override pair. `cctranscript` never reads every
-file: `--list` only peeks each candidate for its first prompt and skips an
-evicted one outright (no override needed — there's nothing to materialise for
-a listing), and rendering one chosen session already deliberately faults an
-evicted mirror back with no skip step to override in the first place. There is
-no bulk-read operation on `cctranscript` for a `--materialise` flag to name, so
-it doesn't carry one.
+**Note — `--materialise` is the worked example, and it now has a second act.**
+Until 2026-08-09 this note explained why `cctranscript` carried **no**
+`--materialise`, and the reason was the operation, not the vocabulary:
+`ccarchive` and `ccrepo` both read *every* file in the archive on an ordinary
+run (a full verify/audit; a full cost total), so an evicted mirror is a
+bulk-download risk worth a skip-by-default/opt-in-override pair, whereas
+`cctranscript` read no file in bulk. `--list` only peeks each candidate for its
+first prompt and skips an evicted one outright (nothing to materialise for a
+listing), and rendering one chosen session already faults an evicted mirror back
+deliberately, with no skip step to override.
+
+Then `--search` arrived, and a search **is** the bulk read: it sweeps every
+candidate log the scoping flags admit. So the operation appeared and the word
+followed it — `cctranscript --search` skips an evicted mirror by default, counts
+the skip in its summary, and `--materialise` reads it, with exactly the meaning
+the two siblings give the flag. `--since`/`--until` and `--top` joined the table
+in the same change and for the same reason: narrowing a *set* before sweeping it,
+and truncating a ranked list, are `ccrepo`'s operations, and until there was a
+set to narrow neither word had anything to mean here.
+
+The example is more useful for having moved than it was as a fixed asymmetry.
+The rule was never "these three tools happen to differ"; it was "the flag
+follows the operation", which predicts both the absence *and* its end.
 
 **Standing rule (flags-follow-operation — ratified by Mike 2026-07-23):**
 vocabulary is uniform *whenever the operation is shared* — same word, same
 meaning, no exceptions. But a flag is added to a tool only when that tool
 actually performs the operation it names; it is never added to a tool for
-symmetry's sake alone. The `--materialise` asymmetry above is the worked
-example: bolting a `--materialise` no-op onto `cctranscript` would imply a
-bulk-read control that doesn't exist there, which is worse than the current
-honest gap. The alternative — force every shared-sounding flag onto every
-tool regardless of whether the operation exists — was considered and rejected:
-it optimises for a surface-level checklist over telling the truth about what
-each tool does, and this codebase's own convention (e.g. `ccarchive` itself
-carries no `--from-archive`, since it *is* the archive) already leans this way.
+symmetry's sake alone. `--materialise` above is the worked example in both
+directions: bolting the flag onto `cctranscript` while it had no bulk read would
+have implied a control that didn't exist, which is worse than an honest gap —
+and withholding it once `--search` shipped would have been the same failure
+mirrored, a real operation left unnamed. The alternative — force every
+shared-sounding flag onto every tool regardless of whether the operation exists
+— was considered and rejected: it optimises for a surface-level checklist over
+telling the truth about what each tool does, and this codebase's own convention
+(e.g. `ccarchive` itself carries no `--from-archive`, since it *is* the archive)
+already leans this way.
 
 ## Install (and on a new machine)
 
@@ -306,7 +324,11 @@ spawn (an agent spawning its own agent) logs into the same directory while
 ahead, and the figures are left unclamped rather than hide that. Both figures
 survive `--from-archive` — ccarchive captures every `.jsonl` at any depth and
 mirrors it at the same relative path, so the per-agent logs are in the archive
-too (their `.meta.json` sidecars are not, which is why the count keys on logs).
+too. The count keys on those **logs**, not on the directory's contents: a log is
+the evidence that a run happened, and the `.meta.json` sidecar beside it records
+what the agent *was*, never whether it ran. (Since 2026-08-09 ccarchive captures
+those sidecars too, under its own `subagent-meta` class — which changes what the
+archive holds, not what the count may be read off.)
 
 **Where the two rules meet.** A zero the log *proves* is a fact worth printing;
 a figure the log never recorded is *unknown*, and printing that as zero would be
@@ -340,11 +362,15 @@ that cleanup:
   It doesn't parse the `.jsonl`, it preserves the bytes, so it's immune to schema
   drift (unlike the observers below). Append-only is not overwrite-proof, so two
   guards protect the sole durable copy: a **shrink guard** refuses to overwrite
-  when a newer source is *smaller* than the size recorded at capture (sessions
-  only grow; a shrink means truncation or corruption upstream — `--force` is the
-  deliberate override), and a source yielding **zero transcripts** against a
-  non-empty manifest exits non-zero instead of logging success while the archive
-  quietly stops growing (the live dir moved). A dest inside a git work tree is
+  when a newer source is *smaller* than the size recorded at capture (an append
+  log only grows, so a shrink means truncation or corruption upstream — `--force`
+  is the deliberate override). The guard is size-only and class-blind by choice:
+  the whole-document classes it also covers — memory `.md` files, subagent
+  `.meta.json` sidecars — can legitimately be rewritten smaller and will be
+  refused until forced, which is safe-over-silent rather than an oversight. The
+  second guard catches a source yielding **zero transcripts** against a non-empty
+  manifest: it exits non-zero instead of logging success while the archive quietly
+  stops growing (the live dir moved). A dest inside a git work tree is
   also refused (`--allow-repo-dest` overrides): transcripts are personal data,
   and a repo dest is one commit away from publication.
 - **Integrity — sha256 manifest + `--verify`.** gzip's CRC-32 catches a corrupted

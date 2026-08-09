@@ -4500,3 +4500,72 @@ was a coincidence of numbers.*
 *Five pre-existing defects the fix surfaced stayed on the hot path, queued not
 taken — one of them (`list`'s ↑/↓ referent) would change what "behind" means on a
 widely-read board.*
+
+## cctranscript learns to search (done 2026-08-09)
+
+Mike's ask, 2026-07-26: *"Something that lets you search all the transcripts using
+regex or for a simple term. If you give cctranscript a command like `--repo` that
+limits the scope to search within."* Designed 2026-07-27 with no decision left
+open for him; built 2026-08-09.
+
+The shape came from measurement, not intuition: a whole-file regex **gate** first,
+so a file that misses is never parsed; UTF-8 throughout; `/i` case-folding (free at
+1.8 s) rather than lowercasing the text (4.3 s); and no index, which the design
+deferred as unnecessary. latin1 decoding is the fastest option of all at 0.9 s and
+was rejected outright — it silently corrupts macrons, and this estate writes te reo
+Māori with them. `readTurns` gained an opts object defaulting to existing
+behaviour so search reuses the one extraction path instead of growing a second.
+Tests 38 → 62; `mandoc -T lint` exit 0 against a baseline that was also 0, so a
+real bar; drift guard green; `--help` inside its 24-line pin.
+
+**DONE condition 13 is PARTIALLY met, and the design was wrong about the reason.**
+§4 claimed "the refs are free". At file grain they are not: an `N.M` ref counts
+every preceding turn, so *parse only the lines that survive the gate* and *exact
+gate-invariant refs* are mutually exclusive — a contradiction the design never
+noticed. Correctness was chosen, so a file that passes the gate is parsed whole.
+A selective search runs at **1.22–1.32×** a bare read, which meets the condition;
+a term present in every session reaches **3.7×** (9.6 s), which does not. Rather
+than let a wall-clock assertion go flaky, the guard became structural —
+`meta.sessionsParsed` is reported on every run and a test pins
+`parsed:1 / swept:13`, which is the property the 1.5× condition existed to
+protect. Recorded as partial rather than talked up.
+
+**§10's raw-line prefilter had an unmentioned false-negative class.** The gate
+reads raw JSON, where quotes, backslashes, newlines and occasionally non-ASCII
+arrive escaped — the live store holds 6 escaped `ā` sequences against 6,698 raw
+ones — so a plain gate could hide a hit the decoded text would show. Literal
+terms are now gated on an alternation of every form the term can take (measured
+free) and matched against the *decoded* turn text, so escaped spellings produce
+neither false negatives nor false positives. For `--regex` the limitation is real
+and lives in NOTES rather than being papered over.
+
+**The doctrinal loose end the design named is closed.** `instruments/README.md`'s
+`--materialise` note was the worked example of the ratified
+flags-follow-operation rule, and it argued the flag's *absence* from cctranscript
+was principled because cctranscript "never reads every file". `--search` **is**
+the bulk read, so the operation appeared and the word followed. The note keeps its
+original reasoning in the past tense — the rule's history stays legible — and now
+states the rule in both directions: withholding the flag once the operation exists
+is the same failure mirrored. Verified against the sibling surfaces rather than
+assumed; no ccarchive or ccrepo behaviour had to change.
+
+Three further design claims were corrected on contact and are recorded at the top
+of the design doc rather than edited out of it: §7's illustrated tool row shows the
+render's one-line summary, where the build excerpts the whole tool input (searching
+one chosen field is the quiet wrongness §5 warns against); `--top` is asked for in
+one §7 sentence and appears in neither the surface list nor the DONE conditions;
+and two figures were stale — 440 sessions / 500 MB became 556 / 707 MB, and 24,856
+thinking blocks became 31,800 with the load-bearing part holding exactly (9 carry
+text, none after 2026-07-04).
+
+- [x] **Search across transcripts — DESIGN DONE 2026-07-27, BUILD not started
+      (Mike's ask, 2026-07-26).** *"Something that lets you search all the
+      transcripts using regex or for a simple term. If you give cctranscript a
+      command like `--repo` that limits the scope to search within."* The design
+      pass is done — surface (`--search` + `--regex`/`--case`), match unit,
+      excerpting, output shape, cost, eviction and DONE conditions are all settled
+      there. **No decision is left open for Mike.** What remains is the build.
+
+*The archive-plane cost stayed on the hot path, queued not taken: pool
+construction dominates every `--from-archive` run and is pre-existing —
+`--search` only made it visible.*
