@@ -1829,6 +1829,28 @@ whole-tree CI fails, and the failure never reaches the person committing.
       actively built; `docker-heap` and `homenetwork` hold large frozen
       captures, which is the `C3` adoption case (a repo whose existing content
       already fails a guard) rather than a backlog anyone is clearing.
+      ✅ **Two of four answered 2026-08-09, by the kāinga session that owned
+      them** (work-locality worked as intended — that session found this item
+      rather than being sent to it). **`numen` GREEN-by-closure**: archived the
+      same day as superseded by `kāinga`, and GitHub does not run Actions on an
+      archived repo, so its red is retired rather than fixed — the
+      correct-and-closeable outcome this item predicted. **`kāinga` GREEN**:
+      floor `success` on `84d9f1c`, after failing on the two preceding commits.
+      ⚠️ **Attribution is not clean and is not claimed**: the green arrived
+      across that repo's own allowlist untrack (publishscan) *and* a spellscan
+      allow-marker repair, and the two cannot be separated without more digging
+      than the answer is worth. **The mechanism this item names was confirmed
+      live, though**: the repo's hook plane passed on staged files while its
+      whole-tree CI failed, and a session committed cleanly into a red repo
+      without ever being told — the exact asymmetry described above.
+      🔎 **And it produced a second finding worth more than the triage**: the
+      untrack there was landed *without* the matching `.gitignore` rule, so the
+      file sat untracked-and-unignored and the next `git add -A` re-tracked it,
+      re-breaking the enforced gate within the hour. Every other child that made
+      this change added the rule at the same time. **Worth a sweep**: any repo
+      whose allowlist was untracked without an ignore rule is one `add -A` away
+      from the same regression, and nothing currently checks for it.
+      Still open: `docker-heap` and `homenetwork` (the `C3` pair, untouched).
 
 ## Doctrine — review-owed
 
