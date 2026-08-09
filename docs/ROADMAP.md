@@ -181,15 +181,182 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       and predates it); and the estate root's own records carry ~364
       self-references, which under E7's D1 ruling (allow-markers never
       exempt the term list) would hard-block that repo's future self-naming
-      lines with no in-repo hatch. Full account:
+      lines with no in-repo hatch — **this third premise is now measured
+      and false; see the re-measurement below.** Full account:
       [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *C5 executed* (correction).
-      **Options for the re-ruling, none pre-chosen:** per-term path/repo
-      scoping in the term-list syntax (a small leakscan build — rides the
-      next leakscan touch, currently the guard-governance session's
-      surface); shapes-only with a records carve-out; accept local
-      full-tree reds (measured cost: it broke live re-run obligations the
-      day it landed); or decline the literal term and keep the join guard
-      as write-time discipline plus review sweeps. Mike's call.
+
+      **RE-MEASURED 2026-08-09, every plane and every repo on the machine
+      (the sweep the reverted execution never ran). One premise is false,
+      the other two shrink to numbers.** Probed with a scratch term list
+      via `$ATELIER_LEAKSCAN_TERMS`; the operator's real list was never
+      touched.
+      **(a) stands, and is smaller than recorded: 67 findings here, not
+      86 — and 60 of the 67 are frozen records** (`sessions/`, `reviews/`,
+      `SESSIONS.md`, `ROADMAP-DONE.md`, `CHANGELOG.md`). Only **7 sit in
+      live, editable files**, all of them rewordable. So the standing cost
+      is a records problem wearing a whole-repo disguise.
+      **(b) stands, and is now three shapes rather than one** — the
+      ordinary-English sense is real but rare (3 instances estate-wide
+      against ~673 name uses). One is a rewordable docstring here; one is
+      a **verbatim quotation from an upstream bug report** in a child,
+      which cannot be reworded without falsifying the quote; and one is
+      the **physical building** in a property inventory. The last two are
+      the durable argument — a guard whose only hatch is "reword it"
+      cannot serve a quote or a real-world noun.
+      **(c) is FALSE, and it is the premise that killed the ruling.** The
+      estate root does **not** hard-block: it retired leakscan repo-wide
+      by ADR (2026-07-13) with a `*` glob, and two further permanently-
+      private personal repos have since made the same call. `.leakscanignore`
+      filters at the **path** level *before* the term list runs, on the
+      staged plane as well as the tree plane
+      ([`tools/leakscan.py`](../tools/leakscan.py), the `_ignored` calls) —
+      so D1 never reaches those trees. Verified empirically: all three
+      scan **clean, exit 0**, with the bare term live. The in-repo hatch
+      the item said did not exist was already taken, by decision, a month
+      before the ruling.
+      **What the sweep found that no premise modelled:** the term also
+      binds **six private children that doctrine positively instructs to
+      name the estate root** — `PROPAGATION.md` § the name↔posture split
+      says the name belongs in a private child's own onramp — for **58
+      lines** between them. A bare term makes the prescribed act red.
+      That, not the frozen records, is the sharpest cost.
+
+      **THE STRUCTURAL DEFECT UNDER ALL OF THIS, surfaced by Mike's
+      exception ruling (restated 2026-08-09): the term list has no narrow
+      hatch, so every term exception is forced wider than GUARDS rule (a)
+      permits.** [`GUARDS.md`](method/GUARDS.md) ranks allowances Line <
+      Check < Repo and requires the narrowest level that covers the case.
+      For a term finding the **Line** level does not exist — D1 (2026-08-04)
+      ruled that allow-markers never exempt the term list — so the
+      narrowest *available* level is **Check**, and `.leakscanignore` is
+      not rule-scoped: it exempts **a whole path, every rule,
+      indefinitely** (`load_ignore_globs`' own docstring calls it "the
+      widest allowance this scanner grants"). There is no way to say "this
+      one term does not apply here". D1 removed the narrow hatch without
+      putting a narrow replacement in its place, and every term-list false
+      positive has been paying that ever since.
+      **The estate has already paid it once.** A **public place name** on
+      the term list was **deleted outright** (2026-08-06, ruled at a child
+      repo's go-public pass) because it was the only term that could not be
+      made to pass a product tree without an over-broad path ignore — the
+      product legitimately carried it as business-address content. The
+      correct answer was a narrow, reasoned exception — *in these records
+      the string is a business address already in the public domain, not a
+      reference to the principal, their assets or their position* — and no
+      such thing could be written, so a term that should still guard
+      everywhere else was dropped instead. C5 is the second instance of one
+      defect, not a new problem. (The term itself is deliberately not named
+      here: atelier is public, and naming it beside *why it was on a
+      personal denylist* is the very join this item exists to stop.)
+
+      **A requirement that binds whichever option is chosen** (Mike,
+      restated 2026-08-09; already doctrine in `GUARDS.md` § *Acceptance
+      and deferment*): every exception must be **as narrow and specific as
+      possible**, must **record why it is safe** — for this term, that the
+      use is a repo label, never the name joined to what the root holds —
+      and must **record when it was granted**. Grant date always; an
+      **expiry** only where the claim can rot. The C5 cases are
+      *acceptances*, not deferments: frozen records never change, a
+      published upstream quotation never changes, and a physical building
+      stays a physical building — so they carry a reason and a date, and
+      correctly no expiry.
+
+      **Options for the re-ruling, none pre-chosen** (costs now measured,
+      not estimated):
+      1. **Give the term list the missing narrow level: per-term scoping,
+         each scope entry narrow, reasoned and dated.** Cheap to build and
+         confirmed so at the source — `scan_text` already receives the
+         repo-relative path, so the gate is one condition on the term loop
+         and `scan_path_name` inherits it. The *grammar* is the work, not
+         the matching: a scoped term carries where it does not apply, why
+         that is safe, and the date of grant, enforced the way
+         `.leakscanignore` already enforces reasons (unreasoned ⇒ exit 2,
+         never a silent pass). **A scoped term must subtract noisily, not
+         vanish** (Mike, 2026-08-09; `GUARDS.md` rule (b) and the scanner's
+         own find-first-subtract-second order): the finding is made, then
+         accounted for in the tally as an accepted exception — so the
+         report always says *what it forgave and why*, and a scope that
+         quietly stops matching can be seen growing. Residual here:
+         **7 lines**, then rewordable to zero. Fixes the defect rather
+         than this instance of it — it serves the *D1's-consequence* item
+         below, and would let the place name deleted on 2026-08-06 return
+         to the list with the narrow exception it should have had. The
+         durable answer.
+      2. **Shapes-only with a records carve-out.** Measured: **21 here,
+         19 across the children** — still red everywhere, *and* it misses
+         the bare name in prose, which is the shape the leak actually
+         takes. Weaker guard and still needs the carve-out.
+      3. **Accept local full-tree reds.** Now priced: **~125 permanent
+         findings** machine-wide. It broke live re-run obligations the day
+         it landed.
+      4. **Decline the literal term**, keep the join guard as write-time
+         discipline plus review sweeps. Zero build — but this is the
+         status quo that the item itself records as broken four times
+         because nothing enforced it.
+
+      **Considered and rejected: `.leakscanignore` on the records paths.**
+      It would work — it is exactly how the three private repos got clean
+      — but it fails the narrowness rule outright: it retires *every* rule
+      on those paths, indefinitely, to quiet *one* term, and records are
+      where this repo's real leaks have actually happened. That is rule
+      (a)'s "a path glob that exempts a tree to quiet one file" verbatim.
+      Option 1 is the narrow version of the same idea.
+      **Checked against the same bar, and passing: the three repo-wide
+      `*` opt-outs** found by this sweep. A `*` glob is the widest
+      allowance in the model, but each is a genuine *acceptance* whose
+      premise is inverted — a permanently-private repo that is the
+      deliberate home for exactly the data leakscan hunts — so the whole
+      repo *is* the narrowest scope that covers the case. Each carries its
+      reason in the file and an ADR with a date. Recorded here as verified,
+      not assumed, because a `*` should never pass unexamined.
+      **Evidence against option 4, generated by this session by accident.**
+      Drafting the paragraph above, this session wrote that de-listed place
+      name into this public file *joined to the reason it had been on a
+      personal denylist* — the precise name↔posture join C5 exists to
+      stop — and caught it at self-review, minutes after reading why the
+      term was removed. No scanner could have caught it: the term is
+      de-listed, so write-time discipline was the only guard, and
+      write-time discipline is exactly what option 4 proposes to rely on.
+      A session holding the whole doctrine in context, working on this
+      very item, still made the join. That is the fifth instance of the
+      programme's recurring finding — a rule nothing enforces gets broken
+      by the person writing about the rule.
+      **Recommendation (1)**, on three grounds: the frozen records are 90%
+      of the cost and are precisely what scoping removes; the unrewordable
+      ordinary-English cases (a published quotation, a physical building)
+      mean the term needs a hatch that is not "rewrite the sentence"; and
+      it is the only option that repairs the missing narrow level rather
+      than working around it — the defect that has now cost one term
+      outright and is holding two roadmap items. Mike's call.
+- [ ] 🎯 **A scanner's verdict has two states and needs three — "found,
+      and all properly accepted" reads as "found nothing".** (Mike,
+      2026-08-09, stating the model the guards are meant to follow: find
+      everything · report them all · subtract the ones that are
+      well-reasoned and fully recorded · then give an honest final verdict.)
+      The first three steps are built and good — `GUARDS.md` § *Fail noisy,
+      then subtract*, leakscan's find-first-subtract-second order, and the
+      2026-08-06 tally work. **The fourth is not.**
+      [`render_human`](../tools/leakscan.py) branches on `not findings`
+      alone, so it prints `✓ leakscan clean` in two materially different
+      situations: nothing was found, and things were found but every one
+      was forgiven. Measured this session, and it is not a corner case —
+      atelier's own live run subtracts **35 findings by allow-marker plus
+      7 files by glob** and still headlines `clean`; a permanently-private
+      repo scanned with `*` prints `✓ leakscan clean (structural + local)`
+      with **99 files never opened**. The `suppressed:` line underneath
+      carries the numbers honestly; the *verdict word above it* does not,
+      and the verdict is what a tired session and a CI log actually read.
+      **Fix shape:** a third headline for the all-accepted state (the
+      floor board's own `✅ enforced` / `advisory` / `👁️ warn-only` split,
+      applied one level down at the scanner's own verdict). **Exit codes do
+      not move** — 0 for both clean and all-accepted, 1 for live findings —
+      so no CI behaviour changes and the blast radius is text plus one
+      JSON field. **Keep `clean` in `--json` and add beside it** rather
+      than redefining it; consumers read that key today.
+      Same class as G3: it touches every scanner and every adopting tree,
+      so it lands on its own rather than riding a C5 build. Whether the
+      third state also belongs in the sibling scanners is the same
+      question, one item.
 - **C1F3 residue — CLOSED 2026-08-06** (wt: floor-render-batch-0806):
       `floorfleet` now strips child-authored `why`/reason strings through
       the same public `floor.strip_controls` the two ruled seams use —
@@ -515,6 +682,11 @@ adopter mistakes.*
       before and after). Options when ruled: narrow the term list, or
       let a marker name the term-list scope explicitly so silencing the
       highest-confidence layer can never happen by accident.
+      **Shares a mechanism with C5 (measured 2026-08-09):** both items are
+      one gap — the term list cannot say *where* a term applies. C5's
+      option 1 (per-term path/repo scoping) serves this item too, and
+      these 3 findings are the smaller, better-understood test case for
+      it. Worth ruling the two together rather than in sequence.
 - **E1 + E2 — DONE 2026-08-05** (`ae056a2`, wt: queue-batch-0806): an
       unrecognised licence now keeps the header checks (E1), and the sixteen
       unambiguous OSI trove classifiers resolve instead of flagging (E2).
