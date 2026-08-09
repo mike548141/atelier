@@ -263,6 +263,30 @@ class Allow(unittest.TestCase):
     def test_reason_containing_a_colon_still_parses_as_unscoped(self):
         self.assertEqual([], scan("a.b@example.com  # leakscan:allow: see ADR 0005: public"))
 
+    # A reason that OPENS by quoting the flagged token is the clearest way to
+    # write one, and for a while it silently exempted nothing: the first
+    # character had to be `\w`, so a leading quote made the whole marker
+    # unparseable and the finding still blocked. Found 2026-08-09 when a public
+    # child's floor went red on a line whose marker had read correctly to every
+    # human who reviewed it. Silent, because a voided marker and an absent one
+    # produce identical output.
+    def test_reason_may_open_with_a_quote(self):
+        self.assertEqual([], scan('host 172.16.31.7  '
+                                  '# leakscan:allow: "172.16.31.7" is a doc fixture'))
+        self.assertEqual([], scan("host 172.16.31.7  "
+                                  "# leakscan:allow: '172.16.31.7' is a doc fixture"))
+
+    def test_reason_may_open_with_a_typographic_quote(self):
+        self.assertEqual([], scan("host 172.16.31.7  "
+                                  "# leakscan:allow: “172.16.31.7” is a fixture"))
+
+    # The guard the quote fix must not weaken: an EMPTY marker still exempts
+    # nothing, including the commonest Markdown spelling where the comment
+    # closer follows the colon.
+    def test_marker_closed_by_a_html_comment_still_does_not_exempt(self):
+        self.assertIn("email",
+                      rules("a.b@example.com  <!-- leakscan:allow: -->"))
+
     # D1 (Mike ruled 2026-08-04) — an allow-marker exempts STRUCTURAL rules
     # only; the machine-local term list is the highest-confidence layer and
     # always runs.

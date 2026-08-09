@@ -250,7 +250,7 @@ from pathlib import Path
 # contract as datescan's DSR8-tightened ALLOW_MARKER_RX — a bare mention or
 # an empty reason must not silently exempt.
 ALLOW_MARKER = "stampscan:allow"
-ALLOW_MARKER_RX = re.compile(r"\b" + re.escape(ALLOW_MARKER) + r":\s*\w")
+ALLOW_MARKER_RX = re.compile(r"\b" + re.escape(ALLOW_MARKER) + r":\s*[\w\"\'“‘]")
 
 # Only these extensions are scanned for stamped blocks — matches every
 # sibling scanner's MARKDOWN_SUFFIXES.

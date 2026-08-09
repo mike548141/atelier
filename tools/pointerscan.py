@@ -172,7 +172,7 @@ ALLOW_BASE = "pointerscan:allow"
 # so prose that merely mentions the marker text exempts nothing. Tightened
 # 2026-08-05 — a bare marker used to exempt on a substring match.
 ALLOW_RX = re.compile(
-    r"\b" + re.escape(ALLOW_BASE) + r"(?::(?P<kind>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>\w)")
+    r"\b" + re.escape(ALLOW_BASE) + r"(?::(?P<kind>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>[\w\"\'“‘])")
 
 
 def parse_allow(text: str) -> str | None:

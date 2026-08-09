@@ -297,10 +297,10 @@ from pathlib import Path
 # a colon and a non-empty reason, so a bare mention of the marker text alone
 # does not silently exempt the line.
 ALLOW_MARKER = "pathscan:allow"
-ALLOW_MARKER_RX = re.compile(r"\b" + re.escape(ALLOW_MARKER) + r":\s*\w")
+ALLOW_MARKER_RX = re.compile(r"\b" + re.escape(ALLOW_MARKER) + r":\s*[\w\"\'“‘]")
 
 ALLOW_SCOPE_RX = re.compile(
-    r"\b" + re.escape(ALLOW_MARKER) + r"(?::(?P<kind>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>\w)")
+    r"\b" + re.escape(ALLOW_MARKER) + r"(?::(?P<kind>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>[\w\"\'“‘])")
 
 
 def parse_allow(line: str) -> str | None:

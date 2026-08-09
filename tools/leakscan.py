@@ -102,7 +102,7 @@ ALLOW_MARKER = "leakscan:allow"
 # correctly.
 ALLOW_RX = re.compile(
     r"\b" + re.escape(ALLOW_MARKER)
-    + r"(?::(?P<rule>[A-Za-z0-9_-]+(?:,[A-Za-z0-9_-]+)*))?:[ \t]*(?P<reason>\w)")
+    + r"(?::(?P<rule>[A-Za-z0-9_-]+(?:,[A-Za-z0-9_-]+)*))?:[ \t]*(?P<reason>[\w\"\'“‘])")
 
 
 def parse_allow(line: str) -> frozenset[str] | None:

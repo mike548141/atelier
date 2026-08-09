@@ -168,10 +168,10 @@ ALLOW_MARKER = "datescan:allow"
 # an empty-reason marker inside its own HTML comment, `<!-- datescan:allow:
 # -->`, isn't mistaken for a reason of "-->" — the comment closer is the
 # first non-whitespace character there, but it isn't a reason.
-ALLOW_MARKER_RX = re.compile(r"\b" + re.escape(ALLOW_MARKER) + r":\s*\w")
+ALLOW_MARKER_RX = re.compile(r"\b" + re.escape(ALLOW_MARKER) + r":\s*[\w\"\'“‘]")
 
 ALLOW_SCOPE_RX = re.compile(
-    r"\b" + re.escape(ALLOW_MARKER) + r"(?::(?P<kind>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>\w)")
+    r"\b" + re.escape(ALLOW_MARKER) + r"(?::(?P<kind>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>[\w\"\'“‘])")
 
 
 def parse_allow(line: str) -> str | None:
