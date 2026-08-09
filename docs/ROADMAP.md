@@ -221,20 +221,38 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       lines** between them. A bare term makes the prescribed act red.
       That, not the frozen records, is the sharpest cost.
 
-      **THE STRUCTURAL DEFECT UNDER ALL OF THIS, surfaced by Mike's
-      exception ruling (restated 2026-08-09): the term list has no narrow
-      hatch, so every term exception is forced wider than GUARDS rule (a)
-      permits.** [`GUARDS.md`](method/GUARDS.md) ranks allowances Line <
-      Check < Repo and requires the narrowest level that covers the case.
-      For a term finding the **Line** level does not exist — D1 (2026-08-04)
-      ruled that allow-markers never exempt the term list — so the
-      narrowest *available* level is **Check**, and `.leakscanignore` is
-      not rule-scoped: it exempts **a whole path, every rule,
-      indefinitely** (`load_ignore_globs`' own docstring calls it "the
-      widest allowance this scanner grants"). There is no way to say "this
-      one term does not apply here". D1 removed the narrow hatch without
-      putting a narrow replacement in its place, and every term-list false
-      positive has been paying that ever since.
+      **THE DEFECT UNDER ALL OF THIS — and how much of it Mike's
+      same-day `local-term` ruling already closed.** Written first as
+      *"the term list has no narrow hatch"*: `GUARDS.md` ranks allowances
+      Line < Check < Repo and requires the narrowest level that covers the
+      case, and for a term finding the **Line** level did not exist, D1
+      (2026-08-04) having ruled that allow-markers never exempt the term
+      list. The narrowest *available* level was **Check**, where
+      `.leakscanignore` is not rule-scoped — it exempts **a whole path,
+      every rule, indefinitely** (`load_ignore_globs`' own docstring calls
+      it "the widest allowance this scanner grants").
+      **CORRECTED, hours later, by `c827705`** (a parallel session, Mike's
+      ruling on the *D1's-consequence* item below): a marker scope naming
+      `local-term` explicitly — reason required, counted in the tally,
+      comma-composable with structural rules — **is now the deliberate
+      Line-level hatch.** The ladder is whole again, and the sharp-edged
+      half of C5 goes with it: **the two unrewordable ordinary-English
+      cases are solved**, since a published quotation or a real-world noun
+      can now carry a reasoned marker instead of being rewritten.
+      **What the Line hatch does NOT solve is volume, and that is the
+      whole of what remains.** A per-line marker is the right instrument
+      for three lines; C5's cases are **60 frozen-record lines here plus
+      58 across six private children**. Marking them means editing 118
+      lines — 60 of them in *frozen records*, which this repo's own
+      convention says are not rewritten — and lands squarely on the rule a
+      child repo already applied when it rejected ~70 markers as "noise
+      that hides the next real finding". Worse in the children: doctrine
+      *instructs* them to name the root, so a marker would be owed on
+      every future onramp line forever — permanent friction on the
+      prescribed act. So C5 is no longer "there is no hatch"; it is
+      **"the hatch that exists does not scale to this term"**, which is a
+      narrower and more answerable question than the one this item opened
+      with.
       **The estate has already paid it once.** A **public place name** on
       the term list was **deleted outright** (2026-08-06, ruled at a child
       repo's go-public pass) because it was the only term that could not be
@@ -244,8 +262,13 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       the string is a business address already in the public domain, not a
       reference to the principal, their assets or their position* — and no
       such thing could be written, so a term that should still guard
-      everywhere else was dropped instead. C5 is the second instance of one
-      defect, not a new problem. (The term itself is deliberately not named
+      everywhere else was dropped instead. **Still a live precedent after
+      `c827705`**, and for the same reason C5 survives it: the exception
+      was owed on ~70 generated-shaped product records, so the Line hatch
+      would have written the term back in as ~70 markers — the exact noise
+      that repo rejected. Volume, again, not the absence of a hatch. C5 is
+      the second instance of one defect, not a new problem. (The term
+      itself is deliberately not named
       here: atelier is public, and naming it beside *why it was on a
       personal denylist* is the very join this item exists to stop.)
 
@@ -321,13 +344,23 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       very item, still made the join. That is the fifth instance of the
       programme's recurring finding — a rule nothing enforces gets broken
       by the person writing about the rule.
-      **Recommendation (1)**, on three grounds: the frozen records are 90%
-      of the cost and are precisely what scoping removes; the unrewordable
-      ordinary-English cases (a published quotation, a physical building)
-      mean the term needs a hatch that is not "rewrite the sentence"; and
-      it is the only option that repairs the missing narrow level rather
-      than working around it — the defect that has now cost one term
-      outright and is holding two roadmap items. Mike's call.
+      **Recommendation (1), and one of its three grounds is now
+      discharged — said plainly because the item's own history is a
+      warning about unexamined premises.** As first written the grounds
+      were: the frozen records are 90% of the cost and are what scoping
+      removes; the unrewordable ordinary-English cases need a hatch that
+      is not "rewrite the sentence"; and it repairs the missing narrow
+      level. **`c827705` discharged the second and answered the third** —
+      the ordinary-English cases have their hatch, and the Line level
+      exists. **The recommendation stands on the first ground alone,
+      which is now doing all the work:** 118 lines is a volume problem,
+      and the instrument that fits volume is a declaration about *where a
+      term applies*, not 118 individual markers. If Mike reads that
+      remaining ground as thin, **option 4 is the honest fallback** — and
+      is stronger than it was, because the Line hatch means a future
+      decision to add the term is no longer irreversible-by-friction.
+      Mike's call, on a materially smaller question than the one this
+      item opened with.
 - [ ] 🎯 **A scanner's verdict has two states and needs three — "found,
       and all properly accepted" reads as "found nothing".** (Mike,
       2026-08-09, stating the model the guards are meant to follow: find
@@ -679,11 +712,13 @@ adopter mistakes.*
       three published-identity lines carry the scoped form; the full
       local-cover scan is GREEN again (suite 1202 → 1207; the reviewers'
       re-run obligation stops opening on a red).
-      **Shares a mechanism with C5 (measured 2026-08-09):** both items are
-      one gap — the term list cannot say *where* a term applies. C5's
-      option 1 (per-term path/repo scoping) serves this item too, and
-      these 3 findings are the smaller, better-understood test case for
-      it. Worth ruling the two together rather than in sequence.
+      **How this lands on C5 (cross-checked 2026-08-09, after both
+      changes):** the two items were one gap — the term list could not say
+      *where* a term applies — and this ruling closes the **Line** half of
+      it. C5 keeps only the **volume** half: 3 lines take markers well,
+      118 do not. C5's option 1 is now scoped to that residue rather than
+      to the whole gap, and its ordinary-English ground is discharged
+      here. See the C5 item for the corrected reading.
 - **E1 + E2 — DONE 2026-08-05** (`ae056a2`, wt: queue-batch-0806): an
       unrecognised licence now keeps the header checks (E1), and the sixteen
       unambiguous OSI trove classifiers resolve instead of flagging (E2).
