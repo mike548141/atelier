@@ -212,6 +212,21 @@ undercount — the fourth wrong blast radius on this programme and the first tha
             Mike together**. Option 1 stays the only narrow instrument for the
             volume; what Mike is ruling on has changed shape, not direction.
 
+            - **A second, duplicate Fable pass ran the same brief the same
+              morning** (a parallel session misread RUNNING as stale — its
+              account and the concurrency lesson:
+              [`sessions/2026-08-09-0715-c5-duplicate-pass-reconciliation.md`](sessions/2026-08-09-0715-c5-duplicate-pass-reconciliation.md)).
+              It independently reproduced the 13-claim table and most findings
+              before reading the verdict, and adds **one increment for the
+              ruling walk-through, beside C5R1–C5R12 (standing Mike's to
+              judge):** option 1's records-path scope is *forward-open* —
+              future joins written into new session records would be counted
+              in the tally, not blocked at commit, which bounds C5R11's
+              caught-at-commit evidence to live files (5 of the 7 same-day
+              mentions, not all 7). A records grant as specced needs either a
+              frozen-at-grant grammar or an explicit acceptance of
+              counted-not-blocked on the records surface.
+
       **RE-MEASURED 2026-08-09, every plane and every repo on the machine
       (the sweep the reverted execution never ran). One premise is false,
       the other two shrink to numbers.** Probed with a scratch term list
