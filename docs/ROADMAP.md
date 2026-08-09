@@ -1001,6 +1001,53 @@ rule-4 `⏳` queued in § *Doctrine — review-owed*.
       surfaces and children's floor blocks via the propagation lane) and is
       principal-authored apex doctrine — reviewed accordingly at landing.
 
+### Every rule directive first, enforced second (Mike, 2026-08-09)
+
+**The aim, in Mike's words:** all doctrine is enforced — policy as code — *and*
+it is directive, so that it shapes the thinking **before** the act that the code
+would otherwise have to catch. Two halves. The programme has only ever tracked
+the first, and the tracks above are all instances of it.
+
+- [ ] 🎯 **(a) The census nobody has run: which rules have a forcing function,
+      and which do not.** ADR 0008 made enforcement *propagate*; it never
+      established what proportion of doctrine is enforced at all. No one has
+      enumerated the rules in `docs/method/` and asked of each: what happens
+      if this is broken, and what would see it break? The section above names
+      three forcing-function gaps *by hand*, which is the giveaway. The
+      recurring finding — a rule nothing enforces gets broken by the agent
+      writing about that rule — is on its fifth recorded instance (C5's own
+      near-miss, 2026-08-09). Output is a per-rule state: **enforced ·
+      directive-only · unenforceable, accepted** — the last reasoned and
+      dated to the `GUARDS.md` bar. An unenforceable rule is a lawful
+      outcome; an *unexamined* one is the defect.
+- [ ] 🎯 **(b) The half with no owner: doctrine that reaches the moment of
+      decision.** A guard fires *after* the act — at commit, at CI — on a
+      choice already made. Doctrine's other job is to change the reasoning
+      that produces the act, so the guard finds nothing to catch. That is a
+      property of **wording**: a rule keyed to a condition a scanner can
+      evaluate is not the same sentence as a rule keyed to the situation an
+      agent is standing in when it decides. The move is already known here —
+      [`PROPAGATION.md`](method/PROPAGATION.md) § *When a rule keeps breaking*
+      rung 1, framing at the point of use — but only as **remediation, after
+      recorded breakage**. This makes it a design obligation on every rule,
+      up front.
+- [ ] 🎯 **The posture change this implies — stated so it is ruled, not
+      assumed.** That ladder says *stop at the first rung that fits*,
+      cheapest first: framing **or** mechanism, by design. "Enforced *and*
+      directive" is **both, always**, which is a deliberate move away from it.
+      Not adopted silently: whether the ladder gains a floor (rung 1 never
+      optional; rung 2 owed wherever a check can see the moment) or stays
+      as-is with this aim sitting above it is a doctrine change, and
+      therefore Mike's.
+- [ ] **The cost to weigh honestly, because it is what will make this decay.**
+      Prose that instructs is longer than prose that states a condition, and
+      doctrine length is not free — this file's own harvest discipline exists
+      because of that. The failure mode to design against is a directive
+      preamble bolted onto every rule until readers skim past all of them —
+      the same failure a child repo already named when it rejected ~70
+      allow-markers as *"noise that hides the next real finding"* (recorded
+      in C5 above), one layer up: in prose rather than in scanner output.
+
 ### Coverage the programme does not yet reach
 
 - **Three public repos in the account have no scanning at all** → § *the ranked
