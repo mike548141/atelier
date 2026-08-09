@@ -415,7 +415,9 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       environment error still blocks. E6b's 🟡 advisory-count note shares
       no wording. Detail → [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
       § *The floor-render batch*.
-- [ ] 🎯 **C1b — migrate the 17, then delete the legacy spelling.** Phase 1
+- [~] 🎯 **C1b — migrate the 17, then delete the legacy spelling.**
+      (claimed 2026-08-09-0401, wt: none — cross-repo child commits, Mike
+      directed the run at the close walk-through; phase 2 stays unclaimed) Phase 1
       deliberately did not write the declarations: a `review-by` is a
       commitment about when a backlog gets cleared, which is the principal's to
       set rather than the applier's to invent, and inventing one across ten
@@ -430,7 +432,8 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       the legacy bare-list spelling from `floor.py` — follows the migration**
       and must not be skipped: a transition spelling still parsing after the
       horizon is C1's own decay, one level up.
-- [ ] **C2 — retire the 17.** One child already proved it is a single pass:
+- [~] **C2 — retire the 17.** (claimed 2026-08-09-0401, wt: none —
+      cross-repo child commits, one run with C1b above) One child already proved it is a single pass:
       four advisories to zero, sixty findings cleared, and the honest breakdown
       matters more than the count — only a handful were genuine, the rest were
       product nouns that wanted inline-coding rather than re-spelling, and
