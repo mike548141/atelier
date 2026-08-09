@@ -2084,20 +2084,26 @@ whole-tree CI fails, and the failure never reaches the person committing.
         Fable session (rule 4's criterion met; brief written by the taker):
         [`reviews/2026-08-09-0824-ep-application-cold.md`](reviews/2026-08-09-0824-ep-application-cold.md).
 
-- ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass) — the
-  E6b secretscan advisory tier + the E3 fingerprint carve-out.** *Delta:*
-  `tools/secretscan.py` + `tools/test_secretscan.py` (89 → 122) +
-  `tools/floor.py` + `tools/test_floor.py` (98 → 108, the advisory-count
-  contract) + the consumer note in `.github/workflows/ci.yml` + the
-  corrected check row in `tools/README.md` + the CHANGELOG entry (landed
-  2026-08-06, this commit). *Intent record:*
+- [ ] 🎯 **The E6b + E3 cycle CLOSED 2026-08-09 (0 MAJOR); AB1–AB6 await
+  Mike's ruling round.** The rule-4 Fable cold pass (taker: a Mike-spawned
+  session, claimed 0815 UTC) returned PASS-WITH-FINDINGS — 0 MAJOR /
+  1 MODERATE / 2 minor / 3 note; every re-run reproduced (both suite-count
+  claims at their landing commits, 1210 Python + 207 node green at HEAD,
+  exit codes, fingerprint and near-miss shapes, the board leg, the JSON
+  contract), and reconcile changed no status →
+  [`reviews/2026-08-09-0825-e6b-advisory-e3-fingerprint-cold.md`](reviews/2026-08-09-0825-e6b-advisory-e3-fingerprint-cold.md).
+  Notable: AB1 — the E3 fingerprint carve-out reaches credential-keyed
+  assignments (a fingerprint-spelled value under a credential-named key
+  blocked at the parent commit and scans fully clean at HEAD; live-probed
+  both directions, refuting the suite's own unreachable-context claim), and
+  reconcile confirmed it **exceeds the ruled scope** — the 2026-08-04 E3
+  ruling priced fingerprint tokens in prose context only. *Delta:*
+  `tools/secretscan.py` + `tools/test_secretscan.py` + `tools/floor.py` +
+  `tools/test_floor.py` + the `ci.yml` consumer note + the `tools/README.md`
+  check row + the CHANGELOG entry (landed 2026-08-06). *Intent record:*
   [E6 intent cold pass](reviews/2026-07-29-1243-e6-intent-cold.md)
-  (EI1–EI6) + the E6b consumer ruling and E3 ruling of 2026-08-04,
-  harvested with the items to [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
+  (EI1–EI6) + the 2026-08-04 rulings in [`ROADMAP-DONE.md`](ROADMAP-DONE.md)
   § *E6b built*.
-  - [ ] **Cold pass RUNNING** — claimed 2026-08-09 0815 UTC by a Mike-spawned
-        Fable session (rule 4's criterion met; brief written by the taker):
-        [`reviews/2026-08-09-0825-e6b-advisory-e3-fingerprint-cold.md`](reviews/2026-08-09-0825-e6b-advisory-e3-fingerprint-cold.md).
 
 - ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass) — the
   E7 leakscan build (D2–D6 fixes + the G1/G2/G4/G6/G7 builds).** *Delta:*
