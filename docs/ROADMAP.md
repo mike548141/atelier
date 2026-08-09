@@ -1945,30 +1945,37 @@ whole-tree CI fails, and the failure never reaches the person committing.
         Fable session (rule 4's criterion met; brief written by the taker):
         [`reviews/2026-08-09-0820-child-membership-work-locality-cold.md`](reviews/2026-08-09-0820-child-membership-work-locality-cold.md).
 
-- ⏳ **Rule-4 review queued (tier: Fable; pass type: doctrine cold pass) — the
-  `PRINCIPLES.md` §9 time-dimension principle.** *Delta:* `docs/method/PRINCIPLES.md`
-  (new §9 + the §1–8 → §1–9 scope line + the *state vs stateless* situation test
-  now pointing at §9) + `docs/method/README.md` (item 11's principle list) +
-  `docs/method/CONVENTIONS.md` (§ *What lives elsewhere* — the frame-vs-existence
-  seam) + the CHANGELOG entry (landed 2026-08-08); extended by the 2026-08-09
-  ruling — §9's derivation-metadata bullet + its *Scope* clause, and the CHANGELOG
-  entry for both (this commit). *Intent record:* the § *PRINCIPLES §9 — the time
-  dimension* item above, rulings included. Self-authored doctrine ⇒ the author may
-  not spawn this pass.
-  - [ ] **Cold pass RUNNING** — claimed 2026-08-09 0815 UTC by a Mike-spawned
-        Fable session (rule 4's criterion met; brief written by the taker):
-        [`reviews/2026-08-09-0821-principles-9-time-dimension-cold.md`](reviews/2026-08-09-0821-principles-9-time-dimension-cold.md).
+- [ ] 🎯 **The PRINCIPLES §9 cycle CLOSED 2026-08-09 (0 MAJOR); TD1–TD3 await
+  Mike's ruling round.** The rule-4 Fable cold pass (taker: a Mike-spawned
+  session, claimed 0815 UTC) returned PASS-WITH-FINDINGS — 0 MAJOR /
+  1 MODERATE / 1 minor / 1 note; reconcile against the intent record changed
+  no finding's status, and nothing in the record anticipated the findings →
+  [`reviews/2026-08-09-0821-principles-9-time-dimension-cold.md`](reviews/2026-08-09-0821-principles-9-time-dimension-cold.md).
+  Notable: TD1 — §9 prices over-carrying the time dimension only as a §2
+  simplicity cost; for personal data, record-time trails and "by whom"
+  derivation fields joined to identities are a §5 privacy/retention surface
+  the principle never names as a sizing input. *Delta:*
+  `docs/method/PRINCIPLES.md` (§9 + scope line + situation test, and the
+  2026-08-09 derivation-metadata + *Scope* extension) +
+  `docs/method/README.md` (item 11) + `docs/method/CONVENTIONS.md` (§ *What
+  lives elsewhere*) + both CHANGELOG entries. *Intent record:* the
+  § *PRINCIPLES §9 — the time dimension* item above, rulings included.
 
-- ⏳ **Rule-4 review queued (tier: Fable; pass type: doctrine cold pass) — the
-  cancelled-run clause under `RECORD.md`'s floor-at-head all-clear.** *Delta:*
-  `docs/method/RECORD.md` (§ *The session log* — one sub-bullet under *When the
-  close pushes, the evidence is the floor at head*) + the CHANGELOG entry (landed
-  2026-08-09, this commit). *Intent record:* the § *The floor-at-head all-clear
-  has a cancelled-run hole* item above. Self-authored doctrine ⇒ the author may
-  not spawn this pass.
-  - [ ] **Cold pass RUNNING** — claimed 2026-08-09 0815 UTC by a Mike-spawned
-        Fable session (rule 4's criterion met; brief written by the taker):
-        [`reviews/2026-08-09-0822-record-cancelled-run-clause-cold.md`](reviews/2026-08-09-0822-record-cancelled-run-clause-cold.md).
+- [ ] 🎯 **The cancelled-run-clause cycle CLOSED 2026-08-09 (0 MAJOR); CR1–CR6
+  await Mike's ruling round.** The rule-4 Fable cold pass (taker: a
+  Mike-spawned session, claimed 0815 UTC) returned PASS-WITH-FINDINGS —
+  0 MAJOR / 2 MODERATE / 1 minor / 3 note; reconcile against the intent
+  record changed no finding's status →
+  [`reviews/2026-08-09-0822-record-cancelled-run-clause-cold.md`](reviews/2026-08-09-0822-record-cancelled-run-clause-cold.md).
+  Notable: CR1 — the un-build decision's recorded grounds cite metered
+  Actions minutes that `ci.yml`'s own COST NOTE says are free for this public
+  repo (the conclusion survives on `ECONOMICS.md`'s hygiene-regardless-of-meter
+  rule; the recorded grounds do not); CR2 — the prescribed re-run re-enters
+  the same concurrency group, so it can cancel a concurrent session's
+  in-flight run, inflicting the harm the clause guards against. *Delta:*
+  `docs/method/RECORD.md` (§ *The session log* — the cancelled-run sub-bullet)
+  + its CHANGELOG entry (landed 2026-08-09). *Intent record:* the § *The
+  floor-at-head all-clear has a cancelled-run hole* item above.
 
 - [ ] 🎯 **Five rule-4 Fable cold passes ran 2026-08-05 — every queued cycle
   CLOSED (0 MAJOR each); the residue findings await Mike's ruling.**
