@@ -850,6 +850,31 @@ would red every commit in the estate on day one and teach everyone
 `--no-verify`. `wrapscan` and `spellscan` landed the same way. The two house
 numbers are the principal's to rule on before any move to blocking.
 
+**The reply plane is LIVE (ruled 2026-08-09).** The `Stop` hook is installed in
+the principal's `~/.claude/settings.json` at **45 words / 60 characters** — his
+ruling, on a calibration against his own transcripts showing that setting would
+have fired on 30.6% of historical replies. Note the asymmetry and that it is
+deliberate: the reply plane **blocks**, the repo plane only warns. Chat is where
+the defect was measured and where the fix is free (rewrite before sending);
+committed prose meets a corpus written before the rule existed.
+
+Installed form — `command` + `args` is the exec form, so no shell parses the
+path, and the interpreter is pinned rather than PATH-resolved:
+
+```json
+{ "hooks": { "Stop": [ { "hooks": [ {
+  "type": "command",
+  "command": "/usr/bin/python3",
+  "args": ["<atelier>/tools/hooks/plain-reply.py"],
+  "timeout": 15
+} ] } ] } }
+```
+
+The pin is `/usr/bin/python3` because it is always present on the machine and a
+hook must not depend on a login shell's PATH. It is Python 3.9 there; both files
+carry `from __future__ import annotations`, which is what lets modern type hints
+run on it.
+
 ## `stampscan.py` — an inlined copy still equals its canonical parent (advisory)
 
 Where a child repo or a template **inlines** a floor or a pull-quote of canonical

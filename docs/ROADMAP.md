@@ -1137,16 +1137,20 @@ on both planes. One engine, two planes: the floor registry for committed prose,
 and a `Stop` hook (`tools/hooks/plain-reply.py`) that lints the agent's own
 reply and blocks it for rewrite.
 
-- [ ] 🎯 **The two house numbers need a ruling before any move to blocking.**
-      Sentence limit (default 35 words repo-side, 45 chat-side) and aside limit
-      (40 / 60 chars). Grounded only as house calls — see P3's note in the
-      module docstring for why nothing published was available to borrow.
-      Calibrated against the corpus: at 45w/60c the Stop hook would have fired
-      on **30.6%** of historical replies; at 40w/50c, 38.6%; at 35w/40c, 48.8%;
-      at 55w/80c, 20.9%.
-- [ ] 🎯 **The `Stop` hook is not installed.** It needs a `settings.json` entry
-      in `~/.claude/`, which changes every session in every repo — Mike's call,
-      not the agent's, and deliberately left undone.
+**Ruled and live, 2026-08-09.** Mike: *"switch it on, proposed"*. The reply
+plane blocks at **45 words / 60 characters**; the hook is installed and applies
+in every repo. Detail harvested to
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *The communication floor*.
+
+- [ ] **The REPO-plane numbers are still unruled** (35 words / 40 chars). They
+      only bite if plainscan ever moves off warn-only, so the ruling is not
+      urgent — but it is owed before any such move, and the chat ruling does
+      not cover it. Two planes, two numbers, one decided.
+- [ ] **Watch the live hook for two failure modes**, neither theoretical: a
+      rewrite loop the two-block give-up misses, and false blocks on output
+      where density is correct — a findings table, a quoted error. Both surface
+      as visible friction rather than silent damage, because every error path
+      in the hook fails open. Review after a week of real use.
 - [ ] **The backlog.** atelier's own docs return ~7,900 findings, 1,187 of them
       in `SESSIONS.md` alone. Records are append-only history and rewriting them
       would be dishonest, so the realistic scope is `docs/method/` +
