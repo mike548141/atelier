@@ -4155,3 +4155,34 @@ ruled seam did not cover — same class, narrower surface, own small item.
 rendering; ci plane exit 1 byte-identical to the fork's pre-existing
 term findings, pathscan absent from the blocked list; floorfleet
 `--check` exit 0; floorfleet selftest exit 0.
+
+## §9 ruled — retrofits bind, and a result carries its derivation (done 2026-08-09)
+
+*Harvested from `ROADMAP.md` § PRINCIPLES §9 — the time dimension. The
+estate consequence of the retrofit ruling stays live there; only the ruled
+items moved.*
+
+**Both open consequences RULED 2026-08-09 (Mike), and a third clause added.**
+
+- [x] 🎯 **Scope: §9 binds retrofits *and* new designs.** Mike ruled against
+      grandfathering, on the asymmetry the item itself named — deferring a
+      retrofit is not cost-free waiting, it is ongoing loss, because each day
+      without the dimension is another day nobody can reconstruct. The obligation
+      is bounded honestly in the doctrine: **start the clock now**, never backfill
+      dates that are gone (inventing them would breach §0), and record the
+      unrecoverable stretch rather than leave it implicit. Landed as §9's *Scope*
+      clause.
+- [x] 🎯 **Ownership: the repo that owns the data owns the fix.** Mike agreed the
+      retrofit is not atelier's to perform. atelier's part ends at the principle
+      and the `PROPAGATION.md` pointer that carries it — a child session reads §9
+      through its SHA-pinned pointer and raises its own item at the point of use.
+      No per-child ledger is kept here; that would be a second source of truth for
+      work this repo does not do.
+- [x] 🎯 **A stored result carries its derivation, not only its date** (Mike,
+      2026-08-09, generalising from the `verified` field in the §9 case). A field
+      holding a *conclusion* needs **when it was established and by what method**
+      alongside it, or the value is unfalsifiable and un-ageable — an
+      owner-confirmed fact and a scraper's guess render identically. This is
+      `EVIDENCE.md` §3 (acquisition method sets error risk) at the data layer, and
+      it is the clause that makes staleness computable rather than felt. Landed as
+      §9's second bullet.

@@ -101,3 +101,41 @@ Two consequences the landing deliberately does not settle, both queued 🎯 in
 Floor green on the hook plane (13 checks; ROADMAP's size advisory is the
 standing pre-existing one). Self-authored doctrine ⇒ rule-4 `⏳` queued in
 § *Doctrine — review-owed*, not spawned here.
+
+---
+
+## Addendum · 2026-08-09 — Mike's ruling, and a clause the case had been sitting on
+
+Both queued 🎯 ruled in one reply, plus a substantive addition.
+
+**1. §9 binds retrofits and new designs.** Ruled against grandfathering, on the
+asymmetry the item itself argued — Mike's words: *"this is true"* of the line
+that deferring costs a day of unreconstructable history per day. The doctrine
+bounds the obligation rather than taking it maximal: start the clock now, never
+backfill dates that are gone (fabricating them would breach §0), record the
+unrecoverable stretch instead of leaving it implicit. Landed as §9's *Scope*
+clause.
+
+**2. Ownership sits with the repo that owns the data.** atelier stops at the
+principle and the `PROPAGATION.md` pointer. Deliberately **no per-child ledger**
+here: it would be a second source of truth for work this repo does not perform.
+The residual risk is recorded rather than pre-solved — a pin delivers doctrine
+reliably, but a *retrofit* needs someone to notice it applies to data already
+shipped, and if children miss it, that absence is the evidence for mechanising a
+check. Tracked as the one remaining open line under the roadmap section.
+
+**3. The clause the case had been sitting on.** Mike, on the venue example:
+*"in all repos that have a need to store data like this should note the result
+(e.g. verified) and the metadata should note when it was verified, how it came
+to verified etc."* That is wider than time — it is **provenance of the
+assertion**, and §9 as first landed only asked for the date. Added as the second
+bullet: a field holding a conclusion carries *when it was established and by
+what method*, because without it an owner-confirmed fact and a scraper's
+two-year-old guess render identically. Anchored to `EVIDENCE.md` §3
+(acquisition method sets error risk) — the same rule the record already applies
+to claims, now stated at the data layer. The payoff named in the text: it makes
+staleness **computable** rather than felt, since a refresh policy can only exist
+where each value knows its own age and how expensively it was obtained.
+
+Floor green; the `⏳` pointer's delta extended to cover this commit rather than a
+second pointer raised — one doctrine cycle, one review.

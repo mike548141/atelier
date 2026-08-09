@@ -340,6 +340,18 @@ alongside its fields and its keys.
   become unanswerable: "was this true on date X?" (world) and "what did we
   believe on date X, and how stale is it now?" (record). Most datasets need both;
   the ones that genuinely need only one should say which, and why.
+- **A stored result carries how it came to be true, not only when.** A field
+  holding a *conclusion* — `verified`, `approved`, a price, a status — is an
+  assertion, and an assertion with no derivation is both unfalsifiable and
+  un-ageable: nothing distinguishes a fact the owner confirmed directly from one
+  a scraper inferred and never rechecked, and the two render identically. Store
+  the result, and alongside it **when it was established and by what method** —
+  by whom, too, where that matters. This is [`EVIDENCE.md`](EVIDENCE.md) §3
+  (acquisition method sets error risk) applied at the data layer, and it is what
+  makes staleness *computable* rather than felt: a refresh policy can only exist
+  if each value knows its own age and how expensively it was obtained. (Mike,
+  2026-08-09 — the generalised case below is the shape that prompted it: a bare
+  nullable "verified" flag, carrying neither date nor method.)
 - **Model the lifecycle, not a boolean.** An entity's states are transitions with
   dates, not flags. `closed: true` throws away *when*, cannot represent a
   reopening, and silently rewrites history the moment it flips. A dated
@@ -373,6 +385,17 @@ those is a question the domain obviously asks. Nothing is wrong with any single
 record. The dimension was simply never modelled, and no amount of later care
 recovers dates nobody wrote down. **Named as the first retrofit case, not a
 closed one** — the gap is live at the time of writing.
+
+**Scope — this binds retrofits as well as new designs** (Mike ruled 2026-08-09).
+A dataset that predates the principle is not grandfathered. The obligation is not
+that lost dates be backfilled — usually they cannot be, and inventing them would
+breach §0 — but that the dimension is **added now, so the clock starts now**, with
+the unrecoverable stretch recorded honestly instead of left implicit. The
+asymmetry decided it: every day a dataset runs without the dimension is another
+day of history nobody can reconstruct later, so deferring a retrofit is not
+cost-free waiting, it is ongoing loss. **The fix is owned by the repo that owns
+the data**, never by this one — atelier's part ends at the principle and the
+propagation pointer that carries it.
 
 **Where the neighbouring rules sit.** This principle says the dimension must
 *exist*; [`CONVENTIONS.md`](CONVENTIONS.md) says how each stamp is *written*

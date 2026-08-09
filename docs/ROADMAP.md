@@ -1160,33 +1160,29 @@ replacement path where it is uniquely computable, advisory-only (`b89a306`)
 Mike minted the rule this session: **data — application, system or user — carries
 the time dimension its domain implies.** Code gets one free from git; data has
 none, and the dimension cannot be recovered after the fact. Landed as
-`PRINCIPLES.md` §9 (two clocks kept apart · lifecycle over booleans · no hard
-delete · open intervals ≠ unknown · size the dimension by the questions the domain
-will ask), following the house pattern for a new principle — inline adoption stamp,
+`PRINCIPLES.md` §9 (two clocks kept apart · a stored result carrying its
+derivation · lifecycle over booleans · no hard delete · open intervals ≠ unknown ·
+size the dimension by the questions the domain will ask · retrofits bound as well
+as new designs), following the house pattern for a new principle — inline stamp,
 no ADR, as with API-first and mobile-first (both "decided 2026-07-14"). Rule-4 `⏳`
 queued below.
 
-Two consequences the landing does **not** decide:
+**Both open consequences RULED 2026-08-09 (Mike), and a third clause added** —
+the three `[x]` items are harvested verbatim to
+[`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *§9 ruled — retrofits bind, and a result
+carries its derivation*.
 
-- [ ] 🎯 **Does §9 bind retrofits, or only new designs?** As written it is a
-      design principle — every *new* data design is measured against it. Whether
-      an existing dataset that predates it inherits a retrofit obligation, and at
-      what priority, is Mike's call. The two honest options: (a) forward-only —
-      §9 binds designs from 2026-08-08, existing datasets carry a recorded gap and
-      are fixed when they are next touched; (b) retrofit-obliged — each child repo
-      holding domain data raises its own item. Cost differs sharply: (a) is free
-      today and pays later in datasets that can never answer a temporal question;
-      (b) spends child-repo sessions now, and for the oldest data the dates are
-      already unrecoverable — a retrofit can only start the clock, never backfill
-      it. Note the asymmetry that makes this worth ruling rather than defaulting:
-      **every day a dataset runs without the dimension is a day of history that
-      cannot be reconstructed later.**
-- [ ] 🎯 **The named first retrofit case is live and unclosed.** A curated venue
-      guide in the fleet carries no world time at all — the generalised case in
-      §9 is drawn from it, unnamed there per `RECORD.md` § *The record is public*.
-      The work belongs in that child repo's roadmap, not this one; raising it
-      there is a decision, not a mechanical follow-up, because it changes a
-      shipped data shape. Blocked on the ruling above.
+**Still open — the estate consequence of the retrofit ruling:**
+
+- [ ] **Every child repo holding domain data now owes a §9 pass of its own.** The
+      obligation propagates by pointer, not by a sweep run from here, so it lands
+      when each child is next worked. Two things worth watching, neither yet
+      evidenced: whether pointer-delivery is enough for a *retrofit* obligation
+      (the pin carries doctrine reliably, but a retrofit needs someone to
+      **notice it applies** to data already shipped), and whether the recurrence
+      justifies a machine check. Left deliberately untracked per-repo — if
+      children turn out to miss it, that absence is the evidence for mechanising,
+      and a premature ledger would hide it.
 
 ## Doctrine — review-owed
 
@@ -1195,9 +1191,11 @@ Two consequences the landing does **not** decide:
   (new §9 + the §1–8 → §1–9 scope line + the *state vs stateless* situation test
   now pointing at §9) + `docs/method/README.md` (item 11's principle list) +
   `docs/method/CONVENTIONS.md` (§ *What lives elsewhere* — the frame-vs-existence
-  seam) + the CHANGELOG entry (landed 2026-08-08, this commit). *Intent record:*
-  the § *PRINCIPLES §9 — the time dimension* item above. Self-authored doctrine ⇒
-  the author may not spawn this pass.
+  seam) + the CHANGELOG entry (landed 2026-08-08); extended by the 2026-08-09
+  ruling — §9's derivation-metadata bullet + its *Scope* clause, and the CHANGELOG
+  entry for both (this commit). *Intent record:* the § *PRINCIPLES §9 — the time
+  dimension* item above, rulings included. Self-authored doctrine ⇒ the author may
+  not spawn this pass.
 
 - [ ] 🎯 **Five rule-4 Fable cold passes ran 2026-08-05 — every queued cycle
   CLOSED (0 MAJOR each); the residue findings await Mike's ruling.** The

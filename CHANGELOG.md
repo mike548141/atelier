@@ -5,6 +5,34 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-08-09 — §9 ruled: it binds retrofits, and results carry their derivation)
+Mike ruled the two consequences §9 landed without deciding, and added a clause
+the venue-guide case had been sitting on all along.
+- **§9 binds retrofits as well as new designs.** No grandfathering, decided on
+  the asymmetry the open item named: deferring a retrofit is not cost-free
+  waiting, it is ongoing loss, since each day without the dimension is another
+  day nobody can reconstruct. The obligation is bounded honestly in the doctrine
+  rather than left maximal — **start the clock now**, never backfill dates that
+  are gone (inventing them would breach §0), and record the unrecoverable stretch
+  instead of leaving it implicit.
+- **The repo that owns the data owns the fix.** atelier's part ends at the
+  principle and the `PROPAGATION.md` pointer carrying it; a child reads §9 through
+  its SHA-pinned pointer and raises its own item at the point of use. No per-child
+  ledger is kept here — that would be a second source of truth for work this repo
+  does not do. What the ruling leaves genuinely open is recorded as such: a
+  pointer delivers doctrine reliably, but a *retrofit* needs someone to notice it
+  applies to data already shipped, and whether that gap is real is left to be
+  evidenced rather than pre-solved with a check.
+- **A stored result carries its derivation, not only its date** — a new §9 clause,
+  generalised by Mike from the `verified` field in the doc's own case. A field
+  holding a *conclusion* (`verified`, `approved`, a price, a status) needs **when
+  it was established and by what method** stored alongside it. Without that the
+  assertion is unfalsifiable and un-ageable: an owner-confirmed fact and a
+  scraper's two-year-old guess render identically. This is `EVIDENCE.md` §3
+  (acquisition method sets error risk) applied at the data layer, and it is the
+  clause that makes staleness *computable* rather than felt — a refresh policy can
+  only exist if each value knows its own age and how expensively it was obtained.
+
 ### Added (2026-08-08 — PRINCIPLES §9: data carries its time dimension)
 A new design principle, minted by Mike: **data — application, system or user —
 carries the time dimension its domain implies.** §1–8 govern the code and the
