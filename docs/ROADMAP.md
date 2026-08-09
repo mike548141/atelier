@@ -471,7 +471,13 @@ adopter mistakes.*
       [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *E7 built*; sweep record:
       [sweep record](sessions/2026-08-03-2050-leakscan-pii-sweep.md).
       Rule-4 ⏳ queued (§ *Doctrine — review-owed*).
-- [ ] 🎯 **E7 residue — G3 (binary media) is ruled and not yet built.**
+- [ ] **E7 residue — G3 (binary media): FUNDED as its own item, soon
+      (Mike ruled 2026-08-09; shape unchanged from 2026-08-04).** A
+      deliberate landing, not a rider: the build session designs the
+      blast-radius half deliberately — marker ergonomics for legitimate
+      images and the adoption/re-baseline story — because every binary in
+      every adopting tree starts blocking the moment the registry carries
+      it. Original residue note kept below.
       Mike ruled G3 BLOCKING (2026-08-04): an unscannable or
       metadata-bearing binary blocks, a legitimate image carries a
       one-time reasoned marker, keeping E6a's no-advisory-form decision
