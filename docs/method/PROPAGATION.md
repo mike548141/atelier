@@ -290,6 +290,51 @@ computed by an engine, so the rule is a discipline:
 - On a live collision, the **stricter/safer** reading wins until the conflict is
   resolved upward. Children point up; the parent never points down for truth.
 
+### Who is a child, and what a child may hold (Mike's ruling, 2026-08-09)
+
+Stated as doctrine because it was being applied without being written down —
+which is how the economics-doc duplication survived across four repos while
+every one of them passed every check.
+
+**Adoption is the default, not the choice.** Every repo the principal works an
+agent in is an atelier child, unless the principal rules a specific exclusion.
+There is no third category of "repo we happen to use Claude in" — a repo outside
+the model is one the doctrine, the floor and the review loop do not reach, and
+that has to be a decision someone made rather than one nobody noticed. The
+enumerating instruments (`tools/floorfleet.py`, `tools/pins.py`) answer *is it
+current*; this rule is what makes "is it a child at all" answerable too, because
+the honest denominator for both boards is **every repo the principal uses**, not
+every repo already wired.
+
+**A child may add. A child may not repeat, and may not conflict.** Three verbs,
+and only the first is free:
+
+- **Add** — repo-specific doctrine and extra guardrails, including ones stricter
+  than the house. Unrestricted, and actively wanted; a child that has learned
+  something its parent has not is the mechanism working.
+- **Repeat** — restating doctrine the parent already owns. **Forbidden.** This
+  is DRY, and the failure is not tidiness: a restatement is a second original
+  that drifts silently, and readers cannot tell which copy is current. Point up
+  instead, or use a **stamped** copy (§ *One statement, stamped copies*) where a
+  pointer genuinely will not be read from where the reader stands.
+- **Conflict** — a rule looser than, or opposite to, a house rule. **Forbidden
+  unless the principal rules a specific exemption**, and the exemption is
+  recorded in the child. This is the lane the bullets above were missing: an
+  unresolved contradiction is a defect to surface, but a *ruled* one is
+  legitimate and must be readable as such, or the next session reads a deliberate
+  exemption as drift and "fixes" a decision the principal made.
+
+The grounding, so this is not written from a heading. The estate's economics
+doctrine was restated in four children — `ros`, `rpi`, `nova` and `faves`. Three
+of them carried a two-pool billing model the parent had already superseded with
+billing-state-of-the-marginal-token, and a fixed model-to-role mapping the house
+had already replaced with tier-by-risk; `nova` named `ros` — a sibling — as "the
+canonical version", minting a second root. `faves` hit the sharp end first: its
+copy "drifted 17 days behind a provider change, and misled a session into
+arguing from a falsified fact", and was trimmed to repo-local facts on the DRY
+ruling of 2026-08-09. That is the whole failure mode in one repo: a repeat is
+not a redundant copy, it is a *falsifiable* copy, and it falsifies quietly.
+
 ## Enforcement propagates too — by call, never by copy
 
 *(Added 2026-07-26, ADR 0008, after this file's own rule was applied to prose

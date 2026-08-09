@@ -318,6 +318,23 @@ child block's Session-rhythm cue points to. (SR1, ruled 2026-07-20 —
 authored from Mike's standing "focus on given work" instruction; until then
 the cue was the rule's only copy, which its own points-up design forbids.)
 
+**Work lands in the repo it changes** (Mike's ruling, 2026-08-09). The third
+fence above said *another repo's open work* belongs to that repo's session;
+the ruling generalises it past "open work" to every change: a fix to a child
+repo is made **in a session working that repo**, not delivered sideways from
+whichever session happened to find it — unless the principal rules otherwise
+for a specific run. An estate-wide audit is precisely the shape that tempts
+the breach, because the finder is holding the whole picture and the fix looks
+like one line.
+
+The lane the ruling **does** leave open, and it matters, because a finding
+nobody can act on later is a finding lost: the auditing session may **queue**
+what it found in the target repo's own roadmap — the finding, its evidence,
+its proposed fix — and stops there. Queue, never deliver. This keeps the two
+things that were being traded against each other: the finding survives in the
+place the repo's next session will actually read, and the change is still made
+by a session that has that repo's full context, its tests, and its floor.
+
 ## Every branch ends put away
 
 A branch that exists must mean exactly one thing: **open work**. The moment it
