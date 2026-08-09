@@ -185,16 +185,32 @@ undercount — the fourth wrong blast radius on this programme and the first tha
       and false; see the re-measurement below.** Full account:
       [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *C5 executed* (correction).
 
-      - [ ] **Cold pass RUNNING on the re-measurement below** (tier: Fable;
-            pass type: design/intent cold pass), spawned by Mike 2026-08-09
-            because he does not trust the authoring session's findings.
-            Brief:
+      - [ ] 🎯 **COLD PASS RAN 2026-08-09 (tier: Fable, rule-4 spawn by Mike on
+            his stated distrust of the authoring session): PASS-WITH-FINDINGS —
+            2 MAJOR / 4 MODERATE / 3 minor / 3 notes. C5R1–C5R12 await Mike's
+            ruling** (REVIEW rule 3). Verdict + brief:
             [`reviews/2026-08-09-0708-c5-term-list-remeasure-cold.md`](reviews/2026-08-09-0708-c5-term-list-remeasure-cold.md).
             *Delta:* the C5 item (this entry) + `f83a6f7`. *Intent record:*
             [`sessions/2026-08-09-0352-c5-remeasure.md`](sessions/2026-08-09-0352-c5-remeasure.md).
-            **The re-ruling waits on the verdict** — the options below are the
-            authoring session's framing, and whether they are the real options
-            is inside the pass's scope.
+            **The measurement survived; two of the frames did not.** All 13
+            re-run claims reproduce *exactly* at the states the sweep measured
+            — the pass calls it the best-verified figure set this programme has
+            produced. What failed is composition and provenance, not honesty:
+            **C5R1 (MAJOR)** — the "sharpest cost" is mis-composed: one of the
+            six children is **public**, so its lines are the guard *working*
+            rather than friction, and only ~6 of the 58 are the prescribed
+            onramp act; **C5R2 (MAJOR)** — the 2026-08-06 deletion precedent is
+            misdescribed against its own ADR, whose recorded ground was
+            proportionality, not an absent hatch, so it must not be
+            re-litigated on this item's account of it; **C5R4** — every
+            atelier-side figure was falsified by same-day drift within hours,
+            so **the re-ruling rides on classes and mechanisms, never on a
+            frozen number in this item**; **C5R5/C5R6** — option 1 carries an
+            unpriced governance cost (its scope grants would live in an
+            unversioned machine-local file) and silently pre-decides the
+            standing-gap question below, so **the two are one ruling and go to
+            Mike together**. Option 1 stays the only narrow instrument for the
+            volume; what Mike is ruling on has changed shape, not direction.
 
       **RE-MEASURED 2026-08-09, every plane and every repo on the machine
       (the sweep the reverted execution never ran). One premise is false,
