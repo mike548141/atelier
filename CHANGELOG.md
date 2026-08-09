@@ -5,6 +5,18 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-08-09 — the deliberate term-list hatch)
+Mike ruled the D1-consequence: a leakscan marker whose scope NAMES
+`local-term` explicitly — with a reason — exempts term-list hits on that
+line (`leakscan:allow:local-term: <reason>`; scopes compose with commas).
+The unscoped marker still never reaches the term list: D1 closed the
+ACCIDENTAL silencing route and this opens only the deliberate one, where
+naming the highest-confidence layer is the human judging exactly that
+layer, on the record, counted in the tally. The three published-identity
+lines (ADR 0005's named worked example) carry the scoped form, and the
+full local-cover scan is green again — reviewers' re-run obligation stops
+opening on a standing red.
+
 ### Changed (2026-08-09 — the reason rule bites the legacy spelling on boundary checks)
 EP1(b) as landed exempted the legacy bare-list `scope`/`flags` spelling —
 it cannot carry a `why` — so the ruled forcing function would only have

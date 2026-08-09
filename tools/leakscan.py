@@ -81,25 +81,41 @@ from pathlib import Path
 # and switching it off because a human judged the line safe for an unrelated
 # structural reason is exactly backwards. A term-list misfire is fixed in the
 # term list, which is the operator's own config.
+#
+# THE ONE DELIBERATE HATCH (Mike ruled 2026-08-09): a marker whose scope NAMES
+# `local-term` explicitly — `leakscan:allow:local-term: <reason>` — exempts
+# term hits on that line. This is not a D1 reversal; it is its complement. D1
+# closed the ACCIDENTAL route (a marker written for a structural false positive
+# silently taking the term layer with it); this opens only the deliberate one,
+# where naming the highest-confidence layer in the scope IS the human judging
+# exactly that layer, on the record, with a reason. The forcing case: atelier
+# publishes its author's own git identity as ADR 0005's named worked example,
+# and the term list cannot express "this name is public in THIS repo". Scopes
+# compose with commas (`leakscan:allow:email,local-term: <reason>`) because
+# such a line usually needs the structural email rule exempted too — one
+# marker, each covered rule named.
 ALLOW_MARKER = "leakscan:allow"
 
-# `<marker>[:<rule>]: <non-empty reason>`. The optional rule group cannot
-# swallow a plain reason: `leakscan:allow: a reason` fails the inner `:` after
-# `a` and backtracks to the unscoped form, so both spellings parse correctly.
+# `<marker>[:<rule>[,<rule>…]]: <non-empty reason>`. The optional rule group
+# cannot swallow a plain reason: `leakscan:allow: a reason` fails the inner `:`
+# after `a` and backtracks to the unscoped form, so both spellings parse
+# correctly.
 ALLOW_RX = re.compile(
-    r"\b" + re.escape(ALLOW_MARKER) + r"(?::(?P<rule>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>\w)")
+    r"\b" + re.escape(ALLOW_MARKER)
+    + r"(?::(?P<rule>[A-Za-z0-9_-]+(?:,[A-Za-z0-9_-]+)*))?:[ \t]*(?P<reason>\w)")
 
 
-def parse_allow(line: str) -> str | None:
+def parse_allow(line: str) -> frozenset[str] | None:
     """The scope of the line's allow-marker, or None if it carries none.
 
-    Returns `""` for the unscoped form (every structural rule) or the rule name
-    for the scoped form. A marker without a reason returns None — it is a
-    mention, not an exemption."""
+    Returns an empty frozenset for the unscoped form (every STRUCTURAL rule —
+    never the term list, D1) or the named rules for the scoped form. A marker
+    without a reason returns None — it is a mention, not an exemption."""
     m = ALLOW_RX.search(line)
     if not m:
         return None
-    return m.group("rule") or ""
+    rule = m.group("rule")
+    return frozenset(rule.split(",")) if rule else frozenset()
 
 # Documentation-reserved / non-routable ranges that are safe to appear in
 # shareable docs (RFC 5737 TEST-NET + the loopback net). Real private
@@ -539,15 +555,22 @@ def scan_text(path: str, text: str,
                 # FIND FIRST, SUBTRACT SECOND (rule b). The hit is fully
                 # formed before the allowance is consulted, so the exemption
                 # can be counted rather than vanishing at the top of the loop.
-                if allow_scope is not None and allow_scope in ("", pat.name):
+                if allow_scope is not None and (not allow_scope
+                                               or pat.name in allow_scope):
                     if tally is not None:
                         tally.note_marker(pat.name)
                     continue
                 findings.append(Finding(path, lineno, pat.name, "structural",
                                         pat.severity, redact(span)))
-        # D1: the term list runs on EVERY line, allow-marker or not.
+        # D1: the term list runs on EVERY line — the unscoped marker never
+        # reaches it. The ONE exemption is a scope naming `local-term`
+        # explicitly (ruled 2026-08-09): deliberate, reasoned, counted.
         for term, rx in local_terms:
             if rx.search(line):
+                if allow_scope is not None and "local-term" in allow_scope:
+                    if tally is not None:
+                        tally.note_marker("local-term")
+                    continue
                 findings.append(Finding(path, lineno, "local-term", "local",
                                         "high", f"term:{term[:2]}…"))
     return findings

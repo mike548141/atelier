@@ -271,6 +271,43 @@ class Allow(unittest.TestCase):
         found = scan("Wairarapa a.b@example.com  # leakscan:allow: doc", terms)
         self.assertEqual(["local-term"], [f.rule for f in found])
 
+    # The one deliberate hatch (Mike ruled 2026-08-09): a scope NAMING
+    # `local-term` — the human judging exactly that layer, on the record —
+    # exempts term hits on the line. D1's accidental route stays closed.
+    def test_a_scope_naming_local_term_exempts_the_term_hit(self):
+        terms = [("Wairarapa", re.compile(r"\bWairarapa\b", re.IGNORECASE))]
+        found = scan("Wairarapa  # leakscan:allow:local-term: published here",
+                     terms)
+        self.assertEqual([], found)
+
+    def test_the_local_term_scope_is_counted_never_silent(self):
+        terms = [("Wairarapa", re.compile(r"\bWairarapa\b", re.IGNORECASE))]
+        tally = ls.Tally()
+        ls.scan_text("t", "Wairarapa  # leakscan:allow:local-term: published",
+                     terms, frozenset(), tally)
+        self.assertEqual({"local-term": 1}, tally.by_marker)
+
+    def test_comma_scopes_compose_across_layers(self):
+        # The forcing case's real shape: a published identity line needs the
+        # structural email rule AND the term layer exempted, one marker, each
+        # covered rule named.
+        terms = [("Wairarapa", re.compile(r"\bWairarapa\b", re.IGNORECASE))]
+        line = ("Wairarapa a.b@example.com  "
+                "# leakscan:allow:email,local-term: published worked example")
+        self.assertEqual([], scan(line, terms))
+
+    def test_a_local_term_scope_does_not_drag_structural_rules_with_it(self):
+        terms = [("Wairarapa", re.compile(r"\bWairarapa\b", re.IGNORECASE))]
+        found = scan("Wairarapa a.b@example.com  "
+                     "# leakscan:allow:local-term: name is public, email is not",
+                     terms)
+        self.assertEqual(["email"], [f.rule for f in found])
+
+    def test_a_local_term_scope_without_a_reason_exempts_nothing(self):
+        terms = [("Wairarapa", re.compile(r"\bWairarapa\b", re.IGNORECASE))]
+        found = scan("Wairarapa  # leakscan:allow:local-term:", terms)
+        self.assertEqual(["local-term"], [f.rule for f in found])
+
 
 class Suppression(unittest.TestCase):
     """Rule (b) — a suppressed finding is counted, never silently dropped."""

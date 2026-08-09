@@ -669,19 +669,16 @@ adopter mistakes.*
       or gets its own item is Mike's call, put at this session's close.
       (The build did add path-name scanning, so a binary's NAME is now
       read even while its body is not.)
-- [ ] 🎯 **D1's consequence — the author's published-identity lines red
-      the local full-cover plane (ruling owed).** Three lines carrying
-      the author's own published git identity (ADR 0005's named worked
-      example) report against the machine-local term list: the marker on
-      them exempts the *structural* email rule for the SAME reason
-      (ADR 0005) — not the different-reason case D1 was ruled against —
-      and the term list cannot express "this name is public in *this*
-      repo". Hook plane (`--staged`) and CI plane (structural-only) are
-      both unaffected; only a local full-cover scan is red (re-measured
-      at the 2026-08-06 build: the same 3 findings, byte-identical
-      before and after). Options when ruled: narrow the term list, or
-      let a marker name the term-list scope explicitly so silencing the
-      highest-confidence layer can never happen by accident.
+- **D1's consequence — RULED 2026-08-09 (Mike: scoped markers) and
+      APPLIED the same day.** A marker whose scope NAMES `local-term`
+      explicitly — with a reason — now exempts term hits on that line;
+      the unscoped marker still never reaches the term list, so D1's
+      accidental route stays closed and the hatch is deliberate,
+      reasoned and counted (`local-term×N` in the tally). Scopes compose
+      with commas for lines needing a structural rule exempted too. The
+      three published-identity lines carry the scoped form; the full
+      local-cover scan is GREEN again (suite 1202 → 1207; the reviewers'
+      re-run obligation stops opening on a red).
       **Shares a mechanism with C5 (measured 2026-08-09):** both items are
       one gap — the term list cannot say *where* a term applies. C5's
       option 1 (per-term path/repo scoping) serves this item too, and
@@ -1530,7 +1527,10 @@ all-clear rule) rather than as a new section: read the *conclusion*, never just
   E7 leakscan build (D2–D6 fixes + the G1/G2/G4/G6/G7 builds).** *Delta:*
   `tools/leakscan.py` + `tools/test_leakscan.py` (53 → 114) +
   `tools/leakscan-terms.example.txt` (the `forms:` syntax) + the CHANGELOG
-  entry (landed 2026-08-06, this commit). *Intent record:*
+  entry (landed 2026-08-06, this commit) + the 2026-08-09 scoped-marker
+  follow-up on the same surfaces (the `local-term` marker scope, Mike's
+  D1-consequence ruling at the close walk-through; suite 114 → 119 in
+  that file; delta widened per the landing-commit rule). *Intent record:*
   [sweep record](sessions/2026-08-03-2050-leakscan-pii-sweep.md) + the
   2026-08-04 E7 ruling, harvested with the item to
   [`ROADMAP-DONE.md`](ROADMAP-DONE.md) § *E7 built*.

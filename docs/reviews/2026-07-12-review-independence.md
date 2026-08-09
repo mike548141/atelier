@@ -123,8 +123,8 @@ two cases that are not edge cases:
    **exactly where an adopter most needs to be warned**, and says nothing.
 
 2. **atelier's own attribution convention.** By this repo's Git-identity rule <!-- leakscan:allow: quotes atelier's own published git-identity convention (ADR 0005 worked example); author's own attribution, not personal data -->
-   every commit is authored `Mike Clements` — and Mike is the principal. The <!-- leakscan:allow: same author's-own-attribution convention as CLAUDE.md; public throughout the repo -->
-   change under review is literally `author: Mike Clements <mike@cxi.nz>`. Read <!-- leakscan:allow: author's own published git identity (commit trailers, CLAUDE.md); ADR 0005 named worked example, not personal data -->
+   every commit is authored `Mike Clements` — and Mike is the principal. The <!-- leakscan:allow:local-term: same author's-own-attribution convention as CLAUDE.md; public throughout the repo -->
+   change under review is literally `author: Mike Clements <mike@cxi.nz>`. Read <!-- leakscan:allow:email,local-term: author's own published git identity (commit trailers, CLAUDE.md); ADR 0005 named worked example, not personal data -->
 
    against the commit record, *"findings are the principal's to disposition, not
    the author's"* names the same person on both sides. The intent (the **agent**
