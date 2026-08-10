@@ -66,7 +66,7 @@ scoping, because every reply is written to the principal.
   work down is still Mike's call. The repo-plane numbers (35 words / 40 chars)
   also remain unruled — the rescope does not touch that item.
 - **Verification:** plainscan module tests 47 → 51, python suite 1,294 → 1,298
-  green, instrument tests exit 0, selftest gains the records checks. Floor
-  status on the pushed SHA is recorded below after the CI run completed —
-  under cancel-in-progress a parallel push kills a run, so the conclusion was
-  read, not assumed.
+  green, instrument tests exit 0, selftest gains the records checks. The
+  floor run on the records SHA `959502d` concluded **success** — polled to
+  completion and read, not assumed, because under cancel-in-progress a
+  parallel push can kill a run mid-flight.
