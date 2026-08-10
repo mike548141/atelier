@@ -170,12 +170,26 @@ honestly, not rounded up:
       no extension, one level deep, e.g. a made-up `foo/bar` with neither
       cue) — scans clean. This is the accepted cost of a heuristic that does
       not hard-code every real directory name as a second allowlist.
-    - Leading `/` root-relative bare-prose mentions ("/docs/x.md") are not
-      picked up as candidates (the token regex requires the match to start at
-      a word character, not `/`) — same shape as the angle-bracket blind
-      spot above: distinguishing a genuine root-relative bare mention from
-      the tail of a just-blanked placeholder is not attempted; both are
-      silently skipped rather than guessed at.
+    - Leading `/` ROOT-ANCHORED bare-prose mentions (`/docs/x.md`,
+      `/.well-known/security.txt`) are not picked up as candidates: the
+      token regex's lookbehind excludes `/`, so no match can start at the
+      first segment of such a path. Same shape as the angle-bracket blind
+      spot above — distinguishing a genuine root-relative repo mention from
+      a site URL path or the tail of a just-blanked placeholder is not
+      attempted; all of them are skipped rather than guessed at. Note the
+      leading `/` is the ONLY reason they are skipped, not "the match must
+      start at a word character": the token class also admits `.`, `-`, `*`
+      and `?` as a first character, so `.github/workflows/ci.yml` in bare
+      prose IS a candidate.
+      UNTIL 2026-08-10 THIS BULLET DESCRIBED AN INTENT THE CODE DID NOT
+      HONOUR (E8, reported by a child repo). The skip was not whole: a
+      hyphen anywhere before the token's last `/` let the match resync
+      mid-path, so `/.well-known/security.txt` was extracted as
+      `known/security.txt` and reported missing — a truncated path nobody
+      wrote, flagged against a file that existed. `/docs/x.md` (no hyphen)
+      really was skipped, which is why the class hid behind a bullet that
+      read as true. Fixed at the regex, not at the call site: see
+      `_PATH_TOKEN`'s comment for the invariant that closes it.
 
   The fabricated-quote subset of the S2 proposal (`foundation H3` — a quote
   attributed to a doc that never said it) is explicitly OUT OF SCOPE per the
@@ -382,7 +396,20 @@ KNOWN_EXTENSIONS = (
 # was for. Deliberately excludes a leading `/` via the lookbehind — a
 # leading `/` (root-relative, or the tail of a just-blanked `<placeholder>`)
 # is out of scope, see the header's named false-negative.
-_PATH_TOKEN = re.compile(r"(?<![\w./*?])[\w.\-*?]+(?:/[\w.\-*?]+)+")
+#
+# THE LOOKBEHIND MUST EXCLUDE EVERY CHARACTER THE TOKEN CLASS ACCEPTS, plus
+# `/`. That is the whole invariant, and the ONE character missing from it —
+# the hyphen — was a real defect (E8, reported by a child repo 2026-08-09,
+# fixed 2026-08-10). A run of token characters is only ever blocked at its
+# START by a preceding `/`, because every other lookbehind character is
+# itself in the token class and so would have been consumed as part of the
+# same run. So a hyphen inside a `/`-anchored run was the one place a match
+# could resync mid-token: `/.well-known/security.txt` yielded
+# `known/security.txt` — a path nobody wrote, reported missing against a file
+# that plainly existed. Same shape as the `*`/`?` hole above, same fix. The
+# leading-`/` skip is therefore now what the header always claimed it was:
+# the token is skipped WHOLE, never truncated into a plausible-looking lie.
+_PATH_TOKEN = re.compile(r"(?<![\w.\-/*?])[\w.\-*?]+(?:/[\w.\-*?]+)+")
 
 # Angle-bracket placeholder span, e.g. `<repo>/docs/foo.md` or bare `<repo>`.
 _ANGLE_PLACEHOLDER = re.compile(r"<[^<>]*>")

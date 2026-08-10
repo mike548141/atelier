@@ -66,6 +66,117 @@ class GlobExemption(unittest.TestCase):
         self.assertEqual([], got)
 
 
+class RootAnchoredTokenSkippedWhole(unittest.TestCase):
+    """E8 — reported by a child repo 2026-08-09, fixed 2026-08-10.
+
+    The docstring has always claimed a leading-`/` root-anchored mention is
+    SKIPPED. It was skipped only when the path held no hyphen: the lookbehind
+    excluded `/`, `\\w`, `.`, `*` and `?` but NOT `-`, so a match could resync
+    mid-token at the first hyphen and emit a truncated path nobody wrote.
+    `/.well-known/security.txt` came out as `known/security.txt` and was
+    reported missing against a file that plainly existed.
+
+    Same shape as `test_wildcard_does_not_split_the_token` above, and the
+    same invariant closes both: the lookbehind must exclude EVERY character
+    the token class accepts, plus `/`. These tests pin the invariant from
+    both sides — a root-anchored token is skipped WHOLE, and a hyphenated
+    token that is NOT root-anchored is still caught."""
+
+    def _findings(self, text):
+        return ps.scan_text(ps.Path("/nonexistent-root-xyz/t.md"),
+                            ps.Path("/nonexistent-root-xyz"), text)
+
+    def test_reported_case_yields_no_truncated_candidate(self):
+        got = cand("Published at /.well-known/security.txt on the site.")
+        self.assertNotIn("known/security.txt", got)
+        self.assertEqual([], got)
+
+    def test_hyphen_in_any_earlier_segment_resyncs(self):
+        # Not dot-directories at large: ANY hyphen before the last `/`.
+        self.assertEqual([], cand("see /docs/some-dir/x.md here"))
+        self.assertEqual([], cand("see /a/b-c/d.md here"))
+
+    def test_unhyphenated_root_anchored_still_skipped(self):
+        # This shape was ALREADY skipped — the bug hid behind it, because the
+        # docstring's claim read as true whenever the path had no hyphen.
+        self.assertEqual([], cand("see /docs/x.md here"))
+
+    def test_blanked_placeholder_tail_is_skipped(self):
+        # The docstring names this exact case ("the tail of a just-blanked
+        # `<placeholder>`") as skipped. It was not: blanking `<plugin-path>`
+        # left `/.claude-plugin/plugin.json`, which resynced to
+        # `plugin/plugin.json`. Live on this repo's own review corpus.
+        got = cand("run `<plugin-path>/.claude-plugin/plugin.json` to check")
+        self.assertNotIn("plugin/plugin.json", got)
+        self.assertEqual([], got)
+
+    def test_home_anchored_path_is_skipped(self):
+        # `~/.claude/skills/create-repo/SKILL.md` resynced to `repo/SKILL.md`
+        # — six live findings on this repo's own records, all of them this.
+        got = cand("see `~/.claude/skills/create-repo/SKILL.md` for it")
+        self.assertNotIn("repo/SKILL.md", got)
+
+    def test_hyphenated_relative_paths_still_candidates(self):
+        # The other direction: the fix must not blind the scanner to the
+        # ordinary hyphenated paths this house writes constantly.
+        self.assertIn("site/.well-known/sbom.json",
+                      cand("see site/.well-known/sbom.json for the SBOM"))
+        self.assertIn("tools/pre-commit.sample",
+                      cand("see `tools/pre-commit.sample` here"))
+        self.assertIn("docs/reviews/2026-07-26-2215-pathscan-s2-cold.md",
+                      cand("see docs/reviews/2026-07-26-2215-pathscan-s2-cold.md"))
+
+    def test_token_starting_at_a_hyphen_still_matches(self):
+        # The lookbehind change must not swallow a token whose run BEGINS
+        # with a hyphen — the char before the hyphen is what is tested, and
+        # a markdown bullet's space clears it.
+        self.assertIn("docs/method/x.md", cand("- docs/method/x.md"))
+
+    def test_broken_hyphenated_path_still_flagged(self):
+        # End-to-end, the load-bearing negative: a genuinely broken relative
+        # path with a hyphen must still produce a finding. If this ever goes
+        # quiet the fix has over-reached into a blanket hyphen exemption.
+        findings = self._findings("see `docs/some-dir/ghost.md` for the rule\n")
+        self.assertEqual(1, len(findings))
+        self.assertEqual("docs/some-dir/ghost.md", findings[0].target)
+
+    def test_genuinely_broken_root_anchored_path_is_the_accepted_cost(self):
+        # Stated plainly rather than rounded away: skipping WHOLE means a
+        # root-anchored mention that IS broken also goes unflagged. That is
+        # the docstring's named false negative, unchanged by this fix — the
+        # defect was the truncation, never the skip. Widening the scanner to
+        # resolve root-anchored paths is a separate design decision, and one
+        # that would not have helped the reporting repo either: its
+        # `/.well-known/…` mentions are published site URLs, not repo paths.
+        self.assertEqual([], self._findings("see /docs/no-such-dir/ghost.md\n"))
+
+
+class RootAnchoredEndToEnd(unittest.TestCase):
+    """E8's minimal repro as the reporting child repo ran it, end to end over
+    a real tree: the two relative mentions resolve, and the root-anchored one
+    no longer invents a missing path beside them."""
+
+    def setUp(self):
+        import shutil
+        import tempfile
+        self.tmp = ps.Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+
+    def _write(self, rel, text):
+        p = self.tmp / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text)
+
+    def test_child_repo_repro_scans_clean(self):
+        self._write("site/.well-known/sbom.json", "{}\n")
+        self._write("site/.well-known/security.txt", "contact\n")
+        self._write("docs/note.md",
+                    "See site/.well-known/sbom.json for the SBOM.\n"
+                    "See site/.well-known/security.txt for contact.\n"
+                    "Published at /.well-known/security.txt on the site.\n")
+        self.assertEqual([], ps.scan_paths([self.tmp / "docs"], self.tmp))
+
+
 class EllipsisExemption(unittest.TestCase):
     def test_unicode_ellipsis_exempt(self):
         self.assertEqual([], cand("see `docs/reviews/2026-07-10-…` for detail"))

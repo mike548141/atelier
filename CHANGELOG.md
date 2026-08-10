@@ -5,6 +5,34 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-08-10 — pathscan no longer invents a truncated path)
+The first defect a child repo has reported to this board under Track F's
+queue-never-deliver rule, closed in the repo that owns the code while the
+reporting repo left its 14 lines flagging. **The reported diagnosis was wrong
+and the correction is the more useful half:** `faves` named dot-directories,
+and its repro supported that reading because `/.well-known/security.txt` was
+the only shape it had. The trigger is a **hyphen**, anywhere before the
+token's last `/` — `/docs/some-dir/x.md` truncates to `dir/x.md` with no dot
+in it. `_PATH_TOKEN`'s lookbehind excluded `\w`, `.`, `/`, `*` and `?` but not
+`-`, while the token class accepted `-`; since a run of token characters can
+only be blocked at its start by a preceding `/`, the hyphen was the one place
+a match could resync mid-token and emit a path nobody wrote. The header had
+always claimed leading-`/` mentions are skipped, and that was true only of
+paths with no hyphen — which is why the class hid behind a bullet that read as
+correct. The invariant is now stated where it binds: **the lookbehind must
+exclude every character the token class accepts, plus `/`** — the same hole,
+and the same fix, as the `*`/`?` exclusion two lines above it. On this repo's
+own corpus 8 findings dropped, 208 → 200, every one the defect: six
+`repo/SKILL.md` from `~/.claude/skills/create-repo/SKILL.md`, one
+`plugin/plugin.json` from a just-blanked `<plugin-path>` placeholder — the
+exact case the header names as skipped and which was not — and
+`known/security.txt` from the E8 board entry itself, the bug report being
+mangled by the bug it reported. The gated doctrine surface was and stayed
+clean. Root-anchored paths are still skipped **whole**, so a genuinely broken
+one still goes unflagged; that named false negative is unchanged and now
+carries a test that says so, because the defect was the truncation and never
+the skip. Module tests 76 → 86, suite 1284 → 1294.
+
 ### Added (2026-08-09 — cctranscript can search every transcript)
 Mike asked for this on 2026-07-26 — *"something that lets you search all the
 transcripts using regex or for a simple term"* — and the design pass settled it

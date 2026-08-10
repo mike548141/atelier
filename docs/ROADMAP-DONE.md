@@ -4595,3 +4595,90 @@ second*, where the open half of this work continues.
   asked for and is also its main risk: one hook now sits between the agent and
   every reply it writes. The two failure modes to watch stay open in
   ROADMAP.md.
+
+## E8 — pathscan truncated root-anchored paths (done 2026-08-10)
+
+The first defect this board received from a child repo under Track F's
+queue-never-deliver rule, and it closed exactly as the rule intends: `faves`
+reported it and left its 14 lines flagging; the fix landed here, in the repo
+that owns the code.
+
+**The reported diagnosis was wrong, and the correction is the more useful
+half.** The report named dot-directories — "a path whose first segment starts
+with a dot loses its leading `.well-` and its slash" — and its own repro
+supported that reading, because `/.well-known/security.txt` was the only shape
+it had. The real trigger is a **hyphen**, anywhere before the token's last `/`:
+`/docs/some-dir/x.md` truncates to `dir/x.md` and `/a/b-c/d.md` to `c/d.md`, no
+dot involved. `.well-known` was simply the commonest hyphenated
+root-anchored path in a published tree.
+
+**One character, and the invariant that explains it.** `_PATH_TOKEN`'s
+lookbehind excluded `\w`, `.`, `/`, `*` and `?` but not `-`, while the token
+class accepted `-`. A run of token characters can only be blocked at its start
+by a preceding `/`, since every other lookbehind character is itself in the
+token class and would have been consumed as part of the same run — so the
+hyphen was the one place a match could resync mid-token inside a `/`-anchored
+run. The header had claimed since it was written that leading-`/` mentions are
+skipped; that claim was true only for paths with no hyphen in them, which is
+why the class hid for so long behind a bullet that read as correct. The
+invariant now stated at the regex: **the lookbehind must exclude every
+character the token class accepts, plus `/`.** That is the same hole, and the
+same fix, as the `*`/`?` exclusion already sitting two lines above it.
+
+**Confirmed on this repo's own corpus, in both directions.** The gated
+doctrine surface was and stayed clean. Across the whole tree 8 findings
+dropped, 208 → 200, and every one was the defect: six spellings of
+`repo/SKILL.md` truncated from `~/.claude/skills/create-repo/SKILL.md`; one
+`plugin/plugin.json` from `<plugin-path>/.claude-plugin/plugin.json`, which is
+the "tail of a just-blanked placeholder" the header names as skipped and which
+was not; and `known/security.txt` from the E8 entry itself — the board's own
+bug report was being mangled by the bug it reported. No legitimate finding was
+lost. Module tests 76 → 86, suite 1284 → 1294, both directions pinned:
+hyphenated relative paths are still candidates, a broken hyphenated path still
+flags, and a token whose run begins with a hyphen still matches.
+
+**What was deliberately not done.** Root-anchored paths are still skipped
+whole, so a genuinely broken one still goes unflagged — the docstring's named
+false negative, unchanged, and now pinned by a test that says so rather than
+left to be rediscovered. The defect was the truncation, never the skip.
+Resolving root-anchored mentions against the scan root is a separate design
+decision, and it would not have helped the reporting repo in any case: its
+`/.well-known/…` references are published **site URLs**, not repo paths, and
+belong with the scheme-URL exemption rather than in the resolver.
+
+- [x] **E8 — `pathscan` mangles a root-anchored dot-directory path**
+      `[S]` — **queued from `faves`, 2026-08-09, under Track F's
+      queue-never-deliver rule** (Mike ruled that a child may queue a
+      finding in the target repo's own roadmap; the ruling and the tension
+      it resolved are recorded in that repo's `SESSIONS.md` for the same
+      date). Reported, not fixed here — the child does not write atelier's
+      code.
+      **The defect:** a path written root-anchored whose first segment
+      starts with a dot loses its leading `.well-` and its slash.
+      `/.well-known/security.txt` is extracted as `known/security.txt`,
+      which then reports missing while the file plainly exists.
+      **Minimal repro, in a clean throwaway repo** (so it is not an artefact
+      of the reporting tree): `site/.well-known/sbom.json` and
+      `site/.well-known/security.txt` both **pass**;
+      `/.well-known/security.txt` on its own line **fails**. So the trigger
+      is the **leading-slash-plus-dot form**, not dot-directories at large.
+      **Why it is worth a fix rather than a marker:** it is exactly this
+      track's premise. In `faves` these 14 findings are honest URL
+      references to files that exist and are published — a `security.txt`
+      and an SBOM at their well-known locations. They cannot be reworded
+      without making the prose wrong, and allow-markering 14 correct lines
+      is the trained-to-suppress behaviour the track exists to prevent. They
+      were the entire remaining `pathscan` backlog there after that repo
+      cleared its own two classes (34 findings → 14, all of them this).
+      **Not attempted from the child:** no fix, no test, no marker — the
+      lines are left flagging so the count stays honest until this lands.
+      *Superseded in its diagnosis on close: the trigger is a hyphen before
+      the token's last `/`, not the leading-slash-plus-dot form. The repro
+      and the reasoning from it were sound; the shape it generalised to was
+      one case of a wider class.*
+
+*Nothing is owed back to `faves` from here — children point up, the parent
+never points down for truth (`method/PROPAGATION.md`), and the scanner ships to
+children at floating `atelier@main`, so the fix reaches that repo on its next
+floor run with no action taken in it. Clearing the 14 now-passing lines and
+closing its queue entry is a `faves` session's work, not this one's.*
