@@ -1159,6 +1159,20 @@ in every repo. Detail harvested to
       only bite if plainscan ever moves off warn-only, so the ruling is not
       urgent — but it is owed before any such move, and the chat ruling does
       not cover it. Two planes, two numbers, one decided.
+- 🎯 **Repo plane rescoped to prose the principal reads — RULED 2026-08-10
+      (Mike), IN FLIGHT** (wt: plainscan-rescope-0810). Mike opened by proposing
+      removal of plainscan altogether, on the ground that the trust review was
+      about session replies and "99% of the documentation … is to keep a record
+      … for consumption by yourself (claude) not me as the principal". The
+      challenge back: full removal silently kills the reply gate —
+      `plain-reply.py` imports `scan_text` from `plainscan.py` and fails open —
+      and the repo prose Mike does read (ruling asks, review briefs, doctrine
+      in a public repo) is the highest-stakes prose. His ruling, verbatim:
+      *"I accept your recommendation"* — keep the engine and reply gate
+      untouched; scope the repo plane to human-read docs by excluding records
+      (`docs/SESSIONS.md`, `docs/sessions/`, `docs/ROADMAP-DONE.md`), the same
+      shape as the cold-pass records exclusion. This also settles the records
+      half of the backlog item below: records are out by ruling, not deferral.
 **P5 — the unintroduced-term rule: BUILT, MEASURED, REJECTED (2026-08-09).**
 Not a stub and not a deferral: it was written, run over the whole corpus, and
 deleted the same day on its own numbers. Recorded because the negative result
