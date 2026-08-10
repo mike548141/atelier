@@ -1159,8 +1159,8 @@ in every repo. Detail harvested to
       only bite if plainscan ever moves off warn-only, so the ruling is not
       urgent — but it is owed before any such move, and the chat ruling does
       not cover it. Two planes, two numbers, one decided.
-- 🎯 **Repo plane rescoped to prose the principal reads — RULED 2026-08-10
-      (Mike), IN FLIGHT** (wt: plainscan-rescope-0810). Mike opened by proposing
+- 🎯 **Repo plane rescoped to prose the principal reads — RULED and DELIVERED
+      2026-08-10** (wt: plainscan-rescope-0810). Mike opened by proposing
       removal of plainscan altogether, on the ground that the trust review was
       about session replies and "99% of the documentation … is to keep a record
       … for consumption by yourself (claude) not me as the principal". The
@@ -1173,6 +1173,20 @@ in every repo. Detail harvested to
       (`docs/SESSIONS.md`, `docs/sessions/`, `docs/ROADMAP-DONE.md`), the same
       shape as the cold-pass records exclusion. This also settles the records
       half of the backlog item below: records are out by ruling, not deferral.
+      Delivered in `e390382`: `RECORDS_GLOBS` in `plainscan.py` skips the three
+      records paths when a directory is expanded — an explicitly named records
+      file is still scanned, and a test guards `ROADMAP.md` from ever matching
+      the `ROADMAP-DONE.md` glob; `--include-records` restores the old scope.
+      Measured, not estimated: atelier's advisory tally fell 7,817 → 4,440, so
+      records carried 3,377 findings. The reply plane is untouched, because
+      `scan_text()` itself has no scoping and every reply is written to the
+      principal. Module tests 47 → 51, suite 1,294 → 1,298 green, instrument
+      tests exit 0 at the landing tree.
+      ⏳ **Review queued** — the scoping was recommended, built, and its
+      doctrine rewritten by the same session (delta: `tools/plainscan.py`,
+      `tools/test_plainscan.py`, `tools/floor.py`,
+      `docs/method/COMMUNICATION.md` § *The meta-rules that make it work*;
+      intent record: this item; tier: Fable; pass type: cold).
 **P5 — the unintroduced-term rule: BUILT, MEASURED, REJECTED (2026-08-09).**
 Not a stub and not a deferral: it was written, run over the whole corpus, and
 deleted the same day on its own numbers. Recorded because the negative result
@@ -1233,6 +1247,10 @@ and was only worth believing after it was tried.
       would be dishonest, so the realistic scope is `docs/method/` +
       `docs/build/` (the shareable doctrine, ~39 P2 findings across method) and
       everything written from here on. Needs a decision on scope before effort.
+      2026-08-10: the records half of that decision is settled by the rescope
+      ruling above — records are out of scan scope entirely, so the live
+      backlog is the 4,440 findings in human-read docs. Which slice of those
+      to work down, and when, is still Mike's call.
 - [ ] **Generalise the finding, don't just fix this doc.** The census in (a)
       should treat "the rule declares itself unenforced" as a *search key* —
       this one was sitting in plain sight in a clause that reads as honesty.
