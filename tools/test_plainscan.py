@@ -249,6 +249,35 @@ class Cli(unittest.TestCase):
         self.write(".plainscanignore", "docs/a.md\n")
         self.assertEqual(0, self.run_cli().returncode)
 
+    def test_records_are_excluded_by_default(self):
+        # Ruled 2026-08-10: records are append-only history for the next
+        # session's agent, not prose the principal reads — the repo plane
+        # skips them rather than warning forever about unrewritable archives.
+        bad = "Your ruling closes F1 and the cycle with it.\n"
+        self.write("docs/SESSIONS.md", bad)
+        self.write("docs/sessions/2026-08-10-0900-example.md", bad)
+        self.write("docs/ROADMAP-DONE.md", bad)
+        self.assertEqual(0, self.run_cli().returncode)
+
+    def test_include_records_selects_the_records(self):
+        self.write("docs/SESSIONS.md",
+                   "Your ruling closes F1 and the cycle with it.\n")
+        self.assertEqual(1, self.run_cli("--include-records").returncode)
+
+    def test_an_explicit_records_path_is_still_scanned(self):
+        # Explicit selection beats the default exclusion: a named file is a
+        # question deserving an answer.
+        p = self.write("docs/SESSIONS.md",
+                       "Your ruling closes F1 and the cycle with it.\n")
+        self.assertEqual(1, self.run_cli(str(p)).returncode)
+
+    def test_roadmap_itself_is_not_a_record(self):
+        # The exclusion names ROADMAP-DONE.md; the live roadmap is exactly the
+        # ruling-ask prose the principal reads, and must never be swept up.
+        self.write("docs/ROADMAP.md",
+                   "Your ruling closes F1 and the cycle with it.\n")
+        self.assertEqual(1, self.run_cli().returncode)
+
     def test_json_shape(self):
         self.write("docs/a.md", "Your ruling closes F1 and the cycle with it.\n")
         out = json.loads(self.run_cli("--warn", "--json").stdout)

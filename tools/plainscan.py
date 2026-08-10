@@ -78,7 +78,8 @@ ONE ENGINE, TWO PLANES — the same shape floor.py already uses
 `scan_text()` is the whole rule engine and it takes a string. Two callers:
 
   repo   this CLI, in the floor registry, gating committed prose in docs/**
-         on every hook and every CI run in the estate.
+         on every hook and every CI run in the estate — MINUS the session
+         records, excluded by ruling (2026-08-10, see RECORDS_GLOBS below).
   reply  a Stop hook reading `last_assistant_message`, gating the replies the
          principal actually reads — the surface where all four defects were
          measured, and the surface no floor has ever reached.
@@ -435,6 +436,20 @@ def _excerpt(s: str, at: int, span: int = 70) -> str:
 
 # --- repo plane -----------------------------------------------------------
 
+# THE RECORDS EXCLUSION (ruled 2026-08-10). Session records are append-only
+# history written for the next session's agent; the prose the principal reads
+# in a repo is the doctrine, the ruling asks, and the review briefs. The
+# principal opened by proposing removal of the repo plane altogether on that
+# audience argument, and the accepted counter-recommendation was this scoping
+# instead: keep the floor under human-read docs, stop warning about archives
+# nobody may rewrite — the backlog item already called rewriting records
+# dishonest, so a warning there has no possible fix and is pure noise.
+# The exclusion binds only when a directory is EXPANDED (the floor passes
+# `docs`); a records file named explicitly as a path argument is scanned,
+# because an explicit selection is a question deserving an answer.
+RECORDS_GLOBS = ["docs/SESSIONS.md", "docs/sessions", "docs/ROADMAP-DONE.md"]
+
+
 def load_ignore_globs(root: Path) -> list[str]:
     p = root / ".plainscanignore"
     if not p.is_file():
@@ -452,9 +467,11 @@ def _ignored(rel: str, globs: list[str]) -> bool:
                for g in globs)
 
 
-def iter_markdown(paths: list[Path], root: Path, globs: list[str]):
+def iter_markdown(paths: list[Path], root: Path, globs: list[str],
+                  include_records: bool = False):
     for p in paths:
-        cands = sorted(p.rglob("*.md")) if p.is_dir() else ([p] if p.suffix == ".md" else [])
+        expanded = p.is_dir()
+        cands = sorted(p.rglob("*.md")) if expanded else ([p] if p.suffix == ".md" else [])
         for f in cands:
             try:
                 rel = str(f.resolve().relative_to(root.resolve()))
@@ -462,14 +479,18 @@ def iter_markdown(paths: list[Path], root: Path, globs: list[str]):
                 rel = str(f)
             if _ignored(rel, globs) or ".git/" in rel:
                 continue
+            if expanded and not include_records and _ignored(rel, RECORDS_GLOBS):
+                continue
             yield f, rel
 
 
-def scan_paths(paths: list[Path], root: Path, **kw) -> Tally:
+def scan_paths(paths: list[Path], root: Path, *,
+               include_records: bool = False, **kw) -> Tally:
     globs = load_ignore_globs(root)
     glossary = _load_glossary(root)
     tally = Tally()
-    for f, rel in iter_markdown(paths, root, globs):
+    for f, rel in iter_markdown(paths, root, globs,
+                                include_records=include_records):
         try:
             body = f.read_text(encoding="utf-8", errors="replace")
         except OSError:
@@ -540,6 +561,13 @@ def _main(argv: list[str] | None = None) -> int:
                     help=f"chars in a mid-sentence bracket (default {ASIDE_LIMIT})")
     ap.add_argument("--rules", default="P1,P2,P3,P4",
                     help="comma-separated subset of P1,P2,P3,P4")
+    ap.add_argument("--include-records", action="store_true",
+                    help="also scan the session records (docs/SESSIONS.md, "
+                         "docs/sessions/, docs/ROADMAP-DONE.md), excluded by "
+                         "default since the 2026-08-10 ruling — they are "
+                         "append-only history for the next session, not prose "
+                         "the principal reads. A records file named explicitly "
+                         "as a path argument is always scanned.")
     ap.add_argument("--limit", type=int, default=6, metavar="N",
                     help="findings to print in full (default 6; 0 = all). The "
                          "tally is always printed — this caps the recitation, "
@@ -569,7 +597,8 @@ def _main(argv: list[str] | None = None) -> int:
         print(f"plainscan: unknown rule(s): {', '.join(sorted(bad))}", file=sys.stderr)
         return 2
 
-    tally = scan_paths(targets, root, sentence_limit=args.sentence_limit,
+    tally = scan_paths(targets, root, include_records=args.include_records,
+                       sentence_limit=args.sentence_limit,
                        aside_limit=args.aside_limit, rules=rules)
 
     if args.json:
@@ -665,6 +694,20 @@ def _selftest() -> int:
         (root / "docs" / "bad.md").write_text("All clear here.\n", encoding="utf-8")
         check("a clean tree exits 0", _main(["--root", td]) == 0)
         check("a missing root exits 2", _main(["--root", td + "/nope"]) == 2)
+
+    # the records exclusion (ruled 2026-08-10)
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        (root / "docs" / "sessions").mkdir(parents=True)
+        bad = "The ruling closes F1 and we move on to the next item.\n"
+        for rel in ("docs/SESSIONS.md", "docs/sessions/one.md",
+                    "docs/ROADMAP-DONE.md"):
+            (root / rel).write_text(bad, encoding="utf-8")
+        check("records are excluded by default", _main(["--root", td]) == 0)
+        check("--include-records selects them",
+              _main(["--root", td, "--include-records"]) == 1)
+        check("an explicit records path is still scanned",
+              _main(["--root", td, str(root / "docs" / "SESSIONS.md")]) == 1)
 
     print("selftest OK" if ok else "selftest FAILED")
     return 0 if ok else 1

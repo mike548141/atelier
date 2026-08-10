@@ -97,6 +97,18 @@ Grounded in the live instance, not invented to fill a heading:
   committed prose through the floor registry, and the agent's own replies
   through a `Stop` hook that blocks and demands a rewrite.
 
+  **Each plane is scoped to its reader (ruled 2026-08-10).** The reply plane
+  covers everything, because every reply is written to the principal. The repo
+  plane covers only the prose the principal reads — doctrine, ruling asks,
+  review briefs, the live roadmap. Session records (`SESSIONS.md`,
+  `docs/sessions/`, `ROADMAP-DONE.md`) are excluded by ruling: they are
+  append-only history written for the next session's agent, and rewriting
+  them would be dishonest — so a warning there has no possible fix and is
+  pure noise. Measured at the ruling: records carried 3,377 of atelier's
+  7,817 advisory findings. The principal's opening position was to remove the
+  repo plane altogether on this audience argument; the scoping is the accepted
+  counter — keep the floor where the human reads, drop it where none does.
+
   **Why the correction was owed rather than optional.** The unenforced half was
   measured on 2026-08-09 across 6,704 replies in 1,094 transcripts. The rules
   above were broken in 37% to 67% of replies depending on the rule, and the

@@ -570,6 +570,15 @@ SCANNERS: tuple[Scanner, ...] = (
         # teach everyone --no-verify, which is worse than no gate at all —
         # wrapscan and spellscan landed the same way for the same reason.
         #
+        # RECORDS ARE OUT OF SCOPE (ruled 2026-08-10). The scanner itself
+        # skips SESSIONS.md, docs/sessions/ and ROADMAP-DONE.md when it
+        # expands a directory — append-only history written for the next
+        # session's agent, not prose the principal reads, and unrewritable
+        # without dishonesty, so a warning there has no possible fix. That
+        # cut atelier's advisory tally 7,817 → 4,440. No registry change was
+        # needed: the exclusion lives in plainscan.py (RECORDS_GLOBS), so it
+        # reaches every child through the same entry unchanged.
+        #
         # WHAT IT IS FOR. `COMMUNICATION.md` was the one doctrine here with no
         # mechanical floor, and said so in its own enforcement clause. Measured
         # over 6,704 assistant replies in 1,094 transcripts (2026-08-09), its
