@@ -328,5 +328,56 @@ class InvocationTest(unittest.TestCase):
         self.assertEqual(self._run("--root", "/no/such/dir").returncode, 2)
 
 
+class SplitBoardTest(GitBackedTest):
+    """ADR 2026-08-15: the board is one file per item under docs/roadmap/.
+    The removal the guard exists for is now a FILE deletion, and a watched
+    directory must expand to its files at the OLD revision — enumerating the
+    new side would silently skip exactly the deleted file."""
+
+    def test_a_deleted_item_file_with_no_survivor_is_reported(self):
+        with tempfile.TemporaryDirectory() as td:
+            root, g = self._repo(td)
+            sec = root / "docs" / "roadmap" / "10-track-a"
+            sec.mkdir(parents=True)
+            (sec / "10-item.md").write_text(item(ITEM))
+            g("add", "-A")
+            g("commit", "-qm", "start")
+            (sec / "10-item.md").unlink()
+            findings = harvestscan.scan(root, "HEAD")
+            self.assertEqual(len(findings), 1, findings)
+            self.assertEqual(findings[0]["file"],
+                             "docs/roadmap/10-track-a/10-item.md")
+
+    def test_an_item_moved_between_item_files_survives(self):
+        with tempfile.TemporaryDirectory() as td:
+            root, g = self._repo(td)
+            sec = root / "docs" / "roadmap" / "10-track-a"
+            sec.mkdir(parents=True)
+            (sec / "10-item.md").write_text(item(ITEM))
+            g("add", "-A")
+            g("commit", "-qm", "start")
+            (sec / "10-item.md").unlink()
+            (sec / "20-rehomed.md").write_text(item(ITEM))
+            g("add", str(sec / "20-rehomed.md"))  # tracked-only survivor rule
+            self.assertEqual(harvestscan.scan(root, "HEAD"), [])
+
+    def test_section_readme_prose_is_not_a_survivor_for_board_items(self):
+        """The watched-store paragraph exclusion must reach the directory's
+        files: an item 'surviving' in narrative prose beside it is the false
+        negative the paragraphs() docstring warns about."""
+        with tempfile.TemporaryDirectory() as td:
+            root, g = self._repo(td)
+            sec = root / "docs" / "roadmap" / "10-track-a"
+            sec.mkdir(parents=True)
+            (sec / "10-item.md").write_text(item(ITEM))
+            g("add", "-A")
+            g("commit", "-qm", "start")
+            (sec / "10-item.md").unlink()
+            (sec / "README.md").write_text(f"# Track A\n\n{ITEM}\n")
+            findings = harvestscan.scan(root, "HEAD")
+            self.assertEqual(len(findings), 1,
+                             "prose narration must not count as survival")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -494,6 +494,19 @@ SCANNERS: tuple[Scanner, ...] = (
         why="current-truth files stay honest; archive stores hold no live state",
     ),
     Scanner(
+        "board",
+        # The split board's one derived file (ADR 2026-08-15): ROADMAP.md is
+        # generated from docs/roadmap/, and a committed derived file that can
+        # drift from its source is this programme's organising defect — so the
+        # check blocks, and the remedy is free at exactly the moment it fires
+        # (`board.py rebuild`, stage, retry). Repos without a docs/roadmap/
+        # directory are out of scope and pass with that said, not silently.
+        hook=["check", "--root", "{root}", "{scope}"],
+        ci=["check", "--root", "{root}", "{scope}"],
+        advisory=None,  # a stale index is a wrong board; there is no soft form
+        why="the generated roadmap index never drifts from its item files",
+    ),
+    Scanner(
         "datescan",
         hook=["--root", "{root}", "{scope}"],
         ci=["--root", "{root}", "{scope}"],

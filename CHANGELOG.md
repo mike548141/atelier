@@ -5,6 +5,25 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-08-15 — the board store: one file per item, a generated index)
+- `docs/ROADMAP.md` (4,063 lines) split to one file per item under
+  `docs/roadmap/<section>/` with section narrative in per-section READMEs;
+  `ROADMAP.md` is now a ~250-line **generated index** (board-store ADR,
+  Mike ruled 2026-08-15). All 4,063 lines accounted for in the move;
+  linkscan and harvestscan clean across it.
+- New `tools/board.py` (+13 tests): index generator + item-file validator,
+  registered as the enforced `board` floor check on both planes — a stale
+  index blocks with the remedy printed; repos without `docs/roadmap/` pass
+  as out-of-scope, said aloud.
+- `harvestscan` watches the board directory (a watched store may be a
+  directory, expanded at the OLD revision so a deleted item file is
+  enumerated, not skipped; +3 tests). `pointerscan` reads item files by
+  directory and skips the generated index.
+- `docs/ROADMAP-DONE.md` frozen: a done item now stays in its own file as
+  `[x]`; the harvest step and its red-window failure mode are retired.
+- Doctrine moved with the mechanism (RECORD.md board section, CONCURRENCY.md
+  claiming on a split board, CLAUDE.md read order, board README legend).
+
 ### Fixed (2026-08-10 — pathscan no longer invents a truncated path)
 The first defect a child repo has reported to this board under Track F's
 queue-never-deliver rule, closed in the repo that owns the code while the

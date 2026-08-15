@@ -134,8 +134,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import pointerscan  # noqa: E402
 
 # The records this WATCHES — an item removed from one of these is what the
-# guard is about.
-DEFAULT_RECORDS = ("docs/ROADMAP.md", "docs/ROADMAP-DONE.md")
+# guard is about. `docs/roadmap` is the split board (ADR 2026-08-15): one item
+# per file, so the removal this guard exists for is now usually a FILE deletion
+# — a store entry may be a directory, expanded to its tracked `.md` files at
+# whichever revision is being read. `docs/ROADMAP.md` stays watched: pre-split
+# history lives there, and post-split it is generated (its lines are titles,
+# almost always under the fingerprint's signal floor — nothing to lose).
+DEFAULT_RECORDS = ("docs/ROADMAP.md", "docs/ROADMAP-DONE.md", "docs/roadmap")
 
 # Where a removed item may legitimately have LANDED. Wider than the watched set
 # (B4 cold pass, HV3): the docstring claimed "anywhere in the tracked records"
@@ -158,8 +163,10 @@ NET_BULK_DELETE_LINES = 50
 # the bulk moves the guard exists to look at. Measured: gating on the pair puts
 # 1 commit in scope across the whole history; gating on `ROADMAP.md` puts 6 in
 # scope, reproducing the cold pass's figure. The ruling says "net lines removed
-# from ROADMAP.md" and it says it for this reason.
-GATE_RECORDS = ("docs/ROADMAP.md",)
+# from ROADMAP.md" and it says it for this reason. The split board's item files
+# ARE current-truth, so the directory joins the gate: deleting item files is
+# exactly the bulk move the ruling was about, one grain finer.
+GATE_RECORDS = ("docs/ROADMAP.md", "docs/roadmap")
 
 # A list item: the tri-state checkbox grammar, plus the queued-review marker.
 ITEM_RE = re.compile(r"^\s*-\s+(\[[ x~]\]|⏳)\s*(.*)$")
@@ -374,7 +381,13 @@ def survivors(root: Path,
             if text is None:
                 continue
             out.extend(normalise(body) for _, _, body in parse_items(text))
-            if rel not in watched:
+            # Containment, not equality: a watched entry may be a directory
+            # (the split board), and prose-fingerprinting ITS files would let a
+            # removed item "survive" in a section README's narration — the
+            # false negative the paragraphs() docstring warns about.
+            in_watched = any(rel == w or rel.startswith(w.rstrip("/") + "/")
+                             for w in watched)
+            if not in_watched:
                 out.extend(normalise(b) for b in paragraphs(text))
     return out
 
@@ -430,7 +443,7 @@ def scan(root: Path, rev: str,
          source: str = WORKTREE) -> list[dict]:
     alive = survivors(root, stores, source, records)
     findings: list[dict] = []
-    for rel in records:
+    for rel in expand_records(root, records, rev):
         old = git_show(root, rev, rel)
         if old is None:
             continue        # new file, or not tracked at that revision
@@ -438,6 +451,24 @@ def scan(root: Path, rev: str,
             findings.append({"file": rel, "line": line,
                              "excerpt": body[:160].strip()})
     return findings
+
+
+def expand_records(root: Path, records: tuple[str, ...],
+                   rev: str) -> list[str]:
+    """Watched record entries as concrete file rels, AT the old revision.
+
+    A directory entry (the split board) expands to the `.md` files tracked
+    under it at `rev` — the old side, deliberately: a file deleted since then
+    is exactly the one whose items need checking, and enumerating the new side
+    would silently skip it (the fail-open class this programme is about)."""
+    out: list[str] = []
+    seen: set[str] = set()
+    for rel in records:
+        for f in (list_markdown(root, rel, rev) or [rel]):
+            if f.endswith(".md") and f not in seen:
+                seen.add(f)
+                out.append(f)
+    return out
 
 
 def replay(root: Path, records: tuple[str, ...], stores: tuple[str, ...],
@@ -466,7 +497,7 @@ def replay(root: Path, records: tuple[str, ...], stores: tuple[str, ...],
         in_scope += 1
         alive = survivors(root, stores, rev, records)
         n = 0
-        for rel in records:
+        for rel in expand_records(root, records, parent):
             old = git_show(root, parent, rel)
             if old is None:
                 continue
