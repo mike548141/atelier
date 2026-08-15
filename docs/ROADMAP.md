@@ -8,7 +8,11 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 
 *Narrative: [010-board-store-migration-per-item-files-mik/README.md](roadmap/010-board-store-migration-per-item-files-mik/README.md)*
 
-- [~] [Migrate the board to per-item files + generate the index](roadmap/010-board-store-migration-per-item-files-mik/010-migrate-the-board-to-per-item-files-generate-t.md)
+- ✅ [Migrate the board to per-item files + generate the index](roadmap/010-board-store-migration-per-item-files-mik/010-migrate-the-board-to-per-item-files-generate-t.md)
+- [ ] [board --check reads the worktree, not the staged plane.](roadmap/010-board-store-migration-per-item-files-mik/020-board-check-staged-plane-seam.md)
+- [ ] [Fleet rollout of the split board — per-repo, Mike's call.](roadmap/010-board-store-migration-per-item-files-mik/030-fleet-rollout-of-the-split-board.md) 🎯
+- [ ] [Sweep monolith-era board wording across the doctrine surface.](roadmap/010-board-store-migration-per-item-files-mik/040-monolith-era-wording-sweep.md)
+- ⏳ [Rule-4 cold pass queued — the board-store migration.](roadmap/010-board-store-migration-per-item-files-mik/050-rule-4-cold-pass-queued.md)
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
 
