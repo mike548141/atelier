@@ -120,6 +120,20 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 - [ ] [Make the estate's floor state answer "passing", not just "wired".](roadmap/110-estate-duplication-exception-audit-mike/080-make-the-estate-s-floor-state-answer-passing-n.md)
 - [ ] [Triage the four red floors.](roadmap/110-estate-duplication-exception-audit-mike/090-triage-the-four-red-floors.md)
 
+## Guardrail architecture — narrow guards vs one broad guard (Mike commissioned 2026-08-15)
+
+*Narrative: [115-guardrail-architecture-mike-commissioned/README.md](roadmap/115-guardrail-architecture-mike-commissioned/README.md)*
+
+- [ ] [Mint the evidence-window rule as guard-design doctrine — Mike's](roadmap/115-guardrail-architecture-mike-commissioned/010-mint-the-evidence-window-rule-as-guard-design.md) 🎯
+- [ ] [Confidence on a fact: stored field, or computed? Mike's call, and it](roadmap/115-guardrail-architecture-mike-commissioned/020-confidence-on-a-fact-stored-field-or-computed.md) 🎯
+- [ ] [stampscan's verdicts are inverted against the doctrine it enforces](roadmap/115-guardrail-architecture-mike-commissioned/030-stampscan-s-verdicts-are-inverted-against-the.md) 🔥
+- [ ] [The withdrawn-review convention rests on a premise that now has a](roadmap/115-guardrail-architecture-mike-commissioned/040-the-withdrawn-review-premise-has-a-counterexam.md) 🔎
+- [ ] [A real credential pasted into an exempt fixture file is invisible to](roadmap/115-guardrail-architecture-mike-commissioned/050-a-real-credential-in-an-exempt-fixture-file-is.md) 🔎
+- [ ] [A coined paraphrase is still presented on the board as a child](roadmap/115-guardrail-architecture-mike-commissioned/060-a-coined-paraphrase-is-still-cited-on-the-boar.md) 🔎
+- [ ] [PRINCIPLES.md §9 has no guard, and the only safe candidate is scoped](roadmap/115-guardrail-architecture-mike-commissioned/070-principles-9-has-no-guard-and-the-only-safe-ca.md)
+- [ ] [Single-source the scanner harness, re-grounded on Mike's own upstream](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
+- [ ] [Give every guard a second dial — the standing consequence of Mike's](roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md)
+
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 
 *Narrative: [120-test-plainscan-stophook-is-flaky-and-ci/README.md](roadmap/120-test-plainscan-stophook-is-flaky-and-ci/README.md)*
