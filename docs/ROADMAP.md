@@ -165,6 +165,7 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 - [ ] [Cross-repo learning: atelier distils domain-diverse children (Mike,](roadmap/160-doctrine-review-owed/160-cross-repo-learning-atelier-distils-domain-div.md)
 - [ ] [Principle: solve once, reuse the building block (Mike, 2026-07-25)](roadmap/160-doctrine-review-owed/170-principle-solve-once-reuse-the-building-block.md)
 - ⏳ [Rule-4 review queued (tier: Fable; pass type: doctrine cold pass) —…](roadmap/160-doctrine-review-owed/180-rule-4-review-queued-tier-fable-pass-type-doc.md)
+- [ ] [REVIEW.md gap — what is the review cycle of an ADR accepted in](roadmap/160-doctrine-review-owed/190-review-md-gap-the-cycle-of-an-adr-accepted-in-part.md)
 
 ## build/ layer — open strands
 
