@@ -12,7 +12,7 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 - [ ] [board --check reads the worktree, not the staged plane.](roadmap/010-board-store-migration-per-item-files-mik/020-board-check-staged-plane-seam.md)
 - [ ] [Fleet rollout of the split board — per-repo, Mike's call.](roadmap/010-board-store-migration-per-item-files-mik/030-fleet-rollout-of-the-split-board.md) 🎯
 - [ ] [Sweep monolith-era board wording across the doctrine surface.](roadmap/010-board-store-migration-per-item-files-mik/040-monolith-era-wording-sweep.md)
-- ⏳ [Rule-4 cold pass queued — the board-store migration.](roadmap/010-board-store-migration-per-item-files-mik/050-rule-4-cold-pass-queued.md)
+- [ ] [The board-store cold pass RAN 2026-08-15 and the cycle stays OPEN](roadmap/010-board-store-migration-per-item-files-mik/050-rule-4-cold-pass-queued.md) 🛑
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
 
@@ -39,7 +39,7 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 - [ ] [The measurement that supports it, and its limits.](roadmap/020-policy-as-code-programme-five-tracks-mik/190-the-measurement-that-supports-it-and-its-limit.md)
 - [ ] [Aggravating factor worth keeping](roadmap/020-policy-as-code-programme-five-tracks-mik/200-aggravating-factor-worth-keeping.md)
 - ✅ [The Three Laws and the Zeroth are OUT of the apex (Mike, ruled](roadmap/020-policy-as-code-programme-five-tracks-mik/210-the-three-laws-and-the-zeroth-are-coming-out-o.md)
-- ⏳ [Rule-4 cold pass queued — the Laws removal from the apex.](roadmap/020-policy-as-code-programme-five-tracks-mik/215-rule-4-cold-pass-queued-laws-removal.md)
+- [ ] [The Laws-removal cycle CLOSED 2026-08-15 (0 MAJOR); LR1–LR9 await](roadmap/020-policy-as-code-programme-five-tracks-mik/215-rule-4-cold-pass-queued-laws-removal.md) 🎯
 - [ ] [(a) The census nobody has run: which rules have a forcing function,](roadmap/020-policy-as-code-programme-five-tracks-mik/220-a-the-census-nobody-has-run-which-rules-have-a.md) 🎯
 - [ ] [(b) The half with no owner: doctrine that reaches the moment of](roadmap/020-policy-as-code-programme-five-tracks-mik/230-b-the-half-with-no-owner-doctrine-that-reaches.md) 🎯
 - [ ] [The posture change this implies — stated so it is ruled, not](roadmap/020-policy-as-code-programme-five-tracks-mik/240-the-posture-change-this-implies-stated-so-it-i.md) 🎯
@@ -169,7 +169,7 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 
 *Narrative: [160-doctrine-review-owed/README.md](roadmap/160-doctrine-review-owed/README.md)*
 
-- ⏳ [Rule-4 review queued (tier: Fable; pass type: code cold pass) — the](roadmap/160-doctrine-review-owed/010-rule-4-review-queued-tier-fable-pass-type-code.md)
+- [ ] [The cctranscript --search cycle CLOSED 2026-08-15 (0 MAJOR);](roadmap/160-doctrine-review-owed/010-rule-4-review-queued-tier-fable-pass-type-code.md) 🎯
 - [ ] [The child-membership + work-locality cycle CLOSED 2026-08-09](roadmap/160-doctrine-review-owed/020-the-child-membership-work-locality-cycle-close.md) 🎯
 - [ ] [The PRINCIPLES §9 cycle CLOSED 2026-08-09 (0 MAJOR); TD1–TD3 await](roadmap/160-doctrine-review-owed/030-the-principles-9-cycle-closed-2026-08-09-0-maj.md) 🎯
 - [ ] [The cancelled-run-clause cycle CLOSED 2026-08-09 (0 MAJOR); CR1–CR6](roadmap/160-doctrine-review-owed/040-the-cancelled-run-clause-cycle-closed-2026-08.md) 🎯
@@ -188,6 +188,7 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 - [ ] [Principle: solve once, reuse the building block (Mike, 2026-07-25)](roadmap/160-doctrine-review-owed/170-principle-solve-once-reuse-the-building-block.md)
 - ⏳ [Rule-4 review queued (tier: Fable; pass type: doctrine cold pass) —…](roadmap/160-doctrine-review-owed/180-rule-4-review-queued-tier-fable-pass-type-doc.md)
 - [ ] [REVIEW.md gap — what is the review cycle of an ADR accepted in](roadmap/160-doctrine-review-owed/190-review-md-gap-the-cycle-of-an-adr-accepted-in-part.md)
+- [ ] [/security-review reads the session's pending diff, not the path](roadmap/160-doctrine-review-owed/190-security-review-reads-the-worktree-not-the-target.md) 🔎
 - ✅ [Apex: the principal's authority is absolute; his rulings are](roadmap/160-doctrine-review-owed/200-apex-authority-absolute-rulings-conditioned.md)
 - ⏳ [Rule-4 cold pass queued — apex: authority absolute, rulings](roadmap/160-doctrine-review-owed/210-rule-4-cold-pass-queued-authority-absolute.md)
 

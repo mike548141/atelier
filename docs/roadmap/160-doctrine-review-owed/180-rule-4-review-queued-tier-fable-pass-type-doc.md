@@ -9,4 +9,7 @@
   *Intent record:*
   [`sessions/2026-08-15-1031-reply-gate-unwired.md`](../../sessions/2026-08-15-1031-reply-gate-unwired.md)
   and the § *Policy-as-code programme* item *The reply gate is UNWIRED*.
-  (claimed 2026-08-15-1123 for BRIEF-WRITING ONLY — a non-author cold session writes the brief and stops; the review itself stays untaken; wt: cold-run-0815-1123)
+  Brief written 2026-08-15 by a non-author cold session — REVIEW NOT RUN,
+  still open for a cold Fable taker: `docs/reviews/2026-08-15-1126-reply-gate-unwired-cold.md`
+  (deferred sibling `docs/reviews/2026-08-15-1126-reply-gate-unwired-cold.deferred.md`, opened only after
+  the reviewer's findings are durably written; wt: cold-run-0815-1123).
