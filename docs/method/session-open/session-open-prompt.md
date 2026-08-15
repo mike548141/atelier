@@ -1,6 +1,9 @@
 Lets do some work! I have a long list of work queued up in this repo, you
 should use sub-agents where they are useful, safe and appropriate.
 
+Carry on with any work in queue thats not claimed and you are capable of until
+the economics suggest a new session, or you do for other reasons.
+
 Lets use a opus session to orchestrate and any model you choose as appropriate
 for agents doing the work. You are allowed to use any model for orchestration
 and/or agents. I will have multiple parallel sessions so take appropriate
@@ -34,7 +37,8 @@ precautions like using worktrees and watching for changes in-flight.
 
 After all of that is finished.
 
-1. Give me a summary of what was learnt, progressed or delivered this session
+1. Give me a summary of what was learnt, progressed or delivered this session.
+   Also tell me the transcript ID that I can use with cctranscript
 
 2. Review all of this chat/session. Are there any unanswered questions or
    decisions that you need me to answer? If so lets work through them one by
