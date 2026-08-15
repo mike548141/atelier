@@ -9,6 +9,12 @@ since 2026-07-22 it checks archive stores for **harvest integrity** — a live
 with a disposition note where work was superseded or declined).
 First harvested 2026-07-14 (ROADMAP.md had reached 1091 lines).
 
+**FROZEN 2026-08-15** (board-store ADR, Mike's ruling): the board moved to one
+file per item under [`roadmap/`](roadmap/README.md), and a done item now simply
+stays in its own file as `[x]` — its `git log` is the provenance a harvest used
+to approximate. Nothing new is harvested here; this file remains the verbatim
+archive of everything completed before the split, grepped on demand.
+
 ## Doctrine — completed review cycles
 - [x] 🎯 **AWA1–AWA4 rulings (AW-application cold pass —
   [`verdict`](reviews/2026-07-23-0330-aw-application-cold.md))** — 0330
