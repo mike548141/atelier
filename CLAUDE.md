@@ -25,7 +25,9 @@ private-repo nicety. Verify: `gh repo view mike548141/atelier --json visibility`
    mid-flight **or is still live** — run the read-first recovery sweep
    (`docs/method/CONCURRENCY.md` § Surviving an interrupted session) before
    assuming either, and before starting new work.
-5. `docs/ROADMAP.md` — what's open.
+5. `docs/ROADMAP.md` — what's open. It is the board's **generated index**
+   (one file per item under `docs/roadmap/`; edit the item file, then
+   `python3 tools/board.py rebuild` — never the index itself).
 
 Read the rest of `docs/method/` on demand when a change touches it.
 
