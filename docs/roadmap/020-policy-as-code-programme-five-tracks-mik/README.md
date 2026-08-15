@@ -362,7 +362,12 @@ in every repo. Detail harvested to
       `tools/test_plainscan.py`, `tools/floor.py`,
       `docs/method/COMMUNICATION.md` § *The meta-rules that make it work*;
       intent record: this item; tier: Fable; pass type: cold).
-      (claimed 2026-08-15-1024 for BRIEF-WRITING ONLY — a non-author cold session writes the brief and stops; the review itself stays untaken; wt: review-briefs-0815)
+      Brief written 2026-08-15 by a non-author cold session — REVIEW NOT RUN,
+      still open for a cold Fable taker: `docs/reviews/2026-08-15-1033-communication-floor-cold.md`
+      (deferred sibling `docs/reviews/2026-08-15-1033-communication-floor-cold.deferred.md`, opened only after
+      the reviewer's findings are durably written).
+      One brief covers this pointer and the enforcement-clause pointer in item
+      `300-generalise-the-finding-don-t-just-fix-this-doc.md` (same doctrine section).
 **P5 — the unintroduced-term rule: BUILT, MEASURED, REJECTED (2026-08-09).**
 Not a stub and not a deferral: it was written, run over the whole corpus, and
 deleted the same day on its own numbers. Recorded because the negative result
