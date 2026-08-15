@@ -6,3 +6,4 @@
   six departed claims) + the CHANGELOG entry (landed 2026-08-09, this commit).
   *Intent record:* the § *instruments/ — open features* item above, and
   [`instruments/cctranscript.search.design.md`](../../../instruments/cctranscript.search.design.md).
+  (claimed 2026-08-15-1024 for BRIEF-WRITING ONLY — a non-author cold session writes the brief and stops; the review itself stays untaken; wt: review-briefs-0815)

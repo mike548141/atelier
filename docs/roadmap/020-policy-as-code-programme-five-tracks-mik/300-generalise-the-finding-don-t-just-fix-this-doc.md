@@ -7,3 +7,4 @@
       Fable; pass type: cold). Queued one commit late — the doctrine landed in
       `753adb6` and the pointer here follows it, against the landing-equals-
       queuing rule stated in this file's preamble.
+      (claimed 2026-08-15-1024 for BRIEF-WRITING ONLY — a non-author cold session writes the brief and stops; the review itself stays untaken; wt: review-briefs-0815)
