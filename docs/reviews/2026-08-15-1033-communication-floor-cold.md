@@ -280,3 +280,120 @@ Honesty of the record otherwise: `c374959` said "NOT INSTALLED" and `171862b` co
 - [ ] **CMF8** — folded into CMF2's ruling; tested by the same drive.
 - [ ] **CMF9** — grounding trail: URL + fetch date for the digital.govt.nz clause and the two P3 authorities; tested by a reader following the links.
 - [ ] **CMF10** — nothing to do.
+
+## Reconcile — post-verdict, against the intent records and the deferred questions
+
+*Written 2026-08-15 at about 1400 UTC, after phase 1 was committed (`3319fc5`). Opened, in this order: the sibling text (below); `docs/sessions/2026-08-09-0848-communication-enforced.md`; `docs/sessions/2026-08-10-0036-plainscan-repo-plane-rescope.md`; their `docs/SESSIONS.md` index lines (L249, L256) and the 1012 UTC P5 addendum (L254); the two pointers again; items `120-…/010-…`, `020-…/260-…`, `270-…`, `280-…`; the prior verdict `docs/reviews/2026-07-12-communication.md`; `docs/ROADMAP-DONE.md` § *The communication floor*; and, by the orchestrator's leave for reconcile only because `cd6232b`'s claims bear on CMF1/CMF2, `docs/sessions/2026-08-15-1031-reply-gate-unwired.md` and item `020-…/310-…` (its first ~80 lines). Phase-1 text above is untouched.*
+
+### Applied as ruled?
+
+- **2026-08-09, "switch it on, proposed" — 45 words / 60 characters on the reply plane.** Applied: `CHAT_SENTENCE_LIMIT = 45`, `CHAT_ASIDE_LIMIT = 60` (hook L70–71), and ROADMAP-DONE records the four candidate rows with their historical fire rates put in front of the principal before the ruling. Faithful. The record also says the design direction ("deterministic hard walls like policy-as-code") arrived with the request; the 2026-08-15 record says the principal raised reservations at the recommendation that were never written down. Both are the author's accounts; the gap between them is exactly the "approval is not the whole ruling" rule `cd6232b` states, and it is the RG pass's to weigh.
+- **2026-08-10, "I accept your recommendation" — option 1: engine and reply gate untouched, repo plane scoped by excluding records "the same shape as the cold-pass records exclusion".** Applied as three literal paths. One ambiguity the records do not settle: "the cold-pass records exclusion" is not defined in doctrine (grep of `docs/method`, `docs/build`: no hit); the one live instance of it — this pass's own preamble — excludes `docs/reviews/` as well as the three paths. So whether the code applied the ruling's *shape* depends on which shape was meant. That is CMF4's point in the ruling's own words; severity unchanged.
+- **The P5 ruling ("try it")** — built, measured, deleted; the addendum matches `b879b02`. Applied.
+
+### What the records resolve from the checklist
+
+- **CMF3 — sharpened, not softened.** The 0848 record's table says all four rules "already existed" (P3: "yes — plain-over-jargon"; P1: "yes — the same clause"). Phase 1 verified against `c374959^` that no sentence cap and no reference-code rule existed; "plain over jargon" carries neither. So the record made the claim explicit that the doctrine paragraph inherits, and the record itself notes the corpus was "the agent's own output" and the scanner "self-marking". The 7,379 vs ~7,900 pair is also both in the record, unreconciled ("printed 7,379 findings into its own first pre-commit run"; "~7,900 findings"). CMF3 stands at MODERATE.
+- **CMF5 — corroborated by the unwiring's own measurement.** The 1031 record: P1 "fired 39 of 61 times", on "board item identifiers sitting in linked table cells that name the item beside them, plus a product name" — the class phase 1 reproduced with `S3`, `SHA256`, `M2`. Its "Detection was sound the whole time" therefore reads as "the count was right", not "the classification was right". Stands at MODERATE; the RG pass owns the HEAD sentence.
+- **CMF2 — one open question the records raise and do not answer.** The 1031 record: "of the 6 turns that took a second block, 4 still failed and hit the give-up path." Under the documented `additionalContext` behaviour that path *continues the conversation*; if so those four turns would show a fourth copy labelled "Stop hook feedback". The record counts "verdict shown three times" for the six and does not say what followed the give-up. **Post-reconcile addition (clearly marked, no phase-1 change):** the transcripts of those four turns are the one place the give-up path's real behaviour can be read; the RG pass should look. Severity stays MODERATE pending that.
+- **CMF7 — confirmed.** The 0848 record itself says "the review pointer is one commit late"; the 0036 record says the rescope pointer went "in the roadmap entry" of the records commit. Item `120-…/010-…` is still `[ ]` while the P5 addendum records the fix and "8/8 clean runs since". No CHANGELOG entry anywhere in the three records' "landed" lists.
+- **CMF9 — partly resolved.** The 0848 record names the two P3 authorities (digital.govt.nz, digital.gov) — that answers "which"; still no URL or fetch date, and the P1/P2 clause remains unverifiable from here. Stays a note.
+- **CMF1 — resolved as to the *what*, unchanged as to the *finding*.** The 0848 record states the premise in the same words the doctrine did ("rewritten before Mike reads it"), and its honest-notes list — six items long — does not include "not checked on a terminal". The 1031 record says so explicitly. MAJOR stands as the description of the delta under review; the correction is `cd6232b`'s and is under the RG pass.
+- **CMF4, CMF6, CMF8, CMF10** — nothing in the records changes them. The 0036 record's "the gate fired on its own defender … recorded as evidence the reply plane works" reads differently after 1031: it is evidence the detector fires, and an early instance of the reader-cost the design could not see.
+
+### Divergences
+
+1. **Prior verdict (2026-07-12) vs the correction's account of it.** The 2026-07-12 pass's C1 asked for the "only control" sentence *about the calibration instance* — the person-level document no house review can reach. The 2026-08-09 correction says exactly that: true of the document, misread as true of the prose. Faithful; no divergence.
+2. **The 0848 record vs the doctrine on which rules pre-existed** — see CMF3 above; the record over-claims and the doctrine inherits it.
+3. **The 0036 record's "same shape as the cold-pass records exclusion" vs the code** — see *Applied as ruled?*.
+4. **The 1031 record's "detection was sound the whole time" vs its own trigger analysis and this pass's probes** — see CMF5.
+5. **Item 280 (*watch the live hook for two failure modes*: "a rewrite loop the two-block give-up misses, and false blocks on output where density is correct … both surface as visible friction rather than silent damage")** — the second mode is what fired (CMF5, the 1031 record); the first is CMF2's shape; and "visible friction rather than silent damage" was the premise phase 1 found false for the give-up path (`additionalContext` is not principal-visible). The item was written to watch for the failure that then happened, which is to its credit; its "visible" clause is the part the mechanism does not deliver.
+
+### Answers to the seven seeded questions
+
+1. **Exclusion list vs the doctrine's words.** Files meeting "append-only history written for the next session's agent" and not excluded: `docs/reviews/withdrawn/` (verbatim by doctrine, 77 findings), `SESSIONS-ARCHIVE.md` (named by RECORD.md, absent here today), and closed verdicts in `docs/reviews/` (74% of the post-rescope tally) — arguably also `docs/decisions/README.md` (an index, 1-line entries). An excluded file the principal in fact reads: `SESSIONS.md`'s tail is in every *agent's* onramp; the principal reads it rarely — the exclusion holds for him. Drawn on which ground: the code names three paths and the 0036 record says the two heaviest files "in every previous run were both records" — the list is consistent with the stated ground *and* with "the three heaviest"; the ground would have drawn a wider list. → CMF4.
+2. **"Decidable without judgement" and the house numbers.** The *comparison* is judgement-free once the number exists; the *number* is a judgement, and the doctrine owns that at the point of use for P3 (module docstring, README table, registry comment, ROADMAP-DONE all say "house call") — honestly. What the doctrine does *not* own is that P1's classification is a shape heuristic (CMF5). Answer: yes for P3/P4 as written; no for P1 as written.
+3. **Fail-open's edge.** What fails it open in practice: engine path missing (`ATELIER_TOOLS` unset *and* the hook moved out of tree *and* `~/.pets/atelier/tools` absent — all three, since candidates fall through), any exception in `scan_text`, malformed stdin, Python-version incompatibility in `plainscan.py` (both files carry `from __future__ import annotations` for 3.9; a later syntax addition would fail open silently). How anyone would know: they would not — exit 0, no output, no `systemMessage`. Item 280 does not cover this: both of its modes presuppose the hook is running. → CMF6.
+4. **The state file.** Holds `{session_id: {sig, count, at}}` — no reply text (verified live and by the security subagent). The give-up path does let an unreadable reply through after two blocks — but not silently to the *model* (it receives the note) and not visibly to the *principal* (the note is not a chat message); and under the documented behaviour it does not even end the turn. → CMF2. The stale live file (233 bytes) still exists after unwiring.
+5. **The tally as evidence.** Removing 3,377 advisory findings changes what a committer sees in the pre-commit tail (the two heaviest files were records; now they are doctrine and a verdict) and nothing the principal experiences directly. The doctrine's "3,377 of 7,817" is a *measurement* — it reproduces exactly — used as an *ornament*: it decorates a scoping whose real ground is audience, and the number would be the same whichever ground was meant. Keep the number; make it carry the ground it actually measures (CMF3/CMF4 counsel).
+6. **Recitation on the ci plane.** `beaf240` bounds the recitation to a tally, the three heaviest paths and six excerpts of ≤70 characters, from files the scan reads. On a private repo's CI the log is private; on a public repo the excerpted prose is already public. The cap bounds *volume*, not *class*: `--limit 0` or `--json` recites everything, but nothing in the floor registry passes either. No new leak path found; the ordinary caution (a public repo's CI log is public) applies as before.
+7. **The flake.** Gone at the landing tree and at HEAD on the evidence: 5/5 full-suite runs at `e390382`, 2/2 at HEAD (1,321 tests), 11/11 module runs. Cause or symptom: the fix removed the *cause the tests had* — a shared, persistent counter keyed on reused ids — by isolating the state file per test run. The *design* cause remains in the hook (a machine-wide counter shared by every session, keyed on session id, non-atomic writes): the tests can no longer collide with the live install, but two live sessions still can (CMF8). Cause removed for the suite; symptom-class narrowed, not removed, for the hook.
+
+### Post-reconcile additions (clearly marked)
+
+- **[post-reconcile] CMF2 addendum** — the four give-up-path turns in the 2026-08-15 transcript window are the empirical test of whether `additionalContext` on `Stop` continued the conversation; the RG pass should read them before ruling on destroy-or-repurpose. No severity change here.
+- **[post-reconcile] CMF3 addendum** — the 0848 record's "Rule already existed? yes" column is the upstream source of the doctrine's over-claim; a fix to the doctrine paragraph should say the record over-stated it rather than silently diverge from it.
+- **[post-reconcile] CMF7 addendum** — item `120-…/010-…` can be closed on this pass's run counts plus the P5 addendum's 8/8.
+- **No severity amendments.** Overall line unchanged: **FAIL — 1 MAJOR / 5 MODERATE / 2 minor / 2 note.**
+
+## Deferred material (folded in at verdict landing)
+
+# Deferred — the communication floor cold pass
+
+*Sibling of `2026-08-15-1033-communication-floor-cold.md`. Open only after the
+reviewer's own findings are durably written (REVIEW.md rule 1). Fold in below
+the verdict and delete this file when the verdict lands.*
+
+## References withheld from the brief
+
+- **Intent records:** `docs/sessions/2026-08-09-0848-communication-enforced.md`
+  (the build, the measurement, the ruling on the reply-plane numbers, and the
+  P5 addendum in `docs/SESSIONS.md` at 1012 UTC) and
+  `docs/sessions/2026-08-10-0036-plainscan-repo-plane-rescope.md` (the
+  rescope's ruling and delivery). Their one-line entries sit in
+  `docs/SESSIONS.md`.
+- **The queue pointers:**
+  `docs/roadmap/020-policy-as-code-programme-five-tracks-mik/300-generalise-the-finding-don-t-just-fix-this-doc.md`
+  and the rescope pointer in that section's `README.md` (§ *COMMUNICATION.md
+  enforced — the first census finding, worked*). The section narrative around
+  them is the author's account of the aim, the measurement, and P5.
+- **Neighbouring open items** (the author's own follow-ups — read as the
+  author's account, not settled scope): the flaky Stop-hook tests
+  (`docs/roadmap/120-…/010-…`), the repo-plane numbers still unruled
+  (`020-…/260-…`), *watch the live hook for two failure modes*
+  (`020-…/280-…`), and *carry P5's finding into part (b)* (`020-…/270-…`).
+- **Prior verdicts** — reconcile only, never anchor:
+  `docs/reviews/2026-07-12-communication.md` (the doctrine's first cold pass;
+  its enforcement clause dates from that cycle) and
+  `docs/ROADMAP-DONE.md` § *The communication floor*.
+
+## The brief-writer's seeded questions
+
+Written by a non-author cold session from the delta alone. A floor, never a
+fence — the reviewer's own findings come first.
+
+1. **The rescope's exclusion list versus the doctrine's words.**
+   `RECORDS_GLOBS` names three paths. The doctrine says records are excluded
+   because they are "append-only history written for the next session's
+   agent". Which other files in this repo meet that description and are not
+   excluded (`docs/reviews/` verdicts? `docs/decisions/`?), and which excluded
+   file does the principal in fact read (`SESSIONS.md`'s tail is in the
+   onramp order)? Is the list drawn on the stated ground, or on the three
+   files that carried the most findings?
+2. **The correction's own claim about itself.** The rewritten clause says
+   "anything a machine can decide without judgement … is checkable". P3's
+   35-word (repo) and 45-word (reply) caps are house calls with no published
+   authority. Is a number the house picked "decidable without judgement", and
+   does the doctrine own that honestly at the point of use?
+3. **Fail-open on the principal's reading surface.** Every other gate fails
+   closed. The hook fails open with a stated trade. Test the trade's edge:
+   what fails it open in practice (engine path missing, `ATELIER_TOOLS`
+   unset, Python 3.9 vs the repo's Python), how would anyone know it had
+   failed open, and does the two-failure-modes follow-up cover this?
+4. **The state file.** `~/.claude/.plain-reply-state.json` with a six-hour
+   TTL, keyed by session id, was shared with the running install and across
+   tests until `b879b02`. What does it hold, is any reply text persisted in
+   it, and does the give-up path let an unreadable reply through silently
+   after N blocks — the exact defect class the hook exists to stop?
+5. **The tally as evidence.** 7,817 → 4,440 is the rescope's headline. Both
+   numbers are advisory findings on a warn-only plane. Does removing 3,377
+   warnings nobody was reading change anything the principal experiences,
+   and is the number in the doctrine text a measurement or an ornament?
+6. **The recitation on the repo plane.** `beaf240` capped the recitation and
+   kept the tally. On the ci plane the offending line is printed into a
+   public Actions log. Is that a leak path for a private repo's prose under
+   the same registry, and does the cap bound it?
+7. **The flake.** Two Stop-hook tests were flaky in the full-suite run and
+   passed alone; the state-file override was the fix. Is the flake gone at
+   HEAD (run the suite several times), and did the fix remove the cause or
+   the symptom?
