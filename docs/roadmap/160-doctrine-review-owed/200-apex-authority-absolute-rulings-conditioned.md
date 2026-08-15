@@ -22,5 +22,11 @@
       stamp (stampscan identical) now say the authority is absolute and an
       unbriefed approval is challengeable, not "unrecognised". Children
       pick the floor change up at their next pin bump (`140-…` lane).
+      **Same sitting, same commit stream:** Mike ruled *"Surface a genuine
+      dilemma; never silently resolve it"* is honesty doctrine
+      (transparency is a necessity of honesty — "the truth, the whole
+      truth, and nothing but the truth"); restored to `00-APEX.md`
+      § Honesty as an in-practice bullet, the floor block + stamp, and the
+      session-onramp skill, under honesty rather than the removed Laws.
       Review queued per REVIEW rule 4 — the pointer is `210-…` beside
       this file.

@@ -42,6 +42,24 @@ after it):
   uninformed, and an unbriefed approval is open to challenge on the
   briefing (stampscan: identical, 52 lines).
 
+## Addendum — the dilemma line comes back as honesty doctrine
+
+Mid-turn, Mike ruled on the flag the Laws-removal session had raised:
+
+> And yes we do need to keep this point that claude must "Surface a genuine
+> dilemma; never silently resolve it". This is a part of the honesty
+> doctrine in the APEX, it is a part of being transparent is a necesity to
+> being honest. As they say in the USA - Tell the truth, the whole truth,
+> and nothing but the truth
+
+Applied in the same commit stream: `00-APEX.md` § "Honesty is absolute"
+gains an in-practice bullet (a fork quietly picked on the principal's
+behalf is a withheld choice; withholding is dishonesty per the
+transparency clause; the whole truth includes the dilemmas). Restored to
+the child floor block + template stamp (stampscan identical, 53 lines) and
+the `session-onramp` skill — under the *honesty* bullet in each, where it
+now belongs, not the Laws bullet it used to ride.
+
 ## Judgement calls, said aloud
 
 - **"Challengeable" is not "void".** The old wording had the doctrine
