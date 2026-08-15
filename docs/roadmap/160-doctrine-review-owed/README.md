@@ -95,10 +95,14 @@ pass 0M/1m/1L/1n, SCA1–SCA3 accept-all applied terminal 2026-07-23) →
   *Delta:* the accountability-grounding paragraph (landed this commit). *Intent
   record:* Mike's reading that the principal's authority is born of the
   principal's accountability.
-- 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS 1M/2m/2n
-  — [verdict](../../reviews/2026-07-26-2215-apex-zeroth-law-cold.md); ZL1–ZL5 await
-  Mike's ruling (rule 3; the MAJOR — the session-onramp skill still teaches the
-  pre-Zeroth Laws — keeps the cycle open past the application).
+- CYCLE CLOSED 2026-08-15 — **the Laws are OUT of the apex** (Mike's removal
+  ruling, executed wt: laws-removal-0815; the sweep is recorded in the
+  policy-as-code section's `210-…` item). REVIEWED 2026-07-26 (rule-4 Fable
+  cold pass): PASS-WITH-FINDINGS 1M/2m/2n
+  — [verdict](../../reviews/2026-07-26-2215-apex-zeroth-law-cold.md); Mike
+  ruled 2026-08-04: ZL1 fix + widened sweep (APPLIED 2026-08-05, reviewed in
+  the sitting-five-edits cold pass), ZL2–ZL5 lapsed into the removal — now
+  executed. The entry below stands as the record of the Zeroth's landing.
   **Apex: Asimov's Zeroth Law added above the Three Laws** — APPLIED
   2026-07-24 (this session, Opus, at Mike's instruction). `00-APEX.md` § "Then
   the Laws" gained the **Zeroth Law** — "The agent may not harm humanity or,

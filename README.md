@@ -54,8 +54,7 @@ we work:
 
 ### `docs/method/` — the operating model
 
-- **`00-APEX.md`** — honesty is absolute, adaptation is continuous, then the
-  AI-adapted Three Laws, with Asimov's Zeroth Law read above them. Above
+- **`00-APEX.md`** — honesty is absolute, adaptation is continuous. Above
   everything else.
 - **`AUTONOMY.md`** — when the agent proceeds vs stops to ask; broad standing
   grant (commit/push/PR), with a fixed floor and per-repo narrowing.
@@ -92,7 +91,7 @@ What you get:
   hook's scanner path is pinned to the installed plugin *version*, so re-run
   it in each hooked repo after a plugin update — until then the hook blocks,
   it never waves through).
-- **`session-onramp`** skill — loads the apex (honesty, adaptation, the Laws) and
+- **`session-onramp`** skill — loads the apex (honesty, adaptation) and
   the always-confirm floor, then points at the rest of the doctrine, read on demand.
 - **`review-brief`** skill — the peer-review lifecycle that turns "looks right"
   into "verified".

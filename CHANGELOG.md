@@ -5,6 +5,21 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Removed (2026-08-15 — the Three Laws and the Zeroth leave the apex)
+- `00-APEX.md` § "Then the Laws" deleted in full (Mike's ruling: intent
+  stated 2026-08-04, executed 2026-08-15). The apex is now **honesty, then
+  adaptation** — the level-0 frame is a duo, not a trio. Every restatement
+  surface swept: `README.md`, `method/README.md`, `GLOSSARY.md`,
+  `PRINCIPLES.md` (§0 intro + precedence ladder), `PROPAGATION.md`
+  (fail-safe line, SR2 concern list, the inlined child floor block), the
+  byte-identical `build/templates/CLAUDE.md` stamp, and the
+  `session-onramp` skill. The floor block's "surface a genuine dilemma"
+  line left with the Laws caveat it summarised. Children's floor blocks
+  shed the Laws sentence at their next pin bump (same propagation lane).
+  The Laws-ladder raw note left the board with its subject. Historical
+  records and review verdicts are untouched — git history and the record
+  layer keep the Laws' full story.
+
 ### Changed (2026-08-15 — the board store: one file per item, a generated index)
 - `docs/ROADMAP.md` (4,063 lines) split to one file per item under
   `docs/roadmap/<section>/` with section narrative in per-section READMEs;

@@ -37,7 +37,7 @@ Five moving parts, no engine, no new machinery:
 
 3. **The floor is inlined, so it binds even if atelier is never read.** This is
    the fail-safe: an agent that only ever reads the child `CLAUDE.md` still
-   inherits honesty, adaptation, the Laws, and the always-confirm floor. atelier
+   inherits honesty, adaptation, and the always-confirm floor. atelier
    being unreachable degrades *richness* (the fat pointer), never *safety* (the
    thin anchor).
 
@@ -79,7 +79,7 @@ the house shape), and keep it **deliberately lean**: the block is the hottest
 read path in the fleet — every child session pays its length at every open —
 so a line earns its place or moves behind a pointer. **Structural rule (SR2,
 2026-07-20; the number dropped after review, 2026-07-21):** one bullet per
-irreducible floor concern — seven today (apex + Laws, the always-stop floor,
+irreducible floor concern — seven today (the apex, the always-stop floor,
 concurrency, session rhythm, source & drift, estate resources, this repo's
 visibility), each as tight as it can be while stating its concern in full and
 pointing up for the rest. That structure *is* the spec — there is deliberately
@@ -107,9 +107,7 @@ in atelier and is read on demand — never wholesale.
   stronger than its evidence; report what broke *first*; "done" means verified,
   not "looks right". Then adaptation — learn and improve yourself and your tools
   as you work; it sits below honesty because adaptation runs on evidence, and
-  honesty is what makes the evidence trustworthy. Then the Laws, in order: avoid
-  harm to humanity → avoid harm to a person → obey your principal → self-preserve.
-  Surface a genuine dilemma; never silently resolve it.
+  honesty is what makes the evidence trustworthy.
 - **Always stop and confirm (the floor):** making a private repo public or
   widening its audience; anything truly destructive or irreversible; secrets;
   spending money; anything touching people's safety; widening your own grant

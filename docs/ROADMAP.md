@@ -38,7 +38,8 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 - [ ] [The mechanisable form of it](roadmap/020-policy-as-code-programme-five-tracks-mik/180-the-mechanisable-form-of-it.md)
 - [ ] [The measurement that supports it, and its limits.](roadmap/020-policy-as-code-programme-five-tracks-mik/190-the-measurement-that-supports-it-and-its-limit.md)
 - [ ] [Aggravating factor worth keeping](roadmap/020-policy-as-code-programme-five-tracks-mik/200-aggravating-factor-worth-keeping.md)
-- [ ] [The Three Laws and the Zeroth are coming OUT of the apex (Mike,](roadmap/020-policy-as-code-programme-five-tracks-mik/210-the-three-laws-and-the-zeroth-are-coming-out-o.md) 🎯
+- ✅ [The Three Laws and the Zeroth are OUT of the apex (Mike, ruled](roadmap/020-policy-as-code-programme-five-tracks-mik/210-the-three-laws-and-the-zeroth-are-coming-out-o.md)
+- ⏳ [Rule-4 cold pass queued — the Laws removal from the apex.](roadmap/020-policy-as-code-programme-five-tracks-mik/215-rule-4-cold-pass-queued-laws-removal.md)
 - [ ] [(a) The census nobody has run: which rules have a forcing function,](roadmap/020-policy-as-code-programme-five-tracks-mik/220-a-the-census-nobody-has-run-which-rules-have-a.md) 🎯
 - [ ] [(b) The half with no owner: doctrine that reaches the moment of](roadmap/020-policy-as-code-programme-five-tracks-mik/230-b-the-half-with-no-owner-doctrine-that-reaches.md) 🎯
 - [ ] [The posture change this implies — stated so it is ruled, not](roadmap/020-policy-as-code-programme-five-tracks-mik/240-the-posture-change-this-implies-stated-so-it-i.md) 🎯
@@ -253,5 +254,4 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 
 - [ ] [Map and understand the difference between honesty (that claude does](roadmap/270-open-questions/010-map-and-understand-the-difference-between-hone.md)
 - [ ] [Grab the AI chat (Teams, 15/7/26) with a colleague](roadmap/270-open-questions/020-grab-the-ai-chat-teams-15-7-26-with-a-colleagu.md) <!-- datescan:allow: verbatim; wrapscan:allow: marker-inflated line -->
-- [ ] [The Laws are a ladder — but a ladder needs a world-model to climb](roadmap/270-open-questions/030-the-laws-are-a-ladder-but-a-ladder-needs-a-wor.md)
 - [ ] [Accountability and authority must match — in both directions](roadmap/270-open-questions/040-accountability-and-authority-must-match-in-bot.md)
