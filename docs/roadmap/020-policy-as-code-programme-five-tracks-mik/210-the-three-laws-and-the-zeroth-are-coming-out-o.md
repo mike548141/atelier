@@ -13,8 +13,9 @@
       SR2 concern list, inlined floor block), the byte-identical
       `build/templates/CLAUDE.md` floor block, and the plugin surface
       `skills/session-onramp/SKILL.md` (description + the Laws bullet).
-      The Laws-ladder raw note (`270-open-questions/030-…`) left with its
-      subject. **ZL2–ZL5 lapsed** with the section as ruled; the ZL cycle
+      The Laws-ladder raw note (`270-open-questions/030-…`) is closed as
+      *not required*, kept in full — history stays in every layer that
+      records it (Mike's clarification the same day). **ZL2–ZL5 lapsed** with the section as ruled; the ZL cycle
       is closed in `160-doctrine-review-owed`. Children's floor blocks
       shed the Laws sentence via the propagation lane (`160/140-…`).
       Review queued per REVIEW rule 4 — the pointer is `215-…` beside

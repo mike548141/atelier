@@ -259,4 +259,5 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 
 - [ ] [Map and understand the difference between honesty (that claude does](roadmap/270-open-questions/010-map-and-understand-the-difference-between-hone.md)
 - [ ] [Grab the AI chat (Teams, 15/7/26) with a colleague](roadmap/270-open-questions/020-grab-the-ai-chat-teams-15-7-26-with-a-colleagu.md) <!-- datescan:allow: verbatim; wrapscan:allow: marker-inflated line -->
+- ✅ [The Laws are a ladder — but a ladder needs a world-model to climb](roadmap/270-open-questions/030-the-laws-are-a-ladder-but-a-ladder-needs-a-wor.md)
 - [ ] [Accountability and authority must match — in both directions](roadmap/270-open-questions/040-accountability-and-authority-must-match-in-bot.md)

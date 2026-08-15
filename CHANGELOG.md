@@ -43,9 +43,11 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   line left with the Laws caveat it summarised — and was restored the same
   day as honesty doctrine (entry above). Children's floor blocks
   shed the Laws sentence at their next pin bump (same propagation lane).
-  The Laws-ladder raw note left the board with its subject. Historical
-  records and review verdicts are untouched — git history and the record
-  layer keep the Laws' full story.
+  The Laws-ladder raw note is closed as *not required*, kept in full.
+  Historical records and review verdicts are untouched — every history
+  layer (git, session logs, closed board items) keeps the Laws' full
+  story: they were there, and they were removed. (Mike's clarification,
+  2026-08-15: history is kept everywhere it is recorded, not git alone.)
 
 ### Changed (2026-08-15 — the board store: one file per item, a generated index)
 - `docs/ROADMAP.md` (4,063 lines) split to one file per item under
