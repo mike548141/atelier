@@ -66,6 +66,16 @@ pure cost with a lossless fix, harvest it"; the advisory says "this file is long
 look at it" and never breaks a build. The judgement of whether a long all-open
 file is fine or hiding resolved narrative stays human.
 
+**board** (a records-hygiene check, board-store ADR 2026-08-15) guards the one
+derived file the split board keeps: `ROADMAP.md` is generated from the per-item
+files under `docs/roadmap/`, and a commit whose index is stale against them
+fails with the remedy printed (`board.py rebuild`; after a merge conflict on
+the index, rebuilding *is* the resolution). Done items render `✅` in the index
+— never `[x]`, so sizescan's cold-content gate cannot fire on a generated line.
+A repo with no `docs/roadmap/` directory is out of scope and passes saying so.
+Stated residual: the check compares worktree to worktree — the staged-plane
+seam (harvestscan's HV4 discipline) is a queued follow-up on the board.
+
 **reviewscan** (a records-hygiene check) proves only **presence**: a decision
 record carries *a* review line. Whether "not warranted" was the honest call —
 or a queued pointer was ever taken — is exactly the judgement a validator
