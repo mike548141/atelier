@@ -39,6 +39,25 @@ its work** — a worktree merge forces a return to this file, an inline claim ha
 no such forcing step, and the one item that skipped the worktree skipped its
 close with it (2026-07-26, cleared hours after `b89a306` had shipped).
 
+## Board store migration — per-item files (Mike ruled 2026-08-15)
+
+**The ruling, verbatim:** *"I accept your recommendation. Proceed."* — accepting
+a two-part recommendation from the 2026-08-15 research session: (1) a **weekly
+ruling sitting** so the ~67 🎯 items drain at a known cadence — Mike's process,
+no agent work owed beyond the offer to schedule a reminder; (2) **option B**:
+one markdown file per roadmap item under `docs/roadmap/`, `ROADMAP.md` reduced
+to a short hook-rebuilt index, provenance from each item file's own git history,
+programme narrative kept in its own files, `ROADMAP-DONE.md` frozen as archive.
+atelier is the worked example; fleet rollout queued separately after the review
+cycle closes. Full argument and rejected options (SQLite primary, event log,
+git-bug, GitHub Issues) in the ADR this item's work delivers.
+
+- [~] **Migrate the board to per-item files + generate the index** — ADR, item
+      format, `tools/board.py` (index generator + validator + tests), migration
+      of all open items, scanner-compatibility pass, hook wiring, doctrine
+      updates (RECORD/CONCURRENCY/CLAUDE read order). Review queued at landing
+      per REVIEW rule 4. (claimed 2026-08-15-0610, wt: board-per-item-0815)
+
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
 
 **What this is.** ADR 0008 made enforcement propagate *by call, not by copy*,
