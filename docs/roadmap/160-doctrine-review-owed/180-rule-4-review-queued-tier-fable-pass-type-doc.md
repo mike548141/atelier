@@ -9,3 +9,4 @@
   *Intent record:*
   [`sessions/2026-08-15-1031-reply-gate-unwired.md`](../../sessions/2026-08-15-1031-reply-gate-unwired.md)
   and the § *Policy-as-code programme* item *The reply gate is UNWIRED*.
+  (claimed 2026-08-15-1123 for BRIEF-WRITING ONLY — a non-author cold session writes the brief and stops; the review itself stays untaken; wt: cold-run-0815-1123)

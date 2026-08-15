@@ -371,6 +371,7 @@ repo plane is unaffected and stands. Detail harvested to
       still open for a cold Fable taker: `docs/reviews/2026-08-15-1033-communication-floor-cold.md`
       (deferred sibling `docs/reviews/2026-08-15-1033-communication-floor-cold.deferred.md`, opened only after
       the reviewer's findings are durably written).
+      (TAKEN 2026-08-15-1123 UTC — RUNNING: a non-author cold Fable session Mike opened is running the review under an orchestrator-held context partition; verdict lands in the brief; wt: cold-run-0815-1123)
       One brief covers this pointer and the enforcement-clause pointer in item
       `300-generalise-the-finding-don-t-just-fix-this-doc.md` (same doctrine section).
 **P5 — the unintroduced-term rule: BUILT, MEASURED, REJECTED (2026-08-09).**

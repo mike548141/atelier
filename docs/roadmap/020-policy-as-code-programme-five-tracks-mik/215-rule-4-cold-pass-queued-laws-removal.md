@@ -7,3 +7,4 @@
       still open for a cold Fable taker: `docs/reviews/2026-08-15-1031-laws-removal-apex-cold.md`
       (deferred sibling `docs/reviews/2026-08-15-1031-laws-removal-apex-cold.deferred.md`, opened only after
       the reviewer's findings are durably written).
+      (TAKEN 2026-08-15-1123 UTC — RUNNING: a non-author cold Fable session Mike opened is running the review under an orchestrator-held context partition; verdict lands in the brief; wt: cold-run-0815-1123)

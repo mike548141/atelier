@@ -13,3 +13,4 @@
       the reviewer's findings are durably written).
       One brief covers this pointer and the plainscan repo-plane rescope pointer
       (same doctrine section; the rescope builds on this mechanism).
+      (TAKEN 2026-08-15-1123 UTC — RUNNING: a non-author cold Fable session Mike opened is running the review under an orchestrator-held context partition; verdict lands in the brief; wt: cold-run-0815-1123)
