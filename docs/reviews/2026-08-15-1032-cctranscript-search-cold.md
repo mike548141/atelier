@@ -509,3 +509,208 @@ none of the counsel above is a decision.
 - [ ] CS11 — `--list` catches unreadable logs; `--repo` fallback for
       cwd-less records; tested with a `chmod 000` fixture.
 - [ ] CS12 — one NOTES sentence on pathological patterns.
+
+## Reconcile — post-verdict, against the intent record and the deferred questions
+
+Opened after phase 1 was committed (`1b93f34`), on the orchestrator's release,
+and only the surfaces the sibling names: the board section
+`docs/roadmap/210-instruments-open-features/README.md` (the *cctranscript
+learns to search* narrative) and items `050-…`, `080-…`, `090-…`;
+`docs/ROADMAP-DONE.md` § *cctranscript learns to search*; the queue pointer
+`160-…/010-…`; and the two prior verdicts
+`docs/reviews/2026-07-11-instruments-test-floor-code-review.md` and
+`docs/reviews/2026-07-17-1000-adr0006-ccarchive-preserve-cold.md`. Nothing in
+phase 1 above is revised; additions are marked as such.
+
+### Applied as ruled?
+
+There is no prior ruling on this delta to apply — this is the first pass. The
+design (2026-07-27) closed its six questions on measurement and recorded "no
+decision left open" for the principal; the build applied that design, and the
+record (board narrative, `ROADMAP-DONE`) restates the six departures the banner
+declares, word for word with the commit message. The record and the delta agree
+with each other; the reviewer's disagreements (below) are with both.
+
+### What the record resolves from the checklist
+
+- **CS8** — the archive-plane pool cost is *known* to the record: item `050-…`
+  states that "11.5 s of a 13.9 s archive search happens before a single hit
+  is scored" and names both causes. CS8 therefore stands as a *reporting* gap
+  (the tool's own summary hides a cost the record documents), not a discovery;
+  severity unchanged (minor).
+- **CS9** — narrows: `ROADMAP-DONE.md` § *cctranscript learns to search* carries
+  the figure legibly ("6 escaped … against 6,698 raw ones"); the collapse is
+  in the design banner, the CHANGELOG and the commit message only. Severity
+  unchanged (note).
+- **CS11** (harvest, outside the delta) — the 2026-07-11 verdict's item 9
+  ("one `sessionRecord()` constructor … divergent label fallback") was ruled
+  `[fixed]` and is the constructor now in place; the label fallback it
+  unified is the one that drops an unreadable log out of `--repo` scope. Not
+  a regression of that fix — a case it never covered.
+- Nothing in the record resolves CS1–CS7, CS10 or CS12.
+
+### Divergences between the record and this verdict
+
+- `ROADMAP-DONE.md` (and the board narrative) state that a selective search
+  "runs at 1.22–1.32× a bare read, **which meets the condition**". This
+  reviewer's re-run (Lens 2) put a selective term at 1.9–2.0× the tool's own
+  miss run; the "meets" claim rests on a floor the banner itself gives as a
+  2× range. CS4 stands.
+- `ROADMAP-DONE.md` says the `--regex` limitation "lives in NOTES rather than
+  being papered over". NOTES tells the user to write such patterns "against
+  the escaped form", which the reviewer showed yields gate-pass, probe-miss
+  (CS1). The record believes the limitation is documented; it is documented
+  wrongly.
+- Board item `080-…` (`--think` does nothing) still carries the census figure
+  the banner corrected (24,856 blocks; the banner and man page say 31,800).
+  A stale number in a follow-up item — record hygiene, folded into CS9's
+  class; no new ID.
+- `ROADMAP-DONE.md`'s harvested checkbox line reads "DESIGN DONE 2026-07-27,
+  BUILD not started" under a section headed "done 2026-08-09" — a verbatim
+  harvest of the pre-build item text; the section prose is current. Note
+  only.
+- The two prior verdicts do not touch `--search`. The 2026-07-11 pass's
+  item 3 (parsing at module load must not exit) is honoured by the delta:
+  `normDate`, `--top` validation and `buildMatchers` all run inside
+  `runSearch`, not at load. The 2026-07-17 pass's guard 1 (no personal data
+  in code) holds for the delta — the archive default is derived from the home
+  directory at run time and no operator path is committed; its guard 2
+  (dest inside a repo refused) is a write-side guard with no read-side
+  analogue owed here.
+
+### Answers to the six seeded questions
+
+1. **A seventh departure.** Yes, several, none of them a flag: the DONE list
+   the banner does not mention is met except as declared, but the banner is
+   silent on (a) the `--regex` class being *silently* unmatchable rather than
+   documented (CS1), (b) `--utc` moving the `--since/--until` boundary
+   (CS5), (c) the astral-escape gap in "every form the term can take" (CS6),
+   and (d) the DONE checklist left `[ ]` under "BUILT" (CS4). Every flag in
+   `--help` is named in the design or the banner (`--top` in the banner);
+   the design named `--case`, which the build kept.
+2. **Is a documented false negative acceptable in a recall tool?** No, and the
+   pass found it is worse than the banner says: the class is real for `"`,
+   `\`, newline classes *and anchors*, and the documented workaround does not
+   work (CS1). Visibility: NOTES only — not at the `--regex` OPTIONS entry,
+   not in the run's own summary. Counsel as in CS1: bypass the gate for that
+   pattern class (cost visible in `sessionsParsed`) or decode per line;
+   whichever, the OPTIONS entry and the summary line should say when a
+   pattern falls in the class.
+3. **Structural guard vs the property.** The test pins the *mechanism* (a
+   swept file that misses is never parsed — 1 of 13) exactly; that is what
+   guards against the "simplify into parse-everything" regression the design
+   feared, and it is the right structural guard. It does not pin the *cost*
+   outcome, and the cost outcome is what the record overstates: the 3.7× /
+   9.6 s figure reproduced in seconds (9.9–10.3 s); the 1.22–1.32× did not
+   (CS4). Recommendation stands: state condition 13 as structurally met and
+   not met at wall-clock, and let `elapsedMs` beside `sessionsParsed` carry
+   the truth per run.
+4. **Excerpts as an exfiltration path.** No redaction, no warning; the only
+   bound is width (table: the resolved column budget; `--json`: 160
+   characters), which is wide enough to carry a whole token or an address in
+   a tool input under `--tools`. Under the house's own recorded leak class
+   (scanner output pasted into a public record) this is exactly the design
+   step CS3 says is missing; the seeded question sharpens *what* an excerpt
+   can carry — a Bash command line with a credential in it, whole. CS3's
+   severity (MODERATE) stands; its counsel gains one item — the caution
+   should name tool-input excerpts specifically, and `--tools` in the man
+   page should say the input is excerpted whole.
+5. **Shared-vocabulary claims, flag by flag.** `--materialise`: same name,
+   same skip-and-count default, same opt-in read in `ccarchive` (`--verify`/
+   `--audit`), `ccrepo` and `cctranscript --search` — holds. `--top`: same
+   per-level truncation after ordering, hidden rows counted and printed —
+   holds. `--since/--until`: same name, same on-or-after / on-or-before
+   local-day meaning on the message's own timestamp — holds by default;
+   diverges under `--utc` (CS5), and at the edges cctranscript validates and
+   tolerates dashes where `ccrepo` compares strings unvalidated (a stricter
+   sibling, not a conflict). `--from-archive`/`--dest`: identical resolution
+   order — holds.
+6. **The subagent gap.** Item `090-…` records 417 live subagent logs outside
+   every view. Neither the search output nor the man page says so: NOTES
+   names `--think` as void and `-n` as inert but not that subagent logs are
+   outside the sweep; FILES describes `subagents/` only as the source of the
+   *finished* count. For a search, that is a recall gap the user cannot see —
+   the same silent-absence class the design's own no-silent-caps rule guards
+   against. Recorded as a post-reconcile addition (CS14).
+
+### Post-reconcile additions (clearly marked; phase-1 text unrevised)
+
+**CS13 (note, post-reconcile)** — the design was not reviewed before it was
+built to. `docs/reviews/` holds no verdict on the 2026-07-27 design; its §14
+deferred review to the design-to-build move, and this pass is that review.
+The banner's most important departure (§4 vs §10, a contradiction visible in
+the design text alone) and CS1 (gate text ≠ probe text) are both
+design-altitude defects a design-time pass would have cost a paragraph to
+catch. Not a fault of the build; a data point for `REVIEW.md` § *Review the
+design, not only the build*.
+
+**CS14 (minor, post-reconcile)** — `--search` does not tell the user that
+subagent logs are outside the sweep. *Evidence:* board item `090-…` (417
+live logs); man page NOTES and the summary line carry no such statement;
+`allSessions()` walks one level (`cctranscript:256-290`). *Counsel:* one NOTES
+sentence and, cheaply, a `meta.subagentLogsSearched: false` field beside
+`thinkingSearched` so the machine format states the boundary too.
+
+**Severity amendments:** none. Overall unchanged —
+**PASS-WITH-FINDINGS — 0 MAJOR / 3 MODERATE / 6 minor / 5 note** (CS14 minor
+and CS13 note added post-reconcile).
+
+- [ ] CS13 — no fix owed on the delta; a data point for the doctrine.
+- [ ] CS14 — NOTES sentence + `meta` field; tested by a `--json` field
+      assertion and the man-page pin.
+
+## Deferred material (folded in at verdict landing)
+
+# Deferred — the `cctranscript --search` cold pass
+
+*Sibling of `2026-08-15-1032-cctranscript-search-cold.md`. Open only after the
+reviewer's own findings are durably written (REVIEW.md rule 1). Fold in below
+the verdict and delete this file when the verdict lands.*
+
+## References withheld from the brief
+
+- **Intent record:** `docs/roadmap/210-instruments-open-features/README.md`
+  (the *cctranscript learns to search* narrative and the follow-up items
+  `050-…`, `080-…`, `090-…` it spawned), and `docs/ROADMAP-DONE.md`
+  § *cctranscript learns to search*. The design document itself is in-delta
+  and was not withheld.
+- **The queue pointer:**
+  `docs/roadmap/160-doctrine-review-owed/010-rule-4-review-queued-tier-fable-pass-type-code.md`.
+- **Prior verdicts on the instruments** — reconcile only, never anchor:
+  `docs/reviews/2026-07-11-instruments-test-floor-code-review.md` and
+  `docs/reviews/2026-07-17-1000-adr0006-ccarchive-preserve-cold.md`. The
+  design pass of 2026-07-27 has no verdict file of its own — check whether it
+  was reviewed at all before being built to.
+
+## The brief-writer's seeded questions
+
+Written by a non-author cold session from the delta alone. A floor, never a
+fence — the reviewer's own findings come first.
+
+1. **The banner is the builder marking its own homework.** Six departures are
+   declared in the design's status banner. A cold read of the design followed
+   by a cold read of the code is the only way to find a seventh. Two places to
+   look first: the design's DONE conditions that the banner does *not*
+   mention, and any flag in `--help` that the design never named.
+2. **The false-negative class in `--regex`.** The banner says the raw-line
+   prefilter's escaping gap is "real and documented in NOTES rather than
+   papered over" for regex mode. Is a documented false negative acceptable in
+   a *search* tool whose whole value is recall, and does the manual page make
+   it visible where a user would look, or only in a notes section?
+3. **The wall-clock guard replaced by a structural one.** DONE condition 13
+   became a `meta.sessionsParsed` assertion. Does the new test pin the
+   property the 1.5× condition protected, or a property that is easier to
+   pass? Reproduce the 1.22–1.32× and 3.7× figures if a store admits it.
+4. **Excerpts as an exfiltration path.** The tool prints tool-input excerpts
+   whole (the banner says searching one field is "the quiet wrongness §5
+   warns against"). Whole tool inputs can carry secrets and personal data. Is
+   there any redaction, truncation, or warning — and should there be, given
+   the house's own rule that a scanner output pasted into a public record is
+   a leak class it has recorded before?
+5. **Shared-vocabulary claims.** The README table says `--since`/`--until`,
+   `--top` and `--materialise` are shared vocabulary across the instruments.
+   Check each flag's semantics in each instrument that claims it — same name,
+   same meaning, same edge behaviour?
+6. **The subagent gap.** A follow-up item records that subagent logs sit
+   outside every `cctranscript` view. For a search tool that is a recall gap
+   the user cannot see. Does `--search` say so in its output or manual page?

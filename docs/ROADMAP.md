@@ -169,7 +169,7 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 
 *Narrative: [160-doctrine-review-owed/README.md](roadmap/160-doctrine-review-owed/README.md)*
 
-- ⏳ [Rule-4 review queued (tier: Fable; pass type: code cold pass) — the](roadmap/160-doctrine-review-owed/010-rule-4-review-queued-tier-fable-pass-type-code.md)
+- [ ] [The cctranscript --search cycle CLOSED 2026-08-15 (0 MAJOR);](roadmap/160-doctrine-review-owed/010-rule-4-review-queued-tier-fable-pass-type-code.md) 🎯
 - [ ] [The child-membership + work-locality cycle CLOSED 2026-08-09](roadmap/160-doctrine-review-owed/020-the-child-membership-work-locality-cycle-close.md) 🎯
 - [ ] [The PRINCIPLES §9 cycle CLOSED 2026-08-09 (0 MAJOR); TD1–TD3 await](roadmap/160-doctrine-review-owed/030-the-principles-9-cycle-closed-2026-08-09-0-maj.md) 🎯
 - [ ] [The cancelled-run-clause cycle CLOSED 2026-08-09 (0 MAJOR); CR1–CR6](roadmap/160-doctrine-review-owed/040-the-cancelled-run-clause-cycle-closed-2026-08.md) 🎯
