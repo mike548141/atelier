@@ -5,6 +5,32 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-08-15 — the principal's authority is absolute; his rulings are conditioned)
+- `00-APEX.md` § "The principal's authority is conditioned on being informed"
+  is retitled *"The principal's authority is absolute; his rulings are
+  conditioned on being informed"* and corrected (Mike's ruling, 2026-08-15):
+  the earlier text put the condition on the *authority* ("not exercisable
+  uninformed"). Now: the authority is absolute and never decays — the agent
+  can never overrule the principal, in any situation, including one where it
+  believes him uninformed. What being informed conditions is the *ruling*:
+  a ruling the agent asked for is challengeable on whether the principal
+  was informed, and even an informed ruling stays challengeable by an
+  independent review session; a challenge is raised *to* the principal by
+  re-briefing, never by declining to obey. An "extracted approval" now
+  stands as the principal's word but is open to challenge — no longer "not
+  a decision the doctrine recognises". Restatements aligned: `RECORD.md`,
+  `AUTONOMY.md`, `CONCURRENCY.md`, `REVIEW.md` rule 3, and the child floor
+  block in `PROPAGATION.md` + `build/templates/CLAUDE.md` (stampscan:
+  identical). Children pick the floor change up at their next pin bump.
+- **"Surface a genuine dilemma; never silently resolve it" is restored as
+  honesty doctrine** (Mike's ruling, 2026-08-15, in the same sitting). It
+  had left with the Laws caveat that carried it; it now lives in `00-APEX.md`
+  § "Honesty is absolute" as an in-practice bullet — a fork quietly picked on
+  the principal's behalf is a withheld choice, and withholding is dishonesty
+  ("the truth, the whole truth, and nothing but the truth"). Restored to the
+  child floor block, the template stamp, and the `session-onramp` skill under
+  the honesty bullet, not a Laws one.
+
 ### Removed (2026-08-15 — the Three Laws and the Zeroth leave the apex)
 - `00-APEX.md` § "Then the Laws" deleted in full (Mike's ruling: intent
   stated 2026-08-04, executed 2026-08-15). The apex is now **honesty, then
@@ -14,7 +40,8 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
   (fail-safe line, SR2 concern list, the inlined child floor block), the
   byte-identical `build/templates/CLAUDE.md` stamp, and the
   `session-onramp` skill. The floor block's "surface a genuine dilemma"
-  line left with the Laws caveat it summarised. Children's floor blocks
+  line left with the Laws caveat it summarised — and was restored the same
+  day as honesty doctrine (entry above). Children's floor blocks
   shed the Laws sentence at their next pin bump (same propagation lane).
   The Laws-ladder raw note left the board with its subject. Historical
   records and review verdicts are untouched — git history and the record

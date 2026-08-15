@@ -128,8 +128,11 @@ governing who may spawn it:
    the reviewer's text — the decision is the principal's, and taken **informed**:
    the author owes a plain-language what / why / likely-impact before the
    principal rules, never a bare finding to rubber-stamp (`00-APEX.md`, *The
-   principal's authority is conditioned on being informed*). An approval given
-   without that account is not a decision the doctrine recognises.
+   principal's authority is absolute; his rulings are conditioned on being
+   informed*). An approval given without that account stands as the
+   principal's word but is open to challenge — on the briefing, never on his
+   authority — and the challenge is raised to him, by re-briefing and asking
+   again.
 4. **Self-authored doctrine earns a cold *spawn*, not just a cold context**
    (the principal's ruling, 2026-07-15, after the MODEL-ECONOMICS F1
    walk-through; sharpened by this rule's own cold pass, ruled the same day).
