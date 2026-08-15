@@ -34,3 +34,9 @@
       rules granular. **Explicitly not in scope:** merging any two guards'
       *intents*. No precedent found does that, and one suppression would then
       silence a whole concern.
+      **Framing note, 2026-08-15.** This item was written in the first pass's
+      breadth frame — many narrow checks versus one broad one. The build it
+      asks for is unaffected and the reasoning above still holds. But the
+      question it was answering was the wrong one: item `120` carries the right
+      one, and this item is a consolidation of *plumbing*, not an answer about
+      how guards should be organised.

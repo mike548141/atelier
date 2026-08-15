@@ -16,6 +16,15 @@
       the prior question. **Not adopted silently** — it is a doctrine addition
       to a self-authored doc, so it carries a rule-4 `⏳` when it lands, and the
       decision to land it at all is Mike's.
+      **Necessary, and not sufficient — added 2026-08-15 by the second pass.**
+      This rule explains *why* a proxy is forced and says nothing about testing
+      the proxy once forced. Item `120` carries the other half: a declared
+      purpose plus a replay proving the check fires on its own grounding
+      incidents. Reward-hacking theory is why both are needed — over all
+      stochastic policies, two objectives can be non-divergent only if one is
+      constant, so a proxy that cannot drift essentially does not exist. The
+      window test says when to accept a proxy; the purpose test measures the
+      gap that acceptance leaves.
       **The honest cost:** it is a bar that some existing guards fail. Naming it
       makes their scope reductions look like defects rather than tuning, which
       is either the point or an argument against, depending on how much appetite
