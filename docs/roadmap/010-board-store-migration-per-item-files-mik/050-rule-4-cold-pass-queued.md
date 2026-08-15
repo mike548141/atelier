@@ -3,4 +3,7 @@
       it (wt: board-per-item-0815). Intent record:
       `docs/sessions/2026-08-15-0610-board-store-migration.md`. Tier: Fable.
       Pass type: cold, per `method/REVIEW.md` rule 4.
-      (claimed 2026-08-15-1024 for BRIEF-WRITING ONLY — a non-author cold session writes the brief and stops; the review itself stays untaken; wt: review-briefs-0815)
+      Brief written 2026-08-15 by a non-author cold session — REVIEW NOT RUN,
+      still open for a cold Fable taker: `docs/reviews/2026-08-15-1030-board-store-migration-cold.md`
+      (deferred sibling `docs/reviews/2026-08-15-1030-board-store-migration-cold.deferred.md`, opened only after
+      the reviewer's findings are durably written).
