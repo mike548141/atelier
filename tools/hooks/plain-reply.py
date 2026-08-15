@@ -1,14 +1,35 @@
 #!/usr/bin/env python3
 """plain-reply — a Stop hook that refuses to let an unreadable reply stand.
 
+🛑 UNWIRED 2026-08-15 — DO NOT REINSTALL WITHOUT A RULING
+---------------------------------------------------------
+Mike removed this hook from the machine's settings on 2026-08-15, on measured
+evidence that it makes the defect it exists to prevent several times worse. The
+code stays in the tree, wired to nothing, pending his decision to destroy it or
+repurpose it as a silent data collector. See ROADMAP § *Policy-as-code
+programme* → "The reply gate is UNWIRED". Read the next section before
+believing anything else in this file.
+
+THE PREMISE THIS FILE WAS BUILT ON, AND WHY IT WAS FALSE
+--------------------------------------------------------
+It said, here, that a blocked reply "gets rewritten before the principal ever
+reads it". That was never true and was never checked against a terminal.
+Claude Code streams assistant text to the screen as it is generated; the `Stop`
+hook fires afterwards. A block cannot un-print. It appends a second full copy
+of the reply below the first — so every block spends one extra copy of a long
+verdict to fix a sentence in it. Measured over 12 hours of live sessions on
+2026-08-15: 29 turns blocked, 6 of them twice, ~123,500 characters reprinted.
+Every repeated verdict in those transcripts traced to this hook.
+
 WHAT THIS IS
 ------------
 Claude Code fires the `Stop` hook when the assistant finishes a turn, and hands
-it `last_assistant_message` — the exact text about to be the final word of the
-reply. This hook lints that text and, if it breaks the plain-language rules the
-principal has already stated, returns `{"decision": "block", "reason": ...}`.
-The turn does not end; the reason comes back as instruction and the reply gets
-rewritten before the principal ever reads it.
+it `last_assistant_message` — the exact text that has just been the final word
+of the reply. This hook lints that text and, if it breaks the plain-language
+rules the principal has already stated, returns `{"decision": "block", "reason":
+...}`. The turn does not end; the reason comes back as instruction and the model
+sends a further, corrected reply — beneath the one the principal has already
+seen.
 
 WHY IT EXISTS
 -------------

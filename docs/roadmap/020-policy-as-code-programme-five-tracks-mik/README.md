@@ -329,9 +329,14 @@ on both planes. One engine, two planes: the floor registry for committed prose,
 and a `Stop` hook (`tools/hooks/plain-reply.py`) that lints the agent's own
 reply and blocks it for rewrite.
 
-**Ruled and live, 2026-08-09.** Mike: *"switch it on, proposed"*. The reply
-plane blocks at **45 words / 60 characters**; the hook is installed and applies
-in every repo. Detail harvested to
+**Ruled and live 2026-08-09; the reply plane UNWIRED 2026-08-15.** Mike:
+*"switch it on, proposed"*. The reply plane blocked at **45 words / 60
+characters** and applied in every repo. It came out six days later on measured
+evidence that it was the largest single source of the unreadable output it
+existed to prevent — a `Stop` hook cannot un-print, so each block appended a
+second copy of the verdict rather than replacing it. **Destroy-or-repurpose is
+Mike's open ruling** → item *The reply gate is UNWIRED* in this section. The
+repo plane is unaffected and stands. Detail harvested to
 [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md) § *The communication floor*.
 
 - 🎯 **Repo plane rescoped to prose the principal reads — RULED and DELIVERED

@@ -93,14 +93,29 @@ Grounded in the live instance, not invented to fill a heading:
   barred by design. The prose is not. Anything a machine can decide without
   judgement — a reference code used before anything says what it points at, an
   acronym never expanded, a sentence past a stated length, a bracketed aside
-  buried mid-sentence — is checkable, and `plainscan` checks it on two planes:
-  committed prose through the floor registry, and the agent's own replies
-  through a `Stop` hook that blocks and demands a rewrite.
+  buried mid-sentence — is checkable, and `plainscan` checks it on the committed
+  prose plane through the floor registry.
+
+  🛑 **The reply plane is UNWIRED (Mike, 2026-08-15), and how it failed is the
+  more useful half.** A second plane ran from 2026-08-09: a `Stop` hook that
+  blocked the agent's own reply and demanded a rewrite. This clause said the
+  rewrite happened before the principal read the reply. It never did. A `Stop`
+  hook fires *after* Claude Code has streamed the reply to the terminal, so a
+  block cannot retract anything — it appends a second full copy of a long
+  verdict below the first. Twelve hours of live sessions: 29 turns blocked, 6 of
+  them twice, ~123,500 characters reprinted. **A rule that is machine-decidable
+  can still have no machine-deliverable remedy**, and that is the lesson to
+  carry: before enforcing a rule, establish that the enforcement point can
+  actually deliver the fix, not merely detect the fault. Detection was sound
+  throughout; the remedy was the part nobody checked. Destroy-or-repurpose is
+  Mike's open ruling → ROADMAP § *Policy-as-code programme*.
 
   **Each plane is scoped to its reader (ruled 2026-08-10).** The reply plane
-  covers everything, because every reply is written to the principal. The repo
-  plane covers only the prose the principal reads — doctrine, ruling asks,
-  review briefs, the live roadmap. Session records (`SESSIONS.md`,
+  covered everything, because every reply is written to the principal — that
+  scoping survives the unwiring above and would carry to any collector built in
+  its place. The repo plane covers only the prose the principal reads —
+  doctrine, ruling asks, review briefs, the live roadmap. Session records
+  (`SESSIONS.md`,
   `docs/sessions/`, `ROADMAP-DONE.md`) are excluded by ruling: they are
   append-only history written for the next session's agent, and rewriting
   them would be dishonest — so a warning there has no possible fix and is
