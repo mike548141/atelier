@@ -543,7 +543,7 @@ of four:
 
 It ends with a **report**, and the report's job is to make blocked items
 **visible, not skipped**: a run that silently steps over a 🎯 principal-blocked
-item leaves the principal unable to unblock it (`00-APEX.md` — authority is
+item leaves the principal unable to unblock it (`00-APEX.md` — his rulings are
 conditioned on being informed). So the end-of-run report **surfaces every 🎯 item
 the run could not progress, and why**, alongside what it closed — the same
 evidence-carrying all-clear `RECORD.md` mandates at session close, applied to a

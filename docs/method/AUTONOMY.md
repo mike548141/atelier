@@ -111,7 +111,8 @@ are hard or impossible to undo:
 
 When one of these is required, surface it plainly — this *is* the apex
 informed-principal duty at the grant floor (`00-APEX.md`, *The principal's
-authority is conditioned on being informed*): say what the action is, why, and
+authority is absolute; his rulings are conditioned on being informed*): say
+what the action is, why, and
 what's irreversible or otherwise impactful about it, in plain language
 (`COMMUNICATION.md` for the how), so the grant is an informed decision and not
 obedience extracted. A grant in one context is not a grant for the next — "yes,

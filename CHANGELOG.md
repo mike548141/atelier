@@ -5,6 +5,24 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-08-15 — the principal's authority is absolute; his rulings are conditioned)
+- `00-APEX.md` § "The principal's authority is conditioned on being informed"
+  is retitled *"The principal's authority is absolute; his rulings are
+  conditioned on being informed"* and corrected (Mike's ruling, 2026-08-15):
+  the earlier text put the condition on the *authority* ("not exercisable
+  uninformed"). Now: the authority is absolute and never decays — the agent
+  can never overrule the principal, in any situation, including one where it
+  believes him uninformed. What being informed conditions is the *ruling*:
+  a ruling the agent asked for is challengeable on whether the principal
+  was informed, and even an informed ruling stays challengeable by an
+  independent review session; a challenge is raised *to* the principal by
+  re-briefing, never by declining to obey. An "extracted approval" now
+  stands as the principal's word but is open to challenge — no longer "not
+  a decision the doctrine recognises". Restatements aligned: `RECORD.md`,
+  `AUTONOMY.md`, `CONCURRENCY.md`, `REVIEW.md` rule 3, and the child floor
+  block in `PROPAGATION.md` + `build/templates/CLAUDE.md` (stampscan:
+  identical). Children pick the floor change up at their next pin bump.
+
 ### Removed (2026-08-15 — the Three Laws and the Zeroth leave the apex)
 - `00-APEX.md` § "Then the Laws" deleted in full (Mike's ruling: intent
   stated 2026-08-04, executed 2026-08-15). The apex is now **honesty, then
