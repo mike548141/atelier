@@ -247,3 +247,107 @@ Design altitude: the store re-homes verbatim text under new file names; the slug
 - [ ] BS9 — multi-line comment skip — tested by P2d passing.
 - [ ] BS10 — surfaced to the estate-internal-context ruling — tested by that ADR's record naming it.
 - [ ] BS11 — one-line record correction — tested by reading it.
+
+## Reconcile — post-verdict, against the intent record and the deferred questions
+
+*Interruption disclosed:* this reconcile was begun after phase 1 landed (`b4fe720`), cut by an API session limit before anything was appended, and resumed on 2026-08-15 by the same reviewer with the same material; nothing was appended in between and the phase-1 text above is untouched.
+
+Opened after phase 1 was committed (`b4fe720`), and only what the sibling names: `docs/sessions/2026-08-15-0610-board-store-migration.md` and its `docs/SESSIONS.md` line (257); items `010-…/020-…`, `030-…`, `040-…` (already read in phase 1 as board items — disclosed there); the three prior verdicts `2026-07-29-1306-b4-harvestscan-cold.md` (HV), `2026-08-05-1238-pointer-grammar-b4-wiring-cold.md` (PG), `2026-07-19-0407-review-trigger-sizescan-combined-cold.md` (F1–F9). Nothing in phase 1 above is revised; amendments are marked as such.
+
+### Applied as ruled?
+
+Yes. Mike's ask (verbatim in the record: three problems — concurrent corruption, file size, premature "done" — and "SQLite or something else") and his ruling ("I accept your recommendation. Proceed") match the ADR's Decision: weekly ruling sitting + option B, atelier first. The record's account of the second-pass corrections (a committed index must resolve conflicts by regeneration; `closed_by: <sha>` cannot survive landing-equals-bookkeeping) is what the build did, and P5 confirms the first of those live. The record's verification list (linkscan, harvestscan, sizescan advisory gone, datescan, suite green, every commit through the hook) reproduces in full — see lens 2. The ruling was applied as put.
+
+### What the record resolves from the checklist
+
+Nothing closes. The record names the staged-plane seam "HV4's class, stated at birth" and queues it (020) — but only in the item-staged / index-unrebuilt direction; neither the record nor 020 names P4 (a sibling's dirt absorbed by `rebuild` under CF3) or P6 (rebuilt, unstaged, hook green). BS1 stands as written. The record is silent on the 58 non-checkbox bullets (BS3), on what bounds the index once the harvest is gone (BS4), and on the legend leaving the read path (BS5). It confirms the design intent behind BS2's mechanism ("state is the item file's first line") without noticing the house writes wrapped items. The record does not change any severity.
+
+### Divergences
+
+- **Test counts, a third time inside the record itself.** The record body says `board.py` has "14 unit tests" and harvestscan "+3" (= 17); its own `SESSIONS.md` index line says "+20 tests"; the CHANGELOG says +13/+3; the commit says +17. Measured +23 with six inherited re-runs (BS6). Same figure, five spellings, none measured.
+- **"The dirty-tree tell moves to the item file"** (record; CONCURRENCY). P4 shows the *sibling's* dirty item file is a tell the doctrine tells the claimer to disregard when it is not the claimer's item — and that disregarding it commits a wrong index. The tell moved; the rule about it did not.
+- **The seam was already ruled on for a sibling scanner.** HV4 (ruled 2026-07-29, "accept": the wiring build handles the staged-vs-working-tree seam properly — the hook plane reads staged content) and PG1 (2026-08-05, MODERATE: a docstring claiming a staged read the tool does not perform) are the same class BS1 finds in `board.py` and its four doctrine restatements. The record calls the seam "stated at birth" — true of the tool docstring and `tools/README.md`, not of the ADR's Decision or CONCURRENCY, which state the stronger claim without the residual. Aggravating context for BS1; severity unchanged.
+- **PG7 (net-line gate blind to terse-item massacres)** is not worsened by the split: item files are 3–40 lines and their index lines now count toward the gate too (`docs/ROADMAP.md` stays in `GATE_RECORDS`). Recorded because PG7 asked that a roadmap style shift re-open the question — this one did not shift the item shape.
+- **F5 (sizescan, ruled 2026-07-19)** — "where a file is legitimately all-current, ground a budget or accept a standing red" — is the ruled path BS4 should be read against: a generated index that grows one line per item ever is neither "all-current" nor "harvestable" under the retired remedy; a class-grounded budget for a *generated* index is a third option F5's ruling already permits. Counsel under BS4 amended below to name it.
+- **PG2 (file-level allow kill switch on line 1)** meets the board README's "an item file may open with an allow-marker": an item file that opens with a `pointerscan:allow:` marker is skipped whole by pointerscan while `board.py` indexes it as a live item. Pre-existing, unchanged by this delta; noted because the split makes line 1 of every item a first-class surface.
+
+### Answers to the seven seeded questions
+
+1. **Code-span glyphs lift as flags — yes, a projection defect, live.** `index_line` tests `f in rest` on the raw first line; item `130-…/010-…` opens with a backticked `⏳` in prose and renders `⏳🔎` in the index (`3d0df11` index line 133; still so at reconcile). `pointerscan` strips code spans for this reason; `board.py` does not. It re-creates the trap the 130 item describes — a non-pointer wearing the queue glyph in the first file a taker greps — one instance today. Recorded as **BS14 (minor)** below. My phase-1 ⏳ arithmetic under BS3 counted grep hits, not pointer lines; corrected in the amendment to BS3 below.
+2. **Migration fidelity — held, including nested sub-bullets.** Line-multiset comparison (lens 3) found every non-preamble line present byte-for-byte after `../` re-basing; a re-parent or de-indent would change the line and show as missing, and none did. `160-…/080` and `090` keep their nested bullets verbatim (their lines are in the identical set). Allow-markers travel (the day-one datescan case is pinned by test and reproduced by P1). Only the preamble differs, by design (BS11).
+3. **Stale index through the hook — yes; CI catches it.** Probed, not read: P6 (rebuilt but unstaged → hook green, index not committed) and P4 (sibling dirt absorbed → hook green, wrong `✅` committed). `board.py check` on each committed tree exits 1, which is what the CI plane runs against the pushed commit — so CI catches both, after the push. BS1.
+4. **The GENERATED marker as a skip key — yes, an item file can escape pointerscan with it.** `pointerscan` tests `text.startswith(GENERATED_MARK)` — line 1 only, prefix match, any suffix. `board.py`'s `item_state` skips leading `<!--` lines, so an item file whose first line is the marker comment is indexed as a live item **and** skipped by pointerscan. It is a deliberate act with an audit trail (the line is in the diff), the same class as PG2's file-level switch, and no instance exists (grep: the marker appears only in the index and the two tools). Recorded as **BS12 (note)** with a one-line fix: skip only when the file *is* the index path, or have `check` reject the marker in an item file.
+5. **Doctrine drift left behind — a residue, none of it a silent breach.** Surfaces still speaking monolith: `skills/queue-run/SKILL.md` step 4 ("mutate the item's `[~]` checkbox line on `main`" — no rebuild named) and line 71 ("roadmap harvest"); `docs/method/CONCURRENCY.md` line 581 ("the roadmap harvest"); `docs/build/templates/CLAUDE.md` step 2 and `templates/docs/ROADMAP.md` (correct for monolithic children — the fleet has not migrated); `tools/sizescan.py`'s ROADMAP remedy string (BS4). REVIEW.md rule 4's "ROADMAP `⏳`" wording still reads true. A session following queue-run's step 4 on the split board is *blocked* by the hook (P3), loudly and with the remedy printed — a stop, not a silent breach; the silent breaches are BS1's two, which no doctrine instructs except CF3's. All of this is the 040 sweep's scope; nothing here changes a severity.
+6. **What stops accretion — nothing; and the cold-content gate is now silent for this board.** `sizescan`'s `COLD_CHECKBOX_FILES = {"ROADMAP.md"}` keys the `[x]` gate on the basename, so a `[x]` inside an item file is never seen, the index carries `✅` by design, and item files are not in `SIZE_REFERENCE` so they are never metered. The only signal left is the ROADMAP.md ~300-line advisory, whose remedy is retired. BS4 as written; F5's ruled third option (a class-grounded budget for the generated index) is the counsel amendment below.
+7. **Children adopting half-way — the check fails closed, and the printed remedy would overwrite their hand-kept board.** A `docs/roadmap/` directory beside a hand-kept `ROADMAP.md` is reported *stale*, exit 1, unsoftenable — honest in the blocking direction (BS8 covers the name-collision case). But `rebuild` writes `docs/ROADMAP.md` unconditionally: it does not check for the GENERATED marker before overwriting, so a half-adopter who runs the remedy replaces their hand-kept board with a generated index (recoverable from git; still a surprise). Recorded as **BS13 (minor)**.
+
+### Post-reconcile additions — clearly marked; phase-1 text above is unrevised
+
+- **Amendment to BS3 (numbers only; severity unchanged, MODERATE).** Phase 1 wrote "8 ⏳ where the store holds 9". Correct at `3d0df11`: the index carried **6** `- ⏳` pointer lines (the 8 was a grep over glyph occurrences, which included one section heading and the code-span lift in Q1); the store held **7** pointers — 6 item files plus the README-resident one in section 020. The 🎯 figures (30 shown / 47 on the old top level) stand.
+- **Amendment to BS4 counsel (severity unchanged, MODERATE).** Add F5's ruled option: a class-grounded `sizescan:budget` for a *generated* index (grounded in "one line per item ever", not in today's length) is a legitimate third answer beside "render open items only" and "unbounded by ruling", and sizescan's ROADMAP remedy string needs a split-board branch either way.
+- **BS12 (note)** — The GENERATED marker is a line-1 prefix skip in `pointerscan` regardless of path; an item file opening with it is indexed live and un-linted. No live instance. Counsel: skip only the index path, or `check` rejects the marker in an item file (tested by a fixture item carrying the marker: `check` exit 1, pointerscan still lints it).
+- **BS13 (minor)** — `rebuild` overwrites `docs/ROADMAP.md` without checking that the file it replaces carries the GENERATED marker (or is absent). A half-adopting child, or any repo where the check fires on a name collision (BS8), is told to run a remedy that replaces a hand-kept board. Counsel: refuse unless the existing file is absent or generated, with `--force` for a deliberate first migration (tested by a fixture with a hand-written `ROADMAP.md`: `rebuild` exit 1 with the reason; `rebuild --force` writes).
+- **BS14 (minor)** — Eye-flags are lifted from the raw first line, code spans included: a backticked `⏳` in prose lifts as the queue glyph (`130-…/010-…` renders `⏳🔎`), re-creating the stale-pointer trap that item documents. `pointerscan` strips code spans; `board.py` should strip them before testing `FLAGS` (tested by that item rendering `🔎` only, and by a fixture with a code-span glyph).
+
+**Overall after reconcile: PASS-WITH-FINDINGS — 1 MAJOR / 4 MODERATE / 5 minor / 4 note.** No phase-1 severity changed; BS12–BS14 added; BS3's ⏳ figures corrected; BS4's counsel widened by F5's ruled option. Every finding remains the principal's to rule (rule 3); the cycle stays open on BS1.
+
+## Deferred material (folded in at verdict landing)
+
+# Deferred — the board store migration cold pass
+
+*Sibling of `2026-08-15-1030-board-store-migration-cold.md`. Open only after
+the reviewer's own findings are durably written (REVIEW.md rule 1). Fold in
+below the verdict and delete this file when the verdict lands.*
+
+## References withheld from the brief
+
+- **Intent record:** `docs/sessions/2026-08-15-0610-board-store-migration.md`
+  (and its one-line entry in `docs/SESSIONS.md`).
+- **The queue pointer:**
+  `docs/roadmap/010-board-store-migration-per-item-files-mik/050-rule-4-cold-pass-queued.md`.
+- **Related open items in the same section** (the author's own follow-ups —
+  read as the author's account, not as settled scope): `020-board-check-staged-plane-seam.md`,
+  `030-fleet-rollout-of-the-split-board.md`, `040-monolith-era-wording-sweep.md`.
+- **Prior verdicts on neighbouring surfaces** — reconcile only, never anchor:
+  `docs/reviews/2026-07-29-1306-b4-harvestscan-cold.md` (harvestscan),
+  `docs/reviews/2026-08-05-1238-pointer-grammar-b4-wiring-cold.md`
+  (pointerscan), `docs/reviews/2026-07-19-0407-review-trigger-sizescan-combined-cold.md`
+  (sizescan's harvest gate, which the split retires in part).
+
+## The brief-writer's seeded questions
+
+Written by a non-author cold session from the delta alone. A floor, never a
+fence — the reviewer's own findings come first.
+
+1. **Index flags are derived from the raw first line, code spans included.**
+   `board.py`'s `index_line` collects any glyph in `FLAGS` that appears in the
+   item's first line. Item `130-…/010-…` opens with a `⏳` inside backticks
+   and renders in the index as `⏳🔎` — a non-pointer item wearing the queue
+   glyph in the file a taker greps first. `pointerscan` strips code spans for
+   exactly this reason. Is this a defect in the projection, and does it
+   recreate the stale-pointer trap the 130 item itself describes?
+2. **Migration fidelity.** The claim is 4,063 lines → 27 sections / 118 items.
+   Diff the pre-migration `docs/ROADMAP.md` (parent of `a9abc26`) against the
+   concatenated store: is any line, allow-marker, or nested sub-bullet lost,
+   re-parented, or de-indented? Nested sub-bullets under a pointer (the shape
+   `160-…/080` and `090` carry) are the likeliest casualty.
+3. **`--check` reads the worktree, not the staged plane.** The author records
+   this as a stated residual and a follow-up item. Can a commit land with a
+   stale index through the hook plane, and does the ci plane catch it? Probe
+   it, do not read it.
+4. **The GENERATED marker as a skip key.** Scanners skip any file carrying the
+   marker line. Could an item file, or any other prose file, carry that line
+   and thereby escape `pointerscan`? Is the marker matched on line 1 only?
+5. **Doctrine drift left behind.** RECORD.md and CONCURRENCY.md moved with the
+   mechanism; the author's own follow-up names a monolith-era wording sweep
+   still owed. Which surfaces still tell a session to edit `ROADMAP.md`
+   directly (REVIEW.md rule 4's pointer wording, skills, templates, children's
+   floor blocks), and does any of them now instruct a breach of the `board`
+   check?
+6. **The harvest step retired.** With `[x]` flipped in place and no harvest,
+   what now stops a section from accreting closed items and their narrative
+   forever? Does `sizescan`'s cold-content gate still fire on a `[x]` inside
+   an item file, or only on the (now never-`[x]`) index?
+7. **Children.** The check reports not-in-scope where `docs/roadmap/` is
+   absent. Is that honest for a child that adopts the split half-way — a
+   `docs/roadmap/` directory present but a hand-kept `ROADMAP.md`?
