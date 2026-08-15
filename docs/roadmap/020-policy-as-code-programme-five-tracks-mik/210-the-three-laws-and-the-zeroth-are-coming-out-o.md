@@ -9,3 +9,5 @@
       sweep checklist (every restatement surface, including plugin
       surfaces and children's floor blocks via the propagation lane) and is
       principal-authored apex doctrine — reviewed accordingly at landing.
+      (claimed 2026-08-15-0809 — Mike ruled the sitting open this session;
+      wt: laws-removal-0815)
