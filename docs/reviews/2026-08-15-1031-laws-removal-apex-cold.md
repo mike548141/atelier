@@ -227,3 +227,107 @@ Out of scope for the verdict, recorded for the board: `38add7c` and `c782e14` re
 - [ ] **LR5** — principal reads whether "sits within the agent's own safety values" was Laws-specific; if kept, one sentence under *Who it binds*; test: grep hits `00-APEX.md` once.
 - [ ] **LR6** — no action; note only.
 - [ ] **LR7** — orchestrator/principal states whether `215`'s delta list is widened or the `200` pass absorbs the overlap; test: the pointer that owns the post-`b5da9e5` apex commits names them.
+
+## Reconcile — post-verdict, against the intent record and the deferred questions
+
+Opened after phase 1 was committed (`e173103`), and only the surfaces the orchestrator released: the intent record `docs/sessions/2026-08-15-0809-laws-removal.md` and its `docs/SESSIONS.md` line; board items `020-…/210-…`, `215-…`, `160-…/README.md` § CYCLE CLOSED; the prior verdicts `2026-07-26-2215-apex-zeroth-law-cold.md`, `2026-07-10-method-layer.md`, and the `APEX`-grepped verdicts (`2026-07-23-0222-apex-widening-cold.md`, `2026-07-14-2235-informed-principal-apex-cold.md`, `2026-07-26-2215-apex-accountability-cold.md` — read only at the lines that mention the Laws). Nothing above this heading is revised.
+
+### Applied as ruled?
+
+The record carries the ruling verbatim: *"I have decided that as much as I like Asimov's 3 laws (+ the zeroth law) they don't belong in the atelier doctrine and particularly not in the apex. I want you to remove them completely and cleanly from the doctrine and repo. It is fine that they will still be in the repo history."* Against that:
+- **Doctrine — yes.** Every live doctrine, template, plugin and tooling surface is clean (phase 1, Lens 3); the apex stands as a duo.
+- **"Repo" — yes for live surfaces, over-applied at one edge.** The record's own account of the note deletion says "its entire subject was the Laws … it left with them. Flagged to Mike at close — recoverable from git history if he wants the world-model thread back." So the author *did* flag it, in-session, and the principal's same-day clarification (`1b46d05`, out of scope) reversed the deletion into a `[x]` close. LR3 stands as a defect of the delta as landed; the process caught it.
+- **"Repo history" → "git history".** Mike's sentence is *permissive* about history and says *repo* history, which includes the record layer and the board. Every paraphrase downstream — commit message, `210-…`, CHANGELOG, the `SESSIONS.md` line — narrowed it to "git history keeps them". The narrowing is what licensed deleting a board item rather than closing it, and Mike's clarification ("history is kept everywhere it is recorded, not git alone") corrected exactly that word. This is the capture-verbatim class the repo has recorded before; it is the root cause under LR3, named below as a post-reconcile addition.
+- **ZL2–ZL5 lapse — verified.** Read the ZL verdict: ZL2 (precedence clause), ZL3 (inaction-duty scoping), ZL4 (Law-3 characterisation), ZL5 (rewrap) are all findings on the deleted section's own text; they die with it. ZL1 (skill taught pre-Zeroth Laws) was applied 2026-08-05 and its surface is now deleted outright. The CYCLE CLOSED entry in `160-…/README.md` is accurate.
+
+### What the record resolves from my checklist
+
+- **LR1** — the record's surface list is the ZL1-widened checklist exactly (docs, templates, skills, commands); the board was never on it. Confirms the gap; LR1 stands.
+- **LR2** — the record's *Judgement calls* names the dilemma line and says "if Mike wants dilemma-surfacing kept as doctrine, it needs one new apex line — flagged at close." So the flag was made to Mike in-session, not harvested to the board — as found. **On its face, `c782e14` resolves LR2**: it lands the line as honesty doctrine in the apex with a floor/template/skill restatement and attributes the keep to Mike the same day. Severity unchanged (minor); close is the principal's.
+- **LR3** — **on its face, `1b46d05` resolves LR3**: the file is restored in full, closed `[x]` with a dated disposition, and `210-…`/CHANGELOG corrected. Severity unchanged (MODERATE as landed); close is the principal's.
+- **LR4** — the record states the lane honestly ("still carry the old Laws sentence until each repo's next pin bump … no child was edited"); the overclaim is in the CHANGELOG/`210` phrasing, not the record. Stands.
+- **LR5** — the record's *Judgement calls* do **not** mention the "sits within the agent's own safety values" sentence: its loss was not a priced call, it was collateral. See amendment below.
+- **LR6, LR7** — nothing in the released material bears on them.
+
+### Divergences
+
+1. The record reads the note's "entire subject" as the Laws; I read its content as wider (world-model, impacts, non-human harm). The principal's clarification kept the note *and* closed it as not required — both readings partly held; the disposition is his.
+2. The record's rule "a floor line may not outlive its canonical home in the apex" is sound and I agree with it; the divergence was only about whether the line's home was the Laws caveat or honesty. `c782e14` settled it as honesty.
+3. No divergence on the sweep, the byte-identity, the floor, or the ZL closure.
+
+### Answers to the five seeded questions
+
+1. **What the deleted section carried besides the Laws.** Found independently in phase 1: the dilemma line (LR2), the safety-values acknowledgement (LR5), and the "not a rule engine" caveat (Laws-specific, correctly gone). `AUTONOMY.md:122` was the one unanchored echo; `c782e14` re-anchors it. The safety-values loss was **not** a ruled change of substance — the record is silent on it — so it is an unpriced side effect; whether it matters is the principal's reading (LR5, amended below).
+2. **The sweep's boundary.** Tested in phase 1: `.claude-plugin/*.json`, `commands/`, `skills/create-repo/SKILL.md`, `docs/build/**`, instrument READMEs, `tools/`, workflows — all clean of any three-part or Laws statement; the one live miss is a board item (LR1). The **inverse** happened once: the sweep reached into a principal-authored open question and deleted it (LR3), since reversed.
+3. **Children.** The window is priced only as "until their next pin bump" (`160/140`, the record, the CHANGELOG); nothing enforces the bump reviewing the block, and stampscan does not run in any child (0 hits in both `floor.yml`s, the hook and the registry; ST3 open). Measured: 13 of 17 pinned children carry a Laws sentence, 9 of them the pre-Zeroth wording — the same lane's previous change, un-shed after three weeks (LR4).
+4. **The apex as a duo.** Yes — § *Why this is level 0* answers with "honesty and adaptation … the shapes these two allow", and § *Who it binds* reads correctly with no third part (Lens 1).
+5. **The ruling's own trail.** The 2026-08-04 intent is verbatim, dated, in one place (`210-…`: *"I plan to remove the 3 laws and the zeroth law, we will do that later."*). The 2026-08-15 execution ruling is verbatim, dated, in one place (the intent record). It is then **paraphrased in four records** (commit message, `210-…`, CHANGELOG, `SESSIONS.md` line), consistently with each other but with one narrowing — "repo history" → "git history" — that the principal had to correct the same day. So: the class the brief-writer named did recur, and it cost a restore commit.
+
+### Post-reconcile additions — clearly marked
+
+- **LR5 — AMENDED note → minor (post-reconcile).** Grounds: the record shows the loss was collateral, not a judgement call, and the sentence was the apex's only explicit statement of how the doctrine relates to the model's own safety values — a statement the section itself said honesty required. Counsel unchanged: the principal reads whether it was Laws-specific; if not, one sentence under *Who it binds*.
+- **LR8 (note, post-reconcile)** — the "repo history" → "git history" paraphrase is the root cause under LR3. Every downstream record narrowed the principal's permissive "it is fine that they will still be in the repo history" into a mandate-shaped "git history keeps them", and the board deletion followed from the narrowed reading. Counsel: none new — the verbatim quote in the intent record is exactly what the doctrine asks for; the lesson is that paraphrases of a ruling in *current-truth* records (CHANGELOG, closed items) should keep the ruling's own scope words.
+- **LR9 (note, post-reconcile)** — the accountability verdict's AA1 (minor, awaiting ruling in `160-…`) cited "the Laws (`00-APEX.md:202–221`) covering the rest" as one of two blocks on its third-party-harm release surface. That block is gone with this delta; the always-confirm floor's "anything touching people's safety" is the remaining one. Not a defect of this delta — recorded so the AA1 ruling is taken on the apex as it now stands.
+- **`c782e14` / `1b46d05`** — on their face they resolve LR2 and LR3 respectively (see above); phase-1 severities unchanged; both remain out of this pass's scope and are the principal's to confirm closed.
+
+**Overall after reconcile:** PASS-WITH-FINDINGS — 0 MAJOR / 3 MODERATE / 2 minor / 4 note (LR5 amended to minor; LR8, LR9 added as notes). No MAJOR, so the ruling application is terminal under REVIEW's close rule.
+
+## Deferred material (folded in at verdict landing)
+
+# Deferred — the Laws removal cold pass
+
+*Sibling of `2026-08-15-1031-laws-removal-apex-cold.md`. Open only after the
+reviewer's own findings are durably written (REVIEW.md rule 1). Fold in below
+the verdict and delete this file when the verdict lands.*
+
+## References withheld from the brief
+
+- **Intent record:** `docs/sessions/2026-08-15-0809-laws-removal.md` (and its
+  one-line entry in `docs/SESSIONS.md`).
+- **The ruling item and the queue pointer:**
+  `docs/roadmap/020-policy-as-code-programme-five-tracks-mik/210-the-three-laws-and-the-zeroth-are-coming-out-o.md`
+  (closed `[x]`, carries the principal's words) and `215-rule-4-cold-pass-queued-laws-removal.md`.
+- **The cycle this closes:** the ZL cycle recorded in
+  `docs/roadmap/160-doctrine-review-owed/README.md` (§ *CYCLE CLOSED
+  2026-08-15*), whose verdict is
+  `docs/reviews/2026-07-26-2215-apex-zeroth-law-cold.md`. Its ZL1 finding is
+  what widened the sweep checklist the author says it followed. Reconcile
+  only, never anchor.
+- **Prior apex passes** — reconcile only: `docs/reviews/2026-07-10-method-layer.md`
+  and any later verdict on `00-APEX.md` (grep `docs/reviews/` for `APEX`).
+
+## The brief-writer's seeded questions
+
+Written by a non-author cold session from the delta alone. A floor, never a
+fence — the reviewer's own findings come first.
+
+1. **What the deleted section carried besides the Laws.** Three sentences in
+   the removed text did work beyond stating the Laws: *a genuine dilemma is
+   surfaced, not silently resolved*; *this frame sits within the agent's own
+   safety values, not above them*; and the *imperfect by design / not a rule
+   engine* caveat. The commit says the dilemma line "left with the caveat it
+   summarised". `AUTONOMY.md` still says "a dilemma is never silently
+   resolved" (line ~122) — that clause is now unanchored. Is anything else
+   in the doctrine leaning on the deleted text? Is the loss of the
+   "sits within the agent's own safety values" statement a change in
+   substance the principal ruled, or an unpriced side effect?
+2. **The sweep's boundary.** The commit swept doctrine, templates, and the
+   onramp skill, and left records, verdicts and children's floor blocks. Test
+   the boundary yourself: `.claude-plugin/*.json` descriptions, `commands/`,
+   `skills/create-repo/SKILL.md`, `docs/build/`, instrument READMEs — anything
+   a fresh adopter reads that still says three parts. Also test the *inverse*:
+   did the sweep reach into anything that should have stayed history?
+3. **Children.** The floor block in `PROPAGATION.md` and the template stamp
+   changed; children carry an older block until their pin bump. Between now
+   and that bump, a child's inlined floor states a doctrine atelier no longer
+   holds. Is that window priced anywhere, and does the propagation lane's
+   drift check (stampscan or its successor) see it as drift?
+4. **The apex as a duo.** Read `00-APEX.md` at HEAD cold, as an adopter would:
+   does "honesty, then adaptation" still answer the question the section
+   heading *Why this is level 0* poses, and does the "who it binds" section
+   still read correctly without the third part?
+5. **The ruling's own trail.** Rule 3 says findings on this surface are the
+   principal's. The ruling item quotes the principal's intent from 2026-08-04
+   and its execution 2026-08-15. Is the ruling recorded verbatim, dated, and
+   in one place — or is the same ruling paraphrased in more than one record
+   (a class this repo has recorded before)?
