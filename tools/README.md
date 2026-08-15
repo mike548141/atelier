@@ -827,17 +827,31 @@ August 2026 while the rule against it sat in doctrine. Of every reference code's
 first use in a session, 86% arrived with no gloss at all.
 
 **Two planes off one engine.** `scan_text()` is the whole rule set and it takes
-a string. The repo plane is this CLI, in the floor registry. The reply plane is
-`tools/hooks/plain-reply.py`, a Claude Code `Stop` hook that lints
-`last_assistant_message` and returns `{"decision": "block"}` so an unreadable
-reply is rewritten before the principal reads it. Same lesson as `floor.py`'s
-registry, one surface over: the rules are not reimplemented per plane.
+a string. The repo plane is this CLI, in the floor registry. The reply plane was
+`tools/hooks/plain-reply.py`, a Claude Code `Stop` hook. Same lesson as
+`floor.py`'s registry, one surface over: the rules are not reimplemented per
+plane.
 
-The reply plane **fails open**, alone among this estate's gates, and the trade is
-stated rather than accidental: `secretscan` failing open burns a credential for
-good, while this failing open lets one clumsy reply through — and a linter that
-can wedge a live session is worse than the defect it catches. It also gives up
-after two blocked rewrites of one turn, saying so visibly in the transcript.
+> 🛑 **The reply plane is UNWIRED (Mike, 2026-08-15) and the paragraph that
+> stood here was false.** It said a blocked reply "is rewritten before the
+> principal reads it". A `Stop` hook cannot un-print: Claude Code streams the
+> reply to the terminal as it is generated and the hook fires afterwards, so a
+> block appends a second full copy below the one already on screen. Measured
+> over 12 hours of live sessions: 29 turns blocked, 6 of them twice, ~123,500
+> characters of verdicts reprinted — the gate was the single largest source of
+> the unreadable output it existed to prevent. The hook is out of
+> `~/.claude/settings.json`; the code stays in the tree wired to nothing,
+> pending Mike's ruling to destroy it or repurpose it as a silent data
+> collector. → ROADMAP § *Policy-as-code programme*. **The repo plane below is
+> unaffected** — it is warn-only, has none of this failure mode, and stands.
+
+The reply plane **failed open**, alone among this estate's gates, and the trade
+was stated rather than accidental: `secretscan` failing open burns a credential
+for good, while this failing open lets one clumsy reply through — and a linter
+that can wedge a live session is worse than the defect it catches. It also gave
+up after two blocked rewrites of one turn, saying so visibly in the transcript.
+That give-up path is the one part of the design the evidence vindicated, and it
+fired on 4 of the 6 turns that reached it.
 
 ```sh
 python3 tools/plainscan.py                     # scan docs/** (default scope)
@@ -860,16 +874,20 @@ would red every commit in the estate on day one and teach everyone
 `--no-verify`. `wrapscan` and `spellscan` landed the same way. The two house
 numbers are the principal's to rule on before any move to blocking.
 
-**The reply plane is LIVE (ruled 2026-08-09).** The `Stop` hook is installed in
-the principal's `~/.claude/settings.json` at **45 words / 60 characters** — his
-ruling, on a calibration against his own transcripts showing that setting would
-have fired on 30.6% of historical replies. Note the asymmetry and that it is
-deliberate: the reply plane **blocks**, the repo plane only warns. Chat is where
-the defect was measured and where the fix is free (rewrite before sending);
-committed prose meets a corpus written before the rule existed.
+**The reply plane was live 2026-08-09 → 2026-08-15, and is now unwired.** It ran
+in the principal's `~/.claude/settings.json` at **45 words / 60 characters** —
+his ruling, on a calibration against his own transcripts showing that setting
+would have fired on 30.6% of historical replies. The asymmetry was deliberate:
+the reply plane **blocked**, the repo plane only warns, on the reasoning that
+chat is where the defect was measured and where the fix is free — *rewrite
+before sending*. That parenthesis was the whole error. There is no
+before-sending on a `Stop` hook, so the fix was never free; it cost a full
+reprint every time. The repo plane's warn-only posture, chosen for a quite
+different reason, is what turned out to be right on both.
 
-Installed form — `command` + `args` is the exec form, so no shell parses the
-path, and the interpreter is pinned rather than PATH-resolved:
+Install form, kept for the record and **not to be reinstated without a ruling** —
+`command` + `args` is the exec form, so no shell parses the path, and the
+interpreter is pinned rather than PATH-resolved:
 
 ```json
 { "hooks": { "Stop": [ { "hooks": [ {
