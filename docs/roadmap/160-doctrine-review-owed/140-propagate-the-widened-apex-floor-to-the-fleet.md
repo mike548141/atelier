@@ -8,4 +8,6 @@
   `docs/build/templates/CLAUDE.md` (byte-identical to PROPAGATION's inlined
   block) — children align to it. Pairs naturally with the `floor.yml`
   cold-content gate + `pull_request`-trigger adoption already queued below (same
-  pin-bump lane).
+  pin-bump lane). The 2026-08-15 Laws removal rides this same lane: the
+  canonical floor block no longer carries a Laws sentence, so children shed
+  it at the same alignment.

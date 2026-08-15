@@ -55,7 +55,7 @@ full in this file.
   them. "How we work", held as code. For what counts as doctrine under review
   governance — *doctrine by function, not file type* — the canonical
   definition is [`REVIEW.md`](REVIEW.md) rule 3, single-sourced there.
-- **Apex** — level 0: honesty, adaptation, the Laws — above the precedence
+- **Apex** — level 0: honesty and adaptation — above the precedence
   ladder, never traded ([`00-APEX.md`](00-APEX.md)).
 - **Floor** — the irreducible subset of the doctrine a child repo carries
   *inlined*, so it binds even if the parent is never read
