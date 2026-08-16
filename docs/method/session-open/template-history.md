@@ -1,6 +1,11 @@
 Lets do some work! I have a long list of work queued up in this repo, you
 should use sub-agents where they are useful, safe and appropriate.
 
+Carry on with any work in queue thats not claimed and you are capable of until
+the economics suggest a new session, or you do for other reasons. I may also
+give you ad-hoc work during the session, if you can the m complete that work
+too, otherwise you can add it to the roadmap.
+
 Lets use a opus session to orchestrate and any model you choose as appropriate
 for agents doing the work. You are allowed to use any model for orchestration
 and/or agents. I will have multiple parallel sessions so take appropriate
