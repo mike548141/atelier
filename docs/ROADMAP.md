@@ -50,6 +50,7 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 - [ ] [The backlog.](roadmap/020-policy-as-code-programme-five-tracks-mik/290-the-backlog.md)
 - [ ] [Generalise the finding, don't just fix this doc.](roadmap/020-policy-as-code-programme-five-tracks-mik/300-generalise-the-finding-don-t-just-fix-this-doc.md)
 - [ ] [The reply gate is UNWIRED (2026-08-15) — destroy it, or repurpose it](roadmap/020-policy-as-code-programme-five-tracks-mik/310-the-reply-gate-is-unwired-destroy-it-or-repur.md) 🔥
+- [ ] [linkscan is blind to reference-style link destinations, and says](roadmap/020-policy-as-code-programme-five-tracks-mik/320-linkscan-is-blind-to-reference-style-link-des.md) 🔥
 
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
 
@@ -67,6 +68,8 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 - [ ] [no-verify is the real hole, and nothing sees it.](roadmap/030-enforcement-propagation-the-estate-rollo/100-no-verify-is-the-real-hole-and-nothing-sees-it.md)
 - [ ] [The floor drift check can never fire against a stale checkout — the](roadmap/030-enforcement-propagation-the-estate-rollo/110-the-floor-drift-check-can-never-fire-against-a.md)
 - [ ] [Every child inlines the same stale-HEAD drift bullet — a fleet](roadmap/030-enforcement-propagation-the-estate-rollo/120-every-child-inlines-the-same-stale-head-drift.md)
+- [ ] [The inlined floor says "everything recoverable — just proceed",](roadmap/030-enforcement-propagation-the-estate-rollo/130-the-floor-says-everything-recoverable-just-pro.md) 🔎
+- [ ] [The dirty-checkout claiming rule collapses on a monolithic board,](roadmap/030-enforcement-propagation-the-estate-rollo/140-cf3-s-claiming-rule-collapses-on-a-monolithic.md) 🔎
 
 ## Principal-set dates: mandate vs default (Mike, 2026-08-09)
 
