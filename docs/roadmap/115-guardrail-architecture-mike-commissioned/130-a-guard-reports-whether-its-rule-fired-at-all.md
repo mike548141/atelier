@@ -31,6 +31,24 @@
       cleanly onto this section — the grounding replay in item `120` perturbs
       the guard's inputs, while this item perturbs nothing and asks only
       whether the rule engaged. Both are needed and neither substitutes.
+      **The class is wider than a scanner's output — it reaches the label,
+      and there the victim is the auditor.** Added 2026-08-16 from a child
+      session's neighbouring instance: a continuous-integration job named for
+      one invariant while four of its five steps check entirely different
+      ones. The job works perfectly; the **name** misdescribes its cover, and
+      a session auditing coverage nearly reported a working guard as ungated.
+      Nothing is wrong with the check and nothing would ever fire.
+      **This estate has already fixed one instance of that and never
+      generalised it.** The floor board used to render a warn-only scanner
+      with the same tick a blocking one earns — *identical output for
+      materially different cover* — and the fix was the three-state render
+      now on the board. That was treated as a rendering bug. It was an
+      instance of this class, and the class has now appeared on a second
+      surface, in a second repo, on a plane with no scanner in it at all.
+      **So the requirement generalises**: a guard, a job, or a board must not
+      name a property it does not cover. Coverage reporting answers it for a
+      scanner's output; the label plane needs the same question asked of it,
+      and no existing check looks there.
       **Small, and it composes with the item above.** A guard that reports its
       own coverage makes the grounding replay checkable at a glance: a replay
       that fires on zero of its incidents is the same signal as a scan that
