@@ -65,6 +65,8 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 - [ ] [2 repos still owe the declaration — blocked by their own reds.](roadmap/030-enforcement-propagation-the-estate-rollo/080-2-repos-still-owe-the-declaration-blocked-by-t.md)
 - [ ] [Adoption is a chicken-and-egg problem and I improvised twice.](roadmap/030-enforcement-propagation-the-estate-rollo/090-adoption-is-a-chicken-and-egg-problem-and-i-im.md)
 - [ ] [no-verify is the real hole, and nothing sees it.](roadmap/030-enforcement-propagation-the-estate-rollo/100-no-verify-is-the-real-hole-and-nothing-sees-it.md)
+- [ ] [The floor drift check can never fire against a stale checkout — the](roadmap/030-enforcement-propagation-the-estate-rollo/110-the-floor-drift-check-can-never-fire-against-a.md)
+- [ ] [Every child inlines the same stale-HEAD drift bullet — a fleet](roadmap/030-enforcement-propagation-the-estate-rollo/120-every-child-inlines-the-same-stale-head-drift.md)
 
 ## Principal-set dates: mandate vs default (Mike, 2026-08-09)
 
