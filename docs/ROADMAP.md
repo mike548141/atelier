@@ -69,7 +69,7 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 - [ ] [The floor drift check can never fire against a stale checkout — the](roadmap/030-enforcement-propagation-the-estate-rollo/110-the-floor-drift-check-can-never-fire-against-a.md)
 - [ ] [Every child inlines the same stale-HEAD drift bullet — a fleet](roadmap/030-enforcement-propagation-the-estate-rollo/120-every-child-inlines-the-same-stale-head-drift.md)
 - [ ] [The inlined floor says "everything recoverable — just proceed",](roadmap/030-enforcement-propagation-the-estate-rollo/130-the-floor-says-everything-recoverable-just-pro.md) 🔎
-- [ ] [The dirty-checkout claiming rule collapses on a monolithic board,](roadmap/030-enforcement-propagation-the-estate-rollo/140-cf3-s-claiming-rule-collapses-on-a-monolithic.md) 🔎
+- [ ] [The dirty-checkout claiming rule yields to a file, then tells you](roadmap/030-enforcement-propagation-the-estate-rollo/140-cf3-s-claiming-rule-collapses-on-a-monolithic.md) 🔎
 
 ## Principal-set dates: mandate vs default (Mike, 2026-08-09)
 
@@ -223,6 +223,7 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 - [ ] [Two-layer acceptance criteria, one verification pass.](roadmap/200-anti-slop-invariant-registry-promote-rec/060-two-layer-acceptance-criteria-one-verification.md)
 - [ ] [Enforcement seam — how does an invariant get checked?](roadmap/200-anti-slop-invariant-registry-promote-rec/070-enforcement-seam-how-does-an-invariant-get-che.md)
 - [ ] [Where does the registry live? — the SCANNER half is answered and built](roadmap/200-anti-slop-invariant-registry-promote-rec/080-where-does-the-registry-live-the-scanner-half.md)
+- [ ] [Two corroboration failures worth minting, both self-caught by the](roadmap/200-anti-slop-invariant-registry-promote-rec/090-two-corroboration-failures-worth-minting-from.md) 🔎
 
 ## instruments/ — open features
 
