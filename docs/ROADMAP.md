@@ -205,6 +205,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [Apex: the principal's authority is absolute; his rulings are](roadmap/160-doctrine-review-owed/200-apex-authority-absolute-rulings-conditioned.md)
 - ✅ [Rule-4 cold pass — apex: authority absolute, rulings conditioned](roadmap/160-doctrine-review-owed/210-rule-4-cold-pass-queued-authority-absolute.md)
 - ⏳ [Rule-4 cold pass queued — the board generator's child-facing strings.](roadmap/160-doctrine-review-owed/220-rule-4-cold-pass-queued-board-generator.md)
+- ⏳ [Rule-4 cold pass queued — the 2026-08-17 ruling round's doctrine](roadmap/160-doctrine-review-owed/230-rule-4-cold-pass-queued-the-0817-ruling-round.md)
 
 ## build/ layer — open strands
 
@@ -312,7 +313,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/README.md)*
 
-- [ ] 🎯 [RULED 2026-08-17 — "Accept, and write the rule."](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/010-the-orchestrator-tier-clause.md)
-- [ ] 🎯 [RULED 2026-08-17 — "Ratify, but not at the floor."](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/020-aa7-ratified-but-not-at-the-floor.md)
-- [ ] 🎯 [RULED 2026-08-17 — "RECORD.md + GUARDS.md."](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/030-rg4-the-earned-rules-get-homes.md)
+- ✅ 🎯 [RULED 2026-08-17 — "Accept, and write the rule."](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/010-the-orchestrator-tier-clause.md)
+- ✅ 🎯 [RULED 2026-08-17 — "Ratify, but not at the floor."](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/020-aa7-ratified-but-not-at-the-floor.md)
+- ✅ 🎯 [RULED 2026-08-17 — "RECORD.md + GUARDS.md."](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/030-rg4-the-earned-rules-get-homes.md)
 - [ ] 🎯 [RULED 2026-08-17 — "Build a guard."](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/040-build-the-cold-sweep-guard.md)

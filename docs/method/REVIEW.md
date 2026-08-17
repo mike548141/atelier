@@ -132,7 +132,9 @@ governing who may spawn it:
    informed*). An approval given without that account stands as the
    principal's word but is open to challenge — on the briefing, never on his
    authority — and the challenge is raised to him, by re-briefing and asking
-   again.
+   again. Where the approval is an **always-confirm floor stop** rather than a
+   governance ruling, the order is fixed: re-brief *before* the irreversible
+   action, never after (`00-APEX.md`, the principal's ruling 2026-08-17).
 4. **Self-authored doctrine earns a cold *spawn*, not just a cold context**
    (the principal's ruling, 2026-07-15, after the MODEL-ECONOMICS F1
    walk-through; sharpened by this rule's own cold pass, ruled the same day).
@@ -175,7 +177,23 @@ governing who may spawn it:
    (`ECONOMICS.md` § *One doctrine, tiered authority*). Grounding: a
    wrong-tier session once took three `⏳` items in one pass and the whole
    pass was rejected on tier grounds, findings unread (2026-07-26) — the
-   stop clause is what would have saved it. The brief
+   stop clause is what would have saved it.
+   **What the bar binds is the judgement that forms findings, not every hand
+   the pass passes through** (the principal's ruling, 2026-08-17). A pass may
+   run as reviewer-plus-orchestrator, and then the reviewer — whoever reads the
+   delta, answers the lenses, assigns severities and writes the reconcile — is
+   on the named tier without exception. An orchestrator that holds the context
+   partition, releases the deferred sibling after the findings are durably
+   written, and commits the records may be off-tier, because none of that forms
+   a finding. Two conditions, and they are not optional: the orchestrator
+   **forms no finding and writes no severity**, and the arrangement is
+   **disclosed in the claim, in the queue pointer and in the verdict's
+   provenance** — before the findings, where a reader meets it rather than
+   discovers it. Absent either, the stop clause above applies unchanged.
+   Grounding: a 2026-08-17 run put two passes on Fable reviewers under an Opus
+   orchestrator, disclosed it that way, and asked; the ruling accepted the
+   passes and directed that the rule be written so the next session reads it
+   instead of judging it. The brief
    states its spawn provenance — who spawned the review and the
    author's non-involvement — and the verdict repeats it; a rule-4 pass with
    no provenance trail is unauditable, and unauditable is non-compliant.
