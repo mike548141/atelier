@@ -23,6 +23,14 @@
       region and `tools/test_templates.py` asserts it matches the canonical text
       exactly. Canonical edit and template re-stamp land in one commit or
       atelier's own floor goes red.
+      **The first child's position, reported on the channel 2026-08-17 by a
+      session live in it.** `faves` bumped its pin to `19eb0e2` that day, having
+      measured `git diff <old-pin>..origin/main -- docs/method/` **empty at that
+      moment** — so this section's floor commit is *exactly* the next drift its
+      check will report, and the re-inline plus re-stamp is **owed at that next
+      bump, not done**. Recorded because it is the one case where the read
+      obligation has a known trigger rather than an open-ended one; the other
+      children's pins are wherever they are.
       **Sequencing worth stating.** Only one child in the fleet currently runs
       five sessions wide, which is where the clause pays. The other ten inherit
       it against a hazard they have not met yet — cheap to carry, and the
