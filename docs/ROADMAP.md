@@ -22,6 +22,8 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [A child has used [~] for partially delivered where the house](roadmap/010-board-store-migration-per-item-files-mik/100-ros-carries-38-items-using-a-different-tilde.md)
 - [ ] 🔥 [A scanner given --root X and a relative path scans your cwd's](roadmap/010-board-store-migration-per-item-files-mik/110-relative-path-args-resolve-against-cwd-not-root.md)
 - [ ] 🔥 [board.py cannot see a duplicate SECTION number, and rebuilt a clean](roadmap/010-board-store-migration-per-item-files-mik/120-board-py-cannot-see-a-duplicate-section-number.md)
+- [ ] 🔎 [A claim on a long-titled item fails the wrapscan floor — on the item's](roadmap/010-board-store-migration-per-item-files-mik/130-a-claim-fragment-on-a-long-title-fails-wrapscan.md)
+- [ ] 🔎 [index_title's fallback swallows the claim fragment into the generated](roadmap/010-board-store-migration-per-item-files-mik/140-index-title-fallback-swallows-the-claim-fragment.md)
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
 
