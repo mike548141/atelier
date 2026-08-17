@@ -27,3 +27,10 @@
       `da6ba70..15d3de2` plus the records commit and merge that landed with
       it (wt: board-per-item-0815). *Intent record:*
       `docs/sessions/2026-08-15-0610-board-store-migration.md`.
+      - [x] 🎯 **BS1 RULED 2026-08-17 — "Wording now + fund the staged-plane
+            build."** The four surfaces now say the guarantee holds on CI and at
+            the hook only when worktree and index agree; `010/020` is funded
+            with the rebuild-from-index flag folded in. **Cycle CLOSED on the
+            wording** (ruling recorded at `290-ruling-round-…/050`; the wording's
+            own rule-4 `⏳` at `160-…/260`). BS2–BS14 residue still awaits the
+            round.

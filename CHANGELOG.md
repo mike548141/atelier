@@ -5,6 +5,18 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-08-17 — BS1 ruled: the hook-plane board guarantee, said plainly)
+- The four surfaces that said a stale roadmap index *cannot* be committed
+  (`tools/board.py` docstring, `tools/README.md`, `docs/method/CONCURRENCY.md`
+  § *On a split board*, the board-store ADR by appended amendment) now say it
+  is caught **on CI unconditionally, and at the hook only when worktree and
+  index agree** — the hook-plane check reads the worktree, so a
+  rebuilt-but-unstaged index and a rebuild that absorbed a sibling's dirty
+  item line both pass the hook (BS1, cold pass 2026-08-15; the principal's
+  ruling 2026-08-17). CONCURRENCY adds: a dirty sibling item state line is a
+  stop for claiming from that checkout. The staged-plane check (`010/020`) is
+  funded as the fix.
+
 ### Added (2026-08-17 — `coldsweep`, the cold-sweep exclusion guard)
 - `tools/coldsweep.py` — the tree search a rule-4 cold reviewer runs, with
   `REVIEW.md` rule 2's barred paths (`docs/SESSIONS.md`, `docs/sessions/`,

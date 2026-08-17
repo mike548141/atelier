@@ -247,7 +247,12 @@ shared worktree safe when the staging command is not file-scoped.
 **On a split board** (board-store ADR, 2026-08-15) the item's checkbox line
 lives in *its own file* under `docs/roadmap/`, and the claim commit carries two
 things: that line's edit, and the regenerated index (`tools/board.py rebuild`
-— the `board` floor check makes forgetting it impossible). The mechanics below
+— the `board` floor check catches a forgotten rebuild **on CI**, and at the hook
+only when worktree and index agree: a rebuilt-but-unstaged index passes the
+hook, and so does a rebuild that absorbed a sibling's dirty state line, so
+*a dirty sibling item state line is a stop for claiming from that checkout*,
+not a stage-yours-alone case — BS1, the principal's ruling 2026-08-17, until
+the staged-plane check lands). The mechanics below
 are unchanged; only the collision surface improves. Same-item claims still
 collide on the item's state line. Different-item claims now touch different
 files, so the false-conflict case shrinks to the index — where two claims'

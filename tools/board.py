@@ -33,7 +33,10 @@ WHY THE INDEX IS COMMITTED AND CHECKED, NOT HAND-KEPT
 A committed derived file can drift from its source — the estate's most-recorded
 defect class. So this tool is wired into the floor as a CHECK: a commit whose
 index does not match its item files fails, with the remedy printed (run
-`rebuild`). Two sessions closing different items both regenerate; if their
+`rebuild`) — on CI unconditionally; at the hook only when worktree and index
+agree, because the hook-plane check reads the worktree, not the staged plane
+(BS1, the principal's ruling 2026-08-17: say it plainly here until the
+staged-plane check lands). Two sessions closing different items both regenerate; if their
 index hunks collide, the resolution is deterministic — regenerate again after
 the merge. The index renders done items as `✅`, never `[x]`, so `sizescan`'s
 cold-content gate (a `[x]` on the hot path) can never fire on a generated line.
