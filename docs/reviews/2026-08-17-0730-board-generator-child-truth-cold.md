@@ -576,3 +576,245 @@ than a shell one-liner. Labelled counsel; the choice is Mike's.
   review within the hour, producing a confident wrong reading of a child's
   index. Fix at the shared layer; a test that a relative arg plus a foreign
   `--root` cannot read the cwd.
+
+### Reconcile (2026-08-17, after release)
+
+**Provenance of this step.** Released by the orchestrator by message after
+it committed the phase-1 verdict (`3ec982a` on the worktree branch); the
+sibling's text was carried verbatim in that message. Opened after release, in
+this order and for reconcile only: board items `010/060`, `010/070`,
+`010/080`; the intent record
+`docs/sessions/2026-08-17-0530-board-generator-child-truth.md`; the one
+`docs/SESSIONS.md` index line for it (line 266, located by grepping the
+record's slug — only that line was printed, and it was cut at 2,000
+characters); and the two prior verdicts the sibling names — the board-store
+migration pass (its provenance headings, its findings BS1–BS14 and its
+reconcile headings) and the floor-render pass (its findings list and the
+FR1/FR2 text). Nothing else in `docs/sessions/`, `docs/reviews/` or
+`ROADMAP-DONE.md` was opened. Phase-1 text above is unrevised.
+
+**Per finding — anticipated, or new?**
+
+- **BG1** — Not anticipated. Item `080` and the intent record both state the
+  premise as a fact about *repos* ("in a child the tool lives in atelier's
+  checkout"); the code decides on *geometry*. Neither names a mixed
+  geometry. Severity unchanged.
+- **BG2** — Not anticipated as a finding, but the record itself contains the
+  evidence: item `080` describes the first child's shim as resolving
+  `ATELIER_TOOLS` → `git config hooks.atelierTools` → a *third* fallback —
+  the shim knew three branches; the string that replaced it knows two.
+  Severity unchanged.
+- **BG3** — Contradicted by the record, which is why it matters: item `070`
+  and the intent record both state "such a line exempts itself anyway" and
+  "passes both scanners unscoped, in any repo, with no ignore file", and
+  make that the stated ground for *not* asking the generated-file exemption
+  ruling. Probe 4 falsifies the first and so the second. Severity unchanged
+  (no live instance; the workaround — a `wrapscan:allow` on the source line
+  — travels and self-exempts).
+- **BG4** — Not anticipated. Item `080` was corrected in place for the
+  spelling (its ⚠️ paragraph); `070`, the intent record and the SESSIONS
+  line still carry `$ATELIER_TOOLS` — acceptable in a *record* (history is
+  kept), not in `tools/README.md` and `CHANGELOG.md`, which are live
+  surfaces. The withdrawn 070 residual survives verbatim in
+  `tools/README.md`. Severity unchanged.
+- **BG5** — Not anticipated; the record's `030` rewrite pre-dates the code
+  commits and was not swept after them. Unchanged.
+- **BG6** — Not anticipated; the record's "not asked" ruling considered two
+  gates. Unchanged.
+- **BG7** — Partly anticipated: the record presents the assertion as the
+  proof that no home directory reaches the index; the reconcile confirms it
+  was read as a proof, not as the tautology it is. Unchanged.
+- **BG8** — Not anticipated. Unchanged.
+- **BG9** — Contradicted by the record: `070` and the intent record both call
+  `F1/GUARDS.md` "a real stale path inherited verbatim from an item's own
+  title". A path of that name never existed in the tree's history; it is a
+  finding-ID-and-filename fragment. Note stands.
+- **BG10** — Not anticipated; `070` itself states that atelier's scope block
+  means "neither has ever fired here", which is the fact BG10 relies on.
+  Unchanged.
+- **BG11** — Anticipated by **BS10** (note, lens 4): "the fleet-rollout item
+  names three private repos … in a public record". This delta adds to the
+  same class; BS10 is still awaiting ruling. Note stands, now with a prior.
+- **BG12** — Not applicable to the record. Unchanged.
+
+**Severity changes:** none. `BG1: MODERATE → MODERATE`,
+`BG2: MODERATE → MODERATE`, `BG3: MODERATE → MODERATE`,
+`BG4: MODERATE → MODERATE` (grounds per finding above).
+
+**Selftest corpus and claims versus the intent record.** The record's
+verification block claims `--selftest` OK, `test_board` + `test_pointerscan`
+46/46, the full suite, `pathscan` 28 → 1 with the survivor "confirmed real",
+`wrapscan` clean, and the first child's figures measured in a scratch tree
+from `origin/main` and `672ad17^`. Re-run: selftest OK; suite 1,344 OK
+(the tree has grown); pathscan 29 → 1 (28 narrative-caused — the record's
+"28" is the generator-caused count, and it holds); wrapscan 0; the child's
+figures reproduce (6,274 lines at `672ad17^`; 48 sections; 54 item files;
+271-line index at `d57e359`/`54ba716`, 268 at `672ad17` itself). The record's
+"the selftest's root is a tempdir, which is exactly a child's geometry" is
+the claim lens 2 qualifies: it is *a* child geometry (tool outside root),
+and the only one the corpus exercises. The survivor characterisation is
+wrong (BG9). Everything else matches.
+
+**BS1's relationship to BG1/BG2.** BS1 (MAJOR, open) is that `run_check`
+compares worktree to worktree, so the hook can pass a stale or wrongly
+rebuilt index. BG1 and BG2 sit on the same `check` path one step later:
+BG1 makes the *want* side of that comparison depend on where the tool ran
+(so a correct index can be reported stale, and a `rebuild` under BS1's P4
+conditions from a foreign geometry would absorb sibling dirt *and* write the
+foreign spelling); BG2 is what the remedy string says when the comparison
+fails. Item `060` (the argv abort) already recorded that the check "had
+never actually run via the floor" when BS's "floor green both planes" was
+measured — BS1's guarantee, then BS7/090's argv, then BG1's geometry, are
+three successive reasons the hook-plane `board` guarantee is weaker than its
+four restatements say. All three belong in the same ruling round.
+
+**The eight seeded questions.**
+
+1. *Marker reads in `board.py`.* `GENERATED_MARK` is used once, in the
+   selftest against freshly generated text; `GENERATED_MARKS` is **defined
+   and never read** in `board.py` — `run_check` compares whole text and
+   never inspects an existing index's marker (BS13's point from the other
+   side). So the docstring's "here and in pointerscan" is vacuous for
+   "here": there is no comparison to honour either spelling. Genuinely
+   new; recorded as BG13 below.
+2. *Allow-comments after the link.* Covered by BG3, and falsified: only a
+   `wrapscan:allow` marker exempts by itself; a sibling marker exempts only
+   when the pre-marker text fits in 85 columns, which at real slug lengths
+   it never does. A long item line with a short sibling marker is flagged.
+3. *Geometries.* Covered by BG1/BG2 and probes G2–G7: symlinked root and
+   `/tmp` vs `/private/tmp` both resolve correctly (true → true); vendored
+   nested tools emit a true relative path; a symlinked `tools/` is the case
+   where a *true* condition (tool resolves outside) yields a *false* string.
+4. *Roots.* Covered (lens 2): the same path in every floor invocation,
+   relative or absolute; `board` does not share item `110`'s shape because
+   it takes no path targets — everything derives from `--root`.
+5. *A check that would have caught it.* Covered (lens 1 point 8, BG2
+   counsel): nothing asserts the emitted command *runs*; the two assertions
+   pin the string's shape. The reconcile confirms the record presents the
+   shape assertion as the proof.
+6. *The withdrawal.* Covered by BG4: `tools/README.md` still carries the
+   retracted claim. New nuance: the correction never reached the principal's
+   queue because the ruling was withdrawn before it was asked — and BG3 says
+   the question is still live, so the round now hears it from the reviewer
+   rather than the author.
+7. *Neighbours in `tools/`.* Genuinely new as a sweep; done at reconcile.
+   Checked and cleared: every prose scanner's printed remedy names an ignore
+   file or allow marker (repo-generic); `floor.py`'s fail-closed text names
+   the config key generically; `floorfleet.py`'s parent remedy prints
+   `python3 tools/floor.py` only for the parent, where it is true. Two
+   neighbours carry the class: `sizescan.py`'s ROADMAP remedy names the
+   retired harvest (already BS4), and `tools/hooks/plain-reply.py` hardcodes
+   an estate-layout fallback path (`~/.pets/atelier/tools`) as an import
+   candidate — a private-estate fact in a public tool, outside this delta
+   (BG14 below).
+8. *Item `030`'s figures.* Partly covered (BG5). The public child's figures
+   reproduce (above); the two private children's cannot be re-measured by
+   this pass (their trees are barred to it) and are taken as stated. The
+   item does say what it counted — lines — which is the improvement `363a846`
+   asked for; what it no longer says correctly is the guidance (BG5).
+
+**Post-reconcile additions — clearly marked; phase-1 text above is unrevised.**
+
+- **BG13 · note** — `GENERATED_MARKS` in `board.py` is dead: defined for the
+  two-spelling promise and never read there. Harmless today; the promise the
+  docstring makes for "here" is not backed by any comparison. Counsel: either
+  use it (BS13's refuse-unless-generated check would) or drop it and let the
+  docstring say `pointerscan` alone reads the marker.
+- **BG14 · note (outside this delta)** — `tools/hooks/plain-reply.py` names
+  `~/.pets/atelier/tools` as a fallback import path — the estate's private
+  layout in a shipped tool, the class this delta was fixing. Not this delta's
+  surface; for whichever cycle owns the reply-gate tooling.
+
+**Overall after reconcile: PASS-WITH-FINDINGS — 0 MAJOR / 4 MODERATE /
+4 minor / 6 note.** No phase-1 severity changed; BG13–BG14 added as notes.
+Every finding is the principal's to rule (REVIEW.md rule 3).
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — the board generator's child-facing strings (open only after your findings are durably written)
+
+Sibling of `2026-08-17-0730-board-generator-child-truth-cold.md` under
+REVIEW.md rule 1's split. Fold into the brief below the verdict and delete this
+file when the verdict lands.
+
+## Intent records
+
+- `docs/sessions/2026-08-17-0530-board-generator-child-truth.md` — the
+  authoring session's account. **Not opened by the brief-writer.**
+- The board items the delta writes: `060` (the generated banner names a path
+  only atelier has), `070` (the index fails two scanners it generates into),
+  `080` (the action word is the only bare positional), and the two handed up by
+  a second child, `100` and `110`. **None opened by the brief-writer** — their
+  content is known here only from the commit messages that filed them.
+- The `docs/SESSIONS.md` index entry for the same session. ⚠️ **This one WAS
+  read by the brief-writer**, at onramp and before this brief was commissioned
+  — see the disclosure in the brief. It is the reason the intent record above
+  was left closed.
+
+## Prior verdicts on the same surfaces
+
+- `docs/reviews/2026-08-15-1030-board-store-migration-cold.md` — the pass on
+  the migration that created this generator. BS1 (MAJOR) concerns the hook
+  plane's stale-index guarantee, which is the same `--check` path this delta
+  edits the remedy string of; BS1–BS14 await the principal's ruling round.
+  Reconcile against it.
+- `docs/reviews/2026-08-09-0823-floor-render-batch-cold.md` — the pass on the
+  floor's render states, if your findings reach how `board`'s check reports
+  through the floor rather than what it prints.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these. Treat a question you did not think of
+as a prompt to re-read the surface, not as an agenda — and note that the
+brief-writer read the author's commit messages in full, so these questions
+inherit some of the author's framing.
+
+1. `board.py` now defines both `GENERATED_MARK` and a `GENERATED_MARKS` tuple,
+   and its docstring says the marker is matched as a prefix against both
+   spellings *"here and in pointerscan"*. `pointerscan.py` visibly does so.
+   Trace every read of the marker in `board.py` itself and say which constant
+   each one uses. If a comparison in this file honours only one spelling, what
+   does that do to an index generated under the other — and is that the
+   behaviour the docstring promises?
+2. The `wrapscan` exemption is restored by making every item line end in its
+   path. Allow-comments still render *after* the link, so a line carrying one
+   does not end in a path. The commit says such a line "exempts itself anyway".
+   Is that true of every allow-comment shape the board's grammar admits, or of
+   the ones currently in the tree? What happens to a long item line whose
+   allow-comment is short?
+3. `rebuild_cmd()` branches on `Path(__file__).resolve().relative_to(root)`
+   raising `ValueError`. Enumerate the geometries this can meet: a symlinked
+   `tools/` directory, a symlinked repo root, a child that vendors the tool
+   after all, a checkout reached through `/private/var` versus `/var` on this
+   platform. In which of them does the branch pick the spelling the reader
+   needs — and in which does a *true* condition produce a *false* string?
+4. `build_index()` derives its root as `board.parent.parent`; `run_check()`
+   passes its own `root`. Are these the same path in every invocation the floor
+   makes, including when the tool is called with `--root` and a relative path?
+   The estate has a live finding (board item `110`) that `--root` is honoured
+   for rules and not for targets in at least four tools. Does `board` share it?
+5. Two defects of one class shipped an hour apart, both found by a child rather
+   than by this repo's own floor. Is there a check that would have caught
+   either before the push — and if the answer is "the selftest, had it asserted
+   the emitted command *runs*", does anything now assert that? Distinguish an
+   assertion that the string has the right shape from evidence that the command
+   works.
+6. Item `070` recorded a conclusion — that only a floor-policy ruling could fix
+   the wrapscan half — that the next commit withdrew. Follow the withdrawal:
+   does any surface still carry the retracted claim, and did the correction
+   reach the principal's decision queue as clearly as the original would have?
+   A wrong finding that nearly cost a ruling is worth a note either way.
+7. The delta's own frame is that a generator must not assume the repo it lives
+   in. Apply that frame outward: do the other tools in `tools/` that write text
+   into committed files (or into a child's terminal at the moment a check
+   fails) make the same assumption anywhere? Name what you checked, including
+   what you checked and cleared.
+8. The rollout item `e2551da` states that the rollout shipped with this item's
+   own gate still shut, and that every previous figure in it was low. Is the
+   *current* set of figures reproducible at HEAD, and does the item now say
+   what it counted — the failure mode the wrapscan arithmetic in `363a846`
+   diagnosed one commit later?
+
+**Cycle state:** CLOSED at 0 MAJOR (REVIEW.md: the cycle closes when a pass
+returns no MAJOR finding); BG1–BG14 go to the principal's ruling round; this
+pass applied nothing.

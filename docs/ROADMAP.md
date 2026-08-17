@@ -205,7 +205,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [/security-review reads the session's pending diff, not the path](roadmap/160-doctrine-review-owed/190-security-review-reads-the-worktree-not-the-target.md)
 - ✅ [Apex: the principal's authority is absolute; his rulings are](roadmap/160-doctrine-review-owed/200-apex-authority-absolute-rulings-conditioned.md)
 - ✅ [Rule-4 cold pass — apex: authority absolute, rulings conditioned](roadmap/160-doctrine-review-owed/210-rule-4-cold-pass-queued-authority-absolute.md)
-- ⏳ [Rule-4 cold pass queued — the board generator's child-facing strings.](roadmap/160-doctrine-review-owed/220-rule-4-cold-pass-queued-board-generator.md)
+- [ ] 🎯 [The board-generator cycle CLOSED 2026-08-17 (0 MAJOR); BG1–BG14](roadmap/160-doctrine-review-owed/220-rule-4-cold-pass-queued-board-generator.md)
 - ⏳ [Rule-4 cold pass queued — the 2026-08-17 ruling round's doctrine](roadmap/160-doctrine-review-owed/230-rule-4-cold-pass-queued-the-0817-ruling-round.md)
 - ⏳ [Rule-4 cold pass queued — coldsweep.py, the cold-sweep exclusion](roadmap/160-doctrine-review-owed/240-rule-4-cold-pass-queued-coldsweep.md)
 - [ ] [A queued pointer at 240 instructs its own reviewer, and pointerscan](roadmap/160-doctrine-review-owed/250-a-queued-pointer-instructs-its-own-reviewer.md)
