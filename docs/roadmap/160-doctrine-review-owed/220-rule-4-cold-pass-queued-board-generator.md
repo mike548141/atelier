@@ -15,3 +15,8 @@
       `SESSIONS.md` entry for this delta was read incidentally beforehand, the
       author's commit messages were read in full, and the brief was written off
       the named tier.
+      (TAKEN 2026-08-17-0955 UTC — RUNNING: a non-author cold session Mike opened on the
+      Fable tier is running the review under an orchestrator-held context
+      partition; the reviewer is a Fable subagent and the orchestrator is Fable;
+      neither wrote the brief nor any part of the delta; verdict lands in the
+      brief; wt: cold-run-0817-0955)

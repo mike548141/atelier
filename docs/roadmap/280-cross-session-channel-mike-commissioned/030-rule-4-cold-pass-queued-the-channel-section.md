@@ -21,3 +21,6 @@
       [`../../sessions/2026-08-17-0734-channel-doctrine.md`](../../sessions/2026-08-17-0734-channel-doctrine.md).
       *Primary source for the delta's evidence:*
       [`../../sessions/2026-08-17-0343-cross-session-channel-transcript.md`](../../sessions/2026-08-17-0343-cross-session-channel-transcript.md).
+      (claimed 2026-08-17-0955 UTC for BRIEF-WRITING ONLY — a non-author cold session
+      writes the brief and stops; the review itself stays untaken;
+      wt: cold-run-0817-0955)

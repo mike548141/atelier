@@ -16,3 +16,6 @@
       reviewer that reaches for `grep` out of habit is unprotected. Whether
       that is the right altitude for the ruling, or whether the guard should
       also detect a bare sweep, is a lens-1 question the build did not decide.
+      (claimed 2026-08-17-0955 UTC for BRIEF-WRITING ONLY — a non-author cold session
+      writes the brief and stops; the review itself stays untaken;
+      wt: cold-run-0817-0955)
