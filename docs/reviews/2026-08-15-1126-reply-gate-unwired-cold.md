@@ -5,8 +5,11 @@
 executed the unwiring; the two "rules earned" it states are new doctrine by
 function, in the author's own wording).
 **Tier:** Fable (the principal-named review tier, ruling 2026-08-04).
-**Status:** BRIEF WRITTEN, REVIEW NOT RUN. The next cold session that passes
-rule 4's criterion and the tier bar takes it — see *Spawn provenance*.
+**Status:** REVIEW RUN 2026-08-17, reconciled the same session —
+**PASS-WITH-FINDINGS: 0 MAJOR / 4 MODERATE / 3 minor / 2 note**; cycle
+**CLOSED** (0 MAJOR, REVIEW.md); RG1–RG9 go to the principal's ruling round,
+with RG3+RG6 travelling with CMF2 and RG7+RG9 with CMF7 so nothing is ruled
+twice. Verdict and reconcile below.
 
 ## Spawn provenance
 
@@ -399,3 +402,206 @@ counsel above is labelled as such.
 - [ ] Pending at verdict time: a documentation follow-up (`stop_hook_active`;
       `systemMessage` vs `additionalContext` visibility) had not returned.
       RG3 and RG6 stand without it and could only be strengthened by it.
+
+## Reconcile — post-verdict, against the sibling, the records, and the prior verdict
+
+*Written 2026-08-17 after phase 1 was committed (`066efe9`). Opened, in this
+order and only then: the sibling text (folded below);
+`docs/sessions/2026-08-15-1031-reply-gate-unwired.md`; the ruling item
+`020-…/310-…`; the 2026-08-15-1033 communication-floor verdict in full. Phase-1
+text above is untouched; everything here reconciles against it.*
+
+### The pending documentation follow-up, resolved — folded into RG3
+
+Resolved via the orchestrator: `systemMessage` is user-visible; Stop's
+`additionalContext` is model-injected, informational-only. That converts RG3's
+"unestablished" into "established false as a user-visibility claim": the
+give-up note went to the model, never to the principal. One discrepancy for
+the ruling round, not adjudicated here: this pass's query says
+`stop_hook_active` does not exist as an input field, while the 1033 pass's
+2026-08-15 doc fetch cited it as documented. RG6's code facts (no harness
+loop signal consulted; `sig` unread; per-session counter) hold on either
+reading.
+
+### The transcript look CMF2's reconcile handed to this pass
+
+The 1033 reconcile asked this pass to read the four give-up turns in the
+transcripts. Done, bounded, mechanics only, no content quoted. In the
+2026-08-15 window (92 transcript files): the give-up note's **source-form**
+text matches 4 files — every match explained by a session reading the hook
+file or running a drive (tool results, sidechains). The **rendered** form
+("… rule(s) after 2 rewrites") appears exactly **once**, inside a subagent's
+hook-drive output — the 1033 pass's own probe. **No live give-up injection
+exists anywhere in the window.** The control probe (how a live *block*'s
+feedback is recorded, to prove the absence meaningful) was denied by the
+permission system; disclosed rather than worked around. What stands: no
+positive evidence of the note reaching any surface exists in docs (two
+queries), code, or transcripts — and the 1031 measurement's "fired on 4 of
+the 6" is therefore consistent with a note nobody ever saw, inferred from
+block patterns rather than found as text. RG3 hardens; severity unchanged
+(MODERATE), and its remedy belongs with CMF2's — one ruling covers both.
+
+### The seven seeded questions
+
+1. **Where was the replacement premise checked, findably?** Checked
+   empirically — the 12-hour transcript measurement, recorded in the intent
+   record and item `310-…`, one hop from each corrected surface (all three
+   point at the ROADMAP item). The documentation grounding the original
+   premise never had arrived only via review passes: the 1033 pass's doc
+   fetch (independently, before reading `cd6232b`) and this pass's re-run.
+   Answered: checked, and the check is findable — but the *doc-cited* half
+   lives in verdicts, not on the surfaces.
+2. **Is "detection was sound" the author's account of its own half?** Yes —
+   RG1's territory, and the fuller records sharpen it: item `310-…` says P1
+   fired 39 of 61 times on board identifiers and, once, on the gate's own
+   rule codes. A detector firing mostly on the house's reference grammar is
+   sound as a *counter*, not as a *classifier* — and the collector option
+   needs the classifier. Convergence noted below under contamination: this
+   pass cannot claim independent arrival on Q2.
+3. **Does 4-of-6 vindicate the give-up?** No — it measures how often the
+   rewrite failed. And with the follow-up resolved, the give-up was another
+   *continuation* whose note the principal never saw, so "the one part of
+   the design the evidence vindicated" survives at HEAD as praise for a path
+   that was neither a give-up nor visible. Covered by RG3, extended here.
+4. **Are the two rules doctrine, and are they homed?** They are doctrine by
+   function. Rule 1 sits in `COMMUNICATION.md` by accident of where the
+   failure happened; its class home is `GUARDS.md` (gate doctrine), with the
+   grounded instance staying put and pointing. Rule 2's home is `RECORD.md`,
+   beside the verbatim-capture doctrine it extends. Neither is queued to
+   reach its home — see the RG4 call below.
+5. **Does the delta make the *next* approval record reservations?** No. It
+   names the gap, states the rule in the commit, the intent record and item
+   `310-…`, and changes no doctrine surface and no mechanism. RG4 confirmed
+   at full strength; this pass and the sealed sibling arrived at Q5's
+   substance separately (see contamination — genuine convergence evidence).
+6. **What stops a reinstall from the kept install form?** Prose only. The
+   stop notice in the hook banner and the install-form preamble ("not to be
+   reinstated without a ruling") are loud and adjacent, machine memory
+   carries it locally, and no repo installs the stanza (verified: the form
+   exists only as documentation; the intent record confirms nothing in any
+   repo wired it). Residual: a reader lifting the JSON block without its
+   preamble, on a machine without the memory. Counsel, labelled: while the
+   destroy-or-repurpose ruling is open, one line in the hook — refuse to run
+   without an explicit override marker — would make the notice mechanical;
+   resolving the ruling moots it.
+7. **Is the "would carry to any collector" scoping a commitment or a hope?**
+   A recorded intent, not an enforced property: stated in the survival
+   clause and in item `310-…`'s boundary paragraph (machine-local log, never
+   committed, stated before build). Nothing tests it and nothing can until a
+   collector exists. Adequate as design input; the build must carry it into
+   code and tests, and the item already says so.
+
+### Contamination, per finding — phase 1's own labels corrected
+
+Phase 1 classified RG1, RG2, RG4, RG5, RG8, RG9 as having "no counterpart
+seen". Re-read against the now-open 1033 verdict, that undercounted the
+exposure, and the correction is owed here:
+
+| Finding | Corrected status |
+|---|---|
+| RG1 | **Seeded by handoff, not independent.** CMF5 cross-references the same tension and names it "RG-pass territory" — and that line was in the leaked excerpt. The prior pass deliberately left it to this one; formed here from in-scope text, with that exposure on record |
+| RG2 | **Independent.** No 1033 counterpart exists (its scope predates the corrections; its duplication sweep covered the rule code, not the engine docstring's tense) |
+| RG3 | **Descendant of CMF1/CMF2**, which already said the wording stands at HEAD uncorrected. Freshly corroborated by this pass's doc query and the transcript look. One ruling should cover CMF2 + RG3 |
+| RG4 | **Partially exposed.** The 1033 reconcile flags the rule as "the RG pass's to weigh" (leaked line); the homelessness finding itself — no live doctrine surface carries it — is this pass's own, and converges with sealed sibling Q5, which is genuine independence evidence for the *substance* |
+| RG5 | **Independent — and narrowed by the intent record.** "Of the 6 turns that took a second block, 4 still failed" supplies the denominator: 2 of 6 second rewrites succeeded ≈ a third. Phase 1's "cannot be derived under any reading" is falsified by the fuller record; what remains is the commit's compression dropping the denominator. Recommend minor → note at ruling |
+| RG6 | **Duplicate of CMF2's mechanics** (`sig` unread, per-session guard — both stated there, and present in the leaked excerpt). Independently re-verified by this pass's drives; fold into CMF2's ruling |
+| RG7 | **Descendant of CMF7**, which anticipated it exactly ("and the unwiring, if the RG pass agrees") — this pass agrees; the unwiring half is the extension |
+| RG8 | **Corroborated descendant.** The 1033 lens-4 notes carry the stale state file (leaked); this pass adds the banner-never-mentions-the-residue point and fresh verification |
+| RG9 | **Descendant of CMF7's close-item-120 half** (leaked in the overall line). This pass adds three more green full-suite runs to the prior pass's 5/5 + 11/11 |
+
+Net: two findings fully independent (RG2, RG5), one partially (RG4), six
+descended from or seeded by prior-verdict territory. The duplicates are
+marked so no finding is ruled twice: **RG3+RG6 travel with CMF2; RG7+RG9
+travel with CMF7.**
+
+### Falsified, and absent from the author's account
+
+**Falsified:** RG5's "under any reading", as above — the only phase-1 claim
+the records overturn in part. Nothing else: the intent record confirms the
+`hooks = {}` verification this pass repeated; it repeats "all three places",
+so RG2 stands against the author's account as well as the commit; it never
+mentions the state file (RG8's absence confirmed) or the CHANGELOG (RG7).
+
+**Absent from the author's account, found by review:** the fourth surface
+(RG2); the give-up path's real behaviour and invisibility (CMF2/RG3 — the
+account praises the path whose note nobody saw); the residue file (RG8);
+rule 2's homelessness (RG4); and any documentation-grounded check of the
+replacement premise (Q1 — the empirical check was strong; the doc grounding
+came from the review passes). The author's fuller records otherwise hold up:
+the measurement table, the trigger analysis, and the ruling are recorded in
+`310-…` in more detail than any corrected surface carries, including the
+verbatim ruling this brief's pass type turns on.
+
+### The RG4 judgement call, made explicit
+
+Confirmed against the intent record and item `310-…`: rule 2 lives in both
+records and in no doctrine. **It should carry a follow-up item**, one item
+covering both homes: rule 2 stated once in `RECORD.md` beside the
+verbatim-capture doctrine ("reservations go into the record beside the
+approval, and each becomes a check the build has to answer" — the item's own
+wording is ready to lift); rule 1's class statement in `GUARDS.md`, with
+`COMMUNICATION.md` keeping the grounded instance and pointing. Queuing the
+item is the applier's work; the placements are counsel and the decision is
+Mike's.
+
+## Folded deferred material (verbatim)
+
+> # Deferred material — the reply gate unwired (open only after your findings
+> are durably written)
+>
+> Sibling of `2026-08-15-1126-reply-gate-unwired-cold.md` under REVIEW.md
+> rule 1's split. Fold into the brief below the verdict and delete this file
+> when the verdict lands.
+>
+> ## Intent records
+>
+> - `docs/sessions/2026-08-15-1031-reply-gate-unwired.md` — the authoring
+>   session's account.
+> - `docs/roadmap/020-policy-as-code-programme-five-tracks-mik/310-the-reply-gate-is-unwired-destroy-it-or-repur.md`
+>   — the ruling item, carrying the principal's ruling verbatim and the
+>   author's account of the measurement.
+> - The `docs/SESSIONS.md` index entry for the same session (last entry at
+>   brief-writing).
+>
+> ## Prior verdicts on the same surfaces
+>
+> - `docs/reviews/2026-08-15-1033-communication-floor-cold.md` — the pass on
+>   the *earlier* deltas (enforcement clause 2026-08-09, repo-plane rescope
+>   2026-08-10); run under the same orchestrator on 2026-08-15. Reconcile
+>   against it — its lens-1 answer on the Stop-hook control was formed before
+>   it read the unwiring commit, by instruction.
+> - The 2026-08-09 rulings that switched the reply plane on are recorded in
+>   the board's § *COMMUNICATION.md enforced* narrative and in
+>   `docs/ROADMAP-DONE.md` § *The communication floor*.
+>
+> ## Brief-writer's seeded questions (a floor, never a fence)
+>
+> 1. The commit says the false premise was "asserted in three places and
+>    checked in none". Its replacement premise — a `Stop` hook cannot
+>    un-print — is now asserted in the same three places. Where was *it*
+>    checked, and is that check recorded anywhere a reader can find it?
+> 2. "Detection was sound throughout" — is that established, or is it the
+>    author's account of the half of the mechanism it built? The commit also
+>    says triggers were "near-misses and board item identifiers": is a
+>    detector that fires on the house's own reference codes *sound*?
+> 3. The give-up path "fired on 4 of the 6 turns that reached it" and is
+>    called "the one part of the design the evidence vindicated". Does a
+>    guard that gave up on 4 of 6 vindicate the give-up path, or measure how
+>    often the rewrite failed?
+> 4. Two rules are stated as earned. Are they doctrine (rules that govern
+>    future agent behaviour) and if so, do they now sit in `COMMUNICATION.md`
+>    only by accident of where the failure happened — is there a better home
+>    (`GUARDS.md`, `REVIEW.md`, `AUTONOMY.md`) and are they queued to reach
+>    it?
+> 5. "An approval is not the whole ruling" — the record says the principal's
+>    reservations at the 2026-08-09 recommendation were never recorded. Does
+>    the delta change anything so that the *next* approval records them, or
+>    does it only name the gap?
+> 6. The hook stays in the tree wired to nothing, with a stop notice. What
+>    stops a child repo's onramp or a fresh session on another machine from
+>    reinstalling it from the catalogue's "install form, kept for the
+>    record"?
+> 7. `plainscan.py`'s reply plane (`scan_text`) still exists and the "scoped
+>    to its reader" paragraph says the reply-plane scoping "would carry to
+>    any collector built in its place". Is that a design commitment or a
+>    hope, and does anything test it?
