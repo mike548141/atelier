@@ -73,8 +73,16 @@ fails with the remedy printed (`board.py rebuild`; after a merge conflict on
 the index, rebuilding *is* the resolution). Done items render `✅` in the index
 — never `[x]`, so sizescan's cold-content gate cannot fire on a generated line.
 A repo with no `docs/roadmap/` directory is out of scope and passes saying so.
-Stated residual: the check compares worktree to worktree — the staged-plane
-seam (harvestscan's HV4 discipline) is a queued follow-up on the board.
+Every string the generator writes into the index has to be true in a repo that
+is **not** this one — children call the floor's tools and never vendor them, so
+the rebuild instruction is resolved per root (repo-relative here, the hook's
+`$ATELIER_TOOLS` spelling in a child, never an absolute path) and the banner
+names no path at all. Stated residual: the check compares worktree to worktree —
+the staged-plane seam (harvestscan's HV4 discipline) is a queued follow-up on
+the board. Second stated residual: the index cannot pass a repo-wide `wrapscan`
+— its item lines are markdown links that cannot be wrapped without ceasing to
+be links — so a child either scopes `wrapscan` off the index or waits on the
+generated-file exemption question (board item `010/070`, unruled).
 
 **reviewscan** (a records-hygiene check) proves only **presence**: a decision
 record carries *a* review line. Whether "not warranted" was the honest call —

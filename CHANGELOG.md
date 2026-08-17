@@ -5,6 +5,32 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-08-17 — the board generator writes for the repo it lives in)
+- `tools/board.py` emitted `tools/board.py` into three strings a **child**
+  reads: the index banner, the index preamble and the stale-index remedy the
+  check prints. Children call the floor's tools and never vendor them
+  (ADR 0008), so all three named a file that is not there — including the one
+  instruction at the top of the one file readers are told never to hand-edit.
+  The rebuild instruction is now resolved per root: repo-relative where the
+  tool sits inside the tree it rebuilds, the hook's own `$ATELIER_TOOLS`
+  spelling where it does not, and never an absolute path (a machine-local fact
+  has no business in a file that may be public). The banner names no path at
+  all and drops 115 → 69 columns.
+- The index no longer repeats a section's path as its link **text**
+  (`*[Narrative](…)*`, not `*Narrative: [<dir>/README.md](…)*`), which
+  `pathscan` resolved: 28 false findings per commit here, 49 in the first
+  child, on every commit, warn-only — a check that always fires is a check
+  nobody reads. The `##` heading above already names the section.
+- The `GENERATED` marker is matched as a prefix against **both** spellings, in
+  `board.py` and `pointerscan.py`, so no repo needs a flag day; an index built
+  before today keeps its pointerscan skip until its next rebuild.
+- Found by `faves`, the first child to adopt the split board, which had
+  papered over the first defect with a delegating shim. That shim can go.
+  **Not** fixed, and not fixable in the generator: the index cannot pass a
+  repo-wide `wrapscan` — its item lines are markdown links, and a wrap inside
+  `[…](…)` stops it being one. Whether a generated file is exempt from the
+  prose gates is a floor-policy question, open on the board (`010/070`).
+
 ### Changed (2026-08-15 — the principal's authority is absolute; his rulings are conditioned)
 - `00-APEX.md` § "The principal's authority is conditioned on being informed"
   is retitled *"The principal's authority is absolute; his rulings are

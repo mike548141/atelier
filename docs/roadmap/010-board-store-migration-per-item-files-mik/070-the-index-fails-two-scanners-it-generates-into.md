@@ -39,3 +39,30 @@
       for them — worth fixing before `ros` and `shed` (item `030`) rather than
       after, or the fleet accumulates one ignore-file pair per repo to
       accommodate a string this board could simply stop emitting.
+      ✅ **`pathscan` half: FIXED 2026-08-17** with `060`, same commit. The
+      generator no longer repeats the path as link text — a section now renders
+      `*[Narrative](roadmap/<dir>/README.md)*`, and the `##` heading directly
+      above it already carries the section's name, so the title option this
+      item listed would have re-stated what the reader had just read. Measured,
+      not assumed: atelier's index went 28 findings → **0 generator-caused**
+      (the one that remains, `F1/GUARDS.md` at `:184`, is a real stale path
+      inherited verbatim from an item's own title). In `faves` this is all 49.
+      ⚠️ **`wrapscan` half: NOT fixed, and it cannot be fixed in the generator
+      — the item's own measurement is what misled it.** This item read *"eight
+      lines were over"*. Measured against `faves`' index at `origin/main`:
+      **127 of 291 lines exceed 85 columns**, not 8. The banner and the 48
+      narrative lines are exactly the ones the `060` fix shortens — `faves`
+      goes **127 → 78**, atelier **188 → 160** — and every line remaining is an
+      item line, a markdown link whose text is a title and whose target is a
+      path. Those cannot be wrapped: a break inside `[…](…)` stops it being a
+      link, and any hand-rewrap is undone by the next `rebuild`. So the first
+      two options this item listed are spent, and only the third survives:
+      **the generated file is not hand-written prose, and prose gates should
+      not read it.** 🎯 That is a floor-policy change, not a tool fix — whether
+      a `GENERATED` marker on line 1 exempts a file from the prose scanners
+      fleet-wide is Mike's to rule, and until he does, each child still needs
+      its own `.wrapscanignore` entry. Left open on that.
+      🔑 **The lesson under the corrected figure is the one this item already
+      states, turned on itself:** a count taken from the file you have open has
+      a shelf life, and `faves` corrected its own line count the same hour for
+      the same reason. Cite the revision you measured.

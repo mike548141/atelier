@@ -1,7 +1,7 @@
-- [~] 🔎 **The generated index tells every child to run a file it does not
-      have — reported upstream by `faves`, unrecorded here until 2026-08-17.**
-      (claimed 2026-08-17-0549, wt: board-generator-child-truth)
-      `board.py` hard-codes `tools/board.py` into three child-facing strings:
+- [x] 🔎 **The generated index tells every child to run a file it does not
+      have — reported upstream by `faves`, unrecorded here until 2026-08-17;
+      FIXED the same day (wt: board-generator-child-truth).**
+      `board.py` hard-coded `tools/board.py` into three child-facing strings:
       the `GENERATED` banner (`tools/board.py:70-73`), the index preamble
       (`:174`) and the stale-index remedy the check prints (`:232`). In
       atelier every one of them is true. In a child the tool lives in
@@ -19,4 +19,20 @@
       (item `030`) means two fewer child files that exist to paper over a
       string. Class, worth naming: **a generator writes text that is read
       from somewhere it was never written for** — the same shape as the
-      two-depth link defect the migration itself hit on day one.
+      two-depth link defect the migration itself hit on day one, and the same
+      root `070` records for the scanner-facing half.
+      **Done 2026-08-17.** `rebuild_cmd()` decides per root: the repo-relative
+      path where the tool is inside the tree it rebuilds (atelier, unchanged),
+      the hook's own `python3 "$ATELIER_TOOLS"/board.py rebuild` spelling where
+      it is not, and **never an absolute path** — that would put a
+      machine-local fact into a file that may be public, trading one wrong
+      string for a worse one. The banner now names no path at all
+      (115 → 69 columns) and the HOW moved to the preamble, which is built
+      against a known root and can therefore be true from where the reader
+      stands; the stale-index remedy the check prints resolves the same way,
+      at the one moment a reader is least able to guess. The marker is matched
+      as a prefix against **both** spellings, so no repo needs a flag day.
+      Proved offline, not asserted: the selftest's root is a tempdir, which is
+      exactly a child's geometry, so the child spelling is what its own
+      assertions read — plus a check that no home directory reaches the index.
+      **`faves`' shim can go**, and `ros`/`shed` never need to write one.
