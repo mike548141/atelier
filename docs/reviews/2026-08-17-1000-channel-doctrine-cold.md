@@ -620,3 +620,258 @@ No suite result looked like interference; none re-run.
 - [ ] CH7–CH13 — wording, pointer target, sweep-table row, CHANGELOG entry.
 - [ ] Reconcile — check G1–G13 against the transcript and the child's records;
   say which findings moved.
+
+### Reconcile (2026-08-17, after release)
+
+**Written:** 2026-08-17 13:45 UTC, at HEAD `b7e0da5` (phase-1 committed
+unrevised; the three delta paths still byte-identical to `574f133`). Nothing
+above this heading was edited.
+
+**Provenance of this step.** The orchestrator released the sibling's text by
+message after the phase-1 commit; the orchestrator formed no finding. I then
+opened, in this order and nothing else: (1) the intent record
+`docs/sessions/2026-08-17-0734-channel-doctrine.md` including its post-landing
+addendum; (2) the transcript
+`docs/sessions/2026-08-17-0343-cross-session-channel-transcript.md`; (3) the
+public child's committed records — `docs/SESSIONS.md` (grep-located excerpts in
+the 2026-08-15…17 window) and `docs/decisions/README.md` lines 25–52 — read-only,
+in the sibling checkout under the home directory; (4) board `280-…` README, `010`
+and `020` (`040` stays unopened — I know only its index title, disclosure 2(a));
+(5) the single `docs/SESSIONS.md` index line for the `0734` record (line 268, by
+slug grep); (6) the five prior verdicts the sibling names, and `030/140` re-read.
+Still no git state change, no other file edited.
+
+#### Grounding claims G1–G13 against the sources
+
+| # | Claim | Result | Where |
+| --- | --- | --- | --- |
+| G1 | third session, two answers, double-held file | ✅ verified | child record "What parallel work actually cost" (two files double-held; a third session noticed) |
+| G2 | every version reservation stale by merge time | ✅ verified | child record "Every reserved version number was stale by merge time" (three reservations, all resolved higher); repeated later for a `.99`→`.106` |
+| G3 | polite double yield, collided again in five minutes | ✅ verified | child ADR index: two records stamped the same number, both renumbered to the next, red again five minutes later; the number left a permanent hole; **the tie-break and "fewer inbound references" are the child's own words** — stated there for the state *both records pushed and `main` red* |
+| G4 | two of one day's four repo-wide stops from gate-tightening | ⚠️ verified with a mislabel | the child's table lists **four collisions between correct decisions**, of which **two** stopped every session's commits; the other two stopped "both, silently" / would have been absorbed. "Four repo-wide stops" over-counts the stops (CH14) |
+| G5 | three rulings arrived by relay in one session | ✅ verified | child record: "brought back three owner rulings this session would otherwise never have seen … Rulings do not cross between sessions by themselves" |
+| G6 | measurement wrapped in wrong diagnosis, "more than once" | ⚠️ one named instance | in the child's records (recorded from both sides); a second is arguable in transcript § 2 (right measurement, wrong compensating-guard diagnosis) — defensible across the evidence base, not from the child's records alone (CH14) |
+| G7 | both load-bearing corrections came from re-running | ✅ verified, one nuance | transcript §§ 2–3. The second re-read was done by a **peer** of the withdrawing session ("a peer went and re-read your source"), not by the counterparty — the doctrine's "the other re-read … and withdrew" compresses that (CH14) |
+| G8 | four rounds, two only to correct the earlier two | ⚠️ count survives, target loose | four numbered exchanges; §§ 2 and 3 are the corrections; **both correct claims made in § 1** (and one atelier item), so "the earlier two" should read "the first"; § 2 also carried the finding's acceptance, so "only" is slightly strong |
+| G9 | abridged repo-name + guard-inventory pairing, stated in file | ✅ verified | transcript "Scope and what is deliberately omitted" and § 4 |
+| G10 | Bearing: five sessions, double-held file, absorbed constant, identifier collisions, two blocking occasions | ✅ verified | child records: "Five faves sessions ran concurrently"; the `.88` absorbed bump; the ADR and version collisions; table rows 3–4. Window start 2026-08-13 not confirmed from headings (earliest concurrency notes seen are 08-15/16); immaterial |
+| G11 | the three laws are the child's own corrections | ✅ verified | "a broadcast is not a reservation either … only a pushed commit reserves"; ADR index: check **after** the push; fewer inbound references moves; the burned number stays burned |
+| G12 | each of seven classes earned by a failure | ⚠️ six of seven | hello/file-set, holdings, minting, gate-tightening, rulings, findings each have a named failure in the child's records. **Farewell** has none I could find; it comes from the principal's commission ("Saying Hi when a new session starts or resumes or closes") — CH15 |
+| G13 | "three sessions stalling on one clause" | ✅ verified | transcript § 3, the child's own self-report; consistent with `030/140` |
+
+**Which findings moved on that reading.**
+
+- **CH4 (MODERATE → MODERATE, evidence upgraded).** Phase 1 reasoned the
+  `--autostash` hazard from the commands; the child's own record for the day the
+  floor came home says it: *"a peer's `pull --rebase --autostash` in the shared
+  primary checkout absorbed our uncommitted work and collided on `sw.js`"*. The
+  finding is now observed, not inferred. Severity unchanged — it was already
+  weighed as a real seam contradiction.
+- **CH3 (MODERATE → MODERATE, grounds sharpened).** The child's source rule is
+  stated for the state *both records pushed, `main` red* — the evaluation point
+  is implicit there and was dropped in extraction; the tie case is undefined in
+  both. Same severity, sharper counsel: restore the precondition and add the tie.
+- **CH1 (MODERATE, unchanged; anticipated).** The intent record's addendum
+  reaches the same gap after landing and queues it at `280/040`, deliberately not
+  fixing it because the fix sits in `REVIEW.md` rule 4 while this delta is queued
+  under it. My phase-1 CH1 was formed before that reading (disclosure 2(a)
+  stands: the `040` index title may have primed the direction). Anticipated by
+  the author, unaddressed in the text; severity stands.
+- **CH2 (MODERATE, unchanged; strengthened by a prior verdict).** The flip
+  pass's CF2 [fixed] wrote "their silence licenses nothing" into § The trigger
+  precisely so cue-silence could never license relaxing; the new "ask" cue's
+  wording sits beside that fixed line and re-opens the door for a null
+  enumeration. Not anticipated as such; the principle it violates was ruled
+  2026-07-20.
+- **CH8 (minor, unchanged; grounded).** The child's record names the exact
+  shape — "`git rev-parse HEAD` equal to `origin/main` … reads exactly like
+  success; `git status | head -1` saying 'interactive rebase in progress' is the
+  signal" — and, separately, "`git push` printed success while pushing nothing".
+  Supports CH11's sweep-table row as well.
+- **CH6 (minor, unchanged).** The intent record and `010` restate "nothing here
+  is written over `030/140`"; neither notices that the file-disjointness sentence
+  and the mandatory hunk-header check sit on the same axis. Not anticipated.
+- **CH5, CH7, CH9, CH10, CH11, CH12, CH13** — unchanged; none anticipated by
+  the intent record or the prior verdicts. CH12: the intent record and `010`
+  list every surface that landed and neither names a `CHANGELOG.md` entry, so
+  the omission is confirmed, not explained.
+- **N1–N4** — unchanged. N4 confirmed: `010` and the intent record treat the
+  child's records as public evidence, and `gh` reports the child PUBLIC.
+
+**New findings from the reconcile reading** (numbered on from phase 1; recorded
+here, phase-1 counts left as written):
+
+- **CH14 (minor) — three grounding restatements are looser than their
+  sources.** (a) "Two of one day's four repo-wide stops" — the source has four
+  *collisions*, two of them repo-wide stops. (b) "the other re-read a doctrine
+  passage and withdrew" — a *peer* re-read; the counterparty withdrew. (c) "more
+  than once arrived wrapped in a wrong diagnosis" — one named instance in the
+  child's records; the second rests on reading the transcript's § 2 as the same
+  shape. Each is small; together they sit inside the one class the section's
+  own findings rule polices (measurement labelled apart from diagnosis), and
+  `030/140` records the same house habit — a quotation acquires the quoter's
+  emphasis unless diffed against the source.
+- **CH15 (minor) — "each earned by a failure" is true of six classes.** The
+  farewell class is grounded in the principal's commission, not in a failure the
+  child's records name; the sentence should say so, or the class should carry
+  its own bearing (the orphan-claim judgement it spares is a cost, not a failure
+  observed).
+- **CH16 (minor, completeness) — the child's post-commit check was not
+  extracted.** The same window's records carry the mirror of the pre-commit
+  hunk-header check: *"After a commit, verify it exists and says what you wrote —
+  `git log -1` naming your subject, not merely a clean status. A clean status is
+  equally consistent with 'committed' and 'someone else committed it for
+  you'"*, learned when a session's staged files landed inside two peer commits.
+  § The trigger's index blind spot names only the pre-commit half.
+
+#### The brief-writer's eight seeded questions — answered after the fact
+
+1. *What is the channel?* Not stated anywhere; the doctrine is conditional in
+   the floor and § The trigger, unconditional in § Claiming work — CH10. The
+   child's records show it as a harness message primitive between live sessions
+   plus a broadcast on open; the method abstracts it away and points nowhere.
+2. *Tie-break on different trees; what breaks a tie?* Not stated; the child's
+   source presupposes both artefacts pushed and `main` red; nothing breaks a tie
+   in either — CH3.
+3. *Claim content described two ways?* Not a contradiction: the claim line still
+   carries *what*; the file set rides on the channel, not in the claim. Which is
+   the rule is clear; whether the file set *should* also live in the artefact is
+   CH10's note.
+4. *Does the reverse-edit rule decide `030/140`?* No — it governs backing out
+   your own edits, and CF3's yield says touch nothing. What does touch the axis
+   is the file-disjointness sentence plus the hunk-header check (CH6); the intent
+   record's "nothing written over it" was meant and is true of the yield branch.
+5. *Is "a symptom count locates a fault's existence, never its site" measurement
+   or generalisation?* The child's own words, verbatim in transcript § 3 —
+   source, not the author's generalisation.
+6. *Count the rounds.* Four exchanges; two are corrections; both correct
+   claims made in the *first* (G8). Characterisation survives; "the earlier two"
+   is loose. Left out that a reader would want: the peer-not-counterparty nuance
+   (CH14b), the child's post-commit check (CH16), and the tie-break's pushed-and-
+   red precondition (CH3).
+7. *Is "read the staged hunk headers before every commit" proportionate for a
+   solo session, and does the floor say when it applies?* The sentence's subject
+   ("the shared checkout's index …") scopes it; its adverb ("before every
+   commit") does not, and the pointer sends the reader to the wrong section
+   (CH9). A solo worktree session can read it as not applying, but the floor
+   does not say so.
+8. *Did the addendum's correction reach the doctrine text or only the record?*
+   The record: `bb7c08f` rescoped the queue pointer and dated the first child's
+   pin position; the doctrine text was not touched, and the gap the same use
+   exposed (CH1's) was queued at `280/040` rather than fixed — a home, so not
+   the rule-with-no-home class.
+
+#### Prior verdicts' [fixed] claims verified at HEAD
+
+- Flip pass (2026-07-20) CF1–CF7: all present in `CONCURRENCY.md` at HEAD —
+  the evidenced-alone/unevidenced trade (CF1), "silence licenses nothing" (CF2),
+  the dirty-primary rule (CF3), the floor bullet's flipped prior (CF4),
+  "affirmative statement or record, never an absence" (CF5), no "(primary)"
+  residue (CF6), "when unsure which rung, take the worktree" (CF7).
+- Claiming-work pass (2026-07-13) 1–7 and the applied pass 1–2: all present —
+  claim keys on selection, lands on `main` from the primary checkout, per-leaf
+  fan-out, the `[~]`→`[ ]` revert step, the tracker precondition, adjacent-item
+  conflict with "no unchanged line between them", timestamp demoted to tiebreak.
+- Cancelled-run pass CR1–CR3: on `RECORD.md`, not this delta's surfaces — not
+  verified here.
+- Put-away pass: no findings on the KISS line; the claiming pass judged the
+  claim mechanism inside the no-locking line, which is the same reading N2 gives
+  the channel.
+
+**Overall after reconcile: PASS-WITH-FINDINGS stands — 0 MAJOR · 5 MODERATE
+(CH1–CH5, none moved in severity; CH3 and CH4 sharpened/grounded) · 11 minor
+(CH6–CH13 + CH14–CH16 new) · 4 notes.** Findings remain the principal's to
+decide (REVIEW.md rule 3); nothing applied.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — the channel as a concurrency primitive (open only after your findings are durably written)
+
+Sibling of `2026-08-17-1000-channel-doctrine-cold.md` under REVIEW.md rule 1's
+split. Fold into the brief below the verdict and delete this file when the
+verdict lands.
+
+## Intent record and primary source
+
+- `docs/sessions/2026-08-17-0734-channel-doctrine.md` — the authoring
+  session's account, including an addendum (`516a4c0`) in which the channel
+  corrected the doctrine's own artefact after landing. **Not opened by the
+  brief-writer.**
+- `docs/sessions/2026-08-17-0343-cross-session-channel-transcript.md` — the
+  four-round exchange the section cites as primary source, kept verbatim with
+  a stated abridgement. **Not opened by the brief-writer.** This is where the
+  grounding claims are checked: the two corrections that "came from a party
+  re-running a claim", the two rounds that "existed only to correct", the
+  offer-made-once, and the abridged repo-name pairing.
+- The public child `faves` (`~/.pets/faves`, its `docs/sessions/`) — the
+  committed records the *Bearing* cites for the double-held file, the absorbed
+  version constant, the identifier collisions and the two gate-tightening
+  stops. Readable, and quotable only to the extent the child's own records are
+  public. **Not opened by the brief-writer.**
+- The board section `docs/roadmap/280-cross-session-channel-mike-commissioned/`
+  — `010` (the commission, with the principal's prose) and `020` (per-child
+  adoption). **Not opened by the brief-writer** beyond the `030` pointer.
+- The `docs/SESSIONS.md` index entry for this delta. ⚠️ **Read by the
+  brief-writer**, at onramp — see the disclosure in the brief.
+
+## Prior verdicts on the same surfaces
+
+- `docs/reviews/2026-07-20-1355-concurrency-flip-cold.md` — the pass that
+  flipped § *The trigger*'s prior; the *ask, when a channel exists* cue edits
+  the text that pass reviewed.
+- `docs/reviews/2026-07-13-concurrency-claiming-work.md` and
+  `2026-07-13-2256-claiming-work-applied.md` — the passes on § *Claiming
+  work*, which the file-set announcement now extends.
+- `docs/reviews/2026-07-11-concurrency-put-away.md` — the earliest concurrency
+  pass, for the doc's original KISS line.
+- `docs/reviews/2026-08-09-0822-record-cancelled-run-clause-cold.md` — the
+  nearest prior treatment of "a parallel session's push changes what your run
+  reports", which the mid-rebase blind spot touches.
+- The open finding against the CF3 yield branch, board item
+  `docs/roadmap/030-enforcement-propagation-the-estate-rollo/140-cf3-s-claiming-rule-collapses-on-a-monolithic.md`
+  — left standing by the delta on purpose; check whether the new
+  *reverse-edit, never checkout/restore/stash* text in § *The trigger* answers
+  it, contradicts it, or leaves it exactly as open.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these. Treat a question you did not think of
+as a prompt to re-read the surface, not as an agenda — and note that the
+brief-writer read the commit message and the session index entry, so these
+questions inherit some of the author's framing.
+
+1. What *is* the channel, concretely, on this platform? The section says
+   "where sessions can message each other" and never names a mechanism. A
+   session reading the floor sentence in a child has to decide whether it
+   *can*. Does anything tell it how to find out — and is the doctrine
+   therefore conditional in a way the floor sentence's imperative mood hides?
+2. Law 3's tie-break — *whichever artefact carries fewer inbound references
+   moves* — is claimed computable identically by both parties. Both parties
+   see different trees (each has unpushed work). Is the count taken on the
+   integration branch only, and does the text say so? What breaks a tie?
+3. The *hello* class says give the file set. § *Claiming work* says a claim
+   says *what*, never *which files*, and now says the claim is *paired* with
+   a file-set announcement. Two sentences on one page now describe the claim's
+   content differently. Which is the rule?
+4. § *The trigger*'s new paragraph says never `checkout`, `restore` or `stash`
+   to back out of a file a peer also holds. The doc's CF3 yield branch (a few
+   lines below) and the finding against it in `030/140` concern the same
+   move. Does the new text decide what the delta said it deliberately left
+   for the principal — and if so, was that intended?
+5. The *findings* class says label measurement apart from diagnosis. The
+   section's own *re-run* subsection contains a diagnosis ("a symptom count
+   locates a fault's existence, never its site") stated as a rule. Is it a
+   measurement from the transcript, or the author's generalisation? Check at
+   reconcile.
+6. The *cost clause* — two of four rounds were corrections. Read the
+   transcript and count. Say whether the doctrine's characterisation of the
+   exchange survives your reading, and whether anything the transcript shows
+   was left out of the doctrine that a reader would want.
+7. The floor sentence adds *read the staged hunk headers before every commit*
+   to every child's onramp. Is that a proportionate ask for a solo session in
+   a repo with no peers, and does the floor bullet say when it applies?
+8. The addendum commit `516a4c0` says the channel "corrected its own
+   doctrine's artefact" after landing. That is a live instance of the section
+   in use, one hour old. Read it at reconcile and say whether the correction
+   reached the doctrine text or only the record — the *rule with no home*
+   class the same day's ruling round minted.
