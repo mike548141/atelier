@@ -19,6 +19,11 @@
       `290-ruling-round-2026-08-17-the-cold-run-find/`, which carries each
       ruling in the principal's own selected wording — background the
       reviewer's own deferral discipline governs, never part of the delta.
-      (claimed 2026-08-17-0955 UTC for BRIEF-WRITING ONLY — a non-author cold session
-      writes the brief and stops; the review itself stays untaken;
-      wt: cold-run-0817-0955)
+      Brief written 2026-08-17 by a non-author cold session on the Fable tier —
+      REVIEW NOT RUN, open for a cold Fable taker:
+      `docs/reviews/2026-08-17-1000-ruling-round-application-cold.md`
+      (deferred sibling `docs/reviews/2026-08-17-1000-ruling-round-application-cold.deferred.md`,
+      opened only after the reviewer's findings are durably written; finding
+      prefix `RR`; wt: cold-run-0817-0955). Two brief-writer disclosures stand
+      in it: the `SESSIONS.md` tail was read at onramp before the brief was
+      commissioned, and the landing commit's message was read in full.

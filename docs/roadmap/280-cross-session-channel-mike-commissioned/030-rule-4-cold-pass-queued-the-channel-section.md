@@ -21,6 +21,11 @@
       [`../../sessions/2026-08-17-0734-channel-doctrine.md`](../../sessions/2026-08-17-0734-channel-doctrine.md).
       *Primary source for the delta's evidence:*
       [`../../sessions/2026-08-17-0343-cross-session-channel-transcript.md`](../../sessions/2026-08-17-0343-cross-session-channel-transcript.md).
-      (claimed 2026-08-17-0955 UTC for BRIEF-WRITING ONLY — a non-author cold session
-      writes the brief and stops; the review itself stays untaken;
-      wt: cold-run-0817-0955)
+      Brief written 2026-08-17 by a non-author cold session on the Fable tier —
+      REVIEW NOT RUN, open for a cold Fable taker:
+      `docs/reviews/2026-08-17-1000-channel-doctrine-cold.md`
+      (deferred sibling `docs/reviews/2026-08-17-1000-channel-doctrine-cold.deferred.md`,
+      opened only after the reviewer's findings are durably written; finding
+      prefix `CH`; wt: cold-run-0817-0955). Two brief-writer disclosures stand
+      in it: the `SESSIONS.md` tail was read at onramp before the brief was
+      commissioned, and the landing commit's message was read in full.
