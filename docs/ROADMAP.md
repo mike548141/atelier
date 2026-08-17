@@ -310,6 +310,14 @@ then `python3 tools/board.py rebuild`.
 - [ ] [🚩 The floor clause has to reach 11 children, and each child adopts it](roadmap/280-cross-session-channel-mike-commissioned/020-the-floor-clause-reaches-the-children.md)
 - ⏳ [Rule-4 cold pass owed on the channel section and its floor clause.](roadmap/280-cross-session-channel-mike-commissioned/030-rule-4-cold-pass-queued-the-channel-section.md)
 
+## Posture — strength is what you are free to do (Mike commissioned 2026-08-17)
+
+*[Narrative](roadmap/290-posture-recover-cheaply-mike-commissioned/README.md)*
+
+- [~] 🎯 [The posture section, and the fourth requirement it puts on every](roadmap/290-posture-recover-cheaply-mike-commissioned/010-the-posture-section-and-the-guard-test.md)
+- [ ] [🚩 Re-rank the open guard work against the fourth requirement — and](roadmap/290-posture-recover-cheaply-mike-commissioned/020-re-rank-the-guard-board-against-the-test.md)
+- [ ] 🎯 [The census: what would this estate actually NOTICE, and what can it](roadmap/290-posture-recover-cheaply-mike-commissioned/030-what-would-this-estate-actually-notice.md)
+
 ## Ruling round 2026-08-17 — the cold-run findings (Mike)
 
 *[Narrative](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/README.md)*
