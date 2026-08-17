@@ -967,3 +967,41 @@ resolution story also has to be **pin-aware**, since a child pinned at
 ```sh
 cd tools && python3 -m unittest      # stdlib only, no pytest — covers every tool here
 ```
+
+## `coldsweep.py` — the cold reviewer's tree search, with rule 2's bar built in
+
+**Not a floor check and deliberately not in the registry.** It gates no commit
+and returns no verdict — it is a reviewer's instrument, and its value is being
+the easiest way to search at the moment a reviewer wants to.
+
+`REVIEW.md` rule 2 bars a cold reviewer from the author's records: the session
+log, the session records, the harvested board, prior verdicts. Reviewers were
+told to exclude those paths and tried to. **Three recorded times the exclusion
+silently did not apply** — most often a pattern assuming a `./` prefix that
+`grep -r <dir>` does not emit, so the exclusion matched nothing and the sweep
+ran wide open. In the worst instance a reviewer held a prior verdict's findings
+before writing its own. The rule was restated after each instance; three
+instances in, the principal ruled for a guard instead (2026-08-17).
+
+**Why it does not shell out to `grep`.** The defect was never in the reviewer's
+care — it was in matching a path by string prefix against output whose prefix is
+a platform detail. This walks the tree with `pathlib` and filters on the
+relative path **parts**, so `./docs/sessions`, `docs/sessions`, `docs/sessions/`
+and `docs//sessions` all bar the same files, and `docs/sessions-archive/` is not
+swept up by any of them. Both directions are pinned by tests.
+
+Every run prints the exclusion set it used, in a form that pastes straight into
+a verdict's provenance. `--include-barred` is the exception and prints a banner:
+under rule 2 a wide sweep is not forbidden, an **undisclosed** one is.
+
+```sh
+python3 tools/coldsweep.py 'PATTERN'                     # barred set excluded
+python3 tools/coldsweep.py -i 'pattern'                  # case-insensitive
+python3 tools/coldsweep.py --also-exclude docs/roadmap/160-x 'PAT'
+python3 tools/coldsweep.py --list-barred                 # what it would exclude
+python3 tools/coldsweep.py --include-barred 'PAT'        # the exception, loudly
+python3 tools/coldsweep.py --selftest
+```
+
+Exit codes follow `grep` so it drops into a pipeline: **0** matched, **1** no
+match, **2** the search itself failed. A broken sweep is not a clean one.

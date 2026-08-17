@@ -115,6 +115,15 @@ governing who may spawn it:
    to open it.
    Verifying a prior review's decisions (its `[fixed]` claims) is
    reconcile-step work, done after that point — not licence to read early.
+   **Sweep the tree with `tools/coldsweep.py`, not a hand-written exclusion**
+   (the principal's ruling, 2026-08-17). The bar above was breached three times
+   by reviewers who were trying to honour it: the exclusion was written as a
+   text prefix, the prefix did not match what the search tool emitted, and the
+   sweep ran wide open — once handing a reviewer a prior verdict's findings
+   before it wrote its own. The rule was restated after each instance and the
+   instances kept coming, so the exclusion is now the tool's default and the
+   wide sweep is `--include-barred`, which prints a banner telling you to
+   disclose it. A wide sweep is not forbidden; an **undisclosed** one is.
 3. **Findings on self-authored *doctrine* are the principal's to decide,
    not the author's.** Doctrine here is defined by **function, not file type**:
    any rule that governs future agent behaviour, whether it lives in prose, an
