@@ -1,16 +1,14 @@
-- ⏳ **Rule-4 cold pass queued — apex: authority absolute, rulings
-      conditioned.** Delta: the doctrine commit on wt:
-      authority-absolute-0815. Intent record:
-      `docs/sessions/2026-08-15-1129-authority-absolute.md`. Tier: Fable.
-      Pass type: cold, per `method/REVIEW.md` rule 4.
-      Brief written 2026-08-17 by a non-author session — REVIEW NOT RUN, open
-      for a cold Fable taker: `docs/reviews/2026-08-17-0622-authority-absolute-cold.md`
-      (deferred sibling `docs/reviews/2026-08-17-0622-authority-absolute-cold.deferred.md`,
-      opened only after the reviewer's findings are durably written; wt:
-      board-cmd-and-briefs). Two brief-writer disclosures stand in it: the
-      `SESSIONS.md` entry for this delta was read incidentally beforehand, and
-      the brief was written off the named tier.
-      (TAKEN 2026-08-17-0710 UTC — RUNNING: a non-author cold session Mike opened
-      is running the review under an orchestrator-held context partition; the
-      reviewing is a Fable subagent, the orchestrator is Opus and discloses that
-      in the verdict; verdict lands in the brief; wt: cold-run-0817-0710)
+- [x] **Rule-4 cold pass — apex: authority absolute, rulings conditioned —
+      RUN 2026-08-17.** Delta: the doctrine commits on wt:
+      authority-absolute-0815 (`38add7c`, `c782e14`, merged `81d7d04`).
+      Intent record: `docs/sessions/2026-08-15-1129-authority-absolute.md`.
+      Tier: Fable (the reviewer; the orchestrator was Opus, disclosed in the
+      verdict's provenance). Pass type: cold, per `method/REVIEW.md` rule 4.
+      Verdict:
+      [2026-08-17 cold pass](../../reviews/2026-08-17-0622-authority-absolute-cold.md)
+      — **PASS-WITH-FINDINGS, 0 MAJOR / 2 MODERATE / 2 minor / 4 notes
+      (AA6–AA13)**; reconciled against the intent record, board item `200-…`
+      and the Laws-removal verdict; sibling folded in and deleted. AA6–AA13
+      go to Mike's ruling round (rule 3). No MAJOR ⇒ the ruling application
+      is terminal and this cycle CLOSES (reviewed 2026-08-17, wt:
+      cold-run-0817-0710).

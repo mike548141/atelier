@@ -5,6 +5,13 @@
       updates that landed with it. Intent record:
       `docs/sessions/2026-08-17-0530-board-generator-child-truth.md`.
       Tier: Fable. Pass type: code cold pass, per `method/REVIEW.md` rule 4.
-      (claimed 2026-08-17-0710 for BRIEF-WRITING ONLY — a non-author cold session
-      writes the brief and stops; the review itself stays untaken;
-      wt: cold-run-0817-0710)
+      Brief written 2026-08-17 by a non-author cold session — REVIEW NOT RUN,
+      open for a cold Fable taker:
+      `docs/reviews/2026-08-17-0730-board-generator-child-truth-cold.md`
+      (deferred sibling
+      `docs/reviews/2026-08-17-0730-board-generator-child-truth-cold.deferred.md`,
+      opened only after the reviewer's findings are durably written; wt:
+      cold-run-0817-0710). Three brief-writer disclosures stand in it: the
+      `SESSIONS.md` entry for this delta was read incidentally beforehand, the
+      author's commit messages were read in full, and the brief was written off
+      the named tier.

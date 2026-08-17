@@ -199,11 +199,11 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Elevate the first-principles doctrine to atelier](roadmap/160-doctrine-review-owed/150-elevate-the-first-principles-doctrine-to-ateli.md)
 - [ ] [Cross-repo learning: atelier distils domain-diverse children (Mike,](roadmap/160-doctrine-review-owed/160-cross-repo-learning-atelier-distils-domain-div.md)
 - [ ] [Principle: solve once, reuse the building block (Mike, 2026-07-25)](roadmap/160-doctrine-review-owed/170-principle-solve-once-reuse-the-building-block.md)
-- ⏳ [Rule-4 review queued (tier: Fable; pass type: doctrine cold pass) —…](roadmap/160-doctrine-review-owed/180-rule-4-review-queued-tier-fable-pass-type-doc.md)
+- ✅ 🎯 [Rule-4 review RAN 2026-08-17 (tier: Fable; pass type: doctrine cold](roadmap/160-doctrine-review-owed/180-rule-4-review-queued-tier-fable-pass-type-doc.md)
 - [ ] [REVIEW.md gap — what is the review cycle of an ADR accepted in](roadmap/160-doctrine-review-owed/190-review-md-gap-the-cycle-of-an-adr-accepted-in-part.md)
 - [ ] 🔎 [/security-review reads the session's pending diff, not the path](roadmap/160-doctrine-review-owed/190-security-review-reads-the-worktree-not-the-target.md)
 - ✅ [Apex: the principal's authority is absolute; his rulings are](roadmap/160-doctrine-review-owed/200-apex-authority-absolute-rulings-conditioned.md)
-- ⏳ [Rule-4 cold pass queued — apex: authority absolute, rulings](roadmap/160-doctrine-review-owed/210-rule-4-cold-pass-queued-authority-absolute.md)
+- ✅ [Rule-4 cold pass — apex: authority absolute, rulings conditioned](roadmap/160-doctrine-review-owed/210-rule-4-cold-pass-queued-authority-absolute.md)
 - ⏳ [Rule-4 cold pass queued — the board generator's child-facing strings.](roadmap/160-doctrine-review-owed/220-rule-4-cold-pass-queued-board-generator.md)
 
 ## build/ layer — open strands
