@@ -63,6 +63,26 @@
       per-item granularity. A CF3 monolithic branch would make the monolith
       *survivable* rather than fix the underlying thing. Both are legitimate;
       the choice is the principal's, and the child's half is its owner's.
+      ⚠️ **A correction to this item's own evidence, checked 2026-08-17 against
+      the source rather than re-read from the item.** The quotation above renders
+      the parenthetical as *"the item's file, and **on a split board** the
+      generated index with it"* — **the source does not bold that phrase.**
+      `CONCURRENCY.md` carries it as a plain, unemphasised aside. The words are
+      identical and the argument survives intact, so this changes no conclusion;
+      what it changes is how *salient* the board-shape qualifier looks in the
+      original, and the item's central claim is precisely that the passage
+      "contemplates both shapes". Added emphasis makes the source appear to
+      foreground a qualifier it merely mentions — which matters here because a
+      ruling is pending on this reading, and because this item already exists
+      downstream of one withdrawn mistranslation claim about the same sentence.
+      🔑 **The general form, worth more than the instance:** a quotation carried
+      into an argument acquires the quoter's emphasis unless someone diffs it
+      against the source, and nothing in this house checks that.
+      📎 **Also for the reader's orientation:** the surrounding passage moved on
+      2026-08-17 (`431f1f7`, BS1 applied) — the **split-board paragraph** gained a
+      dirty-sibling-state-line stop. That is a *different clause* from the yield
+      branch this item is about, and the yield branch is unchanged; the finding
+      stands exactly as written.
       📌 **What has changed under the decision since it was filed, added
       2026-08-17 and deliberately carrying no count of its own.** The trap bites
       **monolithic boards only**, so its blast radius shrinks with every child
