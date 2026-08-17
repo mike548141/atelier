@@ -1,5 +1,6 @@
-- [ ] 🎯 **Fleet rollout of the split board — `faves` done, `ros` and `shed`
-      open; order and timing Mike's.** atelier is the worked example
+- [~] 🎯 **Fleet rollout of the split board** (claimed 2026-08-17-1057, wt: fleet-rollout-refresh-0817)
+      — `faves` done, `ros` and `shed`
+      open; order and timing Mike's. atelier is the worked example
       (board-store ADR 2026-08-15). **`faves` migrated 2026-08-17** in its own
       session (`672ad17` split · `d57e359` doctrine · `54ba716` record):
       6,274-line board → 48 sections / 54 item files / 271-line index, a 96%
