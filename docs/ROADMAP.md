@@ -203,7 +203,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [REVIEW.md gap — what is the review cycle of an ADR accepted in](roadmap/160-doctrine-review-owed/190-review-md-gap-the-cycle-of-an-adr-accepted-in-part.md)
 - [ ] 🔎 [/security-review reads the session's pending diff, not the path](roadmap/160-doctrine-review-owed/190-security-review-reads-the-worktree-not-the-target.md)
 - ✅ [Apex: the principal's authority is absolute; his rulings are](roadmap/160-doctrine-review-owed/200-apex-authority-absolute-rulings-conditioned.md)
-- ⏳ [Rule-4 cold pass queued — apex: authority absolute, rulings](roadmap/160-doctrine-review-owed/210-rule-4-cold-pass-queued-authority-absolute.md)
+- ✅ [Rule-4 cold pass — apex: authority absolute, rulings conditioned](roadmap/160-doctrine-review-owed/210-rule-4-cold-pass-queued-authority-absolute.md)
 - ⏳ [Rule-4 cold pass queued — the board generator's child-facing strings.](roadmap/160-doctrine-review-owed/220-rule-4-cold-pass-queued-board-generator.md)
 
 ## build/ layer — open strands

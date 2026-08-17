@@ -7,8 +7,10 @@ function, in the authoring session's wording, carrying a ruling quoted from
 the principal).
 **Tier:** Fable (the principal-named review tier, ruling 2026-08-04). Checked
 at selection: a session that cannot honour the bar stops rather than takes.
-**Status:** BRIEF WRITTEN, REVIEW NOT RUN. The next cold session that passes
-rule 4's criterion and the tier bar takes it — see *Spawn provenance*.
+**Status:** REVIEW RUN 2026-08-17 — **PASS-WITH-FINDINGS, 0 MAJOR /
+2 MODERATE / 2 minor / 4 notes (AA6–AA13)**. Verdict and reconcile below;
+sibling folded in and deleted. AA6–AA13 go to the principal's ruling round
+(rule 3); no MAJOR ⇒ the ruling application is terminal and the cycle closes.
 
 ## Spawn provenance
 
@@ -404,7 +406,206 @@ the transcription — findings are the principal's to rule on (rule 3).
 - [ ] AA11: consider a records-in-adjacent-commit convention for rule-4
       landings (doctrine edit to REVIEW rule 4's handoff paragraph, if Mike
       wants it).
-- [ ] Reconcile step (phase 2, after this verdict is committed): open the
+- [x] Reconcile step (phase 2, after this verdict is committed): open the
       sibling, reconcile — including the LR-cycle overlap this reviewer names
       only as contaminated knowledge — fold in, delete the sibling, close the
-      queue pointer.
+      queue pointer. **Done below, 2026-08-17.**
+
+## Reconcile — post-verdict, against the released material
+
+Opened after phase 1 was committed (`fb6897c`), on the orchestrator's
+release: the sibling's bytes (handed by message — the file was held out of
+the tree), the intent record
+`docs/sessions/2026-08-15-1129-authority-absolute.md`, board item `200-…`
+(the ruling verbatim), and the Laws-removal verdict
+`2026-08-15-1031-laws-removal-apex-cold.md` (LR1–LR9). Nothing above this
+heading is revised; where the released material bears on a finding, the
+outcome is stated here.
+
+### AA7 against the ruling's verbatim text — the sibling's question 1
+
+Board item `200-…` and the intent record carry the ruling verbatim. It rules
+on: authority absolute; never overrule "no matter the situation including if
+claude believes the principal is uninformed"; rulings conditioned on being
+informed; challengeable on that, and by a review session even informed; the
+ability to decide never decayed. **It does not mention extracted approvals,
+the "not a decision the doctrine recognises" clause, or REVIEW rule 3 at
+all.** So the void→live conversion **is the author's derivation, and AA7
+stands as written** — unrevised, severity unchanged. Two things the released
+material adds, neither softening it: the derivation is *near-compelled* —
+treating an unbriefed approval as void is precisely the agent overruling the
+principal in the situation where it believes him uninformed, which the
+ruling's own words forbid — and the author flagged the call aloud in the
+intent record ("'Challengeable' is not 'void'… if Mike wants it stronger or
+weaker, it is a one-paragraph edit"), which is the right shape. What remains
+owed is what AA7 asks: the walk-through presents the conversion to Mike *as
+a derivation to ratify*, with its behavioural widening named, not as part of
+what he already ruled.
+
+### The five seeded questions
+
+1. **The power transfer in the approvals clause.** Answered above — the
+   transfer is the author's inference from a ruling about authority, applied
+   to the approvals clause; near-compelled by the ruling's
+   no-matter-the-situation words; flagged aloud; Mike has not yet ratified
+   it. Covered by AA7 (stands) + AA6 (what the standing approval licenses
+   while challenged).
+2. **The decay mechanism.** Partially answered by the text: one violating
+   behaviour is named (acting as if the ruling had not been given); beyond
+   it the decay class is undescribed — repeated re-briefing to exhaustion,
+   option-framing, timing are all left to judgement. A rule whose violation
+   cannot be described has no forcing function (the standing `020-…/220`
+   concern applies). New note AA13 below; the walk-through folds it into
+   AA6's sentence-sized fix.
+3. **What would have caught the first error.** Honest answer: nothing in the
+   process — and worse, the 2026-07-14 cold pass *endorsed* the clause this
+   delta removed (its AS3: "'not a decision the doctrine recognises' has the
+   right teeth" — known from the incidental grep exposure disclosed in
+   phase 1; the verdict was not opened further). The error was caught by the
+   principal's own reading, two months on. The new wording has no test the
+   old lacked — no scanner or lens detects a condition placed on the wrong
+   noun; what it has is the ruling recorded verbatim at the decision site
+   (board `200-…`), which lowers the cost of the *next* re-litigation but
+   detects nothing. Recorded as the answer, not a finding — it is the
+   `020-…/220` class, already on the board.
+4. **The ordering the Laws framing carried.** No new orphan from *this*
+   delta: the dilemma line never carried the ordering (its content is
+   disclosure, not precedence); honesty-vs-obedience needs no ladder because
+   the authority section is the honesty absolute's own positive face; and
+   honesty-vs-design-goals is owned by § Why this is level 0. The genuine
+   ordering residue (harm rankings, safety-values frame) left with the Laws
+   and is the Laws-removal cycle's LR5, awaiting Mike — not re-found here.
+5. **Child floor vs apex on the disagreeing agent.** Compared in phase 1
+   (lens 2, AA12): at the moment of disagreement both texts permit exactly
+   the same actions — obey, re-brief. The floor omits the waiver clause
+   (AA12) and the independent-review challenge channel — a floor-only
+   session doesn't know that channel exists, which is point-up material, not
+   a permission difference. The feared whole-finding difference does not
+   materialise. One true shared defect: AA6's timing ambiguity reads
+   identically in both texts, so the larger population inherits it too.
+
+### The LR overlap, resolved properly
+
+- **No AA finding duplicates an LR finding.** AA6–AA9 have no LR ancestor
+  (they concern the new wording, which post-dates the LR delta). AA11 is
+  novel — the LR reviewer read non-record hunks selectively and dodged the
+  exposure; this pass names the packaging itself.
+- **LR2 (dilemma line un-re-homed)** — this delta's `c782e14` is its fix,
+  and this pass reviewed the fix: the line is present on all four surfaces
+  at HEAD (apex bullet, floor block, template stamp, onramp skill — phase-1
+  lens 3), stampscan identical at 53 lines. LR2's follow-up test passes;
+  the close is Mike's to confirm, per the LR verdict.
+- **LR7 (two open pointers overlapping on the apex surfaces)** — resolved
+  in practice by this pass: the `200`-pointer pass has now reviewed
+  `38add7c` + `c782e14`, absorbing the post-`b5da9e5` overlap LR7 asked
+  someone to own. Saying which, as LR7 requested: **the `200` pass absorbed
+  it**; `215-…`'s delta list needs no widening.
+- **LR5 (safety-values sentence unowned)** — flagged in phase 1 as
+  contaminated knowledge, now legitimately open: it is the Laws-removal
+  cycle's finding, awaiting Mike's ruling there; this delta neither restores
+  the sentence nor bears on it. Not adopted as an AA finding — a descendant
+  would be double-counting an open item.
+- **LR9 (the accountability cycle's AA1 cited the deleted Laws block)** —
+  adjacent to AA10 only in that both concern the AA1–AA5 cycle; no overlap
+  of substance.
+
+### Falsification check, both directions
+
+- **Nothing in the intent record falsifies a phase-1 claim.** Its stampscan
+  figures (52 lines after `38add7c`, 53 after `c782e14`) agree with my
+  independent 53-line byte-diff at HEAD; its account of the seven surfaces
+  matches what the diffs show; its "pushed-floor reported at close" claim is
+  the author's, and my own full-SHA check of the merge commit's run
+  (success) covers the substance.
+- **Absent from the author's account, present in this pass:** AA6 (the
+  execution-timing seam), AA8 (challengeability scoped to asked-for
+  rulings), AA9 (the onramp skill's floor carries no authority line), AA11
+  (the records-in-the-delta-commit packaging). The record's judgement-calls
+  section prices the void→live call and the floor growth — the right calls
+  to say aloud — but none of the four above.
+- **AA10, amended (not renumbered):** the intent record names the open
+  AA1–AA5 cycle in terms ("the two cycles sit side by side"), so the prefix
+  collision was knowable — but only from a record rule 2 barred the
+  brief-writer from opening. The bar itself contributed to the collision,
+  which strengthens the mechanical fix (a used-prefix check at
+  brief-writing time) over any disciplinary reading.
+
+### Post-reconcile additions — clearly marked
+
+- **AA13 (note, post-reconcile)** — the never-decayed clause names exactly
+  one behaviour that violates it (acting as if the ruling had not been
+  given); the rest of the decay class is undescribed, so the clause guards
+  by judgement, not by test — the standing `020-…/220` concern applied to
+  the apex's newest sentence. Counsel: fold into AA6's one-sentence fix
+  rather than legislating a list; a described *example* of decay-by-
+  re-briefing would give the clause its forcing function.
+
+**Overall after reconcile: PASS-WITH-FINDINGS — 0 MAJOR / 2 MODERATE /
+2 minor / 4 notes (AA6–AA13; AA7 and all phase-1 severities unchanged; AA10
+amended; AA13 added).** No MAJOR ⇒ the ruling application is terminal under
+REVIEW's close rule; AA6–AA13 go to Mike's ruling round.
+
+## Deferred material (folded in at verdict landing)
+
+# Deferred material — authority absolute (open only after your findings are durably written)
+
+Sibling of `2026-08-17-0622-authority-absolute-cold.md` under REVIEW.md
+rule 1's split. Fold into the brief below the verdict and delete this file
+when the verdict lands.
+
+## Intent records
+
+- `docs/sessions/2026-08-15-1129-authority-absolute.md` — the authoring
+  session's account. **Not opened by the brief-writer.**
+- `docs/roadmap/160-doctrine-review-owed/200-apex-authority-absolute-rulings-conditioned.md`
+  — the board item, carrying the principal's ruling verbatim. **Not opened by
+  the brief-writer.**
+- The `docs/SESSIONS.md` index entry for the same session. ⚠️ **This one WAS
+  read by the brief-writer**, incidentally and before the brief was
+  commissioned — see the disclosure in the brief. It is the reason the two
+  records above were left closed.
+
+## Prior verdicts on the same surfaces
+
+- `docs/reviews/2026-08-15-1031-laws-removal-apex-cold.md` — the pass on the
+  removal that emptied the apex section this delta rewrote. LR1–LR9 await the
+  principal's ruling round; reconcile against it.
+- The Laws-removal board item
+  (`020-…/215-rule-4-cold-pass-queued-laws-removal.md`) records that cycle's
+  state.
+
+## Brief-writer's seeded questions (a floor, never a fence — and thinner than usual)
+
+These are deliberately few. The brief-writer had already read the
+`SESSIONS.md` summary of this delta, so its questions are shaped by the
+author's own framing more than a cold reader's would be. Generate your own
+before reading these, and treat a question you did not think of as a prompt to
+re-read the surface rather than as an agenda.
+
+1. The old text said an approval given without an account *"is not a decision
+   the doctrine recognises"*. The new text says it *"stands as the principal's
+   word but is open to challenge"*. That is a real transfer of power — from the
+   agent (which could previously treat such an approval as void) to the
+   principal (whose word now stands until he revisits it). Is that transfer
+   what the principal ruled, or is it the author's inference from a ruling
+   about *authority* applied to a clause about *approvals*? The commit message
+   and the board item are the evidence; the board item is barred until now.
+2. "The principal's ability to make an authoritative decision must never be
+   decayed by it." What is the mechanism of decay this clause guards against,
+   and does the doctrine name any behaviour that would constitute it? A rule
+   whose violation cannot be described is a rule with no forcing function —
+   which is the standing concern on this board at `020-…/220`.
+3. The correction was made because the earlier wording put the condition in
+   the wrong place. Both wordings were written into the apex, the highest
+   doctrine surface, and the earlier one survived a review cycle. What, if
+   anything, in the review process would have caught the first error — and
+   does the new wording have a test the old one lacked, or only a better
+   author?
+4. `c782e14` re-homes the dilemma line from a Laws bullet to an honesty
+   bullet. The Laws framing carried an ordering (a ladder); honesty does not.
+   Does anything the old placement did — precedence when honesty and another
+   value conflict — now have no owner?
+5. The child floor block is the only doctrine most children read. Compare what
+   it says about authority against what the apex says. If they differ in what
+   an agent is permitted to do when it disagrees, that difference is the whole
+   finding, because the population that reads the weaker text is larger.
