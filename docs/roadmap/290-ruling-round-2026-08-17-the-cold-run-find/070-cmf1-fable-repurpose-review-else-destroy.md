@@ -38,6 +38,13 @@
             `reviews/2026-08-15-1033-communication-floor-cold.md` (CMF),
             `reviews/2026-08-15-1126-reply-gate-unwired-cold.md` (RG), and the
             BG verdict for BG14 — reconcile after, never anchor before.
+            (TAKEN 2026-08-17-1321 UTC — RUNNING: a non-author cold session Mike opened
+            on the Fable tier is running the design review; a Fable reviewer
+            subagent forms the verdict under a Fable orchestrator that holds
+            the prior verdicts back until the reviewer's findings are durably
+            written; the verdict lands in
+            `docs/reviews/2026-08-17-1321-plain-reply-repurpose-design.md`;
+            wt: cold-run-0817-1321)
       - [ ] **If DESTROY:** delete `tools/hooks/plain-reply.py`, its tests and
             install stanza; retense the `plainscan.py` docstring (RG2); close
             RG3, CMF2, CMF6, CMF8, BG14 as moot; **CMF cycle CLOSES.**

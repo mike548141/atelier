@@ -24,3 +24,8 @@
       prefix `SW`; wt: cold-run-0817-0955). Two brief-writer disclosures stand
       in it: the `SESSIONS.md` tail was read at onramp before the brief was
       commissioned, and the landing commit's message was read in full.
+      (TAKEN 2026-08-17-1321 UTC — RUNNING: a non-author cold session Mike opened on the
+      Fable tier is running the review under an orchestrator-held context
+      partition; the reviewer is a Fable subagent and the orchestrator is Fable;
+      neither wrote the brief nor any part of the delta; verdict lands in the
+      brief; wt: cold-run-0817-1321)

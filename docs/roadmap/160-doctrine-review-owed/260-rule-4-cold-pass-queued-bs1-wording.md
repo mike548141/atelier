@@ -14,3 +14,6 @@
       `290-ruling-round-2026-08-17-the-cold-run-find/050-…`, carrying the
       principal's ruling in the wording he selected — background the reviewer's
       own deferral discipline governs, never part of the delta.
+      (CLAIMED 2026-08-17-1321 UTC for BRIEF-WRITING ONLY: a non-author cold session on
+      the Fable tier is writing this pointer's brief and will stop; the review
+      stays open for a later cold Fable taker; wt: cold-run-0817-1321)

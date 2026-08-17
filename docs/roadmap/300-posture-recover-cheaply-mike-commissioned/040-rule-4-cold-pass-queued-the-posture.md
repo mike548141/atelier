@@ -14,3 +14,6 @@
       deferral discipline governs, never part of the delta.
       *Intent record:*
       [`../../sessions/2026-08-17-0900-posture-recover-cheaply.md`](../../sessions/2026-08-17-0900-posture-recover-cheaply.md).
+      (CLAIMED 2026-08-17-1321 UTC for BRIEF-WRITING ONLY: a non-author cold session on
+      the Fable tier is writing this pointer's brief and will stop; the review
+      stays open for a later cold Fable taker; wt: cold-run-0817-1321)
