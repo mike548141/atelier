@@ -70,30 +70,51 @@ item's title).
 
 ---
 
-## What was measured rather than accepted, twice
+## The wrong turn, which is the useful part
 
-**A peer's figure, and then this session's own reasoning.** `faves` filed item
-`070` reporting the index also fails `wrapscan`, with *"eight lines were over"*.
-Running the new generator against `faves`' board in memory and comparing to
-`origin/main`: **127 of 291 lines exceed 85 columns**, not 8. That inverts the
-conclusion. 8 reads as a banner problem — and the banner fix would have been
-declared a fix. 127 is a shape problem: the delta this session's change removes
-is **exactly** the banner plus one line per section (`faves` 127 → 78, atelier
-188 → 160), and every line that remains is an item line, a markdown link whose
-text is a title and whose target is a path. A wrap inside `[…](…)` stops it
-being a link, and any hand-rewrap dies at the next `rebuild`.
+`faves` filed item `070` reporting the index also fails `wrapscan`, with
+*"eight lines were over"*. A raw column count of its index said **127 of 291**,
+so this session wrote up an inversion: 8 reads as a banner problem, 127 as a
+shape problem — item lines are markdown links, a wrap inside `[…](…)` stops it
+being a link, therefore unfixable in the generator, therefore escalate to a
+floor-policy ruling (*does a `GENERATED` marker exempt a file from the prose
+gates?*). That was committed.
 
-🎯 **So two of `070`'s three options are spent and only the third survives** —
-the generated file is not hand-written prose, and the prose gates should not
-read it. That is a floor-policy change, not a tool fix, and it is left **open
-and unruled** on the item rather than taken. Until it is ruled, every child
-still writes its own `.wrapscanignore` entry.
+🛑 **It was wrong, and a peer reproducing the number is what broke it.** The two
+figures measure different things and **the item's was the right one**: 8 (15
+today) is what the gate *printed*; 127 is what `awk` counts. `wrapscan` exempts
+a line whose overflow is one unbreakable token, and an item line ends in a store
+path — so almost every long line in the index was already exempt, and the
+"127 → 78" delta this session had claimed as progress was **49 lines the gate
+was never flagging**.
 
-🚩 **The near-miss worth recording.** The first instinct was "shorten the banner
-to 85 columns" — which would have satisfied the report as written, produced a
-green-looking commit, and left 78 findings standing in the next child. The
-report's own number was what made the wrong fix look sufficient. *A defect
-report priced from a partial measurement will accept a partial fix.*
+🔑 **The real cause is one line of the renderer.** An item line carried its
+eye-flag *after* the link, so ` 🎯` put a space after the path; the overflow
+gained a legal wrap point and the exemption stopped applying. Verified rather
+than reasoned: **13 of `faves`' 14 findings were exactly its 13 flag-bearing
+lines**, and nothing else. Flags and the claim fragment now render *before* the
+link so every item line ends in its path; allow-comments stay trailing, because
+that is how every scanner reads them. The 14th finding was the preamble, real
+prose, now wrapped.
+
+**`faves` 15 → 0. atelier's index: `wrapscan` clean, `pathscan` 1** — and that
+one is the real stale path. The index now passes both scanners **unscoped, in
+any repo, with no ignore file**. `faves` can delete the pair it opened;
+`ros`/`shed` never write one.
+
+🚩 **What that near-miss cost, and what it would have cost.** The escalation was
+already written into the item and the commit: an unnecessary decision put on the
+principal, and every child writing ignore files forever, to work around a defect
+that was a space character in a renderer. Two lessons, and the second is the one
+worth keeping:
+
+- *A defect report priced from a partial measurement will accept a partial fix.*
+  The first instinct — "shorten the banner" — would have looked green.
+- **A measurement that does not name what it counted can falsify a correct
+  report.** The peer's 8 was right; this session's 127 was also right; neither
+  said *what it counted*, so the larger number looked like a correction and was
+  treated as one. Say the population and the instrument, or the number is a
+  claim rather than evidence.
 
 ---
 
@@ -102,12 +123,20 @@ report priced from a partial measurement will accept a partial fix.*
 **A generator writes text that is read from somewhere it was never written
 for.** Four instances now, same root: the two-depth link defect the migration
 hit on day one; the banner, read by a human standing in a child; the link text,
-read by another scanner in the same floor; and the wrap limit, applied to a file
-nobody typed. A peer named the fifth independently in `faves` — a rule for
-lifting sub-items derived from how *open* items are written, which
+read by `pathscan`; and the trailing flag, read by `wrapscan`'s
+unbreakable-token rule — a renderer choice made for looks, landing on a gate
+nobody was thinking about. A peer named the fifth independently in `faves` — a
+rule for lifting sub-items derived from how *open* items are written, which
 systematically missed a *closed* one. The general form is worth more than any of
-them: **a rule inferred from the sample in front of you, applied to a population
-that sample structurally excludes.**
+them, and is recorded in the peer's own words in this session's exchange:
+**a rule inferred from the sample in front of you, applied to a population that
+sample structurally excludes** — not carelessness, because the rule was correct
+for everything its author could see; the failure is that the rule's blind spot
+and the sample's blind spot are the same shape, so re-reading never finds it.
+The habit that follows: before writing the rule, say what the **population** is
+and what a member looks like *at each stage of its life*, then test one member
+of each class you just named. The review tell: a rule whose examples are all in
+one state, one location, or one moment.
 
 ---
 
@@ -117,7 +146,12 @@ that sample structurally excludes.**
 - Full `unittest discover -s tools` suite run; `board check` clean at every
   commit; the floor's hook plane ran on each.
 - `pathscan` against `docs/ROADMAP.md`: 28 → 1, and the survivor was read and
-  confirmed real rather than assumed false.
+  confirmed real rather than assumed false. `wrapscan` against the same file:
+  clean.
+- The `faves` figures were taken by running the new generator against that
+  repo's board **in memory** and scanning the result in a scratch tree — its
+  own `.wrapscanignore` suppresses the file in place, so measuring there would
+  have reported a clean run and proved nothing.
 - `faves` figures computed from `origin/main` and from
   `git show 672ad17^:docs/ROADMAP.md`, not from a working copy — the same lesson
   the peer had recorded an hour earlier for the same reason.
@@ -127,5 +161,8 @@ that sample structurally excludes.**
 - **Did not migrate `ros` or `shed`.** Their sessions were live in their own
   repos, which is where that work belongs (`PROPAGATION.md` § The problem — a
   child session runs in the child repo), and it is how `faves` did it.
-- **Did not rule the `wrapscan` exemption**, which is Mike's.
+- **Did not ask for the generated-file exemption ruling** it was two paragraphs
+  away from asking for. The index passes both scanners unscoped, so the ruling
+  is not needed here. It may still be worth asking for other generated files —
+  that is not this work's to force.
 - **Did not touch BS1–BS14**, which await his ruling round.

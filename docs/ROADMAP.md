@@ -2,7 +2,9 @@
 
 # ROADMAP — board index
 
-Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). One item per file; edit the item, then `python3 tools/board.py rebuild`.
+Board doctrine and the checkbox legend:
+[roadmap/README.md](roadmap/README.md). One item per file; edit the item,
+then `python3 tools/board.py rebuild`.
 
 ## Board store migration — per-item files (Mike ruled 2026-08-15)
 
@@ -10,49 +12,49 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 
 - ✅ [Migrate the board to per-item files + generate the index](roadmap/010-board-store-migration-per-item-files-mik/010-migrate-the-board-to-per-item-files-generate-t.md)
 - [ ] [board --check reads the worktree, not the staged plane.](roadmap/010-board-store-migration-per-item-files-mik/020-board-check-staged-plane-seam.md)
-- [ ] [Fleet rollout of the split board — faves done, ros and shed](roadmap/010-board-store-migration-per-item-files-mik/030-fleet-rollout-of-the-split-board.md) 🎯
+- [ ] 🎯 [Fleet rollout of the split board — faves done, ros and shed](roadmap/010-board-store-migration-per-item-files-mik/030-fleet-rollout-of-the-split-board.md)
 - [ ] [Sweep monolith-era board wording across the doctrine surface.](roadmap/010-board-store-migration-per-item-files-mik/040-monolith-era-wording-sweep.md)
-- [ ] [The board-store cold pass RAN 2026-08-15 and the cycle stays OPEN](roadmap/010-board-store-migration-per-item-files-mik/050-rule-4-cold-pass-queued.md) 🛑
-- ✅ [The generated index tells every child to run a file it does not](roadmap/010-board-store-migration-per-item-files-mik/060-generated-banner-names-a-path-only-atelier-has.md) 🔎
-- [ ] [The generated index fails two of the floor's own scanners, and only](roadmap/010-board-store-migration-per-item-files-mik/070-the-index-fails-two-scanners-it-generates-into.md) 🔎
+- [ ] 🛑 [The board-store cold pass RAN 2026-08-15 and the cycle stays OPEN](roadmap/010-board-store-migration-per-item-files-mik/050-rule-4-cold-pass-queued.md)
+- ✅ 🔎 [The generated index tells every child to run a file it does not](roadmap/010-board-store-migration-per-item-files-mik/060-generated-banner-names-a-path-only-atelier-has.md)
+- ✅ 🔎 [The generated index fails two of the floor's own scanners, and only](roadmap/010-board-store-migration-per-item-files-mik/070-the-index-fails-two-scanners-it-generates-into.md)
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
 
 *[Narrative](roadmap/020-policy-as-code-programme-five-tracks-mik/README.md)*
 
-- [ ] [The five red floors themselves are now open work.](roadmap/020-policy-as-code-programme-five-tracks-mik/010-the-five-red-floors-themselves-are-now-open-wo.md) 🎯
-- [ ] [B4 — the roadmap-deletion guard: BUILT, MEASURED, and deliberately](roadmap/020-policy-as-code-programme-five-tracks-mik/020-b4-the-roadmap-deletion-guard-built-measured-a.md) 🎯
-- [ ] [C5 re-ruling owed — the composed term-list execution was reverted](roadmap/020-policy-as-code-programme-five-tracks-mik/030-c5-re-ruling-owed-the-composed-term-list-execu.md) 🎯
-- [ ] [A scanner's verdict has two states and needs three — "found,](roadmap/020-policy-as-code-programme-five-tracks-mik/040-a-scanner-s-verdict-has-two-states-and-needs-t.md) 🎯
-- [ ] [The join C5 guards was written twice more on 2026-08-09, both](roadmap/020-policy-as-code-programme-five-tracks-mik/050-the-join-c5-guards-was-written-twice-more-on-2.md) 🎯
+- [ ] 🎯 [The five red floors themselves are now open work.](roadmap/020-policy-as-code-programme-five-tracks-mik/010-the-five-red-floors-themselves-are-now-open-wo.md)
+- [ ] 🎯 [B4 — the roadmap-deletion guard: BUILT, MEASURED, and deliberately](roadmap/020-policy-as-code-programme-five-tracks-mik/020-b4-the-roadmap-deletion-guard-built-measured-a.md)
+- [ ] 🎯 [C5 re-ruling owed — the composed term-list execution was reverted](roadmap/020-policy-as-code-programme-five-tracks-mik/030-c5-re-ruling-owed-the-composed-term-list-execu.md)
+- [ ] 🎯 [A scanner's verdict has two states and needs three — "found,](roadmap/020-policy-as-code-programme-five-tracks-mik/040-a-scanner-s-verdict-has-two-states-and-needs-t.md)
+- [ ] 🎯 [The join C5 guards was written twice more on 2026-08-09, both](roadmap/020-policy-as-code-programme-five-tracks-mik/050-the-join-c5-guards-was-written-twice-more-on-2.md)
 - [ ] [floorfleet's remaining child-authored text surfaces.](roadmap/020-policy-as-code-programme-five-tracks-mik/060-floorfleet-s-remaining-child-authored-text-sur.md)
-- [ ] [C1b — migrate the remainder, then delete the legacy spelling.](roadmap/020-policy-as-code-programme-five-tracks-mik/070-c1b-migrate-the-remainder-then-delete-the-lega.md) 🎯
+- [ ] 🎯 [C1b — migrate the remainder, then delete the legacy spelling.](roadmap/020-policy-as-code-programme-five-tracks-mik/070-c1b-migrate-the-remainder-then-delete-the-lega.md)
 - [ ] [C2 — retire the remainder.](roadmap/020-policy-as-code-programme-five-tracks-mik/080-c2-retire-the-remainder.md)
 - [ ] [C3 — a sanctioned adoption path.](roadmap/020-policy-as-code-programme-five-tracks-mik/090-c3-a-sanctioned-adoption-path.md)
 - [ ] [C4 — make the local bypass visible.](roadmap/020-policy-as-code-programme-five-tracks-mik/100-c4-make-the-local-bypass-visible.md)
 - [ ] [D2 residue — stampscan registry wiring stays barred on ST3.](roadmap/020-policy-as-code-programme-five-tracks-mik/110-d2-residue-stampscan-registry-wiring-stays-bar.md)
-- [ ] [D3 — signscan cannot fail CI.](roadmap/020-policy-as-code-programme-five-tracks-mik/120-d3-signscan-cannot-fail-ci.md) 🎯
+- [ ] 🎯 [D3 — signscan cannot fail CI.](roadmap/020-policy-as-code-programme-five-tracks-mik/120-d3-signscan-cannot-fail-ci.md)
 - [ ] [D4 — the repo-local seam has no adopters.](roadmap/020-policy-as-code-programme-five-tracks-mik/130-d4-the-repo-local-seam-has-no-adopters.md)
-- [ ] [E6 — the floor's posture, and the dial that makes it reachable.](roadmap/020-policy-as-code-programme-five-tracks-mik/140-e6-the-floor-s-posture-and-the-dial-that-makes.md) 🎯
+- [ ] 🎯 [E6 — the floor's posture, and the dial that makes it reachable.](roadmap/020-policy-as-code-programme-five-tracks-mik/140-e6-the-floor-s-posture-and-the-dial-that-makes.md)
 - [ ] [E7 residue — G3 (binary media): FUNDED as its own item, soon](roadmap/020-policy-as-code-programme-five-tracks-mik/150-e7-residue-g3-binary-media-funded-as-its-own-i.md)
 - [ ] [E9 — every scanner walks gitignored nested worktrees, and counts the](roadmap/020-policy-as-code-programme-five-tracks-mik/160-e9-every-scanner-walks-gitignored-nested-workt.md)
-- [ ] [F1 — rebuild the block-vs-advise model from base. REBUILT](roadmap/020-policy-as-code-programme-five-tracks-mik/170-f1-rebuild-the-block-vs-advise-model-from-base.md) 🎯
+- [ ] 🎯 [F1 — rebuild the block-vs-advise model from base. REBUILT](roadmap/020-policy-as-code-programme-five-tracks-mik/170-f1-rebuild-the-block-vs-advise-model-from-base.md)
 - [ ] [The mechanisable form of it](roadmap/020-policy-as-code-programme-five-tracks-mik/180-the-mechanisable-form-of-it.md)
 - [ ] [The measurement that supports it, and its limits.](roadmap/020-policy-as-code-programme-five-tracks-mik/190-the-measurement-that-supports-it-and-its-limit.md)
 - [ ] [Aggravating factor worth keeping](roadmap/020-policy-as-code-programme-five-tracks-mik/200-aggravating-factor-worth-keeping.md)
 - ✅ [The Three Laws and the Zeroth are OUT of the apex (Mike, ruled](roadmap/020-policy-as-code-programme-five-tracks-mik/210-the-three-laws-and-the-zeroth-are-coming-out-o.md)
-- [ ] [The Laws-removal cycle CLOSED 2026-08-15 (0 MAJOR); LR1–LR9 await](roadmap/020-policy-as-code-programme-five-tracks-mik/215-rule-4-cold-pass-queued-laws-removal.md) 🎯
-- [ ] [(a) The census nobody has run: which rules have a forcing function,](roadmap/020-policy-as-code-programme-five-tracks-mik/220-a-the-census-nobody-has-run-which-rules-have-a.md) 🎯
-- [ ] [(b) The half with no owner: doctrine that reaches the moment of](roadmap/020-policy-as-code-programme-five-tracks-mik/230-b-the-half-with-no-owner-doctrine-that-reaches.md) 🎯
-- [ ] [The posture change this implies — stated so it is ruled, not](roadmap/020-policy-as-code-programme-five-tracks-mik/240-the-posture-change-this-implies-stated-so-it-i.md) 🎯
+- [ ] 🎯 [The Laws-removal cycle CLOSED 2026-08-15 (0 MAJOR); LR1–LR9 await](roadmap/020-policy-as-code-programme-five-tracks-mik/215-rule-4-cold-pass-queued-laws-removal.md)
+- [ ] 🎯 [(a) The census nobody has run: which rules have a forcing function,](roadmap/020-policy-as-code-programme-five-tracks-mik/220-a-the-census-nobody-has-run-which-rules-have-a.md)
+- [ ] 🎯 [(b) The half with no owner: doctrine that reaches the moment of](roadmap/020-policy-as-code-programme-five-tracks-mik/230-b-the-half-with-no-owner-doctrine-that-reaches.md)
+- [ ] 🎯 [The posture change this implies — stated so it is ruled, not](roadmap/020-policy-as-code-programme-five-tracks-mik/240-the-posture-change-this-implies-stated-so-it-i.md)
 - [ ] [The cost to weigh honestly, because it is what will make this decay.](roadmap/020-policy-as-code-programme-five-tracks-mik/250-the-cost-to-weigh-honestly-because-it-is-what.md)
 - [ ] [The REPO-plane numbers are still unruled](roadmap/020-policy-as-code-programme-five-tracks-mik/260-the-repo-plane-numbers-are-still-unruled.md)
 - [ ] [Carry P5's finding into part (b).](roadmap/020-policy-as-code-programme-five-tracks-mik/270-carry-p5-s-finding-into-part-b.md)
 - [ ] [Watch the live hook for two failure modes](roadmap/020-policy-as-code-programme-five-tracks-mik/280-watch-the-live-hook-for-two-failure-modes.md)
 - [ ] [The backlog.](roadmap/020-policy-as-code-programme-five-tracks-mik/290-the-backlog.md)
 - [ ] [Generalise the finding, don't just fix this doc.](roadmap/020-policy-as-code-programme-five-tracks-mik/300-generalise-the-finding-don-t-just-fix-this-doc.md)
-- [ ] [The reply gate is UNWIRED (2026-08-15) — destroy it, or repurpose it](roadmap/020-policy-as-code-programme-five-tracks-mik/310-the-reply-gate-is-unwired-destroy-it-or-repur.md) 🔥
-- [ ] [linkscan is blind to reference-style link destinations, and says](roadmap/020-policy-as-code-programme-five-tracks-mik/320-linkscan-is-blind-to-reference-style-link-des.md) 🔥
+- [ ] 🔥 [The reply gate is UNWIRED (2026-08-15) — destroy it, or repurpose it](roadmap/020-policy-as-code-programme-five-tracks-mik/310-the-reply-gate-is-unwired-destroy-it-or-repur.md)
+- [ ] 🔥 [linkscan is blind to reference-style link destinations, and says](roadmap/020-policy-as-code-programme-five-tracks-mik/320-linkscan-is-blind-to-reference-style-link-des.md)
 
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
 
@@ -70,8 +72,8 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 - [ ] [no-verify is the real hole, and nothing sees it.](roadmap/030-enforcement-propagation-the-estate-rollo/100-no-verify-is-the-real-hole-and-nothing-sees-it.md)
 - [ ] [The floor drift check can never fire against a stale checkout — the](roadmap/030-enforcement-propagation-the-estate-rollo/110-the-floor-drift-check-can-never-fire-against-a.md)
 - [ ] [Every child inlines the same stale-HEAD drift bullet — a fleet](roadmap/030-enforcement-propagation-the-estate-rollo/120-every-child-inlines-the-same-stale-head-drift.md)
-- [ ] [The inlined floor says "everything recoverable — just proceed",](roadmap/030-enforcement-propagation-the-estate-rollo/130-the-floor-says-everything-recoverable-just-pro.md) 🔎
-- [ ] [The dirty-checkout claiming rule yields to a file, then tells you](roadmap/030-enforcement-propagation-the-estate-rollo/140-cf3-s-claiming-rule-collapses-on-a-monolithic.md) 🔎
+- [ ] 🔎 [The inlined floor says "everything recoverable — just proceed",](roadmap/030-enforcement-propagation-the-estate-rollo/130-the-floor-says-everything-recoverable-just-pro.md)
+- [ ] 🔎 [The dirty-checkout claiming rule yields to a file, then tells you](roadmap/030-enforcement-propagation-the-estate-rollo/140-cf3-s-claiming-rule-collapses-on-a-monolithic.md)
 
 ## Principal-set dates: mandate vs default (Mike, 2026-08-09)
 
@@ -118,7 +120,7 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 *[Narrative](roadmap/110-estate-duplication-exception-audit-mike/README.md)*
 
 - [ ] [Make a voided allowance visible.](roadmap/110-estate-duplication-exception-audit-mike/010-make-a-voided-allowance-visible.md)
-- [ ] [Five pre-existing worktree.py defects, found by that fix and](roadmap/110-estate-duplication-exception-audit-mike/020-five-pre-existing-worktree-py-defects-found-by.md) 🔎
+- [ ] 🔎 [Five pre-existing worktree.py defects, found by that fix and](roadmap/110-estate-duplication-exception-audit-mike/020-five-pre-existing-worktree-py-defects-found-by.md)
 - [ ] [Eight children carry a floor block that predates four doctrine](roadmap/110-estate-duplication-exception-audit-mike/030-eight-children-carry-a-floor-block-that-predat.md)
 - [ ] [shed narrows the floor legitimately and undeclarably.](roadmap/110-estate-duplication-exception-audit-mike/040-shed-narrows-the-floor-legitimately-and-undecl.md)
 - [ ] [The economics-doc duplication — the audit's headline, and Mike's](roadmap/110-estate-duplication-exception-audit-mike/050-the-economics-doc-duplication-the-audit-s-head.md)
@@ -131,42 +133,42 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 
 *[Narrative](roadmap/115-guardrail-architecture-mike-commissioned/README.md)*
 
-- [ ] [Mint the evidence-window rule as guard-design doctrine — Mike's](roadmap/115-guardrail-architecture-mike-commissioned/010-mint-the-evidence-window-rule-as-guard-design.md) 🎯
-- [ ] [Confidence on a fact: stored field, or computed? Mike's call, and it](roadmap/115-guardrail-architecture-mike-commissioned/020-confidence-on-a-fact-stored-field-or-computed.md) 🎯
-- [ ] [stampscan's verdicts are inverted against the doctrine it enforces](roadmap/115-guardrail-architecture-mike-commissioned/030-stampscan-s-verdicts-are-inverted-against-the.md) 🔥
-- [ ] [The withdrawn-review convention rests on a premise that now has a](roadmap/115-guardrail-architecture-mike-commissioned/040-the-withdrawn-review-premise-has-a-counterexam.md) 🔎
-- [ ] [A real credential pasted into an exempt fixture file is invisible to](roadmap/115-guardrail-architecture-mike-commissioned/050-a-real-credential-in-an-exempt-fixture-file-is.md) 🔎
-- [ ] [A coined paraphrase is still presented on the board as a child](roadmap/115-guardrail-architecture-mike-commissioned/060-a-coined-paraphrase-is-still-cited-on-the-boar.md) 🔎
+- [ ] 🎯 [Mint the evidence-window rule as guard-design doctrine — Mike's](roadmap/115-guardrail-architecture-mike-commissioned/010-mint-the-evidence-window-rule-as-guard-design.md)
+- [ ] 🎯 [Confidence on a fact: stored field, or computed? Mike's call, and it](roadmap/115-guardrail-architecture-mike-commissioned/020-confidence-on-a-fact-stored-field-or-computed.md)
+- [ ] 🔥 [stampscan's verdicts are inverted against the doctrine it enforces](roadmap/115-guardrail-architecture-mike-commissioned/030-stampscan-s-verdicts-are-inverted-against-the.md)
+- [ ] 🔎 [The withdrawn-review convention rests on a premise that now has a](roadmap/115-guardrail-architecture-mike-commissioned/040-the-withdrawn-review-premise-has-a-counterexam.md)
+- [ ] 🔎 [A real credential pasted into an exempt fixture file is invisible to](roadmap/115-guardrail-architecture-mike-commissioned/050-a-real-credential-in-an-exempt-fixture-file-is.md)
+- [ ] 🔎 [A coined paraphrase is still presented on the board as a child](roadmap/115-guardrail-architecture-mike-commissioned/060-a-coined-paraphrase-is-still-cited-on-the-boar.md)
 - [ ] [PRINCIPLES.md §9 has no guard, and the only safe candidate is scoped](roadmap/115-guardrail-architecture-mike-commissioned/070-principles-9-has-no-guard-and-the-only-safe-ca.md)
 - [ ] [Single-source the scanner harness, re-grounded on Mike's own upstream](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
 - [ ] [Give every guard a second dial — the standing consequence of Mike's](roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md)
-- [ ] [Build a before-plane — the guardrail class that acts at the moment of](roadmap/115-guardrail-architecture-mike-commissioned/100-the-before-plane-is-empty-and-it-is-the-only.md) 🎯
-- [ ] [The apex and the always-confirm floor have no mechanical backing at](roadmap/115-guardrail-architecture-mike-commissioned/110-the-apex-and-the-autonomy-floor-have-no-mecha.md) 🔥
-- [ ] [Every guard declares the purpose it answers to, and proves it fires](roadmap/115-guardrail-architecture-mike-commissioned/120-every-guard-declares-the-purpose-it-answers-to.md) 🎯
+- [ ] 🎯 [Build a before-plane — the guardrail class that acts at the moment of](roadmap/115-guardrail-architecture-mike-commissioned/100-the-before-plane-is-empty-and-it-is-the-only.md)
+- [ ] 🔥 [The apex and the always-confirm floor have no mechanical backing at](roadmap/115-guardrail-architecture-mike-commissioned/110-the-apex-and-the-autonomy-floor-have-no-mecha.md)
+- [ ] 🎯 [Every guard declares the purpose it answers to, and proves it fires](roadmap/115-guardrail-architecture-mike-commissioned/120-every-guard-declares-the-purpose-it-answers-to.md)
 - [ ] [A guard reports whether its rule fired at all, and over what — so](roadmap/115-guardrail-architecture-mike-commissioned/130-a-guard-reports-whether-its-rule-fired-at-all.md)
-- [ ] [The scheduled estate conformance job has never once been green — 19](roadmap/115-guardrail-architecture-mike-commissioned/140-the-estate-conformance-job-has-never-once-been.md) 🔥
+- [ ] 🔥 [The scheduled estate conformance job has never once been green — 19](roadmap/115-guardrail-architecture-mike-commissioned/140-the-estate-conformance-job-has-never-once-been.md)
 - [ ] [What actually reaches a child, measured 2026-08-15 — and it is about](roadmap/115-guardrail-architecture-mike-commissioned/150-what-reaches-a-child-measured-and-it-is-about.md)
 - [ ] [The floor a child inherits is a records-hygiene floor, and the…](roadmap/115-guardrail-architecture-mike-commissioned/160-the-child-floor-is-a-records-hygiene-floor-not.md)
-- [ ] [The guard layer is consuming the programme — the proportionality](roadmap/115-guardrail-architecture-mike-commissioned/170-the-guard-layer-is-consuming-the-programme.md) 🎯
+- [ ] 🎯 [The guard layer is consuming the programme — the proportionality](roadmap/115-guardrail-architecture-mike-commissioned/170-the-guard-layer-is-consuming-the-programme.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 
 *[Narrative](roadmap/120-test-plainscan-stophook-is-flaky-and-ci/README.md)*
 
-- [ ] [Two tests fail intermittently in the full-suite run and pass when the](roadmap/120-test-plainscan-stophook-is-flaky-and-ci/010-two-tests-fail-intermittently-in-the-full-suit.md) 🔥
+- [ ] 🔥 [Two tests fail intermittently in the full-suite run and pass when the](roadmap/120-test-plainscan-stophook-is-flaky-and-ci/010-two-tests-fail-intermittently-in-the-full-suit.md)
 
 ## A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)
 
 *[Narrative](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md)*
 
-- [ ] [Two of the three pointers on this board have already been taken](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/010-two-of-the-three-pointers-on-this-board-have-a.md) ⏳🔎
+- [ ] ⏳🔎 [Two of the three pointers on this board have already been taken](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/010-two-of-the-three-pointers-on-this-board-have-a.md)
 
 ## AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)
 
 *[Narrative](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md)*
 
-- [ ] [The machine-check half — the second thing Mike ruled, and it is not](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/010-the-machine-check-half-the-second-thing-mike-r.md) 🔎
-- [ ] [ADR 0008's clause is now closer to true and still not true.](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/020-adr-0008-s-clause-is-now-closer-to-true-and-st.md) 🔎
+- [ ] 🔎 [The machine-check half — the second thing Mike ruled, and it is not](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/010-the-machine-check-half-the-second-thing-mike-r.md)
+- [ ] 🔎 [ADR 0008's clause is now closer to true and still not true.](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/020-adr-0008-s-clause-is-now-closer-to-true-and-st.md)
 
 ## The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)
 
@@ -176,18 +178,18 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 
 *[Narrative](roadmap/160-doctrine-review-owed/README.md)*
 
-- [ ] [The cctranscript --search cycle CLOSED 2026-08-15 (0 MAJOR);](roadmap/160-doctrine-review-owed/010-rule-4-review-queued-tier-fable-pass-type-code.md) 🎯
-- [ ] [The child-membership + work-locality cycle CLOSED 2026-08-09](roadmap/160-doctrine-review-owed/020-the-child-membership-work-locality-cycle-close.md) 🎯
-- [ ] [The PRINCIPLES §9 cycle CLOSED 2026-08-09 (0 MAJOR); TD1–TD3 await](roadmap/160-doctrine-review-owed/030-the-principles-9-cycle-closed-2026-08-09-0-maj.md) 🎯
-- [ ] [The cancelled-run-clause cycle CLOSED 2026-08-09 (0 MAJOR); CR1–CR6](roadmap/160-doctrine-review-owed/040-the-cancelled-run-clause-cycle-closed-2026-08.md) 🎯
-- [ ] [Five rule-4 Fable cold passes ran 2026-08-05 — every queued cycle](roadmap/160-doctrine-review-owed/050-five-rule-4-fable-cold-passes-ran-2026-08-05-e.md) 🎯
-- [ ] [A seventh pass: the F1/GUARDS.md rebuild + the twelve-scanner](roadmap/160-doctrine-review-owed/060-a-seventh-pass-the-f1-guards-md-rebuild-the-tw.md) 🎯
-- [ ] [A sixth pass the same day: the sitting's five doctrine edits,](roadmap/160-doctrine-review-owed/070-a-sixth-pass-the-same-day-the-sitting-s-five-d.md) 🎯
+- [ ] 🎯 [The cctranscript --search cycle CLOSED 2026-08-15 (0 MAJOR);](roadmap/160-doctrine-review-owed/010-rule-4-review-queued-tier-fable-pass-type-code.md)
+- [ ] 🎯 [The child-membership + work-locality cycle CLOSED 2026-08-09](roadmap/160-doctrine-review-owed/020-the-child-membership-work-locality-cycle-close.md)
+- [ ] 🎯 [The PRINCIPLES §9 cycle CLOSED 2026-08-09 (0 MAJOR); TD1–TD3 await](roadmap/160-doctrine-review-owed/030-the-principles-9-cycle-closed-2026-08-09-0-maj.md)
+- [ ] 🎯 [The cancelled-run-clause cycle CLOSED 2026-08-09 (0 MAJOR); CR1–CR6](roadmap/160-doctrine-review-owed/040-the-cancelled-run-clause-cycle-closed-2026-08.md)
+- [ ] 🎯 [Five rule-4 Fable cold passes ran 2026-08-05 — every queued cycle](roadmap/160-doctrine-review-owed/050-five-rule-4-fable-cold-passes-ran-2026-08-05-e.md)
+- [ ] 🎯 [A seventh pass: the F1/GUARDS.md rebuild + the twelve-scanner](roadmap/160-doctrine-review-owed/060-a-seventh-pass-the-f1-guards-md-rebuild-the-tw.md)
+- [ ] 🎯 [A sixth pass the same day: the sitting's five doctrine edits,](roadmap/160-doctrine-review-owed/070-a-sixth-pass-the-same-day-the-sitting-s-five-d.md)
 - ⏳ [Rule-4 review queued (tier: Fable; pass type: code cold pass) — the](roadmap/160-doctrine-review-owed/080-rule-4-review-queued-tier-fable-pass-type-code.md)
 - ⏳ [Rule-4 review queued (tier: Fable; pass type: code cold pass, the](roadmap/160-doctrine-review-owed/090-rule-4-review-queued-tier-fable-pass-type-code.md)
-- [ ] [The E6b + E3 cycle CLOSED 2026-08-09 (0 MAJOR); AB1–AB6 await](roadmap/160-doctrine-review-owed/100-the-e6b-e3-cycle-closed-2026-08-09-0-major-ab1.md) 🎯
-- [ ] [The E7 leakscan cycle CLOSED 2026-08-09 (0 MAJOR); LK1–LK6 + a](roadmap/160-doctrine-review-owed/110-the-e7-leakscan-cycle-closed-2026-08-09-0-majo.md) 🎯
-- [ ] [Glossary ratify pass (Mike)](roadmap/160-doctrine-review-owed/120-glossary-ratify-pass-mike.md) 🎯
+- [ ] 🎯 [The E6b + E3 cycle CLOSED 2026-08-09 (0 MAJOR); AB1–AB6 await](roadmap/160-doctrine-review-owed/100-the-e6b-e3-cycle-closed-2026-08-09-0-major-ab1.md)
+- [ ] 🎯 [The E7 leakscan cycle CLOSED 2026-08-09 (0 MAJOR); LK1–LK6 + a](roadmap/160-doctrine-review-owed/110-the-e7-leakscan-cycle-closed-2026-08-09-0-majo.md)
+- [ ] 🎯 [Glossary ratify pass (Mike)](roadmap/160-doctrine-review-owed/120-glossary-ratify-pass-mike.md)
 - [ ] [Define complex vs complicated in the glossary](roadmap/160-doctrine-review-owed/130-define-complex-vs-complicated-in-the-glossary.md)
 - [ ] [Propagate the widened apex floor to the fleet children](roadmap/160-doctrine-review-owed/140-propagate-the-widened-apex-floor-to-the-fleet.md)
 - [ ] [Elevate the first-principles doctrine to atelier](roadmap/160-doctrine-review-owed/150-elevate-the-first-principles-doctrine-to-ateli.md)
@@ -195,7 +197,7 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 - [ ] [Principle: solve once, reuse the building block (Mike, 2026-07-25)](roadmap/160-doctrine-review-owed/170-principle-solve-once-reuse-the-building-block.md)
 - ⏳ [Rule-4 review queued (tier: Fable; pass type: doctrine cold pass) —…](roadmap/160-doctrine-review-owed/180-rule-4-review-queued-tier-fable-pass-type-doc.md)
 - [ ] [REVIEW.md gap — what is the review cycle of an ADR accepted in](roadmap/160-doctrine-review-owed/190-review-md-gap-the-cycle-of-an-adr-accepted-in-part.md)
-- [ ] [/security-review reads the session's pending diff, not the path](roadmap/160-doctrine-review-owed/190-security-review-reads-the-worktree-not-the-target.md) 🔎
+- [ ] 🔎 [/security-review reads the session's pending diff, not the path](roadmap/160-doctrine-review-owed/190-security-review-reads-the-worktree-not-the-target.md)
 - ✅ [Apex: the principal's authority is absolute; his rulings are](roadmap/160-doctrine-review-owed/200-apex-authority-absolute-rulings-conditioned.md)
 - ⏳ [Rule-4 cold pass queued — apex: authority absolute, rulings](roadmap/160-doctrine-review-owed/210-rule-4-cold-pass-queued-authority-absolute.md)
 - ⏳ [Rule-4 cold pass queued — the board generator's child-facing strings.](roadmap/160-doctrine-review-owed/220-rule-4-cold-pass-queued-board-generator.md)
@@ -220,23 +222,23 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 
 - [ ] [Build a generic mechanism keeping any hand-maintained index true to](roadmap/200-anti-slop-invariant-registry-promote-rec/010-build-a-generic-mechanism-keeping-any-hand-mai.md)
 - [ ] [Third confirmed instance of the class landed 2026-08-03, and Mike…](roadmap/200-anti-slop-invariant-registry-promote-rec/020-third-confirmed-instance-of-the-class-landed-2.md)
-- [ ] [R1 — the recurrence count has to become mechanical, and the mining](roadmap/200-anti-slop-invariant-registry-promote-rec/030-r1-the-recurrence-count-has-to-become-mechanic.md) 🎯
+- [ ] 🎯 [R1 — the recurrence count has to become mechanical, and the mining](roadmap/200-anti-slop-invariant-registry-promote-rec/030-r1-the-recurrence-count-has-to-become-mechanic.md)
 - [ ] [R2 — find the actual triplications before consolidating any of them.](roadmap/200-anti-slop-invariant-registry-promote-rec/040-r2-find-the-actual-triplications-before-consol.md)
 - [ ] [Codify V1–V7 as the always-loaded reviewer checklist](roadmap/200-anti-slop-invariant-registry-promote-rec/050-codify-v1-v7-as-the-always-loaded-reviewer-che.md)
 - [ ] [Two-layer acceptance criteria, one verification pass.](roadmap/200-anti-slop-invariant-registry-promote-rec/060-two-layer-acceptance-criteria-one-verification.md)
 - [ ] [Enforcement seam — how does an invariant get checked?](roadmap/200-anti-slop-invariant-registry-promote-rec/070-enforcement-seam-how-does-an-invariant-get-che.md)
 - [ ] [Where does the registry live? — the SCANNER half is answered and built](roadmap/200-anti-slop-invariant-registry-promote-rec/080-where-does-the-registry-live-the-scanner-half.md)
-- [ ] [Two corroboration failures worth minting, both self-caught by the](roadmap/200-anti-slop-invariant-registry-promote-rec/090-two-corroboration-failures-worth-minting-from.md) 🔎
+- [ ] 🔎 [Two corroboration failures worth minting, both self-caught by the](roadmap/200-anti-slop-invariant-registry-promote-rec/090-two-corroboration-failures-worth-minting-from.md)
 
 ## instruments/ — open features
 
 *[Narrative](roadmap/210-instruments-open-features/README.md)*
 
-- [ ] [ccarchive exits 1 on every scheduled run, and the board did not know](roadmap/210-instruments-open-features/010-ccarchive-exits-1-on-every-scheduled-run-and-t.md) 🔎
-- [ ] [ccarchive: encryption at rest — BUILD not started; one decision open…](roadmap/210-instruments-open-features/020-ccarchive-encryption-at-rest-build-not-started.md) 🎯
-- [ ] [The one decision, and it gates the build: where does the crypto come](roadmap/210-instruments-open-features/030-the-one-decision-and-it-gates-the-build-where.md) 🎯
-- [ ] [Per-transcript topic capture — idea to consider (Mike, 2026-08-02;](roadmap/210-instruments-open-features/040-per-transcript-topic-capture-idea-to-consider.md) 🤔
-- [ ] [Archive-mode pool construction dominates every --from-archive run,](roadmap/210-instruments-open-features/050-archive-mode-pool-construction-dominates-every.md) 🔎
+- [ ] 🔎 [ccarchive exits 1 on every scheduled run, and the board did not know](roadmap/210-instruments-open-features/010-ccarchive-exits-1-on-every-scheduled-run-and-t.md)
+- [ ] 🎯 [ccarchive: encryption at rest — BUILD not started; one decision open…](roadmap/210-instruments-open-features/020-ccarchive-encryption-at-rest-build-not-started.md)
+- [ ] 🎯 [The one decision, and it gates the build: where does the crypto come](roadmap/210-instruments-open-features/030-the-one-decision-and-it-gates-the-build-where.md)
+- [ ] 🤔 [Per-transcript topic capture — idea to consider (Mike, 2026-08-02;](roadmap/210-instruments-open-features/040-per-transcript-topic-capture-idea-to-consider.md)
+- [ ] 🔎 [Archive-mode pool construction dominates every --from-archive run,](roadmap/210-instruments-open-features/050-archive-mode-pool-construction-dominates-every.md)
 - [ ] [Context as a share of the window](roadmap/210-instruments-open-features/060-context-as-a-share-of-the-window.md)
 - [ ] [finished counts logs, not successes — and a dead agent still leaves a](roadmap/210-instruments-open-features/070-finished-counts-logs-not-successes-and-a-dead.md)
 - [ ] [think is a flag that no longer does anything.](roadmap/210-instruments-open-features/080-think-is-a-flag-that-no-longer-does-anything.md)
@@ -246,8 +248,8 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 
 *[Narrative](roadmap/220-observability-of-the-collaboration-itsel/README.md)*
 
-- [ ] [Doctrine candidate — the mechanical instruments cannot see a trust](roadmap/220-observability-of-the-collaboration-itsel/010-doctrine-candidate-the-mechanical-instruments.md) 🎯
-- [ ] [Doctrine candidate — evidence hygiene: a scanner that greps for the](roadmap/220-observability-of-the-collaboration-itsel/020-doctrine-candidate-evidence-hygiene-a-scanner.md) 🎯
+- [ ] 🎯 [Doctrine candidate — the mechanical instruments cannot see a trust](roadmap/220-observability-of-the-collaboration-itsel/010-doctrine-candidate-the-mechanical-instruments.md)
+- [ ] 🎯 [Doctrine candidate — evidence hygiene: a scanner that greps for the](roadmap/220-observability-of-the-collaboration-itsel/020-doctrine-candidate-evidence-hygiene-a-scanner.md)
 - [ ] [The forward test the trust analysis could not run.](roadmap/220-observability-of-the-collaboration-itsel/030-the-forward-test-the-trust-analysis-could-not.md)
 - [ ] [Session hygiene, measured: cap messages, not minutes.](roadmap/220-observability-of-the-collaboration-itsel/040-session-hygiene-measured-cap-messages-not-minu.md)
 - [ ] [The Context Atlas is a first mockup, unrefined, and the archive run is](roadmap/220-observability-of-the-collaboration-itsel/050-the-context-atlas-is-a-first-mockup-unrefined.md)
@@ -257,7 +259,7 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 *[Narrative](roadmap/230-file-size-hygiene-new-2026-07-14/README.md)*
 
 - [ ] [Existing fleet children pick up the reworked floor.yml gate](roadmap/230-file-size-hygiene-new-2026-07-14/010-existing-fleet-children-pick-up-the-reworked-f.md)
-- [ ] [Nothing catches a roadmap item that is deleted rather than harvested](roadmap/230-file-size-hygiene-new-2026-07-14/020-nothing-catches-a-roadmap-item-that-is-deleted.md) 🎯
+- [ ] 🎯 [Nothing catches a roadmap item that is deleted rather than harvested](roadmap/230-file-size-hygiene-new-2026-07-14/020-nothing-catches-a-roadmap-item-that-is-deleted.md)
 
 ## North star — context follows the person, work follows anywhere
 
@@ -278,10 +280,10 @@ Board doctrine and the checkbox legend: [roadmap/README.md](roadmap/README.md). 
 - [ ] [Practice/instance restructure](roadmap/260-sharing-public-since-2026-07-10-adr-0005/020-practice-instance-restructure.md)
 - [ ] [Exercise the interactive fill + bundled-mode scaffold end-to-end](roadmap/260-sharing-public-since-2026-07-10-adr-0005/030-exercise-the-interactive-fill-bundled-mode-sca.md)
 - [ ] [P2a — teach publishscan the shapes the fleet actually has.](roadmap/260-sharing-public-since-2026-07-10-adr-0005/040-p2a-teach-publishscan-the-shapes-the-fleet-act.md)
-- [ ] [P3 — the floor does not know whether a repo is public, and it should](roadmap/260-sharing-public-since-2026-07-10-adr-0005/050-p3-the-floor-does-not-know-whether-a-repo-is-p.md) 🎯
+- [ ] 🎯 [P3 — the floor does not know whether a repo is public, and it should](roadmap/260-sharing-public-since-2026-07-10-adr-0005/050-p3-the-floor-does-not-know-whether-a-repo-is-p.md)
 - [ ] [P4 — rpi F9, routed upward: the ci plane calls leakscan without](roadmap/260-sharing-public-since-2026-07-10-adr-0005/060-p4-rpi-f9-routed-upward-the-ci-plane-calls-lea.md)
 - [ ] [P5 — rpi F10, routed upward: the publish-safety checklist gates repo](roadmap/260-sharing-public-since-2026-07-10-adr-0005/070-p5-rpi-f10-routed-upward-the-publish-safety-ch.md)
-- [ ] [P6 — rpi F5: estate-internal context accumulating in public](roadmap/260-sharing-public-since-2026-07-10-adr-0005/080-p6-rpi-f5-estate-internal-context-accumulating.md) 🎯
+- [ ] 🎯 [P6 — rpi F5: estate-internal context accumulating in public](roadmap/260-sharing-public-since-2026-07-10-adr-0005/080-p6-rpi-f5-estate-internal-context-accumulating.md)
 - [ ] [P7 — harvest the rpi publication properly.](roadmap/260-sharing-public-since-2026-07-10-adr-0005/090-p7-harvest-the-rpi-publication-properly.md)
 - [ ] [P8 — traffic harvest: keep the history GitHub's 14-day window](roadmap/260-sharing-public-since-2026-07-10-adr-0005/100-p8-traffic-harvest-keep-the-history-github-s-1.md)
 

@@ -1,4 +1,4 @@
-- [ ] 🔎 **The generated index fails two of the floor's own scanners, and only
+- [x] 🔎 **The generated index fails two of the floor's own scanners, and only
       atelier's `scope` block hides it** — reported by `faves` 2026-08-17, the
       first child to adopt the board. Sibling of `060`: same root, different
       strings. `board.py` emits an index that **cannot pass `wrapscan` or
@@ -47,22 +47,41 @@
       not assumed: atelier's index went 28 findings → **0 generator-caused**
       (the one that remains, `F1/GUARDS.md` at `:184`, is a real stale path
       inherited verbatim from an item's own title). In `faves` this is all 49.
-      ⚠️ **`wrapscan` half: NOT fixed, and it cannot be fixed in the generator
-      — the item's own measurement is what misled it.** This item read *"eight
-      lines were over"*. Measured against `faves`' index at `origin/main`:
-      **127 of 291 lines exceed 85 columns**, not 8. The banner and the 48
-      narrative lines are exactly the ones the `060` fix shortens — `faves`
-      goes **127 → 78**, atelier **188 → 160** — and every line remaining is an
-      item line, a markdown link whose text is a title and whose target is a
-      path. Those cannot be wrapped: a break inside `[…](…)` stops it being a
-      link, and any hand-rewrap is undone by the next `rebuild`. So the first
-      two options this item listed are spent, and only the third survives:
-      **the generated file is not hand-written prose, and prose gates should
-      not read it.** 🎯 That is a floor-policy change, not a tool fix — whether
-      a `GENERATED` marker on line 1 exempts a file from the prose scanners
-      fleet-wide is Mike's to rule, and until he does, each child still needs
-      its own `.wrapscanignore` entry. Left open on that.
-      🔑 **The lesson under the corrected figure is the one this item already
-      states, turned on itself:** a count taken from the file you have open has
-      a shelf life, and `faves` corrected its own line count the same hour for
-      the same reason. Cite the revision you measured.
+      ✅ **`wrapscan` half: ALSO FIXED, and the fix is one line of the
+      renderer.** This took a wrong turn first, recorded because the wrong
+      turn is the useful part. This item said *"eight lines were over"*; a raw
+      column count of `faves`' index says **127 of 291**, and that looked like
+      a contradiction worth writing up. It is not one — **the two numbers
+      measure different things, and the item's was the right one**: 8 (15
+      today) is what the *gate printed*, 127 is what `awk` counts. `wrapscan`
+      exempts a line whose overflow is **one unbreakable token**, and an item
+      line ends in a store path, so almost every long line in the index was
+      already exempt. The peer that filed this item challenged the raw count
+      and the reproduction is what found the real cause.
+      🔑 **The cause, and it is not the shape of the file:** an item line
+      carried its eye-flag *after* the link, so ` 🎯` put a space **after** the
+      path — the overflow gained a legal wrap point and the exemption stopped
+      applying. Measured in `faves`: **13 of the 14 findings were exactly its
+      13 flag-bearing lines**, and nothing else. The renderer now emits flags
+      and the claim fragment **before** the link, so every item line ends in
+      its path; allow-comments stay trailing, because that is how every
+      scanner reads them and such a line exempts itself anyway. The one
+      remaining finding was the preamble — real prose — now wrapped at the
+      house width. **`faves` 15 → 0. atelier's index: `wrapscan` clean,
+      `pathscan` 1 (the real stale path).** A reader also gains a flag column
+      that aligns rather than flags tracked to ragged line ends.
+      🎯 **So the floor-policy question this item was heading for — does a
+      `GENERATED` marker exempt a file from the prose gates fleet-wide — is
+      NOT needed for the board, and is not asked.** The index passes both
+      scanners unscoped, in any repo, with no ignore file: `faves` can delete
+      the `.wrapscanignore`/`.pathscanignore` pair it opened, and `ros`/`shed`
+      never write one. The question may still be worth asking for other
+      generated files; it is not this item's to force.
+      🚩 **The near-miss, which is the reason this paragraph is long.** The
+      first reading of the raw 127 said *"unfixable in the generator, escalate
+      to a policy ruling"* — a conclusion that would have been wrong, would
+      have put an unnecessary decision on the principal, and would have left
+      every child writing ignore files forever. What broke it was a peer
+      reproducing the number instead of accepting it. **A measurement that
+      does not name what it counted can falsify a correct report and buy an
+      unnecessary ruling.**

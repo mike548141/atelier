@@ -24,12 +24,21 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 - The `GENERATED` marker is matched as a prefix against **both** spellings, in
   `board.py` and `pointerscan.py`, so no repo needs a flag day; an index built
   before today keeps its pointerscan skip until its next rebuild.
+- Eye-flags and the claim fragment now render **before** the link, not after
+  it. `wrapscan` exempts a line whose overflow is one unbreakable token, and an
+  item line ends in a store path — so a trailing ` 🎯` put a space after that
+  path, the overflow gained a legal wrap point, and the exemption stopped
+  applying. In the first child, 13 of the index's 14 findings were exactly its
+  13 flagged lines. The 14th was the preamble, now wrapped at the house width.
+  A reader also gains a flag column that aligns.
+- Net effect: the generated index passes `wrapscan` **and** `pathscan`
+  unscoped, in a repo with no `scope` block and no ignore file. `faves` can
+  delete the `.wrapscanignore`/`.pathscanignore` pair it opened to land its
+  split; `ros` and `shed` never write one. The floor-policy question this was
+  heading for — whether a `GENERATED` marker exempts a file from the prose
+  gates fleet-wide — is not needed for the board and is not asked.
 - Found by `faves`, the first child to adopt the split board, which had
   papered over the first defect with a delegating shim. That shim can go.
-  **Not** fixed, and not fixable in the generator: the index cannot pass a
-  repo-wide `wrapscan` — its item lines are markdown links, and a wrap inside
-  `[…](…)` stops it being one. Whether a generated file is exempt from the
-  prose gates is a floor-policy question, open on the board (`010/070`).
 
 ### Changed (2026-08-15 — the principal's authority is absolute; his rulings are conditioned)
 - `00-APEX.md` § "The principal's authority is conditioned on being informed"

@@ -36,3 +36,6 @@
       exactly a child's geometry, so the child spelling is what its own
       assertions read — plus a check that no home directory reaches the index.
       **`faves`' shim can go**, and `ros`/`shed` never need to write one.
+      The same commit closed `070`'s scanner-facing half — see it for the
+      renderer changes (link text, flag order, wrapped preamble) that take the
+      generated index to clean on both scanners in a repo with no scope block.

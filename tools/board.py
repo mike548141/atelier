@@ -161,13 +161,25 @@ def index_line(marker: str, rest: str, rel_link: str) -> str:
     glyph = {"[ ]": "- [ ]", "[~]": "- [~]", "[x]": "- ✅", "⏳": "- ⏳"}[marker]
     flags = "".join(f for f in FLAGS if f in rest and f != marker)
     title = index_title(rest)
-    line = f"{glyph} [{title}]({rel_link})"
+
+    # Flags and the claim fragment go BEFORE the link, and the reason is
+    # mechanical, not taste. wrapscan exempts a line whose overflow is one
+    # unbreakable token — which every item line is, because it ends in a
+    # store path. Appending ` 🎯` put a space *after* that path, so the
+    # overflow gained a legal wrap point and the exemption stopped applying:
+    # in the first child, 13 of the index's 14 wrapscan findings were exactly
+    # its 13 flagged lines, and nothing else. Leading them costs nothing, and
+    # a reader gains a flag column that aligns instead of tracking flags to
+    # ragged line ends. Allow-comments stay last — a trailing marker is how
+    # every scanner reads them, and a line carrying one exempts itself anyway.
+    line = glyph
     if flags:
         line += f" {flags}"
     if marker == "[~]":
         m = CLAIM_RE.search(rest)
         if m:
             line += f" {m.group(0)}"
+    line += f" [{title}]({rel_link})"
     for c in ALLOW_COMMENT_RE.findall(rest):
         line += f" {c}"
     return line
@@ -210,9 +222,12 @@ def build_index(board: Path) -> tuple[str, list[str]]:
     parts.append("# ROADMAP — board index")
     parts.append("")
     if (board / "README.md").is_file():
-        parts.append("Board doctrine and the checkbox legend: "
-                     "[roadmap/README.md](roadmap/README.md). One item per "
-                     f"file; edit the item, then `{cmd}`.")
+        # Wrapped by hand at the house width: it is the index's one line of
+        # real prose, and the only finding left once the flags moved.
+        parts.append("Board doctrine and the checkbox legend:")
+        parts.append("[roadmap/README.md](roadmap/README.md). One item per "
+                     "file; edit the item,")
+        parts.append(f"then `{cmd}`.")
         parts.append("")
     else:
         problems.append(f"{BOARD_DIR}/README.md missing — the board preamble "
@@ -338,8 +353,15 @@ def selftest() -> int:
         check("child root gets the portable rebuild command",
               '`python3 "$ATELIER_TOOLS"/board.py rebuild`' in text)
         check("no home directory in the index", str(Path.home()) not in text)
-        check("open item rendered", "- [ ] [Fix the gate]" in text)
+        check("open item rendered", "[Fix the gate]" in text)
         check("flag lifted", "🎯" in text)
+        # The wrapscan exemption depends on the line ENDING in its path, so
+        # the flag leading the link is load-bearing, not cosmetic.
+        check("flag precedes the link", "- [ ] 🎯 [Fix the gate](" in text)
+        check("no item line ends in a flag",
+              not any(line.rstrip().endswith(FLAGS)
+                      for line in text.splitlines()
+                      if line.startswith("- ")))
         check("done renders ✅ never [x]",
               "- ✅ [Shipped thing]" in text and "- [x]" not in text)
         check("claim fragment surfaced",
