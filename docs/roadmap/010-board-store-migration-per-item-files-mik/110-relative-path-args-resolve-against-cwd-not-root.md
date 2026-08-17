@@ -1,43 +1,74 @@
 - [ ] 🔥 **A scanner given `--root X` and a *relative* path scans your cwd's
-      file while applying X's rules — a mixed-root run that reports
-      confidently and means nothing.** Handed up by the `ros` session on
+      file while applying X's rules** — a mixed-root run that reports
+      confidently and means nothing. Handed up by the `ros` session on
       2026-08-17, which lost a full round of "ros is clean" readings that were
       actually atelier's tree, including a floor result it nearly reported
       from. It was caught only by recognising atelier section names in
-      supposed `ros` output.
-      🔎 **The mechanism, verified here rather than taken on report.**
-      `pathscan:849` and `wrapscan:546` both do
-      `targets = [Path(p) for p in args.paths]` — a relative argument resolves
-      against **cwd**, never against `--root`. But `root` is separately used
-      for everything else the run depends on: the `.pathscanignore` /
-      `.wrapscanignore` lookup (`:726`, `:432`), the repo-relative anchors,
-      the `docs/` default. So the run reads **one repo's file under another
-      repo's rules**. That is worse than simply using the wrong root, because
-      neither half of the output is attributable and nothing in it says so.
-      ⚠️ **`ros` reported this as "the flag is silently ignored" and as
-      `linkscan`/`sizescan` behaving correctly. Both are slightly off, and the
-      correction matters for the fix.** The flag is honoured — for rules, not
-      for targets. And `linkscan:598` / `sizescan:643` carry the *identical*
-      line; they differ only in their **default** when no path is given
-      (`root` rather than `root / "docs"`), which is why an invocation with no
-      path args looked right and one with a relative path did not. So this is
-      not two well-built scanners and two broken ones — it is **one shape,
-      shared by at least four tools**, whose blast radius depends on how each
-      is called.
-      🚩 **Why it is 🔥 rather than a note.** The estate's own guidance already
-      records that a shell's cwd can silently revert mid-session, and the
-      house hook and CI always pass `--root`, so the reading a session does
-      *by hand* is exactly the one this bites. A guard that produces a
-      confident false clean is worse than one that fails, and this one
-      produces it in the direction of "everything is fine".
-      🎯 **Fix candidates, cheapest first:** resolve a relative path argument
-      against `root` (`root / p` when `not Path(p).is_absolute()`), which
-      makes `--root` mean one thing; or refuse a path argument that does not
-      lie under `root` and exit 2, which is louder and catches the absolute
-      case too. Either belongs at the shared layer rather than four times —
-      the same single-source question `115/080` already carries for the
-      scanner harness. Whichever is chosen, it wants a test that a relative
-      argument plus a foreign `--root` cannot silently read the cwd.
+      supposed `ros` output. **READY TO TAKE** — the fix is chosen, the
+      reference implementation is already in this tree, and the test is
+      specified below. Nothing here is built.
+      🔎 **The mechanism.** A relative argument becomes `Path(p)`, which
+      resolves against **cwd**, never against `--root`. But `root` is used
+      separately for everything else the run depends on — the `.<tool>ignore`
+      lookup, the repo-relative anchors, the `docs/` default. So the run reads
+      **one repo's file under another repo's rules**. That is worse than
+      simply using the wrong root, because neither half of the output is
+      attributable and nothing in it says so.
+      🔎 **The blast radius, swept at HEAD 2026-08-17 rather than estimated.**
+      This item previously said "at least four tools". The sweep says
+      **eleven**, and names them so the next sweep can disagree with something
+      specific — `datescan:686`, `leakscan:855`, `linkscan:598`,
+      `pathscan:849`, `plainscan:586`, `reviewscan:412`, `secretscan:989`,
+      `sizescan:643`, `spellscan:639`, `stampscan:851`, `wrapscan:546`. That
+      is every scanner taking both `--root` and a path list, minus one.
+      `reviewscan` spells it `Path(p).resolve()`, which is the same defect in
+      different words. `board`, `publishscan` and `harvestscan` accept a path
+      list and **ignore** it (their unit is the repo), and `coldsweep` walks
+      from `root`; all four are unaffected.
+      🔑 **Why it survived, and why that is the frightening part.**
+      `floor.py:1485` pre-resolves before it calls anything —
+      `scoped = [str((root / p).resolve()) for p in paths] or [str(root)]` —
+      so the hook plane and CI hand every scanner an **absolute** path and
+      have never once exercised the defect. The guard is correct wherever a
+      machine calls it and wrong wherever a human does. That inverts the usual
+      risk story: the plane with no test coverage is the plane whose output a
+      session reads, believes, and reports from.
+      🔑 **It needs a path collision to bite, and this estate guarantees one.**
+      Every tool exits 2 on a target that does not exist, so a relative
+      argument only *silently* mis-resolves when the same relative path exists
+      in both trees. `docs/ROADMAP.md`, `docs/method/`, `docs/SESSIONS.md` —
+      every child has them under the same names by design. The propagation
+      model is what turns a latent bug into a reliable one.
+      🎯 **The fix, chosen: adopt the line `pointerscan` already uses.**
+      `pointerscan:456` and `:676` carry
+      `p = (root / raw) if not Path(raw).is_absolute() else Path(raw)` and are
+      the one scanner in the family that gets this right. Copy it into the
+      eleven. Not the louder alternative (refuse a target outside `root`,
+      exit 2) as the primary fix — an in-tree reference implementation beats a
+      new convention, and `root / p` makes `--root` mean exactly one thing.
+      ⚖️ **The one judgement left, and it is small.** `root / p` still lets an
+      *absolute* path outside `root` be scanned under `root`'s rules. That is
+      an explicit act by the caller rather than a silent mis-resolution, so it
+      is a separate decision, not a blocker: take it as a second commit, or
+      rule it acceptable and say so. Do not let it hold the eleven.
+      🤔 **The shared-layer question, and why it does not gate this.**
+      Eleven copies of one line is the argument `115/080` already makes for a
+      single scanner harness — and eleven is a better argument than four.
+      But the harness is a programme and this is a false clean in the hand of
+      every session today. Fix in place, and record the count as evidence for
+      `115/080` rather than waiting on it.
+      🧪 **The test that must exist**, and one test, not eleven: build two
+      temporary trees carrying the *same* relative path with different
+      content and different ignore files, `chdir` into the second, call each
+      tool's `main(["--root", str(first), "docs/<file>"])`, and assert the
+      finding names the first tree's file. Parametrised over the eleven mains
+      it is the regression guard for the harness later; written eleven times
+      it is eleven things to forget. A green run must be impossible while any
+      tool reads the cwd.
       *Source: the `ros` session's hand-up, 2026-08-17, after its board split.
-      Mechanism re-derived from the four tools at HEAD; `ros` was not asked to
-      re-measure and its framing is corrected above rather than repeated.*
+      `ros` reported it as "the flag is silently ignored" and as
+      `linkscan`/`sizescan` behaving correctly; both are slightly off — the
+      flag is honoured for rules and not for targets, and those two carry the
+      identical line, differing only in their default when no path is given.
+      Mechanism and the eleven-tool count re-derived here at HEAD; `ros` was
+      not asked to re-measure.*
