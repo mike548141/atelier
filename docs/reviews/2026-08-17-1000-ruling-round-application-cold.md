@@ -570,3 +570,269 @@ attestation, a cross-reference to a rule that has no home.
 - [ ] Reconcile: verify the six barred claims above against the sibling's
       references; append `### Reconcile` beneath this verdict, never revising
       it.
+
+## Reconcile (2026-08-17, after release)
+
+Appended 13:52 UTC, beneath phase 1 (`516be0b`), which is not revised.
+
+**Provenance of this step.** The orchestrator released the sibling's text by
+message after committing phase 1 and named what could be opened. Opened, in
+this order: board items `290-…/010`, `020`, `030` (the rulings in the
+principal's selected wording); the section `README.md` (first 14 lines) and
+item `070`'s finding-ID mentions only via a count, because Q8 needed them;
+`docs/sessions/2026-08-17-0710-…-rulings.md` and `…-one-brief.md`; the two
+`SESSIONS.md` index lines for those slugs (grep by slug, nothing else
+printed); the AA verdict (findings AA6–AA12, the AA7 reconcile, AA13); the RG
+verdict (RG4 and its reconcile judgement call, headers only for the rest); the
+2026-07-15 rule-4 pass's attack surface; the mid-tier pass's findings; and two
+greps into the 2026-07-14 informed-principal and 2026-08-15 laws-removal
+passes, reading the 07-14 pass's governance-vs-floor paragraph and F4. Also
+opened, being a board item and not barred: `020-…/310` (the reply-gate item)
+for the verbatim ruling and the earned-rule paragraph. Nothing else in
+`docs/sessions/`, `docs/reviews/` or `ROADMAP-DONE.md`.
+
+### The six barred claims
+
+1. **Apex grounding — verified.** AA7 (phase 1 and reconcile against the
+   ruling's verbatim text): the void→live conversion is the author's
+   derivation. AA6: pause-and-re-brief vs act-now diverge "exactly at an
+   unbriefed irreversible floor approval". Both as the apex paragraph says.
+2. **Rule 4 grounding — verified.** The 0710 session record and item `010`:
+   an Opus orchestrator, one Fable reviewer per pass, disclosed in the claim
+   commit, both pointers and both verdicts' provenance; the ruling accepted
+   the passes and required the rule be written.
+3. **GUARDS' "two of the three recorded instances" — unverified, not
+   falsified.** No released surface names three instances or says which two a
+   reviewer found incidentally. RG4 found the rule in the reply-gate delta's
+   own commit message while reviewing that delta — arguably not "looking for
+   something else". The count has no named source; RR4's grounding point
+   sharpens (see below).
+4. **RECORD/COMMUNICATION dates and figures — verified.** Item `310` carries
+   the ruling verbatim dated 2026-08-15 and the earned-rule paragraph
+   RECORD.md's rule sentence lifts word for word; the approval captured was
+   *"switch it on, proposed"* — four words; the reply plane ran 2026-08-09 to
+   2026-08-15 (six days); the rule sat in a commit message 2026-08-15 to
+   2026-08-17 (two days).
+5. **The exception's scope and shape vs the ruling — the enumeration is the
+   applier's.** The ruling: *"Ratify, but not at the floor"* — "at the
+   always-confirm floor an unbriefed approval must be re-briefed before any
+   irreversible action". It names the floor, not a list. The single-re-brief
+   shape ("if the principal rules the same way it acts") is the applier's
+   elaboration and follows from *ratify* (the approval stands). RR1 stands.
+6. **Was the pointer owed — partly.** Both passes returned 0 MAJOR (AA
+   0/2/2/4; RG 0/4/3/2 by their own overall lines), so under § *The
+   lifecycle* an application of their rulings is terminal and closes without
+   a pointer. Ruling one, though, is new doctrine from the round rather than
+   the application of a finding, so a pointer was owed for the rule-4 clause.
+   Queued for all three: over-queued for two, owed for one — no defect.
+
+### Each ruling against the doctrine — no more, no less?
+
+- **Ruling one** (*"Accept, and write the rule"*; item `010`: what the tier
+  binds, what it does not, what an off-tier orchestrator may hold). The
+  doctrine says that. **It adds** the two conditions and the three-place
+  disclosure. Both are lifted from the accepted run's own shape (the run
+  disclosed exactly there), so they are grounded, but they are the applier's
+  generalisation, not the ruling's words — worth the principal seeing as such.
+- **Ruling two** (*"Ratify, but not at the floor"*). The doctrine keeps the
+  wording and fixes the order at the floor — the ruling. **It adds** the
+  enumerated stop list (RR1), the "in either order elsewhere" gloss (a fair
+  reading of *ratify*), and the grounding parenthetical. **It drops** three
+  of the seven surfaces item `020` names for application — `RECORD.md`,
+  `AUTONOMY.md`, `CONCURRENCY.md` — untouched and unexplained under a ticked
+  box (RR12, new). `RECORD.md` and `CONCURRENCY.md` only point at the apex by
+  title, so nothing was owed there; `AUTONOMY.md` § *Always confirm* is the
+  floor's one canonical statement and carries the "obedience extracted"
+  clause at the floor itself.
+- **Ruling three** (*"RECORD.md + GUARDS.md"*; item `030`: the rule to
+  RECORD.md "beside the verbatim-capture doctrine", the class to GUARDS,
+  COMMUNICATION keeps the instance). The doctrine does that, and the rule
+  sentence lifts item `310`'s wording verbatim. **The one thing it could not
+  do**, it did anyway by reference: there is no verbatim-capture doctrine in
+  RECORD.md to sit beside — RG4's counsel presumed one, item `030` repeated
+  the presumption, and the section now cites it (RR3, sharpened: the phantom
+  has a traceable origin across three surfaces).
+
+### Per finding — anticipated or new
+
+| ID | Sev. | Anticipated? |
+|---|---|---|
+| RR1 | MODERATE | Partly. The 2026-07-14 apex pass named the governance-list / floor-list overlap "only at grant-widening"; nothing anticipated the exception making it load-bearing. Ruling names the floor, not a list (claim 5). Stands. |
+| RR2 | MODERATE | Partly. The 2026-07-15 rule-4 pass's A3 ("no provenance/verification hook — compliance is author-side… invisible to the durable record unless volunteered") is the same defect one clause earlier. Nothing in the round anticipates the orchestrator boundary. Stands. |
+| RR3 | MODERATE | Not anticipated — the opposite: RG4's counsel and item `030` both presume the verbatim-capture doctrine exists. Sharpened; severity unchanged. |
+| RR4 | minor | New. Q5 (the unnamed count) lands on the same sentence — the count is unverifiable from any released surface too. Stands. |
+| RR5 | minor | New. The 0710 record shows the same session was *both* a rule-4 orchestrator and, on 2026-08-15's precedent, the ECONOMICS-shaped one — the overload was live before it was written. Stands. |
+| RR6 | minor | New. Stands. |
+| RR7 | minor | New; Q6 touches it. Stands. |
+| RR8 | minor | **Anticipated — it is AA9**, unruled; the applying session's record says it saw and deliberately left it ("an unruled finding is counsel"). RR8 therefore travels with AA9 rather than being ruled twice; severity unchanged. |
+| RR9 | note | New. |
+| RR10 | note | New. |
+| RR11 | note | New (measurement). |
+
+**Post-reconcile additions, clearly marked:**
+
+- **RR12 (MODERATE, post-reconcile) — the intent record's own scope list was
+  not met, under a ticked box.** Item `020`: "Apply to `00-APEX.md` and every
+  surface that restates it (`RECORD.md`, `AUTONOMY.md`, `CONCURRENCY.md`,
+  `REVIEW.md` rule 3, the `PROPAGATION.md` floor block, the … stamp)" — `[x]`.
+  Four of seven were touched. `AUTONOMY.md` § *Always confirm* is the floor's
+  canonical statement, was made the apex's reciprocal reference by the 07-14
+  pass's F4 (verified `[fixed]` at HEAD, lines 112–118), and is where a
+  floor-only reader meets "obedience extracted" — it says nothing about
+  the order. The same item ticks "AA13 travels with AA6's fix"; the apex text
+  adds no decay-by-re-briefing example, which is what AA13 asked, so that
+  sub-claim is unmet as well. Grounds for MODERATE: it is the RR1 gap seen
+  from the other end — the exception is on the apex and its two copies, and
+  absent from the surface that defines the floor — plus an over-claiming
+  checkbox on the intent record. Principal's call whether AUTONOMY carries a
+  sentence or an explicit "exempt, points up".
+- **RR13 (note, post-reconcile; Q4)** — the reservation-as-check rule names
+  no slot: where the answer goes ("beside it"), who verifies it was given,
+  and no template (ADR, board item, review brief) carries a field for
+  reservations. It has a home (RECORD.md — passes GUARDS' literal test) and
+  no mechanism; permitted, but the gap should be said on the surface.
+- **RR14 (note, post-reconcile; Q8)** — the unruled residue (AA8–AA13,
+  RG1–RG3, RG5–RG9) is visible on one live surface: the `290-…` section
+  README's narrative sentence "stay in the pile". No open item carries them,
+  and the closed pointers `160-…/180` and `/210` are `[x]`. A sentence in a
+  narrative is thinner than a queued item — near the class GUARDS minted,
+  not squarely in it.
+
+### The eight seeded questions (answered after the fact)
+
+1. Reviewer runs reconcile here; the orchestrator's release message is the
+   one orchestrator text that reaches the reviewer before reconcile. In this
+   run it was process only (what may be opened, in what order, the deliverable
+   shape); it added the section README and 040–070 "only if a finding needs
+   them", which is scoping. Findings formed alone: yes — but the clause makes
+   that an attestation (RR2), and the fix is that the release message, like
+   the spawn prompt, sits in the record.
+2. Yes — RR1; and the ruling's own words name the floor, not a list.
+3. The paragraph says *before*, so an unreachable principal means the action
+   waits; the pause is unbounded and nothing says so. That is the floor's
+   default (a stop with no confirmation is a stop), so not a defect — one
+   clause ("if he cannot be reached, the action waits; that is the floor
+   working") would close the reading.
+4. RR13.
+5. Not grounding under the doc's standard; RR4 carries it — name the three or
+   drop the count.
+6. Twelve lines for a pointer is large, but it is a pointer plus the instance
+   narrative, not a third spelling of the rule (it never states "each becomes
+   a check"). RR7 is the cost: the instance is now told twice.
+7. Sufficient for a reviewer who obeys the pointer's scoping — I diffed
+   `7388012~1..7388012 -- <seven paths>` and read the landing commit's subject
+   line only, so I met no barred hunk. Not fail-safe: `git show 7388012`
+   unscoped meets the board items and the pointer, and nothing but the
+   pointer's sentence stops that. Splitting records into an adjacent commit
+   (AA11's counsel) is the mechanism; path-scoping is the discipline.
+8. RR14.
+
+### Prior `[fixed]` claims verified
+
+- 07-14 informed-principal pass **F4 `[fixed]`** — `AUTONOMY.md` lines
+  112–118 carry the apex pointer and the what/why/impact duty: **verified at
+  HEAD.**
+- Item `020` "**AA6 closes with it**" — the exception's "in either order …
+  not a licence to refuse … supplies the missing account and asks again" is
+  AA6's pause-is-not-refusal sentence in substance: **verified.**
+- Item `020` "**AA13 travels with AA6's fix**" — no decay example added:
+  **not verified** (RR12).
+- Item `030` "wording lifts directly" from `310` — **verified verbatim.**
+- RG4's counsel followed in placement — **verified**; its "beside the
+  verbatim-capture doctrine" premise — **falsified** (RR3).
+
+### Severity changes
+
+None to RR1–RR11 (phase-1 severities stand). Added: RR12 MODERATE, RR13 note,
+RR14 note. **Overall after reconcile: PASS-WITH-FINDINGS — 0 MAJOR /
+4 MODERATE (RR1, RR2, RR3, RR12) / 5 minor / 5 notes.** No MAJOR. All findings
+are the principal's to decide (rule 3); RR8 travels with AA9.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — the 2026-08-17 ruling round applied (open only after your findings are durably written)
+
+Sibling of `2026-08-17-1000-ruling-round-application-cold.md` under
+REVIEW.md rule 1's split. Fold into the brief below the verdict and delete this
+file when the verdict lands.
+
+## Intent records
+
+- The board section `docs/roadmap/290-ruling-round-2026-08-17-the-cold-run-find/`
+  — items `010` (the orchestrator-tier clause), `020` (AA7 ratified, not at
+  the floor), `030` (RG4: the earned rules get homes) and `040` (the cold-sweep
+  guard, a separate pass). Each carries the principal's ruling in his own
+  selected wording. **Not opened by the brief-writer.** Read `010`–`030` first
+  at reconcile: they are the closest thing to the primary source of what was
+  ruled, and the reviewable question is whether the doctrine says that.
+- `docs/sessions/2026-08-17-0710-cold-run-two-passes-one-brief-rulings.md` —
+  the applying session's account of the round. **Not opened by the
+  brief-writer.**
+- The `docs/SESSIONS.md` index entries for the 0710 cold run and the 0900
+  ruling round. ⚠️ **These WERE read by the brief-writer**, at onramp — see the
+  disclosure in the brief.
+
+## Prior verdicts on the same surfaces
+
+- `docs/reviews/2026-08-17-0622-authority-absolute-cold.md` — the AA pass.
+  AA6 and AA7 are the findings ruling two answers; the apex paragraph claims
+  to close both. Check the claim against the findings' own text.
+- `docs/reviews/2026-08-15-1126-reply-gate-unwired-cold.md` — the RG pass.
+  RG4 is the finding ruling three answers (an earned rule with no doctrine
+  home). RG2 and RG3 concern the same delta and were left unruled.
+- `docs/reviews/2026-07-15-1202-review-rule4-cold.md` and
+  `2026-07-15-1244-review-rule4-applied-batch-cold.md` — the passes that
+  shaped rule 4's original text, if your findings reach whether the new
+  clause is consistent with rule 4's stated purpose.
+- `docs/reviews/2026-07-14-2235-informed-principal-apex-cold.md` and
+  `2026-08-15-1031-laws-removal-apex-cold.md` — earlier passes on the same
+  apex section.
+- `docs/reviews/2026-08-05-1248-mid-tier-standing-executor-cold.md` — the pass
+  on tiering an executor beneath a deciding tier, the nearest prior treatment
+  of "which hands must be on the named tier".
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these. Treat a question you did not think of
+as a prompt to re-read the surface, not as an agenda — and note that the
+brief-writer read the commit message in full and the session index entries,
+so these questions inherit some of the author's framing.
+
+1. Rule 4's new clause says an orchestrator may be off-tier if it "forms no
+   finding and writes no severity". The reconcile step is where a prior
+   verdict's `[fixed]` claims are verified and severities can move. Who runs
+   reconcile under this arrangement — and if the orchestrator relays the
+   sibling and the reviewer writes reconcile, is a reviewer that has by then
+   read the orchestrator's release message still forming findings alone?
+2. The apex exception lists the floor stops inline ("making a repo public, a
+   destructive or irreversible action, secrets, spend, safety, a
+   lockout-class change, a new trust surface"). Compare that list to the
+   apex's own definition of the always-confirm floor and to `AUTONOMY.md`. Two
+   lists that drift are a rule with two spellings.
+3. The apex now says an extracted approval *stands* and, at the floor, must be
+   *re-briefed before acting*. If the principal, re-briefed, rules the same
+   way, the agent acts. If he cannot be reached — the case the floor exists
+   for — what does the paragraph tell the agent to do? Is the pause the text
+   describes bounded, and does anything say so?
+4. `RECORD.md`'s new section states its rule in its heading and its first
+   sentence, then narrates the grounding for two paragraphs. Is the *check*
+   it creates ("each reservation becomes a check the build must answer")
+   operable — where does the answer go, who verifies it was given, and does
+   any guard or template carry a slot for it — or is it a rule of the very
+   kind `GUARDS.md`'s new section says is not yet a rule?
+5. `GUARDS.md`'s new section says "two of the three recorded instances were
+   found by a reviewer looking for something else". Three instances are
+   claimed and none is named on the surface. Under the doc's own standard
+   (grounded, not invented), is an unnamed count grounding?
+6. `COMMUNICATION.md` gains a twelve-line clause whose content is a pointer.
+   Is that the right size for a pointer, and does it restate the rule enough
+   to become a third spelling of it?
+7. The commit message says the pointer is scoped to paths "so a brief naming
+   the commit would not order its reviewer into barred material" — the AA11
+   shape. The commit nevertheless packages the board items and the doctrine
+   together. Is path-scoping sufficient, or does a diff-reading reviewer
+   inevitably meet the barred hunks in `git show`? Say what you did.
+8. Three rulings were applied; the session index entry says AA8–AA13 and
+   RG1–RG3, RG5–RG9 stay unruled. Is that residue visible on any surface a
+   later session reads without opening the records — and if not, is that
+   itself an instance of the GUARDS.md class the delta minted?
