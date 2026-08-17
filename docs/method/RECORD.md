@@ -173,6 +173,38 @@ happens by *appending*, in one of three verbs:
 - **Superseded** — a new ADR replaces it: the status line gains
   `superseded by <file>`, and the new ADR points back. Never an edit.
 
+## An approval is not the whole ruling — the reservations go in beside it
+
+**When a recommendation is approved *with reservations*, the reservations go
+into the record beside the approval, and each one becomes a check the build has
+to answer** (the principal's ruling, 2026-08-17; the rule was earned on
+2026-08-15 and had reached no doctrine surface until this).
+
+The grounding is a build that shipped and failed. A guard was recommended, the
+principal approved it **and raised several reservations**, and the record
+captured four words of approval and none of the objections. So the objections
+that would have predicted the failure were never written down, never tested
+against the build, and the guard was live for six days before the failure they
+described arrived. The reservations were not reconstructed afterwards either —
+reconstructing them from memory is the same error one level down, and the
+record says so instead.
+
+Two things follow, and the second is the one that bites:
+
+- **Capture is the approver's word, not the recorder's summary.** The
+  reservation goes down as it was said (the verbatim rule above), because a
+  paraphrase of an objection is an objection you have already started to
+  answer.
+- **A reservation is a *check*, not a caveat.** It is not enough to have
+  written it down. Each one names something the build must answer before the
+  work is called done, and the answer belongs beside it. An unanswered
+  reservation is an open finding wearing a softer word.
+
+This is why an approval alone never closes a recommendation: the approval says
+*proceed*, and the reservations say *proceed how*, and only the pair is the
+ruling. See `GUARDS.md` § *A rule with no home is not a rule* for the class
+this instance belongs to.
+
 ## The roadmap — one file per item, a generated index
 
 The board is a **per-item store** (board-store ADR, 2026-08-15): each item is

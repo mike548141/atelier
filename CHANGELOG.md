@@ -5,6 +5,39 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-08-17 — `coldsweep`, the cold-sweep exclusion guard)
+- `tools/coldsweep.py` — the tree search a rule-4 cold reviewer runs, with
+  `REVIEW.md` rule 2's barred paths (`docs/SESSIONS.md`, `docs/sessions/`,
+  `docs/ROADMAP-DONE.md`, `docs/reviews/`) excluded by **default**. The wide
+  sweep is `--include-barred` and prints a disclosure banner. Not a floor
+  check and not in the registry: it gates no commit.
+- Built on the principal's ruling (2026-08-17) after the exclusion defect's
+  **third** recorded instance — a hand-written exclusion compared as a text
+  prefix against output whose prefix is a platform detail, so the bar matched
+  nothing and the sweep ran wide open. The rule had been restated after each
+  instance. `coldsweep` filters on relative path **parts** instead, so every
+  spelling of a barred path bars the same files and a same-prefix sibling
+  directory is not swept up; both directions pinned by tests (20 tests).
+- Exit codes follow `grep`: 0 matched, 1 no match, 2 the search failed.
+
+### Changed (2026-08-17 — Mike's ruling round on the cold-run findings)
+- `docs/method/REVIEW.md` rule 4 states what the named review tier binds — the
+  judgement that forms findings, not every hand a pass passes through. A
+  reviewer is on the tier without exception; an orchestrator holding the
+  context partition, the sibling release and the commits may be off-tier, on
+  two binding conditions: it forms no finding and writes no severity, and the
+  arrangement is disclosed in the claim, the pointer and the verdict.
+- `docs/method/00-APEX.md` gains the always-confirm-floor exception to the
+  extracted-approval rule: at the floor, an extracted approval is re-briefed
+  **before** the irreversible action, never challenged after it. Restated in
+  `REVIEW.md` rule 3, the `PROPAGATION.md` floor block and the byte-identical
+  `docs/build/templates/CLAUDE.md` stamp.
+- `docs/method/RECORD.md` gains § *An approval is not the whole ruling* — when
+  a recommendation is approved with reservations, the reservations go into the
+  record beside the approval and each becomes a check the build must answer.
+  `docs/method/GUARDS.md` gains its class, § *A rule with no home is not a
+  rule*. `COMMUNICATION.md` keeps the grounded instance and points at both.
+
 ### Fixed (2026-08-17 — the board generator writes for the repo it lives in)
 - `tools/board.py` emitted `tools/board.py` into three strings a **child**
   reads: the index banner, the index preamble and the stale-index remedy the

@@ -244,6 +244,33 @@ it is not a bypass, it is a hole. Making the escape hatch painful is not the
 answer — that invites worse workarounds — but making it *silent* is how a floor
 becomes decoration. `C4` is the open build.
 
+## A rule with no home is not a rule
+
+A guard's family above is *rules that exist and can be defeated*. This is the
+tier beneath it: **a rule that was never written to a surface anyone reads does
+not govern anything, however firmly it was stated** (the principal's ruling,
+2026-08-17).
+
+The shape is specific and it looks like diligence, which is why it survives. A
+session hits a real failure, reasons well about it, and states the rule it
+earned — in a commit message, in a session record, in a board item. All three
+are records. **Rule 2 bars a cold reviewer from reading records**, and no
+onramp loads them, so the rule reaches exactly the readers who already knew it
+and none of the sessions it was written to govern. It is not lost, and it is
+not live either. Two of the three recorded instances were found by a reviewer
+looking for something else.
+
+The test, applied when a session says *this is a rule we've now earned*: **name
+the surface a future session reads it on.** Doctrine, a tool's docstring, a
+template, a skill, a check — a place that is loaded or enforced, not a place
+that is archived. If the honest answer is "the commit message", the rule is not
+yet a rule and the work is not yet done; queue the homing or drop the claim.
+
+This is why `RECORD.md`'s § *An approval is not the whole ruling* sits in
+doctrine and not only in the incident that earned it: the incident is the
+evidence, the doctrine surface is the rule. Same relationship for every entry
+in this file.
+
 ## When a guard is wrong
 
 A false positive is not an allowance case. It is a defect in the guard, and the

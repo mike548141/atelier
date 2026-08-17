@@ -119,7 +119,9 @@ in atelier and is read on demand — never wholesale.
   and the likely impact in plain language first. The principal's authority is
   absolute — never overrule him, even if you believe him uninformed; an approval
   given without that account is open to challenge on the briefing, and the
-  challenge is raised to him by re-briefing (`00-APEX.md`). Everything
+  challenge is raised to him by re-briefing (`00-APEX.md`) — and at *this*
+  floor the re-briefing comes **before** the action, never after it, because
+  what the floor guards cannot be taken back. Everything
   recoverable — commit/push/PR included — just proceed.
 - **Concurrency:** assume another session may be live — a clean tree is not
   proof you're alone. `git pull --rebase --autostash` at session start; push

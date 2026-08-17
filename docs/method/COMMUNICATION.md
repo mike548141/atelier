@@ -110,6 +110,18 @@ Grounded in the live instance, not invented to fill a heading:
   throughout; the remedy was the part nobody checked. Destroy-or-repurpose is
   Mike's open ruling → ROADMAP § *Policy-as-code programme*.
 
+  **The second rule this earned lives elsewhere, and that is deliberate.** The
+  same failure earned *an approval is not the whole ruling* — the principal
+  approved the guard **with reservations**, the record kept the approval and
+  none of the reservations, and the objections that would have predicted this
+  failure were never tested against the build. That rule governs how approvals
+  are recorded everywhere, not how prose is written here, so it sits in
+  `RECORD.md` § *An approval is not the whole ruling* with its class in
+  `GUARDS.md` § *A rule with no home is not a rule* (the principal's ruling,
+  2026-08-17). This clause keeps the **instance**, because the instance is the
+  evidence; it is not the rule's home. That the rule spent two days stated only
+  in a commit message is itself the grounding for the `GUARDS.md` entry.
+
   **Each plane is scoped to its reader (ruled 2026-08-10).** The reply plane
   covered everything, because every reply is written to the principal — that
   scoping survives the unwiring above and would carry to any collector built in
