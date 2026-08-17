@@ -5,3 +5,6 @@
       updates that landed with it. Intent record:
       `docs/sessions/2026-08-17-0530-board-generator-child-truth.md`.
       Tier: Fable. Pass type: code cold pass, per `method/REVIEW.md` rule 4.
+      (claimed 2026-08-17-0710 for BRIEF-WRITING ONLY — a non-author cold session
+      writes the brief and stops; the review itself stays untaken;
+      wt: cold-run-0817-0710)

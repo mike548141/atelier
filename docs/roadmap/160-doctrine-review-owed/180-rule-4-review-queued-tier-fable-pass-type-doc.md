@@ -13,3 +13,7 @@
   still open for a cold Fable taker: `docs/reviews/2026-08-15-1126-reply-gate-unwired-cold.md`
   (deferred sibling `docs/reviews/2026-08-15-1126-reply-gate-unwired-cold.deferred.md`, opened only after
   the reviewer's findings are durably written; wt: cold-run-0815-1123).
+  (TAKEN 2026-08-17-0710 UTC — RUNNING: a non-author cold session Mike opened is
+  running the review under an orchestrator-held context partition; the reviewing
+  is a Fable subagent, the orchestrator is Opus and discloses that in the
+  verdict; verdict lands in the brief; wt: cold-run-0817-0710)

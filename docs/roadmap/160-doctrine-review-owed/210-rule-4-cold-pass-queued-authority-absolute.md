@@ -10,3 +10,7 @@
       board-cmd-and-briefs). Two brief-writer disclosures stand in it: the
       `SESSIONS.md` entry for this delta was read incidentally beforehand, and
       the brief was written off the named tier.
+      (TAKEN 2026-08-17-0710 UTC — RUNNING: a non-author cold session Mike opened
+      is running the review under an orchestrator-held context partition; the
+      reviewing is a Fable subagent, the orchestrator is Opus and discloses that
+      in the verdict; verdict lands in the brief; wt: cold-run-0817-0710)
