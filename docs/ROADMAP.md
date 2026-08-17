@@ -304,5 +304,6 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/280-cross-session-channel-mike-commissioned/README.md)*
 
-- [~] 🎯 [The channel as a concurrency primitive — a new section in](roadmap/280-cross-session-channel-mike-commissioned/010-the-channel-as-a-concurrency-primitive.md)
+- ✅ 🎯 [The channel as a concurrency primitive — a new section in](roadmap/280-cross-session-channel-mike-commissioned/010-the-channel-as-a-concurrency-primitive.md)
 - [ ] [🚩 The floor clause has to reach 11 children, and each child adopts it](roadmap/280-cross-session-channel-mike-commissioned/020-the-floor-clause-reaches-the-children.md)
+- ⏳ [Rule-4 cold pass owed on the channel section and its floor clause.](roadmap/280-cross-session-channel-mike-commissioned/030-rule-4-cold-pass-queued-the-channel-section.md)

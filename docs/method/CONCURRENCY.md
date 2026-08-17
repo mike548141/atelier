@@ -70,6 +70,32 @@ nothing errors. The two cues:
   work around a stranger's in-flight edits and never absorb them into a
   commit — that silently merges two intentions, the exact clobbering this
   doctrine exists to prevent.
+- **Ask, when a channel exists:** where sessions can message each other, a
+  session enumerates its live peers at open and asks (§ The channel). This is
+  the only cue that turns the flipped prior into a *fact* rather than a posture —
+  the other two are discoveries you make by accident.
+
+**The backstop has two blind spots, and both bite in the shared primary
+checkout.** Neither shows in `git status` as anything that reads as "stop":
+
+- **The index is a shared surface too.** Two sessions staging into one checkout
+  produce an index holding both work sets, and a commit from either lands the
+  other's half under the wrong message. The check that sees it is
+  `git diff --cached -U0 | grep '^@@'` immediately before every commit —
+  compare the hunk headers against what you believe you wrote. Staging by
+  explicit path, never `git add -A`, is the other half.
+- **Repository *state* is shared, and unprotected.** A rebase in progress
+  produces no dirty file, no claim, and nothing in `git status --short` that
+  reads as a stop; `git push` can then report success while pushing nothing.
+  Before touching anything in that state, verify each peer commit is already
+  reachable from the integration branch, and back any autostash out to a file
+  before aborting.
+
+And **a clean status seconds ago is not a clean status now.** With several
+sessions live the window is minutes, so the check belongs in the same breath as
+the edit rather than at session open. If you must back out of a file a peer is
+also holding, do it with a reverse edit — never `checkout`, `restore` or
+`stash`, each of which reaches their work as well as yours.
 
 *Bearing:* atelier sessions 45–46 (2026-07-12) — session 45 ran two parallel
 sessions in the same checkout and needed a *survival audit* afterwards
@@ -165,6 +191,16 @@ action across every parallel session.
   conflicted at merge; the duplicate surfaced only on human read-through and
   was fixed by renumbering 03→05. Allocation at session open, with the push
   hours later, was the whole window.
+- **A rebase absorbs a shared *value* instead of conflicting on it.** The
+  conflict machinery protects shared *lines*, and a line whose new content
+  happens to equal what the integration branch independently reached is not a
+  conflict — it is a silent no-op. A version constant bumped to a number a peer
+  already spent reads exactly as its author intended and is *unbumped* relative
+  to the integration branch, with every check green. So any shared value is
+  re-verified against the integration branch **after** every rebase, by
+  comparing the two numbers rather than reading a checker's summary word. The
+  same applies to a shared allocator: allocate, push, then check (§ The channel,
+  law 2).
 - Rebase/merge small and often; a worktree that diverges for days is a merge
   hazard.
 - Delete a worktree when its branch lands (`git worktree remove`); stale
@@ -196,6 +232,17 @@ and pushing the claim **before it does any work**:
 
 *(Once work is under way the claim line can also carry a resume breadcrumb —
 § Surviving an interrupted session; here it is born as the bare claim.)*
+
+**What a claim does not say is which files, and that is the gap it leaves.**
+**File-disjointness is the unit of parallel safety, not item-disjointness:** two
+sessions holding different items can be rewriting adjacent keys in one record,
+and the *good* outcome there is a merge conflict — the bad one is a clean
+textual merge that silently detaches whatever keyed off the old content. So the
+claim is paired with a **file-set announcement** on the channel (§ The channel),
+and the announcement is answered as well as sent. A session dispatching several
+workers owes the same discipline inwards: one worktree per worker, or forbid
+`git add -A` in the brief, because disjoint file *ownership* does not make a
+shared worktree safe when the staging command is not file-scoped.
 
 **On a split board** (board-store ADR, 2026-08-15) the item's checkbox line
 lives in *its own file* under `docs/roadmap/`, and the claim commit carries two
@@ -314,6 +361,160 @@ time, and nothing in the tree or the record ever conflicted to warn them:
 selection was the one coordination point this doctrine named a substrate for
 (worktrees) and a trigger for (say-so / dirty-tree) but never gave a *claim*.
 
+## The channel — the coordination git cannot carry
+
+Every mechanism above coordinates by **forcing a collision onto one shared line
+so git catches it**: the claim mutates a contested checkbox, two records wanting
+one name conflict trivially, a push is rejected and rebases. That covers the
+tree, the queue and the record namespace between them. What it cannot cover is
+the class where **both parties are individually correct and neither has written
+yet** — there is no shared line to collide on, so nothing fires. That class is
+where the cost concentrates once several sessions run on one repo, and the only
+thing observed to catch it is sessions **talking to each other while they work**.
+
+The formulation the rest of this section rests on:
+
+> A file map is a claim about your own writes; a collision is a fact about
+> somebody else's.
+
+No amount of care about your own half can surface it. Only the overlap of two
+announcements can — and in the grounding window it was a *third* session
+noticing two answers to one broadcast that found a file which two sessions each
+believed, correctly, that they held alone.
+
+### Three laws, before any protocol
+
+These come first because each was learned by a session that already had the
+protocol and collided anyway.
+
+1. **Message is awareness; artefact is authority.** A message reserves nothing;
+   only a pushed artefact does. A reservation is valid at the instant it is made
+   and not after — every version-number reservation in the grounding window was
+   stale by merge time. So the channel exists to make you *look*, never to make
+   you safe, and anything that must survive a session's death goes in the
+   artefact with the message merely pointing at it.
+2. **The closing check runs after the push, not before.** Reading a shared
+   allocator before you write reads a value that expires in minutes. Check
+   beforehand if you like; the check that closes the window is the one *after*
+   the push, because it is the only one that can see a peer who allocated while
+   you were writing.
+3. **A repair is itself a claim, and its tie-break must be deterministic.**
+   Courtesy is not coordination — two sessions each politely yielding off a
+   collided identifier both took "the next free one" and collided again five
+   minutes later. A yield rule must therefore be a function of shared public
+   evidence that both parties compute *identically*: **whichever artefact
+   carries fewer inbound references moves**, cheapest repair rather than
+   precedence. And the repair is announced, never taken silently.
+   - **A burned identifier stays burned.** A name that was briefly two
+     different accepted records is left permanently vacant; an allocator counts
+     records rather than contiguity, so the gap costs nothing and reuse costs a
+     permanently ambiguous citation.
+
+### What the channel carries
+
+Seven message classes, each earned by a failure that the artefact layer could
+not have caught:
+
+- **Hello, on open and on resume.** Identify the session and its repo, name the
+  work, and give the **file set** — a claim says *what*, never *which files*.
+  This also upgrades § The trigger's flipped prior from an assumption into a
+  checkable fact: a session can enumerate its live peers and ask, rather than
+  inferring solitude from a clean tree.
+- **Holdings.** Answer other sessions' hellos. The overlap is only visible from
+  outside, which is why answering matters as much as announcing.
+- **Minting.** Announce any shared-namespace value the moment it is taken —
+  identifiers, version constants, reserved ranges — while remembering law 1
+  about what the announcement is worth.
+- **A change that makes the repo's gates stricter.** This is a change to
+  *everyone's* ability to commit, so announce it the way a version bump is
+  announced. Two of one day's four repo-wide stops in the grounding window came
+  from correct changes whose blast radius was every other session's commits.
+- **The principal's rulings.** Rulings do not cross between sessions by
+  themselves. Broadcast the ones you are given and ask peers for theirs; three
+  arrived that way in a single session, and a paraphrase is not good enough —
+  relay what was ruled and what remains open, distinctly.
+- **Findings.** Send them, and label **measurement** separately from
+  **diagnosis**: they are different goods with different reliability, and a
+  peer's correct measurement has more than once arrived wrapped in a wrong
+  diagnosis that would have reverted a shipped decision.
+- **Farewell, on close.** What landed, what is released, what is left. A dead
+  session's claims are reclaimable on evidence (§ Claiming work — Orphan
+  claims), but a farewell spares the next session that whole judgement.
+
+**The shape of a message is as load-bearing as its content**, and three
+properties of the shape did real work:
+
+- **State what you have *not* done, unprompted and before any content** — "I
+  have written nothing to your repo and will not". It converts the reader's most
+  expensive question into a sentence.
+- **Hand disposition authority to the receiving side explicitly** rather than
+  assuming it; queue-never-deliver (§ Stay in your lane) is what is being
+  honoured, and saying so is what makes it verifiable.
+- **Make an offer once.** An offer of drafted text repeated becomes pressure,
+  and pressure across a repo boundary is a delivery in slow motion.
+
+### Re-run, don't reason — and what the channel costs
+
+**A peer's claim is a hypothesis.** Both load-bearing corrections in the kept
+primary source came from a party *re-running* a claim rather than reasoning
+about it: one probed a compensating-guard claim and found the compensating guard
+holed in the same syntax class; the other re-read a doctrine passage and
+withdrew its own assertion about it. Two further failures of evidence were
+self-reported by the party that made them, and both generalise past this
+channel:
+
+- **Agreement is not corroboration when the second party never opened the
+  source.** Two-of-three agreement felt like confirmation and was one unread
+  claim with an echo.
+- **A symptom count locates a fault's existence, never its site.** Three
+  sessions stalling on one clause is strong evidence the deadlock is real and no
+  evidence at all about which file holds the defect.
+
+**The cost, stated plainly because a success story would hide it.** The kept
+exchange ran four rounds, of which **two existed only to correct claims made in
+the earlier two**. A primitive that makes peer contact cheap also makes it cheap
+to be confidently wrong at a peer, twice, before anyone opens a file. The
+corrections are the load-bearing part of that evidence — not the smooth
+handoffs — and the re-run rule above is what keeps the cost bounded.
+
+### The channel crosses publication boundaries too
+
+A message crosses repo boundaries, so it crosses **publication** boundaries with
+them: what two sessions may safely say to each other is not what a public record
+may hold. Abridge on the way *into* the record and say that you abridged — the
+omission is part of the record's honesty, not a hole in it. The shape that
+forced this rule was a repo name joined to a guard-coverage inventory, which
+`PROPAGATION.md` bars from a public tree; it is described in the kept transcript
+rather than quoted, with the abridgement stated in the file.
+
+And keep the source primary. **A primary source that exists only in an agent's
+context is not a primary source** — relaying a transcript into another session's
+window moves the problem rather than solving it, because the evidence then dies
+with *that* window instead. Testimony becomes evidence by being committed, and
+the apex's bar (doctrine rides on repeatable evidence, never testimony) is what
+makes that a rule rather than a preference.
+
+### What the channel is not
+
+- **It is not the claim.** The claim is the durable artefact a later session
+  reads; the message is volatile and dies with its window. A block you are
+  waiting on still goes into the record (§ Surviving an interrupted session).
+- **It is not a lock**, and no locking machinery follows from it — the same
+  KISS line the rest of this doc holds.
+- **It is not a channel for work.** Findings cross as claims-with-repro;
+  changes do not cross at all (§ Stay in your lane — work lands in the repo it
+  changes). Queue, never deliver, in both directions.
+
+*Bearing:* the public child `faves`, 2026-08-13 to 2026-08-17 — up to five
+sessions on one repo, whose committed session records name the double-held
+file, the absorbed version constant, the identifier collisions, and the two
+occasions a correct change blocked every other session's commits. Extracted at
+Mike's direction 2026-08-17, with a verbatim four-round exchange kept as primary
+source at
+[`../sessions/2026-08-17-0343-cross-session-channel-transcript.md`](../sessions/2026-08-17-0343-cross-session-channel-transcript.md).
+The three laws are the child's own corrections to its practice, not this
+document's advice to it.
+
 ## Stay in your lane
 
 A session works the work it was given or claimed — nothing else it can see.
@@ -418,7 +619,9 @@ carry, and how to make each survive:
   resumer cannot tell "waiting on the principal" from "done". **Before blocking
   on a decision, write the open question into the durable record** — the claim
   line, or a roadmap line — so the block outlives the window that carried it. The
-  chat asks; the record is what remembers.
+  chat asks; the record is what remembers. A message to a peer session is
+  volatile in exactly the same way, and for the same reason is never where a
+  block, a ruling or an allocation comes to rest (§ The channel, law 1).
 
 **Recovering after a cut — the sweep.** A session that opens onto possible
 interruption residue (the principal says a window or the editor died, or the
