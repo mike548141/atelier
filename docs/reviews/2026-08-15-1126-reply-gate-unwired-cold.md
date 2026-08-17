@@ -174,3 +174,228 @@ reconcile section; fold the sibling in below it and delete the sibling;
 finalise. Update the queue pointer
 (`docs/roadmap/160-doctrine-review-owed/180-rule-4-review-queued-tier-fable-pass-type-doc.md`)
 and rebuild the index in the same commit.
+
+---
+
+## Phase-1 verdict — 2026-08-17, finding prefix `RG`
+
+### Provenance, repeated
+
+- **Reviewer:** a **Fable** reviewer subagent (tier checked at selection),
+  spawned 2026-08-17 by an atelier session Mike opened at 0710 UTC under his
+  standing cold-session instruction, verbatim: *"do any review work and any
+  work that is fable dependent … write briefs too if they are required."* The
+  reviewer authored no part of `cd6232b` and was neither started nor
+  instructed by the authoring session (wt: `plain-reply-unwired-0816`) or by
+  the brief-writing session of 2026-08-15 ~1120 UTC.
+- **Orchestration shape — a departure, stated plainly so it can be rejected on
+  sight:** the orchestrator is **Opus, not Fable**, unlike the 2026-08-15
+  precedent where both roles ran Fable. It holds the deferred sibling,
+  releases it only after these findings are durably committed, commits the
+  records, and forms no finding and writes no severity. Reviewer's one-line
+  view: rule 4's tier bar governs who forms the findings, and every finding
+  and severity here is Fable's alone, so the shape honours the bar in
+  substance — accepting the departure is Mike's call, not ours.
+
+### Barred-material exposure — disclosed
+
+Three exposures, in increasing order of this reviewer's own fault:
+
+1. **Auto-memory.** The machine's project memory (in this session's system
+   context before the pass began) carries one-line summaries of this delta
+   and of the 2026-08-15 cold-run results — the same class as the
+   brief-writer's SESSIONS.md-tail disclosure.
+2. **Surface 4 at HEAD.** The in-scope board section `020-…/README.md`
+   § *COMMUNICATION.md enforced* carries, landed after `cd6232b`, a summary
+   of the 2026-08-15-1033 verdict including CMF1–CMF6 headlines. Reading the
+   surface the brief names exposes that much; unavoidable under the brief's
+   own instruction to read the surfaces at HEAD.
+3. **A defective grep — the house rule's exact failure mode.** The first
+   tree-wide sweep excluded barred paths with a regex anchored on a `./`
+   prefix grep does not emit, so its hits included barred lines: four
+   `docs/SESSIONS.md` index entries (the wiring, the rescope, the unwiring,
+   the 1123 cold-run), one matched line each from four `docs/sessions/`
+   records, two `docs/ROADMAP-DONE.md` lines, and — worst — substantial
+   excerpts of the 1033 communication-floor verdict: its FAIL line, CMF1–CMF7
+   finding texts, parts of its re-run table and reconcile. The board item
+   `310-…` stayed excluded throughout. The second sweep used git-pathspec
+   excludes and leaked nothing.
+
+**Contamination direction, honestly:** RG3, RG6 and RG7 below overlap
+territory the 1033 verdict also covers. Each was established after exposure
+from primary evidence this reviewer generated itself — code reads, live hook
+drives, its own documentation query, its own CHANGELOG grep — but anchoring
+cannot be ruled out; the reconcile should treat those three as corroborated
+rather than independent. RG1, RG2, RG4, RG5, RG8 and RG9 have no counterpart
+in anything seen.
+
+### Re-runs executed
+
+| Obligation | How | Result |
+|---|---|---|
+| Mechanism claim | official hooks documentation queried via a fresh claude-code-guide subagent (code.claude.com/docs/en/hooks.md); a live block-and-observe experiment is not possible from inside a reviewer subagent, said plainly | **Established by cited documentation.** A blocking Stop "prevents Claude from stopping, continues the conversation" — output is appended, nothing retracted; `last_assistant_message` is a documented Stop input ("the complete final assistant message text for the turn"). Per-surface display behaviour is undocumented; the doctrine scopes its claim to the terminal, matching the evidence — no over-reach |
+| Suites at HEAD | `python3 -m unittest discover -s tools -p 'test_*.py'` ×3 · `node --test instruments/*.test.js` | exit 0 on all three runs (item 120's flake did not reproduce) · 235/235 pass |
+| Floor, both planes | `python3 tools/floor.py --plane hook --root . --tools tools` · `--plane ci --root .` | both exit 0; hook plane green with 4 warn-only; ci plane 🟡 secretscan 22 advisory + degraded leakscan cover — the documented expected state |
+| Hook driven live | 8 payloads piped to `/usr/bin/python3 tools/hooks/plain-reply.py`, `PLAIN_REPLY_STATE` isolated in the reviewer scratchpad | clean/short → silent exit 0 · rule-breaking → `decision: block` naming P1/P3 at the 45/60 chat limits · 3rd consecutive block → `additionalContext` give-up, counter popped · 4th → blocks again at count 1 · malformed stdin → exit 0 silent. Shapes match the docstring; semantics drift at RG6 |
+| Live install state | `~/.claude/settings.json` read for shape only | `"hooks": {}` — **no Stop stanza; `plain-reply` appears nowhere in the file**. The unwiring is real on this machine. Nothing else read or reported |
+| Tree sweep | two greps (`plain-reply`/`reply plane`, then `stop.hook`), barred paths excluded — correctly on the second attempt | one surviving live-plane assertion: `tools/plainscan.py` docstring → RG2 |
+| Transcript measurement | cannot be re-run from the repo — the corpus is private; the method reviewed as recorded | counts copied consistently across all three corrected surfaces; one internal figure not derivable from the recorded counts → RG5 |
+
+### The four lenses
+
+1. **Approach & assumptions.** Load-bearing assumptions, named first: (a) a
+   Stop-hook block appends rather than replaces — now established by cited
+   documentation (re-runs table); (b) the give-up note is visible to the
+   principal — still unestablished anywhere and surviving at HEAD (RG3);
+   (c) the measurement's counters mean what the prose says — unverifiable,
+   one internal tension (RG5). The correction does not over-reach: it says a
+   `Stop` hook cannot un-print, not that every rewrite-before-read control is
+   impossible, and it scopes the failure to this hook point. Only one surface
+   class (terminal transcripts) was measured, and the doctrine's claim is
+   phrased to the terminal — the generalisation matches the evidence. Remedy
+   choice: the ruling itself keeps repurpose open, so the remedy space was
+   not collapsed to the author's first reach.
+2. **Correctness & quality.** The four surfaces agree with each other and
+   with the hook's behaviour on the mechanism, the dates and the numbers —
+   29 / 6 / ~123,500 / 45 / 60 / 30.6% are consistent everywhere they appear.
+   Two residues: doctrine's "Detection was sound throughout" contradicts the
+   delta's own trigger evidence (RG1), and the anti-deadlock docstring claims
+   memory and turn-scoping the code does not implement (RG6). "No behaviour
+   changed" verified: the `cd6232b` hunk on the hook is docstring-only.
+   Suites, floor, drives: green, above.
+3. **Completeness / harvest.** The commit says the premise "was asserted in
+   three places"; there is a fourth. `tools/plainscan.py`'s module docstring
+   still presents the reply plane live and load-bearing ("gating the replies
+   the principal actually reads … The second plane is the point") — RG2.
+   CHANGELOG carries neither the 2026-08-09 wiring nor the 2026-08-15
+   unwiring (RG7). Of the two rules earned, the first lands once in
+   `COMMUNICATION.md` with no duplicate under another name (GUARDS.md and
+   PRINCIPLES.md checked); the second lands on **no live doctrine surface at
+   all** (RG4). Tests, templates, skills and child-facing floor blocks:
+   swept, clean. Board item `120-…` is stale against HEAD (RG9).
+4. **Security & privacy** — discharged with grounds, not by silence. No
+   surface in the delta names a private repo or joins one to a posture; the
+   transcript figures are counts and no transcript content travels; the one
+   verbatim Mike quote is his ruling on his own tool, captured per doctrine.
+   The state file `~/.claude/.plain-reply-state.json` **remains on this
+   machine**: 233 bytes, mtime 2026-08-15 11:30 UTC, three entries of
+   session-key → {16-hex text-hash prefix, count, timestamp} — no reply text,
+   coordination data only; the docstring names the path but the unwiring
+   banner never tells a reader the residue exists (RG8). Reach case for the
+   house security scanner: it reads the session's pending diff, and this is a
+   landed-delta review with no pending diff, so it had no reach here — the
+   surfaces were read directly instead.
+
+### Findings
+
+**RG1 · MODERATE** — the carried lesson keeps half its own evidence.
+`COMMUNICATION.md` (HEAD ~L109–110) asserts "Detection was sound throughout;
+the remedy was the part nobody checked", while the same delta's commit account
+says the triggers "were near-misses and board item identifiers, not the
+'genuinely unreadable output' the hook claims to catch" and that the rewrite
+"introduces findings the first scan never saw, so the gate fires on its own
+output". By the author's own evidence, detection failed too — on calibration,
+not on rule evaluation — and the doctrine sentence erases that half. Why it
+matters: this sentence is the direct input to the open destroy-or-repurpose
+ruling; a silent collector built on "detection was sound" inherits a detector
+the measurement says fired mostly on near-misses. Counsel, labelled: keep the
+machine-deliverable-remedy rule; let the clause state both failures.
+
+**RG2 · MODERATE** — a fourth surface still asserts a live reply plane.
+`tools/plainscan.py` docstring, § *ONE ENGINE, TWO PLANES* (~L77–89): "reply —
+a Stop hook reading `last_assistant_message`, **gating** the replies the
+principal actually reads", and "The second plane **is** the point." The
+commit's "asserted in three places and checked in none" is itself an unswept
+count. A cold reader of the engine — the file the 2026-08-10 ruling made
+load-bearing — is told the gate is live and central. Counsel: retense the
+section and point it at the hook's stop notice.
+
+**RG3 · MODERATE** — the give-up path's visibility claim survives at HEAD on
+exactly the unchecked-mechanism class this delta indicts. Hook docstring
+L64–67 ("findings appended as a **visible note** … The principal **sees** the
+mess AND sees that the wall fired") and `tools/README.md` L859–862 ("saying so
+**visibly** in the transcript … the one part of the design the evidence
+vindicated"). The note is emitted as `hookSpecificOutput.additionalContext`,
+whose effect for a Stop hook is undocumented (this pass's own documentation
+re-run: the documented Stop output fields are hookEventName / decision /
+blockReason; `additionalContext`'s function is unspecified), and no check of
+its visibility is recorded anywhere in the delta. "Fired on 4 of the 6" is
+measurable from transcripts; "the principal saw it" is not established.
+Overlaps barred territory — re-derived; see the disclosure. Counsel: correct
+both passages now; if the file is ever repurposed, verify the visible channel
+before claiming one.
+
+**RG4 · MODERATE** — the second earned rule has no live home. "An approval is
+not the whole ruling" exists in the commit message (and, per the brief, in the
+barred records), but a tree-wide grep outside barred paths returns nothing:
+no method doc states it, and none states an approval-capture rule under
+another name. A rule the delta headlines as *earned* is invisible to every
+future session that reads doctrine rather than history — the exact gap the
+rule itself describes. Counsel: state it once where ruling-capture doctrine
+lives.
+
+**RG5 · minor** — one figure in the measurement's method does not cohere as
+recorded: "the second attempt succeeded roughly a third of the time" cannot
+be derived from "29 turns blocked, 6 of them twice" under either reading of
+those counts (both give roughly 74–79% second-attempt success). The corpus is
+private, so the numbers cannot be checked — only the method can be, and the
+method as recorded leaves this figure unaccounted. Commit account only; it
+does not appear on the corrected surfaces. Counsel: record what "succeeded"
+counted, or drop the fraction from any future account.
+
+**RG6 · minor** — the anti-deadlock section describes a mechanism the code
+does not implement. "The hook remembers, per session, the last text it
+blocked": `sig` is computed and stored (L199, L220) and never read back.
+"After MAX_BLOCKS attempts on one turn": the state has no turn identity, so
+the counter spans consecutive blocked replies across turns until a clean
+reply resets it — verified by drive (an identical fourth payload after
+give-up blocks again at count 1). Docstring-only in unwired code, but the
+banner directs distrust at the premise section specifically, not at this one.
+
+**RG7 · minor** — CHANGELOG records neither event. The 2026-08-09 wiring of a
+machine-wide blocking gate and its 2026-08-15 unwiring are both absent; the
+file is otherwise current (2026-08-17 entries) and its last COMMUNICATION
+entry is 2026-07-12. A changelog reader cannot learn the reply gate ever
+existed, let alone that it failed.
+
+**RG8 · note** — machine residue the docs do not mention.
+`~/.claude/.plain-reply-state.json` survives the unwiring: 233 bytes, three
+entries of session-key → hash-prefix/count/timestamp, no reply text. The
+docstring names the path; the unwiring banner does not mention the residue.
+Counsel: delete it with a destroy ruling, or note it beside the install form.
+
+**RG9 · note** — board item `120-…/010` (StopHook suite flake, 🔥, "verify
+against HEAD before acting") did not reproduce: three full-suite runs at
+HEAD, all exit 0, and the per-test `PLAIN_REPLY_STATE` isolation the item's
+hypothesis pointed toward is present at HEAD with the flake history recorded
+in the fixture docstring. A candidate for closure by a session that owns it;
+not this pass's to close.
+
+### Overall
+
+**PASS-WITH-FINDINGS — 0 MAJOR / 4 MODERATE / 3 minor / 2 note.** The
+unwiring is verified real on this machine, the mechanism claim the correction
+rests on is established by cited documentation, the three corrected surfaces
+are mutually consistent, and the suites and both floor planes are green at
+HEAD. What remains is doctrine keeping half its own evidence (RG1), a fourth
+uncorrected assertion of the old premise's frame (RG2), one surviving
+unchecked mechanism claim of the same class the delta indicts (RG3), and an
+earned rule with no home (RG4). All findings are Mike's to rule (rule 3);
+counsel above is labelled as such.
+
+### Follow-up checklist
+
+- [ ] RG1 — restate the COMMUNICATION.md lesson to carry both failures
+- [ ] RG2 — retense `tools/plainscan.py` § *ONE ENGINE, TWO PLANES*
+- [ ] RG3 — correct the give-up visibility wording in the hook docstring and
+      `tools/README.md`
+- [ ] RG4 — give "an approval is not the whole ruling" a live doctrine home
+- [ ] RG5 — ground or drop the "roughly a third" figure in future accounts
+- [ ] RG6 — fix or delete the anti-deadlock description with the
+      destroy-or-repurpose ruling
+- [ ] RG7 — CHANGELOG entries for the wiring and the unwiring
+- [ ] RG8 — remove the state file with the ruling, or note the residue
+- [ ] RG9 — verify and close board item `120-…` (its owner's call)
+- [ ] Pending at verdict time: a documentation follow-up (`stop_hook_active`;
+      `systemMessage` vs `additionalContext` visibility) had not returned.
+      RG3 and RG6 stand without it and could only be strengthened by it.
