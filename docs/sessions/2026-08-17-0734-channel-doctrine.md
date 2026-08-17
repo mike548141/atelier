@@ -113,6 +113,41 @@ Put to him as one question set, with the impacts of each option stated first.
   scanner immediately — the child spent two sessions misreading which `✗` had
   stopped them.
 
+## After the landing — the channel corrected its own doctrine's artefact
+
+Two peer corrections arrived after `b0f202d` merged, both verified here rather
+than accepted, both landed as `bb7c08f`.
+
+- 🔎 **An atelier peer filed `AA11` and it hit this very commit.** A rule-4 brief
+  can order its reviewer into barred material when the delta's commit packages
+  its own intent record — and `git show --stat b0f202d` carries **120 lines of
+  this session's own account** alongside the doctrine, plus both board items and
+  the `SESSIONS.md` entry. So `280/030`'s delta is now scoped to the three
+  doctrine paths, deliberately **not** to the commit, with the intent record
+  named as background the reviewer's deferral discipline governs. `pointerscan`
+  stayed clean, so the fix cost none of the refs-only grammar. The same peer
+  passed rule 4's criterion for this delta and **declined it on the tier bar**,
+  being Opus rather than Fable; it stays untaken. Its own
+  Opus-orchestrator/Fable-reviewer departure is unratified and with Mike — not
+  cited here, and nothing above rests on it.
+- **The first child's pin has a known trigger.** A `faves` session reported its
+  bump to `19eb0e2` with the `docs/method/` diff empty at that moment, so this
+  section's floor commit is exactly the next drift its check reports. On `020`,
+  because "owed at the next pin bump" otherwise reads as done.
+
+🔑 **The section's hardest rule proved itself on the section.** Both of those
+came from a party *re-running* a claim rather than reasoning about it — the third
+instance in the evidence base, and the first found *after* the doctrine landed,
+against the doctrine's own artefact. The peer's third correction was checked and
+**did not bite**: `grep` for `additionalContext`, `systemMessage` and `hook`
+across `CONCURRENCY.md` returns nothing, so the section makes no claim about what
+a hook renders to whom.
+
+One thing declined on the section's own cost clause: a fourth `faves` session was
+**not** messaged. Two live sessions there hold the disposition and one is
+relaying; a cheap channel makes it cheap to be noisy, and coverage was already
+met.
+
 ## What this session did *not* do
 
 No CF3 edit. No child repo touched. No review spawned — self-authored doctrine,
