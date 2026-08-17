@@ -590,3 +590,214 @@ No suite result looked like interference; nothing was re-run for that reason.
 - [ ] SW9/SW10 — counsel; take or decline with grounds.
 - [ ] Phase 2: reconcile against the sibling when released; fold and delete;
       update pointer `160/240`; rebuild the index (orchestrator).
+
+### Reconcile (2026-08-17, after release)
+
+**Provenance of this step.** Phase 1 above was committed unrevised
+(`08df5ca`) before the orchestrator released the sibling's text by message
+(13:5x UTC). I then opened, in this order and nothing else: the ruling record
+`290-…/040` (the intent record I had excluded on every sweep); the building
+session's two accounts under `docs/sessions/` (the 0710 cold run and the
+0900 ruling round); the two `docs/SESSIONS.md` index lines for those records
+(located by slug, printed alone); the prior verdicts the sibling names —
+`2026-08-17-0622` (AA, its exposure section and the AA11 pointer),
+`2026-08-15-1126` (RG, its exposure section and independence table), the
+`2026-08-15-1030/1031/1032/1033` passes and the `2026-08-09-082x` batch
+(provenance and exposure lines only, located by grep for exclusion/exposure
+vocabulary), `2026-08-05-1320` (verdict head only); and, as permitted,
+`2026-08-17-0730` (BG) disclosures (b) and (c) only. Nothing else under
+`docs/sessions/`, `docs/reviews/` or `docs/ROADMAP-DONE.md` was opened. No
+git state changed; only this brief is edited. Phase-1 text is not revised;
+where a severity moves it is stated here with both values.
+
+**The sibling's explicit check — does the selftest corpus correspond to the
+three instances as the verdicts describe them?** What the permitted verdicts
+actually carry:
+
+- **AA** (`2026-08-17-0622`, exposure item 2): *"my path-exclusion regex
+  assumed a `./` prefix the grep output didn't carry, so the exclusions
+  silently failed"* — leaked two `SESSIONS.md` entries, one `ROADMAP-DONE.md`
+  line, one-line fragments of three prior verdicts.
+- **RG** (`2026-08-15-1126`, exposure item 3): *"a regex anchored on a `./`
+  prefix grep does not emit"* — leaked `SESSIONS.md` entries, `docs/sessions/`
+  lines, `ROADMAP-DONE.md` lines and substantial excerpts of the 1033 verdict;
+  its second sweep used **git-pathspec excludes** and leaked nothing.
+- Both ran in the same 0710 session, which its record counts as *"the third
+  time"* the defect fired. **The first two instances are not in the verdicts
+  I was released to.** The 2026-08-15 batch's exposures (BS, CS, CMF) are the
+  SL2 class — the pending-diff scanner reading another pass's brief — not an
+  exclusion spelling; the LR pass (`2026-08-15-1031`) used basename
+  `--exclude`/`--exclude-dir` forms that grep honours, **and also excluded
+  `.claude`** — a prior reviewer already guarding the nested-worktree hazard
+  by hand (SW3). The 2026-08-09 batch records name-only and scanner-output
+  exposures, no exclusion defect.
+
+So: the corpus (four spellings of one directory bar) pins **exactly the shape
+AA and RG describe** — a `./`-prefixed pattern against prefix-less output — and
+that is the right shape for those two. Whether a third instance had the same
+shape I cannot confirm from what I was allowed to read; the docstring's and
+ruling record's "three" is two-in-evidence here plus one I did not see. The
+corpus carries **no** assertion for the SL2 class (exclusion applied, a second
+tool did not honour it — seeded Q5's case), and correctly so: it is outside a
+sweep tool's reach; but the docstring's framing then attributes to the
+matching class an instance count that may include a case the tool cannot
+touch. SW7 stands as written; this sharpens its "I state only what it covers".
+
+**A fourth data point, one day after landing (BG, `2026-08-17-0730`).** All of
+that pass's sweeps ran through `coldsweep`, no `--include-barred` — the tool
+is used when the brief names it. Disclosure (b): one sweep ran **without the
+pass's `--also-exclude` flags** and printed three lines of the intent record —
+SW9's class, live within a day. Disclosure (c): the brief's barred paths were
+**wrong** (items named under the wrong lane); passed as written, they would
+have covered zero files silently — SW1's typo geometry, one step from firing.
+
+**Per finding — anticipated or new.**
+
+| ID | Anticipated by | Reconcile note |
+|---|---|---|
+| SW1 | **New.** Not in the ruling record, intent record or any verdict. Adjacent: BG (c) — a wrong barred path in a brief. | Severity unchanged (MAJOR). |
+| SW2 | **New as a finding**; seeded Q6 asked the question. | Unchanged (MAJOR). |
+| SW3 | **New as a finding**; seeded Q2 asked it; LR (`2026-08-15-1031`) excluded `.claude` by hand — prior practice the tool dropped. RG's clean second sweep used git pathspecs — the source SW3's remedy names. | Unchanged (MAJOR). |
+| SW4 | **Anticipated.** CMF (`2026-08-15-1033`, *Applied as ruled?*): *"'the cold-pass records exclusion' is not defined in doctrine (grep of docs/method, docs/build: no hit)"*. The ruling record's own grounding line — *"the barred set is `REVIEW.md` rule 2's"* — is the clause the delta cannot satisfy as prose stands. | Unchanged (MODERATE), now corroborated by a prior verdict and sharpened: the principal ordered grounding, and the ground named does not carry the set. |
+| SW5 | Seeded Q3 asked it. | Unchanged (MODERATE). |
+| SW6 | **New.** | Unchanged (MODERATE). |
+| SW7 | Seeded Q5 (corpus ↔ instances) — answered above. | Unchanged (minor). |
+| SW8 | **Class anticipated the same day**: the ruling round's own `GUARDS.md` § *A rule with no home is not a rule* — a rule reaching only readers who already knew it. The tool's discoverability has that shape (rule 2 only). Not raised as a finding anywhere. | Unchanged (MODERATE). |
+| SW9 | **Fired live**: BG (b). | **Raised note → minor.** Grounds: a counsel became an observed exposure within a day of landing; still small (three lines, disclosed, no finding moved). |
+| SW10 | — | Unchanged (note). |
+| **SW11 (new at reconcile) — MODERATE** | Seeded Q4. | `barred = () if args.include_barred else BARRED + tuple(args.also_exclude)`: **`--include-barred` silently drops every `--also-exclude`.** A reviewer widening to records while still barring the board item under review cannot express it, and the banner says the rule-2 paths were searched, not that the extra bars were discarded — the silent-non-application class again. Formed at reconcile from the seeded question, then verified in the code; marked answered-after-the-fact. Remedy: `--include-barred` should clear `BARRED` only, keep the also-excludes, and say so in the banner. |
+
+**Seeded questions, answered after the fact (marked so).**
+
+1. *Canonical set; drift; is `--also-exclude` a hatch or the bar?* — SW4: the
+   tuple is the only statement today; prose names one of four. When doctrine
+   adds a barred surface the tuple will not follow unless someone edits code;
+   a `.deferred.md` under `docs/reviews/` is covered by the directory bar, a
+   board item is not. `--also-exclude` is where the pass-specific bar lives,
+   and BG (b) shows it is a hatch that gets forgotten. Answered by SW4/SW9.
+2. *Nested worktree's `docs/reviews/`?* — Not barred; probed (SW3): a sibling
+   worktree's uncommitted verdict is swept from the main checkout root.
+3. *stdout provenance vs exit code?* — The exit code is the intended
+   contract; `| wc -l` disagrees by two; the README's pipeline claim does not
+   survive (SW5).
+4. *`--include-barred` drops `--also-exclude`?* — Yes; **missed in phase 1**;
+   SW11.
+5. *Corpus ↔ instances?* — Above: matches AA/RG's shape; no assertion for the
+   SL2 case, rightly, but the count claim outruns what I could verify.
+6. *Child records elsewhere?* — Yes: wrong four paths, zero barred,
+   provenance asserts the bar (SW2, probed).
+7. *Disclosure — property of the run or the record?* — The ruling asked for a
+   run-level guard (*"the correct exclusion becomes the default"*); rule 2's
+   obligation is record-level. The tool prints a paste-ready line and nothing
+   carries it further; under `| head` the banner is the first thing lost
+   (SW5). Counsel: a `reviewscan` check that a verdict whose pass used
+   `--include-barred` says so is the record-plane half, if the principal
+   wants one; the run-plane half is banner-first-on-stderr.
+8. *A cheap thing that makes bare `grep` fail?* — Yes, one exists: a
+   harness `PreToolUse` hook in reviewer sessions that refuses `Grep`/`grep`
+   over the barred paths. It is a new trust surface and a per-machine
+   install, which is why the ruling's "plane is the builder's call" landed
+   soft. My counsel stands as phase 1 wrote it, with one addition from the
+   evidence: the two instances I could read were both *disclosed by the
+   reviewer unprompted*, so the current failure mode is loud-after-the-fact,
+   not silent — the case for a hard block is weaker than a silent-leak
+   story would make it, and the case for fixing SW1–SW3 (which *are* silent)
+   is correspondingly stronger.
+
+**Ruling-record checkboxes, verified against the delta.** *Build it* — built,
+tested, catalogued ✓. *Grounding, not invention: the barred set is rule 2's* —
+the set is the house practice, and rule 2's prose does not name it (SW4);
+*the three recorded instances are its test corpus* — the corpus pins the
+shape of the two instances I could read; the third is unverified here.
+*Queue its own `⏳`* — pointer `160/240` ✓ (its lens-1 hint drew `pointerscan`'s
+grammar warning, board item `160/250`, already queued). No `[fixed]` claims
+exist in the delta to verify.
+
+**Overall after reconcile: PASS-WITH-FINDINGS — 3 MAJOR · 5 MODERATE ·
+2 minor · 1 note** (SW11 added; SW9 note → minor). The phase-1 line and rider
+stand.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — coldsweep.py (open only after your findings are durably written)
+
+Sibling of `2026-08-17-1000-coldsweep-cold.md` under REVIEW.md rule 1's split.
+Fold into the brief below the verdict and delete this file when the verdict
+lands.
+
+## Intent records
+
+- `docs/roadmap/290-ruling-round-2026-08-17-the-cold-run-find/040-build-the-cold-sweep-guard.md`
+  — the principal's ruling ("Build a guard") in his own selected wording, and
+  the author's application note. **Not opened by the brief-writer.**
+- `docs/sessions/2026-08-17-0710-cold-run-two-passes-one-brief-rulings.md` —
+  the building session's account. **Not opened by the brief-writer.**
+- The `docs/SESSIONS.md` index entry for the ruling round. ⚠️ **Read by the
+  brief-writer**, at onramp — see the disclosure in the brief.
+
+## Prior verdicts on the same surfaces
+
+The three recorded instances of the exclusion defect live in verdicts, not in
+doctrine. The brief-writer did not re-open them to confirm which; from the
+index entries read at onramp, the third instance was recorded during the
+2026-08-17 0710 cold run. Start with:
+
+- `docs/reviews/2026-08-17-0622-authority-absolute-cold.md` (AA) and
+  `docs/reviews/2026-08-15-1126-reply-gate-unwired-cold.md` (RG) — the two
+  passes run in that session; one of them carries the third instance in its
+  provenance or its follow-ups. AA11 is the adjacent finding about a brief
+  ordering its reviewer into barred material.
+- `docs/reviews/2026-08-15-1030-board-store-migration-cold.md` and the other
+  2026-08-15 passes, and the 2026-08-09 batch (`2026-08-09-08xx-*-cold.md`),
+  for the first two instances — search their provenance sections for the
+  exclusion pattern they used and whether it applied.
+- `docs/reviews/2026-08-05-1320-f1-guards-allowances-cold.md` — the pass on
+  `GUARDS.md`'s block-vs-advise model, if your altitude counsel reaches
+  whether a soft instrument is a guard at all.
+
+Verify at reconcile that the tool's selftest corpus corresponds to the
+instances as those verdicts actually describe them; the brief's *What the
+work is* takes the author's word for that.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these. Treat a question you did not think of
+as a prompt to re-read the surface, not as an agenda — and note that the
+brief-writer read the commit message and the pointer's lens-1 hint, so these
+questions inherit some of the author's framing.
+
+1. `BARRED` is a tuple in code; rule 2's barred set is prose in `REVIEW.md`.
+   The rule-2 edit says "the exclusion is now the tool's default" without
+   naming the set. Which is canonical, and what happens when the doctrine
+   adds a barred surface (a `.deferred.md` sibling, a board item under
+   review) that the tuple does not carry? Is `--also-exclude` a hatch or the
+   place the real bar now lives?
+2. `walk()` skips symlinks. On this estate a nested harness worktree
+   (`.claude/worktrees/…`) is a real directory containing a full second copy
+   of `docs/`, including `docs/reviews/`. Is a worktree's `docs/reviews/`
+   barred (its parts begin `.claude`, `worktrees`, `<name>`, `docs`,
+   `reviews`), and does the tool sweep a sibling worktree's uncommitted
+   verdict? Probe it.
+3. The provenance line goes to stdout. `coldsweep 'X' | wc -l` and
+   `if coldsweep 'X'; then` disagree about whether the run "matched". Which
+   contract did the author intend, and does the README's "drops into a
+   pipeline" claim survive?
+4. `--include-barred` sets `barred = ()`, which also drops `--also-exclude`
+   entries. Is that intended? A reviewer widening the sweep to *records* while
+   still needing to exclude the *board item under review* cannot express it.
+5. The selftest builds a corpus of five files and asserts counts. Which of
+   the "three real instances" does each assertion reduce to — and is there an
+   assertion for the instance where the exclusion *did* apply but a reviewer's
+   second tool did not honour it?
+6. The tool never reads `.atelier-floor.json`, which is where a child declares
+   its records path. Does a child with records elsewhere get a bar of the
+   wrong four paths and a provenance line that says the sweep was clean?
+7. Rule 2 says a wide sweep is not forbidden, an undisclosed one is. The tool
+   prints the disclosure; nothing carries it into the verdict. Is the
+   disclosure a property of the run or of the record, and which one did the
+   ruling ask for?
+8. The pointer's own hint: the guard makes the safe path easier but does not
+   make the unsafe path fail. Take the hint as a claim to test, not a
+   conclusion — is there a cheap thing that *would* make a bare `grep -r`
+   over the records fail for a reviewer session, and if there is, why did
+   the build not choose it? Counsel, labelled.

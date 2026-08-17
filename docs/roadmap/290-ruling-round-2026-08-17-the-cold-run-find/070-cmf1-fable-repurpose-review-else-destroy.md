@@ -13,38 +13,39 @@
       tests; RG3, CMF2, CMF6, CMF8, BG14 close as moot). He did not take it
       outright: the repurpose question is to be **reviewed on Fable first**.
       <!-- pointerscan:allow: a design-review commission, not a rule-4 cold pass — the question it carries is the principal's own ruling wording, which the reviewer must answer, not a seeded attack question -->
-      - [ ] ⏳ **Fable design review queued — "can `plain-reply.py` be
-            usefully repurposed as a data-gathering instrument?"** *Tier:*
-            Fable, checked at selection. *Pass type:* design review
-            (`REVIEW.md` § *Review the design, not only the build*), not a
-            rule-4 doctrine pass — the hook is nobody's self-authored doctrine
-            and the question is a build/no-build. *Delta under review:*
-            `tools/hooks/plain-reply.py` · `tools/plainscan.py` § the reply
-            plane · `tools/README.md` § `plainscan.py` (the two-planes section
-            and the install stanza) · `docs/method/COMMUNICATION.md` § *Some of
-            it is enforceable*. *The question, in Mike's words:* gather
-            data/stats on plain speak to find the root cause when it's not
-            plain. *What the review must weigh:* whether a record-only Stop
-            hook (run `plainscan` over the last assistant message, log
-            findings + rule + context to a machine-local store, never block)
-            would produce data that finds root causes — or whether the
-            existing `cctranscript` instruments already reach the same data
-            from transcripts without a hook (check the instruments' `--help`
-            first); the CMF6 threat surface (machine-wide, fail-open hook
-            running branch-tracking code from a public repo) as applied to a
-            logging-only variant; and the private-layout path (BG14). *Verdict
-            shape:* REPURPOSE (with the design) or DESTROY, with grounds; the
-            decision stays Mike's. *Prior verdicts:*
-            `reviews/2026-08-15-1033-communication-floor-cold.md` (CMF),
-            `reviews/2026-08-15-1126-reply-gate-unwired-cold.md` (RG), and the
-            BG verdict for BG14 — reconcile after, never anchor before.
-            (TAKEN 2026-08-17-1321 UTC — RUNNING: a non-author cold session Mike opened
-            on the Fable tier is running the design review; a Fable reviewer
-            subagent forms the verdict under a Fable orchestrator that holds
-            the prior verdicts back until the reviewer's findings are durably
-            written; the verdict lands in
-            `docs/reviews/2026-08-17-1321-plain-reply-repurpose-design.md`;
-            wt: cold-run-0817-1321)
+      - [x] **Fable design review RAN 2026-08-17 — verdict: DESTROY** (0 MAJOR /
+            3 MODERATE / 2 minor / 3 note, unchanged after reconcile) →
+            [`reviews/2026-08-17-1321-plain-reply-repurpose-design.md`](../../reviews/2026-08-17-1321-plain-reply-repurpose-design.md).
+            Taker: a Fable reviewer subagent under a Fable orchestrator that
+            held the CMF, RG and BG verdicts back until the findings were
+            written (wt: cold-run-0817-1321). The `cctranscript` control the
+            commission asked for was run first: eight older sessions scored
+            with `plainscan`'s own engine over `cctranscript --json` — 45
+            replies, 25 flagged, the preceding prompt reachable for every one,
+            and the transcript carries `entrypoint`, `effort`, model, branch
+            and context that the Stop payload does not. Grounds, in the
+            reviewer's words: a per-reply hook observes strictly less than the
+            transcript already at rest and could close the gap only by reading
+            that transcript (RP1); its data would be derived, un-rescorable and
+            silently gappy where the transcript's is primary and complete
+            (RP2); a logging variant keeps CMF6's machine-wide fail-open
+            execution surface and adds a written cross-repo store of reply
+            fragments for no gain (RP3); nothing in the file is worth carrying
+            into an instrument (RP6). BG14's path confirmed at
+            `plain-reply.py:111` (RP4); the hook is wired nowhere on this
+            machine but its state file survives with stale entries (RP5).
+            *Counsel, labelled:* the data-gathering aim is met without a hook by
+            a small transcript-plane report over `cctranscript --json` — a
+            repurpose of the *engine*, not the hook; a separate unfunded item.
+      - [ ] 🎯 **Mike's ruling: DESTROY as the review recommends, or otherwise.**
+            🚩 The reviewer's reconcile found the *If DESTROY* checklist below
+            **incomplete** against what CMF/RG/BG actually filed — add RG6 and
+            RG9 / item `120-…/010` as moot; RG8 needs an explicit state-file
+            removal; CMF7/RG7 (CHANGELOG entries) are not moot and should ride
+            the same commit; CMF2/RG3 are moot only if the README's reply-plane
+            paragraphs above the stanza go too; RG1 and CMF3/4/5/9 stay open —
+            "CMF cycle CLOSES" means the review cycle at 0 MAJOR, not those
+            findings.
       - [ ] **If DESTROY:** delete `tools/hooks/plain-reply.py`, its tests and
             install stanza; retense the `plainscan.py` docstring (RG2); close
             RG3, CMF2, CMF6, CMF8, BG14 as moot; **CMF cycle CLOSES.**

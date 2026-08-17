@@ -379,3 +379,121 @@ No suite result looked like interference; nothing was re-run for that reason.
       tests.
 - [ ] Optional, separate call for the principal: open a small build item for
       the transcript-plane report (RP8). Not funded by this item.
+
+### Reconcile (2026-08-17, after release)
+
+**Written:** 2026-08-17 13:51–14:05 UTC, after phase 1 was committed
+unrevised as `16da277`. Nothing above this heading is changed. There is no
+deferred sibling for this pass; nothing is folded in.
+
+**Provenance of this step.** On the orchestrator's release I opened, in this
+order: (1) `docs/reviews/2026-08-15-1033-communication-floor-cold.md` — the
+findings block, overall, checklist and reconcile; (2)
+`docs/reviews/2026-08-15-1126-reply-gate-unwired-cold.md` — findings, overall,
+checklist, and the two reconcile subsections on the documentation follow-up and
+the CMF2 transcript look; (3) the BG14 finding text and the lens-answer line
+that points at it in the BG verdict
+(`docs/reviews/2026-08-17-0730-board-generator-child-truth-cold.md`), nothing
+else in that file; (4) the four board items whose sweep
+hit-lines I had seen: `020-…/310-the-reply-gate-is-unwired-destroy-it-or-repur.md`
+(whole), `020-…/README.md` § *COMMUNICATION.md enforced* (the hook lines and the
+rescope bullet), `120-…/010-two-tests-fail-intermittently-in-the-full-suit.md`
+(whole), `160-…/180-rule-4-review-queued-tier-fable-pass-type-doc.md` (head).
+Item (5), the SESSIONS.md index line, was **not opened** — no finding needed
+it. One further key-only read of the same ten older raw logs, to check a
+field the item's ruling made relevant (below). The orchestrator formed no
+finding.
+
+**A fact the release surfaced that phase 1 did not have.** The item's verbatim
+ruling names the target as *"unusable responses to the VS code sessions … the
+root cause(s)"*. Two consequences. The transcript records the client that ran
+each session (`entrypoint`; every record in the ten logs checked reads
+`claude-vscode`), so a transcript-side analysis can select exactly the
+sessions the ruling names; the `Stop` payload carries no such field. And
+"unusable" is wider than plainscan's four rules — the item's own measurement
+counts reprinted verdicts as the largest unusable output — which a transcript
+report can score (near-duplicate replies, reply length, position in session)
+and a plainscan-only hook cannot. Both strengthen RP1; neither changes a line.
+
+**Per finding — anticipated or new.**
+
+- **RP1** — *new as a measured claim*; anticipated in substance by the item
+  itself, which says the programme's "queued history-mining pass is the
+  instrument" for the position-in-session hypothesis, and whose option-2 log
+  fields (session, repo, model, reply length, position-in-session) are all in
+  the transcript. Not in CMF, RG or BG.
+- **RP2** — *new*, but compounded by RG1 and CMF5: RG1 says a collector built
+  on "detection was sound" inherits a detector that fired mostly on
+  near-misses; CMF5 says P1 cannot tell a reference code from a product name.
+  A hook logs those misfires permanently; a transcript re-scores them away
+  once the rule is fixed.
+- **RP3** — *anticipated by CMF6* (machine-wide, branch-tracking, fail-open,
+  silent; supply chain via the working tree; counsel to pin `ATELIER_TOOLS`
+  and emit `systemMessage` on engine failure) and by the item's own boundary
+  paragraph ("its log holds verbatim reply text from every repo … machine-local
+  and never committed"). New in RP3: the read-scope observation — the atelier
+  checkout's local settings let its sessions read the Claude configuration
+  directory where the hook already keeps state.
+- **RP4** — *anticipated by BG14 exactly.* New: the fallback is dead code under
+  the documented install form, and `STORAGE.md` already publishes the layout,
+  so the class BG14 names is "estate fact embedded in a tool", not a fresh
+  disclosure.
+- **RP5** — *anticipated by RG8 exactly* (same file, same three entries).
+- **RP6** — *new*; adjacent to CMF2 and RG6, which establish that the two
+  mechanisms the file does own — the give-up path and the anti-deadlock guard
+  — are respectively invisible to the principal and not implemented as
+  described. That is why nothing in the file is worth carrying.
+- **RP7** — *matches CMF10 and RG9*: green re-runs, flake fixed and verified.
+- **RP8** — *anticipated in aim* by the item's option 2 and the programme's
+  history-mining pass; new in plane (transcript, not hook) and in the design.
+
+**CMF6 as those passes described it vs. RP3.** They match. CMF6's surface is
+the execution path — every `Stop` on the machine runs whatever `plainscan.py`
+the tracked checkout holds, and a `gh pr checkout` of a fork branch on this
+public repo changes machine-wide hook code silently. RP3 reads it the same way
+and adds only that a logging variant also *writes*, so the surface gains an
+output. CMF6's counsel (immutable or pinned engine; visible failure) is what
+RP4's "fail loud" restates for the fallback path. Also resolved in passing:
+RG's reconcile left open whether `stop_hook_active` is a documented `Stop`
+input; the hooks reference I fetched for phase 1 lists it, which agrees with
+the 1033 pass. Moot under DESTROY; recorded so nobody re-chases it.
+
+**Is the item's "If DESTROY" checklist COMPLETE against what CMF/RG/BG filed?**
+Not quite. It names RG2 (retense) and RG3, CMF2, CMF6, CMF8, BG14 (moot).
+DESTROY also bears on these, which the item's list does not mention:
+
+- **RG6** — the anti-deadlock docstring; moot with the file (RG's own checklist
+  says "fix or delete with the ruling"). Add to the moot list.
+- **RG8** — the state-file residue; not moot by deletion of the hook, needs the
+  explicit removal (my RP5). Add.
+- **RG9 / item `120-…/010`** — the StopHook flake and its open "guard the fix"
+  ask die with the StopHook tests. Add as moot.
+- **CMF7 / RG7** — CHANGELOG owes entries for the wiring and the unwiring;
+  DESTROY adds a third event and closes neither. Not moot; should ride the same
+  commit.
+- **CMF2 and RG3 are moot only if the README's give-up sentences go too.**
+  The item's list deletes "the install stanza"; CMF2 (README L851–852) and RG3
+  (README L859–862) sit in the reply-plane paragraphs *above* the stanza. Phase
+  1's checklist already says "retense the reply-plane paragraphs"; the item's
+  should say so, or "moot" is overstated for those two.
+- **RG1** — the COMMUNICATION.md clause keeps half its evidence; independent of
+  DESTROY and still open, but the same clause is edited to record the ruling,
+  so one edit can carry both. Not moot.
+- **CMF3, CMF4, CMF5, CMF9** — repo-plane and doctrine findings; DESTROY does
+  not touch them and they stay in the ruling round. "CMF cycle CLOSES" should
+  be read as the review cycle closing at 0 MAJOR, not as those findings
+  closing.
+- The 020 README's *"Destroy-or-repurpose is Mike's open ruling"* line and the
+  matching sentence in COMMUNICATION.md both retense with the ruling (the
+  latter is already in phase 1's checklist).
+
+**Severity or verdict change.** None. Phase 1: DESTROY, 0 MAJOR / 3 MODERATE /
+2 minor / 3 note. After release: the same. RP1 is strengthened by the
+`entrypoint` field and by the item's own concession that the transcript-mining
+pass is the instrument; nothing weakens any finding.
+
+**Counsel, labelled as counsel and one line:** if the principal wants the data
+the ruling asked for, build a small transcript-plane report over
+`cctranscript --json` — plainscan's engine plus reply-repetition and length
+measures, filterable by `entrypoint` — and skip the hook; it is a separate,
+unfunded item, and this pass recommends it without requiring it.
