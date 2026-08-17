@@ -19,6 +19,8 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [The generated index fails two of the floor's own scanners, and only](roadmap/010-board-store-migration-per-item-files-mik/070-the-index-fails-two-scanners-it-generates-into.md)
 - ✅ 🔎 [The generated index tells every child to run a file it does not](roadmap/010-board-store-migration-per-item-files-mik/080-generated-banner-names-a-path-only-atelier-has.md)
 - [ ] 🔎 [board's action word is the only bare positional in the registry,](roadmap/010-board-store-migration-per-item-files-mik/090-board-s-action-word-is-the-only-bare-positional.md)
+- [ ] 🎯 [A child has used [~] for partially delivered where the house](roadmap/010-board-store-migration-per-item-files-mik/100-ros-carries-38-items-using-a-different-tilde.md)
+- [ ] 🔥 [A scanner given --root X and a relative path scans your cwd's](roadmap/010-board-store-migration-per-item-files-mik/110-relative-path-args-resolve-against-cwd-not-root.md)
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
 
