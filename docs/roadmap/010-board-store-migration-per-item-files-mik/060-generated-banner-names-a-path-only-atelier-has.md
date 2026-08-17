@@ -1,5 +1,6 @@
-- [ ] 🔎 **The generated index tells every child to run a file it does not
+- [~] 🔎 **The generated index tells every child to run a file it does not
       have — reported upstream by `faves`, unrecorded here until 2026-08-17.**
+      (claimed 2026-08-17-0549, wt: board-generator-child-truth)
       `board.py` hard-codes `tools/board.py` into three child-facing strings:
       the `GENERATED` banner (`tools/board.py:70-73`), the index preamble
       (`:174`) and the stale-index remedy the check prints (`:232`). In
