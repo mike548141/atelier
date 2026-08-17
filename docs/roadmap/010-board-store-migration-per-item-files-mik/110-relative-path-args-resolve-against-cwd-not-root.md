@@ -65,10 +65,36 @@
       it is the regression guard for the harness later; written eleven times
       it is eleven things to forget. A green run must be impossible while any
       tool reads the cwd.
+      🔁 **`ros` re-measured unprompted and withdrew its claim — the withdrawal
+      does not land, and the defect is unaffected (2026-08-17).** Over the
+      channel, `ros` withdrew "the flag is silently ignored", saying it never
+      tested it and that a persisted `cd` explained its readings. Its
+      re-measurement is sound and its **conclusion — "there is no tool
+      defect" — is falsified**: it re-ran `wrapscan --root <probe>` and
+      `--root .`, neither of which passes a *relative* path with a foreign
+      root, so neither can exercise this. Confirmed here by probe rather than
+      argument — two trees carrying the same `docs/bad.md`, one 199 columns and
+      one clean, `--root` at the clean tree: the finding names the **cwd** tree's
+      line, and with an ignore file added to the root tree the same run reports
+      clean and says `1 file(s) suppressed`. Both halves, one command. So the
+      claim was wrong in one direction and the withdrawal is wrong in the other;
+      the truth is the mechanism above, and this item already held it.
+      ⚖️ **What the withdrawal DOES cost this item: its grounding story.** The
+      lead still says `ros` lost a round of readings *to this defect*. `ros` now
+      says the cause was a stuck `cd` with `--root .` — root and target both
+      atelier, so **not a mixed root, and not an instance of this**. `ros` is
+      the only witness to its own invocation, so that account outranks the
+      inference. 🎯 **Mike's to rule:** retire the grounding sentence and hold
+      🔥 on the eleven-tool proof plus the `floor.py` finding alone, or step the
+      severity down now that no confirmed real-world instance stands. The
+      exposure argument survives either way — the estate's own guidance already
+      records that a shell's cwd can silently revert, and this session
+      re-demonstrated exactly that while verifying `120`.
       *Source: the `ros` session's hand-up, 2026-08-17, after its board split.
       `ros` reported it as "the flag is silently ignored" and as
       `linkscan`/`sizescan` behaving correctly; both are slightly off — the
       flag is honoured for rules and not for targets, and those two carry the
       identical line, differing only in their default when no path is given.
-      Mechanism and the eleven-tool count re-derived here at HEAD; `ros` was
-      not asked to re-measure.*
+      Mechanism and the eleven-tool count re-derived here at HEAD. `ros` was not
+      asked to re-measure and then did so on its own; see the withdrawal note
+      above, which changes the grounding and not the defect.*
