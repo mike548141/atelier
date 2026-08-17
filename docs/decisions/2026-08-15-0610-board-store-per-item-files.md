@@ -120,3 +120,14 @@ The shape as built:
   artefact under review is the migrated tree itself (verified: linkscan
   clean, harvestscan clean — every pre-split item survives, all 4,063
   original lines accounted for).
+
+## Amended 2026-08-17 — the hook-plane guarantee, said plainly
+
+The Decision above says a commit whose index is stale against the item files
+fails. **On CI, unconditionally. At the hook, only when worktree and index
+agree** — the hook-plane check reads the worktree, so a rebuilt-but-unstaged
+index and a rebuild that absorbed a sibling's dirty item line both pass the
+hook and are caught on CI after the push (BS1, the board-store cold pass,
+2026-08-15). The principal's ruling 2026-08-17: state the residual on every
+surface that asserted the guarantee, and fund the staged-plane check
+(board item `010/020`) as the fix; this amendment is the doctrine half.

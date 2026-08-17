@@ -127,3 +127,31 @@ CR1–CR6, AB1–AB6, LK1–LK6, FR1–FR6, AP2–AP8, plus the 2026-08-05 batch
 residue — walked one by one in plain language when he chooses to sit. Item
 `150-…` says that sitting runs in a fresh session; this session presented the
 menu and stopped, taking no ruling as read.
+
+## The second sitting — Mike took the two open MAJORs (1045 UTC)
+
+Asked where to start, he chose *"the two open MAJORs first"*, and ruled all
+three asks put to him, each briefed in plain language with per-option
+impacts before the popup:
+
+- **BS1 → "Wording now + fund the staged-plane build."** Applied in this
+  session on the four surfaces (docstring, catalogue, CONCURRENCY with the
+  dirty-sibling-is-a-stop sentence, ADR by appended amendment); `010/020`
+  funded with the rebuild-from-index flag folded in; BS cycle CLOSED on the
+  wording; rule-4 `⏳` queued at `160-…/260`. Ruling recorded at
+  `290-ruling-round-…/050`.
+- **BG1/BG2 → "Apply as counselled."** Funded and left for a working session
+  (`290-ruling-round-…/060`): decide the spelling from the repo, emit the
+  hook's whole expression, test that both resolve identically. Not applied
+  here — the session that orchestrated the pass is the wrong author for its
+  fix.
+- **CMF1 → verbatim:** *"Do a fable review to see if it can be usefully
+  repurposed e.g. to gather data/stats on plain speak to find the root cause
+  when its not plain. Otherwise we will destroy the hook per your
+  recommendation."* Recorded with the context he was given and a `⏳` Fable
+  design review queued (`290-ruling-round-…/070`) — REPURPOSE with a design,
+  or DESTROY; the CMF cycle closes on the outcome either way. The review must
+  check the `cctranscript` instruments before proposing a hook.
+
+Not touched: BS2–BS14, BG3–BG14, CMF2–CMF10 and every other cluster in the
+menu — the round runs one ask at a time and stopped where Mike stopped.

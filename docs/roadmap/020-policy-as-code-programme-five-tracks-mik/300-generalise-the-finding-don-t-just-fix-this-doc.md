@@ -26,3 +26,7 @@
       work*, landed `753adb6` (on `main` as `c374959`). *Intent record:* this
       item. The pointer was queued one commit late, against the
       landing-equals-queuing rule stated in this file's preamble.
+      - [ ] 🎯 **CMF1 RULED 2026-08-17 — a Fable design review first, else
+            destroy.** Verbatim ruling and the queued `⏳` design review at
+            `290-ruling-round-2026-08-17-the-cold-run-find/070-…`; the CMF cycle
+            closes on the outcome either way (CMF1's premise is already unwired).
