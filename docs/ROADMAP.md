@@ -307,3 +307,12 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🎯 [The channel as a concurrency primitive — a new section in](roadmap/280-cross-session-channel-mike-commissioned/010-the-channel-as-a-concurrency-primitive.md)
 - [ ] [🚩 The floor clause has to reach 11 children, and each child adopts it](roadmap/280-cross-session-channel-mike-commissioned/020-the-floor-clause-reaches-the-children.md)
 - ⏳ [Rule-4 cold pass owed on the channel section and its floor clause.](roadmap/280-cross-session-channel-mike-commissioned/030-rule-4-cold-pass-queued-the-channel-section.md)
+
+## Ruling round 2026-08-17 — the cold-run findings (Mike)
+
+*[Narrative](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/README.md)*
+
+- [ ] 🎯 [RULED 2026-08-17 — "Accept, and write the rule."](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/010-the-orchestrator-tier-clause.md)
+- [ ] 🎯 [RULED 2026-08-17 — "Ratify, but not at the floor."](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/020-aa7-ratified-but-not-at-the-floor.md)
+- [ ] 🎯 [RULED 2026-08-17 — "RECORD.md + GUARDS.md."](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/030-rg4-the-earned-rules-get-homes.md)
+- [ ] 🎯 [RULED 2026-08-17 — "Build a guard."](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/040-build-the-cold-sweep-guard.md)
