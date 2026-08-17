@@ -47,7 +47,13 @@ in atelier and is read on demand — never wholesale.
   to a worktree — never work around or absorb them (`CONCURRENCY.md`). Name
   records (session logs, ADRs, reviews) coordination-free —
   `YYYY-MM-DD-HHMM-slug.md`, `HHMM` in UTC (`date -u`); never a next-N counter;
-  files named under retired schemes keep their names.
+  files named under retired schemes keep their names. Where sessions can message
+  each other, announce your **file set** on open and answer peers' — a claim says
+  what, never which files. A message reserves nothing; only a pushed artefact
+  does, so check a shared allocator (identifiers, version constants) **after**
+  the push. The shared checkout's index and its mid-rebase state are shared
+  surfaces too: stage explicit paths, and read the staged hunk headers before
+  every commit (`CONCURRENCY.md` § The channel).
 - **Session rhythm (points up for the full rule):** claim work you take off the
   shared queue before starting it, and let a live `[~]` claim override a
   standing instruction to take that item; stay in the lane you were given

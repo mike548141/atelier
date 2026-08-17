@@ -1,8 +1,18 @@
-- [~] 🎯 **The channel as a concurrency primitive — a new section in
-      `CONCURRENCY.md`, and a floor clause beside it** `[M][docs]` (claimed
-      2026-08-17-0734, wt: channel-doctrine-0817) — Mike commissioned
+- [x] 🎯 **The channel as a concurrency primitive — a new section in
+      `CONCURRENCY.md`, and a floor clause beside it** `[M][docs]` —
+      **DELIVERED 2026-08-17** on wt: `channel-doctrine-0817` (claim
+      `a502a7b`); rule-4 cold pass queued at `030`. Mike commissioned it
       2026-08-17 after reading four days of five-session parallel work in the
       public child `faves`.
+      **What landed:** `CONCURRENCY.md` § The channel — three laws, seven
+      message classes, the message-shape rules, the re-run rule with its cost
+      clause, the publication clause, and a what-it-is-not fence — plus four
+      seam edits (§ The trigger gains the ask-your-peers cue and the
+      index/mid-rebase blind spots; § Integration hygiene gains absorption;
+      § Claiming work gains the file-set announcement and file-disjointness;
+      § Surviving an interrupted session gains the volatility of a peer
+      message). The floor clause is three sentences in the canonical
+      concurrency bullet, re-stamped into the template in the same commit.
       **The gap, stated as a property rather than an omission.** Every
       coordination mechanism this house has works by forcing a collision onto
       one shared line so git catches it. That covers the tree, the queue and
