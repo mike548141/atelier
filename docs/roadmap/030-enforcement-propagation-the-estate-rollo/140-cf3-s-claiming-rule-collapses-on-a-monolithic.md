@@ -63,3 +63,21 @@
       per-item granularity. A CF3 monolithic branch would make the monolith
       *survivable* rather than fix the underlying thing. Both are legitimate;
       the choice is the principal's, and the child's half is its owner's.
+      📌 **What has changed under the decision since it was filed, added
+      2026-08-17 and deliberately carrying no count of its own.** The trap bites
+      **monolithic boards only**, so its blast radius shrinks with every child
+      that splits — and most of the fleet now has. The live figure lives at
+      [`010/030`](../010-board-store-migration-per-item-files-mik/030-fleet-rollout-of-the-split-board.md),
+      which a session was correcting the same day; it is not restated here,
+      because a second copy of a moving number is how this board has been wrong
+      in both directions before.
+      🔑 **Why that bears on the ruling rather than merely being context:** the
+      *split-board-is-the-fix* option is priced by how many boards still have to
+      migrate, and that price has fallen a long way since the finding was
+      written. The *patch-the-rule* option is priced by how many adopters will
+      ever meet the clause monolithic — which includes every **future** repo,
+      since a repo is most likely to be monolithic early (the timing trap above)
+      and `create-repo` scaffolds the inlined clause on day one. So the two
+      options are moving in opposite directions, and neither is a matter of
+      re-reading the clause. Still the principal's call; this only says what the
+      call now costs.
