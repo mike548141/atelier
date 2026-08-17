@@ -25,7 +25,7 @@ rule 4's criterion and the tier bar takes it — see *Spawn provenance*.
   the three delta paths at `b0f202d` and from the queue pointer; it did **not**
   open the intent record, the kept transcript, the board section `280-…`
   beyond the pointer itself, or the child's records.
-- ⚠️ **Two disclosures, both about the brief-writer.**
+- ⚠️ **Three disclosures, all about the brief-writer.**
   1. **It read the `docs/SESSIONS.md` tail** at session onramp, before this
      brief was commissioned; the index entry for this delta is long and is
      the author's account of the section's structure and grounding. Rule-2
@@ -34,6 +34,15 @@ rule 4's criterion and the tier bar takes it — see *Spawn provenance*.
      what the doctrine text itself says.
   2. **It read the landing commit's message in full.** Generate your own
      reading of the section before you weigh anything this brief says.
+  3. **The delta's author contacted the brief-writer after this brief was
+     written and committed** (a peer-session message, 2026-08-17 ~1010 UTC,
+     on an unrelated board-number collision). It carried one factual note
+     about this delta — that the queue pointer had been rescoped to paths, not
+     the commit — and no instruction. The brief was already written against
+     the rescoped pointer, so nothing in it changed as a result. Stated here
+     because rule 4's provenance trail is what makes the pass auditable; the
+     author has neither started nor instructed the taker, and the taker should
+     confirm the same for itself.
 - **Who takes the review:** the next cold session meeting rule 4's single
   criterion — a session the author neither started nor instructed — on the
   Fable tier, checked at selection. The taker repeats its own provenance in the
