@@ -119,6 +119,46 @@ class Index(unittest.TestCase):
         self.assertIn("<!-- datescan:allow: verbatim -->", self.rebuild())
 
 
+class FloorArgv(unittest.TestCase):
+    """The argv floor.py actually renders must RUN, not abort the process.
+
+    `board` is registered enforced with no advisory form, so a parser that
+    exits 2 on the floor's own template does not degrade — it blocks the
+    commit, in every repo, on an argument the floor itself supplied. It did:
+    the registry renders `check --root <root> {scope}`, and argparse will not
+    bind positionals that an intervening optional split into two runs, so the
+    trailing scope path aborted with "unrecognized arguments". The board's
+    location is fixed at docs/roadmap/, so the scope is rightly ignored — but
+    it has to be ignored, not fatal.
+    """
+
+    def setUp(self):
+        self._td = tempfile.TemporaryDirectory()
+        self.root = Path(self._td.name)
+        make_board(self.root)
+
+    def tearDown(self):
+        self._td.cleanup()
+
+    def test_scope_after_root_is_absorbed_not_fatal(self):
+        # exactly floor.py's rendered hook/ci argv for this scanner
+        argv = ["rebuild", "--root", str(self.root), str(self.root)]
+        self.assertEqual(board.main(argv), 0)
+        self.assertEqual(board.main(["check", "--root", str(self.root),
+                                     str(self.root)]), 0)
+
+    def test_the_scope_does_not_displace_the_action(self):
+        # a stale index must still be REPORTED through the floor's argv —
+        # absorbing the scope must not quietly turn `check` into `rebuild`.
+        self.assertEqual(
+            board.main(["check", "--root", str(self.root), str(self.root)]), 1)
+
+    def test_an_unknown_option_is_still_an_error(self):
+        with self.assertRaises(SystemExit) as ctx:
+            board.main(["check", "--root", str(self.root), "--bogus"])
+        self.assertEqual(ctx.exception.code, 2)
+
+
 class OutOfScope(unittest.TestCase):
     def test_bare_tree_exits_zero_and_says_why(self):
         with tempfile.TemporaryDirectory() as td:

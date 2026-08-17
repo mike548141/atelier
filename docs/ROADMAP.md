@@ -15,8 +15,9 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Fleet rollout of the split board — faves done, ros and shed](roadmap/010-board-store-migration-per-item-files-mik/030-fleet-rollout-of-the-split-board.md)
 - [ ] [Sweep monolith-era board wording across the doctrine surface.](roadmap/010-board-store-migration-per-item-files-mik/040-monolith-era-wording-sweep.md)
 - [ ] 🛑 [The board-store cold pass RAN 2026-08-15 and the cycle stays OPEN](roadmap/010-board-store-migration-per-item-files-mik/050-rule-4-cold-pass-queued.md)
-- ✅ 🔎 [The generated index tells every child to run a file it does not](roadmap/010-board-store-migration-per-item-files-mik/060-generated-banner-names-a-path-only-atelier-has.md)
+- ✅ 🔥 [board aborted on the floor's own argv — FIXED 2026-08-17.](roadmap/010-board-store-migration-per-item-files-mik/060-the-board-check-aborted-on-the-floor-s-own-argv.md)
 - ✅ 🔎 [The generated index fails two of the floor's own scanners, and only](roadmap/010-board-store-migration-per-item-files-mik/070-the-index-fails-two-scanners-it-generates-into.md)
+- ✅ 🔎 [The generated index tells every child to run a file it does not](roadmap/010-board-store-migration-per-item-files-mik/080-generated-banner-names-a-path-only-atelier-has.md)
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
 

@@ -1,6 +1,6 @@
 - [x] 🔎 **The generated index fails two of the floor's own scanners, and only
       atelier's `scope` block hides it** — reported by `faves` 2026-08-17, the
-      first child to adopt the board. Sibling of `060`: same root, different
+      first child to adopt the board. Sibling of `080`: same root, different
       strings. `board.py` emits an index that **cannot pass `wrapscan` or
       `pathscan` in a repo without a `scope` block**, and atelier has one
       (`.atelier-floor.json` scopes both to `docs/method|build|decisions`), so
@@ -32,14 +32,14 @@
       hand-written prose under `docs/roadmap/` is still scanned, which is where
       the signal actually is. `linkscan`, which checks the links themselves
       rather than their text, stays enforced and passes.
-      🔑 **The class, stated with `060`'s:** *a generator writes text that is
-      read by tools it was never written for.* `060` is the reader being human;
+      🔑 **The class, stated with `080`'s:** *a generator writes text that is
+      read by tools it was never written for.* `080` is the reader being human;
       this is the reader being another scanner in the same floor. Both are
       invisible in atelier and unavoidable in a child, so the first rollout pays
       for them — worth fixing before `ros` and `shed` (item `030`) rather than
       after, or the fleet accumulates one ignore-file pair per repo to
       accommodate a string this board could simply stop emitting.
-      ✅ **`pathscan` half: FIXED 2026-08-17** with `060`, same commit. The
+      ✅ **`pathscan` half: FIXED 2026-08-17** with `080`, same commit. The
       generator no longer repeats the path as link text — a section now renders
       `*[Narrative](roadmap/<dir>/README.md)*`, and the `##` heading directly
       above it already carries the section's name, so the title option this

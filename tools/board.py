@@ -392,6 +392,19 @@ def selftest() -> int:
         b = (root / INDEX_REL).read_text(encoding="utf-8")
         check("rebuild is deterministic", a == b)
 
+        # THE FLOOR'S OWN ARGV must run, not abort the process. This is the
+        # exact shape floor.py renders (`{scope}` after `--root`); it exited 2
+        # on every repo until parse_known_args replaced parse_args.
+        check("floor argv runs",
+              main(["check", "--root", str(root), str(root)]) == 0)
+        check("floor argv reaches the action",
+              main(["rebuild", "--root", str(root), str(root)]) == 0)
+        try:
+            rc = main(["check", "--root", str(root), "--bogus"])
+        except SystemExit as e:
+            rc = e.code
+        check("an unknown option is still an error", rc == 2)
+
     if failures:
         print("board selftest FAIL: " + "; ".join(failures))
         return 1
@@ -409,7 +422,20 @@ def main(argv: list[str] | None = None) -> int:
                     help="accepted for floor argv compatibility; the board "
                          "location is fixed at docs/roadmap/")
     ap.add_argument("--selftest", action="store_true")
-    args = ap.parse_args(argv)
+    # THE FLOOR RENDERS `check --root <root> <scope>`, and argparse cannot bind
+    # positionals that an intervening optional has split into two runs (a known
+    # argparse limitation, not a template bug): `check` binds, `<scope>` lands
+    # in the leftovers and `parse_args` aborts the process with exit 2. That is
+    # what `paths` was added to absorb, and it never could. The consequence was
+    # not cosmetic — `board` is enforced with no advisory form, so every repo
+    # the floor invoked it in went red on an argv it had itself rendered, and
+    # the estate could not commit. Unknown OPTIONS stay an error; unknown
+    # positionals are the scope this tool has always ignored, because the board
+    # location is fixed at docs/roadmap/.
+    args, extra = ap.parse_known_args(argv)
+    unknown_opts = [a for a in extra if a.startswith("-")]
+    if unknown_opts:
+        ap.error("unrecognized arguments: " + " ".join(unknown_opts))
     if args.selftest:
         return selftest()
     root = Path(args.root)
