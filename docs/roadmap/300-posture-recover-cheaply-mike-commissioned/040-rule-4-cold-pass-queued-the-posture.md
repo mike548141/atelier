@@ -14,6 +14,12 @@
       deferral discipline governs, never part of the delta.
       *Intent record:*
       [`../../sessions/2026-08-17-0900-posture-recover-cheaply.md`](../../sessions/2026-08-17-0900-posture-recover-cheaply.md).
-      (CLAIMED 2026-08-17-1321 UTC for BRIEF-WRITING ONLY: a non-author cold session on
-      the Fable tier is writing this pointer's brief and will stop; the review
-      stays open for a later cold Fable taker; wt: cold-run-0817-1321)
+      Brief written 2026-08-17 by a non-author cold session on the Fable tier —
+      REVIEW NOT RUN, open for a cold Fable taker:
+      `docs/reviews/2026-08-17-1321-posture-cold.md`
+      (deferred sibling `docs/reviews/2026-08-17-1321-posture-cold.deferred.md`,
+      opened only after the reviewer's findings are durably written; finding
+      prefix `PT`; wt: cold-run-0817-1321). Two brief-writer disclosures stand
+      in it: the `SESSIONS.md` tail was read at onramp before the brief was
+      commissioned (not this delta's own entry), and the landing commit's
+      message was read in full.

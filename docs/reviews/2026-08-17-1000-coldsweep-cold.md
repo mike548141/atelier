@@ -213,3 +213,591 @@ and rebuild the index in the same commit. Findings on the rule-2 edit are the
 principal's to decide (rule 3); findings on the tool's code may carry the
 author's `[rejected: grounds]` escape, but the author is not the taker, so
 record them all and apply nothing.
+
+---
+
+## Verdict — 2026-08-17 13:45 UTC, reviewed at HEAD `574f133`
+
+### Provenance and disclosures
+
+**Who I am.** A cold reviewer on the **Fable** tier, spawned as a subagent by
+an orchestrator session Mike opened 2026-08-17 at 1321 UTC, itself on the
+Fable tier, under his standing cold-session instruction (*do any reviews and
+any Fable-dependent work; write any briefs required*). The orchestrator wrote
+none of the delta and none of this brief; it forms no finding and writes no
+severity — every finding, severity and word below is mine. I was neither
+started nor instructed by the authoring session (wt `rulings-0817`, landing
+`613132e`) nor by the brief-writing session (wt `cold-run-0817-0955`); I have
+edited no file the delta touches and edit only this brief. The deferred
+sibling was moved out of the tree by the orchestrator before I started and
+reaches me by message only after this text is committed (rule 1's context
+partition). Rule 4's reviewer-plus-orchestrator shape applies: both hands are
+on the named tier; the arrangement is disclosed in the claim, the queue
+pointer and here.
+
+**Circularity, named.** I swept the tree only with `tools/coldsweep.py` — the
+tool under review — through a wrapper in the session scratchpad that adds
+`--also-exclude` for the intent record on every run. `--list-barred` confirmed
+that entry covered exactly one file. Any surprise the tool gave me during the
+pass is recorded below as a finding about the tool, not worked around.
+Surprises met: the excluded-file count moved between runs (298 → 302, parallel
+passes writing into `docs/reviews/` — concurrency, not the tool); the
+provenance line on stdout meant every filtered read of tool output had to
+tolerate a non-hit line (SW5); the brief's `python3 -m unittest
+tools.test_coldsweep` invocation fails on import (SW7).
+
+**What I read that is barred or author-framed.** Not opened: `docs/SESSIONS.md`,
+`docs/sessions/`, `docs/ROADMAP-DONE.md`, any file under `docs/reviews/` other
+than this brief, the intent record `290-…/040`. Opened, disclosed: the queue
+pointer `160/240` (open to me; it carries the author's lens-1 hint — I formed
+my lens-1 reading from the code and probes first, then weighed it; my reading
+overlaps it and goes further, SW1–SW3); the landing commit's message in full
+via `git show --stat 613132e` (author's framing, same disclosure the
+brief-writer made); board items `160/250` and `010/110`, surfaced by my own
+sweeps, neither barred (`110` names `coldsweep` as unaffected by the
+mixed-root defect — it is, for `--root`; the mirror lives in `--also-exclude`,
+SW1). Names-only exposure: `git status` showed the three deleted `.deferred.md`
+filenames and one untracked sibling brief's filename; `git ls-tree
+--name-only` at `613132e` and `HEAD` for the count claim; a metadata-only walk
+of the main checkout's tree (paths, never content) for SW3. My single-file
+greps (`REVIEW.md`, `floor.py`, `tools/README.md`, two skill files, `ci.yml`,
+the hook) were on non-barred files, not tree sweeps. `--include-barred` was
+never used. No pending-diff scanner was run in the worktree (lens 4 states
+the reach case). Records are written for a public repo: no machine paths
+beyond the repo, scratch locations referred to generically.
+
+**Delta as reviewed.** The five paths the pointer names, at HEAD:
+`tools/coldsweep.py`, `tools/test_coldsweep.py`, `tools/README.md`
+§ `coldsweep.py`, `docs/method/REVIEW.md` rule 2's sweep clause, `CHANGELOG.md`
+*Added* entry. `613132e` also touched three record/board surfaces (the index,
+the pointer, the intent record); out of the reviewable delta and, for the
+intent record, barred.
+
+### Lens 1 — approach and assumptions
+
+Load-bearing assumptions, in my words, before the brief's framing:
+
+- **A1. The defect was a *matching* defect** — a text prefix that did not
+  match tool output — and comparing path parts closes the class.
+- **A2. `--root` is a repo root, and the repo's records live where atelier's
+  do** (`docs/SESSIONS.md`, `docs/sessions/`, `docs/ROADMAP-DONE.md`,
+  `docs/reviews/`).
+- **A3. The tree under `--root` is one repo.**
+- **A4. Being "the path of least resistance" displaces `grep`** — a reviewer
+  who wants to search will reach for this instead.
+- **A5. The four-path tuple is rule 2's bar** — same set, no wider, no
+  narrower.
+
+How they held. **A1 half-holds.** The `./`-prefix class is genuinely closed
+(probe: the four docstring spellings each bar the same one file). But the tool
+opens a new class of *its own* silent non-application: an absolute
+`--also-exclude` (which the docstring claims works), a `..` path, a
+case-different path and a mistyped path each exclude **nothing**, with no
+warning, and the provenance line lists them as excluded (SW1). The tool never
+checks that a bar landed. That is the ruling's defect — an exclusion that
+silently does not apply — moved from `grep`'s prefix to the tool's own
+anchoring. **A2 fails** on a subdirectory root and on a child whose
+`.atelier-floor.json` declares `docs` elsewhere (the floor honours that key;
+the tool hard-codes `docs/`) — in both, zero files are barred and the run
+looks normal (SW2). **A3 fails on this estate:** the harness nests worktrees
+under `.claude/worktrees/`, gitignored but on disk, and a sweep from the main
+checkout root reads every sibling worktree's `SESSIONS.md`, `docs/sessions/`
+and `docs/reviews/` — measured at 596 barred-by-name files in the searched set
+while the provenance line reported 299 excluded (SW3). **A4 is unsupported by
+the delta:** the tool is named at no surface a reviewer meets at the moment
+of sweeping except REVIEW.md rule 2 — not the `review-brief` skill, not the
+reviews template, not the onramp's companion list, no `/atelier:` command
+(SW8); the harness's native search tool is one keystroke closer than
+`python3 tools/coldsweep.py`. **A5 fails as written:** rule 2's prose bars
+*prior reviews*; no doctrine surface names the other three paths as barred to
+a cold reviewer; the tuple is the only statement of the set (SW4).
+
+**Matching defect or habit defect?** Both, and the build answers only the
+first. The three instances (as the delta describes them — I could not read
+the verdicts) were reviewers *trying* to exclude and failing on spelling; that
+is a matching defect and the parts comparison is the right fix for it. But
+what a reviewer reaches for is a habit, and the rule-2 edit alone will not
+move it — the same instrument (restating the rule) that the docstring says
+"is measurably not the fix". **Counsel on altitude, labelled as counsel:**
+keep the soft instrument as the stopping point *for now* — `GUARDS.md`'s
+warning about a guard layer consuming the programme is right, and a
+harness-level block on `grep`/`Grep` in a reviewer session is a new trust
+surface that would want its own ruling — **but** two cheap things belong with
+it before the rule-2 clause can honestly say "sweep with the tool": (i) make
+the tool fail loud on its own silent geometries (SW1–SW3 — a bar that covers
+zero files, a root that is not a repo root, a nested repo boundary), because a
+guard that can silently not apply is the defect wearing a different coat; and
+(ii) put the invocation where the reviewer's hand already is — the
+`review-brief` skill's *Running it* section and the reviews template README,
+so every brief's Process section carries it (SW8). Whether the bar should be
+*enforced* by a reviewer-session hook is a real question and the principal's;
+the evidence for it would be a fourth instance *after* (i) and (ii) land.
+
+### Lens 2 — correctness and quality
+
+Read whole, not the diff. `_parts()` / `is_barred()` / `walk()` / `search()`
+traced; every claim below was probed in scratch trees or on the worktree with
+`--list-barred` (which prints counts, never content).
+
+- **Happy path is correct.** Repo-root `--root`, relative excludes, atelier
+  layout: the four barred surfaces are excluded, siblings (`docs/sessions-x/`,
+  `docs/SESSIONS.md.bak`) are not, nested files under a barred dir are, an
+  empty entry bars nothing. `.git` and the noise set are skipped. Symlinked
+  files and directories are never walked, on both interpreters present here
+  (3.9 and 3.14) — the docstring's symlink line is accurate. NUL in the ninth
+  KiB: the file is searched, no crash. Bad regex: exit 2 with the `re` message
+  on stderr. No match: exit 1. Missing root: exit 2. All reproduced.
+- **`--also-exclude` geometries** (SW1): four docstring spellings each cover
+  1 file ✓; absolute path under root **0 files**; `docs/../docs/…` **0**;
+  case-different **0**; nonexistent **0**. No warning in any of the four; the
+  provenance line prints the entry verbatim as "excluded". The docstring's
+  "and an absolute path under the root" is false — `_parts()` strips the
+  leading `/` and compares machine-relative parts against repo-relative ones.
+- **`--root` geometries** (SW2): `--root docs` and `--root tools` on the
+  worktree → "4 barred path(s), 0 file(s) excluded", exit 0. Scratch child
+  with `.atelier-floor.json` `{"docs": "notes"}` and records under `notes/` →
+  all five record files are hits; provenance says 0 excluded. Scratch tree
+  with `docs/sessions` a symlink to `store/sessions` → the store is searched
+  under its real path (a bar for the link, a hole for the target).
+- **Nested repos** (SW3): scratch tree with `.claude/worktrees/sib/docs/…` →
+  the sibling's `SESSIONS.md` and `docs/reviews/v.md` are hits under the
+  default bar. On the estate: the main checkout has two live nested
+  worktrees; a metadata-only walk from its root keeps 1358 files under
+  `.claude/worktrees/`, **596** of them rule-2 barred by name (2 × `SESSIONS.md`,
+  2 × `ROADMAP-DONE.md`, 177 + 178 under `docs/sessions/`, 119 + 118 under
+  `docs/reviews/`) while the top-level bar excludes 299. `.gitignore` names
+  `.claude/worktrees/`; the tool does not read it, so gitignored material
+  (`.env`-class files, `.claude/settings.local.json`) is searched too.
+- **Unreadable file** (SW6): a mode-000 file is silently skipped in `search()`
+  (`except OSError: continue`) and still counted in "over N file(s)"; no
+  stderr, exit unchanged. That contradicts "a broken sweep is not a clean
+  one" and the exit-2 contract for a failed search.
+- **Provenance on stdout** (SW5): `coldsweep PAT | wc -l` = hits + 2; a
+  pattern that matches the provenance text (`sessions`, `reviews`, `barred`)
+  matches the tool's own output line; the `--include-barred` banner is on
+  **stdout**, at the **end**, so `| head` drops it and a redirect captures it
+  as a hit. The docstring and README both claim "drops into a pipeline".
+- **`--list-barred` per-entry counts** are right; the total is right; an
+  entry covering 0 files prints `(0 file(s))` — the only place the silent
+  no-op is visible, and only if the reviewer runs it.
+- **Selftest and tests** (SW7): selftest exercises one shape — spelling of a
+  directory bar — plus sibling/prefix boundaries and exit codes; whether that
+  is "the three real instances reduced to shapes" I cannot check without the
+  barred verdicts, so I state only what it covers. Not covered by tests or
+  selftest: `--also-exclude` through `_main`; an absolute exclude (claimed in
+  the docstring); a subdirectory `--root`; a nested repo; the provenance
+  stream; an unreadable file; the banner's content or stream.
+  `test_case_insensitive_flag` asserts the function argument, not the `-i`
+  flag. Every test I read asserts the property its name claims. Selftest
+  prints its sub-runs' stderr (`bad pattern`, `a PATTERN is required`) before
+  `selftest OK`, so a reader scanning sees two error lines in a passing run.
+  `python3 -m unittest tools.test_coldsweep` (the brief's suggested form)
+  fails: `ModuleNotFoundError: coldsweep` — the bare `import coldsweep`
+  works only under `discover -s tools` or from inside `tools/`; the house is
+  mixed (`test_board.py` inserts its own dir on `sys.path`; `test_licenscan.py`
+  imports bare), so this is a note, not a defect of the delta.
+- **Exit-code contract**: holds for match/no-match/bad-regex/no-pattern/bad-root;
+  does not hold for the unreadable-file case (SW6). Provenance and banner do
+  not affect exit codes.
+
+### Lens 3 — completeness and harvest
+
+- `REVIEW.md` rule 2 carries the clause; *The lifecycle* and rules 1/4 say
+  nothing about how to sweep (no conflict, no second surface). `tools/README.md`
+  and `CHANGELOG.md` carry it. **Not carrying it** (SW8): the `review-brief`
+  skill (the surface that tells a reviewer how to run a pass — its *Running it*
+  section names floor, tests, selftests, `/security-review`, and never a
+  sweep), the reviews template README under `docs/build/templates/`, the
+  onramp skill's companion-command list, `commands/` (no `/atelier:coldsweep`).
+  A cold reviewer meets the tool only if it reads rule 2 in full before
+  searching.
+- `--exclude-dir` survives at `skills/create-repo/SKILL.md:161`
+  (`grep -rn --exclude-dir=.git …`) — a scaffold-time scan, not a cold sweep;
+  no finding. Nothing else in the live tree instructs a hand-written
+  exclusion.
+- **Child reach**: the README's `coldsweep.py` entry does not say how a child's
+  reviewer invokes it (the house pattern is `$ATELIER_TOOLS` /
+  `hooks.atelierTools`, with `--root .` from the child); and per SW2 `--root`
+  alone would not honour a child's `docs` override, so the child story is
+  incomplete on two counts.
+- The intent record is a board item under `docs/roadmap/` and is barred by
+  nothing by default; every pass must `--also-exclude` it by hand — the
+  discipline the tool was built to remove, in miniature (SW9, counsel).
+- Count claim reproduced: 289 tracked files under the four defaults at
+  `613132e` (`git ls-tree`, names only). At HEAD: 299 tracked; on disk 297 at
+  my first sweep (299 − 3 deferred siblings moved out + 1 untracked sibling
+  brief), rising to 301 as parallel passes wrote; my sweeps report one more
+  for the intent record. It counts regular files on disk — tracked or not,
+  symlinks skipped — whose repo-relative path sits under an entry.
+
+### Lens 4 — security and privacy
+
+atelier is public. **Reach case stated:** this is a landed-delta review under
+an orchestrator; the worktree's pending diff is other passes' in-flight
+records, so the pending-diff scanner was not run (it would read their briefs
+into this reviewer, the SL2 class); the delta is one Python tool, one test
+file and three markdown edits, and the markdown class is empty for that
+scanner regardless. The lens was worked by hand.
+
+- **Machine paths reach stdout** (part of SW1): an absolute `--also-exclude`
+  is echoed verbatim into the provenance line the tool tells the reviewer to
+  paste into a verdict — the one line designed to be copied into a public
+  record. `--root`'s not-a-directory error prints the resolved absolute path
+  to stderr (minor; stderr is rarely pasted). Hit lines print root-relative
+  paths ✓; the default provenance line names no machine path ✓.
+- **What the tool reads** (part of SW3): every non-barred, non-noise file on
+  disk under root — untracked and gitignored included. On this estate that
+  reaches `.claude/settings.local.json` (the per-clone allowlist the
+  `.gitignore` explains is deliberately unpublished) and any `.env`-class
+  file; a hit in one prints its line. A `git ls-files -co --exclude-standard`
+  source (rglob fallback for non-git roots) would close SW3's nested-worktree
+  hole and this in one move; failing that, `.claude/worktrees` in `NOISE`.
+- **`--include-barred` as a one-flag path**: it is, by design, with a banner
+  between. Under rule 2's own text a wide sweep is not forbidden, so a soft
+  exception is the right altitude; but the banner is last on stdout (SW5), so
+  the disclosure prompt is the first thing a `| head` loses. Counsel: banner
+  first, on stderr.
+- No shell-out, no external code, no network; regex is the reviewer's own.
+  Nothing else on this surface.
+
+### Findings
+
+- **SW1 — MAJOR.** `--also-exclude` silently excludes nothing for an absolute
+  path under root (docstring: supported), a `..` path, a case-different
+  spelling, or a mistyped path; no warning; the provenance line lists the
+  entry as excluded and echoes an absolute machine path into the
+  paste-into-verdict line. *Reproduce:* on the worktree, `--also-exclude
+  <abs>/docs/roadmap/290-…/040-….md --list-barred` → `(0 file(s))`; the
+  relative spelling → `(1 file(s))`. *Live trigger:* this pass's own reviewer
+  instructions say to use absolute paths everywhere. *Remedy shape:* anchor an
+  absolute exclude to root (`pointerscan`'s `(root / raw) if not
+  Path(raw).is_absolute() else Path(raw).relative_to(root)` line), normalise
+  `..`, and warn on stderr — or exit 2 — for any entry that covers zero files.
+- **SW2 — MAJOR.** `--root` at a subdirectory, or at a child whose
+  `.atelier-floor.json` declares `docs` elsewhere, bars zero files while the
+  provenance asserts the four paths; a symlinked records dir leaves the real
+  store searched. *Reproduce:* `--root docs --list-barred` on the worktree →
+  0 excluded, exit 0; scratch child with `{"docs":"notes"}` → all records hit.
+  *Remedy shape:* read the floor config's `docs` key when present; refuse or
+  warn when root has no `.git` / when every default entry covers zero files
+  ("the bar matched nothing — is `--root` the repo root?").
+- **SW3 — MAJOR.** Nested harness worktrees under `.claude/worktrees/` are
+  searched (596 rule-2 barred-by-name files from the main checkout root, two
+  live siblings), as is all gitignored material. *Reproduce:* scratch tree
+  with `.claude/worktrees/sib/docs/SESSIONS.md` → hit under the default bar;
+  metadata walk of the main checkout as above. *Remedy shape:* gitignore-aware
+  file source, or `NOISE += (".claude/worktrees",)` plus applying `BARRED`
+  below any nested `.git` boundary.
+- **SW4 — MODERATE (doctrine; the principal's, rule 3).** The tuple is the only
+  statement of the four-path set. `REVIEW.md` rule 2's prose bars *prior
+  reviews*; nothing in live doctrine names `docs/SESSIONS.md`, `docs/sessions/`
+  or `docs/ROADMAP-DONE.md` as barred to a cold reviewer, so the tool labels
+  three paths "rule-2 barred" that rule 2 does not name, and prose and tuple
+  can drift with nothing tying them. `CLAUDE.md` onramp step 4 sends every
+  session to the `SESSIONS.md` tail, which a cold pass contradicts without
+  saying so (the brief-writer's disclosure is this collision, live).
+  *Remedy shape:* name the set once in rule 2 (or a cold-sweep clause), have
+  the tool cite that clause, and give the onramp a one-line cold-session
+  exception — or rule the tuple canonical and say so in prose.
+- **SW5 — MODERATE.** Provenance line and `--include-barred` banner go to
+  stdout, after the hits: `| wc -l` is hits + 2, a pattern matching the
+  provenance text matches the tool's own line, `| head` loses the banner, a
+  redirect captures both as hits. Docstring and README both claim pipeline
+  fitness. *Remedy shape:* diagnostics to stderr, banner first.
+- **SW6 — MODERATE.** An unreadable file is silently skipped and counted as
+  swept; exit code unchanged. Contradicts the tool's own "a broken sweep is
+  not a clean one" and the exit-2 contract. *Reproduce:* `chmod 0` a file
+  carrying the pattern → no hit, no stderr, "over N" includes it. *Remedy
+  shape:* report each unreadable path on stderr and exit 2 (or a distinct
+  code) when any file could not be read.
+- **SW7 — minor.** Test and selftest gaps as listed under lens 2 (no
+  `--also-exclude` through `_main`, no absolute-exclude test though claimed,
+  no subdirectory root, nested repo, provenance stream, unreadable file, or
+  banner test; `-i` tested as an argument not a flag; selftest prints
+  sub-run error lines before `selftest OK`; module-form invocation fails on
+  the bare import — mixed house convention).
+- **SW8 — MODERATE (harvest).** The tool is named on no surface a reviewer
+  meets at sweep time other than rule 2: not the `review-brief` skill, the
+  reviews template README, the onramp companion list, or `commands/`; the
+  README entry does not say how a child's reviewer invokes it, and `--root`
+  alone would not honour a child's `docs` override (SW2). *Remedy shape:* one
+  line each in the skill's *Running it* and the template; a `$ATELIER_TOOLS`
+  invocation in the README entry.
+- **SW9 — note (counsel).** The intent record must be `--also-exclude`d by
+  hand on every pass — the removed discipline in miniature. Options: the
+  queue pointer's *Intent record* ref becomes machine-readable and the tool
+  takes `--pointer <path>`; or the brief template's Process section carries
+  the exact `--also-exclude` line so it is copied, not composed.
+- **SW10 — note.** Docstring/README/CHANGELOG describe the guard accurately for
+  the happy path; the docstring's absolute-path claim (SW1) and "drops into a
+  pipeline" (SW5) are the two overclaims. `[rejected: grounds]` remains
+  available to the author on SW1–SW3, SW5–SW7 as ordinary code; SW4 and the
+  rule-2 clause are the principal's.
+
+### Overall
+
+**PASS-WITH-FINDINGS — 3 MAJOR · 4 MODERATE · 1 minor · 2 note.** On the
+geometry it was built and tested for — a repo-root `--root`, relative
+excludes, atelier's layout, no nested repos — the guard is correct, its tests
+pass, and it protected this pass. Off that geometry it fails **silently**
+three ways (SW1–SW3), each the ruling's own defect class — a bar that does not
+apply while the tool says it did — and one of them (SW3) is live on this
+estate from the main checkout root today. Rider, stated plainly: the rule-2
+clause "sweep the tree with `tools/coldsweep.py`" should not be leaned on
+unqualified until SW1–SW3 land; a reviewer using it now should run
+`--list-barred` first and read the per-entry counts, run from the worktree
+root, and pass excludes relative.
+
+### Re-run ledger (all at HEAD `574f133`, this worktree, 2026-08-17 13:33–13:41 UTC)
+
+| Run | Result | What it counts |
+|---|---|---|
+| `python3 tools/coldsweep.py --selftest` | exit 0, `selftest OK` | 15 checks in-tool (two error lines printed by sub-runs, SW7) |
+| `python3 -m unittest discover -s tools -p 'test_*.py'` | exit 0, **1344 tests OK** (325 s) | includes the 20 `test_coldsweep` tests |
+| `python3 -m unittest tools.test_coldsweep` | exit 1, ImportError | the brief's module-form spelling; SW7 note, not a delta defect |
+| `node --test instruments/*.test.js` | exit 0, 235 pass / 0 fail | |
+| `floor.py --plane hook` | exit 0; 11 ✅ enforced, 4 👁️ warn-only | pointerscan warns on this pass's own queue pointer (`[grammar] instructs the reviewer` — board item `160/250`, already queued) |
+| `floor.py --plane ci` | exit 0; secretscan 🟡 22 advisory (known), leakscan 🟡 no-terms (ci plane by design) | |
+| `stampscan --warn` | exit 0; 1 identical region, 121 files suppressed | |
+| `--list-barred` at HEAD | 4 defaults → 297 files (first sweep) / 301 (later); + 1 for the intent record | on-disk regular files under the entries; 289 tracked at `613132e` reproduces via `ls-tree` |
+| four spellings + absolute + `..` + case + typo | 1 · 1 · 1 · 1 · **0 · 0 · 0 · 0** | SW1 |
+| `--root docs`, `--root tools` | 0 excluded, exit 0 | SW2 |
+| `--include-barred` banner | stdout, after hits, 3 lines, exit by hits | SW5 |
+| scratch child `{"docs":"notes"}` | 5 record hits, 0 excluded | SW2 |
+| scratch nested `.claude/worktrees/sib` | 2 sibling record hits under default bar | SW3 |
+| main-checkout metadata walk | 1739 kept / 299 skipped; 596 nested barred-by-name | SW3 |
+| unreadable file, NUL@9KiB, bad regex, no match | skipped silently (SW6) · searched OK · exit 2 · exit 1 | |
+| Python 3.9 vs 3.14 | identical output on the hazard tree; symlinked dirs walked by neither | |
+
+No suite result looked like interference; nothing was re-run for that reason.
+
+### Follow-up checklist
+
+- [ ] SW1 — anchor absolute/`..` excludes to root; warn or exit 2 on a
+      zero-file entry; stop echoing machine paths.
+- [ ] SW2 — honour the floor config's `docs`; refuse/warn when the default bar
+      matches nothing.
+- [ ] SW3 — gitignore-aware source or `.claude/worktrees` in `NOISE`; bar at
+      nested repo boundaries.
+- [ ] SW4 — the principal: name the four-path set in doctrine once, cite it
+      from the tool; onramp step 4's cold-session exception.
+- [ ] SW5 — provenance and banner to stderr, banner first; fix the docstring
+      and README claims.
+- [ ] SW6 — report unreadable files, exit 2.
+- [ ] SW7 — tests for each of the above; quieten selftest sub-runs.
+- [ ] SW8 — name the tool in the `review-brief` skill and the reviews
+      template; child invocation in the README entry.
+- [ ] SW9/SW10 — counsel; take or decline with grounds.
+- [ ] Phase 2: reconcile against the sibling when released; fold and delete;
+      update pointer `160/240`; rebuild the index (orchestrator).
+
+### Reconcile (2026-08-17, after release)
+
+**Provenance of this step.** Phase 1 above was committed unrevised
+(`08df5ca`) before the orchestrator released the sibling's text by message
+(13:5x UTC). I then opened, in this order and nothing else: the ruling record
+`290-…/040` (the intent record I had excluded on every sweep); the building
+session's two accounts under `docs/sessions/` (the 0710 cold run and the
+0900 ruling round); the two `docs/SESSIONS.md` index lines for those records
+(located by slug, printed alone); the prior verdicts the sibling names —
+`2026-08-17-0622` (AA, its exposure section and the AA11 pointer),
+`2026-08-15-1126` (RG, its exposure section and independence table), the
+`2026-08-15-1030/1031/1032/1033` passes and the `2026-08-09-082x` batch
+(provenance and exposure lines only, located by grep for exclusion/exposure
+vocabulary), `2026-08-05-1320` (verdict head only); and, as permitted,
+`2026-08-17-0730` (BG) disclosures (b) and (c) only. Nothing else under
+`docs/sessions/`, `docs/reviews/` or `docs/ROADMAP-DONE.md` was opened. No
+git state changed; only this brief is edited. Phase-1 text is not revised;
+where a severity moves it is stated here with both values.
+
+**The sibling's explicit check — does the selftest corpus correspond to the
+three instances as the verdicts describe them?** What the permitted verdicts
+actually carry:
+
+- **AA** (`2026-08-17-0622`, exposure item 2): *"my path-exclusion regex
+  assumed a `./` prefix the grep output didn't carry, so the exclusions
+  silently failed"* — leaked two `SESSIONS.md` entries, one `ROADMAP-DONE.md`
+  line, one-line fragments of three prior verdicts.
+- **RG** (`2026-08-15-1126`, exposure item 3): *"a regex anchored on a `./`
+  prefix grep does not emit"* — leaked `SESSIONS.md` entries, `docs/sessions/`
+  lines, `ROADMAP-DONE.md` lines and substantial excerpts of the 1033 verdict;
+  its second sweep used **git-pathspec excludes** and leaked nothing.
+- Both ran in the same 0710 session, which its record counts as *"the third
+  time"* the defect fired. **The first two instances are not in the verdicts
+  I was released to.** The 2026-08-15 batch's exposures (BS, CS, CMF) are the
+  SL2 class — the pending-diff scanner reading another pass's brief — not an
+  exclusion spelling; the LR pass (`2026-08-15-1031`) used basename
+  `--exclude`/`--exclude-dir` forms that grep honours, **and also excluded
+  `.claude`** — a prior reviewer already guarding the nested-worktree hazard
+  by hand (SW3). The 2026-08-09 batch records name-only and scanner-output
+  exposures, no exclusion defect.
+
+So: the corpus (four spellings of one directory bar) pins **exactly the shape
+AA and RG describe** — a `./`-prefixed pattern against prefix-less output — and
+that is the right shape for those two. Whether a third instance had the same
+shape I cannot confirm from what I was allowed to read; the docstring's and
+ruling record's "three" is two-in-evidence here plus one I did not see. The
+corpus carries **no** assertion for the SL2 class (exclusion applied, a second
+tool did not honour it — seeded Q5's case), and correctly so: it is outside a
+sweep tool's reach; but the docstring's framing then attributes to the
+matching class an instance count that may include a case the tool cannot
+touch. SW7 stands as written; this sharpens its "I state only what it covers".
+
+**A fourth data point, one day after landing (BG, `2026-08-17-0730`).** All of
+that pass's sweeps ran through `coldsweep`, no `--include-barred` — the tool
+is used when the brief names it. Disclosure (b): one sweep ran **without the
+pass's `--also-exclude` flags** and printed three lines of the intent record —
+SW9's class, live within a day. Disclosure (c): the brief's barred paths were
+**wrong** (items named under the wrong lane); passed as written, they would
+have covered zero files silently — SW1's typo geometry, one step from firing.
+
+**Per finding — anticipated or new.**
+
+| ID | Anticipated by | Reconcile note |
+|---|---|---|
+| SW1 | **New.** Not in the ruling record, intent record or any verdict. Adjacent: BG (c) — a wrong barred path in a brief. | Severity unchanged (MAJOR). |
+| SW2 | **New as a finding**; seeded Q6 asked the question. | Unchanged (MAJOR). |
+| SW3 | **New as a finding**; seeded Q2 asked it; LR (`2026-08-15-1031`) excluded `.claude` by hand — prior practice the tool dropped. RG's clean second sweep used git pathspecs — the source SW3's remedy names. | Unchanged (MAJOR). |
+| SW4 | **Anticipated.** CMF (`2026-08-15-1033`, *Applied as ruled?*): *"'the cold-pass records exclusion' is not defined in doctrine (grep of docs/method, docs/build: no hit)"*. The ruling record's own grounding line — *"the barred set is `REVIEW.md` rule 2's"* — is the clause the delta cannot satisfy as prose stands. | Unchanged (MODERATE), now corroborated by a prior verdict and sharpened: the principal ordered grounding, and the ground named does not carry the set. |
+| SW5 | Seeded Q3 asked it. | Unchanged (MODERATE). |
+| SW6 | **New.** | Unchanged (MODERATE). |
+| SW7 | Seeded Q5 (corpus ↔ instances) — answered above. | Unchanged (minor). |
+| SW8 | **Class anticipated the same day**: the ruling round's own `GUARDS.md` § *A rule with no home is not a rule* — a rule reaching only readers who already knew it. The tool's discoverability has that shape (rule 2 only). Not raised as a finding anywhere. | Unchanged (MODERATE). |
+| SW9 | **Fired live**: BG (b). | **Raised note → minor.** Grounds: a counsel became an observed exposure within a day of landing; still small (three lines, disclosed, no finding moved). |
+| SW10 | — | Unchanged (note). |
+| **SW11 (new at reconcile) — MODERATE** | Seeded Q4. | `barred = () if args.include_barred else BARRED + tuple(args.also_exclude)`: **`--include-barred` silently drops every `--also-exclude`.** A reviewer widening to records while still barring the board item under review cannot express it, and the banner says the rule-2 paths were searched, not that the extra bars were discarded — the silent-non-application class again. Formed at reconcile from the seeded question, then verified in the code; marked answered-after-the-fact. Remedy: `--include-barred` should clear `BARRED` only, keep the also-excludes, and say so in the banner. |
+
+**Seeded questions, answered after the fact (marked so).**
+
+1. *Canonical set; drift; is `--also-exclude` a hatch or the bar?* — SW4: the
+   tuple is the only statement today; prose names one of four. When doctrine
+   adds a barred surface the tuple will not follow unless someone edits code;
+   a `.deferred.md` under `docs/reviews/` is covered by the directory bar, a
+   board item is not. `--also-exclude` is where the pass-specific bar lives,
+   and BG (b) shows it is a hatch that gets forgotten. Answered by SW4/SW9.
+2. *Nested worktree's `docs/reviews/`?* — Not barred; probed (SW3): a sibling
+   worktree's uncommitted verdict is swept from the main checkout root.
+3. *stdout provenance vs exit code?* — The exit code is the intended
+   contract; `| wc -l` disagrees by two; the README's pipeline claim does not
+   survive (SW5).
+4. *`--include-barred` drops `--also-exclude`?* — Yes; **missed in phase 1**;
+   SW11.
+5. *Corpus ↔ instances?* — Above: matches AA/RG's shape; no assertion for the
+   SL2 case, rightly, but the count claim outruns what I could verify.
+6. *Child records elsewhere?* — Yes: wrong four paths, zero barred,
+   provenance asserts the bar (SW2, probed).
+7. *Disclosure — property of the run or the record?* — The ruling asked for a
+   run-level guard (*"the correct exclusion becomes the default"*); rule 2's
+   obligation is record-level. The tool prints a paste-ready line and nothing
+   carries it further; under `| head` the banner is the first thing lost
+   (SW5). Counsel: a `reviewscan` check that a verdict whose pass used
+   `--include-barred` says so is the record-plane half, if the principal
+   wants one; the run-plane half is banner-first-on-stderr.
+8. *A cheap thing that makes bare `grep` fail?* — Yes, one exists: a
+   harness `PreToolUse` hook in reviewer sessions that refuses `Grep`/`grep`
+   over the barred paths. It is a new trust surface and a per-machine
+   install, which is why the ruling's "plane is the builder's call" landed
+   soft. My counsel stands as phase 1 wrote it, with one addition from the
+   evidence: the two instances I could read were both *disclosed by the
+   reviewer unprompted*, so the current failure mode is loud-after-the-fact,
+   not silent — the case for a hard block is weaker than a silent-leak
+   story would make it, and the case for fixing SW1–SW3 (which *are* silent)
+   is correspondingly stronger.
+
+**Ruling-record checkboxes, verified against the delta.** *Build it* — built,
+tested, catalogued ✓. *Grounding, not invention: the barred set is rule 2's* —
+the set is the house practice, and rule 2's prose does not name it (SW4);
+*the three recorded instances are its test corpus* — the corpus pins the
+shape of the two instances I could read; the third is unverified here.
+*Queue its own `⏳`* — pointer `160/240` ✓ (its lens-1 hint drew `pointerscan`'s
+grammar warning, board item `160/250`, already queued). No `[fixed]` claims
+exist in the delta to verify.
+
+**Overall after reconcile: PASS-WITH-FINDINGS — 3 MAJOR · 5 MODERATE ·
+2 minor · 1 note** (SW11 added; SW9 note → minor). The phase-1 line and rider
+stand.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — coldsweep.py (open only after your findings are durably written)
+
+Sibling of `2026-08-17-1000-coldsweep-cold.md` under REVIEW.md rule 1's split.
+Fold into the brief below the verdict and delete this file when the verdict
+lands.
+
+## Intent records
+
+- `docs/roadmap/290-ruling-round-2026-08-17-the-cold-run-find/040-build-the-cold-sweep-guard.md`
+  — the principal's ruling ("Build a guard") in his own selected wording, and
+  the author's application note. **Not opened by the brief-writer.**
+- `docs/sessions/2026-08-17-0710-cold-run-two-passes-one-brief-rulings.md` —
+  the building session's account. **Not opened by the brief-writer.**
+- The `docs/SESSIONS.md` index entry for the ruling round. ⚠️ **Read by the
+  brief-writer**, at onramp — see the disclosure in the brief.
+
+## Prior verdicts on the same surfaces
+
+The three recorded instances of the exclusion defect live in verdicts, not in
+doctrine. The brief-writer did not re-open them to confirm which; from the
+index entries read at onramp, the third instance was recorded during the
+2026-08-17 0710 cold run. Start with:
+
+- `docs/reviews/2026-08-17-0622-authority-absolute-cold.md` (AA) and
+  `docs/reviews/2026-08-15-1126-reply-gate-unwired-cold.md` (RG) — the two
+  passes run in that session; one of them carries the third instance in its
+  provenance or its follow-ups. AA11 is the adjacent finding about a brief
+  ordering its reviewer into barred material.
+- `docs/reviews/2026-08-15-1030-board-store-migration-cold.md` and the other
+  2026-08-15 passes, and the 2026-08-09 batch (`2026-08-09-08xx-*-cold.md`),
+  for the first two instances — search their provenance sections for the
+  exclusion pattern they used and whether it applied.
+- `docs/reviews/2026-08-05-1320-f1-guards-allowances-cold.md` — the pass on
+  `GUARDS.md`'s block-vs-advise model, if your altitude counsel reaches
+  whether a soft instrument is a guard at all.
+
+Verify at reconcile that the tool's selftest corpus corresponds to the
+instances as those verdicts actually describe them; the brief's *What the
+work is* takes the author's word for that.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these. Treat a question you did not think of
+as a prompt to re-read the surface, not as an agenda — and note that the
+brief-writer read the commit message and the pointer's lens-1 hint, so these
+questions inherit some of the author's framing.
+
+1. `BARRED` is a tuple in code; rule 2's barred set is prose in `REVIEW.md`.
+   The rule-2 edit says "the exclusion is now the tool's default" without
+   naming the set. Which is canonical, and what happens when the doctrine
+   adds a barred surface (a `.deferred.md` sibling, a board item under
+   review) that the tuple does not carry? Is `--also-exclude` a hatch or the
+   place the real bar now lives?
+2. `walk()` skips symlinks. On this estate a nested harness worktree
+   (`.claude/worktrees/…`) is a real directory containing a full second copy
+   of `docs/`, including `docs/reviews/`. Is a worktree's `docs/reviews/`
+   barred (its parts begin `.claude`, `worktrees`, `<name>`, `docs`,
+   `reviews`), and does the tool sweep a sibling worktree's uncommitted
+   verdict? Probe it.
+3. The provenance line goes to stdout. `coldsweep 'X' | wc -l` and
+   `if coldsweep 'X'; then` disagree about whether the run "matched". Which
+   contract did the author intend, and does the README's "drops into a
+   pipeline" claim survive?
+4. `--include-barred` sets `barred = ()`, which also drops `--also-exclude`
+   entries. Is that intended? A reviewer widening the sweep to *records* while
+   still needing to exclude the *board item under review* cannot express it.
+5. The selftest builds a corpus of five files and asserts counts. Which of
+   the "three real instances" does each assertion reduce to — and is there an
+   assertion for the instance where the exclusion *did* apply but a reviewer's
+   second tool did not honour it?
+6. The tool never reads `.atelier-floor.json`, which is where a child declares
+   its records path. Does a child with records elsewhere get a bar of the
+   wrong four paths and a provenance line that says the sweep was clean?
+7. Rule 2 says a wide sweep is not forbidden, an undisclosed one is. The tool
+   prints the disclosure; nothing carries it into the verdict. Is the
+   disclosure a property of the run or of the record, and which one did the
+   ruling ask for?
+8. The pointer's own hint: the guard makes the safe path easier but does not
+   make the unsafe path fail. Take the hint as a claim to test, not a
+   conclusion — is there a cheap thing that *would* make a bare `grep -r`
+   over the records fail for a reviewer session, and if there is, why did
+   the build not choose it? Counsel, labelled.

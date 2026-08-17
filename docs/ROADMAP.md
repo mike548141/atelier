@@ -22,6 +22,8 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [A child has used [~] for partially delivered where the house](roadmap/010-board-store-migration-per-item-files-mik/100-ros-carries-38-items-using-a-different-tilde.md)
 - [ ] 🔥 [A scanner given --root X and a relative path scans your cwd's](roadmap/010-board-store-migration-per-item-files-mik/110-relative-path-args-resolve-against-cwd-not-root.md)
 - [ ] 🔥 [board.py cannot see a duplicate SECTION number, and rebuilt a clean](roadmap/010-board-store-migration-per-item-files-mik/120-board-py-cannot-see-a-duplicate-section-number.md)
+- [ ] 🔎 [A claim on a long-titled item fails the wrapscan floor — on the item's](roadmap/010-board-store-migration-per-item-files-mik/130-a-claim-fragment-on-a-long-title-fails-wrapscan.md)
+- [ ] 🔎 [index_title's fallback swallows the claim fragment into the generated](roadmap/010-board-store-migration-per-item-files-mik/140-index-title-fallback-swallows-the-claim-fragment.md)
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
 
@@ -206,8 +208,8 @@ then `python3 tools/board.py rebuild`.
 - ✅ [Apex: the principal's authority is absolute; his rulings are](roadmap/160-doctrine-review-owed/200-apex-authority-absolute-rulings-conditioned.md)
 - ✅ [Rule-4 cold pass — apex: authority absolute, rulings conditioned](roadmap/160-doctrine-review-owed/210-rule-4-cold-pass-queued-authority-absolute.md)
 - [ ] 🎯 [The board-generator cycle CLOSED 2026-08-17 (0 MAJOR); BG1–BG14](roadmap/160-doctrine-review-owed/220-rule-4-cold-pass-queued-board-generator.md)
-- ⏳ [Rule-4 cold pass queued — the 2026-08-17 ruling round's doctrine](roadmap/160-doctrine-review-owed/230-rule-4-cold-pass-queued-the-0817-ruling-round.md)
-- ⏳ [Rule-4 cold pass queued — coldsweep.py, the cold-sweep exclusion](roadmap/160-doctrine-review-owed/240-rule-4-cold-pass-queued-coldsweep.md)
+- [ ] 🎯 [The ruling-round-application cycle CLOSED 2026-08-17 (0 MAJOR);](roadmap/160-doctrine-review-owed/230-rule-4-cold-pass-queued-the-0817-ruling-round.md)
+- [ ] 🛑 [The coldsweep pass RAN 2026-08-17 and the cycle stays OPEN — three](roadmap/160-doctrine-review-owed/240-rule-4-cold-pass-queued-coldsweep.md)
 - [ ] [A queued pointer at 240 instructs its own reviewer, and pointerscan](roadmap/160-doctrine-review-owed/250-a-queued-pointer-instructs-its-own-reviewer.md)
 - ⏳ [Rule-4 cold pass queued — the BS1 wording ruling applied (the](roadmap/160-doctrine-review-owed/260-rule-4-cold-pass-queued-bs1-wording.md)
 
@@ -311,7 +313,7 @@ then `python3 tools/board.py rebuild`.
 
 - ✅ 🎯 [The channel as a concurrency primitive — a new section in](roadmap/280-cross-session-channel-mike-commissioned/010-the-channel-as-a-concurrency-primitive.md)
 - [ ] [🚩 The floor clause has to reach 11 children, and each child adopts it](roadmap/280-cross-session-channel-mike-commissioned/020-the-floor-clause-reaches-the-children.md)
-- ⏳ [Rule-4 cold pass owed on the channel section and its floor clause.](roadmap/280-cross-session-channel-mike-commissioned/030-rule-4-cold-pass-queued-the-channel-section.md)
+- [ ] 🎯 [The channel-section cycle CLOSED 2026-08-17 (0 MAJOR); CH1–CH16](roadmap/280-cross-session-channel-mike-commissioned/030-rule-4-cold-pass-queued-the-channel-section.md)
 - [ ] [🚩 The channel can contaminate review independence, and § The channel](roadmap/280-cross-session-channel-mike-commissioned/040-the-channel-can-contaminate-review-independence.md)
 
 ## Ruling round 2026-08-17 — the cold-run findings (Mike)

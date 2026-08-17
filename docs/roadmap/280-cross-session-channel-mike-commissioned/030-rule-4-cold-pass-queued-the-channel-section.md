@@ -1,36 +1,48 @@
-- ⏳ **Rule-4 cold pass owed on the channel section and its floor clause.**
-      Self-authored doctrine, queued at landing by its author, who may not take
-      it. *Pass type:* rule-4 cold pass. *Tier:* Fable, the principal-named
-      review tier — checked at selection; a session that cannot honour the bar
-      stops rather than takes.
-      *Delta — scoped to paths, deliberately not to the commit:*
-      `docs/method/CONCURRENCY.md` § The channel and its four seam edits
-      (§ The trigger, § Integration hygiene, § Claiming work, § Surviving an
-      interrupted session) · the floor region's concurrency bullet in
+- [ ] 🎯 **The channel-section cycle CLOSED 2026-08-17 (0 MAJOR); CH1–CH16
+      await Mike's ruling round.** The rule-4 Fable doctrine cold pass (taker:
+      a cold session Mike opened 2026-08-17 1321 UTC on the Fable tier, running
+      the brief a *different* cold session wrote at 0955 UTC, under a
+      Fable-orchestrator-held context partition — reviewer and orchestrator
+      both on the named tier) returned PASS-WITH-FINDINGS — 0 MAJOR /
+      5 MODERATE / 11 minor / 4 note after reconcile (no severity amendments;
+      CH4 upgraded from reasoned to observed on the child's record; CH14–CH16
+      added post-reconcile) →
+      [`reviews/2026-08-17-1000-channel-doctrine-cold.md`](../../reviews/2026-08-17-1000-channel-doctrine-cold.md).
+      Every re-run reproduced in kind: both floor planes green, Python 1,344 /
+      node 235, stampscan one block identical (61 lines), the hunk-header and
+      mid-rebase-push claims reproduced live in scratch repos; grounding claims
+      G1–G13 checked against the transcript and the child's records at
+      reconcile — eight verified, five verified with caveats, none falsified.
+      The MODERATEs: CH1 — the seven message classes are not fenced against
+      REVIEW.md rules 2/4 (an author's message to a would-be cold reviewer is
+      exactly the framing path rule 2 closes; the brief's own disclosure 3 is
+      an instance; anticipated by the author's addendum, queued at `040`);
+      CH2 — the *ask* cue overclaims: an empty peer enumeration or no reply is
+      still silence, and as written a reader can reach "solo" from an empty
+      list; CH3 — law 3's tie-break fixes no evaluation point and no tie rule
+      (the child's source rule presupposed both pushed + main red — dropped in
+      extraction); CH4 — the new *never `stash`* reverse-edit rule is
+      unreconciled with the mandated `git pull --rebase --autostash` bookend at
+      a dirty shared checkout (observed: a peer's autostash absorbed
+      uncommitted work in the child); CH5 (privacy) — the abridge-into-the-
+      record clause lives only in the on-demand section while the floor
+      instructs file-set announce/answer and the section instructs relaying
+      rulings and findings across repos. Minor: CH6 the delta takes a position
+      on `030/140`'s axis while saying it left it; CH7–CH13 wording, pointer
+      target, half-stated incantations, sweep-table row, no CHANGELOG entry;
+      CH14 loose restatements of sources; CH15 "each earned by a failure" true
+      of six of seven classes; CH16 the child's post-commit check not
+      extracted. Reviewer disclosures stand in the verdict: coldsweep hits
+      surfaced `280` item *titles* via the generated index (may have primed
+      CH1's direction, stated); landing commit message read in full.
+      *Delta:* `docs/method/CONCURRENCY.md` § The channel and its four seam
+      edits · the floor region's concurrency bullet in
       `docs/method/PROPAGATION.md` · the stamped copy in
-      `docs/build/templates/CLAUDE.md`. Landed on wt: `channel-doctrine-0817`
-      (claim `a502a7b`).
-      🚩 **Scoped this way because the landing commit packages the author's own
-      intent record, board items and `SESSIONS.md` entry with the doctrine, so a
-      brief naming the commit and saying "read the diff" would order its
-      reviewer into barred material — the rule-2 shape a peer filed as `AA11`
-      on 2026-08-17.** The brief names these three paths; the intent record
-      below is background the reviewer's own deferral discipline governs, never
-      part of the delta.
-      *Intent record:*
-      [`../../sessions/2026-08-17-0734-channel-doctrine.md`](../../sessions/2026-08-17-0734-channel-doctrine.md).
-      *Primary source for the delta's evidence:*
+      `docs/build/templates/CLAUDE.md` (landed `b0f202d`, pointer rescoped
+      `bb7c08f`, wt: `channel-doctrine-0817`). *Intent record:*
+      [`../../sessions/2026-08-17-0734-channel-doctrine.md`](../../sessions/2026-08-17-0734-channel-doctrine.md);
+      primary source
       [`../../sessions/2026-08-17-0343-cross-session-channel-transcript.md`](../../sessions/2026-08-17-0343-cross-session-channel-transcript.md).
-      Brief written 2026-08-17 by a non-author cold session on the Fable tier —
-      REVIEW NOT RUN, open for a cold Fable taker:
-      `docs/reviews/2026-08-17-1000-channel-doctrine-cold.md`
-      (deferred sibling `docs/reviews/2026-08-17-1000-channel-doctrine-cold.deferred.md`,
-      opened only after the reviewer's findings are durably written; finding
-      prefix `CH`; wt: cold-run-0817-0955). Two brief-writer disclosures stand
-      in it: the `SESSIONS.md` tail was read at onramp before the brief was
-      commissioned, and the landing commit's message was read in full.
-      (TAKEN 2026-08-17-1321 UTC — RUNNING: a non-author cold session Mike opened on the
-      Fable tier is running the review under an orchestrator-held context
-      partition; the reviewer is a Fable subagent and the orchestrator is Fable;
-      neither wrote the brief nor any part of the delta; verdict lands in the
-      brief; wt: cold-run-0817-1321)
+      Brief written 2026-08-17 by a non-author Fable cold session (its three
+      disclosures stand in the verdict); sibling folded in and deleted; wt:
+      cold-run-0817-1321.
