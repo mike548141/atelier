@@ -199,13 +199,24 @@ def rebuild_cmd(root: Path) -> str:
     path is both true and copy-pasteable. In a child it does not live there —
     and an absolute path must never be written into a committed file, because
     it is a machine-local fact in a tree that may be public. So a child gets
-    the hook's own resolution variable, which is the one spelling that is true
-    everywhere and names nobody's home directory.
+    the hook's own resolution, which is true everywhere and names nobody's
+    home directory.
+
+    THE CHILD SPELLING IS THE HOOK'S FULL ORDER, NOT ITS FIRST CHOICE. This
+    shipped as `"$ATELIER_TOOLS"` and was wrong within the hour: `.githooks/
+    pre-commit` resolves `${ATELIER_TOOLS:-$(git config hooks.atelierTools)}`,
+    and on the machine that found it `ATELIER_TOOLS` is unset while the git
+    config carries the path — so the emitted command expanded to
+    `python3 /board.py` and the remedy printed at the moment a check fails was
+    unusable. Naming half a fallback chain is the same defect one layer in:
+    the first version named a file only atelier has, this one named a variable
+    only some machines set. Emit the whole order or none of it.
     """
     try:
         here = Path(__file__).resolve().relative_to(root.resolve())
     except ValueError:
-        return 'python3 "$ATELIER_TOOLS"/board.py rebuild'
+        return ('python3 "${ATELIER_TOOLS:-$(git config hooks.atelierTools)}"'
+                "/board.py rebuild")
     return f"python3 {here.as_posix()} rebuild"
 
 
@@ -351,7 +362,12 @@ def selftest() -> int:
         # is exactly a child's geometry, and the reason the child spelling is
         # the one the offline test proves.
         check("child root gets the portable rebuild command",
-              '`python3 "$ATELIER_TOOLS"/board.py rebuild`' in text)
+              'python3 "${ATELIER_TOOLS:-$(git config hooks.atelierTools)}"'
+              "/board.py rebuild" in text)
+        # Half a fallback chain expands to nothing on a machine that uses the
+        # other half — the defect this replaced.
+        check("child command names the whole resolution order",
+              '"$ATELIER_TOOLS"' not in text)
         check("no home directory in the index", str(Path.home()) not in text)
         check("open item rendered", "[Fix the gate]" in text)
         check("flag lifted", "🎯" in text)

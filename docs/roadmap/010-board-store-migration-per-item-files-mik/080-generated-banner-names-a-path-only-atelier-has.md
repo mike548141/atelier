@@ -36,6 +36,21 @@
       exactly a child's geometry, so the child spelling is what its own
       assertions read — plus a check that no home directory reaches the index.
       **`faves`' shim can go**, and `ros`/`shed` never need to write one.
+      ⚠️ **The first child spelling was wrong and was corrected the same day.**
+      It shipped as `"$ATELIER_TOOLS"`, the hook's *first* choice. The hook
+      actually resolves `${ATELIER_TOOLS:-$(git config hooks.atelierTools)}`,
+      and on this machine `ATELIER_TOOLS` is unset while the git config
+      carries the path — so a child's banner and its stale-index remedy both
+      expanded to `python3 /board.py`. Found by `faves` within the hour of the
+      fix landing, verified here (`ATELIER_TOOLS` empty,
+      `git config hooks.atelierTools` = atelier's tools dir), and corrected to
+      emit the whole order. 🔑 **Same defect one layer in: the first version
+      named a file only atelier has, the second named a variable only some
+      machines set.** Naming half a fallback chain is not a smaller version of
+      the bug — it is the same bug, and it fails in exactly the place the
+      original did, at the moment a check fails and a reader is least able to
+      guess. Pinned by a selftest assertion that the emitted command carries
+      the whole order, not just its first branch.
       The same commit closed `070`'s scanner-facing half — see it for the
       renderer changes (link text, flag order, wrapped preamble) that take the
       generated index to clean on both scanners in a repo with no scope block.
