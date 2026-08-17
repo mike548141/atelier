@@ -148,6 +148,21 @@ One thing declined on the section's own cost clause: a fourth `faves` session wa
 relaying; a cheap channel makes it cheap to be noisy, and coverage was already
 met.
 
+🚩 **And then the section's own use produced a finding against it, queued at
+`280/040`.** This session — the author of the delta — messaged the **brief-writer**
+for the delta's own rule-4 pass, with one factual note and no instruction. The
+brief-writer changed nothing and, on its own initiative, appended a line to the
+brief's spawn provenance disclosing that the author had made contact. Rule 4's
+criterion asks who *started or instructed* a session and says nothing about one
+the author merely **talked to**; the channel makes that contact frictionless, so
+a gap that previously required going out of one's way is now one message away.
+Queued rather than fixed for the reason the rule itself gives: the fix belongs in
+`REVIEW.md` rule 4, whose criterion this delta is currently queued under, and an
+author widening the rule governing its own pending review is precisely what rule 4
+exists to prevent. A second collision the same hour — two sessions minting board
+section `290` — was repaired by §10's tie-break and is recorded on the posture
+session's record instead, since that is where it bit.
+
 ## What this session did *not* do
 
 No CF3 edit. No child repo touched. No review spawned — self-authored doctrine,
