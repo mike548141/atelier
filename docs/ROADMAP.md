@@ -12,7 +12,7 @@ then `python3 tools/board.py rebuild`.
 
 - ✅ [Migrate the board to per-item files + generate the index](roadmap/010-board-store-migration-per-item-files-mik/010-migrate-the-board-to-per-item-files-generate-t.md)
 - [ ] [board --check reads the worktree, not the staged plane.](roadmap/010-board-store-migration-per-item-files-mik/020-board-check-staged-plane-seam.md)
-- [~] 🎯 (claimed 2026-08-17-1057, wt: fleet-rollout-refresh-0817) [Fleet rollout of the split board](roadmap/010-board-store-migration-per-item-files-mik/030-fleet-rollout-of-the-split-board.md)
+- [ ] 🎯 [Fleet rollout of the split board](roadmap/010-board-store-migration-per-item-files-mik/030-fleet-rollout-of-the-split-board.md)
 - [ ] [Sweep monolith-era board wording across the doctrine surface.](roadmap/010-board-store-migration-per-item-files-mik/040-monolith-era-wording-sweep.md)
 - [ ] 🛑 [The board-store cold pass RAN 2026-08-15 and the cycle stays OPEN](roadmap/010-board-store-migration-per-item-files-mik/050-rule-4-cold-pass-queued.md)
 - ✅ 🔥 [board aborted on the floor's own argv — FIXED 2026-08-17.](roadmap/010-board-store-migration-per-item-files-mik/060-the-board-check-aborted-on-the-floor-s-own-argv.md)
