@@ -409,6 +409,78 @@ application data cannot.
 
 ---
 
+## 10. Posture — strength is what you are free to do
+
+The other nine principles ask how a thing should be built. This one asks what
+being strong is *for*, and answers: **freedom of action.** A posture is measured
+by what it lets you do, never by what it forbids.
+
+**Mike's own statement of it (2026-08-17), because the four cases are the
+principle:**
+
+> Having a strong security posture means things like we are not scared to connect
+> to home wifi networks, hot spot of mobile devices or to allow byod devices to
+> connect to our wired and wireless network. Because we are strong enough that
+> those are not a threat. We can take out devices wherever we need to and allow
+> other on our network. We will know if something goes wrong and address it
+>
+> Same methodology as secrets must be easy to rotate so exposure isn't an issue.
+> Even the form of an exposed secret tells them nothing
+>
+> And of data protection it's about being able to restore and be confident all
+> the data is back in the same state as if nothing happened. Same for dr plans,
+> you action them knowing they will work so there is no resistance to using dr
+> when you need too
+
+Four cases, one idea: **engineer for the failure being cheap, not for the failure
+being impossible.**
+
+- **Recoverability is what licenses action.** Confidence that you can restore,
+  rotate, rebuild or eject is what makes the risky-looking act ordinary. The
+  work goes into the way back, and the freedom is the return on it. *Case:* a
+  secret whose rotation is one command is a secret whose exposure is an
+  inconvenience; the same secret with a manual, half-documented rotation path is
+  a crisis, at identical exposure. The difference is entirely in the recovery.
+- **A control that makes you reluctant to act is failing — even while nothing
+  has gone wrong.** This is the diagnostic half, and it is the half that finds
+  things, because the cost is paid in *things not done* and therefore never
+  appears in an incident record. *Cases:* the disaster-recovery plan nobody
+  invokes, the credential nobody rotates, the network nobody will put a device
+  on. Each looks like a clean bill of health and is a live failure.
+- **Prefer the exposure that tells them nothing.** Where a thing may leak, shape
+  it so the leak carries no advantage — a token whose form reveals no structure,
+  a store whose contents are opaque to whoever holds the key to the wrong half.
+  This is the design-time twin of easy rotation: one makes the exposure cheap to
+  undo, the other makes it cheap to have happened.
+- **Prove the recovery by exercising it.** A restore path is a claim, and the
+  apex bars a claim stronger than its evidence — so an unexercised restore is an
+  assumption wearing a mechanism's clothes. Exercise converts it. *Case:* the
+  reason "we could restore" and "we have restored" read identically in every
+  record we hold is that nothing distinguishes them but the exercise.
+
+🚩 **The precondition, and it carries the whole section.** *"We will know if
+something goes wrong and address it"* is doing the load-bearing work above, and
+it is the leg with the least mechanism behind it. Rotation-ease is provable by
+rotating and restore-confidence by restoring; **detection has no equally cheap
+proof**, which makes it the one most likely to be assumed. A posture asserted
+without it is the decorative-guard shape at estate scale — the confidence reads
+identical either way (`GUARDS.md`). So: claim the freedom that the detection and
+the recovery you have actually exercised will support, and no more.
+
+**Where the neighbouring rules sit.** §1's *build the way back before the way
+forward* and *design the way out before the way in* are this principle's
+build-time instances — they say carry the rope; this says what the rope is for.
+§5 sizes controls to threats; this asks whether the threat can be made cheap
+enough that the control is not the interesting part. The individual cases live
+where they already live and point up here rather than restating it:
+[`SECRETS.md`](SECRETS.md) (rotation), [`DATA-PROTECTION.md`](DATA-PROTECTION.md)
+(restore, and the exercise that proves it), [`ACCESS.md`](ACCESS.md) (what a
+device joining the network is allowed to mean), and [`GUARDS.md`](GUARDS.md),
+where this became a **requirement on every guard** by Mike's ruling of the same
+day rather than a stance held near them.
+
+---
+
 ## Trade-offs: precedence and situation tests
 
 The principles *will* collide. Two tools resolve a collision: a precedence order
@@ -463,6 +535,16 @@ adaptation are never traded against a design principle.
   to loosen it, defeating its purpose. *Precedent:* a safety gate re-classed to a
   *looser* tier once it was clear the stricter one blocked exactly the routine
   work the tool existed to do.
+- **Prevention, or cheap failure?** Gate sizing above asks how strict a control
+  should be; this asks the prior question — whether the failure can be made cheap
+  enough that the control stops being the interesting part (§10). Both answers
+  are legitimate and they cost differently: prevention buys safety by *removing
+  freedom of action*, cheap failure buys the same safety and *returns* the
+  freedom, at the price of building the recovery. Prefer cheap failure where the
+  recovery is buildable; keep prevention where it is not, and **say which one
+  you chose** — an undeclared choice is the defect, not either answer.
+  *Precedent:* Mike's 2026-08-17 ruling made this a requirement on every guard
+  in the estate, not merely a design preference (`GUARDS.md`).
 - **Special case vs uniform mechanism.** When one field/path seems to want
   different semantics from its siblings, keep the mechanism uniform and make the
   special need **loud** (a lint, a report, a stated invariant). Divergent

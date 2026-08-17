@@ -21,6 +21,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [board's action word is the only bare positional in the registry,](roadmap/010-board-store-migration-per-item-files-mik/090-board-s-action-word-is-the-only-bare-positional.md)
 - [ ] 🎯 [A child has used [~] for partially delivered where the house](roadmap/010-board-store-migration-per-item-files-mik/100-ros-carries-38-items-using-a-different-tilde.md)
 - [ ] 🔥 [A scanner given --root X and a relative path scans your cwd's](roadmap/010-board-store-migration-per-item-files-mik/110-relative-path-args-resolve-against-cwd-not-root.md)
+- [ ] 🔥 [board.py cannot see a duplicate SECTION number, and rebuilt a clean](roadmap/010-board-store-migration-per-item-files-mik/120-board-py-cannot-see-a-duplicate-section-number.md)
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
 
@@ -207,6 +208,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued — the board generator's child-facing strings.](roadmap/160-doctrine-review-owed/220-rule-4-cold-pass-queued-board-generator.md)
 - ⏳ [Rule-4 cold pass queued — the 2026-08-17 ruling round's doctrine](roadmap/160-doctrine-review-owed/230-rule-4-cold-pass-queued-the-0817-ruling-round.md)
 - ⏳ [Rule-4 cold pass queued — coldsweep.py, the cold-sweep exclusion](roadmap/160-doctrine-review-owed/240-rule-4-cold-pass-queued-coldsweep.md)
+- [ ] [A queued pointer at 240 instructs its own reviewer, and pointerscan](roadmap/160-doctrine-review-owed/250-a-queued-pointer-instructs-its-own-reviewer.md)
 
 ## build/ layer — open strands
 
@@ -310,14 +312,6 @@ then `python3 tools/board.py rebuild`.
 - [ ] [🚩 The floor clause has to reach 11 children, and each child adopts it](roadmap/280-cross-session-channel-mike-commissioned/020-the-floor-clause-reaches-the-children.md)
 - ⏳ [Rule-4 cold pass owed on the channel section and its floor clause.](roadmap/280-cross-session-channel-mike-commissioned/030-rule-4-cold-pass-queued-the-channel-section.md)
 
-## Posture — strength is what you are free to do (Mike commissioned 2026-08-17)
-
-*[Narrative](roadmap/290-posture-recover-cheaply-mike-commissioned/README.md)*
-
-- [~] 🎯 [The posture section, and the fourth requirement it puts on every](roadmap/290-posture-recover-cheaply-mike-commissioned/010-the-posture-section-and-the-guard-test.md)
-- [ ] [🚩 Re-rank the open guard work against the fourth requirement — and](roadmap/290-posture-recover-cheaply-mike-commissioned/020-re-rank-the-guard-board-against-the-test.md)
-- [ ] 🎯 [The census: what would this estate actually NOTICE, and what can it](roadmap/290-posture-recover-cheaply-mike-commissioned/030-what-would-this-estate-actually-notice.md)
-
 ## Ruling round 2026-08-17 — the cold-run findings (Mike)
 
 *[Narrative](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/README.md)*
@@ -326,3 +320,12 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🎯 [RULED 2026-08-17 — "Ratify, but not at the floor."](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/020-aa7-ratified-but-not-at-the-floor.md)
 - ✅ 🎯 [RULED 2026-08-17 — "RECORD.md + GUARDS.md."](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/030-rg4-the-earned-rules-get-homes.md)
 - ✅ 🎯 [RULED 2026-08-17 — "Build a guard."](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/040-build-the-cold-sweep-guard.md)
+
+## Posture — strength is what you are free to do (Mike commissioned 2026-08-17)
+
+*[Narrative](roadmap/300-posture-recover-cheaply-mike-commissioned/README.md)*
+
+- ✅ 🎯 [The posture section, and the fourth requirement it puts on every](roadmap/300-posture-recover-cheaply-mike-commissioned/010-the-posture-section-and-the-guard-test.md)
+- [ ] [🚩 Re-rank the open guard work against the fourth requirement — and](roadmap/300-posture-recover-cheaply-mike-commissioned/020-re-rank-the-guard-board-against-the-test.md)
+- [ ] 🎯 [The census: what would this estate actually NOTICE, and what can it](roadmap/300-posture-recover-cheaply-mike-commissioned/030-what-would-this-estate-actually-notice.md)
+- ⏳ [Rule-4 cold pass owed on the posture section and the fourth guard](roadmap/300-posture-recover-cheaply-mike-commissioned/040-rule-4-cold-pass-queued-the-posture.md)

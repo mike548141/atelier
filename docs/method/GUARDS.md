@@ -28,6 +28,44 @@ Three requirements — **narrow, noisy, reasoned** — and they are requirements
 every guard in the estate, not preferences. The rest of this doc is the model
 that makes them enforceable rather than aspirational.
 
+### The fourth requirement — declared (Mike's ruling, 2026-08-17)
+
+A fourth joined them, from the posture at `PRINCIPLES.md` §10: **engineer for the
+failure being cheap, not for the failure being impossible, and measure the
+posture by what you are free to do.** Ruled as a *test guard work has to pass*
+rather than a stance held beside it, with the consequence stated to him first —
+that some already-landed guards would fail it.
+
+Every guard declares which of two things it does:
+
+| | What it does | What it costs |
+|---|---|---|
+| **Makes the failure cheap** | The bad event still happens and is survivable — recoverable, rotatable, restorable, reversible | Building the recovery |
+| **Forbids the act** | The bad event is prevented by removing the ability to perform it | Freedom of action, permanently |
+
+**Both are legitimate answers. The defect is not declaring which** — and that is
+the requirement, because an undeclared choice cannot be reviewed, re-costed, or
+argued with. Prevention is correct wherever the recovery genuinely is not
+buildable; what is never correct is reaching for it *by default* and calling the
+result strength.
+
+🔑 **This is the standard the `why` field was missing.** Every registry entry
+already carries a reason that is printed and compared to nothing — the finding
+filed against this estate's own guard architecture. A reason with no standard
+behind it is a sentence; the same reason answering *cheap-failure or forbid-the-
+act* is a claim someone can test. The estate demanded a reason for **weakening** a
+guard and no reason for **building** one; this closes that asymmetry from the
+build side.
+
+⚖️ **Two limits, so the requirement is not read as a licence.** A test arriving
+after the work is grounds to **declare**, never grounds to unwire a working gate
+on the author's own judgement — a guard that fails this test is a *finding for the
+principal*, not a revert. And declaring "forbids the act" is not a failure grade:
+much of this estate's floor is prevention, deliberately, and the honest reading of
+this requirement is that it makes that visible rather than that it condemns it.
+The pass over the open board is queued rather than done, precisely so nothing is
+re-litigated in the sitting that wrote the rule.
+
 ## What a finding is assessed on — three axes
 
 A finding carries three independent assessments. They were collapsed into one
@@ -314,6 +352,8 @@ Stubbed honestly rather than filled in:
 
 ## Related
 
+- `PRINCIPLES.md` §10 — the posture the fourth requirement comes from, and the
+  *prevention-or-cheap-failure* situation test that applies it to a design
 - `PROPAGATION.md` — resolved-upward, and enforcement by call not copy
 - `build/REPO-STANDARD.md` — a child may narrow, never contradict; the
   `.atelier-floor.json` seam where a repo declares what it decides
