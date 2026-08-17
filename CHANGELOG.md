@@ -5,6 +5,41 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-08-17 — the board generator writes for the repo it lives in)
+- `tools/board.py` emitted `tools/board.py` into three strings a **child**
+  reads: the index banner, the index preamble and the stale-index remedy the
+  check prints. Children call the floor's tools and never vendor them
+  (ADR 0008), so all three named a file that is not there — including the one
+  instruction at the top of the one file readers are told never to hand-edit.
+  The rebuild instruction is now resolved per root: repo-relative where the
+  tool sits inside the tree it rebuilds, the hook's own `$ATELIER_TOOLS`
+  spelling where it does not, and never an absolute path (a machine-local fact
+  has no business in a file that may be public). The banner names no path at
+  all and drops 115 → 69 columns.
+- The index no longer repeats a section's path as its link **text**
+  (`*[Narrative](…)*`, not `*Narrative: [<dir>/README.md](…)*`), which
+  `pathscan` resolved: 28 false findings per commit here, 49 in the first
+  child, on every commit, warn-only — a check that always fires is a check
+  nobody reads. The `##` heading above already names the section.
+- The `GENERATED` marker is matched as a prefix against **both** spellings, in
+  `board.py` and `pointerscan.py`, so no repo needs a flag day; an index built
+  before today keeps its pointerscan skip until its next rebuild.
+- Eye-flags and the claim fragment now render **before** the link, not after
+  it. `wrapscan` exempts a line whose overflow is one unbreakable token, and an
+  item line ends in a store path — so a trailing ` 🎯` put a space after that
+  path, the overflow gained a legal wrap point, and the exemption stopped
+  applying. In the first child, 13 of the index's 14 findings were exactly its
+  13 flagged lines. The 14th was the preamble, now wrapped at the house width.
+  A reader also gains a flag column that aligns.
+- Net effect: the generated index passes `wrapscan` **and** `pathscan`
+  unscoped, in a repo with no `scope` block and no ignore file. `faves` can
+  delete the `.wrapscanignore`/`.pathscanignore` pair it opened to land its
+  split; `ros` and `shed` never write one. The floor-policy question this was
+  heading for — whether a `GENERATED` marker exempts a file from the prose
+  gates fleet-wide — is not needed for the board and is not asked.
+- Found by `faves`, the first child to adopt the split board, which had
+  papered over the first defect with a delegating shim. That shim can go.
+
 ### Changed (2026-08-15 — the principal's authority is absolute; his rulings are conditioned)
 - `00-APEX.md` § "The principal's authority is conditioned on being informed"
   is retitled *"The principal's authority is absolute; his rulings are
