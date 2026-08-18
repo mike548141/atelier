@@ -346,3 +346,12 @@ then `python3 tools/board.py rebuild`.
 - [ ] [🚩 Ten children carry both block defects, and each clears them at its](roadmap/310-pointing-up-the-child-to-parent-route/030-the-corrected-block-reaches-ten-children-at-pin-bump.md)
 - [ ] 🎯 [Queue the block-trim finding in cbom — AFTER this cycle's](roadmap/310-pointing-up-the-child-to-parent-route/040-queue-the-block-trim-finding-in-cbom-after-the-cycle.md)
 - ⏳ [Rule-4 review queued (tier: Fable; pass type: doc cold pass) — the](roadmap/310-pointing-up-the-child-to-parent-route/050-rule-4-cold-pass-queued-pointing-up.md)
+
+## Findings filed from a child via § *Pointing up* (2026-08-18)
+
+*[Narrative](roadmap/320-child-filed-findings-via-pointing-up/README.md)*
+
+- [ ] 🔥 [pathscan reds on three reference shapes that are never real, and](roadmap/320-child-filed-findings-via-pointing-up/010-pathscan-reds-on-three-shapes-that-are-never-real.md)
+- [ ] 🎯 [PROPOSAL for GUARDS.md — strict where we author, forgiving where](roadmap/320-child-filed-findings-via-pointing-up/020-proposal-strict-where-we-author-forgiving-where-we-read.md)
+- [ ] 🎯 [PROPOSAL — capture, do not compose: a hand-written fixture can only](roadmap/320-child-filed-findings-via-pointing-up/030-proposal-capture-do-not-compose-fixtures.md)
+- [ ] 🔎 [By-call enforcement resolves through a working tree, so "fresh"](roadmap/320-child-filed-findings-via-pointing-up/040-by-call-resolves-to-a-working-tree-so-fresh-means-whatever-is-on-disk.md)
