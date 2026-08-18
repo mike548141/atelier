@@ -83,7 +83,12 @@ checkout.** Neither shows in `git status` as anything that reads as "stop":
   other's half under the wrong message. The check that sees it is
   `git diff --cached -U0 | grep '^@@'` immediately before every commit —
   compare the hunk headers against what you believe you wrote. Staging by
-  explicit path, never `git add -A`, is the other half.
+  explicit path, never `git add -A`, is the other half. **Read it as the whole
+  index, not as your own hunks** — the paths it shows that you never staged are
+  the point of the check, not a side effect of it. A stale entry also needs no
+  live peer to have put it there: an index outlives the ref that fed it, so a
+  path staged before you opened, or left behind when a peer landed by
+  `update-ref`, is still sitting there to be committed under your message.
 - **Repository *state* is shared, and unprotected.** A rebase in progress
   produces no dirty file, no claim, and nothing in `git status --short` that
   reads as a stop; `git push` can then report success while pushing nothing.
@@ -103,6 +108,16 @@ sessions in the same checkout and needed a *survival audit* afterwards
 the worktree rule had existed since this doc was written yet never fired,
 because nothing told a session it was the second one. Good habits (small
 commits, pushed fast) were standing in for a rule with no firing condition.
+
+*Bearing:* a private child, 2026-08-18 — a session staged two paths explicitly,
+read `git status`, committed, and destroyed a sibling's session-log entry that
+had been sitting in the index before it opened. It diagnosed the cause
+correctly and then reached for this rule **through its floor block's compression
+of it** — *read the staged hunk headers* — concluded the house had a gap it does
+not have, and wrote a local duplicate marked owed upstream. The block's phrase
+and its pointer (which named § The channel, where this rule is not) were both
+corrected on that finding; the route a child should have taken instead is
+`PROPAGATION.md` § *Pointing up*.
 
 ## The solo default — trunk-based, but "solo" is a conclusion, not an assumption
 
