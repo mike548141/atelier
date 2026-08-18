@@ -33,9 +33,15 @@ invalid control is the third recorded instance of that specific mistake, and a
 board that quietly absorbs its own wrong turns cannot show a pattern three
 instances deep.
 
-**Net effect on priority:** Class A is the whole story at 33 of 45. Class B
+**Net effect on priority:** Class A is the whole story at 34 of 46. Class B
 drops — the scanner is not punishing children for following doctrine, it is
 punishing prose shorthand.
+
+**Neither side's control was reasoned about.** Mine was wrong; the child's
+happened to be right because it had the sibling repo on disk, which it said
+plainly rather than letting the record imply a check it never made. So this
+exchange is not evidence that the comparability discipline is working — it is
+one invalid control caught by luck of layout.
 
 **A fourth item arrived as a question, not a finding.** `040` records a
 mechanism the child raised *after* reading the section that would have answered
