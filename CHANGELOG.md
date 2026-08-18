@@ -5,6 +5,43 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-08-18 — `PROPAGATION.md` § *Pointing up*: the child-to-parent route)
+- **The route a child takes when it earns a rule the house owns.** The doctrine
+  said children point up and never said *where*, so the only loaded surface a
+  child session could reach was its own onramp. Four parts: **check the
+  parent's actual file first, never your own inlined block**; a whose-rule-is-it
+  test; a four-step route (file the finding in atelier's board · carry the class
+  and never a private child's specifics · keep at most one repo-shaped
+  pending-upstream line naming the parent item · put the incident in the child's
+  own record); and the close, where that line becomes a pointer at the child's
+  next pin bump.
+- Mike commissioned it 2026-08-18 and ruled the child-side allowance the same
+  day: **one line rather than nothing**, because forbidding the local write
+  without removing the exposure that causes it leaves the child knowingly
+  unprotected between learning and landing.
+- Stated in the section itself: it is **rung 1 until something enumerates it**.
+  `floorfleet.py` and `pins.py` answer *is this child current*; nothing answers
+  *is anything owed to the house*. The instrument is funded as its own item.
+- `GUARDS.md` § *A rule with no home is not a rule* gains the cross-repo
+  pointer — its "queue the homing" clause is what a child session reads at the
+  moment this decision is made, and it did not say the home may be elsewhere.
+
+### Fixed (2026-08-18 — the canonical child block's index rule was lossy and mis-pointed)
+- The block's concurrency bullet said *read the staged hunk headers before every
+  commit* and pointed at `CONCURRENCY.md` § *The channel*. The phrase reads as
+  covering only what you staged; the rule lives in § *The trigger*. A child
+  session reasoned from that compression, concluded the house had a gap it does
+  not have, and authored ~300 words of duplicate rule marked owed upstream —
+  the instance that produced § *Pointing up*. Both defects fixed in
+  `PROPAGATION.md` and in `docs/build/templates/CLAUDE.md`.
+- `CONCURRENCY.md` § *The trigger* gains the clause the compression dropped:
+  read `git diff --cached` as the **whole index, not your own hunks**, and a
+  stale entry needs no live peer — an index outlives the ref that fed it, so a
+  path staged before you opened or left behind by a peer's `update-ref` landing
+  is still there to be committed under your message. Bearing added.
+- **Ten children carry both defects** (swept, not estimated) and clear them at
+  their own next pin bump; no new occasion invented.
+
 ### Changed (2026-08-17 — BS1 ruled: the hook-plane board guarantee, said plainly)
 - The four surfaces that said a stale roadmap index *cannot* be committed
   (`tools/board.py` docstring, `tools/README.md`, `docs/method/CONCURRENCY.md`
