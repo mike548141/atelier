@@ -7,27 +7,26 @@
       `docs/method/PRINCIPLES.md` §10 and its *prevention-or-cheap-failure*
       situation test · `docs/method/GUARDS.md` § The fourth requirement and its
       `Related` line. Landed on wt: `posture-0817` (claim `e4be7f7`).
-      🚩 **Scoped this way for the reason a peer filed as `AA11` on 2026-08-17:**
-      a landing commit that packages its own intent record and board items will,
-      via a brief saying "read the diff", order its reviewer into barred
-      material. The intent record below is background the reviewer's own
-      deferral discipline governs, never part of the delta.
       *Intent record:*
       [`../../sessions/2026-08-17-0900-posture-recover-cheaply.md`](../../sessions/2026-08-17-0900-posture-recover-cheaply.md).
-      **CLAIMED 2026-08-18 0740 UTC — RUNNING.** Taker: a session Mike opened
-      2026-08-18 on the **Fable** tier (checked at claim: `claude-fable-5`)
-      under his standing instruction (*do any reviews and Fable-dependent
-      work*). It authored no part of the delta, was neither started nor
-      instructed by the authoring session or the brief-writing session, and
-      runs by hand — reviewer only, no orchestrator; the deferred sibling
-      stays unopened until its findings are durably committed, opened then as
-      a deliberate second act.
-      Brief written 2026-08-17 by a non-author cold session on the Fable tier —
-      open for a cold Fable taker:
-      `docs/reviews/2026-08-17-1321-posture-cold.md`
-      (deferred sibling `docs/reviews/2026-08-17-1321-posture-cold.deferred.md`,
-      opened only after the reviewer's findings are durably written; finding
-      prefix `PT`; wt: cold-run-0817-1321). Two brief-writer disclosures stand
-      in it: the `SESSIONS.md` tail was read at onramp before the brief was
-      commissioned (not this delta's own entry), and the landing commit's
-      message was read in full.
+      - [ ] 🛑 **The pass RAN 2026-08-18 and the cycle stays OPEN — a MAJOR
+            stands.** The rule-4 Fable cold pass (taker: a Mike-opened session
+            on `claude-fable-5`, claimed 0740 UTC, hand-run — reviewer only, no
+            orchestrator, sibling opened only after the findings commit)
+            returned PASS-WITH-FINDINGS — 1 MAJOR / 2 MODERATE / 3 minor /
+            3 note, plus two reconcile-stage additions (PT4a MODERATE, PT1a
+            note); suites, floor and scans reproduced the landing commit's
+            claims exactly, and the delta adds zero plainscan findings →
+            [`reviews/2026-08-17-1321-posture-cold.md`](../../reviews/2026-08-17-1321-posture-cold.md)
+            (sibling folded in and deleted). PT1 (MAJOR): the fourth
+            requirement's declaration has no home by `GUARDS.md`'s own
+            same-page, same-day test — no surface, format or check is named,
+            so no guard can comply; no 300 item funds the homing. PT4a
+            (reconcile): ruling 1's stamped-copies half — case docs pointing
+            up at §10 — is unapplied and unqueued. PT2 — the sentence above
+            the new section still says three requirements; PT4 — `ACCESS.md`
+            is assigned a device-joining case it does not carry; PT1a — the
+            requirement and open item `115/120` are two declaration standards
+            over the same registry entry, and the ruling record cites
+            `115/130` for the asymmetry (wrong item). PT1–PT9 + PT4a + PT1a
+            join the principal's ruling round.
