@@ -304,6 +304,18 @@ template, a skill, a check — a place that is loaded or enforced, not a place
 that is archived. If the honest answer is "the commit message", the rule is not
 yet a rule and the work is not yet done; queue the homing or drop the claim.
 
+**And the surface may not be in this repo.** Where the rule a session earned is
+the *house's* rather than this repo's, "queue the homing" means filing it in the
+parent, and the route — how to tell the two apart, where the finding goes, and
+what the child may hold while it waits — is `PROPAGATION.md` § *Pointing up*.
+Writing it into the local onramp instead satisfies this test's letter and
+defeats it: the rule is now on a loaded surface, and it is loaded for exactly
+the sessions it does not govern. That route opens with the check this test does
+not make — *read the parent's actual file, never your own inlined summary of it*
+— because a rule the parent already owns cannot be homed anywhere, and a session
+reasoning from the summary cannot tell the difference (grounded 2026-08-18; the
+instance is in that section).
+
 This is why `RECORD.md`'s § *An approval is not the whole ruling* sits in
 doctrine and not only in the incident that earned it: the incident is the
 evidence, the doctrine surface is the rule. Same relationship for every entry

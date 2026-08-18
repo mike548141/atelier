@@ -54,8 +54,10 @@ in atelier and is read on demand — never wholesale.
   what, never which files. A message reserves nothing; only a pushed artefact
   does, so check a shared allocator (identifiers, version constants) **after**
   the push. The shared checkout's index and its mid-rebase state are shared
-  surfaces too: stage explicit paths, and read the staged hunk headers before
-  every commit (`CONCURRENCY.md` § The channel).
+  surfaces too: stage explicit paths, never `git add -A`, and read the **whole
+  staged index** before every commit — `git diff --cached` shows the paths you
+  did not stage as well, which is the half a hunk-by-hunk read misses
+  (`CONCURRENCY.md` § The trigger).
 - **Session rhythm (points up for the full rule):** claim work you take off the
   shared queue before starting it, and let a live `[~]` claim override a
   standing instruction to take that item; stay in the lane you were given

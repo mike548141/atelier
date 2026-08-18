@@ -135,8 +135,10 @@ in atelier and is read on demand — never wholesale.
   what, never which files. A message reserves nothing; only a pushed artefact
   does, so check a shared allocator (identifiers, version constants) **after**
   the push. The shared checkout's index and its mid-rebase state are shared
-  surfaces too: stage explicit paths, and read the staged hunk headers before
-  every commit (`CONCURRENCY.md` § The channel).
+  surfaces too: stage explicit paths, never `git add -A`, and read the **whole
+  staged index** before every commit — `git diff --cached` shows the paths you
+  did not stage as well, which is the half a hunk-by-hunk read misses
+  (`CONCURRENCY.md` § The trigger).
 - **Session rhythm (points up for the full rule):** claim work you take off the
   shared queue before starting it, and let a live `[~]` claim override a
   standing instruction to take that item; stay in the lane you were given
@@ -343,6 +345,153 @@ copy "drifted 17 days behind a provider change, and misled a session into
 arguing from a falsified fact", and was trimmed to repo-local facts on the DRY
 ruling of 2026-08-09. That is the whole failure mode in one repo: a repeat is
 not a redundant copy, it is a *falsifiable* copy, and it falsifies quietly.
+
+## Pointing up — when a child earns a house rule
+
+*The route that was missing. § The layer-override rule says children point up
+and the parent never points down for truth; § Who is a child says a child may
+add but never repeat. Neither says **where** a child files a rule the house
+owns — so the only mechanism a child session actually had was to write the rule
+into its own onramp and note the debt in prose. Grounded on a private child,
+2026-08-18 (§ The instance, below).*
+
+### Check the parent's file first — never your own block
+
+**The floor block is a lossy summary, and it is not evidence about what the
+house doctrine says.** A child session that believes it has earned a house rule
+opens the parent's actual doctrine file before it says so. Reasoning from the
+inlined block instead is the failure that produces every defect below at once,
+because a compression that drops a qualifier reads exactly like a rule that
+never had one — and the gap the session then "finds" is a gap in the summary,
+not in the house.
+
+This is § One statement, stamped copies with its consequence followed all the
+way down. A stamped copy drifting is the known hazard; the *second-order*
+hazard is a copy being read as the source, because then it does not merely
+misinform — it manufactures phantom debt, and the debt looks like diligence.
+
+So the check that comes first, before any of the route below:
+
+- **Open the canonical file, in full, at the section that owns the subject.**
+  Not the block, not a grep of the block, not what a previous session's
+  paraphrase implied.
+- **If the parent already owns the rule, you have found a findability defect,
+  not a doctrine gap.** File it as one: the pointer that failed you, the
+  wording that misread, the section it should have named. That is a real and
+  valuable finding, and it lands in a different place than a new rule would.
+- **Only if the parent genuinely does not own it** does the route below apply.
+
+### The test — whose rule is it
+
+**Would this rule be true in a repo that shares none of this repo's stack?** If
+no, it is the child's: add it locally and you are done — § Who is a child makes
+adding free and actively wanted. If yes, it is the house's, and the child is
+not its home.
+
+The seam to watch: a rule can be *learned* on a child's stack and still be
+*about* something every repo has. A rule learned while staging paths in a
+shared checkout is about git, which every child has, so it is the house's from
+its first sentence.
+
+### The route
+
+Four steps, none of them large.
+
+1. **File it in the parent's board, not the child's onramp.** A board item under
+   atelier's `docs/roadmap/`, carrying the incident, the class it belongs to,
+   and the doctrine file it would land in. This is not delivering a fix from
+   another session (`CONCURRENCY.md` § Stay in your lane) — filing a finding in
+   the repo that owns the subject *is* the lane. Writing the doctrine is an
+   atelier session's work; the child's session stops at the finding.
+
+2. **Carry the class, never the child's specifics.** atelier is public. A
+   finding filed from a private child names the *shape* of what broke and the
+   guarantee that failed — never the repo, its hosts, its clients or its
+   secrets. Where the class cannot be stated without them, the finding belongs
+   in the private estate root and the parent's item points at it.
+
+3. **The child keeps the consequence, not the rule.** The child still has to be
+   safe in the window between learning and landing, and that need is real — it
+   is what drives the local write. So the child may add **one line of
+   repo-shaped instruction**: what a session in *this* repo must do, marked
+   pending-upstream and naming the parent item it waits on. Not the
+   generalisation, not the reasoning, not the incident narrative. A
+   pending-upstream line is a **narrowing** (§ The layer-override rule), which
+   a child may always do; it is also dated, addressed and self-removing, which
+   is what separates it from a second original. (The principal ruled this
+   allowance in preference to holding nothing, 2026-08-18: forbidding the local
+   write without removing the exposure that causes it would leave the child
+   knowingly unprotected, and that exposure is what produced the instance
+   below.)
+
+4. **The incident goes in the child's record.** A session log is the right home
+   for what happened. `GUARDS.md` § A rule with no home is not a rule bars a
+   record from being the home of the **rule**, not of the **evidence**; the two
+   statements are not in tension. Evidence stays where it happened, the rule
+   travels to where it governs.
+
+**Closing the loop.** When the parent lands the doctrine, the child's
+pending-upstream line is replaced by a pointer at its next pin bump — the pin
+bump is already the occasion on which a child reviews its block against a moved
+parent (§ The standard child doctrine block), so this needs no new ceremony. A
+pending-upstream line that survives a pin bump past its parent item is drift,
+and should read as one.
+
+### The instance
+
+A private child, 2026-08-18. A session staged two paths explicitly, committed,
+and destroyed a sibling's session-log entry that had been sitting in the shared
+checkout's index before it arrived. Real failure, correctly diagnosed down to
+the cause — an index outliving the ref that fed it.
+
+It then reached for the rule and read **its own block**, which compresses the
+house rule to *read the staged hunk headers before every commit*. Read that way,
+the rule only covers what you staged, so the session concluded the house had a
+gap, wrote roughly three hundred words of new rule into the child's floor block,
+and marked it owed upstream.
+
+The house had no gap. `CONCURRENCY.md` § The trigger says to run
+`git diff --cached`, which reads the whole index — including the paths you did
+not stage. Its sibling rule was in the parent verbatim. **Nothing was owed
+upstream at all**, and the debt marker pointed at a rule the parent already
+owned.
+
+Four things went wrong and the session could see none of them from where it
+stood, which is why this section exists rather than a correction to that child:
+
+- **The debt had no owner and no enumerator.** A marker in a child's onramp is
+  read by future *child* sessions; the act it asks for belongs to an atelier
+  session. `floorfleet.py` and `pins.py` enumerate the estate downward — *is
+  this child current?* Nothing enumerates upward — *is anything owed to the
+  house?* That is § Enumeration, not assumption aimed at the direction it was
+  never pointed at.
+- **It minted a second original that could not even be stamped.** A stamped
+  copy names its canonical source; a rule authored in a child has none to name,
+  because the child *is* the only original. The moment the parent writes it, the
+  child holds an unstamped duplicate — and `stampscan` cannot see it, because it
+  never claimed to be a copy.
+- **It spent the hottest read path in the fleet.** § The standard child doctrine
+  block is lean by design because every child session pays its length at every
+  open. House-shaped narrative is precisely what belongs behind the pointer.
+- **It set the parent's frame from the child.** Doctrine here is *extracted from
+  evidence*. Had this landed, atelier would have been rewriting a child's
+  paragraph — inheriting its vocabulary, its symptom list and its framing as the
+  default shape.
+
+**And the block's own pointer was part of the cause.** The concurrency bullet
+sent the reader to `CONCURRENCY.md` § The channel; the index rule lives in
+§ The trigger. A session that *did* follow the pointer landed in the wrong
+section and found nothing. Both defects — the pointer and the lossy phrase —
+were fixed in the canonical block on this commit and reach the fleet at each
+child's next pin bump.
+
+**Stated honestly: this section is rung 1 until something enumerates it**
+(§ When a rule keeps breaking). Nothing today answers *what does the estate owe
+the house?*, and the failure addressed here is exactly an unenumerated absence
+— the same defect `floorfleet.py` closes in the other direction. The instrument
+is queued as its own board item. Until it exists the discipline rests on a
+child session filing at the moment it is earned, so do not read the route above
+as a closed loop: it is a route, and it is currently unwatched.
 
 ## Enforcement propagates too — by call, never by copy
 

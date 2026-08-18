@@ -336,3 +336,13 @@ then `python3 tools/board.py rebuild`.
 - [ ] [🚩 Re-rank the open guard work against the fourth requirement — and](roadmap/300-posture-recover-cheaply-mike-commissioned/020-re-rank-the-guard-board-against-the-test.md)
 - [ ] 🎯 [The census: what would this estate actually NOTICE, and what can it](roadmap/300-posture-recover-cheaply-mike-commissioned/030-what-would-this-estate-actually-notice.md)
 - ⏳ [Rule-4 cold pass owed on the posture section and the fourth guard](roadmap/300-posture-recover-cheaply-mike-commissioned/040-rule-4-cold-pass-queued-the-posture.md)
+
+## Pointing up — the child-to-parent route (Mike commissioned 2026-08-18)
+
+*[Narrative](roadmap/310-pointing-up-the-child-to-parent-route/README.md)*
+
+- ✅ 🎯 [The upstream route, and the two block defects that caused the](roadmap/310-pointing-up-the-child-to-parent-route/010-the-pointing-up-route-and-the-two-block-fixes.md)
+- [ ] 🎯 [Nothing enumerates what the estate owes the house — the upstream](roadmap/310-pointing-up-the-child-to-parent-route/020-nothing-enumerates-what-the-estate-owes-the-house.md)
+- [ ] [🚩 Ten children carry both block defects, and each clears them at its](roadmap/310-pointing-up-the-child-to-parent-route/030-the-corrected-block-reaches-ten-children-at-pin-bump.md)
+- [ ] 🎯 [Queue the block-trim finding in cbom — AFTER this cycle's](roadmap/310-pointing-up-the-child-to-parent-route/040-queue-the-block-trim-finding-in-cbom-after-the-cycle.md)
+- ⏳ [Rule-4 review queued (tier: Fable; pass type: doc cold pass) — the](roadmap/310-pointing-up-the-child-to-parent-route/050-rule-4-cold-pass-queued-pointing-up.md)
