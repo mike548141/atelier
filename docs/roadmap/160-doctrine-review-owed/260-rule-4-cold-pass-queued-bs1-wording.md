@@ -14,8 +14,16 @@
       `290-ruling-round-2026-08-17-the-cold-run-find/050-…`, carrying the
       principal's ruling in the wording he selected — background the reviewer's
       own deferral discipline governs, never part of the delta.
+      **CLAIMED 2026-08-18 0740 UTC — RUNNING.** Taker: a session Mike opened
+      2026-08-18 on the **Fable** tier (checked at claim: `claude-fable-5`)
+      under his standing instruction (*do any reviews and Fable-dependent
+      work*). It authored no part of the delta, was neither started nor
+      instructed by the authoring session or the brief-writing session, and
+      runs by hand — reviewer only, no orchestrator; the deferred sibling
+      stays unopened until its findings are durably committed, opened then as
+      a deliberate second act.
       Brief written 2026-08-17 by a non-author cold session on the Fable tier —
-      REVIEW NOT RUN, open for a cold Fable taker:
+      open for a cold Fable taker:
       `docs/reviews/2026-08-17-1321-bs1-wording-cold.md`
       (deferred sibling `docs/reviews/2026-08-17-1321-bs1-wording-cold.deferred.md`,
       opened only after the reviewer's findings are durably written; finding
