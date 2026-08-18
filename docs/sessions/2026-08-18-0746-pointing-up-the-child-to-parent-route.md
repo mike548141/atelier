@@ -98,3 +98,69 @@ session editing that repo directly as a recorded exception — and declined it.
   above. `310/040` carries what it must say so the taker is not re-deriving it.
 - **Doctrine is self-authored here**, so the rule-4 `⏳` at `310/050` is queued
   in this landing commit and this session neither takes nor spawns it.
+
+## Postscript — the route was exercised the same day, from the outside
+
+Hours after the merge, a private child's session sent three findings over the
+cross-session channel instead of writing them into its own onramp. It had read
+§ *Pointing up*, checked the parent's actual files first, stopped at the
+finding, and stated all three as class only — no repo name, no hosts, no
+client, no child filenames. It also flagged that it had sent identically to two
+atelier sessions and asked us to coordinate; a follow-up corrected that the
+other had closed, which my own `ListAgents` independently confirmed.
+
+**I reproduced its lead finding rather than filing it on trust**, which it
+explicitly asked for: *"I would rather you reproduced it at your HEAD than took
+my word for it."* A throwaway repo laid out `src/mypkg/sub/module.py` with a
+`docs/` tree, run against `tools/pathscan.py` at HEAD.
+
+**And then I got two of the three classes wrong, and the child corrected me
+inside the hour.** This is the part worth keeping.
+
+My first pass produced two confident corrections to the child's account. Both
+were wrong, and the errors were not the same kind:
+
+- **Class B — I claimed the correct relative form `../atelier/docs/method/…`
+  reds, and called it the sharp end: a child accruing a finding for obeying the
+  doctrine.** False. **The control was invalid** — my probe repo had no sibling
+  at the path the reference named, so the token had nothing to resolve to and
+  the red was my probe's artefact. The child falsified it from its own tree,
+  where five references in exactly that form appear in none of its 45. Re-probed
+  with the sibling present: it resolves. **Third recorded instance of using a
+  control I had not checked was comparable.**
+- **Class C — I proposed backticks as the discriminator.** False. Both of the
+  child's real hits are backticked. Re-probing showed the actual discriminator
+  is *which wildcard character*: `*` and `?` are excluded by the existing
+  lookbehind, `{` brace expansion is not, and a trailing slash is **stripped**
+  rather than exempting the token (`docs/client/` → `docs/client`).
+- **Class A survived both passes** as the child stated it — 33 of 45, the whole
+  story. Plus a discrepancy found while reproducing: the failure message names
+  three resolution anchors where the module docstring advertises four.
+
+I had also asked the child to check its pin, on the theory that version skew
+explained the Class C gap. There is no pin: its hook execs the scanners from
+this checkout, so it was running **my exact code**. The skew hypothesis was
+mine and it was lazy — it would have explained away a real defect.
+
+Controls behaved throughout (present path clean, absent path flagged), so this
+is three resolution gaps and not a failed scanner.
+
+**Filed as board section `320`, four items**, kept together rather than split
+by subject because the fact that a *child* filed them is evidence about the
+route and splitting would bury it. The two doctrine proposals went up **as
+proposals**: `020` would change the fourth requirement Mike ruled on
+2026-08-17, so it is his to change and I did not write it into `GUARDS.md`.
+`040` is a mechanism the child raised as a question after reading the section
+that would have answered it — it checked `PROPAGATION.md` § *Enforcement
+propagates too*, found the argument already made, and declined to file the
+finding it had been about to write. Only the narrow residue is filed.
+
+**Both of my wrong turns are left visible in `010` rather than edited out.** A
+board that quietly absorbs its own corrections cannot show a pattern three
+instances deep, and the invalid-control mistake is now three deep.
+
+**Not claimed:** the child's headline number — 45 findings, 0 real — is its
+measurement in its repo, recorded as reported and **not** reproduced here. I
+verified the three mechanisms, not the tally. The fix priority rests on the
+mechanism; the alarm-fatigue argument rests on the tally, and only one of those
+is verified.
