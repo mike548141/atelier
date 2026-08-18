@@ -28,7 +28,17 @@
       a taken-but-open pointer its own glyph, so `⏳` means *untaken* and only ever
       that — which is the cheapest thing for a human grep and the most invasive to
       the vocabulary.
-      ⚠️ **Stated honestly: this is a reading of the detector's docstring plus a
-      clean exit code, not a probe.** Nobody has reordered the item to confirm the
-      guard fires the other way round. Confirm before pricing a fix. The pointers
-      belong to a session that has since closed, so the lane is free.
+      ✅ **CONFIRMED by probe, 2026-08-18 (scratch board, both directions).**
+      The reading above is now measurement: a pointer with the claim in its
+      lead and the verdict evidence in a sub-bullet scans clean; the same
+      content reordered — evidence before the claim — fires
+      `[cycle] says a review is owed while carrying its own verdict` exactly
+      as the docstring describes. Two sharpenings the probe adds: on the
+      split board the state line is by definition the item's **first** line,
+      so a pointer whose lead carries the claim can *never* present
+      evidence-first — the order heuristic is structurally unable to fire on
+      the lead-claim shape, which is now the house convention for taken
+      pointers (the FR, EP, BW and PT pointers all use it); and pointerscan
+      is warn-only on both planes, so even a firing finding never blocks.
+      The choice between shapes (a)/(b)/(c) above is now priced on confirmed
+      behaviour and stays Mike's.
