@@ -346,6 +346,9 @@ then `python3 tools/board.py rebuild`.
 - [ ] [🚩 Ten children carry both block defects, and each clears them at its](roadmap/310-pointing-up-the-child-to-parent-route/030-the-corrected-block-reaches-ten-children-at-pin-bump.md)
 - [ ] 🎯 [Queue the block-trim finding in cbom — AFTER this cycle's](roadmap/310-pointing-up-the-child-to-parent-route/040-queue-the-block-trim-finding-in-cbom-after-the-cycle.md)
 - ⏳ [Rule-4 review queued (tier: Fable; pass type: doc cold pass) — the](roadmap/310-pointing-up-the-child-to-parent-route/050-rule-4-cold-pass-queued-pointing-up.md)
+- [ ] 🎯 [The board's state vocabulary is too narrow to index work by](roadmap/310-pointing-up-the-child-to-parent-route/060-the-board-state-vocabulary-is-too-narrow-to-index-by.md)
+- [ ] [🚩 Two board markers mean different things in a child than they do](roadmap/310-pointing-up-the-child-to-parent-route/070-two-markers-mean-different-things-in-a-child.md)
+- [ ] 🔎 [2cd4730 attributes a proposal to Mike that he did not make, and it](roadmap/310-pointing-up-the-child-to-parent-route/080-a-capture-attributes-a-proposal-to-mike-that-he-did-not-make.md)
 
 ## Findings filed from a child via § *Pointing up* (2026-08-18)
 
