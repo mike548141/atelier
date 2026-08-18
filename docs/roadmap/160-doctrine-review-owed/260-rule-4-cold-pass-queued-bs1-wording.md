@@ -14,21 +14,25 @@
       `290-ruling-round-2026-08-17-the-cold-run-find/050-…`, carrying the
       principal's ruling in the wording he selected — background the reviewer's
       own deferral discipline governs, never part of the delta.
-      **CLAIMED 2026-08-18 0740 UTC — RUNNING.** Taker: a session Mike opened
-      2026-08-18 on the **Fable** tier (checked at claim: `claude-fable-5`)
-      under his standing instruction (*do any reviews and Fable-dependent
-      work*). It authored no part of the delta, was neither started nor
-      instructed by the authoring session or the brief-writing session, and
-      runs by hand — reviewer only, no orchestrator; the deferred sibling
-      stays unopened until its findings are durably committed, opened then as
-      a deliberate second act.
-      Brief written 2026-08-17 by a non-author cold session on the Fable tier —
-      open for a cold Fable taker:
-      `docs/reviews/2026-08-17-1321-bs1-wording-cold.md`
-      (deferred sibling `docs/reviews/2026-08-17-1321-bs1-wording-cold.deferred.md`,
-      opened only after the reviewer's findings are durably written; finding
-      prefix `BW`; wt: cold-run-0817-1321). Three brief-writer disclosures stand
-      in it: the `SESSIONS.md` tail and the authoring session's record were read
-      at onramp before the brief was commissioned, the landing commit's message
-      was read in full, and the brief-writer was orchestrating other passes at
-      the time.
+      - [ ] 🛑 **The pass RAN 2026-08-18 and the cycle stays OPEN — a MAJOR
+            stands.** The rule-4 Fable cold pass (taker: a Mike-opened session
+            on `claude-fable-5`, claimed 0740 UTC, hand-run — reviewer only, no
+            orchestrator, sibling opened only after the findings commit)
+            returned PASS-WITH-FINDINGS — 1 MAJOR / 3 MODERATE / 2 minor /
+            3 note; the mechanism claims reproduced live on both planes in a
+            scratch repo, and the suites reproduced the landing commit's own
+            evidence (1,344 Python, 235 node, selftest OK, floor green) →
+            [`reviews/2026-08-17-1321-bs1-wording-cold.md`](../../reviews/2026-08-17-1321-bs1-wording-cold.md)
+            (sibling folded in and deleted). BW1 (MAJOR): the condition clause
+            "at the hook only when worktree and index agree" misnames the
+            condition on all five spellings — agreement is the state in which
+            the hook misses (probed); the true condition is
+            staged-plane-matches-worktree. Reconcile reframed BW1 as counsel
+            against a ruled wording (the phrase descends verbatim from BS1
+            counsel (c) through the ruling — the FR2 shape, severity
+            unchanged), so the resolution is the principal's re-briefing.
+            BW2 — CONCURRENCY qualifies "a forgotten rebuild", which the hook
+            does catch; BW3 — `docs/roadmap/README.md` still asserts the
+            guarantee unqualified; BW4 — the new stop rule contradicts CF3's
+            unedited branch test beside it. BW1–BW9 join the principal's
+            ruling round.
