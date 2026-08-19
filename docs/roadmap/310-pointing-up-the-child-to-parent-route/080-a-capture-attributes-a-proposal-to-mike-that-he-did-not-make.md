@@ -72,6 +72,16 @@
       capture, which a session found and believed. Fixing today's legend does
       nothing about that path, which is the argument for option (b) or (c)
       below rather than against them.
+      📌 **A fourth candidate, smaller than the three below and separable from
+      them: date a ruling from the MESSAGE's timestamp, never the session's.**
+      That is the whole of the mechanism found above, and it is portable — most
+      sessions in this estate run long enough to straddle a UTC midnight, so
+      any of them can misdate a ruling by a day at no fault of the writer. The
+      filing child has adopted it as local practice and deliberately did **not**
+      write it as a rule, on the ground that it is `RECORD.md`'s if it is
+      anyone's. **Left as a candidate here rather than promoted**, because the
+      house's own threshold is the third instance and this is the first —
+      recorded so the count can start, not so the rule can skip it.
       **Options, offered not recommended.** (a) Correct the two places and stop.
       (b) Correct them and add a convention — **quote the principal verbatim
       beside any paraphrase of his words**, one indented line, which makes the

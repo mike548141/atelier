@@ -13,11 +13,23 @@
       🔑 **Why the second is the more dangerous of the two, and the reason this
       is worth a sentence rather than a shrug.** An invented rule is *visible* —
       it sits in the onramp as text a reviewer can find and challenge, which is
-      how the original instance was caught within a day. A question wrongly
-      **closed** leaves nothing behind at all: no rule, no marker, no artefact,
-      just an absence that reads exactly like a question nobody had. It is the
-      *"an absence never raises its hand"* failure that § *Enumeration, not
-      assumption* already names, arriving inside the route built to prevent it.
+      how the original instance was caught within a day.
+      🔴 **And a wrongly-closed question is worse than an absence** — this item
+      first said it *"leaves nothing behind at all"*, and the filing child
+      corrected that on 2026-08-19, from the instance it lived through. **It
+      leaves a citable artefact wearing the principal's authority.** The closure
+      is written down as a settled answer, so the next session does not read an
+      open question and decline to answer it — **it reads a ruling and cites
+      it**, which is exactly what happened on 2026-08-17 when a session quoted
+      the capture back at Mike as his own position and argued against a stance
+      he had never taken. He corrected it from memory.
+      **That is what let it survive four weeks and a self-review**: an absence
+      is merely unnoticed, while a wrong artefact is *actively defended* by
+      everyone who finds it, because it carries the authority nobody re-checks.
+      So the two shapes are one mechanism, not two failures that happen to
+      rhyme, and `080` is this shape's worked example rather than a neighbouring
+      finding — the misattribution there **is** a house question closed locally,
+      and it is the reason the closure was quotable.
       **The live example is in this same section.** `060` records that the
       2026-07-23 *"keep three"* ruling answered whether the **bracket** should
       carry a disposition, and was then read as having refused the broader
