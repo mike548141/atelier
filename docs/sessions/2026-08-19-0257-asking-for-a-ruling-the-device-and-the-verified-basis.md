@@ -155,6 +155,26 @@ deliberately not rewritten. Recorded as an observation, not a proof. The item's
 evidence status now reads: one shape mechanically reproducible in both repos,
 one confirmed at the parent by registry read, the rest as measured.
 
+**A second child session filed a second proposal before this one closed**
+(`320/060`, from `cbom`, reporting itself as the offender). Its finding is
+sharper than its instance: **the floor already printed the sweep and the correct
+number was scenery** — `publishscan` said five staged paths where the session
+had read four — so *"print the path list, not just the count"* is the wrong fix,
+because a hundred lines of scanner output is where a correct number goes to die.
+Verified here rather than assumed: `publishscan --staged` does build its set
+from `git diff --cached --name-only --diff-filter=ACMR`
+(`tools/publishscan.py:256`; the filer cited `:247`, a few lines out), so its
+comparison was like-for-like. Its mechanism was **re-run here** in a throwaway
+repo with a hook that prints what it sees: a bare commit gives the hook
+`.git/index` and the full staged set, a `git commit -- <path>` gives it
+`.git/next-index-<pid>.lock` and only the named path, with the rest left staged.
+So path-scoping is **free to detect** and the hook's view is already narrowed to
+what will land. The proposed guard — require a path-scoped commit wherever
+`git worktree list` shows siblings — is filed with its three limits and with the
+cost stated at its true strength: **atelier is structurally multi-worktree**
+(three live in this session), so the tax would bind on essentially every commit
+here. That cuts both ways and the item says so.
+
 Self-authored doctrine, so the rule-4 `⏳` is queued at `160/270` in this
 landing commit, and neither taken nor spawned here. The `320/050` proposal is
 board work, not doctrine, so it carries no pointer of its own.
