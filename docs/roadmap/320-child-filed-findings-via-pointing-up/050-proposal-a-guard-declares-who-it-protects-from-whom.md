@@ -49,6 +49,39 @@
       paths are foreign", it is "the paths are identified"** — a session working
       alone cannot meet it, and without the precondition the technique lets a
       session commit *around* a hazard it has not understood.
+      **Shape 3 became a probe the same day, and it reproduces here.** Asked
+      whether it could be made mechanical, the filer built a fifteen-line
+      single-session case and sent it; it was **re-run independently in a
+      scratch repo at this end** rather than taken on report. A symlink
+      `obs/latest` is committed pointing at `run-A`; a collection tool repoints
+      it to `run-B` and stages nothing; `git status --porcelain` prints
+      `" M obs/latest"` — column 2 only; `git diff --cached --name-only` is
+      **empty**, so a guard that reads the staged plane concludes nothing
+      foreign is staged and runs `reset --hard`; `readlink obs/latest` is
+      `run-A` again. Silently reverted. 🔑 **The guard is not a strawman** —
+      reading `git diff --cached` is exactly what `CONCURRENCY.md` prescribes
+      for shape 1, and it is the right check *there*. It is blind to column 2.
+      **Why this shape resists notice, in the filer's words:** the file that
+      gets reverted is one *nobody ever deliberately edits* — a tool repoints
+      it as a side effect — so **no mitigation written against "what I staged"
+      or "what they staged" covers a change nobody staged at all**. Every
+      mitigation written that evening reasoned about authored edits.
+      **A seventh instance, reported as an observation and not a proof.** While
+      committing that probe the filer hit shape 1 **from the opposite
+      direction**: it read the index (4 foreign paths staged by a peer), staged
+      its own file, rebuilt the generated index — which absorbed the peer's
+      *uncommitted* item edits — and before it could commit, the peer committed
+      and swept its file in under their message. Nothing was lost (diffed
+      against a pre-touch copy: byte-identical, 85 lines); only the attribution
+      is wrong, and history was deliberately not rewritten on a shared branch
+      with live sessions. The direction matters: every prior instance was *I
+      nearly committed a peer's work*, this is *a peer committed mine*, and
+      **the victim has no move** — the index read was correct when made, and the
+      window between reading and committing is where it lands.
+      **Honest status of the evidence for a ruling:** one shape (3) is
+      mechanically reproducible in both repos; shape 2 is confirmed at the
+      parent by registry read; shapes 1 and 4 and the two run-level members
+      remain as the child measured them.
       **Relationship to the parent's own record:** atelier already carries the
       shared-checkout hazard in both directions — absorbing a peer's work with a
       wide `git add`, and destroying a peer's in-flight hunks with a wide

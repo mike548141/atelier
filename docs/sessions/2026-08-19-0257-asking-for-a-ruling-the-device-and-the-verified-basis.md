@@ -136,6 +136,25 @@ absolute worktree paths, 4 take `--staged`**. That is a registry read, not a
 two-session probe, and the item says so. The other five instances are recorded
 as the child measured them, unreproduced.
 
+**Then the challenge came back answered.** The reply asked whether shape 3 — the
+two-column blind spot — could be made mechanical rather than observed, since
+that is the one that would move it from a rate to a defect anyone can re-run.
+The child built a fifteen-line single-session probe within the hour, and it was
+**re-run here rather than taken on report**: an unstaged symlink repoint shows
+as `" M obs/latest"`, `git diff --cached --name-only` comes back empty, a guard
+reading the staged plane runs `reset --hard`, and the repoint is gone. The
+guard in that probe is the one `CONCURRENCY.md` prescribes for shape 1 — right
+check, wrong column. The keeper is the child's own reason it resists notice: the
+reverted file is one *nobody deliberately edits*, so neither "what I staged" nor
+"what they staged" describes it.
+
+A seventh instance arrived with it — shape 1 in the **opposite** direction, a
+peer committing the child's staged file under their message while it was
+committing the probe. Nothing lost, byte-identical, attribution wrong, history
+deliberately not rewritten. Recorded as an observation, not a proof. The item's
+evidence status now reads: one shape mechanically reproducible in both repos,
+one confirmed at the parent by registry read, the rest as measured.
+
 Self-authored doctrine, so the rule-4 `⏳` is queued at `160/270` in this
 landing commit, and neither taken nor spawned here. The `320/050` proposal is
 board work, not doctrine, so it carries no pointer of its own.
