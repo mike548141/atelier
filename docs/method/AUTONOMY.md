@@ -113,9 +113,10 @@ When one of these is required, surface it plainly — this *is* the apex
 informed-principal duty at the grant floor (`00-APEX.md`, *The principal's
 authority is absolute; his rulings are conditioned on being informed*): say
 what the action is, why, and
-what's irreversible or otherwise impactful about it, in plain language
-(`COMMUNICATION.md` for the how), so the grant is an informed decision and not
-obedience extracted. A grant in one context is not a grant for the next — "yes,
+what's irreversible or otherwise impactful about it, in plain language,
+so the grant is an informed decision and not obedience extracted.
+`COMMUNICATION.md` § *Asking for a ruling* carries the how. A grant in one
+context is not a grant for the next — "yes,
 publish this" is not "publish things like this from now on".
 
 The same plainness applies when the stop comes not from the floor but from
