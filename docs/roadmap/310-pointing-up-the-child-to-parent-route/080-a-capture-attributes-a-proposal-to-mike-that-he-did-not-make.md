@@ -44,6 +44,34 @@
       sentence is easier to write, easier to quote and easier to act on, so
       every rewrite sheds the qualifier.
 
+      ✅ **VERIFIED at the source by an atelier session, 2026-08-19, and the
+      live blast radius is SMALLER than filed.** The attribution claim is
+      confirmed outright: session `1b189e23` turn 6, 04:31:07 UTC, read via
+      `instruments/cctranscript`, contains the harvest-integrity clause and
+      **no bracket, no enumeration and no proposal to extend the grammar**.
+      `2cd4730`'s ROADMAP line reads exactly as quoted above. The date half is
+      confirmed too: session `64f68104` runs 2026-07-22 12:06 → **2026-07-23**
+      02:20 UTC, so a ruling at 02:16:54 lands on the 23rd while the session
+      *opens* on the 22nd — which is mechanically how the conflation happened,
+      and worth knowing because it will happen again to any long session.
+      🔎 **The narrowing, recorded because a finding overstated in the safe
+      direction is still overstated.** The filing says *two one-line edits*.
+      There is **one** live edit, and it is the date: the five-state wording
+      attributed to Mike **survives on no live surface**. It exists in the
+      historical commit and in one `ROADMAP-DONE.md` line — and that line is
+      already correct, crediting the tri-state to *builder's counsel accepted*
+      rather than to him. Frozen history stays untouched under the forward-only
+      ruling; a live surface that says the wrong thing gets fixed.
+      **What was actually fixed here:** `docs/roadmap/README.md`'s legend dated
+      the tri-state to 2026-07-22. Corrected to the ruling date with the reason
+      inline, so the next reader does not re-derive it. `RECORD.md`'s
+      *harvest integrity (Mike's ruling, 2026-07-22)* was checked and **left
+      alone — it is correct**, and it is the genuine product of that same turn 6.
+      **So the class survives the narrowing and the edit does not close it.**
+      The quoting-forward incident on 2026-08-17 ran through the *historical*
+      capture, which a session found and believed. Fixing today's legend does
+      nothing about that path, which is the argument for option (b) or (c)
+      below rather than against them.
       **Options, offered not recommended.** (a) Correct the two places and stop.
       (b) Correct them and add a convention — **quote the principal verbatim
       beside any paraphrase of his words**, one indented line, which makes the

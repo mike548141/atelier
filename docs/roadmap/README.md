@@ -14,8 +14,10 @@ Sequencing rule from the 2026-07-10 review still binds: **mechanism before more
 content** — a repo that inherits docs but not the propagation + review cadence
 has inherited the costume, not the doctrine.
 
-Checkbox states — a **work-owed tri-state**, never a disposition (Mike,
-2026-07-22): `[ ]` work still owed · `[x]` **no more work owed** — delivered,
+Checkbox states — a **work-owed tri-state**, never a disposition (Mike's
+ruling, 2026-07-**23**; the 2026-07-22 date this legend carried until
+2026-08-19 was the day the *question* was captured, not the day it was
+answered — `310/080`): `[ ]` work still owed · `[x]` **no more work owed** — delivered,
 superseded, or declined, with the disposition said in the item's own text (a
 dated note), never a fourth bracket · `[~]` **claimed** by a live parallel
 session — `(claimed <date>-<HHMM>, wt: <branch>)`, optionally extended in place
