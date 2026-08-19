@@ -212,6 +212,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🛑 [The coldsweep pass RAN 2026-08-17 and the cycle stays OPEN — three](roadmap/160-doctrine-review-owed/240-rule-4-cold-pass-queued-coldsweep.md)
 - [ ] [A queued pointer at 240 instructs its own reviewer, and pointerscan](roadmap/160-doctrine-review-owed/250-a-queued-pointer-instructs-its-own-reviewer.md)
 - ⏳ [Rule-4 cold pass queued — the BS1 wording ruling applied (the](roadmap/160-doctrine-review-owed/260-rule-4-cold-pass-queued-bs1-wording.md)
+- ⏳ [Rule-4 cold pass queued — the ruling-ask rules (device, verified…](roadmap/160-doctrine-review-owed/270-rule-4-cold-pass-queued-decision-asks.md)
 
 ## build/ layer — open strands
 
@@ -264,6 +265,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [The forward test the trust analysis could not run.](roadmap/220-observability-of-the-collaboration-itsel/030-the-forward-test-the-trust-analysis-could-not.md)
 - [ ] [Session hygiene, measured: cap messages, not minutes.](roadmap/220-observability-of-the-collaboration-itsel/040-session-hygiene-measured-cap-messages-not-minu.md)
 - [ ] [The Context Atlas is a first mockup, unrefined, and the archive run is](roadmap/220-observability-of-the-collaboration-itsel/050-the-context-atlas-is-a-first-mockup-unrefined.md)
+- [ ] [Candidate — nothing watches the ask channel, so the ruling-ask rule is](roadmap/220-observability-of-the-collaboration-itsel/060-candidate-nothing-watches-the-ask-channel.md)
 
 ## File-size hygiene (new 2026-07-14)
 
@@ -359,3 +361,4 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [PROPOSAL for GUARDS.md — strict where we author, forgiving where](roadmap/320-child-filed-findings-via-pointing-up/020-proposal-strict-where-we-author-forgiving-where-we-read.md)
 - [ ] 🎯 [PROPOSAL — capture, do not compose: a hand-written fixture can only](roadmap/320-child-filed-findings-via-pointing-up/030-proposal-capture-do-not-compose-fixtures.md)
 - [ ] 🔎 [By-call enforcement resolves through a working tree, so "fresh"](roadmap/320-child-filed-findings-via-pointing-up/040-by-call-resolves-to-a-working-tree-so-fresh-means-whatever-is-on-disk.md)
+- [ ] 🎯 [PROPOSAL for GUARDS.md — a guard's THREAT MODEL is a property to](roadmap/320-child-filed-findings-via-pointing-up/050-proposal-a-guard-declares-who-it-protects-from-whom.md)
