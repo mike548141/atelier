@@ -1,5 +1,9 @@
 - ⏳ **Rule-4 review queued (tier: Fable; pass type: doc cold pass) — the
-      upstream route and the two canonical-block fixes.** *Delta:*
+      upstream route and the two canonical-block fixes.** *(Brief-writing
+      claimed 2026-08-21-0830, wt: worktree-pointing-up-brief-0821 — a
+      Mike-opened `claude-fable-5` session, non-author; brief only, the
+      writer does not run the pass, per his rule for cold sessions.)*
+      *Delta:*
       `docs/method/PROPAGATION.md` (new § *Pointing up — when a child earns a
       house rule*; the concurrency bullet of § *The standard child doctrine
       block* reworded and repointed) + `docs/build/templates/CLAUDE.md` (the
