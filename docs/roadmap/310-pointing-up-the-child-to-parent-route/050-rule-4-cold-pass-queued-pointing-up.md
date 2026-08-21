@@ -1,8 +1,15 @@
 - ⏳ **Rule-4 review queued (tier: Fable; pass type: doc cold pass) — the
-      upstream route and the two canonical-block fixes.** *(Brief-writing
-      claimed 2026-08-21-0830, wt: worktree-pointing-up-brief-0821 — a
-      Mike-opened `claude-fable-5` session, non-author; brief only, the
-      writer does not run the pass, per his rule for cold sessions.)*
+      upstream route and the two canonical-block fixes.** **Brief WRITTEN
+      2026-08-21, review NOT run** — `docs/reviews/2026-08-21-0820-pointing-up-cold.md`
+      with a `.deferred.md` sibling holding the writer's seeded questions
+      (code spans, not links: an unrun brief is not a verdict). Written by a
+      Mike-opened `claude-fable-5` session, author of neither the delta nor
+      the section, from the delta and this pointer only — intent records
+      unopened; its prior exposure (the delta diffs, read as child pin-bump
+      work the same morning) is disclosed in the brief. Under Mike's rule
+      the brief-writer does not run the review: the pass stays queued for a
+      further criterion-passing cold Fable session, which now has an unrun
+      brief to take.
       *Delta:*
       `docs/method/PROPAGATION.md` (new § *Pointing up — when a child earns a
       house rule*; the concurrency bullet of § *The standard child doctrine
