@@ -62,6 +62,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Generalise the finding, don't just fix this doc.](roadmap/020-policy-as-code-programme-five-tracks-mik/300-generalise-the-finding-don-t-just-fix-this-doc.md)
 - [ ] 🔥 [The reply gate is UNWIRED (2026-08-15) — destroy it, or repurpose it](roadmap/020-policy-as-code-programme-five-tracks-mik/310-the-reply-gate-is-unwired-destroy-it-or-repur.md)
 - [ ] 🔥 [linkscan is blind to reference-style link destinations, and says](roadmap/020-policy-as-code-programme-five-tracks-mik/320-linkscan-is-blind-to-reference-style-link-des.md)
+- ✅ [✅ The 2026-08-09 measurement checked for the three-channel blind spot](roadmap/020-policy-as-code-programme-five-tracks-mik/330-the-2026-08-09-measurement-checked-for-the-blind-spot.md)
 
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
 
@@ -255,6 +256,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [finished counts logs, not successes — and a dead agent still leaves a](roadmap/210-instruments-open-features/070-finished-counts-logs-not-successes-and-a-dead.md)
 - [ ] [think is a flag that no longer does anything.](roadmap/210-instruments-open-features/080-think-is-a-flag-that-no-longer-does-anything.md)
 - [ ] [Subagent logs are outside every cctranscript view.](roadmap/210-instruments-open-features/090-subagent-logs-are-outside-every-cctranscript-v.md)
+- [ ] 🔥 [cctranscript never reads the principal's mid-turn messages, and its](roadmap/210-instruments-open-features/100-cctranscript-never-reads-the-principal-s-mid-turn.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
@@ -363,3 +365,5 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [By-call enforcement resolves through a working tree, so "fresh"](roadmap/320-child-filed-findings-via-pointing-up/040-by-call-resolves-to-a-working-tree-so-fresh-means-whatever-is-on-disk.md)
 - [ ] 🎯 [PROPOSAL for GUARDS.md — a guard's THREAT MODEL is a property to](roadmap/320-child-filed-findings-via-pointing-up/050-proposal-a-guard-declares-who-it-protects-from-whom.md)
 - [ ] 🎯 [PROPOSAL for the floor + GUARDS.md — where siblings exist, require a](roadmap/320-child-filed-findings-via-pointing-up/060-proposal-the-floor-requires-a-path-scoped-commit.md)
+- [ ] 🎯 [PROPOSAL — a transcript has three principal-authored channels, and a](roadmap/320-child-filed-findings-via-pointing-up/070-proposal-a-transcript-has-three-channels.md)
+- [ ] 🎯 [PROPOSAL — quotescan: check quotations attributed to the principal](roadmap/320-child-filed-findings-via-pointing-up/080-proposal-quotescan-and-the-corpus-that-would-libel-him.md)
