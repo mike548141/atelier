@@ -371,3 +371,9 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [PROPOSAL for the floor + GUARDS.md — where siblings exist, require a](roadmap/320-child-filed-findings-via-pointing-up/060-proposal-the-floor-requires-a-path-scoped-commit.md)
 - [ ] 🎯 [PROPOSAL — a transcript has three principal-authored channels, and a](roadmap/320-child-filed-findings-via-pointing-up/070-proposal-a-transcript-has-three-channels.md)
 - [ ] 🎯 [PROPOSAL — quotescan: check quotations attributed to the principal](roadmap/320-child-filed-findings-via-pointing-up/080-proposal-quotescan-and-the-corpus-that-would-libel-him.md)
+
+## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
+
+*[Narrative](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/README.md)*
+
+- [ ] 🎯 [Give the rule a home, then sweep for where the house already breaks](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/010-name-the-rule-and-find-where-the-house-already-br.md)
