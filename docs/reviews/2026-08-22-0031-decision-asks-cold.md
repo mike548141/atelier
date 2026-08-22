@@ -133,9 +133,10 @@ its verdict does not touch these surfaces.
 
 ## Verdict — the pass ran 2026-08-22
 
-**PASS-WITH-FINDINGS — 1 MAJOR / 1 MODERATE / 2 minor / 2 note. The cycle
-stays open on the MAJOR (REVIEW.md: it closes when a pass returns none).
-Per rule 3 every finding is Mike's to decide; nothing was applied.**
+**PASS-WITH-FINDINGS — 1 MAJOR / 1 MODERATE / 2 minor / 2 note, plus
+reconcile-stage additions DA-R1–DA-R5 (2 minor, 3 note). The cycle stays
+open on the MAJOR (REVIEW.md: it closes when a pass returns none). Per
+rule 3 every finding is Mike's to decide; nothing was applied.**
 
 ### Provenance and exposure
 
@@ -282,3 +283,157 @@ remove the liability at the cost of one hop.
 lands between § *The meta-rules* and § *Worked example (scrubbed)*; the
 example illustrates the calibration, and now reads as if it illustrates
 ruling asks. Placement, not substance.
+
+### Reconcile — the sibling, the intent record, the prior verdicts
+
+All three opened only after the findings commit (`2cbc72a`), in that
+order.
+
+**The deferred sibling.** Its Q1 is DA1's mechanism, independently
+converged on — the reviewer formed DA1 from the live harness contract
+before opening the sibling, and the convergence of a cold reading and a
+seeded angle on the same sentence strengthens the finding rather than
+tainting it. Q4 extends DA1's scope and is folded into it: the
+verified-basis *marks* live in the reply beside the account, so in the
+same display mode they are equally invisible at decision time — one
+mechanism, one fix. Q6 was checked and **holds, no finding**: the
+calibration bullet does bar surveys flatly, but the new section claims
+only that "a calibration **may** bar" them and draws the
+work-vs-decision distinction, which is the live instance's actual
+position per the 2026-08-19 commission. Q5's deeper half and Q2, Q3, Q7,
+Q8 produced the reconcile-stage findings below.
+
+**DA-R1 (reconcile, note — from Q2).** The owed recommendation has no
+stated honest-degeneration for decisions whose deciding basis is
+exclusively the principal's — his risk appetite, a pure taste call. The
+reasoning-shown requirement mostly self-corrects (an honest
+recommendation can mark its basis as taste, or as strictly thinner than
+the principal's own information), but the clause that says so does not
+exist, and "owes" without it can manufacture confident-sounding counsel
+exactly where informing-not-steering is most delicate.
+
+**DA-R2 (reconcile, minor — from Q3).** The device's own fields are
+content — a mislabelled option is a wrong ask however good the reply
+above it — and neither home specifies what they must carry. The live
+tool's own convention (the recommended option listed first, labelled
+"(Recommended)") is the natural discharge, and it also blunts DA1's
+worst case: the one surface guaranteed visible at decision time in
+every display mode is the widget itself, so the owed recommendation
+marked *inside* it survives the mode that hides the reply.
+
+**DA-R3 (reconcile, note — from Q5).** The recorded plainscan evidence
+is a count identity, not a content one: per-file totals (23/14/11) can
+hold while a finding is swapped for a different finding. At this HEAD
+the distinction is moot (the files are unchanged since landing), but
+the method as recorded reads stronger than what it measured; a
+per-finding diff (`--json`) is the content-true form for future deltas.
+
+**DA-R4 (reconcile, note — from Q7).** The no-device paragraph
+specifies the ask's content and not the protocol around it: what the
+session does while the answer is outstanding. It is inferable — a floor
+stop halts per `AUTONOMY.md`; elsewhere the ask queues for the ruling
+round and recoverable work proceeds — but the paragraph that owns the
+no-device case says none of it.
+
+**DA-R5 (reconcile, minor — from Q8).** The two homes cover different
+ask classes and the join is unstated. The channel section covers
+"decisions, rulings, clarifications, and anything else the principal is
+being asked to settle"; the content list was written for accounts of
+acts and rulings. Read together, either every clarification formally
+owes a five-element account — over-ceremony for "which spelling do you
+prefer?" — or the content duty's boundary is undefined. DA4 is the same
+re-derivation gap surfacing on the list's overrule branch.
+
+**The intent record** (opened after the sibling) matches the delta as
+landed; its judgement calls were checked rather than taken. The
+tool-as-instance split holds. The narrowing of the commission's
+"unless there are extenuating circumstances" to the one checkable
+exception (no device exists) is disclosed with grounds, and "default
+channel" keeps the phrase rebuttable — compatible, no finding. The
+"nothing was removed" claim verifies: the waiver clause stands at HEAD.
+
+**Prior verdicts** (opened last): the 2026-07-14 informed-principal
+pass had already flagged the near-duplicate duty spellings as
+un-harmonised (its AS8/F4, then `[fixed]` by aligning them) — **DA2 is
+that class recurring**: the list grew again on 2026-08-19 and the
+spellings re-split. A second occurrence is the strongest support for
+DA5's counsel that restatements of this list should become pointers.
+The 2026-08-17 authority pass and the 2026-08-15 communication-floor
+pass carry nothing bearing on this delta's surfaces; no prior verdict
+anticipates DA1.
+
+### Folded-in deferred sibling (verbatim; file deleted at this landing)
+
+> # Deferred — brief-writer's seeded questions (open only after your findings are written)
+>
+> Sibling of `2026-08-22-0031-decision-asks-cold.md`. These are the
+> brief-writer's own attack angles, written 2026-08-22 by a session that did
+> not author the delta. A floor, never a fence: your own findings come
+> first, and this file is folded below the verdict and deleted when the pass
+> lands.
+>
+> 1. **"On screen while he decides" is a display assumption, not a
+>    guarantee.** The account-in-reply-first rule (claim 7) assumes text
+>    emitted before a structured ask is visible to the principal at
+>    decision time. The harness has display modes in which **mid-turn text
+>    is not shown at all** — only the final message of a turn is — and a
+>    structured ask fires mid-turn by construction. If the principal runs
+>    such a mode, the rule as written produces exactly the trimmed-account
+>    decision it forbids, while the session believes itself compliant. Does
+>    the doctrine hold under every display mode the harness actually
+>    ships — and if not, is the fix a wording change (send the account,
+>    *then* end the turn / confirm receipt) or a rule the harness cannot
+>    currently honour?
+> 2. **Does the owed recommendation survive the questions where a
+>    recommendation is steering?** The apex now says the agent owes a
+>    recommendation in every informed-principal account. Run the hard
+>    cases: a pure taste/values call (which of two visual designs; a
+>    naming choice); a decision where the agent's information is strictly
+>    worse than the principal's (his own risk appetite, his family's
+>    needs); a floor stop whose options are just yes/no. Does "owes"
+>    degenerate honestly (a recommendation with reasoning shown is always
+>    possible), or does it manufacture false confidence exactly where the
+>    apex's informing-not-steering line needs it least?
+> 3. **The two-homes split leaves the widget's own content unspecified.**
+>    The apex owes five content elements; the device carries "the choice
+>    alone" when the account is big. But the device's option labels and
+>    descriptions ARE content — a mis-labelled option is a wrong ask
+>    however good the reply text above it was. Neither file says what the
+>    *device fields* must carry (e.g. the recommendation marked in the
+>    option list, per the tool's own convention). Gap, or correctly left
+>    to the tool's guidance?
+> 4. **Verified-or-marked meets the size cap.** Claim 4's marks (verified
+>    vs assumed) are part of the basis; claim 7 puts the basis in the
+>    reply when it outgrows the widget. Combined with question 1, can a
+>    principal ever be shown the *marks* at decision time in every mode —
+>    and if not, is the verified-basis rule silently reduced to an
+>    after-the-fact audit trail?
+> 5. **Re-run the plainscan delta, and check what "unchanged" hides.** The
+>    record's 48→48 (23/14/11) is a count identity, not a content one: the
+>    same totals can hold while individual findings moved between
+>    categories or lines. Re-measure at HEAD; if the counts have since
+>    moved, the claim was true-at-commit — say so — but check whether the
+>    delta method (baseline from `git show HEAD:` copies) would even have
+>    caught a finding swapped for a different finding.
+> 6. **Byte-honesty of the survey line.** Claim 9 says "a calibration may
+>    bar" option surveys and the worked example carries the tension. Does
+>    the calibration text at HEAD actually bar surveys in words that
+>    support the distinction drawn (surveys-for-work-you-should-do vs
+>    options-for-his-decisions), or does the new section characterise a
+>    rule that reads differently in place?
+> 7. **Non-interactive asks: same content, no receiver.** Claim 8 says the
+>    prose fallback "carries exactly the same content". But a
+>    non-interactive run cannot receive an answer mid-run: AUTONOMY's stop
+>    semantics say what happens to the *work* (stop at the floor; safe
+>    default elsewhere?). Do the two files agree on what a session does
+>    *after* writing the prose ask nobody will read this run — and is
+>    "carries the same content" quietly standing in for an unwritten
+>    defer-or-default rule?
+> 8. **The list's scope widened without being re-derived.** The
+>    informed-principal list was written for accounts of specific acts
+>    (floor stops, overrules, widenings). The commission was about ruling
+>    *asks*. Grafting the ask duties onto the act-account list binds both
+>    ways: every floor-stop account now owes options and a recommendation,
+>    and every ruling ask inherits the act-shaped bullets (what/why/likely
+>    impacts). Check both directions against the section's own examples —
+>    does either produce an obligation that reads wrong in place?
