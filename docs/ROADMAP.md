@@ -215,6 +215,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued — the BS1 wording ruling applied (the](roadmap/160-doctrine-review-owed/260-rule-4-cold-pass-queued-bs1-wording.md)
 - ⏳ [Rule-4 cold pass queued — the ruling-ask rules (device, verified…](roadmap/160-doctrine-review-owed/270-rule-4-cold-pass-queued-decision-asks.md)
 - ⏳ [Rule-4 cold pass queued — the pointing-up rulings applied (PU-1](roadmap/160-doctrine-review-owed/280-rule-4-cold-pass-queued-pointing-up-rulings-applied.md)
+- ⏳ [Rule-4 cold pass queued — the ruling-ask rule widened and pushed to…](roadmap/160-doctrine-review-owed/290-rule-4-cold-pass-queued-ask-rule-to-children.md)
 
 ## build/ layer — open strands
 

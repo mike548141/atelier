@@ -40,7 +40,18 @@
       matching only.
       **Offered with it:** the filer has a working extractor and a
       26-transcript corpus with known-good answers, offered as a test fixture.
+      **The corpus filter runs both ways, and the parent learned that the hard
+      way.** A first measurement here read every `queued_command` record as the
+      principal's typing; only **43.3%** are (the rest are task notifications,
+      cross-session messages and system reminders). So a corpus that widens to
+      the mid-turn channel without also filtering *authorship* trades one wrong
+      count for another — it would hand `quotescan` system text as though the
+      principal had written it. Both halves are load-bearing; see `320/070` and
+      `210/100` for the corrected figures and the class.
+      **Two independent measurements now agree, which is better footing than
+      either alone.** The child's `RULINGS.md` has warned since 2026-08-19 —
+      from a **hand audit, not a script** — that a naive read misses about a
+      third of what the principal said; the parent's corrected script figure for
+      that repo is **36.1%** (estate-wide 24.3%). Different method, same answer.
       **Not verified here:** the 51-finding and 115-finding counts are the
-      child's measurements of its own repo, recorded as reported. The corpus
-      mechanism behind them **is** reproduced at the parent — see `320/070` and
-      `210/100`.
+      child's measurements of its own repo, recorded as reported.
