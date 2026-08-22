@@ -385,3 +385,9 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/340-long-running-operations-need-a-way-back-mike-comm/README.md)*
 
 - [ ] 🎯 [Name the rule, and attach it to the undo principle rather than beside](roadmap/340-long-running-operations-need-a-way-back-mike-comm/010-the-rule-and-where-it-attaches.md)
+
+## 🔐 Where the failure is data loss, verification must be exact — Mike-commissioned, 2026-08-23
+
+*[Narrative](roadmap/350-verification-must-be-exact-not-probable-mike-comm/README.md)*
+
+- [ ] 🎯 [Decide whether this becomes a rule, and where it lives — then sweep](roadmap/350-verification-must-be-exact-not-probable-mike-comm/010-decide-the-rule-then-sweep-for-discounted-checks.md)
