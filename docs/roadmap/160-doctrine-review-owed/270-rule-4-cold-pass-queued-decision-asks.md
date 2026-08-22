@@ -14,3 +14,9 @@
       pointer sentence). Landed on wt: `decision-ask-doctrine-0819`.
       *Intent record:*
       [`../../sessions/2026-08-19-0257-asking-for-a-ruling-the-device-and-the-verified-basis.md`](../../sessions/2026-08-19-0257-asking-for-a-ruling-the-device-and-the-verified-basis.md).
+      `[~]` **CLAIMED 2026-08-22 for brief-writing only** (wt:
+      decision-asks-brief-0822) by a Mike-opened `claude-fable-5` session
+      ("any reviews and fable dependent work") that did not author the
+      delta. Under Mike's 2026-08-15 rule the brief-writer does not run
+      the review; the pass stays queued for a further criterion-passing
+      cold Fable session once the brief lands.
