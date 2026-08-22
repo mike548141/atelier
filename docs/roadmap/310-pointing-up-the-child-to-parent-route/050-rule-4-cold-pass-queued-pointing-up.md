@@ -10,12 +10,19 @@
       the brief-writer does not run the review: the pass stays queued for a
       further criterion-passing cold Fable session, which now has an unrun
       brief to take.
-      `[~]` **CLAIMED 2026-08-22** by a Mike-opened `claude-fable-5` session
+      **RUN 2026-08-22** by a Mike-opened `claude-fable-5` session
       ("any reviews and fable dependent work") that authored neither the
-      delta nor the brief, and had at claim time opened neither the intent
-      records nor any prior verdict (wt: pointing-up-cold-0822). No
-      orchestrator — the reviewer and the committing hand are the same
-      Fable session.
+      delta nor the brief — provenance in the verdict, including a
+      disclosed early read of the `.deferred.md` sibling at queue triage.
+      **Verdict: UPHELD-WITH-CONDITIONS**, five findings (one MAJOR):
+      the verdict is below the brief's `---` in the review file. ⏳ **What
+      keeps this open is the ruling round, not the pass**: PU-1 (the
+      canonical § The trigger still prescribes a path-blind one-liner two
+      sentences before the clause that says paths are the point —
+      live-demonstrated) and PU-2 (the instance's "a private child" veil
+      is defeated by item `040` naming `cbom` in the same section) are
+      the conditions; PU-3–PU-5 are backlog-shaped. Per REVIEW.md rule 3
+      the findings are Mike's to decide; nothing was applied.
       *Delta:*
       `docs/method/PROPAGATION.md` (new § *Pointing up — when a child earns a
       house rule*; the concurrency bullet of § *The standard child doctrine
