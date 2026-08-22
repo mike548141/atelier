@@ -81,9 +81,11 @@ checkout.** Neither shows in `git status` as anything that reads as "stop":
 - **The index is a shared surface too.** Two sessions staging into one checkout
   produce an index holding both work sets, and a commit from either lands the
   other's half under the wrong message. The check that sees it is
-  `git diff --cached -U0 | grep '^@@'` immediately before every commit —
-  compare the hunk headers against what you believe you wrote. Staging by
-  explicit path, never `git add -A`, is the other half. **Read it as the whole
+  `git diff --cached` immediately before every commit — read the whole staged
+  diff, paths included, against what you believe you wrote. (This sentence
+  previously prescribed `-U0 | grep '^@@'`, a pipe that strips exactly the
+  paths at issue — corrected on the principal's ruling, 2026-08-22, PU-1.)
+  Staging by explicit path, never `git add -A`, is the other half. **Read it as the whole
   index, not as your own hunks** — the paths it shows that you never staged are
   the point of the check, not a side effect of it. A stale entry also needs no
   live peer to have put it there: an index outlives the ref that fed it, so a
@@ -109,7 +111,8 @@ the worktree rule had existed since this doc was written yet never fired,
 because nothing told a session it was the second one. Good habits (small
 commits, pushed fast) were standing in for a rule with no firing condition.
 
-*Bearing:* a private child, 2026-08-18 — a session staged two paths explicitly,
+*Bearing:* `cbom`, 2026-08-18 (named on the principal's ruling, 2026-08-22 —
+PU-2) — a session staged two paths explicitly,
 read `git status`, committed, and destroyed a sibling's session-log entry that
 had been sitting in the index before it opened. It diagnosed the cause
 correctly and then reached for this rule **through its floor block's compression

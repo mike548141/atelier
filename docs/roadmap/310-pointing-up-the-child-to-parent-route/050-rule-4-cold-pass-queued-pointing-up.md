@@ -1,5 +1,12 @@
-- ⏳ **Rule-4 review queued (tier: Fable; pass type: doc cold pass) — the
-      upstream route and the two canonical-block fixes.** **Brief WRITTEN
+- [x] **Rule-4 review RUN and RULED (tier: Fable; pass type: doc cold pass)
+      — the upstream route and the two canonical-block fixes.**
+      **Ruling round 2026-08-22** (structured asks, this session): PU-1
+      **[fixed]** — § *The trigger* now prescribes plain `git diff
+      --cached`; PU-2 **[fixed]** — the veil dropped, `cbom` named in
+      § *The instance* on his ruling; PU-3 **[backlog: `310/100`]**,
+      PU-4 **[backlog: `310/110`]**, PU-5 **[backlog: `210/110`]**.
+      The pass returned 1 MAJOR so the cycle stays open: the application
+      commit queues its own rule-4 pointer at `160/280`. **Brief WRITTEN
       2026-08-21, review NOT run** — `docs/reviews/2026-08-21-0820-pointing-up-cold.md`
       with a `.deferred.md` sibling holding the writer's seeded questions
       (code spans, not links: an unrun brief is not a verdict). Written by a

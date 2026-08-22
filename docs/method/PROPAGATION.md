@@ -352,7 +352,7 @@ not a redundant copy, it is a *falsifiable* copy, and it falsifies quietly.
 and the parent never points down for truth; § Who is a child says a child may
 add but never repeat. Neither says **where** a child files a rule the house
 owns — so the only mechanism a child session actually had was to write the rule
-into its own onramp and note the debt in prose. Grounded on a private child,
+into its own onramp and note the debt in prose. Grounded on `cbom`,
 2026-08-18 (§ The instance, below).*
 
 ### Check the parent's file first — never your own block
@@ -439,7 +439,11 @@ and should read as one.
 
 ### The instance
 
-A private child, 2026-08-18. A session staged two paths explicitly, committed,
+`cbom`, 2026-08-18 — named on the principal's ruling (2026-08-22, PU-2: the
+veil was already defeated by this section's own item `040`, which quotes him
+naming the repo, so the honest shape is the naming; the class-never-specifics
+rule for what a *child files upward* stands unchanged). A session staged two
+paths explicitly, committed,
 and destroyed a sibling's session-log entry that had been sitting in the shared
 checkout's index before it arrived. Real failure, correctly diagnosed down to
 the cause — an index outliving the ref that fed it.

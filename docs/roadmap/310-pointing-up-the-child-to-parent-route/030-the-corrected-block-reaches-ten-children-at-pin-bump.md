@@ -7,9 +7,10 @@
       `CLAUDE.md` and none of the block; whether it is a child at all is a
       separate question and not assumed here.)
       **`shed` is the least exposed and still mis-pointed** — its variant names
-      the actual command, `git diff --cached -U0 | grep '^@@'`, so a reader
-      there can reach the whole index without the parent. It keeps the wrong
-      section reference.
+      the command rather than the lossy phrase, though in the old path-blind
+      form (`-U0 | grep '^@@'`, which strips the file paths — the PU-1
+      correction, ruled 2026-08-22, moved the canon to plain
+      `git diff --cached`). It keeps the wrong section reference.
       **No new occasion is needed and none should be invented.** The pin bump
       is already when a child reviews its block against a moved parent
       (`PROPAGATION.md` § *The standard child doctrine block*), and the
