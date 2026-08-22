@@ -25,3 +25,11 @@
       Mike's 2026-08-15 rule the brief-writer does not run the review:
       the pass stays queued for a further criterion-passing cold Fable
       session, which now has an unrun brief to take.
+      `[~]` **CLAIMED 2026-08-22 0119 UTC for the review run** (wt:
+      decision-asks-run-0822) by a Mike-opened `claude-fable-5` session
+      ("Do any reviews and fable dependent work") that authored neither
+      the delta nor the brief — a different session from the 2026-08-22
+      brief-writer, criterion and tier checked at selection. The
+      `.deferred.md` sibling and the intent record stay unopened until
+      this reviewer's own findings are durably written; provenance and
+      exposure go in the verdict.
