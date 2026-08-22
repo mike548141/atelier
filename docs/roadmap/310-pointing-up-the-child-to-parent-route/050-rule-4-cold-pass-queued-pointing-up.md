@@ -10,6 +10,12 @@
       the brief-writer does not run the review: the pass stays queued for a
       further criterion-passing cold Fable session, which now has an unrun
       brief to take.
+      `[~]` **CLAIMED 2026-08-22** by a Mike-opened `claude-fable-5` session
+      ("any reviews and fable dependent work") that authored neither the
+      delta nor the brief, and had at claim time opened neither the intent
+      records nor any prior verdict (wt: pointing-up-cold-0822). No
+      orchestrator — the reviewer and the committing hand are the same
+      Fable session.
       *Delta:*
       `docs/method/PROPAGATION.md` (new § *Pointing up — when a child earns a
       house rule*; the concurrency bullet of § *The standard child doctrine
