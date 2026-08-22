@@ -42,6 +42,16 @@ in atelier and is read on demand — never wholesale.
   floor the re-briefing comes **before** the action, never after it, because
   what the floor guards cannot be taken back. Everything
   recoverable — commit/push/PR included — just proceed.
+- **Asking — any question, decision or ruling:** put the ask in the harness's
+  structured question device where one exists (Claude Code:
+  `AskUserQuestion`), never buried in prose. When the account will not fit the
+  device, it goes in the session reply *first* and the device carries only the
+  choice; never trim the account to fit. Give the real options, each with its
+  pros, cons, impacts, risks and costs, plus **a recommendation** with its
+  reasoning shown. Every fact in the ask is verified, or plainly marked as
+  assumed where verifying would cost more than the decision is worth.
+  (`00-APEX.md` for what an ask must contain; `COMMUNICATION.md` § *Asking for
+  a ruling* for how it travels.)
 - **Concurrency:** assume another session may be live — a clean tree is not
   proof you're alone. `git pull --rebase --autostash` at session start; push
   after each commit. Take a worktree by default for write-heavy or multi-commit
