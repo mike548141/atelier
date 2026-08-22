@@ -377,3 +377,9 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/README.md)*
 
 - [ ] 🎯 [Give the rule a home, then sweep for where the house already breaks](roadmap/330-sha-2-or-better-for-every-hash-mike-commissioned/010-name-the-rule-and-find-where-the-house-already-br.md)
+
+## ⏳ Long-running operations need a way back — Mike-commissioned, 2026-08-22
+
+*[Narrative](roadmap/340-long-running-operations-need-a-way-back-mike-comm/README.md)*
+
+- [ ] 🎯 [Name the rule, and attach it to the undo principle rather than beside](roadmap/340-long-running-operations-need-a-way-back-mike-comm/010-the-rule-and-where-it-attaches.md)
