@@ -62,9 +62,22 @@ question. **A message the principal types while a session is working is not a
 user message.** It lands as `type:"attachment"` · `attachment.type:
 "queued_command"`, text in `.prompt`.
 
-**Measured across the whole live store:** 4,433 opening prompts against **2,237
-mid-turn** — **33.5%** of his messages estate-wide. By repo: `kainga` 56.8% ·
-`faves` 54.4% · `cbom` 53.0% · `shed` 24.9% · `ros` 24.2% · `atelier` 23.5%.
+**Measured across the whole live store** — and the first measurement here was
+**wrong**, corrected within the day rather than quietly restated. The original
+(4,433 opening against 2,237 mid-turn, *"33.5%"*) counted **system-injected
+text as the principal's messages**: task notifications, cross-session messages
+and system reminders arrive in both records. Classified the same way on both
+sides, counting only what he typed: **3,013 opening against 965 mid-turn —
+24.3%**. By repo: `docker-heap` 38.5% · `cbom` 36.1% · `faves` 34.7% · `kainga`
+28.6% · `shed` 23.4% · `ros` 19.1% · `atelier` 18.9%. Only **43.3%** of
+`queued_command` records are human-typed at all.
+
+🔑 **The mistake is this finding's own shape, one level up.** A channel's
+record *type* is not its *authorship*. Reading `queued_command` as "he typed
+this" is the same error as reading `type == "user"` as "this is everything he
+typed" — and it was made while writing the item that names the second one. The
+defect is unchanged and still large: about **one in four** of his typed
+messages is invisible to a `type == "user"` read.
 
 🔥 **`cctranscript` reads channel one only, and says otherwise.** Both selection
 points key on `o.type === 'user' && !o.toolUseResult` (`:498` replay, `:315`

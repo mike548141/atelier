@@ -16,10 +16,20 @@
       failure. (It does print a hint that the term exists in one session's tool
       calls, which is how the text remains reachable at all — via `--tools`, a
       path nobody uses to look for a prompt.)
-      **Scale, measured across the whole live store the same day:** 4,433
-      opening prompts against **2,237 mid-turn messages** — **33.5%** of the
-      principal's messages estate-wide, and higher in the repos where he steers
-      most (`kainga` 56.8%, `faves` 54.4%, `cbom` 53.0%, `atelier` 23.5%).
+      **Scale, corrected 2026-08-21 — the first figures published here were
+      wrong and are kept visible.** The original count (4,433 opening against
+      2,237 mid-turn, *"33.5%"*) counted **system-injected text as the
+      principal's messages** on both sides: task notifications, cross-session
+      messages and system reminders land in the same two records. Classified the
+      same way on both channels and counting only what he typed:
+      **3,013 opening against 965 mid-turn — 24.3%**, by repo `docker-heap`
+      38.5% · `cbom` 36.1% · `faves` 34.7% · `kainga` 28.6% · `shed` 23.4% ·
+      `ros` 19.1% · `atelier` 18.9%. Of the 2,246 `queued_command` records,
+      only **43.3%** are human-typed at all.
+      The defect is unchanged and still large — **about one in four of the
+      principal's typed messages is invisible to a `type == "user"` read** — but
+      the first pass overstated it by a third, and made the mistake it was
+      reporting: it took a channel's *shape* for its *authorship*.
       **Filed as a defect, not a feature.** The `--agents` gap in `090-…` above
       is a widening; this is a documented capability returning a wrong answer.
       **Third channel, same class, unfixed by the same patch:** an
