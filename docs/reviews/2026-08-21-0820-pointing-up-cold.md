@@ -400,3 +400,27 @@ The sibling's text, folded verbatim per the lifecycle (its header trimmed):
 >    blocks now carry the corrected wording) — check the closing-the-loop
 >    rule's claim that the pin bump is a sufficient occasion by whether those
 >    two bumps actually cleared both defects (the phrase AND the pointer).
+
+## Ruling round — 2026-08-22, the principal, by structured asks
+
+Asked one finding at a time after the first compound ask failed his
+plain-language bar (recorded honestly: the re-ask was owed and made).
+
+- **PU-1 · [fixed]** — ruled "plain `git diff --cached`". Applied at
+  `CONCURRENCY.md` § *The trigger* with a correction note naming the old
+  pipe; item `310/030`'s shed note aligned in the same commit.
+- **PU-2 · [fixed]** — ruled "keep the naming, drop the veil". `cbom` is
+  now named in § *Pointing up*'s grounding line, § *The instance*, and
+  the CONCURRENCY Bearing, each carrying the ruling's date so the naming
+  reads as his decision, not drift; the class-never-specifics rule for
+  what a child files upward stands unchanged.
+- **PU-3 · [backlog: `310/100`]**, **PU-4 · [backlog: `310/110`]**,
+  **PU-5 · [backlog: `210/110`]** — ruled "board all three" (on the
+  plain-language re-ask).
+
+The pass returned 1 MAJOR, so the cycle stays open: the application
+commit queues its own rule-4 pointer at `160/280`, per landing = queuing.
+The applier is this verdict's author — REVIEW.md prefers a neutral hand,
+and the principal directed the application live; the preference and the
+direction are both recorded, and the queued pass tests the applied
+wording either way.

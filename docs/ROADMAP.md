@@ -214,6 +214,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [A queued pointer at 240 instructs its own reviewer, and pointerscan](roadmap/160-doctrine-review-owed/250-a-queued-pointer-instructs-its-own-reviewer.md)
 - ⏳ [Rule-4 cold pass queued — the BS1 wording ruling applied (the](roadmap/160-doctrine-review-owed/260-rule-4-cold-pass-queued-bs1-wording.md)
 - ⏳ [Rule-4 cold pass queued — the ruling-ask rules (device, verified…](roadmap/160-doctrine-review-owed/270-rule-4-cold-pass-queued-decision-asks.md)
+- ⏳ [Rule-4 cold pass queued — the pointing-up rulings applied (PU-1](roadmap/160-doctrine-review-owed/280-rule-4-cold-pass-queued-pointing-up-rulings-applied.md)
 
 ## build/ layer — open strands
 
@@ -257,6 +258,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [think is a flag that no longer does anything.](roadmap/210-instruments-open-features/080-think-is-a-flag-that-no-longer-does-anything.md)
 - [ ] [Subagent logs are outside every cctranscript view.](roadmap/210-instruments-open-features/090-subagent-logs-are-outside-every-cctranscript-v.md)
 - [ ] 🔥 [cctranscript never reads the principal's mid-turn messages, and its](roadmap/210-instruments-open-features/100-cctranscript-never-reads-the-principal-s-mid-turn.md)
+- [ ] [pins.py enumerates CWD-relative and reports a wrong denominator](roadmap/210-instruments-open-features/110-pins-py-enumerates-cwd-relative-and-lies-from-a-worktree.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
@@ -349,11 +351,13 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Nothing enumerates what the estate owes the house — the upstream](roadmap/310-pointing-up-the-child-to-parent-route/020-nothing-enumerates-what-the-estate-owes-the-house.md)
 - [ ] [🚩 Ten children carry both block defects, and each clears them at its](roadmap/310-pointing-up-the-child-to-parent-route/030-the-corrected-block-reaches-ten-children-at-pin-bump.md)
 - [ ] 🎯 [Queue the block-trim finding in cbom — AFTER this cycle's](roadmap/310-pointing-up-the-child-to-parent-route/040-queue-the-block-trim-finding-in-cbom-after-the-cycle.md)
-- ⏳ [Rule-4 review queued (tier: Fable; pass type: doc cold pass) — the](roadmap/310-pointing-up-the-child-to-parent-route/050-rule-4-cold-pass-queued-pointing-up.md)
+- ✅ [Rule-4 review RUN and RULED (tier: Fable; pass type: doc cold pass)](roadmap/310-pointing-up-the-child-to-parent-route/050-rule-4-cold-pass-queued-pointing-up.md)
 - [ ] 🎯 [The board's state vocabulary is too narrow to index work by](roadmap/310-pointing-up-the-child-to-parent-route/060-the-board-state-vocabulary-is-too-narrow-to-index-by.md)
 - [ ] [🚩 Two board markers mean different things in a child than they do](roadmap/310-pointing-up-the-child-to-parent-route/070-two-markers-mean-different-things-in-a-child.md)
 - [ ] 🔎 [2cd4730 attributes a proposal to Mike that he did not make, and it](roadmap/310-pointing-up-the-child-to-parent-route/080-a-capture-attributes-a-proposal-to-mike-that-he-did-not-make.md)
 - [ ] 🔎 [§ Pointing up names one shape of deciding a house question locally,](roadmap/310-pointing-up-the-child-to-parent-route/090-pointing-up-names-one-shape-of-local-overreach-and-there-are-two.md)
+- [ ] [The route assumes a reachable parent, and the text names only one of](roadmap/310-pointing-up-the-child-to-parent-route/100-the-route-assumes-a-reachable-parent-and-a-channel.md)
+- [ ] ["Self-removing" overpromises in step 3](roadmap/310-pointing-up-the-child-to-parent-route/110-self-removing-overpromises-in-step-3.md)
 
 ## Findings filed from a child via § *Pointing up* (2026-08-18)
 
