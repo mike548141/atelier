@@ -265,7 +265,7 @@ the fleet correctly). Queue-able tool defect, not a doctrine one.
    the canonical block and template match byte-for-byte at HEAD.
 4. ✅ **Re-derived by hand sweep this pass** (the enumerator does not
    exist; `pins.py` misfired — PU-5): seven children still carry the old
-   phrase today (`derry-hill`, `kainga`, `ros`, `rpi`, `shed`,
+   phrase at 2026-08-22 (`derry-hill`, `kainga`, `ros`, `rpi`, `shed`,
    `stewart-drive`, `tuhura`); `faves` cleared 2026-08-18, `cbom` and
    `docker-heap` at their 2026-08-21 pin bumps — **ten at the delta's
    date**, matching item `030`'s list exactly. Both 2026-08-21 bumps
@@ -309,3 +309,94 @@ PU-2. PU-3–PU-5 are backlog-shaped. Per rule 3, nothing here is applied by
 this session: findings on self-authored doctrine are the principal's to
 decide, and the delta's author may append its counsel below, labelled.
 
+## Reconcile — the intent records, opened after the findings
+
+Both records (section README; session record `2026-08-18-0746-…`) match the
+delta's account of the commission, the ruling, and the sweep — claim 7's
+grounds are as recorded, and the ruling was taken informed ("asked with the
+impacts of each option stated first"). Two things they add to the findings:
+
+- **PU-1 was in the author's model, not just the text.** The session record
+  states: *"The parent's actual rule runs `git diff --cached -U0 | grep
+  '^@@'` over the whole index, and covers precisely that case"* — the exact
+  confusion the finding names, in the author's own account; and the README
+  states the same rule as plain `git diff --cached`. The two intent records
+  disagree with each other about what the command is, which is the finding
+  in miniature.
+- **The cbom naming originates with the principal** (his commissioning words,
+  quoted in both records), which is why PU-2 is framed as a ruling to make —
+  veil or naming, one of the two — rather than a leak to attribute.
+
+## Deferred questions, folded (opened after the reconcile was drafted;
+## exposure at queue triage disclosed above)
+
+The seeded questions, with where each landed:
+
+1. **Byte-honesty of the quoted phrase/pointer** — ✅ verified byte-exact
+   against the pre-fix template at `f9eda42^` (claim 3).
+2. **Is "self-removing" a mechanism or a hope?** — a hope: PU-4.
+3. **Hard cases for the whose-rule test** — the test partitions all three
+   cleanly (claim 5).
+4. **Does the instance leak the child?** — yes, via its own sibling item:
+   PU-2.
+5. **The lane carve-out** — holds as asserted; § *Stay in your lane* at HEAD
+   sanctions queue-never-deliver in the target repo's roadmap (PU-3 notes
+   what the step still fails to say).
+6. **The unreachable-parent case** — confirmed silent; the route is
+   machine-shaped: PU-3.
+7. **Rung-1 honesty vs § When a rule keeps breaking** — stated honesty is
+   the compliant shape here; the ladder escalates on recurrence, not on
+   landing; the guard against rung-1-forever is item `020` plus the drift
+   line, which is what the section says (claim 9).
+8. **The ten-children count** — re-derived by hand sweep; ten at the delta's
+   date, seven at 2026-08-22, both 2026-08-21 bumps cleared both defects (claim 4).
+
+The sibling's text, folded verbatim per the lifecycle (its header trimmed):
+
+> 1. **Byte-honesty of the quoted block phrase.** § The instance rests on the
+>    child having reasoned from the exact phrase *"read the staged hunk
+>    headers"* and the pointer *§ The channel*. Are both quoted byte-exactly
+>    from what children actually carried (the template's git history shows the
+>    pre-fix block)? A ruling-bearing narrative resting on an inexact
+>    quotation is a known house failure shape.
+> 2. **Is "self-removing" a mechanism or a hope?** Claim 6 distinguishes a
+>    pending-upstream line from a second original partly by it being
+>    *self-removing* at the next pin bump. Nothing named watches for a line
+>    that survives its parent item — stampscan cannot see unstamped text by
+>    its own admission, and the section calls itself rung 1. Does the
+>    distinguishing property therefore do any work, or is the honest wording
+>    "removable, and watched by nobody"?
+> 3. **Hard cases for the whose-rule test.** Run the estate's real recent
+>    lessons through it: *responses carry secrets* (learned on TrueNAS —
+>    provider-generic?), *never record a capability as absent without reading
+>    the error* (learned on gcloud), the ZFS hands-off constraint
+>    (stack-specific?). Does the test partition these cleanly, or does the
+>    learned-on-a-stack seam swallow the test?
+> 4. **Does the instance leak the child?** The public text says "a private
+>    child, 2026-08-18" plus: two explicitly staged paths, a destroyed
+>    sibling session-log entry, an index predating the session. Combined with
+>    the fleet being enumerable from this public repo, is the child
+>    identifiable? If yes, is that within the class-not-specifics line or
+>    over it?
+> 5. **The lane carve-out is asserted, not cross-referenced.** Route step 1
+>    says filing in the parent's board "is the lane" and cites
+>    CONCURRENCY § Stay in your lane. Does that section's text actually admit
+>    this reading at HEAD, or does § Pointing up widen a rule that still
+>    reads queue-in-the-target-repo (the child files in *atelier's* board —
+>    which repo's lane is that)?
+> 6. **The unreachable-parent case.** The route assumes a sibling atelier
+>    checkout. A child session on a machine without one (a fresh clone
+>    elsewhere, a CI context) cannot file in the parent's board. Where does
+>    the rule go then — and does the doctrine say, or is the route silently
+>    machine-shaped?
+> 7. **Rung-1 honesty vs § When a rule keeps breaking.** The section admits
+>    it is rung 1 and unwatched. Does the parent doctrine require more before
+>    this counts as landed (an enumerator, a check), or is stated honesty the
+>    compliant shape? If the latter, does anything stop rung-1-and-honest
+>    becoming the resting state for every hard rule?
+> 8. **The ten-children count.** Re-derive it. Does it count every repo with
+>    a stamped floor block (shed, the private children, the public ones), and
+>    was it true at 2026-08-18? Two children bumped 2026-08-21 (their floor
+>    blocks now carry the corrected wording) — check the closing-the-loop
+>    rule's claim that the pin bump is a sufficient occasion by whether those
+>    two bumps actually cleared both defects (the phrase AND the pointer).
