@@ -1,5 +1,6 @@
-- [ ] 🔥 **`linkscan` is blind to reference-style link destinations, and says
-      "every internal link resolves" anyway.** Handed up from a child session
+- [~] 🔥 **linkscan's reference-style blindness** (claimed 2026-08-23-1248, wt: linkscan-refstyle-0823)
+      — it is blind to reference-style link destinations, and says
+      "every internal link resolves" anyway. Handed up from a child session
       under the queue-never-deliver rule, and **re-verified here by
       reproduction 2026-08-16** rather than accepted. The `_LINK` regex is
       anchored on the literal `](` of an inline destination, so the whole
