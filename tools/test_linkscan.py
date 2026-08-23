@@ -401,3 +401,82 @@ class Allowances(unittest.TestCase):
 
     def test_clean_tally_reports_known_zeros(self):
         self.assertIn("0 by allow-marker", linkscan.Tally().summary())
+
+
+class ReferenceDefinitions(unittest.TestCase):
+    """The reference family, checked at the definition (roadmap 020/320).
+
+    The defect this pins was not silence — it was an affirmative
+    `✓ every internal link resolves` at exit 0 over a file whose five broken
+    links were all reference-style. So the shape that matters most here is the
+    negative one: a form that must NOT be read as a link definition, because
+    the fix's whole safety argument is that ordinary prose cannot trip it.
+    """
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="linkscan-ref-"))
+        (self.tmp / "target.md").write_text("# Real Heading\n\nbody\n")
+
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def _scan(self, body):
+        (self.tmp / "index.md").write_text("# T\n" + body)
+        return linkscan.scan_paths([self.tmp], self.tmp)
+
+    def test_broken_definition_is_found(self):
+        fs = self._scan("a [usage][ref] here\n\n[ref]: gone.md\n")
+        self.assertEqual(["missing-file"], [f.kind for f in fs])
+
+    def test_every_usage_form_is_covered_by_one_definition(self):
+        # Full, collapsed, shortcut and image usages of ONE label: one finding,
+        # reported at the definition, which is where the fix goes.
+        fs = self._scan("[t][ref] [ref][] [ref] ![alt][ref]\n\n[ref]: gone.md\n")
+        self.assertEqual(1, len(fs))
+        self.assertEqual(4, fs[0].line)  # the definition line, not a usage
+
+    def test_definition_anchor_is_validated(self):
+        fs = self._scan("[t][ref]\n\n[ref]: target.md#ghost\n")
+        self.assertEqual(["missing-anchor"], [f.kind for f in fs])
+
+    def test_resolving_definition_is_clean(self):
+        self.assertEqual([], self._scan("[t][ref]\n\n[ref]: target.md\n"))
+
+    def test_title_and_angle_forms_are_read(self):
+        fs = self._scan('[a][one] [b][two]\n\n'
+                        '[one]: gone-a.md "a title"\n'
+                        '[two]: <gone b.md>\n')
+        self.assertEqual(["gone b.md", "gone-a.md"],
+                         sorted(f.target for f in fs))
+
+    def test_external_definition_is_skipped(self):
+        self.assertEqual([], self._scan("[t][e]\n\n[e]: https://example.com/x\n"))
+
+    def test_indented_up_to_three_spaces_still_counts(self):
+        fs = self._scan("[t][ref]\n\n   [ref]: gone.md\n")
+        self.assertEqual(1, len(fs))
+
+    # --- the negative half: shapes that must stay silent -------------------
+
+    def test_prose_brackets_are_not_definitions(self):
+        self.assertEqual([], self._scan(
+            "prose with [square brackets] and a citation [1] in it\n"
+            "an index expression `arr[0]` too\n"))
+
+    def test_unquoted_tail_is_not_a_definition(self):
+        # CommonMark requires a definition's title to be quoted or in parens,
+        # so this is prose — and the `$` anchor is what keeps it out.
+        self.assertEqual([], self._scan("[note]: this is not a definition\n"))
+
+    def test_footnote_definition_is_not_a_link_definition(self):
+        # A one-word footnote is the dangerous case: without the `^` exclusion
+        # it is indistinguishable from a definition naming a bare filename.
+        self.assertEqual([], self._scan("text[^1]\n\n[^1]: because\n"))
+
+    def test_definition_inside_a_fence_is_skipped(self):
+        self.assertEqual([], self._scan("```\n[ref]: gone.md\n```\n"))
+
+    def test_allow_marker_on_a_definition_exempts_it(self):
+        self.assertEqual([], self._scan(
+            "[t][ref]\n\n[ref]: gone.md <!-- linkscan:allow: deliberate -->\n"))
