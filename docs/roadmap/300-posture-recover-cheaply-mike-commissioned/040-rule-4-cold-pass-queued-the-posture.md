@@ -30,3 +30,8 @@
             over the same registry entry, and the ruling record cites
             `115/130` for the asymmetry (wrong item). PT1–PT9 + PT4a + PT1a
             join the principal's ruling round.
+      `[~]` **RULED 2026-08-23** — the live ruling round ran by structured
+      asks; dispositions in the verdict file (§ *Rulings — 2026-08-23*).
+      PT1: home the requirement in the registry, folded with `115/120`
+      into one declaration standard, funded as one item. Application in
+      flight on wt: ruling-round-0823.

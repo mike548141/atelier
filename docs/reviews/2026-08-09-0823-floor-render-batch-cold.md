@@ -397,3 +397,21 @@ No finding's severity changed at reconcile. FR2's framing sharpened
 confirmed new; FR4–FR6 are untouched by the record. The overall line stands:
 **PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE · 1 minor · 2 note**, plus
 post-reconcile note FR2a. Verdict finalised.
+
+## Rulings — 2026-08-23 (structured asks, the live ruling round)
+
+Ruled by Mike through `AskUserQuestion`. The FR2 fork was re-asked in
+plain terms after his "I dont understand this" on the first framing —
+the re-ask carried the checker's purpose, the history-files wrinkle,
+and the three scopes in lay language; he then ruled:
+
+- **FR2** — ruled: records-excluding default for children, matching the
+  rationale atelier applied to itself; a child can widen deliberately.
+  FR2a's intent-record note rides with the application.
+- **FR1, FR3, FR4, FR5, FR6** — ruled: fix as recommended (the missing
+  catalogue section; the C1 control-byte widening now with the bidi set
+  queued as its own decision; a loud config error on post-strip key
+  collisions; the one-line count reconciliation; disabled rendered over
+  skipped).
+
+Application follows; tags gain [fixed] as each lands verified.

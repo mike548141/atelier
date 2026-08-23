@@ -36,3 +36,8 @@
         form; the registry, selftest and CONTRIBUTING say it does. AP1–AP8
         join Mike's ruling round; the application of whatever is ruled
         earns its own queued pointer.
+      `[~]` **RULED 2026-08-23** — the live ruling round ran by structured
+      asks; dispositions in the verdict file (§ *Rulings — 2026-08-23*).
+      AP1: re-word to the truth by appended amendment, boundary check
+      queued; branch protection deliberately not enabled. Application in
+      flight on wt: ruling-round-0823.
