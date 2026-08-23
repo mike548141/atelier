@@ -14,7 +14,20 @@ nothing, and the nothing is consumed as data. The failure and the empty result
 are byte-identical at the point of use, and no amount of care in reading the
 output distinguishes them, because the output is the same in both worlds.
 
-## The instance, from docker-heap on one night — two sessions, independently
+## Two instances, one night, opposite directions
+
+The pair matters more than either half, because the obvious fix for one causes
+the other. `010` carries the read case below; [`020`](020-a-client-timeout-is-not-evidence-the-server-did-nothing.md)
+carries the write case — a create that returned `Call timeout`, a re-query that
+showed nothing, and **35 snapshots that had in fact been made**. There the exit
+code was non-zero and the work had succeeded, so "check the exit code" — the fix
+for the read case — is exactly the false belief in the write case.
+
+**The rule that covers both is not about exit codes: a client's signal is
+evidence about the CLIENT, not about the server.** Re-query the state before
+concluding a negative, and before retrying a write.
+
+## The read case, from docker-heap on one night — two sessions, independently
 
 Both were auditing which ZFS datasets carry snapshots. Both used the TrueNAS
 middleware. Both wrote `2>/dev/null` and checked no exit code.
