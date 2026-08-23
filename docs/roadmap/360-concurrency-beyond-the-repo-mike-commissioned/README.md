@@ -30,6 +30,15 @@ merged to main, and there was no conflict at any point. Meanwhile, off-repo:
   "neither is mine". They were the first session's, running
   `media-split.sh --verify-only`. Docker had named them at random.
 
+🛑 **The peer's own reading of it is sharper than the observation above, so it is
+recorded in its words:** *"a random name is indistinguishable from an orphan. I
+nearly treated both as strays precisely because nothing linked them to a
+session."* That is worse than ambiguity. An unattributable long-running job does
+not read as *someone else's* — it reads as **litter**, and the reasonable,
+tidy-minded response to litter is to clear it away. So the failure mode is not a
+peer being confused; it is a peer being **helpful** and killing a multi-hour job.
+**A name that says whose it is beats a name that is merely present.**
+
 🔎 **Nobody was careless.** Both sessions announced, both stood off on contact,
 and the collision still had to be resolved by a human noticing. The doctrine did
 its job on the surface it covers, and was silent on four others.
