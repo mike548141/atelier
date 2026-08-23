@@ -8,6 +8,14 @@
         first correctly and reported the second as "neither is mine". The only
         difference was that one had been named and the other was left to docker's
         random-name generator.
+    - [ ] 🔑 **The marker must say WHOSE, not merely be distinctive.** The peer
+          that hit this put it best: *"a random name is indistinguishable from an
+          orphan."* `elegant_williams` is perfectly unique and tells a reader
+          nothing, so an unowned long-running job reads as **litter** — and the
+          tidy-minded response to litter is to clear it away. The failure mode
+          being guarded against is not a confused peer; it is a **helpful** one
+          killing a multi-hour job. A distinctive name does not fix that. An
+          owner-bearing one does.
     - [ ] Worth deciding what the marker actually is — a name prefix is enough for
           docker, but a bare `sh` process on a host has nowhere obvious to carry
           one. Do not over-specify; a convention that covers containers and
