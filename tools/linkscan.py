@@ -15,6 +15,22 @@ Scope, deliberately narrow (a broad flaky tool is worse than a sharp honest one)
     ftp…) and protocol-relative `//host` are SKIPPED — verifying them means the
     network, which is flaky, slow, and a different tool's job.
 
+  * REFERENCE-STYLE links, checked at their DEFINITION (`[label]: dest`) rather
+    than at their usages. CommonMark's whole reference family — full
+    `[text][ref]`, collapsed `[ref][]`, shortcut `[ref]` and image `![alt][ref]`
+    — routes through one definition line, so validating definitions covers every
+    usage form at once. It also dodges the hazard of the obvious alternative: a
+    shortcut-form matcher fires on ordinary prose (`[square brackets]`,
+    `arr[0]`, a citation `[1]`). Until 2026-08-23 the whole family was invisible
+    — not unresolved, never *extracted* — and a file whose only broken links
+    were reference-style reported "every internal link resolves" at exit 0
+    (roadmap `020/320`). The residue a definition-only check leaves is the
+    **undefined label**: `[text][nope]` with no `[nope]:` line renders as
+    literal text rather than a link, and nothing here notices. Named as a limit
+    rather than chased, because chasing it needs the usage matcher this design
+    exists to avoid. Footnote definitions (`[^1]: …`) are not link definitions
+    and are skipped.
+
   * FILE existence — the destination path must resolve to a real file or dir,
     relative to the linking file (or the repo root for a leading `/` — GitHub
     resolves those against the repository root too). The on-disk name must match
@@ -132,6 +148,26 @@ _LINE_ANCHOR = re.compile(r"^L\d+(?:-L\d+)?$")
 # chars allowing one level of balanced parens (`a(1).md` is a legal filename).
 _LINK = re.compile(
     r"!?\]\(\s*(<[^>]*>|(?:[^()\s]|\([^()\s]*\))+)(?:\s+(?:\"[^\"]*\"|'[^']*'))?\s*\)")
+
+# A link reference definition: up to three spaces of indent, `[label]:`, the
+# destination, and an OPTIONAL quoted or parenthesised title — then end of line.
+#
+# THE END ANCHOR IS THE WHOLE GUARD, and it is why this cannot be loosened
+# casually. CommonMark says a definition's title must be quoted or in parens, so
+# anchoring at `$` is what keeps ordinary prose out: `[note]: this is prose`
+# leaves `is prose` unmatched and correctly fails to be a definition, while
+# `[note]: word` — one bare token, indistinguishable from a real definition —
+# is one. That is the same trade the rest of this tool takes: a shape that
+# cannot be told apart from a link IS treated as a link, and the allow-marker
+# is the hatch.
+#
+# A label starting with `^` is a FOOTNOTE definition (`[^1]: text`), not a link
+# definition — GitHub's extension, and its body is prose. Excluded at the label
+# so a one-word footnote cannot be read as a path.
+_LINK_DEF = re.compile(
+    r"^ {0,3}\[(?!\^)([^\]]+)\]:\s*"
+    r"(<[^>]*>|\S+)"
+    r"(?:\s+(?:\"[^\"]*\"|'[^']*'|\([^()]*\)))?\s*$")
 
 # An ATX heading line: leading #'s then the text (trailing #'s stripped).
 _ATX = re.compile(r"^(#{1,6})\s+(.*?)\s*#*\s*$")
@@ -262,16 +298,29 @@ def _strip_inline_code(line: str) -> str:
 
 
 def iter_links(text: str, allow_by_line: dict[int, str] | None = None):
-    """Yield (lineno, raw_destination) for every inline link/image destination
-    in a Markdown file, skipping fenced and inline code. Allow-markered lines
-    are still yielded: the finding is formed first and subtracted afterwards
-    (`method/GUARDS.md`, rule b), so the exemption can be counted. Scopes are
-    recorded into `allow_by_line` for the caller to apply."""
+    """Yield (lineno, raw_destination) for every link destination in a Markdown
+    file — inline `](dest)` and reference definitions `[label]: dest` alike —
+    skipping fenced and inline code. Allow-markered lines are still yielded: the
+    finding is formed first and subtracted afterwards (`method/GUARDS.md`,
+    rule b), so the exemption can be counted. Scopes are recorded into
+    `allow_by_line` for the caller to apply.
+
+    A definition line yields its destination and nothing else: the same line
+    cannot also hold an inline link, and checking it here means every usage form
+    of that label is covered by one finding, reported where the fix belongs."""
     for lineno, line in _content_lines(text):
         scope = parse_allow(line)
         if scope is not None and allow_by_line is not None:
             allow_by_line[lineno] = scope
-        for m in _LINK.finditer(_strip_inline_code(line)):
+        stripped = _strip_inline_code(line)
+        definition = _LINK_DEF.match(stripped)
+        if definition:
+            dest = definition.group(2).strip()
+            if dest.startswith("<") and dest.endswith(">"):
+                dest = dest[1:-1].strip()
+            yield lineno, dest
+            continue
+        for m in _LINK.finditer(stripped):
             dest = m.group(1).strip()
             if dest.startswith("<") and dest.endswith(">"):
                 dest = dest[1:-1].strip()
@@ -651,6 +700,16 @@ def _selftest() -> int:
         "[bad same](#no-such)\n"                         # BREAK 3
         "[bad case](#A-Section)\n"                       # BREAK 4 — exact match only
         "```\n[fenced](also-missing.md)\n```\n"        # fenced, skipped
+        # Reference style, checked at the definition. The usages above the
+        # definitions are deliberately present and deliberately NOT what is
+        # matched — one finding per definition, not per usage.
+        "a [full][r-ok], a [collapsed][], a shortcut, an ![image][r-bad]\n"
+        "[r-ok]: target.md\n"                           # resolves
+        "[collapsed]: target.md \"titled\"\n"          # resolves, with a title
+        "[r-ext]: https://example.com/y\n"             # external, skipped
+        "[r-bad]: ghost.md\n"                           # BREAK 5
+        "[^1]: a footnote, not a link definition\n"    # skipped: footnote
+        "[prose]: this is not a definition at all\n"   # skipped: unquoted tail
     )
     findings = scan_paths([tmp], tmp)
     kinds = sorted((f.kind, f.target) for f in findings)
@@ -659,6 +718,7 @@ def _selftest() -> int:
         ("missing-anchor", "target.md#ghost"),
         ("missing-anchor", "#no-such"),
         ("missing-anchor", "#A-Section"),
+        ("missing-file", "ghost.md"),
     ])
     ok = kinds == expected
     if not ok:

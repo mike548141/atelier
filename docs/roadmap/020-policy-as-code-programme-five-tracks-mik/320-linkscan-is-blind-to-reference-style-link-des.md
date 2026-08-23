@@ -1,11 +1,40 @@
-- [~] 🔥 **linkscan's reference-style blindness** (claimed 2026-08-23-1248, wt: linkscan-refstyle-0823)
-      — it is blind to reference-style link destinations, and says
+- [x] 🔥 **linkscan's reference-style blindness — FIXED 2026-08-23** (wt: linkscan-refstyle-0823)
+      — it was blind to reference-style link destinations, and said
       "every internal link resolves" anyway. Handed up from a child session
       under the queue-never-deliver rule, and **re-verified here by
       reproduction 2026-08-16** rather than accepted. The `_LINK` regex is
       anchored on the literal `](` of an inline destination, so the whole
-      CommonMark reference family is never *extracted* — not merely left
+      CommonMark reference family was never *extracted* — not merely left
       unresolved.
+      ✅ **What landed**, the child's shape and no more: `_LINK_DEF` matches a
+      link reference definition and `iter_links` yields its destination through
+      the existing resolve path, so every usage form is covered by one finding
+      reported at the line the fix belongs on. The probe above was re-run first
+      and reproduced exactly — `✓ every internal link resolves` at exit 0 over
+      five broken links — then re-run after: all five found, both kinds.
+      🔑 **The end-of-line anchor is the whole safety argument.** CommonMark
+      requires a definition's title to be quoted or parenthesised, so anchoring
+      at `$` is what keeps prose out: `[note]: this is prose` leaves a tail that
+      cannot be a title and correctly fails to match. A `^`-labelled footnote
+      (`[^1]: because`) is excluded at the label, because a one-word footnote is
+      otherwise indistinguishable from a definition naming a bare filename. Six
+      negative tests pin those shapes; five positive ones fail against the
+      unfixed tool and pass on the fix (`370/030`'s known-bad rule).
+      ⚠️ **The residue, named rather than chased:** an *undefined label*
+      (`[t][nope]` with no definition) renders as literal text and nothing sees
+      it. Catching it needs the usage matcher this design exists to avoid. It
+      is now stated in the module docstring, which is the other half of the
+      defect this item filed — the docstring described inline forms as the scope
+      and said nothing about reference style, so the omission read as coverage.
+      🔎 **Fleet exposure, measured rather than estimated (2026-08-23).** Both
+      versions run over every repo under the estate root: **one repo changes —
+      `faves`, 0 → 5 findings.** All five are real 404s of the same shape: a
+      `[label]: decisions/NNNN-….md` written from two levels down inside
+      `docs/roadmap/`, where the correct destination is `../../decisions/…`, and
+      linkscan's own suggester names it. Every other repo is unchanged. Queued,
+      not delivered (`CONCURRENCY.md` § *Stay in your lane*): the fix is
+      `faves`' to make in `faves`. Its CI will red on the next run, which is the
+      check working rather than a regression.
       **The probe.** One file, one broken inline link plus five broken
       reference-style links — full `[t][ref]`, collapsed `[ref][]`, shortcut
       `[ref]`, image `![alt][ref]`, and a reference to a real file with a
