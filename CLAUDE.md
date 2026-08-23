@@ -44,6 +44,14 @@ Read the rest of `docs/method/` on demand when a change touches it.
 - **Ground everything.** Doctrine here is extracted from real, decided practice
   (mostly `ros`) — never invented to fill a heading. If it can't be grounded
   yet, stub it and say so, per `create-repo`'s stub-don't-fabricate rule.
+- **Report your problems with the doctrine — atelier is not exempt from its own
+  rule.** If a house rule is wrong, unworkable, ambiguous, contradictory, stale,
+  missing or unfindable, it goes on the board as an item with its evidence, the
+  same way a child's finding arrives (`PROPAGATION.md` § *Pointing up*). Fixing
+  the wording in passing is the thing this forbids: a defect quietly patched
+  leaves no trace of what was wrong, so the class can't be counted and
+  § *When a rule keeps breaking* has nothing to read. Being the home of the
+  doctrine makes the report shorter, not optional.
 
 ## Autonomy in this repo
 

@@ -79,10 +79,15 @@ the house shape), and keep it **deliberately lean**: the block is the hottest
 read path in the fleet — every child session pays its length at every open —
 so a line earns its place or moves behind a pointer. **Structural rule (SR2,
 2026-07-20; the number dropped after review, 2026-07-21):** one bullet per
-irreducible floor concern — seven today (the apex, the always-stop floor,
-concurrency, session rhythm, source & drift, estate resources, this repo's
-visibility), each as tight as it can be while stating its concern in full and
-pointing up for the rest. That structure *is* the spec — there is deliberately
+irreducible floor concern — **nine** today (the apex, the always-stop floor,
+asking, concurrency, session rhythm, doctrine problems point up, source & drift,
+estate resources, this repo's visibility), each as tight as it can be while
+stating its concern in full and pointing up for the rest. *(The count read
+"seven" until 2026-08-23 and was wrong by one before this change: the **asking**
+bullet landed 2026-08-22 without it. Corrected by counting the block rather than
+incrementing the sentence — which is the only way this line can be trusted, and
+the reason it is worth keeping a count at all.)* That structure *is* the spec —
+there is deliberately
 **no line figure**: a number picked to sit just above what the block weighs
 today is circular (it can't be exceeded the moment it's written), and nothing
 gates on length here anyway, so a figure would be decoration with a circularity
@@ -157,6 +162,19 @@ in atelier and is read on demand — never wholesale.
   before you declare the work wrapped, do the put-away unprompted and close
   with an evidence-based all-clear that nothing owed is left uncaptured
   (`RECORD.md`).
+- **Doctrine problems point up (every repo, atelier included):** if a house rule
+  is wrong, unworkable, ambiguous, contradictory, stale, missing or unfindable,
+  **report it to atelier** — with evidence where evidence exists, marked
+  unevidenced where it does not. Consideration and remediation are atelier's;
+  the reporting session stops at the report and never silently works around a
+  rule it thinks is wrong, because the workaround destroys the only evidence the
+  house would get. Check the parent's actual file first — this block is a lossy
+  summary and is not evidence about what the house says. File it in atelier's
+  board directly, or hand it over the peer channel, or — where neither is
+  reachable — hold it in this repo's record marked owed upstream. Filing without
+  harming the parent: name the branch for the report, say it is a hand-up in the
+  first line, open the PR before you stop, and touch nothing but your own item.
+  (`PROPAGATION.md` § *Pointing up*.)
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
   session start run `git -C "<atelier-path>" log --oneline <SHA>..HEAD`; any
   output means the house doctrine moved — read it, then bump the pin above
@@ -356,14 +374,61 @@ arguing from a falsified fact", and was trimmed to repo-local facts on the DRY
 ruling of 2026-08-09. That is the whole failure mode in one repo: a repeat is
 not a redundant copy, it is a *falsifiable* copy, and it falsifies quietly.
 
-## Pointing up — when a child earns a house rule
+## Pointing up — reporting a doctrine problem to the house
 
 *The route that was missing. § The layer-override rule says children point up
 and the parent never points down for truth; § Who is a child says a child may
 add but never repeat. Neither says **where** a child files a rule the house
 owns — so the only mechanism a child session actually had was to write the rule
 into its own onramp and note the debt in prose. Grounded on `cbom`,
-2026-08-18 (§ The instance, below).*
+2026-08-18 (§ The instance, below). Widened from "when a child earns a house
+rule" to any problem with the doctrine on the principal's commission,
+2026-08-23 — the section keeps its short name, which is how the rest of the
+estate cites it.*
+
+### The duty — every repo reports, atelier remediates
+
+**Every repo that works by this doctrine owes the house its problems with that
+doctrine, and atelier is not exempt from its own rule** (the principal's
+commission, 2026-08-23: *"the doctrine will direct all of my repos that use it
+(incl atelier itself) to report potential issues they have with the doctrine
+(with evidence where it is available) to atelier for consideration and
+remediation by atelier"*).
+
+**What counts as a problem** — deliberately wider than the earned-rule case the
+rest of this section was written for. A rule that is **wrong**; that is
+**unworkable** in a situation it plainly covers; that is **ambiguous** enough
+that two competent sessions read it two ways; that **contradicts** another rule;
+that has gone **stale** against the world it describes; that is **missing**
+(§ The test — whose rule is it); or that is **unfindable** — the parent owns it
+and the reader could not get to it. *Potential* is the standard: a suspicion
+with a real incident behind it is reportable, and no session has to be sure the
+house is wrong before saying so.
+
+**With evidence where evidence exists.** The incident, the command and its
+output, the commit, the two readings — whatever makes the problem checkable by
+someone who was not there (`EVIDENCE.md`). Where there is none, report it
+anyway and **mark it unevidenced**: a suspicion labelled as one is useful, and a
+suspicion dressed as a finding is the apex violation this whole model exists to
+prevent.
+
+**Consideration and remediation are atelier's.** The reporting session stops at
+the report — it does not write the house's doctrine, and it does not get to
+decide the report is unfounded on the parent's behalf. What it must equally not
+do is **silently work around a rule it thinks is wrong**: the workaround costs
+nothing today and destroys the only evidence the house would ever get, and it
+leaves the next repo to rediscover the same problem from scratch. Working around
+in silence is the failure this duty closes; the visible pair — narrow locally
+*and* report up — is step 3 of § The route.
+
+**atelier is bound identically, and the only difference is distance.** An
+atelier session that finds its own doctrine wrong files a board item under
+`docs/roadmap/` exactly as a child's finding would arrive there, rather than
+fixing the wording in passing and moving on. The reason is not symmetry for its
+own sake: a doctrine defect found and quietly patched leaves no trace of *what
+was wrong*, so the class cannot be counted, and § When a rule keeps breaking —
+which decides whether to restate a rule or climb to a mechanism — has nothing
+to read.
 
 ### Check the parent's file first — never your own block
 
@@ -414,6 +479,27 @@ Four steps, none of them large.
    the repo that owns the subject *is* the lane. Writing the doctrine is an
    atelier session's work; the child's session stops at the finding.
 
+   **Filing has three working shapes, and a repo uses whichever it can reach**
+   (PU-3, ruled 2026-08-22; the text named only the first, while the route's own
+   first live exercise used the second). They are ordered by directness, not by
+   preference — the one you can reach is the right one:
+
+   - **Write the item directly** into a sibling atelier checkout. The
+     queue-never-deliver carve-out sanctions it, and § Report without harming
+     the parent is what makes it safe.
+   - **Hand it over the cross-session channel** and let an atelier session file
+     it (`CONCURRENCY.md` § The channel). This is how board section `320`'s
+     nine findings actually arrived. Note the channel's own law: a message
+     reserves nothing and is volatile, so the hand-up is not *filed* until the
+     atelier session lands the item — until then the finding lives only in the
+     child's own record.
+   - **Hold and flag** where neither exists — a fresh clone elsewhere, a CI
+     context, no channel. Write the finding into the child's own session record
+     marked as owed upstream, naming what it is owed to. That is not filing and
+     must not be recorded as filing; it is a durable note for the next session
+     in that repo that *can* reach the parent. Stating this shape is what stops
+     an unreachable-parent session concluding it has no duty at all.
+
 2. **Carry the class, never the child's specifics.** atelier is public. A
    finding filed from a private child names the *shape* of what broke and the
    guarantee that failed — never the repo, its hosts, its clients or its
@@ -446,6 +532,58 @@ bump is already the occasion on which a child reviews its block against a moved
 parent (§ The standard child doctrine block), so this needs no new ceremony. A
 pending-upstream line that survives a pin bump past its parent item is drift,
 and should read as one.
+
+### Report without harming the parent
+
+*Added 2026-08-23 on the principal's observation — "it shows we need a way for
+those reports to occur without causing harm" — after a hand-up that was correct
+in substance cost the parent three separate things in one evening. The report is
+owed; the collateral is not, and none of it was necessary.*
+
+**The instance.** A `docker-heap` session filed board section `380` by shape 1,
+writing directly into atelier's tree. The finding was good and is now merged.
+What it cost:
+
+- It **re-used a branch name the parent had deleted minutes earlier**
+  (`worktree-report-lies-0823`), so the branch reappeared pointing at unfamiliar
+  commits. The atelier session read it as a rival session competing for its own
+  line of work, stopped touching an area it had every right to work in, and
+  wrote that misreading into a session record.
+- It **left the finding on an unmerged branch with no PR** and went quiet. The
+  item existed in a commit and on no board. Nine hours later it was still
+  invisible to `docs/ROADMAP.md`.
+- It **rebuilt the shared generated index** from a base the parent had already
+  moved past — recoverable, but the merge is the parent's to carry.
+
+So four rules, each answering one of those:
+
+- **Name the branch for the report, not for the parent's work.**
+  `report-<reporting-repo>-<subject>` reads as a hand-up in a branch list; a
+  name shaped like the parent's own worktree branches reads as competition. And
+  **never re-use or re-create a branch name** — the parent may have just
+  finished with it, and a name coming back from the dead is the single most
+  misleading thing a branch can do.
+- **Say what it is in the first line of the commit and the PR body:** which repo
+  is reporting, and that this is a filed finding rather than parent work. The
+  parent should never have to infer it from the diff.
+- **Open the PR before you stop.** A finding on an unmerged branch is a message
+  left in a drawer — it has none of the properties filing was for. If the
+  session cannot open one, that is the hold-and-flag shape above, and the
+  finding goes in the reporting repo's record instead. Merging is the parent's
+  call and may take days; leaving nothing to merge is the failure.
+- **Touch your own item and nothing else.** Generated indexes are rebuilt, never
+  hand-merged (`CONCURRENCY.md` § Claiming work). Claim nothing from the
+  parent's queue, edit no doctrine, and take no worktree in the parent for
+  anything but the filing itself.
+
+**And the parent's half, which this instance also exposed.** A filed finding
+with no PR has no owner at all — the reporter has stopped and the parent does
+not know it is there. So an atelier session that finds one **lands it**: open
+the PR, merge on the floor's own evidence, and say plainly in the PR that the
+content is the child's and unreviewed. That is not adopting the finding; it is
+putting it on the board where consideration can happen. Do not rewrite the
+reporter's history to tidy it — a rebase of someone else's pushed branch buys
+nothing and destroys the record of how it arrived.
 
 ### The instance
 

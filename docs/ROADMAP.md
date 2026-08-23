@@ -220,6 +220,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued — the ruling-ask rules (device, verified…](roadmap/160-doctrine-review-owed/270-rule-4-cold-pass-queued-decision-asks.md)
 - ⏳ [Rule-4 cold pass queued — the pointing-up rulings applied (PU-1](roadmap/160-doctrine-review-owed/280-rule-4-cold-pass-queued-pointing-up-rulings-applied.md)
 - ⏳ [Rule-4 cold pass queued — the ruling-ask rule widened and pushed to…](roadmap/160-doctrine-review-owed/290-rule-4-cold-pass-queued-ask-rule-to-children.md)
+- ⏳ [Rule-4 cold pass queued — the doctrine-reporting duty, the route's…](roadmap/160-doctrine-review-owed/300-rule-4-cold-pass-queued-report-up-duty.md)
 
 ## build/ layer — open strands
 
@@ -361,7 +362,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [🚩 Two board markers mean different things in a child than they do](roadmap/310-pointing-up-the-child-to-parent-route/070-two-markers-mean-different-things-in-a-child.md)
 - [ ] 🔎 [2cd4730 attributes a proposal to Mike that he did not make, and it](roadmap/310-pointing-up-the-child-to-parent-route/080-a-capture-attributes-a-proposal-to-mike-that-he-did-not-make.md)
 - [ ] 🔎 [§ Pointing up names one shape of deciding a house question locally,](roadmap/310-pointing-up-the-child-to-parent-route/090-pointing-up-names-one-shape-of-local-overreach-and-there-are-two.md)
-- [~] (claimed 2026-08-23-2253, wt: report-up-duty-0823) [The route's three shapes](roadmap/310-pointing-up-the-child-to-parent-route/100-the-route-assumes-a-reachable-parent-and-a-channel.md)
+- ✅ [The route's three shapes — WRITTEN 2026-08-23](roadmap/310-pointing-up-the-child-to-parent-route/100-the-route-assumes-a-reachable-parent-and-a-channel.md)
 - [ ] ["Self-removing" overpromises in step 3](roadmap/310-pointing-up-the-child-to-parent-route/110-self-removing-overpromises-in-step-3.md)
 
 ## Findings filed from a child via § *Pointing up* (2026-08-18)
