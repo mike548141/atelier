@@ -1,5 +1,6 @@
-- [ ] **The route assumes a reachable parent, and the text names only one of
-      its three working shapes** (PU-3, ruled to the board 2026-08-22) —
+- [~] **The route's three shapes** (claimed 2026-08-23-2253, wt: report-up-duty-0823)
+      — the route assumes a reachable parent, and the text names only one of
+      its three working shapes (PU-3, ruled to the board 2026-08-22) —
       step 1 reads as the child session writing a board item into atelier's
       tree (sanctioned by `CONCURRENCY.md` § *Stay in your lane*'s
       queue-never-deliver carve-out), yet the route's first live exercise

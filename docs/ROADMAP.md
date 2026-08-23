@@ -361,7 +361,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [🚩 Two board markers mean different things in a child than they do](roadmap/310-pointing-up-the-child-to-parent-route/070-two-markers-mean-different-things-in-a-child.md)
 - [ ] 🔎 [2cd4730 attributes a proposal to Mike that he did not make, and it](roadmap/310-pointing-up-the-child-to-parent-route/080-a-capture-attributes-a-proposal-to-mike-that-he-did-not-make.md)
 - [ ] 🔎 [§ Pointing up names one shape of deciding a house question locally,](roadmap/310-pointing-up-the-child-to-parent-route/090-pointing-up-names-one-shape-of-local-overreach-and-there-are-two.md)
-- [ ] [The route assumes a reachable parent, and the text names only one of](roadmap/310-pointing-up-the-child-to-parent-route/100-the-route-assumes-a-reachable-parent-and-a-channel.md)
+- [~] (claimed 2026-08-23-2253, wt: report-up-duty-0823) [The route's three shapes](roadmap/310-pointing-up-the-child-to-parent-route/100-the-route-assumes-a-reachable-parent-and-a-channel.md)
 - [ ] ["Self-removing" overpromises in step 3](roadmap/310-pointing-up-the-child-to-parent-route/110-self-removing-overpromises-in-step-3.md)
 
 ## Findings filed from a child via § *Pointing up* (2026-08-18)
