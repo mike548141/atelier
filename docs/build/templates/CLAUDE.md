@@ -76,6 +76,19 @@ in atelier and is read on demand — never wholesale.
   before you declare the work wrapped, do the put-away unprompted and close
   with an evidence-based all-clear that nothing owed is left uncaptured
   (`RECORD.md`).
+- **Doctrine problems point up (every repo, atelier included):** if a house rule
+  is wrong, unworkable, ambiguous, contradictory, stale, missing or unfindable,
+  **report it to atelier** — with evidence where evidence exists, marked
+  unevidenced where it does not. Consideration and remediation are atelier's;
+  the reporting session stops at the report and never silently works around a
+  rule it thinks is wrong, because the workaround destroys the only evidence the
+  house would get. Check the parent's actual file first — this block is a lossy
+  summary and is not evidence about what the house says. File it in atelier's
+  board directly, or hand it over the peer channel, or — where neither is
+  reachable — hold it in this repo's record marked owed upstream. Filing without
+  harming the parent: name the branch for the report, say it is a hand-up in the
+  first line, open the PR before you stop, and touch nothing but your own item.
+  (`PROPAGATION.md` § *Pointing up*.)
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
   session start run `git -C "<atelier-path>" log --oneline <SHA>..HEAD`; any
   output means the house doctrine moved — read it, then bump the pin above
