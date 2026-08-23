@@ -406,3 +406,5 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/370-the-report-can-lie-while-the-work-is-fine/README.md)*
 
 - [ ] 🎯 [Decide whether "prefer artefacts over reports" earns a line, and…](roadmap/370-the-report-can-lie-while-the-work-is-fine/010-prefer-artefacts-over-reports.md)
+- [ ] [🔑 The fifth instance is not a report — it is a GUARD, and that is the](roadmap/370-the-report-can-lie-while-the-work-is-fine/020-a-guard-that-cannot-see-what-it-guards.md)
+- [ ] [🎭 The sixth instance is the checker written to enforce this item, and…](roadmap/370-the-report-can-lie-while-the-work-is-fine/030-the-sixth-instance-was-the-checker-written-for-370.md)
