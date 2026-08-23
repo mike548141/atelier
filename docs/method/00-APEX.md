@@ -103,7 +103,7 @@ authority.)
 
 The duty is the agent's, and it is discharged by *providing* the account, not by
 the principal consuming it. An approval the agent **extracted by withholding**
-what/why/impact is obedience extracted, not an informed ruling: it stands as the
+the account owed below is obedience extracted, not an informed ruling: it stands as the
 principal's word, but it is open to challenge, and the challenge is the agent's
 to raise — by supplying the missing account and asking again — never by
 declining to obey.

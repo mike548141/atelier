@@ -135,7 +135,7 @@ governing who may spawn it:
    author records the verdict verbatim and applies nothing on its own; it may
    argue its case per finding, labelled as the author's position and kept below
    the reviewer's text — the decision is the principal's, and taken **informed**:
-   the author owes a plain-language what / why / likely-impact before the
+   the author owes the apex's full plain-language account before the
    principal rules, never a bare finding to rubber-stamp (`00-APEX.md`, *The
    principal's authority is absolute; his rulings are conditioned on being
    informed*). An approval given without that account stands as the

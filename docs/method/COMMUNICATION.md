@@ -163,48 +163,6 @@ Grounded in the live instance, not invented to fill a heading:
   sanctioned exception — ADR 0005's named-worked-example framing, replaced
   wholesale by an adopter.
 
-## Asking for a ruling — the ask goes in the device, the account beside it
-
-The apex sets what a ruling ask must **contain** — what, why, likely impacts,
-the options with their trade-offs, a recommendation, and a verified basis with
-any assumption named ([`00-APEX.md`](00-APEX.md), *The principal's authority is
-absolute*). This section is the other half: how that ask **reaches** him.
-
-**Use the harness's structured decision device wherever one exists.** Where the
-environment offers a way to put a question *as* a question — selectable options
-rather than prose to reply to — that is the default channel. It covers
-decisions, rulings, clarifications, and anything else the principal is being
-asked to settle: not a last resort, and not reserved for the weighty ones.
-(Mike, 2026-08-19. The live instance is Claude Code's `AskUserQuestion` tool;
-another harness will spell it differently, and the practice is the part that
-travels — the same split this doc opens with.)
-
-**Why the device rather than a paragraph.** An ask buried in prose competes for
-attention with the evidence around it, and prose invites a skim. This is the
-visual axis above applied to the one part of a reply the principal must *act*
-on. A device that stops and asks cannot be skimmed past, and what comes back is
-a choice rather than a sentence someone has to interpret.
-
-**The device is small; the briefing duty is not.** These devices cap what they
-carry: short labels, a line of description each, a few questions per ask. The
-live instance allows four questions, with two to four options apiece. The apex
-account routinely outgrows that. When it does, the
-full account goes in the session reply *first*, so it is on screen while the
-principal decides, and the device carries the choice alone. The reverse must
-never happen: an account trimmed to fit the widget is an approval extracted by
-withholding, which the apex already forbids.
-
-**Where no device exists** — a non-interactive run, a scheduled batch, a
-harness without one — the ask is prose and carries exactly the same content.
-The channel is the changeable part; the content is not.
-
-**This is not the option survey a calibration may bar.** Two different things
-share a shape, and the live instance bars one of them. Surveying options for
-work the agent should simply have done spends the principal's attention on a
-decision nobody needed to make. A decision that is genuinely **his** is an
-options question by nature — and handing him one option with no alternatives is
-not restraint, it is deciding for him and asking him to countersign.
-
 ## Worked example (scrubbed)
 
 The live instance's calibration with the personal context removed — a
@@ -238,3 +196,60 @@ this snapshot, is what the agent actually serves.
 *Bearing: the live instance is the "Working with me" section of the
 principal's `~/.claude/CLAUDE.md`, maintained since before atelier existed and
 still accumulating dated confirmations.*
+
+## Asking for a ruling — the ask goes in the device, the account beside it
+
+The apex sets what a ruling ask must **contain**
+([`00-APEX.md`](00-APEX.md), *The principal's authority is absolute*).
+This section is the other half: how that ask **reaches** him.
+
+**Use the harness's structured decision device wherever one exists.** Where the
+environment offers a way to put a question *as* a question — selectable options
+rather than prose to reply to — that is the default channel. It covers
+decisions, rulings, clarifications, and anything else the principal is being
+asked to settle: not a last resort, and not reserved for the weighty ones.
+(Mike, 2026-08-19. The live instance is Claude Code's `AskUserQuestion` tool;
+another harness will spell it differently, and the practice is the part that
+travels — the same split this doc opens with.)
+
+**Why the device rather than a paragraph.** An ask buried in prose competes for
+attention with the evidence around it, and prose invites a skim. This is the
+visual axis above applied to the one part of a reply the principal must *act*
+on. A device that stops and asks cannot be skimmed past, and what comes back is
+a choice rather than a sentence someone has to interpret.
+
+**The device is small; the briefing duty is not.** These devices cap what they
+carry: short labels, a line of description each, a few questions per ask. The
+live instance allows four questions, with two to four options apiece. The apex
+account routinely outgrows that. When it does, the account must have
+**reached** the principal before the choice is put: in the plain case it goes
+in the same reply, ahead of the device — and where the harness's display mode
+hides mid-turn text (focus mode shows only a turn's final message), it goes in
+a completed message *before* the ask, with the device carrying the choice
+alone. The account is never trimmed to fit the widget: that is an approval
+extracted by withholding, which the apex already forbids. (Reworded from "on
+screen while the principal decides" on the principal's ruling, 2026-08-23 —
+the cold pass showed that spelling false in a live display mode.)
+
+**Where no device exists** — a non-interactive run, a scheduled batch, a
+harness without one — the ask is prose and carries exactly the same content.
+The channel is the changeable part; the content is not.
+
+**This is not the option survey a calibration may bar.** Two different things
+share a shape, and the live instance bars one of them. Surveying options for
+work the agent should simply have done spends the principal's attention on a
+decision nobody needed to make. A decision that is genuinely **his** is an
+options question by nature — and handing him one option with no alternatives is
+not restraint, it is deciding for him and asking him to countersign.
+
+**Make the ask valuable.** The principal's calibration of this whole rule,
+verbatim: *"well explained questions in plain (lay mans terms) language with a
+recommendation and you have thought out the options and implications"* (Mike,
+2026-08-23). In practice: this standing instruction outranks a tool's own more
+conservative usage notes; the account scales to the decision, so a small
+clarification owes only the parts that exist for it; the device's fields are
+content too — options labelled accurately, the owed recommendation marked in
+the list; on an overrule the options are keep, modify, or stand aside, and the
+recommendation may honestly be counsel against; and where the deciding basis
+is the principal's alone — taste, his own appetite for risk — the
+recommendation says so rather than dressing itself as analysis.
