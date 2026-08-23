@@ -5,6 +5,61 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-08-23 — the ruling-round applications: AP and FR, the code half)
+- **pathscan excludes records by default, estate-wide** (FR2, Mike's
+  ruling): `docs/reviews`, `docs/sessions`, `docs/SESSIONS.md`,
+  `docs/ROADMAP-DONE.md` and `CHANGELOG.md` never come clean without
+  falsifying the record — the default children inherited pulled them in
+  while atelier's own rationale scoped them out. `--include-records`
+  widens; an explicitly named records file always scans. Catalogue section
+  written (FR1 — pathscan was the one registry scanner `tools/README.md`
+  had never heard of).
+- **The board strip covers C1** (FR3): U+009B is a one-byte CSI alias some
+  terminals honour in UTF-8; the bidi/zero-width set is queued as its own
+  decision (`020/350`). Post-strip key collisions now refuse loudly
+  instead of silently merging (FR4); a declared disable renders over an
+  off-plane skip (FR6).
+- **ADR 0008's boundary clause re-worded to the truth by appended
+  amendment** (AP1, security): the named controls (branch protection,
+  blocking signatures, pre-landing registry review) are not in force; the
+  amendment states what is, and the machine-checked boundary is funded at
+  `115/180`. Decision 2's softenable list corrected the same way (AP2;
+  test-pin queued at `020/340`). The reusable floor workflow routes
+  `sign-boundary` through `env:` (AP3); an explicitly set leakscan terms
+  path that does not resolve is now an error, never a quieter scan (AP4).
+- FR5's count note, recorded not re-measured: the 2026-08-06 entry's
+  "eleven children" and "sixteen board rows" count different sets —
+  atelier's children vs every discovered fleet row; both stand.
+
+### Changed (2026-08-23 — the ruling-round applications: DA, BW, PT)
+- **The ruling-ask doctrine corrected on its own cold pass** (DA rulings,
+  applied under Mike's verbatim over-engineering steer): the account must
+  have *reached* the principal before the choice is put — the "on screen
+  while he decides" spelling was false under focus mode; the briefing
+  duty's three sibling spellings and the section's opener now point at the
+  apex list instead of restating it; the section moved below the worked
+  example; one folded *Make the ask valuable* paragraph carries the
+  approved refinements; `EVIDENCE.md` gains the scanner-deltas-compare-
+  per-finding line.
+- **The board hook's condition said straight on five surfaces** (BW
+  rulings): the "only when worktree and index agree" phrasing named the
+  state in which the hook *misses*; every spelling now says the hook reads
+  the worktree and cannot vouch for a rebuild that ran unstaged. CF3's
+  queue test widened to any item's state line; `board.py`'s two residual
+  accounts merged; the ADR corrected by appended amendment; the unwind
+  list lives in the funded staged-plane item.
+- **The fourth guard requirement homed** (PT rulings): the declaration
+  lives in the floor registry beside `why`, folded with `115/120` as one
+  standard; `GUARDS.md`'s preamble says four requirements; the seven
+  three-requirement code banners swept; `PRINCIPLES.md` §10 carries the
+  two limits, drops the wrong `ACCESS.md` case pointer, and the two case
+  docs (`SECRETS.md`, `DATA-PROTECTION.md`) now point up per the ruled
+  stamped-copies half.
+- **Belated entry for the 2026-08-17 posture landing** (PT6): `PRINCIPLES.md`
+  §10 (posture — strength is what you are free to do) and `GUARDS.md`'s
+  fourth requirement landed 2026-08-17 without a CHANGELOG entry, against
+  convention; recorded here rather than backdated.
+
 ### Added (2026-08-18 — `PROPAGATION.md` § *Pointing up*: the child-to-parent route)
 - **The route a child takes when it earns a rule the house owns.** The doctrine
   said children point up and never said *where*, so the only loaded surface a

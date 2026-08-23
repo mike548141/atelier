@@ -60,3 +60,9 @@
       section's cost item says the estate currently has no positive branch for.
       **The honest cost is the same one item `010` names:** on this evidence at
       least four current guards fail the bar today.
+      **FOLDED 2026-08-23 (Mike's PT1 ruling):** this item now also carries
+      the homing of `GUARDS.md`'s fourth requirement — one declaration
+      standard, not two, over the same registry entry: the slot beside the
+      `why` field, its format (cheap-failure or forbids-the-act, alongside
+      this item's wider fields), and the check that reads it land together
+      as this item's build.

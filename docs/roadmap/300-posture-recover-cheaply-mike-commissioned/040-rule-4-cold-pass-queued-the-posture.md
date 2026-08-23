@@ -35,3 +35,19 @@
       PT1: home the requirement in the registry, folded with `115/120`
       into one declaration standard, funded as one item. Application in
       flight on wt: ruling-round-0823.
+      - ⏳ **Rule-4 cold pass queued — the PT rulings applied.** Doctrine by
+        function; the applier authored neither the posture delta nor the PT
+        verdict (Mike directed the application in the live ruling round,
+        2026-08-23, structured asks). Queued in the application's landing
+        commit; the applier neither takes nor spawns it. *Tier:* Fable,
+        checked at selection. *Pass type:* doctrine cold pass.
+        *Delta — scoped to paths:* `docs/method/GUARDS.md` (the four-
+        requirements preamble; § The home) · `docs/method/PRINCIPLES.md`
+        §10 (the two limits carried; the `ACCESS.md` case pointer dropped)
+        · `docs/method/SECRETS.md` + `docs/method/DATA-PROTECTION.md` (the
+        up-pointers, PT4a's ruled stamped-copies half) · the seven code
+        banner spellings in `tools/` · `CHANGELOG.md` (the 2026-08-23
+        entry and PT6's belated note) · `300/010` (the PT1a citation) ·
+        `115/120` (the fold note).
+        *Intent record:* § *Rulings — 2026-08-23* in
+        `docs/reviews/2026-08-17-1321-posture-cold.md`.

@@ -312,7 +312,7 @@ if __name__ == "__main__":
 
 
 class Allowances(unittest.TestCase):
-    """GUARDS.md — narrow, noisy, reasoned."""
+    """GUARDS.md — narrow, noisy, reasoned, declared."""
 
     def _long(self, suffix=""):
         return "x " * 50 + suffix

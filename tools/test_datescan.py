@@ -346,7 +346,7 @@ if __name__ == "__main__":
 
 
 class Allowances(unittest.TestCase):
-    """GUARDS.md — narrow, noisy, reasoned."""
+    """GUARDS.md — narrow, noisy, reasoned, declared."""
 
     def test_scoped_marker_exempts_only_its_own_kind(self):
         # A marker written for the relative-time word must not also exempt a

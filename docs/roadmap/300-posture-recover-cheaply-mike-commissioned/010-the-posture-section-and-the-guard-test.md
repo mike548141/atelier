@@ -16,7 +16,9 @@
       the defect**.
       🔑 **It closes an asymmetry already filed against this estate:** the `why`
       on every registry entry is printed and compared to nothing
-      ([`115/130`](../115-guardrail-architecture-mike-commissioned/130-a-guard-reports-whether-its-rule-fired-at-all.md)),
+      ([`115/120`](../115-guardrail-architecture-mike-commissioned/120-every-guard-declares-the-purpose-it-answers-to.md)
+      — citation corrected 2026-08-23 per PT1a; it first said `115/130`,
+      the wrong item),
       because there was no standard behind it — the estate demanded a reason for
       *weakening* a guard and none for *building* one. The declaration is that
       standard, from the build side.

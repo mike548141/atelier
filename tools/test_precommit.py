@@ -235,8 +235,13 @@ class PreCommitHookTest(unittest.TestCase):
                             "a structural-only hook scan must not pass as full cover")
         self.assertEqual(self._commit_count(), 0)
         # The remedy has to travel with the block, or a fresh clone reads this
-        # as broken tooling and reaches for --no-verify.
-        self.assertIn("--require-terms", r.stderr)
+        # as broken tooling and reaches for --no-verify. Since AP4 (ruled
+        # 2026-08-23) an explicitly set terms path that does not resolve is
+        # its own earlier, louder error — the env var IS explicit here, so
+        # the block now comes from that refusal, naming the path and the
+        # refusal to fall back.
+        self.assertIn("does not exist", r.stderr)
+        self.assertIn("refusing to fall back", r.stderr)
 
     def test_a_missing_python3_blocks_with_a_remedy_that_is_not_the_bypass(self):
         """ADR 0008 cold pass, EP9. Fail-closed was never in doubt here — a bare

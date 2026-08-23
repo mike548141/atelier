@@ -40,3 +40,20 @@
       asks; dispositions in the verdict file (§ *Rulings — 2026-08-23*).
       BW1's re-briefing given: corrected plain wording on all five
       spellings. Application in flight on wt: ruling-round-0823.
+      - ⏳ **Rule-4 cold pass queued — the BW rulings applied.** Doctrine by
+        function; the applier authored neither the BS1 delta nor the BW
+        verdict (Mike directed the application in the live ruling round,
+        2026-08-23, structured asks). Queued in the application's landing
+        commit; the applier neither takes nor spawns it. *Tier:* Fable,
+        checked at selection. *Pass type:* doctrine cold pass.
+        *Delta — scoped to paths:* `tools/board.py` (the hook clause
+        re-worded; § STATED RESIDUAL merged to one account) ·
+        `tools/README.md` § **board** (the headline condition) ·
+        `docs/method/CONCURRENCY.md` § *On a split board* (subject and
+        condition corrected; CF3's queue test widened to sibling state
+        lines) · `docs/roadmap/README.md` (the preamble qualified) · the
+        2026-08-23 amendment at the foot of
+        `docs/decisions/2026-08-15-0610-board-store-per-item-files.md` ·
+        the unwind list in `010/020`.
+        *Intent record:* § *Rulings — 2026-08-23* in
+        `docs/reviews/2026-08-17-1321-bs1-wording-cold.md`.

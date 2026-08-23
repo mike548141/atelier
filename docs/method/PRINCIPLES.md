@@ -474,10 +474,13 @@ build-time instances — they say carry the rope; this says what the rope is for
 enough that the control is not the interesting part. The individual cases live
 where they already live and point up here rather than restating it:
 [`SECRETS.md`](SECRETS.md) (rotation), [`DATA-PROTECTION.md`](DATA-PROTECTION.md)
-(restore, and the exercise that proves it), [`ACCESS.md`](ACCESS.md) (what a
-device joining the network is allowed to mean), and [`GUARDS.md`](GUARDS.md),
+(restore, and the exercise that proves it), and [`GUARDS.md`](GUARDS.md),
 where this became a **requirement on every guard** by Mike's ruling of the same
-day rather than a stance held near them.
+day rather than a stance held near them — carried with its two limits: a test
+arriving after the work is grounds to declare, never to unwire, and declaring
+"forbids the act" is not a failure grade. (The device-joining case in the
+quote has no home doc yet; the `ACCESS.md` pointer that once claimed it was
+dropped as wrong on the principal's ruling, 2026-08-23.)
 
 ---
 

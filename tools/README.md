@@ -70,8 +70,9 @@ file is fine or hiding resolved narrative stays human.
 derived file the split board keeps: `ROADMAP.md` is generated from the per-item
 files under `docs/roadmap/`, and a commit whose index is stale against them
 fails with the remedy printed (`board.py rebuild`; after a merge conflict on
-the index, rebuilding *is* the resolution) — on CI unconditionally, and at the
-hook only when worktree and index agree (see the stated residual below). Done items render `✅` in the index
+the index, rebuilding *is* the resolution) — on CI unconditionally; the hook
+reads the worktree, so it cannot vouch for a rebuild that ran but was not
+staged (see the stated residual below). Done items render `✅` in the index
 — never `[x]`, so sizescan's cold-content gate cannot fire on a generated line.
 A repo with no `docs/roadmap/` directory is out of scope and passes saying so.
 Every string the generator writes into the index has to be true in a repo that
@@ -911,6 +912,40 @@ The pin is `/usr/bin/python3` because it is always present on the machine and a
 hook must not depend on a login shell's PATH. It is Python 3.9 there; both files
 carry `from __future__ import annotations`, which is what lets modern type hints
 run on it.
+
+## `pathscan.py` — a repo path named in prose still resolves (advisory only)
+
+A file rename breaks every **named** path reference outside the diff that
+caused it — bare prose (`docs/method/REVIEW.md`) and backtick spans alike,
+which `linkscan` cannot see because they are not Markdown links. `pathscan`
+finds those references and confirms each resolves, trying repo-root-relative,
+relative to the referencing file, and relative to its enclosing `docs/`, with
+`.md`/`.markdown` appended under the directory-index convention.
+
+Registry-promoted 2026-08-05 (PS5): it runs warn-only on every child's hook
+and CI through the floor — the `--warn` sits in the registry template as one
+visible argument, because dropping it *is* the estate-wide flip to blocking
+and must never happen as a side effect. **Records are excluded by default**
+(FR2, ruled 2026-08-23): `docs/reviews`, `docs/sessions`, `docs/SESSIONS.md`,
+`docs/ROADMAP-DONE.md` and `CHANGELOG.md` name the tree as it stood when they
+were written and can never come clean without falsifying the record —
+`--include-records` widens deliberately, and a records file named explicitly
+as a path argument is always scanned.
+
+### Usage
+
+```bash
+python3 tools/pathscan.py --root . docs      # the floor's shape
+python3 tools/pathscan.py --include-records  # widen into the records
+python3 tools/pathscan.py --selftest
+```
+
+Exit codes: `0` clean · `1` findings (suppressed by `--warn`, the registry
+default) · `2` usage/config error. Escape hatches: `pathscan:allow: <reason>`
+on the line, or a reasoned glob in `.pathscanignore`. **What it cannot see**:
+prose that names a path without its extension or in a reworded form; a path
+that resolves to the *wrong* file after a swap; see the module docstring for
+the reviewed false-positive/false-negative modes.
 
 ## `stampscan.py` — an inlined copy still equals its canonical parent (advisory)
 

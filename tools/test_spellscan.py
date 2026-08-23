@@ -379,7 +379,7 @@ if __name__ == "__main__":
 
 
 class Allowances(unittest.TestCase):
-    """GUARDS.md — narrow, noisy, reasoned."""
+    """GUARDS.md — narrow, noisy, reasoned, declared."""
 
     def test_marker_with_reason_exempts_and_is_counted(self):
         tally = ss.Tally()

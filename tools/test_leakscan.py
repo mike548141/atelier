@@ -428,6 +428,19 @@ class RequireTerms(unittest.TestCase):
         # the peer-adopter case: no list, no flag → structural-only, exit 0
         self.assertEqual(0, self._run([]))
 
+    def test_an_explicit_terms_path_that_does_not_exist_is_an_error(self):
+        """AP4 (ruled 2026-08-23): a mistyped dedicated-list path silently
+        fell back to the default list — quieter cover on exactly the plane
+        EP3 hardened against silent degradation. Explicit-but-missing is now
+        exit 2, on both the flag and the env var."""
+        self.assertEqual(2, self._run(["--terms", "/nonexistent/terms.txt"]))
+        import os
+        from unittest import mock
+        with mock.patch.dict(os.environ,
+                             {"ATELIER_LEAKSCAN_TERMS": "/nonexistent/t.txt"}):
+            with self.assertRaises(ls.TermsPathError):
+                ls.resolve_terms_path(None)
+
 
 class WholeTree(unittest.TestCase):
     """Whole-tree walk guards from the 2026-07-11 child-CI-floor review

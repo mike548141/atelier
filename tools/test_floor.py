@@ -400,6 +400,14 @@ class LocalSeamTest(unittest.TestCase):
         self.assertEqual(_states("hook", cfg)["tripwire"], "enforced")
         self.assertEqual(_states("ci", cfg)["tripwire"], "skipped")
 
+    def test_a_disabled_hook_only_check_renders_disabled_off_plane(self):
+        """FR6 (ruled 2026-08-23): a declared disable outranks the off-plane
+        skip. Nothing runs either way; the board line names the stronger of
+        the two true facts."""
+        cfg = _cfg({"local": {"tripwire": {**self.DECL, "planes": ["hook"]}},
+                    "disabled": {"tripwire": "retired pending rework"}})
+        self.assertEqual(_states("ci", cfg)["tripwire"], "disabled")
+
     def test_local_check_can_be_softened_by_the_same_two_spellings(self):
         """One vocabulary. A reader of a board should not need to know whether a
         softened check was inherited or declared to know what happened to it."""
@@ -1436,6 +1444,24 @@ class ControlCharacterTest(unittest.TestCase):
         with self.assertRaises(floor.ConfigError) as caught:
             _cfg({"disabled": {"spell\x1b[2Kscan": "why"}})
         self.assertNotIn("\x1b", str(caught.exception))
+
+    def test_c1_controls_and_the_csi_alias_are_stripped(self):
+        """FR3 (ruled 2026-08-23): U+009B is a one-character CSI alias
+        that xterm-lineage terminals honour even in UTF-8 mode, so a
+        C0-only strip left the exact repaint C1F3 closed reachable
+        through one byte. Bidi/zero-width spoofing is a queued decision,
+        deliberately not asserted here."""
+        cfg = _cfg({"disabled": {"spellscan": "own\x9b31med \x85 text"}})
+        self.assertNotIn("\x9b", cfg.disabled["spellscan"])
+        self.assertNotIn("\x85", cfg.disabled["spellscan"])
+        self.assertEqual(cfg.disabled["spellscan"], "own31med  text")
+
+    def test_two_keys_collapsing_after_the_strip_refuse_loudly(self):
+        """FR4 (ruled 2026-08-23): a silent merge would drop one entry —
+        the quiet meaning-change this module refuses everywhere else."""
+        with self.assertRaises(floor.ConfigError) as caught:
+            _cfg({"disabled": {"wrap\x07scan": "a", "wrapscan": "b"}})
+        self.assertIn("collapse", str(caught.exception))
 
     def test_a_control_free_config_is_untouched(self):
         """The other direction: stripping must not quietly rewrite an honest

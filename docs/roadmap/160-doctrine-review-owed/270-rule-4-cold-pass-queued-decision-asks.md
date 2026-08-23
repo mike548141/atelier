@@ -54,3 +54,20 @@
       asks; dispositions in the verdict file (§ *Rulings — 2026-08-23*),
       including Mike's verbatim over-engineering steer. Application in
       flight on wt: ruling-round-0823.
+      - ⏳ **Rule-4 cold pass queued — the DA rulings applied.**
+        Self-authored in rule 4's inherited sense: the applier's judgement
+        produced the new wording, and the applier also authored the verdict
+        being applied (Mike directed the application in the live ruling
+        round, 2026-08-23, structured asks). Queued in the application's
+        landing commit; the applier neither takes nor spawns it. *Tier:*
+        Fable, checked at selection. *Pass type:* doctrine cold pass.
+        *Delta — scoped to paths:* `docs/method/COMMUNICATION.md` (§ *Asking
+        for a ruling* moved below the worked example, reached-him wording,
+        pointer-ised opener, the folded *Make the ask valuable* paragraph
+        carrying the principal's verbatim calibration) ·
+        `docs/method/00-APEX.md` (the withholding clause pointer-ised) ·
+        `docs/method/AUTONOMY.md` (the floor-stop sentence pointer-ised) ·
+        `docs/method/REVIEW.md` (rule 3's duty spelling pointer-ised) ·
+        `docs/method/EVIDENCE.md` (the scanner-delta measurement line).
+        *Intent record:* § *Rulings — 2026-08-23* in
+        `docs/reviews/2026-08-22-0031-decision-asks-cold.md`.

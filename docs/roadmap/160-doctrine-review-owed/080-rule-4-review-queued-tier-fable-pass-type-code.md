@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass) — the
+- [x] **Rule-4 review queued (tier: Fable; pass type: code cold pass) — the
   floor-render batch (third render state + the PS5 pathscan promotion +
   the C1F3 floorfleet strip).** *Delta:* `tools/floor.py` +
   `tools/floorfleet.py` + their two test files (suite 1178 → 1200) +
@@ -31,3 +31,13 @@
       asks; dispositions in the verdict file (§ *Rulings — 2026-08-23*).
       FR2: records-excluding default for children. Application in flight
       on wt: ruling-round-0823.
+      `[x]` **CLOSED 2026-08-23 — rulings applied, terminal application.**
+      The cycle closed 2026-08-09 (0 MAJOR); the residue was ruled
+      2026-08-23 and applied the same day: FR2 records-excluding default
+      (built into pathscan itself, `RECORDS_GLOBS` + `--include-records`),
+      FR1 catalogue section, FR3 C1 strip (bidi queued at `020/350`), FR4
+      loud key-collision, FR5 count note in the CHANGELOG, FR6
+      disabled-over-skipped. Per REVIEW.md the terminal application of a
+      0-MAJOR pass closes without a queued pointer. FR2a's residue is
+      discharged by the registry comment now stating the records-safe
+      default beside the original rationale.

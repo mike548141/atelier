@@ -184,7 +184,9 @@ climbing**. A throwaway aside can rest on recall; a number going into advice, a
 config about to hit a live system, the precondition of an irreversible act —
 climb to primary + corroboration before calling it settled. Record the rung you
 stopped at (§1), so a reader knows whether to climb further before *they* lean on
-it.
+it. One measurement shape to name: a scanner delta compares per-finding output,
+never totals — identical counts can hide one finding swapped for another (the
+principal's ruling, 2026-08-23).
 
 **Handing the question to the principal is not a rung on this ladder.** It sits
 *beside* the ladder, and it is reached only when the climb is genuinely blocked —

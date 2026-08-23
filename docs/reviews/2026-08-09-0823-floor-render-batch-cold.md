@@ -415,3 +415,8 @@ and the three scopes in lay language; he then ruled:
   skipped).
 
 Application follows; tags gain [fixed] as each lands verified.
+
+**Applied 2026-08-23** (wt: ruling-round-0823): FR1–FR6 [fixed] (FR2 as a
+records-excluding default built into pathscan; FR3's bidi set queued at
+020/350); FR2a discharged in the registry comment. Terminal application of
+a 0-MAJOR pass — the item closes without a queued pointer (160/080 [x]).
