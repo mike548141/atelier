@@ -482,14 +482,22 @@ class WholeTree(unittest.TestCase):
     def test_ignore_hatch_lives_when_cwd_is_not_root(self):
         # Regression (N3): CWD = workspace, root = repo (the floor.yml shape);
         # the repo's root-relative .leakscanignore globs must still match.
+        #
+        # The target is spelled `.` rather than `repo` since 2026-08-23: a
+        # relative target resolves against --root, so `repo` now means
+        # `repo/repo` and exits 2 (loudly, which is the point — roadmap
+        # 010/110). `.` is the root itself under either reading.
         import os
         self._write("repo/docs/fixture.md", "gateway is 10.20.30.40 today\n")
         old = os.getcwd()
         os.chdir(self.tmp)
         try:
-            self.assertEqual(1, self._main(["--root", "repo", "repo"]))
+            self.assertEqual(1, self._main(["--root", "repo", "."]))
             self._write("repo/.leakscanignore", "# a reasoned fixture exemption\ndocs/fixture.md\n")
-            self.assertEqual(0, self._main(["--root", "repo", "repo"]))
+            self.assertEqual(0, self._main(["--root", "repo", "."]))
+            # And the mixed-root spelling is refused rather than silently
+            # scanning the workspace: repo/repo does not exist.
+            self.assertEqual(2, self._main(["--root", "repo", "repo"]))
         finally:
             os.chdir(old)
 

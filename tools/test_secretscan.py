@@ -979,17 +979,25 @@ class WholeTree(unittest.TestCase):
                                         str(self.tmp / "gone")]))
 
     def test_ignore_hatch_lives_when_cwd_is_not_root(self):
-        # Regression (N3): floor.yml runs `--root repo repo` from the
-        # workspace, not the repo — the scanned repo's own .secretscanignore
-        # globs are root-relative by contract and must still match. Sanity
-        # first: without the hatch the planted key flags.
+        # Regression (N3): CI runs the floor from the workspace with
+        # `--root repo`, not from inside the repo — the scanned repo's own
+        # .secretscanignore globs are root-relative by contract and must still
+        # match. Sanity first: without the hatch the planted key flags.
+        #
+        # The comment here used to say floor.yml passes `--root repo repo`. It
+        # does not: floor.py pre-resolves every target to an ABSOLUTE path
+        # before calling a scanner, which is exactly why the relative-target
+        # defect (roadmap 010/110) was never exercised by any machine caller.
+        # The target is spelled `.` since 2026-08-23 — a relative target now
+        # resolves against --root, so `repo` means `repo/repo`.
         self._write("repo/docs/fixture.md", "key = AKIAJ7Q2XR4TP9WNB5KD\n")
         old = os.getcwd()
         os.chdir(self.tmp)
         try:
-            self.assertEqual(1, self._main(["--root", "repo", "repo"]))
+            self.assertEqual(1, self._main(["--root", "repo", "."]))
             self._write("repo/.secretscanignore", "# a reasoned fixture exemption\ndocs/fixture.md\n")
-            self.assertEqual(0, self._main(["--root", "repo", "repo"]))
+            self.assertEqual(0, self._main(["--root", "repo", "."]))
+            self.assertEqual(2, self._main(["--root", "repo", "repo"]))
         finally:
             os.chdir(old)
 

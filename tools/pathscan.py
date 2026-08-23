@@ -875,7 +875,11 @@ def _main(argv: list[str] | None = None) -> int:
         return 2
 
     if args.paths:
-        targets = [Path(p) for p in args.paths]
+        # A RELATIVE target resolves against --root, never the caller's cwd:
+        # mixing the two reads one repo's file under another repo's rules,
+        # and neither half of the output says so (roadmap 010/110).
+        targets = [(root / p) if not Path(p).is_absolute() else Path(p)
+                   for p in args.paths]
     else:
         docs = root / "docs"
         targets = [docs] if docs.is_dir() else [root]
