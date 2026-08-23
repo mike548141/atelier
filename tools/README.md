@@ -105,6 +105,29 @@ reason for every exemption, not by hiding the files.
 The scans are the mechanical floor, not the whole boundary: the human
 pre-publish scrub (and the review practice) owns the residual above.
 
+## `--root` and path arguments — one root, and it means one thing
+
+Almost every scan takes `--root <repo>` plus an optional list of paths. **A
+relative path argument resolves against `--root`, never against your current
+directory** (since 2026-08-23, roadmap `010/110`). So from atelier:
+
+```sh
+python3 tools/wrapscan.py --root ~/code/child docs/method   # child's docs
+python3 tools/wrapscan.py --root ~/code/child               # the whole child
+```
+
+Before that fix the target resolved against **cwd** while everything else the
+run depends on — the `.<scanner>ignore` lookup, the repo-relative anchors, the
+`docs/` default — resolved against `--root`, so the run read one repo's file
+under another repo's rules and said nothing about it. That shape lost a child
+session a full round of readings. Two consequences worth knowing:
+
+- **`--root repo repo` now means `repo/repo`** and exits 2. Say `--root repo`
+  (or `--root repo .`) instead. Exiting loudly on a path that is not there is
+  the design — a scan covering nothing must never read as a clean pass.
+- **An absolute target is taken as given**, `--root` or not. Naming a path in
+  full is an explicit act; only the silent mis-resolution was the defect.
+
 ## Supply chain — zero-dep *is* the control, and its residual
 
 These tools take **zero third-party dependencies** (stdlib Python, and Node's
@@ -551,7 +574,7 @@ cold-content gate; for that, harvest the `[x]` items.
 
 ```sh
 python3 tools/sizescan.py                  # report over the whole repo (length advisory + any cold content)
-python3 tools/sizescan.py --root repo repo  # scan a child from atelier
+python3 tools/sizescan.py --root repo      # scan a child from atelier
 python3 tools/sizescan.py --check          # gate: exit 1 only if a file has relocatable cold content
 python3 tools/sizescan.py --json           # machine-readable
 python3 tools/sizescan.py --selftest       # prove the engine offline

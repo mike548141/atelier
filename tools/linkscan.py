@@ -595,7 +595,11 @@ def _main(argv: list[str] | None = None) -> int:
     if not root.is_dir():
         print(f"linkscan: root does not exist: {args.root}", file=sys.stderr)
         return 2
-    targets = [Path(p) for p in (args.paths or [str(root)])]
+    # A RELATIVE target resolves against --root, never the caller's cwd:
+    # mixing the two reads one repo's file under another repo's rules,
+    # and neither half of the output says so (roadmap 010/110).
+    targets = [(root / p) if not Path(p).is_absolute() else Path(p)
+               for p in (args.paths or [str(root)])]
     missing = [str(p) for p in targets if not p.exists()]
     if missing:
         # A typo'd path scanning nothing must never read as a clean pass.

@@ -409,7 +409,12 @@ def main(argv: list[str] | None = None) -> int:
         print(f"reviewscan: --root {args.root} is not a directory",
               file=sys.stderr)
         return 2
-    paths = [Path(p).resolve() for p in (args.paths or [args.root])]
+    # A RELATIVE target resolves against --root, never the caller's cwd:
+    # mixing the two reads one repo's file under another repo's rules,
+    # and neither half of the output says so (roadmap 010/110).
+    paths = [((root / p) if not Path(p).is_absolute()
+              else Path(p)).resolve()
+             for p in (args.paths or [args.root])]
     for p in paths:
         if not p.exists():
             print(f"reviewscan: {p} does not exist", file=sys.stderr)

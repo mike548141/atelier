@@ -1,13 +1,32 @@
-- [~] 🔥 **The mixed-root scan** (claimed 2026-08-23-1236, wt: mixed-root-eleven-0823)
-      — a scanner given `--root X` and a *relative* path scans your cwd's
-      file while applying X's rules: a mixed-root run that reports
-      confidently and means nothing. Handed up by the `ros` session on
+- [x] 🔥 **The mixed-root scan — BUILT 2026-08-23** (wt: mixed-root-eleven-0823)
+      — a scanner given `--root X` and a *relative* path scanned your cwd's
+      file while applying X's rules: a mixed-root run that reported
+      confidently and meant nothing. Handed up by the `ros` session on
       2026-08-17, which lost a full round of "ros is clean" readings that were
       actually atelier's tree, including a floor result it nearly reported
       from. It was caught only by recognising atelier section names in
-      supposed `ros` output. **READY TO TAKE** — the fix is chosen, the
-      reference implementation is already in this tree, and the test is
-      specified below. Nothing here is built.
+      supposed `ros` output.
+      ✅ **What landed**, exactly as specified below and nothing more: the
+      `pointerscan` line copied into the eleven, each site carrying a
+      three-line note so the next hand knows why it is not `Path(p)`; and
+      **one** parametrised test (`tools/test_mixed_root.py`), run over twelve
+      mains — the eleven plus `pointerscan` itself, so the tool the fix was
+      copied from cannot drift out of the family unnoticed.
+      🧪 **Proven against the known-bad input before it was believed**, per
+      `370/030`: the same test file run with `PYTHONPATH` pointed at the
+      unfixed tools fails **12 times**, and passes on the fix. A test that
+      passes either way would have proven nothing.
+      ⚖️ **The absolute-path judgement, taken and stated:** `root / p` still
+      lets an *absolute* path outside `root` be scanned under `root`'s rules,
+      and that is left as it is — an absolute target is an explicit act by the
+      caller, not a silent mis-resolution, and `--staged` mode in `leakscan`
+      and `secretscan` already refuses absolutes for its own reason. A test
+      pins it (`test_absolute_target_is_still_taken_as_given`) so the
+      permissive half is deliberate rather than untested.
+      🎯 **Left for Mike, and it is a records question, not a build one:** the
+      lead sentence's grounding — see the ⚖️ withdrawal note below. The
+      severity half of that ruling is now moot (the defect is fixed); only the
+      wording half survives.
       🔎 **The mechanism.** A relative argument becomes `Path(p)`, which
       resolves against **cwd**, never against `--root`. But `root` is used
       separately for everything else the run depends on — the `.<tool>ignore`
