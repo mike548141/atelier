@@ -400,3 +400,9 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/README.md)*
 
 - [ ] 🎯 [Decide the cheap rules first — naming and announcing — and treat](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/010-name-what-you-launch-then-widen-the-announcement.md)
+
+## 🎭 The report can lie while the work is fine — 2026-08-23
+
+*[Narrative](roadmap/370-the-report-can-lie-while-the-work-is-fine/README.md)*
+
+- [ ] 🎯 [Decide whether "prefer artefacts over reports" earns a line, and…](roadmap/370-the-report-can-lie-while-the-work-is-fine/010-prefer-artefacts-over-reports.md)
