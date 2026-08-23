@@ -170,3 +170,75 @@ class OutOfScope(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DuplicateNumbers(unittest.TestCase):
+    """A duplicate section or item number is invisible to git (roadmap 010/120).
+
+    Two sessions allocating the next N from stale views mint the same number,
+    and two NEW files are not a shared line — so no conflict fires, the rebuilt
+    index is well-formed, and the pair sorts adjacently and reads as
+    intentional. One such pair sat on atelier's own board for six days. The
+    contract these pin: the collision reds `check` AND `rebuild`, and the
+    message names the colliding files rather than only the number.
+    """
+
+    def setUp(self):
+        self._td = tempfile.TemporaryDirectory()
+        self.root = Path(self._td.name)
+        self.sec = make_board(self.root)
+        board.run_check(self.root, fix=True)
+
+    def tearDown(self):
+        self._td.cleanup()
+
+    def _second_section(self, name):
+        d = self.root / board.BOARD_DIR / name
+        d.mkdir()
+        (d / "README.md").write_text("# Another\n", encoding="utf-8")
+        return d
+
+    def test_clean_board_has_no_collision(self):
+        self.assertEqual(0, board.run_check(self.root, fix=False))
+
+    def test_duplicate_section_number_is_caught(self):
+        # Rebuild FIRST, so the index cannot be stale: without that step this
+        # passes on an unfixed tool for the wrong reason — staleness, not the
+        # collision — which is the vacuous-test shape 370/030 exists to catch.
+        self._second_section("10-track-a-again")
+        board.run_check(self.root, fix=True)
+        self.assertEqual(1, board.run_check(self.root, fix=False))
+
+    def test_a_rebuild_cannot_paper_over_a_section_collision(self):
+        # The failure mode that let the real one survive: `rebuild` produced a
+        # perfectly well-formed index and returned success.
+        self._second_section("10-track-a-again")
+        self.assertEqual(1, board.run_check(self.root, fix=True))
+
+    def test_duplicate_item_number_is_caught(self):
+        (self.sec / "10-also-ten.md").write_text(
+            "- [ ] **Also ten**\n", encoding="utf-8")
+        board.run_check(self.root, fix=True)   # not stale — only colliding
+        self.assertEqual(1, board.run_check(self.root, fix=False))
+
+    def test_message_names_the_colliding_files(self):
+        (self.sec / "10-also-ten.md").write_text(
+            "- [ ] **Also ten**\n", encoding="utf-8")
+        _, problems = board.build_index(self.root / board.BOARD_DIR)
+        joined = " ".join(problems)
+        self.assertIn("10-open-item.md", joined)
+        self.assertIn("10-also-ten.md", joined)
+
+    def test_different_sections_may_reuse_a_number(self):
+        # Numbering is per-directory: `10` in two different sections is normal
+        # and must not fire, or the check is unusable.
+        other = self._second_section("20-track-b")
+        (other / "10-its-own-ten.md").write_text(
+            "- [ ] **Track B's ten**\n", encoding="utf-8")
+        self.assertEqual(0, board.run_check(self.root, fix=True))
+
+    def test_readme_is_not_an_item(self):
+        # Every section has a README.md with no leading number; it must never
+        # be counted as an item, at any grain.
+        self.assertEqual([], board.number_collisions(
+            ["README.md", "10-a.md", "20-b.md"], "x", "item"))
