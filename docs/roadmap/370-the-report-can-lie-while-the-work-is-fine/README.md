@@ -6,14 +6,23 @@ on the screen is not — which is the one failure mode no amount of care about t
 *work* will catch, because care about the work is exactly what produced the good
 artefacts.
 
-Three instances in a single docker-heap session, found the hard way, each with a
-different mechanism and the same shape:
+Five instances across two docker-heap sessions on one day, found the hard way,
+each with a different mechanism and the same shape:
 
 | what broke | mechanism | what it printed |
 |---|---|---|
 | a credential diagnostic | `python3 - <<PY` — **a heredoc replaces stdin**, so the piped secret never arrived | a real `401`, from an empty password |
 | a long-running script | **`scp` over the file while it was executing** — bash reads a script by byte offset, so it resumed mid-token | `✅ Photos is proven` followed by `syntax error near unexpected token ')'` |
 | a compose dump | `$$` rendering in `docker compose config` | a value that looked wrong and was not |
+| a gateway check | its filter selected addresses **longer than 15 characters** — and a *correct* IPv6 gateway is shorter, so the check could only ever display the broken form | `no v6` for all thirteen networks, nearly reported as success |
+| a self-restart **guard** | two copies of one tool held **different internal names**, so the guard's own exclusion strings matched neither | nothing — it reported no job to exclude, and would have killed a live 366 GB transfer |
+
+🔑 **The last two are the sharp ones and they are the same sentence.** *A
+verification that cannot display the passing state is not a verification* → **a
+guard that cannot recognise the state it exists to detect is not a guard.** Both
+fail by being quiet, and in both the instrument's blind spot is exactly the
+condition it was built for. `020` carries the guard case, which is the harder of
+the two because a guard has no reader to corroborate it.
 
 🔑 **The danger is asymmetric, and both directions cost.** A false *failure*
 sends you hunting: the first case above produced a confident, published finding
