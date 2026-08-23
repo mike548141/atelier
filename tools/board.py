@@ -272,6 +272,42 @@ def rebuild_cmd(root: Path) -> str:
     return f"python3 {rel.as_posix()} rebuild"
 
 
+_LEADING_NUMBER = re.compile(r"^(\d+)-")
+
+
+def number_collisions(names: list[str], where: str, kind: str) -> list[str]:
+    """Problems for every leading number used more than once in `names`.
+
+    THE ONE SURVIVING COUNTER. The board's coordination-free naming argument
+    (`CONCURRENCY.md` § Integration hygiene) retired next-N counters for records
+    precisely because two sessions allocating from stale views collide in
+    silence — but a section or item number is still a next-N counter, read off
+    the directory. Two new files are not a shared line, so git sees no conflict,
+    `rebuild` produces a perfectly well-formed index containing both, and the
+    pair sorts adjacently and reads as intentional.
+
+    Nothing asserted the numbers were unique, so nothing could report that they
+    were not: the generator's clean verdict was honest and carried no
+    information about this class at all. This is the assertion. It fires on
+    `check` and on `rebuild` alike, because a rebuild that papers over the
+    collision is how the last one survived a week.
+    """
+    seen: dict[str, list[str]] = {}
+    for name in names:
+        m = _LEADING_NUMBER.match(name)
+        if m:
+            seen.setdefault(m.group(1), []).append(name)
+    out: list[str] = []
+    for number, hits in sorted(seen.items()):
+        if len(hits) > 1:
+            out.append(
+                f"{where}: {kind} number {number} is used {len(hits)} times — "
+                + ", ".join(sorted(hits))
+                + ". Renumber one: fewest inbound references moves "
+                "(`PRINCIPLES.md` §10's tie-break).")
+    return out
+
+
 def build_index(board: Path) -> tuple[str, list[str]]:
     """(index text, problems). Deterministic: sorted dirs, sorted files."""
     problems: list[str] = []
@@ -296,7 +332,14 @@ def build_index(board: Path) -> tuple[str, list[str]]:
         problems.append(f"{BOARD_DIR}/README.md missing — the board preamble "
                         "(checkbox legend) has no home")
 
-    for sec in sorted(p for p in board.iterdir() if p.is_dir()):
+    sections = sorted(p for p in board.iterdir() if p.is_dir())
+    problems.extend(number_collisions(
+        [s.name for s in sections], BOARD_DIR, "section"))
+
+    for sec in sections:
+        problems.extend(number_collisions(
+            [f.name for f in sorted(sec.glob("*.md")) if f.name != "README.md"],
+            f"{BOARD_DIR}/{sec.name}", "item"))
         readme = sec / "README.md"
         rtext = readme.read_text(encoding="utf-8") if readme.is_file() else ""
         parts.append(f"## {section_title(rtext, sec.name)}")
@@ -362,6 +405,7 @@ def run_check(root: Path, fix: bool) -> int:
 
 # ---------------------------------------------------------------------------
 def selftest() -> int:
+    import shutil
     import tempfile
 
     failures: list[str] = []
@@ -476,6 +520,35 @@ def selftest() -> int:
         check("stateless item file fails", run_check(root, fix=True) == 1)
         (sec / "50-broken.md").unlink()
         run_check(root, fix=True)
+
+        # A DUPLICATE NUMBER, at both grains. git sees no conflict — two new
+        # files are not a shared line — so the generator has to be the one that
+        # notices, and it must notice on `rebuild` too: papering over the
+        # collision with a well-formed index is exactly how the 2026-08-17 one
+        # survived unseen. A live item-level pair was found on this board while
+        # this check was being written.
+        dup = root / BOARD_DIR / "10-track-a-again"
+        dup.mkdir()
+        (dup / "README.md").write_text("# Track A again\n", encoding="utf-8")
+        check("duplicate section number fails rebuild",
+              run_check(root, fix=True) == 1)
+        _, probs = build_index(root / BOARD_DIR)
+        # Both names, not just a count: the message has to be actionable at
+        # the moment it fires, and "10 is used twice" names nothing to fix.
+        check("the section collision names both directories",
+              any("section number 10" in p and p.count("10-track-a") == 2
+                  for p in probs))
+        shutil.rmtree(dup)
+
+        (sec / "10-also-ten.md").write_text(
+            "- [ ] **Also ten** — the sibling grain\n", encoding="utf-8")
+        check("duplicate item number fails rebuild",
+              run_check(root, fix=True) == 1)
+        _, probs = build_index(root / BOARD_DIR)
+        check("the item collision names its section",
+              any("item number 10" in p and "10-track-a" in p for p in probs))
+        (sec / "10-also-ten.md").unlink()
+        check("clean numbering passes again", run_check(root, fix=True) == 0)
 
         # determinism: rebuild twice, byte-identical
         a = (root / INDEX_REL).read_text(encoding="utf-8")
