@@ -242,3 +242,29 @@ class DuplicateNumbers(unittest.TestCase):
         # be counted as an item, at any grain.
         self.assertEqual([], board.number_collisions(
             ["README.md", "10-a.md", "20-b.md"], "x", "item"))
+
+
+class ClaimInTheFallbackTitle(unittest.TestCase):
+    """A wrapped bold title sends index_title down its fallback path, and the
+    fallback used to start at the claim (roadmap 010/140).
+
+    `index_line` already surfaces the claim separately, so the fallback taking
+    the head of `rest` rendered it twice on one line.
+    """
+
+    def test_wrapped_title_does_not_repeat_the_claim(self):
+        rest = ("🔥 (claimed 2026-08-23-1259, wt: x) **A title that keeps\n"
+                "      going onto a second line** — and then some body")
+        self.assertNotIn("claimed", board.index_title(rest))
+
+    def test_closed_bold_span_is_unaffected(self):
+        rest = "**A closed title** (claimed 2026-08-23-1259, wt: x) — body"
+        self.assertEqual("A closed title", board.index_title(rest))
+
+    def test_the_claim_still_reaches_the_index_line(self):
+        # Stripping it from the TITLE must not strip it from the LINE — the
+        # claim is what tells another session the item is taken.
+        line = board.index_line(
+            "[~]", "🔥 (claimed 2026-08-23-1259, wt: x) **Wrapped\n      title**",
+            "roadmap/10-a/10-b.md")
+        self.assertIn("(claimed 2026-08-23-1259, wt: x)", line)

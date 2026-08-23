@@ -154,9 +154,16 @@ def item_state(text: str) -> tuple[str, str] | None:
 
 
 def index_title(rest: str) -> str:
-    """The index line's link text: the item's bold title, links flattened."""
+    """The index line's link text: the item's bold title, links flattened.
+
+    The fallback strips the claim first. `TITLE_RE` wants a CLOSED `**…**` span
+    on the state line, and many real item files wrap the bold title across
+    lines — so the state line carries an opening `**` and no closing one, the
+    fallback takes the head of `rest`, and `rest` begins with the claim. The
+    result rendered the claim twice on one line, once from `index_line` and
+    once swallowed into the title (reported by a child, 2026-08-17)."""
     m = TITLE_RE.search(rest)
-    raw = m.group(1) if m else rest
+    raw = m.group(1) if m else CLAIM_RE.sub("", rest)
     raw = LINK_RE.sub(r"\1", raw)
     raw = raw.replace("*", "").replace("`", "").strip(" —-:")
     for f in FLAGS:
