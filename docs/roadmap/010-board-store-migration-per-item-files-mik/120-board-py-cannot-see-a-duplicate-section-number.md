@@ -1,5 +1,6 @@
-- [ ] 🔥 **`board.py` cannot see a duplicate SECTION number, and rebuilt a clean
-      index over one** `[S][tools]` — found live 2026-08-17, not reasoned about.
+- [~] 🔥 **The unseen duplicate number** (claimed 2026-08-23-1259, wt: board-dup-numbers-0823)
+      — `board.py` cannot see a duplicate SECTION number, and rebuilt a clean
+      index over one `[S][tools]` — found live 2026-08-17, not reasoned about.
       Two sessions independently minted section **`290`** within the same hour —
       `290-posture-…` and `290-ruling-round-…` — and **no git conflict fired**,
       because two new directories are not a shared line. `rebuild` then produced
