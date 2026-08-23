@@ -117,9 +117,18 @@ fact.
 
 ## Left for Mike
 
-- 🎯 `010/110` carries an unruled wording question from 2026-08-17: retire the
-  grounding sentence `ros` withdrew, or step the severity down. The severity
-  half is now moot — the defect is fixed — so only the wording half survives.
+- ✅ `010/110`'s unruled wording question from 2026-08-17 was **put to Mike in
+  this session and ruled**: correct the lead sentence rather than annotate it,
+  on the reason that carries — a skim reader only ever reads the first line.
+  The severity half was already moot. Both ends of the item now say the same
+  thing, and the ruling is recorded inside it (`c766658`).
+- 🚩 A **peer atelier session appeared mid-sitting**, after this one's own
+  recovery had closed: `worktree-report-lies-0823` was re-created at
+  `8648622` (filing a `380` item, 13 minutes before close) with its worktree at
+  `~/worktrees/at-report-lies-0823b`. Left entirely untouched — it appeared
+  *during* this session, which is positive evidence of company rather than the
+  residue the earlier sweep dealt with. It is one commit ahead of `main` on a
+  branch, and its index will want a rebuild rather than a hand-merge.
 - 🚩 `faves` will red on its next CI run: five genuine broken pointers, each
   with its fix named by linkscan's own suggester. The repair belongs to a
   `faves` session, not this one.
