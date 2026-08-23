@@ -169,3 +169,34 @@ child adds, and nothing here lets it change whether a shared check blocks.
   which match nothing against git's repo-relative path list, so every boundary
   check silently passed. Recorded here because it is the same shape as the defect
   being fixed — a check that runs, reports success, and covers nothing.
+
+## Amended 2026-08-23 — the boundary control stated at its true strength (AP1), and Decision 2's softenable list corrected (AP2)
+
+**AP1 (MAJOR, the EP application cold pass; the principal's ruling,
+2026-08-23).** The Consequences control clause named branch protection,
+signed commits and registry review as what makes the floating `@main` call
+safe. A live read (2026-08-09, re-affirmed at this amendment) shows none of
+the three is in force as named: `main` carries no branch protection and no
+ruleset, signature verification is warn-first on both planes, and registry
+changes land under the standing autonomy grant with review after landing.
+The controls actually in force are: a single-owner account with 2FA as the
+only writer, public visibility (every push is published and inspectable),
+the warn-first signature planes, and review-after-landing under the review
+doctrine. Branch protection is deliberately **not** enabled — it would break
+the direct-to-`main` workflow the estate's sessions and claim mechanics run
+on, and the principal ruled the trade-off that way informed. The named
+control is an **aspiration with a funded path**: a machine-checked boundary
+(a parent-row check that reads branch-protection/ruleset state and reds when
+the declared control is absent) is queued at board item `115/180`. Until it
+lands, this clause is the truth of the boundary, not the earlier claim.
+
+**AP2 (MODERATE, same pass).** Decision 2 said the boundary and integrity
+scanners "have no advisory form at all" and only the prose-hygiene checks
+carry one. That prose went stale: at HEAD the registry offers advisory forms
+on sizescan and publishscan (deliberately — a size budget and a publish
+surface are legitimate re-baselines), and the no-advisory set is secretscan,
+leakscan, linkscan, reviewscan, board and licenscan. The registry
+(`advisory=` non-None), not any prose list, is the authority; `floor.py`'s
+docstring is corrected in the same change, and a test pinning the prose
+lists to `Scanner.advisory` is queued at `020/340`. Decision 2's *intent* —
+what a child may soften is not the child's call — stands unchanged.

@@ -577,6 +577,26 @@ class WholeTreeAndExitCodes(unittest.TestCase):
         self.assertEqual(1, len(findings))
         self.assertEqual("docs/note.md", findings[0].path)
 
+    def test_records_are_excluded_by_default_when_a_dir_expands(self):
+        """FR2 (ruled 2026-08-23): records name the tree as it stood when
+        written and can never come clean — a child's default scope must not
+        pull them in. Dead paths in records: invisible by default."""
+        self._write("docs/reviews/old-review.md", "see `tools/ghost.py`\n")
+        self._write("docs/sessions/old-session.md", "see `tools/ghost.py`\n")
+        self._write("docs/SESSIONS.md", "see `tools/ghost.py`\n")
+        self._write("docs/live.md", "all real: `docs/SESSIONS.md`\n")
+        self.assertEqual(0, self._main(["--root", str(self.tmp)]))
+
+    def test_include_records_selects_them(self):
+        self._write("docs/reviews/old-review.md", "see `tools/ghost.py`\n")
+        self.assertEqual(1, self._main(["--root", str(self.tmp),
+                                        "--include-records"]))
+
+    def test_a_record_named_explicitly_is_always_scanned(self):
+        self._write("docs/reviews/old-review.md", "see `tools/ghost.py`\n")
+        self.assertEqual(1, self._main(["--root", str(self.tmp),
+                                        str(self.tmp / "docs/reviews/old-review.md")]))
+
     def test_falls_back_to_root_when_no_docs_dir(self):
         self._write("note.md", "see `tools/ghost.py`, no docs dir here\n")
         self.assertEqual(1, self._main(["--root", str(self.tmp)]))

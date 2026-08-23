@@ -502,3 +502,8 @@ same sitting):
 - **AP5, AP6, AP7, AP8** — ruled: no change; recorded here only.
 
 Application follows; tags gain [fixed] as each lands verified.
+
+**Applied 2026-08-23** (wt: ruling-round-0823): AP1 [fixed — truth
+amendment appended to ADR 0008, boundary check funded at 115/180], AP2
+[fixed — docstring + amendment, test-pin at 020/340], AP3/AP4 [fixed];
+AP5–AP8 [no change, as ruled]. Application review queued at 160/090.

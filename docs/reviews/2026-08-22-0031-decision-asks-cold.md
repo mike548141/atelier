@@ -474,3 +474,8 @@ scattered clauses. Dispositions:
 Pacing for the remaining rounds was also his ruling: MAJORs solo, the
 rest batched with recommendations. Application follows in this worktree;
 tags gain [fixed] as each lands verified.
+
+**Applied 2026-08-23** (wt: ruling-round-0823): DA1, DA2, DA5, DA6 and the
+folded paragraph (DA3/DA4/DA-R1/DA-R2/DA-R5) plus DA-R3's EVIDENCE line —
+all [fixed]; DA-R4 [no change, the steer is the record]. Application
+review queued at 160/270.

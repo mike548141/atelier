@@ -140,13 +140,15 @@ doctrine surface is an ordinary layout fact, and demanding a sentence for it
 would make the rule ceremony. Bare-list spellings still parse through the C1
 transition; they cannot carry a reason at all.
 
-Which checks may be softened is NOT the child's call. The boundary scanners
-(secretscan, leakscan) and the integrity scanners (linkscan, reviewscan,
-sizescan) have no advisory form here: a burned secret, a leaked personal fact and
-a botched harvest are not re-baselining problems. Only the prose-hygiene checks
-(datescan, wrapscan, spellscan) carry one, because adopting them genuinely does
-demand a one-off cleanup pass. Asking for an advisory state that a scanner does
-not offer is an error, not a silent downgrade.
+Which checks may be softened is NOT the child's call: a scanner is softenable
+exactly when its registry entry carries an advisory form (`advisory=`
+non-None). At HEAD that excludes the boundary scanners (secretscan, leakscan),
+the integrity scanners (linkscan, reviewscan, board) and licenscan — a burned
+secret, a leaked personal fact and a broken link are not re-baselining
+problems. Asking for an advisory state a scanner does not offer is an error,
+not a silent downgrade. (This paragraph's earlier only-prose-hygiene list went
+stale when sizescan and publishscan gained forms; the registry, not prose, is
+the authority — AP2, ruled 2026-08-23.)
 
 THE REPO-LOCAL SEAM — a child may ADD a check, never soften one
 ----------------------------------------------------------------
@@ -251,9 +253,13 @@ from pathlib import Path, PurePosixPath
 
 CONFIG_NAME = ".atelier-floor.json"
 ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
-# C0 controls plus DEL. Config-authored text reaches a terminal verbatim, so
-# these are stripped at the parse seam — see `strip_controls`.
-CONTROL_CHARS_RE = re.compile(r"[\x00-\x1f\x7f]")
+# C0 controls, DEL, and the C1 range. Config-authored text reaches a terminal
+# verbatim, so these are stripped at the parse seam — see `strip_controls`.
+# C1 included per FR3 (ruled 2026-08-23): U+009B is a one-character CSI alias
+# xterm-lineage terminals honour even in UTF-8 mode, so a C0-only strip left
+# the exact repaint C1F3 closed reachable through one byte. The bidi/zero-width
+# spoofing set is a queued decision, not silently folded in here.
+CONTROL_CHARS_RE = re.compile(r"[\x00-\x1f\x7f-\x9f]")
 
 # Arguments whose presence in a plane's template means the check REPORTS its
 # findings and never blocks on them. `--warn` is the estate-wide spelling: every
@@ -641,11 +647,13 @@ SCANNERS: tuple[Scanner, ...] = (
         # The records tree, matching its sibling prose checks — and matching
         # the review's own scope finding, which named records OUT: they name
         # the tree as it stood when they were written and can never come clean
-        # without markers that would falsify the record. A repo whose gateable
-        # surface is narrower (atelier's is — its doctrine dirs plus its live
-        # root files) declares it in `.atelier-floor.json`, exactly as it
-        # already does for wrapscan and spellscan. The registry cannot know a
-        # child's root files, so it does not guess at them.
+        # without markers that would falsify the record. Since FR2 (ruled
+        # 2026-08-23) the TOOL excludes records by default (its
+        # RECORDS_GLOBS), so this docs scope is records-safe on a scaffolded
+        # child — the default the registry hands out no longer contradicts
+        # the rationale above. A repo whose gateable surface is narrower
+        # declares it in `.atelier-floor.json`, exactly as it already does
+        # for wrapscan and spellscan; `--include-records` widens per run.
         default_scope="docs",
     ),
     Scanner(
@@ -775,7 +783,20 @@ def strip_controls(value: object) -> object:
     if isinstance(value, str):
         return CONTROL_CHARS_RE.sub("", value)
     if isinstance(value, dict):
-        return {strip_controls(k): strip_controls(v) for k, v in value.items()}
+        # Two keys that differ only by control characters would silently
+        # collapse to one entry, the other dropped — the quiet meaning-change
+        # this module refuses everywhere else. Loud instead (FR4, ruled
+        # 2026-08-23). ValueError so the board's tolerant reader survives it;
+        # Config.load re-raises it as ConfigError on the floor plane.
+        out: dict = {}
+        for k, v in value.items():
+            sk = strip_controls(k)
+            if sk in out:
+                raise ValueError(
+                    f"two config keys collapse to {sk!r} once control "
+                    "characters are stripped — refusing the silent merge")
+            out[sk] = strip_controls(v)
+        return out
     if isinstance(value, list):
         return [strip_controls(v) for v in value]
     return value
@@ -1208,7 +1229,10 @@ class Config:
         # `why` lines, scanner names, scope paths, local check descriptions —
         # reaches an operator's terminal, and a per-field strip is a list that
         # goes stale the next time a field is added.
-        raw = strip_controls(raw)
+        try:
+            raw = strip_controls(raw)
+        except ValueError as e:
+            raise ConfigError(f"{CONFIG_NAME}: {e}") from e
         if not isinstance(raw, dict):
             raise ConfigError(f"{CONFIG_NAME} must be a JSON object")
 
@@ -1523,8 +1547,12 @@ def plan(plane: str, cfg: Config) -> list[tuple[Scanner, str]]:
             # blocklist is machine/repo-local, the same shape as leakscan's term
             # list. It still LISTS on the other plane, saying it did not run
             # there: a check absent from CI must not read as a check that passed.
+            # A declared disable outranks the off-plane skip (FR6, ruled
+            # 2026-08-23): nothing runs either way, but the board line names
+            # the stronger of the two true facts.
             if s.is_local:
-                out.append((s, "skipped"))
+                out.append((s, "disabled" if s.name in cfg.disabled
+                            else "skipped"))
             continue
         if s.name in cfg.disabled:
             out.append((s, "disabled"))

@@ -338,6 +338,7 @@ class Tally:
     matched" and "everything matched and was exempted"."""
     by_marker: dict[str, int] = field(default_factory=dict)
     files_by_glob: int = 0
+    files_by_records: int = 0
 
     @property
     def marker_total(self) -> int:
@@ -350,7 +351,8 @@ class Tally:
         """One stable line, known zeros printed, so two runs compare."""
         line = ("  suppressed: "
                 f"{self.marker_total} by allow-marker · "
-                f"{self.files_by_glob} file(s) by .pathscanignore")
+                f"{self.files_by_glob} file(s) by .pathscanignore · "
+                f"{self.files_by_records} record file(s) excluded by default")
         if self.by_marker:
             detail = ", ".join(f"{k}×{n}" for k, n in sorted(self.by_marker.items()))
             line += f"\n    allow-marker breakdown: {detail}"
@@ -754,6 +756,17 @@ def _ignored(rel: str, globs: list[str]) -> bool:
                for g in globs)
 
 
+# Records name the tree as it stood when they were written and can never come
+# clean without markers that would falsify the record — the registry's own
+# rationale for scoping atelier's records OUT, which children's default scope
+# then contradicted by pulling theirs IN (FR2, the principal's ruling
+# 2026-08-23: records-excluding by default, estate-wide). Excluded only when a
+# DIRECTORY is expanded; a records file named explicitly as a path argument is
+# always scanned — the same contract as plainscan's RECORDS_GLOBS.
+RECORDS_GLOBS = ["docs/SESSIONS.md", "docs/sessions", "docs/ROADMAP-DONE.md",
+                 "docs/reviews", "CHANGELOG.md"]
+
+
 def _rel(p: Path, root: Path) -> str:
     try:
         return str(p.resolve().relative_to(root.resolve()))
@@ -762,8 +775,10 @@ def _rel(p: Path, root: Path) -> str:
 
 
 def iter_markdown(paths: list[Path], root: Path, globs: list[str],
-                  tally: "Tally | None" = None):
+                  tally: "Tally | None" = None,
+                  include_records: bool = False):
     for base in paths:
+        expanded = base.is_dir()
         if base.is_file():
             candidates = [base]
         else:
@@ -772,18 +787,25 @@ def iter_markdown(paths: list[Path], root: Path, globs: list[str],
         for p in candidates:
             if p.suffix.lower() not in MARKDOWN_SUFFIXES:
                 continue
-            if _ignored(_rel(p, root), globs):
+            rel = _rel(p, root)
+            if _ignored(rel, globs):
                 if tally is not None:
                     tally.files_by_glob += 1
+                continue
+            if expanded and not include_records and _ignored(rel, RECORDS_GLOBS):
+                if tally is not None:
+                    tally.files_by_records += 1
                 continue
             yield p
 
 
 def scan_paths(paths: list[Path], root: Path,
-               tally: "Tally | None" = None) -> list[Finding]:
+               tally: "Tally | None" = None,
+               include_records: bool = False) -> list[Finding]:
     globs = load_ignore_globs(root)
     findings: list[Finding] = []
-    for md in iter_markdown(paths, root, globs, tally):
+    for md in iter_markdown(paths, root, globs, tally,
+                            include_records=include_records):
         text = md.read_text(encoding="utf-8", errors="replace")
         findings.extend(scan_text(md, root, text, tally))
     return findings
@@ -833,6 +855,13 @@ def _main(argv: list[str] | None = None) -> int:
                          "staying advisory, and the flip to blocking is a "
                          "decision, not a default)")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
+    ap.add_argument("--include-records", action="store_true",
+                    help="also scan the records (docs/reviews, docs/sessions, "
+                         "docs/SESSIONS.md, docs/ROADMAP-DONE.md, "
+                         "CHANGELOG.md), excluded by default since 2026-08-23 "
+                         "(FR2): they name the tree as it stood when written "
+                         "and never come clean. A records file named "
+                         "explicitly as a path argument is always scanned.")
     ap.add_argument("--selftest", action="store_true",
                     help="run built-in checks and exit")
     args = ap.parse_args(argv)
@@ -859,7 +888,8 @@ def _main(argv: list[str] | None = None) -> int:
         return 2
     tally = Tally()
     try:
-        findings = scan_paths(targets, root, tally)
+        findings = scan_paths(targets, root, tally,
+                              include_records=args.include_records)
     except OSError as e:
         print(f"pathscan: cannot read {e.filename}: {e.strerror}", file=sys.stderr)
         return 2

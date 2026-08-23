@@ -63,6 +63,8 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔥 [The reply gate is UNWIRED (2026-08-15) — destroy it, or repurpose it](roadmap/020-policy-as-code-programme-five-tracks-mik/310-the-reply-gate-is-unwired-destroy-it-or-repur.md)
 - [ ] 🔥 [linkscan is blind to reference-style link destinations, and says](roadmap/020-policy-as-code-programme-five-tracks-mik/320-linkscan-is-blind-to-reference-style-link-des.md)
 - ✅ [✅ The 2026-08-09 measurement checked for the three-channel blind spot](roadmap/020-policy-as-code-programme-five-tracks-mik/330-the-2026-08-09-measurement-checked-for-the-blind-spot.md)
+- [ ] [Pin the three softenable-set prose lists to Scanner.advisory](roadmap/020-policy-as-code-programme-five-tracks-mik/340-pin-the-softenable-lists-to-the-registry.md)
+- [ ] 🎯 [The bidi / zero-width spoofing set — strip, escape, or accept](roadmap/020-policy-as-code-programme-five-tracks-mik/350-bidi-and-zero-width-strip-decision.md)
 
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
 
@@ -158,6 +160,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [What actually reaches a child, measured 2026-08-15 — and it is about](roadmap/115-guardrail-architecture-mike-commissioned/150-what-reaches-a-child-measured-and-it-is-about.md)
 - [ ] [The floor a child inherits is a records-hygiene floor, and the…](roadmap/115-guardrail-architecture-mike-commissioned/160-the-child-floor-is-a-records-hygiene-floor-not.md)
 - [ ] 🎯 [The guard layer is consuming the programme — the proportionality](roadmap/115-guardrail-architecture-mike-commissioned/170-the-guard-layer-is-consuming-the-programme.md)
+- [ ] [Machine-check the main boundary ADR 0008's control clause names](roadmap/115-guardrail-architecture-mike-commissioned/180-machine-check-the-main-branch-boundary.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 
@@ -193,7 +196,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Five rule-4 Fable cold passes ran 2026-08-05 — every queued cycle](roadmap/160-doctrine-review-owed/050-five-rule-4-fable-cold-passes-ran-2026-08-05-e.md)
 - [ ] 🎯 [A seventh pass: the F1/GUARDS.md rebuild + the twelve-scanner](roadmap/160-doctrine-review-owed/060-a-seventh-pass-the-f1-guards-md-rebuild-the-tw.md)
 - [ ] 🎯 [A sixth pass the same day: the sitting's five doctrine edits,](roadmap/160-doctrine-review-owed/070-a-sixth-pass-the-same-day-the-sitting-s-five-d.md)
-- ⏳ [Rule-4 review queued (tier: Fable; pass type: code cold pass) — the](roadmap/160-doctrine-review-owed/080-rule-4-review-queued-tier-fable-pass-type-code.md)
+- ✅ [Rule-4 review queued (tier: Fable; pass type: code cold pass) — the](roadmap/160-doctrine-review-owed/080-rule-4-review-queued-tier-fable-pass-type-code.md)
 - ⏳ [Rule-4 review queued (tier: Fable; pass type: code cold pass, the](roadmap/160-doctrine-review-owed/090-rule-4-review-queued-tier-fable-pass-type-code.md)
 - [ ] 🎯 [The E6b + E3 cycle CLOSED 2026-08-09 (0 MAJOR); AB1–AB6 await](roadmap/160-doctrine-review-owed/100-the-e6b-e3-cycle-closed-2026-08-09-0-major-ab1.md)
 - [ ] 🎯 [The E7 leakscan cycle CLOSED 2026-08-09 (0 MAJOR); LK1–LK6 + a](roadmap/160-doctrine-review-owed/110-the-e7-leakscan-cycle-closed-2026-08-09-0-majo.md)

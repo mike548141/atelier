@@ -722,13 +722,31 @@ def staged_added_lines() -> dict[str, str]:
     return {path: "\n".join(lines) for path, lines in files.items() if lines}
 
 
+class TermsPathError(RuntimeError):
+    """An explicitly set terms path that does not resolve.
+
+    Falling through to the default list would silently narrow cover on
+    exactly the plane EP3 hardened against silent degradation — a mistyped
+    dedicated-list path must be an error, not a quieter scan (AP4, the
+    principal's ruling 2026-08-23)."""
+
+
 def resolve_terms_path(cli: str | None) -> Path | None:
-    for candidate in (cli, os.environ.get("ATELIER_LEAKSCAN_TERMS"), DEFAULT_LOCAL_TERMS):
+    # The CLI flag and the env var are EXPLICIT settings: if one is given and
+    # does not resolve, that is an error, never a fall-through. Only the
+    # default location may be quietly absent.
+    for candidate, source in ((cli, "--terms"),
+                              (os.environ.get("ATELIER_LEAKSCAN_TERMS"),
+                               "$ATELIER_LEAKSCAN_TERMS")):
         if candidate:
             p = Path(candidate).expanduser()
-            if p.exists():
-                return p
-    return None
+            if not p.exists():
+                raise TermsPathError(
+                    f"{source} points at {candidate}, which does not exist — "
+                    "refusing to fall back to a narrower default list")
+            return p
+    p = Path(DEFAULT_LOCAL_TERMS).expanduser()
+    return p if p.exists() else None
 
 
 def render_human(findings: list[Finding], warning: str | None,
@@ -787,7 +805,11 @@ def _main(argv: list[str] | None = None) -> int:
         return _selftest()
 
     root = Path(args.root).resolve()
-    terms_path = resolve_terms_path(args.terms)
+    try:
+        terms_path = resolve_terms_path(args.terms)
+    except TermsPathError as e:
+        print(f"leakscan: {e}", file=sys.stderr)
+        return 2
     if args.require_terms and terms_path is None:
         print("leakscan: --require-terms set but no local term list found "
               f"(--terms, $ATELIER_LEAKSCAN_TERMS, or {DEFAULT_LOCAL_TERMS}). "

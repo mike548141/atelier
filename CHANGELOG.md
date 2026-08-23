@@ -5,6 +5,32 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-08-23 — the ruling-round applications: AP and FR, the code half)
+- **pathscan excludes records by default, estate-wide** (FR2, Mike's
+  ruling): `docs/reviews`, `docs/sessions`, `docs/SESSIONS.md`,
+  `docs/ROADMAP-DONE.md` and `CHANGELOG.md` never come clean without
+  falsifying the record — the default children inherited pulled them in
+  while atelier's own rationale scoped them out. `--include-records`
+  widens; an explicitly named records file always scans. Catalogue section
+  written (FR1 — pathscan was the one registry scanner `tools/README.md`
+  had never heard of).
+- **The board strip covers C1** (FR3): U+009B is a one-byte CSI alias some
+  terminals honour in UTF-8; the bidi/zero-width set is queued as its own
+  decision (`020/350`). Post-strip key collisions now refuse loudly
+  instead of silently merging (FR4); a declared disable renders over an
+  off-plane skip (FR6).
+- **ADR 0008's boundary clause re-worded to the truth by appended
+  amendment** (AP1, security): the named controls (branch protection,
+  blocking signatures, pre-landing registry review) are not in force; the
+  amendment states what is, and the machine-checked boundary is funded at
+  `115/180`. Decision 2's softenable list corrected the same way (AP2;
+  test-pin queued at `020/340`). The reusable floor workflow routes
+  `sign-boundary` through `env:` (AP3); an explicitly set leakscan terms
+  path that does not resolve is now an error, never a quieter scan (AP4).
+- FR5's count note, recorded not re-measured: the 2026-08-06 entry's
+  "eleven children" and "sixteen board rows" count different sets —
+  atelier's children vs every discovered fleet row; both stand.
+
 ### Changed (2026-08-23 — the ruling-round applications: DA, BW, PT)
 - **The ruling-ask doctrine corrected on its own cold pass** (DA rulings,
   applied under Mike's verbatim over-engineering steer): the account must

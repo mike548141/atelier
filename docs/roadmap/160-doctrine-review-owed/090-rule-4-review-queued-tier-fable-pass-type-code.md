@@ -41,3 +41,19 @@
       AP1: re-word to the truth by appended amendment, boundary check
       queued; branch protection deliberately not enabled. Application in
       flight on wt: ruling-round-0823.
+      - ⏳ **Rule-4 cold pass queued — the AP rulings applied.** The ADR
+        amendment is doctrine by function; the applier authored neither the
+        EP delta nor the AP verdict (Mike directed the application in the
+        live ruling round, 2026-08-23, structured asks). Queued in the
+        application's landing commit; the applier neither takes nor spawns
+        it. *Tier:* Fable, checked at selection. *Pass type:* code+doctrine
+        cold pass.
+        *Delta — scoped to paths:* the 2026-08-23 amendment at the foot of
+        `docs/decisions/0008-enforcement-is-called-not-copied.md` (AP1
+        truth re-word; AP2 list correction) · `tools/floor.py` (the
+        softenable-set docstring) · `.github/workflows/floor.yml` (the two
+        `env:`-routed signature steps, AP3) · `tools/leakscan.py` +
+        `tools/test_leakscan.py` (the explicit-terms-path error, AP4) ·
+        the queued items `115/180`, `020/340`.
+        *Intent record:* § *Rulings — 2026-08-23* in
+        `docs/reviews/2026-08-09-0824-ep-application-cold.md`.

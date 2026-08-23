@@ -161,15 +161,23 @@ jobs:
 
       - name: Verify commit signatures — machine-key plane (warn-first)
         if: env.TRUST != ''
+        env:
+          # Routed through env rather than interpolated inline into the script:
+          # inline `${{ }}` in run: is the script-injection entry point the
+          # hardening corpus names, and the caller's input is still the
+          # caller's trust domain (AP3, ruled 2026-08-23; atelier's own ci.yml
+          # already did it this way).
+          SIGN_BOUNDARY: ${{ inputs.sign-boundary }}
         run: |
           python3 atelier/tools/signscan.py \
-            --allowed-signers "$TRUST" --boundary "${{ inputs.sign-boundary }}" \
+            --allowed-signers "$TRUST" --boundary "$SIGN_BOUNDARY" \
             --repo repo --warn
 
       - name: Verify commit signatures — GitHub-server plane (warn-first)
         if: env.TRUST != ''
         env:
           GH_TOKEN: ${{ github.token }}
+          SIGN_BOUNDARY: ${{ inputs.sign-boundary }}
         run: |
           # Commits signscan deferred (committed by GitHub's web-flow identity —
           # merge/squash): assert GitHub's own verification via the API. `gh` is
@@ -177,7 +185,7 @@ jobs:
           # github.repository is the CALLER's repo inside a reusable workflow,
           # which is exactly the repo whose commits we are verifying.
           DEFERRED=$(python3 atelier/tools/signscan.py \
-            --allowed-signers "$TRUST" --boundary "${{ inputs.sign-boundary }}" \
+            --allowed-signers "$TRUST" --boundary "$SIGN_BOUNDARY" \
             --repo repo --json \
             | python3 -c 'import json,sys; [print(r["sha"]) for r in json.load(sys.stdin)["results"] if r["plane"]=="github"]')
           for SHA in $DEFERRED; do
