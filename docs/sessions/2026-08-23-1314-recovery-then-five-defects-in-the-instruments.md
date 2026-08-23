@@ -122,16 +122,56 @@ fact.
   on the reason that carries — a skim reader only ever reads the first line.
   The severity half was already moot. Both ends of the item now say the same
   thing, and the ruling is recorded inside it (`c766658`).
-- 🚩 A **peer atelier session appeared mid-sitting**, after this one's own
-  recovery had closed: `worktree-report-lies-0823` was re-created at
-  `8648622` (filing a `380` item, 13 minutes before close) with its worktree at
-  `~/worktrees/at-report-lies-0823b`. Left entirely untouched — it appeared
-  *during* this session, which is positive evidence of company rather than the
-  residue the earlier sweep dealt with. It is one commit ahead of `main` on a
-  branch, and its index will want a rebuild rather than a hand-merge.
+- ✅ **What was read as a rival atelier session was a child hand-up** — Mike
+  corrected it at the reopen: a `docker-heap` session filing board section
+  `380` into atelier's tree by `PROPAGATION.md` § *Pointing up*, step 1. The
+  sighting note that stood here was wrong about *what* it was and right about
+  *what it cost*, so it is replaced rather than deleted: the branch re-used a
+  name this session had deleted minutes earlier, which is why it read as
+  competition, and it carried no PR, so nine hours later the finding existed in
+  a commit and on no board. Landed as filed (PR #59), and the reporting route
+  tightened after it (PR #60) — see the continuation below.
 - 🚩 `faves` will red on its next CI run: five genuine broken pointers, each
   with its fix named by linkscan's own suggester. The repair belongs to a
   `faves` session, not this one.
 - 🤔 `010/130` (a claim on a long title fails wrapscan on both surfaces) stayed
   open deliberately. `140` was the half with a chosen fix; `130`'s three
   candidate shapes include one that is a rule change, and that is a ruling.
+
+## Continuation — the reporting duty (2026-08-23, 2249–2320 UTC)
+
+Reopened on Mike's commission: *"the doctrine will direct all of my repos that
+use it (incl atelier itself) to report potential issues they have with the
+doctrine (with evidence where it is available) to atelier for consideration and
+remediation by atelier"* — then, on being shown the hand-up above, *"it shows we
+need a way for those reports to occur without causing harm."*
+
+**The child's finding landed first** (PR #59), before any doctrine was written,
+so the thing being reasoned about was on the board rather than in a branch. Its
+own session had been dormant nine hours. One thing went wrong doing it and is
+recorded because it is now a rule: this session rebased the child's branch
+inside the child's worktree before checking whether the branch was pushed. It
+was — the rebase rewrote someone else's published history locally, and pushing
+would have needed a force. Undone by resetting to the remote tip and merging the
+branch untouched. *Do not rewrite a reporter's history to tidy it* is in the new
+section because of this, not despite it.
+
+**Then the doctrine** (PR #60). § *Pointing up* keeps its short name — eleven
+files cite it — and gains § *The duty* (every repo including atelier; what
+counts as a problem, stated wide; *potential* as the standard; evidence where it
+exists and an unevidenced marking where it does not; never silently work around
+a rule you think is wrong), the three filing shapes that close `310/100`, and
+§ *Report without harming the parent* with the parent's own half beside it. The
+floor block gains a **Doctrine problems point up** bullet in the canonical
+region and the stamped template, so it binds in a child that never opens
+atelier. atelier's own `CLAUDE.md` gains the duty, because the commission named
+atelier explicitly and a home repo patching its own wording in passing leaves no
+trace of what was wrong.
+
+**A count corrected by counting:** the block spec said "seven" concerns; it was
+already eight before this change and is nine after.
+
+Not claimed: children are unchanged until each bumps its own pin, and nothing
+enumerates what the estate owes the house — the route stays unwatched, as the
+section says of itself. Self-authored doctrine, so the rule-4 `⏳` is queued at
+`160/300` in the landing commit and is neither taken nor spawned here.
