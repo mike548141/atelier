@@ -24,9 +24,11 @@ reducing scope:
 > to remove the expected and explicitly accepted noise · **(c)** it must have a
 > clear reason recorded, so we can tell who allowed it, why, and when.
 
-Three requirements — **narrow, noisy, reasoned** — and they are requirements on
-every guard in the estate, not preferences. The rest of this doc is the model
-that makes them enforceable rather than aspirational.
+Three requirements — **narrow, noisy, reasoned** — joined by a fourth below:
+**declared**. All four are requirements on every guard in the estate, not
+preferences. The rest of this doc is the model that makes the first three
+enforceable rather than aspirational; the fourth's check is funded and not yet
+built (its homing, below).
 
 ### The fourth requirement — declared (Mike's ruling, 2026-08-17)
 
@@ -56,6 +58,14 @@ behind it is a sentence; the same reason answering *cheap-failure or forbid-the-
 act* is a claim someone can test. The estate demanded a reason for **weakening** a
 guard and no reason for **building** one; this closes that asymmetry from the
 build side.
+
+🏠 **The home (the principal's ruling, 2026-08-23).** The declaration lives in
+the **floor registry, beside the `why` field** — one standard, folded with the
+wider declaration scheme of board item `115/120` and funded there as one item:
+the slot, its format (cheap-failure or forbids-the-act), and the check that
+reads it land together. Until that lands, the requirement binds new guard work
+as a review question, not a machine check — and for non-guard designs the
+situation test's "say which you chose" homes in the existing `review:` line.
 
 ⚖️ **Two limits, so the requirement is not read as a licence.** A test arriving
 after the work is grounds to **declare**, never grounds to unwire a working gate

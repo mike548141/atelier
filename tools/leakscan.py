@@ -60,7 +60,7 @@ from pathlib import Path
 # example in doctrine). Keep the reason on the same line so the exemption is
 # self-documenting and greppable.
 #
-# GOVERNED BY `method/GUARDS.md` — narrow, noisy, reasoned:
+# GOVERNED BY `method/GUARDS.md` — narrow, noisy, reasoned, declared:
 #
 #   * NARROW. Two forms. `leakscan:allow: <reason>` exempts every STRUCTURAL
 #     rule on the line; `leakscan:allow:<rule>: <reason>` exempts only that one

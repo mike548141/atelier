@@ -632,7 +632,7 @@ class WholeTreeAndExitCodes(unittest.TestCase):
 
 
 class Allowances(unittest.TestCase):
-    """GUARDS.md — narrow, noisy, reasoned.
+    """GUARDS.md — narrow, noisy, reasoned, declared.
 
     (Moved above the __main__ block 2026-08-06, PD1: defined after
     `unittest.main()` by the 0228793 merge, these ran under discovery but

@@ -93,7 +93,7 @@ from pathlib import Path
 # A line carrying this marker is intentionally exempt (e.g. a documented example
 # credential, or a known-public test key). Keep the reason on the same line.
 #
-# GOVERNED BY `method/GUARDS.md` — narrow, noisy, reasoned. Same contract as
+# GOVERNED BY `method/GUARDS.md` — narrow, noisy, reasoned, declared. Same contract as
 # leakscan next door:
 #
 #   * NARROW. `secretscan:allow: <reason>` exempts every rule on the line;

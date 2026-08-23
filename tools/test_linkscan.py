@@ -362,7 +362,7 @@ if __name__ == "__main__":
 
 
 class Allowances(unittest.TestCase):
-    """GUARDS.md — narrow, noisy, reasoned."""
+    """GUARDS.md — narrow, noisy, reasoned, declared."""
 
     def _scan(self, text):
         d = Path(tempfile.mkdtemp(prefix="linkscan-allow-"))

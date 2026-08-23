@@ -3,7 +3,10 @@
 Protecting data — the owner's and other people's — sits at the top of the
 precedence ladder (rule 1: protect the estate). A lost byte you can't recover
 outranks any missed feature, any deadline, any elegance. Code can be rewritten;
-data that's gone is gone. This doc is that principle made operational.
+data that's gone is gone. This doc is that principle made operational — and it
+is the restore case of the posture principle (engineer for the failure being
+cheap; exercise the recovery), whose canonical statement is
+[`PRINCIPLES.md`](PRINCIPLES.md) §10; this doc carries the case, not the rule.
 
 ## Read before write, everywhere
 

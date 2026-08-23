@@ -9,7 +9,10 @@ not a catastrophe.
 
 The design goal is not "never risk a secret". It is **"a burned secret costs
 minutes"** — because the alternative, a hand-kept irreplaceable token, fails
-closed the moment it leaks: you cannot rotate what you cannot re-mint.
+closed the moment it leaks: you cannot rotate what you cannot re-mint. This is
+the rotation case of the posture principle — engineer for the failure being
+cheap, not impossible — whose canonical statement is
+[`PRINCIPLES.md`](PRINCIPLES.md) §10; this doc carries the case, not the rule.
 
 ## Reproducible / re-mintable — the enabling property
 
