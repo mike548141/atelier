@@ -1,5 +1,6 @@
-- [ ] 🔥 **A scanner given `--root X` and a *relative* path scans your cwd's
-      file while applying X's rules** — a mixed-root run that reports
+- [~] 🔥 **The mixed-root scan** (claimed 2026-08-23-1236, wt: mixed-root-eleven-0823)
+      — a scanner given `--root X` and a *relative* path scans your cwd's
+      file while applying X's rules: a mixed-root run that reports
       confidently and means nothing. Handed up by the `ros` session on
       2026-08-17, which lost a full round of "ros is clean" readings that were
       actually atelier's tree, including a floor result it nearly reported
