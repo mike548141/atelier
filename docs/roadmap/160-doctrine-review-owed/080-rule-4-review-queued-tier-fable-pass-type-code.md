@@ -27,3 +27,7 @@
         for the opposite scoping on atelier itself); FR3 — the C0-only strip
         passes C1 controls (U+009B probed) and bidi overrides, narrower than
         the spoofing threat the ruling answers (genuinely new).
+      `[~]` **RULED 2026-08-23** — the live ruling round ran by structured
+      asks; dispositions in the verdict file (§ *Rulings — 2026-08-23*).
+      FR2: records-excluding default for children. Application in flight
+      on wt: ruling-round-0823.

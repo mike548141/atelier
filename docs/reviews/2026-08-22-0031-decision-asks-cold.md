@@ -437,3 +437,40 @@ anticipates DA1.
 >    and every ruling ask inherits the act-shaped bullets (what/why/likely
 >    impacts). Check both directions against the section's own examples —
 >    does either produce an obligation that reads wrong in place?
+
+## Rulings — 2026-08-23 (structured asks, the live ruling round)
+
+Ruled by Mike through `AskUserQuestion`, one ask per finding, then a
+course-set ask after his mid-round steer. His steer, verbatim (given as
+the DA-R4 answer and repeated in the session — it governs the whole
+application):
+
+> I am worried that you are over-thinking and/or over-engineering this. I
+> just want you to use the AskUserQuestion feature rather than leaving
+> question in the session text alone (easy to miss) and making sure that
+> when you do use it you do so in a way that is valuable e.g. well
+> explained questions in plain (lay mans terms) language with a
+> recommendation and you have thought out the options and implications
+
+On the follow-up course-set ask he ruled: **corrections plus one
+paragraph** — fix the wrong text, and fold the approved add-on clauses
+into a single plain paragraph built on his words above, not five
+scattered clauses. Dispositions:
+
+- **DA1** — ruled: reached-him wording. The account must have *reached*
+  the principal (a completed prior message) before the device is put;
+  same-reply stays the plain case where the harness shows it.
+- **DA2** — ruled: pointer-ise the three copies (00-APEX withholding
+  clause, AUTONOMY floor-stop sentence, REVIEW rule 3) to the apex list.
+- **DA3, DA4, DA-R1, DA-R2, DA-R5** — ruled approved in substance,
+  applied as ONE short plain paragraph per the course-set ruling.
+- **DA5** — ruled: pointer-ise COMMUNICATION's own restatement too.
+- **DA6** — ruled: move the section below the worked example.
+- **DA-R3** — ruled: one line in the evidence practice (scanner deltas
+  compare per-finding output, not totals).
+- **DA-R4** — no change; his verbatim steer above is the answer of
+  record.
+
+Pacing for the remaining rounds was also his ruling: MAJORs solo, the
+rest batched with recommendations. Application follows in this worktree;
+tags gain [fixed] as each lands verified.

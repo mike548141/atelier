@@ -36,3 +36,7 @@
             guarantee unqualified; BW4 — the new stop rule contradicts CF3's
             unedited branch test beside it. BW1–BW9 join the principal's
             ruling round.
+      `[~]` **RULED 2026-08-23** — the live ruling round ran by structured
+      asks; dispositions in the verdict file (§ *Rulings — 2026-08-23*).
+      BW1's re-briefing given: corrected plain wording on all five
+      spellings. Application in flight on wt: ruling-round-0823.

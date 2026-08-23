@@ -50,3 +50,7 @@
             section's first cold pass flagged and harmonised in 2026-07.
             Per rule 3 the findings are Mike's to decide; nothing was
             applied. DA1–DA6 + DA-R1–DA-R5 join the ruling round.
+      `[~]` **RULED 2026-08-23** — the live ruling round ran by structured
+      asks; dispositions in the verdict file (§ *Rulings — 2026-08-23*),
+      including Mike's verbatim over-engineering steer. Application in
+      flight on wt: ruling-round-0823.

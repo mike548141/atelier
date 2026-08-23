@@ -481,3 +481,24 @@ and the application of whatever is ruled here earns its own queued pointer.
 (claude-fable-5), spawned by the principal's review-queue session; the
 deferred references were received from the orchestrator only after the
 phase-1 verdict above was durably written.*
+
+## Rulings — 2026-08-23 (structured asks, the live ruling round)
+
+Ruled by Mike through `AskUserQuestion` (AP1 solo; AP2–AP8 batched with
+the presenting session's recommendations, per his pacing ruling of the
+same sitting):
+
+- **AP1** — ruled: re-word to the truth and queue the check. An appended
+  ADR 0008 amendment states the controls actually in force and names the
+  aspiration, with a queued item for a machine-checked boundary; branch
+  protection is not enabled (it would break the direct-to-main workflow
+  the estate's sessions run on — the trade-off was put to him plainly).
+- **AP2** — ruled: align the prose to the code (floor.py docstring fixed,
+  ADR amendment appended) and queue the test that pins the three lists
+  to `Scanner.advisory`.
+- **AP3, AP4** — ruled: fix as recommended (env: routing for the
+  workflow input; an explicitly-set terms path that does not resolve is
+  an error, not a fall-through).
+- **AP5, AP6, AP7, AP8** — ruled: no change; recorded here only.
+
+Application follows; tags gain [fixed] as each lands verified.
