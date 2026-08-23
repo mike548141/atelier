@@ -70,8 +70,9 @@ file is fine or hiding resolved narrative stays human.
 derived file the split board keeps: `ROADMAP.md` is generated from the per-item
 files under `docs/roadmap/`, and a commit whose index is stale against them
 fails with the remedy printed (`board.py rebuild`; after a merge conflict on
-the index, rebuilding *is* the resolution) — on CI unconditionally, and at the
-hook only when worktree and index agree (see the stated residual below). Done items render `✅` in the index
+the index, rebuilding *is* the resolution) — on CI unconditionally; the hook
+reads the worktree, so it cannot vouch for a rebuild that ran but was not
+staged (see the stated residual below). Done items render `✅` in the index
 — never `[x]`, so sizescan's cold-content gate cannot fire on a generated line.
 A repo with no `docs/roadmap/` directory is out of scope and passes saying so.
 Every string the generator writes into the index has to be true in a repo that

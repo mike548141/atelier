@@ -265,12 +265,13 @@ shared worktree safe when the staging command is not file-scoped.
 **On a split board** (board-store ADR, 2026-08-15) the item's checkbox line
 lives in *its own file* under `docs/roadmap/`, and the claim commit carries two
 things: that line's edit, and the regenerated index (`tools/board.py rebuild`
-— the `board` floor check catches a forgotten rebuild **on CI**, and at the hook
-only when worktree and index agree: a rebuilt-but-unstaged index passes the
-hook, and so does a rebuild that absorbed a sibling's dirty state line, so
+— the `board` floor check catches a **forgotten** rebuild at the hook and on
+CI both; what the hook cannot vouch for is a rebuild that **ran but was not
+staged**, or one that absorbed a sibling's dirty state line — those pass the
+hook and are caught on CI, so
 *a dirty sibling item state line is a stop for claiming from that checkout*,
-not a stage-yours-alone case — BS1, the principal's ruling 2026-08-17, until
-the staged-plane check lands). The mechanics below
+not a stage-yours-alone case — BS1; wording per the principal's ruling
+2026-08-23, until the staged-plane check lands). The mechanics below
 are unchanged; only the collision surface improves. Same-item claims still
 collide on the item's state line. Different-item claims now touch different
 files, so the false-conflict case shrinks to the index — where two claims'
@@ -294,8 +295,9 @@ rather than worktrees skips this entirely — each clone has its own `main`.)
 **Claiming at a dirty primary checkout.** The flipped prior (§ The trigger)
 says to expect company, and the claim must still land on `main` from the
 primary checkout — so the dirty case gets a rule, not a workaround. If the
-stranger's uncommitted edits do **not** touch the queue (the item's file, and
-on a split board the generated index with it): stage and commit
+stranger's uncommitted edits do **not** touch the queue (any item's state
+line — yours or a sibling's — and on a split board the generated index with
+it): stage and commit
 the claim alone, nothing else — the one sanctioned touch inside another
 session's tree, safe because it stages only your own hunks. If the item's file
 **itself** is dirty: that is positive proof the other session is queue-active —

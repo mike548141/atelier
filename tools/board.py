@@ -33,10 +33,11 @@ WHY THE INDEX IS COMMITTED AND CHECKED, NOT HAND-KEPT
 A committed derived file can drift from its source — the estate's most-recorded
 defect class. So this tool is wired into the floor as a CHECK: a commit whose
 index does not match its item files fails, with the remedy printed (run
-`rebuild`) — on CI unconditionally; at the hook only when worktree and index
-agree, because the hook-plane check reads the worktree, not the staged plane
-(BS1, the principal's ruling 2026-08-17: say it plainly here until the
-staged-plane check lands). Two sessions closing different items both regenerate; if their
+`rebuild`) — on CI unconditionally; at the hook the check reads the worktree,
+so it vouches only for what was staged to match it — a rebuild that ran but
+was not staged escapes the hook and is caught on CI (BS1; wording per the
+principal's ruling 2026-08-23, standing until the staged-plane check lands).
+Two sessions closing different items both regenerate; if their
 index hunks collide, the resolution is deterministic — regenerate again after
 the merge. The index renders done items as `✅`, never `[x]`, so `sizescan`'s
 cold-content gate (a `[x]` on the hot path) can never fire on a generated line.
@@ -62,10 +63,11 @@ commit. Hence `rebuild_cmd()`: repo-relative where the tool is inside the
 tree, the hook's `$ATELIER_TOOLS` spelling where it is not, and NEVER an
 absolute path, which would put a machine-local fact into a public file.
 
-STATED RESIDUAL. `--check` compares the WORKTREE's item files against the
-WORKTREE's index. A commit staging an item edit but not the rebuilt index is
-caught only because the hook runs after `git add` of both or neither in
-practice; the staged-vs-worktree seam (`HV4`'s INDEX-source discipline in
+STATED RESIDUAL — the same gap the hook clause above names, one account.
+`--check` compares the WORKTREE's item files against the WORKTREE's index, so
+a commit that stages an item edit without the rebuilt index (or stages a stale
+index a later worktree rebuild has already corrected) passes the hook and
+fails CI; the staged-vs-worktree seam (`HV4`'s INDEX-source discipline in
 harvestscan) is not yet implemented here. Queued as a follow-up on the board.
 
 Exit codes:  0 clean/not-in-scope · 1 stale index or invalid item file ·

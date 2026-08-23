@@ -9,3 +9,13 @@
       the staged-plane check **and** a `rebuild` source flag that regenerates
       from the index rather than the worktree (BS1 counsel (b)); name the flag
       in CONCURRENCY CF3 at landing; code cold pass queued at landing.
+      **The interim wording to retire at landing (BW6, ruled 2026-08-23):**
+      the staged-plane residual is spelled on five surfaces, each to be
+      re-worded or dropped when this check lands — `tools/board.py` (the
+      hook clause in § *Why the index is committed and checked* and the
+      merged § *STATED RESIDUAL*) · `tools/README.md` § **board** ·
+      `docs/method/CONCURRENCY.md` § *On a split board* ·
+      `docs/roadmap/README.md` (the preamble qualifier) · the 2026-08-23
+      amendment at the foot of the board-store ADR. This item's landing
+      commit sweeps them; nothing machine-checks the unwind, so the list
+      lives here where the work is funded.

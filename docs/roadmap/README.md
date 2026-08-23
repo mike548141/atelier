@@ -6,7 +6,8 @@ its own `git log` as provenance — which commit flipped its state, and what wor
 that commit carried. Each section's narrative lives in that section's
 `README.md`. [`../ROADMAP.md`](../ROADMAP.md) is the **generated index**
 (`tools/board.py`; the `board` floor check blocks a commit whose index is stale
-— after a merge conflict on the index, rebuilding *is* the resolution). The
+— on CI always, at the hook only for what was staged to match the worktree —
+and after a merge conflict on the index, rebuilding *is* the resolution). The
 session-start read is the index; open item files on demand. Completed detail
 from before the split lives frozen in [`../ROADMAP-DONE.md`](../ROADMAP-DONE.md);
 a done item now simply stays in its file as `[x]` — there is no harvest step.

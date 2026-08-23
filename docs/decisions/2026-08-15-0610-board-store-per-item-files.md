@@ -131,3 +131,13 @@ hook and are caught on CI after the push (BS1, the board-store cold pass,
 2026-08-15). The principal's ruling 2026-08-17: state the residual on every
 surface that asserted the guarantee, and fund the staged-plane check
 (board item `010/020`) as the fix; this amendment is the doctrine half.
+
+## Amended 2026-08-23 — the condition restated plainly
+
+The 2026-08-17 amendment's condition — "at the hook, only when worktree and
+index agree" — named the state in which the hook *misses*, not the one in
+which it catches (BW1, the BS1-wording cold pass; the principal's re-wording,
+2026-08-23). Said straight: the hook reads the worktree, so it vouches only
+for a commit whose staged board files match the worktree — a rebuild that ran
+but was not staged escapes the hook and is caught on CI. The rest of the
+amendment, including the funded staged-plane check, stands unchanged.
