@@ -39,6 +39,21 @@ tidy-minded response to litter is to clear it away. So the failure mode is not a
 peer being confused; it is a peer being **helpful** and killing a multi-hour job.
 **A name that says whose it is beats a name that is merely present.**
 
+🛑 **AND THEN THE TOOL DID IT TO ITSELF, AN HOUR AFTER THIS ITEM WAS FILED.**
+This is better evidence than the peer's near-miss, because there was no peer
+involved at all. The split tool's own consumer-restart step enumerated every
+container mounting the media tree and restarted `nostalgic_jones` — its own
+running verification. The tool already had an exclusion; the exclusion checked
+for a `media-split-*` name, and the verify container had been started **without
+`--name`**, so the tool could not recognise its own job. Two hours of hashing
+lost.
+🔑 **Read what that rules out.** It was not a coordination failure, a stale
+announcement, or a peer acting on incomplete information — a single session, in
+one process, could not identify its own work on a shared host. **So the problem
+is not fundamentally about peers. It is that a shared host has no ownership
+model, and a chat protocol between sessions cannot supply one.** That is a
+stronger case for the marker rule than anything in the multi-session story above.
+
 🔎 **Nobody was careless.** Both sessions announced, both stood off on contact,
 and the collision still had to be resolved by a human noticing. The doctrine did
 its job on the surface it covers, and was silent on four others.
