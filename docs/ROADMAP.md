@@ -378,6 +378,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [PROPOSAL — a transcript has three principal-authored channels, and a](roadmap/320-child-filed-findings-via-pointing-up/070-proposal-a-transcript-has-three-channels.md)
 - [ ] 🎯 [PROPOSAL — quotescan: check quotations attributed to the principal](roadmap/320-child-filed-findings-via-pointing-up/080-proposal-quotescan-and-the-corpus-that-would-libel-him.md)
 - [ ] [Proposal: a response-field allowlist leaks through non-scalar fields](roadmap/320-child-filed-findings-via-pointing-up/090-proposal-a-field-allowlist-leaks-through-non-scalar-fields.md)
+- [ ] 🔎 [CF3's branch list stopped answering the sibling-dirty case when the](roadmap/320-child-filed-findings-via-pointing-up/120-cf3-s-branch-list-stopped-answering-the-sibling-case.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
