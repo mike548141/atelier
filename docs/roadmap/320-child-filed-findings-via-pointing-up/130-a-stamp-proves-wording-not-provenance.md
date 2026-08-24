@@ -51,3 +51,53 @@
         item. Its disclosure that it put a settled ruling back in front of the
         principal is its record's to carry, not this board's — noted here only
         because it is why the observation arrived as new.
+  - [ ] 🔥 **And it is worse than "cannot see": on an unstamped block the tool
+        reports SUCCESS.** Flagged by the child 2026-08-24 from its own tree,
+        then **reproduced here** rather than taken on its account — fixture
+        built from atelier's own `docs/build/templates/CLAUDE.md` with the two
+        marker lines stripped, nothing else changed:
+
+        ```
+        $ stampscan.py --root <fixture> CLAUDE.md
+        ✓ stampscan clean — no stamped blocks found.
+        EXIT=0
+        ```
+
+        Eleven bullets of safety floor, never compared to canonical, and a
+        green tick. **The string is honest and the exit code is not** — which
+        is [`020/040`](../020-policy-as-code-programme-five-tracks-mik/040-a-scanner-s-verdict-has-two-states-and-needs-t.md)
+        (a verdict with two states needing three) and
+        [`115/130`](../115-guardrail-architecture-mike-commissioned/130-a-guard-reports-whether-its-rule-fired-at-all.md)
+        (a guard reporting whether its rule fired) meeting in one tool, so the
+        class is filed and this is a new **instance** rather than a new class.
+    - [ ] 🔑 **The house has already solved this exact shape once**, which makes
+          the remedy a copy rather than a design: `leakscan --require-terms`
+          exists precisely so a degraded run cannot pass silently, and its own
+          help text carries the reasoning — *"to automation, a degraded exit-0
+          pass is indistinguishable"* (review B5). `stampscan` has **no
+          equivalent switch**: its flags are `--warn`, `--json`, `--selftest`,
+          `--root`. So the null option (c) above is not "nothing changes" — it
+          is "the guard keeps returning green over an unchecked floor, and the
+          repo it happens in has no way to tell".
+    - [ ] ⚖️ **The blast radius today is smaller than it looks, and that is
+          exactly why the sequencing matters.** `stampscan` is deliberately
+          **not** in `floor.py`'s registry, not in the reusable `floor.yml`, and
+          not in the pre-commit hook — verified by `floor --list`; it runs as a
+          hand step in atelier's own `ci.yml` only, barred from wider wiring
+          while ST3 is open
+          ([`020/110`](../020-policy-as-code-programme-five-tracks-mik/110-d2-residue-stampscan-registry-wiring-stays-bar.md)).
+          So today this is a **hand-run** hazard, and the child met it by hand.
+          🚩 **It becomes a fleet hazard at the moment that bar lifts**: wiring
+          the scanner to children without a cover switch ships green-over-
+          nothing to every child whose block is unstamped, on the plane nobody
+          reads because it is green. **So the cover gap is a precondition on
+          `020/110`, not a parallel nicety** — that ordering is the finding
+          this round adds, and it is cheap to honour only while the wiring is
+          still barred.
+    - [ ] 📄 **Provenance and division of labour.** The child flagged rather
+          than filed, on the grounds that `320/130` was open and consideration
+          is atelier's — the duty's own split, honoured without being asked. It
+          also corrected its own item's wording of this finding, having first
+          written the weaker *"a stamp diffs wording"*. Everything inside its
+          tree stays its record's, unverified here; what is written above was
+          re-derived in atelier against atelier's artefacts.
