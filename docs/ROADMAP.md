@@ -379,6 +379,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [PROPOSAL — quotescan: check quotations attributed to the principal](roadmap/320-child-filed-findings-via-pointing-up/080-proposal-quotescan-and-the-corpus-that-would-libel-him.md)
 - [ ] [Proposal: a response-field allowlist leaks through non-scalar fields](roadmap/320-child-filed-findings-via-pointing-up/090-proposal-a-field-allowlist-leaks-through-non-scalar-fields.md)
 - [ ] 🔎 [CF3's branch list stopped answering the sibling-dirty case when the](roadmap/320-child-filed-findings-via-pointing-up/120-cf3-s-branch-list-stopped-answering-the-sibling-case.md)
+- [ ] 🔎 [A stamp proves the wording; it does not tell a reader which half of a](roadmap/320-child-filed-findings-via-pointing-up/130-a-stamp-proves-wording-not-provenance.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
