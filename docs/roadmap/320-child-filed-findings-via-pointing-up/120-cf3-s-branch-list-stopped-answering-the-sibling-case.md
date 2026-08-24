@@ -81,3 +81,37 @@
         enumerated rather than in a parenthetical thirty lines up. (iii) is
         cheap and independent of (ii): it fixes the findability half whatever is
         decided about the deadlock half.
+  - [ ] 🔁 **The child fed one more observation back, and checking it here
+        changed both the number and the owner** (2026-08-24, same channel). Its
+        offer: the reverse-direction hazard has a cheap general fix — *an
+        inlined floor bullet names its source file* — and in its own block the
+        omission looked local and inconsistent rather than structural, since
+        other bullets cite doc names and the BS1 one does not. Measured against
+        **atelier's canonical `floor` region**, which is the surface that would
+        actually have to change:
+    - [ ] 🔑 **The canonical block does not carry the sibling stop at all** —
+          zero occurrences of "sibling" in the whole region. So the earlier
+          reply to the child needs a precision it did not have: **the rule is
+          atelier's** (`CONCURRENCY.md` § *Claiming work*), **the inlined bullet
+          carrying it is the child's own**. Both halves matter — the child was
+          wrong that the rule was local, and right that the bullet was.
+    - [ ] ⚖️ **"Bullets don't cite their sources" is 1, not 4.** Five of nine
+          canonical bullets name a doc; four do not, and three of those are
+          deliberate: *Source & drift* names a **path**, which is its source;
+          *Estate resources* omits the estate-root repo **on purpose** (a public
+          repo naming it is reconnaissance); *This repo's visibility* is a repo
+          fact, not doctrine. That leaves exactly one real instance — **the apex
+          bullet states the never-traded rules and never names `00-APEX.md`,
+          while the bullet directly beneath it does.** Reporting the raw
+          four-of-nine would have been the over-claim; the finding is one line.
+    - [ ] 📎 **What is NOT verified, and is the child's to check:** its block
+          reportedly cites `GUARDS.md`, which the canonical region does not. If
+          so its block differs from canonical in more than the BS1 bullet, and
+          that is a pin-bump question in that repo — flagged, not asserted, and
+          not this session's to look at (`CONCURRENCY.md` § *Stay in your lane*).
+    - [ ] ✅ **The child declined to make the child-side edit because a peer
+          asked**, and sent it to Mike as a recommendation instead. Recorded
+          because it is the right call and the cheap thing to get wrong: a
+          citation is a small edit, and "small" is exactly the argument that
+          erodes the line. It is also why the fix above is written as a finding
+          for ruling rather than applied here.
