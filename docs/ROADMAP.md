@@ -379,6 +379,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [PROPOSAL — quotescan: check quotations attributed to the principal](roadmap/320-child-filed-findings-via-pointing-up/080-proposal-quotescan-and-the-corpus-that-would-libel-him.md)
 - [ ] [Proposal: a response-field allowlist leaks through non-scalar fields](roadmap/320-child-filed-findings-via-pointing-up/090-proposal-a-field-allowlist-leaks-through-non-scalar-fields.md)
 - [ ] 🎯 [PROPOSAL — the damaging attribution carries NO QUOTATION MARKS, so](roadmap/320-child-filed-findings-via-pointing-up/100-unquoted-attribution-is-invisible-to-quotescan-and-a-corroboration-for-070.md)
+- [ ] 🎯 [PROPOSAL — § Asking for a ruling tells a session HOW to ask and](roadmap/320-child-filed-findings-via-pointing-up/110-proposal-the-ask-device-manufactures-decisions.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
