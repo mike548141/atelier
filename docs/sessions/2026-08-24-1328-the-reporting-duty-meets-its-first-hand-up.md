@@ -86,6 +86,40 @@ wanted"* and never says where the addition goes.
   already-ruled divergence set, and its own disclosure that it re-opened a
   settled ruling are marked in `320/130` as taken on report.
 
+## A fifth round, and the finding that came out of it
+
+The child ran the `320/130` claim against its own tree and reported something
+worse than either side had said: on an **unstamped** block `stampscan` does not
+merely fail to catch the divergence — it reports **success**. Reproduced here
+rather than taken on account, using atelier's own template with its two marker
+lines stripped: eleven bullets of safety floor, `✓ stampscan clean — no stamped
+blocks found`, **exit 0**. The string is honest and the exit code is not, which
+is `020/040` and `115/130` meeting in one tool.
+
+Two things this side could add. **The remedy is a copy, not a design** —
+`leakscan --require-terms` exists for exactly this shape and its help text
+already argues it (*"to automation, a degraded exit-0 pass is
+indistinguishable"*, review B5); `stampscan` has no equivalent. And **the
+sequencing**, which neither side had: `stampscan` is deliberately not in the
+registry, the reusable workflow or the hook — checked with `floor --list`, not
+assumed — so today this is a **hand-run** hazard, and becomes a fleet hazard
+only when ST3 lifts and it is wired to children (`020/110`). The cover switch is
+therefore a **precondition on that wiring**, cheap to honour only while it is
+still barred.
+
+The child then withdrew an overclaim of its own (that the tick would reach a
+floor plane — it cannot, since the scanner is not on one), which changed nothing
+in atelier's item because the item had already checked the wiring before making
+the claim.
+
+**One CI note worth keeping.** `320/130`'s second landing went red on the first
+attempt with *"The job was not acquired by Runner of type hosted"* — the job was
+cancelled after fifteen minutes without running. Infrastructure, not the change;
+re-run on the same SHA, green. Recorded because a red that is not about the code
+is exactly the kind a tired session merges past or panics over, and the honest
+handling is neither: read the annotation, re-run, and do not claim a pass until
+one exists.
+
 ## State
 
 Three findings on the board (`320/120` + its follow-up, `320/130`), all filed
