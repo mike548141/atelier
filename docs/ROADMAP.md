@@ -380,6 +380,8 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Proposal: a response-field allowlist leaks through non-scalar fields](roadmap/320-child-filed-findings-via-pointing-up/090-proposal-a-field-allowlist-leaks-through-non-scalar-fields.md)
 - [ ] 🎯 [PROPOSAL — the damaging attribution carries NO QUOTATION MARKS, so](roadmap/320-child-filed-findings-via-pointing-up/100-unquoted-attribution-is-invisible-to-quotescan-and-a-corroboration-for-070.md)
 - [ ] 🎯 [PROPOSAL — § Asking for a ruling tells a session HOW to ask and](roadmap/320-child-filed-findings-via-pointing-up/110-proposal-the-ask-device-manufactures-decisions.md)
+- [ ] 🔎 [CF3's branch list stopped answering the sibling-dirty case when the](roadmap/320-child-filed-findings-via-pointing-up/120-cf3-s-branch-list-stopped-answering-the-sibling-case.md)
+- [ ] 🔎 [A stamp proves the wording; it does not tell a reader which half of a](roadmap/320-child-filed-findings-via-pointing-up/130-a-stamp-proves-wording-not-provenance.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
