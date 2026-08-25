@@ -73,11 +73,20 @@ wanted"* and never says where the addition goes.
 
 ## What was not done, and why
 
-- **PR #61 left alone.** Another atelier session's open PR (two child-filed
-  items), with the **primary checkout still parked on its branch** — which is
-  why every commit here was made from a worktree off `origin/main` and the
-  primary was left exactly as found. An open PR is not a stranded finding; the
-  session met the *open the PR before you stop* bar and may return.
+- **PR #61 left alone at first, and landed at close (2026-08-25).** Another
+  atelier session's open PR (two child-filed items), with the **primary checkout
+  parked on its branch** — which is why every commit in this sitting was made
+  from a worktree off `origin/main` and the primary was left exactly as found.
+  At close the position changed **on evidence, not impatience**: the filing
+  session had been gone ~24h (no atelier process, no new commits), both floor
+  runs were green, and two child-filed findings on an unmerged branch are the
+  *message in a drawer* the duty exists to prevent. Landed, with a PR comment
+  saying plainly that the content is the child's and unreviewed here. Its index
+  conflict was resolved **by regenerating, never by hand-merging**, and via a
+  merge commit rather than a rebase — a reporter's pushed history is not
+  rewritten to tidy it (§ *Report without harming the parent*). The primary
+  checkout was then restored to `main`, and a duplicate branch carrying the same
+  two commits under the newer `peer-…` naming was deleted.
 - **No child-side edit.** The child declined to make a one-line citation fix in
   its own `CLAUDE.md` because a **peer** asked, and sent it to Mike instead.
   Correct, and this session did the same on its side: the apex-bullet citation
