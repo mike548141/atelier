@@ -382,6 +382,8 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [PROPOSAL — § Asking for a ruling tells a session HOW to ask and](roadmap/320-child-filed-findings-via-pointing-up/110-proposal-the-ask-device-manufactures-decisions.md)
 - [ ] 🔎 [CF3's branch list stopped answering the sibling-dirty case when the](roadmap/320-child-filed-findings-via-pointing-up/120-cf3-s-branch-list-stopped-answering-the-sibling-case.md)
 - [ ] 🔎 [A stamp proves the wording; it does not tell a reader which half of a](roadmap/320-child-filed-findings-via-pointing-up/130-a-stamp-proves-wording-not-provenance.md)
+- [ ] 🛑 [A possessive or plural form evades a local-term, and leakscan](roadmap/320-child-filed-findings-via-pointing-up/140-a-possessive-evades-a-term-and-the-scanner-says-clean.md)
+- [ ] 🛑 [The standard child doctrine block still carries the exact wording](roadmap/320-child-filed-findings-via-pointing-up/150-the-block-still-carries-the-wording-da1-overturned.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
