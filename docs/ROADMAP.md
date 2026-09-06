@@ -383,6 +383,9 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [CF3's branch list stopped answering the sibling-dirty case when the](roadmap/320-child-filed-findings-via-pointing-up/120-cf3-s-branch-list-stopped-answering-the-sibling-case.md)
 - [ ] 🔎 [A stamp proves the wording; it does not tell a reader which half of a](roadmap/320-child-filed-findings-via-pointing-up/130-a-stamp-proves-wording-not-provenance.md)
 - [ ] [REPORT — secretscan's suppression units cannot reach a finding inside](roadmap/320-child-filed-findings-via-pointing-up/140-secretscan-has-no-suppression-unit-for-generated-json.md)
+- [ ] [REPORT — a child cannot stamp its inlined floor at all: source= may](roadmap/320-child-filed-findings-via-pointing-up/160-stampscan-cannot-stamp-across-a-repo-boundary.md)
+- [ ] [REPORT — four verified pathscan false-positive classes from a second](roadmap/320-child-filed-findings-via-pointing-up/170-pathscan-false-positive-classes-not-the-count.md)
+- [ ] [REPORT — the ../<sibling> path convention every child inherits](roadmap/320-child-filed-findings-via-pointing-up/180-sibling-path-convention-breaks-in-a-worktree.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
