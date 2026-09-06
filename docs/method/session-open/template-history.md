@@ -1,6 +1,8 @@
 I have a long list of work queued up in this repo and I want you to ensure the
 delivery of all of it.
 
+I would like you to start with work that: (a) Whatever makes sense
+
 * Carry on with any work queued in the roadmap that you are capable of
   progressing. The work will often have some sort of priority to balance what
   is most valuable or important, what is urgent, and where dependencies may
