@@ -47,6 +47,44 @@
       Both ran the check as its own command. Both read its output. The rule has
       nothing to say about the step after.
 
+      ## 🛑 The close-out case, and it is the expensive one
+
+      Added after filing, because a **third** session hit it in the same
+      evening and in the worst possible place.
+
+      A session running its close-out checks asked *is anything of mine
+      uncommitted?* and answered **no** — from what it believed it had
+      committed, not from `git status` at that moment. A completed piece of
+      work, with its full record written, was sitting uncommitted in the shared
+      checkout. It was caught only because a **peer** read the tree and said
+      so.
+
+      **This is the same failure and the most costly version of it**, for three
+      reasons:
+
+      1. **Nobody is left to notice.** Every other instance is caught by the
+         next command; a close-out failure is caught by nobody, because the
+         session ends.
+      2. **It strands the shared record.** The generated board index and the
+         item store disagree from that moment on, so the floor reds on whoever
+         commits next — a peer pays for it.
+      3. **It is silent in both directions.** The session reports a clean
+         close-out and means it. The report is what a principal reads.
+
+      🚩 **The third session's own count for one evening: an empty-message
+      commit that passed the entire gate and then aborted; two commits that
+      failed on an `index.lock`; and this.** Four instances, three sessions, one
+      repository, one evening. Every one is *absence of an error read as
+      evidence the act happened.*
+
+      🎯 **So the clause has a second half.** A close-out claim of *nothing
+      outstanding* must be **measured at that moment** — `git status`,
+      `git worktree list`, `git branch --no-merged`, and a claim grep — never
+      recalled from what the session believes it did. The child already has a
+      local rule that a lane's completion report is not evidence and only the
+      integration branch is; **that rule does not currently point at the
+      session's report about itself.**
+
       ## Why it matters more on a shared checkout
 
       A green gate is a statement about **a tree**. A tree only becomes the
