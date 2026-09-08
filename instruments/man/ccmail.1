@@ -1,0 +1,307 @@
+.TH CCMAIL 1 "2026-09-09" "atelier instruments" "User Commands"
+.SH NAME
+ccmail \- open the Gmail attachments the mailbox connector can only name
+.SH SYNOPSIS
+.B ccmail \-\-auth
+.br
+.B ccmail \-\-status
+.RI [ \-\-json ]
+.br
+.B ccmail \-\-search
+.I query
+.RI [ \-\-limit
+.IR n ]
+.RI [ \-\-json ]
+.br
+.B ccmail
+.I message\-id
+.RI [ \-\-json ]
+.br
+.B ccmail
+.I message\-id
+.B \-\-get
+.I what
+.RI [ \-\-dest
+.IR dir ]
+.RI [ \-\-text ]
+.RI [ \-\-json ]
+.SH DESCRIPTION
+The Gmail connector Claude Code speaks to can search a mailbox, read a message
+body, and
+.I list
+what is attached to a message \(em filename, MIME type, and an opaque
+attachment id. It has no call that returns the attachment's
+.BR bytes .
+So a session can report, accurately and uselessly, that a message carries a
+file called
+.I Valuation.pdf
+and that it cannot open it. Every question the message was actually about goes
+unanswered.
+.PP
+.B ccmail
+closes that gap. It talks to the Gmail REST API directly with its own
+read\-only credential and writes each attachment to a file on disk. Once the
+bytes are local, the ordinary file\-reading tools open them \(em PDFs, images,
+plain text \(em so the capability lands in every session in every repo, with
+nothing for those sessions to learn beyond the name of this command.
+.PP
+.B Attachment content is never printed.
+.B ccmail
+emits paths and expects the reader to go and read them. A multi\-megabyte PDF
+pasted into a context window as base64 would be a worse outcome than the gap it
+closes, so that is not offered even as an option.
+.SH AUTHORISATION
+The connector's own authorisation is held by the connector and cannot be
+reached from a shell, so
+.B ccmail
+carries a second, deliberately narrower grant on the same mailbox: the single
+scope
+.IR https://www.googleapis.com/auth/gmail.readonly .
+That grant can read the operator's own mail and nothing else. It cannot send,
+reply, label, delete, or reach any other mailbox in the domain \(em including
+where the operator administers that domain.
+.PP
+.B ccmail \-\-auth
+mints it once, interactively. It needs a terminal and a browser, and it prints
+the four steps to take in the Google Cloud console first: enable the Gmail API,
+set up the consent screen (choose
+.B Internal
+for a Workspace account), create an OAuth client of type
+.BR "Desktop app" ,
+and copy the client ID and secret. It then opens the browser for consent on a
+loopback redirect, exchanges the code, and stores the result.
+.PP
+A grant that is revoked, or an account that changes, shows up as an
+.I invalid_grant
+refusal naming that cause specifically \(em re\-run
+.B \-\-auth
+to mint a fresh one. No other session on the machine needs to do anything: the
+credential is per\-machine, not per\-session.
+.SH CREDENTIAL STORAGE
+The refresh token is a real secret and is stored accordingly.
+.TP
+.B macOS Keychain (default)
+A generic password under the service name
+.IR ccmail .
+It is created with
+.B \-T /usr/bin/security
+so that the same binary can read it back without raising an interactive
+"allow access" dialog. That detail is load\-bearing rather than incidental: an
+agent session has no way to click that dialog, and a credential that only works
+while a human watches would not close the gap this tool exists to close.
+.TP
+.B A 0600 file (fallback)
+Used off macOS, and whenever
+.B CCMAIL_CREDENTIALS
+names a path. The file holds the same JSON blob and is created mode 0600.
+.PP
+Either way the secret lives outside every repository. Nothing personal \(em not
+the account, not a path, not the client \(em is baked into the shipped code;
+all of it is resolved at runtime.
+.SH SELECTING ATTACHMENTS
+.B \-\-get
+takes one argument describing what to fetch. The forms compose,
+comma\-separated, and a hit is never listed twice:
+.TP
+.B all
+Every attachment on the message. This is also what a bare
+.B \-\-get
+means.
+.TP
+.I n
+The number shown in the listing, counting from 1.
+.TP
+.I word
+Any filename containing that word, matched without regard to case \(em nobody
+retypes an attachment name with its original capitals.
+.TP
+.IR pattern *
+A glob over the whole filename, for example
+.IR '*.pdf' .
+Quote it, or the shell will expand it against the working directory first.
+.PP
+A selector that matches nothing is an error that lists what the message
+actually carries. It is never silently widened to
+.BR all .
+.SH OPTIONS
+.TP
+.B \-\-auth
+One\-time interactive setup. Refuses to run without a terminal rather than
+half\-completing.
+.TP
+.B \-\-status
+Confirm the credential works, and report which account it reads, which scope it
+holds, where the secret is stored and where downloads land. One live API call.
+.TP
+.BI \-\-search " query"
+Find message ids using Gmail's own search syntax
+.RI ( from: ,
+.IR has:attachment ,
+.IR newer_than:7d ,
+and the rest). Present so that a session with no mailbox connector is still
+self\-sufficient; where the connector is available its search is the richer
+surface, and this is the fallback.
+.TP
+.BI \-\-limit " n"
+Cap
+.B \-\-search
+results. Default 10.
+.TP
+.BI \-\-get " what"
+Download the selected attachments and print their paths. See
+.B SELECTING ATTACHMENTS
+above.
+.TP
+.BI \-\-dest " dir"
+Where files land, overriding the default below. Refused if it falls inside a
+git work tree; see
+.BR "WHERE FILES LAND" .
+.TP
+.B \-\-text
+Also write a plain\-text sidecar beside any
+.IR .docx ,
+.I .xlsx
+or
+.I .pptx
+that was fetched. See
+.BR "OFFICE FORMATS" .
+.TP
+.B \-\-json
+Machine\-readable output, never styled. Available on every mode.
+.TP
+.B \-\-allow\-repo\-dest
+Deliberately override the git\-work\-tree refusal. Exists so the guard can be
+escaped on purpose rather than worked around by accident.
+.TP
+.BR \-h ", " \-\-help
+One\-screen usage summary.
+.SH WHERE FILES LAND
+By default each message's attachments go to
+.IR ~/.cache/ccmail/ <message\-id>/
+.RI ( $XDG_CACHE_HOME
+is honoured;
+.B CCMAIL_DEST
+overrides the base outright).
+.PP
+.B ccmail refuses to write inside a git work tree.
+A mail attachment is, by definition, data that belongs to whoever sent it, and
+a repository is one commit away from publication \(em the same reasoning, and
+the same guard, that
+.BR ccarchive (1)
+puts on its archive destination.
+.B \-\-allow\-repo\-dest
+overrides it for the case where that really is the intent.
+.PP
+Filenames are taken from the message but sanitised: path separators and control
+characters become underscores and leading dots are dropped, so a hostile or
+merely careless attachment name cannot escape the destination directory or
+arrive invisible to
+.BR ls (1).
+An attachment the sender left unnamed \(em common for an inline image \(em is
+kept, not dropped, and named by its position and MIME type. Sometimes the
+unnamed part is the scan the message was about.
+.SH OFFICE FORMATS
+A PDF or an image is readable the moment it is on disk. An Open XML document
+.RI ( .docx ,
+.IR .xlsx ,
+.IR .pptx )
+is a zip of XML and is not, so
+.B \-\-text
+unpacks one into a
+.I .txt
+sidecar next to the original.
+.PP
+This is an
+.BR extraction ", not a rendering."
+It recovers the words, and for a spreadsheet the cell values sheet by sheet as
+tab\-separated rows; it does not reproduce layout, images, charts or
+formatting. The sidecar says so in its own first line, so a reader who opens
+only the extract still knows what they are holding. Where extraction fails, the
+reason is reported and the original file is still written \(em a half\-answer is
+never presented as the whole one.
+.PP
+Extraction shells out to
+.BR unzip (1).
+Where it is absent the original is still fetched and the sidecar is skipped
+with that stated as the reason.
+.SH FILES
+.TP
+.I ~/.claude/ccmail\-credentials.json
+The 0600 credential file, when the Keychain is not in use. Machine\-local, never
+in a repository.
+.TP
+.IR ~/.cache/ccmail/ <message\-id>/
+Default download destination.
+.SH ENVIRONMENT
+.TP
+.B CCMAIL_CREDENTIALS
+Path to the credential file. Setting it also selects the file store over the
+Keychain.
+.TP
+.B CCMAIL_DEST
+Base directory for downloads, replacing the cache default.
+.TP
+.B XDG_CACHE_HOME
+Honoured when
+.B CCMAIL_DEST
+is unset.
+.SH EXAMPLES
+Set up once on this machine:
+.PP
+.RS
+.nf
+ccmail \-\-auth
+ccmail \-\-status
+.fi
+.RE
+.PP
+List what is attached to a message whose id came from the connector, then take
+the lot:
+.PP
+.RS
+.nf
+ccmail <id>
+ccmail <id> \-\-get all
+.fi
+.RE
+.PP
+Take just the PDFs, into a scratch directory:
+.PP
+.RS
+.nf
+ccmail <id> \-\-get '*.pdf' \-\-dest /tmp/valuations
+.fi
+.RE
+.PP
+Find a message without the connector, then read a spreadsheet from it:
+.PP
+.RS
+.nf
+ccmail \-\-search 'from:accounts has:attachment newer_than:14d'
+ccmail <id> \-\-get '*.xlsx' \-\-text
+.fi
+.RE
+.SH EXIT STATUS
+.TP
+.B 0
+The requested work completed.
+.TP
+.B 1
+Not set up on this machine, the grant was refused or revoked, the message or
+attachment does not exist, the selector matched nothing, or the destination was
+refused. The message names which.
+.SH NOTES
+.B ccmail
+is a capability instrument under
+.IR docs/decisions/0006\-instruments\-in\-atelier.md :
+its value is wholly the working relationship with Claude. The operator does not
+need it \(em they open their own mail in a mail client. It exists so that the
+teammate can read what the operator is already looking at.
+.PP
+It is also the first instrument to hold a credential to a third\-party account,
+which is why the storage, the single read\-only scope and the revocation path
+are documented here at length rather than left implicit.
+.SH SEE ALSO
+.BR ccarchive (1),
+.BR ccrepo (1),
+.BR cctranscript (1)

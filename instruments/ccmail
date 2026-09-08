@@ -1,0 +1,772 @@
+#!/usr/bin/env node
+/*
+ * ccmail — open the attachments the mailbox connector can only name.
+ *
+ * The Gmail connector Claude Code speaks to can search a mailbox, read a
+ * message body, and *list* what is attached to it — filename, MIME type, and an
+ * opaque attachment id. What it cannot do is hand over the bytes. There is no
+ * fetch call in its surface, so a session reads "Machinery Valuations.pdf" in
+ * the attachment list, reports that it can see the message, and then has to say
+ * it cannot open the thing the message was actually about. That gap is the
+ * whole reason this instrument exists.
+ *
+ * ccmail closes it by talking to the Gmail REST API directly, with its own
+ * read-only credential, and writing each attachment to a file on disk. Once the
+ * bytes are local, the ordinary Read tool opens them — PDFs, images, text — so
+ * the capability lands in *every* session in *every* repo without any of them
+ * needing to know anything beyond "run ccmail". No attachment content is ever
+ * printed to stdout; the tool prints paths, and the reader goes and reads them.
+ * A 4 MB PDF pasted into a context window as base64 would be worse than the gap
+ * it closes.
+ *
+ * WHY A SEPARATE CREDENTIAL. The connector's own authorisation is held by the
+ * connector and is not reachable from a shell. So this is a second, deliberately
+ * narrower grant: one scope, `gmail.readonly`, on the operator's own account.
+ * It cannot send, cannot delete, cannot label, and cannot see any other mailbox.
+ * `ccmail --auth` walks the operator through minting it once; after that every
+ * session on the machine has it.
+ *
+ * WHERE THE SECRET LIVES. The refresh token is a real secret, so it goes to the
+ * macOS Keychain by default, never to a file in a repo and never to a repo at
+ * all. A 0600 file is the documented fallback for machines with no Keychain
+ * (CI, Linux) and for anyone who prefers it — `CCMAIL_CREDENTIALS` names it.
+ * Nothing personal is baked into this file: the account, the paths and the
+ * client are all resolved at runtime.
+ *
+ * WHERE THE FILES LAND. Downloads default to a cache directory outside every
+ * repo, because an attachment is by definition someone else's data and a repo
+ * dest is one commit away from publication. ccmail refuses to write inside a git
+ * work tree at all — the same guard, for the same reason, that ccarchive puts on
+ * its archive dest.
+ *
+ * OFFICE FORMATS. A PDF or an image is readable the moment it is on disk. A
+ * .docx/.xlsx/.pptx is a zip of XML and is not, so `--text` unpacks one into a
+ * plain-text sidecar next to it. That is an extraction, not a rendering: it
+ * recovers the words and the cell values, and says so rather than pretending to
+ * be the document.
+ */
+'use strict';
+
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const http = require('node:http');
+const https = require('node:https');
+const { execFileSync, spawnSync } = require('node:child_process');
+const readline = require('node:readline');
+
+const SCOPE = 'https://www.googleapis.com/auth/gmail.readonly';
+const API = 'https://gmail.googleapis.com/gmail/v1/users/me';
+const TOKEN_URL = 'https://oauth2.googleapis.com/token';
+const AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
+const KEYCHAIN_SERVICE = 'ccmail';
+
+// ---------------------------------------------------------------------------
+// Credential store
+//
+// Keychain by default on macOS. The item is created with `-T /usr/bin/security`
+// so the same binary can read it back without an interactive "allow access"
+// prompt — a headless agent session cannot click that dialog, and a credential
+// that only works when a human is watching would not close the gap this tool
+// exists to close. A 0600 file is the fallback everywhere else.
+// ---------------------------------------------------------------------------
+
+function credFile() {
+  if (process.env.CCMAIL_CREDENTIALS) return process.env.CCMAIL_CREDENTIALS;
+  return path.join(os.homedir(), '.claude', 'ccmail-credentials.json');
+}
+
+function useKeychain() {
+  return process.platform === 'darwin' && !process.env.CCMAIL_CREDENTIALS;
+}
+
+function loadCreds() {
+  if (useKeychain()) {
+    const r = spawnSync('security',
+      ['find-generic-password', '-s', KEYCHAIN_SERVICE, '-w'],
+      { encoding: 'utf8' });
+    if (r.status === 0 && r.stdout.trim()) {
+      try { return JSON.parse(r.stdout.trim()); } catch { /* fall through */ }
+    }
+    // Fall through to the file: a machine may have been set up either way.
+  }
+  const f = credFile();
+  if (fs.existsSync(f)) {
+    try { return JSON.parse(fs.readFileSync(f, 'utf8')); } catch { /* fall through */ }
+  }
+  return null;
+}
+
+function saveCreds(creds) {
+  const blob = JSON.stringify(creds);
+  if (useKeychain()) {
+    // -U updates in place if it already exists; -T grants `security` itself
+    // non-interactive read access to the item it just created.
+    const r = spawnSync('security', [
+      'add-generic-password', '-U',
+      '-s', KEYCHAIN_SERVICE,
+      '-a', creds.account || 'default',
+      '-D', 'ccmail Gmail read-only refresh token',
+      '-T', '/usr/bin/security',
+      '-w', blob,
+    ], { encoding: 'utf8' });
+    if (r.status === 0) return 'keychain';
+    process.stderr.write(`warn  Keychain write failed (${(r.stderr || '').trim()}) — falling back to a file\n`);
+  }
+  const f = credFile();
+  fs.mkdirSync(path.dirname(f), { recursive: true });
+  fs.writeFileSync(f, blob, { mode: 0o600 });
+  fs.chmodSync(f, 0o600);
+  return f;
+}
+
+// ---------------------------------------------------------------------------
+// HTTP — small, promise-free, zero-dep
+// ---------------------------------------------------------------------------
+
+function request(url, { method = 'GET', headers = {}, body = null } = {}) {
+  return new Promise((resolve, reject) => {
+    const u = new URL(url);
+    const req = https.request({
+      method,
+      hostname: u.hostname,
+      path: u.pathname + u.search,
+      headers,
+    }, (res) => {
+      const chunks = [];
+      res.on('data', (c) => chunks.push(c));
+      res.on('end', () => resolve({
+        status: res.statusCode,
+        body: Buffer.concat(chunks).toString('utf8'),
+      }));
+    });
+    req.on('error', reject);
+    if (body) req.write(body);
+    req.end();
+  });
+}
+
+async function accessToken(creds) {
+  const form = new URLSearchParams({
+    client_id: creds.client_id,
+    client_secret: creds.client_secret,
+    refresh_token: creds.refresh_token,
+    grant_type: 'refresh_token',
+  }).toString();
+  const res = await request(TOKEN_URL, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded',
+      'content-length': Buffer.byteLength(form),
+    },
+    body: form,
+  });
+  let json;
+  try { json = JSON.parse(res.body); } catch { json = {}; }
+  if (res.status !== 200 || !json.access_token) {
+    // Be specific: a revoked grant and a typo'd client fail very differently to
+    // fix, and "auth failed" sends the reader to the wrong place.
+    const why = json.error_description || json.error || `HTTP ${res.status}`;
+    if (json.error === 'invalid_grant') {
+      die(`the stored Gmail grant is no longer valid (${why}).\n` +
+          `It was revoked, expired, or the account changed. Re-run: ccmail --auth`);
+    }
+    die(`could not refresh the Gmail token: ${why}`);
+  }
+  return json.access_token;
+}
+
+async function api(token, urlPath, params = {}) {
+  const u = new URL(API + urlPath);
+  for (const [k, v] of Object.entries(params)) {
+    if (v !== undefined && v !== null) u.searchParams.set(k, String(v));
+  }
+  const res = await request(u.toString(), {
+    headers: { authorization: `Bearer ${token}` },
+  });
+  let json;
+  try { json = JSON.parse(res.body); } catch { json = null; }
+  if (res.status !== 200) {
+    const why = (json && json.error && json.error.message) || `HTTP ${res.status}`;
+    if (res.status === 403 && /insufficient|scope/i.test(why)) {
+      die(`Gmail refused the call for lack of scope: ${why}\n` +
+          `The stored grant may predate a scope change. Re-run: ccmail --auth`);
+    }
+    if (res.status === 404) die(`Gmail has no such message or attachment (${why})`);
+    die(`Gmail API error: ${why}`);
+  }
+  return json;
+}
+
+// ---------------------------------------------------------------------------
+// Message parsing — walk the MIME part tree for anything file-shaped
+// ---------------------------------------------------------------------------
+
+function walkParts(part, out, trail) {
+  if (!part) return out;
+  const name = part.filename || '';
+  const body = part.body || {};
+  // An attachment is a part with a filename. Some senders leave the filename
+  // empty on an inline image (a signature logo, typically); those still have an
+  // attachmentId, so they are kept and named by index rather than dropped —
+  // an unnamed part is sometimes the scan someone actually sent.
+  if ((name || body.attachmentId) && !(part.parts && part.parts.length)) {
+    out.push({
+      filename: name || null,
+      mimeType: part.mimeType || 'application/octet-stream',
+      size: body.size || 0,
+      attachmentId: body.attachmentId || null,
+      inlineData: body.data || null,
+      partId: part.partId || trail,
+    });
+  }
+  for (const [i, sub] of (part.parts || []).entries()) {
+    walkParts(sub, out, `${trail}.${i}`);
+  }
+  return out;
+}
+
+function attachmentsOf(message) {
+  const all = walkParts(message.payload, [], '0');
+  // Drop the body parts themselves: text/plain and text/html with no filename
+  // are the message, not an attachment.
+  return all.filter((a) => a.filename || (a.attachmentId && !/^text\/(plain|html)$/.test(a.mimeType)));
+}
+
+function header(message, want) {
+  const hs = (message.payload && message.payload.headers) || [];
+  const h = hs.find((x) => x.name.toLowerCase() === want.toLowerCase());
+  return h ? h.value : '';
+}
+
+// ---------------------------------------------------------------------------
+// Filenames and destinations
+// ---------------------------------------------------------------------------
+
+function safeName(name, index, mimeType) {
+  let n = (name || '').replace(/[\/\\\x00-\x1f]/g, '_').replace(/^\.+/, '').trim();
+  if (!n) n = `attachment-${index + 1}${extFor(mimeType)}`;
+  // Long names are legal but painful to type back; a mail client's own limit is
+  // well under this, so a truncation here is very unlikely to bite.
+  if (n.length > 180) {
+    const ext = path.extname(n);
+    n = n.slice(0, 180 - ext.length) + ext;
+  }
+  return n;
+}
+
+function extFor(mimeType) {
+  const map = {
+    'application/pdf': '.pdf',
+    'image/jpeg': '.jpg',
+    'image/png': '.png',
+    'image/gif': '.gif',
+    'image/heic': '.heic',
+    'text/plain': '.txt',
+    'text/csv': '.csv',
+    'message/rfc822': '.eml',
+  };
+  return map[mimeType] || '.bin';
+}
+
+function insideGitWorkTree(dir) {
+  let d = path.resolve(dir);
+  for (;;) {
+    if (fs.existsSync(path.join(d, '.git'))) return d;
+    const up = path.dirname(d);
+    if (up === d) return null;
+    d = up;
+  }
+}
+
+function defaultDest() {
+  const base = process.env.CCMAIL_DEST
+    || process.env.XDG_CACHE_HOME
+    || path.join(os.homedir(), '.cache');
+  return process.env.CCMAIL_DEST ? base : path.join(base, 'ccmail');
+}
+
+// ---------------------------------------------------------------------------
+// Office extraction — a zip of XML is not readable until it is unzipped
+// ---------------------------------------------------------------------------
+
+const OFFICE = {
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx',
+};
+
+function officeKind(file, mimeType) {
+  if (OFFICE[mimeType]) return OFFICE[mimeType];
+  const ext = path.extname(file).toLowerCase().slice(1);
+  return ['docx', 'xlsx', 'pptx'].includes(ext) ? ext : null;
+}
+
+function unzipEntry(file, entry) {
+  const r = spawnSync('unzip', ['-p', file, entry], {
+    encoding: 'utf8', maxBuffer: 256 * 1024 * 1024,
+  });
+  return r.status === 0 ? r.stdout : null;
+}
+
+function unzipList(file) {
+  const r = spawnSync('unzip', ['-Z1', file], { encoding: 'utf8' });
+  return r.status === 0 ? r.stdout.split('\n').filter(Boolean) : [];
+}
+
+function xmlText(xml, blockTags) {
+  if (!xml) return '';
+  let s = xml;
+  // Turn the tags that mean "new block" into newlines before stripping the
+  // rest, or every paragraph in the document runs into one line.
+  for (const t of blockTags) {
+    s = s.replace(new RegExp(`</${t}>`, 'g'), '\n');
+  }
+  s = s.replace(/<[^>]+>/g, '');
+  s = s.replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+       .replace(/&quot;/g, '"').replace(/&apos;/g, "'")
+       .replace(/&#(\d+);/g, (_, d) => String.fromCharCode(Number(d)))
+       .replace(/&amp;/g, '&');
+  return s.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+function extractOffice(file, kind) {
+  if (spawnSync('unzip', ['-v'], { encoding: 'utf8' }).status !== 0) {
+    return { ok: false, why: 'unzip is not on PATH, so the container cannot be opened' };
+  }
+  if (kind === 'docx') {
+    const text = xmlText(unzipEntry(file, 'word/document.xml'), ['w:p', 'w:br', 'w:tr']);
+    return text ? { ok: true, text } : { ok: false, why: 'no readable document body found' };
+  }
+  if (kind === 'pptx') {
+    const slides = unzipList(file)
+      .filter((e) => /^ppt\/slides\/slide\d+\.xml$/.test(e))
+      .sort((a, b) => Number(a.match(/\d+/)[0]) - Number(b.match(/\d+/)[0]));
+    const parts = slides.map((s, i) => {
+      const t = xmlText(unzipEntry(file, s), ['a:p', 'a:br']);
+      return `--- slide ${i + 1} ---\n${t}`;
+    });
+    return parts.length ? { ok: true, text: parts.join('\n\n') } : { ok: false, why: 'no slides found' };
+  }
+  if (kind === 'xlsx') return extractXlsx(file);
+  return { ok: false, why: `no extractor for ${kind}` };
+}
+
+function extractXlsx(file) {
+  // Cell values in an .xlsx are mostly indices into one shared string table, so
+  // the table has to be read before any sheet makes sense.
+  const sharedXml = unzipEntry(file, 'xl/sharedStrings.xml') || '';
+  const shared = [];
+  for (const m of sharedXml.matchAll(/<si>([\s\S]*?)<\/si>/g)) {
+    shared.push(xmlText(m[1], []).replace(/\n/g, ' ').trim());
+  }
+  const sheetNames = new Map();
+  const wb = unzipEntry(file, 'xl/workbook.xml') || '';
+  let n = 1;
+  for (const m of wb.matchAll(/<sheet\b[^>]*name="([^"]*)"/g)) sheetNames.set(n++, m[1]);
+
+  const sheets = unzipList(file)
+    .filter((e) => /^xl\/worksheets\/sheet\d+\.xml$/.test(e))
+    .sort((a, b) => Number(a.match(/\d+/)[0]) - Number(b.match(/\d+/)[0]));
+
+  const out = [];
+  for (const [i, s] of sheets.entries()) {
+    const xml = unzipEntry(file, s);
+    if (!xml) continue;
+    const rows = [];
+    for (const rm of xml.matchAll(/<row\b[^>]*>([\s\S]*?)<\/row>/g)) {
+      const cells = [];
+      for (const cm of rm[1].matchAll(/<c\b([^>]*)>([\s\S]*?)<\/c>/g)) {
+        const attrs = cm[1];
+        const inner = cm[2];
+        const type = (attrs.match(/\bt="([^"]*)"/) || [])[1];
+        const vRaw = (inner.match(/<v>([\s\S]*?)<\/v>/) || [])[1];
+        let value = '';
+        if (type === 's' && vRaw !== undefined) value = shared[Number(vRaw)] ?? '';
+        else if (type === 'inlineStr') value = xmlText(inner, []).replace(/\n/g, ' ').trim();
+        else if (vRaw !== undefined) value = vRaw;
+        cells.push(value);
+      }
+      while (cells.length && cells[cells.length - 1] === '') cells.pop();
+      if (cells.length) rows.push(cells.join('\t'));
+    }
+    if (rows.length) {
+      out.push(`--- sheet: ${sheetNames.get(i + 1) || `sheet${i + 1}`} ---\n${rows.join('\n')}`);
+    }
+  }
+  return out.length ? { ok: true, text: out.join('\n\n') } : { ok: false, why: 'no cell data found' };
+}
+
+// ---------------------------------------------------------------------------
+// Commands
+// ---------------------------------------------------------------------------
+
+function die(msg) {
+  process.stderr.write(`ccmail: ${msg}\n`);
+  process.exit(1);
+}
+
+function ask(rl, q) {
+  return new Promise((resolve) => rl.question(q, (a) => resolve(a.trim())));
+}
+
+async function cmdAuth() {
+  if (!process.stdin.isTTY) {
+    die('--auth needs a terminal — it opens a browser for a one-time consent.\n' +
+        'Run it yourself in a shell:  ccmail --auth');
+  }
+  process.stdout.write([
+    '',
+    'ccmail one-time setup — a read-only key for your own mailbox.',
+    '',
+    'In https://console.cloud.google.com, on any project you own:',
+    '  1. APIs & Services > Library > enable "Gmail API"',
+    '  2. APIs & Services > OAuth consent screen — set it up if asked;',
+    '     for a Workspace account choose Internal, and add the gmail.readonly scope',
+    '  3. APIs & Services > Credentials > Create credentials',
+    '     > OAuth client ID > Application type: Desktop app',
+    '  4. Copy the client ID and client secret it shows you',
+    '',
+  ].join('\n') + '\n');
+
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  const clientId = await ask(rl, 'Client ID: ');
+  const clientSecret = await ask(rl, 'Client secret: ');
+  rl.close();
+  if (!clientId || !clientSecret) die('both the client ID and the client secret are needed');
+
+  const code = await loopbackConsent(clientId);
+  const form = new URLSearchParams({
+    code,
+    client_id: clientId,
+    client_secret: clientSecret,
+    redirect_uri: loopbackConsent.redirectUri,
+    grant_type: 'authorization_code',
+  }).toString();
+  const res = await request(TOKEN_URL, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded',
+      'content-length': Buffer.byteLength(form),
+    },
+    body: form,
+  });
+  const json = JSON.parse(res.body || '{}');
+  if (!json.refresh_token) {
+    die('Google returned no refresh token' +
+        (json.error_description ? ` (${json.error_description})` : '') +
+        '.\nIf you have authorised this client before, revoke it at ' +
+        'https://myaccount.google.com/permissions and run --auth again.');
+  }
+
+  // Name the account in the stored blob so --status can say whose mailbox this
+  // is without a second API round trip.
+  const who = await request(`${API}/profile`, {
+    headers: { authorization: `Bearer ${json.access_token}` },
+  });
+  const profile = JSON.parse(who.body || '{}');
+
+  const where = saveCreds({
+    account: profile.emailAddress || 'unknown',
+    client_id: clientId,
+    client_secret: clientSecret,
+    refresh_token: json.refresh_token,
+  });
+  process.stdout.write(`\nStored for ${profile.emailAddress || 'this account'} in ${where === 'keychain' ? 'the macOS Keychain' : where}.\n`);
+  process.stdout.write('Every session on this machine can now read attachments. Try:  ccmail --status\n');
+}
+
+function loopbackConsent(clientId) {
+  return new Promise((resolve, reject) => {
+    const server = http.createServer((req, res) => {
+      const u = new URL(req.url, 'http://127.0.0.1');
+      const code = u.searchParams.get('code');
+      const err = u.searchParams.get('error');
+      res.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' });
+      res.end(code ? 'ccmail is authorised. You can close this tab.' : `Authorisation failed: ${err || 'no code returned'}`);
+      server.close();
+      if (code) resolve(code); else reject(new Error(err || 'no code returned'));
+    });
+    server.listen(0, '127.0.0.1', () => {
+      const port = server.address().port;
+      loopbackConsent.redirectUri = `http://127.0.0.1:${port}`;
+      const u = new URL(AUTH_URL);
+      u.searchParams.set('client_id', clientId);
+      u.searchParams.set('redirect_uri', loopbackConsent.redirectUri);
+      u.searchParams.set('response_type', 'code');
+      u.searchParams.set('scope', SCOPE);
+      u.searchParams.set('access_type', 'offline');
+      u.searchParams.set('prompt', 'consent');
+      process.stdout.write(`\nOpening your browser to approve read-only access…\nIf it does not open, paste this in:\n${u}\n\n`);
+      try { execFileSync('open', [u.toString()]); } catch { /* the printed URL is the fallback */ }
+    });
+  });
+}
+
+async function cmdStatus(json) {
+  const creds = loadCreds();
+  if (!creds) {
+    if (json) { print({ authorised: false, reason: 'no stored credential' }); process.exit(1); }
+    process.stderr.write('ccmail: not set up on this machine yet. Run:  ccmail --auth\n');
+    process.exit(1);
+  }
+  const token = await accessToken(creds);
+  const profile = await api(token, '/profile');
+  const store = useKeychain() ? 'macOS Keychain' : credFile();
+  if (json) {
+    print({
+      authorised: true,
+      account: profile.emailAddress,
+      messagesTotal: profile.messagesTotal,
+      scope: SCOPE,
+      credentialStore: store,
+      dest: defaultDest(),
+    });
+    return;
+  }
+  process.stdout.write(
+    `✅ ccmail is live for ${profile.emailAddress}\n` +
+    `   scope       ${SCOPE} (read-only)\n` +
+    `   credential  ${store}\n` +
+    `   downloads   ${defaultDest()}\n`);
+}
+
+async function cmdSearch(query, limit, json) {
+  const creds = requireCreds();
+  const token = await accessToken(creds);
+  const list = await api(token, '/messages', { q: query, maxResults: limit });
+  const ids = (list.messages || []).map((m) => m.id);
+  const rows = [];
+  for (const id of ids) {
+    const m = await api(token, `/messages/${id}`, {
+      format: 'metadata',
+      metadataHeaders: ['Subject', 'From', 'Date'],
+    });
+    rows.push({
+      id,
+      from: header(m, 'From'),
+      date: header(m, 'Date'),
+      subject: header(m, 'Subject'),
+      sizeEstimate: m.sizeEstimate,
+    });
+  }
+  if (json) { print({ query, count: rows.length, messages: rows }); return; }
+  if (!rows.length) { process.stdout.write(`No messages match: ${query}\n`); return; }
+  for (const r of rows) {
+    process.stdout.write(`${r.id}  ${r.subject || '(no subject)'}\n`);
+    process.stdout.write(`${' '.repeat(r.id.length)}  ${r.from} · ${r.date}\n`);
+  }
+}
+
+async function cmdList(messageId, json) {
+  const creds = requireCreds();
+  const token = await accessToken(creds);
+  const m = await api(token, `/messages/${messageId}`, { format: 'full' });
+  const items = attachmentsOf(m);
+  const meta = {
+    id: messageId,
+    subject: header(m, 'Subject'),
+    from: header(m, 'From'),
+    date: header(m, 'Date'),
+  };
+  if (json) { print({ ...meta, attachments: items.map(publicShape) }); return; }
+  process.stdout.write(`${meta.subject || '(no subject)'}\n${meta.from} · ${meta.date}\n\n`);
+  if (!items.length) { process.stdout.write('No attachments on this message.\n'); return; }
+  items.forEach((a, i) => {
+    process.stdout.write(
+      `  [${i + 1}] ${a.filename || '(unnamed)'}\n` +
+      `      ${a.mimeType} · ${human(a.size)}\n`);
+  });
+  process.stdout.write(`\nFetch them with:  ccmail ${messageId} --get all\n`);
+}
+
+function publicShape(a) {
+  return { filename: a.filename, mimeType: a.mimeType, size: a.size };
+}
+
+async function cmdGet(messageId, selector, opts) {
+  const creds = requireCreds();
+  const token = await accessToken(creds);
+  const m = await api(token, `/messages/${messageId}`, { format: 'full' });
+  const items = attachmentsOf(m);
+  if (!items.length) die(`message ${messageId} has no attachments`);
+
+  const chosen = select(items, selector);
+  if (!chosen.length) {
+    die(`nothing in message ${messageId} matches "${selector}".\n` +
+        `It has: ${items.map((a) => a.filename || '(unnamed)').join(', ')}`);
+  }
+
+  const dest = path.resolve(opts.dest || path.join(defaultDest(), messageId));
+  const repo = insideGitWorkTree(dest);
+  if (repo && !opts.allowRepoDest) {
+    die(`refusing to write attachments inside a git work tree (${repo}).\n` +
+        `Mail attachments are other people's data and a repo is one commit from publication.\n` +
+        `Pick a --dest outside it, or pass --allow-repo-dest if you truly mean to.`);
+  }
+  fs.mkdirSync(dest, { recursive: true });
+
+  const written = [];
+  for (const [i, a] of chosen.entries()) {
+    let b64 = a.inlineData;
+    if (!b64) {
+      const at = await api(token, `/messages/${messageId}/attachments/${a.attachmentId}`);
+      b64 = at.data;
+    }
+    if (!b64) { process.stderr.write(`warn  ${a.filename || `#${i + 1}`} returned no data — skipped\n`); continue; }
+    const buf = Buffer.from(b64.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
+    const file = path.join(dest, safeName(a.filename, items.indexOf(a), a.mimeType));
+    fs.writeFileSync(file, buf);
+    const rec = { file, filename: a.filename, mimeType: a.mimeType, bytes: buf.length };
+
+    if (opts.text) {
+      const kind = officeKind(file, a.mimeType);
+      if (kind) {
+        const r = extractOffice(file, kind);
+        if (r.ok) {
+          const txt = `${file}.txt`;
+          fs.writeFileSync(txt,
+            `[ccmail: text extracted from ${path.basename(file)} — words and cell values only, ` +
+            `not the document's layout, images or formatting]\n\n${r.text}\n`);
+          rec.text = txt;
+        } else {
+          rec.textError = r.why;
+          process.stderr.write(`warn  could not extract text from ${path.basename(file)}: ${r.why}\n`);
+        }
+      }
+    }
+    written.push(rec);
+  }
+
+  if (opts.json) { print({ id: messageId, dest, written }); return; }
+  process.stdout.write(`Wrote ${written.length} file(s) to ${dest}\n\n`);
+  for (const w of written) {
+    process.stdout.write(`  ${w.file}  (${human(w.bytes)})\n`);
+    if (w.text) process.stdout.write(`  ${w.text}  (extracted text)\n`);
+  }
+  process.stdout.write('\nRead them from that path — nothing is printed here on purpose.\n');
+}
+
+function select(items, selector) {
+  if (!selector || selector === 'all') return items;
+  const out = [];
+  for (const token of selector.split(',').map((s) => s.trim()).filter(Boolean)) {
+    if (/^\d+$/.test(token)) {
+      const a = items[Number(token) - 1];
+      if (a) out.push(a);
+      continue;
+    }
+    // A bare word matches any filename containing it; `*` globs. Case-blind,
+    // because nobody retypes an attachment name with its original capitals.
+    const rx = new RegExp(token.includes('*')
+      ? '^' + token.split('*').map(esc).join('.*') + '$'
+      : esc(token), 'i');
+    for (const a of items) {
+      if (a.filename && rx.test(a.filename) && !out.includes(a)) out.push(a);
+    }
+  }
+  return out;
+}
+
+const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+function requireCreds() {
+  const creds = loadCreds();
+  if (!creds) {
+    die('not set up on this machine yet.\n' +
+        'One-time setup (needs a terminal and a browser):  ccmail --auth');
+  }
+  return creds;
+}
+
+function human(n) {
+  if (!n) return '0 B';
+  const u = ['B', 'KB', 'MB', 'GB'];
+  let i = 0;
+  let v = n;
+  while (v >= 1024 && i < u.length - 1) { v /= 1024; i++; }
+  return `${i === 0 ? v : v.toFixed(1)} ${u[i]}`;
+}
+
+function print(obj) {
+  process.stdout.write(JSON.stringify(obj, null, 2) + '\n');
+}
+
+const HELP = `ccmail — open Gmail attachments from any session
+
+USAGE
+  ccmail --auth                       one-time setup (terminal + browser)
+  ccmail --status                     is it live, and for which account
+  ccmail --search <gmail-query>       find message ids (Gmail search syntax)
+  ccmail <message-id>                 list what is attached to that message
+  ccmail <message-id> --get <what>    download them, print the paths
+
+SELECT (--get)
+  all                                 every attachment (the default)
+  2                                   by the number shown in the listing
+  valuation                           any filename containing that word
+  '*.pdf'                             a glob over the filename
+  1,3,report                          a comma-separated mix of the above
+
+OUTPUT
+  --dest <dir>      where files land (default ~/.cache/ccmail/<message-id>/)
+  --text            also write a .txt sidecar for .docx/.xlsx/.pptx
+  --json            machine-readable
+  --limit <n>       --search result cap (default 10)
+
+NOTES
+  Attachment bytes are never printed — ccmail writes files and gives you paths.
+  Access is read-only (gmail.readonly) on your own mailbox and nothing else.
+  Writing into a git work tree is refused; --allow-repo-dest overrides.
+
+  man ccmail  for the full reference.
+`;
+
+async function main(argv) {
+  const opts = { limit: 10, json: false, text: false, dest: null, allowRepoDest: false };
+  let positional = null;
+  let get = null;
+  let search = null;
+  let mode = null;
+
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    const next = () => {
+      const v = argv[++i];
+      if (v === undefined) die(`${a} needs a value`);
+      return v;
+    };
+    switch (a) {
+      case '-h': case '--help': process.stdout.write(HELP); return;
+      case '--auth': mode = 'auth'; break;
+      case '--status': mode = 'status'; break;
+      case '--search': mode = 'search'; search = next(); break;
+      case '--get': get = next(); break;
+      case '--dest': opts.dest = next(); break;
+      case '--limit': opts.limit = Number(next()); break;
+      case '--text': opts.text = true; break;
+      case '--json': opts.json = true; break;
+      case '--allow-repo-dest': opts.allowRepoDest = true; break;
+      default:
+        if (a.startsWith('-')) die(`unknown option ${a}  (ccmail --help)`);
+        if (positional) die(`only one message id at a time (got ${positional} and ${a})`);
+        positional = a;
+    }
+  }
+
+  if (mode === 'auth') return cmdAuth();
+  if (mode === 'status') return cmdStatus(opts.json);
+  if (mode === 'search') return cmdSearch(search, opts.limit, opts.json);
+  if (!positional) { process.stdout.write(HELP); return; }
+  if (get !== null) return cmdGet(positional, get, opts);
+  return cmdList(positional, opts.json);
+}
+
+if (require.main === module) {
+  main(process.argv.slice(2)).catch((e) => die(e.message || String(e)));
+}
+
+module.exports = {
+  attachmentsOf, walkParts, safeName, select, xmlText, extractXlsx,
+  extractOffice, officeKind, human, insideGitWorkTree, header,
+};
