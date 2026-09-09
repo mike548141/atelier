@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# setup — build the PDF page renderer and put it on PATH as `pdftoppm`.
+#
+# WHY THIS INSTALLS UNDER SOMEONE ELSE'S NAME, stated up front because it is the
+# surprising part: Claude Code's file reader shells out to poppler's `pdftoppm`
+# to turn PDF pages into images. The name is not ours to choose — the reader
+# looks up exactly that binary — so a renderer that answers to any other name
+# does not close the gap. On a machine with real poppler installed you do not
+# want this at all; see UNINSTALL below.
+#
+# It is built from macOS's own PDFKit, so it adds no dependency and no package
+# manager. It needs Xcode or the Command Line Tools for `swiftc`, at build time
+# only — the finished binary depends on nothing but system frameworks.
+#
+# Idempotent: re-run after editing pdfrender.swift or on a fresh machine.
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEST="${XDG_BIN_HOME:-$HOME/.local/bin}"
+TARGET="$DEST/pdftoppm"
+
+if ! command -v swiftc >/dev/null 2>&1; then
+  echo "swiftc not found — install Xcode or the Command Line Tools:" >&2
+  echo "  xcode-select --install" >&2
+  exit 1
+fi
+
+# Refuse to shadow a REAL poppler. A machine with poppler installed already has
+# the better tool: it renders more formats, handles broken PDFs more gracefully,
+# and is the thing this one imitates. Silently overriding it would be a
+# downgrade nobody asked for and nobody would notice.
+EXISTING="$(command -v pdftoppm 2>/dev/null || true)"
+if [ -n "$EXISTING" ] && [ "$EXISTING" != "$TARGET" ]; then
+  echo "a pdftoppm already exists at $EXISTING — leaving it alone." >&2
+  echo "This renderer is a stand-in for machines WITHOUT poppler. Nothing to do." >&2
+  exit 0
+fi
+
+mkdir -p "$DEST"
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
+
+echo "build  pdfrender.swift"
+swiftc -O -o "$TMP/pdftoppm" "$HERE/pdfrender.swift"
+
+# Prove it before installing it. A renderer that builds and cannot render is
+# worse than none: the caller reports a corrupt PDF and the reader goes looking
+# at the document instead of at the tool.
+echo "verify against a generated one-page PDF"
+"$HERE/selftest" "$TMP/pdftoppm"
+
+mv "$TMP/pdftoppm" "$TARGET"
+chmod +x "$TARGET"
+echo "link   pdftoppm -> $TARGET"
+echo
+echo "Done. Claude Code can now read PDF files on this machine."
+echo "UNINSTALL: rm $TARGET   (do this if you ever install real poppler)"

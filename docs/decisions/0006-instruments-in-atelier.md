@@ -186,3 +186,60 @@ argue against explicitly. `ccmail` also carries the layer's first
 `ccmail --auth` needs a terminal and a browser once per machine, and no agent
 session can perform it. That is a stated limit, not a defect — a credential an
 agent could mint unattended would be the wrong design.
+
+**Amended the same day, on the principal's re-ruling.** The choice above was put
+to Mike as personal-grant *versus* domain-wide, and the case against domain-wide
+included "its key is a file on your Mac". That was **false of this estate**: its
+Workspace identity is deliberately **keyless**, reached by impersonation, built
+that way *because* a key file had gone wrong there before. Re-briefed on the
+correct facts he ruled for **both, delegation first** — and added a standing
+constraint: *secrets belong in a secret store (Keychain, SOPS+age, OpenBao),
+never loose in a file.*
+
+Three things follow, and they sharpen the addendum rather than replace it:
+
+- **The preferred route stores nothing at all.** Where the delegation is
+  available it adds no credential, so the "first instrument to hold a
+  credential" framing is now conditional: it holds one only when it falls back.
+- **The plaintext-file fallback is removed, not deprioritised.** A fallback that
+  lowers the bar is reached exactly when something else has already gone wrong.
+  Off macOS `ccmail` refuses to store and names the estate's real stores.
+- **A fallback is still owed.** The delegation depends on a cloud login that
+  lapses, and an instrument promising "any session, any repo" cannot be dark for
+  a day. Preferring the route that stores nothing is not the same as pretending
+  the other is unnecessary.
+
+**A correction worth keeping as method, not just as a fact:** the wrong option
+was nearly chosen because the *brief* was wrong, not because the ruling was. The
+facts that overturned it were already written down in the estate's own registry
+and would have been found by reading it first. "Check what already exists before
+offering to build" is the cheap lesson; "an approval extracted on a wrong fact
+stands as the principal's word and is challenged by re-briefing, never voided
+quietly" is the load-bearing one.
+
+## Addendum (2026-09-09, third) — an instrument installed under another tool's name
+
+**Decision (Mike, implicitly by commission — the attachment gap was not closed
+until this landed):** admit **`ccpdf`**, a PDF page renderer built on macOS's own
+PDFKit and installed as **`pdftoppm`**.
+
+It exists because `ccmail` fetching a PDF turned out **not to be enough**. Claude
+Code's file reader renders PDF pages by shelling out to poppler's `pdftoppm`, and
+the machine has no package manager and so no poppler — so every PDF read failed
+with an install instruction. An attachment successfully downloaded and still
+unopenable is the *same* gap one step further along.
+
+What it stretches, recorded in the layer's own practice of naming each stretch:
+
+- **It is the first instrument that does not carry its own name.** Every other
+  one is `cc*` or its own directory; this installs as `pdftoppm` because the
+  reader looks up exactly that binary, and a renderer answering to any other
+  name closes nothing. The mitigation is that `setup` **refuses to shadow a real
+  poppler**, and prints its own one-line uninstall.
+- **It is the first compiled instrument.** Swift, built by `swiftc` against a
+  system framework — so it adds no runtime dependency at all, but it does add a
+  *build-time* one (Xcode or the Command Line Tools), stated rather than silent.
+- **It is arguably a general utility**, which ADR 0006's boundary sends to the
+  estate. It passes on purpose all the same, by the same test `browser-fetch`
+  passes: the operator opens PDFs in Preview and has no use for this whatsoever.
+  It exists solely so the teammate can read a document it otherwise cannot.

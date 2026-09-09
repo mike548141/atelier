@@ -19,6 +19,7 @@ drives Chrome via Playwright); each documents its own runtime.
 | `cctranscript`  | observe   | Timestamped transcript of a session — the timestamps the chat UI hides, plus how big its context grew and how many subagents it started vs finished. `--search <term>` asks the other question: which turns, across every session in scope, match a term or a `--regex`. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
 | `ccarchive`     | preserve  | Durably mirror every raw `.jsonl` transcript into a compressed, append-only archive that outlives Claude Code's cleanup. |
 | `ccmail`        | extend    | Open the Gmail attachments the mailbox connector can only *name* — it lists filenames and attachment ids but has no call that returns bytes. Fetches them to disk with its own read-only grant so the ordinary Read tool can open them. |
+| `ccpdf`         | extend    | A PDF page renderer built on macOS's own PDFKit, installed as `pdftoppm` — the binary Claude Code's file reader shells out to. Without it, a PDF on disk is still unreadable. |
 | `browser-fetch` | extend    | A browser (fresh headless, or the operator's own Chrome) when `WebFetch`/curl are blocked. MCP server; see its own README. |
 
 The Node CLIs are converging on a concise `-h`/`--help` digest plus a fuller
@@ -112,14 +113,23 @@ prints the one line to add to your shell profile.
 CLI. Run `instruments/browser-fetch/setup` (builds a venv + Chromium, prints the
 `~/.claude.json` registration Claude Code reads at start).
 
+`ccpdf` also has its own `setup`, because it is compiled and because it installs
+under a name that is **not its own**: `pdftoppm`. That is not a liberty — Claude
+Code's file reader looks up exactly that binary to turn PDF pages into images, so
+a renderer answering to any other name closes nothing. `instruments/ccpdf/setup`
+builds it with `swiftc` against macOS's own PDFKit (no dependency, no package
+manager), **refuses to shadow a real poppler** if one is present, and proves the
+binary renders before installing it. `rm ~/.local/bin/pdftoppm` uninstalls.
+
 `ccarchive` has one extra step to keep it *running*: after `install` puts it on
 `PATH`, `ccarchive --install-schedule` registers the daily launchd agent (macOS).
 This is the whole new-machine recovery — `./instruments/install` then
 `ccarchive --install-schedule` — and `ccarchive --schedule-status` confirms it.
 
-`ccmail` has one too, and it is the only instrument whose extra step needs a
-*person*: `ccmail --auth` mints a read-only Gmail grant, which takes a terminal
-and a browser once per machine. `ccmail --status` confirms it. Until that runs,
+`ccmail` may need one, and it is the only instrument whose extra step needs a
+*person*: where the delegation route is unavailable, `ccmail --auth` mints a
+read-only Gmail grant, which takes a terminal and a browser once per machine.
+`ccmail --status` reports which routes are live. Until one is,
 `ccmail` says so and exits non-zero rather than failing obscurely — see
 [ccmail — reading the attachments, not just their names](#ccmail--reading-the-attachments-not-just-their-names)
 below.
@@ -531,22 +541,34 @@ operator never hits, since the operator just opens their own mail.
   into a context window would be a worse outcome than the gap it closes, so
   that is not offered even as an option — the same instinct behind ccrepo's
   refusal to fabricate a figure it cannot source.
-- **A second, narrower grant — not the connector's.** The connector holds its
-  own authorisation and it is not reachable from a shell, so `ccmail` carries
-  one of its own: the single scope `gmail.readonly`, on the operator's own
-  account. It cannot send, reply, label, delete, or reach any other mailbox in
-  the domain — including where the operator administers that domain, which is
-  exactly the case where a domain-wide service account would have been the
-  convenient answer and the wrong one (SECRETS.md, *least*). `ccmail --auth`
-  mints it once per machine, interactively.
-- **The refresh token is a real secret, stored like one.** macOS Keychain by
-  default, a 0600 file (`CCMAIL_CREDENTIALS`) off macOS. The Keychain item is
-  created with `-T /usr/bin/security` so the same binary reads it back without
-  an interactive allow-access dialog — load-bearing, not incidental: an agent
-  session cannot click that dialog, and a credential that only works while a
-  human watches would not close the gap. This is the **first instrument to hold
-  a credential to a third-party account**; ADR 0006's third addendum records
-  what that adds to the layer.
+- **Two routes, tried in order, and the preferred one stores nothing.** The
+  connector's own authorisation is not reachable from a shell, so `ccmail`
+  brings its own — both read-only (`gmail.readonly`), neither able to send,
+  label or delete.
+  **(1) Delegation.** Where an estate already holds a *keyless* Workspace
+  identity registered for `gmail.readonly`, `ccmail` reaches it by
+  impersonation: the operator's own cloud login signs a JWT as that identity,
+  exchanged for a token that lives in memory for one run. This adds **no
+  credential at all** — nothing to keep, rotate or lose — which is why it is
+  first. Configured by machine-local `~/.claude/ccmail.json`, holding
+  identifiers only, never a secret.
+  **(2) The operator's own grant.** `ccmail --auth`, once per machine. It exists
+  because route 1 depends on a cloud login that lapses, and a tool promising
+  "any session, any repo" cannot go dark for a day when that happens.
+  When both fail, **both** reasons are reported — "not set up" and "your cloud
+  login lapsed" need different hands. `--status` shows every route, live or not,
+  so a preferred route that quietly stopped answering is visible before it
+  becomes a surprise.
+- **The one secret is stored like one, and there is no weaker fallback.** Route
+  1 has no secret. Route 2's refresh token goes to the macOS Keychain and
+  *nowhere else* — the item created with `-T /usr/bin/security` so the same
+  binary reads it back without an allow-access dialog, which is load-bearing
+  since an agent session cannot click one. An earlier draft carried a 0600-file
+  fallback; it was **removed** rather than deprioritised, because a fallback
+  that lowers the bar is reached exactly when something has already gone wrong.
+  Off macOS `ccmail` refuses to store and names the estate's real stores
+  instead. This is the **first instrument to hold a credential to a third-party
+  account**; ADR 0006's third addendum records what that adds to the layer.
 - **It refuses to write inside a git work tree.** A mail attachment is by
   definition someone else's data, and a repo is one commit from publication —
   the same guard, and the same reasoning, that `ccarchive` puts on its archive
@@ -565,6 +587,35 @@ operator never hits, since the operator just opens their own mail.
   connector is still self-sufficient. Where the connector *is* available its
   search is the richer surface and `ccmail --search` is not the one to reach for
   — the README says so rather than implying parity.
+
+## ccpdf — why a PDF on disk was still unreadable
+
+`ccmail` fetching a PDF turned out not to be enough. Claude Code's file reader
+renders PDF pages to images by shelling out to poppler's `pdftoppm`, and this
+machine has no package manager and so no poppler: every PDF read failed with an
+install instruction. Fetching the attachment and still not being able to open it
+is the *same* gap `ccmail` was built to close, one step further along — which is
+why the fix belongs here rather than being left as a note.
+
+- **macOS already has the renderer.** PDFKit ships with the OS, so `ccpdf` is
+  ~120 lines of Swift and adds no dependency at all. `swiftc` is needed to build
+  it, never to run it.
+- **It installs as `pdftoppm`, deliberately.** The reader looks up that exact
+  name. `setup` **refuses to shadow a real poppler** where one exists — that is
+  the better tool and silently overriding it would be an unnoticed downgrade —
+  and prints the one-line uninstall.
+- **It ignores flags it does not implement, but never guesses about values.**
+  poppler has a long tail of options; dying on an unimplemented one would turn a
+  cosmetic gap into a failed read. But flags that *consume* an argument are an
+  explicit list, because an unlisted one leaves its value loose to be read as the
+  input filename — `-aa yes` did exactly that, and the renderer reported "could
+  not open yes as a PDF". Its own selftest caught it.
+- **The selftest asserts on the filename, not on "some output appeared".** The
+  first build emitted PNG for every format flag, so it wrote `page-1.png` while
+  the reader looked for `page-1.jpg`, found nothing, and reported the document as
+  invalid. Everything about that failure pointed at the PDF instead of the tool.
+  The call shape it tests — `-jpeg -r 100 -f 1 -l 1 in.pdf <prefix>` — was
+  **observed** from the reader, not guessed.
 
 ## Schema caveat
 

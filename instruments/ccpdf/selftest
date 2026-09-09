@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# selftest — prove a built renderer actually renders, before it goes on PATH.
+#
+# Takes the path to a pdftoppm binary and exercises the exact call shape Claude
+# Code's file reader makes, which was learned by observing it rather than
+# guessed: `-jpeg -r 100 -f 1 -l 1 input.pdf <prefix>`. That detail is the whole
+# reason this file exists. The first build of this renderer emitted PNG for
+# every format flag, so it wrote `page-1.png` while the reader looked for
+# `page-1.jpg`, found nothing, and reported the PDF as invalid. Everything about
+# that failure pointed at the document instead of the tool.
+#
+# So the assertion here is deliberately on the FILENAME, not merely on "some
+# output appeared".
+set -euo pipefail
+
+BIN="${1:?usage: selftest <path-to-pdftoppm>}"
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
+
+# A minimal but genuinely valid one-page PDF, written by hand so the test needs
+# no fixture file and no other PDF tool to produce one.
+cat > "$TMP/in.pdf" <<'PDF'
+%PDF-1.4
+1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj
+2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj
+3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 100]/Contents 4 0 R/Resources<</Font<</F1 5 0 R>>>>>>endobj
+4 0 obj<</Length 44>>stream
+BT /F1 24 Tf 20 40 Td (ccpdf ok) Tj ET
+endstream
+endobj
+5 0 obj<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>endobj
+trailer<</Root 1 0 R>>
+PDF
+
+fail() { echo "selftest: $1" >&2; exit 1; }
+
+# 1. The reader's own call shape — jpeg out, and the extension must follow.
+"$BIN" -jpeg -r 100 -f 1 -l 1 "$TMP/in.pdf" "$TMP/page" \
+  || fail "the renderer exited non-zero on the reader's call shape"
+[ -f "$TMP/page-1.jpg" ] \
+  || fail "-jpeg produced no page-1.jpg (got: $(ls "$TMP" | tr '\n' ' '))"
+[ -s "$TMP/page-1.jpg" ] || fail "page-1.jpg is empty"
+
+# 2. PNG still works and still uses its own extension.
+"$BIN" -png -r 72 -f 1 -l 1 "$TMP/in.pdf" "$TMP/png" || fail "-png exited non-zero"
+[ -f "$TMP/png-1.png" ] || fail "-png produced no png-1.png"
+
+# 3. An unknown flag must be ignored, not fatal. poppler's pdftoppm accepts a
+#    long tail of options; dying on one we simply do not implement would turn a
+#    cosmetic gap into a broken read.
+"$BIN" -jpeg -q -aa yes -r 100 -f 1 -l 1 "$TMP/in.pdf" "$TMP/odd" \
+  || fail "an unrecognised flag was treated as fatal"
+[ -f "$TMP/odd-1.jpg" ] || fail "no output when unknown flags were present"
+
+echo "  selftest ok — jpeg/png extensions correct, unknown flags tolerated"
