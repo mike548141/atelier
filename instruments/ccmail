@@ -323,7 +323,11 @@ function unzipEntry(file, entry) {
 }
 
 function unzipList(file) {
-  const r = spawnSync('unzip', ['-Z1', file], { encoding: 'utf8' });
+  // The default 1 MB stdout buffer is enough for almost any deck, and a deck
+  // that exceeded it would come back with status != 0 and be read here as "no
+  // slides" — an empty extraction reported as an empty document. Raised so the
+  // listing is complete or the failure is real.
+  const r = spawnSync('unzip', ['-Z1', file], { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 });
   return r.status === 0 ? r.stdout.split('\n').filter(Boolean) : [];
 }
 
@@ -491,7 +495,17 @@ async function cmdAuth() {
 
 function loopbackConsent(clientId) {
   return new Promise((resolve, reject) => {
+    // Without this the process waits for a consent that may never come — a
+    // browser tab closed by mistake would leave a terminal hung with no clue
+    // why. Five minutes is well past a real consent and well short of annoying.
+    const giveUp = setTimeout(() => {
+      server.close();
+      reject(new Error('timed out waiting for the browser consent (5 minutes). Run --auth again.'));
+    }, 5 * 60 * 1000);
+    giveUp.unref();
+
     const server = http.createServer((req, res) => {
+      clearTimeout(giveUp);
       const u = new URL(req.url, 'http://127.0.0.1');
       const code = u.searchParams.get('code');
       const err = u.searchParams.get('error');
