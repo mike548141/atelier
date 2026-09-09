@@ -51,53 +51,97 @@ emits paths and expects the reader to go and read them. A multi\-megabyte PDF
 pasted into a context window as base64 would be a worse outcome than the gap it
 closes, so that is not offered even as an option.
 .SH AUTHORISATION
-The connector's own authorisation is held by the connector and cannot be
-reached from a shell, so
+The connector's own authorisation is held by the connector and cannot be reached
+from a shell, so
 .B ccmail
-carries a second, deliberately narrower grant on the same mailbox: the single
-scope
-.IR https://www.googleapis.com/auth/gmail.readonly .
-That grant can read the operator's own mail and nothing else. It cannot send,
-reply, label, delete, or reach any other mailbox in the domain \(em including
-where the operator administers that domain.
+brings its own. There are
+.B two routes
+and they are tried in order. Both are read\-only
+.RI ( gmail.readonly );
+neither can send, reply, label or delete.
+.SS Route 1 \(em delegation (preferred, stores nothing)
+An estate may already hold a
+.B keyless
+Workspace identity registered for domain\-wide delegation with
+.IR gmail.readonly .
+.B ccmail
+reaches it by impersonation: the operator's own cloud login signs a JWT as that
+identity, which is exchanged for a delegated token that lives in memory for one
+run and expires within the hour.
 .PP
+This route is preferred because it adds
+.BR nothing .
+No new grant, no new console registration, and no new stored secret \(em so
+there is nothing to keep, rotate, or lose. Configure it in the machine\-local
+file described under
+.BR FILES :
+.PP
+.RS
+.nf
+{
+  "delegate": {
+    "serviceAccount": "<name>@<project>.iam.gserviceaccount.com",
+    "subject": "<the mailbox to read>"
+  }
+}
+.fi
+.RE
+.PP
+Those are identifiers, not secrets, which is why they live in config rather than
+a secret store. Its one real cost: it works only while the operator's cloud
+login is fresh, and that lapses \(em which is precisely why route 2 exists as a
+fallback rather than as the only path.
+.SS Route 2 \(em the operator's own grant (fallback, stores one secret)
 .B ccmail \-\-auth
-mints it once, interactively. It needs a terminal and a browser, and it prints
-the four steps to take in the Google Cloud console first: enable the Gmail API,
-set up the consent screen (choose
+mints it once per machine, interactively. It needs a terminal and a browser, and
+prints the four Google Cloud console steps first: enable the Gmail API, set up
+the consent screen (choose
 .B Internal
 for a Workspace account), create an OAuth client of type
 .BR "Desktop app" ,
 and copy the client ID and secret. It then opens the browser for consent on a
-loopback redirect, exchanges the code, and stores the result.
+loopback redirect and stores the result.
 .PP
-A grant that is revoked, or an account that changes, shows up as an
-.I invalid_grant
-refusal naming that cause specifically \(em re\-run
-.B \-\-auth
-to mint a fresh one. No other session on the machine needs to do anything: the
-credential is per\-machine, not per\-session.
+This route never depends on a cloud login, which is the point of keeping it: a
+tool promising "any session, any repo" cannot go dark for a day because a login
+lapsed.
+.SS When both fail
+.B ccmail
+reports
+.B both
+reasons, never only the last one. "Not set up yet" and "your cloud login lapsed"
+need different hands, and a message naming the wrong one sends the reader to the
+wrong place.
+.B \-\-status
+likewise reports every route, live or not, so a preferred route that has quietly
+stopped answering is visible before it becomes a surprise.
 .SH CREDENTIAL STORAGE
-The refresh token is a real secret and is stored accordingly.
-.TP
-.B macOS Keychain (default)
-A generic password under the service name
-.IR ccmail .
-It is created with
-.B \-T /usr/bin/security
-so that the same binary can read it back without raising an interactive
-"allow access" dialog. That detail is load\-bearing rather than incidental: an
-agent session has no way to click that dialog, and a credential that only works
-while a human watches would not close the gap this tool exists to close.
-.TP
-.B A 0600 file (fallback)
-Used off macOS, and whenever
-.B CCMAIL_CREDENTIALS
-names a path. The file holds the same JSON blob and is created mode 0600.
+Route 1 stores
+.B nothing
+\(em that is its chief virtue.
 .PP
-Either way the secret lives outside every repository. Nothing personal \(em not
-the account, not a path, not the client \(em is baked into the shipped code;
-all of it is resolved at runtime.
+Route 2's refresh token is a real secret and goes to the
+.B macOS Keychain
+and nowhere else, as a generic password under the service name
+.IR ccmail .
+The item is created with
+.B \-T /usr/bin/security
+so the same binary reads it back without raising an interactive "allow access"
+dialog. That detail is load\-bearing rather than incidental: an agent session
+has no way to click that dialog, and a credential that only works while a human
+watches would not close the gap this tool exists to close.
+.PP
+.B There is deliberately no plaintext\-file fallback.
+An earlier version of this tool carried one, and it was removed rather than
+merely deprioritised: a fallback that lowers the bar is reached exactly when
+something else has already gone wrong, which is the worst possible moment to
+quietly start writing a secret to a file. Off macOS
+.B ccmail
+refuses to store anything and names the stores the estate does use
+(Keychain, SOPS+age, OpenBao) instead of inventing a weaker one.
+.PP
+Nothing personal is baked into the shipped code \(em the account, the paths, the
+client and the delegated identity all resolve at runtime.
 .SH SELECTING ATTACHMENTS
 .B \-\-get
 takes one argument describing what to fetch. The forms compose,
@@ -226,17 +270,24 @@ Where it is absent the original is still fetched and the sidecar is skipped
 with that stated as the reason.
 .SH FILES
 .TP
-.I ~/.claude/ccmail\-credentials.json
-The 0600 credential file, when the Keychain is not in use. Machine\-local, never
-in a repository.
+.I ~/.claude/ccmail.json
+Machine\-local, NOT secret: the delegated identity and subject for route 1.
+Absent means route 1 is simply unavailable, which is the correct default for
+anyone who is not this operator.
+.TP
+.B macOS Keychain, service name \fIccmail\fB
+Route 2's refresh token. There is no file form.
 .TP
 .IR ~/.cache/ccmail/ <message\-id>/
 Default download destination.
 .SH ENVIRONMENT
 .TP
-.B CCMAIL_CREDENTIALS
-Path to the credential file. Setting it also selects the file store over the
-Keychain.
+.B CCMAIL_CONFIG
+Path to the config file, overriding the default above.
+.TP
+.B CCMAIL_GCLOUD
+Path to the cloud CLI used by route 1, when it is not in the usual places. An
+agent shell is not a login shell and may not see it on PATH.
 .TP
 .B CCMAIL_DEST
 Base directory for downloads, replacing the cache default.
@@ -287,9 +338,9 @@ ccmail <id> \-\-get '*.xlsx' \-\-text
 The requested work completed.
 .TP
 .B 1
-Not set up on this machine, the grant was refused or revoked, the message or
-attachment does not exist, the selector matched nothing, or the destination was
-refused. The message names which.
+Neither route could reach the mailbox (both reasons are reported), the message
+or attachment does not exist, the selector matched nothing, or the destination
+was refused. The message names which.
 .SH NOTES
 .B ccmail
 is a capability instrument under

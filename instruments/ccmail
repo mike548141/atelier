@@ -19,19 +19,28 @@
  * A 4 MB PDF pasted into a context window as base64 would be worse than the gap
  * it closes.
  *
- * WHY A SEPARATE CREDENTIAL. The connector's own authorisation is held by the
- * connector and is not reachable from a shell. So this is a second, deliberately
- * narrower grant: one scope, `gmail.readonly`, on the operator's own account.
- * It cannot send, cannot delete, cannot label, and cannot see any other mailbox.
- * `ccmail --auth` walks the operator through minting it once; after that every
- * session on the machine has it.
+ * TWO WAYS IN, TRIED IN THAT ORDER. The connector's own authorisation is held by
+ * the connector and cannot be reached from a shell, so ccmail brings its own.
+ * Both are read-only (`gmail.readonly`) and neither can send, delete or label.
  *
- * WHERE THE SECRET LIVES. The refresh token is a real secret, so it goes to the
- * macOS Keychain by default, never to a file in a repo and never to a repo at
- * all. A 0600 file is the documented fallback for machines with no Keychain
- * (CI, Linux) and for anyone who prefers it — `CCMAIL_CREDENTIALS` names it.
- * Nothing personal is baked into this file: the account, the paths and the
- * client are all resolved at runtime.
+ *   1. DELEGATION (preferred, stores nothing). An estate may already hold a
+ *      keyless Workspace identity registered for gmail.readonly. ccmail reaches
+ *      it by impersonation — the operator's own cloud login signs a JWT as that
+ *      identity, exchanged for a token that lives in memory for one run. This
+ *      route adds NO credential to the estate: nothing to keep, rotate or lose.
+ *      Its cost is that it works only while that cloud login is fresh.
+ *   2. THE OPERATOR'S OWN GRANT (fallback, stores one secret). `ccmail --auth`
+ *      mints it once per machine. It never depends on a cloud login, which is
+ *      why it exists: a tool promising "any session, any repo" cannot go dark
+ *      for a day because a login lapsed.
+ *
+ * WHERE THE SECRET LIVES. Route 1 has no secret. Route 2's refresh token goes to
+ * the macOS Keychain and NOWHERE ELSE — there is deliberately no plaintext-file
+ * fallback, because a fallback that lowers the bar is reached exactly when
+ * something has already gone wrong. Off macOS ccmail refuses to store rather
+ * than inventing a weaker store. Nothing personal is baked into this file: the
+ * account, the paths, the client and the delegated identity all resolve at
+ * runtime from machine-local config.
  *
  * WHERE THE FILES LAND. Downloads default to a cache directory outside every
  * repo, because an attachment is by definition someone else's data and a repo
@@ -62,62 +71,190 @@ const AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 const KEYCHAIN_SERVICE = 'ccmail';
 
 // ---------------------------------------------------------------------------
-// Credential store
+// Config — machine-local, and deliberately NOT secret
 //
-// Keychain by default on macOS. The item is created with `-T /usr/bin/security`
-// so the same binary can read it back without an interactive "allow access"
-// prompt — a headless agent session cannot click that dialog, and a credential
-// that only works when a human is watching would not close the gap this tool
-// exists to close. A 0600 file is the fallback everywhere else.
+// The delegation route below needs to know which workspace identity to
+// impersonate and for whom. Those are identifiers, not secrets — a service
+// account address and a mailbox — but they ARE estate-specific, and this file
+// is published. So they are read at runtime from a machine-local config and
+// never baked in, the same shape ccrepo uses for its pricing and billing
+// configs. Absent config simply means the delegation route is not available
+// here, which is the correct default for anyone who is not this operator.
 // ---------------------------------------------------------------------------
 
-function credFile() {
-  if (process.env.CCMAIL_CREDENTIALS) return process.env.CCMAIL_CREDENTIALS;
-  return path.join(os.homedir(), '.claude', 'ccmail-credentials.json');
+function configFile() {
+  return process.env.CCMAIL_CONFIG || path.join(os.homedir(), '.claude', 'ccmail.json');
 }
 
-function useKeychain() {
-  return process.platform === 'darwin' && !process.env.CCMAIL_CREDENTIALS;
+function loadConfig() {
+  const f = configFile();
+  if (!fs.existsSync(f)) return {};
+  try {
+    return JSON.parse(fs.readFileSync(f, 'utf8'));
+  } catch (e) {
+    // Never fatal, and never silent: a typo here must not take away a working
+    // fallback route, but it must not look like "no delegation configured".
+    process.stderr.write(`warn  ${f} is not valid JSON (${e.message}) — ignoring it\n`);
+    return {};
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Credential store — the Keychain, and nothing else
+//
+// Mike's standing rule for this estate (2026-09-09): secrets live in a secret
+// store — Apple Keychain, SOPS+age, OpenBao — never loose in a file. An earlier
+// draft of this tool carried a 0600-file fallback and that is now removed
+// rather than merely deprioritised, because a fallback that writes plaintext is
+// reached exactly when something else went wrong, which is the worst moment to
+// quietly lower the bar. Off macOS ccmail refuses to store anything and says
+// which stores the estate uses, rather than inventing a weaker one.
+//
+// The item is created with `-T /usr/bin/security` so the same binary reads it
+// back without an interactive "allow access" dialog — load-bearing, since an
+// agent session cannot click that dialog.
+// ---------------------------------------------------------------------------
+
+function keychainAvailable() {
+  return process.platform === 'darwin';
+}
+
+function noStore() {
+  return 'ccmail stores its fallback credential in the macOS Keychain, and this is not macOS.\n' +
+         'This estate keeps secrets in a secret store (Keychain, SOPS+age, OpenBao) and never\n' +
+         'in a plain file, so there is deliberately no file fallback. Use the delegation route\n' +
+         `instead — see "DELEGATION" in \`man ccmail\` — or configure ${configFile()}.`;
 }
 
 function loadCreds() {
-  if (useKeychain()) {
-    const r = spawnSync('security',
-      ['find-generic-password', '-s', KEYCHAIN_SERVICE, '-w'],
-      { encoding: 'utf8' });
-    if (r.status === 0 && r.stdout.trim()) {
-      try { return JSON.parse(r.stdout.trim()); } catch { /* fall through */ }
-    }
-    // Fall through to the file: a machine may have been set up either way.
-  }
-  const f = credFile();
-  if (fs.existsSync(f)) {
-    try { return JSON.parse(fs.readFileSync(f, 'utf8')); } catch { /* fall through */ }
+  if (!keychainAvailable()) return null;
+  const r = spawnSync('security',
+    ['find-generic-password', '-s', KEYCHAIN_SERVICE, '-w'],
+    { encoding: 'utf8' });
+  if (r.status === 0 && r.stdout.trim()) {
+    try { return JSON.parse(r.stdout.trim()); } catch { return null; }
   }
   return null;
 }
 
 function saveCreds(creds) {
-  const blob = JSON.stringify(creds);
-  if (useKeychain()) {
-    // -U updates in place if it already exists; -T grants `security` itself
-    // non-interactive read access to the item it just created.
-    const r = spawnSync('security', [
-      'add-generic-password', '-U',
-      '-s', KEYCHAIN_SERVICE,
-      '-a', creds.account || 'default',
-      '-D', 'ccmail Gmail read-only refresh token',
-      '-T', '/usr/bin/security',
-      '-w', blob,
-    ], { encoding: 'utf8' });
-    if (r.status === 0) return 'keychain';
-    process.stderr.write(`warn  Keychain write failed (${(r.stderr || '').trim()}) — falling back to a file\n`);
+  if (!keychainAvailable()) die(noStore());
+  const r = spawnSync('security', [
+    'add-generic-password', '-U',
+    '-s', KEYCHAIN_SERVICE,
+    '-a', creds.account || 'default',
+    '-D', 'ccmail Gmail read-only refresh token',
+    '-T', '/usr/bin/security',
+    '-w', JSON.stringify(creds),
+  ], { encoding: 'utf8' });
+  if (r.status !== 0) {
+    die(`the Keychain refused the write (${(r.stderr || '').trim() || 'no detail'}).\n` +
+        'Nothing was written anywhere else — there is no plaintext fallback by design.');
   }
-  const f = credFile();
-  fs.mkdirSync(path.dirname(f), { recursive: true });
-  fs.writeFileSync(f, blob, { mode: 0o600 });
-  fs.chmodSync(f, 0o600);
-  return f;
+  return 'keychain';
+}
+
+// ---------------------------------------------------------------------------
+// Route 1 — keyless delegation through the estate workspace identity
+//
+// The estate already holds a Workspace identity with `gmail.readonly` among its
+// registered read-only scopes, and it is deliberately KEYLESS: there is no
+// downloadable private key, because a key file is the artefact that went wrong
+// on this estate before. It is reached by impersonation — the operator's own
+// gcloud credential signs a JWT as the service account, which is then exchanged
+// for a short-lived delegated token. Nothing is persisted; the token lives in
+// memory for one run and expires within the hour.
+//
+// This route is preferred because it adds NOTHING: no new grant, no new stored
+// secret, no new console registration. Its one cost is that it works only while
+// the operator's gcloud login is fresh, and that lapses — which is exactly why
+// the Keychain route below exists as the fallback rather than as the only path.
+// ---------------------------------------------------------------------------
+
+const IAM_SIGN_JWT =
+  'https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/{sa}:signJwt';
+
+function gcloudBin() {
+  // An agent shell is not a login shell and does not see the SDK on PATH, so a
+  // bare "gcloud" dies with ENOENT — which has already been misread once on
+  // this estate as "the credential expired" when auth was in fact live.
+  const candidates = [
+    process.env.CCMAIL_GCLOUD,
+    path.join(os.homedir(), 'google-cloud-sdk', 'bin', 'gcloud'),
+    '/opt/homebrew/bin/gcloud',
+    '/usr/local/bin/gcloud',
+  ].filter(Boolean);
+  for (const c of candidates) if (fs.existsSync(c)) return c;
+  const which = spawnSync('sh', ['-c', 'command -v gcloud'], { encoding: 'utf8' });
+  return which.status === 0 ? which.stdout.trim() : null;
+}
+
+function gcloudToken() {
+  const bin = gcloudBin();
+  if (!bin) return { ok: false, why: 'the Google Cloud CLI is not on this machine' };
+  const r = spawnSync(bin, ['auth', 'print-access-token'], { encoding: 'utf8' });
+  if (r.status !== 0) {
+    const err = (r.stderr || '').trim();
+    // Distinguish the two failures that look identical from the exit code, and
+    // read very differently to whoever has to fix them.
+    if (/[Rr]eauthentication|invalid_grant|expired|not logged in|do not have valid credentials/.test(err)) {
+      return { ok: false, expired: true, why: 'the Google Cloud login has lapsed' };
+    }
+    return { ok: false, why: `gcloud failed: ${err || `exit ${r.status}`}` };
+  }
+  return { ok: true, token: r.stdout.trim() };
+}
+
+async function delegatedToken(delegate) {
+  const user = gcloudToken();
+  if (!user.ok) return { ok: false, expired: user.expired, why: user.why };
+
+  const now = Math.floor(Date.now() / 1000);
+  const claims = {
+    iss: delegate.serviceAccount,
+    sub: delegate.subject,
+    scope: SCOPE,
+    aud: TOKEN_URL,
+    iat: now,
+    exp: now + 3600,
+  };
+
+  const signed = await request(IAM_SIGN_JWT.replace('{sa}', encodeURIComponent(delegate.serviceAccount)), {
+    method: 'POST',
+    headers: { authorization: `Bearer ${user.token}`, 'content-type': 'application/json' },
+    body: JSON.stringify({ payload: JSON.stringify(claims) }),
+  });
+  let signedBody;
+  try { signedBody = JSON.parse(signed.body); } catch { signedBody = {}; }
+  if (signed.status !== 200 || !signedBody.signedJwt) {
+    const why = (signedBody.error && signedBody.error.message) || `HTTP ${signed.status}`;
+    return { ok: false, why: `could not sign as the workspace identity: ${why}` };
+  }
+
+  const form = new URLSearchParams({
+    grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+    assertion: signedBody.signedJwt,
+  }).toString();
+  const exch = await request(TOKEN_URL, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded',
+      'content-length': Buffer.byteLength(form),
+    },
+    body: form,
+  });
+  let exchBody;
+  try { exchBody = JSON.parse(exch.body); } catch { exchBody = {}; }
+  if (exch.status !== 200 || !exchBody.access_token) {
+    if (exchBody.error === 'unauthorized_client') {
+      return { ok: false, why:
+        'the workspace identity is not registered for domain-wide delegation with ' +
+        'gmail.readonly (Admin console: Security > Access and data control > API controls)' };
+    }
+    const why = exchBody.error_description || exchBody.error || `HTTP ${exch.status}`;
+    return { ok: false, why: `delegated token exchange failed: ${why}` };
+  }
+  return { ok: true, token: exchBody.access_token };
 }
 
 // ---------------------------------------------------------------------------
@@ -146,7 +283,8 @@ function request(url, { method = 'GET', headers = {}, body = null } = {}) {
   });
 }
 
-async function accessToken(creds) {
+// Route 2 — the operator's own consented grant, refreshed from the Keychain.
+async function personalToken(creds) {
   const form = new URLSearchParams({
     client_id: creds.client_id,
     client_secret: creds.client_secret,
@@ -168,12 +306,57 @@ async function accessToken(creds) {
     // fix, and "auth failed" sends the reader to the wrong place.
     const why = json.error_description || json.error || `HTTP ${res.status}`;
     if (json.error === 'invalid_grant') {
-      die(`the stored Gmail grant is no longer valid (${why}).\n` +
-          `It was revoked, expired, or the account changed. Re-run: ccmail --auth`);
+      return { ok: false, why:
+        `the stored Gmail grant is no longer valid (${why}) — revoked, expired, ` +
+        'or the account changed. Re-run: ccmail --auth' };
     }
-    die(`could not refresh the Gmail token: ${why}`);
+    return { ok: false, why: `could not refresh the stored grant: ${why}` };
   }
-  return json.access_token;
+  return { ok: true, token: json.access_token };
+}
+
+// ---------------------------------------------------------------------------
+// The resolver — delegation first, then the stored grant
+//
+// Order is deliberate and is the operator's ruling (2026-09-09): try the route
+// that stores nothing before the route that stores something. The delegation
+// adds no credential to the estate at all, so when it works there is nothing to
+// keep, rotate or lose. The Keychain grant exists because the delegation
+// depends on a gcloud login that lapses, and a tool promising "any session, any
+// repo" cannot be dark for a day whenever that happens.
+//
+// Failure of the FIRST route is never fatal on its own — it falls through. What
+// is fatal is both failing, and then both reasons are reported together, never
+// just the last one: "not set up" and "your cloud login lapsed" need different
+// hands and the wrong message sends the reader to the wrong place.
+// ---------------------------------------------------------------------------
+
+async function resolveToken() {
+  const tried = [];
+  const cfg = loadConfig();
+  const delegate = cfg.delegate;
+
+  if (delegate && delegate.serviceAccount && delegate.subject) {
+    const r = await delegatedToken(delegate);
+    if (r.ok) return { token: r.token, route: 'delegation', subject: delegate.subject };
+    tried.push(`delegation — ${r.why}${r.expired ? ' (fix: gcloud auth login)' : ''}`);
+  } else {
+    tried.push(`delegation — not configured in ${configFile()}`);
+  }
+
+  const creds = loadCreds();
+  if (creds) {
+    const r = await personalToken(creds);
+    if (r.ok) return { token: r.token, route: 'keychain', subject: creds.account };
+    tried.push(`stored grant — ${r.why}`);
+  } else {
+    tried.push(keychainAvailable()
+      ? 'stored grant — nothing in the Keychain yet (fix: ccmail --auth)'
+      : 'stored grant — unavailable off macOS');
+  }
+
+  die('no way in to the mailbox. Both routes were tried:\n' +
+      tried.map((t) => `  · ${t}`).join('\n'));
 }
 
 // Gmail takes a repeated parameter where a list is meant (metadataHeaders is
@@ -530,37 +713,70 @@ function loopbackConsent(clientId) {
   });
 }
 
+// --status reports BOTH routes, not merely whichever one answered. With a
+// fallback in play, "it works" is not the whole truth: the operator needs to
+// know when the preferred route has quietly stopped answering and the fallback
+// has been carrying it, because that is the state that ends in a surprise.
 async function cmdStatus(json) {
-  const creds = loadCreds();
-  if (!creds) {
-    if (json) { print({ authorised: false, reason: 'no stored credential' }); process.exit(1); }
-    process.stderr.write('ccmail: not set up on this machine yet. Run:  ccmail --auth\n');
-    process.exit(1);
-  }
-  const token = await accessToken(creds);
-  const profile = await api(token, '/profile');
-  const store = useKeychain() ? 'macOS Keychain' : credFile();
-  if (json) {
-    print({
-      authorised: true,
-      account: profile.emailAddress,
-      messagesTotal: profile.messagesTotal,
-      scope: SCOPE,
-      credentialStore: store,
-      dest: defaultDest(),
+  const cfg = loadConfig();
+  const routes = [];
+
+  if (cfg.delegate && cfg.delegate.serviceAccount && cfg.delegate.subject) {
+    const r = await delegatedToken(cfg.delegate);
+    routes.push({
+      route: 'delegation',
+      live: r.ok,
+      detail: r.ok
+        ? `keyless, impersonating as ${cfg.delegate.subject}; nothing stored`
+        : r.why + (r.expired ? ' — fix: gcloud auth login' : ''),
     });
+  } else {
+    routes.push({ route: 'delegation', live: false, detail: `not configured in ${configFile()}` });
+  }
+
+  const creds = loadCreds();
+  if (creds) {
+    const r = await personalToken(creds);
+    routes.push({
+      route: 'keychain',
+      live: r.ok,
+      detail: r.ok ? `stored grant for ${creds.account}, in the macOS Keychain` : r.why,
+    });
+  } else {
+    routes.push({
+      route: 'keychain',
+      live: false,
+      detail: keychainAvailable() ? 'nothing stored yet — fix: ccmail --auth' : 'unavailable off macOS',
+    });
+  }
+
+  const winner = routes.find((r) => r.live);
+  let account = null;
+  if (winner) {
+    const { token } = await resolveToken();
+    const profile = await api(token, '/profile');
+    account = profile.emailAddress;
+  }
+
+  if (json) {
+    print({ authorised: Boolean(winner), account, scope: SCOPE, routes, dest: defaultDest() });
+    if (!winner) process.exit(1);
     return;
   }
-  process.stdout.write(
-    `✅ ccmail is live for ${profile.emailAddress}\n` +
-    `   scope       ${SCOPE} (read-only)\n` +
-    `   credential  ${store}\n` +
-    `   downloads   ${defaultDest()}\n`);
+
+  process.stdout.write(winner
+    ? `✅ ccmail is live for ${account} via the ${winner.route} route\n`
+    : '❌ ccmail has no way in to the mailbox\n');
+  process.stdout.write(`   scope       ${SCOPE} (read-only)\n`);
+  for (const r of routes) {
+    process.stdout.write(`   ${r.live ? '✅' : '❌'} ${r.route.padEnd(10)} ${r.detail}\n`);
+  }
+  process.stdout.write(`   downloads   ${defaultDest()}\n`);
+  if (!winner) process.exit(1);
 }
 
 async function cmdSearch(query, limit, json) {
-  const creds = requireCreds();
-  const token = await accessToken(creds);
+  const { token } = await resolveToken();
   const list = await api(token, '/messages', { q: query, maxResults: limit });
   const ids = (list.messages || []).map((m) => m.id);
   const rows = [];
@@ -586,8 +802,7 @@ async function cmdSearch(query, limit, json) {
 }
 
 async function cmdList(messageId, json) {
-  const creds = requireCreds();
-  const token = await accessToken(creds);
+  const { token } = await resolveToken();
   const m = await api(token, `/messages/${messageId}`, { format: 'full' });
   const items = attachmentsOf(m);
   const meta = {
@@ -612,8 +827,7 @@ function publicShape(a) {
 }
 
 async function cmdGet(messageId, selector, opts) {
-  const creds = requireCreds();
-  const token = await accessToken(creds);
+  const { token } = await resolveToken();
   const m = await api(token, `/messages/${messageId}`, { format: 'full' });
   const items = attachmentsOf(m);
   if (!items.length) die(`message ${messageId} has no attachments`);
@@ -696,15 +910,6 @@ function select(items, selector) {
 }
 
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-function requireCreds() {
-  const creds = loadCreds();
-  if (!creds) {
-    die('not set up on this machine yet.\n' +
-        'One-time setup (needs a terminal and a browser):  ccmail --auth');
-  }
-  return creds;
-}
 
 function human(n) {
   if (!n) return '0 B';
@@ -801,4 +1006,5 @@ if (require.main === module) {
 module.exports = {
   attachmentsOf, walkParts, safeName, select, xmlText, extractXlsx,
   extractOffice, officeKind, human, insideGitWorkTree, header, buildUrl,
+  loadConfig, configFile, keychainAvailable,
 };

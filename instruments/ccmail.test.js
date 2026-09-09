@@ -331,3 +331,25 @@ test('human keeps whole bytes exact and scales the rest', () => {
   assert.equal(cc.human(2048), '2.0 KB');
   assert.equal(cc.human(2 * 1024 * 1024), '2.0 MB');
 });
+
+// --- config and route selection ----------------------------------------------
+
+test('loadConfig tolerates a missing file and a malformed one', () => {
+  const dir = tmpdir();
+  const missing = path.join(dir, 'nope.json');
+  process.env.CCMAIL_CONFIG = missing;
+  assert.deepEqual(cc.loadConfig(), {});
+
+  const bad = path.join(dir, 'bad.json');
+  fs.writeFileSync(bad, '{not json');
+  process.env.CCMAIL_CONFIG = bad;
+  // Malformed config must not be fatal: it would otherwise take away a working
+  // fallback route over a typo in an optional file.
+  assert.deepEqual(cc.loadConfig(), {});
+
+  const good = path.join(dir, 'good.json');
+  fs.writeFileSync(good, JSON.stringify({ delegate: { serviceAccount: 'a', subject: 'b' } }));
+  process.env.CCMAIL_CONFIG = good;
+  assert.equal(cc.loadConfig().delegate.subject, 'b');
+  delete process.env.CCMAIL_CONFIG;
+});
