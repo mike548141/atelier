@@ -30,6 +30,17 @@ message was actually about unanswered.
 🔎 **Grounded, not assumed.** `cctranscript --search attachment --all` over 739
 sessions: **64 matched, 216 hits**. Mike's "often" is measurable.
 
+🔎 **And it reads as an omission rather than a decision.** The connector's *own*
+`send_message` schema documents an attachment id as something "that can be
+retrieved in a separate `GetMessageAttachment` request" — a call that is not in
+the tool surface. So the capability is described by the connector and not
+exposed by it. Two consequences worth holding: `ccmail` may one day be made
+redundant by the connector growing that tool, which would be a good outcome and
+not a wasted build; and the **send** direction has no such gap — `send_message`
+and `create_draft` both take base64 attachments up to 25 MB, so composing mail
+*with* a file already works, at the cost of routing those bytes through the
+context window.
+
 ## Shortcuts looked for, and why none existed
 
 Checked before building, because the cheapest fix is the one already on the
