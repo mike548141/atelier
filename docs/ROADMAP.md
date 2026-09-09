@@ -386,7 +386,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [CF3's branch list stopped answering the sibling-dirty case when the](roadmap/320-child-filed-findings-via-pointing-up/120-cf3-s-branch-list-stopped-answering-the-sibling-case.md)
 - [ ] 🔎 [A stamp proves the wording; it does not tell a reader which half of a](roadmap/320-child-filed-findings-via-pointing-up/130-a-stamp-proves-wording-not-provenance.md)
 - [ ] [REPORT — secretscan's suppression units cannot reach a finding inside](roadmap/320-child-filed-findings-via-pointing-up/140-secretscan-has-no-suppression-unit-for-generated-json.md)
-- [ ] 🔎 [MISSING HOUSE RULE — the method has no name for a negative result](roadmap/320-child-filed-findings-via-pointing-up/200-a-negative-result-whose-second-explanation-is-silent.md)
+- [ ] 🔎 [MISSING HOUSE RULE — the method has no name for a negative result](roadmap/320-child-filed-findings-via-pointing-up/230-a-negative-result-whose-second-explanation-is-silent.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
