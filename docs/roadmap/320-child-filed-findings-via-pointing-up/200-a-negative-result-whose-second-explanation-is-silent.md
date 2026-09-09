@@ -39,6 +39,20 @@
           parent checkout** — and `HEAD` is whatever branch that checkout
           happens to be sitting on, which on a busy day is some other session's
           unmerged report branch, not the parent's `main`.
+    - [ ] 🔥 **THE PRESCRIPTION IS THIS REPOSITORY'S OWN, NOT A CHILD'S
+          MISREADING — located after the item was first written, and it changes
+          where the defect lives.** `docs/method/PROPAGATION.md` specifies
+          `<PIN>..HEAD` in **two** places: **line 46** (§ *The drift check rides
+          the session-start read*, *"it now ends the doctrine block with one
+          command"*) and **line 179**, which is inside the **floor-stamp block
+          text every child inlines verbatim**. So this is not a child rendering
+          the rule badly — every child is faithfully copying a command from
+          here, and the two failure directions above are what faithful copying
+          produces. It also means a child cannot fix it locally without
+          **conflicting** with an explicit parental prescription, which § *the
+          layer-override rule* bars absent a recorded owner exemption. The
+          defect and the fix are therefore both **atelier's**, and a child that
+          silently corrects its own copy has created an undeclared conflict.
     - [ ] **Direction 1 — false NEGATIVE (reported by a sibling child).** Its
           pin names a commit that is not on `main` at all: a single unmerged
           commit on a report branch, one *ahead* of `origin/main`. So the pin
