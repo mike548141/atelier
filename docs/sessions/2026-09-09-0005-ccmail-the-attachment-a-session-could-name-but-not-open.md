@@ -86,7 +86,7 @@ exactly the thing the finding is about.
 
 ## Verified, and how
 
-- ✅ 22 tests green. The Office extractors run against **genuine ZIP containers
+- ✅ 25 tests green. The Office extractors run against **genuine ZIP containers
   the test writes itself** — a fixture only our own parser accepted would prove
   nothing about the format. The network surface is **deliberately unmocked**: a
   mock of an API this thin proves only that the mock matches the code.
@@ -111,6 +111,17 @@ is honestly untested and says so in the test file's own header.
 EXAMPLES section. atelier is public. Replaced with a placeholder before the
 first commit — the scanners would not have caught it, since an opaque id trips
 no term list.
+
+🔎 **A silent-failure bug in `--search`, found by re-reading the API layer after
+the first commit.** Gmail wants `metadataHeaders` as a *repeated* parameter;
+`String(array)` quietly comma-joins it, so the call asked for one header
+literally named `Subject,From,Date`. Gmail does not reject that — it returns no
+headers at all, so `--search` would have printed rows with empty subject and
+sender and looked merely unhelpful rather than broken. Fixed with an explicit
+array branch (`buildUrl`) and three tests, one of which asserts the comma form
+is *absent* rather than only that the repeated form is present. The class is
+worth naming: the tests written first covered the pure functions well and the
+thin API layer not at all, which is exactly where this hid.
 
 ## The other limits, and where they sit
 

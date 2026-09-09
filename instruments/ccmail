@@ -176,11 +176,24 @@ async function accessToken(creds) {
   return json.access_token;
 }
 
-async function api(token, urlPath, params = {}) {
+// Gmail takes a repeated parameter where a list is meant (metadataHeaders is
+// the one that matters here). Joining an array with a comma — which is what
+// String(array) quietly does — asks for a single header literally named
+// "Subject,From,Date", and the call returns no headers at all rather than
+// failing, so the mistake would show up as an empty subject line and nothing
+// else. Hence the explicit array branch.
+function buildUrl(urlPath, params) {
   const u = new URL(API + urlPath);
   for (const [k, v] of Object.entries(params)) {
-    if (v !== undefined && v !== null) u.searchParams.set(k, String(v));
+    if (v === undefined || v === null) continue;
+    if (Array.isArray(v)) for (const item of v) u.searchParams.append(k, String(item));
+    else u.searchParams.set(k, String(v));
   }
+  return u;
+}
+
+async function api(token, urlPath, params = {}) {
+  const u = buildUrl(urlPath, params);
   const res = await request(u.toString(), {
     headers: { authorization: `Bearer ${token}` },
   });
@@ -743,7 +756,12 @@ async function main(argv) {
       case '--search': mode = 'search'; search = next(); break;
       case '--get': get = next(); break;
       case '--dest': opts.dest = next(); break;
-      case '--limit': opts.limit = Number(next()); break;
+      case '--limit': {
+        const v = Number(next());
+        if (!Number.isInteger(v) || v < 1) die('--limit takes a whole number of results, 1 or more');
+        opts.limit = v;
+        break;
+      }
       case '--text': opts.text = true; break;
       case '--json': opts.json = true; break;
       case '--allow-repo-dest': opts.allowRepoDest = true; break;
@@ -768,5 +786,5 @@ if (require.main === module) {
 
 module.exports = {
   attachmentsOf, walkParts, safeName, select, xmlText, extractXlsx,
-  extractOffice, officeKind, human, insideGitWorkTree, header,
+  extractOffice, officeKind, human, insideGitWorkTree, header, buildUrl,
 };

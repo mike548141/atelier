@@ -296,6 +296,33 @@ test('officeKind reads the MIME type first and the extension second', () => {
   assert.equal(cc.officeKind('scan.pdf', 'application/pdf'), null);
 });
 
+// --- query building ----------------------------------------------------------
+
+test('buildUrl repeats a list parameter instead of comma-joining it', () => {
+  // Gmail wants metadataHeaders=Subject&metadataHeaders=From. A comma-joined
+  // single value asks for one header literally named "Subject,From" and comes
+  // back with no headers at all rather than an error — a silent empty subject.
+  const u = cc.buildUrl('/messages/abc', {
+    format: 'metadata',
+    metadataHeaders: ['Subject', 'From', 'Date'],
+  });
+  assert.deepEqual(u.searchParams.getAll('metadataHeaders'), ['Subject', 'From', 'Date']);
+  assert.equal(u.searchParams.get('format'), 'metadata');
+  assert.ok(!u.search.includes('Subject%2CFrom'));
+});
+
+test('buildUrl drops absent parameters rather than sending empty ones', () => {
+  const u = cc.buildUrl('/messages', { q: 'has:attachment', maxResults: undefined, pageToken: null });
+  assert.equal(u.searchParams.get('q'), 'has:attachment');
+  assert.equal(u.searchParams.has('maxResults'), false);
+  assert.equal(u.searchParams.has('pageToken'), false);
+});
+
+test('buildUrl escapes a query rather than splicing it into the URL', () => {
+  const u = cc.buildUrl('/messages', { q: 'from:a b OR subject:"x&y"' });
+  assert.equal(u.searchParams.get('q'), 'from:a b OR subject:"x&y"');
+});
+
 // --- formatting --------------------------------------------------------------
 
 test('human keeps whole bytes exact and scales the rest', () => {
