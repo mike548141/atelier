@@ -139,3 +139,50 @@ So the layer is now four verbs: `tools/` **enforce**; observer instruments
 **observe** (ccrepo, cctranscript); capability instruments **extend** reach
 (browser-fetch); and `ccarchive` **preserves**. The boundary is unchanged —
 value is the teammateship — the kinds of value it admits widen again.
+
+## Addendum (2026-09-09) — the first instrument that holds a credential
+
+**Decision (Mike):** admit **`ccmail`** — it fetches Gmail attachments to disk,
+because the mailbox connector Claude Code speaks to lists an attachment's
+filename and id but has **no call that returns its bytes**. The observable
+failure is a session reporting, accurately and uselessly, that a message carries
+a valuation PDF and that it cannot open it. `ccmail` adds no new verb: it is a
+capability instrument under the 2026-07-12 addendum, and the purpose rule is
+passed about as squarely as it can be — the *operator* has no use for it at all,
+because the operator opens their own mail in a mail client. It exists solely so
+the teammate can read what the operator is already looking at.
+
+What is **new** is that it is the first instrument to **hold a credential to a
+third-party account**. Every instrument before it either read local files
+(ccrepo, cctranscript, ccarchive) or drove a local program that already held its
+own sessions (browser-fetch drives the operator's Chrome). `ccmail` authenticates
+as the operator to an external service, so the layer now has a secrets surface it
+did not have. That is recorded here rather than left implicit, with the controls
+that make it acceptable:
+
+- **One scope, read-only** — `gmail.readonly`, on the operator's own mailbox. It
+  cannot send, reply, label, delete, or reach another mailbox. The tempting
+  alternative for a Workspace **administrator** — a service account with
+  domain-wide delegation — was considered and **rejected**: it needs no browser
+  consent and never expires, but it can be pointed at any mailbox in the domain
+  and its key is a file. Convenience bought with blast radius, against
+  `SECRETS.md`'s *least* leg. Mike ruled for the narrow personal grant.
+- **The secret never touches a repo** — macOS Keychain by default, a 0600 file
+  (`CCMAIL_CREDENTIALS`) as the documented fallback. Re-mintable in one command
+  (`--auth`) and revocable from the operator's Google account page, which is the
+  cheap-to-burn property `SECRETS.md` asks for.
+- **The data it fetches never touches a repo either** — attachments are other
+  people's data, so `ccmail` refuses a destination inside a git work tree, the
+  same guard `ccarchive` carries on its archive dest and for the same reason.
+- **Nothing personal in the shipped code** — the account, the client and every
+  path are resolved at runtime, so the file publishes safely, as ADR 0005
+  requires of everything here.
+
+**Consequences:** the layer's charter is unchanged (value is the teammateship,
+observing or extending it), but the *review surface* widens — a future instrument
+holding a credential inherits these four controls as the precedent to meet or to
+argue against explicitly. `ccmail` also carries the layer's first
+**human-in-the-loop install step**: `./instruments/install` puts it on `PATH`, but
+`ccmail --auth` needs a terminal and a browser once per machine, and no agent
+session can perform it. That is a stated limit, not a defect — a credential an
+agent could mint unattended would be the wrong design.

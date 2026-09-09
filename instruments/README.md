@@ -18,6 +18,7 @@ drives Chrome via Playwright); each documents its own runtime.
 | `ccrepo`        | observe   | Claude Code token & cost totals, grouped/filtered any way (`-g repo,model`, `--branch`, message-grain cost reconciled against ccusage), plus how large sessions' context windows got. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
 | `cctranscript`  | observe   | Timestamped transcript of a session — the timestamps the chat UI hides, plus how big its context grew and how many subagents it started vs finished. `--search <term>` asks the other question: which turns, across every session in scope, match a term or a `--regex`. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
 | `ccarchive`     | preserve  | Durably mirror every raw `.jsonl` transcript into a compressed, append-only archive that outlives Claude Code's cleanup. |
+| `ccmail`        | extend    | Open the Gmail attachments the mailbox connector can only *name* — it lists filenames and attachment ids but has no call that returns bytes. Fetches them to disk with its own read-only grant so the ordinary Read tool can open them. |
 | `browser-fetch` | extend    | A browser (fresh headless, or the operator's own Chrome) when `WebFetch`/curl are blocked. MCP server; see its own README. |
 
 The Node CLIs are converging on a concise `-h`/`--help` digest plus a fuller
@@ -115,6 +116,13 @@ CLI. Run `instruments/browser-fetch/setup` (builds a venv + Chromium, prints the
 `PATH`, `ccarchive --install-schedule` registers the daily launchd agent (macOS).
 This is the whole new-machine recovery — `./instruments/install` then
 `ccarchive --install-schedule` — and `ccarchive --schedule-status` confirms it.
+
+`ccmail` has one too, and it is the only instrument whose extra step needs a
+*person*: `ccmail --auth` mints a read-only Gmail grant, which takes a terminal
+and a browser once per machine. `ccmail --status` confirms it. Until that runs,
+`ccmail` says so and exits non-zero rather than failing obscurely — see
+[ccmail — reading the attachments, not just their names](#ccmail--reading-the-attachments-not-just-their-names)
+below.
 
 ## What belongs here (and what doesn't)
 
@@ -504,6 +512,59 @@ an uncached run). Baked cost/covered depend on the price table + covers-list, bo
 folded into a recipe signature that rebuilds the ledger when either moves. Used
 transparently when present; `--no-rollup` bypasses it for a from-scratch re-walk.
 `man ccrepo` § ROLLUP LEDGER has the full contract.
+
+## ccmail — reading the attachments, not just their names
+
+The Gmail connector Claude Code speaks to can search a mailbox, read a message
+body, and **list** what is attached — filename, MIME type, and an opaque
+attachment id. It has no call that returns the attachment's **bytes**. The
+practical shape of that gap is a session reporting, accurately and uselessly,
+that a message carries `Valuation.pdf` and that it cannot open it — leaving
+every question the message was actually about unanswered. `ccmail` is the
+capability tool that closes it, and it is the clearest case yet of the ADR 0006
+addendum's *extend* verb: it exists only because the teammate hit a wall the
+operator never hits, since the operator just opens their own mail.
+
+- **It prints paths, never content.** Attachments are written to disk and the
+  path is what comes back, because the ordinary Read tool opens a PDF or an
+  image from a path perfectly well. Returning a multi-megabyte PDF as base64
+  into a context window would be a worse outcome than the gap it closes, so
+  that is not offered even as an option — the same instinct behind ccrepo's
+  refusal to fabricate a figure it cannot source.
+- **A second, narrower grant — not the connector's.** The connector holds its
+  own authorisation and it is not reachable from a shell, so `ccmail` carries
+  one of its own: the single scope `gmail.readonly`, on the operator's own
+  account. It cannot send, reply, label, delete, or reach any other mailbox in
+  the domain — including where the operator administers that domain, which is
+  exactly the case where a domain-wide service account would have been the
+  convenient answer and the wrong one (SECRETS.md, *least*). `ccmail --auth`
+  mints it once per machine, interactively.
+- **The refresh token is a real secret, stored like one.** macOS Keychain by
+  default, a 0600 file (`CCMAIL_CREDENTIALS`) off macOS. The Keychain item is
+  created with `-T /usr/bin/security` so the same binary reads it back without
+  an interactive allow-access dialog — load-bearing, not incidental: an agent
+  session cannot click that dialog, and a credential that only works while a
+  human watches would not close the gap. This is the **first instrument to hold
+  a credential to a third-party account**; ADR 0006's third addendum records
+  what that adds to the layer.
+- **It refuses to write inside a git work tree.** A mail attachment is by
+  definition someone else's data, and a repo is one commit from publication —
+  the same guard, and the same reasoning, that `ccarchive` puts on its archive
+  dest. Downloads default to `~/.cache/ccmail/<message-id>/`; `--dest` moves
+  them, `--allow-repo-dest` is the deliberate override. Filenames are sanitised
+  so a hostile or careless attachment name cannot escape the directory.
+- **`--text` extracts, and says that it extracted.** A PDF or image is readable
+  the moment it lands; an Open XML file (`.docx`/`.xlsx`/`.pptx`) is a zip of
+  XML and is not, so `--text` writes a plain-text sidecar beside it — words, and
+  for a spreadsheet the cell values sheet by sheet. The sidecar's own first line
+  states that it is an extraction and not the document, so a reader who opens
+  only the extract still knows what they are holding, and a failed extraction
+  reports its reason while the original file is still written.
+- **`--search` is the honest fallback, not a second-best duplicate.** It takes
+  Gmail's own query syntax and returns message ids, so a session with no mailbox
+  connector is still self-sufficient. Where the connector *is* available its
+  search is the richer surface and `ccmail --search` is not the one to reach for
+  — the README says so rather than implying parity.
 
 ## Schema caveat
 
