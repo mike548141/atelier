@@ -13,8 +13,10 @@
         nothing in the result discriminates between them. The defining
         property, and the reason it survives review: **the failure always
         presents as a successful check.**
-  - [ ] 📊 **Eight instances, formed independently in two children and pooled
-        over the cross-session channel.** Described by mechanism; no tree,
+  - [ ] 📊 **Nine instances. The first eight** were formed independently in two
+        children and pooled over the cross-session channel; **each child then
+        read its own four back against source and confirmed them**, rather than
+        letting the other's paraphrase stand. Described by mechanism; no tree,
         host or product identity is carried.
         | The negative that was read | The silent second explanation |
         |---|---|
@@ -23,9 +25,52 @@
         | A directory listing returning empty | the filesystem had no mount point set — never mounted, not deleted |
         | A snapshot read through a container returning zero entries, exit 0 | the snapshot is an automount that had not yet materialised on first access |
         | A port mapping declared and not serving | silently dropped by the network driver in use |
-        | Two configuration keys set and not taking effect | ignored by the image, no warning emitted |
-        | A tool's records asserting a full passing test run | the self-test had been crashing for eight days |
-        | A guard reporting clean over a set | the set it swept had been silently narrowed |
+        | A setting applied to a service and never taking effect, for months | that image maps the setting from a *different variable name* than its sibling image does; nothing warned |
+        | A configuration key rejected as malformed | the rejection **is** logged — into a container log nobody reads — and the default silently stands |
+        | A tool's records asserting a full passing test run | the self-test had been crashing for eight days; a test that dies counts nothing and reports nothing |
+  - [ ] 🔥 **A NINTH INSTANCE, ADDED 2026-09-08 AFTER THE ITEM WAS FIRST
+        WRITTEN, AND IT IS THE METHOD'S OWN DRIFT CHECK.** This one is worth
+        more than the other eight together, because the sentence that produces
+        the false reading is written into **every child's onramp**, so a session
+        that obeys it *correctly* gets the wrong answer. Two children hit it
+        the same day, **in opposite directions**, which is what makes it a
+        measurement rather than an anecdote.
+    - [ ] **The prescribed check compares the pin against `HEAD` of a *shared*
+          parent checkout** — and `HEAD` is whatever branch that checkout
+          happens to be sitting on, which on a busy day is some other session's
+          unmerged report branch, not the parent's `main`.
+    - [ ] **Direction 1 — false NEGATIVE (reported by a sibling child).** Its
+          pin names a commit that is not on `main` at all: a single unmerged
+          commit on a report branch, one *ahead* of `origin/main`. So the pin
+          names a **proposal, not accepted doctrine**; the range against the
+          checkout's branch is empty because the pin is on that same branch; and
+          the range against `origin/main` is empty **permanently**, because the
+          pin is ahead of it rather than behind. The check answers *"no drift"*
+          in both directions for two independent reasons, neither of them drift.
+    - [ ] **Direction 2 — false POSITIVE (measured first-hand by the reporting
+          child, 2026-09-08).** Its pin *is* `origin/main`. The prescribed
+          `pin..HEAD` returned one commit and the session recorded *"the house
+          moved"*; the correct `pin..origin/main` is **empty**. It took reading
+          the commit and confirming no doctrine file was touched to undo the
+          false reading, and an earlier record had already been written against
+          it and needed correcting.
+    - [ ] ⚠️ **A third failure mode neither child hit today, named because it is
+          latent in the same line:** the check reads **remote-tracking refs
+          without fetching**. Even the corrected `pin..origin/main` is only as
+          fresh as whoever last fetched in that shared checkout, so it can
+          report *"no drift"* from a stale ref with no indication of staleness.
+    - [ ] 📌 **The distinction the class may want to carry, raised by the
+          sibling from its own third instance:** *no signal at all* versus
+          *a signal emitted where no one observes* — a rejected setting that
+          **is** logged, into a container log nobody reads, still leaves the
+          reader with a silent negative. Whether those are one class or two is
+          the house's call, like the split noted below.
+    - [ ] 🎯 **The doctrine CONTENT is not in question here — the pin in each
+          case is at or near `main` and nothing was missed.** **The protocol is
+          the defect, not the position**, and fixing it is atelier's: the pin
+          and drift-check design is the parent's. Filed here only as evidence
+          for the class; the protocol half is raised **separately** rather than
+          fixed in passing, per § *Pointing up*.
   - [ ] ✅ **Checked against this repository's own files before being called
         missing** — the step `PROPAGATION.md` § *Pointing up* requires, and the
         step a child is recorded as having skipped in 2026-08 when it asserted
