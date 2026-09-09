@@ -130,9 +130,25 @@ literally named `Subject,From,Date`. Gmail does not reject that — it returns n
 headers at all, so `--search` would have printed rows with empty subject and
 sender and looked merely unhelpful rather than broken. Fixed with an explicit
 array branch (`buildUrl`) and three tests, one of which asserts the comma form
-is *absent* rather than only that the repeated form is present. The class is
-worth naming: the tests written first covered the pure functions well and the
-thin API layer not at all, which is exactly where this hid.
+is *absent* rather than only that the repeated form is present.
+
+🔎 **Then two more of the same species, from re-reading the process-spawning and
+event-loop paths.** `unzipList` ran with `spawnSync`'s default 1 MB stdout
+buffer, so a large `.pptx` or `.xlsx` would have come back as *"no slides
+found"* / *"no cell data found"* — an **empty document reported instead of a
+failed read**, about a file the operator can see has content. And the consent
+server had **no timeout**, so a browser tab closed by mistake left the terminal
+hanging with nothing on screen to distinguish that from a slow network.
+
+⚖️ **The class, stated rather than only fixed.** Three defects, all in the thin
+layers between this code and something else — a URL, a subprocess, an event
+loop — and **none** in the parsing the tests cover thoroughly. The first round
+of tests went where testing was easy and pure. Neither of the last two is
+easily testable (one needs a multi-megabyte fixture, one needs five minutes of
+wall clock), which is part of why they were unwritten and so part of why they
+survived. Reading beat testing here, and the ordering was luck rather than
+method — the read happened to come after the first commit and could as easily
+have not happened at all.
 
 ## The other limits, and where they sit
 
