@@ -265,6 +265,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Subagent logs are outside every cctranscript view.](roadmap/210-instruments-open-features/090-subagent-logs-are-outside-every-cctranscript-v.md)
 - [ ] 🔥 [cctranscript never reads the principal's mid-turn messages, and its](roadmap/210-instruments-open-features/100-cctranscript-never-reads-the-principal-s-mid-turn.md)
 - [ ] [pins.py enumerates CWD-relative and reports a wrong denominator](roadmap/210-instruments-open-features/110-pins-py-enumerates-cwd-relative-and-lies-from-a-worktree.md)
+- [ ] 🔎 [Drive binaries have the gap ccmail just closed for mail](roadmap/210-instruments-open-features/120-drive-binaries-have-the-same-gap-ccmail-just-closed.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
