@@ -268,6 +268,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Drive binaries have the gap ccmail just closed for mail](roadmap/210-instruments-open-features/120-drive-binaries-have-the-same-gap-ccmail-just-closed.md)
 - ⏳ [Rule-4 review queued (tier: Fable; pass type: code + doctrine cold…](roadmap/210-instruments-open-features/130-ccmail-rule-4-review-queued.md)
 - [ ] 🎯 [ccgrab — a web-media capture instrument (Mike commissioned 2026-09-09;](roadmap/210-instruments-open-features/140-ccgrab-web-media-capture-instrument.md)
+- [ ] 🔎 [Why is the source smaller than the archived copy? — the shrink](roadmap/210-instruments-open-features/150-why-the-source-is-smaller-than-the-archived-copy.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
