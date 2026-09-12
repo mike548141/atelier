@@ -139,6 +139,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [The unreasoned advisories are already in hand — do not re-file.](roadmap/110-estate-duplication-exception-audit-mike/070-the-unreasoned-advisories-are-already-in-hand.md)
 - [ ] [Make the estate's floor state answer "passing", not just "wired".](roadmap/110-estate-duplication-exception-audit-mike/080-make-the-estate-s-floor-state-answer-passing-n.md)
 - [ ] [Triage the four red floors.](roadmap/110-estate-duplication-exception-audit-mike/090-triage-the-four-red-floors.md)
+- [ ] 🎯 [The exception audit above checked reason-presence and](roadmap/110-estate-duplication-exception-audit-mike/100-two-granularities-the-2026-08-09-audit-never-asked-about.md)
 
 ## Guardrails for atelier and its children (Mike commissioned 2026-08-15)
 
