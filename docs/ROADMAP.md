@@ -368,6 +368,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [§ Pointing up names one shape of deciding a house question locally,](roadmap/310-pointing-up-the-child-to-parent-route/090-pointing-up-names-one-shape-of-local-overreach-and-there-are-two.md)
 - ✅ [The route's three shapes — WRITTEN 2026-08-23](roadmap/310-pointing-up-the-child-to-parent-route/100-the-route-assumes-a-reachable-parent-and-a-channel.md)
 - [ ] ["Self-removing" overpromises in step 3](roadmap/310-pointing-up-the-child-to-parent-route/110-self-removing-overpromises-in-step-3.md)
+- [ ] 🎯 [§ Pointing up only names atelier as a parent — Mike commissioned,](roadmap/310-pointing-up-the-child-to-parent-route/120-the-route-is-atelier-specific-any-parent-repo-needs-one.md)
 
 ## Findings filed from a child via § *Pointing up* (2026-08-18)
 
@@ -413,6 +414,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/README.md)*
 
 - [ ] 🎯 [Decide the cheap rules first — naming and announcing — and treat](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/010-name-what-you-launch-then-widen-the-announcement.md)
+- [ ] 🎯 [Cross-repo session coordination — Mike commissioned, 2026-09-12.](roadmap/360-concurrency-beyond-the-repo-mike-commissioned/020-parallel-sessions-across-different-repos-have-no-shared-view.md)
 
 ## 🎭 The report can lie while the work is fine — 2026-08-23
 
@@ -428,3 +430,10 @@ then `python3 tools/board.py rebuild`.
 
 - [ ] 🎯 [Decide whether "make the instrument show a positive first" earns a](roadmap/380-silence-read-as-an-answer/010-make-the-instrument-show-a-positive-first.md)
 - [ ] [🔑 The second instance is the INVERSE of 010, and it is the more](roadmap/380-silence-read-as-an-answer/020-a-client-timeout-is-not-evidence-the-server-did-nothing.md)
+
+## Repo relationships beyond the parent/child tree (Mike commissioned, 2026-09-12)
+
+*[Narrative](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/README.md)*
+
+- [ ] 🎯 [No doctrine models a repo-to-repo relationship other than](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/010-consumer-and-subject-cluster-relationships-have-no-model.md)
+- [ ] 🎯 [shed and client-data repos rely on an "always confirm" floor rule,](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/020-shed-and-client-data-repos-rely-on-a-confirm-rule-not-a-control.md)
