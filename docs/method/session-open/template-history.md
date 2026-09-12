@@ -1,6 +1,3 @@
-I have a long list of work queued up in this repo and I want you to ensure the
-delivery of all of it.
-
 * Carry on with any work queued in the roadmap that you are capable of
   progressing. The work will often have some sort of priority to balance what
   is most valuable or important, what is urgent, and where dependencies may
@@ -26,7 +23,7 @@ When you are working:
 * You must ensure that an item of work in the roadmap is not claimed before
   you start working on it.
 
-* You must manage contention in everything your work affects — changes within
+* You must manage contention in everything your work affects - changes within
   the repo and outside of it, in the systems you interact with, with parallel
   sessions. Equally other sessions will be making changes that may affect you
   that you will need to watch for.
@@ -41,6 +38,10 @@ When you are working:
   of what capability the work requires you must always think critically, and
   challenge your assumptions. When you are providing research or analysis you
   need to evidence your work so that it is proven.
+
+* Sometimes there are items in the roadmap where I (the principal) have told
+  you to record my idea, but I don't want you to work on - if so you should
+  not attempt to deliver that work unless I say so.
 
 * You will take precautions as parallel sessions will continue to open and
   close before, during, and after this session.
@@ -86,7 +87,7 @@ After all of that is finished
 2. Review all of this chat/session. Are there any unanswered questions or
    decisions that you need me to answer? If so lets work through them one by
    one Give context for these questions and they need to be plain language.
-   What is it being used for, and what are the likely impacts of the decision
+   What is it being used for, and waht are the likely impacts of the decision
    etc
 
 3. Have you captured all the learnings, evidence, decisions, designs, work etc
