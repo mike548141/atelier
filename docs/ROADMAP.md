@@ -233,6 +233,8 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/180-orchestrated-queue-runs-from-hand-carrie/README.md)*
 
+- [ ] [The delivery vehicle shipped but was never installed — the…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/010-the-plugin-was-never-installed-so-the-hand-carried-prompt-never-stopped.md)
+
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 
 *[Narrative](roadmap/190-security-doctrine-vs-public-good-practic/README.md)*
