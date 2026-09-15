@@ -440,3 +440,9 @@ then `python3 tools/board.py rebuild`.
 
 - [ ] 🎯 [No doctrine models a repo-to-repo relationship other than](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/010-consumer-and-subject-cluster-relationships-have-no-model.md)
 - [ ] 🎯 [shed and client-data repos rely on an "always confirm" floor rule,](roadmap/390-repo-relationships-beyond-the-tree-mike-comm/020-shed-and-client-data-repos-rely-on-a-confirm-rule-not-a-control.md)
+
+## Choosing among implementation mechanisms (Mike commissioned, 2026-09-16)
+
+*[Narrative](roadmap/400-choosing-among-implementation-mechanisms-mike-comm/README.md)*
+
+- [ ] 🎯 [No doctrine says which mechanism a new need should take — four are](roadmap/400-choosing-among-implementation-mechanisms-mike-comm/010-no-doctrine-says-which-mechanism-a-new-need-should-take.md)
