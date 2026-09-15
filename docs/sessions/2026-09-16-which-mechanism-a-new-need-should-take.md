@@ -1,6 +1,6 @@
 # 2026-09-16 · Which mechanism a new need should take
 
-**Session:** Sonnet 5 (VS Code) · `main`, in place · one commit, nothing
+**Session:** Sonnet 5 (VS Code) · `main`, in place · two commits, nothing
 implemented, nothing claimed.
 
 ## Onramp
@@ -44,9 +44,27 @@ coincidence: the estate already shows a bias toward building a mechanism
 over verifying it gets used, which whatever this item becomes should
 account for.
 
+## One more before close: `ccarchive` counts files, not sessions
+
+Mike: *"ccarchive currently talks about how many files are archived but does
+not mention how many session transcripts which will make more sense to the
+user... we should be able to show both files and transcripts."* Checked
+against `instruments/ccarchive` rather than assumed: `captureClass()`
+already classifies every captured path into named classes (`transcript`,
+`tool-result`, `subagent-meta`, `memory`) — the classification exists — but
+the printed and `--json` summaries both collapse everything into one
+undifferentiated file count. Flagged before it gets built wrong: the
+`transcript` class matches any `.jsonl` at any depth, so it already
+conflates one real session with however many subagent transcripts that
+session spawned — a raw count of that class is not a *session* count, and
+"will make more sense to the user" specifically wants the number a person
+recognises. Filed `210/160` naming the ambiguity explicitly rather than
+leaving it for the build to discover. Nothing built.
+
 ## State at close
 
-Floor green (`ci` plane, exit 0) before the commit; board index rebuilt.
-Direct commit to `main` under the standing autonomy grant; no worktree, no
-PR opened this sitting. Nothing claimed, nothing queued for review — one
-roadmap section filed, no doctrine text written.
+Floor green (`ci` plane, exit 0) before each commit; board index rebuilt
+each time. Direct commits to `main` under the standing autonomy grant; no
+worktree, no PR opened this sitting. Nothing claimed, nothing queued for
+review — two roadmap items filed, no doctrine text written, no code
+changed.
