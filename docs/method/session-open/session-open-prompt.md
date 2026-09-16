@@ -1,6 +1,6 @@
-I have a long list of work queued up and I want you to deliver it — across
-this session and any that follow it. Start here, then use your own judgement
-on what's next.
+I have a long list of work queued and I want you to deliver it — across this
+session and any that follow. Start here, then use your own judgement on what's
+next.
 
 ## Anchor to doctrine first
 
