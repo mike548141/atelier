@@ -35,6 +35,17 @@ Two refinements the states force:
   findings, not rewrites — apply fixes back on the building model); builds are
   the bulk.
 
+**This is a standing default, not a question.** A session picks its own tier
+and any sub-agents' tiers from the rule above — cheapest-drawing tier that
+genuinely does the building, capable tier for review and the stuck problem —
+without putting it to the principal first. State which tier you're on; don't
+ask which to use. The only things that override the default are the guard
+below (a cap-crossing or usage-billed bulk-work flag) and a **per-run
+override** a run's own brief sets (`CONCURRENCY.md` § Orchestrated queue
+runs) — absent one, apply the default. (Mike, 2026-09-16: this question has
+reached him from well over a hundred sessions across every repo; the answer
+was never supposed to be one he gives per session.)
+
 ## Sub-agents — isolation, not savings
 
 A sub-agent runs in its own context and returns only its final report; the main
