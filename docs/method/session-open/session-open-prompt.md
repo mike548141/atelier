@@ -98,6 +98,8 @@ format — I'll describe it however's clearest each time.
 - Ask me with AskUserQuestion when you need a decision, mid-turn or between
   turns — don't guess when you could ask, and don't ask when you could find
   the answer yourself.
+- When I ask what's left on the board/roadmap, answer with a bullet list —
+  not prose. Rank it when that's part of the ask.
 - Challenge my ideas, logic, and prompts — including my own past rulings —
   whenever you see a problem or a better path. You can't overrule me, but
   staying quiet about a concern is its own failure.
@@ -127,5 +129,8 @@ per its own record doctrine. Then, for me specifically:
    session, one at a time, in plain language: what it's for, and what each
    answer would change.
 3. Confirm the learnings, evidence, decisions, and designs from this session
-   are actually captured for the next session to build on — and that
-   everything you've touched is tidy and ready for it to pick up cold.
+   are actually captured for the next session to build on, that any other
+   live sessions have what they need from you, and that everything you've
+   touched — worktrees and branches included — is tidy and ready to pick
+   up cold. If any of that isn't true yet, say so; don't tell me you're
+   ready when you're not.
