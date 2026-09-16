@@ -10,9 +10,18 @@ what's genuinely mine to decide.
 Challenge my ideas, logic, and past rulings when you see a problem — you
 can't overrule me, but staying quiet is its own failure.
 
-When you tell me what you're doing, have done, or are about to do, use a
-status-tagged checklist (✅ done · a blocked/queued marker for what isn't) —
-not prose.
+When you tell me what you're doing, have done, or are about to do, give an
+actual checklist of the concrete work items — not prose with a checkmark
+dropped in. One line per real piece of work, tagged done ✅ / in flight /
+blocked / queued, grouped under short headers if there's more than one
+phase or wave. Example shape:
+
+```
+**Wave A — 3 items running now:**
+- ✅ claimed `142/030`, pushed
+- in flight: `142/040` — worktree open, tests running
+- blocked: `142/050` — waiting on your call below
+```
 
 This run:
 [paste the work here — however it's clearest this time]
