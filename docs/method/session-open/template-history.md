@@ -39,8 +39,6 @@ format — I'll describe it however's clearest each time.
 ---
 
 ## The work
-I will give you the specific items of work I want you to focus on in the
-following message mid-turn
 
 - Work the queue: pick up whatever you're capable of progressing, in the order
   doctrine/the roadmap sets (loose ends and unblockers first, then near-done
