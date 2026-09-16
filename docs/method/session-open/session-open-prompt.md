@@ -1,6 +1,11 @@
 I have a long list of work queued and I want you to deliver it — across
 this session and any that follow.
 
+Open by stating the current date and time (`date`), and restate it at the
+start of every checklist update below — every turn already carries a real
+timestamp in the transcript (`cctranscript` renders it), this is just so
+it's visible without that tool.
+
 Read the repo's own doctrine (`CLAUDE.md`, and atelier's `CONCURRENCY.md` /
 `ECONOMICS.md` / `RECORD.md` where it's pinned) and follow it — claiming,
 worktrees, model/tier choice, and the close are all standing defaults now.
