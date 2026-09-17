@@ -396,6 +396,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [REPORT — a child cannot stamp its inlined floor at all: source= may](roadmap/320-child-filed-findings-via-pointing-up/160-stampscan-cannot-stamp-across-a-repo-boundary.md)
 - [ ] [REPORT — four verified pathscan false-positive classes from a second](roadmap/320-child-filed-findings-via-pointing-up/170-pathscan-false-positive-classes-not-the-count.md)
 - [ ] [REPORT — the ../<sibling> path convention every child inherits](roadmap/320-child-filed-findings-via-pointing-up/180-sibling-path-convention-breaks-in-a-worktree.md)
+- [ ] 🔥 [DOCTRINE CONTRADICTION — a private child cannot obey both](roadmap/320-child-filed-findings-via-pointing-up/190-rule-2-and-the-branch-naming-rule-cannot-both-be-obeyed.md)
 - [ ] 🔎 [MISSING HOUSE RULE — the method has no name for a negative result](roadmap/320-child-filed-findings-via-pointing-up/230-a-negative-result-whose-second-explanation-is-silent.md)
 - [ ] 🛑 [A possessive or plural form evades a local-term, and leakscan](roadmap/320-child-filed-findings-via-pointing-up/240-a-possessive-evades-a-term-and-the-scanner-says-clean.md)
 - [ ] 🛑 [The standard child doctrine block still carries the exact wording](roadmap/320-child-filed-findings-via-pointing-up/250-the-block-still-carries-the-wording-da1-overturned.md)
