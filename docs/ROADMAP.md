@@ -406,6 +406,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [The canonical floor block's drift command reads ..HEAD, so a](roadmap/320-child-filed-findings-via-pointing-up/260-the-drift-command-pins-a-child-to-whatever-branch-the-parent-is-parked-on.md)
 - [ ] [REPORT — datescan enforces the SHAPE of a date and cannot enforce its](roadmap/320-child-filed-findings-via-pointing-up/270-datescan-enforces-the-shape-of-a-date-and-cannot-enforce-its-frame.md)
 - [ ] [💡 PROPOSAL, hand-up from faves — a RENDERED board view, offered to](roadmap/320-child-filed-findings-via-pointing-up/280-proposal-a-rendered-board-view-for-every-repo.md)
+- [ ] [REPORT — two secretscan defects: the entropy net scores a published](roadmap/320-child-filed-findings-via-pointing-up/290-secretscan-reads-published-urls-as-credentials-and-mis-locates-findings-in-paths-with-spaces.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
