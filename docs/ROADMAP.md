@@ -397,6 +397,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [REPORT — four verified pathscan false-positive classes from a second](roadmap/320-child-filed-findings-via-pointing-up/170-pathscan-false-positive-classes-not-the-count.md)
 - [ ] [REPORT — the ../<sibling> path convention every child inherits](roadmap/320-child-filed-findings-via-pointing-up/180-sibling-path-convention-breaks-in-a-worktree.md)
 - [ ] 🔥 [DOCTRINE CONTRADICTION — a private child cannot obey both](roadmap/320-child-filed-findings-via-pointing-up/190-rule-2-and-the-branch-naming-rule-cannot-both-be-obeyed.md)
+- [ ] 🛑 [REPORT — an unresolved merge conflict shipped to a PUBLIC main and](roadmap/320-child-filed-findings-via-pointing-up/200-no-floor-scanner-reads-a-conflict-marker.md)
 - [ ] [REPORT — CONCURRENCY.md's session-start bookend tells every session to](roadmap/320-child-filed-findings-via-pointing-up/210-the-session-start-autostash-contradicts-the-shared-checkout-premise.md)
 - [ ] [REPORT — the read-the-output rule covers an unread check and not an…](roadmap/320-child-filed-findings-via-pointing-up/220-read-the-output-does-not-say-verify-the-act-happened.md)
 - [ ] 🔎 [MISSING HOUSE RULE — the method has no name for a negative result](roadmap/320-child-filed-findings-via-pointing-up/230-a-negative-result-whose-second-explanation-is-silent.md)
