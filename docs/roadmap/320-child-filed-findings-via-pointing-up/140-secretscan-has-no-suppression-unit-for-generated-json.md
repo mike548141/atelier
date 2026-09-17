@@ -39,5 +39,44 @@
       write-site workaround generalises badly: not every generated echo has a
       lossless display form.
 
+      ## Second instance (2026-09-06, same private child) — hand-up
+
+      A second, independent occurrence in the same child, from a different data
+      source. It is reported because **it is the case the sketch above
+      predicted and the first instance could not demonstrate.**
+
+      A cloud resource-graph export names each managed disk by concatenating a
+      machine name, a role and an opaque suffix. The concatenation is the only
+      reason the value reads as a token: measured against the gate's own net
+      over the generated `assets.json`, **twelve values match and no others**,
+      in two shapes — ten `<machine>_OsDisk_1_<32 hex>` and two
+      `<machine>-DiskCopy-<14-digit stamp>`. None is a credential; every one is
+      a resource identity, and two disks on one machine differ only by that
+      suffix. `git add` of a fresh observation was refused with **96 findings**,
+      all `medium/entropy`, across four generated files.
+
+      **What makes it the stronger evidence.** The first instance had a
+      lossless display form, so the write-site fix was free. This one has none
+      in principle: the token *is* the resource's own name, and altering it
+      alters an identifier. That is the sketch's own prediction — *"not every
+      generated echo has a lossless display form"* — met by a real case.
+
+      ⚠️ **Honest limit on that claim, and it cuts against us.** The child did
+      in the end resolve this instance at the write site too, by **structuring**
+      rather than altering: the display label is emitted with its joins as
+      spaces and the three components are carried separately, so the exact name
+      rebuilds byte for byte and no component qualifies alone. So this is not
+      proof that no write-site fix exists — it is evidence that the write-site
+      route now depends on the token having *internal structure the emitter
+      controls*, which is a narrower and less predictable condition than having
+      a lossless display form. A value that is opaque end to end still has
+      nowhere to go.
+
+      The child's own reasoning is recorded with it, including that its first
+      answer was the wrong one: it reached for a `.secretscanignore` glob and
+      argued the write-site fix was impossible because *"altering the token
+      alters an identifier"* — true of altering it, false of structuring it.
+      Evidence available on request.
+
       Consideration and remediation are atelier's; the reporting child stops
       at this report.
