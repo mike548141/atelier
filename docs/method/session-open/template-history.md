@@ -36,8 +36,6 @@ What follows is the actual work: themes, named items, a ruling to enact, an
 excerpt pasted from a previous session, whatever fits this session. No fixed
 format — I'll describe it however's clearest each time.
 
----
-
 ## The work
 
 - Work the queue: pick up whatever you're capable of progressing, in the order
