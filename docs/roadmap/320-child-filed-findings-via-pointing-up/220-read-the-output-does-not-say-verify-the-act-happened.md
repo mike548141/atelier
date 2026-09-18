@@ -1,4 +1,4 @@
-- [ ] **REPORT — the read-the-output rule covers an unread check and not an act
+- [~] (claimed 2026-09-18-0200, wt: none) **REPORT — the read-the-output rule covers an unread check and not an act
       that silently did not happen; two sessions in one repository hit the
       second in the same hour** `[S][method]` — filed from a private child,
       2026-09-06, via § *Pointing up*. Evidence: two independent incidents,

@@ -1,4 +1,4 @@
-- [ ] 🔎 **Five pre-existing `worktree.py` defects, found by that fix and
+- [~] (claimed 2026-09-18-0200, wt: worktree-defects-0918) 🔎 **Five pre-existing `worktree.py` defects, found by that fix and
       deliberately left** (2026-08-09). Queued rather than taken because each is
       outside the two claimed items and one of them changes a documented meaning:
       (a) **`list`'s ↑/↓ carries the same stale-local-`main` referent** `remove`

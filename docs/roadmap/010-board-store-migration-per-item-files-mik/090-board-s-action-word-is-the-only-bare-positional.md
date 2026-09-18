@@ -1,4 +1,4 @@
-- [ ] 🔎 **`board`'s action word is the only bare positional in the registry,
+- [~] (claimed 2026-09-18-0200, wt: board-flags-0918) 🔎 **`board`'s action word is the only bare positional in the registry,
       and `755b25b` fixed the call site rather than the signature.** That
       commit stopped `board check` aborting on the floor's rendered argv by
       swapping `parse_args` for `parse_known_args`, which was right and

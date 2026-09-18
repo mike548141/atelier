@@ -1,4 +1,4 @@
-- [ ] **REPORT — four verified `pathscan` false-positive classes from a second
+- [~] (claimed 2026-09-18-0200, wt: floorfleet-pathscan-0918) **REPORT — four verified `pathscan` false-positive classes from a second
       child, and a correction to the child's own headline figure: "20 of 20
       false" is stale and must not be carried** `[M][tools]` — filed from a
       private child, 2026-09-06, via § *Pointing up*. The classes were read

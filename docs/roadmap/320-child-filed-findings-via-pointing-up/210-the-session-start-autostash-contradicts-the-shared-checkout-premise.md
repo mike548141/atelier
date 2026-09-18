@@ -1,4 +1,4 @@
-- [ ] **REPORT — `CONCURRENCY.md`'s session-start bookend tells every session to
+- [~] (claimed 2026-09-18-0200, wt: none) **REPORT — `CONCURRENCY.md`'s session-start bookend tells every session to
       run `--autostash` on a checkout the same document says a peer may have
       uncommitted work in, and the stash stack it writes to is shared**
       `[S][method]` — filed from a private child, 2026-09-06, via § *Pointing

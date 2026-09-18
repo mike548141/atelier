@@ -1,4 +1,4 @@
-- [ ] **"Self-removing" overpromises in step 3** (PU-4, ruled to the board
+- [~] (claimed 2026-09-18-0200, wt: none) **"Self-removing" overpromises in step 3** (PU-4, ruled to the board
       2026-08-22) — the pending-upstream line is distinguished from a second
       original partly by being "dated, addressed and self-removing", and
       nothing removes it: the pin bump is the occasion, a session is the

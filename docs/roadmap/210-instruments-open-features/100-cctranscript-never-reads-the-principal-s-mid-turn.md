@@ -1,4 +1,4 @@
-- [ ] 🔥 **`cctranscript` never reads the principal's mid-turn messages, and its
+- [~] (claimed 2026-09-18-0200, wt: cctranscript-midturn-0918) 🔥 **`cctranscript` never reads the principal's mid-turn messages, and its
       footer says it did.** A message typed while a session is working is not a
       user message in the log: it lands as `type:"attachment"` ·
       `attachment.type:"queued_command"`, with the text in `attachment.prompt`.

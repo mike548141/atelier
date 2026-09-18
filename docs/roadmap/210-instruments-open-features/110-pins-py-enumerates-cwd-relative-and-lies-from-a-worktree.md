@@ -1,4 +1,4 @@
-- [ ] **`pins.py` enumerates CWD-relative and reports a wrong denominator
+- [~] (claimed 2026-09-18-0200, wt: pins-cwd-0918) **`pins.py` enumerates CWD-relative and reports a wrong denominator
       from a worktree, silently** (PU-5, ruled to the board 2026-08-22) —
       run from `/Users/mike/worktrees/<wt>`, it printed "1 of 1 not
       current" (`wt-cite`), having enumerated the worktrees directory

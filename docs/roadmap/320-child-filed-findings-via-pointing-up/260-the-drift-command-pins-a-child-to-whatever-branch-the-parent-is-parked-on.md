@@ -1,4 +1,4 @@
-- [ ] 🔎 **The canonical floor block's drift command reads `..HEAD`, so a
+- [~] (claimed 2026-09-18-0200, wt: none) 🔎 **The canonical floor block's drift command reads `..HEAD`, so a
       child pins itself to whatever branch the parent's checkout happens to be
       parked on — and § *Pointing up* has made "parked on a filing branch" a
       NORMAL state for this repo.** Filed from a private child 2026-09-08 via
