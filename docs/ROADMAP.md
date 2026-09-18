@@ -131,7 +131,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/110-estate-duplication-exception-audit-mike/README.md)*
 
 - [ ] [Make a voided allowance visible.](roadmap/110-estate-duplication-exception-audit-mike/010-make-a-voided-allowance-visible.md)
-- [~] 🔎 (claimed 2026-09-18-0200, wt: worktree-defects-0918) [Five pre-existing worktree.py defects, found by that fix and](roadmap/110-estate-duplication-exception-audit-mike/020-five-pre-existing-worktree-py-defects-found-by.md)
+- [~] 🔎 (claimed 2026-09-18-0330, wt: worktree-referent-0918) [Five pre-existing worktree.py defects, found by that fix and](roadmap/110-estate-duplication-exception-audit-mike/020-five-pre-existing-worktree-py-defects-found-by.md)
 - [ ] [Eight children carry a floor block that predates four doctrine](roadmap/110-estate-duplication-exception-audit-mike/030-eight-children-carry-a-floor-block-that-predat.md)
 - [ ] [shed narrows the floor legitimately and undeclarably.](roadmap/110-estate-duplication-exception-audit-mike/040-shed-narrows-the-floor-legitimately-and-undecl.md)
 - [ ] [The economics-doc duplication — the audit's headline, and Mike's](roadmap/110-estate-duplication-exception-audit-mike/050-the-economics-doc-duplication-the-audit-s-head.md)

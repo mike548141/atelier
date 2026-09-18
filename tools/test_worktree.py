@@ -135,6 +135,42 @@ class CommandsOnRealRepo(_LocalRepoFixture, unittest.TestCase):
         # standing in the main tree, no feature arg -> refuse
         self.assertEqual(self.cli(["land"]), 1)
 
+    def test_land_refuses_detached_worktree(self):
+        # A detached HEAD makes `rev-parse --abbrev-ref HEAD` answer the literal
+        # string "HEAD" — land must catch this itself, not push/PR a ref called
+        # "HEAD".
+        self.cli(["start", "featx"])
+        path = self.base / "acme-featx"
+        git(["checkout", "-q", "--detach", "HEAD"], path)
+        buf = io.StringIO()
+        with contextlib.redirect_stderr(buf):
+            rc = self.cli(["land", "featx"])
+        self.assertEqual(rc, 1)
+        self.assertIn("detached", buf.getvalue())
+        self.assertIn("switch -c", buf.getvalue())
+
+    def test_land_no_remote_hint_uses_full_feature_slug(self):
+        # The no-remote hint used to derive the slug as branch.split('-')[-1],
+        # which mangles a multi-hyphen slug like a queue-batch name.
+        self.cli(["start", "queue-batch-0809-0813"])
+        rc, out = self.cli_out(["land", "queue-batch-0809-0813"])
+        self.assertEqual(rc, 0)
+        self.assertIn("worktree remove queue-batch-0809-0813", out)
+        self.assertNotIn("worktree remove 0813", out)
+
+    def test_feature_worktree_matches_harness_style_bare_name(self):
+        # Harness worktrees live at .claude/worktrees/<feature>/ — named
+        # plainly, not <repo>-<feature> — so _feature_worktree must resolve
+        # that shape too, without losing this tool's own <repo>-<feature> match.
+        self.cli(["start", "featx"])
+        bare_path = self.base / "bareslug"
+        git(["worktree", "add", "-q", "-b", "bareslug", str(bare_path)], self.repo)
+        root = wt.toplevel(Path.cwd())
+        prefixed = wt._feature_worktree(root, types.SimpleNamespace(feature="featx"))
+        bare = wt._feature_worktree(root, types.SimpleNamespace(feature="bareslug"))
+        self.assertEqual(Path(prefixed["path"]).name, "acme-featx")
+        self.assertEqual(Path(bare["path"]).name, "bareslug")
+
 
 class CwdIndependence(_LocalRepoFixture, unittest.TestCase):
     """Every answer must be the same from the main checkout and from inside a
@@ -324,6 +360,20 @@ class MergedGuardReferent(unittest.TestCase):
         self.assertEqual(rc, 1)
         self.assertIn("cannot be verified as merged", buf.getvalue())
         self.assertTrue(linked.exists())
+
+
+class SourceHygiene(unittest.TestCase):
+    def test_git_helper_signature_no_longer_overlong(self):
+        # The board's audit flagged this exact `def git(...)` line at 101
+        # columns — wrapscan never sees it, scoped away from tools/ per
+        # .atelier-floor.json, so nothing else in the tree would catch a
+        # regression here. Pins the wrap: both resulting lines must actually
+        # be shorter than the flagged 101, not just relocate the overflow.
+        src = Path(__file__).with_name("worktree.py").read_text().splitlines()
+        sig = next(i for i, line in enumerate(src)
+                   if line.lstrip().startswith("def git(args: list[str]"))
+        self.assertLess(len(src[sig]), 101)
+        self.assertLess(len(src[sig + 1]), 101)
 
 
 if __name__ == "__main__":
