@@ -54,6 +54,18 @@ sharp honest one):
        - SCHEME URLS (`https://…`, `mailto:…`) and PROTOCOL-RELATIVE
          (`//host/…`) — external, not this repo's filesystem; a different
          tool's job (same exemption `linkscan` states).
+       - A leading HOME-PATH PREFIX, `~` or `~name` immediately before a `/` —
+         `~/nosuch/same.sh` and `~claude/nosuch/same.sh` name a path outside
+         this repo's tree entirely, on whatever machine or account the prose
+         was written on. `~/…` already failed to match `_PATH_TOKEN` by
+         accident (its lookbehind excludes the `/` that follows the blanked
+         tilde, the same guard that skips a root-anchored `/docs/x.md`); a
+         bare `~name/…` did not, because nothing before this stopped the match
+         starting at `name` — `~` is not in the token class, so the lookbehind
+         saw no reason to block it (320/170, a second child's false-positive
+         report, 2026-09-06). Blanking the prefix here closes both spellings
+         the same way, rather than leaving the first clean by coincidence and
+         the second flagged by omission.
 
   3. Over what remains — bare prose AND single-backtick `` `code span` ``
      text alike (deliberately NOT stripped, unlike the sibling scanners:
@@ -419,6 +431,14 @@ _ANGLE_PLACEHOLDER = re.compile(r"<[^<>]*>")
 # A scheme URL (http:, mailto:, ftp'ish…) or protocol-relative `//host`.
 _SCHEME_URL = re.compile(r"\b[a-zA-Z][a-zA-Z0-9+.\-]*://\S+|//\S+|\bmailto:\S+")
 
+# A leading home-path prefix: bare `~` or `~name`, immediately before the `/`
+# that makes it look path-shaped. Blanked so `~claude/nosuch/same.sh` is
+# skipped the same way `~/nosuch/same.sh` already was — see THE CHECK, step 2.
+# The lookbehind keeps this to a PREFIX position (start of line, or after
+# whitespace/punctuation) so a mid-word `~` — unusual here, but not this
+# scanner's to interpret — is left alone rather than blanked on a guess.
+_HOME_PATH_PREFIX = re.compile(r"(?<![\w~])~[\w.\-]*(?=/)")
+
 # A Markdown link/image DESTINATION only — `](dest)` or `](dest "title")` —
 # matches linkscan's own destination shape, so the same span is skipped here.
 _LINK_DEST = re.compile(
@@ -482,10 +502,11 @@ def _blank_span(line: str, m: "re.Match[str]") -> str:
 
 
 def _strip_non_candidates(line: str) -> str:
-    """Blank angle-bracket placeholders, scheme URLs, and Markdown link
-    destinations before candidate-hunting — see header, THE CHECK step 2."""
+    """Blank angle-bracket placeholders, scheme URLs, leading home-path
+    prefixes, and Markdown link destinations before candidate-hunting — see
+    header, THE CHECK step 2."""
     out = line
-    for rx in (_ANGLE_PLACEHOLDER, _SCHEME_URL):
+    for rx in (_ANGLE_PLACEHOLDER, _SCHEME_URL, _HOME_PATH_PREFIX):
         while True:
             m = rx.search(out)
             if not m:

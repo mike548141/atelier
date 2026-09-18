@@ -1,4 +1,4 @@
-- [~] (claimed 2026-09-18-0200, wt: floorfleet-pathscan-0918) **REPORT — four verified `pathscan` false-positive classes from a second
+- [ ] **REPORT — four verified `pathscan` false-positive classes from a second
       child, and a correction to the child's own headline figure: "20 of 20
       false" is stale and must not be carried** `[M][tools]` — filed from a
       private child, 2026-09-06, via § *Pointing up*. The classes were read
@@ -115,3 +115,10 @@
 
       Consideration and remediation are atelier's; the reporting child stops at
       this report.
+
+  - [x] ✅ **The tilde class FIXED 2026-09-18** (`c5f7095`, merged from
+        `floorfleet-pathscan-0918`): a leading `~` or `~name` before a `/` is
+        blanked before candidate matching, so `~name/x/y` no longer reds from
+        `name/` onward and `~/x/y` is clean by design rather than by accident.
+        The item's other asks — inline code spans and the "(private repo)"
+        disambiguation — are untouched and still open, so the item stays `[ ]`.

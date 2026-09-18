@@ -192,13 +192,28 @@ def _strip_comments(text: str) -> str:
 
 
 def classify(floor_text: str | None) -> tuple[str, str]:
-    """(state, detail) for one repo's floor.yml. Pure — the selftest drives it."""
+    """(state, detail) for one repo's floor.yml. Pure — the selftest drives it.
+
+    A child's floor.yml is text this operator does not control, off a default
+    branch they may not have read — the same shape of risk C1F3 ruled on for
+    `.atelier-floor.json`, and this file got none of it (roadmap 020/060). The
+    `ref` pulled out of the `uses:` line below reaches the board's detail line
+    verbatim, and `\\S+` stops only at whitespace: a control character sitting
+    IN that token — an ANSI escape, a BEL — needs no whitespace to ride
+    straight through into render()'s terminal output. Stripped at `ref` itself
+    (below), not over the whole multi-line document the way the JSON path
+    strips its whole parsed structure: `floor.strip_controls` drops the C0
+    range wholesale, `\\n` included, and running it over `floor_text` before
+    `_strip_comments` splits on those same newlines silently collapsed every
+    multi-line floor.yml to one line — caught by this module's own selftest
+    ("commented scanner") failing the moment it was tried. `ref` is a `\\S+`
+    capture, so it can never legitimately contain a newline to lose."""
     if floor_text is None:
         return "absent", "no floor.yml — this repo's CI enforces nothing"
     body = _strip_comments(floor_text)
     m = CALLER_RE.search(body)
     if m:
-        ref = m.group("ref")
+        ref = floor.strip_controls(m.group("ref"))
         if ref == "main":
             return "wired", "calls atelier's floor @main"
         # NOT "propagation frozen here", which is what this said and is not what
@@ -567,9 +582,24 @@ def _live_yaml(text: str) -> str:
     comment, and that is the whole rule the failure needed. Parsing properly
     would mean a dependency the fleet board has always refused, and the board's
     idiom is text matching — the defect was that the matching was not
-    line-aware, not that it was textual."""
+    line-aware, not that it was textual.
+
+    Stripped per line (C1F3's seam again): this function's only caller today
+    is `evaluate_parent`, reading atelier's OWN workflow text, so nothing here
+    is child-authored yet — but the function is a general workflow-YAML
+    lexer, named alongside `classify`'s `ref` in the finding that flagged this
+    surface, and the fix belongs on the function rather than on today's one
+    trusted call site. Per LINE, not over the whole text before `splitlines()`:
+    `floor.strip_controls` drops the C0 range wholesale, `\\n` included, and
+    stripping the whole document first would erase the very boundaries this
+    lexer splits on — the mistake `classify` made first, caught by its
+    selftest. Splitting first and stripping each line after preserves every
+    line boundary while still closing the same class for any future caller
+    that points this at a child's workflow text — the shape `classify`
+    already has."""
     out: list[str] = []
     for line in text.splitlines():
+        line = floor.strip_controls(line)
         quote = ""
         for i, ch in enumerate(line):
             if quote:
