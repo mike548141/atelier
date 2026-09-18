@@ -160,3 +160,16 @@ is a scoped allow-marker in that repo. ADR 0008's 2026-08-23 amendment says
 
 Tests 1376 → 1430 Python (−51 with plainscan's removal), 261 → 277 node;
 floor green before every push. All worktrees and branches put away.
+
+### Addendum 2026-09-18 — the thrash is a defect, not a workload
+
+Mike, on reading the close: *"that means there is a defect in secretscan, it
+should not matter how much it scans it should no have this affect. Put work
+on the board to fix that, and the same for all the other guards"*. He is
+right, and the close framed it wrongly: it treated the large repo as the
+problem and prescribed probing around it. `020/370` is rewritten as a
+`secretscan` defect with a testable requirement (memory bounded whatever the
+input size; time linear; skips reported, never silent). It lists the likely
+causes read from the code, marked unmeasured. `020/380` carries the same
+requirement for every other guard, one box each, closed only on measured
+evidence. The tracked-content-only probe practice is now marked interim.
