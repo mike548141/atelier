@@ -505,10 +505,22 @@ SCANNERS: tuple[Scanner, ...] = (
         # generated from docs/roadmap/, and a committed derived file that can
         # drift from its source is this programme's organising defect — so the
         # check blocks, and the remedy is free at exactly the moment it fires
-        # (`board.py rebuild`, stage, retry). Repos without a docs/roadmap/
-        # directory are out of scope and pass with that said, not silently.
-        hook=["check", "--root", "{root}", "{scope}"],
-        ci=["check", "--root", "{root}", "{scope}"],
+        # (`board.py rebuild`, stage, retry — the tool's own printed remedy
+        # keeps the bare word verbatim; see board.py's `rebuild_cmd`
+        # docstring). Repos without a docs/roadmap/ directory are out of
+        # scope and pass with that said, not silently.
+        #
+        # `--check` is a FLAG, not the bare `check` word this used to render:
+        # `board.py`'s `action` was the only bare positional-with-`choices`
+        # anywhere in this registry, ahead of `paths` in its own signature, so
+        # THIS line's own rendered argv (`{scope}` trailing `--root`) bound the
+        # scope to `action` and aborted with exit 2 the moment the leading
+        # word was ever dropped — reproduced at HEAD 2026-08-17 (roadmap
+        # 010/090). `board.py` still accepts the bare word for every OTHER
+        # caller pinned to it, but this registry line is the one that must
+        # never again pattern-match a neighbour's positional shape.
+        hook=["--check", "--root", "{root}", "{scope}"],
+        ci=["--check", "--root", "{root}", "{scope}"],
         advisory=None,  # a stale index is a wrong board; there is no soft form
         why="the generated roadmap index never drifts from its item files",
     ),

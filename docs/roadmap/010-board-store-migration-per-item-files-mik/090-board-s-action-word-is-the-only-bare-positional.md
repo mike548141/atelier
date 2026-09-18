@@ -1,4 +1,4 @@
-- [~] (claimed 2026-09-18-0200, wt: board-flags-0918) 🔎 **`board`'s action word is the only bare positional in the registry,
+- [x] 🔎 **`board`'s action word is the only bare positional in the registry,
       and `755b25b` fixed the call site rather than the signature.** That
       commit stopped `board check` aborting on the floor's rendered argv by
       swapping `parse_args` for `parse_known_args`, which was right and
@@ -30,3 +30,13 @@
       *Found by the `faves` session that filed `070`, reproducing the argv
       abort against its own shim — which inherits the same failure, and is a
       second reason that shim goes rather than gets fixed.*
+
+      ✅ **FIXED 2026-09-18** (`8c67893`, merged from `board-flags-0918`):
+      `board.py` takes `--check` / `--rebuild` flags and `paths` is its only
+      positional, so nothing can bind ahead of it; the floor registry renders
+      `--check`. The bare words still work (stripped off `argv[0]` before
+      argparse), so no pinned child breaks; both spellings tested, and mixing
+      a word with the opposite flag is an error. Deliberately left on the bare
+      word: `rebuild_cmd()`'s printed remedy, because it is embedded in every
+      repo's committed index preamble and changing it would stale them all.
+      Review rides the open `⏳` at `160/260`, widened in the same commit.

@@ -54,6 +54,9 @@
         lines) · `docs/roadmap/README.md` (the preamble qualified) · the
         2026-08-23 amendment at the foot of
         `docs/decisions/2026-08-15-0610-board-store-per-item-files.md` ·
-        the unwind list in `010/020`.
-        *Intent record:* § *Rulings — 2026-08-23* in
-        `docs/reviews/2026-08-17-1321-bs1-wording-cold.md`.
+        the unwind list in `010/020` · widened 2026-09-18: the same
+        § *On a split board* parenthetical respelled `--rebuild`, and
+        `tools/board.py`'s argv (`010/090`).
+        *Intent records:* § *Rulings — 2026-08-23* in
+        `docs/reviews/2026-08-17-1321-bs1-wording-cold.md` ·
+        `docs/sessions/2026-09-18-0114-queue-run-hand-up-fixes.md`.

@@ -18,7 +18,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔥 [board aborted on the floor's own argv — FIXED 2026-08-17.](roadmap/010-board-store-migration-per-item-files-mik/060-the-board-check-aborted-on-the-floor-s-own-argv.md)
 - ✅ 🔎 [The generated index fails two of the floor's own scanners, and only](roadmap/010-board-store-migration-per-item-files-mik/070-the-index-fails-two-scanners-it-generates-into.md)
 - ✅ 🔎 [The generated index tells every child to run a file it does not](roadmap/010-board-store-migration-per-item-files-mik/080-generated-banner-names-a-path-only-atelier-has.md)
-- [~] 🔎 (claimed 2026-09-18-0200, wt: board-flags-0918) [board's action word is the only bare positional in the registry,](roadmap/010-board-store-migration-per-item-files-mik/090-board-s-action-word-is-the-only-bare-positional.md)
+- ✅ 🔎 [board's action word is the only bare positional in the registry,](roadmap/010-board-store-migration-per-item-files-mik/090-board-s-action-word-is-the-only-bare-positional.md)
 - [ ] 🎯 [A child has used [~] for partially delivered where the house](roadmap/010-board-store-migration-per-item-files-mik/100-ros-carries-38-items-using-a-different-tilde.md)
 - ✅ 🔥 [The mixed-root scan — BUILT 2026-08-23](roadmap/010-board-store-migration-per-item-files-mik/110-relative-path-args-resolve-against-cwd-not-root.md)
 - ✅ 🔥 [The unseen duplicate number — FIXED 2026-08-23](roadmap/010-board-store-migration-per-item-files-mik/120-board-py-cannot-see-a-duplicate-section-number.md)
@@ -64,7 +64,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔥 [The reply gate is UNWIRED (2026-08-15) — destroy it, or repurpose it](roadmap/020-policy-as-code-programme-five-tracks-mik/310-the-reply-gate-is-unwired-destroy-it-or-repur.md)
 - ✅ 🔥 [linkscan's reference-style blindness — FIXED 2026-08-23](roadmap/020-policy-as-code-programme-five-tracks-mik/320-linkscan-is-blind-to-reference-style-link-des.md)
 - ✅ [✅ The 2026-08-09 measurement checked for the three-channel blind spot](roadmap/020-policy-as-code-programme-five-tracks-mik/330-the-2026-08-09-measurement-checked-for-the-blind-spot.md)
-- [~] (claimed 2026-09-18-0200, wt: board-flags-0918) [Pin the three softenable-set prose lists to Scanner.advisory](roadmap/020-policy-as-code-programme-five-tracks-mik/340-pin-the-softenable-lists-to-the-registry.md)
+- ✅ [Pin the three softenable-set prose lists to Scanner.advisory](roadmap/020-policy-as-code-programme-five-tracks-mik/340-pin-the-softenable-lists-to-the-registry.md)
 - [ ] 🎯 [The bidi / zero-width spoofing set — strip, escape, or accept](roadmap/020-policy-as-code-programme-five-tracks-mik/350-bidi-and-zero-width-strip-decision.md)
 
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)

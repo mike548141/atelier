@@ -125,11 +125,19 @@ class FloorArgv(unittest.TestCase):
     `board` is registered enforced with no advisory form, so a parser that
     exits 2 on the floor's own template does not degrade — it blocks the
     commit, in every repo, on an argument the floor itself supplied. It did:
-    the registry renders `check --root <root> {scope}`, and argparse will not
-    bind positionals that an intervening optional split into two runs, so the
-    trailing scope path aborted with "unrecognized arguments". The board's
-    location is fixed at docs/roadmap/, so the scope is rightly ignored — but
-    it has to be ignored, not fatal.
+    the registry used to render `check --root <root> {scope}` with `action` a
+    positional-with-`choices` ahead of `paths` — the only bare positional
+    action word anywhere in the registry — so a bare invocation (no leading
+    `check`/`rebuild`) bound the first remaining positional to `action` and
+    failed its choices check (roadmap 010/090). `--check`/`--rebuild` flags
+    remove the collision entirely: `paths` is the only positional left, so
+    nothing competes with it for a slot regardless of where `{scope}` falls.
+
+    floor.py's registry now renders `--check`/`--rebuild` (tools/floor.py's
+    `board` entry). The bare `check`/`rebuild` word is kept working —
+    unconditionally, not just for the floor — because every invocation on
+    record before this change (child repos, docs, hooks) spells it that way,
+    and nothing pinned to that spelling gets a flag day.
     """
 
     def setUp(self):
@@ -141,21 +149,50 @@ class FloorArgv(unittest.TestCase):
         self._td.cleanup()
 
     def test_scope_after_root_is_absorbed_not_fatal(self):
-        # exactly floor.py's rendered hook/ci argv for this scanner
+        # exactly floor.py's CURRENT rendered hook/ci argv for this scanner
+        argv = ["--rebuild", "--root", str(self.root), str(self.root)]
+        self.assertEqual(board.main(argv), 0)
+        self.assertEqual(board.main(["--check", "--root", str(self.root),
+                                     str(self.root)]), 0)
+
+    def test_the_scope_does_not_displace_the_action(self):
+        # a stale index must still be REPORTED through the floor's argv —
+        # absorbing the scope must not quietly turn `--check` into `--rebuild`.
+        self.assertEqual(
+            board.main(["--check", "--root", str(self.root), str(self.root)]),
+            1)
+
+    def test_an_unknown_option_is_still_an_error(self):
+        with self.assertRaises(SystemExit) as ctx:
+            board.main(["--check", "--root", str(self.root), "--bogus"])
+        self.assertEqual(ctx.exception.code, 2)
+
+    def test_legacy_bare_word_argv_still_runs(self):
+        # the PRE-flags spelling, pinned everywhere outside this repo too —
+        # it must go on working exactly as before this change.
         argv = ["rebuild", "--root", str(self.root), str(self.root)]
         self.assertEqual(board.main(argv), 0)
         self.assertEqual(board.main(["check", "--root", str(self.root),
                                      str(self.root)]), 0)
 
-    def test_the_scope_does_not_displace_the_action(self):
-        # a stale index must still be REPORTED through the floor's argv —
-        # absorbing the scope must not quietly turn `check` into `rebuild`.
+    def test_legacy_word_does_not_displace_the_action_either(self):
         self.assertEqual(
-            board.main(["check", "--root", str(self.root), str(self.root)]), 1)
+            board.main(["check", "--root", str(self.root), str(self.root)]),
+            1)
 
-    def test_an_unknown_option_is_still_an_error(self):
+    def test_legacy_unknown_option_is_still_an_error(self):
         with self.assertRaises(SystemExit) as ctx:
             board.main(["check", "--root", str(self.root), "--bogus"])
+        self.assertEqual(ctx.exception.code, 2)
+
+    def test_check_and_rebuild_flags_are_mutually_exclusive(self):
+        with self.assertRaises(SystemExit) as ctx:
+            board.main(["--check", "--rebuild", "--root", str(self.root)])
+        self.assertEqual(ctx.exception.code, 2)
+
+    def test_legacy_word_cannot_combine_with_the_opposite_flag(self):
+        with self.assertRaises(SystemExit) as ctx:
+            board.main(["check", "--rebuild", "--root", str(self.root)])
         self.assertEqual(ctx.exception.code, 2)
 
 
