@@ -78,7 +78,8 @@ class GitError(RuntimeError):
     pass
 
 
-def git(args: list[str], cwd: Path | None = None, check: bool = True) -> subprocess.CompletedProcess:
+def git(args: list[str], cwd: Path | None = None,
+        check: bool = True) -> subprocess.CompletedProcess:
     proc = subprocess.run(["git", *args], cwd=str(cwd) if cwd else None,
                           capture_output=True, text=True)
     if check and proc.returncode != 0:
@@ -324,8 +325,21 @@ def cmd_land(args) -> int:
                   file=sys.stderr)
             return 1
         wt = Path(target["path"])
+        feature = args.feature
     else:
         wt = root  # land the worktree we're standing in
+        feature = _worktree_feature_slug(root, wt)
+
+    # A detached worktree has no branch to push or open a PR from. `rev-parse
+    # --abbrev-ref HEAD` answers the literal string "HEAD" in that state, and
+    # sending that to `git push -u origin HEAD` / `gh pr create --head HEAD`
+    # pushes and PRs a ref named "HEAD" — not a mistake `push`/`gh` catch for us.
+    if git(["-C", str(wt), "symbolic-ref", "-q", "HEAD"], check=False).returncode != 0:
+        print(f"worktree: {wt} is a detached worktree — checked out at a commit, "
+              "not a branch. land needs a branch to push and open a PR from; run "
+              f"`git -C {_shquote(str(wt))} switch -c <branch>` first.",
+              file=sys.stderr)
+        return 1
 
     branch = git(["-C", str(wt), "rev-parse", "--abbrev-ref", "HEAD"]).stdout.strip()
     if branch == main:
@@ -340,7 +354,7 @@ def cmd_land(args) -> int:
     if not has_remote(wt):
         print(f"⚠ no remote configured — reconcile locally instead:\n"
               f"    git -C {_shquote(str(main_worktree(root)))} merge {branch}\n"
-              f"  then: worktree remove {branch.split('-')[-1]}")
+              f"  then: worktree remove {feature}")
         return 0
 
     try:
@@ -429,21 +443,42 @@ def cmd_remove(args) -> int:
 # --------------------------------------------------------------------------- #
 
 def _feature_worktree(root: Path, args) -> dict | None:
-    """Find a worktree by feature slug: match a directory named <repo>-<feature>.
+    """Find a worktree by feature slug.
 
-    <repo> is the *main* working tree's name, so the same slug resolves whether
-    you run from the main checkout or from a linked worktree. Returns the
-    porcelain entry (path, head, branch) so callers read the branch from the
-    worktree they matched, not from their own HEAD.
+    Matches a directory named <repo>-<feature> — this tool's own `start` naming,
+    where <repo> is the *main* working tree's name, so the same slug resolves
+    whether you run from the main checkout or from a linked worktree. Also
+    matches a directory named plainly <feature> with no repo prefix at all: the
+    harness's own worktrees live at `.claude/worktrees/<feature>/`, which `list`
+    already shows fine (it reads branches off every entry), but this narrower
+    match used to miss them entirely, so `land`/`remove` could never resolve one.
+    The <repo>-<feature> form is checked first, so a same-named bare directory
+    never shadows this tool's own worktree.
+
+    Returns the porcelain entry (path, head, branch) so callers read the branch
+    from the worktree they matched, not from their own HEAD.
     """
     entries = parse_worktrees(root)
     if not entries:
         return None
-    suffix = f"{Path(entries[0]['path']).name}-{args.feature}"
+    prefixed = f"{Path(entries[0]['path']).name}-{args.feature}"
     for e in entries:
-        if Path(e["path"]).name == suffix:
+        if Path(e["path"]).name == prefixed:
+            return e
+    for e in entries:
+        if Path(e["path"]).name == args.feature:
             return e
     return None
+
+
+def _worktree_feature_slug(root: Path, wt: Path) -> str:
+    """The feature slug for a worktree, the inverse of `_feature_worktree`'s
+    match: strip the <repo>- prefix this tool's own `start` uses, or fall back
+    to the bare directory name for a harness worktree that carries no such
+    prefix (e.g. `.claude/worktrees/<feature>/`)."""
+    prefix = f"{main_worktree(root).name}-"
+    name = wt.name
+    return name[len(prefix):] if name.startswith(prefix) else name
 
 
 def _shquote(s: str) -> str:
