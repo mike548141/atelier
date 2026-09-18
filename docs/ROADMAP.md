@@ -404,7 +404,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [REPORT — CONCURRENCY.md's session-start bookend tells every session to](roadmap/320-child-filed-findings-via-pointing-up/210-the-session-start-autostash-contradicts-the-shared-checkout-premise.md)
 - ✅ [REPORT — the read-the-output rule covers an unread check and not an…](roadmap/320-child-filed-findings-via-pointing-up/220-read-the-output-does-not-say-verify-the-act-happened.md)
 - [ ] 🔎 [MISSING HOUSE RULE — the method has no name for a negative result](roadmap/320-child-filed-findings-via-pointing-up/230-a-negative-result-whose-second-explanation-is-silent.md)
-- [~] 🛑 (claimed 2026-09-18-0420, wt: leakscan-plurals-0918) [A possessive or plural form evades a local-term, and leakscan](roadmap/320-child-filed-findings-via-pointing-up/240-a-possessive-evades-a-term-and-the-scanner-says-clean.md)
+- ✅ 🛑 [A possessive or plural form evades a local-term, and leakscan](roadmap/320-child-filed-findings-via-pointing-up/240-a-possessive-evades-a-term-and-the-scanner-says-clean.md)
 - ✅ 🛑 [The block still carries DA1's overturned wording](roadmap/320-child-filed-findings-via-pointing-up/250-the-block-still-carries-the-wording-da1-overturned.md)
 - ✅ 🔎 [The canonical floor block's drift command reads ..HEAD, so a](roadmap/320-child-filed-findings-via-pointing-up/260-the-drift-command-pins-a-child-to-whatever-branch-the-parent-is-parked-on.md)
 - [ ] [REPORT — datescan enforces the SHAPE of a date and cannot enforce its](roadmap/320-child-filed-findings-via-pointing-up/270-datescan-enforces-the-shape-of-a-date-and-cannot-enforce-its-frame.md)

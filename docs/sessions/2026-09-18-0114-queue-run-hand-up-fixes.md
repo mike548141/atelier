@@ -89,3 +89,41 @@ unconditionally. And a new **Verify the act, not the absence of an error**
 bullet in § *Integration hygiene*: atelier had no read-the-output rule for
 the clause to extend. Queued as `160/310`; the self-removing change widens
 `160/300` instead.
+
+### Wave 3 — the ruled builds
+
+Four more Sonnet workers built what Mike ruled, and a fifth took the
+main-boundary check (`140/010` = `115/180`, one build filed twice):
+
+- **`020/360` plainscan removed.** Tag `archive/plainscan-2026-09-18` →
+  `3a6ae81`, pushed. The worker stopped rather than bypass the hook when
+  linkscan blocked on four links in two review records that pointed at the
+  deleted files. It was right to stop. The orchestrator added scoped
+  `linkscan:allow:missing-file` markers naming the ruling (an annotation,
+  not a rewrite) and committed with the hook. This settles `290/070` and
+  `020/310`, and makes `120/010` moot.
+- **`320/200` conflictscan**, enforced, zero findings across atelier and
+  every sibling. Its own merge produced a live conflict in the registry list
+  it joined, which was resolved and scanned clean with it.
+- **`110/020` (a)** `worktree list` against `origin/<main>`.
+- **`140/010`** the parent-row boundary check, live green.
+- **`320/240`** plurals, merged below.
+
+Six small closes inline: `160/250` (resolved by its author in `419fdac`),
+`010/040` (swept, nothing wrong — monolith wording is still current for the
+children).
+
+### 🛑 This run thrashed Mike's machine
+
+The first estate probe walked each sibling's full working tree. Over the
+largest repo, `secretscan` grew to ~9 GB. A loop that `pkill` was meant to
+stop moved on to the next repo and kept running. Combined with a worker's
+`leakscan` probe, the 16 GB machine went ~21 GB into swap at load 54. A
+peer session in another repo traced the PIDs and asked for them to be
+stopped. All were killed and the peer was told. A second 9 GB run over the
+same repo belonged to another session and was left alone. Two lessons, both
+recorded: probe tracked content only (`git archive HEAD`, what CI sees), one
+process at a time; and after a `pkill`, check that nothing matching is left
+before assuming it worked. The class is filed as `020/370`. This record
+does not claim the machine was fine meanwhile. It was not, and the owner
+found out from someone else.

@@ -1,4 +1,4 @@
-- [~] (claimed 2026-09-18-0420, wt: leakscan-plurals-0918) 🛑 **A possessive or plural form evades a `local-term`, and `leakscan`
+- [x] 🛑 **A possessive or plural form evades a `local-term`, and `leakscan`
       then reports the file CLEAN** — filed from a private child repo
       2026-08-26 via § *Pointing up*, written directly into this tree. Class
       only: no repo, no host, no term, no filename.
@@ -65,3 +65,21 @@
         anywhere, are you sure it can?"** — a corpus-level self-check rather
         than a per-file verdict. Filed as an observation, not a proposal; the
         child has no view on whether it is affordable.
+
+  - [x] ✅ **BUILT 2026-09-18 on Mike's ruling** (*"Always match plurals"*,
+        via the question device), `b8bca15` merged from
+        `leakscan-plurals-0918`: plain and `forms:` terms compile with an
+        optional trailing `s` inside the word boundary, so `Term`, `Term's`,
+        `Terms` and `Terms'` all hit; `regex:` terms stay verbatim. The bare
+        term already caught `Term's` (the boundary sits before the
+        apostrophe) — tested, not assumed. Limitation stated in the docstring:
+        only a trailing `s`, no `-es`.
+        🔎 **Estate probe, old vs new, HEAD-tracked content, one scan at a
+        time:** 23 of 24 sibling repos, identical finding counts in every one
+        — the machine-local list holds no term whose plural appears anywhere
+        today. **Not probed: the one very large repo**, deliberately (`020/370`).
+        The change can only add findings, and any it adds there at pin bump is
+        a real plural of a listed term — the ruled behaviour.
+        The class question at the item's foot (a scanner saying "this pattern
+        matched nothing anywhere") is not built and stays with `380/010`'s
+        positive-first decision.

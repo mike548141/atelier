@@ -383,6 +383,62 @@ class LoadTerms(unittest.TestCase):
             os.remove(path)
 
 
+class PluralInflection(unittest.TestCase):
+    """Ruled 2026-09-18 (roadmap 320/240): a listed term must ALSO catch its
+    plural and plural-possessive, always on, fails closed — a possessive was
+    the live shape that evaded a correctly-listed term while the scanner
+    reported the file clean. Synthetic terms only, per the queue-run brief."""
+
+    def _terms(self, body):
+        import tempfile, os
+        fd, path = tempfile.mkstemp()
+        try:
+            with os.fdopen(fd, "w") as fh:
+                fh.write(body)
+            terms, warning = ls.load_local_terms(ls.Path(path))
+            self.assertIsNone(warning)
+            return terms
+        finally:
+            os.remove(path)
+
+    def test_bare_term_still_matches(self):
+        terms = self._terms("Xxxx\n")
+        self.assertIn("local-term", rules("call Xxxx today", terms))
+
+    def test_singular_possessive_matches(self):
+        # \bXxxx\b already matched Xxxx's before this change (boundary sits
+        # before the apostrophe regardless of what follows) — this pins that
+        # so a future refactor can't silently lose it.
+        terms = self._terms("Xxxx\n")
+        self.assertIn("local-term", rules("read Xxxx's report", terms))
+
+    def test_bare_plural_matches(self):
+        terms = self._terms("Xxxx\n")
+        self.assertIn("local-term", rules("the Xxxxs arrived", terms))
+
+    def test_plural_possessive_matches(self):
+        terms = self._terms("Xxxx\n")
+        self.assertIn("local-term", rules("the Xxxxs' report", terms))
+
+    def test_substring_inside_a_longer_word_still_does_not_match(self):
+        # The inflection must not reopen the word-boundary gap it closed:
+        # a term must still not match inside an unrelated longer word.
+        terms = self._terms("ann\n")
+        self.assertNotIn("local-term", rules("the annual review", terms))
+        self.assertIn("local-term", rules("call ann today", terms))
+
+    def test_forms_prefix_also_gets_the_plural_suffix(self):
+        terms = self._terms("forms:Jane Q Public\n")
+        self.assertIn("local-term", rules("see jane-q-publics today", terms))
+        self.assertIn("local-term", rules("see jane-q-publics' report", terms))
+
+    def test_regex_prefix_term_is_not_pluralised(self):
+        # regex: is operator-authored verbatim and must be untouched by this.
+        terms = self._terms("regex:Widget-\\d{3}\n")
+        body, pattern = terms[0]
+        self.assertEqual(pattern.pattern, "Widget-\\d{3}")
+
+
 class Ignore(unittest.TestCase):
     def test_exact_glob(self):
         self.assertTrue(ls._ignored("tools/test_leakscan.py", ["tools/test_leakscan.py"]))
