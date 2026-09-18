@@ -71,9 +71,10 @@ blocks — the pressure is visibility, not a broken commit on a date nobody
 remembers setting.
 
 Reducing what a check **covers** on one that may never be softened
-(`secretscan`, `leakscan`, `linkscan`, `reviewscan`, `licenscan`) also states
-its reason — both the tree it reads and the arguments it runs with, because
-either can shrink real cover without the check ever appearing as disabled:
+(`secretscan`, `leakscan`, `linkscan`, `reviewscan`, `board`, `licenscan`)
+also states its reason — both the tree it reads and the arguments it runs
+with, because either can shrink real cover without the check ever appearing
+as disabled:
 
 ```json
 "scope": {"leakscan": {"paths": ["src"], "why": "only src/ is shareable"}},

@@ -25,6 +25,7 @@ Zero third-party deps, same as the rest of the suite.
 
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -1699,6 +1700,52 @@ class PathscanPromotionTest(unittest.TestCase):
             [sys.executable, str(TOOLS_DIR / "pathscan.py"), "--selftest"],
             capture_output=True, text=True)
         self.assertEqual(0, r.returncode, r.stdout + r.stderr)
+
+
+class SoftenableListsPinnedToRegistry(unittest.TestCase):
+    """The no-advisory ("softenable") set has THREE prose restatements, and
+    only one of them is test-pinned to the registry (AP2, ruled 2026-08-23;
+    roadmap 020/340). That is exactly how the drift happened: floor.py's own
+    docstring and ADR 0008 Decision 2 both went stale (naming secretscan,
+    leakscan, linkscan, reviewscan — missing `board` and `sizescan`/
+    `publishscan` gaining advisory forms) while CONTRIBUTING's list, nobody
+    having reason to touch it, stayed right by accident. Pin the two prose
+    lists this repo can still edit to `Scanner.advisory`, so the NEXT registry
+    change reds the stale sentence instead of leaving it to be found by hand.
+
+    ADR 0008 Decision 2 (as amended 2026-08-23) restates this same set and is
+    NOT tested here: `docs/decisions/` holds frozen records (atelier's own
+    CLAUDE.md: "ADRs are frozen records"), so a future registry change cannot
+    be allowed to fail a test by way of text this repo has committed to never
+    editing again. A drift there is accepted, not caught.
+    """
+
+    def _no_advisory_names(self) -> set[str]:
+        return {s.name for s in floor.SCANNERS if s.advisory is None}
+
+    def test_floor_docstring_no_advisory_list(self):
+        text = Path(floor.__file__).read_text(encoding="utf-8")
+        m = re.search(
+            r"excludes the boundary scanners \(([^)]*)\),\s*\n\s*"
+            r"the integrity scanners \(([^)]*)\) and (\w+)", text)
+        self.assertIsNotNone(
+            m, "floor.py's no-advisory prose list moved or changed shape — "
+               "update this test's pattern, not just the list")
+        names = set()
+        for group in (m.group(1), m.group(2)):
+            names.update(n.strip() for n in group.split(","))
+        names.add(m.group(3).strip())
+        self.assertEqual(names, self._no_advisory_names())
+
+    def test_contributing_template_no_advisory_list(self):
+        path = TOOLS_DIR.parent / "docs/build/templates/CONTRIBUTING.md"
+        text = path.read_text(encoding="utf-8")
+        m = re.search(r"may never be softened\s*\n\(([^)]*)\)", text)
+        self.assertIsNotNone(
+            m, "CONTRIBUTING.md's never-softened prose list moved or changed "
+               "shape — update this test's pattern, not just the list")
+        names = {n.strip("` ") for n in m.group(1).split(",")}
+        self.assertEqual(names, self._no_advisory_names())
 
 
 if __name__ == "__main__":
