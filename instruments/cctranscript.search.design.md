@@ -33,6 +33,24 @@ build's own record carries the detail:
   and the bare-read floor with them (2.5–4.9 s, not 2.0–2.6 s).
 - **The thinking-block count is stale** — 24,856 became 31,800. The load-bearing
   parts held exactly: 9 carry text, none after 2026-07-04.
+- **§5's "prompts and replies" was narrower than it claimed, found 2026-08-21 and
+  closed 2026-09-18 (board item `210-instruments-open-features/100-…`).** A
+  message typed while a turn is already in flight never becomes a `type:"user"`
+  record — it logs as `type:"attachment"` · `attachment.type:"queued_command"` —
+  so both this design's search and the render it reuses (`readTurns`) missed it
+  entirely, while the header and `--search` both asserted full prompt coverage.
+  Live proof: a real transcript's `queued_command` text was absent from
+  `--full` and scored 0 hits under `--search --all` across 669 sessions. Fixed
+  by reading the channel and classifying it by `commandMode` +
+  `attachment.origin.kind` (not every `queued_command` is human — the same
+  wrapper carries harness task notifications and a peer agent's cross-session
+  messages; see `isHumanQueuedCommand`'s comment for the census). A human one
+  renders as its own turn, role `you-mid`, labelled `Mid-turn` and searched by
+  default with no `--tools` needed. **Still not covered:** an `AskUserQuestion`
+  answer arrives as a `tool_result`, reachable only via `--tools`,
+  undistinguished from other tool output — this fix widened the mid-turn
+  channel by exactly the one shape it found, not by every shape typed input can
+  take.
 Asked for by Mike (2026-07-26): *"Something that lets you search all the
 transcripts using regex or for a simple term. If you give cctranscript a command
 like `--repo` that limits the scope to search within."*

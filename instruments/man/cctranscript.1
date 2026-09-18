@@ -57,6 +57,32 @@ you ask for them with
 keeping the everyday transcript readable and revealing the machinery when you
 need to debug a session.
 .PP
+A message you type while Claude is still working on the previous one is a
+.B mid-turn
+message, and Claude Code logs it differently from an ordinary prompt: it never
+becomes a
+.I type:"user"
+record, only a
+.I type:"attachment"
+one with
+.IR attachment.type:"queued_command" .
+.B cctranscript
+reads this channel and renders each one as its own turn, mirrored to the right
+like a prompt (same principal, same side) but labelled
+.B Mid-turn
+rather than
+.B You
+so the two are never confused \(em and it opens its own citable
+.I N
+reference, exactly as a turn-opening prompt does. Not every
+.I queued_command
+record is yours, though: the identical wrapper also carries a harness task
+notification and a cross-session message from a peer agent's session, and
+those are never rendered as if you had typed them \(em see NOTES for how the
+three are told apart. A header chip,
+.BR "N mid-turn" ,
+appears only when the session holds at least one.
+.PP
 With no
 .I session
 argument the tool renders the latest session for the repo you are currently in,
@@ -213,7 +239,17 @@ by default \(em people search for
 .B \-\-case
 opts into sensitivity.
 .PP
-Prompts and replies are searched by default, and the gates that widen the render
+Prompts and replies are searched by default \(em and a mid-turn message counts
+as a prompt for this purpose, found with no
+.B \-\-tools
+needed, since it is read by the same
+.I readTurns
+pass the render uses. See NOTES for the one channel of your own typed input
+that this does
+.I not
+cover.
+.PP
+The gates that widen the render
 widen the search identically:
 .B \-\-tools
 searches tool calls and their results too (in full, not the one-line summary the
@@ -536,6 +572,64 @@ The tool reads
 .BR \-\-from\-archive ,
 the archive directory) read-only and writes nothing \(em no state, no cache,
 no output file.
+.PP
+How a mid-turn
+.I queued_command
+attachment is told from a harness task notification or a peer's cross-session
+message (board item 210/100), confirmed against roughly 4,100 real records
+under
+.I ~/.claude/projects/
+on 2026-09-18:
+.IR attachment.commandMode " " "task-notification"
+is never yours \(em the harness's own record of a background job, carrying no
+.I origin
+field at all.
+.IR attachment.commandMode " " prompt " with " attachment.origin.kind " " peer
+is a cross-session message from another agent's session
+.RI ( isMeta:true
+in every sample seen); with
+.I origin.kind
+.B human
+it is yours. A
+.I prompt
+record with no
+.I origin
+field at all predates that tag \(em every sampled record in that older shape,
+from 2026-07-05 through 2026-09-17, is plain typed text and never one of the
+two wrapper forms, so it is read as yours too. Anything else \(em an
+unrecognised
+.I commandMode
+or
+.I origin.kind
+\(em is
+.B not
+claimed as yours: guessing at an unfamiliar shape is exactly the mistake this
+fix exists to correct (an earlier pass at this same defect counted
+system-injected text as the principal's, and published a figure a third too
+high before it was caught and corrected).
+.PP
+.B Coverage is still not complete.
+An
+.B AskUserQuestion
+answer \(em a choice you make from a picker Claude Code shows you mid-turn \(em
+arrives in the log as a
+.I tool_result
+attached to that tool call, the same shape as any other tool output. It is
+reachable only via
+.BR \-\-tools ,
+undistinguished there from other tool results, and it is
+.I not
+part of the
+.I prompts+replies
+default this fix closes. This item widened the mid-turn channel by exactly one
+shape \(em
+.IR queued_command " \(em"
+and makes no claim beyond it: your typed input can still be sitting in this
+tool-result channel where
+.B \-\-search
+without
+.B \-\-tools
+will not find it.
 .PP
 On an iCloud-backed archive, macOS may have evicted a file's local bytes
 ("Optimise Mac Storage"). Listing skips reading such files so a

@@ -123,6 +123,47 @@ test('extractText concatenates text blocks and passes strings through', () => {
   assert.equal(cc.extractText(undefined), '');
 });
 
+// isHumanQueuedCommand classifies a "queued_command" attachment (a message
+// typed while a turn was already in flight) by commandMode + origin.kind — see
+// the function's own comment for the live-store census this is grounded in.
+test('isHumanQueuedCommand: a human mid-turn message is claimed', () => {
+  assert.equal(cc.isHumanQueuedCommand({
+    type: 'queued_command', commandMode: 'prompt', origin: { kind: 'human' },
+    prompt: [{ type: 'text', text: 'hi' }],
+  }), true);
+});
+test('isHumanQueuedCommand: a pre-origin-tag record is still claimed (verified plain text, never a wrapper)', () => {
+  assert.equal(cc.isHumanQueuedCommand({
+    type: 'queued_command', commandMode: 'prompt', prompt: [{ type: 'text', text: 'hi' }],
+  }), true);
+  assert.equal(cc.isHumanQueuedCommand({
+    type: 'queued_command', commandMode: 'prompt', origin: null, prompt: 'hi',
+  }), true);
+});
+test('isHumanQueuedCommand: a peer cross-session message is never claimed as human', () => {
+  assert.equal(cc.isHumanQueuedCommand({
+    type: 'queued_command', commandMode: 'prompt', isMeta: true,
+    origin: { kind: 'peer' }, prompt: '<cross-session-message>...',
+  }), false);
+});
+test('isHumanQueuedCommand: a harness task notification is never claimed as human', () => {
+  assert.equal(cc.isHumanQueuedCommand({
+    type: 'queued_command', commandMode: 'task-notification', prompt: '<task-notification>...',
+  }), false);
+});
+test('isHumanQueuedCommand: an unrecognised shape is not guessed at', () => {
+  // Neither a known commandMode nor origin.kind: the honest answer is "not
+  // claimed", not a best guess — the same discipline the function's comment
+  // names as the point of the whole exercise.
+  assert.equal(cc.isHumanQueuedCommand({
+    type: 'queued_command', commandMode: 'prompt', origin: { kind: 'robot' }, prompt: 'x',
+  }), false);
+  assert.equal(cc.isHumanQueuedCommand({ type: 'queued_command', commandMode: 'something-else' }), false);
+  assert.equal(cc.isHumanQueuedCommand({ type: 'not-queued-command', commandMode: 'prompt' }), false);
+  assert.equal(cc.isHumanQueuedCommand(null), false);
+  assert.equal(cc.isHumanQueuedCommand(undefined), false);
+});
+
 // --- schema-drift contract test -----------------------------------------
 
 function runJson(...flags) {
@@ -467,6 +508,40 @@ const returns = (out, ts = '2026-01-02T03:04:35.000Z') => ({
   message: { role: 'user', content: [{ type: 'tool_result', content: out }] },
 });
 
+// The three real shapes a "queued_command" attachment takes, per the live-store
+// census in isHumanQueuedCommand's comment: a human mid-turn message (origin.kind
+// "human", prompt as content blocks — the same shape a real "user" message
+// carries), a cross-session message from a peer agent (origin.kind "peer",
+// isMeta: true, prompt a plain XML-wrapped string), and a harness task
+// notification (commandMode "task-notification", no origin field at all).
+const midTurn = (text, ts = '2026-01-02T03:04:12.000Z') => ({
+  type: 'attachment', timestamp: ts, cwd: '/home/dev/synthetic-repo',
+  attachment: { type: 'queued_command', commandMode: 'prompt', timestamp: ts,
+    origin: { kind: 'human' }, prompt: [{ type: 'text', text }] },
+});
+// A pre-origin-tag mid-turn message: same authorship, no origin field at all —
+// the shape seen 2026-07-05 through 2026-09-17 before the tag existed.
+const legacyMidTurn = (text, ts = '2026-01-02T03:04:12.000Z') => ({
+  type: 'attachment', timestamp: ts, cwd: '/home/dev/synthetic-repo',
+  attachment: { type: 'queued_command', commandMode: 'prompt', timestamp: ts,
+    prompt: [{ type: 'text', text }] },
+});
+const peerMsg = (text, ts = '2026-01-02T03:04:13.000Z') => ({
+  type: 'attachment', timestamp: ts, cwd: '/home/dev/synthetic-repo',
+  attachment: {
+    type: 'queued_command', commandMode: 'prompt', isMeta: true, timestamp: ts,
+    origin: { kind: 'peer', from: 'uds:/tmp/cc-socks/1.sock', name: 'peer-a1' },
+    prompt: `<cross-session-message from="uds:/tmp/cc-socks/1.sock" from-name="peer-a1">\n${text}`,
+  },
+});
+const taskNotif = (ts = '2026-01-02T03:04:14.000Z') => ({
+  type: 'attachment', timestamp: ts, cwd: '/home/dev/synthetic-repo',
+  attachment: {
+    type: 'queued_command', commandMode: 'task-notification', timestamp: ts,
+    prompt: '<task-notification>\n<task-id>abc123</task-id>\n<tool-use-id>toolu_01x</tool-use-id>\n</task-notification>',
+  },
+});
+
 const UUID = (n) => `${String(n).repeat(8)}-0000-4000-8000-000000000000`;
 
 // A throwaway live store: HOME points at it, so os.homedir()/.claude/projects is
@@ -502,6 +577,115 @@ function failIn(home, ...flags) {
   try { runIn(home, ...flags); return { code: 0, err: '' }; }
   catch (e) { return { code: e.status, err: String(e.stderr) }; }
 }
+
+// --- mid-turn messages (queued_command) ----------------------------------
+// A message typed while a turn is already in flight never becomes a real
+// type:"user" record — it lands as type:"attachment" · attachment.type:
+// "queued_command" (board item 210/100). These tests exercise the fix end to
+// end: readTurns must surface a human one as its own citable turn, must never
+// surface a peer's cross-session message or a harness task notification as if
+// the principal typed them, and --search (which shares readTurns) must find
+// the former without help from --tools.
+
+function midTurnFile(lines) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cctranscript-mid-'));
+  const file = path.join(dir, 'session.jsonl');
+  fs.writeFileSync(file, lines.map((o) => JSON.stringify(o)).join('\n') + '\n');
+  return file;
+}
+
+test('readTurns: a human mid-turn message becomes its own you-mid turn', () => {
+  const file = midTurnFile([
+    you('first ask'),
+    calls('Bash', { command: 'sleep 1' }),
+    midTurn('typed while Claude was still working'),
+    claude('here is the answer'),
+  ]);
+  const { turns } = cc.readTurns(file, { tools: true });
+  assert.deepEqual(turns.map((t) => t.role), ['you', 'tool', 'you-mid', 'claude']);
+  assert.equal(turns[2].text, 'typed while Claude was still working');
+});
+
+test('readTurns: a pre-origin-tag mid-turn message is read the same way', () => {
+  // Confirmed against the live store (2026-09-18): every sampled record in this
+  // shape (no origin field at all, prompt as content blocks) predates the
+  // origin tag but carries plain typed text, never a wrapper — so it counts.
+  const file = midTurnFile([you('ask'), legacyMidTurn('older-shaped mid-turn text'), claude('reply')]);
+  const { turns } = cc.readTurns(file);
+  assert.deepEqual(turns.map((t) => t.role), ['you', 'you-mid', 'claude']);
+  assert.equal(turns[1].text, 'older-shaped mid-turn text');
+});
+
+test('readTurns: a peer cross-session message and a harness task notification are never read as the principal', () => {
+  const file = midTurnFile([
+    you('ask'), peerMsg('another session handing off work'), taskNotif(), claude('reply'),
+  ]);
+  const { turns } = cc.readTurns(file);
+  // Neither the peer message nor the task notification appears at all — not as
+  // 'you', not as 'you-mid', not under any role. This is the defect's Third
+  // channel warning turned into a guard: a fix that widens the net must not
+  // also widen it onto text the principal never typed.
+  assert.deepEqual(turns.map((t) => t.role), ['you', 'claude']);
+  const allText = turns.map((t) => t.text).join('\n');
+  assert.ok(!allText.includes('handing off work'));
+  assert.ok(!allText.includes('task-id'));
+});
+
+test('numberTurns: a mid-turn message opens its own exchange, same vocabulary as a prompt', () => {
+  const file = midTurnFile([
+    you('first ask'), claude('first answer'),
+    midTurn('a second ask, typed mid-turn'), claude('second answer'),
+  ]);
+  const { turns } = cc.readTurns(file);
+  cc.numberTurns(turns);
+  assert.deepEqual(turns.map((t) => t.ref), ['1', '1.1', '2', '2.1']);
+});
+
+test('CLI: --json marks a mid-turn message with its own role, distinct from a turn-opening prompt', () => {
+  const file = midTurnFile([you('ask'), midTurn('typed mid-turn'), claude('reply')]);
+  const j = JSON.parse(execFileSync('node', [SCRIPT, '--json', file], { encoding: 'utf8' }));
+  assert.deepEqual(j.turns.map((t) => t.role), ['you', 'you-mid', 'claude']);
+  assert.equal(j.turns[1].text, 'typed mid-turn');
+});
+
+test('CLI: the human render labels a mid-turn message apart from a turn-opening prompt', () => {
+  const file = midTurnFile([you('opening prompt text'), midTurn('mid-turn text'), claude('reply text')]);
+  const out = execFileSync('node', [SCRIPT, '--no-color', file], { encoding: 'utf8' });
+  assert.match(out, /Mid-turn/);
+  assert.match(out, /\bYou\b/);
+  // The label is on the turn that carries the mid-turn text, not on the prompt.
+  const lines = out.split('\n');
+  const midLine = lines.findIndex((l) => l.includes('Mid-turn'));
+  const bodyNear = lines.slice(midLine, midLine + 6).join('\n');
+  assert.match(bodyNear, /mid-turn text/);
+});
+
+test('search: a mid-turn message is found by default, with no --tools needed', () => {
+  const home = makeStore([[UUID(1), [
+    you('unrelated'), midTurn('the term wharescan appears only here'), claude('done'),
+  ]]]);
+  const j = searchJson(home, '--search', 'wharescan');
+  assert.equal(j.meta.hits, 1);
+  assert.equal(j.sessions[0].hits[0].role, 'you-mid');
+  assert.deepEqual(j.meta.layersSearched, ['prompts', 'replies']);   // no widening needed
+});
+
+test('search: a peer message or task notification never produces a hit, even on its own distinctive text', () => {
+  const home = makeStore([[UUID(1), [
+    you('ask'), peerMsg('the term shelfscan is peer-only text'), taskNotif(), claude('reply'),
+  ]]]);
+  assert.equal(searchJson(home, '--search', 'shelfscan').meta.hits, 0);
+  assert.equal(searchJson(home, '--search', 'task-id').meta.hits, 0);
+});
+
+test('--list: a session whose only prompt-shaped text is a mid-turn message still shows one', () => {
+  // A resumed session can plausibly hold no real type:"user" record ahead of a
+  // mid-turn interruption; firstUserPromptText must not come back blank when
+  // the only principal-authored text in the log arrived this way.
+  const file = midTurnFile([claude('a reply with no prompt in this log'), midTurn('the only typed text here')]);
+  const out = JSON.parse(execFileSync('node', [SCRIPT, '--json', '--list', file], { encoding: 'utf8' }));
+  assert.equal(out[0].firstPrompt, 'the only typed text here');
+});
 
 test('search: a literal term matches metacharacters literally; --regex treats them as a pattern', () => {
   const home = makeStore([
