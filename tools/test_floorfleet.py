@@ -94,6 +94,22 @@ class ClassifyTest(unittest.TestCase):
         self.assertIn("atelier-ref", detail)
         self.assertNotIn("propagation frozen", detail)
 
+    def test_a_hostile_pinned_ref_cannot_repaint_the_board(self):
+        """The `060` follow-up to C1F3: the JSON config path got `strip_controls`
+        (be0667e) and the floor.yml path did not. `CALLER_RE`'s `@(?P<ref>\\S+)`
+        stops only at whitespace, so a control character sitting IN the ref
+        token — no whitespace needed — rides straight through `ref` into the
+        board's detail line. A child's floor.yml is exactly the off-default-
+        branch, operator-does-not-control text C1F3 was ruled against; this is
+        the same class on the other config file."""
+        hostile = THIN_CALLER.replace("@main", "@a1b2\x1b[31mFAKE\x1b[0m")
+        state, detail = floorfleet.classify(hostile)
+        self.assertEqual(state, "pinned")
+        self.assertNotIn("\x1b", detail)
+        # Neutralised, not dropped: the ref still reads, minus the escapes.
+        self.assertIn("a1b2", detail)
+        self.assertIn("FAKE", detail)
+
     def test_adopter_fork_is_still_wired(self):
         forked = THIN_CALLER.replace("mike548141", "another-owner")
         self.assertEqual(floorfleet.classify(forked)[0], "wired")
@@ -1182,6 +1198,34 @@ class ControlCharacterTest(unittest.TestCase):
         out = self._board({"advisory": {"wrapscan": {
             "why": why, "review-by": "2999-01-01"}}})
         self.assertIn(why, out)
+
+    def test_a_hostile_pinned_ref_is_neutralised_on_the_full_board(self):
+        """End to end, not just `classify()` in isolation: a real floor.yml on
+        disk, read through `evaluate()`, rendered through `render()` — the
+        `060` follow-up to this class's original findings, on the sibling
+        config file `.atelier-floor.json`'s strip did not reach."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "child"
+            (repo / ".github" / "workflows").mkdir(parents=True)
+            hostile = THIN_CALLER.replace("@main", "@a1b2\x1b[31mFAKE\x1b[0m")
+            (repo / ".github" / "workflows" / "floor.yml").write_text(hostile)
+            info = floorfleet.evaluate(repo, remote=False)
+            out = floorfleet.render([info], remote=False)
+        self.assertEqual(info.state, "pinned")
+        self.assertNotIn("\x1b", out)
+        self.assertIn("a1b2", out)
+
+    def test_live_yaml_strips_control_characters(self):
+        """`_live_yaml` is the other function named in the `060` finding
+        alongside `classify`'s `ref` — a workflow-text lexer with only one
+        caller today (`evaluate_parent`, over atelier's own files), but the
+        strip belongs on the function, not on today's one trusted call site."""
+        hostile = "run: \x1b[31mfoo\x1b[0m  # a comment\n"
+        out = floorfleet._live_yaml(hostile)
+        self.assertNotIn("\x1b", out)
+        self.assertIn("foo", out)
+        # The comment-stripping behaviour itself must survive the strip.
+        self.assertNotIn("a comment", out)
 
     def test_the_strip_is_floors_own(self):
         """Pinned rather than intended: two sanitisers for one class is how the
