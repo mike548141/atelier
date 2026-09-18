@@ -839,102 +839,14 @@ commit that writes it, which is the one moment the fix costs nothing · `2`
 usage/config error. Escape hatch: `pointerscan:allow: <reason>` anywhere in the
 item.
 
-## `plainscan.py` — prose lands on the first pass (FIRST-OF-KIND, advisory only)
+## `plainscan.py` — removed 2026-09-18
 
-The mechanical floor under `COMMUNICATION.md`, which until 2026-08-09 had none
-and said so in its own enforcement clause. Four rules, each named with what
-grounds it, because two of them carry a house number and two need none:
-
-| Rule | Fires on | Grounded in |
-|---|---|---|
-| **P1** | a short code (`F1`, `C5`, `SL2`) used with nothing saying what it points at | published — digital.govt.nz: expand on first use |
-| **P2** | an uncommon acronym never expanded and absent from `GLOSSARY.md` | published — the same clause |
-| **P3** | a sentence over the word limit (default 35) | **house call** — no plain-language authority checked publishes a cap |
-| **P4** | a bracketed aside over the char limit (default 40) sitting mid-sentence | house doctrine, dated — `COMMUNICATION.md` 2026-07-15 |
-
-**Why it exists.** Doctrine alone was measured and found not to be a control.
-Across 6,704 assistant replies in 1,094 session transcripts, the rules above
-were broken in 37%–67% of replies depending on the rule, and **the rate did not
-fall after they were written down** — reference-ID density rose between July and
-August 2026 while the rule against it sat in doctrine. Of every reference code's
-first use in a session, 86% arrived with no gloss at all.
-
-**Two planes off one engine.** `scan_text()` is the whole rule set and it takes
-a string. The repo plane is this CLI, in the floor registry. The reply plane was
-`tools/hooks/plain-reply.py`, a Claude Code `Stop` hook. Same lesson as
-`floor.py`'s registry, one surface over: the rules are not reimplemented per
-plane.
-
-> 🛑 **The reply plane is UNWIRED (Mike, 2026-08-15) and the paragraph that
-> stood here was false.** It said a blocked reply "is rewritten before the
-> principal reads it". A `Stop` hook cannot un-print: Claude Code streams the
-> reply to the terminal as it is generated and the hook fires afterwards, so a
-> block appends a second full copy below the one already on screen. Measured
-> over 12 hours of live sessions: 29 turns blocked, 6 of them twice, ~123,500
-> characters of verdicts reprinted — the gate was the single largest source of
-> the unreadable output it existed to prevent. The hook is out of
-> `~/.claude/settings.json`; the code stays in the tree wired to nothing,
-> pending Mike's ruling to destroy it or repurpose it as a silent data
-> collector. → ROADMAP § *Policy-as-code programme*. **The repo plane below is
-> unaffected** — it is warn-only, has none of this failure mode, and stands.
-
-The reply plane **failed open**, alone among this estate's gates, and the trade
-was stated rather than accidental: `secretscan` failing open burns a credential
-for good, while this failing open lets one clumsy reply through — and a linter
-that can wedge a live session is worse than the defect it catches. It also gave
-up after two blocked rewrites of one turn, saying so visibly in the transcript.
-That give-up path is the one part of the design the evidence vindicated, and it
-fired on 4 of the 6 turns that reached it.
-
-```sh
-python3 tools/plainscan.py                     # scan docs/** (default scope)
-python3 tools/plainscan.py --root . docs       # explicit — the floor's invocation
-python3 tools/plainscan.py --warn              # report findings, always exit 0
-python3 tools/plainscan.py --rules P1,P4       # a subset
-python3 tools/plainscan.py --sentence-limit 45 # the house numbers are flags
-python3 tools/plainscan.py --json              # machine-readable
-python3 tools/plainscan.py --selftest          # prove the engine offline
-```
-
-Exit codes: `0` clean, or any findings under `--warn` · `1` findings · `2`
-usage/config error. Escape hatch: a path glob in `.plainscanignore`. An acronym
-is cleared estate-wide by giving it a `GLOSSARY.md` entry — the designed remedy,
-not an exemption.
-
-**Advisory, deliberately.** It lands `--warn` on both planes in the registry:
-atelier's own docs return ~7,900 findings on the first run, and a blocking form
-would red every commit in the estate on day one and teach everyone
-`--no-verify`. `wrapscan` and `spellscan` landed the same way. The two house
-numbers are the principal's to rule on before any move to blocking.
-
-**The reply plane was live 2026-08-09 → 2026-08-15, and is now unwired.** It ran
-in the principal's `~/.claude/settings.json` at **45 words / 60 characters** —
-his ruling, on a calibration against his own transcripts showing that setting
-would have fired on 30.6% of historical replies. The asymmetry was deliberate:
-the reply plane **blocked**, the repo plane only warns, on the reasoning that
-chat is where the defect was measured and where the fix is free — *rewrite
-before sending*. That parenthesis was the whole error. There is no
-before-sending on a `Stop` hook, so the fix was never free; it cost a full
-reprint every time. The repo plane's warn-only posture, chosen for a quite
-different reason, is what turned out to be right on both.
-
-Install form, kept for the record and **not to be reinstated without a ruling** —
-`command` + `args` is the exec form, so no shell parses the path, and the
-interpreter is pinned rather than PATH-resolved:
-
-```json
-{ "hooks": { "Stop": [ { "hooks": [ {
-  "type": "command",
-  "command": "/usr/bin/python3",
-  "args": ["<atelier>/tools/hooks/plain-reply.py"],
-  "timeout": 15
-} ] } ] } }
-```
-
-The pin is `/usr/bin/python3` because it is always present on the machine and a
-hook must not depend on a login shell's PATH. It is Python 3.9 there; both files
-carry `from __future__ import annotations`, which is what lets modern type hints
-run on it.
+Removed on the principal's ruling (2026-09-18): the reply hook
+(`tools/hooks/plain-reply.py`) was already unwired, and the repo-plane gate was
+warn-only in every child and printed ~6,050 findings on every commit — judged
+more dangerous as noise than beneficial as a guard. Both the engine and its
+tests are archived, not deleted, at git tag `archive/plainscan-2026-09-18`
+(retrieve with `git show archive/plainscan-2026-09-18:tools/plainscan.py`).
 
 ## `pathscan.py` — a repo path named in prose still resolves (advisory only)
 

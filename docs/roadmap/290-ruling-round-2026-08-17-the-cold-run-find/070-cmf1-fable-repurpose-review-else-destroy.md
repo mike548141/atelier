@@ -1,4 +1,4 @@
-- [ ] 🎯 **RULED 2026-08-17 (second sitting, 1045 UTC) — CMF1, verbatim:
+- [x] 🎯 **RULED 2026-08-17 (second sitting, 1045 UTC) — CMF1, verbatim:
       "Do a fable review to see if it can be usefully repurposed e.g. to
       gather data/stats on plain speak to find the root cause when its not
       plain. Otherwise we will destroy the hook per your recommendation."**
@@ -53,3 +53,8 @@
             pass; RG2 still lands (the docstring must say what the hook now
             does); CMF cycle CLOSES on the 2026-08-15 correction either way,
             since CMF1's premise is already unwired.
+
+      - [x] ✅ **Mike's ruling, 2026-09-18: destroy the hook, archive the
+            engine** — asked fresh with the impact measured, via the question
+            device: *"Remove the hook and archive the engine in case we ever
+            want the code again"*. Delivered under `020/360`.

@@ -1,4 +1,4 @@
-- [ ] 🔥 **The reply gate is UNWIRED (2026-08-15) — destroy it, or repurpose it
+- [x] 🔥 **The reply gate is UNWIRED (2026-08-15) — destroy it, or repurpose it
       from a guard into a data collector.** Mike's call, on measured evidence
       that the gate makes the exact defect it exists to prevent several times
       worse. The hook was removed from the machine's `~/.claude/settings.json`
@@ -115,3 +115,7 @@
       approved with reservations, the reservations go into the record beside the
       approval, and each one becomes a check the build has to answer.** An
       approval is not the whole ruling.
+
+      ✅ **Closed 2026-09-18 — destroyed.** Mike ruled the reply gate
+      destroyed and the plainscan engine archived (`020/360`, delivered the
+      same day; tag `archive/plainscan-2026-09-18`).

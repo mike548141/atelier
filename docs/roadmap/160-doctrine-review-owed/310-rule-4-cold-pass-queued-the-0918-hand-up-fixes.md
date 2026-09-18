@@ -10,6 +10,8 @@
       `docs/method/PROPAGATION.md` § *The mechanism* point 4, and in § *The
       standard child doctrine block* the **Concurrency** and **Source &
       drift** bullets · `docs/build/templates/CLAUDE.md` (the same two
-      bullets) · `CLAUDE.md` (onramp step 1). Landed on `main`.
+      bullets) · `CLAUDE.md` (onramp step 1) · `docs/method/COMMUNICATION.md`
+      (the enforceable-split bullet and the reply-plane paragraph — plainscan
+      removed, `020/360`). Landed on `main`.
       *Intent record:*
       [`../../sessions/2026-09-18-0114-queue-run-hand-up-fixes.md`](../../sessions/2026-09-18-0114-queue-run-hand-up-fixes.md).

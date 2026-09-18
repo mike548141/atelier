@@ -60,11 +60,11 @@ Reviewed at HEAD:
    the 2026-08-09 correction of the "write-time discipline is the only
    control" claim, and the 2026-08-10 *each plane is scoped to its reader*
    paragraph.
-2. [`tools/plainscan.py`](../../tools/plainscan.py) — the engine: rules
+2. [`tools/plainscan.py`](../../tools/plainscan.py) — the engine: rules <!-- linkscan:allow:missing-file: deleted 2026-09-18 on the principal's ruling (020/360); archived at git tag archive/plainscan-2026-09-18 -->
    P1–P4 with their stated grounds, the two planes, `RECORDS_GLOBS` and
-   `--include-records`, the recitation cap. [`tools/test_plainscan.py`](../../tools/test_plainscan.py)
+   `--include-records`, the recitation cap. [`tools/test_plainscan.py`](../../tools/test_plainscan.py) <!-- linkscan:allow:missing-file: deleted 2026-09-18 on the principal's ruling (020/360); archived at git tag archive/plainscan-2026-09-18 -->
    — 47 → 51 tests across the deltas.
-3. [`tools/hooks/plain-reply.py`](../../tools/hooks/plain-reply.py) — the
+3. [`tools/hooks/plain-reply.py`](../../tools/hooks/plain-reply.py) — the <!-- linkscan:allow:missing-file: deleted 2026-09-18 on the principal's ruling (020/360); archived at git tag archive/plainscan-2026-09-18 -->
    `Stop` hook that lints the agent's own reply and blocks it for rewrite;
    fails open by stated design; the anti-deadlock guard and its state file.
    Its installation is machine-local (`~/.claude/settings.json`) and outside

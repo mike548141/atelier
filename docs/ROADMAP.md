@@ -61,12 +61,12 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Watch the live hook for two failure modes](roadmap/020-policy-as-code-programme-five-tracks-mik/280-watch-the-live-hook-for-two-failure-modes.md)
 - [ ] [The backlog.](roadmap/020-policy-as-code-programme-five-tracks-mik/290-the-backlog.md)
 - [ ] [Generalise the finding, don't just fix this doc.](roadmap/020-policy-as-code-programme-five-tracks-mik/300-generalise-the-finding-don-t-just-fix-this-doc.md)
-- [ ] 🔥 [The reply gate is UNWIRED (2026-08-15) — destroy it, or repurpose it](roadmap/020-policy-as-code-programme-five-tracks-mik/310-the-reply-gate-is-unwired-destroy-it-or-repur.md)
+- ✅ 🔥 [The reply gate is UNWIRED (2026-08-15) — destroy it, or repurpose it](roadmap/020-policy-as-code-programme-five-tracks-mik/310-the-reply-gate-is-unwired-destroy-it-or-repur.md)
 - ✅ 🔥 [linkscan's reference-style blindness — FIXED 2026-08-23](roadmap/020-policy-as-code-programme-five-tracks-mik/320-linkscan-is-blind-to-reference-style-link-des.md)
 - ✅ [✅ The 2026-08-09 measurement checked for the three-channel blind spot](roadmap/020-policy-as-code-programme-five-tracks-mik/330-the-2026-08-09-measurement-checked-for-the-blind-spot.md)
 - ✅ [Pin the three softenable-set prose lists to Scanner.advisory](roadmap/020-policy-as-code-programme-five-tracks-mik/340-pin-the-softenable-lists-to-the-registry.md)
 - [ ] 🎯 [The bidi / zero-width spoofing set — strip, escape, or accept](roadmap/020-policy-as-code-programme-five-tracks-mik/350-bidi-and-zero-width-strip-decision.md)
-- [~] 🎯 (claimed 2026-09-18-0420, wt: plainscan-removal-0918) [→✅ Remove](roadmap/020-policy-as-code-programme-five-tracks-mik/360-remove-plainscan-hook-destroyed-engine-archived.md)
+- ✅ 🎯 [→✅ Remove](roadmap/020-policy-as-code-programme-five-tracks-mik/360-remove-plainscan-hook-destroyed-engine-archived.md)
 
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
 
@@ -169,7 +169,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/120-test-plainscan-stophook-is-flaky-and-ci/README.md)*
 
-- [~] 🔥 (claimed 2026-09-18-0420, wt: plainscan-removal-0918) [Two tests fail intermittently in the full-suite run and pass when the](roadmap/120-test-plainscan-stophook-is-flaky-and-ci/010-two-tests-fail-intermittently-in-the-full-suit.md)
+- ✅ 🔥 [Two tests fail intermittently in the full-suite run and pass when the](roadmap/120-test-plainscan-stophook-is-flaky-and-ci/010-two-tests-fail-intermittently-in-the-full-suit.md)
 
 ## A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)
 
@@ -348,7 +348,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🎯 [RULED 2026-08-17 — "Build a guard."](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/040-build-the-cold-sweep-guard.md)
 - [ ] 🎯 [RULED 2026-08-17 (second sitting, 1045 UTC) — BS1: "Wording now +](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/050-bs1-wording-now-fund-the-staged-plane-build.md)
 - [ ] 🎯 [RULED 2026-08-17 (second sitting, 1045 UTC) — BG1/BG2: "Apply as](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/060-bg1-bg2-apply-as-counselled.md)
-- [ ] 🎯 [RULED 2026-08-17 (second sitting, 1045 UTC) — CMF1, verbatim](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/070-cmf1-fable-repurpose-review-else-destroy.md)
+- ✅ 🎯 [RULED 2026-08-17 (second sitting, 1045 UTC) — CMF1, verbatim](roadmap/290-ruling-round-2026-08-17-the-cold-run-find/070-cmf1-fable-repurpose-review-else-destroy.md)
 
 ## Posture — strength is what you are free to do (Mike commissioned 2026-08-17)
 

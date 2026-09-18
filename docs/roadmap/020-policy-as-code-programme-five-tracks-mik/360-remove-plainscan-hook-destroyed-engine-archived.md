@@ -1,4 +1,4 @@
-- [~] (claimed 2026-09-18-0420, wt: plainscan-removal-0918) 🎯→✅ **Remove
+- [x] 🎯→✅ **Remove
       plainscan: the reply hook destroyed, the engine archived** — Mike's
       mid-session ask and ruling, 2026-09-18.
       Mike, verbatim: *"What is the impact of completly removing plainscan? I
@@ -18,3 +18,15 @@
       commit carrying both), named in `tools/README.md` so it can be found;
       rewrite the `COMMUNICATION.md` passage that says `plainscan` checks the
       committed prose plane. Settles `290/070` (destroy) and `020/310`.
+
+      ✅ **DELIVERED 2026-09-18** (`1568228`, merged from
+      `plainscan-removal-0918`): hook, engine and tests deleted; registry
+      entry, mixed-root list and a stale `pathscan` comment removed;
+      `tools/README.md` names the archive tag. Tag
+      `archive/plainscan-2026-09-18` → `3a6ae81`, pushed. Four links in two
+      review records now point at deleted files and carry scoped
+      `linkscan:allow:missing-file` markers naming this ruling — annotation,
+      not a rewrite of the records. `COMMUNICATION.md`'s passage now says the
+      scanner was removed and why (*checkable is not worth a guard*). Review
+      rides `160/310`, widened in the same commit. Settles `290/070` and
+      `020/310`; `120/010` is moot (its flaky tests were the hook's own).

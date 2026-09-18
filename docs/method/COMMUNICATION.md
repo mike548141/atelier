@@ -93,8 +93,13 @@ Grounded in the live instance, not invented to fill a heading:
   barred by design. The prose is not. Anything a machine can decide without
   judgement — a reference code used before anything says what it points at, an
   acronym never expanded, a sentence past a stated length, a bracketed aside
-  buried mid-sentence — is checkable, and `plainscan` checks it on the committed
-  prose plane through the floor registry.
+  buried mid-sentence — is checkable. `plainscan` checked it on the committed
+  prose plane through the floor registry from 2026-08-09 until **2026-09-18,
+  when Mike ruled it removed**: warn-only in every repo, it printed ~6,050
+  findings on every commit that nobody acted on, burying any genuinely new
+  red. *Checkable* is not the same as *worth a guard*: a check nobody reads
+  protects nothing, and it teaches sessions to skim the output real guards
+  share. The engine is archived at git tag `archive/plainscan-2026-09-18`.
 
   🛑 **The reply plane is UNWIRED (Mike, 2026-08-15), and how it failed is the
   more useful half.** A second plane ran from 2026-08-09: a `Stop` hook that
@@ -107,8 +112,8 @@ Grounded in the live instance, not invented to fill a heading:
   can still have no machine-deliverable remedy**, and that is the lesson to
   carry: before enforcing a rule, establish that the enforcement point can
   actually deliver the fix, not merely detect the fault. Detection was sound
-  throughout; the remedy was the part nobody checked. Destroy-or-repurpose is
-  Mike's open ruling → ROADMAP § *Policy-as-code programme*.
+  throughout; the remedy was the part nobody checked. Mike ruled it
+  destroyed, 2026-09-18 (board `020/360`).
 
   **The second rule this earned lives elsewhere, and that is deliberate.** The
   same failure earned *an approval is not the whole ruling* — the principal
