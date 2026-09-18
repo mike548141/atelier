@@ -68,7 +68,7 @@ HEAD:
    describe the reply plane in the past tense with a stop notice and to keep
    the install form "for the record and not to be reinstated without a
    ruling".
-3. [`tools/hooks/plain-reply.py`](../../tools/hooks/plain-reply.py) —
+3. [`tools/hooks/plain-reply.py`](../../tools/hooks/plain-reply.py) — <!-- linkscan:allow:missing-file: deleted 2026-09-18 on the principal's ruling (020/360); archived at git tag archive/plainscan-2026-09-18 -->
    docstring only: an *UNWIRED — DO NOT REINSTALL WITHOUT A RULING* banner and
    a *THE PREMISE THIS FILE WAS BUILT ON, AND WHY IT WAS FALSE* section; the
    *WHAT THIS IS* paragraph re-tensed. **No behaviour changed** — the code is

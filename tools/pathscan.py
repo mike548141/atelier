@@ -783,7 +783,7 @@ def _ignored(rel: str, globs: list[str]) -> bool:
 # then contradicted by pulling theirs IN (FR2, the principal's ruling
 # 2026-08-23: records-excluding by default, estate-wide). Excluded only when a
 # DIRECTORY is expanded; a records file named explicitly as a path argument is
-# always scanned — the same contract as plainscan's RECORDS_GLOBS.
+# always scanned — the same contract other scanners' RECORDS_GLOBS use.
 RECORDS_GLOBS = ["docs/SESSIONS.md", "docs/sessions", "docs/ROADMAP-DONE.md",
                  "docs/reviews", "CHANGELOG.md"]
 
