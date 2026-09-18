@@ -1,4 +1,4 @@
-- [~] (claimed 2026-09-18-0420, wt: conflictscan-0918) 🛑 **REPORT — an unresolved merge conflict shipped to a PUBLIC `main` and
+- [x] 🛑 **REPORT — an unresolved merge conflict shipped to a PUBLIC `main` and
       stood for a day: no floor scanner reads a line as a conflict marker, and
       the repo's own record-index gate passed throughout** `[S][tools]` — filed
       from a public child, 2026-09-08, via § *Pointing up*. Evidence
@@ -85,3 +85,17 @@
       for the same reason, and `200` carries the same risk. Worth the house's
       attention as a property of a per-file board with several open hand-ups,
       if it is not already recorded.
+
+      ✅ **BUILT 2026-09-18 on Mike's ruling** (option 1, via the question
+      device: a new small scanner, enforced), `6d2782f` merged from
+      `conflictscan-0918`. `tools/conflictscan.py` flags `<<<<<<< ` and
+      `>>>>>>> ` at line start unconditionally, and a bare seven-`=` line (or
+      diff3's `|||||||`) only while an opener in the same file is unclosed —
+      so a setext heading underline never trips it. All tracked file types,
+      not just Markdown; `conflictscan:allow:` line marker and
+      `.conflictscanignore` as usual. Enforced on both planes with no advisory
+      form, added to the never-soften lists (the pinning test caught the
+      template list wrapping). **Estate probe:** atelier and all 26 sibling
+      repos read 0 findings, so no child goes red at pin bump. First live use
+      was its own merge: the registry list conflicted with the plainscan
+      removal, and the resolved tree was checked clean with it before commit.

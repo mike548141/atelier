@@ -34,6 +34,14 @@ standing residual, the classes each scan *structurally* cannot catch:
   allow-marker/ignore hatch, reason recorded, is the sanctioned way to say
   "bundled, not relicensed".
 
+**conflictscan** is anchored-line-based, so a conflict marker without its own
+line — one folded mid-paragraph, or split by a hard line-wrap — is invisible,
+same residual as the triad above. Its `--staged` (hook) mode reads only the
+**added lines** of the staged diff, matching `secretscan`'s/`leakscan`'s own
+hot-path shape: a marker that predates this scanner's adoption, or one that
+enters a file by some route other than `git commit` on this machine, is not
+in that diff and is caught only by the CI plane's whole-tree pass.
+
 **linkscan** (a doc-integrity check, not a leak scan) is line-based too: it reads
 inline `[text](path)` links and Markdown (ATX `#` + setext underline) headings
 only. **Reference-style links** (`[text][ref]` + a `[ref]: …` definition), links
@@ -401,6 +409,62 @@ per line (a deliberately dual-licensed file, or a header in test data), a glob i
 `.licenscanignore` per path. Because it's a publish gate, wire it into the
 **pre-publish** scrub (alongside the leak/secret pass) and CI's release job — not
 the per-commit hook.
+
+## `conflictscan.py` — no unresolved merge-conflict marker reaches history
+
+The fourth check with `advisory=None`: a committed conflict marker is never
+correct, at any repo's stage of adopting the check, so it has no soft form —
+the same severity class as `secretscan`, not the first-of-kind advisory
+rollout `datescan`/`wrapscan`/`spellscan` used. Grounded in a real incident
+(roadmap `320/200`): a bad merge fenced two records inside `<<<<<<< HEAD` /
+`=======` / `>>>>>>> <sha>` in a **public** repo, the floor was green on
+every commit, and nothing mechanical read a line as a conflict marker until
+a human happened to open the file a day later.
+
+### Four marker shapes, two of them gated
+
+| Marker | Shape | Flagged |
+|---|---|---|
+| **opener** | `^<<<<<<< ` | always |
+| **closer** | `^>>>>>>> ` | always |
+| **base** (diff3) | `^\|\|\|\|\|\|\| ` | only inside an OPEN region |
+| **separator** | `^=======$` (exactly seven `=`) | only inside an OPEN region |
+
+A bare `=======` line is also a valid Markdown/RST setext heading underline —
+`wrapscan`'s own doctrine files use exactly this shape. The separator (and
+the diff3 base marker) is a finding only when an earlier, still-unclosed
+`<<<<<<< ` opener has been seen in the SAME file — a standalone heading,
+however wide, never sits after one. Combined with requiring the separator's
+length be exactly seven characters (not "three or more"), the two checks
+close the gap either leaves alone on its own. Stated residual: an opener with
+no matching closer before end-of-file leaves the REST of that file read as
+still-open, so a later, otherwise-innocent separator downstream also flags —
+the opposite direction from `wrapscan`'s own "unclosed fence" residual, and
+accepted here because a file that opens a conflict and never closes it is
+already the failure this check exists to catch.
+
+Unlike the Markdown-only doc scanners, this one runs over **every tracked
+file type** (matching `secretscan`'s/`leakscan`'s own whole-tree shape,
+binary skipped on the first NUL byte) — a bad merge can fence a marker into
+source or config just as easily as a doc. It also carries no fenced-code
+exemption: a doc that legitimately quotes a marker at the START of a line
+needs the ordinary allow-marker, the same route this scanner's own grounding
+item needs for the lines it quotes.
+
+### Usage
+
+```sh
+python3 tools/conflictscan.py                 # scan the whole repo
+python3 tools/conflictscan.py --staged        # scan only staged additions (the hook)
+python3 tools/conflictscan.py path/to/file    # scan specific paths
+python3 tools/conflictscan.py --json          # machine-readable, for CI/composition
+python3 tools/conflictscan.py --selftest      # prove the engine on this box
+```
+
+Exit codes: `0` clean · `1` findings, commit blocked · `2` usage/config error
+— no `--warn`, since this check has no advisory form. Escape hatches mirror
+the others: `# conflictscan:allow: <reason>` per line (a doc quoting the
+markers at line start) and a glob in `.conflictscanignore` per path.
 
 ## `worktree.py` — one worktree per line of work
 

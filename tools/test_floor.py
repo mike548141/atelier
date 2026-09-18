@@ -1744,7 +1744,15 @@ class SoftenableListsPinnedToRegistry(unittest.TestCase):
         self.assertIsNotNone(
             m, "CONTRIBUTING.md's never-softened prose list moved or changed "
                "shape — update this test's pattern, not just the list")
-        names = {n.strip("` ") for n in m.group(1).split(",")}
+        # Strip whitespace INCLUDING a newline, not just a bare space: the
+        # list wraps onto a second line once the registry carries enough
+        # no-advisory scanners to overflow wrapscan's column limit on one
+        # line (as happened adding conflictscan), and a token straddling
+        # that wrap carries a literal "\n" a plain "` " strip charset never
+        # reaches — `str.strip` halts at the first non-matching character
+        # from each end, so a leading "\n" would otherwise block the
+        # backtick behind it from ever being stripped.
+        names = {n.strip("`\n ") for n in m.group(1).split(",")}
         self.assertEqual(names, self._no_advisory_names())
 
 
