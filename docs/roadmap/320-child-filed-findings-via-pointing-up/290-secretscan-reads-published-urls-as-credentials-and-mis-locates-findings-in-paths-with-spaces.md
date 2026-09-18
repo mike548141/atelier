@@ -1,4 +1,4 @@
-- [~] **Two secretscan defects** (claimed 2026-09-18-0120, wt: secretscan-url-space-0918)
+- [x] **Two secretscan defects** (claimed 2026-09-18-0120, wt: secretscan-url-space-0918)
       — **REPORT — two secretscan defects: the entropy net scores a published
       URL's path segments as a credential, and `--staged` reports the wrong
       line number for any path containing a space** `[S][tools]` — filed from
@@ -83,3 +83,24 @@
       No change to the blocking behaviour of either rule is proposed. Defect 1
       is about which tokens the net should consider; defect 2 is a parsing bug.
       Consideration and remediation are the house's.
+
+      ✅ **FIXED 2026-09-18** (`b71ad62`, `7a913e2`, `4001812`, merged from
+      `secretscan-url-space-0918`).
+      **Defect 1:** a host/path-shaped URL's scheme + host + path is no longer
+      an entropy candidate; its query string and fragment stay live, so a
+      signed URL's `?sig=…` still flags (the orchestrator's review sent back a
+      first draft that hid it). Suppressions are counted in the tally line.
+      While there, the worker found `=` in `HIGH_ENTROPY_RX`'s lookbehind hid
+      every `key=value` under an unrecognised key name, anywhere — fixed.
+      **Defect 2:** two bugs, not one — git's trailing tab on a spaced path in
+      the `+++` header, **and** every added line numbered sequentially from 1
+      as if the diff were one hunk, so any file touched in two places
+      mis-located every finding. Hunk headers now set the real line number.
+      🔎 **Estate probe before merge** (old vs new, over each sibling repo's
+      HEAD-tracked content via `git archive`, since CI sees only tracked
+      files): 22 of 24 repos unchanged in blocking count; one blocking false
+      positive gone; **one repo goes green → red at its next pin bump** on a
+      single line — a published document link whose query carries a public
+      base64 id — and one already-red repo gains 15. That is the price of
+      scanning query values, which is where signed-URL credentials live; the
+      remedy is a scoped `secretscan:allow` on the line, taken in that repo.

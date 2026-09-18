@@ -144,6 +144,13 @@ class Tally:
     # reason as `fingerprints`: the unit reported is the would-be finding, which
     # is what rule (b) says gets produced before the allowance is applied.
     public_key_spans: int = 0
+    # The URL carve-out (320/290, 2026-09-18, tightened same day): a token in a
+    # published URL's SCHEME+HOST+PATH is not treated as an entropy candidate —
+    # see `URL_RX`. A query string or fragment is NOT covered — that is where a
+    # signed-URL credential actually lives, so it stays live. Counted per span
+    # for the same reason as the two above: the widest allowances get the most
+    # visible count.
+    url_tokens: int = 0
 
     @property
     def marker_total(self) -> int:
@@ -158,6 +165,9 @@ class Tally:
     def note_public_key_span(self) -> None:
         self.public_key_spans += 1
 
+    def note_url_token(self) -> None:
+        self.url_tokens += 1
+
     def summary(self) -> str:
         """One stable line, known zeros printed, so two runs compare.
 
@@ -169,7 +179,8 @@ class Tally:
                  f"{self.files_by_glob} file(s) by .secretscanignore",
                  f"{len(self.disabled_rules)} rule(s) disabled",
                  f"{self.fingerprints} public-key fingerprint(s)",
-                 f"{self.public_key_spans} by public-key line"]
+                 f"{self.public_key_spans} by public-key line",
+                 f"{self.url_tokens} by published-url token"]
         line = "  suppressed: " + " · ".join(parts)
         if self.by_marker:
             detail = ", ".join(f"{r}×{n}" for r, n in sorted(self.by_marker.items()))
@@ -314,7 +325,21 @@ NAMED: list[Pattern] = [
 # including it turned every long URL path into a false hit. A standard-base64
 # secret (which uses `/`) is caught by assignment context or a vendor format
 # instead; base64url tokens (the modern default) use `-_` and still match.
-HIGH_ENTROPY_RX = re.compile(r"(?<![A-Za-z0-9+=_-])[A-Za-z0-9+_-]{32,}={0,2}(?![A-Za-z0-9+=_-])")
+#
+# The LOOKBEHIND excludes `=` from the token class but NOT from itself
+# (320/290, 2026-09-18) — found while tightening the URL carve-out to leave a
+# query string live: `sig=<value>` (or any `key=value` under a key
+# SECRET_KEY_RX doesn't recognise) could never start a match, because the
+# lookbehind treated a preceding `=` as "still inside the previous token" the
+# same way it treats a preceding letter/digit. That made every unnamed
+# `key=value` assignment invisible to this net EVERYWHERE, not just in a URL
+# query — the exact shape a signed-URL credential takes. The LOOKAHEAD still
+# excludes `=` (unchanged): that half stops a match ending mid-way through a
+# base64 blob's own `==` padding, which is a different case (the padding is
+# consumed by `={0,2}` and read as trailing, never leading). This is a
+# monotonic widening — it can only ADD matches a preceding `=` used to hide,
+# never remove one that fired before — so the blocking set does not shrink.
+HIGH_ENTROPY_RX = re.compile(r"(?<![A-Za-z0-9+_-])[A-Za-z0-9+_-]{32,}={0,2}(?![A-Za-z0-9+=_-])")
 HIGH_ENTROPY_MIN = 4.0        # bits/char; random base64 sits ~5.0, prose ~3-4
 ASSIGNED_ENTROPY_MIN = 3.0    # assigned values get context, so a lower bar
 
@@ -367,6 +392,76 @@ FINGERPRINT_RX = re.compile(
     r"\bSHA256:[A-Za-z0-9+/]{43}=?(?![A-Za-z0-9+/=])"
     r"|\bMD5:(?:[0-9a-f]{2}:){15}[0-9a-f]{2}\b"
     r"|(?<![0-9a-f:])(?:[0-9a-f]{2}:){15}[0-9a-f]{2}(?![0-9a-f:])")
+
+
+# A published URL is not a credential (320/290, filed via a private child's
+# `secretscan:allow`-per-line workaround, 2026-09-10). A documentation link's
+# path commonly hyphenates several words into one segment (a mixed-case
+# "how to configure X" page slug), which is exactly `HIGH_ENTROPY_RX`'s shape
+# — 32+ mixed-class characters with no separator — so a rigorously-sourced
+# document blocked on its own citations.
+#
+# Recognised whole-run: a scheme (`scheme://`) followed by a run that is
+# actually host/path-SHAPED — containing a `.` (a hostname) or a `/` (a path)
+# after the scheme. That shape requirement is deliberate, not decorative: a
+# bare `http://` glued onto a real credential with no dot and no slash
+# (`http://Gk8xQvie2mNfR7pLzW3dTaHb`) does NOT match, and the value is still
+# scored as an entropy candidate — so gluing a scheme prefix alone buys no
+# suppression.
+#
+# SCOPED TO SCHEME+HOST+PATH ONLY (tightened 2026-09-18, on a coordinator's
+# ruling before merge). The exclusion originally covered the whole matched
+# run including any query string or fragment — and a signed-URL query value
+# is EXACTLY where credentials live in practice (`?sig=`, `?token=`,
+# `#access_token=` from an OAuth implicit-grant redirect). A convincing host
+# and path in front of an unnamed query/fragment secret
+# (`https://api.example.com/download?sig=<realsecret>`) made that credential
+# invisible to the context-free net, which is not an acceptable residual for
+# a scanner whose whole job is finding exactly that shape. Fixed at the root
+# rather than documented as a residual: everything from the FIRST `?` or `#`
+# in the matched run is excluded from the URL span and stays a live entropy
+# candidate, scored exactly as if no URL were present — the assigned-secret
+# rule also still runs over it unconditionally, unaffected either way.
+#
+# RESIDUAL RISK, stated rather than closed: this is a cheap shape check on the
+# host+path portion only, not proof of a real URL. A value glued behind a
+# CONVINCING host and PATH with no query/fragment at all
+# (`https://example.com/<realsecret>`) still reads as URL-shaped and that
+# credential is hidden from this net — the same way any suppression in this
+# file is bypassed by faking the shape it trusts. What keeps that survivable:
+# a credential named by a credential key anywhere on the line (`token:`,
+# `api_key=`, …) is still caught by the assigned-secret rule regardless of
+# URL shape, so the one thing this carve-out cannot see through is an UNNAMED
+# credential sitting in a URL's PATH specifically (not its query or fragment,
+# both now live). Narrowing further (e.g. requiring a real TLD, or excluding
+# only the path's non-final segments) is available if that narrower residual
+# is ever measured live; it is not narrowed pre-emptively because a floor
+# fitted to a hypothetical is not a floor (`ground-numeric-limits`).
+URL_RX = re.compile(r"\b[A-Za-z][A-Za-z0-9+.-]*://[^\s<>\"']+")
+
+
+def _url_spans(line: str) -> list[tuple[int, int]]:
+    """Character ranges on this line occupied by a host/path-shaped URL's
+    SCHEME+HOST+PATH portion only — never its query string or fragment, which
+    stay live entropy candidates (see the module comment above `URL_RX`)."""
+    spans = []
+    for m in URL_RX.finditer(line):
+        whole = m.group(0)
+        scheme_end = whole.index("://") + 3
+        cut = len(whole)
+        for sep in "?#":
+            idx = whole.find(sep, scheme_end)
+            if idx != -1:
+                cut = min(cut, idx)
+        host_and_path = whole[scheme_end:cut]
+        if "." not in host_and_path and "/" not in host_and_path:
+            continue  # not host/path-shaped — not treated as a URL at all
+        spans.append((m.start(), m.start() + cut))
+    return spans
+
+
+def _inside_url(span: tuple[int, int], urls: list[tuple[int, int]]) -> bool:
+    return any(start <= span[0] and span[1] <= end for start, end in urls)
 
 
 def _fingerprint_spans(line: str) -> list[tuple[int, int]]:
@@ -625,16 +720,23 @@ def _assigned_is_secret(value: str) -> bool:
     return False
 
 
-def scan_text(path: str, text: str,
-              disabled: frozenset[str] = frozenset(),
-              tally: Tally | None = None) -> list[Finding]:
+def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
+               disabled: frozenset[str] = frozenset(),
+               tally: Tally | None = None) -> list[Finding]:
+    """The scanning engine. `numbered_lines` pairs each line of text with its
+    REAL line number in the file — which need not be sequential or start at 1.
+    That is the shape `--staged` mode needs (320/290): only a diff's added
+    lines are scanned, but a finding must still point at the line it actually
+    sits on, not at its position in a blob of concatenated fragments.
+    `scan_text` below is the sequential-numbering convenience wrapper every
+    whole-file caller uses."""
     findings: list[Finding] = []
     # Line -> allowance scope, collected as we go. The subtraction happens
     # AFTER dedupe (rule b, find first and subtract second): suppressing at
     # match time would also count entropy hits that dedupe was about to drop,
     # inflating the very number this exists to make trustworthy.
     allow_by_line: dict[int, str] = {}
-    for lineno, line in enumerate(text.splitlines(), start=1):
+    for lineno, line in numbered_lines:
         scope = parse_allow(line)
         if scope is not None:
             allow_by_line[lineno] = scope
@@ -664,6 +766,7 @@ def scan_text(path: str, text: str,
         # a line that is both counts once, as a public-key line.
         public_key_line = bool(PUBLIC_KEY_RX.search(line))
         fingerprints = () if public_key_line else _fingerprint_spans(line)
+        url_spans = () if public_key_line else _url_spans(line)
         for m in HIGH_ENTROPY_RX.finditer(line):
             span = m.group(0)
             if public_key_line:
@@ -675,6 +778,15 @@ def scan_text(path: str, text: str,
             if _inside_fingerprint(m.span(), fingerprints):
                 if tally is not None:
                     tally.note_fingerprint()
+                continue
+            # 320/290 — a token inside a published URL's scheme+host+path is
+            # not an entropy candidate at all, neither blocking nor advisory.
+            # Its query string and fragment are NOT covered by this span (see
+            # `URL_RX`/`_url_spans`), so a token there still reaches the
+            # checks below exactly as if no URL were present.
+            if _inside_url(m.span(), url_spans):
+                if tally is not None:
+                    tally.note_url_token()
                 continue
             if _is_placeholder(span):
                 continue
@@ -704,6 +816,16 @@ def scan_text(path: str, text: str,
             continue
         kept.append(f)
     return kept
+
+
+def scan_text(path: str, text: str,
+              disabled: frozenset[str] = frozenset(),
+              tally: Tally | None = None) -> list[Finding]:
+    """Scan a whole text blob, numbering lines sequentially from 1 — the
+    whole-file/whole-tree shape. Every non-staged caller (and every existing
+    test) uses this; `scan_lines` is the shared engine underneath it."""
+    return scan_lines(path, list(enumerate(text.splitlines(), start=1)),
+                      disabled, tally)
 
 
 def _dedupe_same_span(findings: list[Finding]) -> list[Finding]:
@@ -826,25 +948,75 @@ def scan_paths(paths: list[Path], root: Path,
     return findings
 
 
-def staged_added_lines() -> dict[str, str]:
-    """Path → the added-line text of the staged diff. Scans only what a commit
-    would introduce (the pre-commit hot path), not the whole tree.
+# A unified-diff hunk header: `@@ -oldStart[,oldCount] +newStart[,newCount] @@`.
+# Only the NEW side matters here — it is the file the commit is about to
+# produce, and every added/context line after this header advances from it.
+_HUNK_HEADER_RX = re.compile(r"^@@ -\d+(?:,\d+)? \+(?P<new_start>\d+)(?:,\d+)? @@")
+
+
+def staged_added_lines() -> dict[str, list[tuple[int, str]]]:
+    """Path → [(real file line number, added-line text), ...] for the staged
+    diff. Scans only what a commit would introduce (the pre-commit hot path),
+    not the whole tree.
+
+    Fixes two defects found TOGETHER in one commit and filed as one report
+    (320/290), each masking the other: a spaced filename reported a truncated
+    path, and the finding's line number pointed 765 lines from the real one.
+    Reproduced directly against real git output before either fix, not
+    inferred from the diff format spec:
+
+      * git appends a literal trailing TAB to the `+++ b/<path>` header when
+        the path contains whitespace — there is no timestamp field here (that
+        is POSIX `diff -u`'s convention, not git's), so the tab is the ONLY
+        thing that can trail the path and stripping it is safe. `-c
+        core.quotePath=false` is passed too, so a non-ASCII path is not C-quoted
+        into something this parser would then have to un-escape.
+      * the OLD code numbered every added line sequentially from 1 — as if the
+        whole diff were one hunk starting at the top of the file — so a file
+        touched in more than one place reported EVERY finding at the wrong
+        line, independent of the path at all (reproduced with a two-hunk diff
+        on an ordinary, space-free filename). Each `@@ -a,b +c,d @@` hunk
+        header now resets the real new-file line counter, and every added or
+        context line advances it by one; a removed (`-`) line does not, since
+        it never lands in the file the commit produces.
+
     R is in the filter deliberately (review B4): git detects renames by
     default, and a renamed-AND-edited file's added lines are exactly as
     leak-capable as a modified file's — ACM alone silently skipped them."""
     out = subprocess.run(
-        ["git", "diff", "--cached", "--unified=0", "--no-color",
-         "--diff-filter=ACMR"],
+        ["git", "-c", "core.quotePath=false", "diff", "--cached",
+         "--unified=0", "--no-color", "--diff-filter=ACMR"],
         capture_output=True, text=True, check=True).stdout
-    files: dict[str, list[str]] = {}
+    files: dict[str, list[tuple[int, str]]] = {}
     current: str | None = None
+    new_lineno = 0
     for line in out.splitlines():
-        if line.startswith("+++ b/"):
-            current = line[len("+++ b/"):]
+        if line.startswith("+++ "):
+            path = line[len("+++ "):]
+            if path.startswith("b/"):
+                path = path[2:]
+            # The only terminator git emits on this header is the whitespace
+            # tab described above — strip it, and nothing else.
+            current = path.rstrip("\t")
             files.setdefault(current, [])
-        elif line.startswith("+") and not line.startswith("+++") and current:
-            files[current].append(line[1:])
-    return {path: "\n".join(lines) for path, lines in files.items() if lines}
+            continue
+        if line.startswith("@@"):
+            m = _HUNK_HEADER_RX.match(line)
+            if m:
+                new_lineno = int(m.group("new_start"))
+            continue
+        if current is None:
+            continue
+        if line.startswith("+") and not line.startswith("+++"):
+            files[current].append((new_lineno, line[1:]))
+            new_lineno += 1
+        elif line.startswith(" "):
+            # --unified=0 asks git for none of these, but a caller-side change
+            # to that flag must not silently start mis-numbering again.
+            new_lineno += 1
+        # a '-' (removed) line, and `\ No newline at end of file`, do not
+        # advance the new-file counter — neither lands in the new file.
+    return {path: lines for path, lines in files.items() if lines}
 
 
 def advisory_count_line(n: int) -> str:
@@ -976,15 +1148,15 @@ def _main(argv: list[str] | None = None) -> int:
             return 2
         prefixes = tuple(p.rstrip("/") + "/" for p in args.paths)
         if prefixes:
-            staged = {path: text for path, text in staged.items()
+            staged = {path: lines for path, lines in staged.items()
                       if path.startswith(prefixes) or path in args.paths}
         globs = load_ignore_globs(root)
         findings = []
-        for path, text in staged.items():
+        for path, lines in staged.items():
             if _ignored(path, globs):
                 tally.files_by_glob += 1
                 continue
-            findings.extend(scan_text(path, text, disabled, tally))
+            findings.extend(scan_lines(path, lines, disabled, tally))
     else:
         # A RELATIVE target resolves against --root, never the caller's cwd:
         # mixing the two reads one repo's file under another repo's rules,
@@ -1021,6 +1193,7 @@ def _main(argv: list[str] | None = None) -> int:
                 "disabled_rules": list(tally.disabled_rules),
                 "public_key_fingerprints": tally.fingerprints,
                 "by_public_key_line": tally.public_key_spans,
+                "by_published_url_token": tally.url_tokens,
             },
         }, indent=2))
     else:
@@ -1043,6 +1216,9 @@ def _selftest() -> int:
         # Both were clean before 2026-07-28; the git SHA below is the control.
         "api_key = deadbeefcafef00d0123456789abcdef",           # secretscan:allow: selftest fixture
         "password=correct-horse-battery-staple",                # secretscan:allow: selftest fixture
+        # 320/290 — a credential in a URL query string is still caught by the
+        # assigned-secret rule, which is unaffected by the URL carve-out below.
+        "GET https://api.example.com/v1/data?token=aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z",  # secretscan:allow: selftest fixture
     ]
     should_pass = [
         "password = changeme",                     # placeholder
@@ -1054,6 +1230,9 @@ def _selftest() -> int:
         # E3 — a public-key fingerprint is public material by definition. This
         # value is a synthetic 43-char base64 body, not any real key's digest.
         "host key SHA256:aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3zA5bC7dE9f",  # secretscan:allow: selftest fixture
+        # 320/290 — a published URL's hyphenated path segment is not an
+        # entropy candidate, however high it scores.
+        "doc: https://docs.example.org/guides/how-to-Configure-OAuth2-Bearer-Tokens-For-Api",
     ]
     # E6b — REPORTED and not blocking. A git SHA is the honest exemplar: it is
     # what the widened context-free net mostly finds, and a hex-encoded

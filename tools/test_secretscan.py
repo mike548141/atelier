@@ -442,6 +442,170 @@ class HighEntropy(unittest.TestCase):
                          rules("public_key: ANS5EE79aBcDeFgHiJkLmNoPqRsTuVwXyZ012345678="))
 
 
+class UrlEntropyExclusion(unittest.TestCase):
+    """320/290, defect 1 — a published URL is not a credential.
+
+    A documentation link's path commonly hyphenates several words into one
+    segment, which is exactly `HIGH_ENTROPY_RX`'s shape (32+ mixed-class
+    characters, no separator) — so a rigorously-sourced document blocked on
+    its own citations. Filed from a private child via `PROPAGATION.md`
+    § *Pointing up*, reproduced here rather than taken on report.
+    """
+
+    def test_hyphenated_doc_path_not_flagged(self):
+        self.assertEqual(
+            set(), rules("doc: https://docs.example.org/guides/how-to-"
+                         "Configure-OAuth2-Bearer-Tokens-For-Api"))
+
+    def test_nested_hyphenated_path_segment_not_flagged(self):
+        self.assertEqual(
+            set(), rules("source: https://docs.example.org/guides/nested/"
+                         "nginx-Reverse-Proxy-Setup-With-TLS13-And-HSTS-"
+                         "Enabled-Headers-Guide"))
+
+    def test_the_bare_segment_alone_would_have_flagged(self):
+        # Proves the exclusion is doing real work rather than describing a
+        # shape that was already clean — the same discipline as the
+        # fingerprint/public-key carve-outs' own "alone" control tests.
+        self.assertIn(
+            "high-entropy",
+            rules("plain text: how-to-Configure-OAuth2-Bearer-Tokens-For-"
+                 "Api-Requests-Now"))
+
+    def test_bare_high_entropy_token_with_no_url_still_flagged(self):
+        # The carve-out must not have widened past URL shapes: an ordinary
+        # high-entropy blob with no scheme anywhere on the line is unaffected.
+        self.assertIn("high-entropy",
+                      rules("blob aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3zA5bC7"))
+
+    def test_query_string_token_still_caught_by_assigned_rule(self):
+        # The item's own requirement: a credential in a URL query string must
+        # STILL be caught by whichever rule catches it today. The
+        # assigned-secret rule runs over the whole line regardless of URL
+        # shape and is unaffected by this exclusion.
+        fs = scan("GET https://api.example.com/v1/data?token="
+                 "aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z")
+        self.assertEqual(["assigned-secret"], [f.rule for f in fs])
+        self.assertTrue(all(f.blocks for f in fs))
+
+    def test_query_string_api_key_still_caught_by_assigned_rule(self):
+        fs = scan('curl "https://api.example.com/v1/data?api_key='
+                 'aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z"')
+        self.assertEqual(["assigned-secret"], [f.rule for f in fs])
+        self.assertTrue(all(f.blocks for f in fs))
+
+    def test_bare_scheme_glued_to_a_secret_with_no_host_still_flagged(self):
+        # Evasion probe named in the item: a mere `http://` prefix glued to a
+        # real-looking secret must not buy suppression for free. `URL_RX`
+        # requires the run after `://` to contain a `.` or `/` — host/path
+        # shape — so a bare scheme with nothing resembling a host is not
+        # treated as a URL at all, and the value behind it is still scored.
+        self.assertIn(
+            "high-entropy",
+            rules("http://Gk8xQvie2mNfR7pLzW3dTaHbXy4Wz9Qm"))
+
+    def test_url_with_a_dot_but_no_credential_intent_still_excluded(self):
+        # A realistic vendor publication path (dated upload, government
+        # style) — the third shape the item's own table measured.
+        self.assertEqual(
+            set(), rules("https://gov.example.govt.nz/publications/2026/"
+                         "Budget-Statement-Appendix-C-Detailed-Tables-And-"
+                         "Notes-Final"))
+
+    def test_url_token_suppression_is_counted(self):
+        # Rule (b) of `method/GUARDS.md`: every suppression this file makes
+        # is counted, never silent — the same contract as the fingerprint and
+        # public-key-line carve-outs beside it.
+        tally = ss.Tally()
+        ss.scan_text(
+            "t", "https://docs.example.org/guides/how-to-Configure-OAuth2-"
+                "Bearer-Tokens-For-Api\n", frozenset(), tally)
+        self.assertEqual(1, tally.url_tokens)
+        self.assertIn("1 by published-url token", tally.summary())
+
+    def test_zero_count_is_still_printed(self):
+        self.assertIn("0 by published-url token", ss.Tally().summary())
+
+
+class UrlExclusionScopedToHostAndPath(unittest.TestCase):
+    """320/290, tightened before merge on a coordinator's ruling.
+
+    The first cut of the URL exclusion suppressed the WHOLE matched run,
+    query string and fragment included — and a signed-URL query value is
+    exactly where a credential lives in practice (`?sig=`, `?token=` on a
+    presigned download link; `#access_token=` on an OAuth implicit-grant
+    redirect). Tightened so the exclusion stops at the URL's first `?` or
+    `#`: only the scheme+host+path portion is excluded, and everything from
+    the separator onward stays a live entropy candidate exactly as if the
+    URL prefix in front of it did not exist.
+
+    Fixing this also surfaced a second, independent, pre-existing gap:
+    `HIGH_ENTROPY_RX`'s lookbehind excluded `=` from a token's own class,
+    which meant NO `key=value` assignment under an unrecognised key name —
+    URL query or not — could ever start a match; `?sig=<value>` hit this as
+    well as the (now-fixed) URL scope. That lookbehind fix is monotonic (it
+    can only surface a match a preceding `=` used to hide, never remove one
+    that already fired), so it does not touch `BlockingSetNeverShrinks`.
+    """
+
+    def test_query_string_sig_value_flags(self):
+        # The coordinator's own example: a signed-URL query credential under
+        # a key name secretscan does not recognise (`sig`, not `token`/
+        # `api_key`/…) has no assigned-secret path to fall back on — the
+        # context-free net is the ONLY thing that can catch it, and before
+        # this fix it was invisible to that too (both the URL scope AND the
+        # `=`-lookbehind gap hid it).
+        fs = scan("https://api.example.com/download?sig="
+                 "aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z")
+        self.assertIn("high-entropy", {f.rule for f in fs})
+        self.assertTrue(any(f.blocks for f in fs))
+
+    def test_fragment_value_flags(self):
+        # An OAuth implicit-grant style redirect puts the credential after
+        # `#`, never `?` — the same live-candidate rule must apply there too.
+        fs = scan("https://app.example.com/reset#"
+                 "aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z")
+        self.assertIn("high-entropy", {f.rule for f in fs})
+        self.assertTrue(any(f.blocks for f in fs))
+
+    def test_long_hyphenated_doc_path_with_no_query_still_passes(self):
+        # The tightening must not have reopened defect 1: a URL with no query
+        # or fragment at all is still fully excluded end to end.
+        self.assertEqual(
+            set(), rules("doc: https://docs.example.org/guides/how-to-"
+                         "Configure-OAuth2-Bearer-Tokens-For-Api"))
+
+    def test_host_and_path_before_the_query_are_still_excluded(self):
+        # Only the query/fragment stop being excluded — the host+path prefix
+        # in front of a query credential is still not itself scored, so the
+        # ONE finding on this line is the query value, not the hostname.
+        fs = scan("https://api.example.com/download?sig="
+                 "aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z")
+        self.assertEqual(1, len(fs))
+
+    def test_query_key_value_assignment_gap_is_general_not_url_specific(self):
+        # The `=`-lookbehind half of this fix is not a URL mechanism at all —
+        # it applies wherever an unrecognised key is assigned a high-entropy
+        # value with '=', proven here with no URL/scheme anywhere on the line.
+        self.assertIn("high-entropy",
+                      rules("sig=aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z"))
+
+    def test_url_suppression_still_counted_up_to_the_query(self):
+        # A short domain+path like `api.example.com/download` never forms a
+        # 32+ char entropy candidate on its own (`.`/`/` break it into
+        # shorter pieces) — nothing there to suppress. Pair the hyphenated
+        # path shape from defect 1 with a query credential so BOTH halves
+        # have something to count: the path segment is still one suppressed
+        # URL token, and the query value is a live finding, not a suppression.
+        tally = ss.Tally()
+        findings = ss.scan_text(
+            "t", "https://docs.example.org/guides/how-to-Configure-OAuth2-"
+                "Bearer-Tokens-For-Api?sig=aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z\n",
+            frozenset(), tally)
+        self.assertEqual(1, tally.url_tokens)
+        self.assertEqual(["high-entropy"], [f.rule for f in findings])
+
+
 class AdvisoryTier(unittest.TestCase):
     """E6b — a second response, and the coverage it buys.
 
@@ -1005,6 +1169,108 @@ class WholeTree(unittest.TestCase):
 class SelfTest(unittest.TestCase):
     def test_selftest_passes(self):
         self.assertEqual(0, ss._selftest())
+
+
+class StagedSpacedPathAndMultiHunkTest(unittest.TestCase):
+    """320/290, defect 2 — `--staged` mis-locates a finding when a path has a
+    space, and (found in the same reproduction) mis-locates it whenever a
+    file is touched in more than one place at all, space or no space.
+
+    Both were confirmed against REAL git output before either fix, not
+    inferred from the diff format: git appends a bare trailing TAB to the
+    `+++ b/<path>` header when the path contains whitespace (there is no
+    timestamp field here, unlike POSIX `diff -u` — the tab is the only thing
+    that can trail the path), and the old code numbered every added line
+    sequentially from 1 as if the whole diff were one hunk starting at the
+    top of the file, so a SECOND hunk's lines reported at their offset within
+    that blob rather than their real line in the file.
+    """
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        self._git("init", "-q")
+        self._git("config", "user.email", "test@example.com")
+        self._git("config", "user.name", "test")
+
+    def _git(self, *args):
+        import subprocess
+        return subprocess.run(["git", *args], cwd=self.tmp, check=True,
+                              capture_output=True, text=True)
+
+    def _staged_from(self):
+        # staged_added_lines() shells out to `git diff --cached` against the
+        # PROCESS cwd (it takes no repo argument) — the real caller is the
+        # pre-commit hook, always invoked from inside the repo.
+        old = os.getcwd()
+        os.chdir(self.tmp)
+        try:
+            return ss.staged_added_lines()
+        finally:
+            os.chdir(old)
+
+    def test_spaced_path_reports_the_clean_path_and_real_line(self):
+        lines = [f"line {i}" for i in range(1, 1000)]
+        lines[229] = "some css rule that is not a secret {}"
+        lines[994] = "token = aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z"
+        target_dir = self.tmp / "some dir"
+        target_dir.mkdir()
+        (target_dir / "01 Report.html").write_text("\n".join(lines) + "\n")
+        self._git("add", "some dir/01 Report.html")
+
+        staged = self._staged_from()
+        path = "some dir/01 Report.html"
+        self.assertEqual({path}, set(staged.keys()))
+        self.assertFalse(path.endswith("\t"), "trailing tab leaked into the path")
+
+        findings = ss.scan_lines(path, staged[path])
+        self.assertEqual(["assigned-secret"], [f.rule for f in findings])
+        self.assertEqual(path, findings[0].path)
+        self.assertEqual(995, findings[0].line)
+
+    def test_multi_hunk_diff_reports_the_real_line_not_the_blob_offset(self):
+        # Same class of bug, reproduced with NO space in the path at all —
+        # proof the line-number defect is independent of the filename one.
+        lines = [f"line {i}" for i in range(1, 1000)]
+        target = self.tmp / "report.html"
+        target.write_text("\n".join(lines) + "\n")
+        self._git("add", "report.html")
+        self._git("commit", "-q", "-m", "init")
+
+        lines[4] = "some css rule that is not a secret {}"       # real line 5
+        lines[994] = "token = aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z"  # real line 995
+        target.write_text("\n".join(lines) + "\n")
+        self._git("add", "report.html")
+
+        staged = self._staged_from()
+        self.assertEqual(2, len(staged["report.html"]))
+        findings = ss.scan_lines("report.html", staged["report.html"])
+        self.assertEqual(["assigned-secret"], [f.rule for f in findings])
+        self.assertEqual(995, findings[0].line)
+
+    def test_end_to_end_through_main_json_output(self):
+        # The full `--staged --json` path a real pre-commit hook takes,
+        # exercised through `main()` rather than the internal helper alone.
+        lines = [f"line {i}" for i in range(1, 1000)]
+        lines[994] = "token = aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z"
+        target_dir = self.tmp / "some dir"
+        target_dir.mkdir()
+        (target_dir / "01 Report.html").write_text("\n".join(lines) + "\n")
+        self._git("add", "some dir/01 Report.html")
+
+        old = os.getcwd()
+        os.chdir(self.tmp)
+        try:
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                code = ss.main(["--staged", "--root", str(self.tmp), "--json"])
+        finally:
+            os.chdir(old)
+        self.assertEqual(1, code)
+        payload = json.loads(buf.getvalue())
+        finding = payload["findings"][0]
+        self.assertEqual("some dir/01 Report.html", finding["path"])
+        self.assertEqual(995, finding["line"])
 
 
 class StagedAbsolutePathTest(unittest.TestCase):
