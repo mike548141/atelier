@@ -1092,6 +1092,108 @@ class SelfTest(unittest.TestCase):
         self.assertEqual(0, ss._selftest())
 
 
+class StagedSpacedPathAndMultiHunkTest(unittest.TestCase):
+    """320/290, defect 2 — `--staged` mis-locates a finding when a path has a
+    space, and (found in the same reproduction) mis-locates it whenever a
+    file is touched in more than one place at all, space or no space.
+
+    Both were confirmed against REAL git output before either fix, not
+    inferred from the diff format: git appends a bare trailing TAB to the
+    `+++ b/<path>` header when the path contains whitespace (there is no
+    timestamp field here, unlike POSIX `diff -u` — the tab is the only thing
+    that can trail the path), and the old code numbered every added line
+    sequentially from 1 as if the whole diff were one hunk starting at the
+    top of the file, so a SECOND hunk's lines reported at their offset within
+    that blob rather than their real line in the file.
+    """
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        self._git("init", "-q")
+        self._git("config", "user.email", "test@example.com")
+        self._git("config", "user.name", "test")
+
+    def _git(self, *args):
+        import subprocess
+        return subprocess.run(["git", *args], cwd=self.tmp, check=True,
+                              capture_output=True, text=True)
+
+    def _staged_from(self):
+        # staged_added_lines() shells out to `git diff --cached` against the
+        # PROCESS cwd (it takes no repo argument) — the real caller is the
+        # pre-commit hook, always invoked from inside the repo.
+        old = os.getcwd()
+        os.chdir(self.tmp)
+        try:
+            return ss.staged_added_lines()
+        finally:
+            os.chdir(old)
+
+    def test_spaced_path_reports_the_clean_path_and_real_line(self):
+        lines = [f"line {i}" for i in range(1, 1000)]
+        lines[229] = "some css rule that is not a secret {}"
+        lines[994] = "token = aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z"
+        target_dir = self.tmp / "some dir"
+        target_dir.mkdir()
+        (target_dir / "01 Report.html").write_text("\n".join(lines) + "\n")
+        self._git("add", "some dir/01 Report.html")
+
+        staged = self._staged_from()
+        path = "some dir/01 Report.html"
+        self.assertEqual({path}, set(staged.keys()))
+        self.assertFalse(path.endswith("\t"), "trailing tab leaked into the path")
+
+        findings = ss.scan_lines(path, staged[path])
+        self.assertEqual(["assigned-secret"], [f.rule for f in findings])
+        self.assertEqual(path, findings[0].path)
+        self.assertEqual(995, findings[0].line)
+
+    def test_multi_hunk_diff_reports_the_real_line_not_the_blob_offset(self):
+        # Same class of bug, reproduced with NO space in the path at all —
+        # proof the line-number defect is independent of the filename one.
+        lines = [f"line {i}" for i in range(1, 1000)]
+        target = self.tmp / "report.html"
+        target.write_text("\n".join(lines) + "\n")
+        self._git("add", "report.html")
+        self._git("commit", "-q", "-m", "init")
+
+        lines[4] = "some css rule that is not a secret {}"       # real line 5
+        lines[994] = "token = aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z"  # real line 995
+        target.write_text("\n".join(lines) + "\n")
+        self._git("add", "report.html")
+
+        staged = self._staged_from()
+        self.assertEqual(2, len(staged["report.html"]))
+        findings = ss.scan_lines("report.html", staged["report.html"])
+        self.assertEqual(["assigned-secret"], [f.rule for f in findings])
+        self.assertEqual(995, findings[0].line)
+
+    def test_end_to_end_through_main_json_output(self):
+        # The full `--staged --json` path a real pre-commit hook takes,
+        # exercised through `main()` rather than the internal helper alone.
+        lines = [f"line {i}" for i in range(1, 1000)]
+        lines[994] = "token = aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z"
+        target_dir = self.tmp / "some dir"
+        target_dir.mkdir()
+        (target_dir / "01 Report.html").write_text("\n".join(lines) + "\n")
+        self._git("add", "some dir/01 Report.html")
+
+        old = os.getcwd()
+        os.chdir(self.tmp)
+        try:
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                code = ss.main(["--staged", "--root", str(self.tmp), "--json"])
+        finally:
+            os.chdir(old)
+        self.assertEqual(1, code)
+        payload = json.loads(buf.getvalue())
+        finding = payload["findings"][0]
+        self.assertEqual("some dir/01 Report.html", finding["path"])
+        self.assertEqual(995, finding["line"])
+
+
 class StagedAbsolutePathTest(unittest.TestCase):
     """An absolute path in --staged mode must be REFUSED, not silently obeyed.
 

@@ -681,16 +681,23 @@ def _assigned_is_secret(value: str) -> bool:
     return False
 
 
-def scan_text(path: str, text: str,
-              disabled: frozenset[str] = frozenset(),
-              tally: Tally | None = None) -> list[Finding]:
+def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
+               disabled: frozenset[str] = frozenset(),
+               tally: Tally | None = None) -> list[Finding]:
+    """The scanning engine. `numbered_lines` pairs each line of text with its
+    REAL line number in the file — which need not be sequential or start at 1.
+    That is the shape `--staged` mode needs (320/290): only a diff's added
+    lines are scanned, but a finding must still point at the line it actually
+    sits on, not at its position in a blob of concatenated fragments.
+    `scan_text` below is the sequential-numbering convenience wrapper every
+    whole-file caller uses."""
     findings: list[Finding] = []
     # Line -> allowance scope, collected as we go. The subtraction happens
     # AFTER dedupe (rule b, find first and subtract second): suppressing at
     # match time would also count entropy hits that dedupe was about to drop,
     # inflating the very number this exists to make trustworthy.
     allow_by_line: dict[int, str] = {}
-    for lineno, line in enumerate(text.splitlines(), start=1):
+    for lineno, line in numbered_lines:
         scope = parse_allow(line)
         if scope is not None:
             allow_by_line[lineno] = scope
@@ -769,6 +776,16 @@ def scan_text(path: str, text: str,
             continue
         kept.append(f)
     return kept
+
+
+def scan_text(path: str, text: str,
+              disabled: frozenset[str] = frozenset(),
+              tally: Tally | None = None) -> list[Finding]:
+    """Scan a whole text blob, numbering lines sequentially from 1 — the
+    whole-file/whole-tree shape. Every non-staged caller (and every existing
+    test) uses this; `scan_lines` is the shared engine underneath it."""
+    return scan_lines(path, list(enumerate(text.splitlines(), start=1)),
+                      disabled, tally)
 
 
 def _dedupe_same_span(findings: list[Finding]) -> list[Finding]:
@@ -891,25 +908,75 @@ def scan_paths(paths: list[Path], root: Path,
     return findings
 
 
-def staged_added_lines() -> dict[str, str]:
-    """Path → the added-line text of the staged diff. Scans only what a commit
-    would introduce (the pre-commit hot path), not the whole tree.
+# A unified-diff hunk header: `@@ -oldStart[,oldCount] +newStart[,newCount] @@`.
+# Only the NEW side matters here — it is the file the commit is about to
+# produce, and every added/context line after this header advances from it.
+_HUNK_HEADER_RX = re.compile(r"^@@ -\d+(?:,\d+)? \+(?P<new_start>\d+)(?:,\d+)? @@")
+
+
+def staged_added_lines() -> dict[str, list[tuple[int, str]]]:
+    """Path → [(real file line number, added-line text), ...] for the staged
+    diff. Scans only what a commit would introduce (the pre-commit hot path),
+    not the whole tree.
+
+    Fixes two defects found TOGETHER in one commit and filed as one report
+    (320/290), each masking the other: a spaced filename reported a truncated
+    path, and the finding's line number pointed 765 lines from the real one.
+    Reproduced directly against real git output before either fix, not
+    inferred from the diff format spec:
+
+      * git appends a literal trailing TAB to the `+++ b/<path>` header when
+        the path contains whitespace — there is no timestamp field here (that
+        is POSIX `diff -u`'s convention, not git's), so the tab is the ONLY
+        thing that can trail the path and stripping it is safe. `-c
+        core.quotePath=false` is passed too, so a non-ASCII path is not C-quoted
+        into something this parser would then have to un-escape.
+      * the OLD code numbered every added line sequentially from 1 — as if the
+        whole diff were one hunk starting at the top of the file — so a file
+        touched in more than one place reported EVERY finding at the wrong
+        line, independent of the path at all (reproduced with a two-hunk diff
+        on an ordinary, space-free filename). Each `@@ -a,b +c,d @@` hunk
+        header now resets the real new-file line counter, and every added or
+        context line advances it by one; a removed (`-`) line does not, since
+        it never lands in the file the commit produces.
+
     R is in the filter deliberately (review B4): git detects renames by
     default, and a renamed-AND-edited file's added lines are exactly as
     leak-capable as a modified file's — ACM alone silently skipped them."""
     out = subprocess.run(
-        ["git", "diff", "--cached", "--unified=0", "--no-color",
-         "--diff-filter=ACMR"],
+        ["git", "-c", "core.quotePath=false", "diff", "--cached",
+         "--unified=0", "--no-color", "--diff-filter=ACMR"],
         capture_output=True, text=True, check=True).stdout
-    files: dict[str, list[str]] = {}
+    files: dict[str, list[tuple[int, str]]] = {}
     current: str | None = None
+    new_lineno = 0
     for line in out.splitlines():
-        if line.startswith("+++ b/"):
-            current = line[len("+++ b/"):]
+        if line.startswith("+++ "):
+            path = line[len("+++ "):]
+            if path.startswith("b/"):
+                path = path[2:]
+            # The only terminator git emits on this header is the whitespace
+            # tab described above — strip it, and nothing else.
+            current = path.rstrip("\t")
             files.setdefault(current, [])
-        elif line.startswith("+") and not line.startswith("+++") and current:
-            files[current].append(line[1:])
-    return {path: "\n".join(lines) for path, lines in files.items() if lines}
+            continue
+        if line.startswith("@@"):
+            m = _HUNK_HEADER_RX.match(line)
+            if m:
+                new_lineno = int(m.group("new_start"))
+            continue
+        if current is None:
+            continue
+        if line.startswith("+") and not line.startswith("+++"):
+            files[current].append((new_lineno, line[1:]))
+            new_lineno += 1
+        elif line.startswith(" "):
+            # --unified=0 asks git for none of these, but a caller-side change
+            # to that flag must not silently start mis-numbering again.
+            new_lineno += 1
+        # a '-' (removed) line, and `\ No newline at end of file`, do not
+        # advance the new-file counter — neither lands in the new file.
+    return {path: lines for path, lines in files.items() if lines}
 
 
 def advisory_count_line(n: int) -> str:
@@ -1041,15 +1108,15 @@ def _main(argv: list[str] | None = None) -> int:
             return 2
         prefixes = tuple(p.rstrip("/") + "/" for p in args.paths)
         if prefixes:
-            staged = {path: text for path, text in staged.items()
+            staged = {path: lines for path, lines in staged.items()
                       if path.startswith(prefixes) or path in args.paths}
         globs = load_ignore_globs(root)
         findings = []
-        for path, text in staged.items():
+        for path, lines in staged.items():
             if _ignored(path, globs):
                 tally.files_by_glob += 1
                 continue
-            findings.extend(scan_text(path, text, disabled, tally))
+            findings.extend(scan_lines(path, lines, disabled, tally))
     else:
         # A RELATIVE target resolves against --root, never the caller's cwd:
         # mixing the two reads one repo's file under another repo's rules,
