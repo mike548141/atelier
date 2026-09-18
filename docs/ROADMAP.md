@@ -163,7 +163,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [What actually reaches a child, measured 2026-08-15 — and it is about](roadmap/115-guardrail-architecture-mike-commissioned/150-what-reaches-a-child-measured-and-it-is-about.md)
 - [ ] [The floor a child inherits is a records-hygiene floor, and the…](roadmap/115-guardrail-architecture-mike-commissioned/160-the-child-floor-is-a-records-hygiene-floor-not.md)
 - [ ] 🎯 [The guard layer is consuming the programme — the proportionality](roadmap/115-guardrail-architecture-mike-commissioned/170-the-guard-layer-is-consuming-the-programme.md)
-- [~] (claimed 2026-09-18-0500, wt: main-boundary-check-0918) [Machine-check the main boundary ADR 0008's control clause names](roadmap/115-guardrail-architecture-mike-commissioned/180-machine-check-the-main-branch-boundary.md)
+- ✅ [Machine-check the main boundary ADR 0008's control clause names](roadmap/115-guardrail-architecture-mike-commissioned/180-machine-check-the-main-branch-boundary.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 
@@ -181,7 +181,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md)*
 
-- [~] 🔎 (claimed 2026-09-18-0500, wt: main-boundary-check-0918) [The machine-check half — the second thing Mike ruled, and it is not](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/010-the-machine-check-half-the-second-thing-mike-r.md)
+- ✅ 🔎 [The machine-check half — the second thing Mike ruled, and it is not](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/010-the-machine-check-half-the-second-thing-mike-r.md)
 - [ ] 🔎 [ADR 0008's clause is now closer to true and still not true.](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/020-adr-0008-s-clause-is-now-closer-to-true-and-st.md)
 
 ## The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)

@@ -1,4 +1,4 @@
-- [~] (claimed 2026-09-18-0500, wt: main-boundary-check-0918) **Machine-check the `main` boundary ADR 0008's control clause names
+- [x] **Machine-check the `main` boundary ADR 0008's control clause names
       (AP1, ruled 2026-08-23).** The clause's safety argument for the
       floating `@main` call now states the controls actually in force (see
       the 2026-08-23 amendment); the named aspiration — branch protection /
@@ -13,3 +13,6 @@
       considered and declined informed.
       review: not warranted — a queued build item recording an accepted
       ruling; the build earns its review at landing.
+
+      ✅ **BUILT 2026-09-18** — delivered under `140/010` (the same build);
+      see its close note.
