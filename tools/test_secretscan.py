@@ -442,6 +442,91 @@ class HighEntropy(unittest.TestCase):
                          rules("public_key: ANS5EE79aBcDeFgHiJkLmNoPqRsTuVwXyZ012345678="))
 
 
+class UrlEntropyExclusion(unittest.TestCase):
+    """320/290, defect 1 — a published URL is not a credential.
+
+    A documentation link's path commonly hyphenates several words into one
+    segment, which is exactly `HIGH_ENTROPY_RX`'s shape (32+ mixed-class
+    characters, no separator) — so a rigorously-sourced document blocked on
+    its own citations. Filed from a private child via `PROPAGATION.md`
+    § *Pointing up*, reproduced here rather than taken on report.
+    """
+
+    def test_hyphenated_doc_path_not_flagged(self):
+        self.assertEqual(
+            set(), rules("doc: https://docs.example.org/guides/how-to-"
+                         "Configure-OAuth2-Bearer-Tokens-For-Api"))
+
+    def test_nested_hyphenated_path_segment_not_flagged(self):
+        self.assertEqual(
+            set(), rules("source: https://docs.example.org/guides/nested/"
+                         "nginx-Reverse-Proxy-Setup-With-TLS13-And-HSTS-"
+                         "Enabled-Headers-Guide"))
+
+    def test_the_bare_segment_alone_would_have_flagged(self):
+        # Proves the exclusion is doing real work rather than describing a
+        # shape that was already clean — the same discipline as the
+        # fingerprint/public-key carve-outs' own "alone" control tests.
+        self.assertIn(
+            "high-entropy",
+            rules("plain text: how-to-Configure-OAuth2-Bearer-Tokens-For-"
+                 "Api-Requests-Now"))
+
+    def test_bare_high_entropy_token_with_no_url_still_flagged(self):
+        # The carve-out must not have widened past URL shapes: an ordinary
+        # high-entropy blob with no scheme anywhere on the line is unaffected.
+        self.assertIn("high-entropy",
+                      rules("blob aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3zA5bC7"))
+
+    def test_query_string_token_still_caught_by_assigned_rule(self):
+        # The item's own requirement: a credential in a URL query string must
+        # STILL be caught by whichever rule catches it today. The
+        # assigned-secret rule runs over the whole line regardless of URL
+        # shape and is unaffected by this exclusion.
+        fs = scan("GET https://api.example.com/v1/data?token="
+                 "aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z")
+        self.assertEqual(["assigned-secret"], [f.rule for f in fs])
+        self.assertTrue(all(f.blocks for f in fs))
+
+    def test_query_string_api_key_still_caught_by_assigned_rule(self):
+        fs = scan('curl "https://api.example.com/v1/data?api_key='
+                 'aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z"')
+        self.assertEqual(["assigned-secret"], [f.rule for f in fs])
+        self.assertTrue(all(f.blocks for f in fs))
+
+    def test_bare_scheme_glued_to_a_secret_with_no_host_still_flagged(self):
+        # Evasion probe named in the item: a mere `http://` prefix glued to a
+        # real-looking secret must not buy suppression for free. `URL_RX`
+        # requires the run after `://` to contain a `.` or `/` — host/path
+        # shape — so a bare scheme with nothing resembling a host is not
+        # treated as a URL at all, and the value behind it is still scored.
+        self.assertIn(
+            "high-entropy",
+            rules("http://Gk8xQvie2mNfR7pLzW3dTaHbXy4Wz9Qm"))
+
+    def test_url_with_a_dot_but_no_credential_intent_still_excluded(self):
+        # A realistic vendor publication path (dated upload, government
+        # style) — the third shape the item's own table measured.
+        self.assertEqual(
+            set(), rules("https://gov.example.govt.nz/publications/2026/"
+                         "Budget-Statement-Appendix-C-Detailed-Tables-And-"
+                         "Notes-Final"))
+
+    def test_url_token_suppression_is_counted(self):
+        # Rule (b) of `method/GUARDS.md`: every suppression this file makes
+        # is counted, never silent — the same contract as the fingerprint and
+        # public-key-line carve-outs beside it.
+        tally = ss.Tally()
+        ss.scan_text(
+            "t", "https://docs.example.org/guides/how-to-Configure-OAuth2-"
+                "Bearer-Tokens-For-Api\n", frozenset(), tally)
+        self.assertEqual(1, tally.url_tokens)
+        self.assertIn("1 by published-url token", tally.summary())
+
+    def test_zero_count_is_still_printed(self):
+        self.assertIn("0 by published-url token", ss.Tally().summary())
+
+
 class AdvisoryTier(unittest.TestCase):
     """E6b — a second response, and the coverage it buys.
 

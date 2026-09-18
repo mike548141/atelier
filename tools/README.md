@@ -330,9 +330,14 @@ It deliberately does **not** flag the safe indirections — `!secret foo` (tiki)
 secret. It skips variable/attribute/call values (`password=admin_password`),
 public-key material (`ssh-ed25519 …`, `public_key:`), **public-key fingerprints**
 (`SHA256:…`, colon-joined hex — public by definition, matched whole-shape so a
-near-miss still flags), and URL paths, which are the dominant false positives in
-real source. The report prints only a redacted fingerprint (length + entropy),
-never the secret value.
+near-miss still flags), and a token that is (part of) a **published URL** — a
+`scheme://` run or one of its path segments (320/290, 2026-09-18) — which are the
+dominant false positives in real source, including hyphenated documentation
+links that otherwise read as one long high-entropy run. A credential in a URL's
+query string is unaffected and still caught by the assigned-secret rule
+(`?token=…`, `?api_key=…`); a bare `http://` glued to a real secret with no
+host/path shape buys no suppression. The report prints only a redacted
+fingerprint (length + entropy), never the secret value.
 
 ### Usage
 

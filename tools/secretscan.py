@@ -144,6 +144,11 @@ class Tally:
     # reason as `fingerprints`: the unit reported is the would-be finding, which
     # is what rule (b) says gets produced before the allowance is applied.
     public_key_spans: int = 0
+    # The URL carve-out (320/290, 2026-09-18): a token that is a path segment of
+    # a published URL, or is glued directly to a `scheme://` run, is not treated
+    # as an entropy candidate — see `URL_RX`. Counted per span for the same
+    # reason as the two above: the widest allowances get the most visible count.
+    url_tokens: int = 0
 
     @property
     def marker_total(self) -> int:
@@ -158,6 +163,9 @@ class Tally:
     def note_public_key_span(self) -> None:
         self.public_key_spans += 1
 
+    def note_url_token(self) -> None:
+        self.url_tokens += 1
+
     def summary(self) -> str:
         """One stable line, known zeros printed, so two runs compare.
 
@@ -169,7 +177,8 @@ class Tally:
                  f"{self.files_by_glob} file(s) by .secretscanignore",
                  f"{len(self.disabled_rules)} rule(s) disabled",
                  f"{self.fingerprints} public-key fingerprint(s)",
-                 f"{self.public_key_spans} by public-key line"]
+                 f"{self.public_key_spans} by public-key line",
+                 f"{self.url_tokens} by published-url token"]
         line = "  suppressed: " + " · ".join(parts)
         if self.by_marker:
             detail = ", ".join(f"{r}×{n}" for r, n in sorted(self.by_marker.items()))
@@ -367,6 +376,53 @@ FINGERPRINT_RX = re.compile(
     r"\bSHA256:[A-Za-z0-9+/]{43}=?(?![A-Za-z0-9+/=])"
     r"|\bMD5:(?:[0-9a-f]{2}:){15}[0-9a-f]{2}\b"
     r"|(?<![0-9a-f:])(?:[0-9a-f]{2}:){15}[0-9a-f]{2}(?![0-9a-f:])")
+
+
+# A published URL is not a credential (320/290, filed via a private child's
+# `secretscan:allow`-per-line workaround, 2026-09-10). A documentation link's
+# path commonly hyphenates several words into one segment (a mixed-case
+# "how to configure X" page slug), which is exactly `HIGH_ENTROPY_RX`'s shape
+# — 32+ mixed-class characters with no separator — so a rigorously-sourced
+# document blocked on its own citations.
+#
+# Recognised whole-run: a scheme (`scheme://`) followed by a run that is
+# actually host/path-SHAPED — containing a `.` (a hostname) or a `/` (a path)
+# after the scheme. That shape requirement is deliberate, not decorative: a
+# bare `http://` glued onto a real credential with no dot and no slash
+# (`http://Gk8xQvie2mNfR7pLzW3dTaHb`) does NOT match, and the value is still
+# scored as an entropy candidate — so gluing a scheme prefix alone buys no
+# suppression.
+#
+# RESIDUAL RISK, stated rather than closed: this is a cheap shape check, not
+# proof of a real URL. A value glued behind a CONVINCING host and path
+# (`http://example.com/<realsecret>`) still reads as URL-shaped and the
+# credential inside it is hidden from this net — the same way any suppression
+# in this file is bypassed by faking the shape it trusts. What keeps that
+# survivable is that this carve-out only ever touches the CONTEXT-FREE net:
+# a query-string credential named by a credential key (`?token=`, `?api_key=`)
+# is still caught by the assigned-secret rule below, which runs over the whole
+# line regardless of URL shape and is UNCHANGED by this exclusion. An unnamed
+# credential smuggled inside a URL with no recognised key beside it is the one
+# shape this carve-out cannot see through — narrowing that further (e.g.
+# requiring a real TLD, or excluding only the LAST path segment) is available
+# if that residual risk is ever measured live; it is not narrowed pre-emptively
+# because a floor fitted to a hypothetical is not a floor (`ground-numeric-
+# limits`).
+URL_RX = re.compile(r"\b[A-Za-z][A-Za-z0-9+.-]*://[^\s<>\"']+")
+
+
+def _url_spans(line: str) -> list[tuple[int, int]]:
+    """Character ranges on this line occupied by a host/path-shaped URL run."""
+    spans = []
+    for m in URL_RX.finditer(line):
+        rest = m.group(0).split("://", 1)[1]
+        if "." in rest or "/" in rest:
+            spans.append(m.span())
+    return spans
+
+
+def _inside_url(span: tuple[int, int], urls: list[tuple[int, int]]) -> bool:
+    return any(start <= span[0] and span[1] <= end for start, end in urls)
 
 
 def _fingerprint_spans(line: str) -> list[tuple[int, int]]:
@@ -664,6 +720,7 @@ def scan_text(path: str, text: str,
         # a line that is both counts once, as a public-key line.
         public_key_line = bool(PUBLIC_KEY_RX.search(line))
         fingerprints = () if public_key_line else _fingerprint_spans(line)
+        url_spans = () if public_key_line else _url_spans(line)
         for m in HIGH_ENTROPY_RX.finditer(line):
             span = m.group(0)
             if public_key_line:
@@ -675,6 +732,14 @@ def scan_text(path: str, text: str,
             if _inside_fingerprint(m.span(), fingerprints):
                 if tally is not None:
                     tally.note_fingerprint()
+                continue
+            # 320/290 — a token that is (part of) a published URL is not an
+            # entropy candidate at all, neither blocking nor advisory. See
+            # `URL_RX` for the shape requirement and the residual risk it
+            # deliberately leaves open.
+            if _inside_url(m.span(), url_spans):
+                if tally is not None:
+                    tally.note_url_token()
                 continue
             if _is_placeholder(span):
                 continue
@@ -1021,6 +1086,7 @@ def _main(argv: list[str] | None = None) -> int:
                 "disabled_rules": list(tally.disabled_rules),
                 "public_key_fingerprints": tally.fingerprints,
                 "by_public_key_line": tally.public_key_spans,
+                "by_published_url_token": tally.url_tokens,
             },
         }, indent=2))
     else:
@@ -1043,6 +1109,9 @@ def _selftest() -> int:
         # Both were clean before 2026-07-28; the git SHA below is the control.
         "api_key = deadbeefcafef00d0123456789abcdef",           # secretscan:allow: selftest fixture
         "password=correct-horse-battery-staple",                # secretscan:allow: selftest fixture
+        # 320/290 — a credential in a URL query string is still caught by the
+        # assigned-secret rule, which is unaffected by the URL carve-out below.
+        "GET https://api.example.com/v1/data?token=aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z",  # secretscan:allow: selftest fixture
     ]
     should_pass = [
         "password = changeme",                     # placeholder
@@ -1054,6 +1123,9 @@ def _selftest() -> int:
         # E3 — a public-key fingerprint is public material by definition. This
         # value is a synthetic 43-char base64 body, not any real key's digest.
         "host key SHA256:aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3zA5bC7dE9f",  # secretscan:allow: selftest fixture
+        # 320/290 — a published URL's hyphenated path segment is not an
+        # entropy candidate, however high it scores.
+        "doc: https://docs.example.org/guides/how-to-Configure-OAuth2-Bearer-Tokens-For-Api",
     ]
     # E6b — REPORTED and not blocking. A git SHA is the honest exemplar: it is
     # what the widened context-free net mostly finds, and a hex-encoded
