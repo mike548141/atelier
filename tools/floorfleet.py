@@ -58,9 +58,37 @@ RUN STATES (--status only — the compliance question, not the conformance one)
   no-result     cancelled or skipped — not a failure, and not proof of a pass
   unknown       could not read (no remote, no Actions permission, gh failure)
 
+PARENT BOUNDARY — atelier's OWN main-branch protection, not a child's (AP1,
+ADR 0008's 2026-08-23 amendment; board item 115/180). Read whenever a plane
+already talks to GitHub (--remote, --status, or --from-github); a bare local
+run reports nothing here because there is no local artifact this could read.
+  green     main's ruleset blocks force-push (`non_fast_forward`) and
+            deletion — the control actually in force, per the ADR.
+  red       `deletion` or `non_fast_forward` is MISSING from main's ruleset:
+            the boundary that is supposed to make every child's floating
+            `@main` caller safe is not there. This is the absence AP1 named
+            and nothing previously checked for.
+  unknown   `repos/{owner}/{repo}/rules/branches/main` could not be read — no
+            `gh`, no auth, no network, or a malformed response. Never a pass:
+            an unreachable API reporting the safest possible answer is
+            exactly the silent failure this row exists to close.
+  (blank)   not asked for on this run (no plane reads GitHub).
+
+  `required_signatures` is read and shown alongside the other two, but its
+  ABSENCE does not red this row. The ADR states signature verification is
+  "warn-first on both planes" and never names it as the ruled control here,
+  and full required-PR protection was considered and declined informed — it
+  would break the direct-to-`main` workflow the estate's sessions and claim
+  mechanics run on. Redding on a control nobody ruled would be this tool
+  inventing a requirement, the mirror image of the silent absence it exists
+  to catch.
+
 Exit codes (fail-safe — an estate we could not verify is never reported green):
-  0  every child is wired (or pinned, which is a declared choice)
-  1  at least one child is vendored, absent, or unknown — with --check
+  0  every child is wired (or pinned, which is a declared choice), and — on a
+     run that read it — atelier's own boundary is not red or unknown
+  1  at least one child is vendored, absent, or unknown — with --check.
+     Also 1, with --check, when a plane that reads GitHub found atelier's
+     own main-branch boundary red or unknown.
   2  environment error (not an atelier checkout, nothing discovered)
 
   With `--status`, exit 1 also covers any repo whose floor is not `passing`.
@@ -139,6 +167,9 @@ Usage:
   floorfleet --child <path>  report only the named child
   floorfleet --json          machine-readable
   floorfleet --selftest      prove the classification logic, offline
+
+  atelier's own main-branch boundary (115/180, see PARENT BOUNDARY above) is
+  read as part of --remote / --status / --from-github — no separate flag.
 """
 
 from __future__ import annotations
@@ -279,6 +310,17 @@ class ChildFloor:
     # the reusable one; whichever of its own workflows actually runs `floor.py`
     # for the parent, which does not use a caller at all.
     workflow: str = ""
+    # PARENT-ROW ONLY (115/180, AP1) — never set for a child; this tool
+    # answers for atelier's OWN `main`, never a child's. "" means not asked
+    # for on this run (no plane reads GitHub); otherwise "green" / "red" /
+    # "unknown" from `classify_boundary`. Deliberately NOT folded into `ok`/
+    # `green` above: those two answer "does this repo call the floor" and
+    # "is that floor green", both meanings already load-bearing on children
+    # and pinned by tests that construct a parent row with no boundary set at
+    # all. This is a third, independent question, reported on its own line
+    # and folded into `main()`'s exit code separately — see `main`.
+    boundary: str = ""
+    boundary_detail: str = ""
 
     @property
     def ok(self) -> bool:
@@ -515,6 +557,69 @@ def classify_run(enabled: bool | None, wf_state: str | None,
                           f"branch is now {head_sha[:8]} — newer commits are "
                           "unscanned")
     return ("passing", "the floor is green on the default branch")
+
+
+# The RULED control (AP1, ADR 0008's 2026-08-23 amendment; board item
+# 115/180): force-push and deletion blocking on atelier's OWN `main`. Full
+# required-PR protection was considered and declined informed — it would
+# break the direct-to-`main` workflow the estate's sessions and claim
+# mechanics run on — so it is deliberately NOT in this set.
+REQUIRED_BOUNDARY_TYPES = ("deletion", "non_fast_forward")
+# Present on `main` today but reported for visibility only. The ADR states
+# signature verification is "warn-first on both planes" and never names
+# `required_signatures` as part of the boundary this item closes — so a repo
+# that carries it is stronger than commissioned, and one that lacks it is not
+# this row's problem. Redding on a control nobody ruled would be this tool
+# inventing a requirement, the mirror image of the silent absence AP1 found.
+INFORMATIONAL_BOUNDARY_TYPE = "required_signatures"
+
+
+def classify_boundary(rules: object) -> tuple[str, str]:
+    """(state, detail) for the branch-protection/ruleset boundary GitHub
+    actually applies to atelier's `main` — the parent-row check board item
+    115/180 commissions, closing AP1's "nothing would notice if the ruleset
+    were deleted". Pure — the selftest drives every branch offline, the same
+    split `classify_run` uses, so the network stays out of unit tests.
+
+    `rules` is `repos/{slug}/rules/branches/main`'s parsed body: a flat list
+    merging every ruleset that targets the branch, each entry carrying at
+    least a `type` (`deletion`, `non_fast_forward`, `required_signatures`,
+    ...). Anything that is not a genuine list of objects — `None` (the read
+    failed, for ANY reason: no `gh`, no auth, network, a non-list body) — is
+    `unknown`, never a pass: an unreachable API reporting green is the exact
+    silent failure this item exists to close.
+    """
+    if not isinstance(rules, list):
+        return ("unknown",
+                "could not read main's ruleset from GitHub "
+                "(repos/{owner}/{repo}/rules/branches/main) — gh "
+                "unavailable, unauthenticated, or the API did not answer")
+    types = {r.get("type") for r in rules if isinstance(r, dict)}
+    missing = [t for t in REQUIRED_BOUNDARY_TYPES if t not in types]
+    sig = "present" if INFORMATIONAL_BOUNDARY_TYPE in types else "absent"
+    if missing:
+        return ("red",
+                f"RULED CONTROL ABSENT — main's ruleset is missing "
+                f"{', '.join(missing)}; force-push/deletion protection is "
+                f"not in force (required-signatures: {sig}, informational — "
+                "not the ruled control)")
+    return ("green",
+            "main's ruleset blocks force-push and deletion "
+            f"(required-signatures: {sig}, informational — not the ruled "
+            "control; full required-PR protection is deliberately absent)")
+
+
+def read_boundary(repo: Path) -> tuple[str, str]:
+    """(state, detail) for atelier's OWN main-branch boundary — the I/O half
+    of `classify_boundary`, split the same way `read_run`/`classify_run` are
+    so the decision stays pure and testable. Owner/repo comes from the same
+    `_slug` every other GitHub read in this module uses, off `repo`'s own
+    `origin` remote — never hard-coded beyond the fallback of reporting
+    `unknown` when there is no remote to ask."""
+    slug = _slug(repo)
+    if not slug:
+        return ("unknown", "no origin remote — nothing to ask GitHub about")
+    return classify_boundary(_gh_json(f"repos/{slug}/rules/branches/main"))
 
 
 SHIM_PATH = ".githooks/pre-commit"
@@ -1142,6 +1247,11 @@ SHIM_ICON = {"current": "✅", "legacy": "⚠️", "absent": "❌", "unknown": "
 RUN_ICON = {"passing": "✅", "failing": "🛑", "actions-off": "🛑",
             "no-runs": "🛑", "unregistered": "🛑", "behind": "⚠️",
             "no-result": "⚠️", "running": "⏳", "unknown": "⚠️"}
+# The parent-row boundary check (115/180). `unknown` is amber, not red, in
+# THIS icon only because it sits beside `red`'s own 🛑 on the same line and
+# the two must stay visually distinct — `main()`'s exit code still treats
+# unknown as a failure under --check, same as everywhere else in this tool.
+BOUNDARY_ICON = {"green": "✅", "red": "🛑", "unknown": "⚠️"}
 
 
 def render(infos: list[ChildFloor], remote: bool, status: bool = False,
@@ -1167,6 +1277,13 @@ def render(infos: list[ChildFloor], remote: bool, status: bool = False,
             # (which commit, which conclusion) and the row is already at width.
             lines.append(f"      {RUN_ICON.get(i.run, '?')} run:{i.run:<12} "
                          f"{i.run_detail}")
+        # The parent's own branch-boundary check (115/180, AP1) — never set
+        # for a child, and blank ("") whenever no plane this run asked for
+        # reads GitHub. Its own line for the same reason `run:` is: the
+        # detail is a sentence and the row is already at width.
+        if i.is_parent and i.boundary:
+            lines.append(f"      {BOUNDARY_ICON.get(i.boundary, '?')} "
+                         f"boundary:{i.boundary:<8} {i.boundary_detail}")
         # The C1 line. An advisory is tracked debt, so the board shows the debt:
         # why it was taken on and when it was due. A passed date goes 🔴 and
         # says how long it has been standing — the board is the whole forcing
@@ -1448,6 +1565,45 @@ def _selftest() -> int:
     check("unreadable child is not green",
           str(unreadable_row("o/r", status=True).green), "False")
 
+    # The parent-row boundary check (115/180, AP1). Pure, offline, canned
+    # JSON in place of a live `gh api` call — the network never enters a unit
+    # test or this selftest.
+    check("boundary: all present",
+          classify_boundary([{"type": "deletion"}, {"type": "non_fast_forward"},
+                             {"type": "required_signatures"}])[0], "green")
+    check("boundary: deletion missing",
+          classify_boundary([{"type": "non_fast_forward"},
+                             {"type": "required_signatures"}])[0], "red")
+    check("boundary: non_fast_forward missing",
+          classify_boundary([{"type": "deletion"},
+                             {"type": "required_signatures"}])[0], "red")
+    check("boundary: api error",
+          classify_boundary(None)[0], "unknown")
+    check("boundary: malformed (not a list)",
+          classify_boundary({"type": "deletion"})[0], "unknown")
+    # required_signatures is informational ONLY — its absence must never red
+    # this row on its own; only the ruled control (deletion +
+    # non_fast_forward) does. Required-PR protection was declined informed,
+    # so it is never checked for at all.
+    check("boundary: green without required_signatures",
+          classify_boundary([{"type": "deletion"},
+                             {"type": "non_fast_forward"}])[0], "green")
+    check("boundary: signature presence noted, not required",
+          str("present" in classify_boundary(
+              [{"type": "deletion"}, {"type": "non_fast_forward"},
+               {"type": "required_signatures"}])[1]), "True")
+
+    # Deliberately kept OUT of ok/green (see ChildFloor.boundary) — pinned in
+    # both directions so a future change to `ok` cannot silently start
+    # reading a field it was never meant to.
+    check("boundary red does not move ok",
+          str(ChildFloor(name="atelier (parent)", path="/a", state="wired",
+                         detail="", is_parent=True, boundary="red",
+                         boundary_detail="x").ok), "True")
+    check("boundary on a non-parent row is inert",
+          str(ChildFloor(name="child", path="/c", state="wired", detail="",
+                         boundary="red", boundary_detail="x").ok), "True")
+
     for f in fails:
         print(f"floorfleet selftest FAIL: {f}", file=sys.stderr)
     print(f"floorfleet selftest: {'FAILED' if fails else 'ok'} "
@@ -1582,6 +1738,17 @@ def main(argv: list[str] | None = None) -> int:
                            "no run history to read")
     if args.from_github:
         parent.hook = "n/a"
+    # The parent-row boundary check (115/180, AP1): atelier's OWN main-branch
+    # ruleset, never a child's. Read whenever a plane this run already talks
+    # to GitHub on — --remote, --status or --from-github (which implies
+    # --remote) — because there is no local artifact this could read from; a
+    # bare local run leaves it "" (not asked for), matching the `run` column's
+    # own sentinel contract. `atelier`, not `main_checkout(atelier)`: every
+    # other parent-row read (hook, shim) resolves the origin remote off the
+    # same variable, and `origin` is shared across a worktree and its main
+    # checkout regardless.
+    if args.remote or args.status:
+        parent.boundary, parent.boundary_detail = read_boundary(atelier)
     infos.insert(0, parent)
 
     if args.json:
@@ -1630,7 +1797,16 @@ def main(argv: list[str] | None = None) -> int:
     # that relied on the old meaning changes behaviour.
     failed = (not i.green for i in infos) if args.status \
         else (not i.ok for i in infos)
-    return 1 if any(failed) else 0
+    if any(failed):
+        return 1
+    # The boundary check's own contribution (115/180, AP1) — kept OUT of
+    # `ok`/`green` deliberately (see ChildFloor.boundary), so it is folded in
+    # here instead. "" means it was not asked for on this run and must never
+    # fail a check that never looked; "red" and "unknown" both must, because
+    # an unreadable boundary is this tool's `unknown` everywhere else too.
+    if parent.boundary not in ("", "green"):
+        return 1
+    return 0
 
 
 if __name__ == "__main__":

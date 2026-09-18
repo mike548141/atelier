@@ -1248,5 +1248,171 @@ class ControlCharacterTest(unittest.TestCase):
         self.assertEqual(info.advisory, {})
 
 
+class BoundaryTest(unittest.TestCase):
+    """The parent-row boundary check (115/180, AP1): does atelier's OWN
+    `main` still carry the ruled control (force-push + deletion blocking)?
+
+    `classify_boundary` is pure, driven here with canned JSON, never a live
+    `gh api` call — the same split as `classify_run`/`read_run`, so the
+    network stays out of every test in this class."""
+
+    ALL_PRESENT = [{"type": "deletion"}, {"type": "non_fast_forward"},
+                   {"type": "required_signatures"}]
+
+    def test_all_present_is_green(self):
+        state, detail = floorfleet.classify_boundary(self.ALL_PRESENT)
+        self.assertEqual(state, "green")
+        self.assertIn("required-signatures: present", detail)
+
+    def test_deletion_missing_is_red(self):
+        state, detail = floorfleet.classify_boundary(
+            [{"type": "non_fast_forward"}])
+        self.assertEqual(state, "red")
+        self.assertIn("deletion", detail)
+
+    def test_non_fast_forward_missing_is_red(self):
+        state, detail = floorfleet.classify_boundary([{"type": "deletion"}])
+        self.assertEqual(state, "red")
+        self.assertIn("non_fast_forward", detail)
+
+    def test_api_error_is_unknown_never_green(self):
+        state, detail = floorfleet.classify_boundary(None)
+        self.assertEqual(state, "unknown")
+        self.assertNotEqual(state, "green")
+        self.assertIn("could not read", detail)
+
+    def test_a_malformed_non_list_response_is_unknown_not_a_crash(self):
+        state, _ = floorfleet.classify_boundary({"type": "deletion"})
+        self.assertEqual(state, "unknown")
+
+    def test_required_signatures_absence_is_informational_only(self):
+        """The ADR's own framing: signature verification is "warn-first on
+        both planes" and is never named as the ruled control here, and full
+        required-PR protection was considered and declined informed. Its
+        absence alone must not red the row — only the declared force-push/
+        deletion control does."""
+        state, detail = floorfleet.classify_boundary(
+            [{"type": "deletion"}, {"type": "non_fast_forward"}])
+        self.assertEqual(state, "green")
+        self.assertIn("required-signatures: absent", detail)
+        self.assertIn("informational", detail)
+
+    def test_read_boundary_asks_this_repos_own_origin(self):
+        """Owner/repo comes from the repo's OWN `origin` remote via `_slug` —
+        the same building block every other GitHub read in this module uses —
+        never a hard-coded slug beyond the no-remote fallback."""
+        with mock.patch.object(floorfleet, "_slug", return_value="o/r"), \
+             mock.patch.object(floorfleet, "_gh_json",
+                               return_value=self.ALL_PRESENT) as gh:
+            state, _ = floorfleet.read_boundary(Path("/repo"))
+        self.assertEqual(state, "green")
+        gh.assert_called_once_with("repos/o/r/rules/branches/main")
+
+    def test_read_boundary_with_no_remote_is_unknown(self):
+        with mock.patch.object(floorfleet, "_slug", return_value=None):
+            state, detail = floorfleet.read_boundary(Path("/repo"))
+        self.assertEqual(state, "unknown")
+        self.assertIn("no origin remote", detail)
+
+    def test_boundary_is_never_set_on_a_child_row(self):
+        """Don't change children's rows: this tool answers for atelier's OWN
+        `main`, never a child's, so `evaluate()` must never touch the field."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "child"
+            (repo / ".github" / "workflows").mkdir(parents=True)
+            (repo / ".github" / "workflows" / "floor.yml").write_text(THIN_CALLER)
+            info = floorfleet.evaluate(repo, remote=False)
+        self.assertEqual(info.boundary, "")
+
+    def test_evaluate_parent_does_not_touch_boundary_either(self):
+        """The network call is wired at `main()` alone, gated on a plane that
+        already talks to GitHub — not inside `evaluate_parent`, which stays
+        local-only exactly as its own docstring already promises for hook and
+        shim. Keeps every existing ParentRowTest (none of which set up a git
+        remote) from silently growing a live network dependency."""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / "atelier"
+            (root / ".github" / "workflows").mkdir(parents=True)
+            (root / ".github" / "workflows" / "floor.yml").write_text(
+                "jobs:\n  floor:\n    steps:\n      - run: echo\n")
+            (root / ".github" / "workflows" / "ci.yml").write_text(
+                "jobs:\n  t:\n    steps:\n"
+                "      - run: python3 tools/floor.py --plane ci --root .\n")
+            info = floorfleet.evaluate_parent(root)
+        self.assertEqual(info.boundary, "")
+
+    def test_a_red_boundary_line_appears_on_the_parent_row_only(self):
+        parent = floorfleet.ChildFloor(name="atelier (parent)", path="/a",
+                                       state="wired", detail="d",
+                                       is_parent=True, boundary="red",
+                                       boundary_detail="RULED CONTROL ABSENT")
+        child = floorfleet.ChildFloor(name="kid", path="/k", state="wired",
+                                      detail="d")
+        out = floorfleet.render([parent, child], remote=True)
+        self.assertIn("boundary:red", out)
+        self.assertIn("RULED CONTROL ABSENT", out)
+        self.assertEqual(out.count("boundary:"), 1)
+
+    def test_a_blank_boundary_prints_no_line(self):
+        """"" means this run never asked (no plane reads GitHub) — distinct
+        from a read that came back and found something, so it must not
+        render as though a check ran and passed."""
+        parent = floorfleet.ChildFloor(name="atelier (parent)", path="/a",
+                                       state="wired", detail="d",
+                                       is_parent=True)
+        out = floorfleet.render([parent], remote=False)
+        self.assertNotIn("boundary:", out)
+
+    def _child_with_content(self, td) -> Path:
+        repo = Path(td) / "child"
+        (repo / ".github" / "workflows").mkdir(parents=True)
+        (repo / ".github" / "workflows" / "floor.yml").write_text(THIN_CALLER)
+        return repo
+
+    @staticmethod
+    def _floor_only(child, rel):
+        return THIN_CALLER if rel == floorfleet.FLOOR_PATH else None
+
+    def test_check_reds_on_a_red_boundary_even_when_the_child_is_clean(self):
+        """The exit-code half, not just the rendered line: a wired, green
+        estate must still fail --check when atelier's OWN boundary control is
+        absent. Without this the row is decoration — AP1's whole point is
+        that a deleted ruleset must be NOTICED, never merely printed."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = self._child_with_content(td)
+            with mock.patch.object(floorfleet, "read_boundary",
+                                   return_value=("red", "gone")), \
+                 mock.patch.object(floorfleet, "_read_remote",
+                                   side_effect=self._floor_only):
+                code = floorfleet.main(["--child", str(repo), "--remote",
+                                       "--check", "--atelier",
+                                       str(TOOLS_DIR.parent)])
+        self.assertEqual(code, 1)
+
+    def test_check_passes_when_boundary_is_green(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = self._child_with_content(td)
+            with mock.patch.object(floorfleet, "read_boundary",
+                                   return_value=("green", "ok")), \
+                 mock.patch.object(floorfleet, "_read_remote",
+                                   side_effect=self._floor_only):
+                code = floorfleet.main(["--child", str(repo), "--remote",
+                                       "--check", "--atelier",
+                                       str(TOOLS_DIR.parent)])
+        self.assertEqual(code, 0)
+
+    def test_boundary_is_not_asked_for_on_a_bare_local_run(self):
+        """No plane reads GitHub on a bare local invocation, so nothing must
+        be asked of it, and --check must not fail on a check that never
+        ran."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = self._child_with_content(td)
+            with mock.patch.object(floorfleet, "read_boundary") as rb:
+                code = floorfleet.main(["--child", str(repo), "--check",
+                                       "--atelier", str(TOOLS_DIR.parent)])
+        rb.assert_not_called()
+        self.assertEqual(code, 0)
+
+
 if __name__ == "__main__":
     unittest.main()
