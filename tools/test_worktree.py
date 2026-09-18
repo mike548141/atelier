@@ -362,6 +362,125 @@ class MergedGuardReferent(unittest.TestCase):
         self.assertTrue(linked.exists())
 
 
+class ListAheadBehindReferent(unittest.TestCase):
+    """`list`'s ↑/↓ must be measured against `origin/<main>` when that
+    remote-tracking ref exists — the same stale-local-`main` referent problem
+    `remove` already solved, ruled by Mike (2026-09-18) as owed for `list` too:
+    a branch already landed on the remote must not keep showing ↑N just
+    because local `main` never caught up. No remote (or no remote-tracking ref)
+    falls back to local `main`, labelled as a fallback rather than silently.
+    """
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp(prefix="wt-test-")
+        self.remote = Path(self.tmp) / "remote.git"
+        subprocess.run(["git", "init", "-q", "--bare", "-b", "main", str(self.remote)],
+                       check=True, capture_output=True)
+        self.repo = Path(self.tmp) / "acme"
+        subprocess.run(["git", "clone", "-q", str(self.remote), str(self.repo)],
+                       check=True, capture_output=True)
+        git(["config", "user.email", "t@example.com"], self.repo)  # leakscan:allow: fictional test fixture
+        git(["config", "user.name", "Test"], self.repo)
+        (self.repo / "README.md").write_text("seed\n")
+        git(["add", "-A"], self.repo)
+        git(["commit", "-qm", "seed"], self.repo)
+        git(["push", "-q", "-u", "origin", "main"], self.repo)
+        self.base = Path(self.tmp) / "worktrees"
+        self._cwd = os.getcwd()
+        os.chdir(self.repo)
+
+    def tearDown(self):
+        os.chdir(self._cwd)
+        subprocess.run(["rm", "-rf", self.tmp])
+
+    def cli(self, argv):
+        return wt.main(["--base", str(self.base)] + argv)
+
+    def cli_out(self, argv):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = self.cli(argv)
+        return rc, buf.getvalue()
+
+    def _branch_landed_directly_on_remote(self, feature):
+        """A branch whose commit reached origin/main by a direct push (as a
+        merged PR would), while local `main` in this checkout never moved —
+        exactly the staleness the old local-`main` comparison fell for."""
+        self.assertEqual(self.cli(["start", feature]), 0)
+        path = self.base / f"acme-{feature}"
+        (path / f"{feature}.txt").write_text("work\n")
+        git(["add", "-A"], path)
+        git(["commit", "-qm", f"{feature} work"], path)
+        git(["push", "-q", "origin", f"HEAD:main"], path)
+        self.assertNotEqual(git_out(["rev-parse", "main"], self.repo),
+                            git_out(["rev-parse", "origin/main"], self.repo))
+        return path
+
+    def test_referent_prefers_origin_main(self):
+        referent, fallback = wt.ahead_behind_referent(self.repo, "main")
+        self.assertEqual(referent, "origin/main")
+        self.assertFalse(fallback)
+
+    def test_landed_branch_is_not_ahead_against_origin_main(self):
+        self._branch_landed_directly_on_remote("landed")
+        referent, fallback = wt.ahead_behind_referent(self.repo, "main")
+        infos = wt.collect(self.repo, "main", wt.DEFAULT_STALE_DAYS, referent)
+        landed = next(i for i in infos if i.branch == "landed")
+        self.assertEqual(landed.ahead, 0)
+
+    def test_same_branch_still_shows_ahead_against_stale_local_main(self):
+        # Proves the fix is a real behaviour change: comparing to the OLD
+        # referent (local main, which never moved) still shows the landed
+        # branch ahead forever.
+        self._branch_landed_directly_on_remote("landed")
+        stale_infos = wt.collect(self.repo, "main", wt.DEFAULT_STALE_DAYS, "main")
+        stale_landed = next(i for i in stale_infos if i.branch == "landed")
+        self.assertGreater(stale_landed.ahead, 0)
+
+    def test_cli_list_names_origin_main_in_its_output(self):
+        self.assertEqual(self.cli(["start", "featx"]), 0)
+        rc, out = self.cli_out(["list"])
+        self.assertEqual(rc, 0)
+        self.assertIn("origin/main", out)
+
+    def test_cli_list_json_reports_the_referent(self):
+        self.assertEqual(self.cli(["start", "featx"]), 0)
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = self.cli(["--json", "list"])
+        self.assertEqual(rc, 0)
+        payload = json.loads(buf.getvalue())
+        self.assertEqual(payload["compared_against"], "origin/main")
+        self.assertFalse(payload["compared_against_is_fallback"])
+
+    def test_fetch_flag_updates_the_reported_fetch_age(self):
+        self.assertIsNone(wt.last_fetch_age_days(self.repo))
+        self.assertEqual(self.cli(["list", "--fetch"]), 0)
+        age = wt.last_fetch_age_days(self.repo)
+        self.assertIsNotNone(age)
+        self.assertLess(age, 0.01)  # well under a minute old
+
+    def test_no_remote_repo_falls_back_and_says_so(self):
+        solo = Path(self.tmp) / "solo"
+        subprocess.run(["git", "init", "-q", "-b", "main", str(solo)],
+                       check=True, capture_output=True)
+        git(["config", "user.email", "t@example.com"], solo)  # leakscan:allow: fictional test fixture
+        git(["config", "user.name", "Test"], solo)
+        (solo / "f.txt").write_text("x\n")
+        git(["add", "-A"], solo)
+        git(["commit", "-qm", "seed"], solo)
+
+        referent, fallback = wt.ahead_behind_referent(solo, "main")
+        self.assertEqual(referent, "main")
+        self.assertTrue(fallback)
+
+        os.chdir(solo)
+        rc, out = self.cli_out(["list"])
+        self.assertEqual(rc, 0)
+        self.assertIn("local main", out)
+        self.assertIn("no origin/main", out)
+
+
 class SourceHygiene(unittest.TestCase):
     def test_git_helper_signature_no_longer_overlong(self):
         # The board's audit flagged this exact `def git(...)` line at 101
