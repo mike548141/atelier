@@ -1,4 +1,4 @@
-- [ ] 🔎 **The machine-check half — the second thing Mike ruled, and it is not
+- [~] (claimed 2026-09-18-0500, wt: main-boundary-check-0918) 🔎 **The machine-check half — the second thing Mike ruled, and it is not
       built.** Nothing enumerates the boundary that makes the floating `@main`
       call safe: `floorfleet` reports whether children *call* the floor and is
       silent on the control protecting what they call. Owed: a parent-row check
