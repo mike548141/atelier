@@ -6,8 +6,11 @@ and drive evaluate()/discover() end-to-end, so the ancestry maths is proven
 against real git — including the ahead/diverged/unknown cases the live two-child
 fleet can't exhibit."""
 
+import json
 import os
+import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -152,6 +155,82 @@ class RealRepos(unittest.TestCase):
         self._child("faves", self.c1)
         args = pins.build_parser().parse_args(base + ["--check"])
         self.assertEqual(pins.cmd_report(args), 1)  # now one is behind
+
+
+class WorktreeResolution(unittest.TestCase):
+    """PU-5: `pins` run from a worktree resolved `resolve_atelier()` to the
+    WORKTREE (a worktree is a real, distinct `--show-toplevel`), so `discover()`
+    walked the worktree's parent directory instead of atelier's siblings and
+    reported that wrong root's contents as the whole fleet, silently.
+
+    A real `git worktree add` layout, not a mock: the failure mode is entirely
+    about what `--show-toplevel` and `--git-common-dir` answer for a genuine
+    linked worktree, which only real git can exercise honestly."""
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp(prefix="pins-wt-test-")
+        self.main = Path(self.tmp) / "atelier-main"
+        self.main.mkdir()
+        git(["init", "-q", "-b", "main"], self.main)
+        git(["config", "user.email", "t@example.com"], self.main)  # leakscan:allow: fictional test fixture
+        git(["config", "user.name", "Test"], self.main)
+        # Ship the real pins.py inside the fixture repo, so the worktree
+        # checked out from it carries a real, runnable copy at its OWN path —
+        # exactly the shape that matters: __file__ resolves inside the
+        # worktree, not the main checkout, when the script runs from there.
+        tools_dir = self.main / "tools"
+        tools_dir.mkdir()
+        real_pins = Path(__file__).resolve().parent / "pins.py"
+        shutil.copy(real_pins, tools_dir / "pins.py")
+        self._commit(self.main, "seed.txt", "seed")
+        self.worktree = Path(self.tmp) / "wt"
+        subprocess.run(["git", "worktree", "add", "-q", str(self.worktree),
+                       "-b", "test-wt"], cwd=str(self.main), check=True,
+                      capture_output=True, text=True)
+        self.empty_root = Path(self.tmp) / "empty-root"
+        self.empty_root.mkdir()
+
+    def tearDown(self):
+        subprocess.run(["git", "worktree", "remove", "--force", str(self.worktree)],
+                       cwd=str(self.main), check=False, capture_output=True, text=True)
+        subprocess.run(["rm", "-rf", self.tmp])
+
+    def _commit(self, repo, fname, msg):
+        (repo / fname).write_text(msg + "\n")
+        git(["add", "-A"], repo)
+        git(["commit", "-qm", msg], repo)
+
+    def test_main_checkout_from_worktree_is_the_main_repo(self):
+        self.assertEqual(pins.main_checkout(self.worktree).resolve(),
+                         self.main.resolve())
+        # And from the main checkout itself, main_checkout is a no-op.
+        self.assertEqual(pins.main_checkout(self.main).resolve(),
+                         self.main.resolve())
+
+    def test_resolve_atelier_from_worktree_finds_main_checkout_not_worktree(self):
+        # Exercises the real on-disk script's OWN __file__ resolution, run with
+        # cwd inside the worktree and no --atelier override — the exact call
+        # shape PU-5 was filed against.
+        script = self.worktree / "tools" / "pins.py"
+        proc = subprocess.run(
+            [sys.executable, str(script), "--root", str(self.empty_root), "--json"],
+            cwd=str(self.worktree), capture_output=True, text=True)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        payload = json.loads(proc.stdout)
+        self.assertEqual(Path(payload["atelier"]).resolve(), self.main.resolve())
+        self.assertNotEqual(Path(payload["atelier"]).resolve(),
+                            self.worktree.resolve())
+
+    def test_plain_output_names_the_search_root(self):
+        # The visibility half of the fix: a reader must be able to see WHERE
+        # discovery looked and how many it found, not just trust a denominator.
+        script = self.worktree / "tools" / "pins.py"
+        proc = subprocess.run(
+            [sys.executable, str(script), "--root", str(self.empty_root)],
+            cwd=str(self.worktree), capture_output=True, text=True)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertIn(str(self.empty_root), proc.stdout)
+        self.assertIn("0 found", proc.stdout)
 
 
 if __name__ == "__main__":

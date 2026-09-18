@@ -93,6 +93,35 @@ def toplevel(start: Path) -> Path:
     return Path(proc.stdout.strip())
 
 
+def main_checkout(repo: Path) -> Path:
+    """The main checkout behind `repo`, which IS `repo` unless it is a worktree.
+
+    `--git-common-dir` points at the main checkout's `.git` from any worktree
+    (and at `repo/.git` itself from the main checkout), so its parent is the
+    main checkout regardless of which copy asked. Falls back to `repo` whenever
+    git cannot answer — a non-repo directory, or no git on PATH.
+
+    A twin of `floorfleet.main_checkout`, not an import of it: `floorfleet`
+    imports this module for fleet discovery, so importing back would cycle.
+    Same shape, same reason to exist — see PU-5 (2026-08-22): `pins` run from
+    a worktree resolved `resolve_atelier()` to the WORKTREE (its own
+    `--show-toplevel`), so `discover()` walked the worktree's parent directory
+    instead of atelier's, and silently reported that wrong denominator as the
+    whole fleet."""
+    try:
+        out = subprocess.run(["git", "-C", str(repo), "rev-parse",
+                              "--git-common-dir"],
+                             capture_output=True, text=True, check=False)
+        if out.returncode == 0 and out.stdout.strip():
+            common = Path(out.stdout.strip())
+            if not common.is_absolute():
+                common = (repo / common)
+            return common.resolve().parent
+    except OSError:
+        pass
+    return repo
+
+
 def is_icloud(path: Path) -> bool:
     hay = str(path.expanduser()).lower()
     return any(m in hay for m in ICLOUD_MARKERS)
@@ -186,12 +215,19 @@ def _log(repo: Path, rng: str) -> list[str]:
     return out.stdout.splitlines() if out.returncode == 0 else []
 
 
-def discover(roots: list[Path], atelier: Path) -> list[Path]:
+def discover(roots: list[Path], atelier: Path, quiet: bool = False) -> list[Path]:
     """One level under each search root, the git repos that carry an atelier pin.
     A directory qualifies if it has a .git entry and a CLAUDE.md that names a pin.
     atelier itself is excluded — it is the parent, not a child. Unreadable roots
     degrade to a warning (fail-safe: report the children we could see, don't
-    crash the whole fleet view on one bad path)."""
+    crash the whole fleet view on one bad path).
+
+    Always reports what it looked at and what it found (to stderr, unless
+    `quiet`) — PU-5 was not just a wrong root, it was a wrong root that reported
+    its (small, plausible-looking) count as the fleet with no hint anything was
+    off. Printing the search root and the funnel (entries seen -> git repos ->
+    pinned children) alongside the answer means a reader can judge for
+    themselves whether "1 of 1" is a clean fleet or a fleet nobody found."""
     found: dict[str, Path] = {}
     for root in roots:
         try:
@@ -199,23 +235,39 @@ def discover(roots: list[Path], atelier: Path) -> list[Path]:
         except OSError as e:
             print(f"pins: warning — cannot read search root {root}: {e}", file=sys.stderr)
             continue
+        git_repos = 0
+        pinned = 0
         for d in entries:
             if d.resolve() == atelier.resolve():
                 continue
             if not (d / ".git").exists():
                 continue
+            git_repos += 1
             claude = d / "CLAUDE.md"
             if claude.is_file() and read_pin(claude) is not None:
+                pinned += 1
                 found[str(d.resolve())] = d
+        if not quiet:
+            print(f"pins: searched {root} — {len(entries)} entries, "
+                 f"{git_repos} are git repos, {pinned} carry an atelier pin",
+                 file=sys.stderr)
     return list(found.values())
 
 
 def resolve_atelier(explicit: str | None) -> Path:
     """The atelier repo to measure against: --atelier if given, else the git repo
-    the running script lives in (so `pins` just works from a checkout)."""
-    if explicit:
-        return toplevel(Path(explicit).expanduser())
-    return toplevel(Path(__file__).resolve().parent)
+    the running script lives in (so `pins` just works from a checkout) —
+    resolved to its MAIN checkout either way, via `main_checkout()`.
+
+    Without that resolution, running `pins` from a worktree found the
+    worktree's own `--show-toplevel` (a worktree is a real, distinct toplevel),
+    so `discover()` walked the worktree's PARENT directory — e.g.
+    `/Users/mike/worktrees/` — instead of atelier's siblings, and reported that
+    wrong root's contents as if it were the whole fleet (PU-5). Anchoring on
+    the main checkout instead means `pins` gives the same answer regardless of
+    which copy of the repo it is invoked from."""
+    start = Path(explicit).expanduser() if explicit else Path(__file__).resolve().parent
+    return main_checkout(toplevel(start))
 
 
 def cmd_report(args) -> int:
@@ -228,6 +280,7 @@ def cmd_report(args) -> int:
               file=sys.stderr)
         return 2
 
+    roots: list[Path] | None = None
     if args.child:
         children: list[Path] = []
         for c in args.child:
@@ -244,13 +297,16 @@ def cmd_report(args) -> int:
              sorted(children, key=lambda p: p.name.lower())]
 
     if args.json:
-        print(json.dumps({
+        out = {
             "atelier": str(atelier),
             "head": head,
             "children": [asdict(i) for i in infos],
-        }, indent=2))
+        }
+        if roots is not None:
+            out["searched"] = [str(r) for r in roots]
+        print(json.dumps(out, indent=2))
     else:
-        print(render(infos, atelier, head, args.log))
+        print(render(infos, atelier, head, args.log, roots))
 
     if not infos:
         # Nothing discovered is not "all clean" — say so, and treat as actionable
@@ -290,10 +346,20 @@ def _detail(i: ChildPin) -> str:
     return ""
 
 
-def render(infos: list[ChildPin], atelier: Path, head: str, want_log: bool) -> str:
+def render(infos: list[ChildPin], atelier: Path, head: str, want_log: bool,
+          roots: list[Path] | None = None) -> str:
     lines = [f"atelier fleet pins  (HEAD {head[:7]}  {atelier})"]
+    if roots is not None:
+        # Named explicitly, always — not just when the count looks wrong. PU-5
+        # was a small, plausible-looking count from the wrong place; the fix is
+        # a reader can always see where "found" came from, not a guess at which
+        # counts look implausible enough to call out (see discover()'s docstring).
+        lines.append(f"  searched: {', '.join(str(r) for r in roots)}"
+                     f"  ({len(infos)} found)")
     if not infos:
-        lines.append("  (no atelier children found under the search root)")
+        where = (f" under {', '.join(str(r) for r in roots)}" if roots
+                else " under the search root")
+        lines.append(f"  (no atelier children found{where})")
         return "\n".join(lines)
     width = max(len(i.name) for i in infos)
     for i in infos:
