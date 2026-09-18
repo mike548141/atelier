@@ -44,9 +44,11 @@ in atelier and is read on demand — never wholesale.
   recoverable — commit/push/PR included — just proceed.
 - **Asking — any question, decision or ruling:** put the ask in the harness's
   structured question device where one exists (Claude Code:
-  `AskUserQuestion`), never buried in prose. When the account will not fit the
-  device, it goes in the session reply *first* and the device carries only the
-  choice; never trim the account to fit. Give the real options, each with its
+  `AskUserQuestion`), never buried in prose. The account must have *reached*
+  the principal before the choice is put — in the same reply ahead of the
+  device, or, where the display mode hides mid-turn text, in a completed
+  message before the ask — and the device carries only the choice; never trim
+  the account to fit. Give the real options, each with its
   pros, cons, impacts, risks and costs, plus **a recommendation** with its
   reasoning shown. Every fact in the ask is verified, or plainly marked as
   assumed where verifying would cost more than the decision is worth.

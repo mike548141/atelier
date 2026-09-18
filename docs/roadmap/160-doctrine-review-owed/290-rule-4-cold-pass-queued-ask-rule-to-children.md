@@ -11,6 +11,9 @@
       `docs/method/PROPAGATION.md` § *Doctrine — inherited from atelier* (the
       new **Asking** bullet in the inlined child floor) ·
       `docs/build/templates/CLAUDE.md` (the same bullet, which the scaffold
-      stamps). Landed on wt: `ask-rule-to-children-0822`.
-      *Intent record:*
-      [`../../sessions/2026-08-22-0456-the-ask-rule-reaches-the-children.md`](../../sessions/2026-08-22-0456-the-ask-rule-reaches-the-children.md).
+      stamps). Landed on wt: `ask-rule-to-children-0822`. Widened
+      2026-09-18: the same bullet's account-before-the-ask sentence in both
+      files (`320/250`), landed on `main`.
+      *Intent records:*
+      [`../../sessions/2026-08-22-0456-the-ask-rule-reaches-the-children.md`](../../sessions/2026-08-22-0456-the-ask-rule-reaches-the-children.md) ·
+      [`../../sessions/2026-09-18-0114-queue-run-hand-up-fixes.md`](../../sessions/2026-09-18-0114-queue-run-hand-up-fixes.md).

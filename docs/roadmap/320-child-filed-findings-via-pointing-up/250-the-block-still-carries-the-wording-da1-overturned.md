@@ -1,4 +1,4 @@
-- [~] 🛑 **The block still carries DA1's overturned wording** (claimed 2026-09-18-0120, wt: none)
+- [x] 🛑 **The block still carries DA1's overturned wording** — ✅ FIXED 2026-09-18
       — the standard child doctrine block still carries the exact wording
       DA1 overturned — and it is the one spelling that gets COPIED into every
       child** — filed from a private child repo 2026-08-26 via § *Pointing up*,
@@ -69,3 +69,12 @@
         points at § *The trigger*. One child off that sweep, dated 2026-08-26,
         offered as evidence toward the hand sweep `310/030` says is what makes
         it closable.
+
+  - [x] ✅ **Closed 2026-09-18.** Both propagating copies harmonised to
+        `COMMUNICATION.md` § *Asking for a ruling* — `PROPAGATION.md` § *The
+        standard child doctrine block* **and** `docs/build/templates/CLAUDE.md`,
+        a second copy this item's grep could not see because it was scoped to
+        `docs/method/`. The 🎯 mechanical-check question above is a decision,
+        not this item's work: it moved to `320/300`. Review rides the open
+        `⏳` at `160/290`, whose delta list was widened in the same commit.
+        Record: `docs/sessions/2026-09-18-0114-queue-run-hand-up-fixes.md`.
