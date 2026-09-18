@@ -67,6 +67,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [Pin the three softenable-set prose lists to Scanner.advisory](roadmap/020-policy-as-code-programme-five-tracks-mik/340-pin-the-softenable-lists-to-the-registry.md)
 - [ ] 🎯 [The bidi / zero-width spoofing set — strip, escape, or accept](roadmap/020-policy-as-code-programme-five-tracks-mik/350-bidi-and-zero-width-strip-decision.md)
 - ✅ 🎯 [→✅ Remove](roadmap/020-policy-as-code-programme-five-tracks-mik/360-remove-plainscan-hook-destroyed-engine-archived.md)
+- [ ] 🔥 [A whole-tree secretscan / leakscan run over a large repo grows](roadmap/020-policy-as-code-programme-five-tracks-mik/370-a-whole-tree-scan-of-a-large-repo-exhausts-the-machine.md)
 
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
 
