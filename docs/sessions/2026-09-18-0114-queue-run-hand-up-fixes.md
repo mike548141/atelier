@@ -56,8 +56,8 @@ at review:
 - **`320/290`**'s URL exclusion hid a credential in a signed URL's query
   string (`?sig=…`). Now scoped to scheme + host + path; the worker also
   found `=` in the entropy regex's lookbehind hid every `key=value` under an
-  unrecognised key, anywhere. That widens a blocking net, so it was
-  estate-probed before merge.
+  unrecognised key, anywhere. That widens a blocking net, so it is held
+  unmerged until an estate probe (old vs new, every sibling repo) reads back.
 
 ### Rulings taken this run (question device, Mike's words)
 
