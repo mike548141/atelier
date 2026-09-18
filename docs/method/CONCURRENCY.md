@@ -264,7 +264,7 @@ shared worktree safe when the staging command is not file-scoped.
 
 **On a split board** (board-store ADR, 2026-08-15) the item's checkbox line
 lives in *its own file* under `docs/roadmap/`, and the claim commit carries two
-things: that line's edit, and the regenerated index (`tools/board.py rebuild`
+things: that line's edit, and the regenerated index (`tools/board.py --rebuild`
 — the `board` floor check catches a **forgotten** rebuild at the hook and on
 CI both; what the hook cannot vouch for is a rebuild that **ran but was not
 staged**, or one that absorbed a sibling's dirty state line — those pass the

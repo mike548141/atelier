@@ -266,6 +266,17 @@ def rebuild_cmd(root: Path) -> str:
     matching on the generated marker (a format constant, stable across
     revisions by design) keeps that true without making the answer depend on
     which revision the other tree is parked at.
+
+    STAYS THE BARE WORD (roadmap 010/090). `main()` now prefers `--rebuild`,
+    but this function's OUTPUT is embedded verbatim in a committed file
+    (`build_index`'s preamble) across every repo on the fleet. Switching it
+    to `--rebuild` changes that committed text for no behavioural gain — the
+    bare word still runs — and would leave every existing checkout's
+    `ROADMAP.md` stale against its own tool the moment this file's version
+    bumped, which is exactly the drift class this whole tool exists to
+    prevent. The flag form is the documented, preferred spelling everywhere
+    a human reads it (CLAUDE.md, tools/README.md, `--help`); this one
+    generated string keeps the spelling that costs nothing to leave alone.
     """
     root = root.resolve()
     here = Path(__file__).resolve()
@@ -564,17 +575,50 @@ def selftest() -> int:
         check("rebuild is deterministic", a == b)
 
         # THE FLOOR'S OWN ARGV must run, not abort the process. This is the
-        # exact shape floor.py renders (`{scope}` after `--root`); it exited 2
-        # on every repo until parse_known_args replaced parse_args.
-        check("floor argv runs",
+        # CURRENT shape floor.py renders (`--check`/`--rebuild` ahead of
+        # `--root`, `{scope}` trailing) — a flag has no position to fight
+        # `paths` for, so this shape was never the one that aborted.
+        check("floor argv runs (--check)",
+              main(["--check", "--root", str(root), str(root)]) == 0)
+        check("floor argv reaches the action (--rebuild)",
+              main(["--rebuild", "--root", str(root), str(root)]) == 0)
+
+        # THE LEGACY ARGV — every invocation on record before this fix, and
+        # what floor.py itself rendered until this change: a bare leading
+        # `check`/`rebuild` word. This is the shape that aborted with exit 2
+        # once `{scope}` followed `--root` (roadmap 010/090), and it must go
+        # on working verbatim — docs, hooks and every child still spell it
+        # this way, and a flag day is not being demanded of them.
+        check("legacy floor argv runs (bare check)",
               main(["check", "--root", str(root), str(root)]) == 0)
-        check("floor argv reaches the action",
+        check("legacy floor argv reaches the action (bare rebuild)",
               main(["rebuild", "--root", str(root), str(root)]) == 0)
+
         try:
             rc = main(["check", "--root", str(root), "--bogus"])
         except SystemExit as e:
             rc = e.code
-        check("an unknown option is still an error", rc == 2)
+        check("an unknown option is still an error (legacy word)", rc == 2)
+        try:
+            rc = main(["--check", "--root", str(root), "--bogus"])
+        except SystemExit as e:
+            rc = e.code
+        check("an unknown option is still an error (flag)", rc == 2)
+
+        # The default (neither spelling) stays `check`, and a caller may not
+        # say both `check` and `rebuild` at once, in any spelling mix.
+        check("no action defaults to check",
+              main(["--root", str(root)]) == run_check(root, fix=False))
+        try:
+            rc = main(["--check", "--rebuild", "--root", str(root)])
+        except SystemExit as e:
+            rc = e.code
+        check("--check and --rebuild are mutually exclusive", rc == 2)
+        try:
+            rc = main(["check", "--rebuild", "--root", str(root)])
+        except SystemExit as e:
+            rc = e.code
+        check("a legacy word cannot combine with the opposite flag", rc == 2)
 
     if failures:
         print("board selftest FAIL: " + "; ".join(failures))
@@ -585,35 +629,76 @@ def selftest() -> int:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
-        description="check (default) or rebuild the generated roadmap index")
-    ap.add_argument("action", nargs="?", default="check",
-                    choices=["check", "rebuild"])
+        description="--check (default) or --rebuild the generated roadmap "
+                    "index; the bare `check`/`rebuild` words still work "
+                    "(roadmap 010/090)")
+    ap.add_argument("--check", action="store_true",
+                    help="verify the index against docs/roadmap/ (default)")
+    ap.add_argument("--rebuild", action="store_true",
+                    help="regenerate the index from docs/roadmap/")
     ap.add_argument("--root", default=".")
     ap.add_argument("paths", nargs="*",
                     help="accepted for floor argv compatibility; the board "
                          "location is fixed at docs/roadmap/")
     ap.add_argument("--selftest", action="store_true")
-    # THE FLOOR RENDERS `check --root <root> <scope>`, and argparse cannot bind
-    # positionals that an intervening optional has split into two runs (a known
-    # argparse limitation, not a template bug): `check` binds, `<scope>` lands
-    # in the leftovers and `parse_args` aborts the process with exit 2. That is
-    # what `paths` was added to absorb, and it never could. The consequence was
-    # not cosmetic — `board` is enforced with no advisory form, so every repo
-    # the floor invoked it in went red on an argv it had itself rendered, and
-    # the estate could not commit. Unknown OPTIONS stay an error; unknown
-    # positionals are the scope this tool has always ignored, because the board
-    # location is fixed at docs/roadmap/.
+
+    # `action` USED TO BE a positional-with-`choices` ahead of `paths` — the
+    # ONLY bare positional action word anywhere in the floor's registry, every
+    # neighbour (`sizescan` included) leads with a flag or with nothing. That
+    # shape means a bare invocation omitting the literal word binds the FIRST
+    # remaining positional to `action`, which then fails its choices check —
+    # exactly what floor.py renders when it drops the leading `check` token,
+    # and `board` is enforced with no advisory form, so every repo the floor
+    # invoked it in went red on an argv it had itself rendered (roadmap
+    # 010/090, reproduced at HEAD 2026-08-17). `parse_known_args` papered over
+    # the acute break without touching the signature, which left the shape
+    # itself as the standing risk: the next registry edit made by
+    # pattern-matching every OTHER scanner reintroduces the abort.
+    #
+    # The fix is in the signature: `--check`/`--rebuild` flags, matching
+    # `sizescan`'s house precedent, with `paths` the ONLY positional left —
+    # nothing can ever bind to it ahead of schedule, because nothing else
+    # competes for a position. floor.py's registry now renders `--check`, not
+    # `check` (see tools/floor.py's `board` entry).
+    #
+    # BACKWARD COMPATIBILITY: every invocation on record before this change —
+    # child repos, docs, hooks — spells this `board.py rebuild` / `board.py
+    # check`, a bare LEADING word. Breaking that on a flag-day is worse than
+    # the defect it fixes, so the legacy word is still accepted: stripped off
+    # `argv[0]` before argparse ever sees it, so it cannot collide with
+    # `paths` for a positional slot — there is no positional slot left to
+    # collide with.
+    if argv is None:
+        argv = sys.argv[1:]
+    else:
+        argv = list(argv)
+    legacy_action: str | None = None
+    if argv and argv[0] in ("check", "rebuild"):
+        legacy_action = argv.pop(0)
+
+    # Unknown OPTIONS stay an error; unknown positionals are the scope this
+    # tool has always ignored, because the board location is fixed at
+    # docs/roadmap/ — `paths` absorbs them regardless of where they fall in
+    # argv, which a lone `nargs="*"` positional can do that a positional pair
+    # never could.
     args, extra = ap.parse_known_args(argv)
     unknown_opts = [a for a in extra if a.startswith("-")]
     if unknown_opts:
         ap.error("unrecognized arguments: " + " ".join(unknown_opts))
     if args.selftest:
         return selftest()
+
+    want_check = args.check or legacy_action == "check"
+    want_rebuild = args.rebuild or legacy_action == "rebuild"
+    if want_check and want_rebuild:
+        ap.error("--check and --rebuild (or their legacy words) are "
+                 "mutually exclusive")
+
     root = Path(args.root)
     if not root.is_dir():
         print(f"✗ board: root {args.root} does not exist", file=sys.stderr)
         return 2
-    return run_check(root, fix=(args.action == "rebuild"))
+    return run_check(root, fix=want_rebuild)
 
 
 if __name__ == "__main__":
