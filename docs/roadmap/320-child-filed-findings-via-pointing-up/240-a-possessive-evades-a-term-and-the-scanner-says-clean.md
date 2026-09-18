@@ -1,4 +1,4 @@
-- [ ] 🛑 **A possessive or plural form evades a `local-term`, and `leakscan`
+- [~] (claimed 2026-09-18-0420, wt: leakscan-plurals-0918) 🛑 **A possessive or plural form evades a `local-term`, and `leakscan`
       then reports the file CLEAN** — filed from a private child repo
       2026-08-26 via § *Pointing up*, written directly into this tree. Class
       only: no repo, no host, no term, no filename.

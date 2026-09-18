@@ -1,4 +1,4 @@
-- [ ] 🛑 **REPORT — an unresolved merge conflict shipped to a PUBLIC `main` and
+- [~] (claimed 2026-09-18-0420, wt: conflictscan-0918) 🛑 **REPORT — an unresolved merge conflict shipped to a PUBLIC `main` and
       stood for a day: no floor scanner reads a line as a conflict marker, and
       the repo's own record-index gate passed throughout** `[S][tools]` — filed
       from a public child, 2026-09-08, via § *Pointing up*. Evidence

@@ -66,6 +66,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [✅ The 2026-08-09 measurement checked for the three-channel blind spot](roadmap/020-policy-as-code-programme-five-tracks-mik/330-the-2026-08-09-measurement-checked-for-the-blind-spot.md)
 - ✅ [Pin the three softenable-set prose lists to Scanner.advisory](roadmap/020-policy-as-code-programme-five-tracks-mik/340-pin-the-softenable-lists-to-the-registry.md)
 - [ ] 🎯 [The bidi / zero-width spoofing set — strip, escape, or accept](roadmap/020-policy-as-code-programme-five-tracks-mik/350-bidi-and-zero-width-strip-decision.md)
+- [~] 🎯 (claimed 2026-09-18-0420, wt: plainscan-removal-0918) [→✅ Remove](roadmap/020-policy-as-code-programme-five-tracks-mik/360-remove-plainscan-hook-destroyed-engine-archived.md)
 
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
 
@@ -168,7 +169,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/120-test-plainscan-stophook-is-flaky-and-ci/README.md)*
 
-- [ ] 🔥 [Two tests fail intermittently in the full-suite run and pass when the](roadmap/120-test-plainscan-stophook-is-flaky-and-ci/010-two-tests-fail-intermittently-in-the-full-suit.md)
+- [~] 🔥 (claimed 2026-09-18-0420, wt: plainscan-removal-0918) [Two tests fail intermittently in the full-suite run and pass when the](roadmap/120-test-plainscan-stophook-is-flaky-and-ci/010-two-tests-fail-intermittently-in-the-full-suit.md)
 
 ## A CLOSED cycle can keep its `⏳`, and pointerscan's order rule cannot see it (found 2026-08-09)
 
@@ -397,11 +398,11 @@ then `python3 tools/board.py rebuild`.
 - [ ] [REPORT — four verified pathscan false-positive classes from a second](roadmap/320-child-filed-findings-via-pointing-up/170-pathscan-false-positive-classes-not-the-count.md)
 - [ ] [REPORT — the ../<sibling> path convention every child inherits](roadmap/320-child-filed-findings-via-pointing-up/180-sibling-path-convention-breaks-in-a-worktree.md)
 - [ ] 🔥 [DOCTRINE CONTRADICTION — a private child cannot obey both](roadmap/320-child-filed-findings-via-pointing-up/190-rule-2-and-the-branch-naming-rule-cannot-both-be-obeyed.md)
-- [ ] 🛑 [REPORT — an unresolved merge conflict shipped to a PUBLIC main and](roadmap/320-child-filed-findings-via-pointing-up/200-no-floor-scanner-reads-a-conflict-marker.md)
+- [~] 🛑 (claimed 2026-09-18-0420, wt: conflictscan-0918) [REPORT — an unresolved merge conflict shipped to a PUBLIC main and](roadmap/320-child-filed-findings-via-pointing-up/200-no-floor-scanner-reads-a-conflict-marker.md)
 - [~] (claimed 2026-09-18-0200, wt: none) [REPORT — CONCURRENCY.md's session-start bookend tells every session to](roadmap/320-child-filed-findings-via-pointing-up/210-the-session-start-autostash-contradicts-the-shared-checkout-premise.md)
 - [~] (claimed 2026-09-18-0200, wt: none) [REPORT — the read-the-output rule covers an unread check and not an…](roadmap/320-child-filed-findings-via-pointing-up/220-read-the-output-does-not-say-verify-the-act-happened.md)
 - [ ] 🔎 [MISSING HOUSE RULE — the method has no name for a negative result](roadmap/320-child-filed-findings-via-pointing-up/230-a-negative-result-whose-second-explanation-is-silent.md)
-- [ ] 🛑 [A possessive or plural form evades a local-term, and leakscan](roadmap/320-child-filed-findings-via-pointing-up/240-a-possessive-evades-a-term-and-the-scanner-says-clean.md)
+- [~] 🛑 (claimed 2026-09-18-0420, wt: leakscan-plurals-0918) [A possessive or plural form evades a local-term, and leakscan](roadmap/320-child-filed-findings-via-pointing-up/240-a-possessive-evades-a-term-and-the-scanner-says-clean.md)
 - ✅ 🛑 [The block still carries DA1's overturned wording](roadmap/320-child-filed-findings-via-pointing-up/250-the-block-still-carries-the-wording-da1-overturned.md)
 - [~] 🔎 (claimed 2026-09-18-0200, wt: none) [The canonical floor block's drift command reads ..HEAD, so a](roadmap/320-child-filed-findings-via-pointing-up/260-the-drift-command-pins-a-child-to-whatever-branch-the-parent-is-parked-on.md)
 - [ ] [REPORT — datescan enforces the SHAPE of a date and cannot enforce its](roadmap/320-child-filed-findings-via-pointing-up/270-datescan-enforces-the-shape-of-a-date-and-cannot-enforce-its-frame.md)

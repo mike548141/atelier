@@ -1,4 +1,4 @@
-- [ ] 🔥 **Two tests fail intermittently in the full-suite run and pass when the
+- [~] (claimed 2026-09-18-0420, wt: plainscan-removal-0918) 🔥 **Two tests fail intermittently in the full-suite run and pass when the
       module runs alone.** Found by a parallel session rebasing onto `main`, on
       content **byte-identical to `origin/main`** (`tools/plainscan.py`,
       `tools/test_plainscan.py`, `tools/hooks/plain-reply.py` and `tools/floor.py`
