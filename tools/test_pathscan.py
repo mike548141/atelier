@@ -220,6 +220,49 @@ class UrlExemption(unittest.TestCase):
         self.assertEqual([], cand("see //example.com/docs/x.md here"))
 
 
+class HomePathPrefixExemption(unittest.TestCase):
+    """320/170 — a second child's false-positive report, re-probed 2026-09-06.
+
+    `~/nosuch/same.sh` already scanned clean, but by accident: the token
+    regex's lookbehind blocks a match starting right after the `/`, the same
+    guard that skips a root-anchored `/docs/x.md` (E8). `~claude/nosuch/same.sh`
+    had no such accident — nothing before this stopped a match starting at
+    `claude`, since `~` was never in the token class the lookbehind excludes —
+    so it matched from `claude/` onward and was checked against this repo's
+    tree. Both spellings now blank the same way, at `_strip_non_candidates`,
+    same layer as the angle-bracket and scheme-URL exemptions."""
+
+    def test_tilde_username_prefix_is_skipped(self):
+        got = cand("run `~claude/nosuch/same.sh` to reproduce")
+        self.assertNotIn("claude/nosuch/same.sh", got)
+        self.assertEqual([], got)
+
+    def test_tilde_slash_prefix_still_skipped(self):
+        # The spelling that was already clean, pinned so a future change to
+        # the new blanking cannot quietly reopen it.
+        self.assertEqual([], cand("run `~/nosuch/same.sh` to reproduce"))
+
+    def test_bare_prose_tilde_username_is_skipped_too(self):
+        # Not just inside a backtick span — the exemption is a blanking pass
+        # before candidate-hunting, so bare prose gets it as well.
+        self.assertEqual([], cand("see ~claude/nosuch/same.sh for the repro"))
+
+    def test_a_real_path_elsewhere_on_the_line_still_flags(self):
+        # The blanking must be scoped to the home-path token, not swallow the
+        # rest of the line.
+        self.assertEqual(
+            ["docs/method/00-APEX.md"],
+            cand("compare ~claude/nosuch/same.sh against docs/method/00-APEX.md"))
+
+    def test_tilde_not_before_a_slash_is_left_alone(self):
+        # The lookahead requires an immediate `/` — a `~` used for something
+        # else on the line (e.g. shell "roughly equals" prose) is not this
+        # scanner's to interpret, and a genuine path later in the line still
+        # must be caught.
+        self.assertIn("docs/method/00-APEX.md",
+                      cand("size is ~40 lines, see docs/method/00-APEX.md"))
+
+
 class MarkdownLinkDestinationSkipped(unittest.TestCase):
     def test_link_destination_not_a_candidate(self):
         # This is linkscan's job — pathscan must not re-check it.
