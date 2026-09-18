@@ -10,6 +10,20 @@
 #   - a line prefixed 'regex:' is a raw regular expression
 #   - a line prefixed 'forms:' is a literal PLUS its derived forms (below)
 #
+# PLURALS — always on, not opt in (ruled 2026-09-18).
+#
+# A plain or 'forms:' term ALSO matches its plural and plural-possessive:
+# listing 'Jane' catches 'Jane', "Jane's", 'Janes' and "Janes'" alike. This
+# closes a real gap — a possessive is exactly the shape a name takes in
+# ordinary prose, and a listed term that only matched the bare form let that
+# shape straight through while the scan reported clean. It is deliberately
+# simple: one optional trailing 's', not real English pluralisation, so a term
+# that already ends in 's' gains an optional doubled 's' rather than a correct
+# '-es' plural. This ALWAYS applies and cannot be turned off per term — unlike
+# 'forms:' below, an operator cannot judge case-by-case, because leaving a
+# plural unmatched is the failure mode, not a false positive. 'regex:' terms
+# are operator-authored verbatim and are NEVER touched by this.
+#
 # DERIVED FORMS ('forms:') — opt in, per term.
 #
 # A plain literal matches the canonical spelling and nothing else. Names do not
@@ -46,7 +60,7 @@
 #   Estate topology   device hostnames/serials, exact subnets, SSIDs, VPN names
 #
 # Examples (fictional — replace):
-# Jane Q Public
+# Jane Q Public                       # also matches Jane Q Publics / Publics'
 # forms:Jane Q Public                 # + its slug/camel/snake/dotted forms
 # 742 Evergreen Terrace
 # Widgets Holdings Ltd

@@ -28,7 +28,11 @@ Three layers, split so the scanner itself leaks nothing:
     estate. That list would itself be the leak if committed, so it lives at
     $ATELIER_LEAKSCAN_TERMS or ~/.claude/leakscan-terms.txt — outside every repo.
     Absent ⇒ the scan says so LOUDLY and runs structural-only, never silently
-    weaker (legibility).
+    weaker (legibility). A plain or `forms:` term also matches its plural and
+    plural-possessive — `Term`, `Terms`, `Terms'` all hit, always on, fails
+    closed (ruled 2026-09-18, roadmap 320/240: a possessive was evading a
+    listed term while the scan reported clean). `regex:` terms are verbatim
+    and untouched.
 
 All three run over file CONTENT *and* over each file's repo-relative PATH — a
 file whose *name* carries an address or a person's name leaks exactly as much as
@@ -484,16 +488,43 @@ def derived_form_regex(term: str) -> "re.Pattern[str]":
     common-word term can start matching inside ordinary compounds, and only the
     operator holding the real list can judge that. Word boundaries still bound
     both ends. LIMIT, stated because it is not obvious: scanning is line-based,
-    so a name split ACROSS lines is still not matched by anything."""
+    so a name split ACROSS lines is still not matched by anything.
+
+    Also carries the plural/plural-possessive suffix (PLURAL_SUFFIX, ruled
+    2026-09-18) so `jane-q-publics` and `jane-q-publics'` hit alongside the
+    bare derived form."""
     parts = [re.escape(p) for p in term.split() if p]
-    return re.compile(r"\b" + r"[\s._-]*".join(parts) + r"\b", re.IGNORECASE)
+    return re.compile(r"\b" + r"[\s._-]*".join(parts) + PLURAL_SUFFIX, re.IGNORECASE)
+
+
+# Mike ruled 2026-09-18 (roadmap 320/240): a listed term must ALSO catch its
+# plural and plural-possessive inflections, always on, fails closed. `\bTerm\b`
+# already matches `Term's` — the `\b` sits at the boundary before the
+# apostrophe regardless of what follows it, so the singular possessive needed
+# no change (verified in tools/test_leakscan.py). What it never matched was
+# the bare plural `Terms` or the plural possessive `Terms'`, because neither
+# has an `s` at all in the listed spelling. Appending an OPTIONAL trailing `s`
+# before the closing `\b` closes both at once: the same boundary-before-
+# non-word-char reasoning that already covered `Term's` now covers `Terms'`
+# for free once the `s` is there to place a boundary after.
+#
+# SIMPLE ON PURPOSE, per the ruling: this is one optional literal `s`, not
+# English pluralisation. A term already ending in `s` (`Widgets`) gets an
+# optional DOUBLED `s` (`Widgetss`) rather than the real plural (`Widgetses`)
+# — that miss is accepted rather than special-cased; state it, don't fix it.
+# `regex:` terms are operator-authored verbatim and are NEVER touched by this.
+PLURAL_SUFFIX = r"(?:s)?\b"
 
 
 def load_local_terms(path: Path | None) -> tuple[list[tuple[str, "re.Pattern[str]"]], str | None]:
     """Return (compiled terms, warning). Each line is a case-insensitive
     whole-word literal, unless prefixed `regex:` for a raw pattern or `forms:`
     for a literal plus its derived separator/case variants (G6). `#` comments
-    and blank lines are ignored."""
+    and blank lines are ignored.
+
+    Every literal (plain or `forms:`) also matches its plural and plural-
+    possessive inflection — `Term`, `Terms`, `Terms'` all hit; only `regex:` is
+    exempt, verbatim (ruled 2026-09-18, see PLURAL_SUFFIX)."""
     if path is None:
         return [], (
             "no local term list found — scanned STRUCTURAL patterns only. "
@@ -510,7 +541,7 @@ def load_local_terms(path: Path | None) -> tuple[list[tuple[str, "re.Pattern[str
             body = line[len("forms:"):].strip()
             terms.append((body, derived_form_regex(body)))
         else:
-            terms.append((line, re.compile(r"\b" + re.escape(line) + r"\b", re.IGNORECASE)))
+            terms.append((line, re.compile(r"\b" + re.escape(line) + PLURAL_SUFFIX, re.IGNORECASE)))
     return terms, None
 
 
