@@ -142,13 +142,15 @@ transition; they cannot carry a reason at all.
 
 Which checks may be softened is NOT the child's call: a scanner is softenable
 exactly when its registry entry carries an advisory form (`advisory=`
-non-None). At HEAD that excludes the boundary scanners (secretscan, leakscan),
-the integrity scanners (linkscan, reviewscan, board) and licenscan — a burned
-secret, a leaked personal fact and a broken link are not re-baselining
-problems. Asking for an advisory state a scanner does not offer is an error,
-not a silent downgrade. (This paragraph's earlier only-prose-hygiene list went
-stale when sizescan and publishscan gained forms; the registry, not prose, is
-the authority — AP2, ruled 2026-08-23.)
+non-None). At HEAD that excludes the boundary scanners (secretscan, leakscan,
+conflictscan),
+the integrity scanners (linkscan, reviewscan, board) and licenscan — a
+burned secret, a leaked personal fact, a committed conflict marker and a
+broken link are not re-baselining problems. Asking for an
+advisory state a scanner does not offer is an error, not a silent downgrade.
+(This paragraph's earlier only-prose-hygiene list went stale when sizescan
+and publishscan gained forms; the registry, not prose, is the authority —
+AP2, ruled 2026-08-23.)
 
 THE REPO-LOCAL SEAM — a child may ADD a check, never soften one
 ----------------------------------------------------------------
@@ -458,6 +460,19 @@ SCANNERS: tuple[Scanner, ...] = (
         advisory=None,  # the personal-data boundary is not a re-baselining matter
         why="no personal/estate data enters a repo that can go public",
         full_cover_flag="--require-terms",
+    ),
+    Scanner(
+        "conflictscan",
+        # STAGED on the hook (the added-lines diff, matching secretscan's/
+        # leakscan's own hot-path shape) — a conflict marker committed by a
+        # bad merge is new content in the commit that introduces it. WHOLE
+        # TREE on CI, the backstop for a marker this machine's hook never
+        # saw (roadmap 320/200: the incident this scanner exists to close
+        # was found a day later by an unrelated edit, not by any hook).
+        hook=["--staged", "--root", "{root}", "{scope}"],
+        ci=["--root", "{root}", "{scope}"],
+        advisory=None,  # a committed conflict marker is never right, at any repo's stage of cleanup
+        why="no unresolved merge-conflict marker reaches git history",
     ),
     Scanner(
         "linkscan",

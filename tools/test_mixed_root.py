@@ -46,9 +46,9 @@ sys.path.insert(0, str(TOOLS_DIR))
 # `pointerscan` is the tool the fix was copied FROM and is here to keep it
 # honest.
 SCANNERS = (
-    "datescan", "leakscan", "linkscan", "pathscan", "plainscan", "pointerscan",
-    "reviewscan", "secretscan", "sizescan", "spellscan", "stampscan",
-    "wrapscan",
+    "conflictscan", "datescan", "leakscan", "linkscan", "pathscan",
+    "plainscan", "pointerscan", "reviewscan", "secretscan", "sizescan",
+    "spellscan", "stampscan", "wrapscan",
 )
 
 PROBE = "docs/probe.md"
