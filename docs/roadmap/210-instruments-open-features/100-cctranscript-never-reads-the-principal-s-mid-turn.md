@@ -1,4 +1,4 @@
-- [~] (claimed 2026-09-18-0200, wt: cctranscript-midturn-0918) 🔥 **`cctranscript` never reads the principal's mid-turn messages, and its
+- [x] 🔥 **`cctranscript` never reads the principal's mid-turn messages, and its
       footer says it did.** A message typed while a session is working is not a
       user message in the log: it lands as `type:"attachment"` ·
       `attachment.type:"queued_command"`, with the text in `attachment.prompt`.
@@ -40,3 +40,18 @@
       audit, filed it upstream, and Mike ruled *"pass that question to atelier
       for it to look into"*. Its filing is `320/070`; this item is the part that
       turned out to be atelier's own bug rather than a doctrine question.
+
+      ✅ **FIXED 2026-09-18** (`32fd6e3` + `6010f1c`, merged from
+      `cctranscript-midturn-0918`): mid-turn messages (`type:"attachment"`,
+      `attachment.type:"queued_command"`) are read by the header, replay,
+      `--search` and `--list`, rendered as their own **Mid-turn** turn.
+      Authorship is classified on `commandMode` + `attachment.origin.kind`:
+      task notifications and peer sessions' messages are never counted as
+      the principal's; an unrecognised shape is not claimed as human. The rule
+      was checked against ~4,100 real local records (read-only, nothing
+      copied). **Refs do not shift:** a mid-turn message takes `N+K` inside
+      the current exchange, so every `N` / `N.M` already cited in a committed
+      record still points at the same text — pinned by a byte-identical-refs
+      test (the orchestrator's review caught the first draft renumbering).
+      **Still not read, and said so in the man page:** `AskUserQuestion`
+      answers, which arrive as a `tool_result` and show only under `--tools`.

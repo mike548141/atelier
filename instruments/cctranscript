@@ -49,6 +49,19 @@
  * needs no flag at all. Listing never reads an iCloud-evicted mirror (that
  * would fault the bytes back down); rendering one chosen session may.
  *
+ * A message typed while a turn is still in flight ("mid-turn") never becomes a
+ * type:"user" record — it logs as type:"attachment" · attachment.type:
+ * "queued_command". Rendered as its own turn, mirrored right like a prompt but
+ * labelled "Mid-turn" so it's never mistaken for one, and included in --search
+ * by default (no --tools needed). It gets its own citable ref, N+K, rather
+ * than opening a new exchange — an existing session's N/N.M refs (already
+ * quoted in committed records) must not shift just because this channel is
+ * now read. Not every queued_command is yours, though: the same wrapper
+ * carries harness task notifications and a peer agent's cross-session
+ * messages — see isHumanQueuedCommand for how the three are told apart. Still
+ * NOT covered: an AskUserQuestion answer arrives as a tool_result, reachable
+ * only via --tools, undistinguished from other tool output.
+ *
  * The .jsonl schema is internal to Claude Code and can shift between releases;
  * if a field moves this may need a nudge.
  */
@@ -315,6 +328,9 @@ function firstUserPromptText(file) {
     if (o.type === 'user' && !o.toolUseResult) {
       const t = extractText(o.message && o.message.content);
       if (t) return t.replace(/\s+/g, ' ').trim();
+    } else if (o.type === 'attachment' && isHumanQueuedCommand(o.attachment)) {
+      const t = extractText(o.attachment.prompt);
+      if (t) return t.replace(/\s+/g, ' ').trim();
     }
   }
   return '';
@@ -326,6 +342,53 @@ function extractText(content) {
   if (typeof content === 'string') return content;
   if (!Array.isArray(content)) return '';
   return content.filter((b) => b && b.type === 'text').map((b) => b.text).join('\n');
+}
+
+// A message typed while a turn is already in flight never becomes a normal
+// type:"user" record — Claude Code logs it as type:"attachment" with
+// attachment.type:"queued_command", text in attachment.prompt (a string, or an
+// array of {type:"text"} blocks exactly like message.content, so extractText
+// reads either). firstUserPromptText and readTurns used to key on
+// `type === 'user' && !toolUseResult` alone, which never sees this channel at
+// all — the defect this fix closes.
+//
+// Not every queued_command is the principal's own typing, though: the same
+// wrapper also carries harness task notifications and cross-session messages
+// from a peer agent's session, and treating either as "the principal said this"
+// would repeat the class of mistake this item exists to fix (an earlier pass
+// on this same defect counted system-injected text as authored text and
+// published a number a third too high). Classified on commandMode +
+// attachment.origin.kind, confirmed against ~4,100 real queued_command records
+// under ~/.claude/projects/ (2026-09-18; the same shape the board item's
+// 2026-08-21 census used):
+//   commandMode: "task-notification"        → never human. The harness's own
+//                                              <task-notification> on a
+//                                              background job; carries no
+//                                              origin field at all.
+//   commandMode: "prompt", origin.kind:
+//     "peer"                                → a <cross-session-message> from
+//                                              another agent's session
+//                                              (isMeta: true in every sample).
+//     "human"                               → typed by the principal.
+//   commandMode: "prompt", origin absent     → predates the origin tag. Every
+//                                              sampled record in this shape
+//                                              (2026-07-05 through 2026-09-17)
+//                                              is plain typed text — never a
+//                                              <task-notification> or
+//                                              <cross-session-message> wrapper
+//                                              — so it reads as human.
+//   anything else                            → NOT claimed as human. An
+//                                              unrecognised commandMode or
+//                                              origin.kind is exactly the case
+//                                              where guessing would repeat this
+//                                              defect's own mistake.
+function isHumanQueuedCommand(att) {
+  if (!att || att.type !== 'queued_command') return false;
+  if (att.commandMode !== 'prompt') return false;   // excludes "task-notification" and anything unknown
+  const kind = att.origin && att.origin.kind;
+  if (kind === 'peer') return false;
+  if (kind === 'human') return true;
+  return att.origin === undefined || att.origin === null;
 }
 
 // `utc` defaults to the --utc global; passed explicitly by tests. Same output
@@ -498,6 +561,14 @@ function readTurns(file, opts = {}) {
     if (o.type === 'user' && !o.toolUseResult) {
       const text = extractText(o.message && o.message.content).trim();
       if (text) turns.push({ role: 'you', ts, text });
+    } else if (o.type === 'attachment' && isHumanQueuedCommand(o.attachment)) {
+      // Typed while a turn was already in flight: genuine fresh principal
+      // text, but it does NOT open a new exchange (numberTurns gives it its
+      // own N+K ref instead of bumping N) — an existing session's you/claude
+      // refs must not shift just because this channel is now read. Never
+      // gated by --tools/--think, same as 'you'.
+      const text = extractText(o.attachment.prompt).trim();
+      if (text) turns.push({ role: 'you-mid', ts, text });
     } else if (o.type === 'user' && o.toolUseResult && wantTools) {
       let r = o.toolUseResult;
       if (typeof r !== 'string') { try { r = JSON.stringify(r); } catch { r = String(r); } }
@@ -531,6 +602,18 @@ function readTurns(file, opts = {}) {
 // Number the citable turns in place: each prompt is exchange N (the ▸ N rule),
 // each of Claude's *text* replies to it is N.M (M resets per prompt). Thinking
 // and tool turns stay unnumbered — the citable unit is what a human quotes.
+//
+// A mid-turn message ('you-mid') does NOT open a new exchange and does NOT
+// bump N — it gets its own ref N+K (K resets to 1 at each new prompt, and
+// counts only mid-turn messages within that exchange). This is deliberate,
+// not an oversight: N/N.M refs are already quoted in committed records (a
+// session log saying "see exchange 7" or "reply 7.2"), and those citations
+// must not silently start pointing at different text just because a mid-turn
+// message the tool didn't used to read now exists in the log. A mid-turn
+// message earns its own citable reference (it is genuine fresh principal
+// text) without ever moving anyone else's. Claude's replies keep numbering
+// N.M exactly as if no mid-turn message were present — M is not reset or
+// skipped by one arriving in between.
 // A reply arriving before any prompt (e.g. a resumed session) numbers under
 // exchange 0, honestly marking that its prompt isn't in this log.
 //
@@ -539,9 +622,10 @@ function readTurns(file, opts = {}) {
 // place a hit in a thinking block or a tool call, which has no ref of its own,
 // against the exchange you would open to read it.
 function numberTurns(turns) {
-  let n = 0, m = 0;
+  let n = 0, m = 0, k = 0;
   for (const t of turns) {
-    if (t.role === 'you') { n++; m = 0; t.ref = String(n); }
+    if (t.role === 'you') { n++; m = 0; k = 0; t.ref = String(n); }
+    else if (t.role === 'you-mid') { k++; t.ref = `${n}+${k}`; }
     else if (t.role === 'claude') { m++; t.ref = `${n}.${m}`; }
     t.encl = String(n);
   }
@@ -580,11 +664,16 @@ function modelColor(friendly) {
 }
 
 const ROLE = {
-  you:    { icon: '▸', label: 'You',      color: ESC.cyan },
-  claude: { icon: '◂', label: 'Claude',   color: ESC.green },
-  think:  { icon: '✱', label: 'thinking', color: ESC.grey },
-  tool:   { icon: '⚙', label: 'tool',     color: ESC.blue },
-  result: { icon: '⤷', label: 'result',   color: ESC.grey },
+  you:      { icon: '▸', label: 'You',      color: ESC.cyan },
+  // Typed while a turn was already in flight — never a real type:"user"
+  // record (see isHumanQueuedCommand). Same side and colour as 'you' (it's the
+  // same principal), a hollow icon and a distinct label are the whole of what
+  // marks it apart from a turn-opening prompt.
+  'you-mid': { icon: '▹', label: 'Mid-turn', color: ESC.cyan },
+  claude:   { icon: '◂', label: 'Claude',   color: ESC.green },
+  think:    { icon: '✱', label: 'thinking', color: ESC.grey },
+  tool:     { icon: '⚙', label: 'tool',     color: ESC.blue },
+  result:   { icon: '⤷', label: 'result',   color: ESC.grey },
 };
 
 // Colour an inter-turn delta by magnitude so time sinks are easy to spot.
@@ -913,7 +1002,7 @@ function runSearch() {
     const hits = [];
     let toolLayerHolds = false;
     for (const t of turns) {
-      const searched = t.role === 'you' || t.role === 'claude'
+      const searched = t.role === 'you' || t.role === 'you-mid' || t.role === 'claude'
         || (showTools && (t.role === 'tool' || t.role === 'result'));
       const m = scanText(probe, t.text);
       if (!m.count) continue;
@@ -1113,6 +1202,11 @@ function runTranscript() {
 
   const count = (r) => turns.filter((t) => t.role === r).length;
   const parts = [`${turns.length} turns`, `${count('you')} you`, `${count('claude')} Claude`];
+  // Mid-turn messages are counted separately from 'you' rather than folded in:
+  // the whole point of this chip existing is to make the channel this item
+  // fixed visible in the same header a reader already scans, not to quietly
+  // inflate "you" by a count that used to be zero.
+  if (count('you-mid')) parts.push(`${count('you-mid')} mid-turn`);
   if (showThink && count('think')) parts.push(`${count('think')} thinking`);
   if (showTools && count('tool')) parts.push(`${count('tool')} tool`);
   // How wide the session ran — always two chips, in this order, on every run.
@@ -1151,7 +1245,7 @@ function runTranscript() {
       curDate = d;
     }
     const role = ROLE[t.role] || ROLE.claude;
-    const side = t.role === 'you' ? 'right' : 'left';
+    const side = (t.role === 'you' || t.role === 'you-mid') ? 'right' : 'left';
     let deltaMs = null;
     if (showDelta && prevTs && t.ts) {
       const ms = new Date(t.ts) - new Date(prevTs);
@@ -1187,4 +1281,5 @@ module.exports = {
   styleInline, fmtTime, dateOf, toolSummary, toolSearchText, extractText, encodePath,
   readTurns, numberTurns, defaultArchiveDest, readLogText, isDatalessFlags, sessionRecord,
   subagentDir, finishedAgents, escapeRegex, rawForms, scanText, excerptAround,
+  isHumanQueuedCommand,
 };

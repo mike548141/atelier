@@ -266,7 +266,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [finished counts logs, not successes — and a dead agent still leaves a](roadmap/210-instruments-open-features/070-finished-counts-logs-not-successes-and-a-dead.md)
 - [ ] [think is a flag that no longer does anything.](roadmap/210-instruments-open-features/080-think-is-a-flag-that-no-longer-does-anything.md)
 - [ ] [Subagent logs are outside every cctranscript view.](roadmap/210-instruments-open-features/090-subagent-logs-are-outside-every-cctranscript-v.md)
-- [~] 🔥 (claimed 2026-09-18-0200, wt: cctranscript-midturn-0918) [cctranscript never reads the principal's mid-turn messages, and its](roadmap/210-instruments-open-features/100-cctranscript-never-reads-the-principal-s-mid-turn.md)
+- ✅ 🔥 [cctranscript never reads the principal's mid-turn messages, and its](roadmap/210-instruments-open-features/100-cctranscript-never-reads-the-principal-s-mid-turn.md)
 - ✅ [pins.py enumerates CWD-relative and reports a wrong denominator](roadmap/210-instruments-open-features/110-pins-py-enumerates-cwd-relative-and-lies-from-a-worktree.md)
 - [ ] 🔎 [Drive binaries have the gap ccmail just closed for mail](roadmap/210-instruments-open-features/120-drive-binaries-have-the-same-gap-ccmail-just-closed.md)
 - ⏳ [Rule-4 review queued (tier: Fable; pass type: code + doctrine cold…](roadmap/210-instruments-open-features/130-ccmail-rule-4-review-queued.md)
