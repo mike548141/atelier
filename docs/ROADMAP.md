@@ -217,7 +217,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [The board-generator cycle CLOSED 2026-08-17 (0 MAJOR); BG1–BG14](roadmap/160-doctrine-review-owed/220-rule-4-cold-pass-queued-board-generator.md)
 - [ ] 🎯 [The ruling-round-application cycle CLOSED 2026-08-17 (0 MAJOR);](roadmap/160-doctrine-review-owed/230-rule-4-cold-pass-queued-the-0817-ruling-round.md)
 - [ ] 🛑 [The coldsweep pass RAN 2026-08-17 and the cycle stays OPEN — three](roadmap/160-doctrine-review-owed/240-rule-4-cold-pass-queued-coldsweep.md)
-- [ ] [A queued pointer at 240 instructs its own reviewer, and pointerscan](roadmap/160-doctrine-review-owed/250-a-queued-pointer-instructs-its-own-reviewer.md)
+- ✅ [A queued pointer at 240 instructs its own reviewer, and pointerscan](roadmap/160-doctrine-review-owed/250-a-queued-pointer-instructs-its-own-reviewer.md)
 - ⏳ [Rule-4 cold pass queued — the BS1 wording ruling applied (the](roadmap/160-doctrine-review-owed/260-rule-4-cold-pass-queued-bs1-wording.md)
 - ⏳ [Rule-4 cold pass queued — the ruling-ask rules (device, verified…](roadmap/160-doctrine-review-owed/270-rule-4-cold-pass-queued-decision-asks.md)
 - ⏳ [Rule-4 cold pass queued — the pointing-up rulings applied (PU-1](roadmap/160-doctrine-review-owed/280-rule-4-cold-pass-queued-pointing-up-rulings-applied.md)

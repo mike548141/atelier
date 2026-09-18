@@ -1,4 +1,4 @@
-- [ ] **A queued pointer at `240` instructs its own reviewer, and `pointerscan`
+- [x] **A queued pointer at `240` instructs its own reviewer, and `pointerscan`
       says so** `[XS][docs]` — surfaced 2026-08-17 by a session working elsewhere
       in the tree; **queued, not fixed**, because the pointer is another
       session's and the repair is a judgement about what that author meant to
@@ -19,3 +19,11 @@
       into the intent record (where the reviewer's deferral discipline governs
       when it is read) or the pointer takes a `pointerscan:allow:` with a stated
       reason. Both are legitimate; a third session picking one for them is not.
+
+      ✅ **Closed 2026-09-18 — resolved by its author's own session, not this
+      one.** `419fdac` (the SW reconcile, 2026-08-18) rewrote `240` and removed
+      the instructing line outright; verified: `git show 419fdac` deletes it,
+      `240` no longer contains it, and `pointerscan` is clean at HEAD. The
+      author chose neither option named above — the steer simply left the
+      pointer. The standing half (`pointerscan` warns, never blocks) is
+      unchanged and remains the programme's F1 posture question, not this item's.
