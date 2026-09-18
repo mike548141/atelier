@@ -1,4 +1,4 @@
-- [~] (claimed 2026-09-18-0200, wt: none) **"Self-removing" overpromises in step 3** (PU-4, ruled to the board
+- [x] **"Self-removing" overpromises in step 3** (PU-4, ruled to the board
       2026-08-22) — the pending-upstream line is distinguished from a second
       original partly by being "dated, addressed and self-removing", and
       nothing removes it: the pin bump is the occasion, a session is the
@@ -7,3 +7,8 @@
       honest about the route being unwatched; the step's own wording is
       not. One-word-scale fix: "removable at the next pin bump, and watched
       by nobody until `020` lands."
+
+      ✅ **FIXED 2026-09-18** (inline, `main`): step 3 now reads *"dated,
+      addressed, and removable at the next pin bump — watched by nobody until
+      `310/020`'s enumerator lands"*, the item's own wording. Review rides
+      `160/300`, widened in the same commit.

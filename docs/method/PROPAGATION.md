@@ -43,9 +43,11 @@ Five moving parts, no engine, no new machinery:
 
 4. **The drift check rides the session-start read.** The child `CLAUDE.md` is
    already read at session start; it now ends the doctrine block with one
-   command — `git -C "<atelier-path>" log --oneline <PIN>..HEAD`. Empty output ⇒
-   current. Any output ⇒ the house doctrine has moved since the pin: read the
-   changes, decide if they bear on this repo, and bump the pin **deliberately**.
+   command — `git -C "<atelier-path>" log --oneline <PIN>..origin/main`, after
+   a `fetch`: measured against the parent's published mainline, never the
+   branch its checkout happens to be parked on. Empty output ⇒ current. Any
+   output ⇒ the house doctrine has moved since the pin: read the changes,
+   decide if they bear on this repo, and bump the pin **deliberately**.
    Bump even when the delta turns out not to bear on this repo (tool commits,
    session logs) — the pin means "inspected up to here", and a check that keeps
    re-surfacing old noise trains sessions to skim it (alarm fatigue kills the
@@ -141,8 +143,10 @@ in atelier and is read on demand — never wholesale.
   (`00-APEX.md` for what an ask must contain; `COMMUNICATION.md` § *Asking for
   a ruling* for how it travels.)
 - **Concurrency:** assume another session may be live — a clean tree is not
-  proof you're alone. `git pull --rebase --autostash` at session start; push
-  after each commit. Take a worktree by default for write-heavy or multi-commit
+  proof you're alone. At session start read `git status` first — dirty work
+  this session didn't make means stop and move, never autostash it — then,
+  where there is a remote, `git pull --rebase --autostash`; push after each
+  commit. Take a worktree by default for write-heavy or multi-commit
   work; uncommitted changes this session didn't make are positive proof ⇒ move
   to a worktree — never work around or absorb them (`CONCURRENCY.md`). Name
   records (session logs, ADRs, reviews) coordination-free —
@@ -178,9 +182,10 @@ in atelier and is read on demand — never wholesale.
   first line, open the PR before you stop, and touch nothing but your own item.
   (`PROPAGATION.md` § *Pointing up*.)
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
-  session start run `git -C "<atelier-path>" log --oneline <SHA>..HEAD`; any
-  output means the house doctrine moved — read it, then bump the pin above
-  deliberately.
+  session start run `git -C "<atelier-path>" fetch -q` then `git -C
+  "<atelier-path>" log --oneline <SHA>..origin/main` — the parent's published
+  mainline, never whatever branch its checkout is parked on; any output means
+  the house doctrine moved — read it, then bump the pin above deliberately.
 - **Estate resources — point up, don't re-derive:** providers & account plans,
   financial constraints & plan entitlements, licences, credentials, shared
   estate tooling, and the estate inventory live in the operator's **private
@@ -515,8 +520,9 @@ Four steps, none of them large.
    pending-upstream and naming the parent item it waits on. Not the
    generalisation, not the reasoning, not the incident narrative. A
    pending-upstream line is a **narrowing** (§ The layer-override rule), which
-   a child may always do; it is also dated, addressed and self-removing, which
-   is what separates it from a second original. (The principal ruled this
+   a child may always do; it is also dated, addressed, and removable at the
+   next pin bump — watched by nobody until `310/020`'s enumerator lands —
+   which is what separates it from a second original. (The principal ruled this
    allowance in preference to holding nothing, 2026-08-18: forbidding the local
    write without removing the exposure that causes it would leave the child
    knowingly unprotected, and that exposure is what produced the instance

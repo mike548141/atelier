@@ -1,4 +1,4 @@
-- [~] (claimed 2026-09-18-0200, wt: none) **REPORT — `CONCURRENCY.md`'s session-start bookend tells every session to
+- [x] **REPORT — `CONCURRENCY.md`'s session-start bookend tells every session to
       run `--autostash` on a checkout the same document says a peer may have
       uncommitted work in, and the stash stack it writes to is shared**
       `[S][method]` — filed from a private child, 2026-09-06, via § *Pointing
@@ -71,3 +71,11 @@
 
       Consideration and remediation are atelier's; the reporting child stops at
       this report.
+
+      ✅ **FIXED 2026-09-18** (inline, `main`): the **Sync bookends** bullet
+      now carries both gates — read `git status` first, and dirty work that is
+      not yours makes the bookend a stop; no remote, no bookend — and names the
+      stash stack as shared where the bookend is stated. The block's
+      **Concurrency** bullet, the scaffold template and atelier's own onramp
+      step 1 were harmonised in the same commit, since each stated the
+      bookend unconditionally. Review: `160/310`.

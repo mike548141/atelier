@@ -13,6 +13,8 @@
       and its `floor` region (the new **Doctrine problems point up** bullet) ·
       `docs/build/templates/CLAUDE.md` (the same bullet, stamped) ·
       `CLAUDE.md` (atelier's own § *Hard constraints* gains the duty).
-      Landed on wt: `report-up-duty-0823`.
+      Landed on wt: `report-up-duty-0823`. Widened 2026-09-18: step 3's
+      "self-removing" reworded (`310/110`), landed on `main` — intent record
+      `../../sessions/2026-09-18-0114-queue-run-hand-up-fixes.md`.
       *Intent record:*
       [`../../sessions/2026-08-23-1314-recovery-then-five-defects-in-the-instruments.md`](../../sessions/2026-08-23-1314-recovery-then-five-defects-in-the-instruments.md).

@@ -223,6 +223,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued — the pointing-up rulings applied (PU-1](roadmap/160-doctrine-review-owed/280-rule-4-cold-pass-queued-pointing-up-rulings-applied.md)
 - ⏳ [Rule-4 cold pass queued — the ruling-ask rule widened and pushed to…](roadmap/160-doctrine-review-owed/290-rule-4-cold-pass-queued-ask-rule-to-children.md)
 - ⏳ [Rule-4 cold pass queued — the doctrine-reporting duty, the route's…](roadmap/160-doctrine-review-owed/300-rule-4-cold-pass-queued-report-up-duty.md)
+- ⏳ [Rule-4 cold pass queued — the 2026-09-18 hand-up fixes to the](roadmap/160-doctrine-review-owed/310-rule-4-cold-pass-queued-the-0918-hand-up-fixes.md)
 
 ## build/ layer — open strands
 
@@ -372,7 +373,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [2cd4730 attributes a proposal to Mike that he did not make, and it](roadmap/310-pointing-up-the-child-to-parent-route/080-a-capture-attributes-a-proposal-to-mike-that-he-did-not-make.md)
 - [ ] 🔎 [§ Pointing up names one shape of deciding a house question locally,](roadmap/310-pointing-up-the-child-to-parent-route/090-pointing-up-names-one-shape-of-local-overreach-and-there-are-two.md)
 - ✅ [The route's three shapes — WRITTEN 2026-08-23](roadmap/310-pointing-up-the-child-to-parent-route/100-the-route-assumes-a-reachable-parent-and-a-channel.md)
-- [~] (claimed 2026-09-18-0200, wt: none) ["Self-removing" overpromises in step 3](roadmap/310-pointing-up-the-child-to-parent-route/110-self-removing-overpromises-in-step-3.md)
+- ✅ ["Self-removing" overpromises in step 3](roadmap/310-pointing-up-the-child-to-parent-route/110-self-removing-overpromises-in-step-3.md)
 - [ ] 🎯 [§ Pointing up only names atelier as a parent — Mike commissioned,](roadmap/310-pointing-up-the-child-to-parent-route/120-the-route-is-atelier-specific-any-parent-repo-needs-one.md)
 
 ## Findings filed from a child via § *Pointing up* (2026-08-18)
@@ -399,12 +400,12 @@ then `python3 tools/board.py rebuild`.
 - [ ] [REPORT — the ../<sibling> path convention every child inherits](roadmap/320-child-filed-findings-via-pointing-up/180-sibling-path-convention-breaks-in-a-worktree.md)
 - [ ] 🔥 [DOCTRINE CONTRADICTION — a private child cannot obey both](roadmap/320-child-filed-findings-via-pointing-up/190-rule-2-and-the-branch-naming-rule-cannot-both-be-obeyed.md)
 - [~] 🛑 (claimed 2026-09-18-0420, wt: conflictscan-0918) [REPORT — an unresolved merge conflict shipped to a PUBLIC main and](roadmap/320-child-filed-findings-via-pointing-up/200-no-floor-scanner-reads-a-conflict-marker.md)
-- [~] (claimed 2026-09-18-0200, wt: none) [REPORT — CONCURRENCY.md's session-start bookend tells every session to](roadmap/320-child-filed-findings-via-pointing-up/210-the-session-start-autostash-contradicts-the-shared-checkout-premise.md)
-- [~] (claimed 2026-09-18-0200, wt: none) [REPORT — the read-the-output rule covers an unread check and not an…](roadmap/320-child-filed-findings-via-pointing-up/220-read-the-output-does-not-say-verify-the-act-happened.md)
+- ✅ [REPORT — CONCURRENCY.md's session-start bookend tells every session to](roadmap/320-child-filed-findings-via-pointing-up/210-the-session-start-autostash-contradicts-the-shared-checkout-premise.md)
+- ✅ [REPORT — the read-the-output rule covers an unread check and not an…](roadmap/320-child-filed-findings-via-pointing-up/220-read-the-output-does-not-say-verify-the-act-happened.md)
 - [ ] 🔎 [MISSING HOUSE RULE — the method has no name for a negative result](roadmap/320-child-filed-findings-via-pointing-up/230-a-negative-result-whose-second-explanation-is-silent.md)
 - [~] 🛑 (claimed 2026-09-18-0420, wt: leakscan-plurals-0918) [A possessive or plural form evades a local-term, and leakscan](roadmap/320-child-filed-findings-via-pointing-up/240-a-possessive-evades-a-term-and-the-scanner-says-clean.md)
 - ✅ 🛑 [The block still carries DA1's overturned wording](roadmap/320-child-filed-findings-via-pointing-up/250-the-block-still-carries-the-wording-da1-overturned.md)
-- [~] 🔎 (claimed 2026-09-18-0200, wt: none) [The canonical floor block's drift command reads ..HEAD, so a](roadmap/320-child-filed-findings-via-pointing-up/260-the-drift-command-pins-a-child-to-whatever-branch-the-parent-is-parked-on.md)
+- ✅ 🔎 [The canonical floor block's drift command reads ..HEAD, so a](roadmap/320-child-filed-findings-via-pointing-up/260-the-drift-command-pins-a-child-to-whatever-branch-the-parent-is-parked-on.md)
 - [ ] [REPORT — datescan enforces the SHAPE of a date and cannot enforce its](roadmap/320-child-filed-findings-via-pointing-up/270-datescan-enforces-the-shape-of-a-date-and-cannot-enforce-its-frame.md)
 - [ ] [💡 PROPOSAL, hand-up from faves — a RENDERED board view, offered to](roadmap/320-child-filed-findings-via-pointing-up/280-proposal-a-rendered-board-view-for-every-repo.md)
 - [~] (claimed 2026-09-18-0120, wt: secretscan-url-space-0918) [Two secretscan defects](roadmap/320-child-filed-findings-via-pointing-up/290-secretscan-reads-published-urls-as-credentials-and-mis-locates-findings-in-paths-with-spaces.md)

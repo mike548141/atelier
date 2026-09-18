@@ -10,7 +10,9 @@ private-repo nicety. Verify: `gh repo view mike548141/atelier --json visibility`
 
 ## Read order at session start
 
-1. Sync first: `git pull --rebase --autostash`, and **assume another session may
+1. Sync first — `git status` before `git pull --rebase --autostash`, because
+   autostash shelves dirty work that may be a peer's (`CONCURRENCY.md`
+   § Integration hygiene) — and **assume another session may
    be live** — a clean tree is not proof you're alone (this repo's own
    commit-small-push-fast hygiene means a disciplined parallel session leaves the
    tree clean between commits). Uncommitted changes you didn't make are positive

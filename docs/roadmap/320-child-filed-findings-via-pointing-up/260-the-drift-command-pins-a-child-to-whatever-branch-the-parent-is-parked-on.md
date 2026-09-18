@@ -1,4 +1,4 @@
-- [~] (claimed 2026-09-18-0200, wt: none) 🔎 **The canonical floor block's drift command reads `..HEAD`, so a
+- [x] 🔎 **The canonical floor block's drift command reads `..HEAD`, so a
       child pins itself to whatever branch the parent's checkout happens to be
       parked on — and § *Pointing up* has made "parked on a filing branch" a
       NORMAL state for this repo.** Filed from a private child 2026-09-08 via
@@ -80,3 +80,10 @@
       documented command against an observed repo state. The fix to the
       canonical region is a doctrine edit and earns whatever review this
       repo's own process gives that.*
+
+      ✅ **FIXED 2026-09-18** (inline, `main`): the canonical block, the
+      scaffold template and § *The mechanism* point 4 now read
+      `<SHA>..origin/main` after a `fetch`, saying inline that a child pins to
+      the parent's published mainline, never the branch its checkout is parked
+      on. The fetch also answers `030/110`'s stale-checkout half for any
+      session that follows the block. Review: `160/310`.

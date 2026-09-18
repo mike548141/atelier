@@ -55,8 +55,10 @@ in atelier and is read on demand — never wholesale.
   (`00-APEX.md` for what an ask must contain; `COMMUNICATION.md` § *Asking for
   a ruling* for how it travels.)
 - **Concurrency:** assume another session may be live — a clean tree is not
-  proof you're alone. `git pull --rebase --autostash` at session start; push
-  after each commit. Take a worktree by default for write-heavy or multi-commit
+  proof you're alone. At session start read `git status` first — dirty work
+  this session didn't make means stop and move, never autostash it — then,
+  where there is a remote, `git pull --rebase --autostash`; push after each
+  commit. Take a worktree by default for write-heavy or multi-commit
   work; uncommitted changes this session didn't make are positive proof ⇒ move
   to a worktree — never work around or absorb them (`CONCURRENCY.md`). Name
   records (session logs, ADRs, reviews) coordination-free —
@@ -92,9 +94,10 @@ in atelier and is read on demand — never wholesale.
   first line, open the PR before you stop, and touch nothing but your own item.
   (`PROPAGATION.md` § *Pointing up*.)
 - **Source & drift:** canonical doctrine is `<atelier-path>/docs/method/`. At
-  session start run `git -C "<atelier-path>" log --oneline <SHA>..HEAD`; any
-  output means the house doctrine moved — read it, then bump the pin above
-  deliberately.
+  session start run `git -C "<atelier-path>" fetch -q` then `git -C
+  "<atelier-path>" log --oneline <SHA>..origin/main` — the parent's published
+  mainline, never whatever branch its checkout is parked on; any output means
+  the house doctrine moved — read it, then bump the pin above deliberately.
 - **Estate resources — point up, don't re-derive:** providers & account plans,
   financial constraints & plan entitlements, licences, credentials, shared
   estate tooling, and the estate inventory live in the operator's **private

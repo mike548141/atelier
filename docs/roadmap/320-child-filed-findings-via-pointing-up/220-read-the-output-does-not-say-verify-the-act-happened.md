@@ -1,4 +1,4 @@
-- [~] (claimed 2026-09-18-0200, wt: none) **REPORT — the read-the-output rule covers an unread check and not an act
+- [x] **REPORT — the read-the-output rule covers an unread check and not an act
       that silently did not happen; two sessions in one repository hit the
       second in the same hour** `[S][method]` — filed from a private child,
       2026-09-06, via § *Pointing up*. Evidence: two independent incidents,
@@ -116,3 +116,10 @@
       Consideration and remediation are atelier's; the reporting child stops at
       this report. The finding is the peer session's; it is filed by the other
       because that session was closing and had the branch conventions loaded.
+
+      ✅ **FIXED 2026-09-18** (inline, `main`): atelier stated no
+      read-the-output rule to extend, so the clause landed as its own bullet in
+      `CONCURRENCY.md` § *Integration hygiene* — **Verify the act, not the
+      absence of an error** — carrying the item's four shapes, the
+      filtering-is-not-reading point, and the close-out half measured at that
+      moment. Review: `160/310`.

@@ -177,7 +177,33 @@ action across every parallel session.
 - **Sync bookends** shrink the collision window the substrate can't cover
   (two sessions legitimately landing on the same integration branch):
   `git pull --rebase --autostash` at session start; push after each commit,
-  not in a batch at session end.
+  not in a batch at session end. The opening bookend has two gates, because
+  `--autostash` stashes *whatever* is dirty, not whatever is yours, onto a
+  stash stack shared by the primary checkout and every worktree. **Read
+  `git status` first**: anything dirty that is not yours is positive proof of
+  a live peer (§ The trigger), so the bookend becomes a stop and a move to a
+  worktree, never a step that shelves the peer's work where a second session
+  may pop it. **And no remote, no bookend** — a repo with no upstream gains
+  nothing from the pull and keeps the stash hazard. (A private child's
+  near-miss, 2026-09-06: the bookend ran verbatim beside a peer's five staged
+  files and was saved only by the pull failing first — `320/210`.)
+- **Verify the act, not the absence of an error.** Reading a check's output
+  covers the check; it says nothing about whether the act that followed
+  happened. A commit blocked on another session's `index.lock`, a
+  `git commit <path>` that refuses an untracked file, a backgrounded command
+  whose reported exit code is the wrapper's — each prints no failure marker a
+  filter was looking for, and each leaves a session sure of a state change
+  that never occurred. So confirm by the act's own effect: for a commit,
+  `git log --oneline -1`; for a push, the remote ref; for a write, the file. A
+  grep for failure markers that matches nothing is indistinguishable from a
+  command that produced nothing, so filtering output is not reading it. The
+  costliest case is close-out: *"nothing of mine is outstanding"* is measured
+  at that moment — `git status`, `git worktree list`, a claim grep — never
+  recalled from what the session believes it did, because a close-out miss is
+  the one nobody is left to catch. (Three sessions in one private child, one
+  evening, 2026-09-06: two `index.lock` collisions, an untracked-path commit
+  refusal and a finished item left uncommitted at close, each read as
+  success — `320/220`.)
 - Append-tail files (session logs, changelogs) will conflict when concurrent
   sessions both append — that conflict is *expected and trivial*: keep both
   entries, chronological order, move on. Design shared records so this is the
