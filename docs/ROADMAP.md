@@ -225,6 +225,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued — the ruling-ask rule widened and pushed to…](roadmap/160-doctrine-review-owed/290-rule-4-cold-pass-queued-ask-rule-to-children.md)
 - ⏳ [Rule-4 cold pass queued — the doctrine-reporting duty, the route's…](roadmap/160-doctrine-review-owed/300-rule-4-cold-pass-queued-report-up-duty.md)
 - ⏳ [Rule-4 cold pass queued — the 2026-09-18 hand-up fixes to the](roadmap/160-doctrine-review-owed/310-rule-4-cold-pass-queued-the-0918-hand-up-fixes.md)
+- ⏳ [Rule-4 cold pass queued — the 2026-09-18 floor-registry code: a…](roadmap/160-doctrine-review-owed/320-rule-4-cold-pass-queued-the-0918-registry-code.md)
 
 ## build/ layer — open strands
 

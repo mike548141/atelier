@@ -127,3 +127,36 @@ process at a time; and after a `pkill`, check that nothing matching is left
 before assuming it worked. The class is filed as `020/370`. This record
 does not claim the machine was fine meanwhile. It was not, and the owner
 found out from someone else.
+
+### Close
+
+**Stop condition: everything left is blocked**, plus the machine. What
+remains open is almost all 🎯, waiting on Mike, or `⏳` Fable-tier review
+this Opus run may not take. The two exceptions are `110/010` (its own text
+waits for a second instance before building) and the new `020/370`, which
+needs heavy scanning of the very repo that just thrashed the machine. That
+is a poor thing to start at load 38.
+
+**Closed this run (22 items):** `320/250`, `320/290`, `110/020`,
+`020/060`, `210/110`, `010/090`, `020/340`, `210/100`, `320/260`, `310/110`,
+`320/210`, `320/220`, `160/250`, `010/040`, `020/360`, `290/070`,
+`020/310`, `120/010`, `320/200`, `140/010`, `115/180`, `320/240`.
+**Partly:** `320/170` (one class of three). **Filed:** `320/300` 🎯,
+`020/360` (then closed), `020/370` 🔥. **Queued for review:** `160/310`
+(doctrine), `160/320` (registry code); `160/260`, `160/290` and `160/300`
+widened.
+
+**🎯 New decisions this run surfaced** (the rest of the board's 🎯 are
+unchanged): `320/300` — should a doctrine ruling carry a check that the
+child block's copy moved with it. Two items the triage marked build-ready
+turned out to hold rulings: `115/030` (stampscan's inverted verdicts: how
+to permit compression while forbidding narrowing) and `320/010`
+(pathscan's package-root anchor).
+
+**🚩 Awareness:** one child turns red at its next pin bump on a public
+document link's query id (secretscan now scans query values); the remedy
+is a scoped allow-marker in that repo. ADR 0008's 2026-08-23 amendment says
+`main` has no ruleset, but one is now active (`140/020`'s ground).
+
+Tests 1376 → 1430 Python (−51 with plainscan's removal), 261 → 277 node;
+floor green before every push. All worktrees and branches put away.

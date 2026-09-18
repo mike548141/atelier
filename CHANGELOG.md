@@ -5,6 +5,37 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-09-18 — queue run: the hand-up fixes and four rulings)
+- **plainscan removed** (Mike's ruling, `020/360`): the unwired reply hook
+  destroyed, the warn-only floor scanner taken off the registry — it printed
+  ~6,050 unread findings per commit. Engine archived at git tag
+  `archive/plainscan-2026-09-18`.
+- **conflictscan added, enforced** (Mike's ruling, `320/200`): committed
+  merge-conflict markers now block on both planes; a bare `=======` counts
+  only inside an open conflict.
+- **leakscan terms match their plural** (Mike's ruling, `320/240`): `Terms`
+  and `Terms'` hit alongside `Term`; `regex:` terms unchanged.
+- **secretscan** (`320/290`): a published URL's scheme, host and path are no
+  longer entropy candidates (query and fragment still are); `--staged`
+  reports the real line on spaced paths and multi-hunk files; the entropy
+  regex no longer hides an unrecognised `key=value`.
+- **board** takes `--check` / `--rebuild` (bare words still work) and the
+  never-soften prose lists are pinned to the registry by a test
+  (`010/090`, `020/340`).
+- **floorfleet** strips control characters from child floor text
+  (`020/060`) and reads atelier's own `main` ruleset, red when force-push or
+  deletion blocking is missing (`140/010`).
+- **worktree.py**: four defects fixed; `list` measures against
+  `origin/<main>` (Mike's ruling, `110/020`). **pins** anchors on the main
+  checkout (`210/110`). **pathscan** skips home paths (`320/170`, one class).
+  **cctranscript** reads the principal's mid-turn messages without moving any
+  published ref (`210/100`).
+- **Doctrine:** the child block's ask bullet matches the ruled wording
+  (`320/250`); the session-start sync reads `git status` first and needs a
+  remote (`320/210`); **Verify the act, not the absence of an error**
+  (`320/220`); the drift command reads `..origin/main` after a fetch
+  (`320/260`); "self-removing" corrected (`310/110`).
+
 ### Changed (2026-08-23 — the ruling-round applications: AP and FR, the code half)
 - **pathscan excludes records by default, estate-wide** (FR2, Mike's
   ruling): `docs/reviews`, `docs/sessions`, `docs/SESSIONS.md`,
