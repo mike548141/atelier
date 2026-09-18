@@ -527,6 +527,85 @@ class UrlEntropyExclusion(unittest.TestCase):
         self.assertIn("0 by published-url token", ss.Tally().summary())
 
 
+class UrlExclusionScopedToHostAndPath(unittest.TestCase):
+    """320/290, tightened before merge on a coordinator's ruling.
+
+    The first cut of the URL exclusion suppressed the WHOLE matched run,
+    query string and fragment included — and a signed-URL query value is
+    exactly where a credential lives in practice (`?sig=`, `?token=` on a
+    presigned download link; `#access_token=` on an OAuth implicit-grant
+    redirect). Tightened so the exclusion stops at the URL's first `?` or
+    `#`: only the scheme+host+path portion is excluded, and everything from
+    the separator onward stays a live entropy candidate exactly as if the
+    URL prefix in front of it did not exist.
+
+    Fixing this also surfaced a second, independent, pre-existing gap:
+    `HIGH_ENTROPY_RX`'s lookbehind excluded `=` from a token's own class,
+    which meant NO `key=value` assignment under an unrecognised key name —
+    URL query or not — could ever start a match; `?sig=<value>` hit this as
+    well as the (now-fixed) URL scope. That lookbehind fix is monotonic (it
+    can only surface a match a preceding `=` used to hide, never remove one
+    that already fired), so it does not touch `BlockingSetNeverShrinks`.
+    """
+
+    def test_query_string_sig_value_flags(self):
+        # The coordinator's own example: a signed-URL query credential under
+        # a key name secretscan does not recognise (`sig`, not `token`/
+        # `api_key`/…) has no assigned-secret path to fall back on — the
+        # context-free net is the ONLY thing that can catch it, and before
+        # this fix it was invisible to that too (both the URL scope AND the
+        # `=`-lookbehind gap hid it).
+        fs = scan("https://api.example.com/download?sig="
+                 "aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z")
+        self.assertIn("high-entropy", {f.rule for f in fs})
+        self.assertTrue(any(f.blocks for f in fs))
+
+    def test_fragment_value_flags(self):
+        # An OAuth implicit-grant style redirect puts the credential after
+        # `#`, never `?` — the same live-candidate rule must apply there too.
+        fs = scan("https://app.example.com/reset#"
+                 "aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z")
+        self.assertIn("high-entropy", {f.rule for f in fs})
+        self.assertTrue(any(f.blocks for f in fs))
+
+    def test_long_hyphenated_doc_path_with_no_query_still_passes(self):
+        # The tightening must not have reopened defect 1: a URL with no query
+        # or fragment at all is still fully excluded end to end.
+        self.assertEqual(
+            set(), rules("doc: https://docs.example.org/guides/how-to-"
+                         "Configure-OAuth2-Bearer-Tokens-For-Api"))
+
+    def test_host_and_path_before_the_query_are_still_excluded(self):
+        # Only the query/fragment stop being excluded — the host+path prefix
+        # in front of a query credential is still not itself scored, so the
+        # ONE finding on this line is the query value, not the hostname.
+        fs = scan("https://api.example.com/download?sig="
+                 "aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z")
+        self.assertEqual(1, len(fs))
+
+    def test_query_key_value_assignment_gap_is_general_not_url_specific(self):
+        # The `=`-lookbehind half of this fix is not a URL mechanism at all —
+        # it applies wherever an unrecognised key is assigned a high-entropy
+        # value with '=', proven here with no URL/scheme anywhere on the line.
+        self.assertIn("high-entropy",
+                      rules("sig=aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z"))
+
+    def test_url_suppression_still_counted_up_to_the_query(self):
+        # A short domain+path like `api.example.com/download` never forms a
+        # 32+ char entropy candidate on its own (`.`/`/` break it into
+        # shorter pieces) — nothing there to suppress. Pair the hyphenated
+        # path shape from defect 1 with a query credential so BOTH halves
+        # have something to count: the path segment is still one suppressed
+        # URL token, and the query value is a live finding, not a suppression.
+        tally = ss.Tally()
+        findings = ss.scan_text(
+            "t", "https://docs.example.org/guides/how-to-Configure-OAuth2-"
+                "Bearer-Tokens-For-Api?sig=aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z\n",
+            frozenset(), tally)
+        self.assertEqual(1, tally.url_tokens)
+        self.assertEqual(["high-entropy"], [f.rule for f in findings])
+
+
 class AdvisoryTier(unittest.TestCase):
     """E6b — a second response, and the coverage it buys.
 

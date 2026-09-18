@@ -144,10 +144,12 @@ class Tally:
     # reason as `fingerprints`: the unit reported is the would-be finding, which
     # is what rule (b) says gets produced before the allowance is applied.
     public_key_spans: int = 0
-    # The URL carve-out (320/290, 2026-09-18): a token that is a path segment of
-    # a published URL, or is glued directly to a `scheme://` run, is not treated
-    # as an entropy candidate — see `URL_RX`. Counted per span for the same
-    # reason as the two above: the widest allowances get the most visible count.
+    # The URL carve-out (320/290, 2026-09-18, tightened same day): a token in a
+    # published URL's SCHEME+HOST+PATH is not treated as an entropy candidate —
+    # see `URL_RX`. A query string or fragment is NOT covered — that is where a
+    # signed-URL credential actually lives, so it stays live. Counted per span
+    # for the same reason as the two above: the widest allowances get the most
+    # visible count.
     url_tokens: int = 0
 
     @property
@@ -323,7 +325,21 @@ NAMED: list[Pattern] = [
 # including it turned every long URL path into a false hit. A standard-base64
 # secret (which uses `/`) is caught by assignment context or a vendor format
 # instead; base64url tokens (the modern default) use `-_` and still match.
-HIGH_ENTROPY_RX = re.compile(r"(?<![A-Za-z0-9+=_-])[A-Za-z0-9+_-]{32,}={0,2}(?![A-Za-z0-9+=_-])")
+#
+# The LOOKBEHIND excludes `=` from the token class but NOT from itself
+# (320/290, 2026-09-18) — found while tightening the URL carve-out to leave a
+# query string live: `sig=<value>` (or any `key=value` under a key
+# SECRET_KEY_RX doesn't recognise) could never start a match, because the
+# lookbehind treated a preceding `=` as "still inside the previous token" the
+# same way it treats a preceding letter/digit. That made every unnamed
+# `key=value` assignment invisible to this net EVERYWHERE, not just in a URL
+# query — the exact shape a signed-URL credential takes. The LOOKAHEAD still
+# excludes `=` (unchanged): that half stops a match ending mid-way through a
+# base64 blob's own `==` padding, which is a different case (the padding is
+# consumed by `={0,2}` and read as trailing, never leading). This is a
+# monotonic widening — it can only ADD matches a preceding `=` used to hide,
+# never remove one that fired before — so the blocking set does not shrink.
+HIGH_ENTROPY_RX = re.compile(r"(?<![A-Za-z0-9+_-])[A-Za-z0-9+_-]{32,}={0,2}(?![A-Za-z0-9+=_-])")
 HIGH_ENTROPY_MIN = 4.0        # bits/char; random base64 sits ~5.0, prose ~3-4
 ASSIGNED_ENTROPY_MIN = 3.0    # assigned values get context, so a lower bar
 
@@ -393,31 +409,54 @@ FINGERPRINT_RX = re.compile(
 # scored as an entropy candidate — so gluing a scheme prefix alone buys no
 # suppression.
 #
-# RESIDUAL RISK, stated rather than closed: this is a cheap shape check, not
-# proof of a real URL. A value glued behind a CONVINCING host and path
-# (`http://example.com/<realsecret>`) still reads as URL-shaped and the
-# credential inside it is hidden from this net — the same way any suppression
-# in this file is bypassed by faking the shape it trusts. What keeps that
-# survivable is that this carve-out only ever touches the CONTEXT-FREE net:
-# a query-string credential named by a credential key (`?token=`, `?api_key=`)
-# is still caught by the assigned-secret rule below, which runs over the whole
-# line regardless of URL shape and is UNCHANGED by this exclusion. An unnamed
-# credential smuggled inside a URL with no recognised key beside it is the one
-# shape this carve-out cannot see through — narrowing that further (e.g.
-# requiring a real TLD, or excluding only the LAST path segment) is available
-# if that residual risk is ever measured live; it is not narrowed pre-emptively
-# because a floor fitted to a hypothetical is not a floor (`ground-numeric-
-# limits`).
+# SCOPED TO SCHEME+HOST+PATH ONLY (tightened 2026-09-18, on a coordinator's
+# ruling before merge). The exclusion originally covered the whole matched
+# run including any query string or fragment — and a signed-URL query value
+# is EXACTLY where credentials live in practice (`?sig=`, `?token=`,
+# `#access_token=` from an OAuth implicit-grant redirect). A convincing host
+# and path in front of an unnamed query/fragment secret
+# (`https://api.example.com/download?sig=<realsecret>`) made that credential
+# invisible to the context-free net, which is not an acceptable residual for
+# a scanner whose whole job is finding exactly that shape. Fixed at the root
+# rather than documented as a residual: everything from the FIRST `?` or `#`
+# in the matched run is excluded from the URL span and stays a live entropy
+# candidate, scored exactly as if no URL were present — the assigned-secret
+# rule also still runs over it unconditionally, unaffected either way.
+#
+# RESIDUAL RISK, stated rather than closed: this is a cheap shape check on the
+# host+path portion only, not proof of a real URL. A value glued behind a
+# CONVINCING host and PATH with no query/fragment at all
+# (`https://example.com/<realsecret>`) still reads as URL-shaped and that
+# credential is hidden from this net — the same way any suppression in this
+# file is bypassed by faking the shape it trusts. What keeps that survivable:
+# a credential named by a credential key anywhere on the line (`token:`,
+# `api_key=`, …) is still caught by the assigned-secret rule regardless of
+# URL shape, so the one thing this carve-out cannot see through is an UNNAMED
+# credential sitting in a URL's PATH specifically (not its query or fragment,
+# both now live). Narrowing further (e.g. requiring a real TLD, or excluding
+# only the path's non-final segments) is available if that narrower residual
+# is ever measured live; it is not narrowed pre-emptively because a floor
+# fitted to a hypothetical is not a floor (`ground-numeric-limits`).
 URL_RX = re.compile(r"\b[A-Za-z][A-Za-z0-9+.-]*://[^\s<>\"']+")
 
 
 def _url_spans(line: str) -> list[tuple[int, int]]:
-    """Character ranges on this line occupied by a host/path-shaped URL run."""
+    """Character ranges on this line occupied by a host/path-shaped URL's
+    SCHEME+HOST+PATH portion only — never its query string or fragment, which
+    stay live entropy candidates (see the module comment above `URL_RX`)."""
     spans = []
     for m in URL_RX.finditer(line):
-        rest = m.group(0).split("://", 1)[1]
-        if "." in rest or "/" in rest:
-            spans.append(m.span())
+        whole = m.group(0)
+        scheme_end = whole.index("://") + 3
+        cut = len(whole)
+        for sep in "?#":
+            idx = whole.find(sep, scheme_end)
+            if idx != -1:
+                cut = min(cut, idx)
+        host_and_path = whole[scheme_end:cut]
+        if "." not in host_and_path and "/" not in host_and_path:
+            continue  # not host/path-shaped — not treated as a URL at all
+        spans.append((m.start(), m.start() + cut))
     return spans
 
 
@@ -740,10 +779,11 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
                 if tally is not None:
                     tally.note_fingerprint()
                 continue
-            # 320/290 — a token that is (part of) a published URL is not an
-            # entropy candidate at all, neither blocking nor advisory. See
-            # `URL_RX` for the shape requirement and the residual risk it
-            # deliberately leaves open.
+            # 320/290 — a token inside a published URL's scheme+host+path is
+            # not an entropy candidate at all, neither blocking nor advisory.
+            # Its query string and fragment are NOT covered by this span (see
+            # `URL_RX`/`_url_spans`), so a token there still reaches the
+            # checks below exactly as if no URL were present.
             if _inside_url(m.span(), url_spans):
                 if tally is not None:
                     tally.note_url_token()
