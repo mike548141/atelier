@@ -1,4 +1,5 @@
-- [ ] 🛑 **The standard child doctrine block still carries the exact wording
+- [~] 🛑 **The block still carries DA1's overturned wording** (claimed 2026-09-18-0120, wt: none)
+      — the standard child doctrine block still carries the exact wording
       DA1 overturned — and it is the one spelling that gets COPIED into every
       child** — filed from a private child repo 2026-08-26 via § *Pointing up*,
       found while bumping a pin and reading the moved doctrine.

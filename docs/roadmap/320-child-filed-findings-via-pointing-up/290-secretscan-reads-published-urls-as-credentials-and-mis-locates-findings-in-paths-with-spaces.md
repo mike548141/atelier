@@ -1,4 +1,5 @@
-- [ ] **REPORT — two secretscan defects: the entropy net scores a published
+- [~] **Two secretscan defects** (claimed 2026-09-18-0120, wt: secretscan-url-space-0918)
+      — **REPORT — two secretscan defects: the entropy net scores a published
       URL's path segments as a credential, and `--staged` reports the wrong
       line number for any path containing a space** `[S][tools]` — filed from
       a private child, 2026-09-10, via § *Pointing up*. Evidence available.
