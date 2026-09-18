@@ -27,6 +27,13 @@ Mechanical guards that encode the doctrine (not left to memory):
     work never silently inherits whatever half-done branch you happened to be on.
   * `list` flags worktrees that have diverged for days (merge hazard) or carry
     uncommitted changes (the concurrency equivalent of a leaked file handle).
+    Ahead/behind is measured against `origin/<main>` when that remote-tracking
+    ref exists, so a branch someone else already merged does not keep showing
+    `↑N` forever just because the *local* `main` never caught up — this falls
+    back to local `main` only when there is no remote-tracking ref, and always
+    says which one it used and how stale that comparison could be. It reads
+    local refs only (no network) unless `--fetch` is given, so `list` stays
+    fast and offline-safe.
   * `remove` refuses to delete a worktree with uncommitted or unmerged work
     unless you say --force — losing work is the failure mode this whole doctrine
     exists to prevent. "Merged" is measured against the *remote* integration
@@ -145,6 +152,43 @@ def has_remote(root: Path) -> bool:
     return bool(git(["-C", str(root), "remote"], check=False).stdout.strip())
 
 
+def ahead_behind_referent(root: Path, main: str) -> tuple[str, bool]:
+    """What `list` compares a branch's ahead/behind against: `origin/<main>`
+    when that remote-tracking ref exists, else local `<main>` — the same
+    stale-local-`main` referent problem `integration_refs` solved for `remove`,
+    now solved for `list` (Mike's ruling, 2026-09-18: compare to what is
+    published, not a possibly-stale local `main`).
+
+    Returns (ref, is_fallback) so callers never present the fallback as if it
+    were the real thing — a repo offline or with no remote configured still
+    gets a comparison, just an honestly-labelled one.
+    """
+    remote_ref = f"origin/{main}"
+    if git(["-C", str(root), "rev-parse", "--verify", "--quiet",
+            f"refs/remotes/{remote_ref}"], check=False).returncode == 0:
+        return remote_ref, False
+    return main, True
+
+
+def last_fetch_age_days(root: Path) -> float | None:
+    """Days since the last `git fetch` in this checkout, from FETCH_HEAD's
+    mtime — None if it has never been fetched (fresh clone, or a repo with no
+    remote). This is how stale an `origin/<main>` comparison could be, without
+    fetching to find out: `list` never fetches by itself (`--fetch` opts in),
+    so the number can be old — that is the whole point of showing it.
+    """
+    proc = git(["-C", str(root), "rev-parse", "--git-common-dir"], check=False)
+    if proc.returncode != 0:
+        return None
+    common = Path(proc.stdout.strip())
+    if not common.is_absolute():
+        common = root / common
+    fetch_head = common / "FETCH_HEAD"
+    if not fetch_head.exists():
+        return None
+    return (_now() - fetch_head.stat().st_mtime) / 86400.0
+
+
 def is_icloud(path: Path) -> bool:
     hay = str(path.expanduser()).lower()
     return any(m in hay for m in ICLOUD_MARKERS)
@@ -209,7 +253,11 @@ def main_worktree(root: Path) -> Path:
     return Path(entries[0]["path"]) if entries else root
 
 
-def collect(root: Path, main: str, stale_days: float) -> list[WorktreeInfo]:
+def collect(root: Path, main: str, stale_days: float, referent: str) -> list[WorktreeInfo]:
+    """`referent` is what ahead/behind is measured against — `origin/<main>` or,
+    lacking that ref, local `main` (see `ahead_behind_referent`). It is a single
+    ref shared by every worktree in the call, not recomputed per worktree: all
+    worktrees in a repo share one set of refs."""
     entries = parse_worktrees(root)
     main_root = entries[0]["path"] if entries else str(root)
     infos: list[WorktreeInfo] = []
@@ -222,7 +270,7 @@ def collect(root: Path, main: str, stale_days: float) -> list[WorktreeInfo]:
         ahead = behind = 0
         if branch != "(detached)" and branch != main:
             rl = git(["-C", str(wt), "rev-list", "--left-right", "--count",
-                      f"{main}...{branch}"], check=False)
+                      f"{referent}...{branch}"], check=False)
             if rl.returncode == 0 and rl.stdout.strip():
                 b, a = rl.stdout.split()
                 behind, ahead = int(b), int(a)
@@ -298,13 +346,23 @@ def cmd_list(args) -> int:
         print(f"worktree: {e}", file=sys.stderr)
         return 2
     main = integration_branch(root)
-    infos = collect(root, main, args.stale_days)
+
+    if args.fetch and has_remote(root):
+        git(["-C", str(root), "fetch", "--quiet", "origin", main], check=False)
+
+    referent, fallback = ahead_behind_referent(root, main)
+    fetch_age = last_fetch_age_days(root)
+    infos = collect(root, main, args.stale_days, referent)
 
     if args.json:
         print(json.dumps({"integration_branch": main,
+                          "compared_against": referent,
+                          "compared_against_is_fallback": fallback,
+                          "last_fetch_age_days": (round(fetch_age, 2)
+                                                  if fetch_age is not None else None),
                           "worktrees": [asdict(i) for i in infos]}, indent=2))
     else:
-        print(render_list(infos, main))
+        print(render_list(infos, main, referent, fallback, fetch_age))
 
     problems = any(i.stale or i.dirty for i in infos if not i.is_main)
     return 1 if (args.check and problems) else 0
@@ -485,8 +543,18 @@ def _shquote(s: str) -> str:
     return f'"{s}"' if " " in s else s
 
 
-def render_list(infos: list[WorktreeInfo], main: str) -> str:
+def render_list(infos: list[WorktreeInfo], main: str, referent: str,
+                referent_is_fallback: bool, fetch_age_days: float | None) -> str:
     lines = [f"worktrees (integration branch: {main})"]
+    if referent_is_fallback:
+        lines.append(f"  ⚠ ↑/↓ vs local {referent} — no origin/{main} remote-tracking "
+                     "ref found, so this may not reflect what's actually published")
+    elif fetch_age_days is None:
+        lines.append(f"  ↑/↓ vs {referent} (never fetched in this checkout — pass "
+                     "--fetch to refresh first)")
+    else:
+        lines.append(f"  ↑/↓ vs {referent} (as of last fetch {fetch_age_days:.1f}d ago"
+                     "; pass --fetch to refresh first)")
     others = [i for i in infos if not i.is_main]
     if not others:
         lines.append("  (only the main working tree — no parallel lines open)")
@@ -525,11 +593,24 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--start", help="start-point ref (default: the integration branch)")
     p.set_defaults(func=cmd_start)
 
-    p = sub.add_parser("list", aliases=["ls"], help="show worktrees + hygiene flags")
+    p = sub.add_parser(
+        "list", aliases=["ls"], help="show worktrees + hygiene flags",
+        description="Show worktrees + hygiene flags. Ahead/behind (↑/↓) is "
+                    "measured against origin/<main> when that remote-tracking ref "
+                    "exists, so a branch already landed on the remote doesn't keep "
+                    "showing ↑N just because local <main> never caught up; falls "
+                    "back to local <main> when there's no remote-tracking ref, "
+                    "labelled as a fallback. Reads local refs only (no network) "
+                    "unless --fetch is given, so list stays fast and offline-safe — "
+                    "the output always says how stale the comparison could be.")
     p.add_argument("--stale-days", type=float, default=DEFAULT_STALE_DAYS,
                    help=f"divergence age that counts as stale (default {DEFAULT_STALE_DAYS})")
     p.add_argument("--check", action="store_true",
                    help="exit 1 if any worktree is stale or dirty (for CI/hooks)")
+    p.add_argument("--fetch", action="store_true",
+                   help="fetch origin/<main> first (touches the network) before "
+                        "computing ahead/behind — use when the remote may have "
+                        "moved since your last fetch")
     p.set_defaults(func=cmd_list)
 
     p = sub.add_parser("land", help="push the branch + open a PR back to main")

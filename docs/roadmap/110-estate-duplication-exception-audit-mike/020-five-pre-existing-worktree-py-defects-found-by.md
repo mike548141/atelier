@@ -1,4 +1,4 @@
-- [~] (claimed 2026-09-18-0330, wt: worktree-referent-0918) 🔎 **Five pre-existing `worktree.py` defects, found by that fix and
+- [x] 🔎 **Five pre-existing `worktree.py` defects, found by that fix and
       deliberately left** (2026-08-09). Queued rather than taken because each is
       outside the two claimed items and one of them changes a documented meaning:
       (a) **`list`'s ↑/↓ carries the same stale-local-`main` referent** `remove`
@@ -30,3 +30,10 @@
         *"Compare to origin/main"* — the ahead/behind arrows measure against
         what is published, not a possibly stale local `main`. Build owed;
         claimed below with this ruling as its spec.
+
+  - [x] ✅ **(a) BUILT 2026-09-18 on Mike's ruling** (`50fef74`, merged from
+        `worktree-referent-0918`): `worktree list` measures ahead/behind
+        against `origin/<main>`, prints the referent and how old the last
+        fetch is, falls back to local `main` with a ⚠ saying so when there is
+        no remote-tracking ref, and takes `--fetch` to refresh first (off by
+        default, keeping `list` offline-safe). All five defects now closed.
