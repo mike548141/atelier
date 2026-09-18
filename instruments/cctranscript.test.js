@@ -631,14 +631,60 @@ test('readTurns: a peer cross-session message and a harness task notification ar
   assert.ok(!allText.includes('task-id'));
 });
 
-test('numberTurns: a mid-turn message opens its own exchange, same vocabulary as a prompt', () => {
+test('numberTurns: a mid-turn message gets its own ref WITHOUT opening a new exchange or bumping N', () => {
+  // N/N.M refs are already quoted in committed records — a mid-turn message
+  // must never shift one. It earns its own N+K ref (K resets per exchange)
+  // and Claude's M keeps counting exactly as if it weren't there.
   const file = midTurnFile([
     you('first ask'), claude('first answer'),
-    midTurn('a second ask, typed mid-turn'), claude('second answer'),
+    midTurn('typed mid-turn, still inside exchange 1'), claude('second answer, still 1.2'),
   ]);
   const { turns } = cc.readTurns(file);
   cc.numberTurns(turns);
-  assert.deepEqual(turns.map((t) => t.ref), ['1', '1.1', '2', '2.1']);
+  assert.deepEqual(turns.map((t) => t.ref), ['1', '1.1', '1+1', '1.2']);
+});
+
+test('numberTurns: K resets at each new prompt; multiple mid-turn messages in one exchange count up', () => {
+  const file = midTurnFile([
+    you('ask one'), midTurn('mid A'), midTurn('mid B'), claude('answer one'),
+    you('ask two'), midTurn('mid C'), claude('answer two'),
+  ]);
+  const { turns } = cc.readTurns(file);
+  cc.numberTurns(turns);
+  assert.deepEqual(turns.map((t) => t.ref), ['1', '1+1', '1+2', '1.1', '2', '2+1', '2.1']);
+});
+
+test('numberTurns: a session\'s existing you/claude refs are byte-identical whether or not it holds mid-turn messages', () => {
+  // The load-bearing guarantee the coordinator asked for: reading a channel
+  // this tool never used to read must not retroactively change what an
+  // existing "exchange 7" / "reply 7.2" citation resolves to.
+  const withoutMid = midTurnFile([
+    you('first ask'), claude('first answer'),
+    you('second ask'), claude('second answer a'), claude('second answer b'),
+  ]);
+  const baseline = cc.numberTurns(cc.readTurns(withoutMid).turns)
+    .filter((t) => t.role === 'you' || t.role === 'claude')
+    .map((t) => ({ role: t.role, ref: t.ref, text: t.text }));
+
+  // The identical you/claude turns, with mid-turn messages spliced in wherever
+  // Claude could plausibly still have been working — before, between and
+  // after replies, in both exchanges.
+  const withMid = midTurnFile([
+    you('first ask'), midTurn('typed while Claude answered #1'), claude('first answer'),
+    you('second ask'), claude('second answer a'), midTurn('typed between the two replies'),
+    claude('second answer b'), midTurn('typed after everything else'),
+  ]);
+  const turns = cc.numberTurns(cc.readTurns(withMid).turns);
+  const withMidRefs = turns.filter((t) => t.role === 'you' || t.role === 'claude')
+    .map((t) => ({ role: t.role, ref: t.ref, text: t.text }));
+
+  assert.deepEqual(withMidRefs, baseline,
+    'every you/claude ref must be identical with mid-turn records present or absent');
+
+  // The mid-turn turns still get their own refs, distinct from every you/claude
+  // ref and never colliding with one.
+  assert.deepEqual(turns.filter((t) => t.role === 'you-mid').map((t) => t.ref),
+    ['1+1', '2+1', '2+2']);
 });
 
 test('CLI: --json marks a mid-turn message with its own role, distinct from a turn-opening prompt', () => {

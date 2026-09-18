@@ -53,11 +53,14 @@
  * type:"user" record — it logs as type:"attachment" · attachment.type:
  * "queued_command". Rendered as its own turn, mirrored right like a prompt but
  * labelled "Mid-turn" so it's never mistaken for one, and included in --search
- * by default (no --tools needed). Not every queued_command is yours, though:
- * the same wrapper carries harness task notifications and a peer agent's
- * cross-session messages — see isHumanQueuedCommand for how the three are told
- * apart. Still NOT covered: an AskUserQuestion answer arrives as a tool_result,
- * reachable only via --tools, undistinguished from other tool output.
+ * by default (no --tools needed). It gets its own citable ref, N+K, rather
+ * than opening a new exchange — an existing session's N/N.M refs (already
+ * quoted in committed records) must not shift just because this channel is
+ * now read. Not every queued_command is yours, though: the same wrapper
+ * carries harness task notifications and a peer agent's cross-session
+ * messages — see isHumanQueuedCommand for how the three are told apart. Still
+ * NOT covered: an AskUserQuestion answer arrives as a tool_result, reachable
+ * only via --tools, undistinguished from other tool output.
  *
  * The .jsonl schema is internal to Claude Code and can shift between releases;
  * if a field moves this may need a nudge.
@@ -559,10 +562,11 @@ function readTurns(file, opts = {}) {
       const text = extractText(o.message && o.message.content).trim();
       if (text) turns.push({ role: 'you', ts, text });
     } else if (o.type === 'attachment' && isHumanQueuedCommand(o.attachment)) {
-      // Typed while a turn was already in flight: a genuine turn-opening
-      // prompt in every way that matters (fresh principal text, own citable
-      // ref) except the moment it arrived, which is exactly what the distinct
-      // role is for — never gated by --tools/--think, same as 'you'.
+      // Typed while a turn was already in flight: genuine fresh principal
+      // text, but it does NOT open a new exchange (numberTurns gives it its
+      // own N+K ref instead of bumping N) — an existing session's you/claude
+      // refs must not shift just because this channel is now read. Never
+      // gated by --tools/--think, same as 'you'.
       const text = extractText(o.attachment.prompt).trim();
       if (text) turns.push({ role: 'you-mid', ts, text });
     } else if (o.type === 'user' && o.toolUseResult && wantTools) {
@@ -597,11 +601,19 @@ function readTurns(file, opts = {}) {
 
 // Number the citable turns in place: each prompt is exchange N (the ▸ N rule),
 // each of Claude's *text* replies to it is N.M (M resets per prompt). Thinking
-// and tool turns stay unnumbered — the citable unit is what a human quotes. A
-// mid-turn message ('you-mid') numbers exactly like 'you': it is fresh
-// principal text that opens a new exchange, just typed while an earlier one
-// was still in flight, and the render's distinct role label is what tells the
-// two apart — the ref format stays one vocabulary, not two.
+// and tool turns stay unnumbered — the citable unit is what a human quotes.
+//
+// A mid-turn message ('you-mid') does NOT open a new exchange and does NOT
+// bump N — it gets its own ref N+K (K resets to 1 at each new prompt, and
+// counts only mid-turn messages within that exchange). This is deliberate,
+// not an oversight: N/N.M refs are already quoted in committed records (a
+// session log saying "see exchange 7" or "reply 7.2"), and those citations
+// must not silently start pointing at different text just because a mid-turn
+// message the tool didn't used to read now exists in the log. A mid-turn
+// message earns its own citable reference (it is genuine fresh principal
+// text) without ever moving anyone else's. Claude's replies keep numbering
+// N.M exactly as if no mid-turn message were present — M is not reset or
+// skipped by one arriving in between.
 // A reply arriving before any prompt (e.g. a resumed session) numbers under
 // exchange 0, honestly marking that its prompt isn't in this log.
 //
@@ -610,9 +622,10 @@ function readTurns(file, opts = {}) {
 // place a hit in a thinking block or a tool call, which has no ref of its own,
 // against the exchange you would open to read it.
 function numberTurns(turns) {
-  let n = 0, m = 0;
+  let n = 0, m = 0, k = 0;
   for (const t of turns) {
-    if (t.role === 'you' || t.role === 'you-mid') { n++; m = 0; t.ref = String(n); }
+    if (t.role === 'you') { n++; m = 0; k = 0; t.ref = String(n); }
+    else if (t.role === 'you-mid') { k++; t.ref = `${n}+${k}`; }
     else if (t.role === 'claude') { m++; t.ref = `${n}.${m}`; }
     t.encl = String(n);
   }

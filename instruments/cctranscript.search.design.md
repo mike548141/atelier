@@ -46,7 +46,15 @@ build's own record carries the detail:
   wrapper carries harness task notifications and a peer agent's cross-session
   messages; see `isHumanQueuedCommand`'s comment for the census). A human one
   renders as its own turn, role `you-mid`, labelled `Mid-turn` and searched by
-  default with no `--tools` needed. **Still not covered:** an `AskUserQuestion`
+  default with no `--tools` needed. **It does not open a new exchange or bump
+  `N`** — an `N`/`N.M` ref is already quoted in committed records (a session
+  log citing "exchange 7" or "reply 7.2"), and reading a channel the tool used
+  to miss must never make an existing citation resolve to different text.
+  Instead a mid-turn message gets its own ref, `N+K` (`K` counts mid-turn
+  messages within the current exchange and resets at the next real prompt),
+  and Claude's `M` keeps counting exactly as if it weren't there — pinned by a
+  test asserting a session's you/claude refs are byte-identical with and
+  without mid-turn records present. **Still not covered:** an `AskUserQuestion`
   answer arrives as a `tool_result`, reachable only via `--tools`,
   undistinguished from other tool output — this fix widened the mid-turn
   channel by exactly the one shape it found, not by every shape typed input can

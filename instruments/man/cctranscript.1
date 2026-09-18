@@ -72,9 +72,24 @@ like a prompt (same principal, same side) but labelled
 .B Mid-turn
 rather than
 .B You
-so the two are never confused \(em and it opens its own citable
+so the two are never confused. It gets its own citable reference,
+.IR N + K
+.RI ( K
+counting mid-turn messages within the current exchange, starting at 1 and
+resetting at the next real prompt) \(em deliberately
+.B not
+a new
+.IR N .
+A prompt's
 .I N
-reference, exactly as a turn-opening prompt does. Not every
+and a reply's
+.I N.M
+are already quoted in committed records, and reading a channel this tool used
+to miss must never make an existing citation point at different text; a
+mid-turn message earns its own reference without moving anyone else's, and
+Claude's
+.I M
+keeps counting exactly as if it weren't there. Not every
 .I queued_command
 record is yours, though: the identical wrapper also carries a harness task
 notification and a cross-session message from a peer agent's session, and
@@ -202,11 +217,16 @@ a1b2c3d4  2026\-07\-26 14:22:07  [atelier]
 .fi
 .RE
 .PP
-Every row carries the citable
+Every row carries the citable reference for its turn \(em
 .IR N . M
-reference for its turn, and that reference is
+for a reply,
+.I N
+for a turn-opening prompt, or
+.I N+K
+for a mid-turn message \(em and that reference is
 .IR gate-invariant :
-only prompts and text replies are numbered, and both are collected whatever
+prompts, replies and mid-turn messages are numbered the same way and all three
+are collected whatever
 .BR \-\-tools " or " \-\-think
 say, so a ref printed by a search means the identical turn when you reopen the
 session with default flags. A hit in a tool call or a tool result has no
