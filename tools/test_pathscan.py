@@ -694,6 +694,117 @@ class WholeTreeAndExitCodes(unittest.TestCase):
         self.assertEqual("missing-path", payload["findings"][0]["kind"])
 
 
+class DeclaredResolutionRoots(unittest.TestCase):
+    """320/010 Class A — Mike's ruling 2026-09-19: a repo laid out
+    `src/<pkg>/` declares that root in `.atelier-floor.json` so prose
+    naming `sub/module.py` resolves as `src/<pkg>/sub/module.py`, without
+    a fourth base anchor and without every reference repeating the package
+    prefix. See module docstring, DECLARED RESOLUTION ROOTS."""
+
+    def setUp(self):
+        import shutil
+        import tempfile
+        self.tmp = ps.Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+
+    def _write(self, rel, text):
+        p = self.tmp / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text)
+
+    def _declare_roots(self, paths, why="src/<pkg> layout (320/010 Class A)"):
+        import json
+        self._write(".atelier-floor.json",
+                    json.dumps({"roots": {"pathscan": {"paths": paths, "why": why}}}))
+
+    def _run_main(self, argv):
+        import contextlib
+        import io
+        with contextlib.redirect_stdout(io.StringIO()), \
+                contextlib.redirect_stderr(io.StringIO()):
+            return ps.main(argv)
+
+    def test_undeclared_still_reds(self):
+        # The package-source-root gap this item was filed over: neither the
+        # scan root, the file's own directory, nor the docs anchor reaches
+        # a src/<pkg>/ layout with no declaration.
+        self._write("src/mypkg/sub/module.py", "# module\n")
+        self._write("docs/note.md", "see `sub/module.py` for the code\n")
+        findings = ps.scan_paths([self.tmp / "docs"], self.tmp)
+        self.assertEqual(1, len(findings))
+        self.assertEqual("sub/module.py", findings[0].target)
+
+    def test_declared_root_resolves_the_same_token(self):
+        self._write("src/mypkg/sub/module.py", "# module\n")
+        self._write("docs/note.md", "see `sub/module.py` for the code\n")
+        self._declare_roots(["src/mypkg"])
+        self.assertEqual([], ps.scan_paths([self.tmp / "docs"], self.tmp))
+
+    def test_message_names_the_declared_root(self):
+        self._write("src/mypkg/sub/module.py", "# module\n")
+        self._write("docs/note.md", "see `sub/other.py` for the code\n")
+        self._declare_roots(["src/mypkg"])
+        findings = ps.scan_paths([self.tmp / "docs"], self.tmp)
+        self.assertEqual(1, len(findings))
+        self.assertIn("declared root(s) src/mypkg", findings[0].detail)
+
+    def test_no_floor_config_is_not_an_error(self):
+        # Absence is the default: most repos declare nothing.
+        self._write("docs/note.md", "clean prose, nothing missing here\n")
+        self.assertEqual(
+            0, self._run_main(["--root", str(self.tmp), str(self.tmp / "docs")]))
+
+    def test_absolute_root_fails_loudly(self):
+        self._write("docs/note.md", "see `sub/module.py` here\n")
+        self._declare_roots(["/etc"])
+        with self.assertRaises(ps.FloorConfigError):
+            ps.scan_paths([self.tmp / "docs"], self.tmp)
+
+    def test_dotdot_root_fails_loudly(self):
+        self._write("docs/note.md", "see `sub/module.py` here\n")
+        self._declare_roots(["../outside"])
+        with self.assertRaises(ps.FloorConfigError):
+            ps.scan_paths([self.tmp / "docs"], self.tmp)
+
+    def test_missing_directory_root_fails_loudly(self):
+        self._write("docs/note.md", "see `sub/module.py` here\n")
+        self._declare_roots(["src/ghost-pkg"])
+        with self.assertRaises(ps.FloorConfigError):
+            ps.scan_paths([self.tmp / "docs"], self.tmp)
+
+    def test_missing_why_fails_loudly(self):
+        import json
+        self._write("src/mypkg/sub/module.py", "# module\n")
+        self._write("docs/note.md", "see `sub/module.py` here\n")
+        self._write(".atelier-floor.json",
+                    json.dumps({"roots": {"pathscan": {"paths": ["src/mypkg"]}}}))
+        with self.assertRaises(ps.FloorConfigError):
+            ps.scan_paths([self.tmp / "docs"], self.tmp)
+
+    def test_empty_paths_fails_loudly(self):
+        self._declare_roots([])
+        self._write("docs/note.md", "see `sub/module.py` here\n")
+        with self.assertRaises(ps.FloorConfigError):
+            ps.scan_paths([self.tmp / "docs"], self.tmp)
+
+    def test_bad_declaration_exits_2_via_main(self):
+        self._write("docs/note.md", "see `sub/module.py` here\n")
+        self._declare_roots(["/etc"])
+        self.assertEqual(
+            2, self._run_main(["--root", str(self.tmp), str(self.tmp / "docs")]))
+
+    def test_unrelated_floor_config_keys_are_untouched(self):
+        # A repo's existing .atelier-floor.json (scope/advisory/etc, owned by
+        # floor.py) carries no `roots` key at all — the common case for every
+        # repo that has not opted into this feature.
+        import json
+        self._write(".atelier-floor.json", json.dumps(
+            {"licence": "Apache-2.0", "scope": {"wrapscan": {"paths": ["docs"], "why": "x"}}}))
+        self._write("docs/note.md", "see `sub/module.py` here\n")
+        findings = ps.scan_paths([self.tmp / "docs"], self.tmp)
+        self.assertEqual(1, len(findings))
+
+
 class Allowances(unittest.TestCase):
     """GUARDS.md — narrow, noisy, reasoned, declared.
 
