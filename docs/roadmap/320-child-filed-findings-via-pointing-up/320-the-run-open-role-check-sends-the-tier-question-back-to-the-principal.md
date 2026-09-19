@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: the run-open role check still sends the tier question back
+- [~] (claimed 2026-09-19-0105, wt: none; Mike ruled mid-run) 🔎 **Hand-up: the run-open role check still sends the tier question back
       to the principal, which the 2026-09-16 ECONOMICS ruling says he should
       never get.** Filed from a private child 2026-09-18 via § *Pointing up*,
       by direct write into the parent's tree, with the PR opened before
