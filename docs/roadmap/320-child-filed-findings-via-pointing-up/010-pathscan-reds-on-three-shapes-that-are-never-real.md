@@ -1,4 +1,4 @@
-- [ ] 🔥 **`pathscan` reds on three reference shapes that are never real, and
+- [~] (claimed 2026-09-19-0040, wt: qr0919-pathscan-roots; part 1 only) 🔥 **`pathscan` reds on three reference shapes that are never real, and
       the package-source-root gap is three quarters of it** `[M][tool]` —
       filed from a private child 2026-08-18 via § *Pointing up*, then
       **measured twice at atelier HEAD (`6f54489`)**, because the first

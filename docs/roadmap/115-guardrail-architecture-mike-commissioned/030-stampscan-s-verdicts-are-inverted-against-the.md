@@ -1,4 +1,4 @@
-- [ ] 🔥 **`stampscan`'s verdicts are inverted against the doctrine it enforces
+- [~] (claimed 2026-09-19-0040, wt: qr0919-floor-verbatim) 🔥 **`stampscan`'s verdicts are inverted against the doctrine it enforces
       — a live defect, found once and never fixed.** `PROPAGATION.md` states the
       rule for the exact block `stampscan` reads: the inlined floor is a
       narrowing-free restatement, and each child *may compress but must not

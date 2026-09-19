@@ -67,7 +67,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [Pin the three softenable-set prose lists to Scanner.advisory](roadmap/020-policy-as-code-programme-five-tracks-mik/340-pin-the-softenable-lists-to-the-registry.md)
 - [ ] 🎯 [The bidi / zero-width spoofing set — strip, escape, or accept](roadmap/020-policy-as-code-programme-five-tracks-mik/350-bidi-and-zero-width-strip-decision.md)
 - ✅ 🎯 [→✅ Remove](roadmap/020-policy-as-code-programme-five-tracks-mik/360-remove-plainscan-hook-destroyed-engine-archived.md)
-- [ ] 🔥 [DEFECT — secretscan's memory grows with what it scans: ~9 GB over](roadmap/020-policy-as-code-programme-five-tracks-mik/370-a-whole-tree-scan-of-a-large-repo-exhausts-the-machine.md)
+- [~] 🔥 (claimed 2026-09-19-0040, wt: qr0919-secretscan-mem) [DEFECT — secretscan's memory grows with what it scans: ~9 GB over](roadmap/020-policy-as-code-programme-five-tracks-mik/370-a-whole-tree-scan-of-a-large-repo-exhausts-the-machine.md)
 - [ ] 🔥 [Every guard runs in bounded memory, whatever it is pointed at](roadmap/020-policy-as-code-programme-five-tracks-mik/380-every-guard-bounded-memory-regardless-of-input-size.md)
 
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
@@ -150,7 +150,7 @@ then `python3 tools/board.py rebuild`.
 
 - [ ] 🎯 [Mint the evidence-window rule as guard-design doctrine — Mike's](roadmap/115-guardrail-architecture-mike-commissioned/010-mint-the-evidence-window-rule-as-guard-design.md)
 - [ ] 🎯 [Confidence on a fact: stored field, or computed? Mike's call, and it](roadmap/115-guardrail-architecture-mike-commissioned/020-confidence-on-a-fact-stored-field-or-computed.md)
-- [ ] 🔥 [stampscan's verdicts are inverted against the doctrine it enforces](roadmap/115-guardrail-architecture-mike-commissioned/030-stampscan-s-verdicts-are-inverted-against-the.md)
+- [~] 🔥 (claimed 2026-09-19-0040, wt: qr0919-floor-verbatim) [stampscan's verdicts are inverted against the doctrine it enforces](roadmap/115-guardrail-architecture-mike-commissioned/030-stampscan-s-verdicts-are-inverted-against-the.md)
 - [ ] 🔎 [The withdrawn-review convention rests on a premise that now has a](roadmap/115-guardrail-architecture-mike-commissioned/040-the-withdrawn-review-premise-has-a-counterexam.md)
 - [ ] 🔎 [A real credential pasted into an exempt fixture file is invisible to](roadmap/115-guardrail-architecture-mike-commissioned/050-a-real-credential-in-an-exempt-fixture-file-is.md)
 - [ ] 🔎 [A coined paraphrase is still presented on the board as a child](roadmap/115-guardrail-architecture-mike-commissioned/060-a-coined-paraphrase-is-still-cited-on-the-boar.md)
@@ -383,7 +383,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/320-child-filed-findings-via-pointing-up/README.md)*
 
-- [ ] 🔥 [pathscan reds on three reference shapes that are never real, and](roadmap/320-child-filed-findings-via-pointing-up/010-pathscan-reds-on-three-shapes-that-are-never-real.md)
+- [~] 🔥 (claimed 2026-09-19-0040, wt: qr0919-pathscan-roots; part 1 only) [pathscan reds on three reference shapes that are never real, and](roadmap/320-child-filed-findings-via-pointing-up/010-pathscan-reds-on-three-shapes-that-are-never-real.md)
 - [ ] 🎯 [PROPOSAL for GUARDS.md — strict where we author, forgiving where](roadmap/320-child-filed-findings-via-pointing-up/020-proposal-strict-where-we-author-forgiving-where-we-read.md)
 - [ ] 🎯 [PROPOSAL — capture, do not compose: a hand-written fixture can only](roadmap/320-child-filed-findings-via-pointing-up/030-proposal-capture-do-not-compose-fixtures.md)
 - [ ] 🔎 [By-call enforcement resolves through a working tree, so "fresh"](roadmap/320-child-filed-findings-via-pointing-up/040-by-call-resolves-to-a-working-tree-so-fresh-means-whatever-is-on-disk.md)

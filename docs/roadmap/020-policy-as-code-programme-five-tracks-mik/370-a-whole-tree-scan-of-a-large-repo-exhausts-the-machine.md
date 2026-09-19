@@ -1,4 +1,4 @@
-- [ ] 🔥 **DEFECT — `secretscan`'s memory grows with what it scans: ~9 GB over
+- [~] (claimed 2026-09-19-0040, wt: qr0919-secretscan-mem) 🔥 **DEFECT — `secretscan`'s memory grows with what it scans: ~9 GB over
       one large repo, enough to thrash the principal's machine** — found
       2026-09-18 by the queue run that caused it, reported by a peer session in
       another repo; reframed as a defect on Mike's ruling, 2026-09-19.
