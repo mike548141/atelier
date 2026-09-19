@@ -350,6 +350,32 @@ glued to a real secret with no host/path shape buys no suppression either.
 The report prints only a redacted
 fingerprint (length + entropy), never the secret value.
 
+### Bounded memory (020/370)
+
+Peak memory is bounded by a fixed constant, independent of how large the tree
+or any one file is — an estate probe once pushed this scanner to ~9 GB RSS
+over a large repo and thrashed the machine running it; Mike's ruling: *"it
+should not matter how much it scans it should no have this affect."* Three
+mechanisms, each a fixed size chosen once (see the constants and comments
+beside `_iter_numbered_lines`/`Tally.take_finding_slot` in the source):
+
+- the directory walk streams (`os.walk`, pruned in place) instead of building
+  the whole tree's file list before scanning a byte;
+- a file is read and decoded in fixed-size chunks, never held whole as bytes
+  **and** a decoded `str` **and** a `splitlines()` list at once (the old
+  shape); an overlong single line (no `\n` in sight) is scanned in
+  overlapping windows instead of being buffered whole;
+- the number of findings actually held in memory is capped
+  (`MAX_MATERIALIZED_FINDINGS`, 50,000) — every finding past the cap is still
+  **counted** (the exit code, the advisory count, and `--json`'s `counts`
+  block all read the true total) but not built as an object, so pathological
+  content can't make the findings list itself grow without bound. Hitting the
+  cap prints how many more there were; it is never silent.
+
+`tools/memprobe.py` measures a scanner's real (whole-process) peak RSS from
+outside it; `tools/test_secretscan.py::BoundedMemory` is the regression guard
+built on it, and the template every guard in `020/380` reuses.
+
 ### Usage
 
 ```sh
@@ -1004,6 +1030,22 @@ template ships a stamp pinned at `source=docs/method/PROPAGATION.md`, a path tha
 exists only here, so a scaffolded child running it would exit 2; the child-side
 resolution story also has to be **pin-aware**, since a child pinned at
 `atelier@<SHA>` may lawfully differ from atelier@main. That is ST3, still open.
+
+## `memprobe.py` — measuring a guard's real peak memory from outside it
+
+Not a floor check, not a scanner — a small harness (020/370) other tests build
+on. `tracemalloc` only sees Python-heap allocations, missing C buffers,
+`mmap`'d regex tables, and OS baseline — none of which is the number that
+matters when a guard is thrashing a real machine. `run_and_measure(argv, …)`
+runs a guard as a **subprocess** and reads its peak RSS back from the kernel
+via `os.wait4`, the same number `/usr/bin/time -l`/`-v` reports, normalised to
+bytes across macOS (`ru_maxrss` in bytes) and Linux (`ru_maxrss` in KiB).
+Optional `timeout` and `rss_limit_bytes` kill a runaway child rather than
+letting a bad measurement become a repeat of the incident that motivated
+building this. See `tools/test_secretscan.py::BoundedMemory` for the pattern
+every guard in `020/380` is meant to reuse: build a small and a larger
+synthetic input, measure both, assert the growth is under a bound derived
+from the guard's own design (never from today's measurement).
 
 ## Tests
 
