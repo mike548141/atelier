@@ -173,3 +173,20 @@ input size; time linear; skips reported, never silent). It lists the likely
 causes read from the code, marked unmeasured. `020/380` carries the same
 requirement for every other guard, one box each, closed only on measured
 evidence. The tracked-content-only probe practice is now marked interim.
+
+**The three open decisions, asked one at a time in the device at Mike's
+request, all ruled:**
+- `320/300` — *"Build the check"*: a doctrine change must be checked against
+  the child block's copy of that rule.
+- `115/030` — *"Floor copy verbatim"*: the inlined safety floor is copied
+  word for word, with no compression and no declared narrowing. One child
+  already stamps its floor with `narrow=`, so it will go red when this lands.
+  Item (3) of the ruling's owed list covers showing that before it surprises
+  anyone.
+- `320/010` — Mike wrote his own answer over the offered options: *"The
+  declared per repo option but we make those repos add them by putting the
+  work on their boards, and we consider blocking instead of warning"*. The
+  three siblings with a `src/<package>/` layout each got a queued, blocked
+  board item (two pushed; one has no remote, so it is committed locally).
+  Blocking is filed as `320/310`, a decision to weigh after the residue is
+  measured.

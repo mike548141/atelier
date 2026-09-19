@@ -15,3 +15,13 @@
       inlined block against atelier's source, not atelier's block against
       atelier's own method docs; `200/010` is the generic
       hand-maintained-index-stays-true mechanism.
+      🎯→✅ **RULED 2026-09-19 by Mike, via the question device: "Build the
+      check".** Offered against a doctrine checklist line and leaving it to
+      reviews. Spec from the ask he answered: a floor check in atelier that
+      fails when a house rule the child doctrine block summarises changes but
+      its block bullet (and the scaffold template's copy) does not change in
+      the same commit — or that forces an explicit "block still true"
+      acknowledgement; false alarms clear with a scoped allow-marker. The
+      build is owed; the mapping from block bullet to source section is the
+      first design question (the block's bullets already name their source
+      docs).

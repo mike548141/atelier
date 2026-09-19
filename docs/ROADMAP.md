@@ -413,6 +413,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [💡 PROPOSAL, hand-up from faves — a RENDERED board view, offered to](roadmap/320-child-filed-findings-via-pointing-up/280-proposal-a-rendered-board-view-for-every-repo.md)
 - ✅ [Two secretscan defects](roadmap/320-child-filed-findings-via-pointing-up/290-secretscan-reads-published-urls-as-credentials-and-mis-locates-findings-in-paths-with-spaces.md)
 - [ ] 🎯 [A ruling that changes doctrine has no check that the child](roadmap/320-child-filed-findings-via-pointing-up/300-a-ruling-that-moves-doctrine-has-no-check-the-block-copy-moved.md)
+- [ ] 🎯 [Should pathscan block instead of warn?](roadmap/320-child-filed-findings-via-pointing-up/310-should-pathscan-block-instead-of-warn.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 

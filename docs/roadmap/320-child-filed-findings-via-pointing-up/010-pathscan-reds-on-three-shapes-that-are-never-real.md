@@ -94,3 +94,17 @@
       exempt rather than strip (Class C, cheap) · decide whether bare
       doctrine shorthand should be out-of-scope rather than missing (Class B,
       7 of 45, and the least clear-cut — the shorthand genuinely is not a path).
+      🎯→✅ **RULED 2026-09-19 by Mike** (Class A), over the offered options of
+      auto-detecting `src/` or leaving it: *"The declared per repo option but
+      we make those repos add them by putting the work on their boards, and we
+      consider blocking instead of warning"*. **Owed:**
+      (1) **atelier** — `pathscan` reads extra resolution roots declared per
+      repo in `.atelier-floor.json`, with a test and the config documented;
+      (2) **the children** — the three repos with a `src/<package>/` layout
+      (found by listing tracked `src/` trees across the siblings, 2026-09-19)
+      each carry a board item, filed the same day, to declare their root once
+      (1) ships;
+      (3) **blocking** — whether `pathscan` should block rather than warn is a
+      decision to *consider*, not taken: filed as `320/310` so it is weighed
+      once the false-positive classes are gone, not while they still dominate
+      the output. Classes B and C are unruled and stay open here.

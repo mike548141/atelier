@@ -20,3 +20,15 @@
       **Scope note:** the accepted pass of the same date caught the neighbouring
       empty-payload hole but not this. Confirmed by search — the accepted
       verdict contains no instance of *invert* or *compress*.
+      🎯→✅ **RULED 2026-09-19 by Mike, via the question device: "Floor copy
+      verbatim".** Offered against keeping declared deletions visible but
+      red, and against legitimising deletions under a renamed `omits=`. So the
+      inlined safety floor is copied word for word: no compression, no
+      declared narrowing. `stampscan`'s exact-copy comparison becomes simply
+      correct for the floor region. **Owed, together:** (1) doctrine —
+      `PROPAGATION.md` drops *"may compress"* for the floor and § *A copy may
+      narrow* stops applying to it (a doctrine change, so a rule-4 pointer at
+      landing); (2) `stampscan` — `narrow=` on the floor region reds instead of
+      passing; (3) the fleet — a child whose floor copy is shortened goes red
+      once and restores the canonical text at its next pin bump, which
+      `pins`/`floorfleet` should show before it surprises anyone.
