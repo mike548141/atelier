@@ -41,3 +41,32 @@ Claimed together (`9847c3d`): `020/370` (bounded-memory `secretscan`),
 copied verbatim). Three Sonnet 5 workers, disjoint files; the `115/030`
 doctrine half written inline by the orchestrator, because no scanner catches
 a wrong rule.
+
+### 320/320 — the tier contradiction, ruled mid-run and swept (inline)
+
+The session was cut overnight with the three wave-1 workers still running;
+their worktrees survived, two with commits, one dirty, and all three were
+resumed from their transcripts rather than re-dispatched. Mike then ruled the
+hand-up merged above, mid-run: *"the cheapest model that can do a good job is
+the one that should be used for every job including orchestration. Fix
+everything that is causing this mess"*, and on the one question it raised —
+whether that reopened the principal-named review tier — *"fable reviews remain
+fable reviews"*.
+
+The mess was a **four-link chain**, and cutting any one link would have left
+the question reachable by the other three: the run brief told a session to
+confirm it was on the capable tier, `CONCURRENCY.md`'s role check told it to
+stop if it wasn't, `ECONOMICS.md` defined the capable tier as *the most
+capable model available*, and the estate's records rank the models. All four
+are cut (`c38b7da`), plus `AUTONOMY.md`'s first-of-kind bullet and the two
+places review read as *most capable available* rather than *the named tier*.
+The run-open check now **states the tier and proceeds**. Two stops survive,
+neither about rank: work that outruns the model doing it, and a `⏳` pass whose
+named tier the session cannot honour.
+
+Worth recording because it is the pattern's own failure mode: **the prompt
+Mike pastes carried the defect too** — `session-open-prompt.md` said *"confirm
+you're on the capable tier … stop and say so"*, so every run he opened
+re-injected the stop the doctrine was being fixed to remove. A doctrine sweep
+that had only touched `docs/method/` would have read clean and changed
+nothing. Rule-4 cold pass queued at `160/330`; this author may not take it.
