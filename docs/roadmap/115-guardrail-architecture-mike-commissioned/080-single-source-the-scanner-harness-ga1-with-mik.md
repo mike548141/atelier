@@ -58,3 +58,17 @@
       credentials), so single-sourcing here means sharing the **mechanism with
       per-guard parameters**, not one constant for everyone. A shared harness
       that forces one window would be worse than the duplication.
+      📈 **Fourth piece of evidence, 2026-09-20 — and it is the prediction
+      coming true rather than another example of the same shape.** This item
+      said in as many words that *"the next correction to the walk — the
+      gitignored-nested-worktree skip `020/160` already documents, for
+      instance — is ten edits."* `020/160` was built that day. It was **eleven**
+      edits (`stampscan` carries a copy the earlier count missed), plus
+      **eleven test files**, for a one-line change: adding
+      `and not Path(dirpath, d, ".git").is_file()` to a pruning expression.
+      **Twenty-two files for one line** is Mike's upstream test answered by
+      demonstration, on the exact case this item nominated in advance.
+      🔑 *And the divergence it warns about is now measurable rather than
+      predicted:* eleven copies of a line written by one worker in one sitting
+      should be byte-identical today, and whether they still are next quarter
+      is the thing nobody will check. That is the drift this item exists for.

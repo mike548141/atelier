@@ -46,7 +46,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [D4 — the repo-local seam has no adopters.](roadmap/020-policy-as-code-programme-five-tracks-mik/130-d4-the-repo-local-seam-has-no-adopters.md)
 - [ ] 🎯 [E6 — the floor's posture, and the dial that makes it reachable.](roadmap/020-policy-as-code-programme-five-tracks-mik/140-e6-the-floor-s-posture-and-the-dial-that-makes.md)
 - [ ] [E7 residue — G3 (binary media): FUNDED as its own item, soon](roadmap/020-policy-as-code-programme-five-tracks-mik/150-e7-residue-g3-binary-media-funded-as-its-own-i.md)
-- [~] (claimed 2026-09-20-1053, wt: at-e9-worktree-skip) [E9 — every scanner walks gitignored nested worktrees, and counts the](roadmap/020-policy-as-code-programme-five-tracks-mik/160-e9-every-scanner-walks-gitignored-nested-workt.md)
+- ✅ [E9 — every scanner walks gitignored nested worktrees, and counts the](roadmap/020-policy-as-code-programme-five-tracks-mik/160-e9-every-scanner-walks-gitignored-nested-workt.md)
 - [ ] 🎯 [F1 — rebuild the block-vs-advise model from base. REBUILT](roadmap/020-policy-as-code-programme-five-tracks-mik/170-f1-rebuild-the-block-vs-advise-model-from-base.md)
 - [ ] [The mechanisable form of it](roadmap/020-policy-as-code-programme-five-tracks-mik/180-the-mechanisable-form-of-it.md)
 - [ ] [The measurement that supports it, and its limits.](roadmap/020-policy-as-code-programme-five-tracks-mik/190-the-measurement-that-supports-it-and-its-limit.md)
@@ -240,6 +240,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued — the scratch-space clause: a worker's…](roadmap/160-doctrine-review-owed/380-rule-4-cold-pass-queued-the-scratchpad-clause.md)
 - ⏳ [Rule-4 cold pass queued — the staged-plane board check and its…](roadmap/160-doctrine-review-owed/390-rule-4-cold-pass-queued-the-staged-plane-check.md)
 - ⏳ [Rule-4 cold pass queued — harvestscan's prefix-filter rewrite](roadmap/160-doctrine-review-owed/400-rule-4-cold-pass-queued-the-harvestscan-prefix-filter.md)
+- ⏳ [Rule-4 cold pass queued — the linked-worktree skip across eleven](roadmap/160-doctrine-review-owed/410-rule-4-cold-pass-queued-the-linked-worktree-skip.md)
 
 ## build/ layer — open strands
 
