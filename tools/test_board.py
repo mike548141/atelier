@@ -16,6 +16,7 @@ Zero third-party deps, same as the rest of the suite.
 """
 
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -387,3 +388,177 @@ class BoundedMemory(unittest.TestCase):
             f"{self.MAX_BYTES_PER_ITEM}-byte/item bound. board.py's index "
             "growth is legitimate (020/380 names it as an exception) but it "
             "must stay LINEAR — this looks like a superlinear regression.")
+
+
+def _git(root: Path, *args: str) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", "-C", str(root), *args],
+                          capture_output=True, text=True, check=True)
+
+
+class StagedPlane(unittest.TestCase):
+    """010/020 (BS1's fund) — `--staged`/`--from-index` read the git INDEX,
+    not the worktree, closing the two live slips that made the hook's
+    guarantee weaker than it looked: an index rebuilt but never staged, and a
+    rebuild that absorbed a SIBLING's dirty, unstaged item line into the
+    index this commit is about to make true. Both need a real git repo — the
+    plane they read does not exist without one — so unlike the rest of this
+    file these tests actually run `git`, and are skipped (not soft-passed) if
+    `git` is not on PATH.
+    """
+
+    def setUp(self):
+        if shutil.which("git") is None:
+            self.skipTest("git not on PATH")
+        self._td = tempfile.TemporaryDirectory()
+        self.root = Path(self._td.name)
+        self.sec = make_board(self.root)
+        _git(self.root, "init", "-q")
+        _git(self.root, "config", "user.email",
+             "test@example.invalid")  # leakscan:allow: RFC 2606 reserved domain, throwaway git identity
+        _git(self.root, "config", "user.name", "test")
+        board.run_check(self.root, fix=True)          # write a current index
+        _git(self.root, "add", "-A")
+        _git(self.root, "commit", "-q", "-m", "seed")
+
+    def tearDown(self):
+        self._td.cleanup()
+
+    def test_clean_committed_board_passes_staged_check(self):
+        self.assertEqual(
+            board.run_check(self.root, fix=False, source=board.INDEX), 0)
+
+    def test_rebuild_from_index_matches_rebuild_from_worktree_when_clean(self):
+        # No dirt anywhere: the two planes must agree, or the new plane is
+        # answering a different question rather than the same one differently.
+        self.assertEqual(
+            board.run_check(self.root, fix=True, source=board.INDEX), 0)
+
+    def test_environment_error_outside_a_git_repo(self):
+        with tempfile.TemporaryDirectory() as bare:
+            self.assertEqual(
+                board.run_check(Path(bare), fix=False, source=board.INDEX), 2)
+
+    def test_not_in_scope_when_index_has_no_board_dir(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            _git(root, "init", "-q")
+            _git(root, "config", "user.email",
+                 "test@example.invalid")  # leakscan:allow: RFC 2606 reserved domain, throwaway git identity
+            _git(root, "config", "user.name", "test")
+            (root / "placeholder.txt").write_text("x\n")
+            _git(root, "add", "-A")
+            _git(root, "commit", "-q", "-m", "init")
+            self.assertEqual(
+                board.run_check(root, fix=False, source=board.INDEX), 0)
+
+    # --- SLIP (a): rebuilt but not staged --------------------------------
+
+    def test_slip_a_rebuilt_but_unstaged_index_passes_worktree_check(self):
+        """The BUG as it shipped, pinned so it can never come back silently.
+        Stage an item edit, rebuild the index ON DISK, but never `git add`
+        the rebuilt index. The worktree plane (the check's old, and still
+        default, behaviour) reads disk for BOTH sides and finds them
+        agreeing with each other — a clean verdict that says nothing about
+        what is actually staged."""
+        (self.sec / "10-open-item.md").write_text(
+            "- [x] **Fix the fail-open gate** — done\n", encoding="utf-8")
+        _git(self.root, "add", str(self.sec / "10-open-item.md"))
+        board.run_check(self.root, fix=True)     # rebuild ON DISK, don't add it
+        self.assertEqual(
+            board.run_check(self.root, fix=False), 0,
+            "worktree plane is blind to this slip by construction — pinning "
+            "that so a future change to the default plane is a deliberate "
+            "decision, not a silent regression")
+
+    def test_slip_a_is_caught_on_the_staged_plane(self):
+        """The FIX: `--staged` compares the staged item files against the
+        staged ROADMAP.md — both via `git show :path` — so the still-old
+        staged blob of ROADMAP.md (never `git add`ed after the rebuild) is
+        caught even though the worktree agrees with itself."""
+        (self.sec / "10-open-item.md").write_text(
+            "- [x] **Fix the fail-open gate** — done\n", encoding="utf-8")
+        _git(self.root, "add", str(self.sec / "10-open-item.md"))
+        board.run_check(self.root, fix=True)     # rebuild ON DISK, don't add it
+        rc = board.run_check(self.root, fix=False, source=board.INDEX)
+        self.assertEqual(rc, 1, "the staged plane must catch the unstaged "
+                                "rebuild that the worktree plane missed")
+
+    def test_slip_a_is_healed_by_rebuild_from_index_then_staging(self):
+        (self.sec / "10-open-item.md").write_text(
+            "- [x] **Fix the fail-open gate** — done\n", encoding="utf-8")
+        _git(self.root, "add", str(self.sec / "10-open-item.md"))
+        board.run_check(self.root, fix=True, source=board.INDEX)
+        _git(self.root, "add", str(self.root / board.INDEX_REL))
+        self.assertEqual(
+            board.run_check(self.root, fix=False, source=board.INDEX), 0)
+
+    # --- SLIP (b): a sibling's dirty item line gets absorbed --------------
+
+    def test_slip_b_plain_rebuild_absorbs_a_dirty_siblings_line(self):
+        """The BUG as it shipped. A second, unrelated item exists, committed
+        clean. A "sibling session" then dirties it on disk WITHOUT staging
+        it — exactly the shape of a shared, dirty primary checkout. A
+        claimer editing a DIFFERENT item runs the plain (worktree) `rebuild`
+        and it bakes the sibling's unstaged text into the generated index."""
+        (self.sec / "20-sibling.md").write_text(
+            "- [ ] **A sibling's item** — untouched\n", encoding="utf-8")
+        _git(self.root, "add", "-A")
+        board.run_check(self.root, fix=True)
+        _git(self.root, "add", "-A")
+        _git(self.root, "commit", "-q", "-m", "add sibling item")
+
+        # The sibling dirties their OWN item, on disk, unstaged.
+        (self.sec / "20-sibling.md").write_text(
+            "- [ ] **A sibling's item — WIP, uncommitted** — do not ship this\n",
+            encoding="utf-8")
+
+        # The claimer stages an edit to a DIFFERENT item, then runs the
+        # plain worktree rebuild — the tool has no way to tell "my staged
+        # edit" from "someone else's dirty file sitting in the same tree".
+        (self.sec / "10-open-item.md").write_text(
+            "- [x] **Fix the fail-open gate** — done\n", encoding="utf-8")
+        _git(self.root, "add", str(self.sec / "10-open-item.md"))
+        board.run_check(self.root, fix=True)
+        rebuilt = (self.root / board.INDEX_REL).read_text(encoding="utf-8")
+        self.assertIn("WIP, uncommitted", rebuilt,
+                       "pins the bug: the plain rebuild reads the dirty "
+                       "sibling line straight off disk")
+
+    def test_slip_b_is_avoided_by_rebuild_from_index(self):
+        """The FIX. Same setup as the slip-b bug test, but the claimer runs
+        `rebuild --from-index`: it reads every item via `git show :path`, so
+        the sibling's item — never staged — reads back as its last
+        COMMITTED content, not the dirty text sitting unstaged on disk."""
+        (self.sec / "20-sibling.md").write_text(
+            "- [ ] **A sibling's item** — untouched\n", encoding="utf-8")
+        _git(self.root, "add", "-A")
+        board.run_check(self.root, fix=True)
+        _git(self.root, "add", "-A")
+        _git(self.root, "commit", "-q", "-m", "add sibling item")
+
+        (self.sec / "20-sibling.md").write_text(
+            "- [ ] **A sibling's item — WIP, uncommitted** — do not ship this\n",
+            encoding="utf-8")
+
+        (self.sec / "10-open-item.md").write_text(
+            "- [x] **Fix the fail-open gate** — done\n", encoding="utf-8")
+        _git(self.root, "add", str(self.sec / "10-open-item.md"))
+
+        board.run_check(self.root, fix=True, source=board.INDEX)
+        rebuilt = (self.root / board.INDEX_REL).read_text(encoding="utf-8")
+        self.assertNotIn("WIP, uncommitted", rebuilt,
+                         "the fix: --from-index never reads the sibling's "
+                         "unstaged line")
+        self.assertIn("A sibling's item", rebuilt,
+                      "the sibling's last COMMITTED content is still there — "
+                      "this is a plane fix, not a data-loss fix")
+        # And the claimer's OWN staged edit is fully reflected.
+        self.assertIn("✅ [Fix the fail-open gate]", rebuilt)
+
+    def test_argv_wires_staged_and_from_index_flags(self):
+        argv_check = ["--check", "--staged", "--root", str(self.root)]
+        argv_rebuild = ["--rebuild", "--from-index", "--root", str(self.root)]
+        self.assertEqual(board.main(argv_check),
+                         board.run_check(self.root, fix=False,
+                                         source=board.INDEX))
+        self.assertEqual(board.main(argv_rebuild), 0)
