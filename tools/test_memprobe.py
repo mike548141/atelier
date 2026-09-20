@@ -37,12 +37,25 @@ class RunAndMeasure(unittest.TestCase):
         self.assertGreater(r.peak_rss_bytes, 1 * 1024 * 1024)
         self.assertLess(r.peak_rss_bytes, 500 * 1024 * 1024)
 
+    # The allocating child must TOUCH what it allocates. `bytearray(N)` is
+    # zero-filled, and on Linux a large zeroed allocation is served by mmap'd
+    # copy-on-write zero pages that never become resident until written — so
+    # the child allocated 50 MB and `ru_maxrss` moved by nothing, while the
+    # baseline run happened to peak slightly higher on interpreter startup.
+    # That inverted the assertion and turned this repo's CI red on a Linux
+    # runner while every macOS run passed (2026-09-20). Writing one byte per
+    # 4 KiB page faults them in, which is what makes the measurement mean
+    # "memory this process really held" on both platforms.
+    TOUCHED_ALLOC = ("x = bytearray({n});"
+                     " [x.__setitem__(i, 1) for i in range(0, len(x), 4096)]")
+
     def test_a_process_that_allocates_more_measures_higher(self):
         small = memprobe.run_and_measure(
             [sys.executable, "-c", "pass"], timeout=10)
         big = memprobe.run_and_measure(
-            [sys.executable, "-c", "x = bytearray(50 * 1024 * 1024)"],
-            timeout=10)
+            [sys.executable, "-c",
+             self.TOUCHED_ALLOC.format(n=50 * 1024 * 1024)],
+            timeout=30)
         self.assertGreater(big.peak_rss_bytes, small.peak_rss_bytes + 40 * 1024 * 1024)
 
     def test_timeout_kills_the_child_and_is_reported(self):
@@ -54,9 +67,15 @@ class RunAndMeasure(unittest.TestCase):
         self.assertLess(elapsed, 10, "must not wait out the child's own sleep")
 
     def test_rss_limit_kills_the_child_and_is_reported(self):
+        # Touched, for the reason given above `TOUCHED_ALLOC`: an untouched
+        # zero-filled allocation need never become resident, so the limit it
+        # is meant to breach might never be breached at all. This case passed
+        # on the Linux runner where its sibling failed, which is exactly the
+        # kind of luck worth removing from a harness other tests trust.
         r = memprobe.run_and_measure(
             [sys.executable, "-c",
-             "x = bytearray(80 * 1024 * 1024); import time; time.sleep(10)"],
+             RunAndMeasure.TOUCHED_ALLOC.format(n=80 * 1024 * 1024)
+             + "; import time; time.sleep(10)"],
             timeout=15, rss_limit_bytes=30 * 1024 * 1024, poll_interval=0.01)
         self.assertTrue(r.killed_over_limit)
 
