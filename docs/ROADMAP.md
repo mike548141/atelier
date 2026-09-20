@@ -390,6 +390,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [The route's three shapes — WRITTEN 2026-08-23](roadmap/310-pointing-up-the-child-to-parent-route/100-the-route-assumes-a-reachable-parent-and-a-channel.md)
 - ✅ ["Self-removing" overpromises in step 3](roadmap/310-pointing-up-the-child-to-parent-route/110-self-removing-overpromises-in-step-3.md)
 - [ ] 🎯 [§ Pointing up only names atelier as a parent — Mike commissioned,](roadmap/310-pointing-up-the-child-to-parent-route/120-the-route-is-atelier-specific-any-parent-repo-needs-one.md)
+- [ ] 🎯 [CLASS — the parent holds accommodations its children cannot inherit,](roadmap/310-pointing-up-the-child-to-parent-route/130-the-parent-holds-accommodations-the-child-cannot-inherit.md)
 
 ## Findings filed from a child via § *Pointing up* (2026-08-18)
 
