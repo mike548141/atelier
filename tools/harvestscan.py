@@ -119,6 +119,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import subprocess
 import sys
@@ -419,10 +420,73 @@ def net_line_loss(root: Path, rels: tuple[str, ...],
     return loss
 
 
+def _build_survivor_index(alive: list[list[str]]) -> dict[str, list[int]]:
+    """Inverted index: word -> indices into `alive` of every survivor carrying
+    it. Built once per `vanished()` call (the survivor set is fixed across
+    every candidate checked against it) — this is the piece that turns the
+    O(candidates x survivors) scan into a lookup (020/400)."""
+    index: dict[str, list[int]] = {}
+    for i, words in enumerate(alive):
+        for w in set(words):
+            index.setdefault(w, []).append(i)
+    return index
+
+
+def _candidate_bucket(finger_words: set[str],
+                      index: dict[str, list[int]]) -> set[int]:
+    """Survivor indices that COULD reach `SURVIVAL_SIMILARITY` containment
+    with `finger_words` — exact, not approximate. This is the classic
+    prefix-filter for a set-overlap join, not a heuristic dodge: containment
+    against a fingerprint of `n` distinct words needs at least
+    `k = ceil(SURVIVAL_SIMILARITY * n)` shared words, so any survivor
+    reaching that MUST intersect the `n - k + 1` RAREST of the fingerprint's
+    words — leave all of them unshared and at most `k - 1` of the
+    fingerprint's words remain available to share, which is short of `k`
+    (pigeonhole). Ranking by rarity (fewest survivor postings first) rather
+    than any fixed count keeps the touched postings small even when a
+    fingerprint mixes a few rare words with a few common ones: the common
+    ones' long posting lists are never walked at all.
+
+    This is where the worst case is bounded by BUCKET size rather than by
+    total survivor count (020/400's ask) — a fingerprint whose rare words are
+    all shared with the same few hundred survivors touches only those few
+    hundred, however large the whole corpus grows. It stays exact, so it
+    cannot change a verdict: every survivor `similarity()` would have found
+    is still found; this only skips survivors it is mathematically
+    impossible for `similarity()` to accept."""
+    n = len(finger_words)
+    if n == 0:
+        return set()
+    k = math.ceil(SURVIVAL_SIMILARITY * n)
+    prefix_len = n - k + 1
+    rarest_first = sorted(finger_words, key=lambda w: len(index.get(w, ())))
+    bucket: set[int] = set()
+    for w in rarest_first[:prefix_len]:
+        bucket.update(index.get(w, ()))
+    return bucket
+
+
 def vanished(old_text: str, alive: list[list[str]]) -> list[tuple[int, str]]:
     """Items in `old_text` with no sufficiently similar survivor anywhere.
 
-    Pure, so the selftest drives it offline."""
+    Pure, so the selftest drives it offline. `alive` is indexed once
+    (`_build_survivor_index`) and each candidate only checks containment
+    against the survivors its own fingerprint could possibly reach
+    (`_candidate_bucket`) — the exact same verdicts as comparing against
+    every survivor, at a fraction of the comparisons (020/400).
+
+    Containment is computed here as `len(finger_set & alive_sets[i]) / n`
+    rather than by calling `similarity()` — mathematically the same formula,
+    but `similarity()` builds a fresh `set()` from ITS SECOND ARGUMENT on
+    every call, and the same survivor is checked against many different
+    candidates' buckets. Profiled on a synthetic 5,000-item corpus shaped
+    like this repo's real vocabulary: that repeated conversion was 4-5x the
+    cost of the bucketing itself, so `alive`'s sets are built once here
+    instead, alongside the index. `similarity()` stays as-is (and is still
+    what the selftest and the pure-function tests exercise directly) — this
+    is an internal fast path, not a change to what "similar enough" means."""
+    index = _build_survivor_index(alive)
+    alive_sets = [set(words) for words in alive]
     gone: list[tuple[int, str]] = []
     for line, marker, body in parse_items(old_text):
         if is_pointer(marker, body):
@@ -430,8 +494,13 @@ def vanished(old_text: str, alive: list[list[str]]) -> list[tuple[int, str]]:
         finger = normalise(body)
         if len(finger) < MIN_SIGNAL_WORDS:
             continue
-        if any(similarity(finger, other) >= SURVIVAL_SIMILARITY
-               for other in alive):
+        finger_set = set(finger)
+        n = len(finger_set)          # >= 1: `finger` is non-empty (checked
+                                      # above), so its set has at least one
+                                      # member — safe as a divisor below.
+        bucket = _candidate_bucket(finger_set, index)
+        if any(len(finger_set & alive_sets[i]) / n >= SURVIVAL_SIMILARITY
+               for i in bucket):
             continue
         gone.append((line, body))
     return gone

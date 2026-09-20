@@ -891,6 +891,16 @@ the verdict on that measurement (HV1, 2026-07-29): scoped to
 the whole history holds 6 in-scope commits, of which 3 warn, including the
 incident that motivated it. Net, not delete-only: that incident was +48/−184.
 
+**Bucketed, not quadratic (020/400).** The similarity pass used to compare
+every candidate item against every survivor — O(items × survivors) in item
+count, and past useful at estate scale (measured: 500 items ~21s, 5,000 did
+not finish inside a 120s ceiling). It now builds an inverted word index over
+the survivor set once per call and, for each candidate, only checks the
+survivors its own rarest words could possibly reach at the survival
+threshold — an exact prefix filter for a set-overlap join, not an
+approximation, so it cannot change a verdict. Worst case is bounded by the
+buckets a candidate's own vocabulary touches, not by the corpus size.
+
 ```sh
 python3 tools/harvestscan.py --root . --staged --only-bulk-deletes  # the hook plane
 python3 tools/harvestscan.py --root . .        # working tree vs HEAD, no gate

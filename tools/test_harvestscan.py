@@ -14,9 +14,11 @@ absorption into a larger item, and a review pointer closing out.
 Zero third-party deps, same as the rest of the suite.
 """
 
+import random
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -377,6 +379,91 @@ class SplitBoardTest(GitBackedTest):
             findings = harvestscan.scan(root, "HEAD")
             self.assertEqual(len(findings), 1,
                              "prose narration must not count as survival")
+
+
+class BoundedTime(unittest.TestCase):
+    """020/400 — `vanished()`'s share of the "every guard runs bounded"
+    ruling (`020/370` extended to the whole guard layer by `020/380`), on
+    TIME rather than memory: the pre-fix similarity pass compared every
+    candidate against every survivor, O(items x survivors) in ITEM COUNT.
+    Measured on a synthetic git repo before this fix: 500 items ~21s; 5,000
+    items did not finish inside a 120s ceiling (the board item's own
+    numbers). Reproduced here directly against the pure `vanished()`
+    function — no git, no subprocess, same shape as
+    `test_spellscan.py::PathUrlStripIsLinearTime` — because `vanished()`
+    doesn't need a real repo to show the O(n^2) signature or its absence.
+
+    Content is synthetic but shaped like real prose: a long-tail vocabulary
+    (`_VOCAB` sampled with a Zipfian skew, same reasoning as
+    `bench_harvestscan` used to measure the real fix) means most candidates
+    genuinely find no survivor above `SURVIVAL_SIMILARITY`, forcing the
+    pre-fix code's full inner scan every time — the guard's actual hard
+    case, since a real `vanished()` call is checking exactly the items a
+    bulk edit removed with no surviving copy.
+
+    GROUNDING FOR THE CEILINGS: measured while building this fix, on this
+    same synthetic generator, calling the OLD (pre-020/400) unbucketed
+    `similarity()`-against-every-survivor loop directly: 1,200 items took
+    ~13.5s, 3,000 items took ~50s (quadratic scaling, matching the board
+    item's own 500-vs-5,000 measurement). The fixed `vanished()` measured on
+    the SAME inputs: ~0.9s and ~3.5s. The ceilings below sit roughly 6-10x
+    over the FIXED code's measured time — generous headroom for a slow CI
+    box — while staying far under the OLD code's measured time, so a
+    reversion back to the unbucketed scan fails these tests instead of
+    passing slowly."""
+
+    _VOCAB = [f"w{idx:04d}" for idx in range(3000)]
+    _WEIGHTS = [1.0 / (i + 1) for i in range(len(_VOCAB))]
+
+    @classmethod
+    def _body(cls, rnd: random.Random, n_words: int = 30) -> str:
+        return " ".join(rnd.choices(cls._VOCAB, weights=cls._WEIGHTS,
+                                    k=n_words))
+
+    @classmethod
+    def _old_text(cls, n: int, seed: int) -> str:
+        rnd = random.Random(seed)
+        return "".join(f"- [ ] {cls._body(rnd)}\n" for _ in range(n))
+
+    @classmethod
+    def _alive(cls, n: int, seed: int) -> list[list[str]]:
+        rnd = random.Random(seed)
+        return [harvestscan.normalise(cls._body(rnd)) for _ in range(n)]
+
+    def _timed_vanished(self, n: int) -> float:
+        old_text = self._old_text(n, seed=1)
+        alive = self._alive(n, seed=2)
+        t0 = time.monotonic()
+        gone = harvestscan.vanished(old_text, alive)
+        dt = time.monotonic() - t0
+        # Every candidate was built from the same distribution as the
+        # survivors but from an independent seed, so this corpus's own
+        # "genuinely vanished" rate is itself a sanity check the generator
+        # is doing what its docstring claims (mostly no match, not a
+        # degenerate all-match corpus that would let ANY implementation
+        # exit early via short-circuiting).
+        self.assertGreater(len(gone), n // 4,
+                           "the synthetic corpus is matching too often to "
+                           "exercise the guard's actual hard case")
+        return dt
+
+    def test_1200_items_finishes_well_under_the_old_algorithms_time(self):
+        dt = self._timed_vanished(1200)
+        self.assertLess(
+            dt, 6.0,
+            f"vanished() took {dt:.2f}s for 1,200 items — the pre-020/400 "
+            "unbucketed similarity pass measured ~13.5s on this same input; "
+            "6s is generous headroom over the fix's own ~0.9s but still far "
+            "under that, so this fails if the quadratic scan is back.")
+
+    def test_3000_items_finishes_well_under_the_old_algorithms_time(self):
+        dt = self._timed_vanished(3000)
+        self.assertLess(
+            dt, 15.0,
+            f"vanished() took {dt:.2f}s for 3,000 items — the pre-020/400 "
+            "unbucketed similarity pass measured ~50s on this same input; "
+            "15s is generous headroom over the fix's own ~3.5s but still "
+            "far under that, so this fails if the quadratic scan is back.")
 
 
 if __name__ == "__main__":
