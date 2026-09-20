@@ -1,4 +1,4 @@
-- [ ] **REPORT — `115/200`'s owed work is done from the child's side: the narrowed floor stamp is restored verbatim and the declaration is gone** `[S][doctrine]` — filed from a private child, 2026-09-20, via § *Pointing up*. This item is a closure report, not a defect. Evidence below.
+- [x] **REPORT — `115/200`'s owed work is done from the child's side: the narrowed floor stamp is restored verbatim and the declaration is gone** `[S][doctrine]` — filed from a private child, 2026-09-20, via § *Pointing up*. This item is a closure report, not a defect. Evidence below.
 
       ## What `115/200` asked for, and what was done
 
@@ -40,3 +40,6 @@
       🚩 **The reason the narrowing existed is a separate, still-open defect**
       and is filed on its own at `320/370` — deliberately not folded in here,
       because this item is closeable today and that one is not.
+
+      ✅ **Received and acted on 2026-09-20:** `115/200` closed against this
+      report. `320/370` stays open.

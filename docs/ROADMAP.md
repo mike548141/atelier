@@ -168,7 +168,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [The floor a child inherits is a records-hygiene floor, and the…](roadmap/115-guardrail-architecture-mike-commissioned/160-the-child-floor-is-a-records-hygiene-floor-not.md)
 - [ ] 🎯 [The guard layer is consuming the programme — the proportionality](roadmap/115-guardrail-architecture-mike-commissioned/170-the-guard-layer-is-consuming-the-programme.md)
 - ✅ [Machine-check the main boundary ADR 0008's control clause names](roadmap/115-guardrail-architecture-mike-commissioned/180-machine-check-the-main-branch-boundary.md)
-- [ ] [One child declares a narrowed floor and reds from now on](roadmap/115-guardrail-architecture-mike-commissioned/200-one-child-declares-a-narrowed-floor-and-now-reds.md)
+- ✅ [One child declares a narrowed floor and reds from now on](roadmap/115-guardrail-architecture-mike-commissioned/200-one-child-declares-a-narrowed-floor-and-now-reds.md)
 - [ ] 🔎 [A session's default python3 is too old to load three of the](roadmap/115-guardrail-architecture-mike-commissioned/210-the-guard-suite-cannot-run-on-the-machine-it-guards.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
@@ -428,7 +428,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Does the new naming precedence reach doctrine's own prose?](roadmap/320-child-filed-findings-via-pointing-up/330-does-the-naming-precedence-reach-doctrines-own-prose.md)
 - [ ] 🔎 [blockscan cannot see a change to a mapped section's](roadmap/320-child-filed-findings-via-pointing-up/340-blockscans-map-cannot-see-a-subsection.md)
 - [ ] 🔎 [Hand-up: a peer can stage into the shared index DURING your commit,](roadmap/320-child-filed-findings-via-pointing-up/350-a-peer-can-stage-into-the-shared-index-while-your-commit-hooks-run.md)
-- [ ] [REPORT — 115/200's owed work is done from the child's side: the…](roadmap/320-child-filed-findings-via-pointing-up/360-a-narrowed-floor-stamp-is-restored-verbatim-closure-report.md)
+- ✅ [REPORT — 115/200's owed work is done from the child's side: the…](roadmap/320-child-filed-findings-via-pointing-up/360-a-narrowed-floor-stamp-is-restored-verbatim-closure-report.md)
 - [ ] [REPORT — <owner/repo> is a declared placeholder in the floor region…](roadmap/320-child-filed-findings-via-pointing-up/370-a-declared-placeholder-in-the-floor-has-no-admissible-fill-for-a-repo-with-no-remote.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
