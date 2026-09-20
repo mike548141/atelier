@@ -71,7 +71,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔥 [DEFECT — secretscan's memory grows with what it scans: ~9 GB over](roadmap/020-policy-as-code-programme-five-tracks-mik/370-a-whole-tree-scan-of-a-large-repo-exhausts-the-machine.md)
 - ✅ 🔥 [Every guard runs in bounded memory, whatever it is pointed at](roadmap/020-policy-as-code-programme-five-tracks-mik/380-every-guard-bounded-memory-regardless-of-input-size.md)
 - ✅ 🔎 [Parallel workers in one run share a scratchpad path, and one](roadmap/020-policy-as-code-programme-five-tracks-mik/390-parallel-workers-share-one-scratchpad-path.md)
-- [~] 🔥 (claimed 2026-09-20-1053, wt: at-harvestscan-linear) [harvestscan's vanished-item check is quadratic in the number of](roadmap/020-policy-as-code-programme-five-tracks-mik/400-harvestscans-similarity-pass-is-quadratic.md)
+- ✅ 🔥 [harvestscan's vanished-item check is quadratic in the number of](roadmap/020-policy-as-code-programme-five-tracks-mik/400-harvestscans-similarity-pass-is-quadratic.md)
 
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
 
@@ -239,6 +239,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued — the bounded-guard-layer conversion: fourteen](roadmap/160-doctrine-review-owed/370-rule-4-cold-pass-queued-the-bounded-guard-layer.md)
 - ⏳ [Rule-4 cold pass queued — the scratch-space clause: a worker's…](roadmap/160-doctrine-review-owed/380-rule-4-cold-pass-queued-the-scratchpad-clause.md)
 - ⏳ [Rule-4 cold pass queued — the staged-plane board check and its…](roadmap/160-doctrine-review-owed/390-rule-4-cold-pass-queued-the-staged-plane-check.md)
+- ⏳ [Rule-4 cold pass queued — harvestscan's prefix-filter rewrite](roadmap/160-doctrine-review-owed/400-rule-4-cold-pass-queued-the-harvestscan-prefix-filter.md)
 
 ## build/ layer — open strands
 

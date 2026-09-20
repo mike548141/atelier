@@ -39,3 +39,24 @@
       every `python3 tools/<scanner>.py` invocation in the doctrine, the hook
       and the onramp runs on 3.9 too. Those work today; whether they are
       *meant* to is part of this item.
+      📈 **Second instance, 2026-09-20, and it widens the item from "which
+      interpreter" to "the session shell's PATH".** Running the full suite on
+      the 3.14 interpreter this item names clears the three import errors and
+      leaves **exactly one**:
+      `test_floorfleet.DiscoveryAuthorityTest.test_from_github_end_to_end_…`
+      fails with `FileNotFoundError` on `gh`, because `floorfleet.read_boundary`
+      shells out to `gh api` and a session's minimal `PATH` has no `gh` — it
+      lives at a user-local bin directory an interactive login shell adds and a
+      session's shell does not. Re-run with that directory on `PATH`: **118
+      tests, OK.** Whole suite, correct interpreter and `PATH`: **1,531 tests,
+      all passing.**
+      🔑 **So the cause is one rung up from the interpreter.** Two different
+      tools — a modern `python3` and `gh` — are both absent for the same
+      reason, and a session that trusts its own suite run sees a red it cannot
+      attribute and did not cause. The first framing of this item read as a
+      Python-version problem; it is an **environment-contract** problem, and
+      the fix candidates should be re-read in that light (a named interpreter
+      alone does not solve `gh`).
+      ⚠️ Not established: what else the minimal `PATH` is missing that no test
+      currently exercises. Two tools surfaced because two tests happened to
+      need them; nothing has enumerated the contract.
