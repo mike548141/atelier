@@ -147,12 +147,14 @@ import argparse
 import codecs
 import fnmatch
 import json
-import os
 import re
 import sys
 from dataclasses import dataclass, field, asdict
 from datetime import date
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import filewalk  # noqa: E402
 
 # A line carrying this marker is intentionally exempt from every check on that
 # line. Keep the reason on the same line so the exemption is self-documenting
@@ -724,31 +726,12 @@ def _rel(p: Path, root: Path) -> str:
 
 
 def _walk_files(base: Path):
-    """Every regular file under `base`, streamed one at a time via `os.walk`,
-    pruning skip-dirs in place so the walk never descends into them at any
-    depth (020/380, reusing secretscan's `_walk_files` shape). Replaces
-    `base.rglob("*")` funnelled through a list comprehension, which forced
-    Python to enumerate the ENTIRE subtree and hold every `Path` before a
-    single file was even considered."""
-    for dirpath, dirnames, filenames in os.walk(base):
-        # 020/160 (E9): a git worktree LINKED into this tree has a `.git`
-        # FILE (`gitdir: <path>`), not a directory, so SKIP_DIR_NAMES' name
-        # match never fires and the walk descends into a full second
-        # checkout of the same repo, double-counting every finding.
-        # Checked by file-ness alone, not by parsing the `gitdir:` line: a
-        # bare file named exactly `.git` is never anything else (only a
-        # worktree or submodule link creates one), and pruning here is the
-        # same name/type check SKIP_DIR_NAMES already makes, not a content
-        # decision.
-        dirnames[:] = [
-            d for d in dirnames
-            if d not in SKIP_DIR_NAMES
-            and not Path(dirpath, d, ".git").is_file()
-        ]
-        for name in filenames:
-            p = Path(dirpath) / name
-            if p.is_file():  # excludes broken symlinks, matching the old rglob filter
-                yield p
+    """Every regular file under `base`, streamed one at a time. Single-sourced
+    (115/080 part 1) in `tools/filewalk.py` — see that module's docstring
+    for the mechanism and the 020/160 (E9) linked-worktree skip.
+    `SKIP_DIR_NAMES` is this scanner's own per-guard parameter, passed in
+    rather than shared."""
+    return filewalk.walk_files(base, SKIP_DIR_NAMES)
 
 
 def iter_markdown(paths: list[Path], root: Path, globs: list[str],

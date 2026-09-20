@@ -61,6 +61,9 @@ import sys
 from dataclasses import dataclass, asdict, field
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import filewalk  # noqa: E402
+
 # A line carrying this marker is intentionally exempt (e.g. an illustrative
 # example in doctrine). Keep the reason on the same line so the exemption is
 # self-documenting and greppable.
@@ -751,39 +754,14 @@ def _ignored(rel: str, globs: list[str]) -> bool:
 
 
 def _walk_files(base: Path):
-    """Every regular file under `base`, streamed one at a time — the 020/380
-    fix for the same defect `020/370` fixed in `secretscan`: the old
-    `[p for p in base.rglob("*") if ...]` forced Python to walk the ENTIRE
-    subtree and hold every `Path` it found before scanning a single byte.
-    `os.walk` is used instead of `rglob` specifically because it exposes
-    `dirnames` for in-place pruning: filtering `SKIP_DIR_NAMES` out of
-    `dirnames` stops `os.walk` from ever DESCENDING into `.git`,
-    `node_modules`, etc. at any depth, rather than descending into them and
-    discarding what it found — the same skip semantics as the old
-    `not (SKIP_DIR_NAMES & set(p.parts))` filter (any path component, not
-    just the immediate parent), just applied before the walk pays for it."""
-    for dirpath, dirnames, filenames in os.walk(base):
-        # 020/160 (E9): a git worktree LINKED into this tree has a `.git`
-        # FILE (`gitdir: <path>`), not a directory, so SKIP_DIR_NAMES' name
-        # match never fires and the walk descends into a full second
-        # checkout of the same repo — double-counting every finding and
-        # putting root-relative ignore globs out of reach inside the copy
-        # (measured in `faves` 2026-08-15: 101 leakscan findings, all
-        # already covered by `.leakscanignore`, blocked a commit). Checked
-        # by file-ness alone, not by parsing the `gitdir:` line: a bare
-        # file named exactly `.git` is never anything else (only a
-        # worktree or submodule link creates one), and pruning here is the
-        # same name/type check SKIP_DIR_NAMES already makes, not a content
-        # decision.
-        dirnames[:] = [
-            d for d in dirnames
-            if d not in SKIP_DIR_NAMES
-            and not Path(dirpath, d, ".git").is_file()
-        ]
-        for name in filenames:
-            p = Path(dirpath) / name
-            if p.is_file():  # excludes broken symlinks, matching the old rglob filter
-                yield p
+    """Every regular file under `base`, streamed one at a time. Single-sourced
+    (115/080 part 1) in `tools/filewalk.py` — see that module's docstring
+    for the mechanism and the 020/160 (E9) linked-worktree skip (measured in
+    `faves` 2026-08-15: 101 leakscan findings, all already covered by
+    `.leakscanignore`, blocked a commit — the incident that motivated that
+    fix). `SKIP_DIR_NAMES` is this scanner's own per-guard parameter, passed
+    in rather than shared."""
+    return filewalk.walk_files(base, SKIP_DIR_NAMES)
 
 
 def iter_files(paths: list[Path], root: Path, globs: list[str],

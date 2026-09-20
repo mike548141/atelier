@@ -65,11 +65,13 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import json
-import os
 import re
 import sys
 from dataclasses import dataclass, asdict, field
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import filewalk  # noqa: E402
 
 # A line carrying this marker is intentionally exempt (e.g. a documented example
 # header in test data, or a deliberately dual-licensed file). Keep the reason on
@@ -568,32 +570,13 @@ def _looks_binary(data: bytes) -> bool:
 
 
 def _walk_files(base: Path):
-    """Every regular file under `base`, streamed one at a time — the 020/380
-    fix for the same defect `secretscan`/`spellscan` already fixed at this
-    layer: `root.rglob("*")` returns a generator, but the old caller here
-    still descended into `.git`/`node_modules`/etc. at full depth before
-    `SKIP_DIR_NAMES` filtered them out AFTER the walk paid for it. `os.walk`
-    exposes `dirnames` for in-place pruning, so a skip-dir is never entered at
-    any depth, matching the sibling scanners' `_walk_files` shape exactly."""
-    for dirpath, dirnames, filenames in os.walk(base):
-        # 020/160 (E9): a git worktree LINKED into this tree has a `.git`
-        # FILE (`gitdir: <path>`), not a directory, so SKIP_DIR_NAMES' name
-        # match never fires and the walk descends into a full second
-        # checkout of the same repo, double-counting every finding.
-        # Checked by file-ness alone, not by parsing the `gitdir:` line: a
-        # bare file named exactly `.git` is never anything else (only a
-        # worktree or submodule link creates one), and pruning here is the
-        # same name/type check SKIP_DIR_NAMES already makes, not a content
-        # decision.
-        dirnames[:] = [
-            d for d in dirnames
-            if d not in SKIP_DIR_NAMES
-            and not Path(dirpath, d, ".git").is_file()
-        ]
-        for name in filenames:
-            p = Path(dirpath) / name
-            if p.is_file():  # excludes broken symlinks, matching rglob's own filter
-                yield p
+    """Every regular file under `base`, streamed one at a time. Single-sourced
+    (115/080 part 1) in `tools/filewalk.py` — see that module's docstring
+    for the mechanism and the 020/160 (E9) linked-worktree skip.
+    `SKIP_DIR_NAMES` is this scanner's own per-guard parameter, passed in
+    rather than shared — here a twelve-name set that additionally prunes
+    `dist` and `build`, unlike the ten-name set every sibling scanner uses."""
+    return filewalk.walk_files(base, SKIP_DIR_NAMES)
 
 
 # A single tracked file is capped at this many bytes for scanning purposes
