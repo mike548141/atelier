@@ -58,7 +58,40 @@
       asks for. That is the same shape as `320/160`'s finding about the floor
       block — a parent-local accommodation that does not travel — and it is
       probably the cheaper half of this item to rule on.
-      ⚠️ Not yet measured: whether the reporting child, or any other, actually
-      lacks the declaration. Asked of a child session 2026-09-20; unanswered
-      at filing. Atelier cannot measure it — it is immune by declaration,
-      which is exactly the blind spot being described.
+      📈 **Measured in a child the same day, and the cause is confirmed.** A
+      private child checked its own `.atelier-floor.json`: the `scope` block
+      declares **one scanner, and `wrapscan` is not it**, so wrapscan runs
+      unscoped over `docs/**`, `docs/roadmap/` included. The consequence,
+      counted: **237 of 324 board item files carry a `wrapscan:allow`
+      marker — 73%.** The child is not immune and never was; it pays a
+      per-item marker where atelier pays one scope declaration. So the
+      discriminator above is measured, not inferred, and this item's original
+      reasoning about exemption logic is **downstream** of it — the exemption
+      is what a child reaches for *because* it lacks the declaration.
+      ⚠️ **The reporting child's own caveat, carried rather than shed:** it
+      measured that 237 of 324 items carry a marker, **not that 237 markers
+      are justified.** Counting them says how many there are, not whether
+      they are right; anyone ruling on this should sample them.
+      🔑 **And the substitute is worse than the accommodation it replaces.**
+      Those markers are not free: a written reason each, hand-edited on every
+      new item, and the child has a recorded instance of `secretscan` reading
+      a long allow-reason as a secret. The parent's single declaration has no
+      such failure mode. That is what makes this a doctrine question rather
+      than an inconvenience — the child does not merely lack the parent's
+      accommodation, its only available substitute carries a hazard the
+      accommodation does not.
+      🚩 **Second instance of the same asymmetry, same evening, different
+      face.** A *different* private child filing a hand-up here had to file
+      **class-only — no repo name, no paths** — because atelier is public and
+      a private child naming itself in a public parent is the same disclosure
+      as a public parent naming a private root, read from the other end. One
+      child pays per-item markers where the parent pays a declaration;
+      another pays anonymity where the parent can afford to name itself.
+      **The class:** the parent holds accommodations its children cannot
+      inherit, and neither child can see the asymmetry from where it stands.
+      Neither can atelier, which is immune by declaration — the blind spot is
+      structural on both sides.
+      🎯 **The real question this leaves:** whether the scope narrowing that
+      insulates the parent is part of what a child inherits. Same shape as
+      `320/160` on the floor block; probably the cheaper half of this item to
+      rule on.
