@@ -1,4 +1,4 @@
-- [~] (claimed 2026-09-20-2239, wt: at-harness-walk; FUNDED by Mike 2026-09-20; part 1 of 3) **Single-source the scanner harness, re-grounded on Mike's own upstream
+- [~] (claimed 2026-09-20-2239, wt: at-harness-walk; FUNDED by Mike 2026-09-20; part 1 of 3 DONE, parts 2–3 owed) **Single-source the scanner harness, re-grounded on Mike's own upstream
       test.** The finding already exists: GA1, a minor raised by the 2026-08-05
       guards-and-allowances cold pass and still awaiting its ruling round. It
       reads that the reason-required loader is ten per-scanner copies, *"the
@@ -102,4 +102,48 @@
       headings, 4 MiB for credentials — and a harness that forced one window
       would be worse than the duplication it replaced.
       **Explicitly not in scope, unchanged:** merging any two guards' intents.
+      ---
+      ✅ **PART 1 LANDED 2026-09-20 — `tools/filewalk.py`.** Eleven copies of
+      `_walk_files` become one shared generator; each scanner keeps a one-line
+      wrapper passing its own skip-set.
+      **The difference analysis was the work, not the extraction.** Ten walk
+      bodies were already byte-identical. `licenscan`'s differed in exactly one
+      respect — it also prunes `dist` and `build`, because a licence check has
+      no reason to inspect built output. **That is a genuine per-guard choice,
+      so it stays a parameter** rather than being flattened into one shared
+      constant, which would have silently changed `licenscan`'s output. Every
+      other difference across the eleven was docstring prose, an incident
+      citation, or a variable name (`SKIP_DIR_NAMES` vs `sizescan`'s
+      `NON_CONTENT_DIR_NAMES`).
+      ⚠️ **A claim this session made and now corrects.** An orchestrator hash
+      of the eleven copies reported *"9 distinct variants — already diverged
+      within a day"*. That measured **prose**, not logic: the hash covered
+      docstrings and comments. Behaviourally, ten of eleven were identical and
+      the eleventh's difference was deliberate. The correct statement is far
+      weaker than the one first published — textual divergence inside a day,
+      no logic drift — and it is recorded because a wrong figure that flatters
+      this item's own thesis is exactly the kind this estate keeps producing.
+      **Evidence:** byte-identical stdout, stderr **and exit code** for all
+      eleven, old against new, over the real tree. The `020/160` linked-worktree
+      skip preserved unchanged, and the standing suite already carries a
+      per-scanner regression test for it — the floor, not a scratch probe.
+      Suite **1,564 tests OK**, matching the baseline exactly, re-run
+      independently by the orchestrator after the merge.
+      🛑 **Part 1's scope as written was WRONG, and the worker was right to
+      refuse it.** Both this item's text and the dispatch brief put the
+      window/overlap constants and the finding-materialisation cap in part 1.
+      They are not one mechanism with per-guard parameters — they are three or
+      four genuinely different readers, one of which carries markdown fence
+      state. Folding them would have risked the merge of distinct guards'
+      intents this item forbids outright. Split to `115/220` as its own
+      decision.
+      📐 **Two counts in this item's own text, corrected by measurement:** the
+      walk was in **eleven** files, not ten; the finding-materialisation cap is
+      in **three**, not "four more".
+      **Parts 2 and 3 remain owed** and the claim stands for them: part 2 the
+      allow-marker grammar and ignore-file loader (where divergence is already
+      *behavioural* — `datescan` requires a word boundary where siblings accept
+      a bare substring), part 3 the exit/reporting contract and namespaced
+      finding identifiers.
+      Rule-4 `⏳` at `160/420` covers part 1; this run may not take it.
 
