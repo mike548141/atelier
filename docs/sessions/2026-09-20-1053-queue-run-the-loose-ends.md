@@ -133,6 +133,49 @@ A peer session opened a read-only orchestrated run against this tree pinned at
 the two loose files above were read for measurement and left alone
 (§ Stay in your lane).*
 
+### The propagation evidence neither session designed
+
+🎉 **`010/020` reached a running child session with nothing done there to fetch
+it, and left a timestamped trace doing it.** The peer verified the landing in
+its own repo rather than taking this session's word, and found the evidence
+already in its own transcript: its **early** commits that evening report
+`board index current — docs/ROADMAP.md matches docs/roadmap/`, and its **later**
+ones report `matches the staged docs/roadmap/`. The wording changed underneath a
+live session, mid-sitting, because `hooks.atelierTools` resolves `board.py` and
+`floor.py` from this checkout (ADR 0008, one source, children vendor nothing).
+
+That is the strongest evidence for ADR 0008's design produced so far, and it is
+an accident: nobody instrumented it, and it exists only because a child happened
+to be committing on both sides of a parent's push. It also independently
+confirms the reasoning used here to judge the registry wiring safe — flag and
+parser cannot skew apart, because they move together — which was argued from the
+hook's source and is now observed from a child's log.
+
+🚩 *Recorded as evidence, not as a claim that propagation is generally
+instantaneous.* It reached a session whose hook re-reads the tools on every
+commit. A child that had not committed would have seen nothing, and a child
+pinned by a vendored copy would be a different case entirely.
+
+### Rulings relayed from a child's session — recorded, deliberately NOT enacted
+
+The same peer relayed two rulings Mike made in **its** sitting, on the correct
+principle that rulings do not cross sessions by themselves. Both are recorded
+here as context and **neither is applied to atelier**, because a ruling made in
+one repo's context is not transferable and a peer message is not the principal's
+instruction to this session:
+
+- **Review debt is accepted deliberately there** — its `⏳` passes wait while
+  build work continues, recorded as a standing answer so a later session does
+  not re-ask. 🎯 *Relevant but unruled here:* atelier carries **20+** queued
+  `⏳` passes, and no session has put the same question. Whether atelier holds
+  the same posture is Mike's, and is worth asking precisely because the
+  alternative is every session re-deciding it silently.
+- **The "dumb/first-class" line gets an options paper before a ruling** — he
+  declined to promote his own recorded instinct straight to doctrine. Noted
+  here only as a pattern worth copying: *the principal refusing to shortcut his
+  own instinct into a rule* is the posture `00-APEX.md` asks of agents, and it
+  is the second time this estate has seen him ask for the paper first.
+
 ## `cbom-70` — PR #83, and an error of mine worth recording
 
 A second peer filed PR #83 from a private child: `320/360` (a closure report

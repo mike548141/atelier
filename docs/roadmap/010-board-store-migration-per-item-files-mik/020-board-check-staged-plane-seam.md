@@ -55,3 +55,17 @@
       stricter than its mechanical cause requires — `010/160`. The building
       worker surfaced it and declined to decide it, correctly.
       Rule-4 `⏳` at `160/390`; this run may not take it.
+      🎉 **Propagation confirmed from a child's side, by accident, the same
+      evening.** A live child session verified the landing in its own repo and
+      found the evidence already in its own transcript: its **earlier** commits
+      that sitting report `board index current — docs/ROADMAP.md matches
+      docs/roadmap/`, its **later** ones `matches the staged docs/roadmap/`.
+      The check changed plane underneath a running session with nothing done
+      there to fetch it, because `hooks.atelierTools` resolves both `board.py`
+      and `floor.py` from atelier's checkout (ADR 0008 — one source, children
+      vendor nothing). That is the reasoning used above to judge the registry
+      wiring safe, argued from the hook's source and now **observed from a
+      child's log**. Not a general claim that propagation is instantaneous: it
+      reached a session whose hook re-reads the tools on every commit, and a
+      child that had not committed would have seen nothing.
+
