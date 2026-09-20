@@ -143,8 +143,10 @@ Python.
 from __future__ import annotations
 
 import argparse
+import codecs
 import fnmatch
 import json
+import os
 import re
 import subprocess
 import sys
@@ -171,6 +173,19 @@ def parse_allow(line: str) -> bool:
     return ALLOW_RX.search(line) is not None
 
 
+# 020/380 — a fixed ceiling on how many `Finding` objects one run
+# MATERIALIZES (builds and holds in memory), independent of how many the
+# input actually contains. Same defect class `020/370` fixed in `secretscan`:
+# a pathological tree (e.g. a huge merge scar repeated many times) can
+# generate an unbounded NUMBER of findings independent of tree size.
+# Reusing secretscan's own budget rather than re-deriving one: each held
+# `Finding` costs on the order of 1 KiB (path + excerpt + object overhead),
+# so a ~50 MiB findings budget — independent of input size — gives the same
+# round cap. Findings past the cap are COUNTED (`Tally.findings_over_cap`),
+# never dropped silently.
+MAX_MATERIALIZED_FINDINGS = 50_000
+
+
 @dataclass
 class Tally:
     """What the scan removed AFTER finding it — rule (b) of `method/GUARDS.md`.
@@ -179,10 +194,25 @@ class Tally:
     matched" and "everything matched and was exempted"."""
     by_marker: dict[str, int] = field(default_factory=dict)
     files_by_glob: int = 0
+    # 020/380 — see MAX_MATERIALIZED_FINDINGS above. Every finding here
+    # blocks (conflictscan has no advisory tier), so one counter is enough.
+    findings_over_cap: int = 0
+    _materialized: int = field(default=0, repr=False, compare=False)
 
     @property
     def marker_total(self) -> int:
         return sum(self.by_marker.values())
+
+    def take_finding_slot(self) -> bool:
+        """True if a finding may still be fully materialized (built and
+        held); False once the run-wide cap is reached, in which case the
+        caller counts it via `findings_over_cap` instead of building a
+        `Finding` for it."""
+        if self._materialized < MAX_MATERIALIZED_FINDINGS:
+            self._materialized += 1
+            return True
+        self.findings_over_cap += 1
+        return False
 
     def note_marker(self, kind: str) -> None:
         self.by_marker[kind] = self.by_marker.get(kind, 0) + 1
@@ -191,7 +221,9 @@ class Tally:
         """One stable line, known zeros printed, so two runs compare."""
         line = ("  suppressed: "
                 f"{self.marker_total} by allow-marker · "
-                f"{self.files_by_glob} file(s) by .conflictscanignore")
+                f"{self.files_by_glob} file(s) by .conflictscanignore · "
+                f"{self.findings_over_cap} beyond the "
+                f"{MAX_MATERIALIZED_FINDINGS}-finding cap (counted, not listed)")
         if self.by_marker:
             detail = ", ".join(f"{k}×{n}" for k, n in sorted(self.by_marker.items()))
             line += f"\n    allow-marker breakdown: {detail}"
@@ -238,59 +270,72 @@ def _excerpt(line: str) -> str:
     return stripped if len(stripped) <= 100 else stripped[:97] + "..."
 
 
+def _record(findings: list[Finding], tally: "Tally | None", finding: Finding) -> None:
+    """Append `finding` unless the run-wide materialization cap (020/380,
+    `MAX_MATERIALIZED_FINDINGS`) has been reached — in which case
+    `tally.take_finding_slot` has already counted it. Same choke-point shape
+    as `secretscan._record` (020/370)."""
+    if tally is None or tally.take_finding_slot():
+        findings.append(finding)
+
+
+def _line_finding(path: str, lineno: int, window: str, is_final_window: bool,
+                  in_conflict: bool) -> tuple["Finding | None", bool]:
+    """Decide whether ONE physical line's content (or, for an overlong line,
+    its FIRST window — see `_scan_file`) is a conflict-marker finding, and
+    the new `in_conflict` state.
+
+    Only ever called with the FIRST window of a physical line: OPENER/
+    CLOSER/BASE are anchored at column 0, so the first window carries
+    everything needed to decide them regardless of how much more of the
+    line follows. SEPARATOR requires the line to be EXACTLY seven `=`
+    characters, so it is only ever considered when this window is also the
+    line's LAST (`is_final_window`) — an overlong line can never be exactly
+    seven characters, so that case correctly never matches."""
+    if OPENER_RX.match(window):
+        return Finding(
+            path, lineno, "opener", _excerpt(window),
+            "unresolved merge-conflict opener — resolve the merge and "
+            "remove the marker"), True
+    if CLOSER_RX.match(window):
+        return Finding(
+            path, lineno, "closer", _excerpt(window),
+            "unresolved merge-conflict closer — resolve the merge and "
+            "remove the marker"), False
+    if in_conflict and BASE_RX.match(window):
+        return Finding(
+            path, lineno, "base", _excerpt(window),
+            "diff3 common-ancestor marker inside an open conflict — "
+            "resolve the merge and remove the marker"), in_conflict
+    if in_conflict and is_final_window and _strip_cr(window) == SEPARATOR_TEXT:
+        return Finding(
+            path, lineno, "separator", _excerpt(window),
+            "merge-conflict separator inside an open conflict — resolve "
+            "the merge and remove the marker"), in_conflict
+    return None, in_conflict
+
+
 def scan_text(path: str, text: str, tally: "Tally | None" = None) -> list[Finding]:
     """Walk `text` line by line, tracking whether we are inside what looks
     like an open conflict region (an OPENER seen with no CLOSER since) — see
     the module docstring's "THE `=======` AMBIGUITY" section for why
-    SEPARATOR/BASE are gated on this state and OPENER/CLOSER are not."""
+    SEPARATOR/BASE are gated on this state and OPENER/CLOSER are not.
+
+    The staged-diff caller's shape: the diff's added lines are already held
+    in memory, so this is the whole-blob convenience wrapper; `_scan_file`
+    below is the streaming shape the whole-tree walk uses."""
     findings: list[Finding] = []
-    allow_by_line: dict[int, bool] = {}
     in_conflict = False
-
     for lineno, raw in enumerate(text.splitlines(), start=1):
+        finding, in_conflict = _line_finding(path, lineno, raw, True, in_conflict)
+        if finding is None:
+            continue
         if parse_allow(raw):
-            allow_by_line[lineno] = True
-
-        if OPENER_RX.match(raw):
-            findings.append(Finding(
-                path, lineno, "opener", _excerpt(raw),
-                "unresolved merge-conflict opener — resolve the merge and "
-                "remove the marker"))
-            in_conflict = True
-            continue
-
-        if CLOSER_RX.match(raw):
-            findings.append(Finding(
-                path, lineno, "closer", _excerpt(raw),
-                "unresolved merge-conflict closer — resolve the merge and "
-                "remove the marker"))
-            in_conflict = False
-            continue
-
-        if in_conflict and BASE_RX.match(raw):
-            findings.append(Finding(
-                path, lineno, "base", _excerpt(raw),
-                "diff3 common-ancestor marker inside an open conflict — "
-                "resolve the merge and remove the marker"))
-            continue
-
-        if in_conflict and _strip_cr(raw) == SEPARATOR_TEXT:
-            findings.append(Finding(
-                path, lineno, "separator", _excerpt(raw),
-                "merge-conflict separator inside an open conflict — resolve "
-                "the merge and remove the marker"))
-            continue
-
-    # SUBTRACT SECOND (rule b): the finding forms before the allowance is
-    # consulted, so a deliberate exemption is counted, not silently absent.
-    kept: list[Finding] = []
-    for f in findings:
-        if allow_by_line.get(f.line):
             if tally is not None:
-                tally.note_marker(f.kind)
+                tally.note_marker(finding.kind)
             continue
-        kept.append(f)
-    return kept
+        _record(findings, tally, finding)
+    return findings
 
 
 def _looks_binary(data: bytes) -> bool:
@@ -359,14 +404,26 @@ def _rel(p: Path, root: Path) -> str:
         return str(p)
 
 
+def _walk_files(base: Path):
+    """Every regular file under `base`, streamed one at a time — the 020/380
+    fix for the same defect `020/370` fixed in `secretscan`: the old
+    `[p for p in base.rglob("*") if ...]` forced Python to walk the ENTIRE
+    subtree and hold every `Path` it found before scanning a single byte.
+    `os.walk` exposes `dirnames` for in-place pruning, so `SKIP_DIR_NAMES`
+    stops the walk from ever DESCENDING into `.git`/`node_modules`/etc. at
+    any depth, matching the old any-path-component filter's semantics."""
+    for dirpath, dirnames, filenames in os.walk(base):
+        dirnames[:] = [d for d in dirnames if d not in SKIP_DIR_NAMES]
+        for name in filenames:
+            p = Path(dirpath) / name
+            if p.is_file():  # excludes broken symlinks, matching the old rglob filter
+                yield p
+
+
 def iter_files(paths: list[Path], root: Path, globs: list[str],
               tally: "Tally | None" = None):
     for base in paths:
-        if base.is_file():
-            candidates = [base]
-        else:
-            candidates = [p for p in base.rglob("*")
-                          if p.is_file() and not (SKIP_DIR_NAMES & set(p.parts))]
+        candidates = [base] if base.is_file() else _walk_files(base)
         for p in candidates:
             rel = _rel(p, root)
             if _ignored(rel, globs):
@@ -376,16 +433,110 @@ def iter_files(paths: list[Path], root: Path, globs: list[str],
             yield p, rel
 
 
+# Streaming-read tuning (020/380, reusing secretscan's 020/370 constants
+# verbatim — every FIXED size here is chosen once and independent of the
+# file or tree being scanned, which is the entire fix). See `secretscan.py`'s
+# module comment above its own copy of these for the full derivation.
+READ_CHUNK_BYTES = 1 * 1024 * 1024        # raw bytes read from disk at a time
+LINE_WINDOW_BYTES = 4 * 1024 * 1024       # a physical line (no '\n' in sight)
+                                          # longer than this is scanned in
+                                          # WINDOWS rather than buffered whole
+LINE_WINDOW_OVERLAP = 64 * 1024           # carried from one window into the
+                                          # next so an allow-marker straddling
+                                          # the cut is still whole in one of
+                                          # the two (see `_scan_file`)
+
+
+def _iter_numbered_lines(path: Path):
+    """Yield `(lineno, text, is_final_window)` for every physical line in
+    `path`, reading and decoding it in fixed-size chunks so peak memory for
+    ONE file is bounded by `LINE_WINDOW_BYTES + LINE_WINDOW_OVERLAP` —
+    independent of the file's total size or its longest line. Yields nothing
+    for a file that looks binary (checked on the first chunk only).
+
+    This replaces the old `read_bytes()` → whole `str` → `splitlines()`
+    list, which held the file THREE TIMES OVER at once (the same shape
+    020/370 fixed in secretscan)."""
+    decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
+    lineno = 1
+    pending = ""
+    with open(path, "rb") as fh:
+        first_chunk = True
+        while True:
+            chunk = fh.read(READ_CHUNK_BYTES)
+            if first_chunk:
+                first_chunk = False
+                if _looks_binary(chunk):
+                    return
+            if not chunk:
+                break
+            pending += decoder.decode(chunk)
+            while True:
+                nl = pending.find("\n")
+                if nl == -1:
+                    break
+                yield lineno, pending[:nl], True
+                pending = pending[nl + 1:]
+                lineno += 1
+            if len(pending) >= LINE_WINDOW_BYTES:
+                yield lineno, pending, False
+                pending = pending[-LINE_WINDOW_OVERLAP:]
+        pending += decoder.decode(b"", final=True)
+        if pending:
+            yield lineno, pending, True  # EOF: whatever remains is the last line
+
+
+def _scan_file(path: Path, rel: str, tally: "Tally | None") -> list[Finding]:
+    """Scan one file with memory bounded by a fixed constant regardless of
+    the file's size (020/380) — see `_iter_numbered_lines`.
+
+    OPENER/CLOSER/BASE are decided from the FIRST window of each physical
+    line only (they are anchored at column 0, so later windows of the same
+    overlong line carry nothing the decision needs); SEPARATOR is only
+    considered when that first window is also the line's last, since an
+    overlong line can never be exactly the seven-character separator. The
+    allow-marker, unlike the finding shape, can sit ANYWHERE on the line, so
+    it is searched for in EVERY window of the line and unioned — the same
+    reason `secretscan`'s streaming reader carries `LINE_WINDOW_OVERLAP`
+    between windows: a marker straddling a window cut must still be found in
+    one of the two windows that contain it.
+
+    UNLIKE `secretscan._scan_file`, an `OSError` here is NOT swallowed: the
+    pre-existing `_main` wraps `scan_paths` in its own `except OSError`
+    (`cannot read <file>` → exit 2, "a broken scan is not a pass") and that
+    behaviour predates this fix, so it must survive unchanged rather than
+    being silently narrowed to a per-file skip."""
+    findings: list[Finding] = []
+    in_conflict = False
+    seen_lineno: int | None = None
+    current_finding: "Finding | None" = None
+    allow_hit = False
+    for lineno, window, is_final in _iter_numbered_lines(path):
+        if lineno != seen_lineno:
+            seen_lineno = lineno
+            current_finding, in_conflict = _line_finding(
+                rel, lineno, window, is_final, in_conflict)
+            allow_hit = parse_allow(window)
+        elif not allow_hit and parse_allow(window):
+            allow_hit = True
+        if is_final:
+            if current_finding is not None:
+                if allow_hit:
+                    if tally is not None:
+                        tally.note_marker(current_finding.kind)
+                else:
+                    _record(findings, tally, current_finding)
+            current_finding = None
+            allow_hit = False
+    return findings
+
+
 def scan_paths(paths: list[Path], root: Path,
                tally: "Tally | None" = None) -> list[Finding]:
     globs = load_ignore_globs(root)
     findings: list[Finding] = []
     for p, rel in iter_files(paths, root, globs, tally):
-        data = p.read_bytes()
-        if _looks_binary(data):
-            continue
-        text = data.decode("utf-8", errors="replace")
-        findings.extend(scan_text(rel, text, tally))
+        findings.extend(_scan_file(p, rel, tally))
     return findings
 
 
@@ -414,12 +565,20 @@ def staged_added_lines() -> dict[str, str]:
 
 
 def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
-    if not findings:
+    # 020/380 — a capped run's TRUE total lives on the tally, never on
+    # `len(findings)`: everything past `MAX_MATERIALIZED_FINDINGS` was
+    # counted there instead of being built as a `Finding` at all — see
+    # `Tally.take_finding_slot`.
+    over_cap = tally.findings_over_cap if tally is not None else 0
+    if not findings and not over_cap:
         out = "✓ conflictscan clean — no conflict markers found."
         return out + ("\n" + tally.summary() if tally is not None else "")
-    lines = [f"✗ conflictscan: {len(findings)} finding(s) — commit blocked."]
+    lines = [f"✗ conflictscan: {len(findings) + over_cap} finding(s) — commit blocked."]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
         lines.append(f"  {f.path}:{f.line}  [{f.kind}] {f.match!r} → {f.detail}")
+    if over_cap:
+        lines.append(f"  …and {over_cap} more finding(s), counted but not listed "
+                     f"(past the {MAX_MATERIALIZED_FINDINGS}-finding memory cap).")
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
@@ -509,8 +668,9 @@ def _main(argv: list[str] | None = None) -> int:
 
     if args.json:
         print(json.dumps({
-            "clean": not findings,
+            "clean": not findings and not tally.findings_over_cap,
             "findings": [asdict(f) for f in findings],
+            "findings_over_cap": tally.findings_over_cap,
             "suppressed": {
                 "by_allow_marker": tally.marker_total,
                 "by_allow_marker_rule": tally.by_marker,
@@ -520,7 +680,7 @@ def _main(argv: list[str] | None = None) -> int:
     else:
         print(render_human(findings, tally))
 
-    return 1 if findings else 0
+    return 1 if (findings or tally.findings_over_cap) else 0
 
 
 def _selftest() -> int:

@@ -2,9 +2,16 @@
 
 import re
 import pathlib
+import shutil
+import sys
+import tempfile
 import unittest
+from pathlib import Path
 
 import leakscan as ls
+import memprobe
+
+TOOLS_DIR = Path(__file__).resolve().parent
 
 
 def scan(text, terms=None):
@@ -948,3 +955,90 @@ class DerivedTermForms(unittest.TestCase):
             self.assertNotIn("local-term", rules("plain-name here", terms))
         finally:
             os.remove(path)
+
+
+class BoundedMemory(unittest.TestCase):
+    """020/380 — the same class of defect `020/370` fixed in `secretscan`,
+    applied here: peak memory must be bounded by a constant that does not
+    grow with the size of the input. Mike's ruling, verbatim: "it should not
+    matter how much it scans it should no have this affect."
+
+    Runs the real CLI as a SUBPROCESS via `memprobe.run_and_measure` and
+    reads its peak RSS back from the kernel — `tracemalloc` only sees the
+    Python heap, not the whole OS process (see `tools/memprobe.py`'s module
+    docstring).
+
+    Content is plain filler prose with no leak-shaped substring anywhere
+    (no email, no IP, no PII-keyed line), so every run produces zero
+    findings — the only thing that differs between a small and a large run
+    is how many bytes there are to read."""
+
+    LEAKSCAN = str(TOOLS_DIR / "leakscan.py")
+    SMALL_BYTES = 1 * 1024 * 1024
+    LARGE_BYTES = 8 * 1024 * 1024
+    # Grounded in the FIX's design, not fitted to a measurement
+    # (`ground-numeric-limits`): the one piece of per-file state the
+    # streaming reader ever buffers is a single window of one physical
+    # line, capped at `LINE_WINDOW_BYTES + LINE_WINDOW_OVERLAP` (~4.06 MiB)
+    # — see `leakscan._iter_numbered_lines`. Both runs produce zero
+    # findings (so `Tally.take_finding_slot`'s cap machinery is inert
+    # here too) — growth between them should be close to zero. Allowing 4x
+    # that window leaves generous headroom for interpreter/allocator noise
+    # while staying far below what a whole-file-buffered implementation
+    # shows for this size delta (the pre-fix code measured well over 2x
+    # this bound while building the fix — recorded for context, not what
+    # set the number).
+    GROWTH_BOUND_BYTES = 4 * (ls.LINE_WINDOW_BYTES + ls.LINE_WINDOW_OVERLAP)
+
+    # A present-but-empty terms file keeps the run off any real machine-local
+    # term list, so only the structural engine (the thing under test) runs.
+    @classmethod
+    def setUpClass(cls):
+        cls._terms_dir = Path(tempfile.mkdtemp())
+        cls.terms_path = cls._terms_dir / "terms.txt"
+        cls.terms_path.write_text("")
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls._terms_dir, ignore_errors=True)
+
+    @staticmethod
+    def _build(target_bytes: int, path: Path) -> None:
+        with open(path, "w") as f:
+            written = 0
+            i = 0
+            while written < target_bytes:
+                line = f"this is filler line number {i} — no leak-shaped content here at all\n"
+                f.write(line)
+                written += len(line)
+                i += 1
+
+    def _peak_rss_for(self, size_bytes: int) -> int:
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        self._build(size_bytes, tmp / "data.txt")
+        # Safety: a hard kill well short of the 1 GB line 020/370's own
+        # incident treats as not to cross, and a 60s ceiling so a
+        # regression that reintroduces catastrophic behaviour fails the
+        # test instead of hanging CI.
+        result = memprobe.run_and_measure(
+            [sys.executable, self.LEAKSCAN, "--root", str(tmp), str(tmp),
+             "--terms", str(self.terms_path)],
+            timeout=60, rss_limit_bytes=900 * 1024 * 1024)
+        self.assertFalse(result.timed_out, "scan did not finish in time")
+        self.assertFalse(result.killed_over_limit,
+                         "scan exceeded the 900 MB safety limit")
+        self.assertEqual(0, result.returncode,
+                         "filler content must not itself flag anything")
+        return result.peak_rss_bytes
+
+    def test_peak_memory_does_not_scale_with_input_size(self):
+        small_peak = self._peak_rss_for(self.SMALL_BYTES)
+        large_peak = self._peak_rss_for(self.LARGE_BYTES)
+        growth = large_peak - small_peak
+        self.assertLess(
+            growth, self.GROWTH_BOUND_BYTES,
+            f"peak RSS grew {growth / 1e6:.1f} MB for a "
+            f"{(self.LARGE_BYTES - self.SMALL_BYTES) / 1e6:.1f} MB larger input "
+            f"(small={small_peak / 1e6:.1f} MB, large={large_peak / 1e6:.1f} MB) "
+            "— memory is scaling with input size again (020/380).")
