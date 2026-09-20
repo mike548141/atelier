@@ -228,12 +228,21 @@ lines); undeclared, a drop reds. Three boundaries on that:
   reason. The reason is unverifiable by machine, exactly like every
   `<name>scan:allow:` marker in the house; what it buys is a name attached to
   the decision. atelier's own stamped copies narrow nothing.
+- **The safety floor never narrows.** A child's copy of the `floor` region is
+  the canonical text word for word — no compression, no declared narrowing —
+  and `narrow=` on a `region=floor` stamp reds instead of excusing anything
+  (ruled 2026-09-19, `115/030`: *"Floor copy verbatim"*). The floor is the one
+  text that must bind where nothing else of the child's is read, so a child
+  that finds a line of it wrong reports it upward (§ *Pointing up*) instead of
+  dropping it locally. The declaration above stays for any other stamped
+  region; today the floor is the only one.
 
 The inlined floor is a **narrowing-free restatement** of the apex + AUTONOMY
 floor, and the concurrency line restates `CONCURRENCY.md`'s flipped prior
 (assume concurrent; worktree by default for heavy writes), sync bookends,
-dirty-tree backstop, and record-identifier rule — each may compress but must
-not contradict its source. The **estate-resources** line points at the *other*
+dirty-tree backstop, and record-identifier rule — atelier's canonical text of
+each may compress its source but must not contradict it; a child's copy of
+that canonical text is verbatim (above). The **estate-resources** line points at the *other*
 root: atelier is the doctrine root; the estate's facts (its inventory, provider
 plans and financial constraints, credentials, shared tooling) live in a separate
 **private estate-root repo** — the knowing-root that atelier deliberately is not
@@ -797,7 +806,9 @@ decides which repetitions are defects and which are the mechanism working:
   findability failure, and a pointer is less findable than a sentence sitting
   where the reader already is. The copy is legitimate only when it is
   **stamped** — marked as a copy, naming its canonical source, and
-  narrowing-free: it may compress the parent, never contradict it. The child
+  narrowing-free: it may compress the parent, never contradict it — except
+  the safety floor, whose copies are verbatim (§ *The standard child doctrine
+  block*). The child
   doctrine block, `skills/review-brief`, and the reviews-README template all
   carry that header for this reason.
 

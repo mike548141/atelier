@@ -150,7 +150,7 @@ then `python3 tools/board.py rebuild`.
 
 - [ ] 🎯 [Mint the evidence-window rule as guard-design doctrine — Mike's](roadmap/115-guardrail-architecture-mike-commissioned/010-mint-the-evidence-window-rule-as-guard-design.md)
 - [ ] 🎯 [Confidence on a fact: stored field, or computed? Mike's call, and it](roadmap/115-guardrail-architecture-mike-commissioned/020-confidence-on-a-fact-stored-field-or-computed.md)
-- [~] 🔥 (claimed 2026-09-19-0040, wt: qr0919-floor-verbatim) [stampscan's verdicts are inverted against the doctrine it enforces](roadmap/115-guardrail-architecture-mike-commissioned/030-stampscan-s-verdicts-are-inverted-against-the.md)
+- ✅ 🔥 [stampscan's verdicts are inverted against the doctrine it enforces](roadmap/115-guardrail-architecture-mike-commissioned/030-stampscan-s-verdicts-are-inverted-against-the.md)
 - [ ] 🔎 [The withdrawn-review convention rests on a premise that now has a](roadmap/115-guardrail-architecture-mike-commissioned/040-the-withdrawn-review-premise-has-a-counterexam.md)
 - [ ] 🔎 [A real credential pasted into an exempt fixture file is invisible to](roadmap/115-guardrail-architecture-mike-commissioned/050-a-real-credential-in-an-exempt-fixture-file-is.md)
 - [ ] 🔎 [A coined paraphrase is still presented on the board as a child](roadmap/115-guardrail-architecture-mike-commissioned/060-a-coined-paraphrase-is-still-cited-on-the-boar.md)
@@ -166,6 +166,8 @@ then `python3 tools/board.py rebuild`.
 - [ ] [The floor a child inherits is a records-hygiene floor, and the…](roadmap/115-guardrail-architecture-mike-commissioned/160-the-child-floor-is-a-records-hygiene-floor-not.md)
 - [ ] 🎯 [The guard layer is consuming the programme — the proportionality](roadmap/115-guardrail-architecture-mike-commissioned/170-the-guard-layer-is-consuming-the-programme.md)
 - ✅ [Machine-check the main boundary ADR 0008's control clause names](roadmap/115-guardrail-architecture-mike-commissioned/180-machine-check-the-main-branch-boundary.md)
+- [ ] [One child declares a narrowed floor and reds from now on](roadmap/115-guardrail-architecture-mike-commissioned/200-one-child-declares-a-narrowed-floor-and-now-reds.md)
+- [ ] 🔎 [The guard test suite cannot run green on the principal's own](roadmap/115-guardrail-architecture-mike-commissioned/210-the-guard-suite-cannot-run-on-the-machine-it-guards.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 
@@ -228,6 +230,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued — the 2026-09-18 hand-up fixes to the](roadmap/160-doctrine-review-owed/310-rule-4-cold-pass-queued-the-0918-hand-up-fixes.md)
 - ⏳ [Rule-4 cold pass queued — the 2026-09-18 floor-registry code: a…](roadmap/160-doctrine-review-owed/320-rule-4-cold-pass-queued-the-0918-registry-code.md)
 - ⏳ [Rule-4 cold pass queued — the 2026-09-19 tier ruling: orchestration is](roadmap/160-doctrine-review-owed/330-rule-4-cold-pass-queued-the-tier-ruling.md)
+- ⏳ [Rule-4 cold pass queued — the floor is copied verbatim (115/030)](roadmap/160-doctrine-review-owed/340-rule-4-cold-pass-queued-the-floor-verbatim-ruling.md)
 
 ## build/ layer — open strands
 

@@ -1,4 +1,4 @@
-- [~] (claimed 2026-09-19-0040, wt: qr0919-floor-verbatim) 🔥 **`stampscan`'s verdicts are inverted against the doctrine it enforces
+- [x] 🔥 **`stampscan`'s verdicts are inverted against the doctrine it enforces
       — a live defect, found once and never fixed.** `PROPAGATION.md` states the
       rule for the exact block `stampscan` reads: the inlined floor is a
       narrowing-free restatement, and each child *may compress but must not
@@ -32,3 +32,19 @@
       passing; (3) the fleet — a child whose floor copy is shortened goes red
       once and restores the canonical text at its next pin bump, which
       `pins`/`floorfleet` should show before it surprises anyone.
+      ✅ **DONE 2026-09-20.** (1) Doctrine — `PROPAGATION.md` § *The standard
+      child doctrine block* gains a fourth boundary: the floor never narrows,
+      and `narrow=` on a `region=floor` stamp reds; the *may compress*
+      sentence now says plainly that atelier's own canonical text may
+      compress its sources while a child's copy of it is verbatim; § *One
+      statement, stamped copies* carries the same carve-out. (2) Scanner —
+      `stampscan` reds `narrow=` on the floor, identified by the (`source`,
+      `region`) **pair**, because the fixtures and a scaffold legitimately
+      reuse "floor" as a generic region name; a byte-equal copy still passes
+      and every other drift shape was already red. 6 new unit cases + 2
+      end-to-end + 2 selftest cases; no existing test pinned the old passing
+      behaviour. (3) Fleet — measured read-only across the siblings: 5 carry
+      a floor stamp, 4 already verbatim, **1 declares `narrow=` and goes red
+      at its next run**; carried as its own item (`115/200`) rather than
+      named here, since atelier is public.
+      *review: queued as a code + doctrine cold pass, `160/340`.*

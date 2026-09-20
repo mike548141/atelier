@@ -70,3 +70,35 @@ you're on the capable tier … stop and say so"*, so every run he opened
 re-injected the stop the doctrine was being fixed to remove. A doctrine sweep
 that had only touched `docs/method/` would have read clean and changed
 nothing. Rule-4 cold pass queued at `160/330`; this author may not take it.
+
+### 115/030 — the floor is copied verbatim (worker + inline doctrine)
+
+The scanner's verdicts were inverted against the rule they enforced: a child
+that *compressed* the floor went red, while one that declared `narrow=` and
+deleted lines passed clean — and the attribute that bought the pass is spelled
+with the parent's own word for *stricter*. Mike ruled the doctrine rather than
+the scanner: **"Floor copy verbatim"**, so the exact-copy comparison becomes
+simply correct for that region.
+
+Doctrine inline (a fourth boundary in `PROPAGATION.md`; the *may compress*
+sentence disambiguated — atelier's canonical text may compress its sources, a
+child's copy of that text may not), scanner by a Sonnet worker. The worker's
+own judgement call is the part worth keeping: it matched the floor on the
+(`source`, `region`) **pair**, not the region name, because the test fixtures
+and a real scaffold both reuse "floor" as a generic region name — name-only
+matching would have swept in unrelated stamps. No existing test pinned the old
+passing behaviour, which is itself evidence the passing case was never
+deliberate.
+
+**Two findings fell out of it, both filed rather than folded in:**
+- Read-only across the siblings: 5 carry a floor stamp, 4 already byte-equal,
+  **1 declares `narrow=`** and reds from now on. Its own session restores the
+  canonical text — work is delivered where it lives. `115/200`, unnamed there
+  because atelier is public.
+- `python3 -m unittest discover -s tools` is **red on this machine and green
+  in CI**: macOS ships Python 3.9.6, three floor modules use 3.10+ `X | None`
+  annotations, CI pins 3.12. The worker proved it pre-existing before carrying
+  on, which is the right move; but every session here is told to run that
+  suite and shown `FAILED (errors=3)` when the tree is fine. `115/210`.
+
+Rule-4 cold pass queued at `160/340`.
