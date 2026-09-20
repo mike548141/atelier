@@ -132,3 +132,25 @@ discriminates: pre-fix code measures 2.3× over it, fixed code 10–17× under.
 Verified before the merge by running the old and new scanners over this repo's
 `docs/` and `tools/` trees and diffing the JSON counts — identical. `020/380`
 (every other guard) now has its harness: `tools/memprobe.py`.
+
+### 320/010 part 1 — pathscan reads declared resolution roots (worker)
+
+A repo laid out `src/<pkg>/` can now declare that root in
+`.atelier-floor.json` (`roots.pathscan`, with a mandatory `why`); it is tried
+**in addition** to the three base anchors, so declaring can only drop a
+finding, never invent one, and a repo that declares nothing is unchanged.
+Class A was 34 of a child's 46 findings — three quarters of the noise, none of
+it real. `floor.py` was checked, not assumed: it reads named keys with
+`raw.get`, so the new top-level key passes through unexamined and the scanner
+stays self-contained.
+
+The part worth keeping is the **discrepancy the item flagged**: the failure
+message named three resolution anchors, the module docstring four. The worker
+resolved it the honest way round — the message was right, because the docs
+anchor has two mutually exclusive forms and no single resolution tries both —
+and corrected the docstring rather than rounding the message up to match a
+miscount. The item stays **open**: Classes B and C are unruled, and its own
+closing evidence is a re-measurement showing a lower count *and* a non-zero
+true-positive rate, which nothing has produced yet.
+
+Code cold pass queued at `160/350` for both scanners.

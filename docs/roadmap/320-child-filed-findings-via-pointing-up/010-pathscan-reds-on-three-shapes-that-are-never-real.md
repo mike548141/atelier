@@ -1,4 +1,4 @@
-- [~] (claimed 2026-09-19-0040, wt: qr0919-pathscan-roots; part 1 only) 🔥 **`pathscan` reds on three reference shapes that are never real, and
+- [~] 🔥 **`pathscan` reds on three reference shapes that are never real, and
       the package-source-root gap is three quarters of it** `[M][tool]` —
       filed from a private child 2026-08-18 via § *Pointing up*, then
       **measured twice at atelier HEAD (`6f54489`)**, because the first
@@ -108,3 +108,25 @@
       decision to *consider*, not taken: filed as `320/310` so it is weighed
       once the false-positive classes are gone, not while they still dominate
       the output. Classes B and C are unruled and stay open here.
+      ✅ **PART (1) DONE 2026-09-20 — the item stays open for B, C and the
+      re-measurement.** `pathscan` reads `roots.pathscan` from
+      `.atelier-floor.json` (`{"paths": [...], "why": "..."}`), tried **in
+      addition** to the three base anchors, so it can only drop a finding and
+      never invent one, and a repo that declares nothing is bit-for-bit
+      unchanged. `why` is mandatory; a path that escapes the repo or does not
+      exist is a config error at exit 2, the fail-loud contract an unreasoned
+      ignore glob already carries. `floor.py` never reads the key — an
+      unrecognised top-level key passes through it unexamined (verified), so
+      the scanner stays self-contained.
+      **The anchor-count discrepancy is settled the honest way round:** the
+      runtime message named THREE, the docstring FOUR, and **the message was
+      right** — the docs anchor has two mutually exclusive forms, so no single
+      resolution ever tries both. The docstring is corrected rather than the
+      message rounded up to match a miscount.
+      **Part (2)** — the three `src/<pkg>` children were given their own board
+      items by the ruling sitting; at least one is confirmed present. **Part
+      (3)** is `320/310`, still a decision.
+      **What still closes this item:** the re-measurement the item already
+      demands — a lower count *and* a non-zero true-positive rate. Classes B
+      and C remain unruled.
+      *review: queued as a code cold pass, `160/350`.*

@@ -67,7 +67,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [Pin the three softenable-set prose lists to Scanner.advisory](roadmap/020-policy-as-code-programme-five-tracks-mik/340-pin-the-softenable-lists-to-the-registry.md)
 - [ ] 🎯 [The bidi / zero-width spoofing set — strip, escape, or accept](roadmap/020-policy-as-code-programme-five-tracks-mik/350-bidi-and-zero-width-strip-decision.md)
 - ✅ 🎯 [→✅ Remove](roadmap/020-policy-as-code-programme-five-tracks-mik/360-remove-plainscan-hook-destroyed-engine-archived.md)
-- [~] 🔥 (claimed 2026-09-19-0040, wt: qr0919-secretscan-mem) [DEFECT — secretscan's memory grows with what it scans: ~9 GB over](roadmap/020-policy-as-code-programme-five-tracks-mik/370-a-whole-tree-scan-of-a-large-repo-exhausts-the-machine.md)
+- ✅ 🔥 [DEFECT — secretscan's memory grows with what it scans: ~9 GB over](roadmap/020-policy-as-code-programme-five-tracks-mik/370-a-whole-tree-scan-of-a-large-repo-exhausts-the-machine.md)
 - [~] 🔥 (claimed 2026-09-20-0620, wt: three workers; registered floor guards first) [Every guard runs in bounded memory, whatever it is pointed at](roadmap/020-policy-as-code-programme-five-tracks-mik/380-every-guard-bounded-memory-regardless-of-input-size.md)
 
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
@@ -231,6 +231,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued — the 2026-09-18 floor-registry code: a…](roadmap/160-doctrine-review-owed/320-rule-4-cold-pass-queued-the-0918-registry-code.md)
 - ⏳ [Rule-4 cold pass queued — the 2026-09-19 tier ruling: orchestration is](roadmap/160-doctrine-review-owed/330-rule-4-cold-pass-queued-the-tier-ruling.md)
 - ⏳ [Rule-4 cold pass queued — the floor is copied verbatim (115/030)](roadmap/160-doctrine-review-owed/340-rule-4-cold-pass-queued-the-floor-verbatim-ruling.md)
+- ⏳ [Rule-4 cold pass queued — the 2026-09-20 scanner code: secretscan](roadmap/160-doctrine-review-owed/350-rule-4-cold-pass-queued-the-bounded-memory-and-declared-roots-code.md)
 
 ## build/ layer — open strands
 
@@ -387,7 +388,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/320-child-filed-findings-via-pointing-up/README.md)*
 
-- [~] 🔥 (claimed 2026-09-19-0040, wt: qr0919-pathscan-roots; part 1 only) [pathscan reds on three reference shapes that are never real, and](roadmap/320-child-filed-findings-via-pointing-up/010-pathscan-reds-on-three-shapes-that-are-never-real.md)
+- [~] 🔥 [pathscan reds on three reference shapes that are never real, and](roadmap/320-child-filed-findings-via-pointing-up/010-pathscan-reds-on-three-shapes-that-are-never-real.md)
 - [ ] 🎯 [PROPOSAL for GUARDS.md — strict where we author, forgiving where](roadmap/320-child-filed-findings-via-pointing-up/020-proposal-strict-where-we-author-forgiving-where-we-read.md)
 - [ ] 🎯 [PROPOSAL — capture, do not compose: a hand-written fixture can only](roadmap/320-child-filed-findings-via-pointing-up/030-proposal-capture-do-not-compose-fixtures.md)
 - [ ] 🔎 [By-call enforcement resolves through a working tree, so "fresh"](roadmap/320-child-filed-findings-via-pointing-up/040-by-call-resolves-to-a-working-tree-so-fresh-means-whatever-is-on-disk.md)
