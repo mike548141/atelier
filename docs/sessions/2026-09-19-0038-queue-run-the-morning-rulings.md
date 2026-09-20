@@ -194,3 +194,30 @@ tidy-up: filed as `320/330`. Rule-4 pass queued at `160/360`.
 - The full suite has **one** environment failure beyond the interpreter issue:
   a `floorfleet` test shells out to `gh`, which is not on a worker shell's
   `PATH`. Same class as `115/210` and folded into it.
+
+### 320/300 — blockscan, and the blind spot it has on its first day
+
+Mike's *"Build the check"*: nothing checked whether atelier's **own** child
+doctrine block still matches the method docs it summarises, which is how a
+reworded ask rule sat in the block — and in every child at pin bump — for
+weeks after it was overturned. `blockscan` is a staged **co-change** rule: a
+map ties each block bullet to its source section(s), and touching a mapped
+section without moving that bullet in both `PROPAGATION.md` and the scaffold
+template is a finding, clearable only by a reasoned allow marker.
+
+**The worker went against its dispatch spec, and was right to.** The spec said
+register it in the shared floor registry "the way pathscan is". It refused: the
+registry is read verbatim by every child's hook and CI, and every path this
+map names exists only in atelier — so a registry line would exit 2 as a config
+error on every child from the moment it merged. It wired two advisory steps in
+atelier's own CI instead, following `stampscan`'s precedent, and said so. That
+is the hand-up working in the direction it is hardest to get: a worker
+declining an orchestrator's instruction on evidence.
+
+**Then the check was probed rather than trusted**, and the probe paid: a test
+edit inside a mapped section produced the violation correctly — but running it
+against *this session's own* doctrine commits reported **clean**, because the
+sections I rewrote are `###` subsections and the map's extraction is
+non-recursive. The check works and has a blind spot on day one; `320/340`
+carries it, with the honest note that this is `370/020`'s class — a guard
+reporting clean over exactly the change it exists to catch.

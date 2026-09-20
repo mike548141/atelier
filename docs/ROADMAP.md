@@ -423,6 +423,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Should pathscan block instead of warn?](roadmap/320-child-filed-findings-via-pointing-up/310-should-pathscan-block-instead-of-warn.md)
 - ✅ 🔎 [Hand-up: the run-open role check still sends the tier question back](roadmap/320-child-filed-findings-via-pointing-up/320-the-run-open-role-check-sends-the-tier-question-back-to-the-principal.md)
 - [ ] 🎯 [Does the new naming precedence reach doctrine's own prose?](roadmap/320-child-filed-findings-via-pointing-up/330-does-the-naming-precedence-reach-doctrines-own-prose.md)
+- [ ] 🔎 [blockscan cannot see a change to a mapped section's](roadmap/320-child-filed-findings-via-pointing-up/340-blockscans-map-cannot-see-a-subsection.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
