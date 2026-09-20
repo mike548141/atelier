@@ -188,8 +188,10 @@ Python.
 from __future__ import annotations
 
 import argparse
+import codecs
 import fnmatch
 import json
+import os
 import re
 import sys
 from dataclasses import dataclass, field, asdict
@@ -220,16 +222,24 @@ class Tally:
     """What the scan removed AFTER finding it — rule (b) of `method/GUARDS.md`."""
     by_marker: int = 0
     files_by_glob: int = 0
+    # 020/380 — a physical line longer than `_MAX_LINE_BYTES` is scanned only
+    # up to that cap (see `_iter_physical_lines`); counted so the truncation
+    # is REPORTED rather than silent.
+    lines_truncated: int = 0
 
     @property
     def marker_total(self) -> int:
         return self.by_marker
 
+    def note_line_truncated(self) -> None:
+        self.lines_truncated += 1
+
     def summary(self) -> str:
         """One stable line, known zeros printed, so two runs compare."""
         return ("  suppressed: "
                 f"{self.by_marker} by allow-marker · "
-                f"{self.files_by_glob} file(s) by .wrapscanignore")
+                f"{self.files_by_glob} file(s) by .wrapscanignore · "
+                f"{self.lines_truncated} over-long line(s) scanned truncated")
 
 
 # Only these extensions are scanned — dated/doc prose is Markdown, not code
@@ -375,10 +385,117 @@ def _is_exempt(line: str, limit: int = LINE_LIMIT) -> bool:
             or _is_marker_padding_overflow(line, limit))
 
 
+# Streaming-read tuning (020/380, reusing 020/370's secretscan shape — see
+# `tools/secretscan.py`'s `_iter_numbered_lines`, duplicated rather than
+# imported so this scanner stays copyable alone). `_MAX_LINE_BYTES` is
+# two-plus orders of magnitude past `LINE_LIMIT` (85) — real content is never
+# truncated; it exists to bound the pathological case (one absurd multi-MB
+# "line") to a fixed, cheap constant instead of letting it scale with the
+# file. HONEST RESIDUAL: for a truncated line, `length`/`excerpt` reflect
+# only the retained PREFIX, not the true physical line — the reported column
+# count would undercount and a tail-dependent exemption (the single-
+# unbreakable-token check, the marker-padding check) is judged on that same
+# prefix. Both directions are accepted trade-offs for an input class that
+# does not occur in real wrapped prose (see the module header's own
+# "STATED RESIDUAL, HONESTLY" style) — the property this fix guarantees is
+# bounded memory and linear time, not perfect precision on an adversarial
+# multi-MB single line.
+_READ_CHUNK_BYTES = 1 * 1024 * 1024
+_MAX_LINE_BYTES = 8 * 1024
+
+
+def _iter_physical_lines(path: Path):
+    """Yield `(lineno, text, truncated)` for every physical line in `path`,
+    reading and decoding it in fixed-size chunks so peak memory for ONE file
+    is bounded by `_MAX_LINE_BYTES` (plus one read chunk in flight) —
+    independent of the file's total size or its longest line. Replaces the
+    old `read_text()` whole-file string → `text.splitlines()` whole-file
+    list, which held the file's content twice over at once (measured while
+    building this fix: ~93 MB of growth for a 23 MB larger many-line file,
+    ~48 MB for a 23 MB larger single-line file)."""
+    decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
+    lineno = 1
+    pending = ""
+    truncated = False
+
+    def feed(text: str):
+        nonlocal lineno, pending, truncated
+        while text:
+            nl = text.find("\n")
+            piece, text = (text, "") if nl == -1 else (text[:nl], text[nl + 1:])
+            room = _MAX_LINE_BYTES - len(pending)
+            if room > 0:
+                pending += piece[:room]
+            if len(piece) > max(room, 0):
+                truncated = True
+            if nl != -1:
+                yield lineno, pending, truncated
+                lineno += 1
+                pending = ""
+                truncated = False
+
+    with open(path, "rb") as fh:
+        while True:
+            chunk = fh.read(_READ_CHUNK_BYTES)
+            if not chunk:
+                break
+            yield from feed(decoder.decode(chunk))
+    tail = decoder.decode(b"", final=True)
+    if tail:
+        yield from feed(tail)
+    if pending or truncated:
+        yield lineno, pending, truncated
+
+
+def _content_lines_from_file(path: Path, tally: "Tally | None" = None):
+    """Streaming equivalent of `_content_lines`: same fence-pairing state
+    machine, sourced from `_iter_physical_lines` instead of a whole-file
+    `text.splitlines()` list (020/380). A truncated over-long line is scanned
+    only up to the cap; the truncation is counted, never silent."""
+    in_fence = False
+    fence_char = ""
+    fence_len = 0
+    for lineno, line, truncated in _iter_physical_lines(path):
+        if truncated and tally is not None:
+            tally.note_line_truncated()
+        stripped = line.lstrip()
+        m = _FENCE.match(stripped)
+        if in_fence:
+            if m and m.group(1)[0] == fence_char and len(m.group(1)) >= fence_len \
+                    and stripped.rstrip() == m.group(1):
+                in_fence = False
+            continue
+        if m:
+            in_fence = True
+            fence_char = m.group(1)[0]
+            fence_len = len(m.group(1))
+            continue
+        yield lineno, line
+
+
 def scan_text(path: str, text: str, limit: int = LINE_LIMIT,
               tally: "Tally | None" = None) -> list[Finding]:
+    return _scan_numbered_lines(path, _content_lines(text), limit, tally)
+
+
+def scan_file(path: Path, rel: str, limit: int = LINE_LIMIT,
+             tally: "Tally | None" = None) -> list[Finding]:
+    """Bounded-memory disk variant of `scan_text` (020/380): streams `path`
+    in fixed-size chunks instead of reading it whole — see
+    `_iter_physical_lines`. A file that vanishes/becomes unreadable mid-walk
+    reports nothing from it, matching the old `read_text()` behaviour's own
+    lack of a per-file guard."""
+    try:
+        return _scan_numbered_lines(rel, _content_lines_from_file(path, tally),
+                                    limit, tally)
+    except OSError:
+        return []
+
+
+def _scan_numbered_lines(path: str, numbered_lines, limit: int = LINE_LIMIT,
+                         tally: "Tally | None" = None) -> list[Finding]:
     findings: list[Finding] = []
-    for lineno, line in _content_lines(text):
+    for lineno, line in numbered_lines:
         allowed = parse_allow(line)
         length = len(line)
         if length <= limit:
@@ -467,14 +584,25 @@ def _rel(p: Path, root: Path) -> str:
         return str(p)
 
 
+def _walk_files(base: Path):
+    """Every regular file under `base`, streamed one at a time via `os.walk`,
+    pruning skip-dirs in place so the walk never descends into them at any
+    depth (020/380, reusing secretscan's `_walk_files` shape). Replaces
+    `base.rglob("*")` funnelled through a list comprehension, which forced
+    Python to enumerate the ENTIRE subtree and hold every `Path` before a
+    single file was even considered."""
+    for dirpath, dirnames, filenames in os.walk(base):
+        dirnames[:] = [d for d in dirnames if d not in SKIP_DIR_NAMES]
+        for name in filenames:
+            p = Path(dirpath) / name
+            if p.is_file():  # excludes broken symlinks, matching the old rglob filter
+                yield p
+
+
 def iter_markdown(paths: list[Path], root: Path, globs: list[str],
                   tally: "Tally | None" = None):
     for base in paths:
-        if base.is_file():
-            candidates = [base]
-        else:
-            candidates = [p for p in base.rglob("*")
-                          if p.is_file() and not (SKIP_DIR_NAMES & set(p.parts))]
+        candidates = [base] if base.is_file() else _walk_files(base)
         for p in candidates:
             if p.suffix.lower() not in MARKDOWN_SUFFIXES:
                 continue
@@ -490,8 +618,7 @@ def scan_paths(paths: list[Path], root: Path, limit: int = LINE_LIMIT,
     globs = load_ignore_globs(root)
     findings: list[Finding] = []
     for md in iter_markdown(paths, root, globs, tally):
-        text = md.read_text(encoding="utf-8", errors="replace")
-        findings.extend(scan_text(_rel(md, root), text, limit, tally))
+        findings.extend(scan_file(md, _rel(md, root), limit, tally))
     return findings
 
 

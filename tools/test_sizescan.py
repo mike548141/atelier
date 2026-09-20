@@ -14,12 +14,17 @@ current-truth is advisory, never a build failure — cost is size × read-freque
 and there is nothing to relocate in an all-open roadmap."""
 
 import io
+import shutil
+import sys
 import tempfile
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
 
 import sizescan
+import memprobe
+
+TOOLS_DIR = Path(__file__).resolve().parent
 
 R = sizescan.SIZE_REFERENCE["ROADMAP.md"]
 
@@ -504,3 +509,86 @@ class Allowances(unittest.TestCase):
 
     def test_marker_with_reason_allows(self):
         self.assertEqual("", sizescan.parse_allow("# sizescan:allow: an index"))
+
+
+class BoundedMemory(unittest.TestCase):
+    """020/380 — applying 020/370's bounded-memory fix to sizescan. Mike's
+    ruling, verbatim: "it should not matter how much it scans it should no
+    have this affect". Measured BEFORE this fix (see the board item's own
+    before/after table): a growth-store file (`ROADMAP-DONE.md`, deliberately
+    unbounded by design — it is where harvested content is meant to
+    accumulate) drove ~110 MB of peak-RSS growth for a 23 MB larger input,
+    via the old `p.read_text()` + repeated `text.splitlines()` passes in
+    `count_lines`/`cold_item_count`/`live_item_count` — the same
+    whole-file-held-more-than-once shape secretscan's `020/370` fixed.
+
+    Runs the real CLI as a SUBPROCESS via `memprobe.run_and_measure` and
+    reads peak RSS back from the kernel — `tracemalloc` only sees the
+    Python heap, not the whole OS process (see `tools/memprobe.py`).
+
+    Content is a big archive-store file with no harvest-integrity defects
+    (`_scan_file_metrics` finds nothing to flag either way), so the two runs
+    differ only in how many bytes there are to read."""
+
+    SIZESCAN = str(TOOLS_DIR / "sizescan.py")
+    SMALL_BYTES = 1 * 1024 * 1024
+    LARGE_BYTES = 8 * 1024 * 1024
+    # Grounded in the FIX's design (`ground-numeric-limits`), not fitted to a
+    # measurement, and deliberately a LITERAL here rather than a reference to
+    # `sizescan._READ_CHUNK_BYTES`/`_MAX_LINE_BYTES` — this test must still
+    # MEASURE a real blow-up (not just fail an AttributeError at import) if
+    # ever run against the pre-fix module, which carries neither constant.
+    # The only per-file state the fix's `_scan_file_metrics` ever holds is
+    # one read chunk in flight (1 MiB) plus one physical line capped at 8 KiB
+    # (see `sizescan._iter_physical_lines`). Both runs produce a clean
+    # (unflagged) file, so growth between them should be close to zero; 8x
+    # that fixed per-file state leaves generous headroom for interpreter/
+    # allocator noise while staying far below what the pre-fix whole-file-read
+    # code showed for this size delta (measured, while building this fix, at
+    # ~110 MB for a 23 MB delta — a fact recorded for context, not what set
+    # this number).
+    GROWTH_BOUND_BYTES = 8 * (1 * 1024 * 1024 + 8 * 1024)
+
+    @staticmethod
+    def _build(target_bytes: int, path: Path) -> None:
+        with open(path, "w") as f:
+            written = 0
+            i = 0
+            while written < target_bytes:
+                line = f"- [x] harvested item number {i} — nothing live here\n"
+                f.write(line)
+                written += len(line)
+                i += 1
+
+    def _peak_rss_for(self, size_bytes: int) -> int:
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        docs = tmp / "docs"
+        docs.mkdir()
+        self._build(size_bytes, docs / "ROADMAP-DONE.md")
+        # Safety (020/370's own incident: a probe thrashed the principal's
+        # machine doing exactly this kind of measurement): hard-kill well
+        # short of the 1 GB line, and a ceiling so a regression that
+        # reintroduces catastrophic behaviour fails the test instead of
+        # hanging CI.
+        result = memprobe.run_and_measure(
+            [sys.executable, self.SIZESCAN, "--root", str(tmp), str(tmp)],
+            timeout=60, rss_limit_bytes=900 * 1024 * 1024)
+        self.assertFalse(result.timed_out, "scan did not finish in time")
+        self.assertFalse(result.killed_over_limit,
+                         "scan exceeded the 900 MB safety limit")
+        self.assertEqual(0, result.returncode,
+                         "an all-[x], no-live-marker archive store must not gate")
+        return result.peak_rss_bytes
+
+    def test_peak_memory_does_not_scale_with_archive_store_size(self):
+        small_peak = self._peak_rss_for(self.SMALL_BYTES)
+        large_peak = self._peak_rss_for(self.LARGE_BYTES)
+        growth = large_peak - small_peak
+        self.assertLess(
+            growth, self.GROWTH_BOUND_BYTES,
+            f"peak RSS grew {growth / 1e6:.1f} MB for a "
+            f"{(self.LARGE_BYTES - self.SMALL_BYTES) / 1e6:.1f} MB larger "
+            f"archive store (small={small_peak / 1e6:.1f} MB, "
+            f"large={large_peak / 1e6:.1f} MB) — memory is scaling with "
+            "input size again (020/380).")
