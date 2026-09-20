@@ -92,6 +92,8 @@ THE CHECK, per stamped block found in a scanned file:
          the deliberate, load-bearing reading of the rule's word
          "legitimately" — see STATED RESIDUAL, this is a genuinely new
          judgement call this scanner makes, flagged for reviewer scrutiny.
+         EXCEPT for the one canonical FLOOR region (see FLOOR IS VERBATIM,
+         NEVER NARROWED below): there, `narrow=` never earns a pass.
        - anything else (an added line, a reordered line, a reworded line —
          any deviation that ISN'T obtainable by pure deletion) -> DRIFT, RED,
          REGARDLESS of a `narrow=` declaration — declaring narrow intent
@@ -106,6 +108,24 @@ THE CHECK, per stamped block found in a scanned file:
          act is recorded rather than inferred from a subsequence identity).
          A genuine PARTIAL narrow — one or more canonical lines kept, in
          order — still passes exactly as before.
+
+FLOOR IS VERBATIM, NEVER NARROWED (board 115/030, principal's ruling
+2026-09-19: "Floor copy verbatim"): the one canonical block this applies to —
+`source=docs/method/PROPAGATION.md region=floor`, the inlined atelier safety
+floor — carries no legitimate narrowing at all, by identity rather than by
+name. It is identified by the (`source`, `region`) PAIR, not by the region
+name "floor" alone: this test suite (and a real child scaffold) is free to
+name an unrelated region "floor" too, and doing so must not accidentally
+trip the floor-specific rule. Only the one live pairing counts.
+
+For that pairing, a `narrow=` declaration on an otherwise-genuine ordered
+subset is DRIFT, RED, exactly like an undeclared silent drop — the
+declaration buys nothing here, because the doctrine this scanner enforces no
+longer recognises a legitimate narrowing of the floor (PROPAGATION.md drops
+"may compress" for this region specifically). A byte-equal copy still passes
+CLEAN; every other drift shape (empty, reworded, reordered, added) was
+already RED before this change and stays RED. Non-floor regions are
+completely unaffected — their `narrow=` keeps today's behaviour exactly.
 
 FENCED-PRESENTATION STRIPPING: a canonical region is sometimes shown inside a
 fenced code block in its own doc (PROPAGATION.md presents the floor block
@@ -256,6 +276,16 @@ ALLOW_MARKER_RX = re.compile(r"\b" + re.escape(ALLOW_MARKER) + r":\s*[\w\"\'“�
 # sibling scanner's MARKDOWN_SUFFIXES.
 MARKDOWN_SUFFIXES = {".md", ".markdown"}
 
+# The one canonical floor block (board 115/030, ruled 2026-09-19: "Floor copy
+# verbatim") — identified by the (source, region) PAIR, never the region name
+# alone. "floor" is also this scanner's own generic example region name
+# (see test fixtures and the module selftest), so name-only matching would
+# misfire on unrelated test/example stamps that happen to reuse the word.
+# Only a stamp pointing at THIS source AND naming THIS region is the real
+# inlined atelier safety floor.
+FLOOR_SOURCE = "docs/method/PROPAGATION.md"
+FLOOR_REGION = "floor"
+
 # Paths never worth walking. Hardcode-skip ONLY names that are never
 # human-authored prose — VCS, dependency, and tool-cache dirs (matches the
 # sibling scanners).
@@ -317,6 +347,15 @@ def _region_markers(name: str) -> tuple["re.Pattern[str]", "re.Pattern[str]"]:
     esc = re.escape(name)
     return (re.compile(rf"^<!--\s*{esc}:begin\s*-->$"),
             re.compile(rf"^<!--\s*{esc}:end\s*-->$"))
+
+
+def _is_floor_block(block: "StampBlock") -> bool:
+    """True only for a stamp naming the one canonical (source, region) pair
+    that is the inlined atelier safety floor — see FLOOR IS VERBATIM, NEVER
+    NARROWED in the module header. Deliberately a pair match, not a region-
+    name match: a generic region also named "floor" elsewhere (this file's
+    own test fixtures included) must not be swept in."""
+    return block.source == FLOOR_SOURCE and block.region == FLOOR_REGION
 
 
 @dataclass
@@ -583,6 +622,21 @@ def evaluate_block(block: StampBlock, canonical: list[str]) -> Finding:
             "longer a stamped copy.")
 
     if _is_ordered_subsequence(child, parent):
+        if block.narrow and _is_floor_block(block):
+            # Board 115/030, ruled 2026-09-19: the floor is copied verbatim.
+            # PROPAGATION.md no longer grants the floor a legitimate
+            # narrowing, so a narrow= declaration here buys nothing — this
+            # is mechanically the same ordered-subset shape as a silent
+            # drop, and now carries the same verdict: RED, always.
+            return Finding(
+                block.path, block.line, "drift", block.source, block.region,
+                f"the floor is copied verbatim — no compression, no "
+                f"declared narrowing. narrow={block.narrow!r} declares a "
+                f"narrowing on the atelier safety floor "
+                f"({FLOOR_SOURCE} region={FLOOR_REGION}), but the floor has "
+                f"no legitimate subset: restore the canonical text word for "
+                f"word ({len(child)} of {len(parent)} canonical lines "
+                f"kept); a `narrow=` declaration does not excuse it here.")
         if block.narrow:
             return Finding(
                 block.path, block.line, "narrow", block.source, block.region,
@@ -970,6 +1024,40 @@ def _selftest() -> int:
     ok_empty = [f.kind for f in findings_empty] == ["drift"]
     if not ok_empty:
         print(f"FAIL: empty-narrow case got {[f.kind for f in findings_empty]}")
+        ok = False
+
+    # THE FLOOR ITSELF (board 115/030, ruled 2026-09-19): the real
+    # (source, region) pair, not the generic "floor" name the fixtures above
+    # reuse — a narrow= declaration on it reds even though it is a genuine
+    # ordered subset, exactly like a silent drop.
+    (tmp / "docs" / "method").mkdir(parents=True)
+    (tmp / "docs" / "method" / "PROPAGATION.md").write_text(
+        "<!-- floor:begin -->\n" + "\n".join(canonical_lines) + "\n"
+        "<!-- floor:end -->\n")
+    (tmp / "docs" / "child_floor_narrow.md").write_text(
+        "<!-- stamp:begin source=docs/method/PROPAGATION.md region=floor "
+        "narrow=shortened-for-readability -->\n"
+        "- item one\n- item three\n"
+        "<!-- stamp:end -->\n"
+    )
+    findings_floor_narrow = scan_paths(
+        [tmp / "docs" / "child_floor_narrow.md"], tmp)
+    ok_floor_narrow = [f.kind for f in findings_floor_narrow] == ["drift"]
+    if not ok_floor_narrow:
+        print(f"FAIL: floor-narrow case got "
+              f"{[f.kind for f in findings_floor_narrow]}")
+        ok = False
+    (tmp / "docs" / "child_floor_verbatim.md").write_text(
+        "<!-- stamp:begin source=docs/method/PROPAGATION.md region=floor -->\n"
+        + "\n".join(canonical_lines) + "\n"
+        "<!-- stamp:end -->\n"
+    )
+    findings_floor_verbatim = scan_paths(
+        [tmp / "docs" / "child_floor_verbatim.md"], tmp)
+    ok_floor_verbatim = [f.kind for f in findings_floor_verbatim] == ["identical"]
+    if not ok_floor_verbatim:
+        print(f"FAIL: floor-verbatim case got "
+              f"{[f.kind for f in findings_floor_verbatim]}")
         ok = False
 
     # Missing canonical source -> fail-safe config error.

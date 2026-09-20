@@ -334,6 +334,75 @@ class EvaluateBlock(unittest.TestCase):
         self.assertEqual("skipped", f.kind)
 
 
+class FloorIsVerbatim(unittest.TestCase):
+    """Board 115/030, ruled 2026-09-19: "Floor copy verbatim." The one
+    canonical (source, region) pair — docs/method/PROPAGATION.md's `floor`
+    region — carries no legitimate narrowing at all: `narrow=` on a genuine
+    ordered subset reds there exactly like an undeclared silent drop.
+    Non-floor regions (including ones merely NAMED "floor", as the rest of
+    this test suite's fixtures are) are unaffected."""
+
+    def _floor_block(self, payload, narrow=None):
+        return ss.StampBlock(path="t.md", line=1, source=ss.FLOOR_SOURCE,
+                              region=ss.FLOOR_REGION, narrow=narrow,
+                              payload=payload, allow=False)
+
+    def test_floor_narrow_declared_subset_is_drift(self):
+        canonical = ["a", "b", "c"]
+        f = ss.evaluate_block(
+            self._floor_block(["a", "c"], narrow="dropping-b-deliberately"),
+            canonical)
+        self.assertEqual("drift", f.kind)
+        self.assertIn("narrow=", f.detail)
+        self.assertIn("verbatim", f.detail)
+
+    def test_floor_verbatim_copy_is_identical(self):
+        canonical = ["a", "b", "c"]
+        f = ss.evaluate_block(self._floor_block(["a", "b", "c"]), canonical)
+        self.assertEqual("identical", f.kind)
+
+    def test_floor_compressed_without_narrow_is_drift(self):
+        """A silent drop on the floor was already red before this change —
+        confirm it still is."""
+        canonical = ["a", "b", "c"]
+        f = ss.evaluate_block(self._floor_block(["a", "c"]), canonical)
+        self.assertEqual("drift", f.kind)
+
+    def test_floor_reworded_line_is_drift_regardless_of_narrow(self):
+        """A genuine reword/compression (not an ordered subsequence) was
+        already red before this change — confirm it still is, narrow= or
+        not."""
+        canonical = ["a", "b", "c"]
+        f = ss.evaluate_block(
+            self._floor_block(["a", "b, compressed", "c"], narrow="x"),
+            canonical)
+        self.assertEqual("drift", f.kind)
+
+    def test_floor_identified_by_pair_not_region_name_alone(self):
+        """A block merely NAMED region="floor" but pointing at an unrelated
+        source is not the atelier safety floor — today's narrow= pass
+        behaviour is unaffected. (This is what every other fixture in this
+        file already relies on: they default to region="floor" as a generic
+        example name, unconnected to PROPAGATION.md.)"""
+        canonical = ["a", "b", "c"]
+        block = ss.StampBlock(path="t.md", line=1, source="docs/PARENT.md",
+                              region="floor", narrow="dropping-b-deliberately",
+                              payload=["a", "c"], allow=False)
+        self.assertFalse(ss._is_floor_block(block))
+        f = ss.evaluate_block(block, canonical)
+        self.assertEqual("narrow", f.kind)
+
+    def test_floor_identified_by_pair_not_source_alone(self):
+        """Conversely, the right source with a DIFFERENT region name is not
+        the floor either — the pair, not either half alone, is the key."""
+        block = ss.StampBlock(path="t.md", line=1, source=ss.FLOOR_SOURCE,
+                              region="other-region", narrow="x",
+                              payload=["a", "c"], allow=False)
+        self.assertFalse(ss._is_floor_block(block))
+        f = ss.evaluate_block(block, ["a", "b", "c"])
+        self.assertEqual("narrow", f.kind)
+
+
 class ScanPaths(unittest.TestCase):
     def setUp(self):
         import shutil
@@ -419,6 +488,24 @@ class ScanPaths(unittest.TestCase):
         findings = ss.scan_paths([self.tmp / "docs"], self.tmp)
         kinds = sorted(f.kind for f in findings)
         self.assertEqual(["drift", "identical"], kinds)
+
+    def test_real_floor_pair_with_narrow_reds_end_to_end(self):
+        """The full scan_paths path (source resolution + region extraction),
+        not just evaluate_block in isolation, against the real
+        docs/method/PROPAGATION.md path stampscan resolves in production."""
+        _write(self.tmp, "docs/method/PROPAGATION.md", _parent_text(["a", "b", "c"]))
+        _write(self.tmp, "docs/child.md",
+               _child_text(["a", "c"], source="docs/method/PROPAGATION.md",
+                           narrow="dropping-b"))
+        findings = ss.scan_paths([self.tmp / "docs" / "child.md"], self.tmp)
+        self.assertEqual(["drift"], [f.kind for f in findings])
+
+    def test_real_floor_pair_verbatim_is_clean_end_to_end(self):
+        _write(self.tmp, "docs/method/PROPAGATION.md", _parent_text(["a", "b", "c"]))
+        _write(self.tmp, "docs/child.md",
+               _child_text(["a", "b", "c"], source="docs/method/PROPAGATION.md"))
+        findings = ss.scan_paths([self.tmp / "docs" / "child.md"], self.tmp)
+        self.assertEqual(["identical"], [f.kind for f in findings])
 
 
 class MainCli(unittest.TestCase):
