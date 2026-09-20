@@ -268,3 +268,30 @@ on the same runner **by luck from the same wrong assumption**, and now touches
 too: a harness every guard's memory test is about to build on does not get to
 be right by accident. This is the local-green/CI-red class the estate already
 knows — the all-clear is the pushed floor run, never the local one.
+
+**The second red was the interesting one.** Touching the pages fixed the
+first failure and the floor stayed red, now with three failures — including
+the case written to catch a *contaminated* reading. Cause: a forked child
+inherits its parent's page accounting until it `exec`s, and on Linux
+`subprocess` forks (`close_fds=True` rules out `posix_spawn`), so the harness
+was reading **the test process's own footprint** back as the child's —
+`python3 -c pass` measured **187 MB** on the runner. macOS spawns instead,
+which is why every local run was clean.
+
+The damage is worse than a constant offset: a test that writes a large
+synthetic input grows its own interpreter between the small and the large
+measurement, so the inherited baseline **grows with the input size** — which
+is indistinguishable from the scaling every `020/380` test exists to detect.
+`test_datescan` failed exactly that way on CI while passing here. So the
+harness now measures one level down, in a fresh minimal interpreter whose
+footprint is small and constant whatever the caller holds, with two new cases
+pinning it (200 MB of ballast in the caller must not move the reading; the
+isolated and direct paths must agree on a real allocation).
+
+🔑 Worth stating plainly, because it is the lesson rather than the bug: **nine
+guards had just been declared bounded on the strength of numbers this harness
+produced.** Their macOS measurements were sound — macOS never had the
+contamination — but the estate came within one CI run of carrying a set of
+"measured" claims whose instrument was wrong on the platform its own CI uses.
+The rule that saved it is the one already written down: the all-clear is the
+**pushed** floor run, never the local one.
