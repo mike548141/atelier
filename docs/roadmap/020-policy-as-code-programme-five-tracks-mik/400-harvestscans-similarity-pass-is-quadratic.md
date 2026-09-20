@@ -1,4 +1,4 @@
-- [ ] 🔥 **`harvestscan`'s vanished-item check is quadratic in the number of
+- [~] (claimed 2026-09-20-1053, wt: at-harvestscan-linear) 🔥 **`harvestscan`'s vanished-item check is quadratic in the number of
       items, and it is already past useful at estate scale** — split out of
       `020/380` 2026-09-20, where a worker measured it while converting five
       guards and correctly refused to patch around it.

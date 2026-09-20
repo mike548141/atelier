@@ -1,4 +1,4 @@
-- [ ] **E9 — every scanner walks gitignored nested worktrees, and counts the
+- [~] (claimed 2026-09-20-1053, wt: at-e9-worktree-skip) **E9 — every scanner walks gitignored nested worktrees, and counts the
       repo twice.** Reported by `faves` 2026-08-15 under Track F
       (queue-never-deliver); **no fix, test or marker was written here**.
       A repo whose sessions take worktrees *inside* the tree —

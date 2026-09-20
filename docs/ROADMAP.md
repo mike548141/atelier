@@ -11,7 +11,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/010-board-store-migration-per-item-files-mik/README.md)*
 
 - ✅ [Migrate the board to per-item files + generate the index](roadmap/010-board-store-migration-per-item-files-mik/010-migrate-the-board-to-per-item-files-generate-t.md)
-- [ ] [board --check reads the worktree, not the staged plane.](roadmap/010-board-store-migration-per-item-files-mik/020-board-check-staged-plane-seam.md)
+- [~] (claimed 2026-09-20-1053, wt: at-board-staged-plane) [board --check reads the worktree, not the staged plane.](roadmap/010-board-store-migration-per-item-files-mik/020-board-check-staged-plane-seam.md)
 - [ ] 🎯 [Fleet rollout of the split board](roadmap/010-board-store-migration-per-item-files-mik/030-fleet-rollout-of-the-split-board.md)
 - ✅ [Sweep monolith-era board wording across the doctrine surface.](roadmap/010-board-store-migration-per-item-files-mik/040-monolith-era-wording-sweep.md)
 - [ ] 🛑 [The board-store cold pass RAN 2026-08-15 and the cycle stays OPEN](roadmap/010-board-store-migration-per-item-files-mik/050-rule-4-cold-pass-queued.md)
@@ -45,7 +45,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [D4 — the repo-local seam has no adopters.](roadmap/020-policy-as-code-programme-five-tracks-mik/130-d4-the-repo-local-seam-has-no-adopters.md)
 - [ ] 🎯 [E6 — the floor's posture, and the dial that makes it reachable.](roadmap/020-policy-as-code-programme-five-tracks-mik/140-e6-the-floor-s-posture-and-the-dial-that-makes.md)
 - [ ] [E7 residue — G3 (binary media): FUNDED as its own item, soon](roadmap/020-policy-as-code-programme-five-tracks-mik/150-e7-residue-g3-binary-media-funded-as-its-own-i.md)
-- [ ] [E9 — every scanner walks gitignored nested worktrees, and counts the](roadmap/020-policy-as-code-programme-five-tracks-mik/160-e9-every-scanner-walks-gitignored-nested-workt.md)
+- [~] (claimed 2026-09-20-1053, wt: at-e9-worktree-skip) [E9 — every scanner walks gitignored nested worktrees, and counts the](roadmap/020-policy-as-code-programme-five-tracks-mik/160-e9-every-scanner-walks-gitignored-nested-workt.md)
 - [ ] 🎯 [F1 — rebuild the block-vs-advise model from base. REBUILT](roadmap/020-policy-as-code-programme-five-tracks-mik/170-f1-rebuild-the-block-vs-advise-model-from-base.md)
 - [ ] [The mechanisable form of it](roadmap/020-policy-as-code-programme-five-tracks-mik/180-the-mechanisable-form-of-it.md)
 - [ ] [The measurement that supports it, and its limits.](roadmap/020-policy-as-code-programme-five-tracks-mik/190-the-measurement-that-supports-it-and-its-limit.md)
@@ -70,7 +70,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔥 [DEFECT — secretscan's memory grows with what it scans: ~9 GB over](roadmap/020-policy-as-code-programme-five-tracks-mik/370-a-whole-tree-scan-of-a-large-repo-exhausts-the-machine.md)
 - ✅ 🔥 [Every guard runs in bounded memory, whatever it is pointed at](roadmap/020-policy-as-code-programme-five-tracks-mik/380-every-guard-bounded-memory-regardless-of-input-size.md)
 - [ ] 🔎 [Parallel workers in one run share a scratchpad path, and one](roadmap/020-policy-as-code-programme-five-tracks-mik/390-parallel-workers-share-one-scratchpad-path.md)
-- [ ] 🔥 [harvestscan's vanished-item check is quadratic in the number of](roadmap/020-policy-as-code-programme-five-tracks-mik/400-harvestscans-similarity-pass-is-quadratic.md)
+- [~] 🔥 (claimed 2026-09-20-1053, wt: at-harvestscan-linear) [harvestscan's vanished-item check is quadratic in the number of](roadmap/020-policy-as-code-programme-five-tracks-mik/400-harvestscans-similarity-pass-is-quadratic.md)
 
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
 

@@ -1,4 +1,4 @@
-- [ ] **`board --check` reads the worktree, not the staged plane.** The check
+- [~] (claimed 2026-09-20-1053, wt: at-board-staged-plane) **`board --check` reads the worktree, not the staged plane.** The check
       compares worktree item files against the worktree index, so a commit
       staging an item edit without the rebuilt index is caught only when the
       two agree on disk — the same seam harvestscan closed as HV4 (its hook
