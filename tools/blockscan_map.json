@@ -1,0 +1,61 @@
+{
+  "_comment": "Hand-maintained. Each bullet of PROPAGATION.md's standard child doctrine block (the <!-- floor:begin -->/<!-- floor:end --> region) that summarises a NAMED source-doc section, keyed by a short stable id. `anchor` is the bullet's own bold lead-in text, copied verbatim from the block — it is how this map finds 'the same bullet' in both PROPAGATION.md's region and docs/build/templates/CLAUDE.md's stamped copy without needing a hidden id in either file (they are meant to read as plain doctrine prose, not machine markup). `sources` lists the doc section(s) that bullet claims to summarise, identified by the exact Markdown heading line it is filed under (level included, so a heading demoted or promoted a level still resolves by text but the map's own heading string documents which level was intended). Not every block bullet is listed: three carry no doc-section citation at all (source-and-drift, estate-resources, this-repos-visibility) — see tools/blockscan.py's module docstring for why those are out of this check's scope, not merely unmapped by oversight.",
+  "region": {
+    "path": "docs/method/PROPAGATION.md",
+    "begin_marker": "floor:begin",
+    "end_marker": "floor:end"
+  },
+  "template": {
+    "path": "docs/build/templates/CLAUDE.md",
+    "begin_marker": "stamp:begin",
+    "end_marker": "stamp:end"
+  },
+  "bullets": {
+    "apex": {
+      "anchor": "**The apex (never traded, any model):**",
+      "sources": [
+        {"path": "docs/method/00-APEX.md", "heading": "## Honesty is absolute"},
+        {"path": "docs/method/00-APEX.md", "heading": "## Adaptation is continuous"}
+      ]
+    },
+    "stop-and-confirm": {
+      "anchor": "**Always stop and confirm (the floor):**",
+      "sources": [
+        {"path": "docs/method/00-APEX.md",
+         "heading": "### The principal's authority is absolute; his rulings are conditioned on being informed"}
+      ]
+    },
+    "asking": {
+      "anchor": "**Asking — any question, decision or ruling:**",
+      "sources": [
+        {"path": "docs/method/00-APEX.md",
+         "heading": "### The principal's authority is absolute; his rulings are conditioned on being informed"},
+        {"path": "docs/method/COMMUNICATION.md",
+         "heading": "## Asking for a ruling — the ask goes in the device, the account beside it"}
+      ]
+    },
+    "concurrency": {
+      "anchor": "**Concurrency:**",
+      "sources": [
+        {"path": "docs/method/CONCURRENCY.md", "heading": "## The trigger — assume you are not the only session"},
+        {"path": "docs/method/CONCURRENCY.md", "heading": "## Integration hygiene"},
+        {"path": "docs/method/CONCURRENCY.md", "heading": "## The channel — the coordination git cannot carry"}
+      ]
+    },
+    "session-rhythm": {
+      "anchor": "**Session rhythm (points up for the full rule):**",
+      "sources": [
+        {"path": "docs/method/CONCURRENCY.md", "heading": "## Claiming work — make selection collide like naming does"},
+        {"path": "docs/method/CONCURRENCY.md", "heading": "## Stay in your lane"},
+        {"path": "docs/method/ECONOMICS.md", "heading": "## Session hygiene (both models)"},
+        {"path": "docs/method/RECORD.md", "heading": "## The session log — an append-only index with detail on demand"}
+      ]
+    },
+    "doctrine-problems": {
+      "anchor": "**Doctrine problems point up (every repo, atelier included):**",
+      "sources": [
+        {"path": "docs/method/PROPAGATION.md", "heading": "## Pointing up — reporting a doctrine problem to the house"}
+      ]
+    }
+  }
+}

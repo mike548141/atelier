@@ -190,6 +190,36 @@ jobs:
       - name: stampscan (inlined-floor drift — advisory, atelier-only)
         run: python3 tools/stampscan.py --warn --root . .
 
+      # blockscan (board 320/300, ruled 2026-09-19 "Build the check"): a
+      # ruling that changes a mapped method-doc section (tools/
+      # blockscan_map.json) must also move the corresponding bullet in BOTH
+      # PROPAGATION.md's floor region and the scaffold template — or carry a
+      # scoped allow marker. FIRST-OF-KIND, NOT YET REVIEWED, WIRED ADVISORY,
+      # HERE AND NOWHERE ELSE — deliberately NOT in tools/floor.py's registry:
+      # every path this map names (00-APEX.md, COMMUNICATION.md,
+      # CONCURRENCY.md, ECONOMICS.md, RECORD.md, PROPAGATION.md, and the
+      # scaffold template) exists only in atelier, so a registry line would
+      # exit 2 — a fail-safe config error, never downgraded by --warn — on
+      # every child's hook and CI from the moment it merged (the same ST3
+      # class stampscan's own comment above states). Two runs, not one:
+      # --check alone verifies the map's own integrity (every mapped heading
+      # and bullet anchor still resolves) but does NO co-change check at
+      # all — that needs two states to compare, and a CI checkout's index is
+      # identical to HEAD, so reading it as "staged" would be vacuous.
+      # --against HEAD^ asks the co-change question between the commit that
+      # just landed and its parent (harvestscan's own convention for the
+      # same plane gap). Neither run reaches this repo's own pre-commit
+      # hook: `.githooks/pre-commit` deliberately names no scanner (ADR
+      # 0008) and calls only the shared registry, so there is no bespoke-step
+      # seam at the hook level the way this file offers at the CI level — see
+      # tools/blockscan.py's module docstring, WIRING RESIDUAL, for the
+      # one-push-lag this leaves and the two ways to close it, neither of
+      # which this change makes unilaterally.
+      - name: blockscan --check (map integrity — advisory, atelier-only)
+        run: python3 tools/blockscan.py --check --warn --root .
+      - name: blockscan --against HEAD^ (co-change — advisory, atelier-only)
+        run: python3 tools/blockscan.py --against HEAD^ --warn --root .
+
       # --- commit-signature verification (SIGNING.md, ADR 0007) --------------
       # atelier is the trust root, so it verifies against its OWN allowed_signers
       # at the tested commit (no pin resolution — children resolve at their pin,
