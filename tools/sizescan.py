@@ -144,11 +144,13 @@ import argparse
 import codecs
 import fnmatch
 import json
-import os
 import re
 import sys
 from dataclasses import dataclass, asdict
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import filewalk  # noqa: E402
 
 # A file whose HEADER carries this marker is exempt from EVERYTHING — the size
 # advisory and the cold-content gate (e.g. a repo that deliberately keeps a flat
@@ -461,42 +463,26 @@ def _dir_parts(p: Path, walk_base: Path) -> set[str]:
     return set(rel_parts[:-1])   # intermediate dirs only
 
 
-# 020/380 — applying 020/370's bounded-memory fix to this guard. The old
+# 020/380 applied 020/370's bounded-memory fix to this guard: the old
 # `iter_candidates` walked with `base.rglob("*")` funnelled through a list
-# comprehension: a generator that LOOKS lazy, but wrapping it in `[...]`
+# comprehension — a generator that LOOKS lazy, but wrapping it in `[...]`
 # forces Python to enumerate the ENTIRE subtree and hold every `Path` before
-# a single file is even considered — the same shape secretscan's `iter_files`
-# carried before its own fix (`tools/secretscan.py`'s `_walk_files`
-# docstring). `_walk_files` below is that same fix, duplicated rather than
-# imported so this scanner stays copyable alone (secretscan's own stated
-# design: "the tools have different purposes and are each self-contained").
+# a single file is even considered, the same shape secretscan's `iter_files`
+# carried before its own fix. `_walk_files` below WAS that same fix
+# duplicated rather than imported; it is now single-sourced in
+# `tools/filewalk.py` (115/080 part 1) — see that module's docstring.
 def _walk_files(base: Path):
-    """Every regular file under `base`, streamed one at a time via
-    `os.walk`, pruning NON-content directories (`.git`, `node_modules`, …)
-    in place so the walk never DESCENDS into them at any depth. Growth-store
-    directories (`sessions/`, `_archive/`, …) are NOT pruned here — an
-    archive store can legitimately live inside one and must still be
-    integrity-checked (HI-F1) — that filter stays a per-file check in
-    `iter_candidates`, same as before this fix."""
-    for dirpath, dirnames, filenames in os.walk(base):
-        # 020/160 (E9): a git worktree LINKED into this tree has a `.git`
-        # FILE (`gitdir: <path>`), not a directory, so NON_CONTENT_DIR_NAMES'
-        # name match never fires and the walk descends into a full second
-        # checkout of the same repo, double-reporting every file (measured
-        # in `faves` 2026-08-15). Checked by file-ness alone, not by
-        # parsing the `gitdir:` line: a bare file named exactly `.git` is
-        # never anything else (only a worktree or submodule link creates
-        # one), and pruning here is the same name/type check
-        # NON_CONTENT_DIR_NAMES already makes, not a content decision.
-        dirnames[:] = [
-            d for d in dirnames
-            if d not in NON_CONTENT_DIR_NAMES
-            and not Path(dirpath, d, ".git").is_file()
-        ]
-        for name in filenames:
-            p = Path(dirpath) / name
-            if p.is_file():  # excludes broken symlinks, matching the old rglob filter
-                yield p
+    """Every regular file under `base`, streamed one at a time. Single-sourced
+    (115/080 part 1) in `tools/filewalk.py` — see that module's docstring
+    for the mechanism and the 020/160 (E9) linked-worktree skip (measured in
+    `faves` 2026-08-15: double-reported files from a nested checkout).
+    `NON_CONTENT_DIR_NAMES` is this scanner's own per-guard parameter, passed
+    in rather than shared. Growth-store directories (`sessions/`,
+    `_archive/`, …) are deliberately NOT in that set — an archive store can
+    legitimately live inside one and must still be integrity-checked
+    (HI-F1) — that filter stays a per-file check in `iter_candidates`, same
+    as before this fix."""
+    return filewalk.walk_files(base, NON_CONTENT_DIR_NAMES)
 
 
 # Streaming-read tuning (020/380, reusing 020/370's secretscan shape). Every
