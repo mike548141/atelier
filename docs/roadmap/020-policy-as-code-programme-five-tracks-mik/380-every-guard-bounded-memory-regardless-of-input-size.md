@@ -1,4 +1,4 @@
-- [ ] 🔥 **Every guard runs in bounded memory, whatever it is pointed at** —
+- [~] (claimed 2026-09-20-0620, wt: three workers; registered floor guards first) 🔥 **Every guard runs in bounded memory, whatever it is pointed at** —
       Mike's ruling, 2026-09-19, extending `020/370` from `secretscan` to the
       whole guard layer: *"it should not matter how much it scans it should no
       have this affect. Put work on the board to fix that, and the same for all

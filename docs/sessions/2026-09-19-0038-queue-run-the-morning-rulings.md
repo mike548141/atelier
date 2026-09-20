@@ -102,3 +102,33 @@ deliberate.
   suite and shown `FAILED (errors=3)` when the tree is fine. `115/210`.
 
 Rule-4 cold pass queued at `160/340`.
+
+### 020/370 — secretscan in bounded memory (worker)
+
+The incident that filed this item was a ~9 GB `secretscan` process that pushed
+a 16 GB machine into swap. All three suspected causes measured real, and the
+worker isolated each one rather than fixing them as a bundle: the whole-tree
+file list built before a byte is scanned (~1 KiB held per file), each file held
+three times at once (bytes + decoded string + `splitlines` list — a clean
+32 MB/400k-line file peaked the *old* code at 134 MB, 7.5× the file), and every
+finding kept to the end (~700 B each; 400k findings = ~283 MB on their own).
+
+| Shape | Before | After |
+| --- | --- | --- |
+| 32 MB, one line, no newline | 114 MB | 42 MB |
+| 32 MB, ~400k short lines | 432 MB | 52 MB |
+| 60,000 tiny files | 83 MB | 23 MB |
+| 16 MB, dense findings | 304 MB | 61 MB (cap engaged, overflow reported) |
+
+The shape of the fix matters more than the numbers: `os.walk` with in-place
+pruning streams the tree, a fixed 1 MiB read feeds a 4 MiB line window with a
+64 KiB overlap so a token straddling a window cut is still whole in one of the
+two, and findings past a fixed 50,000 cap are **counted, never dropped** — the
+exit code and the advisory total read those counters, not `len(findings)`, so
+a capped run still blocks correctly. The regression test's bound is derived
+from the window design (4 × window + overlap), and the worker checked it
+discriminates: pre-fix code measures 2.3× over it, fixed code 10–17× under.
+
+Verified before the merge by running the old and new scanners over this repo's
+`docs/` and `tools/` trees and diffing the JSON counts — identical. `020/380`
+(every other guard) now has its harness: `tools/memprobe.py`.
