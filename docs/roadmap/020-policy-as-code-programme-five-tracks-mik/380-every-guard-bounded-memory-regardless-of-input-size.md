@@ -28,14 +28,15 @@
       - [x] `reviewscan` — fixed — same whole-file-read shape, 149 MB → 22 MB
       - [x] `publishscan` — measured clean, test only — it judges paths and never reads content, so content size has no effect (flat 17 MB from 0 to 20 MB); its honest growth axis is the number of tracked paths, stated rather than called constant
       - [x] `sizescan` — fixed — 110 MB → 0.7 MB (many lines), 48 MB → ~0 (one line)
-      - [ ] `board`
+      - [x] `board` — measured, not rewritten — linear in item count (~0.4 KB/item, steady 500→10,000) and pinned by a test that fails if it ever goes superlinear
       - [x] `datescan` — fixed — 268 MB → under an 8.5 MB design bound on the one-line case
       - [x] `wrapscan` — fixed — same shape; truncation at the 8 KiB line cap is counted, and the residual on a truncated line's column count is documented inline
       - [x] `spellscan` — fixed — and the batch's real find: its path/URL regex backtracked catastrophically, 107 s on one 1 MB line, now under 1 ms on 200,000 chars
-      - [ ] `harvestscan`
-      - [ ] `pointerscan`
-      - [ ] `pathscan`
-      - [ ] `licenscan`
+      - [ ] `harvestscan` — **split out to `020/400`**: not a memory defect
+            at all, a quadratic one (5,000 items did not finish in 120 s)
+      - [x] `pointerscan` — measured, not rewritten — linear (~3.7 KB/item), pinned the same way
+      - [x] `pathscan` — fixed — the same `rglob`-into-a-list defect; ~20 MB of growth at 20,000 files, now near zero
+      - [x] `licenscan` — fixed — it held every tracked file's decoded text in one list before reading a single declaration; now re-walks, caps a file at 8 MiB, counts the truncation
       - [ ] `stampscan` and `signscan` (guards outside the floor registry)
       - [ ] `floorfleet`, `signfleet`, `pins` — fleet tools, not guards, but
             they walk every sibling repo, so they fall in the same class
