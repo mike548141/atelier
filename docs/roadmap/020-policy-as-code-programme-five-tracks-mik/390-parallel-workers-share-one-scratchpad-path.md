@@ -1,4 +1,4 @@
-- [ ] 🔎 **Parallel workers in one run share a scratchpad path, and one
+- [~] (claimed 2026-09-20-1057, wt: none; measured inline against this run's own three workers) 🔎 **Parallel workers in one run share a scratchpad path, and one
       silently overwrote another's script mid-measurement** — reported by a
       `020/380` worker 2026-09-20, from its own experience, while three
       workers probed memory in parallel.
