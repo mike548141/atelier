@@ -33,11 +33,21 @@ WHY THE INDEX IS COMMITTED AND CHECKED, NOT HAND-KEPT
 A committed derived file can drift from its source — the estate's most-recorded
 defect class. So this tool is wired into the floor as a CHECK: a commit whose
 index does not match its item files fails, with the remedy printed (run
-`rebuild`) — on CI unconditionally; at the hook the check reads the worktree,
-so it vouches only for what was staged to match it — a rebuild that ran but
-was not staged escapes the hook and is caught on CI (BS1; wording per the
-principal's ruling 2026-08-23, standing until the staged-plane check lands).
-Two sessions closing different items both regenerate; if their
+`rebuild`) — on CI unconditionally; at the hook, `--staged` (below) reads the
+git INDEX rather than the worktree, the same plane harvestscan's HV4 reads for
+the identical reason: the hook's question is what this commit is about to make
+true, which is neither HEAD nor an unstaged edit lying dirty in the same
+checkout. That closes the two live slips BS1 named (2026-08-15) — an index
+rebuilt but never staged, and a rebuild that read a sibling's dirty item line
+off the worktree and baked it into the committed index — because both are
+content the INDEX never had. `rebuild --from-index` (below) is the matching
+write-side fix: it regenerates from the same plane, so a claimer at a dirty
+primary checkout (CONCURRENCY.md § Claiming work) never absorbs a sibling's
+unstaged line into the file it is about to stage. CI keeps the plain
+(worktree) form — a CI checkout has no unstaged state to confuse it with, so
+the worktree already IS the committed tree there, and `--staged` would answer
+a question CI cannot ask (BS1 → `010/020`, FUNDED 2026-08-17, landed
+2026-09-20). Two sessions closing different items both regenerate; if their
 index hunks collide, the resolution is deterministic — regenerate again after
 the merge. The index renders done items as `✅`, never `[x]`, so `sizescan`'s
 cold-content gate (a `[x]` on the hot path) can never fire on a generated line.
@@ -63,24 +73,54 @@ commit. Hence `rebuild_cmd()`: repo-relative where the tool is inside the
 tree, the hook's `$ATELIER_TOOLS` spelling where it is not, and NEVER an
 absolute path, which would put a machine-local fact into a public file.
 
-STATED RESIDUAL — the same gap the hook clause above names, one account.
-`--check` compares the WORKTREE's item files against the WORKTREE's index, so
-a commit that stages an item edit without the rebuilt index (or stages a stale
-index a later worktree rebuild has already corrected) passes the hook and
-fails CI; the staged-vs-worktree seam (`HV4`'s INDEX-source discipline in
-harvestscan) is not yet implemented here. Queued as a follow-up on the board.
+STATED RESIDUAL — RETIRED 2026-09-20 (010/020, BS1's fund). The gap above used
+to be permanent: `--check` compared the WORKTREE's item files against the
+WORKTREE's index unconditionally, so a commit that staged an item edit
+without the rebuilt index — or one that staged a rebuild which had quietly
+absorbed a sibling's dirty item line — passed the hook every time, on nothing
+stronger than "worktree happened to agree with itself", and only failed later
+on CI. `--staged` closes it by reading the INDEX instead, on both sides of
+the comparison: the built-index side reads item files via `git show :path`,
+and the against side reads the committed `docs/ROADMAP.md` the same way,
+so the question answered is "does what's about to be committed already
+agree with itself" — never "does the working directory agree with itself",
+which is the question that let both slips through. `rebuild --from-index`
+is the write-side twin, for regenerating cleanly at a dirty primary checkout.
+What is NOT claimed: this does not protect a commit that stages BOTH a stale
+item edit and a stale index together in one deliberate act — that is not a
+plane confusion, it is just a wrong commit, and no check on which plane to
+read defends against staging the wrong content on purpose.
 
 Exit codes:  0 clean/not-in-scope · 1 stale index or invalid item file ·
-2 environment error (bad root). `--selftest` proves the core offline.
+2 environment error (bad root, or `--staged`/`--from-index` outside a git
+repo — the INDEX plane has no meaning without one). `--selftest` proves the
+core WORKTREE-plane logic offline; the INDEX plane needs a real git repo,
+so it is proved by `test_board.py`'s git-backed test class instead.
 """
 
 from __future__ import annotations
 
 import argparse
 import re
+import subprocess
 import sys
 import unicodedata
 from pathlib import Path
+
+# `harvestscan` already named and solved this exact problem (HV4): which
+# version of a tracked file a check should read — the WORKTREE (what's on
+# disk, right for a hand-run or CI, where the checkout already IS the
+# committed tree) or the INDEX (what's staged, right for the hook, because
+# the hook's question is what THIS COMMIT is about to make true, and a
+# sibling's dirty edit sitting in the same worktree is neither committed nor
+# about to be). Reusing its vocabulary and its `git show :path` mechanism
+# here answers the same question the same way instead of inventing a second
+# one (BS1, 010/020's fund: "the same way harvestscan closed HV4").
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import harvestscan  # noqa: E402
+
+WORKTREE = harvestscan.WORKTREE
+INDEX = harvestscan.INDEX
 
 BOARD_DIR = "docs/roadmap"
 INDEX_REL = "docs/ROADMAP.md"
@@ -326,11 +366,101 @@ def number_collisions(names: list[str], where: str, kind: str) -> list[str]:
     return out
 
 
-def build_index(board: Path) -> tuple[str, list[str]]:
-    """(index text, problems). Deterministic: sorted dirs, sorted files."""
+# A section, in the shape `build_index` consumes: its name, its README text
+# (`None` if it has none — distinct from `""`, an empty-but-present file), and
+# its items as (filename, file text) pairs, sorted. Both planes below produce
+# exactly this shape so `build_index` never has to know which one it got.
+_Section = tuple[str, "str | None", list[tuple[str, str]]]
+
+
+def _worktree_sections(board: Path) -> tuple[bool, list[_Section]]:
+    """(README present, sections) read off the DISK, exactly as before this
+    item — the default plane, unchanged: a hand-run or CI form, where the
+    checkout already IS the committed tree, so reading the filesystem directly
+    answers the same question `git show HEAD:path` would, at a fraction of the
+    process-spawning cost."""
+    readme_present = (board / "README.md").is_file()
+    sections: list[_Section] = []
+    for sec in sorted(p for p in board.iterdir() if p.is_dir()):
+        readme = sec / "README.md"
+        rtext = readme.read_text(encoding="utf-8") if readme.is_file() else None
+        items: list[tuple[str, str]] = []
+        for f in sorted(sec.glob("*.md")):
+            if f.name == "README.md":
+                continue
+            items.append((f.name, f.read_text(encoding="utf-8")))
+        sections.append((sec.name, rtext, items))
+    return readme_present, sections
+
+
+def _index_sections(root: Path) -> tuple[bool, list[_Section]]:
+    """Same shape as `_worktree_sections`, read off the git INDEX instead —
+    the hook's plane (HV4). `git ls-files`, called with no revision, already
+    lists the INDEX (the staged tree), not the worktree — a sibling's dirty,
+    unstaged edit to a DIFFERENT item file changes nothing this call sees,
+    because that file's path is unchanged; only its staged BLOB would need to
+    change to show up here, and an unstaged edit never touches the blob.
+    `git show :path` reads that same staged blob's content.
+    """
+    r = subprocess.run(
+        ["git", "-C", str(root), "ls-files", "--", f"{BOARD_DIR}/"],
+        capture_output=True, text=True, check=False)
+    paths = [line for line in r.stdout.splitlines() if line] \
+        if r.returncode == 0 else []
+
+    prefix = f"{BOARD_DIR}/"
+    by_section: dict[str, list[str]] = {}
+    top_readme = False
+    for p in paths:
+        rest = p[len(prefix):]
+        parts = rest.split("/")
+        if len(parts) == 1:
+            if parts[0] == "README.md":
+                top_readme = True
+            continue
+        if len(parts) == 2:
+            sec_name, fname = parts
+            by_section.setdefault(sec_name, [])
+            if fname != "README.md":
+                by_section[sec_name].append(fname)
+        # A store deeper than section/file is not this layout's shape — the
+        # worktree walk (`sec.glob("*.md")`) does not recurse either, so a
+        # stray nested path is silently outside both planes' scope alike.
+
+    sections: list[_Section] = []
+    for sec_name in sorted(by_section.keys()):
+        rtext = harvestscan.git_show(root, "", f"{prefix}{sec_name}/README.md")
+        items = [(fname, harvestscan.git_show(root, "", f"{prefix}{sec_name}/{fname}") or "")
+                 for fname in sorted(by_section[sec_name])]
+        sections.append((sec_name, rtext, items))
+    return top_readme, sections
+
+
+def build_index(
+    board: Path,
+    source: str = WORKTREE,
+    _read: tuple[bool, list[_Section]] | None = None,
+) -> tuple[str, list[str]]:
+    """(index text, problems). Deterministic: sorted dirs, sorted files.
+
+    `source` selects the PLANE — WORKTREE (default, the disk as it stands) or
+    INDEX (the git index — what is staged, HV4's plane). Everything below the
+    read is plane-agnostic: the two `_*_sections` helpers above are the only
+    place that knows which one it is looking at. `_read` lets a caller that
+    already paid for the read (`run_check`'s scope check) hand its result in
+    rather than paying for a second `git ls-files`/`git show` pass per item —
+    internal only, no test or caller outside this module should pass it.
+    """
     problems: list[str] = []
     parts: list[str] = [GENERATED_LINE, ""]
-    cmd = rebuild_cmd(board.parent.parent)
+    root = board.parent.parent
+    cmd = rebuild_cmd(root)
+    if _read is not None:
+        readme_present, sections = _read
+    elif source == INDEX:
+        readme_present, sections = _index_sections(root)
+    else:
+        readme_present, sections = _worktree_sections(board)
 
     # The preamble is LINKED, never inlined: its relative links are written
     # for its own home (docs/roadmap/), and inlining the text at the index's
@@ -338,7 +468,7 @@ def build_index(board: Path) -> tuple[str, list[str]]:
     # depths. The index carries only what it generates.
     parts.append("# ROADMAP — board index")
     parts.append("")
-    if (board / "README.md").is_file():
+    if readme_present:
         # Wrapped by hand at the house width: it is the index's one line of
         # real prose, and the only finding left once the flags moved.
         parts.append("Board doctrine and the checkbox legend:")
@@ -350,40 +480,34 @@ def build_index(board: Path) -> tuple[str, list[str]]:
         problems.append(f"{BOARD_DIR}/README.md missing — the board preamble "
                         "(checkbox legend) has no home")
 
-    sections = sorted(p for p in board.iterdir() if p.is_dir())
     problems.extend(number_collisions(
-        [s.name for s in sections], BOARD_DIR, "section"))
+        [name for name, _, _ in sections], BOARD_DIR, "section"))
 
-    for sec in sections:
+    for sec_name, rtext, items in sections:
         problems.extend(number_collisions(
-            [f.name for f in sorted(sec.glob("*.md")) if f.name != "README.md"],
-            f"{BOARD_DIR}/{sec.name}", "item"))
-        readme = sec / "README.md"
-        rtext = readme.read_text(encoding="utf-8") if readme.is_file() else ""
-        parts.append(f"## {section_title(rtext, sec.name)}")
+            [name for name, _ in items], f"{BOARD_DIR}/{sec_name}", "item"))
+        parts.append(f"## {section_title(rtext or '', sec_name)}")
         parts.append("")
-        if readme.is_file():
+        if rtext is not None:
             # Link TEXT, not just the target: the old text repeated the path,
             # and pathscan resolves both halves of a link, so every section
             # produced one finding per commit in any repo that scans the index
             # (49 in the first child to adopt). A generated file that always
             # fires a warn-only check is a check nobody reads.
-            parts.append(f"*[Narrative](roadmap/{sec.name}/README.md)*")
+            parts.append(f"*[Narrative](roadmap/{sec_name}/README.md)*")
             parts.append("")
         wrote = False
-        for f in sorted(sec.glob("*.md")):
-            if f.name == "README.md":
-                continue
-            state = item_state(f.read_text(encoding="utf-8"))
+        for fname, text in items:
+            state = item_state(text)
             if state is None:
                 problems.append(
-                    f"{BOARD_DIR}/{sec.name}/{f.name}: no state line — an item "
+                    f"{BOARD_DIR}/{sec_name}/{fname}: no state line — an item "
                     "file opens with its checkbox line (`- [ ] …`), before any "
                     "prose")
                 continue
             marker, rest = state
             parts.append(index_line(marker, rest,
-                                    f"roadmap/{sec.name}/{f.name}"))
+                                    f"roadmap/{sec_name}/{fname}"))
             wrote = True
         if wrote:
             parts.append("")
@@ -391,18 +515,46 @@ def build_index(board: Path) -> tuple[str, list[str]]:
     return text, problems
 
 
-def run_check(root: Path, fix: bool) -> int:
+def _is_git_repo(root: Path) -> bool:
+    r = subprocess.run(["git", "-C", str(root), "rev-parse",
+                        "--is-inside-work-tree"],
+                       capture_output=True, text=True, check=False)
+    return r.returncode == 0 and r.stdout.strip() == "true"
+
+
+def run_check(root: Path, fix: bool, source: str = WORKTREE) -> int:
+    """`source=INDEX` is the hook's plane (`--staged` / `--from-index`): the
+    scope check, the built `want`, and (when not fixing) the `have` it is
+    compared against are ALL read from the git index rather than the disk —
+    reading the index for one side and the disk for the other would just move
+    the plane confusion this item exists to close, not close it."""
+    if source == INDEX and not _is_git_repo(root):
+        print(f"✗ board: --staged/--from-index needs a git repository at "
+              f"{root} — it reads the git index, which does not exist "
+              "without one", file=sys.stderr)
+        return 2
     board = root / BOARD_DIR
-    if not board.is_dir():
+    read: tuple[bool, list[_Section]] | None = None
+    if source == INDEX:
+        read = _index_sections(root)
+        if not read[0] and not read[1]:
+            print(f"✓ board not in scope — no {BOARD_DIR}/ directory tracked "
+                  "in the index (this repo does not use the split board, or "
+                  "not on this plane yet).")
+            return 0
+    elif not board.is_dir():
         print(f"✓ board not in scope — no {BOARD_DIR}/ directory "
               "(this repo does not use the split board).")
         return 0
-    want, problems = build_index(board)
+    want, problems = build_index(board, source=source, _read=read)
     for p in problems:
         print(f"✗ board: {p}")
     index = root / INDEX_REL
-    have = index.read_text(encoding="utf-8") if index.is_file() else ""
     if fix:
+        # The WRITE always lands on disk — `rebuild`'s job either way is to
+        # fix the WORKTREE file so it can be staged; only the READ that
+        # decides what to write differs by plane.
+        have = index.read_text(encoding="utf-8") if index.is_file() else ""
         if have != want:
             index.write_text(want, encoding="utf-8")
             print(f"✓ board: {INDEX_REL} rebuilt "
@@ -410,14 +562,38 @@ def run_check(root: Path, fix: bool) -> int:
         else:
             print(f"✓ board: {INDEX_REL} already current.")
         return 1 if problems else 0
+    # `--check` (not fixing): the comparison target is plane-dependent too.
+    # On the INDEX plane the question is "does what's STAGED already agree
+    # with itself" — so `have` must be the staged blob (`git show :path`),
+    # never the disk file, which may carry further unstaged edits the hook's
+    # commit will never see. Reading disk here for the INDEX plane is exactly
+    # the bug this item exists to close (BS1's slip (a)): it would let a
+    # rebuilt-but-unstaged index read back as "current" because the disk copy
+    # agrees with itself, while the staged blob the commit will actually ship
+    # is still the stale one.
+    if source == INDEX:
+        have = harvestscan.git_show(root, "", INDEX_REL) or ""
+    else:
+        have = index.read_text(encoding="utf-8") if index.is_file() else ""
     if have != want:
-        print(f"✗ board: {INDEX_REL} is stale against {BOARD_DIR}/ — "
-              f"run: {rebuild_cmd(root)}   (then stage the index; "
+        remedy = rebuild_cmd(root)
+        if source == INDEX:
+            # The safe remedy at THIS plane is the matching source flag: a
+            # plain `rebuild` would read the worktree, which is exactly the
+            # plane that may be dirty with a sibling's unrelated edit
+            # (BS1's slip (b)) — the failure this check just caught the
+            # hook-side symptom of.
+            remedy += " --from-index"
+        plane = "the staged " if source == INDEX else ""
+        print(f"✗ board: {INDEX_REL} is stale against {plane}{BOARD_DIR}/ — "
+              f"run: {remedy}   (then stage the index; "
               "after a merge conflict on the index, rebuilding IS the "
               "resolution)")
         return 1
     if not problems:
-        print(f"✓ board index current — {INDEX_REL} matches {BOARD_DIR}/.")
+        plane = "the staged " if source == INDEX else ""
+        print(f"✓ board index current — {INDEX_REL} matches {plane}"
+              f"{BOARD_DIR}/.")
     return 1 if problems else 0
 
 
@@ -636,6 +812,26 @@ def main(argv: list[str] | None = None) -> int:
                     help="verify the index against docs/roadmap/ (default)")
     ap.add_argument("--rebuild", action="store_true",
                     help="regenerate the index from docs/roadmap/")
+    # Two spellings, one switch: `--staged` for `--check` (harvestscan's own
+    # name for this exact plane, HV4) and `--from-index` for `--rebuild`
+    # (named for what it SELECTS, the house convention — `--from-archive`,
+    # `--from-github` — not an imperative). Both flip the same `source`; a
+    # caller may use either with either action, because the underlying
+    # question ("read the git INDEX instead of the worktree") is identical
+    # either way, and refusing the "wrong" spelling for the "wrong" action
+    # would be ceremony with no defect behind it.
+    ap.add_argument("--staged", dest="from_index", action="store_true",
+                    help="read the git INDEX, not the worktree, when "
+                         "checking — the hook's plane (harvestscan's HV4 "
+                         "shape); CI and hand-runs keep the worktree "
+                         "default, where the checkout already IS the "
+                         "committed tree")
+    ap.add_argument("--from-index", dest="from_index", action="store_true",
+                    help="for --rebuild: regenerate from the git INDEX "
+                         "rather than the (possibly dirty) worktree, so a "
+                         "claimer at a dirty primary checkout never bakes a "
+                         "sibling's unstaged item edit into the index this "
+                         "commit is about to stage")
     ap.add_argument("--root", default=".")
     ap.add_argument("paths", nargs="*",
                     help="accepted for floor argv compatibility; the board "
@@ -698,7 +894,8 @@ def main(argv: list[str] | None = None) -> int:
     if not root.is_dir():
         print(f"✗ board: root {args.root} does not exist", file=sys.stderr)
         return 2
-    return run_check(root, fix=want_rebuild)
+    source = INDEX if args.from_index else WORKTREE
+    return run_check(root, fix=want_rebuild, source=source)
 
 
 if __name__ == "__main__":
