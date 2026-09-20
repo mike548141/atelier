@@ -221,3 +221,50 @@ sections I rewrote are `###` subsections and the map's extraction is
 non-recursive. The check works and has a blind spot on day one; `320/340`
 carries it, with the honest note that this is `370/020`'s class — a guard
 reporting clean over exactly the change it exists to catch.
+
+### 020/380 — nine guards measured, and the item's second clause earning its keep
+
+Three waves of workers, each given `secretscan`'s landed fix as the template
+rather than the requirement alone, so the guards converge on one shape instead
+of inventing nine. Nine ticked: `leakscan`, `conflictscan`, `sizescan`,
+`datescan`, `wrapscan`, `spellscan`, `linkscan`, `reviewscan`, `publishscan`.
+Every one measured before and after; every regression test confirmed to
+**fail** against the pre-fix file; every scanner's output diffed old-vs-new
+over `docs/` and `tools/` and found identical.
+
+⏱️ **The finding that outran the brief.** The requirement has two clauses —
+bounded memory *and* time at most linear in the bytes read — and the second
+caught two defects the first never would:
+
+- `spellscan`'s path/URL regex backtracked catastrophically: **107 seconds on
+  one 1 MB line**, timing out a 120-second harness. Tokenise first, test for
+  `/` natively: under a millisecond on 200,000 characters.
+- `linkscan` ran two quadratic passes — an uncached `os.listdir` per resolved
+  link, and a whole-tree `rglob` per *broken* link in its suggestion fallback.
+  A 20,000-file tree **did not finish in three minutes**; it takes 17 seconds
+  now.
+
+Neither appears in a peak-RSS table. Both were found because a memory probe
+happened to hit a wall clock. Later batches were re-briefed to look for the
+shape deliberately.
+
+📐 Two judgement calls worth keeping: `publishscan` was left **unmodified** —
+it judges paths and never reads content, so the honest outcome was a
+measurement and a pinning test, not a rewrite — and window sizes were chosen
+per guard (256 KiB for links and headings, 4 MiB for credentials) rather than
+copied, because converging on the shape is the point and copying the numbers
+is not.
+
+### The pushed floor went red, and it was mine
+
+`memprobe`'s own test asserted that a child allocating 50 MB measures higher
+than one allocating nothing. Green on every local run, **red on the Linux
+runner**: `bytearray(N)` is zero-filled, and on Linux a large zeroed
+allocation is served by copy-on-write zero pages that never become resident
+until written — so the child's `ru_maxrss` never moved, the baseline happened
+to peak higher on interpreter startup, and the assertion inverted. The fix
+touches one byte per 4 KiB page. Its sibling rss-limit case had been passing
+on the same runner **by luck from the same wrong assumption**, and now touches
+too: a harness every guard's memory test is about to build on does not get to
+be right by accident. This is the local-green/CI-red class the estate already
+knows — the all-clear is the pushed floor run, never the local one.
