@@ -322,3 +322,29 @@ items in 21 seconds, 5,000 items unfinished at 120. The worker said so plainly
 instead of patching around it, and it is now `020/400`. That is the **fourth**
 defect the requirement's time clause has caught and the first that no amount
 of memory work would have touched.
+
+### 020/380 — closed: the last batch, and the two costs it leaves
+
+`stampscan` had the full pre-`020/370` shape and is now streamed, with
+canonical regions cached as *regions* rather than whole source docs (+29 MB →
++0.1 MB on a many-line file). The interesting call was the other four:
+`blockscan`, `pins`, `floorfleet` and `signfleet` are **not tree-walkers** —
+a fixed map, or one-level `iterdir` plus a few named files per child — so a
+streaming rewrite would have been ceremony. They take a **size gate** instead:
+check the size, refuse loudly past a cap grounded in the file class, never
+truncate in silence. The headroom was measured across the real siblings rather
+than assumed — largest `CLAUDE.md` in the estate 72 KB against a 2 MiB cap,
+largest `floor.yml` 10 KB — so a real file is never refused and a pathological
+one always is. `signscan` needed nothing: 1,324 commits of this repo's history
+move it under a megabyte.
+
+Local suite at close: **1,519 tests, OK, 378 s.**
+
+**Two costs recorded rather than absorbed**, because both will be someone's
+problem later:
+- the suite takes ~6.3 minutes locally now, up from ~3.5, since every guard
+  spawns real subprocesses over multi-megabyte synthetic inputs;
+- `_walk_files` exists in **ten copies**, which is `115/080`'s third and
+  largest instance — and the next correction to the walk (`020/160`'s
+  gitignored-worktree skip) is ten edits, which is precisely Mike's own
+  upstream test.
