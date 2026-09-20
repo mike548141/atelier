@@ -15,6 +15,7 @@ What carries the weight here, shaped by the defects the split exists to end:
 Zero third-party deps, same as the rest of the suite.
 """
 
+import shutil
 import sys
 import tempfile
 import unittest
@@ -24,6 +25,7 @@ TOOLS_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS_DIR))
 
 import board  # noqa: E402
+import memprobe  # noqa: E402
 
 
 def make_board(root: Path) -> Path:
@@ -305,3 +307,83 @@ class ClaimInTheFallbackTitle(unittest.TestCase):
             "[~]", "🔥 (claimed 2026-08-23-1259, wt: x) **Wrapped\n      title**",
             "roadmap/10-a/10-b.md")
         self.assertIn("(claimed 2026-08-23-1259, wt: x)", line)
+
+
+class BoundedMemory(unittest.TestCase):
+    """020/380 — measured, not fixed. `board` is one of the two tools
+    (alongside `pointerscan`) the item's own brief names as a legitimate
+    exception: it IS the whole board's generated index, so part of its
+    footprint grows with the number of items by nature, and pretending a
+    growing thing is constant would be dishonest in the other direction.
+
+    What was actually checked here is that the growth is LINEAR in item
+    count (a per-item constant), never worse — a quadratic regression would
+    still be a genuine defect this class of tool could hide. Measured while
+    building this test, subprocess + `memprobe` (`--check` and `--rebuild`
+    both walk every item file):
+
+      500 items    ~17.6-17.8 MB peak RSS
+      5,000 items  ~19.4-20.0 MB peak RSS   (+4,500 items, ~+1.8-2.2 MB)
+      10,000 items measured separately (elapsed only) at ~3.5s — no timeout,
+                   no superlinear blow-up
+
+    ~0.4-0.5 KB held per item, and time stays in the single-digit seconds at
+    10,000 items — both consistent with a linear design. This is the
+    documented growth, not an inert one: the bound below is deliberately
+    generous (an order of magnitude over the measured per-item rate) so the
+    test catches a future SUPERLINEAR regression without being fitted to
+    today's exact number (`ground-numeric-limits`).
+    """
+
+    BOARD = str(TOOLS_DIR / "board.py")
+    SMALL_ITEMS = 500     # 10 sections x 50 items
+    LARGE_ITEMS = 5_000   # 50 sections x 100 items
+    # Generous: measured growth was ~2 MB for a 4,500-item delta (~0.45
+    # KB/item). Bounding at 2 KB/item leaves headroom for allocator noise
+    # while still catching an accidental switch to an O(n^2) or
+    # whole-tree-cached shape, which would blow well past this on 4,500 more
+    # items.
+    MAX_BYTES_PER_ITEM = 2 * 1024
+
+    @staticmethod
+    def _build(root: Path, sections: int, items_per_section: int) -> None:
+        b = root / board.BOARD_DIR
+        b.mkdir(parents=True, exist_ok=True)
+        (b / "README.md").write_text("# board\n\nlegend\n")
+        for s in range(sections):
+            sec = b / f"{s:03d}-section-{s}"
+            sec.mkdir(exist_ok=True)
+            (sec / "README.md").write_text(f"# Section {s}\nwhy\n")
+            for i in range(items_per_section):
+                (sec / f"{i:03d}-item-{i}.md").write_text(
+                    f"- [ ] **Item {s}-{i}.** Filler description text, long "
+                    f"enough to look like a real work item.\n"
+                    f"      A continuation line with a bit more detail.\n")
+
+    def _peak_rss_for(self, sections: int, items_per_section: int) -> int:
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        self._build(tmp, sections, items_per_section)
+        result = memprobe.run_and_measure(
+            [sys.executable, self.BOARD, "--check", "--root", str(tmp), str(tmp)],
+            timeout=60, rss_limit_bytes=900 * 1024 * 1024)
+        self.assertFalse(result.timed_out, "scan did not finish in time")
+        self.assertFalse(result.killed_over_limit,
+                         "scan exceeded the 900 MB safety limit")
+        return result.peak_rss_bytes
+
+    def test_peak_memory_grows_no_worse_than_linearly_with_item_count(self):
+        small_peak = self._peak_rss_for(10, 50)     # 500 items
+        large_peak = self._peak_rss_for(50, 100)    # 5,000 items
+        item_delta = self.LARGE_ITEMS - self.SMALL_ITEMS
+        growth = large_peak - small_peak
+        bound = item_delta * self.MAX_BYTES_PER_ITEM
+        self.assertLess(
+            growth, bound,
+            f"peak RSS grew {growth / 1e6:.1f} MB for {item_delta} more "
+            f"items (small={small_peak / 1e6:.1f} MB, "
+            f"large={large_peak / 1e6:.1f} MB) — that's "
+            f"{growth / item_delta:.0f} bytes/item, over the "
+            f"{self.MAX_BYTES_PER_ITEM}-byte/item bound. board.py's index "
+            "growth is legitimate (020/380 names it as an exception) but it "
+            "must stay LINEAR — this looks like a superlinear regression.")

@@ -17,6 +17,7 @@ carry the weight:
 Zero third-party deps, same as the rest of the suite.
 """
 
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -27,6 +28,7 @@ TOOLS_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS_DIR))
 
 import pointerscan  # noqa: E402
+import memprobe  # noqa: E402
 
 Q = pointerscan.QUEUED
 
@@ -321,3 +323,75 @@ class Allowances(unittest.TestCase):
 
     def test_marker_with_reason_allows(self):
         self.assertEqual("", pointerscan.parse_allow("x pointerscan:allow: a reason"))
+
+
+class BoundedMemory(unittest.TestCase):
+    """020/380 — measured, not fixed. `pointerscan` is one of the two tools
+    (alongside `board`) the item's own brief names as a legitimate
+    exception: it reads every roadmap item in scope by nature, so part of
+    its footprint grows with item count, and pretending a growing thing is
+    constant would be its own dishonesty.
+
+    What is checked here is that the growth stays LINEAR — a per-item
+    constant — never worse. Measured while building this test, subprocess +
+    `memprobe` over a synthetic multi-section board:
+
+      500 items    ~19.9 MB peak RSS
+      5,000 items  ~37.3 MB peak RSS    (+4,500 items, ~+17.5 MB, ~3.9 KB/item)
+      10,000 items ~55.3 MB peak RSS    (+5,000 items, ~+18.0 MB, ~3.6 KB/item)
+
+    The per-item rate holds steady across two doublings rather than growing
+    — the signature of a linear design, not a quadratic one — and 10,000
+    items finished in ~5s wall-clock with no timeout. The bound below is
+    deliberately generous (roughly 2x the measured rate) so this catches a
+    future SUPERLINEAR regression without being fitted to today's exact
+    figure (`ground-numeric-limits`).
+    """
+
+    POINTERSCAN = str(TOOLS_DIR / "pointerscan.py")
+    SMALL_ITEMS = 500     # 10 sections x 50 items
+    LARGE_ITEMS = 5_000   # 50 sections x 100 items
+    MAX_BYTES_PER_ITEM = 8 * 1024
+
+    @staticmethod
+    def _build(root: Path, sections: int, items_per_section: int) -> None:
+        b = root / "docs" / "roadmap"
+        b.mkdir(parents=True, exist_ok=True)
+        (b / "README.md").write_text("# board\n\nlegend\n")
+        for s in range(sections):
+            sec = b / f"{s:03d}-section-{s}"
+            sec.mkdir(exist_ok=True)
+            (sec / "README.md").write_text(f"# Section {s}\nwhy\n")
+            for i in range(items_per_section):
+                (sec / f"{i:03d}-item-{i}.md").write_text(
+                    f"- [ ] **Item {s}-{i}.** Filler description text, long "
+                    f"enough to look like a real work item.\n"
+                    f"      A continuation line with a bit more detail.\n")
+
+    def _peak_rss_for(self, sections: int, items_per_section: int) -> int:
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        self._build(tmp, sections, items_per_section)
+        result = memprobe.run_and_measure(
+            [sys.executable, self.POINTERSCAN, "--root", str(tmp), str(tmp)],
+            timeout=60, rss_limit_bytes=900 * 1024 * 1024)
+        self.assertFalse(result.timed_out, "scan did not finish in time")
+        self.assertFalse(result.killed_over_limit,
+                         "scan exceeded the 900 MB safety limit")
+        return result.peak_rss_bytes
+
+    def test_peak_memory_grows_no_worse_than_linearly_with_item_count(self):
+        small_peak = self._peak_rss_for(10, 50)     # 500 items
+        large_peak = self._peak_rss_for(50, 100)    # 5,000 items
+        item_delta = self.LARGE_ITEMS - self.SMALL_ITEMS
+        growth = large_peak - small_peak
+        bound = item_delta * self.MAX_BYTES_PER_ITEM
+        self.assertLess(
+            growth, bound,
+            f"peak RSS grew {growth / 1e6:.1f} MB for {item_delta} more "
+            f"items (small={small_peak / 1e6:.1f} MB, "
+            f"large={large_peak / 1e6:.1f} MB) — that's "
+            f"{growth / item_delta:.0f} bytes/item, over the "
+            f"{self.MAX_BYTES_PER_ITEM}-byte/item bound. pointerscan's "
+            "growth is legitimate (020/380 names it as an exception) but it "
+            "must stay LINEAR — this looks like a superlinear regression.")

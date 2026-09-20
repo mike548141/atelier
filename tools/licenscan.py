@@ -65,6 +65,7 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import json
+import os
 import re
 import sys
 from dataclasses import dataclass, asdict, field
@@ -384,6 +385,10 @@ class Report:
     # everything was exempted.
     suppressed_declarations: int = 0
     files_by_glob: int = 0
+    # 020/380: a tracked file read past `MAX_FILE_BYTES` is truncated rather
+    # than fully scanned — counted so the cap's cost is visible, never silent
+    # (`method/GUARDS.md`, rule b).
+    files_truncated: int = 0
 
     @property
     def clean(self) -> bool:
@@ -562,28 +567,115 @@ def _looks_binary(data: bytes) -> bool:
     return b"\x00" in data[:8192]
 
 
+def _walk_files(base: Path):
+    """Every regular file under `base`, streamed one at a time — the 020/380
+    fix for the same defect `secretscan`/`spellscan` already fixed at this
+    layer: `root.rglob("*")` returns a generator, but the old caller here
+    still descended into `.git`/`node_modules`/etc. at full depth before
+    `SKIP_DIR_NAMES` filtered them out AFTER the walk paid for it. `os.walk`
+    exposes `dirnames` for in-place pruning, so a skip-dir is never entered at
+    any depth, matching the sibling scanners' `_walk_files` shape exactly."""
+    for dirpath, dirnames, filenames in os.walk(base):
+        dirnames[:] = [d for d in dirnames if d not in SKIP_DIR_NAMES]
+        for name in filenames:
+            p = Path(dirpath) / name
+            if p.is_file():  # excludes broken symlinks, matching rglob's own filter
+                yield p
+
+
+# A single tracked file is capped at this many bytes for scanning purposes
+# (020/380): real LICENSE bodies and metadata declarations (pyproject.toml,
+# package.json, a README badge line) are KiB-sized, so this is two-plus
+# orders of magnitude of headroom, not a realistic ceiling. It bounds the
+# pathological case — one huge tracked file — to a fixed read regardless of
+# that file's actual size, the same way `_RepoFiles` bounds the tree's total
+# size regardless of file COUNT. A capped file's content past the cut is
+# simply not read — TRUNCATED, and counted (`Report.files_truncated`), never
+# silently mis-scanned as if the file were smaller than it is.
+MAX_FILE_BYTES = 8 * 1024 * 1024
+
+
+def _read_capped(p: Path, truncated: list[int] | None) -> bytes | None:
+    """Up to `MAX_FILE_BYTES` of `p`'s content, or None if it can't be read.
+    Reads one byte past the cap so truncation can be told apart from a file
+    that lands exactly on it, without ever holding more than the cap (+1) in
+    memory for this file."""
+    try:
+        with open(p, "rb") as fh:
+            data = fh.read(MAX_FILE_BYTES + 1)
+    except OSError:
+        return None
+    if len(data) > MAX_FILE_BYTES:
+        if truncated is not None:
+            truncated.append(1)
+        data = data[:MAX_FILE_BYTES]
+    return data
+
+
+class _RepoFiles:
+    """Every scannable (rel, text) pair under `root` — re-walked from disk on
+    EACH iteration, rather than held in memory (020/380).
+
+    `scan_repo` reads `files` TWICE by design — once (a list comprehension)
+    to find the LICENSE body, once (a plain loop) to check every other file's
+    declarations — and the old `collect_files` built the whole list up front:
+    every non-binary tracked file's FULL DECODED TEXT, held simultaneously,
+    for the life of the scan. For a real repo that is the tree's entire text
+    content in memory at once — the same defect class `secretscan`'s old
+    `_walk_files` fixed (there, `Path` objects; here, decoded file bodies,
+    which cost far more per entry and do not stop growing at the tree's file
+    count).
+
+    Wrapping the walk in an object whose `__iter__` re-walks the tree fresh
+    each time it is iterated keeps `scan_repo`'s two-pass algorithm and its
+    `files: list[tuple[str, str]]`-shaped call sites (this module's own tests
+    included — see `test_licenscan.py`, which passes plain lists and is
+    unaffected) working unchanged, while bounding memory to ONE file's
+    content at a time regardless of how many files the tree holds or how much
+    text is in them. The cost is a second directory walk and a second read
+    pass — still linear in bytes read, just twice over — never a second
+    CORPUS held in memory."""
+
+    def __init__(self, root: Path, globs: list[str],
+                skipped: list[int] | None = None,
+                truncated: list[int] | None = None):
+        self._root = root
+        self._globs = globs
+        self._skipped = skipped
+        self._truncated = truncated
+
+    def __iter__(self):
+        for p in _walk_files(self._root):
+            rel = str(p.relative_to(self._root))
+            if _ignored(rel, self._globs):
+                if self._skipped is not None:
+                    self._skipped.append(1)
+                continue
+            data = _read_capped(p, self._truncated)
+            if data is None:
+                continue
+            if _looks_binary(data):
+                continue
+            yield rel, data.decode("utf-8", errors="replace")
+
+
 def collect_files(root: Path, globs: list[str],
-                  skipped: list[int] | None = None) -> list[tuple[str, str]]:
-    out: list[tuple[str, str]] = []
-    for p in root.rglob("*"):
-        if not p.is_file() or (SKIP_DIR_NAMES & set(p.parts)):
-            continue
-        rel = str(p.relative_to(root))
-        if _ignored(rel, globs):
-            if skipped is not None:
-                skipped.append(1)
-            continue
-        data = p.read_bytes()
-        if _looks_binary(data):
-            continue
-        out.append((rel, data.decode("utf-8", errors="replace")))
-    return out
+                  skipped: list[int] | None = None,
+                  truncated: list[int] | None = None) -> "_RepoFiles":
+    """Every scannable file under `root`, as a re-iterable of (rel, text)
+    pairs — see `_RepoFiles` for why this is no longer a materialised list
+    (020/380). Duck-types as the `list[tuple[str, str]]` `scan_repo` expects:
+    iterated exactly the way a list would be, just re-walking disk instead of
+    replaying a cache."""
+    return _RepoFiles(root, globs, skipped, truncated)
 
 
 def _suppression_line(rep: Report) -> str:
     """Rule (b): known zeros printed, so two runs can be compared."""
     return (f"  suppressed: {rep.suppressed_declarations} declaration(s) by "
-            f"allow-marker · {rep.files_by_glob} file(s) by .licenscanignore")
+            f"allow-marker · {rep.files_by_glob} file(s) by .licenscanignore · "
+            f"{rep.files_truncated} file(s) over "
+            f"{MAX_FILE_BYTES // (1024 * 1024)} MiB scanned truncated")
 
 
 def render_human(rep: Report) -> str:
@@ -629,9 +721,11 @@ def _main(argv: list[str] | None = None) -> int:
 
     globs = load_ignore_globs(root)
     _skipped: list[int] = []
-    files = collect_files(root, globs, _skipped)
+    _truncated: list[int] = []
+    files = collect_files(root, globs, _skipped, _truncated)
     rep = scan_repo(root, files, args.expect)
     rep.files_by_glob = len(_skipped)
+    rep.files_truncated = len(_truncated)
 
     if args.json:
         print(json.dumps({
