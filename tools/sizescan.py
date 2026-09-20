@@ -479,7 +479,20 @@ def _walk_files(base: Path):
     integrity-checked (HI-F1) — that filter stays a per-file check in
     `iter_candidates`, same as before this fix."""
     for dirpath, dirnames, filenames in os.walk(base):
-        dirnames[:] = [d for d in dirnames if d not in NON_CONTENT_DIR_NAMES]
+        # 020/160 (E9): a git worktree LINKED into this tree has a `.git`
+        # FILE (`gitdir: <path>`), not a directory, so NON_CONTENT_DIR_NAMES'
+        # name match never fires and the walk descends into a full second
+        # checkout of the same repo, double-reporting every file (measured
+        # in `faves` 2026-08-15). Checked by file-ness alone, not by
+        # parsing the `gitdir:` line: a bare file named exactly `.git` is
+        # never anything else (only a worktree or submodule link creates
+        # one), and pruning here is the same name/type check
+        # NON_CONTENT_DIR_NAMES already makes, not a content decision.
+        dirnames[:] = [
+            d for d in dirnames
+            if d not in NON_CONTENT_DIR_NAMES
+            and not Path(dirpath, d, ".git").is_file()
+        ]
         for name in filenames:
             p = Path(dirpath) / name
             if p.is_file():  # excludes broken symlinks, matching the old rglob filter

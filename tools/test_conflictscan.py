@@ -365,5 +365,61 @@ class BoundedMemory(unittest.TestCase):
             "— memory is scaling with input size again (020/380).")
 
 
+class LinkedWorktreeSkipped(unittest.TestCase):
+    """020/160 (E9): `_walk_files` must prune a directory whose `.git` entry
+    is a regular FILE (`gitdir: <path>`, the linked-worktree/submodule
+    marker) — not just one literally named `.git` that is a directory.
+    Before this fix a session's own gitignored `.claude/worktrees/<name>/`
+    grew into a full second checkout of the tree that the walk descended
+    into anyway, double-counting every finding (measured in `faves`
+    2026-08-15)."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+
+    def _write(self, rel, text):
+        p = self.tmp / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text)
+
+    def _found(self):
+        return {str(p.relative_to(self.tmp))
+                for p in cs._walk_files(self.tmp)}
+
+    def test_linked_worktree_directory_is_pruned(self):
+        self._write("real.txt", "content\n")
+        self._write(".claude/worktrees/wt1/.git",
+                    "gitdir: /elsewhere/.git/worktrees/wt1\n")
+        self._write(".claude/worktrees/wt1/real.txt", "content\n")
+        found = self._found()
+        self.assertIn("real.txt", found)
+        self.assertNotIn(".claude/worktrees/wt1/real.txt", found)
+        self.assertNotIn(".claude/worktrees/wt1/.git", found)
+
+    def test_independent_nested_repos_own_git_dir_still_pruned(self):
+        """Unaffected by this fix: a nested repo whose `.git` is a
+        DIRECTORY, not a linked worktree, was already excluded by the
+        existing skip-dir-names rule matching the bare name `.git` at any
+        depth inside it — this pins that it still holds."""
+        self._write("nested/.git/objects/pack/dummy", "not real git data\n")
+        self._write("nested/real.txt", "content\n")
+        found = self._found()
+        self.assertIn("nested/real.txt", found)
+        self.assertNotIn("nested/.git/objects/pack/dummy", found)
+
+    def test_ordinary_dotgit_file_is_treated_as_a_marker_too(self):
+        """Deliberate, not a bug: the check is file-ness only, never
+        content (see `_walk_files`'s comment) — a bare regular file
+        literally named `.git` anywhere is treated as a worktree/submodule
+        marker and prunes its parent, even holding no real `gitdir:` line
+        as here. Accepted cost of the item's own stated minimum fix:
+        nothing else legitimately creates a file with that exact name."""
+        self._write("weird/.git", "not a real worktree marker\n")
+        self._write("weird/real.txt", "content\n")
+        found = self._found()
+        self.assertNotIn("weird/real.txt", found)
+
+
 if __name__ == "__main__":
     unittest.main()
