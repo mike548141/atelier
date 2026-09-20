@@ -295,3 +295,14 @@ contamination — but the estate came within one CI run of carrying a set of
 "measured" claims whose instrument was wrong on the platform its own CI uses.
 The rule that saved it is the one already written down: the all-clear is the
 **pushed** floor run, never the local one.
+
+**Three pushes to get the floor green, and the third was the same fact
+again.** After isolation landed, two cases still failed — both *direct-path*
+readings taken from the test process itself, which by then holds a thousand
+tests' worth of footprint (`python3 -c pass` read back **254 MB** on the
+runner). The bleed case has to stay on the direct path, since that is where
+the bookkeeping it guards lives, so it now runs its whole scenario inside a
+fresh interpreter; the direct-versus-isolated agreement case was deleted,
+because it compared a sound number against a contaminated one and called the
+gap a disagreement. **Floor green on the pushed run at `8426f3e`** —
+confirmed on that SHA, not inferred from a local pass.
