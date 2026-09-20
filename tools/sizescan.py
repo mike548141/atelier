@@ -141,8 +141,10 @@ it with the system python3 and no install — and CI needs nothing but Python.
 from __future__ import annotations
 
 import argparse
+import codecs
 import fnmatch
 import json
+import os
 import re
 import sys
 from dataclasses import dataclass, asdict
@@ -459,6 +461,134 @@ def _dir_parts(p: Path, walk_base: Path) -> set[str]:
     return set(rel_parts[:-1])   # intermediate dirs only
 
 
+# 020/380 — applying 020/370's bounded-memory fix to this guard. The old
+# `iter_candidates` walked with `base.rglob("*")` funnelled through a list
+# comprehension: a generator that LOOKS lazy, but wrapping it in `[...]`
+# forces Python to enumerate the ENTIRE subtree and hold every `Path` before
+# a single file is even considered — the same shape secretscan's `iter_files`
+# carried before its own fix (`tools/secretscan.py`'s `_walk_files`
+# docstring). `_walk_files` below is that same fix, duplicated rather than
+# imported so this scanner stays copyable alone (secretscan's own stated
+# design: "the tools have different purposes and are each self-contained").
+def _walk_files(base: Path):
+    """Every regular file under `base`, streamed one at a time via
+    `os.walk`, pruning NON-content directories (`.git`, `node_modules`, …)
+    in place so the walk never DESCENDS into them at any depth. Growth-store
+    directories (`sessions/`, `_archive/`, …) are NOT pruned here — an
+    archive store can legitimately live inside one and must still be
+    integrity-checked (HI-F1) — that filter stays a per-file check in
+    `iter_candidates`, same as before this fix."""
+    for dirpath, dirnames, filenames in os.walk(base):
+        dirnames[:] = [d for d in dirnames if d not in NON_CONTENT_DIR_NAMES]
+        for name in filenames:
+            p = Path(dirpath) / name
+            if p.is_file():  # excludes broken symlinks, matching the old rglob filter
+                yield p
+
+
+# Streaming-read tuning (020/380, reusing 020/370's secretscan shape). Every
+# constant is a FIXED size, independent of the file or tree being scanned.
+# sizescan's own regexes (`_COLD_ITEM`, `_LIVE_ITEM`, `_FENCE`, the header
+# markers) are all anchored at the START of a line (`^\s*...`), so — unlike
+# secretscan's arbitrary-position matching — a physical line only ever needs
+# to be held up to a short prefix to decide every check this scanner makes.
+# `_MAX_LINE_BYTES` is set two-plus orders of magnitude past any realistic
+# Markdown list-item line (a checkbox bullet with its text rarely exceeds a
+# few hundred characters) so no real content is ever truncated; it exists
+# purely to bound the pathological case (one absurd multi-MB "line") to a
+# fixed, cheap constant instead of letting it scale with the file.
+_READ_CHUNK_BYTES = 1 * 1024 * 1024
+_MAX_LINE_BYTES = 8 * 1024
+
+
+def _iter_physical_lines(path: Path):
+    """Yield `(lineno, text, truncated)` for every physical line in `path`,
+    reading and decoding it in fixed-size chunks so peak memory for ONE file
+    is bounded by `_MAX_LINE_BYTES` (plus one read chunk in flight) —
+    independent of the file's total size or its longest line (020/380). A
+    physical line longer than `_MAX_LINE_BYTES` is truncated to that many
+    characters for `text`; `truncated=True` says so — the excess is still
+    READ (so running time stays linear in bytes read) but never held, and
+    the caller counts the truncation rather than scanning silently short."""
+    decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
+    lineno = 1
+    pending = ""
+    truncated = False
+
+    def feed(text: str):
+        nonlocal lineno, pending, truncated
+        while text:
+            nl = text.find("\n")
+            piece, text = (text, "") if nl == -1 else (text[:nl], text[nl + 1:])
+            room = _MAX_LINE_BYTES - len(pending)
+            if room > 0:
+                pending += piece[:room]
+            if len(piece) > max(room, 0):
+                truncated = True
+            if nl != -1:
+                yield lineno, pending, truncated
+                lineno += 1
+                pending = ""
+                truncated = False
+
+    with open(path, "rb") as fh:
+        while True:
+            chunk = fh.read(_READ_CHUNK_BYTES)
+            if not chunk:
+                break
+            yield from feed(decoder.decode(chunk))
+    tail = decoder.decode(b"", final=True)
+    if tail:
+        yield from feed(tail)
+    if pending or truncated:
+        yield lineno, pending, truncated
+
+
+def _scan_file_metrics(path: Path, basename: str) -> tuple[str, int, int, int]:
+    """Stream `path` once (twice only in the rare unbalanced-fence case) to
+    compute `(header, line_count, cold_items, live_items)` without ever
+    holding the whole file, or a per-line record of it, in memory (020/380).
+
+    Replaces the old `p.read_text()` → `count_lines`/`cold_item_count`/
+    `live_item_count`, each of which re-derived `text.splitlines()` over the
+    WHOLE file — the same double-materialization shape secretscan's old
+    `scan_paths` carried. The fence-balance fallback (HI-F2/HA2: if the file
+    ends inside an open fence, recount as if none ever opened) is done with a
+    SECOND STREAMING PASS rather than a buffered per-line flag list — the
+    flag list would itself grow with the file's LINE COUNT, which is exactly
+    the not-allowed-to-scale-with-input-size shape this fix exists to remove.
+    Two bounded passes is still linear in bytes read, just a larger constant
+    factor, and the common (balanced) case never pays it at all."""
+    want_cold = basename in COLD_CHECKBOX_FILES
+    want_live = is_archive_store(basename)
+
+    def one_pass(ignore_fences: bool):
+        header_lines: list[str] = []
+        n = 0
+        in_fence = False
+        cold = live = 0
+        for lineno, text, _truncated in _iter_physical_lines(path):
+            n = lineno
+            if lineno <= MARKER_SCAN_LINES:
+                header_lines.append(text)
+            stripped = text.lstrip()
+            if _FENCE.match(stripped):
+                if not ignore_fences:
+                    in_fence = not in_fence
+                continue
+            if ignore_fences or not in_fence:
+                if want_cold and _COLD_ITEM.match(text):
+                    cold += 1
+                if want_live and _LIVE_ITEM.match(text):
+                    live += 1
+        return "\n".join(header_lines), n, cold, live, in_fence
+
+    header, n, cold, live, unbalanced = one_pass(ignore_fences=False)
+    if unbalanced:
+        header, n, cold, live, _ = one_pass(ignore_fences=True)
+    return header, n, cold, live
+
+
 def iter_candidates(paths: list[Path], root: Path, globs: list[str],
                     skipped: list[int] | None = None):
     """Yield candidate files under the given paths, skipping growth-store dirs
@@ -470,8 +600,7 @@ def iter_candidates(paths: list[Path], root: Path, globs: list[str],
     for base in paths:
         base = base.resolve()
         walk_base = base if base.is_dir() else base.parent
-        candidates = [base] if base.is_file() else [
-            p for p in base.rglob("*") if p.is_file()]
+        candidates = [base] if base.is_file() else _walk_files(base)
         for p in candidates:
             rp = p.resolve()
             if rp in seen or (p.name not in SIZE_REFERENCE
@@ -502,27 +631,33 @@ def scan_paths(paths: list[Path], root: Path,
     files_allowed = 0
     skipped: list[int] = []
     for p in iter_candidates(paths, root, globs, skipped):
-        text = p.read_text(encoding="utf-8", errors="replace")
-        if parse_allow(_header(text)) is not None:
+        # 020/380 — streamed rather than `p.read_text()` + whole-file regex
+        # passes: peak memory for this file is now bounded by `_MAX_LINE_BYTES`
+        # regardless of the file's own size. `header` is already the
+        # first-`MARKER_SCAN_LINES`-lines slice `_header(text)` would have
+        # produced from full text, so `parse_allow`/`reference_for` (which
+        # re-slice to the same bound) need no change.
+        try:
+            header, n, cold, live = _scan_file_metrics(p, p.name)
+        except OSError:
+            continue
+        if parse_allow(header) is not None:
             files_allowed += 1
             continue
         if is_archive_store(p.name):
             # Integrity only — an archive store is never size-metered. A live
             # marker gates under --check; a clean archive stays silent.
-            live = live_item_count(text, p.name)
             if live:
                 findings.append(Finding(
-                    _rel(p, root), count_lines(text), 0, 0, 0,
+                    _rel(p, root), n, 0, 0, 0,
                     "investigate, then recommend to the principal: flip to [x] "
                     "with a dated disposition note, or un-harvest to the "
                     "roadmap — never silently fix",
                     True, live))
             continue
-        reference = reference_for(text, p.name)
+        reference = reference_for(header, p.name)
         if reference is None:
             continue
-        n = count_lines(text)
-        cold = cold_item_count(text, p.name)
         over = max(0, n - reference)
         # Emit a finding only if there's something to say: relocatable cold
         # content (gates) or an over-reference size (advisory). A lean, all-open

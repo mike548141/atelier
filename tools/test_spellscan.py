@@ -1,8 +1,16 @@
 """Stdlib-only tests for spellscan (no pytest needed): `python3 -m unittest`."""
 
+import shutil
+import sys
+import tempfile
+import time
 import unittest
+from pathlib import Path
 
 import spellscan as ss
+import memprobe
+
+TOOLS_DIR = Path(__file__).resolve().parent
 
 
 def scan(text):
@@ -406,3 +414,117 @@ class Allowances(unittest.TestCase):
 
     def test_clean_tally_reports_known_zeros(self):
         self.assertIn("0 by allow-marker", ss.Tally().summary())
+
+
+class PathUrlStripIsLinearTime(unittest.TestCase):
+    """020/380 — `_PATH_OR_URL_RX` used to be `\\S*/\\S+`: `\\S*` includes
+    "/" itself, so for a long run of non-whitespace characters with NO "/"
+    at all, the engine backtracked one character at a time at EVERY starting
+    position looking for a "/" that never comes — classic O(n^2) regex
+    behaviour. Measured while building this fix: 0.0019s at 1,000 characters,
+    0.19s at 10,000 (~100x for a 10x input — the quadratic signature), 21.6s
+    at 100,000. This is what made `spellscan one-huge-line` hang past the
+    board item's own 120s measurement-harness ceiling even at a mere 1 MB
+    input. Fixed by excluding "/" from the prefix's character class
+    (`[^\\s/]*/\\S+`) — same matches, no overlap to backtrack through."""
+
+    def test_long_slash_free_token_is_fast(self):
+        line = "x" * 200_000
+        t0 = time.monotonic()
+        ss.scan_text("t", line)
+        dt = time.monotonic() - t0
+        # Linear-time code does this in a few milliseconds; the pre-fix
+        # quadratic code would take tens of seconds at this length (the
+        # 100,000-character measurement alone took 21.6s). 2s is generous
+        # headroom for a slow CI box while still failing hard if the
+        # quadratic behaviour comes back.
+        self.assertLess(dt, 2.0,
+                        f"took {dt:.2f}s on a 200,000-char slash-free token — "
+                        "the O(n^2) _PATH_OR_URL_RX backtracking is back (020/380)")
+
+    def test_matching_behaviour_is_unchanged(self):
+        # The path/URL token is blanked whole, length preserved — every
+        # existing path/URL-stripping test elsewhere in this file already
+        # pins that a slash-shaped token is exempted from the denylist; this
+        # just checks the multi-slash case the fix's own reasoning leans on.
+        line = "see docs/method/PRINCIPLES.md for the rule"
+        token = "docs/method/PRINCIPLES.md"
+        expected = line.replace(token, " " * len(token))
+        self.assertEqual(expected, ss._strip_paths_and_urls(line))
+
+    def test_trailing_bare_slash_now_blanked_too(self):
+        # The one HONEST widening from the pre-fix regex (see
+        # `_strip_paths_and_urls`'s docstring): a token that is nothing but a
+        # trailing "/" with no character after it used to survive; now it is
+        # blanked like any other slash-shaped token. Never a narrower match —
+        # it cannot cause a real US spelling to go unflagged.
+        line = "prefix abc/ suffix"
+        expected = line.replace("abc/", " " * len("abc/"))
+        self.assertEqual(expected, ss._strip_paths_and_urls(line))
+
+
+class BoundedMemory(unittest.TestCase):
+    """020/380 — applying 020/370's bounded-memory fix to spellscan. Mike's
+    ruling, verbatim: "it should not matter how much it scans it should no
+    have this affect". Measured BEFORE this fix (see the board item's own
+    before/after table): a 23 MB larger many-line docs file drove ~94 MB of
+    peak-RSS growth from the old `read_text()` whole-file string plus
+    `text.splitlines()` whole-file list (the same shape secretscan's
+    `020/370` fixed); a SINGLE huge line TIMED OUT the 120s measurement
+    harness outright — see `PathUrlStripIsLinearTime` above for that half.
+
+    Runs the real CLI as a SUBPROCESS via `memprobe.run_and_measure` and
+    reads peak RSS back from the kernel — see `tools/memprobe.py`.
+
+    Content is plain filler prose with no US spelling anywhere, so both runs
+    produce zero findings — the only thing that differs is how many bytes
+    there are to read."""
+
+    SPELLSCAN = str(TOOLS_DIR / "spellscan.py")
+    SMALL_BYTES = 1 * 1024 * 1024
+    LARGE_BYTES = 8 * 1024 * 1024
+    # See test_datescan.BoundedMemory's identical comment: a literal, not a
+    # reference to `ss._READ_CHUNK_BYTES`/`_MAX_LINE_BYTES`, grounded in the
+    # same fixed per-file state (a 1 MiB read chunk plus one physical line
+    # capped at 8 KiB — `spellscan._iter_physical_lines`), 8x over for
+    # allocator noise.
+    GROWTH_BOUND_BYTES = 8 * (1 * 1024 * 1024 + 8 * 1024)
+
+    @staticmethod
+    def _build_many_line(target_bytes: int, path: Path) -> None:
+        with open(path, "w") as f:
+            written = 0
+            i = 0
+            while written < target_bytes:
+                line = f"this is filler prose line number {i} nothing to see here\n"
+                f.write(line)
+                written += len(line)
+                i += 1
+
+    def _peak_rss_for(self, size_bytes: int) -> int:
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        docs = tmp / "docs"
+        docs.mkdir()
+        self._build_many_line(size_bytes, docs / "note.md")
+        result = memprobe.run_and_measure(
+            [sys.executable, self.SPELLSCAN, "--root", str(tmp), str(docs)],
+            timeout=60, rss_limit_bytes=900 * 1024 * 1024)
+        self.assertFalse(result.timed_out, "scan did not finish in time")
+        self.assertFalse(result.killed_over_limit,
+                         "scan exceeded the 900 MB safety limit")
+        self.assertEqual(0, result.returncode,
+                         "filler content must not itself flag anything")
+        return result.peak_rss_bytes
+
+    def test_peak_memory_does_not_scale_with_many_line_file_size(self):
+        small_peak = self._peak_rss_for(self.SMALL_BYTES)
+        large_peak = self._peak_rss_for(self.LARGE_BYTES)
+        growth = large_peak - small_peak
+        self.assertLess(
+            growth, self.GROWTH_BOUND_BYTES,
+            f"peak RSS grew {growth / 1e6:.1f} MB for a "
+            f"{(self.LARGE_BYTES - self.SMALL_BYTES) / 1e6:.1f} MB larger "
+            f"many-line file (small={small_peak / 1e6:.1f} MB, "
+            f"large={large_peak / 1e6:.1f} MB) — memory is scaling with "
+            "input size again (020/380).")

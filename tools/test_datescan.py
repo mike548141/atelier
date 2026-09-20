@@ -1,6 +1,14 @@
 """Stdlib-only tests for datescan (no pytest needed): `python3 -m unittest`."""
 
+import shutil
+import sys
+import tempfile
 import unittest
+from pathlib import Path
+
+import memprobe
+
+TOOLS_DIR = Path(__file__).resolve().parent
 
 try:
     # `python3 -m unittest tools.test_datescan` from the repo root — tools/
@@ -372,3 +380,102 @@ class Allowances(unittest.TestCase):
 
     def test_clean_tally_reports_known_zeros(self):
         self.assertIn("0 by allow-marker", ds.Tally().summary())
+
+
+class BoundedMemory(unittest.TestCase):
+    """020/380 — applying 020/370's bounded-memory fix to datescan. Mike's
+    ruling, verbatim: "it should not matter how much it scans it should no
+    have this affect". Measured BEFORE this fix (see the board item's own
+    before/after table): a 23 MB larger many-line docs file drove ~95 MB of
+    peak-RSS growth, and a 23 MB larger SINGLE-line file drove ~268 MB — both
+    from the old `read_text()` whole-file string plus `text.splitlines()`
+    whole-file list, the same double-materialization shape secretscan's
+    `020/370` fixed.
+
+    Runs the real CLI as a SUBPROCESS via `memprobe.run_and_measure` and
+    reads peak RSS back from the kernel — `tracemalloc` only sees the Python
+    heap, not the whole OS process (see `tools/memprobe.py`).
+
+    Content is plain filler prose with no relative-time word, non-ISO date,
+    or invalid-ISO-date shape anywhere, so both runs produce zero findings —
+    the only thing that differs is how many bytes there are to read."""
+
+    DATESCAN = str(TOOLS_DIR / "datescan.py")
+    SMALL_BYTES = 1 * 1024 * 1024
+    LARGE_BYTES = 8 * 1024 * 1024
+    # Grounded in the FIX's design (`ground-numeric-limits`), not fitted to a
+    # measurement, and a LITERAL rather than a reference to
+    # `ds._READ_CHUNK_BYTES`/`_MAX_LINE_BYTES` — this test must still MEASURE
+    # a real blow-up (not just fail an AttributeError at import) if ever run
+    # against the pre-fix module, which carries neither constant. The only
+    # per-file state the fix's `_content_lines_from_file` ever holds is one
+    # read chunk in flight (1 MiB) plus one physical line capped at 8 KiB.
+    # Both runs produce zero findings, so growth should be close to zero; 8x
+    # that fixed per-file state leaves generous headroom for interpreter/
+    # allocator noise while staying far below what the pre-fix whole-file-read
+    # code showed for this size delta (measured, while building this fix, at
+    # ~95 MB for a many-line file and ~268 MB for a single-line file — facts
+    # recorded for context, not what set this number).
+    GROWTH_BOUND_BYTES = 8 * (1 * 1024 * 1024 + 8 * 1024)
+
+    @staticmethod
+    def _build_many_line(target_bytes: int, path: Path) -> None:
+        with open(path, "w") as f:
+            written = 0
+            i = 0
+            while written < target_bytes:
+                line = f"this is filler prose line number {i} with no relative dates here\n"
+                f.write(line)
+                written += len(line)
+                i += 1
+
+    @staticmethod
+    def _build_one_line(target_bytes: int, path: Path) -> None:
+        with open(path, "w") as f:
+            f.write("x" * target_bytes)
+            f.write("\n")
+
+    def _peak_rss_for(self, builder, size_bytes: int) -> int:
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        docs = tmp / "docs"
+        docs.mkdir()
+        builder(size_bytes, docs / "note.md")
+        # Safety (020/370's own incident: a probe thrashed the principal's
+        # machine doing exactly this kind of measurement): hard-kill well
+        # short of the 1 GB line, and a ceiling so a regression that
+        # reintroduces catastrophic behaviour fails the test instead of
+        # hanging CI.
+        result = memprobe.run_and_measure(
+            [sys.executable, self.DATESCAN, "--root", str(tmp), str(docs)],
+            timeout=60, rss_limit_bytes=900 * 1024 * 1024)
+        self.assertFalse(result.timed_out, "scan did not finish in time")
+        self.assertFalse(result.killed_over_limit,
+                         "scan exceeded the 900 MB safety limit")
+        self.assertEqual(0, result.returncode,
+                         "filler content must not itself flag anything")
+        return result.peak_rss_bytes
+
+    def test_peak_memory_does_not_scale_with_many_line_file_size(self):
+        small_peak = self._peak_rss_for(self._build_many_line, self.SMALL_BYTES)
+        large_peak = self._peak_rss_for(self._build_many_line, self.LARGE_BYTES)
+        growth = large_peak - small_peak
+        self.assertLess(
+            growth, self.GROWTH_BOUND_BYTES,
+            f"peak RSS grew {growth / 1e6:.1f} MB for a "
+            f"{(self.LARGE_BYTES - self.SMALL_BYTES) / 1e6:.1f} MB larger "
+            f"many-line file (small={small_peak / 1e6:.1f} MB, "
+            f"large={large_peak / 1e6:.1f} MB) — memory is scaling with "
+            "input size again (020/380).")
+
+    def test_peak_memory_does_not_scale_with_single_line_length(self):
+        small_peak = self._peak_rss_for(self._build_one_line, self.SMALL_BYTES)
+        large_peak = self._peak_rss_for(self._build_one_line, self.LARGE_BYTES)
+        growth = large_peak - small_peak
+        self.assertLess(
+            growth, self.GROWTH_BOUND_BYTES,
+            f"peak RSS grew {growth / 1e6:.1f} MB for a "
+            f"{(self.LARGE_BYTES - self.SMALL_BYTES) / 1e6:.1f} MB longer "
+            f"single line (small={small_peak / 1e6:.1f} MB, "
+            f"large={large_peak / 1e6:.1f} MB) — memory is scaling with "
+            "input size again (020/380).")
