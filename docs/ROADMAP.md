@@ -68,7 +68,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [The bidi / zero-width spoofing set — strip, escape, or accept](roadmap/020-policy-as-code-programme-five-tracks-mik/350-bidi-and-zero-width-strip-decision.md)
 - ✅ 🎯 [→✅ Remove](roadmap/020-policy-as-code-programme-five-tracks-mik/360-remove-plainscan-hook-destroyed-engine-archived.md)
 - ✅ 🔥 [DEFECT — secretscan's memory grows with what it scans: ~9 GB over](roadmap/020-policy-as-code-programme-five-tracks-mik/370-a-whole-tree-scan-of-a-large-repo-exhausts-the-machine.md)
-- [~] 🔥 (claimed 2026-09-20-0620, wt: three workers; registered floor guards first) [Every guard runs in bounded memory, whatever it is pointed at](roadmap/020-policy-as-code-programme-five-tracks-mik/380-every-guard-bounded-memory-regardless-of-input-size.md)
+- ✅ 🔥 [Every guard runs in bounded memory, whatever it is pointed at](roadmap/020-policy-as-code-programme-five-tracks-mik/380-every-guard-bounded-memory-regardless-of-input-size.md)
 - [ ] 🔎 [Parallel workers in one run share a scratchpad path, and one](roadmap/020-policy-as-code-programme-five-tracks-mik/390-parallel-workers-share-one-scratchpad-path.md)
 - [ ] 🔥 [harvestscan's vanished-item check is quadratic in the number of](roadmap/020-policy-as-code-programme-five-tracks-mik/400-harvestscans-similarity-pass-is-quadratic.md)
 
@@ -235,6 +235,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued — the floor is copied verbatim (115/030)](roadmap/160-doctrine-review-owed/340-rule-4-cold-pass-queued-the-floor-verbatim-ruling.md)
 - ⏳ [Rule-4 cold pass queued — the 2026-09-20 scanner code: secretscan](roadmap/160-doctrine-review-owed/350-rule-4-cold-pass-queued-the-bounded-memory-and-declared-roots-code.md)
 - ⏳ [Rule-4 cold pass queued — the naming precedence: rule 2 governs every](roadmap/160-doctrine-review-owed/360-rule-4-cold-pass-queued-the-naming-precedence.md)
+- ⏳ [Rule-4 cold pass queued — the bounded-guard-layer conversion: fourteen](roadmap/160-doctrine-review-owed/370-rule-4-cold-pass-queued-the-bounded-guard-layer.md)
 
 ## build/ layer — open strands
 

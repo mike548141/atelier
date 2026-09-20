@@ -5,6 +5,50 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-09-20 — queue run: the morning rulings, and the guard layer made bounded)
+- **Every guard now runs in bounded memory and linear time** (Mike's ruling,
+  `020/370`, `020/380`): *"it should not matter how much it scans it should no
+  have this affect."* 14 guards and fleet tools measured; the tree-walkers
+  stream (`os.walk` with in-place pruning, fixed read chunks, a line window
+  with an overlap so a match straddling a cut survives) and findings past a
+  fixed cap are **counted, never dropped**. Worst case before → after:
+  `secretscan` 432 MB → 52 MB, `datescan` 268 MB → under an 8.5 MB bound,
+  `licenscan` and `stampscan` from whole-repo-resident to flat. `board`,
+  `pointerscan` and `signscan` were **measured and pinned, not rewritten** —
+  their growth is legitimate and linear. The fleet tools take a size gate
+  grounded in the file class (largest real `CLAUDE.md` in the estate: 72 KB
+  against a 2 MiB cap).
+- **The requirement's time clause caught four defects no memory measurement
+  would show:** `spellscan`'s path/URL regex backtracked catastrophically
+  (107 s on one 1 MB line), `linkscan` ran two quadratic passes (a 20,000-file
+  tree did not finish in three minutes; 17 s now), and `harvestscan`'s
+  similarity pass is quadratic in item count — split out unfixed as `020/400`
+  rather than patched around.
+- **`memprobe`** (new): the shared measurement harness every guard's
+  bounded-memory test builds on. It measures from a fresh minimal interpreter,
+  because a forked child inherits its parent's page accounting on Linux — the
+  harness was reading the test process's own footprint back as the child's.
+- **`blockscan`** (new, advisory, atelier-only — Mike's ruling, `320/300`):
+  a commit that changes a method-doc section the child doctrine block
+  summarises must move the block's bullet in both `PROPAGATION.md` and the
+  scaffold template, or carry a reasoned allow marker. Deliberately **not** in
+  the shared floor registry: every path it names exists only in atelier.
+- **`stampscan`** reds a `narrow=` on the inlined floor (Mike's ruling,
+  `115/030`) — the scanner's verdicts were inverted against the doctrine.
+- **`pathscan`** reads extra resolution roots declared per repo in
+  `.atelier-floor.json` (Mike's ruling, `320/010`): a `src/<pkg>` layout was
+  three quarters of one child's false positives.
+- **Doctrine — the cheapest model that does the job well takes every seat**
+  (Mike's ruling, `320/320`): orchestration is no longer reserved for the top
+  model, and the run-open check states its tier and proceeds instead of asking
+  the principal. Cold review passes keep their principal-named tier.
+- **Doctrine — a private child's name stays out of every surface a filing
+  creates** (Mike's ruling, `320/190`): branch names, PR titles, commit
+  subjects and PR bodies, not just the item text. The report branch form loses
+  its repo token.
+- **Doctrine — the inlined safety floor is copied verbatim** (Mike's ruling,
+  `115/030`): no compression, no declared narrowing.
+
 ### Changed (2026-09-18 — queue run: the hand-up fixes and four rulings)
 - **plainscan removed** (Mike's ruling, `020/360`): the unwired reply hook
   destroyed, the warn-only floor scanner taken off the registry — it printed

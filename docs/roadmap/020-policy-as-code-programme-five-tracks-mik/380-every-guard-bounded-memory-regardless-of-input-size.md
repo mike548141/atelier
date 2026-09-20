@@ -1,4 +1,4 @@
-- [~] (claimed 2026-09-20-0620, wt: three workers; registered floor guards first) 🔥 **Every guard runs in bounded memory, whatever it is pointed at** —
+- [x] 🔥 **Every guard runs in bounded memory, whatever it is pointed at** —
       Mike's ruling, 2026-09-19, extending `020/370` from `secretscan` to the
       whole guard layer: *"it should not matter how much it scans it should no
       have this affect. Put work on the board to fix that, and the same for all
@@ -37,9 +37,21 @@
       - [x] `pointerscan` — measured, not rewritten — linear (~3.7 KB/item), pinned the same way
       - [x] `pathscan` — fixed — the same `rglob`-into-a-list defect; ~20 MB of growth at 20,000 files, now near zero
       - [x] `licenscan` — fixed — it held every tracked file's decoded text in one list before reading a single declaration; now re-walks, caps a file at 8 MiB, counts the truncation
-      - [ ] `stampscan` and `signscan` (guards outside the floor registry)
-      - [ ] `floorfleet`, `signfleet`, `pins` — fleet tools, not guards, but
-            they walk every sibling repo, so they fall in the same class
+      - [x] `stampscan` and `signscan` (guards outside the floor registry)
+            — `stampscan` fixed (a many-line file +29 MB → +0.1 MB; an
+            8 MB single line from a 3.6× multiplier to flat), canonical
+            regions now cached as regions rather than whole source docs;
+            `signscan` measured only — one small dict per commit, and
+            1,324 commits of real history grow it by under a megabyte.
+      - [x] `floorfleet`, `signfleet`, `pins` — and `blockscan` with them.
+            None of the four is a tree-walker (a fixed map, or one-level
+            `iterdir` plus a few named files per child), but every read was
+            whole-file. They take a **size gate**, not a streaming rewrite:
+            check the size, refuse loudly past a cap grounded in the file
+            class, never truncate in silence. Headroom measured across the
+            real siblings rather than assumed — the largest `CLAUDE.md` in the
+            estate is 72 KB against a 2 MiB cap, the largest `floor.yml`
+            10 KB — so only a pathological file is ever refused.
 
       **Close condition:** every box above is either fixed and pinned by the
       shared regression test, or measured, shown bounded by the test, and
@@ -80,3 +92,22 @@
       because a link, an anchor or a heading is never open-ended the way a
       credential token can be. Converging on the *shape* is the point;
       copying the numbers would not be.
+      ✅ **CLOSED 2026-09-20.** Fourteen tools measured across five worker
+      batches; every box above is fixed and pinned, or measured and pinned,
+      with the numbers on its own line. `harvestscan` is the one exception and
+      it is **split, not skipped** — `020/400`, a quadratic similarity pass
+      that is a redesign rather than a patch.
+      **What the programme actually found, beyond the memory numbers:** four
+      defects caught by the *time* clause that no peak-RSS table would show —
+      `spellscan`'s catastrophically backtracking regex, `linkscan`'s two
+      quadratic passes, and `harvestscan`'s quadratic comparison. And one
+      instrument defect: the shared harness was reading the **test process's
+      own footprint** back as the child's on Linux, so nine guards were
+      briefly "measured" on numbers that were sound on macOS and wrong on the
+      platform CI runs (caught by the pushed floor, fixed in `memprobe`).
+      **Two costs this leaves, both named rather than absorbed:** the tool
+      suite now takes ~6.3 minutes locally (1,519 tests, up from ~3.5), since
+      each guard spawns real subprocesses over multi-megabyte synthetic
+      inputs; and `_walk_files` now exists in ten copies, which is
+      `115/080`'s third and largest instance.
+      *review: queued as a code cold pass, `160/370`.*
