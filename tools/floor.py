@@ -534,7 +534,20 @@ SCANNERS: tuple[Scanner, ...] = (
         # 010/090). `board.py` still accepts the bare word for every OTHER
         # caller pinned to it, but this registry line is the one that must
         # never again pattern-match a neighbour's positional shape.
-        hook=["--check", "--root", "{root}", "{scope}"],
+        #
+        # `--staged` at the HOOK, plain at CI (010/020, landed 2026-09-20,
+        # BS1's fund). The hook's question is what THIS COMMIT is about to
+        # make true, so it reads the git INDEX on both sides — closing the two
+        # slips BS1 probed live: an index rebuilt but never staged, and a
+        # rebuild that read a sibling's dirty item line off the worktree and
+        # baked it in. CI keeps the worktree form because a CI checkout already
+        # IS the committed tree, so `--staged` would answer a question CI
+        # cannot ask. Safe to put in the registry rather than atelier-only:
+        # children do not vendor these tools (ADR 0008) — the hook resolves
+        # board.py and floor.py from the SAME atelier checkout, so the flag and
+        # the code that understands it can never skew apart, which is what made
+        # a previous registry wiring unsafe (2026-09-19, blockscan).
+        hook=["--check", "--staged", "--root", "{root}", "{scope}"],
         ci=["--check", "--root", "{root}", "{scope}"],
         advisory=None,  # a stale index is a wrong board; there is no soft form
         why="the generated roadmap index never drifts from its item files",

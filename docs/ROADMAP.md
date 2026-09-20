@@ -11,7 +11,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/010-board-store-migration-per-item-files-mik/README.md)*
 
 - ✅ [Migrate the board to per-item files + generate the index](roadmap/010-board-store-migration-per-item-files-mik/010-migrate-the-board-to-per-item-files-generate-t.md)
-- [~] (claimed 2026-09-20-1053, wt: at-board-staged-plane) [board --check reads the worktree, not the staged plane.](roadmap/010-board-store-migration-per-item-files-mik/020-board-check-staged-plane-seam.md)
+- ✅ [board --check reads the worktree, not the staged plane.](roadmap/010-board-store-migration-per-item-files-mik/020-board-check-staged-plane-seam.md)
 - [ ] 🎯 [Fleet rollout of the split board](roadmap/010-board-store-migration-per-item-files-mik/030-fleet-rollout-of-the-split-board.md)
 - ✅ [Sweep monolith-era board wording across the doctrine surface.](roadmap/010-board-store-migration-per-item-files-mik/040-monolith-era-wording-sweep.md)
 - [ ] 🛑 [The board-store cold pass RAN 2026-08-15 and the cycle stays OPEN](roadmap/010-board-store-migration-per-item-files-mik/050-rule-4-cold-pass-queued.md)
@@ -25,6 +25,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [A claim on a long-titled item fails the wrapscan floor — on the item's](roadmap/010-board-store-migration-per-item-files-mik/130-a-claim-fragment-on-a-long-title-fails-wrapscan.md)
 - ✅ 🔎 [index_title's fallback swallows the claim fragment into the generated](roadmap/010-board-store-migration-per-item-files-mik/140-index-title-fallback-swallows-the-claim-fragment.md)
 - ✅ 🔥 [board called a current index stale from every worktree of atelier,](roadmap/010-board-store-migration-per-item-files-mik/150-board-judged-the-tree-from-the-tool-s-own-path.md)
+- [ ] 🎯 [CF3's dirty-sibling stop is now stricter than its cause requires](roadmap/010-board-store-migration-per-item-files-mik/160-cf3-s-sibling-stop-is-now-stricter-than-its-cause.md)
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
 
@@ -237,6 +238,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued — the naming precedence: rule 2 governs every](roadmap/160-doctrine-review-owed/360-rule-4-cold-pass-queued-the-naming-precedence.md)
 - ⏳ [Rule-4 cold pass queued — the bounded-guard-layer conversion: fourteen](roadmap/160-doctrine-review-owed/370-rule-4-cold-pass-queued-the-bounded-guard-layer.md)
 - ⏳ [Rule-4 cold pass queued — the scratch-space clause: a worker's…](roadmap/160-doctrine-review-owed/380-rule-4-cold-pass-queued-the-scratchpad-clause.md)
+- ⏳ [Rule-4 cold pass queued — the staged-plane board check and its…](roadmap/160-doctrine-review-owed/390-rule-4-cold-pass-queued-the-staged-plane-check.md)
 
 ## build/ layer — open strands
 

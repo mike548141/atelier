@@ -290,14 +290,21 @@ shared worktree safe when the staging command is not file-scoped.
 
 **On a split board** (board-store ADR, 2026-08-15) the item's checkbox line
 lives in *its own file* under `docs/roadmap/`, and the claim commit carries two
-things: that line's edit, and the regenerated index (`tools/board.py --rebuild`
-— the `board` floor check catches a **forgotten** rebuild at the hook and on
-CI both; what the hook cannot vouch for is a rebuild that **ran but was not
-staged**, or one that absorbed a sibling's dirty state line — those pass the
-hook and are caught on CI, so
-*a dirty sibling item state line is a stop for claiming from that checkout*,
-not a stage-yours-alone case — BS1; wording per the principal's ruling
-2026-08-23, until the staged-plane check lands). The mechanics below
+things: that line's edit, and the regenerated index — `tools/board.py rebuild`
+at a clean checkout, `rebuild --from-index` at a dirty one, which regenerates
+from the staged plane so a sibling's unstaged line cannot be absorbed into the
+file you are about to stage. The `board` floor check runs `--staged` at the
+hook (`010/020`, landed 2026-09-20, discharging BS1's fund): it reads the git
+**index** on both sides, so a rebuild that **ran but was not staged** and one
+that **absorbed a sibling's dirty state line** are now both caught at the hook
+itself, not only on CI afterwards. CI keeps the worktree form, where the
+checkout already *is* the committed tree. What no plane defends is a commit
+that deliberately stages a stale item edit *and* a stale index together —
+that is a wrong commit, not a plane confusion, and no choice of plane helps.
+*The claiming rule this wording carried while the check was unbuilt — that a
+dirty sibling state line is a stop for claiming from that checkout — is CF3's
+to restate or relax now that its cause is closed; see there.* The mechanics
+below
 are unchanged; only the collision surface improves. Same-item claims still
 collide on the item's state line. Different-item claims now touch different
 files, so the false-conflict case shrinks to the index — where two claims'
@@ -331,6 +338,21 @@ sync, take the next open item, touch nothing. (CF3, ruled 2026-07-20 — the
 gap predated the flip; the flip made it expected rather than exceptional. A
 dirty *index* alone is weaker evidence on a split board — any state change
 regenerates it — so the item file, not the index, is the tell.)
+
+🎯 **CF3's stop is now stricter than its cause requires, and that is the
+principal's to settle, not a session's.** Part of why a dirty *sibling* item
+blocked a claim was that regenerating the index off the worktree could absorb
+that sibling's unstaged line. `rebuild --from-index` closes exactly that risk
+(`010/020`, landed 2026-09-20), so the rule *could* relax to: a sibling's dirty
+edit to a **different** item no longer stops a claim — run `rebuild
+--from-index` instead of stopping — and only a dirty edit to the **exact item
+being claimed** remains a stop, which is the same-item collision the rule above
+already calls positive proof. **It has not been relaxed here.** The stop also
+carries a second, independent reason the new flag does nothing about: a dirty
+sibling item is evidence a peer is queue-active, and CF3 reads that as a signal
+about *the other session*, not only about the index. Weighing those against each
+other is a standing-doctrine change; queued for ruling rather than taken (the
+building worker surfaced it and declined to decide it, correctly).
 
 - **Push succeeds** → the item is yours; now enter the worktree and work.
 - **Push rejected** → `pull --rebase`. If another session claimed the *same*

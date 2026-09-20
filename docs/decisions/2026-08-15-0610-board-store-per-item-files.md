@@ -141,3 +141,39 @@ which it catches (BW1, the BS1-wording cold pass; the principal's re-wording,
 for a commit whose staged board files match the worktree — a rebuild that ran
 but was not staged escapes the hook and is caught on CI. The rest of the
 amendment, including the funded staged-plane check, stands unchanged.
+
+## Amended 2026-09-20 — the staged-plane check landed; BS1's fund is spent
+
+The residual the two amendments above state is **closed**. `board check` now
+takes `--staged` and reads the git **index** on both sides of its comparison —
+the item files via `git show :path`, and the committed `docs/ROADMAP.md` the
+same way — so the question it answers at the hook is *what is this commit about
+to make true*, never *does the working directory agree with itself*. That is
+the plane `harvestscan` already reads for HV4, and its mechanism was reused
+rather than a second one invented. The floor registry runs `--staged` at the
+hook plane and the plain worktree form on CI.
+
+Both slips BS1 probed live are caught at the hook now, each reproduced in a
+throwaway repository before and after rather than only unit-tested: an index
+rebuilt but never staged, and a rebuild that read a sibling's dirty item line
+off the worktree and baked it into the staged index. The write-side twin is
+`rebuild --from-index`, which regenerates from the staged plane so a claimer at
+a dirty primary checkout never absorbs a sibling's unstaged line into the file
+it is about to stage.
+
+**CI is deliberately unchanged.** A CI checkout has no unstaged state to be
+confused with, so the worktree there already *is* the committed tree, and
+`--staged` would answer a question CI cannot ask.
+
+**What is still not claimed.** A commit that deliberately stages a stale item
+edit *and* a stale index together passes both planes. That is a wrong commit
+rather than a plane confusion, and no choice of which plane to read defends
+against staging the wrong content on purpose.
+
+**One consequence left open, not decided here.** CF3 (`CONCURRENCY.md`
+§ *Claiming at a dirty primary checkout*) stops a claim when a *sibling's* item
+file is dirty, partly because regenerating could absorb that sibling's line.
+`--from-index` closes that cause, but CF3 also reads a dirty sibling item as
+evidence a peer is queue-active, which the flag does not touch. Whether the
+rule relaxes is the principal's, and is queued as such — the session that built
+the check surfaced it and declined to decide it.

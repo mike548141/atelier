@@ -1,4 +1,4 @@
-- [~] (claimed 2026-09-20-1053, wt: at-board-staged-plane) **`board --check` reads the worktree, not the staged plane.** The check
+- [x] **`board --check` reads the worktree, not the staged plane.** The check
       compares worktree item files against the worktree index, so a commit
       staging an item edit without the rebuilt index is caught only when the
       two agree on disk — the same seam harvestscan closed as HV4 (its hook
@@ -19,3 +19,39 @@
       amendment at the foot of the board-store ADR. This item's landing
       commit sweeps them; nothing machine-checks the unwind, so the list
       lives here where the work is funded.
+      ---
+      ✅ **BUILT AND LANDED 2026-09-20**, discharging Mike's BS1 fund of
+      2026-08-17. `board check --staged` reads the git **index** on both
+      sides — item files via `git show :path`, and the committed
+      `docs/ROADMAP.md` the same way — reusing `harvestscan`'s own
+      `WORKTREE`/`INDEX`/`git_show` plumbing rather than inventing a second
+      mechanism, which is what the fund specified. `rebuild --from-index` is
+      the write-side twin. The flag is named for what it **selects**, per the
+      house rule against imperative flag names.
+      **Both of BS1's slips reproduced before and after**, in a throwaway
+      repository rather than only in unit tests: (a) an item edit staged with
+      the index rebuilt but never staged passed the worktree plane and fails
+      the staged one; (b) a rebuild at a dirty checkout absorbed a sibling's
+      `WIP, uncommitted` line into the index, and `--from-index` renders that
+      sibling from its last **committed** text instead, leaving its on-disk
+      file untouched. Eleven regression tests pin them.
+      **Registry wired, and verified against real children rather than
+      reasoned about:** `floor.py`'s `board` Scanner runs `--staged` at the
+      hook and the plain worktree form on CI. Safe in the registry because
+      children do not vendor these tools (ADR 0008) — hook and code resolve
+      from one atelier checkout, so flag and parser cannot skew. Probed at
+      exit 0 on atelier, a split child, a newly-split child, and a monolithic
+      child (which correctly reported out-of-scope).
+      **The five interim wording surfaces are swept** as BW6 required:
+      `tools/board.py`'s docstring (both the hook clause and the merged
+      *STATED RESIDUAL*), `tools/README.md` § **board**,
+      `docs/method/CONCURRENCY.md` § *On a split board*,
+      `docs/roadmap/README.md`'s preamble, and the board-store ADR by
+      **appended amendment**, never an edit.
+      ⚠️ **Not claimed:** a commit that deliberately stages a stale item edit
+      *and* a stale index together passes both planes. That is a wrong commit,
+      not a plane confusion.
+      🎯 **One consequence left for Mike:** CF3's dirty-sibling stop is now
+      stricter than its mechanical cause requires — `010/160`. The building
+      worker surfaced it and declined to decide it, correctly.
+      Rule-4 `⏳` at `160/390`; this run may not take it.

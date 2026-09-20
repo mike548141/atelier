@@ -14,7 +14,7 @@
             board-store ADR by **appended amendment**, never an edit.
             Self-authored doctrine — its rule-4 `⏳` is queued at
             `160-…/260`.
-      - [ ] **`010/020` is FUNDED**: bring `board check` to the staged plane
+      - [x] **`010/020` is FUNDED — BUILT 2026-09-20**: bring `board check` to the staged plane
             (harvestscan's HV4 shape) **and** give `rebuild` a source flag so a
             claimer at a dirty primary regenerates from the index, not the
             worktree; name that flag in CONCURRENCY CF3 when it lands. Code
