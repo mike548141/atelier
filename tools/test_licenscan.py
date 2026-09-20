@@ -4,9 +4,16 @@ Every licence body/declaration here is a fictional fixture — the SPDX *shape* 
 what's under test, not any real project's licence choice.
 """
 
+import shutil
+import sys
+import tempfile
 import unittest
+from pathlib import Path
 
 import licenscan as lc
+import memprobe
+
+TOOLS_DIR = Path(__file__).resolve().parent
 
 APACHE = ("Apache License\nVersion 2.0, January 2004\n"
           "http://www.apache.org/licenses/\n")
@@ -426,6 +433,80 @@ class Allowances(unittest.TestCase):
 class SelfTest(unittest.TestCase):
     def test_selftest_passes(self):
         self.assertEqual(lc._selftest(), 0)
+
+
+class BoundedMemory(unittest.TestCase):
+    """020/380 — the machine-thrash defect, this tool's own shape of it.
+
+    `collect_files` used to read EVERY tracked file's full decoded text into
+    one list before `scan_repo` checked a single declaration: for a real
+    repo, the whole tree's text held in memory at once. Same defect class
+    `secretscan`'s old `_walk_files` fixed one layer up (there, `Path`
+    objects; here, far heavier decoded file bodies that do not stop growing
+    at the tree's file count). Fixed by `_RepoFiles`
+    (`tools/licenscan.py`), which re-walks the tree from disk on each of
+    `scan_repo`'s two passes over `files` instead of caching a corpus.
+
+    Measured the same way as `test_secretscan.py::BoundedMemory`: peak RSS is
+    a whole-process number a Python-heap-only measurement (`tracemalloc`)
+    cannot see (`tools/memprobe.py`'s module docstring), so this runs the
+    real CLI as a subprocess and reads its peak RSS back from the kernel.
+    """
+
+    LICENSCAN = str(TOOLS_DIR / "licenscan.py")
+    # Same file COUNT both runs, different SIZE per file: this isolates the
+    # defect the fix targets — total TEXT held simultaneously — from the walk
+    # itself (that shape is pathscan's own BoundedMemory test, file COUNT
+    # rather than file SIZE).
+    FILE_COUNT = 40
+    SMALL_FILE_BYTES = 100 * 1024      # 100 KiB/file -> ~4 MB tree total
+    LARGE_FILE_BYTES = 1024 * 1024     # 1 MiB/file -> ~40 MB tree total
+    # Grounded in the FIX's design (`ground-numeric-limits`), not fitted to a
+    # measurement: `_RepoFiles` holds at most ONE file's content at a time
+    # (capped at `licenscan.MAX_FILE_BYTES`, 8 MiB), so growth between a 4 MB
+    # and a 40 MB tree should be close to zero. The pre-fix code held the
+    # whole tree's decoded text simultaneously, so the same delta measured,
+    # while building this fix, a growth close to the ~36 MB difference in
+    # total tree content. 20 MB leaves generous headroom above
+    # interpreter/allocator noise while staying well below that pre-fix
+    # figure — a fact recorded for context, not what set the number.
+    GROWTH_BOUND_BYTES = 20 * 1024 * 1024
+
+    @staticmethod
+    def _build(root: Path, file_bytes: int, count: int) -> None:
+        filler = ("no licence-shaped content here, just filler text. " * (
+            file_bytes // 52 + 1))[:file_bytes]
+        for i in range(count):
+            (root / f"file_{i}.txt").write_text(filler)
+
+    def _peak_rss_for(self, file_bytes: int) -> int:
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        self._build(tmp, file_bytes, self.FILE_COUNT)
+        # Safety (020/370's own incident: a previous probe thrashed the
+        # principal's machine doing exactly this kind of measurement): a hard
+        # kill past ~900 MB, and a 60s ceiling so a regression that
+        # reintroduces the whole-tree-in-memory shape fails the test instead
+        # of hanging CI.
+        result = memprobe.run_and_measure(
+            [sys.executable, self.LICENSCAN, str(tmp)],
+            timeout=60, rss_limit_bytes=900 * 1024 * 1024)
+        self.assertFalse(result.timed_out, "scan did not finish in time")
+        self.assertFalse(result.killed_over_limit,
+                         "scan exceeded the 900 MB safety limit")
+        return result.peak_rss_bytes
+
+    def test_peak_memory_does_not_scale_with_total_tree_size(self):
+        small_peak = self._peak_rss_for(self.SMALL_FILE_BYTES)
+        large_peak = self._peak_rss_for(self.LARGE_FILE_BYTES)
+        growth = large_peak - small_peak
+        total_delta = (self.LARGE_FILE_BYTES - self.SMALL_FILE_BYTES) * self.FILE_COUNT
+        self.assertLess(
+            growth, self.GROWTH_BOUND_BYTES,
+            f"peak RSS grew {growth / 1e6:.1f} MB for a tree whose total text "
+            f"content grew by {total_delta / 1e6:.1f} MB (small="
+            f"{small_peak / 1e6:.1f} MB, large={large_peak / 1e6:.1f} MB) — "
+            "memory is scaling with tree size again (020/380).")
 
 
 if __name__ == "__main__":

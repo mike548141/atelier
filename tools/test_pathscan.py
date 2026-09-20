@@ -1,6 +1,10 @@
 """Stdlib-only tests for pathscan (no pytest needed): `python3 -m unittest`."""
 
+import shutil
+import sys
+import tempfile
 import unittest
+from pathlib import Path
 
 try:
     # `python3 -m unittest tools.test_pathscan` from the repo root — tools/
@@ -11,6 +15,10 @@ except ImportError:
     # `cd tools && python3 -m unittest test_pathscan` (what CI uses) — no
     # parent package in scope, fall back to the plain top-level import.
     import pathscan as ps
+
+import memprobe
+
+TOOLS_DIR = Path(__file__).resolve().parent
 
 
 def cand(line):
@@ -829,6 +837,70 @@ class Allowances(unittest.TestCase):
 class SelfTest(unittest.TestCase):
     def test_selftest_passes(self):
         self.assertEqual(0, ps._selftest())
+
+
+class BoundedMemory(unittest.TestCase):
+    """020/380 — the machine-thrash defect, this tool's own shape of it.
+
+    `iter_markdown`'s old `[p for p in base.rglob("*") if ...]` forced the
+    ENTIRE subtree into a list — holding every `Path` object the walk found,
+    matching or not, descending into `.git`/`node_modules`/etc. at full
+    depth — before a single file was filtered, let alone scanned. Fixed by
+    `_walk_files` (`tools/pathscan.py`), an `os.walk` with in-place dirname
+    pruning matching the sibling scanners' shape.
+
+    Isolates FILE COUNT specifically (not content size, which is
+    `licenscan`'s own `BoundedMemory` shape): padding files are plain `.txt`,
+    never markdown, so they add to the walk's file count without adding a
+    single candidate to scan. Measured the same way as
+    `test_secretscan.py::BoundedMemory` — a subprocess + `memprobe`, because
+    peak RSS is a whole-process number `tracemalloc` cannot see.
+    """
+
+    PATHSCAN = str(TOOLS_DIR / "pathscan.py")
+    SMALL_FILE_COUNT = 2_000
+    LARGE_FILE_COUNT = 20_000
+    # Grounded in the FIX's design, not fitted to a measurement
+    # (`ground-numeric-limits`): `_walk_files` never holds more than one
+    # `Path` at a time, so growth between a 2,000-file and a 20,000-file tree
+    # should be close to zero. secretscan's own `_walk_files` docstring
+    # measured the pre-fix list-materialised shape at ~1 KiB held per file,
+    # so the same 18,000-file delta here predicts ~18 MB of pre-fix growth.
+    # 12 MB leaves headroom above interpreter/allocator noise while staying
+    # below that predicted figure.
+    GROWTH_BOUND_BYTES = 12 * 1024 * 1024
+
+    @staticmethod
+    def _build(root: Path, count: int) -> None:
+        docs = root / "docs"
+        docs.mkdir(exist_ok=True)
+        (docs / "note.md").write_text("# note\n\nNo path references here.\n")
+        for i in range(count):
+            (root / f"pad_{i}.txt").write_text("filler\n")
+
+    def _peak_rss_for(self, count: int) -> int:
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        self._build(tmp, count)
+        result = memprobe.run_and_measure(
+            [sys.executable, self.PATHSCAN, "--root", str(tmp), str(tmp)],
+            timeout=90, rss_limit_bytes=900 * 1024 * 1024)
+        self.assertFalse(result.timed_out, "scan did not finish in time")
+        self.assertFalse(result.killed_over_limit,
+                         "scan exceeded the 900 MB safety limit")
+        return result.peak_rss_bytes
+
+    def test_peak_memory_does_not_scale_with_file_count(self):
+        small_peak = self._peak_rss_for(self.SMALL_FILE_COUNT)
+        large_peak = self._peak_rss_for(self.LARGE_FILE_COUNT)
+        growth = large_peak - small_peak
+        self.assertLess(
+            growth, self.GROWTH_BOUND_BYTES,
+            f"peak RSS grew {growth / 1e6:.1f} MB for "
+            f"{self.LARGE_FILE_COUNT - self.SMALL_FILE_COUNT} more files in "
+            f"the tree (small={small_peak / 1e6:.1f} MB, large="
+            f"{large_peak / 1e6:.1f} MB) — memory is scaling with file count "
+            "again (020/380).")
 
 
 if __name__ == "__main__":

@@ -399,6 +399,7 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import json
+import os
 import re
 import sys
 from dataclasses import dataclass, field, asdict
@@ -997,16 +998,29 @@ def _rel(p: Path, root: Path) -> str:
         return str(p)
 
 
+def _walk_files(base: Path):
+    """Every regular file under `base`, streamed one at a time (020/380,
+    matching secretscan/spellscan/licenscan's `_walk_files` shape). Replaces
+    `base.rglob("*")` funnelled through a list comprehension, which forced
+    Python to enumerate the ENTIRE subtree — descending into `.git`,
+    `node_modules`, etc. at full depth — and hold every `Path` it found
+    before a single file was filtered, let alone scanned. `os.walk` exposes
+    `dirnames` for in-place pruning, so a skip-dir is never entered at any
+    depth."""
+    for dirpath, dirnames, filenames in os.walk(base):
+        dirnames[:] = [d for d in dirnames if d not in SKIP_DIR_NAMES]
+        for name in filenames:
+            p = Path(dirpath) / name
+            if p.is_file():  # excludes broken symlinks, matching rglob's own filter
+                yield p
+
+
 def iter_markdown(paths: list[Path], root: Path, globs: list[str],
                   tally: "Tally | None" = None,
                   include_records: bool = False):
     for base in paths:
         expanded = base.is_dir()
-        if base.is_file():
-            candidates = [base]
-        else:
-            candidates = [p for p in base.rglob("*")
-                          if p.is_file() and not (SKIP_DIR_NAMES & set(p.parts))]
+        candidates = [base] if base.is_file() else _walk_files(base)
         for p in candidates:
             if p.suffix.lower() not in MARKDOWN_SUFFIXES:
                 continue
