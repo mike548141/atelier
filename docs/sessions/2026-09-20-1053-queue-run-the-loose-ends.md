@@ -99,3 +99,44 @@ A peer session opened a read-only orchestrated run against this tree pinned at
 *Nothing was written to the peer's tree and nothing of the peer's was touched;
 the two loose files above were read for measurement and left alone
 (§ Stay in your lane).*
+
+## `cbom-70` — PR #83, and an error of mine worth recording
+
+A second peer filed PR #83 from a private child: `320/360` (a closure report
+for `115/200`) and `320/370` (a declared placeholder with no admissible fill —
+the floor's `Verify: gh repo view <owner/repo>` clause presumes a remote, and
+that child has none). Both read in full before merge. Routing steered on three
+points it acted on: split the two rather than fold the open finding into the
+closeable one; rebuild the generated index on its own branch rather than leave
+a shared-checkout habit to red its own PR; reserve `320/370` up front, because
+two new files never text-conflict even when their numbers collide.
+
+Its finding was **reframed rather than accepted as pitched**: it read the
+defect as non-substitutability, but `<owner/repo>` is one of the four declared
+placeholders, so that framing dies to a one-line rebuttal. The sharper true
+claim is a declared placeholder with **no admissible fill** — doctrine that
+looks satisfiable and is not. It verified both claims against the tree before
+rewriting, and kept its first reading in the item marked wrong so nobody
+re-derives it.
+
+🛑 **I told that session its PR would red on wrapscan. It did not; the run
+passed.** The reproduction was not comparable to the thing it claimed to
+reproduce: I extracted the item into a scratch directory and scanned it there,
+where there is no `.atelier-floor.json` to read, so it ran unscoped. The real
+gate is scoped to `docs/method`, `docs/build`, `docs/decisions` by Mike's WS1
+ruling, and `docs/roadmap/` is outside it by design. I checked the control
+*after* telling the peer, which is the wrong order, and it cost that session
+effort. The correction went out as soon as the run concluded, along with the
+withdrawal of a false dilemma I had put to it about a hook/CI divergence that
+does not exist.
+
+**What the error bought, which is the only reason it is not pure cost.** The
+same mistake explains an open item. `010/130` records a child blocked by
+wrapscan on claim fragments, and reasons about the scanner's exemption logic.
+That is not the discriminator: **atelier is immune by a local scope
+declaration its children do not inherit**, so the parent cannot reproduce a
+class its children meet on the most routine act the board asks for. Evidence
+appended to `010/130`, including this session's own six-finding red hand run
+against a green CI. The item's own recorded reproduction "here at HEAD" must
+have been the same unscoped invocation — noted there rather than tidied away,
+per the house rule that a defect quietly patched leaves nothing to count.

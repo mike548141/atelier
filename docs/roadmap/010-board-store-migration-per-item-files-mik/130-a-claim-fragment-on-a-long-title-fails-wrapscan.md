@@ -27,3 +27,38 @@
       formatting rule leaves no legal fix but an exemption. Detail is in the
       child's own board item `120-…/030`; the fix belongs here (PROPAGATION —
       the owning repo).
+      🔎 **The discriminator is a per-repo scope declaration, not the
+      exemption logic — measured 2026-09-20, and it re-frames this item.**
+      This item and its candidate shapes (i)–(iii) all reason about
+      `wrapscan`'s single-token exemption. That is not what separates the
+      child's experience from atelier's. Atelier declares in
+      `.atelier-floor.json` that `wrapscan`'s scope is `docs/method`,
+      `docs/build` and `docs/decisions` — Mike's WS1 ruling, 2026-07-23,
+      option A, whose stated trade is *"Cover given up: long prose lines
+      outside the doctrine surface go unflagged."* **`docs/roadmap/` and the
+      generated index are outside the gate here by ruling.** So atelier cannot
+      reproduce this defect at all, on either plane, however long a claim
+      fragment gets — and the reproduction this item records as done "here
+      against `tools/wrapscan.py` at HEAD" must have been an unscoped hand
+      invocation, which is not what either plane runs.
+      **Grounded the hard way:** a session claiming three items this day
+      produced three 127–130-column item lines and three 207–235-column index
+      lines, ran `wrapscan --root . docs` by hand, got **six findings and exit
+      1**, and briefly believed the tree was red. CI was green on the same
+      commit, correctly. The hand run was the thing that was wrong: passing a
+      path argument overrides the declared scope, so it scanned a surface the
+      floor never gates. *A scanner run outside its declared scope is not
+      evidence about the floor* — and this item's own reproduction is an
+      instance of that error, which is why it is recorded rather than tidied.
+      🔑 **What this makes the real question.** Not "how should wrapscan treat
+      a generated line", but **whether the scope narrowing that insulates
+      atelier is part of what a child inherits.** It is currently a local
+      declaration the parent holds and children do not, so the parent is
+      immune to a class its children meet on the most routine act the board
+      asks for. That is the same shape as `320/160`'s finding about the floor
+      block — a parent-local accommodation that does not travel — and it is
+      probably the cheaper half of this item to rule on.
+      ⚠️ Not yet measured: whether the reporting child, or any other, actually
+      lacks the declaration. Asked of a child session 2026-09-20; unanswered
+      at filing. Atelier cannot measure it — it is immune by declaration,
+      which is exactly the blind spot being described.
