@@ -102,3 +102,54 @@
 
       Consideration and remediation are atelier's; the reporting child stops at
       this report.
+
+  - [ ] 🔎 **Corroboration from a second private child, 2026-09-20 — and the
+        standing-practice consequence this item does not yet draw.** Filed via
+        § *Pointing up* at atelier's invitation, appended here rather than
+        opened as its own item because it strengthens this finding rather than
+        adding one.
+
+        **The corroboration is weak and is labelled as such:** a second child
+        independently hit obstacle 1 (the canonical `source=` may not resolve
+        outside `--root`) and reached the same conclusion — no instrument can
+        check its inlined floor. That is an echo, and an echo is not evidence.
+
+        **The additive part is the consequence.** If a *compliant* child reds
+        by construction — which this item establishes, and which no fix to
+        obstacle 1 removes — then hand verification is **not a stopgap pending
+        a better `stampscan`**. It is the only instrument that can ever pass a
+        compliant child, and it will remain so under every sketch above except
+        the placeholder-aware one. That reframes what children should be told:
+        not *wait for the tool*, but *run the hand check on a cadence now*,
+        whatever the ruling turns out to be. This item currently ends in a
+        question for the principal; the practice question has an answer today
+        and does not need to wait for it.
+
+        **Grounded, not proposed in the abstract** — the filing child has run
+        it twice, on 2026-08-17 and 2026-09-20:
+
+        - **Method.** Extract the canonical region from the parent by its
+          `floor:begin` / `floor:end` markers; extract the child's inlined
+          block by its `stamp:begin` / `stamp:end` markers; fill the
+          placeholders **by script rather than by typing**, so "verbatim" is a
+          property of the construction and not a claim about care; compare
+          byte-for-byte. Placeholder fills are the only permitted difference,
+          and the check also asserts zero residual `<placeholder>` tokens and
+          no line over the wrap limit, since a fill can silently push one over.
+        - **Cadence.** Every pin bump — which is also when the parent's region
+          can have moved, so the check costs nothing extra at the one moment it
+          can find something.
+        - **It found something.** On 2026-09-20 the check caught a real drift
+          on a 288-commit delta: two whole floor bullets absent from the
+          child's copy, and a stale recipe in a third that was **actively
+          wrong** — it instructed reading staged **hunk headers**, which strip
+          the very paths that check exists to surface. The child had been
+          following it for four commits that session. No tool would have caught
+          it, because no tool can run here.
+
+        **The honest limit.** This says nothing about whether the hand check
+        *scales* — it is one child, one operator, and a step that is skipped
+        the moment it is inconvenient leaves no trace of having been skipped.
+        That is an argument for the tool, not against the practice; the two
+        are not alternatives, and the practice is what holds until the tool
+        exists.

@@ -432,6 +432,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up: a peer can stage into the shared index DURING your commit,](roadmap/320-child-filed-findings-via-pointing-up/350-a-peer-can-stage-into-the-shared-index-while-your-commit-hooks-run.md)
 - ✅ [REPORT — 115/200's owed work is done from the child's side: the](roadmap/320-child-filed-findings-via-pointing-up/360-a-narrowed-floor-stamp-is-restored-verbatim-closure-report.md)
 - [ ] [REPORT — <owner/repo> is a declared placeholder in the floor](roadmap/320-child-filed-findings-via-pointing-up/370-a-declared-placeholder-in-the-floor-has-no-admissible-fill-for-a-repo-with-no-remote.md)
+- [ ] 🎯 [The floor's visibility bullet reads as a one-time check, and may](roadmap/320-child-filed-findings-via-pointing-up/380-the-floor-s-public-tense-and-whether-it-should-name-the-root.md)
 - [ ] 🎯 [MISSING HOUSE RULE — a check in the same shell invocation as the](roadmap/320-child-filed-findings-via-pointing-up/390-missing-house-rule-a-check-in-the-same-invocation-as-the-act-is-not-a-check.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
