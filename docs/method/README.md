@@ -92,7 +92,7 @@ Read in this order:
   pointed to their canonical home (thin anchor; tiki's admission rule). SEED —
   the principal's ratify pass is owed.
 - **`REVIEW.md`** — the enforcement half: independent, fresh-context review
-  (by the most capable model available) before work is trusted (four lenses;
+  (on the tier the principal names for the pass) before work is trusted (four lenses;
   brief-on-top/verdict-below lifecycle; inline vs batched). Documents inform;
   review enforces.
 - **`RECORD.md`** — docs-as-code (lockstep change), the append-only session log +

@@ -730,8 +730,8 @@ claims, dispatches, reviews and closes; an item's execution runs either **inline
 or in a **worker** session in its own worktree (the choice is § Two kinds of
 parallelism, judged per item: a worker in a worktree for a substantial slice,
 inline for a small one). Which tier sits in which seat is a model-economics call,
-not a concurrency one — the capable tier orchestrates and reviews, the workhorse
-tier executes, flex on judgement allowed — so it lives in `ECONOMICS.md`
+not a concurrency one — the cheapest model that does each seat's work well
+fills it, flex on judgement allowed — so it lives in `ECONOMICS.md`
 (§ The orchestrated-run tier split), and this section assumes it. **What a
 worker inherits is bounded** (2026-07-23, QR3): a worker builds and commits in
 its own worktree and hands back — the merge to `main`, and everything on the
@@ -740,13 +740,20 @@ the work it is endorsing before the merge lands (a push is publication on a
 public repo). A dispatch prompt carries the item and its bounds, never a
 relaxation of standing doctrine.
 
-**Role check at open.** Before it does anything, an orchestrating session
-confirms it is on the tier its role needs (`ECONOMICS.md`). A session opened on
-the **wrong tier for its role** — a workhorse asked to orchestrate and review, or
-a capable session about to burn its pool on execution a worker should carry —
-**stops and says so** instead of proceeding; the fix (switch at the session
-boundary) is free before the work starts and costly after. This is the
-marginal-cost self-check (`ECONOMICS.md`) fired at run-open.
+**Tier at open — state it, don't ask.** An orchestrating session **names the
+tier it is on in its opening report and proceeds** (`ECONOMICS.md` — the
+cheapest model that does the job well runs it, orchestration included). It
+does **not** put the choice to the principal, and it does not stop because a
+more capable model exists somewhere: that stop was the run-open half of the
+contradiction Mike retired on 2026-09-19 — *"the cheapest model that can do a
+good job is the one that should be used for every job including
+orchestration"* — after the same question reached him from over a hundred
+sessions. Two things still stop a run, and neither is about the tier's name:
+work that **outruns the model actually doing it** (hand up, noisily —
+`ECONOMICS.md`), and a review pass whose **named tier** the session cannot
+honour (`REVIEW.md` rule 4 — cold passes run on the tier the principal names,
+currently Fable, and an off-tier session leaves the `⏳` for one that
+qualifies).
 
 **Selecting the next item.** The run's brief may set the order; absent an
 override, the default is **loose ends & unblockers first** (a near-done item, or

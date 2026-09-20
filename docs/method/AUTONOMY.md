@@ -138,8 +138,11 @@ does, on live gear, it can diagnose and recover. A less capable model that errs
 on a live system leaves two problems: the broken system *and* a set of changes
 the operator doesn't understand and can't easily unwind. So:
 
-- The most capable model available runs the **first-of-kind, structural, or
-  live-blast-radius** work.
+- **First-of-kind, structural, or live-blast-radius** work goes to the
+  cheapest model that can genuinely do it *and* dig itself out afterwards —
+  which at these stakes is usually near the top of what is available, but the
+  test is the work, never the model's rank (`ECONOMICS.md`, Mike's 2026-09-19
+  ruling: cheapest that does a good job, for every job).
 - A less capable model runs **pattern-following** work behind a **mechanical
   gate** (validators/CI/schema) that holds the floor regardless of who ran — the
   gate is what makes cheaper-model work safe.

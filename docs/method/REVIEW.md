@@ -16,9 +16,10 @@ deliver most of the value even when the reviewer is the *same* model in a new
 session. Capability is the multiplier on top, not the precondition: where a more
 capable tier exists, deploy it at review — that is where its marginal value per
 token is highest — and match reviewer capability to the stakes (see
-`ECONOMICS.md`: the most capable available model reviews irreversible or
-structural work; a mechanical gate — validators, CI — holds the floor for the
-routine). The review is not a formality tax on good work; it is the thing that
+`ECONOMICS.md`: the reviewer is the cheapest model that does *this* review
+well, which for irreversible or structural work is the tier the principal
+names — rule 4 below; a mechanical gate — validators, CI — holds the floor for
+the routine). The review is not a formality tax on good work; it is the thing that
 lets "done" mean *verified* rather than *looks right*.
 
 ## Independence is more than fresh context

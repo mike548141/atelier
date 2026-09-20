@@ -35,11 +35,23 @@ Two refinements the states force:
   findings, not rewrites — apply fixes back on the building model); builds are
   the bulk.
 
+**The rule, in the principal's own words (2026-09-19): "the cheapest model
+that can do a good job is the one that should be used for every job including
+orchestration."** *Every* job — building, orchestrating a queue run, fan-out,
+and the judgement calls in between. No seat is reserved for the top model by
+its name; a seat is filled by the cheapest model that does *that seat's work
+well*, which is why review still lands where it does — a cold review pass runs
+on the tier the principal names, currently Fable (`REVIEW.md`; confirmed
+2026-09-19: "fable reviews remain fable reviews"), because that is his
+judgement of what doing that job well takes, not because capability is owed
+the seat. Read "most capable available" anywhere in this house as shorthand
+for *the cheapest that does this job well at this job's stakes*.
+
 **This is a standing default, not a question.** A session picks its own tier
 and any sub-agents' tiers from the rule above — cheapest-drawing tier that
-genuinely does the building, capable tier for review and the stuck problem —
-without putting it to the principal first. State which tier you're on; don't
-ask which to use. The only things that override the default are the guard
+genuinely does the building, the named tier for review, capability for the
+stuck problem — without putting it to the principal first. State which tier
+you're on; don't ask which to use. The only things that override the default are the guard
 below (a cap-crossing or usage-billed bulk-work flag) and a **per-run
 override** a run's own brief sets (`CONCURRENCY.md` § Orchestrated queue
 runs) — absent one, apply the default. (Mike, 2026-09-16: this question has
@@ -268,8 +280,11 @@ Two hard edges on the ladder (both grounded 2026-07-23, Mike):
 
 The rule above, applied to the queue-run rhythm (`CONCURRENCY.md` §
 Orchestrated queue runs): a run's two seats map to the two tiers — seat names
-for the spectrum above: the **capable tier** is the most capable model
-available; the **workhorse tier** is the run's *default executor slot*, filled
+for the spectrum above: the **capable tier** is the cheapest model that does
+the judgement work of *this* run well (**not** "the top model available" —
+that wording was the contradiction Mike's 2026-09-19 ruling above retired, and
+it is what sent the tier question back to him at every run-open); the
+**workhorse tier** is the run's *default executor slot*, filled
 per run by the cheapest model that genuinely does *the items' builds* (judged
 on the run's modal item). The seat is a slot and the rule fills it — which is
 what lets fan-out sit *below* it on a different work class, and the executor
@@ -290,10 +305,11 @@ doctrine text because no scanner catches a wrong rule — this section's own
 "pay for capability" example, and the modal atelier queue item; 2026-07-23,
 QR5). The split is the default, not a
 fence. The marginal-cost self-check still runs at whatever
-seat a session takes — the **role check** `CONCURRENCY.md` mandates at run-open
-*is* that self-check applied to orchestration: a session on the wrong tier for
-its role stops and says so, when the fix (switch at the session boundary) is
-still free.
+seat a session takes — the **role check** `CONCURRENCY.md` describes at
+run-open *is* that self-check applied to orchestration, and since 2026-09-19
+it **states and proceeds**: the session names the tier it is on and gets on
+with the run. It stops only where the work itself outruns the model — the
+hand-up rule above — never because a more capable model exists.
 
 The two seats are not the whole ladder (adopted 2026-07-23, Mike). **Fan-out
 delegates below the workhorse**: the mechanical reads, searches and scans a

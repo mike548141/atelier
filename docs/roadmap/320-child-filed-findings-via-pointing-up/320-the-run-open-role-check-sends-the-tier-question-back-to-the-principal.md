@@ -1,4 +1,4 @@
-- [~] (claimed 2026-09-19-0105, wt: none; Mike ruled mid-run) 🔎 **Hand-up: the run-open role check still sends the tier question back
+- [x] 🔎 **Hand-up: the run-open role check still sends the tier question back
       to the principal, which the 2026-09-16 ECONOMICS ruling says he should
       never get.** Filed from a private child 2026-09-18 via § *Pointing up*,
       by direct write into the parent's tree, with the PR opened before
@@ -60,3 +60,24 @@
       as evidence.
       *review: owed on whatever doctrine text the ruling produces (rule 4:
       a session that neither authored nor was instructed by the author).*
+      🎯→✅ **RULED 2026-09-19 by Mike, mid-run, after a `ros` session put the
+      contradiction to him in these terms:** *"the cheapest model that can do
+      a good job is the one that should be used for every job including
+      orchestration. Fix everything that is causing this mess"*, and, asked
+      whether that reopened the named review tier: *"fable reviews remain
+      fable reviews"*. So neither option (a), (b) nor (c) as offered — the
+      ruling goes under them: the seat is never reserved for the top model by
+      rank, and the run-open check **states the tier and proceeds**.
+      ✅ **Applied 2026-09-20, same sitting:** `ECONOMICS.md` (the ruling
+      stated at § *Match the model to the job*; the capable seat redefined in
+      § *The orchestrated-run tier split*; the role-check sentence) ·
+      `CONCURRENCY.md` § *Orchestrated queue runs* (the seat sentence and
+      *Role check at open* → *Tier at open — state it, don't ask*) ·
+      `skills/queue-run/SKILL.md` step 1 · `docs/method/session-open/
+      session-open-prompt.md` (the prompt Mike pastes, which carried the stop
+      clause itself) · `AUTONOMY.md` (first-of-kind wording) · `REVIEW.md`
+      and `docs/method/README.md` (review reads as the *named* tier, not
+      "most capable available"). Two stops survive and neither is about rank:
+      work that outruns the model doing it, and a `⏳` pass whose named tier
+      the session cannot honour.
+      *review: queued as a rule-4 cold pass, `160/330`.*

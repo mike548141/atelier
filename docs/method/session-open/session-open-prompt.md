@@ -19,8 +19,9 @@ pattern this whole brief invokes, and its sibling docs (`ECONOMICS.md`,
 in more current detail than anything below. Follow them rather than
 re-deriving your own version. (If atelier's plugin is installed, `/atelier:
 queue-run` is the same pattern as an invocation — use it instead of this
-file when it's available.) Confirm you're on the capable tier before
-claiming anything — if you're not, stop and say so instead of proceeding.
+file when it's available.) Say which model you're on in your first report,
+then get on with it — don't ask me which tier to use, and don't stop because
+a more capable one exists. Stop only if the work outruns you, and say so.
 
 If the repo has none of that — no `CLAUDE.md`, no floor block, no roadmap
 doc — run the minimum viable version instead, and say plainly that's what

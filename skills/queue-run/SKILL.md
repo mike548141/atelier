@@ -38,11 +38,14 @@ Absent an override, run the defaults.
 
 ## The loop
 
-1. **Role check first.** Confirm you are on the tier your role needs — the
-   capable tier orchestrates and reviews (`ECONOMICS.md`). If this session is on
-   the **wrong tier for orchestrating** (a workhorse asked to orchestrate and
-   review), **stop and say so** — the fix is free at the session boundary and
-   costly after. Do not proceed off-tier.
+1. **State your tier, then run.** Name the model you are on in your opening
+   report and proceed — orchestration is not reserved for the top model
+   (`ECONOMICS.md`; Mike, 2026-09-19: *"the cheapest model that can do a good
+   job is the one that should be used for every job including
+   orchestration"*). Never ask the principal which tier to use. Stop only if
+   the work outruns you — then hand up, noisily — or if you reach a `⏳`
+   review item whose named tier you cannot honour (`REVIEW.md` rule 4: leave
+   it and take the next open item).
 2. **Sync + onramp.** `git pull --rebase --autostash`; load the session onramp
    (the `session-onramp` skill / the repo's read-order). Assume another session
    may be live — a clean tree is not proof you are alone (`CONCURRENCY.md`).
