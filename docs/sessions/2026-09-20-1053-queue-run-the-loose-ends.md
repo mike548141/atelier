@@ -40,21 +40,41 @@ namespace, which is what people do when the namespace will not do it for them.
 **Two further files, `floor-canonical.md` and `floor-substituted.md`, were
 written at 2256 and 2257 local — during the measurement.** Their content is the
 inlined atelier doctrine block in canonical and substituted form, which is the
-shape of the hand verification a child performs at a pin bump. **Attribution was
-asked for over the channel rather than inferred**
-(`dont-infer-mikes-setup-from-artefacts`), and the peer confirmed them as its
-own, with a chain: a third file, `method-diff.txt` (72,319 bytes, 2255), landed
-in that session's *correct* scratchpad one minute earlier, from the same worker,
-and the canonical/substituted pair is 308 bytes apart in the direction filled
-placeholders would produce.
+shape of the hand verification a child performs at a pin bump.
 
-**The peer's instance falsified the framing the item was drafted in, and that is
-the run's most useful result.** Its worker wrote three files one minute apart:
-the first into its own scratchpad, the next two into the shared parent. So this
-is **not a namespace problem** — a worker does not reliably inherit its parent's
-scratchpad at all, and the within-run and cross-project cases are one mechanism
-at two radii. The draft clause ("a path unique to itself") would not have
-described the failure that was actually measured.
+🛑 **These were attributed to the wrong session for about an hour, and the
+doctrine was published on that attribution before it was corrected.** The
+sequence, kept in full because the correction is the lesson:
+
+1. Attribution was **asked for over the channel rather than inferred**
+   (`dont-infer-mikes-setup-from-artefacts`) — the right instinct, and not
+   sufficient.
+2. The peer confirmed them as its own, confidently, with a chain: a third file
+   in its *correct* scratchpad one minute earlier from the same worker, and a
+   canonical/substituted pair 308 bytes apart in the direction filled
+   placeholders produce.
+3. Asked to check its worker's transcript to settle a separate hypothesis, it
+   **falsified its own attribution instead.** Its worker wrote five files, none
+   of them these two. The pair belonged to a **third** session — `docker-heap` —
+   running the same pin-bump verification by nearly the same method at the same
+   time. The shape matching is exactly what seduced the attribution.
+
+🔑 **The transferable failure, which the peer named against itself:** three
+consistent signals — timing, content shape, plausible actor — and **no
+disconfirming check**. The settling test was one grep of its own transcript and
+was never run before the claim was asserted. *Agreement is not corroboration
+when neither party has opened the source.* Two sessions agreed; neither had
+looked. This is the same rule this session had applied correctly in one
+direction (asking rather than inferring) and then abandoned on receiving a
+confident answer.
+
+**What the corrected instance actually shows, and it is stronger:** the peer's
+worker was told in its dispatch prompt **and in capitals** to write nothing
+anywhere, and wrote five files — one into its own scratchpad, four into **bare
+`/tmp`** under generic names (`floor_old.txt`, `prop_new.md`), a namespace with
+no per-session component whatever. So a prohibition does not bind, and the
+fallback escapes the project entirely, not merely the session. The draft clause
+("a path unique to itself") would not have described either failure.
 
 **Delivered:** `CONCURRENCY.md` § *Orchestrated queue runs* gains a clause after
 *What a worker inherits is bounded* — the worktree is the isolation, the scratch
@@ -66,11 +86,24 @@ measurement. Written as a **prompt obligation, not a mechanism**, because the
 scratch path is the harness's to allocate and not this repo's — the clause says
 so, so it is spent rather than stale if the harness changes.
 
-⚠️ **What this does not establish:** *why* the two files escaped. A cwd that
-moved between the worker's first and second write is consistent with the
-evidence and is not evidence. The hypothesis was handed to the peer, which alone
-holds the transcript that could ground or kill it; the clause is written to hold
-either way and says as much.
+✅ **The cwd hypothesis is dead, and killing it was the point of asking.** Every
+one of the five writes used an **absolute** path in a shell that had already
+`cd`'d, so no relative resolution was involved. The clause keeps *absolute* as a
+requirement, grounded on the independently-observed cwd hazard rather than on
+these escapes, and says so explicitly. The peer ran the check that killed its
+own report; recording a dead hypothesis over a plausible one left standing was
+the standard both sessions agreed to, and it was paid in the direction that cost
+the party paying it.
+
+🚩 **One real cost fell out of the wrong attribution.** On the strength of it,
+and with this session's release of "your files", the peer deleted two files
+belonging to `docker-heap`. It has restored `floor-canonical.md` byte-for-byte
+(deterministic from `PROPAGATION.md`) and declined to reconstruct
+`floor-substituted.md`, which carries another repo's own fills and would have
+been a guess. It notified that session directly. The release this session gave
+was scoped to *"your files"* and does not transfer — but the binary framing
+("are those yours?") invited exactly the confident answer that followed, and a
+third option was available and unoffered: *check before answering.*
 
 ## The cross-session exchange with `kainga-9a`
 

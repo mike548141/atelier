@@ -15,7 +15,11 @@
       the harness namespaces scratch per agent — is a real condition a future
       reader can evaluate, or an escape hatch; and whether the grounding is
       strong enough for the claim's width, given that the measurement covers
-      one harness on one machine on one day, and that the strongest
-      corroborating artefacts were left unattributed on purpose.
+      one harness on one machine on one day; and whether the clause's retained
+      provenance note earns its place, given that the artefacts it rests on
+      were **wrongly attributed for about an hour and the first published
+      version of the clause rested on that error** — the reviewer should treat
+      the corrected attribution as itself a claim to check, not a settled fact
+      restored.
       *Intent record:*
       [`../../sessions/2026-09-20-1053-queue-run-the-loose-ends.md`](../../sessions/2026-09-20-1053-queue-run-the-loose-ends.md).

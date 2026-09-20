@@ -754,26 +754,42 @@ session in a child, bound the shape between them:
   and **its later invocations ran the peer's script, with no error raised**.
   Harm was nil (both were measurement-only, and it noticed); the same collision
   on a *write* script is one worker committing another's work.
-- **And the inheritance is not reliable.** A peer session's worker wrote three
-  files one minute apart: the first into its own session's scratchpad, the next
-  two into the **shared parent directory every project's scratchpad hangs off**
-  — escaping both its own session and its repo. So the two cases are one
-  mechanism at two radii, within-run and cross-project. The same directory holds
-  a `msg`/`msgB`/`msgD`/`msgE` run of commit messages from an earlier atelier
-  sitting: a session hand-disambiguating inside a shared namespace, which is what
-  people do when the namespace will not do it for them.
+- **And the inheritance is not reliable — nor does forbidding writes bind.** A
+  peer session's worker, instructed in its dispatch prompt *and in capitals* to
+  write nothing anywhere, wrote five files: one into its own session's
+  scratchpad, and four into **bare `/tmp`** under generic names
+  (`floor_old.txt`, `prop_new.md`). That is a namespace with no per-session
+  component at all, shared by every process on the machine — wider than the
+  per-project parent anyone would have guessed at. Two failures at once: the
+  prohibition did not hold, and the fallback escaped the project entirely.
+  Independently, that per-project parent accumulates files too, among them a
+  `msg`/`msgB`/`msgD`/`msgE` run of commit messages from an earlier atelier
+  sitting: a session hand-disambiguating inside a shared namespace, which is
+  what people do when the namespace will not do it for them.
 
-**So a dispatch prompt requires the worker to write scratch files only under a
-path that is both absolute and unique to itself** — and an orchestrator writing
-scratch of its own does the same. *Absolute* because a relative write after a
-`cd` resolves against whatever the shell's working directory has become, which
-this estate already knows can revert under a session without warning; *unique*
-because nothing else separates two workers sharing one directory. Note what this
-rule does **not** rest on: no diagnosis of *why* the two files escaped was
-established, and the rule is written to hold whichever way that falls. It is a
-prompt obligation rather than a mechanism because the scratch path is the
-harness's to allocate, not this repo's — if the harness namespaces scratch per
-agent, the rule is spent rather than merely stale, and should be retired.
+**So a dispatch prompt names an explicit, unique, absolute scratch directory for
+each worker** — and an orchestrator writing scratch of its own uses one too.
+**Naming a path is what binds; forbidding writes is not**, and that is the
+instance's sharpest lesson: the one worker told plainly to write nothing wrote
+five files, while every worker simply given a path used it. *Unique* because
+nothing else separates two workers sharing a directory. *Absolute* on the
+independently-observed cwd hazard (§ *Integration hygiene*), **not** on these
+escapes — every one of those five writes used an absolute path already, so they
+are no evidence for it, and a cwd-reversion explanation for them is **dead**.
+
+It is a prompt obligation rather than a mechanism because the scratch path is
+the harness's to allocate, not this repo's — if the harness namespaces scratch
+per agent, the rule is spent rather than merely stale, and should be retired.
+
+⚠️ *Provenance, kept because the correction is the lesson.* The escaped files
+were first attributed — confidently, with a three-signal chain of timing,
+content shape and a plausible actor — to the peer that reported them. A
+transcript check the next hour **falsified that attribution**: they belonged to
+a third session doing the same task by nearly the same method at the same time,
+and the peer's own worker had written elsewhere entirely. Three consistent
+signals and no disconfirming check produced a wrong answer that two sessions
+agreed on. **Agreement is not corroboration when neither party opened the
+source** — here, the peer's own transcript, one grep away throughout.
 
 **Tier at open — state it, don't ask.** An orchestrating session **names the
 tier it is on in its opening report and proceeds** (`ECONOMICS.md` — the
