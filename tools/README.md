@@ -1005,6 +1005,76 @@ exists only here, so a scaffolded child running it would exit 2; the child-side
 resolution story also has to be **pin-aware**, since a child pinned at
 `atelier@<SHA>` may lawfully differ from atelier@main. That is ST3, still open.
 
+## `blockscan.py` — a ruling that moves doctrine moves the child block too (advisory, atelier-only)
+
+`stampscan` checks a **child's** inlined copy of the floor block against
+atelier's own region — drift once the block has already moved. Nothing checked
+the other direction: does atelier's *own* region still say what the method docs
+it summarises actually say, right now. A 2026 ruling reworded the ask rule in
+`COMMUNICATION.md`; the floor region and the scaffold template both kept the
+overturned wording for weeks and copied it into every child at pin bump.
+`blockscan` is the check that closes that gap (board `320/300`, Mike's ruling
+2026-09-19: *"Build the check"*).
+
+**The map, not a stored hash.** [`tools/blockscan_map.json`](blockscan_map.json)
+is a small, hand-maintained table: each floor-region bullet that cites a source
+doc gets a stable id, its own bold lead-in text (the `anchor`, used to find the
+*same* bullet in both `PROPAGATION.md`'s region and the template's stamped
+copy), and the exact heading(s) it summarises. Six of the floor's nine bullets
+are mapped; the other three (**Source & drift**, **Estate resources**, **This
+repo's visibility**) cite no doc section at all in their own prose, so mapping
+them would be inventing a citation, not checking one — see the map's own header
+comment and the module docstring for the full accounting.
+
+**The rule (staged plane, no hashes, no section-text diff against a stored
+baseline):** if a commit changes lines inside a mapped section, it must ALSO
+change the corresponding bullet in *both* the region and the template, or carry
+`<!-- blockscan:allow: <reason> -->` somewhere in the changed section or either
+bullet. A section is **non-recursive** — it stops at the *next heading of any
+level*, not just the same or a shallower one, so (say) `00-APEX.md`'s `##
+Honesty is absolute` and its own `### The principal's authority...` subsection
+are two separate mapped targets, each answering to the one bullet that actually
+cites it, rather than one edit echoing onto every bullet in the file.
+
+Three run modes:
+
+```sh
+python3 tools/blockscan.py --staged --root .        # the hook plane: HEAD vs the index
+python3 tools/blockscan.py --against HEAD^ --root . # the CI plane: HEAD vs its parent
+python3 tools/blockscan.py --check --root .         # map-integrity only, no git needed
+python3 tools/blockscan.py --selftest
+```
+
+`--check` (also the default with none of the three given) verifies ONLY that
+the map still resolves — every mapped heading to exactly one line, every bullet
+anchor to exactly one bullet in both files — and is what a renamed or duplicated
+heading reds against: a `stale-heading`/`missing-bullet` finding is a **config
+error**, never suppressible by the allow marker, because a map that cannot find
+what it claims to map must fail loudly, not quietly pass on a wrong assumption.
+
+Exit codes: `0` clean, or `--warn` with violation findings only · `1` a
+co-change violation, without `--warn` · `2` usage/config error — a malformed
+map, an unresolvable region/template/source file, a stale heading, a missing
+bullet anchor, a `git show` failure (never downgraded by `--warn`).
+
+**Deliberately NOT in `tools/floor.py`'s registry — the same ST3 class as
+`stampscan`, and worse: every path this map names exists only in atelier**
+(`00-APEX.md`, `COMMUNICATION.md`, `CONCURRENCY.md`, `ECONOMICS.md`,
+`RECORD.md`, `PROPAGATION.md`, the scaffold template). A registry line would
+reach every child's hook and CI (they run atelier's own `floor.py`, not a
+vendored copy) and exit 2 — fail-safe, never downgraded by `--warn` — on their
+very first mapped path, from the commit this merged. What's wired instead is
+two bespoke steps in atelier's own `ci.yml`, `--check` and `--against HEAD^`,
+matching `stampscan`'s precedent exactly. **One residual, named rather than
+hidden:** neither of those runs from this repo's actual pre-commit hook —
+`.githooks/pre-commit` deliberately names no scanner (ADR 0008) and calls only
+the shared registry, so a co-change violation is caught one push later by CI
+(`--against HEAD^`), reported but not blocking, rather than at commit time.
+Closing that gap needs a hook-plane, atelier-only, not-in-the-shared-registry
+seam that `floor.py` does not offer today — see the module docstring, WIRING
+RESIDUAL, for the two ways to close it and why this build takes neither
+unilaterally.
+
 ## Tests
 
 ```sh
