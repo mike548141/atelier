@@ -306,3 +306,19 @@ fresh interpreter; the direct-versus-isolated agreement case was deleted,
 because it compared a sound number against a contaminated one and called the
 gap a disagreement. **Floor green on the pushed run at `8426f3e`** —
 confirmed on that SHA, not inferred from a local pass.
+
+### 020/380 — batch four: two fixed, two measured, one refused
+
+`licenscan` (whole repo's text resident at once) and `pathscan` (the
+`rglob`-into-a-list defect) fixed. `board` and `pointerscan` **not** rewritten:
+both are the item's own named index-growth carve-out, both measured linear in
+item count (~0.4 KB and ~3.7 KB per item, steady from 500 to 10,000), and both
+pinned by a test that fails if that ever goes superlinear. Measured and pinned
+is a complete outcome — a rewrite there would have been motion.
+
+The refusal is the valuable part: `harvestscan`'s vanished-item check compares
+every candidate against every survivor, **quadratic in item count** — 500
+items in 21 seconds, 5,000 items unfinished at 120. The worker said so plainly
+instead of patching around it, and it is now `020/400`. That is the **fourth**
+defect the requirement's time clause has caught and the first that no amount
+of memory work would have touched.
