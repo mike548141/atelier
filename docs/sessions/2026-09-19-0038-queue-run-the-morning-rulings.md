@@ -348,3 +348,26 @@ problem later:
   largest instance — and the next correction to the walk (`020/160`'s
   gitignored-worktree skip) is ten edits, which is precisely Mike's own
   upstream test.
+
+## Close
+
+**Stop condition: queue-run work delivered and the yard clear**, not a cap and
+not an economics stop — the remaining unclaimed items are decisions for Mike
+or programmes larger than a sitting, and the run's own records are complete.
+
+At close: `main` at `570badf`, **floor green on the pushed run** for that SHA,
+working tree clean, **no open PRs, no worktrees, no stray branches, no live
+claims**. Local suite 1,519 tests OK.
+
+**Owed to the next session, in the order it will meet them:**
+- 🎯 `320/330` — Mike's alone: does the naming precedence reach doctrine's own
+  *prose*, which would partly overturn his 2026-08-22 ruling.
+- 🎯 `320/350` — the hand-up merged at close proposes that an orchestrator
+  takes a worktree too. This run adopted its cheap half mid-sitting (commit by
+  pathspec, not stage-then-commit); the rule itself is Mike's to weigh.
+- ⏳ four Fable passes: `160/330`, `160/340`, `160/350`, `160/370`. This run
+  authored all four deltas and may take none of them.
+- 🔥 `020/400` (harvestscan's quadratic pass) and `115/080` (ten copies of
+  `_walk_files`) are the two live consequences of this run's own work.
+- `320/010` stays open on purpose: its closing evidence is a re-measurement
+  with a **non-zero true-positive rate**, which nothing has produced.
