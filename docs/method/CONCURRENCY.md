@@ -740,6 +740,41 @@ the work it is endorsing before the merge lands (a push is publication on a
 public repo). A dispatch prompt carries the item and its bounds, never a
 relaxation of standing doctrine.
 
+**The worktree is the isolation; the scratch space is not — so the dispatch
+prompt says so.** A worker's git worktree isolates the *repo* and stops there.
+Two measurements on 2026-09-20, one in this repo and one volunteered by a peer
+session in a child, bound the shape between them:
+
+- **Workers get no scratch directory of their own.** A run's three concurrent
+  workers all wrote into the *orchestrating session's* single scratchpad,
+  unnamespaced, alongside the orchestrator's own files. The failure this permits
+  is silent by construction, because a path that exists and runs looks identical
+  to your own: a `020/380` worker reported exactly that from its own experience
+  the same week — a peer worker's probe script landed on the path it had used
+  and **its later invocations ran the peer's script, with no error raised**.
+  Harm was nil (both were measurement-only, and it noticed); the same collision
+  on a *write* script is one worker committing another's work.
+- **And the inheritance is not reliable.** A peer session's worker wrote three
+  files one minute apart: the first into its own session's scratchpad, the next
+  two into the **shared parent directory every project's scratchpad hangs off**
+  — escaping both its own session and its repo. So the two cases are one
+  mechanism at two radii, within-run and cross-project. The same directory holds
+  a `msg`/`msgB`/`msgD`/`msgE` run of commit messages from an earlier atelier
+  sitting: a session hand-disambiguating inside a shared namespace, which is what
+  people do when the namespace will not do it for them.
+
+**So a dispatch prompt requires the worker to write scratch files only under a
+path that is both absolute and unique to itself** — and an orchestrator writing
+scratch of its own does the same. *Absolute* because a relative write after a
+`cd` resolves against whatever the shell's working directory has become, which
+this estate already knows can revert under a session without warning; *unique*
+because nothing else separates two workers sharing one directory. Note what this
+rule does **not** rest on: no diagnosis of *why* the two files escaped was
+established, and the rule is written to hold whichever way that falls. It is a
+prompt obligation rather than a mechanism because the scratch path is the
+harness's to allocate, not this repo's — if the harness namespaces scratch per
+agent, the rule is spent rather than merely stale, and should be retired.
+
 **Tier at open — state it, don't ask.** An orchestrating session **names the
 tier it is on in its opening report and proceeds** (`ECONOMICS.md` — the
 cheapest model that does the job well runs it, orchestration included). It
