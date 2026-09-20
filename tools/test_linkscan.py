@@ -7,11 +7,16 @@ validation (same-file + cross-file), and the code/fence/allow skips are proven
 against the real filesystem, not a mock."""
 
 import dataclasses
+import shutil
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 import linkscan
+import memprobe
+
+TOOLS_DIR = Path(__file__).resolve().parent
 
 
 class Slugify(unittest.TestCase):
@@ -480,3 +485,118 @@ class ReferenceDefinitions(unittest.TestCase):
     def test_allow_marker_on_a_definition_exempts_it(self):
         self.assertEqual([], self._scan(
             "[t][ref]\n\n[ref]: gone.md <!-- linkscan:allow: deliberate -->\n"))
+
+
+class BoundedMemory(unittest.TestCase):
+    """020/380 — linkscan's share of the "every guard runs in bounded
+    memory" ruling (`020/370` extended to the whole guard layer). Mike's
+    ruling, verbatim: "it should not matter how much it scans it should no
+    have this affect". The testable form here: peak memory for reading ONE
+    file does not grow with that file's size.
+
+    Runs the real CLI as a SUBPROCESS via `memprobe.run_and_measure` and
+    reads its peak RSS back from the kernel — the same whole-process number
+    that thrashed the principal's machine in 020/370's incident, which
+    `tracemalloc` cannot see (it only sees Python-heap allocations, not the
+    C-level string buffers and regex working memory the old whole-file read
+    actually held — see `tools/memprobe.py`'s module docstring).
+    """
+
+    LINKSCAN = str(TOOLS_DIR / "linkscan.py")
+    PY = sys.executable
+
+    @staticmethod
+    def _build_many_lines(target_bytes: int, path: Path) -> None:
+        with open(path, "w") as f:
+            written = 0
+            i = 0
+            while written < target_bytes:
+                line = (f"this is filler line number {i} with no "
+                       f"link-shaped content at all\n")
+                f.write(line)
+                written += len(line)
+                i += 1
+
+    @staticmethod
+    def _build_single_line(target_bytes: int, path: Path) -> None:
+        filler = "word " * (target_bytes // 5)
+        path.write_text("# Big\n\n" + filler + " [ok](target.md)\n")
+
+    def _run(self, root: Path) -> int:
+        # Safety (020/370's own incident): a hard kill well short of the 1 GB
+        # line, and a ceiling so a regression that reintroduces catastrophic
+        # behaviour fails the test instead of hanging CI.
+        result = memprobe.run_and_measure(
+            [self.PY, self.LINKSCAN, "--root", str(root), str(root)],
+            timeout=90, rss_limit_bytes=900 * 1024 * 1024)
+        self.assertFalse(result.timed_out, "scan did not finish in time")
+        self.assertFalse(result.killed_over_limit,
+                         "scan exceeded the 900 MB safety limit")
+        return result.peak_rss_bytes
+
+    def _peak_for_many_lines(self, size_bytes: int) -> int:
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        self._build_many_lines(size_bytes, tmp / "data.md")
+        return self._run(tmp)
+
+    def _peak_for_single_line(self, size_bytes: int) -> int:
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        (tmp / "target.md").write_text("# T\n\nbody\n")
+        self._build_single_line(size_bytes, tmp / "big.md")
+        return self._run(tmp)
+
+    # Grounded in the FIX's design, not fitted to a measurement
+    # (`ground-numeric-limits`): the one piece of per-file state the
+    # streaming reader ever buffers is a single window of one physical
+    # line, capped at `LINE_WINDOW_BYTES + LINE_WINDOW_OVERLAP` (~260 KiB —
+    # see `linkscan._iter_file_content_lines`, and its own comment for why
+    # the window is far smaller than secretscan's: nothing this tool
+    # matches is an open-ended token the way a credential is). 8 MB is
+    # generous headroom over the measured noise floor (0.9-1.7 MB across
+    # repeated trials on this box) while staying far below the ~28 MB the
+    # pre-fix whole-file-read code showed for the SAME 1 MiB -> 8 MiB size
+    # delta (measured while building this fix, against the pre-020/380
+    # `linkscan.py`) — so the bound discriminates a real regression from
+    # ordinary run-to-run noise.
+    GROWTH_BOUND_BYTES = 8 * 1024 * 1024
+
+    def test_many_line_file_peak_does_not_scale_with_size(self):
+        """The common real-world shape: content made of ordinary short
+        lines. This is the one that matters for actual repos — decision
+        records and review briefs are prose, not one giant line."""
+        small_peak = self._peak_for_many_lines(1 * 1024 * 1024)
+        large_peak = self._peak_for_many_lines(8 * 1024 * 1024)
+        growth = large_peak - small_peak
+        self.assertLess(
+            growth, self.GROWTH_BOUND_BYTES,
+            f"peak RSS grew {growth / 1e6:.1f} MB for a 7 MB larger "
+            f"many-line input (small={small_peak / 1e6:.1f} MB, "
+            f"large={large_peak / 1e6:.1f} MB) — memory is scaling with "
+            "input size again (020/380).")
+
+    def test_overlong_single_line_peak_does_not_scale_with_size(self):
+        """The stated residual: a physical line so long it must be windowed
+        (`_iter_file_content_lines`'s docstring). Bounded means the SAME
+        thing here as for ordinary content — the windowing mechanism itself
+        must not let peak memory track the line's total length. Uses a
+        wider growth allowance than the many-line test: even the bounded
+        windowed path does more per-window work (fence/link regex scans,
+        `_strip_inline_code`) than a short ordinary line, so its constant is
+        higher — the property under test is still ZERO growth with size,
+        not a tight absolute number."""
+        small_peak = self._peak_for_single_line(8 * 1024 * 1024)
+        large_peak = self._peak_for_single_line(32 * 1024 * 1024)
+        growth = large_peak - small_peak
+        # A generous multiple of the growth this same comparison showed for
+        # the pre-fix whole-file-read code (~275 MB, measured while building
+        # this fix) — this only needs to catch "windowing stopped bounding
+        # memory", not pin the exact noise floor.
+        bound = 100 * 1024 * 1024
+        self.assertLess(
+            growth, bound,
+            f"peak RSS grew {growth / 1e6:.1f} MB for a 24 MB larger "
+            f"single-line input (small={small_peak / 1e6:.1f} MB, "
+            f"large={large_peak / 1e6:.1f} MB) — the windowed reader is no "
+            "longer bounding memory for an overlong physical line (020/380).")

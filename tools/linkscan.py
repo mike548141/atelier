@@ -61,6 +61,7 @@ it with the system python3 and no install — and CI needs nothing but Python.
 from __future__ import annotations
 
 import argparse
+import codecs
 import fnmatch
 import json
 import os
@@ -212,37 +213,154 @@ def slugify(heading: str) -> str:
     return text
 
 
-def _content_lines(text: str):
-    """Yield (lineno, line) for lines outside fenced code blocks. One tracker
-    for both link extraction and heading collection, so the two can never
-    drift. CommonMark-faithful where it bites: a fence closes only on a run of
-    the *same* character at least as long as the opener (so a ``` inside a
-    ```` block stays code), and a closing fence carries no info string (so a
-    ```python line inside an open ``` block is content, not a close)."""
-    in_fence = False
-    fence_char = ""
-    fence_len = 0
-    for lineno, line in enumerate(text.splitlines(), start=1):
+class _FenceState:
+    """Fence-tracking state, factored out of the old `_content_lines` loop
+    body (020/380) so the text-based reader (`_content_lines`, what direct
+    string tests and the `heading_slugs`/`iter_links` string API use) and the
+    streaming file-based reader (`_iter_file_content_lines`, what real files
+    on disk use so a huge one is never held whole) share ONE fence-transition
+    rule and can never drift apart. CommonMark-faithful where it bites: a
+    fence closes only on a run of the *same* character at least as long as
+    the opener (so a ``` inside a ```` block stays code), and a closing fence
+    carries no info string (so a ```python line inside an open ``` block is
+    content, not a close).
+
+    A fence DELIMITER line is always a handful of characters — three-or-more
+    backticks/tildes and nothing else of consequence — so it always resolves
+    fully within a single read window, even for a file whose scanning is
+    windowed for memory safety. That is what lets the streaming reader only
+    call `is_content` on the FIRST window of a physical line (see
+    `_iter_file_content_lines`): a line that needed more than one window was
+    never a fence delimiter to begin with, so no transition is missed."""
+
+    def __init__(self):
+        self.in_fence = False
+        self.fence_char = ""
+        self.fence_len = 0
+
+    def is_content(self, line: str) -> bool:
         stripped = line.lstrip()
         m = _FENCE.match(stripped)
-        if in_fence:
-            if m and m.group(1)[0] == fence_char and len(m.group(1)) >= fence_len \
+        if self.in_fence:
+            if m and m.group(1)[0] == self.fence_char and len(m.group(1)) >= self.fence_len \
                     and stripped.rstrip() == m.group(1):
-                in_fence = False
-            continue
+                self.in_fence = False
+            return False
         if m:
-            in_fence = True
-            fence_char = m.group(1)[0]
-            fence_len = len(m.group(1))
-            continue
-        yield lineno, line
+            self.in_fence = True
+            self.fence_char = m.group(1)[0]
+            self.fence_len = len(m.group(1))
+            return False
+        return True
 
 
-def heading_slugs(text: str) -> set[str]:
-    """Every anchor GitHub would mint for this Markdown file's headings —
-    ATX (`#`) and setext (a paragraph line underlined with `===`/`---`) —
-    including the `-1`, `-2` disambiguation suffixes for repeated headings.
-    Headings inside fenced code blocks are not headings."""
+def _content_lines(text: str):
+    """Yield (lineno, line) for lines outside fenced code blocks, from an
+    in-memory string — the shape direct-string tests and the `heading_slugs`/
+    `iter_links` string API use. Real files scanned from disk go through
+    `_iter_file_content_lines` instead (020/380), which produces the same
+    shape without ever holding the whole file at once."""
+    state = _FenceState()
+    for lineno, line in enumerate(text.splitlines(), start=1):
+        if state.is_content(line):
+            yield lineno, line
+
+
+# Streaming-read tuning (020/380, reusing 020/370's WINDOWING shape — see
+# `tools/secretscan.py`'s identical mechanism). Every constant is a FIXED
+# size, independent of the file or tree being scanned: peak memory for
+# reading ANY one file is bounded by `LINE_WINDOW_BYTES + LINE_WINDOW_OVERLAP`,
+# never by the file's own size. Duplicated here rather than imported so this
+# tool stays self-contained and copyable alone (this module's own stated
+# design principle, and secretscan's).
+#
+# The WINDOW SIZE itself is grounded in THIS tool's own shapes, not copied
+# from secretscan's number: secretscan's 4 MiB accounts for a large NAMED
+# credential token (a JWT can run to a few KiB, generously multiplied).
+# linkscan has no equivalent long-token shape — a link destination, an
+# anchor, and a heading are all, by construction, well under a few hundred
+# bytes; nothing this tool matches (`_LINK`, `_LINK_DEF`, `_ATX`) is
+# open-ended the way a credential is. 256 KiB is already 1000x more
+# generous than any real line this format produces. It also keeps the
+# per-window footprint small enough that an adversarial file with MANY
+# overlong lines does not compound allocator overhead across windows —
+# measured while building this fix: a 4 MiB window showed ~76 MB of growth
+# between an 8 MiB and a 32 MiB single-line file (repeated large
+# allocations retaining fragmented heap, not a single unbounded hold); a
+# 256 KiB window showed ~1 MB of growth over the same comparison.
+READ_CHUNK_BYTES = 1 * 1024 * 1024        # raw bytes read from disk at a time
+LINE_WINDOW_BYTES = 256 * 1024            # a physical line longer than this
+                                          # is scanned in WINDOWS instead
+LINE_WINDOW_OVERLAP = 4 * 1024            # carried from one window into the
+                                          # next so a match straddling the
+                                          # cut is still whole in one of them
+
+
+def _iter_file_content_lines(path: Path):
+    """Yield (lineno, line) for lines outside fenced code blocks, reading
+    `path` in fixed-size chunks so peak memory is bounded by a constant
+    regardless of the file's total size or its longest line (020/380;
+    mirrors secretscan's 020/370 fix). Replaces the old whole-file
+    `read_text()` -> `text.splitlines()`, which held the file's content and
+    its full line list at once — unbounded for a large enough single file.
+
+    STATED RESIDUAL: a physical line longer than `LINE_WINDOW_BYTES` is
+    scanned in overlapping windows, and a link/anchor destination whose
+    syntax straddles one exact window cut could be missed — the same trade
+    secretscan's reader makes. Nothing is dropped SILENTLY: every window is
+    still scanned as content (or as fenced, per `_FenceState`); the residual
+    is an exotic match at one byte offset inside an implausibly long single
+    line, not silence over ordinary content.
+
+    Fence transitions are evaluated only on a physical line's FIRST window —
+    see `_FenceState`'s docstring for why that misses nothing."""
+    state = _FenceState()
+    decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
+    lineno = 1
+    pending = ""
+    first_window_of_line = True
+    with open(path, "rb") as fh:
+        while True:
+            chunk = fh.read(READ_CHUNK_BYTES)
+            if not chunk:
+                break
+            pending += decoder.decode(chunk)
+            while True:
+                nl = pending.find("\n")
+                if nl == -1:
+                    break
+                line = pending[:nl]
+                pending = pending[nl + 1:]
+                is_content = (state.is_content(line) if first_window_of_line
+                             else not state.in_fence)
+                if is_content:
+                    yield lineno, line
+                lineno += 1
+                first_window_of_line = True
+            if len(pending) >= LINE_WINDOW_BYTES:
+                is_content = (state.is_content(pending) if first_window_of_line
+                             else not state.in_fence)
+                if is_content:
+                    yield lineno, pending
+                pending = pending[-LINE_WINDOW_OVERLAP:]
+                first_window_of_line = False
+        pending += decoder.decode(b"", final=True)
+        if pending:
+            is_content = (state.is_content(pending) if first_window_of_line
+                         else not state.in_fence)
+            if is_content:
+                yield lineno, pending
+
+
+def _heading_slugs_from_lines(lines) -> set[str]:
+    """Shared engine behind `heading_slugs` (in-memory text) and
+    `heading_slugs_from_path` (streaming, real files — 020/380). `lines` is
+    any iterable of (lineno, line) already filtered to exclude fenced code —
+    the shape both `_content_lines` and `_iter_file_content_lines` produce —
+    so the two entry points can never drift apart. Every anchor GitHub would
+    mint for these headings — ATX (`#`) and setext (a paragraph line
+    underlined with `===`/`---`) — including the `-1`, `-2` disambiguation
+    suffixes for repeated headings."""
     slugs: set[str] = set()
     counts: dict[str, int] = {}
 
@@ -254,7 +372,7 @@ def heading_slugs(text: str) -> set[str]:
 
     prev_text: str | None = None   # candidate setext heading text
     prev_lineno = -2
-    for lineno, line in _content_lines(text):
+    for lineno, line in lines:
         m = _ATX.match(line)
         if m:
             add(m.group(2))
@@ -272,6 +390,20 @@ def heading_slugs(text: str) -> set[str]:
         else:
             prev_text = None
     return slugs
+
+
+def heading_slugs(text: str) -> set[str]:
+    """`_heading_slugs_from_lines` over an in-memory string. Kept for direct
+    string tests and small callers; real files on disk use
+    `heading_slugs_from_path` so a large one is never held whole."""
+    return _heading_slugs_from_lines(_content_lines(text))
+
+
+def heading_slugs_from_path(path: Path) -> set[str]:
+    """Streaming sibling of `heading_slugs`, for real files on disk — peak
+    memory bounded by `_iter_file_content_lines` regardless of the file's
+    size (020/380)."""
+    return _heading_slugs_from_lines(_iter_file_content_lines(path))
 
 
 def _strip_inline_code(line: str) -> str:
@@ -297,18 +429,16 @@ def _strip_inline_code(line: str) -> str:
     return "".join(out)
 
 
-def iter_links(text: str, allow_by_line: dict[int, str] | None = None):
-    """Yield (lineno, raw_destination) for every link destination in a Markdown
-    file — inline `](dest)` and reference definitions `[label]: dest` alike —
-    skipping fenced and inline code. Allow-markered lines are still yielded: the
-    finding is formed first and subtracted afterwards (`method/GUARDS.md`,
-    rule b), so the exemption can be counted. Scopes are recorded into
-    `allow_by_line` for the caller to apply.
+def _iter_links_from_lines(lines, allow_by_line: dict[int, str] | None = None):
+    """Shared engine behind `iter_links` (in-memory text) and
+    `iter_links_from_path` (streaming, real files — 020/380). `lines` is any
+    iterable of (lineno, line) already filtered to exclude fenced code.
 
     A definition line yields its destination and nothing else: the same line
-    cannot also hold an inline link, and checking it here means every usage form
-    of that label is covered by one finding, reported where the fix belongs."""
-    for lineno, line in _content_lines(text):
+    cannot also hold an inline link, and checking it here means every usage
+    form of that label is covered by one finding, reported where the fix
+    belongs."""
+    for lineno, line in lines:
         scope = parse_allow(line)
         if scope is not None and allow_by_line is not None:
             allow_by_line[lineno] = scope
@@ -325,6 +455,27 @@ def iter_links(text: str, allow_by_line: dict[int, str] | None = None):
             if dest.startswith("<") and dest.endswith(">"):
                 dest = dest[1:-1].strip()
             yield lineno, dest
+
+
+def iter_links(text: str, allow_by_line: dict[int, str] | None = None):
+    """Yield (lineno, raw_destination) for every link destination in a Markdown
+    file — inline `](dest)` and reference definitions `[label]: dest` alike —
+    skipping fenced and inline code. Allow-markered lines are still yielded: the
+    finding is formed first and subtracted afterwards (`method/GUARDS.md`,
+    rule b), so the exemption can be counted. Scopes are recorded into
+    `allow_by_line` for the caller to apply.
+
+    Operates on an in-memory string — kept for direct string tests and small
+    callers. Real files on disk use `iter_links_from_path` (020/380) so a
+    large one is never held whole."""
+    yield from _iter_links_from_lines(_content_lines(text), allow_by_line)
+
+
+def iter_links_from_path(path: Path, allow_by_line: dict[int, str] | None = None):
+    """Streaming sibling of `iter_links`, for real files on disk — peak
+    memory bounded by `_iter_file_content_lines` regardless of the file's
+    size (020/380)."""
+    yield from _iter_links_from_lines(_iter_file_content_lines(path), allow_by_line)
 
 
 def is_external(dest: str) -> bool:
@@ -346,7 +497,49 @@ def resolve(md_file: Path, root: Path, path: str) -> Path:
     return (md_file.parent / path)
 
 
-def _suggest(md_file: Path, root: Path, path: str) -> str:
+def _build_basename_index(root: Path) -> dict[str, list[Path]]:
+    """Every file/dir basename anywhere under `root` (excluding any path with
+    a dot-prefixed component — `.git`, `.github` and friends are not link
+    targets, matching the old filter exactly) mapped to the path(s) that
+    carry it.
+
+    Built ONCE per scan and reused for every broken link's suggestion
+    (020/380). The old code called `root.rglob(name)` — a fresh whole-tree
+    walk — for EVERY unresolved link, which made a tree with many broken
+    links quadratic in tree size (measured: 3,000 files with one broken link
+    each took ~18s; the same shape at 20,000 files did not finish in three
+    minutes). Dot-directories are pruned from the walk itself rather than
+    filtered from the result, since a match inside one would be discarded
+    below anyway — free, not just equivalent."""
+    index: dict[str, list[Path]] = {}
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if not d.startswith(".")]
+        for d in dirnames:
+            index.setdefault(d, []).append(Path(dirpath) / d)
+        for name in filenames:
+            if name.startswith("."):
+                continue
+            index.setdefault(name, []).append(Path(dirpath) / name)
+    return index
+
+
+class _BasenameIndex:
+    """Lazy holder for `_build_basename_index`'s result — built on the FIRST
+    suggestion a scan actually needs, never for a clean tree, and reused for
+    every suggestion after that within the same `scan_paths` call."""
+
+    def __init__(self, root: Path):
+        self._root = root
+        self._index: dict[str, list[Path]] | None = None
+
+    def matches(self, name: str) -> list[Path]:
+        if self._index is None:
+            self._index = _build_basename_index(self._root)
+        return self._index.get(name, [])
+
+
+def _suggest(md_file: Path, root: Path, path: str,
+            basename_index: "_BasenameIndex | None" = None) -> str:
     """A replacement path for a link that didn't resolve, or "" if none is
     certain. Suggestions are advisory text only — they never change a verdict
     or an exit code, and nothing rewrites a file.
@@ -362,7 +555,11 @@ def _suggest(md_file: Path, root: Path, path: str) -> str:
     2. Exactly **one** file anywhere under the root carries that basename —
        the moved-or-renamed case. Two or more matches means guessing which,
        so it stays silent.
-    """
+
+    `basename_index` (020/380) makes tier 2 a lookup into a tree-wide index
+    built once, rather than a fresh `root.rglob(name)` walk per call — see
+    `_build_basename_index`. `None` is accepted for direct callers/tests that
+    want the tier-2 walk done on the spot instead."""
     if not path or path.startswith("/"):
         return ""            # already root-relative: tier 1 IS the written form
     # Tier 1 — did they mean it relative to the repo root?
@@ -374,15 +571,16 @@ def _suggest(md_file: Path, root: Path, path: str) -> str:
     name = PurePosixPath(path).name
     if not name or name in (".", ".."):
         return ""
-    matches: list[Path] = []
-    for cand in root.rglob(name):
-        if any(part.startswith(".") for part in cand.relative_to(root).parts):
-            continue         # .git, .github and friends are not link targets
-        matches.append(cand)
-        if len(matches) > 1:
-            return ""        # ambiguous — say nothing rather than pick
+    if basename_index is not None:
+        matches = basename_index.matches(name)
+    else:
+        matches = []
+        for cand in root.rglob(name):
+            if any(part.startswith(".") for part in cand.relative_to(root).parts):
+                continue     # .git, .github and friends are not link targets
+            matches.append(cand)
     if len(matches) != 1:
-        return ""
+        return ""            # 0: no candidate. 2+: ambiguous — say nothing.
     rel = os.path.relpath(matches[0].resolve(), start=md_file.parent.resolve())
     return rel if rel != path else ""
 
@@ -399,12 +597,22 @@ def _within_root(target: Path, root: Path) -> bool:
     return True
 
 
-def _case_mismatch(target: Path, root: Path) -> str | None:
+def _case_mismatch(target: Path, root: Path,
+                   listdir_cache: dict[Path, list[str]] | None = None) -> str | None:
     """On a case-insensitive filesystem (macOS APFS) `exists()` says yes to a
     wrongly-cased link that a case-sensitive host (GitHub) 404s. Walk the
     on-disk names and return the true casing of the first mismatched component,
     or None if the link's casing is exact. Unicode-normalisation-only
-    differences (APFS stores NFD; links are usually NFC) are NOT mismatches."""
+    differences (APFS stores NFD; links are usually NFC) are NOT mismatches.
+
+    `listdir_cache` (020/380) makes repeat calls into the SAME directory
+    (the common case — many links across a tree resolve into the same
+    handful of directories) an O(1) lookup after the first `os.listdir`,
+    instead of re-reading it from scratch every time. Without it, N links
+    into one M-entry directory cost O(N*M) directory reads — measured: 3,000
+    markdown files linking into one shared directory took ~18s; the tally
+    scales quadratically with file count from there. `None` is accepted for
+    direct callers/tests that want the uncached behaviour."""
     try:
         rel = target.resolve().relative_to(root.resolve())
     except (OSError, ValueError):
@@ -413,7 +621,13 @@ def _case_mismatch(target: Path, root: Path) -> str | None:
     nfc = unicodedata.normalize
     for part in rel.parts:
         try:
-            names = os.listdir(cur)
+            if listdir_cache is not None:
+                names = listdir_cache.get(cur)
+                if names is None:
+                    names = os.listdir(cur)
+                    listdir_cache[cur] = names
+            else:
+                names = os.listdir(cur)
         except OSError:
             return None
         if part in names or nfc("NFD", part) in names or nfc("NFC", part) in names:
@@ -443,14 +657,22 @@ def _check_anchor(rel: str, lineno: int, dest: str, anchor: str,
                    f"no heading '#{anchor}' {where}")
 
 
-def check_file(md_file: Path, root: Path, text: str,
+def check_file(md_file: Path, root: Path,
                slug_cache: dict[Path, set[str]],
+               listdir_cache: dict[Path, list[str]],
+               basename_index: "_BasenameIndex | None",
                tally: "Tally | None" = None) -> list[Finding]:
+    """Scans `md_file` from disk via the streaming readers (020/380) —
+    peak memory for this file is bounded regardless of its size, never a
+    whole-file `read_text()` held alongside its own line list. `own_slugs`
+    is computed lazily, and only via a SECOND bounded pass over the same
+    file (`heading_slugs_from_path`), so the common case (no same-file
+    anchor in the file) never pays for it at all."""
     rel = _rel(md_file, root)
     own_slugs: set[str] | None = None
     findings: list[Finding] = []
     allow_by_line: dict[int, str] = {}
-    for lineno, dest in iter_links(text, allow_by_line):
+    for lineno, dest in iter_links_from_path(md_file, allow_by_line):
         if not dest or is_external(dest):
             continue
         path, anchor = split_target(dest)
@@ -460,7 +682,7 @@ def check_file(md_file: Path, root: Path, text: str,
             if not anchor or _LINE_ANCHOR.match(anchor):
                 continue
             if own_slugs is None:
-                own_slugs = heading_slugs(text)
+                own_slugs = heading_slugs_from_path(md_file)
             f = _check_anchor(rel, lineno, dest, anchor, own_slugs, "in this file")
             if f:
                 findings.append(f)
@@ -470,15 +692,15 @@ def check_file(md_file: Path, root: Path, text: str,
         if not target.exists():
             findings.append(Finding(rel, lineno, "missing-file", dest,
                                     f"{_rel(target, root)} does not exist",
-                                    _suggest(md_file, root, path)))
+                                    _suggest(md_file, root, path, basename_index)))
             continue
         if not _within_root(target, root):
             findings.append(Finding(rel, lineno, "outside-root", dest,
                                     "resolves outside the repo root — a reader "
                                     "on GitHub gets a 404",
-                                    _suggest(md_file, root, path)))
+                                    _suggest(md_file, root, path, basename_index)))
             continue
-        wrong = _case_mismatch(target, root)
+        wrong = _case_mismatch(target, root, listdir_cache)
         if wrong is not None:
             findings.append(Finding(rel, lineno, "missing-file", dest,
                                     f"case mismatch — on-disk name is '{wrong}' "
@@ -490,8 +712,7 @@ def check_file(md_file: Path, root: Path, text: str,
                 and target.is_file() and target.suffix.lower() in MARKDOWN_SUFFIXES:
             key = target.resolve()
             if key not in slug_cache:
-                slug_cache[key] = heading_slugs(
-                    target.read_text(encoding="utf-8", errors="replace"))
+                slug_cache[key] = heading_slugs_from_path(target)
             f = _check_anchor(rel, lineno, dest, anchor, slug_cache[key],
                               f"in {_rel(target, root)}")
             if f:
@@ -575,14 +796,27 @@ def _ignored(rel: str, globs: list[str]) -> bool:
                for g in globs)
 
 
+def _walk_files(base: Path):
+    """Every regular file under `base`, streamed one at a time (020/380,
+    mirrors secretscan's 020/370 `_walk_files`) — the old `base.rglob("*")`
+    funnelled through a list comprehension forced the WHOLE subtree to be
+    walked and every `Path` held before scanning a single file. Pruning
+    `SKIP_DIR_NAMES` from `dirnames` stops `os.walk` descending into them at
+    any depth — the same skip semantics as the old
+    `not (SKIP_DIR_NAMES & set(p.parts))` filter, applied before the walk
+    pays for it instead of after."""
+    for dirpath, dirnames, filenames in os.walk(base):
+        dirnames[:] = [d for d in dirnames if d not in SKIP_DIR_NAMES]
+        for name in filenames:
+            p = Path(dirpath) / name
+            if p.is_file():
+                yield p
+
+
 def iter_markdown(paths: list[Path], root: Path, globs: list[str],
                   tally: "Tally | None" = None):
     for base in paths:
-        if base.is_file():
-            candidates = [base]
-        else:
-            candidates = [p for p in base.rglob("*")
-                          if p.is_file() and not (SKIP_DIR_NAMES & set(p.parts))]
+        candidates = [base] if base.is_file() else _walk_files(base)
         for p in candidates:
             if p.suffix.lower() not in MARKDOWN_SUFFIXES:
                 continue
@@ -597,10 +831,12 @@ def scan_paths(paths: list[Path], root: Path,
                tally: "Tally | None" = None) -> list[Finding]:
     globs = load_ignore_globs(root)
     slug_cache: dict[Path, set[str]] = {}
+    listdir_cache: dict[Path, list[str]] = {}
+    basename_index = _BasenameIndex(root)
     findings: list[Finding] = []
     for md in iter_markdown(paths, root, globs, tally):
-        text = md.read_text(encoding="utf-8", errors="replace")
-        findings.extend(check_file(md, root, text, slug_cache, tally))
+        findings.extend(check_file(md, root, slug_cache, listdir_cache,
+                                   basename_index, tally))
     return findings
 
 

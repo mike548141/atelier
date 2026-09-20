@@ -5,6 +5,7 @@ finding; frozen (pre-boundary) and retired-scheme records are never touched.
 The tests bite-prove both legs and the boundary edges.
 """
 
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -12,6 +13,7 @@ import unittest
 from pathlib import Path
 
 import reviewscan
+import memprobe
 
 TOOLS = Path(__file__).resolve().parent
 
@@ -284,3 +286,71 @@ class Allowances(unittest.TestCase):
     def test_deferral_scope_is_parsed_as_its_own_kind(self):
         self.assertEqual("deferral",
                          reviewscan.parse_allow("x reviewscan:allow:deferral: grounds"))
+
+
+class BoundedMemory(unittest.TestCase):
+    """020/380 — reviewscan's share of the "every guard runs in bounded
+    memory" ruling (`020/370` extended to the whole guard layer). Mike's
+    ruling, verbatim: "it should not matter how much it scans it should no
+    have this affect". The testable form here: peak memory for reading ONE
+    record/brief does not grow with that file's size.
+
+    Runs the real CLI as a SUBPROCESS via `memprobe.run_and_measure` and
+    reads its peak RSS back from the kernel — see `tools/memprobe.py`'s
+    module docstring for why that is the number that matters (it is what
+    actually thrashed the principal's machine in 020/370's incident;
+    `tracemalloc` only sees Python-heap allocations)."""
+
+    REVIEWSCAN = str(TOOLS / "reviewscan.py")
+    PY = sys.executable
+
+    @staticmethod
+    def _build_many_lines(target_bytes: int, path: Path) -> None:
+        with open(path, "w") as f:
+            f.write("# Big\n\n")
+            written = 0
+            i = 0
+            while written < target_bytes:
+                line = f"filler content line {i} of the record body, no review marker here\n"
+                f.write(line)
+                written += len(line)
+                i += 1
+            f.write("**Review**: not warranted — fixture\n")
+
+    def _run(self, root: Path) -> int:
+        result = memprobe.run_and_measure(
+            [self.PY, self.REVIEWSCAN, "--root", str(root), str(root)],
+            timeout=90, rss_limit_bytes=900 * 1024 * 1024)
+        self.assertFalse(result.timed_out, "scan did not finish in time")
+        self.assertFalse(result.killed_over_limit,
+                         "scan exceeded the 900 MB safety limit")
+        return result.peak_rss_bytes
+
+    def _peak_for(self, size_bytes: int) -> int:
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        dd = tmp / "docs" / "decisions"
+        dd.mkdir(parents=True)
+        self._build_many_lines(size_bytes, dd / "2026-07-25-1200-big.md")
+        return self._run(tmp)
+
+    # Grounded in the FIX's design, not fitted to a measurement
+    # (`ground-numeric-limits`): the one piece of per-file state the
+    # streaming reader ever buffers is a single window of one physical
+    # line, capped at `LINE_WINDOW_BYTES + LINE_WINDOW_OVERLAP` (~260 KiB —
+    # see `reviewscan._iter_file_lines`). 8 MB is generous headroom over the
+    # measured noise floor (well under 1 MB across trials on this box)
+    # while staying far below the ~43 MB the pre-fix whole-file-read code
+    # showed for the SAME 1 MiB -> 8 MiB size delta (measured while
+    # building this fix, against the pre-020/380 `reviewscan.py`).
+    GROWTH_BOUND_BYTES = 8 * 1024 * 1024
+
+    def test_peak_memory_does_not_scale_with_input_size(self):
+        small_peak = self._peak_for(1 * 1024 * 1024)
+        large_peak = self._peak_for(8 * 1024 * 1024)
+        growth = large_peak - small_peak
+        self.assertLess(
+            growth, self.GROWTH_BOUND_BYTES,
+            f"peak RSS grew {growth / 1e6:.1f} MB for a 7 MB larger record "
+            f"(small={small_peak / 1e6:.1f} MB, large={large_peak / 1e6:.1f} MB) "
+            "— memory is scaling with input size again (020/380).")

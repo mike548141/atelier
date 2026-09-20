@@ -8,6 +8,7 @@ must travel), the two planes, and the hatch.
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -15,6 +16,7 @@ import unittest
 from pathlib import Path
 
 import publishscan
+import memprobe
 
 TOOLS = Path(__file__).resolve().parent
 
@@ -338,6 +340,95 @@ class ControlCharacterTest(unittest.TestCase):
             self.assertNotIn("\x1b", line)
         self.assertEqual(
             [publishscan._strip_controls(".env\x1b[2K")], [".env[2K"])
+
+
+class BoundedMemory(unittest.TestCase):
+    """020/380 — publishscan's share of the "every guard runs in bounded
+    memory" ruling (`020/370` extended to the whole guard layer). Mike's
+    ruling, verbatim: "it should not matter how much it scans it should no
+    have this affect".
+
+    publishscan is structurally different from the other two guards in this
+    batch: it NEVER reads a file's content (its own docstring says so — "It
+    does not read file contents"), so it was already measured clean here —
+    no fix was needed, only this test to PIN that property. Its judgement is
+    the PATH alone (`matches()`), and its only per-scan state is the tracked
+    path list `git ls-files`/`git diff --cached` hands back, plus the small
+    findings list. So the honest growth axis for this tool is the NUMBER of
+    tracked paths (an unavoidable index of the tracked set — the same
+    "cross-file index" class `020/380`'s own item names for linkscan and
+    reviewscan), never the BYTES inside any one of them.
+
+    Runs the real CLI as a SUBPROCESS via `memprobe.run_and_measure` and
+    reads peak RSS back from the kernel — see `tools/memprobe.py`'s module
+    docstring."""
+
+    PUBLISHSCAN = str(TOOLS / "publishscan.py")
+    PY = sys.executable
+
+    def _run(self, root: Path) -> int:
+        result = memprobe.run_and_measure(
+            [self.PY, self.PUBLISHSCAN, "--root", str(root)],
+            timeout=90, rss_limit_bytes=900 * 1024 * 1024)
+        self.assertFalse(result.timed_out, "scan did not finish in time")
+        self.assertFalse(result.killed_over_limit,
+                         "scan exceeded the 900 MB safety limit")
+        return result.peak_rss_bytes
+
+    def _peak_for_one_file(self, size_bytes: int) -> int:
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        git_repo(tmp)
+        # Content that is emphatically not a credential/never-publish shape
+        # — only its SIZE varies between the two calls.
+        filler = "word " * (size_bytes // 5)
+        add(tmp, "big.txt", filler)
+        return self._run(tmp)
+
+    # Grounded in the tool's own design, not fitted to a measurement
+    # (`ground-numeric-limits`): publishscan never opens a tracked file, so
+    # ZERO growth is the expected shape here, not a windowed approximation
+    # of it — the bound only needs headroom over interpreter/subprocess
+    # noise (measured well under 1 MB across trials on this box).
+    CONTENT_GROWTH_BOUND_BYTES = 8 * 1024 * 1024
+
+    def test_peak_memory_does_not_scale_with_tracked_file_content_size(self):
+        small_peak = self._peak_for_one_file(1 * 1024 * 1024)
+        large_peak = self._peak_for_one_file(8 * 1024 * 1024)
+        growth = large_peak - small_peak
+        self.assertLess(
+            growth, self.CONTENT_GROWTH_BOUND_BYTES,
+            f"peak RSS grew {growth / 1e6:.1f} MB for a 7 MB larger TRACKED "
+            f"FILE'S CONTENT (small={small_peak / 1e6:.1f} MB, "
+            f"large={large_peak / 1e6:.1f} MB) — publishscan is reading file "
+            "content it was never supposed to touch (020/380).")
+
+    def test_peak_memory_with_many_tracked_files_stays_sane(self):
+        """The HONEST residual, measured rather than hidden: memory here
+        scales with the NUMBER of tracked paths (each held as one short
+        string from `git ls-files`), not with any file's content. This is
+        not pinned as a tight growth bound the way content-size is above —
+        an index of the tracked set is expected to grow with the tracked
+        set — but a generous sanity ceiling catches the OTHER failure mode:
+        something turning that per-path cost quadratic or duplicating the
+        list. 5,000 tiny tracked files measured well under 50 MB while
+        building this fix; 200 MB is a order of magnitude of headroom
+        above that, not a number picked to make this pass."""
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        git_repo(tmp)
+        for i in range(5000):
+            (tmp / f"f{i}.txt").write_text(f"file {i}\n")
+        # One bulk `add` rather than 5,000 subprocess calls — this test is
+        # about the SCAN's memory, not about re-measuring git's own cost.
+        subprocess.run(["git", "-C", str(tmp), "add", "-A"], check=True,
+                       capture_output=True)
+        peak = self._run(tmp)
+        self.assertLess(
+            peak, 200 * 1024 * 1024,
+            f"peak RSS was {peak / 1e6:.1f} MB for 5,000 tiny tracked "
+            "files — the per-tracked-path cost may have stopped being "
+            "linear (020/380).")
 
 
 if __name__ == "__main__":

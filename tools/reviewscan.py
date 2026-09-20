@@ -89,6 +89,7 @@ Python.
 from __future__ import annotations
 
 import argparse
+import codecs
 import json
 import re
 import sys
@@ -157,20 +158,83 @@ DEFERRAL_ALLOW = "reviewscan:allow:deferral:"
 VERDICT_HEADING = re.compile(r"^#{1,6}\s.*\bverdict\b", re.IGNORECASE)
 
 
+# Streaming-read tuning (020/380, reusing 020/370's WINDOWING shape — see
+# `tools/secretscan.py`'s identical mechanism). Fixed sizes independent of
+# the file scanned: peak memory for reading ANY one record or brief is
+# bounded by `LINE_WINDOW_BYTES + LINE_WINDOW_OVERLAP`, never by the file's
+# own size. Duplicated here rather than imported so this tool stays
+# self-contained and copyable alone.
+#
+# The WINDOW SIZE is grounded in THIS tool's own shapes (`tools/linkscan.py`
+# makes the same argument in more detail, and measured the same effect):
+# nothing this tool matches — `REVIEW_LINE`, `VERDICT_HEADING`,
+# `DEFERRED_HEADING`, `FENCE` — is an open-ended token the way a credential
+# is; every one is a short, `^`-anchored line shape. 256 KiB is generous by
+# orders of magnitude over any real line here, and keeps an adversarial
+# file's per-window footprint small enough that windowing many overlong
+# lines does not itself compound allocator overhead.
+READ_CHUNK_BYTES = 1 * 1024 * 1024
+LINE_WINDOW_BYTES = 256 * 1024
+LINE_WINDOW_OVERLAP = 4 * 1024
+
+
+def _iter_file_lines(path: Path):
+    """Yield (line, is_first_window) for `path`, reading it in fixed-size
+    chunks so peak memory is bounded by a constant regardless of the file's
+    size or its longest line (020/380) — replaces the old whole-file
+    `read_text()` -> `text.splitlines()`, which held the file and its full
+    line list at once.
+
+    A fence delimiter, a review line, or a verdict/deferred heading is
+    always a short, `^`-anchored line — so it is always resolved within a
+    physical line's FIRST window. `is_first_window` lets callers skip
+    re-running those start-anchored checks on a continuation window of an
+    overlong line, the same reasoning `tools/linkscan.py`'s `_FenceState`
+    documents for its own fence tracking. The allow-marker search is NOT
+    gated on it — a marker can sit anywhere on a line, so every window is
+    checked, matching the old whole-text `in` / `.search()` as closely as a
+    bounded read can (a marker split exactly across one window's cut is the
+    one stated residual, mitigated by the overlap)."""
+    decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
+    pending = ""
+    first = True
+    with open(path, "rb") as fh:
+        while True:
+            chunk = fh.read(READ_CHUNK_BYTES)
+            if not chunk:
+                break
+            pending += decoder.decode(chunk)
+            while True:
+                nl = pending.find("\n")
+                if nl == -1:
+                    break
+                yield pending[:nl], first
+                pending = pending[nl + 1:]
+                first = True
+            if len(pending) >= LINE_WINDOW_BYTES:
+                yield pending, first
+                pending = pending[-LINE_WINDOW_OVERLAP:]
+                first = False
+        pending += decoder.decode(b"", final=True)
+        if pending:
+            yield pending, first
+
+
 def scan_record(path: Path, suppressed: list[int] | None = None) -> bool:
     """True if the record satisfies the rule (has the line, or is exempt).
 
     `suppressed` collects one entry per record an allow-marker exempted, so a
     clean run can state what it subtracted (`method/GUARDS.md`, rule b)."""
-    text = path.read_text(encoding="utf-8", errors="replace")
-    if parse_allow(text) is not None:
-        if suppressed is not None:
-            suppressed.append(1)
-        return True
     # A `review:` inside a fenced code block is a QUOTED example, not the
     # record's own judgement (RS2) — track fence state and skip fenced lines.
     in_fence = False
-    for line in text.splitlines():
+    for line, is_first in _iter_file_lines(path):
+        if parse_allow(line) is not None:
+            if suppressed is not None:
+                suppressed.append(1)
+            return True
+        if not is_first:
+            continue
         if FENCE.match(line):
             in_fence = not in_fence
             continue
@@ -186,12 +250,13 @@ def scan_brief(path: Path) -> bool:
     present in a brief that has no verdict yet — i.e. deferred content sitting
     where a reviewer will read it before its findings exist.
     """
-    text = path.read_text(encoding="utf-8", errors="replace")
-    if DEFERRAL_ALLOW in text:
-        return True
     in_fence = False
     has_deferred = has_verdict = False
-    for line in text.splitlines():
+    for line, is_first in _iter_file_lines(path):
+        if DEFERRAL_ALLOW in line:
+            return True
+        if not is_first:
+            continue
         if FENCE.match(line):
             in_fence = not in_fence
             continue
