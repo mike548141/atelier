@@ -522,6 +522,21 @@ Four steps, none of them large.
    secrets. Where the class cannot be stated without them, the finding belongs
    in the private estate root and the parent's item points at it.
 
+   **This rule governs every surface the filing creates, not just the item's
+   prose, and it outranks any rule about how to name one** (the principal's
+   ruling, 2026-09-19, on the contradiction filed as `320/190`). **Branch
+   names, PR titles, commit subjects and PR bodies are all published the
+   moment the filing is pushed**, and a branch form of
+   `report-<reporting-repo>-<subject>` — which this section's own reporting
+   rules used to prescribe — publishes exactly what this rule forbids. So a
+   private child's filing carries **no repo token on any of them**; where two
+   rules disagree about a name, this one wins and the other yields. The
+   contradiction was live, not theoretical: it was found because a public
+   pull-request list already carried a private child's name in a head ref and
+   a title, and **that cannot be retracted** — a deleted branch leaves the
+   ref and title behind in the forge's own history. Which is the argument for
+   the precedence: the failure mode here is one-way.
+
 3. **The child keeps the consequence, not the rule.** The child still has to be
    safe in the window between learning and landing, and that need is real — it
    is what drives the local write. So the child may add **one line of
@@ -574,15 +589,25 @@ What it cost:
 
 So four rules, each answering one of those:
 
-- **Name the branch for the report, not for the parent's work.**
-  `report-<reporting-repo>-<subject>` reads as a hand-up in a branch list; a
-  name shaped like the parent's own worktree branches reads as competition. And
-  **never re-use or re-create a branch name** — the parent may have just
-  finished with it, and a name coming back from the dead is the single most
-  misleading thing a branch can do.
-- **Say what it is in the first line of the commit and the PR body:** which repo
-  is reporting, and that this is a filed finding rather than parent work. The
-  parent should never have to infer it from the diff.
+- **Name the branch for the report, not for the parent's work** — and name it
+  `report-<subject>-<HHMM>`, with **no repo token**. The `report-` prefix is
+  what reads as a hand-up in a branch list; a name shaped like the parent's own
+  worktree branches reads as competition. The form used to be
+  `report-<reporting-repo>-<subject>`, and it was **wrong on a public parent**:
+  a branch name is published on push, so it disclosed the very thing § *The
+  route* rule 2 forbids a private child to disclose. Rule 2 wins (the
+  principal's ruling, 2026-09-19); this rule yields, and the neutral form is
+  now uniform rather than conditional on a visibility the parent cannot see
+  from its own tree. And **never re-use or re-create a branch name** — the
+  parent may have just finished with it, and a name coming back from the dead
+  is the single most misleading thing a branch can do.
+- **Say what it is in the first line of the commit and in the PR body:** that
+  this is a filed finding rather than parent work, and — **only if the
+  reporting repo is one whose name may be published** — which repo it is. A
+  private child says *"a private child"* and nothing more; commit subjects, PR
+  titles and PR bodies are all public on a public parent, so rule 2 reaches all
+  three. The parent should never have to infer the *kind* of change from the
+  diff; it does not need the reporter's identity to triage it.
 - **Open the PR before you stop.** A finding on an unmerged branch is a message
   left in a drawer — it has none of the properties filing was for. If the
   session cannot open one, that is the hold-and-flag shape above, and the

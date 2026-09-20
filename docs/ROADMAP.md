@@ -69,6 +69,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🎯 [→✅ Remove](roadmap/020-policy-as-code-programme-five-tracks-mik/360-remove-plainscan-hook-destroyed-engine-archived.md)
 - ✅ 🔥 [DEFECT — secretscan's memory grows with what it scans: ~9 GB over](roadmap/020-policy-as-code-programme-five-tracks-mik/370-a-whole-tree-scan-of-a-large-repo-exhausts-the-machine.md)
 - [~] 🔥 (claimed 2026-09-20-0620, wt: three workers; registered floor guards first) [Every guard runs in bounded memory, whatever it is pointed at](roadmap/020-policy-as-code-programme-five-tracks-mik/380-every-guard-bounded-memory-regardless-of-input-size.md)
+- [ ] 🔎 [Parallel workers in one run share a scratchpad path, and one](roadmap/020-policy-as-code-programme-five-tracks-mik/390-parallel-workers-share-one-scratchpad-path.md)
 
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
 
@@ -232,6 +233,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued — the 2026-09-19 tier ruling: orchestration is](roadmap/160-doctrine-review-owed/330-rule-4-cold-pass-queued-the-tier-ruling.md)
 - ⏳ [Rule-4 cold pass queued — the floor is copied verbatim (115/030)](roadmap/160-doctrine-review-owed/340-rule-4-cold-pass-queued-the-floor-verbatim-ruling.md)
 - ⏳ [Rule-4 cold pass queued — the 2026-09-20 scanner code: secretscan](roadmap/160-doctrine-review-owed/350-rule-4-cold-pass-queued-the-bounded-memory-and-declared-roots-code.md)
+- ⏳ [Rule-4 cold pass queued — the naming precedence: rule 2 governs every](roadmap/160-doctrine-review-owed/360-rule-4-cold-pass-queued-the-naming-precedence.md)
 
 ## build/ layer — open strands
 
@@ -406,7 +408,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [REPORT — a child cannot stamp its inlined floor at all: source= may](roadmap/320-child-filed-findings-via-pointing-up/160-stampscan-cannot-stamp-across-a-repo-boundary.md)
 - [ ] [REPORT — four verified pathscan false-positive classes from a second](roadmap/320-child-filed-findings-via-pointing-up/170-pathscan-false-positive-classes-not-the-count.md)
 - [ ] [REPORT — the ../<sibling> path convention every child inherits](roadmap/320-child-filed-findings-via-pointing-up/180-sibling-path-convention-breaks-in-a-worktree.md)
-- [ ] 🔥 [DOCTRINE CONTRADICTION — a private child cannot obey both](roadmap/320-child-filed-findings-via-pointing-up/190-rule-2-and-the-branch-naming-rule-cannot-both-be-obeyed.md)
+- ✅ 🔥 [DOCTRINE CONTRADICTION — a private child cannot obey both](roadmap/320-child-filed-findings-via-pointing-up/190-rule-2-and-the-branch-naming-rule-cannot-both-be-obeyed.md)
 - ✅ 🛑 [REPORT — an unresolved merge conflict shipped to a PUBLIC main and](roadmap/320-child-filed-findings-via-pointing-up/200-no-floor-scanner-reads-a-conflict-marker.md)
 - ✅ [REPORT — CONCURRENCY.md's session-start bookend tells every session to](roadmap/320-child-filed-findings-via-pointing-up/210-the-session-start-autostash-contradicts-the-shared-checkout-premise.md)
 - ✅ [REPORT — the read-the-output rule covers an unread check and not an…](roadmap/320-child-filed-findings-via-pointing-up/220-read-the-output-does-not-say-verify-the-act-happened.md)
@@ -420,6 +422,7 @@ then `python3 tools/board.py rebuild`.
 - [~] 🎯 (claimed 2026-09-20-0540, wt: qr0919-blockcopy-check) [A ruling that changes doctrine has no check that the child](roadmap/320-child-filed-findings-via-pointing-up/300-a-ruling-that-moves-doctrine-has-no-check-the-block-copy-moved.md)
 - [ ] 🎯 [Should pathscan block instead of warn?](roadmap/320-child-filed-findings-via-pointing-up/310-should-pathscan-block-instead-of-warn.md)
 - ✅ 🔎 [Hand-up: the run-open role check still sends the tier question back](roadmap/320-child-filed-findings-via-pointing-up/320-the-run-open-role-check-sends-the-tier-question-back-to-the-principal.md)
+- [ ] 🎯 [Does the new naming precedence reach doctrine's own prose?](roadmap/320-child-filed-findings-via-pointing-up/330-does-the-naming-precedence-reach-doctrines-own-prose.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 

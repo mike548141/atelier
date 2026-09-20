@@ -154,3 +154,43 @@ closing evidence is a re-measurement showing a lower count *and* a non-zero
 true-positive rate, which nothing has produced yet.
 
 Code cold pass queued at `160/350` for both scanners.
+
+### 320/190 — a private child's name was being published by the doctrine itself
+
+The contradiction a child filed: § *The route* rule 2 forbids a finding from a
+private child to name that repo; § *Report without harming the parent* told it
+to file on a branch named `report-<reporting-repo>-<subject>`. atelier is
+public, so obeying the second published what the first forbids — and nothing
+said which rule won.
+
+Re-measured before putting it to Mike, rather than quoting the filing's own
+evidence: no **pushed branch** carries a child name any more (the 2026-09-17
+sweep removed them), but **two closed pull requests still carry a private
+child's name in their head ref and title**, and a third names a child that is
+in fact public — checked at the forge, not assumed. Head refs and titles
+survive branch deletion, so this is a leak that can be stopped and **not
+retracted**.
+
+Mike ruled **(b): rule 2 wins, everywhere** — it governs branch names, PR
+titles, commit subjects and PR bodies, and outranks any rule about how to name
+one. The branch form is now `report-<subject>-<HHMM>` **uniformly**, rather
+than conditional on a visibility the parent cannot see from its own tree, and
+a private child names itself nowhere in the parent.
+
+**What I deliberately did not do:** doctrine's own prose names a child repo in
+two worked examples, one of them on Mike's explicit earlier ruling (PU-2,
+2026-08-22, reasoning that the veil was already defeated). Extending the new
+precedence to narrative would partly overturn that, so it is a decision, not a
+tidy-up: filed as `320/330`. Rule-4 pass queued at `160/360`.
+
+### Two things the workers surfaced that were not their items
+
+- A `020/380` worker found that **parallel workers share a scratchpad path**:
+  a peer's script overwrote its own mid-measurement and later invocations ran
+  the peer's copy with no error. Harmless here (measurement-only, and it
+  caught it), silent by construction in general — the run pattern isolates
+  workers by git worktree and that isolation stops at the repo boundary.
+  Filed as `020/390`.
+- The full suite has **one** environment failure beyond the interpreter issue:
+  a `floorfleet` test shells out to `gh`, which is not on a worker shell's
+  `PATH`. Same class as `115/210` and folded into it.

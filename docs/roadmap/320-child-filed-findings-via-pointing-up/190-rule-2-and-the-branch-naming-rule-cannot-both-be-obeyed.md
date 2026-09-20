@@ -1,4 +1,4 @@
-- [ ] 🔥 **DOCTRINE CONTRADICTION — a private child cannot obey both
+- [x] 🔥 **DOCTRINE CONTRADICTION — a private child cannot obey both
       `PROPAGATION.md` § *The route* rule 2 and § *Report without harming the
       parent* rule 1: a branch name in a public repository is public, so the
       prescribed branch form publishes the one thing rule 2 forbids** — filed
@@ -130,3 +130,27 @@
         branch name is new and has never existed in this repo before
         (§ *Report without harming the parent*: *"never re-use or re-create a
         branch name"*).
+  - [x] 🎯→✅ **RULED 2026-09-19 by Mike, via the question device: option (b)
+        — rule 2 wins, everywhere.** Applied the same sitting in
+        `PROPAGATION.md`: § *The route* rule 2 now states that it governs
+        every surface a filing creates (branch name, PR title, commit
+        subject, PR body) and **outranks any rule about how to name one**;
+        § *Report without harming the parent* rule 1 yields — the branch form
+        is `report-<subject>-<HHMM>`, **uniformly**, with no repo token,
+        rather than conditional on a visibility the parent cannot see from
+        its own tree — and its rule 2 now says a private child names itself
+        nowhere, a publishable one may.
+  - [x] ✅ **The live exposure, re-measured at ruling time (2026-09-20).**
+        No pushed branch carries a child's name any more — the 2026-09-17
+        sweep deleted them — but **two closed pull requests still carry a
+        private child's name in their head ref and title**, and a third
+        names a child that is public (checked, not assumed: the repo's
+        visibility was read from the forge). Head refs and titles survive
+        branch deletion, so the disclosure is **not retractable**; editing
+        the titles would narrow it, and the refs would remain. That
+        irreversibility is the argument the ruling turned on.
+  - [ ] 🎯 **The half the ruling did NOT settle, carried as `320/330`:**
+        doctrine's own *prose* names a private child in two places, and one
+        of them was named on an explicit earlier ruling (PU-2, 2026-08-22).
+        Whether the new precedence reaches narrative in atelier's own docs —
+        and so partly overturns that ruling — is Mike's, not this item's.
