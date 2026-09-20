@@ -9,12 +9,16 @@ import io
 import json
 import os
 import shutil
+import sys
 import tempfile
 import pathlib
 import unittest
 from pathlib import Path
 
 import secretscan as ss
+import memprobe
+
+TOOLS_DIR = Path(__file__).resolve().parent
 
 
 def scan(text, disabled=frozenset()):
@@ -1301,6 +1305,88 @@ class StagedAbsolutePathTest(unittest.TestCase):
         """A refusal that doesn't say what to do instead just gets --no-verify'd."""
         r = self._run("--staged", "--root", "/tmp", "/tmp/anything")
         self.assertIn("src/", r.stderr)
+
+
+class BoundedMemory(unittest.TestCase):
+    """020/370 — the machine-thrash defect (a real repo pushed `secretscan`
+    to ~9 GB RSS and thrashed the principal's machine). Mike's ruling,
+    verbatim: "it should not matter how much it scans it should no have this
+    affect". The testable form: peak memory is bounded by a constant that
+    does not grow with the size of the input.
+
+    `tracemalloc` cannot prove this — it only sees Python-heap allocations,
+    not the whole OS process (see `tools/memprobe.py`'s module docstring) —
+    so this runs the real CLI as a SUBPROCESS via
+    `memprobe.run_and_measure` and reads its peak RSS back from the kernel,
+    the same number that thrashed the machine in the first place.
+
+    Content is plain filler prose with no credential-shaped substring
+    anywhere, so BOTH runs produce zero findings — the only thing that
+    differs between them is how many bytes there are to read. A correctly
+    streaming implementation shows close to zero growth for 7 MiB more
+    input; the defect this item replaced held the whole file 3+ times over
+    (`read_bytes()` → decoded `str` → `splitlines()` list) and did not.
+    """
+
+    SECRETSCAN = str(TOOLS_DIR / "secretscan.py")
+    SMALL_BYTES = 1 * 1024 * 1024
+    LARGE_BYTES = 8 * 1024 * 1024
+    # Grounded in the FIX's design, not fitted to a measurement
+    # (`ground-numeric-limits`): the one piece of per-file state the
+    # streaming reader ever buffers is a single window of one physical line,
+    # capped at `LINE_WINDOW_BYTES + LINE_WINDOW_OVERLAP` (~4.06 MiB) — see
+    # `secretscan._iter_numbered_lines`. Neither run should need to hold more
+    # than that at once, and both produce zero findings (so the
+    # findings-cap machinery in `Tally.take_finding_slot` is inert here
+    # too) — growth between them should be close to zero. Allowing 4x that
+    # window leaves generous headroom for interpreter/allocator noise while
+    # staying far below what a whole-file-buffered implementation shows for
+    # this size delta (measured, while building this fix, at a bit over 2x
+    # this bound for the pre-fix code — a fact recorded for context, not
+    # what set the number).
+    GROWTH_BOUND_BYTES = 4 * (ss.LINE_WINDOW_BYTES + ss.LINE_WINDOW_OVERLAP)
+
+    @staticmethod
+    def _build(target_bytes: int, path: Path) -> None:
+        with open(path, "w") as f:
+            written = 0
+            i = 0
+            while written < target_bytes:
+                line = f"this is filler line number {i} — no secret-shaped content here at all\n"
+                f.write(line)
+                written += len(line)
+                i += 1
+
+    def _peak_rss_for(self, size_bytes: int) -> int:
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        self._build(size_bytes, tmp / "data.txt")
+        # Safety (a previous probe thrashed the principal's machine doing
+        # exactly this kind of measurement, 020/370's own incident): a hard
+        # kill if the child ever exceeds ~900 MB, well short of the 1 GB the
+        # task treats as the line not to cross, and a 60s ceiling so a
+        # regression that reintroduces catastrophic behaviour fails the test
+        # instead of hanging CI.
+        result = memprobe.run_and_measure(
+            [sys.executable, self.SECRETSCAN, "--root", str(tmp), str(tmp)],
+            timeout=60, rss_limit_bytes=900 * 1024 * 1024)
+        self.assertFalse(result.timed_out, "scan did not finish in time")
+        self.assertFalse(result.killed_over_limit,
+                         "scan exceeded the 900 MB safety limit")
+        self.assertEqual(0, result.returncode,
+                         "filler content must not itself flag anything")
+        return result.peak_rss_bytes
+
+    def test_peak_memory_does_not_scale_with_input_size(self):
+        small_peak = self._peak_rss_for(self.SMALL_BYTES)
+        large_peak = self._peak_rss_for(self.LARGE_BYTES)
+        growth = large_peak - small_peak
+        self.assertLess(
+            growth, self.GROWTH_BOUND_BYTES,
+            f"peak RSS grew {growth / 1e6:.1f} MB for a "
+            f"{(self.LARGE_BYTES - self.SMALL_BYTES) / 1e6:.1f} MB larger input "
+            f"(small={small_peak / 1e6:.1f} MB, large={large_peak / 1e6:.1f} MB) "
+            "— memory is scaling with input size again (020/370).")
 
 
 if __name__ == "__main__":
