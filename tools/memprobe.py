@@ -43,12 +43,14 @@ Zero third-party dependencies; stdlib only (matches every other tool here).
 
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import sys
 import tempfile
 import time
 from dataclasses import dataclass
+from pathlib import Path
 
 
 def _maxrss_to_bytes(ru_maxrss: int) -> int:
@@ -92,8 +94,32 @@ class ProbeResult:
 def run_and_measure(argv: list[str], *, cwd: str | None = None,
                     timeout: float | None = None,
                     rss_limit_bytes: int | None = None,
-                    poll_interval: float = 0.02) -> ProbeResult:
+                    poll_interval: float = 0.02,
+                    isolated: bool = True) -> ProbeResult:
     """Run `argv` as a child process to completion and report its peak RSS.
+
+    ISOLATION, AND WHY IT IS THE DEFAULT (2026-09-20, after this module's own
+    tests went red on a Linux CI runner while every macOS run was green):
+    `ru_maxrss` for a child is contaminated by the parent it was forked from.
+    On Linux, `subprocess` forks (`close_fds=True` rules out `posix_spawn`),
+    and until the child `exec`s it shares the parent's page accounting — so a
+    child that allocates nothing reads back the *parent's* footprint. Measured
+    on CI: `python -c pass` reported **187 MB** from a test process holding
+    that much. macOS spawns instead of forking, so the same code measured ~20
+    MB there and nothing looked wrong.
+
+    Worse than a constant offset: a test that writes a large synthetic input
+    grows its OWN interpreter between the small and the large measurement, so
+    the inherited baseline grows *with the input size* — the exact signal
+    every `020/380` bounded-memory test is trying to read. `test_datescan`
+    failed that way on CI while passing locally.
+
+    So by default the measurement runs one level down: a fresh, minimal Python
+    (`isolated=True`) runs this same function with `isolated=False` and prints
+    the result back as JSON. The process that forks the target is then a bare
+    interpreter of constant, small footprint, independent of whatever the
+    caller is holding. `isolated=False` measures from THIS process and is kept
+    for the in-process tests of this module's own mechanics.
 
     `timeout` kills the child (and still returns a `ProbeResult`, with
     `timed_out=True`) rather than raising — a probe that raises on a hang
@@ -106,6 +132,10 @@ def run_and_measure(argv: list[str], *, cwd: str | None = None,
     is killed immediately and `killed_over_limit=True` is set. Callers
     building new synthetic-memory tests should always pass this.
     """
+    if isolated:
+        return _run_isolated(argv, cwd=cwd, timeout=timeout,
+                             rss_limit_bytes=rss_limit_bytes,
+                             poll_interval=poll_interval)
     with tempfile.TemporaryFile() as out_f, tempfile.TemporaryFile() as err_f:
         proc = subprocess.Popen(argv, stdout=out_f, stderr=err_f, cwd=cwd)
         deadline = None if timeout is None else time.monotonic() + timeout
@@ -156,6 +186,57 @@ def run_and_measure(argv: list[str], *, cwd: str | None = None,
                        peak_rss_bytes=_maxrss_to_bytes(rusage.ru_maxrss),
                        stdout=stdout, stderr=stderr,
                        timed_out=timed_out, killed_over_limit=killed_over_limit)
+
+
+# The inner half of `isolated=True`. It puts THIS file's directory on
+# `sys.path` and imports the module by name — a plain import, not a
+# `spec_from_file_location` dance, because a module loaded that way is absent
+# from `sys.modules` and `@dataclass` looks itself up there. It prints ONE
+# json object on stdout; the target's own stdout/stderr are captured by the
+# inner `run_and_measure` into temp files and handed back inside that json,
+# never mixed into this stream.
+_INNER = (
+    "import json,sys;"
+    "sys.path.insert(0,sys.argv[1]);"
+    "import memprobe as m;"
+    "a=json.loads(sys.argv[2]);"
+    "r=m.run_and_measure(a['argv'],cwd=a['cwd'],timeout=a['timeout'],"
+    "rss_limit_bytes=a['limit'],poll_interval=a['poll'],isolated=False);"
+    "sys.stdout.write(json.dumps({'rc':r.returncode,'peak':r.peak_rss_bytes,"
+    "'out':r.stdout.decode('utf-8','replace'),"
+    "'err':r.stderr.decode('utf-8','replace'),"
+    "'timed_out':r.timed_out,'killed':r.killed_over_limit}))"
+)
+
+
+def _run_isolated(argv: list[str], *, cwd: str | None, timeout: float | None,
+                  rss_limit_bytes: int | None,
+                  poll_interval: float) -> ProbeResult:
+    """Measure from a fresh minimal interpreter — see `run_and_measure`'s
+    ISOLATION note for why the caller's own footprint must not be in the
+    measurement. The outer process's own timeout is deliberately generous
+    (the inner one enforces the real deadline); if the inner process dies
+    without printing, that is reported as a probe failure rather than
+    silently returning a plausible-looking zero."""
+    payload = json.dumps({"argv": list(argv), "cwd": cwd, "timeout": timeout,
+                          "limit": rss_limit_bytes, "poll": poll_interval})
+    outer_timeout = None if timeout is None else timeout + 60
+    proc = subprocess.run(
+        [sys.executable, "-c", _INNER, str(Path(__file__).resolve().parent), payload],
+        capture_output=True, timeout=outer_timeout)
+    try:
+        data = json.loads(proc.stdout.decode("utf-8", "replace"))
+    except ValueError:
+        raise RuntimeError(
+            "memprobe: the isolated measurement process produced no result "
+            f"(exit {proc.returncode}): "
+            f"{proc.stderr.decode('utf-8', 'replace')[:2000]}") from None
+    return ProbeResult(returncode=data["rc"],
+                       peak_rss_bytes=data["peak"],
+                       stdout=data["out"].encode(),
+                       stderr=data["err"].encode(),
+                       timed_out=data["timed_out"],
+                       killed_over_limit=data["killed"])
 
 
 def _selftest() -> int:

@@ -1042,7 +1042,14 @@ via `os.wait4`, the same number `/usr/bin/time -l`/`-v` reports, normalised to
 bytes across macOS (`ru_maxrss` in bytes) and Linux (`ru_maxrss` in KiB).
 Optional `timeout` and `rss_limit_bytes` kill a runaway child rather than
 letting a bad measurement become a repeat of the incident that motivated
-building this. See `tools/test_secretscan.py::BoundedMemory` for the pattern
+building this. **By default the measurement runs one level down**, in a fresh
+minimal interpreter: a forked child inherits its parent's page accounting on
+Linux until it `exec`s, so measuring from a fat caller read the *caller's*
+footprint back as the child's — `python -c pass` measured 187 MB on a CI
+runner, and a test that wrote a large input grew its own baseline with the
+input size, which is exactly the signal being measured. macOS spawns rather
+than forks, so none of this showed locally. `isolated=False` measures from
+the calling process and is kept for testing this module's own mechanics. See `tools/test_secretscan.py::BoundedMemory` for the pattern
 every guard in `020/380` is meant to reuse: build a small and a larger
 synthetic input, measure both, assert the growth is under a bound derived
 from the guard's own design (never from today's measurement).

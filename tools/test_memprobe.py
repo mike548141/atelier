@@ -84,9 +84,15 @@ class RunAndMeasure(unittest.TestCase):
         # avoids (see the module docstring) would make the SECOND reading
         # include the first child's peak too, so a small process measured
         # after a big one would still read back big.
+        # `isolated=False` on purpose: this case tests THIS process's wait4
+        # bookkeeping, which is the thing that could bleed. The isolated path
+        # gets a fresh interpreter each time and so cannot exhibit the bug
+        # even if it were present.
         memprobe.run_and_measure(
-            [sys.executable, "-c", "x = bytearray(80 * 1024 * 1024)"], timeout=10)
-        small = memprobe.run_and_measure([sys.executable, "-c", "pass"], timeout=10)
+            [sys.executable, "-c", self.TOUCHED_ALLOC.format(n=80 * 1024 * 1024)],
+            timeout=30, isolated=False)
+        small = memprobe.run_and_measure([sys.executable, "-c", "pass"],
+                                         timeout=10, isolated=False)
         self.assertLess(small.peak_rss_bytes, 40 * 1024 * 1024)
 
 
@@ -106,6 +112,48 @@ class MaxrssUnits(unittest.TestCase):
             self.assertEqual(12345 * 1024, memprobe._maxrss_to_bytes(12345))
         finally:
             memprobe.sys.platform = real_platform
+
+
+
+class Isolation(unittest.TestCase):
+    """The default `isolated=True` path exists because a forked child inherits
+    its parent's page accounting on Linux (see `memprobe.run_and_measure`'s
+    ISOLATION note). These pin the property that matters: the caller's own
+    footprint must not reach the measurement."""
+
+    def test_a_fat_caller_does_not_inflate_the_measurement(self):
+        baseline = memprobe.run_and_measure(
+            [sys.executable, "-c", "pass"], timeout=30)
+        ballast = bytearray(200 * 1024 * 1024)
+        for i in range(0, len(ballast), 4096):   # touch, so it is real memory
+            ballast[i] = 1
+        try:
+            while_fat = memprobe.run_and_measure(
+                [sys.executable, "-c", "pass"], timeout=30)
+        finally:
+            del ballast
+        # 200 MB of ballast in THIS process must move the reading by far less
+        # than the ballast itself. The bound is deliberately loose (the point
+        # is "not proportional to the caller", not a precise figure): before
+        # isolation, this exact case is what read the parent's whole footprint
+        # back as the child's.
+        self.assertLess(abs(while_fat.peak_rss_bytes - baseline.peak_rss_bytes),
+                        50 * 1024 * 1024)
+
+    def test_isolated_and_direct_agree_on_a_real_allocation(self):
+        n = 80 * 1024 * 1024
+        direct = memprobe.run_and_measure(
+            [sys.executable, "-c", RunAndMeasure.TOUCHED_ALLOC.format(n=n)],
+            timeout=60, isolated=False)
+        isolated = memprobe.run_and_measure(
+            [sys.executable, "-c", RunAndMeasure.TOUCHED_ALLOC.format(n=n)],
+            timeout=60)
+        # Same child, same work: the two paths must not disagree by more than
+        # interpreter noise, or the isolated number is measuring something
+        # else.
+        self.assertGreater(isolated.peak_rss_bytes, n)
+        self.assertLess(abs(isolated.peak_rss_bytes - direct.peak_rss_bytes),
+                        40 * 1024 * 1024)
 
 
 if __name__ == "__main__":
