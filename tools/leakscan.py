@@ -51,6 +51,7 @@ it with the system python3 and no install.
 from __future__ import annotations
 
 import argparse
+import codecs
 import fnmatch
 import json
 import os
@@ -316,6 +317,21 @@ SHADOWED_BY: dict[str, tuple[str, ...]] = {
 }
 
 
+# 020/380 — a fixed ceiling on how many `Finding` objects one run MATERIALIZES
+# (builds and holds in memory), independent of how many the input actually
+# contains. The same defect `020/370` fixed in `secretscan` (an unbounded
+# `findings` list held every hit for the whole run) applies here byte for
+# byte: this scanner's STRUCTURAL patterns run `finditer` per line per rule,
+# so a pathological/adversarial tree can generate an unbounded NUMBER of
+# findings independent of tree size. Reusing secretscan's own derivation
+# rather than re-deriving one: each held `Finding` costs on the order of
+# 1 KiB (path + excerpt strings + object overhead), so a ~50 MiB findings
+# budget — independent of input size — gives the same round cap. Findings
+# past the cap are COUNTED (`Tally.findings_over_cap`), never dropped
+# silently.
+MAX_MATERIALIZED_FINDINGS = 50_000
+
+
 @dataclass
 class Tally:
     """What the scan removed AFTER finding it — rule (b) of `method/GUARDS.md`.
@@ -327,10 +343,26 @@ class Tally:
     by_marker: dict[str, int] = field(default_factory=dict)   # rule name -> hits
     files_by_glob: int = 0
     disabled_rules: tuple[str, ...] = ()
+    # 020/380 — see MAX_MATERIALIZED_FINDINGS above. Every finding is BLOCKING
+    # here (leakscan has no advisory tier), so one counter is enough — unlike
+    # secretscan's blocking/advisory split.
+    findings_over_cap: int = 0
+    _materialized: int = field(default=0, repr=False, compare=False)
 
     @property
     def marker_total(self) -> int:
         return sum(self.by_marker.values())
+
+    def take_finding_slot(self) -> bool:
+        """True if a finding may still be fully materialized (built and
+        held); False once the run-wide cap is reached, in which case the
+        caller counts it via `findings_over_cap` instead of building a
+        `Finding` for it."""
+        if self._materialized < MAX_MATERIALIZED_FINDINGS:
+            self._materialized += 1
+            return True
+        self.findings_over_cap += 1
+        return False
 
     def note_marker(self, rule: str) -> None:
         self.by_marker[rule] = self.by_marker.get(rule, 0) + 1
@@ -341,7 +373,9 @@ class Tally:
         as a zero rather than as 'this run did not measure it')."""
         parts = [f"{self.marker_total} by allow-marker",
                  f"{self.files_by_glob} file(s) by .leakscanignore",
-                 f"{len(self.disabled_rules)} rule(s) disabled"]
+                 f"{len(self.disabled_rules)} rule(s) disabled",
+                 f"{self.findings_over_cap} beyond the "
+                 f"{MAX_MATERIALIZED_FINDINGS}-finding cap (counted, not listed)"]
         line = "  suppressed: " + " · ".join(parts)
         if self.by_marker:
             detail = ", ".join(f"{r}×{n}" for r, n in sorted(self.by_marker.items()))
@@ -562,12 +596,28 @@ def _shadow_spans(line: str, disabled: frozenset[str]) -> dict[str, list[tuple[i
     return out
 
 
-def scan_text(path: str, text: str,
+def _record(findings: list[Finding], tally: Tally | None, finding: Finding) -> None:
+    """Append `finding` unless the run-wide materialization cap (020/380,
+    `MAX_MATERIALIZED_FINDINGS`) has been reached — in which case
+    `tally.take_finding_slot` has already counted it and there is nothing
+    left for the caller to hold. The single choke point every finding in
+    `scan_lines` passes through, so the cap cannot be forgotten at a new
+    call site — the same shape as `secretscan._record` (020/370)."""
+    if tally is None or tally.take_finding_slot():
+        findings.append(finding)
+
+
+def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
               local_terms: list[tuple[str, "re.Pattern[str]"]],
               disabled: frozenset[str] = frozenset(),
               tally: Tally | None = None) -> list[Finding]:
+    """The scanning engine. `numbered_lines` pairs each line of text with its
+    real line number — the shape `_scan_file` needs to call this once per
+    physical line while streaming a file, and `scan_text` below is the
+    whole-blob convenience wrapper every existing caller (staged mode, the
+    path-name scan, the test suite) uses."""
     findings: list[Finding] = []
-    for lineno, line in enumerate(text.splitlines(), start=1):
+    for lineno, line in numbered_lines:
         allow_scope = parse_allow(line)
         shadows = _shadow_spans(line, disabled)
         for pat in STRUCTURAL:
@@ -591,8 +641,8 @@ def scan_text(path: str, text: str,
                     if tally is not None:
                         tally.note_marker(pat.name)
                     continue
-                findings.append(Finding(path, lineno, pat.name, "structural",
-                                        pat.severity, redact(span)))
+                _record(findings, tally, Finding(path, lineno, pat.name, "structural",
+                                                 pat.severity, redact(span)))
         # D1: the term list runs on EVERY line — the unscoped marker never
         # reaches it. The ONE exemption is a scope naming `local-term`
         # explicitly (ruled 2026-08-09): deliberate, reasoned, counted.
@@ -602,9 +652,20 @@ def scan_text(path: str, text: str,
                     if tally is not None:
                         tally.note_marker("local-term")
                     continue
-                findings.append(Finding(path, lineno, "local-term", "local",
-                                        "high", f"term:{term[:2]}…"))
+                _record(findings, tally, Finding(path, lineno, "local-term", "local",
+                                                 "high", f"term:{term[:2]}…"))
     return findings
+
+
+def scan_text(path: str, text: str,
+              local_terms: list[tuple[str, "re.Pattern[str]"]],
+              disabled: frozenset[str] = frozenset(),
+              tally: Tally | None = None) -> list[Finding]:
+    """Scan a whole text blob, numbering lines sequentially from 1 — the
+    staged-diff and path-name callers' shape (both already hold their input
+    in memory: a diff's added lines, or a single path string)."""
+    return scan_lines(path, list(enumerate(text.splitlines(), start=1)),
+                      local_terms, disabled, tally)
 
 
 def scan_path_name(rel: str,
@@ -689,15 +750,31 @@ def _ignored(rel: str, globs: list[str]) -> bool:
                for g in globs)
 
 
+def _walk_files(base: Path):
+    """Every regular file under `base`, streamed one at a time — the 020/380
+    fix for the same defect `020/370` fixed in `secretscan`: the old
+    `[p for p in base.rglob("*") if ...]` forced Python to walk the ENTIRE
+    subtree and hold every `Path` it found before scanning a single byte.
+    `os.walk` is used instead of `rglob` specifically because it exposes
+    `dirnames` for in-place pruning: filtering `SKIP_DIR_NAMES` out of
+    `dirnames` stops `os.walk` from ever DESCENDING into `.git`,
+    `node_modules`, etc. at any depth, rather than descending into them and
+    discarding what it found — the same skip semantics as the old
+    `not (SKIP_DIR_NAMES & set(p.parts))` filter (any path component, not
+    just the immediate parent), just applied before the walk pays for it."""
+    for dirpath, dirnames, filenames in os.walk(base):
+        dirnames[:] = [d for d in dirnames if d not in SKIP_DIR_NAMES]
+        for name in filenames:
+            p = Path(dirpath) / name
+            if p.is_file():  # excludes broken symlinks, matching the old rglob filter
+                yield p
+
+
 def iter_files(paths: list[Path], root: Path, globs: list[str],
                tally: Tally | None = None):
     for base in paths:
-        if base.is_file():
-            files = [base]
-        else:
-            files = [p for p in base.rglob("*")
-                     if p.is_file() and not (SKIP_DIR_NAMES & set(p.parts))]
-        for p in files:
+        candidates = [base] if base.is_file() else _walk_files(base)
+        for p in candidates:
             # Resolve BOTH sides so rel is root-relative no matter the caller's
             # CWD (2026-07-11 review N3): floor.yml runs `--root repo repo` from
             # the workspace, where the unresolved relative_to raised and the
@@ -714,6 +791,103 @@ def iter_files(paths: list[Path], root: Path, globs: list[str],
             yield p, rel
 
 
+# Streaming-read tuning (020/380, reusing secretscan's 020/370 constants
+# verbatim rather than re-deriving them — every FIXED size here is chosen
+# once and independent of the file or tree being scanned, which is the
+# entire fix). See `secretscan.py`'s module comment above its own copy of
+# these for the full derivation.
+READ_CHUNK_BYTES = 1 * 1024 * 1024        # raw bytes read from disk at a time
+LINE_WINDOW_BYTES = 4 * 1024 * 1024       # a physical line (no '\n' in sight)
+                                          # longer than this is scanned in
+                                          # WINDOWS rather than buffered whole
+LINE_WINDOW_OVERLAP = 64 * 1024           # carried from one window into the
+                                          # next so a match straddling the cut
+                                          # is still whole in one of the two
+
+
+def _iter_numbered_lines(path: Path):
+    """Yield `(lineno, text, is_final_window)` for every physical line in
+    `path`, reading and decoding it in fixed-size chunks so peak memory for
+    ONE file is bounded by `LINE_WINDOW_BYTES + LINE_WINDOW_OVERLAP` —
+    independent of the file's total size or its longest line. Yields nothing
+    for a file that looks binary (checked on the first chunk only).
+
+    This replaces the old `read_bytes()` → whole `str` → `splitlines()`
+    list, which held the file THREE TIMES OVER at once (measured, see
+    020/380's board item and 020/370's own precedent in secretscan).
+
+    `is_final_window` is False for every window of an overlong line except
+    its last — `_scan_file` uses it to dedupe a match that straddles a
+    window boundary and would otherwise be reported twice."""
+    decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
+    lineno = 1
+    pending = ""
+    with open(path, "rb") as fh:
+        first_chunk = True
+        while True:
+            chunk = fh.read(READ_CHUNK_BYTES)
+            if first_chunk:
+                first_chunk = False
+                if _looks_binary(chunk):
+                    return
+            if not chunk:
+                break
+            pending += decoder.decode(chunk)
+            while True:
+                nl = pending.find("\n")
+                if nl == -1:
+                    break
+                yield lineno, pending[:nl], True
+                pending = pending[nl + 1:]
+                lineno += 1
+            if len(pending) >= LINE_WINDOW_BYTES:
+                yield lineno, pending, False
+                pending = pending[-LINE_WINDOW_OVERLAP:]
+        pending += decoder.decode(b"", final=True)
+        if pending:
+            yield lineno, pending, True  # EOF: whatever remains is the last line
+
+
+def _scan_file(path: Path, rel: str,
+               local_terms: list[tuple[str, "re.Pattern[str]"]],
+               disabled: frozenset[str], tally: Tally | None) -> list[Finding]:
+    """Scan one file with memory bounded by a fixed constant regardless of
+    the file's size (020/380) — see `_iter_numbered_lines`. Ordinary lines
+    go through `scan_lines` one at a time, identically to the pre-fix
+    whole-file call (each physical line was already scoped independently by
+    line number). An overlong line's windows share `LINE_WINDOW_OVERLAP`
+    characters of real content between consecutive windows, so a token
+    sitting in that shared region would otherwise be found — and reported —
+    twice; `seen_in_window` dedupes by (rule, excerpt) across one line's
+    windows, reset the moment `is_final_window` says that line is done —
+    identical shape to `secretscan._scan_file` (020/370)."""
+    findings: list[Finding] = []
+    seen_in_window: set[tuple[str, str]] = set()
+    in_overlong = False
+    try:
+        for lineno, text, is_final in _iter_numbered_lines(path):
+            unit = scan_lines(rel, [(lineno, text)], local_terms, disabled, tally)
+            if in_overlong:
+                for f in unit:
+                    key = (f.rule, f.excerpt)
+                    if key not in seen_in_window:
+                        seen_in_window.add(key)
+                        findings.append(f)
+            else:
+                findings.extend(unit)
+            if is_final:
+                in_overlong = False
+                seen_in_window = set()
+            else:
+                in_overlong = True
+    except OSError:
+        # A file that vanishes/becomes unreadable mid-walk (race with another
+        # process) is not this scanner's failure to report — matches the old
+        # behaviour, which never guarded `read_bytes()` here either.
+        pass
+    return findings
+
+
 def scan_paths(paths: list[Path], root: Path,
                local_terms: list[tuple[str, "re.Pattern[str]"]],
                disabled: frozenset[str] = frozenset(),
@@ -724,11 +898,7 @@ def scan_paths(paths: list[Path], root: Path,
         # G2: the path is scanned whatever the contents turn out to be — a
         # binary's NAME is readable even when its body is not.
         findings.extend(scan_path_name(rel, local_terms, disabled, tally))
-        data = p.read_bytes()
-        if _looks_binary(data):
-            continue
-        findings.extend(scan_text(rel, data.decode("utf-8", errors="replace"),
-                                  local_terms, disabled, tally))
+        findings.extend(_scan_file(p, rel, local_terms, disabled, tally))
     return findings
 
 
@@ -782,21 +952,31 @@ def resolve_terms_path(cli: str | None) -> Path | None:
 
 def render_human(findings: list[Finding], warning: str | None,
                  scanned_local: bool, tally: Tally | None = None) -> str:
+    # 020/380 — a capped run's TRUE total lives on the tally, never on
+    # `len(findings)`: everything past `MAX_MATERIALIZED_FINDINGS` was
+    # counted there instead of being built as a `Finding` at all (see
+    # `Tally.take_finding_slot`), so reading the list length alone would
+    # silently under-report the exit-code-relevant count on exactly the
+    # runs this cap exists for.
+    over_cap = tally.findings_over_cap if tally is not None else 0
     lines: list[str] = []
     if warning:
         lines.append(f"⚠ {warning}")
-    if not findings:
+    if not findings and not over_cap:
         cover = "structural + local" if scanned_local else "structural only"
         lines.append(f"✓ leakscan clean ({cover}).")
         if tally is not None:
             lines.append(tally.summary())
         return "\n".join(lines)
-    lines.append(f"✗ leakscan: {len(findings)} finding(s) — commit blocked.\n")
+    lines.append(f"✗ leakscan: {len(findings) + over_cap} finding(s) — commit blocked.\n")
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
         # Line 0 means the hit is in the PATH itself (G2) — say so, because
         # ':0' would otherwise read as a line number nobody can open.
         where = f"{f.path}:{f.line}" if f.line else f"{f.path} (in the path name)"
         lines.append(f"  {where}  [{f.severity}/{f.kind}] {f.rule} → {f.excerpt}")
+    if over_cap:
+        lines.append(f"  …and {over_cap} more finding(s), counted but not listed "
+                     f"(past the {MAX_MATERIALIZED_FINDINGS}-finding memory cap).")
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
@@ -922,10 +1102,11 @@ def _main(argv: list[str] | None = None) -> int:
 
     if args.json:
         print(json.dumps({
-            "clean": not findings,
+            "clean": not findings and not tally.findings_over_cap,
             "scanned_local_terms": scanned_local,
             "warning": warning,
             "findings": [asdict(f) for f in findings],
+            "findings_over_cap": tally.findings_over_cap,
             "suppressed": {
                 "by_allow_marker": tally.marker_total,
                 "by_allow_marker_rule": tally.by_marker,
@@ -936,7 +1117,7 @@ def _main(argv: list[str] | None = None) -> int:
     else:
         print(render_human(findings, warning, scanned_local, tally))
 
-    return 1 if findings else 0
+    return 1 if (findings or tally.findings_over_cap) else 0
 
 
 def _selftest() -> int:
