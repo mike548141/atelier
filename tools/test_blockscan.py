@@ -8,6 +8,7 @@ same four-file shape as `blockscan.py`'s own `--selftest`, factored here so
 each case is a separate, named test rather than one long script."""
 
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -15,6 +16,9 @@ import unittest
 from pathlib import Path
 
 import blockscan as bs
+import memprobe
+
+TOOLS_DIR = Path(__file__).resolve().parent
 
 
 def _git(root: Path, *args: str) -> None:
@@ -297,6 +301,100 @@ class ExtractionHelpers(unittest.TestCase):
     def test_extract_bullet_ambiguous_anchor_returns_none(self):
         region = "- **X:** one.\n- **X:** two.\n"
         self.assertIsNone(bs.extract_bullet(region, "**X:**"))
+
+
+class BoundedMemory(unittest.TestCase):
+    """020/380 — blockscan is not a tree-walker (its unit is a small, fixed,
+    hand-maintained map — see the module docstring's BOUNDED MEMORY
+    section), but it used to buffer every mapped file WHOLE regardless of
+    that file's size. Measured before this fix: a 7 MB larger mapped source
+    document drove ~25 MB of peak-RSS growth (a ~3.6x multiplier, from the
+    repeated `text.splitlines()` calls each extractor makes over the same
+    text). `MAX_MAPPED_FILE_BYTES` now refuses — loudly, as a `ConfigError`
+    — a mapped file over the cap rather than reading it whole, so growth
+    stops at a fixed ceiling instead of scaling with the file forever.
+
+    Runs the real CLI as a SUBPROCESS via `memprobe.run_and_measure` and
+    reads peak RSS back from the kernel — see `tools/memprobe.py`."""
+
+    BLOCKSCAN = str(TOOLS_DIR / "blockscan.py")
+    ANCHOR = "**The apex:**"
+    HEADING = "## Honesty is absolute"
+
+    def _build_repo(self, extra_bytes: int) -> Path:
+        tmp = Path(tempfile.mkdtemp(prefix="blockscan-mem-"))
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        (tmp / "docs" / "method").mkdir(parents=True)
+        (tmp / "docs" / "build" / "templates").mkdir(parents=True)
+        (tmp / "tools").mkdir()
+
+        filler = ("x" * 200 + "\n") * (extra_bytes // 201) if extra_bytes else ""
+        (tmp / "docs" / "method" / "APEX.md").write_text(
+            f"# Apex\n\n{self.HEADING}\n\n" + filler +
+            "Original honesty text.\n"
+            "## Adaptation is continuous\n\nOther text.\n")
+        (tmp / "docs" / "method" / "PROPAGATION.md").write_text(
+            "# Propagation\n\n<!-- floor:begin -->\n"
+            "## Doctrine\n\n- " + self.ANCHOR + " Original block wording.\n"
+            "- **Concurrency:** other bullet text.\n"
+            "<!-- floor:end -->\n")
+        (tmp / "docs" / "build" / "templates" / "CLAUDE.md").write_text(
+            "<!-- stamp:begin source=docs/method/PROPAGATION.md region=floor -->\n"
+            "## Doctrine\n\n- " + self.ANCHOR + " Original block wording.\n"
+            "- **Concurrency:** other bullet text.\n"
+            "<!-- stamp:end -->\n")
+        (tmp / "tools" / "blockscan_map.json").write_text(json.dumps({
+            "region": {"path": "docs/method/PROPAGATION.md",
+                      "begin_marker": "floor:begin", "end_marker": "floor:end"},
+            "template": {"path": "docs/build/templates/CLAUDE.md",
+                        "begin_marker": "stamp:begin", "end_marker": "stamp:end"},
+            "bullets": {"apex": {"anchor": self.ANCHOR,
+                                 "sources": [{"path": "docs/method/APEX.md",
+                                             "heading": self.HEADING}]}},
+        }))
+        return tmp
+
+    def _peak_rss_for(self, extra_bytes: int) -> "memprobe.ProbeResult":
+        tmp = self._build_repo(extra_bytes)
+        return memprobe.run_and_measure(
+            [sys.executable, self.BLOCKSCAN, "--check", "--root", str(tmp)],
+            timeout=60, rss_limit_bytes=900 * 1024 * 1024)
+
+    def test_oversized_mapped_file_is_refused_not_buffered(self):
+        """The pinning case: a mapped file over `MAX_MAPPED_FILE_BYTES` must
+        be REJECTED (ConfigError, exit 2) before it is ever read whole — the
+        core of this fix. Fails against the pre-fix code, which read the
+        file regardless of size and would have exited 0 (or reported an
+        unrelated finding) instead."""
+        r = self._peak_rss_for(bs.MAX_MAPPED_FILE_BYTES + (1024 * 1024))
+        self.assertFalse(r.timed_out)
+        self.assertFalse(r.killed_over_limit)
+        self.assertEqual(2, r.returncode,
+                         "an oversized mapped file must be a config error, "
+                         "not silently scanned")
+        self.assertIn(b"over the", r.stdout + r.stderr)
+
+    def test_peak_memory_bounded_up_to_the_cap(self):
+        """Below the cap, growth is still bounded by a fixed multiple of the
+        cap itself (the repeated-splitlines overhead this fix does not
+        remove) — never by the file's own unbounded size, since anything
+        past the cap is refused outright by the test above."""
+        small = self._peak_rss_for(100 * 1024)
+        large = self._peak_rss_for(3 * 1024 * 1024)
+        for r in (small, large):
+            self.assertFalse(r.timed_out)
+            self.assertFalse(r.killed_over_limit)
+            self.assertEqual(0, r.returncode)
+        growth = large.peak_rss_bytes - small.peak_rss_bytes
+        # Grounded in the cap, not fitted to a measurement: even the worst
+        # multiplier measured while building this fix (~3.6x) applied to the
+        # ~2.9 MB delta between these two fixtures stays well under 5x it.
+        bound = 5 * (3 * 1024 * 1024 - 100 * 1024)
+        self.assertLess(
+            growth, bound,
+            f"peak RSS grew {growth / 1e6:.1f} MB for a ~2.9 MB larger "
+            f"mapped source file, past the {bound / 1e6:.1f} MB bound "
+            "grounded in the cap.")
 
 
 if __name__ == "__main__":

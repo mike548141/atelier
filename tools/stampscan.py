@@ -258,8 +258,10 @@ Python.
 from __future__ import annotations
 
 import argparse
+import codecs
 import fnmatch
 import json
+import os
 import re
 import sys
 from dataclasses import dataclass, asdict
@@ -440,6 +442,98 @@ def _content_lines(text: str):
         yield lineno, line, _strip_inline_code(line)
 
 
+# Streaming-read tuning (020/380, reusing 020/370's secretscan/spellscan
+# shape — see `tools/secretscan.py`'s `_iter_numbered_lines` and
+# `tools/spellscan.py`'s `_iter_physical_lines`, duplicated rather than
+# imported so this scanner stays copyable alone). Before this fix,
+# `scan_paths` read every candidate file WHOLE (`md.read_text()`) and every
+# canonical `source=` WHOLE too (`resolve_source`'s `candidate.read_text()`),
+# each immediately re-split via `text.splitlines()` inside `_content_lines` —
+# the same double-materialization shape secretscan's old `iter_files` and
+# spellscan's old `scan_file` carried, so peak memory for ONE file scaled
+# with that file's own size, independent of how small the stamped block or
+# canonical region inside it actually was. `_MAX_LINE_BYTES` is two-plus
+# orders of magnitude past any realistic Markdown line (a stamp marker, a
+# doctrine bullet) so no real content is ever truncated; it exists to bound
+# the pathological case (one absurd multi-MB "line") to a fixed constant
+# instead of letting it scale with the file.
+_READ_CHUNK_BYTES = 1 * 1024 * 1024
+_MAX_LINE_BYTES = 8 * 1024
+
+
+def _iter_physical_lines(path: Path, truncated: list[int] | None = None):
+    """Yield `(lineno, text)` for every physical line in `path`, reading and
+    decoding it in fixed-size chunks so peak memory for ONE file is bounded
+    by `_MAX_LINE_BYTES` (plus one read chunk in flight) — independent of the
+    file's total size or its longest line. A physical line longer than
+    `_MAX_LINE_BYTES` is truncated to that many characters; the excess is
+    still READ (so running time stays linear in bytes read) but never held,
+    and `truncated` — a mutable counter list, appended to once per
+    truncation, matching `iter_markdown`'s own `skipped` counter shape — is
+    incremented rather than truncating silently."""
+    decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
+    lineno = 1
+    pending = ""
+    line_truncated = False
+
+    def feed(text: str):
+        nonlocal lineno, pending, line_truncated
+        while text:
+            nl = text.find("\n")
+            piece, text = (text, "") if nl == -1 else (text[:nl], text[nl + 1:])
+            room = _MAX_LINE_BYTES - len(pending)
+            if room > 0:
+                pending += piece[:room]
+            if len(piece) > max(room, 0):
+                line_truncated = True
+            if nl != -1:
+                if line_truncated and truncated is not None:
+                    truncated.append(1)
+                yield lineno, pending
+                lineno += 1
+                pending = ""
+                line_truncated = False
+
+    with open(path, "rb") as fh:
+        while True:
+            chunk = fh.read(_READ_CHUNK_BYTES)
+            if not chunk:
+                break
+            yield from feed(decoder.decode(chunk))
+    tail = decoder.decode(b"", final=True)
+    if tail:
+        yield from feed(tail)
+    if pending or line_truncated:
+        if line_truncated and truncated is not None:
+            truncated.append(1)
+        yield lineno, pending
+
+
+def _content_lines_from_file(path: Path, truncated: list[int] | None = None):
+    """Streaming equivalent of `_content_lines`: same fence-pairing state
+    machine, sourced from `_iter_physical_lines` instead of a whole-file
+    `text.splitlines()` list (020/380)."""
+    in_fence = False
+    fence_char = ""
+    fence_len = 0
+    for lineno, line in _iter_physical_lines(path, truncated):
+        stripped = line.lstrip()
+        m = _FENCE.match(stripped)
+        if in_fence:
+            if m and m.group(1)[0] == fence_char and len(m.group(1)) >= fence_len \
+                    and stripped.rstrip() == m.group(1):
+                in_fence = False
+            yield lineno, line, ""
+            continue
+        if m:
+            in_fence = True
+            fence_char = m.group(1)[0]
+            fence_len = len(m.group(1))
+            yield lineno, line, ""
+            continue
+        yield lineno, line, _strip_inline_code(line)
+
+
 def find_stamp_blocks(path: str, text: str) -> tuple[list[StampBlock], list[Finding]]:
     """Parse every `stamp:begin ... stamp:end` pair in `text`. Returns
     (blocks, malformed_findings) — malformed markers (unterminated, nested,
@@ -447,12 +541,36 @@ def find_stamp_blocks(path: str, text: str) -> tuple[list[StampBlock], list[Find
     dropped.
 
     Markers (and the allow marker) are recognised on the CODE-STRIPPED view
-    of each line; payloads accumulate the RAW line (see `_content_lines`)."""
+    of each line; payloads accumulate the RAW line (see `_content_lines`).
+
+    Whole-text convenience wrapper over `_find_stamp_blocks_from_lines` —
+    used by every existing test and by the (in-memory) canonical-region
+    resolution path; `find_stamp_blocks_in_file` below is the bounded-memory
+    disk variant `scan_paths` uses for a real scan (020/380)."""
+    return _find_stamp_blocks_from_lines(path, _content_lines(text))
+
+
+def find_stamp_blocks_in_file(path: str, file_path: Path,
+                              truncated: list[int] | None = None
+                              ) -> tuple[list[StampBlock], list[Finding]]:
+    """Bounded-memory disk variant of `find_stamp_blocks` (020/380): streams
+    `file_path` in fixed-size chunks instead of reading it whole — see
+    `_content_lines_from_file`. `path` is the label (repo-relative) reported
+    in findings, independent of where `file_path` actually lives."""
+    return _find_stamp_blocks_from_lines(
+        path, _content_lines_from_file(file_path, truncated))
+
+
+def _find_stamp_blocks_from_lines(
+        path: str, content_lines) -> tuple[list[StampBlock], list[Finding]]:
+    """The shared engine underneath `find_stamp_blocks`/`find_stamp_blocks_in_file`
+    — identical logic, generic over WHERE the `(lineno, raw_line, scan_line)`
+    triples come from."""
     blocks: list[StampBlock] = []
     malformed: list[Finding] = []
     open_stamp: dict | None = None
 
-    for lineno, raw_line, scan_line in _content_lines(text):
+    for lineno, raw_line, scan_line in content_lines:
         stripped = scan_line.strip()
         m_begin = _STAMP_BEGIN_RX.match(stripped)
         m_end = _STAMP_END_RX.match(stripped)
@@ -514,22 +632,47 @@ def extract_region(text: str, region: str) -> list[str] | None:
     the real region used to bind first, so an identical copy read as drift
     against the example's text. Payload lines are still the RAW lines, so
     a region whose content is presented inside a fence (the live
-    PROPAGATION.md shape) extracts verbatim exactly as before."""
+    PROPAGATION.md shape) extracts verbatim exactly as before.
+
+    Whole-text convenience wrapper over `_extract_region_from_lines` — used
+    by every existing test; `extract_region_from_file` below is the bounded-
+    memory disk variant `scan_paths` uses for a real scan (020/380): unlike
+    this function, it never holds the WHOLE canonical source in memory, only
+    the (typically much smaller) payload between the region's markers."""
+    return _extract_region_from_lines(_content_lines(text), region)
+
+
+def extract_region_from_file(path: Path, region: str,
+                             truncated: list[int] | None = None) -> list[str] | None:
+    """Bounded-memory disk variant of `extract_region` (020/380): streams
+    `path` in fixed-size chunks (see `_content_lines_from_file`) instead of
+    reading it whole. Peak memory for resolving one region is bounded by the
+    REGION's own size (plus one physical line in flight), independent of how
+    large the canonical source document containing it is — the source may be
+    read to EOF looking for the markers, but nothing before `region:begin`
+    is ever held, and reading stops as soon as `region:end` is found."""
+    return _extract_region_from_lines(
+        _content_lines_from_file(path, truncated), region)
+
+
+def _extract_region_from_lines(content_lines, region: str) -> list[str] | None:
+    """The shared engine underneath `extract_region`/`extract_region_from_file`."""
     begin_rx, end_rx = _region_markers(region)
-    entries = list(_content_lines(text))
-    start_idx = None
-    end_idx = None
-    for i, (_, _raw, scan) in enumerate(entries):
-        if start_idx is None:
-            if begin_rx.match(scan.strip()):
-                start_idx = i
+    start_seen = False
+    found_end = False
+    payload: list[str] = []
+    for _, raw, scan in content_lines:
+        stripped = scan.strip()
+        if not start_seen:
+            if begin_rx.match(stripped):
+                start_seen = True
             continue
-        if end_idx is None and end_rx.match(scan.strip()):
-            end_idx = i
+        if end_rx.match(stripped):
+            found_end = True
             break
-    if start_idx is None or end_idx is None:
+        payload.append(raw)
+    if not start_seen or not found_end:
         return None
-    payload = [raw for _, raw, _ in entries[start_idx + 1:end_idx]]
     if payload and _FENCE_OPEN_RX.match(payload[0].strip()) \
             and payload[-1].strip().rstrip("`~") == "" \
             and payload[-1].strip()[:1] == payload[0].strip()[:1]:
@@ -725,17 +868,23 @@ def _rel(p: Path, root: Path) -> str:
         return str(p)
 
 
-def resolve_source(root: Path, source: str) -> tuple[str | None, str | None]:
-    """Resolve a stamp's `source=` against `root` and read it. Returns
-    `(text, error_kind)` — the text on success, or `(None, kind)` where kind
-    is `"unconfined-source"` or `"missing-source"`.
+def resolve_source(root: Path, source: str) -> tuple[Path | None, str | None]:
+    """Resolve a stamp's `source=` against `root` and confirm it exists.
+    Returns `(path, error_kind)` — the resolved `Path` on success (NOT its
+    content — see 020/380 below), or `(None, kind)` where kind is
+    `"unconfined-source"` or `"missing-source"`.
 
     CONFINEMENT (2026-07-26 cold pass ST4): the resolved path must sit inside
     `root`. `root / source` alone accepts `../` traversal, and pathlib
     silently DISCARDS `root` when the right-hand side is absolute — so a
     crafted stamped document could aim the scanner at any file on the machine
     and have one of its lines echoed back in the drift hint. Escaping the root
-    is a config error, matching the fail-safe posture everywhere else."""
+    is a config error, matching the fail-safe posture everywhere else.
+
+    020/380: this used to also READ the file whole and return its text —
+    the caller (`scan_paths`) now streams the region out of it via
+    `extract_region_from_file` instead, so peak memory for a canonical
+    source is bounded by its REGION's size, not the whole document's."""
     root = root.resolve()
     candidate = (root / source).resolve()
     try:
@@ -744,17 +893,28 @@ def resolve_source(root: Path, source: str) -> tuple[str | None, str | None]:
         return None, "unconfined-source"
     if not candidate.is_file():
         return None, "missing-source"
-    return candidate.read_text(encoding="utf-8", errors="replace"), None
+    return candidate, None
+
+
+def _walk_files(base: Path):
+    """Every regular file under `base`, streamed one at a time via `os.walk`,
+    pruning skip-dirs in place so the walk never descends into them at any
+    depth (020/380, reusing secretscan's/spellscan's `_walk_files` shape).
+    Replaces `base.rglob("*")` funnelled through a list comprehension, which
+    forced Python to enumerate the ENTIRE subtree and hold every `Path`
+    before a single file was even considered."""
+    for dirpath, dirnames, filenames in os.walk(base):
+        dirnames[:] = [d for d in dirnames if d not in SKIP_DIR_NAMES]
+        for name in filenames:
+            p = Path(dirpath) / name
+            if p.is_file():  # excludes broken symlinks, matching the old rglob filter
+                yield p
 
 
 def iter_markdown(paths: list[Path], root: Path, globs: list[str],
                   skipped: list[int] | None = None):
     for base in paths:
-        if base.is_file():
-            candidates = [base]
-        else:
-            candidates = [p for p in base.rglob("*")
-                          if p.is_file() and not (SKIP_DIR_NAMES & set(p.parts))]
+        candidates = [base] if base.is_file() else _walk_files(base)
         for p in candidates:
             if p.suffix.lower() not in MARKDOWN_SUFFIXES:
                 continue
@@ -766,36 +926,59 @@ def iter_markdown(paths: list[Path], root: Path, globs: list[str],
 
 
 def scan_paths(paths: list[Path], root: Path,
-               skipped: list[int] | None = None) -> list[Finding]:
+               skipped: list[int] | None = None,
+               truncated: list[int] | None = None) -> list[Finding]:
     globs = load_ignore_globs(root)
     findings: list[Finding] = []
-    source_cache: dict[str, tuple[str | None, str | None]] = {}
+    # Keyed by (source, region), not by source alone: this holds only the
+    # EXTRACTED REGION (typically a small floor block), never a whole
+    # canonical document — the 020/380 fix. A source resolution error is
+    # cached too, so a stray/missing source is still only diagnosed once.
+    region_cache: dict[tuple[str, str], tuple[list[str] | None, str | None]] = {}
+    source_error_cache: dict[str, str] = {}
 
     for md in iter_markdown(paths, root, globs, skipped):
         rel = _rel(md, root)
-        text = md.read_text(encoding="utf-8", errors="replace")
-        blocks, malformed = find_stamp_blocks(rel, text)
+        # 020/380 — streamed rather than `md.read_text()` + `_content_lines`:
+        # peak memory for THIS file is now bounded by `_MAX_LINE_BYTES` (plus
+        # whatever it happens to be currently accumulating inside an open
+        # stamp block), independent of the file's own size.
+        blocks, malformed = find_stamp_blocks_in_file(rel, md, truncated)
         findings.extend(malformed)
 
         for block in blocks:
-            if block.source not in source_cache:
-                source_cache[block.source] = resolve_source(root, block.source)
-            source_text, source_error = source_cache[block.source]
-
-            if source_text is None:
-                if source_error == "unconfined-source":
-                    detail = (f"canonical source resolves OUTSIDE --root: "
-                              f"{block.source} (--root {root}) — a stamp may "
-                              f"only point at a file inside the scanned tree")
-                else:
-                    detail = (f"canonical source does not resolve: "
-                              f"{block.source} (resolved against --root {root})")
+            cache_key = (block.source, block.region)
+            if cache_key in region_cache:
+                canonical, region_error = region_cache[cache_key]
+            elif block.source in source_error_cache:
+                canonical, region_error = None, None
                 findings.append(Finding(
-                    block.path, block.line, source_error, block.source,
-                    block.region, detail))
+                    block.path, block.line, source_error_cache[block.source],
+                    block.source, block.region,
+                    f"canonical source previously failed to resolve: "
+                    f"{block.source}"))
                 continue
+            else:
+                source_path, source_error = resolve_source(root, block.source)
+                if source_path is None:
+                    source_error_cache[block.source] = source_error
+                    if source_error == "unconfined-source":
+                        detail = (f"canonical source resolves OUTSIDE --root: "
+                                  f"{block.source} (--root {root}) — a stamp "
+                                  f"may only point at a file inside the "
+                                  f"scanned tree")
+                    else:
+                        detail = (f"canonical source does not resolve: "
+                                  f"{block.source} (resolved against --root "
+                                  f"{root})")
+                    findings.append(Finding(
+                        block.path, block.line, source_error, block.source,
+                        block.region, detail))
+                    continue
+                canonical = extract_region_from_file(
+                    source_path, block.region, truncated)
+                region_cache[cache_key] = (canonical, None)
 
-            canonical = extract_region(source_text, block.region)
             if canonical is None:
                 findings.append(Finding(
                     block.path, block.line, "missing-region", block.source,
@@ -817,24 +1000,31 @@ _DRIFT_KINDS = {"drift"}
 _CLEAN_KINDS = {"identical", "narrow", "skipped"}
 
 
-def _suppression_line(findings: list[Finding], files_by_glob: int) -> str:
+def _suppression_line(findings: list[Finding], files_by_glob: int,
+                      lines_truncated: int = 0) -> str:
     """Rule (b) of `method/GUARDS.md`, known zeros printed (SD3, ruled
     2026-08-06): allow-skipped blocks were already visible as notes, but
     files skipped wholesale by `.stampscanignore` were silent — a whole
-    exempted store looked identical to one with nothing in it."""
+    exempted store looked identical to one with nothing in it.
+
+    `lines_truncated` (020/380) is the same shape: a physical line over
+    `_MAX_LINE_BYTES` is still scanned, just truncated to that many
+    characters — counted here rather than silently short."""
     skipped_blocks = sum(1 for f in findings if f.kind == "skipped")
     return (f"  suppressed: {skipped_blocks} block(s) by allow-marker · "
-            f"{files_by_glob} file(s) by .stampscanignore")
+            f"{files_by_glob} file(s) by .stampscanignore · "
+            f"{lines_truncated} over-long line(s) scanned truncated")
 
 
-def render_human(findings: list[Finding], files_by_glob: int = 0) -> str:
+def render_human(findings: list[Finding], files_by_glob: int = 0,
+                 lines_truncated: int = 0) -> str:
     errors = [f for f in findings if f.kind in _CONFIG_ERROR_KINDS]
     drifts = [f for f in findings if f.kind in _DRIFT_KINDS]
     notes = [f for f in findings if f.kind in _CLEAN_KINDS]
 
     if not findings:
         return ("✓ stampscan clean — no stamped blocks found.\n"
-                + _suppression_line(findings, files_by_glob))
+                + _suppression_line(findings, files_by_glob, lines_truncated))
 
     lines: list[str] = []
     if errors:
@@ -858,7 +1048,7 @@ def render_human(findings: list[Finding], files_by_glob: int = 0) -> str:
                       + ", ".join(sorted({f.kind for f in notes})) + ")")
         for f in sorted(notes, key=lambda x: (x.path, x.line)):
             lines.append(f"    {f.path}:{f.line}  [{f.kind}] {f.detail}")
-    lines.append(_suppression_line(findings, files_by_glob))
+    lines.append(_suppression_line(findings, files_by_glob, lines_truncated))
     if drifts:
         lines.append(
             "\n  A real drift: make the block equal its canonical region, or "
@@ -918,8 +1108,9 @@ def _main(argv: list[str] | None = None) -> int:
               file=sys.stderr)
         return 2
     _skipped: list[int] = []
+    _truncated: list[int] = []
     try:
-        findings = scan_paths(targets, root, _skipped)
+        findings = scan_paths(targets, root, _skipped, _truncated)
     except OSError as e:
         print(f"stampscan: cannot read {e.filename}: {e.strerror}", file=sys.stderr)
         return 2
@@ -936,10 +1127,11 @@ def _main(argv: list[str] | None = None) -> int:
                 "blocks_by_allow_marker":
                     sum(1 for f in findings if f.kind == "skipped"),
                 "files_by_ignore_glob": len(_skipped),
+                "lines_truncated": len(_truncated),
             },
         }, indent=2))
     else:
-        print(render_human(findings, len(_skipped)))
+        print(render_human(findings, len(_skipped), len(_truncated)))
         if drifts and args.warn and not errors:
             print("\n  (--warn: advisory only — drift not blocking this build.)")
 

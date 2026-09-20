@@ -8,10 +8,15 @@ key material and runs anywhere git does.
 
 import os
 import subprocess
+import sys
 import tempfile
 import unittest
+from pathlib import Path
 
 import signscan as ss
+import memprobe
+
+TOOLS_DIR = Path(__file__).resolve().parent
 
 
 def _run(cwd, *args, env=None):
@@ -123,6 +128,93 @@ class Reporting(unittest.TestCase):
     def test_deferred_does_not_block(self):
         rep = self._report([("github", "deferred"), ("machine", "good")])
         self.assertEqual(ss.render_human(rep, warn=False)[1], 0)
+
+
+class BoundedMemory(unittest.TestCase):
+    """020/380 — extending 020/370's ruling to signscan. UNLIKE the tree-
+    walking guards, signscan never reads a file's content at all: it holds
+    one small `dict` per commit in the verified range (sha, plane, status, a
+    short detail string) — a shape that already scales with the NUMBER of
+    commits scanned, never with the size of any file or the tree. Measured
+    while building this fix (see below): peak RSS grew well under a
+    megabyte for a 10x larger commit range, on a REAL checkout (atelier's
+    own history, 1324 commits) as well as a synthetic one — so this test is
+    measurement-and-pin, not a rewrite, per the board item's own "already
+    bounded needs no rewrite" close condition.
+
+    Runs the real CLI as a SUBPROCESS via `memprobe.run_and_measure` and
+    reads peak RSS back from the kernel — see `tools/memprobe.py`. Commits
+    are UNSIGNED (git verify-commit fails fast, no ssh-keygen key material
+    needed) so the measurement stays about memory, not signature-verify
+    latency."""
+
+    SIGNSCAN = str(TOOLS_DIR / "signscan.py")
+    SMALL_COMMITS = 30
+    LARGE_COMMITS = 300
+    # Grounded in the shape, not fitted to a measurement: each held result is
+    # a handful of short strings in a dict — call it generously 1 KiB each
+    # (secretscan's own `Finding` was measured at ~700 B/object for a
+    # similarly-shaped record) — so even 10,000 EXTRA commits would be under
+    # 10 MB. 270 extra commits here should show growth close to zero; this
+    # bound leaves two-plus orders of magnitude of headroom over that.
+    GROWTH_BOUND_BYTES = 20 * 1024 * 1024
+
+    @staticmethod
+    def _run(cwd, *args, env=None):
+        e = dict(os.environ)
+        e.update({"GIT_AUTHOR_NAME": "T", "GIT_AUTHOR_EMAIL": "t@example.test",
+                 "GIT_COMMITTER_NAME": "T", "GIT_COMMITTER_EMAIL": "t@example.test"})
+        if env:
+            e.update(env)
+        return subprocess.run(["git", *args], cwd=cwd, env=e,
+                              capture_output=True, text=True, check=True)
+
+    def _build_repo(self, n_commits: int) -> str:
+        d = tempfile.mkdtemp(prefix="signscan-mem-")
+        self.addCleanup(lambda: __import__("shutil").rmtree(d, ignore_errors=True))
+        self._run(d, "init", "-q", "-b", "main")
+        self._run(d, "config", "commit.gpgsign", "false")
+        fn = os.path.join(d, "f")
+        for i in range(n_commits):
+            with open(fn, "a") as f:
+                f.write(f"line {i}\n")
+            self._run(d, "add", "f")
+            self._run(d, "commit", "-q", "-m", f"c{i}")
+        return d
+
+    def _allowed_signers(self) -> str:
+        fd, path = tempfile.mkstemp()
+        self.addCleanup(lambda: os.unlink(path))
+        os.write(fd, b'x@example.test namespaces="git",valid-after="20260101" '
+                     b'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAAAAAAAAAAAAAAAAAAA'
+                     b'AAAAAAAAAAAAAAAAAAAAAAAA\n')
+        os.close(fd)
+        return path
+
+    def _peak_rss_for(self, n_commits: int) -> int:
+        repo = self._build_repo(n_commits)
+        trust = self._allowed_signers()
+        result = memprobe.run_and_measure(
+            [sys.executable, self.SIGNSCAN, "--repo", repo,
+             "--allowed-signers", trust, "--warn", "--json"],
+            timeout=120, rss_limit_bytes=900 * 1024 * 1024)
+        self.assertFalse(result.timed_out, "scan did not finish in time")
+        self.assertFalse(result.killed_over_limit,
+                         "scan exceeded the 900 MB safety limit")
+        self.assertEqual(0, result.returncode)
+        return result.peak_rss_bytes
+
+    def test_peak_memory_does_not_scale_with_commit_count(self):
+        small_peak = self._peak_rss_for(self.SMALL_COMMITS)
+        large_peak = self._peak_rss_for(self.LARGE_COMMITS)
+        growth = large_peak - small_peak
+        self.assertLess(
+            growth, self.GROWTH_BOUND_BYTES,
+            f"peak RSS grew {growth / 1e6:.1f} MB for "
+            f"{self.LARGE_COMMITS - self.SMALL_COMMITS} more commits "
+            f"(small={small_peak / 1e6:.1f} MB, large={large_peak / 1e6:.1f} MB) "
+            "— memory is scaling with the size of what's scanned (020/370's "
+            "class), which signscan's per-commit-dict shape should never do.")
 
 
 if __name__ == "__main__":
