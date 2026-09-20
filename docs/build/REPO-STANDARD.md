@@ -125,7 +125,12 @@ applied to repo docs: a claim no stronger than its evidence — see
 - **.atelier-floor.json** — what the repo decides about that floor, and the only
   place it decides it: where its records live, the licence it asserts, which
   checks run advisory or disabled (with a reason), and — under `local` — checks
-  the repo **adds** for itself. The layering mirrors doctrine exactly
+  the repo **adds** for itself. One key is read by a scanner directly rather
+  than by `floor.py`: `roots.pathscan` declares extra resolution roots for a
+  repo whose layout `pathscan`'s three base anchors can't reach — a
+  `src/<pkg>/` package source root, say — each with a mandatory `why`
+  (`tools/pathscan.py`'s own module docstring, DECLARED RESOLUTION ROOTS,
+  is the schema's home; 320/010). The layering mirrors doctrine exactly
   (`method/PROPAGATION.md`): a shared floor, a local append, and the child may
   narrow but never contradict. So a rule that is genuinely this repo's — a
   tripwire whose blocklist could never live in a shared repo, say — gets a home

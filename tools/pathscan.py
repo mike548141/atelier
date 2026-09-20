@@ -82,36 +82,119 @@ sharp honest one):
      `.json`, `.sh`, `.txt`). This is the load-bearing heuristic — see
      DETECTION HEURISTIC below for why, and its stated failure modes.
 
-  5. A candidate is resolved against FOUR anchors, and passes if it exists
-     under ANY of them (see `_resolves` for the full rationale):
+  5. A candidate is resolved against THREE base anchors, and passes if it
+     exists under ANY of them (see `_resolves` for the full rationale).
+     **The docstring/message discrepancy 320/010 found and fixes here:** an
+     earlier version of this section called these anchors FOUR. The RUNTIME
+     FAILURE MESSAGE (`scan_text`) has only ever named three, because the
+     third slot is ONE anchor with two mutually exclusive forms depending on
+     where the referencing file sits — never both at once, so no single
+     resolution ever tries more than three. The message was right; this
+     docstring was wrong, and is corrected here rather than the message
+     rounded up to match a miscount.
        - the SCAN ROOT — `README.md` at the repo root writes `docs/decisions/`
          root-relative;
        - the CANDIDATE FILE's OWN DIRECTORY — matches `linkscan`'s
          link-relative convention;
-       - for a file UNDER `docs/`: the OUTERMOST ENCLOSING `docs/` DIRECTORY,
-         at whatever depth the referencing file sits — a doc
-         `docs/build/REPO-STANDARD.md` still writes `method/RECORD.md` meaning
-         `docs/method/RECORD.md`, dropping the `docs/` prefix regardless of
-         its OWN nesting under `docs/build/` (OUTERMOST, not nearest — see
-         `_outermost_named_ancestor` on why: `docs/build/templates/docs/` is
-         itself a nested `docs`-named dir);
-       - for a file NOT under `docs/`: `<root>/docs/` — DOCS-RELATIVE
-         SHORTHAND, the dominant convention in this house's ROOT files. A root
-         `README.md` or `CHANGELOG.md` writes `method/REVIEW.md` meaning
-         `docs/method/REVIEW.md` exactly the way a doc inside `docs/` does;
-         it just has no `docs/` ancestor for anchor 3 to find. Without this
-         anchor the root files a gate most wants to cover false-positive
-         wholesale (51 of 64 findings on the doctrine surface + root `*.md`
-         were this one shape before it was added).
+       - THE DOCS ANCHOR, in whichever of its two forms applies to this file:
+           - for a file UNDER `docs/`: the OUTERMOST ENCLOSING `docs/`
+             DIRECTORY, at whatever depth the referencing file sits — a doc
+             `docs/build/REPO-STANDARD.md` still writes `method/RECORD.md`
+             meaning `docs/method/RECORD.md`, dropping the `docs/` prefix
+             regardless of its OWN nesting under `docs/build/` (OUTERMOST,
+             not nearest — see `_outermost_named_ancestor` on why:
+             `docs/build/templates/docs/` is itself a nested `docs`-named
+             dir);
+           - for a file NOT under `docs/`: `<root>/docs/` — DOCS-RELATIVE
+             SHORTHAND, the dominant convention in this house's ROOT files. A
+             root `README.md` or `CHANGELOG.md` writes `method/REVIEW.md`
+             meaning `docs/method/REVIEW.md` exactly the way a doc inside
+             `docs/` does; it just has no `docs/` ancestor for the first form
+             to find. Without this anchor the root files a gate most wants to
+             cover false-positive wholesale (51 of 64 findings on the
+             doctrine surface + root `*.md` were this one shape before it
+             was added).
      Each candidate is also retried with `.md`/`.markdown` APPENDED under
      every anchor when the token has no extension at all — GitHub's
      directory-index convention, so `tools/README` finds `tools/README.md`
      (see STATED RESIDUAL for the silent-mask cost this buys).
-     Running this scanner over the live repo found anchors 3 and 4 were not
-     optional. Widening what counts as "resolves" can only ever DROP a
-     finding, never invent one: a genuinely broken path fails under all four
-     and is still flagged. The flip side is a real, named cost — see the
-     silent-false-negative bullet under STATED RESIDUAL.
+     Running this scanner over the live repo found both forms of the docs
+     anchor were not optional. Widening what counts as "resolves" can only
+     ever DROP a finding, never invent one: a genuinely broken path fails
+     under all three and is still flagged. The flip side is a real, named
+     cost — see the silent-false-negative bullet under STATED RESIDUAL.
+
+  6. A repo may DECLARE EXTRA RESOLUTION ROOTS in `.atelier-floor.json`,
+     tried IN ADDITION to the three base anchors above, never instead of
+     them — see DECLARED RESOLUTION ROOTS below for the full picture
+     (schema, validation, and the failure message's contract to name every
+     anchor it actually tried, declared roots included).
+
+DECLARED RESOLUTION ROOTS — a repo may widen step 5's anchors (320/010)
+-------------------------------------------------------------------------
+
+Mike's ruling, 2026-09-19 (board `320/010`, Class A), over the offered
+options of auto-detecting `src/` or leaving it: *"The declared per repo
+option but we make those repos add them by putting the work on their
+boards, and we consider blocking instead of warning."* This delta ships the
+declared half of that ruling; the per-child board items and the blocking
+question (`320/310`) are separate and unshipped here.
+
+A repo laid out `src/<pkg>/` — a Python package source root, not this
+house's own docs-first shape — writes prose naming a module
+`sub/module.py`, meaning `src/<pkg>/sub/module.py`. None of THE CHECK's
+three base anchors reach it: it is not root-relative, not relative to the
+referencing file's own directory, and it is not a docs-relative mention.
+Measured against a real child's corpus this ONE gap was 34 of 46 findings —
+three quarters of the noise the item that funded this fix was filed over,
+all of it false.
+
+A repo closes the gap for itself by declaring the root in
+`.atelier-floor.json`:
+
+  {
+    "roots": {
+      "pathscan": {
+        "paths": ["src/mypkg"],
+        "why": "package source root; prose drops the src/mypkg/ prefix"
+      }
+    }
+  }
+
+Read directly by THIS scanner (`load_declared_roots`), not by `tools/floor.py`
+— pathscan is self-contained by design (see this docstring's closing
+paragraph: "a peer who adopts atelier can run it with the system python3 and
+no install"), so it parses the one key it needs out of the shared config
+file itself rather than depending on `floor.py`'s `Config` class. `floor.py`
+does not read the `roots` key at all: an unrecognised top-level key in
+`.atelier-floor.json` passes through it unexamined, exactly as any other key
+a future tool might add would.
+
+Validated on the same principle `floor.py`'s `scope` and `local` blocks
+already carry (`GUARDS.md`: an unexplained or broken exemption fails loudly,
+never silently):
+  - `why` is REQUIRED — a declared root nobody can state the point of is one
+    nobody will re-check when the layout changes.
+  - every path in `paths` must be REPO-RELATIVE and must not ESCAPE the repo
+    (no leading `/`, no `..` segment) — a root naming another tree does not
+    add a resolution anchor, it points this scanner somewhere else entirely,
+    the same membership rule `floor.py`'s `scope` enforces on itself.
+  - every path must EXIST as a directory in this repo — a declared root that
+    isn't there must not read as a root that resolves anything.
+A bad declaration is a CONFIG ERROR (`FloorConfigError`), exit 2 — the same
+fail-loud contract `.pathscanignore`'s unreasoned globs carry
+(`IgnoreFileError`). ABSENCE is NOT an error: no file, or no `roots.pathscan`
+key, means no extra roots, so a repo that declares nothing keeps today's
+three anchors exactly — this feature cannot change behaviour anywhere it is
+not opted into.
+
+Declared roots are tried IN ADDITION to the three base anchors, never
+instead of them — widening what counts as "resolves" can only ever drop a
+finding, never invent one, the same safety argument THE CHECK step 5 already
+makes for the base anchors. The failure message names every anchor actually
+tried, so a declared root that still fails to resolve a candidate is visible
+on the same line as the base anchors, not silently absent from the
+explanation (see `scan_text`).
 
 DETECTION HEURISTIC — the genuinely hard, judgement-heavy part, stated
 honestly, not rounded up:
@@ -248,14 +331,17 @@ STATED RESIDUAL, HONESTLY (do not round this to "solved" or "clean"):
     noisy baseline over this repo's own RECORDS is EXPECTED and permanent,
     not a bug to silently round away; see SCOPE below for which surface that
     noise does and does not live on.
-  * Four-anchor resolution (root / own-directory / enclosing-docs / root-docs,
-    see THE CHECK step 5) closes the dominant noise sources found on this
-    repo's own corpus, but is still a fixed set of heuristic anchors, not a
-    grammar: a path meant relative to some OTHER file's directory, or a
-    repo whose doc tree isn't named `docs/`, still won't resolve and is
-    flagged even if a human reader would understand it from context. The
-    `docs` name is hard-coded in anchors 3 and 4 — atelier-shaped, and a
-    stated residual for any adopter whose doc tree is named otherwise.
+  * Three-anchor resolution (root / own-directory / docs-anchor-in-either-
+    form, see THE CHECK step 5), plus any repo-declared extra root (step 6),
+    closes the dominant noise sources found on this repo's own corpus, but
+    is still a fixed set of heuristic anchors, not a grammar: a path meant
+    relative to some OTHER file's directory, or a repo whose doc tree isn't
+    named `docs/`, still won't resolve unless the repo declares a root for
+    it, and is flagged even if a human reader would understand it from
+    context. The `docs` name is hard-coded in the docs anchor's own two
+    forms — atelier-shaped, and a stated residual for any adopter whose doc
+    tree is named otherwise (a declared root works around it per-repo; the
+    hard-coded name itself is not fixed by this).
   * SILENT FALSE NEGATIVE, the price of every widening above: because a
     candidate passes if it resolves under ANY anchor, a reference that is
     genuinely WRONG can be masked by a same-named file under a different
@@ -316,7 +402,7 @@ import json
 import re
 import sys
 from dataclasses import dataclass, field, asdict
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 # A line carrying this marker is intentionally exempt from every check on
 # that line. Same tightened contract as datescan (DSR8): word boundary, then
@@ -628,9 +714,9 @@ def _exists_under(anchor: Path, token: str) -> bool:
 
 
 def _docs_anchor(root: Path, md_file: Path) -> Path:
-    """Anchor 3 or anchor 4, whichever applies — they are mutually exclusive
-    by construction. A file UNDER a `docs/` ancestor gets that ancestor
-    (outermost); a file with no such ancestor — a ROOT file — gets
+    """The docs anchor's two forms, whichever applies — they are mutually
+    exclusive by construction. A file UNDER a `docs/` ancestor gets that
+    ancestor (outermost); a file with no such ancestor — a ROOT file — gets
     `<root>/docs`. See `_resolves`."""
     docs_dir = _outermost_named_ancestor(md_file, "docs")
     return docs_dir if docs_dir is not None else root / "docs"
@@ -640,32 +726,52 @@ def _under_docs(md_file: Path) -> bool:
     return _outermost_named_ancestor(md_file, "docs") is not None
 
 
-def _resolves(root: Path, md_file: Path, token: str) -> bool:
-    """A candidate resolves if it exists under ANY of four anchors — widening
-    what counts as "resolves" can only DROP a finding, never invent one, so
-    stacking anchors is safe (see module docstring, THE CHECK step 5):
+def _resolves(root: Path, md_file: Path, token: str,
+              declared_roots: "tuple[str, ...] | list[str]" = ()) -> bool:
+    """A candidate resolves if it exists under ANY of THREE base anchors, or
+    under any repo-DECLARED extra root — widening what counts as "resolves"
+    can only DROP a finding, never invent one, so stacking anchors is safe
+    (see module docstring, THE CHECK steps 5 and 6):
 
       1. The SCAN ROOT — `docs/decisions/` written from README.md at the
          repo root.
       2. The candidate FILE's OWN DIRECTORY — matches linkscan's own
          link-relative convention.
-      3. (file UNDER `docs/`) The OUTERMOST ENCLOSING `docs/` DIRECTORY,
-         whichever depth the referencing file sits at — running this scanner
-         over atelier's own corpus found this is the DOMINANT bare-prose
-         convention: a file two or three levels under docs/
-         (`docs/build/REPO-STANDARD.md`, `docs/decisions/README.md`) still
-         writes `method/RECORD.md` meaning `docs/method/RECORD.md`, not a
-         path relative to its OWN directory. Anchor #2 alone does not catch
-         this — only the outermost `docs/` ancestor, regardless of nesting
-         depth, does (see `_outermost_named_ancestor` on why OUTERMOST, not
-         nearest).
-      4. (file NOT under `docs/`) `<root>/docs` — DOCS-RELATIVE SHORTHAND.
-         The same convention as anchor 3, written from a file that has no
-         `docs/` ancestor for anchor 3 to find: a root `README.md` or
-         `CHANGELOG.md` writes `method/REVIEW.md` meaning
-         `docs/method/REVIEW.md`. Anchor 3's absence, not a different rule —
-         which is why the two are mutually exclusive, and why a scanner
-         pointed only at `docs/` never needed anchor 4 to exist.
+      3. THE DOCS ANCHOR, in whichever of its two mutually exclusive forms
+         applies to this file:
+           (file UNDER `docs/`) the OUTERMOST ENCLOSING `docs/` DIRECTORY,
+           whichever depth the referencing file sits at — running this
+           scanner over atelier's own corpus found this is the DOMINANT
+           bare-prose convention: a file two or three levels under docs/
+           (`docs/build/REPO-STANDARD.md`, `docs/decisions/README.md`)
+           still writes `method/RECORD.md` meaning `docs/method/RECORD.md`,
+           not a path relative to its OWN directory. Anchor #2 alone does
+           not catch this — only the outermost `docs/` ancestor, regardless
+           of nesting depth, does (see `_outermost_named_ancestor` on why
+           OUTERMOST, not nearest).
+           (file NOT under `docs/`) `<root>/docs` — DOCS-RELATIVE SHORTHAND,
+           the same convention, written from a file that has no `docs/`
+           ancestor for the first form to find: a root `README.md` or
+           `CHANGELOG.md` writes `method/REVIEW.md` meaning
+           `docs/method/REVIEW.md`. The first form's absence, not a
+           different rule — which is why the two forms are mutually
+           exclusive and a single call never tries both.
+      4. Any root in `declared_roots` (320/010, Class A) — a repo's own
+         `.atelier-floor.json` declaration, e.g. a `src/<pkg>/` layout so
+         `sub/module.py` resolves as `src/<pkg>/sub/module.py`. Empty for a
+         repo that declares nothing, which is why this anchor never changes
+         behaviour anywhere it is not opted into. See module docstring,
+         DECLARED RESOLUTION ROOTS, and `load_declared_roots`.
+
+    ONLY THREE OF THE FOUR NUMBERED ITEMS ABOVE ARE EVER "BASE" ANCHORS FOR
+    A GIVEN CALL — item 3's two forms are mutually exclusive by construction,
+    so a single resolution never tries both. An earlier version of this
+    docstring (and of the module docstring's THE CHECK step 5) called the
+    base anchors FOUR outright; the runtime failure message (`scan_text`)
+    has only ever named three, plus however many declared roots exist. The
+    message was right; the docstring was wrong, and 320/010 is what
+    corrected it rather than the message being rounded up to match a
+    miscount.
 
     The masking cost of all this widening is named in the module docstring's
     STATED RESIDUAL: existence-somewhere is not correctness.
@@ -674,17 +780,23 @@ def _resolves(root: Path, md_file: Path, token: str) -> bool:
         return True
     if _exists_under(md_file.parent, token):
         return True
-    return _exists_under(_docs_anchor(root, md_file), token)
+    if _exists_under(_docs_anchor(root, md_file), token):
+        return True
+    return any(_exists_under(root / extra, token) for extra in declared_roots)
 
 
 def scan_text(md_file: Path, root: Path, text: str,
-              tally: "Tally | None" = None) -> list[Finding]:
+              tally: "Tally | None" = None,
+              declared_roots: "tuple[str, ...] | list[str]" = ()) -> list[Finding]:
     rel = _rel(md_file, root)
-    # Anchors 3 and 4 are mutually exclusive (see _resolves) — name the one
-    # actually tried, so a reader of the finding can check it by hand.
+    # The docs anchor's two forms are mutually exclusive (see _resolves) —
+    # name the one actually tried, so a reader of the finding can check it
+    # by hand.
     docs_anchor_note = ("its outermost enclosing docs/ directory"
                        if _under_docs(md_file)
                        else "the repo's docs/ (docs-relative shorthand)")
+    detail_suffix = (f", and under declared root(s) {', '.join(declared_roots)}"
+                     if declared_roots else "")
     findings: list[Finding] = []
     seen_on_line: set[tuple[int, str]] = set()
     # Line -> allowance scope, recorded rather than acted on (rule b).
@@ -700,13 +812,13 @@ def scan_text(md_file: Path, root: Path, text: str,
             if key in seen_on_line:
                 continue
             seen_on_line.add(key)
-            if _resolves(root, md_file, token):
+            if _resolves(root, md_file, token, declared_roots):
                 continue
             findings.append(Finding(
                 rel, lineno, "missing-path", token,
                 f"{token} does not exist (checked repo-root-relative, "
-                f"relative to {rel}'s own directory, and relative to "
-                f"{docs_anchor_note})"))
+                f"relative to {rel}'s own directory, relative to "
+                f"{docs_anchor_note}{detail_suffix})"))
     # SUBTRACT SECOND. One finding kind, so the line is the whole scope.
     kept: list[Finding] = []
     for f in findings:
@@ -777,6 +889,96 @@ def _ignored(rel: str, globs: list[str]) -> bool:
                for g in globs)
 
 
+# The shared per-repo config file `tools/floor.py` owns — read here only for
+# the ONE key that is this scanner's own (`roots.pathscan`). floor.py does
+# not know this key exists; an unrecognised top-level key in the file passes
+# through it unexamined, which is what lets this scanner stay self-contained
+# (module docstring's closing paragraph) while still reading a file another
+# tool also reads.
+FLOOR_CONFIG_NAME = ".atelier-floor.json"
+
+
+class FloorConfigError(ValueError):
+    """A `roots.pathscan` declaration in `.atelier-floor.json` is unusable —
+    missing its `why`, naming a path outside the repo, or naming a directory
+    that is not there. Same fail-loud contract as `IgnoreFileError`: a
+    declared root nobody can state the point of, or one that resolves
+    nothing, must not read as a root that works."""
+
+
+def load_declared_roots(root: Path) -> list[str]:
+    """Extra resolution roots this repo declares for pathscan — see module
+    docstring, DECLARED RESOLUTION ROOTS (320/010, Class A).
+
+    Absent file, or no `roots.pathscan` key, means NO declared roots: a repo
+    that declares nothing keeps today's three base anchors exactly, so this
+    is fully backward compatible. A declaration that IS there is held to the
+    same contract `floor.py`'s `scope`/`local` blocks already carry: `paths`
+    and a mandatory human `why`, every path repo-relative and not escaping
+    the repo (no leading `/`, no `..`), and every path an existing directory
+    — a bad declaration is a CONFIG ERROR, never a silently-ignored no-op."""
+    f = root / FLOOR_CONFIG_NAME
+    if not f.exists():
+        return []
+    try:
+        raw = json.loads(f.read_text(encoding="utf-8", errors="replace"))
+    except (OSError, ValueError) as e:
+        raise FloorConfigError(f"{FLOOR_CONFIG_NAME} is unreadable: {e}") from e
+    if not isinstance(raw, dict):
+        return []
+    roots_block = raw.get("roots")
+    if roots_block is None:
+        return []
+    if not isinstance(roots_block, dict):
+        raise FloorConfigError(
+            f"{FLOOR_CONFIG_NAME}: `roots` must be an object of "
+            '{"pathscan": {"paths": [...], "why": "..."}}')
+    decl = roots_block.get("pathscan")
+    if decl is None:
+        return []
+    if not isinstance(decl, dict):
+        raise FloorConfigError(
+            f"{FLOOR_CONFIG_NAME}: `roots.pathscan` must be an object with "
+            "`paths` and `why`")
+    why = str(decl.get("why", "") or "").strip()
+    if not why:
+        raise FloorConfigError(
+            f"{FLOOR_CONFIG_NAME}: `roots.pathscan` needs a `why` — a "
+            "declared root nobody can state the point of is one nobody will "
+            "re-check when the layout changes")
+    raw_paths = decl.get("paths")
+    if isinstance(raw_paths, str):
+        raw_paths = [raw_paths]
+    if not raw_paths:
+        raise FloorConfigError(
+            f"{FLOOR_CONFIG_NAME}: `roots.pathscan.paths` is empty — a "
+            "declaration with no roots in it resolves nothing, and reads as "
+            "though it did")
+    unknown = sorted(set(decl) - {"paths", "why"})
+    if unknown:
+        raise FloorConfigError(
+            f"{FLOOR_CONFIG_NAME}: `roots.pathscan` has unknown "
+            f"{', '.join(repr(k) for k in unknown)} (known: 'paths', 'why')")
+    paths: list[str] = []
+    for p in raw_paths:
+        p = str(p)
+        pure = PurePosixPath(p)
+        if pure.is_absolute() or ".." in pure.parts:
+            raise FloorConfigError(
+                f"{FLOOR_CONFIG_NAME}: `roots.pathscan.paths` must be paths "
+                f"INSIDE the repo, got {p!r}. A declared root naming another "
+                "tree does not add a resolution anchor, it points this "
+                "scanner somewhere else entirely.")
+        if not (root / p).is_dir():
+            raise FloorConfigError(
+                f"{FLOOR_CONFIG_NAME}: `roots.pathscan.paths` declares "
+                f"{p!r}, which does not exist as a directory in this repo — "
+                "a declared root that isn't there must not read as a root "
+                "that resolves anything.")
+        paths.append(p)
+    return paths
+
+
 # Records name the tree as it stood when they were written and can never come
 # clean without markers that would falsify the record — the registry's own
 # rationale for scoping atelier's records OUT, which children's default scope
@@ -824,11 +1026,12 @@ def scan_paths(paths: list[Path], root: Path,
                tally: "Tally | None" = None,
                include_records: bool = False) -> list[Finding]:
     globs = load_ignore_globs(root)
+    declared_roots = load_declared_roots(root)
     findings: list[Finding] = []
     for md in iter_markdown(paths, root, globs, tally,
                             include_records=include_records):
         text = md.read_text(encoding="utf-8", errors="replace")
-        findings.extend(scan_text(md, root, text, tally))
+        findings.extend(scan_text(md, root, text, tally, declared_roots))
     return findings
 
 
@@ -1030,13 +1233,15 @@ def _selftest() -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Exit 2 on an ignore file that grants an exemption with no reason.
+    """Exit 2 on an ignore file that grants an exemption with no reason, or
+    on a `.atelier-floor.json` `roots.pathscan` declaration that is unusable.
 
     A broken scan is not a pass (the house exit-code contract), and an
-    unexplained exemption makes the scan's own scope untrustworthy."""
+    unexplained or broken exemption/declaration makes the scan's own scope
+    untrustworthy."""
     try:
         return _main(argv)
-    except IgnoreFileError as e:
+    except (IgnoreFileError, FloorConfigError) as e:
         print(f"pathscan: {e}", file=sys.stderr)
         return 2
 
