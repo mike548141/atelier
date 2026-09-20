@@ -1,4 +1,9 @@
-- [ ] **REPORT — `<owner/repo>` is a declared placeholder in the `floor` region with **no admissible fill** for a child that has no git remote, so that child can follow every instruction correctly and still ship a floor line naming a check nothing in it can run** `[S][doctrine]` — filed from a private child, 2026-09-20, via § *Pointing up*. Evidence available; the child has not pre-committed to a patch.
+- [ ] **REPORT — `<owner/repo>` is a declared placeholder in the `floor`
+      region with no admissible fill for a child that has no git remote, so
+      that child follows every instruction correctly and still ships a floor
+      line naming a check nothing in it can run** `[S][doctrine]` — filed
+      from a private child, 2026-09-20, via § *Pointing up*. Evidence
+      available; the child has not pre-committed to a patch.
 
       ## The line
 

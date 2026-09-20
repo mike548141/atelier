@@ -428,8 +428,8 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Does the new naming precedence reach doctrine's own prose?](roadmap/320-child-filed-findings-via-pointing-up/330-does-the-naming-precedence-reach-doctrines-own-prose.md)
 - [ ] 🔎 [blockscan cannot see a change to a mapped section's](roadmap/320-child-filed-findings-via-pointing-up/340-blockscans-map-cannot-see-a-subsection.md)
 - [ ] 🔎 [Hand-up: a peer can stage into the shared index DURING your commit,](roadmap/320-child-filed-findings-via-pointing-up/350-a-peer-can-stage-into-the-shared-index-while-your-commit-hooks-run.md)
-- ✅ [REPORT — 115/200's owed work is done from the child's side: the…](roadmap/320-child-filed-findings-via-pointing-up/360-a-narrowed-floor-stamp-is-restored-verbatim-closure-report.md)
-- [ ] [REPORT — <owner/repo> is a declared placeholder in the floor region…](roadmap/320-child-filed-findings-via-pointing-up/370-a-declared-placeholder-in-the-floor-has-no-admissible-fill-for-a-repo-with-no-remote.md)
+- ✅ [REPORT — 115/200's owed work is done from the child's side: the](roadmap/320-child-filed-findings-via-pointing-up/360-a-narrowed-floor-stamp-is-restored-verbatim-closure-report.md)
+- [ ] [REPORT — <owner/repo> is a declared placeholder in the floor](roadmap/320-child-filed-findings-via-pointing-up/370-a-declared-placeholder-in-the-floor-has-no-admissible-fill-for-a-repo-with-no-remote.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
