@@ -6,9 +6,11 @@ points at it), so it needs its own quick proof of correctness independent of
 any of them — a bug here would look like a bug in whatever it's measuring.
 """
 
+import subprocess
 import sys
 import time
 import unittest
+from pathlib import Path
 
 import memprobe
 
@@ -82,18 +84,27 @@ class RunAndMeasure(unittest.TestCase):
     def test_two_measurements_in_one_process_do_not_bleed_together(self):
         # The `RUSAGE_CHILDREN`-accumulation bug this module deliberately
         # avoids (see the module docstring) would make the SECOND reading
-        # include the first child's peak too, so a small process measured
-        # after a big one would still read back big.
-        # `isolated=False` on purpose: this case tests THIS process's wait4
-        # bookkeeping, which is the thing that could bleed. The isolated path
-        # gets a fresh interpreter each time and so cannot exhibit the bug
-        # even if it were present.
-        memprobe.run_and_measure(
-            [sys.executable, "-c", self.TOUCHED_ALLOC.format(n=80 * 1024 * 1024)],
-            timeout=30, isolated=False)
-        small = memprobe.run_and_measure([sys.executable, "-c", "pass"],
-                                         timeout=10, isolated=False)
-        self.assertLess(small.peak_rss_bytes, 40 * 1024 * 1024)
+        # include the first child's peak, so a small process measured after a
+        # big one would still read back big.
+        #
+        # It has to be exercised on the DIRECT path (`isolated=False`), since
+        # that is where the bookkeeping lives — and a direct reading is only
+        # meaningful from a SMALL parent: on Linux a forked child inherits
+        # its parent's page accounting until it execs, and this test process
+        # has a thousand-odd other tests' worth of footprint by the time it
+        # gets here (measured on CI: a `python3 -c pass` read back 254 MB).
+        # So the whole scenario runs inside a fresh interpreter, which is
+        # also exactly what the isolated path does for real measurements.
+        big, small = _in_a_fresh_interpreter(
+            "big = m.run_and_measure([sys.executable, '-c', %r],"
+            " isolated=False, timeout=60).peak_rss_bytes;"
+            "small = m.run_and_measure([sys.executable, '-c', 'pass'],"
+            " isolated=False, timeout=30).peak_rss_bytes;"
+            "print(big, small)" % RunAndMeasure.TOUCHED_ALLOC.format(
+                n=80 * 1024 * 1024))
+        self.assertGreater(big, 80 * 1024 * 1024, "the big child must be seen")
+        self.assertLess(small, big // 2,
+                        "the second reading carried the first child's peak")
 
 
 class MaxrssUnits(unittest.TestCase):
@@ -140,20 +151,31 @@ class Isolation(unittest.TestCase):
         self.assertLess(abs(while_fat.peak_rss_bytes - baseline.peak_rss_bytes),
                         50 * 1024 * 1024)
 
-    def test_isolated_and_direct_agree_on_a_real_allocation(self):
+    def test_the_reading_tracks_the_allocation_not_the_caller(self):
         n = 80 * 1024 * 1024
-        direct = memprobe.run_and_measure(
-            [sys.executable, "-c", RunAndMeasure.TOUCHED_ALLOC.format(n=n)],
-            timeout=60, isolated=False)
-        isolated = memprobe.run_and_measure(
+        r = memprobe.run_and_measure(
             [sys.executable, "-c", RunAndMeasure.TOUCHED_ALLOC.format(n=n)],
             timeout=60)
-        # Same child, same work: the two paths must not disagree by more than
-        # interpreter noise, or the isolated number is measuring something
-        # else.
-        self.assertGreater(isolated.peak_rss_bytes, n)
-        self.assertLess(abs(isolated.peak_rss_bytes - direct.peak_rss_bytes),
-                        40 * 1024 * 1024)
+        # The reading must cover what the child really held, and must not run
+        # far past it — an upper bound is what catches the failure mode this
+        # isolation exists for, where the caller's own footprint is added in.
+        self.assertGreater(r.peak_rss_bytes, n)
+        self.assertLess(r.peak_rss_bytes, n + 80 * 1024 * 1024)
+
+
+def _in_a_fresh_interpreter(snippet: str) -> tuple[int, ...]:
+    """Run `snippet` in a new minimal Python with `memprobe` imported as `m`,
+    and return the whitespace-separated integers it prints. Used where a case
+    needs a SMALL parent process to mean anything (see the bleed test)."""
+    code = ("import sys;"
+            "sys.path.insert(0, %r);"
+            "import memprobe as m;" % str(Path(memprobe.__file__).parent)
+            ) + snippet
+    out = subprocess.run([sys.executable, "-c", code],
+                         capture_output=True, text=True, timeout=300)
+    if out.returncode != 0:
+        raise AssertionError("fresh-interpreter helper failed: " + out.stderr)
+    return tuple(int(x) for x in out.stdout.split())
 
 
 if __name__ == "__main__":
