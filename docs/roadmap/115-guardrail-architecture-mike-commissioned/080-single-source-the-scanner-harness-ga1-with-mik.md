@@ -1,4 +1,4 @@
-- [ ] **Single-source the scanner harness, re-grounded on Mike's own upstream
+- [~] (claimed 2026-09-20-2239, wt: at-harness-walk; FUNDED by Mike 2026-09-20; part 1 of 3) **Single-source the scanner harness, re-grounded on Mike's own upstream
       test.** The finding already exists: GA1, a minor raised by the 2026-08-05
       guards-and-allowances cold pass and still awaiting its ruling round. It
       reads that the reason-required loader is ten per-scanner copies, *"the
@@ -72,3 +72,34 @@
       predicted:* eleven copies of a line written by one worker in one sitting
       should be byte-identical today, and whether they still are next quarter
       is the thing nobody will check. That is the drift this item exists for.
+      ---
+      ✅ **FUNDED by Mike, 2026-09-20.** Put to him with the counter-argument
+      stated — that `115/170`'s unruled proportionality question sits upstream
+      of this whole section, and that funding this adds to the layer that item
+      warns about. He ruled build it. The concern is recorded, not carried
+      forward as an objection.
+      **Split into three landable parts, so a claim this size is never left
+      half-finished** (the run's own instruction). Each part lands on `main`
+      with the suite green and every scanner's output proved unchanged before
+      the next begins:
+      - **Part 1 — the walk and its parameters.** One `_walk_files`, with the
+        per-guard window/overlap constants and the finding-materialisation cap
+        passed in rather than copied. Eleven copies, written in one sitting on
+        2026-09-20, so they should still be identical today — which makes this
+        the lowest-risk slice and the one with the sharpest test.
+      - **Part 2 — the allow-marker grammar and the ignore-file loader.** The
+        original GA1 finding: fourteen regex sites across twelve files, and
+        the divergence here is **already real**, not latent — `datescan`
+        requires a word boundary and a non-empty reason where several siblings
+        accept a bare substring. Higher risk precisely because unifying it
+        changes behaviour somewhere.
+      - **Part 3 — the exit and reporting contract, and namespaced finding
+        identifiers** so a rule stays individually suppressible. The precedent
+        is unanimous on that last point.
+      🔑 **The standing constraint, from this item's own text:** share the
+      **mechanism with per-guard parameters**, never one constant for
+      everyone. The window sizes differ deliberately — 256 KiB for links and
+      headings, 4 MiB for credentials — and a harness that forced one window
+      would be worse than the duplication it replaced.
+      **Explicitly not in scope, unchanged:** merging any two guards' intents.
+

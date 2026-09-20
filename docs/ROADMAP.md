@@ -158,7 +158,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [A real credential pasted into an exempt fixture file is invisible to](roadmap/115-guardrail-architecture-mike-commissioned/050-a-real-credential-in-an-exempt-fixture-file-is.md)
 - [ ] 🔎 [A coined paraphrase is still presented on the board as a child](roadmap/115-guardrail-architecture-mike-commissioned/060-a-coined-paraphrase-is-still-cited-on-the-boar.md)
 - [ ] [PRINCIPLES.md §9 has no guard, and the only safe candidate is scoped](roadmap/115-guardrail-architecture-mike-commissioned/070-principles-9-has-no-guard-and-the-only-safe-ca.md)
-- [ ] [Single-source the scanner harness, re-grounded on Mike's own upstream](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
+- [~] (claimed 2026-09-20-2239, wt: at-harness-walk; FUNDED by Mike 2026-09-20; part 1 of 3) [Single-source the scanner harness, re-grounded on Mike's own upstream](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
 - [ ] [Give every guard a second dial — the standing consequence of Mike's](roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md)
 - [ ] 🎯 [Build a before-plane — the guardrail class that acts at the moment of](roadmap/115-guardrail-architecture-mike-commissioned/100-the-before-plane-is-empty-and-it-is-the-only.md)
 - [ ] 🔥 [The apex and the always-confirm floor have no mechanical backing at](roadmap/115-guardrail-architecture-mike-commissioned/110-the-apex-and-the-autonomy-floor-have-no-mecha.md)
