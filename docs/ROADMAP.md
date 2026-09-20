@@ -413,7 +413,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [REPORT — datescan enforces the SHAPE of a date and cannot enforce its](roadmap/320-child-filed-findings-via-pointing-up/270-datescan-enforces-the-shape-of-a-date-and-cannot-enforce-its-frame.md)
 - [ ] [💡 PROPOSAL, hand-up from faves — a RENDERED board view, offered to](roadmap/320-child-filed-findings-via-pointing-up/280-proposal-a-rendered-board-view-for-every-repo.md)
 - ✅ [Two secretscan defects](roadmap/320-child-filed-findings-via-pointing-up/290-secretscan-reads-published-urls-as-credentials-and-mis-locates-findings-in-paths-with-spaces.md)
-- [ ] 🎯 [A ruling that changes doctrine has no check that the child](roadmap/320-child-filed-findings-via-pointing-up/300-a-ruling-that-moves-doctrine-has-no-check-the-block-copy-moved.md)
+- [~] 🎯 (claimed 2026-09-20-0540, wt: qr0919-blockcopy-check) [A ruling that changes doctrine has no check that the child](roadmap/320-child-filed-findings-via-pointing-up/300-a-ruling-that-moves-doctrine-has-no-check-the-block-copy-moved.md)
 - [ ] 🎯 [Should pathscan block instead of warn?](roadmap/320-child-filed-findings-via-pointing-up/310-should-pathscan-block-instead-of-warn.md)
 - ✅ 🔎 [Hand-up: the run-open role check still sends the tier question back](roadmap/320-child-filed-findings-via-pointing-up/320-the-run-open-role-check-sends-the-tier-question-back-to-the-principal.md)
 

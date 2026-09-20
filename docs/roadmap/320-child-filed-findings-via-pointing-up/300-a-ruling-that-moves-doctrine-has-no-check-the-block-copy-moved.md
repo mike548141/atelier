@@ -1,4 +1,4 @@
-- [ ] 🎯 **A ruling that changes doctrine has no check that the child
+- [~] (claimed 2026-09-20-0540, wt: qr0919-blockcopy-check) 🎯 **A ruling that changes doctrine has no check that the child
       block's copy of the rule moved with it** — split out of `320/250`
       2026-09-18, which fixed the instance and left the question.
       The standard child doctrine block is the one place a lossy copy of a
