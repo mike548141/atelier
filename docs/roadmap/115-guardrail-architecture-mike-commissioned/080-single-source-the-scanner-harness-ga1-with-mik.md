@@ -40,3 +40,21 @@
       question it was answering was the wrong one: item `120` carries the right
       one, and this item is a consolidation of *plumbing*, not an answer about
       how guards should be organised.
+      📈 **Third piece of evidence, and the largest: 2026-09-20's bounded-memory
+      work copied a whole new mechanism ten times.** `020/380` converted the
+      guard layer to a streamed walk and a bounded line reader — and because
+      each scanner is standalone, `_walk_files` now exists as **ten separate
+      definitions** (`secretscan`, `leakscan`, `conflictscan`, `linkscan`,
+      `sizescan`, `datescan`, `wrapscan`, `spellscan`, `pathscan`,
+      `licenscan`), with the window/overlap constants and the
+      finding-materialisation cap copied alongside them in four more. That is
+      not drift waiting to happen; it is the same shape as the allow-marker
+      loader, at ten times the surface, written in one sitting. **Mike's own
+      test applies unchanged:** the next correction to the walk — the
+      gitignored-nested-worktree skip `020/160` already documents, for
+      instance — is ten edits.
+      🔑 **And it sharpens the scope question:** the window sizes deliberately
+      *differ* per guard (256 KiB for links and headings, 4 MiB for
+      credentials), so single-sourcing here means sharing the **mechanism with
+      per-guard parameters**, not one constant for everyone. A shared harness
+      that forces one window would be worse than the duplication.
