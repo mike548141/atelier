@@ -28,6 +28,16 @@ allowed_signers; it does not bind key to committer identity (any listed key
 verifies any committer). The assurance is machine-level custody, not personal
 authorship — stating it stronger would over-claim (SIGNING.md).
 
+BOUNDED MEMORY (020/380, measured — not a rewrite): unlike the tree-walking
+guards, this tool never reads a file's content at all. It holds one small
+result dict per commit in the verified range (sha, plane, status, a short
+detail string), which scales with the NUMBER of commits scanned, never with
+the size of a file or a tree. Measured while extending 020/370's ruling to
+this guard: peak RSS grew under 1 MB scanning atelier's own full history
+(1324 commits) versus a 50-commit slice of it, and under a synthetic repo's
+10x-larger commit range alike (`test_signscan.py::BoundedMemory`) — already
+bounded, so no code changed here, only the pinning test.
+
 Zero third-party deps: stdlib + git + ssh-keygen, already present wherever git
 signs. `gh` is only for the separate GitHub-server plane, never invoked here.
 

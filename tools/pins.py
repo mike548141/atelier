@@ -64,6 +64,21 @@ PIN_RE = re.compile(r"atelier@([0-9a-f]{7,40})\b", re.IGNORECASE)
 # read there can transiently fail mid-sync, so a read error gets a clearer hint.
 ICLOUD_MARKERS = ("com~apple~clouddocs", "mobile documents", "library/cloudstorage")
 
+# 020/380 — extending 020/370's ruling to the fleet tools. `discover()` itself
+# only walks ONE level of the search root and reads a single named file
+# (CLAUDE.md) per candidate, so it was never the recursive-tree-walk shape
+# secretscan's incident was — but that one file was still read WHOLE
+# (`read_text()`), so a single oversized CLAUDE.md (real or a malformed
+# child) scaled peak memory with that one file's size. Measured while
+# building this fix, over SYNTHETIC sibling trees (never real ones — see
+# the module docstring's own read-only posture): an 8 MB CLAUDE.md drove
+# ~15 MB of extra peak RSS over a 1 MB twin. Grounded in the class, not a
+# measurement: a real CLAUDE.md is bounded by sizescan's own SIZE_REFERENCE
+# (~200 lines); two-plus orders of magnitude past that leaves generous
+# headroom while giving a fixed ceiling. Refused, reported (stderr), never
+# silently misread as "no pin".
+MAX_CLAUDE_MD_BYTES = 2 * 1024 * 1024
+
 STATUS_CURRENT = "current"
 STATUS_BEHIND = "behind"
 STATUS_AHEAD = "ahead"
@@ -128,8 +143,17 @@ def is_icloud(path: Path) -> bool:
 
 
 def read_pin(claude_md: Path) -> str | None:
-    """The first `atelier@<sha>` in a child CLAUDE.md, lower-cased, or None."""
+    """The first `atelier@<sha>` in a child CLAUDE.md, lower-cased, or None.
+
+    020/380: refuses to read a CLAUDE.md over `MAX_CLAUDE_MD_BYTES` whole —
+    reported to stderr, then treated the same as "no pin found" (the same
+    safe direction an unreadable file already takes)."""
     try:
+        if claude_md.stat().st_size > MAX_CLAUDE_MD_BYTES:
+            print(f"pins: warning — {claude_md} is over the "
+                 f"{MAX_CLAUDE_MD_BYTES}-byte cap; not read for a pin "
+                 "(020/380)", file=sys.stderr)
+            return None
         text = claude_md.read_text(encoding="utf-8", errors="replace")
     except OSError:
         return None

@@ -92,6 +92,14 @@ import signscan
 # every child look mis-configured. Keeping the pattern boring is deliberate.
 BOUNDARY_RE = re.compile(r'^[ \t]*SIGN_BOUNDARY:[ \t]*"?([0-9a-fA-F]*)"?', re.M)
 
+# 020/380 — same cap and reporting posture as `pins.MAX_CLAUDE_MD_BYTES` /
+# `floorfleet.MAX_LOCAL_FILE_BYTES`: signfleet never recursively walks a
+# sibling's tree (discovery is `pins.discover()`'s one-level scan), but
+# `read_boundary` still read a child's `floor.yml` WHOLE, scaling peak
+# memory with that one file's size. Grounded in the class (a small, human-
+# authored workflow file), not fitted to a measurement.
+MAX_FLOOR_YML_BYTES = 2 * 1024 * 1024
+
 STATUS_PASS = "pass"
 STATUS_FAIL = "fail"
 STATUS_SKIP = "skip"
@@ -125,6 +133,11 @@ def read_boundary(floor_yml: Path) -> str | None:
     be conflated with "absent" — hence None-vs-"" rather than a falsy check.
     """
     try:
+        if floor_yml.stat().st_size > MAX_FLOOR_YML_BYTES:
+            print(f"signfleet: warning — {floor_yml} is over the "
+                 f"{MAX_FLOOR_YML_BYTES}-byte cap; not read whole (020/380)",
+                 file=sys.stderr)
+            return None
         text = floor_yml.read_text(encoding="utf-8", errors="replace")
     except OSError:
         return None

@@ -9,12 +9,17 @@ guards the paths that decide whether a child is even looked at, because a silent
 """
 
 import os
+import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 import signfleet as sf
+import memprobe
+
+TOOLS_DIR = Path(__file__).resolve().parent
 
 
 def _run(cwd, *args, env=None):
@@ -221,6 +226,95 @@ class Render(unittest.TestCase):
     def test_empty_fleet_is_not_a_pass(self):
         out = sf.render([], Path("/atelier"))
         self.assertIn("no atelier children", out)
+
+
+class SizeCapTest(unittest.TestCase):
+    """020/380 — unit-level: `read_boundary` refuses an oversized floor.yml
+    without the cost of a subprocess."""
+
+    def test_read_boundary_refuses_oversized_file(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "floor.yml"
+            p.write_text("env:\n  SIGN_BOUNDARY: \"\"\n"
+                         + "x" * (sf.MAX_FLOOR_YML_BYTES + 1024))
+            self.assertIsNone(sf.read_boundary(p))
+
+    def test_read_boundary_still_reads_under_cap(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "floor.yml"
+            p.write_text('  SIGN_BOUNDARY: "abc1234"\n')
+            self.assertEqual("abc1234", sf.read_boundary(p))
+
+
+class BoundedMemory(unittest.TestCase):
+    """020/380 — extending 020/370's ruling to the fleet tools. signfleet's
+    discovery is the same one-level `pins.discover()` floorfleet uses, and
+    per-child it read a `floor.yml` WHOLE (`read_boundary`) — a single
+    oversized one scaled peak memory with that one file's size (measured
+    while building this fix: ~14 MB of extra peak RSS for a 7 MB larger
+    floor.yml), now capped by `MAX_FLOOR_YML_BYTES`.
+
+    Every sibling here is SYNTHETIC, built under this test's own temp
+    directory and passed via `--root` — never the real siblings beside this
+    checkout. `--atelier` points at THIS worktree, a real git repo (needed
+    so `git show <pin>:allowed_signers` has something to resolve against,
+    even though every synthetic pin here is bogus and the child is expected
+    to end up `skip`/`error` — `read_boundary` already ran by then, which is
+    the half this test measures). Runs the CLI as a SUBPROCESS via
+    `memprobe.run_and_measure` and reads peak RSS back from the kernel —
+    see `tools/memprobe.py`."""
+
+    SIGNFLEET = str(TOOLS_DIR / "signfleet.py")
+    ATELIER = str(TOOLS_DIR.parent)
+
+    def _build_siblings(self, root: Path, n: int,
+                        big_yml_bytes: int = 0) -> None:
+        root.mkdir(parents=True, exist_ok=True)
+        for i in range(n):
+            d = root / f"sibling{i}"
+            (d / ".git").mkdir(parents=True)
+            (d / ".github" / "workflows").mkdir(parents=True)
+            (d / "CLAUDE.md").write_text(
+                f"# sibling{i}\n\npinned `atelier@" + "a" * 40 + "`\n")
+            yml_filler = (("# " + "y" * big_yml_bytes + "\n")
+                         if (big_yml_bytes and i == 0) else "")
+            (d / ".github" / "workflows" / "floor.yml").write_text(
+                "env:\n  SIGN_BOUNDARY: \"\"\n" + yml_filler)
+
+    def _peak_rss_for(self, n: int, big_yml_bytes: int = 0) -> int:
+        root = Path(tempfile.mkdtemp(prefix="signfleet-mem-"))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        self._build_siblings(root, n, big_yml_bytes)
+        result = memprobe.run_and_measure(
+            [sys.executable, self.SIGNFLEET, "--atelier", self.ATELIER,
+             "--root", str(root)],
+            timeout=120, rss_limit_bytes=900 * 1024 * 1024)
+        self.assertFalse(result.timed_out, "scan did not finish in time")
+        self.assertFalse(result.killed_over_limit,
+                         "scan exceeded the 900 MB safety limit")
+        return result.peak_rss_bytes
+
+    def test_peak_memory_does_not_scale_with_sibling_count(self):
+        small_peak = self._peak_rss_for(10)
+        large_peak = self._peak_rss_for(100)
+        growth = large_peak - small_peak
+        self.assertLess(
+            growth, 30 * 1024 * 1024,
+            f"peak RSS grew {growth / 1e6:.1f} MB for 90 more sibling "
+            f"directories (small={small_peak / 1e6:.1f} MB, "
+            f"large={large_peak / 1e6:.1f} MB).")
+
+    def test_peak_memory_does_not_scale_with_one_huge_floor_yml(self):
+        small_peak = self._peak_rss_for(5, big_yml_bytes=1 * 1024 * 1024)
+        large_peak = self._peak_rss_for(
+            5, big_yml_bytes=sf.MAX_FLOOR_YML_BYTES + (1024 * 1024))
+        growth = large_peak - small_peak
+        self.assertLess(
+            growth, 15 * 1024 * 1024,
+            f"peak RSS grew {growth / 1e6:.1f} MB when the larger floor.yml "
+            f"crossed MAX_FLOOR_YML_BYTES (small={small_peak / 1e6:.1f} MB, "
+            f"large={large_peak / 1e6:.1f} MB) — it should have been refused, "
+            "not read whole.")
 
 
 if __name__ == "__main__":

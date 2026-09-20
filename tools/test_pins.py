@@ -16,6 +16,9 @@ import unittest
 from pathlib import Path
 
 import pins
+import memprobe
+
+TOOLS_DIR = Path(__file__).resolve().parent
 
 
 def git(args, cwd):
@@ -231,6 +234,113 @@ class WorktreeResolution(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertIn(str(self.empty_root), proc.stdout)
         self.assertIn("0 found", proc.stdout)
+
+
+class ReadPinSizeCap(unittest.TestCase):
+    """020/380 — `read_pin` refuses to read an oversized CLAUDE.md whole
+    (`pins.MAX_CLAUDE_MD_BYTES`), reporting to stderr rather than silently
+    misreading it as "no pin". Unit-level: proves the gate fires without the
+    cost of a subprocess."""
+
+    def test_oversized_claude_md_is_not_read(self):
+        tmp = Path(tempfile.mkdtemp(prefix="pins-cap-"))
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        md = tmp / "CLAUDE.md"
+        md.write_text("pinned `atelier@" + "a" * 40 + "`\n"
+                      + "x" * (pins.MAX_CLAUDE_MD_BYTES + 1024))
+        self.assertIsNone(pins.read_pin(md))
+
+    def test_under_cap_still_reads(self):
+        tmp = Path(tempfile.mkdtemp(prefix="pins-cap-"))
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        md = tmp / "CLAUDE.md"
+        md.write_text("pinned `atelier@" + "a" * 40 + "`\n")
+        self.assertEqual(pins.read_pin(md), "a" * 40)
+
+
+class BoundedMemory(unittest.TestCase):
+    """020/380 — extending 020/370's ruling to the fleet tools. `pins`
+    (unlike a tree-walking guard) only walks ONE level of a search root and
+    reads a single named file (CLAUDE.md) per candidate, so growth with
+    SIBLING COUNT was never expected to be the failure mode here — proven
+    below anyway, alongside the real one: a single oversized CLAUDE.md
+    scaled peak memory with that ONE file's size (measured while building
+    this fix: ~15 MB of extra peak RSS for an 8 MB CLAUDE.md over a 1 MB
+    twin), now capped by `MAX_CLAUDE_MD_BYTES`.
+
+    Every sibling here is SYNTHETIC, built under this test's own temp
+    directory — never the real siblings beside this checkout (the hard
+    safety rule this board item itself exists to enforce). Runs the real
+    CLI as a SUBPROCESS via `memprobe.run_and_measure` and reads peak RSS
+    back from the kernel — see `tools/memprobe.py`."""
+
+    PINS = str(TOOLS_DIR / "pins.py")
+
+    def _build_atelier(self) -> tuple[Path, str]:
+        tmp = Path(tempfile.mkdtemp(prefix="pins-mem-atelier-"))
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        git(["init", "-q", "-b", "main"], tmp)
+        git(["config", "user.email", "t@example.com"], tmp)  # leakscan:allow: fictional test fixture
+        git(["config", "user.name", "Test"], tmp)
+        (tmp / "f").write_text("one\n")
+        git(["add", "-A"], tmp)
+        git(["commit", "-qm", "one"], tmp)
+        return tmp, sha(tmp)
+
+    def _build_siblings(self, root: Path, n: int, head: str,
+                        big_claude_bytes: int = 0) -> None:
+        root.mkdir(parents=True, exist_ok=True)
+        for i in range(n):
+            d = root / f"sibling{i}"
+            (d / ".git").mkdir(parents=True)  # discover() only checks .exists()
+            filler = "x" * big_claude_bytes if (big_claude_bytes and i == 0) else ""
+            (d / "CLAUDE.md").write_text(
+                f"# sibling{i}\n\npinned `atelier@{head}`\n" + filler + "\n")
+
+    def _peak_rss_for(self, n: int, atelier: Path,
+                      big_claude_bytes: int = 0) -> int:
+        root = Path(tempfile.mkdtemp(prefix="pins-mem-siblings-"))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        self._build_siblings(root, n, sha(atelier), big_claude_bytes)
+        result = memprobe.run_and_measure(
+            [sys.executable, self.PINS, "--atelier", str(atelier),
+             "--root", str(root)],
+            timeout=60, rss_limit_bytes=900 * 1024 * 1024)
+        self.assertFalse(result.timed_out, "scan did not finish in time")
+        self.assertFalse(result.killed_over_limit,
+                         "scan exceeded the 900 MB safety limit")
+        return result.peak_rss_bytes
+
+    def test_peak_memory_does_not_scale_with_sibling_count(self):
+        atelier, _ = self._build_atelier()
+        small_peak = self._peak_rss_for(20, atelier)
+        large_peak = self._peak_rss_for(200, atelier)
+        growth = large_peak - small_peak
+        # 180 extra tiny directory entries and CLAUDE.md reads cost a few KB
+        # each at most — generous headroom over that, tight enough to still
+        # catch a real per-sibling leak.
+        self.assertLess(
+            growth, 20 * 1024 * 1024,
+            f"peak RSS grew {growth / 1e6:.1f} MB for 180 more sibling "
+            f"directories (small={small_peak / 1e6:.1f} MB, "
+            f"large={large_peak / 1e6:.1f} MB).")
+
+    def test_peak_memory_does_not_scale_with_one_huge_claude_md(self):
+        atelier, _ = self._build_atelier()
+        small_peak = self._peak_rss_for(5, atelier, big_claude_bytes=1 * 1024 * 1024)
+        large_peak = self._peak_rss_for(
+            5, atelier, big_claude_bytes=pins.MAX_CLAUDE_MD_BYTES + (1024 * 1024))
+        growth = large_peak - small_peak
+        # The "large" fixture is now OVER the cap, so it must be refused —
+        # this pins the fix, not just a smaller multiplier. Bound is
+        # generous (a few MB of interpreter/allocator noise), never the
+        # multi-MB-per-extra-MB growth the old whole-file read showed.
+        self.assertLess(
+            growth, 10 * 1024 * 1024,
+            f"peak RSS grew {growth / 1e6:.1f} MB when the larger CLAUDE.md "
+            f"crossed MAX_CLAUDE_MD_BYTES (small={small_peak / 1e6:.1f} MB, "
+            f"large={large_peak / 1e6:.1f} MB) — it should have been refused, "
+            "not read whole.")
 
 
 if __name__ == "__main__":

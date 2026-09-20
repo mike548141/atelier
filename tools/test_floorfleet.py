@@ -23,6 +23,7 @@ import inspect
 import io
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -36,6 +37,7 @@ sys.path.insert(0, str(TOOLS_DIR))
 import floorfleet  # noqa: E402
 import leakscan  # noqa: E402  — to pin that the board reuses its term lookup
 import floor  # noqa: E402  — to pin that the board reuses its C1F3 strip
+import memprobe  # noqa: E402
 
 THIN_CALLER = """\
 name: floor
@@ -1412,6 +1414,112 @@ class BoundaryTest(unittest.TestCase):
                                        "--atelier", str(TOOLS_DIR.parent)])
         rb.assert_not_called()
         self.assertEqual(code, 0)
+
+
+class BoundedMemory(unittest.TestCase):
+    """020/380 — extending 020/370's ruling to the fleet tools. floorfleet's
+    LOCAL discovery only walks ONE level of a search root (`pins.discover()`)
+    and reads a small, fixed set of named files per child (CLAUDE.md,
+    `.github/workflows/*.yml`, a hook file) — never a recursive tree walk of
+    a sibling's whole content, so it was never `secretscan`'s incident
+    shape. It still read every one of those files WHOLE, though, so a
+    single oversized file scaled peak memory with that ONE file's size.
+    Measured while building this fix (real numbers, not fitted): a 7 MB
+    larger CLAUDE.md drove ~8 MB of extra peak RSS, and a 7 MB larger
+    floor.yml ~14 MB, both now capped by `MAX_LOCAL_FILE_BYTES`.
+
+    Every sibling here is SYNTHETIC, built under this test's own temp
+    directory and passed via `--root` — never the real siblings beside this
+    checkout (the hard safety rule this board item itself exists to
+    enforce). `--atelier` points at THIS worktree, a real git repo, so the
+    parent-row half of a run has something real to read. Runs the CLI as a
+    SUBPROCESS via `memprobe.run_and_measure` and reads peak RSS back from
+    the kernel — see `tools/memprobe.py`."""
+
+    FLOORFLEET = str(TOOLS_DIR / "floorfleet.py")
+    ATELIER = str(TOOLS_DIR.parent)
+
+    def _build_siblings(self, root: Path, n: int, big_claude_bytes: int = 0,
+                        big_yml_bytes: int = 0) -> None:
+        root.mkdir(parents=True, exist_ok=True)
+        for i in range(n):
+            d = root / f"sibling{i}"
+            (d / ".git").mkdir(parents=True)
+            (d / ".github" / "workflows").mkdir(parents=True)
+            claude_filler = "x" * big_claude_bytes if (big_claude_bytes and i == 0) else ""
+            (d / "CLAUDE.md").write_text(
+                f"# sibling{i}\n\npinned `atelier@" + "a" * 40 + "`\n"
+                + claude_filler + "\n")
+            yml_filler = (("# " + "y" * big_yml_bytes + "\n")
+                         if (big_yml_bytes and i == 0) else "")
+            (d / ".github" / "workflows" / "floor.yml").write_text(
+                "env:\n  SIGN_BOUNDARY: \"\"\n" + yml_filler)
+
+    def _peak_rss_for(self, n: int, big_claude_bytes: int = 0,
+                      big_yml_bytes: int = 0) -> int:
+        root = Path(tempfile.mkdtemp(prefix="floorfleet-mem-"))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        self._build_siblings(root, n, big_claude_bytes, big_yml_bytes)
+        result = memprobe.run_and_measure(
+            [sys.executable, self.FLOORFLEET, "--atelier", self.ATELIER,
+             "--root", str(root)],
+            timeout=120, rss_limit_bytes=900 * 1024 * 1024)
+        self.assertFalse(result.timed_out, "scan did not finish in time")
+        self.assertFalse(result.killed_over_limit,
+                         "scan exceeded the 900 MB safety limit")
+        return result.peak_rss_bytes
+
+    def test_peak_memory_does_not_scale_with_sibling_count(self):
+        small_peak = self._peak_rss_for(10)
+        large_peak = self._peak_rss_for(100)
+        growth = large_peak - small_peak
+        self.assertLess(
+            growth, 30 * 1024 * 1024,
+            f"peak RSS grew {growth / 1e6:.1f} MB for 90 more sibling "
+            f"directories (small={small_peak / 1e6:.1f} MB, "
+            f"large={large_peak / 1e6:.1f} MB).")
+
+    def test_peak_memory_does_not_scale_with_one_huge_claude_md(self):
+        small_peak = self._peak_rss_for(5, big_claude_bytes=1 * 1024 * 1024)
+        large_peak = self._peak_rss_for(
+            5, big_claude_bytes=floorfleet.MAX_LOCAL_FILE_BYTES + (1024 * 1024))
+        growth = large_peak - small_peak
+        self.assertLess(
+            growth, 15 * 1024 * 1024,
+            f"peak RSS grew {growth / 1e6:.1f} MB when the larger CLAUDE.md "
+            f"crossed MAX_LOCAL_FILE_BYTES (small={small_peak / 1e6:.1f} MB, "
+            f"large={large_peak / 1e6:.1f} MB) — it should have been refused, "
+            "not read whole.")
+
+    def test_peak_memory_does_not_scale_with_one_huge_workflow_yml(self):
+        small_peak = self._peak_rss_for(5, big_yml_bytes=1 * 1024 * 1024)
+        large_peak = self._peak_rss_for(
+            5, big_yml_bytes=floorfleet.MAX_LOCAL_FILE_BYTES + (1024 * 1024))
+        growth = large_peak - small_peak
+        self.assertLess(
+            growth, 15 * 1024 * 1024,
+            f"peak RSS grew {growth / 1e6:.1f} MB when the larger floor.yml "
+            f"crossed MAX_LOCAL_FILE_BYTES (small={small_peak / 1e6:.1f} MB, "
+            f"large={large_peak / 1e6:.1f} MB) — it should have been refused, "
+            "not read whole.")
+
+
+class SizeCapTest(unittest.TestCase):
+    """020/380 — unit-level: `_read_local` refuses an oversized file without
+    the cost of a subprocess."""
+
+    def test_read_local_refuses_oversized_file(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            big = repo / "big.txt"
+            big.write_text("x" * (floorfleet.MAX_LOCAL_FILE_BYTES + 1024))
+            self.assertIsNone(floorfleet._read_local(repo, "big.txt"))
+
+    def test_read_local_still_reads_under_cap(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            (repo / "small.txt").write_text("hello\n")
+            self.assertEqual("hello\n", floorfleet._read_local(repo, "small.txt"))
 
 
 if __name__ == "__main__":

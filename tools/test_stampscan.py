@@ -1,6 +1,15 @@
 """Stdlib-only tests for stampscan (no pytest needed): `python3 -m unittest`."""
 
+import shutil
+import sys
+import tempfile
 import unittest
+from pathlib import Path
+
+try:
+    from . import memprobe
+except ImportError:
+    import memprobe
 
 try:
     # `python3 -m unittest tools.test_stampscan` from the repo root — tools/
@@ -747,6 +756,151 @@ class SuppressionTally(unittest.TestCase):
         self.assertEqual(["skipped"], [f.kind for f in findings])
         self.assertIn("suppressed: 1 block(s) by allow-marker",
                       ss.render_human(findings))
+
+
+class BoundedMemory(unittest.TestCase):
+    """020/380 — extending 020/370's ruling to stampscan. Mike's ruling,
+    verbatim: "it should not matter how much it scans it should no have this
+    affect". Measured BEFORE this fix (see the board item's own before/after
+    table): a whole `md.read_text()` per candidate file, immediately re-split
+    via `text.splitlines()` inside `_content_lines`, drove ~29 MB of peak-RSS
+    growth for a 7 MB larger many-line docs file, and a SINGLE 8 MB line grew
+    peak RSS 3.6x over its 1 MB twin (112 MB vs 31 MB) — the same
+    double-materialization shape secretscan's/spellscan's `020/370`/`020/380`
+    fixes removed. The file walk itself was also the old `rglob("*")` funnelled
+    through a list comprehension (`iter_markdown`), forcing the ENTIRE subtree
+    to be enumerated and held before a single file was scanned.
+
+    Runs the real CLI as a SUBPROCESS via `memprobe.run_and_measure` and reads
+    peak RSS back from the kernel — see `tools/memprobe.py`. Content is plain
+    filler prose (or ordinary stamped-block drift, for the many-findings case)
+    with no config errors, so growth is attributable to input size alone."""
+
+    STAMPSCAN = str(Path(ss.__file__).resolve())
+    SMALL_BYTES = 1 * 1024 * 1024
+    LARGE_BYTES = 8 * 1024 * 1024
+    # Grounded in the fix's design (`stampscan._MAX_LINE_BYTES` plus one read
+    # chunk in flight), not fitted to a measurement — matching every sibling
+    # scanner's identical-shape bound (spellscan/sizescan's own
+    # `8 * (1 MiB + 8 KiB)`).
+    GROWTH_BOUND_BYTES = 8 * (1 * 1024 * 1024 + 8 * 1024)
+
+    def _run(self, root: Path, *extra: str) -> "memprobe.ProbeResult":
+        return memprobe.run_and_measure(
+            [sys.executable, self.STAMPSCAN, "--root", str(root),
+             str(root / "docs"), *extra],
+            timeout=90, rss_limit_bytes=900 * 1024 * 1024)
+
+    def _tmp_docs(self) -> Path:
+        tmp = Path(tempfile.mkdtemp(prefix="stampscan-mem-"))
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        (tmp / "docs").mkdir()
+        return tmp
+
+    def _peak_for_many_line(self, size_bytes: int) -> int:
+        tmp = self._tmp_docs()
+        with open(tmp / "docs" / "note.md", "w") as f:
+            written = 0
+            i = 0
+            while written < size_bytes:
+                line = f"this is filler prose line number {i} nothing here\n"
+                f.write(line)
+                written += len(line)
+                i += 1
+        r = self._run(tmp)
+        self.assertFalse(r.timed_out, "scan did not finish in time")
+        self.assertFalse(r.killed_over_limit, "scan exceeded the safety limit")
+        self.assertEqual(0, r.returncode, "filler content must not flag anything")
+        return r.peak_rss_bytes
+
+    def test_peak_memory_does_not_scale_with_many_line_file_size(self):
+        small_peak = self._peak_for_many_line(self.SMALL_BYTES)
+        large_peak = self._peak_for_many_line(self.LARGE_BYTES)
+        growth = large_peak - small_peak
+        self.assertLess(
+            growth, self.GROWTH_BOUND_BYTES,
+            f"peak RSS grew {growth / 1e6:.1f} MB for a "
+            f"{(self.LARGE_BYTES - self.SMALL_BYTES) / 1e6:.1f} MB larger "
+            f"many-line file (small={small_peak / 1e6:.1f} MB, "
+            f"large={large_peak / 1e6:.1f} MB) — memory is scaling with "
+            "input size again (020/370's class).")
+
+    def _peak_for_one_huge_line(self, size_bytes: int) -> int:
+        tmp = self._tmp_docs()
+        (tmp / "docs" / "note.md").write_text("x" * size_bytes + "\n")
+        r = self._run(tmp)
+        self.assertFalse(r.timed_out, "scan did not finish in time")
+        self.assertFalse(r.killed_over_limit, "scan exceeded the safety limit")
+        self.assertEqual(0, r.returncode)
+        return r.peak_rss_bytes
+
+    def test_peak_memory_does_not_scale_with_one_huge_line(self):
+        small_peak = self._peak_for_one_huge_line(self.SMALL_BYTES)
+        large_peak = self._peak_for_one_huge_line(self.LARGE_BYTES)
+        growth = large_peak - small_peak
+        self.assertLess(
+            growth, self.GROWTH_BOUND_BYTES,
+            f"peak RSS grew {growth / 1e6:.1f} MB for a single physical "
+            f"line growing from {self.SMALL_BYTES / 1e6:.1f} MB to "
+            f"{self.LARGE_BYTES / 1e6:.1f} MB (small={small_peak / 1e6:.1f} "
+            f"MB, large={large_peak / 1e6:.1f} MB) — a pathological one-line "
+            "file must be bounded by `_MAX_LINE_BYTES`, not scale with the "
+            "line's own length.")
+
+    def test_peak_memory_does_not_scale_with_file_count(self):
+        """The old `rglob("*")` list comprehension enumerated (and held) the
+        ENTIRE subtree before scanning a single file — this proves the
+        `_walk_files` fix streams the walk instead."""
+        def peak_for(n: int) -> int:
+            tmp = self._tmp_docs()
+            for i in range(n):
+                (tmp / "docs" / f"f{i}.md").write_text(
+                    f"# doc {i}\n\nsome prose here.\n")
+            r = self._run(tmp)
+            self.assertFalse(r.timed_out)
+            self.assertFalse(r.killed_over_limit)
+            self.assertEqual(0, r.returncode)
+            return r.peak_rss_bytes
+
+        small_peak = peak_for(200)
+        large_peak = peak_for(2000)
+        growth = large_peak - small_peak
+        # 1800 extra `Path` objects and tiny file reads cost a few KB each at
+        # most — generous headroom over what even an un-pruned walk's list of
+        # Path objects would cost, while still catching a real per-file leak.
+        self.assertLess(
+            growth, 20 * 1024 * 1024,
+            f"peak RSS grew {growth / 1e6:.1f} MB for 1800 more small files "
+            f"(small={small_peak / 1e6:.1f} MB, large={large_peak / 1e6:.1f} "
+            "MB) — the file count is scaling memory, not just I/O.")
+
+    def test_peak_memory_does_not_scale_with_finding_count(self):
+        """A tree of many drifting stamped blocks — many findings held at
+        once, none of them individually large."""
+        def peak_for(n: int) -> int:
+            tmp = self._tmp_docs()
+            (tmp / "docs" / "PARENT.md").write_text(
+                "# Parent\n\n<!-- floor:begin -->\n- item one\n- item two\n"
+                "- item three\n<!-- floor:end -->\n")
+            for i in range(n):
+                (tmp / "docs" / f"child{i}.md").write_text(
+                    "<!-- stamp:begin source=docs/PARENT.md region=floor -->\n"
+                    "- item one\n- item DIFFERENT\n- item three\n"
+                    "<!-- stamp:end -->\n")
+            r = self._run(tmp, "--warn")
+            self.assertFalse(r.timed_out)
+            self.assertFalse(r.killed_over_limit)
+            self.assertEqual(0, r.returncode)
+            return r.peak_rss_bytes
+
+        small_peak = peak_for(200)
+        large_peak = peak_for(2000)
+        growth = large_peak - small_peak
+        self.assertLess(
+            growth, 20 * 1024 * 1024,
+            f"peak RSS grew {growth / 1e6:.1f} MB for 1800 more drift "
+            f"findings (small={small_peak / 1e6:.1f} MB, "
+            f"large={large_peak / 1e6:.1f} MB).")
 
 
 class SelfTest(unittest.TestCase):

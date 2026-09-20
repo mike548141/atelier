@@ -160,6 +160,25 @@ EXEMPTIONS:
     narrow that editing the map itself does not already narrow more
     precisely.
 
+BOUNDED MEMORY (020/380, extending 020/370's ruling to this guard): unlike
+its tree-walking siblings, blockscan never walks arbitrary content — its
+whole unit of work is a small, fixed, hand-maintained map naming ~9 of
+atelier's own doctrine files. That makes the risk class different (no tree
+to be arbitrarily large), but not absent: every read here (`git show`,
+`git show :path`, `p.read_text()`) buffered the WHOLE file, so a single
+oversized mapped file still scaled peak memory with that file's size alone
+(measured while building this fix: ~25 MB of growth for a 7 MB larger mapped
+source, a ~3.6x multiplier from the repeated `text.splitlines()` calls each
+extractor makes). `MAX_MAPPED_FILE_BYTES` below is the fix: every read
+checks the object's size FIRST (`git cat-file -s`, or `stat()` on disk) and
+refuses — loudly, as the same fail-safe `ConfigError` every other broken
+read already raises — rather than buffering an oversized file. The cap is
+two-plus orders of magnitude past any real doctrine doc on record (sizescan
+itself bounds the leanest of these files to a few hundred lines), so no
+mapped file is ever affected in practice; it exists purely to give a FIXED
+ceiling on what this guard will ever hold for one file, reported rather than
+silently degraded if ever crossed (`method/GUARDS.md` rule b).
+
 Exit codes (fail-safe, matching pathscan's own advisory-first posture — this
 check is first-of-kind and not yet reviewed, so its one live wiring
 (atelier's own `ci.yml`, see WIRING RESIDUAL above) passes `--warn`; THE
@@ -196,6 +215,15 @@ ALLOW_MARKER = "blockscan:allow"
 ALLOW_MARKER_RX = re.compile(r"\b" + re.escape(ALLOW_MARKER) + r":\s*[\w\"'“‘]")
 
 DEFAULT_MAP_NAME = "blockscan_map.json"
+
+# 020/380 — see the module docstring's BOUNDED MEMORY section. A mapped file
+# whose object size exceeds this is refused (ConfigError, exit 2) rather than
+# read whole. Grounded in the CLASS of file this map ever names (a hand-
+# maintained doctrine doc — sizescan itself keeps the leanest of these to a
+# few hundred lines / tens of KB), not fitted to any measurement: two-plus
+# orders of magnitude past that leaves generous headroom while still giving
+# a fixed, checkable ceiling.
+MAX_MAPPED_FILE_BYTES = 4 * 1024 * 1024
 
 _HEADING_RX = re.compile(r"^#{1,6}\s")
 _TOP_BULLET_RX = re.compile(r"\n-\s\*\*")
@@ -341,12 +369,39 @@ def _has_allow(*texts: str) -> bool:
 
 # -------------------------------------------------------------- git plane --
 
+def _check_blob_size(root: Path, spec: str) -> None:
+    """020/380 — refuse an oversized mapped file BEFORE reading it whole.
+
+    `spec` is a git object spec (`<rev>:<path>` or `:<path>` for the index
+    blob). If `git cat-file -s` cannot resolve it, this is silent — the
+    caller's own `git show` immediately after already raises a precise
+    ConfigError for that case (missing file, bad rev, …); duplicating that
+    diagnosis here would just give two different error messages for the same
+    failure. This function's only job is the size gate, so it only ever
+    raises when the size IS known and IS too big."""
+    result = subprocess.run(["git", "-C", str(root), "cat-file", "-s", spec],
+                            capture_output=True, text=True)
+    if result.returncode != 0:
+        return
+    try:
+        size = int(result.stdout.strip())
+    except ValueError:
+        return
+    if size > MAX_MAPPED_FILE_BYTES:
+        raise ConfigError(
+            f"mapped file {spec} is {size} bytes, over the "
+            f"{MAX_MAPPED_FILE_BYTES}-byte cap (020/380 — see module "
+            f"docstring's BOUNDED MEMORY section); refusing to read it whole")
+
+
 def git_show(root: Path, rev: str, relpath: str) -> str:
     """`git show <rev>:<relpath>`, decoded. Raises ConfigError on ANY
     failure — see module docstring's ONE STATED ASSUMPTION: every mapped
     path is assumed to already exist at every revision this tool reads."""
+    spec = f"{rev}:{relpath}"
+    _check_blob_size(root, spec)
     result = subprocess.run(
-        ["git", "-C", str(root), "show", f"{rev}:{relpath}"],
+        ["git", "-C", str(root), "show", spec],
         capture_output=True, text=True)
     if result.returncode != 0:
         raise ConfigError(
@@ -360,8 +415,10 @@ def git_show_staged(root: Path, relpath: str) -> str:
     revision before the colon (an empty rev, not the literal string ":"),
     so this is a distinct helper rather than `git_show(root, ":", relpath)`
     — that call would build `::<relpath>`, which git refuses outright."""
+    spec = f":{relpath}"
+    _check_blob_size(root, spec)
     result = subprocess.run(
-        ["git", "-C", str(root), "show", f":{relpath}"],
+        ["git", "-C", str(root), "show", spec],
         capture_output=True, text=True)
     if result.returncode != 0:
         raise ConfigError(
@@ -668,6 +725,15 @@ def _main(argv: list[str] | None = None) -> int:
                 p = root / relpath
                 if not p.is_file():
                     raise ConfigError(f"mapped path does not exist: {relpath}")
+                # 020/380 — same size gate as the git plane (`_check_blob_size`):
+                # refuse an oversized mapped file before buffering it whole.
+                size = p.stat().st_size
+                if size > MAX_MAPPED_FILE_BYTES:
+                    raise ConfigError(
+                        f"mapped file {relpath} is {size} bytes, over the "
+                        f"{MAX_MAPPED_FILE_BYTES}-byte cap (020/380 — see "
+                        f"module docstring's BOUNDED MEMORY section); "
+                        f"refusing to read it whole")
                 return p.read_text(encoding="utf-8", errors="replace")
             findings = check_integrity(cfg, read_disk)
     except ConfigError as e:

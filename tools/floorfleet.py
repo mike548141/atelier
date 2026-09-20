@@ -348,10 +348,37 @@ class ChildFloor:
         return self.run in ("", "passing")
 
 
+# 020/380 — extending 020/370's ruling to the fleet tools. floorfleet never
+# recursively walks a sibling's tree (discovery is `pins.discover()`'s one-
+# level `iterdir()`; a workflow directory is a shallow, top-level `glob`),
+# but every read here (`CLAUDE.md`, `floor.yml`, a hook file, a workflow
+# yml) was still WHOLE, so a single oversized file scaled peak memory with
+# its own size. Same cap, same reporting posture, as `pins.MAX_CLAUDE_MD_BYTES`
+# — grounded in the class (a small, human-authored config/doctrine file),
+# not fitted to a measurement.
+MAX_LOCAL_FILE_BYTES = 2 * 1024 * 1024
+
+
+def _size_capped(p: Path) -> bool:
+    """True if `p` is over `MAX_LOCAL_FILE_BYTES` — reported to stderr, so a
+    refusal is never silent (020/380)."""
+    try:
+        if p.stat().st_size > MAX_LOCAL_FILE_BYTES:
+            print(f"floorfleet: warning — {p} is over the "
+                 f"{MAX_LOCAL_FILE_BYTES}-byte cap; not read whole (020/380)",
+                 file=sys.stderr)
+            return True
+    except OSError:
+        pass
+    return False
+
+
 def _read_local(child: Path, rel: str) -> str | None:
     p = child / rel
     try:
-        return p.read_text(encoding="utf-8") if p.is_file() else None
+        if not p.is_file() or _size_capped(p):
+            return None
+        return p.read_text(encoding="utf-8")
     except OSError:
         return None
 
@@ -652,7 +679,7 @@ def hook_state(child: Path) -> str:
     candidates.append(child / ".git" / "hooks" / "pre-commit")
     for hook in candidates:
         try:
-            if not hook.is_file():
+            if not hook.is_file() or _size_capped(hook):
                 continue
             text = hook.read_text(encoding="utf-8", errors="replace")
         except OSError:
@@ -775,6 +802,8 @@ def evaluate_parent(atelier: Path) -> ChildFloor:
             if path.name == "floor.yml":
                 continue
             try:
+                if _size_capped(path):
+                    continue
                 # Newline-joined: concatenating raw would splice one file's
                 # last line onto the next file's first and could manufacture a
                 # match across a boundary that exists in neither file.
