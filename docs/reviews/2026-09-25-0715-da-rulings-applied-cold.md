@@ -197,3 +197,288 @@ your reconcile.
 Findings on doctrine are the principal's to decide (rule 3): record all, apply
 nothing; your counsel per finding is welcome, labelled as counsel and kept
 beneath the finding.
+
+---
+
+# Verdict — phase 1 (written 2026-09-25T07:15Z)
+
+## Provenance, repeated
+
+- **Spawned by:** the batch orchestrator (`claude-fable-5-1`), with this brief as my only
+  framing. I am not the author's session; the author neither started nor instructed me. The
+  orchestrator held the `.deferred.md` sibling outside the worktree and formed no finding.
+- **Tier:** Fable, `claude-fable-5-1`, checked at spawn against the tier the principal names.
+- **Read, in order:** this brief; `docs/method/REVIEW.md` and `00-APEX.md` at HEAD; the
+  landing commit's diff restricted to the five doctrine paths (the pointer hunk unopened);
+  the five paths at HEAD; `tools/floor.py` templates, `.githooks/pre-commit`,
+  `.github/workflows/ci.yml`, `.atelier-floor.json`, `tools/blockscan_map.json`;
+  `docs/method/PROPAGATION.md`'s floor region and `docs/build/templates/CLAUDE.md`'s stamp
+  region; `docs/method/session-open/session-open-prompt.md`; `skills/` (grep only);
+  `CHANGELOG.md` lines 95–130 (the entry for this delta — not a barred store); board item
+  `320/250` (surfaced by `coldsweep`, not the queue pointer, read in full — it carries a
+  child's framing and quotes the delta's own wording, disclosed below).
+- ⚠️ **Exposure, disclosed — a rule-2 breach of my own making.** My first `plainscan`
+  sweep used a hand-written record exclusion instead of `coldsweep`; its `./` prefix did not
+  match what `grep -r` emits on this platform, so the sweep ran wide open and printed eight
+  `docs/SESSIONS.md` index entries (2026-08-09 to 2026-09-18, including the DA run's own
+  one-paragraph summary and the 2026-08-19 session's) and one line of the barred queue
+  pointer. This is the exact class REVIEW rule 2 records three prior instances of. What it
+  handed me beyond the brief's own disclosures: the DA pass's finding counts, its
+  scanner-delta figure, and a board reference for an unwatched-channel item. My findings
+  below were formed from the delta and my probes; the reader should weigh DR1 and DR2 with
+  that margin in view. Every sweep after it went through `coldsweep` with the brief's
+  `--also-exclude` list (347 files barred).
+- ⚠️ **Context I arrived with:** the harness loaded a user-level auto-memory index whose one-line
+  entries include a 2026-08-19 note that the decision device is a standing rule and that
+  "focus mode hides mid-turn text". That is the delta's own premise, met before the brief.
+- **A harness-documentation probe** ran as a `claude-code-guide` subagent, instructed to read
+  none of this machine's repos. Its report is data; I corroborated its central claims myself
+  (re-run ledger, items 9–10).
+
+## Per-lens answers
+
+### Lens 1 — approach & assumptions
+
+Load-bearing assumptions, named by me: (a) a session can tell which branch of the corrected
+rule it is in — plain case or "display mode hides mid-turn text"; (b) "a completed message
+before the ask" is a thing a session can produce and still put the device; (c) the
+pointer-ised copies say strictly less than the apex; (d) the apex list is the *only*
+original of the duty's parts on every surface, including the ones that leave the repo.
+
+**(a) is false, and it is the one the fix rests on — DR1.** Verified against the harness's
+own documentation: `/focus` "shows only your last prompt, a one-line summary of tool calls
+… and the final response" and "persists across sessions"; the model has no runtime access to
+that state (an open issue asks for it to be exposed even to the statusline). So the rule as
+written offers two branches and no way to choose between them from inside the session. A
+session that follows the text as printed takes the plain case, and under focus mode that is
+DA1's shape — a device on screen with its account somewhere the principal cannot see.
+The false claim ("on screen while he decides") is gone, which is a real improvement; what
+replaced it is a *conditional* the session cannot evaluate. Satisfiable, yes — but only by
+treating the exception branch as the rule, which the text does not say.
+
+**(b) holds, with a cost the rule does not name.** The only "completed message" a session
+can produce is the turn's final message; the device then goes in the *next* turn, which
+exists only after the principal sends something. That is a two-turn ask, and nothing in the
+paragraph says so. A second harness fact bears on the plain case too: in the VS Code
+extension the question dialog covers the assistant message beneath it with no way to read
+that text while the dialog is open (open issue, re-run ledger item 10) — so "in the same
+reply, ahead of the device" is not reliably visible even outside focus mode.
+
+**(c) holds on the four surfaces the delta touched** — each carries zero parts and a pointer
+(count under lens 2). **(d) does not hold — DR2.** The child floor's *Always stop and
+confirm* bullet still restates the account as three parts, and it is the copy every child
+stamps.
+
+**Moving the section below the worked example** (DA6, ruled — a non-goal as a decision):
+what a first-time reader meets first is unchanged (the calibration practice), and "the visual
+axis above" still resolves upward. The one effect worth naming: the italic *Bearing* line
+that closed the file is now mid-file, and the ruling-ask section reads as an appendix after
+a closing note (DR5, note).
+
+### Lens 2 — correctness & quality
+
+Diffed `2b21a56` on the five paths. **Parts of the duty counted on every surface at HEAD:**
+
+| Surface | Parts stated | Form |
+| --- | --- | --- |
+| `00-APEX.md` list (lines 135–147) | 5, plus the verified-basis paragraph | canonical |
+| `00-APEX.md` withholding clause (line 106) | 0 — "the account owed below" | pointer |
+| `AUTONOMY.md` floor stop (lines 112–117) | 0 — "the full account that section owes" | pointer |
+| `REVIEW.md` rule 3 (line 139) | 0 — "the apex's full plain-language account" | pointer |
+| `COMMUNICATION.md` opener (lines 207–209) | 0 — link + section name | pointer |
+| `COMMUNICATION.md` *Make the ask valuable* | principal's verbatim quote + scaling clause | see DR3 |
+| `PROPAGATION.md` floor, *Asking* bullet | options with pros/cons/impacts/risks/costs, recommendation, verified basis | aligned 2026-09-18 (`a134270`) |
+| `PROPAGATION.md` floor, *Always stop and confirm* | **3** — what, why, likely impact | **second original — DR2** |
+| `docs/build/templates/CLAUDE.md` stamp | identical to the two rows above | same |
+| `session-open-prompt.md` line 99 | none — names the device only | principal's own prompt |
+| `skills/` | no statement of the duty found | — |
+
+Pointers resolve: `linkscan` clean in both the brief's form and the registry's whole-tree
+form; the section names quoted on AUTONOMY and REVIEW are the exact heading; COMMUNICATION
+quotes the heading's first clause only, which still resolves by eye and by `blockscan`'s map
+(`--check` clean at HEAD). No remaining text on the four pointer-ised surfaces contradicts the
+apex. **EVIDENCE line:** it names no scanner, so it still describes a runnable shape at HEAD;
+its grounding instance is archived (DR4, with the reproduction in the ledger). **Quality:** the
+landing commit widened `00-APEX.md:106` to 87 columns and the gate passed it — a scanner
+false negative, not a doctrine defect (DR6).
+
+### Lens 3 — completeness / harvest
+
+Every other statement of the duty's parts, found by `coldsweep` over 510 files: the two
+child-floor copies (DR2) and nothing else — `skills/` carries none, the session-open prompt
+names the device without the account (DR7). **Where a neighbour's edit changed the reading:**
+`1d19729` (2026-08-22, `160/290`) wrote the *Asking* bullet into the child floor one day
+before this delta; the delta then reworded the canonical section without moving that
+bullet, so for 26 days the propagating copy carried the wording DA1 overturned —
+`320/250` filed it from a child on 2026-08-26 and `a134270` (2026-09-18) aligned it.
+`blockscan` did not exist at the landing; run at `2b21a56` with a map trimmed to the bullets
+that existed then, it reports three co-change violations for this commit (ledger item 7) —
+two on the *asking* bullet, since fixed, and one on *stop-and-confirm*, still open. `c38b7da`
+(2026-09-20) touched REVIEW's preamble and AUTONOMY's who-acts list only; neither changed the
+reading of a pointer-ised sentence. Harvest: the delta's own paragraph carries a content rule
+the apex lacks (DR3). One surface the doctrine's examples do not name: a spawned subagent has
+no device at all (DR8).
+
+### Lens 4 — security & privacy
+
+`/security-review` is **discharged by grounds**: it reads the session's pending diff, which in
+this shared worktree is other passes' unstaged drafts, and this is a landed-delta review of
+markdown — a file class its exclusions bar anyway, so its clean pass would be definitionally
+empty. Hand read, design altitude: the delta is doctrine prose with no code surface, input
+path or trust boundary; OWASP catalogue classes do not apply. Privacy: the folded verbatim
+calibration is one sentence of the principal's working preference with a spelling slip
+preserved — no health, family, financial or estate detail; the worked example names the
+*categories* it scrubbed (health, workload, household), not their content, under ADR 0005's
+named-worked-example framing; `leakscan` clean on both planes (structural + local on the
+hook plane). Nothing personal travels. The one privacy-adjacent observation is mine, not
+the delta's: the exposure disclosed under provenance.
+
+## Findings
+
+### DR1 · MAJOR — the corrected rule conditions on a display mode the session cannot observe
+
+`COMMUNICATION.md` lines 229–234: "in the plain case it goes in the same reply, ahead of the
+device — and where the harness's display mode hides mid-turn text … it goes in a completed
+message *before* the ask". The two child-floor copies (`PROPAGATION.md` lines 133–137 and
+the template) carry the same conditional. Verified: focus mode shows only the final
+response and persists across sessions; the model has no way to read that state at runtime
+(ledger 9–10). A session cannot pick the branch, so the printed default is the plain case,
+and under focus mode the plain case is the extracted-approval shape DA1 rated MAJOR. The
+fix removed a false claim and installed an unevaluable condition. Two aggravations: the
+"completed message" branch is a two-turn ask the text does not describe, and in the VS Code
+extension the dialog covers the preceding message even in normal mode (open issue, ledger
+10), so the plain case is unreliable there too.
+
+*Counsel (the principal's call):* make the completed-message form the rule whenever the
+account outgrows the device — "the account goes in a completed message; the device goes in
+the next turn and carries the choice alone" — and drop the display-mode condition, or keep
+it only as the *reason*. State the two-turn cost plainly. Land the same wording in the
+child block and the template in the same commit (`blockscan` now guards that pairing on the
+CI plane).
+
+### DR2 · MODERATE — the child floor's *stop-and-confirm* bullet still restates the duty as three parts
+
+`PROPAGATION.md` floor region, *Always stop and confirm*: "the agent puts what it wants to
+do, why, and the likely impact in plain language first … an approval given without that
+account is open to challenge"; `docs/build/templates/CLAUDE.md` stamps the identical text.
+That is the what/why/impact spelling this delta retired from `00-APEX.md` and `AUTONOMY.md`,
+surviving on the one surface copied into every child. DA2's class — a duty's sibling
+spellings drifting when one is corrected — for the fourth time, and `320/250` (2026-08-26)
+already showed the propagating copy is where this class is hardest to see. `blockscan` run
+against the landing commit flags exactly this bullet (ledger 7).
+
+*Counsel:* pointer-ise it the way the four in-repo surfaces were — "give the full account
+`00-APEX.md` owes, in plain language, first" — in both files, one commit.
+
+### DR3 · minor — a content rule lives on the channel surface, with no apex counterpart
+
+*Make the ask valuable*: "the account scales to the decision, so a small clarification owes
+only the parts that exist for it". That is a rule about what an ask must **contain** — the
+half the section's own opener assigns to the apex — and the apex has no scaling clause (its
+only narrowing is "where only one option is real, say that"). A reader of the apex alone owes
+five parts on every clarification; a reader of COMMUNICATION owes a scaled set. Reconcilable
+("parts that exist"), so minor, but it is a second original on the surface the delta was
+meant to clear of them. The same paragraph's "outranks a tool's own more conservative usage
+notes" is a precedence claim about an unnamed note I could not verify — the device is absent
+in this harness (DR8).
+
+*Counsel:* keep the verbatim quote here; move the scaling sentence to the tail of the apex
+list, or point at it from there.
+
+### DR4 · note — the EVIDENCE measurement line survives as a shape; its grounding instrument is archived
+
+`EVIDENCE.md` lines 187–189 name no scanner, so the line is true at HEAD for any `--json`
+scanner. Reproduced verbatim with the archived engine (ledger 8): totals 163 → 167 (+4), and
+the per-finding view shows −1/+5 — one finding *swapped* on the rewritten APEX clause, which
+the total hides. The line's claim demonstrated on the commit that wrote it. Two notes: the
+line carries no grounding pointer, against EVIDENCE's own convention; and the delta's new
+paragraphs added three long sentences and one bracketed aside under the scanner that was
+then warn-only — a gate nobody read, which is why it was removed on 2026-09-18.
+
+### DR5 · note — the *Bearing* closer is now mid-file
+
+After DA6 the italic "*Bearing: the live instance is …*" line sits between the worked
+example and the ruling-ask section, so the section reads as an appendix after a closing
+note. Placement is ruled; this records the reading effect only.
+
+### DR6 · note — wrapscan passed the delta's 87-column line (tool finding, off-delta)
+
+`00-APEX.md:106` is 87 columns since `2b21a56`; `wrapscan` reports clean at a limit of 85
+because `_is_single_unbreakable_token_overflow` exempts any line whose final *word* straddles
+the limit — here the "unbreakable token" is "the". A raw count finds 50 lines over 85
+columns on the scoped surface with zero reported (ledger 11); part of that is headings and
+marker padding, the single-token share not separated. Points at `tools/wrapscan.py`.
+
+### DR7 · note — the queue-run prompt names the device without the account
+
+`docs/method/session-open/session-open-prompt.md:99` (the principal's own prompt) says to
+ask "with AskUserQuestion … mid-turn or between turns". A mid-turn ask is DA1's shape under
+focus mode. Not a defect of this delta — the principal's text — recorded so he knows the
+last thing a queue-run session reads before working carries no reached-him clause. The
+`pathscan` advisory on that file's line 15 predates this delta and is unrelated.
+
+### DR8 · note — a spawned subagent has no device at all
+
+Observed in this session: `AskUserQuestion` is not among my tools (ToolSearch found nothing).
+The doctrine's "where no device exists" examples name a non-interactive run and a scheduled
+batch; the subagent — the commonest shape under queue-run orchestration — is unnamed, and its
+ask travels *through an orchestrator*, which neither branch describes.
+
+## Overall
+
+**PASS-WITH-FINDINGS — 1 MAJOR / 1 MODERATE / 1 minor / 5 note.** Per `REVIEW.md` § *Applying
+decisions to doctrine*, a MAJOR keeps the cycle open: the application of DR1 earns its own
+queued pointer. Nothing applied here; every finding is the principal's to decide.
+
+## Re-run ledger
+
+1. `python3 tools/floor.py --plane hook --root <worktree>` — exit 0; advisories: sizescan ×2,
+   pointerscan ×1 (`160/380`, not this delta), pathscan ×1 (session-open prompt line 15).
+2. `python3 tools/floor.py --plane ci --root <worktree>` — exit 0; the same advisories plus
+   secretscan's 22 entropy advisories, none on the delta's paths; leakscan structural-only on
+   this plane by design.
+3. `python3 tools/linkscan.py --root <worktree> docs/method` — clean, exit 0; registry form
+   (`--root <worktree> <worktree>`) — clean, 4 allow-markers, exit 0.
+4. `python3 tools/pathscan.py --root <worktree> docs/method` — 1 finding (session-open prompt
+   line 15), exit 1; registry form with `--warn` and the six scoped paths — same finding,
+   exit 0. Not on the delta.
+5. `python3 tools/coldsweep.py <pattern> --root <worktree> --also-exclude ×3` — eleven
+   patterns (duty parts, device names, "focus mode", "reached", "on screen while",
+   "per-finding"); 347 files barred each run. Hits summarised under lens 2's table.
+6. `python3 tools/blockscan.py --check --warn --root <worktree>` — clean at HEAD, exit 0.
+7. `blockscan --against 2b21a56^ --warn` in the scratch clone at `2b21a56`, HEAD's tool, map
+   trimmed to the five bullets that existed then (the sixth, added 2026-08-24, made the
+   untrimmed map exit 2 config-stale) — 3 co-change violations: `asking` ×2 (APEX section,
+   COMMUNICATION section), `stop-and-confirm` ×1. Same tool at `a134270` — clean.
+8. EVIDENCE line reproduced verbatim: archived engine from tag `archive/plainscan-2026-09-18`
+   over the five paths at `2b21a56^` and `2b21a56` (control: all five snapshot files differ;
+   a first attempt compared a directory with itself and was discarded) — 163 → 167 findings;
+   per-finding −1/+5, keyed on path, rule and excerpt.
+9. Harness documentation, primary: `code.claude.com/docs/en/fullscreen.md` — `/focus` "shows
+   only your last prompt, a one-line summary of tool calls with edit diffstats, and the final
+   response … persists across sessions".
+10. `gh api repos/anthropics/claude-code/issues/{95368,50894,67509}` — all exist: #95368 open
+    (expose focus-mode state to the statusline — i.e. not exposed); #50894 closed (focus mode
+    hides substantive assistant messages); #67509 open (VS Code dialog covers the assistant
+    message it refers to).
+11. `awk` count of >85-column non-code, non-table lines on wrapscan's scoped surface — 50;
+    `wrapscan` on `00-APEX.md` alone and on the isolated line 106 — clean, exit 0.
+12. `ToolSearch select:AskUserQuestion` in this session — no such tool.
+13. Not run: the full Python suite (no code changed in the delta; the floor's selftests and
+    scanners were exercised instead).
+
+## Follow-up checklist
+
+- [ ] DR1 — ruling on the reached-him wording: unconditional completed-message form, or keep
+      the branch with the two-turn cost stated; apply to `COMMUNICATION.md`, the child block
+      and the template in one commit; queue the rule-4 pointer for the application.
+- [ ] DR2 — pointer-ise the *stop-and-confirm* account clause in `PROPAGATION.md` and the
+      template.
+- [ ] DR3 — decide the home of the scaling clause.
+- [ ] DR4 — add a grounding pointer to the EVIDENCE line, or leave as a shape (note).
+- [ ] DR6 — board item on `tools/wrapscan.py`'s final-word exemption.
+- [ ] DR7, DR8 — the principal's awareness; a one-clause addition for the subagent case if
+      he wants it.
+- [ ] Reviewer's own: the rule-2 sweep breach above is a fourth instance of the class REVIEW
+      rule 2 counts; it belongs in the record even though `coldsweep` was available and the
+      brief said to use it.
