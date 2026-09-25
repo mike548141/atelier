@@ -24,3 +24,15 @@
       code here rather than by a probe on every one of the eleven.
       *Intent record:*
       [`../../sessions/2026-09-20-1053-queue-run-the-loose-ends.md`](../../sessions/2026-09-20-1053-queue-run-the-loose-ends.md).
+      `[~]` **CLAIMED 2026-09-25 0705 UTC for the review run** (wt:
+      review-batch-0925; brief
+      `docs/reviews/2026-09-25-0715-linked-worktree-skip-cold.md`) by a
+      Mike-opened `claude-fable-5-1` session ("Please deliver all fable
+      dependent work, and work that would be best delivered using fable") that
+      authored none of the delta. Shape, disclosed per rule 4:
+      reviewer-plus-orchestrator, both seats Fable — this session writes the
+      refs-only brief and holds the `.deferred.md` sibling outside the worktree;
+      a fresh Fable subagent it spawns forms every finding and severity. The
+      sibling, the intent record and prior verdicts stay unopened by the
+      reviewer until its phase-1 findings are committed. Provenance and exposure
+      go in the verdict.

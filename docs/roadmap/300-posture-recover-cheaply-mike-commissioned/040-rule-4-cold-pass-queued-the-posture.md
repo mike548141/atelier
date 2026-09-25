@@ -51,3 +51,15 @@
         `115/120` (the fold note).
         *Intent record:* § *Rulings — 2026-08-23* in
         `docs/reviews/2026-08-17-1321-posture-cold.md`.
+      `[~]` **CLAIMED 2026-09-25 0705 UTC for the review run** (wt:
+      review-batch-0925; brief
+      `docs/reviews/2026-09-25-0715-pt-rulings-applied-cold.md`) by a
+      Mike-opened `claude-fable-5-1` session ("Please deliver all fable
+      dependent work, and work that would be best delivered using fable") that
+      authored none of the delta. Shape, disclosed per rule 4:
+      reviewer-plus-orchestrator, both seats Fable — this session writes the
+      refs-only brief and holds the `.deferred.md` sibling outside the worktree;
+      a fresh Fable subagent it spawns forms every finding and severity. The
+      sibling, the intent record and prior verdicts stay unopened by the
+      reviewer until its phase-1 findings are committed. Provenance and exposure
+      go in the verdict.
