@@ -153,3 +153,76 @@
         That is an argument for the tool, not against the practice; the two
         are not alternatives, and the practice is what holds until the tool
         exists.
+
+      ## CORROBORATION — a third child, and the first PUBLIC one (2026-09-24)
+
+      Filed from `faves` via § *Pointing up*, as a corroboration of this item
+      and deliberately **not** as a new one. Both obstacles above reproduce
+      here exactly; nothing in this section contradicts the filing. What a
+      third instance adds is that the child is **public**, so its floor copy
+      is the one strangers read, and that it re-stamped **verbatim** under its
+      owner's ruling of 2026-09-21 — so this is an instance of a child that
+      did everything the doctrine asks and still cannot be checked.
+
+      **Obstacle 1, measured.** `stampscan --root <child> CLAUDE.md` →
+      `CLAUDE.md:3 [missing-source] canonical source does not resolve:
+      docs/method/PROPAGATION.md`, **exit 2**.
+
+      **Obstacle 2, measured.** Staging a copy of the canonical
+      `PROPAGATION.md` beside the child's `CLAUDE.md` so `source=` *does*
+      resolve gives **exit 1, drift** — first offending line the filled pin,
+      where the child carries `atelier@<sha>` and canonical carries `<SHA>`.
+      Confirms the report's central claim: **a fully compliant child reds by
+      construction**, and no fix to obstacle 1 touches it.
+
+      ### The new half — the DEFAULT SCOPE never reaches a child's floor
+
+      `stampscan`'s own `--help`: *"paths: files/dirs to scan for stamped
+      blocks (**default: `<root>/docs` if present**, else the whole root)"*.
+      A child's stamped floor lives in **`CLAUDE.md` at the repo root**, which
+      `docs/` does not contain. So the bare invocation — the one an adopter is
+      most likely to type, and the one a hook would carry — **never scans the
+      stamped floor at all.**
+
+      🛑 **And the shape this takes is worse than silence, which is why it is
+      worth a paragraph rather than a line.** Measured on `faves` at
+      `3db205f`, 2026-09-24:
+
+      | invocation | scans `CLAUDE.md`? | verdict |
+      |---|---|---|
+      | `stampscan --root <child>` | **no** — zero mentions in the output | ✗ 1 config error, **exit 2** |
+      | `stampscan --root <child> CLAUDE.md` | yes | ✗ 1 config error, **exit 2** |
+
+      The two exit codes are identical and the two messages look alike, but
+      the bare run's finding is in
+      `docs/decisions/0120-….md:59` — **an ADR that merely QUOTES the
+      `stamp:begin` marker syntax while explaining this very problem.** So the
+      bare run returns a stampscan verdict that is not about the floor, and a
+      reader has no way to tell from the exit code that the floor was never
+      looked at.
+
+      ⚠️ **The child's own first write-up of this got it wrong, and the
+      correction is part of the report.** It recorded the bare run as printing
+      *"✓ stampscan clean — no stamped blocks found", exit 0* — the
+      decorative-guard shape. **That does not reproduce.** It would have been
+      true for a child whose `docs/` contains no stamped-marker syntax at all,
+      and it stopped being true the moment the child wrote an ADR *about*
+      stamping. The finding is real; the symptom is contingent on whether
+      anything under `docs/` happens to mention a marker — which is a worse
+      property than a stable false pass, because the same defect presents two
+      different ways in two children.
+
+      ### One observation offered, not recommended
+
+      The two obstacles have **different owners**. Obstacle 1 is a tool fix
+      (`020/110`'s child-side resolution). Obstacle 2 is a **doctrine**
+      question — what does a stamped copy *mean* when the house itself
+      instructs the child to reword four of its lines? A placeholder-aware
+      comparison is one answer; canonical text carrying no placeholders is
+      another; declaring substitution a permitted difference class is a third.
+      Consideration is atelier's; the child offers no preference.
+
+      **Evidence, all re-run by the reporting session rather than taken from
+      its worker's report:** `stampscan --help`, both invocations above with
+      their exit codes captured separately from any pipe, and a grep of the
+      bare run's output for `CLAUDE.md` returning zero.
