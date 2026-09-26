@@ -27,3 +27,20 @@
       sibling, the intent record and prior verdicts stay unopened by the
       reviewer until its phase-1 findings are committed. Provenance and exposure
       go in the verdict.
+      - [ ] 🛑 **The pass RAN 2026-09-26 and the cycle stays OPEN — a MAJOR
+            stands.** The rule-4 Fable cold pass (taker: a fresh
+            `claude-fable-5-1` subagent under a `claude-fable-5-1` orchestrator
+            — the shape disclosed in the claim above; the sibling, the intent
+            record and prior verdicts opened only after the phase-1 findings
+            were committed) returned FAIL — 1 MAJOR · 2 MODERATE · 6 minor · 6
+            note (RC4 re-rated minor at reconcile) →
+            [`2026-09-25-0715-0918-registry-code-cold.md`](../../reviews/2026-09-25-0715-0918-registry-code-cold.md)
+            (sibling folded in and deleted). RC1 (MAJOR): conflictscan --staged
+            and leakscan --staged parse only a literal +++ b/ header, so under
+            diff.noprefix or diff.mnemonicPrefix they attribute no lines, scan
+            nothing and exit 0 — live-proven green on a staged conflict marker
+            and a staged email; one-line fix with --src-prefix/--dst-prefix,
+            pinned by a scratch-repo test; RC2 (MODERATE): the narrowed URL
+            exclusion still admits a token in userinfo, which neither version
+            weighed; RC15 (note) formed at reconcile. Findings are the
+            principal's to decide (rule 3); nothing was applied.
