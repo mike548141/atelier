@@ -34,3 +34,21 @@
       sibling, the intent record and prior verdicts stay unopened by the
       reviewer until its phase-1 findings are committed. Provenance and exposure
       go in the verdict.
+      - [ ] 🎯 **The pass RAN 2026-09-26; the cycle CLOSES on this pass (no
+            MAJOR) — what remains is decided into the backlog.** The rule-4
+            Fable cold pass (taker: a fresh `claude-fable-5-1` subagent under a
+            `claude-fable-5-1` orchestrator — the shape disclosed in the claim
+            above; the sibling, the intent record and prior verdicts opened only
+            after the phase-1 findings were committed) returned
+            PASS-WITH-FINDINGS — 0 MAJOR · 4 MODERATE · 5 minor · 2 note →
+            [`2026-09-25-0715-secretscan-stream-pathscan-roots-cold.md`](../../reviews/2026-09-25-0715-secretscan-stream-pathscan-roots-cold.md)
+            (sibling folded in and deleted). SP2 (MODERATE): _scan_file now
+            swallows OSError, so a file the scanner cannot read exits 0 clean
+            where the pre-delta code failed loudly, and the comment claiming it
+            matches the old behaviour is false — recorded by the run as design
+            on the strength of that comment; SP1/SP3 (MODERATE): every rule is
+            found at every window seam (100 cases, 0 misses) but the seam dedupe
+            double-lists the first overlap and collapses distinct same-shape
+            tokens, and the cap is charged before dedupe and allow subtraction;
+            SP11 (minor) formed at reconcile. Findings are the principal's to
+            decide (rule 3); nothing was applied.
