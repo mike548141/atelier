@@ -440,6 +440,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [The floor's visibility bullet reads as a one-time check, and may](roadmap/320-child-filed-findings-via-pointing-up/380-the-floor-s-public-tense-and-whether-it-should-name-the-root.md)
 - [ ] 🎯 [MISSING HOUSE RULE — a check in the same shell invocation as the](roadmap/320-child-filed-findings-via-pointing-up/390-missing-house-rule-a-check-in-the-same-invocation-as-the-act-is-not-a-check.md)
 - [ ] 🔎 [CANDIDATE HOUSE RULE — verify a figure correction in the RENDERED](roadmap/320-child-filed-findings-via-pointing-up/400-count-survivors-in-the-rendered-artefact-not-the-source-you-edited.md)
+- [ ] 🔎 [A wrapped claim does not project into the index, a ] in a title](roadmap/320-child-filed-findings-via-pointing-up/410-a-wrapped-claim-does-not-project-and-two-more-from-a-child-s-cold-passes.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
