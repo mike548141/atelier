@@ -1,4 +1,4 @@
-- [~] (claimed 2026-09-20-2239, wt: at-harness-walk; FUNDED by Mike 2026-09-20; part 1 of 3 DONE, parts 2–3 owed) **Single-source the scanner harness, re-grounded on Mike's own upstream
+- [ ] (FUNDED by Mike 2026-09-20; part 1 of 3 DONE 2026-09-20, parts 2–3 owed and unclaimed) **Single-source the scanner harness, re-grounded on Mike's own upstream
       test.** The finding already exists: GA1, a minor raised by the 2026-08-05
       guards-and-allowances cold pass and still awaiting its ruling round. It
       reads that the reason-required loader is ten per-scanner copies, *"the
@@ -146,4 +146,24 @@
       a bare substring), part 3 the exit/reporting contract and namespaced
       finding identifiers.
       Rule-4 `⏳` at `160/420` covers part 1; this run may not take it.
+      ---
+      🧹 **Claim released 2026-09-27 — orphan, put away on the evidence not a
+      timer** (`CONCURRENCY.md` § *Claiming work* — Orphan claims). The
+      2026-09-20 run that held it ended after part 1 landed; there is no
+      worktree, no branch and no commit in flight, and parts 2–3 were never
+      started. So the honest state is **open and unclaimed**, not claimed —
+      the same correction a previous sitting made to `320/010` on 2026-09-20,
+      which is the second instance of a run leaving `[~]` on an item it had
+      only partly delivered.
+      ⚠️ **Read part 1's landing alongside `160/420`'s verdict before taking
+      part 2.** The FW cold pass closed with no MAJOR but three MODERATEs that
+      bear directly on this item's premise — in particular **FW1**: the shared
+      walk's `is_file()` probe raises `PermissionError` on an unreadable child
+      directory on every Python before 3.14, so all eleven guards abort with a
+      traceback instead of a report. Pre-existing in each copy, but
+      single-sourcing made it uniform, which is this item's thesis cutting the
+      other way: one place to fix, and one place to be wrong in eleven guards
+      at once. **FW3** is the sharper one for this item's own justification —
+      no test imports `filewalk`, so "the next correction is cheaper" holds for
+      the code and not yet for the proof.
 
