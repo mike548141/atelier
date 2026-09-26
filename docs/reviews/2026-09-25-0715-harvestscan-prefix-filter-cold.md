@@ -454,3 +454,141 @@ Harness files, all under `<scratchpad>/HP/`: `hp_property.py`, `hp_realtree_timi
 - [ ] HP4 — derive `k` by the check's own comparison, or pin the identity in selftest.
 - [ ] HP5 — `--end-of-options` / rev validation in the three git helpers; sweep the class.
 - [ ] HP6, HP7 — refresh the recorded figures where they are restated.
+
+### Reconcile — phase 2, written 2026-09-26 UTC
+
+Phase 1 committed unrevised at `4a6a11a`; the sibling's text released by the orchestrator
+by message. Opened after that point: the queue pointer `160/400`, board items `020/400`
+and `115/080`, the 2026-09-20 session record in full, the `020/400` passage of the
+2026-09-19 record (lines 312–331), the body of `0bc4093`, and `docs/SESSIONS.md` (grep
+only). Nothing in phase 1 is revised; where the record changes my view, it says so here.
+
+**Where the run's account actually is.** The pointer's intent record — the 2026-09-20
+session record — carries no account of this delta at all: it names `020/400` as claimed
+(line 15) and then has sections only for `020/390`, the cross-session exchange and PR #83,
+with no close block and no index entry in `docs/SESSIONS.md` for the run. The run's account
+of the rewrite and of the replay exists only in the board item's FIXED block and in the
+bodies of `ea8d50b` and `0bc4093`. That is what the notes below reconcile against.
+
+**Against the pointer's four lens hints.**
+
+1. *Exactness — the off-by-one in `k`, and the inlined formula vs `similarity()`.*
+   Anticipated, and it is the whole of what the record checked. Phase 1 confirms it: no
+   off-by-one at `0.6` for any `n` (A, 100 000 values), no divergence between the two
+   spellings on any input (B, C, D, the real tree, the replay). **HP4** is the half the
+   seed did not name — the identity is a property of the constant, so the guard is one
+   constant edit from silently wrong. Not anticipated in the record; stands, minor.
+2. *The `115/080` drift shape — two spellings of the containment formula kept equal by
+   hand.* Anticipated by the pointer; not addressed in the FIXED block. Phase 1 recorded
+   the fact (two spellings, both in one file, agreeing) and formed no finding; on
+   reflection the seed is right that nothing in the *suite* pins the equality — my block
+   D does, in scratch. Formed at reconcile: **HP8**, below.
+3. *`BoundedTime` grounded in the class or fitted to the machine.* Anticipated as a
+   question; the FIXED block answers with the proved-to-fail figure (79.5 s against the
+   15 s ceiling on the old code), which is a real regression-test property and which I
+   reproduced in kind (152.6 s here). **HP2** stands: the ceilings are still seconds on
+   one machine, and the count that would pin the class was measured but not asserted.
+4. *The 749-commit replay's strength, given 9 in scope.* Anticipated; the FIXED block
+   itself discloses "9 in scope, 4 fired, 16 items, same SHAs", so the 749 was never
+   presented as 749 exercised. **HP6** adds what the record does not say: the 749 does not
+   reproduce at the landing commit (764), and all nine in-scope commits are pre-split
+   with two watched files each, which is why the replay could corroborate exactness and
+   still say nothing about **HP1**. Stands, note.
+
+**Against the quadratic item `020/400` and the run's declaration.**
+
+- **HP1 — not anticipated anywhere, and the record sharpens it rather than softening it.**
+  The item's own *why it matters now* is the split board: "this repo's own board is past
+  470 index lines and the fleet's boards grow with it". Its *owed* line asks that "the
+  common case is linear and the worst case is bounded by bucket size". The FIXED block
+  reports 500 and 5 000 items on a synthetic *single-file* repo, the merge subject
+  declares the pass "linear, exactly", and `0bc4093` closes the item on "5 000 items
+  from 217.6 s to 6.5 s". Nowhere — item, FIXED block, commit bodies — is the per-file
+  call shape of `scan()` on the split board mentioned, measured, or tested. So the run
+  declared linear on the one shape it measured, and the shape the item was funded for
+  (the board it names) was never run. Not raising the ceiling, not sampling, not
+  capping — none of the item's three forbidden shortcuts was taken; the miss is
+  structural, and it is the miss the item's own motivation would have caught. **MAJOR
+  stands; the cycle stays open on it.**
+- **HP3 — partially anticipated: the phrase is the item's.** "Worst case is bounded by
+  bucket size" is the commissioning item's own wording, carried into the FIXED block
+  ("which is what this item asked for") and the README. The item's sense is defensible
+  (bucket, not corpus, is the unit); the README's added "not by the corpus size" is the
+  half the adversarial probe falsifies. Stands, minor; the fix is a clause, and the item
+  is where the clause originates.
+- **HP5, HP7 — not anticipated; pre-existing; stand as recorded.**
+- The FIXED block's "35 pre-existing tests pass untouched" and `0bc4093`'s "1 531
+  passing" are consistent with my 37 (35 + 2) and 1 564 at HEAD.
+
+**Findings formed at reconcile** (numbered on from HP7; marked as such):
+
+- **HP8 — note, formed at reconcile.** *The inlined containment is a second spelling of
+  `similarity()` with nothing in the suite pinning the two equal.* Two lines, one file,
+  documented — the smallest instance of the `115/080` shape, and the `MustFire` /
+  `MustNotFire` cases would catch a divergence at their specific points but not in
+  general. *Counsel:* give `similarity()` a set-accepting core (`containment(sa, sb)`)
+  that `vanished()` calls, so there is one formula; or pin the equality in `_selftest`
+  over random sets. Either closes the seed's question rather than leaving it a habit.
+- **HP9 — minor, formed at reconcile.** *The pointer's intent record carries no intent.*
+  The 2026-09-20 record has no `020/400` section, no close block and no `SESSIONS.md`
+  entry; the run's narrative of why and of what it measured lives only in the board
+  item and two commit bodies. Rule 4's handoff puts the evaluative account in the
+  intent record so the reviewer's deferral discipline governs when it is read; here
+  the deferred material the sibling pointed to was empty on this item, and the account
+  the reviewer needed at reconcile had to be found by grep. Also the shape
+  `CONCURRENCY.md` names as a possibly interrupted session (last commit, then silence,
+  no close entry). *Counsel:* close the 2026-09-20 record with its `020/400`, `010/020`
+  and `020/160` accounts, or re-point the pointer's intent-record ref at the board item.
+
+### Overall, restated
+
+**PASS-WITH-FINDINGS — 1 MAJOR, 0 MODERATE, 5 minor, 3 note** (phase 1: HP1–HP7;
+reconcile adds HP8 note, HP9 minor). Exactness holds; the bounded-time claim is false on
+the shape the item was funded for; the cycle stays open on HP1.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — harvestscan-prefix-filter (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-09-25-0715-harvestscan-prefix-filter-cold.md`
+under REVIEW.md rule 1's split; held by the orchestrator outside the worktree.
+Folded into the brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md` — the run's
+  account of the rewrite and its replay. **Partially read** (not this section).
+- `docs/roadmap/020-*/400-*.md` — the quadratic finding that commissioned it.
+  **Not opened.**
+
+## Prior verdicts and barred items on the same surfaces
+
+- `docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md` (⚠️ head and tail
+  read by the brief-writer; the `020/400` section not opened)
+- the board items `docs/roadmap/020-*/400-*.md`, `docs/roadmap/115-*/080-*.md`
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+**The lenses that matter most here, and the first is the whole review:**
+whether the exactness claim actually holds. The rewrite rests on a
+pigeonhole argument — that a survivor reaching `SURVIVAL_SIMILARITY`
+containment must intersect the fingerprint's rarest `n − k + 1` words —
+and on `similarity()` being `|A ∩ B| / |A|` over sets, which the fast
+path recomputes inline rather than calling. Both were checked here and
+both should be checked again independently, because an off-by-one in
+`k = ceil(0.6n)` or a divergence between the inlined formula and
+`similarity()`'s would silently drop true positives in a **warn-only**
+guard, where nothing downstream would ever notice. Then: whether
+duplicating the containment formula rather than calling `similarity()`
+is a drift hazard of exactly the `115/080` shape, given the two must now
+stay equal by hand; whether the `BoundedTime` ceilings are grounded in
+the work's class rather than fitted to the machine that measured them;
+and whether the 749-commit replay's byte-identical result is as strong
+as it reads, given only 9 commits were in scope under the gate.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+None beyond the pointer's own.
