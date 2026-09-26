@@ -32,3 +32,19 @@
       spawns forms every finding and severity. The sibling, the intent record
       and prior verdicts stay unopened by the reviewer until its phase-1
       findings are committed. Provenance and exposure go in the verdict.
+      - [ ] 🎯 **The pass RAN 2026-09-26; the cycle CLOSES on this pass (no
+            MAJOR) — what remains is decided into the backlog.** The rule-4
+            Fable cold pass (taker: a fresh `claude-fable-5-1` subagent under a
+            `claude-fable-5-1` orchestrator — the shape disclosed in the claim
+            above; the sibling, the intent record and prior verdicts opened only
+            after the phase-1 findings were committed) returned
+            PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE · 6 minor · 2 note →
+            [`2026-09-25-0715-tier-ruling-cold.md`](../../reviews/2026-09-25-0715-tier-ruling-cold.md)
+            (sibling folded in and deleted). TR1 (MODERATE): both run-open
+            surfaces tell an off-tier session to leave every ⏳ item, omitting
+            rule 4's 2026-08-17 clause that lets an off-tier orchestrator run
+            the pass with an on-tier reviewer — a re-raise of RR5 and the 320
+            item's option (b); TR11 (minor) formed at reconcile. Neither of the
+            principal's verbatim fragments is narrowed or widened by the applied
+            wording. Findings are the principal's to decide (rule 3); nothing
+            was applied.

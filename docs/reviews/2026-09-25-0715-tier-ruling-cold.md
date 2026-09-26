@@ -445,3 +445,166 @@ The MODERATEs are all placement-and-wording of the two surviving stops.
 - [ ] TR9 — rewrap on next touch. TR10 — `pathscan:allow` marker, any session.
 - [ ] Phase 2: reconcile against the sibling once released; restate the overall
   line.
+
+### Reconcile
+
+Written 2026-09-26 (UTC), after phase 1 was committed unrevised (`60225c1`, merged
+`1109d49`) and the sibling's text was released by the orchestrator. Phase-1 text
+above is unchanged. Opened at this step: the 320 hand-up item, the 330 pointer,
+`docs/sessions/2026-09-19-0038-queue-run-the-morning-rulings.md` in full, and —
+because rule 2 says reconcile against prior verdicts and the sibling named none —
+a grep across `docs/reviews/` for the surfaces, which found four earlier passes
+on them; I read the relevant passages of the 2026-08-17 ruling-round application
+verdict (RR5 and its provenance section) and its board item `160/230`, and
+grep-hit lines only of the other three. The other `2026-09-25-0715-*` brief the
+grep listed stayed closed (house rule for this batch).
+
+**The pointer's lens hint** — *any route by which a session still asks the
+principal which tier to use; do the two surviving stops read as clearly as the
+rule they replaced?* First half: **no route found** (lens 3 sweep; the intent
+record's own run stated its tier and did not ask, under the 2026-09-16 default,
+before the delta landed). Second half: **no — less clearly, in three places**,
+and that is what TR1, TR2 and TR6 are. The old rule was one sentence at one
+place plus the prompt; the new one is two stops spread over four surfaces with
+uneven coverage (both stops at CONCURRENCY *Tier at open* and skill step 1; one
+in the prompt; the tier half absent from the two ⏳ paragraphs). The hint
+anticipated the *class* as a lens; neither record tests placement, and the
+record's summary line ("two stops survive") asserts it.
+
+**Seeded question 1 — the two verbatim fragments.** *"the cheapest model that
+can do a good job is the one that should be used for every job including
+orchestration"*: quoted verbatim on ECONOMICS, CONCURRENCY and the skill;
+paraphrased on AUTONOMY as "cheapest that does a good job, for every job"
+(drops "including orchestration" — fair, AUTONOMY's context is authority, not
+seats). ECONOMICS line 40 expands "every job" to "building, orchestrating a
+queue run, fan-out, and the judgement calls in between" — an enumeration, not a
+widening. Line 47's gloss adds "at this job's stakes" — a gloss, not a
+narrowing. *"fable reviews remain fable reviews"*: applied as "a cold review
+pass runs on the tier the principal names, currently Fable" — *remain* maps to
+the pre-existing 2026-08-04 bar, so the scope is preserved, not widened to all
+reviews and not narrowed. The one place the mapping wobbles is TR5: REVIEW's
+intro kept its pre-existing category ("irreversible or structural work") and
+newly cited rule 4 for it — a conflation of two categories that both predate
+the ruling, not a change to what "remains" Fable. **Neither fragment is
+narrowed or widened by the applied wording.**
+
+**Per finding:**
+
+- **TR1 (MODERATE) — anticipated twice, ruled never; stands, heavier.** The
+  320 item's option (b) is exactly this shape — *state and proceed* "when the
+  orchestrator sends every review and structural call to a capable-tier
+  sub-agent" — and the ruling "goes under" the options rather than rejecting
+  it. Earlier still, RR5 (2026-08-17 application pass, minor) named the same
+  overload: ECONOMICS's orchestrator, the skill's "do not proceed off-tier",
+  and rule 4's "may be off-tier" orchestrator, with a batched run of cold
+  passes meeting all three; it counselled one clause naming which orchestrator
+  the permission is for. RR5 is listed unruled on `160/230`. The delta rewrote
+  both surfaces RR5 named and carried the omission forward. So TR1 re-raises
+  an open point with new evidence, and its severity is right: the ruling
+  makes the cheap shape the default, and the two run-open surfaces still
+  steer a cheaper orchestrator away from it.
+- **TR2 (MODERATE) — not anticipated; stands.** The record is explicit that
+  the prompt "carried the defect too" and that a sweep confined to
+  `docs/method/` "would have read clean" — the author knew the prompt was a
+  live surface. The record then claims two stops survive; the prompt states
+  one, with *only*. The gap is between the record's claim and the prompt's
+  text. Not ruled.
+- **TR3 (MODERATE) — not anticipated; stands, and the record grounds it.** The
+  ruling was applied with no test attached to "can do a good job". The record
+  is itself the evidence for the downstream net doing the work the wording
+  does not name: the run's orchestrator-seat misjudgements were caught after
+  the fact and outside the seat — the pushed floor red three times on a
+  harness the orchestrator had declared sound; a worker refused a dispatch
+  instruction on evidence; blockscan's blind spot was found by probing. Every
+  one is an observable of the kind TR3's counsel asks the wording to name.
+  Not ruled.
+- **TR4 (minor) — not anticipated; stands.** The 320 item's applied list says
+  "the role-check sentence" in ECONOMICS was edited; it was, and kept the term
+  CONCURRENCY dropped. Not ruled.
+- **TR5 (minor) — not anticipated; stands.** The 320 item's intent for
+  REVIEW.md was a one-for-one substitution ("review reads as the *named* tier,
+  not 'most capable available'"); the citation to rule 4 for the intro's
+  category is the extra. Not ruled; the principal's call on which category the
+  2026-08-04 ruling meant is still the ask.
+- **TR6 (minor) — anticipated as a lens; stands at its weight.** Checked
+  whether the tier check lives at the item instead: the 330 pointer carries
+  "*Tier:* Fable … checked at selection", and the record's run read Fable off
+  the pointers at open. But `tools/pointerscan.py` *permits* a tier line as a
+  lawful field; it does not require one. So the tier stop reaches the
+  selection point only where a pointer's author wrote it. TR6's counsel is
+  unchanged.
+- **TR7 (minor) — not anticipated; stands.** No record touches the "expensive
+  tier" residue.
+- **TR8 (minor) — reframed by the intent record; weight drops to a wording
+  note.** The 320 item names the fourth link of the chain as "the estate's own
+  records naming which model is above which" and calls it "an inference, and
+  no single text says it"; the record says all four links are cut. That link
+  is person-local and outside atelier, so the reinterpretation clause at
+  ECONOMICS line 47 is the only treatment atelier *can* give it — my phase-1
+  reading that it "reinterprets nothing" is true of this tree and misses its
+  intended target. Revised counsel: keep the clause but name its target —
+  records outside this repo and children reading an older pin — instead of
+  "anywhere in this house", which reads as licence for the phrase to return.
+- **TR9, TR10 (notes) — untouched by any record.**
+
+**Compliance confirmed at reconcile:** the 330 pointer landed in `c38b7da`
+itself (landing = queuing, rule 4); the pointer is refs-only plus a lens hint,
+which pointerscan treats as lawful routing; the 320 item carries its review
+line; the record says the author may not take the pass, and did not.
+
+**Formed at reconcile:**
+
+**TR11 — minor.** The session record (§ *320/320*) states "All four are cut
+(`c38b7da`)" for a chain whose fourth link the 320 item itself describes as an
+inference held in person-local records, not a text — `c38b7da` touches
+atelier only. The record rounds a three-link sweep plus a reinterpretation
+clause into a four-link cut, and does not say the clause is the fourth link's
+treatment. Records are append-only, so the remedy is a dated correction line
+at the record's tail, not an edit.
+*Counsel:* one line — "the fourth link is outside this repo; ECONOMICS line 47
+is its treatment" — appended to the record, stamped from `date -u`.
+
+**Overall, restated:** **PASS-WITH-FINDINGS** — 0 MAJOR · 3 MODERATE (TR1–TR3)
+· 6 minor (TR4–TR8, TR11) · 2 notes (TR9–TR10). Phase-1 severities stand;
+TR8's counsel is revised above and TR1 gains RR5 as a prior unruled instance.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — tier-ruling (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-09-25-0715-tier-ruling-cold.md` under REVIEW.md
+rule 1's split; held by the orchestrator outside the worktree. Folded into the
+brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/sessions/2026-09-19-0038-queue-run-the-morning-rulings.md` — the run's
+  account of the ruling and its application. **Not opened by the brief-writer**;
+  its `docs/SESSIONS.md` index entry was read at onramp.
+- `docs/roadmap/320-*/320-*.md` — the hand-up item that carried the principal's
+  verbatim ruling. **Not opened.**
+
+## Prior verdicts and barred items on the same surfaces
+
+- `docs/sessions/2026-09-19-0038-queue-run-the-morning-rulings.md`
+- the board item `docs/roadmap/320-*/320-*.md` (the hand-up that carried the
+  ruling ask) and any `docs/roadmap/*/…tier-question-back-to-the-principal.md`
+  item
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+**The lens that matters most here:** whether the rewording left any
+route by which a session still asks the principal which tier to use, and
+whether the two surviving stops (work outruns the model; a `⏳` pass's
+named tier) read as clearly as the rule they replaced.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+1. The brief-writer holds a machine-local note of the principal's ruling in two
+   verbatim fragments: *"the cheapest model that can do a good job is the one
+   that should be used for every job including orchestration"* and *"fable
+   reviews remain fable reviews"*. At reconcile, compare the applied wording
+   against those fragments for narrowing or widening.
