@@ -543,3 +543,137 @@ OOM kill); recorded so no one repeats them to confirm CC4 — the numbers are th
 - [ ] CC9 — standing-credential list entry (private registry); pointer line in the ADR.
 - [ ] CC10 — `ccmail --auth` on this machine (Mike); re-check `--status`.
 - [ ] CC11 — tests for the write path and the no-id part; `request()` timeout.
+
+### Reconcile (phase 2, written 2026-09-26T21:09Z)
+
+**What was opened, in order, after phase 1 was committed (`aa0916c`):** the sibling's
+text (by message from the orchestrator); the intent record
+`docs/sessions/2026-09-09-0005-…`; the three `docs/SESSIONS.md` index entries of
+2026-09-09; the queue pointer 210/130; and — beyond the sibling's named record, disclosed
+— `docs/sessions/2026-09-09-0257-the-credential-that-already-existed.md`, because the
+index entry showed it is the session that made the re-ruling and the "proven end to end"
+claim the second half of the delta rests on. No prior *verdict* on these surfaces exists
+to open. Nothing above phase 1's divider or in phase 1 has been revised.
+
+**The seeded question — cache clearing and lifetime: tool's gap, docs' gap, or design?**
+Neither intent record mentions the cache's permissions, lifetime or clearing; the 0005
+record's controls are paths-not-content, the repo guard and sanitised names, and stop
+there. So it is an **unconsidered gap, not a design choice** — the tool's first (modes,
+no clear, no retention), the docs' second (nothing to point a session at). Phase-1 CC2
+already carries it, and the reconcile sharpens the evidence: the 0257 record says six
+PDFs were fetched from a real message during testing on 2026-09-09, and the live cache at
+review time holds one message directory and six files dated 2026-09-09 (counts only).
+The test run's attachments have sat world-readable for seventeen days because nothing
+says they should not. The brief-writer's own instructions noticing the gap is a second
+independent sighting; CC2 stands at MODERATE.
+
+**Author claim 1 — "the live Gmail round trip is proven end to end via the delegation
+route."** Holds **as recorded on 2026-09-09**: the 0257 record lists `--status` live,
+six PDFs fetched and two rendered and read. It does **not** hold at review time —
+`--status` on 2026-09-26 found the delegation route lapsed and no fallback minted (CC10).
+The same record predicted the lapse ("a cloud login that lapses — six transcript hits
+since July") and said the stored grant "is still owed", then closed with "nothing for
+the mail path — it works now, with no setup". The proof was true for its hour; the
+record's own reasoning said it would not stay true, and the one action that would have
+kept it true was not listed as owed. → CC13 below.
+
+**Author claim 2 — "five defects, found by reading and by an adversarial selftest, none
+by use."** Holds as recorded: `metadataHeaders`, the `unzipList` buffer and the consent
+timeout by re-reading; PNG-for-every-flag and `-aa` by the selftest. The records' class
+statement — every defect "in a thin layer between this code and something else" — is
+also borne out by this pass in the direction the author feared: CC5 (filesystem: symlink
+following, `realpath`), CC6 (filesystem: name collisions, `ENAMETOOLONG`), CC7(a) (the
+argument parser) and CC4 (the OS renderer's memory) all sit in exactly those layers, and
+all were found **by use** — driving the write path and the renderer with hostile inputs
+— which is the method the records say the build did not apply. The 0005 record calls
+the read's timing "luck rather than method"; this pass is the method.
+
+**Per finding — anticipated by the records, or not:**
+
+- **CC1 — stands, MAJOR; the records strengthen it.** The 0005 record recorded the case
+  against domain-wide as two facts: "it can also be pointed at **any mailbox in the
+  domain** and its key is a file." The 0257 record overturned the ruling on the second
+  fact alone ("false here, and it was the deciding sentence") and never revisits the
+  first. It also states the "stores nothing" claim in its strongest form ("adds **no**
+  credential to the estate at all") without naming the cloud CLI's user credential that
+  the route signs with — while quoting the principal's constraint that secrets live in
+  a secret store. So the re-briefing that corrected one wrong fact left the other half
+  of the original objection unweighed, and introduced an unstated dependency. Both are
+  what CC1 says; the principal's re-ruling is the remedy and it is his.
+- **CC2 — not anticipated** (above). Stands.
+- **CC3 — not anticipated.** The nearest thing to an enumeration is the 0005 record's
+  three-way access decision (personal grant / domain-wide / app password), which weighs
+  *how much access* and not *who attacks the surface*. Stands.
+- **CC4 — not anticipated.** The 0257 record's `ccpdf` section names the flag table
+  and the filename convention; hostile PDFs are not considered. Stands.
+- **CC5 — partly anticipated.** Traversal was ("a careless or hostile name cannot
+  escape the directory"); symlinks, a symlinked `--dest`, and the message id were not.
+  Stands.
+- **CC6 — not anticipated.** Stands.
+- **CC7 — not anticipated.** On (e): the 0005 record says 25 tests, the 0257 record
+  says 26; the pointer and the brief inherited the stale 25. Stands.
+- **CC8 — not anticipated.** Stands.
+- **CC9 — partly anticipated.** Both records say the Keychain grant, once minted, is
+  registered in the private registry from a session in that repo. The 0257 record then
+  reasons "the delegation route creates no credential, so there is nothing new to
+  register" — the same framing CC1 tests. `SECRETS.md`'s standing-credential list is
+  not raised. Stands.
+- **CC10 — anticipated as a possibility, then declared not owed.** See claim 1. Stands.
+- **CC11 — the test gaps are anticipated and stated** (network unmocked; the two fixes
+  "not easily testable"); the specific items in CC11 are not. Stands as a note.
+- **CC12 — consistent with the records.** The 0257 record discloses `pdftoppm` was
+  installed during testing and leaves keeping it to the principal; it is still installed
+  and passes the selftest.
+
+**CC13 — minor (record accuracy; formed at reconcile).** (a) The 0257 record's body
+says the stored-grant fallback "is still owed" and predicts the delegation lapse; its
+*Owed* section says "nothing for the mail path — it works now, with no setup". The
+close-out contradicts the body, and the state CC10 found is the one the body foresaw.
+(b) The queue pointer names the 0005 record as the sole intent record; the delta it
+widened on 2026-09-09 (the two-route resolver, the plaintext-store removal, `ccpdf`) is
+accounted for only in the 0257 record, which the pointer does not link. A taker
+following the pointer's refs would reconcile the second half of the delta against a
+record that predates it. *Counsel:* an Owed section lists every "still owed" the body
+names; a widened pointer links the record that accounts for the widening.
+
+**Overall, restated: PASS-WITH-FINDINGS — 1 MAJOR (CC1), 4 MODERATE (CC2, CC3, CC4,
+CC10), 6 minor (CC5–CC9, CC13), 2 notes (CC11, CC12).** Nothing in the records lowers
+a severity; CC1 and CC2 are strengthened by them. The cycle stays open on CC1.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — ccmail-build (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-09-25-0715-ccmail-build-cold.md` under REVIEW.md
+rule 1's split; held by the orchestrator outside the worktree. Folded into the
+brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/sessions/2026-09-09-0005-ccmail-the-attachment-a-session-could-name-but-not-open.md`
+  — the build session's account, including the five defects it found and how.
+  **Not opened by the brief-writer.**
+- The queue pointer carries two claims the author addressed to the taker: that
+  the live Gmail round trip is proven end to end via the delegation route, and
+  that the build's five defects were found by reading and by an adversarial
+  selftest, none by use. **Read by the brief-writer** (they sit in the pointer).
+  They are the author's claims; the reviewer tests them.
+
+## Prior verdicts and barred items on the same surfaces
+
+- `docs/sessions/2026-09-09-0005-ccmail-the-attachment-a-session-could-name-but-not-open.md`
+- the `docs/SESSIONS.md` entries of 2026-09-09
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+The pointer carries no lens paragraph — refs only.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+1. The brief-writer's machine-local instructions say `ccmail <id> --get all`
+   writes attachments to `~/.cache/ccmail/` and prints paths. Nothing there says
+   how the cache is cleared or how long it keeps personal attachments. Is that
+   the tool's gap, the docs' gap, or by design?

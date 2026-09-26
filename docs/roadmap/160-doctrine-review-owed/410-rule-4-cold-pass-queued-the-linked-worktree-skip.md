@@ -36,3 +36,20 @@
       sibling, the intent record and prior verdicts stay unopened by the
       reviewer until its phase-1 findings are committed. Provenance and exposure
       go in the verdict.
+      - [ ] 🎯 **The pass RAN 2026-09-26; the cycle CLOSES on this pass (no
+            MAJOR) — what remains is decided into the backlog.** The rule-4
+            Fable cold pass (taker: a fresh `claude-fable-5-1` subagent under a
+            `claude-fable-5-1` orchestrator — the shape disclosed in the claim
+            above; the sibling, the intent record and prior verdicts opened only
+            after the phase-1 findings were committed) returned
+            PASS-WITH-FINDINGS — 0 MAJOR · 2 MODERATE · 5 minor · 3 note →
+            [`2026-09-25-0715-linked-worktree-skip-cold.md`](../../reviews/2026-09-25-0715-linked-worktree-skip-cold.md)
+            (sibling folded in and deleted). LW1 (MODERATE): reviewscan never
+            got the skip — its rglob walks into a nested harness worktree and,
+            on the hook plane, blocks the primary session's commit on a sibling
+            worktree's uncommitted draft brief (probed live); LW2 (MODERATE):
+            the same hole in coldsweep, whose rule-2 bar is computed on the
+            relative path so a nested worktree's copy of a barred verdict prints
+            as an ordinary hit; LW10 (minor) formed at reconcile — the file-ness
+            cost was never put to the principal. Findings are the principal's to
+            decide (rule 3); nothing was applied.
