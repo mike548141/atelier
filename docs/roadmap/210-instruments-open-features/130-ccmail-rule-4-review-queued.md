@@ -33,3 +33,23 @@
       spawns forms every finding and severity. The sibling, the intent record
       and prior verdicts stay unopened by the reviewer until its phase-1
       findings are committed. Provenance and exposure go in the verdict.
+      - [ ] 🛑 **The pass RAN 2026-09-26 and the cycle stays OPEN — a MAJOR
+            stands.** The rule-4 Fable cold pass (taker: a fresh
+            `claude-fable-5-1` subagent under a `claude-fable-5-1` orchestrator
+            — the shape disclosed in the claim above; the sibling, the intent
+            record and prior verdicts opened only after the phase-1 findings
+            were committed) returned PASS-WITH-FINDINGS — 1 MAJOR · 4 MODERATE ·
+            6 minor · 2 note →
+            [`2026-09-25-0715-ccmail-build-cold.md`](../../reviews/2026-09-25-0715-ccmail-build-cold.md)
+            (sibling folded in and deleted). CC1 (MAJOR, rule 3): the
+            delegation-first ruling omits two facts — keylessness does not
+            remove the any-mailbox-in-the-domain blast radius, and
+            stores-nothing is true of the tool but the route runs on the cloud
+            CLI's plaintext refresh-token file, the class the same ruling
+            banned; neither route's compromised-session exposure is stated
+            anywhere; CC10 (MODERATE): at review time both routes were down, so
+            no session could open an attachment; CC2 strengthened at reconcile
+            (the 2026-09-09 test-run attachments are still in the live cache);
+            CC13 (minor) formed at reconcile. Nothing from the mailbox enters
+            the verdict. Findings are the principal's to decide (rule 3);
+            nothing was applied.
