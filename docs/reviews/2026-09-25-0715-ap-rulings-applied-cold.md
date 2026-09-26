@@ -532,3 +532,170 @@ AR3. Nothing here contests a ruling; everything is application.
 - [ ] AR6 — comment on `github.repository`; `--end-of-options` in `signscan`; warn-scope comment
 - [ ] AR7 — brief template's re-run line uses the `discover` shape; environment note corrected
 - [ ] Phase 2 — reconcile against the sibling and the AP/EP intent records
+
+### Reconcile — after receiving the sibling (2026-09-26, 14:17 UTC)
+
+Phase 1 was committed unrevised at `d1ac3e0` before the sibling's text reached me.
+Opened only then: `docs/reviews/2026-08-09-0824-ep-application-cold.md` in full from
+its findings down (AP1–AP8, its reconcile, and § *Rulings — 2026-08-23*);
+`docs/reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md` § EP7 and its
+reconciliation; `docs/ROADMAP-DONE.md` § *The EP application*; and the queue
+pointer `160/090`. Nothing else was opened; `docs/SESSIONS.md` and `docs/sessions/`
+stayed closed. Nothing above is revised. One exposure to own: the `140/*` board
+items I read in phase 1 carry the principal's 2026-08-09 ruling in the board's
+words, so my phase-1 reading of the boundary was not formed blind to that ruling;
+it was formed blind to the AP verdict and to the 2026-08-23 rulings text, which
+is the bar rule 2 sets.
+
+#### Per finding, against the intent records
+
+- **AR1 — not anticipated; the falsity originates upstream of the application.**
+  The AP verdict's AP1 (read 2026-08-09, roughly 08:24 UTC) said "no branch
+  protection and no ruleset on `main`" — **true when read**: the ruleset's
+  `created_at` is 2026-08-09T09:58Z, after the verdict. The board (`140/README`,
+  2026-08-15) records the principal ruling that same day for "ruleset with owner
+  bypass, plus a machine-check", chosen *over* re-wording, and applied the same
+  day — the live ruleset matches that description exactly (id, three rules,
+  admin bypass). Then § *Rulings — 2026-08-23* records AP1 ruled again, solo,
+  as "re-word to the truth … branch protection is not enabled (it would break
+  the direct-to-main workflow … the trade-off was put to him plainly)". So the
+  2026-08-23 ruling's stated premise was already false by fourteen days and
+  already contradicted by the board by eight. The application then wrote that
+  premise into the ADR faithfully. **AR1 stands at MAJOR unchanged**; its
+  attribution moves from the applier to the briefing of the 2026-08-23 round
+  (AR8, below). The rulings text's "AP1 [fixed — truth amendment appended]"
+  does not survive the close rule ("a finding is only closed when its fix is
+  itself verified"): the amendment was not verified against the live state,
+  and `140/020` (2026-08-15) already said "AP1 therefore stays OPEN".
+- **AR2 — half anticipated.** AP1's counsel asked for exactly the row that
+  landed ("a parent-row check reading branch-protection/ruleset state, red
+  when absent"); the row does that. The bypass was not in AP1's counsel, but
+  `140/020` names it as the control's limit ("never against compromise of his
+  own token") — known on the board, not carried into the row's wording or its
+  read. AR2 stands, MODERATE.
+- **AR3 — the ruling's letter was applied; its class was not.** AP4 was
+  narrowly "a set-but-missing `ATELIER_LEAKSCAN_TERMS` silently falls back";
+  the ruling was "an explicitly-set terms path that does not resolve is an
+  error". The code matches that letter. The empty-file case is EP3's class —
+  the EP cycle's MAJOR on the hook plane's "full cover" being asserted, whose
+  fix pinned "no list blocks rather than half scanning"; an empty list is half
+  scanning with the list present. Lineage EP3 → AP4 → AR3; AR3 stands,
+  MODERATE, and the lineage strengthens the counsel to pin all four shapes.
+- **AR4 — not anticipated by either verdict.** Neither pass noticed the ADR's
+  header line; both wrote rulings beneath a record that still says its review
+  is owed. Stands, minor.
+- **AR5 — a quiet narrowing of the ruling.** AP2 was ruled "queue the test
+  that pins the **three** lists"; the delivered test pins two and excludes the
+  ADR on a citation that does not exist. `020/340`'s close note discloses the
+  exclusion honestly, which is why this stays minor rather than rising; the
+  ground given for it should be a real one.
+- **AR6 — AP3 applied as ruled; residues new.** The AP verdict's AP7 (the awk
+  parse of `--list`) is the nearest sibling and is a different surface.
+  Stands, note.
+- **AR7 — the same class as the AP verdict's AP8**: brief framing that did not
+  survive contact (there the suite-count claim; here the re-run invocation and
+  the environment note). Two passes in a row; the brief template's re-run
+  block is the place to fix it. Stands, note.
+
+#### The seeded questions
+
+1. *Does the amendment close EP7's counsel, or only AP1's instance?* Neither,
+   at HEAD. EP7's counsel was to convert an accepted risk into a **named,
+   checkable** control. The 2026-08-06 clause named one; AP1 found it not in
+   force; the amendment re-named the controls in force — wrongly (AR1) — and
+   funded the check. The check now exists (`floorfleet`, 2026-09-18), so
+   "checkable" is met for `deletion` and `non_fast_forward`; "named" truthfully
+   is not, and the bypass is neither named in the ADR nor read by the check
+   (AR2). EP7 closes when a true statement of the control and a check that
+   reads what the statement names exist together; today each half is
+   somewhere else.
+2. *Does the `floorfleet` row check the control the amendment describes, and
+   does the amendment know the row exists?* It checks a **different** one. The
+   amendment says `main` has no ruleset and branch protection is deliberately
+   not enabled, so the control the amendment describes is the absence of one;
+   the row checks the 2026-08-09 ruling's control (a ruleset blocking
+   force-push and deletion) and reads the amendment only to justify treating
+   `required_signatures` as informational. The amendment does not know the row
+   exists (it predates it and was never re-amended); the row knows the
+   amendment and inherits its stale sentence. `140/010` "Noticed" the mismatch
+   at the build and routed it to `140/020`; the pointer under review lists
+   `115/180` as queued, and it is closed BUILT under `140/010`.
+
+#### Finding formed at reconcile
+
+### AR8 — MAJOR (governance) — the 2026-08-23 AP1 ruling was taken on a stale briefing
+
+Formed at reconcile, from the records only. Two rulings on AP1 stand in the
+record fourteen days apart: 2026-08-09, "ruleset with owner bypass, plus a
+machine-check" — chosen over re-wording — applied the same day (`140/README`,
+corroborated by the live ruleset's creation time and shape); and 2026-08-23,
+"re-word to the truth … branch protection is not enabled", whose recorded
+premise the first ruling had already falsified. The apex conditions a ruling
+on the principal being informed, and makes an under-briefed ruling
+challengeable **on the briefing, by re-briefing and asking again** — never
+void. The transcript of the 2026-08-23 round is outside my scope, so I cannot
+say what was said aloud; what the record shows is a second ruling written down
+without the first, and an ADR amendment that carries the second's premise.
+Severity MAJOR because the mechanism is the apex's own informed-ruling
+condition, on the estate's widest-blast-radius clause.
+
+*Counsel, principal's call:* re-brief AP1 once, with the live read beside it
+— the ruleset as it is, the bypass and what it does and does not cover, the
+row as built — and ask which ruling stands; then the second amendment AR1
+counsels records the answer. Recurrence-prevention: a ruling round's ask on a
+finding that has a prior ruling on the board names that ruling in the ask.
+
+#### Overall, restated
+
+**FAIL — 2 MAJOR · 2 MODERATE · 2 minor · 2 note** (AR8 added at reconcile;
+no phase-1 severity moved). The AP1 application does not reproduce and the
+ruling it applied was under-briefed; AP2–AP4 hold with the residue recorded.
+
+- [ ] AR8 — principal re-briefed on AP1 with the live read; the standing ruling
+      named; the ask template names prior rulings
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — ap-rulings-applied (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-09-25-0715-ap-rulings-applied-cold.md` under
+REVIEW.md rule 1's split; held by the orchestrator outside the worktree. Folded
+into the brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/reviews/2026-08-09-0824-ep-application-cold.md` § *Rulings — 2026-08-23*
+  — the principal's dispositions AP1–AP8 in the wording he selected. **Not
+  opened by the brief-writer.**
+- `docs/reviews/2026-08-09-0824-ep-application-cold.md` (the AP verdict above
+  the rulings) and
+  `docs/reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md` (EP) —
+  the two prior verdicts on these surfaces. **Not opened by the brief-writer.**
+- `docs/roadmap/160-doctrine-review-owed/090-…` — the board item, which carries
+  the author's summary of AP1 and AP2. **Read by the brief-writer** (it is the
+  queue pointer); its summary is the author's, and the reviewer forms its own
+  reading first.
+
+## Prior verdicts and barred items on the same surfaces
+
+- the verdict `docs/reviews/2026-08-09-0824-ep-application-cold.md` (the AP
+  verdict and its § *Rulings — 2026-08-23*, which is this delta's intent record)
+- `docs/reviews/2026-07-26-2215-adr0008-enforcement-propagation-cold.md` (the EP
+  verdict beneath it)
+- `docs/ROADMAP-DONE.md` § *The EP application*
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+The pointer carries no lens paragraph — refs only.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+1. AP1 was classified at reconcile as a descendant of EP7. Does the amendment
+   close EP7's counsel, or only AP1's instance of it?
+2. The pointer lists `115/180` ("machine-check the main-branch boundary") as
+   queued. At HEAD, `floorfleet` gained a `main`-ruleset row on 2026-09-18. Does
+   that row *check the control the amendment describes*, or a different one —
+   and does the amendment know the row exists?
