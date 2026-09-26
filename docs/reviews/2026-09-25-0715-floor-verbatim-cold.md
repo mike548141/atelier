@@ -450,3 +450,133 @@ so this pass says nothing about the whole-suite-on-3.9 claim in `f0ddeb0`'s body
 - [ ] FV9 — catch `ValueError` in `_main`.
 - [ ] Phase 2 reconcile against the sibling and the barred items (`115/030`, `115/200`,
       `115/210`, the inversion-class item) — FV3 and FV8 may already be carried there.
+
+### Reconcile — phase 2, written 2026-09-26 14:18 UTC
+
+Phase 1 was committed unrevised (`d1ac3e0`, merged to `main` in `1109d49`) before the
+sibling's text reached me. Opened after that, in this order: the sibling (by message); the
+queue pointer `160/340`; `115/030` (the ruling, and the board's stampscan-inversion item —
+they are the same file); `115/200`; the intent record
+`docs/sessions/2026-09-19-0038-queue-run-the-morning-rulings.md` in full. Nothing above
+this heading has been edited.
+
+**The seeded question, answered.** The pointer's one lens hint asks whether the pair match
+is the right identity — "a renamed doctrine file or a second copy of the region would slip
+the check" — and whether the doctrine reads consistently about who may compress what.
+
+- *A renamed doctrine file* (atelier renaming `PROPAGATION.md`): not probed by hand, but the
+  code path is unambiguous — `resolve_source` returns `missing-source` before
+  `_is_floor_block` is ever reached, exit 2, `--warn` or not. That direction fails loud. The
+  slip is the **opposite** direction, which the hint did not name: the *child* respelling
+  the source string (FV1). The hint's own phrase "stamps the same `source=` string" is the
+  assumption FV1 falsifies — the string is what the child writes, not what the file is.
+- *A second copy of the region*: two stamps in one child evaluate independently and slip
+  nothing (`v07`, `v08`); a second copy of the region *as a different source* — the child's
+  own `docs/FLOOR.md` — does slip (`v12`, FV5's evidence). A second `floor:begin` pair
+  inside `PROPAGATION.md` itself was not probed; the module header names it first-wins.
+- *Who may compress what*: consistent at HEAD (lens 1); FV4 and FV5 are the residue.
+
+**Per finding, against the intent records.**
+
+- **FV1** (spelling identity) — *not anticipated.* `115/030`'s DONE line and the session
+  record both praise the worker's pair match for *not* sweeping in generic `floor`
+  regions; neither asks whether the source half of the pair is a string or a file. This is
+  the board's own **inversion class returning through a side door**: `115/030` defines the
+  defect as "declares a narrowing and drops lines, passes clean" — `v03`–`v06` are exactly
+  that, one `./` away. The ruling closed it for the literal spelling only.
+- **FV2** (allow marker; footer recommends the excuse) — *not anticipated* anywhere: the
+  ruling was offered against two alternatives (declared deletions visible-but-red; a
+  renamed `omits=`), and `stampscan:allow:` is in none of the three. Not ruled, not
+  rejected — undecided, so the principal's call stands as counselled.
+- **FV3** (nothing automated reaches a child) — *partly anticipated, and the anticipated
+  half is undelivered.* `115/030`'s owed list (3) reads "the fleet — a child whose floor
+  copy is shortened goes red once … which `pins`/`floorfleet` should show before it
+  surprises anyone"; its DONE line records (3) as a one-off read-only measurement, and
+  `pins`/`floorfleet` carry no stamp check (grep, phase 1). `115/200` premises its red on
+  "its next `stampscan` run", a run the child cannot make (`missing-source`, or nothing
+  scanned under the default `docs/` scope); it then closed correctly on the child's own
+  report via `320/360` / PR #83 — the child complied because a *person* measured, not
+  because a scanner ran. FV3 stands; its severity is unchanged.
+- **FV4** (three/four boundaries) — *not anticipated*; the DONE line says "gains a fourth
+  boundary" and the heading was not swept.
+- **FV5** (name vs pair; `narrow=` on a byte-equal copy) — *created at landing, visible in
+  the record.* `115/030`'s DONE line states the scanner keys on the pair **and**, in the
+  same paragraph, that "`narrow=` on a `region=floor` stamp reds" — the name-keyed
+  sentence was carried into PROPAGATION.md verbatim. The record holds both wordings
+  without noticing they differ. Not ruled either way.
+- **FV6** (child-facing surfaces) — *not anticipated*; the owed list named doctrine,
+  scanner and fleet, no harvest of README / template comment / SKILL.
+- **FV7** (stricter than word-for-word) — *consistent with the ruling.* The session record:
+  "Mike ruled the doctrine rather than the scanner … the exact-copy comparison becomes
+  simply correct". A re-wrap redding is that ruling working; FV7 stays a note.
+- **FV8** (at which SHA) — *anticipated in intent, absent in text.* `115/030` (3) and
+  `115/200` both say "at its next pin bump", so the pin semantic was in the author's head;
+  bullet 4 does not carry it. Counsel unchanged.
+- **FV9**, **FV10** — *not anticipated*; not in scope of the ruling. Notes stand.
+
+**The inversion item itself.** `115/030` documents the pre-ruling inversion (compression
+red, declared deletion green). Phase 1 formed its view from the code first and found no
+inversion in the *exit-code* sense; on the *doctrine* sense the item defines, the
+inversion is closed for the exact pair and open for any respelling of it (FV1) and for the
+allow marker (FV2). The item's `[x]` is right for what it owed; FV1/FV2 are the residue,
+not a reopening.
+
+**The session record's suite-on-3.9 claim** ("red on this machine, green in CI",
+`115/210`): my 3.9 run of `tools.test_stampscan` was green (90 tests) — the three named
+modules are evidently not among stampscan's imports, or were fixed between 2026-09-19 and
+2026-09-25. I ran the full suite once, on 3.14 only, so this pass neither confirms nor
+denies the whole-suite claim; recorded as unverified, not as contradicted.
+
+**Finding formed at reconcile.**
+
+**FV11 — minor (formed at reconcile) — the fleet leg of the ruling is recorded as done
+on a measurement, while its own wording owes an instrument.** `115/030` owed (3) as
+"`pins`/`floorfleet` should show [a shortened floor] before it surprises anyone" and closed
+it with a one-off read-only count; `115/200` closed on the child's report. Both closures
+are honest about what happened, but the instrument the owed line named does not exist,
+and nothing on the board I opened carries it. Counsel: either a `floorfleet` column that
+runs the mixed-root stampscan over each child's `CLAUDE.md` against the atelier checkout
+at the child's pin (which is ST3's pin-aware story, and would discharge FV3 and FV8
+together), or a line in `115/030` saying the fleet leg is a hand check until ST3 lands —
+the principal's pick.
+
+**Overall, restated:** **PASS-WITH-FINDINGS — 0 MAJOR, 3 MODERATE (FV1–FV3), 4 minor
+(FV4–FV6, FV11), 4 note (FV7–FV10).** No MAJOR; the cycle closes on this pass per
+REVIEW.md.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — floor-verbatim (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-09-25-0715-floor-verbatim-cold.md` under REVIEW.md
+rule 1's split; held by the orchestrator outside the worktree. Folded into the
+brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/sessions/2026-09-19-0038-queue-run-the-morning-rulings.md` — the run's
+  account. **Not opened by the brief-writer**; index entry read at onramp.
+- `docs/roadmap/115-*/030-*.md` — the principal's ruling that the floor never
+  narrows. **Not opened.**
+
+## Prior verdicts and barred items on the same surfaces
+
+- `docs/sessions/2026-09-19-0038-queue-run-the-morning-rulings.md`
+- the board items `docs/roadmap/115-*/030-*.md` and any
+  `docs/roadmap/*/…stampscan-s-verdicts-are-inverted…`,
+  `…narrowed-floor-and-now-reds…` items
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+**The lens that matters most here:** whether the pair match is the
+right identity for "the floor" — a child repo stamps the same
+`source=` string, but a renamed doctrine file or a second copy of the
+region would slip the check — and whether the doctrine now reads
+consistently about who may compress what.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+None beyond the pointer's own.
