@@ -528,3 +528,145 @@ either direction, and disclosed here; it ran alone and was clean.
 - [ ] SP7 — hand to `160/370`'s pass: pathscan's whole-file read at HEAD
 - [ ] SP8 — README pathscan section names `roots.pathscan`
 - [ ] SP9, SP10 — one sentence each beside the constants they describe
+
+### Reconcile (phase 2, 2026-09-26 UTC)
+
+Opened after phase 1 was committed at `4a6a11a`, in this order: the sibling's text (by
+message from the orchestrator), the queue pointer `160/350`, the board items `020/370`,
+`320/010` and `020/380`, the run's account `docs/sessions/2026-09-19-0038-queue-run-the-
+morning-rulings.md` (lines 100–146 and 225–340, plus a grep of the whole file), and
+`docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md` (grep only — its hits are
+worktree and placeholder matters; it carries no passage on this delta). One further
+delta-adjacent read, prompted by `020/380`'s tick for `conflictscan`:
+`tools/conflictscan.py` lines 497–503 and 657–662, and `tools/leakscan.py` lines 877–881.
+Phase-1 text above is unrevised.
+
+**Against the pointer's three lens hints.**
+
+1. *Can the 64 KiB overlap drop a match no realistic pattern exceeds?* No — the 100-case
+   matrix found zero misses, and the enumeration under lens 1 explains why the open-ended
+   rules fragment-match rather than vanish. The hint's premise (JWT the one open-ended
+   named shape) is narrower than the code: `github-token`, `slack-token`, `slack-webhook`,
+   `gcp-oauth-secret`, `stripe-key`, `anthropic-key`, `openai-key`, `sendgrid-key` and
+   `basic-auth-url` are open-ended too, and all behave the same way at a cut. The cost the
+   hint did not ask about is the duplicate listing (SP1).
+2. *Can the cap change a verdict rather than only a listing?* The exit code, no — every
+   cap fixture blocked when it should. The tally and the listing, yes (SP3): 35,000 for
+   30,000; a block reported on 50,001 allow-marked lines with nothing to show; a real
+   blocking finding counted but unlocatable behind 50,000 advisory ones. The run's account
+   says "a capped run still blocks correctly", which is true and is the half it tested.
+3. *Do per-line `scan_lines` calls preserve every cross-line behaviour?* There were no
+   cross-line behaviours to lose — dedupe and allow scoping were per line already — and the
+   854-file comparison confirms equivalence for ordinary lines. For a line over 4 MiB the
+   per-line semantics become per-window (SP9); the hint did not reach that case.
+
+**Against the intent records, finding by finding.**
+
+- **SP1 (seam dedupe)** — *not anticipated.* The account and `020/370`'s close both say a
+  straddling token "is whole in one of the two" windows, which is true, and stop there;
+  neither mentions the first-seam seed or the excerpt-keyed set. The docstring's own
+  "would otherwise be reported twice" is the only place the duplicate risk was named, and
+  it names the mechanism that fails. Stands.
+- **SP2 (unreadable file is a clean pass)** — *known to the run and accepted on a false
+  premise.* `020/380` ticks `conflictscan` with "its exit-2-on-OSError contract kept", and
+  `conflictscan.py`'s docstring says outright "UNLIKE `secretscan._scan_file`, an `OSError`
+  here is NOT swallowed … a broken scan is not a pass". So the run saw the two guards
+  diverge and recorded secretscan's swallow as the design, resting on the comment I
+  falsified in phase 1 — the pre-delta scanner never *guarded* the read, so it *raised*
+  (exit 1, loud), and "matches the old behaviour" is the opposite of what it did. The
+  same comment and the same swallow sit in `leakscan.py` at HEAD (`160/370`'s delta).
+  Neither record rejects the exit-2 contract for secretscan on any ground; it was never
+  weighed. Stands, and the recurrence-prevention step is the one already named.
+- **SP3 (cap before subtraction, shared budget)** — *not anticipated.* The account's
+  "counted, never dropped … exit code and advisory total read those counters" describes
+  what the counters do, not what they count; nothing in either record considers a
+  suppressed or deduped hit reaching the counter, or advisory volume starving the
+  blocking listing. `020/370`'s owed item 2 asked that a limit's output "says what was
+  skipped and why — never silently"; the over-cap line does say so, but for SP3(ii) what
+  it says is false. Stands.
+- **SP4 (no direct test)** — *partly anticipated, then rounded up.* `020/370` owed "a
+  regression test that fails when peak memory … exceeds a bound" — delivered as
+  `BoundedMemory`, exactly as owed. The account's "output equivalence verified, not
+  asserted: old and new … over `docs/` and `tools/` … identical" is a real check and is
+  the same check I re-ran over 854 files; but neither tree contains a 4 MiB line or 50,000
+  findings, so the seam and the cap were never exercised by it, and the docstring's
+  "verified … by the existing test suite" generalises past what ran. Stands.
+- **SP5 (`paths` type validation)** — *not anticipated.* `320/010` part 1's close lists the
+  validated shapes (`why`, escape, existence); type is not among them. Stands.
+- **SP6 (symlink escape)** — *not anticipated.* Both records say a path that "escapes the
+  repo" is refused; the lexical check is what was built. Stands as minor, for the reason
+  phase 1 gives.
+- **SP7 (pathscan reads whole files)** — *the record agrees with the reading.* The account
+  names pathscan's fix as "the `rglob`-into-a-list defect" and nothing else, and
+  `0008d4b`'s subject "bound … pathscan memory" is broader than that. Whether `020/380`'s
+  requirement (bounded by a constant, "any one file") reached the read is `160/370`'s to
+  judge, as phase 1 says. Stands.
+- **SP8 (README omits roots)** — *not anticipated.* `320/010` owed "the config documented";
+  `REPO-STANDARD.md` and the docstring discharge that; the README section was not in the
+  owed list. Stands as minor.
+- **SP9 (overlong-line semantics)** — *anticipated in spirit.* `020/370` owed "overlong
+  lines reported rather than dropped silently"; the fix windows instead of reporting, which
+  is better than the ask, and the per-window semantics are the residual of that choice.
+  Stands as a note.
+- **SP10 (memprobe residuals)** — *not addressed.* The account's memprobe narrative is the
+  isolation rewrite and its CI history, which my re-runs confirm; the `ps` and outer-timeout
+  residuals are outside it. Stands as a note.
+
+**Formed at reconcile.**
+
+**SP11 — minor — the guard layer now carries two documented contracts for the same
+failure.** `conflictscan` (and pathscan's own `_main`) exit 2 on an unreadable file and
+say so; `secretscan` and `leakscan` skip it silently and say that is the old behaviour.
+`020/380` recorded the divergence as a per-guard fact rather than a class. This is the
+class SP2 is one instance of, and the fix belongs in one place — the house exit-code
+contract in `tools/README.md` or `GUARDS.md` — so the next reader does not have to
+choose. Counsel, not a ruling: the exit-2 side is the one the doctrine already states.
+
+**The account's before/after table** (114 → 42 MB, 432 → 52 MB, 83 → 23 MB, 304 →
+61 MB) is consistent with my 26.3 MB whole-worktree measurement and the green growth
+test; I did not re-run the four synthetic shapes, and the claim I close on is the one I
+measured.
+
+**Overall, restated: PASS-WITH-FINDINGS** — 0 MAJOR · 4 MODERATE (SP1–SP4) · 5 minor
+(SP5–SP8, SP11) · 2 notes (SP9–SP10). No MAJOR, so the cycle closes on this pass under
+`REVIEW.md`'s termination rule; what remains is decided into the backlog.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — secretscan-stream-pathscan-roots (open only after your findings are durably written)
+
+Sibling of
+`docs/reviews/2026-09-25-0715-secretscan-stream-pathscan-roots-cold.md` under
+REVIEW.md rule 1's split; held by the orchestrator outside the worktree. Folded
+into the brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/sessions/2026-09-19-0038-queue-run-the-morning-rulings.md` — the run's
+  account. **Not opened by the brief-writer**; the index entry read at onramp
+  gives the before/after memory figures in the author's words.
+- `docs/roadmap/020-*/370-*.md` — the thrash incident that commissioned the
+  rewrite. **Not opened.**
+
+## Prior verdicts and barred items on the same surfaces
+
+- `docs/sessions/2026-09-19-0038-queue-run-the-morning-rulings.md` and
+  `docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md`
+- the board items `docs/roadmap/020-*/370-*.md`, `docs/roadmap/320-*/010-*.md`
+  and any `…exhausts-the-machine…` item
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+**The lenses that matter most here:** whether the 64 KiB window overlap
+can drop a match no realistic pattern exceeds (the one genuinely
+open-ended named shape is a JWT), whether the 50,000-finding cap can
+ever change a verdict rather than only a listing, and whether
+per-line `scan_lines` calls preserve every cross-line behaviour the
+whole-file call had.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+None beyond the pointer's own.

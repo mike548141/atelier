@@ -555,3 +555,158 @@ was shared with several other reviewers' suites throughout, so wall times are in
 - [ ] Out of delta, no finding: `coldsweep --also-exclude` is repeatable and parses a
       pattern after the excludes; my first failed sweep was zsh's word-splitting of an
       unquoted variable, not the tool.
+
+### Reconcile
+
+Written 2026-09-26 UTC after phase 1 was committed at `4a6a11a`, on receipt of the
+sibling's text from the orchestrator. Opened at this step: the queue pointer (`160/370`),
+the commissioning items `020/370` and `020/380`, the split-out `020/400`, the harness item
+`115/080` (its part-1 record), and the 2026-09-19 session record's three `020/380` sections
+plus its account of the red floor. Phase-1 text above is unrevised.
+
+**The pointer's three lens hints and the sibling's seeded question, answered.**
+
+- *Can a per-line window or per-file cap silently drop a finding a reader needed?* The
+  author's own hint, and the surface BL1 sits on. The windowed readers cannot; the size
+  gates refuse or report; the truncation readers can — the drop is reported on the prose
+  tally and nowhere else, and the exit code goes green. So "never truncate quietly" holds on
+  one output channel and fails on `--json` and on the verdict. The hint anticipated the
+  mechanism; it assumed the count discharged it.
+- *Are the caps' groundings in the file class rather than fitted to a measurement?* Two
+  numbers are in question here and the sibling conflates them. The **caps** (8 KiB line,
+  256 KiB and 4 MiB windows, 8 MiB licenscan, 4 MiB blockscan, 2 MiB fleet files) all cite
+  the class, and the fleet caps add estate-measured headroom (72 KB largest real
+  `CLAUDE.md`, 10 KB largest `floor.yml`) — grounded. The **test ceilings** are what the
+  seeded question asks about, and the answer by class: leakscan, conflictscan, sizescan,
+  datescan, wrapscan, spellscan, stampscan and blockscan derive the ceiling from the
+  reader's own constant (4× window+overlap; 8× chunk+line cap; 5× the cap delta); signscan
+  derives it from its record shape; linkscan, reviewscan, publishscan, pathscan and
+  licenscan choose a literal placed between a measured noise floor and the measured pre-fix
+  growth — discriminating, honestly labelled, but the number itself is picked against
+  measurements; pins, floorfleet and signfleet cite "a few MB of noise"; board takes 4× its
+  measured per-item rate and argues from the O(n²) alternative; pointerscan takes 2× its
+  measured rate. That is BL7 unchanged: two ceilings fitted, the rest grounded or
+  half-grounded, and the item's close condition ("measured, shown bounded by the test")
+  licensed the measured-and-pinned shape for board and pointerscan without asking that the
+  pin be grounded.
+- *Have the ten copies of `_walk_files` drifted on the day they were written?* Answered
+  by `115/080` part 1 before this pass ran, and my diff agrees: eleven copies, not ten; ten
+  bodies identical, licenscan's skip set deliberately wider; single-sourced at HEAD with the
+  skip set as the parameter. The part-1 record's own correction — an orchestrator hash that
+  reported "9 distinct variants" had measured prose, not logic — is the right retraction and
+  matches what I found.
+
+**Per finding, against the intent records and the run's account.**
+
+- **BL1** — *anticipated in mechanism, accepted as counted, not seen as a verdict change.*
+  `020/370` owed "overlong lines reported rather than dropped silently"; `020/380`'s
+  requirement says "anything skipped to honour a limit is reported, never silent"; the
+  wrapscan tick says "truncation at the 8 KiB line cap is counted, and the residual on a
+  truncated line's column count is documented inline". Every one of those is about the
+  count, and the count exists. None asks whether the exit code still means what it meant,
+  and the run's equivalence evidence — old and new scanners diffed over `docs/` and
+  `tools/`, identical — could not see it, because neither tree holds a line near the cap.
+  Severity stands.
+- **BL2** — *not anticipated, and the overclaim is the run's own.* `020/370`'s cause list
+  is the tree walk, the whole-file read and the findings list; `020/380` prioritises "the
+  registered floor guards first, since they run on every commit" and never names the
+  `--staged` path those commits actually run. The CHANGELOG line I tested ("Every guard now
+  runs in bounded memory and linear time") landed in `f94fe35`, the run's own close commit
+  for `020/380`; the record's close section says "every box above is fixed and pinned",
+  which is true of the boxes and not of the hook plane. Severity stands. The `git archive`
+  interim practice in `020/370` shows the run thinking about tracked content on the tree
+  plane, which is a different shape from a staged diff; the gap was a blind spot, not a
+  choice.
+- **BL3** — *not anticipated; the design claim is half right.* Both records say "a token
+  straddling a window cut is still whole in one of the two" — true — and secretscan's
+  dedupe was built for exactly that; the first-window gap is a copy of secretscan's own
+  shape, as phase 1 said, and the `160/350` pass should read it there. The "identical JSON
+  counts" evidence was blind to it for the same reason as BL1.
+- **BL4** — *not anticipated.* The run's close names two costs (suite time, ten copies of
+  the walk) and no documentation cost; `tools/README.md` is absent from every landing
+  commit's file list except `0bca6eb`'s memprobe paragraph.
+- **BL5** — *not anticipated.* memprobe is described throughout as a harness other tests
+  build on; no record asks for a CLI, so this is a gap rather than a deviation from intent.
+- **BL6** — *not anticipated.* The sizescan tick reports numbers only; the docstring's
+  claim about the caller is the worker's, unreviewed.
+- **BL7** — *partly accepted by the run's framing;* see the seeded question above. The
+  record's "measured and pinned is a complete outcome — a rewrite there would have been
+  motion" is right about the rewrite and silent about how the pin was grounded.
+- **BL8** — *partly anticipated.* The fleet-tool paragraph asks for "refuse loudly … never
+  truncate in silence"; the stderr line is the loud part and was delivered. Where the
+  refusal lands on the board (`skip` versus `error`) was not discussed.
+- **BL9** — *anticipated and accepted, one sub-point corrected.* The record documents the
+  isolation layer, the constant-offset residual and the deleted direct-versus-isolated
+  case exactly as I reconstructed them from the CI logs. Its mechanism sentence — "on Linux
+  `subprocess` forks (`close_fds=True` rules out `posix_spawn`) … macOS spawns instead" — is
+  the one I flagged as (d): whether CPython uses `posix_spawn` with `close_fds=True` depends
+  on the interpreter version and platform, so the explanation is version-bound; the
+  measured property (a fat Darwin caller does not inflate the reading) is what the tests
+  pin and it holds. Note stands, as a note.
+- **BL10** — mine, not the run's; nothing to reconcile.
+- **BL11** — *anticipated in full.* The record's "three pushes to get the floor green"
+  section gives the same sequence, the same 187 MB and 254 MB readings and the same green
+  SHA (`8426f3e`) I read off the runs. The record and the runs agree.
+- **BL12** — *partly anticipated.* The 60 s ceilings are `020/370`'s own design ("a ceiling
+  so a regression … fails the test instead of hanging CI"), and the run recorded the suite's
+  cost (378 s, "someone's problem later"). That the ceiling is a wall-clock constant on a
+  shared host, and reads a loaded machine as a regression, was not.
+
+**Formed at reconcile.**
+
+**BL13 — note (formed at reconcile).** The run's output-equivalence evidence — old versus
+new scanner over `docs/` and `tools/`, identical JSON counts, cited in `020/370`, in the
+`020/380` progress note and in the 2026-09-19 record — is sound for the ordinary path and
+structurally blind to the two paths this delta added: no file in either tree has a line near
+any cap or window, so neither the truncation drop (BL1) nor the overlap double-report (BL3)
+could register. An equivalence check for a bounded reader needs a straddle fixture in its
+corpus, or it proves only that the common case survived. *Counsel:* keep the equivalence
+diff as the standing proof for reader changes, and add one synthetic file per mechanism
+(a line over the cap with a finding in its tail; a token inside an overlap) to what it runs
+over.
+
+**Overall line, restated:** PASS-WITH-FINDINGS — 0 MAJOR · 2 MODERATE · 6 minor · 5 notes
+(BL13 added at reconcile; BL1–BL12 unchanged in text and severity).
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — bounded-guard-layer (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-09-25-0715-bounded-guard-layer-cold.md` under
+REVIEW.md rule 1's split; held by the orchestrator outside the worktree. Folded
+into the brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/sessions/2026-09-19-0038-queue-run-the-morning-rulings.md` — the run's
+  account, including the memprobe platform defect and the three pushes it cost.
+  **Not opened by the brief-writer**; the index entry read at onramp gives that
+  account in the author's words.
+- `docs/roadmap/020-*/380-*.md` — the commissioning item and what it cost. **Not
+  opened.**
+
+## Prior verdicts and barred items on the same surfaces
+
+- `docs/sessions/2026-09-19-0038-queue-run-the-morning-rulings.md` and
+  `docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md`
+- the board items `docs/roadmap/020-*/370-*.md`, `020-*/380-*.md`,
+  `020-*/400-*.md`, `docs/roadmap/115-*/080-*.md`
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+**The lenses that matter most here:** whether any per-line window or
+per-file cap can silently drop a finding a reader needed (each is meant
+to count and report, never truncate quietly); whether the caps'
+groundings are in the file *class* rather than fitted to a measurement;
+and whether ten copies of `_walk_files` have already drifted from each
+other on the day they were written.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+1. The house holds a standing rule against setting a limit from the current
+   measurement (a budget must be grounded in the class or the signal left red).
+   The `BoundedMemory` ceilings were written the same day the tools were
+   measured — which of them cite a grounding other than the measurement?

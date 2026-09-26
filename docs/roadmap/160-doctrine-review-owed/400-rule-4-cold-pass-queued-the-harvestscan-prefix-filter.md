@@ -39,3 +39,21 @@
       sibling, the intent record and prior verdicts stay unopened by the
       reviewer until its phase-1 findings are committed. Provenance and exposure
       go in the verdict.
+      - [ ] 🛑 **The pass RAN 2026-09-26 and the cycle stays OPEN — a MAJOR
+            stands.** The rule-4 Fable cold pass (taker: a fresh
+            `claude-fable-5-1` subagent under a `claude-fable-5-1` orchestrator
+            — the shape disclosed in the claim above; the sibling, the intent
+            record and prior verdicts opened only after the phase-1 findings
+            were committed) returned PASS-WITH-FINDINGS — 1 MAJOR · 0 MODERATE ·
+            5 minor · 3 note →
+            [`2026-09-25-0715-harvestscan-prefix-filter-cold.md`](../../reviews/2026-09-25-0715-harvestscan-prefix-filter-cold.md)
+            (sibling folded in and deleted). HP1 (MAJOR): the survivor index is
+            rebuilt inside vanished(), which scan() calls once per watched file
+            — 331 rebuilds at HEAD — so on the split board the bounded pass is
+            16× slower than the quadratic one it replaced at function level and
+            3× slower at the live hook plane, while the exactness claim itself
+            holds on every probe (708 boundary cases, 4,000 bucket checks,
+            byte-identical replay); no test or replay commit can see it, and
+            built once the same scan takes under 3 s; HP8/HP9 formed at
+            reconcile. Findings are the principal's to decide (rule 3); nothing
+            was applied.
