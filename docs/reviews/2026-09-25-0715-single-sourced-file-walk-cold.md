@@ -542,3 +542,159 @@ machine; FW1's 3.12 claim rests on source, and is marked so.
       `115/080` part 2, where the reader decision is taken.
 - [ ] Orchestrator: record the rulings against this verdict and tick the pointer; no
       queued pointer is owed if the cycle closes here (no MAJOR).
+
+### Reconcile
+
+Written 2026-09-26 UTC after phase 1 was committed at `4a6a11a`. Opened at this
+step, in this order: the sibling's text (the pointer's four lens hints, verbatim;
+the brief-writer seeded nothing beyond them), the queue pointer `160/420`, the funded
+item `115/080`, the three-mechanisms item `115/220`, and the named intent record
+`docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md` in full. Nothing in the
+phase-1 text above has been revised.
+
+**A note on the intent record before the per-finding notes.** The pointer names the
+2026-09-20 1053 session record as the delta's intent record. That record carries no
+account of `115/080` part 1, of `020/160`'s E9 fix, or of the harness at all — its
+only mention of `115/080` is as a loose end selected at open — and it has no closing
+block. The account this reconcile could test against lives in `115/080`'s own
+"PART 1 LANDED" block and the landing commit's message; both were used below.
+
+**Against the pointer's four lens hints** (the author's framing; anticipated means the
+author named the risk, not that the author found what the finding found):
+
+1. *Is the byte-identical evidence as strong as it reads, taken on one tree with no
+   `dist/`, `build/` or broken symlink?* Anticipated. Answered by the fixture (lens 2):
+   with all three present, plus every other skip path, the eleven walks are still
+   identical by correctness, not accident — `licenscan`'s parameterisation and the
+   `is_file()` filter both do what the wrapper text says. The hint's instinct was
+   right in a way it did not name: the one-tree evidence could not show FW1, which no
+   real checkout can exercise and the fixture showed on the first run under 3.9.
+2. *Can `skip_dir_names` be passed something whose iteration is not repeatable?*
+   Anticipated exactly; FW5 is the measured answer (yes; silent; latent, because every
+   live caller passes a set). The hint under-states the second half of the hazard —
+   a bare `str` — which the `Iterable[str]` annotation invites.
+3. *Is the next correction cheaper in fact or in principle?* Anticipated as
+   "testable rather than asserted", and tested (lens 1 A3): cheaper in fact for the
+   code, not for the proof. FW3 is where the hint lands.
+4. *Do four readers left beside one walk confuse more than either endpoint?*
+   Anticipated, and delegated to `115/220`. FW10 is the counsel; FW4 is the concrete
+   confusion (comments that now contradict the import beside them).
+
+**Against `115/080`'s funded scope** — "the walk and its parameters", share the
+mechanism never one constant, every scanner's output proved unchanged, suite green,
+part 1 the lowest-risk slice:
+
+- The scope was honoured: the cross-scanner diff proves the per-guard set survived
+  (ledger row 4), and the worker's refusal to fold the readers in — recorded there
+  as "Part 1's scope as written was WRONG" — is the decision this verdict's FW10
+  endorses.
+- Its evidence claims re-drive: "byte-identical stdout, stderr and exit code" holds
+  on a second tree and on the fixture (rows 5–6); "suite 1,564 tests OK" — the count
+  matches, and the four failures in my run are environment-gated (FW11), not the
+  delta's; "twenty-two files for one line" is my own count for `db9a785` (row 17).
+- Its claim that "the standing suite already carries a per-scanner regression test
+  for it — the floor, not a scratch probe" is true of the E9 prune only, and is the
+  point FW3 contests: eleven wrapper tests are not a proof of the shared module.
+  **FW3: not anticipated; the item accepted per-scanner tests as sufficient.**
+- Its own corrected count ("eleven, not ten") was made by `_walk_files` name. FW7
+  shows a twelfth tree walk of the guard class outside that name, with the E9 defect
+  intact. **FW7: not anticipated** — the same count-by-memory shape `115/220` warns
+  about, one step over.
+- FW1, FW6, FW8, FW9 (unreadable inputs, symlinked files, nested clones) are
+  **unaddressed** there: neither anticipated nor rejected; the item's frame is
+  consolidation of plumbing, and none of these is a consolidation question. They
+  are the cases a single source now makes cheap to decide, which is the item's own
+  argument for existing.
+- FW2 and FW4 (README, stale claims): **not anticipated**; the landing block records
+  one `sizescan` comment corrected and no sweep of the class.
+- FW5: **anticipated** by the pointer, not by the item.
+
+**Against `115/220`** — the readers are four shapes, shape 3 (five truncation-only
+readers) "already literally identical across all five" and the safest candidate:
+
+- FW10 is **anticipated in full**; my counsel matches its ranking (shape 3 cheap,
+  shapes 1 and 4 plausible, shape 2 wait for `linkscan`'s fence state).
+- FW8's per-guard split does **not** follow the shapes: inside shape 1,
+  `conflictscan` reports an unreadable file and exits 2 while `secretscan` and
+  `leakscan` go silent; inside shape 3, `stampscan` reports and the other four go
+  silent. So the five shape-3 readers are identical in their constants and not in
+  their error path — see FW13 below.
+
+**Findings formed at reconcile** (numbered on from FW11; marked as such):
+
+**FW12 — minor (formed at reconcile; records, outside the delta).** The intent record
+the pointer names carries no account of the work and no closing block. The run that
+landed part 1 (claimed at 2026-09-20 2239 UTC per `115/080`, landed 2026-09-21 NZ)
+left its account only in the board item and the commit message; the session index
+has no entry dated 2026-09-20 or later. A pointer that is refs-only by rule is only
+as good as the record it references. *Counsel:* the orchestrator, when folding,
+should either add the closing block to the 1053 record or note in the pointer that
+the intent lives in `115/080`'s landing block, so the next reader is not sent to a
+record that does not answer.
+
+**FW13 — note (formed at reconcile; feeds `115/220`).** The reader shapes diverge on
+the error path where they agree on constants: one shape-1 reader and one shape-3
+reader treat an unreadable file as a configuration error (stderr line, exit 2); the
+rest skip it and report clean (ledger row 10). `115/220`'s "safest candidate" claim
+for shape 3 therefore has one behavioural decision inside it that consolidation
+would force — which of the two error policies the shared reader takes — and that
+decision belongs in the ruling `115/220` asks for, alongside FW8's counsel to count
+the skip either way.
+
+### Overall, restated
+
+**PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE (FW1, FW3, FW8) · 5 minor (FW2, FW4, FW5,
+FW7, FW12) · 5 note (FW6, FW9, FW10, FW11, FW13).** Reconcile changed no phase-1
+severity. Of the eleven phase-1 findings, four were anticipated by the author's
+framing (FW3, FW5, FW10, and FW1's one-tree gap in spirit), none was rejected there,
+and six were unaddressed by any record opened. The cycle may close on this pass
+under the no-MAJOR rule once the rulings are recorded.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — single-sourced-file-walk (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-09-25-0715-single-sourced-file-walk-cold.md` under
+REVIEW.md rule 1's split; held by the orchestrator outside the worktree. Folded
+into the brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md` — the run's
+  account. **Partially read** (not this section).
+- `docs/roadmap/115-*/080-*.md` — the funded item (GA1) with the principal's
+  scope. **Not opened.**
+- `docs/roadmap/115-*/220-*.md` — the *three mechanisms, not one with
+  parameters* item filed at landing. **Not opened.**
+
+## Prior verdicts and barred items on the same surfaces
+
+- `docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md` (⚠️ head and tail
+  read by the brief-writer on 2026-09-20; not this section)
+- the board items `docs/roadmap/115-*/080-*.md` and
+  `docs/roadmap/115-*/220-*.md`
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+**The lenses that matter most here:** whether the byte-identical
+before/after evidence is as strong as it reads, given it was taken on
+one tree whose content may not exercise every skip path — a tree with no
+`dist/`, no `build/` and no broken symlinks would show `licenscan`'s
+parameterisation and the `is_file()` filter as identical by accident
+rather than by correctness; whether `skip_dir_names` being accepted as
+any `Iterable` and coerced with `set()` can be passed something whose
+iteration is not repeatable, since the walk consumes it once per call
+but is itself a generator; whether one shared walk makes the **next**
+correction cheaper in fact or merely in principle, which is this item's
+whole justification and is now testable rather than asserted; and
+whether consolidating the walk while leaving four distinct readers
+copied alongside it leaves the codebase more confusing than either
+endpoint, which is `115/220`'s open question reaching back into this
+delta.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+None beyond the pointer's own.
