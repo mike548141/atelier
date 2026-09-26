@@ -426,3 +426,130 @@ bumps its pin" is taken as stated, not checked.
 - [ ] AK6 — when `320/110` is ruled, the Asking bullet moves with it.
 - [ ] Phase 2 — reconcile the provenance of the six-item list against the
       intent record.
+
+### Reconcile — phase 2, written 2026-09-26T14:17Z
+
+Opened on the orchestrator's release, after phase 1 was committed unrevised
+(`d1ac3e0`): the sibling's text by message; the two intent records
+`docs/sessions/2026-08-22-0456-the-ask-rule-reaches-the-children.md` and
+`docs/sessions/2026-09-18-0114-queue-run-hand-up-fixes.md`; the board items
+`320/250` and the queue pointer `160/290`. No prior verdict on these surfaces
+exists to open. Phase-1 text above is unchanged.
+
+**The seeded question — is the template's Asking bullet inside the region the
+scanner compares, or beside it?** Inside, on both sides. Probe at HEAD: the
+template's `stamp:begin` is line 18 and `stamp:end` line 110, with the Asking
+bullet at line 45; `PROPAGATION.md`'s `floor:begin` is line 105 and `floor:end`
+line 199, with the bullet at line 133. `stampscan` compares the 91-line payload
+and reports it identical (phase-1 ledger). The question was already answered by
+lens 2 before I read it; nothing changes.
+
+**Per finding, against the records:**
+
+- **AK1 (sixth item dropped) — not anticipated, and the record sharpens it.**
+  The 2026-08-22 record states the bullet "carries … the widened option list"
+  — the author believed the block carried the list in full and did not notice
+  it carried five of six. On provenance: the record attributes the whole
+  six-item list, "considerations" included, to the principal ("the principal's
+  own list, given 2026-08-22"; "*risks, costs, considerations* are new on
+  2026-08-22 rather than something dropped"), and attributes the rationale
+  sentence to the author ("the reason is stated in place"). So my phase-1
+  reading — that the sixth item might be the author's gloss — is not supported:
+  by the author's account the block dropped an item the principal gave. The
+  compression hazard the record names ("a stamped copy read as the source
+  manufactures phantom debt") is the class; its stated mitigation (naming both
+  parent sections) covers incompleteness the reader can see, not a list that
+  reads as complete. Severity stands at MODERATE; counsel unchanged, and the
+  apex-side alternative in my counsel falls away.
+- **AK2 (`session-onramp` skill) — not anticipated in either record.** Neither
+  mentions the skill; the 2026-08-22 record's "now the answer is yes for any
+  child at a pin bumped past this commit" is true for a *scaffolded* child in
+  either mode (bundled mode stamps the block from `PROPAGATION.md`, per
+  `create-repo` step 5) and silent on the adopter the skill is written for — a
+  repo that "adopts atelier" without a scaffold. `320/250`'s own argument
+  applies by analogy: the lossy-summary disclaimer shields incompleteness, not
+  a surface that "binds even if atelier is never read" and binds less than the
+  floor. Stands at MODERATE.
+- **AK3 (no-device clause) — not anticipated.** The 2026-08-22 record's
+  inventory of what the bullet carries (device, overflow rule, option list,
+  recommendation, verified basis) does not list the no-device case, so the
+  omission was silence, not a recorded decision. Stands at minor.
+- **AK4 (`blockscan` granularity and reach) — the guard was anticipated, the
+  probe results were not.** `320/250` raised the mechanical-check question as
+  its 🎯; the 2026-09-18 record moved it to `320/300` and records the ruling
+  "Build the check". Nothing in either record foresaw that the check would
+  double-fire on the shared apex `###` section, or that the landing commit
+  itself would red the confirm bullet. Stands as a note routed to `blockscan`'s
+  own review.
+- **AK5 (`session-open-prompt.md`) — not mentioned anywhere.** Note stands.
+- **AK6 (how without whether) — corroborated, and the open question closes.**
+  `320/250`'s ⚠️ paragraph records the reporting child putting a ruling ask
+  through the device with the account inside the device's fields — the same
+  shape-without-substance class `320/110` filed. The provenance question I left
+  open closes per AK1 above: by the record, the six items are the principal's
+  and the parenthetical rationale is the author's. Note stands.
+
+**Formed at reconcile:**
+
+- **AK7 — note (formed at reconcile) — the list's provenance rests on
+  paraphrase, not capture.** The apex text asserts "the list is the principal's
+  own, widened 2026-08-22", and the record supports it — but the record quotes
+  the principal verbatim only for two other statements (the "do we have work to
+  direct repos…" question and "I believe I gave you a longer prompt") and
+  paraphrases the list itself. The 2026-08-19 statement the record calls "the
+  fullest" is captured verbatim in `COMMUNICATION.md`; the 2026-08-22 widening
+  is not captured verbatim anywhere in the tree. Not a contradiction, and the
+  transcript measurement the record cites (63 mentions across both channels) is
+  outside this repo and was not re-run. *Counsel:* when ruling AK1, one line
+  from the principal confirming the six items closes this at no cost.
+
+**Record claims re-driven.** The 2026-08-22 record's "test_templates would
+catch the two copies drifting" holds at HEAD (44 tests OK, plus `stampscan`
+identical — phase-1 ledger); its "floor `--plane ci` exit 0" holds. The
+2026-09-18 record's "both harmonised" holds byte-for-byte. `320/250`'s 🔎 grep
+scoped to `docs/method/*.md` is the same scope blindness that missed the
+template (its own close records that) and would also never see the skill AK2
+names; recorded as the class, not a new finding, since the skill carries no
+stale wording — it carries none.
+
+**Overall, restated:** **PASS-WITH-FINDINGS — 0 MAJOR · 2 MODERATE · 1 minor ·
+4 notes** (AK7 added at reconcile; no severity moved). Per REVIEW's close rule a
+pass with no MAJOR closes the cycle once the rulings are applied; AK1–AK3 are
+the principal's to decide.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — ask-rule-to-children (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-09-25-0715-ask-rule-to-children-cold.md` under
+REVIEW.md rule 1's split; held by the orchestrator outside the worktree. Folded
+into the brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/sessions/2026-08-22-0456-the-ask-rule-reaches-the-children.md` — the
+  author's account of the widening and the ruling it rests on. **Not opened by
+  the brief-writer.**
+- `docs/sessions/2026-09-18-0114-queue-run-hand-up-fixes.md` — the 2026-09-18
+  widening (`320/250`). **Not opened**; its index entry was read at onramp.
+
+## Prior verdicts and barred items on the same surfaces
+
+- `docs/sessions/2026-08-22-0456-the-ask-rule-reaches-the-children.md` and
+  `docs/sessions/2026-09-18-0114-queue-run-hand-up-fixes.md`
+- the board items `docs/roadmap/320-*/250-*.md` and any
+  `docs/roadmap/*/…da1-overturned.md` item (the hand-up that prompted the
+  2026-09-18 widening)
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+The pointer carries no lens paragraph — refs only.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+1. `stampscan` now compares a child's floor block to `PROPAGATION.md`'s floor
+   region verbatim. Is the template's copy of the Asking bullet inside the
+   region the scanner compares, or beside it?
