@@ -498,3 +498,126 @@ extracted from `db9a785~1` via `git archive`, `<S>` = the scenario repo.
 - [ ] LW7 — correct the three overclaims where the record is next touched (never rewrite history)
 - [ ] LW8 / LW9 — hand to the `160/420` pass: `test_filewalk.py`, and the shared line's ownership
 - [ ] Orchestrator: fold the sibling below the reconcile; update the queue pointer
+
+### Reconcile (phase 2, written 2026-09-26 UTC)
+
+Opened after phase 1 was committed at `4a6a11a`: the sibling's text (by message), the queue
+pointer `160/410`, the E9 item `020/160`, the `115/080` item, and the session record
+`docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md`. The record has **no `020/160`
+section** — it holds the claim line and one mention of the E9 worker's repro tree; the run's
+account of the fix lives in the item's own ✅ block, so that is what "the run's account" means
+below. Phase-1 text above is unrevised.
+
+**Against the pointer's four lens hints.**
+
+1. *Was the file-ness cost the principal's to accept?* The record answers the factual half
+   plainly: it was **not put to him**. The item's ✅ block records the cost as "documented and
+   tested" by the worker; the only 🚩 escalated to the principal is the separate question of
+   skipping *all* gitignored paths. My lens-1 answer stands: for the cost as stated (an ordinary
+   file named `.git`), a worker's acceptance was proportionate — git itself refuses to track
+   such a path, so no committed tree can carry it. For the costs the record never states
+   (submodule checkouts, `.git` symlinks to a file — LW5), the widening should have travelled
+   with that 🚩 rather than sitting in a code comment.
+2. *Are the eleven copies identical?* Anticipated and confirmed on both sides: my diff (ledger
+   1) and `115/080` part 1's own difference analysis agree — ten bodies byte-identical, the
+   eleventh differing only in `licenscan`'s skip-set. That item also corrects an orchestrator
+   claim of "9 distinct variants" as having hashed prose; my alias-normalised test-class diff
+   found the same shape (docstrings only). Consistent, and the point is now moot at HEAD (LW9).
+3. *Should anything inside a linked worktree still be scanned?* The item's premise — "the
+   pre-commit hook scans *staged* files, and the floor passes explicit paths, so neither plane
+   sees this" — is **half wrong**, and the fix's "Verified" block inherited it. The floor passes
+   `{scope}` *directories* to eight whole-tree scanners on the hook plane, so the hook did see
+   nested worktrees before the fix (ledger 10: pre-fix `linkscan` reds the primary's hook on a
+   sibling's broken link). That does not change the answer — nothing *should* be scanned there
+   on either plane, because the worktree's own hook and CI cover its commits (lens 4) — but it
+   means the fix changed the hook plane, beneficially, and the record says it did not (LW7,
+   LW10). What the item did not anticipate is that two walkers still descend (LW1–LW3): its
+   "every scanner" counted only the `SKIP_DIR_NAMES`-bearing walks.
+4. *Do the exemption claims hold?* The pointer honestly says they were verified by reading; I
+   probed all eleven (ledger 8). They hold where they apply and are vacuous where they do not:
+   `licenscan` has no file argument, and eight scanners have no `--staged`.
+
+**Against the E9 measurement and the run's account.** The item's headline measurement
+(`pathscan --root . .` on the primary, 333 → 49, 284 phantom) was **not re-run**: no nested
+worktree exists under the primary today (`git worktree list` shows only external ones), and
+scanning the primary checkout is outside this pass's house rules. My scenario reproduces the
+mechanism at small scale (ledger 7, 8) and I accept the figure as consistent with it, not as
+re-verified. The item's "full suite 1,564 tests OK" matches my count; my run saw two
+`BoundedMemory` failures under a loaded machine (ledger 6), which I leave unexplained rather
+than reconciled. The item's 🔎 note — the dispatch prompt asserted worktrees live outside the
+tree and the worker flagged the contradiction — is the same fact my lens 1 rests on
+(`.gitignore` names `.claude/worktrees/`), reached independently.
+
+**Per finding — anticipated, accepted or rejected by the record?**
+
+| id | in the record? | note |
+|---|---|---|
+| LW1 | not anticipated | item and commit both say "every scanner"; `reviewscan` never counted |
+| LW2 | not anticipated | `coldsweep` is outside the registry; no record mentions it |
+| LW3 | not anticipated | `020/380` "measured and pinned" `pointerscan`; its walk was not looked at |
+| LW4 | not anticipated | — |
+| LW5 | half-anticipated | "worktree or submodule link" appears in the comment; no test, no decision, no escalation; the symlink shape appears nowhere |
+| LW6 | not anticipated | the item names no doc surface; none was touched |
+| LW7 | anticipated as claims, rejected by probe | the item repeats "both planes unaffected" and "1,564 OK"; "each proved to fail" is commit-only |
+| LW8 | anticipated by the board | `115/080` part 1 landed the same day with its own `⏳` (`160/420`); it states the suite carries "a per-scanner regression test" — true, and the reason `filewalk.py` has none of its own |
+| LW9 | anticipated by the board, not by the brief | the pointer's delta list predates `c1a2f12`; the brief copied it |
+
+**LW10 — minor, formed at reconcile.** The intent record's premise that "neither plane sees
+this" (the item's *What saves it today is accidental* paragraph) is false for the eight
+whole-tree scanners on the hook plane, and the fix's ✅ block re-states it as a verification
+("hook plane … and floor plane … both unaffected"). The worker verified the premise by reading
+it, which is how a wrong premise becomes a wrong proof. Counsel: when the item is next touched,
+correct the paragraph to say the staged *boundary* scanners were unaffected and the whole-tree
+scanners on the hook plane were the surface being fixed; it is the same correction LW7 asks of
+the commit, applied at the source.
+
+**Overall, restated.** Phase 1 stands as written: **PASS-WITH-FINDINGS — 0 MAJOR · 2 MODERATE
+· 4 minor · 3 note.** With the reconcile finding counted: **0 MAJOR · 2 MODERATE · 5 minor ·
+3 note.** No phase-1 severity changes on reading the record; nothing in the sibling or the
+intent records rebuts LW1 or LW2, and the file-ness question the pointer asks resolves to "a
+worker accepted it, proportionately for the stated cost, without the unstated costs ever
+reaching the principal."
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — linked-worktree-skip (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-09-25-0715-linked-worktree-skip-cold.md` under
+REVIEW.md rule 1's split; held by the orchestrator outside the worktree. Folded
+into the brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md` — the run's
+  account of E9. **Partially read** (not this section).
+- `docs/roadmap/020-*/160-*.md` — the E9 finding and its measurement on this
+  tree. **Not opened.**
+
+## Prior verdicts and barred items on the same surfaces
+
+- `docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md` (⚠️ head and tail
+  read by the brief-writer; the `020/160` section not opened)
+- the board items `docs/roadmap/020-*/160-*.md`, `docs/roadmap/115-*/080-*.md`
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+**The lenses that matter most here:** whether pruning on **file-ness**
+alone is the right trade, given it also prunes any directory holding an
+ordinary file named `.git` — the worker documented and tested that cost
+rather than hiding it, so the question is whether the cost was the
+principal's to accept rather than a worker's; whether eleven
+independently-edited copies of one line are already identical, which is
+checkable by diff and is `115/080`'s whole argument; whether anything
+*should* be scanned inside a linked worktree that is now silently
+skipped, since the fix makes a real surface invisible rather than merely
+deduplicating it; and whether the two planes' exemption claims hold —
+that a file argument never reaches `_walk_files` and that `--staged`
+routes through the git-diff path — which were verified by reading the
+code here rather than by a probe on every one of the eleven.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+None beyond the pointer's own.
