@@ -199,3 +199,351 @@ your reconcile.
 Findings on doctrine are the principal's to decide (rule 3): record all, apply
 nothing; your counsel per finding is welcome, labelled as counsel and kept
 beneath the finding.
+
+---
+
+## Verdict — phase 1, written 2026-09-25 UTC
+
+### Provenance (repeated, per rule 4)
+
+- **Spawned by:** the batch orchestrator (`claude-fable-5-1`) that wrote this brief, with
+  the brief as my only framing. I am not the author of `2489f12`, was neither started nor
+  instructed by that session, and have edited none of the delta's paths. Shape:
+  reviewer-plus-orchestrator, both seats Fable; the off-tier clause is not invoked.
+- **Tier:** `claude-fable-5-1`, checked at spawn.
+- **Read before writing this:** the brief; `docs/method/REVIEW.md` and `00-APEX.md` in
+  full; `CONCURRENCY.md` § *The trigger* in full (lines 26–124) and the file's headings;
+  `PROPAGATION.md` § *Pointing up* in full (lines 393–689) and the file's headings; the
+  diff of `2489f12` restricted to `docs/method/`, `docs/roadmap/310-*`, `210-*` and
+  `docs/ROADMAP.md`; the five board items at HEAD plus the first 30 lines of `310/050`
+  (its ruling summary, which is the delta); board items `320/190` (lines 100–165),
+  `320/330`, `320/350`, `320/250` (lines 55–80); `CHANGELOG.md` lines 1–12 and 155–172
+  plus greps; `CLAUDE.md` lines 12–30; grep lines of `docs/build/templates/CLAUDE.md`
+  and `skills/session-onramp/SKILL.md`; `.githooks/pre-commit`, `ci.yml`, the registry
+  entries in `tools/floor.py`; the history of `CONCURRENCY.md` (`f9eda42` and its
+  parent's text) and of `PROPAGATION.md` (`5bb78f2`, `48c181f`).
+- **Barred material:** none opened. Two incidental exposures, disclosed: (1) my first
+  `coldsweep` run omitted `--also-exclude` for `docs/roadmap/310-*/README.md`, so three
+  of its lines printed as hits (a repeat of item `040`'s quotation and the block's
+  compressed phrase) — I did not open the file; (2) `git show 2489f12` printed the
+  commit *body*, the author's account of the rulings. Rule 2 does not bar a commit
+  message, but it is author narrative and I read it before forming findings.
+- **Not run:** the full Python suite — the delta has no code surface; the registry floor
+  ran on both planes instead (ledger below). No scanner was pointed outside the
+  worktree or my scratch clone.
+
+### Per-lens answers
+
+**Lens 1 — approach & assumptions.** Load-bearing assumptions, named by me: (A) plain
+`git diff --cached` shows every staged entry with its path; (B) the old pipe was wrong
+*in the way the correction note says*; (C) § *The instance*'s account of the incident
+still holds once the command is corrected; (D) a correction note inside doctrine is the
+right home for the history. (A) holds — probe, ledger item 1: six staged entries across
+content, empty-new-file, pure-rename, mode-only, binary and a stale staged-then-edited
+path all print with `diff --git` path lines; intent-to-add and untracked paths do not,
+and a dry-run commit confirms neither would be committed, so the sentence claims exactly
+what the command delivers. (B) holds and understates: the reproduced old command
+`git diff --cached -U0 | grep '^@@'` printed **two hunk headers for six staged paths and
+no path at all** — four of the six entries (empty file, rename, mode change, binary)
+produce no `@@` line, so the old check did not merely strip paths, it silently omitted
+whole staged entries. (C) **fails** — PV1. (D) is in-style: the house already keeps
+dated in-place corrections (`REVIEW.md` rule 1's "this rule previously said…",
+`PROPAGATION.md`'s "the count read seven until…"), and the record stores hold the
+narrative; the note's form is a house pattern, not a novelty. Its residue is PV4. One
+known limit of the check itself is already boarded and not this delta's to answer:
+`320/350` (2026-09-20) shows a peer can stage *during* the commit's hook window, which
+"immediately before every commit" cannot close; the delta neither created nor claimed to
+close it.
+
+**Lens 2 — correctness & quality.** The diff matches the brief's account: one command
+corrected with a dated note, the *Bearing* and two `PROPAGATION.md` sites named, five
+board items written or aligned. Every section and path reference in the delta resolves
+at HEAD: § *The trigger*, § *The channel* (`CONCURRENCY.md:437`), § *Stay in your lane*
+(`:591`), § *The standard child doctrine block* (`PROPAGATION.md:75`), § *The instance*,
+items `040`, `020`, `310/100`, `310/110`, `210/110`, `160/280`, `tools/floorfleet.py`,
+`tools/pins.py`, and the PU brief file (exists; unopened). The *Bearing* is dated
+(incident 2026-08-18, ruling 2026-08-22) and attributes the incident as a git-index event
+and a destroyed session-log entry — no host, path, client or secret. The PU-2 note's
+claim that item `040` quotes the principal naming the repo is true (`040` lines 3–4).
+Ragged wrapping after the insertions (PV4). Honest about what is done: the three
+`[backlog]` items are written as open items, not as fixes.
+
+**Lens 3 — completeness / harvest.** The pre-correction command survives as a
+*prescription* nowhere: `docs/build/templates/CLAUDE.md:72–74` and the inlined child
+floor at `PROPAGATION.md:160–162` both say plain `git diff --cached` and "the paths you
+did not stage"; `CLAUDE.md:22` points at § *The trigger*; `skills/session-onramp/
+SKILL.md` carries no command. The old pipe appears only as history (`CONCURRENCY.md:86`,
+`310/030:11`). "A private child" as the *instance's* veil survives at none of the three
+sites; the phrase now appears at `PROPAGATION.md:607` as the wording of a *rule*, a
+different sense. The ten children of `310/030` are outside this worktree and were not
+swept; that item's hand sweep is still unrun, with one child reported clean as of
+2026-08-26 (`320/250`). Neighbours: `5bb78f2` (2026-08-24, `160/300`) retitled the
+section, added § *The duty* and the three filing shapes — it widened the section around
+the instance without touching the instance's reading; `48c181f` (2026-09-20, `160/360`)
+added the every-surface naming precedence, and that one **did** change this delta's
+reading — PV2. `54201e0` (2026-09-18) applied `310/110`'s wording in step 3. The
+`[backlog]` tags check out: `310/100`, `310/110`, `210/110` say what `310/050` says they
+should, and all three have since closed with the fix visible at HEAD (three shapes at
+`PROPAGATION.md:498–517`; step-3 wording at `:547–548`; `--git-common-dir` at
+`tools/pins.py:128`). The application has no `CHANGELOG.md` entry — PV3.
+
+**Lens 4 — security & privacy.** `/security-review` is discharged by grounds: it reads the
+session's pending diff, which in this shared worktree is other passes' unstaged drafts,
+and this is a landed-delta review. The delta has no code surface, so the OWASP catalogue
+has nothing to bear on; the read is design-altitude only. The veil question: the commit
+names one child at three doctrine sites, which the commit body and `310/050` both record
+as the ruled outcome (three sites, not one) — it is the ruling applied, not
+over-applied. What the naming exposes beyond the veiled form: the repo's name, and
+that it runs parallel sessions in a shared checkout and keeps session logs. Nothing
+else — no host, path, client, tooling or contents. The name was already in the public
+tree before this commit: item `040`'s title and its quotation of the principal,
+`310/030`'s ten-child list, `210/100`'s per-repo percentages, and `320/060`–`130`'s
+"filed from" lines. The forge does not resolve the name under the owner's account,
+consistent with `010/030`'s own note that the repo has no remote; I write nothing
+further about it. Nothing in the delta crosses the no-private-detail line the house
+holds for its records. What has moved since is the *rule*, not the exposure — PV2.
+
+### Findings
+
+**PV1 — MODERATE.** *§ The instance and the `CONCURRENCY.md` Bearing still say the house
+had no gap; the corrected command says it did.* At HEAD, `PROPAGATION.md:641–651` reads:
+the child "read its own block, which compresses the house rule to *read the staged hunk
+headers*… The house had no gap. `CONCURRENCY.md` § The trigger says to run `git diff
+--cached`, which reads the whole index… Its sibling rule was in the parent verbatim.
+Nothing was owed upstream at all." The Bearing (`CONCURRENCY.md:118–120`) says the child
+"concluded the house had a gap it does not have". Re-driven against history: the text in
+force on 2026-08-18 (`f9eda42^`, `CONCURRENCY.md:84–85`) prescribed
+`git diff --cached -U0 | grep '^@@'` and "compare the hunk headers" — so the block's
+phrase was a *faithful* compression of the parent's own command, not a lossy one, and
+the probe shows that command prints no path and drops four of six staged entries. The
+"whole index, not your own hunks" clause the narrative leans on was added *by* `f9eda42`
+on the day of the incident, in response to it. PU-1 then corrected the command on
+2026-08-22 — and the same commit left the instance narrative untouched, so the two
+doctrine files now disagree about one event: `CONCURRENCY.md:86` says the old sentence
+"strips exactly the paths at issue"; `PROPAGATION.md:647` says the house had no gap. The
+child's *route* was still wrong (a local duplicate instead of a filing) and the block's
+pointer was still wrong, so the section's lesson stands; its grounding instance
+overstates. Under the apex that is a rounded account in the one place the section is
+"extracted from evidence".
+*Counsel (the principal's to decide):* re-word § *The instance* paragraph 3 and the
+Bearing's "a gap it does not have" to say the house owned the rule but prescribed a
+path-blind command for it (corrected 2026-08-22, PU-1), and that what the child owed
+upstream was *that finding* — which is the route the section teaches — not a duplicate
+rule. Two sentences; the lesson gets stronger, not weaker.
+
+**PV2 — minor.** *The PU-2 note's "stands unchanged" is now the seam of a live, boarded
+contradiction, and the doctrine gives no reader that fact.* The note at
+`PROPAGATION.md:634–635` says "the class-never-specifics rule for what a *child files
+upward* stands unchanged". Since then `48c181f` (2026-09-19 ruling, `320/190`) widened
+that rule to "every surface the filing creates… outranks any rule about how to name
+one", and § *Report without harming the parent* now says "a private child says *'a
+private child'* and nothing more" (`:607`). Ninety lines above that sentence the same
+section names a private child three times. `320/330` is an open 🎯 asking whether the
+precedence reaches doctrine's own prose and notes it would partly overturn PU-2. The
+delta is not at fault — its note was true when written and is literally still true — but
+a reader at HEAD meets the naming as settled and the rule as absolute, with no pointer
+that the principal has the question in front of him. Formed on the neighbour's edit, not
+on the delta.
+*Counsel:* apply nothing until `320/330` is ruled. Whichever way it goes, record the
+sweep list with the ruling: the three doctrine sites (`CONCURRENCY.md:114`,
+`PROPAGATION.md:399`, `:632`), and — if option (a) — note that item `040`'s title and
+quotation, `310/030`'s list and the generated index all carry the name too, so prose
+alone would not restore a veil.
+
+**PV3 — minor.** *The application has no `CHANGELOG.md` entry.* `CHANGELOG.md` carries
+"### Fixed (2026-08-18 — the canonical child block's index rule was lossy and
+mis-pointed)" at line 159, which sends a reader to `git diff --cached` "as the whole
+index" — the half of the story before the command itself was corrected — and carries
+entries for 2026-08-17 and 2026-08-23. Neither 2026-08-22 doctrine commit (`2489f12`,
+`1d19729`) has one. A correction to the one check every session runs at a dirty
+checkout is a notable change under the file's own header.
+*Counsel:* one `### Fixed (2026-08-22 — …)` entry naming PU-1 and PU-2, so the
+2026-08-18 entry is not the last word.
+
+**PV4 — note.** *Residue of the correction note.* With the command now plain and the
+sentence already saying "read the whole staged diff, paths included", the 2026-08-18
+bold clause at `CONCURRENCY.md:88–90` ("Read it as the whole index, not as your own
+hunks — the paths it shows that you never staged are the point") says the same thing a
+second time in the same bullet; the parenthetical sits between the check and its "other
+half", splitting a two-part rule; and the inserted text was not re-flowed — orphan lines
+at `CONCURRENCY.md:115` (48 columns) and `PROPAGATION.md:636` (28 columns), and line 88 at
+89 raw columns (clean under `wrapscan`'s own counting). Cosmetic.
+*Counsel:* fold the note to "(corrected 2026-08-22, PU-1 — the old form is in the
+record)", drop the duplicated clause, re-flow both paragraphs.
+
+### Overall
+
+**PASS-WITH-FINDINGS — 0 MAJOR · 1 MODERATE · 2 minor · 1 note.** The command is now
+right and the sentence claims no more than the command delivers; the naming is the ruled
+outcome and exposes nothing the public tree did not already hold; the boarded items say
+what the ruling said and have since closed. What the application missed is its own
+consequence: correcting the command falsifies the instance narrative that leans on the
+old one (PV1). No MAJOR, so under `REVIEW.md` § *Applying decisions to doctrine* this is
+the terminal application and the cycle closes on the principal's rulings, with no
+further pointer owed.
+
+### Re-run ledger
+
+All runs 2026-09-25 UTC, at `c4b9cd0`, in the scratch clone
+`<scratchpad>/PV/probe` unless stated. Exit codes read explicitly.
+
+1. **Index probe** — `<scratchpad>/PV/probe_index.sh` (a throwaway repo, git 2.50.1):
+   eight states — staged content edit, staged-then-edited, untracked, staged empty new
+   file, staged pure rename, staged mode-only change, staged binary, intent-to-add.
+   `git diff --cached`: six `diff --git` path lines (all six staged entries; rename, mode
+   and binary each carry their marker line). `git diff --cached --stat`: 6 files.
+   `git diff --cached -U0 | grep '^@@'`: 2 hunk headers, 0 paths. `git commit
+   --dry-run --short`: the same six staged; intent-to-add and untracked not taken.
+2. **Old text reproduced** — `git show f9eda42^:docs/method/CONCURRENCY.md`, lines 84–86:
+   the `-U0 | grep '^@@'` pipe with "compare the hunk headers"; `git show f9eda42`
+   shows the "whole index, not your own hunks" clause and the Bearing added 2026-08-18.
+3. **linkscan**, floor args — `python3 tools/linkscan.py --root <probe> docs/method`:
+   clean, exit 0.
+4. **pathscan**, floor args — `python3 tools/pathscan.py --warn --root <probe>
+   docs/method`: 1 pre-existing warn-only finding, not in the delta
+   (`docs/method/session-open/session-open-prompt.md:15`, a relative sibling-checkout
+   path); exit 0.
+5. **Floor, hook plane** — `python3 tools/floor.py --plane hook --root <probe> --tools
+   <probe>/tools`: exit 0; all enforced checks ✅; advisories: sizescan ×2 (index and
+   sessions log length), pointerscan ×1 (`160/380` grammar, not this pass), pathscan ×1
+   (item 4).
+6. **Floor, ci plane** — `python3 tools/floor.py --plane ci --root <probe>`: exit 0;
+   secretscan 22 advisory entropy findings (the standing set, none in the delta);
+   leakscan structural-only 🟡 as designed, `local-term×3` in the tally; same three
+   advisories as the hook plane.
+7. **Cold sweeps** — `python3 tools/coldsweep.py --root <worktree> --also-exclude
+   <160/280> "<pattern>"` for the old and new commands (32 hits / 510 files) and for the
+   veiled and named forms; 347 files barred by default plus the pointer. README exposure
+   disclosed under *Provenance*.
+8. **wrapscan** on the edited file — `python3 tools/wrapscan.py --root <probe>
+   docs/method/CONCURRENCY.md`: clean, exit 0 (line 88 is 89 raw columns; clean under the
+   tool's counting).
+9. **Reference resolution** — `ls` of every path the delta names, `grep -n '^#'` for
+   every section it names: all present (lens 2).
+10. **Forge** — `gh repo view <owner>/<child> --json visibility`: does not resolve under
+    the owner's account; consistent with `010/030`. Nothing further recorded.
+
+### Follow-up checklist
+
+- [ ] PV1 — principal's ruling on re-wording § *The instance* ¶3 and the Bearing.
+- [ ] PV2 — nothing until `320/330` is ruled; carry the three-site sweep list with it.
+- [ ] PV3 — one `CHANGELOG.md` entry for 2026-08-22, if the principal accepts.
+- [ ] PV4 — fold the note, drop the duplicate clause, re-flow; cosmetic, batch with PV1.
+- [ ] Not this pass's: `310/030`'s hand sweep of the ten children remains unrun;
+      `320/350`'s hook-window race is boarded and awaits its own ruling.
+
+### Reconcile — phase 2, written 2026-09-25 UTC after `7f4026b`
+
+Opened after phase 1 was committed, in this order: the sibling's text (by message from
+the orchestrator); the PU verdict and its reconcile in
+`docs/reviews/2026-08-21-0820-pointing-up-cold.md` (line 80 to end); the applier's
+record `docs/sessions/2026-08-22-0107-pointing-up-rulings-applied.md`; the six
+2026-08-22 index entries in `docs/SESSIONS.md` (lines 280–285); the queue pointer
+`160/280`; the section README `docs/roadmap/310-*/README.md`. Phase-1 text above is
+unrevised.
+
+**Against the intent records, per finding.**
+
+- **PV1 (MODERATE) — stands, and the intent record had already named it.** The PU
+  verdict's PU-1 carries, as its second consequence: *"Claim 1 ('the house had no gap')
+  overreaches… the honest statement is 'a smaller gap than the child found, not none':
+  detection by unexplained extra hunk headers, identification by nothing."* Its
+  **condition**, though, named only the command and the `030` shed note — and the
+  application met the condition to the letter (`310/050`: PU-1 `[fixed]` — § *The
+  trigger* prescribes plain `git diff --cached`) while leaving the narrative the same
+  finding said overreaches. The PU reconcile adds the origin: the section README
+  (written 2026-08-18) already states the parent's rule as plain `git diff --cached`,
+  and the 2026-08-18 session record states it as the pipe — *"the two intent records
+  disagree with each other about what the command is."* § *The instance* inherited the
+  README's framing. Records are kept verbatim, so the README is not the fix site;
+  the doctrine is. My probe extends the prior verdict's read: for four entry classes
+  (empty new file, pure rename, mode-only, binary) the old pipe gave **no detection
+  either** — not "identification by nothing" but nothing at all. Formed independently
+  in phase 1; converged with the intent record; severity unchanged.
+- **PV2 (minor) — stands; the stakes were weighed at ruling time.** The PU verdict
+  records that the named repo has no public remote and that its name was already public
+  throughout this repo's docs, and framed PU-2 as a ruling to make rather than a leak to
+  attribute — matching my lens-4 read. Nothing in the records anticipates the
+  2026-09-19 precedence; `320/330` remains the live question. Unchanged.
+- **PV3 (minor) — stands.** Neither the applier's record nor the index entry mentions
+  `CHANGELOG.md`; the omission is confirmed, not explained. Unchanged.
+- **PV4 (note) — stands.** Nothing in the records bears on it.
+
+**The seeded question (a floor, not a fence).** Its premise holds: the applier's record
+opens *"Tier: Fable (the pass's reviewer, same session)"*, and the pointer and the index
+entry both carry the neutral-hand caveat. Checked one ruling's applied text against the
+record of the ruling — PU-2, the one whose wording could drift, since PU-1's ruling was
+a command and a command cannot be paraphrased.
+
+**PV5 — minor, formed at reconcile.** *The applied PU-2 text attributes to the
+principal's ruling a rationale and a rider that the records show only as the
+reviewer-applier's own.* What the records hold of the ruling: the applier's record —
+*"PU-2 — the veil dropped: `cbom` named at all three doctrine sites with the ruling's
+date, class-rule-stands note beside it"*; the index entry — *"the veil dropped on his
+ruling"*; `310/050` — *"the veil dropped, `cbom` named in § The instance on his
+ruling"*. The commit body — *"his ruling, keep the naming, drop the veil"*. None
+records the principal's words or grounds. What the doctrine says at
+`PROPAGATION.md:632–635`: *"named on the principal's ruling (2026-08-22, PU-2: the veil
+was already defeated by this section's own item `040`, which quotes him naming the
+repo, so the honest shape is the naming; the class-never-specifics rule for what a
+child files upward stands unchanged)"*. The *"so the honest shape is the naming"* clause
+is the PU verdict's own argument (*"keep the naming and drop the veil (honesty over
+cosmetics)"*), and the *"stands unchanged"* rider appears first in the application
+commit — neither is in any record of what was ruled. The outcome applied is the
+outcome ruled; the **grounds** stated in the ruling's voice are the reviewer's, written
+into doctrine by the same session that argued them, which is the drift the seeded
+question names. Under `00-APEX.md` (*"present an inference in a verified fact's voice"*)
+and `RECORD.md`'s capture-verbatim practice, a ruling's grounds are either the
+principal's words or marked as the agent's reading. Small in wording, and the very
+class the neutral-hand preference exists to catch.
+*Counsel:* if the principal's grounds were as the doctrine states, say nothing more
+than that in the ruling record; if the reasoning was the reviewer's, re-cast the
+parenthetical as *"named on the principal's ruling, 2026-08-22 (PU-2); the reviewer's
+grounds — the veil was already defeated by item `040` — are in the verdict"*, and let
+`320/330`'s ruling decide whether the rider survives. Batch with PV1's edit, which
+touches the same paragraph.
+
+**Overall, restated: PASS-WITH-FINDINGS — 0 MAJOR · 1 MODERATE · 3 minor · 1 note.**
+No MAJOR, so this remains the terminal application: the cycle closes on the
+principal's rulings on PV1–PV5, with no further pointer owed.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — pu-rulings-applied (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-09-25-0715-pu-rulings-applied-cold.md` under
+REVIEW.md rule 1's split; held by the orchestrator outside the worktree. Folded
+into the brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/reviews/2026-08-21-0820-pointing-up-cold.md` — the PU verdict and its
+  ruling tags (PU-1 command fix, PU-2 naming). **Brief section read by the
+  brief-writer as a template; verdict not opened.**
+- `docs/sessions/2026-08-22-0107-pointing-up-rulings-applied.md` — the applier's
+  account. **Not opened.**
+
+## Prior verdicts and barred items on the same surfaces
+
+- the verdict `docs/reviews/2026-08-21-0820-pointing-up-cold.md` (PU; its
+  verdict and ruling tags are this delta's intent record). ⚠️ The brief-writer
+  read that file's **brief section only** (lines 1–80, as a formatting template)
+  — not its verdict
+- `docs/sessions/2026-08-22-0107-pointing-up-rulings-applied.md` and the
+  2026-08-22 entries in `docs/SESSIONS.md`
+- the board section README `docs/roadmap/310-*/README.md` (carries the
+  2026-08-18 ruling)
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+The pointer carries no lens paragraph — refs only.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+1. The pointer says the applier also authored the verdict being applied. Where a
+   reviewer both finds and applies, the application can encode the reviewer's
+   *recommendation* rather than the principal's *ruling* where the two differ in
+   wording — check one ruling against its applied text for that drift.
