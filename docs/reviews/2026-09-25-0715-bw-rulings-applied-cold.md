@@ -421,3 +421,131 @@ tool checks it; the MAJOR is the claimer's stop rule that the rewrite orphaned.
 - [ ] BA3, BA4, BA7 — wording; doctrine lines wait on the ruling, docstring/README ordinary.
 - [ ] BA5 — CHANGELOG closure entry; `010/030` gate note; `320/120` findability note.
 - [ ] BA6 — shape decision, the principal's; no edit until ruled.
+
+### Reconcile — phase 2, 2026-09-27 UTC, after phase 1 was committed (`d1ac3e0`)
+
+**Opened as the second act:** the sibling's text (released by the orchestrator by message);
+the BW verdict `docs/reviews/2026-08-17-1321-bs1-wording-cold.md` (findings, reconcile and
+§ *Rulings — 2026-08-23*); board item `290/050`; the session records
+`docs/sessions/2026-09-18-0114-queue-run-hand-up-fixes.md` (its `010/090` passages) and
+`docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md` (in full); and the
+`docs/SESSIONS.md` index lines the grep for those two runs returned. Phase-1 text above is
+unrevised.
+
+**The seeded question.** *Is a sentence that defers its own restatement to another section a
+rule or a placeholder, and does CF3 at HEAD restate or relax it?* A placeholder: it names no
+posture a claimer can act on, and CF3 at HEAD does neither — branch A excludes the sibling
+case, branch B never reaches it, and the 🎯 paragraph describes a relaxation it declines to
+make. This is BA1, formed in phase 1 before the sibling was read; the seeded framing and
+mine coincide, which is the strongest trigger REVIEW.md names for trusting the finding.
+
+**Per finding, against the intent records:**
+
+- **BA1 — not anticipated by the 2026-09-20 run; contradicted by every ruling it descends
+  from.** The stop sentence was *ruled* twice: it is BS1 counsel (c)'s first half, applied
+  2026-08-17 under Mike's ruling and recorded so in `290/050` ("with the
+  dirty-sibling-is-a-stop sentence, BS1 counsel (c)"); BW4 then found it losing to CF3's
+  unedited branch test and the 2026-08-23 ruling widened CF3 "to sibling state lines" — the
+  widening of branch A's exclusion, with the stop still living in the parenthetical. So at
+  `80e6fc0` the sibling case was answered, findably or not (`320/120`'s "findability defect,
+  not a gap" was correct on 2026-08-24). The 2026-09-20 delta then removed the ruled sentence
+  and pointed at a section that never carried it, while its commit message says "CF3 is
+  deliberately NOT relaxed … flagged in the section itself". The 2026-09-20 session record
+  has **no account of this decision at all** (BA8 below), so there is no rationale to
+  reconcile against beyond the commit message. Severity confirmed MAJOR, sharpened: a
+  sentence the principal ruled into doctrine was deleted by a session without a ruling, and
+  the records say it still stands. The BW cycle's own reconcile had traced the *condition*
+  phrase surviving four hand-offs unexamined; this is the *stop* sentence not surviving one.
+- **BA2 — new.** Neither BS1's probes (P4/P6), BW's four scratch cases (a)–(d), nor the
+  2026-09-20 run's throwaway-repository reproductions exercised a filename git quotes. Stands.
+- **BA3 — half anticipated.** BW1's ruled wording is precise ("what was never staged, it
+  cannot vouch for"), and the ruling round used "staged"/"unstaged" throughout; the surfaces'
+  "dirty" descends from BS1's slip description ("sibling's dirty item line", `290/050`). No
+  ruling fixed the vocabulary. Stands, minor.
+- **BA4 — not anticipated.** The 2026-09-18 record and its index entry record `010/090`
+  ("board flags … the docs/help surfaces a human reads" respelled); the 2026-09-20 rewrite
+  regressed the CONCURRENCY spelling without recording it. Stands, minor.
+- **BA5 — the CHANGELOG half was anticipated and then lost.** BW's reconcile (Q6) counted the
+  CHANGELOG as a fifth spelling that "inherits BW1"; BW6's ruled unwind list in `010/020`
+  named five surfaces and not the CHANGELOG, so the 2026-09-20 sweep — which followed that
+  list exactly — never reached it. Stands; the fix is one entry.
+- **BA6 — not raised in the BW round.** BS1's ruling said "the four sentences"; BW's brief
+  said "five spellings"; nobody asked whether four should point at one. Counsel stands.
+- **BA7 — partly ruled.** BW5 (merge the two residual accounts) was ruled and applied; the
+  2026-09-20 rewrite kept one account and retired it. BW8 (ruled no change) named the
+  false-fail direction — the hook redding a consistent commit whose worktree moved after
+  staging. On the staged plane that friction is gone by construction: probe S3(ii) shows the
+  hook passing while the worktree `--check` reds, the same property from the other side. So
+  BW8's residual is closed and BA7's two live residuals (BA2, the hand-run remedy) are the
+  ones an honest account would list. Note stands.
+- **BW9 (ruled no change)** — the CI cancel-in-progress caveat is unchanged at HEAD and still
+  unstated on any surface; recorded as ruled, no finding.
+- **BW verdict follow-up 3** ("at `010/020`'s landing: retire the five conditional spellings
+  plus the preamble's unqualified one in the same commit") — done across two commits
+  (`4412be8` the worker's, `b2a54f1` the sweep), verified in phase 1; the preamble is the
+  roadmap README, corrected.
+
+**BA8 — minor (records), formed at reconcile.** The 2026-09-20 session record contains no
+account of the `010/020` build, the five-surface sweep, or the choice to delete the CF3 stop
+sentence: its sections are `020/390`, the peer exchange (which records `010/020`'s
+propagation evidence only), and `cbom-70`; it has no closing block, and `docs/SESSIONS.md`
+carries no index entry for the run (grep for `2026-09-20-1053`, none). Inference, marked as
+such: the run was cut before its close — the brief-writer's own provenance mentions an
+interrupted-session sweep on 2026-09-20. Consequence: the only durable rationale for the
+doctrine edit under review is a commit message and two board items, which is the shape
+`RECORD.md` § *Surviving an interrupted session* exists to prevent and, for BA1, means the
+deletion cannot be reconciled against any recorded reasoning. *Counsel:* a closing entry for
+that run, written from its commits, stating what the sweep did to § *On a split board* and
+why the stop sentence was dropped — even if the answer is "by oversight".
+
+**Cycle state.** This is the application review of the BW rulings; it returns a MAJOR, so the
+wording cycle stays **OPEN on BA1**, and BA1 contests the removal of a ruled sentence, so the
+next move is the principal's (with `010/160` and `320/120` folded in), not an author rewrite.
+Nothing is applied by this pass.
+
+**Overall, restated: PASS-WITH-FINDINGS — 1 MAJOR (BA1), 1 MODERATE (BA2), 4 minor (BA3–BA5,
+BA8), 2 notes (BA6–BA7).**
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — bw-rulings-applied (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-09-25-0715-bw-rulings-applied-cold.md` under
+REVIEW.md rule 1's split; held by the orchestrator outside the worktree. Folded
+into the brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/reviews/2026-08-17-1321-bs1-wording-cold.md` § *Rulings — 2026-08-23* —
+  the principal's dispositions BW1–BW9, and the re-briefed plain wording for
+  BW1. **Not opened by the brief-writer.**
+- `docs/sessions/2026-09-18-0114-queue-run-hand-up-fixes.md` — the 2026-09-18
+  widening's account (`010/090`). **Not opened by the brief-writer**; its
+  `docs/SESSIONS.md` index entry was read at onramp.
+- `docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md` — the 2026-09-20
+  run that rewrote the same section (`010/020`). **Partially read by the
+  brief-writer** (head and tail; the `010/020` section itself not opened).
+
+## Prior verdicts and barred items on the same surfaces
+
+- the verdict `docs/reviews/2026-08-17-1321-bs1-wording-cold.md` (BW; its §
+  *Rulings — 2026-08-23* is this delta's intent record)
+- the board item `docs/roadmap/290-*/050-*.md` (the BS1 ruling wording)
+- `docs/sessions/2026-09-18-0114-queue-run-hand-up-fixes.md` and
+  `docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md`
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+The pointer carries no lens paragraph — refs only.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+1. The brief-writer read § *On a split board* at HEAD (lines ~291–312) during
+   its own onramp, before this brief. That text says the hook check landed
+   2026-09-20 and that the CF3 stop rule is "CF3's to restate or relax now that
+   its cause is closed; see there". Is a doctrine sentence that defers its own
+   restatement to another section a rule, or a placeholder — and does CF3 at
+   HEAD actually restate or relax it?
