@@ -68,14 +68,15 @@ The 2026-08-09 / 2026-08-15 pattern, run at full width:
 | CC | 210/130 ccmail build | 1 MAJOR · 4 MODERATE · 6 minor · 2 note | OPEN |
 | PW | 300/040 PT rulings applied | 0 MAJOR · 2 MODERATE · 5 minor · 3 note | closed |
 
-Totals: 10 MAJOR · 52 MODERATE · 86 minor · 62 note across twenty verdicts.
+Totals: 9 MAJOR · 52 MODERATE · 86 minor · 62 note — 209 findings across twenty
+verdicts; 8 cycles OPEN, 12 closed.
 "Closed" means the cycle terminates on this pass (no MAJOR) and what remains
 is decided into the backlog; "OPEN" means a MAJOR stands. **Every finding is
 the principal's to decide (rule 3); nothing was applied.** Each verdict file
 carries its findings, its reconcile against the intent records, and the folded
 sibling; each pointer carries the pass's outcome line.
 
-## The ten MAJORs, in one line each
+## The nine MAJORs, in one line each
 
 - **AR1** — ADR 0008's 2026-08-23 amendment says `main` has no ruleset and
   signing is warn-first; a ruleset with deletion, non-fast-forward and
@@ -132,10 +133,19 @@ sibling; each pointer carries the pass's outcome line.
 
 ## Owed by the principal
 
-🎯 **A ruling round on 210 findings, ten of them MAJOR**, in the twenty
-verdict files under `docs/reviews/2026-09-25-0715-*`. The nine OPEN cycles
+🎯 **A ruling round on 209 findings, nine of them MAJOR**, in the twenty
+verdict files under `docs/reviews/2026-09-25-0715-*`. The eight OPEN cycles
 (AR, BA, DR, RU, RC, SK, HP, CC — AR carrying two) block their application
-passes until ruled; the eleven closed ones decide into the backlog. RC1 and
+passes until ruled; the twelve closed ones decide into the backlog. RC1 and
 AR1 are the two a reader should meet first: one is a silent-green in two
 enforced guards on every commit under a common git config, the other a
 security-control clause inherited by every child that is wrong at HEAD.
+
+## Correction — 2026-09-26, the batch's own arithmetic
+
+The totals, the MAJOR count and the open/closed split above were first
+written as 10 MAJOR, 210 findings, nine OPEN and eleven closed. Recounted from
+the outcome table they are 9, 209, 8 and 12; the table itself was right and
+the prose summarising it was not. Corrected in place by the closing Opus 5.5
+session (the Fable budget ran out after the last close); the `SESSIONS.md`
+index line is corrected the same way.
