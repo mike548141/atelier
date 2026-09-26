@@ -29,3 +29,20 @@
       spawns forms every finding and severity. The sibling, the intent record
       and prior verdicts stay unopened by the reviewer until its phase-1
       findings are committed. Provenance and exposure go in the verdict.
+      - [ ] 🛑 **The pass RAN 2026-09-26 and the cycle stays OPEN — a MAJOR
+            stands.** The rule-4 Fable cold pass (taker: a fresh
+            `claude-fable-5-1` subagent under a `claude-fable-5-1` orchestrator
+            — the shape disclosed in the claim above; the sibling, the intent
+            record and prior verdicts opened only after the phase-1 findings
+            were committed) returned PASS-WITH-FINDINGS — 1 MAJOR · 7 MODERATE ·
+            3 minor · 1 note →
+            [`2026-09-25-0715-report-up-duty-cold.md`](../../reviews/2026-09-25-0715-report-up-duty-cold.md)
+            (sibling folded in and deleted). RU1 (MAJOR): the floor bullet, the
+            text that binds when atelier is never read, carries the four
+            parent-protecting no-harm rules and omits rule 2's class-only
+            privacy rule, so a private child following its block can name itself
+            on four irretractable surfaces, and blockscan cannot see the
+            subsection edit; RU12 (MODERATE) formed at reconcile: a hand-up's
+            number collision is only checkable parent-side and that check is a
+            record, not a rule. Findings are the principal's to decide (rule 3);
+            nothing was applied.

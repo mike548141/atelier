@@ -38,3 +38,19 @@
       sibling, the intent record and prior verdicts stay unopened by the
       reviewer until its phase-1 findings are committed. Provenance and exposure
       go in the verdict.
+      - [ ] 🎯 **The pass RAN 2026-09-26; the cycle CLOSES on this pass (no
+            MAJOR) — what remains is decided into the backlog.** The rule-4
+            Fable cold pass (taker: a fresh `claude-fable-5-1` subagent under a
+            `claude-fable-5-1` orchestrator — the shape disclosed in the claim
+            above; the sibling, the intent record and prior verdicts opened only
+            after the phase-1 findings were committed) returned
+            PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE · 6 minor · 3 note →
+            [`2026-09-25-0715-staged-plane-check-cold.md`](../../reviews/2026-09-25-0715-staged-plane-check-cold.md)
+            (sibling folded in and deleted). SG1 (MODERATE): a non-ASCII item
+            file name is C-quoted by git ls-files, so the staged plane silently
+            drops the item and the hook passes a stale index; SG2/SG3
+            (MODERATE): the sweep deleted the only imperative statement of the
+            sibling-dirty stop, and the relaxation put up for ruling must say
+            unstaged, since a sibling's staged edit is absorbed into the claim
+            commit; SG11/SG12 formed at reconcile. Findings are the principal's
+            to decide (rule 3); nothing was applied.

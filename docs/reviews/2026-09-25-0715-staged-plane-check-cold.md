@@ -502,3 +502,168 @@ the principal rules on CF3.
 - [ ] SG8 — `010/160` cross-referenced with `320/120` and `030/140`; one ask.
 - [ ] SG9 — assert `--staged` in `board`'s hook template in `test_floor`.
 - [ ] SG10 — on ruling, sweep the duplicated ask out of one home.
+
+### Reconcile — written 2026-09-26 (14:20 UTC), after phase 1 was committed (`d1ac3e0`)
+
+Opened as the second act, on receipt of the sibling's text from the orchestrator:
+the session record `docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md`
+(its `010/020` and cross-session sections), the funded item `010/020` with its
+unwind list, the BW verdict `docs/reviews/2026-08-17-1321-bs1-wording-cold.md`
+(findings, lenses, rulings and application note), `115/080`, and the queue
+pointer `160/390` with its lens hints. The delta paths are unchanged between
+`c4b9cd0` and the worktree's HEAD at the time of writing (`git diff --stat`
+empty), so phase 1 stands against the same text. Phase-1 text is not revised.
+
+**The pointer's four lens hints, answered.**
+
+1. *Is the index on both sides the right question in every case, or does a
+   merge in progress or a partial `add -p` make it the wrong one?* — Answered
+   in lens 1 before the hint was read: partial staging and the index-file merge
+   are right-question states and behave as the design says (S3, S4); the
+   item-file merge and an intent-to-add entry are the states where the reader
+   misreads the index (SG4). No state made the question wrong.
+2. *Is importing `harvestscan` at module scope the right way to share the
+   plane vocabulary, given `115/080`, and what does it do to a child on
+   `$ATELIER_TOOLS`?* — The import is the right direction by `115/080`'s own
+   test (N copies is the downstream signature): one `WORKTREE`/`INDEX`/
+   `git_show` rather than a second. A child is unaffected because the hook
+   hands every scanner one tools directory (S10, including a symlinked dir
+   with the cwd elsewhere). What the delta did *not* share is the listing:
+   `_index_sections` re-implements `list_markdown`'s `ls-files` call instead
+   of calling it, which is why SG1 and SG6 exist twice — the harness item's
+   class, one copy larger.
+3. *Is the registry wiring as safe as its comment claims, given the 2026-09-19
+   refusal?* — Yes, on the code's ground (lens 1, A7), independently of the
+   comment. The run's account argues the same from the hook's source and then
+   reports a child observing the plane change mid-sitting; my read agrees with
+   both.
+4. *Do the swept surfaces agree with each other and with the code?* — With the
+   code, yes on every surface I drove. With each other, no at one seam: § *On a
+   split board* points at CF3 for a rule CF3 does not state (SG2), and three
+   spellings of the relaxation ask rest on "dirty" where only "unstaged" is
+   true (SG3).
+
+**The brief-writer's seeded question.** *Did the BW application and the
+2026-09-20 rewrite leave one coherent section or two layered ones?* — Two
+layered ones, and the seam is SG2. `80e6fc0` (BW4 as ruled) widened branch A's
+*exclusion* to "any item's state line — yours or a sibling's" and left the stop
+itself in the split-board parenthetical; branch B was never widened. `b2a54f1`
+then removed the parenthetical's stop, replaced it with "is CF3's to restate or
+relax … see there", and added the 🎯 paragraph beneath CF3 saying the rule is
+unrelaxed. A reader at HEAD meets BW's widened exclusion, a pointer to a
+restatement that never happened, and a ruling ask — three layers, no
+sentence. One further coherence point formed here (SG12 below).
+
+**Per-finding reconcile — anticipated, ruled or rejected in the records?**
+
+- **SG1** — not anticipated. BW's probes were plane-level; `010/020` reports
+  eleven regression tests and four children probed, none with a non-ASCII
+  name; the record makes no claim about path quoting. Stands.
+- **SG2** — BW4 named the altitude defect (a binding claiming rule inside a
+  parenthetical, the procedure beside it unwidened) and was ruled *fix as
+  recommended*; the application widened branch A's exclusion only. BW6's
+  unwind list in `010/020` then named § *On a split board* as a surface to
+  re-word or drop at landing, and the landing dropped the sentence without
+  CF3 receiving it. So SG2 is BW4's defect returning through BW6's unwind:
+  anticipated in class, not in this form, and not ruled. Stands.
+- **SG3** — not anticipated. Every record says "unstaged" where it describes
+  the tool (the run's account: "a sibling's unstaged edit cannot reach the
+  generated file at all" — true, S2) and "dirty" where it proposes the
+  relaxation (`010/160`, the 🎯 paragraph, the ADR). The gap between the two
+  words is S2b. Stands, and it bears on the ask `010/160` puts.
+- **SG4** — the merge and `add -p` states were the author's own first lens
+  hint, so anticipated as a question; no record claims a behaviour for the
+  item-file merge or intent-to-add. Stands.
+- **SG5, SG6** — not anticipated. The docstring's "not fail-open" is the only
+  claim touching SG6, and it is the claim SG6 falsifies for the git-error
+  branch. Stand.
+- **SG7** — BW counted the CHANGELOG as the fifth spelling at `431f1f7` and
+  found it agreeing; `010/020`'s unwind list names five surfaces and, rightly,
+  no log entry to retire — but the landing added no entry either, and the
+  session record does not mention the CHANGELOG. Stands.
+- **SG8** — not anticipated; `320/120` was filed 2026-08-24, after BW, and
+  neither the run's account nor `010/020` cites it or `030/140`. Stands.
+- **SG9, SG10** — not anticipated. Stand.
+- **BW8, reconciled the other way:** ruled *no change* on 2026-08-23, it is
+  closed by the mechanism — the hook no longer reds a consistent commit whose
+  worktree moved after staging (S4(i), S6(ii), S7(ii): staged 0, worktree 1).
+  BW7's `why` string still prints the unqualified aspiration; ruled no
+  change, unchanged.
+- The run's claims re-driven and confirmed: both slips reproduced live (S1,
+  S2); `--from-index` leaves the sibling's on-disk file untouched (S2); the
+  four child geometries (S10); the wiring safe from one checkout (A7).
+
+**Findings formed at reconcile** (numbered on; marked as such):
+
+- **SG11 — note (record accuracy), formed at reconcile.** `010/020` says
+  "Eleven regression tests pin them"; the `StagedPlane` class holds ten
+  (`def test_` count at `c4b9cd0`). Off by one, in the item that funds the
+  record.
+- **SG12 — minor (doctrine coherence), formed at reconcile.** § *On a split
+  board* now prescribes `rebuild --from-index` "at a dirty" checkout. On a
+  checkout whose dirt does not touch any state line, the two rebuilds read the
+  same state lines and produce the same index; the flag only differs where a
+  sibling's state line is dirty — the exact case CF3 stops. So the sentence
+  either prescribes a no-op or presupposes claiming where the standing rule
+  forbids it, until `010/160` is ruled. The principal's, with SG2 and SG3.
+  *Counsel:* say "at a checkout whose dirt is a sibling's unstaged state line,
+  if and when CF3 permits claiming there".
+
+**Overall, restated: PASS-WITH-FINDINGS — 0 MAJOR / 3 MODERATE / 6 minor /
+3 note** (phase 1's 0 / 3 / 5 / 2, plus SG12 minor and SG11 note formed at
+reconcile). Nothing in the records anticipated, ruled or rejected SG1–SG10 in
+the form found; SG2 is BW4's class returning through the unwind. Per rule 3,
+nothing is applied; SG2, SG3, SG8, SG10 and SG12 join the `010/160` ask as one
+decision.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — staged-plane-check (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-09-25-0715-staged-plane-check-cold.md` under
+REVIEW.md rule 1's split; held by the orchestrator outside the worktree. Folded
+into the brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md` — the run's
+  account, including why the wiring was judged safe. **Partially read by the
+  brief-writer** (head and tail; not the `010/020` section).
+- `docs/roadmap/010-*/020-*.md` — the funded item, with its unwind list. **Not
+  opened.**
+- `docs/reviews/2026-08-17-1321-bs1-wording-cold.md` — BW, the pass whose BS1
+  fund this work discharges. **Not opened.**
+
+## Prior verdicts and barred items on the same surfaces
+
+- `docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md` (⚠️ head and tail
+  read by the brief-writer; the `010/020` section not opened)
+- the verdict `docs/reviews/2026-08-17-1321-bs1-wording-cold.md` (BW — where
+  BS1's fund was ruled)
+- the board items `docs/roadmap/010-*/020-*.md`, `docs/roadmap/115-*/080-*.md`
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+**The lenses that matter most here:** whether reading the index on both
+sides is genuinely the hook's right question in every case, or whether
+some third state (a merge in progress, a partial `add -p`) makes it the
+wrong one; whether `board.py` importing `harvestscan` at module scope is
+the right way to share the plane vocabulary given `115/080`'s open
+question about a shared harness, and what it does to a child resolving
+tools through `$ATELIER_TOOLS`; whether the registry wiring is as safe as
+its comment claims, given that a previous registry wiring was refused as
+unsafe on 2026-09-19 for a reason that reads similarly; and whether the
+swept doctrine surfaces now agree with each other and with the code, the
+original BS1 defect having been four surfaces asserting a guarantee the
+tool did not provide.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+1. The brief-writer read § *On a split board* at HEAD during onramp. It defers
+   CF3's restatement with "see there". The `160/260` pass reviews the BW
+   application on the same section; this pass reviews the 2026-09-20 rewrite.
+   Say, at reconcile, whether the two deltas left one coherent section or two
+   layered ones.

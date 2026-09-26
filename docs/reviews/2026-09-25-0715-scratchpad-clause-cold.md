@@ -525,3 +525,174 @@ ci plane finished).
 - [ ] SK9 — brief template: `--also-exclude` every listed path; rule 2 gains
       the `./`-prefix instance (this pass, 2026-09-25).
 - [ ] Phase 2 — reconcile against the sibling on receipt.
+
+### Reconcile (written 2026-09-26, 14:18–14:35 UTC)
+
+**What was opened at reconcile, and only then:** the sibling's text as sent by
+the orchestrator; `docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md`
+lines 1–107 (the `020/390` section); the `020/390` item in full; the `160/380`
+pointer in full. Phase-1 text above is unrevised.
+
+**A fact I was told, and what of it I checked.** The orchestrator reports that
+on reading SK1 it moved the twenty siblings and the batch toolkit out of the
+shared scratchpad into a user-local directory outside the harness's scratch
+path. Verified by listing at 2026-09-26 14:18 UTC: `siblings/`, `gen.py` and
+`passes.py` are absent from the scratchpad root (the other orchestrator files
+remain there; the root also shows 21 prefix directories — a second wave landed
+on the same shared root). Not verified: the new location's contents — the
+harness set my phase-2 working directory *inside* that new siblings directory,
+so I know its path without having listed it. That last detail is itself
+evidence for SK1's counsel (b): a store the reviewer is not *given* can still
+reach the reviewer as a path through the harness's cwd inheritance, so no
+disk-held shape on a same-user machine is structural; the relocation removes
+the trap of the harness labelling the store as the reviewer's own, which is
+the material improvement, and leaves the arrangement a strong default with an
+audit trail. The cwd change under me mid-pass is also a live instance of the
+hazard SK2 says is recorded nowhere in doctrine.
+
+#### Against the pointer's four lens hints (the author's seeded questions)
+
+1. *Is a prompt obligation the right instrument when no check can see a
+   worker's scratch writes, given `370`?* Anticipated by nothing in phase 1
+   as a question; answered by SK3 and SK8 in substance. My answer: the right
+   instrument **for the allocation** (the path is the harness's), the wrong
+   *placement* (SK3 — nowhere a dispatcher stands), and not the only check
+   available — see SK10, formed here.
+2. *Is the expiry a real condition a future reader can evaluate, or an escape
+   hatch?* Anticipated: SK8(b). Real condition, unwritten test; with the test
+   written into the clause it is evaluable in one command and stops reading as
+   a hatch.
+3. *Is the grounding strong enough for the claim's width — one harness, one
+   machine, one day?* Anticipated: lens 1 and the measurement. A second
+   measurement five days later on the same harness, 7 then 21 concurrent
+   agents, confirms the core claim; the width stays one harness, and the
+   clause's own scoping ("the harness's to allocate") is honest about that.
+   The intent record's "no per-agent namespacing at any depth" (line 27) is
+   what I found too.
+4. *Does the provenance note earn its place; treat the corrected attribution
+   as a claim.* Anticipated: SK5 and lens 2. Reading the record: the full
+   sequence (lines 45–106, including a real cost — two of a third session's
+   files deleted on the wrong attribution, one not reconstructable) lives in
+   the intent record and the item already, so the clause's paragraph is a
+   *third* statement of it and § *The channel* line 539 a standing fourth.
+   SK5 stands; the record is the right home and holds more than the clause
+   does. The corrected attribution: the record's chain (peer's transcript
+   check, third session, five files) is consistent with `df2d4e7`'s message
+   and with the item; still not re-runnable from the tree; I take it as a
+   claim recorded honestly, not as a fact restored — which is what the hint
+   asked.
+
+#### Against the brief-writer's question
+
+1. *Siblings moved from the worktree into the scratchpad — from one reachable
+   place to another?* **Yes**, and this is SK1 exactly, formed before the
+   question was read. The move defeated the tree-wide-grep vector and created
+   a worse one: the harness told each reviewer that directory was its own.
+   The orchestrator's mid-batch relocation (above) closes the labelling trap;
+   it does not make the partition structural, and REVIEW.md rule 1 should
+   stop saying it is (SK1 counsel b).
+
+#### Per finding, against the intent records
+
+- **SK1** — not anticipated. The record and item treat the shared scratch as a
+  collision surface only; confidentiality of what an orchestrator holds there
+  does not appear. Stands, MAJOR.
+- **SK2** — corroborated. The record says the cwd hazard is one "this estate
+  has recorded three times" (line 84) — the estate, not this repo's doctrine
+  — and that it "recurred during this very measurement"; it recurred again for
+  me at phase 2. The clause's § *Integration hygiene* citation still resolves
+  to nothing. Stands, MODERATE.
+- **SK3** — not anticipated. The item's *Owed* line offered "say in the
+  dispatch doctrine" and the run said it in `CONCURRENCY.md` alone; the skill
+  was never in view. Stands, MODERATE.
+- **SK4** — confirmed on opening the pointer: lines 11–23 are evaluative lens
+  hints, and lines 26–36 the claim block. `df2d4e7`'s message shows the hints
+  were added deliberately as a feature, not seen as a ceiling breach. Stands,
+  MODERATE.
+- **SK5** — anticipated as a question (hint 4), answered against the author's
+  position ("kept because the correction is the lesson"). Stands, minor.
+- **SK6** — confirmed by the record itself: the `msg*` files sat in "the
+  directory every project's scratchpad hangs off" (line 33 — per-user), while
+  the two wrongly-attributed files sat in the "per-project scratchpad parent"
+  (item line 42). The clause at HEAD puts the `msg*` run in the per-project
+  parent, which is the conflation `df2d4e7` introduced. Stands, minor.
+- **SK7** — not anticipated; the record describes the same shape in the
+  author's own run (a worker's tree "landed beside the orchestrator's own
+  `claim-msg.txt`", lines 27–29) as the *measurement*, never as the
+  orchestrator's own obligation unmet. Stands, minor.
+- **SK8** — (b) anticipated by hint 2; (a) not. Stands, note.
+- **SK9** — the sibling confirms the brief-writer never opened `020/390`; the
+  omission was in the sweep command, not the intent. Stands, note.
+- Checked and dropped: the record names a private child repo (lines 58, 100)
+  in this public tree; a count-only grep finds the name in 51 files including
+  `docs/method`, established since 2026-07-11 — no finding.
+
+**SK10 — note — formed at reconcile — A check *can* see scratch writes, at
+the orchestrator's close.** Hint 1 assumes no check can reach them. The
+orchestrator owns the root every worker is handed; one `ls` of that root after
+a wave, against the set of names it dispatched, shows every write that escaped
+a named directory — § *Integration hygiene*'s own "verify the act, not the
+absence of an error", applied to scratch. It reaches neither bare `/tmp` nor
+the harness's `tool-results/`, so it is partial; but it turns the obligation
+from unenforced into checked-at-close for the radius that matters most, and
+`370`'s class shrinks by one. *Counsel:* one line in the clause and in the
+queue-run skill's per-item close.
+
+**Overall, restated:** **PASS-WITH-FINDINGS** — 1 MAJOR (SK1) · 3 MODERATE
+(SK2, SK3, SK4) · 3 minor (SK5, SK6, SK7) · 3 notes (SK8, SK9, SK10). No
+phase-1 finding withdrawn or re-graded at reconcile; one note added.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — scratchpad-clause (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-09-25-0715-scratchpad-clause-cold.md` under
+REVIEW.md rule 1's split; held by the orchestrator outside the worktree. Folded
+into the brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md` — the run's
+  account of the measurement and of the attribution error. **Partially read by
+  the brief-writer** (see the brief's barred list); the measurement's core claim
+  — three workers wrote into the orchestrator's single scratchpad with no
+  per-agent namespacing — was seen.
+- `docs/roadmap/020-*/390-*.md` — the item that asked for the measurement. **Not
+  opened.**
+
+## Prior verdicts and barred items on the same surfaces
+
+- `docs/sessions/2026-09-20-1053-queue-run-the-loose-ends.md` — ⚠️ the
+  brief-writer read its **first 30 lines** (the tier line, onramp, selection,
+  and the opening of the `020/390` measurement paragraph — which is this
+  clause's evidence) and its last ~3,000 characters (an unrelated PR section)
+  during the interrupted-session sweep at onramp. That exposure is disclosed
+  here and in the sibling; the reviewer forms its own measurement first
+- the board item `docs/roadmap/020-*/390-*.md`
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+**The lenses that matter most here:** whether a prompt obligation is the
+right instrument at all when no check can see a worker's scratch writes,
+given `370`'s own finding that an unenforced rule is the class this
+estate keeps re-breaking; whether the clause's stated expiry — spent if
+the harness namespaces scratch per agent — is a real condition a future
+reader can evaluate, or an escape hatch; and whether the grounding is
+strong enough for the claim's width, given that the measurement covers
+one harness on one machine on one day; and whether the clause's retained
+provenance note earns its place, given that the artefacts it rests on
+were **wrongly attributed for about an hour and the first published
+version of the clause rested on that error** — the reviewer should treat
+the corrected attribution as itself a claim to check, not a settled fact
+restored.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+1. This batch's orchestrator moved every `.deferred.md` sibling **out of the
+   worktree into the session scratchpad** before spawning, on a memory that a
+   reviewer's tree-wide grep otherwise reaches them. If the clause is right that
+   the scratchpad is shared, that mitigation moved the siblings from one
+   reachable place to another. Say whether that is so.

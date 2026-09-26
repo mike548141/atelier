@@ -72,3 +72,22 @@
       sibling, the intent record and prior verdicts stay unopened by the
       reviewer until its phase-1 findings are committed. Provenance and exposure
       go in the verdict.
+      - [ ] 🛑 **The pass RAN 2026-09-26 and the cycle stays OPEN — a MAJOR
+            stands.** The rule-4 Fable cold pass (taker: a fresh
+            `claude-fable-5-1` subagent under a `claude-fable-5-1` orchestrator
+            — the shape disclosed in the claim above; the sibling, the intent
+            record and prior verdicts opened only after the phase-1 findings
+            were committed) returned PASS-WITH-FINDINGS — 1 MAJOR · 1 MODERATE ·
+            4 minor · 2 note →
+            [`2026-09-25-0715-bw-rulings-applied-cold.md`](../../reviews/2026-09-25-0715-bw-rulings-applied-cold.md)
+            (sibling folded in and deleted). BA1 (MAJOR): the 2026-09-20 rewrite
+            of § On a split board deleted the dirty-sibling stop sentence and
+            pointed at CF3, whose branches cover the sibling case in neither, so
+            the claimer's rule has no operative home at HEAD while the ADR
+            amendment, 010/020, 010/160 and the landing commit all say CF3 still
+            stops that claim — a sentence ruled twice (BS1 counsel (c)
+            2026-08-17, BW4 2026-08-23); BA2 (MODERATE): a staged item whose
+            filename carries a macron is silently dropped by the index plane;
+            BA8 (minor) formed at reconcile: the 2026-09-20 run's record has no
+            010/020 section and no closing block. Findings are the principal's
+            to decide (rule 3); nothing was applied.

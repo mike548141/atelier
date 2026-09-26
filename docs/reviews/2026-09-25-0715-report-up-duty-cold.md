@@ -554,3 +554,166 @@ applied here.
 - [ ] RU8–RU10 — the three wording fixes, in one application commit.
 - [ ] RU11 — hand the three out-of-scope reds to their owners.
 - [ ] Phase 2 — reconcile against the sibling on release; overall line restated there.
+
+### Reconcile — phase 2, written 2026-09-26T14:19Z
+
+**Sequence and exposure, disclosed.** Phase 1 was committed unrevised (`d1ac3e0`)
+before the orchestrator released the sibling's text by message. Opened after that
+and only then: the two intent records the sibling names, `310/100`, `310/110`, the
+queue pointer `160/300`, the session record the seeded question cites
+(`docs/sessions/2026-09-17-eleven-hand-ups-merged-and-the-yard-swept.md`), the
+prior pointing-up verdict's PU-2, PU-3 and ruling round
+(`docs/reviews/2026-08-21-0820-pointing-up-cold.md`), the `docs/SESSIONS.md`
+index lines for 2026-08-24 and 2026-09-16, and grep hits in the 2026-08-24
+session record. One wide grep ran over `docs/sessions/`, `docs/reviews/` and the
+board, by hand rather than through `coldsweep --include-barred`, to ask whether
+any phase-1 finding had been anticipated; that is a wide sweep and it is
+disclosed here. No other `2026-09-25-0715-*` file was opened. Nothing in phase 1
+was revised.
+
+**The sibling's shape.** The pointer carries no lens paragraph — confirmed, refs
+only — and the sibling seeds one question. Its intent records are the ones the
+brief already named, so the delta's account below is the author's own two
+session records, read now for the first time.
+
+#### Per finding, against the intent records and the seeded question
+
+- **RU1 (MAJOR, stands).** The 2026-08-23 record says the block gained its bullet
+  "so it binds in a child that never opens atelier" — the purpose is stated and
+  the omission is not. The 2026-09-18 record carries the principal's ruling on
+  `320/300`, *"Build the check"*: a doctrine change must be checked against the
+  child block's copy of that rule. That ruling is the mechanism this finding
+  says was missing, and the timeline sharpens it rather than closing it — the
+  check landed 2026-09-20T17:54+12:00 (`be8a003`), `48c181f` was authored
+  2026-09-20T18:29+12:00 on a branch that did not carry it, and at HEAD the
+  check cannot see the edit anyway (`320/340`). Not anticipated as a defect;
+  ruled-for in principle; unmet in practice.
+- **RU2 (MODERATE, stands).** The 2026-08-23 record shows the parent's half was
+  written from the author's own mistake that evening (a rebase of a pushed
+  reporter branch, undone), which is why the rules are shaped as conduct and not
+  as a check. The 2026-09-17 record is the only place the parent's merge-time
+  check exists in any form — `gh pr view` by hand, then `board.py check` after
+  each merge — and it is a record, not a surface a session reads. Not
+  anticipated; not ruled.
+- **RU3 (MODERATE, stands; class named).** The resolution I counselled is
+  already practised and recorded twice: the 2026-08-24 record landed PR #61 with
+  its "index conflict resolved by regenerating, never by hand-merging", and the
+  2026-09-17 record did it eleven times from an integration worktree with
+  `merge --no-ff`, never touching a reporter's branch. So the parent has a
+  working move and the doctrine names none — `GUARDS.md` § *A rule with no home
+  is not a rule*, exactly. Not anticipated as a gap, because to its authors it
+  was never a gap; it lived in their hands.
+- **RU4 (MODERATE, stands; worse than phase 1 measured).** The 2026-09-17
+  record: eleven hand-up PRs stood open — the oldest from 2026-08-26 — until
+  the principal asked, in his own words, for the open PRs to be tidied; the
+  2026-09-16 sitting had seen four unmerged report worktrees and left them.
+  That is the parent's half performed once, on commission, over three weeks;
+  my three open PRs are the second instance, not the first. Not anticipated;
+  not ruled.
+- **RU5 (MODERATE, stands with a narrowing).** The 2026-08-23 record quotes the
+  commission verbatim: *"all of my repos that use it"*. The commission is the
+  estate's repos; the doctrine sentence — "every repo that works by this
+  doctrine" — is wider than the commission and wider than the shapes. The
+  brief's non-goal (the commission itself) is honoured: the finding is about
+  the sentence outrunning it. *Counsel, revised:* either name the adopter's
+  shape (phase 1) or narrow the sentence to the estate; both are one line, and
+  either is honest. Leaving the wide sentence over the narrow route is the
+  defect.
+- **RU6 (MODERATE, stands).** Neither record mentions `SECURITY.md`; the
+  intersection was not considered. Not anticipated; not ruled.
+- **RU7 (MODERATE, stands).** PU-2's ruling (*"keep the naming, drop the veil"*)
+  was taken on `cbom` with stated grounds — the veil was already defeated by
+  item `040`. The 2026-08-23 record names the second child in its own prose
+  and the doctrine paragraph followed the record; no ruling attaches to it.
+  `320/330` holds the question, and this confirms the two namings do not share
+  a ruling. Not ruled for this instance.
+- **RU8 (minor, stands).** `310/100`'s close text says "the shape section
+  `320`'s nine findings actually used" — true on 2026-08-23, so the sentence
+  was written as a description of then and reads as a description of now.
+- **RU9 (minor, stands).** The 2026-08-23 record says atelier's `CLAUDE.md`
+  "gains the duty" and names no home for the item. Not anticipated.
+- **RU10 (minor, stands).** The 2026-09-17 record is the evidence: every
+  hand-up that touched the index arrived CONFLICTING and two number spaces
+  were claimed four times over. Not anticipated.
+- **RU11 (note).** Unchanged.
+
+#### The seeded question
+
+*Does § Report without harming the parent at HEAD tell a child how to avoid the
+number collision, or only the parent how to resolve it?* **Neither.** The section
+at HEAD does not contain the word "number". The parent's resolution lives in
+three other places — `CONCURRENCY.md` § *The channel* law 3 (the cheaper repair
+moves; a burned identifier stays burned), `PRINCIPLES.md` §10's tie-break, and
+`board.py check`'s `number_collisions()` (built 2026-08-23, the same day as the
+delta, and the guard that caught all six on 2026-09-17) — and none of them is
+pointed at from the section. The child's avoidance lives nowhere, and cannot
+be a matter of care: every filer takes "the section's next free number" from
+its own base of atelier, two filers on the same base take the same number, and
+GitHub's conflict check sees two new files with different names. The seeded
+question was not one I asked; it is a prompt to re-read, and the re-read
+yields a finding I did not have.
+
+#### RU12 — MODERATE — a hand-up's number is allocated where it cannot be checked (at reconcile)
+
+Formed at reconcile from the seeded question and the 2026-09-17 record. Six
+collisions in one batch of eleven, across four numbers, one claimed four times;
+invisible to the forge; caught only after each merge by an enforced check the
+parent ran by hand. The no-harm rule 4 ("touch your own item") and the channel's
+law 2 ("the closing check runs after the push") together imply the fix and
+neither states it for this case: the allocation a hand-up makes is settled at
+the parent's merge, not at the child's push, so the child cannot run the closing
+check and the parent must. The record shows a bulk apply would ship the
+collision silently; the sequential-merge-and-check discipline that prevented it
+is, again, a record and not a rule.
+
+*Counsel:* two sentences. In the parent's half: "on landing, run `board.py
+check`; a number collision moves the **later-landing** item to the section's
+next free number, and the parent does the move, never the reporter." In rule
+4: "your number is provisional until the parent lands it — carry no reference
+to your own number inside the filing." A cheaper allocator (a `HHMM` slot, or
+the reporter's branch stamp as the number) is a design change and is the
+principal's to weigh, not this pass's to prescribe.
+
+#### Restated overall
+
+**PASS-WITH-FINDINGS — 1 MAJOR (RU1), 7 MODERATE (RU2–RU7, RU12), 3 minor
+(RU8–RU10), 1 note (RU11).** RU12 is the only finding formed at reconcile; every
+phase-1 finding stands, RU5 with its counsel widened by one option. Under rule 3
+all of it is the principal's to decide; nothing is applied here, and the cycle
+stays open on the MAJOR.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — report-up-duty (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-09-25-0715-report-up-duty-cold.md` under REVIEW.md
+rule 1's split; held by the orchestrator outside the worktree. Folded into the
+brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/sessions/2026-08-23-1314-recovery-then-five-defects-in-the-instruments.md`
+  — the author's account. **Not opened by the brief-writer.**
+- `docs/sessions/2026-09-18-0114-queue-run-hand-up-fixes.md` — the step-3 reword
+  (`310/110`). **Not opened**; index entry read at onramp.
+
+## Prior verdicts and barred items on the same surfaces
+
+- `docs/sessions/2026-08-23-1314-recovery-then-five-defects-in-the-instruments.md`
+  and `docs/sessions/2026-09-18-0114-queue-run-hand-up-fixes.md`
+- the board items `docs/roadmap/310-*/110-*.md` and the
+  `320-*/…reachable-parent…` item that the landing commit widened
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+The pointer carries no lens paragraph — refs only.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+1. The 2026-09-17 session merged eleven hand-up PRs and found six *number
+   collisions* invisible to GitHub's conflict check. Does § *Report without
+   harming the parent* at HEAD tell a child how to avoid the collision, or only
+   the parent how to resolve it?

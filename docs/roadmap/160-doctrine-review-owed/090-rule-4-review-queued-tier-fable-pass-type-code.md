@@ -69,3 +69,22 @@
       sibling, the intent record and prior verdicts stay unopened by the
       reviewer until its phase-1 findings are committed. Provenance and exposure
       go in the verdict.
+      - [ ] 🛑 **The pass RAN 2026-09-26 and the cycle stays OPEN — a MAJOR
+            stands.** The rule-4 Fable cold pass (taker: a fresh
+            `claude-fable-5-1` subagent under a `claude-fable-5-1` orchestrator
+            — the shape disclosed in the claim above; the sibling, the intent
+            record and prior verdicts opened only after the phase-1 findings
+            were committed) returned FAIL — 2 MAJOR · 2 MODERATE · 2 minor · 2
+            note →
+            [`2026-09-25-0715-ap-rulings-applied-cold.md`](../../reviews/2026-09-25-0715-ap-rulings-applied-cold.md)
+            (sibling folded in and deleted). AR1 (MAJOR, security): the
+            2026-08-23 amendment says main has no branch protection and no
+            ruleset and that signing is warn-first, re-affirmed at the amendment
+            — but a ruleset carrying deletion, non-fast-forward and
+            required-signatures rules (admin bypass always) has been active
+            since 2026-08-09 and was on the board from 2026-08-15, so the ADR
+            every child inherits at @main misstates its own control clause at
+            writing and at HEAD; AR2 (MODERATE): floorfleet's boundary row cites
+            the stale sentence as its authority and never reads the bypass; AR8
+            (MAJOR) formed at reconcile. Findings are the principal's to decide
+            (rule 3); nothing was applied.

@@ -34,3 +34,18 @@
       spawns forms every finding and severity. The sibling, the intent record
       and prior verdicts stay unopened by the reviewer until its phase-1
       findings are committed. Provenance and exposure go in the verdict.
+      - [ ] 🛑 **The pass RAN 2026-09-26 and the cycle stays OPEN — a MAJOR
+            stands.** The rule-4 Fable cold pass (taker: a fresh
+            `claude-fable-5-1` subagent under a `claude-fable-5-1` orchestrator
+            — the shape disclosed in the claim above; the sibling, the intent
+            record and prior verdicts opened only after the phase-1 findings
+            were committed) returned PASS-WITH-FINDINGS — 1 MAJOR · 3 MODERATE ·
+            3 minor · 3 note →
+            [`2026-09-25-0715-scratchpad-clause-cold.md`](../../reviews/2026-09-25-0715-scratchpad-clause-cold.md)
+            (sibling folded in and deleted). SK1 (MAJOR): the harness hands each
+            reviewer the orchestrator's own scratchpad, so a sibling held there
+            is one read away from any reviewer and the clause's harm model omits
+            the read surface that bears on the doctrine's highest-stakes review
+            shape — this batch's orchestrator moved its siblings out on reading
+            the finding; SK10 (note) formed at reconcile. Findings are the
+            principal's to decide (rule 3); nothing was applied.
