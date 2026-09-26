@@ -18,10 +18,22 @@
         fix lands.** Two sub-shapes — a frozen `Status:` header ("nothing has
         been built") that was true on verdict day; and a "follow-ups owed"
         list whose every item has since landed.
-      - 🚩 **The drift can be one-sided.** In one case the only record of a
+      - ⚠️ **CORRECTED the same day by the filer — this bullet is FALSE as
+        filed; kept visible rather than deleted.** A re-measure against the
+        child's board found the per-item record *did* restate the fix, in its
+        own words, from the day it landed. The stale text was in a review file
+        and in a section *narrative* file — a secondary log — not in the
+        authoritative item. So the "only record" claim does not hold; what
+        holds is the weaker shape: stale summaries can sit beside a correct
+        item, and a reader who stops at the summary is misled. The original
+        wording follows:
+        ~~**The drift can be one-sided.** In one case the only record of a
         fixed HIGH-severity security finding is a stale review file that still
         says *owed* — no board item ever restated it. The record says the
-        opposite of the artefact and nothing contradicts it.
+        opposite of the artefact and nothing contradicts it.~~
+        *The 12-of-63 count is being re-measured in the child as part of the
+        record corrections; if it moves, the filer appends the new figure
+        here rather than editing the one above.*
       - 🚩 **Two records can agree and both be wrong.** A review file and a
         section narrative both said a seam was "still owed" while the module
         existed and a later verdict had settled it. So *cross-check the other
