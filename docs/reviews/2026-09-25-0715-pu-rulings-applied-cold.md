@@ -431,3 +431,119 @@ All runs 2026-09-25 UTC, at `c4b9cd0`, in the scratch clone
 - [ ] PV4 — fold the note, drop the duplicate clause, re-flow; cosmetic, batch with PV1.
 - [ ] Not this pass's: `310/030`'s hand sweep of the ten children remains unrun;
       `320/350`'s hook-window race is boarded and awaits its own ruling.
+
+### Reconcile — phase 2, written 2026-09-25 UTC after `7f4026b`
+
+Opened after phase 1 was committed, in this order: the sibling's text (by message from
+the orchestrator); the PU verdict and its reconcile in
+`docs/reviews/2026-08-21-0820-pointing-up-cold.md` (line 80 to end); the applier's
+record `docs/sessions/2026-08-22-0107-pointing-up-rulings-applied.md`; the six
+2026-08-22 index entries in `docs/SESSIONS.md` (lines 280–285); the queue pointer
+`160/280`; the section README `docs/roadmap/310-*/README.md`. Phase-1 text above is
+unrevised.
+
+**Against the intent records, per finding.**
+
+- **PV1 (MODERATE) — stands, and the intent record had already named it.** The PU
+  verdict's PU-1 carries, as its second consequence: *"Claim 1 ('the house had no gap')
+  overreaches… the honest statement is 'a smaller gap than the child found, not none':
+  detection by unexplained extra hunk headers, identification by nothing."* Its
+  **condition**, though, named only the command and the `030` shed note — and the
+  application met the condition to the letter (`310/050`: PU-1 `[fixed]` — § *The
+  trigger* prescribes plain `git diff --cached`) while leaving the narrative the same
+  finding said overreaches. The PU reconcile adds the origin: the section README
+  (written 2026-08-18) already states the parent's rule as plain `git diff --cached`,
+  and the 2026-08-18 session record states it as the pipe — *"the two intent records
+  disagree with each other about what the command is."* § *The instance* inherited the
+  README's framing. Records are kept verbatim, so the README is not the fix site;
+  the doctrine is. My probe extends the prior verdict's read: for four entry classes
+  (empty new file, pure rename, mode-only, binary) the old pipe gave **no detection
+  either** — not "identification by nothing" but nothing at all. Formed independently
+  in phase 1; converged with the intent record; severity unchanged.
+- **PV2 (minor) — stands; the stakes were weighed at ruling time.** The PU verdict
+  records that the named repo has no public remote and that its name was already public
+  throughout this repo's docs, and framed PU-2 as a ruling to make rather than a leak to
+  attribute — matching my lens-4 read. Nothing in the records anticipates the
+  2026-09-19 precedence; `320/330` remains the live question. Unchanged.
+- **PV3 (minor) — stands.** Neither the applier's record nor the index entry mentions
+  `CHANGELOG.md`; the omission is confirmed, not explained. Unchanged.
+- **PV4 (note) — stands.** Nothing in the records bears on it.
+
+**The seeded question (a floor, not a fence).** Its premise holds: the applier's record
+opens *"Tier: Fable (the pass's reviewer, same session)"*, and the pointer and the index
+entry both carry the neutral-hand caveat. Checked one ruling's applied text against the
+record of the ruling — PU-2, the one whose wording could drift, since PU-1's ruling was
+a command and a command cannot be paraphrased.
+
+**PV5 — minor, formed at reconcile.** *The applied PU-2 text attributes to the
+principal's ruling a rationale and a rider that the records show only as the
+reviewer-applier's own.* What the records hold of the ruling: the applier's record —
+*"PU-2 — the veil dropped: `cbom` named at all three doctrine sites with the ruling's
+date, class-rule-stands note beside it"*; the index entry — *"the veil dropped on his
+ruling"*; `310/050` — *"the veil dropped, `cbom` named in § The instance on his
+ruling"*. The commit body — *"his ruling, keep the naming, drop the veil"*. None
+records the principal's words or grounds. What the doctrine says at
+`PROPAGATION.md:632–635`: *"named on the principal's ruling (2026-08-22, PU-2: the veil
+was already defeated by this section's own item `040`, which quotes him naming the
+repo, so the honest shape is the naming; the class-never-specifics rule for what a
+child files upward stands unchanged)"*. The *"so the honest shape is the naming"* clause
+is the PU verdict's own argument (*"keep the naming and drop the veil (honesty over
+cosmetics)"*), and the *"stands unchanged"* rider appears first in the application
+commit — neither is in any record of what was ruled. The outcome applied is the
+outcome ruled; the **grounds** stated in the ruling's voice are the reviewer's, written
+into doctrine by the same session that argued them, which is the drift the seeded
+question names. Under `00-APEX.md` (*"present an inference in a verified fact's voice"*)
+and `RECORD.md`'s capture-verbatim practice, a ruling's grounds are either the
+principal's words or marked as the agent's reading. Small in wording, and the very
+class the neutral-hand preference exists to catch.
+*Counsel:* if the principal's grounds were as the doctrine states, say nothing more
+than that in the ruling record; if the reasoning was the reviewer's, re-cast the
+parenthetical as *"named on the principal's ruling, 2026-08-22 (PU-2); the reviewer's
+grounds — the veil was already defeated by item `040` — are in the verdict"*, and let
+`320/330`'s ruling decide whether the rider survives. Batch with PV1's edit, which
+touches the same paragraph.
+
+**Overall, restated: PASS-WITH-FINDINGS — 0 MAJOR · 1 MODERATE · 3 minor · 1 note.**
+No MAJOR, so this remains the terminal application: the cycle closes on the
+principal's rulings on PV1–PV5, with no further pointer owed.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — pu-rulings-applied (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-09-25-0715-pu-rulings-applied-cold.md` under
+REVIEW.md rule 1's split; held by the orchestrator outside the worktree. Folded
+into the brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/reviews/2026-08-21-0820-pointing-up-cold.md` — the PU verdict and its
+  ruling tags (PU-1 command fix, PU-2 naming). **Brief section read by the
+  brief-writer as a template; verdict not opened.**
+- `docs/sessions/2026-08-22-0107-pointing-up-rulings-applied.md` — the applier's
+  account. **Not opened.**
+
+## Prior verdicts and barred items on the same surfaces
+
+- the verdict `docs/reviews/2026-08-21-0820-pointing-up-cold.md` (PU; its
+  verdict and ruling tags are this delta's intent record). ⚠️ The brief-writer
+  read that file's **brief section only** (lines 1–80, as a formatting template)
+  — not its verdict
+- `docs/sessions/2026-08-22-0107-pointing-up-rulings-applied.md` and the
+  2026-08-22 entries in `docs/SESSIONS.md`
+- the board section README `docs/roadmap/310-*/README.md` (carries the
+  2026-08-18 ruling)
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+The pointer carries no lens paragraph — refs only.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+1. The pointer says the applier also authored the verdict being applied. Where a
+   reviewer both finds and applies, the application can encode the reviewer's
+   *recommendation* rather than the principal's *ruling* where the two differ in
+   wording — check one ruling against its applied text for that drift.

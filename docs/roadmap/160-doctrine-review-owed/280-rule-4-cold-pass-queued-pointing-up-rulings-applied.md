@@ -30,3 +30,16 @@
       sibling, the intent record and prior verdicts stay unopened by the
       reviewer until its phase-1 findings are committed. Provenance and exposure
       go in the verdict.
+      - [ ] 🎯 **The pass RAN 2026-09-26; the cycle CLOSES on this pass (no
+            MAJOR) — what remains is decided into the backlog.** The rule-4
+            Fable cold pass (taker: a fresh `claude-fable-5-1` subagent under a
+            `claude-fable-5-1` orchestrator — the shape disclosed in the claim
+            above; the sibling, the intent record and prior verdicts opened only
+            after the phase-1 findings were committed) returned
+            PASS-WITH-FINDINGS — 0 MAJOR · 1 MODERATE · 3 minor · 1 note →
+            [`2026-09-25-0715-pu-rulings-applied-cold.md`](../../reviews/2026-09-25-0715-pu-rulings-applied-cold.md)
+            (sibling folded in and deleted). PV1 (MODERATE): correcting the
+            command falsified the instance narrative that leans on the old one —
+            § *The instance* and the CONCURRENCY Bearing still say the house had
+            no gap; PV5 (minor) formed at reconcile. Findings are the
+            principal's to decide (rule 3); nothing was applied.
