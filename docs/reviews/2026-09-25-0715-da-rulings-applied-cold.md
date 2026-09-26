@@ -482,3 +482,133 @@ queued pointer. Nothing applied here; every finding is the principal's to decide
 - [ ] Reviewer's own: the rule-2 sweep breach above is a fourth instance of the class REVIEW
       rule 2 counts; it belongs in the record even though `coldsweep` was available and the
       brief said to use it.
+
+### Reconcile
+
+Written 2026-09-25T07:20Z, after phase 1 was committed unrevised (`d317681`). Opened, in
+this order: the sibling's text (by message from the orchestrator), then the DA verdict
+`docs/reviews/2026-08-22-0031-decision-asks-cold.md` from § *Findings* to the end, including
+§ *Rulings — 2026-08-23*, then the intent record
+`docs/sessions/2026-08-19-0257-asking-for-a-ruling-the-device-and-the-verified-basis.md`.
+Phase-1 text above is unrevised.
+
+**The seeded question** — *does the applied wording tell a session in the final-message-only
+mode what to do, or does it still assume the account is visible beside the device?* Both,
+and that is DR1. The wording tells a session that *knows* it is in that mode what to do (a
+completed message before the ask); it does not tell a session how to know, and no session
+can (ledger 9–10). So the plain case still assumes visibility, and the plain case is the
+printed default. DR1 was formed from the harness documentation before the sibling was
+opened; the seeded question is narrower than the finding — it asks about the mode-aware
+session, where DR1's point is that no session is mode-aware — and the convergence
+strengthens rather than seeds it. The applied wording is a **faithful** application of the
+DA1 ruling as recorded: *"reached-him wording … same-reply stays the plain case where the
+harness shows it"*. DR1 is therefore a finding on the ruled shape, not on the applier's
+fidelity, and it takes the rule-3 form the apex allows: a challenge on the **briefing**, never
+on the authority. DA1's counsel — the briefing the ruling rested on — proposed "keeping the
+current same-reply shape as the plain case and naming display modes as instance detail"
+without stating that the session cannot observe the mode; the DA verdict does not carry
+that fact anywhere. The challenge is raised to the principal by re-briefing (this verdict)
+and asking again. Two points from the DA record bear on severity and stay it at MAJOR: (i)
+DA-R2 already noted that the widget is "the one surface guaranteed visible at decision time
+in every display mode", and the applied paragraph does mark the owed recommendation inside
+it — so the *recommendation* survives focus mode, but what/why/impacts/options and the
+verified-or-assumed marks (the DA sibling's Q4, folded into DA1) do not; (ii) the principal's
+verbatim steer asks for the device "rather than leaving question in the session text alone
+(easy to miss)" — DR1's counsel is one branchless rule, which is the less engineered shape,
+consistent with that steer.
+
+**Per finding against the intent records:**
+
+- **DR1** — not anticipated; not ruled against. See above. The DA verdict's Q1 (its own
+  sibling) asked whether the fix was "a wording change (send the account, *then* end the
+  turn / confirm receipt) or a rule the harness cannot currently honour" — the applied
+  wording is the first; DR1 says the branch that keeps the second alive is the defect.
+- **DR2** — not anticipated. DA2 named three copies and recorded its sweep as "confirmed
+  complete by coldsweep over live surfaces"; the ruling pointer-ised exactly those three.
+  The child-floor *stop-and-confirm* wording dates from `dce5078` (2026-07-14) — it existed
+  at DA2's sweep and was missed, most likely because its spelling ("what it wants to do,
+  why, and the likely impact") does not match the "what/why/impact" shape DA2 searched.
+  A sweep gap in the prior pass, not a rejection; the ruling's intent (one original, four
+  pointers) plainly extends to it. DA2's own reconcile records the class as the
+  2026-07-14 pass's AS8/F4 recurring — DR2 makes it the fourth occurrence.
+- **DR3** — partly anticipated. The scaling sentence is DA-R5's ruled application ("every
+  clarification formally owes a five-element account — over-ceremony"), and its home in one
+  COMMUNICATION paragraph is the course-set ruling ("corrections plus one paragraph … not
+  five scattered clauses"). So the placement is ruled; the second-original consequence
+  was not weighed. Counsel revised to fit the ruling: leave the paragraph whole, and add a
+  four-word pointer at the apex list's tail ("scaled per COMMUNICATION § *Make the ask
+  valuable*") rather than moving the sentence. The "outranks a tool's own usage notes"
+  clause is DA3's application, and DA3 quotes the tool's guidance verbatim — grounded in
+  the record; my "could not verify" stands only for this harness, where the tool is absent.
+- **DR4** — DA-R3 ruled "one line in the evidence practice"; applied faithfully. My
+  reproduction confirms the line's claim on the commit that wrote it. One count noted, not
+  a finding: the intent record's 48 (23/14/11) is 49 (24/14/11) at `2b21a56^` because
+  `1d19729` (2026-08-22) widened the apex list between the two — the DA-R3 "unchanged since
+  landing" reads as true at its HEAD.
+- **DR5** — DA6 ruled the move; DA6 itself was placement-only. DR5 records the effect of the
+  ruled move on the closer line; no change to counsel (none was given).
+- **DR6** — not anticipated; off-delta tool finding; unchanged.
+- **DR7** — not anticipated. The commission's own words assumed visibility ("give the
+  supporting information in the session so its visible while using AskUserQuestion"), which
+  is the assumption DA1 falsified; the prompt's "mid-turn or between turns" is the same
+  assumption in the principal's standing prompt. Awareness, unchanged.
+- **DR8** — adjacent to DA-R4 (the no-device protocol), which the principal ruled **no
+  change** with his steer as the answer of record. DR8 stays a note for awareness only;
+  counsel withdrawn in deference to that ruling.
+
+**The verbatim question the brief put in scope.** Checked against § *Rulings*: the folded
+paragraph's quoted clause is character-for-character the steer's "e.g." tail, spelling slip
+included — verbatim, not paraphrased. Dated correctly to 2026-08-23.
+
+**DR9 (formed at reconcile) · note — the paragraph quotes the calibration's tail and calls it
+the whole.** *Make the ask valuable* introduces its quote as "the principal's calibration of
+this whole rule, verbatim". The steer of record is longer, and its omitted head carries the
+two things the tail does not: the *channel* rationale ("rather than leaving question in the
+session text alone (easy to miss)") and the anti-ceremony calibration ("over-thinking and/or
+over-engineering") that the ruling round made the governing instruction for the whole
+application. Both now live only in a review file's rulings section. Accurate excerpt; the
+word "whole" overstates it. *Counsel:* either quote the steer in full or say "from the
+principal's calibration".
+
+**Prior verdicts on these surfaces**: the DA verdict is the only one the brief named; its
+reconcile records the 2026-07-14 informed-principal pass as the origin of DA2's class, which
+DR2 continues. No prior verdict anticipates DR1's unobservability point.
+
+**Overall, restated: PASS-WITH-FINDINGS — 1 MAJOR / 1 MODERATE / 1 minor / 6 note** (DR9
+added at reconcile). The cycle stays open on DR1; nothing applied.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — da-rulings-applied (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-09-25-0715-da-rulings-applied-cold.md` under
+REVIEW.md rule 1's split; held by the orchestrator outside the worktree. Folded
+into the brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/reviews/2026-08-22-0031-decision-asks-cold.md` § *Rulings — 2026-08-23*
+  — DA1–DA6 and DA-R1–DA-R5 dispositions, including the principal's verbatim
+  over-engineering steer. **Not opened by the brief-writer.**
+- `docs/sessions/2026-08-19-0257-…` — the delta's original intent record. **Not
+  opened.**
+
+## Prior verdicts and barred items on the same surfaces
+
+- the verdict `docs/reviews/2026-08-22-0031-decision-asks-cold.md` (DA; its §
+  *Rulings — 2026-08-23* is this delta's intent record)
+- `docs/sessions/2026-08-19-0257-asking-for-a-ruling-the-device-and-the-verified-basis.md`
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+The pointer carries no lens paragraph — refs only.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+1. The brief-writer's own harness note: this batch runs under a display mode
+   that shows the principal only a turn's final message. Does the applied
+   wording tell a session in that mode what to do — or does it still assume the
+   account is visible beside the device?

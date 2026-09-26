@@ -83,3 +83,19 @@
       sibling, the intent record and prior verdicts stay unopened by the
       reviewer until its phase-1 findings are committed. Provenance and exposure
       go in the verdict.
+      - [ ] 🛑 **The pass RAN 2026-09-26 and the cycle stays OPEN — a MAJOR
+            stands.** The rule-4 Fable cold pass (taker: a fresh
+            `claude-fable-5-1` subagent under a `claude-fable-5-1` orchestrator
+            — the shape disclosed in the claim above; the sibling, the intent
+            record and prior verdicts opened only after the phase-1 findings
+            were committed) returned PASS-WITH-FINDINGS — 1 MAJOR / 1 MODERATE /
+            1 minor / 6 note →
+            [`2026-09-25-0715-da-rulings-applied-cold.md`](../../reviews/2026-09-25-0715-da-rulings-applied-cold.md)
+            (sibling folded in and deleted). DR1 (MAJOR): the reached-him rule
+            branches on a display state a session cannot observe, so under focus
+            mode the printed default reproduces DA1's extracted-approval shape —
+            reconciled as a rule-3 challenge on the briefing the DA1 ruling
+            rested on; DR2 (MODERATE): the child floor's confirm bullet still
+            states the duty as three parts; DR9 (note) formed at reconcile.
+            Findings are the principal's to decide (rule 3); nothing was
+            applied.
