@@ -453,3 +453,122 @@ stampscan and blockscan bespoke steps); `.githooks/pre-commit` calls `--plane ho
 - [ ] NP9 — no action from this pass.
 - [ ] Phase 2: reconcile against the sibling and the intent record; verify any `[fixed]`
       claims found there.
+
+### Reconcile
+
+Written 2026-09-26 1420 UTC, after phase 1 was committed unrevised (`d1ac3e0`, merged in
+`1109d49`) and the orchestrator released the sibling by message. Phase-1 text above is
+unchanged. Opened at this step: the sibling's text; the intent record
+`docs/sessions/2026-09-19-0038-queue-run-the-morning-rulings.md` in full; board items
+`320/190`, `320/330`, `320/340`; the queue pointer `160/360`. One wide grep over
+`docs/roadmap`, `docs/ROADMAP-DONE.md` and `docs/SESSIONS.md` for the retirement question
+(NP10) — disclosed here; it returned nothing outside `320/190`.
+
+**The pointer's lens hint, answered.** Its two questions are the ones lens 1 already worked:
+*does a uniform neutral form cost the parent triage it relied on* — no for landing (the
+2026-09-17 collisions were resolved by file path and content), yes for recurrence, and there
+distinctness suffices (NP4); *does the rewritten bullet tell a parent enough to land a filing
+it cannot attribute* — yes; landing never needed identity, and the live post-ruling PRs (83,
+84, 86, 87) landed or sit open with neutral refs and titles. The hint's framing matched the
+brief-writer's seeded question in lens 1; I had no other seeded questions to reconcile.
+
+**Per finding — anticipated, ruled or rejected in the records?**
+
+- **NP1 (MODERATE, stands — strengthened).** The ruling as recorded in `320/190` and the
+  intent record is *"option (b) — rule 2 wins, everywhere"*, and rule 2's text is the full
+  list (repo, hosts, clients, secrets). `320/190`'s option (c) even singles out hosts,
+  clients and secrets as the things rule 2 "would still protect". The applied wording
+  narrowed that to "no repo token". Not anticipated as a defect; the ruling's own scope
+  supports the counsel. The narrowing was the applier's, not the principal's.
+- **NP2 (MODERATE, stands).** No record proposes or rejects a mechanical check on the four
+  surfaces. The intent record's § `320/190` re-measured the exposure and put the precedence
+  to Mike; the ruling was on precedence only. `320/190`'s 🚩 bullet names the *retirement*
+  half as separate (see NP10) but not prevention. The ladder was not climbed and no record
+  says why. Not anticipated, not ruled, not rejected.
+- **NP3 (minor, stands).** `report-<subject>-<HHMM>` originates in `320/190` option (a)'s
+  sketch, where `HHMM` carries no frame either; the child's own branch (`-2221`) was UTC in
+  practice (PR 70's commit at `22:23Z`). Not anticipated.
+- **NP4 (minor, stands — partly anticipated).** `320/190` option (a)'s *against* — "the
+  parent can no longer tell which child is reporting … has to open each PR" — is the cost
+  the pointer's lens asks about, and Mike accepted it by choosing (b). The records assert the
+  cost; my data says landing triage never used the token. The re-filing-cites-its-item
+  counsel appears nowhere in the records. Ruled implicitly (cost accepted); the counsel is new.
+- **NP5 (minor, stands — sharpened).** The recorded ruling says *"a private child names
+  itself nowhere in the parent"*. The clause that a **publishable** child *may* name itself
+  in the commit and PR is the applier's addition in the same sitting (`320/190`'s closing
+  bullet: "and its rule 2 now says … a publishable one may"). So the asymmetry NP5 names was
+  introduced at application, not ruled. Same class as the `00-APEX.md` case where a wording
+  turned out to be the author's derivation rather than a recorded ruling. Still minor; the
+  principal may well ratify it — but it should be put to him as a derivation, not read back
+  as his ruling.
+- **NP6 (MODERATE, stands — half anticipated).** The guard half is exactly `320/340`: the
+  author probed `blockscan` against the sitting's own commits, found it clean over `###`
+  subsections, and filed it rather than fixing in passing; the intent record § `320/300`
+  says the same. My reproduction with HEAD's tool at `48c181f` corroborates it independently.
+  The **floor-content** half — that the floor's pointing-up bullet should carry the class
+  rule and the precedence — is in no record: `320/340` says the bullet "plausibly
+  summarises" the changed sections and stops there. Guard half: anticipated and on the
+  board (no new item; the follow-up points at `320/340`). Floor half: new.
+- **NP7 (note).** The "six collisions" figure is not in the records I opened (the intent
+  record names one collision at PR 81; `320/190` cites the `320/160–180` PR body). Neither
+  confirms nor refutes my count of four numbers across five pairs. Stays a note.
+- **NP8 (note, confirmed as tracked).** `320/330` is this question, split out deliberately
+  with the PU-2 history; `320/190`'s ⚖️ bullet anticipated it. Nothing to add; no item.
+- **NP9 (note).** No record bears on it.
+
+**Formed at reconcile:**
+
+- **NP10 — minor (formed at reconcile).** `320/190`'s 🚩 bullet says the question *"do we
+  retire the exposed refs, and does that buy anything"* is the principal's and separate from
+  the doctrine edit; its re-measurement bullet adds that *"editing the titles would narrow
+  it, and the refs would remain"*. The item is closed `[x]` with that sub-bullet unticked,
+  and the grep above finds the question nowhere else on the board or in the done store. An
+  unruled half is sitting inside a closed item. *Counsel:* one board item, Mike's, with the
+  two facts already measured (titles editable, refs not).
+
+**Verifying `[fixed]` claims found at reconcile.** `320/190`'s closing bullets claim the
+application landed in `PROPAGATION.md` as described — verified against the diff in lens 2 —
+and that the live exposure was re-measured 2026-09-20 with no pushed branch carrying a
+child's name — verified by `git branch -r` at review time. `160/360` was queued in the
+landing commit (`48c181f`'s file list includes it): landing = queuing holds.
+
+**Overall, restated: PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE (NP1, NP2, NP6) · 4 minor
+(NP3, NP4, NP5, NP10) · 3 notes (NP7, NP8, NP9).** Reconcile changed no severity; it
+sharpened NP1 and NP5 (both applier's wording beyond the recorded ruling), confirmed NP6's
+guard half as already filed, and added NP10.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — naming-precedence (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-09-25-0715-naming-precedence-cold.md` under
+REVIEW.md rule 1's split; held by the orchestrator outside the worktree. Folded
+into the brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/sessions/2026-09-19-0038-queue-run-the-morning-rulings.md` — the run's
+  account. **Not opened by the brief-writer**; index entry read at onramp.
+- `docs/roadmap/320-*/190-*.md` — the child's hand-up that found the two rules
+  could not both be obeyed. **Not opened.**
+
+## Prior verdicts and barred items on the same surfaces
+
+- `docs/sessions/2026-09-19-0038-queue-run-the-morning-rulings.md`
+- the board items `docs/roadmap/320-*/190-*.md`, any
+  `…naming-rule-cannot-both-be-obeyed.md` and
+  `…naming-precedence-reach-doctrines-own-prose.md` items
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+**The lens that matters most here:** whether a uniform neutral branch
+form costs the parent triage it actually relied on, and whether the
+rewritten "say what it is" bullet still tells a parent enough to land
+a filing it cannot attribute.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+None beyond the pointer's own.
