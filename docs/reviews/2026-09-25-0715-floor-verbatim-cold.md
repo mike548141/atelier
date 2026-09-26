@@ -197,3 +197,256 @@ your reconcile.
 Findings on doctrine are the principal's to decide (rule 3): record all, apply
 nothing; your counsel per finding is welcome, labelled as counsel and kept
 beneath the finding.
+
+---
+
+# Verdict — phase 1, written 2026-09-25 07:30 UTC
+
+## Provenance, repeated
+
+- **Spawn.** A fresh Fable subagent (`claude-fable-5-1`), spawned by the batch orchestrator
+  with this brief as its only framing. Not the author's session; neither started nor
+  instructed by the author of `f0ddeb0` / `f706bde`. Reviewer-plus-orchestrator shape as the
+  brief discloses; the orchestrator formed no finding. Tier checked at claim: Fable.
+- **Where.** The shared review worktree at `c4b9cd0`, read-only; probes ran in a scratch clone
+  of that worktree and in scratch children under the FV scratch area. No git command that
+  writes was run in the worktree; the only file edited is this one.
+- **Read (in scope).** This brief; `docs/method/REVIEW.md` and `00-APEX.md` at HEAD; the delta
+  at HEAD (`tools/stampscan.py` whole, `tools/test_stampscan.py` whole,
+  `docs/method/PROPAGATION.md` lines 95–265 and 815–845); `git show f0ddeb0 --
+  docs/method/PROPAGATION.md` and `git show f706bde` (the two landing diffs); the `--stat` of
+  `3d73e49` and `db9a785`; `.github/workflows/ci.yml` lines 170–240; `.githooks/pre-commit`;
+  `tools/floor.py` (grep only); `.stampscanignore`; `.atelier-floor.json`;
+  `docs/build/templates/CLAUDE.md` lines 1–120; `tools/README.md` lines 995–1056;
+  `skills/create-repo/SKILL.md` lines 110–200; `docs/build/REPO-STANDARD.md` lines 125–140
+  and 248–261; `tools/test_mixed_root.py` lines 1–63; `git log -L` subjects for the floor
+  region; the OWASP Top 10:2025 category list (fetched).
+- ⚠️ **Exposure, disclosed.** `git show f0ddeb0` prints that commit's message body, which is
+  the author's own account: it names board items `115/200`, `115/210` and `160/340` and
+  summarises each in one line. I read that body before forming findings. I did not open any
+  board item, session record, prior verdict, `ROADMAP-DONE.md` or `SESSIONS.md`. No
+  tree-wide sweep was run, so `coldsweep.py` was not needed: every grep was scoped to named
+  files under `tools/`, `skills/`, `docs/method/PROPAGATION.md` and `docs/build/`.
+- **Interpreters.** The machine's `python3` on PATH is 3.14.6 (a framework install ahead of
+  `/usr/bin/python3` 3.9.6); CI pins 3.12. Re-runs below name which one ran.
+
+## Assumptions named (lens 1 first act)
+
+- **A1 — "verbatim" is a per-line byte identity** (trailing whitespace ignored, boundary
+  blank lines trimmed). The doctrine says "word for word". The two differ on a re-wrap.
+- **A2 — the floor's identity is the spelling `docs/method/PROPAGATION.md` + `floor`.** The
+  doctrine's identity is "the `floor` region of PROPAGATION.md" — a file and a region.
+- **A3 — the canonical region is stable enough for children to match it at their pin.** The
+  doctrine does not say *at which SHA* a copy must be verbatim.
+- **A4 — something runs the scanner over a child's block.** The brief's *Why it earns a
+  review* rests on "the scanner reds every child whose block differs".
+- **A5 — `narrow=` is the only excuse the floor could be given.** `stampscan:allow:` is the
+  other one.
+
+## Per-lens answers
+
+### Lens 1 — approach & assumptions
+
+A1 holds in the fail-safe direction: a word-identical re-wrap reds (`v11`), so the scanner is
+stricter than the prose, never looser (FV7). A2 is where the delta is weakest: the identity
+is a string compare on the attribute as written, and four in-root spellings of the same file
+each pass a declared narrowing of the floor clean (FV1). A3: the region has changed 27 times
+since 2026-07-10 and twice since 2026-08-25 — `a134270` and `54201e0`, both 2026-09-18, 86 →
+91 lines. A child verbatim at a pre-2026-09-18 pin reads `drift` against HEAD (`v17`), the
+same kind a reword gets; that is ST3, a documented open residual the delta neither widened nor
+closed, but bullet 4's "word for word" is silent on *at which SHA* (FV8). A4 is false as a
+mechanism (FV3). A5 is false (FV2).
+
+The doctrine's internal consistency — the brief's stated tension — is clean at HEAD: the
+*may compress* sentence (PROPAGATION.md lines 240–245) now attributes compression to
+atelier's canonical text and verbatim to the child's copy, and the § *One statement* bullet
+(lines 832–836) carries the matching carve-out. The heading count above the boundary list did
+not keep up (FV4), and bullet 4 keys the rule on a region *name* where the scanner keys on a
+pair (FV5).
+
+### Lens 2 — correctness & quality
+
+Read all 1,332 lines of `stampscan.py`. The floor branch sits inside the ordered-subsequence
+branch, after the empty-payload check and before the generic `narrow` pass; order is right
+(empty first, because the empty list is a subsequence of everything). `_is_floor_block` is
+a parse-based pair compare on `StampBlock.source` / `.region`, so a payload line that merely
+*mentions* the pair string cannot satisfy it (`v13`: `is_floor=False`, kind `narrow`); a
+second `stamp:begin` inside a payload is a nested-stamp `malformed` config error, not a
+match. **No verdict inversion found**: exit codes probed 0 (`identical`, `narrow`,
+`skipped`), 1 (`drift`), 2 (`missing-region`, `malformed`, `unconfined-source`), and `--warn`
+downgrades drift only (selftest plumbing, re-run). The JSON `clean` field agrees with the
+human verdict in every probed case.
+
+Twenty-four scratch children were built from the *real* region at HEAD (91 lines) and
+scanned from their own root and, for five of them, in the mixed-root fleet-check shape
+(`--root <atelier> <child>/CLAUDE.md`), which resolves correctly:
+
+| case | shape | exit | kind |
+|---|---|---|---|
+| v01 | verbatim copy | 0 | identical |
+| v02 | exact pair, `narrow=`, genuine subset | 1 | drift (floor message) |
+| v03 | `source=./docs/method/PROPAGATION.md`, `narrow=`, subset | 0 | **narrow** |
+| v04 | `source=docs/build/../method/PROPAGATION.md`, same | 0 | **narrow** |
+| v05 | `source=docs//method/PROPAGATION.md`, same | 0 | **narrow** |
+| v06 | `source=docs/method/propagation.md` (APFS, case-insensitive), same | 0 | **narrow** |
+| v07 | two stamps: verbatim + narrowed | 1 | identical, drift |
+| v08 | two stamps, both verbatim | 0 | identical ×2 |
+| v09 | exact pair, subset, `stampscan:allow:` line inside | 0 | **skipped** |
+| v10 | trailing spaces and tabs on every line | 0 | identical |
+| v11 | word-identical re-wrap of one line | 1 | drift |
+| v12 | child's own `docs/FLOOR.md` copy as `source=`, `narrow=` | 0 | **narrow** |
+| v13 | other source, payload mentions the pair string | 0 | narrow |
+| v14 | the block with no markers at all, narrowed | 0 | (no findings) |
+| v15 | `region=Floor` | 2 | missing-region |
+| v16 | `narrow= ` (blank reason) | 1 | drift (silent drop) |
+| v17 | verbatim at the pre-2026-09-18 region | 1 | drift |
+| v18 | CRLF line endings | 0 | identical |
+| v19 | UTF-8 BOM | 2 | malformed |
+| v20 | `docs/method/PROPAGATION.md` is a symlink out of root | 2 | unconfined-source |
+| v21 | `narrow=` + subset + re-wrap | 1 | drift |
+| v22 | verbatim + allow marker on the begin line | 0 | skipped |
+| v23 | exact pair, `narrow=`, payload byte-equal | 0 | identical |
+| v24 | NUL byte inside `source=` | 1 | uncaught `ValueError` |
+
+Bold rows are the slips. Tests are a faithful pin of the *string* identity the code
+implements (`FloorIsVerbatim`, the two end-to-end `ScanPaths` cases, two selftest cases); none
+exercises a spelling variant, the allow marker on the floor, or a narrow on a byte-equal
+copy, so they pass while FV1, FV2 and FV5 stand.
+
+### Lens 3 — completeness / harvest
+
+The template's own block passes at HEAD (`identical`, 91 lines, exit 0 with and without
+`--warn`). Of the surfaces that tell a child what it may change in the block, none carries
+the new rule: `tools/README.md` § stampscan still says "or *legitimately narrow* it, declared"
+and lists two boundaries; the template's guidance comment and `create-repo` step 5 say
+"stamped copy, not a second source" / "don't paraphrase it" but never "never `narrow=`"
+(FV6). More important: nothing automated reaches a child's block at all — the ruling's
+scanner half enforces it on atelier's own template only (FV3).
+
+### Lens 4 — security & privacy
+
+`/security-review` is **discharged by grounds**: it reads the session's pending diff, which in
+the shared worktree is other passes' drafts, and this is a landed-delta review. Threat
+enumeration for the work's class, checked against OWASP Top 10:2025 (fetched 2026-09-25):
+**A01 Broken Access Control** (path traversal via `source=`) — ST4 confinement holds:
+`../`, an absolute path (selftest, re-run) and an in-root symlink resolving outside root
+(`v20`) all exit 2 with nothing echoed; **A05 Injection** — no shell, `eval`, or SQL sink;
+`source=` reaches `open()` only after confinement; **A09 Logging failures** — the drift hint
+echoes one child line and one canonical line (`_first_offending_line`, `{ln!r}`), so "never
+prints file contents beyond the marker line" holds only as *never more than one line of each
+in-root file*; the floor-narrow branch prints counts only; **A10 Mishandling of exceptional
+conditions** — a NUL byte in `source=` escapes the `OSError` catch and tracebacks (FV9): not
+a silent pass, but exit 1 rather than the fail-safe 2. The scanner reads only Markdown under
+the given paths and the resolved in-root source; `.stampscanignore` globs must carry a
+reason (`IgnoreFileError`, exit 2). No personal data surface. Design altitude: the allow
+marker is the one exemption that reaches the floor and it is undocumented as such (FV2).
+
+## Findings
+
+**FV1 — MODERATE — the floor's identity is a spelling, not a file.** `_is_floor_block`
+compares `block.source` as written to `docs/method/PROPAGATION.md`. Four in-root spellings that
+resolve to the same file (`v03`–`v06`) each pass `narrow=` on a genuine subset as a
+legitimate `narrow`, exit 0, from the child's root and in the mixed-root shape. The
+case-folded spelling passes on this APFS host and would exit 2 (`missing-source`) on CI's
+Linux — the two planes disagree. Counsel: key the floor test on the *resolved* source
+(`resolve_source(root, block.source)` equal to `(root / FLOOR_SOURCE).resolve()`, or
+`os.path.samefile`), keep the region compare literal, and add the four spellings as tests.
+
+**FV2 — MODERATE — the allow marker bypasses the verbatim rule, and the tool recommends it on
+the floor's own red.** `v09`: exact pair, narrowed payload, one `stampscan:allow:` line →
+`skipped`, exit 0. The human footer printed under the floor-narrow drift (`v02`) reads "add
+`narrow=<reason>` to stamp:begin if the narrowing is deliberate" — the act the finding above
+it just redded — and then "A deliberate exemption: append `stampscan:allow:` inside the
+stamped block", a working bypass. PROPAGATION.md bullet 4 says `narrow=` reds "instead of
+excusing anything" and is silent on allow. Counsel: (a) suppress the `narrow=` line of the
+footer when any drift is on the floor pair; (b) the principal decides whether allow may
+reach the floor — if yes, bullet 4 says so; if no, `evaluate_block` checks `_is_floor_block`
+before honouring `block.allow`. Recurrence-prevention: a test that asserts the floor footer
+never names the excuse it just refused.
+
+**FV3 — MODERATE — enforcement reach is overstated; nothing automated reaches a child's
+block.** `stampscan` is not in `tools/floor.py`'s registry (zero mentions), not in the child
+`floor.yml` template, and not in `create-repo`'s prove-the-stamp step (a placeholder grep plus
+`git log`). A child running it over its own root gets `missing-source` exit 2 (the template's
+`source=` exists only in atelier — ST3); a child running it with no path argument scans
+`docs/` and never reaches a root-level `CLAUDE.md` (`v02` default scope: no findings, exit
+0); and an unstamped copy is invisible (`v14`). The only path to a child's floor is a
+hand-run mixed-root invocation, which does work (`v02` → drift). So the brief's "the scanner
+reds every child whose block differs" and `f706bde`'s "1 … will go red once this lands" are
+true only under a hand run. Counsel: say so in bullet 4 and in `tools/README.md` (atelier
+template + hand fleet check), and make the pin-aware child-side run the item that lets the
+ruling bite.
+
+**FV4 — minor — doctrine: "Three boundaries on that:" heads four bullets** (PROPAGATION.md
+line 216 vs 218–238). Counsel: "Four boundaries".
+
+**FV5 — minor — doctrine keys the rule on `region=floor` by name; the scanner keys on the
+pair, and passes a `narrow=` that narrows nothing.** Bullet 4: "`narrow=` on a `region=floor`
+stamp reds instead of excusing anything". The scanner deliberately matches the (source,
+region) pair, so `region=floor` against the child's own copy (`v12`) or any other source
+(`v13`) keeps the generic `narrow` pass; and `narrow=` on a byte-equal floor copy reads
+`identical` (`v23`), not red. Counsel: word the bullet as "a stamp of PROPAGATION.md's
+`floor` region" and either "a `narrow=` that narrows it reds" or make the scanner red any
+`narrow=` on the pair — a two-line change that matches the ruling's wording literally.
+
+**FV6 — minor — harvest: the child-facing surfaces don't carry the rule.** `tools/README.md`
+lines 1009 and 1021–1022 (two boundaries, "or legitimately narrow it"); the template comment
+`docs/build/templates/CLAUDE.md` lines 4–12; `skills/create-repo/SKILL.md` step 5. Counsel:
+one clause each — "the floor is verbatim; never `narrow=`" — and README's boundary list
+brought to four.
+
+**FV7 — note — "verbatim" is stricter than "word for word".** A word-identical re-wrap reds
+(`v11`, `v21`). Fail-safe and consistent with the sibling scanners; named so a child that
+re-wraps to its own column limit is not surprised.
+
+**FV8 — note — verbatim at which SHA?** Region changed 27 times since 2026-07-10, twice since
+2026-08-25; a child verbatim at its pin reads `drift` against HEAD (`v17`). ST3 (documented,
+unchanged by the delta). Counsel: bullet 4 says "word for word *at its pin*".
+
+**FV9 — note (security, A10) — NUL in `source=` tracebacks, exit 1** (`v24`). Not a silent
+pass. Counsel: catch `ValueError` beside `OSError` in `_main`.
+
+**FV10 — note — by-design passes confirmed, recorded for the trail.** Trailing whitespace
+and CRLF pass (`v10`, `v18`); BOM and case-variant region are config errors (`v19`,
+`v15`); symlinked source out of root is `unconfined-source` (`v20`); two stamps evaluate
+independently (`v07`, `v08`).
+
+## Overall
+
+**PASS-WITH-FINDINGS — 0 MAJOR, 3 MODERATE (FV1–FV3), 3 minor (FV4–FV6), 4 note
+(FV7–FV10).** The delta does what it claims for the literal pair and every previously-red
+shape stays red; what it under-delivers is the *identity* the doctrine means and the reach
+the record claims for it. No MAJOR, so the cycle closes on this pass per REVIEW.md.
+
+## Re-run ledger (all 2026-09-25 UTC, foreground)
+
+| command | interpreter | result |
+|---|---|---|
+| `python3 tools/stampscan.py --selftest` | 3.14.6 | `selftest OK`, exit 0 |
+| `python3 -m unittest tools.test_stampscan` | 3.14.6 | 90 tests, OK, exit 0 |
+| `/usr/bin/python3 -m unittest tools.test_stampscan` | 3.9.6 | 90 tests, OK, exit 0 |
+| `python3 -m unittest discover -s tools` (once) | 3.14.6 | 1,564 tests, OK, exit 0; 07:19–07:29 |
+| `python3 tools/stampscan.py --root . .` | 3.14.6 | clean; 1 block identical (91 lines); exit 0 |
+| `python3 tools/stampscan.py --warn --root . .` (ci.yml form) | 3.14.6 | same, exit 0 |
+| `python3 tools/floor.py --plane hook --root . --tools tools` | 3.14.6 | exit 0; 12 ✅, 3 warn-only |
+| `python3 tools/floor.py --plane ci --root .` | 3.14.6 | exit 0; secretscan 22 advisory; rest ✅ |
+| `variants.py` / `probe2.py` over 24 scratch children (+5 mixed-root) | 3.14.6 | table above |
+| `git log -s -L105,199:docs/method/PROPAGATION.md` | — | 27 commits; 2 since 2026-08-25 |
+
+The 3.9 run of the stampscan suite was green here; I did not run the full suite under 3.9,
+so this pass says nothing about the whole-suite-on-3.9 claim in `f0ddeb0`'s body.
+
+## Follow-up checklist
+
+- [ ] FV1 — resolved-path floor identity + four spelling tests (code; principal decides —
+      it encodes doctrine).
+- [ ] FV2 — footer suppression on the floor pair; allow-on-floor ruling; footer test.
+- [ ] FV3 — bullet 4 and README state the real reach; child-side pin-aware run queued as the
+      enabling item.
+- [ ] FV4 — "Four boundaries".
+- [ ] FV5 — bullet 4 names the pair; decide whether any `narrow=` on the pair reds.
+- [ ] FV6 — README, template comment, SKILL step 5: one clause each.
+- [ ] FV8 — "at its pin".
+- [ ] FV9 — catch `ValueError` in `_main`.
+- [ ] Phase 2 reconcile against the sibling and the barred items (`115/030`, `115/200`,
+      `115/210`, the inversion-class item) — FV3 and FV8 may already be carried there.

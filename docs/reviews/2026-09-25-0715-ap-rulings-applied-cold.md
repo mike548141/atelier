@@ -216,3 +216,319 @@ your reconcile.
 Findings on doctrine are the principal's to decide (rule 3): record all, apply
 nothing; your counsel per finding is welcome, labelled as counsel and kept
 beneath the finding.
+
+---
+
+# Verdict — phase 1, written 2026-09-25 (07:10–07:40 UTC)
+
+## Provenance, repeated
+
+- **Spawn.** A fresh Fable subagent (`claude-fable-5-1`, self-reported model id),
+  spawned by the batch orchestrator with this brief as its only framing. I am not
+  the author's session and was not instructed by it. Shape: reviewer-plus-
+  orchestrator as the brief discloses; the orchestrator formed no finding.
+- **Where.** The shared worktree `/Users/mike/worktrees/atelier-review-batch-0925`
+  at `c4b9cd0`, read-only; probes ran in my own clone of it (same HEAD) under
+  the session scratchpad. No git command that writes was run in the worktree.
+- **What I read.** `docs/method/REVIEW.md` and `00-APEX.md` at HEAD; the
+  `501ec37` diff for the in-scope paths, plus its `--stat` and — disclosed, since
+  it is the author's narrative of *why* — its **commit message body**, which
+  `git show` prints with the diff; every delta path at HEAD; the board items
+  `115/180`, `020/340` and, surfaced by the cold sweep and not in the bar,
+  the `140/*` group (`README.md`, `010`, `020`) — the last is the principal's
+  ruling as the board records it and bears directly on lens 1, so I name it
+  as author-adjacent exposure; `tools/floorfleet.py` (boundary row),
+  `tools/signscan.py` (`commit_range`), `tools/leakscan.py` (terms loading),
+  `tools/test_floor.py::SoftenableListsPinnedToRegistry`, the template caller
+  `docs/build/templates/workflows/floor.yml`, the template `CONTRIBUTING.md`,
+  `SECURITY.md`, `SIGNING.md` lines 55–75, `CHANGELOG.md` lines 60–80 and
+  `.githooks/pre-commit`. Sweeps ran through `tools/coldsweep.py` with the
+  brief's `--also-exclude`; `--include-barred` was never used.
+- **Not opened.** `docs/SESSIONS.md`, `docs/sessions/`, `docs/ROADMAP-DONE.md`,
+  every other `docs/reviews/` file (including every `2026-09-25-0715-*` sibling),
+  the queue pointer `160/090`, and the `.deferred.md` sibling.
+- **Tier.** Fable on both seats; the off-tier clause is not invoked.
+
+## Lens 1 — approach and assumptions
+
+Load-bearing assumptions, named first and then tested:
+
+1. *An appended amendment can make a frozen ADR true.* Only if the amendment is
+   itself true when written and the contradicted clause points forward to it.
+   Neither holds here: the amendment was **false at its own recording commit**
+   (AR1), and the 2026-08-06 clause above it carries no pointer down, so a
+   reader at HEAD meets **three** accounts of the boundary — the 2026-08-06
+   clause (three controls in force), the 2026-08-23 amendment (none in force,
+   "no ruleset"), and the live API (an active ruleset, admin-bypassable). The
+   code inherits the middle one: `floorfleet.py` cites the amendment's
+   "warn-first on both planes" sentence as its ground for treating
+   `required_signatures` as informational (AR2). One truth or two? Three.
+2. *"Not enabled, deliberately" can be carried without a review line of its
+   own.* The amendment carries none; the ADR's header line still reads
+   "queued — pointer owed" (AR4). The queued pointer at `160/090` is the
+   amendment's review line by the landing-equals-queuing rule, but nothing in
+   the ADR says so; a reader of the record alone cannot find it.
+3. *The live state was re-read at the amendment.* The text says "re-affirmed at
+   this amendment". The ruleset the amendment denies was created
+   2026-08-09T09:58Z and recorded on the board 2026-08-15 — eight days before the
+   amendment. Either the re-read did not happen or it read the wrong endpoint.
+   This is the apex's named defect — a claim stronger than its evidence, in a
+   verified voice — on the one clause every child inherits at `@main`.
+4. *AP4's principle is "explicit-but-missing is an error".* The ruling's
+   principle as the docstring states it is wider: "never a quieter scan". The
+   code applies it to one of four neighbouring shapes (AR3).
+
+The non-goal (rulings not under review) does not fence the risk: every finding
+below is on the *application* — text and code — not on what was ruled. Phase 2
+will show whether AP1's wording was dictated; that changes attribution, not the
+truth of the record.
+
+## Lens 2 — correctness and quality
+
+- **AP1.** Falsified by re-run — see AR1 and the ledger.
+- **AP2.** The docstring at HEAD names the no-advisory set as secretscan,
+  leakscan, conflictscan, linkscan, reviewscan, board, licenscan; the registry
+  (`advisory is None`) gives exactly those seven. `020/340`'s pin test holds it
+  (`test_floor.py:1705`). The `conflictscan` addition moved the paragraph on
+  2026-09-18 (`6d2782f`); the claim survives. The ADR amendment's own list now
+  lacks `conflictscan` (AR5).
+- **AP3.** Traced and reproduced. Both `run:` blocks consume `$SIGN_BOUNDARY`
+  double-quoted, once each; nothing re-expands it. A hostile value carrying
+  `$(…)`, backticks, `;`, a glob and a leading dash reached `signscan` as one
+  intact argv element and created no marker file in three shapes; the pre-AP3
+  inline shape, emulated, fired the injection (marker files created). Residue in
+  AR6.
+- **AP4.** Fires on the named shape (missing `--terms` and missing env var: exit 2,
+  message names the source and refuses the fallback). On the neighbours it does
+  not: an **empty file** passes as "clean (structural + local)" with zero terms,
+  even under `--require-terms`; a **directory** or an **unreadable file** is a
+  raw traceback at exit 1; a **set-but-empty** env var or `--terms ""` falls
+  through to the default list silently (AR3). `test_precommit`'s updated
+  assertion matches the live message.
+
+## Lens 3 — completeness and harvest
+
+Surfaces that describe the boundary or the softenable set, checked at HEAD:
+
+| Surface | State against the amendment |
+|---|---|
+| ADR 0008 lines 140–158 (2026-08-06 clause) | still states the pre-amendment claim; no forward pointer |
+| ADR 0008 amendment (2026-08-23) | states a boundary that was already false when written (AR1) |
+| ADR 0008 header `review:` line | "queued — pointer owed" after two passes (AR4) |
+| `140/README`, `140/010`, `140/020` | record the ruleset (id, rules, bypass) and say the clause is still not true |
+| `115/180` (delta) | "a ruleset … is the likely shape" written 14 days after the ruleset existed; closed BUILT 2026-09-18 |
+| `floorfleet.py` boundary row | reads rule types only; cites the stale sentence; overclaims on green (AR2) |
+| `floor.py` docstring | agrees with the registry (pinned) |
+| `docs/build/templates/CONTRIBUTING.md` | agrees with the registry (pinned) |
+| root `CONTRIBUTING.md` | does not exist in this repo — the brief's "the repo's and the template's" names one file that is not there |
+| `docs/build/REPO-STANDARD.md`, `SECURITY.md`, `tools/README.md` | make no claim about `main`'s boundary or the softenable set; nothing to disagree |
+| `SIGNING.md` line 65 | "branch protection is the compensating control" — the pre-amendment claim, unqualified |
+| `CHANGELOG.md` 2026-08-06 and 2026-08-23 entries | dated history; the 2026-09-18 entry records the boundary row |
+
+The amendment's "Until it lands, this clause is the truth" has lapsed: `115/180`
+landed 2026-09-18 and no further amendment followed; `140/020` (open) is the
+board's own account that the clause is still not true.
+
+## Lens 4 — security and privacy
+
+`/security-review` is **discharged by grounds**: it reads the session's pending
+diff, which in this shared worktree is other passes' drafts, and this is a
+landed-delta review. The code-altitude read was done by hand against the OWASP
+Top 10 (A03 injection; A08 software and data integrity; A05 misconfiguration)
+and the GitHub Actions hardening guidance for script injection.
+
+- **Is the disclosure an exposure?** No — it is the honest floor, and it is
+  *under*-disclosure. The boundary state is publicly readable **without a
+  token**: `rules/branches/main`, `rulesets` and `rulesets/20603641` (including
+  the bypass actors) all answered HTTP 200 unauthenticated; only the classic
+  `branches/main/protection` endpoint is gated (401). An attacker reads more
+  from the API than from the ADR. Counsel: keep disclosing, and disclose the
+  true state (AR1).
+- **Injection (A03).** Closed for `sign-boundary` by the `env:` route, proven
+  above. Remaining inline expansion: `${{ github.repository }}` at line 192 — a
+  platform-controlled value with a restricted alphabet, not caller input;
+  acceptable, worth a one-line comment (AR6).
+- **`pull_request_target` / fork secrets.** The reusable workflow has only a
+  `workflow_call` trigger; the template caller triggers on `push`,
+  `pull_request` and `workflow_dispatch` — no `pull_request_target`;
+  `permissions: contents: read` on both; the gh-plane uses the read-only
+  `github.token`. Clean, with the trail.
+- **Integrity (A08).** The floating `@main` rests on the boundary. In force
+  today: an active ruleset (`deletion`, `non_fast_forward`,
+  `required_signatures`) with `bypass_mode: always` for the repository-admin
+  role, and the account holding that role is the **only** collaborator (1) and
+  has 2FA on (verified as a boolean, nothing more). So the ruleset guards
+  against accident and third-party push; it does not bind the only actor who
+  can push. That is what the principal ruled (`140/README`); it is not what the
+  ADR says (AR1), and the machine check does not watch the bypass (AR2).
+- **Privacy.** No personal detail in the delta; the amendment's "single-owner
+  account" is the honest minimum. This verdict quotes no email, token or key.
+
+## Findings
+
+### AR1 — MAJOR (security) — the "true strength" amendment was false when written, and at HEAD
+
+The 2026-08-23 amendment states: "A live read (2026-08-09, re-affirmed at this
+amendment) shows … `main` carries no branch protection and no ruleset,
+signature verification is warn-first on both planes … Branch protection is
+deliberately **not** enabled." Re-run 2026-09-25: ruleset `20603641`
+("main — the estate's guard supply chain (ADR 0008 control)") is `active` on
+`~DEFAULT_BRANCH` with `deletion`, `non_fast_forward` and `required_signatures`;
+its `created_at` is 2026-08-09T21:58:10+12:00 (09:58Z), `updated_at` the same
+second, one history entry. The amendment landed 2026-08-23T05:54Z — fourteen
+days later — and the board had recorded the ruleset, its id and the ruling
+("ruleset with owner bypass, plus a machine-check") on 2026-08-15 (`a9abc26`).
+Three of the amendment's factual claims fail: "no ruleset"; "branch protection
+deliberately not enabled" (a ruleset is GitHub's current branch protection, and
+one was enabled by ruling); "warn-first on both planes" (the server plane
+requires signatures, bypassable by admin). The item it queues, `115/180`,
+repeats the error ("a force-push/deletion-blocking ruleset … is the likely
+shape"). The clause "Until it lands, this clause is the truth of the boundary"
+lapsed on 2026-09-18 with no re-amendment. `140/020` (open, 2026-08-15) already
+says the clause "is now closer to true and still not true" — so the drift is
+known and queued, which lowers the urgency, not the severity: an ADR that every
+child inherits at `@main` states, in a security-control clause, a state that
+the public API contradicts, and its "re-affirmed" is an unverified claim in a
+verified voice.
+
+*Recurrence-prevention step (REVIEW.md's shape for a security finding):* any
+amendment that describes live platform state carries the API read verbatim
+(endpoint, timestamp, body) beside the prose, so the claim and its evidence
+cannot part; and the machine row reads the bypass (AR2) so a widening is seen.
+
+*Counsel, principal's call:* a second dated amendment beneath the first — never
+an edit of it — stating the live state as read (ruleset id, three rules,
+admin bypass `always`, single collaborator, 2FA), what that does and does not
+protect against (accident and third-party push: yes; owner-token compromise:
+no), and pointing at `140/020` as the vehicle; plus a one-line forward pointer
+under the 2026-08-06 clause ("superseded — see amendments of 2026-08-23 and
+<date>") so a reader meets one truth. Correct `115/180`'s close note the same
+way. Reconcile with the AP verdict's rulings text in phase 2 before wording.
+
+### AR2 — MODERATE — the boundary row overclaims on green and does not read the bypass
+
+`floorfleet.classify_boundary` reads `rules/branches/main`, a flat list of rule
+types, and prints on green: "main's ruleset blocks force-push and deletion".
+For the only actor who can push it does not: `rulesets/20603641` reports
+`bypass_actors: [{RepositoryRole 5, bypass_mode: always}]` and
+`current_user_can_bypass: always`, and the collaborator count is one. The row
+is measuring the control that was ruled ("with owner bypass"), so red/green is
+right; the *sentence* is stronger than the evidence, and a later widening of
+the bypass (another role, another actor) would leave the row green. The row's
+docstring and header also cite the amendment's "warn-first on both planes" as
+the reason `required_signatures` is informational — the stale sentence has
+become code's authority. Live run: `('green', …)`; selftest ok.
+
+*Counsel:* read `rulesets/{id}` for each id the flat list names, print the
+bypass actors on the row, and word green as the ruling did — "blocks
+third-party and accidental force-push/deletion; admin bypass: always". Ground
+the informational choice in the ruling (`140/README`), not the amendment.
+
+### AR3 — MODERATE — AP4 closes one of four neighbouring "quieter scan" shapes
+
+Hand-constructed on the scratch clone, `--root .` on one doctrine file:
+
+| Shape | Exit | What it printed |
+|---|---|---|
+| `--terms <missing>` / env `<missing>` | 2 | the AP4 refusal, naming the source |
+| `--terms <directory>` / env `<directory>` | 1 | raw `IsADirectoryError` traceback, no remedy |
+| `--terms <unreadable file>` | 1 | raw `PermissionError` traceback, no remedy |
+| `--terms <empty file>`, with and without `--require-terms` | 0 | "✓ leakscan clean (structural + local)" |
+| env `""` (set, empty) or `--terms ""`, with `--require-terms` | 0 | fell through to the default list silently |
+
+The empty file is the dangerous one: a zero-byte list (a failed sync, a
+truncated write) satisfies `--require-terms`, loads nothing, and the pass line
+claims local cover — the exact "quieter scan reported as a pass" the ruling
+names. The traceback shapes fail closed by accident and carry no remedy, which
+is the "reaches for `--no-verify`" hazard `test_precommit` itself names. The
+AP4 test pins only the first row.
+
+*Counsel:* treat an empty explicit value as explicit and refuse it; catch
+`OSError` at `load_local_terms` and exit 2 with the AP4 message shape; under
+`--require-terms`, zero loaded terms is exit 2 (or at minimum the pass line
+says "0 local terms"); pin all four shapes in `test_leakscan`.
+
+### AR4 — minor — the ADR's own `review:` line never advanced
+
+`docs/decisions/0008-…md:5` still reads "review: queued — `docs/reviews/`
+pointer owed" after the EP pass (2026-07-26), the AP pass (2026-08-09), the
+2026-08-06 addition and the 2026-08-23 amendment. `reviewscan` checks presence,
+not currency. A reader meets an ADR that says its review is owed and two
+amendments that apply rulings from reviews that ran. *Counsel:* the review line
+is a status field, not frozen narrative; point it at the two verdict files.
+
+### AR5 — minor — the pin test cites a sentence that does not exist; the "accepted" drift has begun
+
+`test_floor.py:1716–1720` excludes ADR 0008 from the registry pin on the ground
+"atelier's own CLAUDE.md: 'ADRs are frozen records'". `CLAUDE.md` contains no
+such sentence (grep: no hit; `docs/decisions/README.md:38` speaks only of
+records frozen before 2026-07-21). The exclusion may still be right — an
+amendment is a dated statement — but a validator's stated ground should exist.
+And the amendment's "at HEAD the … no-advisory set is secretscan, leakscan,
+linkscan, reviewscan, board and licenscan" already lacks `conflictscan`
+(2026-09-18); "at HEAD" in a frozen record reads as *this* HEAD. *Counsel:*
+cite `RECORD.md`'s actual rule or drop the citation; in future amendments
+write "as of <date>" rather than "at HEAD".
+
+### AR6 — note — AP3 residue
+
+(a) `${{ github.repository }}` is still expanded inline at `floor.yml:192`;
+platform-controlled and alphabet-restricted, so not the injection class, but
+the step comment should say why it is exempt from the AP3 rule. (b)
+`signscan.commit_range` builds `f"{boundary}..HEAD"`; a boundary beginning
+with `-` becomes a single option-shaped token — it must end in `..HEAD`, so no
+real `rev-list` option matches, and the probe produced a clean usage error —
+but `git rev-list --end-of-options` closes the class outright. (c) A malformed
+boundary is exit 2 on the machine-key step even with `--warn`: environment
+errors are not warned. That is the right behaviour and undocumented; the
+"WARN-FIRST" comment should say the warn covers verification results only.
+
+### AR7 — note — brief framing that did not survive contact
+
+(a) The brief's re-run line `python3 -m unittest tools.test_leakscan …` cannot
+import `test_leakscan` (it does a bare `import leakscan`); the working shape is
+`discover -s tools -p test_leakscan.py`. (b) The orchestrator's environment
+note said python3 is 3.9; the interpreter on PATH is 3.14.6 and no `python3.9`
+exists on PATH, so nothing here was exercised under the hook's stated 3.9.
+(c) The brief names "CONTRIBUTING.md (the repo's and the template's)"; only the
+template exists.
+
+## Overall
+
+**FAIL — 1 MAJOR · 2 MODERATE · 2 minor · 2 note.** The AP1 application — the
+delta's headline, "the boundary control stated at its true strength" — does
+not reproduce: it was false at its own recording commit and is false at HEAD.
+The AP2, AP3 and AP4 applications hold, with the MODERATE residue in AR2 and
+AR3. Nothing here contests a ruling; everything is application.
+
+## Re-run ledger
+
+| # | Command / read | Result |
+|---|---|---|
+| 1 | `gh api repos/mike548141/atelier/branches/main/protection` | 404 "Branch not protected" (classic protection) |
+| 2 | `gh api repos/mike548141/atelier/rulesets` | one ruleset, id 20603641, `active`, created 2026-08-09T21:58:10+12:00 |
+| 3 | `gh api …/rulesets/20603641` | rules `deletion`, `non_fast_forward`, `required_signatures`; `bypass_actors` RepositoryRole 5 `always`; `current_user_can_bypass: always`; history: one version |
+| 4 | `gh api …/rules/branches/main` | the same three rule types |
+| 5 | `gh api …/branches/main --jq .protected` | `true` (rulesets count as protection) |
+| 6 | `gh api …/collaborators --jq length` · `gh api user --jq .two_factor_authentication` | `1` · `true` |
+| 7 | unauthenticated `curl` of items 2–4 | HTTP 200 each; `branches/main/protection` HTTP 401 |
+| 8 | `python3 -m unittest tools.test_leakscan tools.test_floor tools.test_precommit` (scratch clone, 3.14.6) | Ran 153 in 155 s; 1 error — `test_leakscan` import (AR7a); floor + precommit passed |
+| 9 | `python3 -m unittest discover -s tools -p test_leakscan.py` | Ran 134 in 22 s — OK |
+| 10 | `python3 -m unittest discover -s tools` (once, 07:20:04–07:29:24Z) | **result not captured** — my `tail` caught buffered selftest stdout and my exit-code capture used bash syntax in zsh; not re-run under the one-run rule. Rows 8–9 cover the in-scope modules |
+| 11 | `python3 tools/floor.py --plane hook --root <clone> --tools <clone>/tools` (lifted from `.githooks/pre-commit:82`; `--validate` does not exist) | exit 0; 12 enforced ✅, 3 warn-only 👁️; pathscan and pointerscan each report 1 advisory finding, sizescan 2 size-advisory |
+| 12 | `python3 tools/floorfleet.py --selftest` · `floorfleet.read_boundary(Path('.'))` | ok · `('green', "main's ruleset blocks force-push and deletion (required-signatures: present …)")` |
+| 13 | `env_probe.sh` (scratchpad `AR/`): hostile `SIGN_BOUNDARY` through both step shapes, stub and real signscan; inline shape for contrast | no marker files in the `env:` shapes; signscan exit 2 "git rev-list failed" (usage); the inline shape created both marker files |
+| 14 | `ap4_probe.sh` (scratchpad `AR/`): nine terms-path shapes | table under AR3 |
+| 15 | registry `advisory` per `Scanner` vs docstring list | seven `None` entries; docstring names the same seven |
+| 16 | `coldsweep.py` (default bar + `--also-exclude` the pointer), patterns: branch protection, ruleset, advisory form, softened, warn-first | surfaces in the lens-3 table; no `--include-barred` |
+
+## Follow-up checklist
+
+- [ ] AR1 — principal rules on a second amendment + forward pointer; correct `115/180`'s close note; reconcile wording with the AP rulings text (phase 2)
+- [ ] AR2 — `floorfleet` reads `rulesets/{id}` bypass actors; re-word the green line; re-ground the informational choice
+- [ ] AR3 — `leakscan`: empty explicit value refused; `OSError` → exit 2 with remedy; zero terms under `--require-terms` → exit 2; four shapes pinned
+- [ ] AR4 — ADR 0008 `review:` line pointed at the two verdicts
+- [ ] AR5 — fix the pin test's citation; "as of <date>" phrasing in future amendments
+- [ ] AR6 — comment on `github.repository`; `--end-of-options` in `signscan`; warn-scope comment
+- [ ] AR7 — brief template's re-run line uses the `discover` shape; environment note corrected
+- [ ] Phase 2 — reconcile against the sibling and the AP/EP intent records
