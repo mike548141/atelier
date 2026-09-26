@@ -455,3 +455,134 @@ decided into the backlog; the natural home for PW1, PW2 and PW4 is `115/120` /
       is owed — my one local run's summary was lost to my own pipe
 - [ ] Phase 2: reconcile against the sibling and the `2026-08-17-1321` verdict's
       § *Rulings — 2026-08-23*
+
+### Reconcile (written 2026-09-26T14:18Z, after phase 1 was committed in `d1ac3e0`)
+
+Opened as the second act, on the orchestrator's release of the sibling's text:
+`docs/reviews/2026-08-17-1321-posture-cold.md` — PT1–PT9 (lines 358–416), the
+overall line and checklist, § *Reconcile* (PT4a, PT1a) and § *Rulings —
+2026-08-23*; and `docs/sessions/2026-08-17-0900-posture-recover-cheaply.md` in
+full. One extra probe at reconcile: the registry entry names at `3453842` versus
+HEAD (`conflictscan` joined, `plainscan` left; 15 entries at both, and 15 at the
+2026-08-17 landing too — PT1's "19 registry `why` strings" was a miscount, not a
+shrink).
+
+**The seeded question** — *four tools have joined the registry since; if none
+carries the declaration, the finding is about whether the home has a check, say
+which.* The premise is wrong before the question is reached: one tool joined the
+registry (`conflictscan`); `blockscan` is wired in `ci.yml` only; `memprobe` and
+`coldsweep` are not guards (lens 1, phase 1). On the question itself: the home
+*has no check*, and GUARDS.md says so honestly ("funded and not yet built") — so
+"no check" is not a finding, it is the ruled interim state. What phase 1 found is
+one step past the question on each side: the check the ruling funds cannot
+*reach* every guard even once built (PW1 — the home is the registry, and three
+guards plus every child-local check are outside it), and the interim "review
+question" left no durable answer for the two guards that landed under it (PW4).
+Neither finding is about the four tools; both are about the home. Formed before
+the question was read.
+
+**Per finding, against PT and the ruling record:**
+
+- **PW1** — not anticipated, not ruled, not rejected. PT1 spoke of "every landed
+  guard" and its checklist asked to "declare the floor's own guards in the same
+  change", but both PT1 and the PT1 ruling say *the registry*; neither
+  considered a guard that is not in it. The gap is a consequence of the
+  ruling's own wording, which is why it is the principal's to widen. Stands,
+  MODERATE.
+- **PW2** — the class was anticipated by PT3 (the seven surfaces "still name the
+  three-requirement set") and ruled "fix as recommended — the code banners/
+  docstrings sweep". The ruling was satisfied as worded: the count was swept.
+  PW2 is what a count-only sweep produced — a header claim the module body does
+  not meet. Ruled-and-applied does not answer it; stands, MODERATE.
+- **PW3** — the same class as PT3, one surface PT3 did not list and the sweep
+  did not reach (`docs/method/README.md:87`). Not anticipated; stands, minor.
+- **PW4** — anticipated in shape by PT's checklist ("declare the floor's own
+  guards in the same change"), which the ruling did not take up; the
+  application deferred every declaration to `300/020`'s census, which was
+  already queued and "blocked on `010`". PW4 narrows it to the two guards that
+  landed *after* the ruling with no trace of the review question. Stands,
+  minor.
+- **PW5** — not anticipated (PT read the fourth section beside the provenance
+  section and did not flag the shared word); not ruled. Stands, minor.
+- **PW6** — anticipated by PT1 itself: "the `review:`-line convention is the
+  obvious home and is not named". The application named it — in GUARDS.md
+  only. PW6 is PT1's own sub-point one step on: named, not homed on the
+  surface. Not separately ruled (PT1's ruling covers the registry half).
+  Stands, minor.
+- **PW7** — **half answered by the PT5 ruling.** PT5 asked that the two limits
+  reach `PRINCIPLES.md` readers because "children read `PRINCIPLES.md` far more
+  than `GUARDS.md`", and the ruling carried them into §10 as recommended. So
+  §10 restating the limits downward is a ruled choice, and phase 1's counsel to
+  replace the carry with a pointer would undo a ruling; withdrawn as counsel.
+  What remains is the wording drift: the §10 spelling drops "on the author's
+  own judgement" and reads as an absolute bar. Stands at minor on that half
+  only; revised counsel — keep the carry, match the canonical qualifier.
+- **PW8** — not anticipated; PT6 asked for the entry and the ruling added it.
+  The tense is the application's, not the ruling's. Stands, note.
+- **PW9** — cosmetic, not anticipated. Stands, note.
+
+**Ruled-vs-applied, checked at HEAD:** PT1 homed by naming (slot beside `why`,
+format, check) and folded into `115/120` — applied as ruled; the build is
+`115/120`'s. PT2 applied, and its second half (the enforceability claim as
+applied to the fourth) is met by the exact wording "the first three … the
+fourth's check is funded and not yet built". PT3 applied to the seven surfaces
+PT3 named (PW2, PW3 are what it left). PT4 applied as "dropped", and the
+"no home doc yet" claim holds at HEAD (`ACCESS.md` grep). PT4a applied: both
+case docs point up and say they carry the case, not the rule. PT5 applied
+(PW7). PT6 applied (PW8). PT1a applied and marked in `300/010`. PT7–PT9 no
+change, as ruled — outside this pass's non-goal. Nothing ruled is unapplied;
+nothing applied exceeds its ruling.
+
+**Finding formed at reconcile:**
+
+**PW10 — note (reconcile-stage) — the PT checklist's "declare the floor's own
+guards in the same change" fell between the ruling and the census.** PT's
+follow-up item 3 said that if PT1 were ruled fixed-by-homing, the floor's own
+guards should be declared in the same change. The ruling took the homing and
+the fold and said nothing about the existing guards; the application deferred
+them to `300/020`, whose scope is "each open guard *item*" — board items, not
+the fifteen registry entries or the three off-registry guards. No surface at
+HEAD funds declaring the landed guards themselves: `115/120` funds the slot
+and the check; `300/020` funds a pass over open *items*. Attached to PW4 and
+PW1 for the ruling round; counsel is one line in either item naming the
+landed guards as in scope.
+
+**Overall, restated:** **PASS-WITH-FINDINGS** — 0 MAJOR · 2 MODERATE · 5 minor ·
+3 note (PW10 added at reconcile; PW7's counsel revised, its severity unchanged).
+No MAJOR, so the cycle on this delta closes on the principal's decisions;
+PW1, PW2, PW4 and PW10 are the ones that want a ruling, and `115/120` /
+`300/020` are their natural homes.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — pt-rulings-applied (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-09-25-0715-pt-rulings-applied-cold.md` under
+REVIEW.md rule 1's split; held by the orchestrator outside the worktree. Folded
+into the brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/reviews/2026-08-17-1321-posture-cold.md` § *Rulings — 2026-08-23* —
+  PT1–PT9, PT4a, PT1a dispositions. **Not opened by the brief-writer.**
+- `docs/sessions/2026-08-17-0900-posture-recover-cheaply.md` — the original
+  delta's intent record. **Not opened.**
+
+## Prior verdicts and barred items on the same surfaces
+
+- the verdict `docs/reviews/2026-08-17-1321-posture-cold.md` (PT; its § *Rulings
+  — 2026-08-23* is this delta's intent record)
+- `docs/sessions/2026-08-17-0900-posture-recover-cheaply.md`
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+The pointer carries no lens paragraph — refs only.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+1. Four tools have joined the registry since this application landed. If none of
+   them carries the home's declaration, the finding is not about them — it is
+   about whether the home has a check. Say which.
