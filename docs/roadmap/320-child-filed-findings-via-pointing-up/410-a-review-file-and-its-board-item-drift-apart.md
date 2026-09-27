@@ -34,6 +34,15 @@
         *The 12-of-63 count is being re-measured in the child as part of the
         record corrections; if it moves, the filer appends the new figure
         here rather than editing the one above.*
+        **Re-measured 2026-09-26 (appended, not edited above):** a
+        box-by-box re-check against the code, reading the authoritative
+        item file rather than section narratives, found **fewer genuine
+        disagreements than 12**. Several "stale" pairs were current once the
+        right file was read, and one review file counted as having a frozen
+        `Status:` header had no such header at all. The CLASS survives: every
+        correction landed on a review file or a narrative summary that had
+        gone stale after the fix. The one-in-five figure does not survive,
+        so treat the rate as **unmeasured** rather than 20%.
       - 🚩 **Two records can agree and both be wrong.** A review file and a
         section narrative both said a seam was "still owed" while the module
         existed and a later verdict had settled it. So *cross-check the other
