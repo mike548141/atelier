@@ -100,3 +100,18 @@
       `TOOLBOX.md` (fields, home, pointer); the floor's estate-resources bullet
       or `session-open/` for the read-at-open pointer; `tools/` for C. No
       doctrine or tool is written by this filing.
+
+      ## Principal's ruling (2026-09-28, via the child's ask device)
+
+      Put to him with the options table above and a recommendation; he chose
+      both recommended answers:
+
+      - **Order: B, then C.** The private approved-tools manifest with *locate*
+        and *quirks* fields, read at session open; then the probe that reports
+        present / off-`PATH` / missing by name only. A and D are not taken.
+      - **Home: the private estate-root repo**, not person-level `~/.claude/`
+        — this settles item 2's ambiguity; `TOOLBOX.md`'s pointer moves to
+        match.
+
+      The state line above still carries the 🎯 because the filer touches only
+      the body; the landing session drops it and names the build owed.
