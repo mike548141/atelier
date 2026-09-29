@@ -356,6 +356,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [🚩 The floor clause has to reach 11 children, and each child adopts it](roadmap/280-cross-session-channel-mike-commissioned/020-the-floor-clause-reaches-the-children.md)
 - [ ] 🎯 [The channel-section cycle CLOSED 2026-08-17 (0 MAJOR); CH1–CH16](roadmap/280-cross-session-channel-mike-commissioned/030-rule-4-cold-pass-queued-the-channel-section.md)
 - [ ] [🚩 The channel can contaminate review independence, and § The channel](roadmap/280-cross-session-channel-mike-commissioned/040-the-channel-can-contaminate-review-independence.md)
+- [ ] 🎯 [Talk first — the channel as a session's first preference, with git](roadmap/280-cross-session-channel-mike-commissioned/050-talk-first-the-channel-as-first-preference.md)
 
 ## Ruling round 2026-08-17 — the cold-run findings (Mike)
 
@@ -395,6 +396,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ ["Self-removing" overpromises in step 3](roadmap/310-pointing-up-the-child-to-parent-route/110-self-removing-overpromises-in-step-3.md)
 - [ ] 🎯 [§ Pointing up only names atelier as a parent — Mike commissioned,](roadmap/310-pointing-up-the-child-to-parent-route/120-the-route-is-atelier-specific-any-parent-repo-needs-one.md)
 - [ ] 🎯 [CLASS — the parent holds accommodations its children cannot inherit,](roadmap/310-pointing-up-the-child-to-parent-route/130-the-parent-holds-accommodations-the-child-cannot-inherit.md)
+- [ ] 🎯 [A PR as the carrier for an idea or finding between any two](roadmap/310-pointing-up-the-child-to-parent-route/140-a-pr-as-the-carrier-between-any-two-repos.md)
 
 ## Findings filed from a child via § *Pointing up* (2026-08-18)
 
@@ -493,3 +495,9 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/400-choosing-among-implementation-mechanisms-mike-comm/README.md)*
 
 - [ ] 🎯 [No doctrine says which mechanism a new need should take — four are](roadmap/400-choosing-among-implementation-mechanisms-mike-comm/010-no-doctrine-says-which-mechanism-a-new-need-should-take.md)
+
+## Sessions without a repo (Mike commissioned, 2026-09-29)
+
+*[Narrative](roadmap/410-sessions-without-a-repo-mike-commissioned/README.md)*
+
+- [ ] 🎯 [No doctrine covers a session with no tree — decide what a repo-less](roadmap/410-sessions-without-a-repo-mike-commissioned/010-no-doctrine-covers-a-session-with-no-tree.md)
