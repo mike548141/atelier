@@ -501,3 +501,9 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/410-sessions-without-a-repo-mike-commissioned/README.md)*
 
 - [ ] 🎯 [No doctrine covers a session with no tree — decide what a repo-less](roadmap/410-sessions-without-a-repo-mike-commissioned/010-no-doctrine-covers-a-session-with-no-tree.md)
+
+## When to ask — keeping work flowing (Mike commissioned, 2026-10-01)
+
+*[Narrative](roadmap/420-when-to-ask-mike-commissioned/README.md)*
+
+- [ ] 🎯 [An ask stops the whole run — decide when a session asks, and what](roadmap/420-when-to-ask-mike-commissioned/010-an-ask-stops-the-whole-run-decide-when-to-ask.md)
