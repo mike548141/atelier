@@ -447,3 +447,139 @@ Full-disk was driven as the read-only-path equivalent (same `writeFileSync` thro
 
 Phase 1 ends here. Sibling not opened; no other `docs/reviews/2026-10-03-*` file opened; no
 file but this one edited.
+
+### Reconcile
+
+Phase 1 was committed unrevised at `b3c972b` (merged to main in `d253354`) before the
+sibling was released. Opened for this section, in this order: the sibling's text (by
+message), the board item `210/170`, the intent record's `210/170` section (lines 143–153),
+and the two 2026-07-17 verdicts the sibling names. Nothing in phase 1 is revised.
+
+**Against the intent record and the board item.** The author's framing is that the fix
+"heals an entry whose size disagrees with a fresh-by-mtime source", and the board item
+adds the warrant: "this is sound because a mirror is only ever stamped with the mtime of
+the source version it was written from." That is the premise MC1 falsifies — the stamp
+proves what the mirror *was written from*, not what the source *now is*. The item's own
+measurement is consistent with either direction of heal (in 11 of 14 the mirror already
+equals the source, so healing from the source and healing from the mirror give the same
+entry there), which is why the field case did not expose it; shapes E and F are the cases
+where the two directions disagree. The item's second claim, "the manifest never claims a
+mirror that is not there", is true of absent mirrors and not of torn ones (MC2). Its third,
+"a hard kill can now leave at most 50 mirrors ahead", the real-kill drive confirms (max 42
+observed); the man page's stronger wording is what MC4 is about, not the item's.
+
+**The board item's residual, and a mis-fit I can now name.** The item records "locking is
+still open" and keeps itself `[ ]`. Phase 1 did not probe overlapping runs (not in the
+brief's scope), so nothing here speaks to the lost-update hypothesis. But the item's
+*first* hypothesis for the field lag — a stale in-memory manifest from one run overwriting
+a newer one — is also the shape MC1's heal makes worse, not better: after a lost update, a
+later run's heal rewrites the surviving entries from whatever the source then holds. Noted
+as a consequence, not a new finding.
+
+**Against the prior findings.**
+
+- *2026-07-17 F1 (ruled, fixed)* — the shrink guard. **MC1's shape F re-opens it by a side
+  door.** F1's attack was a smaller source with a *newer* mtime; the guard still refuses
+  that (shape D). The heal supplies a path F1 never had: a smaller source with a
+  *not-newer* mtime lowers the recorded `rawBytes` first, and the next append then passes
+  the guard the ruling installed. The item itself calls the stale-comparand direction
+  "permissive, which is the direction that loses data" — the heal was built to raise the
+  comparand and in shape F lowers it. Severity stands at MAJOR.
+- *2026-07-17 F4 (ruled)* — unmanifested files and the circular `fromArchive` hash. The
+  kill drive shows the `UNMANIFESTED` report doing its job (every killed run reported the
+  gap, exit 1), so F4's fix is what makes the hard-kill residual visible. No change.
+- *2026-07-17 cli-docs F1 (ruled)* — EXIT STATUS fell behind new non-zero exits; the
+  ruling's doctrine was "every new non-zero exit path owes coverage in both registers".
+  **MC5 is a recurrence of that class**: the part-way failure is a new documented behaviour
+  with an undocumented exit, and the superset test cannot see it (it pins flags, not
+  exits). Severity stays minor; the class recurrence is the point for the principal.
+- *Open 210/020, 210/030 (encryption at rest), 210/160 (file vs session counts)* — out of
+  this pass's scope by the brief's non-goal; MC2's atomic-mirror counsel and 210/020's
+  "encrypt with age" counsel touch the same write path, so a fix for one should be designed
+  with the other in view. No finding.
+
+**The sibling's seeded questions, answered from phase 1's drives.**
+
+1. *Can a mid-run checkpoint make `--verify` approve an archive missing bytes?* Not by the
+   checkpoint itself: every killed run's `--verify` exited 1 with the gap named. **Yes by
+   the heal** (shape E): the manifest is rewritten to describe bytes the mirror does not
+   hold — `--verify` then fails on an intact mirror, and `--audit` approves a live store
+   that differs from the archive. And **yes after a torn write** (shape G, MC2): the
+   manifest attests the source's bytes against a 0-byte mirror, and `--verify` does not
+   approve — it crashes, which is worse than a wrong answer because it reports nothing.
+2. *Which way does the heal move data, and can a bad source win?* Source → manifest, never
+   touching the mirror's bytes. A bad source wins whenever its mtime is not newer than the
+   mirror's (E, F). The one direction the manifest should never be written from is the one
+   the heal reads (MC1).
+3. *Is every new exit in EXIT STATUS, and does the superset test cover it?* No and no
+   (MC5). The superset test checks flags against the page; it has no view of exits.
+4. *Does the heal respect the shrink guard?* It runs on the skip path, where the guard
+   does not fire, so the two never meet in one run — and that is the problem: the heal
+   rewrites the guard's comparand (`rawBytes`) without the guard's protection, and the
+   guard then trusts it next run (shape F, MC1).
+
+**Findings formed at reconcile:** none. Every finding above was formed and recorded in
+phase 1 before the sibling, the intent record or the prior verdicts were opened; this
+section relates them to that material and changes no severity.
+
+**Overall line, restated: PASS-WITH-FINDINGS — 2 MAJOR · 2 MODERATE · 4 minor · 2 note
+(MC1–MC10).** Findings are the principal's to decide (rule 3); nothing applied.
+
+Phase 2 ends here. Reviewer `claude-fable-5-1`, spawned by the brief-writer, Fable tier.
+
+## Folded sibling — released after the phase-1 findings were committed
+
+The `.deferred.md` sibling the orchestrator held outside the worktree, folded in
+verbatim at close; the reviewer met it only in phase 2.
+
+# Deferred sibling — ccarchive's manifest checkpoints and stale-entry heal (MC)
+
+Held by the orchestrator outside the worktree and outside the harness
+scratchpad. Released to the reviewer only after its phase-1 findings are
+committed. Folded into the verdict file at close.
+
+## 1. The queue pointer's own framing (author's words)
+
+> - ⏳ **Rule-4 cold pass queued: ccarchive's manifest checkpoints and
+> stale-entry heal (`210/170`).** The run authored this itself (its
+> dispatched workers' output counts as the run's authorship). It was
+> queued at landing, and the run neither takes it nor spawns a reviewer
+> for it. *Tier:* Fable, the principal-named review tier, checked at
+> selection. *Pass type:* code cold pass, per `method/REVIEW.md` rule 4.
+> *Delta, scoped to paths:* `instruments/ccarchive`,
+> `instruments/ccarchive.test.js` and `instruments/man/ccarchive.1`. It
+> landed on `main` on 2026-10-03, in merge `0264387`.
+> *Intent record:*
+> `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md`.
+
+## 2. Intent record and commissioning item (read in phase 2)
+
+- `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md`
+- the board item named in the pointer
+
+## 3. What the authoring run said to the orchestrator (channel, verbatim)
+
+> A fourth refs-only pointer of mine is on main, docs/roadmap/160-doctrine-review-owed/460-rule-4-cold-pass-queued-the-manifest-checkpoints.md, a code pass on ccarchive. No other detail.
+
+Nothing else from that run was read by the orchestrator.
+
+## 4. Prior findings and seeded questions (the orchestrator's, labelled)
+
+Prior findings on this instrument (ruled unless stated):
+
+- 2026-07-17 ADR 0006 / ccarchive-preserve pass, F1 (MODERATE, ruled, fixed): a
+  corrupt or truncated source with a newer timestamp overwrote the only durable copy
+  and `--verify` approved it; the fix refuses a re-archive smaller than the recorded
+  size without `--force`. F2: guard 2 was a default, not code. F3: layout drift
+  failed silently with exit 0. F4: unmanifested files and the circular `fromArchive`
+  hash.
+- 2026-07-17 cli-docs-applied F1 (MODERATE, ruled): the man page's EXIT STATUS
+  predated the new non-zero exits; the layout-drift alarm was missing from the page.
+- Open board items: 210/020 and 210/030 (encryption at rest; one decision, counsel
+  "encrypt with age, decrypt in-process"), 210/160 (reports file counts, not session
+  counts). All await the principal.
+
+Seeded questions (the orchestrator's): (1) Can a checkpoint written mid-run ever
+make `--verify` approve an archive that is missing bytes? (2) Which way does the
+heal move data, and can a bad source win? (3) Is every new exit in EXIT STATUS, and
+does the superset test cover it? (4) Does the heal respect the shrink guard?

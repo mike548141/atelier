@@ -24,3 +24,26 @@
       sibling, the intent record and prior verdicts stay unopened by the
       reviewer until its phase-1 findings are committed. Provenance and
       exposure go in the verdict.
+      - [ ] 🛑 **The pass RAN 2026-10-03 and the cycle stays OPEN — two MAJORs
+            stand.** The rule-4 Fable cold pass (taker: a fresh
+            `claude-fable-5-1` subagent under a `claude-fable-5-1` orchestrator
+            — the shape disclosed in the claim above; the sibling, the intent
+            record and prior verdicts opened only after the phase-1 findings
+            were committed) returned PASS-WITH-FINDINGS — 2 MAJOR · 2 MODERATE ·
+            4 minor · 2 note →
+            [`2026-10-03-0357-manifest-checkpoints-cold.md`](../../reviews/2026-10-03-0357-manifest-checkpoints-cold.md)
+            (sibling folded in). MC1 (MAJOR): the heal refreshes the manifest
+            from the source, not the mirror; driven, a restored-from-backup
+            source makes `--verify` report a mismatch on an intact mirror for
+            ever, and a truncate-then-append with a preserved mtime lowers the
+            recorded size, slips the 2026-07-17 shrink guard and overwrites the
+            good copy with `--verify` green — the ruled F1 re-opened by a side
+            door. MC2 (MAJOR, pre-existing, surfaced by a real SIGKILL): mirrors
+            are written in place, so a torn archive gets a newer mtime, is never
+            re-archived, is backfilled from the source's hash, and makes
+            `--verify` crash. MC3–MC4 (MODERATE): the in-loop checkpoint is
+            untested; the man page's "every written mirror covered" holds for a
+            throw, not a hard kill. The reviewer recovered from the review
+            worktree lacking the delta at spawn (MC8); the orchestrator merged
+            `main` in mid-pass. Findings are the principal's to decide (rule
+            3); nothing was applied.
