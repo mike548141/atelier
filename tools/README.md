@@ -611,6 +611,13 @@ links and are out of scope by design. A deliberately dangling pointer is exempte
 with `<!-- linkscan:allow: <reason> -->` on the line, or a glob in
 `.linkscanignore`.
 
+**Bounded on any single file** (`110/120`): a file is streamed line by line, not
+held whole; no more than `MAX_MATERIALIZED_FINDINGS` (50,000) findings are built,
+and every one past that is **counted** and printed (`…and N more broken link(s)`,
+plus `--json`'s `findings_over_cap`), so the headline total and the exit code
+stay true. A run under the cap prints exactly what it always did. Each distinct
+`(directory, link path)` is resolved against the disk once per scan.
+
 ### Usage
 
 ```sh
@@ -993,6 +1000,16 @@ and must never happen as a side effect. **Records are excluded by default**
 were written and can never come clean without falsifying the record —
 `--include-records` widens deliberately, and a records file named explicitly
 as a path argument is always scanned.
+
+**Bounded on any single file** (`110/120`): a file is streamed line by line, not
+held whole, and an overlong line is scanned in overlapping windows. No more than
+`MAX_MATERIALIZED_FINDINGS` (50,000) findings are built; every one past that is
+**counted** and printed (`…and N more finding(s)`, plus `--json`'s
+`findings_over_cap`), so the headline total and the exit code stay true. A run
+under the cap prints exactly what it always did. **Named residual**: on a line
+longer than 16 KiB the placeholder/URL/link-destination blanking is applied in one
+pass per pattern rather than re-run after each blanked span, which differs only
+for adversarial nesting such as `<a <b> c>`.
 
 ### Usage
 
