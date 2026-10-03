@@ -164,3 +164,18 @@ run to `pull --rebase --autostash` with no status-first gate, which is the
 step `CONCURRENCY.md` warns against, on a recorded near-miss. Four of the
 eleven are a skill or template contradicting the parent it claims to
 compress.
+
+## `260/040`: publishscan's second round
+
+The tracked-file half of P2a ran as a names-only survey of every sibling's
+tracked set. It found few never-publish shapes, all in private repos. Round
+2 adds those and about 55 standard-practice shapes. The reasons for each
+exclusion are written in the source. Measured blast radius: 3 private repos
+newly red (23 files) at their next pin bump, and 0 public. 🛑 **Before
+merge the orchestrator rewrote the worker's unpushed commit.** The worker
+had written measured counts for the secret-carrier shapes, plus an
+appliance backup's vendor-specific filename, into the public source. That
+describes a private repo's security posture even with no name attached, so
+those entries now say "standard practice" and the vendor pattern is gone.
+The measured instance it covered is left to its own repo. The code pass is
+queued at `160/470`.
