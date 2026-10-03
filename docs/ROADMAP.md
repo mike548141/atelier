@@ -298,7 +298,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [ccgrab — a web-media capture instrument (Mike commissioned 2026-09-09;](roadmap/210-instruments-open-features/140-ccgrab-web-media-capture-instrument.md)
 - ✅ 🔎 [Why is the source smaller than the archived copy? — the shrink](roadmap/210-instruments-open-features/150-why-the-source-is-smaller-than-the-archived-copy.md)
 - [ ] 🎯 [ccarchive's summary counts files, and Mike's own read of the tool](roadmap/210-instruments-open-features/160-ccarchive-reports-file-counts-not-session-counts.md)
-- [ ] 🔎 [ccarchive's manifest lags its own mirror in 14 files, so the](roadmap/210-instruments-open-features/170-the-manifest-lags-the-mirror.md)
+- [~] 🔎 (claimed 2026-10-03-0203, wt: qr-ccarchive-manifest) [ccarchive's manifest lags its own mirror in 14 files, so the](roadmap/210-instruments-open-features/170-the-manifest-lags-the-mirror.md)
 - [ ] 🔎 [--list --from-archive still fully gunzips every local mirror for](roadmap/210-instruments-open-features/180-first-prompt-column-gunzips-every-mirror.md)
 
 ## Observability of the collaboration itself (2026-07-30)

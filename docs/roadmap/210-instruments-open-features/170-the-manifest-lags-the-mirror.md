@@ -1,4 +1,4 @@
-- [ ] 🔎 **`ccarchive`'s manifest lags its own mirror in 14 files, so the
+- [~] (claimed 2026-10-03-0203, wt: qr-ccarchive-manifest) 🔎 **`ccarchive`'s manifest lags its own mirror in 14 files, so the
   shrink guard compares against a stale, smaller figure** (found 2026-10-03
   by the read-only investigation that answered `150`; cause NOT diagnosed)
 
@@ -30,3 +30,16 @@
   around read-modify-write of the manifest, and whether a scheduled and a
   hand run have overlapped. That is read-only. A fix waits on knowing which
   cause it is.
+
+  🔎 **The mechanism, read in the code (2026-10-03, before claiming).**
+  `archive()` writes each mirror **inside** its loop, but saves the manifest
+  **once, after** the loop (`saveManifest` at the end of the run). So a run
+  that dies part-way, whether killed, put to sleep or stopped by a throw on
+  a later file, leaves every mirror it already wrote **ahead of** the
+  manifest. The next run then **cannot heal it**. The mirror carries the
+  source's mtime, so `shouldArchive` skips the file. The old entry still
+  exists, so the backfill skips it too. The manifest stays stale for good.
+  That matches the measurement exactly: in 11 of 14 the mirror equals the
+  current source. There is also no lock, so the overlapping-runs hypothesis
+  stays open as well. Whether any run actually died is **not established**.
+  The code shows the mechanism, not that it fired.
