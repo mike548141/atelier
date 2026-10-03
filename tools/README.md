@@ -746,7 +746,13 @@ becomes wrong at the moment of the flip).
 Patterns carry their provenance in the source: the `.claude/settings*.json`
 pair is grounded in that finding; `.mcp.json`, `.env*`, `.envrc`, `.netrc`,
 `.npmrc`, `.pypirc` and editor-local config are standard practice, named as
-such rather than dressed up as findings. Hatch: a glob in
+such rather than dressed up as findings. A second round (2026-10-03) added the
+shapes a survey of the estate's tracked files found (runtime logs, local
+databases, compiled-Python caches), plus standard-practice key, keystore,
+history, dump, capture, tool-cache and OS-cruft shapes. Each entry says which
+tier it is. Generic `*.pem`, `credentials*.json`,
+`*.rsc`, archives and `*.jsonl` were considered and left out, because
+legitimate files wear those names. Hatch: a glob in
 `.publishscanignore` — there is deliberately **no line marker**, because a
 reason written inside a file that should not exist is an exemption no reviewer
 would ever see.

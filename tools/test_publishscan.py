@@ -74,6 +74,55 @@ class PatternTest(unittest.TestCase):
             with self.subTest(path=p):
                 self.assertIsNone(publishscan.matches(p))
 
+    def test_round2_measured_shapes_red(self):
+        """The 2026-10-03 survey's tracked-in-the-estate shapes, at the root
+        and one directory down."""
+        for p in ("privkey.pem", "pki/archive/privkey1.pem",
+                  "u/user.google_authenticator", "access.log",
+                  "d/log/letsencrypt/letsencrypt.log",
+                  "scripts/__pycache__/m.cpython-314.pyc", "m.pyc",
+                  "backup/config.db"):
+            with self.subTest(path=p):
+                self.assertIsNotNone(publishscan.matches(p))
+
+    def test_round2_standard_practice_shapes_red(self):
+        for p in ("server.key", "x/cert.p12", "x/cert.pfx", "k.ppk", "s.jks",
+                  "a.keystore", "vault.kdbx", "id_rsa", "h/.ssh/id_ed25519",
+                  ".htpasswd", ".git-credentials", ".aws/credentials",
+                  ".kube/config", ".docker/config.json", "infra/x.tfstate",
+                  "infra/x.tfstate.backup", "infra/prod.tfvars",
+                  "infra/.terraform/providers/x", "h/.ssh/known_hosts",
+                  ".bash_history", ".zsh_history", "h/.python_history",
+                  ".lesshst", ".viminfo", "a.sqlite", "a.sqlite3", "a.db",
+                  "a.db-wal", "a.db-shm", "crash.dmp", "x.mdmp", "x.hprof",
+                  "x.stackdump", "cap.pcap", "cap.pcapng", "session.har",
+                  ".pytest_cache/v/cache", "x/.mypy_cache/m", ".ruff_cache/m",
+                  "web/node_modules/x/index.js", "A.xcodeproj/xcuserdata/m",
+                  "A.xcuserstate", "A.iml", ".x.swp", "x.swo",
+                  "w.sublime-workspace", "CLAUDE.local.md",
+                  "sub/CLAUDE.local.md", ".claude/worktrees/agent-1",
+                  ".DS_Store", "docs/.DS_Store", "Thumbs.db", "desktop.ini",
+                  "docs/._notes.md"):
+            with self.subTest(path=p):
+                self.assertIsNotNone(publishscan.matches(p))
+
+    def test_round2_does_not_overreach(self):
+        """Legitimately tracked look-alikes stay green: public certificates
+        and CA roots, public keys, shared editor policy, and ordinary names
+        that merely contain the letters."""
+        for p in ("pki/fullchain.pem", "pki/cert.pem", "etc/pki/ca-root.pem",
+                  "keys/id_rsa.pub", "keys/user.pub", ".vscode/extensions.json",
+                  ".editorconfig", "docs/changelog.md", "docs/dblog.md",
+                  "src/core.2fa.py", "docs/release_history.md",
+                  "docs/history.md", "registry/credentials.json",
+                  "tests/fixtures/session.jsonl", "docs/keyboard.md",
+                  "src/monkey.py", "docs/pycache-notes.md", "docs/dbs.md",
+                  "docs/ds_store.md", "tests/fixtures/dns/example.zone",
+                  "x/hostkeys.md", "docs/known_hosts_notes.md",
+                  "docs/.claude-notes.md", "src/node_modules_policy.md"):
+            with self.subTest(path=p):
+                self.assertIsNone(publishscan.matches(p))
+
     def test_guard_declarations_are_deliberately_allowed(self):
         """They map where the defences are weak AND must travel to work.
 
