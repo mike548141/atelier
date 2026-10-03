@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-03-0416, wt: qr-exceptions; part 1: audit + scale measurement) 🎯 **The exception audit above checked reason-presence and
+- [~] (claimed 2026-10-03-0416, wt: qr-exceptions; parts 2–3: the exception record and its migration) 🎯 **The exception audit above checked reason-presence and
       effectiveness — never narrowness. Mike commissioned, 2026-09-12.** His
       words: *"I am concerned that guards like secretscan and leakscan have
       exceptions granted in various repos that are too broad... To clarify I
@@ -102,3 +102,38 @@
         - Part 3: migrate the guards and existing exceptions to it.
         - Part 4: fix whatever part 1 measures as unbounded.
         G3 (PR #97) is held until it meets (1) and (2).
+  - [x] 📊 **PART 1 DONE 2026-10-03: what the guards accept at `1685fd8`, measured
+        against requirements (1) and (2)** (read-only, atelier's tree at
+        `1685fd8`). **26 exception mechanisms.** Only one, the floor
+        `advisory`, has an expiry. **None records the session or whether
+        Mike ruled it**, and git cannot recover either, because every commit
+        has the same single author. Live in atelier:
+        - **91 line allow-markers, all whole-line.** No span form exists:
+          the median marked line is 135 characters, and only about 3 lines
+          hold more than one finding. 84 of the 91 (92%) are unscoped,
+          although nearly all cover a single rule.
+        - **33 ignore-file globs.** About 14 mask a file or folder where only
+          a few lines are findings, for example 1–3 lines in files of 21–1,451
+          lines, or a 357-file records tree for 43 spelling findings. About 5
+          are genuinely whole-file.
+        - **Who, when, session:** 0 of 130 exceptions carry a session ID, 4
+          carry a date, 6 a who-ish word, and all of it is prose.
+        - **Three exemptions need no reason and are not counted:** the
+          reviewscan deferral substring (6 live), wrapscan silencing any
+          line that carries a *sibling's* marker (11 lines), and
+          `sizescan:budget`.
+        🔴 **A doctrine line contradicts Mike's standard and goes in part 2.**
+        `GUARDS.md` § *Who, why, when* says who and when "come from version
+        control", and that demanding an author field asks someone to retype
+        what `git blame` knows. `git blame` cannot name a session, or tell a
+        ruling from an agent's choice.
+  - [x] 📏 **PART 1 DONE: scale.** Every guard × the 3 largest repos, under a
+        hard 300 s cap. **Memory held:** every finished real-repo run peaked
+        under 120 MB. **Time did not.** The content scanners walk the whole
+        *filesystem*, untracked trees included. In one private repo 93% of
+        the files walked, 15.7 GB of 15.8 GB, are untracked, so secretscan,
+        leakscan and conflictscan hit the cap there. That is the cause of
+        the hours-long runs. Split out as `110/110`. Two guards **are**
+        unbounded on one huge file: pathscan reads files whole (RSS past
+        1 GB) and linkscan keeps every finding (past 500 MB). Split out as
+        `110/120`.
