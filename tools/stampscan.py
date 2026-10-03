@@ -1074,6 +1074,16 @@ def _main(argv: list[str] | None = None) -> int:
                          "(advisory rollout — this scanner is first-of-kind "
                          "and not yet reviewed; it must not gate). Does NOT "
                          "downgrade a config error, which always exits 2.")
+    ap.add_argument("--require-stamps", action="store_true",
+                    help="fail (exit 2) if the run verified no stamped block "
+                         "at all, instead of printing a clean pass over "
+                         "nothing. For hooks/CI on a tree that is EXPECTED to "
+                         "carry a stamped floor block: an unstamped block "
+                         "has no marker for the scanner to find, and to "
+                         "automation an exit-0 over nothing is "
+                         "indistinguishable from a verified one. Modelled on "
+                         "`leakscan --require-terms`. Blocks skipped by "
+                         "allow-marker do not count as verified.")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--selftest", action="store_true",
                     help="run built-in checks and exit")
@@ -1113,6 +1123,23 @@ def _main(argv: list[str] | None = None) -> int:
 
     errors = [f for f in findings if f.kind in _CONFIG_ERROR_KINDS]
     drifts = [f for f in findings if f.kind in _DRIFT_KINDS]
+
+    if args.require_stamps and not errors:
+        # Verified = compared against a canonical region (identical, narrow
+        # or drift). A run that verified none checked nothing; refuse to
+        # report it as a pass. Config errors already exit 2 below.
+        verified = sum(1 for f in findings
+                       if f.kind in _DRIFT_KINDS or f.kind in ("identical", "narrow"))
+        if verified == 0:
+            print("stampscan: --require-stamps set but no stamped block was "
+                  "verified (found 0 stamp:begin/stamp:end pairs compared "
+                  "against a canonical region; "
+                  f"{sum(1 for f in findings if f.kind == 'skipped')} skipped "
+                  f"by allow-marker, {len(_skipped)} file(s) by "
+                  ".stampscanignore). An unstamped floor block carries no "
+                  "marker for the scanner to check - refusing to report "
+                  "nothing-checked as a pass.", file=sys.stderr)
+            return 2
 
     if args.json:
         print(json.dumps({

@@ -1034,8 +1034,17 @@ span anyway, and `.stampscanignore` nets the stores that quote probe material ra
 python3 tools/stampscan.py --warn --root . .   # the advisory CI invocation
 python3 tools/stampscan.py --root . docs       # docs only, gating
 python3 tools/stampscan.py --json              # machine-readable
+python3 tools/stampscan.py --require-stamps --root . .   # fail if nothing was verified
 python3 tools/stampscan.py --selftest          # prove the engine offline
 ```
+
+`--require-stamps` is the cover switch, modelled on `leakscan --require-terms`.
+Without it a tree whose floor block is unstamped (no marker to find) prints
+`✓ stampscan clean — no stamped blocks found.` and exits 0, which a reader cannot
+tell from "checked and clean". With it, a run that verified no stamped block
+(none found, or only allow-marker skips) exits `2` with a stderr message naming
+what was missing. Drift (`1`) and config errors (`2`) are reported as before.
+Off by default, so the advisory invocation is unchanged.
 
 Exit codes: `0` clean, or `--warn` with drift findings only · `1` drift, without
 `--warn` · `2` usage/config error — a malformed stamp, an unresolvable source or
