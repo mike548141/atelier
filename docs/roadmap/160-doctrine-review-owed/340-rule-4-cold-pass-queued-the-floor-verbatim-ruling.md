@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued — the floor is copied verbatim (`115/030`):
+- [ ] 🎯 **Rule-4 cold pass queued — the floor is copied verbatim (`115/030`):
       one doctrine change and the scanner half that enforces it.**
       Self-authored, queued at landing by its author (the run's dispatched
       worker counts as the run's authorship), who may not take it. *Tier:*

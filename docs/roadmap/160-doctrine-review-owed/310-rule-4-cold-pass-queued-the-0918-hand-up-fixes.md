@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued — the 2026-09-18 hand-up fixes to the
+- [ ] 🎯 **Rule-4 cold pass queued — the 2026-09-18 hand-up fixes to the
       session-start sync, the act-verification clause and the drift command.**
       Self-authored doctrine, queued at landing by its author, who may not take
       it. *Tier:* Fable, the principal-named review tier — checked at

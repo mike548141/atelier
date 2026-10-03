@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued: `stampscan --require-stamps` and
+- [ ] 🎯 **Rule-4 cold pass queued: `stampscan --require-stamps` and
       `blockscan`'s unmapped-heading report (`320/130`, `320/340`).** The run
       authored this itself (its dispatched workers' output counts as the
       run's authorship). It was queued at landing, and the run neither takes

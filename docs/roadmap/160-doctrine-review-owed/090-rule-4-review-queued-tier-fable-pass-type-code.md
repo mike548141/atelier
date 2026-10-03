@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 review queued (tier: Fable; pass type: code cold pass, the
+- [ ] 🛑 **Rule-4 review queued (tier: Fable; pass type: code cold pass, the
   EP application; the EP cycle's three MAJORs keep it open past this).**
   *Delta:* `tools/floor.py` + `tools/floorfleet.py` +
   `tools/pre-commit.sample` + `.githooks/pre-commit` +
@@ -41,7 +41,7 @@
       AP1: re-word to the truth by appended amendment, boundary check
       queued; branch protection deliberately not enabled. Application in
       flight on wt: ruling-round-0823.
-      - ⏳ **Rule-4 cold pass queued — the AP rulings applied.** The ADR
+      - [ ] 🛑 **Rule-4 cold pass queued — the AP rulings applied.** The ADR
         amendment is doctrine by function; the applier authored neither the
         EP delta nor the AP verdict (Mike directed the application in the
         live ruling round, 2026-08-23, structured asks). Queued in the

@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued — the doctrine-reporting duty, the route's three
+- [ ] 🛑 **Rule-4 cold pass queued — the doctrine-reporting duty, the route's three
       shapes, and the no-harm rules for a hand-up.** Self-authored doctrine,
       queued at landing by its author, who may not take it. *Tier:* Fable, the
       principal-named review tier — checked at selection; a session that cannot

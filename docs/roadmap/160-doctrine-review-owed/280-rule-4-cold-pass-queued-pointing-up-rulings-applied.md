@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued — the pointing-up rulings applied (PU-1
+- [ ] 🎯 **Rule-4 cold pass queued — the pointing-up rulings applied (PU-1
       command fix, PU-2 naming).** Self-authored in rule 4's inherited
       sense: the applier's judgement produced the new wording, and the
       applier also authored the verdict being applied (REVIEW.md prefers

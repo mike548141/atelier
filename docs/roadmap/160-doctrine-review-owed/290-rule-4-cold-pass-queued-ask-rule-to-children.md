@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued — the ruling-ask rule widened and pushed to the
+- [ ] 🎯 **Rule-4 cold pass queued — the ruling-ask rule widened and pushed to the
       child floor.** Self-authored doctrine, queued at landing by its author,
       who may not take it. *Tier:* Fable, the principal-named review tier —
       checked at selection; a session that cannot honour the bar stops rather

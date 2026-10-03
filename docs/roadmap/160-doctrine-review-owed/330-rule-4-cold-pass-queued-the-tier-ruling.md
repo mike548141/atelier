@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued — the 2026-09-19 tier ruling: orchestration is
+- [ ] 🎯 **Rule-4 cold pass queued — the 2026-09-19 tier ruling: orchestration is
       no longer reserved for the top model, and the run-open stop is gone.**
       Self-authored doctrine, queued at landing by its author, who may not
       take it. *Tier:* Fable, the principal-named review tier — checked at

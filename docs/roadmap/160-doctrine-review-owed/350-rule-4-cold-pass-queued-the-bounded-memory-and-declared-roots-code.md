@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued — the 2026-09-20 scanner code: `secretscan`
+- [ ] 🎯 **Rule-4 cold pass queued — the 2026-09-20 scanner code: `secretscan`
       rewritten to stream, and `pathscan` reading declared resolution
       roots.** Self-authored by the run (its dispatched workers count as the
       run's authorship), queued at landing; the run neither takes nor spawns

@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued — the linked-worktree skip across eleven
+- [ ] 🎯 **Rule-4 cold pass queued — the linked-worktree skip across eleven
       scanners (`020/160`, E9).** Self-authored by the run (its dispatched
       worker's output is the run's authorship); queued at landing, and the run
       neither takes nor spawns it. *Tier:* Fable, the principal-named review

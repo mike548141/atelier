@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued — the ruling-ask rules (device, verified basis,
+- [ ] 🛑 **Rule-4 cold pass queued — the ruling-ask rules (device, verified basis,
       options with a recommendation).** Self-authored doctrine, queued at
       landing by its author, who may not take it. *Tier:* Fable, the
       principal-named review tier — checked at selection; a session that cannot
@@ -54,7 +54,7 @@
       asks; dispositions in the verdict file (§ *Rulings — 2026-08-23*),
       including Mike's verbatim over-engineering steer. Application in
       flight on wt: ruling-round-0823.
-      - ⏳ **Rule-4 cold pass queued — the DA rulings applied.**
+      - [ ] 🛑 **Rule-4 cold pass queued — the DA rulings applied.**
         Self-authored in rule 4's inherited sense: the applier's judgement
         produced the new wording, and the applier also authored the verdict
         being applied (Mike directed the application in the live ruling

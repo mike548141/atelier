@@ -114,3 +114,25 @@ further pointer notices after the sixth; the seventh was found on `main`.
   is on `main`.
 - Filed on Mike's instruction: `270/050` — whether ECONOMICS.md's "one task per
   session" says what he directed; he expects more than one task in a session.
+
+## Addendum — the board's ⏳ markers corrected (after close, on Opus 5.5)
+
+Mike, on learning the index showed 27 finished reviews as still queued: *"Fix
+them but only if you know for a fact (i.e. you can prove with evidence) that
+the work is completed. All the work shown against the item you are fixing so
+unfunushed work is not incorrectly marked as complete"*, and *"These are how
+fuck ups happen"*. The cause was this session's own closes (and the 2026-09-25
+batch's) recording each outcome in a sub-bullet while leaving the item's
+top-line ⏳, with the defect already filed at `130/010` and `320/460`.
+
+A script proved each of the 31 ⏳ pointers in the 27 item files before touching
+any: its own RAN outcome (the first after it and before the next pointer), a
+linked verdict file that exists, an overall line below the divider, and — for
+the 2026-09-25 and 2026-10-03 passes — the reconcile and the folded sibling.
+Its first rule attributed outcomes wrongly in the four files with nested
+pointers and held them; the rule was corrected against their visible structure
+and all 31 then proved. Each ⏳ became `- [ ] 🛑` (a MAJOR keeps the cycle
+open) or `- [ ] 🎯` (findings await the principal's ruling) — open items, never
+`[x]`: nothing was marked complete. The index now shows 17 queued reviews
+(`160/500`–`660`), which is the true queue. The convention itself is not
+ruled; `130/010` and `320/460` stay open for that.

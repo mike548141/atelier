@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued: pathscan's brace expansion and inline
+- [ ] 🎯 **Rule-4 cold pass queued: pathscan's brace expansion and inline
       `./` skip (`320/010` class C, `320/170`).** The run authored this
       itself (its dispatched workers' output counts as the run's
       authorship). It was queued at landing, and the run neither takes it

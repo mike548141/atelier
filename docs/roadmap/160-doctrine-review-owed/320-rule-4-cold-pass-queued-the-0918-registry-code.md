@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued — the 2026-09-18 floor-registry code: a scanner
+- [ ] 🛑 **Rule-4 cold pass queued — the 2026-09-18 floor-registry code: a scanner
       added, one removed, two blocking nets widened.** Self-authored by the
       run (its dispatched workers count as its authorship), queued at landing;
       the run neither takes nor spawns it. *Tier:* Fable, the principal-named

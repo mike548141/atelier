@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued — the staged-plane board check and its doctrine
+- [ ] 🎯 **Rule-4 cold pass queued — the staged-plane board check and its doctrine
       sweep (`010/020`, BS1's fund).** Self-authored by the run: its dispatched
       worker built the code, the orchestrator wired the registry and swept the
       doctrine surfaces, so the whole delta is the run's authorship and it

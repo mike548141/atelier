@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued — the bounded-guard-layer conversion: fourteen
+- [ ] 🎯 **Rule-4 cold pass queued — the bounded-guard-layer conversion: fourteen
       tools streamed, capped or measured, plus the measurement harness they
       all rest on.** Self-authored by the run (its dispatched workers count as
       the run's authorship), queued at landing; the run neither takes nor

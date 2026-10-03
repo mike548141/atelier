@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued — the BS1 wording ruling applied (the
+- [ ] 🛑 **Rule-4 cold pass queued — the BS1 wording ruling applied (the
       hook-plane guarantee said plainly on four surfaces).** Self-authored
       doctrine, queued at landing by its author, who may not take it. *Tier:*
       Fable, the principal-named review tier — checked at selection; a session
@@ -40,7 +40,7 @@
       asks; dispositions in the verdict file (§ *Rulings — 2026-08-23*).
       BW1's re-briefing given: corrected plain wording on all five
       spellings. Application in flight on wt: ruling-round-0823.
-      - ⏳ **Rule-4 cold pass queued — the BW rulings applied.** Doctrine by
+      - [ ] 🛑 **Rule-4 cold pass queued — the BW rulings applied.** Doctrine by
         function; the applier authored neither the BS1 delta nor the BW
         verdict (Mike directed the application in the live ruling round,
         2026-08-23, structured asks). Queued in the application's landing

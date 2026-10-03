@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued — the single-sourced file walk (`115/080`
+- [ ] 🎯 **Rule-4 cold pass queued — the single-sourced file walk (`115/080`
       part 1).** Self-authored by the run (its dispatched worker's output is
       the run's authorship); queued at landing, and the run neither takes nor
       spawns it. *Tier:* Fable, the principal-named review tier — checked at

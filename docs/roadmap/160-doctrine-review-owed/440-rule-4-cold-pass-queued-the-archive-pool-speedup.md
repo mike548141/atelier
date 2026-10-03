@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued: cctranscript's archive-pool speedup
+- [ ] 🎯 **Rule-4 cold pass queued: cctranscript's archive-pool speedup
       (`210/050`).** The run authored this itself (its dispatched workers'
       output counts as the run's authorship). It was queued at landing, and
       the run neither takes it nor spawns a reviewer for it. *Tier:* Fable,

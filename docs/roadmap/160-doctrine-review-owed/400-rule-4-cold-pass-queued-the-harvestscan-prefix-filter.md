@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued — `harvestscan`'s prefix-filter rewrite
+- [ ] 🛑 **Rule-4 cold pass queued — `harvestscan`'s prefix-filter rewrite
       (`020/400`).** Self-authored by the run (its dispatched worker's output
       is the run's authorship); queued at landing, and the run neither takes
       nor spawns it. *Tier:* Fable, the principal-named review tier — checked

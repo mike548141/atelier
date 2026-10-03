@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued — the naming precedence: rule 2 governs every
+- [ ] 🎯 **Rule-4 cold pass queued — the naming precedence: rule 2 governs every
       surface a filing creates, and the branch form loses its repo token.**
       Self-authored doctrine, queued at landing by its author, who may not
       take it. *Tier:* Fable, the principal-named review tier — checked at

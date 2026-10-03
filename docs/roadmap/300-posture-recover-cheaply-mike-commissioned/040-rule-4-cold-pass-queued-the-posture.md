@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass owed on the posture section and the fourth guard
+- [ ] 🎯 **Rule-4 cold pass owed on the posture section and the fourth guard
       requirement.** Self-authored doctrine, queued at landing by its author, who
       may not take it. *Pass type:* rule-4 cold pass. *Tier:* Fable, the
       principal-named review tier — checked at selection; a session that cannot
@@ -35,7 +35,7 @@
       PT1: home the requirement in the registry, folded with `115/120`
       into one declaration standard, funded as one item. Application in
       flight on wt: ruling-round-0823.
-      - ⏳ **Rule-4 cold pass queued — the PT rulings applied.** Doctrine by
+      - [ ] 🎯 **Rule-4 cold pass queued — the PT rulings applied.** Doctrine by
         function; the applier authored neither the posture delta nor the PT
         verdict (Mike directed the application in the live ruling round,
         2026-08-23, structured asks). Queued in the application's landing

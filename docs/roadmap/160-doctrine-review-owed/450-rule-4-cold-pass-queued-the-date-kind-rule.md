@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued: the mandate-versus-default date rule
+- [ ] 🛑 **Rule-4 cold pass queued: the mandate-versus-default date rule
       (`040/010`).** The run authored the wording itself. The rule is Mike's
       and is quoted, and the placement and surrounding prose are the run's.
       It was queued at landing, and the run neither takes it nor spawns a
