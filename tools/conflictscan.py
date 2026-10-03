@@ -429,13 +429,20 @@ def _iter_numbered_lines(path: Path):
             if not chunk:
                 break
             pending += decoder.decode(chunk)
+            # Walk an offset forward and cut `pending` once per chunk. The
+            # old `pending = pending[nl + 1:]` per line re-copied the whole
+            # remainder for every line: quadratic in lines-per-chunk
+            # (110/140; linkscan's reader had the same shape, 110/120).
+            start = 0
             while True:
-                nl = pending.find("\n")
+                nl = pending.find("\n", start)
                 if nl == -1:
                     break
-                yield lineno, pending[:nl], True
-                pending = pending[nl + 1:]
+                yield lineno, pending[start:nl], True
+                start = nl + 1
                 lineno += 1
+            if start:
+                pending = pending[start:]
             if len(pending) >= LINE_WINDOW_BYTES:
                 yield lineno, pending, False
                 pending = pending[-LINE_WINDOW_OVERLAP:]
