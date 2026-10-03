@@ -213,3 +213,42 @@ children "at their next pin bump". It reaches them at their next CI run.
 The claim was reasoned and never checked against `floor.yml`, and it was
 corrected in place, with the correction visible. The doctrine gap the build
 exposed, that adoption assumes an advisory form, is filed as `020/410`.
+
+## Close: why the run stopped, and what it leaves
+
+**Stop condition: economics, with the rest blocked.** What is still
+progressable without Mike is large and design-heavy: `115/080` part 3,
+`200/010`'s build on the census, `300/020`'s re-rank, which asks for a fresh
+session, and P7 (`260/090`), which asks for its own. Each is better started
+cold than at the tail of a long context. Everything else open waits on a
+ruling. The parallel Fable session is carrying those into a ruling round.
+
+**Delivered:** ten hand-up PRs landed. Seven code changes merged: the
+stampscan cover switch, blockscan's unmapped-heading report, the
+cctranscript pool speedup, the ccarchive manifest checkpoint and heal,
+publishscan round 2, the shared allow-marker grammar, and atelier's own
+index drift. One doctrine rule was written (`040/010`). One investigation
+was answered (`210/150`). Two surveys were run (`200/010`, `200/040`). Six
+`⏳` pointers were queued, `160/430`–`480`, for the parallel session or
+any Fable session. **Filed:** `210/170`, `210/180`, `200/100` (eleven
+contradictions), `115/230`, `020/410`.
+
+**Held for Mike, as three PRs:**
+- **#92**, a child's filing whose evidence lists one machine's tools.
+- **#96**, pathscan class C, which is unruled.
+- **#97**, G3, which reds seven children.
+
+**This run's own errors, all corrected in the open:**
+- Two items were claimed on a triage summary that missed the item's own
+  "unruled" line (`320/010`, `115/210`). One was caught after a local
+  merge, the other before any work.
+- A reach claim ("next pin bump") was never checked against `floor.yml`.
+- A worker's commit was about to publish a private repo's posture as
+  counts. It was rewritten before push.
+
+The first two are one lesson: **read the artefact, not the summary of it.**
+That is the house's own rule, and this run kept re-learning it.
+
+The full suite passed on the merged tree (1,604 OK) before G3 was held. The
+floor ran on the last pushed SHAs, and the cancelled runs were superseded by
+later successes on the same content.
