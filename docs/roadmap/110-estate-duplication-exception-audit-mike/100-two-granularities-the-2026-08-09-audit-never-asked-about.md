@@ -1,4 +1,4 @@
-- [ ] 🎯 **The exception audit above checked reason-presence and
+- [~] (claimed 2026-10-03-0416, wt: qr-exceptions; part 1: audit + scale measurement) 🎯 **The exception audit above checked reason-presence and
       effectiveness — never narrowness. Mike commissioned, 2026-09-12.** His
       words: *"I am concerned that guards like secretscan and leakscan have
       exceptions granted in various repos that are too broad... To clarify I
@@ -60,3 +60,45 @@
         because the finding is precisely that audit's own blind spot named
         by its closing self-correction — a second question the first sweep
         didn't know to ask, not a new sweep of different ground.
+  - [ ] 🔥 **RESTATED and widened by Mike, 2026-10-03. He says he has had to
+        repeat it "many many times", so it is now a build, not a question.**
+        Verbatim:
+        > I want to be clear that I am seeing too larger gaps in the
+        > exceptions used for things like leakscan, secretscan and the other
+        > guards. I've said many many times (I've had to repeat myself to you
+        > alot on this) that I want any exception to be
+        > * Specified and recorded so that its clear that the exception
+        > exists, why it is necessary, who created it (e.g. session transcript
+        > ID, did I rule or did you do it automatically etc), when the
+        > exception was granted, and any other relevant and useful info
+        > * As narrow an exception as possible. I gave the example of a
+        > particular position in the file or string of characters rather than
+        > a whole line in a file, or the whole file, or a folder of files.
+        > For example if every line in a file is secrets then an exception for
+        > the file makes sense, but if it were one string in the file then
+        > only that string should be excluded.
+        > This should be true of binaries, files large and small etc
+        >
+        > And the guards need to work efficently and effecitvely. For example
+        > we have had situations were the guards ran for hours and took GBs of
+        > memory that stalled the laptop and had to be killed. It should not
+        > try and load a whole file or all results into memory, it needs to
+        > continually close work as it opens new work so it can deal with big
+        > repos (GB or number of files), big files etc
+        **Three requirements:**
+        - (1) every exception RECORDS why, who (session transcript ID, and
+          whether he ruled it or an agent added it), when, and other useful
+          detail;
+        - (2) every exception is as NARROW as possible, down to a character
+          span, for text and binaries alike;
+        - (3) every guard STREAMS, so a large repo or file never exhausts
+          memory or time.
+        **Plan, in landable parts:**
+        - Part 1, now: an audit of every exception mechanism against (1) and
+          (2), and an estate-scale time and memory measurement of every
+          guard against (3). Both are read-only.
+        - Part 2: one exception record format, shared through
+          `allowmarker.py`, with span-level scope.
+        - Part 3: migrate the guards and existing exceptions to it.
+        - Part 4: fix whatever part 1 measures as unbounded.
+        G3 (PR #97) is held until it meets (1) and (2).

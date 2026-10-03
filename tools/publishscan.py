@@ -65,6 +65,17 @@ Two tiers, both stated rather than blurred:
       `.netrc`, `.npmrc`, `.pypirc`   credential-bearing tool config
       `.vscode/settings.json`, `.idea/**`   editor-local paths and tool config
 
+  * ROUND 2: the 2026-10-03 survey of the estate's tracked files. It found a
+    few shapes tracked that nobody would publish deliberately: runtime logs
+    (`*.log`), local databases (`*.db`) and compiled-Python caches. Those
+    carry a "measured" note. The survey's secret-carrier finds are recorded
+    here as standard practice and nothing more, because a public file must
+    not describe a private repo's security posture, even unnamed. The rest
+    of round 2 (key and keystore shapes, history files, dumps and captures,
+    tool caches, OS cruft) is standard practice too, and each entry in
+    NEVER_PUBLISH says which tier it is. Considered and left out: generic
+    `*.pem`, `credentials*.json`, `*.rsc`, archives, `*.jsonl`, `*.pub`.
+
 HATCHES
 -------
 A glob in `.publishscanignore` exempts a path, and every glob line MUST carry
@@ -119,6 +130,93 @@ NEVER_PUBLISH: tuple[tuple[str, str], ...] = (
     (".pypirc", "credential-bearing tool config (upload tokens)"),
     (".vscode/settings.json", "editor-local config: local paths, tool config"),
     (".idea/*", "editor-local config: local paths, tool config"),
+
+    # ---- Round 2 (2026-10-03 survey of every sibling repo's tracked set). ----
+    # Provenance: "measured" = tracked in at least one repo of this estate at
+    # survey time (counts only here; the survey names no repo); "standard
+    # practice" = a file whose whole purpose is machine-local state or a secret
+    # carrier, not yet seen tracked here. Deliberately NOT added, with reasons:
+    # generic `*.pem` (public certificates and CA roots are legitimately
+    # tracked; measured 3 repos, most of them public chains), `credentials*.json`
+    # (a deliberate no-secret registry and test fixtures wear that name),
+    # `*.rsc` RouterOS (the same extension is source code and device exports),
+    # generic archives and `*.jsonl` (fixtures and shipped data), `*.pub` (public
+    # keys), `.vscode/extensions.json` and `.editorconfig` (deliberate shared
+    # editor policy). `.vscode/launch.json` is left to a later round.
+    # -- keys and secret carriers
+    ("privkey*.pem",
+     "a private key (Let's Encrypt style name) — standard practice"),
+    ("*.key", "a private key file — standard practice"),
+    ("*.p12", "a private-key bundle — standard practice"),
+    ("*.pfx", "a private-key bundle — standard practice"),
+    ("*.ppk", "a PuTTY private key — standard practice"),
+    ("*.jks", "a Java keystore — standard practice"),
+    ("*.keystore", "a Java keystore — standard practice"),
+    ("*.kdbx", "a password database — standard practice"),
+    ("id_rsa", "an SSH private key — standard practice"),
+    ("id_dsa", "an SSH private key — standard practice"),
+    ("id_ecdsa", "an SSH private key — standard practice"),
+    ("id_ed25519", "an SSH private key — standard practice"),
+    ("*.google_authenticator",
+     "a TOTP seed file (the second factor itself) — standard practice"),
+    (".htpasswd", "a web-server password file — standard practice"),
+    (".git-credentials", "stored git credentials — standard practice"),
+    (".aws/credentials", "cloud credentials — standard practice"),
+    (".kube/config", "cluster endpoints and credentials — standard practice"),
+    (".docker/config.json",
+     "registry auth — standard practice"),
+    ("*.tfstate", "infrastructure state, holds secrets — standard practice"),
+    ("*.tfstate.backup",
+     "infrastructure state, holds secrets — standard practice"),
+    ("*.tfvars", "infrastructure variables, often secrets — standard "
+                 "practice"),
+    (".terraform/*", "provider cache and local state — standard practice"),
+    ("known_hosts", "the hosts one machine has connected to — standard "
+                    "practice"),
+    # -- machine-local state: history, databases, logs, dumps, captures
+    (".*_history", "shell or REPL history — standard practice"),
+    (".lesshst", "pager history — standard practice"),
+    (".viminfo", "editor history — standard practice"),
+    ("*.db",
+     "a local database — measured in the 2026-10-03 survey"),
+    ("*.sqlite", "a local database — standard practice"),
+    ("*.sqlite3", "a local database — standard practice"),
+    ("*.db-wal", "a local database's write-ahead log — standard practice"),
+    ("*.db-shm", "a local database's shared memory — standard practice"),
+    ("*.log",
+     "a runtime log — measured: 1 repo, 6 files, 2026-10-03 survey"),
+    ("*.dmp", "a crash dump — standard practice"),
+    ("*.mdmp", "a crash dump — standard practice"),
+    ("*.hprof", "a heap dump — standard practice"),
+    ("*.stackdump", "a crash dump — standard practice"),
+    ("*.pcap", "a packet capture — standard practice"),
+    ("*.pcapng", "a packet capture — standard practice"),
+    ("*.har", "a browser capture, holds cookies — standard practice"),
+    # -- tool state and caches
+    ("__pycache__/*",
+     "compiled-Python cache — measured: 1 repo, 1 file, 2026-10-03 survey"),
+    ("*.pyc", "compiled-Python cache — measured with __pycache__ above"),
+    (".pytest_cache/*", "tool cache — standard practice"),
+    (".mypy_cache/*", "tool cache — standard practice"),
+    (".ruff_cache/*", "tool cache — standard practice"),
+    ("node_modules/*", "installed dependencies — standard practice"),
+    ("xcuserdata/*", "per-user Xcode state — standard practice"),
+    ("*.xcuserstate", "per-user Xcode state — standard practice"),
+    ("*.iml", "editor-local project file — standard practice"),
+    ("*.swp", "editor swap file — standard practice"),
+    ("*.swo", "editor swap file — standard practice"),
+    ("*.sublime-workspace",
+     "editor-local workspace state — standard practice"),
+    ("CLAUDE.local.md",
+     "one person's agent instructions — machine-local by name, same class as "
+     ".claude/settings.local.json"),
+    (".claude/worktrees/*",
+     "an agent session's nested worktree — local scratch, never repo content"),
+    # -- OS cruft
+    (".DS_Store", "macOS folder metadata — standard practice"),
+    ("Thumbs.db", "Windows thumbnail cache — standard practice"),
+    ("desktop.ini", "Windows folder metadata — standard practice"),
+    ("._*", "macOS AppleDouble metadata — standard practice"),
 )
 
 
@@ -333,7 +431,14 @@ def selftest() -> int:
            # Any depth — the PB1 probes that passed green in the first cut.
            "packages/api/.npmrc", "sub/.env.production", "docs/.envrc",
            "services/x/.claude/settings.json", "sub/.mcp.json",
-           "apps/web/.vscode/settings.json", "x/.idea/workspace.xml"]
+           "apps/web/.vscode/settings.json", "x/.idea/workspace.xml",
+           # Round 2.
+           "pki/privkey.pem", "a/archive/privkey1.pem", "certs/server.key",
+           "home/.ssh/id_ed25519", "u/user.google_authenticator",
+           "log/access.log", "x/__pycache__/m.cpython-314.pyc", "data/app.db",
+           ".DS_Store", "docs/.DS_Store", "docs/._notes.md",
+           "h/.bash_history", "CLAUDE.local.md", "infra/terraform.tfstate",
+           ".claude/worktrees/agent-1"]
     green = [
         # The self-describing guard files this tool deliberately allows: they
         # MUST travel for the floor to run, and hiding them would weaken the
@@ -343,6 +448,10 @@ def selftest() -> int:
         # Ordinary content that merely looks adjacent.
         "docs/method/REVIEW.md", "tools/floor.py", "src/env.py",
         "docs/build/templates/claude/settings.json",  # a TEMPLATE, not live
+        # Round 2 look-alikes that are legitimately tracked.
+        "pki/fullchain.pem", "etc/pki/ca-root.pem", "keys/id_rsa.pub",
+        ".vscode/extensions.json", ".editorconfig", "docs/changelog.md",
+        "src/core.2fa.py", "docs/release_history.md", "registry/credentials.json",
     ]
     bad_red = [p for p in red if matches(p) is None]
     bad_green = [p for p in green if matches(p) is not None]

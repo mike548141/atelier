@@ -96,3 +96,175 @@ decides whether superseded revisions are kept.
 Found on the way and filed as `210/170`: **the manifest lags the mirror in 14
 files**. That makes the guard's comparand too low, so a truncation could pass
 silently. The cause is not diagnosed.
+
+## `210/050`: the archive pool, roughly halved
+
+Both causes the item named are fixed. The dataless check is one batched
+`stat` per 400 paths, and the cwd sniff inflates only a gzip prefix. The
+listing went from about 15 s to about 7 s, with byte-identical output in
+three paired runs and flag-for-flag agreement across all 960 mirrors. The
+remaining cost is a third path, filed as `210/180`. ⚠️ The worker's first
+profiling script hydrated evicted iCloud mirrors by reading them. That is
+harmless and temporary, but it is the hazard the tool exists to avoid, so
+it is disclosed. The cold pass is queued at `160/440`.
+
+## `115/210`: claimed, then put back
+
+This is the same mistake as class C, caught one step earlier this time,
+before any work. The item lists three candidates, *"not chosen here"*, with
+a stated trade-off. The run had claimed it on a triage summary that called
+it a documentation fix. The claim was released untouched. From here on, the
+run reads each item's own ruling state before claiming it.
+
+## `040/010`: the date-kind rule, written down
+
+Mike's rule from 2026-08-09, captured near-verbatim on the board ever since,
+now lives in `GUARDS.md` beside the acceptance/deferment split, which is the
+home the item named. A **mandate** date binds the class: a child may only
+tighten it or argue an exemption. A **default** date seeds the value: a
+child may set it earlier, the same, or later. A date-setting ruling names
+its kind. The run added one clause of its own, saying so in the item: an
+older date with no kind on record is asked about, not inferred. The
+doctrine pass is queued at `160/450`.
+
+## `200/010`: the census, and atelier's own drift fixed
+
+The ruling bound the generic index-keeper to a census first. A read-only
+sweep of all 31 estate repos found **22 hand-maintained indexes of 7 kinds in
+14 repos**. Drift is firm in 4 and probable in 3. Nothing guards the
+unlisted direction anywhere, so the class has many members and the ruled
+build stands. The census also found that **catalogues and session indexes
+drift, while decisions indexes mostly do not**, and that moves the design's
+first target. The item records only classes and counts, with no private repo
+named. atelier's own four firm drifts were fixed in the same commit, except
+`filewalk.py`. Its missing entry is FW2, which is in the ruling round, so it
+was left alone.
+
+## `210/170`: the manifest stops falling behind
+
+The orchestrator read the code before claiming. `archive()` writes mirrors
+inside its loop and saves the manifest once, after it. So a run that dies
+part-way strands every mirror it wrote, and the mtime check makes the gap
+permanent. The fix checkpoints the manifest every 50 mirrors and on any
+throw, re-signing each time so the signature always matches the saved
+bytes. It also heals an entry whose size disagrees with a fresh-by-mtime
+source. The real archive's 14 lagging entries heal on the next ordinary
+run. Locking against overlapping runs is the open half. The code pass is
+queued at `160/460`.
+
+## `200/040`: R2 surveyed, and eleven contradictions filed
+
+A claim-keyed pass over `method/`, `build/`, the templates and the skills
+found **68 multi-stated claims: 41 independent restatements, 20 pointers and
+7 stamped**. Only the floor block is mechanically stamped. **Eleven sets of
+copies already disagree.** They are filed as `200/100` with file:line
+evidence and six re-read first-hand, and none was fixed in passing (the
+report-don't-patch rule). The sharpest is C1: the queue-run skill tells a
+run to `pull --rebase --autostash` with no status-first gate, which is the
+step `CONCURRENCY.md` warns against, on a recorded near-miss. Four of the
+eleven are a skill or template contradicting the parent it claims to
+compress.
+
+## `260/040`: publishscan's second round
+
+The tracked-file half of P2a ran as a names-only survey of every sibling's
+tracked set. It found few never-publish shapes, all in private repos. Round
+2 adds those and about 55 standard-practice shapes. The reasons for each
+exclusion are written in the source. Measured blast radius: 3 private repos
+newly red (23 files) at their next pin bump, and 0 public. 🛑 **Before
+merge the orchestrator rewrote the worker's unpushed commit.** The worker
+had written measured counts for the secret-carrier shapes, plus an
+appliance backup's vendor-specific filename, into the public source. That
+describes a private repo's security posture even with no name attached, so
+those entries now say "standard practice" and the vendor pattern is gone.
+The measured instance it covered is left to its own repo. The code pass is
+queued at `160/470`.
+
+## `115/080` part 2: one allow-marker grammar, fourteen parameters
+
+The item's binding constraint was carried into the dispatch verbatim:
+share the mechanism, never the behaviour. `tools/allowmarker.py` now builds
+every scanner's marker regex and loads every reason-required ignore file.
+Fourteen scanners are converted, and each keeps its own acceptance rules as
+parameters. The proof is the item's own standard. Patterns are
+string-identical (one benign backslash aside), and output is byte-identical
+on the real tree and on 170 fixture comparisons. A pin test now fails if a
+shared edit changes any scanner's pattern. That turns the 2026-08-09 class
+(nine markers silently voided) into a red test. The extraction surfaced four
+divergences, filed as `115/230` rather than unified. One widens: a scope with
+no reason exempts every kind on the line. Part 3 is still owed. The code pass
+is queued at `160/480`.
+
+## `020/150`: G3 built on the capable tier, then held
+
+It was dispatched to an Opus worker because it is first-of-kind and
+tightens a gate for every child. The worker measured before it designed.
+Tracked binaries across the estate: 57 in public children and 95 in
+private ones, and atelier has none. The design follows the ruling exactly:
+a hash-bound, reasoned per-file entry, so a changed binary re-blocks.
+Text metadata is scanned, and opaque metadata blocks unless named. The build
+also found that the staged plane never saw binaries at all, even by name.
+
+🛑 **Held as draft PR #97, not merged.** Children call `floor.yml@main` and
+float at `main`, so landing it reds seven children's CI at their next run,
+with no deferment path. That is Mike's act. 🛑 **The same fact corrected
+this run's own record.** `260/040` had said publishscan round 2 reaches
+children "at their next pin bump". It reaches them at their next CI run.
+The claim was reasoned and never checked against `floor.yml`, and it was
+corrected in place, with the correction visible. The doctrine gap the build
+exposed, that adoption assumes an advisory form, is filed as `020/410`.
+
+## Close: why the run stopped, and what it leaves
+
+**Stop condition: economics, with the rest blocked.** What is still
+progressable without Mike is large and design-heavy: `115/080` part 3,
+`200/010`'s build on the census, `300/020`'s re-rank, which asks for a fresh
+session, and P7 (`260/090`), which asks for its own. Each is better started
+cold than at the tail of a long context. Everything else open waits on a
+ruling. The parallel Fable session is carrying those into a ruling round.
+
+**Delivered:** ten hand-up PRs landed. Seven code changes merged: the
+stampscan cover switch, blockscan's unmapped-heading report, the
+cctranscript pool speedup, the ccarchive manifest checkpoint and heal,
+publishscan round 2, the shared allow-marker grammar, and atelier's own
+index drift. One doctrine rule was written (`040/010`). One investigation
+was answered (`210/150`). Two surveys were run (`200/010`, `200/040`). Six
+`⏳` pointers were queued, `160/430`–`480`, for the parallel session or
+any Fable session. **Filed:** `210/170`, `210/180`, `200/100` (eleven
+contradictions), `115/230`, `020/410`.
+
+**Held for Mike, as three PRs:**
+- **#92**, a child's filing whose evidence lists one machine's tools.
+- **#96**, pathscan class C, which is unruled.
+- **#97**, G3, which reds seven children.
+
+**This run's own errors, all corrected in the open:**
+- Two items were claimed on a triage summary that missed the item's own
+  "unruled" line (`320/010`, `115/210`). One was caught after a local
+  merge, the other before any work.
+- A reach claim ("next pin bump") was never checked against `floor.yml`.
+- A worker's commit was about to publish a private repo's posture as
+  counts. It was rewritten before push.
+
+The first two are one lesson: **read the artefact, not the summary of it.**
+That is the house's own rule, and this run kept re-learning it.
+
+The full suite passed on the merged tree (1,604 OK) before G3 was held. The
+floor ran on the last pushed SHAs, and the cancelled runs were superseded by
+later successes on the same content.
+
+## Addendum: Mike's rulings after the close
+
+Mike came back the same day.
+- **#92** was merged on his ruling, and widened: a list of expected tools,
+  with a way to find each one and standing approval to install or upgrade
+  it. That is now `320/500`, claimed.
+- **#96** was merged on the recommendation. He asked that it be checked
+  against the requesting transcript first. That check found the child's
+  brace reference named two real files that exist, so expanding keeps the
+  check live, where excluding would hide a stale path.
+- **200/100**: fix the contradictions one by one.
+- **110/100**, the exception standard: he restated it, saying he has had to
+  repeat it. Every exception records why, who and when, and is narrowed to
+  a span. Guards stream at any scale. It is claimed for a build in parts.
+- **#97** stays parked until it meets that standard.

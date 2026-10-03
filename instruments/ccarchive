@@ -117,6 +117,20 @@ function shouldArchive(srcMtimeMs, destMtimeMs) {
   return destMtimeMs === null || srcMtimeMs - destMtimeMs > MTIME_TOLERANCE_MS;
 }
 
+// How many mirrors a run writes between manifest checkpoints. The manifest is
+// rewritten whole (an 8,000-entry one is a few MB) and re-signed each time, so
+// per-file would turn a bulk first run into quadratic I/O, while "once at the
+// end" is what let a dying run leave mirrors ahead of the manifest (210/170).
+// 50 bounds what a hard kill (no chance to run the catch-path save) can leave
+// ahead of the manifest to 50 mirrors, which the next run heals (stale entries
+// by the size rule on the skip path, new ones by the backfill) while costing
+// ~1/50th of per-file. Override with $CCARCHIVE_CHECKPOINT_EVERY (tests; positive int).
+const CHECKPOINT_EVERY = 50;
+function checkpointEvery() {
+  const n = Number(process.env.CCARCHIVE_CHECKPOINT_EVERY);
+  return Number.isInteger(n) && n > 0 ? n : CHECKPOINT_EVERY;
+}
+
 // A re-archive that would shrink the stored copy is suspect: session logs only
 // ever grow, so a smaller-than-recorded source usually means truncation or
 // corruption upstream. After Claude Code's cleanup the archive is the sole
@@ -1094,6 +1108,20 @@ function run() {
     return 1;
   }
 
+  // Persist the manifest and its signature together, so a checkpoint never
+  // leaves a manifest the signature does not attest. HMAC over the bytes is
+  // cheap beside the manifest write itself, hence re-sign at every checkpoint.
+  const persist = () => {
+    saveManifest(destRoot, manifest);
+    const keyBuf = ensureKey(keyPath);
+    signManifest(destRoot, keyBuf, fs.readFileSync(manifestPath(destRoot)));
+  };
+  const every = checkpointEvery();
+  let sinceCheckpoint = 0;
+  // Test seam (like CCARCHIVE_SIMULATE_DATALESS): die after writing K mirrors.
+  const failAfter = Number(process.env.CCARCHIVE_TEST_FAIL_AFTER) || 0;
+
+  try {
   for (const { abs: srcAbs, rel } of sources) {
     const srcStat = fs.statSync(srcAbs);
     const destAbs = path.join(destRoot, rel + '.gz');
@@ -1104,6 +1132,18 @@ function run() {
 
     if (!shouldArchive(srcStat.mtimeMs, destMtimeMs)) {
       report.skipped++;
+      // Heal a lagging entry. The mirror is fresh by mtime, and the mirror is
+      // only ever stamped with the mtime of the exact source version it was
+      // written from, so this source IS what the mirror holds. If the manifest's
+      // rawBytes disagrees with the source's size, the entry is stale (a run died
+      // between writing the mirror and saving the manifest), so refresh it from
+      // the SOURCE. Size-only trigger: never hash every skipped file. Limit: a
+      // same-size rewrite goes undetected here; --verify remains the check.
+      if (!dryRun && manifest[rel] && manifest[rel].rawBytes !== undefined &&
+          manifest[rel].rawBytes !== srcStat.size) {
+        manifest[rel] = { sha256: sha256File(srcAbs), rawBytes: srcStat.size, archivedAt: nowIso };
+        manifestChanged = true;
+      }
       // Backfill: an already-archived transcript with no recorded hash (e.g. the
       // first run after this feature shipped). The source is present, so hash it.
       if (!dryRun && !manifest[rel]) {
@@ -1144,6 +1184,23 @@ function run() {
     report.bytesRaw += srcStat.size;
     report.bytesGz += gz.length;
     report.files.push({ rel, action: 'archived', rawBytes: srcStat.size, gzBytes: gz.length });
+
+    if (++sinceCheckpoint >= every) { persist(); sinceCheckpoint = 0; }
+    if (failAfter && report.archived >= failAfter) {
+      throw new Error(`CCARCHIVE_TEST_FAIL_AFTER: simulated death after ${report.archived} mirrors`);
+    }
+  }
+  } catch (e) {
+    // A throw mid-loop must not strand the mirrors already written ahead of the
+    // manifest. Entries are set only after each mirror is fully written and
+    // stamped, so the manifest never claims one that is not there. Best effort:
+    // a failure here must not mask the original error.
+    if (!dryRun && manifestChanged) {
+      try { persist(); } catch (e2) {
+        process.stderr.write(`ccarchive: could not save manifest after failure (${e2.message})\n`);
+      }
+    }
+    throw e;
   }
 
   // Backfill any archived .gz whose source is already gone (pruned before this

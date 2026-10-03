@@ -746,7 +746,13 @@ becomes wrong at the moment of the flip).
 Patterns carry their provenance in the source: the `.claude/settings*.json`
 pair is grounded in that finding; `.mcp.json`, `.env*`, `.envrc`, `.netrc`,
 `.npmrc`, `.pypirc` and editor-local config are standard practice, named as
-such rather than dressed up as findings. Hatch: a glob in
+such rather than dressed up as findings. A second round (2026-10-03) added the
+shapes a survey of the estate's tracked files found (runtime logs, local
+databases, compiled-Python caches), plus standard-practice key, keystore,
+history, dump, capture, tool-cache and OS-cruft shapes. Each entry says which
+tier it is. Generic `*.pem`, `credentials*.json`,
+`*.rsc`, archives and `*.jsonl` were considered and left out, because
+legitimate files wear those names. Hatch: a glob in
 `.publishscanignore` — there is deliberately **no line marker**, because a
 reason written inside a file that should not exist is an exemption no reviewer
 would ever see.
@@ -1168,6 +1174,21 @@ Closing that gap needs a hook-plane, atelier-only, not-in-the-shared-registry
 seam that `floor.py` does not offer today — see the module docstring, WIRING
 RESIDUAL, for the two ways to close it and why this build takes neither
 unilaterally.
+
+## `signscan.py`, `signfleet.py`, `floorfleet.py` — the signing gate and the fleet views
+
+Three tools whose doctrine lives elsewhere, listed here so this catalogue is
+complete. Each module's docstring is its full manual.
+
+- **`signscan.py`** verifies git commit signatures over a range against a trust
+  list. It is the CI and hook half of `docs/method/SIGNING.md` (ADR 0007), and it
+  runs `--warn` fleet-wide.
+- **`signfleet.py`** answers for the whole fleet whether the signing gate would
+  pass if it were enforcing. It runs `signscan` in blocking mode against every
+  child, each resolved the way that child's own CI resolves it.
+- **`floorfleet.py`** answers whether every repo in the estate is actually
+  running atelier's floor. It enumerates conformance rather than assuming it
+  (ADR 0008; `docs/method/PROPAGATION.md`).
 
 ## Tests
 

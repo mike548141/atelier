@@ -74,6 +74,13 @@ sharp honest one):
      tokens: two or more `/`-separated segments of word/dot/hyphen
      characters. A single trailing sentence period is trimmed (`` `foo.md`. ``
      at a sentence's end must not read as target `foo.md.`).
+     Two shapes are handled here rather than reported (320/010 class C,
+     320/170): a BRACE-EXPANSION token such as `docs/X-{A,B}.md` is expanded
+     and EACH alternative checked (a `{slug}` with no comma, or an expansion
+     past 64 alternatives, is skipped as a placeholder); and a `./`-led token
+     opening an inline backtick span, `` `./x.sh run` ``, is a command run
+     from the reader's directory, not a repo pointer, and is skipped the way
+     a fenced block already is.
 
   4. A path-shaped token is a CANDIDATE only if it starts with a known
      top-level repo directory (`docs/`, `tools/`, `skills/`, `commands/`,
@@ -406,16 +413,16 @@ from pathlib import Path, PurePosixPath
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import filewalk  # noqa: E402
+import allowmarker  # noqa: E402
 
 # A line carrying this marker is intentionally exempt from every check on
 # that line. Same tightened contract as datescan (DSR8): word boundary, then
 # a colon and a non-empty reason, so a bare mention of the marker text alone
 # does not silently exempt the line.
 ALLOW_MARKER = "pathscan:allow"
-ALLOW_MARKER_RX = re.compile(r"\b" + re.escape(ALLOW_MARKER) + r":\s*[\w\"\'“‘]")
+ALLOW_MARKER_RX = allowmarker.marker_rx(ALLOW_MARKER, sep=allowmarker.SEP_ANY_SPACE, named_reason=False)
 
-ALLOW_SCOPE_RX = re.compile(
-    r"\b" + re.escape(ALLOW_MARKER) + r"(?::(?P<kind>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>[\w\"\'“‘])")
+ALLOW_SCOPE_RX = allowmarker.marker_rx(ALLOW_MARKER, scope="one", group="kind")
 
 
 def parse_allow(line: str) -> str | None:
@@ -425,10 +432,7 @@ def parse_allow(line: str) -> str | None:
     already IS the narrowest allowance and a sub-rule would be ceremony
     rather than narrowness (`method/GUARDS.md`, rule a).
     A marker with no reason returns None — a mention, not an exemption."""
-    m = ALLOW_SCOPE_RX.search(line)
-    if not m:
-        return None
-    return m.group("kind") or ""
+    return allowmarker.scope_of(ALLOW_SCOPE_RX, line, "kind")
 
 
 @dataclass
@@ -512,7 +516,49 @@ KNOWN_EXTENSIONS = (
 # that plainly existed. Same shape as the `*`/`?` hole above, same fix. The
 # leading-`/` skip is therefore now what the header always claimed it was:
 # the token is skipped WHOLE, never truncated into a plausible-looking lie.
-_PATH_TOKEN = re.compile(r"(?<![\w.\-/*?])[\w.\-*?]+(?:/[\w.\-*?]+)+")
+#
+# BRACE EXPANSION (320/010 class C). A `{a,b}` group is part of the token, so
+# `docs/COLLECTING-{X,Y}.md` is matched WHOLE rather than truncated to
+# `docs/COLLECTING-` (the `{` used to end the run). Only a balanced, flat
+# `{...}` group with no `/` or whitespace inside is accepted as a token
+# piece; `{` and `}` also join the lookbehind (same invariant as above), and
+# `iter_candidates` skips a token that opens right after `$`, so
+# `${HOME}/x.md` is skipped whole as it always was, never expanded.
+# `iter_candidates` then expands the groups and checks each alternative.
+_PATH_TOKEN = re.compile(
+    r"(?<![\w.\-/*?{}])(?:[\w.\-*?]|\{[^{}\s/]*\})+"
+    r"(?:/(?:[\w.\-*?]|\{[^{}\s/]*\})+)+")
+
+_BRACE_GROUP = re.compile(r"\{([^{}]*)\}")
+
+# Most alternatives one token may expand to before it is skipped rather than
+# checked; a runaway cross-product is not a path anyone wrote by hand.
+_MAX_BRACE_EXPANSION = 64
+
+
+def _expand_braces(token: str) -> list[str] | None:
+    """Expand `{a,b}` groups in `token`, left to right. Returns [token] when
+    there is no brace; None when the token must be SKIPPED whole: a group
+    with no comma (`{slug}`, `{1..3}` — a template placeholder or range, not
+    a list of real names, the same shape-not-claim call as `<repo>`), or an
+    expansion beyond `_MAX_BRACE_EXPANSION`. An empty alternative
+    (`x{,.bak}`) is legal and expands to nothing."""
+    results = [token]
+    while any("{" in r for r in results):
+        nxt: list[str] = []
+        for r in results:
+            m = _BRACE_GROUP.search(r)
+            if not m:
+                nxt.append(r)
+                continue
+            if "," not in m.group(1):
+                return None
+            for alt in m.group(1).split(","):
+                nxt.append(r[:m.start()] + alt + r[m.end():])
+        if len(nxt) > _MAX_BRACE_EXPANSION:
+            return None
+        results = nxt
+    return results
 
 # Angle-bracket placeholder span, e.g. `<repo>/docs/foo.md` or bare `<repo>`.
 _ANGLE_PLACEHOLDER = re.compile(r"<[^<>]*>")
@@ -656,6 +702,23 @@ def _is_elided(match_text: str, cleaned: str, match_end: int) -> bool:
     return cleaned[match_end:match_end + 1] == "…"
 
 
+def _is_command_invocation(cleaned: str, m: "re.Match[str]") -> bool:
+    """True if the token is a `./`-led command at the START of an inline
+    backtick span — `` `./nosuch/same.sh run` ``. That is a command run in
+    whatever directory the reader is in, not a pointer into this repo, which
+    is exactly why the same text inside a fenced block is already exempt
+    (320/170: the fenced and inline spellings differed only in wrapper). The
+    `./` lead and the span-start position are both required, so a path merely
+    quoted mid-span, or a bare-prose `./x` mention, is still checked."""
+    if not m.group(0).startswith("./"):
+        return False
+    start = m.start()
+    if start == 0 or cleaned[start - 1] != "`":
+        return False
+    # An odd number of backticks before the span start means it OPENS a span.
+    return cleaned[:start].count("`") % 2 == 1 and cleaned.find("`", m.end()) != -1
+
+
 def iter_candidates(line: str):
     """Yield candidate path tokens (trimmed, filtered) from one already-
     de-fenced line — bare prose AND backtick-wrapped spans alike (backticks
@@ -664,14 +727,22 @@ def iter_candidates(line: str):
     for m in _PATH_TOKEN.finditer(cleaned):
         if _is_elided(m.group(0), cleaned, m.end()):
             continue
-        token = _trim_trailing_period(m.group(0))
-        if not token or "/" not in token:
+        if _is_command_invocation(cleaned, m):
             continue
-        if _is_placeholder(token):
+        if m.group(0).startswith("{") and m.start() and cleaned[m.start() - 1] == "$":
             continue
-        if not _is_known_candidate(token):
+        alternatives = _expand_braces(m.group(0))
+        if alternatives is None:
             continue
-        yield token
+        for alt in alternatives:
+            token = _trim_trailing_period(alt)
+            if not token or "/" not in token:
+                continue
+            if _is_placeholder(token):
+                continue
+            if not _is_known_candidate(token):
+                continue
+            yield token
 
 
 def _outermost_named_ancestor(p: Path, name: str) -> Path | None:
@@ -833,63 +904,18 @@ def scan_text(md_file: Path, root: Path, text: str,
     return kept
 
 
-class IgnoreFileError(ValueError):
-    """An ignore file granted an exemption with no reason stated anywhere."""
-
-    def __init__(self, filename: str, entries: list[tuple[int, str]]):
-        self.filename = filename
-        self.entries = entries
-        detail = "; ".join(f"line {n}: '{g}'" for n, g in entries)
-        super().__init__(
-            f"{filename}: {len(entries)} glob(s) with no stated reason — "
-            f"{detail}. Every exemption states its reason where a reviewer "
-            f"reads it (method/GUARDS.md): put a comment above the stanza, or "
-            f"a trailing '# reason' on the line.")
+IgnoreFileError = allowmarker.IgnoreFileError
 
 
 def load_ignore_globs(root: Path) -> list[str]:
     """Globs from `.pathscanignore`, each of which MUST carry a stated reason.
-
-    GUARDS.md rule (c): an ignore glob is the widest allowance this scanner
-    grants — a whole path, every rule, indefinitely — so it is the last place
-    an unexplained exemption should be possible. A glob is reasoned if it
-    carries a trailing `# reason` (publishscan's form) OR sits under a comment
-    block in its own stanza, which is how this estate's ignore files already
-    document themselves and is the better documentation of the two. A blank
-    line ends a stanza, so a bare glob under no comment at all is refused.
-
-    An unreasoned glob is a CONFIG ERROR, not a warning: a scan that silently
-    honours an exemption nobody explained is the failure the rule exists to
-    stop. Callers surface it as exit 2 — a broken scan is not a pass."""
-    f = root / ".pathscanignore"
-    if not f.exists():
-        return []
-    globs: list[str] = []
-    unreasoned: list[tuple[int, str]] = []
-    stanza_reason = False
-    for n, raw in enumerate(f.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
-        line = raw.strip()
-        if not line:
-            stanza_reason = False
-            continue
-        if line.startswith("#"):
-            stanza_reason = True
-            continue
-        glob, _, trailing = line.partition("#")
-        glob = glob.strip()
-        if not glob:
-            continue
-        if not trailing.strip() and not stanza_reason:
-            unreasoned.append((n, glob))
-        globs.append(glob)
-    if unreasoned:
-        raise IgnoreFileError(".pathscanignore", unreasoned)
-    return globs
+    Single-sourced (115/080 part 2) in `tools/allowmarker.py`; this
+    scanner supplies only its own ignore-file name."""
+    return allowmarker.load_ignore_globs(root, ".pathscanignore")
 
 
 def _ignored(rel: str, globs: list[str]) -> bool:
-    return any(fnmatch.fnmatch(rel, g) or fnmatch.fnmatch(rel, g.rstrip("/") + "/*")
-               for g in globs)
+    return allowmarker.ignored(rel, globs)
 
 
 # The shared per-repo config file `tools/floor.py` owns — read here only for

@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-03-0144, wt: none) 🔎 **A session's default `python3` is too old to load three of the
+- [ ] 🔎 **A session's default `python3` is too old to load three of the
       guard tests, and nothing says which interpreter to use** — found
       2026-09-20 by a worker that reported 3 errors and correctly proved them
       pre-existing before carrying on; two other workers hit the same thing
@@ -60,3 +60,10 @@
       ⚠️ Not established: what else the minimal `PATH` is missing that no test
       currently exercises. Two tools surfaced because two tests happened to
       need them; nothing has enumerated the contract.
+      ---
+      ⚖️ **Claim released 2026-10-03, unworked.** A queue run claimed this as
+      a documentation fix. Its own text says the candidates are **"not
+      chosen here"**, and it states a real trade-off: a named interpreter
+      alone does not solve `gh`, and only the second candidate protects the
+      run-on-system-`python3` promise. Choosing among them is a ruling, so
+      it was put back untouched.

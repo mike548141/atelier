@@ -72,6 +72,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔥 [Every guard runs in bounded memory, whatever it is pointed at](roadmap/020-policy-as-code-programme-five-tracks-mik/380-every-guard-bounded-memory-regardless-of-input-size.md)
 - ✅ 🔎 [Parallel workers in one run share a scratchpad path, and one](roadmap/020-policy-as-code-programme-five-tracks-mik/390-parallel-workers-share-one-scratchpad-path.md)
 - ✅ 🔥 [harvestscan's vanished-item check is quadratic in the number of](roadmap/020-policy-as-code-programme-five-tracks-mik/400-harvestscans-similarity-pass-is-quadratic.md)
+- [ ] 🔎 [GUARDS.md § Adoption assumes every guard can install](roadmap/020-policy-as-code-programme-five-tracks-mik/410-adoption-assumes-advisory-first.md)
 
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
 
@@ -96,7 +97,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/040-principal-set-dates-mandate-vs-default-m/README.md)*
 
-- [ ] [Capture → doctrine: when the principal sets a date for the fleet,](roadmap/040-principal-set-dates-mandate-vs-default-m/010-capture-doctrine-when-the-principal-sets-a-dat.md)
+- ✅ [Capture → doctrine: when the principal sets a date for the fleet,](roadmap/040-principal-set-dates-mandate-vs-default-m/010-capture-doctrine-when-the-principal-sets-a-dat.md)
 
 ## 🤔 Trust-failure handling as a skill — idea to consider (Mike, 2026-08-02)
 
@@ -145,7 +146,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [The unreasoned advisories are already in hand — do not re-file.](roadmap/110-estate-duplication-exception-audit-mike/070-the-unreasoned-advisories-are-already-in-hand.md)
 - [ ] [Make the estate's floor state answer "passing", not just "wired".](roadmap/110-estate-duplication-exception-audit-mike/080-make-the-estate-s-floor-state-answer-passing-n.md)
 - [ ] [Triage the four red floors.](roadmap/110-estate-duplication-exception-audit-mike/090-triage-the-four-red-floors.md)
-- [ ] 🎯 [The exception audit above checked reason-presence and](roadmap/110-estate-duplication-exception-audit-mike/100-two-granularities-the-2026-08-09-audit-never-asked-about.md)
+- [~] 🎯 (claimed 2026-10-03-0416, wt: qr-exceptions; part 1: audit + scale measurement) [The exception audit above checked reason-presence and](roadmap/110-estate-duplication-exception-audit-mike/100-two-granularities-the-2026-08-09-audit-never-asked-about.md)
 
 ## Guardrails for atelier and its children (Mike commissioned 2026-08-15)
 
@@ -158,7 +159,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [A real credential pasted into an exempt fixture file is invisible to](roadmap/115-guardrail-architecture-mike-commissioned/050-a-real-credential-in-an-exempt-fixture-file-is.md)
 - [ ] 🔎 [A coined paraphrase is still presented on the board as a child](roadmap/115-guardrail-architecture-mike-commissioned/060-a-coined-paraphrase-is-still-cited-on-the-boar.md)
 - [ ] [PRINCIPLES.md §9 has no guard, and the only safe candidate is scoped](roadmap/115-guardrail-architecture-mike-commissioned/070-principles-9-has-no-guard-and-the-only-safe-ca.md)
-- [ ] [(FUNDED by Mike 2026-09-20; part 1 of 3 DONE 2026-09-20, parts 2–3…](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
+- [ ] [(FUNDED by Mike 2026-09-20; parts 1–2 of 3 DONE, part 3 owed and…](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
 - [ ] [Give every guard a second dial — the standing consequence of Mike's](roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md)
 - [ ] 🎯 [Build a before-plane — the guardrail class that acts at the moment of](roadmap/115-guardrail-architecture-mike-commissioned/100-the-before-plane-is-empty-and-it-is-the-only.md)
 - [ ] 🔥 [The apex and the always-confirm floor have no mechanical backing at](roadmap/115-guardrail-architecture-mike-commissioned/110-the-apex-and-the-autonomy-floor-have-no-mecha.md)
@@ -170,8 +171,9 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [The guard layer is consuming the programme — the proportionality](roadmap/115-guardrail-architecture-mike-commissioned/170-the-guard-layer-is-consuming-the-programme.md)
 - ✅ [Machine-check the main boundary ADR 0008's control clause names](roadmap/115-guardrail-architecture-mike-commissioned/180-machine-check-the-main-branch-boundary.md)
 - ✅ [One child declares a narrowed floor and reds from now on](roadmap/115-guardrail-architecture-mike-commissioned/200-one-child-declares-a-narrowed-floor-and-now-reds.md)
-- [~] 🔎 (claimed 2026-10-03-0144, wt: none) [A session's default python3 is too old to load three of the](roadmap/115-guardrail-architecture-mike-commissioned/210-the-guard-suite-cannot-run-on-the-machine-it-guards.md)
+- [ ] 🔎 [A session's default python3 is too old to load three of the](roadmap/115-guardrail-architecture-mike-commissioned/210-the-guard-suite-cannot-run-on-the-machine-it-guards.md)
 - [ ] 🎯 [The streaming line readers are three or four different mechanisms,](roadmap/115-guardrail-architecture-mike-commissioned/220-the-line-readers-are-three-mechanisms-not-one-with-parameters.md)
+- [ ] 🔎 [Single-sourcing the allow-marker grammar surfaced four](roadmap/115-guardrail-architecture-mike-commissioned/230-four-allow-marker-divergences.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 
@@ -244,6 +246,12 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued — the linked-worktree skip across eleven](roadmap/160-doctrine-review-owed/410-rule-4-cold-pass-queued-the-linked-worktree-skip.md)
 - ⏳ [Rule-4 cold pass queued — the single-sourced file walk (115/080](roadmap/160-doctrine-review-owed/420-rule-4-cold-pass-queued-the-single-sourced-file-walk.md)
 - ⏳ [Rule-4 cold pass queued: stampscan --require-stamps and](roadmap/160-doctrine-review-owed/430-rule-4-cold-pass-queued-the-cover-switch-and-unmapped-headings.md)
+- ⏳ [Rule-4 cold pass queued: cctranscript's archive-pool speedup](roadmap/160-doctrine-review-owed/440-rule-4-cold-pass-queued-the-archive-pool-speedup.md)
+- ⏳ [Rule-4 cold pass queued: the mandate-versus-default date rule](roadmap/160-doctrine-review-owed/450-rule-4-cold-pass-queued-the-date-kind-rule.md)
+- ⏳ [Rule-4 cold pass queued: ccarchive's manifest checkpoints and](roadmap/160-doctrine-review-owed/460-rule-4-cold-pass-queued-the-manifest-checkpoints.md)
+- ⏳ [Rule-4 cold pass queued: publishscan's round-2 denylist](roadmap/160-doctrine-review-owed/470-rule-4-cold-pass-queued-publishscan-round-2.md)
+- ⏳ [Rule-4 cold pass queued: the shared allow-marker grammar and ignore](roadmap/160-doctrine-review-owed/480-rule-4-cold-pass-queued-the-shared-allow-marker-grammar.md)
+- ⏳ [Rule-4 cold pass queued: pathscan's brace expansion and inline](roadmap/160-doctrine-review-owed/490-rule-4-cold-pass-queued-pathscan-brace-expansion.md)
 
 ## build/ layer — open strands
 
@@ -269,12 +277,13 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Build a generic mechanism keeping any hand-maintained index true to](roadmap/200-anti-slop-invariant-registry-promote-rec/010-build-a-generic-mechanism-keeping-any-hand-mai.md)
 - [ ] [Third confirmed instance of the class landed 2026-08-03, and Mike…](roadmap/200-anti-slop-invariant-registry-promote-rec/020-third-confirmed-instance-of-the-class-landed-2.md)
 - [ ] 🎯 [R1 — the recurrence count has to become mechanical, and the mining](roadmap/200-anti-slop-invariant-registry-promote-rec/030-r1-the-recurrence-count-has-to-become-mechanic.md)
-- [ ] [R2 — find the actual triplications before consolidating any of them.](roadmap/200-anti-slop-invariant-registry-promote-rec/040-r2-find-the-actual-triplications-before-consol.md)
+- ✅ [R2 — find the actual triplications before consolidating any of them.](roadmap/200-anti-slop-invariant-registry-promote-rec/040-r2-find-the-actual-triplications-before-consol.md)
 - [ ] [Codify V1–V7 as the always-loaded reviewer checklist](roadmap/200-anti-slop-invariant-registry-promote-rec/050-codify-v1-v7-as-the-always-loaded-reviewer-che.md)
 - [ ] [Two-layer acceptance criteria, one verification pass.](roadmap/200-anti-slop-invariant-registry-promote-rec/060-two-layer-acceptance-criteria-one-verification.md)
 - [ ] [Enforcement seam — how does an invariant get checked?](roadmap/200-anti-slop-invariant-registry-promote-rec/070-enforcement-seam-how-does-an-invariant-get-che.md)
 - [ ] [Where does the registry live? — the SCANNER half is answered and built](roadmap/200-anti-slop-invariant-registry-promote-rec/080-where-does-the-registry-live-the-scanner-half.md)
 - [ ] 🔎 [Two corroboration failures worth minting, both self-caught by the](roadmap/200-anti-slop-invariant-registry-promote-rec/090-two-corroboration-failures-worth-minting-from.md)
+- [ ] 🔎 [The R2 survey found eleven places where the doctrine's own copies](roadmap/200-anti-slop-invariant-registry-promote-rec/100-r2-found-eleven-live-contradictions.md)
 
 ## instruments/ — open features
 
@@ -284,7 +293,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [ccarchive: encryption at rest — BUILD not started; one decision open…](roadmap/210-instruments-open-features/020-ccarchive-encryption-at-rest-build-not-started.md)
 - [ ] 🎯 [The one decision, and it gates the build: where does the crypto come](roadmap/210-instruments-open-features/030-the-one-decision-and-it-gates-the-build-where.md)
 - [ ] 🤔 [Per-transcript topic capture — idea to consider (Mike, 2026-08-02;](roadmap/210-instruments-open-features/040-per-transcript-topic-capture-idea-to-consider.md)
-- [~] 🔎 (claimed 2026-10-03-0144, wt: qr-cctranscript-pool) [Archive-mode pool construction dominates every --from-archive run,](roadmap/210-instruments-open-features/050-archive-mode-pool-construction-dominates-every.md)
+- ✅ 🔎 [Archive-mode pool construction dominates every --from-archive run,](roadmap/210-instruments-open-features/050-archive-mode-pool-construction-dominates-every.md)
 - [ ] [Context as a share of the window](roadmap/210-instruments-open-features/060-context-as-a-share-of-the-window.md)
 - [ ] [finished counts logs, not successes — and a dead agent still leaves a](roadmap/210-instruments-open-features/070-finished-counts-logs-not-successes-and-a-dead.md)
 - [ ] [think is a flag that no longer does anything.](roadmap/210-instruments-open-features/080-think-is-a-flag-that-no-longer-does-anything.md)
@@ -297,6 +306,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [Why is the source smaller than the archived copy? — the shrink](roadmap/210-instruments-open-features/150-why-the-source-is-smaller-than-the-archived-copy.md)
 - [ ] 🎯 [ccarchive's summary counts files, and Mike's own read of the tool](roadmap/210-instruments-open-features/160-ccarchive-reports-file-counts-not-session-counts.md)
 - [ ] 🔎 [ccarchive's manifest lags its own mirror in 14 files, so the](roadmap/210-instruments-open-features/170-the-manifest-lags-the-mirror.md)
+- [ ] 🔎 [--list --from-archive still fully gunzips every local mirror for](roadmap/210-instruments-open-features/180-first-prompt-column-gunzips-every-mirror.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
@@ -454,6 +464,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up from faves: leakscan's nz-phone matches digit runs](roadmap/320-child-filed-findings-via-pointing-up/470-leakscan-nz-phone-matches-digit-runs-inside-hex-digests.md)
 - [ ] 🔎 [MISSING HOUSE RULE — the doctrine's own sync command](roadmap/320-child-filed-findings-via-pointing-up/480-a-rebase-pull-after-a-local-merge-flattens-it-and-orphans-cited-hashes.md)
 - [ ] 🔎 [Hand-up: tool-call markup leaks into files an agent writes, and](roadmap/320-child-filed-findings-via-pointing-up/490-tool-call-markup-leaks-into-written-files-and-no-scanner-sees-it.md)
+- [~] (claimed 2026-10-03-0404, wt: qr-toolbox) [PROPOSAL, hand-up from a private child — sessions cannot find tools](roadmap/320-child-filed-findings-via-pointing-up/500-sessions-cannot-find-installed-tools-toolbox-has-no-locator.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 

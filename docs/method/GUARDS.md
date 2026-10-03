@@ -178,6 +178,33 @@ are distinguished on purpose, at every level. A repo-level adopt mode is a
 deferment. An ignore-file glob for a scanner's own test fixtures is an
 acceptance.
 
+### Who may move a deferment's date: mandate or default
+
+A deferment's expiry is often set by the principal for the whole fleet, as a
+`review-by` the children inherit. Such a date is one of two kinds, and the
+kind decides what a child may do with it. Mike's rule (2026-08-09):
+
+> If I specifically said all child repos must do X by date Y then they must
+> do it by that date, but the child repos may set an earlier date or argue
+> for an exemption to something that should not apply to them. If I set a
+> date as a default then the child repo could set an alternative date for
+> before, the same, or after.
+
+- **Mandate.** The date binds the whole class. A child may **tighten** it to
+  an earlier date, or **argue for an exemption** through its parent. It may
+  never set a later date.
+- **Default.** The date seeds the value. A child may set an **earlier, the
+  same, or a later** date of its own, and a later date stands as of right.
+
+So **a ruling that sets a date for the fleet names its kind.** That way no
+later pass has to work out after the fact which one was meant, and a child
+reading the date knows what it may do. *Grounding:* the C1b `review-by`
+horizon of 2026-09-01. Two repos that migrated themselves had set later
+dates, and nothing said whether the house date was a ceiling. Mike ruled it a
+**default** (2026-08-09), so the later dates stand. An unnamed date is the
+gap this closes. A date ruled before this rule was written has no kind on
+record. When its kind matters, ask, and record the answer beside the date.
+
 ## Provenance, not direction
 
 The standing E6d(i) ruling was **escalate only**: impact may raise a finding's
