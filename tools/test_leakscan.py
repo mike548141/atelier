@@ -966,7 +966,10 @@ class PathScanning(unittest.TestCase):
         self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
         (tmp / "10.1.2.3.bin").write_bytes(b"\x00\x01\x02binary")
         fs = ls.scan_paths([tmp], tmp, [])
-        self.assertEqual(["ipv4"], [f.rule for f in fs])
+        # Since G3 the unread body blocks too (binary-unlisted); the name hit
+        # is still reported on its own, at line 0.
+        self.assertEqual(["ipv4"], [f.rule for f in fs if f.kind != "binary"])
+        self.assertEqual(["binary-unlisted"], [f.rule for f in fs if f.kind == "binary"])
 
 
 class DerivedTermForms(unittest.TestCase):
@@ -1101,3 +1104,396 @@ class BoundedMemory(unittest.TestCase):
             f"{(self.LARGE_BYTES - self.SMALL_BYTES) / 1e6:.1f} MB larger input "
             f"(small={small_peak / 1e6:.1f} MB, large={large_peak / 1e6:.1f} MB) "
             "— memory is scaling with input size again (020/380).")
+
+
+# ===========================================================================
+# G3 — binary media (Mike ruled BLOCKING 2026-08-04, funded 2026-08-09).
+# Every fixture image is built here from bytes; every digest is computed at
+# run time, so no literal hash sits in the file for secretscan to weigh.
+# ===========================================================================
+import hashlib as _hashlib  # noqa: E402
+import struct as _struct  # noqa: E402
+import subprocess as _subprocess  # noqa: E402
+import zlib as _zlib  # noqa: E402
+
+
+def _chunk(ctype, data):
+    return (_struct.pack(">I", len(data)) + ctype + data
+            + _struct.pack(">I", _zlib.crc32(ctype + data)))
+
+
+def _png(*chunks):
+    return (b"\x89PNG\r\n\x1a\n" + _chunk(b"IHDR", bytes(13))
+            + b"".join(_chunk(t, d) for t, d in chunks) + _chunk(b"IEND", b""))
+
+
+def _jpeg(*segments):
+    body = b"".join(b"\xff" + bytes([m]) + _struct.pack(">H", len(d) + 2) + d
+                    for m, d in segments)
+    return b"\xff\xd8" + body + b"\xff\xda\x00\x02" + b"\x00" * 8 + b"\xff\xd9"
+
+
+def _webp(*chunks):
+    body = b"WEBP" + b"".join(c + _struct.pack("<I", len(d)) + d + (b"\x00" if len(d) % 2 else b"")
+                              for c, d in chunks)
+    return b"RIFF" + _struct.pack("<I", len(body)) + body
+
+
+def _sha(data, n=16):
+    return _hashlib.sha256(data).hexdigest()[:n]
+
+
+class _TreeCase(unittest.TestCase):
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        self.terms = self.tmp.parent / f"{self.tmp.name}-terms.txt"
+        self.terms.write_text("")
+        self.addCleanup(self.terms.unlink)
+
+    def put(self, rel, data):
+        p = self.tmp / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        if isinstance(data, bytes):
+            p.write_bytes(data)
+        else:
+            p.write_text(data)
+        return data
+
+    def manifest(self, text):
+        self.put(ls.BINARY_MANIFEST, text)
+
+    def scan(self, tally=None, paths=None):
+        return ls.scan_paths(paths or [self.tmp], self.tmp, [], frozenset(), tally)
+
+    def rules(self, **kw):
+        return sorted(f.rule for f in self.scan(**kw))
+
+
+class BinaryGate(_TreeCase):
+    """The ruling's core: an unread binary BLOCKS until a reasoned, hash-bound
+    entry accepts these exact bytes — and only these."""
+
+    BLOB = b"\x00\x01\x02 opaque body"
+
+    def test_an_unlisted_binary_blocks(self):
+        self.put("assets/blob.bin", self.BLOB)
+        fs = self.scan()
+        self.assertEqual(["binary-unlisted"], [f.rule for f in fs])
+        self.assertEqual(("assets/blob.bin", 0, "binary"), (fs[0].path, fs[0].line, fs[0].where))
+
+    def test_a_listed_binary_with_matching_hash_passes_and_is_counted(self):
+        self.put("assets/blob.bin", self.BLOB)
+        self.manifest(f"# fixture body, reviewed\n{_sha(self.BLOB)}  assets/blob.bin\n")
+        tally = ls.Tally()
+        self.assertEqual([], self.scan(tally=tally))
+        self.assertEqual(1, tally.binaries_by_manifest)
+        self.assertIn(f"1 binary file(s) by {ls.BINARY_MANIFEST}", tally.summary())
+
+    def test_full_digest_and_sha256sum_binary_mode_both_parse(self):
+        self.put("a.bin", self.BLOB)
+        self.manifest(f"{_sha(self.BLOB, 64)} *a.bin  # reviewed fixture\n")
+        self.assertEqual([], self.scan())
+
+    def test_a_changed_binary_blocks_again(self):
+        self.put("a.bin", self.BLOB)
+        self.manifest(f"{_sha(self.BLOB)}  a.bin  # reviewed fixture\n")
+        self.put("a.bin", self.BLOB + b" edited")
+        fs = self.scan()
+        self.assertEqual(["binary-changed"], [f.rule for f in fs])
+        self.assertIn("line 1", fs[0].excerpt)
+
+    def test_a_reasonless_entry_is_a_config_error(self):
+        self.put("a.bin", self.BLOB)
+        self.manifest(f"{_sha(self.BLOB)}  a.bin\n")
+        with self.assertRaises(ls.BinaryManifestError) as cm:
+            self.scan()
+        self.assertIn("no stated reason", str(cm.exception))
+        rc = ls.main(["--root", str(self.tmp), str(self.tmp), "--terms", str(self.terms)])
+        self.assertEqual(2, rc)
+
+    def test_malformed_entries_are_config_errors_reported_together(self):
+        self.manifest("# reasons for all\n"
+                      "abc123  short-digest.bin\n"
+                      f"{_sha(self.BLOB)}:everything  a.bin\n"
+                      f"{_sha(self.BLOB)}  b.bin\n"
+                      f"{_sha(self.BLOB)}  b.bin\n")
+        with self.assertRaises(ls.BinaryManifestError) as cm:
+            ls.load_binary_manifest(self.tmp)
+        msg = str(cm.exception)
+        self.assertIn("3 problem(s)", msg)
+        self.assertIn("unknown scope everything", msg)
+        self.assertIn("already listed at line 4", msg)
+
+    def test_a_text_file_is_unaffected(self):
+        self.put("notes.md", "plain prose, nothing binary\n")
+        tally = ls.Tally()
+        self.assertEqual([], self.scan(tally=tally))
+        self.assertEqual((0, 0), (tally.binaries_by_manifest, tally.binaries_untracked))
+
+    def test_an_ignore_glob_still_exempts_before_the_gate(self):
+        # A repo's existing hatch keeps its meaning: path-wide, counted.
+        self.put("vendor/font.woff", self.BLOB)
+        self.put(".leakscanignore", "vendor/  # third-party fonts, not ours\n")
+        tally = ls.Tally()
+        self.assertEqual([], self.scan(tally=tally))
+        self.assertEqual(1, tally.files_by_glob)
+
+    def test_disable_cannot_switch_the_gate_off(self):
+        # No quiet hatch: binary rules are not structural rules.
+        rc = ls.main(["--root", str(self.tmp), str(self.tmp), "--terms", str(self.terms),
+                      "--disable", "binary-unlisted"])
+        self.assertEqual(2, rc)
+
+
+class BinaryStaleEntries(_TreeCase):
+    BLOB = b"\x00stale fixture"
+
+    def test_an_entry_for_a_missing_file_blocks(self):
+        self.manifest(f"{_sha(self.BLOB)}  gone.bin  # was a fixture\n")
+        fs = self.scan()
+        self.assertEqual(["binary-stale-entry"], [f.rule for f in fs])
+        self.assertEqual((ls.BINARY_MANIFEST, 1), (fs[0].path, fs[0].line))
+        self.assertIn("no such file", fs[0].excerpt)
+
+    def test_an_entry_for_a_text_file_is_stale(self):
+        self.put("doc.md", "text\n")
+        self.manifest(f"{_sha(b'text')}  doc.md  # mistaken entry\n")
+        fs = self.scan()
+        self.assertEqual(["binary-stale-entry"], [f.rule for f in fs])
+        self.assertIn("read as text", fs[0].excerpt)
+
+    def test_staleness_is_judged_only_inside_the_scanned_paths(self):
+        self.put("sub/ok.md", "text\n")
+        self.manifest(f"{_sha(self.BLOB)}  elsewhere/gone.bin  # was a fixture\n")
+        self.assertEqual([], self.scan(paths=[self.tmp / "sub"]))
+
+    def test_a_renamed_binary_names_its_old_entry(self):
+        self.put("new/name.bin", self.BLOB)
+        self.manifest(f"{_sha(self.BLOB)}  old/name.bin  # reviewed fixture\n")
+        fs = sorted(self.scan(), key=lambda f: f.rule)
+        self.assertEqual(["binary-stale-entry", "binary-unlisted"], [f.rule for f in fs])
+        self.assertIn("same bytes as the entry for old/name.bin", fs[1].excerpt)
+
+
+class BinaryMetadata(_TreeCase):
+    """Text metadata is read; opaque metadata blocks until an entry names the
+    `binary-metadata` scope."""
+
+    def _listed(self, rel, data, scope=""):
+        self.put(rel, data)
+        self.manifest(f"{_sha(data)}{scope}  {rel}  # synthetic test image, reviewed\n")
+
+    def test_png_exif_blocks_even_when_the_pixels_are_listed(self):
+        self._listed("i.png", _png((b"eXIf", b"MM\x00\x2a\x00\x00\x00\x08")))
+        fs = self.scan()
+        self.assertEqual(["binary-metadata"], [f.rule for f in fs])
+        self.assertIn("eXIf", fs[0].excerpt)
+
+    def test_the_metadata_scope_accepts_it(self):
+        self._listed("i.png", _png((b"eXIf", b"MM\x00\x2a")), ":binary-metadata")
+        self.assertEqual([], self.scan())
+
+    def test_an_unlisted_metadata_image_reports_both(self):
+        self.put("i.png", _png((b"eXIf", b"MM\x00\x2a")))
+        self.assertEqual(["binary-metadata", "binary-unlisted"], self.rules())
+
+    def test_png_text_metadata_is_scanned_and_markers_inside_are_ignored(self):
+        data = _png((b"tEXt", b"Author\x00a.b@example.com  # leakscan:allow: hidden"))
+        self._listed("i.png", data)
+        fs = self.scan()
+        self.assertEqual(["email"], [f.rule for f in fs])
+        self.assertEqual("metadata PNG tEXt 'Author'", fs[0].where)
+
+    def test_harmless_text_metadata_passes(self):
+        self._listed("i.png", _png((b"tEXt", b"Software\x00www.inkscape.org")))
+        self.assertEqual([], self.scan())
+
+    def test_compressed_text_chunks_are_inflated_and_scanned(self):
+        z = _png((b"zTXt", b"Comment\x00\x00" + _zlib.compress(b"call a.b@example.com")))
+        self._listed("z.png", z)
+        self.assertEqual(["email"], self.rules())
+        itxt = (b"XML:com.adobe.xmp\x00\x01\x00\x00\x00"
+                + _zlib.compress(b"<dc:creator>a.b@example.com</dc:creator>"))
+        self.put("z.png", b"plain text now\n")
+        self._listed("x.png", _png((b"iTXt", itxt)))
+        self.assertEqual(["email"], self.rules())
+
+    def test_a_decompression_bomb_reads_as_opaque(self):
+        bomb = _png((b"zTXt", b"Comment\x00\x00"
+                     + _zlib.compress(b"A" * (ls.META_SEGMENT_CAP + 10))))
+        self._listed("b.png", bomb)
+        self.assertEqual(["binary-metadata"], self.rules())
+
+    def test_imagemagick_raw_profile_is_opaque(self):
+        self._listed("r.png", _png((b"zTXt", b"Raw profile type exif\x00\x00"
+                                    + _zlib.compress(b"\nexif\n  20\n4d4d002a"))))
+        self.assertEqual(["binary-metadata"], self.rules())
+
+    def test_a_png_that_cannot_be_walked_fails_closed(self):
+        truncated = _png()[:-12] + b"\x00\x00\x10\x00tEXt"  # no IEND; chunk overruns
+        self._listed("t.png", truncated)
+        self.assertEqual(["binary-metadata"], self.rules())
+
+    def test_jpeg_exif_blocks(self):
+        self._listed("e.jpg", _jpeg((0xE0, b"JFIF\x00\x01\x01"), (0xE1, b"Exif\x00\x00MM")))
+        self.assertEqual(["binary-metadata"], self.rules())
+
+    def test_jpeg_iptc_blocks(self):
+        self._listed("p.jpg", _jpeg((0xED, b"Photoshop 3.0\x008BIM")))
+        self.assertEqual(["binary-metadata"], self.rules())
+
+    def test_jpeg_xmp_and_comments_are_read(self):
+        self._listed("x.jpg", _jpeg((0xE1, b"http://ns.adobe.com/xap/1.0/\x00<x>a.b@example.com</x>"),
+                                    (0xFE, b"plain comment")))
+        self.assertEqual(["email"], self.rules())
+
+    def test_jpeg_without_metadata_needs_only_its_entry(self):
+        self._listed("c.jpg", _jpeg((0xE0, b"JFIF\x00\x01\x01")))
+        self.assertEqual([], self.scan())
+
+    def test_webp_exif_blocks(self):
+        self._listed("e.webp", _webp((b"VP8 ", b"\x00" * 10), (b"EXIF", b"MM\x00\x2a")))
+        self.assertEqual(["binary-metadata"], self.rules())
+
+    def test_webp_xmp_is_read(self):
+        self._listed("x.webp", _webp((b"VP8 ", b"\x00" * 10), (b"XMP ", b"<x>a.b@example.com</x>")))
+        self.assertEqual(["email"], self.rules())
+
+    def test_inspect_media_ignores_other_formats(self):
+        import io
+        self.assertEqual((None, [], []), ls.inspect_media(io.BytesIO(b"GIF89a\x00\x00")))
+
+
+class BinaryGitTracking(_TreeCase):
+    """In a git work tree the gate covers what git tracks (the ruling's word);
+    an untracked binary is counted, never silently skipped."""
+
+    def git(self, *args):
+        _subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@example.invalid",
+                         "-c", "core.hooksPath=/dev/null", "-c", "commit.gpgsign=false",
+                         *args], cwd=self.tmp, check=True, capture_output=True)
+
+    def setUp(self):
+        super().setUp()
+        self.git("init", "-q")
+
+    def test_untracked_binary_is_counted_not_gated(self):
+        self.put(".DS_Store", b"\x00\x00\x00\x01Bud1")
+        tally = ls.Tally()
+        self.assertEqual([], self.scan(tally=tally))
+        self.assertEqual(1, tally.binaries_untracked)
+
+    def test_tracked_binary_is_gated(self):
+        self.put("img.bin", b"\x00tracked")
+        self.git("add", "img.bin")
+        self.assertEqual(["binary-unlisted"], self.rules())
+
+    def test_entry_for_an_untracked_file_is_stale(self):
+        data = self.put("img.bin", b"\x00untracked")
+        self.manifest(f"{_sha(data)}  img.bin  # reviewed fixture\n")
+        fs = self.scan()
+        self.assertEqual(["binary-stale-entry"], [f.rule for f in fs])
+        self.assertIn("not tracked", fs[0].excerpt)
+
+    # --- the staged plane (the pre-commit hook) -----------------------------
+
+    def staged(self):
+        r = _subprocess.run([sys.executable, str(TOOLS_DIR / "leakscan.py"), "--staged",
+                             "--root", ".", "--terms", str(self.terms)],
+                            cwd=self.tmp, capture_output=True, text=True)
+        return r.returncode, r.stdout + r.stderr
+
+    def test_staged_binary_blocks_and_its_name_is_now_read(self):
+        # Before G3 the staged plane never saw a binary at all — not even the
+        # leak in its name (git's diff prints no `+++` line for it).
+        self.put("10.1.2.3.bin", b"\x00\x01")
+        self.git("add", ".")
+        rc, out = self.staged()
+        self.assertEqual(1, rc, out)
+        self.assertIn("binary-unlisted", out)
+        self.assertIn("ipv4", out)
+
+    def test_staged_listed_binary_passes(self):
+        data = self.put("ok.bin", b"\x00\x01ok")
+        self.manifest(f"{_sha(data)}  ok.bin  # reviewed fixture\n")
+        self.git("add", ".")
+        rc, out = self.staged()
+        self.assertEqual(0, rc, out)
+        self.assertIn(f"1 binary file(s) by {ls.BINARY_MANIFEST}", out)
+
+    def test_staged_check_reads_the_index_copy_not_the_working_tree(self):
+        data = self.put("ok.bin", b"\x00\x01ok")
+        self.manifest(f"{_sha(data)}  ok.bin  # reviewed fixture\n")
+        self.put("ok.bin", b"\x00\x01changed after listing")
+        self.git("add", "ok.bin")
+        self.put("ok.bin", data)  # working tree restored; the INDEX holds the change
+        rc, out = self.staged()
+        self.assertEqual(1, rc, out)
+        self.assertIn("binary-changed", out)
+
+    def test_staged_removal_of_a_listed_binary_flags_the_stale_entry(self):
+        data = self.put("old.bin", b"\x00\x01old")
+        self.manifest(f"{_sha(data)}  old.bin  # reviewed fixture\n")
+        self.git("add", ".")
+        self.git("commit", "-q", "-m", "seed")
+        self.git("rm", "-q", "old.bin")
+        rc, out = self.staged()
+        self.assertEqual(1, rc, out)
+        self.assertIn("binary-stale-entry", out)
+
+    def test_staged_pure_rename_has_its_new_name_read(self):
+        self.put("a.md", "text\n")
+        self.git("add", ".")
+        self.git("commit", "-q", "-m", "seed")
+        self.git("mv", "a.md", "10.1.2.3.md")
+        rc, out = self.staged()
+        self.assertEqual(1, rc, out)
+        self.assertIn("ipv4", out)
+
+    def test_staged_text_hidden_by_a_binary_attribute_is_read(self):
+        self.put(".gitattributes", "*.cfg binary\n")
+        self.put("app.cfg", "owner a.b@example.com\n")
+        self.git("add", ".")
+        rc, out = self.staged()
+        self.assertEqual(1, rc, out)
+        self.assertIn("email", out)
+
+
+class BinaryEntriesListing(_TreeCase):
+    """`--binary-entries` — the one-act re-baseline: it prints the lines, a
+    person writes the reason, and the scan refuses the file until they do."""
+
+    def listing(self):
+        import contextlib, io
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = ls.main(["--root", str(self.tmp), "--binary-entries"])
+        return rc, out.getvalue(), err.getvalue()
+
+    def test_lines_print_without_a_reason_and_need_one_to_load(self):
+        a = self.put("a.bin", b"\x00a")
+        b = self.put("b.png", _png((b"eXIf", b"MM")))
+        rc, out, err = self.listing()
+        self.assertEqual(0, rc)
+        self.assertEqual(sorted(out.splitlines()),
+                         sorted([f"{_sha(a)}  a.bin", f"{_sha(b)}  b.png"]))
+        self.assertNotIn("#", out)
+        self.assertIn("opaque metadata", err)
+        self.manifest(out)
+        with self.assertRaises(ls.BinaryManifestError):
+            self.scan()
+        self.manifest("# synthetic fixtures, reviewed\n" + out)
+        self.assertEqual(["binary-metadata"], self.rules())
+
+    def test_only_unaccepted_files_are_listed_and_a_change_is_named(self):
+        a = self.put("a.bin", b"\x00a")
+        self.manifest(f"{_sha(a)}  a.bin  # reviewed\n")
+        self.assertEqual("", self.listing()[1])
+        self.put("a.bin", b"\x00a2")
+        _rc, out, err = self.listing()
+        self.assertIn("a.bin", out)
+        self.assertIn("replaces line 1", err)
+
+    def test_refuses_json(self):
+        self.assertEqual(2, ls.main(["--root", str(self.tmp), "--binary-entries", "--json"]))

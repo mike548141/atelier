@@ -108,6 +108,49 @@ class IgnoreFileError(ValueError):
             f"a trailing '# reason' on the line.")
 
 
+def read_reasoned_lines(f: Path) -> list[tuple[int, str, str | None]]:
+    """The reason grammar every reason-required config file shares, as
+    `(line number, entry, reason)` triples — `reason` is None for an entry no
+    reason covers. An absent file reads as no entries.
+
+    An entry is reasoned if it carries a trailing `# reason` (publishscan's
+    form) OR sits under a comment block in its own stanza; a blank line ends a
+    stanza. The entry is the text before the first `#`, stripped, so an entry
+    can never itself contain `#`. Callers decide what an unreasoned entry
+    costs (both current callers refuse it as a config error): this reader
+    only says which entries have a reason and what it is.
+
+    Single-sourced so `.leakscanignore` and `.leakscanbinaries` (G3) cannot
+    drift apart on what "reasoned" means."""
+    if not f.exists():
+        return []
+    out: list[tuple[int, str, str | None]] = []
+    stanza: list[str] = []
+    for n, raw in enumerate(f.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
+        line = raw.strip()
+        if not line:
+            stanza = []
+            continue
+        if line.startswith("#"):
+            stanza.append(line.lstrip("#").strip())
+            continue
+        entry, _, trailing = line.partition("#")
+        entry = entry.strip()
+        if not entry:
+            continue
+        # A stanza of bare `#` lines still counts as a reason block — the
+        # presence test the ignore loader always made — so the text may be
+        # empty while the entry is reasoned; None is reserved for "no reason".
+        if trailing.strip():
+            reason: str | None = trailing.strip()
+        elif stanza:
+            reason = " ".join(s for s in stanza if s)
+        else:
+            reason = None
+        out.append((n, entry, reason))
+    return out
+
+
 def load_ignore_globs(root: Path, filename: str) -> list[str]:
     """Globs from `<root>/<filename>`, each of which MUST carry a stated reason.
 
@@ -116,35 +159,16 @@ def load_ignore_globs(root: Path, filename: str) -> list[str]:
     an unexplained exemption should be possible. A glob is reasoned if it
     carries a trailing `# reason` (publishscan's form) OR sits under a comment
     block in its own stanza. A blank line ends a stanza, so a bare glob under
-    no comment at all is refused.
+    no comment at all is refused (`read_reasoned_lines` is the grammar).
 
     An unreasoned glob is a CONFIG ERROR, not a warning: raised as
     `IgnoreFileError`, which callers surface as exit 2 — a broken scan is not
     a pass. An absent file is not an error: no globs."""
-    f = root / filename
-    if not f.exists():
-        return []
-    globs: list[str] = []
-    unreasoned: list[tuple[int, str]] = []
-    stanza_reason = False
-    for n, raw in enumerate(f.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
-        line = raw.strip()
-        if not line:
-            stanza_reason = False
-            continue
-        if line.startswith("#"):
-            stanza_reason = True
-            continue
-        glob, _, trailing = line.partition("#")
-        glob = glob.strip()
-        if not glob:
-            continue
-        if not trailing.strip() and not stanza_reason:
-            unreasoned.append((n, glob))
-        globs.append(glob)
+    entries = read_reasoned_lines(root / filename)
+    unreasoned = [(n, g) for n, g, reason in entries if reason is None]
     if unreasoned:
         raise IgnoreFileError(filename, unreasoned)
-    return globs
+    return [g for _, g, _ in entries]
 
 
 def ignored(rel: str, globs: list[str]) -> bool:
