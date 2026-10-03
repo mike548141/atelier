@@ -1129,11 +1129,12 @@ non-recursively, so an edit to a *subsection* of a mapped section is invisible
 to the co-change rule. `--check` therefore also lists every `##`-or-deeper
 heading, code fences excluded, in a doc the map names as a source that no map
 entry accounts for, labelled `under mapped <heading>` when it sits beneath a
-mapped section (the sharp case) and `not in the map` otherwise. It is a report
+mapped section (the sharp case). Human output lists only those in full and
+collapses the rest to one count line (`+ N top-level heading(s) no bullet
+cites (--json lists them)`); `--json` keeps every finding. It is a report
 only: exit code, the `clean` field in `--json` and the `--staged`/`--against`
 planes are unchanged (it appears as `unmapped` findings in `--json`), and it is
-skipped while the map is stale. Output is long on the real tree by design; it
-makes the blind spot visible, and mapping or leaving a heading is still a
+skipped while the map is stale. Mapping or leaving a heading is still a
 human call.
 
 Exit codes: `0` clean, or `--warn` with violation findings only · `1` a

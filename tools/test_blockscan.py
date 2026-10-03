@@ -292,8 +292,9 @@ class UnmappedHeadings(BlockscanFixture):
         self.assertEqual(0, r.returncode, r.stdout + r.stderr)
         self.assertIn("### A subsection", r.stdout)
         self.assertIn("under mapped ## Honesty is absolute", r.stdout)
-        self.assertIn("## Adaptation is continuous", r.stdout)
-        self.assertIn("not in the map", r.stdout)
+        self.assertNotIn("## Adaptation is continuous", r.stdout)
+        self.assertIn("+ 1 top-level heading(s) no bullet cites", r.stdout)
+        self.assertIn("(--json lists them)", r.stdout)
         self.assertIn("unmapped: 2 heading(s)", r.stdout)
 
     def test_fully_mapped_tree_reports_nothing_new(self):
@@ -318,6 +319,7 @@ class UnmappedHeadings(BlockscanFixture):
         self.assertTrue(out["clean"])
         kinds = [f["kind"] for f in out["findings"]]
         self.assertIn("unmapped", kinds)
+        self.assertIn("Adaptation is continuous", r.stdout)
 
     def test_stale_map_suppresses_the_unmapped_report(self):
         self.write_apex("# Apex\n\n## Honesty absolutely\n\nBody.\n")

@@ -670,10 +670,15 @@ def _suppression_line(findings: list[Finding]) -> str:
 
 
 def _render_unmapped(unmapped: list[Finding]) -> str:
+    under = [f for f in unmapped if f.detail.startswith("under mapped")]
+    rest = len(unmapped) - len(under)
     lines = [f"  unmapped: {len(unmapped)} heading(s) in mapped docs that no "
              "map entry accounts for (advisory, not blocking)."]
-    for f in sorted(unmapped, key=lambda x: (x.source_path or "", x.line)):
+    for f in sorted(under, key=lambda x: (x.source_path or "", x.line)):
         lines.append(f"    {f.source_path}:{f.line}  {f.heading}  [{f.detail}]")
+    if rest:
+        lines.append(f"  + {rest} top-level heading(s) no bullet cites "
+                     "(--json lists them)")
     lines.append("    An edit under one of these is invisible to the co-change "
                  "rule. Map it in tools/blockscan_map.json if a block bullet "
                  "summarises it; otherwise it is deliberately out of scope.")
