@@ -1101,3 +1101,128 @@ class BoundedMemory(unittest.TestCase):
             f"{(self.LARGE_BYTES - self.SMALL_BYTES) / 1e6:.1f} MB larger input "
             f"(small={small_peak / 1e6:.1f} MB, large={large_peak / 1e6:.1f} MB) "
             "— memory is scaling with input size again (020/380).")
+
+
+class ReaderLinear(unittest.TestCase):
+    """110/140 — `_iter_numbered_lines` walks an offset instead of re-slicing
+    the remaining buffer for every line. Two checks, neither timed (FW11):
+    the new reader yields exactly what the old one did across chunk and
+    window boundaries, and the characters it copies stay linear in the input.
+    """
+
+    @staticmethod
+    def _old_reader(path):
+        """The pre-110/140 loop, kept here as the oracle."""
+        import codecs
+        decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
+        lineno = 1
+        pending = ""
+        with open(path, "rb") as fh:
+            first_chunk = True
+            while True:
+                chunk = fh.read(ls.READ_CHUNK_BYTES)
+                if first_chunk:
+                    first_chunk = False
+                    if ls._looks_binary(chunk):
+                        return
+                if not chunk:
+                    break
+                pending += decoder.decode(chunk)
+                while True:
+                    nl = pending.find("\n")
+                    if nl == -1:
+                        break
+                    yield lineno, pending[:nl], True
+                    pending = pending[nl + 1:]
+                    lineno += 1
+                if len(pending) >= ls.LINE_WINDOW_BYTES:
+                    yield lineno, pending, False
+                    pending = pending[-ls.LINE_WINDOW_OVERLAP:]
+            pending += decoder.decode(b"", final=True)
+            if pending:
+                yield lineno, pending, True
+
+    def _write(self, data: bytes) -> Path:
+        d = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, d, True)
+        p = d / "f.txt"
+        p.write_bytes(data)
+        return p
+
+    def _small_windows(self):
+        from unittest import mock
+        for name, value in (("READ_CHUNK_BYTES", 64),
+                            ("LINE_WINDOW_BYTES", 300),
+                            ("LINE_WINDOW_OVERLAP", 20)):
+            patcher = mock.patch.object(ls, name, value)
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+    def test_new_reader_matches_old_across_boundaries(self):
+        self._small_windows()
+        cases = {
+            "short lines": b"".join(b"line %d\n" % i for i in range(400)),
+            "blank and crlf": b"\n\n\r\nabc\r\n\n" * 40,
+            "no trailing newline": b"a\nbb\nccc",
+            "only newlines": b"\n" * 200,
+            "multibyte on edges": ("h\u00e9llo w\u00f6rld \u00fc\n" * 120).encode(),
+            "invalid utf8": (b"ok\n\xff\xfe bad\n" * 80),
+            "overlong then short": b"x" * 1000 + b"\n" + b"tail\n" * 50,
+            "short then overlong": b"head\n" * 50 + b"y" * 1000,
+            "chunk-sized lines": (b"z" * 63 + b"\n") * 30,
+            "window-sized line": b"w" * 299 + b"\n" + b"w" * 300 + b"\n",
+            "empty": b"",
+        }
+        for name, data in cases.items():
+            with self.subTest(name):
+                p = self._write(data)
+                self.assertEqual(list(ls._iter_numbered_lines(p)),
+                                 list(self._old_reader(p)))
+
+    @staticmethod
+    def _counting_decoder(counter, real_factory):
+
+        class CountingStr(str):
+            def __getitem__(self, key):
+                out = str.__getitem__(self, key)
+                if isinstance(key, slice):
+                    counter[0] += len(out)
+                    return CountingStr(out)
+                return out
+
+            def __add__(self, other):
+                return CountingStr(str.__add__(self, other))
+
+            def __radd__(self, other):
+                return CountingStr(str.__add__(other, self))
+
+        inner = real_factory("utf-8")(errors="replace")
+
+        class Decoder:
+            def decode(self, data, final=False):
+                return CountingStr(inner.decode(data, final))
+        return Decoder()
+
+    def _copied(self, reader, path):
+        import codecs as codecs_module
+        from unittest import mock
+        counter = [0]
+        real = codecs_module.getincrementaldecoder
+        with mock.patch.object(ls.codecs, "getincrementaldecoder",
+                               lambda *a, **k: (lambda **kw: self._counting_decoder(counter, real))):
+            n = sum(1 for _ in reader(path))
+        return n, counter[0]
+
+    def test_characters_copied_are_linear_in_the_input(self):
+        # Many short lines per chunk is the shape that was quadratic. Count
+        # the characters the reader slices instead of timing it.
+        data = b"0123456789abcdef\n" * 20000          # 340 KB, 20k lines
+        p = self._write(data)
+        n, copied = self._copied(ls._iter_numbered_lines, p)
+        self.assertEqual(n, 20000)
+        self.assertLessEqual(copied, 3 * len(data),
+                             f"reader sliced {copied} characters for "
+                             f"{len(data)} of input: not linear (110/140)")
+        # The oracle must fail the same bound, or the check proves nothing.
+        _, old_copied = self._copied(self._old_reader, p)
+        self.assertGreater(old_copied, 10 * len(data))
