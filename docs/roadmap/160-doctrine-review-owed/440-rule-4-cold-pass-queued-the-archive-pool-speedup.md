@@ -23,3 +23,20 @@
       sibling, the intent record and prior verdicts stay unopened by the
       reviewer until its phase-1 findings are committed. Provenance and
       exposure go in the verdict.
+      - [ ] 🎯 **The pass RAN 2026-10-03 and the cycle CLOSES on it (0 MAJOR);
+            CP1–CP10 await Mike's ruling round.** The rule-4 Fable cold pass
+            (taker: a fresh `claude-fable-5-1` subagent under a
+            `claude-fable-5-1` orchestrator — the shape disclosed in the claim
+            above; the sibling, the intent record and prior verdicts opened only
+            after the phase-1 findings were committed) returned
+            PASS-WITH-FINDINGS — 0 MAJOR · 1 MODERATE · 3 minor · 6 note →
+            [`2026-10-03-0357-archive-pool-speedup-cold.md`](../../reviews/2026-10-03-0357-archive-pool-speedup-cold.md)
+            (sibling folded in). CP1 (MODERATE) is about the review's own
+            setup, not the delta: the review worktree forked one commit before
+            the landing merge, so its suite ran pre-delta; the reviewer
+            recovered at the landing SHA and the orchestrator merged `main` in
+            mid-pass. On the delta: output byte-identical to the parent across
+            the driven runs, the listing about three times faster, memory
+            unchanged. CP9 re-finds CS2 and CP4 widens CS11 (both unruled since
+            2026-08-15); CP10 counsels counting each once at ruling. Findings
+            are the principal's to decide (rule 3); nothing was applied.
