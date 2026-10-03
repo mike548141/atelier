@@ -30,7 +30,7 @@
     - [x] **C6 (dangling pointer).** `SECRETS.md:76` and `:270` cite
           `DATA-PROTECTION.md`'s "stated-bridge rule", which that file does
           not contain. The rule is at `PRINCIPLES.md:265`.
-    - [ ] **C7 (drift, highest stakes).** The always-confirm floor is listed
+    - [x] **C7 (drift, highest stakes).** The always-confirm floor is listed
           five times with three memberships: `AUTONOMY.md:39-110` (the full
           set), `00-APEX.md:85-88` and `:111-115` (no unapproved-tool
           install), `method/README.md:14-16` (no trust surface, no
@@ -114,3 +114,10 @@
       additions (user-visible behaviour, bundled third-party code) labelled
       as additions, which widen rather than contradict. Pass queued at
       `160/610`.
+      ✅ **C7 fixed 2026-10-03.** `AUTONOMY.md` is the canonical list, and the
+      floor block and the session-onramp skill already matched it. The apex's
+      two lists gain "installing an unapproved tool", and `method/README.md`'s
+      summary gains "new trust surfaces, unapproved tools". One residual is
+      noted, not changed: AUTONOMY's "deploy-on-push, when it isn't routine"
+      appears in no summary list, and is arguably inside "widening its
+      audience". Pass queued at `160/620`.

@@ -267,6 +267,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued: the template reviews README names tiers,](roadmap/160-doctrine-review-owed/590-rule-4-cold-pass-queued-template-tiers-not-models.md)
 - ⏳ [Rule-4 cold pass queued: the file walk enumerates through git](roadmap/160-doctrine-review-owed/600-rule-4-cold-pass-queued-git-enumerated-walk.md)
 - ⏳ [Rule-4 cold pass queued: the template reviews README's trigger list](roadmap/160-doctrine-review-owed/610-rule-4-cold-pass-queued-template-review-triggers.md)
+- ⏳ [Rule-4 cold pass queued: the always-confirm list's copies match](roadmap/160-doctrine-review-owed/620-rule-4-cold-pass-queued-floor-list-membership.md)
 
 ## build/ layer — open strands
 

@@ -13,7 +13,8 @@ Read in this order:
    trigger-based refresh. How the agent knows what it claims.
 3. **`AUTONOMY.md`** — proceed on anything recoverable (commit/push/PR granted
    for all work); confirm on the hard-to-undo floor (private→public, destructive,
-   secrets, spend, people/safety, self-widening, lockout-class). Repos may narrow.
+   secrets, spend, people/safety, self-widening, lockout-class, new trust
+   surfaces, unapproved tools). Repos may narrow.
 4. **`DATA-PROTECTION.md`** — the one you never get back. Read before write; a
    verified way-back before any destructive op; the data plane is the slow lane
    even under broad grants; reproducibility as insurance; protect others' data
