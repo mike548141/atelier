@@ -12,3 +12,7 @@
       - a cheap literal pre-filter before the expensive patterns.
       Every lever must keep output byte-identical on atelier's tree and
       report anything it skipped.
+      📏 **Re-measured 2026-10-03, after `140`:** leakscan 147 s, secretscan
+      56 s on the same 128 MB. The quadratic reader was part of it, and the
+      rest is regex. On a 50 MB file of short lines, leakscan takes 52 s and
+      secretscan 22 s.

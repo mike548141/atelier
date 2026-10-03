@@ -150,7 +150,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔥 [The content guards walk the whole filesystem, untracked trees](roadmap/110-estate-duplication-exception-audit-mike/110-guards-walk-untracked-trees.md)
 - ✅ 🔥 [pathscan and linkscan are unbounded on one large file](roadmap/110-estate-duplication-exception-audit-mike/120-pathscan-and-linkscan-are-unbounded-on-one-big-file.md)
 - [ ] 🔎 [leakscan and secretscan scan at roughly 0.5–1 MB/s, so a 128 MB](roadmap/110-estate-duplication-exception-audit-mike/130-leakscan-and-secretscan-scan-under-1-mb-per-second.md)
-- [~] 🔥 (claimed 2026-10-03-0630, wt: qr-linear-reader) [leakscan, secretscan and conflictscan's line reader re-slices](roadmap/110-estate-duplication-exception-audit-mike/140-the-line-reader-re-slices-per-line.md)
+- ✅ 🔥 [leakscan, secretscan and conflictscan's line reader re-slices](roadmap/110-estate-duplication-exception-audit-mike/140-the-line-reader-re-slices-per-line.md)
 
 ## Guardrails for atelier and its children (Mike commissioned 2026-08-15)
 
@@ -272,6 +272,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued: personal data held by purpose, with](roadmap/160-doctrine-review-owed/630-rule-4-cold-pass-queued-pii-by-purpose.md)
 - ⏳ [Rule-4 cold pass queued: pathscan and linkscan stream and cap](roadmap/160-doctrine-review-owed/640-rule-4-cold-pass-queued-bounded-pathscan-linkscan.md)
 - ⏳ [Rule-4 cold pass queued: the exception-register design, before it is](roadmap/160-doctrine-review-owed/650-rule-4-cold-pass-queued-exception-register-design.md)
+- ⏳ [Rule-4 cold pass queued: the linear line reader in three guards](roadmap/160-doctrine-review-owed/660-rule-4-cold-pass-queued-linear-reader.md)
 
 ## build/ layer — open strands
 
