@@ -272,9 +272,11 @@ destination has its own contract, though — **harvest integrity** (Mike's rulin
 finished history only, so a live state marker there (a `[ ]`/`[~]`/`⏳` list
 item) also gates — it is either a botched harvest or a box never flipped, and
 the remedy is investigate-then-recommend, never a silent fix. And the signal
-carries a **trigger**: harvesting is part of the session-close tidy-up (above) —
-when a session closes roadmap items, collapsing them to pointers happens then,
-not someday. That is what stops the 3000-line accretion from ever forming.
+carries a **trigger**: on a **monolithic** board, harvesting is part of the
+session-close tidy-up (above). When a session closes roadmap items, collapsing
+them to pointers happens then, not someday. A split board has no harvest step:
+a closed item flips `[x]` in its own file (above). That is what stops the
+3000-line accretion from ever forming.
 
 ## Absolute dating, everywhere in the record
 

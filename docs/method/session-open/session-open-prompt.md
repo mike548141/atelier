@@ -120,7 +120,8 @@ format — I'll describe it however's clearest each time.
 ## Ending the session
 
 Before you say you're done, do the repo's standard close (commit, push,
-session log, roadmap harvested, worktrees put away, review queued if owed)
+session log, roadmap items closed (harvested, on a monolithic board),
+worktrees put away, review queued if owed)
 per its own record doctrine. Then, for me specifically:
 
 1. Summarise what was learnt, progressed, or delivered — and give me your

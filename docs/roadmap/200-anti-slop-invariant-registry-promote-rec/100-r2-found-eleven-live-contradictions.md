@@ -16,7 +16,7 @@
           confirmation". `skills/create-repo/SKILL.md:213-219` says the
           authority is the principal's ask, *not* "push is recoverable", and
           to confirm when the ask didn't include a remote.
-    - [ ] **C3 (drift).** `RECORD.md:230` says there is no harvest step, and
+    - [x] **C3 (drift).** `RECORD.md:230` says there is no harvest step, and
           `RECORD.md:275` calls harvesting part of the close.
           `CONCURRENCY.md:915`, `skills/queue-run/SKILL.md:74` and
           `session-open-prompt.md:123` list "roadmap harvested"
@@ -76,3 +76,8 @@
       confirm first. Neither side cited a ruling (`17ccbde` and `2271a44`), so
       the stricter reading wins until Mike says otherwise. Pass queued at
       `160/530`.
+      ✅ **C3 fixed 2026-10-03.** RECORD's harvest trigger and the close lists
+      in `CONCURRENCY.md` and `session-open-prompt.md` now say "harvest" only
+      for a monolithic board, matching RECORD's own split-board rule. The
+      queue-run skill's step 6 now says "roadmap close" too. Pass
+      queued at `160/540`.

@@ -75,7 +75,7 @@ Absent an override, run the defaults.
 6. **Per-item close.** **Commit, push and record before picking up the next
    item** — never batch records to the end. This is what makes a hard cap safe:
    a cut loses at most the in-flight item. The close *contents* (session record,
-   roadmap harvest, review-queued-if-owed, push) bind in `RECORD.md` — follow it;
+   roadmap close, review-queued-if-owed, push) bind in `RECORD.md` — follow it;
    do not restate it here.
 7. **Repeat** from step 3.
 

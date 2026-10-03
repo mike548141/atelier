@@ -912,7 +912,8 @@ for them):
   never baked
   into the pattern.
 - **The closing litany is not restated here.** What a per-item close *contains* —
-  the session record, the roadmap harvest, review-queued-if-owed, the push —
+  the session record, the roadmap close (a harvest on a monolithic board),
+  review-queued-if-owed, the push —
   already binds in `RECORD.md` and the child `CLAUDE.md` block. This section (and
   a run prompt) **point at it, never restate it**: that restatement is the exact
   drift the capture named — an operating pattern re-teaching the standing rules it
