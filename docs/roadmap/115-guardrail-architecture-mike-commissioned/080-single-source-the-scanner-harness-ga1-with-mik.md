@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-03-0200, wt: qr-harness-part2; part 2 of 3) (FUNDED by Mike 2026-09-20; part 1 of 3 DONE 2026-09-20, parts 2–3 owed and unclaimed) **Single-source the scanner harness, re-grounded on Mike's own upstream
+- [ ] (FUNDED by Mike 2026-09-20; parts 1–2 of 3 DONE, part 3 owed and unclaimed) **Single-source the scanner harness, re-grounded on Mike's own upstream
       test.** The finding already exists: GA1, a minor raised by the 2026-08-05
       guards-and-allowances cold pass and still awaiting its ruling round. It
       reads that the reason-required loader is ten per-scanner copies, *"the
@@ -167,3 +167,36 @@
       no test imports `filewalk`, so "the next correction is cheaper" holds for
       the code and not yet for the proof.
 
+      ---
+      ✅ **PART 2 LANDED 2026-10-03: `tools/allowmarker.py`** (queue run,
+      merge `5d087ec`). One marker-regex builder and one reason-required
+      ignore loader now serve **fourteen** scanners. Each scanner keeps its
+      own constant, its own `parse_allow` wrapper and its own result type.
+      **Every real difference is a parameter, and none was unified:** scope
+      (none / one / comma-list), separator (same line `[ \t]*` or across a
+      newline `\s*`), group name, and whether the reason is a named group.
+      `test_allowmarker.py` pins every scanner's compiled pattern as a
+      literal, so a shared edit that changes one fails loudly. That is the
+      2026-08-09 voided-marker incident, answered at the mechanism.
+      **Evidence:** 13 of 14 patterns are string-identical to before. The
+      14th (`blockscan`) differs by one redundant backslash in a character
+      class, and a sweep of every code point below U+3000 found no
+      mismatch. Stdout, stderr and exit were byte-identical, old against
+      new, for every converted scanner on the real tree, plus 170
+      comparisons over five synthetic fixture trees (about 130 marker
+      variants each, and five ignore-file shapes). The full suite passed:
+      1,601 tests on the worker, and 1,604 OK on the merged `main` tree, re-run
+      by the orchestrator.
+      **Left on their own copies, deliberately:** `publishscan`'s loader
+      (a different grammar), `wrapscan`'s sibling-marker strip (not the
+      grammar), and `board.py`'s any-allow-comment match (a different job).
+      🔎 **Four divergences the extraction surfaced, reported and NOT fixed**
+      (unifying them would change behaviour, which this part forbids):
+      filed as `230`. The sharpest is that a scope with no reason
+      (`datescan:allow:relative-time`) backtracks and exempts *every* kind on
+      the line.
+      🔗 **Coupling, stated:** scanners now import `allowmarker` the way
+      they import `filewalk`. `floor.py`'s "scanners are self-contained by
+      design" comment predates both and is now false twice.
+      **Part 3 (exit and reporting contract, namespaced finding IDs) is still
+      owed and unclaimed.** Code pass queued at `160/480`.

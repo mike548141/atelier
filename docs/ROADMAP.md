@@ -158,7 +158,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [A real credential pasted into an exempt fixture file is invisible to](roadmap/115-guardrail-architecture-mike-commissioned/050-a-real-credential-in-an-exempt-fixture-file-is.md)
 - [ ] 🔎 [A coined paraphrase is still presented on the board as a child](roadmap/115-guardrail-architecture-mike-commissioned/060-a-coined-paraphrase-is-still-cited-on-the-boar.md)
 - [ ] [PRINCIPLES.md §9 has no guard, and the only safe candidate is scoped](roadmap/115-guardrail-architecture-mike-commissioned/070-principles-9-has-no-guard-and-the-only-safe-ca.md)
-- [~] (claimed 2026-10-03-0200, wt: qr-harness-part2; part 2 of 3) [(FUNDED by Mike 2026-09-20; part 1 of 3 DONE 2026-09-20, parts 2–3…](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
+- [ ] [(FUNDED by Mike 2026-09-20; parts 1–2 of 3 DONE, part 3 owed and…](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
 - [ ] [Give every guard a second dial — the standing consequence of Mike's](roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md)
 - [ ] 🎯 [Build a before-plane — the guardrail class that acts at the moment of](roadmap/115-guardrail-architecture-mike-commissioned/100-the-before-plane-is-empty-and-it-is-the-only.md)
 - [ ] 🔥 [The apex and the always-confirm floor have no mechanical backing at](roadmap/115-guardrail-architecture-mike-commissioned/110-the-apex-and-the-autonomy-floor-have-no-mecha.md)
@@ -172,6 +172,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [One child declares a narrowed floor and reds from now on](roadmap/115-guardrail-architecture-mike-commissioned/200-one-child-declares-a-narrowed-floor-and-now-reds.md)
 - [ ] 🔎 [A session's default python3 is too old to load three of the](roadmap/115-guardrail-architecture-mike-commissioned/210-the-guard-suite-cannot-run-on-the-machine-it-guards.md)
 - [ ] 🎯 [The streaming line readers are three or four different mechanisms,](roadmap/115-guardrail-architecture-mike-commissioned/220-the-line-readers-are-three-mechanisms-not-one-with-parameters.md)
+- [ ] 🔎 [Single-sourcing the allow-marker grammar surfaced four](roadmap/115-guardrail-architecture-mike-commissioned/230-four-allow-marker-divergences.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 
@@ -248,6 +249,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued: the mandate-versus-default date rule](roadmap/160-doctrine-review-owed/450-rule-4-cold-pass-queued-the-date-kind-rule.md)
 - ⏳ [Rule-4 cold pass queued: ccarchive's manifest checkpoints and](roadmap/160-doctrine-review-owed/460-rule-4-cold-pass-queued-the-manifest-checkpoints.md)
 - ⏳ [Rule-4 cold pass queued: publishscan's round-2 denylist](roadmap/160-doctrine-review-owed/470-rule-4-cold-pass-queued-publishscan-round-2.md)
+- ⏳ [Rule-4 cold pass queued: the shared allow-marker grammar and ignore](roadmap/160-doctrine-review-owed/480-rule-4-cold-pass-queued-the-shared-allow-marker-grammar.md)
 
 ## build/ layer — open strands
 

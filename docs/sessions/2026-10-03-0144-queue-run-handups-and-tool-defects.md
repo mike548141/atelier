@@ -179,3 +179,18 @@ describes a private repo's security posture even with no name attached, so
 those entries now say "standard practice" and the vendor pattern is gone.
 The measured instance it covered is left to its own repo. The code pass is
 queued at `160/470`.
+
+## `115/080` part 2: one allow-marker grammar, fourteen parameters
+
+The item's binding constraint was carried into the dispatch verbatim:
+share the mechanism, never the behaviour. `tools/allowmarker.py` now builds
+every scanner's marker regex and loads every reason-required ignore file.
+Fourteen scanners are converted, and each keeps its own acceptance rules as
+parameters. The proof is the item's own standard. Patterns are
+string-identical (one benign backslash aside), and output is byte-identical
+on the real tree and on 170 fixture comparisons. A pin test now fails if a
+shared edit changes any scanner's pattern. That turns the 2026-08-09 class
+(nine markers silently voided) into a red test. The extraction surfaced four
+divergences, filed as `115/230` rather than unified. One widens: a scope with
+no reason exempts every kind on the line. Part 3 is still owed. The code pass
+is queued at `160/480`.
