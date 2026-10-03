@@ -232,6 +232,7 @@ python3 tools/leakscan.py                 # scan the whole repo
 python3 tools/leakscan.py --staged        # scan only staged additions (the hook)
 python3 tools/leakscan.py path/to/file    # scan specific paths
 python3 tools/leakscan.py --json          # machine-readable, for CI/composition
+python3 tools/leakscan.py --binary-entries  # print .leakscanbinaries lines to review (G3)
 python3 tools/leakscan.py --selftest      # prove the engine on this box
 ```
 
@@ -265,6 +266,84 @@ negative costs a leak). Two escape hatches, both visible and greppable:
   … -->` in Markdown) to the offending line.
 - **Per path** — add a glob to `.leakscanignore` at the repo root. Keep it short;
   every entry is a hole in the boundary.
+
+A binary file has its own hatch, below. It can't carry a line marker, and a
+glob is the wrong tool for it.
+
+### Binary files (G3): blocked until a person has looked
+
+leakscan can't read the body of a binary file: the pixels of an image, a
+PDF, an archive, a font. Until G3 it skipped them in silence. Now a **tracked**
+binary blocks (Mike ruled this 2026-08-04, funded 2026-08-09). It passes once
+a reasoned entry in **`.leakscanbinaries`** at the repo root accepts its exact
+bytes:
+
+```
+# Project logo and two docs diagrams, drawn for this repo. Looked at: no
+# people, screenshots or personal data.
+3f1c9a0d5e7b2a64  docs/img/logo.png
+9b04e6d1c2a8f357  docs/img/flow.webp
+c81d07a2e4f9b613:binary-metadata  docs/img/site.jpg  # our own photo; Exif checked: camera model only
+```
+
+- **Format.** Each line is the first 16 or more hex characters of the file's
+  SHA-256, then the repo-relative path. The reason uses the same grammar as
+  `.leakscanignore` (`allowmarker.read_reasoned_lines`): a comment stanza above
+  the line, or a trailing `# reason`. An entry with no reason is a config
+  error (exit 2). So is a malformed line, an unknown scope or a duplicate path.
+  A path can't contain `#`.
+- **One-time, because the entry is tied to the hash.** If the file changes it
+  blocks again as `binary-changed`, and whoever re-lists it is looking at the
+  new bytes. 16 hex characters (64 bits) is the printed form because
+  secretscan's entropy net reports every 32+ character run as advisory, which
+  would add one advisory per listed binary. A full 64-character digest also
+  parses (sha256sum's ` *path` binary-mode form too).
+- **Metadata.** Read for PNG, JPEG and WebP using only the standard library,
+  with every read size-capped. Text metadata (PNG `tEXt`/`zTXt`/`iTXt`, XMP,
+  JPEG comments) is decoded and run through the normal rules and term list. A
+  `Software` tag passes; an author's email does not. Allow-markers inside
+  metadata are ignored, because nobody reviews text hidden in a binary.
+  *Opaque* metadata can't be read as text: Exif, IPTC, ImageMagick hex
+  profiles, an unrecognised APP1 segment, a segment over the 1 MiB cap, or a
+  structure that can't be walked. It blocks as `binary-metadata` even when the
+  pixels are listed. Strip it (for example `exiftool -all= file`), or add
+  `:binary-metadata` to the digest once you've checked what it holds.
+- **What it can't see.** The pixels: no OCR, so the reason *is* the human
+  check. Metadata in any other format (GIF, TIFF, HEIC/AVIF, PDF, Office files,
+  fonts, archives), where the entry accepts the whole file, metadata included.
+  JPEG segments after the first start-of-scan, ICC profiles, and bytes after a
+  format's end marker.
+- **Which files are gated.** In a git work tree, a whole-tree scan gates the
+  files `git ls-files` lists. It counts untracked binaries such as `.DS_Store`
+  as "not gated" in the summary. Outside git, every binary is gated. The
+  staged hook gates every binary the commit adds, modifies or renames. It reads
+  the index copy, not the working tree. It also now path-scans the names of
+  binaries, empty new files and pure renames, which the added-lines diff never
+  showed. A file git marks `binary` that is really text is read in full.
+- **Deleted or renamed.** An entry that accepts nothing blocks as
+  `binary-stale-entry`. That covers a file that's gone, untracked, read as
+  text, or removed or renamed by the staged commit. A renamed file's finding
+  names its old entry ("same bytes as the entry for …"), so the fix is
+  re-pathing one line.
+- **`.leakscanignore` still runs first.** A glob-ignored tree, such as
+  vendored fonts, is not gated. `--disable` can't turn the gate off, because
+  the binary rules aren't structural rules. Every accepted binary is counted
+  in the `suppressed:` line.
+
+**Adopting it: one commit.** At the first floor run after the pin bump, the
+CI plane goes red with one `binary-unlisted` per tracked binary.
+
+```sh
+python3 <atelier>/tools/leakscan.py --root . --binary-entries   # prints the lines
+```
+
+`--binary-entries` prints an entry for every tracked binary that no entry
+accepts yet (new, or changed since listed). It writes **no reason**, and the
+scan refuses the file until a person adds one. Its notes go to stderr: which
+entries replace a changed line, and which files also carry opaque metadata.
+Look at each file, append the lines under a true reason, and commit with the
+pin bump. There is no advisory or deferred form. leakscan has none (E6a), and
+its floor entry can't be softened.
 
 ### Networking repos & scanning a subtree
 

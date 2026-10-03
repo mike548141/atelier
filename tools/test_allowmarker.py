@@ -220,6 +220,18 @@ class TestIgnoreFile(unittest.TestCase):
     def test_glob_that_is_only_a_hash_is_skipped(self):
         self.assertEqual(self.load("# x\n#\n"), [])
 
+    def test_reasoned_lines_return_the_reason_text(self):
+        # The grammar `.leakscanbinaries` (G3) reuses: same presence test,
+        # and the reason text itself, trailing first, else the stanza's.
+        with tempfile.TemporaryDirectory() as td:
+            f = Path(td) / "x"
+            f.write_text("# brand\n#\n# assets\na.png\nb.png # own\n\nc.png\n#\nd.png\n",
+                         encoding="utf-8")
+            self.assertEqual(am.read_reasoned_lines(f),
+                             [(4, "a.png", "brand assets"), (5, "b.png", "own"),
+                              (7, "c.png", None), (9, "d.png", "")])
+            self.assertEqual(am.read_reasoned_lines(Path(td) / "absent"), [])
+
     def test_ignored_matches_glob_or_directory_prefix(self):
         self.assertTrue(am.ignored("docs/a.md", ["docs/*.md"]))
         self.assertTrue(am.ignored("docs/sub/a.md", ["docs/"]))

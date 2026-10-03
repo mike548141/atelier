@@ -39,6 +39,12 @@ file whose *name* carries an address or a person's name leaks exactly as much as
 one whose body does, and until 2026-08-04 the name was never read (gap G2). Path
 findings report at line 0.
 
+A tracked BINARY's body cannot be read, so since G3 (ruled 2026-08-04) it
+blocks until a reasoned, hash-bound `.leakscanbinaries` entry accepts its exact
+bytes; PNG/JPEG/WebP metadata is walked, text metadata scanned and opaque
+metadata (Exif, IPTC) blocking on its own scope. See the G3 block below and
+the leakscan section of `tools/README.md`.
+
 Exit codes (fail-safe — anything but a clean scan is non-zero):
   0  clean
   1  findings (blocks the commit)
@@ -53,11 +59,15 @@ from __future__ import annotations
 import argparse
 import codecs
 import fnmatch
+import hashlib
 import json
 import os
 import re
+import struct
 import subprocess
 import sys
+import tempfile
+import zlib
 from dataclasses import dataclass, asdict, field
 from pathlib import Path
 
@@ -345,6 +355,13 @@ class Tally:
     # here (leakscan has no advisory tier), so one counter is enough — unlike
     # secretscan's blocking/advisory split.
     findings_over_cap: int = 0
+    # G3: tracked binaries whose body the scan could not read and a reasoned,
+    # hash-bound `.leakscanbinaries` entry accepted; and binaries the
+    # full-tree walk met that git does not track, which the gate does not
+    # cover (an untracked file reaches no remote). Both are counted so a
+    # clean run says what it did not read.
+    binaries_by_manifest: int = 0
+    binaries_untracked: int = 0
     _materialized: int = field(default=0, repr=False, compare=False)
 
     @property
@@ -372,6 +389,8 @@ class Tally:
         parts = [f"{self.marker_total} by allow-marker",
                  f"{self.files_by_glob} file(s) by .leakscanignore",
                  f"{len(self.disabled_rules)} rule(s) disabled",
+                 f"{self.binaries_by_manifest} binary file(s) by {BINARY_MANIFEST}",
+                 f"{self.binaries_untracked} untracked binary file(s) not gated",
                  f"{self.findings_over_cap} beyond the "
                  f"{MAX_MATERIALIZED_FINDINGS}-finding cap (counted, not listed)"]
         line = "  suppressed: " + " · ".join(parts)
@@ -391,6 +410,11 @@ class Finding:
     kind: str          # "structural" | "local"
     severity: str
     excerpt: str       # the matched span, redacted to keep the report shareable
+    # G3: where inside the file a finding sits when it is not a text line —
+    # "binary" for a gate finding about the file as a whole, or
+    # "metadata <segment>" for a hit in an image's text metadata (then `line`
+    # counts within that segment). Empty for ordinary text and path findings.
+    where: str = ""
 
 
 def redact(match: str) -> str:
@@ -608,15 +632,20 @@ def _record(findings: list[Finding], tally: Tally | None, finding: Finding) -> N
 def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
               local_terms: list[tuple[str, "re.Pattern[str]"]],
               disabled: frozenset[str] = frozenset(),
-              tally: Tally | None = None) -> list[Finding]:
+              tally: Tally | None = None,
+              honour_markers: bool = True) -> list[Finding]:
     """The scanning engine. `numbered_lines` pairs each line of text with its
     real line number — the shape `_scan_file` needs to call this once per
     physical line while streaming a file, and `scan_text` below is the
     whole-blob convenience wrapper every existing caller (staged mode, the
-    path-name scan, the test suite) uses."""
+    path-name scan, the test suite) uses.
+
+    `honour_markers=False` (G3, image metadata) reads an allow-marker as
+    plain text: a marker inside a binary's metadata sits where no reviewer
+    reads it, which `method/GUARDS.md` § *Who, why, when* forbids."""
     findings: list[Finding] = []
     for lineno, line in numbered_lines:
-        allow_scope = parse_allow(line)
+        allow_scope = parse_allow(line) if honour_markers else None
         shadows = _shadow_spans(line, disabled)
         for pat in STRUCTURAL:
             if pat.name in disabled:
@@ -658,12 +687,13 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
 def scan_text(path: str, text: str,
               local_terms: list[tuple[str, "re.Pattern[str]"]],
               disabled: frozenset[str] = frozenset(),
-              tally: Tally | None = None) -> list[Finding]:
+              tally: Tally | None = None,
+              honour_markers: bool = True) -> list[Finding]:
     """Scan a whole text blob, numbering lines sequentially from 1 — the
     staged-diff and path-name callers' shape (both already hold their input
     in memory: a diff's added lines, or a single path string)."""
     return scan_lines(path, list(enumerate(text.splitlines(), start=1)),
-                      local_terms, disabled, tally)
+                      local_terms, disabled, tally, honour_markers)
 
 
 def scan_path_name(rel: str,
@@ -701,6 +731,374 @@ def load_ignore_globs(root: Path) -> list[str]:
 
 def _ignored(rel: str, globs: list[str]) -> bool:
     return allowmarker.ignored(rel, globs)
+
+
+# ─── G3 — binary media (Mike ruled BLOCKING 2026-08-04, funded 2026-08-09) ───
+#
+# Until G3 a tracked binary's body was skipped in silence: only its NAME was
+# read (G2), so a screenshot of a bank statement, or a photo whose Exif names
+# its owner and where it was taken, passed as "clean". The ruling: a tracked
+# binary that is unscannable, or that carries metadata, BLOCKS; a legitimate
+# one carries a one-time REASONED marker; leakscan keeps no advisory form
+# (E6a). This is the build of that ruling:
+#
+#   * THE MARKER is an entry in `.leakscanbinaries` at the scan root —
+#     `<sha256 hex, ≥16 chars>[:binary-metadata]  <path>`, reasoned with the
+#     SAME grammar as `.leakscanignore` (`allowmarker.read_reasoned_lines`: a
+#     trailing `# reason` or a comment stanza). A binary cannot hold an inline
+#     marker, and a `.leakscanignore` glob is the wrong hatch: it is
+#     path-wide, rule-wide and blind to content, so a REPLACED image would
+#     pass under the old acceptance. The digest is what makes "one-time"
+#     true — a changed binary no longer matches its entry and blocks again,
+#     and the human who re-lists it is looking at the new bytes.
+#   * THE DIGEST is a hex PREFIX of SHA-256, at least 16 characters (64
+#     bits). Full 64 also parses. The printed form is 16 because secretscan's
+#     context-free entropy net reports every 32+ character run as an advisory
+#     finding; a manifest of full digests would buy one advisory per binary on
+#     every scan for no gain: the threat is an unnoticed change, not a forged
+#     64-bit second preimage by someone who can edit the manifest anyway.
+#   * METADATA is walked, not guessed, for the three web image formats
+#     (PNG, JPEG, WebP), stdlib only, every read bounded. TEXT metadata (PNG
+#     tEXt/zTXt/iTXt, JPEG XMP and comments, WebP XMP) is decoded and run
+#     through the ordinary rule set and term list — a `Software` tag scans
+#     clean, an author's name or email does not — with allow-markers NOT
+#     honoured inside it. OPAQUE metadata (Exif, IPTC, ImageMagick's
+#     hex-encoded raw profiles, an unrecognised APP1, a segment past the
+#     size cap, a structure that cannot be walked) cannot be read as text, so
+#     its PRESENCE blocks as `binary-metadata`; an entry clears that only by
+#     naming the scope (`<digest>:binary-metadata`), so accepting the pixels
+#     never silently accepts the GPS block too (GUARDS rule-scoped allowance).
+#
+# What it cannot see, stated so nobody infers cover that is not there: the
+# pixels themselves (no OCR — the entry's reason is the human attesting to
+# them); metadata in any other format (GIF, TIFF, HEIC/AVIF, PDF, Office
+# documents, fonts, archives — for these the entry accepts the whole file,
+# metadata included); JPEG segments after the first start-of-scan; ICC
+# profiles; bytes appended after a format's end marker.
+#
+# THE GATE COVERS TRACKED BINARIES (the ruling's word). A full-tree scan of a
+# git work tree gates the files `git ls-files` lists and counts the rest
+# (`.DS_Store`, build output) as "not gated"; a scan of a directory that is
+# not a git work tree gates every binary, failing closed. The staged plane
+# gates every binary the commit adds, modifies or renames.
+BINARY_MANIFEST = ".leakscanbinaries"
+SCOPE_METADATA = "binary-metadata"
+BINARY_RULES = ("binary-unlisted", "binary-changed", SCOPE_METADATA,
+                "binary-stale-entry")
+MIN_DIGEST_HEX = 16
+PRINTED_DIGEST_HEX = 16
+META_SEGMENT_CAP = 1 * 1024 * 1024   # bytes of ONE metadata segment read or
+                                     # inflated; past it the segment is opaque
+_ENTRY_RX = re.compile(r"^(?P<digest>[0-9A-Fa-f]{%d,64})(?::(?P<scope>[A-Za-z0-9_,-]+))?"
+                       r"[ \t]+\*?(?P<path>\S.*)$" % MIN_DIGEST_HEX)
+
+
+class BinaryManifestError(ValueError):
+    """`.leakscanbinaries` is malformed, or grants an acceptance with no
+    reason. A config error (exit 2), never a warning: a broken scan is not a
+    pass."""
+
+
+@dataclass(frozen=True)
+class BinaryEntry:
+    path: str
+    digest: str               # lower-case hex prefix of the file's SHA-256
+    scopes: frozenset[str]
+    reason: str
+    lineno: int
+
+    def matches(self, sha256_hex: str) -> bool:
+        return sha256_hex.startswith(self.digest)
+
+
+def load_binary_manifest(root: Path) -> dict[str, BinaryEntry]:
+    """Entries from `<root>/.leakscanbinaries`, keyed by repo-relative path.
+    Every problem is collected and raised together as `BinaryManifestError`:
+    an unreasoned entry, a malformed line, an unknown scope, a path listed
+    twice. An absent file is no entries."""
+    entries: dict[str, BinaryEntry] = {}
+    problems: list[str] = []
+    for n, body, reason in allowmarker.read_reasoned_lines(root / BINARY_MANIFEST):
+        m = _ENTRY_RX.match(body)
+        if not m:
+            problems.append(f"line {n}: not '<sha256 hex, ≥{MIN_DIGEST_HEX} chars>"
+                            f"[:{SCOPE_METADATA}]  <path>'")
+            continue
+        scopes = frozenset(m.group("scope").split(",")) if m.group("scope") else frozenset()
+        unknown = scopes - {SCOPE_METADATA}
+        if unknown:
+            problems.append(f"line {n}: unknown scope {', '.join(sorted(unknown))} "
+                            f"(the only scope is '{SCOPE_METADATA}')")
+            continue
+        path = m.group("path").strip()
+        path = path[2:] if path.startswith("./") else path
+        if reason is None:
+            problems.append(f"line {n}: '{path}' has no stated reason")
+            continue
+        if path in entries:
+            problems.append(f"line {n}: '{path}' already listed at line "
+                            f"{entries[path].lineno}")
+            continue
+        entries[path] = BinaryEntry(path, m.group("digest").lower(), scopes, reason, n)
+    if problems:
+        raise BinaryManifestError(
+            f"{BINARY_MANIFEST}: {len(problems)} problem(s) — {'; '.join(problems)}. "
+            "Every accepted binary states its reason where a reviewer reads it "
+            "(method/GUARDS.md): a comment above the stanza, or a trailing "
+            "'# reason' on the line.")
+    return entries
+
+
+def _looks_binary_file(path: Path) -> bool:
+    try:
+        with open(path, "rb") as fh:
+            return _looks_binary(fh.read(8192))
+    except OSError:
+        return False
+
+
+def _sha256_file(fh) -> str:
+    fh.seek(0)
+    h = hashlib.sha256()
+    for chunk in iter(lambda: fh.read(READ_CHUNK_BYTES), b""):
+        h.update(chunk)
+    return h.hexdigest()
+
+
+def _inflate(data: bytes) -> bytes | None:
+    """zlib-inflate at most `META_SEGMENT_CAP` bytes; None if the stream is
+    corrupt or inflates past the cap (a decompression bomb reads as opaque,
+    never as a long wait)."""
+    d = zlib.decompressobj()
+    try:
+        out = d.decompress(data, META_SEGMENT_CAP)
+    except zlib.error:
+        return None
+    return None if d.unconsumed_tail else out
+
+
+def _png_metadata(fh, size: int, texts: list, opaque: list) -> None:
+    pos = 8
+    while True:
+        fh.seek(pos)
+        hdr = fh.read(8)
+        if len(hdr) < 8:
+            opaque.append("PNG ends without IEND")
+            return
+        n = struct.unpack(">I", hdr[:4])[0]
+        ctype = hdr[4:8].decode("latin-1")
+        if pos + 12 + n > size:
+            opaque.append(f"PNG chunk {ctype} overruns the file")
+            return
+        if ctype == "IEND":
+            return
+        if ctype == "eXIf":
+            opaque.append("PNG eXIf (Exif)")
+        elif ctype in ("tEXt", "zTXt", "iTXt"):
+            if n > META_SEGMENT_CAP:
+                opaque.append(f"PNG {ctype} past the {META_SEGMENT_CAP}-byte cap")
+            else:
+                _png_text_chunk(ctype, fh.read(n), texts, opaque)
+        pos += 12 + n
+
+
+def _png_text_chunk(ctype: str, data: bytes, texts: list, opaque: list) -> None:
+    keyword, _, rest = data.partition(b"\x00")
+    kw = keyword.decode("latin-1")
+    if kw.lower().startswith("raw profile type"):
+        # ImageMagick carries Exif/IPTC/8BIM here as a hex dump of the binary
+        # profile: text-shaped, but nothing a text rule can read.
+        opaque.append(f"PNG {ctype} '{kw}' (hex-encoded binary profile)")
+        return
+    if ctype == "tEXt":
+        value = rest.decode("latin-1")
+    elif ctype == "zTXt":
+        raw = _inflate(rest[1:])
+        if raw is None:
+            opaque.append(f"PNG zTXt '{kw}' (undecodable or past the cap)")
+            return
+        value = raw.decode("latin-1")
+    else:  # iTXt: flag, method, language\0, translated keyword\0, text
+        if len(rest) < 2:
+            opaque.append(f"PNG iTXt '{kw}' (truncated)")
+            return
+        compressed = rest[0] == 1
+        _lang, _, rest2 = rest[2:].partition(b"\x00")
+        _tkw, _, body = rest2.partition(b"\x00")
+        if compressed:
+            body = _inflate(body)
+            if body is None:
+                opaque.append(f"PNG iTXt '{kw}' (undecodable or past the cap)")
+                return
+        value = body.decode("utf-8", errors="replace")
+    texts.append((f"PNG {ctype} '{kw}'", f"{kw}: {value}"))
+
+
+_XMP_NS = b"http://ns.adobe.com/xap/1.0/\x00"
+_XMP_EXT_NS = b"http://ns.adobe.com/xmp/extension/\x00"
+
+
+def _jpeg_metadata(fh, size: int, texts: list, opaque: list) -> None:
+    pos = 2
+    while True:
+        fh.seek(pos)
+        b = fh.read(2)
+        if len(b) < 2:
+            opaque.append("JPEG ends before image data")
+            return
+        if b[0] != 0xFF:
+            opaque.append("JPEG structure cannot be walked")
+            return
+        marker = b[1]
+        if marker == 0xFF:          # fill byte
+            pos += 1
+            continue
+        if marker in (0xD8, 0x01) or 0xD0 <= marker <= 0xD7:
+            pos += 2
+            continue
+        if marker in (0xDA, 0xD9):  # start of scan / end of image
+            return
+        ln = fh.read(2)
+        n = struct.unpack(">H", ln)[0] if len(ln) == 2 else 0
+        if n < 2 or pos + 2 + n > size:
+            opaque.append("JPEG segment overruns the file")
+            return
+        if marker in (0xE1, 0xED, 0xFE):
+            seg = fh.read(n - 2)    # ≤ 65533 bytes by the format's own limit
+            if marker == 0xFE:
+                texts.append(("JPEG comment", seg.decode("utf-8", errors="replace")))
+            elif marker == 0xED:
+                opaque.append("JPEG APP13 (IPTC/Photoshop)")
+            elif seg.startswith(b"Exif\x00"):
+                opaque.append("JPEG APP1 Exif")
+            elif seg.startswith(_XMP_NS):
+                texts.append(("JPEG XMP", seg[len(_XMP_NS):].decode("utf-8", errors="replace")))
+            elif seg.startswith(_XMP_EXT_NS):
+                # 32-byte GUID + 4-byte full length + 4-byte offset, then XML
+                body = seg[len(_XMP_EXT_NS) + 40:]
+                texts.append(("JPEG extended XMP", body.decode("utf-8", errors="replace")))
+            else:
+                opaque.append("JPEG APP1 (unrecognised)")
+        pos += 2 + n
+
+
+def _webp_metadata(fh, size: int, texts: list, opaque: list) -> None:
+    fh.seek(4)
+    riff_end = min(size, 8 + struct.unpack("<I", fh.read(4))[0])
+    pos = 12
+    while pos + 8 <= riff_end:
+        fh.seek(pos)
+        hdr = fh.read(8)
+        fourcc = hdr[:4].decode("latin-1")
+        n = struct.unpack("<I", hdr[4:8])[0]
+        if pos + 8 + n > riff_end:
+            opaque.append(f"WebP chunk {fourcc.strip()} overruns the file")
+            return
+        if fourcc == "EXIF":
+            opaque.append("WebP EXIF")
+        elif fourcc == "XMP ":
+            if n > META_SEGMENT_CAP:
+                opaque.append(f"WebP XMP past the {META_SEGMENT_CAP}-byte cap")
+            else:
+                texts.append(("WebP XMP", fh.read(n).decode("utf-8", errors="replace")))
+        pos += 8 + n + (n & 1)
+
+
+def inspect_media(fh) -> tuple[str | None, list[tuple[str, str]], list[str]]:
+    """`(format, text segments, opaque segments)` for a PNG, JPEG or WebP
+    file object; `(None, [], [])` for anything else. Text segments are
+    `(label, decoded text)` to be scanned; opaque segments are labels whose
+    presence blocks. Every read is bounded (`META_SEGMENT_CAP`, or the
+    format's own 64 KiB segment limit for JPEG), so peak memory is
+    independent of the file's size."""
+    fh.seek(0, os.SEEK_END)
+    size = fh.tell()
+    fh.seek(0)
+    head = fh.read(12)
+    texts: list[tuple[str, str]] = []
+    opaque: list[str] = []
+    if head.startswith(b"\x89PNG\r\n\x1a\n"):
+        fmt, walker = "png", _png_metadata
+    elif head.startswith(b"\xff\xd8"):
+        fmt, walker = "jpeg", _jpeg_metadata
+    elif head[:4] == b"RIFF" and head[8:12] == b"WEBP":
+        fmt, walker = "webp", _webp_metadata
+    else:
+        return None, texts, opaque
+    try:
+        walker(fh, size, texts, opaque)
+    except struct.error:
+        opaque.append(f"{fmt.upper()} structure cannot be walked")
+    return fmt, texts, opaque
+
+
+def check_binary(path: Path, rel: str, entry: BinaryEntry | None,
+                 local_terms: list[tuple[str, "re.Pattern[str]"]],
+                 disabled: frozenset[str], tally: Tally | None,
+                 by_digest: dict[str, str] | None = None) -> list[Finding]:
+    """The G3 gate for ONE tracked binary: its text metadata scanned, its
+    opaque metadata and its unread body each blocking unless `entry` — a
+    reasoned `.leakscanbinaries` line whose digest matches these exact bytes
+    — accepts them. `by_digest` (digest prefix → listed path) lets an
+    unlisted file say "same bytes as the entry for <old path>", the rename
+    case. An unreadable file blocks rather than passing."""
+    findings: list[Finding] = []
+
+    def gate(rule: str, excerpt: str) -> None:
+        _record(findings, tally, Finding(rel, 0, rule, "binary", "high", excerpt, "binary"))
+
+    try:
+        with open(path, "rb") as fh:
+            digest = _sha256_file(fh)
+            _fmt, texts, opaque = inspect_media(fh)
+    except OSError as e:
+        gate("binary-unlisted", f"unreadable ({e.__class__.__name__})")
+        return findings
+    for label, text in texts:
+        for f in scan_text(rel, text, local_terms, disabled, tally, honour_markers=False):
+            f.where = f"metadata {label}"
+            findings.append(f)
+    accepted = entry is not None and entry.matches(digest)
+    if opaque and not (accepted and SCOPE_METADATA in entry.scopes):
+        gate(SCOPE_METADATA, "; ".join(opaque))
+    if entry is None:
+        twin = (by_digest or {}).get(digest[:MIN_DIGEST_HEX])
+        hint = f" — same bytes as the entry for {twin}" if twin else ""
+        gate("binary-unlisted", f"sha256 {digest[:PRINTED_DIGEST_HEX]}{hint}")
+    elif not accepted:
+        gate("binary-changed", f"listed {entry.digest[:PRINTED_DIGEST_HEX]}, "
+                               f"now {digest[:PRINTED_DIGEST_HEX]} (line {entry.lineno})")
+    elif tally is not None:
+        tally.binaries_by_manifest += 1
+    return findings
+
+
+def _digest_index(manifest: dict[str, BinaryEntry]) -> dict[str, str]:
+    return {e.digest[:MIN_DIGEST_HEX]: e.path for e in manifest.values()}
+
+
+def _stale(entry: BinaryEntry, why: str) -> Finding:
+    """An entry that accepts nothing — its file is gone, untracked, or read
+    as text. Blocking, because the manifest is the repo's standing inventory
+    of what the scan does not read (GUARDS rule b), and an inventory naming
+    files that are not there is one nobody can trust. The fix is one deleted
+    or re-pathed line, normally in the same commit that moved the file."""
+    return Finding(BINARY_MANIFEST, entry.lineno, "binary-stale-entry", "binary",
+                   "high", f"{entry.path}: {why}")
+
+
+def tracked_files(root: Path) -> set[str] | None:
+    """Root-relative paths git tracks under `root`, or None when `root` is
+    not inside a git work tree — in which case every binary is gated (fail
+    closed)."""
+    try:
+        r = subprocess.run(["git", "-C", str(root), "ls-files", "-z"],
+                           capture_output=True, check=False)
+    except OSError:
+        return None
+    if r.returncode != 0:
+        return None
+    return {p for p in r.stdout.decode("utf-8", errors="surrogateescape").split("\0") if p}
 
 
 def _walk_files(base: Path):
@@ -837,13 +1235,92 @@ def scan_paths(paths: list[Path], root: Path,
                disabled: frozenset[str] = frozenset(),
                tally: Tally | None = None) -> list[Finding]:
     globs = load_ignore_globs(root)
+    manifest = load_binary_manifest(root)
+    tracked = tracked_files(root)
+    by_digest = _digest_index(manifest)
     findings: list[Finding] = []
+    gated: set[str] = set()
     for p, rel in iter_files(paths, root, globs, tally):
         # G2: the path is scanned whatever the contents turn out to be — a
         # binary's NAME is readable even when its body is not.
         findings.extend(scan_path_name(rel, local_terms, disabled, tally))
-        findings.extend(_scan_file(p, rel, local_terms, disabled, tally))
+        if not _looks_binary_file(p):
+            findings.extend(_scan_file(p, rel, local_terms, disabled, tally))
+        elif tracked is not None and rel not in tracked:
+            if tally is not None:
+                tally.binaries_untracked += 1
+        else:
+            gated.add(rel)
+            findings.extend(check_binary(p, rel, manifest.get(rel), local_terms,
+                                         disabled, tally, by_digest))
+    # An entry this walk could have reached but did not gate accepts nothing.
+    for entry in manifest.values():
+        if entry.path in gated or _ignored(entry.path, globs) \
+                or not _under_any(root / entry.path, paths):
+            continue
+        _record(findings, tally, _stale(entry, _stale_reason(root / entry.path,
+                                                             entry.path, tracked)))
     return findings
+
+
+def _under_any(target: Path, bases: list[Path]) -> bool:
+    t = target.resolve()
+    for base in bases:
+        b = base.resolve()
+        if t == b:
+            return True
+        try:
+            t.relative_to(b)
+        except ValueError:
+            continue
+        if b.is_dir():
+            return True
+    return False
+
+
+def _stale_reason(p: Path, rel: str, tracked: set[str] | None) -> str:
+    if not p.is_file():
+        return "no such file"
+    if tracked is not None and rel not in tracked:
+        return "not tracked by git"
+    if not _looks_binary_file(p):
+        return "read as text, so it is scanned and the entry accepts nothing"
+    return "in a directory the scan never walks"
+
+
+def binary_entries(paths: list[Path], root: Path) -> tuple[list[str], list[str]]:
+    """`--binary-entries`: a `.leakscanbinaries` line for every gated binary
+    no entry accepts yet (new, or changed since it was listed), plus notes
+    for the human. Lines carry NO reason on purpose — the loader refuses an
+    entry without one, so the re-baseline cannot complete until a person has
+    written why each file may stand. Never writes the file."""
+    globs = load_ignore_globs(root)
+    manifest = load_binary_manifest(root)
+    tracked = tracked_files(root)
+    lines: list[str] = []
+    notes: list[str] = []
+    for p, rel in iter_files(paths, root, globs):
+        if not _looks_binary_file(p) or (tracked is not None and rel not in tracked):
+            continue
+        with open(p, "rb") as fh:
+            digest = _sha256_file(fh)
+            _fmt, _texts, opaque = inspect_media(fh)
+        entry = manifest.get(rel)
+        if entry is not None and entry.matches(digest):
+            continue
+        if "#" in rel or "\n" in rel or rel != rel.strip() or rel.startswith("*"):
+            notes.append(f"{rel!r}: this path cannot be written as an entry "
+                         "(it holds '#', a newline, edge whitespace or a leading "
+                         "'*') — rename the file")
+            continue
+        lines.append(f"{digest[:PRINTED_DIGEST_HEX]}  {rel}")
+        if entry is not None:
+            notes.append(f"{rel}: changed since listed — replaces line {entry.lineno}")
+        if opaque:
+            notes.append(f"{rel}: carries opaque metadata ({'; '.join(opaque)}) — "
+                         f"strip it, or append ':{SCOPE_METADATA}' to the digest "
+                         "once you have checked what it holds")
+    return lines, notes
 
 
 def staged_added_lines() -> dict[str, str]:
@@ -865,6 +1342,66 @@ def staged_added_lines() -> dict[str, str]:
         elif line.startswith("+") and not line.startswith("+++") and current:
             files[current].append(line[1:])
     return {path: "\n".join(lines) for path, lines in files.items() if lines}
+
+
+def staged_changes() -> tuple[list[str], set[str], list[str]]:
+    """G3 on the hot path: `(every path the commit adds, modifies or renames
+    to; the subset git reads as binary; every path the commit removes —
+    deletions and rename sources)`.
+
+    The added-lines diff above never names a binary (git prints "Binary files
+    … differ" and no `+++` line), so before G3 a staged binary's NAME was not
+    scanned either — and neither was an empty new file's, or a pure rename's.
+    Every changed path now gets the path-name scan. `--no-textconv` keeps a
+    repo's textconv driver from turning an image into text lines here, so
+    git's binary verdict is about the bytes."""
+    def paths(*extra: str) -> list[bytes]:
+        return subprocess.run(["git", "diff", "--cached", "-z", *extra],
+                              capture_output=True, check=True).stdout.split(b"\0")
+
+    def dec(b: bytes) -> str:
+        return b.decode("utf-8", errors="surrogateescape")
+
+    changed: list[str] = []
+    removed: list[str] = []
+    toks = paths("--name-status", "--diff-filter=ACMRD")
+    i = 0
+    while i < len(toks):
+        status = dec(toks[i])
+        if not status:
+            i += 1
+            continue
+        if status[0] in "RC":
+            src, dst = dec(toks[i + 1]), dec(toks[i + 2])
+            changed.append(dst)
+            if status[0] == "R":
+                removed.append(src)
+            i += 3
+        else:
+            (removed if status[0] == "D" else changed).append(dec(toks[i + 1]))
+            i += 2
+    binary: set[str] = set()
+    toks = paths("--numstat", "--no-textconv", "--diff-filter=ACMR")
+    i = 0
+    while i < len(toks):
+        if not toks[i]:
+            i += 1
+            continue
+        added, deleted, rest = toks[i].split(b"\t", 2)
+        if rest:
+            path, i = dec(rest), i + 1
+        else:  # rename/copy: the source and destination follow as tokens
+            path, i = dec(toks[i + 2]), i + 3
+        if added == b"-" and deleted == b"-":
+            binary.add(path)
+    return changed, binary, removed
+
+
+def _staged_blob(path: str, dest: Path) -> None:
+    """Write the INDEX copy of `path` (what the commit will hold, not the
+    working tree's) to `dest`, streamed by git rather than held in memory."""
+    with open(dest, "wb") as fh:
+        subprocess.run(["git", "cat-file", "blob", f":0:{path}"], stdout=fh, check=True)
 
 
 class TermsPathError(RuntimeError):
@@ -916,7 +1453,12 @@ def render_human(findings: list[Finding], warning: str | None,
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
         # Line 0 means the hit is in the PATH itself (G2) — say so, because
         # ':0' would otherwise read as a line number nobody can open.
-        where = f"{f.path}:{f.line}" if f.line else f"{f.path} (in the path name)"
+        if f.where:
+            where = f"{f.path} ({f.where}" + (f", line {f.line})" if f.line else ")")
+        elif f.line:
+            where = f"{f.path}:{f.line}"
+        else:
+            where = f"{f.path} (in the path name)"
         lines.append(f"  {where}  [{f.severity}/{f.kind}] {f.rule} → {f.excerpt}")
     if over_cap:
         lines.append(f"  …and {over_cap} more finding(s), counted but not listed "
@@ -929,6 +1471,11 @@ def render_human(findings: list[Finding], warning: str | None,
     lines.append(f"  (or '# {ALLOW_MARKER}:<rule>: <reason>' to exempt just one rule —")
     lines.append("  the narrowest allowance that covers the case), or add a path glob")
     lines.append("  to .leakscanignore. A marker with no reason exempts nothing.")
+    if any(f.kind == "binary" for f in findings):
+        lines.append(f"  A binary (G3): look at it, then list it in {BINARY_MANIFEST} with a")
+        lines.append("  reason — `leakscan --binary-entries` prints the lines, hash-bound, so a")
+        lines.append("  changed file blocks again. Opaque metadata: strip it, or scope the entry")
+        lines.append(f"  ':{SCOPE_METADATA}' once checked. A stale entry: delete or re-path it.")
     return "\n".join(lines)
 
 
@@ -953,6 +1500,11 @@ def _main(argv: list[str] | None = None) -> int:
                          "ipv4,ipv6,mac-address for a networking repo where those "
                          "shapes are unavoidable noise). Local terms always run.")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
+    ap.add_argument("--binary-entries", action="store_true",
+                    help=f"print a {BINARY_MANIFEST} line for every tracked binary no "
+                         "entry accepts yet (new, or changed since listed) and exit 0. "
+                         "Lines carry no reason: review each file and write one, or "
+                         "the scan refuses the entry. Never writes the file.")
     ap.add_argument("--selftest", action="store_true", help="run built-in checks and exit")
     args = ap.parse_args(argv)
 
@@ -960,6 +1512,27 @@ def _main(argv: list[str] | None = None) -> int:
         return _selftest()
 
     root = Path(args.root).resolve()
+    if args.binary_entries:
+        if args.staged or args.json:
+            print("leakscan: --binary-entries lists the whole tree as plain lines; it "
+                  "takes neither --staged nor --json", file=sys.stderr)
+            return 2
+        targets = [(root / p) if not Path(p).is_absolute() else Path(p)
+                   for p in (args.paths or [str(root)])]
+        missing = [str(p) for p in targets if not p.exists()]
+        if missing:
+            print(f"leakscan: path does not exist: {', '.join(missing)}", file=sys.stderr)
+            return 2
+        lines, notes = binary_entries(targets, root)
+        for line in lines:
+            print(line)
+        for note in notes:
+            print(f"leakscan: {note}", file=sys.stderr)
+        print(f"leakscan: {len(lines)} entr{'y' if len(lines) == 1 else 'ies'} to review. "
+              f"Append to {BINARY_MANIFEST} with a reason — a '# reason' comment above "
+              "the stanza or on the line — saying what each file is and that you looked.",
+              file=sys.stderr)
+        return 0
     try:
         terms_path = resolve_terms_path(args.terms)
     except TermsPathError as e:
@@ -989,6 +1562,7 @@ def _main(argv: list[str] | None = None) -> int:
     if args.staged:
         try:
             staged = staged_added_lines()
+            changed, binary, removed = staged_changes()
         except subprocess.CalledProcessError as e:
             print(f"leakscan: git diff failed: {e}", file=sys.stderr)
             return 2
@@ -1013,21 +1587,51 @@ def _main(argv: list[str] | None = None) -> int:
                   "'tiki/' instead.", file=sys.stderr)
             return 2
         prefixes = tuple(p.rstrip("/") + "/" for p in args.paths)
-        if prefixes:
-            staged = {path: text for path, text in staged.items()
-                      if path.startswith(prefixes) or path in args.paths}
+
+        def in_scope(path: str) -> bool:
+            return not prefixes or path.startswith(prefixes) or path in args.paths
+
+        staged = {path: text for path, text in staged.items() if in_scope(path)}
         # .leakscanignore applies in staged mode too, so an exemption means the
         # same thing whether you scan the tree or a commit.
         globs = load_ignore_globs(root)
+        manifest = load_binary_manifest(root)
+        by_digest = _digest_index(manifest)
         findings = []
-        for path, text in staged.items():
-            if _ignored(path, globs):
-                tally.files_by_glob += 1
-                continue
-            # G2 on the hot path too: a leak in a NEW file's name reaches the
-            # remote by the same commit as one in its body.
-            findings.extend(scan_path_name(path, local_terms, disabled, tally))
-            findings.extend(scan_text(path, text, local_terms, disabled, tally))
+        # Every changed path once, in a stable order: the text diff's files
+        # first (their existing order), then the paths only git's name list
+        # carries — binaries, empty new files, pure renames.
+        ordered = list(staged) + [p for p in changed if p not in staged and in_scope(p)]
+        with tempfile.TemporaryDirectory(prefix="leakscan-") as td:
+            blob = Path(td) / "blob"
+            for path in ordered:
+                if _ignored(path, globs):
+                    tally.files_by_glob += 1
+                    continue
+                # G2 on the hot path too: a leak in a NEW file's name reaches
+                # the remote by the same commit as one in its body.
+                findings.extend(scan_path_name(path, local_terms, disabled, tally))
+                if path in staged:
+                    findings.extend(scan_text(path, staged[path], local_terms, disabled, tally))
+                if path not in binary:
+                    continue
+                try:
+                    _staged_blob(path, blob)
+                except subprocess.CalledProcessError as e:
+                    print(f"leakscan: git cat-file failed for {path}: {e}", file=sys.stderr)
+                    return 2
+                if _looks_binary_file(blob):
+                    findings.extend(check_binary(blob, path, manifest.get(path),
+                                                 local_terms, disabled, tally, by_digest))
+                else:
+                    # git calls it binary (a `binary`/`-diff` attribute) but the
+                    # bytes are text: the diff showed no lines, so read the
+                    # whole staged copy rather than let the attribute hide it.
+                    findings.extend(_scan_file(blob, path, local_terms, disabled, tally))
+        for path in removed:
+            entry = manifest.get(path)
+            if entry is not None and in_scope(path) and not _ignored(path, globs):
+                _record(findings, tally, _stale(entry, "removed or renamed by this commit"))
     else:
         # A RELATIVE target resolves against --root, never the caller's cwd:
         # mixing the two reads one repo's file under another repo's rules,
@@ -1056,6 +1660,8 @@ def _main(argv: list[str] | None = None) -> int:
                 "by_allow_marker_rule": tally.by_marker,
                 "files_by_ignore_glob": tally.files_by_glob,
                 "disabled_rules": list(tally.disabled_rules),
+                "binaries_by_manifest": tally.binaries_by_manifest,
+                "binaries_untracked_not_gated": tally.binaries_untracked,
             },
         }, indent=2))
     else:
@@ -1091,19 +1697,37 @@ def _selftest() -> int:
         elif expect_rule and not any(f.rule == expect_rule for f in fs):
             print(f"FAIL: {text!r} expected rule {expect_rule}, got {[f.rule for f in fs]}")
             ok = False
+    # G3: the metadata walker on two synthetic PNGs — opaque Exif is seen,
+    # and text metadata is read as text (a fictional address, so it hits).
+    import io
+
+    def png(ctype: bytes, data: bytes) -> io.BytesIO:
+        def chunk(t: bytes, d: bytes) -> bytes:
+            return struct.pack(">I", len(d)) + t + d + struct.pack(">I", zlib.crc32(t + d))
+        return io.BytesIO(b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", bytes(13))
+                          + chunk(ctype, data) + chunk(b"IEND", b""))
+    _f, _t, opaque = inspect_media(png(b"eXIf", b"MM\x00\x2a"))
+    if not opaque:
+        print("FAIL: PNG eXIf chunk not reported as opaque metadata")
+        ok = False
+    _f, texts, _o = inspect_media(png(b"tEXt", b"Author\x00jane.doe@example.com"))  # leakscan:allow: selftest fixture
+    if not any(f.rule == "email" for _l, t in texts for f in scan_text("t", t, [])):
+        print("FAIL: PNG tEXt metadata not scanned as text")
+        ok = False
     print("selftest OK" if ok else "selftest FAILED")
     return 0 if ok else 1
 
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Exit 2 on an ignore file that grants an exemption with no reason.
+    """Exit 2 on an ignore file or a binary manifest that grants an exemption
+    with no reason, or a manifest that does not parse.
 
     A broken scan is not a pass (the house exit-code contract), and an
     unexplained exemption makes the scan's own scope untrustworthy."""
     try:
         return _main(argv)
-    except IgnoreFileError as e:
+    except (IgnoreFileError, BinaryManifestError) as e:
         print(f"leakscan: {e}", file=sys.stderr)
         return 2
 
