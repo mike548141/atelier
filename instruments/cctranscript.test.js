@@ -480,6 +480,58 @@ test('isDatalessFlags: SF_DATALESS bit only (mirrors ccarchive)', () => {
   assert.equal(cc.isDatalessFlags(NaN), false);
 });
 
+test('statFlagsBatch: one spawn, same flags as per-file stat, unreadable path absent', { skip: process.platform !== 'darwin' }, () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cctranscript-sfb-'));
+  const files = [];
+  for (let i = 0; i < 5; i++) {
+    const f = path.join(dir, `f${i}.jsonl.gz`);
+    fs.writeFileSync(f, 'x');
+    files.push(f);
+  }
+  const missing = path.join(dir, 'nope.jsonl.gz');
+  const map = cc.statFlagsBatch([files[0], missing, ...files.slice(1)]);
+  assert.equal(map.has(missing), false);   // a failed path must not shift the rest
+  for (const f of files) {
+    const one = Number(execFileSync('stat', ['-f', '%f', f], { encoding: 'utf8' }).trim());
+    assert.equal(map.get(f), one);
+  }
+  assert.deepEqual([...cc.statFlagsBatch([])], []);
+});
+
+test('statFlagsBatch: more paths than one chunk still all resolve', { skip: process.platform !== 'darwin' }, () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cctranscript-sfb2-'));
+  const files = [];
+  for (let i = 0; i < 850; i++) {
+    const f = path.join(dir, `f${i}.jsonl.gz`);
+    fs.writeFileSync(f, '');
+    files.push(f);
+  }
+  assert.equal(cc.statFlagsBatch(files).size, 850);
+});
+
+test('gunzipHead: equals the full gunzip prefix, whatever the compression ratio', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cctranscript-gh-'));
+  const crypto = require('node:crypto');
+  const cases = {
+    short: Buffer.from('{"cwd":"/a/b"}\n'),
+    compressible: Buffer.from('{"cwd":"/a/b","pad":"' + 'z'.repeat(2e6) + '"}\n'),
+    incompressible: Buffer.concat([Buffer.from('{"cwd":"/a/b"}\n'), crypto.randomBytes(500000)]),
+  };
+  for (const [name, body] of Object.entries(cases)) {
+    const f = path.join(dir, `${name}.jsonl.gz`);
+    fs.writeFileSync(f, zlib.gzipSync(body));
+    const want = zlib.gunzipSync(fs.readFileSync(f)).subarray(0, 65536);
+    assert.ok(cc.gunzipHead(f, 65536).subarray(0, 65536).equals(want), name);
+  }
+});
+
+test('gunzipHead: a truncated mirror still throws, as the full gunzip did', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cctranscript-ght-'));
+  const f = path.join(dir, 'cut.jsonl.gz');
+  fs.writeFileSync(f, zlib.gzipSync(Buffer.from('{"cwd":"/a"}\n'.repeat(50))).subarray(0, 20));
+  assert.throws(() => cc.gunzipHead(f, 65536));
+});
+
 // --- --search ------------------------------------------------------------
 // Every fixture below is SYNTHETIC and written here in the test: nothing from a
 // real Claude Code log, no real session id, no real path under ~/.claude.
