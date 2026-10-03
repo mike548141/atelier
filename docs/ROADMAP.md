@@ -265,6 +265,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued: SECRETS' stated-bridge pointers repointed](roadmap/160-doctrine-review-owed/570-rule-4-cold-pass-queued-stated-bridge-pointer.md)
 - ⏳ [Rule-4 cold pass queued: the review-brief skill stops telling the](roadmap/160-doctrine-review-owed/580-rule-4-cold-pass-queued-review-brief-rule-3.md)
 - ⏳ [Rule-4 cold pass queued: the template reviews README names tiers,](roadmap/160-doctrine-review-owed/590-rule-4-cold-pass-queued-template-tiers-not-models.md)
+- ⏳ [Rule-4 cold pass queued: the file walk enumerates through git](roadmap/160-doctrine-review-owed/600-rule-4-cold-pass-queued-git-enumerated-walk.md)
 
 ## build/ layer — open strands
 
