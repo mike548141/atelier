@@ -445,6 +445,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up: the canonical floor's estate resources bullet is](roadmap/320-child-filed-findings-via-pointing-up/410-the-estate-root-cannot-write-the-canonical-floors-estate-resources-bullet.md)
 - [ ] 🔎 [Hand-up: a queued-review pointer may name a moving bound, and](roadmap/320-child-filed-findings-via-pointing-up/420-a-queued-review-pointer-may-name-a-moving-bound.md)
 - [ ] 🔎 [Hand-up: nothing catches an orphaned session-detail file once the](roadmap/320-child-filed-findings-via-pointing-up/430-no-floor-check-catches-an-orphaned-session-detail-file.md)
+- [ ] 🔎 [A review file's follow-up list and the board item that points at it](roadmap/320-child-filed-findings-via-pointing-up/440-a-review-file-and-its-board-item-drift-apart.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
