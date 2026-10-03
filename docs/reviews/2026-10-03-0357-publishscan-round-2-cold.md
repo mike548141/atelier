@@ -456,3 +456,159 @@ anyone closes on "suite green at HEAD"; it is not a finding against this delta.
 - [ ] PL11–PL14: remedy text, template gitignore, `shlex.quote`, harvest cross-ref
 - [ ] Ledger row 7: full suite re-run alone, failing test named
 - [ ] Phase 2: reconcile against the sibling when released
+
+### Reconcile (written 2026-10-03 04:40 UTC)
+
+Opened after phase 1 was committed: the sibling's text (released by message), the
+intent record `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md`
+§ `260/040` and § `020/150`, the board item `260/040`, the filing `020/410`, the
+2026-08-02 and 2026-08-03 publishscan verdicts (PB1, PA2) and the two board
+passages the search for PL1's class turned up (`160/260` BA2, `160/390` SG1).
+Worktree HEAD at reconcile `c3a3a7a`; the three delta paths are byte-identical
+from `a91d9b6` to it. Phase-1 text above is unrevised.
+
+**Against the seeded questions.**
+
+1. *Every new pattern obeys the PB1 depth rule?* Yes — 228 of 228 planted
+   reds, both planes (ledger row 11). Two qualifications the rule's mechanism
+   carries: the `*`-spans-`/` behaviour PB1's fix relies on is what makes
+   `.*_history` overreach (PL6), and the depth rule has a blind spot PB1 did
+   not name — a quoted path (PL1).
+2. *False-positive surface stated?* Partly. The left-out list and the
+   look-alike tests state the considered half; `*.iml`, `*.tfvars` defaults,
+   and log/database fixtures (PL9's round-2 half) are not stated anywhere a
+   child reads. The `.env.example` half of PL9 is PA2, which the principal
+   ruled deliberate on 2026-08-03; my counsel there is a re-raise of a ruled
+   matter, marked as such, and carries no new severity.
+3. *Fleet consequence stated on a surface a child reads?* No. It is stated,
+   and corrected (pin bump → next CI run), in the board item and the intent
+   record — both author-side. `CHANGELOG.md`, the README section and the
+   scanner's own output are silent (PL4 confirmed). The correction's own
+   lesson — the claim was reasoned, not checked against `floor.yml` — is the
+   same shape as my ledger row 7 residual, so I hold it to the same bar.
+4. *Documented path for a child that must keep a listed file?* Yes, two: the
+   reasoned `.publishscanignore` glob (printed in the remedy) and the
+   per-check advisory declaration (registry comment). `020/410`'s gap — a
+   guard with no advisory form cannot adopt advisory-first — does not bite
+   here, because publishscan has one. What qualifies the yes is PL2: the
+   per-path route is invisible in the output, so the fleet's cheapest green
+   is also its least reviewed.
+
+**Against the intent record.** The record says the orchestrator rewrote the
+worker's commit before merge so the public source carries no measured counts
+for secret-carrier shapes and no vendor-specific filename, naming the exact
+rule PL3 cites. That sweep reached the source and missed two surfaces: the
+commit body (`a7d8fdd`) still describes the shapes, and the `*.pem` comment
+keeps its hedge. PL3 stands at MODERATE with its cause now known — a privacy
+rewrite with no checklist of the surfaces a landing commit publishes. The
+record's blast-radius figures (3 private repos, 23 files) are outside this
+pass's non-goal and were not checked; its "atelier stays clean (884 paths)"
+is consistent with my 896 and 901 at later SHAs.
+
+**Against prior findings.** PB1 (fixed) holds for every round-2 entry. PA2
+(rejected as deliberate) is cross-referenced above. PS1[pub] and `260/060` P4
+do not touch this delta. Neither prior publishscan verdict probed path
+quoting, case, or hatch visibility, so PL1, PL2 and PL7 are first findings on
+this guard.
+
+**Findings formed at reconcile** (marked as such; severities are notes
+because each sharpens a phase-1 finding rather than adding a defect):
+
+**PL15 — note, formed at reconcile — PL1 is a recurring class, open twice
+already on another guard.** `160/260` BA2 (MODERATE) and `160/390` SG1
+(MODERATE) record that a staged item whose filename carries a macron is
+C-quoted by `git ls-files` and silently dropped by the `board` guard's index
+plane. Same seam, same cause, third sighting, second guard; neither prior
+finding was fixed at the seam. For publishscan the cost is a silent pass on a
+tracked private key rather than a stale index, which is why PL1 is MAJOR
+where BA2 and SG1 were MODERATE.
+*Counsel:* close the class once — one NUL-delimited git-listing helper shared
+by every guard that reads `git ls-files` or `git diff --cached`, the natural
+companion to `115/080` part 2's single-sourced ignore loader — and sweep the
+other guards for the same call.
+
+**PL16 — note, formed at reconcile — the pre-merge privacy rewrite had no
+surface list.** Sharpens PL3; no new severity. *Counsel:* the brief-writer's
+and the orchestrator's checklists both gain "surfaces a landing publishes:
+source, tests, docs, commit body, PR body, board item, session record".
+
+**Ledger row 7, restated on the orchestrator's instruction:** the full suite
+ran once at `ca61feb` and exited 1 with the failing test unread (the capture
+kept interleaved scanner output, not the unittest summary); it is recorded as
+*run-result-unread*, not re-run now because two sibling passes are running
+theirs, and the solo re-run stays an owed step on the checklist. Every test
+file that imports publishscan passes alone at `0a669e7` (ledger rows 6, 8).
+
+**Overall, restated: PASS-WITH-FINDINGS — 1 MAJOR · 5 MODERATE · 4 minor ·
+6 note (16).** The delta does what it says; the gate it widens carries a
+pre-existing fail-open (PL1) that the estate has now met three times and
+closed nowhere, and an exemption hatch (PL2) that round 2 makes load-bearing
+while leaving it invisible. Findings are the principal's to decide (rule 3);
+nothing was applied.
+
+## Folded sibling — released after the phase-1 findings were committed
+
+The `.deferred.md` sibling the orchestrator held outside the worktree, folded in
+verbatim at close; the reviewer met it only in phase 2.
+
+# Deferred sibling — publishscan's round-2 denylist (PL)
+
+Held by the orchestrator outside the worktree and outside the harness
+scratchpad. Released to the reviewer only after its phase-1 findings are
+committed. Folded into the verdict file at close.
+
+## 1. The queue pointer's own framing (author's words)
+
+> - ⏳ **Rule-4 cold pass queued: publishscan's round-2 denylist
+> (`260/040`).** The run authored this itself (its dispatched workers'
+> output counts as the run's authorship). It was queued at landing, and
+> the run neither takes it nor spawns a reviewer for it. *Tier:* Fable,
+> the principal-named review tier, checked at selection. *Pass type:*
+> code cold pass, per `method/REVIEW.md` rule 4. *Delta, scoped to
+> paths:* `tools/publishscan.py`, `tools/test_publishscan.py` and
+> publishscan's section of `tools/README.md`. It landed on `main` on
+> 2026-10-03, in merge `a91d9b6`.
+> *Intent record:*
+> `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md`.
+
+## 2. Intent record and commissioning item (read in phase 2)
+
+- `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md`
+- the board item named in the pointer
+
+## 3. What the authoring run said to the orchestrator (channel, verbatim)
+
+> a fifth refs-only pointer of mine is on main, docs/roadmap/160-doctrine-review-owed/470-rule-4-cold-pass-queued-publishscan-round-2.md. (Plus the two gate-stricter notices quoted in § 4.)
+
+Nothing else from that run was read by the orchestrator.
+
+## 4. Prior findings and seeded questions (the orchestrator's, labelled)
+
+Prior findings on this scanner (all ruled by the principal, 2026-08-02/03):
+
+- PB1 (MAJOR, fixed): `fnmatch` patterns were depth-blind for most entries, so a
+  nested `.npmrc`, `.env.production` or `.mcp.json` passed green; fixed to match
+  dotfiles by basename at any depth and directory pairs by suffix.
+- PA2 (rejected as deliberate): `.env.example` false positives widened to every
+  depth as a side effect of PB1's fix.
+- PS1[pub] (MAJOR, fixed): REPO-STANDARD's standardise step still told children to
+  commit `.claude/settings.json`.
+- 260/060 P4 (open): the CI plane calls leakscan without `--require-terms`.
+
+What the authoring run said over the channel (verbatim, two messages):
+
+> Gate-stricter notice: publishscan's never-publish list grew (cadcf4e). atelier
+> itself stays clean. Three private children will newly red when they next bump
+> their pin. That only affects sessions that run publishscan on another repo.
+
+> correcting what I sent earlier: publishscan round 2 does NOT wait for a pin bump.
+> Children call floor.yml@main and their scanners float at main, so the 3 private
+> children go red at their NEXT CI RUN. That's the floor working as designed on
+> latent findings; I'd reasoned it instead of checking the workflow. It's corrected
+> in 260/040 (f2b84e3).
+
+Seeded questions (the orchestrator's): (1) Does every new pattern obey the PB1
+depth rule? (2) What is the false-positive surface of the new entries, and is it
+stated? (3) Is the fleet consequence (reds at next CI run, no pin bump) stated on
+any surface a child reads? (4) Is there a documented path for a child that must
+keep a listed file?
