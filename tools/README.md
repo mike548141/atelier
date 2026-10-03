@@ -1169,6 +1169,21 @@ seam that `floor.py` does not offer today — see the module docstring, WIRING
 RESIDUAL, for the two ways to close it and why this build takes neither
 unilaterally.
 
+## `signscan.py`, `signfleet.py`, `floorfleet.py` — the signing gate and the fleet views
+
+Three tools whose doctrine lives elsewhere, listed here so this catalogue is
+complete. Each module's docstring is its full manual.
+
+- **`signscan.py`** verifies git commit signatures over a range against a trust
+  list. It is the CI and hook half of `docs/method/SIGNING.md` (ADR 0007), and it
+  runs `--warn` fleet-wide.
+- **`signfleet.py`** answers for the whole fleet whether the signing gate would
+  pass if it were enforcing. It runs `signscan` in blocking mode against every
+  child, each resolved the way that child's own CI resolves it.
+- **`floorfleet.py`** answers whether every repo in the estate is actually
+  running atelier's floor. It enumerates conformance rather than assuming it
+  (ADR 0008; `docs/method/PROPAGATION.md`).
+
 ## Tests
 
 ```sh

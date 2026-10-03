@@ -126,3 +126,16 @@ child may set it earlier, the same, or later. A date-setting ruling names
 its kind. The run added one clause of its own, saying so in the item: an
 older date with no kind on record is asked about, not inferred. The
 doctrine pass is queued at `160/450`.
+
+## `200/010`: the census, and atelier's own drift fixed
+
+The ruling bound the generic index-keeper to a census first. A read-only
+sweep of all 31 estate repos found **22 hand-maintained indexes of 7 kinds in
+14 repos**. Drift is firm in 4 and probable in 3. Nothing guards the
+unlisted direction anywhere, so the class has many members and the ruled
+build stands. The census also found that **catalogues and session indexes
+drift, while decisions indexes mostly do not**, and that moves the design's
+first target. The item records only classes and counts, with no private repo
+named. atelier's own four firm drifts were fixed in the same commit, except
+`filewalk.py`. Its missing entry is FW2, which is in the ruling round, so it
+was left alone.
