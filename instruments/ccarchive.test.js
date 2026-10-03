@@ -1423,3 +1423,95 @@ test('compat: an old (jsonl-only) archive still verifies; new-class live files a
   assert.equal(j.archived, 2, 'the two new-class files are archived; the three transcripts are unchanged');
   assert.equal(runCli('--verify', '--dest', dest, '--json').status, 0);
 });
+
+// --- manifest durability + healing (210/170) ------------------------------
+// A run that dies part-way must not leave mirrors ahead of the manifest, and a
+// manifest that already lags must heal on the next ordinary run.
+
+function runEnv(env, ...args) {
+  return spawnSync('node', [SCRIPT, ...args], { encoding: 'utf8', env: { ...process.env, ...env } });
+}
+
+// Every mirror under dest has a manifest entry whose hash is the gunzipped bytes.
+function assertManifestCoversMirrors(dest) {
+  const manifest = cc.loadManifest(dest);
+  const rels = cc.listArchivedRels(dest);
+  for (const rel of rels) {
+    assert.ok(manifest[rel], `manifest must cover ${rel}`);
+    const raw = zlib.gunzipSync(fs.readFileSync(path.join(dest, rel + '.gz')));
+    assert.equal(manifest[rel].sha256, cc.sha256(raw));
+    assert.equal(manifest[rel].rawBytes, raw.length);
+  }
+  return rels;
+}
+
+test('a run that dies after K mirrors leaves the manifest covering them, and still signed', () => {
+  const { src, dest } = makeTree();
+  const r = runEnv({ CCARCHIVE_TEST_FAIL_AFTER: '2' }, '--json', '--source', src, '--dest', dest);
+  assert.notEqual(r.status, 0, 'the simulated death must surface as a failure');
+  assert.match(r.stderr, /simulated death/);
+  const rels = assertManifestCoversMirrors(dest);
+  assert.equal(rels.length, 2, 'exactly the mirrors written before the death');
+  assert.equal(runCli('--verify', '--dest', dest).status, 0, 'manifest and signature agree');
+  // The next ordinary run completes the rest and the archive is whole.
+  runJson(src, dest);
+  assert.equal(assertManifestCoversMirrors(dest).length, 3);
+  assert.equal(runCli('--verify', '--dest', dest).status, 0);
+});
+
+test('checkpointing every mirror also leaves a covered, signed manifest after a death', () => {
+  const { src, dest } = makeTree();
+  const r = runEnv({ CCARCHIVE_CHECKPOINT_EVERY: '1', CCARCHIVE_TEST_FAIL_AFTER: '3' },
+    '--json', '--source', src, '--dest', dest);
+  assert.notEqual(r.status, 0);
+  assert.equal(assertManifestCoversMirrors(dest).length, 3);
+  assert.equal(runCli('--verify', '--dest', dest).status, 0);
+});
+
+// Make the manifest lag the mirror, as a killed run leaves it: rawBytes and
+// sha256 describe a shorter prefix, re-signed so only the lag is under test.
+function makeStale(src, dest, rel) {
+  const manifest = cc.loadManifest(dest);
+  const prefix = fs.readFileSync(path.join(src, rel)).subarray(0, 4);
+  manifest[rel] = { sha256: cc.sha256(prefix), rawBytes: prefix.length, archivedAt: 'old' };
+  cc.saveManifest(dest, manifest);
+  cc.signManifest(dest, cc.ensureKey(process.env.CCARCHIVE_KEYFILE));
+}
+
+test('one normal run heals a manifest entry that lags a fresh mirror, then --verify passes', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const rel = path.join('-repo-b', 'uuid2.jsonl');
+  makeStale(src, dest, rel);
+  assert.equal(runCli('--verify', '--dest', dest).status, 1, 'precondition: the lag is detected');
+  const j = runJson(src, dest);
+  assert.equal(j.archived, 0, 'the mirror is fresh, so nothing is re-archived');
+  const e = cc.loadManifest(dest)[rel];
+  const bytes = fs.readFileSync(path.join(src, rel));
+  assert.equal(e.rawBytes, bytes.length);
+  assert.equal(e.sha256, cc.sha256(bytes));
+  assert.notEqual(e.archivedAt, 'old');
+  assert.equal(runCli('--verify', '--dest', dest).status, 0);
+});
+
+test('--dry-run heals nothing: a lagging manifest is left exactly as found', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const rel = path.join('-repo-b', 'uuid2.jsonl');
+  makeStale(src, dest, rel);
+  const before = fs.readFileSync(path.join(dest, 'manifest.json'));
+  runJson(src, dest, '--dry-run');
+  assert.ok(fs.readFileSync(path.join(dest, 'manifest.json')).equals(before));
+  assert.equal(cc.loadManifest(dest)[rel].archivedAt, 'old');
+});
+
+test('healing is size-triggered only: an equal-size entry is not rehashed or rewritten', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const rel = path.join('-repo-b', 'uuid2.jsonl');
+  const manifest = cc.loadManifest(dest);
+  manifest[rel].archivedAt = 'marker';
+  cc.saveManifest(dest, manifest);
+  runJson(src, dest);
+  assert.equal(cc.loadManifest(dest)[rel].archivedAt, 'marker');
+});
