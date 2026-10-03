@@ -129,3 +129,9 @@
         checked. It is held rather than merged because it shares the branch
         with an unruled class. The "(private repo)" disambiguation and the
         records question are untouched.
+        ✅ **The inline-code-span ask is FIXED 2026-10-03, merged from PR
+        #96.** The second child's case was a backticked `./script` that is a
+        command run from the host's working directory. That script lives
+        under that child's `tools/` and has no root-level twin, so it was
+        never a repo path. Still open: the "(private repo)" disambiguation
+        and the records question.

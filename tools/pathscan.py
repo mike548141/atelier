@@ -74,6 +74,13 @@ sharp honest one):
      tokens: two or more `/`-separated segments of word/dot/hyphen
      characters. A single trailing sentence period is trimmed (`` `foo.md`. ``
      at a sentence's end must not read as target `foo.md.`).
+     Two shapes are handled here rather than reported (320/010 class C,
+     320/170): a BRACE-EXPANSION token such as `docs/X-{A,B}.md` is expanded
+     and EACH alternative checked (a `{slug}` with no comma, or an expansion
+     past 64 alternatives, is skipped as a placeholder); and a `./`-led token
+     opening an inline backtick span, `` `./x.sh run` ``, is a command run
+     from the reader's directory, not a repo pointer, and is skipped the way
+     a fenced block already is.
 
   4. A path-shaped token is a CANDIDATE only if it starts with a known
      top-level repo directory (`docs/`, `tools/`, `skills/`, `commands/`,
@@ -509,7 +516,49 @@ KNOWN_EXTENSIONS = (
 # that plainly existed. Same shape as the `*`/`?` hole above, same fix. The
 # leading-`/` skip is therefore now what the header always claimed it was:
 # the token is skipped WHOLE, never truncated into a plausible-looking lie.
-_PATH_TOKEN = re.compile(r"(?<![\w.\-/*?])[\w.\-*?]+(?:/[\w.\-*?]+)+")
+#
+# BRACE EXPANSION (320/010 class C). A `{a,b}` group is part of the token, so
+# `docs/COLLECTING-{X,Y}.md` is matched WHOLE rather than truncated to
+# `docs/COLLECTING-` (the `{` used to end the run). Only a balanced, flat
+# `{...}` group with no `/` or whitespace inside is accepted as a token
+# piece; `{` and `}` also join the lookbehind (same invariant as above), and
+# `iter_candidates` skips a token that opens right after `$`, so
+# `${HOME}/x.md` is skipped whole as it always was, never expanded.
+# `iter_candidates` then expands the groups and checks each alternative.
+_PATH_TOKEN = re.compile(
+    r"(?<![\w.\-/*?{}])(?:[\w.\-*?]|\{[^{}\s/]*\})+"
+    r"(?:/(?:[\w.\-*?]|\{[^{}\s/]*\})+)+")
+
+_BRACE_GROUP = re.compile(r"\{([^{}]*)\}")
+
+# Most alternatives one token may expand to before it is skipped rather than
+# checked; a runaway cross-product is not a path anyone wrote by hand.
+_MAX_BRACE_EXPANSION = 64
+
+
+def _expand_braces(token: str) -> list[str] | None:
+    """Expand `{a,b}` groups in `token`, left to right. Returns [token] when
+    there is no brace; None when the token must be SKIPPED whole: a group
+    with no comma (`{slug}`, `{1..3}` — a template placeholder or range, not
+    a list of real names, the same shape-not-claim call as `<repo>`), or an
+    expansion beyond `_MAX_BRACE_EXPANSION`. An empty alternative
+    (`x{,.bak}`) is legal and expands to nothing."""
+    results = [token]
+    while any("{" in r for r in results):
+        nxt: list[str] = []
+        for r in results:
+            m = _BRACE_GROUP.search(r)
+            if not m:
+                nxt.append(r)
+                continue
+            if "," not in m.group(1):
+                return None
+            for alt in m.group(1).split(","):
+                nxt.append(r[:m.start()] + alt + r[m.end():])
+        if len(nxt) > _MAX_BRACE_EXPANSION:
+            return None
+        results = nxt
+    return results
 
 # Angle-bracket placeholder span, e.g. `<repo>/docs/foo.md` or bare `<repo>`.
 _ANGLE_PLACEHOLDER = re.compile(r"<[^<>]*>")
@@ -653,6 +702,23 @@ def _is_elided(match_text: str, cleaned: str, match_end: int) -> bool:
     return cleaned[match_end:match_end + 1] == "…"
 
 
+def _is_command_invocation(cleaned: str, m: "re.Match[str]") -> bool:
+    """True if the token is a `./`-led command at the START of an inline
+    backtick span — `` `./nosuch/same.sh run` ``. That is a command run in
+    whatever directory the reader is in, not a pointer into this repo, which
+    is exactly why the same text inside a fenced block is already exempt
+    (320/170: the fenced and inline spellings differed only in wrapper). The
+    `./` lead and the span-start position are both required, so a path merely
+    quoted mid-span, or a bare-prose `./x` mention, is still checked."""
+    if not m.group(0).startswith("./"):
+        return False
+    start = m.start()
+    if start == 0 or cleaned[start - 1] != "`":
+        return False
+    # An odd number of backticks before the span start means it OPENS a span.
+    return cleaned[:start].count("`") % 2 == 1 and cleaned.find("`", m.end()) != -1
+
+
 def iter_candidates(line: str):
     """Yield candidate path tokens (trimmed, filtered) from one already-
     de-fenced line — bare prose AND backtick-wrapped spans alike (backticks
@@ -661,14 +727,22 @@ def iter_candidates(line: str):
     for m in _PATH_TOKEN.finditer(cleaned):
         if _is_elided(m.group(0), cleaned, m.end()):
             continue
-        token = _trim_trailing_period(m.group(0))
-        if not token or "/" not in token:
+        if _is_command_invocation(cleaned, m):
             continue
-        if _is_placeholder(token):
+        if m.group(0).startswith("{") and m.start() and cleaned[m.start() - 1] == "$":
             continue
-        if not _is_known_candidate(token):
+        alternatives = _expand_braces(m.group(0))
+        if alternatives is None:
             continue
-        yield token
+        for alt in alternatives:
+            token = _trim_trailing_period(alt)
+            if not token or "/" not in token:
+                continue
+            if _is_placeholder(token):
+                continue
+            if not _is_known_candidate(token):
+                continue
+            yield token
 
 
 def _outermost_named_ancestor(p: Path, name: str) -> Path | None:

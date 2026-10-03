@@ -251,6 +251,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued: ccarchive's manifest checkpoints and](roadmap/160-doctrine-review-owed/460-rule-4-cold-pass-queued-the-manifest-checkpoints.md)
 - ⏳ [Rule-4 cold pass queued: publishscan's round-2 denylist](roadmap/160-doctrine-review-owed/470-rule-4-cold-pass-queued-publishscan-round-2.md)
 - ⏳ [Rule-4 cold pass queued: the shared allow-marker grammar and ignore](roadmap/160-doctrine-review-owed/480-rule-4-cold-pass-queued-the-shared-allow-marker-grammar.md)
+- ⏳ [Rule-4 cold pass queued: pathscan's brace expansion and inline](roadmap/160-doctrine-review-owed/490-rule-4-cold-pass-queued-pathscan-brace-expansion.md)
 
 ## build/ layer — open strands
 

@@ -252,3 +252,19 @@ That is the house's own rule, and this run kept re-learning it.
 The full suite passed on the merged tree (1,604 OK) before G3 was held. The
 floor ran on the last pushed SHAs, and the cancelled runs were superseded by
 later successes on the same content.
+
+## Addendum: Mike's rulings after the close
+
+Mike came back the same day.
+- **#92** was merged on his ruling, and widened: a list of expected tools,
+  with a way to find each one and standing approval to install or upgrade
+  it. That is now `320/500`, claimed.
+- **#96** was merged on the recommendation. He asked that it be checked
+  against the requesting transcript first. That check found the child's
+  brace reference named two real files that exist, so expanding keeps the
+  check live, where excluding would hide a stale path.
+- **200/100**: fix the contradictions one by one.
+- **110/100**, the exception standard: he restated it, saying he has had to
+  repeat it. Every exception records why, who and when, and is narrowed to
+  a span. Guards stream at any scale. It is claimed for a build in parts.
+- **#97** stays parked until it meets that standard.
