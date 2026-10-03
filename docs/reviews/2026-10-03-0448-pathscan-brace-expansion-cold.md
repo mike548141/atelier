@@ -210,3 +210,187 @@ your reconcile.
 Findings are the principal's to decide (rule 3): record all, apply nothing;
 your counsel per finding is welcome, labelled as counsel and kept beneath the
 finding.
+
+---
+
+## Verdict — phase 1 (written 2026-10-03 0556 UTC)
+
+**Overall: PASS-WITH-FINDINGS — 0 MAJOR, 3 MODERATE, 5 minor, 3 notes.** The two
+behaviours do what they say on the shapes they were built for, and this repo's gated
+scope is unchanged by them. The findings are about what the delta costs elsewhere: a
+64-fold work multiplier with no per-file ceiling, three new ways a stale path reads as
+clean, and no reader-facing surface that says so.
+
+### Provenance
+
+- Reviewer: `claude-fable-5-1` (Fable tier), a subagent spawned by the brief-writer with
+  this brief as its only framing. Not the author's session, not instructed by it.
+- Read at worktree HEAD `56e5687` (delta `e5b44fe` confirmed an ancestor, exit 0): all of
+  `tools/pathscan.py`, the delta's hunk of `tools/test_pathscan.py` plus its
+  `BoundedMemory` class, the pathscan entry in `tools/floor.py`, `tools/README.md`
+  § *pathscan*, `.atelier-floor.json`, `.githooks/pre-commit`, the test and floor lines of
+  `.github/workflows/ci.yml`, and the top of `CHANGELOG.md`.
+- Scratch clones under the session scratchpad: `parent` at `0ed44a3` (the merge's first
+  parent, which already contains `5d087ec`), `landing` at `e5b44fe`, `probe` at `56e5687`.
+- ⚠️ **Exposure, disclosed.** (a) I read the commit message of `acb2c78`, which is author
+  narrative. (b) The merge's `--stat` showed the names of barred files. (c) One whole-root
+  `--include-records` run printed file names, line numbers and path tokens from three other
+  `docs/reviews/2026-10-03-*` files, and a pre-suppression run printed tokens from line 44
+  of a barred `320/` item. I opened none of those files; scanner output was the only
+  contact. (d) I read `CHANGELOG.md` line 1798 to account for a disappeared finding.
+- ⚠️ **Interrupted and resumed.** The orchestrator paused this pass for a budget check and
+  resumed it with an instruction to economise. Consequences are in the re-run ledger: the
+  full suite is incomplete and the floor was not re-run by me.
+
+### Lens 1 — approach and assumptions
+
+Load-bearing assumptions, and what the probes found:
+
+1. *A brace group with a comma is path shorthand.* False for a quantifier or a format
+   string (PX5).
+2. *A group without a comma is a placeholder, so the whole token can go.* The token's
+   directory prefix was a live claim and was checked before (PX3).
+3. *A `./` token opening a span is a command.* A span holding only a `./`-led path is a
+   citation, and it is skipped too (PX2).
+4. *64 alternatives per token bounds the work.* It bounds one token, not a line or a
+   file (PX1).
+5. *Adding `{` and `}` to the lookbehind only stops mid-token resync.* It also hides any
+   path written directly against a brace (PX4).
+
+### Lens 2 — correctness and quality
+
+Selftest and the 127 unit tests pass. The fixture tree (54 lines, every shape in *Scope*)
+gave 25 findings at the parent and 96 at HEAD; `landing` and `probe` outputs are
+identical, so nothing after the merge changed behaviour. The intended cases are right:
+each alternative is checked, a missing one is caught, nested and runaway groups are
+skipped, `${VAR}` is skipped whole. Regex timing is linear on every hostile shape tried
+(4.2 MB of unclosed groups: 0.36 s). Expansion of one very wide group is cheap, because
+each alternative replaces the group. The defect is the multiplier across tokens (PX1).
+
+**Gated scope, parent against HEAD: no difference.** One finding both sides (a `../`
+path in `docs/method/session-open/`), ten allow-marker suppressions both sides. The
+gated scope holds two `./` spans; neither was a candidate before or after, because a
+`./` lead defeats the top-directory leg and neither ends in a known extension.
+Wider `docs` scope: one finding disappeared (an allow marker added to the line, tree
+change not tool change) and two new findings appear at HEAD on that same line, both
+suppressed by that marker. Whole root with records: one record line in `CHANGELOG.md`
+stopped being truncated and now resolves, which is the declared behaviour.
+
+### Lens 3 — completeness
+
+Only the module docstring's step 3 describes the two behaviours. See PX8.
+
+### Lens 4 — security and privacy
+
+`/security-review` is **discharged by grounds**: it reads the session's pending diff,
+which here is this brief, and this is a landed-delta review. Code-altitude read by hand:
+
+- Injection into output (OWASP A03): new channel, PX6.
+- Resource exhaustion (denial of service): PX1.
+- Path traversal (A01): an expansion can resolve outside the root, but so could a literal
+  `..` token at the parent; existence only, no content read (PX10).
+- No new file reads, no deserialisation, no subprocess, no network, no secrets handled.
+  JSON output escapes control characters correctly.
+
+### Findings
+
+**PX1 — MODERATE. The expansion cap is per token; nothing caps a line or a file.**
+One 1.09 MB line of 25,000 tokens, each expanding to exactly 64 alternatives: the parent
+finished in 0.31 s at 20.7 MB peak; HEAD took 141.9 s at 1.82 GB peak and emitted
+1,600,000 findings. A brace-free line of the same size costs 2.4 s and about 60 MB on
+both. `CHANGELOG.md` records the ruling that every guard runs in bounded memory; this
+tool's `BoundedMemory` test pins file count only, so the suite stays green. pathscan runs
+whole-tree on every child's hook.
+*Counsel:* cap findings or expansions per file, counted not dropped, and add a content-size
+memory test.
+
+**PX2 — MODERATE. The `./` skip hides a stale citation whenever the span holds only the
+path.** Fixture lines D03, D04, D14, D15 and D17: a span such as a `./`-led doctrine file
+or tool path that does not exist was flagged at the parent and is clean at HEAD. The
+unit test pins the no-argument form as skipped. Nothing in the skip tells a command from
+a citation; an argument after the token would. Live cost in this repo's gated scope today
+is zero (see lens 2); children are unmeasured.
+*Counsel:* require trailing arguments, or keep checking when the token starts with a known
+top directory after the `./`.
+
+**PX3 — minor. A comma-less group now discards the whole token, including a directory
+prefix that used to be checked.** B19 and B20: a templated file under a directory that
+does not exist was flagged at the parent (the truncated directory) and is clean at HEAD.
+The commit message says the change only drops findings in its two classes; this is
+outside them.
+
+**PX4 — minor. A path written directly against `{` or `}` is no longer seen.** B15, B16,
+B17: a tight template or set notation around a missing path was flagged at the parent and
+is clean at HEAD. The spaced form (B14) is still caught. Undocumented.
+
+**PX5 — minor. Non-path brace text yields targets nobody wrote, and the finding does not
+show the source text.** B21: a quantifier after `docs/x` reports `docs/x3.md`. B35: a
+format string reports `tools/name`. `Finding.target` is commented as the token as
+matched; it is now an expansion, so a reader searching the line for the target finds
+nothing.
+*Counsel:* name the written token in the detail.
+
+**PX6 — minor. Control and bidirectional characters now reach the terminal through a
+group.** The group body accepts any character except braces, whitespace and `/`; the old
+token class could not carry these. B37: `od` on the human output shows a raw escape byte
+inside the printed target, and a right-to-left override alongside it. `--json` is safe.
+The changelog shows the house already strips such characters in `floorfleet`.
+
+**PX7 — minor. Span detection is line-local parity, so the skip is inconsistent.** D16: a
+`./` token after a *closing* backtick, on a line that begins inside a wrapped span, is
+skipped. D09 and D10: the same command in a double-backtick span, or in a span that wraps
+to the next line, is still flagged. The stated rationale is same text, same answer.
+
+**PX8 — MODERATE. No reader-facing surface describes the two behaviours or their
+residuals.** `tools/README.md` § *pathscan* and its *What it cannot see* line, `--help`,
+the registry `why` and `CHANGELOG.md` say nothing of brace expansion or the `./` skip. The
+docstring's false-negative list does not name PX2, PX3, PX4, spaced groups, or nested and
+unbalanced groups. Separately, the docstring's STATUS paragraph still says the tool is not
+in the floor registry, which the registry contradicts; I did not establish when that went
+stale.
+
+**PX9 — note. The truncation class survives in three shapes.** A group with a space after
+the comma (B08), a nested group under a deeper prefix (B06) and an unbalanced brace (B10)
+still truncate at the brace, exactly as at the parent. At HEAD the tool still emits the
+truncated token on the commissioning item's own line 44, pre-suppression.
+
+**PX10 — note. Existence probing outside the root is pre-existing; expansion multiplies
+it.** A literal `docs/../../` token reports missing at the parent too. One token can now
+make 64 such probes (B27).
+
+**PX11 — note. Test gaps.** `--selftest` exercises neither behaviour. No test sits on the
+boundary: exactly 64 alternatives passes and yields 64 findings from one token (B26).
+
+### Re-run ledger
+
+| Command | Result |
+|---|---|
+| `merge-base --is-ancestor e5b44fe HEAD` | exit 0 |
+| `python3 tools/pathscan.py --selftest` (probe) | `selftest OK`, exit 0 |
+| `python3 -m unittest discover -s tools -p test_pathscan.py` | Ran 127 tests, OK |
+| Suite chunk 1 (8 files) | Ran 25, 26, 43, 20, 39, 68, 137, 118 — all OK |
+| Suite chunk 2 (10 files) | Ran 37, 134, 60, 73, 11, 3, 19, 33, 15, 30 — all OK |
+| Suite chunk 3 (10 files) | ❌ **not run** — interrupted, then dropped on instruction |
+| Fixture `--json` diff, parent / landing / HEAD | 25 / 96 / 96; 15 gone, 86 new, 10 same |
+| Gated-scope diff, tools and trees crossed | 1 → 1, suppressed 10 → 10, no difference |
+| Mutation: rename `instruments/install` away | both tools flag line 42 only |
+| Pathological line, parent / HEAD | 0.31 s, 20.7 MB / 141.9 s, 1.82 GB |
+| Floor, both planes at HEAD | ❌ **not re-run by me** |
+
+⚠️ The suite is 19 of 29 files, 1,018 tests, all OK. Every test file that imports pathscan
+is among them (`test_pathscan`, `test_floor`, `test_allowmarker`, `test_licenscan`,
+`test_mixed_root`). The unrun files are `test_reviewscan`, `test_secretscan`,
+`test_signfleet`, `test_signscan`, `test_sizescan`, `test_spellscan`, `test_stampscan`,
+`test_templates`, `test_worktree` and `test_wrapscan`. The orchestrator states the pushed
+floor at `57b9764` is green; that is its statement, not a proof I re-ran. The only floor
+line I drove is pathscan's own, by hand, over the gated scope.
+
+### Follow-up checklist
+
+- [ ] PX1: rule on a per-file ceiling and a content-size memory test.
+- [ ] PX2: rule on whether a bare `./` path in a span is a command or a citation.
+- [ ] PX3, PX4: accept as stated residuals, or restore the lost checks.
+- [ ] PX5, PX6: name the written token in the finding; sanitise the human rendering.
+- [ ] PX7: accept or align the span cases.
+- [ ] PX8: harvest into the README, `--help`, the false-negative list and the changelog.
+- [ ] Run the ten unrun test files and the floor on both planes before this pass closes.
