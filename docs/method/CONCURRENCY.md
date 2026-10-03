@@ -16,8 +16,11 @@ its own branch, off the same repo.
 git worktree add ~/worktrees/<repo>-<feature> -b <feature>
 ```
 
-- Worktrees live **outside iCloud** (`~/worktrees/…`) to avoid sync churn; the
-  external venv is shared across them, which is what you want.
+- Worktrees live **outside iCloud** (`~/worktrees/…`) to avoid sync churn.
+  Since the estate left iCloud (2026-07-14, `STORAGE.md`), the norm is an
+  in-repo `.venv`. A worktree does not carry the primary checkout's
+  gitignored `.venv`, so a worktree that needs one makes its own, or points at
+  the primary's explicitly.
 - Each parallel session = one worktree = one branch = one session-log entry that
   names its worktree and branch.
 - They reconcile on `main` via PR/merge. `main` is the integration point; the

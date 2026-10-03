@@ -259,6 +259,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued: the queue-run skill's sync step gains the](roadmap/160-doctrine-review-owed/520-rule-4-cold-pass-queued-queue-run-sync-gate.md)
 - ⏳ [Rule-4 cold pass queued: REPO-STANDARD's remote-creation authority,](roadmap/160-doctrine-review-owed/530-rule-4-cold-pass-queued-remote-creation-authority.md)
 - ⏳ [Rule-4 cold pass queued: "harvest" scoped to monolithic boards](roadmap/160-doctrine-review-owed/540-rule-4-cold-pass-queued-harvest-only-on-a-monolithic-board.md)
+- ⏳ [Rule-4 cold pass queued: the worktree venv sentence follows](roadmap/160-doctrine-review-owed/550-rule-4-cold-pass-queued-worktree-venv.md)
 
 ## build/ layer — open strands
 

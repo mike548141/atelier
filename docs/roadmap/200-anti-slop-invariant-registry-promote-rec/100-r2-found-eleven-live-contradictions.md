@@ -22,7 +22,7 @@
           `session-open-prompt.md:123` list "roadmap harvested"
           unqualified. Only `RECORD.md:233-236` reconciles them, by board
           mode.
-    - [ ] **C4 (contradiction).** `CONCURRENCY.md:20-21` says the external
+    - [x] **C4 (contradiction).** `CONCURRENCY.md:20-21` says the external
           venv is shared across worktrees. `STORAGE.md:56-59` says an
           in-repo `.venv` has been the norm since 2026-07-14.
     - [ ] **C5 (internal).** `CONCURRENCY.md:53` and `:60` say "two cues",
@@ -81,3 +81,8 @@
       for a monolithic board, matching RECORD's own split-board rule. The
       queue-run skill's step 6 now says "roadmap close" too. Pass
       queued at `160/540`.
+      ✅ **C4 fixed 2026-10-03.** `CONCURRENCY.md`'s worktree bullet no longer
+      says an external venv is shared. It follows `STORAGE.md` (in-repo
+      `.venv` since the 2026-07-14 iCloud exit, `c6d66c8`), and adds the
+      consequence: a worktree does not inherit the gitignored `.venv`. Pass
+      queued at `160/550`.
