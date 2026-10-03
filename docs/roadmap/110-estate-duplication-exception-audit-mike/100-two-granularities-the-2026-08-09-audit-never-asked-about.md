@@ -137,3 +137,17 @@
         unbounded on one huge file: pathscan reads files whole (RSS past
         1 GB) and linkscan keeps every finding (past 500 MB). Split out as
         `110/120`.
+  - [ ] 📐 **PART 2 DESIGN DRAFTED 2026-10-03: ADR
+        `docs/decisions/2026-10-03-0641-the-exception-register.md`** (draft,
+        so Mike rules). It proposes:
+        - **One per-repo register** that every guard reads.
+        - **Required fields:** why, who (the session transcript ID, and
+          whether he *ruled* it with his words quoted, *answered* a
+          session's options, or an *agent* chose it), when, and review-by
+          for deferments.
+        - **A narrowness ladder** whose finest rung exempts one exact
+          string by its hash, never storing the string.
+        - **Stale and over-wide entries reported** on every run.
+        - **A helper** that fills in session and time automatically.
+        The design cold pass is queued at `160/650`, before acceptance.
+        The build (part 3) waits on both.
