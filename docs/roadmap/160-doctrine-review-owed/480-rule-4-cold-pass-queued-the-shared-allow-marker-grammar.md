@@ -27,3 +27,26 @@
       sibling, the intent record and prior verdicts stay unopened by the
       reviewer until its phase-1 findings are committed. Provenance and
       exposure go in the verdict.
+      - [ ] 🎯 **The pass RAN 2026-10-03 and the cycle CLOSES on it (0 MAJOR);
+            AM1–AM13 await Mike's ruling round.** The rule-4 Fable cold pass
+            (taker: a fresh `claude-fable-5-1` subagent under a
+            `claude-fable-5-1` orchestrator — the shape disclosed in the claim
+            above; the sibling, the intent record and prior verdicts opened only
+            after the phase-1 findings were committed) returned
+            PASS-WITH-FINDINGS — 0 MAJOR · 5 MODERATE · 4 minor · 4 note →
+            [`2026-10-03-0357-shared-allow-marker-grammar-cold.md`](../../reviews/2026-10-03-0357-shared-allow-marker-grammar-cold.md)
+            (sibling folded in). The extraction itself is clean: patterns
+            byte-identical, loaders identical, a fixture drive across the
+            scanners identical parent against HEAD, full suite exit 0. AM2
+            (MODERATE; severity handed up): a malformed scoped marker backs off
+            and exempts the whole line in all seven scoped scanners, both
+            boundary guards included — LK1's unruled defect, now carried by one
+            shared function to every child. AM1: reviewscan's deferral check
+            matches a raw substring with no reason, a fifteenth marker site the
+            extraction missed. AM3: an inline-code or prose mention of the
+            syntax exempts the line in thirteen scanners. AM4: licenscan parses
+            a scope and ignores it. AM5: the scoped grammar is documented on no
+            user-facing surface. The staged-diff parser (RC1) was left for
+            part 3. The review worktree lacked the delta at spawn (AM11);
+            recovered and disclosed. Findings are the principal's to decide
+            (rule 3); nothing was applied.

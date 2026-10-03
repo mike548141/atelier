@@ -497,3 +497,205 @@ parent `cadcf4e` at `…/scratchpad/AM/parent`. Dates `date -u`.
 - [ ] AM8 — single-source the group name inside `marker_rx`
 - [ ] AM9, AM10 — tally and sanitise, when a hand is in the module
 - [ ] AM11 — brief template: verify the worktree carries the landing commit before spawning
+
+### Reconcile
+
+Phase 2, 2026-10-03, same reviewer (`claude-fable-5-1`). Written on receipt of
+the sibling's text from the orchestrator, after phase 1 was committed
+unrevised (`5e0cd68`). Phase-1 text above is untouched. Opened for this
+section, at the worktree's merged HEAD: the intent record's § *`115/080`
+part 2*, the board item `115/080` with its routing notes, the filed item
+`115/230`, `tools/floor.py:680` and `tools/datescan.py:160–178`. The suite was
+not re-run.
+
+**Against the intent record and `115/080`.** The author's claims and this
+pass's re-drive agree on the central one: no behaviour change. The author
+records string-identical patterns (blockscan's one redundant backslash aside),
+byte-identical output on the real tree and on 170 fixture comparisons; this
+pass independently found identical output over six variants × thirteen
+scanners plus blockscan in-tree. The author records the suite at 1,601 tests on
+the worker and 1,604 OK on merged `main`; that supplies the count my ledger
+could not, as the **author's** figure — my own run gives exit 0 only. The
+binding constraint "share the mechanism, never the behaviour" explains why
+AM2 was preserved rather than fixed, and I accept that as the right call for
+this part; AM2 stands as a finding about the grammar, not about the
+extraction.
+
+**Against `115/230` (the four divergences the author filed).**
+
+- *Item 1, scope with no reason widens* — is **AM2**. The author's precondition
+  (count such markers across the estate before closing it) is the same as my
+  counsel. This pass adds: the live effect is driven in seven scanners
+  including both boundary guards; the class also covers an empty reason after
+  the scope (S06) and a space in the scope (S07), which the item's wording
+  does not name; and this repo's live tree holds none. The fleet count is not
+  something this pass could make — it was barred from other repos.
+- *Item 2, unscoped scanners accept scoped spellings* — I saw it (conflictscan
+  and wrapscan S04) and left it as pinned behaviour in lens 2 without an ID.
+  It belongs with **AM4** as the fourth of the "one spelling, several
+  behaviours" cases; no new ID.
+- *Item 3, two separator rules, two unused regexes* — is **AM7**. One
+  correction to the item in the author's favour and one against: it is right
+  that datescan's and pathscan's `\s*` regexes are unused; it lists stampscan
+  beside blockscan as using `\s*`, but stampscan applies it to single lines,
+  so blockscan is the only place the separator changes an outcome.
+- *Item 4, docstring drift* — **my lens 3 missed this and was wrong on it.**
+  I wrote that each scanner's grammar comment describes its pattern
+  consistently with the module. `datescan.py:165–167` still says the sibling
+  scanners treat the marker as a bare substring and accept an empty reason;
+  that has been false since the 2026-08-05 tightening, and it now sits above a
+  dead constant. Recorded as **AM12** below, formed at reconcile on the
+  author's evidence.
+
+**Not in the author's filing, and standing after reconcile:** AM1 (the
+reviewscan substring — the record's "left on their own copies, deliberately"
+list names publishscan's loader, wrapscan's sibling-marker strip and
+`board.py`, not this site, so it reads as missed rather than chosen), AM3
+(mentions exempt), AM4 (scope parsed and discarded), AM5 (no user-facing
+grammar), AM6 (`fnmatch` against "gitignore-style"), AM8–AM10.
+
+**Against the prior findings.**
+
+- **LK1** (2026-08-09, MODERATE, reviewer argued MAJOR, unruled) is AM2's
+  ancestor. Seeded question 1 answered: **yes, inherited** — the backtrack is
+  in the shared builder for both scope modes. It is in the seven scoped
+  consumers, not fourteen: the unscoped builders have no scope group to back
+  off from. I held AM2 at MODERATE in phase 1 without knowing LK1's reviewer
+  had argued MAJOR. On reconcile I keep MODERATE on my own evidence (no live
+  marker in the shape here; the marker must be mistyped by the person placing
+  it) and flag for the ruling that the blast radius is now every child's
+  boundary guards through one function — the argument for MAJOR is stronger
+  after single-sourcing than it was when LK1 was written, and the fix is now
+  one edit.
+- **LC1** (ruled fixed: licenscan's raw substring test replaced by
+  `parse_allow`) — **AM1 is the same class, recurring** in reviewscan's check
+  2. The LC1 fix did not sweep for sibling substring tests.
+- **sizescan F2** (header-only, ruled fixed) — preserved. Seeded question 3:
+  the header-only rule lives in sizescan's caller (`parse_allow(header)`), not
+  in the grammar, and the delta did not touch it; its selftest passes at both
+  commits. My fixture did not raise a sizescan finding, so this is the code
+  path plus the selftest, not a drive — said plainly.
+- **GA3** (the suppressed set is reachable only by grep) — AM10's counsel
+  (tally markers naming no rule) is adjacent; no change to either.
+- **LK5 / LK6 / the ignore-before-terms note** — the loader's ordering is in
+  the callers and unchanged; `star`/`dstar` variants confirmed a blanket glob
+  empties every path-based scan (licenscan's repo-level finding excepted).
+  LK6 (a path self-exempting through marker text in a filename) was not
+  driven; no claim either way.
+- **FW1 / FW3 / FW8** — `filewalk.py` is untouched by this delta. FW3's point
+  ("no test imports the shared module") does **not** recur: `allowmarker` has
+  a 25-test file that pins every consumer.
+- **RC1** — seeded question 5: the landing diff contains no line of the
+  `+++ b/` staged parser (grep of `cadcf4e..5d087ec` over `tools/`); left for
+  part 3 as the verdict anticipated.
+- **BL1, SP1/BL3, HP8** — outside this delta's paths; nothing to add.
+
+**Seeded questions 2 and 4.** (2) No scanner's grammar won; each difference is
+a declared parameter — true of the regex. The differences that are *not*
+parameters are consumer-side (AM1, AM4), which is this pass's lens-1 answer.
+(4) `test_allowmarker.py` drives the module and each scanner's `parse_allow` /
+`load_ignore_globs` by import; it never runs a scanner's `main()`. The CLI path
+was proved twice — the author's 170 comparisons and this pass's fixture drive —
+and neither proof is in the standing suite. *Counsel (not a new finding):* a
+small standing fixture test through two or three scanners' CLIs would make the
+"output unchanged" claim re-runnable rather than recorded.
+
+**Findings formed at reconcile.**
+
+**AM12 — minor (formed at reconcile, on `115/230` item 4).** Scanner comments
+still describe the retired bare-substring acceptance: `datescan.py:165–167`
+says five siblings exempt on any mention and accept an empty reason. False at
+HEAD, and misleading to anyone reading the one scanner to learn the grammar.
+My phase-1 lens 3 stated the opposite and is corrected by this entry.
+*Counsel:* fold into AM7's edit — the comment goes with the dead constant.
+
+**AM13 — note (formed at reconcile, on the item's own "coupling, stated").**
+`tools/floor.py:680` says the scanners are "self-contained by deliberate design
+… a peer can copy one alone". With `filewalk` and now `allowmarker` imported,
+that is false twice, and the author recorded it without fixing it. A surface
+my lens 3 did not list. *Counsel:* correct the comment with AM5's README
+section, and state the real unit of reuse (the `tools/` directory).
+
+**Overall, restated: PASS-WITH-FINDINGS — 0 MAJOR · 5 MODERATE (AM1–AM5) ·
+4 minor (AM6–AM8, AM12) · 4 notes (AM9–AM11, AM13).** No phase-1 finding is
+withdrawn. AM2 and AM7 coincide with the author's own `115/230` items 1 and 3;
+AM12 and AM13 come from the author's record; AM1, AM3–AM6 and AM8–AM10 are new
+to this pass. The one severity question I hand up rather than settle is AM2
+against LK1's argued MAJOR.
+
+## Folded sibling — released after the phase-1 findings were committed
+
+The `.deferred.md` sibling the orchestrator held outside the worktree, folded in
+verbatim at close; the reviewer met it only in phase 2.
+
+# Deferred sibling — the shared allow-marker grammar and ignore loader (AM)
+
+Held by the orchestrator outside the worktree and outside the harness
+scratchpad. Released to the reviewer only after its phase-1 findings are
+committed. Folded into the verdict file at close.
+
+## 1. The queue pointer's own framing (author's words)
+
+> - ⏳ **Rule-4 cold pass queued: the shared allow-marker grammar and ignore
+> loader (`115/080` part 2).** The run authored this itself (its
+> dispatched workers' output counts as the run's authorship). It was
+> queued at landing, and the run neither takes it nor spawns a reviewer
+> for it. *Tier:* Fable, the principal-named review tier, checked at
+> selection. *Pass type:* code cold pass, per `method/REVIEW.md` rule 4.
+> *Delta, scoped to paths:* `tools/allowmarker.py` and
+> `tools/test_allowmarker.py` (both new), and the marker and ignore-file
+> code in `tools/{blockscan,conflictscan,datescan,leakscan,licenscan,`
+> `linkscan,pathscan,pointerscan,reviewscan,secretscan,sizescan,`
+> `spellscan,stampscan,wrapscan}.py`. It landed on `main` on 2026-10-03,
+> in merge `5d087ec`.
+> *Intent record:*
+> `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md`.
+
+## 2. Intent record and commissioning item (read in phase 2)
+
+- `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md`
+- the board item named in the pointer
+
+## 3. What the authoring run said to the orchestrator (channel, verbatim)
+
+> a sixth refs-only pointer of mine is on main, docs/roadmap/160-doctrine-review-owed/480-rule-4-cold-pass-queued-the-shared-allow-marker-grammar.md, a code pass. No other detail.
+
+Nothing else from that run was read by the orchestrator.
+
+## 4. Prior findings and seeded questions (the orchestrator's, labelled)
+
+Prior findings bearing on the marker and ignore code (unruled unless stated):
+
+- LK1 (2026-08-09, MODERATE, reviewer argued MAJOR, unruled): a scoped leakscan
+  allow-marker whose scope segment is malformed (no reason, or a space in a composed
+  scope) silently re-parses as the unscoped form, exempting every structural rule on
+  the line; the backtrack was commented as intended. If the shared grammar inherited
+  it, it is now fleet-wide across fourteen guards.
+- LC1 (2026-08-06, MODERATE, ruled fixed): licenscan accepted a bare or prose-mention
+  marker by raw substring test; fixed to `parse_allow` per line. SD4 (ruled fixed):
+  stampscan accepted a whitespace-only `narrow=`. Same class.
+- GA1 (2026-08-05, minor; in effect decided by funding 115/080): ten copies of the
+  reason-required loader. GA3 (note): the suppressed set is reachable only by grep.
+- sizescan F2 (2026-07-14, ruled fixed): a prose mention of `sizescan:allow` anywhere
+  exempted the whole file; fixed to header-only (first 15 lines). Whether the shared
+  grammar keeps the per-scanner header-only rule is a parameter question.
+- LK5 (note): an ignore glob disables term cover. LK6 (note): a path can self-exempt
+  via marker text in the filename; C5R10 contradicts it.
+- .leakscanignore memory (user-local, 2026-08-09): path globs filter before the term
+  list on both planes, so a repo-wide `*` makes any term unreachable.
+- FW1/FW3/FW8 (2026-09-25, unruled): the single-sourced file walk (`filewalk.py`,
+  115/080 part 1) raises on an unenterable directory pre-3.14, has no test file, and
+  seven of eleven readers skip an unreadable file silently. The routing note on
+  115/080 (2026-09-27) tells part 2's taker to read FW1 and FW3 first.
+- RC1 (2026-09-25, MAJOR, unruled): `conflictscan --staged` and `leakscan --staged`
+  parse only a literal `+++ b/` header; the verdict names 115/080 parts 2–3 as the
+  recurrence vehicle. HP8 (note): an inlined formula duplicates `similarity()`.
+- BL1 (MODERATE): four scanners truncate lines at 8 KiB and only the prose tally
+  says so. SP1/BL3: duplicate suppression across window seams is wrong both ways.
+
+Seeded questions (the orchestrator's): (1) Did the shared grammar inherit LK1's
+fail-open backtrack, and is it now in fourteen guards? (2) Which scanner's prior
+grammar won where they differed, and is each difference a declared parameter? (3)
+Is the sizescan header-only rule preserved? (4) Does `tools/test_allowmarker.py`
+drive the grammar through each scanner's `main()`, or only the module? (5) Did the
+delta touch the `+++ b/` staged parser (RC1) or leave it for part 3?
