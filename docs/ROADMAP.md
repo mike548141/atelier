@@ -150,6 +150,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔥 [The content guards walk the whole filesystem, untracked trees](roadmap/110-estate-duplication-exception-audit-mike/110-guards-walk-untracked-trees.md)
 - [~] 🔥 (claimed 2026-10-03-0547, wt: qr-bounded-path-link) [pathscan and linkscan are unbounded on one large file](roadmap/110-estate-duplication-exception-audit-mike/120-pathscan-and-linkscan-are-unbounded-on-one-big-file.md)
 - [ ] 🔎 [leakscan and secretscan scan at roughly 0.5–1 MB/s, so a 128 MB](roadmap/110-estate-duplication-exception-audit-mike/130-leakscan-and-secretscan-scan-under-1-mb-per-second.md)
+- [~] 🔥 (claimed 2026-10-03-0630, wt: qr-linear-reader) [leakscan, secretscan and conflictscan's line reader re-slices](roadmap/110-estate-duplication-exception-audit-mike/140-the-line-reader-re-slices-per-line.md)
 
 ## Guardrails for atelier and its children (Mike commissioned 2026-08-15)
 
