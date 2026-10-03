@@ -190,6 +190,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/README.md)*
 
 - [ ] ⏳🔎 [Two of the three pointers on this board have already been taken](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/010-two-of-the-three-pointers-on-this-board-have-a.md)
+- [ ] [The board miscounted the review queue — make its markers unambiguous…](roadmap/130-a-closed-cycle-can-keep-its-and-pointers/020-the-board-miscounted-the-review-queue-fix-it-among-claude-sessions.md)
 
 ## AP1 ruled and half-applied — the `@main` control is in force (Mike, 2026-08-09)
 
