@@ -192,10 +192,37 @@ function statFlags(p) {
     return Number.isFinite(n) ? n : null;
   } catch { return null; }
 }
-function isDataless(p) {
+// Batched form of statFlags: one stat(1) spawn per chunk of paths instead of
+// one per file (a spawn costs ~15 ms; a 960-mirror archive paid ~15 s). Returns
+// Map<path, flags>; a path stat could not read is simply absent, which
+// isDataless treats exactly like statFlags returning null. Each output line is
+// "<flags>\t<path>", so a failed path (stderr, no line) cannot shift the rest.
+function statFlagsBatch(paths) {
+  const out = new Map();
+  if (process.platform !== 'darwin') return out;
+  const CHUNK = 400;
+  for (let i = 0; i < paths.length; i += CHUNK) {
+    const chunk = paths.slice(i, i + CHUNK);
+    let text = '';
+    try {
+      text = execFileSync('stat', ['-f', '%f\t%N', ...chunk],
+        { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 });
+    } catch (e) { text = (e && typeof e.stdout === 'string') ? e.stdout : ''; }
+    for (const line of text.split('\n')) {
+      const tab = line.indexOf('\t');
+      if (tab < 0) continue;
+      const n = Number(line.slice(0, tab));
+      if (Number.isFinite(n)) out.set(line.slice(tab + 1), n);
+    }
+  }
+  return out;
+}
+// flagMap (optional) is a statFlagsBatch result: when given, a path is looked
+// up there instead of spawning stat for it alone.
+function isDataless(p, flagMap) {
   const sim = process.env.CCARCHIVE_SIMULATE_DATALESS;
   if (sim) return sim.split(',').some((s) => s !== '' && p.includes(s));
-  const flags = statFlags(p);
+  const flags = flagMap ? (flagMap.has(p) ? flagMap.get(p) : null) : statFlags(p);
   return flags === null ? false : isDatalessFlags(flags);
 }
 
@@ -206,6 +233,32 @@ function readLogText(file) {
   return file.endsWith('.gz') ? zlib.gunzipSync(raw).toString('utf8') : raw.toString('utf8');
 }
 
+// The first `want` bytes of a .gz's decompressed text (fewer if the log is
+// shorter), without gunzipping the whole mirror: read a prefix of the
+// compressed bytes and inflate with Z_SYNC_FLUSH, which yields what the prefix
+// holds instead of failing on a cut stream. If the prefix gave too little,
+// double it. Once the prefix IS the whole file, use the plain strict gunzip so
+// a genuinely truncated or corrupt mirror still throws, as it always did.
+function gunzipHead(file, want) {
+  const fd = fs.openSync(file, 'r');
+  try {
+    const size = fs.fstatSync(fd).size;
+    let take = Math.max(want, 65536);
+    for (;;) {
+      if (take >= size) {
+        const all = Buffer.alloc(size);
+        fs.readSync(fd, all, 0, size, 0);
+        return zlib.gunzipSync(all);
+      }
+      const buf = Buffer.alloc(take);
+      const n = fs.readSync(fd, buf, 0, take, 0);
+      const part = zlib.gunzipSync(buf.subarray(0, n), { finishFlush: zlib.constants.Z_SYNC_FLUSH });
+      if (part.length >= want) return part;
+      take *= 2;
+    }
+  } finally { fs.closeSync(fd); }
+}
+
 // Read the true cwd from the first log line that records one. Claude's folder
 // names dash-mangle every separator alike and can't be reversed, so we recover
 // the exact repo path (and hence basename) from inside the log. Mirrors ccrepo.
@@ -213,9 +266,7 @@ function cwdFromLog(file) {
   let chunk;
   try {
     if (file.endsWith('.gz')) {
-      // gzip has no cheap partial read; these logs are small enough that a
-      // full gunzip for the 64 KB cwd sniff is fine.
-      chunk = zlib.gunzipSync(fs.readFileSync(file)).toString('utf8', 0, 65536);
+      chunk = gunzipHead(file, 65536).toString('utf8', 0, 65536);
     } else {
       const fd = fs.openSync(file, 'r');
       const buf = Buffer.alloc(65536);
@@ -244,13 +295,13 @@ function isDir(p) {
 // Used for walked logs and explicitly-pathed ones alike, so the label fallback
 // and the mtime stat can't diverge between routes. repoDir is null for an
 // explicit path (it may live outside ~/.claude/projects/).
-function sessionRecord(full, repoDir) {
+function sessionRecord(full, repoDir, flagMap) {
   let mtime = 0;
   try { mtime = fs.statSync(full).mtimeMs; } catch {}
   // An evicted archive mirror is never read just to label a listing — that
   // would fault its bytes back from iCloud. The label falls back to the last
   // dash-segment of the folder name (lossy, but honest about what's local).
-  const evicted = full.endsWith('.gz') && isDataless(full);
+  const evicted = full.endsWith('.gz') && isDataless(full, flagMap);
   const cwd = evicted ? null : cwdFromLog(full);
   return {
     file: full,
@@ -291,6 +342,7 @@ function liveSessions() {
 // for the archived history.jsonl, not a repo folder — skipped.
 function archiveSessions() {
   const out = [];
+  const found = [];
   const root = archiveRoot();
   let repos;
   try { repos = fs.readdirSync(root); } catch { return out; }
@@ -300,9 +352,13 @@ function archiveSessions() {
     if (!isDir(dir)) continue;
     for (const file of fs.readdirSync(dir)) {
       if (!file.endsWith('.jsonl.gz')) continue;
-      out.push(sessionRecord(path.join(dir, file), repoDir));
+      found.push([path.join(dir, file), repoDir]);
     }
   }
+  // One batched stat for the whole archive, not one spawn per mirror.
+  const flagMap = process.env.CCARCHIVE_SIMULATE_DATALESS ? undefined
+    : statFlagsBatch(found.map(([f]) => f));
+  for (const [f, repoDir] of found) out.push(sessionRecord(f, repoDir, flagMap));
   return out;
 }
 
@@ -1279,7 +1335,7 @@ if (require.main === module) {
 module.exports = {
   friendlyModel, modelColor, humanDelta, fmtTokens, contextOf, wrap, visLen, padLeftTo,
   styleInline, fmtTime, dateOf, toolSummary, toolSearchText, extractText, encodePath,
-  readTurns, numberTurns, defaultArchiveDest, readLogText, isDatalessFlags, sessionRecord,
+  readTurns, numberTurns, defaultArchiveDest, readLogText, isDatalessFlags, sessionRecord, statFlagsBatch, gunzipHead,
   subagentDir, finishedAgents, escapeRegex, rawForms, scanText, excerptAround,
   isHumanQueuedCommand,
 };
