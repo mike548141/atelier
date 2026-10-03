@@ -170,7 +170,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [The guard layer is consuming the programme — the proportionality](roadmap/115-guardrail-architecture-mike-commissioned/170-the-guard-layer-is-consuming-the-programme.md)
 - ✅ [Machine-check the main boundary ADR 0008's control clause names](roadmap/115-guardrail-architecture-mike-commissioned/180-machine-check-the-main-branch-boundary.md)
 - ✅ [One child declares a narrowed floor and reds from now on](roadmap/115-guardrail-architecture-mike-commissioned/200-one-child-declares-a-narrowed-floor-and-now-reds.md)
-- [~] 🔎 (claimed 2026-10-03-0144, wt: none) [A session's default python3 is too old to load three of the](roadmap/115-guardrail-architecture-mike-commissioned/210-the-guard-suite-cannot-run-on-the-machine-it-guards.md)
+- [ ] 🔎 [A session's default python3 is too old to load three of the](roadmap/115-guardrail-architecture-mike-commissioned/210-the-guard-suite-cannot-run-on-the-machine-it-guards.md)
 - [ ] 🎯 [The streaming line readers are three or four different mechanisms,](roadmap/115-guardrail-architecture-mike-commissioned/220-the-line-readers-are-three-mechanisms-not-one-with-parameters.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
@@ -244,6 +244,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued — the linked-worktree skip across eleven](roadmap/160-doctrine-review-owed/410-rule-4-cold-pass-queued-the-linked-worktree-skip.md)
 - ⏳ [Rule-4 cold pass queued — the single-sourced file walk (115/080](roadmap/160-doctrine-review-owed/420-rule-4-cold-pass-queued-the-single-sourced-file-walk.md)
 - ⏳ [Rule-4 cold pass queued: stampscan --require-stamps and](roadmap/160-doctrine-review-owed/430-rule-4-cold-pass-queued-the-cover-switch-and-unmapped-headings.md)
+- ⏳ [Rule-4 cold pass queued: cctranscript's archive-pool speedup](roadmap/160-doctrine-review-owed/440-rule-4-cold-pass-queued-the-archive-pool-speedup.md)
 
 ## build/ layer — open strands
 
@@ -284,7 +285,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [ccarchive: encryption at rest — BUILD not started; one decision open…](roadmap/210-instruments-open-features/020-ccarchive-encryption-at-rest-build-not-started.md)
 - [ ] 🎯 [The one decision, and it gates the build: where does the crypto come](roadmap/210-instruments-open-features/030-the-one-decision-and-it-gates-the-build-where.md)
 - [ ] 🤔 [Per-transcript topic capture — idea to consider (Mike, 2026-08-02;](roadmap/210-instruments-open-features/040-per-transcript-topic-capture-idea-to-consider.md)
-- [~] 🔎 (claimed 2026-10-03-0144, wt: qr-cctranscript-pool) [Archive-mode pool construction dominates every --from-archive run,](roadmap/210-instruments-open-features/050-archive-mode-pool-construction-dominates-every.md)
+- ✅ 🔎 [Archive-mode pool construction dominates every --from-archive run,](roadmap/210-instruments-open-features/050-archive-mode-pool-construction-dominates-every.md)
 - [ ] [Context as a share of the window](roadmap/210-instruments-open-features/060-context-as-a-share-of-the-window.md)
 - [ ] [finished counts logs, not successes — and a dead agent still leaves a](roadmap/210-instruments-open-features/070-finished-counts-logs-not-successes-and-a-dead.md)
 - [ ] [think is a flag that no longer does anything.](roadmap/210-instruments-open-features/080-think-is-a-flag-that-no-longer-does-anything.md)
@@ -297,6 +298,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [Why is the source smaller than the archived copy? — the shrink](roadmap/210-instruments-open-features/150-why-the-source-is-smaller-than-the-archived-copy.md)
 - [ ] 🎯 [ccarchive's summary counts files, and Mike's own read of the tool](roadmap/210-instruments-open-features/160-ccarchive-reports-file-counts-not-session-counts.md)
 - [ ] 🔎 [ccarchive's manifest lags its own mirror in 14 files, so the](roadmap/210-instruments-open-features/170-the-manifest-lags-the-mirror.md)
+- [ ] 🔎 [--list --from-archive still fully gunzips every local mirror for](roadmap/210-instruments-open-features/180-first-prompt-column-gunzips-every-mirror.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 

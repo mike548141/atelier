@@ -96,3 +96,22 @@ decides whether superseded revisions are kept.
 Found on the way and filed as `210/170`: **the manifest lags the mirror in 14
 files**. That makes the guard's comparand too low, so a truncation could pass
 silently. The cause is not diagnosed.
+
+## `210/050`: the archive pool, roughly halved
+
+Both causes the item named are fixed. The dataless check is one batched
+`stat` per 400 paths, and the cwd sniff inflates only a gzip prefix. The
+listing went from about 15 s to about 7 s, with byte-identical output in
+three paired runs and flag-for-flag agreement across all 960 mirrors. The
+remaining cost is a third path, filed as `210/180`. ⚠️ The worker's first
+profiling script hydrated evicted iCloud mirrors by reading them. That is
+harmless and temporary, but it is the hazard the tool exists to avoid, so
+it is disclosed. The cold pass is queued at `160/440`.
+
+## `115/210`: claimed, then put back
+
+This is the same mistake as class C, caught one step earlier this time,
+before any work. The item lists three candidates, *"not chosen here"*, with
+a stated trade-off. The run had claimed it on a triage summary that called
+it a documentation fix. The claim was released untouched. From here on, the
+run reads each item's own ruling state before claiming it.
