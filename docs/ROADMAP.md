@@ -449,6 +449,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [A review file's follow-up list and the board item that points at it](roadmap/320-child-filed-findings-via-pointing-up/440-a-review-file-and-its-board-item-drift-apart.md)
 - [ ] 🔎 [A wrapped claim does not project into the index, a ] in a title](roadmap/320-child-filed-findings-via-pointing-up/450-a-wrapped-claim-does-not-project-and-two-more-from-a-child-s-cold-passes.md)
 - [ ] ⏳🔎 [MISSING HOUSE RULE — what a review pointer becomes when its](roadmap/320-child-filed-findings-via-pointing-up/460-missing-rule-what-a-review-pointer-becomes-when-its-verdict-lands.md)
+- [ ] 🔎 [Hand-up from faves: leakscan's nz-phone matches digit runs](roadmap/320-child-filed-findings-via-pointing-up/470-leakscan-nz-phone-matches-digit-runs-inside-hex-digests.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
