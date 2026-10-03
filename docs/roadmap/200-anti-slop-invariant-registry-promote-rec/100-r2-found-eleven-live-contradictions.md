@@ -36,7 +36,7 @@
           install), `method/README.md:14-16` (no trust surface, no
           unapproved tool), and a reworded list in
           `skills/session-onramp/SKILL.md:42-51`.
-    - [ ] **C8 (drift).** The template reviews README hard-codes "on Opus"
+    - [x] **C8 (drift).** The template reviews README hard-codes "on Opus"
           and "Fable" (`:15`, `:26-28`, `:84-85`). The template ECONOMICS
           says to apply fixes on the workhorse, and `ECONOMICS.md:326-338`
           makes the mid tier the executor. The README's own header says it
@@ -101,3 +101,7 @@
       principal decides, and the review comes from a cold spawn. That is
       rules 3 and 4. PASS/FAIL stays as the house's de facto verdict wording,
       since every verdict on the board uses it. Pass queued at `160/580`.
+      ✅ **C8 fixed 2026-10-03.** The template reviews README no longer names
+      models ("Fable", "Opus"). It says "the principal-named review tier" and
+      "the workhorse seat", as its own header promises, and notes rule 3 for
+      findings on doctrine. Pass queued at `160/590`.

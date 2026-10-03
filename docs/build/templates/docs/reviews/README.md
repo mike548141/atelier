@@ -12,9 +12,10 @@
 # Reviews
 
 Significant or risky work gets a peer review before it's trusted, and the review
-is written down here. The house practice: a **more capable model (Fable) reviews
-the approach, assumptions, security & privacy, and real-world behaviour — not
-just whether the code is correct** — before the work is relied on. Reviewer
+is written down here. The house practice: a **more capable model (the
+principal-named review tier) reviews the approach, assumptions, security &
+privacy, and real-world behaviour — not just whether the code is correct** —
+before the work is relied on. Reviewer
 scope is the whole commitment — intent, decisions, design, docs, code, tests,
 behaviour (exercised live where possible); the brief's non-goals are the only
 legitimate narrowing (and the narrowing is itself reviewable), and security &
@@ -23,8 +24,9 @@ catalogues such as OWASP, not recalled; where the harness ships a security
 scanner — e.g. Claude Code's `/security-review` — aim it at the work where it
 can reach it, the floor under the lens, never a discharge of it, and never at
 a brief carrying deferred material; a work the scanner can't reach, or with
-no such surface, says so explicitly, with grounds). The builder (usually
-Opus) then applies the findings. Canonical doctrine, and anything this file
+no such surface, says so explicitly, with grounds). The builder then applies
+the findings on ordinary code; findings on self-authored doctrine are the
+principal's to decide (`REVIEW.md` rule 3). Canonical doctrine, and anything this file
 doesn't answer: `<atelier-path>/docs/method/REVIEW.md`.
 
 ## When to write one
@@ -80,6 +82,6 @@ durably written, then fold it into the brief below the verdict and delete it.
 on `deferred`/`seeded` heading vocabulary — name the section with those
 words; a renamed section escapes the net).
 
-Keep Fable sessions short and pre-scoped
+Keep review-tier sessions short and pre-scoped
 (`<atelier-path>/docs/method/ECONOMICS.md`): hand it the scoped subject,
-ask for findings, apply fixes back on Opus.
+ask for findings, apply fixes back on the workhorse seat.
