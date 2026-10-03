@@ -902,7 +902,7 @@ class InvocationTest(unittest.TestCase):
 
     def test_tuning_a_boundary_check_states_why(self):
         """EP1(b), ruled 2026-08-04 — `scope`'s twin, and the half C1 did not
-        carry. `FORBIDDEN_FLAGS` is a blocklist of four mode arguments, so a
+        carry. `FORBIDDEN_FLAGS` is a blocklist of five mode arguments, so a
         rule switched off by name still shrinks a boundary check's cover and
         touches nothing on the list. That is a cover decision, so it goes on
         the record the way a disabled check does — and the block names the

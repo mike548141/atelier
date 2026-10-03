@@ -131,7 +131,7 @@ a reason, in the same object spelling `advisory` uses:
                           content in a networking repo"}}
 
 Reason required because the effect is the same as a partial disable and the
-route is quieter: `flags` refuses the four mode-changing arguments by blocklist
+route is quieter: `flags` refuses the five mode-changing arguments by blocklist
 (`FORBIDDEN_FLAGS`), and a blocklist underblocks — a rule switched off by name,
 or a positional matching no staged path, shrinks cover without touching it
 (ADR 0008 cold pass, EP1; `scope` ruled 2026-07-28, `flags` 2026-08-04). On a
@@ -667,7 +667,13 @@ SCANNERS: tuple[Scanner, ...] = (
 # MEANS rather than where it looks — and would do it invisibly, which is the one
 # thing this design refuses. Softening has exactly one declared spelling
 # (`advisory`), and it is validated against the scanner's own advisory form.
-FORBIDDEN_FLAGS = {"--warn", "--check", "--selftest", "--json"}
+#
+# `--binary-entries` (leakscan, G3) is a listing mode that prints manifest
+# lines and exits 0 without scanning anything. Passed through `flags` it would
+# turn the CI plane's personal-data boundary into a guaranteed pass. On the
+# hook plane leakscan refuses it beside `--staged`, but the CI plane carries
+# no such pairing.
+FORBIDDEN_FLAGS = {"--warn", "--check", "--selftest", "--json", "--binary-entries"}
 
 BY_NAME = {s.name: s for s in SCANNERS}
 
@@ -2135,7 +2141,11 @@ def _selftest() -> int:
     # bypasses every guard on `advisory`, on a scanner that has no advisory form.
     rejects("softening flag smuggled in", {"flags": {"secretscan": ["--warn"]}})
     rejects("mode flag smuggled in", {"flags": {"sizescan": ["--json"]}})
-    # EP1(b). The blocklist above stops four known arguments; this is what
+    # G3: leakscan's listing mode exits 0 without scanning — a reasoned
+    # override must not be able to turn the boundary into a listing.
+    rejects("listing mode smuggled in",
+            {"flags": {"leakscan": {"args": ["--binary-entries"], "why": "w"}}})
+    # EP1(b). The blocklist above stops five known arguments; this is what
     # stops the rest going unremarked on a check nobody may soften.
     rejects("reasonless flags on an unsoftenable check",
             {"flags": {"leakscan": {"args": ["--disable", "ipv4"]}}})
