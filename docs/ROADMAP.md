@@ -463,7 +463,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up from faves: leakscan's nz-phone matches digit runs](roadmap/320-child-filed-findings-via-pointing-up/470-leakscan-nz-phone-matches-digit-runs-inside-hex-digests.md)
 - [ ] 🔎 [MISSING HOUSE RULE — the doctrine's own sync command](roadmap/320-child-filed-findings-via-pointing-up/480-a-rebase-pull-after-a-local-merge-flattens-it-and-orphans-cited-hashes.md)
 - [ ] 🔎 [Hand-up: tool-call markup leaks into files an agent writes, and](roadmap/320-child-filed-findings-via-pointing-up/490-tool-call-markup-leaks-into-written-files-and-no-scanner-sees-it.md)
-- [ ] 🎯 [PROPOSAL, hand-up from a private child — sessions cannot find tools](roadmap/320-child-filed-findings-via-pointing-up/500-sessions-cannot-find-installed-tools-toolbox-has-no-locator.md)
+- [~] (claimed 2026-10-03-0404, wt: qr-toolbox) [PROPOSAL, hand-up from a private child — sessions cannot find tools](roadmap/320-child-filed-findings-via-pointing-up/500-sessions-cannot-find-installed-tools-toolbox-has-no-locator.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 

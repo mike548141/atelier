@@ -1,4 +1,4 @@
-- [ ] 🎯 **PROPOSAL, hand-up from a private child — sessions cannot find tools
+- [~] (claimed 2026-10-03-0404, wt: qr-toolbox) **PROPOSAL, hand-up from a private child — sessions cannot find tools
       that are installed but off `PATH`; `TOOLBOX.md` owns the practice, the
       instance it prescribes does not exist, and nothing says how to LOCATE a
       tool** `[M][doctrine][instruments]` — filed 2026-09-28 by a private
@@ -115,3 +115,37 @@
 
       The state line above still carries the 🎯 because the filer touches only
       the body; the landing session drops it and names the build owed.
+
+      ---
+      ⚖️ **Landed and RULED again, by Mike in atelier, 2026-10-03.** He
+      ruled to merge, and widened the ask. Verbatim:
+
+      > I told it (and now you) I want you to include a list of tools to
+      > expect to be installed locally and how (a method) to find them, that
+      > does not necessarily mean paths need to be published publicly. If
+      > the tool is on the list and its not installed (or needs an update)
+      > then claude should expect that its approved to use that tool,
+      > upgrade it to keep it working etc.
+      > The types of tools that would include (and this list may not be all
+      > of them)
+      > gh github CLI
+      > aws CLI
+      > Azure CLI
+      > Google Cloud CLI
+      > Python
+      > node
+      > Playwright
+      > Any others you can think of, find locally installed, see in
+      > transcripts etc that I should be including?
+      > So merge on that basis
+
+      **What this adds to the 2026-09-28 ruling (B, then C):**
+      1. A **list of expected tools**, each with a **method to find it**.
+         Paths are not required to be published.
+      2. **A standing approval.** A listed tool that is missing *or out of
+         date* may be installed or upgraded without asking, to keep it
+         working. `AUTONOMY.md` already lets an approved-but-missing tool be
+         installed. The upgrade half is new.
+      3. **A survey for more candidates:** what is installed locally, and
+         what the transcripts show sessions using.
+      The build is claimed here.
