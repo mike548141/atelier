@@ -221,18 +221,57 @@ asked again; the prior ruling is not assumed.
 
 - BG3 (above), 020/350 (bidi characters in a board `why`), 020/040 (a third
   scanner verdict state), 020/120 (flip signscan to blocking; pairs with key
-  rotation), 320/060, 320/310 (waits on 320/010), 115/220 (waits on 115/170),
-  draft PR #96 (pathscan class C, held for ruling).
+  rotation), 320/060, 320/310 (waits on 320/010), 115/220 (waits on 115/170).
+  (Pull request 96, pathscan class C, was ruled and merged on 2026-10-03; its
+  cold pass is PX.)
 - Instruments: 210/030 (ccarchive encryption: counsel is `age` with in-process
   decrypt), CC2–CC4, CS1–CS3, FF1, and the MC and CP passes on 160/460 and
   160/440 when they land.
 
 ## Arrivals — the six passes run on 2026-10-03
 
-Verdicts land under `docs/reviews/2026-10-03-*-cold.md`; their findings join
-the sittings named here as they are read: CU (160/430) → sittings 1 and 6; CP
-(160/440) → 8; DK (160/450) → 4; MC (160/460) → 8; PL (160/470) → 1; AM
-(160/480) → 1 and 4.
+Verdicts are under `docs/reviews/2026-10-03-*-cold.md`. Four new MAJORs; three
+cycles stay open.
+
+| Pass | Item | Overall | Cycle | Joins sitting |
+| --- | --- | --- | --- | --- |
+| CU | 160/430 stampscan cover switch, blockscan unmapped headings | 0 MAJOR · 1 MODERATE · 6 minor · 3 note | closed | 6 (with FV1–FV3, ST3) |
+| CP | 160/440 cctranscript archive-pool speedup | 0 MAJOR · 1 MODERATE · 3 minor · 6 note | closed | 8 (CP9 = CS2, CP4 ⊃ CS11: rule once) |
+| DK | 160/450 the mandate-versus-default date rule | 1 MAJOR · 3 MODERATE · 7 minor | OPEN | 4 |
+| MC | 160/460 ccarchive manifest checkpoints | 2 MAJOR · 2 MODERATE · 4 minor · 2 note | OPEN | 1 |
+| PL | 160/470 publishscan round 2 | 1 MAJOR · 5 MODERATE · 4 minor · 6 note | OPEN | 1 |
+| AM | 160/480 shared allow-marker grammar | 0 MAJOR · 5 MODERATE · 4 minor · 4 note | closed | 1 (AM2 = LK1) |
+| PX | 160/490 pathscan brace expansion | running at this file's last edit | — | 8 |
+
+The four MAJORs, one line each:
+
+- **MC1** — ccarchive's new heal refreshes the manifest from the source, not the
+  mirror: a truncate-then-append with a preserved mtime slips the 2026-07-17
+  shrink guard and overwrites the good archive copy with `--verify` green. The
+  ruled F1 re-opened by a side door. Sitting 1, first: this is the only durable
+  copy of the transcripts.
+- **MC2** — pre-existing, surfaced by a real hard kill: mirrors are written in
+  place, so a torn archive gets a newer mtime, is never re-archived, and makes
+  `--verify` crash.
+- **PL1** — pre-existing: git's default path quoting hides any listed file
+  under a folder with a non-ASCII name from publishscan on both planes. The
+  third sighting of one seam (BA2, SG1 on `board`); one shared NUL-delimited
+  listing helper closes all three.
+- **DK1** — the date-kind rule asks for a kind a child can read beside the
+  date, but the floor config parser refuses any key beside `why` and
+  `review-by`; by GUARDS.md's own homing test it is not yet a rule.
+
+Severity handed up: **AM2** — LK1's fail-open on a malformed scoped marker is
+now one shared function in seven scanners, both boundary guards among them; the
+reviewer held MODERATE and says the case for MAJOR is stronger than when LK1
+was filed.
+
+A process finding four of the six passes recorded independently (CP1, DK8,
+MC8, PL5, AM11): the review worktree was cut one commit before four of the
+deltas landed, so reviewers met pre-delta code until the orchestrator merged
+`main` in. Each recovered and disclosed. The seventh brief tells its reviewer to
+confirm the delta is present first; the rule-shaped version of that is a
+candidate line for REVIEW.md's lifecycle (sitting 3 or 7).
 
 ## Things with a clock on them
 
@@ -242,5 +281,6 @@ the sittings named here as they are read: CU (160/430) → sittings 1 and 6; CP
   re-authorises, no session can open a mail attachment.
 - 🚩 **Three private children go red on publishscan at their next CI run**
   (260/040). That is the floor working; it will look like breakage.
-- 🚩 **PR #92 is held** on a privacy question; **PRs #96 and #97 are drafts held
-  for a ruling.**
+- 🚩 **PR #92 is held** on a privacy question; **PR #97** (leakscan blocks
+  unlisted binaries) **is a draft held for a ruling** — landing it reds seven
+  children's CI.
