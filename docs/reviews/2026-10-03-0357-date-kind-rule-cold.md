@@ -374,3 +374,132 @@ surface read. UTC, 2026-10-03.
 - [ ] DK8, DK9 → brief-template line, orchestrator pre-spawn merge, `coldsweep` no-match warning
 - [ ] Phase 2 reconcile on receipt of the sibling: check "near-verbatim" against the commission
       item's quoted words
+
+### Reconcile
+
+Same reviewer (`claude-fable-5-1`), 2026-10-03, after phase 1 was committed unrevised. The
+orchestrator disclosed that a blocked commit left another pass's staged files in the index, so
+the phase-1 text landed inside `4ff5f81` ("close the CP pass") rather than under its own
+subject; the content is mine byte-for-byte (worktree clean against HEAD when checked). Opened
+for this section: the sibling's text; the intent record
+`docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` (§ `040/010` and the
+close); board items `040/010`, `040/README.md`, `160/450`, and the outcome lines of `020/170`
+and `115/120`. Phase-1 text above is unrevised.
+
+**Against the seeded questions.**
+
+1. *Quoted verbatim? Paraphrase adds or drops a condition?* The GUARDS.md quotation matches the
+   board capture in `040/010` word for word. The board item itself says it holds Mike's words
+   "near-verbatim", and the original utterance is not in the tree, so verbatim-to-the-board is
+   what can be shown. The paraphrase drops nothing; it adds two things (DK4 stands). Both
+   additions trace to the run's gloss rather than the quote: "stand as of right" is the board
+   item's own phrase for the two later dates, carried into doctrine as a general rule; "through
+   its parent" appears nowhere in the item or the intent record and is the run's routing.
+2. *Does any tool read a date's kind?* No, on either plane — DK1 and DK2 stand as written. The
+   intent record confirms the run changed no tool and names GUARDS.md as "the home the item
+   named"; the item's "likely doctrine home" was a guess at a prose home, and nothing in the
+   record weighs where a child reads the kind.
+3. *Does the rule say what an unnamed date is, and does that default fail safe?* It says a
+   pre-rule date "has no kind on record" and to ask when it matters. It does not say what binds
+   in the meantime, so the default is undefined rather than safe. PROPAGATION.md § The
+   layer-override rule already supplies the safe reading — on a live collision the stricter
+   reading wins until resolved upward, which here means treat an unnamed date as a mandate until
+   the principal says otherwise. DK11 below.
+4. *Placement?* Under § Acceptance and deferment is right and the item's own reasoning agrees:
+   a `review-by` is the deferment expiry that section defines. The fourth requirement governs
+   what a guard declares about itself, a different subject. The orchestrator's PT1/PW1 context
+   is the apt comparison for DK1, though: PW1 found the fourth requirement's registry home
+   reaches registry guards only; the kind's homelessness is the same class one level down — the
+   per-repo floor config, where a child's date actually lives, has no slot for it.
+
+**Per finding, against the intent record and the item.**
+
+- DK1, DK2 — unchanged; neither record considers a machine-readable home or a check.
+- DK3 — unchanged. The item's grounding ("the two self-migrated repos' later review-by dates")
+  is the principal-set case; the self-set and event-expiring cases are not discussed anywhere.
+- DK4 — attribution sharpened as in question 1; severity unchanged.
+- DK5, DK6, DK7 — unchanged; the intent record's close lists no CHANGELOG entry for the run.
+- DK8 — unchanged. The intent record confirms the run queued `160/450` and did not spawn the
+  pass; the fork of the review branch before the delta is the review run's, not the author's.
+- DK9 — checked against the live tree as asked: `docs/roadmap/` holds exactly one `040-`
+  section, `040-principal-set-dates-mandate-vs-default-m/` (files `010-capture-doctrine-when-
+  the-principal-sets-a-dat.md`, `README.md`), and `git log --all` over the path the brief named
+  (`040-review-validation-policy-mike-2026-07-05`) is empty — that directory has never existed.
+  The brief's bar was a typo'd path, not a renamed section; the deferred-reading list's glob
+  (`040-*/010-*.md`) was correct and is what I followed.
+
+**Formed at reconcile (marked as such).**
+
+**DK10 — minor, formed at reconcile. The run's own clause is not marked as the run's in the
+doctrine.** The commit message and the board item both say the retro clause ("A date ruled
+before this rule was written has no kind on record…") is the run's addition "and is marked as
+such". It is marked in the item and the intent record, not in GUARDS.md, where it follows
+"Mike's rule (2026-08-09)" with no change of voice. A reader of the doctrine surface — the only
+one a cold session loads — attributes it to the principal. *Counsel:* one attribution clause,
+as the doc already does for its own tests elsewhere ("the run's addition, 2026-10-03").
+
+**DK11 — minor, formed at reconcile. An unnamed date has no stated meaning until asked.**
+Question 3 above. *Counsel:* one sentence pointing at PROPAGATION's stricter-reading rule, so
+the meantime reads as mandate; this also answers the orchestrator's C5R9 context in part — the
+answer, when recorded "beside the date", should carry the date it was ruled.
+
+**Overall, restated: PASS-WITH-FINDINGS** — 1 MAJOR (DK1) · 3 MODERATE (DK2, DK3, DK8) ·
+7 minor (DK4, DK5, DK6, DK7, DK9, DK10, DK11) · 0 notes. No phase-1 severity moved.
+
+## Folded sibling — released after the phase-1 findings were committed
+
+The `.deferred.md` sibling the orchestrator held outside the worktree, folded in
+verbatim at close; the reviewer met it only in phase 2.
+
+# Deferred sibling — the mandate-versus-default date rule in GUARDS.md (DK)
+
+Held by the orchestrator outside the worktree and outside the harness
+scratchpad. Released to the reviewer only after its phase-1 findings are
+committed. Folded into the verdict file at close.
+
+## 1. The queue pointer's own framing (author's words)
+
+> - ⏳ **Rule-4 cold pass queued: the mandate-versus-default date rule
+> (`040/010`).** The run authored the wording itself. The rule is Mike's
+> and is quoted, and the placement and surrounding prose are the run's.
+> It was queued at landing, and the run neither takes it nor spawns a
+> reviewer for it. *Tier:* Fable, the principal-named review tier,
+> checked at selection. *Pass type:* doctrine cold pass, per
+> `method/REVIEW.md` rule 4. *Delta, scoped to paths:*
+> `docs/method/GUARDS.md` (the new subsection under § *Acceptance and
+> deferment are different things*). It landed on `main` on 2026-10-03.
+> *Intent record:*
+> `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md`.
+
+## 2. Intent record and commissioning item (read in phase 2)
+
+- `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md`
+- the board item named in the pointer
+
+## 3. What the authoring run said to the orchestrator (channel, verbatim)
+
+> a third refs-only pointer of mine is on main, docs/roadmap/160-doctrine-review-owed/450-rule-4-cold-pass-queued-the-date-kind-rule.md. It covers a doctrine pass on a GUARDS.md addition. No detail beyond the file.
+
+Nothing else from that run was read by the orchestrator.
+
+## 4. Prior findings and seeded questions (the orchestrator's, labelled)
+
+Context the orchestrator holds (from inventories, not from the intent record):
+
+- The mandate-versus-default question has been open on the estate since the
+  2026-08-09 floor sweep ("the mandate-vs-default date ruling" is named as an open
+  ruling in the user-local estate-floor memory of that date).
+- GUARDS.md's fourth requirement ("declared") was ruled 2026-08-23 (PT1) to be
+  homed in the floor registry beside `why`; PW1 (2026-09-25, unruled MODERATE) found
+  that home reaches registry guards only, not off-registry guards or child-local
+  checks. A date-kind declaration may have the same homelessness.
+- FG2 (2026-08-03, ruled) adopted "provenance, not direction" as the invariant: a
+  declared, reasoned, expiring, principal-visible act may lower a response. The
+  expiring part is what a date kind governs.
+- C5R9 (2026-08-09, unruled minor): GUARDS lacks a grant-date requirement.
+
+Seeded questions (the orchestrator's): (1) Is the principal's rule quoted verbatim,
+and does the paraphrase around it add or drop a condition? (2) Does any tool read a
+date's kind, or is the rule prose-only on every plane? (3) Does the rule say what an
+unnamed date is, and does that default fail safe? (4) Does the subsection's placement
+under *Acceptance and deferment* fit, or does it belong with the fourth requirement?

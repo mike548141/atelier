@@ -24,3 +24,26 @@
       sibling, the intent record and prior verdicts stay unopened by the
       reviewer until its phase-1 findings are committed. Provenance and
       exposure go in the verdict.
+      - [ ] 🛑 **The pass RAN 2026-10-03 and the cycle stays OPEN — a MAJOR
+            stands.** The rule-4 Fable cold pass (taker: a fresh
+            `claude-fable-5-1` subagent under a `claude-fable-5-1` orchestrator
+            — the shape disclosed in the claim above; the sibling, the intent
+            record and prior verdicts opened only after the phase-1 findings
+            were committed) returned PASS-WITH-FINDINGS — 1 MAJOR · 3 MODERATE ·
+            7 minor · 0 note →
+            [`2026-10-03-0357-date-kind-rule-cold.md`](../../reviews/2026-10-03-0357-date-kind-rule-cold.md)
+            (sibling folded in). DK1 (MAJOR): the rule asks for a kind a child
+            can read beside the date, but `floor.py`'s parser refuses any key
+            beside `why` and `review-by` (probed), so the kind can only travel
+            as free text nothing reads — by GUARDS.md's own homing test it is
+            not yet a rule. DK2 (MODERATE): a child that mis-classes a mandate
+            and sets a later date trips nothing on either plane. DK3
+            (MODERATE): self-set dates and event-expiring deferments fall
+            outside both kinds. The principal's words are quoted verbatim
+            against the board capture; two glosses are the run's own (DK4,
+            DK10). The review worktree lacked the delta at spawn (DK8) and the
+            brief's sweep bar named a directory that never existed (DK9); both
+            recovered and disclosed. The phase-1 verdict landed inside commit
+            `4ff5f81` (titled for the CP pass) because a blocked commit had left
+            that pass's files staged; the text is unrevised. Findings are the
+            principal's to decide (rule 3); nothing was applied.
