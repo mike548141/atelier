@@ -161,3 +161,339 @@ your reconcile.
 Findings are the principal's to decide (rule 3): record all, apply nothing;
 your counsel per finding is welcome, labelled as counsel and kept beneath the
 finding.
+
+---
+
+## Verdict — phase 1 (cold reviewer, 2026-10-03 04:39 UTC)
+
+### Provenance
+
+- **Reviewer:** `claude-fable-5-1`, Fable tier, spawned by the brief-writer
+  (the orchestrating session) with this brief as its only framing. Not the
+  author's session; not instructed by the author. Phase 1 only; the sibling
+  `.deferred.md` was not opened and is not in the tree.
+- **Where the delta was read.** The review worktree (`review-430-1003`, HEAD
+  `4ff8de5` at pass start) did **not** contain the landing merge `5d087ec` —
+  `git merge-base --is-ancestor` said so, and `tools/allowmarker.py` was absent
+  from it. Every read and run below was made in a scratch clone checked out at
+  `main` = `ca61feb` (which carries `5d087ec` and is "17c75a9 or later" as the
+  brief asks). The parent for the parity drive is `cadcf4e`, the merge's first
+  parent; `tools/` differs between `cadcf4e` and `ca61feb` only by the sixteen
+  files of the landing commit, so the drive is pure. Mid-pass the orchestrator
+  merged `main` into the worktree (now `4ff5f81`); `tools/` there differs from
+  `ca61feb` only in `pathscan.py`/`test_pathscan.py` hunks outside the marker
+  and ignore code (checked by diff). This is recorded as AM11, not as a defect
+  in the delta.
+- **What I read.** This brief; `tools/allowmarker.py` and
+  `tools/test_allowmarker.py` in full; the marker and ignore code of all
+  fourteen scanners at `ca61feb` and their removed code via the landing diff;
+  `tools/floor.py`'s registry and plumbing, `.githooks/pre-commit`,
+  `.github/workflows/ci.yml`; `tools/README.md` (headings, every allow/ignore
+  line, § *Exempting a false positive*, § *Tests*); `docs/method/GUARDS.md`
+  §§ *Granularity*, *Acceptance and deferment*; the template `floor.yml`'s
+  hatch comment; `CHANGELOG.md`'s head and its `git log`; the repo's own
+  `.*scanignore` files and `.atelier-floor.json`.
+- **Exposure, disclosed.** (1) `git log --oneline` listings of `main` showed
+  the *subjects* of records commits, among them `bb13b4e` ("…four marker
+  divergences filed rather than unified"); I did not open them or any board
+  item. (2) A tree-wide token census (`grep -rho` for scoped markers) ran over
+  `docs/reviews/` and the record stores — output was marker tokens and, in one
+  case, a file count; no record or verdict content was read. (3) The hook-plane
+  floor run loaded the machine-local leakscan term list, as that plane does by
+  design; nothing from it is quoted here. (4) The orchestrator's mid-pass note
+  about the worktree merge; it carried no finding.
+- **Scanner discharge.** `/security-review` is discharged by grounds: it reads
+  the session's pending diff, which here is other passes' drafts and this
+  brief, and this is a landed-delta review. The lens-4 read below is by hand.
+
+### Lens 1 — approach and assumptions
+
+The load-bearing assumptions, named: (a) the fourteen grammars were one
+grammar with parametric differences; (b) the eleven ignore loaders were one
+loader; (c) children consume the fourteen scanners from a whole `tools/`
+directory, so a new sibling import resolves (`sys.path.insert` of the
+scanner's own directory, now also added to blockscan, pointerscan and
+reviewscan); (d) the extraction changes no behaviour.
+
+(a) and (d): **confirmed at the regex and loader level.** At `cadcf4e` the
+sixteen compiled patterns divide into exactly four parameters — scope (none /
+one / comma-list), group name (`kind`/`rule`), separator (`[ \t]*`/`\s*`),
+named reason or not — plus blockscan's apostrophe spelling, which is the same
+character class. Nothing "won": every difference became an argument, and
+`test_allowmarker` pins each scanner's `.pattern` to its pre-extraction
+literal. The eleven loaders were textually identical apart from docstrings
+(checked by AST extraction at the parent). The parity drive (lens 2) found no
+output difference.
+
+The structural difference the brief asks for is leakscan's comma-joined list
+(`scope="list"`), correctly made a mode rather than a default. But the deeper
+structural divergence sits **outside** the module and the extraction did not
+reach it: the scanners disagree about what to *do* with a parsed scope — match
+it against the finding's rule name (datescan, leakscan, secretscan, linkscan),
+match it against the offending word (spellscan), or discard it and treat any
+scoped spelling as the whole line (licenscan, pathscan, sizescan, pointerscan,
+reviewscan check 1) — and reviewscan's check 2 reads its `deferral` scope
+through a raw substring that bypasses the grammar entirely (AM1, AM4). The
+module's thesis "every difference is a parameter here" is true of the regex
+and false of the hatch as a whole.
+
+(c) holds for every wiring the repo documents (`hooks.atelierTools` names a
+directory; `floor.yml` checks atelier out). A child that had copied a single
+scanner file would now fail with `ImportError` on `allowmarker`; the hook's
+comment says children never vendor, so this is an assumption to carry, not a
+finding.
+
+### Lens 2 — correctness and quality
+
+Re-run, not read (ledger below): all 28 `--selftest`s pass at both commits;
+`tools.test_allowmarker` passes (25 tests); the full suite exits 0. The fixture
+tree (every marker shape S01–S19, plus previous-line / next-line / cross-line
+placements, plus six ignore-file variants) produced **byte-identical `--json`
+output and exit codes at `cadcf4e` and `ca61feb`** for all thirteen tree
+scanners and for blockscan `--check` in-tree. The single textual difference in
+the whole diff was a temp-directory name inside stampscan's selftest banner.
+No behaviour change landed.
+
+The shared behaviour, as driven: a bare marker, a missing colon, an empty
+reason, an upper-cased marker and a marker glued to a word exempt nothing
+(S02, S08, S09, S17, S18 — all flagged by every scanner). A reasoned unscoped
+marker exempts the line; a reasoned scope matching the rule exempts that rule
+and keeps the others (leakscan S04, S14; linkscan S04). A marker on the
+previous or next line exempts nothing. The same-line separator holds: a reason
+on the line after the colon leaves the finding standing (datescan L03).
+A scope naming no rule leaves the finding standing in the rule-matching
+scanners (S13). Scoped markers of one scanner never touch another's findings
+(leakscan over the secretscan fixture flagged every line). Unreasoned ignore
+globs exit 2 in all eleven loaders; absent files load nothing.
+
+Defects and weaknesses are AM1–AM4 and AM7–AM8. Quality notes: the pin test
+`test_pins_cover_every_scanner_that_imports_the_module` globs `*scan.py`, so a
+future non-scanner importer (floor.py, board.py) escapes the pin; the IndexError
+in `test_single_scope_group_name_is_parameter` pins a trap as behaviour (AM8).
+
+### Lens 3 — completeness and harvest
+
+**No doc surface changed with the delta.** `git log cadcf4e..ca61feb` over
+`tools/README.md`, `docs/method/GUARDS.md`, `CHANGELOG.md` and `docs/build/` is
+empty. Consequences, each checked at `ca61feb`:
+
+- `tools/README.md` has no entry for `allowmarker.py`; its § *Tests* line is
+  still true. Every scanner section documents the **unscoped** form only —
+  the file contains zero scoped spellings — while the tree carries about ninety
+  live scoped markers (49 `reviewscan:allow:deferral:`, 18 leakscan, 6
+  linkscan, 3 pathscan, 3 secretscan, 2 spellscan, 1 datescan). The scope
+  vocabulary (rule name / word / ignored / `deferral`) is readable only from
+  docstrings and code (AM5).
+- Module docstrings: the eleven loader wrappers now carry a uniform
+  "Single-sourced (115/080 part 2)" docstring; each scanner's grammar comment
+  still describes its own pattern, consistently with the module. licenscan's
+  `parse_allow` docstring promises a kind narrows; the code never compares it
+  (AM4).
+- `GUARDS.md` has no section titled *Allowances*; the grammar lives in
+  § *Granularity* as `<guard>:allow: <reason>` plus the principle "a guard with
+  more than one rule therefore supports rule-scoped allowance". It agrees with
+  the module in principle and gives no grammar for the scoped form.
+- The floor registry (`tools/floor.py`) mentions markers only in its remedy
+  text (`<name>:allow: <reason>` / `.<name>ignore`); consistent, unscoped.
+- `CHANGELOG.md` has no entry for the single-sourcing; its newest entry is
+  2026-09-20, so the 2026-09-26, 2026-10-01 and 2026-10-03 runs are all
+  unharvested — a class, not this delta alone (AM5, counsel).
+- The child template (`docs/build/templates/workflows/floor.yml`) shows the
+  unscoped hatch and "a root-relative path glob". Consistent with the code.
+- The repo's own `.leakscanignore`, `.secretscanignore` and `.licenscanignore`
+  headers say "gitignore-style globs"; the loader is `fnmatch` (AM6).
+
+So the surfaces agree with one another and with the code **on the unscoped
+grammar**, and are silent or wrong on the scoped grammar and the glob
+semantics — exactly the two places the drive found divergent behaviour.
+
+### Lens 4 — security and privacy (by hand, OWASP-aligned)
+
+The allow marker is the hatch through every guard, so the read is: input
+validation and fail direction of each malformed shape (A03 injection class,
+A04 insecure design), output encoding of attacker-influenced text (A03), and
+path handling of the loader (A01 broken access control).
+
+- **Fail direction of malformed scopes — OPEN, whole line.** A scope with no
+  reason (S05), an empty reason after the scope (S06), a space inside the scope
+  (S07) and a list with a trailing comma (S15) each back off to the unscoped
+  form, whose "reason" is the scope word, and **exempt every rule on the line**
+  in every scoped scanner — datescan, leakscan, secretscan, spellscan,
+  linkscan, pathscan and licenscan were all driven to it. For the two boundary
+  guards this means a credential or leak-shaped value beside a mistyped scoped
+  marker ships. The author pinned this in `test_allowmarker` as "existing
+  behaviour, pinned not endorsed (reported to the principal)"; the drive
+  confirms the live effect across all consumers (AM2).
+- **Mentions exempt — OPEN.** An inline-code mention and a prose mention of the
+  syntax on a finding-bearing line exempt it in thirteen scanners (S10, S11);
+  only stampscan strips code spans before hunting markers (AM3).
+- **Scope ignored — OPEN for licenscan.** Any scope text exempts the line in
+  licenscan, a multi-kind guard (S13). Single-kind guards doing the same are
+  within GUARDS' rule but silently diverge from the rule-matching scanners
+  (AM4).
+- **A reason-less hatch — OPEN.** reviewscan's check 2 accepts
+  `reviewscan:allow:deferral:` as a bare substring: a marker with no reason,
+  and one inside a code span, both passed a brief carrying a deferred section
+  (AM1). No live marker in the tree is reason-less; one live brief carries the
+  token inside a code span and so passes by mention alone.
+- **Unknown scopes — CLOSED but silent** in the rule-matching scanners (AM10).
+- **Reason text as output.** The reason's content is never captured or
+  rendered — only its first character is tested — so a control or bidi
+  character in a reason reaches no board row (S16 exempted exactly as a plain
+  reason does; nothing echoed). The ignore-file loader does echo the offending
+  **glob** verbatim in `IgnoreFileError`, and floor.py relays child output
+  unfiltered; a U+202E in a glob reached stderr raw (AM9, note).
+- **Ignore loader and the root.** `load_ignore_globs(root, filename)` takes
+  the filename from a scanner constant, never from input, and reads
+  `<root>/<filename>` only; globs filter the walk and can only remove files.
+  It cannot be pointed outside the root by an ignore file. `--root` itself is
+  the caller's, as before.
+- **Markers in files the scanner never reads.** Every consumer tests the
+  marker on the text it scans: the line (most), the first fifteen lines
+  (sizescan), the item body or first line (pointerscan), the stamped block's
+  lines (stampscan), the changed region (blockscan — the one place `\s*` is
+  live, so a reason may sit on the next line of the same region). A marker in
+  another file, or in an ignored file, exempts nothing. Confirmed by the
+  previous-line / next-line placements.
+
+### Findings
+
+**AM1 — MODERATE.** reviewscan's `deferral` scope is matched as a raw
+substring (`DEFERRAL_ALLOW in line`, `tools/reviewscan.py:255`), outside the
+shared grammar and with **no reason required**. Probe: four briefs with a
+deferred section and no verdict — reason-less marker, marker inside a code
+span, control, properly reasoned — reviewscan failed only the control. This is
+a fifteenth marker site the "fourteen sites" extraction missed, it contradicts
+GUARDS rule (c) and reviewscan's own remedy text (`deferral: <reason>`), and
+it is the most-used scoped marker in the tree (49 live, none reason-less
+today; one live brief passes by a code-span mention).
+*Counsel:* read it as `allowmarker.scope_of(ALLOW_RX, line, "kind") ==
+"deferral"`, add a pin in `test_allowmarker`, and re-run reviewscan over
+`docs/reviews/` before landing to see what the tightened read reds.
+
+**AM2 — MODERATE.** A malformed scoped marker exempts the whole line in every
+scoped scanner (S05, S06, S07, S15 — fixture-proven in seven scanners,
+including both boundary guards). The grammar's optional scope group backs off
+and the scope word becomes the reason. Pre-existing and author-disclosed in the
+tests; recorded here because the single-sourcing is the first moment one fix
+reaches all fourteen. The live-marker census found no marker currently in these
+shapes in this repo.
+*Counsel:* make a marker whose text after `:allow` contains a second colon but
+no reasoned scope a **mention** (exempt nothing) — the fail-closed direction
+GUARDS' "a marker with no reason exempts nothing" already states — and pin the
+four shapes. It is a grammar change for every child; sweep the fleet's live
+markers first.
+
+**AM3 — MODERATE.** An inline-code or prose mention of the marker syntax on a
+finding-bearing line exempts that line in thirteen scanners (S10, S11);
+stampscan alone strips code spans first and its docs say a code span is the
+safe way to document the syntax — untrue everywhere else. The scanners that
+strip inline code (datescan, spellscan, linkscan) do so *after* `parse_allow`
+has read the raw line.
+*Counsel:* one shared helper that blanks code spans before `present` /
+`scope_of`, called by every consumer; stampscan's `_strip_inline_code` is the
+grounded precedent. Prose mentions stay inherent to the grammar and are the
+documented residual.
+
+**AM4 — MODERATE (licenscan) / minor (pathscan, sizescan, pointerscan,
+reviewscan check 1).** The scope is parsed and discarded: `parse_allow(...) is
+not None`. licenscan has several kinds and its docstring says a kind narrows,
+yet `licenscan:allow:<anything>: reason` exempted a copyleft SPDX header
+(S13). For the single-kind guards the whole line is the narrowest unit, which
+GUARDS permits, but a typo'd or foreign scope then exempts silently where the
+rule-matching scanners keep the finding — three behaviours for one spelling.
+*Counsel:* licenscan compares the kind; the single-kind guards either refuse a
+scope that is not their one kind or declare `scope=None` so the module's
+parameter table says what the guard actually honours.
+
+**AM5 — MODERATE (harvest).** The scoped grammar and the per-scanner scope
+vocabulary are documented nowhere a user reads: `tools/README.md` carries only
+unscoped spellings, `GUARDS.md` states the principle without the grammar, and
+the delta added no README entry for `allowmarker.py` and no CHANGELOG line
+(CHANGELOG is unharvested since 2026-09-20 across three runs — a class).
+*Counsel:* one README section, *Allow markers and ignore files*, holding the
+grammar, a scanner × scope-vocabulary table (rule name / word / none /
+`deferral` / comma-list) and the glob semantics; link it from GUARDS
+§ *Granularity*; a CHANGELOG entry for the single-sourcing.
+
+**AM6 — minor.** Ignore files call themselves "gitignore-style"; the loader is
+`fnmatch`: `*` crosses `/` (`docs/*.md` also exempts `docs/sub/a.md` — wider
+than gitignore), a leading `/` never matches (silently exempts nothing), `!` is
+a literal (silently no effect), `**` equals `*` and `**/x` misses a top-level
+`x`. Fixture-proven on the `ignore` variant and by direct `ignored()` probes.
+The repo's live globs are shapes where both readings agree.
+*Counsel:* state the real semantics in the loader docstring and the ignore-file
+headers, or refuse `/`-anchored and `!` lines at load time as the config error
+they are (a glob that can never match is the unreasoned glob's sibling).
+
+**AM7 — minor.** `datescan.ALLOW_MARKER_RX` and `pathscan.ALLOW_MARKER_RX` are
+defined and never referenced; the docstring counts them among the fourteen
+sites and the test pins them as load-bearing. `SEP_ANY_SPACE` is behaviourally
+live for blockscan alone (multi-line region search); stampscan applies it per
+line. *Counsel:* delete the two constants and their pins, and say in the module
+docstring that `\s*` exists for blockscan's region search.
+
+**AM8 — minor.** The group name is stated twice and the readers' defaults
+disagree (`marker_rx` → `kind`, `scopes_of` → `rule`): `scopes_of(marker_rx(M,
+scope="list"), text)` raises `IndexError` only when a marker is present, i.e.
+mid-scan on the first marked file, with exit 1 and a traceback the floor would
+read as a red with no rows. All ten live callers pass the group explicitly.
+*Counsel:* fix the group name inside `marker_rx` or derive it from
+`rx.groupindex`, and drop the IndexError pin.
+
+**AM9 — note.** `IgnoreFileError` echoes the glob verbatim; a U+202E in a glob
+reached stderr raw through floor.py. Low impact (committed file, run already
+exits 2). *Counsel:* reuse publishscan's control-character stripping.
+
+**AM10 — note.** A scope naming no rule is silently inert in the rule-matching
+scanners; `--disable` validates rule names, the marker path does not.
+*Counsel:* add "N marker(s) naming no rule" to the suppression tally.
+
+**AM11 — note (process).** The review worktree did not carry the delta at
+pass start; the brief's "review the paths at HEAD" presumed it did. Recovered
+by a scratch clone at `main`; the orchestrator later merged. No delta defect.
+
+### Overall
+
+**PASS-WITH-FINDINGS — 0 MAJOR · 5 MODERATE (AM1–AM5) · 3 minor (AM6–AM8) ·
+3 notes (AM9–AM11).** The extraction itself is sound: byte-identical patterns,
+identical loaders, no behaviour change across every shape driven, every test
+and selftest green, both floor planes green. The findings are about what the
+single-sourcing now makes fixable in one place and did not yet fix: a hatch
+site it missed (AM1), the open fail direction of malformed and mentioned
+markers (AM2, AM3), scopes that are parsed but not honoured (AM4), and a
+grammar nobody documented (AM5). None blocks the landing.
+
+### Re-run ledger
+
+All at `ca61feb` (scratch clone `…/scratchpad/AM/probe`) unless stated;
+parent `cadcf4e` at `…/scratchpad/AM/parent`. Dates `date -u`.
+
+| Re-run | Command | Result |
+|---|---|---|
+| Selftests ×14, both commits | `python3 <tools>/<s>.py --selftest` | 28 × exit 0 |
+| New tests | `python3 -m unittest tools.test_allowmarker` | 25 tests, OK |
+| Full suite (once) | `python3 -m unittest discover -s tools -p 'test_*.py'` | exit 0, 15 m 16 s wall, started 04:20:03 UTC. My `tail -25` cut the `Ran N tests` line, so the count is not recorded; a second run is barred by the brief, so it stays unrecorded. A peer session's suite (`test_[a-h]*.py`, another prefix's clone) ran concurrently — environmental, noted. An accidental second invocation of mine was killed about ten seconds in (SIGTERM, before any test completed) |
+| Floor, hook plane | `python3 tools/floor.py --plane hook --root <clone> --tools <clone>/tools` | exit 0; 12 ✅ enforced, 3 👁️ warn-only; nothing staged, so staged scanners scanned nothing |
+| Floor, CI plane | `python3 tools/floor.py --plane ci --root .` | exit 0; secretscan 22 advisory (entropy class, known), leakscan structural-only by design; pathscan 1 and pointerscan 1 warn-only findings, neither in marker or ignore code |
+| Fixture drive, parent vs HEAD | `run_fixture.py`: 6 variants × 13 scanners `--json`, blockscan `--check` in-tree | `diff -r` identical except a temp-dir name in stampscan's selftest banner |
+| Fixture, markers variant | per-shape table (summarise.py) | S02/S08/S09/S17/S18 flagged everywhere; S05/S06/S07/S15 exempt whole line in 7 scoped scanners; S10/S11 exempt in 13, flagged by stampscan; S13 flagged in rule-matching scanners, exempt in licenscan/pathscan |
+| Fixture, ignore variants | `ignore`, `star`, `dstar`, `bare`, `bidi` | `bare`/`bidi` exit 2 in all 11 loaders; `star`/`dstar` exit 0 except licenscan's repo-level `no-license`; `ignore`: trailing-slash dir, slash-crossing glob and spaced path exempted; leading `/` and `!` lines matched nothing |
+| reviewscan deferral probe | four briefs, `--root <abs> <abs>` | reason-less and code-span markers pass; control fails; reasoned passes |
+| sizescan | `--check --root <fix> --json`, both commits | identical, clean; a non-existent path exits 2 |
+| Loader identity at parent | AST extraction of the 3 symbols × 11 scanners | identical bodies; conflictscan differs by docstring only |
+| Live scoped-marker census | token grep over the tree | ~90 live; none in the AM2 shapes; 0 reason-less `deferral`; 1 code-span `deferral` mention in a brief |
+
+### Follow-up checklist
+
+- [ ] AM1 — route reviewscan check 2 through the shared grammar; pin; re-scan `docs/reviews/`
+- [ ] AM2 — decide the malformed-scope direction (ruling: grammar change reaches every child)
+- [ ] AM3 — shared code-span blanking before marker reads; stampscan precedent
+- [ ] AM4 — licenscan compares its kind; single-kind guards declare `scope=None`
+      or refuse foreign scopes
+- [ ] AM5 — README *Allow markers and ignore files* section + GUARDS link + CHANGELOG entry
+- [ ] AM6 — fnmatch semantics stated, or `/`/`!` lines refused at load
+- [ ] AM7 — remove the two dead `ALLOW_MARKER_RX` constants and their pins
+- [ ] AM8 — single-source the group name inside `marker_rx`
+- [ ] AM9, AM10 — tally and sanitise, when a hand is in the module
+- [ ] AM11 — brief template: verify the worktree carries the landing commit before spawning
