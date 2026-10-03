@@ -146,7 +146,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [The unreasoned advisories are already in hand — do not re-file.](roadmap/110-estate-duplication-exception-audit-mike/070-the-unreasoned-advisories-are-already-in-hand.md)
 - [ ] [Make the estate's floor state answer "passing", not just "wired".](roadmap/110-estate-duplication-exception-audit-mike/080-make-the-estate-s-floor-state-answer-passing-n.md)
 - [ ] [Triage the four red floors.](roadmap/110-estate-duplication-exception-audit-mike/090-triage-the-four-red-floors.md)
-- [~] 🎯 (claimed 2026-10-03-0416, wt: qr-exceptions; parts 2–3: the exception record and its migration) [The exception audit above checked reason-presence and](roadmap/110-estate-duplication-exception-audit-mike/100-two-granularities-the-2026-08-09-audit-never-asked-about.md)
+- [ ] 🎯 [The exception audit above checked reason-presence and](roadmap/110-estate-duplication-exception-audit-mike/100-two-granularities-the-2026-08-09-audit-never-asked-about.md)
 - ✅ 🔥 [The content guards walk the whole filesystem, untracked trees](roadmap/110-estate-duplication-exception-audit-mike/110-guards-walk-untracked-trees.md)
 - ✅ 🔥 [pathscan and linkscan are unbounded on one large file](roadmap/110-estate-duplication-exception-audit-mike/120-pathscan-and-linkscan-are-unbounded-on-one-big-file.md)
 - [ ] 🔎 [leakscan and secretscan scan at roughly 0.5–1 MB/s, so a 128 MB](roadmap/110-estate-duplication-exception-audit-mike/130-leakscan-and-secretscan-scan-under-1-mb-per-second.md)

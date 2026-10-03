@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-03-0416, wt: qr-exceptions; parts 2–3: the exception record and its migration) 🎯 **The exception audit above checked reason-presence and
+- [ ] 🎯 **The exception audit above checked reason-presence and
       effectiveness — never narrowness. Mike commissioned, 2026-09-12.** His
       words: *"I am concerned that guards like secretscan and leakscan have
       exceptions granted in various repos that are too broad... To clarify I
@@ -151,3 +151,8 @@
         - **A helper** that fills in session and time automatically.
         The design cold pass is queued at `160/650`, before acceptance.
         The build (part 3) waits on both.
+  - [ ] 🧹 **Claim released 2026-10-03 at session close.** Part 1 is done.
+        The part 2 design is drafted and waits on its cold pass (`160/650`)
+        and Mike's acceptance. Part 3 (the build and migration) cannot start
+        before both. The board is not left showing a claim that no session
+        is working.
