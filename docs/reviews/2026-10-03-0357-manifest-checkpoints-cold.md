@@ -161,3 +161,289 @@ your reconcile.
 Findings are the principal's to decide (rule 3): record all, apply nothing;
 your counsel per finding is welcome, labelled as counsel and kept beneath the
 finding.
+
+---
+
+## Verdict (phase 1) — 2026-10-03 04:22 UTC
+
+**Overall: PASS-WITH-FINDINGS** — 2 MAJOR · 2 MODERATE · 4 minor · 2 note (10 findings).
+The fix does what it set out to do: the lagging-entry shape it was built for heals on the
+next run (shape A below), a thrown mid-loop error leaves a covered, signed manifest, and a
+hard kill now leaves at most the checkpoint interval ahead of the manifest instead of the
+whole run. But the heal reads the wrong side: it refreshes the manifest from the *source*
+on an mtime inference that does not hold, and in two driven shapes that turns a correctly
+reported drift into a false alarm on an intact mirror, or lets the shrink guard wave
+through an overwrite of the good copy with a green `--verify` afterwards. The second MAJOR
+is pre-existing and was surfaced by the real-kill drive: a mirror torn mid-write is frozen
+in by its own mtime, attested from the source, and crashes `--verify` outright.
+
+### Provenance
+
+- **Reviewer:** `claude-fable-5-1`, a fresh subagent spawned by the brief-writer with this
+  brief as its only framing. Not the author's session (the 2026-10-03 queue run), not
+  started or instructed by it; none of the delta's paths edited by me.
+- **Tier:** Fable, the principal-named review tier. Orchestrator also Fable; the off-tier
+  clause is not invoked.
+- **What I read:** this brief; the three delta paths in full at `17c75a9`; the landing
+  commits `0264387` and `5870927` (subject, body, `--stat`, diff against `0264387^1`);
+  `instruments/README.md` § ccarchive; ADR 0006's two addenda; `CHANGELOG.md` headings;
+  `.githooks/pre-commit`, `tools/floor.py` (invocation lines) and
+  `.github/workflows/ci.yml` for the floor. Nothing under the rule-2 bar was opened: no
+  `docs/reviews/` verdict, no session record, no roadmap item, not the queue pointer.
+- ⚠️ **Where the review ran, disclosed.** The shared worktree `atelier-review-430` sits at
+  `4ff8de5`, and `0264387` is **not an ancestor of it** (`git merge-base --is-ancestor`
+  says no; the worktree's `instruments/ccarchive` has no `checkpointEvery` and its test
+  file has none of the five new tests). The branch forked from main before the queue run
+  landed; main's `ca61feb` joins the two, the worktree never did. The brief's "review the
+  paths at HEAD, `17c75a9` or later" names a commit that does contain the delta, so I
+  reviewed at `17c75a9` in my scratch clone, where `instruments/` is byte-identical to
+  `0264387`. My first full-suite run landed on the pre-delta worktree before this was
+  caught; rather than run the full suite a second time (house rule: once), I re-ran the
+  ccarchive test file alone at `17c75a9`. The pre-delta comparisons below used a second
+  clone at `729c74b` (= `0264387^1`). Recorded as MC8.
+  **Mid-pass update (2026-10-03, after the verdict above was drafted):** the orchestrator
+  merged `origin/main` (`e5b44fe`) into the review branch; the worktree is now at
+  `0a669e7`, `0264387` is an ancestor, and `git diff 17c75a9 0a669e7 -- instruments/`
+  over the three delta paths is **empty**. Every read and every drive in this verdict was
+  at `17c75a9`, so they stand against the worktree's HEAD unchanged. Per-SHA ledger:
+  reads of the three delta paths — `4ff8de5` (pre-delta, superseded) then `17c75a9`;
+  full suite — `4ff8de5`; ccarchive test file, mutations, kill drive, shapes A–H,
+  read-only and symlink probes — `17c75a9`; pre-delta comparisons — `729c74b`.
+- **Scratch:** everything under the session scratchpad's `MC/` directory; no scanner or
+  probe touched any tree outside the worktree and that directory; no git command that
+  writes ran in the worktree.
+
+### Per-lens answers
+
+**Lens 1 — approach and assumptions.** Two premises, one holds and one does not.
+
+*Checkpoint write order holds.* Entries are set in memory only after `writeFileSync` +
+`utimesSync` (lines 1175–1180), and `persist()` (1114) writes manifest then signature,
+each by temp-and-rename. Eight real `SIGKILL`s over a 1,500-file tree never produced a
+manifest claiming a mirror that was absent; the lag ran the other way, 0–42 mirrors ahead
+at `CHECKPOINT_EVERY=50` and 0–1 at `=1`, each reported `UNMANIFESTED` by `--verify` (exit
+1, signature `verified`) and fully healed by the next ordinary run. One interleaving does
+leave the manifest and signature disagreeing — a kill between the manifest rename and the
+signature rename — and `--verify` then reports it as **tampered**, the TAMPER EVIDENT
+wording, until the next run re-signs (shape H). The drive never hit that window; it was
+constructed by hand. The commit body's "a crash never leaves a signature that disagrees
+with the manifest" is therefore not true, only narrow (MC4).
+
+*The heal's premise does not hold.* The code's argument (comment at 1136–1142) is: the
+mirror is stamped with the mtime of the source version it was written from, so on the
+skip path "this source IS what the mirror holds". The inference runs backwards. The skip
+path admits any mirror whose mtime is ≥ the source's (within 1 ms), and a source file can
+change without its mtime advancing past the mirror's: a restore from backup (older mtime
+— the man page's own INTEGRITY section names this case and says the archived copy is
+left alone), `cp -p`, `rsync -t`, `touch -r`, an iCloud or Time Machine restore of the
+projects directory. In each, the heal rewrites the manifest from the source while the
+mirror holds something else. Driven as shapes E and F: see MC1. The archive's stated
+invariant — "the manifest tracks the *archive*, not the live sources" (code 447–451, man
+page INTEGRITY, README) — is what the heal violates. The second lens-1 question, "the
+case where healing overwrites the good copy", is shape F exactly: the heal lowers
+`rawBytes` to the truncated source's size, and the shrink guard, which compares against
+`rawBytes`, then lets a later re-archive overwrite the intact mirror.
+
+**Lens 2 — correctness and quality.** Read all 1,287 lines of `instruments/ccarchive`
+and the 1,517 of its tests. Floor re-run in the ledger below: full suite 277/277 (at the
+pre-delta worktree — see provenance), ccarchive file alone 104/104 at `17c75a9`, `--help`
+exit 0, the superset and roff tests pass, `mandoc -T lint` clean. All eight scope states
+driven (ledger). Defects: the in-loop checkpoint has no discriminating test — deleting
+line 1188 leaves all five new tests green, because the catch-path save (1193–1203) covers
+the same assertion; only deleting the catch-path save fails one (MC3). A part-way failure
+exits via an uncaught exception: status 1 by Node's default, a raw stack trace on stderr,
+and **no JSON report under `--json`**; it is not in EXIT STATUS (MC5). `--verify` crashes
+on a mirror that will not gunzip (line 675 rethrows anything but `ENOENT`), so a single
+torn file loses the whole verify rather than being reported (MC2). The size-only heal and
+its documented limit (a same-size rewrite is not detected) both behave as the page says
+(shape C: `--audit` still reports it `rewritten`). The shrink guard and `--force` behave as
+documented on a source that is newer (shape D) — the bypass in MC1 needs the heal first.
+
+**Lens 3 — completeness / harvest.** Man page: the new paragraph overclaims — "a run
+that dies leaves the manifest covering every mirror it had written" is true of a thrown
+error and false of a hard kill, where the drive observed up to 42 mirrors uncovered (the
+code comment at 108–115 says this honestly; the page does not) (MC4). The page hardcodes
+"every 50" in prose, its `.TH` date is still 2026-08-09, and neither `CCARCHIVE_CHECKPOINT_EVERY`
+nor `CCARCHIVE_TEST_FAIL_AFTER` is documented anywhere a reader would find them (the
+existing `CCARCHIVE_SIMULATE_DATALESS` seam is likewise unnamed on the page — a
+precedent, not a defence) (MC7). `instruments/README.md` § ccarchive: nothing it states is
+contradicted at HEAD; it does not describe checkpoints and defers to the page, which is
+fine. ADR 0006's ccarchive addendum: holds unchanged. `CHANGELOG.md`: queue runs are
+logged there (2026-09-18 and 2026-09-20 entries name `210/*` items); the 2026-10-03 run
+has no entry and neither does `210/170` (MC7).
+
+**Lens 4 — security and privacy.** The house scanner is **discharged by grounds**:
+`/security-review` reads the session's pending diff, which here is other passes' drafts
+and this brief, and this is a landed-delta review. Code-altitude read by hand against the
+OWASP catalogue, with probes:
+
+- *Steering the heal with a crafted source* (A08 integrity failure): yes — any process
+  able to rewrite a source without advancing its mtime makes the manifest attest content
+  the mirror does not hold, and can lower `rawBytes` to disarm the shrink guard. No hash
+  collision is needed; size alone is the trigger. MC1.
+- *Partial writes / safe landing* (A04 insecure design): manifest and signature land by
+  temp-and-rename; mirrors do not — `writeFileSync(destAbs, gz)` writes in place, and a
+  kill mid-write leaves a torn `.gz` whose mtime is newer than its source, so it is never
+  re-archived and is backfilled from the source on the skip path. Driven by construction
+  (shape G) and produced by a real kill (ledger, trial 3). MC2. Modes: manifest, sig and
+  mirrors land `0644` (umask); the key `0600` as documented. Mirrors are personal
+  transcripts; `0644` is pre-existing and umask-dependent (MC9, note).
+- *Symlinks* (A01 broken access control): a symlinked source file or directory is **not
+  followed** (the walk uses dirent types; probe archived 1 of 3 entries). A **dest that is a
+  symlink into a git work tree bypasses the repo-dest guard** — `insideGitWorkTree`
+  (155) walks `path.resolve`, not `realpathSync`; the probe archived into a directory under
+  a `.git` parent with exit 0 (MC6). A pre-planted `manifest.json.tmp` symlink in the dest
+  is followed by `writeFileSync` and then renamed over `manifest.json`, which becomes the
+  symlink; this needs write access to the dest, which the signing threat model already
+  concedes, so note-level (MC9).
+- *Test seams in production* (A05 misconfiguration): `CCARCHIVE_TEST_FAIL_AFTER` makes a
+  scheduled run die after K mirrors on an environment variable alone. launchd does not
+  inherit a shell's environment, so the reach is small; the seam is the established house
+  pattern. Noted under MC7, no separate finding.
+- *Secrets*: no key material, path or personal value enters the delta; the key is read by
+  `ensureKey` at every checkpoint and never logged. Clean.
+
+### Findings
+
+**MC1 — MAJOR — the heal refreshes the manifest from the source, and the source is not
+what the mirror holds.** `instruments/ccarchive` 1136–1146. Driven at `17c75a9` and at
+`729c74b` on identical inputs:
+
+- *Shape E* (source replaced by an older-mtime, shorter copy — the man page's "restored
+  from backup" case). Pre-delta: manifest untouched, `--verify` 0, `--audit` 1 with the
+  file `shrunk` — correct. At HEAD: the heal rewrites the entry to the source's 8 bytes;
+  the mirror still holds the intact 24; `--verify` then reports **MISMATCH on an intact
+  mirror**, and does so on every later run (it does not settle); `--audit` reports
+  **synced** while live and archive differ. Both integrity reports are now wrong.
+- *Shape F* (source truncated with mtime preserved, then appended with a newer mtime).
+  Pre-delta: the append is **REFUSED** by the shrink guard (16 < 24 recorded). At HEAD:
+  step 1's heal lowers `rawBytes` to 8; step 2 passes the guard (16 > 8) and **overwrites
+  the 24-byte good mirror with 16 truncated bytes**, `--verify` 0. The sole durable copy
+  is replaced and the archive reports green.
+
+The favourable shape (A, the one the commit was built for) heals correctly at HEAD and is
+stuck at MISMATCH pre-delta, so the fix is real; it is the direction that is wrong.
+*Counsel:* heal from the **mirror** — gunzip and hash the `.gz` when `rawBytes` disagrees
+with the gunzipped length (skip when `isDataless`, which a just-written mirror never is),
+so the manifest keeps tracking the archive. Requiring mtime equality rather than ≥ would
+close E but not F. Add tests for E and F; they are three-line variants of `makeStale`.
+
+**MC2 — MAJOR (pre-existing, surfaced by the drive) — a mirror torn mid-write is frozen
+in, attested from the source, and crashes `--verify`.** Lines 1175–1180 write the mirror
+in place, not temp-and-rename. A kill mid-write leaves a partial `.gz` with mtime = now,
+newer than its source, so `shouldArchive` is false forever; the skip-path backfill (1149)
+then records the **source's** hash and size against it. `--verify` hits `Z_BUF_ERROR` at
+675, which is not `ENOENT`, and rethrows: exit 1, empty stdout, a stack trace, no per-file
+report — one torn file silences the whole verify. `--audit` compares live to the recorded
+hash and says synced. In 30 days the source is pruned and the torn mirror is all that
+remains. A real `SIGKILL` produced this once in eight trials (a 0-byte `.gz`, manifest
+entry `rawBytes: 40000`); shape G reproduces it by construction at both commits. The
+commit body's "the manifest never claims one that is not there" is true of absent files
+and false of torn ones. *Counsel:* write the mirror to `destAbs + '.tmp'`, `utimes` the
+temp, then rename; make `--verify` report any gunzip failure as a named `CORRUPT` (exit 1)
+instead of throwing; and have the skip-path backfill hash the mirror, not the source, for
+the same reason as MC1.
+
+**MC3 — MODERATE — the checkpoint has no test that fails without it.** Mutation at
+`17c75a9`: delete line 1188 (the in-loop `persist()`), run the five new tests — **5/5
+pass**. Delete the catch-path save instead — 1/2 fail. Both tests reach the manifest via
+the catch, because the seam *throws*; nothing exercises the only path a hard kill takes.
+The 50-mirror bound, the thing the constant and the man page are about, is unasserted.
+*Counsel:* make the seam kill the process (`process.kill(process.pid, 'SIGKILL')`) in one
+test, with `CCARCHIVE_CHECKPOINT_EVERY=1`, and assert mirrors − entries ≤ 1; or disable the
+catch-path save under a second seam and re-run the first test.
+
+**MC4 — MODERATE — the man page and commit body promise more than the mechanism.** Page
+413–415: "a run that dies leaves the manifest covering every mirror it had written" — true
+for a thrown error, false for a hard kill (drive: 36, 1, 18, 42, 23 mirrors uncovered at
+`=50`), where the honest statement is "at most 50 behind, reported UNMANIFESTED, healed
+next run" — which the code comment at 108–115 already says. Commit `5870927`: "a crash
+never leaves a signature that disagrees with the manifest" — shape H (manifest renamed,
+signature not) gives `--verify` **tampered**, with the TAMPER EVIDENT line, until the next
+run re-signs. *Counsel:* page wording to match the comment; either close the window (write
+the signature temp first, then rename manifest and signature back-to-back) or have
+`--verify` note a signature older than the manifest as a hint beside the mismatch.
+
+**MC5 — minor — a part-way failure's exit is undocumented and unstructured.** Driven with
+a read-only dest root (the same throw site as ENOSPC inside `persist()`): exit 1 by
+uncaught exception, stdout empty **even under `--json`**, stderr carries the one honest
+line ("could not save manifest after failure") followed by a raw Node stack. The man page
+now describes the part-way save but EXIT STATUS lists no exit for it. Heal after the path
+is writable again: clean (4 archived, 2 orphans backfilled, `--verify` 0). A read-only
+*key* path fails at the first checkpoint's `ensureKey` after the manifest is saved,
+leaving it **unsigned** until the next run. *Counsel:* catch at the top level, print one
+line, emit the JSON report with an `error` field, document the status.
+
+**MC6 — minor (pre-existing) — the repo-dest guard is bypassed by a symlinked dest.**
+`insideGitWorkTree` (155) resolves with `path.resolve`; a dest that is a symlink into a
+work tree archived with exit 0 and no stderr. The guard exists for exactly the operator
+slip it misses. *Counsel:* `fs.realpathSync` on the dest (and on the restore root).
+
+**MC7 — minor — harvest.** No `CHANGELOG.md` entry for `210/170` or for the 2026-10-03
+queue run (the 2026-09-18 and 2026-09-20 runs have them). `.TH` date unchanged at
+2026-08-09 across a content change. "every 50" hardcoded in prose beside a named constant.
+`CCARCHIVE_CHECKPOINT_EVERY` and `CCARCHIVE_TEST_FAIL_AFTER` undocumented; the page has no
+ENVIRONMENT section to hold them.
+
+**MC8 — minor (process) — the shared review worktree does not contain the delta.** See
+provenance. A reviewer trusting the worktree's `instruments/` would have reviewed and
+re-run pre-delta code; its 277/277 proves nothing about this change. *Counsel:* merge or
+rebase main into the review branch before spawning, or have the brief name the commit to
+clone rather than "HEAD".
+
+**MC9 — note — landing modes and a planted temp symlink.** Manifest, signature and
+mirrors land `0644`; a pre-planted `manifest.json.tmp` symlink is followed and becomes
+`manifest.json`. Both need write access to the dest, which the signing design already
+concedes to the tamperer; recorded for the catalogue, not for action.
+
+**MC10 — note — checkpoint cost on a synced dest.** Each checkpoint rewrites the whole
+manifest (a few MB at 8,000 entries) and re-signs; on iCloud Drive a bulk first run of
+8,000 files uploads the manifest ~160 times. The code comment weighs this and accepts it;
+recorded so the trade is visible.
+
+### Re-run ledger
+
+All at `17c75a9` in the scratch clone unless marked; dates 2026-10-03 UTC.
+
+| Command | Result |
+|---|---|
+| `node --test instruments/*.test.js` (at `4ff8de5`, pre-delta — see provenance) | 277 pass, 0 fail, 16.3 s |
+| `node --test instruments/ccarchive.test.js` | 104 pass, 0 fail |
+| `instruments/ccarchive --help` | exit 0, digest points at the page |
+| `node --test --test-name-pattern="superset\|roff\|digest" instruments/ccarchive.test.js` | 3/3 |
+| `mandoc -T lint instruments/man/ccarchive.1` | exit 0, no output |
+| Mutation: delete line 1188, run the five new tests | 5/5 pass (MC3) |
+| Mutation: disable the catch-path save, run the two death tests | 1 fail, 1 pass |
+| `SIGKILL` ×8 over 1,500 files (`=50` ×5, `=1` ×3), then `--verify`, next run, `--verify` | ahead 36/1/18/42/23 and 1/1/0; each `--verify` exit 1 UNMANIFESTED=ahead, sig verified; next run → 1,500 entries, `--verify` 0 — except trial 3: 1 torn mirror, `--verify` after heal **crashes** (MC2) |
+| Shape A (entry lags fresh mirror) HEAD / pre | heals, `--verify` 0 / stuck MISMATCH |
+| Shape B (entry, no mirror) HEAD / pre | re-archived, `--verify` 0 / same |
+| Shape C (same-size rewrite, mtime kept) HEAD / pre | no heal, `--verify` 0, `--audit` 1 rewritten / same |
+| Shape D (truncated, newer; then `--force`) HEAD / pre | REFUSED exit 1; forced overwrite / same |
+| Shape E (older-mtime shorter source) HEAD / pre | entry→8 B, `--verify` MISMATCH ×2 runs, `--audit` synced / untouched, `--verify` 0, `--audit` shrunk (MC1) |
+| Shape F (truncate mtime-kept, heal, append newer) HEAD / pre | guard passed, good mirror overwritten, `--verify` 0 / REFUSED (MC1) |
+| Shape G (torn mirror, newer mtime, no entry) HEAD / pre | backfilled from source; `--verify` crash, empty stdout / same (MC2) |
+| Shape H (manifest newer than signature) | `--verify` tampered; next run re-signs; `--verify` 0 (MC4) |
+| Read-only dest root, `=2` | exit 1, stdout empty, stack trace; 2 mirrors, no manifest; heal clean (MC5) |
+| Read-only key dir, `=1` | exit 1; manifest yes, signature no (MC5) |
+| Symlinked source file + dir | not followed: total 1, archived 1 |
+| Dest symlink into a `.git` parent | archived, exit 0 (MC6) |
+| Planted `manifest.json.tmp` symlink | followed; `manifest.json` is a symlink (MC9) |
+| `stat -f %Sp` on outputs | `0644` manifest/sig/mirror, `0600` key |
+
+Full-disk was driven as the read-only-path equivalent (same `writeFileSync` throw inside
+`persist()`), not a real ENOSPC; stated as such.
+
+### Follow-up checklist
+
+- [ ] MC1 — heal direction: mirror, not source; tests for shapes E and F (Mike's call)
+- [ ] MC2 — atomic mirror write; `--verify` reports rather than throws on a bad gzip
+- [ ] MC3 — a test the checkpoint can fail
+- [ ] MC4 — man page hard-kill wording; signature-window claim
+- [ ] MC5 — top-level catch, JSON error report, EXIT STATUS entry
+- [ ] MC6 — `realpathSync` in the repo-dest guard
+- [ ] MC7 — CHANGELOG entry, `.TH` date, document the two env seams
+- [ ] MC8 — review-branch provenance for the remaining 160/440–480 passes in this worktree
+- [ ] MC9, MC10 — record only
+
+Phase 1 ends here. Sibling not opened; no other `docs/reviews/2026-10-03-*` file opened; no
+file but this one edited.
