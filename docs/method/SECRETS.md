@@ -73,7 +73,7 @@ credential is a **tracked debt to shorten, not a resting state**. It needs a
 stated reason (usually "the platform offers no JIT grant"), and it stays on a list
 of things to tighten. Silently treating a standing credential as the finished
 state is the defect; naming it as a bridge is the discipline (see
-`DATA-PROTECTION.md`'s stated-bridge rule).
+`PRINCIPLES.md`'s "a hand-action is only a stated bridge" rule).
 
 ## One credential, one entity, one system — the non-reuse rules
 
@@ -267,7 +267,7 @@ Three duties, in order (Mike's rulings, 2026-07-22):
   for its reads can't tell you a secret was taken) **where the store can
   provide one** — a file-based store (the sops+age class, this doctrine's own
   exemplar) decrypts offline and has no read trail to offer, and that gap is
-  a named limitation (stated bridge, `DATA-PROTECTION.md`) weighed when
+  a named limitation (stated bridge, `PRINCIPLES.md`) weighed when
   choosing store technology, never a duty silently skipped (SA2, 2026-07-23).
   Detection you don't do is
   rotation you never trigger.

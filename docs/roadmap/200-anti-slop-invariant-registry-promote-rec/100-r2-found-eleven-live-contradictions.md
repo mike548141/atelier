@@ -27,7 +27,7 @@
           in-repo `.venv` has been the norm since 2026-07-14.
     - [x] **C5 (internal).** `CONCURRENCY.md:53` and `:60` say "two cues",
           and the bullets beneath list three.
-    - [ ] **C6 (dangling pointer).** `SECRETS.md:76` and `:270` cite
+    - [x] **C6 (dangling pointer).** `SECRETS.md:76` and `:270` cite
           `DATA-PROTECTION.md`'s "stated-bridge rule", which that file does
           not contain. The rule is at `PRINCIPLES.md:265`.
     - [ ] **C7 (drift, highest stakes).** The always-confirm floor is listed
@@ -89,3 +89,7 @@
       ✅ **C5 fixed 2026-10-03.** "two cues" → "three cues", in both places,
       to match the three bullets (the third, *ask when a channel exists*,
       came with § *The channel*). Pass queued at `160/560`.
+      ✅ **C6 fixed 2026-10-03.** Both `SECRETS.md` citations of the "stated
+      bridge" rule now point at `PRINCIPLES.md`, where the rule lives ("Codify
+      before you converge; a hand-action is only a stated bridge"). Pass
+      queued at `160/570`.
