@@ -5,6 +5,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 try:
     # `python3 -m unittest tools.test_pathscan` from the repo root — tools/
@@ -1044,6 +1045,243 @@ class LinkedWorktreeSkipped(unittest.TestCase):
         self._write("weird/real.txt", "content\n")
         found = self._found()
         self.assertNotIn("weird/real.txt", found)
+
+
+class StreamingReader(unittest.TestCase):
+    """110/120 — pathscan reads files incrementally (the same bounded-line
+    reader mechanism as secretscan/leakscan/linkscan) instead of
+    `read_text()` + `splitlines()`. The contract tested here: it produces
+    EXACTLY the lines and line numbers the whole-text path did, whatever
+    the chunk size, and an overlong line's windows never invent a finding."""
+
+    SAMPLE = (
+        "# Title\n"
+        "see `tools/a.py` and café — docs/x.md…\n"
+        "```\n"
+        "inside fence tools/ghost.py\n"
+        "````\n"                       # a longer run closes a shorter opener
+        "after fence 1 docs/b.md\n"
+        "~~~python\n"
+        "tilde fence body\n"
+        "~~~\n"
+        "\r\n"                         # CRLF blank
+        "crlf line docs/c.md\r\n"
+        "lone-cr a\rb docs/d.md\n"     # \r splits a line, as splitlines did
+        "form\x0cfeed docs/e.md\n"
+        "\n"
+        "```\n"
+        "unterminated fence to EOF tools/ghost2.py"   # no trailing newline
+    )
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="pathscan-stream-"))
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+
+    def _expected(self, path):
+        text = path.read_text(encoding="utf-8", errors="replace")
+        return list(ps._content_lines(text))
+
+    def _streamed(self, path):
+        return [(n, line) for n, line, _f, _l in ps._iter_file_content_lines(path)]
+
+    def test_matches_whole_text_reader_at_every_chunk_size(self):
+        f = self.tmp / "s.md"
+        f.write_text(self.SAMPLE, encoding="utf-8", newline="")
+        want = self._expected(f)
+        self.assertTrue(want)
+        for chunk in list(range(1, 40)) + [64, 4096]:
+            with mock.patch.object(ps, "READ_CHUNK_BYTES", chunk):
+                self.assertEqual(self._streamed(f), want, f"chunk={chunk}")
+
+    def test_fence_state_carries_across_chunk_boundaries(self):
+        """A fence opened in one chunk must still be open for lines that
+        arrive in a later one — the ghost path inside it stays unseen."""
+        body = ("pre docs/a.md\n```\n" + "docs/ghost-in-fence.md\n" * 50
+                + "```\npost docs/b.md\n")
+        f = self.tmp / "fence.md"
+        f.write_text(body)
+        for chunk in (3, 7, 50, 1000):
+            with mock.patch.object(ps, "READ_CHUNK_BYTES", chunk):
+                got = [line for _n, line, _f, _l in ps._iter_file_content_lines(f)]
+            self.assertEqual(got, ["pre docs/a.md", "post docs/b.md"], f"chunk={chunk}")
+
+    def test_binary_looking_markdown_is_still_scanned(self):
+        """`read_text` never sniffed for NUL; the reader must not start."""
+        f = self.tmp / "nul.md"
+        f.write_bytes(b"docs/x.md\x00 tools/ghost.py\n")
+        self.assertEqual(len(self._streamed(f)), 1)
+
+    def test_overlong_line_is_one_line_number_of_windows(self):
+        f = self.tmp / "long.md"
+        f.write_text("short\n" + "w " * 400 + "\nlast\n")
+        # A small CHUNK as well: windowing only bites on the text still
+        # pending (no newline yet) when a chunk ends.
+        with mock.patch.object(ps, "READ_CHUNK_BYTES", 30), \
+                mock.patch.object(ps, "LINE_WINDOW_BYTES", 100), \
+                mock.patch.object(ps, "LINE_WINDOW_OVERLAP", 10):
+            got = list(ps._iter_file_content_lines(f))
+        nums = [n for n, _l, _a, _b in got]
+        self.assertEqual(nums[0], 1)
+        self.assertEqual(nums[-1], 3)
+        self.assertEqual(set(nums[1:-1]), {2})
+        mids = [(a, b) for n, _l, a, b in got if n == 2]
+        self.assertGreater(len(mids), 2)         # really was windowed
+        self.assertTrue(mids[0][0])              # first window flagged first
+        self.assertTrue(mids[-1][1])             # last flagged final
+        self.assertTrue(all(not b for _a, b in mids[:-1]))
+
+    def test_fence_opened_on_a_line_skips_its_overlong_continuation(self):
+        f = self.tmp / "fl.md"
+        f.write_text("```\n" + "x" * 500 + "\n```\nok\n")
+        with mock.patch.object(ps, "READ_CHUNK_BYTES", 30), \
+                mock.patch.object(ps, "LINE_WINDOW_BYTES", 100), \
+                mock.patch.object(ps, "LINE_WINDOW_OVERLAP", 10):
+            got = [line for _n, line, _a, _b in ps._iter_file_content_lines(f)]
+        self.assertEqual(got, ["ok"])
+
+
+class WindowedLinesInventNothing(unittest.TestCase):
+    """A token cut by a window edge is whole in the neighbouring window; the
+    cut halves must not become findings, and the whole token must be judged
+    exactly once. Swept across alignments so every token meets an edge."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="pathscan-window-"))
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        (self.tmp / "docs").mkdir()
+        for i in range(8):
+            (self.tmp / "docs" / f"real-{i}.md").write_text("# r\n")
+
+    def _scan(self, line, window, overlap):
+        f = self.tmp / "docs" / "w.md"
+        f.write_text(line + "\n")
+        with mock.patch.object(ps, "READ_CHUNK_BYTES", 40), \
+                mock.patch.object(ps, "LINE_WINDOW_BYTES", window), \
+                mock.patch.object(ps, "LINE_WINDOW_OVERLAP", overlap):
+            return ps.scan_file(f, self.tmp, ps.Tally())
+
+    def test_real_tokens_never_become_findings_at_any_alignment(self):
+        for pad in range(0, 40):
+            line = " " * pad + " ".join(f"docs/real-{i % 8}.md" for i in range(30))
+            for window in (96, 101, 130):
+                self.assertEqual(self._scan(line, window, 32), [],
+                                 f"pad={pad} window={window}")
+
+    def test_one_ghost_is_reported_once_at_any_alignment(self):
+        for pad in range(0, 40):
+            line = (" " * pad + " ".join(f"docs/real-{i % 8}.md" for i in range(15))
+                    + " docs/ghost-xyz.md "
+                    + " ".join(f"docs/real-{i % 8}.md" for i in range(15)))
+            for window in (96, 101, 130):
+                got = self._scan(line, window, 32)
+                self.assertEqual([f.target for f in got], ["docs/ghost-xyz.md"],
+                                 f"pad={pad} window={window}")
+
+
+class FindingCap(unittest.TestCase):
+    """110/120 — findings are capped like leakscan/secretscan/conflictscan
+    (`MAX_MATERIALIZED_FINDINGS`, `Tally.take_finding_slot`): the excess is
+    counted, never listed, and the reported total is the true total."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="pathscan-cap-"))
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        (self.tmp / "docs").mkdir()
+        lines = [f"see docs/ghost-{i}.md" for i in range(12)]
+        # Two exempted lines: they must neither use a slot nor be lost.
+        lines += ["docs/allowed-1.md <!-- pathscan:allow: fixture -->",
+                  "docs/allowed-2.md <!-- pathscan:allow: fixture -->"]
+        (self.tmp / "docs" / "n.md").write_text("\n".join(lines) + "\n")
+
+    def test_cap_holds_and_overflow_is_counted(self):
+        with mock.patch.object(ps, "MAX_MATERIALIZED_FINDINGS", 5):
+            tally = ps.Tally()
+            got = ps.scan_paths([self.tmp / "docs"], self.tmp, tally)
+        self.assertEqual(len(got), 5)
+        self.assertEqual(tally.findings_over_cap, 7)
+        self.assertEqual(tally.marker_total, 2)   # exempted, counted, no slot used
+
+    def test_render_reports_the_true_total(self):
+        with mock.patch.object(ps, "MAX_MATERIALIZED_FINDINGS", 5):
+            tally = ps.Tally()
+            got = ps.scan_paths([self.tmp / "docs"], self.tmp, tally)
+            out = ps.render_human(got, tally)
+        self.assertIn("12 finding(s)", out)
+        self.assertIn("…and 7 more finding(s)", out)
+        self.assertIn("7 beyond the 5-finding cap", out)
+
+    def test_cli_exit_code_and_json_carry_the_overflow(self):
+        import contextlib
+        import io
+        import json
+        with mock.patch.object(ps, "MAX_MATERIALIZED_FINDINGS", 5):
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                rc = ps.main(["--root", str(self.tmp), "--json", str(self.tmp / "docs")])
+        data = json.loads(buf.getvalue())
+        self.assertEqual(rc, 1)
+        self.assertFalse(data["clean"])
+        self.assertEqual(len(data["findings"]), 5)
+        self.assertEqual(data["findings_over_cap"], 7)
+
+    def test_overflow_alone_is_never_clean_and_warn_still_exits_zero(self):
+        import contextlib
+        import io
+        with mock.patch.object(ps, "MAX_MATERIALIZED_FINDINGS", 0):
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(
+                    ps.main(["--root", str(self.tmp), str(self.tmp / "docs")]), 1)
+                self.assertEqual(
+                    ps.main(["--warn", "--root", str(self.tmp), str(self.tmp / "docs")]), 0)
+
+    def test_summary_is_unchanged_when_the_cap_is_not_reached(self):
+        """Byte-identity with the pre-110/120 output on every run that
+        stays under the cap."""
+        tally = ps.Tally()
+        ps.scan_paths([self.tmp / "docs"], self.tmp, tally)
+        self.assertNotIn("cap", tally.summary())
+        self.assertEqual(tally.findings_over_cap, 0)
+
+
+class ResolutionMemo(unittest.TestCase):
+    def test_repeated_token_is_resolved_once_per_file(self):
+        tmp = Path(tempfile.mkdtemp(prefix="pathscan-memo-"))
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        (tmp / "docs").mkdir()
+        md = tmp / "docs" / "m.md"
+        md.write_text("\n".join(f"line {i} docs/ghost.md and docs/m.md"
+                                for i in range(200)) + "\n")
+        calls = []
+        real = ps._resolves
+
+        def counting(*a, **k):
+            calls.append(a[2])
+            return real(*a, **k)
+
+        with mock.patch.object(ps, "_resolves", counting):
+            got = ps.scan_file(md, tmp)
+        self.assertEqual(len(got), 200)           # still one finding per line
+        self.assertEqual(sorted(set(calls)), ["docs/ghost.md", "docs/m.md"])
+        self.assertEqual(len(calls), 2)
+
+
+class LongLineBlanking(unittest.TestCase):
+    def test_single_pass_matches_exact_loop_on_ordinary_content(self):
+        unit = ("see [x](other.md) and <repo>/docs/a.md at https://e.com/x.md "
+                "~me/docs/b.md `tools/real.py` ")
+        line = unit * 1000
+        self.assertGreater(len(line), ps._EXACT_BLANK_MAX_CHARS)
+        fast = ps._strip_non_candidates(line)
+        with mock.patch.object(ps, "_EXACT_BLANK_MAX_CHARS", 10 ** 9):
+            exact = ps._strip_non_candidates(line)
+        self.assertEqual(fast, exact)
+
+    def test_dense_links_on_one_long_line_finish_quickly(self):
+        import time
+        line = "[x](other.md) " * 20_000            # 280 KB, 20k link dests
+        t0 = time.monotonic()
+        self.assertEqual(list(ps.iter_candidates(line)), [])
+        self.assertLess(time.monotonic() - t0, 10)
 
 
 if __name__ == "__main__":

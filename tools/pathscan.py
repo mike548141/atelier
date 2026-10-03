@@ -404,6 +404,7 @@ Python.
 from __future__ import annotations
 
 import argparse
+import codecs
 import fnmatch
 import json
 import re
@@ -435,6 +436,14 @@ def parse_allow(line: str) -> str | None:
     return allowmarker.scope_of(ALLOW_SCOPE_RX, line, "kind")
 
 
+# 110/120 — the run-wide cap on fully built findings, reused from leakscan /
+# secretscan / conflictscan (020/380) rather than re-derived: each held
+# `Finding` costs on the order of 1 KiB, so ~50 MiB of findings regardless
+# of input size. Past it a finding is COUNTED (`Tally.findings_over_cap`),
+# never dropped silently, and the true total is `len(findings) + over_cap`.
+MAX_MATERIALIZED_FINDINGS = 50_000
+
+
 @dataclass
 class Tally:
     """What the scan removed AFTER finding it — rule (b) of `method/GUARDS.md`.
@@ -444,20 +453,40 @@ class Tally:
     by_marker: dict[str, int] = field(default_factory=dict)
     files_by_glob: int = 0
     files_by_records: int = 0
+    # 110/120 — see MAX_MATERIALIZED_FINDINGS. Every pathscan finding is one
+    # kind, so one counter suffices.
+    findings_over_cap: int = 0
+    _materialized: int = field(default=0, repr=False, compare=False)
 
     @property
     def marker_total(self) -> int:
         return sum(self.by_marker.values())
 
+    def take_finding_slot(self) -> bool:
+        """True if a finding may still be fully built and held; False once
+        the run-wide cap is reached, in which case it is counted in
+        `findings_over_cap` instead and the caller builds nothing."""
+        if self._materialized < MAX_MATERIALIZED_FINDINGS:
+            self._materialized += 1
+            return True
+        self.findings_over_cap += 1
+        return False
+
     def note_marker(self, kind: str) -> None:
         self.by_marker[kind] = self.by_marker.get(kind, 0) + 1
 
     def summary(self) -> str:
-        """One stable line, known zeros printed, so two runs compare."""
+        """One stable line, known zeros printed, so two runs compare. The
+        over-cap part appears only when the cap was actually reached: it is
+        a new field, and a run that never hits the cap keeps the exact
+        pre-110/120 output (the byte-identity this fix was held to)."""
         line = ("  suppressed: "
                 f"{self.marker_total} by allow-marker · "
                 f"{self.files_by_glob} file(s) by .pathscanignore · "
                 f"{self.files_by_records} record file(s) excluded by default")
+        if self.findings_over_cap:
+            line += (f" · {self.findings_over_cap} beyond the "
+                     f"{MAX_MATERIALIZED_FINDINGS}-finding cap (counted, not listed)")
         if self.by_marker:
             detail = ", ".join(f"{k}×{n}" for k, n in sorted(self.by_marker.items()))
             line += f"\n    allow-marker breakdown: {detail}"
@@ -608,32 +637,137 @@ class Finding:
     detail: str        # human hint at what's missing
 
 
-def _content_lines(text: str):
-    """Yield (lineno, line) for lines outside fenced code blocks. Fence
-    pairing matches linkscan/datescan exactly: a fence closes only on a run
-    of the same character at least as long as the opener, no trailing info
-    string on the closer."""
-    in_fence = False
-    fence_char = ""
-    fence_len = 0
-    for lineno, line in enumerate(text.splitlines(), start=1):
+class _FenceState:
+    """Fence-tracking state, shared by the in-memory reader (`_content_lines`)
+    and the streaming file reader (`_iter_file_content_lines`) so the two can
+    never drift apart (linkscan's `_FenceState`, same rule). Fence pairing
+    matches linkscan/datescan exactly: a fence closes only on a run of the
+    same character at least as long as the opener, no trailing info string
+    on the closer. A fence DELIMITER is a handful of characters, so it always
+    fits in a line's FIRST read window; the streaming reader therefore calls
+    `is_content` only there, and a continuation window just inherits
+    `in_fence`."""
+
+    def __init__(self):
+        self.in_fence = False
+        self.fence_char = ""
+        self.fence_len = 0
+
+    def is_content(self, line: str) -> bool:
         stripped = line.lstrip()
         m = _FENCE.match(stripped)
-        if in_fence:
-            if m and m.group(1)[0] == fence_char and len(m.group(1)) >= fence_len \
+        if self.in_fence:
+            if m and m.group(1)[0] == self.fence_char and len(m.group(1)) >= self.fence_len \
                     and stripped.rstrip() == m.group(1):
-                in_fence = False
-            continue
+                self.in_fence = False
+            return False
         if m:
-            in_fence = True
-            fence_char = m.group(1)[0]
-            fence_len = len(m.group(1))
+            self.in_fence = True
+            self.fence_char = m.group(1)[0]
+            self.fence_len = len(m.group(1))
+            return False
+        return True
+
+
+def _content_lines(text: str):
+    """Yield (lineno, line) for lines outside fenced code blocks, from an
+    in-memory string (what `scan_text` and direct tests use). Real files go
+    through `_iter_file_content_lines` instead (110/120)."""
+    state = _FenceState()
+    for lineno, line in enumerate(text.splitlines(), start=1):
+        if state.is_content(line):
+            yield lineno, line
+
+
+# Streaming-read tuning (110/120): the same mechanism as secretscan's 020/370
+# and leakscan's 020/380 reader, with this guard's own window size. Every
+# constant is FIXED, independent of the file or tree scanned: peak memory
+# reading ANY one file is bounded by LINE_WINDOW_BYTES + LINE_WINDOW_OVERLAP
+# (plus one READ_CHUNK_BYTES), never by the file's size. The window is
+# grounded in this tool's own shape, as linkscan's is: a path token is
+# bounded by PATH_MAX-ish lengths (a few KiB), so a 4 KiB overlap keeps any
+# real token whole in one window, and 256 KiB is far more generous than any
+# real Markdown line. Copied, not imported, so the tool stays copyable alone.
+READ_CHUNK_BYTES = 1 * 1024 * 1024
+LINE_WINDOW_BYTES = 256 * 1024
+LINE_WINDOW_OVERLAP = 4 * 1024
+
+
+def _iter_physical_segments(path: Path):
+    """Yield `(text, is_final_window)` for each physical line of `path`
+    (split on `\n` only), decoding in fixed chunks. A line longer than
+    `LINE_WINDOW_BYTES` comes out as several windows sharing
+    `LINE_WINDOW_OVERLAP` characters; every window but the last is
+    `is_final_window=False`. No binary sniff: `Path.read_text` never had
+    one, and a NUL-bearing .md must keep being scanned. Offsets walk
+    forward instead of re-slicing the remainder per line, so a chunk of
+    many short lines costs linear time, not quadratic."""
+    decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
+    pending = ""
+    with open(path, "rb") as fh:
+        while True:
+            chunk = fh.read(READ_CHUNK_BYTES)
+            if not chunk:
+                break
+            pending += decoder.decode(chunk)
+            start = 0
+            while True:
+                nl = pending.find("\n", start)
+                if nl == -1:
+                    break
+                yield pending[start:nl], True
+                start = nl + 1
+            if start:
+                pending = pending[start:]
+            if len(pending) >= LINE_WINDOW_BYTES:
+                yield pending, False
+                pending = pending[-LINE_WINDOW_OVERLAP:]
+        pending += decoder.decode(b"", final=True)
+        if pending:
+            yield pending, True
+
+
+def _iter_file_content_lines(path: Path):
+    """Yield `(lineno, line, first_window, final_window)` for lines outside
+    fenced code, streaming `path` (110/120). Replaces `read_text()` +
+    `splitlines()`, which held the file whole. Line numbers and fence state
+    match the old reader exactly: an ordinary line is split further with
+    `str.splitlines()` (so `\r`, `\x0c`, U+2028… still break lines, as they
+    did on the whole text), and an overlong line's windows are ONE line
+    number whose fence verdict is taken on its first window."""
+    state = _FenceState()
+    lineno = 1
+    first = True
+    for seg, final in _iter_physical_segments(path):
+        if first and final:
+            for line in (seg.splitlines() or [""]):
+                if state.is_content(line):
+                    yield lineno, line, True, True
+                lineno += 1
             continue
-        yield lineno, line
+        content = state.is_content(seg) if first else not state.in_fence
+        if content:
+            yield lineno, seg, first, final
+        if final:
+            lineno += 1
+            first = True
+        else:
+            first = False
 
 
 def _blank_span(line: str, m: "re.Match[str]") -> str:
     return line[:m.start()] + " " * (m.end() - m.start()) + line[m.end():]
+
+
+# Longest line (characters) that still gets the exact blank-and-rescan loop
+# below. That loop restarts every search at column 0 after each blanking, so
+# it is quadratic in the number of matches on a line; beyond this the cost is
+# measured in minutes per line (110/120). Past it each pattern is applied in
+# ONE left-to-right pass. The two differ only where blanking one span creates
+# a NEW match out of the spaces it left (e.g. `<a <b> c>` nesting), an
+# adversarial shape that does not occur in ordinary prose; below the
+# threshold, which covers every real line, behaviour is untouched.
+_EXACT_BLANK_MAX_CHARS = 16 * 1024
 
 
 def _strip_non_candidates(line: str) -> str:
@@ -641,6 +775,10 @@ def _strip_non_candidates(line: str) -> str:
     prefixes, and Markdown link destinations before candidate-hunting — see
     header, THE CHECK step 2."""
     out = line
+    if len(out) > _EXACT_BLANK_MAX_CHARS:
+        for rx in (_ANGLE_PLACEHOLDER, _SCHEME_URL, _HOME_PATH_PREFIX, _LINK_DEST):
+            out = rx.sub(lambda m: " " * (m.end() - m.start()), out)
+        return out
     for rx in (_ANGLE_PLACEHOLDER, _SCHEME_URL, _HOME_PATH_PREFIX):
         while True:
             m = rx.search(out)
@@ -719,12 +857,26 @@ def _is_command_invocation(cleaned: str, m: "re.Match[str]") -> bool:
     return cleaned[:start].count("`") % 2 == 1 and cleaned.find("`", m.end()) != -1
 
 
-def iter_candidates(line: str):
+def iter_candidates(line: str, first_window: bool = True,
+                    final_window: bool = True):
     """Yield candidate path tokens (trimmed, filtered) from one already-
     de-fenced line — bare prose AND backtick-wrapped spans alike (backticks
-    are not stripped; see header on why that's deliberate here)."""
+    are not stripped; see header on why that's deliberate here).
+
+    `first_window`/`final_window` are False only for the windows of an
+    overlong line (110/120). Windows overlap by `LINE_WINDOW_OVERLAP`, so a
+    token cut by a window edge is whole in a neighbour; each window therefore
+    owns only the tokens that START at or before its overlap boundary and are
+    not cut by its end, and a continuation window skips a token starting at
+    its column 0 (it may be the tail of one the previous window owns). A
+    truncated tail is otherwise a bogus finding."""
     cleaned = _strip_non_candidates(line)
+    cut = len(cleaned) - LINE_WINDOW_OVERLAP
     for m in _PATH_TOKEN.finditer(cleaned):
+        if not first_window and m.start() == 0:
+            continue
+        if not final_window and (m.start() > cut or m.end() == len(cleaned)):
+            continue
         if _is_elided(m.group(0), cleaned, m.end()):
             continue
         if _is_command_invocation(cleaned, m):
@@ -801,7 +953,8 @@ def _under_docs(md_file: Path) -> bool:
 
 
 def _resolves(root: Path, md_file: Path, token: str,
-              declared_roots: "tuple[str, ...] | list[str]" = ()) -> bool:
+              declared_roots: "tuple[str, ...] | list[str]" = (),
+              docs_anchor: "Path | None" = None) -> bool:
     """A candidate resolves if it exists under ANY of THREE base anchors, or
     under any repo-DECLARED extra root — widening what counts as "resolves"
     can only DROP a finding, never invent one, so stacking anchors is safe
@@ -854,14 +1007,36 @@ def _resolves(root: Path, md_file: Path, token: str,
         return True
     if _exists_under(md_file.parent, token):
         return True
-    if _exists_under(_docs_anchor(root, md_file), token):
+    # `docs_anchor` is a pure function of (root, md_file): a caller scanning
+    # many tokens from one file passes it in rather than re-deriving it (an
+    # ancestor walk) per token (110/120).
+    if _exists_under(docs_anchor if docs_anchor is not None
+                     else _docs_anchor(root, md_file), token):
         return True
     return any(_exists_under(root / extra, token) for extra in declared_roots)
 
 
-def scan_text(md_file: Path, root: Path, text: str,
-              tally: "Tally | None" = None,
-              declared_roots: "tuple[str, ...] | list[str]" = ()) -> list[Finding]:
+# Bounds on the per-file memos below. Both hold only what one file's own
+# lines name, but a 500 MB file can name millions of distinct tokens.
+_MAX_RESOLVED_MEMO = 50_000
+_MAX_SEEN_PER_LINE = 50_000
+
+
+def _scan_content_lines(md_file: Path, root: Path, lines, tally: "Tally | None",
+                        declared_roots: "tuple[str, ...] | list[str]"
+                        ) -> list[Finding]:
+    """The scan engine over `(lineno, line, first_window, final_window)`
+    tuples already stripped of fenced code. Everything per-line is decided
+    as the line streams past, in constant space:
+
+      - the allow-marker (rule b: SUBTRACT SECOND) applies to findings of its
+        own line only, so it is evaluated in place and counted via the tally;
+      - the finding cap is taken AFTER that subtraction, so an exempted
+        finding never uses a slot;
+      - `_resolves` is memoised per file by token (the filesystem does not
+        change during a run), so a token repeated across thousands of lines
+        is stat'ed once.
+    """
     rel = _rel(md_file, root)
     # The docs anchor's two forms are mutually exclusive (see _resolves) —
     # name the one actually tried, so a reader of the finding can check it
@@ -871,37 +1046,62 @@ def scan_text(md_file: Path, root: Path, text: str,
                        else "the repo's docs/ (docs-relative shorthand)")
     detail_suffix = (f", and under declared root(s) {', '.join(declared_roots)}"
                      if declared_roots else "")
+    docs_anchor = _docs_anchor(root, md_file)
     findings: list[Finding] = []
-    seen_on_line: set[tuple[int, str]] = set()
-    # Line -> allowance scope, recorded rather than acted on (rule b).
-    allow_by_line: dict[int, str] = {}
-    for lineno, raw_line in _content_lines(text):
+    seen_on_line: set[str] = set()
+    current_line = 0
+    resolved: dict[str, bool] = {}
+    for lineno, raw_line, first, final in lines:
+        if lineno != current_line:
+            seen_on_line.clear()
+            current_line = lineno
+        elif len(seen_on_line) >= _MAX_SEEN_PER_LINE:
+            seen_on_line.clear()      # overlong line: dedupe is best-effort
         scope = parse_allow(raw_line)
-        if scope is not None:
-            allow_by_line[lineno] = scope
         if _is_stub_marked(raw_line):
             continue
-        for token in iter_candidates(raw_line):
-            key = (lineno, token)
-            if key in seen_on_line:
+        for token in iter_candidates(raw_line, first, final):
+            if token in seen_on_line:
                 continue
-            seen_on_line.add(key)
-            if _resolves(root, md_file, token, declared_roots):
+            seen_on_line.add(token)
+            ok = resolved.get(token)
+            if ok is None:
+                ok = _resolves(root, md_file, token, declared_roots, docs_anchor)
+                if len(resolved) < _MAX_RESOLVED_MEMO:
+                    resolved[token] = ok
+            if ok:
+                continue
+            if scope is not None:
+                if tally is not None:
+                    tally.note_marker("missing-path")
+                continue
+            if tally is not None and not tally.take_finding_slot():
                 continue
             findings.append(Finding(
                 rel, lineno, "missing-path", token,
                 f"{token} does not exist (checked repo-root-relative, "
                 f"relative to {rel}'s own directory, relative to "
                 f"{docs_anchor_note}{detail_suffix})"))
-    # SUBTRACT SECOND. One finding kind, so the line is the whole scope.
-    kept: list[Finding] = []
-    for f in findings:
-        if allow_by_line.get(f.line) is not None:
-            if tally is not None:
-                tally.note_marker(f.kind)
-            continue
-        kept.append(f)
-    return kept
+    return findings
+
+
+def scan_text(md_file: Path, root: Path, text: str,
+              tally: "Tally | None" = None,
+              declared_roots: "tuple[str, ...] | list[str]" = ()) -> list[Finding]:
+    """Scan an in-memory string as if it were `md_file`'s content (direct
+    tests, small callers). Real files use `scan_file`."""
+    return _scan_content_lines(
+        md_file, root,
+        ((n, line, True, True) for n, line in _content_lines(text)),
+        tally, declared_roots)
+
+
+def scan_file(md_file: Path, root: Path, tally: "Tally | None" = None,
+              declared_roots: "tuple[str, ...] | list[str]" = ()) -> list[Finding]:
+    """Scan `md_file` from disk, streaming — peak memory is bounded by a
+    constant however large the file or its longest line (110/120)."""
+    return _scan_content_lines(md_file, root, _iter_file_content_lines(md_file),
+                               tally, declared_roots)
 
 
 IgnoreFileError = allowmarker.IgnoreFileError
@@ -1065,18 +1265,24 @@ def scan_paths(paths: list[Path], root: Path,
     findings: list[Finding] = []
     for md in iter_markdown(paths, root, globs, tally,
                             include_records=include_records):
-        text = md.read_text(encoding="utf-8", errors="replace")
-        findings.extend(scan_text(md, root, text, tally, declared_roots))
+        findings.extend(scan_file(md, root, tally, declared_roots))
     return findings
 
 
 def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
-    if not findings:
+    # 110/120 — the TRUE total lives on the tally: findings past the cap were
+    # counted, never built, so `len(findings)` alone under-reports exactly on
+    # the runs the cap exists for.
+    over_cap = tally.findings_over_cap if tally is not None else 0
+    if not findings and not over_cap:
         out = "✓ pathscan clean — every candidate repo-path reference resolves."
         return out + ("\n" + tally.summary() if tally is not None else "")
-    lines = [f"✗ pathscan: {len(findings)} finding(s)."]
+    lines = [f"✗ pathscan: {len(findings) + over_cap} finding(s)."]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
         lines.append(f"  {f.path}:{f.line}  [{f.kind}] {f.target} → {f.detail}")
+    if over_cap:
+        lines.append(f"  …and {over_cap} more finding(s), counted but not listed "
+                     f"(past the {MAX_MATERIALIZED_FINDINGS}-finding memory cap).")
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
@@ -1157,9 +1363,10 @@ def _main(argv: list[str] | None = None) -> int:
         print(f"pathscan: cannot read {e.filename}: {e.strerror}", file=sys.stderr)
         return 2
 
+    total = len(findings) + tally.findings_over_cap
     if args.json:
-        print(json.dumps({
-            "clean": not findings,
+        payload = {
+            "clean": not total,
             "warn": args.warn,
             "findings": [asdict(f) for f in findings],
             "suppressed": {
@@ -1167,15 +1374,20 @@ def _main(argv: list[str] | None = None) -> int:
                 "by_allow_marker_rule": tally.by_marker,
                 "files_by_ignore_glob": tally.files_by_glob,
             },
-        }, indent=2))
+        }
+        if tally.findings_over_cap:
+            # Present only when the cap was reached (see Tally.summary).
+            payload["findings_over_cap"] = tally.findings_over_cap
+            payload["finding_cap"] = MAX_MATERIALIZED_FINDINGS
+        print(json.dumps(payload, indent=2))
     else:
         print(render_human(findings, tally))
-        if findings and args.warn:
+        if total and args.warn:
             print("\n  (--warn: advisory only — not blocking this build.)")
 
     if args.warn:
         return 0
-    return 1 if findings else 0
+    return 1 if total else 0
 
 
 def _selftest() -> int:
