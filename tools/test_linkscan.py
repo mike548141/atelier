@@ -539,11 +539,21 @@ class FindingCapAndMemo(unittest.TestCase):
         self.assertEqual(data["findings"], [])
         self.assertEqual(data["findings_over_cap"], 1)
 
-    def test_summary_is_unchanged_when_the_cap_is_not_reached(self):
+    def test_known_zero_prints_when_the_cap_is_not_reached(self):
+        """Stable field set: the over-cap count prints as 0 in the summary
+        and in --json on a run under the cap."""
+        import contextlib
+        import io
+        import json
         self._write("docs/n.md", "[x](gone.md)\n")
         tally = linkscan.Tally()
         linkscan.scan_paths([self.tmp], self.tmp, tally)
-        self.assertNotIn("cap", tally.summary())
+        self.assertIn("· 0 beyond the 50000-finding cap (counted, not listed)",
+                      tally.summary())
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            linkscan.main(["--root", str(self.tmp), "--json", str(self.tmp)])
+        self.assertEqual(json.loads(buf.getvalue())["findings_over_cap"], 0)
 
     def test_same_link_text_resolves_per_directory_not_globally(self):
         """The memo is keyed by (directory, path): `t.md` is fine from a/

@@ -477,16 +477,14 @@ class Tally:
 
     def summary(self) -> str:
         """One stable line, known zeros printed, so two runs compare. The
-        over-cap part appears only when the cap was actually reached: it is
-        a new field, and a run that never hits the cap keeps the exact
-        pre-110/120 output (the byte-identity this fix was held to)."""
+        over-cap count prints every run, 0 included, exactly as leakscan,
+        secretscan and conflictscan do (the field set never varies)."""
         line = ("  suppressed: "
                 f"{self.marker_total} by allow-marker · "
                 f"{self.files_by_glob} file(s) by .pathscanignore · "
                 f"{self.files_by_records} record file(s) excluded by default")
-        if self.findings_over_cap:
-            line += (f" · {self.findings_over_cap} beyond the "
-                     f"{MAX_MATERIALIZED_FINDINGS}-finding cap (counted, not listed)")
+        line += (f" · {self.findings_over_cap} beyond the "
+                 f"{MAX_MATERIALIZED_FINDINGS}-finding cap (counted, not listed)")
         if self.by_marker:
             detail = ", ".join(f"{k}×{n}" for k, n in sorted(self.by_marker.items()))
             line += f"\n    allow-marker breakdown: {detail}"
@@ -1369,16 +1367,13 @@ def _main(argv: list[str] | None = None) -> int:
             "clean": not total,
             "warn": args.warn,
             "findings": [asdict(f) for f in findings],
+            "findings_over_cap": tally.findings_over_cap,
             "suppressed": {
                 "by_allow_marker": tally.marker_total,
                 "by_allow_marker_rule": tally.by_marker,
                 "files_by_ignore_glob": tally.files_by_glob,
             },
         }
-        if tally.findings_over_cap:
-            # Present only when the cap was reached (see Tally.summary).
-            payload["findings_over_cap"] = tally.findings_over_cap
-            payload["finding_cap"] = MAX_MATERIALIZED_FINDINGS
         print(json.dumps(payload, indent=2))
     else:
         print(render_human(findings, tally))

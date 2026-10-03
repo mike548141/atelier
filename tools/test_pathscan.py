@@ -1234,13 +1234,21 @@ class FindingCap(unittest.TestCase):
                 self.assertEqual(
                     ps.main(["--warn", "--root", str(self.tmp), str(self.tmp / "docs")]), 0)
 
-    def test_summary_is_unchanged_when_the_cap_is_not_reached(self):
-        """Byte-identity with the pre-110/120 output on every run that
-        stays under the cap."""
+    def test_known_zero_prints_when_the_cap_is_not_reached(self):
+        """The field set is stable: a run under the cap still prints the
+        over-cap count (0) in the summary and in --json, so two runs can be
+        read side by side, as with the other guards."""
+        import contextlib
+        import io
+        import json
         tally = ps.Tally()
         ps.scan_paths([self.tmp / "docs"], self.tmp, tally)
-        self.assertNotIn("cap", tally.summary())
-        self.assertEqual(tally.findings_over_cap, 0)
+        self.assertIn("· 0 beyond the 50000-finding cap (counted, not listed)",
+                      tally.summary())
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            ps.main(["--root", str(self.tmp), "--json", str(self.tmp / "docs")])
+        self.assertEqual(json.loads(buf.getvalue())["findings_over_cap"], 0)
 
 
 class ResolutionMemo(unittest.TestCase):

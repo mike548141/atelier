@@ -615,7 +615,8 @@ with `<!-- linkscan:allow: <reason> -->` on the line, or a glob in
 held whole; no more than `MAX_MATERIALIZED_FINDINGS` (50,000) findings are built,
 and every one past that is **counted** and printed (`…and N more broken link(s)`,
 plus `--json`'s `findings_over_cap`), so the headline total and the exit code
-stay true. A run under the cap prints exactly what it always did. Each distinct
+stay true. The count prints on every run, a known `0` included, as in the other
+guards' summaries. Each distinct
 `(directory, link path)` is resolved against the disk once per scan.
 
 ### Usage
@@ -1005,8 +1006,9 @@ as a path argument is always scanned.
 held whole, and an overlong line is scanned in overlapping windows. No more than
 `MAX_MATERIALIZED_FINDINGS` (50,000) findings are built; every one past that is
 **counted** and printed (`…and N more finding(s)`, plus `--json`'s
-`findings_over_cap`), so the headline total and the exit code stay true. A run
-under the cap prints exactly what it always did. **Named residual**: on a line
+`findings_over_cap`), so the headline total and the exit code stay true. The
+count prints on every run, a known `0` included, as in the other guards'
+summaries. **Named residual**: on a line
 longer than 16 KiB the placeholder/URL/link-destination blanking is applied in one
 pass per pattern rather than re-run after each blanked span, which differs only
 for adversarial nesting such as `<a <b> c>`.
