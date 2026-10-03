@@ -25,3 +25,23 @@
       named the two features; nothing else from it was read. The sibling, the
       intent record and prior verdicts stay unopened by the reviewer until its
       phase-1 findings are committed. Provenance and exposure go in the verdict.
+      - [ ] 🎯 **The pass RAN 2026-10-03 and the cycle CLOSES on it (0 MAJOR);
+            CU1–CU10 await Mike's ruling round.** The rule-4 Fable cold pass
+            (taker: a fresh `claude-fable-5-1` subagent under a
+            `claude-fable-5-1` orchestrator — the shape disclosed in the claim
+            above; the sibling, the intent record and prior verdicts opened only
+            after the phase-1 findings were committed) returned
+            PASS-WITH-FINDINGS — 0 MAJOR · 1 MODERATE · 6 minor · 3 note →
+            [`2026-10-03-0158-cover-switch-unmapped-headings-cold.md`](../../reviews/2026-10-03-0158-cover-switch-unmapped-headings-cold.md)
+            (sibling folded in). With the switch off, stampscan's output is
+            byte-identical to the pre-delta tool. CU1 (MODERATE):
+            `--require-stamps` certifies that some stamp was compared, not that
+            the floor is stamped — a tree with the floor copy unstamped and one
+            unrelated stamp passes, so `320/130`'s landing note overstates the
+            cover precondition on `020/110`. CU3: the collapsed "top-level"
+            count includes four `###` headings. CU6: `--check` reads map paths
+            with no root confinement. CU9 (note, converging with FV3): no wired
+            caller passes the switch and a child cannot use it until ST3. The
+            collapse does not hide the case `320/340` was filed for, and neither
+            change alters an exit code for a repo that was green. Findings are
+            the principal's to decide (rule 3); nothing was applied.
