@@ -41,7 +41,7 @@
           says to apply fixes on the workhorse, and `ECONOMICS.md:326-338`
           makes the mid tier the executor. The README's own header says it
           carries nothing that can go stale.
-    - [ ] **C9 (drift).** "What earns review" is listed six times and the
+    - [x] **C9 (drift).** "What earns review" is listed six times and the
           lists differ (`REVIEW.md:395-436`, `ECONOMICS.md:350-371`,
           `skills/review-brief`, the template reviews README, the template
           CONTRIBUTING, `PROPAGATION.md:771-777`).
@@ -105,3 +105,12 @@
       models ("Fable", "Opus"). It says "the principal-named review tier" and
       "the workhorse seat", as its own header promises, and notes rule 3 for
       findings on doctrine. Pass queued at `160/590`.
+      ✅ **C9 fixed 2026-10-03.** Re-reading the six copies showed one real
+      drift. `REVIEW.md`, `ECONOMICS.md` and the review-brief skill agree,
+      and `PROPAGATION.md` and the template CONTRIBUTING carry no list. The
+      template reviews README omitted silent-failure surfaces,
+      first-of-kind work, doctrine text and irreversible or public work. It
+      now carries REVIEW's classes, and keeps its two child-specific
+      additions (user-visible behaviour, bundled third-party code) labelled
+      as additions, which widen rather than contradict. Pass queued at
+      `160/610`.

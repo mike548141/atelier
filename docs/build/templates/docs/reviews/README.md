@@ -38,7 +38,12 @@ same either way:
 
 - a design others will build to, or a decision that forecloses alternatives —
   reviewable **before** the code exists, which is when it's cheapest to be wrong;
-- behaviour a user sees (an interaction, an output, a workflow);
+- first-of-kind or structural work;
+- a **silent-failure** surface: a check whose green exit is read as "safe";
+- doctrine text, because a wrong rule propagates everywhere it is inherited;
+- anything irreversible or public;
+- and, in a product repo, also: behaviour a user sees (an interaction, an
+  output, a workflow);
 - bundled third-party code, added or removed;
 - a load-bearing assumption worth challenging before it's trusted (e.g. "this
   API's error contract works the way we assumed").
