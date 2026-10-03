@@ -271,6 +271,93 @@ class HomePathPrefixExemption(unittest.TestCase):
                       cand("size is ~40 lines, see docs/method/00-APEX.md"))
 
 
+class BraceExpansion(unittest.TestCase):
+    """320/010 class C — `{a,b}` used to truncate the token at the brace
+    (`docs/COLLECTING-{X,Y}.md` became `docs/COLLECTING-`)."""
+
+    def test_each_alternative_is_a_candidate(self):
+        self.assertEqual(["docs/COLLECTING-X.md", "docs/COLLECTING-Y.md"],
+                         cand("see docs/COLLECTING-{X,Y}.md for both"))
+
+    def test_backticked_brace_expands_too(self):
+        self.assertEqual(["docs/a.md", "docs/b.md"], cand("see `docs/{a,b}.md`"))
+
+    def test_brace_in_a_directory_segment_and_nested(self):
+        self.assertEqual(
+            ["docs/m/x.md", "docs/m/y.md", "docs/n/x.md", "docs/n/y.md"],
+            cand("`docs/{m,n}/{x,y}.md`"))
+        # Nested groups are out of the token shape: skipped, never truncated.
+        self.assertEqual([], cand("`docs/{a,{b,c}}.md`"))
+
+    def test_empty_alternative_allowed(self):
+        self.assertEqual(["tools/x.py", "tools/x.py.bak"],
+                         cand("`tools/x.py{,.bak}`"))
+
+    def test_comma_less_group_is_a_placeholder_and_skipped(self):
+        self.assertEqual([], cand("see `docs/{slug}.md`"))
+        self.assertEqual([], cand("see `docs/{1..3}.md`"))
+
+    def test_shell_variable_brace_skipped_whole(self):
+        self.assertEqual([], cand("under ${HOME}/notes/x.md"))
+
+    def test_dollar_src_prefix_unchanged(self):
+        self.assertEqual(["SRC/docs/x.md"], cand("`$SRC/docs/x.md`"))
+
+    def test_runaway_expansion_skipped(self):
+        self.assertEqual([], cand("`docs/{a,b}{a,b}{a,b}{a,b}{a,b}{a,b}{a,b}.md`"))
+
+    def test_glob_still_exempt_beside_braces(self):
+        self.assertEqual([], cand("`docs/*.md` and `docs/{a,b}*.md`"))
+
+    def test_comma_separated_list_unaffected(self):
+        self.assertEqual(["docs/a.md", "docs/b.md"], cand("see docs/a.md,docs/b.md"))
+
+    def test_end_to_end_missing_alternative_still_caught(self):
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        (tmp / "docs").mkdir()
+        (tmp / "docs" / "a.md").write_text("x\n")
+        (tmp / "docs" / "note.md").write_text(
+            "both `docs/{a,b}.md` and `docs/{a,c}.md`\n")
+        found = sorted(f.target for f in ps.scan_paths([tmp / "docs"], tmp))
+        self.assertEqual(["docs/b.md", "docs/c.md"], found)
+
+    def test_all_present_alternatives_scan_clean(self):
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        (tmp / "docs").mkdir()
+        for n in ("a.md", "b.md"):
+            (tmp / "docs" / n).write_text("x\n")
+        (tmp / "docs" / "note.md").write_text("both `docs/{a,b}.md`\n")
+        self.assertEqual([], ps.scan_paths([tmp / "docs"], tmp))
+
+
+class InlineCodeSpanInvocation(unittest.TestCase):
+    """320/170 — `./x.sh run` inside a fence was clean, inside an inline code
+    span was flagged. Same text, different wrapper."""
+
+    def test_dot_slash_command_opening_a_span_is_skipped(self):
+        self.assertEqual([], cand("run `./nosuch/same.sh run` to reproduce"))
+        self.assertEqual([], cand("run `./nosuch/same.sh` to reproduce"))
+
+    def test_fenced_spelling_is_equally_clean(self):
+        self.assertEqual(
+            [], [t for _, l in ps._content_lines("```sh\n./nosuch/same.sh run\n```\n")
+                 for t in cand(l)])
+
+    def test_bare_prose_dot_slash_still_checked(self):
+        self.assertEqual(["./nosuch/same.sh"], cand("run ./nosuch/same.sh now"))
+
+    def test_dot_slash_mid_span_still_checked(self):
+        self.assertEqual(["./nosuch/same.sh"], cand("`see ./nosuch/same.sh`"))
+
+    def test_plain_missing_path_in_span_still_flagged(self):
+        self.assertEqual(["tools/nosuch.py"], cand("run `tools/nosuch.py run`"))
+
+    def test_unclosed_backtick_not_treated_as_span(self):
+        self.assertEqual(["./nosuch/same.sh"], cand("odd `./nosuch/same.sh"))
+
+
 class MarkdownLinkDestinationSkipped(unittest.TestCase):
     def test_link_destination_not_a_candidate(self):
         # This is linkscan's job — pathscan must not re-check it.
