@@ -1,4 +1,4 @@
-- [ ] **E7 residue — G3 (binary media): FUNDED as its own item, soon
+- [~] (claimed 2026-10-03-0242, wt: qr-leakscan-g3) **E7 residue — G3 (binary media): FUNDED as its own item, soon
       (Mike ruled 2026-08-09; shape unchanged from 2026-08-04).** A
       deliberate landing, not a rider: the build session designs the
       blast-radius half deliberately — marker ergonomics for legitimate

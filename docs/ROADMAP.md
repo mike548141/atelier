@@ -45,7 +45,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [D3 — signscan cannot fail CI.](roadmap/020-policy-as-code-programme-five-tracks-mik/120-d3-signscan-cannot-fail-ci.md)
 - [ ] [D4 — the repo-local seam has no adopters.](roadmap/020-policy-as-code-programme-five-tracks-mik/130-d4-the-repo-local-seam-has-no-adopters.md)
 - [ ] 🎯 [E6 — the floor's posture, and the dial that makes it reachable.](roadmap/020-policy-as-code-programme-five-tracks-mik/140-e6-the-floor-s-posture-and-the-dial-that-makes.md)
-- [ ] [E7 residue — G3 (binary media): FUNDED as its own item, soon](roadmap/020-policy-as-code-programme-five-tracks-mik/150-e7-residue-g3-binary-media-funded-as-its-own-i.md)
+- [~] (claimed 2026-10-03-0242, wt: qr-leakscan-g3) [E7 residue — G3 (binary media): FUNDED as its own item, soon](roadmap/020-policy-as-code-programme-five-tracks-mik/150-e7-residue-g3-binary-media-funded-as-its-own-i.md)
 - ✅ [E9 — every scanner walks gitignored nested worktrees, and counts the](roadmap/020-policy-as-code-programme-five-tracks-mik/160-e9-every-scanner-walks-gitignored-nested-workt.md)
 - [ ] 🎯 [F1 — rebuild the block-vs-advise model from base. REBUILT](roadmap/020-policy-as-code-programme-five-tracks-mik/170-f1-rebuild-the-block-vs-advise-model-from-base.md)
 - [ ] [The mechanisable form of it](roadmap/020-policy-as-code-programme-five-tracks-mik/180-the-mechanisable-form-of-it.md)
