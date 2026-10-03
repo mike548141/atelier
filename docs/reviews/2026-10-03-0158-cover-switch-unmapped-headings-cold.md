@@ -510,3 +510,188 @@ was fetched and checked out to `0a669e7` after the orchestrator's merge.
       remains the gate on wiring the switch anywhere real.
 - [ ] CU10 — a ruling on where the advisory report should land, if anywhere
       beyond a CI log.
+
+### Reconcile
+
+Written 2026-10-03 04:50 UTC, after phase 1 was committed unrevised (`5cb4f2b`).
+Read now, for the first time: the sibling's text, the intent record's two
+sections on these features, and the commissioning items `320/130` and `320/340`.
+The prior verdicts (`FV`, `NP`, `RU`) were met through the sibling's summaries
+only; they were not opened. The suite was not re-run. Three light checks ran in
+the scratch clone at `0a669e7` to test the records' own claims; they are listed
+at the end. Phase-1 text above is untouched.
+
+**The records' claims, re-driven.**
+
+- "With the switch off, the output is byte-identical (stdout, stderr and exit;
+  plain, `--warn` and `--json`; atelier's tree)" — **holds.** The pre-delta
+  `stampscan.py` (`d4b1a84`) and HEAD's produce identical stdout and stderr and
+  exit 0 in all three modes over the tree.
+- "Six tests were added, 96 in all" — **holds** (loader count 96).
+- "The first output was about 60 lines … it is now 16" — **holds** (16 lines).
+- "12 subsections sit under mapped sections: one under APEX, five under
+  CONCURRENCY, six under PROPAGATION, including § *The route* and § *Report
+  without harming the parent*" — **holds**, line for line with the live run.
+- "Another 43 top-level headings are cited by no bullet" — **the count holds,
+  the word does not**: 4 of the 43 are `###` headings. The record repeats the
+  tool's own mislabel (CU3).
+- "**So 020/110's precondition is met.** The wiring bar can now lift without
+  shipping green-over-nothing, provided the wiring passes the switch" —
+  **overstated; see CU1 below.**
+
+**Per finding.**
+
+- **CU1 (MODERATE) — stands, and the intent record sharpens why it matters.**
+  `320/130` asked for the `leakscan --require-terms` shape, and the delta is a
+  faithful copy of that shape; as a commission it is met. But the item then
+  draws a conclusion from it — the cover precondition on wiring stampscan to
+  children is discharged — and that conclusion needs "the floor block was
+  compared", which the switch does not certify. A child with its floor
+  unstamped and any other stamp in its tree still gets green over an unchecked
+  floor with the switch on (probe E). *Formed at reconcile:* the sibling's FV1
+  and FV2 bear on the remedy. Keying the switch on the floor pair, as phase-1
+  counsel suggested, would inherit FV1 (the pair matches the literal `source=`
+  string, so a respelled path would read as "no floor stamp" — failing closed
+  here, which is the safe direction, but noisy). FV2's allow-marker hole does
+  **not** reach the switch: an allow-skipped block is not counted as cover
+  (test and probe). Severity unchanged.
+- **CU2 (minor) — stands.** Seeded question 5: the stampscan tests drive
+  `_main` with argv in-process, and the blockscan tests drive the CLI by
+  subprocess, so both go through argument parsing; the gap is that the `--json`
+  case asserts the exit code only.
+- **CU3 (minor) — stands**, now with a second surface: the `320/340` landing
+  note carries "43 top-level" too. Seeded question 3's last part: the collapse
+  does **not** hide the case `320/340` was filed for — both subsections it names
+  are listed in full. What it folds away is a `###` under an *unmapped* `##`,
+  which is not that item's case.
+- **CU4, CU5, CU6, CU7 (minor, minor, minor, note) — stand unchanged.** Nothing
+  in the intent record or the items speaks to fence pairing, the title-section
+  body, root confinement of map paths, or output escaping. Seeded question 3:
+  `###` and `####` under a mapped `##` are both seen and labelled; a heading
+  inside a plain fence is ignored; CU4 is the nested-fence exception.
+- **CU8 (minor) — stands.** The intent record lists both features as delivered;
+  no CHANGELOG line was owed anywhere else that this pass could find.
+- **CU9 (note) — stands, and converges with the sibling's FV3**, reached
+  independently: nothing automated reaches a child's floor block, and a child
+  running the tool gets `missing-source`. Seeded question 2: no wired invocation
+  passes the switch, so nothing has changed for the hook, for CI, or for a
+  child. The item says as much ("whether to wire it … is still 020/110's
+  decision"), which is honest; CU1 is the caveat on its "precondition met".
+- **CU10 (note) — stands, and the records already own it.** `320/340` stays
+  open for the map-design choice, and the sibling's NP6 and RU1 counsel (map
+  subsections) is the unbuilt half. The delta delivers visibility, as
+  commissioned, and claims no more. AK4 and DR2's disagreement about the shared
+  apex section is untouched by this delta.
+
+**Seeded questions not answered above.**
+
+1. `--require-stamps` fails on zero blocks found, on all blocks allow-skipped,
+   and on the sole stamped file netted by an ignore glob (probes A, B, G and the
+   allow test); a missing source exits 2 as a config error before the switch is
+   consulted. That is what `320/130` asked for. What it does not fail on is CU1.
+4. Neither change alters an exit code on either plane for a repo that was green:
+   the switch is off by default and byte-identical when off; the unmapped report
+   never touches the exit code or `clean`; both floor planes ran green at
+   `0a669e7`.
+
+**Reconcile checks (scratch clone, `0a669e7`).** Pre-delta `stampscan.py` from
+`d4b1a84` against HEAD's, plain / `--warn` / `--json` over the tree: identical
+stdout and stderr, exit 0/0 each. `test_stampscan` loader count: 96. Line count
+of the live `blockscan --check --warn` output: 16.
+
+**Overall, restated: PASS-WITH-FINDINGS — 0 MAJOR · 1 MODERATE · 6 minor ·
+3 notes.** No finding was added, withdrawn or re-graded at reconcile. One thing
+for the principal beyond the findings themselves: `320/130`'s landing note says
+the cover precondition on `020/110` is met, and CU1 says it is met for "no
+stamps at all" and not for "the floor is unstamped" — worth holding beside
+`020/110` before that bar is lifted.
+
+## Folded sibling — released after the phase-1 findings were committed
+
+The `.deferred.md` sibling the orchestrator held outside the worktree, folded in
+verbatim at close; the reviewer met it only in phase 2.
+
+# Deferred sibling — cover-switch and unmapped-headings cold pass (CU)
+
+Held by the orchestrator outside the worktree and outside the harness
+scratchpad. Released to the reviewer only after its phase-1 findings are
+committed. Folded into the verdict file at close.
+
+## 1. The queue pointer's own framing (author's words)
+
+The pointer `160/430` as written by the authoring run, before the claim line:
+
+> Rule-4 cold pass queued: `stampscan --require-stamps` and `blockscan`'s
+> unmapped-heading report (`320/130`, `320/340`). The run authored this itself
+> (its dispatched workers' output counts as the run's authorship). It was
+> queued at landing, and the run neither takes it nor spawns a reviewer for it.
+> Tier: Fable, the principal-named review tier, checked at selection. Pass
+> type: code cold pass, per `method/REVIEW.md` rule 4. Delta, scoped to paths:
+> `tools/stampscan.py`, `tools/test_stampscan.py`, `tools/blockscan.py`,
+> `tools/test_blockscan.py`, and those two tools' entries in `tools/README.md`.
+> It landed on `main` on 2026-10-03, in merges `3cb2f64` and `33b3c5f`.
+> Intent record: `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md`.
+
+## 2. Intent record and commissioning items (read these in phase 2)
+
+- `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md`
+- `docs/roadmap/320-child-filed-findings-via-pointing-up/130-*.md` — a stamp
+  proves wording, not provenance; the commission for `--require-stamps`
+- `docs/roadmap/320-child-filed-findings-via-pointing-up/340-*.md` — blockscan
+  subsection blindness; the commission for the unmapped-heading report
+
+## 3. What the authoring run said to the orchestrator (channel, verbatim)
+
+> (1) I'm appending one line to the end of docs/SESSIONS.md for my run; I'll
+> update it in place later, but only on that line. (2) A new file,
+> docs/roadmap/160-doctrine-review-owed/430-rule-4-cold-pass-queued-the-cover-switch-and-unmapped-headings.md:
+> a refs-only ⏳ pointer for my run's own code (stampscan --require-stamps,
+> blockscan unmapped headings). Under rule 4 my run can't take it; it's yours
+> or any Fable session's. I'm not touching any other 160 file.
+
+Nothing else from that run was read by the orchestrator.
+
+## 4. Prior findings on these tools (from inventory summaries the orchestrator
+## received; the reviewer meets them only now)
+
+From the 2026-09-25 floor-verbatim pass (`FV`, verdict
+`docs/reviews/2026-09-25-0715-floor-verbatim-cold.md`, unruled):
+
+- FV1 (MODERATE): `_is_floor_block` matches the literal `source=` string, not
+  the file; four respellings of the path let a narrowed floor pass clean.
+- FV2 (MODERATE): a `stampscan:allow:` line inside the floor block skips the
+  verbatim check; the tool's footer under a floor-narrow red recommends both
+  `narrow=` and the allow marker.
+- FV3 (MODERATE): nothing automated reaches a child's floor block; stampscan is
+  not in the floor registry, not in the child `floor.yml`, not in create-repo.
+  A child running it gets missing-source or scans nothing.
+- FV11 (minor): the fleet leg closed on a one-off measurement, not the
+  instrument it owed.
+
+From the 2026-09-25 naming-precedence pass (`NP`) and report-up-duty pass
+(`RU`), both unruled:
+
+- NP6 (MODERATE), guard half: blockscan missed a floor-region edit because its
+  map keys the `##` heading while the edit was in `###` subsections. The guard
+  half was boarded as `320/340`, which this delta claims to answer.
+- RU1 (MAJOR), blockscan half: blockscan cannot see the `48c181f` edit for the
+  same reason; counsel was to map subsections.
+- AK4 (note, ask-rule-to-children pass): blockscan double-fires on a shared
+  apex section; called a coarse false positive needing an allow marker. DR2
+  (da-rulings-applied pass) treats the same red as a genuine defect. The two
+  passes disagree.
+
+## 5. Seeded questions (the orchestrator's, labelled as such)
+
+1. Does `--require-stamps` fail only on "zero blocks found", or also on "blocks
+   found but none evaluated" (all skipped by ignore glob, allow marker, or
+   missing source)? Which did `320/130` ask for?
+2. Is `--require-stamps` passed by any wired invocation at HEAD? If not, what
+   has changed for the hook, CI or a child?
+3. Does the unmapped-heading report see a `###` under a mapped `##`? A `####`?
+   A heading added inside a fenced block? Does collapsing top-level headings to
+   a count hide the one case `320/340` was filed for?
+4. Does either change alter exit codes on the hook or CI plane for a repo that
+   was green before the merge?
+5. Does the test suite drive the new behaviour through `main()` and argv, or
+   only through helpers?
