@@ -903,6 +903,74 @@ class BoundedMemory(unittest.TestCase):
             f"large={large_peak / 1e6:.1f} MB).")
 
 
+class RequireStamps(unittest.TestCase):
+    """`--require-stamps` (roadmap 320/130): a run that verified nothing must
+    not print a clean pass when the caller said it expected cover."""
+
+    def setUp(self):
+        import shutil
+        import tempfile
+        self.tmp = ss.Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+
+    def _run(self, *argv):
+        import contextlib
+        import io
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = ss._main(["--root", str(self.tmp), *argv, "docs"])
+        return rc, out.getvalue(), err.getvalue()
+
+    def _unstamped(self):
+        _write(self.tmp, "docs/child.md", "# Child\n\na\nb\n")
+
+    def _stamped(self):
+        _write(self.tmp, "docs/PARENT.md", _parent_text(["a", "b"]))
+        _write(self.tmp, "docs/child.md", _child_text(["a", "b"]))
+
+    def test_unstamped_tree_fails_with_switch(self):
+        self._unstamped()
+        rc, out, err = self._run("--require-stamps")
+        self.assertEqual(2, rc)
+        self.assertIn("--require-stamps", err)
+        self.assertIn("no stamped block was verified", err)
+        self.assertNotIn("clean", out)
+
+    def test_unstamped_tree_fails_with_switch_under_json_and_warn(self):
+        self._unstamped()
+        for extra in ("--json", "--warn"):
+            rc, _out, _err = self._run("--require-stamps", extra)
+            self.assertEqual(2, rc, extra)
+
+    def test_stamped_tree_passes_with_switch(self):
+        self._stamped()
+        rc, out, err = self._run("--require-stamps")
+        self.assertEqual(0, rc)
+        self.assertIn("1 stamped block(s) verified", out)
+        self.assertEqual("", err)
+
+    def test_drift_still_reports_drift_with_switch(self):
+        _write(self.tmp, "docs/PARENT.md", _parent_text(["a", "b"]))
+        _write(self.tmp, "docs/child.md", _child_text(["a"]))
+        rc, _out, _err = self._run("--require-stamps")
+        self.assertEqual(1, rc)
+
+    def test_allow_skipped_block_is_not_cover(self):
+        _write(self.tmp, "docs/PARENT.md", _parent_text(["a", "b"]))
+        _write(self.tmp, "docs/child.md",
+               _child_text(["a", f"<!-- {ss.ALLOW_MARKER}: reason -->"]))
+        rc, _out, err = self._run("--require-stamps")
+        self.assertEqual(2, rc)
+        self.assertIn("1 skipped by allow-marker", err)
+
+    def test_switch_off_is_unchanged_over_unstamped_tree(self):
+        self._unstamped()
+        rc, out, err = self._run()
+        self.assertEqual(0, rc)
+        self.assertIn("✓ stampscan clean — no stamped blocks found.", out)
+        self.assertEqual("", err)
+
+
 class SelfTest(unittest.TestCase):
     def test_selftest_passes(self):
         self.assertEqual(0, ss._selftest())
