@@ -148,7 +148,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Triage the four red floors.](roadmap/110-estate-duplication-exception-audit-mike/090-triage-the-four-red-floors.md)
 - [~] 🎯 (claimed 2026-10-03-0416, wt: qr-exceptions; parts 2–3: the exception record and its migration) [The exception audit above checked reason-presence and](roadmap/110-estate-duplication-exception-audit-mike/100-two-granularities-the-2026-08-09-audit-never-asked-about.md)
 - ✅ 🔥 [The content guards walk the whole filesystem, untracked trees](roadmap/110-estate-duplication-exception-audit-mike/110-guards-walk-untracked-trees.md)
-- [~] 🔥 (claimed 2026-10-03-0547, wt: qr-bounded-path-link) [pathscan and linkscan are unbounded on one large file](roadmap/110-estate-duplication-exception-audit-mike/120-pathscan-and-linkscan-are-unbounded-on-one-big-file.md)
+- ✅ 🔥 [pathscan and linkscan are unbounded on one large file](roadmap/110-estate-duplication-exception-audit-mike/120-pathscan-and-linkscan-are-unbounded-on-one-big-file.md)
 - [ ] 🔎 [leakscan and secretscan scan at roughly 0.5–1 MB/s, so a 128 MB](roadmap/110-estate-duplication-exception-audit-mike/130-leakscan-and-secretscan-scan-under-1-mb-per-second.md)
 - [~] 🔥 (claimed 2026-10-03-0630, wt: qr-linear-reader) [leakscan, secretscan and conflictscan's line reader re-slices](roadmap/110-estate-duplication-exception-audit-mike/140-the-line-reader-re-slices-per-line.md)
 
@@ -270,6 +270,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued: the template reviews README's trigger list](roadmap/160-doctrine-review-owed/610-rule-4-cold-pass-queued-template-review-triggers.md)
 - ⏳ [Rule-4 cold pass queued: the always-confirm list's copies match](roadmap/160-doctrine-review-owed/620-rule-4-cold-pass-queued-floor-list-membership.md)
 - ⏳ [Rule-4 cold pass queued: personal data held by purpose, with](roadmap/160-doctrine-review-owed/630-rule-4-cold-pass-queued-pii-by-purpose.md)
+- ⏳ [Rule-4 cold pass queued: pathscan and linkscan stream and cap](roadmap/160-doctrine-review-owed/640-rule-4-cold-pass-queued-bounded-pathscan-linkscan.md)
 
 ## build/ layer — open strands
 
