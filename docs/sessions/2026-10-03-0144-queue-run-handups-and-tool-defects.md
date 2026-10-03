@@ -194,3 +194,22 @@ shared edit changes any scanner's pattern. That turns the 2026-08-09 class
 divergences, filed as `115/230` rather than unified. One widens: a scope with
 no reason exempts every kind on the line. Part 3 is still owed. The code pass
 is queued at `160/480`.
+
+## `020/150`: G3 built on the capable tier, then held
+
+It was dispatched to an Opus worker because it is first-of-kind and
+tightens a gate for every child. The worker measured before it designed.
+Tracked binaries across the estate: 57 in public children and 95 in
+private ones, and atelier has none. The design follows the ruling exactly:
+a hash-bound, reasoned per-file entry, so a changed binary re-blocks.
+Text metadata is scanned, and opaque metadata blocks unless named. The build
+also found that the staged plane never saw binaries at all, even by name.
+
+🛑 **Held as draft PR #97, not merged.** Children call `floor.yml@main` and
+float at `main`, so landing it reds seven children's CI at their next run,
+with no deferment path. That is Mike's act. 🛑 **The same fact corrected
+this run's own record.** `260/040` had said publishscan round 2 reaches
+children "at their next pin bump". It reaches them at their next CI run.
+The claim was reasoned and never checked against `floor.yml`, and it was
+corrected in place, with the correction visible. The doctrine gap the build
+exposed, that adoption assumes an advisory form, is filed as `020/410`.

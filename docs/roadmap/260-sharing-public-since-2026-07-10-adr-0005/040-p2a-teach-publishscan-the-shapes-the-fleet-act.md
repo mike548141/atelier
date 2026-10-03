@@ -23,6 +23,11 @@
       `*.pub`.
       📏 **Blast radius, measured old against new over every sibling:** 3
       private repos newly red, 23 files. Public repos 0, archived 0 new.
-      Children meet it at their next pin bump, and atelier itself stays
-      clean (884 paths). 30 tests pass and the selftest is OK. Code pass
+      atelier itself stays clean (884 paths).
+      ⚠️ **Corrected the same day.** This first said children "meet it at their
+      next pin bump". They do not: children call `floor.yml@main`, and their
+      scanners float at `main` by design ("newest scanner = safest"). So the
+      3 private repos go red at their **next CI run**, which is the design
+      working on latent findings. The claim came from reasoning without
+      checking the workflow. `020/150`'s build caught it. 30 tests pass and the selftest is OK. Code pass
       queued at `160/470`.
