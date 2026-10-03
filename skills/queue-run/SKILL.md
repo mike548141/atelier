@@ -46,9 +46,13 @@ Absent an override, run the defaults.
    the work outruns you — then hand up, noisily — or if you reach a `⏳`
    review item whose named tier you cannot honour (`REVIEW.md` rule 4: leave
    it and take the next open item).
-2. **Sync + onramp.** `git pull --rebase --autostash`; load the session onramp
-   (the `session-onramp` skill / the repo's read-order). Assume another session
-   may be live — a clean tree is not proof you are alone (`CONCURRENCY.md`).
+2. **Sync + onramp.** Read `git status` **first**. Dirty work that is not
+   yours is proof of a live peer, so stop and move to a worktree, and never
+   let `--autostash` shelve it. With a clean tree (or only your own work),
+   `git pull --rebase --autostash`. A repo with no upstream skips the pull
+   (`CONCURRENCY.md` § *Integration hygiene*). Then load the session onramp
+   (the `session-onramp` skill, or the repo's read-order). Assume another
+   session may be live: a clean tree is not proof you are alone.
 3. **Select the next item.** Use the invocation's order if it set one; else the
    default: **loose ends & unblockers → features most of the way to done → queue
    order** (`CONCURRENCY.md`).

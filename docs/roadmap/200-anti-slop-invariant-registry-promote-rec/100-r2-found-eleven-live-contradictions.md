@@ -5,7 +5,7 @@
       in passing. Six were re-read first-hand by the orchestrator before
       filing (C1, C2, C4, C5, C6, C10). The rest are as the survey reported
       them. Line numbers are at `729c74b`.
-    - [ ] **C1 (contradiction, safety floor).** `skills/queue-run/SKILL.md:49`
+    - [x] **C1 (contradiction, safety floor).** `skills/queue-run/SKILL.md:49`
           tells a run to `git pull --rebase --autostash` with no status-first
           gate. `CONCURRENCY.md:177-189`, the floor block and atelier's own
           `CLAUDE.md` say: check status first, and stop and move if the dirty
@@ -65,3 +65,7 @@
       mechanically" question:** *"ok one by one"*. It is recorded as an answer, not a
       ruling (`420/020`). Each contradiction is fixed separately, with its own
       rule-4 pass.
+      ✅ **C1 fixed 2026-10-03.** `skills/queue-run/SKILL.md` step 2 now reads
+      `git status` first, stops and moves on a peer's dirty work, and skips
+      the pull with no upstream, as `CONCURRENCY.md` says. Pass queued at
+      `160/520`.
