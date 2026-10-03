@@ -410,6 +410,18 @@ longer carries a MAC the key reproduces, so the tampering is
 Every manifest write re-signs; a pre-signing archive is migrated to a signed one
 on the next ordinary run.
 .PP
+The manifest is saved, and re-signed, every 50 mirrors written and again if a
+run fails part-way, so a run that dies leaves the manifest covering every mirror
+it had written. A manifest entry is only ever set after its mirror is fully
+written. If an entry still lags a mirror that is fresh by mtime (its recorded
+size differs from the source's), the next ordinary run refreshes it from the
+source, since the mirror was stamped with that source version's mtime. This
+check is by size only and is never done on
+.BR \-\-dry\-run :
+a same-size rewrite is not detected by it, and
+.B \-\-verify
+remains the check. Overlapping runs are not locked against.
+.PP
 The scheme is symmetric (HMAC), not a public-key signature, by design: the
 signer and the verifier are the same machine and user, so a locally-held key is
 the simplest fit. A keypair would buy something only if the archive had to be
