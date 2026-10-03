@@ -1478,34 +1478,20 @@ function makeStale(src, dest, rel) {
   cc.signManifest(dest, cc.ensureKey(process.env.CCARCHIVE_KEYFILE));
 }
 
-test('one normal run heals a manifest entry that lags a fresh mirror, then --verify passes', () => {
+test('an ordinary run does NOT rewrite a lagging entry from the source (MC1)', () => {
+  // The heal was pulled: a source replaced by an older, shorter copy must never
+  // be recorded as the truth against an intact mirror.
   const { src, dest } = makeTree();
   runJson(src, dest);
   const rel = path.join('-repo-b', 'uuid2.jsonl');
   makeStale(src, dest, rel);
-  assert.equal(runCli('--verify', '--dest', dest).status, 1, 'precondition: the lag is detected');
-  const j = runJson(src, dest);
-  assert.equal(j.archived, 0, 'the mirror is fresh, so nothing is re-archived');
-  const e = cc.loadManifest(dest)[rel];
-  const bytes = fs.readFileSync(path.join(src, rel));
-  assert.equal(e.rawBytes, bytes.length);
-  assert.equal(e.sha256, cc.sha256(bytes));
-  assert.notEqual(e.archivedAt, 'old');
-  assert.equal(runCli('--verify', '--dest', dest).status, 0);
-});
-
-test('--dry-run heals nothing: a lagging manifest is left exactly as found', () => {
-  const { src, dest } = makeTree();
+  const before = cc.loadManifest(dest)[rel];
   runJson(src, dest);
-  const rel = path.join('-repo-b', 'uuid2.jsonl');
-  makeStale(src, dest, rel);
-  const before = fs.readFileSync(path.join(dest, 'manifest.json'));
-  runJson(src, dest, '--dry-run');
-  assert.ok(fs.readFileSync(path.join(dest, 'manifest.json')).equals(before));
-  assert.equal(cc.loadManifest(dest)[rel].archivedAt, 'old');
+  assert.deepEqual(cc.loadManifest(dest)[rel], before);
+  assert.equal(runCli('--verify', '--dest', dest).status, 1, 'the lag stays visible to --verify');
 });
 
-test('healing is size-triggered only: an equal-size entry is not rehashed or rewritten', () => {
+test('an ordinary run leaves an equal-size skipped entry untouched', () => {
   const { src, dest } = makeTree();
   runJson(src, dest);
   const rel = path.join('-repo-b', 'uuid2.jsonl');

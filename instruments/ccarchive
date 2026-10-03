@@ -122,9 +122,11 @@ function shouldArchive(srcMtimeMs, destMtimeMs) {
 // per-file would turn a bulk first run into quadratic I/O, while "once at the
 // end" is what let a dying run leave mirrors ahead of the manifest (210/170).
 // 50 bounds what a hard kill (no chance to run the catch-path save) can leave
-// ahead of the manifest to 50 mirrors, which the next run heals (stale entries
-// by the size rule on the skip path, new ones by the backfill) while costing
-// ~1/50th of per-file. Override with $CCARCHIVE_CHECKPOINT_EVERY (tests; positive int).
+// ahead of the manifest to 50 mirrors (new ones are backfilled; an entry that
+// lags its mirror stays lagged and --verify reports it), while costing ~1/50th
+// of per-file. A skip-path heal from the SOURCE was tried and pulled the same
+// day (MC1, 2026-10-03): a source replaced by an older, shorter copy would be
+// recorded as the truth, against an intact mirror. Override with $CCARCHIVE_CHECKPOINT_EVERY (tests; positive int).
 const CHECKPOINT_EVERY = 50;
 function checkpointEvery() {
   const n = Number(process.env.CCARCHIVE_CHECKPOINT_EVERY);
@@ -1132,18 +1134,6 @@ function run() {
 
     if (!shouldArchive(srcStat.mtimeMs, destMtimeMs)) {
       report.skipped++;
-      // Heal a lagging entry. The mirror is fresh by mtime, and the mirror is
-      // only ever stamped with the mtime of the exact source version it was
-      // written from, so this source IS what the mirror holds. If the manifest's
-      // rawBytes disagrees with the source's size, the entry is stale (a run died
-      // between writing the mirror and saving the manifest), so refresh it from
-      // the SOURCE. Size-only trigger: never hash every skipped file. Limit: a
-      // same-size rewrite goes undetected here; --verify remains the check.
-      if (!dryRun && manifest[rel] && manifest[rel].rawBytes !== undefined &&
-          manifest[rel].rawBytes !== srcStat.size) {
-        manifest[rel] = { sha256: sha256File(srcAbs), rawBytes: srcStat.size, archivedAt: nowIso };
-        manifestChanged = true;
-      }
       // Backfill: an already-archived transcript with no recorded hash (e.g. the
       // first run after this feature shipped). The source is present, so hash it.
       if (!dryRun && !manifest[rel]) {

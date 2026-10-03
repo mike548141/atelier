@@ -255,6 +255,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued: the shared allow-marker grammar and ignore](roadmap/160-doctrine-review-owed/480-rule-4-cold-pass-queued-the-shared-allow-marker-grammar.md)
 - ⏳ [Rule-4 cold pass queued: pathscan's brace expansion and inline](roadmap/160-doctrine-review-owed/490-rule-4-cold-pass-queued-pathscan-brace-expansion.md)
 - ⏳ [Rule-4 cold pass queued: the expected toolbox and its install rule](roadmap/160-doctrine-review-owed/500-rule-4-cold-pass-queued-the-expected-toolbox.md)
+- ⏳ [Rule-4 cold pass queued: ccarchive's heal pulled (210/170,](roadmap/160-doctrine-review-owed/510-rule-4-cold-pass-queued-the-heal-pulled.md)
 
 ## build/ layer — open strands
 

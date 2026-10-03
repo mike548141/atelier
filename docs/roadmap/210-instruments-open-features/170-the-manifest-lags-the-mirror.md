@@ -69,3 +69,24 @@
   **Still open:** no lock against overlapping runs, so the lost-update
   hypothesis stands untested. Whether a run actually died in the field is
   also unknown. Rule-4 code pass queued at `160/460`.
+
+  🔙 **The heal was PULLED on 2026-10-03, the same day it shipped.** The
+  Fable cold pass on `160/460` found MC1 (MAJOR): the heal re-reads the
+  *source*. A source replaced by an older, shorter copy, such as a restore
+  from backup, is then recorded as the truth against an intact mirror.
+  `--verify` reports the good mirror as damaged, and the shrink guard
+  stops seeing the loss. 💬 Mike's answer: *"Put the heal now as
+  recommended but also I've literally just run ccarchive 5 mins ago"*. The
+  heal block, its man-page paragraph and its two tests are removed. A
+  regression test now pins that an ordinary run does **not** rewrite a
+  lagging entry. The checkpoint half had no MAJOR finding and stays. 103
+  tests pass.
+  🔎 **The run Mike made with the heal live was checked read-only straight
+  afterwards** (`--verify --json`). Of 9,231 entries, **0 mismatches**, down
+  from 14. 4,244 verified OK and 44 were unmanifested. **4,987 are
+  iCloud-evicted and could not be checked** without downloading them, so
+  an MC1-shaped entry among the evicted cannot be ruled out, only judged
+  unlikely. The heal only fired where a mirror was fresh by mtime and its
+  size differed, and the two known shrunk memory files take the refusal
+  path, not the heal. MC2, a torn mirror frozen in, is pre-existing, and
+  the rest of the findings stay with the ruling round.
