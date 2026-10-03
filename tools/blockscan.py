@@ -205,6 +205,9 @@ import sys
 from dataclasses import dataclass, asdict
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import allowmarker  # noqa: E402
+
 # A line/span carrying this marker exempts exactly one `violation` finding —
 # never an integrity finding (`stale-heading`, `missing-bullet`, `missing-
 # file`, `missing-region`). Same tightened contract as every sibling
@@ -212,7 +215,7 @@ from pathlib import Path
 # non-empty reason, so a bare mention of the marker text does not silently
 # exempt anything.
 ALLOW_MARKER = "blockscan:allow"
-ALLOW_MARKER_RX = re.compile(r"\b" + re.escape(ALLOW_MARKER) + r":\s*[\w\"'“‘]")
+ALLOW_MARKER_RX = allowmarker.marker_rx(ALLOW_MARKER, sep=allowmarker.SEP_ANY_SPACE, named_reason=False)
 
 DEFAULT_MAP_NAME = "blockscan_map.json"
 

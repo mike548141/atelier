@@ -95,6 +95,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import allowmarker  # noqa: E402
+
 # The day the record templates began carrying the field (the artefact's landing
 # date). Records frozen before it are blameless and append-only — see docstring.
 BOUNDARY = "2026-07-21"
@@ -116,8 +119,7 @@ ALLOW_BASE = "reviewscan:allow"
 # GUARDS.md rule (c): a marker only counts with a colon and a non-empty reason,
 # so prose that merely mentions the marker text exempts nothing. Tightened
 # 2026-08-05 — a bare marker used to exempt on a substring match.
-ALLOW_RX = re.compile(
-    r"\b" + re.escape(ALLOW_BASE) + r"(?::(?P<kind>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>[\w\"\'“‘])")
+ALLOW_RX = allowmarker.marker_rx(ALLOW_BASE, scope="one", group="kind")
 
 
 def parse_allow(text: str) -> str | None:
@@ -126,10 +128,7 @@ def parse_allow(text: str) -> str | None:
     `""` means the whole record; `"deferral"` is the DEFERRAL_ALLOW scope
     that check 2 requires (an unscoped allow must not silently waive the
     deferral guard too — DF3). A marker with no reason returns None."""
-    m = ALLOW_RX.search(text)
-    if not m:
-        return None
-    return m.group("kind") or ""
+    return allowmarker.scope_of(ALLOW_RX, text, "kind")
 
 
 FENCE = re.compile(r"^\s*(```|~~~)")

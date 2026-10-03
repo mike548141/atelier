@@ -151,6 +151,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import filewalk  # noqa: E402
+import allowmarker  # noqa: E402
 
 # A file whose HEADER carries this marker is exempt from EVERYTHING — the size
 # advisory and the cold-content gate (e.g. a repo that deliberately keeps a flat
@@ -161,8 +162,7 @@ ALLOW_MARKER = "sizescan:allow"
 # GUARDS.md rule (c): a marker only counts with a colon and a non-empty reason,
 # so prose that merely mentions the marker text exempts nothing. Tightened
 # 2026-08-05 — a bare marker used to exempt on a substring match.
-ALLOW_RX = re.compile(
-    r"\b" + re.escape(ALLOW_MARKER) + r"(?::(?P<kind>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>[\w\"\'“‘])")
+ALLOW_RX = allowmarker.marker_rx(ALLOW_MARKER, scope="one", group="kind")
 
 
 def parse_allow(text: str) -> str | None:
@@ -172,10 +172,7 @@ def parse_allow(text: str) -> str | None:
     the sibling scanners' per-line allows, because a file-level exemption is a
     deliberate declaration rather than a passing convenience (F2). A marker
     with no reason returns None — a mention, not an exemption."""
-    m = ALLOW_RX.search(text)
-    if not m:
-        return None
-    return m.group("kind") or ""
+    return allowmarker.scope_of(ALLOW_RX, text, "kind")
 
 
 # A per-file override of the advisory REFERENCE POINT in the HEADER:
@@ -382,63 +379,18 @@ def count_lines(text: str) -> int:
     return len(text.splitlines())
 
 
-class IgnoreFileError(ValueError):
-    """An ignore file granted an exemption with no reason stated anywhere."""
-
-    def __init__(self, filename: str, entries: list[tuple[int, str]]):
-        self.filename = filename
-        self.entries = entries
-        detail = "; ".join(f"line {n}: '{g}'" for n, g in entries)
-        super().__init__(
-            f"{filename}: {len(entries)} glob(s) with no stated reason — "
-            f"{detail}. Every exemption states its reason where a reviewer "
-            f"reads it (method/GUARDS.md): put a comment above the stanza, or "
-            f"a trailing '# reason' on the line.")
+IgnoreFileError = allowmarker.IgnoreFileError
 
 
 def load_ignore_globs(root: Path) -> list[str]:
     """Globs from `.sizescanignore`, each of which MUST carry a stated reason.
-
-    GUARDS.md rule (c): an ignore glob is the widest allowance this scanner
-    grants — a whole path, every rule, indefinitely — so it is the last place
-    an unexplained exemption should be possible. A glob is reasoned if it
-    carries a trailing `# reason` (publishscan's form) OR sits under a comment
-    block in its own stanza, which is how this estate's ignore files already
-    document themselves and is the better documentation of the two. A blank
-    line ends a stanza, so a bare glob under no comment at all is refused.
-
-    An unreasoned glob is a CONFIG ERROR, not a warning: a scan that silently
-    honours an exemption nobody explained is the failure the rule exists to
-    stop. Callers surface it as exit 2 — a broken scan is not a pass."""
-    f = root / ".sizescanignore"
-    if not f.exists():
-        return []
-    globs: list[str] = []
-    unreasoned: list[tuple[int, str]] = []
-    stanza_reason = False
-    for n, raw in enumerate(f.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
-        line = raw.strip()
-        if not line:
-            stanza_reason = False
-            continue
-        if line.startswith("#"):
-            stanza_reason = True
-            continue
-        glob, _, trailing = line.partition("#")
-        glob = glob.strip()
-        if not glob:
-            continue
-        if not trailing.strip() and not stanza_reason:
-            unreasoned.append((n, glob))
-        globs.append(glob)
-    if unreasoned:
-        raise IgnoreFileError(".sizescanignore", unreasoned)
-    return globs
+    Single-sourced (115/080 part 2) in `tools/allowmarker.py`; this
+    scanner supplies only its own ignore-file name."""
+    return allowmarker.load_ignore_globs(root, ".sizescanignore")
 
 
 def _ignored(rel: str, globs: list[str]) -> bool:
-    return any(fnmatch.fnmatch(rel, g) or fnmatch.fnmatch(rel, g.rstrip("/") + "/*")
-               for g in globs)
+    return allowmarker.ignored(rel, globs)
 
 
 def _rel(p: Path, root: Path) -> str:
