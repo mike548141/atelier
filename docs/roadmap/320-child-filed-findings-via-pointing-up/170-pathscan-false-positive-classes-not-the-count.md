@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-03-0144, wt: qr-pathscan-fp) **REPORT — four verified `pathscan` false-positive classes from a second
+- [ ] **REPORT — four verified `pathscan` false-positive classes from a second
       child, and a correction to the child's own headline figure: "20 of 20
       false" is stale and must not be carried** `[M][tools]` — filed from a
       private child, 2026-09-06, via § *Pointing up*. The classes were read
@@ -122,3 +122,10 @@
         `name/` onward and `~/x/y` is clean by design rather than by accident.
         The item's other asks — inline code spans and the "(private repo)"
         disambiguation — are untouched and still open, so the item stays `[ ]`.
+        ⚖️ **2026-10-03: the inline-code-span ask is BUILT and HELD in draft
+        PR #96** (with `320/010` class C, on one branch). A `./`-led token
+        that *opens* an inline backtick span is skipped, matching the fenced
+        spelling. A `./x` mention in bare prose or mid-span is still
+        checked. It is held rather than merged because it shares the branch
+        with an unruled class. The "(private repo)" disambiguation and the
+        records question are untouched.

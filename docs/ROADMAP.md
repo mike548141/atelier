@@ -243,6 +243,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued — harvestscan's prefix-filter rewrite](roadmap/160-doctrine-review-owed/400-rule-4-cold-pass-queued-the-harvestscan-prefix-filter.md)
 - ⏳ [Rule-4 cold pass queued — the linked-worktree skip across eleven](roadmap/160-doctrine-review-owed/410-rule-4-cold-pass-queued-the-linked-worktree-skip.md)
 - ⏳ [Rule-4 cold pass queued — the single-sourced file walk (115/080](roadmap/160-doctrine-review-owed/420-rule-4-cold-pass-queued-the-single-sourced-file-walk.md)
+- ⏳ [Rule-4 cold pass queued: stampscan --require-stamps and](roadmap/160-doctrine-review-owed/430-rule-4-cold-pass-queued-the-cover-switch-and-unmapped-headings.md)
 
 ## build/ layer — open strands
 
@@ -293,8 +294,9 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Drive binaries have the gap ccmail just closed for mail](roadmap/210-instruments-open-features/120-drive-binaries-have-the-same-gap-ccmail-just-closed.md)
 - ⏳ [Rule-4 review queued (tier: Fable; pass type: code + doctrine cold…](roadmap/210-instruments-open-features/130-ccmail-rule-4-review-queued.md)
 - [ ] 🎯 [ccgrab — a web-media capture instrument (Mike commissioned 2026-09-09;](roadmap/210-instruments-open-features/140-ccgrab-web-media-capture-instrument.md)
-- [~] 🔎 (claimed 2026-10-03-0144, wt: qr-ccarchive-shrink) [Why is the source smaller than the archived copy? — the shrink](roadmap/210-instruments-open-features/150-why-the-source-is-smaller-than-the-archived-copy.md)
+- ✅ 🔎 [Why is the source smaller than the archived copy? — the shrink](roadmap/210-instruments-open-features/150-why-the-source-is-smaller-than-the-archived-copy.md)
 - [ ] 🎯 [ccarchive's summary counts files, and Mike's own read of the tool](roadmap/210-instruments-open-features/160-ccarchive-reports-file-counts-not-session-counts.md)
+- [ ] 🔎 [ccarchive's manifest lags its own mirror in 14 files, so the](roadmap/210-instruments-open-features/170-the-manifest-lags-the-mirror.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
@@ -403,7 +405,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/320-child-filed-findings-via-pointing-up/README.md)*
 
-- [~] 🔥 (claimed 2026-10-03-0144, wt: qr-pathscan-fp) [pathscan reds on three reference shapes that are never real, and](roadmap/320-child-filed-findings-via-pointing-up/010-pathscan-reds-on-three-shapes-that-are-never-real.md)
+- [ ] 🔥 [pathscan reds on three reference shapes that are never real, and](roadmap/320-child-filed-findings-via-pointing-up/010-pathscan-reds-on-three-shapes-that-are-never-real.md)
 - [ ] 🎯 [PROPOSAL for GUARDS.md — strict where we author, forgiving where](roadmap/320-child-filed-findings-via-pointing-up/020-proposal-strict-where-we-author-forgiving-where-we-read.md)
 - [ ] 🎯 [PROPOSAL — capture, do not compose: a hand-written fixture can only](roadmap/320-child-filed-findings-via-pointing-up/030-proposal-capture-do-not-compose-fixtures.md)
 - [ ] 🔎 [By-call enforcement resolves through a working tree, so "fresh"](roadmap/320-child-filed-findings-via-pointing-up/040-by-call-resolves-to-a-working-tree-so-fresh-means-whatever-is-on-disk.md)
@@ -415,11 +417,11 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [PROPOSAL — the damaging attribution carries NO QUOTATION MARKS, so](roadmap/320-child-filed-findings-via-pointing-up/100-unquoted-attribution-is-invisible-to-quotescan-and-a-corroboration-for-070.md)
 - [ ] 🎯 [PROPOSAL — § Asking for a ruling tells a session HOW to ask and](roadmap/320-child-filed-findings-via-pointing-up/110-proposal-the-ask-device-manufactures-decisions.md)
 - [ ] 🔎 [CF3's branch list stopped answering the sibling-dirty case when the](roadmap/320-child-filed-findings-via-pointing-up/120-cf3-s-branch-list-stopped-answering-the-sibling-case.md)
-- [~] 🔎 (claimed 2026-10-03-0144, wt: qr-stampscan-cover) [A stamp proves the wording; it does not tell a reader which half of a](roadmap/320-child-filed-findings-via-pointing-up/130-a-stamp-proves-wording-not-provenance.md)
+- [ ] 🔎 [A stamp proves the wording; it does not tell a reader which half of a](roadmap/320-child-filed-findings-via-pointing-up/130-a-stamp-proves-wording-not-provenance.md)
 - [ ] [REPORT — secretscan's suppression units cannot reach a finding inside](roadmap/320-child-filed-findings-via-pointing-up/140-secretscan-has-no-suppression-unit-for-generated-json.md)
 - [ ] 🤔 [CANDIDATE HOUSE RULE — the prescribed open-time sync command can fail](roadmap/320-child-filed-findings-via-pointing-up/150-the-open-time-sync-command-s-error-text-names-a-cause-that-is-not-the-cause.md)
 - [ ] [REPORT — a child cannot stamp its inlined floor at all: source= may](roadmap/320-child-filed-findings-via-pointing-up/160-stampscan-cannot-stamp-across-a-repo-boundary.md)
-- [~] (claimed 2026-10-03-0144, wt: qr-pathscan-fp) [REPORT — four verified pathscan false-positive classes from a second](roadmap/320-child-filed-findings-via-pointing-up/170-pathscan-false-positive-classes-not-the-count.md)
+- [ ] [REPORT — four verified pathscan false-positive classes from a second](roadmap/320-child-filed-findings-via-pointing-up/170-pathscan-false-positive-classes-not-the-count.md)
 - [ ] [REPORT — the ../<sibling> path convention every child inherits](roadmap/320-child-filed-findings-via-pointing-up/180-sibling-path-convention-breaks-in-a-worktree.md)
 - ✅ 🔥 [DOCTRINE CONTRADICTION — a private child cannot obey both](roadmap/320-child-filed-findings-via-pointing-up/190-rule-2-and-the-branch-naming-rule-cannot-both-be-obeyed.md)
 - ✅ 🛑 [REPORT — an unresolved merge conflict shipped to a PUBLIC main and](roadmap/320-child-filed-findings-via-pointing-up/200-no-floor-scanner-reads-a-conflict-marker.md)
@@ -436,7 +438,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Should pathscan block instead of warn?](roadmap/320-child-filed-findings-via-pointing-up/310-should-pathscan-block-instead-of-warn.md)
 - ✅ 🔎 [Hand-up: the run-open role check still sends the tier question back](roadmap/320-child-filed-findings-via-pointing-up/320-the-run-open-role-check-sends-the-tier-question-back-to-the-principal.md)
 - [ ] 🎯 [Does the new naming precedence reach doctrine's own prose?](roadmap/320-child-filed-findings-via-pointing-up/330-does-the-naming-precedence-reach-doctrines-own-prose.md)
-- [~] 🔎 (claimed 2026-10-03-0144, wt: qr-blockscan-unmapped) [blockscan cannot see a change to a mapped section's](roadmap/320-child-filed-findings-via-pointing-up/340-blockscans-map-cannot-see-a-subsection.md)
+- [ ] 🔎 [blockscan cannot see a change to a mapped section's](roadmap/320-child-filed-findings-via-pointing-up/340-blockscans-map-cannot-see-a-subsection.md)
 - [ ] 🔎 [Hand-up: a peer can stage into the shared index DURING your commit,](roadmap/320-child-filed-findings-via-pointing-up/350-a-peer-can-stage-into-the-shared-index-while-your-commit-hooks-run.md)
 - ✅ [REPORT — 115/200's owed work is done from the child's side: the](roadmap/320-child-filed-findings-via-pointing-up/360-a-narrowed-floor-stamp-is-restored-verbatim-closure-report.md)
 - [ ] [REPORT — <owner/repo> is a declared placeholder in the floor](roadmap/320-child-filed-findings-via-pointing-up/370-a-declared-placeholder-in-the-floor-has-no-admissible-fill-for-a-repo-with-no-remote.md)

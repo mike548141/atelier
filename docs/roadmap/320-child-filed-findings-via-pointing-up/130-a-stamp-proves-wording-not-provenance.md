@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-03-0144, wt: qr-stampscan-cover) 🔎 **A stamp proves the wording; it does not tell a reader which half of a
+- [ ] 🔎 **A stamp proves the wording; it does not tell a reader which half of a
       block is inherited — and position, which would, is doctrine only as an
       aside** — filed from `cbom` 2026-08-24 via § *Pointing up*, over the
       channel, as the residue of `320/120`. Its words: *"stampscan diffs
@@ -101,3 +101,18 @@
           written the weaker *"a stamp diffs wording"*. Everything inside its
           tree stays its record's, unverified here; what is written above was
           re-derived in atelier against atelier's artefacts.
+      ---
+      ✅ **The cover switch LANDED 2026-10-03, `stampscan --require-stamps`**
+      (queue run, merge `3cb2f64`). It is a copy of the remedy, not a design:
+      the `leakscan --require-terms` shape this item names. A run that verified
+      no stamped block (none found, or only allow-marker skips) exits `2` and
+      says what was missing, instead of printing a clean pass over nothing.
+      Drift still exits `1`. It is off by default, and with the switch off the
+      output is byte-identical (stdout, stderr and exit, plain, `--warn` and
+      `--json`, over atelier's tree). On atelier's own tree it passes with 1
+      block verified. Six tests were added, 96 in all.
+      **So 020/110's precondition is met.** The wiring bar can now lift
+      without shipping green-over-nothing, provided the wiring passes the
+      switch. **Whether to wire it, and with the switch, is still
+      020/110's decision.** Shapes (a)–(c) above are still unruled, so the
+      item stays open for them.

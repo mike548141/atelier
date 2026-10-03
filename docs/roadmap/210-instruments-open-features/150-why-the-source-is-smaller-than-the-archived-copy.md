@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-03-0144, wt: qr-ccarchive-shrink) 🔎 **Why *is* the source smaller than the archived copy? — the shrink
+- [x] 🔎 **Why *is* the source smaller than the archived copy? — the shrink
   guard's premise has never been checked** (Mike filed 2026-09-11 from a live
   `ccarchive` run; investigate-only, no fix attached)
 
@@ -68,3 +68,48 @@
   ⚠️ **Record the result as a class, not as content.** The diffs will hold
   personal memory text; what comes back here is which hypothesis held and what
   the guard should therefore compare. The finding, not the file.
+
+  ---
+  ✅ **ANSWERED 2026-10-03: the sources really were edited. Nothing is
+  mis-paired or corrupt.** Investigated read-only (queue run). `ccarchive`
+  was run in `--dry-run`, `--verify` and `--audit` modes only, with `--force`
+  never run, and the manifest mtime was unchanged afterwards. Recorded as
+  classes, not content.
+
+  **Measured.** Of 9,142 sources, **two** are refused today, down from six
+  on 2026-09-11. What cleared the other four is not recorded anywhere. Both
+  are memory `.md` files. One shrank by 26% and one by under 1%. No
+  transcript `.jsonl` is refused.
+
+  **The hypotheses, in the order above:**
+  1. **Diff: benign condensation, for both.** One is a same-document
+     rewrite. Its frontmatter and its first and last lines are unchanged,
+     and a long paragraph became a shorter one plus a list. The file was
+     recreated by an atomic replace (birth time 1 ms before mtime), which
+     is how an editing tool rewrites a file. The other source is an exact
+     byte prefix of the mirror, with one short trailing line deleted in
+     place.
+  2. **Comparand drift: refuted for these two.** Manifest `sha256` and
+     `rawBytes` both equal the decompressed mirror.
+  3. **Pairing: refuted.** Same path, same document, one manifest key per
+     path, and no case-variant duplicates.
+  4. **Mutation after write: refuted.** Both mirrors still hash to their
+     manifest entries. Only the sources changed, and after their last
+     archive.
+
+  **What this means for `010`.** The guard's premise, *transcripts only
+  grow*, holds for append-only `.jsonl` and **does not hold for
+  whole-document classes** such as memory `.md`. An edit can shrink those
+  legitimately, and a rewrite that grows a file passes the size test
+  unseen: the audit found a third rewritten memory file that got bigger.
+  So for those classes a size guard protects nothing either way. The
+  evidence best supports `010`'s option (a). The safer variant keeps the
+  prefix and truncation test for `.jsonl`, and for whole-document classes
+  preserves the superseded revision rather than overwriting it. The
+  archive is meant to keep history, and an overwrite loses the old
+  revision. That last part is a design choice for Mike, recorded here,
+  not made here.
+
+  🔎 **A separate defect turned up on the way: the manifest lags the mirror
+  in 14 files.** This is filed as `170`, because it weakens the guard
+  regardless of the `010` ruling.

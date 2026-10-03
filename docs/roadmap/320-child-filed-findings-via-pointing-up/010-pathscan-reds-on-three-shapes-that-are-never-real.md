@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-03-0144, wt: qr-pathscan-fp) 🔥 **`pathscan` reds on three reference shapes that are never real, and
+- [ ] 🔥 **`pathscan` reds on three reference shapes that are never real, and
       the package-source-root gap is three quarters of it** `[M][tool]` —
       filed from a private child 2026-08-18 via § *Pointing up*, then
       **measured twice at atelier HEAD (`6f54489`)**, because the first
@@ -130,3 +130,15 @@
       demands — a lower count *and* a non-zero true-positive rate. Classes B
       and C remain unruled.
       *review: queued as a code cold pass, `160/350`.*
+      ---
+      ⚖️ **2026-10-03: a class C fix was BUILT and HELD, not merged, as draft
+      PR #96 (branch `qr-pathscan-fp`).** A queue run built it before reading
+      closely enough that this item records class C as **unruled**, so it is
+      offered as a ready option rather than landed. The branch expands a
+      brace group and checks each alternative. The alternative named above is
+      to exclude `{` the way `*` is excluded, which is a smaller change. On
+      atelier's tree the count goes from 57 to 59. The two new findings are
+      this item's own illustrative example, line 44 above, expanded into two
+      files that do not exist. The trailing-slash question is untouched. 🎯
+      Which shape is Mike's call, and the PR is merged, amended or closed on
+      the ruling.

@@ -1,0 +1,98 @@
+# 2026-10-03 · 0144 UTC — Queue run: the hand-up backlog and the tool defects
+
+**Tier:** Opus 5.5 orchestrating, stated at open per `ECONOMICS.md`
+§ *The orchestrated-run tier split*. Sonnet 5.5 workers in isolation
+worktrees, and Sonnet 5.5 read-only triage agents.
+
+**The brief.** Mike: *"Try not to stop and ask me questions until you have
+done all the work. I won't be here to answer for several hours."* The standard
+queue-run prompt (loose ends and unblockers first, claim before work, workers
+do the building). He added one steer before the run: *"A parallel session is
+doing the review work."*
+
+**Onramp.** Synced at `94d5cc6` with a clean tree. Peers on the channel:
+`atelier-39` held nothing. `atelier-d0`, a Fable session, holds every review
+surface (each `⏳`, the rule-4 briefs, `docs/reviews/`, section `160`), and
+will run Mike's ruling round after this. So it asked that the 🎯
+"awaits-ruling" items and the verdict files be left alone. This run touches
+none of them, apart from adding its own `⏳` pointer, which was announced
+first.
+
+**Selection, by triage rather than by reading order.** Four read-only Sonnet
+agents classified the 131 open non-🎯 items. Two more classified the 81 🎯
+items, looking for any ruled work not yet applied. The non-🎯 buckets came out
+at about a dozen DO-NOW, with the rest RULING, IDEA, OTHER-REPO, BLOCKED or
+REVIEW. Of the 🎯 items, none was cleanly ruled-and-unapplied. `290/060`
+looks applied in code already, and that went to the ruling-round session
+instead of being edited here.
+
+## Hand-up PRs: eleven waiting, ten landed, one held
+
+The review session pointed at eleven open hand-up PRs. `PROPAGATION.md`
+§ *Pointing up* gives the parent's half: land a filed finding on the floor's
+own evidence and say it is the child's, unreviewed. **Ten landed** on `main`
+as `--no-ff` merges, reporter branches merged as-is and never rebased. Each
+PR carries a comment saying what landed and where.
+
+**Seven of the filings collided on numbers.** Five filed as `320/410`, and
+`360`, `370` and `400` were already taken on `main`. `board.py` refuses a
+duplicate item number, so each was renumbered inside its own merge commit,
+which says so. New slots: `320/410`–`490` and `180/020`. One filing
+appended to the existing `320/160`.
+
+**PR #92 is held, not landed.** Its evidence lists which tools one machine
+has on and off `PATH`. The item's own option D argues that a public list of
+this kind is reconnaissance material. Trimming it before it reaches `main`
+is Mike's call, so the PR carries a comment and nothing else.
+
+The merged filing's worktree (`atelier-report`) was put away, since the
+branch was on `main`. `atelier-report-tool-locator-0353` (PR #92) was left
+alone.
+
+## `320/130`: stampscan's cover switch
+
+The item names the remedy as a copy rather than a design: `leakscan
+--require-terms`. The worker built `--require-stamps`, which makes a run that
+verified no stamped block exit `2` with the cause named. With the switch off,
+the output is byte-identical (stdout, stderr and exit; plain, `--warn` and
+`--json`; atelier's tree). That meets `020/110`'s stated precondition. The
+wiring decision stays there.
+
+## `320/340`: blockscan names what its map cannot see
+
+This is the third of the item's three candidates, the one it says stops the
+gap being rediscovered. `--check` reports headings in mapped docs that no
+entry names. Subsections under a mapped heading are listed in full, and
+uncited top-level headings are collapsed to a count. The first output was
+about 60 lines on the real tree. The orchestrator asked for the collapse, and
+it is now 16. It is advisory only, with the exit code unchanged. Today it shows
+12 subsections in the blind spot, including the two this item was found on.
+The map-design choice itself (explicit subsections or `recursive: true`) is
+still open.
+
+## `320/010` class C and `320/170`: built, then held as draft PR #96
+
+🛑 **An orchestrator error, caught before push.** The triage read class C as
+a cheap mechanical fix. The item says in so many words that *"Classes B and C
+remain unruled"*, and that the fix candidates were *"deliberately not chosen
+here"*. The worker chose **expand-and-check** over the item's
+**exclude-like-`*`**, and the orchestrator merged it locally before reading
+that line. The unpushed merge was reset. The branch went up as draft PR #96,
+framed as a ready option for the ruling. **The lesson is the board's own
+lesson, not a new one: a triage summary is not the item.** The orchestrator
+reads an item's ruling state in the item before dispatch. Afterwards it is
+too late.
+
+## `210/150`: why the source is smaller — answered
+
+A read-only investigation. `--force` was never run, and the manifest mtime
+was unchanged afterwards. The result is recorded in the item as classes, not
+content. The sources really were edited: both refusals are memory `.md`
+files rewritten or trimmed since their last archive, and neither is
+mis-paired or corrupt. So the guard's append-only premise is wrong for
+whole-document classes, and that supports `210/010`'s option (a). Mike
+decides whether superseded revisions are kept.
+
+Found on the way and filed as `210/170`: **the manifest lags the mirror in 14
+files**. That makes the guard's comparand too low, so a truncation could pass
+silently. The cause is not diagnosed.
