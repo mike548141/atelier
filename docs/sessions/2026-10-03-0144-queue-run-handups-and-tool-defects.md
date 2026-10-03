@@ -115,3 +115,14 @@ before any work. The item lists three candidates, *"not chosen here"*, with
 a stated trade-off. The run had claimed it on a triage summary that called
 it a documentation fix. The claim was released untouched. From here on, the
 run reads each item's own ruling state before claiming it.
+
+## `040/010`: the date-kind rule, written down
+
+Mike's rule from 2026-08-09, captured near-verbatim on the board ever since,
+now lives in `GUARDS.md` beside the acceptance/deferment split, which is the
+home the item named. A **mandate** date binds the class: a child may only
+tighten it or argue an exemption. A **default** date seeds the value: a
+child may set it earlier, the same, or later. A date-setting ruling names
+its kind. The run added one clause of its own, saying so in the item: an
+older date with no kind on record is asked about, not inferred. The
+doctrine pass is queued at `160/450`.

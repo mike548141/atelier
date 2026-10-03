@@ -96,7 +96,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/040-principal-set-dates-mandate-vs-default-m/README.md)*
 
-- [~] (claimed 2026-10-03-0200, wt: none) [Capture → doctrine: when the principal sets a date for the fleet,](roadmap/040-principal-set-dates-mandate-vs-default-m/010-capture-doctrine-when-the-principal-sets-a-dat.md)
+- ✅ [Capture → doctrine: when the principal sets a date for the fleet,](roadmap/040-principal-set-dates-mandate-vs-default-m/010-capture-doctrine-when-the-principal-sets-a-dat.md)
 
 ## 🤔 Trust-failure handling as a skill — idea to consider (Mike, 2026-08-02)
 
@@ -245,6 +245,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued — the single-sourced file walk (115/080](roadmap/160-doctrine-review-owed/420-rule-4-cold-pass-queued-the-single-sourced-file-walk.md)
 - ⏳ [Rule-4 cold pass queued: stampscan --require-stamps and](roadmap/160-doctrine-review-owed/430-rule-4-cold-pass-queued-the-cover-switch-and-unmapped-headings.md)
 - ⏳ [Rule-4 cold pass queued: cctranscript's archive-pool speedup](roadmap/160-doctrine-review-owed/440-rule-4-cold-pass-queued-the-archive-pool-speedup.md)
+- ⏳ [Rule-4 cold pass queued: the mandate-versus-default date rule](roadmap/160-doctrine-review-owed/450-rule-4-cold-pass-queued-the-date-kind-rule.md)
 
 ## build/ layer — open strands
 

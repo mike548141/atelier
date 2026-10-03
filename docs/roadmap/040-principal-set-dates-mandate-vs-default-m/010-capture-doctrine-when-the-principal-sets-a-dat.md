@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-03-0200, wt: none) **Capture → doctrine: when the principal sets a date for the fleet,
+- [x] **Capture → doctrine: when the principal sets a date for the fleet,
       the ruling states which KIND of date it is.** Mike's rule, captured
       near-verbatim while resolving the two self-migrated repos' later
       review-by dates:
@@ -18,3 +18,13 @@
       is exactly such a date), with the rule that a date-setting ruling
       names its kind so no future pass has to ask. Principal-authored;
       doctrine landing queues its review per standing rule.
+      ---
+      ✅ **LANDED 2026-10-03** as `method/GUARDS.md` § *Acceptance and
+      deferment are different things* → *Who may move a deferment's date:
+      mandate or default* (queue run). It holds Mike's words verbatim, the
+      two kinds and what each lets a child do, and the rule that a
+      date-setting ruling names its kind. The C1b horizon is the grounding.
+      One clause is the run's own and is marked as such: a date ruled before
+      this rule existed has no kind on record, and when it matters, the
+      answer is asked for rather than inferred. Rule-4 doctrine pass queued
+      at `160/450`.
