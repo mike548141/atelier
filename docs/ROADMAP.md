@@ -252,6 +252,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued: publishscan's round-2 denylist](roadmap/160-doctrine-review-owed/470-rule-4-cold-pass-queued-publishscan-round-2.md)
 - ⏳ [Rule-4 cold pass queued: the shared allow-marker grammar and ignore](roadmap/160-doctrine-review-owed/480-rule-4-cold-pass-queued-the-shared-allow-marker-grammar.md)
 - ⏳ [Rule-4 cold pass queued: pathscan's brace expansion and inline](roadmap/160-doctrine-review-owed/490-rule-4-cold-pass-queued-pathscan-brace-expansion.md)
+- ⏳ [Rule-4 cold pass queued: the expected toolbox and its install rule](roadmap/160-doctrine-review-owed/500-rule-4-cold-pass-queued-the-expected-toolbox.md)
 
 ## build/ layer — open strands
 
@@ -464,7 +465,8 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up from faves: leakscan's nz-phone matches digit runs](roadmap/320-child-filed-findings-via-pointing-up/470-leakscan-nz-phone-matches-digit-runs-inside-hex-digests.md)
 - [ ] 🔎 [MISSING HOUSE RULE — the doctrine's own sync command](roadmap/320-child-filed-findings-via-pointing-up/480-a-rebase-pull-after-a-local-merge-flattens-it-and-orphans-cited-hashes.md)
 - [ ] 🔎 [Hand-up: tool-call markup leaks into files an agent writes, and](roadmap/320-child-filed-findings-via-pointing-up/490-tool-call-markup-leaks-into-written-files-and-no-scanner-sees-it.md)
-- [~] (claimed 2026-10-03-0404, wt: qr-toolbox) [PROPOSAL, hand-up from a private child — sessions cannot find tools](roadmap/320-child-filed-findings-via-pointing-up/500-sessions-cannot-find-installed-tools-toolbox-has-no-locator.md)
+- ✅ [PROPOSAL, hand-up from a private child — sessions cannot find tools](roadmap/320-child-filed-findings-via-pointing-up/500-sessions-cannot-find-installed-tools-toolbox-has-no-locator.md)
+- [ ] 🔎 [Sessions kept placing the tool list in a private repo and](roadmap/320-child-filed-findings-via-pointing-up/510-sessions-credited-mike-with-a-private-tool-list.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
@@ -530,3 +532,4 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/420-when-to-ask-mike-commissioned/README.md)*
 
 - [ ] 🎯 [An ask stops the whole run — decide when a session asks, and what](roadmap/420-when-to-ask-mike-commissioned/010-an-ask-stops-the-whole-run-decide-when-to-ask.md)
+- [ ] 🎯 [An answer to a session's question is not a ruling. Records](roadmap/420-when-to-ask-mike-commissioned/020-an-answer-is-not-a-ruling.md)

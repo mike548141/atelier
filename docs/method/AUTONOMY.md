@@ -31,7 +31,8 @@ escalates what it can't safely do.*
 - **Commit, push, and manage pull requests** at discretion across all work —
   commit at natural checkpoints, push, open/merge/close PRs, branch as needed.
 - All local git: branch, stage, diff, stash, merge, `git worktree add`.
-- Install an **approved** tool that's merely missing (see TOOLBOX).
+- Install a tool from TOOLBOX's **expected toolbox** that's merely missing.
+  Upgrading one is a routine ask, not a floor stop (see TOOLBOX).
 - Routine changes to **already-public** content on a deploy-on-push site (the
   content is already published; you're editing what's out there, not exposing
   something new).

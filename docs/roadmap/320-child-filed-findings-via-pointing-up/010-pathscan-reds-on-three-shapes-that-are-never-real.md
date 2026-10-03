@@ -41,7 +41,7 @@
       this exchange demonstrates that the comparability check is being made.
       **Class C — token truncation, and the backtick discriminator this item
       first proposed is FALSIFIED.** Measured at HEAD: a **brace expansion**
-      truncates (`docs/COLLECTING-{COMMVAULT,VMWARE}.md` → `docs/COLLECTING-`, <!-- pathscan:allow:missing-path: quotes the filing child's own path, which exists in that repo and not here; added 2026-10-03 by session d0d37dd6 (agent, under Mike's #96 ruling) -->
+      truncates (`docs/COLLECTING-{COMMVAULT,VMWARE}.md` → `docs/COLLECTING-`, <!-- pathscan:allow:missing-path: quotes the filing child's own path, which exists in that repo and not here; added 2026-10-03 by session d0d37dd6 (agent, on Mike's #96 answer) -->
       red) **whether backticked or not**, and a **trailing slash is stripped
       rather than exempting the token** (`docs/client/` → `docs/client`, red).
       A `*` glob is correctly excluded by the existing lookbehind and does not
@@ -144,8 +144,9 @@
       the ruling.
       ---
       ✅ **CLASS C FIXED 2026-10-03: expand-and-check, merged from PR #96 on
-      Mike's ruling** ("I will take your recommendation, but check the
-      situation from the session transcript that requested it"). Checked
+      Mike's answer** ("I will take your recommendation, but check the
+      situation from the session transcript that requested it"). That was an
+      answer to a session's options, not a ruling (`420/020`). Checked
       first against the filing child's own transcript (session `87c0ec36`,
       2026-08-18 10:25–10:30Z). The brace token there was **shorthand for
       two real files, and both exist in the child**. The child's stated

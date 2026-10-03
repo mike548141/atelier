@@ -187,12 +187,14 @@ in atelier and is read on demand — never wholesale.
   mainline, never whatever branch its checkout is parked on; any output means
   the house doctrine moved — read it, then bump the pin above deliberately.
 - **Estate resources — point up, don't re-derive:** providers & account plans,
-  financial constraints & plan entitlements, licences, credentials, shared
-  estate tooling, and the estate inventory live in the operator's **private
-  estate-root repo** (atelier's private counterpart). Reference it for these;
-  never re-derive them locally or copy its contents down. If **this** repo is
-  public, reference the root by local-path convention, never by name — a public
-  repo naming the estate's credential/inventory root is reconnaissance.
+  financial constraints & plan entitlements, licences, credentials and the
+  estate inventory live in the operator's **private estate-root repo**
+  (atelier's private counterpart). Reference it for these; never re-derive
+  them locally or copy its contents down. The **expected toolbox** (which
+  tools to expect, and how to find them) is atelier's: `method/TOOLBOX.md`.
+  If **this** repo is public, reference the root by local-path convention,
+  never by name — a public repo naming the estate's credential/inventory root
+  is reconnaissance.
 - **This repo's visibility:** <visibility fact>. Verify:
   `gh repo view <owner/repo> --json visibility`.
 ```

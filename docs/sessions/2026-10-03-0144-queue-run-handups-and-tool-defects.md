@@ -256,15 +256,33 @@ later successes on the same content.
 ## Addendum: Mike's rulings after the close
 
 Mike came back the same day.
-- **#92** was merged on his ruling, and widened: a list of expected tools,
+- **#92** was merged on his own words, and widened: a list of expected tools,
   with a way to find each one and standing approval to install or upgrade
   it. That is now `320/500`, claimed.
 - **#96** was merged on the recommendation. He asked that it be checked
   against the requesting transcript first. That check found the child's
   brace reference named two real files that exist, so expanding keeps the
   check live, where excluding would hide a stale path.
-- **200/100**: fix the contradictions one by one.
+- **200/100**: fix the contradictions one by one. That was his answer to a
+  session's question, and it is recorded as an answer, not a ruling.
 - **110/100**, the exception standard: he restated it, saying he has had to
   repeat it. Every exception records why, who and when, and is narrowed to
   a span. Guards stream at any scale. It is claimed for a build in parts.
 - **#97** stays parked until it meets that standard.
+
+## Addendum 2: the expected toolbox, and two corrections from Mike
+
+`320/500` is built. `TOOLBOX.md` now holds the expected toolbox: names,
+purposes, how to find each tool when it is off `PATH`, and how to install
+it. It holds no machine paths, hostnames or accounts. The list is grounded
+in this Mac's inventory and a 3,620-session transcript sweep. A missing
+listed tool is installed as a normal action. Upgrades are a routine ask,
+in Mike's words. Two corrections from Mike changed the records:
+
+1. **The private-repo home was never his** (`320/510`). Three
+   session-written lines kept steering there, all traced with `git log -S`:
+   TOOLBOX's scaffold text, the floor bullet's "shared estate tooling", and
+   a child's record crediting him. All are fixed.
+2. **An answer is not a ruling** (`420/020`). A pick from options a session
+   wrote is not a ruling unless he says it is. Rulings are his own words,
+   quoted. This run's records from today were relabelled at once.

@@ -8,40 +8,100 @@ probing for it.
 
 ## Two things, kept separate
 
-This is atelier's layering applied to tools:
+- **The practice (this doc).** *Keep a list. Record the approved tools, how to
+  find them and how to install them. A listed tool that is missing may be
+  installed. Upgrading a listed tool is a routine ask. A tool not on the list
+  is confirmed first. Keep the list current.*
+- **The expected toolbox (this doc too, public).** In Mike's own words
+  (2026-10-03), the list of tools every session should expect lives **here in
+  atelier**, with a method to find each one: *"I want you to include a list
+  of tools to expect to be installed locally and how (a method) to find
+  them, that does not necessarily mean paths need to be published
+  publicly."* So the list
+  carries **names, purposes, finding methods and install routes**, and never a
+  machine's paths, hostnames, accounts or token scopes. Those last stay in the
+  operator's person-level context (today `~/.claude/`).
+  *Correction, recorded because the error repeated:* this section used to say
+  the list "lives in the operator's person-level private context… never in a
+  shareable repo". A child session's record (`roadmap/320-…/500`) also
+  credited Mike with putting it in a private estate-root repo. **Neither was
+  his.** Both were written by sessions. In his words: *"I've said Atelier many
+  times it is claude session that keep saying a private repo not me"*
+  (`320/510`). Which groups of tools are on the list was Mike's **answer** to
+  options a session offered, which is not a ruling (`420/020`).
 
-- **The practice (shareable — this doc).** *Keep a manifest. Record approved
-  tools and how to install them. An approved-but-missing tool may be installed;
-  an unapproved one is confirmed first. Keep the manifest current.*
-- **The instance (personal — NOT in this repo).** The actual list of *this
-  operator's* tools — accounts, credentials scopes, venv paths, connected
-  services (mail, calendar, finance, drive) — is personal/estate context. It
-  lives in the operator's **person-level** private context — today `~/.claude/`
-  (machine-local); the goal is *portable across the operator's own devices*, but
-  **never** in a shareable repo (see the ROADMAP portable-context north star).
-  Naming a colleague's connected mail account in a doc you hand them is exactly
-  the leak atelier exists to prevent.
+## The expected toolbox
 
-## What the manifest records, per tool
+A session should expect these to be installed. **Find** says how to locate
+one that is not on `PATH`, and the method is below the table. **Get** says
+how to install it when it is missing.
 
-- **Name + what it's for** — one line.
-- **Status** — installed / approved-not-installed / needs-approval.
-- **How to get it** — the install command, so "approved-not-installed" is a
-  one-step fix.
-- **Any auth/scope** — *machine-local manifest only* (e.g. which account a CLI is
-  authenticated as, what a token can reach). Never in the shareable layer.
+| Tool | For | Find (if not on `PATH`) | Get |
+|---|---|---|---|
+| `gh` | GitHub: PRs, runs, API | user bin | Homebrew |
+| `aws` | AWS CLI | — | AWS's installer |
+| `az` | Azure CLI | its own venv | pip into a venv, or Homebrew |
+| `gcloud`, `gsutil`, `bq` | Google Cloud CLI | the SDK's own `bin` | Google's installer |
+| `python3`, `pip3` | Python runtime | — | python.org installer |
+| `node`, `npm`, `npx` | Node runtime | — | nodejs.org, or Homebrew |
+| Playwright | browser automation | a Python package: `python3 -m playwright` | `pip install --user playwright`, then `python3 -m playwright install` |
+| `git`, `make`, `curl`, `sqlite3` | core dev | — | Xcode command-line tools |
+| `jq`, `rg` (ripgrep) | data and search | — | Homebrew |
+| `ruff`, `mypy`, `pytest`, `pre-commit` | Python quality | pip user bin, or a venv | `pipx install` |
+| `pipx` | isolated Python CLIs | pip user bin | `pip install --user pipx` |
+| `brew` (Homebrew) | the installer for most rows | — | brew.sh. **Needs an admin password, so Mike runs it.** |
+| GNU coreutils (`gtimeout`, `gtac`) | macOS has no `timeout` | Homebrew bin | `brew install coreutils` |
+| `ffmpeg`, `ffprobe`, `yt-dlp` | media capture | user bin | Homebrew, or the projects' releases |
+| `groff`, `mandoc` | man pages | — | `brew install groff`; `mandoc` ships with macOS |
+| `pdftotext` | PDF text | Homebrew bin | `brew install poppler` |
+| `docker` | containers | — | Docker Desktop, or Colima via Homebrew |
+| `terraform`, `wrangler`, `cloudflared` | infrastructure, Cloudflare | `wrangler`: npm global bin | Homebrew; `npm i -g wrangler` |
+| `nmap`, `openssl`, `sops`, `age`, `tcpdump`, `ike-scan` | network and security | `ike-scan`: per its repo's onramp | Homebrew (`tcpdump` and `openssl` ship with macOS) |
+| `tiki`, `cctranscript`, `ccrepo`, `ccmail`, `ccarchive` | the estate's own tools | user bin | their repos' install steps (`instruments/` here) |
+
+**Known quirks, generic to macOS rather than to any one machine:**
+- macOS `openssl` is LibreSSL.
+- macOS ships no `timeout`. Use `gtimeout` from coreutils.
+- A Playwright install's browser cache can run ahead of the library.
+- A tool installed into a venv shells out to *itself* by name. The Azure
+  CLI's extension installer does, and fails when the venv's `bin` is not on
+  `PATH`.
+
+**How to find a tool that is not on `PATH`.** Stop at the first step that
+finds it:
+1. `command -v <tool>`, and `which -a` for every copy.
+2. **The installer's own location**, asked of the installer rather than
+   guessed:
+   - pip user installs: `$(python3 -m site --user-base)/bin`. Each Python
+     version has its own, so try each `python3`.
+   - npm globals: `$(npm prefix -g)/bin`.
+   - Homebrew: `$(brew --prefix)/bin`.
+   - Google Cloud SDK: its `bin` under the install folder.
+   - venv-installed CLIs: a `*venv*/bin` under `~/.local`.
+   - App-bundled CLIs: inside the `.app`, e.g. Wireshark's `tshark`.
+3. **Python packages that are also CLIs:** run them as modules from the
+   interpreter that has them, e.g. `python3 -m playwright`, trying each
+   interpreter `which -a python3` lists.
+4. **Found but off `PATH`:** call it by its full path for this session, and
+   say so. Editing a shell profile to fix `PATH` changes the machine, so ask
+   first.
+5. **Not found anywhere:** it is missing. Install it under the rule below.
 
 ## The install rule (ties to AUTONOMY)
 
-- **Approved but not installed → proceed.** Installing a pre-approved tool from a
-  trusted package manager is reversible (uninstall) and already sanctioned — it
-  is a proceed-without-prompt action under `AUTONOMY.md`. Install it, use it,
-  record it in the manifest.
-- **Not on the approved list → confirm first.** New tooling is a new capability
-  and a new trust surface; that's the owner's call.
-- **After installing or first-using a tool, update the manifest** — so the next
-  session inherits the knowledge (one source of truth; a rediscovery later is a
-  manifest gap to close, not a fact to re-derive).
+- **Listed and missing → install it.** That is a normal action, and needs no
+  ask (`AUTONOMY.md`). Use a trusted package manager, then use the tool. If
+  the install needs an admin password (Homebrew itself, a `.pkg` installer),
+  prepare the exact command and hand it to Mike, because a session cannot
+  type his password.
+- **Listed but out of date → ask, as a routine step.** Mike, 2026-10-03:
+  *"You should still ask for apprval from the principal before upgrading but
+  it should be considered a normal action for you to undertake."* So upgrading
+  is not a floor stop. Batch upgrade asks with the session's other questions.
+- **Not on the list → confirm first.** New tooling is a new capability and a
+  new trust surface, and that is the owner's call (`AUTONOMY.md`'s floor).
+- **When a session finds a tool the list lacks, or a better finding method,
+  it updates this list** in the same commit as the work that needed it.
 
 ## The command allowlist is part of this
 
@@ -77,7 +137,7 @@ discloses one further default (`acceptEdits` — edits apply without per-edit
 approval). What the untracking hides is each repo's divergence from those
 defaults, not the defaults themselves.
 
-*Bearing: the concrete instance for this estate is captured machine-local (the
-digital-estate map + the per-repo allowlists already record most of it); this
-doctrine is the shape that keeps it current and makes it portable to a peer
-without carrying the personal inventory with it.*
+*Bearing: the expected toolbox above is this estate's list, published by
+ruling. What stays machine-local is the per-machine detail: accounts, token
+scopes, the per-repo command allowlists and exact paths. A peer adopting
+atelier replaces the table with their own.*

@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-03-0404, wt: qr-toolbox) **PROPOSAL, hand-up from a private child — sessions cannot find tools
+- [x] **PROPOSAL, hand-up from a private child — sessions cannot find tools
       that are installed but off `PATH`; `TOOLBOX.md` owns the practice, the
       instance it prescribes does not exist, and nothing says how to LOCATE a
       tool** `[M][doctrine][instruments]` — filed 2026-09-28 by a private
@@ -109,7 +109,8 @@
       - **Order: B, then C.** The private approved-tools manifest with *locate*
         and *quirks* fields, read at session open; then the probe that reports
         present / off-`PATH` / missing by name only. A and D are not taken.
-      - **Home: the private estate-root repo**, not person-level `~/.claude/`
+      - **Home: the private estate-root repo** ⚠️ *disputed by Mike, 2026-10-03:
+        not his position; see `510`.* Not person-level `~/.claude/`
         — this settles item 2's ambiguity; `TOOLBOX.md`'s pointer moves to
         match.
 
@@ -117,8 +118,8 @@
       the body; the landing session drops it and names the build owed.
 
       ---
-      ⚖️ **Landed and RULED again, by Mike in atelier, 2026-10-03.** He
-      ruled to merge, and widened the ask. Verbatim:
+      💬 **Landed on Mike's own words in atelier, 2026-10-03.** He said to
+      merge, and widened the ask. Verbatim:
 
       > I told it (and now you) I want you to include a list of tools to
       > expect to be installed locally and how (a method) to find them, that
@@ -149,3 +150,32 @@
       3. **A survey for more candidates:** what is installed locally, and
          what the transcripts show sessions using.
       The build is claimed here.
+      💬 **Mike's answers to the follow-up questions, 2026-10-03.** These
+      are answers to a session's options, not rulings (`420/020`). He chose
+      every offered group: core dev basics, Python quality tools, GNU
+      coreutils with Homebrew, docs and media, Docker, infra-as-code with
+      Cloudflare, network and security, and the estate's own tools. With
+      the first answer he wrote, verbatim: *"You should still ask for apprval
+      from the principal before upgrading but it should be considered a
+      normal action for you to undertake"*. On the home, he took the offered
+      atelier option, and added the correction recorded in `510`.
+      ✅ **BUILT 2026-10-03.** `method/TOOLBOX.md` now carries the expected
+      toolbox:
+      - names, purposes, a finding method for each tool off `PATH` (asked
+        of the installer rather than guessed), and install routes;
+      - generic macOS quirks;
+      - no machine paths, hostnames or accounts.
+      The install rule: a listed tool that is missing is installed as a
+      normal action, and an admin-password install is handed to Mike. An
+      upgrade is a routine ask, in his words. An unlisted tool still stops
+      at the floor. `AUTONOMY.md` and the floor's *Estate resources* bullet
+      now point to it.
+      **Grounding for the list:**
+      - this Mac's inventory (found off `PATH`: the Azure CLI in a venv, and
+        Playwright as a Python 3.9 package);
+      - a transcript sweep of 3,620 sessions. Most-missed: `timeout`, "command
+        not found" in 266 sessions; `groff` in 36; `docker` in 27; `ruff` and
+        `mypy` off `PATH` 39 times.
+      The 2026-09-28 option C (a `toolscan` probe) is not built. It was an
+      answer, so whether to build it is open. Doctrine pass queued at
+      `160/500`.

@@ -61,5 +61,7 @@
       obvious lever. Whether to extend it is a decision, not a fix, so it
       is not taken here. Every fix above edits doctrine, so each is owed
       its rule-4 pass when it lands.
-      ⚖️ **RULED by Mike, 2026-10-03: "ok one by one".** Each contradiction
-      is fixed separately, each with its own rule-4 pass.
+      💬 **Mike's answer, 2026-10-03, to a session's "fix one by one, or bind them
+      mechanically" question:** *"ok one by one"*. It is recorded as an answer, not a
+      ruling (`420/020`). Each contradiction is fixed separately, with its own
+      rule-4 pass.
