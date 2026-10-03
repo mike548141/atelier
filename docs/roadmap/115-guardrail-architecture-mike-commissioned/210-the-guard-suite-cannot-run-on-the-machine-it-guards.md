@@ -1,4 +1,4 @@
-- [ ] 🔎 **A session's default `python3` is too old to load three of the
+- [~] (claimed 2026-10-03-0144, wt: none) 🔎 **A session's default `python3` is too old to load three of the
       guard tests, and nothing says which interpreter to use** — found
       2026-09-20 by a worker that reported 3 errors and correctly proved them
       pre-existing before carrying on; two other workers hit the same thing

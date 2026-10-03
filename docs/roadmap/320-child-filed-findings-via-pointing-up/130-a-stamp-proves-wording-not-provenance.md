@@ -1,4 +1,4 @@
-- [ ] 🔎 **A stamp proves the wording; it does not tell a reader which half of a
+- [~] (claimed 2026-10-03-0144, wt: qr-stampscan-cover) 🔎 **A stamp proves the wording; it does not tell a reader which half of a
       block is inherited — and position, which would, is doctrine only as an
       aside** — filed from `cbom` 2026-08-24 via § *Pointing up*, over the
       channel, as the residue of `320/120`. Its words: *"stampscan diffs

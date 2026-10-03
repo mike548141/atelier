@@ -1,4 +1,4 @@
-- [ ] 🔎 **Archive-mode pool construction dominates every `--from-archive` run,
+- [~] (claimed 2026-10-03-0144, wt: qr-cctranscript-pool) 🔎 **Archive-mode pool construction dominates every `--from-archive` run,
       and `--search` only made it visible** (found 2026-08-09; **pre-existing**).
       `--list --from-archive --all` costs **16.4 s before any searching**, and
       11.5 s of a 13.9 s archive search happens before a single hit is scored.

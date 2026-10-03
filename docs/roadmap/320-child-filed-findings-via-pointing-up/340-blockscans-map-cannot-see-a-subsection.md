@@ -1,4 +1,4 @@
-- [ ] 🔎 **`blockscan` cannot see a change to a mapped section's
+- [~] (claimed 2026-10-03-0144, wt: qr-blockscan-unmapped) 🔎 **`blockscan` cannot see a change to a mapped section's
       SUBSECTIONS, and the session that built it walked straight into the
       gap** — found 2026-09-20 in the same sitting `320/300` landed, by
       running the new check against that sitting's own doctrine commits.

@@ -1,4 +1,4 @@
-- [ ] 🔎 **Why *is* the source smaller than the archived copy? — the shrink
+- [~] (claimed 2026-10-03-0144, wt: qr-ccarchive-shrink) 🔎 **Why *is* the source smaller than the archived copy? — the shrink
   guard's premise has never been checked** (Mike filed 2026-09-11 from a live
   `ccarchive` run; investigate-only, no fix attached)
 
