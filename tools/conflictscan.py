@@ -154,14 +154,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import filewalk  # noqa: E402
+import allowmarker  # noqa: E402
 
 # A line carrying this marker is intentionally exempt from the one finding it
 # could otherwise produce. Keep the reason on the same line so the exemption
 # is self-documenting and greppable, same contract as the sibling scanners.
 ALLOW_MARKER = "conflictscan:allow"
 
-ALLOW_RX = re.compile(
-    r"\b" + re.escape(ALLOW_MARKER) + r":[ \t]*(?P<reason>[\w\"\'“‘])")
+ALLOW_RX = allowmarker.marker_rx(ALLOW_MARKER)
 
 
 def parse_allow(line: str) -> bool:
@@ -172,7 +172,7 @@ def parse_allow(line: str) -> bool:
     scope the marker to, and inventing one would be ceremony, not narrowness
     (`method/GUARDS.md`, rule a). A marker with no reason does not exempt
     (rule c)."""
-    return ALLOW_RX.search(line) is not None
+    return allowmarker.present(ALLOW_RX, line)
 
 
 # 020/380 — a fixed ceiling on how many `Finding` objects one run
@@ -348,55 +348,18 @@ def _looks_binary(data: bytes) -> bool:
     return b"\x00" in data[:8192]
 
 
-class IgnoreFileError(ValueError):
-    """An ignore file granted an exemption with no reason stated anywhere."""
-
-    def __init__(self, filename: str, entries: list[tuple[int, str]]):
-        self.filename = filename
-        self.entries = entries
-        detail = "; ".join(f"line {n}: '{g}'" for n, g in entries)
-        super().__init__(
-            f"{filename}: {len(entries)} glob(s) with no stated reason — "
-            f"{detail}. Every exemption states its reason where a reviewer "
-            f"reads it (method/GUARDS.md): put a comment above the stanza, or "
-            f"a trailing '# reason' on the line.")
+IgnoreFileError = allowmarker.IgnoreFileError
 
 
 def load_ignore_globs(root: Path) -> list[str]:
-    """Globs from `.conflictscanignore`, each of which MUST carry a stated
-    reason. Identical contract to every sibling scanner's ignore file — see
-    `datescan.load_ignore_globs`/`secretscan.load_ignore_globs` for the full
-    reasoning; kept here verbatim rather than shared so each scanner stays a
-    file a peer can copy alone."""
-    f = root / ".conflictscanignore"
-    if not f.exists():
-        return []
-    globs: list[str] = []
-    unreasoned: list[tuple[int, str]] = []
-    stanza_reason = False
-    for n, raw in enumerate(f.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
-        line = raw.strip()
-        if not line:
-            stanza_reason = False
-            continue
-        if line.startswith("#"):
-            stanza_reason = True
-            continue
-        glob, _, trailing = line.partition("#")
-        glob = glob.strip()
-        if not glob:
-            continue
-        if not trailing.strip() and not stanza_reason:
-            unreasoned.append((n, glob))
-        globs.append(glob)
-    if unreasoned:
-        raise IgnoreFileError(".conflictscanignore", unreasoned)
-    return globs
+    """Globs from `.conflictscanignore`, each of which MUST carry a stated reason.
+    Single-sourced (115/080 part 2) in `tools/allowmarker.py`; this
+    scanner supplies only its own ignore-file name."""
+    return allowmarker.load_ignore_globs(root, ".conflictscanignore")
 
 
 def _ignored(rel: str, globs: list[str]) -> bool:
-    return any(fnmatch.fnmatch(rel, g) or fnmatch.fnmatch(rel, g.rstrip("/") + "/*")
-               for g in globs)
+    return allowmarker.ignored(rel, globs)
 
 
 def _rel(p: Path, root: Path) -> str:

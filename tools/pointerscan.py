@@ -160,6 +160,9 @@ import sys
 from dataclasses import dataclass, asdict
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import allowmarker  # noqa: E402
+
 # The files this reads. The pointer grammar is a ROADMAP convention; nothing
 # else in the tree carries it, and pointing this at prose would be the
 # fires-on-every-author failure the 0820 record rejected.
@@ -184,8 +187,7 @@ ALLOW_BASE = "pointerscan:allow"
 # GUARDS.md rule (c): a marker only counts with a colon and a non-empty reason,
 # so prose that merely mentions the marker text exempts nothing. Tightened
 # 2026-08-05 — a bare marker used to exempt on a substring match.
-ALLOW_RX = re.compile(
-    r"\b" + re.escape(ALLOW_BASE) + r"(?::(?P<kind>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>[\w\"\'“‘])")
+ALLOW_RX = allowmarker.marker_rx(ALLOW_BASE, scope="one", group="kind")
 
 
 def parse_allow(text: str) -> str | None:
@@ -193,10 +195,7 @@ def parse_allow(text: str) -> str | None:
 
     `""` means the whole item. A marker with no reason returns None — a
     mention, not an exemption."""
-    m = ALLOW_RX.search(text)
-    if not m:
-        return None
-    return m.group("kind") or ""
+    return allowmarker.scope_of(ALLOW_RX, text, "kind")
 
 
 # Directories holding nothing this repo authors.
