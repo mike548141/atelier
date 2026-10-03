@@ -85,11 +85,20 @@ A good brief is falsifiable and attackable. Include:
 ## Running it and landing the verdict
 
 Reproduce the floor first (build, tests, any selftests). Work the lenses and the
-assumptions. Land findings numbered, each with a fix where you can, **applied and
-re-driven the same session**. Close with a verdict — **PASS**,
-**PASS-WITH-FINDINGS**, or **FAIL** — appended below a divider in the brief, so
-the brief and its verdict live together as the record. A finding you fixed but did
-not re-drive is not closed.
+assumptions. Land findings numbered, each with a counselled fix where you can.
+Close with a verdict (**PASS**, **PASS-WITH-FINDINGS** or **FAIL**, the house's
+usual verdict words) appended below a divider in the brief, so the brief and its
+verdict live together as the record. **Who applies a finding depends on what was
+reviewed** (`REVIEW.md` rules 3 and 4):
+- **Ordinary code:** the author may apply a finding, re-drive it the same
+  session, and record `[fixed]`, `[backlog]` or `[rejected: grounds]`. A finding
+  fixed but not re-driven is not closed.
+- **Self-authored doctrine** (judged by function, not file type, so a skill,
+  template, schema or gate counts): **the author applies nothing on its own.**
+  It records the verdict verbatim. The findings are the principal's to decide,
+  after he has the plain-language account the apex requires. And the review
+  itself must come from a cold *spawn*, never from the author's own session
+  (rule 4).
 
 **Deferred material lives in its own file** — `<slug>.deferred.md`, never a
 section below a divider in the brief. Reading is atomic: a deferred section is

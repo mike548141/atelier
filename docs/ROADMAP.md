@@ -262,6 +262,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued: the worktree venv sentence follows](roadmap/160-doctrine-review-owed/550-rule-4-cold-pass-queued-worktree-venv.md)
 - ⏳ [Rule-4 cold pass queued: the concurrency cue count (200/100](roadmap/160-doctrine-review-owed/560-rule-4-cold-pass-queued-three-cues.md)
 - ⏳ [Rule-4 cold pass queued: SECRETS' stated-bridge pointers repointed](roadmap/160-doctrine-review-owed/570-rule-4-cold-pass-queued-stated-bridge-pointer.md)
+- ⏳ [Rule-4 cold pass queued: the review-brief skill stops telling the](roadmap/160-doctrine-review-owed/580-rule-4-cold-pass-queued-review-brief-rule-3.md)
 
 ## build/ layer — open strands
 

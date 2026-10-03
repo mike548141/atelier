@@ -45,7 +45,7 @@
           lists differ (`REVIEW.md:395-436`, `ECONOMICS.md:350-371`,
           `skills/review-brief`, the template reviews README, the template
           CONTRIBUTING, `PROPAGATION.md:771-777`).
-    - [ ] **C10 (contradiction).** `skills/review-brief/SKILL.md:87-92`
+    - [x] **C10 (contradiction).** `skills/review-brief/SKILL.md:87-92`
           says to apply findings "the same session". `REVIEW.md` rule 3 says
           the author applies nothing on self-authored doctrine until the
           principal decides. The skill also uses a PASS / FAIL vocabulary
@@ -93,3 +93,11 @@
       bridge" rule now point at `PRINCIPLES.md`, where the rule lives ("Codify
       before you converge; a hand-action is only a stated bridge"). Pass
       queued at `160/570`.
+      ✅ **C10 fixed 2026-10-03.** `skills/review-brief` § *Running it and
+      landing the verdict* no longer says to apply every finding "the same
+      session". It splits on what was reviewed: ordinary code (the author may
+      apply, re-drive and mark `[fixed]`/`[backlog]`/`[rejected]`) versus
+      self-authored doctrine, where the author applies nothing, the
+      principal decides, and the review comes from a cold spawn. That is
+      rules 3 and 4. PASS/FAIL stays as the house's de facto verdict wording,
+      since every verdict on the board uses it. Pass queued at `160/580`.
