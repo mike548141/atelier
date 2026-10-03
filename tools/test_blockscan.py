@@ -276,6 +276,63 @@ class UnknownBulletIdReds(BlockscanFixture):
         self.assertIn("missing-bullet", r.stdout)
 
 
+class UnmappedHeadings(BlockscanFixture):
+    """320/340 -- `--check` reports headings in mapped docs that no map entry
+    accounts for, advisory only, so a subsection's blind spot is visible."""
+
+    def write_apex(self, text: str) -> None:
+        (self.root / "docs" / "method" / "APEX.md").write_text(text)
+
+    def test_unmapped_subsection_is_reported_and_labelled(self):
+        self.write_apex(
+            f"# Apex\n\n{self.HEADING}\n\nBody.\n\n"
+            "### A subsection\n\nSub body.\n\n"
+            "## Adaptation is continuous\n\nOther.\n")
+        r = self.run_check()
+        self.assertEqual(0, r.returncode, r.stdout + r.stderr)
+        self.assertIn("### A subsection", r.stdout)
+        self.assertIn("under mapped ## Honesty is absolute", r.stdout)
+        self.assertNotIn("## Adaptation is continuous", r.stdout)
+        self.assertIn("+ 1 top-level heading(s) no bullet cites", r.stdout)
+        self.assertIn("(--json lists them)", r.stdout)
+        self.assertIn("unmapped: 2 heading(s)", r.stdout)
+
+    def test_fully_mapped_tree_reports_nothing_new(self):
+        self.write_apex(f"# Apex\n\n{self.HEADING}\n\nBody.\n")
+        r = self.run_check()
+        self.assertEqual(0, r.returncode, r.stdout + r.stderr)
+        self.assertIn("blockscan clean", r.stdout)
+        self.assertNotIn("unmapped", r.stdout)
+
+    def test_headings_in_code_fences_are_ignored(self):
+        self.write_apex(
+            f"# Apex\n\n{self.HEADING}\n\n```\n## not a heading\n```\n")
+        r = self.run_check()
+        self.assertNotIn("not a heading", r.stdout)
+        self.assertNotIn("unmapped", r.stdout)
+
+    def test_json_carries_unmapped_findings_and_stays_clean(self):
+        r = subprocess.run(
+            [sys.executable, bs.__file__, "--check", "--json",
+             "--root", str(self.root)], capture_output=True, text=True)
+        out = json.loads(r.stdout)
+        self.assertTrue(out["clean"])
+        kinds = [f["kind"] for f in out["findings"]]
+        self.assertIn("unmapped", kinds)
+        self.assertIn("Adaptation is continuous", r.stdout)
+
+    def test_stale_map_suppresses_the_unmapped_report(self):
+        self.write_apex("# Apex\n\n## Honesty absolutely\n\nBody.\n")
+        r = self.run_check()
+        self.assertEqual(2, r.returncode, r.stdout + r.stderr)
+        self.assertNotIn("unmapped", r.stdout)
+
+    def test_staged_and_against_modes_do_not_report_unmapped(self):
+        r = self.run_staged()
+        self.assertEqual(0, r.returncode, r.stdout + r.stderr)
+        self.assertNotIn("unmapped", r.stdout)
+
+
 class ExtractionHelpers(unittest.TestCase):
     """Unit-level coverage of the text-extraction primitives, independent of
     git or the CLI."""

@@ -238,7 +238,7 @@ class ConfigError(RuntimeError):
 class Finding:
     kind: str        # "violation" | "stale-heading" | "missing-bullet"
                       # | "missing-file" | "missing-region" | "skipped"
-                      # | "moved"
+                      # | "moved" | "unmapped"
     bullet: str | None
     source_path: str | None
     heading: str | None
@@ -486,6 +486,65 @@ def check_integrity(cfg: dict, read_text) -> list[Finding]:
     return findings
 
 
+def _headings(text: str) -> list[tuple[int, int, str]]:
+    """(zero-based line index, level, stripped line) of every heading in
+    `text` outside a fenced code block. Level-1 headings are the document
+    title, not a section anyone maps, so they are left out."""
+    out: list[tuple[int, int, str]] = []
+    fence = None
+    for i, line in enumerate(text.splitlines()):
+        m = re.match(r"^\s*(`{3,}|~{3,})", line)
+        if m:
+            marker = m.group(1)[0]
+            if fence is None:
+                fence = marker
+            elif fence == marker:
+                fence = None
+            continue
+        if fence is not None or not _HEADING_RX.match(line):
+            continue
+        level = len(line) - len(line.lstrip("#"))
+        if level >= 2:
+            out.append((i, level, line.strip()))
+    return out
+
+
+def check_unmapped(cfg: dict, read_text) -> list[Finding]:
+    """Advisory (320/340): every heading, subsection included, in a doc the
+    map names as a source but that no map entry accounts for. Sections are
+    extracted non-recursively, so an edit under an unmapped subsection is
+    invisible to the co-change rule; this makes that blind spot visible
+    rather than leaving it to be rediscovered. A heading that sits beneath a
+    MAPPED heading is the sharp case and is labelled as such. Never a config
+    error and never blocking: an unmapped heading may be deliberately out of
+    scope, so this reports and does not judge. A source that does not
+    resolve is `check_integrity`'s job, so it is skipped here."""
+    mapped: dict[str, set[str]] = {}
+    for decl in cfg["bullets"].values():
+        for src in decl["sources"]:
+            mapped.setdefault(src["path"], set()).add(src["heading"].strip())
+
+    findings: list[Finding] = []
+    for path in sorted(mapped):
+        heads = _headings(read_text(path))
+        for idx, (line_i, level, text) in enumerate(heads):
+            if text in mapped[path]:
+                continue
+            parent = None
+            cur = level
+            for _, plevel, ptext in reversed(heads[:idx]):
+                if plevel < cur:  # an enclosing heading
+                    if ptext in mapped[path]:
+                        parent = ptext
+                        break
+                    cur = plevel
+            findings.append(Finding(
+                "unmapped", None, path, text, line_i + 1,
+                f"under mapped {parent}" if parent
+                else "not in the map"))
+    return findings
+
+
 # ------------------------------------------------------------ staged mode --
 
 def check_costaged(root: Path, cfg: dict, read_old, read_new) -> list[Finding]:
@@ -600,6 +659,7 @@ def check_costaged(root: Path, cfg: dict, read_old, read_new) -> list[Finding]:
 
 _CONFIG_ERROR_KINDS = {"missing-region", "missing-bullet", "stale-heading",
                        "missing-file"}
+_UNMAPPED_KINDS = {"unmapped"}
 _VIOLATION_KINDS = {"violation"}
 _CLEAN_KINDS = {"moved", "skipped"}
 
@@ -609,7 +669,29 @@ def _suppression_line(findings: list[Finding]) -> str:
     return f"  suppressed: {skipped} finding(s) by allow-marker"
 
 
+def _render_unmapped(unmapped: list[Finding]) -> str:
+    under = [f for f in unmapped if f.detail.startswith("under mapped")]
+    rest = len(unmapped) - len(under)
+    lines = [f"  unmapped: {len(unmapped)} heading(s) in mapped docs that no "
+             "map entry accounts for (advisory, not blocking)."]
+    for f in sorted(under, key=lambda x: (x.source_path or "", x.line)):
+        lines.append(f"    {f.source_path}:{f.line}  {f.heading}  [{f.detail}]")
+    if rest:
+        lines.append(f"  + {rest} top-level heading(s) no bullet cites "
+                     "(--json lists them)")
+    lines.append("    An edit under one of these is invisible to the co-change "
+                 "rule. Map it in tools/blockscan_map.json if a block bullet "
+                 "summarises it; otherwise it is deliberately out of scope.")
+    return "\n".join(lines)
+
+
 def render_human(findings: list[Finding]) -> str:
+    unmapped = [f for f in findings if f.kind in _UNMAPPED_KINDS]
+    base = _render_base([f for f in findings if f.kind not in _UNMAPPED_KINDS])
+    return base + ("\n" + _render_unmapped(unmapped) if unmapped else "")
+
+
+def _render_base(findings: list[Finding]) -> str:
     errors = [f for f in findings if f.kind in _CONFIG_ERROR_KINDS]
     violations = [f for f in findings if f.kind in _VIOLATION_KINDS]
     notes = [f for f in findings if f.kind in _CLEAN_KINDS]
@@ -736,6 +818,10 @@ def _main(argv: list[str] | None = None) -> int:
                         f"refusing to read it whole")
                 return p.read_text(encoding="utf-8", errors="replace")
             findings = check_integrity(cfg, read_disk)
+            # 320/340: advisory report of headings the map cannot see.
+            # Skipped when the map is already stale (that red comes first).
+            if not any(f.kind in _CONFIG_ERROR_KINDS for f in findings):
+                findings += check_unmapped(cfg, read_disk)
     except ConfigError as e:
         print(f"blockscan: {e}", file=sys.stderr)
         return 2
