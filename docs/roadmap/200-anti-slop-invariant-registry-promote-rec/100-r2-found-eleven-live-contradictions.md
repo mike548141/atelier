@@ -1,4 +1,4 @@
-- [ ] 🔎 **The R2 survey found eleven places where the doctrine's own copies
+- [x] 🔎 **The R2 survey found eleven places where the doctrine's own copies
       already disagree** `[M][doctrine]`. Found 2026-10-03 by `040`'s
       claim-keyed duplication pass. Each is filed here as a defect with its
       evidence, per `CLAUDE.md`'s report-don't-patch rule, and none is fixed
@@ -50,7 +50,7 @@
           the author applies nothing on self-authored doctrine until the
           principal decides. The skill also uses a PASS / FAIL vocabulary
           `REVIEW.md` does not define.
-    - [ ] **C11 (drift).** The scope of "no personal data":
+    - [x] **C11 (drift).** The scope of "no personal data":
           `REPO-STANDARD.md:170-173` and atelier's `CLAUDE.md` scope it to
           repos bound for sharing. The child templates (`CLAUDE.md:131`,
           `CONTRIBUTING.md:103`) state it unconditionally.
@@ -121,3 +121,16 @@
       noted, not changed: AUTONOMY's "deploy-on-push, when it isn't routine"
       appears in no summary list, and is arguably inside "widening its
       audience". Pass queued at `160/620`.
+      ✅ **C11 fixed 2026-10-03, on Mike's own words (a ruling-grade
+      statement, not an option pick).** Asked "shareable-only, or every repo",
+      he rejected both boundaries: *"This is the wrong boundary, for example my
+      github username (mike548141) would be considered personally identifable
+      inforamtion (PII) as well. It is about the purpose that we collect, use,
+      and hold information for. In general all repo's should avoid holding PII
+      but there will be exceptions like my github account. Private repos will
+      have more exceptions than a public repo because its necessary for the
+      context of the work I ordered and there are controls in palce to protect
+      it"*. `REPO-STANDARD.md` now carries the purpose-based rule with his
+      words. The child `CLAUDE.md` and `CONTRIBUTING.md` templates and
+      atelier's own `CLAUDE.md` point to it. Exceptions follow `110/100`'s
+      standard. **All eleven are now fixed.** Pass queued at `160/630`.

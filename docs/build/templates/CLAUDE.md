@@ -130,9 +130,11 @@ in atelier and is read on demand — never wholesale.
 
 ## Hard constraints
 
-- **No personal / instance data.** No health, family, financial, or
-  personal-estate context enters this repo. <!-- Tighten per repo: a public-bound
-  repo forbids client names too; run the leak/secret scans as hooks. -->
+- **Personal data only for a purpose, and every exception recorded.** This
+  repo avoids PII by default (health, family, financial, personal-estate
+  context). Anything it must hold for the work it exists to do is a declared,
+  narrow, recorded exception (atelier `build/REPO-STANDARD.md`). <!-- A public
+  repo holds the fewest exceptions; run the leak/secret scans as hooks. -->
 - **Hooks don't travel.** The scan hook and its `hooks.atelierTools` config are
   per-clone — git transports neither, so a fresh clone commits **unscanned**
   until they're reinstalled. Before the first commit on any new clone or

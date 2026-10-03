@@ -167,10 +167,25 @@ applied to repo docs: a claim no stronger than its evidence — see
 - **Comments say _why_, not _what_** — platform quirks, non-obvious constraints,
   the reason a thing is the way it is. Restating the code in prose is noise.
   (The general form is `method/RECORD.md`; it lands here as a code-review bar.)
-- **No personal / instance data in a shareable-bound repo.** Names, health,
-  family, finance, estate topology, machine-local paths — none of it belongs in a
-  repo that may widen its audience. This is enforced mechanically, not
-  remembered: run the leak/secret scans (`method/`'s safety tooling) as hooks.
+- **Personal data is held only for a purpose, and every exception is
+  recorded.** Mike's words (2026-10-03), which replaced a shareable-only
+  boundary that he called the wrong one: *"my github username (mike548141)
+  would be considered personally identifable inforamtion (PII) as well. It is
+  about the purpose that we collect, use, and hold information for. In general
+  all repo's should avoid holding PII but there will be exceptions like my
+  github account. Private repos will have more exceptions than a public repo
+  because its necessary for the context of the work I ordered and there are
+  controls in palce to protect it."* So:
+  - **Every repo avoids PII by default.** That covers names, contacts, health,
+    family, finance, estate topology and machine-local paths.
+  - **An exception is held for a purpose**, and is recorded and narrow, under
+    the standard in `roadmap/110-…/100` (why, who, when, the narrowest span).
+  - **A private repo legitimately carries more exceptions than a public
+    one**, because the work it was ordered for needs them and its controls
+    protect them. A public repo carries only the few it needs, such as the
+    published author identity.
+  - The leak and secret scans enforce the default as hooks, and each
+    exception is a declared allowance.
 - **Grounded, not invented** — see the file-set note; it applies to every doc,
   every commit message, every ROADMAP claim.
 - **Private-first** — new repos default private; widening audience is a floor

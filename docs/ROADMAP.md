@@ -268,6 +268,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued: the file walk enumerates through git](roadmap/160-doctrine-review-owed/600-rule-4-cold-pass-queued-git-enumerated-walk.md)
 - ⏳ [Rule-4 cold pass queued: the template reviews README's trigger list](roadmap/160-doctrine-review-owed/610-rule-4-cold-pass-queued-template-review-triggers.md)
 - ⏳ [Rule-4 cold pass queued: the always-confirm list's copies match](roadmap/160-doctrine-review-owed/620-rule-4-cold-pass-queued-floor-list-membership.md)
+- ⏳ [Rule-4 cold pass queued: personal data held by purpose, with](roadmap/160-doctrine-review-owed/630-rule-4-cold-pass-queued-pii-by-purpose.md)
 
 ## build/ layer — open strands
 
@@ -299,7 +300,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Enforcement seam — how does an invariant get checked?](roadmap/200-anti-slop-invariant-registry-promote-rec/070-enforcement-seam-how-does-an-invariant-get-che.md)
 - [ ] [Where does the registry live? — the SCANNER half is answered and built](roadmap/200-anti-slop-invariant-registry-promote-rec/080-where-does-the-registry-live-the-scanner-half.md)
 - [ ] 🔎 [Two corroboration failures worth minting, both self-caught by the](roadmap/200-anti-slop-invariant-registry-promote-rec/090-two-corroboration-failures-worth-minting-from.md)
-- [ ] 🔎 [The R2 survey found eleven places where the doctrine's own copies](roadmap/200-anti-slop-invariant-registry-promote-rec/100-r2-found-eleven-live-contradictions.md)
+- ✅ 🔎 [The R2 survey found eleven places where the doctrine's own copies](roadmap/200-anti-slop-invariant-registry-promote-rec/100-r2-found-eleven-live-contradictions.md)
 
 ## instruments/ — open features
 

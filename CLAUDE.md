@@ -35,11 +35,12 @@ Read the rest of `docs/method/` on demand when a change touches it.
 
 ## Hard constraints
 
-- **No personal data, ever.** No health, family, financial, or personal-estate
-  context enters this repo. atelier is built to be shareable; that boundary is
-  the whole reason it's safe to share. Mike's personal context stays in
-  `~/.claude/` and never travels here. (This is stricter than most repos — here
-  it's the point, not a precaution.)
+- **No personal data beyond the few recorded exceptions a public repo needs.**
+  No health, family, financial, or personal-estate context enters this repo.
+  atelier is public, so it holds the fewest exceptions of any repo: the
+  published author identity and account name, each declared where it appears.
+  Mike's personal context stays in `~/.claude/`. The purpose-based rule and his
+  words are in `docs/build/REPO-STANDARD.md`.
 - **Live the doctrine you're writing.** The apex (`00-APEX.md`) applies to the
   agent editing this repo: honest about what's done vs stubbed, no rounding a
   half-extraction into "extracted".

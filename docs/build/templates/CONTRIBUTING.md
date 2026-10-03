@@ -100,8 +100,9 @@ other repos would want the rule, it belongs upstream in atelier instead.
   pass. <!-- for web: which browsers/widths; for a CLI: which real inputs -->
 - **New Zealand English** throughout (favourite, colour, organise);
   correct macrons on te reo Māori.
-- **No personal data.** No addresses, contacts, health, family or
-  business detail belongs in this repo.
+- **Personal data only for a purpose.** Avoid addresses, contacts, health,
+  family or business detail. Anything the work needs is a declared, recorded
+  exception, never an unremarked line.
 - **Comments say _why_, not _what_** — constraints and non-obvious
   reasons only.
 - **Record real decisions.** A short ADR in [`docs/decisions/`](docs/decisions/)
