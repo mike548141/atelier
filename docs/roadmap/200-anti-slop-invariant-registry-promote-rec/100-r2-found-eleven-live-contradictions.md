@@ -11,7 +11,7 @@
           `CLAUDE.md` say: check status first, and stop and move if the dirty
           work is a peer's. The skill's own header says it "may compress,
           never contradict".
-    - [ ] **C2 (contradiction).** `REPO-STANDARD.md:222` says to create the
+    - [x] **C2 (contradiction).** `REPO-STANDARD.md:222` says to create the
           remote private, and that "push is recoverable, so it needs no
           confirmation". `skills/create-repo/SKILL.md:213-219` says the
           authority is the principal's ask, *not* "push is recoverable", and
@@ -69,3 +69,10 @@
       `git status` first, stops and moves on a peer's dirty work, and skips
       the pull with no upstream, as `CONCURRENCY.md` says. Pass queued at
       `160/520`.
+      ✅ **C2 fixed 2026-10-03, in the more careful direction, and that choice
+      is the session's.** `REPO-STANDARD.md` step 5 now matches the
+      create-repo skill. The authority to create a remote is the principal's
+      ask, not "push is recoverable", and if the ask didn't include a remote,
+      confirm first. Neither side cited a ruling (`17ccbde` and `2271a44`), so
+      the stricter reading wins until Mike says otherwise. Pass queued at
+      `160/530`.

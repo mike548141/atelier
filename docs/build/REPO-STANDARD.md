@@ -219,8 +219,13 @@ applied to repo docs: a claim no stronger than its evidence — see
 4. Seed the first SESSIONS entry and, if the repo inherits house doctrine, stamp
    the CLAUDE.md doctrine block at the current atelier SHA
    (`method/PROPAGATION.md`).
-5. Commit. Create the remote **private** by default; push is recoverable, so it
-   needs no confirmation — *publishing* (public, or widening audience) does.
+5. Commit. Create the remote **private** by default. The authority to create
+   it is the principal's ask itself, when they asked for a repo with a remote.
+   It is not "push is recoverable", which covers only the push. If the ask did
+   not clearly include a remote (standardising an existing repo, or a local
+   experiment), confirm before creating one. *Publishing* (public, or a wider
+   audience) is always a floor action (`skills/create-repo` step 7 says the
+   same).
 6. Set **delete-branch-on-merge** on the new remote (`gh repo edit
    --delete-branch-on-merge`) — the landed half of CONCURRENCY's "every branch
    ends put away", made automatic at birth so merged branches never linger.
