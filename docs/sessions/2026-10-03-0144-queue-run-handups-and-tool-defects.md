@@ -286,3 +286,43 @@ in Mike's words. Two corrections from Mike changed the records:
 2. **An answer is not a ruling** (`420/020`). A pick from options a session
    wrote is not a ruling unless he says it is. Rulings are his own words,
    quoted. This run's records from today were relabelled at once.
+
+## Addendum 3: the second sitting, closing more than it filed
+
+Mike read the board's count at this point and noted that it had gone up,
+not down. The run changed course to finish whole items. In this sitting:
+
+**Closed:**
+- `320/500`: the expected toolbox.
+- `200/100`: all eleven contradictions, each fixed separately with its own
+  pass (`160/520`–`630`). C11 was settled on his own words: personal data is
+  held by purpose, with recorded exceptions.
+- `110/110`: the guards walk only what git could commit.
+- `110/120`: pathscan and linkscan stream and cap.
+- `110/140`: the linear line reader.
+
+**Merged:** #92 and #96, both on his answers, and the ccarchive heal pulled
+on his answer.
+
+**Filed:**
+- `420/020` (an answer is not a ruling) and `320/510` (the private-repo
+  misattribution), both from his corrections.
+- `110/130` (regex cost per byte).
+- The exception-register design, as a draft ADR
+  (`docs/decisions/2026-10-03-0641-the-exception-register.md`) with its
+  design pass at `160/650`.
+
+**Measured on the large private repo, against a 300 s cap.** The scans
+had previously run for hours.
+
+| Guard | Before | After `110` | After `140` |
+|---|---|---|---|
+| secretscan | past the 300 s cap | 139 s | 56 s |
+| leakscan | past the 300 s cap | 231 s | 147 s |
+| conflictscan | past the 300 s cap | 77 s | 6 s |
+
+Peak memory stayed under 60 MB throughout.
+
+**Lessons, in memory:** a pick from a session's options is an answer, not a
+ruling. The tool list lives in atelier. Personal data is judged by purpose,
+not by repo visibility. Exceptions are recorded and narrowed.
