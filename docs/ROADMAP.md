@@ -246,6 +246,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued: stampscan --require-stamps and](roadmap/160-doctrine-review-owed/430-rule-4-cold-pass-queued-the-cover-switch-and-unmapped-headings.md)
 - ⏳ [Rule-4 cold pass queued: cctranscript's archive-pool speedup](roadmap/160-doctrine-review-owed/440-rule-4-cold-pass-queued-the-archive-pool-speedup.md)
 - ⏳ [Rule-4 cold pass queued: the mandate-versus-default date rule](roadmap/160-doctrine-review-owed/450-rule-4-cold-pass-queued-the-date-kind-rule.md)
+- ⏳ [Rule-4 cold pass queued: ccarchive's manifest checkpoints and](roadmap/160-doctrine-review-owed/460-rule-4-cold-pass-queued-the-manifest-checkpoints.md)
 
 ## build/ layer — open strands
 
@@ -271,12 +272,13 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Build a generic mechanism keeping any hand-maintained index true to](roadmap/200-anti-slop-invariant-registry-promote-rec/010-build-a-generic-mechanism-keeping-any-hand-mai.md)
 - [ ] [Third confirmed instance of the class landed 2026-08-03, and Mike…](roadmap/200-anti-slop-invariant-registry-promote-rec/020-third-confirmed-instance-of-the-class-landed-2.md)
 - [ ] 🎯 [R1 — the recurrence count has to become mechanical, and the mining](roadmap/200-anti-slop-invariant-registry-promote-rec/030-r1-the-recurrence-count-has-to-become-mechanic.md)
-- [~] (claimed 2026-10-03-0200, wt: none) [R2 — find the actual triplications before consolidating any of them.](roadmap/200-anti-slop-invariant-registry-promote-rec/040-r2-find-the-actual-triplications-before-consol.md)
+- ✅ [R2 — find the actual triplications before consolidating any of them.](roadmap/200-anti-slop-invariant-registry-promote-rec/040-r2-find-the-actual-triplications-before-consol.md)
 - [ ] [Codify V1–V7 as the always-loaded reviewer checklist](roadmap/200-anti-slop-invariant-registry-promote-rec/050-codify-v1-v7-as-the-always-loaded-reviewer-che.md)
 - [ ] [Two-layer acceptance criteria, one verification pass.](roadmap/200-anti-slop-invariant-registry-promote-rec/060-two-layer-acceptance-criteria-one-verification.md)
 - [ ] [Enforcement seam — how does an invariant get checked?](roadmap/200-anti-slop-invariant-registry-promote-rec/070-enforcement-seam-how-does-an-invariant-get-che.md)
 - [ ] [Where does the registry live? — the SCANNER half is answered and built](roadmap/200-anti-slop-invariant-registry-promote-rec/080-where-does-the-registry-live-the-scanner-half.md)
 - [ ] 🔎 [Two corroboration failures worth minting, both self-caught by the](roadmap/200-anti-slop-invariant-registry-promote-rec/090-two-corroboration-failures-worth-minting-from.md)
+- [ ] 🔎 [The R2 survey found eleven places where the doctrine's own copies](roadmap/200-anti-slop-invariant-registry-promote-rec/100-r2-found-eleven-live-contradictions.md)
 
 ## instruments/ — open features
 
@@ -298,7 +300,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [ccgrab — a web-media capture instrument (Mike commissioned 2026-09-09;](roadmap/210-instruments-open-features/140-ccgrab-web-media-capture-instrument.md)
 - ✅ 🔎 [Why is the source smaller than the archived copy? — the shrink](roadmap/210-instruments-open-features/150-why-the-source-is-smaller-than-the-archived-copy.md)
 - [ ] 🎯 [ccarchive's summary counts files, and Mike's own read of the tool](roadmap/210-instruments-open-features/160-ccarchive-reports-file-counts-not-session-counts.md)
-- [~] 🔎 (claimed 2026-10-03-0203, wt: qr-ccarchive-manifest) [ccarchive's manifest lags its own mirror in 14 files, so the](roadmap/210-instruments-open-features/170-the-manifest-lags-the-mirror.md)
+- [ ] 🔎 [ccarchive's manifest lags its own mirror in 14 files, so the](roadmap/210-instruments-open-features/170-the-manifest-lags-the-mirror.md)
 - [ ] 🔎 [--list --from-archive still fully gunzips every local mirror for](roadmap/210-instruments-open-features/180-first-prompt-column-gunzips-every-mirror.md)
 
 ## Observability of the collaboration itself (2026-07-30)

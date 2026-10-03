@@ -139,3 +139,28 @@ first target. The item records only classes and counts, with no private repo
 named. atelier's own four firm drifts were fixed in the same commit, except
 `filewalk.py`. Its missing entry is FW2, which is in the ruling round, so it
 was left alone.
+
+## `210/170`: the manifest stops falling behind
+
+The orchestrator read the code before claiming. `archive()` writes mirrors
+inside its loop and saves the manifest once, after it. So a run that dies
+part-way strands every mirror it wrote, and the mtime check makes the gap
+permanent. The fix checkpoints the manifest every 50 mirrors and on any
+throw, re-signing each time so the signature always matches the saved
+bytes. It also heals an entry whose size disagrees with a fresh-by-mtime
+source. The real archive's 14 lagging entries heal on the next ordinary
+run. Locking against overlapping runs is the open half. The code pass is
+queued at `160/460`.
+
+## `200/040`: R2 surveyed, and eleven contradictions filed
+
+A claim-keyed pass over `method/`, `build/`, the templates and the skills
+found **68 multi-stated claims: 41 independent restatements, 20 pointers and
+7 stamped**. Only the floor block is mechanically stamped. **Eleven sets of
+copies already disagree.** They are filed as `200/100` with file:line
+evidence and six re-read first-hand, and none was fixed in passing (the
+report-don't-patch rule). The sharpest is C1: the queue-run skill tells a
+run to `pull --rebase --autostash` with no status-first gate, which is the
+step `CONCURRENCY.md` warns against, on a recorded near-miss. Four of the
+eleven are a skill or template contradicting the parent it claims to
+compress.
