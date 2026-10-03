@@ -366,6 +366,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Grab the AI chat (Teams, 15/7/26) with a colleague](roadmap/270-open-questions/020-grab-the-ai-chat-teams-15-7-26-with-a-colleagu.md) <!-- datescan:allow: verbatim; wrapscan:allow: marker-inflated line -->
 - ✅ [The Laws are a ladder — but a ladder needs a world-model to climb](roadmap/270-open-questions/030-the-laws-are-a-ladder-but-a-ladder-needs-a-wor.md)
 - [ ] [Accountability and authority must match — in both directions](roadmap/270-open-questions/040-accountability-and-authority-must-match-in-bot.md)
+- [ ] 🎯 ["One task per session" — does ECONOMICS.md say what the principal](roadmap/270-open-questions/050-one-task-per-session-does-the-doctrine-say-what-was-directed.md)
 
 ## Cross-session channel — coordination git cannot carry (Mike commissioned 2026-08-17)
 

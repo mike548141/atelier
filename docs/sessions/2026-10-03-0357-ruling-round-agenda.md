@@ -97,12 +97,13 @@ or lying today.
   parser (115/080 part 3) as the recurrence step, and whether to hot-fix the
   prefix flags first. The AM pass on 160/480 (allow-marker grammar, part 2) may
   bear on it — read its verdict before this sitting.
-- **RU1 / NP6 + NP1 + 320/330 + PR #92 (cluster C9).** The stamped floor tells a
+- **RU1 / NP6 + NP1 + 320/330 (cluster C9).** The stamped floor tells a
   private child how to file a hand-up but not the one rule that stops it naming
   itself; the precedence applied on 2026-09-19 was narrowed by the applier from
   "rule 2 wins everywhere" to "no repo token". Two closed PRs and two doctrine
-  passages already carry a private child's name, and PR #92 is held on exactly
-  this question. One ruling: the floor clause, the widened precedence, and
+  passages already carry a private child's name (PR #92 was held on this
+  question on 2026-10-03 and has since merged — read how it was settled first).
+  One ruling: the floor clause, the widened precedence, and
   whether doctrine prose may name a private child.
 - **AB1, LK1, RC2, SP3.** Four scanner regressions from blocking to green:
   the E3 fingerprint carve-out reaches credential-keyed values; a malformed
@@ -241,7 +242,7 @@ cycles stay open.
 | MC | 160/460 ccarchive manifest checkpoints | 2 MAJOR · 2 MODERATE · 4 minor · 2 note | OPEN | 1 |
 | PL | 160/470 publishscan round 2 | 1 MAJOR · 5 MODERATE · 4 minor · 6 note | OPEN | 1 |
 | AM | 160/480 shared allow-marker grammar | 0 MAJOR · 5 MODERATE · 4 minor · 4 note | closed | 1 (AM2 = LK1) |
-| PX | 160/490 pathscan brace expansion | running at this file's last edit | — | 8 |
+| PX | 160/490 pathscan brace expansion | 0 MAJOR · 3 MODERATE · 5 minor · 4 note | closed | 8 (PX1 first: unbounded expansion) |
 
 The four MAJORs, one line each:
 
@@ -281,6 +282,6 @@ candidate line for REVIEW.md's lifecycle (sitting 3 or 7).
   re-authorises, no session can open a mail attachment.
 - 🚩 **Three private children go red on publishscan at their next CI run**
   (260/040). That is the floor working; it will look like breakage.
-- 🚩 **PR #92 is held** on a privacy question; **PR #97** (leakscan blocks
-  unlisted binaries) **is a draft held for a ruling** — landing it reds seven
-  children's CI.
+- 🚩 **PR #97** (leakscan blocks unlisted binaries) **is a draft held for a
+  ruling** — landing it reds seven children's CI. (PR #92, held earlier on
+  2026-10-03 for a privacy question, has since merged.)
