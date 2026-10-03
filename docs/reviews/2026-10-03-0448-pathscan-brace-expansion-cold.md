@@ -394,3 +394,146 @@ line I drove is pathscan's own, by hand, over the gated scope.
 - [ ] PX7: accept or align the span cases.
 - [ ] PX8: harvest into the README, `--help`, the false-negative list and the changelog.
 - [ ] Run the ten unrun test files and the floor on both planes before this pass closes.
+
+### Reconcile (written 2026-10-03, after the sibling's release)
+
+**Overall, restated: PASS-WITH-FINDINGS — 0 MAJOR, 3 MODERATE, 5 minor, 3 notes.** No
+severity moves. One phase-1 sentence is corrected below (PX9), and one observation is
+formed at reconcile.
+
+Read in phase 2, and nothing else: the sibling's text, the intent record's two pathscan
+passages (the build-and-hold section and the addendum), items `320/010` and `320/170`,
+and pull request 96's description (it has no comments). No suite and no new probe was
+run; every answer below rests on what phase 1 drove.
+
+**Seeded questions.**
+
+1. *Does expansion turn one finding into N, and is the count honest?* Yes to both. Each
+   missing alternative is its own finding, duplicates on a line collapse (B32), and the
+   suppressed tally counts each one. The pull request's "57 to 59" matches what I
+   measured as two new pre-suppression findings on the `docs` scope. What `--json` lacks
+   is any link from an expanded target back to the text as written (PX5).
+2. *Does the `./` skip hide a stale path that used to be flagged, and is that stated?*
+   Yes, it hides one (PX2), and no, the docstring's false-negative list does not say so
+   (PX8). The intent record shows the case it was built for: a command whose script sits
+   under the child's own tools directory. The skip is wider than that case, because it
+   also takes a span holding only a path.
+3. *Did the standing `session-open-prompt.md:15` finding change?* No. It is the single
+   gated finding at the parent and at HEAD, same line, same target.
+4. *What was ruled, and does the code do that and no more?* The principal chose
+   expand-and-check over exclude, on the recommendation, conditional on a check against
+   the requesting transcript, which the item records as done. The merged code matches the
+   pull request's description. Two things sit outside what the ruling was briefed on:
+   - The description offered one decision, expand or exclude. The `./` skip rode on the
+     same branch, and `320/170` is a report with no ruling of its own on that ask.
+   - The description said no findings were removed. That is true of atelier's tree. It
+     did not say the change can remove findings elsewhere (PX2, PX3, PX4), nor name the
+     cost in PX1. The commit message's "only drop or reshape findings in these classes"
+     is contradicted by PX3 and PX4.
+   *Counsel:* the ruling stands; these are grounds for a re-brief, not for treating it as
+   void.
+5. *Is the expansion bounded?* Per token, yes, at 64. Per line and per file, no (PX1).
+
+**Per-finding notes.**
+
+- **PX1.** The intent record's addendum has the principal restating, the same day, that
+  guards stream at any scale. That makes PX1 the finding to rule first. I hold it at
+  MODERATE because the input must be hostile or machine-generated to reach it.
+- **PX2.** Confirmed against intent as wider than the commissioned case. Unchanged.
+- **PX3, PX4.** Neither item asked for these losses; the item's own smaller candidate
+  (exclude the brace) would have produced PX3's loss for every brace token, so
+  expand-and-check is still the better shape. Unchanged.
+- **PX5, PX6, PX7, PX10, PX11.** Nothing in the intent material bears on them. Unchanged.
+- **PX8.** Prior pass `PS8` asked for an honest false-negative list and `FR1` for a README
+  entry; both were applied then. This delta re-opens the same gap for its two behaviours.
+  Unchanged.
+- **PX9 — corrected, phase-1 text left as written.** The last sentence said the tool
+  still emits the truncated token on the item's line 44, implying a surviving truncation.
+  Having read the line: the item quotes the truncated form literally, as its own
+  example, so that token is written text, not a truncation at HEAD. The three surviving
+  shapes (B06, B08, B10) stand; the item also records the trailing-slash question as
+  deliberately untouched.
+- **Prior `SP7`** (each Markdown file read whole) is adjacent to PX1 and still unruled;
+  PX1 is a separate mechanism, the findings list rather than the read.
+
+**Formed at reconcile — PX12, note.** `320/010` line 44, in this public repo, quotes a
+private child's own file names, and its new allow marker says so. Whether those names
+are acceptable to publish is outside this delta and is the principal's call; recorded
+here only because the delta's landing added the marker that draws attention to the line.
+
+Counts with the reconcile note included: 0 MAJOR, 3 MODERATE, 5 minor, 4 notes. Still
+owed before this pass closes: the ten unrun test files and the floor on both planes.
+
+## Folded sibling — released after the phase-1 findings were committed
+
+The `.deferred.md` sibling the orchestrator held outside the worktree, folded in
+verbatim at close; the reviewer met it only in phase 2.
+
+# Deferred sibling — pathscan's brace expansion and inline `./` skip (PX)
+
+Held by the orchestrator outside the worktree and outside the harness
+scratchpad. Released to the reviewer only after its phase-1 findings are
+committed. Folded into the verdict file at close.
+
+## 1. The queue pointer's own framing (author's words)
+
+> Rule-4 cold pass queued: pathscan's brace expansion and inline `./` skip
+> (`320/010` class C, `320/170`). The run authored this itself (its dispatched
+> workers' output counts as the run's authorship). It was queued at landing,
+> and the run neither takes it nor spawns a reviewer for it. Tier: Fable, the
+> principal-named review tier, checked at selection. Pass type: code cold pass,
+> per `method/REVIEW.md` rule 4. Delta, scoped to paths: `tools/pathscan.py`
+> and `tools/test_pathscan.py`, from PR #96, merged on `main` on 2026-10-03.
+> Intent record: `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md`.
+
+## 2. Intent record and commissioning items (read in phase 2)
+
+- `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md`
+- `docs/roadmap/320-child-filed-findings-via-pointing-up/010-*.md` (class C)
+  and `170-*.md`
+- pull request 96 (its description, and the principal's ruling on it)
+
+## 3. What the authoring run said to the orchestrator (channel, verbatim)
+
+> New draft PR #96 holds a pathscan change for Mike's ruling, because 320/010
+> class C turned out to be unruled. Add it to your ruling-round list if useful.
+
+No message announced the 160/490 pointer; the orchestrator found it on `main`.
+The landing merge's subject reads "(PR #96, Mike ruled)". Nothing else from that
+run was read.
+
+## 4. Prior findings and seeded questions (the orchestrator's, labelled)
+
+Prior pathscan verdicts (from inventory summaries):
+
+- 2026-07-26 pathscan S2 pass (`PS`, ruled 2026-08-04 "fund the rescope", all
+  applied): PS1 CI scanned `docs` only and three anchors false-positived on
+  docs-relative shorthand; PS4 the baseline was about 97 % records, so only the
+  doctrine surface can be gated; PS8 the docstring's "every cited occurrence"
+  overclaimed (a single-segment `templates/` citation yields no candidate). The
+  minors asked for an honest false-negative list in the docstring: emphasis,
+  multi-line placeholders, TODO masking, indented code.
+- 2026-08-06 D1 application pass (`PD`, ruled): tests placed after `main()`
+  (fixed); the burn-down denominator; pathscan and linkscan double-reporting one
+  defect (accepted).
+- 2026-08-09 floor-render batch (`FR`, ruled 2026-08-23): FR1 no README
+  catalogue entry (fixed); FR2 the child default scope included records (fixed
+  with a records-excluding default and `--include-records`).
+- 2026-09-25 secretscan-stream / pathscan-roots pass (`SP`, unruled): SP5
+  declared-roots type validation gaps; SP6 a symlink can escape the lexical
+  check; SP7 each Markdown file is still read whole; SP8 the README omits the
+  roots.
+- Board `320/310` (open 🎯): should pathscan block instead of warn — "decide
+  after `320/010`'s declared roots ship; measure what is left".
+- A standing warn-only finding on the hook plane at
+  `docs/method/session-open/session-open-prompt.md:15` (a `../atelier/…` path),
+  recorded as pre-existing by HF10, AK5 and TR10 on 2026-09-25, and still
+  present at `57b9764`.
+
+Seeded questions (the orchestrator's): (1) Does brace expansion turn one
+finding into N, and is the count honest in the tally and `--json`? (2) Does the
+inline `./` skip hide a stale relative path that used to be flagged — a new
+false negative — and is that residual stated in the docstring list PS8 asked
+for? (3) Did the standing `session-open-prompt.md:15` finding change? (4) What
+did the principal actually rule on pull request 96, and does the merged code do
+that and no more? (5) Is the expansion bounded?
