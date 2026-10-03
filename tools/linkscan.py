@@ -93,6 +93,14 @@ def parse_allow(line: str) -> str | None:
     return allowmarker.scope_of(ALLOW_RX, line, "rule")
 
 
+# 110/120 — the run-wide cap on fully built findings, reused from leakscan /
+# secretscan / conflictscan (020/380) rather than re-derived: each held
+# `Finding` costs on the order of 1 KiB, so ~50 MiB of findings regardless
+# of input size. Past it a finding is COUNTED (`Tally.findings_over_cap`),
+# never dropped silently, and the true total is `len(findings) + over_cap`.
+MAX_MATERIALIZED_FINDINGS = 50_000
+
+
 @dataclass
 class Tally:
     """What the scan removed AFTER finding it — rule (b) of `method/GUARDS.md`.
@@ -101,19 +109,36 @@ class Tally:
     matched" and "everything matched and was exempted"."""
     by_marker: dict[str, int] = field(default_factory=dict)
     files_by_glob: int = 0
+    # 110/120 — see MAX_MATERIALIZED_FINDINGS.
+    findings_over_cap: int = 0
+    _materialized: int = field(default=0, repr=False, compare=False)
 
     @property
     def marker_total(self) -> int:
         return sum(self.by_marker.values())
 
+    def take_finding_slot(self) -> bool:
+        """True if a finding may still be fully built and held; False once
+        the run-wide cap is reached, in which case it is counted in
+        `findings_over_cap` instead and the caller builds nothing."""
+        if self._materialized < MAX_MATERIALIZED_FINDINGS:
+            self._materialized += 1
+            return True
+        self.findings_over_cap += 1
+        return False
+
     def note_marker(self, rule: str) -> None:
         self.by_marker[rule] = self.by_marker.get(rule, 0) + 1
 
     def summary(self) -> str:
-        """One stable line, known zeros printed, so two runs compare."""
+        """One stable line, known zeros printed, so two runs compare. The
+        over-cap count prints every run, 0 included, exactly as leakscan,
+        secretscan and conflictscan do (the field set never varies)."""
         line = ("  suppressed: "
                 f"{self.marker_total} by allow-marker · "
                 f"{self.files_by_glob} file(s) by .linkscanignore")
+        line += (f" · {self.findings_over_cap} beyond the "
+                 f"{MAX_MATERIALIZED_FINDINGS}-finding cap (counted, not listed)")
         if self.by_marker:
             detail = ", ".join(f"{r}×{n}" for r, n in sorted(self.by_marker.items()))
             line += f"\n    allow-marker breakdown: {detail}"
@@ -325,18 +350,25 @@ def _iter_file_content_lines(path: Path):
             if not chunk:
                 break
             pending += decoder.decode(chunk)
+            # Walk an offset forward and cut `pending` once per chunk. The
+            # old `pending = pending[nl + 1:]` per line re-copied the whole
+            # remainder for every line: quadratic in lines-per-chunk
+            # (110/120, measured on a file of short lines).
+            start = 0
             while True:
-                nl = pending.find("\n")
+                nl = pending.find("\n", start)
                 if nl == -1:
                     break
-                line = pending[:nl]
-                pending = pending[nl + 1:]
+                line = pending[start:nl]
+                start = nl + 1
                 is_content = (state.is_content(line) if first_window_of_line
                              else not state.in_fence)
                 if is_content:
                     yield lineno, line
                 lineno += 1
                 first_window_of_line = True
+            if start:
+                pending = pending[start:]
             if len(pending) >= LINE_WINDOW_BYTES:
                 is_content = (state.is_content(pending) if first_window_of_line
                              else not state.in_fence)
@@ -408,18 +440,36 @@ def heading_slugs_from_path(path: Path) -> set[str]:
 
 def _strip_inline_code(line: str) -> str:
     """Blank out inline `code spans` so a link-shaped example inside them isn't
-    read as a live link. Backtick runs must match in length (CommonMark)."""
+    read as a live link. Backtick runs must match in length (CommonMark).
+
+    110/120: text between backticks is copied as one slice rather than one
+    character at a time (a per-character Python loop over a 200 KB line, for
+    every line of a 500 MB file, was most of the run time), and a backtick
+    run length with no later occurrence is remembered so a line of many
+    unmatched runs does not rescan to its end for each. Output is unchanged."""
+    if "`" not in line:
+        return line
     out: list[str] = []
     i = 0
     n = len(line)
+    no_close: set[str] = set()      # tick runs known to have no later match
     while i < n:
-        if line[i] == "`":
-            j = i
-            while j < n and line[j] == "`":
-                j += 1
-            ticks = line[i:j]
+        tick = line.find("`", i)
+        if tick == -1:
+            out.append(line[i:])
+            break
+        if tick > i:
+            out.append(line[i:tick])
+            i = tick
+        j = i
+        while j < n and line[j] == "`":
+            j += 1
+        ticks = line[i:j]
+        if ticks not in no_close:
             close = line.find(ticks, j)
-            if close != -1 and line[close:close + len(ticks)] == ticks \
+            if close == -1:
+                no_close.add(ticks)
+            elif line[close:close + len(ticks)] == ticks \
                     and (close + len(ticks) >= n or line[close + len(ticks)] != "`"):
                 out.append(" " * (close + len(ticks) - i))
                 i = close + len(ticks)
@@ -429,7 +479,13 @@ def _strip_inline_code(line: str) -> str:
     return "".join(out)
 
 
-def _iter_links_from_lines(lines, allow_by_line: dict[int, str] | None = None):
+# 110/120 — the streaming caller needs an allow-marker scope only for the line
+# being scanned, so `prune_allow` keeps the map from growing with the file.
+_ALLOW_PRUNE_AT = 64
+
+
+def _iter_links_from_lines(lines, allow_by_line: dict[int, str] | None = None,
+                           prune_allow: bool = False):
     """Shared engine behind `iter_links` (in-memory text) and
     `iter_links_from_path` (streaming, real files — 020/380). `lines` is any
     iterable of (lineno, line) already filtered to exclude fenced code.
@@ -441,6 +497,9 @@ def _iter_links_from_lines(lines, allow_by_line: dict[int, str] | None = None):
     for lineno, line in lines:
         scope = parse_allow(line)
         if scope is not None and allow_by_line is not None:
+            if prune_allow and len(allow_by_line) >= _ALLOW_PRUNE_AT:
+                for k in [k for k in allow_by_line if k < lineno]:
+                    del allow_by_line[k]
             allow_by_line[lineno] = scope
         stripped = _strip_inline_code(line)
         definition = _LINK_DEF.match(stripped)
@@ -471,11 +530,13 @@ def iter_links(text: str, allow_by_line: dict[int, str] | None = None):
     yield from _iter_links_from_lines(_content_lines(text), allow_by_line)
 
 
-def iter_links_from_path(path: Path, allow_by_line: dict[int, str] | None = None):
+def iter_links_from_path(path: Path, allow_by_line: dict[int, str] | None = None,
+                         prune_allow: bool = False):
     """Streaming sibling of `iter_links`, for real files on disk — peak
     memory bounded by `_iter_file_content_lines` regardless of the file's
     size (020/380)."""
-    yield from _iter_links_from_lines(_iter_file_content_lines(path), allow_by_line)
+    yield from _iter_links_from_lines(_iter_file_content_lines(path), allow_by_line,
+                                      prune_allow)
 
 
 def is_external(dest: str) -> bool:
@@ -497,6 +558,13 @@ def resolve(md_file: Path, root: Path, path: str) -> Path:
     return (md_file.parent / path)
 
 
+# 110/120 — `_suggest` only ever asks "is there EXACTLY one carrier of this
+# basename?", so a third path can never change an answer. Keeping two stores
+# the same verdicts in constant space per name instead of one Path per file
+# in the tree.
+_MAX_INDEXED_PER_NAME = 2
+
+
 def _build_basename_index(root: Path) -> dict[str, list[Path]]:
     """Every file/dir basename anywhere under `root` (excluding any path with
     a dot-prefixed component — `.git`, `.github` and friends are not link
@@ -515,11 +583,15 @@ def _build_basename_index(root: Path) -> dict[str, list[Path]]:
     for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = [d for d in dirnames if not d.startswith(".")]
         for d in dirnames:
-            index.setdefault(d, []).append(Path(dirpath) / d)
+            hits = index.setdefault(d, [])
+            if len(hits) < _MAX_INDEXED_PER_NAME:
+                hits.append(Path(dirpath) / d)
         for name in filenames:
             if name.startswith("."):
                 continue
-            index.setdefault(name, []).append(Path(dirpath) / name)
+            hits = index.setdefault(name, [])
+            if len(hits) < _MAX_INDEXED_PER_NAME:
+                hits.append(Path(dirpath) / name)
     return index
 
 
@@ -657,22 +729,81 @@ def _check_anchor(rel: str, lineno: int, dest: str, anchor: str,
                    f"no heading '#{anchor}' {where}")
 
 
+# Bound on the shared link-resolution memo (entries, one per distinct
+# (directory, link path)); past it new links are resolved but not remembered.
+_MAX_RESOLVE_MEMO = 50_000
+
+
+def _resolve_link(md_file: Path, root: Path, path: str,
+                  listdir_cache: dict[Path, list[str]],
+                  basename_index: "_BasenameIndex | None") -> list:
+    """Everything about a link's PATH part that does not depend on the line
+    it sits on: existence, root containment, case, the suggestion and the
+    printable target. Returns `["fail", kind, detail, suggest]` or
+    `["ok", target, anchorable, resolved_key_or_None]`. Pure in the
+    filesystem, which does not change during a run, so the caller memoises
+    it (110/120: a 500 MB file's 235k links did ~2M `lstat`s resolving the
+    same few paths over and over)."""
+    target = resolve(md_file, root, path)
+    if not target.exists():
+        return ["fail", "missing-file", f"{_rel(target, root)} does not exist",
+                _suggest(md_file, root, path, basename_index)]
+    if not _within_root(target, root):
+        return ["fail", "outside-root",
+                "resolves outside the repo root — a reader "
+                "on GitHub gets a 404",
+                _suggest(md_file, root, path, basename_index)]
+    wrong = _case_mismatch(target, root, listdir_cache)
+    if wrong is not None:
+        return ["fail", "missing-file",
+                f"case mismatch — on-disk name is '{wrong}' "
+                "(a case-sensitive host 404s)", ""]
+    anchorable = target.is_file() and target.suffix.lower() in MARKDOWN_SUFFIXES
+    return ["ok", target, anchorable, None]
+
+
 def check_file(md_file: Path, root: Path,
                slug_cache: dict[Path, set[str]],
                listdir_cache: dict[Path, list[str]],
                basename_index: "_BasenameIndex | None",
-               tally: "Tally | None" = None) -> list[Finding]:
+               tally: "Tally | None" = None,
+               resolve_memo: "dict[tuple[Path, str], list] | None" = None
+               ) -> list[Finding]:
     """Scans `md_file` from disk via the streaming readers (020/380) —
     peak memory for this file is bounded regardless of its size, never a
     whole-file `read_text()` held alongside its own line list. `own_slugs`
     is computed lazily, and only via a SECOND bounded pass over the same
     file (`heading_slugs_from_path`), so the common case (no same-file
-    anchor in the file) never pays for it at all."""
+    anchor in the file) never pays for it at all.
+
+    110/120: findings are subtracted (allow-marker, rule b) and capped as
+    each link streams past, so the held list is bounded by
+    `MAX_MATERIALIZED_FINDINGS` however many links a file carries; the
+    marker scope for a line is known before that line's links are yielded,
+    so the verdict is the one the old end-of-file pass reached. Path
+    resolution is memoised per (directory, path) in `resolve_memo`."""
     rel = _rel(md_file, root)
     own_slugs: set[str] | None = None
     findings: list[Finding] = []
     allow_by_line: dict[int, str] = {}
-    for lineno, dest in iter_links_from_path(md_file, allow_by_line):
+    if resolve_memo is None:
+        resolve_memo = {}
+    here = md_file.parent
+
+    def emit(f: Finding) -> None:
+        # SUBTRACT SECOND (rule b): the finding is fully formed, so an
+        # exemption is counted rather than vanishing at extraction time.
+        scope = allow_by_line.get(f.line)
+        if scope is not None and scope in ("", f.kind):
+            if tally is not None:
+                tally.note_marker(f.kind)
+            return
+        if tally is not None and not tally.take_finding_slot():
+            return
+        findings.append(f)
+
+    for lineno, dest in iter_links_from_path(md_file, allow_by_line,
+                                             prune_allow=True):
         if not dest or is_external(dest):
             continue
         path, anchor = split_target(dest)
@@ -685,49 +816,32 @@ def check_file(md_file: Path, root: Path,
                 own_slugs = heading_slugs_from_path(md_file)
             f = _check_anchor(rel, lineno, dest, anchor, own_slugs, "in this file")
             if f:
-                findings.append(f)
+                emit(f)
             continue
 
-        target = resolve(md_file, root, path)
-        if not target.exists():
-            findings.append(Finding(rel, lineno, "missing-file", dest,
-                                    f"{_rel(target, root)} does not exist",
-                                    _suggest(md_file, root, path, basename_index)))
-            continue
-        if not _within_root(target, root):
-            findings.append(Finding(rel, lineno, "outside-root", dest,
-                                    "resolves outside the repo root — a reader "
-                                    "on GitHub gets a 404",
-                                    _suggest(md_file, root, path, basename_index)))
-            continue
-        wrong = _case_mismatch(target, root, listdir_cache)
-        if wrong is not None:
-            findings.append(Finding(rel, lineno, "missing-file", dest,
-                                    f"case mismatch — on-disk name is '{wrong}' "
-                                    "(a case-sensitive host 404s)"))
+        memo_key = (here, path)
+        res = resolve_memo.get(memo_key)
+        if res is None:
+            res = _resolve_link(md_file, root, path, listdir_cache, basename_index)
+            if len(resolve_memo) < _MAX_RESOLVE_MEMO:
+                resolve_memo[memo_key] = res
+        if res[0] == "fail":
+            emit(Finding(rel, lineno, res[1], dest, res[2], res[3]))
             continue
 
         # Path resolves. Validate a Markdown anchor if one was given.
-        if anchor and not _LINE_ANCHOR.match(anchor) \
-                and target.is_file() and target.suffix.lower() in MARKDOWN_SUFFIXES:
-            key = target.resolve()
+        target = res[1]
+        if anchor and not _LINE_ANCHOR.match(anchor) and res[2]:
+            key = res[3]
+            if key is None:
+                key = res[3] = target.resolve()
             if key not in slug_cache:
                 slug_cache[key] = heading_slugs_from_path(target)
             f = _check_anchor(rel, lineno, dest, anchor, slug_cache[key],
                               f"in {_rel(target, root)}")
             if f:
-                findings.append(f)
-    # SUBTRACT SECOND (rule b): every finding is fully formed above, so an
-    # exemption is counted here rather than vanishing at extraction time.
-    kept: list[Finding] = []
-    for f in findings:
-        scope = allow_by_line.get(f.line)
-        if scope is not None and scope in ("", f.kind):
-            if tally is not None:
-                tally.note_marker(f.kind)
-            continue
-        kept.append(f)
-    return kept
+                emit(f)
+    return findings
 
 
 def _rel(p: Path, root: Path) -> str:
@@ -780,22 +894,30 @@ def scan_paths(paths: list[Path], root: Path,
     slug_cache: dict[Path, set[str]] = {}
     listdir_cache: dict[Path, list[str]] = {}
     basename_index = _BasenameIndex(root)
+    resolve_memo: dict[tuple[Path, str], list] = {}
     findings: list[Finding] = []
     for md in iter_markdown(paths, root, globs, tally):
         findings.extend(check_file(md, root, slug_cache, listdir_cache,
-                                   basename_index, tally))
+                                   basename_index, tally, resolve_memo))
     return findings
 
 
 def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
-    if not findings:
+    # 110/120 — the TRUE total lives on the tally: findings past the cap were
+    # counted, never built, so `len(findings)` alone under-reports exactly on
+    # the runs the cap exists for.
+    over_cap = tally.findings_over_cap if tally is not None else 0
+    if not findings and not over_cap:
         out = "✓ linkscan clean — every internal link resolves."
         return out + ("\n" + tally.summary() if tally is not None else "")
-    lines = [f"✗ linkscan: {len(findings)} broken internal link(s).\n"]
+    lines = [f"✗ linkscan: {len(findings) + over_cap} broken internal link(s).\n"]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
         lines.append(f"  {f.path}:{f.line}  [{f.kind}] {f.target} → {f.detail}")
         if f.suggest:
             lines.append(f"      ↳ did you mean: {f.suggest}")
+    if over_cap:
+        lines.append(f"  …and {over_cap} more broken link(s), counted but not listed "
+                     f"(past the {MAX_MATERIALIZED_FINDINGS}-finding memory cap).")
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
@@ -845,20 +967,23 @@ def _main(argv: list[str] | None = None) -> int:
         print(f"linkscan: cannot read {e.filename}: {e.strerror}", file=sys.stderr)
         return 2
 
+    total = len(findings) + tally.findings_over_cap
     if args.json:
-        print(json.dumps({
-            "clean": not findings,
+        payload = {
+            "clean": not total,
             "findings": [asdict(f) for f in findings],
+            "findings_over_cap": tally.findings_over_cap,
             "suppressed": {
                 "by_allow_marker": tally.marker_total,
                 "by_allow_marker_rule": tally.by_marker,
                 "files_by_ignore_glob": tally.files_by_glob,
             },
-        }, indent=2))
+        }
+        print(json.dumps(payload, indent=2))
     else:
         print(render_human(findings, tally))
 
-    return 1 if findings else 0
+    return 1 if total else 0
 
 
 def _selftest() -> int:

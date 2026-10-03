@@ -418,6 +418,204 @@ class LinkedWorktreeSkipped(unittest.TestCase):
         self.assertNotIn("weird/real.txt", found)
 
 
+def _reference_strip_inline_code(line: str) -> str:
+    """The pre-110/120 per-character implementation, kept verbatim as the
+    oracle for the faster one."""
+    out = []
+    i = 0
+    n = len(line)
+    while i < n:
+        if line[i] == "`":
+            j = i
+            while j < n and line[j] == "`":
+                j += 1
+            ticks = line[i:j]
+            close = line.find(ticks, j)
+            if close != -1 and line[close:close + len(ticks)] == ticks \
+                    and (close + len(ticks) >= n or line[close + len(ticks)] != "`"):
+                out.append(" " * (close + len(ticks) - i))
+                i = close + len(ticks)
+                continue
+        out.append(line[i])
+        i += 1
+    return "".join(out)
+
+
+class StripInlineCodeEquivalence(unittest.TestCase):
+    def test_matches_the_per_character_original_on_random_backtick_soup(self):
+        import random
+        rng = random.Random(1201)
+        alphabet = ["`", "``", "```", "a", "b ", "](x)", " ", "[l](p.md)"]
+        for _ in range(3000):
+            line = "".join(rng.choice(alphabet) for _ in range(rng.randint(0, 24)))
+            self.assertEqual(linkscan._strip_inline_code(line),
+                             _reference_strip_inline_code(line), repr(line))
+
+    def test_no_backtick_line_is_returned_untouched(self):
+        self.assertEqual(linkscan._strip_inline_code("plain [a](b.md)"),
+                         "plain [a](b.md)")
+
+
+class StreamingReaderChunks(unittest.TestCase):
+    """110/120 — the reader walks an offset instead of re-slicing the
+    remainder per line (quadratic in lines per chunk: 51 MB of ordinary
+    short lines took >120 s before, 8 s after). Behaviour must not move:
+    same lines, same numbers, fence state carried across chunk edges."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="linkscan-stream-"))
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+
+    def test_matches_in_memory_reader_at_every_chunk_size(self):
+        body = ("# T\n[a](a.md)\n```\n[ghost](ghost.md)\n```\n"
+                "~~~~\n[g2](g2.md)\n~~~\n[still fenced](g3.md)\n~~~~\n"
+                "café [b](b.md)\n\n[c](c.md)")
+        f = self.tmp / "s.md"
+        f.write_text(body, encoding="utf-8")
+        want = list(linkscan._content_lines(f.read_text(encoding="utf-8")))
+        self.assertTrue(want)
+        for chunk in list(range(1, 33)) + [4096]:
+            old = linkscan.READ_CHUNK_BYTES
+            linkscan.READ_CHUNK_BYTES = chunk
+            try:
+                got = list(linkscan._iter_file_content_lines(f))
+            finally:
+                linkscan.READ_CHUNK_BYTES = old
+            self.assertEqual(got, want, f"chunk={chunk}")
+
+
+class FindingCapAndMemo(unittest.TestCase):
+    """110/120 — findings are capped like leakscan/secretscan/conflictscan
+    and link resolution is memoised per (directory, path)."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="linkscan-cap-"))
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        (self.tmp / "docs").mkdir()
+        (self.tmp / "docs" / "real.md").write_text("# Real\n## Sec\n")
+
+    def _write(self, rel, body):
+        p = self.tmp / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(body)
+        return p
+
+    def test_cap_holds_and_overflow_is_counted(self):
+        lines = [f"[x{i}](gone-{i}.md)" for i in range(10)]
+        lines += ["[a](gone-a.md) <!-- linkscan:allow: fixture -->",
+                  "[b](gone-b.md) <!-- linkscan:allow: fixture -->"]
+        self._write("docs/n.md", "\n".join(lines) + "\n")
+        orig = linkscan.MAX_MATERIALIZED_FINDINGS
+        linkscan.MAX_MATERIALIZED_FINDINGS = 4
+        try:
+            tally = linkscan.Tally()
+            got = linkscan.scan_paths([self.tmp], self.tmp, tally)
+            out = linkscan.render_human(got, tally)
+        finally:
+            linkscan.MAX_MATERIALIZED_FINDINGS = orig
+        self.assertEqual(len(got), 4)
+        self.assertEqual(tally.findings_over_cap, 6)
+        self.assertEqual(tally.marker_total, 2)       # exempt: counted, no slot used
+        self.assertIn("10 broken internal link(s)", out)    # the TRUE total
+        self.assertIn("…and 6 more broken link(s)", out)
+        self.assertIn("6 beyond the 4-finding cap", out)
+
+    def test_overflow_alone_is_never_clean(self):
+        self._write("docs/n.md", "[x](gone.md)\n")
+        orig = linkscan.MAX_MATERIALIZED_FINDINGS
+        linkscan.MAX_MATERIALIZED_FINDINGS = 0
+        try:
+            import contextlib
+            import io
+            import json
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                rc = linkscan.main(["--root", str(self.tmp), "--json", str(self.tmp)])
+        finally:
+            linkscan.MAX_MATERIALIZED_FINDINGS = orig
+        data = json.loads(buf.getvalue())
+        self.assertEqual(rc, 1)
+        self.assertFalse(data["clean"])
+        self.assertEqual(data["findings"], [])
+        self.assertEqual(data["findings_over_cap"], 1)
+
+    def test_known_zero_prints_when_the_cap_is_not_reached(self):
+        """Stable field set: the over-cap count prints as 0 in the summary
+        and in --json on a run under the cap."""
+        import contextlib
+        import io
+        import json
+        self._write("docs/n.md", "[x](gone.md)\n")
+        tally = linkscan.Tally()
+        linkscan.scan_paths([self.tmp], self.tmp, tally)
+        self.assertIn("· 0 beyond the 50000-finding cap (counted, not listed)",
+                      tally.summary())
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            linkscan.main(["--root", str(self.tmp), "--json", str(self.tmp)])
+        self.assertEqual(json.loads(buf.getvalue())["findings_over_cap"], 0)
+
+    def test_same_link_text_resolves_per_directory_not_globally(self):
+        """The memo is keyed by (directory, path): `t.md` is fine from a/
+        and broken from b/ — a path-only key would give both the same
+        answer."""
+        self._write("docs/a/t.md", "# T\n")
+        self._write("docs/a/x.md", "[ok](t.md)\n[ok2](t.md#t)\n")
+        self._write("docs/b/y.md", "[bad](t.md)\n")
+        got = linkscan.scan_paths([self.tmp], self.tmp)
+        self.assertEqual([(f.path, f.line, f.kind) for f in got],
+                         [("docs/b/y.md", 1, "missing-file")])
+
+    def test_resolution_runs_once_per_directory_and_path(self):
+        self._write("docs/m.md", "[x](gone.md)\n" * 300 + "[y](real.md)\n" * 300)
+        calls = []
+        real = linkscan._resolve_link
+
+        def counting(md_file, root, path, *a, **k):
+            calls.append(path)
+            return real(md_file, root, path, *a, **k)
+
+        linkscan._resolve_link = counting
+        try:
+            got = linkscan.scan_paths([self.tmp / "docs" / "m.md"], self.tmp)
+        finally:
+            linkscan._resolve_link = real
+        self.assertEqual(len(got), 300)               # every occurrence still reported
+        self.assertEqual(sorted(calls), ["gone.md", "real.md"])
+
+    def test_memoised_path_still_validates_each_links_own_anchor(self):
+        self._write("docs/m.md", "[a](real.md#sec)\n[b](real.md#nope)\n"
+                                 "[c](real.md#sec)\n[d](real.md#nope2)\n")
+        got = linkscan.scan_paths([self.tmp / "docs" / "m.md"], self.tmp)
+        self.assertEqual([(f.line, f.kind) for f in got],
+                         [(2, "missing-anchor"), (4, "missing-anchor")])
+
+    def test_allow_marker_applies_to_its_own_line_only_past_the_prune_size(self):
+        """The marker map is pruned while streaming; 200 lines of markers
+        followed by an un-exempted broken link must not leak the exemption."""
+        marked = "".join(f"[m{i}](gone-{i}.md) <!-- linkscan:allow: fixture -->\n"
+                         for i in range(200))
+        self._write("docs/m.md", marked + "[bare](gone-bare.md)\n"
+                                 "[kind](gone-k.md) <!-- linkscan:allow:missing-anchor: wrong kind -->\n")
+        tally = linkscan.Tally()
+        got = linkscan.scan_paths([self.tmp / "docs" / "m.md"], self.tmp, tally)
+        self.assertEqual([f.line for f in got], [201, 202])
+        self.assertEqual(tally.marker_total, 200)
+
+    def test_basename_index_keeps_two_paths_and_suggestions_are_unchanged(self):
+        for d in "abcde":
+            self._write(f"docs/{d}/dup.md", "# d\n")
+        self._write("docs/z/solo-file.md", "# s\n")
+        idx = linkscan._BasenameIndex(self.tmp)
+        self.assertEqual(len(idx.matches("dup.md")), 2)      # capped, still "ambiguous"
+        self.assertEqual(len(idx.matches("solo-file.md")), 1)
+        self._write("docs/q.md", "[amb](nowhere/dup.md)\n[uniq](nowhere/solo-file.md)\n")
+        got = linkscan.scan_paths([self.tmp / "docs" / "q.md"], self.tmp)
+        sug = {f.target: f.suggest for f in got}
+        self.assertEqual(sug["nowhere/dup.md"], "")
+        self.assertEqual(sug["nowhere/solo-file.md"], "z/solo-file.md")
+
+
 if __name__ == "__main__":
     unittest.main()
 
