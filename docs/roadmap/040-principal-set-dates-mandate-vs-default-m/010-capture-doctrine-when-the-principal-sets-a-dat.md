@@ -1,4 +1,4 @@
-- [ ] **Capture → doctrine: when the principal sets a date for the fleet,
+- [~] (claimed 2026-10-03-0200, wt: none) **Capture → doctrine: when the principal sets a date for the fleet,
       the ruling states which KIND of date it is.** Mike's rule, captured
       near-verbatim while resolving the two self-migrated repos' later
       review-by dates:

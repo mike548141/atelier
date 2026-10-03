@@ -1,4 +1,4 @@
-- [ ] **R2 — find the actual triplications before consolidating any of them.**
+- [~] (claimed 2026-10-03-0200, wt: none) **R2 — find the actual triplications before consolidating any of them.**
       Mike's premise is that points are stated three times over; this session
       wrote the *rule* for handling that but did **not** survey the corpus, and
       guessing which passages are redundant is how a consolidation drops two of

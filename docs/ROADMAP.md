@@ -96,7 +96,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/040-principal-set-dates-mandate-vs-default-m/README.md)*
 
-- [ ] [Capture → doctrine: when the principal sets a date for the fleet,](roadmap/040-principal-set-dates-mandate-vs-default-m/010-capture-doctrine-when-the-principal-sets-a-dat.md)
+- [~] (claimed 2026-10-03-0200, wt: none) [Capture → doctrine: when the principal sets a date for the fleet,](roadmap/040-principal-set-dates-mandate-vs-default-m/010-capture-doctrine-when-the-principal-sets-a-dat.md)
 
 ## 🤔 Trust-failure handling as a skill — idea to consider (Mike, 2026-08-02)
 
@@ -158,7 +158,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [A real credential pasted into an exempt fixture file is invisible to](roadmap/115-guardrail-architecture-mike-commissioned/050-a-real-credential-in-an-exempt-fixture-file-is.md)
 - [ ] 🔎 [A coined paraphrase is still presented on the board as a child](roadmap/115-guardrail-architecture-mike-commissioned/060-a-coined-paraphrase-is-still-cited-on-the-boar.md)
 - [ ] [PRINCIPLES.md §9 has no guard, and the only safe candidate is scoped](roadmap/115-guardrail-architecture-mike-commissioned/070-principles-9-has-no-guard-and-the-only-safe-ca.md)
-- [ ] [(FUNDED by Mike 2026-09-20; part 1 of 3 DONE 2026-09-20, parts 2–3…](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
+- [~] (claimed 2026-10-03-0200, wt: qr-harness-part2; part 2 of 3) [(FUNDED by Mike 2026-09-20; part 1 of 3 DONE 2026-09-20, parts 2–3…](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
 - [ ] [Give every guard a second dial — the standing consequence of Mike's](roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md)
 - [ ] 🎯 [Build a before-plane — the guardrail class that acts at the moment of](roadmap/115-guardrail-architecture-mike-commissioned/100-the-before-plane-is-empty-and-it-is-the-only.md)
 - [ ] 🔥 [The apex and the always-confirm floor have no mechanical backing at](roadmap/115-guardrail-architecture-mike-commissioned/110-the-apex-and-the-autonomy-floor-have-no-mecha.md)
@@ -267,10 +267,10 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/200-anti-slop-invariant-registry-promote-rec/README.md)*
 
-- [ ] [Build a generic mechanism keeping any hand-maintained index true to](roadmap/200-anti-slop-invariant-registry-promote-rec/010-build-a-generic-mechanism-keeping-any-hand-mai.md)
+- [~] (claimed 2026-10-03-0200, wt: none; census only) [Build a generic mechanism keeping any hand-maintained index true to](roadmap/200-anti-slop-invariant-registry-promote-rec/010-build-a-generic-mechanism-keeping-any-hand-mai.md)
 - [ ] [Third confirmed instance of the class landed 2026-08-03, and Mike…](roadmap/200-anti-slop-invariant-registry-promote-rec/020-third-confirmed-instance-of-the-class-landed-2.md)
 - [ ] 🎯 [R1 — the recurrence count has to become mechanical, and the mining](roadmap/200-anti-slop-invariant-registry-promote-rec/030-r1-the-recurrence-count-has-to-become-mechanic.md)
-- [ ] [R2 — find the actual triplications before consolidating any of them.](roadmap/200-anti-slop-invariant-registry-promote-rec/040-r2-find-the-actual-triplications-before-consol.md)
+- [~] (claimed 2026-10-03-0200, wt: none) [R2 — find the actual triplications before consolidating any of them.](roadmap/200-anti-slop-invariant-registry-promote-rec/040-r2-find-the-actual-triplications-before-consol.md)
 - [ ] [Codify V1–V7 as the always-loaded reviewer checklist](roadmap/200-anti-slop-invariant-registry-promote-rec/050-codify-v1-v7-as-the-always-loaded-reviewer-che.md)
 - [ ] [Two-layer acceptance criteria, one verification pass.](roadmap/200-anti-slop-invariant-registry-promote-rec/060-two-layer-acceptance-criteria-one-verification.md)
 - [ ] [Enforcement seam — how does an invariant get checked?](roadmap/200-anti-slop-invariant-registry-promote-rec/070-enforcement-seam-how-does-an-invariant-get-che.md)

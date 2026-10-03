@@ -1,4 +1,4 @@
-- [ ] **Build a generic mechanism keeping any hand-maintained index true to
+- [~] (claimed 2026-10-03-0200, wt: none; census only) **Build a generic mechanism keeping any hand-maintained index true to
       the directory it maps — option C, chosen over the counselled
       single-index build.** Grounding: the decisions index drifted twice in
       three weeks (five records unlisted; then a retro-distilled entry
