@@ -148,7 +148,10 @@ what it was chosen over.
 **B1 IS LIVE — token minted and the job PROVEN end to end (2026-07-28).** Mike
 minted `FLOORFLEET_TOKEN` (fine-grained, read-only, expires 2026-10-27, all
 repos, read on actions + code + metadata, no user permissions, **no
-Administration**) and set it in the estate-root repo's secret store. A
+Administration**) and set it in the estate-root repo's secret store. *(Rolled
+2026-10-01 by Mike; the new expiry is 2027-05-14, recorded in the estate-root
+repo's credential registry. The 2026-10-27 date above is the original
+token's.)* A
 `workflow_dispatch` run then proved the whole path on a runner with **no local
 clones**: 13 children plus the parent enumerated from GitHub, every run status
 read, exit 1 on the five red floors — failing for the right reason, which is the

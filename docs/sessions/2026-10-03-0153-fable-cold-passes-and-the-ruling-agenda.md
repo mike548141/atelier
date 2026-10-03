@@ -105,7 +105,10 @@ further pointer notices after the sixth; the seventh was found on `main`.
 
 - 🎯 **The principal:** the ruling round, starting with the agenda's sitting 0;
   and MC1 ahead of it.
-- ⏳ **FLOORFLEET_TOKEN expires 2026-10-27**; ccmail's two routes were both down
+- ~~FLOORFLEET_TOKEN expires 2026-10-27~~ — corrected after close: Mike
+  rolled it on 2026-10-01 (new expiry 2027-05-14, in the estate-root repo's
+  registry); the session repeated a stale board date without checking the
+  registry. ccmail's two routes were both down
   on 2026-09-26 (CC10).
 - The review worktree is removed and its branch deleted at close; every commit
   is on `main`.

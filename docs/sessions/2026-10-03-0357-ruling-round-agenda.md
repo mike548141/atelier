@@ -276,8 +276,10 @@ candidate line for REVIEW.md's lifecycle (sitting 3 or 7).
 
 ## Things with a clock on them
 
-- ⏳ **FLOORFLEET_TOKEN expires 2026-10-27.** Renewing it is a human step
-  (`030/README:149`).
+- ~~FLOORFLEET_TOKEN expires 2026-10-27.~~ **Corrected 2026-10-03:** Mike
+  rolled it on 2026-10-01; the new expiry is 2027-05-14, recorded in the
+  estate-root repo's credential registry. The inventory read the stale date
+  off `030/README:149`, which is now annotated.
 - ⏳ **ccmail had both routes down on 2026-09-26** (CC10). Until the principal
   re-authorises, no session can open a mail attachment.
 - 🚩 **Three private children go red on publishscan at their next CI run**
