@@ -53,14 +53,14 @@ reading, heavier only when writing:
   outright rather than betting the other session stayed clean. When unsure
   which rung the work is, take the worktree.
 
-The substrate rule still needs a firing cue, and there are two — both cheap, no
+The substrate rule still needs a firing cue, and there are three — all cheap, no
 locking machinery. Read them as extra ways to *discover* you are concurrent,
 never as the only ones — their silence licenses nothing (the flipped prior
 above already assumes company). git protects
 concurrent *commits* (worst case a rejected push and a rebase), but nothing
 protects the **uncommitted working tree** two sessions share — session B can
 overwrite session A's in-flight edits or sweep them into its own commit, and
-nothing errors. The two cues:
+nothing errors. The three cues:
 
 - **Say so at open:** when the principal knows they are opening a
   second session on a repo already in use, they say so, and that session works

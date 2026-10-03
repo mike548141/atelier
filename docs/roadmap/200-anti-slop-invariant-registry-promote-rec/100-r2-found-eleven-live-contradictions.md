@@ -25,7 +25,7 @@
     - [x] **C4 (contradiction).** `CONCURRENCY.md:20-21` says the external
           venv is shared across worktrees. `STORAGE.md:56-59` says an
           in-repo `.venv` has been the norm since 2026-07-14.
-    - [ ] **C5 (internal).** `CONCURRENCY.md:53` and `:60` say "two cues",
+    - [x] **C5 (internal).** `CONCURRENCY.md:53` and `:60` say "two cues",
           and the bullets beneath list three.
     - [ ] **C6 (dangling pointer).** `SECRETS.md:76` and `:270` cite
           `DATA-PROTECTION.md`'s "stated-bridge rule", which that file does
@@ -86,3 +86,6 @@
       `.venv` since the 2026-07-14 iCloud exit, `c6d66c8`), and adds the
       consequence: a worktree does not inherit the gitignored `.venv`. Pass
       queued at `160/550`.
+      ✅ **C5 fixed 2026-10-03.** "two cues" → "three cues", in both places,
+      to match the three bullets (the third, *ask when a channel exists*,
+      came with § *The channel*). Pass queued at `160/560`.
