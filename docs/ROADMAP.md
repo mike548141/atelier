@@ -450,6 +450,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [A wrapped claim does not project into the index, a ] in a title](roadmap/320-child-filed-findings-via-pointing-up/450-a-wrapped-claim-does-not-project-and-two-more-from-a-child-s-cold-passes.md)
 - [ ] ⏳🔎 [MISSING HOUSE RULE — what a review pointer becomes when its](roadmap/320-child-filed-findings-via-pointing-up/460-missing-rule-what-a-review-pointer-becomes-when-its-verdict-lands.md)
 - [ ] 🔎 [Hand-up from faves: leakscan's nz-phone matches digit runs](roadmap/320-child-filed-findings-via-pointing-up/470-leakscan-nz-phone-matches-digit-runs-inside-hex-digests.md)
+- [ ] 🔎 [MISSING HOUSE RULE — the doctrine's own sync command](roadmap/320-child-filed-findings-via-pointing-up/480-a-rebase-pull-after-a-local-merge-flattens-it-and-orphans-cited-hashes.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
