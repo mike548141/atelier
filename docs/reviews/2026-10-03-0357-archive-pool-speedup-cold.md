@@ -417,3 +417,159 @@ MODERATE is about the review's own footing, not the work: this worktree never he
 - [ ] CP3, CP8 — no action proposed; recorded.
 
 Phase 1 ends here. Reconcile follows on receipt of the sibling's text.
+
+### Reconcile
+
+**Written:** 2026-10-03, 04:23–04:30 UTC, by the same reviewer (`claude-fable-5-1`), after the
+orchestrator committed phase 1 unrevised and released the sibling's text by message. Opened for
+this phase, and nothing else beyond phase 1: the intent record
+`docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md`, the commissioning item
+`docs/roadmap/210-instruments-open-features/050-*.md`, the follow-on item it files
+(`210-*/180-*.md`), and the CS1–CS3 and CS11 passages of
+`docs/reviews/2026-08-15-1032-cctranscript-search-cold.md` (lines 364–409 and 467–473). The
+queue pointer was not opened; the sibling quotes it. Phase-1 text above is unrevised.
+
+**Recovery of CP1, noted.** The orchestrator merged `origin/main` into the worktree
+(`0a669e7`); `git merge-base --is-ancestor 6cbf33f HEAD` now exits 0. Nothing more was read from
+the worktree for phase 1, and the phase-1 findings stand as they were formed against `6cbf33f`.
+
+**Against the intent record and the commissioning item.** The record's account of the change
+(one batched `stat` per 400 paths; a prefix inflate with `Z_SYNC_FLUSH`; ~15 s to ~7 s;
+byte-identical output over three paired runs; flag-for-flag agreement across 960 mirrors; the
+residual filed as `210/180`) matches the code, the commit body and this pass's measurements in
+every respect but scale: the synthetic 960-mirror pool showed a 3× gain against the author's 2×
+on the real archive, which is what `210/180`'s profile predicts (the real residual is
+`firstUserPromptText` inflating larger real mirrors whole, and the synthetic mirrors were small).
+The item's "profiled first: about 15 ms a spawn" measured at 7.1 ms here; same order, labelled
+approximate on both sides, no finding. The item's sentence "an unreadable path counts as not
+dataless, as before" is true path by path and is exactly the claim CP2 qualifies: one
+option-shaped path takes its whole chunk with it. The record's ⚠️ disclosure — the worker's
+first profiling script read, and so hydrated, evicted iCloud mirrors — is the author's own; for the
+record of this pass, every probe here ran against synthetic pools in the session scratchpad and
+never touched the real archive.
+
+**Seeded question 1 — does the batched stat change which files the pool includes, or only how
+fast?** Only how fast. `archiveSessions` builds `found` from the same walk as before (every
+`*.jsonl.gz` under every non-`_external` directory) and the map decides only the `evicted` flag.
+Probed: the clean pool lists the same eight sessions at both commits, `_external/` and the plain
+`.jsonl` skipped at both. Could a mis-flag change membership downstream? `--repo` matching uses
+`s.evicted` for its folder-suffix fallback, but the map can only err in one direction — a path
+absent from it reads as *not* dataless (CP2, CP3), so its cwd is read and its label is exact,
+and the fallback is not needed; a path present with the bit set is the true signal. Membership
+is unchanged; what CP2/CP3/CP8 can change is whether an evicted file is *read*, never whether it
+is listed.
+
+**Seeded question 2 — does the gzip sniff replace an extension test?** No, and the premise
+should be corrected in the record: nothing sniffs magic bytes. Format is still decided by
+`file.endsWith('.gz')` on the same line as before; "prefix" is a prefix of the *compressed*
+bytes. Gzip bytes under a plain extension (live-store probe, `22222222.jsonl`): read raw at both
+commits — `cwd: null`, first prompt blank, render exits 0 with zero turns, silently empty. A
+plain file under `.gz` (`h4-plaintext`): the sniff throws and returns null at both commits, then
+`--list` and the render crash in `readLogText` at both (CP4). A plain file whose first two bytes
+*are* the gzip magic under a plain extension (`33333333.jsonl`) is read raw and even recovers its
+cwd at both commits; under `.gz` (`h5-magic`) it crashes at both. Every one of these is identical
+at the parent; the delta moved no boundary.
+
+**Seeded question 3 — is any CS1–CS3 behaviour changed, worsened or masked?** None is touched.
+*CS1* (regex gate and probe over different texts): `buildMatchers`, `rawForms`, `scanText` and
+the gate line are outside the diff; the search runs here exercised them unchanged and this pass
+did not re-probe the regex class. *CS2* (bare trailing `--search` renders and exits 0): untouched
+by the delta and **re-found independently as CP9** on the same evidence at both commits, seven
+weeks on and unruled (pointer `160/010`). *CS3* (no privacy caution on a tool that prints a
+private corpus): untouched; the delta adds no output path and no user-facing text, so nothing is
+masked. Also in that verdict: *CS11* (`--list` crashes with an `EACCES` stack on an unreadable
+log) is **re-found independently as CP4** and widened — any file `readLogText` cannot open *or
+inflate* takes the listing down, and the delta made `cwdFromLog` robust to every such shape while
+leaving `firstUserPromptText` three lines below it unguarded; CS11's second half (`--repo` scope
+silently drops a cwd-less log) is unchanged. *CS14* untouched.
+
+**Seeded question 4 — does the test file drive the new paths through the CLI or only through
+helpers?** Through helpers only. The four new tests call `cc.statFlagsBatch` and `cc.gunzipHead`
+directly. The CLI reaches the batch only incidentally, through the pre-existing `--list --dest`
+contract tests whose assertion is `evicted: false`, and the simulate-seam CLI tests bypass the
+batch entirely (`CCARCHIVE_SIMULATE_DATALESS ? undefined : statFlagsBatch(...)`). The lookup
+semantics in `isDataless(p, flagMap)` are pinned by nothing in-tree; CP5's counsel (one
+`sessionRecord` test with a hand-built map) stands, and is the cheapest way to make the CLI
+exercise the production branch under a known-dataless outcome, since real eviction cannot be
+forced.
+
+**Finding formed at reconcile.**
+
+**CP10 · note (formed at reconcile)** — Two of this pass's findings are re-discoveries of
+findings already on the board, unruled since 2026-08-15: CP9 duplicates CS2 exactly, and CP4
+contains CS11's first half. Neither was known to the reviewer in phase 1 (the sibling held them),
+so the independent re-finding is evidence the defects are real and reproducible, not a double
+count. *Counsel:* at ruling, fold CP9 into CS2 and CP4 into CS11 (carrying CP4's widening to
+any un-inflatable file and the `cwdFromLog`/`firstUserPromptText` asymmetry the delta
+introduced), and count them once.
+
+**Per-finding disposition after reconcile.** CP1 stands (recovered, see above). CP2, CP3, CP5,
+CP8 stand unchanged; nothing in the released material bears on them. CP4 → fold into CS11 (CP10).
+CP6 stands: `CHANGELOG.md` at the merged HEAD `0a669e7` still has no 2026-10 entry, and the
+intent record's close lists seven merged code changes without naming a changelog step. CP7
+stands and gains a home: `210/180` is the author's own filing of the residual, with a CPU profile
+(zlib ~4 s, UTF-8 slicing ~1.7 s, `firstUserPromptText` ~1.6 s) and the same design note (a
+prefix read needs a whole-file fallback); the one line this pass adds is that the listing's
+*memory* peak sits there too (655 MB against 654 MB on the crafted file; 486 against 484 MB on the
+100 MB-text pool), which the item does not yet say. CP9 → fold into CS2 (CP10).
+
+**Overall line, restated:** **PASS-WITH-FINDINGS** — 0 MAJOR · 1 MODERATE · 3 minor · 6 notes
+(CP10 added at reconcile). The delta is sound and does what it says; the MODERATE is the review's
+footing, not the code; two of the minors were already on the board before this pass began.
+
+## Folded sibling — released after the phase-1 findings were committed
+
+The `.deferred.md` sibling the orchestrator held outside the worktree, folded in
+verbatim at close; the reviewer met it only in phase 2.
+
+# Deferred sibling — cctranscript's archive-pool speedup (CP)
+
+Held by the orchestrator outside the worktree and outside the harness
+scratchpad. Released to the reviewer only after its phase-1 findings are
+committed. Folded into the verdict file at close.
+
+## 1. The queue pointer's own framing (author's words)
+
+> - ⏳ **Rule-4 cold pass queued: cctranscript's archive-pool speedup
+> (`210/050`).** The run authored this itself (its dispatched workers'
+> output counts as the run's authorship). It was queued at landing, and
+> the run neither takes it nor spawns a reviewer for it. *Tier:* Fable,
+> the principal-named review tier, checked at selection. *Pass type:*
+> code cold pass, per `method/REVIEW.md` rule 4. *Delta, scoped to
+> paths:* `instruments/cctranscript` and `instruments/cctranscript.test.js`.
+> It landed on `main` on 2026-10-03, in merge `6cbf33f`.
+> *Intent record:*
+> `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md`.
+
+## 2. Intent record and commissioning item (read in phase 2)
+
+- `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md`
+- the board item named in the pointer
+
+## 3. What the authoring run said to the orchestrator (channel, verbatim)
+
+> a second refs-only pointer of mine is now on main at docs/roadmap/160-doctrine-review-owed/440-rule-4-cold-pass-queued-the-archive-pool-speedup.md. No detail beyond the file. I merged your b7520a5 rather than rebasing, and regenerated the index (8a9f504).
+
+Nothing else from that run was read by the orchestrator.
+
+## 4. Prior findings and seeded questions (the orchestrator's, labelled)
+
+From the 2026-08-15 cctranscript-search pass (`CS`, verdict
+`docs/reviews/2026-08-15-1032-cctranscript-search-cold.md`, unruled, pointer `160/010`):
+
+- CS1 (MODERATE): in `--regex` mode the same pattern runs against raw JSON (cheap
+  first filter) and decoded text, so patterns with a quote, backslash, newline class
+  or anchor can never match; "0 hits" reads as absence.
+- CS2 (MODERATE): `--search` with no term prints a whole transcript and exits 0.
+- CS3 (MODERATE): no privacy caution anywhere on a tool that prints excerpts of a
+  private corpus.
+- CS11 (note): `--list` crashes with EACCES on an unreadable log.
+- CS14 (minor): search does not say subagent logs are outside it.
+- The inventory also noted later cctranscript commits touched only mid-turn messages;
+  none addressed CS1–CS3.
+
+Seeded questions (the orchestrator's): (1) Does the batched stat change which files
+the pool includes, or only how fast? (2) Does the gzip sniff replace an extension
+test, and what happens on a gzip file with a plain extension and vice versa? (3) Is
+any CS1–CS3 behaviour changed, worsened or masked by this delta? (4) Does the test
+file drive the new paths through the CLI or only through helpers?
