@@ -521,3 +521,148 @@ measured sizes, not run.
 - [ ] BP10 — four documentation corrections.
 
 Phase 1 ends here. I have not opened the sibling, the queue pointer or the board.
+
+### Reconcile
+
+Written 2026-10-04T23:37Z, after the orchestrator committed phase 1 unrevised (`ed54c8b`)
+and released the sibling's text by message. Phase-1 text above is untouched.
+
+**What I opened for this phase, and only this:** the commissioning item `110/120`; items
+`110/100`, `110/140` and `115/220` in full, the rest of those two sections by grep; the
+queue pointer; the intent record `docs/sessions/2026-10-03-0144-…` by grep (it gives this
+work one line, "pathscan and linkscan stream and cap", so the commit messages and `110/120`
+are the real intent record); the four released prior verdicts by grep for my finding
+classes, reading the findings that matched (BL3, BL7, SP3, SP7, SP9, PX7). Nothing else.
+
+**The principal's words** (`110/100`, quoted there): a guard "should not try and load a
+whole file or all results into memory, it needs to continually close work as it opens new
+work", and an exception is to be "as narrow an exception as possible". The brief-writer's
+recollection matches the first; the second bears on BP2 and BP5.
+
+**The commissioning item's acceptance:** "Output must stay identical on atelier's tree, and
+both must hold flat memory on the synthetic files." Both are met on my re-run: the tree
+differential is identical bar the deliberate known-zero field, and my four author-shaped
+rows are flat (22 to 88 MiB against 198 MiB to 818 MiB and rising). My sizes were 89 to
+191 MiB, not the item's 200 and 500 MB, so I confirm the shape of its table, not its cells.
+
+#### Seeded questions
+
+1. *Does the cap satisfy "never all results" without turning a red into a green?* On the
+   second half, yes, with the trail behind it: the exit code and the headline read the true
+   total on every path, two mutants that read the held list instead are killed, and the cap
+   is charged after the allow-marker subtraction (the lesson of SP3 part ii, applied here —
+   two mutants that reverse the order are killed). No cap path I could build turns red to
+   green. On the first half, only for results of ordinary size: the cap counts findings and
+   each finding holds unbounded text, so 1,200 results held 609 MiB (BP4). The reds that do
+   turn green in this pass come from the reader, not the cap (BP1, BP2, BP3).
+2. *Is the over-cap count a known zero on every output path?* Yes. Re-driven at reconcile
+   on ten paths: both tools × clean and findings × human and `--json`, plus pathscan
+   `--warn` in both forms; the field is present once on each. The paths with no field are
+   the exit-2 error paths and `--selftest`, which print no summary at all, and a
+   `render_human` call with no tally, which no command line reaches.
+
+#### Per finding
+
+- **BP1 — new; stands at MODERATE.** Nothing in the released surfaces mentions lone CR,
+  `splitlines` semantics or any non-LF line end in a streamed reader (grep across both
+  roadmap sections, the intent record and all four verdicts: no hit). SP7 (2026-09-25)
+  recorded that pathscan read files whole; this delta is that fix, and BP1 is what the fix
+  cost. `110/120` lists three named residuals and this is not among them.
+- **BP2 — new as a recorded finding; predates this delta; stands at MODERATE.** The
+  released verdicts on the layer that introduced the shared reader (the `BL` and `SP`
+  passes of 2026-09-25) probed window straddles, truncation and caps, and neither probed
+  line-end conventions. So the class has sat unrecorded since the readers were streamed.
+  Read against the principal's own words on narrowness it is a plain breach: one
+  line-scoped marker becomes file-scoped with no record that it widened. I weighed raising
+  it to MAJOR on that ground and hold it at MODERATE for consistency with how this house
+  has rated nearer cases in the same layer — SP2 (an unreadable file became a clean pass)
+  and BL1 (a real finding past a truncation point exits 0) were both MODERATE and both
+  easier to reach than a lone-CR file. It needs its own board item; it is not this delta's
+  to fix.
+- **BP3 — half recorded, half new; stands at MODERATE.** The double count in linkscan's
+  overlap is BL3 (2026-09-25, minor), whose follow-up "add dedupe to linkscan's windowed
+  path" is still open at HEAD: my 40,124-for-40,000 is that defect re-measured. The dropped
+  window — a cut inside a code span blanking the links after it — is recorded nowhere I was
+  released to read. PX7 (2026-10-03) is line-local backtick parity in pathscan's command
+  skip, a different mechanism. `115/220` already says linkscan's fence state is "guard
+  business logic riding inside the reader"; code-span state is a second instance of the
+  same thing and belongs in that decision.
+- **BP4 — new for these two tools; stands at MODERATE.** The 50,000 figure is grounded
+  where it was derived (secretscan's own comment records a measured cost per finding) and
+  BL7 already asked for ceilings to be grounded in the record's shape. The item's
+  acceptance is met; what fails is the unconditional wording in the docstring, the cap
+  comment and the README, and the principal's "all results into memory" for a file of long
+  findings. The item's after-column (46 to 52 MB) is consistent with mine on its shapes.
+- **BP5 — known class, new instances; stands at minor.** SP9 (2026-09-25, note) recorded
+  the same per-window scope of markers in secretscan and asked for a sentence beside the
+  window constant. This delta brought the class to pathscan and to linkscan's subtraction
+  without that sentence.
+- **BP6 — new; stands at minor.**
+- **BP7 — known class; stands at minor.** SP3 part i (2026-09-25, MODERATE) is the same
+  starvation inside secretscan, where it could hide a *blocking* finding behind advisory
+  ones. Here every finding is one kind and the exit code is unaffected, hence minor.
+- **BP8 — new; stands at minor.** Same family as SP4 (mechanisms shipped without a direct
+  test); this delta did ship direct tests, and the gaps are the specific ones named.
+- **BP9 — new; stands at minor.** `110/130` covers regex cost per byte in leakscan and
+  secretscan only; pathscan's scheme-URL pattern is not in it, nor in `110/120`'s residuals.
+- **BP10 — stands as a note.** Part (d) is BL3 again; part (c) is BL4's class (bounds
+  documented in one README section of fourteen); parts (a) and (b) are new.
+- **BP11 — note (formed at reconcile).** `110/120` says its three named residuals are "in
+  the README". One is. The pathscan paragraph names the 16 KiB one-pass blanking; neither
+  paragraph names that a token over 4 KiB can be lost at a window cut, nor that linkscan's
+  basename index still scales with tree size (grep of `tools/README.md` for either: no
+  hit). The first of those is a quiet-direction residual a child would want to read.
+
+#### Overall, restated
+
+**PASS-WITH-FINDINGS — 0 MAJOR · 4 MODERATE (BP1–BP4) · 5 minor (BP5–BP9) · 2 notes
+(BP10, BP11; BP11 formed at reconcile).** No phase-1 severity moved. In the delta proper:
+BP1, BP4, BP5, BP6, BP7, BP8, BP11. Outside its diff and owed their own items: BP2, BP3's
+dropped-window half, BP9. Already on record elsewhere: BP3's double count (BL3), the
+classes behind BP5 (SP9) and BP7 (SP3), and two parts of BP10 (BL3, BL4).
+
+Follow-up added at reconcile:
+
+- [ ] BP11 — name the 4 KiB token and basename-index residuals in the README paragraphs, or
+      correct `110/120`'s "in the README".
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — bounded-pathscan-linkscan (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-10-04-2215-bounded-pathscan-linkscan-cold.md`
+under REVIEW.md rule 1's split; held by the orchestrator outside the worktree.
+Folded into the brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` — the
+  authoring run's account. **Not opened** by the brief-writer.
+- `docs/roadmap/110-*/120-pathscan-and-linkscan-are-unbounded-on-one-big-file.md`
+  — the commissioning item. **Not opened.**
+- The principal's standing words on guards, known to the brief-writer from its
+  own memory and not from this run: guards never load whole files or all
+  results.
+
+## Prior verdicts and barred items on the same surfaces
+
+- `docs/reviews/2026-09-25-0715-bounded-guard-layer-cold.md`,
+  `docs/reviews/2026-09-25-0715-secretscan-stream-pathscan-roots-cold.md`,
+  `docs/reviews/2026-10-03-0448-pathscan-brace-expansion-cold.md`,
+  `docs/reviews/2026-10-03-0357-shared-allow-marker-grammar-cold.md`
+- every item under `docs/roadmap/110-estate-duplication-exception-audit-mike/`
+  and `docs/roadmap/115-guardrail-architecture-mike-commissioned/`
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+The pointer carries no lens paragraph — refs only.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+1. Does the cap satisfy the principal's "never all results" without ever turning
+   a red into a green?
+2. Is the over-cap count a known zero when unreached, on every output path, as
+   the third commit claims?
