@@ -555,3 +555,9 @@ then `python3 tools/board.py rebuild`.
 
 - [ ] 🎯 [An ask stops the whole run — decide when a session asks, and what](roadmap/420-when-to-ask-mike-commissioned/010-an-ask-stops-the-whole-run-decide-when-to-ask.md)
 - [ ] 🎯 [An answer to a session's question is not a ruling. Records](roadmap/420-when-to-ask-mike-commissioned/020-an-answer-is-not-a-ruling.md)
+
+## Review quality is never traded for budget (Mike commissioned, 2026-10-04)
+
+*[Narrative](roadmap/430-review-quality-is-never-traded-for-budget-mike-commissioned/README.md)*
+
+- [ ] 🎯 [Reinforce in doctrine that a review is never cut down to fit a](roadmap/430-review-quality-is-never-traded-for-budget-mike-commissioned/010-reinforce-the-rule-in-doctrine-and-guard-it-in-code.md)
