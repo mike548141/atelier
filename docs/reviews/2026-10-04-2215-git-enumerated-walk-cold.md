@@ -506,3 +506,129 @@ nothing staged, so its three `--staged` guards passed on an empty diff.
 - [ ] GW7 — sweep the remaining own-walks (`linkscan`, `reviewscan`,
       `pointerscan`).
 - [ ] GW8, GW9, GW10 — record or rule; no action assumed.
+
+### Reconcile
+
+Written 2026-10-04 UTC, after phase 1 was committed unrevised at `df3451f`.
+Nothing above this heading has been changed. Opened at this step, and nothing
+else: the orchestrator's release message (the sibling's one deferred fact and
+two seeded questions); the queue pointer `160/600` in full; the commissioning
+item `110/110` in full; the intent record
+`docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` by grep,
+then its closing addendum (lines 286–328) in full; and the two 2026-09-25
+verdicts (FW and LW) by their findings, overall lines, ledgers and checklists,
+not cover to cover. The other items under section `110` were listed by name and
+not opened.
+
+**The intent record, as found.** The session record gives this delta one line
+("the guards walk only what git could commit") and a timing table. The account
+a reviewer can test against is the commissioning item's fix block and the
+commit message; both say the same things. Its stated acceptance was two
+clauses: every guard's output identical on atelier's tree, and the large repo
+finishing inside the cap. The pointer `160/600` is refs-only and carries no
+lens hints beyond the delta paths.
+
+**Seeded question 1 — is there evidence the yielded set is right, as distinct
+from smaller?** Partly, and less than the record's confidence suggests. The
+author's four pieces of evidence are: identical output on atelier's tree; a
+synthetic repository where 2,007 files became 6; the suite; the timings. I
+re-drove the first here: over the scratch clone both walks yield the same 933
+files. But that tree has no ignored, untracked or nested content, so "identical"
+is the trivial case — it shows the change is harmless where it has nothing to
+do. The synthetic count and the timings are evidence of *smaller*. The only
+evidence of *right* in the delta is `test_filewalk`'s fifteen cases, and the
+case the whole argument rests on — a file force-added past an ignore rule is
+still read — is not among them (GW3). Phase 1's matrix is, as far as these
+records show, the first parent-against-HEAD comparison over shapes where the
+two could differ; it found the set right on every committable path the parent
+read. So the claim holds; the record did not yet have the evidence for it.
+
+**Seeded question 2 — does the merge carry anything the worker's own tests do
+not pin?** Yes, four things, all in GW3 and GW4: the environment scrub (the
+fix block's own headline clause, "so a hook's `GIT_DIR` cannot redirect it");
+the unmerged-stage dedupe; the `.git`-file check inside the git path; and
+reading through a symlinked parent directory, which no test or record mentions
+and which contradicts "symlinks behave as before".
+
+**Per-finding notes.**
+
+| ID | Against the records | Status |
+|----|---------------------|--------|
+| GW1 | FW's matrix records `.idea`, `.vscode` and skip names "pruned" as correct walk behaviour and FW's lens 4 asks only whether a *child* can widen the set. Neither prior verdict, the item nor the session record asks what the skip names do to **tracked** files. The item's premise "dropping it loses no protection" is argued for ignored files only. | **new** |
+| GW2 | The fix block claims a voice for one fallback only ("a missing git says so"). It does not claim the others speak; nobody recorded that they do not, or that a refused repository is labelled as no repository. | **new** |
+| GW3 | FW3 and LW8 recorded "no test of its own contract"; the delta answers them with `test_filewalk`. The three surviving mutants and the unpinned force-add case are gaps in that answer. | **new, in the line of FW3** |
+| GW4 | FW6 recorded file symlinks out of the root as read (unchanged at HEAD, shape 08) and stated directory symlinks are never descended. That second half is no longer true in git mode. The record says "symlinks behave as before". | **new; contradicts the record** |
+| GW5 | Not in any record opened. The parent ran no subprocess, so the earlier passes had no surface for it. | **new** |
+| GW6 | FW2 (README has no `filewalk` entry) and LW6 (README and changelog silent on the skip) are open on their checklists and still true. The now-false `conflictscan` docstring and the missing entry for *this* change are new. | **part recorded (FW2, LW6), part new** |
+| GW7 | Recorded twice already: FW7 and LW1/LW3/LW4 name `reviewscan`, `pointerscan` and `linkscan`'s index, and FW's checklist says to route them through the shared walk. Still open. What is new is only that the delta's headline ("guards stop reading untracked and ignored trees") is untrue of them. | **already recorded** |
+| GW8 | Not in any record opened. | **new (note)** |
+| GW9 | FW9 recorded the nested-clone walk; the item says "FW9 unchanged". Anticipated and deliberate. | **already recorded** |
+| GW10 | LW's reconcile touches the planes seeing different trees; the content-version point is not stated in what I opened. | **new (note)** |
+
+On GW1's severity, after reading the item: it stays MODERATE. The item's
+argument is sound for what it argues, and the gap predates it. The reason it is
+not a note is that the commissioning text states the new set as "everything
+that *could* be committed" and the record now carries that as fact, while a
+test pins the opposite for ten directory names.
+
+**GW11 — note, formed at reconcile.** Reading FW1 (an unreadable directory makes
+the `.git` check raise on interpreters at or below 3.13) prompted a re-read of
+`dir_ok`, which carries the same unguarded check into the git path. Probe: a
+tracked file under a directory made unreadable afterwards. The system 3.9
+interpreter raises `PermissionError`; 3.14 yields the rest and drops the file in
+silence (the FW8 class). FW1 is open on its own checklist and this adds a second
+site to it, not a new defect; counted as a note so it is not counted twice.
+
+**Did reconcile change any phase-1 judgement?** No severity moves. Two things
+are sharpened: GW7 and GW9 were already on record, so the new findings are GW1,
+GW2, GW4, GW5 and GW8 outright, with GW3, GW6 and GW10 new in part.
+
+**Overall, restated.** Phase 1 stands as written: **PASS-WITH-FINDINGS —
+0 MAJOR · 1 MODERATE · 6 minor · 3 notes.** With the reconcile note counted:
+**0 MAJOR · 1 MODERATE (GW1) · 6 minor (GW2–GW7) · 4 notes (GW8–GW11).** No
+MAJOR, so on my reading no further queued pass is owed by this verdict; that
+call, the rulings and the pointer are the orchestrator's and the principal's.
+
+Added to the follow-up checklist:
+
+- [ ] GW11 — fold the git-path site into FW1's fix when FW1 is taken.
+- [ ] Seeded question 1 — keep the parent-against-HEAD shape matrix as a test
+      fixture, so "the set is right" has standing evidence (counsel).
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — git-enumerated-walk (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-10-04-2215-git-enumerated-walk-cold.md` under
+REVIEW.md rule 1's split; held by the orchestrator outside the worktree. Folded
+into the brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` — the
+  authoring run's account. **Not opened** by the brief-writer.
+- `docs/roadmap/110-*/110-guards-walk-untracked-trees.md` — the commissioning
+  item. **Not opened.**
+- The session index's one-line account, read by the brief-writer: the guards now
+  walk only what git could commit, and the big repo's scans went from past the
+  cap to 6–147 s.
+
+## Prior verdicts and barred items on the same surfaces
+
+- `docs/reviews/2026-09-25-0715-single-sourced-file-walk-cold.md` and
+  `docs/reviews/2026-09-25-0715-linked-worktree-skip-cold.md`
+- every item under `docs/roadmap/110-estate-duplication-exception-audit-mike/`
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+The pointer carries no lens paragraph — refs only.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+1. The run's evidence is a speed-up on one large repo. Is there evidence the
+   yielded file set is right, as distinct from smaller?
+2. A worker authored this under dispatch: does the merge carry anything the
+   worker's own tests do not pin?
