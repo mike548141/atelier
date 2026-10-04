@@ -329,6 +329,8 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [ccarchive's summary counts files, and Mike's own read of the tool](roadmap/210-instruments-open-features/160-ccarchive-reports-file-counts-not-session-counts.md)
 - [ ] 🔎 [ccarchive's manifest lags its own mirror in 14 files, so the](roadmap/210-instruments-open-features/170-the-manifest-lags-the-mirror.md)
 - [ ] 🔎 [--list --from-archive still fully gunzips every local mirror for](roadmap/210-instruments-open-features/180-first-prompt-column-gunzips-every-mirror.md)
+- [ ] [ccarchive --install-schedule recreates a login job Mike removed](roadmap/210-instruments-open-features/190-ccarchive-remove-install-schedule.md)
+- [ ] [A run aborts on one evicted iCloud mirror instead of skipping it](roadmap/210-instruments-open-features/200-ccarchive-aborts-on-an-evicted-icloud-mirror.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
