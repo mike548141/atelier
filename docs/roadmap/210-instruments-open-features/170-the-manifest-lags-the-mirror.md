@@ -1,4 +1,4 @@
-- [ ] 🔎 **`ccarchive`'s manifest lags its own mirror in 14 files, so the
+- [~] (claimed 2026-10-04-2329, wt: atelier-ccarchive-1005) 🔎 **`ccarchive`'s manifest lags its own mirror in 14 files, so the
   shrink guard compares against a stale, smaller figure** (found 2026-10-03
   by the read-only investigation that answered `150`; cause NOT diagnosed)
 

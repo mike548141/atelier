@@ -1,4 +1,4 @@
-- [ ] **`ccarchive --install-schedule` recreates a login job Mike removed —
+- [~] (claimed 2026-10-04-2329, wt: atelier-ccarchive-1005) **`ccarchive --install-schedule` recreates a login job Mike removed —
       drop it** (handed up by a private child, 2026-10-05, over the channel;
       Mike: *"yes hand them over"*)
 

@@ -1,4 +1,4 @@
-- [ ] 🔎 **ccarchive exits 1 on every scheduled run, and the board did not know**
+- [~] 🔎 **ccarchive exits 1 on every scheduled run, and the board did not know** (claimed 2026-10-04-2329, wt: atelier-ccarchive-1005)
   (found 2026-08-09 by the sidecar build; **predates it and is not caused by
   it**). Verified independently, read-only: `--dry-run` exits **1** with
   `refusedShrink` carrying **two** entries — both per-project memory `.md`

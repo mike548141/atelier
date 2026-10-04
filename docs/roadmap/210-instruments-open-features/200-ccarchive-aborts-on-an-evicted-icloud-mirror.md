@@ -1,4 +1,4 @@
-- [ ] **A run aborts on one evicted iCloud mirror instead of skipping it**
+- [~] (claimed 2026-10-04-2329, wt: atelier-ccarchive-1005) **A run aborts on one evicted iCloud mirror instead of skipping it**
       (handed up by a private child, 2026-10-05, over the channel; Mike:
       *"yes hand them over"*)
 
