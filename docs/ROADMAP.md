@@ -258,7 +258,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Rule-4 cold pass queued: the shared allow-marker grammar and ignore](roadmap/160-doctrine-review-owed/480-rule-4-cold-pass-queued-the-shared-allow-marker-grammar.md)
 - [ ] 🎯 [Rule-4 cold pass queued: pathscan's brace expansion and inline](roadmap/160-doctrine-review-owed/490-rule-4-cold-pass-queued-pathscan-brace-expansion.md)
 - ⏳ [Rule-4 cold pass queued: the expected toolbox and its install rule](roadmap/160-doctrine-review-owed/500-rule-4-cold-pass-queued-the-expected-toolbox.md)
-- ⏳ [Rule-4 cold pass queued: ccarchive's heal pulled (210/170,](roadmap/160-doctrine-review-owed/510-rule-4-cold-pass-queued-the-heal-pulled.md)
+- [ ] 🛑 [Rule-4 cold pass queued: ccarchive's heal pulled (210/170,](roadmap/160-doctrine-review-owed/510-rule-4-cold-pass-queued-the-heal-pulled.md)
 - ⏳ [Rule-4 cold pass queued: the queue-run skill's sync step gains the](roadmap/160-doctrine-review-owed/520-rule-4-cold-pass-queued-queue-run-sync-gate.md)
 - ⏳ [Rule-4 cold pass queued: REPO-STANDARD's remote-creation authority,](roadmap/160-doctrine-review-owed/530-rule-4-cold-pass-queued-remote-creation-authority.md)
 - ⏳ [Rule-4 cold pass queued: "harvest" scoped to monolithic boards](roadmap/160-doctrine-review-owed/540-rule-4-cold-pass-queued-harvest-only-on-a-monolithic-board.md)
@@ -267,13 +267,13 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued: SECRETS' stated-bridge pointers repointed](roadmap/160-doctrine-review-owed/570-rule-4-cold-pass-queued-stated-bridge-pointer.md)
 - ⏳ [Rule-4 cold pass queued: the review-brief skill stops telling the](roadmap/160-doctrine-review-owed/580-rule-4-cold-pass-queued-review-brief-rule-3.md)
 - ⏳ [Rule-4 cold pass queued: the template reviews README names tiers,](roadmap/160-doctrine-review-owed/590-rule-4-cold-pass-queued-template-tiers-not-models.md)
-- ⏳ [Rule-4 cold pass queued: the file walk enumerates through git](roadmap/160-doctrine-review-owed/600-rule-4-cold-pass-queued-git-enumerated-walk.md)
+- [ ] 🎯 [Rule-4 cold pass queued: the file walk enumerates through git](roadmap/160-doctrine-review-owed/600-rule-4-cold-pass-queued-git-enumerated-walk.md)
 - ⏳ [Rule-4 cold pass queued: the template reviews README's trigger list](roadmap/160-doctrine-review-owed/610-rule-4-cold-pass-queued-template-review-triggers.md)
 - ⏳ [Rule-4 cold pass queued: the always-confirm list's copies match](roadmap/160-doctrine-review-owed/620-rule-4-cold-pass-queued-floor-list-membership.md)
-- ⏳ [Rule-4 cold pass queued: personal data held by purpose, with](roadmap/160-doctrine-review-owed/630-rule-4-cold-pass-queued-pii-by-purpose.md)
+- [ ] 🛑 [Rule-4 cold pass queued: personal data held by purpose, with](roadmap/160-doctrine-review-owed/630-rule-4-cold-pass-queued-pii-by-purpose.md)
 - ⏳ [Rule-4 cold pass queued: pathscan and linkscan stream and cap](roadmap/160-doctrine-review-owed/640-rule-4-cold-pass-queued-bounded-pathscan-linkscan.md)
-- ⏳ [Rule-4 cold pass queued: the exception-register design, before it is](roadmap/160-doctrine-review-owed/650-rule-4-cold-pass-queued-exception-register-design.md)
-- ⏳ [Rule-4 cold pass queued: the linear line reader in three guards](roadmap/160-doctrine-review-owed/660-rule-4-cold-pass-queued-linear-reader.md)
+- [ ] 🛑 [Rule-4 cold pass queued: the exception-register design, before it is](roadmap/160-doctrine-review-owed/650-rule-4-cold-pass-queued-exception-register-design.md)
+- [ ] 🛑 [Rule-4 cold pass queued: the linear line reader in three guards](roadmap/160-doctrine-review-owed/660-rule-4-cold-pass-queued-linear-reader.md)
 
 ## build/ layer — open strands
 
