@@ -529,3 +529,130 @@ timing with the machine-local term list (deliberately not read).
 - [ ] LN5 — broken staged scan exits 2 with a remedy line, not a traceback.
 - [ ] LN6 — confirm at reconcile that the copies' merge decision has an owner.
 - [ ] LN7, LN8, LN9 — wording only; fold into the next edit of those surfaces.
+
+### Reconcile — written 2026-10-04 (22:51 UTC), after phase 1 was committed (`2e46e4a`)
+
+**What I opened at release, and only this:** the queue pointer (`160/660`); the
+commissioning item `110/140` in full and the head of `110/130`; `115/220` in
+full and `115/080` by grep; the intent record
+`docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` by grep
+and two excerpts; and the four released verdicts by grep for each finding's
+class, with the passages that hit read in context (BL2 in the bounded-guard
+pass; the RC1 references in the allow-marker pass). I did not read those four
+verdicts whole, so "not recorded" below means "no hit for the class in the
+released surfaces", not a full reading. The sibling carried no author lens
+paragraph. No phase-1 text was revised.
+
+**The intent record** gives this work one line (`110/140`: the linear line
+reader, listed as closed). The substance is in the commissioning item, which
+asks for exactly three things: port `linkscan`'s reader into the three guards
+with constants kept; output byte-identical on atelier's tree; the large private
+repository re-timed. The first two I re-drove and they hold. The third I could
+not and did not try: the house rules bar me from every other repository, so
+the item's private-repo timings stand on the author's word alone.
+
+**Seeded question 1 — is any one reader subtly different from the other two?**
+No. Answered in phase 1 before the question was seen: the three bodies hash
+identically once comments are stripped, and the three copies agreed with each
+other on all 121,029 differential runs.
+
+**Seeded question 2 — did the tests compare old against new, or only assert
+new against expectations written beside it?** Old against new, genuinely: each
+test file embeds the pre-change loop as an oracle and asserts list equality,
+and the linearity check also requires the oracle to *fail* the bound, so it
+cannot pass vacuously. Mutation confirms it bites (24 of 27 killed). The
+weakness is breadth, not kind — LN4 stands as written.
+
+**Per finding:**
+
+- **LN1 (MAJOR) — new; stands.** No released surface records it. Its nearest
+  neighbours, both on the same staged parser and both still open, are:
+  **RC1** (2026-09-25, MAJOR, unruled), which I know only through the
+  allow-marker verdict's summary of it — the staged parser accepts only one
+  literal header shape — and **BL2** (2026-09-25, MODERATE), which records that
+  the staged path buffers the whole diff and splits it twice. Neither names
+  the separator class or the two-plus line: RC1 is about which *files* the
+  parser recognises, BL2 about *memory*; LN1 is about which *text on a
+  recognised added line* is thrown away. The allow-marker pass's reconcile
+  notes the staged parser was left untouched "for part 3" of `115/080`, and
+  that part is still owed and unclaimed. So the staged parser now carries two
+  unruled MAJORs and a MODERATE from three separate passes, with one unbuilt
+  vehicle named for all of them. That accumulation is the thing to put in
+  front of the principal, in plain words: the commit-time secret check has a
+  known-weak front door and the fix has no owner.
+  The phase-1 statement that this predates the delta is confirmed: none of
+  the three landing commits touches `staged_added_lines`.
+- **LN2 (MODERATE) — new; stands, and sharpened.** `110/140`'s own text says
+  "the three guards that still carry it", which my measurement falsifies: six
+  more carry the same cost. `115/220` does record the five truncation readers
+  as a separate mechanism with identical constants, but as a consolidation
+  question, not as a speed defect, and `reviewscan`'s reader appears in
+  neither. Nothing on the released board owns the remaining six.
+- **LN3 (minor) — stands, and it travelled.** `110/140`'s close note repeats
+  the claim as "byte-identical for all nine guard × mode runs". Three of those
+  nine are the staged mode, which cannot exercise the reader. Six are evidence.
+- **LN4 (minor) — stands.** See seeded question 2.
+- **LN5 (minor) — new in this form.** The staged-plane-check pass has a
+  sibling finding on a *different* tool's staged reader decoding by process
+  locale (SG5); no released surface records the crash in these three guards.
+- **LN6 (note) — answered.** The merge decision has an owner: `115/220`, open,
+  framed as a decision awaiting the principal. The commit messages' pointer to
+  it is accurate. Nothing further.
+- **LN7 (note) — stands.** The secretscan-stream pass compared per-line against
+  whole-file over the tree and found them identical; that tree holds no file
+  with the unusual separators, so it could not have seen the line-number shift
+  I describe. No conflict between the two results.
+- **LN8 (note) — stands, and the board says it more strongly than the
+  commits.** `110/140`'s title says the reader "costs quadratic time". Measured,
+  the old reader's time was linear in file size. `110/140` also predicted the
+  reader was "the likely first cause" of the two slow guards and then recorded
+  honestly that the prediction was half right; my tool-level timings agree
+  with that correction (regex time dominates in `secretscan` and `leakscan`).
+- **LN9 (note) — stands.** The intent record notes, under a different item,
+  that the staged plane never sees binaries even by name; consistent with what
+  I recorded and already held for the principal there.
+
+**Findings formed at reconcile:** none. Reconcile changed no severity.
+
+**Overall, restated: PASS-WITH-FINDINGS — 1 MAJOR, 1 MODERATE, 3 minor,
+4 notes.** The delta under review is correct and does what it was asked to do.
+The MAJOR and the MODERATE are both about what sits *next to* it: a commit-time
+gap in the secret and leak guards that this work did not create, and six
+readers the same fix did not reach.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — linear-line-reader (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-10-04-2215-linear-line-reader-cold.md` under
+REVIEW.md rule 1's split; held by the orchestrator outside the worktree. Folded
+into the brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` — the
+  authoring run's account. **Not opened** by the brief-writer.
+- `docs/roadmap/110-*/140-the-line-reader-re-slices-per-line.md` and
+  `110-*/130-*.md` — the commissioning items. **Not opened.**
+
+## Prior verdicts and barred items on the same surfaces
+
+- `docs/reviews/2026-09-25-0715-bounded-guard-layer-cold.md`,
+  `docs/reviews/2026-09-25-0715-secretscan-stream-pathscan-roots-cold.md`,
+  `docs/reviews/2026-10-03-0357-shared-allow-marker-grammar-cold.md`
+- every item under `docs/roadmap/110-estate-duplication-exception-audit-mike/`
+  and `docs/roadmap/115-guardrail-architecture-mike-commissioned/`
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+The pointer carries no lens paragraph — refs only.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+1. Three commits, three files: is any one reader subtly different from the other
+   two?
+2. Did the workers' tests compare old against new output, or only assert the new
+   output against expectations written alongside it?
