@@ -68,3 +68,32 @@
         evicted-file choice dissolves because a run will no longer read a
         mirror to replace it; `210/160`'s "session" definition is the
         builder's call, per its own text.
+
+      **Mike's model of the data, verbatim (2026-10-05, mid-build):**
+      *"ccarchive exists to keep my claude code session transcripts so that we
+      can refer and learn from them over time. The way I see it ccarchive will
+      deal with, 1. Data that is active for a while and then never changes
+      again after. Most session transcripts will be like this where once I
+      have finished with the session and closed it off I never change it
+      again, and neither should anything else. On the rare occassion I do
+      re-open a closed session to look something up, and its even rarier for
+      me to pick up that session by giving it prompts etc... I do however do
+      that regularly with sessions that have paused for a variety of reasons
+      and I had not finished with the session yet e.g. out of claude budget,
+      computer issues, internet connectivity issues, waiting for me to get
+      back to a topic etc 2. Data like the memory file you mentioned where
+      claude (or other software maybe) alters an existing file over time
+      rather than starting new files like we do with session transcripts."*
+
+      **How the build reads it** (stated back to him, open to correction):
+      two classes. **Append-only records** (transcripts, subagent logs, prompt
+      history, tool-result sidecars): the only legitimate change is growth at
+      the end, however long after the last one. Any other change, a shrink or
+      a rewrite in place, is an anomaly. The archived copy is never
+      overwritten, the changed version is kept aside, and the run reports it.
+      This **retires the old same-size-rewrite-replaces-the-mirror behaviour**
+      (S4c in the HL verdict). **Living documents** (memory notes, metadata
+      sidecars): any change that is not a pure addition keeps the previous
+      version as a dated copy. Pure growth is checked without reading the
+      mirror: the hash of the source's first recorded-length bytes must equal
+      the signed index's hash.
