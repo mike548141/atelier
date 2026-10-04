@@ -543,3 +543,132 @@ undeclared occurrences is higher, not lower.
       in the stamped floor.
 - [ ] PI8: say what happens to a private repo's exceptions when it widens.
 - [ ] PI9, PI10: wording.
+
+### Reconcile (phase 2, written 2026-10-04 UTC, after the phase-1 commit `350b100`)
+
+**Overall, restated: PASS-WITH-FINDINGS — 2 MAJOR / 6 MODERATE / 2 minor / 1
+note.** No severity moved and no new finding ID was formed. Two findings gained
+detail at reconcile (PI3, PI4) and one is re-aimed (PI6); each is marked below.
+
+**What I opened at release:** the authoring run's session record (the lines that
+bear on this delta: its addendum-3 closing list and its lessons paragraph); the
+commissioning item's C11 statement and its closing note; the queue pointer; and,
+by targeted search rather than in full, five prior verdicts on the leak guard
+and its markers (the 2026-08-09 leak-guard build and term-list passes, the
+2026-07-12 private-repos-generic pass, the 2026-08-03 guard-governance intent
+pass and the 2026-10-03 shared marker-grammar pass). Nothing else was opened.
+
+**Against the intent record.** The authoring run's account of this delta is two
+sentences: the item was settled on the principal's words, and the lesson is that
+personal data is judged by purpose and not by repo visibility, with exceptions
+recorded and narrowed. It records no design choice about who grants an
+exception, where one is recorded, how the rule reaches children, or what the
+phrase "each declared where it appears" was checked against. So the intent
+record neither answers nor contradicts any finding; the gaps in PI1, PI2, PI3,
+PI7 and PI8 are gaps the author did not consider on the record, not choices it
+made and explained.
+
+**Against the commissioning item.** C11 was filed as drift among four named
+copies, two scoped to repos bound for sharing and two unconditional. Its closing
+note confirms the principal was asked to choose between those two scopes and
+rejected the question's axis.
+
+**Against the brief-writer's recollection of his words.** It matches the
+quotation in the delta in substance: default avoidance, purpose plus record,
+fewest for public. Nothing in it changes a finding.
+
+**Per finding.**
+
+- **PI1 (MAJOR) — new.** No prior verdict, the intent record or the
+  commissioning item records that the published identity is undeclared at most
+  of its occurrences, or that the guard passes the account name unmarked. The
+  2026-08-09 passes reviewed the scoped term marker as a mechanism; none counted
+  occurrences against a claim, because the claim did not exist before this
+  delta. Stands.
+- **PI2 (MAJOR) — new.** The 2026-10-03 marker-grammar pass and the 2026-08-09
+  build pass both treat marker parsing and scope widening; neither addresses a
+  doctrine text that licenses the marker, and the missing decider is recorded
+  nowhere. Seeded question 2 sharpens it: the principal's separate standard asks
+  each exception to record whether he ruled it or an agent added it, which is
+  exactly the decider the four passages omit. Stands.
+- **PI3 (MODERATE) — partly recorded elsewhere, extended at reconcile.** The
+  measurement that no exception meets the standard, and the contradiction with
+  the guard doctrine's who-and-when paragraph, were already recorded in the
+  cited board item itself, which I read in phase 1 and credited there. What is
+  new is that build doctrine cites that open item as a standard. *Formed at
+  reconcile, on seeded question 2:* the delta's "recorded" means less than the
+  principal's standard. `REPO-STANDARD.md` paraphrases it as "why, who, when,
+  the narrowest span", dropping the session and the ruled-or-automatic
+  distinction; the template `CLAUDE.md` says only "declared, narrow, recorded";
+  the template `CONTRIBUTING.md` only "declared, recorded"; atelier's own
+  constraint only "declared where it appears". A reader of any one passage gets
+  a weaker duty than the one he stated.
+- **PI4 (MODERATE) — new, extended at reconcile.** *Formed at reconcile, on
+  seeded question 1:* only `REPO-STANDARD.md` carries all three parts of his
+  statement. atelier's `CLAUDE.md` carries the default and the fewest-for-public
+  part but purpose only by pointer. The template `CLAUDE.md` carries the default
+  and purpose-plus-record, and puts fewest-for-public inside an HTML comment
+  that scaffold guidance says to delete. The template `CONTRIBUTING.md` omits
+  fewest-for-public altogether. This adds a row to the lens-2 table rather than
+  a new finding.
+- **PI5 (MODERATE) — new.** The commissioning item's closing note carries the
+  same identifier, also undeclared; that is a second instance of the same thing
+  in a record, noted here and not raised separately.
+- **PI6 (MODERATE) — new, re-aimed at reconcile.** C11 as filed named four
+  copies, and all four were changed, so the landing commit's statement that the
+  contradiction is fixed is true to the item as filed. The miss is upstream: the
+  survey that found C11 did not find the other surfaces stating the same claim.
+  The finding stands at the same severity with that correction of aim. The
+  intent record's own lesson, purpose and not visibility, is what those eleven
+  surfaces still contradict.
+- **PI7 (MODERATE) — new.** Not recorded in the intent record, the item or the
+  pointer. Stands.
+- **PI8 (MODERATE) — new.** The 2026-08-03 guard-governance pass asked whether
+  posture by visibility was inside its model's scope; that is adjacent, not the
+  same point, and concerns guard strictness rather than held exceptions. Stands.
+- **PI9 (minor) — the residual is already recorded; the overclaim is new.** The
+  tools documentation states the paraphrase residual, as phase 1 credited.
+- **PI10 (minor) — confirmed.** The commissioning item's closing note holds the
+  fuller quotation and says he rejected both boundaries, which is what the
+  commit message says and not what the standard's lead-in says.
+- **PI11 (note) — unchanged.**
+
+**Exposure at reconcile:** none beyond the surfaces the release named.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — pii-by-purpose (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-10-04-2215-pii-by-purpose-cold.md` under REVIEW.md
+rule 1's split; held by the orchestrator outside the worktree. Folded into the
+brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` — the
+  authoring run's account. **Not opened** by the brief-writer.
+- `docs/roadmap/200-*/100-r2-found-eleven-live-contradictions.md` — the
+  commissioning item (contradiction C11). **Not opened.**
+- The principal's words as the brief-writer holds them in its own cross-session
+  memory (recorded 2026-10-03), not from the authoring run: every repo avoids
+  personal data by default; exceptions are held for a purpose and recorded;
+  private repos have more, public repos the fewest.
+
+## Prior verdicts and barred items on the same surfaces
+
+- every item under `docs/roadmap/200-anti-slop-invariant-registry-promote-rec/`
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+The pointer carries no lens paragraph — refs only.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+1. Does each of the four passages carry all three parts of the principal's
+   statement — default avoidance, purpose plus record, and fewest for public?
+2. The principal has separately said every exception records why, who, which
+   session, whether ruled or automatic, and when, at the narrowest scope: does
+   the delta's "recorded" mean that, or less?
