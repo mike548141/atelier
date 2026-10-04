@@ -583,3 +583,175 @@ Probe scripts and raw output are in the session scratchpad under `HL/`
       lock, after a probe.
 - [ ] Phase 2 — reconcile against the sibling and the prior verdicts, especially
       whether HL3, HL4, HL5 and HL7 are already held elsewhere.
+
+### Reconcile
+
+Written 2026-10-04 UTC, after the orchestrator reported phase 1 committed
+unrevised at `e796ce4` and released the deferred surfaces by message. Nothing in
+phase 1 is revised. Opened for this section, and nothing else under the bar: the
+queue pointer; the board item `210/170` in full; the heads of `210/010` and
+`210/150` and a keyword sweep of the other `210/*` items; the intent record's
+`210/170` section and its closing "merged" lines; the 2026-10-03 checkpoint
+verdict (MC) from its verdict divider to its end; and keyword-located passages
+of the two 2026-07-17 verdicts (F1, F4). No sibling text beyond the two seeded
+questions was sent to me. One further probe was run for this section
+(`probe3.js`, three scratch archives, same isolation as phase 1).
+
+**Against the intent record and the board item.** The item's pulled-heal note
+matches what the code shows: heal block, man paragraph and two tests removed, a
+regression test added, the checkpoint kept. Three things the record does not
+say, each of which my phase-1 findings bear on:
+
+- The item's own opening "why it matters" is that a lagging entry makes the
+  shrink guard's comparand too low, "the direction that loses data". The heal
+  was the item's answer to that. Pulling it puts the item back in exactly that
+  state for any entry that lags, and the item's "still open" list names only
+  locking. **HL2's lagging-entry shape is therefore already on the board, in the
+  item's own words, and the pull re-opened it without recording that it did.**
+- The item says the principal's run with the heal live cleared the 14 known
+  lagging entries. So the stranded state (HL6) is empty in the field as far as
+  the checkable entries go; HL6 is about every lag that forms from here on.
+- The item records a preserved corrupt manifest dated 2026-09-16 beside the live
+  one and a rebuild on 2026-09-29 that stamped thousands of entries at once.
+  Whether those two are the same event the record does not say, and I do not
+  infer it. If the start-fresh path did fire in the field, HL1's wholesale shape
+  (S7) and HL10 have happened once already rather than being hypothetical.
+
+**Against the prior verdicts — what was already recorded and what is new.**
+
+| Mine | Status | Earlier record |
+|---|---|---|
+| HL1 | **partly recorded** | MC2's counsel already says the skip-path backfill should hash the mirror, not the source. MC2 drove it against a torn mirror. New here: the same line against an *intact* mirror reproduces MC1's own shape E, and S7's wholesale form. |
+| HL2 | **partly recorded** | Lagging-entry shape: `210/170`'s opening, and MC1 shape F by another route. New here: the no-entry and `fromArchive` shapes, and that the overwrite turns `--verify` green. |
+| HL3 | **new** in the released material | MC4 saw "the next run re-signs" and read it as healing a crash window. Nothing released treats it as laundering a tampered manifest. I was not released any review of the signing work itself. |
+| HL4 | **duplicate of MC2** | MC2 rated it MAJOR and produced it with a real kill, once in eight trials. |
+| HL5 | **partly recorded** | `--verify` crash: MC2. New here: `--restore` crashes the same way, and the tail backfill crash stops the manifest being saved on every run (S3c). |
+| HL6 | **new** | A consequence of the pull; no earlier pass could have held it. |
+| HL7 | **new** in the released material | |
+| HL8 | **partly recorded** | MC5 has the undocumented, unstructured exit. New here: one unreadable source blocks everything behind it on every run. |
+| HL9 | **same class as MC9** | MC9 recorded a planted temp-file symlink being followed and rated it a note, on the ground that the signing design concedes write access to the archive. |
+| HL10 | **new** in the released material | The item's field note above is supporting evidence. |
+| HL11 | **recorded as owed** | MC1's counsel asked for tests of shapes E and F. Neither was added. |
+| HL12 | **recurrence** | The man sentence is MC4's, word for word; the changelog gap is MC7. The pull rewrote the same paragraph and left MC4's sentence in place. |
+| HL13 | **duplicate of MC7** | |
+| HL14 | **already on the board** | `210/170` holds the overlapping-runs hypothesis open and unlocked. |
+
+Two severity notes, phase-1 ratings left as written:
+
+- **HL4.** I rated MODERATE on a hand-built state and a narrow window. MC2's
+  real-kill result (one torn mirror in eight kills) is better evidence than
+  mine, and it supports MC2's MAJOR. The principal should read HL4 as a second,
+  independent reproduction of MC2, not as a competing lower rating.
+- **HL9.** MC9 rated the class a note. I keep MODERATE for one reason MC9 did
+  not weigh: the write lands *outside* the archive, which the man page's NOTES
+  section says cannot happen. The disagreement is recorded for the ruling.
+
+**Seeded question 1 — does the delta answer MC1 as stated, in full, and does
+MC1's counsel match what was done?**
+
+MC1 as stated — the heal rewriting an *existing* entry from the source — is
+answered in full. Re-driven at HEAD in `probe3.js`: shape E (older, shorter
+source) leaves the entry alone, `--verify` exit 0, `--audit` exit 1 SHRUNK;
+shape F (truncate with mtime kept, then append) is REFUSED at the second step
+with the mirror intact. Both are the pre-heal behaviour MC1 called correct.
+
+MC1's counsel does **not** match what was done. It counselled changing the
+heal's direction (hash the mirror) and adding tests for E and F, and marked the
+choice "Mike's call". What landed is removal, with neither test. Removal is a
+legitimate lesser answer to MC1 and I do not fault it; but it leaves the
+original problem the heal existed for (HL2, HL6), and MC1's reasoning applied
+one branch further down is HL1, which MC2's counsel had already pointed at.
+
+**Seeded question 2 — after the pull, is `--verify` ever green while the mirror
+and the manifest disagree?**
+
+On the hash of a locally present mirror, no: `--verify` compares exactly that,
+and every driven lag was reported (S1, S2, S6a). In three other senses, yes:
+
+1. **Recorded size.** `--verify` never reads `rawBytes`. An entry with the right
+   hash and a wrong size verifies green, and the size is what the shrink guard
+   trusts. Driven in `probe3.js`: size lowered by hand, one ordinary run
+   re-signed it (HL3), `--verify` green, then a truncated source overwrote the
+   intact mirror with no refusal. HL2 and HL3 meet here.
+2. **Evicted mirrors.** They are skipped and the verdict is still green, by
+   design. The item itself says 4,987 entries could not be checked after the
+   heal-live run. A lag there is invisible until someone materialises them.
+3. **After the tool settles the disagreement the wrong way.** S5 and S2c end
+   green because the run overwrote the mirror to match the source. Manifest and
+   mirror agree; the bytes are gone.
+
+A crash (HL5) is not green, but it is not a report either.
+
+**Findings formed at reconcile.**
+
+- **HL15 — note, formed at reconcile — the record does not show what was
+  recommended to the principal, and his quoted word is "Put".** The item quotes
+  him: "Put the heal now as recommended …". The commit and the session read that
+  as *pull*. The only recommendation on MC1 in the released material is MC1's
+  own counsel, which is to keep a heal and turn it to read the mirror; the
+  recommendation actually put to him is not in anything released to me. The
+  reading is probably right, and pulling is the safe direction either way. But
+  the delta rests on an answer whose question is not on the record, so whether
+  he chose removal over the mirror-reading heal, knowing that choice existed,
+  cannot be checked from here. For the ruling round to confirm, not for me to
+  decide.
+- **HL2, extended at reconcile** — the hand-lowered-size route in seeded
+  question 2, sense 1, is a fourth shape of HL2. No change of severity.
+
+No other finding was formed after the release. HL1 to HL14 were formed and
+written before any deferred surface was opened.
+
+**Overall line, restated: PASS-WITH-FINDINGS — 3 MAJOR · 6 MODERATE · 3 minor ·
+3 notes (HL1–HL15; HL15 formed at reconcile).** The pull stands. Of the three
+MAJORs, HL3 is new, and HL1 and HL2 are known mechanisms whose reach the pull
+left open without saying so; HL4 duplicates a standing MAJOR (MC2). Findings are
+the principal's to decide; nothing applied.
+
+Reconcile re-run ledger: `node probe3.js` — shape F refused, mirror intact;
+shape E entry untouched, `--verify` 0, `--audit` 1; lowered-size entry re-signed
+by a run, `--verify` 0, then a truncated source overwrote the mirror, exit 0,
+`--verify` 0.
+
+Phase 2 ends here. Reviewer `claude-fable-5-1`, spawned by the orchestrator,
+Fable tier. No file but this one edited.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — ccarchive-heal-pulled (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-10-04-2215-ccarchive-heal-pulled-cold.md` under
+REVIEW.md rule 1's split; held by the orchestrator outside the worktree. Folded
+into the brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` — the
+  authoring run's account. **Not opened** by the brief-writer.
+- `docs/roadmap/210-instruments-open-features/170-*.md` — the commissioning
+  item. **Not opened.**
+- `docs/reviews/2026-10-03-0357-manifest-checkpoints-cold.md` — the pass whose
+  finding MC1 this delta answers. **Not opened**; the brief-writer knows MC1
+  only as the session index's one-line summary (the heal can overwrite the good
+  archived copy with `--verify` green).
+
+## Prior verdicts and barred items on the same surfaces
+
+- `docs/reviews/2026-10-03-0357-manifest-checkpoints-cold.md` (the prior verdict
+  on the heal)
+- `docs/reviews/2026-07-17-1000-adr0006-ccarchive-preserve-cold.md` and
+  `docs/reviews/2026-07-17-1157-cli-docs-applied-cold.md`
+- every item under `docs/roadmap/210-instruments-open-features/`
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+The pointer carries no lens paragraph — refs only.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+1. Does the delta answer MC1 as that verdict stated it, in full — and does MC1's
+   own counsel, if it gave any, match what was done?
+2. After the pull, is there any state in which `--verify` is green while the
+   mirror and the manifest disagree?
