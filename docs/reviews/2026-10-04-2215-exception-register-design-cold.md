@@ -534,3 +534,164 @@ Ignore files in the clone were restored after each probe; the clone is disposabl
 - [ ] XR14 — first-build scope, if the redraft is accepted.
 
 All findings are on a draft decision and are the principal's to rule (rule 3). Nothing applied.
+
+### Reconcile
+
+Written 2026-10-04 UTC, after the phase-1 verdict was committed unrevised (`9df1897`) and the
+orchestrator released the sibling by message. Phase-1 text above is untouched.
+
+**Opened in phase 2, and only these:** the commissioning item (`110/100`) in full; the queue
+pointer; from the intent record
+(`docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md`) the passages that name
+the register, G3, the pull request and child reach (about 60 lines of 328, found by keyword);
+board items `110/010`, `110/060`, `110/110`, `115/050`, `115/150`, `115/170`, `115/230` and
+the two section file listings; the findings and prior-findings sections of the two released
+verdicts (GA1–GA3; AM overall line and its seeded list). Not opened: the rest of both
+sections, the rest of the session record, any other 2026-10-04 review, `docs/SESSIONS.md`.
+
+**The queue pointer** is refs-only and carries no lens hint that changes a finding.
+
+#### Against the seeded questions
+
+1. **Five fields and the full ladder, binaries included?** Fields: yes — why, who, session,
+   ruled-or-automatic and when are all required, and the three-way grant label honours the
+   answer-is-not-a-ruling correction the same run recorded. Ladder: span, line, file and
+   folder are all present, with `match` added. Binaries: no. See XR11, raised below.
+2. **Smallest thing that meets his words?** No. See XR15, formed at reconcile.
+
+#### Per finding
+
+- **XR1 (MAJOR) — stands, and it is a repeat.** The authoring run made this exact error twice
+  in the same sitting and corrected it both times: its record says a reach claim of "next pin
+  bump" was "never checked against `floor.yml`", that children "float at `main`", and that G3
+  was held as a pull request for that reason. The draft, written later in that run, says
+  "Each child migrates at its pin bump" again. `115/150` also records that a registry change
+  is "live estate-wide on the next push". So the fact was on record three times before the
+  draft; the finding is new only as applied to this design. Recurrence inside one run is
+  itself worth the principal's eye.
+- **XR2 (MAJOR) — stands; new.** No released surface discusses staleness per plane. The
+  earlier pass's prior-findings list carries an unruled MAJOR on staged-diff parsing in two
+  scanners, which is the same plane and makes the hook the weakest place to hang a block.
+- **XR3 (MAJOR) — stands; partly recorded, and widened.** `110/060` already asks for an
+  expiry at every granularity; the draft's `review_by` answers it for content entries only.
+  The audit itself names three exemptions that need no reason at all (a deferral substring in
+  `reviewscan`, `wrapscan` silencing any line that carries a sibling's marker, and the
+  `sizescan` budget token). The draft counts 26 mechanisms and is silent on all three. I did
+  not find them in phase 1; they belong in this finding.
+- **XR4 (MODERATE) — stands, with a credit owed to the draft.** The audit agrees on shape:
+  about 14 globs are over-wide and about 5 are genuinely whole-file. `115/050` records a near
+  miss in which real values reached an exempt fixture file on this public repo. Per-string
+  entries would close that gap, which is a real benefit the draft does not claim. The cost I
+  measured (a few hundred entries, or hashes that break on every edit) is still unstated.
+- **XR5 (MODERATE) — stands; new.** Nothing released weighs whether the fields are evidence.
+- **XR6 (MODERATE) — stands; new, with one credit.** GA3 (2026-08-05, note) said the
+  suppressed set was reachable only by grep. A register does answer that, and the draft is
+  right to want one place to list. The inline-ID hybrid would answer GA3 equally and would
+  also give `110/010` (a voided allowance is invisible) its orphan check.
+- **XR7 (MODERATE) — stands; partly recorded.** The commissioning item says in terms that a
+  span concept is "real cost, since `scan_text`'s finding model and every marker parser would
+  need a span concept added". The draft drops that sentence and prices nothing. `115/230`
+  restates the 2026-08-09 lesson: closing a grammar gap voids live markers estate-wide, so
+  count first. The hash-coupling half of the finding is new.
+- **XR8 (MODERATE) — stands; new.**
+- **XR9 (minor) — stands; new.**
+- **XR10 (minor) — stands; new.** The intent record shows the same run rewriting a worker's
+  commit before push because it would have published a private repo's posture. The care was
+  present that day; the draft simply does not apply it to its own file.
+- **XR11 — raised on reconcile from minor to MODERATE.** His 2026-09-12 words, in the
+  commissioning item: "just the specific characters in a text file, not the file, not the
+  line/row. Same for non-text files." The item then records that neither boundary scanner
+  reads a binary's contents at all, and calls that "worse than what Mike described". The
+  draft answers with a whole-file hash and presents the standard as met for binaries. It is
+  not: a whole-file entry is the widest content rung, applied to files nothing has scanned.
+  That gap is his to see stated plainly, not folded into a ladder rung.
+- **XR12 (minor) — stands, corrected in one part.** The audit supplies what I could not
+  re-derive: 91 markers at `1685fd8`, 84 of them (92%) unscoped. The earlier pass's census
+  ("about 90 live") agrees. But the audit adds "although nearly all cover a single rule" and
+  "only about 3 lines hold more than one finding". The draft keeps the 92% and drops both
+  qualifiers, which makes the marker gap read far larger than it was measured to be. My
+  other two bullets stand.
+- **XR13 (note) — stands, with one addition.** `110/110` (fixed 2026-10-03) made the file
+  walk skip gitignored paths. The nested-worktree glob in seven ignore files may therefore be
+  dead already, and deletable rather than migrated. Inferred from the item; not probed.
+- **XR14 (note) — stands.**
+
+#### Formed at reconcile
+
+**XR15 — MODERATE (formed at reconcile) — The design is larger than the measured gap and
+larger than the plan it was written under.** The commissioning item's own plan for this part
+reads: "one exception record format, shared through `allowmarker.py`, with span-level scope".
+That is a format. The draft delivers a central file, retires every inline marker and ignore
+file, adds hash locators, a blocking staleness rule and a helper CLI. The audit's numbers do
+not ask for that much: about 3 marked lines in 91 would gain anything from a span; the real
+width is in about 14 globs; and the universal gap is provenance, which is fields, not
+architecture. `115/170` is open and asks him whether a guard layer taking three-quarters of
+the open board is proportionate. The seeded question says he has twice said not to
+over-engineer. XR1, XR2, XR7 and XR8 are all costs of the wider design, not of his words.
+
+*Counsel:* put two sizes in front of him. **Small:** keep markers and ignore files; add the
+provenance fields to both (an entry ID on the line, the long fields in a per-entry record);
+scope the 84 unscoped markers to their rule; narrow the 14 globs; add a span form for the few
+lines that need it. **Large:** the register as drafted, with XR1–XR8 answered. State what the
+large one buys beyond the small one. On the evidence released to me, that is one listing
+surface and string-level cover inside fixture files.
+
+**XR16 — note (formed at reconcile).** The draft's quotation of his words stops before the
+third paragraph, on guards streaming. The draft does address streaming in its own section, so
+nothing is lost in substance; a verbatim block that is cut should say so.
+
+#### Overall, restated
+
+**FAIL as a design to accept as drafted — 3 MAJOR (XR1–XR3) · 7 MODERATE (XR4–XR8, XR11 raised
+on reconcile, XR15 formed at reconcile) · 3 minor (XR9, XR10, XR12) · 3 note (XR13, XR14,
+XR16).** Sixteen findings. Already on record elsewhere in some form: XR1 (three times), part
+of XR3, part of XR7, the measurements behind XR4 and XR12. New with this pass: XR2, XR5, XR6,
+XR8, XR9, XR10, the binary reading in XR11, and XR15. The direction — recorded provenance and
+string-level narrowness — matches his words. The size and the roll-out do not yet.
+
+Added to the follow-up checklist:
+
+- [ ] XR11 — state the binary gap to the principal as its own question.
+- [ ] XR15 — offer the small and the large design side by side before a ruling.
+- [ ] XR16 — mark the quotation as cut, or quote it whole.
+
+## Deferred material — folded in at reconcile
+
+# Deferred material — exception-register-design (open only after your findings are durably written)
+
+Sibling of `docs/reviews/2026-10-04-2215-exception-register-design-cold.md`
+under REVIEW.md rule 1's split; held by the orchestrator outside the worktree.
+Folded into the brief below the verdict when the verdict lands.
+
+## Intent records
+
+- `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` — the
+  authoring run's account. **Not opened** by the brief-writer.
+- `docs/roadmap/110-*/100-two-granularities-the-2026-08-09-audit-never-asked-about.md`
+  — the commissioning item. **Not opened.**
+- The principal's standing words, known to the brief-writer from its own memory
+  (recorded 2026-09-12 and 2026-10-03) and not from this run: every exception
+  records why, who, which session, whether ruled or automatic, and when; and is
+  scoped to the smallest unit — character span, then line, then file, then
+  folder — binaries included.
+
+## Prior verdicts and barred items on the same surfaces
+
+- every item under `docs/roadmap/110-estate-duplication-exception-audit-mike/`
+  and `docs/roadmap/115-guardrail-architecture-mike-commissioned/`
+- `docs/reviews/2026-10-03-0357-shared-allow-marker-grammar-cold.md` and
+  `docs/reviews/2026-08-05-1320-f1-guards-allowances-cold.md`
+
+## The queue pointer's own lens hints — the author's seeded questions, verbatim
+
+The pointer carries no lens paragraph — refs only.
+
+## Brief-writer's seeded questions (a floor, never a fence)
+
+Generate your own before reading these; a question you did not think of is a
+prompt to re-read the surface, not an agenda.
+
+1. Does the draft carry all five record fields and the full granularity ladder,
+   binaries included, as the principal stated them?
+2. The principal has said twice not to over-engineer: is the design the smallest
+   thing that meets his words?

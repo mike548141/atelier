@@ -272,7 +272,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued: the always-confirm list's copies match](roadmap/160-doctrine-review-owed/620-rule-4-cold-pass-queued-floor-list-membership.md)
 - ⏳ [Rule-4 cold pass queued: personal data held by purpose, with](roadmap/160-doctrine-review-owed/630-rule-4-cold-pass-queued-pii-by-purpose.md)
 - ⏳ [Rule-4 cold pass queued: pathscan and linkscan stream and cap](roadmap/160-doctrine-review-owed/640-rule-4-cold-pass-queued-bounded-pathscan-linkscan.md)
-- ⏳ [Rule-4 cold pass queued: the exception-register design, before it is](roadmap/160-doctrine-review-owed/650-rule-4-cold-pass-queued-exception-register-design.md)
+- [ ] 🛑 [Rule-4 cold pass queued: the exception-register design, before it is](roadmap/160-doctrine-review-owed/650-rule-4-cold-pass-queued-exception-register-design.md)
 - ⏳ [Rule-4 cold pass queued: the linear line reader in three guards](roadmap/160-doctrine-review-owed/660-rule-4-cold-pass-queued-linear-reader.md)
 
 ## build/ layer — open strands
