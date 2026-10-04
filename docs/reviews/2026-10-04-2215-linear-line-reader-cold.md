@@ -206,3 +206,326 @@ your reconcile.
 
 The author is not the taker, so record every finding and apply nothing; counsel
 on fixes is welcome, labelled as counsel.
+
+---
+
+## Verdict — phase 1 (2026-10-04 UTC)
+
+**Overall: PASS-WITH-FINDINGS — 1 MAJOR, 1 MODERATE, 3 minor, 4 notes.**
+
+The delta itself is clean: the new reader yields exactly what the old one did on
+every input I could construct, in all three guards, and the speed-up is real.
+The MAJOR is not in the three commits. It is in the hook plane's own line
+splitter, which the reader never touches, and it was found by doing what lens 4
+asks: hunting an attacker-chosen line ending through each guard's planes.
+
+### Provenance
+
+- **How I was spawned:** a subagent started by the batch orchestrator named in
+  *Spawn provenance*, with this brief as the only framing, plus house
+  instructions (prefix `LN`, phase 1 only, foreground runs, touch no other
+  repo). I am not the author's session and was not instructed by it.
+- **Tier:** Fable (`claude-fable-5-1`), checked at start.
+- **What I read:** this brief; the three landing commits in full (messages,
+  code and test diffs); the three guards' readers, scan loops, staged-diff
+  parsers, binary check and CLI at HEAD; the added `ReaderLinear` test classes;
+  `tools/allowmarker.py` (grep only); the reader functions of the other
+  streaming guards; `tools/README.md` by grep and four short excerpts;
+  `.githooks/pre-commit`; `tools/floor.py --help`; `.github/workflows/ci.yml`
+  by grep.
+- ⚠️ **Exposure, disclosed:** the landing commits' messages are the author's
+  own account (they name board item numbers, a claimed byte-identity check and
+  timings). They are part of the delta, so reading them is not barred, but they
+  are narrative and I re-drove each claim rather than leaning on it. One
+  `coldsweep` hit returned the title line of this pass's own queue pointer in
+  `docs/ROADMAP.md`. I opened nothing under the *Deferred reading* bar, no
+  prior verdict, and no other `2026-10-04-2215-*` file. No `--include-barred`.
+- **Where the probes ran:** a clone of the worktree under the session
+  scratchpad (`LN/probe`, at `f1a667b`), the pre-delta `tools/` extracted from
+  `55426a1^` beside it (`LN/old`), and throwaway git repositories under the
+  same directory for the staged plane. The worktree was only read.
+- **One deviation:** every `leakscan` run I made passed `--terms` with a
+  one-term scratch list, so the machine-local term list was never read and
+  nothing from it can appear here. Fixture strings were invented, assembled at
+  run time, and are not quoted.
+
+### Lens 1 — approach and assumptions
+
+Load-bearing assumptions, named before reading the tests:
+
+1. *Same lines.* Walking an offset and cutting once per chunk yields the same
+   `(lineno, text, is_final)` triples as cutting per line. **Holds** — see the
+   differential in lens 2.
+2. *Same windows.* The window test and the overlap tail see the same `pending`
+   as before, because the single cut happens before the window check.
+   **Holds** — mutation M4 (cut moved after the window check) is killed, and
+   the differential covers it at seven constant sets.
+3. *Same memory bound.* `pending` is no longer shrunk while a chunk is walked,
+   but it never exceeded window plus one chunk at the top of the walk in the
+   old shape either. **Holds** — the `BoundedMemory` tests pass in the full
+   suite.
+4. *"Linear" is new.* **Only loosely** — LN8.
+5. *The reader is the guards' line definition.* **False for the hook plane**,
+   which never calls it — LN1, LN3.
+
+What a line is, per guard and plane, established by reading and by probe:
+
+| Plane | Splits on | Used by |
+| --- | --- | --- |
+| tree (CI, `--root`) | LF only; CR kept in the text | the reader, all three |
+| staged (hook) | universal newlines, then `str.splitlines` | all three |
+| `scan_text` helper | `str.splitlines` | selftests, unit tests |
+
+The reader keeps the definition the old reader had (LF only), so line numbers
+and allow-marker binding on the tree plane are unchanged by this delta. For
+`conflictscan`, LF-only is also git's own definition, so it is the right one.
+The three definitions disagree with each other, and that disagreement is where
+LN1 lives.
+
+### Lens 2 — correctness and quality
+
+**The three readers are three copies, not one function.** With comments and
+docstrings stripped, the three `_iter_numbered_lines` bodies hash identically
+(31 code lines each). They differ only in comment text. The tests add three
+further copies of the old loop as oracles (LN6).
+
+**Reader differential, old (`55426a1^`) against new (HEAD):**
+
+| Input set | Cases | Old ≠ new | Spec model ≠ new |
+| --- | --- | --- | --- |
+| 49 generated classes × 6 small constant sets × 3 guards | 882 | 0 | 0 of 209 |
+| the same classes at the real constants × 3 guards | 147 | 0 | 0 of 43 |
+| 40,000 random inputs, random chunk/window/overlap × 3 | 120,000 | 0 | 0 of 28,816 |
+| every tracked file in the tree (933 files, 170,084 lines) × 3 | 2,799 | 0 | — |
+
+The generated classes are the brief's list: empty; no trailing newline; CRLF,
+lone CR, mixed; a line longer than every buffer; a line ending on the chunk,
+double-chunk and window boundaries and one byte either side; two- and
+four-byte characters at every offset across a chunk boundary; a CRLF pair split
+across a boundary; invalid and truncated UTF-8, including at a chunk edge;
+NULs before and after the binary check's reach; UTF-8 and UTF-16 BOMs; form
+feed, vertical tab, the C0 separators, NEL and the two Unicode line separators.
+The spec model is an independent whole-file decode split on LF; it is compared
+only where no window was cut. My first model disagreed 5,515 times; the fault
+was mine (it applied the binary check to the whole file where the reader
+applies it to the first chunk), and after correcting the control it agrees
+everywhere. Across guards the three copies agree with each other on every case.
+
+**Tool-level seeding, old CLI against new CLI, real constants, tree plane:**
+178 cells (four fixtures — a secret shape, a structural leak shape, a local
+term, a conflict opener — at up to 51 positions each). Output, stderr and exit
+code were identical old-to-new in all 178. Against expectation:
+
+| Position class | Result |
+| --- | --- |
+| first line; last line with no newline; CRLF file | found, right line |
+| line ending / starting at the chunk boundary, ±1 byte | found, right line |
+| fixture straddling the 1st and 2nd chunk boundary (3 offsets each) | found |
+| after 20,000 and after 150,000 short lines | found, lines 20001 / 150001 |
+| after a four-byte character split by a chunk; after invalid UTF-8 | found |
+| line after an overlong line; after a line of exactly W and W−1 chars | found, line 2 |
+| overlong line: fixture across the window cut, in the overlap, at the end | found once |
+| after CR, FF, VT, FS, NEL, U+2028 inside one LF-line | found, LF line number |
+| allow marker on the same line (also straddling a chunk) | suppressed |
+| allow marker on the previous or the next line only | not suppressed |
+| NUL in the first 8 KiB | file skipped; NUL later: scanned |
+
+Three cells missed my expectation and all three were my expectation, not the
+tools: a bare allow marker does not cover a local-term hit (the grammar wants
+the scoped form; non-goal), and a conflict opener placed after a BOM is not at
+column 0 (git writes the marker before the BOM, so the case is unreal).
+Recorded behaviours, identical old-to-new: LN7.
+
+**Tests.** The three test files pass (136, 159 and 41 tests), the three
+selftests pass, and the full suite passes once (1,669 tests, 388 s). Mutating
+the reader in the scratch clone, nine mutants per guard: eight are killed by
+`ReaderLinear` alone, including reverting to the per-line re-slice; one
+survives the whole test file in all three guards (LN4).
+
+**Timing** (this machine, Python 3.14.6, one process at a time):
+
+| Measure | Old | New |
+| --- | --- | --- |
+| reader only, 50 MB of 80-char lines | 17.8 s | 0.29 s |
+| reader only, 100 MB of 80-char lines | 31.9 s | 0.36 s |
+| reader only, 50 MB of 16-char lines | 83.3 s | 0.99 s |
+| reader only, 100 MB of 16-char lines | 160.5 s | 1.75 s |
+| reader only, one 100 MB line (24 windows) | 0.07 s | 0.07 s |
+| `conflictscan` CLI, 50 MB of 80-char lines | 15.0 s | 1.3 s |
+| `secretscan` CLI, same file | 38.4 s | 22.8 s |
+| `leakscan` CLI, same file, one-term list | 37.1 s | 21.7 s |
+| three CLIs, one 50 MB line | 0.7 / 17.2 / 17.3 s | 0.7 / 18.7 / 15.8 s |
+
+The commit messages' figures for `conflictscan` and `secretscan` reproduce
+within noise. The `leakscan` figure (65 s to 52 s) does not reproduce as
+absolute numbers with my one-term list, but the saving does (about 15 s in
+both), which is what the reader accounts for.
+
+### Lens 3 — completeness and harvest
+
+- Six other guards still carry the per-line re-copy the delta removed — LN2.
+  `linkscan` and `pathscan` already carry the offset walk.
+- `tools/README.md` describes the three guards' bounded reading in terms the
+  delta does not change (streamed, windows for an overlong line), so those
+  paragraphs still hold. It says nothing about reader speed for any guard, and
+  nothing about the hook plane's different line splitting (LN1). Its standing
+  residual says a binary file is skipped "on the first NUL byte"; the check is
+  a NUL in the first 8 KiB, and a NUL after that does not skip the file (LN9).
+
+### Lens 4 — security and privacy
+
+`/security-review` is **discharged by grounds** for this batch: it reads the
+session's pending diff, which in the shared worktree is other passes' drafts
+and this brief, and this is a landed-delta review. The code-altitude read was
+done by hand against the OWASP catalogue:
+
+- **Injection / command execution:** the delta adds no subprocess, shell, eval
+  or path construction. Clean.
+- **Insecure design — a guard that yields less:** the hunt the brief asks for.
+  On the tree plane there is no input on which the new reader yields less than
+  the old (tables above). On the hook plane there are inputs on which the
+  guards see less than the tree plane does — **LN1**.
+- **Resource consumption:** memory bound unchanged and still test-pinned; time
+  improved. One enormous line costs the same as before.
+- **Integrity failures / logging:** findings' excerpts, counts and exit codes
+  are byte-identical old-to-new. A broken staged scan exits with the findings
+  code, not the broken-scan code — LN5.
+- **Sensitive data in tests:** the added tests use plain filler bytes; no
+  credential-shaped fixture was added.
+- **Privacy:** nothing personal in the delta.
+
+### Findings
+
+**LN1 — MAJOR — the pre-commit plane of `secretscan` and `leakscan` never scans
+text that follows a CR, form feed, vertical tab, C0 separator, NEL or Unicode
+line separator on an added line, nor any added line that begins with two plus
+signs.** *Not introduced by this delta; found under lens 4.* The staged path
+does not use the reader. It runs `git diff --cached` with text-mode decoding
+(which turns every lone CR into LF) and then `str.splitlines()` (which also
+splits on FF, VT, FS, GS, RS, NEL, U+2028 and U+2029). Every fragment after
+such a split no longer starts with the diff's plus sign and is dropped. An
+added line whose own text begins with two plus signs arrives as three and is
+taken for a file header or skipped. Probe, same content on both planes, per
+guard: a control line is found on both; the fixture after each of seven
+separators is found by the tree plane (exit 1) and passes the staged plane
+(exit 0, zero findings); the same for a line beginning with two plus signs,
+with or without a following space — 9 of 9 bypasses in each of the two guards.
+A whole file saved with CR-only line endings is the unadversarial case: the
+hook scans its first line and nothing else. CI's tree plane does catch all of
+these, but this repository is public and a push is the publication, so CI
+reports the secret after it has left. `tools/README.md`'s standing residual
+does not name this class and no test pins either behaviour. `conflictscan` has
+the same parser but its markers are LF-line-anchored, so I found no miss
+there. I cannot tell from unbarred material whether an earlier pass recorded
+this; that is for reconcile.
+*Counsel:* decode the diff as bytes with `errors="replace"` and split on LF
+only, as the reader does, so both planes share one definition of a line; treat
+`+++ ` as a header only before the first hunk header of a file; pin each
+separator and the two-plus case with a staged-plane test in both guards.
+
+**LN2 — MODERATE — the harvest stopped at three: six more guards carry the
+same per-line re-copy.** `reviewscan`'s reader is the old loop verbatim;
+`datescan`, `wrapscan`, `spellscan`, `stampscan` and `sizescan` re-slice the
+remaining decoded chunk once per line inside their `feed` helper, which is the
+same cost. Measured on 12.5 MB of 16-char lines: 16 to 18 s each in those six,
+against 0.2 s in `conflictscan`, 0.5 s in `linkscan` and 0.6 s in `pathscan`.
+Three of the six run enforced on both floor planes. The commit messages frame
+the work as porting `linkscan`'s fix to the guards that had the loop, and
+nothing a reader of `tools/README.md` or the unbarred tree can find records
+the remaining six (`coldsweep` for the shape: 0 hits). It may be recorded
+under the barred board sections; reconcile will say.
+
+**LN3 — minor — the commit messages' "byte-identical for `--staged`" proves
+nothing about the reader.** The staged path never calls
+`_iter_numbered_lines`, so its output could not have changed. All three
+messages cite it beside the tree-plane check as evidence of equivalence. The
+tree-plane half of the claim I re-drove and it holds (human and JSON output
+and exit code identical, all three guards, on the clone's tree).
+
+**LN4 — minor — the equivalence test is thinner than its docstring.** It runs
+eleven fixed inputs at one constant set (64 / 300 / 20) with no random inputs,
+no separator other than LF and CRLF, no NUL and no BOM. With a 64-byte chunk
+`pending` grows 256 → 320 and never equals the 300 window, so the mutant that
+changes the window test from "at least" to "more than" survives the whole test
+file in all three guards. The linearity check uses one 340 KB file, smaller
+than one read chunk, so it proves the bound within a chunk and not across
+chunks. The delta did not change the window test, and my differential covers
+the gap for this delta; the pin is what is thin.
+
+**LN5 — minor — a staged file that is not valid UTF-8 crashes all three guards
+with a traceback and exit code 1.** Text-mode decoding of the diff raises
+`UnicodeDecodeError`. It fails closed, which is right, but exit 1 is these
+tools' "findings" code where 2 is "a broken scan", and the contributor sees a
+stack trace and no remedy. Pre-existing; same root as LN1 and closed by the
+same counsel.
+
+**LN6 — note — three identical reader copies and three identical oracle
+copies, with nothing that fails if one drifts.** The commit messages say the
+merge decision is owned elsewhere; recorded so reconcile can check that it is.
+
+**LN7 — note — recorded tree-plane behaviours, all identical old-to-new.** An
+allow marker binds to the whole LF-line, so a marker before a CR, form feed or
+U+2028 suppresses a hit after it that an editor may draw on a different line.
+On an overlong line, `secretscan` and `leakscan` bind a marker only within its
+own window (fails closed); `conflictscan` binds it across windows (by design,
+its finding is decided on the first window). The docstrings still call the
+pre-streaming reader's `splitlines` behaviour "identical"; for files holding
+those separators the line numbers changed at that earlier change, not here.
+
+**LN8 — note — "linear" overstates the before.** The old reader was already
+linear in file size (4.4, 8.4, 17.8, 31.9 s for 12.5 to 100 MB): its per-line
+cost was bounded by the fixed chunk. The commit bodies say "quadratic in lines
+per chunk", which is accurate; the subject lines and test class name read as a
+complexity-class change. What landed is a constant factor of about 50 to 90 in
+the reader, and 1.6 to 11 times at tool level.
+
+**LN9 — note — README wording on the binary skip.** "Skipped silently on the
+first NUL byte" should read as a NUL within the first 8 KiB; a text file with
+one early NUL is skipped whole by both planes (git also calls it binary), a
+later NUL is not. Pre-existing and disclosed in kind, imprecise in extent.
+
+### Re-run ledger
+
+All in the scratch clone at `f1a667b` unless stated; exit codes read directly.
+
+| Command | Result |
+| --- | --- |
+| `python3 tools/floor.py --plane hook --root . --tools tools` | exit 0 |
+| `python3 tools/floor.py --plane ci --root .` | exit 0 |
+| `python3 tools/{leakscan,secretscan,conflictscan}.py --selftest` | exit 0 × 3 |
+| `python3 -m unittest test_leakscan` (in `tools/`) | 136 tests, OK |
+| `python3 -m unittest test_secretscan` | 159 tests, OK |
+| `python3 -m unittest test_conflictscan` | 41 tests, OK |
+| `python3 -m unittest discover -s tools -p 'test_*.py'` (once) | 1,669 tests, OK, 388 s |
+| reader differential (`diff_readers.py`) | 121,029 runs, 0 old≠new |
+| same, spec model after control fix | 29,068 checked, 0 mismatches |
+| tree differential, 933 tracked files × 3 guards | 0 mismatches |
+| reader body hash across the three guards | identical |
+| tool-level seeding (`seed_tools.py`), old CLI vs new CLI | 178 cells, 0 differ |
+| old CLI vs new CLI on the clone's tree, human and `--json` | identical × 6 |
+| staged-plane probe (`staged_probe.py`), 13 cases × 2 guards | 18 bypasses (LN1) |
+| staged non-UTF-8 probe, 3 guards | exit 1, traceback × 3 (LN5) |
+| mutation run (`mutate.py`), 9 mutants × 3 guards | 24 killed, 3 survive (LN4) |
+| timing (`timing.py`), reader and CLI, old vs new | table in lens 2 |
+| other guards' readers, 12.5 MB of 16-char lines | table in LN2 |
+| `coldsweep` for the remaining old-shape readers | 0 hits |
+
+Not re-run: the authors' `--staged` identity check on atelier's own index (the
+staged path does not touch the reader — LN3), and their 50 MB `leakscan`
+timing with the machine-local term list (deliberately not read).
+
+### Follow-up checklist
+
+- [ ] LN1 — one line definition for both planes of `secretscan` and
+      `leakscan`; staged-plane tests for each separator and the two-plus line;
+      name the class in the README residual until it is closed. Mike's call on
+      urgency: it is a live gap on the commit path of a public repository.
+- [ ] LN2 — port the offset walk to the six remaining readers, or record why
+      not where a README reader will find it.
+- [ ] LN3 — keep the vacuous `--staged` evidence out of any later record that
+      quotes these commits.
+- [ ] LN4 — add a random-input equivalence case, an exact-window case and a
+      multi-chunk linearity case.
+- [ ] LN5 — broken staged scan exits 2 with a remedy line, not a traceback.
+- [ ] LN6 — confirm at reconcile that the copies' merge decision has an owner.
+- [ ] LN7, LN8, LN9 — wording only; fold into the next edit of those surfaces.
