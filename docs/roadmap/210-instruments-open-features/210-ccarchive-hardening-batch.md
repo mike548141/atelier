@@ -24,3 +24,47 @@
 
       Rulings first: any other open ccarchive decision is walked with Mike
       before the build starts, so the build does not land on an unruled shape.
+
+      **The rulings walk, 2026-10-05, before any build.** Three further
+      questions, and two of his answers are his own words, so they are
+      rulings and quoted whole:
+
+      - **Index repair — Mike's ruling, verbatim:** *"Yes fix it from the
+        archive but it should be when we can tell that ccarchive has failed
+        part way i.e. this is an error handling condition. We don't want
+        someone able to add files (copy files to ccarchives destination) and
+        then they get adopted as ccarchive data when they are not. The idea of
+        signing the archives data and the manifest is integrity of the data as
+        well as a manifest being more efficent to read than reading the data
+        archived. So whatever you do needs a way to handle that, perhaps we fix
+        it from the archive as you recommended but if there is data in the
+        archive that is not signed then we compare it to the primary data
+        (local /live copy) and if its identical (SHA hash etc) we can sign it
+        and update the index as expected. If it is not identical to the priary
+        data maybe there are other steps you can recommend before we fallback
+        to erroring to the user to explain the situation"*. The rule built from
+        it, played back and answered *"Yes, build that"*: a run keeps a private
+        intent log beside the signing key, off the archive, of each mirror it
+        is about to write; (1) after a run dies, the next run repairs the index
+        only for mirrors that log says ccarchive wrote; (2) any other archive
+        file the signed index does not vouch for is adopted only if its
+        SHA-256 equals the live copy's; (3) anything else is moved to a
+        not-trusted folder in the archive, never deleted and never adopted, the
+        live copy is archived properly, and the run exits non-zero explaining
+        what was set aside and why. This settles HL15 and HL6.
+      - **Overlapping runs — Mike's ruling, verbatim** (a lock-free design was
+        offered first): *"No that sounds worse than dealing with locks that get
+        stuck. Let use the lock option but there needs to be a way to tell if a
+        lock is stuck and to clear the stuck lock"*. So: a lock, a way to see
+        whether it is stuck, and a way to clear a stuck one.
+      - **Old versions — answer:** *"Any edit that isn't a pure addition"* —
+        whenever a non-transcript document changes other than by appending,
+        the previous mirror is kept as a dated copy. Widens the shrink-only
+        answer above. Transcripts keep the strict refusal.
+      - Also answered, off this item: encryption's crypto source is C′
+        (`210/030`).
+      - Not put to Mike, and why: the HL9/MC9 and HL4/MC2 severity splits are
+        moot because every one of those findings is built; `210/200`'s
+        evicted-file choice dissolves because a run will no longer read a
+        mirror to replace it; `210/160`'s "session" definition is the
+        builder's call, per its own text.

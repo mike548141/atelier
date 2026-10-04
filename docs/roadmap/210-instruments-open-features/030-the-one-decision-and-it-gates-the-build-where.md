@@ -15,3 +15,10 @@
       Review **WARRANTED when this moves from design to build** (touches
       SECRETS.md + the instruments crypto surface); the design pass itself
       authored no doctrine, so nothing is queued yet.
+      - [x] ✅ **Answered 2026-10-05 — C′.** Put to Mike in plain words as
+            four options (C′ recommended, A, all-in-house, decide later); he
+            picked *"Write with 'age', read in-house (Recommended)"*. An answer
+            to options, not a ruling in his own words. The build is still not
+            started; the design's build-time sub-decisions (recipient set,
+            shared crypto module, identity file or keychain, migration timing,
+            doctrine placement) stay open until it is.
