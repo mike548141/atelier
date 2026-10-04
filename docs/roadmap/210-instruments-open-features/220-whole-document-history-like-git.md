@@ -3,7 +3,8 @@
       git** (Mike, 2026-10-05, mid-run)
 
       His words: *"I wonder if the memory notes (and similar use cases) should
-      be more like a git history. Something to consider"*.
+      be more like a git history. Something to consider"*, then *"Or a diff
+      maybe"* — so the shape is open between full versions and stored diffs.
 
       Context at filing: ccarchive mirrors each file as one compressed copy,
       which suits append-only transcripts. Memory notes are whole documents
