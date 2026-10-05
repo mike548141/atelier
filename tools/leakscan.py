@@ -1009,7 +1009,9 @@ def render_human(findings: list[Finding], warning: str | None,
         # Line 0 means the hit is in the PATH itself (G2) — say so, because
         # ':0' would otherwise read as a line number nobody can open.
         where = f"{f.path}:{f.line}" if f.line else f"{f.path} (in the path name)"
-        lines.append(f"  {where}  [{f.severity}/{f.kind}] {f.rule} → {f.excerpt}")
+        lines.append(report.with_id(
+            f"  {where}  [{f.severity}/{f.kind}] {f.rule} → {f.excerpt}",
+            "leakscan", f.rule))
     if over_cap:
         lines.append(report.over_cap_line(over_cap, MAX_MATERIALIZED_FINDINGS))
     if tally is not None:
@@ -1129,7 +1131,8 @@ def _main(argv: list[str] | None = None) -> int:
             "clean": not findings and not tally.findings_over_cap,
             "scanned_local_terms": scanned_local,
             "warning": warning,
-            "findings": [asdict(f) for f in findings],
+            "findings": report.finding_dicts("leakscan", findings,
+                                             lambda f: f.rule),
             "findings_over_cap": tally.findings_over_cap,
             "suppressed": {
                 "by_allow_marker": tally.marker_total,

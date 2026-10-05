@@ -5,6 +5,20 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-10-06 — allow-markers that name a kind, and finding IDs, `115/080` part 3)
+- `licenscan`, `sizescan` and `pointerscan` read a marker's scope and ignored
+  it, so any marker exempted every kind. A scope that names one of their kinds
+  now exempts that kind only. The unscoped form, and a scope naming none of
+  the kinds, exempt exactly what they did before, so no existing marker
+  changes meaning. Every other marker form gives byte-identical output in 422
+  fixture runs, and 174 runs over 29 real trees are identical. No marker in
+  any of those trees names one of the three scanners' kinds.
+- Nine scanners end each finding line with `  [<scanner>:<kind>]` and add an
+  `id` to each `--json` finding (`ids` in `sizescan`). The kind is the scope
+  the scanner's marker accepts, so the ID copies into the narrowest marker.
+  Every finding line changes; nothing else in the output does, and no exit
+  code changes.
+
 ### Changed (2026-10-05 — one shared exit and reporting contract for the guards, `115/080` part 3)
 - `tools/report.py` holds the exit codes (0 clean · 1 blocking findings · 2 the
   scan broke) and the report lines fourteen scanners printed as copies. Every

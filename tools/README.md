@@ -1334,6 +1334,27 @@ advisory checks. `pointerscan.py` and `board.py` keep their own copies for now.
 literals. What a scanner prints reaches every child's CI at its next run, so a
 shared edit that changes one of those lines fails the suite first.
 
+**Finding IDs.** Nine scanners end each finding line with a namespaced ID,
+`<scanner>:<kind>`, and give each `--json` finding an `id` field (`sizescan`,
+one finding per file with up to two kinds, gives an `ids` list). The kind is
+exactly the scope that scanner's allow-marker accepts, so the ID copies into
+the narrowest marker there is:
+
+```text
+  a.txt:1  [high/structural] email → a.b…nz (17 chars)  [leakscan:email]
+  a.md:1  [us-spelling] 'color' → 'colour'  [spellscan:color]
+```
+
+`leakscan:email` becomes `# leakscan:allow:email: <reason>`. The kind is a
+rule name in `secretscan` and `leakscan`, the word in `spellscan`, and the
+finding's kind in `linkscan`, `datescan`, `pathscan`, `licenscan`, `sizescan`
+and `pointerscan`. A finding with no line to carry a marker (a hit in a path
+name, a missing LICENSE, an `--expect` mismatch) still gets an ID. The rest of
+each line, and every exit code, is unchanged (`115/080`). `conflictscan`,
+`wrapscan` and `indexscan` print none: their marker takes no scope, so there
+is no kind a marker could name. `reviewscan`, `publishscan` and `harvestscan`
+have no per-finding kind either.
+
 ## Tests
 
 ```sh

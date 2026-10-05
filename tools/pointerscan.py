@@ -176,6 +176,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import allowmarker  # noqa: E402
 import filewalk  # noqa: E402
+import report  # noqa: E402  (only `with_id`/`finding_dicts`, 115/080)
 
 # The files this reads. The pointer grammar is a ROADMAP convention; nothing
 # else in the tree carries it, and pointing this at prose would be the
@@ -844,7 +845,8 @@ def main(argv: list[str] | None = None) -> int:
     findings = scan(paths, root, _suppressed)
 
     if args.json:
-        print(json.dumps({"findings": [asdict(f) for f in findings]}, indent=2))
+        print(json.dumps({"findings": report.finding_dicts(
+            "pointerscan", findings, lambda f: f.detector)}, indent=2))
         return 0
 
     if not findings:
@@ -861,7 +863,8 @@ def main(argv: list[str] | None = None) -> int:
           f"{len(state)} queue state).")
     print()
     for f in findings:
-        print(f"  {f.path}:{f.line}  [{f.detector}] {f.reason}")
+        print(report.with_id(f"  {f.path}:{f.line}  [{f.detector}] {f.reason}",
+                             "pointerscan", f.detector))
         print(f"      {f.excerpt}")
     print()
     if grammar:

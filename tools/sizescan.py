@@ -647,6 +647,13 @@ def scan_paths(paths: list[Path], root: Path,
     return findings
 
 
+def _kinds(f: Finding) -> list[str]:
+    """The kinds one file's finding carries, in report order."""
+    return ([k for k, n in (("cold-content", f.cold_items),
+                            ("harvest-integrity", f.live_items),
+                            ("size-advisory", f.over)) if n])
+
+
 def _suppression_line(files_allowed: int, files_by_glob: int) -> str:
     """Rule (b): known zeros printed, so two runs can be compared."""
     return report.suppressed_line(
@@ -675,19 +682,22 @@ def render_human(findings: list[Finding], files_allowed: int = 0,
                                              -x.live_items, -x.over)):
         lines.append(f"  {f.path}  {f.lines} lines")
         if f.cold_items:
-            lines.append(f"      → {f.cold_items} completed [x] item(s) to harvest "
-                         f"[cold-content, gated]")
+            lines.append(report.with_id(
+                f"      → {f.cold_items} completed [x] item(s) to harvest "
+                f"[cold-content, gated]", "sizescan", "cold-content"))
             if f.store:
                 lines.append(f"        {f.store}")
         if f.live_items:
-            lines.append(f"      → {f.live_items} live state marker(s) "
-                         f"([ ]/[~]/⏳ list items) in an archive store "
-                         f"[harvest-integrity, gated]")
+            lines.append(report.with_id(
+                f"      → {f.live_items} live state marker(s) "
+                f"([ ]/[~]/⏳ list items) in an archive store "
+                f"[harvest-integrity, gated]", "sizescan", "harvest-integrity"))
             if f.store:
                 lines.append(f"        {f.store}")
         if f.over:
-            lines.append(f"      → over the ~{f.reference}-line reference (+{f.over}) "
-                         f"[size-advisory]")
+            lines.append(report.with_id(
+                f"      → over the ~{f.reference}-line reference (+{f.over}) "
+                f"[size-advisory]", "sizescan", "size-advisory"))
     if n_live:
         lines.append("\n  Harvest-integrity (fails --check): a live marker in an "
                      "archive store is either a botched harvest (open work "
@@ -764,7 +774,12 @@ def _main(argv: list[str] | None = None) -> int:
     if args.json:
         print(json.dumps({
             "clean": not findings,
-            "findings": [asdict(f) for f in findings],
+            # One finding per FILE, carrying up to two kinds, so `ids` (a
+            # list, one per kind present) rather than the one `id` the
+            # per-line scanners give.
+            "findings": [dict(asdict(f), ids=[report.finding_id("sizescan", k)
+                                              for k in _kinds(f)])
+                         for f in findings],
         }, indent=2))
     else:
         print(render_human(findings, counts["files_allowed"],

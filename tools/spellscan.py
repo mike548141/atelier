@@ -700,7 +700,12 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
         return out + ("\n" + tally.summary() if tally is not None else "")
     lines = [report.findings_head("spellscan", len(findings))]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
-        lines.append(f"  {f.path}:{f.line}  [{f.kind}] {f.match!r} → {f.suggestion!r}")
+        # The ID names the WORD: this marker is scoped by word, not by kind
+        # (every finding is `us-spelling`), so the word is what a marker must
+        # carry to exempt this finding and no other.
+        lines.append(report.with_id(
+            f"  {f.path}:{f.line}  [{f.kind}] {f.match!r} → {f.suggestion!r}",
+            "spellscan", f.match.lower()))
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
@@ -760,7 +765,8 @@ def _main(argv: list[str] | None = None) -> int:
         print(json.dumps({
             "clean": not findings,
             "warn": args.warn,
-            "findings": [asdict(f) for f in findings],
+            "findings": report.finding_dicts("spellscan", findings,
+                                             lambda f: f.match.lower()),
             "suppressed": {
                 "by_allow_marker": tally.marker_total,
                 "by_allow_marker_rule": tally.by_marker,

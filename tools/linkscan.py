@@ -910,7 +910,9 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     lines = [report.findings_head("linkscan", len(findings) + over_cap,
                                   noun="broken internal link(s)", tail=".\n")]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
-        lines.append(f"  {f.path}:{f.line}  [{f.kind}] {f.target} → {f.detail}")
+        lines.append(report.with_id(
+            f"  {f.path}:{f.line}  [{f.kind}] {f.target} → {f.detail}",
+            "linkscan", f.kind))
         if f.suggest:
             lines.append(f"      ↳ did you mean: {f.suggest}")
     if over_cap:
@@ -964,7 +966,8 @@ def _main(argv: list[str] | None = None) -> int:
     if args.json:
         payload = {
             "clean": not total,
-            "findings": [asdict(f) for f in findings],
+            "findings": report.finding_dicts("linkscan", findings,
+                                             lambda f: f.kind),
             "findings_over_cap": tally.findings_over_cap,
             "suppressed": {
                 "by_allow_marker": tally.marker_total,

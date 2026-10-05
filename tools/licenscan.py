@@ -673,7 +673,8 @@ def render_human(rep: Report) -> str:
                                       tail=f" — repo licence {lic}. Publish blocked.\n"))
     for f in sorted(rep.findings, key=lambda x: (x.severity != "high", x.path, x.line)):
         loc = f"  {f.path}:{f.line}  " if f.path else "  "
-        lines.append(f"{loc}[{f.severity}/{f.kind}] {f.message}")
+        lines.append(report.with_id(f"{loc}[{f.severity}/{f.kind}] {f.message}",
+                                    "licenscan", f.kind))
     lines.append("")
     lines.append(_suppression_line(rep))
     lines.append(f"\n  A false positive: append '# {ALLOW_MARKER}: <reason>' to the")
@@ -717,7 +718,8 @@ def _main(argv: list[str] | None = None) -> int:
             "repo_license": rep.repo_license,
             "repo_license_declared": rep.repo_license_declared,
             "repo_license_path": rep.repo_license_path,
-            "findings": [asdict(f) for f in rep.findings],
+            "findings": report.finding_dicts("licenscan", rep.findings,
+                                             lambda f: f.kind),
         }, indent=2))
     else:
         print(render_human(rep))
