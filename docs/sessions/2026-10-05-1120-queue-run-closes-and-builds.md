@@ -130,3 +130,18 @@ closes. `020` stays open under 🎯, because the item reserves sign-off on
 the wording and the home to Mike. Both are covered by one doctrine pass at
 `160/710`. The worker also found four defects in the record it worked from,
 and they are filed at the run's close.
+
+## Filed by this run, and `200/110` done inline
+
+- `115/250`: pointerscan still walks the whole tree, including harness
+  worktrees. It never got `110/110`'s fix. Claimed for a Sonnet worker.
+- `200/110`: the `200` mining record and its section README hold stale
+  statements. The README sentence is corrected, and the record carries a
+  dated note under its head with its body unchanged. One of the worker's
+  four reports was dropped: a 2026-07-22 count that was true when written.
+- `320/490` gains its third atelier instance of committed tool-call markup.
+
+⚠️ **Recorded against this run:** `200/110` was filed open, then done inline
+without a claim commit in between. That breaks claim-before-work. The
+exposure was nil, because no other atelier session was live and the item
+was minutes old, but the rule has no "it was small" exception.

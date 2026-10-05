@@ -313,7 +313,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Where does the registry live? — the SCANNER half is answered and built](roadmap/200-anti-slop-invariant-registry-promote-rec/080-where-does-the-registry-live-the-scanner-half.md)
 - [ ] 🔎 [Two corroboration failures worth minting, both self-caught by the](roadmap/200-anti-slop-invariant-registry-promote-rec/090-two-corroboration-failures-worth-minting-from.md)
 - ✅ 🔎 [The R2 survey found eleven places where the doctrine's own copies](roadmap/200-anti-slop-invariant-registry-promote-rec/100-r2-found-eleven-live-contradictions.md)
-- [ ] 🔎 [The mining record behind this section, and this section's README,](roadmap/200-anti-slop-invariant-registry-promote-rec/110-the-mining-record-and-this-readme-are-stale.md)
+- ✅ 🔎 [The mining record behind this section, and this section's README,](roadmap/200-anti-slop-invariant-registry-promote-rec/110-the-mining-record-and-this-readme-are-stale.md)
 
 ## instruments/ — open features
 

@@ -103,7 +103,8 @@ candidates; record:
 earlier; S2 `pathscan` `b738f21` + S4 `stampscan` `2fe97f3` this run — detail →
 [`ROADMAP-DONE.md`](../../ROADMAP-DONE.md)). **S1/S3/S5 first-of-kind reviews are DONE**
 (S3 at 0618; S1 + S5 at 0707 — verdicts + follow-ons below). **S2 + S4 reviews
-are the open first-of-kind work (⏳ below).**
+were the open first-of-kind work at that point** — both ran 2026-07-26 (below;
+corrected 2026-10-05, `200/110`).
 - 🎯 REVIEWED 2026-07-26 (rule-4 Fable cold pass): PASS-WITH-FINDINGS 3M/5m
   — [verdict](../../reviews/2026-07-26-2215-pathscan-s2-cold.md); PS1–PS8 await
   Mike's ruling (rule 3). Recommendation: keep advisory, five preconditions

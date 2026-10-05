@@ -1,5 +1,10 @@
 # Anti-slop invariant candidates — mined from atelier's own review corpus
 
+> **Note added 2026-10-05 (`200/110`), the body below unchanged.** The appendix
+> of full ID citations promised below was never written: the V-blocks are the
+> only citation list. The file's last two lines are leftover tool-call markup
+> from the session that wrote it (`320/490`'s class).
+
 *Records-only capture (2026-07-22, wt `atelier-antislop-mine`). This is the
 **mining half** of the ROADMAP "Anti-slop invariant registry — promotion rule"
 item. It produces **CANDIDATES for Mike's per-item approval** — no doctrine
