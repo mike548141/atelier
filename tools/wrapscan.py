@@ -31,10 +31,15 @@ shipping of the wrap class in three cycles". Nothing mechanical caught any of
 the three — a human reviewer kept re-making a judgement a column count makes
 trivially. This scanner is that column count.
 
-FIRST-OF-KIND, WIRED ADVISORY-ONLY (don't-stack), matching datescan's rollout
-discipline: this scanner has not yet earned an independent review, so — once
-wired — it belongs in CI in `--warn` mode only, never in the blocking
-pre-commit hook, until reviewed.
+WIRING (verified 2026-10-05): ENFORCED. The floor registry (`tools/floor.py`) runs this
+scanner blocking on both planes — the pre-commit hook and CI — and
+`floor.py --list` prints it `enforced`. It shipped first-of-kind and
+advisory-only (CI in `--warn` mode, never the hook, until reviewed), matching
+datescan's rollout discipline; Mike's ruling flipped it to blocking in CI in
+4f1c10c (2026-07-23), once the doctrine-surface scope scanned clean, and the
+registry (40c7a22, 2026-07-25) then put it on the hook plane too. `--warn`
+remains a report-only mode for re-baselining; the registry's `advisory` form
+uses it.
 
 THE CHECK — one measurement, six exemptions:
 
@@ -67,7 +72,7 @@ not rounded to "handled":
     continuation line (genuine wrappable prose sitting at 4+ columns under a
     list marker) — a false negative, accepted because a false *positive*
     inside real fenced/quoted code is the worse failure mode for a
-    first-of-kind advisory scanner.
+    first-of-kind scanner (it shipped advisory-only; now enforced).
 
   * TABLE ROWS. A line is treated as a Markdown table row (a cell delimiter)
     and exempt whole-line only when it carries a STRUCTURAL pipe signal: it
@@ -176,7 +181,7 @@ STATED RESIDUAL, HONESTLY (do not round this to "solved"):
     what the gate itself scans.
 
 Exit codes (fail-safe — anything but a clean scan is non-zero, UNLESS --warn):
-  0  clean; or --warn was given (advisory rollout — never blocks)
+  0  clean; or --warn was given (report-only mode — never blocks)
   1  findings, and --warn was NOT given
   2  usage / config error (a broken scan is NOT a pass)
 
@@ -602,9 +607,9 @@ def _main(argv: list[str] | None = None) -> int:
     ap.add_argument("--root", default=".",
                     help="repo root for .wrapscanignore and relative paths")
     ap.add_argument("--warn", action="store_true",
-                    help="report findings but always exit 0 (advisory / "
-                         "warn-first rollout — this scanner is first-of-kind "
-                         "and not yet reviewed; it must not gate)")
+                    help="report findings but always exit 0 (report-only "
+                         "mode, for re-baselining or a warn-first rollout; "
+                         "the floor registry runs it without this by default)")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--limit", type=int, default=LINE_LIMIT,
                     help=f"column limit; lines longer are findings (default: {LINE_LIMIT})")

@@ -11,10 +11,15 @@ that cost a five-file sweep when a record was stamped from local NZ time
 intent alone fails the next tired session the same way; this is the machine
 that catches the shape of the mistake before it lands.
 
-FIRST-OF-KIND, WIRED ADVISORY-ONLY (don't-stack). This scanner has not yet
-earned an independent review, so it is wired into CI in `--warn` mode only —
-it reports, it never gates — and it is deliberately NOT in the blocking
-pre-commit hook. Do not add it there until it has been reviewed.
+WIRING (verified 2026-10-05): ENFORCED. The floor registry (`tools/floor.py`) runs this
+scanner blocking on both planes — the pre-commit hook and CI — and
+`floor.py --list` prints it `enforced`. It shipped first-of-kind and
+advisory-only (`--warn` in CI, kept out of the hook until reviewed); the
+flip to blocking in CI was Mike's ruling in d24caec (2026-07-23), after the
+cold review passed and the docs re-baselined to zero genuine breaches, and
+the registry (40c7a22, 2026-07-25) then put it on the hook plane too.
+`--warn` remains a report-only mode for re-baselining; the registry's
+`advisory` form uses it.
 
 Two independent checks, both over `docs/**` Markdown by default:
 
@@ -107,8 +112,8 @@ STATED RESIDUAL, HONESTLY (do not round this to "solved"):
     (see above), and a *use* that happens to sit inside quotation marks for
     an unrelated reason (a quoted sentence that itself says "we'll ship
     tomorrow") would wrongly exempt. Both directions are accepted trade-offs,
-    not blind spots — they're the reason this scanner ships advisory-only
-    until reviewed.
+    not blind spots — they're the reason this scanner first shipped
+    advisory-only, until reviewed.
   * "today" is narrowed to date-adjacent contexts (a dating cue word, or an
     ISO date elsewhere on the line — see TODAY_RX/_is_date_adjacent_today,
     DSR3), because the reviewed corpus found it used ~9:1 as a "currently"
@@ -132,7 +137,7 @@ STATED RESIDUAL, HONESTLY (do not round this to "solved"):
     code comments, commit messages, and non-Markdown prose are out of scope.
 
 Exit codes (fail-safe — anything but a clean scan is non-zero, UNLESS --warn):
-  0  clean; or --warn was given (advisory rollout — never blocks)
+  0  clean; or --warn was given (report-only mode — never blocks)
   1  findings, and --warn was NOT given
   2  usage / config error (a broken scan is NOT a pass)
 
@@ -733,9 +738,9 @@ def _main(argv: list[str] | None = None) -> int:
     ap.add_argument("--root", default=".",
                     help="repo root for .datescanignore and relative paths")
     ap.add_argument("--warn", action="store_true",
-                    help="report findings but always exit 0 (advisory / "
-                         "warn-first rollout — this scanner is first-of-kind "
-                         "and not yet reviewed; it must not gate)")
+                    help="report findings but always exit 0 (report-only "
+                         "mode, for re-baselining or a warn-first rollout; "
+                         "the floor registry runs it without this by default)")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--selftest", action="store_true",
                     help="run built-in checks and exit")

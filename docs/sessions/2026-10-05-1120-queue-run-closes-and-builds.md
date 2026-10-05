@@ -102,3 +102,17 @@ reached from another record, so each now carries a reasoned allow-marker
 (why, who, session, not a ruling, when) instead of a back-dated index line.
 That last part is the orchestrator's own judgement. A reviewer may prefer
 index lines. Code pass queued at `160/700`.
+
+## `115/240`: three enforced scanners stop calling themselves advisory
+
+A Sonnet worker fixed the docstrings, the help text and the README
+(`4553814`). Each scanner now names the commits that wired it blocking. The
+orchestrator replaced a drifting "as of now" with a date. This was
+description only, so no review is owed.
+
+**Machine load.** By this point the machine's load average was 350–470.
+That came from this run's parallel workers plus test runs in other repos'
+live sessions. Two memory-bound tests (`BoundedMemory` in `test_pins` and
+`test_spellscan`) timed out for three different workers, identically on an
+untouched base. The run stopped dispatching new workers until the in-flight
+ones drained, and re-runs those two tests at close.
