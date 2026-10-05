@@ -348,5 +348,204 @@ class TestScannerLinePins(unittest.TestCase):
                          "  suppressed: 0 record(s) by allow-marker\n")
 
 
+class TestFindingIdHelpers(unittest.TestCase):
+    """`115/080`: the namespaced finding ID, its line form and its JSON field."""
+
+    def test_finding_id(self):
+        self.assertEqual(report.finding_id("demoscan", "some-kind"), "demoscan:some-kind")
+
+    def test_with_id_appends_and_leaves_the_line_alone(self):
+        self.assertEqual(report.with_id("  a.md:1  [k] x → y", "demoscan", "k"),
+                         "  a.md:1  [k] x → y  [demoscan:k]")
+
+    def test_finding_dicts_adds_id_last(self):
+        from dataclasses import dataclass
+
+        @dataclass
+        class F:
+            path: str
+            kind: str
+        got = report.finding_dicts("demoscan", [F("a.md", "k")], lambda f: f.kind)
+        self.assertEqual(got, [{"path": "a.md", "kind": "k", "id": "demoscan:k"}])
+        self.assertEqual(list(got[0]), ["path", "kind", "id"])
+
+
+class TestFindingLinePins(unittest.TestCase):
+    """One finding line per scanner that prints an ID, as a literal: the line
+    as it was before `115/080` plus `  [<scanner>:<kind>]`."""
+
+    def line(self, out, prefix):
+        return next(ln for ln in out.splitlines() if ln.startswith(prefix))
+
+    def test_secretscan(self):
+        import secretscan as m
+        f = m.Finding("a.txt", 3, "aws-access-key-id", "named", "high", "AKIA… (20 chars)")
+        self.assertEqual(self.line(m.render_human([f]), "  a.txt"),
+                         "  a.txt:3  [high/named] aws-access-key-id → AKIA… (20 chars)"
+                         "  [secretscan:aws-access-key-id]")
+        f = m.Finding("b.txt", 4, m.LOW_VARIETY_RULE, "entropy", "medium", "abc…", "advisory")
+        self.assertEqual(self.line(m.render_human([f]), "     b.txt"),
+                         "     b.txt:4  [advisory/entropy] low-variety-entropy → abc…"
+                         "  [secretscan:low-variety-entropy]")
+
+    def test_leakscan(self):
+        import leakscan as m
+        out = m.render_human([m.Finding("a.txt", 1, "email", "structural", "high", "a.b…nz"),
+                              m.Finding("n.txt", 0, "local-term", "local", "high", "term:ab…")],
+                             None, True)
+        self.assertEqual(self.line(out, "  a.txt"),
+                         "  a.txt:1  [high/structural] email → a.b…nz  [leakscan:email]")
+        self.assertEqual(self.line(out, "  n.txt"),
+                         "  n.txt (in the path name)  [high/local] local-term → term:ab…"
+                         "  [leakscan:local-term]")
+
+    def test_linkscan(self):
+        import linkscan as m
+        out = m.render_human([m.Finding("a.md", 1, "missing-file", "x.md", "gone")])
+        self.assertEqual(self.line(out, "  a.md"),
+                         "  a.md:1  [missing-file] x.md → gone  [linkscan:missing-file]")
+
+    def test_datescan(self):
+        import datescan as m
+        out = m.render_human([m.Finding("a.md", 1, "relative-time-word", "today", "d")])
+        self.assertEqual(self.line(out, "  a.md"),
+                         "  a.md:1  [relative-time-word] 'today' → d"
+                         "  [datescan:relative-time-word]")
+
+    def test_spellscan_names_the_word(self):
+        import spellscan as m
+        out = m.render_human([m.Finding("a.md", 1, "us-spelling", "Color", "Colour", "d")])
+        self.assertEqual(self.line(out, "  a.md"),
+                         "  a.md:1  [us-spelling] 'Color' → 'Colour'  [spellscan:color]")
+
+    def test_pathscan(self):
+        import pathscan as m
+        out = m.render_human([m.Finding("a.md", 2, "missing-path", "x/y.py", "gone")])
+        self.assertEqual(self.line(out, "  a.md"),
+                         "  a.md:2  [missing-path] x/y.py → gone  [pathscan:missing-path]")
+
+    def test_licenscan(self):
+        import licenscan as m
+        rep = m.Report(repo_license="MIT")
+        rep.findings.append(m.Finding("mismatch", "high", "msg", "a.txt", 3))
+        rep.findings.append(m.Finding("no-license", "high", "none"))
+        out = m.render_human(rep)
+        self.assertEqual(self.line(out, "  a.txt"),
+                         "  a.txt:3  [high/mismatch] msg  [licenscan:mismatch]")
+        self.assertEqual(self.line(out, "  [high/no"),
+                         "  [high/no-license] none  [licenscan:no-license]")
+
+    def test_sizescan_per_kind_lines(self):
+        import sizescan as m
+        out = m.render_human([m.Finding("ROADMAP.md", 320, 2, 300, 20, "", True)])
+        self.assertIn("      → 2 completed [x] item(s) to harvest [cold-content, gated]"
+                      "  [sizescan:cold-content]", out.splitlines())
+        self.assertIn("      → over the ~300-line reference (+20) [size-advisory]"
+                      "  [sizescan:size-advisory]", out.splitlines())
+
+    def test_pointerscan(self):
+        import pointerscan as m
+        with tempfile.TemporaryDirectory() as td:
+            board = Path(td) / "docs" / "roadmap"
+            board.mkdir(parents=True)
+            (board / "a.md").write_text(m._SPEC_LANDED)
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                m.main(["--root", td, "docs"])
+        self.assertIn("  docs/roadmap/a.md:1  [state] ", buf.getvalue())
+        self.assertIn("  [pointerscan:state]\n", buf.getvalue())
+
+
+class TestFindingIdRoundTrip(unittest.TestCase):
+    """The ID's kind is exactly the scope that scanner's marker accepts: run
+    each scanner for real, read each finding's `id` from `--json`, put that
+    kind in a marker, run again, and the finding — only it — is gone."""
+
+    TOOLS = Path(__file__).resolve().parent
+    KEY = "AKIA" + "IOSFODNN7EXAMPLE"      # built from parts: this file is scanned
+    MAIL = "a.b" + "@" + "example.co.nz"
+
+    def run_json(self, name, args, env=None):
+        import json
+        import os
+        import subprocess
+        p = subprocess.run([sys.executable, str(self.TOOLS / f"{name}.py"), *args,
+                            "--json"], capture_output=True, text=True,
+                           env=dict(os.environ, **(env or {})))
+        self.assertIn(p.returncode, (0, 1), p.stderr)
+        found = json.loads(p.stdout)["findings"]
+        return sorted(i for f in found for i in (f.get("ids") or [f["id"]]))
+
+    def round_trip(self, name, files, marked, args, env=None):
+        """`files` maps rel path -> body; `marked(kind)` gives the same map
+        with a marker scoped to `kind`."""
+        with tempfile.TemporaryDirectory() as td:
+            def write(m):
+                for rel, body in m.items():
+                    p = Path(td, rel)
+                    p.parent.mkdir(parents=True, exist_ok=True)
+                    p.write_text(body)
+            write(files)
+            ids = self.run_json(name, args(td), env)
+            self.assertTrue(ids, f"{name}: the fixture must produce a finding")
+            for fid in sorted(set(ids)):
+                scanner, kind = fid.split(":", 1)
+                self.assertEqual(scanner, name)
+                write(marked(kind))
+                after = self.run_json(name, args(td), env)
+                self.assertNotIn(fid, after, f"{name}: a marker scoped to {kind!r}")
+                self.assertEqual(after, [i for i in ids if i != fid])
+                write(files)
+
+    def test_secretscan(self):
+        self.round_trip(
+            "secretscan", {"a.txt": f"key {self.KEY}\n"},
+            lambda k: {"a.txt": f"key {self.KEY}  # secretscan" f":allow:{k}: fixture\n"},
+            lambda r: ["--root", r, r])
+
+    def test_leakscan(self):
+        with tempfile.TemporaryDirectory() as t:
+            terms = Path(t) / "terms.txt"
+            terms.write_text("")
+            self.round_trip(
+                "leakscan", {"a.txt": f"reach {self.MAIL} now\n"},
+                lambda k: {"a.txt": f"reach {self.MAIL} now  # leakscan" f":allow:{k}: fixture\n"},
+                lambda r: ["--root", r, r], {"ATELIER_LEAKSCAN_TERMS": str(terms)})
+
+    def test_markdown_scanners(self):
+        for name, body in (("linkscan", "See [x](missing.md)."),
+                           ("datescan", "Done yesterday."),
+                           ("spellscan", "The color is red."),
+                           ("pathscan", "See `tools/ghost.py` here.")):
+            with self.subTest(scanner=name):
+                self.round_trip(
+                    name, {"tools/real.py": "x\n", "a.md": body + "\n"},
+                    lambda k, n=name, b=body: {
+                        "a.md": f"{b}  <!-- {n}" f":allow:{k}: fixture -->\n"},
+                    lambda r: ["--root", r, r])
+
+    def test_licenscan(self):
+        lic = "Apache License\nVersion 2.0, January 2004\n"
+        self.round_trip(
+            "licenscan", {"LICENSE": lic, "pyproject.toml": 'license = "MIT"\n'},
+            lambda k: {"pyproject.toml": f'license = "MIT"  # licenscan' f':allow:{k}: x\n'},
+            lambda r: [r])
+
+    def test_sizescan(self):
+        body = "- [x] done\n" + "- [ ] open\n" * 310
+        self.round_trip(
+            "sizescan", {"ROADMAP.md": "# R\n" + body},
+            lambda k: {"ROADMAP.md": f"<!-- sizescan" f":allow:{k}: fixture -->\n" + body},
+            lambda r: ["--check", "--root", r, r])
+
+    def test_pointerscan(self):
+        import pointerscan as m
+        head, _, rest = m._SPEC_LIVE.partition("\n")
+        self.round_trip(
+            "pointerscan", {"docs/roadmap/a.md": m._SPEC_LIVE},
+            lambda k: {"docs/roadmap/a.md": f"{head}  pointerscan" f":allow:{k}: x\n{rest}"},
+            lambda r: ["--root", r, "docs"])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -94,6 +94,40 @@ def scopes_of(rx: "re.Pattern[str]", text: str, group: str = "rule") -> frozense
     return frozenset(names.split(",")) if names else frozenset()
 
 
+def covers(scope: str | None, kind: str, kinds: frozenset[str]) -> bool:
+    """Does a marker whose scope is `scope` exempt a finding of `kind`, in a
+    scanner whose finding kinds are `kinds`? (`115/080`, the marker-scope half.)
+
+    For the scanners that used to READ a scope and then ignore it, so that any
+    reasoned marker exempted every kind of finding in its unit (`licenscan`,
+    `sizescan`, `pointerscan`; the AM4 finding). The rule is additive, so a
+    marker that exempted something before exempts exactly the same now:
+
+      * `None` (no reasoned marker) exempts nothing;
+      * `""` (the unscoped form) exempts every kind, as before;
+      * a scope that NAMES one of `kinds` exempts that kind only — the new,
+        narrower hatch, and the one a printed finding ID points at;
+      * any other scope exempts every kind, as before. Not endorsed: it is the
+        same widening as `115/230` item 1 (a malformed marker exempts more,
+        not less), kept until that item is ruled, because refusing it would
+        void any live marker written that way.
+
+    The rule-matching scanners (`secretscan`, `datescan`, `linkscan`,
+    `leakscan`, `spellscan`) do not use this: there an unknown scope already
+    exempts nothing, and that stays theirs."""
+    if scope is None:
+        return False
+    if scope in kinds:
+        return scope == kind
+    return True
+
+
+def is_blanket(scope: str | None, kinds: frozenset[str]) -> bool:
+    """True when a marker's scope exempts EVERY kind (`covers` for all of
+    `kinds`): the unscoped form, or a scope naming none of them."""
+    return scope is not None and scope not in kinds
+
+
 class IgnoreFileError(ValueError):
     """An ignore file granted an exemption with no reason stated anywhere."""
 

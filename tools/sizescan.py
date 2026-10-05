@@ -176,6 +176,15 @@ def parse_allow(text: str) -> str | None:
     return allowmarker.scope_of(ALLOW_RX, text, "kind")
 
 
+# The three kinds of finding a file can carry — the bracketed tags on its
+# report lines. A header marker scoped to one (`sizescan:allow:size-advisory:
+# <reason>`) exempts that kind only (115/080; AM4). The unscoped form, and a
+# scope naming none of these, still exempt the whole file, as they always did
+# — `allowmarker.covers`.
+FINDING_KINDS = frozenset({"cold-content", "harvest-integrity",
+                           "size-advisory"})
+
+
 # A per-file override of the advisory REFERENCE POINT in the HEADER:
 # `sizescan:budget=400` (or `: 400`, or a space). Lets a legitimately long
 # all-current file quiet its size nudge. It does NOT affect the gate — the gate
@@ -593,13 +602,16 @@ def scan_paths(paths: list[Path], root: Path,
             header, n, cold, live = _scan_file_metrics(p, p.name)
         except OSError:
             continue
-        if parse_allow(header) is not None:
+        scope = parse_allow(header)
+        if scope is not None:
             files_allowed += 1
-            continue
+            if allowmarker.is_blanket(scope, FINDING_KINDS):
+                continue
         if is_archive_store(p.name):
             # Integrity only — an archive store is never size-metered. A live
             # marker gates under --check; a clean archive stays silent.
-            if live:
+            if live and not allowmarker.covers(scope, "harvest-integrity",
+                                               FINDING_KINDS):
                 findings.append(Finding(
                     _rel(p, root), n, 0, 0, 0,
                     "investigate, then recommend to the principal: flip to [x] "
@@ -611,6 +623,13 @@ def scan_paths(paths: list[Path], root: Path,
         if reference is None:
             continue
         over = max(0, n - reference)
+        # A header marker scoped to one kind takes that facet away and leaves
+        # the other (115/080): `sizescan:allow:size-advisory:` quiets the
+        # length note and keeps the cold-content gate.
+        if allowmarker.covers(scope, "cold-content", FINDING_KINDS):
+            cold = 0
+        if allowmarker.covers(scope, "size-advisory", FINDING_KINDS):
+            over = 0
         # Emit a finding only if there's something to say: relocatable cold
         # content (gates) or an over-reference size (advisory). A lean, all-open
         # hot file is silent.
@@ -626,6 +645,13 @@ def scan_paths(paths: list[Path], root: Path,
         counts["files_allowed"] = files_allowed
         counts["files_by_glob"] = len(skipped)
     return findings
+
+
+def _kinds(f: Finding) -> list[str]:
+    """The kinds one file's finding carries, in report order."""
+    return ([k for k, n in (("cold-content", f.cold_items),
+                            ("harvest-integrity", f.live_items),
+                            ("size-advisory", f.over)) if n])
 
 
 def _suppression_line(files_allowed: int, files_by_glob: int) -> str:
@@ -656,19 +682,22 @@ def render_human(findings: list[Finding], files_allowed: int = 0,
                                              -x.live_items, -x.over)):
         lines.append(f"  {f.path}  {f.lines} lines")
         if f.cold_items:
-            lines.append(f"      → {f.cold_items} completed [x] item(s) to harvest "
-                         f"[cold-content, gated]")
+            lines.append(report.with_id(
+                f"      → {f.cold_items} completed [x] item(s) to harvest "
+                f"[cold-content, gated]", "sizescan", "cold-content"))
             if f.store:
                 lines.append(f"        {f.store}")
         if f.live_items:
-            lines.append(f"      → {f.live_items} live state marker(s) "
-                         f"([ ]/[~]/⏳ list items) in an archive store "
-                         f"[harvest-integrity, gated]")
+            lines.append(report.with_id(
+                f"      → {f.live_items} live state marker(s) "
+                f"([ ]/[~]/⏳ list items) in an archive store "
+                f"[harvest-integrity, gated]", "sizescan", "harvest-integrity"))
             if f.store:
                 lines.append(f"        {f.store}")
         if f.over:
-            lines.append(f"      → over the ~{f.reference}-line reference (+{f.over}) "
-                         f"[size-advisory]")
+            lines.append(report.with_id(
+                f"      → over the ~{f.reference}-line reference (+{f.over}) "
+                f"[size-advisory]", "sizescan", "size-advisory"))
     if n_live:
         lines.append("\n  Harvest-integrity (fails --check): a live marker in an "
                      "archive store is either a botched harvest (open work "
@@ -745,7 +774,12 @@ def _main(argv: list[str] | None = None) -> int:
     if args.json:
         print(json.dumps({
             "clean": not findings,
-            "findings": [asdict(f) for f in findings],
+            # One finding per FILE, carrying up to two kinds, so `ids` (a
+            # list, one per kind present) rather than the one `id` the
+            # per-line scanners give.
+            "findings": [dict(asdict(f), ids=[report.finding_id("sizescan", k)
+                                              for k in _kinds(f)])
+                         for f in findings],
         }, indent=2))
     else:
         print(render_human(findings, counts["files_allowed"],

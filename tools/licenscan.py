@@ -94,6 +94,17 @@ def parse_allow(text: str) -> str | None:
     return allowmarker.scope_of(ALLOW_RX, text, "kind")
 
 
+# Every kind of finding this scanner makes. A marker scoped to one of these
+# (`licenscan:allow:mismatch: <reason>`) exempts that kind only, so a marker
+# written for a permissive mismatch does not also cover a copyleft header that
+# turns `incompatible` later (115/080; AM4). The unscoped form, and a scope
+# naming none of these, still exempt every kind on the line, as they always
+# did — `allowmarker.covers`.
+FINDING_KINDS = frozenset({"no-license", "unknown-license", "mismatch",
+                           "incompatible", "unknown-declaration",
+                           "expect-mismatch"})
+
+
 SKIP_DIR_NAMES = {".git", "node_modules", "__pycache__", ".venv", "venv",
                   ".mypy_cache", ".ruff_cache", ".pytest_cache", "dist",
                   "build", ".idea", ".vscode"}
@@ -288,6 +299,10 @@ class Declaration:
     source: str        # "pyproject" | "package.json" | "badge" | "spdx-header" | ...
     raw: str
     spdx: str | None   # normalised, or None if unrecognised
+    # The kind an allow-marker on this line is scoped to, when it names one
+    # (`FINDING_KINDS`); None when the line carries no marker. A marker that
+    # exempts every kind never reaches here — the declaration is dropped.
+    allow: str | None = None
 
 
 def _line_at(text: str, pos: int) -> int:
@@ -312,12 +327,15 @@ def declarations_in(rel: str, text: str,
 
     def add(source: str, m: "re.Match[str]", raw: str | None = None):
         pos = m.start()
-        if parse_allow(_line_text_at(text, pos)) is not None:
+        scope = parse_allow(_line_text_at(text, pos))
+        if allowmarker.is_blanket(scope, FINDING_KINDS):
             suppressed.append(1)
             return
         value = m.group(1) if raw is None else raw
+        # A scope naming one kind is applied in `scan_repo`, once the kind
+        # this declaration produces is known (find first, subtract second).
         out.append(Declaration(rel, _line_at(text, pos), source, value,
-                               normalise_spdx(value)))
+                               normalise_spdx(value), scope))
 
     if name == "pyproject.toml":
         for m in _PYPROJECT_LICENSE.finditer(text):
@@ -427,7 +445,9 @@ def scan_repo(root: Path, files: list[tuple[str, str]],
                 # nothing (LC1, ruled 2026-08-06; this site previously keyed
                 # on a raw substring). Rule (b): the retirement is tallied,
                 # never silent (LC2).
-                if any(parse_allow(ln) is not None for ln in txt.splitlines()):
+                if any(allowmarker.covers(parse_allow(ln), "unknown-license",
+                                          FINDING_KINDS)
+                       for ln in txt.splitlines()):
                     _suppressed.append(1)
                 else:
                     rep.findings.append(Finding(
@@ -451,56 +471,70 @@ def scan_repo(root: Path, files: list[tuple[str, str]],
                 rep.repo_license_path, 1))
 
     # 2/3. every declaration + header must agree with (or be compatible with) it.
-    repo = rep.repo_license
     for rel, txt in files:
         if rel == rep.repo_license_path:
             continue
         for d in declarations_in(rel, txt, _suppressed):
-            if d.spdx is None:
-                rep.findings.append(Finding(
-                    "unknown-declaration", "medium",
-                    f"{d.source} declares licence '{d.raw}', not a recognised "
-                    f"SPDX id — can't verify it.", d.path, d.line))
+            f = _judge(d, rep.repo_license, rep.repo_license_declared)
+            # SUBTRACT SECOND: a marker scoped to one kind exempts this
+            # declaration only if what it produced is that kind (or nothing —
+            # counted, as a marked declaration always was).
+            if d.allow is not None and (f is None or f.kind == d.allow):
+                _suppressed.append(1)
                 continue
-            if repo is None:
-                custom = rep.repo_license_declared
-                if custom is None:
-                    continue  # no LICENSE at all; no-license already flagged
-                # The repo licence has no SPDX name, so "does this differ from
-                # it" is unanswerable — but the copyleft judgement doesn't need
-                # the name. A custom/proprietary licence does not carry GPL/
-                # AGPL/LGPL/MPL terms forward, so vendored copyleft under it is
-                # the same poison pill as copyleft under a permissive licence.
-                if d.source == "spdx-header" and d.spdx in COPYLEFT:
-                    rep.findings.append(Finding(
-                        "incompatible", "high",
-                        f"file carries SPDX header {d.spdx} ({family(d.spdx)}) "
-                        f"but the repo licence is {custom} — copyleft code "
-                        f"cannot be relicensed under a licence that does not "
-                        f"carry its terms forward. Bundled deliberately? Say so "
-                        f"with an allow marker.", d.path, d.line))
-                continue
-            if d.source == "spdx-header":
-                verdict = compatibility(repo, d.spdx)
-                if verdict == "block":
-                    rep.findings.append(Finding(
-                        "incompatible", "high",
-                        f"file carries SPDX header {d.spdx} ({family(d.spdx)}), "
-                        f"incompatible with repo licence {repo} — cannot be "
-                        f"relicensed on publish.", d.path, d.line))
-                elif verdict == "warn" and d.spdx != repo:
-                    rep.findings.append(Finding(
-                        "mismatch", "medium",
-                        f"file SPDX header {d.spdx} differs from repo licence "
-                        f"{repo} — vendored code needing attention or a stray "
-                        f"header.", d.path, d.line))
-            elif d.spdx != repo:
-                rep.findings.append(Finding(
-                    "mismatch", "high",
-                    f"{d.source} declares {d.spdx} but LICENSE is {repo} — the "
-                    f"repo contradicts itself.", d.path, d.line))
+            if f is not None:
+                rep.findings.append(f)
     rep.suppressed_declarations = len(_suppressed)
     return rep
+
+
+def _judge(d: Declaration, repo: str | None,
+           custom: str | None) -> Finding | None:
+    """The finding one declaration produces against the repo licence `repo`
+    (or the custom licence `custom` when `repo` has no SPDX name), or None."""
+    if d.spdx is None:
+        return Finding(
+            "unknown-declaration", "medium",
+            f"{d.source} declares licence '{d.raw}', not a recognised "
+            f"SPDX id — can't verify it.", d.path, d.line)
+    if repo is None:
+        if custom is None:
+            return None  # no LICENSE at all; no-license already flagged
+        # The repo licence has no SPDX name, so "does this differ from
+        # it" is unanswerable — but the copyleft judgement doesn't need
+        # the name. A custom/proprietary licence does not carry GPL/
+        # AGPL/LGPL/MPL terms forward, so vendored copyleft under it is
+        # the same poison pill as copyleft under a permissive licence.
+        if d.source == "spdx-header" and d.spdx in COPYLEFT:
+            return Finding(
+                "incompatible", "high",
+                f"file carries SPDX header {d.spdx} ({family(d.spdx)}) "
+                f"but the repo licence is {custom} — copyleft code "
+                f"cannot be relicensed under a licence that does not "
+                f"carry its terms forward. Bundled deliberately? Say so "
+                f"with an allow marker.", d.path, d.line)
+        return None
+    if d.source == "spdx-header":
+        verdict = compatibility(repo, d.spdx)
+        if verdict == "block":
+            return Finding(
+                "incompatible", "high",
+                f"file carries SPDX header {d.spdx} ({family(d.spdx)}), "
+                f"incompatible with repo licence {repo} — cannot be "
+                f"relicensed on publish.", d.path, d.line)
+        if verdict == "warn" and d.spdx != repo:
+            return Finding(
+                "mismatch", "medium",
+                f"file SPDX header {d.spdx} differs from repo licence "
+                f"{repo} — vendored code needing attention or a stray "
+                f"header.", d.path, d.line)
+        return None
+    if d.spdx != repo:
+        return Finding(
+            "mismatch", "high",
+            f"{d.source} declares {d.spdx} but LICENSE is {repo} — the "
+            f"repo contradicts itself.", d.path, d.line)
+    return None
 
 
 # ---- file plumbing (mirrors the sibling scans; kept self-contained) ------------
@@ -639,7 +673,8 @@ def render_human(rep: Report) -> str:
                                       tail=f" — repo licence {lic}. Publish blocked.\n"))
     for f in sorted(rep.findings, key=lambda x: (x.severity != "high", x.path, x.line)):
         loc = f"  {f.path}:{f.line}  " if f.path else "  "
-        lines.append(f"{loc}[{f.severity}/{f.kind}] {f.message}")
+        lines.append(report.with_id(f"{loc}[{f.severity}/{f.kind}] {f.message}",
+                                    "licenscan", f.kind))
     lines.append("")
     lines.append(_suppression_line(rep))
     lines.append(f"\n  A false positive: append '# {ALLOW_MARKER}: <reason>' to the")
@@ -683,7 +718,8 @@ def _main(argv: list[str] | None = None) -> int:
             "repo_license": rep.repo_license,
             "repo_license_declared": rep.repo_license_declared,
             "repo_license_path": rep.repo_license_path,
-            "findings": [asdict(f) for f in rep.findings],
+            "findings": report.finding_dicts("licenscan", rep.findings,
+                                             lambda f: f.kind),
         }, indent=2))
     else:
         print(render_human(rep))

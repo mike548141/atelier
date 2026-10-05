@@ -449,7 +449,11 @@ python3 tools/licenscan.py --selftest           # prove the engine on this box
 Exit codes match the others (`0` clean · `1` findings, publish blocked · `2`
 usage/config error). Escape hatches mirror them: `# licenscan:allow: <reason>`
 per line (a deliberately dual-licensed file, or a header in test data), a glob in
-`.licenscanignore` per path. Because it's a publish gate, wire it into the
+`.licenscanignore` per path. `# licenscan:allow:<kind>: <reason>` exempts one
+kind only (`mismatch`, `incompatible`, `unknown-declaration`,
+`unknown-license`), so a marker written for a permissive mismatch no longer
+covers a copyleft header (`115/080`). A scope naming none of the kinds still
+exempts the whole line, as it always did. Because it's a publish gate, wire it into the
 **pre-publish** scrub (alongside the leak/secret pass) and CI's release job — not
 the per-commit hook.
 
@@ -691,7 +695,10 @@ standing one-sided honesty: the tool never fails on what it can't name losslessl
 A legitimately long all-open file can quiet the advisory with an inline
 `sizescan:budget=N` (grounded in its class, never its current length), opt out
 with `sizescan:allow`, or a glob in `.sizescanignore` — none of which silences the
-cold-content gate; for that, harvest the `[x]` items.
+cold-content gate; for that, harvest the `[x]` items. A header marker scoped to
+one kind, `sizescan:allow:<kind>: <reason>`, exempts that kind only:
+`size-advisory`, `cold-content` or `harvest-integrity` (`115/080`). The
+unscoped form, and a scope naming none of the three, exempt the whole file.
 
 ### Usage
 
@@ -1005,7 +1012,10 @@ python3 tools/pointerscan.py --selftest      # prove the rules on the specimens
 Exit codes: `0` always for findings — **warn-only**; a pointer is fixable in the
 commit that writes it, which is the one moment the fix costs nothing · `2`
 usage/config error. Escape hatch: `pointerscan:allow: <reason>` anywhere in the
-item.
+item, or on a board file's first line for the whole file. Scoped to one detector,
+`pointerscan:allow:<detector>: <reason>` (`grammar`, `cycle` or `state`) exempts
+that detector only (`115/080`); a scope naming none of them exempts everything,
+as it always did.
 
 ## `plainscan.py` — removed 2026-09-18
 
@@ -1340,6 +1350,27 @@ advisory checks. `pointerscan.py` and `board.py` keep their own copies for now.
 `test_report.py` tests each helper and pins each converted scanner's lines as
 literals. What a scanner prints reaches every child's CI at its next run, so a
 shared edit that changes one of those lines fails the suite first.
+
+**Finding IDs.** Nine scanners end each finding line with a namespaced ID,
+`<scanner>:<kind>`, and give each `--json` finding an `id` field (`sizescan`,
+one finding per file with up to two kinds, gives an `ids` list). The kind is
+exactly the scope that scanner's allow-marker accepts, so the ID copies into
+the narrowest marker there is:
+
+```text
+  a.txt:1  [high/structural] email → a.b…nz (17 chars)  [leakscan:email]
+  a.md:1  [us-spelling] 'color' → 'colour'  [spellscan:color]
+```
+
+`leakscan:email` becomes `# leakscan:allow:email: <reason>`. The kind is a
+rule name in `secretscan` and `leakscan`, the word in `spellscan`, and the
+finding's kind in `linkscan`, `datescan`, `pathscan`, `licenscan`, `sizescan`
+and `pointerscan`. A finding with no line to carry a marker (a hit in a path
+name, a missing LICENSE, an `--expect` mismatch) still gets an ID. The rest of
+each line, and every exit code, is unchanged (`115/080`). `conflictscan`,
+`wrapscan` and `indexscan` print none: their marker takes no scope, so there
+is no kind a marker could name. `reviewscan`, `publishscan` and `harvestscan`
+have no per-finding kind either.
 
 ## Tests
 

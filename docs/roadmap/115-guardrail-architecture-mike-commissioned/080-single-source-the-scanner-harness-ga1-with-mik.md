@@ -1,4 +1,4 @@
-- [~] (FUNDED by Mike 2026-09-20; parts 1–3 DONE; the marker-scope and finding-ID half claimed 2026-10-05-1821, wt: atelier-qr-115-080-ids) **Single-source the scanner harness, re-grounded on Mike's own upstream
+- [x] (FUNDED by Mike 2026-09-20; parts 1–3 DONE; the marker-scope and finding-ID half claimed 2026-10-05-1821, wt: atelier-qr-115-080-ids) **Single-source the scanner harness, re-grounded on Mike's own upstream
       test.** The finding already exists: GA1, a minor raised by the 2026-08-05
       guards-and-allowances cold pass and still awaiting its ruling round. It
       reads that the reason-required loader is ten per-scanner copies, *"the
@@ -260,3 +260,41 @@
       bare `<scanner>:allow` marker that silences today must still silence
       everything it silences now**. Specific scopes are added, never
       substituted. So no child goes red, and only the printed text changes.
+
+      ✅ **ALL THREE PARTS DONE 2026-10-05: markers that name a kind, and
+      finding IDs** (queue run, an Opus 5.5 worker; `db1aa4d`, `ded8d32`).
+      This builds Mike's pick above. **The list in the question was wrong, and
+      is corrected here.** The question to Mike named licenscan, conflictscan
+      and indexscan as the guards whose one marker silences every kind.
+      Checked against the code, conflictscan has at most one finding per line,
+      and indexscan's marker already names its one entry. The guards that read
+      a scope and ignored it are **licenscan, sizescan and pointerscan**, and
+      those three now honour a scope that names one of their kinds. The
+      question also said "14 guards". IDs went to **nine**: conflictscan,
+      wrapscan and indexscan take no scope, and reviewscan, publishscan and
+      harvestscan have no per-finding kind. Giving those five IDs would mean
+      inventing kind names. The substance of what he picked holds: markers
+      fixed, and IDs printed wherever a kind exists.
+
+      **The rule, in one function (`allowmarker.covers`), purely additive:**
+      no marker exempts nothing. The unscoped marker exempts every kind. A
+      scope naming one kind exempts that kind only. Any other scope exempts
+      every kind, exactly as before, which is `230`'s divergence #1, left
+      unruled and now a one-place change. Nine scanners end each finding line
+      with `  [<scanner>:<kind>]` and add an `id` to each `--json` finding;
+      sizescan gets an `ids` list, because one file can carry two kinds. The
+      kind is the scope that scanner's marker accepts, so the ID copies
+      straight into the narrowest marker.
+
+      **Evidence:** 422 of 554 fixture runs over every existing marker form
+      were byte-identical. The other 132 use the new named-kind form, and each
+      drops only its named kind. There were 174 identical step-1 runs over 29
+      real trees. There were 754 step-2 runs, 13 scanners × 29 trees × human
+      and JSON, identical once the ID is stripped, exit codes included. No
+      live marker in the estate names one of the three scanners' kinds, so
+      none narrows. **Blast radius**, read-only: no child workflow, hook or
+      test parses a finding line; `floor.py` reads exit codes and secretscan's
+      advisory count, which still parses. The full suite passed (1,795) and
+      Node passed 411/411. The orchestrator re-ran the full suite on the
+      merged tree. The code pass is queued at `160/750`. Three defects found
+      along the way are filed as `270`.

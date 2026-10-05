@@ -229,5 +229,43 @@ class TestIgnoreFile(unittest.TestCase):
         self.assertFalse(am.ignored("a.md", []))
 
 
+class TestCovers(unittest.TestCase):
+    """115/080's additive scope rule for the scanners that used to read a
+    scope and ignore it (licenscan, sizescan, pointerscan)."""
+
+    K = frozenset({"alpha", "beta"})
+
+    def test_no_marker_covers_nothing(self):
+        self.assertFalse(am.covers(None, "alpha", self.K))
+        self.assertFalse(am.is_blanket(None, self.K))
+
+    def test_the_unscoped_form_covers_every_kind(self):
+        self.assertTrue(am.covers("", "alpha", self.K))
+        self.assertTrue(am.covers("", "beta", self.K))
+        self.assertTrue(am.is_blanket("", self.K))
+
+    def test_a_named_kind_covers_only_itself(self):
+        self.assertTrue(am.covers("alpha", "alpha", self.K))
+        self.assertFalse(am.covers("alpha", "beta", self.K))
+        self.assertFalse(am.is_blanket("alpha", self.K))
+
+    def test_a_scope_naming_no_kind_still_covers_every_kind(self):
+        # Existing, not endorsed: the 115/230 item-1 class, kept so that no
+        # live marker narrows until that item is ruled.
+        self.assertTrue(am.covers("gamma", "alpha", self.K))
+        self.assertTrue(am.is_blanket("gamma", self.K))
+
+    def test_the_scanners_using_it_declare_their_kinds(self):
+        import licenscan
+        import pointerscan
+        import sizescan
+        self.assertEqual(sizescan.FINDING_KINDS,
+                         {"cold-content", "harvest-integrity", "size-advisory"})
+        self.assertEqual(pointerscan.FINDING_KINDS, {"grammar", "cycle", "state"})
+        self.assertEqual(licenscan.FINDING_KINDS,
+                         {"no-license", "unknown-license", "mismatch", "incompatible",
+                          "unknown-declaration", "expect-mismatch"})
+
+
 if __name__ == "__main__":
     unittest.main()

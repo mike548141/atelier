@@ -565,5 +565,63 @@ class LinkedWorktreeSkipped(unittest.TestCase):
         self.assertNotIn("weird/real.txt", found)
 
 
+# Built from parts so no source line here is itself a header or a marker the
+# floor would read (this file is scanned like any other).
+_HDR = "SPDX-License-" + "Identifier: "
+_MARK = "licenscan" + ":allow"
+
+
+class ScopedMarker(unittest.TestCase):
+    """115/080: a marker scoped to one kind exempts that kind only (AM4);
+    every marker that exempted before still exempts the same."""
+
+    def scan(self, marker, header="GPL-3.0", license_body=APACHE):
+        return lc.scan_repo(lc.Path("."), [
+            ("LICENSE", license_body),
+            ("vendor/x.py", f"# {_HDR}{header}  # {marker}\n"),
+        ], None)
+
+    def test_a_scope_naming_another_kind_no_longer_covers_a_copyleft_header(self):
+        rep = self.scan(f"{_MARK}:mismatch: vendored, permissive")
+        self.assertEqual(kinds(rep), {"incompatible"})
+        self.assertEqual(rep.suppressed_declarations, 0)
+
+    def test_a_scope_naming_the_kind_exempts_it_and_is_tallied(self):
+        rep = self.scan(f"{_MARK}:incompatible: bundled, not relicensed")
+        self.assertTrue(rep.clean)
+        self.assertEqual(rep.suppressed_declarations, 1)
+
+    def test_the_unscoped_form_still_exempts_every_kind(self):
+        for header in ("GPL-3.0", "MIT"):
+            rep = self.scan(f"{_MARK}: bundled", header)
+            self.assertTrue(rep.clean)
+            self.assertEqual(rep.suppressed_declarations, 1)
+
+    def test_a_scope_naming_no_kind_still_exempts_every_kind(self):
+        # Existing, not endorsed (115/230 item 1's class): before 115/080 the
+        # scope was read and ignored, and a live marker must not narrow.
+        rep = self.scan(f"{_MARK}:vendored: bundled")
+        self.assertTrue(rep.clean)
+        self.assertEqual(rep.suppressed_declarations, 1)
+
+    def test_a_scoped_marker_on_an_agreeing_declaration_is_still_counted(self):
+        rep = self.scan(f"{_MARK}:mismatch: belt and braces", "Apache-2.0")
+        self.assertTrue(rep.clean)
+        self.assertEqual(rep.suppressed_declarations, 1)
+
+    def test_unknown_license_honours_its_own_scope(self):
+        other = lc.scan_repo(lc.Path("."), [
+            ("LICENSE", PROPRIETARY + f"\n# {_MARK}:mismatch: wrong kind\n")], None)
+        self.assertIn("unknown-license", kinds(other))
+        own = lc.scan_repo(lc.Path("."), [
+            ("LICENSE", PROPRIETARY + f"\n# {_MARK}:unknown-license: ours\n")], None)
+        self.assertNotIn("unknown-license", kinds(own))
+        self.assertEqual(own.suppressed_declarations, 1)
+
+    def test_every_kind_a_finding_can_have_is_a_known_scope(self):
+        rep = lc.scan_repo(lc.Path("."), [("pyproject.toml", 'license = "x"\n')], "MIT")
+        self.assertLessEqual(kinds(rep), lc.FINDING_KINDS)
+
+
 if __name__ == "__main__":
     unittest.main()

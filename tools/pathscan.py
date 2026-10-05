@@ -1275,7 +1275,9 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
         return out + ("\n" + tally.summary() if tally is not None else "")
     lines = [report.findings_head("pathscan", len(findings) + over_cap)]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
-        lines.append(f"  {f.path}:{f.line}  [{f.kind}] {f.target} → {f.detail}")
+        lines.append(report.with_id(
+            f"  {f.path}:{f.line}  [{f.kind}] {f.target} → {f.detail}",
+            "pathscan", f.kind))
     if over_cap:
         lines.append(report.over_cap_line(over_cap, MAX_MATERIALIZED_FINDINGS))
     if tally is not None:
@@ -1358,7 +1360,8 @@ def _main(argv: list[str] | None = None) -> int:
         payload = {
             "clean": not total,
             "warn": args.warn,
-            "findings": [asdict(f) for f in findings],
+            "findings": report.finding_dicts("pathscan", findings,
+                                             lambda f: f.kind),
             "findings_over_cap": tally.findings_over_cap,
             "suppressed": {
                 "by_allow_marker": tally.marker_total,

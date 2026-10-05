@@ -1263,7 +1263,9 @@ def _render_advisory(advisory: list[Finding], over_cap: int = 0) -> list[str]:
              "is why these are",
              "   shown rather than dropped."]
     for f in sorted(advisory, key=lambda x: (x.path, x.line)):
-        lines.append(f"     {f.path}:{f.line}  [advisory/{f.kind}] {f.rule} → {f.excerpt}")
+        lines.append(report.with_id(
+            f"     {f.path}:{f.line}  [advisory/{f.kind}] {f.rule} → {f.excerpt}",
+            "secretscan", f.rule))
     lines.append("   A real secret here: remove it and ROTATE it — advisory "
                  "describes this scan's")
     lines.append("   confidence, never the value's safety. Otherwise leave it: "
@@ -1301,7 +1303,9 @@ def render_human(findings: list[Finding], tally: Tally | None = None) -> str:
     lines.append(report.findings_head("secretscan", len(blocking) + blocking_over,
                                       tail=" — commit blocked.\n"))
     for f in sorted(blocking, key=lambda x: (x.path, x.line)):
-        lines.append(f"  {f.path}:{f.line}  [{f.severity}/{f.kind}] {f.rule} → {f.excerpt}")
+        lines.append(report.with_id(
+            f"  {f.path}:{f.line}  [{f.severity}/{f.kind}] {f.rule} → {f.excerpt}",
+            "secretscan", f.rule))
     if blocking_over:
         lines.append(report.over_cap_line(blocking_over, MAX_MATERIALIZED_FINDINGS,
                                           noun="blocking finding(s)"))
@@ -1410,7 +1414,8 @@ def _main(argv: list[str] | None = None) -> int:
             "blocked": bool(blocking_total),
             "counts": {"blocking": blocking_total,
                        "advisory": advisory_total},
-            "findings": [asdict(f) for f in findings],
+            "findings": report.finding_dicts("secretscan", findings,
+                                             lambda f: f.rule),
             "suppressed": {
                 "by_allow_marker": tally.marker_total,
                 "by_allow_marker_rule": tally.by_marker,

@@ -163,7 +163,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [A real credential pasted into an exempt fixture file is invisible to](roadmap/115-guardrail-architecture-mike-commissioned/050-a-real-credential-in-an-exempt-fixture-file-is.md)
 - [ ] 🔎 [A coined paraphrase is still presented on the board as a child](roadmap/115-guardrail-architecture-mike-commissioned/060-a-coined-paraphrase-is-still-cited-on-the-boar.md)
 - [ ] [PRINCIPLES.md §9 has no guard, and the only safe candidate is scoped](roadmap/115-guardrail-architecture-mike-commissioned/070-principles-9-has-no-guard-and-the-only-safe-ca.md)
-- [~] [(FUNDED by Mike 2026-09-20; parts 1–3 DONE; the marker-scope and…](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
+- ✅ [(FUNDED by Mike 2026-09-20; parts 1–3 DONE; the marker-scope and…](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
 - [ ] [Give every guard a second dial — the standing consequence of Mike's](roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md)
 - [ ] 🎯 [Build a before-plane — the guardrail class that acts at the moment of](roadmap/115-guardrail-architecture-mike-commissioned/100-the-before-plane-is-empty-and-it-is-the-only.md)
 - [ ] 🔥 [The apex and the always-confirm floor have no mechanical backing at](roadmap/115-guardrail-architecture-mike-commissioned/110-the-apex-and-the-autonomy-floor-have-no-mecha.md)
@@ -181,6 +181,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [Three enforced scanners still describe themselves as advisory](roadmap/115-guardrail-architecture-mike-commissioned/240-three-enforced-scanners-call-themselves-advisory.md)
 - ✅ 🔎 [pointerscan still walks the whole tree, harness worktrees included](roadmap/115-guardrail-architecture-mike-commissioned/250-pointerscan-still-walks-the-whole-tree.md)
 - [~] 🔎 (claimed 2026-10-05-1858, wt: atelier-qr-115-260) [Two blocking guards never scan a staged file whose path git quotes](roadmap/115-guardrail-architecture-mike-commissioned/260-staged-plane-guards-skip-git-quoted-paths.md)
+- [ ] 🔎 [Three defects found while adding finding IDs](roadmap/115-guardrail-architecture-mike-commissioned/270-three-defects-found-adding-finding-ids.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 
@@ -285,6 +286,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: the per-rule pre-filter gates in](roadmap/160-doctrine-review-owed/720-rule-4-cold-pass-queued-scanner-gates.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the shared exit and reporting contract](roadmap/160-doctrine-review-owed/730-rule-4-cold-pass-queued-the-report-contract.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the pre-flip gate additions and](roadmap/160-doctrine-review-owed/740-rule-4-cold-pass-queued-the-pre-flip-gate.md)
+- [ ] ⏳ [Rule-4 cold pass queued: allow-markers that name a kind, and](roadmap/160-doctrine-review-owed/750-rule-4-cold-pass-queued-marker-kinds-and-ids.md)
 
 ## build/ layer — open strands
 

@@ -290,3 +290,18 @@ worker found the same silent-miss class in `conflictscan`'s and
 `leakscan`'s staged plane, which matters more because both block at the
 hook. That is filed and claimed as `115/260`. Its dispatch waits for the
 in-flight `115/080` worker to land, because both touch `leakscan`.
+
+## `115/080` complete: markers that name a kind, and finding IDs
+
+An Opus worker built Mike's pick (`db1aa4d`, `ded8d32`). ⚠️ **The question
+put to him named the wrong three guards and said "14"**: it took the earlier
+survey's list on trust. Checked against the code, the guards whose marker
+scope was ignored were licenscan, sizescan and pointerscan. IDs went to
+nine scanners, because the other five have no kind to name. The item
+records the correction, and Mike's close report says so plainly. His pick's
+substance holds: markers fixed, and IDs wherever a kind exists. Existing
+markers keep their meaning, and the evidence covers 554 fixture runs and
+928 real-tree runs. No child parses a finding line. Code pass queued at
+`160/750`. Three defects were filed as `115/270`. The CHANGELOG conflict
+with the P9 entry was resolved keeping both. Local-time stamps in it were
+corrected.

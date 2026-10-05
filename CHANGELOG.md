@@ -5,6 +5,20 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-10-05 — allow-markers that name a kind, and finding IDs, `115/080` part 3)
+- `licenscan`, `sizescan` and `pointerscan` read a marker's scope and ignored
+  it, so any marker exempted every kind. A scope that names one of their kinds
+  now exempts that kind only. The unscoped form, and a scope naming none of
+  the kinds, exempt exactly what they did before, so no existing marker
+  changes meaning. Every other marker form gives byte-identical output in 422
+  fixture runs, and 174 runs over 29 real trees are identical. No marker in
+  any of those trees names one of the three scanners' kinds.
+- Nine scanners end each finding line with `  [<scanner>:<kind>]` and add an
+  `id` to each `--json` finding (`ids` in `sizescan`). The kind is the scope
+  the scanner's marker accepts, so the ID copies into the narrowest marker.
+  Every finding line changes; nothing else in the output does, and no exit
+  code changes.
+
 ### Added (2026-10-05 — what the first flip's transcripts add to the pre-flip gate, `260/110`)
 - `AUTONOMY.md`'s making-public clause gains three lines from `260/090`'s
   harvest. The scrub runs last and covers the gate's own records, including any
@@ -39,7 +53,8 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 - `EVIDENCE.md` §15, *A test cannot falsify its own code's assumption*: a test
   that encodes a belief about an external system is evidence of wiring, not of
   correctness, until an authority outside the author's code enters the loop.
-  Minted on Mike's ruling of 2026-08-03; his sign-off on its wording is owed.
+  Minted on Mike's ruling of 2026-08-03; he signed off its wording and home on
+  2026-10-05.
 
 ### Added (2026-10-05 — `indexscan`: a hand-kept index stays true to its directory, `200/010`)
 - A new warn-only floor guard. An index opts in with one

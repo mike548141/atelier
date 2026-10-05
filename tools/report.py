@@ -16,6 +16,11 @@ Before this module every scanner spelled its own copy of the same contract:
   * the `(--warn: advisory only …)` notice that `floor.py` names as the
     estate-wide spelling.
 
+It also holds one thing no scanner printed before: the namespaced finding ID
+(`finding_id`, `with_id`, `finding_dicts`), `<scanner>:<kind>` at the end of
+each finding line and as an `id` in `--json`, whose kind is the scope the
+scanner's own allow-marker accepts (the second half of `115/080` part 3).
+
 WHAT THIS MODULE DELIBERATELY DOES NOT DO: unify behaviour or wording. Every
 difference between the scanners is a PARAMETER here — the scanner's name, the
 tally's parts, the finding noun, a head line's tail, the over-cap indent, the
@@ -36,6 +41,7 @@ next run.
 from __future__ import annotations
 
 import sys
+from dataclasses import asdict
 from pathlib import Path
 from typing import Callable, Iterable, Sequence
 
@@ -149,6 +155,33 @@ def over_cap_line(over: int, cap: int, *, noun: str = "finding(s)",
     """The list line standing in for findings counted but never built."""
     return (f"{indent}…and {over} more {noun}, counted but not listed "
             f"(past the {cap}-finding memory cap).")
+
+
+def finding_id(name: str, kind: str) -> str:
+    """The namespaced finding ID, `<scanner>:<kind>` (`115/080`, part 3).
+
+    `kind` is each guard's own parameter: exactly the scope its allow-marker
+    accepts to exempt this finding — a rule name (`secretscan`, `leakscan`),
+    a finding kind (`linkscan`, `datescan`, `pathscan`, `licenscan`,
+    `sizescan`, `pointerscan`) or the matched word (`spellscan`). So the ID
+    copies straight into `<scanner>:allow:<kind>: <reason>`, the narrowest
+    marker there is. A finding with no line to carry a marker (a hit in a
+    path name, a missing LICENSE) still gets one: the ID names it either way."""
+    return f"{name}:{kind}"
+
+
+def with_id(line: str, name: str, kind: str) -> str:
+    """A finding line with its ID appended, the rest of the line unchanged:
+    `<line>  [<scanner>:<kind>]`."""
+    return f"{line}  [{finding_id(name, kind)}]"
+
+
+def finding_dicts(name: str, findings: Iterable[object],
+                  kind_of: Callable[[object], str]) -> list[dict]:
+    """The `--json` findings list: each dataclass finding as before, plus an
+    `id` field (`finding_id`), added last so every existing key keeps its
+    place."""
+    return [dict(asdict(f), id=finding_id(name, kind_of(f))) for f in findings]
 
 
 def suppressed_line(parts: Sequence[str], *,

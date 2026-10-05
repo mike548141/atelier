@@ -553,6 +553,51 @@ class LinkedWorktreeSkipped(unittest.TestCase):
         self.assertNotIn("weird/real.txt", found)
 
 
+_MARK = "sizescan" + ":allow"   # built from parts: no source line is a marker
+
+
+class ScopedMarker(unittest.TestCase):
+    """115/080: a header marker scoped to one kind exempts that kind only
+    (AM4); every marker that exempted before still exempts the whole file."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp)
+
+    def scan(self, marker):
+        (self.tmp / "ROADMAP.md").write_text(
+            f"<!-- {marker} -->\n" + _cold(n_open=R + 5, n_done=2))
+        (self.tmp / "ROADMAP-DONE.md").write_text(
+            f"<!-- {marker} -->\n" + _cold(n_open=1, n_done=1))
+        counts = {}
+        found = {f.path: f for f in sizescan.scan_paths([self.tmp], self.tmp, counts)}
+        return found, counts["files_allowed"]
+
+    def test_size_advisory_scope_keeps_the_cold_content_gate(self):
+        found, allowed = self.scan(f"{_MARK}:size-advisory: long by design")
+        hot = found["ROADMAP.md"]
+        self.assertEqual((hot.cold_items, hot.over, hot.gated), (2, 0, True))
+        self.assertIn("ROADMAP-DONE.md", found)
+        self.assertEqual(allowed, 2)
+
+    def test_cold_content_scope_keeps_the_size_advisory(self):
+        found, _ = self.scan(f"{_MARK}:cold-content: harvested elsewhere")
+        hot = found["ROADMAP.md"]
+        self.assertEqual((hot.cold_items, hot.gated), (0, False))
+        self.assertGreater(hot.over, 0)
+
+    def test_harvest_integrity_scope_covers_only_the_archive_store(self):
+        found, _ = self.scan(f"{_MARK}:harvest-integrity: open on purpose")
+        self.assertNotIn("ROADMAP-DONE.md", found)
+        self.assertEqual(found["ROADMAP.md"].cold_items, 2)
+
+    def test_the_unscoped_form_and_an_unknown_scope_still_exempt_the_file(self):
+        for marker in (f"{_MARK}: living doc", f"{_MARK}:living-doc: why"):
+            found, allowed = self.scan(marker)
+            self.assertEqual(found, {})
+            self.assertEqual(allowed, 2)
+
+
 if __name__ == "__main__":
     unittest.main()
 
