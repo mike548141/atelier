@@ -77,6 +77,26 @@ for the two-kind split and for treating prompt history as append-only.
 and after listing of the key directory and the archive root showed no writes,
 99 files waiting, 4 memory versions to keep, no anomalies.
 
+## Mid-run arrivals
+
+- **The schedule comes back as a real schedule (`210/230`, merge
+  `eade807`).** Mike: the old installer *"makes not sense as it is not a
+  schedule, it is event based"*. Put to him with research: launchd's calendar
+  timer is macOS's scheduler, and cron is unreliable there and needs Full
+  Disk Access. Any launchd job is listed under *Allow in the Background*, and
+  his own rule bars Node background jobs. His ruling: *"For my install we will
+  keep it manual"*, with the tool rebuilt on launchd's calendar timer and the
+  Linux equivalent, a systemd user timer with `Persistent=true`. Built behind
+  a scheduler seam the tests hold shut. His LaunchAgents were checked clean
+  after the merge.
+- **His seven-point charter for ccarchive (`210/240`)**, recorded verbatim
+  with a gap check. Encryption is pending. Growing transcripts are rewritten
+  whole rather than appended, and that is not yet weighed. Checking the
+  sibling tools found cctranscript skipping only `_untrusted/`; it now skips
+  all three areas (`bab1451`).
+- **His idea of a git-like or diff history for living documents** is filed
+  idea-only (`210/220`).
+
 ## After the merge — the first real run, and a one-off adoption
 
 Mike: *"Yes, run it now"*. The first real run on the new code: exit 0, 99

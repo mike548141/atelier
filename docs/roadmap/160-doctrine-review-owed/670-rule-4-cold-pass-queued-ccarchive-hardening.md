@@ -7,5 +7,7 @@
       `instruments/man/ccarchive.1`, `instruments/README.md`,
       `instruments/ccrepo`, `instruments/ccrepo.test.js`,
       `instruments/cctranscript` and `CHANGELOG.md`, from `ee7db7a` to merge
-      `8540a1d`. It landed on `main` on 2026-10-05. *Intent record:*
+      `8540a1d`, widened by `bab1451` (`instruments/cctranscript`) and merge
+      `eade807` (`210/230`, the calendar schedule). It landed on `main` on
+      2026-10-05. *Intent record:*
       [`../../sessions/2026-10-04-2329-ccarchive-hardening.md`](../../sessions/2026-10-04-2329-ccarchive-hardening.md).

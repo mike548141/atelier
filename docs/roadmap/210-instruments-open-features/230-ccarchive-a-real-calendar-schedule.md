@@ -1,5 +1,5 @@
-- [~] **ccarchive: bring back a schedule, as a real calendar schedule, not
-      a run at every login** (claimed 2026-10-05-0150, wt: atelier-ccarchive-sched) (Mike, 2026-10-05, mid-run, after `210/190` removed
+- [x] **ccarchive: bring back a schedule, as a real calendar schedule, not
+      a run at every login** (Mike, 2026-10-05, mid-run, after `210/190` removed
       the installer)
 
       His words: *"--install-schedule option should not be adding it to login
@@ -38,3 +38,15 @@
       Linux-native equivalent on Linux, which is a systemd user timer with
       `OnCalendar` and `Persistent=true`. That catches up a missed run the way
       launchd does after sleep.
+
+      ✅ **Built and merged 2026-10-05, merge `eade807`** (`72e0093`).
+      `--install-schedule [--at HH:MM]`, `--schedule-status` and
+      `--uninstall-schedule` are back. macOS uses a `StartCalendarInterval`
+      agent with no `RunAtLoad`, `StartInterval` or `KeepAlive`. Linux uses a
+      systemd user timer with `Persistent=true`, and prints a cron line where
+      no user manager exists. Uninstall also removes an old-style login plist.
+      Every scheduler call goes through one seam that the tests hold shut,
+      guarded by decoy binaries. No real scheduler ran, and the owner's
+      LaunchAgents were checked clean after the merge. Review widened into
+      `⏳ 160/670`. Record:
+      [`2026-10-04-2329-ccarchive-hardening.md`](../../sessions/2026-10-04-2329-ccarchive-hardening.md).
