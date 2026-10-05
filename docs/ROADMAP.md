@@ -335,6 +335,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [ccarchive hardening — build the cold passes' counsel so an ordinary…](roadmap/210-instruments-open-features/210-ccarchive-hardening-batch.md)
 - [ ] [💡 IDEA ONLY — do not build until Mike says to start: keep whole](roadmap/210-instruments-open-features/220-whole-document-history-like-git.md)
 - [~] [ccarchive: bring back a schedule, as a real calendar schedule, not](roadmap/210-instruments-open-features/230-ccarchive-a-real-calendar-schedule.md)
+- [ ] 🔎 [ccarchive's design charter, in Mike's words, checked against the](roadmap/210-instruments-open-features/240-ccarchive-design-charter.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
