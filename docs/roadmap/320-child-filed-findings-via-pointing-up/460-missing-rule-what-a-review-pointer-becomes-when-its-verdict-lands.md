@@ -1,4 +1,4 @@
-- [ ] 🔎 **MISSING HOUSE RULE — what a `⏳` review pointer becomes when its
+- [x] 🔎 **MISSING HOUSE RULE — what a `⏳` review pointer becomes when its
       verdict lands** `[S][doctrine]` — handed up by a private child
       2026-09-27 via `PROPAGATION.md` § *Pointing up*. Class-only: no child
       name, no child paths.
@@ -31,3 +31,10 @@
       the in-place transition above as the rule, with the `[x] 🎯` shape
       either named or retired. Consideration and remediation are atelier's;
       the reporting child stops at this report.
+
+      ✅ **Answered 2026-10-05 by `130/020`.** The board legend now says what a
+      `⏳` pointer becomes when its verdict lands: the glyph comes off in the
+      landing commit, and the work-owed tri-state takes over, led by 🎯 while
+      Mike's ruling is owed. An `[x]` line that still carries 🎯 reads as done.
+      The reporting child hears the answer through the pointing-up route at
+      its next pin bump.

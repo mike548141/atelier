@@ -1,4 +1,4 @@
-- [ ] 🛑 **Rule-4 review queued (tier: Fable; pass type: code + doctrine cold pass,
+- [ ] 🎯 **Rule-4 review queued (tier: Fable; pass type: code + doctrine cold pass,
   the `ccmail` build).**
   *Delta:* `instruments/ccmail` (new) + `instruments/ccmail.test.js` (new, 25
   tests) + `instruments/man/ccmail.1` (new) + `instruments/README.md` (the

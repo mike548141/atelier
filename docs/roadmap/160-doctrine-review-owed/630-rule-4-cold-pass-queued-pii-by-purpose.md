@@ -1,4 +1,4 @@
-- [ ] 🛑 **Rule-4 cold pass queued: personal data held by purpose, with
+- [ ] 🎯 **Rule-4 cold pass queued: personal data held by purpose, with
       recorded exceptions (`200/100` C11).** The run authored this itself.
       The rule is in Mike's own words, and the placement and wording around
       it are the run's. It was queued at landing, and the run neither takes

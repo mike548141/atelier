@@ -158,6 +158,13 @@ FLAGS = ("🎯", "🔥", "🛑", "⏳", "🔎", "🤔")
 # A claim fragment, surfaced in the index so "who has this" is one glance.
 CLAIM_RE = re.compile(r"\(claimed [^)]*\)")
 
+# A code span on the state line is a MENTION of a glyph, never a flag. An item
+# ABOUT the queued-review glyph names it in backticks, and lifting it from there
+# put that glyph on the item's index line, where a session counting the review
+# queue counted it (130/020: two of the index's fifteen were such mentions).
+# pointerscan strips code spans for the same reason before it reads a state.
+CODE_SPAN_RE = re.compile(r"`[^`]*`")
+
 TITLE_RE = re.compile(r"\*\*(.+?)\*\*")
 LINK_RE = re.compile(r"\[([^\]]*)\]\([^)]*\)")
 TITLE_MAX = 70
@@ -217,7 +224,8 @@ def index_title(rest: str) -> str:
 def index_line(marker: str, rest: str, rel_link: str) -> str:
     """One generated index line for an item. `[x]` renders ✅ by design."""
     glyph = {"[ ]": "- [ ]", "[~]": "- [~]", "[x]": "- ✅", "⏳": "- ⏳"}[marker]
-    flags = "".join(f for f in FLAGS if f in rest and f != marker)
+    bare = CODE_SPAN_RE.sub(" ", rest)
+    flags = "".join(f for f in FLAGS if f in bare and f != marker)
     title = index_title(rest)
 
     # Flags and the claim fragment go BEFORE the link, and the reason is
@@ -629,6 +637,9 @@ def selftest() -> int:
         (sec / "50-marked.md").write_text(
             "- [ ] **Verbatim (15/7/26) title** "
             "<!-- datescan:allow: verbatim --> — body\n", encoding="utf-8")
+        (sec / "60-about.md").write_text(
+            "- [ ] 🔎 **What a `⏳` pointer becomes** — a mention\n",
+            encoding="utf-8")
 
         # not-in-scope: a bare tree passes without a board directory
         with tempfile.TemporaryDirectory() as bare:
@@ -696,6 +707,8 @@ def selftest() -> int:
         check("claim fragment surfaced",
               "(claimed 2026-08-15-0610, wt: b)" in text)
         check("pointer glyph kept", "- ⏳ [" in text)
+        check("a backticked glyph is a mention, never a lifted flag (130/020)",
+              "- [ ] 🔎 [What a" in text)
         check("allow-marker travels to the generated line",
               "<!-- datescan:allow: verbatim -->" in text)
         check("section heading from README", "## Track A — live exposure" in text)

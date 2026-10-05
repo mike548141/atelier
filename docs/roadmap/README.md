@@ -34,6 +34,25 @@ criterion may take it, **on the principal-named review tier (currently
 Fable): tier is checked at selection, and a session that cannot honour the
 bar stops rather than takes**; the taker writes the brief
 (`method/REVIEW.md` rule 4).
+**`⏳` means one thing, and the verdict takes it off** (`130/020`, 2026-10-05;
+no new state — the tri-state and `⏳` above, read strictly). `⏳` on a state
+line means a review is queued and its pass has not returned a verdict; a pass
+running under a claim keeps it. So the review queue is the count of `⏳` state
+lines — the index's `- ⏳` lines — never of titles that say "queued", which
+keep their words as record. The commit that lands a verdict takes the `⏳` off
+that pointer's state line, in the item's own file, and the tri-state takes
+over: `[ ]` while work is still owed, with the owed work named in the item —
+led by 🎯 when what is owed is the principal's ruling (rule 3; 🎯 is the
+house mark for a decision that is the reader's to make,
+`method/COMMUNICATION.md`) — and `[x]` once nothing is owed, which for a review is once its findings are
+decided and their fixes consolidated onto a follow-ups item (`REVIEW.md` § *The
+lifecycle*, step 4). A further pass the cycle earns is queued as its own `⏳`
+item, in the commit that lands the application (rule 4's landing = queuing),
+never by re-queuing the landed item: one state line cannot say both. Eye-flags
+are never state — the marker alone is — so an `[x]` line still carrying 🎯
+reads as done. `pointerscan` warns on both miscounts (a `⏳` item recording its
+own pass as RAN, and a `[ ]` item whose title queues a review with no `⏳`), and
+the index lifts no glyph from a code span.
 **The pointer is refs only** — name the delta and the intent record, no
 evaluative account; the account lives in the session record, so a taker meets
 the work cold (REVIEW.md rule 4's ceiling, stated here at the point of use).

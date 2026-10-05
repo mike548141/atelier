@@ -1,4 +1,4 @@
-- [ ] 🔎 **Two of the three `⏳` pointers on this board have already been taken
+- [x] 🔎 **Two of the three `⏳` pointers on this board have already been taken
       and verdicted, and one of their cycles is CLOSED** — yet both still lead
       with the glyph a future taker greps to find work. The floor-render batch's
       pointer opens `⏳ Rule-4 review queued` and carries
@@ -42,3 +42,11 @@
       is warn-only on both planes, so even a firing finding never blocks.
       The choice between shapes (a)/(b)/(c) above is now priced on confirmed
       behaviour and stays Mike's.
+
+      ✅ **Closed 2026-10-05 by `130/020`.** That work chose this item's shape
+      (a), with an order-free form of (b): the verdict takes the `⏳` off, and
+      `pointerscan` warns on a `⏳` item that records its own pass as run. No
+      `⏳` item now carries landing evidence. The note above says the shape
+      choice "stays Mike's". `130/020`, filed later on Mike's own instruction
+      to record it as work for Claude sessions, treats the shape as a
+      correctness question among sessions, and that later instruction governs.

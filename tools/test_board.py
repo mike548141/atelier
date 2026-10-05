@@ -112,6 +112,23 @@ class Index(unittest.TestCase):
         self.assertIn("🎯", text)
         self.assertIn("[Fix the fail-open gate]", text)
 
+    def test_a_backticked_glyph_is_a_mention_not_a_flag(self):
+        """130/020: an item ABOUT the queued-review glyph names it in a code
+        span, and lifting it from there put that glyph on the item's index
+        line — where a session counting the review queue counted it. The
+        same glyph outside a code span still lifts."""
+        (self.sec / "80-about-pointers.md").write_text(
+            "- [ ] 🔎 **What a `⏳` pointer becomes when its verdict lands**\n",
+            encoding="utf-8")
+        (self.sec / "90-flagged.md").write_text(
+            "- [ ] ⏳ **A child's own sense of the glyph** — waiting\n",
+            encoding="utf-8")
+        text = self.rebuild()
+        about = next(l for l in text.splitlines() if "80-about" in l)
+        self.assertTrue(about.startswith("- [ ] 🔎 ["), about)
+        flagged = next(l for l in text.splitlines() if "90-flagged" in l)
+        self.assertTrue(flagged.startswith("- [ ] ⏳ ["), flagged)
+
     def test_source_line_allow_markers_travel_to_the_index(self):
         """A projection reproduces exempted text, so it inherits the
         exemption — day-one live finding: the index re-flagged a verbatim

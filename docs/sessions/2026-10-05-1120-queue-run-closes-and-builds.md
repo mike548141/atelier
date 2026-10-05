@@ -73,3 +73,20 @@ the merged tree: 411 pass. It also corrected the census date in a code
 comment, which the worker had stamped from local time. The worker also
 measured `--search` and left it alone, because a prefix cannot be
 output-identical there.
+
+## `130/020`: one unambiguous review-pointer state
+
+An Opus worker built it (`b02c56d`, `952f78a`), and the merge closes it with
+`130/010` and `320/460`. It needed no new state. `⏳` now means only
+"queued, verdict not returned"; the verdict commit takes it off, and the
+tri-state takes over, led by 🎯 when Mike's ruling is owed. `pointerscan`
+warns on both miscounts. Over the board's whole history it fires on exactly
+the 27 items `1d96efa` proved. `board.py` stops lifting glyphs out of code
+spans. `160/670` was a real queued re-review hidden behind 🛑, and it now
+counts. The worker proposed closing `160/460` and `160/510`, but each item's
+own text holds its cycle open until `670` runs, so they stay open. The merge
+conflicted only on the generated index, and a rebuild resolved it. Two
+date stamps the worker took from local time were corrected to UTC. The
+targeted suites pass on the merged tree (87 tests). The worker saw two
+`BoundedMemory` timeouts while the machine's load average was about 270, and
+those are re-run at close. Doctrine pass queued at `160/690`.

@@ -1,4 +1,4 @@
-- [ ] 🛑 **Rule-4 cold pass queued: the exception-register design, before it is
+- [ ] 🎯 **Rule-4 cold pass queued: the exception-register design, before it is
       accepted or built (`110/100` part 2).** The run authored this itself.
       It was queued at drafting, and the run neither takes it nor spawns a
       reviewer for it. *Tier:* Fable, the principal-named review tier,

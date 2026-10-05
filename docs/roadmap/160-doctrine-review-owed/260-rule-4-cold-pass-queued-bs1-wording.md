@@ -1,4 +1,4 @@
-- [ ] 🛑 **Rule-4 cold pass queued — the BS1 wording ruling applied (the
+- [ ] 🎯 **Rule-4 cold pass queued — the BS1 wording ruling applied (the
       hook-plane guarantee said plainly on four surfaces).** Self-authored
       doctrine, queued at landing by its author, who may not take it. *Tier:*
       Fable, the principal-named review tier — checked at selection; a session
