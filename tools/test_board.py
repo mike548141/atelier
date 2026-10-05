@@ -450,6 +450,26 @@ class StagedPlane(unittest.TestCase):
         self.assertEqual(
             board.run_check(self.root, fix=True, source=board.INDEX), 0)
 
+    def test_quoted_paths_are_read_on_the_staged_plane(self):
+        """115/260. `git ls-files` C-quotes a path holding a non-ASCII byte,
+        tab, double quote or backslash when it writes lines, so a section
+        directory or item file spelt that way was split into the wrong parts
+        and dropped from the staged index. `-z` hands over the raw path: the
+        staged plane must agree with the worktree plane, item and all."""
+        sec = self.root / board.BOARD_DIR / "20-café track"
+        sec.mkdir()
+        (sec / "README.md").write_text("# Café\n\nWhy.\n", encoding="utf-8")
+        (sec / '10-say "hi".md').write_text(
+            "- [ ] 🎯 **Quoted item** — still read\n", encoding="utf-8")
+        (sec / "20-tab\tname.md").write_text(
+            "- [ ] 🎯 **Tabbed item** — still read\n", encoding="utf-8")
+        _git(self.root, "add", "-A")
+        staged, _ = board.build_index(self.root / board.BOARD_DIR, board.INDEX)
+        disk, _ = board.build_index(self.root / board.BOARD_DIR, board.WORKTREE)
+        self.assertEqual(staged, disk)
+        self.assertIn("Quoted item", staged)
+        self.assertIn("Tabbed item", staged)
+
     def test_environment_error_outside_a_git_repo(self):
         with tempfile.TemporaryDirectory() as bare:
             self.assertEqual(

@@ -1347,6 +1347,13 @@ tally fields in its own order, the finding noun, the tail of a head line. None
 is a shared default. Lines that genuinely differ stay in their scanner:
 `leakscan`'s clean head, `indexscan`'s over-cap line, and the `⚠` heads of the
 advisory checks. `pointerscan.py` and `board.py` keep their own copies for now.
+
+It also reads git's path output (`115/260`). git C-quotes a path holding a
+non-ASCII byte, tab, newline, double quote or backslash, so a parser that
+expects a bare path misses the file. `nul_paths` reads `-z` output (the raw
+path; `board.py`, `harvestscan.py`). `diff_header_path` and `unquote_c` read
+the `+++` header of a staged diff, which has no `-z` form (`conflictscan.py`,
+`leakscan.py`, `secretscan.py`, all passing `-c core.quotePath=false`).
 `test_report.py` tests each helper and pins each converted scanner's lines as
 literals. What a scanner prints reaches every child's CI at its next run, so a
 shared edit that changes one of those lines fails the suite first.

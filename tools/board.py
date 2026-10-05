@@ -118,6 +118,7 @@ from pathlib import Path
 # one (BS1, 010/020's fund: "the same way harvestscan closed HV4").
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import harvestscan  # noqa: E402
+import report  # noqa: E402
 
 WORKTREE = harvestscan.WORKTREE
 INDEX = harvestscan.INDEX
@@ -410,10 +411,13 @@ def _index_sections(root: Path) -> tuple[bool, list[_Section]]:
     change to show up here, and an unstaged edit never touches the blob.
     `git show :path` reads that same staged blob's content.
     """
+    # `-z`: git C-quotes a path with a non-ASCII byte, tab, quote or backslash
+    # when it writes lines, and a quoted name splits into the wrong section
+    # and file (115/260). NUL-separated output is the raw path.
     r = subprocess.run(
-        ["git", "-C", str(root), "ls-files", "--", f"{BOARD_DIR}/"],
-        capture_output=True, text=True, check=False)
-    paths = [line for line in r.stdout.splitlines() if line] \
+        ["git", "-C", str(root), "ls-files", "-z", "--", f"{BOARD_DIR}/"],
+        capture_output=True, check=False)
+    paths = report.nul_paths(r.stdout) \
         if r.returncode == 0 else []
 
     prefix = f"{BOARD_DIR}/"

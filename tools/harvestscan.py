@@ -334,15 +334,18 @@ def list_markdown(root: Path, store: str, source: str) -> list[str]:
     A store may be a file or a directory. Tracked only: an untracked scratch
     file is not a record, and letting one count as a survivor would be a guard
     that passes on content nobody is committing."""
+    # `-z`: without it git C-quotes a path holding a non-ASCII byte, tab,
+    # quote or backslash, and the quoted spelling neither ends in `.md` nor
+    # names a file `git show` can read (115/260).
     if source in (WORKTREE, INDEX):
-        cmd = ["git", "-C", str(root), "ls-files", "--", store]
+        cmd = ["git", "-C", str(root), "ls-files", "-z", "--", store]
     else:
-        cmd = ["git", "-C", str(root), "ls-tree", "-r", "--name-only",
+        cmd = ["git", "-C", str(root), "ls-tree", "-r", "--name-only", "-z",
                source, "--", store]
-    r = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    r = subprocess.run(cmd, capture_output=True, check=False)
     if r.returncode != 0:
         return []
-    return [line for line in r.stdout.splitlines() if line.endswith(".md")]
+    return [p for p in report.nul_paths(r.stdout) if p.endswith(".md")]
 
 
 def paragraphs(text: str) -> list[str]:

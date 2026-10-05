@@ -381,6 +381,46 @@ class SplitBoardTest(GitBackedTest):
                              "prose narration must not count as survival")
 
 
+class QuotedPathTest(GitBackedTest):
+    """115/260 — `git ls-files` and `git ls-tree` C-quote a path holding a
+    non-ASCII byte, tab, double quote or backslash when they write lines. The
+    quoted spelling neither ends in `.md` (it ends in a quote mark) nor names
+    a file `git show` can read, so an item file spelt that way was invisible
+    to the guard. `-z` hands over the raw path, on all three planes."""
+
+    NAMES = ["café.md", 'say "hi".md', "tab\tname.md", "back\\slash.md"]
+
+    def test_every_plane_lists_the_raw_path(self):
+        with tempfile.TemporaryDirectory() as td:
+            root, g = self._repo(td)
+            sec = root / "docs" / "roadmap" / "10-track-a"
+            sec.mkdir(parents=True)
+            for name in self.NAMES:
+                (sec / name).write_text(item(ITEM))
+            g("add", "-A")
+            g("commit", "-qm", "start")
+            want = sorted(f"docs/roadmap/10-track-a/{n}" for n in self.NAMES)
+            store = "docs/roadmap"
+            for plane in (harvestscan.WORKTREE, harvestscan.INDEX, "HEAD"):
+                with self.subTest(plane=plane):
+                    self.assertEqual(
+                        want, sorted(harvestscan.list_markdown(root, store, plane)))
+
+    def test_a_deleted_quoted_item_file_is_reported_under_its_real_name(self):
+        with tempfile.TemporaryDirectory() as td:
+            root, g = self._repo(td)
+            sec = root / "docs" / "roadmap" / "10-track-a"
+            sec.mkdir(parents=True)
+            (sec / 'café "x".md').write_text(item(ITEM))
+            g("add", "-A")
+            g("commit", "-qm", "start")
+            (sec / 'café "x".md').unlink()
+            findings = harvestscan.scan(root, "HEAD")
+            self.assertEqual(len(findings), 1, findings)
+            self.assertEqual(findings[0]["file"],
+                             'docs/roadmap/10-track-a/café "x".md')
+
+
 class BoundedTime(unittest.TestCase):
     """020/400 — `vanished()`'s share of the "every guard runs bounded"
     ruling (`020/370` extended to the whole guard layer by `020/380`), on

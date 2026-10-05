@@ -2,6 +2,7 @@
 
 import contextlib
 import io
+import json
 import os
 import shutil
 import subprocess
@@ -296,6 +297,58 @@ class StagedRealGitRepo(unittest.TestCase):
         _git(self.repo, "commit", "-q", "-m", "init")
         (self.repo / "tracked.md").write_text("clean\n<<<<<<< HEAD\n")
         self.assertEqual(0, self._main(["--staged", "--root", str(self.repo)]))
+
+
+class StagedQuotedPaths(unittest.TestCase):
+    """115/260 — a staged file whose path git quotes was never scanned: its
+    `+++ "b/…"` header did not start `+++ b/`, so its added lines belonged to
+    no file. Real git, each spelling git quotes: a non-ASCII directory, a
+    double quote, a tab, a backslash."""
+
+    NAMES = ["café/note.md", 'say "hi".md', "tab\tname.md",
+             "back\\slash.md"]
+
+    def setUp(self):
+        self.repo = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.repo, ignore_errors=True)
+        _git(self.repo, "init", "-q")
+        self._old_cwd = os.getcwd()
+        os.chdir(self.repo)
+        self.addCleanup(os.chdir, self._old_cwd)
+
+    def _stage(self, name, text):
+        p = self.repo / name
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text)
+        _git(self.repo, "add", "--", name)
+
+    def _main(self, argv):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), \
+                contextlib.redirect_stderr(io.StringIO()):
+            return cs.main(argv), buf.getvalue()
+
+    def test_added_lines_are_keyed_by_the_real_path(self):
+        for name in self.NAMES:
+            with self.subTest(name=name):
+                self._stage(name, "<<<<<<< HEAD\n")
+                self.assertIn(name, cs.staged_added_lines())
+
+    def test_a_planted_marker_is_found_and_the_path_reported_unquoted(self):
+        for name in self.NAMES:
+            with self.subTest(name=name):
+                self._stage(name, "ok\n<<<<<<< HEAD\n=======\n>>>>>>> x\n")
+                code, out = self._main(
+                    ["--staged", "--root", str(self.repo), "--json"])
+                self.assertEqual(1, code)
+                paths = {f["path"] for f in json.loads(out)["findings"]}
+                self.assertIn(name, paths)
+                _git(self.repo, "rm", "-q", "-f", "--", name)
+
+    def test_a_clean_quoted_path_still_passes(self):
+        self._stage("café/ok.md", "# fine\n")
+        code, _ = self._main(["--staged", "--root", str(self.repo)])
+        self.assertEqual(0, code)
 
 
 class BoundedMemory(unittest.TestCase):
