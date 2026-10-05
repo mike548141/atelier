@@ -1,4 +1,4 @@
-- [ ] 🔎 **P9 — what the flip's transcripts add to the pre-flip gate**
+- [~] 🔎 **P9 — what the flip's transcripts add to the pre-flip gate** (claimed 2026-10-05-1821, wt: atelier-qr-260-110)
       `[M][docs][tools]`. Filed 2026-10-05 from P7's harvest (`090`, whose
       result block holds the evidence for each). Four additions, all about
       the moment before a repo goes public:
@@ -22,3 +22,7 @@
       Each is a doctrine or tool change, so whoever builds it queues its own
       rule-4 pass. `1` and `2` touch the AUTONOMY publish clause; `3` is a
       `publishscan` mode.
+
+      📌 **Answered 2026-10-05.** Of the session's options (yes, before the
+      next flip, which was recommended; only the history check; not now),
+      Mike picked *"Yes, before the next flip"*. Claimed for the build.

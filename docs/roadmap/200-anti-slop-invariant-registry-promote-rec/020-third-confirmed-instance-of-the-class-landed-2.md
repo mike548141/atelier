@@ -1,4 +1,4 @@
-- [ ] 🎯 Third confirmed instance of the class landed 2026-08-03, and Mike ruled
+- [x] Third confirmed instance of the class landed 2026-08-03, and Mike ruled
       the mint queued here. The class: a test authored from the same mental
       model as the code it guards cannot falsify that model — mutation testing
       proves *wiring*, never *correctness*; when a test encodes a belief about
@@ -37,3 +37,10 @@
       wording and the home**, per this item. It goes to him in plain
       language at the run's close. Until he does, the rule stands as
       landed doctrine under review.
+
+      ✅ **Signed off 2026-10-05.** At the run's close, Mike picked *"Sign off
+      as landed"* from the session's options, which were: sign off as
+      landed, move it to REVIEW.md, or reword it. That is an answer to an
+      offered choice, recorded as such, not a ruling in his own words. The
+      wording and the home stand. The independent review at `160/710` still
+      runs, and any finding it raises comes back to him the usual way.

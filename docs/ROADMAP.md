@@ -163,7 +163,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [A real credential pasted into an exempt fixture file is invisible to](roadmap/115-guardrail-architecture-mike-commissioned/050-a-real-credential-in-an-exempt-fixture-file-is.md)
 - [ ] 🔎 [A coined paraphrase is still presented on the board as a child](roadmap/115-guardrail-architecture-mike-commissioned/060-a-coined-paraphrase-is-still-cited-on-the-boar.md)
 - [ ] [PRINCIPLES.md §9 has no guard, and the only safe candidate is scoped](roadmap/115-guardrail-architecture-mike-commissioned/070-principles-9-has-no-guard-and-the-only-safe-ca.md)
-- [ ] 🎯 [(FUNDED by Mike 2026-09-20; parts 1–3 DONE — the namespaced-ID half…](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
+- [~] [(FUNDED by Mike 2026-09-20; parts 1–3 DONE; the marker-scope and…](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
 - [ ] [Give every guard a second dial — the standing consequence of Mike's](roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md)
 - [ ] 🎯 [Build a before-plane — the guardrail class that acts at the moment of](roadmap/115-guardrail-architecture-mike-commissioned/100-the-before-plane-is-empty-and-it-is-the-only.md)
 - [ ] 🔥 [The apex and the always-confirm floor have no mechanical backing at](roadmap/115-guardrail-architecture-mike-commissioned/110-the-apex-and-the-autonomy-floor-have-no-mecha.md)
@@ -306,7 +306,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/200-anti-slop-invariant-registry-promote-rec/README.md)*
 
 - ✅ [Build a generic mechanism keeping any hand-maintained index true to](roadmap/200-anti-slop-invariant-registry-promote-rec/010-build-a-generic-mechanism-keeping-any-hand-mai.md)
-- [ ] 🎯 [Third confirmed instance of the class landed 2026-08-03, and Mike…](roadmap/200-anti-slop-invariant-registry-promote-rec/020-third-confirmed-instance-of-the-class-landed-2.md)
+- ✅ [Third confirmed instance of the class landed 2026-08-03, and Mike…](roadmap/200-anti-slop-invariant-registry-promote-rec/020-third-confirmed-instance-of-the-class-landed-2.md)
 - [ ] 🎯 [R1 — the recurrence count has to become mechanical, and the mining](roadmap/200-anti-slop-invariant-registry-promote-rec/030-r1-the-recurrence-count-has-to-become-mechanic.md)
 - ✅ [R2 — find the actual triplications before consolidating any of them.](roadmap/200-anti-slop-invariant-registry-promote-rec/040-r2-find-the-actual-triplications-before-consol.md)
 - ✅ [Codify V1–V7 as the always-loaded reviewer checklist](roadmap/200-anti-slop-invariant-registry-promote-rec/050-codify-v1-v7-as-the-always-loaded-reviewer-che.md)
@@ -389,7 +389,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [P6 — rpi F5: estate-internal context accumulating in public](roadmap/260-sharing-public-since-2026-07-10-adr-0005/080-p6-rpi-f5-estate-internal-context-accumulating.md)
 - ✅ [P7 — harvest the rpi publication properly.](roadmap/260-sharing-public-since-2026-07-10-adr-0005/090-p7-harvest-the-rpi-publication-properly.md)
 - [ ] [P8 — traffic harvest: keep the history GitHub's 14-day window](roadmap/260-sharing-public-since-2026-07-10-adr-0005/100-p8-traffic-harvest-keep-the-history-github-s-1.md)
-- [ ] 🔎 [P9 — what the flip's transcripts add to the pre-flip gate](roadmap/260-sharing-public-since-2026-07-10-adr-0005/110-p9-what-the-flip-transcripts-add-to-the-gate.md)
+- [~] 🔎 (claimed 2026-10-05-1821, wt: atelier-qr-260-110) [P9 — what the flip's transcripts add to the pre-flip gate](roadmap/260-sharing-public-since-2026-07-10-adr-0005/110-p9-what-the-flip-transcripts-add-to-the-gate.md)
 
 ## Open questions
 
@@ -506,6 +506,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up: tool-call markup leaks into files an agent writes, and](roadmap/320-child-filed-findings-via-pointing-up/490-tool-call-markup-leaks-into-written-files-and-no-scanner-sees-it.md)
 - ✅ [PROPOSAL, hand-up from a private child — sessions cannot find tools](roadmap/320-child-filed-findings-via-pointing-up/500-sessions-cannot-find-installed-tools-toolbox-has-no-locator.md)
 - ✅ 🔎 [Sessions kept placing the tool list in a private repo and](roadmap/320-child-filed-findings-via-pointing-up/510-sessions-credited-mike-with-a-private-tool-list.md)
+- [ ] 🔎 [Hand-up: nothing at session open, or before "verified", reads the](roadmap/320-child-filed-findings-via-pointing-up/520-nothing-reads-the-published-ci-conclusion.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 

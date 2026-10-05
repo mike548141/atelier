@@ -1,4 +1,4 @@
-- [ ] 🎯 (FUNDED by Mike 2026-09-20; parts 1–3 DONE — the namespaced-ID half of part 3 awaits his decision) **Single-source the scanner harness, re-grounded on Mike's own upstream
+- [~] (FUNDED by Mike 2026-09-20; parts 1–3 DONE; the marker-scope and finding-ID half claimed 2026-10-05-1821, wt: atelier-qr-115-080-ids) **Single-source the scanner harness, re-grounded on Mike's own upstream
       test.** The finding already exists: GA1, a minor raised by the 2026-08-05
       guards-and-allowances cold pass and still awaiting its ruling round. It
       reads that the reason-required loader is ten per-scanner copies, *"the
@@ -250,3 +250,13 @@
       self-contained by design" comment is now false a third time, and
       `reviewscan` still says "copyable alone". Both stay unedited for
       FW4's ruling.
+
+      📌 **Answered 2026-10-05, and claimed for the build.** Of the session's
+      options (fix the markers with no IDs, which the session recommended;
+      fix the markers and print IDs; or neither), Mike picked *"Both: fix
+      markers and print IDs"*. He was told it changes the output of 14
+      guards in every repo's CI at once, with nothing turning red. The
+      build's binding constraint, which is the session's own, not his: **a
+      bare `<scanner>:allow` marker that silences today must still silence
+      everything it silences now**. Specific scopes are added, never
+      substituted. So no child goes red, and only the printed text changes.

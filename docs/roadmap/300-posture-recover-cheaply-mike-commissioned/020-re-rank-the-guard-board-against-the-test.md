@@ -295,3 +295,11 @@
       confirm none of them hides a guard. One finding from the pass is filed
       as `115/240`: three enforced scanners still describe themselves as
       advisory.
+
+      📌 **Answer recorded 2026-10-05 on the two landed forbid-only flags**
+      (`leakscan`, `publishscan`). Mike picked *"Accept: prevention is
+      right"* from the session's options, which were: accept, look for a
+      recovery path, or discuss first. Both stand as deliberately
+      prevention-only, because nothing un-publishes from a public repo.
+      The five open-item flags are unaffected. Each owes its declaration
+      when it is designed.
