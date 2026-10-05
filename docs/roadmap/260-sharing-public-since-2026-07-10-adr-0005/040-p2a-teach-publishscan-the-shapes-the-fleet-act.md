@@ -1,4 +1,4 @@
-- [ ] **P2a — teach `publishscan` the shapes the fleet actually has.** The
+- [x] **P2a — teach `publishscan` the shapes the fleet actually has.** The
       denylist was written from one finding plus standard practice, which is
       the honest starting point and not a survey. The sweep that grounds a
       second round is P7's (transcripts + session logs) plus a tracked-file
@@ -31,3 +31,10 @@
       working on latent findings. The claim came from reasoning without
       checking the workflow. `020/150`'s build caught it. 30 tests pass and the selftest is OK. Code pass
       queued at `160/470`.
+
+      ✅ **Closed 2026-10-05.** The tracked-file half landed earlier, as
+      recorded above. The transcript half was held for P7 (`090`), which has
+      now run. Its answer, one new shape (`*.egg-info/`) and the larger gap
+      that `publishscan` reads only the current tree while a flip publishes
+      all history, is carried forward as item 3 of `110` (P9). No work is owed
+      in this item; P9 holds what remains.

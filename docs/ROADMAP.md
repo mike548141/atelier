@@ -380,7 +380,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [One real peer adoption](roadmap/260-sharing-public-since-2026-07-10-adr-0005/010-one-real-peer-adoption.md)
 - [ ] [Practice/instance restructure](roadmap/260-sharing-public-since-2026-07-10-adr-0005/020-practice-instance-restructure.md)
 - [ ] [Exercise the interactive fill + bundled-mode scaffold end-to-end](roadmap/260-sharing-public-since-2026-07-10-adr-0005/030-exercise-the-interactive-fill-bundled-mode-sca.md)
-- [ ] [P2a — teach publishscan the shapes the fleet actually has.](roadmap/260-sharing-public-since-2026-07-10-adr-0005/040-p2a-teach-publishscan-the-shapes-the-fleet-act.md)
+- ✅ [P2a — teach publishscan the shapes the fleet actually has.](roadmap/260-sharing-public-since-2026-07-10-adr-0005/040-p2a-teach-publishscan-the-shapes-the-fleet-act.md)
 - [ ] 🎯 [P3 — the floor does not know whether a repo is public, and it should](roadmap/260-sharing-public-since-2026-07-10-adr-0005/050-p3-the-floor-does-not-know-whether-a-repo-is-p.md)
 - [ ] [P4 — rpi F9, routed upward: the ci plane calls leakscan without](roadmap/260-sharing-public-since-2026-07-10-adr-0005/060-p4-rpi-f9-routed-upward-the-ci-plane-calls-lea.md)
 - [ ] [P5 — rpi F10, routed upward: the publish-safety checklist gates repo](roadmap/260-sharing-public-since-2026-07-10-adr-0005/070-p5-rpi-f10-routed-upward-the-publish-safety-ch.md)
