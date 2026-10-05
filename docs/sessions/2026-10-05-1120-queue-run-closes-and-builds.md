@@ -44,3 +44,19 @@ in the item:
   own floors, each with a blocking secretscan finding of its own. Those reds
   are the children's work, and their detail stays out of this public record.
   Making a standing red reach a person is `115/100`, which awaits Mike.
+
+## `300/020`: the guard board re-ranked against the fourth requirement
+
+Claim `97c7ace`, merge `27586aa`, closed `f87ffb2`. An Opus worker declared
+100 guards and guard items: 20 landed, 80 open. It flagged seven where the
+honest answer is *forbids the act, and nothing makes the failure cheaper*.
+Two of those are landed guards, `leakscan` and `publishscan`. The other
+five are open items: G3, the before-plane, quotescan and two proposed
+working rules. Nothing was unwired. The pass's sharpest cross-cutting
+finding: **only the hook forbids anything**, because CI runs after a push
+and on a public repo the push is publication. The worker's four Sonnet
+classifier passes read the 136 candidate items. The worker re-read every
+flagged or overridden row itself. It screened out 115 more items by title
+and section, and the result block names them. One finding was filed as
+`115/240`: three enforced scanners still call themselves advisory. A worker
+has claimed it.
