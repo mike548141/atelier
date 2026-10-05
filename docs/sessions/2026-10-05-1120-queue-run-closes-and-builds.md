@@ -326,3 +326,30 @@ clone and 29 sibling repos. The new tests fail on the old code. Pass queued
 at `160/760`, covering this item and `260/120`. Filed `115/280`: in
 `secretscan`, an added line can pose as a diff header and move
 attribution, which could hide the lines after it.
+
+## Final close, after the answers
+
+**Stop condition: economics, then everything left blocked.** Mike asked
+whether the session's economics were still OK. They were: plan-covered
+models only, no Fable spend, and NZ$0 marginal. But the orchestrator's
+own context had reached about 386k, so every turn cost more than the last.
+The run finished its in-flight work and stopped there. `115/280` is
+buildable and is left as the next session's first pick.
+
+**Totals for the whole run:**
+- **28 items closed.** That is the 23 above plus `200/020`, `260/110`,
+  `260/120`, `115/080` (all three parts) and `115/260`.
+- `115/270` is half done. Its part 1 waits on Mike.
+- Nine new items were filed this run, and five of them are closed.
+- **Nine rule-4 passes queued for Fable:** `160/680` to `160/760`. Take
+  `720` (the scanner gates) and `760` (quoted paths) first, because both
+  are blocking guards where a defect is a silent miss.
+
+**Recorded against this run, added at the close:** the device question on
+finding IDs named the wrong three guards and said "14". The orchestrator had
+taken an earlier worker's survey on trust instead of checking it against
+the code. Mike's pick was made on that premise. Its substance survived:
+markers fixed, IDs where a kind exists. The item and his close report
+both carry the correction. It is the run's own lesson again: read the
+artefact, not a summary of it, and that includes before putting a question
+to Mike.
