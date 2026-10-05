@@ -179,6 +179,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [The streaming line readers are three or four different mechanisms,](roadmap/115-guardrail-architecture-mike-commissioned/220-the-line-readers-are-three-mechanisms-not-one-with-parameters.md)
 - [ ] 🔎 [Single-sourcing the allow-marker grammar surfaced four](roadmap/115-guardrail-architecture-mike-commissioned/230-four-allow-marker-divergences.md)
 - ✅ 🔎 [Three enforced scanners still describe themselves as advisory](roadmap/115-guardrail-architecture-mike-commissioned/240-three-enforced-scanners-call-themselves-advisory.md)
+- [~] 🔎 (claimed 2026-10-05-1239, wt: atelier-qr-115-250) [pointerscan still walks the whole tree, harness worktrees included](roadmap/115-guardrail-architecture-mike-commissioned/250-pointerscan-still-walks-the-whole-tree.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 
@@ -312,6 +313,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Where does the registry live? — the SCANNER half is answered and built](roadmap/200-anti-slop-invariant-registry-promote-rec/080-where-does-the-registry-live-the-scanner-half.md)
 - [ ] 🔎 [Two corroboration failures worth minting, both self-caught by the](roadmap/200-anti-slop-invariant-registry-promote-rec/090-two-corroboration-failures-worth-minting-from.md)
 - ✅ 🔎 [The R2 survey found eleven places where the doctrine's own copies](roadmap/200-anti-slop-invariant-registry-promote-rec/100-r2-found-eleven-live-contradictions.md)
+- [ ] 🔎 [The mining record behind this section, and this section's README,](roadmap/200-anti-slop-invariant-registry-promote-rec/110-the-mining-record-and-this-readme-are-stale.md)
 
 ## instruments/ — open features
 

@@ -35,3 +35,8 @@
 
       **Not done here:** the two session records above are left untouched.
       Fixing atelier's records is atelier's call.
+
+      📎 **2026-10-05: a third atelier instance**, found by a queue-run worker:
+      `docs/sessions/2026-07-22-1036-invariant-candidates.md` (the `200`
+      mining record) also ends in committed tool-call markup. It is filed
+      with that record's other stale statements as `200/110`.
