@@ -163,7 +163,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [A real credential pasted into an exempt fixture file is invisible to](roadmap/115-guardrail-architecture-mike-commissioned/050-a-real-credential-in-an-exempt-fixture-file-is.md)
 - [ ] 🔎 [A coined paraphrase is still presented on the board as a child](roadmap/115-guardrail-architecture-mike-commissioned/060-a-coined-paraphrase-is-still-cited-on-the-boar.md)
 - [ ] [PRINCIPLES.md §9 has no guard, and the only safe candidate is scoped](roadmap/115-guardrail-architecture-mike-commissioned/070-principles-9-has-no-guard-and-the-only-safe-ca.md)
-- [~] [(FUNDED by Mike 2026-09-20; parts 1–2 of 3 DONE, part 3 claimed…](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
+- [ ] 🎯 [(FUNDED by Mike 2026-09-20; parts 1–3 DONE — the namespaced-ID half…](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
 - [ ] [Give every guard a second dial — the standing consequence of Mike's](roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md)
 - [ ] 🎯 [Build a before-plane — the guardrail class that acts at the moment of](roadmap/115-guardrail-architecture-mike-commissioned/100-the-before-plane-is-empty-and-it-is-the-only.md)
 - [ ] 🔥 [The apex and the always-confirm floor have no mechanical backing at](roadmap/115-guardrail-architecture-mike-commissioned/110-the-apex-and-the-autonomy-floor-have-no-mecha.md)
@@ -282,6 +282,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: indexscan, the generic index-integrity](roadmap/160-doctrine-review-owed/700-rule-4-cold-pass-queued-indexscan.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the standing reviewer checklist and the](roadmap/160-doctrine-review-owed/710-rule-4-cold-pass-queued-checklist-and-test-rule.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the per-rule pre-filter gates in](roadmap/160-doctrine-review-owed/720-rule-4-cold-pass-queued-scanner-gates.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the shared exit and reporting contract](roadmap/160-doctrine-review-owed/730-rule-4-cold-pass-queued-the-report-contract.md)
 
 ## build/ layer — open strands
 

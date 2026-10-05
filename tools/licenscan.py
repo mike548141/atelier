@@ -73,6 +73,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import filewalk  # noqa: E402
 import allowmarker  # noqa: E402
+import report  # noqa: E402
 
 # A line carrying this marker is intentionally exempt (e.g. a documented example
 # header in test data, or a deliberately dual-licensed file). Keep the reason on
@@ -620,20 +621,22 @@ def collect_files(root: Path, globs: list[str],
 
 def _suppression_line(rep: Report) -> str:
     """Rule (b): known zeros printed, so two runs can be compared."""
-    return (f"  suppressed: {rep.suppressed_declarations} declaration(s) by "
-            f"allow-marker · {rep.files_by_glob} file(s) by .licenscanignore · "
-            f"{rep.files_truncated} file(s) over "
-            f"{MAX_FILE_BYTES // (1024 * 1024)} MiB scanned truncated")
+    return report.suppressed_line(
+        [f"{rep.suppressed_declarations} declaration(s) by allow-marker",
+         f"{rep.files_by_glob} file(s) by .licenscanignore",
+         f"{rep.files_truncated} file(s) over "
+         f"{MAX_FILE_BYTES // (1024 * 1024)} MiB scanned truncated"])
 
 
 def render_human(rep: Report) -> str:
     lines: list[str] = []
     lic = rep.repo_license or rep.repo_license_declared or "unrecognised"
     if rep.clean:
-        return (f"✓ licenscan clean — repo licence {lic}, all declarations agree."
+        return (report.clean_head("licenscan",
+                                  f"repo licence {lic}, all declarations agree.")
                 + "\n" + _suppression_line(rep))
-    lines.append(f"✗ licenscan: {len(rep.findings)} finding(s) — repo licence "
-                 f"{lic}. Publish blocked.\n")
+    lines.append(report.findings_head("licenscan", len(rep.findings),
+                                      tail=f" — repo licence {lic}. Publish blocked.\n"))
     for f in sorted(rep.findings, key=lambda x: (x.severity != "high", x.path, x.line)):
         loc = f"  {f.path}:{f.line}  " if f.path else "  "
         lines.append(f"{loc}[{f.severity}/{f.kind}] {f.message}")
@@ -664,8 +667,7 @@ def _main(argv: list[str] | None = None) -> int:
 
     root = Path(args.root).resolve()
     if not root.is_dir():
-        print(f"licenscan: not a directory: {root}", file=sys.stderr)
-        return 2
+        return report.broken("licenscan", f"not a directory: {root}")
 
     globs = load_ignore_globs(root)
     _skipped: list[int] = []
@@ -685,7 +687,7 @@ def _main(argv: list[str] | None = None) -> int:
         }, indent=2))
     else:
         print(render_human(rep))
-    return 1 if rep.findings else 0
+    return report.exit_code(len(rep.findings))
 
 
 def _selftest() -> int:
@@ -807,11 +809,7 @@ def main(argv: list[str] | None = None) -> int:
 
     A broken scan is not a pass (the house exit-code contract), and an
     unexplained exemption makes the scan's own scope untrustworthy."""
-    try:
-        return _main(argv)
-    except IgnoreFileError as e:
-        print(f"licenscan: {e}", file=sys.stderr)
-        return 2
+    return report.guarded_main("licenscan", _main, argv, (IgnoreFileError,))
 
 if __name__ == "__main__":
     sys.exit(main())

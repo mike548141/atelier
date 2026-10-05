@@ -204,6 +204,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import filewalk  # noqa: E402
 import allowmarker  # noqa: E402
+import report  # noqa: E402
 
 # A line carrying this marker is intentionally exempt from every check on
 # that line. Keep the reason on the same line so the exemption is
@@ -243,10 +244,10 @@ class Tally:
 
     def summary(self) -> str:
         """One stable line, known zeros printed, so two runs compare."""
-        return ("  suppressed: "
-                f"{self.by_marker} by allow-marker · "
-                f"{self.files_by_glob} file(s) by .wrapscanignore · "
-                f"{self.lines_truncated} over-long line(s) scanned truncated")
+        return report.suppressed_line(
+            [f"{self.by_marker} by allow-marker",
+             f"{self.files_by_glob} file(s) by .wrapscanignore",
+             f"{self.lines_truncated} over-long line(s) scanned truncated"])
 
 
 # Only these extensions are scanned — dated/doc prose is Markdown, not code
@@ -581,9 +582,10 @@ def scan_paths(paths: list[Path], root: Path, limit: int = LINE_LIMIT,
 def render_human(findings: list[Finding], limit: int,
                  tally: "Tally | None" = None) -> str:
     if not findings:
-        out = f"✓ wrapscan clean — no prose lines over {limit} columns."
+        out = report.clean_head("wrapscan", f"no prose lines over {limit} columns.")
         return out + ("\n" + tally.summary() if tally is not None else "")
-    lines = [f"✗ wrapscan: {len(findings)} finding(s) (limit {limit} columns)."]
+    lines = [report.findings_head("wrapscan", len(findings),
+                                  tail=f" (limit {limit} columns).")]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
         lines.append(f"  {f.path}:{f.line}  [{f.length} cols] {f.detail}")
     if tally is not None:
@@ -621,32 +623,27 @@ def _main(argv: list[str] | None = None) -> int:
         return _selftest()
 
     root = Path(args.root).resolve()
-    if not root.is_dir():
-        print(f"wrapscan: root does not exist: {args.root}", file=sys.stderr)
-        return 2
+    rc = report.refuse_missing_root("wrapscan", root, args.root)
+    if rc is not None:
+        return rc
 
     if args.paths:
         # A RELATIVE target resolves against --root, never the caller's cwd:
         # mixing the two reads one repo's file under another repo's rules,
         # and neither half of the output says so (roadmap 010/110).
-        targets = [(root / p) if not Path(p).is_absolute() else Path(p)
-                   for p in args.paths]
+        targets = report.resolve_targets(root, args.paths)
     else:
         docs = root / "docs"
         targets = [docs] if docs.is_dir() else [root]
 
-    missing = [str(p) for p in targets if not p.exists()]
-    if missing:
-        # A typo'd path scanning nothing must never read as a clean pass.
-        print(f"wrapscan: path does not exist: {', '.join(missing)}",
-              file=sys.stderr)
-        return 2
+    rc = report.refuse_missing_paths("wrapscan", targets)
+    if rc is not None:
+        return rc
     tally = Tally()
     try:
         findings = scan_paths(targets, root, args.limit, tally)
     except OSError as e:
-        print(f"wrapscan: cannot read {e.filename}: {e.strerror}", file=sys.stderr)
-        return 2
+        return report.cannot_read("wrapscan", e)
 
     if args.json:
         print(json.dumps({
@@ -662,11 +659,9 @@ def _main(argv: list[str] | None = None) -> int:
     else:
         print(render_human(findings, args.limit, tally))
         if findings and args.warn:
-            print("\n  (--warn: advisory only — not blocking this build.)")
+            print(report.WARN_NOTICE)
 
-    if args.warn:
-        return 0
-    return 1 if findings else 0
+    return report.exit_code(len(findings), warn=args.warn)
 
 
 def _selftest() -> int:
@@ -750,11 +745,7 @@ def main(argv: list[str] | None = None) -> int:
 
     A broken scan is not a pass (the house exit-code contract), and an
     unexplained exemption makes the scan's own scope untrustworthy."""
-    try:
-        return _main(argv)
-    except IgnoreFileError as e:
-        print(f"wrapscan: {e}", file=sys.stderr)
-        return 2
+    return report.guarded_main("wrapscan", _main, argv, (IgnoreFileError,))
 
 if __name__ == "__main__":
     sys.exit(main())

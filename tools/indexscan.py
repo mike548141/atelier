@@ -119,6 +119,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import filewalk  # noqa: E402
 import allowmarker  # noqa: E402
+import report  # noqa: E402
 
 ALLOW_MARKER = "indexscan:allow"
 ALLOW_RX = allowmarker.marker_rx(ALLOW_MARKER)
@@ -202,11 +203,13 @@ class Tally:
     def summary(self) -> str:
         return (f"  checked: {self.declarations} declaration(s) in "
                 f"{self.indexes} index file(s), {self.entries} entr(ies) mapped\n"
-                f"  suppressed: {self.by_marker} by allow-marker · "
-                f"{self.by_exclude} by exclude= · {self.by_before} by before= · "
-                f"{self.files_by_glob} file(s) by .indexscanignore · "
-                f"{self.findings_over_cap} beyond the "
-                f"{MAX_MATERIALIZED_FINDINGS}-finding cap (counted, not listed)")
+                + report.suppressed_line(
+                    [f"{self.by_marker} by allow-marker",
+                     f"{self.by_exclude} by exclude=",
+                     f"{self.by_before} by before=",
+                     f"{self.files_by_glob} file(s) by .indexscanignore",
+                     report.cap_part(self.findings_over_cap,
+                                     MAX_MATERIALIZED_FINDINGS)]))
 
 
 def parse_allow(line: str) -> tuple[str, str] | None:
@@ -489,12 +492,13 @@ def scan_paths(paths: list[Path], root: Path, tally: Tally) -> list[Finding]:
 def render_human(findings: list[Finding], tally: Tally) -> str:
     total = len(findings) + tally.findings_over_cap
     if not total:
-        head = ("✓ indexscan clean — every mapped entry is named by its index."
-                if tally.declarations else
-                "✓ indexscan clean — no index declares a mapped directory "
-                "(nothing to check; adoption is opt-in per index).")
+        head = report.clean_head(
+            "indexscan",
+            "every mapped entry is named by its index." if tally.declarations
+            else "no index declares a mapped directory "
+                 "(nothing to check; adoption is opt-in per index).")
         return head + "\n" + tally.summary()
-    lines = [f"✗ indexscan: {total} finding(s)."]
+    lines = [report.findings_head("indexscan", total)]
     for f in sorted(findings, key=lambda x: (x.path, x.line, x.entry)):
         lines.append(f"  {f.path}:{f.line}  [{f.kind}] {f.entry} → {f.detail}")
     if tally.findings_over_cap:
@@ -526,25 +530,21 @@ def _main(argv: list[str] | None = None) -> int:
         return _selftest()
 
     root = Path(args.root).resolve()
-    if not root.is_dir():
-        print(f"indexscan: root does not exist: {args.root}", file=sys.stderr)
-        return 2
-    targets = [(root / p) if not Path(p).is_absolute() else Path(p)
-               for p in (args.paths or [str(root)])]
-    missing = [str(p) for p in targets if not p.exists()]
-    if missing:
-        print(f"indexscan: path does not exist: {', '.join(missing)}", file=sys.stderr)
-        return 2
+    rc = report.refuse_missing_root("indexscan", root, args.root)
+    if rc is not None:
+        return rc
+    targets = report.resolve_targets(root, args.paths or [str(root)])
+    rc = report.refuse_missing_paths("indexscan", targets)
+    if rc is not None:
+        return rc
 
     tally = Tally()
     try:
         findings = scan_paths(targets, root, tally)
     except ConfigError as e:
-        print(f"indexscan: {e}", file=sys.stderr)
-        return 2
+        return report.broken("indexscan", str(e))
     except OSError as e:
-        print(f"indexscan: cannot read {e.filename}: {e.strerror}", file=sys.stderr)
-        return 2
+        return report.cannot_read("indexscan", e)
 
     total = len(findings) + tally.findings_over_cap
     if args.json:
@@ -564,10 +564,8 @@ def _main(argv: list[str] | None = None) -> int:
     else:
         print(render_human(findings, tally))
         if total and args.warn:
-            print("\n  (--warn: advisory only — not blocking this build.)")
-    if args.warn:
-        return 0
-    return 1 if total else 0
+            print(report.WARN_NOTICE)
+    return report.exit_code(total, warn=args.warn)
 
 
 def _selftest() -> int:
@@ -618,11 +616,7 @@ def _selftest() -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    try:
-        return _main(argv)
-    except IgnoreFileError as e:
-        print(f"indexscan: {e}", file=sys.stderr)
-        return 2
+    return report.guarded_main("indexscan", _main, argv, (IgnoreFileError,))
 
 
 if __name__ == "__main__":

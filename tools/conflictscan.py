@@ -155,6 +155,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import filewalk  # noqa: E402
 import allowmarker  # noqa: E402
+import report  # noqa: E402
 
 # A line carrying this marker is intentionally exempt from the one finding it
 # could otherwise produce. Keep the reason on the same line so the exemption
@@ -221,15 +222,11 @@ class Tally:
 
     def summary(self) -> str:
         """One stable line, known zeros printed, so two runs compare."""
-        line = ("  suppressed: "
-                f"{self.marker_total} by allow-marker · "
-                f"{self.files_by_glob} file(s) by .conflictscanignore · "
-                f"{self.findings_over_cap} beyond the "
-                f"{MAX_MATERIALIZED_FINDINGS}-finding cap (counted, not listed)")
-        if self.by_marker:
-            detail = ", ".join(f"{k}×{n}" for k, n in sorted(self.by_marker.items()))
-            line += f"\n    allow-marker breakdown: {detail}"
-        return line
+        return report.suppressed_line(
+            [f"{self.marker_total} by allow-marker",
+             f"{self.files_by_glob} file(s) by .conflictscanignore",
+             report.cap_part(self.findings_over_cap, MAX_MATERIALIZED_FINDINGS)],
+            breakdown=self.by_marker)
 
 
 # Paths never worth walking. Hardcode-skip ONLY names that are never
@@ -536,14 +533,14 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     # `Tally.take_finding_slot`.
     over_cap = tally.findings_over_cap if tally is not None else 0
     if not findings and not over_cap:
-        out = "✓ conflictscan clean — no conflict markers found."
+        out = report.clean_head("conflictscan", "no conflict markers found.")
         return out + ("\n" + tally.summary() if tally is not None else "")
-    lines = [f"✗ conflictscan: {len(findings) + over_cap} finding(s) — commit blocked."]
+    lines = [report.findings_head("conflictscan", len(findings) + over_cap,
+                                  tail=" — commit blocked.")]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
         lines.append(f"  {f.path}:{f.line}  [{f.kind}] {f.match!r} → {f.detail}")
     if over_cap:
-        lines.append(f"  …and {over_cap} more finding(s), counted but not listed "
-                     f"(past the {MAX_MATERIALIZED_FINDINGS}-finding memory cap).")
+        lines.append(report.over_cap_line(over_cap, MAX_MATERIALIZED_FINDINGS))
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
@@ -576,9 +573,9 @@ def _main(argv: list[str] | None = None) -> int:
         return _selftest()
 
     root = Path(args.root).resolve()
-    if not root.is_dir():
-        print(f"conflictscan: root does not exist: {args.root}", file=sys.stderr)
-        return 2
+    rc = report.refuse_missing_root("conflictscan", root, args.root)
+    if rc is not None:
+        return rc
 
     tally = Tally()
 
@@ -586,21 +583,14 @@ def _main(argv: list[str] | None = None) -> int:
         try:
             staged = staged_added_lines()
         except subprocess.CalledProcessError as e:
-            print(f"conflictscan: git diff failed: {e}", file=sys.stderr)
-            return 2
+            return report.git_diff_failed("conflictscan", e)
         # An ABSOLUTE path in --staged mode matches no repo-relative prefix
         # git reports, so the filter silently empties and the scan covers
         # nothing while still exiting 0 — the same silent-success class
         # `secretscan`/`linkscan` already close. Refuse it rather than pass.
-        absolute = [p for p in args.paths if Path(p).is_absolute()]
-        if absolute:
-            print(f"conflictscan: --staged needs repo-relative path(s), got "
-                  f"absolute: {', '.join(absolute)}\n"
-                  "  git lists staged paths relative to the repo root, so an "
-                  "absolute path matches nothing\n"
-                  "  and the scan would pass while covering nothing. Pass e.g. "
-                  "'src/' instead.", file=sys.stderr)
-            return 2
+        rc = report.refuse_absolute_staged("conflictscan", args.paths, "src/")
+        if rc is not None:
+            return rc
         prefixes = tuple(p.rstrip("/") + "/" for p in args.paths)
         if prefixes:
             staged = {path: text for path, text in staged.items()
@@ -616,20 +606,14 @@ def _main(argv: list[str] | None = None) -> int:
         # A RELATIVE target resolves against --root, never the caller's cwd:
         # mixing the two reads one repo's file under another repo's rules,
         # and neither half of the output says so (roadmap 010/110).
-        targets = [(root / p) if not Path(p).is_absolute() else Path(p)
-                   for p in (args.paths or [str(root)])]
-        missing = [str(p) for p in targets if not p.exists()]
-        if missing:
-            # A typo'd path scanning nothing must never read as a clean pass.
-            print(f"conflictscan: path does not exist: {', '.join(missing)}",
-                  file=sys.stderr)
-            return 2
+        targets = report.resolve_targets(root, args.paths or [str(root)])
+        rc = report.refuse_missing_paths("conflictscan", targets)
+        if rc is not None:
+            return rc
         try:
             findings = scan_paths(targets, root, tally)
         except OSError as e:
-            print(f"conflictscan: cannot read {e.filename}: {e.strerror}",
-                  file=sys.stderr)
-            return 2
+            return report.cannot_read("conflictscan", e)
 
     if args.json:
         print(json.dumps({
@@ -645,7 +629,7 @@ def _main(argv: list[str] | None = None) -> int:
     else:
         print(render_human(findings, tally))
 
-    return 1 if (findings or tally.findings_over_cap) else 0
+    return report.exit_code(len(findings) + tally.findings_over_cap)
 
 
 def _selftest() -> int:
@@ -728,11 +712,7 @@ def main(argv: list[str] | None = None) -> int:
 
     A broken scan is not a pass (the house exit-code contract), and an
     unexplained exemption makes the scan's own scope untrustworthy."""
-    try:
-        return _main(argv)
-    except IgnoreFileError as e:
-        print(f"conflictscan: {e}", file=sys.stderr)
-        return 2
+    return report.guarded_main("conflictscan", _main, argv, (IgnoreFileError,))
 
 
 if __name__ == "__main__":

@@ -181,3 +181,19 @@ and the run's first clean full suite was this one. The orchestrator
 re-ran `test_pointerscan` on the merged tree. No separate review is queued:
 the change applies an already-reviewed shared walk, and `160/690` covers
 pointerscan as it now stands.
+
+## `115/080` part 3: one shared exit and reporting contract
+
+An Opus worker surveyed first, then built (`ffabef3`). The survey showed
+all sixteen scanners already share one exit contract, and that most report
+lines are identical copies or differ only in a parameter.
+`tools/report.py` now holds them, and fourteen scanners use it. Output was
+byte-identical in 453 of 453 fixture cases and 38 of 38 real-tree cases. The
+new pin tests pass against the old scanners too. Namespaced finding IDs were
+**not** built. The allow-marker already namespaces a finding, but its scope
+means four different things across scanners, and three scanners ignore it.
+Printing IDs would change every finding line in every child's CI.
+Changing what the scope suppresses is a behaviour change. Both go to Mike,
+so `115/080` stays open under 🎯 for that half alone. Five reporting
+divergences (D1–D5) are recorded on the item, not unified. Code pass
+queued at `160/730`.

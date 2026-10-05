@@ -1,4 +1,4 @@
-- [~] (FUNDED by Mike 2026-09-20; parts 1–2 of 3 DONE, part 3 claimed 2026-10-05-1255, wt: atelier-qr-115-080-p3) **Single-source the scanner harness, re-grounded on Mike's own upstream
+- [ ] 🎯 (FUNDED by Mike 2026-09-20; parts 1–3 DONE — the namespaced-ID half of part 3 awaits his decision) **Single-source the scanner harness, re-grounded on Mike's own upstream
       test.** The finding already exists: GA1, a minor raised by the 2026-08-05
       guards-and-allowances cold pass and still awaiting its ruling round. It
       reads that the reason-required loader is ten per-scanner copies, *"the
@@ -200,3 +200,53 @@
       design" comment predates both and is now false twice.
       **Part 3 (exit and reporting contract, namespaced finding IDs) is still
       owed and unclaimed.** Code pass queued at `160/480`.
+
+      ---
+      ✅ **PART 3 LANDED 2026-10-05: `tools/report.py`** (queue run, an Opus
+      5.5 worker; `ffabef3`). It is the shared exit and reporting contract,
+      built only where output stays byte-identical. **The survey came
+      first.** All 16 registry scanners already share one exit contract: 0
+      means nothing blocking, 1 means blocking findings, 2 means the scan
+      itself broke. The `main()` wrapper, the exit-2 messages, the
+      `suppressed:` line, the cap clause and the `--warn` notice were
+      already identical copies, from 3 to 13 each. The head lines differ
+      only in their parameters. So `report.py` holds the exit codes, the
+      config-error wrapper, the refusal helpers and the common report
+      lines, with every per-guard difference passed in. **Fourteen
+      scanners are converted.** `pointerscan` was held out while a sibling
+      worker changed it, and `board.py` was left because its stderr prefix
+      differs.
+      **Evidence:** stdout, stderr and exit code were identical, old against
+      new, in 453 of 453 fixture cases and 38 of 38 real-tree cases. The
+      fixtures covered clean, findings, suppressed, bad ignore file, missing
+      root or path, absolute and `--staged` refusals, `--disable`, `--warn`,
+      `--json`, `--check`, `--limit`, cap at 0 and 1, and every selftest.
+      `test_report.py` adds 32 tests. Its 12 pin tests also pass against the
+      pre-change scanners, so they prove the output did not move. The
+      worker ran the full suite at 1,752 OK and Node at 411/411. The
+      orchestrator re-ran the full suite on the merged tree. The code pass
+      is queued at `160/730`.
+      🎯 **The other half of part 3, namespaced finding IDs, is a decision,
+      not a build.** Namespacing already exists in the allow-marker
+      (`<scanner>:allow:<scope>`). What differs is what the scope means: a
+      rule name in two scanners, a finding kind in two, the matched word in
+      one (where the printed kind is *not* a valid scope), read but ignored
+      in three (AM4), and no scope at all in three. So individual
+      suppression works in five scanners. It does not work in `licenscan`,
+      `conflictscan` or `indexscan`, which have several kinds of finding
+      and one marker for all of them. Printing a `<scanner>:<scope>` token
+      on every finding line, and an `id` in the JSON, changes every finding
+      line in 14 scanners. Children float on `floor.yml@main`, so every
+      child's CI output would change at its next run. Exit codes would not
+      change. Making the scope actually suppress in the three scanners that
+      ignore it is a behaviour change, and it overlaps `230` and AM4. Both
+      halves go to Mike at the run's close, in plain words.
+      🔎 **Divergences the survey found, reported and not unified:** D1,
+      `datescan` prints no tally when it has findings. D2, `indexscan`'s
+      over-cap line has no cap clause. D3, five scanners' JSON leaves out
+      tally fields their human output prints. D4, seven scanners have no
+      finding cap. D5, no tally counts an unreadable file (FW8,
+      re-confirmed). FW4 has grown: `floor.py`'s "scanners are
+      self-contained by design" comment is now false a third time, and
+      `reviewscan` still says "copyable alone". Both stay unedited for
+      FW4's ruling.

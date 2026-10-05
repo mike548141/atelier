@@ -5,6 +5,13 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-10-05 — one shared exit and reporting contract for the guards, `115/080` part 3)
+- `tools/report.py` holds the exit codes (0 clean · 1 blocking findings · 2 the
+  scan broke) and the report lines fourteen scanners printed as copies. Every
+  per-guard difference is a parameter. Output is byte-identical: 453 of 453
+  fixture cases and 38 of 38 real-tree cases. Namespaced finding IDs were
+  surveyed and not built, because they would change every finding line.
+
 ### Changed (2026-10-05 — leakscan and secretscan: per-rule pre-filters, `110/130`)
 - Each rule skips its regex on a line that provably cannot match it, using a
   cheap test its own pattern makes necessary. Output is byte-identical, proven

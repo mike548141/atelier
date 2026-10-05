@@ -94,6 +94,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import filewalk  # noqa: E402
 import allowmarker  # noqa: E402
+import report  # noqa: E402
 
 # A line carrying this marker is intentionally exempt (e.g. a documented example
 # credential, or a known-public test key). Keep the reason on the same line.
@@ -231,15 +232,10 @@ class Tally:
                  f"{self.fingerprints} public-key fingerprint(s)",
                  f"{self.public_key_spans} by public-key line",
                  f"{self.url_tokens} by published-url token",
-                 f"{self.blocking_over_cap + self.advisory_over_cap} beyond the "
-                 f"{MAX_MATERIALIZED_FINDINGS}-finding cap (counted, not listed)"]
-        line = "  suppressed: " + " · ".join(parts)
-        if self.by_marker:
-            detail = ", ".join(f"{r}×{n}" for r, n in sorted(self.by_marker.items()))
-            line += f"\n    allow-marker breakdown: {detail}"
-        if self.disabled_rules:
-            line += f"\n    disabled: {', '.join(self.disabled_rules)}"
-        return line
+                 report.cap_part(self.blocking_over_cap + self.advisory_over_cap,
+                                 MAX_MATERIALIZED_FINDINGS)]
+        return report.suppressed_line(parts, breakdown=self.by_marker,
+                                      disabled=self.disabled_rules)
 
 
 # Paths never worth scanning. Hardcode-skip ONLY names that are never
@@ -1276,8 +1272,8 @@ def _render_advisory(advisory: list[Finding], over_cap: int = 0) -> list[str]:
                  "is there for a line")
     lines.append("   that is genuinely noise worth silencing.")
     if over_cap:
-        lines.append(f"   …and {over_cap} more advisory finding(s), counted but not "
-                     f"listed (past the {MAX_MATERIALIZED_FINDINGS}-finding memory cap).")
+        lines.append(report.over_cap_line(over_cap, MAX_MATERIALIZED_FINDINGS,
+                                          noun="advisory finding(s)", indent="   "))
     return lines
 
 
@@ -1294,19 +1290,21 @@ def render_human(findings: list[Finding], tally: Tally | None = None) -> str:
     advisory_over = tally.advisory_over_cap if tally is not None else 0
     lines: list[str] = []
     if not blocking and not blocking_over:
-        lines.append("✓ secretscan clean — no credentials in the scanned lines.")
+        lines.append(report.clean_head("secretscan",
+                                       "no credentials in the scanned lines."))
         if tally is not None:
             lines.append(tally.summary())
         lines.append(advisory_count_line(len(advisory) + advisory_over))
         if advisory:
             lines.extend(_render_advisory(advisory, advisory_over))
         return "\n".join(lines)
-    lines.append(f"✗ secretscan: {len(blocking) + blocking_over} finding(s) — commit blocked.\n")
+    lines.append(report.findings_head("secretscan", len(blocking) + blocking_over,
+                                      tail=" — commit blocked.\n"))
     for f in sorted(blocking, key=lambda x: (x.path, x.line)):
         lines.append(f"  {f.path}:{f.line}  [{f.severity}/{f.kind}] {f.rule} → {f.excerpt}")
     if blocking_over:
-        lines.append(f"  …and {blocking_over} more blocking finding(s), counted but not "
-                     f"listed (past the {MAX_MATERIALIZED_FINDINGS}-finding memory cap).")
+        lines.append(report.over_cap_line(blocking_over, MAX_MATERIALIZED_FINDINGS,
+                                          noun="blocking finding(s)"))
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
@@ -1350,9 +1348,8 @@ def _main(argv: list[str] | None = None) -> int:
     disabled = frozenset(r.strip() for r in args.disable.split(",") if r.strip())
     unknown = disabled - ALL_RULES
     if unknown:
-        print(f"secretscan: unknown rule(s) in --disable: {', '.join(sorted(unknown))}",
-              file=sys.stderr)
-        return 2
+        return report.broken(
+            "secretscan", f"unknown rule(s) in --disable: {', '.join(sorted(unknown))}")
     # A scope reduction taken at invocation is an allowance too, and rule (b)
     # says one nobody can see is one nobody reviewed — so `--disable` reports
     # itself in the output rather than narrowing the scan invisibly.
@@ -1362,23 +1359,16 @@ def _main(argv: list[str] | None = None) -> int:
         try:
             staged = staged_added_lines()
         except subprocess.CalledProcessError as e:
-            print(f"secretscan: git diff failed: {e}", file=sys.stderr)
-            return 2
+            return report.git_diff_failed("secretscan", e)
         # An ABSOLUTE path here scans NOTHING and exits 0 — the silent-success
         # class (linkscan L1) this tool already closes for a missing path, found
         # again on 2026-07-25 while building tools/floor.py. git lists staged
         # paths repo-relative, so `/Users/…/repo/x.py` matches no prefix, the
         # filter empties the set, and a boundary scan that covered nothing looks
         # exactly like one that found nothing wrong. Refuse it.
-        absolute = [p for p in args.paths if Path(p).is_absolute()]
-        if absolute:
-            print(f"secretscan: --staged needs repo-relative path(s), got absolute: "
-                  f"{', '.join(absolute)}\n"
-                  "  git lists staged paths relative to the repo root, so an "
-                  "absolute path matches nothing\n"
-                  "  and the scan would pass while covering nothing. Pass e.g. "
-                  "'src/' instead.", file=sys.stderr)
-            return 2
+        rc = report.refuse_absolute_staged("secretscan", args.paths, "src/")
+        if rc is not None:
+            return rc
         prefixes = tuple(p.rstrip("/") + "/" for p in args.paths)
         if prefixes:
             staged = {path: lines for path, lines in staged.items()
@@ -1394,16 +1384,13 @@ def _main(argv: list[str] | None = None) -> int:
         # A RELATIVE target resolves against --root, never the caller's cwd:
         # mixing the two reads one repo's file under another repo's rules,
         # and neither half of the output says so (roadmap 010/110).
-        targets = [(root / p) if not Path(p).is_absolute() else Path(p)
-                   for p in (args.paths or [str(root)])]
-        missing = [str(p) for p in targets if not p.exists()]
-        if missing:
-            # A typo'd path scanning nothing must never read as a clean pass —
-            # the linkscan L1 silent-success class, closed here too
-            # (2026-07-11 review N2).
-            print(f"secretscan: path does not exist: {', '.join(missing)}",
-                  file=sys.stderr)
-            return 2
+        targets = report.resolve_targets(root, args.paths or [str(root)])
+        # A typo'd path scanning nothing must never read as a clean pass —
+        # the linkscan L1 silent-success class, closed here too
+        # (2026-07-11 review N2).
+        rc = report.refuse_missing_paths("secretscan", targets)
+        if rc is not None:
+            return rc
         findings = scan_paths(targets, root, disabled, tally)
 
     blocking = [f for f in findings if f.blocks]
@@ -1442,7 +1429,7 @@ def _main(argv: list[str] | None = None) -> int:
     else:
         print(render_human(findings, tally))
 
-    return 1 if blocking_total else 0
+    return report.exit_code(blocking_total)
 
 
 def _selftest() -> int:
@@ -1511,11 +1498,7 @@ def main(argv: list[str] | None = None) -> int:
 
     A broken scan is not a pass (the house exit-code contract), and an
     unexplained exemption makes the scan's own scope untrustworthy."""
-    try:
-        return _main(argv)
-    except IgnoreFileError as e:
-        print(f"secretscan: {e}", file=sys.stderr)
-        return 2
+    return report.guarded_main("secretscan", _main, argv, (IgnoreFileError,))
 
 if __name__ == "__main__":
     sys.exit(main())
