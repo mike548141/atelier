@@ -175,6 +175,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import allowmarker  # noqa: E402
+import filewalk  # noqa: E402
 
 # The files this reads. The pointer grammar is a ROADMAP convention; nothing
 # else in the tree carries it, and pointing this at prose would be the
@@ -555,9 +556,14 @@ def roadmaps(paths: list[str], root: Path) -> list[Path]:
             if p.name in ROADMAP_NAMES or _in_board_dir(p):
                 found.append(p)
             continue
-        for sub in sorted(p.rglob("*.md")):
-            if any(part in SKIP_DIRS for part in sub.parts):
-                continue
+        # 115/250: a directory is enumerated by the shared `tools/filewalk.py`
+        # (110/110: git's tracked + untracked-not-ignored set inside a work
+        # tree; 020/160: never read inside a linked worktree), not a bare
+        # `rglob`, so a hand run does not count a sibling session's checkout.
+        # `SKIP_DIRS` is this scanner's own per-guard parameter. Sorted so
+        # the order is the one `rglob` gave.
+        for sub in sorted(q for q in filewalk.walk_files(p, SKIP_DIRS)
+                          if q.name.endswith(".md")):
             if sub.name in ROADMAP_NAMES or _in_board_dir(sub):
                 found.append(sub)
     # A path may be named twice (`--root . .` plus an explicit docs/).

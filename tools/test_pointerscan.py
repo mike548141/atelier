@@ -368,6 +368,69 @@ class InvocationTest(unittest.TestCase):
             self.assertEqual(len(json.loads(r.stdout)["findings"]), 1)
 
 
+class LinkedWorktreeSkipped(unittest.TestCase):
+    """115/250: a directory argument is enumerated by `filewalk`, so it must
+    not read inside a linked worktree (020/160: a directory whose `.git` is a
+    regular FILE). Before this, `roadmaps()` was a bare `rglob("*.md")` and a
+    hand run counted a sibling session's checkout under `.claude/worktrees/`
+    as this tree's own pointers."""
+
+    BAD = f"- [ ] {Q} **Review queued.** Is that right?\n"
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+
+    def _write(self, rel, text):
+        p = self.tmp / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text, encoding="utf-8")
+
+    def _found(self, *paths):
+        return {str(p.relative_to(self.tmp))
+                for p in pointerscan.roadmaps(list(paths or ["."]), self.tmp)}
+
+    def test_linked_worktree_roadmaps_are_not_read(self):
+        self._write("docs/roadmap/010-sec/010-item.md", self.BAD)
+        self._write(".claude/worktrees/wt1/.git",
+                    "gitdir: /elsewhere/.git/worktrees/wt1\n")
+        self._write(".claude/worktrees/wt1/docs/roadmap/010-sec/010-item.md",
+                    self.BAD)
+        self._write(".claude/worktrees/wt1/ROADMAP.md", self.BAD)
+        found = self._found()
+        self.assertEqual(found, {"docs/roadmap/010-sec/010-item.md"})
+
+    def test_a_linked_worktree_adds_no_finding_to_a_full_scan(self):
+        self._write("docs/roadmap/010-sec/010-item.md", self.BAD)
+        before = pointerscan.scan(["."], self.tmp)
+        self._write(".claude/worktrees/wt1/.git",
+                    "gitdir: /elsewhere/.git/worktrees/wt1\n")
+        self._write(".claude/worktrees/wt1/docs/roadmap/010-sec/010-item.md",
+                    self.BAD)
+        self.assertEqual(len(before), 1)
+        self.assertEqual(pointerscan.scan(["."], self.tmp), before)
+
+    def test_an_explicit_file_inside_a_linked_worktree_is_still_read(self):
+        """Explicit-file arguments keep working as before: the caller named
+        it, so the prune (a directory-walk rule) does not apply."""
+        self._write(".claude/worktrees/wt1/.git",
+                    "gitdir: /elsewhere/.git/worktrees/wt1\n")
+        self._write(".claude/worktrees/wt1/ROADMAP.md", self.BAD)
+        self.assertEqual(
+            self._found(".claude/worktrees/wt1/ROADMAP.md"),
+            {".claude/worktrees/wt1/ROADMAP.md"})
+
+    def test_independent_nested_repos_own_git_dir_still_pruned(self):
+        self._write("docs/roadmap/010-sec/010-item.md", self.BAD)
+        self._write("nested/.git/objects/pack/ROADMAP.md", self.BAD)
+        self.assertEqual(self._found(), {"docs/roadmap/010-sec/010-item.md"})
+
+    def test_skip_dir_names_still_prune(self):
+        self._write("node_modules/x/ROADMAP.md", self.BAD)
+        self._write("sub/ROADMAP.md", self.BAD)
+        self.assertEqual(self._found(), {"sub/ROADMAP.md"})
+
+
 class LiveSpecimenTest(unittest.TestCase):
     """The day-one proof, run against this repo's real roadmap. Written to
     survive the fix: once the live specimens are cleaned this asserts only that
