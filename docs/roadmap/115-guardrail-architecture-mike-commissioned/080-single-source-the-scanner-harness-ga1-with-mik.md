@@ -1,4 +1,4 @@
-- [ ] (FUNDED by Mike 2026-09-20; parts 1–2 of 3 DONE, part 3 owed and unclaimed) **Single-source the scanner harness, re-grounded on Mike's own upstream
+- [~] (FUNDED by Mike 2026-09-20; parts 1–2 of 3 DONE, part 3 claimed 2026-10-05-1255, wt: atelier-qr-115-080-p3) **Single-source the scanner harness, re-grounded on Mike's own upstream
       test.** The finding already exists: GA1, a minor raised by the 2026-08-05
       guards-and-allowances cold pass and still awaiting its ruling round. It
       reads that the reason-required loader is ten per-scanner copies, *"the
