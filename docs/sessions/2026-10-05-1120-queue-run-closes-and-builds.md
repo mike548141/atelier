@@ -275,3 +275,9 @@ ref. Default output was byte-identical across 29 repos. On `rpi` it
 reproduces P7's evidence. The pass is queued at `160/740`. The worker found
 that the default planes miss non-ASCII paths, because git quotes them; that
 is filed and claimed as `260/120`.
+
+**Mid-session request from Mike (2026-10-05):** *"When you have finished all
+the work in this session I would like you to list every question you asked
+me using AskUserQuestion and my answers"*. This is owed in the final message,
+not on the board, because it is a deliverable to him and not repo work.
+Recorded here so a cut cannot lose it.
