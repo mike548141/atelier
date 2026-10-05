@@ -580,14 +580,100 @@ def load_local_terms(path: Path | None) -> tuple[list[tuple[str, "re.Pattern[str
 BY_NAME: dict[str, Pattern] = {p.name: p for p in STRUCTURAL}
 
 
+# --- per-rule pre-filters (roadmap 110/130, lever 4) ---------------------
+#
+# Each gate is a CHEAP test on the line that is NECESSARY for its rule to match:
+# if the gate says no, the rule's regex provably has no match on that line, so
+# skipping `finditer` changes nothing — same findings, same order, same counts.
+# That is the only property a gate may have. A gate that could reject a line the
+# rule would match is a silent false negative in a boundary scanner, the worst
+# failure this tool has, so every gate below states WHY it is necessary and is
+# derived from the rule's own pattern text, never from a guess about the data.
+# A rule with no entry here has no provable cheap necessary condition and
+# always runs its full regex (fail open). `test_leakscan.GatesAreNecessary`
+# pins each gate against its rule on matching and near-miss lines.
+#
+# NOT BUILT, and why: lever 3 of 110/130, one combined alternation pass over
+# every rule. Rules here overlap on the same span (a MAC is also a valid IPv6;
+# an email and a JWT can share characters) and each reports its own finding,
+# in rule order, with its own validator. One alternation takes the leftmost
+# match per position and reports a single rule, so it cannot reproduce that
+# output byte for byte. Gates are the form of the idea that is exact.
+#
+# Counting gates (`count(x) >= n`) rest on one fact: a match whose pattern
+# needs n separator characters contains at least n of them, and `str.count` /
+# `in` are single C passes that allocate nothing.
+_DIGITS4_RX = re.compile(r"\d{4}")                     # payment-card
+_PHONE_TAIL_RX = re.compile(r"\d{3}[\s-]?\d{3}")       # nz-phone
+# nz-address: every alternative ends in one of these suffix words.
+_ADDRESS_SUFFIX_RX = re.compile(
+    r"Street|Road|Avenue|Lane|Drive|Terrace|Crescent"
+    r"|St|Rd|Ave|Ln|Dr|Pl|Tce|Cres|Place|Way|Close|Grove|Hill|Green")
+# pii-key-context: the pattern's fixed tail is
+# `\b\s*[:=]\s*["']?<2+ value chars>`. This is the part from the `[:=]` on —
+# necessary whatever key vocabulary is added to PII_KEY_RX later, because it
+# names no key. (The `[:=]` first means the regex engine only wakes at a colon
+# or equals sign, not at every word.)
+_PII_TAIL_RX = re.compile(r"""[:=]\s*["']?[^\s"'`,;:]{2}""")
+
+GATES: dict[str, "object"] = {
+    # `-----BEGIN [..] PRIVATE KEY-----` ends in this literal.
+    "private-key-header": lambda ln: "PRIVATE KEY-----" in ln,
+    "aws-access-key-id": lambda ln: "AKIA" in ln,
+    # `eyJ…\.eyJ…` — the second segment's lead-in.
+    "jwt": lambda ln: ".eyJ" in ln,
+    "email": lambda ln: "@" in ln,
+    "pii-key-context": lambda ln: _PII_TAIL_RX.search(ln) is not None,
+    # 13-19 digits or `\d{4}` groups: either way four digits in a row.
+    "payment-card": lambda ln: _DIGITS4_RX.search(ln) is not None,
+    # `[A-Z]{2}\d{2}[A-Z0-9]{11,30}` is at least 15 characters long.
+    "iban": lambda ln: len(ln) >= 15,
+    # `(?:xx[:-]){5}xx` — five separators.
+    "mac-address": lambda ln: ln.count(":") + ln.count("-") >= 5,
+    "ipv4": lambda ln: ln.count(".") >= 3,
+    # every alternative carries at least two colons (`h::h`, `h:h::`, `::h:h`).
+    "ipv6": lambda ln: ln.count(":") >= 2,
+    "nz-bank-account": lambda ln: ln.count("-") >= 3,
+    "nz-phone": lambda ln: _PHONE_TAIL_RX.search(ln) is not None,
+    "nz-address": lambda ln: _ADDRESS_SUFFIX_RX.search(ln) is not None,
+    "coordinates": lambda ln: "," in ln and ln.count(".") >= 2,
+    "nz-ird": lambda ln: ln.count("-") >= 2,
+}
+# One entry per rule, in STRUCTURAL's order: (pattern, gate-or-None).
+_GATED: tuple[tuple[Pattern, "object"], ...] = tuple(
+    (p, GATES.get(p.name)) for p in STRUCTURAL)
+_ACTIVE_CACHE: dict[frozenset[str], tuple] = {}
+
+
+def _active_rules(disabled: frozenset[str]) -> tuple:
+    """`_GATED` minus the disabled rules, memoised per disabled-set so the
+    per-line loop does not re-test every name against it."""
+    if not isinstance(disabled, frozenset):   # a plain set worked before
+        disabled = frozenset(disabled)
+    got = _ACTIVE_CACHE.get(disabled)
+    if got is None:
+        got = _ACTIVE_CACHE[disabled] = tuple(
+            (p, g) for p, g in _GATED if p.name not in disabled)
+    return got
+
+
 def _shadow_spans(line: str, disabled: frozenset[str]) -> dict[str, list[tuple[int, int]]]:
     """D5 — per shadowed rule, the spans another rule has already claimed."""
     out: dict[str, list[tuple[int, int]]] = {}
     for shadowed, shadowers in SHADOWED_BY.items():
         if shadowed in disabled:
             continue
+        # 110/130: a shadow only ever suppresses a match of the SHADOWED rule,
+        # and a shadower casts a span only where its own regex matches — so if
+        # the shadowed rule's gate fails there is nothing to suppress, and if a
+        # shadower's gate fails it has no span. Gates are necessary conditions
+        # (see GATES), so no span that could have mattered is lost.
+        gate = GATES.get(shadowed)
+        if gate is not None and not gate(line):
+            continue
         spans = [m.span()
                  for name in shadowers if name not in disabled
+                 if GATES.get(name) is None or GATES[name](line)
                  for m in BY_NAME[name].regex.finditer(line)]
         if spans:
             out[shadowed] = spans
@@ -615,11 +701,14 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
     whole-blob convenience wrapper every existing caller (staged mode, the
     path-name scan, the test suite) uses."""
     findings: list[Finding] = []
+    rules = _active_rules(disabled)
     for lineno, line in numbered_lines:
-        allow_scope = parse_allow(line)
+        # The marker regex opens with the literal marker text, so a line
+        # without it cannot carry a marker (110/130, lever 4).
+        allow_scope = parse_allow(line) if ALLOW_MARKER in line else None
         shadows = _shadow_spans(line, disabled)
-        for pat in STRUCTURAL:
-            if pat.name in disabled:
+        for pat, gate in rules:
+            if gate is not None and not gate(line):
                 continue
             validator = VALIDATORS.get(pat.name)
             claimed = shadows.get(pat.name, ())

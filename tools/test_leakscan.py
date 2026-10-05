@@ -1226,3 +1226,107 @@ class ReaderLinear(unittest.TestCase):
         # The oracle must fail the same bound, or the check proves nothing.
         _, old_copied = self._copied(self._old_reader, p)
         self.assertGreater(old_copied, 10 * len(data))
+
+
+class GatesAreNecessary(unittest.TestCase):
+    """110/130 (lever 4) — each per-rule pre-filter in `ls.GATES` is a cheap
+    test that must be NECESSARY for its rule: if the rule's regex matches a
+    line, the gate must pass that line. A gate that rejects a line its rule
+    would match is a silent false negative in a boundary scanner, so this is
+    proven three ways — gate-vs-regex on a corpus that exercises every gated
+    rule, gated scan vs the same scan with every gate removed, and the
+    structural facts the gates rest on. Every value is synthetic."""
+
+    POSITIVES = (
+        "-----BEGIN RSA PRIVATE KEY-----", "key AKIAABCDEFGHIJKLMNOP here",
+        "tok eyJhbGciOiJI.eyJzdWIiOiIx.abcdefghij", "mail jane.doe@example.org now",
+        "dob = 1984-02-29", "passport_number:\t'AB123456'", "birthDate:1984-02-29",
+        "card 4111111111111111 on file", "4111-1111-1111-1111",
+        "iban GB82WEST12345698765432 x", "mac aa:bb:cc:dd:ee:ff end",
+        "AA-BB-CC-DD-EE-FF", "gateway 172.16.31.7 is the igw",
+        "uplink fd00:1234:5678::abcd up", "2001:db8:0:0:0:0:0:1",
+        "acct 12-3456-1234567-00 ok", "call 021 123 4567", "(04) 123 4567",
+        "+6421 123 4567", "at 12 Cuba Street", "5 Oak Tce", "7a Kent Terrace",
+        "loc -41.2865, 174.7762 pin", "ird 123-456-789 x",
+        "medication: Foobarol", "home_address = 5-Main-Rd",
+    )
+    NOISE = (
+        "d", "-", ":", "::", "=", " = ", ": ", "\"", "'", " ", "\t", ".", ",",
+        "x", "key ", "1", "12", "123", "1234", "192.0.2.10", "255.255.255.0",
+        "a::b", "1:2:3:4", "the", "Street", "Hill", "St", "@", "AKIA", ".eyJ",
+        "PRIVATE KEY-----", "leakscan:allow: r", "leakscan:allow:ipv6: r",
+        "leakscan:allow:email,mac-address: r", "leakscan:allow",
+        "K", "ſ", "İ", "é",
+    )
+
+    @classmethod
+    def lines(cls, n=6000):
+        import random
+        rng = random.Random(130)
+        out = list(cls.POSITIVES) + list(cls.NOISE)
+        alphabet = "abcxyzAKIZ0123456789:-.,@=_ '\"`;\t/+()[]{}"
+        for _ in range(n):
+            parts = [rng.choice(cls.NOISE) for _ in range(rng.randint(0, 3))]
+            p = rng.choice(cls.POSITIVES)
+            if rng.random() < .5 and p:           # a near miss: break one char
+                i = rng.randrange(len(p))
+                p = p[:i] + rng.choice((alphabet[rng.randrange(len(alphabet))], "")) + p[i + 1:]
+            parts.insert(rng.randint(0, len(parts)), p)
+            out.append("".join(parts))
+        return out
+
+    def test_every_gate_names_a_real_rule(self):
+        # A typo'd name would be a rule silently running ungated forever.
+        self.assertLessEqual(set(ls.GATES), {p.name for p in ls.STRUCTURAL})
+
+    def test_a_rule_that_matches_always_passes_its_gate(self):
+        exercised = set()
+        for line in self.lines():
+            for pat in ls.STRUCTURAL:
+                gate = ls.GATES.get(pat.name)
+                if gate is None or not pat.regex.search(line):
+                    continue
+                exercised.add(pat.name)
+                self.assertTrue(gate(line),
+                                f"gate for {pat.name} rejects a line it matches: {line!r}")
+        # The corpus must reach every gated rule, or the check is vacuous.
+        self.assertEqual(exercised, set(ls.GATES))
+
+    def test_gated_scan_equals_ungated_scan(self):
+        from unittest import mock
+        import dataclasses
+        lines = list(enumerate(self.lines(3000), start=1))
+        for disabled in (frozenset(), frozenset({"ipv6"}), frozenset({"mac-address"}),
+                         frozenset({"ipv6", "mac-address"}), frozenset({"ipv4", "email"})):
+            t_gated = ls.Tally(disabled_rules=tuple(sorted(disabled)))
+            gated = ls.scan_lines("p", lines, [], disabled, t_gated)
+            with mock.patch.object(ls, "GATES", {}), \
+                    mock.patch.object(ls, "_GATED", tuple((p, None) for p in ls.STRUCTURAL)), \
+                    mock.patch.object(ls, "_ACTIVE_CACHE", {}):
+                t_plain = ls.Tally(disabled_rules=tuple(sorted(disabled)))
+                plain = ls.scan_lines("p", lines, [], disabled, t_plain)
+            self.assertTrue(plain, "the corpus must produce findings")
+            self.assertEqual([dataclasses.asdict(f) for f in gated],
+                             [dataclasses.asdict(f) for f in plain], disabled)
+            self.assertEqual(t_gated.by_marker, t_plain.by_marker, disabled)
+
+    def test_the_marker_regex_needs_the_marker_literal(self):
+        # The `ALLOW_MARKER in line` guard in scan_lines rests on this: the
+        # compiled marker pattern cannot match a line without the literal.
+        for line in self.lines(2000):
+            if ls.ALLOW_RX.search(line):
+                self.assertIn(ls.ALLOW_MARKER, line)
+        self.assertIsNotNone(ls.ALLOW_RX.search("x leakscan:allow: reason"))
+
+    def test_the_key_context_gate_names_no_key(self):
+        # Vocabulary-free by design: a key added to PII_KEY_RX tomorrow needs
+        # no edit to the gate. Pin it with every canary shape the suite holds.
+        for _label, line in PII_CANARIES:
+            self.assertTrue(ls.GATES["pii-key-context"](line), line)
+
+    def test_gates_leave_the_term_list_alone(self):
+        # The gates guard STRUCTURAL rules only; a line no gate passes still
+        # reaches the machine-local terms (D1).
+        term = ("zzzterm", re.compile(r"\bzzzterm\b", re.IGNORECASE))
+        fs = ls.scan_text("t", "plain words and zzzterm", [term])
+        self.assertEqual([f.rule for f in fs], ["local-term"])

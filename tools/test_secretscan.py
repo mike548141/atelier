@@ -12,6 +12,7 @@ import shutil
 import sys
 import tempfile
 import pathlib
+import re
 import unittest
 from pathlib import Path
 
@@ -1570,6 +1571,119 @@ class ReaderLinear(unittest.TestCase):
         # The oracle must fail the same bound, or the check proves nothing.
         _, old_copied = self._copied(self._old_reader, p)
         self.assertGreater(old_copied, 10 * len(data))
+
+
+class GatesAreNecessary(unittest.TestCase):
+    """110/130 (lever 4) — each per-rule pre-filter in `ss.NAMED_GATES`, the
+    `assigned` key-tail gate and the 32-character entropy floor must be
+    NECESSARY for their rule: if the rule's regex matches a line, the gate
+    must pass it. A gate that rejects a line its rule would match is a silent
+    false negative in a credential scanner. Proven by gate-vs-regex on a
+    corpus that reaches every gated rule, and by a gated scan equal to the
+    same scan with every gate removed. Every value is synthetic."""
+
+    POSITIVES = (
+        "-----BEGIN PRIVATE KEY-----", "-----BEGIN OPENSSH PRIVATE KEY-----",
+        "-----BEGIN PGP PRIVATE KEY BLOCK-----",
+        "k AKIAABCDEFGHIJKLMNOP", "k ASIAABCDEFGHIJKLMNOP",
+        "ghp_" + "a" * 36, "gho_" + "B" * 40, "github_pat_" + "A1b2C3d4E5" * 3,
+        "xoxb-1234567890-abcdef",
+        "https://hooks.slack.com/services/T000/B000/XXXXabcdef",
+        "AIza" + "a1B2c3D4e5" * 3 + "abcde", "GOCSPX-" + "abcDEF123_" * 3,
+        "sk_live_" + "a1B2c3D4e5" * 3, "rk_test_" + "a" * 24,
+        "sk-ant-" + "abcdef-123456" * 2, "sk-proj-" + "abcdefghij1234567890ab",
+        "sk-" + "a" * 22, "npm_" + "a1B2c3D4e5" * 3 + "abcdef",
+        "SK" + "0123456789abcdef" * 2, "SG.abcdefghijklmnop.abcdefghijklmnop",
+        "eyJhbGciOiJI.eyJzdWIiOiIx.abcdefghij",
+        "postgres://user:s3cretpw@db.internal/x",
+        "password = Gk8xQvie2mNfR7pLzW3d", "REDIS_PASSWORD=Abc123xyzQ9fgh",
+        "api_key: 0123456789abcdef0123456789abcdef",
+        "secret =\tcorrect-horse-battery-staple", "token: 'Gk8xQvie2mNfR7pL'",
+        "val Gk8xQvie2mNfR7pLzW3dTaHbQq9xYzAbCd",
+        "hex 0123456789abcdef0123456789abcdef0123abcd",
+        "fp SHA256:abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMN012",
+        "see https://api.example.com/download?sig=Gk8xQvie2mNfR7pLzW3dTaHbQq9xYz",
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGk8xQvie2mNfR7pLzW3dTaHbQq9xYzAbCd pubkey",
+    )
+    NOISE = (
+        "gh", "github", "_", "sk", "SK", "k_", "://", "@", "AKIA", "ASIA", ".eyJ",
+        "token", "pass", ":", "=", " = ", ": ", "\"", "'", " ", "\t", "-", ".",
+        "x", "1", "a" * 33, "A" * 40, "example", "<redacted>", "${VAR}",
+        "secretscan:allow: r", "secretscan:allow:assigned-secret: r",
+        "secretscan:allow:high-entropy: r", "secretscan:allow",
+        "\u212a", "\u017f", "\u0130", "\u00e9",
+    )
+
+    @classmethod
+    def lines(cls, n=6000):
+        import random
+        rng = random.Random(130)
+        out = list(cls.POSITIVES) + list(cls.NOISE)
+        alphabet = "abcxyzAKIZ0123456789:-.,@=_ '\"`;\t/+()[]{}"
+        for _ in range(n):
+            parts = [rng.choice(cls.NOISE) for _ in range(rng.randint(0, 3))]
+            p = rng.choice(cls.POSITIVES)
+            if rng.random() < .5 and p:           # a near miss: break one char
+                i = rng.randrange(len(p))
+                p = p[:i] + rng.choice((alphabet[rng.randrange(len(alphabet))], "")) + p[i + 1:]
+            parts.insert(rng.randint(0, len(parts)), p)
+            out.append("".join(parts))
+        return out
+
+    def test_every_gate_names_a_real_rule(self):
+        # A typo'd name would be a rule silently running ungated forever.
+        self.assertLessEqual(set(ss.NAMED_GATES), {p.name for p in ss.NAMED})
+
+    def test_a_rule_that_matches_always_passes_its_gate(self):
+        exercised = set()
+        for line in self.lines():
+            for pat in ss.NAMED:
+                gate = ss.NAMED_GATES.get(pat.name)
+                if gate is None or not pat.regex.search(line):
+                    continue
+                exercised.add(pat.name)
+                self.assertTrue(gate(line),
+                                f"gate for {pat.name} rejects a line it matches: {line!r}")
+            if ss.SECRET_KEY_RX.search(line):
+                exercised.add("assigned")
+                self.assertTrue(ss._ASSIGNED_TAIL_RX.search(line), line)
+            if ss.HIGH_ENTROPY_RX.search(line):
+                exercised.add("entropy")
+                self.assertGreaterEqual(len(line), ss.HIGH_ENTROPY_MIN_LEN)
+        # The corpus must reach every gated rule, or the check is vacuous.
+        self.assertEqual(exercised, set(ss.NAMED_GATES) | {"assigned", "entropy"})
+
+    def test_the_entropy_floor_is_the_patterns_own_minimum(self):
+        # The `len(line) >= HIGH_ENTROPY_MIN_LEN` skip restates `{32,}`.
+        self.assertIn("{%d,}" % ss.HIGH_ENTROPY_MIN_LEN, ss.HIGH_ENTROPY_RX.pattern)
+        self.assertIsNotNone(ss.HIGH_ENTROPY_RX.search("a" * ss.HIGH_ENTROPY_MIN_LEN))
+        self.assertIsNone(ss.HIGH_ENTROPY_RX.search("a" * (ss.HIGH_ENTROPY_MIN_LEN - 1)))
+
+    def test_gated_scan_equals_ungated_scan(self):
+        from unittest import mock
+        import dataclasses
+        lines = list(enumerate(self.lines(3000), start=1))
+        for disabled in (frozenset(), frozenset({"assigned"}), frozenset({"high-entropy"}),
+                         frozenset({"low-variety-entropy"}), frozenset({"jwt", "openai-key"})):
+            t_gated = ss.Tally()
+            gated = ss.scan_lines("p", lines, disabled, t_gated)
+            with mock.patch.object(ss, "_NAMED_GATED", tuple((p, None) for p in ss.NAMED)), \
+                    mock.patch.object(ss, "_ACTIVE_CACHE", {}), \
+                    mock.patch.object(ss, "_ASSIGNED_TAIL_RX", re.compile("")), \
+                    mock.patch.object(ss, "HIGH_ENTROPY_MIN_LEN", 0):
+                t_plain = ss.Tally()
+                plain = ss.scan_lines("p", lines, disabled, t_plain)
+            self.assertTrue(plain, "the corpus must produce findings")
+            self.assertEqual([dataclasses.asdict(f) for f in gated],
+                             [dataclasses.asdict(f) for f in plain], disabled)
+            self.assertEqual(dataclasses.asdict(t_gated), dataclasses.asdict(t_plain), disabled)
+
+    def test_the_marker_regex_needs_the_marker_literal(self):
+        # The `ALLOW_MARKER in line` guard in scan_lines rests on this.
+        for line in self.lines(2000):
+            if ss.ALLOW_RX.search(line):
+                self.assertIn(ss.ALLOW_MARKER, line)
+        self.assertIsNotNone(ss.ALLOW_RX.search("x secretscan:allow: reason"))
 
 
 if __name__ == "__main__":
