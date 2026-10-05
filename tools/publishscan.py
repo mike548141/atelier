@@ -107,6 +107,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import report  # noqa: E402
+
 IGNORE_FILE = ".publishscanignore"
 # C0 controls plus DEL — stripped from everything this tool ingests, at the
 # ingest seam. See `_strip_controls`.
@@ -378,11 +381,9 @@ def run(root: Path, staged: bool, warn: bool, as_json: bool) -> int:
                   "tracked and nothing can be published from here.")
         return 0
     except BadIgnoreFile as e:
-        print(f"publishscan: {e}", file=sys.stderr)
-        return 2
+        return report.broken("publishscan", str(e))
     except RuntimeError as e:
-        print(f"publishscan: {e}", file=sys.stderr)
-        return 2
+        return report.broken("publishscan", str(e))
     findings = [(p, why) for p in paths
                 if not _ignored(p, globs) and (why := matches(p))]
 
@@ -395,7 +396,7 @@ def run(root: Path, staged: bool, warn: bool, as_json: bool) -> int:
             "rebased_to": str(top) if rebased else None,
             "findings": [{"path": p, "why": w} for p, w in findings],
         }, indent=2))
-        return 0 if (warn or not findings) else 1
+        return report.exit_code(len(findings), warn=warn)
 
     if findings:
         for p, why in findings:
@@ -414,13 +415,12 @@ def run(root: Path, staged: bool, warn: bool, as_json: bool) -> int:
         print("exists on purpose: a reason written inside an unpublishable")
         print("file is an exemption nobody reviewing the tree would see).")
         if warn:
-            print()
-            print("  (--warn: advisory only — not blocking this build.)")
+            print(report.WARN_NOTICE)
     else:
         where = "staged path(s)" if staged else "tracked path(s)"
-        print(f"✓ publishscan clean — {len(paths)} {where}, none in the "
-              "never-publish class.")
-    return 0 if (warn or not findings) else 1
+        print(report.clean_head(
+            "publishscan", f"{len(paths)} {where}, none in the never-publish class."))
+    return report.exit_code(len(findings), warn=warn)
 
 
 def selftest() -> int:
@@ -491,9 +491,7 @@ def main(argv: list[str] | None = None) -> int:
 
     root = Path(args.root).resolve()
     if not root.is_dir():
-        print(f"publishscan: --root {args.root} is not a directory",
-              file=sys.stderr)
-        return 2
+        return report.broken("publishscan", f"--root {args.root} is not a directory")
     return run(root, args.staged, args.warn, args.json)
 
 

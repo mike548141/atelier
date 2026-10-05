@@ -161,6 +161,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import filewalk  # noqa: E402
 import allowmarker  # noqa: E402
+import report  # noqa: E402
 
 ALLOW_MARKER = "spellscan:allow"
 
@@ -198,14 +199,11 @@ class Tally:
 
     def summary(self) -> str:
         """One stable line, known zeros printed, so two runs compare."""
-        line = ("  suppressed: "
-                f"{self.marker_total} by allow-marker · "
-                f"{self.files_by_glob} file(s) by .spellscanignore · "
-                f"{self.lines_truncated} over-long line(s) scanned truncated")
-        if self.by_marker:
-            detail = ", ".join(f"{r}×{n}" for r, n in sorted(self.by_marker.items()))
-            line += f"\n    allow-marker breakdown: {detail}"
-        return line
+        return report.suppressed_line(
+            [f"{self.marker_total} by allow-marker",
+             f"{self.files_by_glob} file(s) by .spellscanignore",
+             f"{self.lines_truncated} over-long line(s) scanned truncated"],
+            breakdown=self.by_marker)
 
 
 MARKDOWN_SUFFIXES = {".md", ".markdown"}
@@ -698,9 +696,9 @@ def scan_paths(paths: list[Path], root: Path,
 
 def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     if not findings:
-        out = "✓ spellscan clean — no US spellings found."
+        out = report.clean_head("spellscan", "no US spellings found.")
         return out + ("\n" + tally.summary() if tally is not None else "")
-    lines = [f"✗ spellscan: {len(findings)} finding(s)."]
+    lines = [report.findings_head("spellscan", len(findings))]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
         lines.append(f"  {f.path}:{f.line}  [{f.kind}] {f.match!r} → {f.suggestion!r}")
     if tally is not None:
@@ -736,31 +734,27 @@ def _main(argv: list[str] | None = None) -> int:
         return _selftest()
 
     root = Path(args.root).resolve()
-    if not root.is_dir():
-        print(f"spellscan: root does not exist: {args.root}", file=sys.stderr)
-        return 2
+    rc = report.refuse_missing_root("spellscan", root, args.root)
+    if rc is not None:
+        return rc
 
     if args.paths:
         # A RELATIVE target resolves against --root, never the caller's cwd:
         # mixing the two reads one repo's file under another repo's rules,
         # and neither half of the output says so (roadmap 010/110).
-        targets = [(root / p) if not Path(p).is_absolute() else Path(p)
-                   for p in args.paths]
+        targets = report.resolve_targets(root, args.paths)
     else:
         docs = root / "docs"
         targets = [docs] if docs.is_dir() else [root]
 
-    missing = [str(p) for p in targets if not p.exists()]
-    if missing:
-        print(f"spellscan: path does not exist: {', '.join(missing)}",
-              file=sys.stderr)
-        return 2
+    rc = report.refuse_missing_paths("spellscan", targets)
+    if rc is not None:
+        return rc
     tally = Tally()
     try:
         findings = scan_paths(targets, root, tally)
     except OSError as e:
-        print(f"spellscan: cannot read {e.filename}: {e.strerror}", file=sys.stderr)
-        return 2
+        return report.cannot_read("spellscan", e)
 
     if args.json:
         print(json.dumps({
@@ -776,11 +770,9 @@ def _main(argv: list[str] | None = None) -> int:
     else:
         print(render_human(findings, tally))
         if findings and args.warn:
-            print("\n  (--warn: advisory only — not blocking this build.)")
+            print(report.WARN_NOTICE)
 
-    if args.warn:
-        return 0
-    return 1 if findings else 0
+    return report.exit_code(len(findings), warn=args.warn)
 
 
 def _selftest() -> int:
@@ -835,11 +827,7 @@ def main(argv: list[str] | None = None) -> int:
 
     A broken scan is not a pass (the house exit-code contract), and an
     unexplained exemption makes the scan's own scope untrustworthy."""
-    try:
-        return _main(argv)
-    except IgnoreFileError as e:
-        print(f"spellscan: {e}", file=sys.stderr)
-        return 2
+    return report.guarded_main("spellscan", _main, argv, (IgnoreFileError,))
 
 if __name__ == "__main__":
     sys.exit(main())

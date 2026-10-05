@@ -152,6 +152,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import filewalk  # noqa: E402
 import allowmarker  # noqa: E402
+import report  # noqa: E402
 
 # A file whose HEADER carries this marker is exempt from EVERYTHING — the size
 # advisory and the cold-content gate (e.g. a repo that deliberately keeps a flat
@@ -629,16 +630,18 @@ def scan_paths(paths: list[Path], root: Path,
 
 def _suppression_line(files_allowed: int, files_by_glob: int) -> str:
     """Rule (b): known zeros printed, so two runs can be compared."""
-    return (f"  suppressed: {files_allowed} file(s) by sizescan:allow header · "
-            f"{files_by_glob} file(s) by .sizescanignore")
+    return report.suppressed_line(
+        [f"{files_allowed} file(s) by sizescan:allow header",
+         f"{files_by_glob} file(s) by .sizescanignore"])
 
 
 def render_human(findings: list[Finding], files_allowed: int = 0,
                  files_by_glob: int = 0) -> str:
     if not findings:
-        return ("✓ sizescan clean — no relocatable cold content on the hot "
-                "path; archive stores hold no live markers.\n"
-                + _suppression_line(files_allowed, files_by_glob))
+        return (report.clean_head("sizescan",
+                                  "no relocatable cold content on the hot "
+                                  "path; archive stores hold no live markers.")
+                + "\n" + _suppression_line(files_allowed, files_by_glob))
     n_cold = sum(1 for f in findings if f.cold_items)
     n_live = sum(1 for f in findings if f.live_items)
     n_gated = sum(1 for f in findings if f.gated)
@@ -723,25 +726,21 @@ def _main(argv: list[str] | None = None) -> int:
         return _selftest()
 
     root = Path(args.root).resolve()
-    if not root.is_dir():
-        print(f"sizescan: root does not exist: {args.root}", file=sys.stderr)
-        return 2
+    rc = report.refuse_missing_root("sizescan", root, args.root)
+    if rc is not None:
+        return rc
     # A RELATIVE target resolves against --root, never the caller's cwd:
     # mixing the two reads one repo's file under another repo's rules,
     # and neither half of the output says so (roadmap 010/110).
-    targets = [(root / p) if not Path(p).is_absolute() else Path(p)
-               for p in (args.paths or [str(root)])]
-    missing = [str(p) for p in targets if not p.exists()]
-    if missing:
-        # A typo'd path scanning nothing must never read as a clean pass.
-        print(f"sizescan: path does not exist: {', '.join(missing)}", file=sys.stderr)
-        return 2
+    targets = report.resolve_targets(root, args.paths or [str(root)])
+    rc = report.refuse_missing_paths("sizescan", targets)
+    if rc is not None:
+        return rc
     try:
         counts: dict[str, int] = {"files_allowed": 0, "files_by_glob": 0}
         findings = scan_paths(targets, root, counts)
     except OSError as e:
-        print(f"sizescan: cannot read {e.filename}: {e.strerror}", file=sys.stderr)
-        return 2
+        return report.cannot_read("sizescan", e)
 
     if args.json:
         print(json.dumps({
@@ -757,7 +756,7 @@ def _main(argv: list[str] | None = None) -> int:
     # [x] item on the hot path). Size-over-reference is never a failure: a file
     # large purely from live current-truth has nothing to relocate, and gating it
     # would be the trim-a-true-signal trap the tool was reworked to stop.
-    return 1 if (args.check and any(f.gated for f in findings)) else 0
+    return report.exit_code(args.check and any(f.gated for f in findings))
 
 
 def _selftest() -> int:
@@ -948,11 +947,7 @@ def main(argv: list[str] | None = None) -> int:
 
     A broken scan is not a pass (the house exit-code contract), and an
     unexplained exemption makes the scan's own scope untrustworthy."""
-    try:
-        return _main(argv)
-    except IgnoreFileError as e:
-        print(f"sizescan: {e}", file=sys.stderr)
-        return 2
+    return report.guarded_main("sizescan", _main, argv, (IgnoreFileError,))
 
 if __name__ == "__main__":
     sys.exit(main())

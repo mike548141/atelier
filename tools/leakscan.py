@@ -64,6 +64,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import filewalk  # noqa: E402
 import allowmarker  # noqa: E402
+import report  # noqa: E402
 
 # A line carrying this marker is intentionally exempt (e.g. an illustrative
 # example in doctrine). Keep the reason on the same line so the exemption is
@@ -372,15 +373,9 @@ class Tally:
         parts = [f"{self.marker_total} by allow-marker",
                  f"{self.files_by_glob} file(s) by .leakscanignore",
                  f"{len(self.disabled_rules)} rule(s) disabled",
-                 f"{self.findings_over_cap} beyond the "
-                 f"{MAX_MATERIALIZED_FINDINGS}-finding cap (counted, not listed)"]
-        line = "  suppressed: " + " · ".join(parts)
-        if self.by_marker:
-            detail = ", ".join(f"{r}×{n}" for r, n in sorted(self.by_marker.items()))
-            line += f"\n    allow-marker breakdown: {detail}"
-        if self.disabled_rules:
-            line += f"\n    disabled: {', '.join(self.disabled_rules)}"
-        return line
+                 report.cap_part(self.findings_over_cap, MAX_MATERIALIZED_FINDINGS)]
+        return report.suppressed_line(parts, breakdown=self.by_marker,
+                                      disabled=self.disabled_rules)
 
 
 @dataclass
@@ -1008,15 +1003,15 @@ def render_human(findings: list[Finding], warning: str | None,
         if tally is not None:
             lines.append(tally.summary())
         return "\n".join(lines)
-    lines.append(f"✗ leakscan: {len(findings) + over_cap} finding(s) — commit blocked.\n")
+    lines.append(report.findings_head("leakscan", len(findings) + over_cap,
+                                      tail=" — commit blocked.\n"))
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
         # Line 0 means the hit is in the PATH itself (G2) — say so, because
         # ':0' would otherwise read as a line number nobody can open.
         where = f"{f.path}:{f.line}" if f.line else f"{f.path} (in the path name)"
         lines.append(f"  {where}  [{f.severity}/{f.kind}] {f.rule} → {f.excerpt}")
     if over_cap:
-        lines.append(f"  …and {over_cap} more finding(s), counted but not listed "
-                     f"(past the {MAX_MATERIALIZED_FINDINGS}-finding memory cap).")
+        lines.append(report.over_cap_line(over_cap, MAX_MATERIALIZED_FINDINGS))
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
@@ -1059,23 +1054,22 @@ def _main(argv: list[str] | None = None) -> int:
     try:
         terms_path = resolve_terms_path(args.terms)
     except TermsPathError as e:
-        print(f"leakscan: {e}", file=sys.stderr)
-        return 2
+        return report.broken("leakscan", str(e))
     if args.require_terms and terms_path is None:
-        print("leakscan: --require-terms set but no local term list found "
-              f"(--terms, $ATELIER_LEAKSCAN_TERMS, or {DEFAULT_LOCAL_TERMS}). "
-              "A structural-only scan is partial cover — refusing to report it "
-              "as a pass.", file=sys.stderr)
-        return 2
+        return report.broken(
+            "leakscan",
+            "--require-terms set but no local term list found "
+            f"(--terms, $ATELIER_LEAKSCAN_TERMS, or {DEFAULT_LOCAL_TERMS}). "
+            "A structural-only scan is partial cover — refusing to report it "
+            "as a pass.")
     local_terms, warning = load_local_terms(terms_path)
     scanned_local = terms_path is not None
 
     disabled = frozenset(r.strip() for r in args.disable.split(",") if r.strip())
     unknown = disabled - {p.name for p in STRUCTURAL}
     if unknown:
-        print(f"leakscan: unknown rule(s) in --disable: {', '.join(sorted(unknown))}",
-              file=sys.stderr)
-        return 2
+        return report.broken(
+            "leakscan", f"unknown rule(s) in --disable: {', '.join(sorted(unknown))}")
     # A scope reduction taken at invocation is itself an allowance, and rule (b)
     # says a reduction nobody can see is a reduction nobody reviewed — so
     # `--disable` now reports itself in the output instead of narrowing the scan
@@ -1086,8 +1080,7 @@ def _main(argv: list[str] | None = None) -> int:
         try:
             staged = staged_added_lines()
         except subprocess.CalledProcessError as e:
-            print(f"leakscan: git diff failed: {e}", file=sys.stderr)
-            return 2
+            return report.git_diff_failed("leakscan", e)
         # Positional paths, in --staged mode, restrict the scan to staged files
         # under those prefixes — e.g. scan only the shareable `tiki/` subtree of
         # an otherwise-private repo.
@@ -1099,15 +1092,9 @@ def _main(argv: list[str] | None = None) -> int:
         # that found nothing wrong. Refuse it — this is the subtree-scoping
         # entry point for private repos with a shareable subtree, so a silent
         # miss here is precisely the case that matters.
-        absolute = [p for p in args.paths if Path(p).is_absolute()]
-        if absolute:
-            print(f"leakscan: --staged needs repo-relative path(s), got absolute: "
-                  f"{', '.join(absolute)}\n"
-                  "  git lists staged paths relative to the repo root, so an "
-                  "absolute path matches nothing\n"
-                  "  and the scan would pass while covering nothing. Pass e.g. "
-                  "'tiki/' instead.", file=sys.stderr)
-            return 2
+        rc = report.refuse_absolute_staged("leakscan", args.paths, "tiki/")
+        if rc is not None:
+            return rc
         prefixes = tuple(p.rstrip("/") + "/" for p in args.paths)
         if prefixes:
             staged = {path: text for path, text in staged.items()
@@ -1128,16 +1115,13 @@ def _main(argv: list[str] | None = None) -> int:
         # A RELATIVE target resolves against --root, never the caller's cwd:
         # mixing the two reads one repo's file under another repo's rules,
         # and neither half of the output says so (roadmap 010/110).
-        targets = [(root / p) if not Path(p).is_absolute() else Path(p)
-                   for p in (args.paths or [str(root)])]
-        missing = [str(p) for p in targets if not p.exists()]
-        if missing:
-            # A typo'd path scanning nothing must never read as a clean pass —
-            # the linkscan L1 silent-success class, closed here too
-            # (2026-07-11 review N2).
-            print(f"leakscan: path does not exist: {', '.join(missing)}",
-                  file=sys.stderr)
-            return 2
+        targets = report.resolve_targets(root, args.paths or [str(root)])
+        # A typo'd path scanning nothing must never read as a clean pass —
+        # the linkscan L1 silent-success class, closed here too
+        # (2026-07-11 review N2).
+        rc = report.refuse_missing_paths("leakscan", targets)
+        if rc is not None:
+            return rc
         findings = scan_paths(targets, root, local_terms, disabled, tally)
 
     if args.json:
@@ -1157,7 +1141,7 @@ def _main(argv: list[str] | None = None) -> int:
     else:
         print(render_human(findings, warning, scanned_local, tally))
 
-    return 1 if (findings or tally.findings_over_cap) else 0
+    return report.exit_code(len(findings) + tally.findings_over_cap)
 
 
 def _selftest() -> int:
@@ -1197,11 +1181,7 @@ def main(argv: list[str] | None = None) -> int:
 
     A broken scan is not a pass (the house exit-code contract), and an
     unexplained exemption makes the scan's own scope untrustworthy."""
-    try:
-        return _main(argv)
-    except IgnoreFileError as e:
-        print(f"leakscan: {e}", file=sys.stderr)
-        return 2
+    return report.guarded_main("leakscan", _main, argv, (IgnoreFileError,))
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -1304,6 +1304,26 @@ complete. Each module's docstring is its full manual.
   running atelier's floor. It enumerates conformance rather than assuming it
   (ADR 0008; `docs/method/PROPAGATION.md`).
 
+## `report.py` — the shared exit-code contract and report lines
+
+Not a check. Fourteen floor scanners import it for the parts of their output
+that were the same everywhere (`115/080`, part 3). It holds the exit codes (0
+nothing blocking, 1 blocking findings, 2 the scan itself is broken), the
+wrapper that turns a config error into exit 2, and the exit-2 stderr lines (a
+missing root, a missing path, an unreadable file, a failed `git diff`, an
+absolute `--staged` path). It also holds the `✓ <name> clean — …` and
+`✗ <name>: N …` heads, the `suppressed:` tally line with its allow-marker
+breakdown, the finding-cap lines, and the `(--warn: advisory only …)` notice.
+
+Every difference between scanners is a parameter: the scanner's name, its
+tally fields in its own order, the finding noun, the tail of a head line. None
+is a shared default. Lines that genuinely differ stay in their scanner:
+`leakscan`'s clean head, `indexscan`'s over-cap line, and the `⚠` heads of the
+advisory checks. `pointerscan.py` and `board.py` keep their own copies for now.
+`test_report.py` tests each helper and pins each converted scanner's lines as
+literals. What a scanner prints reaches every child's CI at its next run, so a
+shared edit that changes one of those lines fails the suite first.
+
 ## Tests
 
 ```sh

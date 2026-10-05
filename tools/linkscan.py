@@ -75,6 +75,7 @@ from urllib.parse import unquote
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import filewalk  # noqa: E402
 import allowmarker  # noqa: E402
+import report  # noqa: E402
 
 # A line carrying this marker is intentionally exempt (e.g. a deliberately
 # dangling pointer in a doc, or a template placeholder). Keep the reason on the
@@ -134,15 +135,11 @@ class Tally:
         """One stable line, known zeros printed, so two runs compare. The
         over-cap count prints every run, 0 included, exactly as leakscan,
         secretscan and conflictscan do (the field set never varies)."""
-        line = ("  suppressed: "
-                f"{self.marker_total} by allow-marker · "
-                f"{self.files_by_glob} file(s) by .linkscanignore")
-        line += (f" · {self.findings_over_cap} beyond the "
-                 f"{MAX_MATERIALIZED_FINDINGS}-finding cap (counted, not listed)")
-        if self.by_marker:
-            detail = ", ".join(f"{r}×{n}" for r, n in sorted(self.by_marker.items()))
-            line += f"\n    allow-marker breakdown: {detail}"
-        return line
+        return report.suppressed_line(
+            [f"{self.marker_total} by allow-marker",
+             f"{self.files_by_glob} file(s) by .linkscanignore",
+             report.cap_part(self.findings_over_cap, MAX_MATERIALIZED_FINDINGS)],
+            breakdown=self.by_marker)
 
 
 # Only these extensions are parsed for links and headings; everything else is a
@@ -908,16 +905,17 @@ def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
     # the runs the cap exists for.
     over_cap = tally.findings_over_cap if tally is not None else 0
     if not findings and not over_cap:
-        out = "✓ linkscan clean — every internal link resolves."
+        out = report.clean_head("linkscan", "every internal link resolves.")
         return out + ("\n" + tally.summary() if tally is not None else "")
-    lines = [f"✗ linkscan: {len(findings) + over_cap} broken internal link(s).\n"]
+    lines = [report.findings_head("linkscan", len(findings) + over_cap,
+                                  noun="broken internal link(s)", tail=".\n")]
     for f in sorted(findings, key=lambda x: (x.path, x.line)):
         lines.append(f"  {f.path}:{f.line}  [{f.kind}] {f.target} → {f.detail}")
         if f.suggest:
             lines.append(f"      ↳ did you mean: {f.suggest}")
     if over_cap:
-        lines.append(f"  …and {over_cap} more broken link(s), counted but not listed "
-                     f"(past the {MAX_MATERIALIZED_FINDINGS}-finding memory cap).")
+        lines.append(report.over_cap_line(over_cap, MAX_MATERIALIZED_FINDINGS,
+                                          noun="broken link(s)"))
     if tally is not None:
         lines.append("")
         lines.append(tally.summary())
@@ -946,26 +944,21 @@ def _main(argv: list[str] | None = None) -> int:
         return _selftest()
 
     root = Path(args.root).resolve()
-    if not root.is_dir():
-        print(f"linkscan: root does not exist: {args.root}", file=sys.stderr)
-        return 2
+    rc = report.refuse_missing_root("linkscan", root, args.root)
+    if rc is not None:
+        return rc
     # A RELATIVE target resolves against --root, never the caller's cwd:
     # mixing the two reads one repo's file under another repo's rules,
     # and neither half of the output says so (roadmap 010/110).
-    targets = [(root / p) if not Path(p).is_absolute() else Path(p)
-               for p in (args.paths or [str(root)])]
-    missing = [str(p) for p in targets if not p.exists()]
-    if missing:
-        # A typo'd path scanning nothing must never read as a clean pass.
-        print(f"linkscan: path does not exist: {', '.join(missing)}",
-              file=sys.stderr)
-        return 2
+    targets = report.resolve_targets(root, args.paths or [str(root)])
+    rc = report.refuse_missing_paths("linkscan", targets)
+    if rc is not None:
+        return rc
     tally = Tally()
     try:
         findings = scan_paths(targets, root, tally)
     except OSError as e:
-        print(f"linkscan: cannot read {e.filename}: {e.strerror}", file=sys.stderr)
-        return 2
+        return report.cannot_read("linkscan", e)
 
     total = len(findings) + tally.findings_over_cap
     if args.json:
@@ -983,7 +976,7 @@ def _main(argv: list[str] | None = None) -> int:
     else:
         print(render_human(findings, tally))
 
-    return 1 if total else 0
+    return report.exit_code(total)
 
 
 def _selftest() -> int:
@@ -1052,11 +1045,7 @@ def main(argv: list[str] | None = None) -> int:
 
     A broken scan is not a pass (the house exit-code contract), and an
     unexplained exemption makes the scan's own scope untrustworthy."""
-    try:
-        return _main(argv)
-    except IgnoreFileError as e:
-        print(f"linkscan: {e}", file=sys.stderr)
-        return 2
+    return report.guarded_main("linkscan", _main, argv, (IgnoreFileError,))
 
 if __name__ == "__main__":
     sys.exit(main())

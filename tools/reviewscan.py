@@ -97,6 +97,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import allowmarker  # noqa: E402
+import report  # noqa: E402
 
 # The day the record templates began carrying the field (the artefact's landing
 # date). Records frozen before it are blameless and append-only — see docstring.
@@ -355,7 +356,7 @@ def run(paths: list[Path], root: Path, as_json: bool) -> int:
             "briefs_misplaced_deferral": [
                 str(b.relative_to(root)) for b in misplaced],
         }, indent=2))
-        return 1 if (failures or misplaced) else 0
+        return report.exit_code(len(failures) + len(misplaced))
 
     if failures:
         for r in failures:
@@ -382,11 +383,14 @@ def run(paths: list[Path], root: Path, as_json: bool) -> int:
         print(f"A genuine exception carries `{DEFERRAL_ALLOW} <reason>` —")
         print("scoped, so a review-line exemption does not waive this check.")
     if not failures and not misplaced:
-        print(f"✓ reviewscan clean — {len(records)} post-{BOUNDARY} decision "
-              f"record(s) carry a review line; {len(briefs)} review brief(s) "
-              "keep deferred material out of the brief.")
-        print(f"  suppressed: {len(_suppressed)} record(s) by allow-marker")
-    return 1 if (failures or misplaced) else 0
+        print(report.clean_head(
+            "reviewscan",
+            f"{len(records)} post-{BOUNDARY} decision record(s) carry a review "
+            f"line; {len(briefs)} review brief(s) keep deferred material out "
+            "of the brief."))
+        print(report.suppressed_line(
+            [f"{len(_suppressed)} record(s) by allow-marker"]))
+    return report.exit_code(len(failures) + len(misplaced))
 
 
 def selftest() -> int:
@@ -470,9 +474,7 @@ def main(argv: list[str] | None = None) -> int:
 
     root = Path(args.root).resolve()
     if not root.is_dir():
-        print(f"reviewscan: --root {args.root} is not a directory",
-              file=sys.stderr)
-        return 2
+        return report.broken("reviewscan", f"--root {args.root} is not a directory")
     # A RELATIVE target resolves against --root, never the caller's cwd:
     # mixing the two reads one repo's file under another repo's rules,
     # and neither half of the output says so (roadmap 010/110).
@@ -481,8 +483,7 @@ def main(argv: list[str] | None = None) -> int:
              for p in (args.paths or [args.root])]
     for p in paths:
         if not p.exists():
-            print(f"reviewscan: {p} does not exist", file=sys.stderr)
-            return 2
+            return report.broken("reviewscan", f"{p} does not exist")
     return run(paths, root, args.json)
 
 

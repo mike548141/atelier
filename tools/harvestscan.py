@@ -133,6 +133,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 # and provably missed two of the four recorded pointer shapes — B4 cold pass,
 # HV2, which named the dependency and required them to build together.
 import pointerscan  # noqa: E402
+import report  # noqa: E402
 
 # The records this WATCHES — an item removed from one of these is what the
 # guard is about. `docs/roadmap` is the split board (ADR 2026-08-15): one item
@@ -674,9 +675,9 @@ def main(argv: list[str] | None = None) -> int:
         return _selftest()
 
     root = Path(args.root).resolve()
-    if not root.is_dir():
-        print(f"harvestscan: root does not exist: {args.root}", file=sys.stderr)
-        return 2
+    rc = report.refuse_missing_root("harvestscan", root, args.root)
+    if rc is not None:
+        return rc
 
     records = tuple(args.records) if args.records else DEFAULT_RECORDS
     stores = (tuple(args.survivor_store) if args.survivor_store
