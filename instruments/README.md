@@ -121,10 +121,8 @@ builds it with `swiftc` against macOS's own PDFKit (no dependency, no package
 manager), **refuses to shadow a real poppler** if one is present, and proves the
 binary renders before installing it. `rm ~/.local/bin/pdftoppm` uninstalls.
 
-`ccarchive` has one extra step to keep it *running*: after `install` puts it on
-`PATH`, `ccarchive --install-schedule` registers the daily launchd agent (macOS).
-This is the whole new-machine recovery — `./instruments/install` then
-`ccarchive --install-schedule` — and `ccarchive --schedule-status` confirms it.
+`ccarchive` needs no extra step: it is run by hand and installs no schedule. After
+`install` puts it on `PATH`, a new machine is ready to archive.
 
 `ccmail` may need one, and it is the only instrument whose extra step needs a
 *person*: where the delegation route is unavailable, `ccmail --auth` mints a
@@ -378,19 +376,33 @@ that cleanup:
 - **Append-only by contract:** it never deletes from the archive. When Claude
   Code's cleanup removes a source log, the archived copy stays — that is the point.
   It doesn't parse the `.jsonl`, it preserves the bytes, so it's immune to schema
-  drift (unlike the observers below). Append-only is not overwrite-proof, so two
-  guards protect the sole durable copy: a **shrink guard** refuses to overwrite
-  when a newer source is *smaller* than the size recorded at capture (an append
-  log only grows, so a shrink means truncation or corruption upstream — `--force`
-  is the deliberate override). The guard is size-only and class-blind by choice:
-  the whole-document classes it also covers — memory `.md` files, subagent
-  `.meta.json` sidecars — can legitimately be rewritten smaller and will be
-  refused until forced, which is safe-over-silent rather than an oversight. The
-  second guard catches a source yielding **zero transcripts** against a non-empty
+  drift (unlike the observers below). Append-only is not overwrite-proof, so what
+  counts as a legitimate change is decided by **two kinds of data** (the mapping
+  is in one place in the code and in the man page's CAPTURE section):
+  **append-only records** — transcripts and subagent logs, the prompt history,
+  tool-result sidecars — only ever grow at the end, and a live file that does
+  anything else (shrinks, or is rewritten in place) is an **anomaly**: the archived
+  mirror is *never* overwritten, the changed live version is kept aside under
+  `<dest>/_anomalies/`, signed, and the run says so and exits 1 (`--force` is the
+  deliberate resolution: the live version becomes current and the previous mirror
+  is kept as a dated version). **Living documents** — memory notes and subagent
+  `.meta.json` sidecars — are edited over time, so a change that is not a pure
+  addition keeps the previous mirror as a dated version under `<dest>/_versions/`
+  (a rename, never a read, so an offloaded mirror works), the new one becomes
+  current, and the run exits 0 and counts the versions kept. "Pure append" is
+  tested without reading the mirror: the live file is at least the recorded length
+  and the sha256 of its first recorded-length bytes equals the signed entry's.
+  `--restore` restores the current version only. A second guard catches a source
+  yielding **zero transcripts** against a non-empty
   manifest: it exits non-zero instead of logging success while the archive quietly
   stops growing (the live dir moved). A dest inside a git work tree is
   also refused (`--allow-repo-dest` overrides): transcripts are personal data,
   and a repo dest is one commit away from publication.
+- **Counts a person recognises.** The summary and `--json` keep the file total
+  and add **sessions** (only a top-level `<project>/<uuid>.jsonl` is a session),
+  **subagent transcripts** (any `.jsonl` nested below one) and a per-kind
+  breakdown, plus what the archive holds including sources since pruned. The field
+  set is the same on every run, known zeros included.
 - **Integrity — sha256 manifest + `--verify`.** gzip's CRC-32 catches a corrupted
   `.gz` on decompression, but it's weak and only proves the file is
   self-consistent. So ccarchive records a **sha256 of each transcript's raw bytes**
@@ -400,9 +412,9 @@ that cleanup:
   The manifest tracks the *archive* (append-only), not live sources — a pruned
   session keeps its recorded hash because its `.gz` is kept. An archived file
   *absent* from the manifest fails the verify (injected, or lost history — both
-  need a human eye), and entries backfilled from the `.gz` after their source was
-  pruned are counted distinctly (`fromArchive`: the archive attesting itself, a
-  weaker anchor than raw bytes). The sha256 manifest defends against *accidental*
+  need a human eye), and legacy entries an earlier version backfilled from the
+  `.gz` after their source was pruned are counted distinctly (`fromArchive`: the
+  archive attesting itself, a weaker anchor than raw bytes). The sha256 manifest defends against *accidental*
   corruption; the **signature** below raises it to *tamper-evident*. Run `--verify`
   any time, and after any restore.
 - **Tamper-evidence — a signed manifest.** The hash manifest alone isn't
@@ -423,7 +435,10 @@ that cleanup:
   manifest, so a roll loses nothing) — roll on suspected exposure or on a cadence,
   but keep an **out-of-band backup** of the key, because a *new machine* needs it to
   verify (SECRETS.md's redundancy obligation, applied). Every manifest write
-  re-signs, and a pre-signing archive is migrated on the next run. `--verify` fails
+  re-signs — but only after the run has **authenticated** the manifest it loaded:
+  a run (or `--restore`) refuses an index whose signature is anything but
+  verified, exit 2, and `--rekey` is the one deliberate clear, so a run never
+  launders a forged index into a signed one. `--verify` fails
   **safe and honest**, never green on doubt: it separates a `MISMATCH` (tamper) from
   a `different-key` signature, an `unsigned` manifest (migrate), and an
   `unverifiable` one (no key here). What it does **not** stop: a tamperer who also
@@ -476,17 +491,36 @@ that cleanup:
   override) — derived at runtime from `$HOME`, so no personal path lives in this
   code. It's the first *writing* instrument (see ADR 0006 addendum); `--dry-run`
   previews, and it reads the source read-only.
-- **Self-scheduling.** `ccarchive --install-schedule` writes and loads a launchd
-  agent (macOS) that runs it daily and at login — no hand-wired cron, and it
-  re-establishes on a new machine with one command (`--schedule-status` /
-  `--uninstall-schedule` round it out; non-macOS prints the cron line instead).
-  The agent, its plist and log live under `~/Library` — machine-local, outside
-  any repo; the tool that generates them is data-free (paths derived at runtime).
-- **Retention pairing.** A daily run captures every session well inside Claude
-  Code's `cleanupPeriodDays`, so the archive alone is the durable copy — a large
-  `cleanupPeriodDays` is optional (a longer *live* working window for the other
-  instruments, and a buffer if the agent is ever down for a stretch), never
+- **Run by hand.** `ccarchive` installs no launchd agent, cron line or login
+  item, and refuses the old `--install-schedule` family of flags by name.
+  Run it more often than Claude Code's `cleanupPeriodDays`.
+- **Retention pairing.** A run that comes round inside Claude Code's
+  `cleanupPeriodDays` captures every session, so the archive alone is the durable
+  copy — a large `cleanupPeriodDays` is optional (a longer *live* working window
+  for the other instruments, and a buffer if the runs are ever spaced out), never
   required for survival. Idempotent, exits 0 with nothing to do.
+- **Trust model.** The signed manifest is the index of what ccarchive itself
+  wrote, and a run trusts a mirror from the index plus a `stat` (each entry
+  records the mirror's size and time), reading bytes only when they disagree.
+  Entries from before those fields existed are checked once each by a bounded
+  catch-up on an ordinary run (a time slice per run, never an offloaded mirror),
+  reported as "N checked, M remain". The manifest and its signature are replaced
+  so that a kill between the two cannot leave a pair that reads as tampered, and
+  `--audit` checks the signature too and never reports an unverified index clean. A
+  private, signed **intent journal** beside the key records each mirror a run is
+  about to write, so the next run repairs the index for exactly what a dead run
+  wrote. Any other archive file the index does not vouch for is adopted only if
+  it is byte-identical to the live copy; otherwise it is moved to
+  `<dest>/_untrusted/` (never deleted, never adopted) and the run exits 1. One
+  run at a time per archive, by a **lock** with `--lock-status` to see whether
+  it is stuck and `--clear-lock` to clear a stuck one. Unknown options are
+  refused, so a typo never runs an archive. Full detail: `man ccarchive`, TRUST
+  and LOCK.
+- **One bad file never aborts a run.** An unreadable source or an undecompressable
+  mirror is named in the report and skipped, the run completes, and it exits 1 at
+  the end; a fatal error is one clean line and exit 2. Every archive write is a
+  temp file renamed into place, so a kill or an iCloud-evicted mirror cannot leave
+  a torn or unopenable copy.
 
 **The durable substrate for the *other* instruments too.** `ccrepo.design.md` §8
 deferred a *retention ledger* — persisting cost/usage rollups so ccrepo's

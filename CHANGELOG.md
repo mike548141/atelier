@@ -5,6 +5,60 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-10-05 — ccarchive hardening: the archive can no longer lose or overwrite a good copy)
+Mike's aim, setting the run: *"I want to be able to rely on it to protect my
+session transcript data as I expect it too"*. Built in three parts from the two
+cold reviews' findings (`210/210`), in plain terms:
+- **Safer writes (part A).** Every write into the archive (mirror, manifest,
+  signature, a restored file) goes to a temporary file first and is swapped in, so
+  a kill part way can never leave a half-written copy that looks fresh, and an
+  iCloud-offloaded mirror is replaced without being read (the cause of every
+  failure in the field log, `210/200`). One unreadable file, one bad mirror, no
+  longer stops a run: it is named, the rest carries on, and the run exits 1 at the
+  end. A run that cannot finish says so in one line and exits 2 (never a stack
+  trace). `--restore` checks the archived bytes against the recorded hash before it
+  writes. **The schedule installer is gone** (`210/190`): ccarchive installs
+  nothing and is run by hand; the old flags are refused by name.
+- **A trust model (part B).** The signed index is the record of what ccarchive
+  itself wrote. A run checks the index's signature before it writes anything and
+  stops, exit 2, if it does not verify (`--rekey` is the deliberate clear). A
+  private, signed **intent journal** beside the key lets the next run put back
+  exactly the mirrors a killed run had written, and nothing else. Any other file in
+  the archive is adopted only if it is byte-identical to the live copy; otherwise it
+  is moved to `_untrusted/` (never deleted) and the run exits 1. A **lock**
+  stops two runs overlapping, with `--lock-status` to tell a stuck one and
+  `--clear-lock` to clear it. Unknown options are refused, so a typo never runs an
+  archive.
+- **Two kinds of data (part C, Mike's model).** *Transcripts* (and subagent logs,
+  prompt history, tool-result sidecars) only ever grow at the end. If one shrinks or
+  is rewritten in place, the archived copy is **never** overwritten: the changed
+  live version is kept aside under `_anomalies/` (signed), the run says so and exits
+  1, and it says "still differs" rather than copying it again on every run;
+  `--force` makes the live version current and keeps the old mirror. This retires
+  the old behaviour where a same-size rewrite quietly replaced the mirror. *Memory
+  notes and subagent metadata* are edited over time: when one changes other than by
+  appending, the previous mirror is kept as a dated version under `_versions/`
+  (renamed, never read), the new one is current, and the run **exits 0**. That
+  closes `210/010` — the daily run no longer goes red every time a memory note is
+  condensed. Whether a change is a pure append is tested from the signed entry
+  alone (the first recorded-length bytes must hash to the recorded value), without
+  reading the mirror.
+- **Cheaper, honest runs (part C).** Older index entries (from before a mirror's size
+  and time were recorded) are checked once each on ordinary runs, a few per run so a
+  run stays quick, and never from an offloaded mirror; progress shows as "N checked,
+  M remain". The report now counts what a person recognises (`210/160`): files,
+  **sessions** (a top-level `<uuid>.jsonl` only), **subagent transcripts**, a per-kind
+  breakdown, what the archive holds in total, and the corrupt count. `--audit`
+  checks the index's signature and never calls an unverified index clean; an edited
+  memory note shows as `revised`, not drift. The manifest and its signature are now
+  swapped so that a kill between them cannot leave a pair that reads as tampered.
+- **Docs and tests.** The man page gained ENVIRONMENT (every `CCARCHIVE_*`
+  variable, test seams included), KEPT COPIES, a complete EXIT STATUS, an honest
+  account of what a thrown error versus a hard kill leaves behind, and a corrected
+  ONE BAD FILE; new tests pin the regression shape (`HL11`), a checkpoint test the
+  checkpoint can fail (`MC3`), and a drift guard for the environment variables.
+  `ccrepo --from-archive` also skips the new `_anomalies/` and `_versions/` areas.
+
 ### Changed (2026-09-20 — queue run: the morning rulings, and the guard layer made bounded)
 - **Every guard now runs in bounded memory and linear time** (Mike's ruling,
   `020/370`, `020/380`): *"it should not matter how much it scans it should no

@@ -37,7 +37,13 @@
  *
  * Append-only by contract: ccarchive never deletes from the archive. When
  * Claude Code's cleanup removes a source log, the archived copy remains — that
- * is the whole point. Pruning the archive is deliberately not a mode.
+ * is the whole point. Pruning the archive is deliberately not a mode. Nor does it
+ * overwrite a transcript's archived copy with anything but that transcript with
+ * more added at the end: a shrink or a rewrite in place is an ANOMALY, kept aside
+ * under _anomalies/ and reported (exit 1), while a living document (a memory note,
+ * a subagent .meta.json) that changes keeps its previous mirror under _versions/.
+ * See "two kinds of data" below; the man page's CAPTURE and KEPT COPIES sections
+ * state the same.
  *
  * The .jsonl schema is internal to Claude Code, but ccarchive doesn't parse it —
  * it preserves the bytes exactly — so it is immune to schema drift.
@@ -51,11 +57,25 @@
  * accidental corruption; for tamper-resistance keep a copy somewhere separate
  * from the archive (a mutation that also rewrites the manifest would pass).
  *
- * Scheduling is built in: `ccarchive --install-schedule` writes and loads a
- * launchd agent (macOS) that runs it daily and at login, so preservation needs
- * no hand-wired cron and re-establishes on a new machine with one command (after
- * instruments/install puts it on PATH). Every path is derived at runtime —
- * nothing personal is baked in. On non-macOS it prints the cron line to add.
+ * Run by hand: ccarchive installs nothing and schedules nothing — no launchd
+ * agent, no cron line, no login item. Run it more often than Claude Code's
+ * cleanupPeriodDays, because a session pruned before its first run is not
+ * captured. Every path is derived at runtime; nothing personal is baked in.
+ *
+ * Failure model: one bad file never aborts the run. A source that cannot be read,
+ * or an archived copy that cannot be decompressed, is skipped and NAMED in the
+ * report, the run carries on, and it exits non-zero at the end. Anything fatal
+ * is one clean line on stderr (or a structured {"error": ...} under --json) and
+ * exit status 2 — never a stack trace.
+ *
+ * Trust model: the signed manifest is the index of what ccarchive itself wrote.
+ * A run that writes authenticates it first and refuses an index it cannot (exit 2;
+ * --rekey is the deliberate clear). A private intent journal beside the signing
+ * key, off the archive, lets the next run put back exactly the mirrors a dead run
+ * wrote. Any other archive file the index does not vouch for is adopted only if
+ * it is byte-identical to the live copy, and otherwise moved to <dest>/_untrusted/
+ * — never deleted, never adopted. One run at a time per archive, by a lock that
+ * can be checked (--lock-status) and, when stuck, cleared (--clear-lock).
  */
 const fs = require('node:fs');
 const os = require('node:os');
@@ -75,22 +95,49 @@ OPTIONS
   --dest <dir>           Archive dir (default: iCloud Drive; or $CCARCHIVE_DEST).
   --source <dir>         Read from <dir> (default: ~/.claude/projects).
   --dry-run              Preview; write nothing (works with --restore too).
-  --force                Overwrite a shrunk archive copy; with --restore, a newer live file.
+  --force                Make a live file that is not an append the archive's copy (the old one is kept); with --restore, a newer live file.
   --allow-repo-dest      Permit an archive dir inside a git work tree.
   --verify [--materialise]  Re-check archive vs signed sha256 manifest; --materialise reads evicted files too.
-  --rekey                Mint a fresh signing key (0600, off-archive) and re-sign the manifest.
+  --rekey                New signing key; re-sign the index (the deliberate clear for an untrusted one).
   --audit                Check the live store against the archive; report drift.
-  --restore              Restore transcripts from the archive into the live store.
-  --delta                With --restore: only --audit's drift (mutated/pruned/renamed).
-  --install-schedule     Run daily via launchd (macOS); --schedule-status/--uninstall-schedule.
+  --restore [--delta]    Restore from the archive; --delta: only --audit's drift.
+  --lock-status | --clear-lock  Is a run holding this archive? Clear a stuck lock.
   --json                 Machine-readable output (never styled).
   -h, --help             This summary.
 
-Mirror transcripts, subagent metadata, tool-result sidecars, memory and history into a compressed, append-only, signed archive; restore too.  man ccarchive`;
+Mirror transcripts, subagent metadata, tool-result sidecars, memory and history into a compressed, signed archive; restore too. A transcript is only ever extended, never overwritten; the report counts files, sessions and subagent transcripts. Unknown options are refused. Run by hand.  man ccarchive`;
 
 function takeValue(flag) {
   const i = argv.indexOf(flag);
   return i !== -1 ? argv[i + 1] : null;
+}
+
+// Every option the tool knows. Anything else is refused before any work is done,
+// so a typo such as --dry-runn can never fall through to a real archive run.
+const VALUE_FLAGS = new Set(['--dest', '--source']);
+const BOOL_FLAGS = new Set(['--dry-run', '--force', '--allow-repo-dest', '--verify', '--materialise',
+  '--rekey', '--audit', '--restore', '--delta', '--json', '--lock-status', '--clear-lock', '-h', '--help']);
+const REMOVED_FLAGS = ['--install-schedule', '--schedule-status', '--uninstall-schedule'];
+
+// Validate an argument list: throws a CcError (exit 2) naming the first option it
+// does not know, a removed one, or a value option given no value.
+function parseArgs(args) {
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+    if (REMOVED_FLAGS.includes(a)) {
+      throw new CcError(`${a} was removed — ccarchive no longer installs or manages a schedule; ` +
+        `run it by hand (man ccarchive, NOTES, says how to remove an agent an older version installed)`, 'EREMOVED');
+    }
+    if (VALUE_FLAGS.has(a)) {
+      if (i + 1 >= args.length || args[i + 1].startsWith('-')) {
+        throw new CcError(`${a} needs a directory after it — refused, nothing was done`, 'EUSAGE');
+      }
+      i++;
+      continue;
+    }
+    if (BOOL_FLAGS.has(a)) continue;
+    throw new CcError(`unknown option ${JSON.stringify(a)} — refused, nothing was done (ccarchive --help lists the options)`, 'EUSAGE');
+  }
 }
 
 // --- pure helpers (unit-tested; no filesystem side effects) --------------
@@ -122,32 +169,81 @@ function shouldArchive(srcMtimeMs, destMtimeMs) {
 // per-file would turn a bulk first run into quadratic I/O, while "once at the
 // end" is what let a dying run leave mirrors ahead of the manifest (210/170).
 // 50 bounds what a hard kill (no chance to run the catch-path save) can leave
-// ahead of the manifest to 50 mirrors (new ones are backfilled; an entry that
-// lags its mirror stays lagged and --verify reports it), while costing ~1/50th
-// of per-file. A skip-path heal from the SOURCE was tried and pulled the same
-// day (MC1, 2026-10-03): a source replaced by an older, shorter copy would be
-// recorded as the truth, against an intact mirror. Override with $CCARCHIVE_CHECKPOINT_EVERY (tests; positive int).
+// ahead of the manifest to 50 mirrors, and the intent journal (below) is what
+// lets the next run put exactly those back in the index. A skip-path heal from
+// the SOURCE was tried and pulled (MC1, 2026-10-03): a source replaced by an
+// older, shorter copy would be recorded as the truth, against an intact mirror.
+// Override with $CCARCHIVE_CHECKPOINT_EVERY (tests; positive int).
 const CHECKPOINT_EVERY = 50;
 function checkpointEvery() {
   const n = Number(process.env.CCARCHIVE_CHECKPOINT_EVERY);
   return Number.isInteger(n) && n > 0 ? n : CHECKPOINT_EVERY;
 }
 
-// A re-archive that would shrink the stored copy is suspect: session logs only
-// ever grow, so a smaller-than-recorded source usually means truncation or
-// corruption upstream. After Claude Code's cleanup the archive is the sole
-// durable copy, so an overwrite must never propagate that damage silently —
-// refuse unless the operator forces it (--force).
-//
-// The guard is size-only and class-blind, which is deliberate but worth naming:
-// a memory file or a subagent .meta.json is a whole document, not an append log,
-// so a legitimate rewrite CAN be smaller and would be refused until --force. That
-// is safe-over-silent by choice, and it stays cheap because the guard only fires
-// on a source that is BOTH newer than the mirror AND smaller than the recorded
-// size — a rewrite, never a first capture.
-function isSuspectShrink(srcBytes, manifestEntry) {
-  return !!(manifestEntry && typeof manifestEntry.rawBytes === 'number'
-    && srcBytes < manifestEntry.rawBytes);
+// --- two kinds of data: what a change means -----------------------------------
+// The owner's model of what ccarchive keeps (210/210, his words quoted there):
+//   append-only records — session transcripts (and the subagent logs beneath them),
+//     the external prompt history, tool-result sidecars. Once written, the only
+//     legitimate change is growth at the end, however long after the last one (a
+//     paused session picked up again). Any other change — a shrink, or a rewrite in
+//     place — is an ANOMALY: the archived copy is never overwritten, the changed live
+//     version is kept aside, the run says so and exits 1.
+//   living documents — memory notes (<project>/memory/*.md) and subagent .meta.json
+//     sidecars. Claude (or other software) alters these over time, so a change that
+//     is not a pure addition is normal: the previous mirror is kept as a dated
+//     version, the new one becomes current, and the run exits 0.
+// This table is the one place the mapping lives; the man page CAPTURE section states it.
+const CLASS_KIND = {
+  transcript: 'append-only',
+  'tool-result': 'append-only',
+  memory: 'living',
+  'subagent-meta': 'living',
+};
+// A path outside every class (an entry an older allowlist wrote) is treated as
+// append-only: the strict reading, never the one that lets a mirror be replaced.
+function dataKind(rel) { return CLASS_KIND[captureClass(rel)] || 'append-only'; }
+
+// Is the live file a PURE APPEND of what the signed index recorded? Decided without
+// reading the mirror: the source must be at least the recorded length (rawBytes) and
+// its first rawBytes bytes must hash to the recorded sha256. That is exactly "the
+// archived bytes are a prefix of the live bytes" (the test --audit already uses),
+// checked against the signed entry instead of the mirror. Returns
+//   append    — the recorded bytes are the start of the live file (growth, or no change)
+//   shrunk    — the live file is shorter than what was recorded
+//   rewritten — long enough, but its first rawBytes bytes are not the recorded ones
+//   unknown   — the entry records no length or hash to test against
+// The caller hands it only an entry the signed index vouches for (see TRUST): a
+// lagging or missing entry left by a run that died is repaired from the intent
+// journal first, and a mirror the index does not vouch for is set aside, not tested.
+function classifyChange(raw, entry) {
+  if (!entry || typeof entry.rawBytes !== 'number' || typeof entry.sha256 !== 'string') return 'unknown';
+  if (raw.length < entry.rawBytes) return 'shrunk';
+  return sha256(raw.subarray(0, entry.rawBytes)) === entry.sha256 ? 'append' : 'rewritten';
+}
+
+// What the summary counts. A SESSION is a top-level <project>/<uuid>.jsonl and only
+// that; a SUBAGENT TRANSCRIPT is any .jsonl nested below it. The two numbers differ
+// a lot (one session can start dozens of agents), and only the first answers "how
+// many sessions". The external prompt history, tool-result sidecars, subagent
+// metadata and memory notes each have their own count.
+const COUNT_KINDS = ['session', 'subagentTranscript', 'history', 'toolResult', 'subagentMeta', 'memory'];
+function countKind(rel) {
+  const parts = rel.split(path.sep);
+  if (parts[0] === EXTERNAL_PREFIX) return 'history';
+  switch (captureClass(rel)) {
+    case 'transcript': return parts.length === 2 ? 'session' : 'subagentTranscript';
+    case 'tool-result': return 'toolResult';
+    case 'subagent-meta': return 'subagentMeta';
+    case 'memory': return 'memory';
+    default: return null;
+  }
+}
+function zeroKinds() { return Object.fromEntries(COUNT_KINDS.map((k) => [k, 0])); }
+// Counts over a list of rels: the file total, the two numbers the owner asked for, and every kind.
+function kindCounts(rels) {
+  const kinds = zeroKinds();
+  for (const rel of rels) { const k = countKind(rel); if (k) kinds[k]++; }
+  return { files: rels.length, sessions: kinds.session, subagentTranscripts: kinds.subagentTranscript, kinds };
 }
 
 // The write target must never sit inside a git work tree: the archive holds
@@ -155,13 +251,143 @@ function isSuspectShrink(srcBytes, manifestEntry) {
 // them. This makes the ADR's second guard a refusal in code, not just a safe
 // default (--allow-repo-dest overrides, consciously).
 function insideGitWorkTree(dir) {
-  let d = path.resolve(dir);
+  let d = realpathNearest(dir);
   for (;;) {
     if (fs.existsSync(path.join(d, '.git'))) return true;
     const parent = path.dirname(d);
     if (parent === d) return false;
     d = parent;
   }
+}
+
+// The real path of `dir`, even when it does not exist yet: resolve the nearest
+// existing ancestor through realpathSync and re-append the missing tail. A dest
+// that is (or sits under) a symlink into a work tree therefore cannot slip past
+// the guard above (MC6) — a lexical path.resolve never sees the .git it points at.
+function realpathNearest(dir) {
+  let d = path.resolve(dir);
+  const tail = [];
+  for (;;) {
+    try { return path.join(fs.realpathSync(d), ...tail.reverse()); }
+    catch (e) {
+      const parent = path.dirname(d);
+      if (parent === d || !['ENOENT', 'ENOTDIR'].includes(e.code)) return path.resolve(dir);
+      tail.push(path.basename(d));
+      d = parent;
+    }
+  }
+}
+
+// --- failure model: one bad file never aborts the run ---------------------
+// A CcError is a failure the tool understands and can say in one line. The
+// top-level catch (bottom of the file) turns it, and anything unexpected, into a
+// clean message and exit status 2 — an operator never sees a stack trace.
+class CcError extends Error {
+  constructor(message, code) { super(message); this.name = 'CcError'; this.code = code || null; }
+}
+
+// macOS answers an open/read of an iCloud-evicted (dataless) file with EDEADLK
+// (errno 11) when it will not download the bytes on demand — Node has no name for
+// it on Darwin and reports "Unknown system error -11". Recognise it so a read that
+// hits an evicted file is "not checked (offloaded)", never an abort.
+function isOffloadError(e) {
+  return !!e && (e.code === 'EDEADLK' || (process.platform === 'darwin' && e.errno === -11));
+}
+
+// Read and decompress one archived mirror, classifying the failure instead of
+// throwing it: { ok: true, buf } or { ok: false, kind, detail } where kind is
+//   missing    — the .gz is absent
+//   offloaded  — the read hit an evicted iCloud placeholder (not a defect)
+//   corrupt    — it is there but is not valid gzip (bit rot, truncation, wrong file)
+//   unreadable — any other I/O failure (permissions, a device error)
+function readMirror(gzPath) {
+  let gz;
+  try { gz = fs.readFileSync(gzPath); }
+  catch (e) {
+    if (e.code === 'ENOENT') return { ok: false, kind: 'missing', detail: 'absent' };
+    if (isOffloadError(e)) return { ok: false, kind: 'offloaded', detail: 'offloaded' };
+    return { ok: false, kind: 'unreadable', detail: e.code || e.message };
+  }
+  try { return { ok: true, buf: zlib.gunzipSync(gz) }; }
+  catch (e) { return { ok: false, kind: 'corrupt', detail: e.message }; }
+}
+
+// --- atomic writes -------------------------------------------------------
+// Every write the tool makes into the archive goes to a uniquely named temp file
+// beside its target, is fsynced, stamped, then renamed over the target. The
+// existing file is never opened for writing, so (a) a kill mid-write leaves the
+// previous good copy intact rather than a truncated one stamped "fresh" (HL4,
+// MC2); (b) replacing an iCloud-evicted placeholder needs no read of it — an
+// in-place open of one is what died with errno 11 (210/200); and (c) a symlink at
+// the target is replaced, never followed (HL9, MC9). The temp is opened O_EXCL,
+// which also refuses a symlink planted at the temp name.
+//
+// Temp names are  .<target>.<pid>.<8 hex>.tmp . No walk, verify or audit counts a
+// .tmp (a mirror ends .gz), and the next ordinary run removes the ones a dead
+// process left behind (sweepStaleTemps).
+const TEMP_RE = /^\..+\.(\d+)\.[0-9a-f]{8}\.tmp$/;
+
+function tempPathFor(target) {
+  return path.join(path.dirname(target),
+    `.${path.basename(target)}.${process.pid}.${crypto.randomBytes(4).toString('hex')}.tmp`);
+}
+
+// opts: { atimeSec, mtimeSec } stamp the temp before the rename; { mode } sets it.
+function writeFileAtomic(target, data, opts = {}) {
+  const tmp = tempPathFor(target);
+  let fd;
+  try {
+    fd = fs.openSync(tmp, 'wx', opts.mode === undefined ? 0o666 : opts.mode);
+    fs.writeFileSync(fd, data);
+    fs.fsyncSync(fd);
+    fs.closeSync(fd);
+    fd = undefined;
+    if (opts.mtimeSec !== undefined) {
+      fs.utimesSync(tmp, opts.atimeSec === undefined ? opts.mtimeSec : opts.atimeSec, opts.mtimeSec);
+    }
+    fs.renameSync(tmp, target);
+  } catch (e) {
+    if (fd !== undefined) { try { fs.closeSync(fd); } catch {} }
+    try { fs.unlinkSync(tmp); } catch {}
+    throw e;
+  }
+}
+
+function pidAlive(pid) {
+  try { process.kill(pid, 0); return true; }
+  catch (e) { return e.code === 'EPERM'; }
+}
+
+// Remove temp files a dead run left under the archive. A temp whose pid is still
+// running is another run's live write and is left alone. Returns the count.
+function sweepStaleTemps(destRoot) {
+  let removed = 0;
+  for (const abs of walkFiles(destRoot, [])) {
+    const m = TEMP_RE.exec(path.basename(abs));
+    if (!m || pidAlive(Number(m[1]))) continue;
+    try { fs.unlinkSync(abs); removed++; } catch {}
+  }
+  return removed;
+}
+
+// Make <destRoot>/<relDir> exist without ever walking through a symlink: each
+// component below the dest root is lstat-ed, and a link (which a mirror write
+// would otherwise follow out of the archive) is refused. destRoot itself may be a
+// link — that is the operator's own choice. `seen` caches verified directories.
+function ensureMirrorDir(destRoot, dirAbs, seen) {
+  if (seen && seen.has(dirAbs)) return;
+  const rel = path.relative(destRoot, dirAbs);
+  let cur = destRoot;
+  fs.mkdirSync(destRoot, { recursive: true });
+  for (const part of rel.split(path.sep).filter(Boolean)) {
+    cur = path.join(cur, part);
+    let st = null;
+    try { st = fs.lstatSync(cur); } catch (e) { if (e.code !== 'ENOENT') throw e; }
+    if (st === null) fs.mkdirSync(cur);
+    else if (st.isSymbolicLink()) throw new CcError(`refused: ${cur} is a symlink inside the archive`, 'ESYMLINK');
+    else if (!st.isDirectory()) throw new CcError(`refused: ${cur} is not a directory`, 'ENOTDIR');
+  }
+  if (seen) seen.add(dirAbs);
 }
 
 function humanBytes(n) {
@@ -177,19 +403,23 @@ function humanBytes(n) {
 
 // Every file at any depth under root, as absolute paths. Missing root ⇒ empty.
 // One traversal underpins both the capture allowlist and the .jsonl-only listing
-// so there is a single walk to reason about.
-function walkFiles(root) {
+// so there is a single walk to reason about. A directory that cannot be read is
+// skipped and pushed onto `errors` as { path, code } when an array is passed (so
+// one bad directory never aborts the walk behind it); with no array it throws.
+function walkFiles(root, errors) {
   const out = [];
   let entries;
   try {
     entries = fs.readdirSync(root, { withFileTypes: true });
   } catch (e) {
     if (e.code === 'ENOENT') return out;
-    throw e;
+    if (!errors) throw e;
+    errors.push({ path: root, code: e.code || 'EIO' });
+    return out;
   }
   for (const ent of entries) {
     const abs = path.join(root, ent.name);
-    if (ent.isDirectory()) out.push(...walkFiles(abs));
+    if (ent.isDirectory()) out.push(...walkFiles(abs, errors));
     else if (ent.isFile()) out.push(abs);
   }
   return out;
@@ -227,8 +457,8 @@ function captureClass(rel) {
 }
 
 // Every captured file under root (allowlist above), returned as absolute paths.
-function listCaptured(root) {
-  return walkFiles(root).filter((abs) => captureClass(path.relative(root, abs)) !== null);
+function listCaptured(root, errors) {
+  return walkFiles(root, errors).filter((abs) => captureClass(path.relative(root, abs)) !== null);
 }
 
 // Just the .jsonl logs — a strict subset of the captured set. Kept under its own
@@ -247,6 +477,55 @@ function listJsonl(root) {
 // back to its real home above the source root — it is NEVER rewritten under
 // projects/. Overridable via CCARCHIVE_HISTORY for testing/relocation.
 const EXTERNAL_PREFIX = '_external';
+
+// The not-trusted area: <dest>/_untrusted/<UTC stamp>/<rel>.gz holds any mirror a
+// run found that the signed index does not vouch for and that is not identical to
+// the live copy (see TRUST). Moved there, never deleted, never adopted; excluded
+// from every walk, verify and restore. Reserved: like _external/ it cannot collide
+// with an encoded project directory (those begin with '-').
+const UNTRUSTED_DIR = '_untrusted';
+
+// Two more reserved areas, both under the archive root and both recorded in the
+// signed manifest, so what is kept in them is covered by the signature:
+//   <dest>/_anomalies/<UTC stamp>/<rel>.gz — the live version of an append-only
+//     record that changed other than by appending (see the two kinds of data above).
+//     The archived mirror is left exactly as it was; this is the changed copy, kept
+//     so nothing is lost when the live file is later pruned.
+//   <dest>/_versions/<UTC stamp>/<rel>.gz — the previous mirror of a living
+//     document that changed other than by appending, renamed here (never read, so an
+//     iCloud-offloaded mirror works) before the new one is written.
+// Why a root-level area and not a .versions/ beside each mirror: a per-directory
+// folder would sit inside the project directories the other walks (and ccrepo and
+// cctranscript) read, and every one of those would need to learn to skip it; a
+// reserved root, like _untrusted/ and _external/, cannot collide with an encoded
+// project directory (those begin with '-') and is skipped in one place each. The
+// stamp is the run's start time, so one run's keeps sit together and a second keep
+// of the same file in one second gets a numbered stamp (-2, -3), never an overwrite.
+// Nothing here is ever deleted, overwritten, walked as a mirror, verified as one, or
+// restored from; --verify checks each kept copy against its signed hash and counts them.
+const ANOMALIES_DIR = '_anomalies';
+const VERSIONS_DIR = '_versions';
+const RESERVED_DIRS = [UNTRUSTED_DIR, ANOMALIES_DIR, VERSIONS_DIR];
+function isReservedRel(rel) { return RESERVED_DIRS.includes(rel.split(path.sep)[0]); }
+
+// A manifest key under _anomalies/ or _versions/ is a kept copy, not a mirror:
+// { area: 'anomaly' | 'version', stamp, of: the rel it was kept from }, else null.
+function keptInfo(key) {
+  const parts = key.split(path.sep);
+  const area = parts[0] === VERSIONS_DIR ? 'version' : parts[0] === ANOMALIES_DIR ? 'anomaly' : null;
+  if (!area || parts.length < 3) return null;
+  return { area, stamp: parts[1], of: parts.slice(2).join(path.sep) };
+}
+// The manifest's mirror entries (one per captured file) and its kept-copy entries.
+function mirrorRels(manifest) { return Object.keys(manifest).filter((k) => !keptInfo(k)); }
+function keptKeys(manifest) { return Object.keys(manifest).filter((k) => keptInfo(k)); }
+// An unused key for a kept copy: <area>/<stamp>/<rel>, or <stamp>-2, -3 ... on a clash.
+function keptKeyFor(destRoot, manifest, area, stamp, rel) {
+  for (let n = 1; ; n++) {
+    const key = path.join(area, n === 1 ? stamp : `${stamp}-${n}`, rel);
+    if (!manifest[key] && !fs.existsSync(path.join(destRoot, key + '.gz'))) return key;
+  }
+}
 
 function historySource(srcRoot) {
   return process.env.CCARCHIVE_HISTORY || path.join(path.dirname(srcRoot), 'history.jsonl');
@@ -273,137 +552,15 @@ function liveAbsFor(srcRoot, rel) {
 
 // The live capture set as { abs, rel } — captured files under the source root
 // (keyed by their source-relative path) plus any external captures that exist on
-// disk. One definition shared by the archive walk, --audit and --restore, so all
-// three agree on exactly what is preserved.
-function listSources(srcRoot) {
-  const under = listCaptured(srcRoot).map((abs) => ({ abs, rel: path.relative(srcRoot, abs) }));
+// disk (flagged `external: true`). One definition shared by the archive walk,
+// --audit and --restore, so all three agree on exactly what is preserved. `errors`
+// collects unreadable directories (see walkFiles) instead of aborting the walk.
+function listSources(srcRoot, errors) {
+  const under = listCaptured(srcRoot, errors).map((abs) => ({ abs, rel: path.relative(srcRoot, abs) }));
   const ext = externalSources(srcRoot)
     .filter((e) => { try { return fs.statSync(e.abs).isFile(); } catch { return false; } })
-    .map((e) => ({ abs: e.abs, rel: e.rel }));
+    .map((e) => ({ abs: e.abs, rel: e.rel, external: true }));
   return [...under, ...ext];
-}
-
-// --- schedule management -------------------------------------------------
-// The archive is only durable if it actually runs. Rather than a hand-written
-// launchd plist (invisible to version control, silently missing on a new
-// machine), ccarchive installs its own schedule from runtime-derived paths.
-
-const SCHEDULE_LABEL = 'com.ccarchive.archive';   // neutral: no personal data
-const SCHEDULE_INTERVAL_SECONDS = 24 * 60 * 60;   // daily
-
-function xmlEscape(s) {
-  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
-function schedulePaths(home) {
-  return {
-    label: SCHEDULE_LABEL,
-    plistPath: path.join(home, 'Library', 'LaunchAgents', SCHEDULE_LABEL + '.plist'),
-    logPath: path.join(home, 'Library', 'Logs', 'ccarchive.log'),
-  };
-}
-
-// Prefer the stable installed entrypoint (~/.local/bin/ccarchive, put on PATH by
-// instruments/install) so the agent survives the repo moving; fall back to this
-// script's own path when it isn't installed there.
-function resolveScriptPath(home, fallbackPath) {
-  const installed = path.join(home, '.local', 'bin', 'ccarchive');
-  return fs.existsSync(installed) ? installed : fallbackPath;
-}
-
-function launchdPlist({ label, nodePath, scriptPath, intervalSeconds, logPath }) {
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>Label</key>
-    <string>${xmlEscape(label)}</string>
-    <key>ProgramArguments</key>
-    <array>
-        <string>${xmlEscape(nodePath)}</string>
-        <string>${xmlEscape(scriptPath)}</string>
-    </array>
-    <key>StartInterval</key>
-    <integer>${intervalSeconds}</integer>
-    <key>RunAtLoad</key>
-    <true/>
-    <key>StandardOutPath</key>
-    <string>${xmlEscape(logPath)}</string>
-    <key>StandardErrorPath</key>
-    <string>${xmlEscape(logPath)}</string>
-</dict>
-</plist>
-`;
-}
-
-// Daily at 03:00 — the fallback for non-launchd platforms.
-function cronLine(nodePath, scriptPath) {
-  return `0 3 * * * ${nodePath} ${scriptPath}`;
-}
-
-function installSchedule(home) {
-  const nodePath = process.execPath;
-  const scriptPath = resolveScriptPath(home, fs.realpathSync(__filename));
-  const { label, plistPath, logPath } = schedulePaths(home);
-
-  if (process.platform !== 'darwin') {
-    process.stdout.write(
-      'ccarchive scheduling uses launchd (macOS). On this platform, add a cron line:\n' +
-      `  ${cronLine(nodePath, scriptPath)}\n`);
-    return 0;
-  }
-
-  fs.mkdirSync(path.dirname(plistPath), { recursive: true });
-  fs.writeFileSync(plistPath, launchdPlist({
-    label, nodePath, scriptPath, intervalSeconds: SCHEDULE_INTERVAL_SECONDS, logPath,
-  }));
-  // Reload so a re-install picks up a changed plist; ignore the unload error
-  // when it wasn't already loaded.
-  try { execFileSync('launchctl', ['unload', '-w', plistPath], { stdio: 'ignore' }); } catch {}
-  execFileSync('launchctl', ['load', '-w', plistPath], { stdio: 'ignore' });
-
-  process.stdout.write(
-    `Scheduled: ${label} runs daily (and at login).\n` +
-    `  plist: ${plistPath}\n` +
-    `  runs:  ${nodePath} ${scriptPath}\n` +
-    `  log:   ${logPath}\n`);
-  return 0;
-}
-
-function uninstallSchedule(home) {
-  const { label, plistPath } = schedulePaths(home);
-  if (process.platform !== 'darwin') {
-    process.stdout.write('Nothing to remove (launchd is macOS-only). Delete any cron line you added.\n');
-    return 0;
-  }
-  try { execFileSync('launchctl', ['unload', '-w', plistPath], { stdio: 'ignore' }); } catch {}
-  let removed = false;
-  try { fs.rmSync(plistPath); removed = true; } catch (e) { if (e.code !== 'ENOENT') throw e; }
-  process.stdout.write(removed
-    ? `Removed schedule ${label} (${plistPath}).\n`
-    : `No schedule installed (${plistPath} absent).\n`);
-  return 0;
-}
-
-function scheduleStatus(home) {
-  const nodePath = process.execPath;
-  const scriptPath = resolveScriptPath(home, fs.realpathSync(__filename));
-  const { label, plistPath, logPath } = schedulePaths(home);
-  if (process.platform !== 'darwin') {
-    process.stdout.write(
-      'Scheduling uses launchd (macOS); not this platform.\n' +
-      `  cron equivalent: ${cronLine(nodePath, scriptPath)}\n`);
-    return 0;
-  }
-  const installed = fs.existsSync(plistPath);
-  let loaded = false;
-  try { execFileSync('launchctl', ['list', label], { stdio: 'ignore' }); loaded = true; } catch {}
-  process.stdout.write(
-    `Schedule ${label}:\n` +
-    `  plist installed: ${installed ? 'yes' : 'no'} (${plistPath})\n` +
-    `  launchd loaded:  ${loaded ? 'yes' : 'no'}\n` +
-    `  log:             ${logPath}\n`);
-  return 0;
 }
 
 // --- iCloud dataless-file awareness --------------------------------------
@@ -468,31 +625,79 @@ function isDataless(p) {
 
 function sha256(buf) { return crypto.createHash('sha256').update(buf).digest('hex'); }
 function sha256File(p) { return sha256(fs.readFileSync(p)); }
-function sha256Gz(gzPath) { return sha256(zlib.gunzipSync(fs.readFileSync(gzPath))); }
 
 function manifestPath(destRoot) { return path.join(destRoot, 'manifest.json'); }
 
-function loadManifest(destRoot) {
-  try {
-    return JSON.parse(fs.readFileSync(manifestPath(destRoot), 'utf8'));
-  } catch (e) {
-    if (e.code === 'ENOENT') return {};
-    // Corrupt manifest: preserve it rather than clobber, warn, start fresh.
-    try { fs.renameSync(manifestPath(destRoot), manifestPath(destRoot) + '.corrupt'); } catch {}
-    process.stderr.write(
-      `ccarchive: manifest unreadable (${e.message}); kept as manifest.json.corrupt, starting fresh.\n`);
+// Read the manifest. An absent one is an empty archive ({}). One that exists but
+// is not a JSON object is CORRUPT; one that cannot be read at all (an I/O error,
+// an iCloud-evicted placeholder) is NOT corrupt and is never treated as such — it
+// is a fatal, clean error, because deciding "start fresh" over a file we merely
+// failed to read would throw the trust anchor away (the field log shows an evicted
+// manifest misread exactly that way). What to do about a corrupt one is the
+// caller's call, via opts.onCorrupt:
+//   'throw'   (default) — a clean error; nothing is moved. Every read-only mode
+//             (--verify, --audit, --restore, a dry run's callers) uses this, so
+//             a mode documented as read-only never renames anything (HL10).
+//   'warn'    — warn on stderr and carry on with {} (a --dry-run preview).
+//   'setaside' — write-mode only: keep the bad file under a fresh timestamped name
+//             (never overwriting an earlier set-aside), warn, and start fresh.
+function loadManifest(destRoot, opts = {}) {
+  const bytes = readManifestBytes(destRoot);
+  return bytes === null ? {} : parseManifest(bytes, destRoot, opts);
+}
+
+// The manifest's raw bytes, or null when there is none. Any other read failure is
+// a clean fatal error (see loadManifest), never "absent".
+function readManifestBytes(destRoot) {
+  try { return fs.readFileSync(manifestPath(destRoot)); }
+  catch (e) {
+    if (e.code === 'ENOENT') return null;
+    throw new CcError(isOffloadError(e)
+      ? `manifest.json at ${destRoot} could not be read (offloaded by iCloud?) — ` +
+        `nothing was changed; open it in Finder to download it, then re-run`
+      : `manifest.json at ${destRoot} could not be read (${e.code || e.message}) — nothing was changed`,
+      e.code);
+  }
+}
+
+// Parse manifest bytes already read (so a caller that authenticated those exact
+// bytes parses the same ones), applying opts.onCorrupt as loadManifest describes.
+function parseManifest(bytes, destRoot, opts = {}) {
+  const onCorrupt = opts.onCorrupt || 'throw';
+  const mp = manifestPath(destRoot);
+  let parsed;
+  try { parsed = JSON.parse(bytes.toString('utf8')); } catch (e) { parsed = undefined; }
+  if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+
+  if (onCorrupt === 'throw') {
+    throw new CcError(`manifest.json at ${destRoot} is not valid JSON — nothing was checked and ` +
+      `nothing was moved; a write-mode run would set it aside and start fresh`, 'EMANIFEST');
+  }
+  if (onCorrupt === 'warn') {
+    process.stderr.write(`ccarchive: manifest unreadable (not valid JSON); a real run would set it ` +
+      `aside and start fresh. Dry run: nothing moved.\n`);
     return {};
   }
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
+  let kept = `${mp}.corrupt-${stamp}`;
+  for (let n = 1; fs.existsSync(kept); n++) kept = `${mp}.corrupt-${stamp}-${n}`;
+  fs.renameSync(mp, kept);
+  process.stderr.write(
+    `ccarchive: manifest unreadable (not valid JSON); kept as ${path.basename(kept)}, starting fresh.\n`);
+  return {};
+}
+
+function manifestText(obj) {
+  const ordered = {};
+  for (const k of Object.keys(obj).sort()) ordered[k] = obj[k];  // stable diffs
+  return JSON.stringify(ordered, null, 2) + '\n';
 }
 
 function saveManifest(destRoot, obj) {
   fs.mkdirSync(destRoot, { recursive: true });
-  const ordered = {};
-  for (const k of Object.keys(obj).sort()) ordered[k] = obj[k];  // stable diffs
-  const p = manifestPath(destRoot);
-  const tmp = p + '.tmp';
-  fs.writeFileSync(tmp, JSON.stringify(ordered, null, 2) + '\n');
-  fs.renameSync(tmp, p);  // atomic: a crash mid-write can't corrupt the manifest
+  // Atomic: a crash mid-write can't corrupt the manifest, and the unique temp name
+  // means a planted link at a fixed ".tmp" path is never followed (MC9).
+  writeFileAtomic(manifestPath(destRoot), manifestText(obj));
 }
 
 // Archived files as manifest keys (the .gz suffix stripped). Any archived .gz is
@@ -500,6 +705,9 @@ function saveManifest(destRoot, obj) {
 // external history.jsonl all mirror to <rel>.gz, so keying on the .gz suffix
 // alone (rather than .jsonl.gz) treats every captured class the same. The
 // manifest.json / .sig sidecars carry no .gz suffix, so they are never picked up.
+// The reserved areas (<dest>/_untrusted/, _anomalies/, _versions/) are skipped: what
+// a run set aside or kept there is not a mirror, and no walk, verify or restore
+// treats it as one.
 function listArchivedRels(destRoot) {
   const out = [];
   const walk = (dir) => {
@@ -508,6 +716,7 @@ function listArchivedRels(destRoot) {
     catch (e) { if (e.code === 'ENOENT') return; throw e; }
     for (const ent of entries) {
       const abs = path.join(dir, ent.name);
+      if (ent.isDirectory() && dir === destRoot && RESERVED_DIRS.includes(ent.name)) continue;
       if (ent.isDirectory()) walk(abs);
       else if (ent.isFile() && ent.name.endsWith('.gz')) out.push(path.relative(destRoot, abs).slice(0, -3));
     }
@@ -591,20 +800,63 @@ function ensureKey(keyPath) { return loadKey(keyPath) || mintKey(keyPath); }
 // The detached signature sidecar, or null when absent/malformed (both read as
 // "no usable signature" — a malformed .sig is as suspect as a missing one).
 function loadSig(destRoot) {
-  try { return JSON.parse(fs.readFileSync(sigPath(destRoot), 'utf8')); }
-  catch { return null; }
+  let text;
+  try { text = fs.readFileSync(sigPath(destRoot), 'utf8'); }
+  catch (e) {
+    if (e.code === 'ENOENT') return null;
+    throw new CcError(`manifest.json.sig at ${destRoot} could not be read (${isOffloadError(e) ? 'offloaded by iCloud?' : (e.code || e.message)}) — nothing was changed`, e.code);
+  }
+  try { return JSON.parse(text); } catch { return null; }
 }
 
 // Sign the manifest's EXACT on-disk bytes into a detached sidecar. Atomic write so
-// a crash mid-write can't leave a half-written signature.
+// a crash mid-write can't leave a half-written signature. A signature written this
+// way supersedes any pending one (see saveManifestSigned).
 function signManifest(destRoot, keyBuf, manifestBytes) {
   const bytes = manifestBytes || fs.readFileSync(manifestPath(destRoot));
   const sig = { algorithm: SIG_ALGORITHM, keyId: keyId(keyBuf), mac: computeMac(keyBuf, bytes) };
-  const p = sigPath(destRoot);
-  const tmp = p + '.tmp';
-  fs.writeFileSync(tmp, JSON.stringify(sig, null, 2) + '\n');
-  fs.renameSync(tmp, p);   // atomic
+  writeFileAtomic(sigPath(destRoot), JSON.stringify(sig, null, 2) + '\n');
+  try { fs.unlinkSync(sigNextPath(destRoot)); } catch {}
   return sig;
+}
+
+// The manifest and its signature are two files, and each is replaced atomically but
+// not both at once. Replacing them one after the other left a window (MC4): a run
+// killed between the two renames left a manifest its signature did not match, which
+// reads as tampered, and a run refuses a tampered index. So the new signature is
+// written FIRST, beside the old one, as manifest.json.sig.next; then the manifest is
+// replaced; then the .next is renamed over the signature. A kill at any point leaves
+// a pair that verifies: before the manifest rename, the old manifest and old
+// signature; after it, the new manifest and its signature in .next (which the checks
+// below accept, and the next write finishes); after the last rename, the new pair.
+// The .next is only ever accepted when it verifies under the key over the manifest
+// bytes actually on disk, so it is exactly as hard to forge as the signature itself.
+function sigNextPath(destRoot) { return sigPath(destRoot) + '.next'; }
+function saveManifestSigned(destRoot, obj, keyBuf) {
+  fs.mkdirSync(destRoot, { recursive: true });
+  const bytes = Buffer.from(manifestText(obj));
+  const sig = { algorithm: SIG_ALGORITHM, keyId: keyId(keyBuf), mac: computeMac(keyBuf, bytes) };
+  writeFileAtomic(sigNextPath(destRoot), JSON.stringify(sig, null, 2) + '\n');
+  writeFileAtomic(manifestPath(destRoot), bytes);
+  fs.renameSync(sigNextPath(destRoot), sigPath(destRoot));
+}
+
+// The verdict on the manifest's signature, counting a pending .next signature (the
+// window above) as the signature it is. { ...verifySignature, pendingSignature: true }
+// marks the second case so a caller can finish it.
+function checkManifestSignature(destRoot, bytes, keyBuf) {
+  const v = verifySignature(bytes, loadSig(destRoot), keyBuf);
+  if (v.state !== 'tampered') return v;
+  let next = null;
+  try { next = JSON.parse(fs.readFileSync(sigNextPath(destRoot), 'utf8')); } catch { next = null; }
+  if (next && verifySignature(bytes, next, keyBuf).state === 'verified') {
+    return { state: 'verified', keyId: v.keyId, pendingSignature: true };
+  }
+  return v;
+}
+// Finish a pending signature: rename it over the old one (only after it was verified).
+function completePendingSignature(destRoot) {
+  try { fs.renameSync(sigNextPath(destRoot), sigPath(destRoot)); } catch {}
 }
 
 // Pure verdict on a manifest's signature. States:
@@ -629,7 +881,8 @@ function verifySignature(manifestBytes, sig, keyBuf) {
 // One human line for a signature verdict — the trust anchor, shown up top.
 function signatureLine(sig, keyPath) {
   switch (sig.state) {
-    case 'verified':     return `  ✓ manifest signature verified (${SIG_ALGORITHM}, key ${sig.keyId})`;
+    case 'verified':     return `  ✓ manifest signature verified (${SIG_ALGORITHM}, key ${sig.keyId})` +
+      (sig.pendingSignature ? ` — a run was killed between replacing the manifest and its signature; the new signature is intact beside it and the next run completes the swap` : '');
     case 'tampered':     return `  ✗ manifest signature MISMATCH — the manifest was altered after signing (TAMPER EVIDENT)`;
     case 'key-mismatch': return `  ✗ manifest signed by a different key (sig ${sig.sigKeyId} vs your key ${sig.keyId}) — an unexpected key roll, or tampering`;
     case 'unsigned':     return `  ⚠ manifest is NOT signed — a pre-signing archive to migrate (run ccarchive), or the signature was removed`;
@@ -641,28 +894,442 @@ function signatureLine(sig, keyPath) {
 // --rekey: mint a fresh signing key (rolling it) and re-sign the current manifest.
 // The signature only ever attests the CURRENT manifest bytes, so a roll loses
 // nothing — old .sig files simply stop verifying, which is the point of a roll.
+//
+// --rekey is also the ONE deliberate clear for an index a write-mode run refused
+// to trust (see authenticateManifest): the operator, satisfied the archive is
+// intact, re-attests the current manifest bytes under a fresh key. Records still
+// pending in the intent journal are carried across: each one that checks under the
+// old key is re-signed under the new one; one that does not is dropped and counted.
+// A signature left with no manifest beside it attests nothing and is moved aside.
 function rekeyManifest(destRoot, keyPath, asJson) {
+  let oldKey = null;
+  try { oldKey = loadKey(keyPath); } catch { oldKey = null; }   // an unreadable old key: journal can't be checked
+  const jp = journalPath(keyPath, destRoot);
+  const journal = oldKey ? readJournal(jp, oldKey) : (fs.existsSync(jp) ? { records: [], rejected: -1 } : null);
   const keyBuf = mintKey(keyPath);           // fresh key, replacing any existing
   const id = keyId(keyBuf);
   const hasManifest = fs.existsSync(manifestPath(destRoot));
   if (hasManifest) signManifest(destRoot, keyBuf);
-  const result = { rekeyed: true, keyId: id, keyFile: keyPath, manifestSigned: hasManifest };
+  let orphanSig = null;
+  if (!hasManifest && fs.existsSync(sigPath(destRoot))) {
+    orphanSig = `${sigPath(destRoot)}.orphan-${utcStamp()}`;
+    for (let n = 2; fs.existsSync(orphanSig); n++) orphanSig = `${sigPath(destRoot)}.orphan-${utcStamp()}-${n}`;
+    fs.renameSync(sigPath(destRoot), orphanSig);
+  }
+  let journalCarried = 0, journalDropped = 0;
+  if (journal) {
+    journalCarried = journal.records.length;
+    journalDropped = journal.rejected === -1 ? -1 : journal.rejected;
+    rewriteJournal(jp, keyBuf, journal.records);
+  }
+  const result = { rekeyed: true, keyId: id, keyFile: keyPath, manifestSigned: hasManifest,
+    ...(orphanSig ? { orphanSignatureMovedTo: path.basename(orphanSig) } : {}),
+    ...(journal ? { journalCarried, journalDropped } : {}) };
   if (asJson) { process.stdout.write(JSON.stringify(result, null, 2) + '\n'); return 0; }
-  process.stdout.write([
+  const lines = [
     `cc-transcripts rekey → new signing key ${id}`,
     `  key: ${keyPath} (0600, off the archive volume)`,
     hasManifest
       ? `  re-signed manifest.json at ${destRoot} with the new key (old signatures now invalid — nothing lost, the current manifest is re-attested)`
       : `  no manifest at ${destRoot} yet — the key is ready; the next ccarchive run signs the manifest`,
-    `  ⚠ back up this key out-of-band: a new machine needs THIS key to verify the archive's signatures. Minting on loss re-signs but cannot reproduce a lost key (SECRETS.md redundancy).`,
-  ].join('\n') + '\n');
+  ];
+  if (orphanSig) lines.push(`  a signature with no manifest beside it was moved aside as ${path.basename(orphanSig)}`);
+  if (journal) {
+    lines.push(journalDropped === -1
+      ? `  ⚠ the intent journal could not be checked (no old key); its ${journalCarried} records were dropped — the next run treats those mirrors as unvouched`
+      : `  intent journal: ${journalCarried} pending record(s) re-signed under the new key` +
+        (journalDropped ? `, ${journalDropped} that failed their check under the old key dropped` : ''));
+  }
+  lines.push(`  ⚠ back up this key out-of-band: a new machine needs THIS key to verify the archive's signatures. Minting on loss re-signs but cannot reproduce a lost key (SECRETS.md redundancy).`);
+  process.stdout.write(lines.join('\n') + '\n');
   return 0;
+}
+
+function utcStamp(d = new Date()) {
+  return d.toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
+}
+
+// --- authenticate before any write (HL3) -----------------------------------
+// A run that saves the manifest re-signs it. Re-signing an index the run never
+// authenticated would launder whatever was done to it — a forged entry, a removed
+// signature, a manifest replaced wholesale — into a green --verify. So every mode
+// that writes (an ordinary run, --restore) checks the signature FIRST, over the
+// exact bytes it then parses, and refuses anything but `verified`:
+//   fresh   — no manifest and no signature: a new archive. Proceeds, and signs
+//             what it writes (the key is minted now if there is none).
+//   any other state (tampered, key-mismatch, unsigned, no-key, or a signature
+//             with its manifest gone) — refused, exit 2, nothing changed. A missing
+//             key is never minted while a manifest exists: that would re-sign an
+//             index nobody checked. The deliberate clear is --rekey, once the
+//             operator is satisfied the archive is intact.
+function untrustedIndexError(state, destRoot, keyPath, detail) {
+  const what = {
+    tampered: 'does not match its signature — it changed after it was signed',
+    'key-mismatch': `was signed by a different key (${detail || 'another key'})`,
+    unsigned: 'is not signed — a pre-signing archive, or its signature was removed',
+    'no-key': `cannot be checked: there is no signing key at ${keyPath}, and a new one is not minted while an index exists`,
+    'orphan-signature': 'is missing while its signature is present — the manifest was removed',
+  }[state] || state;
+  const e = new CcError(`refused: the archive index (manifest.json) at ${destRoot} ${what} ` +
+    `(signature state: ${state}). ` +
+    `Nothing was changed. Check it with ccarchive --verify (bring the key here if it is on another machine); ` +
+    `once you are satisfied the archive is intact, clear this deliberately with ccarchive --rekey`, 'EUNTRUSTED');
+  e.state = state;
+  return e;
+}
+
+// Returns { manifest, keyBuf, fresh }. opts: { onCorrupt, mintIfFresh }.
+function authenticateManifest(destRoot, keyPath, opts = {}) {
+  const bytes = readManifestBytes(destRoot);
+  const sigExists = fs.existsSync(sigPath(destRoot));
+  let keyBuf = loadKey(keyPath);
+  if (bytes === null && !sigExists) {
+    if (!keyBuf && opts.mintIfFresh) keyBuf = mintKey(keyPath);
+    return { manifest: {}, keyBuf, fresh: true };
+  }
+  if (bytes === null) throw untrustedIndexError('orphan-signature', destRoot, keyPath);
+  const v = checkManifestSignature(destRoot, bytes, keyBuf);
+  if (v.state !== 'verified') {
+    throw untrustedIndexError(v.state, destRoot, keyPath,
+      v.state === 'key-mismatch' ? `signature key ${v.sigKeyId}, your key ${v.keyId}` : null);
+  }
+  const manifest = parseManifest(bytes, destRoot, { onCorrupt: opts.onCorrupt || 'throw' });
+  // A write-mode run that set an authenticated-but-unparseable manifest aside
+  // (only reachable after a deliberate --rekey over it) starts a new one at once,
+  // signed, so the signature never outlives the manifest it attests.
+  if (opts.onCorrupt === 'setaside' && readManifestBytes(destRoot) === null) {
+    saveManifestSigned(destRoot, {}, keyBuf);
+  }
+  return { manifest, keyBuf, fresh: false, pendingSignature: !!v.pendingSignature };
+}
+
+// --- run state kept OFF the archive: intent journal + lock ---------------------
+// Both live beside the signing key, in a private 0700 directory, one file each per
+// destination (keyed by a hash of the destination's real path), so they are never
+// synced into the archive and a tamperer with write access to the archive volume
+// cannot touch them.
+function stateDir(keyPath) { return path.join(path.dirname(keyPath), 'ccarchive-state'); }
+function destId(destRoot) { return sha256(Buffer.from(realpathNearest(destRoot))).slice(0, 16); }
+function journalPath(keyPath, destRoot) { return path.join(stateDir(keyPath), `${destId(destRoot)}.journal`); }
+function lockPath(keyPath, destRoot) { return path.join(stateDir(keyPath), `${destId(destRoot)}.lock`); }
+function ensureStateDir(keyPath) {
+  const d = stateDir(keyPath);
+  fs.mkdirSync(d, { recursive: true, mode: 0o700 });
+  try { fs.chmodSync(d, 0o700); } catch {}
+  return d;
+}
+
+// The intent journal (Mike's ruling, 2026-10-05: repair the index from the
+// archive only "when we can tell that ccarchive has failed part way"). Before a
+// run writes each mirror it appends one record — the rel, the sha256 and length of
+// the exact raw bytes it is about to write, its run id and the time — fsynced, and
+// HMAC-signed with the signing key so an edited record is detectable. A run that
+// finishes (or reaches a checkpoint) has put every such mirror in the signed index,
+// so it rewrites the journal down to the records still pending (removing it when
+// none are). A journal found at the start of a run therefore proves the previous
+// run died part way, and names exactly the mirrors it may have written.
+function journalMacFor(keyBuf, rec) {
+  return computeMac(keyBuf, Buffer.from(JSON.stringify([rec.rel, rec.sha256, rec.rawBytes, rec.run, rec.at])));
+}
+
+function journalLine(keyBuf, rec) {
+  const clean = { rel: rec.rel, sha256: rec.sha256, rawBytes: rec.rawBytes, run: rec.run, at: rec.at };
+  return JSON.stringify({ ...clean, mac: journalMacFor(keyBuf, clean) }) + '\n';
+}
+
+function appendJournal(jp, keyBuf, rec) {
+  fs.mkdirSync(path.dirname(jp), { recursive: true, mode: 0o700 });
+  const fd = fs.openSync(jp, 'a', 0o600);
+  try {
+    fs.writeSync(fd, journalLine(keyBuf, rec));
+    fs.fsyncSync(fd);
+  } finally { fs.closeSync(fd); }
+}
+
+// { records, rejected, torn } or null when there is no journal. A record whose MAC
+// the key does not reproduce is REJECTED (counted, never used); a final line with
+// no newline is a write the kill cut short, and is ignored (`torn`).
+function readJournal(jp, keyBuf) {
+  let text;
+  try { text = fs.readFileSync(jp, 'utf8'); }
+  catch (e) { if (e.code === 'ENOENT') return null; throw e; }
+  const out = { records: [], rejected: 0, torn: false };
+  const lines = text.split('\n');
+  const last = lines.pop();
+  if (last !== '') out.torn = true;
+  for (const line of lines) {
+    if (line === '') continue;
+    let r;
+    try { r = JSON.parse(line); } catch { out.rejected++; continue; }
+    const ok = r && typeof r.rel === 'string' && typeof r.sha256 === 'string' && Number.isInteger(r.rawBytes)
+      && keyBuf && macEqual(r.mac, journalMacFor(keyBuf, r));
+    if (ok) out.records.push({ rel: r.rel, sha256: r.sha256, rawBytes: r.rawBytes, run: r.run, at: r.at });
+    else out.rejected++;
+  }
+  return out;
+}
+
+function rewriteJournal(jp, keyBuf, records) {
+  if (!records.length) {
+    try { fs.unlinkSync(jp); } catch (e) { if (e.code !== 'ENOENT') throw e; }
+    return;
+  }
+  fs.mkdirSync(path.dirname(jp), { recursive: true, mode: 0o700 });
+  writeFileAtomic(jp, records.map((r) => journalLine(keyBuf, r)).join(''), { mode: 0o600 });
+}
+
+// The lock (Mike's ruling, 2026-10-05: "a way to tell if a lock is stuck and to
+// clear the stuck lock"). A run that writes — an ordinary run, --restore, --rekey —
+// holds an exclusive lock for its destination; read-only modes take none. The lock
+// file records the holder's pid, host, its process START identity (so a pid the
+// system later reuses for another process is not mistaken for the holder), when it
+// started, and a heartbeat refreshed at every checkpoint. It is created whole, by
+// hard-linking a fully written temp file into place (link fails if the name
+// exists), so a second run can never see a half-written lock.
+function processStartId(pid) {
+  try {
+    const out = execFileSync('ps', ['-o', 'lstart=', '-p', String(pid)],
+      { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    return out || null;
+  } catch { return null; }
+}
+
+function readLock(lp) {
+  let text;
+  try { text = fs.readFileSync(lp, 'utf8'); }
+  catch (e) { if (e.code === 'ENOENT') return null; throw e; }
+  try {
+    const h = JSON.parse(text);
+    return h && typeof h === 'object' && Number.isInteger(h.pid) ? h : { unreadable: true, raw: text.slice(0, 200) };
+  } catch { return { unreadable: true, raw: text.slice(0, 200) }; }
+}
+
+// Pure-ish verdict on a lock holder: free | held | stuck | foreign.
+//   held    — this host, the pid is running AND is the same process (start identity)
+//   stuck   — this host, and the holder is provably not running (pid gone, or the pid
+//             now belongs to a process that started at another time), or the lock
+//             file is unreadable (a run never writes a partial one)
+//   foreign — written on another host: its liveness cannot be checked from here
+function lockState(holder) {
+  if (holder === null) return { state: 'free' };
+  if (holder.unreadable) return { state: 'stuck', why: 'the lock file is unreadable' };
+  if (holder.host !== os.hostname()) return { state: 'foreign', why: `held on host ${holder.host}` };
+  if (!pidAlive(holder.pid)) return { state: 'stuck', why: `pid ${holder.pid} is not running` };
+  const now = processStartId(holder.pid);
+  if (holder.startId && now && now !== holder.startId) {
+    return { state: 'stuck', why: `pid ${holder.pid} now belongs to another process (started ${now})` };
+  }
+  return { state: 'held' };
+}
+
+function describeHolder(h) {
+  if (!h || h.unreadable) return 'an unreadable lock file';
+  return `pid ${h.pid} on ${h.host} (${h.mode || 'run'}, started ${h.startedAt}, last heartbeat ${h.heartbeat})`;
+}
+
+// Remove a lock judged stuck, without ever removing a fresh one another run took
+// in the meantime: rename it to a unique name first, then check it is still the
+// stuck holder; if it is not, put it back.
+function clearStuckLock(lp, judged) {
+  const aside = `${lp}.stale.${process.pid}.${crypto.randomBytes(4).toString('hex')}`;
+  try { fs.renameSync(lp, aside); } catch (e) { if (e.code === 'ENOENT') return true; throw e; }
+  const got = readLock(aside);
+  const same = got && ((judged.unreadable && got.unreadable) ||
+    (!judged.unreadable && got.pid === judged.pid && got.startId === judged.startId && got.startedAt === judged.startedAt));
+  if (!same) {
+    try { fs.linkSync(aside, lp); } catch {}
+    try { fs.unlinkSync(aside); } catch {}
+    return false;
+  }
+  fs.unlinkSync(aside);
+  return true;
+}
+
+function acquireLock(keyPath, destRoot, mode) {
+  ensureStateDir(keyPath);
+  const lp = lockPath(keyPath, destRoot);
+  const now = new Date().toISOString();
+  const me = { pid: process.pid, host: os.hostname(), startId: processStartId(process.pid),
+    startedAt: now, heartbeat: now, mode, dest: realpathNearest(destRoot) };
+  const tmp = `${lp}.${process.pid}.${crypto.randomBytes(4).toString('hex')}.tmp`;
+  fs.writeFileSync(tmp, JSON.stringify(me, null, 2) + '\n', { mode: 0o600, flag: 'wx' });
+  let cleared = null;
+  try {
+    for (let attempt = 0; ; attempt++) {
+      try { fs.linkSync(tmp, lp); break; }
+      catch (e) { if (e.code !== 'EEXIST') throw e; }
+      if (attempt > 3) {
+        throw new CcError(`could not take the lock for this archive (${lp}) — another run keeps taking it; ` +
+          `nothing was changed`, 'ELOCKED');
+      }
+      const holder = readLock(lp);
+      if (holder === null) continue;                     // released between link and read
+      const st = lockState(holder);
+      if (st.state === 'stuck' && attempt === 0) {
+        if (clearStuckLock(lp, holder)) {
+          cleared = { holder: holder.unreadable ? null : holder, why: st.why };
+          process.stderr.write(`ccarchive: cleared a stuck lock for this archive — ${st.why}; ` +
+            `it was ${describeHolder(holder)}.\n`);
+        }
+        continue;
+      }
+      throw new CcError(st.state === 'stuck'
+        ? `refused: the lock for this archive is stuck (${st.why}) and could not be cleared — ` +
+          `see ccarchive --lock-status`
+        : st.state === 'foreign'
+        ? `refused: another ccarchive run holds the lock for this archive — ${describeHolder(holder)}, on another ` +
+          `host, so whether it is still running cannot be checked from here. See ccarchive --lock-status`
+        : `refused: another ccarchive run holds the lock for this archive — ${describeHolder(holder)}. ` +
+          `Nothing was changed; wait for it to finish (ccarchive --lock-status shows it)`, 'ELOCKED');
+    }
+  } finally { try { fs.unlinkSync(tmp); } catch {} }
+  return { lp, me, cleared };
+}
+
+// Refresh the heartbeat — only while the lock is still ours. If someone cleared it
+// and another run took it, carrying on would let two runs write one archive.
+function heartbeatLock(lock) {
+  if (!lock) return;
+  const h = readLock(lock.lp);
+  if (!h || h.unreadable || h.pid !== lock.me.pid || h.startedAt !== lock.me.startedAt) {
+    throw new CcError(`lost the lock for this archive mid-run (it was cleared or taken by another run) — ` +
+      `stopped; what was written so far is in the signed index`, 'ELOCKLOST');
+  }
+  lock.me.heartbeat = new Date().toISOString();
+  writeFileAtomic(lock.lp, JSON.stringify(lock.me, null, 2) + '\n', { mode: 0o600 });
+}
+
+function releaseLock(lock) {
+  if (!lock) return;
+  const h = readLock(lock.lp);
+  if (h && !h.unreadable && h.pid === lock.me.pid && h.startedAt === lock.me.startedAt) {
+    try { fs.unlinkSync(lock.lp); } catch {}
+  }
+}
+
+// --lock-status (read-only) and --clear-lock (clears only a stuck lock).
+function lockStatus(keyPath, destRoot, asJson) {
+  const lp = lockPath(keyPath, destRoot);
+  const holder = readLock(lp);
+  const st = lockState(holder);
+  const result = { dest: destRoot, lockFile: lp, state: st.state, ...(st.why ? { why: st.why } : {}),
+    holder: holder && !holder.unreadable ? holder : null };
+  const status = st.state === 'stuck' || st.state === 'foreign' ? 1 : 0;
+  if (asJson) { process.stdout.write(JSON.stringify(result, null, 2) + '\n'); return status; }
+  const line = {
+    free: `  free — no run holds this archive`,
+    held: `  held by a live run — ${describeHolder(holder)}`,
+    stuck: `  STUCK: holder not running — ${st.why}; it was ${describeHolder(holder)}. ` +
+      `Clear it with ccarchive --clear-lock (an ordinary run also clears it, and says so)`,
+    foreign: `  held by a run on another host — ${describeHolder(holder)}; whether it is still running cannot ` +
+      `be checked from here`,
+  }[st.state];
+  process.stdout.write(`cc-transcripts lock → ${destRoot}\n${line}\n  lock file: ${lp}\n`);
+  return status;
+}
+
+function clearLock(keyPath, destRoot, asJson) {
+  const lp = lockPath(keyPath, destRoot);
+  const holder = readLock(lp);
+  const st = lockState(holder);
+  if (st.state === 'held') {
+    throw new CcError(`refused: the lock is held by a live run — ${describeHolder(holder)}; it is not stuck, ` +
+      `so it was not cleared`, 'ELOCKED');
+  }
+  if (st.state === 'foreign') {
+    throw new CcError(`refused: the lock was taken on another host — ${describeHolder(holder)}; whether that run ` +
+      `is alive cannot be checked from here. If you are sure it is not, delete ${lp} by hand`, 'ELOCKED');
+  }
+  const cleared = st.state === 'stuck' ? clearStuckLock(lp, holder) : false;
+  const result = { dest: destRoot, lockFile: lp, cleared, was: st.state, ...(st.why ? { why: st.why } : {}) };
+  if (asJson) { process.stdout.write(JSON.stringify(result, null, 2) + '\n'); return 0; }
+  process.stdout.write(st.state === 'free'
+    ? `cc-transcripts lock → ${destRoot}\n  free — nothing to clear\n`
+    : `cc-transcripts lock → ${destRoot}\n  cleared a stuck lock (${st.why}); it was ${describeHolder(holder)}\n`);
+  return 0;
+}
+
+// --- trust: which mirrors the signed index vouches for -------------------------
+// The signed index is cheaper to read than the archive (Mike's ruling), so an
+// ordinary run decides whether a mirror is vouched for from a stat, never a read:
+// every entry a run writes records the mirror's own size and mtime as they were
+// after the write (gzBytes, gzMtimeMs). A mirror whose stat agrees with its signed
+// entry is vouched for. An entry from before these fields existed (legacy) is trusted
+// as signed until a run's catch-up pass has read its mirror once and recorded them, or
+// its next write (its bytes are still checked by --verify).
+function metadataAgrees(entry, st) {
+  if (!entry) return false;
+  if (typeof entry.gzBytes !== 'number' || typeof entry.gzMtimeMs !== 'number') return true;   // legacy
+  return entry.gzBytes === st.size && Math.abs(entry.gzMtimeMs - st.mtimeMs) <= MTIME_TOLERANCE_MS;
+}
+
+// An entry from before the mirror's size and time were recorded: vouched for only by
+// trust in the signed index until a run has read the mirror once (see the catch-up
+// pass in archiveRun) or rewritten it.
+function isLegacyEntry(entry) {
+  return !!entry && (typeof entry.gzBytes !== 'number' || typeof entry.gzMtimeMs !== 'number');
+}
+
+// Which of these paths are iCloud-evicted (dataless)? One `stat` spawn per few hundred
+// paths instead of one per path (a spawn costs ~15 ms), the same batching cctranscript
+// uses for the archive. Honours CCARCHIVE_SIMULATE_DATALESS; off macOS nothing is.
+function datalessPaths(paths) {
+  const out = new Set();
+  if (process.env.CCARCHIVE_SIMULATE_DATALESS || process.platform !== 'darwin') {
+    for (const p of paths) if (isDataless(p)) out.add(p);
+    return out;
+  }
+  const CHUNK = 400;
+  for (let i = 0; i < paths.length; i += CHUNK) {
+    const chunk = paths.slice(i, i + CHUNK);
+    let text = '';
+    try {
+      text = execFileSync('stat', ['-f', '%f\t%N', ...chunk],
+        { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 });
+    } catch (e) { text = (e && typeof e.stdout === 'string') ? e.stdout : ''; }
+    for (const line of text.split('\n')) {
+      const tab = line.indexOf('\t');
+      if (tab < 0) continue;
+      const n = Number(line.slice(0, tab));
+      if (isDatalessFlags(n)) out.add(line.slice(tab + 1));
+    }
+  }
+  return out;
+}
+
+// The wall-clock slice of one run the legacy catch-up may use (see archiveRun). A
+// latency bound, not a count: a size derived from today's archive would be a number
+// fitted to a measurement. Override with $CCARCHIVE_LEGACY_BUDGET_MS (0 = one entry a run).
+const LEGACY_BUDGET_MS = 20000;
+function legacyBudgetMs() {
+  const raw = process.env.CCARCHIVE_LEGACY_BUDGET_MS;
+  const n = raw === undefined || raw === '' ? NaN : Number(raw);
+  return Number.isFinite(n) && n >= 0 ? n : LEGACY_BUDGET_MS;
+}
+
+// Move a mirror the index does not vouch for into <dest>/_untrusted/<stamp>/,
+// keeping its relative path; never over an earlier one. Returns the new path
+// relative to dest.
+function moveUntrusted(destRoot, rel, stamp, gzPath) {
+  const base = path.join(destRoot, UNTRUSTED_DIR, stamp);
+  let target = path.join(base, rel + '.gz');
+  for (let n = 2; fs.existsSync(target); n++) target = path.join(base, `${rel}~${n}.gz`);
+  ensureMirrorDir(destRoot, path.dirname(target));
+  fs.renameSync(gzPath, target);
+  return path.relative(destRoot, target);
 }
 
 function verifyArchive(destRoot, asJson, materialise, keyPath) {
   const manifest = loadManifest(destRoot);
+  // Every manifest entry is checked: the mirrors and the kept copies (versions and
+  // anomalies) alike — a kept copy is signed history, so losing or damaging one is
+  // as real as losing a mirror. `kept` counts them apart so the report can say so.
   const rels = Object.keys(manifest);
-  const result = { dest: destRoot, checked: rels.length, ok: 0, mismatch: [], missing: [], evicted: [], unmanifested: [] };
+  const keptRels = keptKeys(manifest);
+  const result = { dest: destRoot, checked: rels.length, ok: 0, mismatch: [], missing: [],
+    corrupt: [], unreadable: [], evicted: [], unmanifested: [],
+    kept: { versions: keptRels.filter((k) => keptInfo(k).area === 'version').length,
+      anomalies: keptRels.filter((k) => keptInfo(k).area === 'anomaly').length } };
 
   for (const rel of rels) {
     const gzPath = path.join(destRoot, rel + '.gz');
@@ -672,10 +1339,18 @@ function verifyArchive(destRoot, asJson, materialise, keyPath) {
     // `evicted` — distinct from missing/mismatch, and NOT a failure. --materialise
     // opts into reading (and thus deliberately re-downloading) them.
     if (!materialise && isDataless(gzPath)) { result.evicted.push(rel); continue; }
-    let actual;
-    try { actual = sha256Gz(gzPath); }
-    catch (e) { if (e.code === 'ENOENT') { result.missing.push(rel); continue; } throw e; }
-    if (actual === manifest[rel].sha256) result.ok++;
+    // One bad mirror never ends the verify: a file that will not decompress is
+    // named as CORRUPT, an I/O failure as UNREADABLE, and the walk carries on. A
+    // read that hits an evicted placeholder the flag check missed is `evicted`.
+    const m = readMirror(gzPath);
+    if (!m.ok) {
+      if (m.kind === 'missing') result.missing.push(rel);
+      else if (m.kind === 'offloaded') result.evicted.push(rel);
+      else if (m.kind === 'corrupt') result.corrupt.push({ rel, reason: m.detail });
+      else result.unreadable.push({ rel, reason: m.detail });
+      continue;
+    }
+    if (sha256(m.buf) === manifest[rel].sha256) result.ok++;
     else result.mismatch.push(rel);
   }
   for (const rel of listArchivedRels(destRoot)) {
@@ -683,7 +1358,12 @@ function verifyArchive(destRoot, asJson, materialise, keyPath) {
   }
   // Entries whose hash was backfilled from the .gz itself — the archive
   // attesting the archive, weaker than a raw-bytes anchor; surfaced, not hidden.
-  result.fromArchive = rels.filter((rel) => manifest[rel].fromArchive).length;
+  // (Legacy only: runs no longer create them — see TRUST in the man page.)
+  result.fromArchive = mirrorRels(manifest).filter((rel) => manifest[rel].fromArchive).length;
+  // Files earlier runs set aside as not trusted: not part of the archive and not
+  // checked, but counted so they are never forgotten. The run that set each one
+  // aside already exited 1 and said why; they do not fail a verify.
+  result.untrusted = walkFiles(path.join(destRoot, UNTRUSTED_DIR)).filter((p) => p.endsWith('.gz')).length;
 
   // Signature: the manifest's own tamper-evidence. Check it only when a manifest
   // file exists (nothing to attest otherwise). A verdict other than `verified`
@@ -691,14 +1371,14 @@ function verifyArchive(destRoot, asJson, materialise, keyPath) {
   // to migrate, or an UNVERIFIABLE one (no key). None is ever a silent green.
   const manifestExists = fs.existsSync(manifestPath(destRoot));
   result.signature = manifestExists
-    ? verifySignature(fs.readFileSync(manifestPath(destRoot)), loadSig(destRoot), loadKey(keyPath))
+    ? checkManifestSignature(destRoot, fs.readFileSync(manifestPath(destRoot)), loadKey(keyPath))
     : { state: 'absent' };
   const sigFailed = manifestExists && result.signature.state !== 'verified';
 
   // An unmanifested file fails the verify: it is either injected, or archived
   // history the manifest lost — both need a human eye, not a green tick.
   const failed = result.mismatch.length + result.missing.length + result.unmanifested.length
-    + (sigFailed ? 1 : 0);
+    + result.corrupt.length + result.unreadable.length + (sigFailed ? 1 : 0);
   if (asJson) { process.stdout.write(JSON.stringify(result, null, 2) + '\n'); return failed ? 1 : 0; }
 
   const lines = [`cc-transcripts verify → ${destRoot}`];
@@ -707,7 +1387,14 @@ function verifyArchive(destRoot, asJson, materialise, keyPath) {
   lines.push(
     `  ${result.checked} in manifest · ${result.ok} verified, ` +
       `${result.mismatch.length} mismatched, ${result.missing.length} missing` +
+      (result.corrupt.length ? `, ${result.corrupt.length} corrupt` : '') +
+      (result.unreadable.length ? `, ${result.unreadable.length} unreadable` : '') +
       (result.evicted.length ? `, ${result.evicted.length} evicted` : ''));
+  if (result.kept.versions || result.kept.anomalies) {
+    lines.push(`  ${result.kept.versions + result.kept.anomalies} kept aside, checked above like any archived file ` +
+      `(${result.kept.versions} earlier version${result.kept.versions === 1 ? '' : 's'}, ` +
+      `${result.kept.anomalies} anomal${result.kept.anomalies === 1 ? 'y' : 'ies'} — man ccarchive, INTEGRITY)`);
+  }
   if (result.fromArchive) {
     lines.push(`  ${result.fromArchive} entr${result.fromArchive === 1 ? 'y' : 'ies'} ` +
       `attest the archived copy only (source pruned before hashing — fromArchive)`);
@@ -716,11 +1403,27 @@ function verifyArchive(destRoot, asJson, materialise, keyPath) {
     lines.push(`  ${result.evicted.length} evicted (dataless — bytes in iCloud, not local; ` +
       `skipped, not re-downloaded. Check them with: ccarchive --verify --materialise)`);
   }
-  for (const rel of result.mismatch) lines.push(`  ✗ MISMATCH ${rel}`);
-  for (const rel of result.missing) lines.push(`  ✗ MISSING  ${rel}`);
+  if (result.untrusted) {
+    lines.push(`  ${result.untrusted} file${result.untrusted === 1 ? '' : 's'} set aside under ${UNTRUSTED_DIR}/ by ` +
+      `earlier runs (not trusted, not checked, not part of the archive — man ccarchive, TRUST)`);
+  }
+  for (const rel of result.mismatch) {
+    lines.push(`  ✗ MISMATCH ${rel} — the archived bytes are not the ones the signed index recorded (bit rot, ` +
+      `a sync glitch or tampering); left untouched. Next: ccarchive --audit shows whether the live copy still ` +
+      `matches the record; keep this copy until you have decided`);
+  }
+  for (const rel of result.missing) {
+    lines.push(`  ✗ MISSING  ${rel} — the recorded copy is gone (deleted, or set aside under ${UNTRUSTED_DIR}/ by a run ` +
+      `that found it did not match its record)`);
+  }
+  for (const c of result.corrupt) {
+    lines.push(`  ✗ CORRUPT ${c.rel} (will not decompress: ${c.reason})`);
+  }
+  for (const u of result.unreadable) lines.push(`  ✗ UNREADABLE ${u.rel} (${u.reason})`);
   for (const rel of result.unmanifested) {
-    lines.push(`  ✗ UNMANIFESTED ${rel} (no recorded hash — injected, or lost ` +
-      `from the manifest; run ccarchive to record it, then investigate)`);
+    lines.push(`  ✗ UNMANIFESTED ${rel} (no recorded hash — injected, or lost from the index. ` +
+      `The next ccarchive run adopts it only if it is identical to the live copy; otherwise it moves it ` +
+      `aside under ${UNTRUSTED_DIR}/ and says why)`);
   }
   if (!failed) {
     lines.push(result.evicted.length
@@ -745,8 +1448,13 @@ function verifyArchive(destRoot, asJson, materialise, keyPath) {
 //             prefix of the live bytes: a pure append since the last archive.
 //             Normal between runs; the next `ccarchive` catches it up.
 //   mutated — live present, hash differs, and the live bytes are NOT a growth
-//             of the archived copy (rewritten, or shrunk/truncated). Real
-//             drift: the archive no longer equals the live session's history.
+//             of the archived copy (rewritten, or shrunk/truncated), for an
+//             append-only record. Real drift: the archive no longer equals the
+//             live session's history, and the next run keeps the changed live
+//             version aside and exits 1 (see the two kinds of data above).
+//   revised — the same divergence for a LIVING document (a memory note, a subagent
+//             .meta.json): normal, not drift. The next run keeps the previous
+//             version and archives the new one. Counted, like grown.
 //   renamed — a live file with no manifest entry whose content matches an
 //             archived entry recorded under a different path that is itself
 //             gone from the live store. Real drift: the archive is keyed by
@@ -756,12 +1464,13 @@ function verifyArchive(destRoot, asJson, materialise, keyPath) {
 //   pruned  — an archived entry with no live counterpart, its content unseen
 //             live. The expected steady state after Claude Code's cleanup;
 //             counted.
-// Only mutated and renamed are drift worth a non-zero exit.
+// Only mutated and renamed are drift worth a non-zero exit (and an index whose
+// signature is not verified: the comparison is then against nothing anyone checked).
 
 // Bucket the live store against the manifest by sha256 alone (no byte reads):
 // `changed` still needs a byte-level look to split grown from mutated.
 function auditCategorize(manifest, liveList) {
-  const manifestRels = Object.keys(manifest);
+  const manifestRels = mirrorRels(manifest);   // kept copies are not mirrors
   const manifestSet = new Set(manifestRels);
   const liveSet = new Set(liveList.map((f) => f.rel));
 
@@ -814,22 +1523,48 @@ function classifyDivergence(archivedBuf, liveBuf) {
 // The live capture set with a raw-byte sha256 for each — the input --audit and
 // --restore both categorise against the manifest. Spans every captured class and
 // the external history file (via listSources), not just .jsonl.
-function liveListWithHashes(srcRoot) {
-  return listSources(srcRoot).map((f) => ({ rel: f.rel, abs: f.abs, sha256: sha256File(f.abs) }));
+//
+// A file that cannot be read (permissions, gone between walk and read) or a
+// directory that cannot be listed is skipped, never fatal: it is pushed onto
+// `unreadable` as { rel, reason } when an array is passed, and the caller reports it.
+function liveListWithHashes(srcRoot, unreadable) {
+  const errors = [];
+  const out = [];
+  for (const f of listSources(srcRoot, unreadable ? errors : undefined)) {
+    try { out.push({ rel: f.rel, abs: f.abs, sha256: sha256File(f.abs) }); }
+    catch (e) {
+      if (!unreadable) throw e;
+      unreadable.push({ rel: f.rel, reason: e.code || e.message });
+    }
+  }
+  for (const e of errors) unreadable.push({ rel: path.relative(srcRoot, e.path) || '.', reason: e.code });
+  return out;
 }
 
-function auditLiveStore(srcRoot, destRoot, asJson, materialise) {
-  const manifest = loadManifest(destRoot);
-  const liveList = liveListWithHashes(srcRoot);
+function auditLiveStore(srcRoot, destRoot, asJson, materialise, keyPath) {
+  // The index the audit compares against is signature-checked first, over the exact
+  // bytes it then parses, and the verdict is part of the report: results taken from
+  // an index that is not verified are never presented as clean.
+  const bytes = readManifestBytes(destRoot);
+  const manifest = bytes === null ? {} : parseManifest(bytes, destRoot, { onCorrupt: 'throw' });
+  const signature = bytes === null
+    ? { state: 'absent' }
+    : checkManifestSignature(destRoot, bytes, loadKey(keyPath || resolveKeyPath(os.homedir())));
+  const unverified = bytes !== null && signature.state !== 'verified';
+  const unreadable = [];
+  const liveList = liveListWithHashes(srcRoot, unreadable);
 
   const cat = auditCategorize(manifest, liveList);
   const absByRel = new Map(liveList.map((f) => [f.rel, f.abs]));
 
   const grown = [];
+  let revised = 0;              // living documents edited since the last archive
   const mutated = [];           // { rel, reason, liveBytes, archivedBytes }
   const evicted = [];           // { rel, liveBytes } — changed, archive copy dataless
   for (const rel of cat.changed) {
-    const liveBuf = fs.readFileSync(absByRel.get(rel));
+    let liveBuf;
+    try { liveBuf = fs.readFileSync(absByRel.get(rel)); }
+    catch (e) { unreadable.push({ rel, reason: e.code || e.message }); continue; }
     const gzPath = path.join(destRoot, rel + '.gz');
     // A changed live file whose archived .gz is evicted: we know it differs from
     // the recorded hash, but classifying grown-vs-mutated needs the archived
@@ -837,43 +1572,61 @@ function auditLiveStore(srcRoot, destRoot, asJson, materialise) {
     // drift; report `evicted` and leave it to --materialise (or the next
     // ccarchive run, which re-archives the change anyway).
     if (!materialise && isDataless(gzPath)) { evicted.push({ rel, liveBytes: liveBuf.length }); continue; }
-    let archivedBuf;
-    try { archivedBuf = zlib.gunzipSync(fs.readFileSync(gzPath)); }
-    catch (e) {
-      if (e.code !== 'ENOENT') throw e;
-      // The manifest records this rel but its .gz is gone (a --verify concern).
-      // We can't classify the divergence, but live ≠ record is itself drift.
-      mutated.push({ rel, reason: 'archive-missing', liveBytes: liveBuf.length, archivedBytes: null });
+    const m = readMirror(gzPath);
+    if (!m.ok) {
+      // The archived copy cannot be read for comparison. An evicted placeholder the
+      // flag check missed is undetermined, as above; a missing, undecompressable or
+      // unreadable one is a --verify concern, but live ≠ record is itself drift
+      // and we can't classify it. Either way the audit carries on.
+      if (m.kind === 'offloaded') { evicted.push({ rel, liveBytes: liveBuf.length }); continue; }
+      const reason = m.kind === 'missing' ? 'archive-missing'
+        : m.kind === 'corrupt' ? 'archive-corrupt' : 'archive-unreadable';
+      mutated.push({ rel, reason, liveBytes: liveBuf.length, archivedBytes: null });
       continue;
     }
+    const archivedBuf = m.buf;
     const kind = classifyDivergence(archivedBuf, liveBuf);
     if (kind === 'grown') grown.push(rel);
+    else if (dataKind(rel) === 'living') revised++;
     else mutated.push({ rel, reason: kind, liveBytes: liveBuf.length, archivedBytes: archivedBuf.length });
   }
 
   const result = {
-    live: srcRoot, archive: destRoot,
-    archived: Object.keys(manifest).length, live_total: liveList.length,
-    synced: cat.synced.length, grown: grown.length,
+    live: srcRoot, archive: destRoot, signature,
+    archived: mirrorRels(manifest).length, live_total: liveList.length,
+    synced: cat.synced.length, grown: grown.length, revised,
     added: cat.added.length, pruned: cat.pruned.length,
-    mutated, renamed: cat.renamed, evicted,
+    mutated, renamed: cat.renamed, evicted, unreadable,
   };
-  const drift = mutated.length + cat.renamed.length;
+  const drift = mutated.length + cat.renamed.length + unreadable.length;
+  const status = drift || unverified ? 1 : 0;
 
-  if (asJson) { process.stdout.write(JSON.stringify(result, null, 2) + '\n'); return drift ? 1 : 0; }
+  if (asJson) { process.stdout.write(JSON.stringify(result, null, 2) + '\n'); return status; }
 
-  const lines = [
-    `cc-transcripts audit → live store vs archive`,
+  const lines = [`cc-transcripts audit → live store vs archive`];
+  const sigLine = signatureLine(signature, keyPath || resolveKeyPath(os.homedir()));
+  if (sigLine) lines.push(sigLine);
+  if (unverified) {
+    lines.push(`  ⚠ the archive index is not verified, so the comparison below is against an index nobody ` +
+      `could check — it is not an all-clear (ccarchive --verify says more)`);
+  }
+  lines.push(
     `  ${result.archived} archived · ${result.synced} in sync, ${result.grown} grown, ` +
-      `${result.added} new, ${result.pruned} pruned`,
-  ];
-  if (drift) lines.push(`  ${mutated.length} mutated, ${cat.renamed.length} renamed`);
+      `${result.added} new, ${result.pruned} pruned` +
+      (revised ? `, ${revised} revised (living documents; the next run keeps the old version)` : ''));
+  if (drift) {
+    lines.push(`  ${mutated.length} mutated, ${cat.renamed.length} renamed` +
+      (unreadable.length ? `, ${unreadable.length} unreadable` : ''));
+  }
+  for (const u of unreadable) lines.push(`  ✗ UNREADABLE ${u.rel} (${u.reason}) — skipped, not compared`);
   for (const m of mutated) {
     const label = m.reason === 'shrunk' ? 'SHRUNK   '
       : m.reason === 'rewritten' ? 'REWRITTEN'
-      : m.reason === 'archive-missing' ? 'NO-ARCHIVE' : 'MUTATED  ';
+      : m.reason === 'archive-missing' ? 'NO-ARCHIVE'
+      : m.reason === 'archive-corrupt' ? 'BAD-ARCHIVE'
+      : m.reason === 'archive-unreadable' ? 'BAD-ARCHIVE' : 'MUTATED  ';
     const sizes = m.archivedBytes === null
-      ? `live ${humanBytes(m.liveBytes)}, archived copy absent`
+      ? `live ${humanBytes(m.liveBytes)}, archived copy ${m.reason === 'archive-missing' ? 'absent' : 'unreadable'}`
       : `live ${humanBytes(m.liveBytes)} vs archived ${humanBytes(m.archivedBytes)}`;
     lines.push(`  ✗ ${label} ${m.rel} (${sizes})`);
   }
@@ -884,15 +1637,15 @@ function auditLiveStore(srcRoot, destRoot, asJson, materialise) {
     lines.push(`  ⚠ ${evicted.length} changed but undetermined (archive copy dataless — ` +
       `not classified; re-run with --materialise, or ccarchive to re-archive the change)`);
   }
-  if (!drift && (result.grown || result.added)) {
-    lines.push(`  ⚠ ${result.grown + result.added} changed or added since the last archive — ` +
+  if (!drift && (result.grown || result.added || revised)) {
+    lines.push(`  ⚠ ${result.grown + result.added + revised} changed or added since the last archive — ` +
       `run ccarchive to catch up.`);
   }
-  if (!drift && !result.grown && !result.added && !evicted.length) {
+  if (!drift && !unverified && !result.grown && !result.added && !revised && !evicted.length) {
     lines.push('  ✓ the live store matches the archive (only expected pruning).');
   }
   process.stdout.write(lines.join('\n') + '\n');
-  return drift ? 1 : 0;
+  return status;
 }
 
 // --- restore: archive → live store ---------------------------------------
@@ -946,25 +1699,31 @@ function isInsideRoot(root, target) {
 // archived key without disturbing the live rename. Content is byte-identical, so
 // this adds a copy under the old name rather than moving anything.
 function restoreTargets(manifest, srcRoot, destRoot, delta) {
-  if (!delta) return Object.keys(manifest).sort();
-  const liveList = liveListWithHashes(srcRoot);
+  if (!delta) return mirrorRels(manifest).sort();   // the current version of every file, never a kept copy
+  const liveList = liveListWithHashes(srcRoot, []);   // an unreadable live file is simply not a target
   const cat = auditCategorize(manifest, liveList);
   const absByRel = new Map(liveList.map((f) => [f.rel, f.abs]));
   const mutated = [];
   for (const rel of cat.changed) {
-    const liveBuf = fs.readFileSync(absByRel.get(rel));
-    let archivedBuf;
-    try { archivedBuf = zlib.gunzipSync(fs.readFileSync(path.join(destRoot, rel + '.gz'))); }
-    catch (e) { if (e.code !== 'ENOENT') throw e; mutated.push(rel); continue; }  // .gz gone: still drift
-    if (classifyDivergence(archivedBuf, liveBuf) !== 'grown') mutated.push(rel);  // grown excluded
+    let liveBuf;
+    try { liveBuf = fs.readFileSync(absByRel.get(rel)); } catch { continue; }
+    const m = readMirror(path.join(destRoot, rel + '.gz'));
+    // .gz gone, undecompressable or unreadable: still drift (restoreArchive then
+    // reports the specific failure by name).
+    if (!m.ok) { mutated.push(rel); continue; }
+    // grown is ahead of the archive, and a living document edited since the last
+    // archive is `revised`, not drift: neither is a restore target.
+    if (classifyDivergence(m.buf, liveBuf) !== 'grown' && dataKind(rel) !== 'living') mutated.push(rel);
   }
   const renamedFrom = cat.renamed.map((r) => r.from);
   return [...new Set([...mutated, ...cat.pruned, ...renamedFrom])].sort();
 }
 
-function restoreArchive(srcRoot, destRoot, { delta, dryRun, force, asJson }) {
-  const manifest = loadManifest(destRoot);
-  if (Object.keys(manifest).length === 0) {
+// opts.manifest: the already-authenticated index (the CLI passes it after
+// authenticateManifest); absent, it is read unauthenticated (module callers only).
+function restoreArchive(srcRoot, destRoot, { delta, dryRun, force, asJson, manifest: given }) {
+  const manifest = given || loadManifest(destRoot);
+  if (mirrorRels(manifest).length === 0) {
     process.stderr.write(`ccarchive: nothing to restore — no manifest at ${destRoot}.\n`);
     return 1;
   }
@@ -983,16 +1742,25 @@ function restoreArchive(srcRoot, destRoot, { delta, dryRun, force, asJson }) {
     const liveAbs = liveAbsFor(srcRoot, rel);
     if (!external && !isInsideRoot(srcRoot, liveAbs)) { report.errors.push({ rel, reason: 'escapes-root' }); continue; }
     const gzPath = path.join(destRoot, rel + '.gz');
-    let archivedBuf, gzMtimeMs;
-    try { archivedBuf = zlib.gunzipSync(fs.readFileSync(gzPath)); gzMtimeMs = fs.statSync(gzPath).mtimeMs; }
-    catch (e) {
-      if (e.code !== 'ENOENT') throw e;
-      report.errors.push({ rel, reason: 'no-archive' });   // manifest records it, .gz absent
+    // One bad mirror never ends the restore: name it, say why, carry on. Restore
+    // deliberately reads an evicted copy (faulting it down is the point), so an
+    // offload error here means macOS refused the download — reported, not fatal.
+    const m = readMirror(gzPath);
+    if (!m.ok) {
+      const reason = { missing: 'no-archive', corrupt: 'corrupt-archive', offloaded: 'offloaded',
+        unreadable: 'unreadable-archive' }[m.kind];
+      report.errors.push(m.kind === 'missing' ? { rel, reason } : { rel, reason, detail: m.detail });
       continue;
     }
-    let liveBuf = null, liveMtimeMs = null;
-    try { liveBuf = fs.readFileSync(liveAbs); liveMtimeMs = fs.statSync(liveAbs).mtimeMs; }
-    catch (e) { if (e.code !== 'ENOENT') throw e; }
+    const archivedBuf = m.buf;
+    let gzMtimeMs;
+    try { gzMtimeMs = fs.statSync(gzPath).mtimeMs; }
+    catch (e) { report.errors.push({ rel, reason: 'unreadable-archive', detail: e.code || e.message }); continue; }
+    let liveBuf = null, liveMtimeMs = null, liveMode;
+    try { liveBuf = fs.readFileSync(liveAbs); const st = fs.statSync(liveAbs); liveMtimeMs = st.mtimeMs; liveMode = st.mode & 0o777; }
+    catch (e) {
+      if (e.code !== 'ENOENT') { report.errors.push({ rel, reason: 'live-unreadable', detail: e.code || e.message }); continue; }
+    }
 
     const d = classifyRestore(archivedBuf, liveBuf, gzMtimeMs, liveMtimeMs, force);
     if (d.action === 'skip') { report.skipped.push({ rel, reason: d.reason }); continue; }
@@ -1000,14 +1768,33 @@ function restoreArchive(srcRoot, destRoot, { delta, dryRun, force, asJson }) {
       report.refused.push({ rel, reason: d.reason, liveBytes: liveBuf.length, archivedBytes: archivedBuf.length });
       continue;
     }
+    // Check the bytes against the manifest BEFORE they replace anything: a mirror
+    // that no longer matches its recorded sha256 (rot, tampering) must not be
+    // written over a live file (HL7). --force does not override a mismatch — the
+    // bytes are provably not what was captured. An entry with no recorded hash
+    // cannot be checked: refused unless --force, then restored and marked unverified.
+    const recorded = manifest[rel] && manifest[rel].sha256;
+    let unverified = false;
+    if (typeof recorded !== 'string' || recorded === '') {
+      if (!force) {
+        report.refused.push({ rel, reason: 'unverified', liveBytes: liveBuf === null ? null : liveBuf.length,
+          archivedBytes: archivedBuf.length });
+        continue;
+      }
+      unverified = true;
+    } else if (sha256(archivedBuf) !== recorded) {
+      report.refused.push({ rel, reason: 'hash-mismatch', liveBytes: liveBuf === null ? null : liveBuf.length,
+        archivedBytes: archivedBuf.length });
+      continue;
+    }
     if (!dryRun) {
       fs.mkdirSync(path.dirname(liveAbs), { recursive: true });
-      fs.writeFileSync(liveAbs, archivedBuf);
-      // Stamp the restored file with the archived copy's mtime, so a later audit
-      // reads it as synced and a repeated restore is idempotent (identical → skip).
-      fs.utimesSync(liveAbs, gzMtimeMs / 1000, gzMtimeMs / 1000);
+      // Write beside, stamp with the archived copy's mtime (so a later audit reads
+      // it as synced and a repeated restore is idempotent), then rename over the
+      // live path: a kill mid-restore never leaves a half-written live transcript.
+      writeFileAtomic(liveAbs, archivedBuf, { mtimeSec: gzMtimeMs / 1000, mode: liveMode });
     }
-    report.restored.push({ rel, reason: d.reason, bytes: archivedBuf.length });
+    report.restored.push({ rel, reason: d.reason, bytes: archivedBuf.length, ...(unverified ? { unverified: true } : {}) });
   }
 
   const failed = report.refused.length + report.errors.length;
@@ -1024,23 +1811,38 @@ function restoreArchive(srcRoot, destRoot, { delta, dryRun, force, asJson }) {
   ];
   if (identical) lines.push(`  (${identical} already match the archive)`);
   for (const r of report.restored) {
-    const how = r.reason === 'missing' ? 'was missing'
+    const how = (r.reason === 'missing' ? 'was missing'
       : r.reason === 'forced-newer' ? 'FORCED over newer live'
-      : r.reason;   // shrunk | rewritten
+      : r.reason) +   // shrunk | rewritten
+      (r.unverified ? ', UNVERIFIED — no recorded sha256' : '');
     lines.push(`  ${dryRun ? '·' : '✓'} ${dryRun ? 'would restore' : 'RESTORED'} ${r.rel} (${how}, ${humanBytes(r.bytes)})`);
   }
   for (const s of ahead) {
     lines.push(`  · skip ${s.rel} (live is ahead of the archive — grown, not a restore target)`);
   }
   for (const r of report.refused) {
-    lines.push(`  ✗ REFUSED ${r.rel} — live file is newer than the archived copy ` +
-      `(live ${humanBytes(r.liveBytes)} vs archived ${humanBytes(r.archivedBytes)}); ` +
-      `an in-flight session? Re-run with --force to overwrite it.`);
+    if (r.reason === 'hash-mismatch') {
+      lines.push(`  ✗ REFUSED ${r.rel} — the archived copy no longer matches its recorded sha256 ` +
+        `(bit rot or tampering); not written. Run ccarchive --verify.`);
+    } else if (r.reason === 'unverified') {
+      lines.push(`  ✗ REFUSED ${r.rel} — unverified: the manifest records no sha256 for it, so the ` +
+        `archived bytes cannot be checked. Re-run with --force to restore it anyway.`);
+    } else {
+      lines.push(`  ✗ REFUSED ${r.rel} — live file is newer than the archived copy ` +
+        `(live ${humanBytes(r.liveBytes)} vs archived ${humanBytes(r.archivedBytes)}); ` +
+        `an in-flight session? Re-run with --force to overwrite it.`);
+    }
   }
   for (const e of report.errors) {
-    lines.push(e.reason === 'no-archive'
-      ? `  ✗ ERROR ${e.rel} (the manifest records it but its .gz is gone — nothing to restore from)`
-      : `  ✗ ERROR ${e.rel} (target path escapes the live root — refused)`);
+    const why = {
+      'no-archive': 'the manifest records it but its .gz is gone — nothing to restore from',
+      'escapes-root': 'target path escapes the live root — refused',
+      'corrupt-archive': `the archived copy will not decompress (${e.detail}) — not restored`,
+      'offloaded': 'not checked (offloaded) — iCloud would not download the archived copy; not restored',
+      'unreadable-archive': `the archived copy could not be read (${e.detail}) — not restored`,
+      'live-unreadable': `the live file could not be read (${e.detail}) — not restored`,
+    }[e.reason] || e.reason;
+    lines.push(`  ✗ ERROR ${e.rel} (${why})`);
   }
   if (!report.restored.length && !report.refused.length && !report.errors.length && !ahead.length) {
     lines.push('  ✓ nothing to restore — the live store already matches the archive.');
@@ -1051,14 +1853,20 @@ function restoreArchive(srcRoot, destRoot, { delta, dryRun, force, asJson }) {
 
 // --- run -----------------------------------------------------------------
 
+// Hold the destination's lock around fn (see acquireLock). Released however fn ends.
+function withLock(keyPath, destRoot, mode, fn) {
+  const lock = acquireLock(keyPath, destRoot, mode);
+  try { return fn(lock); } finally { releaseLock(lock); }
+}
+
 function run() {
   if (argv.includes('-h') || argv.includes('--help')) {
     process.stdout.write(HELP + '\n');
     return 0;
   }
-  if (argv.includes('--install-schedule')) return installSchedule(os.homedir());
-  if (argv.includes('--uninstall-schedule')) return uninstallSchedule(os.homedir());
-  if (argv.includes('--schedule-status')) return scheduleStatus(os.homedir());
+  // Unknown, removed or value-less options are refused before anything is read or
+  // written (exit 2): a typo such as --dry-runn must never run a real archive.
+  parseArgs(argv);
   const asJson = argv.includes('--json');
   const dryRun = argv.includes('--dry-run');
   const force = argv.includes('--force');
@@ -1068,11 +1876,23 @@ function run() {
   const destRoot = takeValue('--dest') || process.env.CCARCHIVE_DEST || defaultDest(home);
   const keyPath = resolveKeyPath(home);
 
-  if (argv.includes('--rekey')) return rekeyManifest(destRoot, keyPath, asJson);
+  // Read-only modes take no lock: --lock-status, --verify, --audit, any --dry-run.
+  if (argv.includes('--lock-status')) return lockStatus(keyPath, destRoot, asJson);
+  if (argv.includes('--clear-lock')) return clearLock(keyPath, destRoot, asJson);
+  if (argv.includes('--rekey')) {
+    return withLock(keyPath, destRoot, 'rekey', () => rekeyManifest(destRoot, keyPath, asJson));
+  }
   if (argv.includes('--verify')) return verifyArchive(destRoot, asJson, materialise, keyPath);
-  if (argv.includes('--audit')) return auditLiveStore(srcRoot, destRoot, asJson, materialise);
+  if (argv.includes('--audit')) return auditLiveStore(srcRoot, destRoot, asJson, materialise, keyPath);
   if (argv.includes('--restore')) {
-    return restoreArchive(srcRoot, destRoot, { delta: argv.includes('--delta'), dryRun, force, asJson });
+    // Restore writes live files from what the index vouches for, so it
+    // authenticates the index first, exactly as an archive run does (HL3).
+    const go = () => {
+      const auth = authenticateManifest(destRoot, keyPath, { onCorrupt: 'throw' });
+      return restoreArchive(srcRoot, destRoot,
+        { delta: argv.includes('--delta'), dryRun, force, asJson, manifest: auth.manifest });
+    };
+    return dryRun ? go() : withLock(keyPath, destRoot, 'restore', go);
   }
 
   if (insideGitWorkTree(destRoot) && !argv.includes('--allow-repo-dest')) {
@@ -1082,103 +1902,423 @@ function run() {
       `Pass --allow-repo-dest to override.\n`);
     return 1;
   }
+  const go = (lock) => archiveRun({ srcRoot, destRoot, keyPath, dryRun, force, asJson, lock });
+  return dryRun ? go(null) : withLock(keyPath, destRoot, 'archive', go);
+}
+
+// Plain words for why a mirror was set aside (the report's `reason` codes).
+const SET_ASIDE_WHY = {
+  corrupt: 'it will not decompress',
+  'no-entry-differs-from-live': 'the signed index has no entry for it, and it is not identical to the live copy',
+  'no-entry-no-live-copy': 'the signed index has no entry for it, and there is no live copy to compare it with',
+  'disagrees-with-entry-differs-from-live':
+    'it is not the file the signed index recorded, and it is not identical to the live copy',
+  'disagrees-with-entry-no-live-copy':
+    'it is not the file the signed index recorded, and there is no live copy to compare it with',
+};
+
+function archiveRun({ srcRoot, destRoot, keyPath, dryRun, force, asJson, lock }) {
+  // Authenticate the index before reading anything from it (HL3): anything but a
+  // verified signature (or a genuinely new archive) stops here, exit 2, nothing
+  // changed. A corrupt-but-authenticated manifest (only after a deliberate --rekey)
+  // is set aside by a real run; a dry run warns and moves nothing.
+  const auth = authenticateManifest(destRoot, keyPath,
+    { onCorrupt: dryRun ? 'warn' : 'setaside', mintIfFresh: !dryRun });
+  const manifest = auth.manifest;
+  const keyBuf = auth.keyBuf;
+  let manifestChanged = false;
+  const nowIso = dryRun ? null : new Date().toISOString();
+  const runId = `${process.pid}-${crypto.randomBytes(4).toString('hex')}`;
+  const stamp = utcStamp();
+  const jp = journalPath(keyPath, destRoot);
 
   // Everything captured under the source root, plus the external history.jsonl
   // that lives one level above it — a unified { abs, rel } list. The archive path
   // is derived from rel (not from relative(srcRoot, abs)) so an external capture's
   // reserved _external/ rel mirrors correctly instead of climbing out of dest.
-  const underRoot = listCaptured(srcRoot);
-  const sources = listSources(srcRoot);
+  // A directory that cannot be listed is recorded and skipped, never fatal (HL8).
+  const walkErrors = [];
+  const sources = listSources(srcRoot, walkErrors);
+  const underRootCount = sources.filter((f) => !f.external).length;
+  // What is in the live store, by kind (the file total plus the two numbers the owner
+  // asked for, sessions and subagent transcripts); `archived` per kind is filled in as
+  // files are written. The field set is the same on every run: known zeros are printed.
+  const live = kindCounts(sources.map((f) => f.rel));
   const report = { source: srcRoot, dest: destRoot, dryRun, total: sources.length,
-    archived: 0, skipped: 0, refusedShrink: [], bytesRaw: 0, bytesGz: 0, files: [] };
-
-  // The manifest is read on every run (the shrink guard needs its rawBytes);
-  // it is only ever written back on a real run.
-  const manifest = loadManifest(destRoot);
-  let manifestChanged = false;
-  const nowIso = dryRun ? null : new Date().toISOString();
+    sessions: live.sessions, subagentTranscripts: live.subagentTranscripts,
+    kinds: Object.fromEntries(COUNT_KINDS.map((k) => [k, { files: live.kinds[k], archived: 0 }])),
+    archived: 0, skipped: 0, bytesRaw: 0, bytesGz: 0, files: [],
+    anomalies: [], versionsKept: [], unreadable: [], unwritable: [], offloaded: [], deferred: [],
+    repaired: [], adopted: [], setAside: [], corrupt: 0, metadataRefreshed: 0,
+    legacyChecked: 0, legacyRemaining: 0, legacyOffloaded: 0, journal: null,
+    staleTempsRemoved: 0, ...(lock && lock.cleared ? { staleLockCleared: lock.cleared } : {}) };
+  for (const e of walkErrors) {
+    report.unreadable.push({ rel: path.relative(srcRoot, e.path) || '.', stage: 'walk', reason: e.code });
+  }
+  // A source that cannot be statted or read — permissions, or gone between the walk
+  // and now — is named, skipped, and fails the run at the end; the loop goes on.
+  const noteUnreadable = (rel, stage, e) => {
+    report.unreadable.push({ rel, stage, reason: e.code || e.message });
+  };
+  const noteOffloaded = (rel) => { if (!report.offloaded.includes(rel)) report.offloaded.push(rel); };
 
   // Layout-drift alarm: an empty projects walk against a non-empty archive means
-  // the live dir moved or was renamed — without this, a scheduled run would report
-  // success forever while the archive silently stopped growing. Keyed on the
-  // under-root capture, not the external history file, so a moved projects/ still
-  // trips the alarm even if history.jsonl is still findable.
-  if (underRoot.length === 0 && Object.keys(manifest).length > 0) {
+  // the live dir moved or was renamed — without this, a run would report success
+  // forever while the archive silently stopped growing. Keyed on the under-root
+  // capture, not the external history file, so a moved projects/ still trips the
+  // alarm even if history.jsonl is still findable.
+  if (underRootCount === 0 && mirrorRels(manifest).length > 0) {
     process.stderr.write(
       `ccarchive: source ${srcRoot} yielded no transcripts while the archive ` +
-      `holds ${Object.keys(manifest).length} — has the live directory moved?\n`);
+      `holds ${mirrorRels(manifest).length} — has the live directory moved?\n`);
     return 1;
   }
 
+  // A journal at the start proves the previous run died part way. Put back in the
+  // index exactly the mirrors it says that run wrote, and only where the mirror's
+  // bytes are the ones it recorded (see recoverFromJournal). A dry run only says so.
+  let pending = [];
+  if (fs.existsSync(jp)) {
+    if (dryRun) report.journal = { present: true };
+    else {
+      const rec = recoverFromJournal(jp, keyBuf, destRoot, manifest, report, noteOffloaded);
+      pending = rec.pending;
+      if (rec.changed) manifestChanged = true;
+    }
+  }
+
+  // Temp files a dead run left behind are removed by the next real run; a live
+  // run's own temp (its pid is still running) is never touched.
+  if (!dryRun) report.staleTempsRemoved = sweepStaleTemps(destRoot);
+
   // Persist the manifest and its signature together, so a checkpoint never
-  // leaves a manifest the signature does not attest. HMAC over the bytes is
-  // cheap beside the manifest write itself, hence re-sign at every checkpoint.
+  // leaves a manifest the signature does not attest; then cut the journal down to
+  // the records still pending (everything else is now in the signed index) and
+  // refresh the lock's heartbeat.
   const persist = () => {
-    saveManifest(destRoot, manifest);
-    const keyBuf = ensureKey(keyPath);
-    signManifest(destRoot, keyBuf, fs.readFileSync(manifestPath(destRoot)));
+    saveManifestSigned(destRoot, manifest, keyBuf);
+    rewriteJournal(jp, keyBuf, pending);
+    heartbeatLock(lock);
   };
+  // A previous run killed between replacing the manifest and its signature left the
+  // new signature beside the old one (see saveManifestSigned); it verified, so finish it.
+  if (!dryRun && auth.pendingSignature) completePendingSignature(destRoot);
+
+  // Is this mirror one the signed index vouches for? See TRUST (man page) and
+  // metadataAgrees. When the cheap check passes nothing is read. Otherwise the
+  // mirror's bytes are looked at, but never trusted on their own:
+  //   • they hash to the signed entry  → vouched; only the entry's stat fields were
+  //     stale, so they are refreshed;
+  //   • they equal the live copy       → adopted into the index (HL1: never the
+  //     source's hash against some other mirror);
+  //   • anything else                  → moved to _untrusted/, never deleted, never
+  //     adopted; the live copy (if any) is then archived normally; the run exits 1.
+  // An evicted mirror is never read: "not checked (offloaded)", left in place.
+  // `deep` skips the cheap check (an overwrite about to rely on an entry that lacks
+  // a size). Returns { ok } | { gone } (no mirror there now) | { skip, detail }.
+  // `legacy` marks the catch-up pass over entries from before the size and time were
+  // recorded: a match there is counted as legacyChecked by the caller, not as a refresh.
+  const vouch = (rel, gzPath, st, liveAbs, deep, legacy) => {
+    const entry = manifest[rel];
+    if (!deep && metadataAgrees(entry, st)) return { ok: true };
+    if (isDataless(gzPath)) { noteOffloaded(rel); return { skip: 'offloaded' }; }
+    const m = readMirror(gzPath);
+    if (!m.ok && m.kind === 'offloaded') { noteOffloaded(rel); return { skip: 'offloaded' }; }
+    if (!m.ok && m.kind === 'missing') return { gone: true };
+    if (!m.ok && m.kind === 'unreadable') {
+      report.unreadable.push({ rel, stage: 'mirror', reason: m.detail });
+      return { skip: 'unreadable', detail: m.detail };
+    }
+    const h = m.ok ? sha256(m.buf) : null;
+    if (entry && h !== null && h === entry.sha256) {
+      entry.gzBytes = st.size;
+      entry.gzMtimeMs = st.mtimeMs;
+      if (typeof entry.rawBytes !== 'number') entry.rawBytes = m.buf.length;
+      manifestChanged = true;
+      if (!legacy) report.metadataRefreshed++;
+      return { ok: true };
+    }
+    if (h !== null && liveAbs) {
+      let live = null;
+      try { live = sha256File(liveAbs); } catch { live = null; }
+      if (live === h) {
+        manifest[rel] = { sha256: h, rawBytes: m.buf.length, archivedAt: nowIso, gzBytes: st.size, gzMtimeMs: st.mtimeMs };
+        manifestChanged = true;
+        report.adopted.push({ rel, reason: entry ? 'stale-entry' : 'no-entry' });
+        return { ok: true };
+      }
+    }
+    const reason = h === null ? 'corrupt'
+      : !entry ? (liveAbs ? 'no-entry-differs-from-live' : 'no-entry-no-live-copy')
+        : (liveAbs ? 'disagrees-with-entry-differs-from-live' : 'disagrees-with-entry-no-live-copy');
+    const movedTo = dryRun ? null : moveUntrusted(destRoot, rel, stamp, gzPath);
+    report.setAside.push({ rel, reason, movedTo, liveCopy: !!liveAbs });
+    return { gone: true };
+  };
+
   const every = checkpointEvery();
   let sinceCheckpoint = 0;
-  // Test seam (like CCARCHIVE_SIMULATE_DATALESS): die after writing K mirrors.
+  const checkpointMaybe = () => { if (++sinceCheckpoint >= every) { persist(); sinceCheckpoint = 0; } };
+  // Test seams (like CCARCHIVE_SIMULATE_DATALESS): die after writing K mirrors —
+  // by a thrown error (the catch-path save runs), or with CCARCHIVE_TEST_FAIL_HOW=kill
+  // by SIGKILL the instant the K-th mirror lands, before its index entry exists:
+  // the hard-kill shape only the intent journal can repair.
   const failAfter = Number(process.env.CCARCHIVE_TEST_FAIL_AFTER) || 0;
+  const failHard = process.env.CCARCHIVE_TEST_FAIL_HOW === 'kill';
+  const verifiedDirs = new Set();
+  const visited = new Set();
+
+  // The anomalies already kept aside, by the rel they were kept from: so an anomaly
+  // that has not changed since the last run is reported as "still differs" and is not
+  // copied again every run.
+  const anomalyIndex = new Map();
+  for (const key of keptKeys(manifest)) {
+    const info = keptInfo(key);
+    if (info.area !== 'anomaly') continue;
+    if (!anomalyIndex.has(info.of)) anomalyIndex.set(info.of, []);
+    anomalyIndex.get(info.of).push({ key, sha256: manifest[key].sha256, keptAt: manifest[key].keptAt || manifest[key].archivedAt });
+  }
+  // ensureMirrorDir for a path that must not go through a symlink: false (and the
+  // reason on the report) rather than a throw, so the one file is skipped.
+  const dirOk = (rel, dirAbs) => {
+    try { ensureMirrorDir(destRoot, dirAbs, verifiedDirs); return true; }
+    catch (e) {
+      if (!(e instanceof CcError) || !['ESYMLINK', 'ENOTDIR'].includes(e.code)) throw e;
+      report.unwritable.push({ rel, reason: e.message });
+      return false;
+    }
+  };
 
   try {
+  // Catch-up for entries from before the size and time were recorded (legacy): most
+  // are closed transcripts that never change again, so without this a run would never
+  // be able to vouch for them by a stat and only --verify would ever check them. Each
+  // one whose mirror is local is hashed ONCE: if it matches its signed sha256 the stat
+  // is recorded; if not, the adoption rule (TRUST) applies exactly as for any other
+  // mirror the index does not vouch for. An offloaded mirror is never read (and the
+  // flags are read in batches, one `stat` per few hundred files, not one per file).
+  // Bounded so a first run over a large archive does not stall: a wall-clock slice of
+  // the run (CCARCHIVE_LEGACY_BUDGET_MS, default 20 s), always at least one entry so
+  // every run makes progress. The bound is a latency limit for a one-off catch-up, not
+  // a size taken from any archive: each entry is checked once ever, so any archive
+  // converges, and until it does the unchecked entries are trusted as signed, exactly
+  // as before, and --verify still reads every one.
+  const legacyAll = mirrorRels(manifest).filter((rel) => isLegacyEntry(manifest[rel]));
+  if (!dryRun && legacyAll.length) {
+    const gzOf = (rel) => path.join(destRoot, rel + '.gz');
+    const off = datalessPaths(legacyAll.map(gzOf));
+    report.legacyOffloaded = legacyAll.filter((rel) => off.has(gzOf(rel))).length;
+    const budget = legacyBudgetMs();
+    const t0 = Date.now();
+    for (const rel of legacyAll) {
+      if (report.legacyChecked > 0 && Date.now() - t0 >= budget) break;
+      const gzPath = gzOf(rel);
+      if (off.has(gzPath)) continue;
+      let st;
+      try { st = fs.lstatSync(gzPath); } catch { continue; }
+      if (!st.isFile()) continue;
+      const liveAbs = liveAbsFor(srcRoot, rel);
+      let hasLive = false;
+      try { hasLive = fs.statSync(liveAbs).isFile(); } catch {}
+      report.legacyChecked++;
+      vouch(rel, gzPath, st, hasLive ? liveAbs : null, true, true);
+    }
+    if (manifestChanged) persist();
+  }
+
   for (const { abs: srcAbs, rel } of sources) {
-    const srcStat = fs.statSync(srcAbs);
+    visited.add(rel);
+    if (isReservedRel(rel)) {
+      report.unwritable.push({ rel, reason: `${rel.split(path.sep)[0]}/ is reserved for files a run sets aside or keeps` });
+      continue;
+    }
+    let srcStat;
+    try { srcStat = fs.statSync(srcAbs); } catch (e) { noteUnreadable(rel, 'stat', e); continue; }
     const destAbs = path.join(destRoot, rel + '.gz');
-    let destMtimeMs = null;
-    try { destMtimeMs = fs.statSync(destAbs).mtimeMs; } catch (e) {
+    // lstat, not stat: a symlink at the mirror path is not a mirror. It reads as
+    // "no archived copy", so the write below replaces the link itself (rename) and
+    // never follows it out of the archive.
+    let mst = null;
+    try {
+      const ds = fs.lstatSync(destAbs);
+      if (!ds.isSymbolicLink()) mst = ds;
+    } catch (e) {
       if (e.code !== 'ENOENT') throw e;
     }
 
-    if (!shouldArchive(srcStat.mtimeMs, destMtimeMs)) {
-      report.skipped++;
-      // Backfill: an already-archived transcript with no recorded hash (e.g. the
-      // first run after this feature shipped). The source is present, so hash it.
-      if (!dryRun && !manifest[rel]) {
-        manifest[rel] = { sha256: sha256File(srcAbs), rawBytes: srcStat.size, archivedAt: nowIso };
-        manifestChanged = true;
+    if (mst) {
+      const v = vouch(rel, destAbs, mst, srcAbs, false);
+      if (v.skip) {
+        // Not vouched for and not checkable: never overwritten unchecked. If the live
+        // copy has changed since, that change waits for a run that can check it.
+        if (shouldArchive(srcStat.mtimeMs, mst.mtimeMs)) {
+          report.deferred.push({ rel, reason: `unvouched-${v.skip}`, ...(v.detail ? { detail: v.detail } : {}) });
+        } else report.skipped++;
+        continue;
       }
-      continue;
+      if (v.gone) mst = null;
     }
 
-    // Shrink guard: this is an overwrite of the sole durable copy, and the
-    // source is smaller than what the manifest recorded — suspect, refuse.
-    if (!force && destMtimeMs !== null && isSuspectShrink(srcStat.size, manifest[rel])) {
-      report.refusedShrink.push(rel);
-      report.files.push({ rel, action: 'refused-shrink', rawBytes: srcStat.size,
-        recordedBytes: manifest[rel].rawBytes });
-      continue;
-    }
+    const destMtimeMs = mst ? mst.mtimeMs : null;
+    if (!shouldArchive(srcStat.mtimeMs, destMtimeMs)) { report.skipped++; continue; }
 
-    if (dryRun) {
+    const kind = dataKind(rel);
+    const kindKey = countKind(rel);
+    const wouldWrite = () => {
       report.archived++;
+      if (kindKey) report.kinds[kindKey].archived++;
+    };
+
+    // A first capture (no mirror to protect) needs no comparison. A dry run of one
+    // does not even read the source.
+    if (dryRun && !mst) {
+      wouldWrite();
       report.bytesRaw += srcStat.size;
       report.files.push({ rel, action: 'would-archive', rawBytes: srcStat.size });
       continue;
     }
 
-    const raw = fs.readFileSync(srcAbs);
+    // An entry with no recorded length (a legacy fromArchive one, say after a
+    // --restore) has nothing to test an append against; its reference comes from the
+    // mirror's own checked bytes first (HL2). If those cannot be read (offloaded),
+    // an append-only record waits rather than run unguarded; a living document goes on
+    // and, having no length to test, is kept as a version (a rename needs no read).
+    if (!force && mst) {
+      const entry = manifest[rel];
+      if (entry && typeof entry.rawBytes !== 'number') {
+        const v = vouch(rel, destAbs, mst, srcAbs, true);
+        if (v.skip) {
+          if (kind === 'append-only') {
+            report.deferred.push({ rel, reason: `no-size-${v.skip}`, ...(v.detail ? { detail: v.detail } : {}) });
+            continue;
+          }
+        } else if (v.gone) mst = null;
+      }
+    }
+
+    let raw;
+    try { raw = fs.readFileSync(srcAbs); } catch (e) { noteUnreadable(rel, 'read', e); continue; }
+
+    // What kind of change is this? Tested against the signed entry, never the mirror.
+    const entry = mst ? manifest[rel] : null;
+    const change = entry ? classifyChange(raw, entry) : 'new';
+    let versionOf = null;
+    if (change === 'shrunk' || change === 'rewritten' || change === 'unknown') {
+      if (kind === 'append-only' && !force) {
+        // An append-only record changed other than by appending: the archived mirror
+        // is never overwritten. The changed live version is kept aside, signed, once
+        // per distinct version, and the run says so and exits 1.
+        if (change === 'unknown') {
+          report.deferred.push({ rel, reason: 'no-size-unchecked' });
+          continue;
+        }
+        const liveSha = sha256(raw);
+        const item = { rel, kind: change, liveBytes: raw.length, archivedBytes: entry.rawBytes };
+        const known = (anomalyIndex.get(rel) || []).find((a) => a.sha256 === liveSha);
+        if (known) {
+          report.anomalies.push({ ...item, state: 'still-differs', keptAs: known.key, keptAt: known.keptAt });
+          report.files.push({ rel, action: 'anomaly-known', rawBytes: raw.length });
+          continue;
+        }
+        if (dryRun) {
+          report.anomalies.push({ ...item, state: 'would-keep-aside', keptAs: null, keptAt: null });
+          report.files.push({ rel, action: 'would-keep-aside', rawBytes: raw.length });
+          continue;
+        }
+        const key = keptKeyFor(destRoot, manifest, ANOMALIES_DIR, stamp, rel);
+        const target = path.join(destRoot, key + '.gz');
+        if (!dirOk(rel, path.dirname(target))) continue;
+        appendJournal(jp, keyBuf, { rel: key, sha256: liveSha, rawBytes: raw.length, run: runId, at: nowIso });
+        writeFileAtomic(target, zlib.gzipSync(raw), { atimeSec: srcStat.atimeMs / 1000, mtimeSec: srcStat.mtimeMs / 1000 });
+        manifest[key] = { sha256: liveSha, rawBytes: raw.length, archivedAt: nowIso, keptAt: nowIso, of: rel,
+          kind: 'anomaly', reason: change };
+        manifestChanged = true;
+        if (!anomalyIndex.has(rel)) anomalyIndex.set(rel, []);
+        anomalyIndex.get(rel).push({ key, sha256: liveSha, keptAt: nowIso });
+        report.anomalies.push({ ...item, state: 'kept-aside', keptAs: key, keptAt: nowIso });
+        report.files.push({ rel, action: 'anomaly-kept', rawBytes: raw.length, keptAs: key });
+        checkpointMaybe();
+        continue;
+      }
+      // A living document edited other than by appending, or an operator-forced
+      // replacement of an anomaly: the previous mirror is kept as a dated version
+      // before the new one is written.
+      versionOf = change;
+    }
+
+    if (dryRun) {
+      if (versionOf) report.versionsKept.push({ rel, keptAs: null, reason: versionOf });
+      wouldWrite();
+      report.bytesRaw += raw.length;
+      report.files.push({ rel, action: 'would-archive', rawBytes: raw.length });
+      continue;
+    }
+
+    if (!dirOk(rel, path.dirname(destAbs))) continue;
+    let versionKey = null;
+    if (versionOf) {
+      // Rename, never read: an iCloud-offloaded mirror is kept as readily as a local
+      // one. The intent is journalled first (so a kill between the rename and the
+      // index being saved is repaired from the journal), the entry is recorded the
+      // instant the rename lands, and only then is the new mirror written.
+      versionKey = keptKeyFor(destRoot, manifest, VERSIONS_DIR, stamp, rel);
+      const target = path.join(destRoot, versionKey + '.gz');
+      if (!dirOk(rel, path.dirname(target))) continue;
+      if (typeof entry.sha256 === 'string') {
+        appendJournal(jp, keyBuf, { rel: versionKey, sha256: entry.sha256,
+          rawBytes: Number.isInteger(entry.rawBytes) ? entry.rawBytes : -1, run: runId, at: nowIso });
+      }
+      fs.renameSync(destAbs, target);
+      manifest[versionKey] = { sha256: entry.sha256, ...(typeof entry.rawBytes === 'number' ? { rawBytes: entry.rawBytes } : {}),
+        archivedAt: entry.archivedAt, keptAt: nowIso, of: rel, kind: 'version', reason: versionOf };
+      manifestChanged = true;
+      report.versionsKept.push({ rel, keptAs: versionKey, reason: versionOf });
+    }
     const gz = zlib.gzipSync(raw);
-    fs.mkdirSync(path.dirname(destAbs), { recursive: true });
-    fs.writeFileSync(destAbs, gz);
-    // Stamp the mirror with the source's mtime (numeric seconds, so no Date
-    // millisecond truncation) so the next run's freshness check is stable and
-    // the archive reflects each session's real time.
-    fs.utimesSync(destAbs, srcStat.atimeMs / 1000, srcStat.mtimeMs / 1000);
-    manifest[rel] = { sha256: sha256(raw), rawBytes: srcStat.size, archivedAt: nowIso };
+    // Intent first: the journal (off the archive, fsynced, signed) names the exact
+    // bytes this mirror is about to hold, so if the run dies before its entry is in
+    // the signed index, the next run can tell this mirror is ccarchive's own.
+    const rawSha = sha256(raw);
+    appendJournal(jp, keyBuf, { rel, sha256: rawSha, rawBytes: raw.length, run: runId, at: nowIso });
+    // Temp + fsync + stamp + rename (writeFileAtomic): the existing mirror is never
+    // opened for writing, so an evicted placeholder is replaced without being read
+    // and a kill mid-write cannot leave a truncated copy that reads as fresh. The
+    // stamp is the source's mtime (numeric seconds, so no Date millisecond
+    // truncation) so the next run's freshness check is stable and the archive
+    // reflects each session's real time.
+    writeFileAtomic(destAbs, gz, { atimeSec: srcStat.atimeMs / 1000, mtimeSec: srcStat.mtimeMs / 1000 });
+    if (failAfter && failHard && report.archived + 1 >= failAfter) process.kill(process.pid, 'SIGKILL');
+    // The entry records the mirror's own size and time as written: the cheap check
+    // a later run uses to know the signed index still vouches for this file.
+    const written = fs.lstatSync(destAbs);
+    manifest[rel] = { sha256: rawSha, rawBytes: raw.length, archivedAt: nowIso,
+      gzBytes: written.size, gzMtimeMs: written.mtimeMs };
     manifestChanged = true;
 
-    report.archived++;
-    report.bytesRaw += srcStat.size;
+    wouldWrite();
+    report.bytesRaw += raw.length;
     report.bytesGz += gz.length;
-    report.files.push({ rel, action: 'archived', rawBytes: srcStat.size, gzBytes: gz.length });
+    report.files.push({ rel, action: 'archived', rawBytes: raw.length, gzBytes: gz.length,
+      ...(versionKey ? { versionKept: versionKey } : {}) });
 
-    if (++sinceCheckpoint >= every) { persist(); sinceCheckpoint = 0; }
+    checkpointMaybe();
     if (failAfter && report.archived >= failAfter) {
       throw new Error(`CCARCHIVE_TEST_FAIL_AFTER: simulated death after ${report.archived} mirrors`);
     }
+  }
+
+  // Archived files the source walk did not visit (their source is pruned, or never
+  // existed): each must be one the signed index vouches for. One with no entry, or
+  // whose stat disagrees with its entry, has no live copy to compare with, so unless
+  // its bytes match the signed hash it is set aside. Replaces the old backfill that
+  // hashed such a file into the index as "fromArchive" — adopting whatever was there.
+  for (const rel of listArchivedRels(destRoot)) {
+    if (visited.has(rel)) continue;
+    const gzPath = path.join(destRoot, rel + '.gz');
+    let st;
+    try { st = fs.lstatSync(gzPath); } catch { continue; }
+    if (metadataAgrees(manifest[rel], st)) continue;
+    vouch(rel, gzPath, st, null, false);
   }
   } catch (e) {
     // A throw mid-loop must not strand the mirrors already written ahead of the
@@ -1193,85 +2333,280 @@ function run() {
     throw e;
   }
 
-  // Backfill any archived .gz whose source is already gone (pruned before this
-  // feature existed) — hash it from the compressed copy, the only source left.
   if (!dryRun) {
-    for (const rel of listArchivedRels(destRoot)) {
-      if (manifest[rel]) continue;
-      // Backfill hashes from the .gz — a read that would fault an evicted copy
-      // back. Skip dataless ones so an ordinary run never bulk-downloads the
-      // archive; they stay unmanifested (a later run/--verify with them local
-      // records them). Only ever fires for archived files with no manifest entry.
-      const gzPath = path.join(destRoot, rel + '.gz');
-      if (isDataless(gzPath)) continue;
-      manifest[rel] = { sha256: sha256Gz(gzPath), archivedAt: nowIso, fromArchive: true };
-      manifestChanged = true;
-    }
-    if (manifestChanged) saveManifest(destRoot, manifest);
+    if (manifestChanged) saveManifestSigned(destRoot, manifest, keyBuf);
+    // Finished: every mirror this run wrote is in the signed index, so the journal
+    // keeps only the records still pending (an offloaded mirror not yet checked).
+    rewriteJournal(jp, keyBuf, pending);
     report.manifestEntries = Object.keys(manifest).length;
-
-    // Every manifest write re-signs (tamper-evidence); a legacy unsigned or
-    // invalid signature is migrated in place. Sign only when a manifest exists —
-    // an empty archive has nothing to attest. The key is minted 0600 off-archive
-    // on first use; verify never mints, so signing stays a write-path act.
     if (fs.existsSync(manifestPath(destRoot))) {
-      const keyBuf = ensureKey(keyPath);
-      const bytes = fs.readFileSync(manifestPath(destRoot));
-      if (manifestChanged || verifySignature(bytes, loadSig(destRoot), keyBuf).state !== 'verified') {
-        signManifest(destRoot, keyBuf, bytes);
-      }
       report.signed = true;
       report.keyId = keyId(keyBuf);
     }
   }
+  // Everything the signed index holds, sources since pruned included: the other half
+  // of "how many files, how many sessions" — what is safe, not just what is live.
+  report.inArchive = kindCounts(mirrorRels(manifest));
+  report.corrupt = report.setAside.filter((s) => s.reason === 'corrupt').length;
+  report.legacyRemaining = mirrorRels(manifest).filter((rel) => isLegacyEntry(manifest[rel])).length;
 
-  for (const rel of report.refusedShrink) {
-    process.stderr.write(
-      `ccarchive: REFUSED ${rel} — source is smaller than the archived copy ` +
-      `(truncated?). Re-run with --force to overwrite deliberately.\n`);
-  }
+  // A run that skipped, set aside or found an anomaly in anything fails at the end
+  // (never mid-way), so it is not missed. Versions kept are expected and do not fail.
+  const journalRejected = report.journal && report.journal.rejected ? report.journal.rejected : 0;
+  const failed = report.anomalies.length + report.unreadable.length + report.unwritable.length +
+    report.setAside.length + report.deferred.length + journalRejected;
 
   if (asJson) {
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');
-    return report.refusedShrink.length ? 1 : 0;
+    return failed ? 1 : 0;
   }
 
   const verb = dryRun ? 'would archive' : 'archived';
+  const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
   const lines = [
     `cc-transcripts archive${dryRun ? ' (dry run)' : ''} → ${destRoot}`,
-    `  ${report.total} file${report.total === 1 ? '' : 's'} · ` +
+    `  ${report.total} file${report.total === 1 ? '' : 's'} (${plural(report.sessions, 'session', 'sessions')}, ` +
+      `${plural(report.subagentTranscripts, 'subagent transcript', 'subagent transcripts')}) · ` +
       `${report.archived} ${verb}, ${report.skipped} unchanged`,
+    `  by kind: ${plural(report.kinds.session.files, 'session', 'sessions')}, ` +
+      `${plural(report.kinds.subagentTranscript.files, 'subagent transcript', 'subagent transcripts')}, ` +
+      `${plural(report.kinds.history.files, 'prompt history', 'prompt histories')}, ` +
+      `${plural(report.kinds.toolResult.files, 'tool result', 'tool results')}, ` +
+      `${plural(report.kinds.subagentMeta.files, 'subagent metadata file', 'subagent metadata files')}, ` +
+      `${plural(report.kinds.memory.files, 'memory note', 'memory notes')}`,
+    `  the archive holds ${plural(report.inArchive.files, 'file', 'files')}: ` +
+      `${plural(report.inArchive.sessions, 'session', 'sessions')}, ` +
+      `${plural(report.inArchive.subagentTranscripts, 'subagent transcript', 'subagent transcripts')} ` +
+      `(sources since pruned included)`,
   ];
   if (report.archived > 0) {
     lines.push(dryRun
       ? `  ${humanBytes(report.bytesRaw)} raw to compress`
       : `  ${humanBytes(report.bytesGz)} written (from ${humanBytes(report.bytesRaw)} raw)`);
   }
-  if (report.refusedShrink.length) {
-    lines.push(`  ${report.refusedShrink.length} REFUSED (source smaller than archived copy — see stderr)`);
+  if (report.versionsKept.length) {
+    lines.push(`  ${report.versionsKept.length} version${report.versionsKept.length === 1 ? '' : 's'} ` +
+      `${dryRun ? 'would be kept' : 'kept'}: living documents (memory notes, subagent metadata) that changed ` +
+      `other than by appending — the previous copy is under ${VERSIONS_DIR}/, the new one is current`);
+  }
+  for (const a of report.anomalies) {
+    const what = a.kind === 'shrunk'
+      ? 'is shorter than the archived copy'
+      : 'is not an append to the archived copy (changed in place)';
+    if (a.state === 'still-differs') {
+      lines.push(`  ✗ STILL DIFFERS ${a.rel} — the live file ${what}; kept aside ${String(a.keptAt).slice(0, 10)} ` +
+        `as ${a.keptAs}, not copied again. The archived copy is untouched.`);
+    } else {
+      lines.push(`  ✗ ${dryRun ? 'WOULD KEEP ASIDE' : 'ANOMALY'} ${a.rel} — the live file ${what} ` +
+        `(live ${humanBytes(a.liveBytes)}, archived ${humanBytes(a.archivedBytes)}). The archived copy is untouched; ` +
+        `the live version ${dryRun ? 'would be kept' : 'is kept'} aside` + (a.keptAs ? ` as ${a.keptAs}` : '') + `.`);
+    }
+  }
+  if (report.anomalies.length) {
+    lines.push(`  Next: look at ${report.anomalies.length === 1 ? 'it' : 'them'}. If the live version is the one to ` +
+      `keep, ccarchive --force makes it the archive's copy and keeps the previous one under ${VERSIONS_DIR}/ ` +
+      `(man ccarchive, INTEGRITY).`);
   }
   if (!dryRun && report.manifestEntries) {
     lines.push(`  ${report.manifestEntries} sha256 in manifest.json` +
       (report.signed ? `, signed (${SIG_ALGORITHM}, key ${report.keyId})` : '') +
       ` — verify with: ccarchive --verify`);
   }
+  if (report.journal && report.journal.present) {
+    lines.push(`  a journal from a run that died part way is present — a real run checks it and repairs the index`);
+  }
+  for (const rel of report.repaired) {
+    lines.push(`  ↺ REPAIRED ${rel} — written by a run that died part way; its bytes match that run's signed ` +
+      `intent journal, so it is back in the index`);
+  }
+  if (journalRejected) {
+    lines.push(`  ✗ JOURNAL ${journalRejected} record${journalRejected === 1 ? '' : 's'} failed the signature check ` +
+      `and ${journalRejected === 1 ? 'was' : 'were'} ignored — edited, or written under another key; nothing was adopted from ` +
+      `${journalRejected === 1 ? 'it' : 'them'}`);
+  }
+  if (report.journal && report.journal.notAdopted) {
+    for (const n of report.journal.notAdopted) {
+      lines.push(`  · journal: ${n.rel} not adopted (${n.reason}) — checked as any other mirror instead`);
+    }
+  }
+  for (const a of report.adopted) {
+    lines.push(`  ✓ ADOPTED ${a.rel} — not vouched for by the signed index, but identical to the live copy; recorded`);
+  }
+  if (report.metadataRefreshed) {
+    lines.push(`  ${report.metadataRefreshed} index entr${report.metadataRefreshed === 1 ? 'y' : 'ies'} refreshed ` +
+      `(the mirror's size or time had changed; its bytes still match the signed hash)`);
+  }
+  for (const s of report.setAside) {
+    lines.push(`  ✗ ${dryRun ? 'WOULD SET ASIDE' : 'SET ASIDE'} ${s.rel}` + (s.movedTo ? ` → ${s.movedTo}` : '') +
+      ` — ${SET_ASIDE_WHY[s.reason] || s.reason}. ${dryRun ? 'It would be moved' : 'Moved'}, not deleted, and not ` +
+      `adopted.` + (s.liveCopy ? ' The live copy is archived in its place.' : ''));
+  }
+  for (const d of report.deferred) {
+    const why = d.reason.startsWith('no-size')
+      ? 'the index records no size to guard the overwrite and the archived copy'
+      : 'the archived copy is not vouched for by the signed index and';
+    lines.push(`  ✗ NOT ARCHIVED ${d.rel} — the live copy changed, but ${why} could not be checked ` +
+      `(${d.reason.endsWith('offloaded') ? 'offloaded' : d.detail || 'unreadable'}), so it was not overwritten unchecked.` +
+      (d.reason.endsWith('offloaded') ? ' Open it in Finder to download it, then re-run.' : ''));
+  }
+  for (const u of report.unreadable) {
+    lines.push(u.stage === 'mirror'
+      ? `  ✗ UNREADABLE mirror ${u.rel}.gz (${u.reason}) — left in place, not checked`
+      : `  ✗ UNREADABLE ${u.rel} (${u.reason}${u.stage === 'walk' ? ', directory' : ''}) — skipped`);
+  }
+  for (const w of report.unwritable) lines.push(`  ✗ NOT WRITTEN ${w.rel} (${w.reason})`);
+  if (report.offloaded.length) {
+    lines.push(`  ${report.offloaded.length} mirror${report.offloaded.length === 1 ? '' : 's'} not checked ` +
+      `(offloaded — bytes in iCloud, not local; not downloaded)`);
+  }
+  if (report.legacyChecked || report.legacyRemaining) {
+    lines.push(`  ${report.legacyChecked} older index entr${report.legacyChecked === 1 ? 'y' : 'ies'} checked, ` +
+      `${report.legacyRemaining} remain` +
+      (report.legacyOffloaded ? ` (${report.legacyOffloaded} offloaded, never read to check)` : '') +
+      ` — a few each run so a run stays quick; the rest are trusted as signed meanwhile, and --verify checks every one`);
+  }
+  if (failed) {
+    lines.push(`  ${failed} item${failed === 1 ? '' : 's'} ` +
+      `above need${failed === 1 ? 's' : ''} a person — the rest of the run completed; ` +
+      `exiting non-zero so it is not missed`);
+  }
   process.stdout.write(lines.join('\n') + '\n');
-  return report.refusedShrink.length ? 1 : 0;
+  return failed ? 1 : 0;
+}
+
+// Read the intent journal a run that died part way left behind, and put back in
+// the index exactly the mirrors it wrote: for each record, if the mirror is there
+// and its gunzipped bytes hash to what the record says the run was about to write,
+// the entry is set from the record. An evicted mirror is never read — its records
+// stay pending and it is reported "not checked (offloaded)". A mirror that does not
+// match is not adopted; the ordinary checks then treat it like any other. A record
+// whose signature fails is never used (counted as rejected; the run exits 1).
+function recoverFromJournal(jp, keyBuf, destRoot, manifest, report, noteOffloaded) {
+  const j = readJournal(jp, keyBuf);
+  if (!j) return { pending: [], changed: false };
+  const summary = { records: j.records.length, rejected: j.rejected, torn: j.torn, notAdopted: [], pending: 0 };
+  report.journal = summary;
+  const byRel = new Map();
+  for (const r of j.records) (byRel.get(r.rel) || byRel.set(r.rel, []).get(r.rel)).push(r);
+  const pending = [];
+  let changed = false;
+  for (const [rel, recs] of byRel) {
+    const gzPath = path.join(destRoot, rel + '.gz');
+    // A kept copy (a version or an anomaly) the dead run was writing or renaming into
+    // place: recorded in the index the same way, once its bytes are shown to be the
+    // ones the record names. Never anything else under a reserved area.
+    const kept = keptInfo(rel);
+    if (kept && isInsideRoot(destRoot, gzPath)) {
+      if (manifest[rel]) continue;                         // already in the index
+      let kst;
+      try { kst = fs.lstatSync(gzPath); }
+      catch (e) {
+        if (e.code !== 'ENOENT') summary.notAdopted.push({ rel, reason: e.code || e.message });
+        continue;
+      }
+      if (!kst.isFile()) { summary.notAdopted.push({ rel, reason: 'not a regular file' }); continue; }
+      if (isDataless(gzPath)) { pending.push(...recs); summary.pending++; noteOffloaded(rel); continue; }
+      const km = readMirror(gzPath);
+      if (!km.ok) {
+        if (km.kind === 'offloaded') { pending.push(...recs); summary.pending++; noteOffloaded(rel); continue; }
+        if (km.kind !== 'missing') summary.notAdopted.push({ rel, reason: km.kind });
+        continue;
+      }
+      const kh = sha256(km.buf);
+      const krec = recs.find((r) => r.sha256 === kh);
+      if (!krec) { summary.notAdopted.push({ rel, reason: 'its bytes are not the ones the run recorded it was keeping' }); continue; }
+      manifest[rel] = { sha256: kh, rawBytes: km.buf.length, archivedAt: krec.at, keptAt: krec.at, of: kept.of,
+        kind: kept.area, reason: 'recovered' };
+      report.repaired.push(rel);
+      changed = true;
+      continue;
+    }
+    if (isReservedRel(rel) || !isInsideRoot(destRoot, gzPath)) {
+      summary.notAdopted.push({ rel, reason: 'not a mirror path' });
+      continue;
+    }
+    let st;
+    try { st = fs.lstatSync(gzPath); }
+    catch (e) {
+      if (e.code !== 'ENOENT') summary.notAdopted.push({ rel, reason: e.code || e.message });
+      continue;                                          // ENOENT: the write never landed
+    }
+    if (!st.isFile()) { summary.notAdopted.push({ rel, reason: 'not a regular file' }); continue; }
+    const entry = manifest[rel];
+    // Already in the index exactly as written (a checkpoint or the catch-path save
+    // recorded it before the run died): nothing to repair, nothing to read.
+    if (entry && typeof entry.gzBytes === 'number' && metadataAgrees(entry, st)) continue;
+    if (isDataless(gzPath)) { pending.push(...recs); summary.pending++; noteOffloaded(rel); continue; }
+    const m = readMirror(gzPath);
+    if (!m.ok) {
+      if (m.kind === 'offloaded') { pending.push(...recs); summary.pending++; noteOffloaded(rel); continue; }
+      if (m.kind !== 'missing') summary.notAdopted.push({ rel, reason: m.kind });
+      continue;
+    }
+    const h = sha256(m.buf);
+    if (entry && entry.sha256 === h) {
+      // The mirror still holds what the index records: the run's write never landed.
+      entry.gzBytes = st.size;
+      entry.gzMtimeMs = st.mtimeMs;
+      if (typeof entry.rawBytes !== 'number') entry.rawBytes = m.buf.length;
+      changed = true;
+      continue;
+    }
+    const rec = recs.find((r) => r.sha256 === h && r.rawBytes === m.buf.length);
+    if (!rec) {
+      summary.notAdopted.push({ rel, reason: 'its bytes are not the ones the run recorded it was writing' });
+      continue;
+    }
+    manifest[rel] = { sha256: rec.sha256, rawBytes: rec.rawBytes, archivedAt: rec.at,
+      gzBytes: st.size, gzMtimeMs: st.mtimeMs };
+    report.repaired.push(rel);
+    changed = true;
+  }
+  return { pending, changed };
+}
+
+// The one top-level catch: whatever escapes run() — a CcError we raised on purpose
+// or an I/O failure we did not foresee — becomes ONE line on stderr (never a stack
+// trace), a structured {"error": ...} on stdout under --json, and exit status 2.
+// 2 is distinct from 1 on purpose: 1 means the run finished and found something
+// that needs a human (a refused shrink, a skipped file, drift); 2 means it could
+// not finish.
+function reportFatal(e, asJson) {
+  const code = e && e.code ? String(e.code) : null;
+  const detail = e instanceof CcError ? e.message
+    : isOffloadError(e) ? `${e.syscall || 'read'} failed on an iCloud-offloaded file (${e.path || 'path unknown'}) — nothing was changed`
+    : (e && e.message ? e.message : String(e));
+  const message = detail.split('\n')[0];
+  process.stderr.write(`ccarchive: ${message}\n`);
+  if (asJson) {
+    process.stdout.write(JSON.stringify({ error: message, code, ...(e && e.state ? { state: e.state } : {}) },
+      null, 2) + '\n');
+  }
+  return 2;
 }
 
 if (require.main === module) {
-  process.exit(run());
+  let status;
+  try { status = run(); } catch (e) { status = reportFatal(e, argv.includes('--json')); }
+  process.exit(status);
 }
 
 module.exports = {
   defaultDest, archivePathFor, shouldArchive, humanBytes, listJsonl, run,
   walkFiles, captureClass, listCaptured, listSources, liveListWithHashes,
   historySource, externalSources, externalAbsFor, liveAbsFor,
-  xmlEscape, schedulePaths, resolveScriptPath, launchdPlist, cronLine,
+  CcError, isOffloadError, readMirror, writeFileAtomic, tempPathFor, sweepStaleTemps, ensureMirrorDir,
+  realpathNearest, reportFatal,
   sha256, manifestPath, loadManifest, saveManifest, listArchivedRels, verifyArchive,
-  isSuspectShrink, insideGitWorkTree, auditCategorize, classifyDivergence, auditLiveStore,
+  classifyChange, dataKind, countKind, kindCounts, COUNT_KINDS, mirrorRels, keptKeys, keptInfo, isLegacyEntry,
+  datalessPaths, legacyBudgetMs, saveManifestSigned, checkManifestSignature, sigNextPath,
+  ANOMALIES_DIR, VERSIONS_DIR,
+  insideGitWorkTree, auditCategorize, classifyDivergence, auditLiveStore,
   isDatalessFlags, statFlags, isDataless,
   classifyRestore, isInsideRoot, restoreTargets, restoreArchive,
   defaultKeyFile, resolveKeyPath, sigPath, keyId, computeMac, macEqual,
   loadKey, mintKey, ensureKey, loadSig, signManifest, verifySignature, rekeyManifest,
+  parseArgs, authenticateManifest, readManifestBytes, parseManifest, UNTRUSTED_DIR, isReservedRel,
+  stateDir, destId, journalPath, lockPath, appendJournal, readJournal, rewriteJournal, journalMacFor,
+  processStartId, readLock, lockState, acquireLock, releaseLock, heartbeatLock, metadataAgrees, moveUntrusted,
 };
