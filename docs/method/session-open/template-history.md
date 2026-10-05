@@ -36,6 +36,8 @@ What follows is the actual work: themes, named items, a ruling to enact, an
 excerpt pasted from a previous session, whatever fits this session. No fixed
 format — I'll describe it however's clearest each time.
 
+---
+
 ## The work
 
 - Work the queue: pick up whatever you're capable of progressing, in the order
@@ -115,3 +117,9 @@ its own record doctrine. Then, for me specifically:
 3. Confirm the learnings, evidence, decisions, and designs from this session
    are actually captured for the next session to build on — and that
    everything you've touched is tidy and ready for it to pick up cold.
+
+Try not to stop and ask me questions until you have done all the work. I won't
+be here to answer for several hours and I want you to get as much of this work
+done as you can Once all that is done review all my prompts in this session,
+both at the turn and mid-turn, and make sure you have done everything I asked
+and everything is ready to close this session
