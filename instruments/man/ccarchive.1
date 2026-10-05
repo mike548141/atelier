@@ -28,6 +28,15 @@ ccarchive \- durably preserve every Claude Code transcript, word for word
 .BR \-\-lock\-status " | " \-\-clear\-lock
 .RI [ \-\-dest
 .IR dir ]
+.br
+.B ccarchive \-\-install\-schedule
+.RI [ \-\-at
+.IR HH:MM ]
+.RI [ \-\-dest
+.IR dir ]
+.br
+.B ccarchive
+.BR \-\-schedule\-status " | " \-\-uninstall\-schedule
 .SH DESCRIPTION
 Claude Code records each session as a raw JSON-lines log under
 .IR ~/.claude/projects/ <encoded-repo>/ <session-uuid> .jsonl
@@ -72,6 +81,40 @@ archived copy with anything but that transcript with more added at the end.
 When Claude Code's cleanup removes a source log, the archived copy remains
 \(em that is the whole point. It does not parse the JSON, it preserves the
 bytes, so it is immune to any change in Claude Code's internal log format.
+.SH DESIGN
+What the tool is for, as plain goals. Where a goal is not built yet, it says so.
+.IP \(bu 2
+Signed for integrity: the index of what was archived carries a signature,
+checked
+before anything is written (see
+.BR SIGNING
+and
+.BR TRUST ).
+.IP \(bu 2
+Encrypted for confidentiality: planned, \fBnot yet built\fR. Today the
+archive is
+readable by anyone who can read the destination.
+.IP \(bu 2
+Compressed: each file is gzipped, so a session stays individually readable.
+.IP \(bu 2
+Writes limited to what changed: only new or changed files are written, which
+also
+keeps a synced destination light.
+.IP \(bu 2
+Handles storage that offloads data and leaves a stub (iCloud): an evicted
+file is
+named and skipped, never read in a way that forces a download or aborts the run
+(see
+.BR DATALESS ).
+.IP \(bu 2
+A manifest, so the archive is cheap to manage and consume: what is held, with
+hashes, can be read without opening every file.
+.IP \(bu 2
+Efficient to use from the sibling tools:
+.BR ccrepo (1)
+and
+.BR cctranscript (1)
+read the archive directly (\fB\-\-from\-archive\fR).
 .SH CAPTURE
 What
 .B ccarchive
@@ -340,6 +383,46 @@ checked from here). See
 .B LOCK
 below.
 .TP
+.BI "\-\-install\-schedule [\-\-at " HH:MM ]
+Set up a daily run at a clock time, local, 24-hour; the default is
+.BR 03:00 .
+This is a real calendar schedule, not a run at login: launchd on macOS, a
+systemd
+user timer on Linux. Re-running it replaces the old schedule cleanly. A
+.B \-\-dest
+given here is baked into the scheduled command; without one the scheduled run
+uses the default destination. The installer never runs an archive itself. Other
+platforms are refused (exit status 2). See
+.BR SCHEDULING .
+.TP
+.BI \-\-at " HH:MM"
+The time of day for
+.BR \-\-install\-schedule .
+Two digits each, 24-hour (\c
+.BR 03:00 ,
+.BR 16:45 ).
+Anything else is refused before anything is written.
+.TP
+.B \-\-schedule\-status
+Read-only. Says whether a schedule file exists, the time it is set for, and
+whether the scheduler has it loaded (macOS) or enabled and active (Linux). It
+also names an older login-style agent if one is found.
+.TP
+.B \-\-uninstall\-schedule
+Unload the schedule, and delete its files. An older login-style agent (one that
+ran at every login) is removed the same way, and the report says so. Nothing in
+the archive is touched.
+.PP
+The three schedule options are each a mode of their own: they cannot be combined
+with one another or with an archive, verify, audit, restore or lock option
+(\c
+.B \-\-dest
+and
+.B \-\-at
+go with
+.B \-\-install\-schedule
+only), so a scheduling command can never also change an archive.
+.TP
 .B \-\-json
 Emit a machine-readable JSON summary instead of the human report. Never
 styled; safe to pipe into
@@ -356,25 +439,107 @@ with no directory after it \(em is refused by name with exit status 2 before
 anything is read or written, so a mistyped preview can never run a real archive.
 .SH RUNNING IT
 .B ccarchive
-is run by hand. It installs nothing and schedules nothing: no launchd agent, no
-cron line, no login item. An archive is only as current as its last run, so run
-it more often than Claude Code's
+can be run by hand, or on a schedule you ask for with
+.BR \-\-install\-schedule .
+It installs nothing unless you ask. An archive is only as current as its last
+run,
+so run it more often than Claude Code's
 .I cleanupPeriodDays
 (30 by default): a session whose source is pruned before the first run that sees
 it is not captured. Running it often is cheap, because only new or changed files
 are written.
+.SH SCHEDULING
+.B \-\-install\-schedule
+sets up one run a day at a clock time (default 03:00, local; change it with
+.BR \-\-at ).
+It is a calendar schedule: it never runs at login, and installing it does not
+run an archive. It does not touch the archive.
+.SS macOS
+A user LaunchAgent, label
+.BR com.ccarchive.archive ,
+in
+.IR ~/Library/LaunchAgents/ ,
+with a
+.B StartCalendarInterval
+of the chosen hour and minute. It has no
+.BR RunAtLoad ,
+no
+.B StartInterval
+and no
+.BR KeepAlive .
+The agent runs the absolute path of the
+.B node
+that installed it and the absolute path of the script, adding
+.B \-\-dest
+only if you gave one. Its output goes to
+.IR ~/Library/Logs/ccarchive.log .
+It is loaded with
+.BR "launchctl bootstrap gui/<uid>" .
+If you later change which
+.B node
+you use (a version manager, an upgrade) or move the script, run
+.B \-\-install\-schedule
+again so the agent points at the new paths.
 .PP
-Earlier versions could install a launchd agent. This version neither installs
-nor
-manages one, and refuses the old
-.BR \-\-install\-schedule ,
-.B \-\-schedule\-status
+If the Mac is asleep at the scheduled time, launchd runs the missed slot once
+when it wakes (cron does not, which is why cron is not used). macOS lists every
+background job, scheduled or not, under System Settings, General, Login Items,
+.BR "Allow in the Background" :
+that is an allowlist of what may run in the background, not a list of what opens
+at login, and the entry is named after the program the agent starts.
+.SS Linux
+A systemd
+.B user
+timer and service under
+.IR ~/.config/systemd/user/ :
+.I ccarchive.service
+(Type=oneshot, running the same absolute command) and
+.I ccarchive.timer
+with
+.BR "OnCalendar=*-*-* HH:MM:00" .
+.B Persistent=true
+is set, so a run missed because the machine was off or asleep is caught up the
+next time the timer is active. It is enabled with
+.B systemctl \-\-user daemon-reload
+and then
+.BR "systemctl \-\-user enable \-\-now ccarchive.timer" ;
+output goes to the journal
+.RB ( "journalctl \-\-user \-u ccarchive.service" ).
+.PP
+A user timer only runs while the user has a session (logged in, or a user
+manager
+kept alive) unless lingering is enabled with
+.BR "loginctl enable-linger" .
+ccarchive does
+.B not
+enable lingering; that is a machine-wide choice for you to make.
+.PP
+If
+.B systemctl \-\-user
+cannot be reached, the installer refuses (exit status 2), installs nothing, and
+prints a crontab line to paste yourself. Cron does not catch up a missed run.
+.SS Other platforms
+Refused with exit status 2; nothing is written.
+.SS Environment
+A scheduled run does not see your shell's environment, so
+.B CCARCHIVE_DEST
 and
-.B \-\-uninstall\-schedule
-flags by name (exit status 2) rather than ignore them. To remove an agent an
-older version left behind, unload and delete it yourself:
-.B launchctl unload \-w ~/Library/LaunchAgents/com.ccarchive.archive.plist
-and then delete that file.
+.B CCARCHIVE_KEYFILE
+set in a shell do not reach it. Give
+.B \-\-dest
+at install time if you archive somewhere other than the default.
+.SS Checking and removing
+.B \-\-schedule\-status
+shows what is installed. To remove it:
+.BR "ccarchive \-\-uninstall\-schedule" .
+That unloads the agent (macOS) or disables the timer (Linux) and deletes the
+files. It also removes an older login-style agent, one with
+.B RunAtLoad
+or
+.BR StartInterval ,
+which an earlier version installed under the same label. Done by hand on macOS:
+.B launchctl bootout gui/$(id \-u)/com.ccarchive.archive
+and delete the plist.
 .SH INTEGRITY
 gzip carries a CRC-32, so a corrupted
 .I .gz
@@ -1224,6 +1389,22 @@ path saves the manifest), or with
 by SIGKILL the instant that mirror lands, before its index entry exists \(em the
 hard-kill shape only the intent journal can repair.
 .TP
+.B CCARCHIVE_SCHEDULER_LOG
+A file path. When set, every
+.B launchctl
+or
+.B systemctl
+command the schedule options would run is appended to that file, one JSON array
+of the arguments per line, and
+.B not run.
+Every test sets it, so no test can reach a real scheduler. With it set,
+.B \-\-schedule\-status
+says its loaded/enabled answers are pretended.
+.TP
+.B CCARCHIVE_SCHEDULER_EXIT
+With the seam above set: the exit status the pretended scheduler commands report
+(default 0). Lets a test rehearse a scheduler that says no.
+.TP
 .B CCARCHIVE_TEST_FAIL_HOW
 Set to
 .B kill
@@ -1317,6 +1498,20 @@ died). See
 .I <dest>/.<name>.<pid>.<random>.tmp
 A temporary file of a write in progress, or left by a run that died. See
 .BR "ATOMIC WRITES" .
+.TP
+.I ~/Library/LaunchAgents/com.ccarchive.archive.plist
+.TQ
+.I ~/Library/Logs/ccarchive.log
+The macOS schedule and its log. Present only after
+.BR \-\-install\-schedule .
+See
+.BR SCHEDULING .
+.TP
+.I ~/.config/systemd/user/ccarchive.service
+.TQ
+.I ~/.config/systemd/user/ccarchive.timer
+The Linux schedule. Present only after
+.BR \-\-install\-schedule .
 .SH EXAMPLES
 .TP
 .B ccarchive
@@ -1347,6 +1542,10 @@ Preview the transcripts a delta restore would replace, writing nothing.
 .B ccarchive \-\-restore
 Rebuild the live store from the archive \(em restore every archived transcript,
 skipping any that already match or that the live store is ahead of.
+.TP
+.B ccarchive \-\-install\-schedule \-\-at 02:30
+Archive every day at 02:30 local time from now on, until
+.BR \-\-uninstall\-schedule .
 .TP
 .B ccarchive \-\-dest ~/backup/cc
 Archive somewhere other than iCloud Drive.

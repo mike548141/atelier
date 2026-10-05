@@ -57,10 +57,11 @@
  * accidental corruption; for tamper-resistance keep a copy somewhere separate
  * from the archive (a mutation that also rewrites the manifest would pass).
  *
- * Run by hand: ccarchive installs nothing and schedules nothing — no launchd
- * agent, no cron line, no login item. Run it more often than Claude Code's
- * cleanupPeriodDays, because a session pruned before its first run is not
- * captured. Every path is derived at runtime; nothing personal is baked in.
+ * Run it more often than Claude Code's cleanupPeriodDays, because a session pruned
+ * before its first run is not captured. By hand, or on a real calendar schedule that
+ * --install-schedule sets up when asked (launchd on macOS, a systemd user timer on
+ * Linux; never a run at login; never installed unless you ask). Every path is
+ * derived at runtime; nothing personal is baked in.
  *
  * Failure model: one bad file never aborts the run. A source that cannot be read,
  * or an archived copy that cannot be decompressed, is skipped and NAMED in the
@@ -82,7 +83,7 @@ const os = require('node:os');
 const path = require('node:path');
 const zlib = require('node:zlib');
 const crypto = require('node:crypto');
-const { execFileSync } = require('node:child_process');
+const { execFileSync, spawnSync } = require('node:child_process');
 
 const argv = process.argv.slice(2);
 
@@ -102,10 +103,11 @@ OPTIONS
   --audit                Check the live store against the archive; report drift.
   --restore [--delta]    Restore from the archive; --delta: only --audit's drift.
   --lock-status | --clear-lock  Is a run holding this archive? Clear a stuck lock.
+  --install-schedule [--at HH:MM] | --schedule-status | --uninstall-schedule  A real daily schedule (launchd; systemd timer on Linux), default 03:00.
   --json                 Machine-readable output (never styled).
   -h, --help             This summary.
 
-Mirror transcripts, subagent metadata, tool-result sidecars, memory and history into a compressed, signed archive; restore too. A transcript is only ever extended, never overwritten; the report counts files, sessions and subagent transcripts. Unknown options are refused. Run by hand.  man ccarchive`;
+Mirror transcripts, subagent metadata, tool-result sidecars, memory and history into a compressed, signed archive; restore too. A transcript is only ever extended, never overwritten; the report counts files, sessions and subagent transcripts. Unknown options are refused. Run by hand, or on the schedule you install.  man ccarchive`;
 
 function takeValue(flag) {
   const i = argv.indexOf(flag);
@@ -114,29 +116,58 @@ function takeValue(flag) {
 
 // Every option the tool knows. Anything else is refused before any work is done,
 // so a typo such as --dry-runn can never fall through to a real archive run.
-const VALUE_FLAGS = new Set(['--dest', '--source']);
+const VALUE_FLAGS = new Set(['--dest', '--source', '--at']);
 const BOOL_FLAGS = new Set(['--dry-run', '--force', '--allow-repo-dest', '--verify', '--materialise',
-  '--rekey', '--audit', '--restore', '--delta', '--json', '--lock-status', '--clear-lock', '-h', '--help']);
-const REMOVED_FLAGS = ['--install-schedule', '--schedule-status', '--uninstall-schedule'];
+  '--rekey', '--audit', '--restore', '--delta', '--json', '--lock-status', '--clear-lock', '-h', '--help',
+  '--install-schedule', '--schedule-status', '--uninstall-schedule']);
 
 // Validate an argument list: throws a CcError (exit 2) naming the first option it
-// does not know, a removed one, or a value option given no value.
+// does not know, a value option given no value, a bad --at, or a schedule flag
+// combined with anything it does not go with.
 function parseArgs(args) {
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
-    if (REMOVED_FLAGS.includes(a)) {
-      throw new CcError(`${a} was removed — ccarchive no longer installs or manages a schedule; ` +
-        `run it by hand (man ccarchive, NOTES, says how to remove an agent an older version installed)`, 'EREMOVED');
-    }
     if (VALUE_FLAGS.has(a)) {
       if (i + 1 >= args.length || args[i + 1].startsWith('-')) {
-        throw new CcError(`${a} needs a directory after it — refused, nothing was done`, 'EUSAGE');
+        throw new CcError(`${a} needs ${a === '--at' ? 'a time (HH:MM)' : 'a directory'} after it — refused, nothing was done`, 'EUSAGE');
       }
       i++;
       continue;
     }
     if (BOOL_FLAGS.has(a)) continue;
     throw new CcError(`unknown option ${JSON.stringify(a)} — refused, nothing was done (ccarchive --help lists the options)`, 'EUSAGE');
+  }
+  checkScheduleArgs(args);
+}
+
+// A schedule flag is its own mode: one of the three, never beside another mode or an
+// archive option, so a scheduling command can never also run or change an archive.
+// --dest and --at go with --install-schedule only; -h/--help is handled before this.
+function checkScheduleArgs(args) {
+  const flags = args.filter((a) => SCHEDULE_FLAGS.includes(a));
+  const install = flags.includes('--install-schedule');
+  if (flags.length === 0) {
+    if (args.includes('--at')) {
+      throw new CcError('--at only goes with --install-schedule — refused, nothing was done', 'EUSAGE');
+    }
+    return;
+  }
+  if (new Set(flags).size > 1) {
+    throw new CcError(`${flags.join(' and ')} cannot be combined — give one schedule option; refused, nothing was done`, 'EUSAGE');
+  }
+  const allowed = new Set([...SCHEDULE_FLAGS, '-h', '--help', ...(install ? ['--dest', '--at'] : [])]);
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+    if (!allowed.has(a)) {
+      throw new CcError(`${a} does not go with ${flags[0]} — refused, nothing was done`, 'EUSAGE');
+    }
+    if (a === '--dest' || a === '--at') i++;
+  }
+  if (install) {
+    const at = args.includes('--at') ? args[args.indexOf('--at') + 1] : DEFAULT_SCHEDULE_TIME;
+    if (!parseScheduleTime(at)) {
+      throw new CcError(`--at needs a time as HH:MM, 24-hour (for example 03:00) — got ${JSON.stringify(at)}; refused, nothing was done`, 'EUSAGE');
+    }
   }
 }
 
@@ -1859,6 +1890,332 @@ function withLock(keyPath, destRoot, mode, fn) {
   try { return fn(lock); } finally { releaseLock(lock); }
 }
 
+// --- the schedule (210/230) ------------------------------------------------------
+// --install-schedule sets up a REAL calendar schedule: a clock time each day, never a
+// run at login. macOS uses a launchd user agent with StartCalendarInterval (launchd
+// runs a missed slot once on wake, unlike cron); Linux uses a systemd user timer with
+// OnCalendar and Persistent=true (a missed run is caught up). Neither platform's
+// installer ever runs an archive itself.
+//
+// SAFETY: every launchctl / systemctl call in this file goes through ONE function,
+// runScheduler(). When $CCARCHIVE_SCHEDULER_LOG is set it records the argv it WOULD
+// have run to that file and executes nothing — the seam every test sets, so no test
+// can reach a real scheduler. Nothing else in this file may spawn a scheduler binary.
+
+const SCHEDULE_LABEL = 'com.ccarchive.archive';      // launchd label; neutral, no personal data
+const SYSTEMD_UNIT = 'ccarchive';                    // ccarchive.service + ccarchive.timer
+const DEFAULT_SCHEDULE_TIME = '03:00';               // a quiet hour, local time
+const SCHEDULE_FLAGS = ['--install-schedule', '--schedule-status', '--uninstall-schedule'];
+
+// The only place a scheduler binary is spawned. Returns { status, stdout } and never
+// throws: a missing binary reads as status null. With the seam set, the call is
+// logged (one JSON array per line) and not made; $CCARCHIVE_SCHEDULER_EXIT (default
+// 0) is the exit status it pretends to have had, so a test can rehearse "not loaded".
+function runScheduler(cmd, args) {
+  const seam = process.env.CCARCHIVE_SCHEDULER_LOG;
+  if (seam) {
+    fs.appendFileSync(seam, JSON.stringify([cmd, ...args]) + '\n');
+    const pretend = Number(process.env.CCARCHIVE_SCHEDULER_EXIT);
+    return { status: Number.isInteger(pretend) ? pretend : 0, stdout: '', seam: true };
+  }
+  const r = spawnSync(cmd, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  return { status: r.error ? null : r.status, stdout: r.stdout || '', error: r.error || null };
+}
+
+// "HH:MM", 24-hour, local, two digits each. Returns { hour, minute } or null.
+function parseScheduleTime(text) {
+  const m = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(String(text));
+  return m ? { hour: Number(m[1]), minute: Number(m[2]) } : null;
+}
+
+function xmlEscape(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+}
+
+function schedulePaths(home) {
+  const unitDir = path.join(home, '.config', 'systemd', 'user');
+  return {
+    label: SCHEDULE_LABEL,
+    plistPath: path.join(home, 'Library', 'LaunchAgents', SCHEDULE_LABEL + '.plist'),
+    logPath: path.join(home, 'Library', 'Logs', 'ccarchive.log'),
+    unitDir,
+    servicePath: path.join(unitDir, SYSTEMD_UNIT + '.service'),
+    timerPath: path.join(unitDir, SYSTEMD_UNIT + '.timer'),
+  };
+}
+
+// The arguments the scheduled run is given after the script: only a --dest the user
+// named at install time (resolved to an absolute path, since a scheduled job has no
+// useful working directory and does not see the shell's environment).
+function scheduledArgs(dest) { return dest ? ['--dest', path.resolve(dest)] : []; }
+
+function launchdPlist({ label, nodePath, scriptPath, extraArgs = [], hour, minute, logPath }) {
+  const strings = [nodePath, scriptPath, ...extraArgs]
+    .map((a) => `        <string>${xmlEscape(a)}</string>`).join('\n');
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>${xmlEscape(label)}</string>
+    <key>ProgramArguments</key>
+    <array>
+${strings}
+    </array>
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>${hour}</integer>
+        <key>Minute</key>
+        <integer>${minute}</integer>
+    </dict>
+    <key>StandardOutPath</key>
+    <string>${xmlEscape(logPath)}</string>
+    <key>StandardErrorPath</key>
+    <string>${xmlEscape(logPath)}</string>
+</dict>
+</plist>
+`;
+}
+
+// One word of a systemd ExecStart line: double-quoted, with the characters systemd
+// itself interprets escaped (\ and " by backslash; % and $ by doubling).
+function systemdWord(s) {
+  return '"' + String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+    .replace(/%/g, '%%').replace(/\$/g, '$$$$') + '"';
+}
+
+function systemdService({ nodePath, scriptPath, extraArgs = [] }) {
+  const exec = [nodePath, scriptPath, ...extraArgs].map(systemdWord).join(' ');
+  return `[Unit]
+Description=ccarchive: mirror Claude Code transcripts into the archive
+
+[Service]
+Type=oneshot
+ExecStart=${exec}
+`;
+}
+
+function systemdTimer({ hour, minute }) {
+  const hh = String(hour).padStart(2, '0');
+  const mm = String(minute).padStart(2, '0');
+  return `[Unit]
+Description=ccarchive: daily archive run
+
+[Timer]
+OnCalendar=*-*-* ${hh}:${mm}:00
+Persistent=true
+Unit=${SYSTEMD_UNIT}.service
+
+[Install]
+WantedBy=timers.target
+`;
+}
+
+// A crontab line for the machines with no systemd user manager. It is only ever
+// printed, never installed (cron does not catch up a run missed while the machine
+// was off). In a crontab a bare % ends the command, so it is escaped.
+function shellWord(s) {
+  return /^[A-Za-z0-9_\/.:@+=,-]+$/.test(s) ? s : "'" + String(s).replace(/'/g, "'\\''") + "'";
+}
+function cronLine({ nodePath, scriptPath, extraArgs = [], hour, minute }) {
+  const cmd = [nodePath, scriptPath, ...extraArgs].map(shellWord).join(' ').replace(/%/g, '\\%');
+  return `${minute} ${hour} * * * ${cmd}`;
+}
+
+// What an existing launchd file says. kind: 'calendar' (this version's), 'login' (the
+// removed installer's RunAtLoad/StartInterval agent) or 'unknown'. null when absent.
+function readPlistInfo(plistPath) {
+  let text;
+  try { text = fs.readFileSync(plistPath, 'utf8'); } catch (e) { if (e.code === 'ENOENT') return null; throw e; }
+  const old = /<key>RunAtLoad<\/key>|<key>StartInterval<\/key>|<key>KeepAlive<\/key>/.test(text);
+  const cal = /<key>StartCalendarInterval<\/key>/.test(text);
+  const h = /<key>Hour<\/key>\s*<integer>(\d+)<\/integer>/.exec(text);
+  const m = /<key>Minute<\/key>\s*<integer>(\d+)<\/integer>/.exec(text);
+  return { kind: old ? 'login' : (cal ? 'calendar' : 'unknown'),
+    time: h && m ? `${String(h[1]).padStart(2, '0')}:${String(m[1]).padStart(2, '0')}` : null };
+}
+
+// The HH:MM in an installed timer file; undefined when the file is absent, null when
+// it is there but says nothing recognisable.
+function readTimerTime(timerPath) {
+  let text;
+  try { text = fs.readFileSync(timerPath, 'utf8'); } catch (e) { if (e.code === 'ENOENT') return undefined; throw e; }
+  const m = /^OnCalendar=\*-\*-\* (\d\d):(\d\d):00$/m.exec(text);
+  return m ? `${m[1]}:${m[2]}` : null;
+}
+
+function out(text) { process.stdout.write(text); }
+
+function unsupportedPlatform(platform, line) {
+  if (line) out(`  a crontab line you can use instead:\n  ${line}\n`);
+  throw new CcError(`scheduling is built for macOS (a launchd calendar agent) and Linux (a systemd user timer), ` +
+    `not ${platform} — nothing was installed or changed`, 'ESCHEDULE');
+}
+
+// opts: { platform, home, nodePath, scriptPath, uid, at, dest, run } — each defaults
+// to the real thing; tests inject them. opts.run is the scheduler runner.
+function scheduleContext(opts = {}) {
+  const home = opts.home || os.homedir();
+  return {
+    platform: opts.platform || process.platform,
+    home,
+    nodePath: opts.nodePath || process.execPath,
+    scriptPath: opts.scriptPath || fs.realpathSync(__filename),
+    uid: opts.uid !== undefined ? opts.uid : (typeof process.getuid === 'function' ? process.getuid() : 0),
+    at: opts.at || DEFAULT_SCHEDULE_TIME,
+    dest: opts.dest || null,
+    run: opts.run || runScheduler,
+    paths: schedulePaths(home),
+  };
+}
+
+function installSchedule(opts) {
+  const c = scheduleContext(opts);
+  const t = parseScheduleTime(c.at);
+  if (!t) throw new CcError(`--at needs a time as HH:MM, 24-hour (for example 03:00) — got ${JSON.stringify(c.at)}; nothing was done`, 'EUSAGE');
+  const extraArgs = scheduledArgs(c.dest);
+  const hhmm = `${String(t.hour).padStart(2, '0')}:${String(t.minute).padStart(2, '0')}`;
+  const cron = cronLine({ nodePath: c.nodePath, scriptPath: c.scriptPath, extraArgs, hour: t.hour, minute: t.minute });
+  if (c.platform === 'darwin') return installLaunchd(c, t, extraArgs, hhmm);
+  if (c.platform === 'linux') return installSystemd(c, t, extraArgs, hhmm, cron);
+  return unsupportedPlatform(c.platform, cron);
+}
+
+function installLaunchd(c, t, extraArgs, hhmm) {
+  const { label, plistPath, logPath } = c.paths;
+  const domain = `gui/${c.uid}`;
+  const before = readPlistInfo(plistPath);
+  // Replace cleanly: unload any old copy first (a failure just means it was not loaded).
+  if (before) c.run('launchctl', ['bootout', `${domain}/${label}`]);
+  fs.mkdirSync(path.dirname(plistPath), { recursive: true });
+  fs.mkdirSync(path.dirname(logPath), { recursive: true });
+  writeFileAtomic(plistPath, launchdPlist({
+    label, nodePath: c.nodePath, scriptPath: c.scriptPath, extraArgs, hour: t.hour, minute: t.minute, logPath,
+  }));
+  const r = c.run('launchctl', ['bootstrap', domain, plistPath]);
+  if (r.status !== 0) {
+    try { fs.rmSync(plistPath); } catch {}
+    throw new CcError(`launchctl could not load the schedule (exit ${r.status === null ? 'none' : r.status}) — ` +
+      `nothing was installed; the file it wrote was removed`, 'ESCHEDULE');
+  }
+  out(`Scheduled: ${label} runs daily at ${hhmm} local time (and not at login).\n` +
+    (before && before.kind === 'login' ? '  replaced an older login-style agent, which ran at every login\n' : '') +
+    `  file: ${plistPath}\n` +
+    `  runs: ${[c.nodePath, c.scriptPath, ...extraArgs].join(' ')}\n` +
+    `  log:  ${logPath}\n` +
+    `  A sleeping Mac runs the missed slot once on wake. Nothing has been archived yet.\n`);
+  return 0;
+}
+
+function installSystemd(c, t, extraArgs, hhmm, cron) {
+  const { unitDir, servicePath, timerPath } = c.paths;
+  if (c.run('systemctl', ['--user', 'show-environment']).status !== 0) {
+    out(`  systemd user timers are not available here, so nothing was installed. A crontab line you can use instead:\n  ${cron}\n` +
+      `  (cron does not catch up a run missed while the machine was off.)\n`);
+    throw new CcError('no systemd user manager answered (systemctl --user) — refused; nothing was installed', 'ESCHEDULE');
+  }
+  const existed = fs.existsSync(timerPath) || fs.existsSync(servicePath);
+  if (existed) c.run('systemctl', ['--user', 'disable', '--now', `${SYSTEMD_UNIT}.timer`]);
+  fs.mkdirSync(unitDir, { recursive: true });
+  writeFileAtomic(servicePath, systemdService({ nodePath: c.nodePath, scriptPath: c.scriptPath, extraArgs }));
+  writeFileAtomic(timerPath, systemdTimer(t));
+  const reload = c.run('systemctl', ['--user', 'daemon-reload']);
+  const enable = reload.status === 0 ? c.run('systemctl', ['--user', 'enable', '--now', `${SYSTEMD_UNIT}.timer`]) : reload;
+  if (enable.status !== 0) {
+    try { fs.rmSync(servicePath); } catch {}
+    try { fs.rmSync(timerPath); } catch {}
+    throw new CcError(`systemctl could not enable the timer (exit ${enable.status === null ? 'none' : enable.status}) — ` +
+      `nothing was installed; the files it wrote were removed`, 'ESCHEDULE');
+  }
+  out(`Scheduled: ${SYSTEMD_UNIT}.timer runs daily at ${hhmm} local time; a run missed while the machine was off is caught up.\n` +
+    `  files: ${timerPath}\n         ${servicePath}\n` +
+    `  runs:  ${[c.nodePath, c.scriptPath, ...extraArgs].join(' ')}\n` +
+    `  log:   journalctl --user -u ${SYSTEMD_UNIT}.service\n` +
+    `  A user timer only runs while you have a session, unless lingering is on (loginctl enable-linger); this did not enable it.\n` +
+    `  Nothing has been archived yet.\n`);
+  return 0;
+}
+
+function scheduleStatus(opts) {
+  const c = scheduleContext(opts);
+  if (process.env.CCARCHIVE_SCHEDULER_LOG) out('  (test seam active: no real scheduler was asked; loaded/enabled below are pretended)\n');
+  const { label, plistPath, logPath, timerPath, servicePath } = c.paths;
+  if (c.platform === 'darwin') {
+    const info = readPlistInfo(plistPath);
+    let loaded = 'unknown';
+    if (info) loaded = c.run('launchctl', ['print', `gui/${c.uid}/${label}`]).status === 0 ? 'yes' : 'no';
+    const kind = !info ? null
+      : info.kind === 'calendar' ? 'daily calendar schedule'
+      : info.kind === 'login' ? 'OLD login-style agent (runs at every login): --uninstall-schedule, then --install-schedule'
+      : 'not recognised as a ccarchive schedule';
+    out(`Schedule ${label} (launchd):\n` +
+      `  file:   ${info ? 'present' : 'absent'} (${plistPath})\n` +
+      (kind ? `  kind:   ${kind}\n` : '') +
+      (info && info.time ? `  time:   ${info.time} local\n` : '') +
+      `  loaded: ${loaded}\n` +
+      `  log:    ${logPath}\n`);
+    return 0;
+  }
+  if (c.platform === 'linux') {
+    const time = readTimerTime(timerPath);
+    const present = time !== undefined || fs.existsSync(servicePath);
+    let enabled = 'unknown';
+    let active = 'unknown';
+    if (present) {
+      enabled = c.run('systemctl', ['--user', 'is-enabled', `${SYSTEMD_UNIT}.timer`]).status === 0 ? 'yes' : 'no';
+      active = c.run('systemctl', ['--user', 'is-active', `${SYSTEMD_UNIT}.timer`]).status === 0 ? 'yes' : 'no';
+    }
+    out(`Schedule ${SYSTEMD_UNIT}.timer (systemd user timer):\n` +
+      `  files:   ${present ? 'present' : 'absent'} (${timerPath})\n` +
+      (time ? `  time:    ${time} local\n` : '') +
+      `  enabled: ${enabled}\n  active:  ${active}\n` +
+      `  log:     journalctl --user -u ${SYSTEMD_UNIT}.service\n`);
+    return 0;
+  }
+  return unsupportedPlatform(c.platform, null);
+}
+
+function uninstallSchedule(opts) {
+  const c = scheduleContext(opts);
+  const { label, plistPath, timerPath, servicePath } = c.paths;
+  if (c.platform === 'darwin') {
+    const info = readPlistInfo(plistPath);
+    if (!info) { out(`No schedule installed (${plistPath} is absent).\n`); return 0; }
+    c.run('launchctl', ['bootout', `gui/${c.uid}/${label}`]);   // not loaded is fine
+    fs.rmSync(plistPath, { force: true });
+    out(`Removed schedule ${label} (${plistPath}).\n` +
+      (info.kind === 'login' ? '  It was an older login-style agent (it ran at every login); that is gone too.\n' : ''));
+    return 0;
+  }
+  if (c.platform === 'linux') {
+    if (!fs.existsSync(timerPath) && !fs.existsSync(servicePath)) {
+      out(`No schedule installed (${timerPath} is absent).\n`);
+      return 0;
+    }
+    const off = c.run('systemctl', ['--user', 'disable', '--now', `${SYSTEMD_UNIT}.timer`]);
+    fs.rmSync(timerPath, { force: true });
+    fs.rmSync(servicePath, { force: true });
+    const reload = c.run('systemctl', ['--user', 'daemon-reload']);
+    out(`Removed schedule ${SYSTEMD_UNIT}.timer (${timerPath}).\n`);
+    if (off.status !== 0 || reload.status !== 0) {
+      out('  systemd did not confirm the change; run `systemctl --user daemon-reload` and check `systemctl --user list-timers`.\n');
+      return 1;
+    }
+    return 0;
+  }
+  return unsupportedPlatform(c.platform, null);
+}
+
+// Dispatch for the three flags (parseArgs has already checked the combination).
+function runScheduleFlag() {
+  const dest = takeValue('--dest');
+  if (argv.includes('--install-schedule')) return installSchedule({ at: takeValue('--at') || undefined, dest });
+  if (argv.includes('--uninstall-schedule')) return uninstallSchedule();
+  return scheduleStatus();
+}
+
 function run() {
   if (argv.includes('-h') || argv.includes('--help')) {
     process.stdout.write(HELP + '\n');
@@ -1867,6 +2224,7 @@ function run() {
   // Unknown, removed or value-less options are refused before anything is read or
   // written (exit 2): a typo such as --dry-runn must never run a real archive.
   parseArgs(argv);
+  if (argv.some((a) => SCHEDULE_FLAGS.includes(a))) return runScheduleFlag();
   const asJson = argv.includes('--json');
   const dryRun = argv.includes('--dry-run');
   const force = argv.includes('--force');
@@ -2606,6 +2964,8 @@ module.exports = {
   classifyRestore, isInsideRoot, restoreTargets, restoreArchive,
   defaultKeyFile, resolveKeyPath, sigPath, keyId, computeMac, macEqual,
   loadKey, mintKey, ensureKey, loadSig, signManifest, verifySignature, rekeyManifest,
+  runScheduler, parseScheduleTime, xmlEscape, schedulePaths, launchdPlist, systemdService, systemdTimer,
+  systemdWord, cronLine, readPlistInfo, installSchedule, scheduleStatus, uninstallSchedule,
   parseArgs, authenticateManifest, readManifestBytes, parseManifest, UNTRUSTED_DIR, isReservedRel,
   stateDir, destId, journalPath, lockPath, appendJournal, readJournal, rewriteJournal, journalMacFor,
   processStartId, readLock, lockState, acquireLock, releaseLock, heartbeatLock, metadataAgrees, moveUntrusted,

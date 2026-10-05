@@ -5,6 +5,35 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-10-05 — ccarchive: a real calendar schedule, `210/230`)
+Mike's ruling: the schedule option comes back as a schedule, not a run at every
+login, and his own machine stays manual. In plain terms:
+- **`ccarchive --install-schedule [--at HH:MM]`** sets up one run a day at a clock
+  time (default 03:00 local). **macOS:** a launchd agent with
+  `StartCalendarInterval`, no `RunAtLoad`, no `StartInterval`, no `KeepAlive`;
+  launchd runs a slot missed in sleep once on wake. It is loaded with
+  `launchctl bootstrap`. **Linux:** a systemd *user* timer and one-shot service
+  (`OnCalendar`, `Persistent=true`, so a missed run is caught up), enabled with
+  `systemctl --user`. Where `systemctl --user` is unavailable it refuses (exit 2),
+  installs nothing and prints a crontab line to paste. Other platforms are refused.
+  A `--dest` given at install is baked in; the scheduled run does not see the shell's
+  environment. Installing never runs an archive, and lingering is never enabled.
+- **`--schedule-status`** (read-only: file, time, loaded/enabled) and
+  **`--uninstall-schedule`** (unloads, removes the files, and also removes an older
+  login-style agent, saying so). Re-installing unloads the old one first.
+- The schedule options are a mode of their own: they refuse to ride along with an
+  archive, verify, restore or lock option, and `--at` is validated (two-digit 24-hour
+  `HH:MM`) before anything is written. The "removed by name" refusal is gone;
+  genuinely unknown options are still refused.
+- **Tests cannot reach a real scheduler.** Every `launchctl` / `systemctl` call goes
+  through one function; with `CCARCHIVE_SCHEDULER_LOG` set it records the arguments it
+  would have run and executes nothing. Every test sets it, plus a throwaway HOME, and
+  two tests fail if a scheduler could be reached or a second call site appears.
+- The man page gains a SCHEDULING section (both platforms, sleep and missed-run
+  behaviour, macOS listing any background job under Login Items → Allow in the
+  Background, Linux lingering, uninstalling) and a short DESIGN section of the tool's
+  goals, saying encryption is planned and not yet built.
+
 ### Changed (2026-10-05 — ccarchive hardening: the archive can no longer lose or overwrite a good copy)
 Mike's aim, setting the run: *"I want to be able to rely on it to protect my
 session transcript data as I expect it too"*. Built in three parts from the two
