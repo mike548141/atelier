@@ -943,15 +943,20 @@ def staged_added_lines() -> dict[str, str]:
     R is in the filter deliberately (review B4): git detects renames by
     default, and a renamed-AND-edited file's added lines are exactly as
     leak-capable as a modified file's — ACM alone silently skipped them."""
+    # `core.quotePath=false` keeps a non-ASCII path raw; a path with a tab,
+    # newline, quote or backslash is still C-quoted (`+++ "b/…"`), which
+    # `report.diff_header_path` reads. Without both, the file's header never
+    # matched and its added lines were never scanned (115/260).
     out = subprocess.run(
-        ["git", "diff", "--cached", "--unified=0", "--no-color",
-         "--diff-filter=ACMR"],
+        ["git", "-c", "core.quotePath=false", "diff", "--cached",
+         "--unified=0", "--no-color", "--diff-filter=ACMR"],
         capture_output=True, text=True, check=True).stdout
     files: dict[str, list[str]] = {}
     current: str | None = None
     for line in out.splitlines():
-        if line.startswith("+++ b/"):
-            current = line[len("+++ b/"):]
+        header = report.diff_header_path(line)
+        if header is not None:
+            current = header
             files.setdefault(current, [])
         elif line.startswith("+") and not line.startswith("+++") and current:
             files[current].append(line[1:])

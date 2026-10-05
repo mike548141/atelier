@@ -1207,12 +1207,18 @@ def staged_added_lines() -> dict[str, list[tuple[int, str]]]:
     new_lineno = 0
     for line in out.splitlines():
         if line.startswith("+++ "):
-            path = line[len("+++ "):]
-            if path.startswith("b/"):
-                path = path[2:]
-            # The only terminator git emits on this header is the whitespace
-            # tab described above — strip it, and nothing else.
-            current = path.rstrip("\t")
+            # `core.quotePath=false` leaves a tab, newline, quote or backslash
+            # in a name still C-quoted (`+++ "b/…"`); the shared reader
+            # undoes that and strips the whitespace tab described above
+            # (115/260). A header it does not recognise (no `b/` prefix) is
+            # taken as written, as it always was.
+            path = report.diff_header_path(line)
+            if path is None:
+                path = line[len("+++ "):]
+                if path.startswith("b/"):
+                    path = path[2:]
+                path = path.rstrip("\t")
+            current = path
             files.setdefault(current, [])
             continue
         if line.startswith("@@"):

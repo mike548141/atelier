@@ -316,3 +316,13 @@ half their tests, and fixed all nine. Part 1 asks whether sizescan's
 allow-marker may silence the cold-content gate. The original design says
 yes and later text says no. Blast radius is zero, so it goes to Mike with
 a recommendation.
+
+## `115/260`: guards read git-quoted paths on the hook plane
+
+The retry worker built it (`4dfaf8d`). It adds shared readers in
+`report.py`, `-c core.quotePath=false` for the diff-header guards, and `-z`
+for the listing ones. Output was byte-identical on atelier, a staged scratch
+clone and 29 sibling repos. The new tests fail on the old code. Pass queued
+at `160/760`, covering this item and `260/120`. Filed `115/280`: in
+`secretscan`, an added line can pose as a diff header and move
+attribution, which could hide the lines after it.

@@ -21,6 +21,10 @@ It also holds one thing no scanner printed before: the namespaced finding ID
 each finding line and as an `id` in `--json`, whose kind is the scope the
 scanner's own allow-marker accepts (the second half of `115/080` part 3).
 
+And one thing that is not output at all: the readers of git's path output
+(`nul_paths`, `diff_header_path`, `unquote_c`, at the foot of the file), so that
+no guard parses a C-quoted path as though it were a bare one (`115/260`).
+
 WHAT THIS MODULE DELIBERATELY DOES NOT DO: unify behaviour or wording. Every
 difference between the scanners is a PARAMETER here — the scanner's name, the
 tally's parts, the finding noun, a head line's tail, the over-cap indent, the
@@ -40,6 +44,8 @@ next run.
 
 from __future__ import annotations
 
+import os
+import re
 import sys
 from dataclasses import asdict
 from pathlib import Path
@@ -198,3 +204,76 @@ def suppressed_line(parts: Sequence[str], *,
     if disabled:
         line += f"\n    disabled: {', '.join(disabled)}"
     return line
+
+
+# --- reading git's path output (115/260) ------------------------------------
+#
+# git C-quotes a path it thinks unsafe: wrapped in double quotes, with C
+# escapes. With the default `core.quotePath` that is any non-ASCII byte; with
+# `core.quotePath=false` it is still any control character (tab, newline), a
+# double quote or a backslash. A parser that expects a bare path then either
+# misses the file (`+++ b/` no longer matches `+++ "b/…"`) or keeps the quotes
+# as part of the name. Two ways to read paths correctly, one helper each:
+#
+#   * a command with a `-z` form (`ls-files`, `ls-tree`, `diff --name-only`)
+#     writes the raw bytes, NUL-terminated, never quoted: `nul_paths`;
+#   * the `+++` header of a unified diff has no `-z` form: pass
+#     `-c core.quotePath=false` (so non-ASCII arrives raw) and read the header
+#     with `diff_header_path`, which undoes the quoting git still applies.
+
+_C_ESCAPES = {"a": 7, "b": 8, "f": 12, "n": 10, "r": 13, "t": 9, "v": 11,
+              "\\": 92, '"': 34}
+_OCTAL_RX = re.compile(r"[0-3][0-7]{2}")
+
+
+def unquote_c(s: str) -> str:
+    """Undo git's C-style quoting of `s`, the text BETWEEN the double quotes:
+    `\\a \\b \\f \\n \\r \\t \\v \\\\ \\"` and three-digit octal bytes (what
+    `core.quotePath=true` writes for a non-ASCII byte). The octal bytes join
+    any raw characters and the whole is decoded as UTF-8, so `caf\\303\\251`
+    and `café` give the same string. Bytes that are not UTF-8 come back as
+    U+FFFD rather than raising. A backslash git would never write (not
+    followed by an escape letter or three octal digits) is kept as it stands."""
+    raw = bytearray()
+    i, n = 0, len(s)
+    while i < n:
+        ch = s[i]
+        if ch == "\\" and i + 1 < n:
+            if s[i + 1] in _C_ESCAPES:
+                raw.append(_C_ESCAPES[s[i + 1]])
+                i += 2
+                continue
+            if _OCTAL_RX.fullmatch(s[i + 1:i + 4]):
+                raw.append(int(s[i + 1:i + 4], 8))
+                i += 4
+                continue
+        raw += ch.encode("utf-8", "surrogateescape")
+        i += 1
+    return raw.decode("utf-8", "replace")
+
+
+def diff_header_path(line: str) -> str | None:
+    """The new-side path from a unified-diff `+++` header line, or None if
+    `line` is not one. Only git's two spellings with the default `b/` prefix
+    count: `+++ b/<path>` and the quoted `+++ "b/<path>"`. A looser test would
+    take an added line whose text is `++ …` (it prints as `+++ …`) for a header.
+
+    A path containing a space is followed by one literal TAB (git's marker
+    for a name that could otherwise be confused with a timestamp) and nothing
+    else, quoted or not (`+++ "b/say \\"hi\\".md"<TAB>`), so the tab is
+    stripped. A tab INSIDE a name is always written as the two characters
+    `\\t`, so stripping trailing tabs never eats part of a name."""
+    line = line.rstrip("\t")
+    if line.startswith('+++ "b/') and line.endswith('"') and len(line) > 8:
+        return unquote_c(line[len('+++ "'):-1])[len("b/"):]
+    if line.startswith("+++ b/"):
+        return line[len("+++ b/"):]
+    return None
+
+
+def nul_paths(raw: bytes) -> list[str]:
+    """The paths in `-z` output: NUL-terminated, never quoted, so any byte
+    but NUL is a legal name. Decoded as the filesystem decodes (surrogate-
+    escaped), so an undecodable name still round-trips into a later `git`
+    argument. An empty token (the trailing NUL) is dropped."""
+    return [os.fsdecode(tok) for tok in raw.split(b"\0") if tok]

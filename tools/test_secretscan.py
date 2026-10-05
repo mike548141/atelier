@@ -1278,6 +1278,56 @@ class StagedSpacedPathAndMultiHunkTest(unittest.TestCase):
         self.assertEqual(995, finding["line"])
 
 
+class StagedQuotedPathsTest(unittest.TestCase):
+    """115/260 — `-c core.quotePath=false` keeps a non-ASCII path raw, but git
+    still C-quotes a name holding a tab, newline, double quote or backslash,
+    and the path was then taken with its quotes and escapes in it. The shared
+    reader (`report.diff_header_path`) undoes that: each name arrives as the
+    real path, and a planted secret is reported under it."""
+
+    NAMES = ["café/notes.txt", 'say "hi".txt', "tab\tname.txt",
+             "back\\slash.txt"]
+    SECRET = "token = aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z\n"
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        self._git("init", "-q")
+        old = os.getcwd()
+        os.chdir(self.tmp)
+        self.addCleanup(os.chdir, old)
+
+    def _git(self, *args):
+        import subprocess
+        return subprocess.run(["git", "-C", str(self.tmp), *args], check=True,
+                              capture_output=True, text=True)
+
+    def _stage(self, name, text):
+        p = self.tmp / name
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text)
+        self._git("add", "--", name)
+
+    def test_added_lines_are_keyed_by_the_real_path(self):
+        for name in self.NAMES:
+            with self.subTest(name=name):
+                self._stage(name, "x\n")
+                self.assertIn(name, ss.staged_added_lines())
+
+    def test_a_planted_secret_is_reported_under_the_real_path(self):
+        for name in self.NAMES:
+            with self.subTest(name=name):
+                self._stage(name, "ok\n" + self.SECRET)
+                buf = io.StringIO()
+                with contextlib.redirect_stdout(buf):
+                    code = ss.main(["--staged", "--root", str(self.tmp),
+                                    "--json"])
+                self.assertEqual(1, code)
+                paths = {f["path"] for f in json.loads(buf.getvalue())["findings"]}
+                self.assertIn(name, paths)
+                self._git("rm", "-q", "-f", "--", name)
+
+
 class StagedAbsolutePathTest(unittest.TestCase):
     """An absolute path in --staged mode must be REFUSED, not silently obeyed.
 

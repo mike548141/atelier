@@ -18,6 +18,7 @@ not do.
 
 import contextlib
 import io
+import os
 import sys
 import tempfile
 import unittest
@@ -545,6 +546,74 @@ class TestFindingIdRoundTrip(unittest.TestCase):
             "pointerscan", {"docs/roadmap/a.md": m._SPEC_LIVE},
             lambda k: {"docs/roadmap/a.md": f"{head}  pointerscan" f":allow:{k}: x\n{rest}"},
             lambda r: ["--root", r, "docs"])
+
+
+class TestGitPathReading(unittest.TestCase):
+    """115/260 — the helpers that read git's path output. Literal strings, as
+    git writes them (each spelling was captured from real git)."""
+
+    def test_unquote_c_escapes(self):
+        for quoted, plain in [
+            (r"a\tb", "a\tb"), (r"a\nb", "a\nb"), (r"a\"b", 'a"b'),
+            (r"a\\b", "a\\b"), (r"\a\b\f\r\v", "\a\b\f\r\v"),
+            ("plain", "plain"), ("", ""),
+        ]:
+            with self.subTest(quoted=quoted):
+                self.assertEqual(plain, report.unquote_c(quoted))
+
+    def test_unquote_c_octal_is_utf8_bytes(self):
+        # core.quotePath=true spells a non-ASCII byte as three octal digits.
+        self.assertEqual("café/x", report.unquote_c(r"caf\303\251/x"))
+        self.assertEqual("中文", report.unquote_c(r"\344\270\255\346\226\207"))
+        # Raw and escaped spellings mix, and agree.
+        self.assertEqual("café\t", report.unquote_c("café\\t"))
+
+    def test_unquote_c_never_raises_on_odd_input(self):
+        self.assertEqual("�", report.unquote_c(r"\377"))   # not UTF-8
+        self.assertEqual("a\\", report.unquote_c("a\\"))        # lone backslash
+        self.assertEqual("\\q", report.unquote_c(r"\q"))        # unknown escape
+        self.assertEqual("\\400", report.unquote_c(r"\400"))    # not a byte
+
+    def test_diff_header_path_plain(self):
+        self.assertEqual("a/b.txt", report.diff_header_path("+++ b/a/b.txt"))
+        self.assertEqual("café/a.txt",
+                         report.diff_header_path("+++ b/café/a.txt"))
+
+    def test_diff_header_path_strips_the_space_marker_tab(self):
+        self.assertEqual("sp ace.txt",
+                         report.diff_header_path("+++ b/sp ace.txt\t"))
+        self.assertEqual('say "hi".md',
+                         report.diff_header_path('+++ "b/say \\"hi\\".md"\t'))
+
+    def test_diff_header_path_quoted(self):
+        for header, path in [
+            ('+++ "b/say \\"hi\\".md"', 'say "hi".md'),
+            ('+++ "b/tab\\tname.md"', "tab\tname.md"),
+            ('+++ "b/back\\\\slash.md"', "back\\slash.md"),
+            ('+++ "b/nl\\nx.md"', "nl\nx.md"),
+            ('+++ "b/caf\\303\\251/a.txt"', "café/a.txt"),
+        ]:
+            with self.subTest(header=header):
+                self.assertEqual(path, report.diff_header_path(header))
+
+    def test_diff_header_path_ignores_everything_else(self):
+        for line in ["+++ /dev/null", "+++ a/x", "+++ x", "++ b/x",
+                     "+++b/x", "--- b/x", "+text", " +++ b/x", "", '+++ "b/',
+                     '+++ "b/x']:
+            with self.subTest(line=line):
+                self.assertIsNone(report.diff_header_path(line))
+
+    def test_nul_paths(self):
+        raw = b"a.md\0caf\xc3\xa9/b.md\0say \"hi\".md\0tab\tname.md\0"
+        self.assertEqual(
+            ["a.md", "café/b.md", 'say "hi".md', "tab\tname.md"],
+            report.nul_paths(raw))
+        self.assertEqual([], report.nul_paths(b""))
+        self.assertEqual(["x"], report.nul_paths(b"x"))      # no trailing NUL
+
+    def test_nul_paths_keep_undecodable_names_round_trippable(self):
+        (name,) = report.nul_paths(b"bad\xff.md\0")
+        self.assertEqual(b"bad\xff.md", os.fsencode(name))
 
 
 if __name__ == "__main__":

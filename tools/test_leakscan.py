@@ -1,11 +1,17 @@
 """Stdlib-only tests for leakscan (no pytest needed): `python3 -m unittest`."""
 
+import contextlib
+import io
+import json
+import os
 import re
 import pathlib
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 import leakscan as ls
@@ -598,6 +604,72 @@ class StagedAbsolutePathTest(unittest.TestCase):
         """A refusal that doesn't say what to do instead just gets --no-verify'd."""
         r = self._run("--staged", "--root", "/tmp", "/tmp/anything")
         self.assertIn("tiki/", r.stderr)
+
+
+class StagedQuotedPaths(unittest.TestCase):
+    """115/260 — a staged file whose path git quotes was never scanned: its
+    `+++ "b/…"` header did not start `+++ b/`, so its added lines belonged to
+    no file and a leak in them reached the commit. Real git, each spelling git
+    quotes: a non-ASCII directory, a double quote, a tab, a backslash. The
+    term list is an EMPTY file, so only the structural shapes are in play."""
+
+    NAMES = ["café/note.md", 'say "hi".md', "tab\tname.md",
+             "back\\slash.md"]
+    # Assembled so this file does not itself carry the shape it plants.
+    LEAK = "-----BEGIN " + "RSA PRIVATE KEY-----\n"
+
+    def setUp(self):
+        self.repo = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.repo, ignore_errors=True)
+        self._git("init", "-q")
+        empty = self.repo / "no-terms.txt"      # untracked; never staged
+        empty.write_text("")
+        env = unittest.mock.patch.dict(
+            os.environ, {"ATELIER_LEAKSCAN_TERMS": str(empty)})
+        env.start()
+        self.addCleanup(env.stop)
+        old = os.getcwd()
+        os.chdir(self.repo)
+        self.addCleanup(os.chdir, old)
+
+    def _git(self, *args):
+        return subprocess.run(["git", "-C", str(self.repo), *args],
+                              capture_output=True, text=True, check=True)
+
+    def _stage(self, name, text):
+        p = self.repo / name
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text)
+        self._git("add", "--", name)
+
+    def _main(self, *argv):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), \
+                contextlib.redirect_stderr(io.StringIO()):
+            return ls.main(["--staged", "--root", str(self.repo), *argv]), \
+                buf.getvalue()
+
+    def test_added_lines_are_keyed_by_the_real_path(self):
+        for name in self.NAMES:
+            with self.subTest(name=name):
+                self._stage(name, "x\n")
+                self.assertIn(name, ls.staged_added_lines())
+
+    def test_a_planted_leak_is_found_and_the_path_reported_unquoted(self):
+        for name in self.NAMES:
+            with self.subTest(name=name):
+                self._stage(name, "ok\n" + self.LEAK)
+                code, out = self._main("--json")
+                self.assertEqual(1, code)
+                hits = {(f["path"], f["rule"])
+                        for f in json.loads(out)["findings"]}
+                self.assertIn((name, "private-key-header"), hits)
+                self._git("rm", "-q", "-f", "--", name)
+
+    def test_a_clean_quoted_path_still_passes(self):
+        self._stage("café/ok.md", "# fine\n")
+        code, _ = self._main()
+        self.assertEqual(0, code)
 
 
 class LinkedWorktreeSkipped(unittest.TestCase):
