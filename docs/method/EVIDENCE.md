@@ -256,6 +256,41 @@ This is §1–§4 turned on the tools the agent makes, and `PRINCIPLES.md` §6
 The design principle says *build it observable*; this says *its observations are
 claims, and the apex governs them.*
 
+## 15. A test cannot falsify its own code's assumption
+
+A test written from the same mental model as the code it guards shares that
+model's beliefs, so it cannot catch them being wrong. Mutation testing —
+breaking the code on purpose to check the test notices — proves the test is
+*wired to* the code; it never proves either is *right*. Where the belief is
+about an **external** system — a library's semantics, a device's wire
+protocol, a platform's defaults — it is the author's `ai-inference` about
+someone else's primary (§2), and the test inherits that tier however green
+it runs.
+
+So before such a test counts as evidence, an authority outside your own code
+enters the loop: read the library's source, or capture the wire. Quote
+"mutation-verified" as evidence of wiring only, never of correctness. The
+highest-risk sites, where a wrong belief looks most like a right one:
+
+- **sentinel values** — `[]` vs `None` vs omitted, which a library may treat
+  three different ways;
+- **falsy-but-not-absent** distinctions — a value that tests as false (empty,
+  zero) but was deliberately set, read as if it were missing, or the reverse;
+- **comments asserting third-party behaviour** — a sentence about what a
+  library does is a claim with no source until someone reads that library.
+
+(Grounded: three instances in `ros`; minted at the third, on the principal's
+ruling of 2026-08-03, per the >2 promotion rule in `PROPAGATION.md` § *When a
+rule keeps breaking*. 2026-07-25: a "hermetic SSH connections" test recorded
+as mutation-verified had encoded a wrong reading of asyncssh *as* the
+invariant — that `client_keys=[]` offers no keys, when it loads the default
+ones. Test and code shared the belief, so every mutation passed (fixed in ros
+`321ff0f`). The same day, a capture harness wrapped the
+wrong asyncssh hook and reported `refusals_received: 0` everywhere, caught
+only because a *successful* login also read zero. 2026-08-03: a dual-supply
+power test asserted the very rail label a review had just proven to be a
+mislabel, because it was written from the code's own belief.)
+
 ---
 
 *Bearing in `ros`: the diagnose layer's honesty discriminators (a signal-floored

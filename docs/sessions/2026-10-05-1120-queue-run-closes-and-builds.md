@@ -116,3 +116,17 @@ live sessions. Two memory-bound tests (`BoundedMemory` in `test_pins` and
 `test_spellscan`) timed out for three different workers, identically on an
 untouched base. The run stopped dispatching new workers until the in-flight
 ones drained, and re-runs those two tests at close.
+
+## `200/050` and `200/020`: the reviewer checklist, and a test-evidence rule
+
+An Opus worker wrote both (`90c42ec`, `be9a3ae`). `REVIEW.md` gains *The
+standing checklist*: V1–V7 as seven one-line checks, each pointing at its
+existing home and at grounding findings it opened before citing. The
+review skill carries a stamped copy. One sentence goes past the record and
+is flagged for the reviewer. `EVIDENCE.md` gains §15, *A test cannot
+falsify its own code's assumption*. The drafting session chose EVIDENCE.md
+over REVIEW.md, because the rule binds whoever writes the test. `050`
+closes. `020` stays open under 🎯, because the item reserves sign-off on
+the wording and the home to Mike. Both are covered by one doctrine pass at
+`160/710`. The worker also found four defects in the record it worked from,
+and they are filed at the run's close.

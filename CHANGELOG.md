@@ -5,6 +5,16 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-10-05 — the standing reviewer checklist and a test-evidence rule, `200/050`, `200/020`)
+- `REVIEW.md` § *The standing checklist*: seven checks every review runs
+  unasked (V1–V7, approved 2026-07-23), each pointing at where it is already
+  doctrine and at the findings that grounded it. The review skill carries a
+  stamped copy.
+- `EVIDENCE.md` §15, *A test cannot falsify its own code's assumption*: a test
+  that encodes a belief about an external system is evidence of wiring, not of
+  correctness, until an authority outside the author's code enters the loop.
+  Minted on Mike's ruling of 2026-08-03; his sign-off on its wording is owed.
+
 ### Added (2026-10-05 — `indexscan`: a hand-kept index stays true to its directory, `200/010`)
 - A new warn-only floor guard. An index opts in with one
   `<!-- indexscan:maps dir=… match=… -->` line, and the guard then reports every

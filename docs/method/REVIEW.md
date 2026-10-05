@@ -309,6 +309,45 @@ again — a stamped, recorded proof that broke when run verbatim. This is lens 2
 (does it do what it claims) applied to the record itself, and it feeds the
 close-rule below: a proof you have not re-run is not a proof you can close on.
 
+## The standing checklist — seven checks every review runs unasked
+
+*Approved by the principal 2026-07-23, item by item, from a mining of 330
+findings across 47 of atelier's own reviews
+([record](../sessions/2026-07-22-1036-invariant-candidates.md)). Each is a
+defect class that recurred more than twice.*
+
+Most of these are already doctrine elsewhere; the list does not restate them,
+it makes sure no reviewer has to remember them. Run every line on every
+review, in the same pass as the brief's own questions — a brief need not list
+them. A line with nothing to bite on is discharged
+in one line with grounds, the shape lens 4 already uses. Counts and finding
+IDs are the record's; its full citation list for each line lives there.
+
+- **V1 — No claim stronger than its evidence.** → lens 2; `00-APEX.md`.
+  *~30, the largest class: e.g. `post-method B7`, `CF1`, `IR1`.*
+- **V2 — Re-run every recorded "live-proven" or "verified" claim in scope.**
+  → *Re-run every "live-proven" claim in scope* above. *~9: e.g.
+  `post-method B1`, `create-repo C2`, `signing G1`.*
+- **V3 — A changed rule is swept to every mirror site** — child templates,
+  skills, sibling docs, READMEs. → `PRINCIPLES.md` §6, which holds the
+  sweep's surface list; `stampscan` watches the marked stamps (advisory).
+  *~10: e.g. `conventions-utc F1` (MAJOR), `review-rule4-cold F3`, `SL1`.*
+- **V4 — One fact, one home.** No second source; a copy at the point of use
+  is stamped. → `EVIDENCE.md` §9; `PROPAGATION.md` § *One statement, stamped
+  copies*. *~9: e.g. `create-repo C3`, `review-rule4-cold F4`, `SA7`.*
+- **V5 — No internal contradiction.** The work agrees with itself and with
+  the sibling docs it must reconcile with. No other home states this; this
+  line is canonical. *~18, the
+  second-largest class: e.g. `reach-rereview A4`, `review-independence I4`,
+  `CF2`.*
+- **V6 — Security & privacy on every review**, with `/security-review` where
+  it can reach the work. → lens 4. *~8: e.g. `create-repo C9`,
+  `reach-rereview A2`, `SA1`.*
+- **V7 — A rule-4 pass states its spawn provenance**, in the brief and again
+  in the verdict. → rule 4. Not mechanised: the record's verdict-file field
+  is unbuilt. *3: `review-rule4-cold F5`; `F9` and `F4` of the 2026-07-19
+  0407 pass.*
+
 ## The lifecycle — brief on top, verdict below, one file
 
 Grounded in the `ros`/atelier practice. A review is a **durable artefact**, not a

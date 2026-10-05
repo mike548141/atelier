@@ -85,7 +85,13 @@ A good brief is falsifiable and attackable. Include:
 ## Running it and landing the verdict
 
 Reproduce the floor first (build, tests, any selftests). Work the lenses and the
-assumptions. Land findings numbered, each with a counselled fix where you can.
+assumptions. **Run the standing checklist unasked** (`REVIEW.md` § *The
+standing checklist*; a brief need not list it): V1 no claim stronger than its
+evidence · V2 re-run every recorded proof in scope · V3 a changed rule swept to
+every mirror site · V4 one fact, one home · V5 no internal contradiction ·
+V6 security & privacy · V7 a rule-4 pass states its spawn provenance. A line
+with nothing to bite on is discharged in one line with grounds. Land findings
+numbered, each with a counselled fix where you can.
 Close with a verdict (**PASS**, **PASS-WITH-FINDINGS** or **FAIL**, the house's
 usual verdict words) appended below a divider in the brief, so the brief and its
 verdict live together as the record. **Who applies a finding depends on what was
