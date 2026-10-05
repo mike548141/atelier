@@ -171,3 +171,13 @@ a literal gate would be unsound against an `(?i)` pattern. It also re-ran
 the two modules' tests (306 OK) and both selftests. A wrong gate is a
 silent miss on a blocking guard, so the cold pass at `160/720` is the one
 to take first.
+
+## `115/250`: pointerscan walks only what git could commit
+
+A Sonnet worker made the fix (`602e95a`). The walk now goes through the
+shared `filewalk`. Output was byte-identical on both of its code paths, and
+a nested worktree is no longer read. The full Python suite passed (1,714 OK),
+and the run's first clean full suite was this one. The orchestrator
+re-ran `test_pointerscan` on the merged tree. No separate review is queued:
+the change applies an already-reviewed shared walk, and `160/690` covers
+pointerscan as it now stands.
