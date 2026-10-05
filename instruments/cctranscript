@@ -376,10 +376,43 @@ function currentRepoDir() {
   return null;
 }
 
-// The header for a real user prompt vs a tool-result carrier: prompts have no
-// toolUseResult and carry actual authored text.
+// How much decompressed text the first-prompt search asks gunzipHead for before
+// it settles for the whole mirror. It is a speed path only: a prompt the prefix
+// does not contain is found by the whole-file read below, so the number can
+// never change an answer. Chosen from a census of 983 local mirrors
+// (2026-10-06): the first prompt ended within 16 KB in all but 25, within 64 KB
+// in all but 24, and the tail beyond that was flat out to 2.9 MB (23 beyond
+// 256 KB), so a larger bound buys only a handful of mirrors. 64 KB also equals
+// the cwd sniff's bound, and gunzipHead never reads less than 64 KB of
+// compressed bytes anyway, so a smaller `want` would not make the read cheaper.
+const FIRST_PROMPT_PREFIX = 65536;
+
+// The first real prompt in a log. An archived .gz mirror is first read through
+// gunzipHead, and only the COMPLETE lines of what it yields are searched: the
+// last line of a cut prefix is partial and could parse as a different, shorter
+// object, so it is dropped. The first match among complete leading lines is the
+// first match in the whole file, so a hit there is final. No hit means the
+// prefix proved nothing (the prompt is later, or the log has none), so fall
+// back to the whole-file read, which is the answer this function always gave.
 function firstUserPromptText(file) {
-  const lines = readLogText(file).split('\n');
+  if (file.endsWith('.gz')) {
+    let head = null;
+    try { head = gunzipHead(file, FIRST_PROMPT_PREFIX); } catch { head = null; }
+    if (head) {
+      const cut = head.lastIndexOf(0x0a);
+      if (cut >= 0) {
+        const hit = firstPromptInLines(head.toString('utf8', 0, cut).split('\n'));
+        if (hit) return hit;
+      }
+    }
+  }
+  return firstPromptInLines(readLogText(file).split('\n'));
+}
+
+// The first prompt on the first line of `lines` that carries one, else ''.
+// A real user prompt has no toolUseResult and carries authored text; a
+// tool-result carrier does not count.
+function firstPromptInLines(lines) {
   for (const ln of lines) {
     if (!ln.trim()) continue;
     let o; try { o = JSON.parse(ln); } catch { continue; }
@@ -1338,6 +1371,7 @@ module.exports = {
   friendlyModel, modelColor, humanDelta, fmtTokens, contextOf, wrap, visLen, padLeftTo,
   styleInline, fmtTime, dateOf, toolSummary, toolSearchText, extractText, encodePath,
   readTurns, numberTurns, defaultArchiveDest, readLogText, isDatalessFlags, sessionRecord, statFlagsBatch, gunzipHead,
+  firstUserPromptText, FIRST_PROMPT_PREFIX,
   subagentDir, finishedAgents, escapeRegex, rawForms, scanText, excerptAround,
   isHumanQueuedCommand,
 };

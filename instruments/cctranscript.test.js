@@ -532,6 +532,64 @@ test('gunzipHead: a truncated mirror still throws, as the full gunzip did', () =
   assert.throws(() => cc.gunzipHead(f, 65536));
 });
 
+// --- first-prompt column: bounded prefix, whole-file fallback ----------------
+
+// A tool-result carrier line (never a prompt) of roughly `bytes` of hex, so the
+// padding is skipped by the parser and barely compresses.
+function carrierLine(bytes) {
+  const crypto = require('node:crypto');
+  return JSON.stringify({ type: 'user', toolUseResult: { stdout: crypto.randomBytes(bytes >> 1).toString('hex') },
+    message: { content: [{ type: 'tool_result', content: 'x' }] } });
+}
+const promptLine = (t) => JSON.stringify({ type: 'user', message: { role: 'user', content: t } });
+
+function writeGz(name, lines, { trailingNewline = true } = {}) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cctranscript-fp-'));
+  const f = path.join(dir, `${name}.jsonl.gz`);
+  fs.writeFileSync(f, zlib.gzipSync(Buffer.from(lines.join('\n') + (trailingNewline ? '\n' : ''))));
+  return f;
+}
+// The answer the whole-file read gives, i.e. what the function always returned.
+const wholeFileAnswer = (f) => zlib.gunzipSync(fs.readFileSync(f)).toString('utf8');
+
+test('first prompt: found inside the prefix, and equal to the whole-file answer', () => {
+  const f = writeGz('inside', [
+    JSON.stringify({ type: 'summary' }), carrierLine(2000), promptLine('the  first\n prompt'), carrierLine(1.5e6),
+    promptLine('a later prompt'),
+  ]);
+  // The log is far larger than the prefix, so this really was a cut read.
+  assert.ok(zlib.gunzipSync(fs.readFileSync(f)).length > 10 * cc.FIRST_PROMPT_PREFIX);
+  assert.equal(cc.firstUserPromptText(f), 'the first prompt');
+  assert.ok(wholeFileAnswer(f).includes('a later prompt'));   // the rest of the log is there, unread
+});
+
+test('first prompt: beyond the prefix, the whole-file fallback still finds it', () => {
+  const f = writeGz('beyond', [carrierLine(2e6), promptLine('late but real'), promptLine('a second one')]);
+  // Prove the fallback is what answered: the prefix does not hold the prompt.
+  const head = cc.gunzipHead(f, cc.FIRST_PROMPT_PREFIX).toString('utf8');
+  assert.ok(!head.includes('late but real'));
+  assert.equal(cc.firstUserPromptText(f), 'late but real');
+});
+
+test('first prompt: a log with no prompt at all gives an empty string', () => {
+  const none = writeGz('none', [JSON.stringify({ type: 'summary' }), carrierLine(1e6), carrierLine(1000)]);
+  assert.equal(cc.firstUserPromptText(none), '');
+  const tiny = writeGz('tiny', [JSON.stringify({ type: 'summary' })]);
+  assert.equal(cc.firstUserPromptText(tiny), '');
+});
+
+test('first prompt: a short log whose last line has no trailing newline still finds it', () => {
+  // The prefix drops the final (possibly partial) line; the fallback recovers it.
+  const f = writeGz('nonl', [promptLine('only line, no newline')], { trailingNewline: false });
+  assert.equal(cc.firstUserPromptText(f), 'only line, no newline');
+});
+
+test('first prompt: a corrupt mirror with no prompt in its prefix still throws, as before', () => {
+  const f = writeGz('cut', [carrierLine(2e6), promptLine('never reached')]);
+  fs.writeFileSync(f, fs.readFileSync(f).subarray(0, 300000));
+  assert.throws(() => cc.firstUserPromptText(f));
+});
+
 // --- --search ------------------------------------------------------------
 // Every fixture below is SYNTHETIC and written here in the test: nothing from a
 // real Claude Code log, no real session id, no real path under ~/.claude.
