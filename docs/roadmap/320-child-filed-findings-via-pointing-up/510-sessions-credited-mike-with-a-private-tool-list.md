@@ -1,5 +1,5 @@
-- [~] 🔎 **Sessions kept placing the tool list in a private repo and
-      crediting Mike with it, and he says it was never his** (claimed 2026-10-05-1128, wt: none)
+- [x] 🔎 **Sessions kept placing the tool list in a private repo and
+      crediting Mike with it, and he says it was never his**
       `[S][doctrine][records]`. Found 2026-10-03, when a session's question
       cited "your 2026-09-28 ruling (made in the child) put the list in the
       private estate-root repo". Mike's reply, verbatim:
@@ -31,3 +31,11 @@
       said", which `420/020` addresses at the record layer. This is its
       second instance, after `310/080`. The floor bullet change reaches
       each child when it re-stamps its floor.
+
+      ✅ **Closed 2026-10-05 — no more work owed here** (queue run, Opus 5.5).
+      The fix landed with `320/500` on 2026-10-03, as the note above says:
+      `TOOLBOX.md` holds the expected toolbox, and the floor's
+      estate-resources bullet points at it and no longer lists "shared estate
+      tooling" (verified in `PROPAGATION.md`'s floor region). The class is
+      carried at the record layer by `420/020`. Children pick up the bullet
+      when they re-stamp their floor, in their own sessions.

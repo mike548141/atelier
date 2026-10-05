@@ -1,5 +1,5 @@
-- [~] **The floor drift check can never fire against a stale checkout — the
-      canonical `<SHA>..HEAD` range is the defect.** (claimed 2026-10-05-1128, wt: none) `PROPAGATION.md`'s floor
+- [x] **The floor drift check can never fire against a stale checkout — the
+      canonical `<SHA>..HEAD` range is the defect.** `PROPAGATION.md`'s floor
       region tells every child to run
       `git -C "<atelier-path>" log --oneline <SHA>..HEAD`. That reads the
       child's *local* atelier checkout, and nothing keeps that checkout
@@ -18,3 +18,11 @@
       so the fix is owed here, in `PROPAGATION.md`, not at the child. Paired
       with the fleet sweep in the item below. Raised by Mike, 2026-08-16,
       from a faves session's pin bump.
+
+      ✅ **Closed 2026-10-05 — already delivered** (queue run, Opus 5.5). The
+      canonical floor region now carries exactly the suggested fix: `fetch
+      -q`, then `log --oneline <SHA>..origin/main`, "the parent's published
+      mainline, never whatever branch its checkout is parked on"
+      (`PROPAGATION.md` § the floor region and its point 4). Landed in
+      `54201e0`. Each child picks it up at its own pin bump, which is
+      `030/120`'s work, not this item's.
