@@ -1,4 +1,4 @@
-- [~] 🔎 **ccarchive exits 1 on every scheduled run, and the board did not know** (claimed 2026-10-04-2329, wt: atelier-ccarchive-1005)
+- [x] 🔎 **ccarchive exits 1 on every scheduled run, and the board did not know**
   (found 2026-08-09 by the sidecar build; **predates it and is not caused by
   it**). Verified independently, read-only: `--dry-run` exits **1** with
   `refusedShrink` carrying **two** entries — both per-project memory `.md`
@@ -23,3 +23,10 @@
   declared refusal, (c) accept the red and clear it by hand. Same shape reaches
   `--audit`, which buckets a rewritten whole document as `mutated` rather than
   `grown`.
+
+  ✅ **Closed 2026-10-05 by `210/210` (merge `8540a1d`).** Mike answered the
+  class question: a living document that changes other than by appending
+  keeps its previous version under `_versions/`, and the run stays green.
+  The size-only shrink guard is gone; append-only records use a signed-prefix
+  check instead. As `210/190` noted, there is no scheduled run any more.
+  Record: [`2026-10-04-2329-ccarchive-hardening.md`](../../sessions/2026-10-04-2329-ccarchive-hardening.md).

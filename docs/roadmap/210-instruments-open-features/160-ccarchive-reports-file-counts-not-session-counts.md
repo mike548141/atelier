@@ -1,4 +1,4 @@
-- [ ] 🎯 **`ccarchive`'s summary counts files, and Mike's own read of the tool
+- [x] 🎯 **`ccarchive`'s summary counts files, and Mike's own read of the tool
       is that a session-transcript count would mean more to the person
       reading it.** His words: *"ccarchive currently talks about how many
       files are archived but does not mention how many session transcripts
@@ -39,3 +39,8 @@
         files and transcripts," per Mike's own framing, means the existing
         total stays and a transcript/session figure is added beside it, not
         instead of it.
+
+  ✅ **Built 2026-10-05 in `210/210` part C (merge `8540a1d`).** The summary
+  and `--json` keep the file total and add sessions (top-level
+  `<uuid>.jsonl` only, defined in the man page), subagent transcripts and a
+  per-kind breakdown. ⚠️ Built without a claim first; recorded in [`2026-10-04-2329-ccarchive-hardening.md`](../../sessions/2026-10-04-2329-ccarchive-hardening.md).

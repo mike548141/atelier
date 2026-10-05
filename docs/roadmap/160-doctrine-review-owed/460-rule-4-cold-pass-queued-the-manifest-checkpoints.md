@@ -47,3 +47,6 @@
             worktree lacking the delta at spawn (MC8); the orchestrator merged
             `main` in mid-pass. Findings are the principal's to decide (rule
             3); nothing was applied.
+      - [ ] 🔧 **Findings built 2026-10-05 in `210/210` (merge `8540a1d`),
+            after Mike's rulings walk; the cycle stays open until the
+            re-review at `⏳ 160/670` runs.**

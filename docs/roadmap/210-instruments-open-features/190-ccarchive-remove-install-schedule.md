@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-04-2329, wt: atelier-ccarchive-1005) **`ccarchive --install-schedule` recreates a login job Mike removed —
+- [x] **`ccarchive --install-schedule` recreates a login job Mike removed —
       drop it** (handed up by a private child, 2026-10-05, over the channel;
       Mike: *"yes hand them over"*)
 
@@ -22,3 +22,8 @@
       there is no more scheduled run for that item's shrink-guard exit to
       affect. Leave `210/010` open; note this on it when the fix lands, don't
       close it in passing.
+
+      ✅ **Done 2026-10-05 (`210/210`, merge `8540a1d`).** All three schedule
+      flags and the launchd code are removed; the old flags are refused by name.
+      `--help` and the man page say the tool is run by hand. `210/010` was
+      noted and closed on its own evidence. Record: [`2026-10-04-2329-ccarchive-hardening.md`](../../sessions/2026-10-04-2329-ccarchive-hardening.md).

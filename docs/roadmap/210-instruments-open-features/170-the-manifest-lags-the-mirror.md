@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-04-2329, wt: atelier-ccarchive-1005) 🔎 **`ccarchive`'s manifest lags its own mirror in 14 files, so the
+- [x] 🔎 **`ccarchive`'s manifest lags its own mirror in 14 files, so the
   shrink guard compares against a stale, smaller figure** (found 2026-10-03
   by the read-only investigation that answered `150`; cause NOT diagnosed)
 
@@ -90,3 +90,10 @@
   size differed, and the two known shrunk memory files take the refusal
   path, not the heal. MC2, a torn mirror frozen in, is pre-existing, and
   the rest of the findings stay with the ruling round.
+
+  ✅ **Closed 2026-10-05 by `210/210` (merge `8540a1d`).** The lag can no
+  longer strand or disarm anything: a signed intent journal beside the key
+  proves a part-way failure and repairs the index from the archive copy, and
+  any other unvouched mirror is adopted only if identical to the live copy,
+  else moved to `_untrusted/`. Overlapping runs take a lock, with
+  `--lock-status` and `--clear-lock` per Mike's ruling. Record: [`2026-10-04-2329-ccarchive-hardening.md`](../../sessions/2026-10-04-2329-ccarchive-hardening.md).

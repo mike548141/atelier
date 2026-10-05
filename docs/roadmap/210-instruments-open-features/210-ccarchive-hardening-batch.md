@@ -1,6 +1,5 @@
-- [~] **ccarchive hardening — build the cold passes' counsel so an ordinary run
-      can never overwrite or lose a good archived copy** (claimed 2026-10-04-2329,
-      wt: atelier-ccarchive-1005)
+- [x] **ccarchive hardening — build the cold passes' counsel so an ordinary run
+      can never overwrite or lose a good archived copy**
 
       Mike, 2026-10-05, setting the run: *"work related to ccarchive - I want to
       be able to rely on it to protect my session transcript data as I expect it
@@ -97,3 +96,8 @@
       version as a dated copy. Pure growth is checked without reading the
       mirror: the hash of the source's first recorded-length bytes must equal
       the signed index's hash.
+
+      ✅ **Built and merged 2026-10-05, merge `8540a1d`** (parts `90683d3`,
+      `dcdf40b`, `cafa292`). Closes `010`, `160`, `170`, `190` and
+      `200`. The rule-4 code cold pass is queued at `⏳ 160/670`. Record:
+      [`2026-10-04-2329-ccarchive-hardening.md`](../../sessions/2026-10-04-2329-ccarchive-hardening.md).

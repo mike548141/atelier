@@ -30,3 +30,6 @@
             missing manifest entry from the source, so a shorter source can be
             recorded as truth and overwrite an intact mirror at exit 0. Findings
             are the principal's to decide (rule 3); nothing was applied.
+      - [ ] 🔧 **Findings built 2026-10-05 in `210/210` (merge `8540a1d`),
+            after Mike's rulings walk; the cycle stays open until the
+            re-review at `⏳ 160/670` runs.**

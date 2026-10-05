@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-04-2329, wt: atelier-ccarchive-1005) **A run aborts on one evicted iCloud mirror instead of skipping it**
+- [x] **A run aborts on one evicted iCloud mirror instead of skipping it**
       (handed up by a private child, 2026-10-05, over the channel; Mike:
       *"yes hand them over"*)
 
@@ -26,3 +26,9 @@
       *Stakes, as handed up:* low. Claude Code keeps transcripts for 395
       days, and the Mac is Time-Machine-backed to the NAS — ccarchive's local
       archive is a third copy of material that already has two others.
+
+      ✅ **Fixed 2026-10-05 (`210/210`, merge `8540a1d`).** Diagnosis
+      confirmed from the log: all 14 crashes were an in-place write over an
+      offloaded mirror. Mirrors are now replaced by rename, which never opens
+      the old file; any read that would need an offloaded mirror reports it
+      "not checked (offloaded)" and the run carries on. Record: [`2026-10-04-2329-ccarchive-hardening.md`](../../sessions/2026-10-04-2329-ccarchive-hardening.md).
