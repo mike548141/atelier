@@ -145,3 +145,15 @@ and they are filed at the run's close.
 without a claim commit in between. That breaks claim-before-work. The
 exposure was nil, because no other atelier session was live and the item
 was minutes old, but the rule has no "it was small" exception.
+
+## `260/090` (P7): the `rpi` flip, read from its transcripts
+
+An Opus worker read the three `rpi` sessions of the flip in full, plus
+five more sources in part (`b2b1701`), and returned lessons as classes with
+no estate detail. The orchestrator checked the block for names before
+merging. Headline: every thinking block was empty, so the transcripts carry
+narration and tool calls, not thought. `200`'s README is qualified on that
+point. Four pre-flip-gate findings are filed together as `260/110` (P9).
+One finding goes to `320/480` as a second shape of its class. Two
+corrections belong in `rpi`'s own public records and are left for Mike's
+report, not written there from here.

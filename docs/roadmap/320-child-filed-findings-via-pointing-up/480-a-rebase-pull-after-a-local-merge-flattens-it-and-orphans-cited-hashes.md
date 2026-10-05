@@ -52,3 +52,11 @@
       ⚠️ **Not established:** how often this occurs across the estate. One
       instance is measured; the rate, and whether squash-merging PRs produces
       the same dangling-citation class, are not.
+
+      📎 **2026-10-05: a second shape of the same class, from P7's harvest**
+      (`260/090`). A child's review record cites a commit that was amended
+      before the push, so the cited SHA is on no pushed branch. The cause
+      differs, an amend rather than a rebase-pull, but the defect is the
+      same: a hash in a record that a reader cannot reach. Any remedy here
+      should check reachability from the pushed branch, whatever produced
+      the orphan.

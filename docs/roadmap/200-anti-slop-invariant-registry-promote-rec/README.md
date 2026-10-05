@@ -35,7 +35,9 @@ records, to surface every rule that has broken more than once:
   "missed", "should have", "caught only because", "again", "third time" ·
   `ROADMAP-DONE` entries describing what went wrong · the transcripts themselves
   via `ccarchive`/`cctranscript`, which reach across every repo and are the only
-  source carrying what an agent *thought* rather than what it committed.
+  source carrying what an agent *thought* rather than what it committed. *(Qualified 2026-10-05 by P7's harvest, `260/090`: in the
+  transcripts it read, every thinking block was empty — they carry narration and
+  tool calls, not thought.)*
 - **Signal to extract**: the same corrective appearing N times, especially
   across different repos or different sessions — cross-repo recurrence is much
   stronger evidence of a systemic hole than one repo's habit.
