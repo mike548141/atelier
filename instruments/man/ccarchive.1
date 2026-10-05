@@ -1,4 +1,4 @@
-.TH CCARCHIVE 1 "2026-08-09" "atelier instruments" "User Commands"
+.TH CCARCHIVE 1 "2026-10-05" "atelier instruments" "User Commands"
 .SH NAME
 ccarchive \- durably preserve every Claude Code transcript, word for word
 .SH SYNOPSIS
@@ -23,12 +23,6 @@ ccarchive \- durably preserve every Claude Code transcript, word for word
 .B ccarchive \-\-rekey
 .RI [ \-\-dest
 .IR dir ]
-.br
-.B ccarchive \-\-install\-schedule
-|
-.B \-\-schedule\-status
-|
-.B \-\-uninstall\-schedule
 .SH DESCRIPTION
 Claude Code records each session as a raw JSON-lines log under
 .IR ~/.claude/projects/ <encoded-repo>/ <session-uuid> .jsonl
@@ -190,9 +184,11 @@ recorded at capture. Without it such a shrink is refused \(em see
 below. With
 .BR \-\-restore ,
 it also overrides the refusal to overwrite a live file that is newer than the
-archived copy \(em see
+archived copy, and the refusal to restore an entry that has no recorded sha256
+\(em see
 .B RESTORE
-below.
+below. It never overrides a restore whose archived bytes fail their recorded
+sha256.
 .TP
 .B \-\-allow\-repo\-dest
 Permit an archive directory that sits inside a git work tree. Refused by
@@ -201,7 +197,8 @@ is one commit away from publishing them.
 .TP
 .B \-\-verify
 Re-hash every archived transcript and compare it against the sha256 recorded
-when it was archived, and check the manifest's own signature. See
+when it was archived, and check the manifest's own signature. A mirror that will
+not decompress is reported by name; it does not stop the check. See
 .B INTEGRITY
 and
 .B SIGNING
@@ -262,19 +259,6 @@ and
 buckets \(em rather than the whole archive. Ignored without
 .BR \-\-restore .
 .TP
-.B \-\-install\-schedule
-Install and load a scheduled job that runs
-.B ccarchive
-daily and at login. See
-.B SCHEDULE
-below.
-.TP
-.B \-\-schedule\-status
-Report whether the scheduled job is installed and loaded.
-.TP
-.B \-\-uninstall\-schedule
-Unload and remove the scheduled job.
-.TP
 .B \-\-json
 Emit a machine-readable JSON summary instead of the human report. Never
 styled; safe to pipe into
@@ -282,21 +266,27 @@ styled; safe to pipe into
 .TP
 .BR \-h ", " \-\-help
 Print a concise usage summary and exit. This manual is the full reference.
-.SH SCHEDULE
-An archive is only durable if it actually runs.
-.B ccarchive \-\-install\-schedule
-writes and loads a launchd agent (on macOS) that runs the tool daily and at
-login, so no external cron wiring is needed and the schedule re-establishes on
-a new machine with a single command. Every path in the agent is derived at
-runtime. On a platform without launchd it prints the equivalent
-.BR cron (8)
-line instead.
-.PP
-Because a daily run captures every session well inside Claude Code's 30-day
-default retention, the archive alone is the durable copy \(em raising
+.SH RUNNING IT
+.B ccarchive
+is run by hand. It installs nothing and schedules nothing: no launchd agent, no
+cron line, no login item. An archive is only as current as its last run, so run
+it more often than Claude Code's
 .I cleanupPeriodDays
-is optional (a longer live working window, and a buffer if the agent is ever
-down for a stretch), never required for survival.
+(30 by default): a session whose source is pruned before the first run that sees
+it is not captured. Running it often is cheap, because only new or changed files
+are written.
+.PP
+Earlier versions could install a launchd agent. This version neither installs
+nor
+manages one, and refuses the old
+.BR \-\-install\-schedule ,
+.B \-\-schedule\-status
+and
+.B \-\-uninstall\-schedule
+flags by name (exit status 2) rather than ignore them. To remove an agent an
+older version left behind, unload and delete it yourself:
+.B launchctl unload \-w ~/Library/LaunchAgents/com.ccarchive.archive.plist
+and then delete that file.
 .SH INTEGRITY
 gzip carries a CRC-32, so a corrupted
 .I .gz
@@ -312,9 +302,16 @@ re-hashes every archived
 .I .gz
 and compares it against the manifest, reporting any
 .B mismatch
-(mutation, bit rot or a sync glitch) or
+(mutation, or a bit flip that still decompresses),
 .B missing
-file, and exiting non-zero if the archive does not verify. The manifest tracks
+file, or
+.B corrupt
+file (one that will not decompress at all: bit rot, a truncated copy, a file
+that
+is not gzip), and exiting non-zero if the archive does not verify. A corrupt or
+otherwise unreadable mirror is named and the check carries on with the next
+file;
+it never ends the verify. The manifest tracks
 the
 .I archive
 (append-only), not the live sources: a session pruned by Claude Code's cleanup
@@ -435,11 +432,10 @@ at
 by default \(em on local disk, beside Claude Code's own data, never synced into
 the archive. Set
 .B CCARCHIVE_KEYFILE
-to override the path; a scheduled
-.RB ( launchd / cron )
-run reads it there without a Keychain prompt (a file is chosen over the macOS
-Keychain precisely because background contexts cannot reliably reach the
-Keychain, and this key guards tamper-evidence, not a confidential value). It is
+to override the path; a non-interactive run (from cron, say) reads it there
+without a Keychain prompt (a file is chosen over the macOS Keychain precisely
+because background contexts cannot reliably reach the Keychain, and this key
+guards tamper-evidence, not a confidential value). It is
 minted at first use with 32 bytes of entropy \(em never a hand-composed value.
 .PP
 .B Rotation.
@@ -563,6 +559,23 @@ rather than faulting the archive back to classify it. Pass
 .B \-\-materialise
 to read the evicted files anyway (re-downloading them).
 .PP
+A run never needs to read an evicted mirror's bytes. Mirrors are written by
+creating a new file and renaming it over the old one (see
+.BR "ATOMIC WRITES" ),
+so replacing an evicted placeholder does not open it; an in-place rewrite is
+what
+used to fail on one with
+.I Unknown system error \-11
+(macOS's
+.BR EDEADLK ,
+returned when the system will not download an evicted file on demand). The one
+read a run can still make of a mirror is the hash backfill of an archived file
+that has no manifest entry. An evicted one is skipped there and reported as
+.B not checked (offloaded),
+and so is any read that fails with that error. Not checked is not a failure: it
+exits
+.BR 0 .
+.PP
 Detection is metadata-only \(em
 .BR stat (1)
 does
@@ -576,6 +589,64 @@ Because a fixture can never be genuinely evicted, this behaviour is exercised in
 the tests through a simulation seam; the underlying
 .B SF_DATALESS
 read was verified read-only against a real evicted iCloud file.
+.SH ATOMIC WRITES
+Every file the tool writes into the archive \(em each mirror, the manifest and
+its
+signature \(em is written to a uniquely named temporary file in the same
+directory
+(\fI.<name>.<pid>.<random>.tmp\fR), flushed to disk, given its final
+modification
+time, and then renamed over the target. The existing file is never opened for
+writing. So a run killed mid-write leaves the previous good copy in place
+instead
+of a truncated one that looks fresh, and a symbolic link planted at a mirror
+path
+is replaced, not followed: nothing is ever written through a link to somewhere
+outside the archive. A symbolic link found
+.I inside
+the archive, in a directory on the way to a mirror, is refused: that mirror is
+named in the report as not written, and the run fails at the end.
+.PP
+A temporary file left behind by a run that died is ignored by every walk,
+.B \-\-verify
+and
+.BR \-\-audit ,
+and is removed by the next ordinary run. A temporary file whose process is still
+running belongs to another run and is left alone. Restore writes live files the
+same way.
+.SH ONE BAD FILE
+A single bad file never aborts a run. A source file that cannot be read, a
+source
+directory that cannot be listed, or a source that vanishes between the walk and
+its read is skipped and named in the report (the
+.I unreadable
+list under
+.BR \-\-json ),
+the rest of the run completes and the manifest is saved, and the run then exits
+non-zero so it is not missed. A mirror that will not decompress is named in the
+same way by
+.BR \-\-verify ,
+.B \-\-restore
+and the run's hash backfill (the
+.I corrupt
+list), and processing continues. Anything that does stop a run \(em an
+unreadable
+manifest, a destination that cannot be written \(em ends in one line on standard
+error, or a structured
+.I {"error": ...}
+object on standard output under
+.BR \-\-json ,
+and exit status 2; there is no stack trace.
+.PP
+Read-only modes (\fB\-\-verify\fR, \fB\-\-audit\fR, \fB\-\-restore\fR and any
+\fB\-\-dry\-run\fR) never rename or overwrite anything. If the manifest is not
+valid
+JSON they stop with an error and leave it where it is. Only an ordinary run sets
+an invalid manifest aside, as
+.IR manifest.json.corrupt\-<UTC\ timestamp> ,
+never over an earlier set-aside copy, and then starts a new one. A manifest that
+exists but cannot be read (an I/O error, or an evicted placeholder) is not
+treated as invalid and is never set aside: the run stops and changes nothing.
 .SH RESTORE
 .B \-\-restore
 is the inverse of archiving: it decompresses archived transcripts back into the
@@ -644,6 +715,20 @@ time, so a following
 reads it as
 .B synced
 and a repeated restore is idempotent.
+.PP
+Restore checks before it writes. The gunzipped bytes of each target are compared
+with the sha256 the manifest recorded, and a copy that does not match (bit rot,
+tampering) is
+.B refused
+and reported, not written; even
+.B \-\-force
+does not override that, because the bytes are provably not what was captured. An
+entry with no recorded sha256 cannot be checked, so it is refused as
+.B unverified
+unless
+.B \-\-force
+is given, in which case it is restored and marked unverified in the report. A
+mirror that will not decompress is reported by name and the restore carries on.
 .B \-\-dry\-run
 previews the plan and writes nothing. Restore writes only under the source tree;
 a manifest key that would resolve outside it is refused.
@@ -698,22 +783,16 @@ The signing key (hex, mode 0600), off the archive volume. Override with
 .BR CCARCHIVE_KEYFILE .
 Back it up out-of-band \(em a new machine needs it to verify.
 .TP
-.I ~/Library/LaunchAgents/com.ccarchive.archive.plist
-The scheduled agent installed by
-.BR \-\-install\-schedule " (macOS)."
-.TP
-.I ~/Library/Logs/ccarchive.log
-Output of the scheduled runs.
+.I <dest>/.<name>.<pid>.<random>.tmp
+A temporary file of a write in progress, or left by a run that died. See
+.BR "ATOMIC WRITES" .
 .SH EXAMPLES
 .TP
 .B ccarchive
-Mirror new or changed sessions into the archive (the default daily action).
+Mirror new or changed sessions into the archive.
 .TP
 .B ccarchive \-\-dry\-run
 Preview what a run would archive without writing anything.
-.TP
-.B ccarchive \-\-install\-schedule
-Start archiving daily from now on (macOS launchd).
 .TP
 .B ccarchive \-\-verify
 Confirm every archived transcript still matches its recorded sha256 and the
@@ -742,24 +821,38 @@ Archive somewhere other than iCloud Drive.
 How many sessions were archived on this run.
 .SH EXIT STATUS
 .B 0
-on success (including a run or verify with nothing to do). An ordinary run
-exits
+on success (including a run or verify with nothing to do).
 .B 1
-when it refuses a shrink overwrite (a source smaller than the size recorded
-at capture;
+means the command finished and found something that needs a person.
+.B 2
+means it could not finish: one clean line on standard error, or a structured
+error object under
+.BR \-\-json ,
+and no stack trace.
+.PP
+An ordinary run exits
+.B 1
+when it refuses a shrink overwrite (a source smaller than the size recorded at
+capture;
 .B \-\-force
 overrides), when it refuses an archive destination inside a git work tree
 .RB ( \-\-allow\-repo\-dest
-overrides), or when the layout-drift alarm fires \(em zero transcripts found
-while the manifest is non-empty. See
-.B INTEGRITY
-for all three.
+overrides), when the layout-drift alarm fires (zero transcripts found while the
+manifest is non-empty), or \(em after completing everything else \(em when it
+skipped a source it could not read, refused to write a mirror through a symbolic
+link inside the archive, or found an archived mirror that will not decompress.
+See
+.BR INTEGRITY ,
+.B ATOMIC WRITES
+and
+.BR "ONE BAD FILE" .
 .B \-\-verify
 exits
 .B 1
 when the archive does not verify: any
 .BR mismatch ,
-.B missing
+.BR missing ,
+.B corrupt
 or
 .B UNMANIFESTED
 file, or a manifest signature that is not
@@ -779,7 +872,7 @@ when the live store has drifted: any
 .B mutated
 or
 .B renamed
-transcript.
+transcript, or a live file it could not read.
 Growth, new files and pruning are expected and exit
 .BR 0 .
 An
@@ -787,8 +880,8 @@ An
 file (dataless, skipped by
 .B \-\-verify
 or left undetermined by
-.BR \-\-audit )
-is
+.BR \-\-audit ,
+or a mirror a run did not check) is
 .I not
 a failure and exits
 .B 0
@@ -799,26 +892,35 @@ exits
 .B 1
 when it refuses to overwrite a live file newer than the archived copy
 .RB ( \-\-force
-overrides), or when a target it was asked to restore is absent from the archive
-(a manifest entry whose
+overrides), when it refuses an archived copy that fails its recorded sha256 or
+has
+none, or when a target cannot be restored (a manifest entry whose
 .I .gz
-is gone). A restore that only writes, skips identical or ahead files, or has
-nothing to do exits
+is gone or will not decompress, or a file it could not read). A restore that
+only
+writes, skips identical or ahead files, or has nothing to do exits
 .BR 0 .
+.PP
+.B 2
+is also what a removed schedule flag, an unreadable or invalid manifest in a
+read-only mode, and an I/O failure that stops a run (for example a destination
+that cannot be written) exit with.
 .SH NOTES
 The default destination is the operator's iCloud Drive, derived at runtime
 from the home directory; no personal path is baked into the tool. It reads the
-source read-only and writes only under the destination, the signing key at
+source read-only and writes only under the destination, plus the signing key at
 .I ~/.claude/ccarchive-signing.key
 .RB ( CCARCHIVE_KEYFILE
-to relocate), and, for
-.BR \-\-install\-schedule ", under " ~/Library .
+to relocate). Under
+.BR \-\-restore ,
+it writes live files under the source tree. A destination inside a git work tree
+is refused, and the check resolves symbolic links, so a destination that is a
+link into a work tree is refused too.
 .SH SEE ALSO
 .BR cctranscript (1),
 .BR ccrepo (1),
 .BR gzip (1),
-.BR zgrep (1),
-.BR launchctl (1)
+.BR zgrep (1)
 .PP
 The instruments overview:
 .I instruments/README.md

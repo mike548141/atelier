@@ -18,7 +18,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const zlib = require('node:zlib');
-const { execFileSync } = require('node:child_process');
+const { execFileSync, spawnSync } = require('node:child_process');
 
 const cc = require('./ccarchive');
 const SCRIPT = path.join(__dirname, 'ccarchive');
@@ -187,69 +187,40 @@ test('requiring ccarchive never acts on the host argv (the CLI lives behind the 
   assert.equal(out.trim(), 'host-alive');
 });
 
-// --- schedule management -------------------------------------------------
-// Pure builders + the read-only status query only. Never spawn --install-
-// schedule / --uninstall-schedule from tests: on a developer's Mac that would
-// mutate their real launchd state.
+// --- no scheduler (210/190) -----------------------------------------------
+// ccarchive is run by hand. The old install/status/uninstall flags are refused by
+// name — never silently ignored, which would run an ordinary archive instead.
 
-test('schedulePaths derives the launchd + log paths under the given home', () => {
-  const p = cc.schedulePaths('/Users/x');
-  assert.equal(p.label, 'com.ccarchive.archive');
-  assert.equal(p.plistPath, '/Users/x/Library/LaunchAgents/com.ccarchive.archive.plist');
-  assert.equal(p.logPath, '/Users/x/Library/Logs/ccarchive.log');
+test('the removed schedule flags are refused by name (exit 2), not run as an archive', () => {
+  // Safety rail: these flags once wrote and loaded a real launchd job. Never spawn
+  // them against a script that still carries that code (e.g. a copy of an old
+  // version) — refuse to run the test at all, and point HOME at a throwaway dir.
+  const scriptText = fs.readFileSync(SCRIPT, 'utf8');
+  assert.ok(!/launchctl|LaunchAgents/.test(scriptText),
+    'SCRIPT still contains scheduler code; refusing to spawn the removed flags against it');
+  const { dir, src, dest } = makeTree();
+  const env = { ...process.env, HOME: path.join(dir, 'fake-home') };
+  for (const flag of ['--install-schedule', '--schedule-status', '--uninstall-schedule']) {
+    const r = spawnSync('node', [SCRIPT, flag, '--source', src, '--dest', dest], { encoding: 'utf8', env });
+    assert.equal(r.status, 2, `${flag} must fail`);
+    assert.match(r.stderr, new RegExp(`${flag} was removed`));
+    assert.doesNotMatch(r.stderr, /\n\s+at /, 'one clean line, no stack trace');
+    assert.ok(!fs.existsSync(dest), `${flag} must not fall through to an archive run`);
+  }
 });
 
-test('resolveScriptPath prefers ~/.local/bin/ccarchive when present, else the fallback', () => {
-  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'ccarchive-home-'));
-  const fallback = '/repo/instruments/ccarchive';
-  // No installed entrypoint yet → fallback.
-  assert.equal(cc.resolveScriptPath(home, fallback), fallback);
-  // Create the installed symlink target → it wins.
-  fs.mkdirSync(path.join(home, '.local', 'bin'), { recursive: true });
-  const installed = path.join(home, '.local', 'bin', 'ccarchive');
-  fs.writeFileSync(installed, '#!/usr/bin/env node\n');
-  assert.equal(cc.resolveScriptPath(home, fallback), installed);
-});
-
-test('launchdPlist emits a valid agent with the given command, interval and log', () => {
-  const xml = cc.launchdPlist({
-    label: 'com.ccarchive.archive', nodePath: '/usr/local/bin/node',
-    scriptPath: '/Users/x/.local/bin/ccarchive', intervalSeconds: 86400,
-    logPath: '/Users/x/Library/Logs/ccarchive.log',
-  });
-  assert.match(xml, /<key>Label<\/key>\s*<string>com\.ccarchive\.archive<\/string>/);
-  assert.match(xml, /<string>\/usr\/local\/bin\/node<\/string>/);
-  assert.match(xml, /<string>\/Users\/x\/\.local\/bin\/ccarchive<\/string>/);
-  assert.match(xml, /<key>StartInterval<\/key>\s*<integer>86400<\/integer>/);
-  assert.match(xml, /<key>RunAtLoad<\/key>\s*<true\/>/);
-  assert.match(xml, /<string>\/Users\/x\/Library\/Logs\/ccarchive\.log<\/string>/);
-});
-
-test('launchdPlist XML-escapes paths so an & in a home path cannot break the plist', () => {
-  const xml = cc.launchdPlist({
-    label: 'com.ccarchive.archive', nodePath: '/usr/local/bin/node',
-    scriptPath: '/Users/a&b/ccarchive', intervalSeconds: 86400,
-    logPath: '/Users/a&b/log',
-  });
-  assert.ok(xml.includes('/Users/a&amp;b/ccarchive'));
-  assert.ok(!xml.includes('/Users/a&b/ccarchive'));  // raw & would be invalid XML
-});
-
-test('cronLine is a daily entry invoking node on the script', () => {
-  assert.equal(cc.cronLine('/usr/local/bin/node', '/Users/x/.local/bin/ccarchive'),
-    '0 3 * * * /usr/local/bin/node /Users/x/.local/bin/ccarchive');
-});
-
-test('contract: --schedule-status is read-only and exits 0 on any platform', () => {
-  // Safe everywhere: on macOS it queries launchctl (no mutation); elsewhere it
-  // prints the cron equivalent. Either way, output and a clean exit.
-  const out = execFileSync('node', [SCRIPT, '--schedule-status'], { encoding: 'utf8' });
-  assert.ok(out.length > 0);
+test('--help and the man page say the tool is run by hand and carry no scheduler flag', () => {
+  const help = execFileSync('node', [SCRIPT, '-h'], { encoding: 'utf8' });
+  assert.doesNotMatch(help, /schedule(?!\.)/, '--help offers no schedule flag');
+  assert.match(help, /Run by hand/);
+  const page = fs.readFileSync(path.join(__dirname, 'man', 'ccarchive.1'), 'utf8').replace(/\\-/g, '-');
+  assert.match(page, /run by hand/i);
+  assert.doesNotMatch(page, /^\.TP\n\.B --(install|uninstall)-schedule|^\.TP\n\.B --schedule-status/m,
+    'no OPTIONS entry for a scheduler flag');
 });
 
 // --- integrity: sha256 manifest + verify ---------------------------------
 
-const { spawnSync } = require('node:child_process');
 function runCli(...args) {
   const r = spawnSync('node', [SCRIPT, ...args], { encoding: 'utf8' });
   return { status: r.status, stdout: r.stdout, stderr: r.stderr };
@@ -324,6 +295,7 @@ test('saveManifest is atomic (temp+rename) and writes deterministic key order', 
   assert.ok(text.indexOf('a.jsonl') < text.indexOf('z.jsonl'), 'keys sorted for stable diffs');
   assert.ok(!fs.existsSync(cc.manifestPath(dir) + '.tmp'), 'temp file renamed away');
   assert.deepEqual(cc.loadManifest(dir), { 'a.jsonl': { sha256: '2' }, 'z.jsonl': { sha256: '1' } });
+  assert.deepEqual(fs.readdirSync(dir), ['manifest.json'], 'no temp file left in the directory');
 });
 
 // --- documentation convention (REPO-STANDARD: concise --help + a man page) --
@@ -332,7 +304,7 @@ test('--help is a concise digest that points at the man page', () => {
   const help = execFileSync('node', [SCRIPT, '-h'], { encoding: 'utf8' });
   assert.ok(help.split('\n').length <= 22, '--help should stay a one-screen digest');
   assert.match(help, /man ccarchive/, '--help must point at the full manual');
-  for (const opt of ['--dest', '--verify', '--install-schedule']) assert.ok(help.includes(opt));
+  for (const opt of ['--dest', '--verify', '--restore']) assert.ok(help.includes(opt));
 });
 
 test('a man page ships and is well-formed roff', () => {
@@ -1500,4 +1472,455 @@ test('an ordinary run leaves an equal-size skipped entry untouched', () => {
   cc.saveManifest(dest, manifest);
   runJson(src, dest);
   assert.equal(cc.loadManifest(dest)[rel].archivedAt, 'marker');
+});
+
+// --- hardening, part A (210/190, 210/200; HL4/5/7/8/9/10, MC2/5/6/9) -------
+// Atomic mirror writes, one-bad-file-never-aborts, a clean top-level failure,
+// restore-checks-before-writing, read-only modes that move nothing.
+
+const asRoot = typeof process.getuid === 'function' && process.getuid() === 0;
+const REL_B = path.join('-repo-b', 'uuid2.jsonl');
+const REL_A = path.join('-repo-a', 'uuid1.jsonl');
+
+function listDir(dir) { return fs.readdirSync(dir).sort(); }
+
+// Rewrite a source with new bytes and a clearly newer mtime, so the next run
+// re-archives it.
+function touchNewer(file, text) {
+  fs.writeFileSync(file, text);
+  const t = new Date(Date.now() + 60_000);
+  fs.utimesSync(file, t, t);
+}
+
+test('writeFileAtomic writes via a temp, stamps the mtime, replaces the target and leaves no temp', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ccarchive-aw-'));
+  const target = path.join(dir, 'x.gz');
+  fs.writeFileSync(target, 'old');
+  cc.writeFileAtomic(target, Buffer.from('new bytes'), { atimeSec: 1_700_000_000, mtimeSec: 1_700_000_123 });
+  assert.equal(fs.readFileSync(target, 'utf8'), 'new bytes');
+  assert.equal(Math.round(fs.statSync(target).mtimeMs / 1000), 1_700_000_123);
+  assert.deepEqual(listDir(dir), ['x.gz'], 'no temp left behind');
+});
+
+test('writeFileAtomic cleans its temp up when the write fails, and the target survives', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ccarchive-aw-'));
+  const target = path.join(dir, 'taken');
+  fs.mkdirSync(target);                       // a directory cannot be renamed over by a file
+  assert.throws(() => cc.writeFileAtomic(target, Buffer.from('x')), (e) => !(e instanceof TypeError));
+  assert.deepEqual(listDir(dir), ['taken'], 'the failed write left no temp');
+});
+
+test('contract: a mirror is replaced, never opened in place (a hard link to the old inode keeps the old bytes)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const mirror = path.join(dest, REL_B + '.gz');
+  const keep = path.join(dest, 'kept-old-inode');
+  fs.linkSync(mirror, keep);
+  const oldBytes = fs.readFileSync(keep);
+  touchNewer(path.join(src, REL_B), '{"other":"session","grown":true}\n');
+  assert.equal(runJson(src, dest).archived, 1);
+  assert.deepEqual(fs.readFileSync(keep), oldBytes, 'an in-place write would have changed both names');
+  assert.equal(zlib.gunzipSync(fs.readFileSync(mirror)).toString(), '{"other":"session","grown":true}\n');
+  assert.notEqual(fs.statSync(mirror).ino, fs.statSync(keep).ino);
+  assert.equal(runCli('--verify', '--dest', dest).status, 0);
+});
+
+test('contract: a symlink planted at a mirror path is replaced, never written through (HL9)', () => {
+  const { dir, src, dest } = makeTree();
+  runJson(src, dest);
+  const victim = path.join(dir, 'victim.txt');
+  fs.writeFileSync(victim, 'do not touch');
+  const mirror = path.join(dest, REL_B + '.gz');
+  fs.rmSync(mirror);
+  fs.symlinkSync(victim, mirror);
+  const j = runJson(src, dest);
+  assert.equal(j.archived, 1, 'the link is not a mirror, so the session is archived again');
+  assert.equal(fs.readFileSync(victim, 'utf8'), 'do not touch', 'nothing was written through the link');
+  assert.ok(!fs.lstatSync(mirror).isSymbolicLink(), 'the link itself was replaced by a regular file');
+  assert.equal(runCli('--verify', '--dest', dest).status, 0);
+});
+
+test('contract: a symlinked directory inside the archive is refused and named, not written through', () => {
+  const { dir, src, dest } = makeTree();
+  runJson(src, dest);
+  const outside = path.join(dir, 'outside');
+  fs.mkdirSync(outside);
+  fs.rmSync(path.join(dest, '-repo-b'), { recursive: true });
+  fs.symlinkSync(outside, path.join(dest, '-repo-b'));
+  const r = runCli('--json', '--source', src, '--dest', dest);
+  assert.equal(r.status, 1, 'a refused write fails the run at the end');
+  const j = JSON.parse(r.stdout);
+  assert.deepEqual(j.unwritable.map((u) => u.rel), [REL_B]);
+  assert.deepEqual(fs.readdirSync(outside), [], 'nothing landed outside the archive');
+  assert.equal(j.archived, 0);
+});
+
+test('contract: a pre-planted manifest temp symlink is not followed (MC9)', () => {
+  const { dir, src, dest } = makeTree();
+  fs.mkdirSync(dest);
+  const victim = path.join(dir, 'victim.txt');
+  fs.writeFileSync(victim, 'do not touch');
+  fs.symlinkSync(victim, path.join(dest, 'manifest.json.tmp'));
+  assert.equal(runCli('--json', '--source', src, '--dest', dest).status, 0);
+  assert.equal(fs.readFileSync(victim, 'utf8'), 'do not touch');
+  assert.equal(runCli('--verify', '--dest', dest).status, 0);
+});
+
+test('contract: a dead run\'s leftover temp is ignored by verify and audit, then removed by the next run', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const dead = path.join(dest, '-repo-b', '.uuid2.jsonl.gz.99999999.deadbeef.tmp');
+  const alive = path.join(dest, '-repo-b', `.uuid2.jsonl.gz.${process.pid}.cafef00d.tmp`);
+  fs.writeFileSync(dead, 'half a gzip');
+  fs.writeFileSync(alive, 'another run is writing this');
+  const v = runCli('--verify', '--json', '--dest', dest);
+  assert.equal(v.status, 0, 'a temp is not an unmanifested mirror');
+  assert.deepEqual(JSON.parse(v.stdout).unmanifested, []);
+  assert.equal(runCli('--audit', '--source', src, '--dest', dest).status, 0);
+  assert.ok(fs.existsSync(dead), 'read-only modes remove nothing');
+  const j = runJson(src, dest);
+  assert.equal(j.staleTempsRemoved, 1);
+  assert.ok(!fs.existsSync(dead), 'the dead run\'s temp is swept');
+  assert.ok(fs.existsSync(alive), 'a temp whose process is still running is never touched');
+});
+
+test('--dry-run sweeps nothing', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const dead = path.join(dest, '-repo-b', '.uuid2.jsonl.gz.99999999.deadbeef.tmp');
+  fs.writeFileSync(dead, 'x');
+  runJson(src, dest, '--dry-run');
+  assert.ok(fs.existsSync(dead));
+});
+
+// --- 210/200: an evicted (dataless) mirror never aborts a run ---------------
+// Field log: every failure was `Unknown system error -11 ... open '<mirror>.gz'`
+// from fs.writeFileSync — the in-place rewrite of a mirror whose bytes iCloud had
+// evicted. A fixture cannot be genuinely evicted, so a mirror made unopenable
+// (mode 000) under the dataless-simulation seam stands in: any open of it fails.
+
+test('contract: re-archiving a session whose mirror is evicted does not open the mirror (210/200)', { skip: asRoot }, () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const mirror = path.join(dest, REL_B + '.gz');
+  touchNewer(path.join(src, REL_B), '{"other":"session","grown":true}\n');
+  fs.chmodSync(mirror, 0o000);
+  const r = spawnSync('node', [SCRIPT, '--json', '--source', src, '--dest', dest],
+    { encoding: 'utf8', env: { ...process.env, CCARCHIVE_SIMULATE_DATALESS: 'uuid2' } });
+  assert.equal(r.status, 0, `the run must finish: ${r.stderr}`);
+  assert.equal(JSON.parse(r.stdout).archived, 1);
+  assert.equal(zlib.gunzipSync(fs.readFileSync(mirror)).toString(), '{"other":"session","grown":true}\n');
+  assert.equal(runCli('--verify', '--dest', dest).status, 0);
+});
+
+test('contract: the run\'s tail backfill reports an evicted unmanifested mirror as not checked, and carries on', { skip: asRoot }, () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  fs.rmSync(path.join(src, REL_B));            // pruned source: only the mirror is left
+  const manifest = cc.loadManifest(dest);
+  delete manifest[REL_B];
+  cc.saveManifest(dest, manifest);
+  fs.chmodSync(path.join(dest, REL_B + '.gz'), 0o000);
+  const r = spawnSync('node', [SCRIPT, '--json', '--source', src, '--dest', dest],
+    { encoding: 'utf8', env: { ...process.env, CCARCHIVE_SIMULATE_DATALESS: 'uuid2' } });
+  assert.equal(r.status, 0, 'an evicted mirror is not a failure');
+  assert.deepEqual(JSON.parse(r.stdout).offloaded, [REL_B]);
+  const human = spawnSync('node', [SCRIPT, '--source', src, '--dest', dest],
+    { encoding: 'utf8', env: { ...process.env, CCARCHIVE_SIMULATE_DATALESS: 'uuid2' } });
+  assert.match(human.stdout, /1 mirror not checked \(offloaded/);
+});
+
+test('isOffloadError recognises the EDEADLK shape Node reports on Darwin; readMirror classifies every failure', { skip: asRoot }, () => {
+  assert.equal(cc.isOffloadError({ code: 'EDEADLK' }), true);
+  assert.equal(cc.isOffloadError({ errno: -11, code: 'Unknown system error -11' }), process.platform === 'darwin');
+  assert.equal(cc.isOffloadError({ code: 'ENOENT', errno: -2 }), false);
+  assert.equal(cc.isOffloadError(null), false);
+
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ccarchive-rm-'));
+  const good = path.join(dir, 'good.gz');
+  fs.writeFileSync(good, zlib.gzipSync(Buffer.from('hello')));
+  assert.deepEqual(cc.readMirror(good), { ok: true, buf: Buffer.from('hello') });
+  assert.equal(cc.readMirror(path.join(dir, 'absent.gz')).kind, 'missing');
+  fs.writeFileSync(path.join(dir, 'plain.gz'), 'not gzip at all');
+  assert.equal(cc.readMirror(path.join(dir, 'plain.gz')).kind, 'corrupt');
+  fs.writeFileSync(path.join(dir, 'cut.gz'), zlib.gzipSync(Buffer.from('hello world, a longer body')).subarray(0, 12));
+  assert.equal(cc.readMirror(path.join(dir, 'cut.gz')).kind, 'corrupt');
+  fs.writeFileSync(path.join(dir, 'locked.gz'), 'x');
+  fs.chmodSync(path.join(dir, 'locked.gz'), 0o000);
+  assert.equal(cc.readMirror(path.join(dir, 'locked.gz')).kind, 'unreadable');
+});
+
+test('contract: an unreadable manifest is a clean fatal error, never "corrupt → set aside and start fresh"', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const mp = path.join(dest, 'manifest.json');
+  fs.rmSync(mp);
+  fs.mkdirSync(mp);                            // exists but cannot be read as a file (EISDIR)
+  const r = runCli('--source', src, '--dest', dest);
+  assert.equal(r.status, 2);
+  assert.match(r.stderr, /manifest\.json .* could not be read/);
+  assert.ok(fs.statSync(mp).isDirectory(), 'the manifest path was not moved aside');
+  assert.deepEqual(listDir(dest).filter((n) => n.includes('corrupt')), []);
+});
+
+// --- HL8: one bad source never aborts the run -------------------------------
+
+test('contract: an unreadable source file is skipped, named (plain + json), and the run exits 1 at the end', { skip: asRoot }, () => {
+  const { src, dest } = makeTree();
+  const bad = path.join(src, REL_A);
+  fs.chmodSync(bad, 0o000);
+  try {
+    const r = runCli('--json', '--source', src, '--dest', dest);
+    assert.equal(r.status, 1);
+    const j = JSON.parse(r.stdout);
+    assert.deepEqual(j.unreadable.map((u) => [u.rel, u.stage]), [[REL_A, 'read']]);
+    assert.equal(j.archived, 2, 'the files around it are still archived');
+    assert.equal(runCli('--verify', '--dest', dest).status, 0, 'and the manifest was saved and signed');
+    const h = runCli('--source', src, '--dest', dest);
+    assert.equal(h.status, 1);
+    assert.match(h.stdout, /✗ UNREADABLE -repo-a\/uuid1\.jsonl/);
+  } finally { fs.chmodSync(bad, 0o644); }
+});
+
+test('contract: an unreadable source directory is skipped and named, and everything else is archived', { skip: asRoot }, () => {
+  const { src, dest } = makeTree();
+  fs.mkdirSync(path.join(src, '-repo-c'));
+  fs.writeFileSync(path.join(src, '-repo-c', 'locked.jsonl'), '{"x":1}\n');
+  fs.chmodSync(path.join(src, '-repo-c'), 0o000);
+  try {
+    const r = runCli('--json', '--source', src, '--dest', dest);
+    assert.equal(r.status, 1);
+    const j = JSON.parse(r.stdout);
+    assert.deepEqual(j.unreadable.map((u) => [u.rel, u.stage]), [['-repo-c', 'walk']]);
+    assert.equal(j.archived, 3);
+  } finally { fs.chmodSync(path.join(src, '-repo-c'), 0o755); }
+});
+
+test('contract: a source that cannot be statted (gone between walk and read, or no search permission) is skipped, not fatal', { skip: asRoot }, () => {
+  const { src, dest } = makeTree();
+  fs.mkdirSync(path.join(src, '-repo-d'));
+  fs.writeFileSync(path.join(src, '-repo-d', 'a.jsonl'), '{"x":1}\n');
+  fs.chmodSync(path.join(src, '-repo-d'), 0o444);   // listable, but its entries cannot be statted
+  try {
+    const r = runCli('--json', '--source', src, '--dest', dest);
+    assert.equal(r.status, 1);
+    const j = JSON.parse(r.stdout);
+    assert.deepEqual(j.unreadable.map((u) => [u.rel, u.stage]), [[path.join('-repo-d', 'a.jsonl'), 'stat']]);
+    assert.equal(j.archived, 3);
+  } finally { fs.chmodSync(path.join(src, '-repo-d'), 0o755); }
+});
+
+test('contract: --audit skips and names an unreadable live file instead of crashing (exit 1)', { skip: asRoot }, () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const bad = path.join(src, REL_A);
+  fs.chmodSync(bad, 0o000);
+  try {
+    const r = runCli('--audit', '--json', '--source', src, '--dest', dest);
+    assert.equal(r.status, 1);
+    assert.deepEqual(JSON.parse(r.stdout).unreadable.map((u) => u.rel), [REL_A]);
+  } finally { fs.chmodSync(bad, 0o644); }
+});
+
+// --- HL5: an undecompressable mirror is named, never a stack trace ----------
+
+function corruptMirror(dest, rel, how) {
+  const p = path.join(dest, rel + '.gz');
+  const good = fs.readFileSync(p);
+  if (how === 'truncated') fs.writeFileSync(p, good.subarray(0, Math.floor(good.length / 2)));
+  else if (how === 'plain') fs.writeFileSync(p, 'this is not gzip');
+  else { const bad = Buffer.from(good); bad[bad.length - 6] ^= 0xff; fs.writeFileSync(p, bad); }   // flipped CRC byte
+}
+
+for (const how of ['truncated', 'plain', 'flipped']) {
+  test(`contract: --verify names a ${how} mirror as CORRUPT, checks the rest, exits 1 (no stack trace)`, () => {
+    const { src, dest } = makeTree();
+    runJson(src, dest);
+    corruptMirror(dest, REL_B, how);
+    const r = runCli('--verify', '--json', '--dest', dest);
+    assert.equal(r.status, 1);
+    const j = JSON.parse(r.stdout);
+    assert.deepEqual(j.corrupt.map((c) => c.rel), [REL_B]);
+    assert.equal(j.ok, 2, 'the other mirrors were still checked');
+    const h = runCli('--verify', '--dest', dest);
+    assert.match(h.stdout, /✗ CORRUPT -repo-b\/uuid2\.jsonl/);
+    assert.doesNotMatch(h.stderr, /\n\s+at /);
+  });
+}
+
+test('contract: --restore names an undecompressable mirror, restores the rest, exits 1', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  corruptMirror(dest, REL_B, 'plain');
+  fs.rmSync(path.join(src, REL_A));
+  fs.rmSync(path.join(src, REL_B));
+  const r = runRestore(src, dest);
+  assert.equal(r.status, 1);
+  assert.deepEqual(r.report.errors.map((e) => [e.rel, e.reason]), [[REL_B, 'corrupt-archive']]);
+  assert.ok(fs.existsSync(path.join(src, REL_A)), 'the intact mirror was still restored');
+  const h = spawnSync('node', [SCRIPT, '--restore', '--source', src, '--dest', dest], { encoding: 'utf8' });
+  assert.match(h.stdout, /✗ ERROR -repo-b\/uuid2\.jsonl .*will not decompress/);
+});
+
+test('contract: delta --restore and --audit survive an undecompressable mirror', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  corruptMirror(dest, REL_B, 'truncated');
+  touchNewer(path.join(src, REL_B), '{"changed":true}\n');
+  const a = runCli('--audit', '--json', '--source', src, '--dest', dest);
+  assert.equal(a.status, 1);
+  assert.deepEqual(JSON.parse(a.stdout).mutated.map((m) => [m.rel, m.reason]), [[REL_B, 'archive-corrupt']]);
+  const r = runRestore(src, dest, '--delta', '--dry-run');
+  assert.equal(r.status, 1);
+  assert.deepEqual(r.report.errors.map((e) => e.reason), ['corrupt-archive']);
+});
+
+test('contract: the run\'s tail backfill names an undecompressable mirror, still saves the manifest, exits 1', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  fs.rmSync(path.join(src, REL_B));            // pruned: only the mirror remains
+  const manifest = cc.loadManifest(dest);
+  delete manifest[REL_B];
+  cc.saveManifest(dest, manifest);
+  corruptMirror(dest, REL_B, 'plain');
+  touchNewer(path.join(src, REL_A), '{"turn":1}\n{"turn":2}\n{"turn":3}\n');   // a real mirror written this run
+  const r = runCli('--json', '--source', src, '--dest', dest);
+  assert.equal(r.status, 1);
+  const j = JSON.parse(r.stdout);
+  assert.deepEqual(j.corrupt.map((c) => c.rel), [REL_B]);
+  assert.equal(j.archived, 1);
+  assert.ok(cc.loadManifest(dest)[REL_A].rawBytes > 20, 'the mirror written this run reached the manifest');
+  assert.ok(!cc.loadManifest(dest)[REL_B], 'the bad mirror stays unmanifested, so --verify keeps flagging it');
+  assert.equal(runCli('--verify', '--dest', dest).status, 1);
+});
+
+// --- MC5: one top-level catch -----------------------------------------------
+
+test('contract: a fatal error is one clean stderr line and exit 2; under --json a structured error object', () => {
+  const { dir, src } = makeTree();
+  const notADir = path.join(dir, 'a-file');
+  fs.writeFileSync(notADir, 'x');
+  const r = runCli('--source', src, '--dest', notADir);
+  assert.equal(r.status, 2);
+  assert.equal(r.stderr.trim().split('\n').length, 1, 'one line, no stack');
+  assert.match(r.stderr, /^ccarchive: /);
+  assert.equal(r.stdout, '');
+  const j = runCli('--json', '--source', src, '--dest', notADir);
+  assert.equal(j.status, 2);
+  const out = JSON.parse(j.stdout);
+  assert.equal(typeof out.error, 'string');
+  assert.ok('code' in out);
+});
+
+test('contract: the simulated mid-run death exits 2 with one clean line, not a stack trace', () => {
+  const { src, dest } = makeTree();
+  const r = runEnv({ CCARCHIVE_TEST_FAIL_AFTER: '1' }, '--source', src, '--dest', dest);
+  assert.equal(r.status, 2);
+  assert.doesNotMatch(r.stderr, /\n\s+at /);
+});
+
+// --- HL7: restore checks the bytes before it writes -------------------------
+
+test('contract: restore refuses an archived copy that fails its recorded sha256 and writes nothing (HL7)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const live = path.join(src, REL_B);
+  const good = fs.readFileSync(live);
+  // Rot: the mirror is valid gzip but no longer the captured bytes.
+  fs.writeFileSync(path.join(dest, REL_B + '.gz'), zlib.gzipSync(Buffer.from('bad')));
+  const old = new Date(Date.now() - 3_600_000);
+  fs.writeFileSync(live, '{"edited":"live"}\n');       // diverged, and older than the mirror: a restore target
+  fs.utimesSync(live, old, old);
+  for (const flags of [[], ['--force'], ['--dry-run']]) {
+    const r = runRestore(src, dest, ...flags);
+    assert.equal(r.status, 1, `flags ${flags}`);
+    assert.deepEqual(r.report.refused.map((x) => [x.rel, x.reason]), [[REL_B, 'hash-mismatch']]);
+    assert.equal(r.report.restored.filter((x) => x.rel === REL_B).length, 0);
+    assert.equal(fs.readFileSync(live, 'utf8'), '{"edited":"live"}\n', 'the live file was not overwritten');
+  }
+  assert.notDeepEqual(good, fs.readFileSync(live));
+  const h = spawnSync('node', [SCRIPT, '--restore', '--source', src, '--dest', dest], { encoding: 'utf8' });
+  assert.match(h.stdout, /✗ REFUSED -repo-b\/uuid2\.jsonl — the archived copy no longer matches/);
+});
+
+test('contract: restore of an entry with no recorded sha256 is refused as unverified unless --force', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const manifest = cc.loadManifest(dest);
+  delete manifest[REL_B].sha256;
+  cc.saveManifest(dest, manifest);
+  const original = fs.readFileSync(path.join(src, REL_B));
+  fs.rmSync(path.join(src, REL_B));
+  const r = runRestore(src, dest);
+  assert.equal(r.status, 1);
+  assert.deepEqual(r.report.refused.map((x) => [x.rel, x.reason]), [[REL_B, 'unverified']]);
+  assert.ok(!fs.existsSync(path.join(src, REL_B)));
+  const f = runRestore(src, dest, '--force');
+  assert.equal(f.status, 0);
+  assert.equal(f.report.restored.find((x) => x.rel === REL_B).unverified, true);
+  assert.deepEqual(fs.readFileSync(path.join(src, REL_B)), original);
+});
+
+test('contract: restore writes by rename and leaves no temp file in the live store', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  fs.rmSync(path.join(src, REL_B));
+  assert.equal(runRestore(src, dest).status, 0);
+  assert.deepEqual(listDir(path.join(src, '-repo-b')), ['uuid2.jsonl']);
+});
+
+// --- HL10: read-only modes move nothing; a set-aside is never overwritten ---
+
+test('contract: --verify, --audit, --restore (and --dry-run) never move an unparseable manifest', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const mp = path.join(dest, 'manifest.json');
+  fs.writeFileSync(mp, '{ this is not json');
+  const before = fs.readFileSync(mp);
+  const files = listDir(dest);
+  for (const args of [['--verify'], ['--audit'], ['--restore'], ['--restore', '--dry-run'], ['--restore', '--delta']]) {
+    const r = runCli(...args, '--json', '--source', src, '--dest', dest);
+    assert.equal(r.status, 2, args.join(' '));
+    assert.equal(JSON.parse(r.stdout).code, 'EMANIFEST');
+    assert.deepEqual(fs.readFileSync(mp), before, `${args.join(' ')} left the manifest byte-identical`);
+    assert.deepEqual(listDir(dest), files, `${args.join(' ')} created and moved nothing`);
+  }
+  const d = runCli('--dry-run', '--json', '--source', src, '--dest', dest);
+  assert.equal(d.status, 0);
+  assert.match(d.stderr, /a real run would set it aside/);
+  assert.deepEqual(fs.readFileSync(mp), before);
+  assert.deepEqual(listDir(dest), files);
+});
+
+test('contract: a write-mode run sets an unparseable manifest aside under a timestamped name, never overwriting an earlier one', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const mp = path.join(dest, 'manifest.json');
+  fs.writeFileSync(mp, 'first corruption');
+  runJson(src, dest);
+  fs.writeFileSync(mp, 'second corruption');
+  runJson(src, dest);
+  const kept = listDir(dest).filter((n) => n.startsWith('manifest.json.corrupt-'));
+  assert.equal(kept.length, 2, 'both casualties are kept');
+  assert.deepEqual(kept.map((n) => fs.readFileSync(path.join(dest, n), 'utf8')).sort(),
+    ['first corruption', 'second corruption']);
+  assert.ok(!listDir(dest).includes('manifest.json.corrupt'), 'the old fixed name is gone');
+});
+
+// --- MC6: the repo-dest guard resolves symlinks ------------------------------
+
+test('contract: a dest that is a symlink into a git work tree is refused (MC6)', () => {
+  const { dir, src } = makeTree();
+  const tree = path.join(dir, 'worktree');
+  fs.mkdirSync(path.join(tree, '.git'), { recursive: true });
+  fs.mkdirSync(path.join(tree, 'out'));
+  const link = path.join(dir, 'innocent-looking');
+  fs.symlinkSync(path.join(tree, 'out'), link);
+  assert.equal(cc.insideGitWorkTree(link), true);
+  assert.equal(cc.insideGitWorkTree(path.join(link, 'not-yet-created')), true, 'a not-yet-existing dest resolves via its nearest real ancestor');
+  const r = runCli('--source', src, '--dest', link);
+  assert.equal(r.status, 1);
+  assert.match(r.stderr, /refusing to archive into a git work tree/);
+  assert.deepEqual(fs.readdirSync(path.join(tree, 'out')), []);
+  assert.equal(runCli('--source', src, '--dest', link, '--allow-repo-dest').status, 0);
 });

@@ -121,10 +121,8 @@ builds it with `swiftc` against macOS's own PDFKit (no dependency, no package
 manager), **refuses to shadow a real poppler** if one is present, and proves the
 binary renders before installing it. `rm ~/.local/bin/pdftoppm` uninstalls.
 
-`ccarchive` has one extra step to keep it *running*: after `install` puts it on
-`PATH`, `ccarchive --install-schedule` registers the daily launchd agent (macOS).
-This is the whole new-machine recovery — `./instruments/install` then
-`ccarchive --install-schedule` — and `ccarchive --schedule-status` confirms it.
+`ccarchive` needs no extra step: it is run by hand and installs no schedule. After
+`install` puts it on `PATH`, a new machine is ready to archive.
 
 `ccmail` may need one, and it is the only instrument whose extra step needs a
 *person*: where the delegation route is unavailable, `ccmail --auth` mints a
@@ -476,17 +474,19 @@ that cleanup:
   override) — derived at runtime from `$HOME`, so no personal path lives in this
   code. It's the first *writing* instrument (see ADR 0006 addendum); `--dry-run`
   previews, and it reads the source read-only.
-- **Self-scheduling.** `ccarchive --install-schedule` writes and loads a launchd
-  agent (macOS) that runs it daily and at login — no hand-wired cron, and it
-  re-establishes on a new machine with one command (`--schedule-status` /
-  `--uninstall-schedule` round it out; non-macOS prints the cron line instead).
-  The agent, its plist and log live under `~/Library` — machine-local, outside
-  any repo; the tool that generates them is data-free (paths derived at runtime).
-- **Retention pairing.** A daily run captures every session well inside Claude
-  Code's `cleanupPeriodDays`, so the archive alone is the durable copy — a large
-  `cleanupPeriodDays` is optional (a longer *live* working window for the other
-  instruments, and a buffer if the agent is ever down for a stretch), never
+- **Run by hand.** `ccarchive` installs no launchd agent, cron line or login
+  item, and refuses the old `--install-schedule` family of flags by name.
+  Run it more often than Claude Code's `cleanupPeriodDays`.
+- **Retention pairing.** A run that comes round inside Claude Code's
+  `cleanupPeriodDays` captures every session, so the archive alone is the durable
+  copy — a large `cleanupPeriodDays` is optional (a longer *live* working window
+  for the other instruments, and a buffer if the runs are ever spaced out), never
   required for survival. Idempotent, exits 0 with nothing to do.
+- **One bad file never aborts a run.** An unreadable source or an undecompressable
+  mirror is named in the report and skipped, the run completes, and it exits 1 at
+  the end; a fatal error is one clean line and exit 2. Every archive write is a
+  temp file renamed into place, so a kill or an iCloud-evicted mirror cannot leave
+  a torn or unopenable copy.
 
 **The durable substrate for the *other* instruments too.** `ccrepo.design.md` §8
 deferred a *retention ledger* — persisting cost/usage rollups so ccrepo's
