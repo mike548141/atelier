@@ -212,6 +212,14 @@ def parse_allow(text: str) -> str | None:
     return allowmarker.scope_of(ALLOW_RX, text, "kind")
 
 
+# The three detectors — the bracketed kind on each finding line. A marker
+# scoped to one (`pointerscan:allow:cycle: <reason>`) exempts that detector's
+# findings only (115/080; AM4). The unscoped form, and a scope naming none of
+# these, still exempt the whole item (or file), as they always did —
+# `allowmarker.covers`.
+FINDING_KINDS = frozenset({"grammar", "cycle", "state"})
+
+
 # Directories holding nothing this repo authors.
 SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv",
              ".mypy_cache", ".ruff_cache", ".pytest_cache", ".idea", ".vscode"}
@@ -509,37 +517,58 @@ def unmarked_findings(marker: str, body: str) -> list[str]:
 
 
 def scan_text(text: str, path: str = "",
-              suppressed: list[int] | None = None) -> list[Finding]:
+              suppressed: list[int] | None = None,
+              file_scope: str | None = None) -> list[Finding]:
     """Pure, so the selftest and the tests drive it with no filesystem.
 
     `suppressed` collects one entry per item an allow-marker exempted, so the
     caller can report the subtraction (`method/GUARDS.md`, rule b) instead of
-    printing the same clean tick either way."""
+    printing the same clean tick either way.
+
+    `file_scope` is the detector a file-level marker (the file's first line)
+    names, when it names one: that detector's findings are dropped across the
+    file. A file-level marker exempting every kind never reaches here."""
     out: list[Finding] = []
     for item in parse_items(text):
         unmarked = unmarked_findings(item.marker, item.body)
-        if parse_allow(item.body) is not None:
+        scope = parse_allow(item.body)
+        if scope is not None:
             if suppressed is not None and (
                     unmarked or is_pointer(item.marker, item.body)):
                 suppressed.append(1)
-            continue
-        excerpt = " ".join(item.body.split())[:120]
-        # Detector 3, the inverse half: outside the pointer scope by
-        # construction (no glyph, and a title is not an emphasis-run CLAIM),
-        # so it is read before the scope test rather than after it.
-        for reason in unmarked:
-            out.append(Finding(path, item.line, "state", reason, excerpt))
-        if not is_pointer(item.marker, item.body):
-            continue
-        for reason in grammar_findings(item.body):
-            out.append(Finding(path, item.line, "grammar", reason, excerpt))
-        landed = landed_findings(item.marker, item.body)
-        for reason in landed:
-            out.append(Finding(path, item.line, "state", reason, excerpt))
-        if landed:
-            continue        # the sharper statement of the same contradiction
-        for reason in cycle_findings(item.body):
-            out.append(Finding(path, item.line, "cycle", reason, excerpt))
+            if allowmarker.is_blanket(scope, FINDING_KINDS):
+                continue
+        # SUBTRACT SECOND: the item's findings form exactly as for an
+        # unmarked item, then a marker naming one detector takes that one
+        # away (115/080).
+        out.extend(f for f in _item_findings(item, path, unmarked)
+                   if not allowmarker.covers(scope, f.detector, FINDING_KINDS)
+                   and not allowmarker.covers(file_scope, f.detector,
+                                              FINDING_KINDS))
+    return out
+
+
+def _item_findings(item: "Item", path: str,
+                   unmarked: list[str]) -> list[Finding]:
+    """Every finding one item produces, before any allow-marker applies."""
+    out: list[Finding] = []
+    excerpt = " ".join(item.body.split())[:120]
+    # Detector 3, the inverse half: outside the pointer scope by
+    # construction (no glyph, and a title is not an emphasis-run CLAIM),
+    # so it is read before the scope test rather than after it.
+    for reason in unmarked:
+        out.append(Finding(path, item.line, "state", reason, excerpt))
+    if not is_pointer(item.marker, item.body):
+        return out
+    for reason in grammar_findings(item.body):
+        out.append(Finding(path, item.line, "grammar", reason, excerpt))
+    landed = landed_findings(item.marker, item.body)
+    for reason in landed:
+        out.append(Finding(path, item.line, "state", reason, excerpt))
+    if landed:
+        return out          # the sharper statement of the same contradiction
+    for reason in cycle_findings(item.body):
+        out.append(Finding(path, item.line, "cycle", reason, excerpt))
     return out
 
 
@@ -587,15 +616,17 @@ def scan(paths: list[str], root: Path,
             continue
         if text.startswith(GENERATED_MARKS):
             continue        # the board index — projections, not items (above)
-        if parse_allow(text.split("\n")[0]) is not None:
+        file_scope = parse_allow(text.split("\n")[0])
+        if file_scope is not None:
             if suppressed is not None:
                 suppressed.append(1)
-            continue
+            if allowmarker.is_blanket(file_scope, FINDING_KINDS):
+                continue
         try:
             rel = p.resolve().relative_to(root.resolve()).as_posix()
         except ValueError:
             rel = p.as_posix()
-        out.extend(scan_text(text, rel, suppressed))
+        out.extend(scan_text(text, rel, suppressed, file_scope))
     return out
 
 

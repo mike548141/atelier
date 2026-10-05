@@ -447,6 +447,50 @@ class LiveSpecimenTest(unittest.TestCase):
             self.assertGreater(f.line, 0)
 
 
+_MARK = "pointerscan" + ":allow"   # built from parts: no source line is a marker
+
+
+def _marked(spec: str, marker: str) -> str:
+    head, _, rest = spec.partition("\n")
+    return f"{head}  {marker}\n{rest}"
+
+
+class ScopedMarker(unittest.TestCase):
+    """115/080: a marker scoped to one detector exempts that detector only
+    (AM4); every marker that exempted before still exempts the whole item."""
+
+    LIVE = pointerscan._SPEC_LIVE          # trips grammar and cycle
+
+    def dets(self, text, **kw):
+        return sorted({f.detector for f in pointerscan.scan_text(text, **kw)})
+
+    def test_the_fixture_trips_two_detectors(self):
+        self.assertEqual(self.dets(self.LIVE), ["cycle", "grammar"])
+
+    def test_a_scope_naming_one_detector_keeps_the_other(self):
+        sup = []
+        text = _marked(self.LIVE, f"{_MARK}:cycle: ruling recorded elsewhere")
+        self.assertEqual(self.dets(text, suppressed=sup), ["grammar"])
+        self.assertEqual(len(sup), 1)
+        text = _marked(self.LIVE, f"{_MARK}:grammar: quoted on purpose")
+        self.assertEqual(self.dets(text), ["cycle"])
+
+    def test_the_unscoped_form_and_an_unknown_scope_still_exempt_the_item(self):
+        for marker in (f"{_MARK}: a reason", f"{_MARK}:whole-item: a reason"):
+            self.assertEqual(self.dets(_marked(self.LIVE, marker)), [])
+
+    def test_a_file_level_scope_drops_that_detector_across_the_file(self):
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp)
+        board = tmp / "docs" / "roadmap"
+        board.mkdir(parents=True)
+        (board / "a.md").write_text(f"<!-- {_MARK}:grammar: fixture -->\n" + self.LIVE)
+        sup = []
+        found = pointerscan.scan(["docs"], tmp, sup)
+        self.assertEqual(sorted({f.detector for f in found}), ["cycle"])
+        self.assertEqual(len(sup), 1)
+
+
 if __name__ == "__main__":
     unittest.main()
 
