@@ -90,3 +90,15 @@ date stamps the worker took from local time were corrected to UTC. The
 targeted suites pass on the merged tree (87 tests). The worker saw two
 `BoundedMemory` timeouts while the machine's load average was about 270, and
 those are re-run at close. Doctrine pass queued at `160/690`.
+
+## `200/010`: `indexscan`, the generic index guard
+
+An Opus worker built it (`8d10487`). It is opt-in per index, checks both
+directions, and leaves the listed-but-missing direction to
+`linkscan`/`pathscan`. It is warn-only on both planes. Its first run on
+atelier found ten session detail files the session index never lists. The
+orchestrator read each one. All ten are records-only captures or annexes
+reached from another record, so each now carries a reasoned allow-marker
+(why, who, session, not a ruling, when) instead of a back-dated index line.
+That last part is the orchestrator's own judgement. A reviewer may prefer
+index lines. Code pass queued at `160/700`.

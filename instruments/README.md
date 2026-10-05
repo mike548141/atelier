@@ -1,5 +1,7 @@
 # instruments/ — tools for working with Claude as a teammate
 
+<!-- indexscan:maps dir=. match=* exclude=*.test.js,*.design.md,fixtures,man -->
+
 Where `tools/` **enforces** the doctrine (checks that gate a commit),
 `instruments/` serve the collaboration itself — they **observe** it (what it
 costs, what happened when) or **extend its reach** (what the teammate can do).

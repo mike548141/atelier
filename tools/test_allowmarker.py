@@ -106,6 +106,7 @@ class TestMarkerGrammar(unittest.TestCase):
 _REASON = r"[\w\"\'“‘]"
 _PIN = {
     "conflictscan": {"ALLOW_RX": r"\bconflictscan:allow:[ \t]*(?P<reason>" + _REASON + ")"},
+    "indexscan": {"ALLOW_RX": r"\bindexscan:allow:[ \t]*(?P<reason>" + _REASON + ")"},
     "wrapscan": {"ALLOW_RX": r"\bwrapscan:allow:[ \t]*(?P<reason>" + _REASON + ")"},
     "datescan": {
         "ALLOW_MARKER_RX": r"\bdatescan:allow:\s*" + _REASON,
@@ -158,7 +159,7 @@ class TestScannerParametersPinned(unittest.TestCase):
         self.assertEqual(secretscan.parse_allow("secretscan:allow:assigned: r"), "assigned")
 
     def test_ignore_wrappers_pass_their_own_filename(self):
-        for name in ("conflictscan", "datescan", "leakscan", "licenscan", "linkscan", "pathscan",
+        for name in ("conflictscan", "datescan", "indexscan", "leakscan", "licenscan", "linkscan", "pathscan",
                      "secretscan", "sizescan", "spellscan", "stampscan", "wrapscan"):
             mod = importlib.import_module(name)
             with self.subTest(scanner=name), tempfile.TemporaryDirectory() as td:

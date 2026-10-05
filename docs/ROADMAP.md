@@ -278,6 +278,7 @@ then `python3 tools/board.py rebuild`.
 - ⏳ [Rule-4 cold pass queued: ccarchive hardening (210/210).](roadmap/160-doctrine-review-owed/670-rule-4-cold-pass-queued-ccarchive-hardening.md)
 - [ ] ⏳ [Rule-4 cold pass queued: cctranscript's first-prompt prefix read](roadmap/160-doctrine-review-owed/680-rule-4-cold-pass-queued-first-prompt-prefix.md)
 - [ ] ⏳ [Rule-4 cold pass queued: one unambiguous review-pointer state](roadmap/160-doctrine-review-owed/690-rule-4-cold-pass-queued-the-pointer-state.md)
+- [ ] ⏳ [Rule-4 cold pass queued: indexscan, the generic index-integrity](roadmap/160-doctrine-review-owed/700-rule-4-cold-pass-queued-indexscan.md)
 
 ## build/ layer — open strands
 
@@ -300,7 +301,7 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/200-anti-slop-invariant-registry-promote-rec/README.md)*
 
-- [~] [Build a generic mechanism keeping any hand-maintained index true to](roadmap/200-anti-slop-invariant-registry-promote-rec/010-build-a-generic-mechanism-keeping-any-hand-mai.md)
+- ✅ [Build a generic mechanism keeping any hand-maintained index true to](roadmap/200-anti-slop-invariant-registry-promote-rec/010-build-a-generic-mechanism-keeping-any-hand-mai.md)
 - [~] (claimed 2026-10-05-1133, wt: atelier-qr-200-doctrine) [Third confirmed instance of the class landed 2026-08-03, and Mike…](roadmap/200-anti-slop-invariant-registry-promote-rec/020-third-confirmed-instance-of-the-class-landed-2.md)
 - [ ] 🎯 [R1 — the recurrence count has to become mechanical, and the mining](roadmap/200-anti-slop-invariant-registry-promote-rec/030-r1-the-recurrence-count-has-to-become-mechanic.md)
 - ✅ [R2 — find the actual triplications before consolidating any of them.](roadmap/200-anti-slop-invariant-registry-promote-rec/040-r2-find-the-actual-triplications-before-consol.md)

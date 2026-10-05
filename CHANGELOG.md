@@ -5,6 +5,14 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-10-05 — `indexscan`: a hand-kept index stays true to its directory, `200/010`)
+- A new warn-only floor guard. An index opts in with one
+  `<!-- indexscan:maps dir=… match=… -->` line, and the guard then reports every
+  entry in that directory that the index never names. `exclude=`, `before=` and
+  a reasoned per-entry `indexscan:allow:` marker cover deliberate gaps. No
+  declaration means no check, so nothing changes for a repo until it opts in.
+  atelier declares its decisions, tools, instruments and sessions indexes.
+
 ### Changed (2026-10-05 — cctranscript: the first-prompt column reads a prefix, `210/180`)
 - `--list --from-archive` finds each mirror's first prompt in a bounded 64 KB
   prefix, and falls back to the whole-file read only when the prefix holds

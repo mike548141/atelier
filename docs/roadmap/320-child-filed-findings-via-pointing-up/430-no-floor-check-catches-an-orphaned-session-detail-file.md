@@ -42,3 +42,10 @@
 
       review: not warranted — a finding filed for consideration, taking no
       decision.
+
+      🔗 **2026-10-05: the unlisted-file half is now mechanised** by
+      `indexscan` (`200/010`), warn-only, which an index opts into with one
+      declaration line. atelier's own session index declares it. A child
+      gets the check by adding the same line to its own index. The second
+      gap here, an index line whose date or slug disagrees with its file,
+      is not checked, so this item stays open for it.

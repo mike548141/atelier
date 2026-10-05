@@ -1,5 +1,9 @@
 # tools/ — atelier's mechanical controls
 
+<!-- indexscan:maps dir=. match=*.py exclude=test_*.py -->
+<!-- indexscan:allow: filewalk.py its catalogue entry is owed as FW2 (the single-sourced file-walk cold pass), open on that review's checklist; this marker goes stale and is reported the day the entry lands. Added 2026-10-05 by session 5e3f68f1 (agent, queue run 200/010) -->
+<!-- indexscan:allow: allowmarker.py its catalogue entry is owed as AM5 (the shared allow-marker grammar cold pass), open on that review's checklist; this marker goes stale and is reported the day the entry lands. Added 2026-10-05 by session 5e3f68f1 (agent, queue run 200/010) -->
+
 Doctrine informs; a *check* enforces. These are the checks. Zero third-party
 dependencies — run them with the system `python3`.
 
@@ -1027,6 +1031,85 @@ on the line, or a reasoned glob in `.pathscanignore`. **What it cannot see**:
 prose that names a path without its extension or in a reworded form; a path
 that resolves to the *wrong* file after a swap; see the module docstring for
 the reviewed false-positive/false-negative modes.
+
+## `indexscan.py` — a hand-maintained index names every file it maps (warn-only)
+
+A hand-maintained index — a decisions index, a session log kept as an index
+plus detail files, a tool or instrument catalogue — can drift from the
+directory it maps in two directions. **Listed but missing** was already
+guarded and is not re-checked here: `linkscan` fails a Markdown link to a file
+that is not there, and `pathscan` reports a backtick-named path that does not
+resolve. **Unlisted** was guarded by nothing: a file committed into the
+directory that the index never names is invisible to every session that reads
+only the index, and a link checker has nothing to fire on when there is no
+link. `indexscan` adds that direction (board `200/010`, option C as ruled; the
+census found 22 such indexes of 7 kinds across 14 repos, none guarded against
+it; `320/430` is the same class filed from a child).
+
+**Opt-in, per index.** An index declares what it maps in one whole-line HTML
+comment near its head, invisible when rendered:
+
+```markdown
+<!-- indexscan:maps dir=sessions match=*.md before=2026-07-11 -->
+<!-- indexscan:maps dir=. match=*.py exclude=test_*.py -->
+```
+
+`dir=` is relative to the index file (`.` for an index inside the directory it
+maps) and must stay inside `--root`. `match=` and `exclude=` are
+comma-separated globs on each **entry's name**; an entry is a file or a
+subdirectory directly inside `dir`, so an instrument that is a folder is one
+entry. `before=` is the frozen-record precedent: an entry whose name starts
+with an ISO date earlier than it is blameless. The index file itself is always
+excluded. A file with no declaration is never checked, so the scanner cannot
+red a repo that has not declared one — an undeclared tree prints that it
+checked nothing and exits 0.
+
+**Listed** means a Markdown link (inline or a reference definition) resolving
+to the entry or into it, or an inline code span (whole, or its first word)
+naming it relative to the mapped directory, the index's directory or the root.
+Fenced code is skipped: a usage example is not a catalogue entry.
+
+**Exemptions** are counted on every run, known zeros included. An allow marker
+lives **in the index**, where its readers see it: an HTML comment carrying
+`indexscan:allow:` then the entry's name then a reason. One marker exempts one
+entry; with no reason after the name it exempts nothing. A marker that exempts
+nothing — its entry is now listed, gone, or outside every `match=` — is
+reported as `stale-allow`, so a deferment written as "entry owed by finding X"
+announces itself the day the entry lands. `.indexscanignore` exempts a file
+from being read for declarations (a fixture tree quoting the syntax raw), each
+glob with its reason. atelier's own two markers are of that deferment kind:
+the shared file-walk and allow-marker helpers have catalogue entries owed by
+two open review findings (FW2, AM5).
+
+**Fourth requirement — declared: makes the failure cheap.** It forbids
+nothing: an unlisted file still commits, and whether a file belongs in an index
+is the index-keeper's call. It names the drift at the commit that causes it,
+when the fix is one line.
+
+**Wiring.** In the floor registry, **warn-only on both planes**, whole tree
+(`--warn` is in the template, as `pathscan`'s is; dropping it is the flip to
+blocking and is a separate ruling). Children float on `floor.py@main`, so the
+registry line reaches every child's next run — where it checks nothing until
+that child declares an index. atelier declares four: the decisions index, this
+catalogue, the instruments catalogue and the session log index.
+
+```sh
+python3 tools/indexscan.py --root . .        # the floor's shape, without --warn
+python3 tools/indexscan.py --json --root . .
+python3 tools/indexscan.py --selftest
+```
+
+Exit codes: `0` clean, or findings under `--warn` · `1` an `unlisted` entry, a
+`missing-dir` (the declared directory is gone) or a `stale-allow` · `2` a
+malformed or unknown-key declaration, a `dir=` escaping the root, a bad
+`before=` date, an unreasoned ignore glob, a path that does not exist — never
+downgraded by `--warn`. **What it cannot see**: whether a listed entry's line
+is *true* about it (an index line whose date disagrees with the file it links,
+`320/430`'s second residual, passes); an index that is not Markdown (a YAML
+manifest); a name mentioned only in bare prose without a link or code span.
+The converse is loose by design: **any** link or code span naming an entry
+counts as listing it, wherever it sits in the index — a passing mention is
+indistinguishable from an entry.
 
 ## `stampscan.py` — an inlined copy still equals its canonical parent (advisory)
 

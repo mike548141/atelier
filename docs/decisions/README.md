@@ -1,5 +1,7 @@
 # Decision records
 
+<!-- indexscan:maps dir=. match=*.md exclude=template.md -->
+
 Short ADRs preserving the *deliberation* behind significant decisions —
 the alternatives weighed, why they lost, and the evidence — which
 `ARCHITECTURE.md` (current truth, compact) deliberately compresses away.
