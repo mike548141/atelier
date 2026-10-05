@@ -281,3 +281,12 @@ the work in this session I would like you to list every question you asked
 me using AskUserQuestion and my answers"*. This is owed in the final message,
 not on the board, because it is a deliverable to him and not repo work.
 Recorded here so a cut cannot lose it.
+
+## `260/120`: publishscan reads quoted paths
+
+A Sonnet worker made the fix (`c1cef10`). Both planes now read `-z`.
+Output was byte-identical across 29 repos, and none newly failed. The
+worker found the same silent-miss class in `conflictscan`'s and
+`leakscan`'s staged plane, which matters more because both block at the
+hook. That is filed and claimed as `115/260`. Its dispatch waits for the
+in-flight `115/080` worker to land, because both touch `leakscan`.

@@ -180,6 +180,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Single-sourcing the allow-marker grammar surfaced four](roadmap/115-guardrail-architecture-mike-commissioned/230-four-allow-marker-divergences.md)
 - ✅ 🔎 [Three enforced scanners still describe themselves as advisory](roadmap/115-guardrail-architecture-mike-commissioned/240-three-enforced-scanners-call-themselves-advisory.md)
 - ✅ 🔎 [pointerscan still walks the whole tree, harness worktrees included](roadmap/115-guardrail-architecture-mike-commissioned/250-pointerscan-still-walks-the-whole-tree.md)
+- [~] 🔎 (claimed 2026-10-05-1858, wt: atelier-qr-115-260) [Two blocking guards never scan a staged file whose path git quotes](roadmap/115-guardrail-architecture-mike-commissioned/260-staged-plane-guards-skip-git-quoted-paths.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 
@@ -391,7 +392,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [P7 — harvest the rpi publication properly.](roadmap/260-sharing-public-since-2026-07-10-adr-0005/090-p7-harvest-the-rpi-publication-properly.md)
 - [ ] [P8 — traffic harvest: keep the history GitHub's 14-day window](roadmap/260-sharing-public-since-2026-07-10-adr-0005/100-p8-traffic-harvest-keep-the-history-github-s-1.md)
 - ✅ 🔎 [P9 — what the flip's transcripts add to the pre-flip gate](roadmap/260-sharing-public-since-2026-07-10-adr-0005/110-p9-what-the-flip-transcripts-add-to-the-gate.md)
-- [~] 🔎 (claimed 2026-10-05-1842, wt: atelier-qr-260-120) [publishscan's default and staged planes miss any path git quotes](roadmap/260-sharing-public-since-2026-07-10-adr-0005/120-publishscan-misses-non-ascii-paths.md)
+- ✅ 🔎 [publishscan's default and staged planes miss any path git quotes](roadmap/260-sharing-public-since-2026-07-10-adr-0005/120-publishscan-misses-non-ascii-paths.md)
 
 ## Open questions
 

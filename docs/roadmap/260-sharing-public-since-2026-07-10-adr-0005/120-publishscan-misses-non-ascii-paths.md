@@ -1,4 +1,4 @@
-- [~] 🔎 **publishscan's default and staged planes miss any path git quotes** (claimed 2026-10-05-1842, wt: atelier-qr-260-120)
+- [x] 🔎 **publishscan's default and staged planes miss any path git quotes**
       `[S][tools]`. Found 2026-10-05 by the worker that built `--history`
       (`110`). The tip plane reads `git ls-files` and the staged plane reads
       `git diff --name-only`, both without `-z`. With git's default
@@ -12,3 +12,17 @@
       changes only where a quoted path is now matched. Before landing,
       measure read-only across the sibling repos how many would newly turn
       red, counts only.
+
+      ✅ **Fixed and merged 2026-10-05** (queue run, a Sonnet 5.5 worker;
+      `c1cef10`). Both planes now read NUL-delimited (`ls-files -z`, `diff
+      --cached --name-only --diff-filter=ACMR -z`) through the history plane's
+      streamed reader. The file set and ordering are unchanged. **Evidence:**
+      across 29 local repos, old against new, all 29 were byte-identical, 0
+      changed and 0 newly failing. Two of them track git-quoted paths, none of
+      which is a never-publish name. Three new tests pin
+      `core.quotePath=true`: a quoted never-publish path is caught on both
+      planes, and a clean quoted path stays green. The tests fail against the
+      old code. The suites passed (1,773; Node green). No separate pass is
+      queued; `160/740` covers `publishscan` as it now stands. **The same
+      class on two blocking guards** was found by the same worker and is filed
+      as `115/260`.

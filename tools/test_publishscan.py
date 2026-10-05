@@ -176,6 +176,53 @@ class PlaneTest(unittest.TestCase):
             self.assertEqual(self.run_tool("--root", s, "--staged").returncode,
                              1)
 
+    def non_ascii_repo(self, s: str) -> Path:
+        """A repo that pins git's DEFAULT quoting, so the test bites on a
+        machine whose global config turned it off."""
+        root = git_repo(Path(s))
+        subprocess.run(["git", "-C", s, "config", "core.quotePath", "true"],
+                       check=True, capture_output=True)
+        return root
+
+    def test_tip_plane_matches_a_path_git_would_quote(self):
+        """260/120 — `café/.env` arrives C-quoted without -z and no
+        never-publish pattern matched it."""
+        with tempfile.TemporaryDirectory() as s:
+            root = self.non_ascii_repo(s)
+            add(root, "café/.env")
+            add(root, "README.md")
+            subprocess.run(["git", "-C", s, "commit", "-qm", "x"], check=True,
+                           capture_output=True)
+            r = self.run_tool("--root", s, "--json")
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            doc = json.loads(r.stdout)
+            self.assertEqual(doc["scanned"], 2)
+            self.assertEqual([f["path"] for f in doc["findings"]],
+                             ["café/.env"])
+
+    def test_staged_plane_matches_a_path_git_would_quote(self):
+        with tempfile.TemporaryDirectory() as s:
+            root = self.non_ascii_repo(s)
+            add(root, "README.md")
+            subprocess.run(["git", "-C", s, "commit", "-qm", "x"], check=True,
+                           capture_output=True)
+            add(root, "café/.env")
+            r = self.run_tool("--root", s, "--staged", "--json")
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            doc = json.loads(r.stdout)
+            self.assertEqual([f["path"] for f in doc["findings"]],
+                             ["café/.env"])
+
+    def test_a_clean_non_ascii_path_is_green_and_counted(self):
+        with tempfile.TemporaryDirectory() as s:
+            root = self.non_ascii_repo(s)
+            add(root, "café/notes.md")
+            subprocess.run(["git", "-C", s, "commit", "-qm", "x"], check=True,
+                           capture_output=True)
+            r = self.run_tool("--root", s, "--json")
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertEqual(json.loads(r.stdout)["scanned"], 1)
+
     def test_clean_repo_is_green_on_both_planes(self):
         with tempfile.TemporaryDirectory() as s:
             root = git_repo(Path(s))
