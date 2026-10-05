@@ -389,10 +389,14 @@ def tracked_paths(root: Path, staged: bool) -> list[str]:
     Otherwise: everything git tracks, which is the CI backstop's question and
     the one that catches a file that slipped in before the check existed.
     """
-    if staged:
-        return _git(root, "diff", "--cached", "--name-only",
-                    "--diff-filter=ACMR")
-    return _git(root, "ls-files")
+    # Both planes read NUL-delimited (`-z`), like the history plane. Without
+    # it git C-quotes any path with a non-ASCII byte (`café/.env` arrives as
+    # `"caf\303\251/.env"`), and no never-publish pattern matches the quoted
+    # spelling: a silent miss on a blocking guard (260/120). `-z` hands the
+    # matcher the raw path; the same file set, in the same order.
+    args = (("diff", "--cached", "--name-only", "--diff-filter=ACMR", "-z")
+            if staged else ("ls-files", "-z"))
+    return [p for tok in _git_stream(root, *args) if (p := _decode(tok))]
 
 
 def run(root: Path, staged: bool, warn: bool, as_json: bool) -> int:
