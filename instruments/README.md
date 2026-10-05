@@ -121,8 +121,10 @@ builds it with `swiftc` against macOS's own PDFKit (no dependency, no package
 manager), **refuses to shadow a real poppler** if one is present, and proves the
 binary renders before installing it. `rm ~/.local/bin/pdftoppm` uninstalls.
 
-`ccarchive` needs no extra step: it is run by hand and installs no schedule. After
-`install` puts it on `PATH`, a new machine is ready to archive.
+`ccarchive` needs no extra step: it is run by hand, and installs no schedule unless
+you ask (`ccarchive --install-schedule` sets up a daily calendar schedule: launchd on
+macOS, a systemd user timer on Linux; see its man page). After `install` puts it on
+`PATH`, a new machine is ready to archive.
 
 `ccmail` may need one, and it is the only instrument whose extra step needs a
 *person*: where the delegation route is unavailable, `ccmail --auth` mints a

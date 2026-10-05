@@ -30,6 +30,14 @@ const SCRIPT = path.join(__dirname, 'ccarchive');
 process.env.CCARCHIVE_KEYFILE =
   path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'ccarchive-key-')), 'signing.key');
 
+// SAFETY (210/230): the schedule options drive launchctl / systemctl. Every call goes
+// through ccarchive's one runScheduler(), which — with this variable set — records the
+// argv it WOULD have run and executes nothing. It is set for the whole test process (and
+// so for every spawned child) before any test can run, and the schedule tests below also
+// pass a fake HOME, so no test can touch a real scheduler or a real LaunchAgents folder.
+const SCHEDULER_SEAM_LOG = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'ccarchive-seam-')), 'scheduler.log');
+process.env.CCARCHIVE_SCHEDULER_LOG = SCHEDULER_SEAM_LOG;
+
 // --- pure functions ------------------------------------------------------
 
 test('defaultDest points at the macOS iCloud Drive, from the given home', () => {
@@ -193,36 +201,456 @@ test('requiring ccarchive never acts on the host argv (the CLI lives behind the 
   assert.equal(out.trim(), 'host-alive');
 });
 
-// --- no scheduler (210/190) -----------------------------------------------
-// ccarchive is run by hand. The old install/status/uninstall flags are refused by
-// name — never silently ignored, which would run an ordinary archive instead.
+// --- the schedule (210/230) ----------------------------------------------
+// --install-schedule / --schedule-status / --uninstall-schedule: a real calendar
+// schedule (launchd StartCalendarInterval on macOS, a systemd user timer on Linux),
+// never a run at login. Every scheduler call is seamed (SCHEDULER_SEAM_LOG, above) and
+// every filesystem effect lands in a throwaway HOME.
 
-test('the removed schedule flags are refused by name (exit 2), not run as an archive', () => {
-  // Safety rail: these flags once wrote and loaded a real launchd job. Never spawn
-  // them against a script that still carries that code (e.g. a copy of an old
-  // version) — refuse to run the test at all, and point HOME at a throwaway dir.
-  const scriptText = fs.readFileSync(SCRIPT, 'utf8');
-  assert.ok(!/launchctl|LaunchAgents/.test(scriptText),
-    'SCRIPT still contains scheduler code; refusing to spawn the removed flags against it');
-  const { dir, src, dest } = makeTree();
-  const env = { ...process.env, HOME: path.join(dir, 'fake-home') };
-  for (const flag of ['--install-schedule', '--schedule-status', '--uninstall-schedule']) {
-    const r = spawnSync('node', [SCRIPT, flag, '--source', src, '--dest', dest], { encoding: 'utf8', env });
-    assert.equal(r.status, 2, `${flag} must fail`);
-    assert.match(r.stderr, new RegExp(`${flag} was removed`));
-    assert.doesNotMatch(r.stderr, /\n\s+at /, 'one clean line, no stack trace');
-    assert.ok(!fs.existsSync(dest), `${flag} must not fall through to an archive run`);
+const SCHED_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'ccarchive-sched-'));
+let schedCount = 0;
+
+// A fresh fake HOME and a fresh seam log; returns helpers to read what would have run.
+function schedEnv() {
+  const root = path.join(SCHED_DIR, 'case' + (++schedCount));
+  const home = path.join(root, 'home');
+  fs.mkdirSync(home, { recursive: true });
+  const log = path.join(root, 'scheduler.log');
+  return {
+    root, home, log,
+    argvs: () => (fs.existsSync(log) ? fs.readFileSync(log, 'utf8').trim().split('\n').filter(Boolean).map((l) => JSON.parse(l)) : []),
+  };
+}
+
+// Run fn with the seam pointing at this case's log (restored after), stdout captured.
+function withSeam(env, fn, pretendExit) {
+  const saved = { log: process.env.CCARCHIVE_SCHEDULER_LOG, exit: process.env.CCARCHIVE_SCHEDULER_EXIT };
+  process.env.CCARCHIVE_SCHEDULER_LOG = env.log;
+  if (pretendExit === undefined) delete process.env.CCARCHIVE_SCHEDULER_EXIT; else process.env.CCARCHIVE_SCHEDULER_EXIT = String(pretendExit);
+  const write = process.stdout.write;
+  let captured = '';
+  process.stdout.write = (chunk) => { captured += chunk; return true; };
+  try {
+    const result = fn();
+    return { result, stdout: captured };
+  } finally {
+    process.stdout.write = write;
+    process.env.CCARCHIVE_SCHEDULER_LOG = saved.log;
+    if (saved.exit === undefined) delete process.env.CCARCHIVE_SCHEDULER_EXIT; else process.env.CCARCHIVE_SCHEDULER_EXIT = saved.exit;
+  }
+}
+
+const SCHED_NODE = '/opt/node bin/node';
+const SCHED_SCRIPT = '/opt/cc tools/ccarchive';
+
+test('SAFETY: the seam is set for the whole test process, and honoured before any exec', () => {
+  assert.ok(process.env.CCARCHIVE_SCHEDULER_LOG, 'the seam variable is set at the top of this file');
+  // Behavioural proof: decoy launchctl/systemctl that leave a marker if they ever run,
+  // first on a PATH that holds nothing else. With the seam set, nothing may execute.
+  const e = schedEnv();
+  const bin = path.join(e.root, 'decoy-bin');
+  fs.mkdirSync(bin, { recursive: true });
+  const marker = path.join(e.root, 'EXECUTED');
+  for (const name of ['launchctl', 'systemctl', 'crontab']) {
+    fs.writeFileSync(path.join(bin, name), `#!/bin/sh\necho "${name} $@" >> '${marker}'\nexit 0\n`, { mode: 0o755 });
+  }
+  const savedPath = process.env.PATH;
+  process.env.PATH = bin;
+  try {
+    withSeam(e, () => {
+      cc.runScheduler('launchctl', ['bootstrap', 'gui/1', '/x.plist']);
+      cc.runScheduler('systemctl', ['--user', 'daemon-reload']);
+      cc.installSchedule({ platform: 'darwin', home: e.home, nodePath: SCHED_NODE, scriptPath: SCHED_SCRIPT, uid: 7 });
+      cc.installSchedule({ platform: 'linux', home: e.home, nodePath: SCHED_NODE, scriptPath: SCHED_SCRIPT });
+      cc.scheduleStatus({ platform: 'darwin', home: e.home });
+      cc.uninstallSchedule({ platform: 'linux', home: e.home });
+    });
+  } finally { process.env.PATH = savedPath; }
+  assert.ok(!fs.existsSync(marker), 'a decoy scheduler binary was executed despite the seam');
+  assert.ok(e.argvs().length >= 6, 'the argv was recorded instead');
+});
+
+test('SAFETY: runScheduler is the only spawn site, and it checks the seam first', () => {
+  const text = fs.readFileSync(SCRIPT, 'utf8');
+  // The scheduler binaries are named in code only as arguments to runScheduler / c.run.
+  const spawns = text.match(/\bspawnSync\(/g) || [];
+  assert.equal(spawns.length, 1, 'exactly one spawnSync call site (the one inside runScheduler)');
+  const body = text.slice(text.indexOf('function runScheduler('), text.indexOf('// "HH:MM", 24-hour'));
+  assert.ok(body.indexOf('CCARCHIVE_SCHEDULER_LOG') !== -1 && body.indexOf('CCARCHIVE_SCHEDULER_LOG') < body.indexOf('spawnSync('),
+    'the seam is checked before the spawn');
+  const outside = text.replace(body, '');
+  assert.doesNotMatch(outside.replace(/\/\/.*$/gm, '').replace(/`[^`]*`/g, ''),
+    /(?:execFileSync|execSync|spawn|exec)\(\s*['"](?:launchctl|systemctl|crontab)['"]/,
+    'no other call site runs a scheduler binary');
+  assert.doesNotMatch(outside.replace(/\/\/.*$/gm, ''), /(?:execFileSync|execSync|spawnSync|spawn|exec)\(\s*(?:cmd|command)\b/,
+    'no other call site runs a variable command');
+});
+
+test('runScheduler with the seam: records argv as JSON lines, executes nothing, pretends the chosen exit', () => {
+  const e = schedEnv();
+  const a = withSeam(e, () => cc.runScheduler('launchctl', ['print', 'gui/1/x y']));
+  assert.equal(a.result.status, 0);
+  assert.equal(a.result.seam, true);
+  const b = withSeam(e, () => cc.runScheduler('systemctl', ['--user', 'is-enabled', 'ccarchive.timer']), 3);
+  assert.equal(b.result.status, 3);
+  assert.deepEqual(e.argvs(), [['launchctl', 'print', 'gui/1/x y'], ['systemctl', '--user', 'is-enabled', 'ccarchive.timer']]);
+});
+
+test('parseScheduleTime: strict HH:MM, 24-hour, two digits', () => {
+  assert.deepEqual(cc.parseScheduleTime('03:00'), { hour: 3, minute: 0 });
+  assert.deepEqual(cc.parseScheduleTime('23:59'), { hour: 23, minute: 59 });
+  assert.deepEqual(cc.parseScheduleTime('00:00'), { hour: 0, minute: 0 });
+  for (const bad of ['24:00', '12:60', '3:00', '03:0', '0300', '03:00:00', '', 'noon', '-1:00', '03.00', ' 03:00']) {
+    assert.equal(cc.parseScheduleTime(bad), null, JSON.stringify(bad));
   }
 });
 
-test('--help and the man page say the tool is run by hand and carry no scheduler flag', () => {
+test('xmlEscape covers & < > " and \'', () => {
+  assert.equal(cc.xmlEscape(`a&b<c>"d"'e'`), 'a&amp;b&lt;c&gt;&quot;d&quot;&apos;e&apos;');
+});
+
+test('launchdPlist: a calendar schedule — Hour/Minute present; RunAtLoad, StartInterval, KeepAlive absent', () => {
+  const xml = cc.launchdPlist({ label: 'com.ccarchive.archive', nodePath: '/usr/bin/node', scriptPath: '/x/ccarchive',
+    extraArgs: [], hour: 3, minute: 5, logPath: '/home/u/Library/Logs/ccarchive.log' });
+  assert.match(xml, /<key>StartCalendarInterval<\/key>\s*<dict>\s*<key>Hour<\/key>\s*<integer>3<\/integer>\s*<key>Minute<\/key>\s*<integer>5<\/integer>\s*<\/dict>/);
+  assert.doesNotMatch(xml, /RunAtLoad|StartInterval|KeepAlive/);
+  assert.match(xml, /<key>Label<\/key>\s*<string>com\.ccarchive\.archive<\/string>/);
+  assert.match(xml, /<array>\s*<string>\/usr\/bin\/node<\/string>\s*<string>\/x\/ccarchive<\/string>\s*<\/array>/, 'no --dest unless given');
+  assert.match(xml, /<key>StandardOutPath<\/key>\s*<string>\/home\/u\/Library\/Logs\/ccarchive\.log<\/string>/);
+  assert.match(xml, /<key>StandardErrorPath<\/key>\s*<string>\/home\/u\/Library\/Logs\/ccarchive\.log<\/string>/);
+});
+
+test('launchdPlist escapes every value (paths with & < > quotes cannot break the XML)', () => {
+  const xml = cc.launchdPlist({ label: 'l&l', nodePath: '/n<ode>', scriptPath: '/s "q" & \'a\'',
+    extraArgs: ['--dest', '/d&e/<x>'], hour: 0, minute: 0, logPath: '/l&g' });
+  assert.match(xml, /<string>\/n&lt;ode&gt;<\/string>/);
+  assert.match(xml, /<string>\/s &quot;q&quot; &amp; &apos;a&apos;<\/string>/);
+  assert.match(xml, /<string>\/d&amp;e\/&lt;x&gt;<\/string>/);
+  assert.match(xml, /<string>l&amp;l<\/string>/);
+  assert.match(xml, /<string>\/l&amp;g<\/string>/);
+  assert.doesNotMatch(xml.replace(/<[^>]+>/g, ''), /[<>]/, 'no raw angle bracket survives in text content');
+});
+
+test('systemd units: Type=oneshot service with a quoted absolute ExecStart; timer with OnCalendar and Persistent=true', () => {
+  const svc = cc.systemdService({ nodePath: SCHED_NODE, scriptPath: SCHED_SCRIPT, extraArgs: ['--dest', '/a b/c'] });
+  assert.match(svc, /^\[Service\]$/m);
+  assert.match(svc, /^Type=oneshot$/m);
+  assert.match(svc, /^ExecStart="\/opt\/node bin\/node" "\/opt\/cc tools\/ccarchive" "--dest" "\/a b\/c"$/m);
+  const timer = cc.systemdTimer({ hour: 3, minute: 5 });
+  assert.match(timer, /^OnCalendar=\*-\*-\* 03:05:00$/m);
+  assert.match(timer, /^Persistent=true$/m);
+  assert.match(timer, /^Unit=ccarchive\.service$/m);
+  assert.match(timer, /^WantedBy=timers\.target$/m);
+});
+
+test('systemdWord escapes quote, backslash, % and $', () => {
+  assert.equal(cc.systemdWord('a"b\\c%d$e'), '"a\\"b\\\\c%%d$$e"');
+});
+
+test('cronLine quotes awkward paths and escapes %', () => {
+  assert.equal(cc.cronLine({ nodePath: '/usr/bin/node', scriptPath: '/x/ccarchive', hour: 3, minute: 0 }),
+    '0 3 * * * /usr/bin/node /x/ccarchive');
+  assert.equal(cc.cronLine({ nodePath: '/n', scriptPath: '/s p/c', extraArgs: ['--dest', '/d%e'], hour: 16, minute: 45 }),
+    "45 16 * * * /n '/s p/c' --dest '/d\\%e'");
+});
+
+test('macOS install: writes the calendar plist, then bootstraps it (argv through the seam); never runs an archive', () => {
+  const e = schedEnv();
+  const { result, stdout } = withSeam(e, () => cc.installSchedule({
+    platform: 'darwin', home: e.home, nodePath: SCHED_NODE, scriptPath: SCHED_SCRIPT, uid: 501, at: '04:30' }));
+  assert.equal(result, 0);
+  const { plistPath, logPath } = cc.schedulePaths(e.home);
+  assert.deepEqual(e.argvs(), [['launchctl', 'bootstrap', 'gui/501', plistPath]], 'a first install only bootstraps');
+  const xml = fs.readFileSync(plistPath, 'utf8');
+  assert.match(xml, /<key>Hour<\/key>\s*<integer>4<\/integer>\s*<key>Minute<\/key>\s*<integer>30<\/integer>/);
+  assert.doesNotMatch(xml, /RunAtLoad|StartInterval|KeepAlive/);
+  assert.ok(!xml.includes('--dest'), 'no --dest was given, none is baked in');
+  assert.ok(fs.existsSync(path.dirname(logPath)), 'the log folder exists');
+  assert.ok(!fs.existsSync(logPath), 'installing runs nothing, so nothing was logged');
+  assert.match(stdout, /daily at 04:30 local time \(and not at login\)/);
+  assert.deepEqual(fs.readdirSync(path.dirname(plistPath)), ['com.ccarchive.archive.plist'], 'no temp file left behind');
+});
+
+test('macOS install: the default time is 03:00, and a given --dest is baked in absolute', () => {
+  const e = schedEnv();
+  withSeam(e, () => cc.installSchedule({ platform: 'darwin', home: e.home, nodePath: SCHED_NODE, scriptPath: SCHED_SCRIPT,
+    uid: 1, dest: 'rel/dest' }));
+  const xml = fs.readFileSync(cc.schedulePaths(e.home).plistPath, 'utf8');
+  assert.match(xml, /<key>Hour<\/key>\s*<integer>3<\/integer>\s*<key>Minute<\/key>\s*<integer>0<\/integer>/);
+  assert.match(xml, new RegExp(`<string>--dest</string>\\s*<string>${path.resolve('rel/dest').replace(/[.*+?^${}()|[\]\\\/]/g, '\\$&')}</string>`));
+});
+
+test('macOS re-install replaces cleanly: bootout the old one first, then bootstrap the new', () => {
+  const e = schedEnv();
+  const o = { platform: 'darwin', home: e.home, nodePath: SCHED_NODE, scriptPath: SCHED_SCRIPT, uid: 501 };
+  withSeam(e, () => cc.installSchedule({ ...o, at: '03:00' }));
+  withSeam(e, () => cc.installSchedule({ ...o, at: '05:15' }));
+  const { plistPath } = cc.schedulePaths(e.home);
+  assert.deepEqual(e.argvs(), [
+    ['launchctl', 'bootstrap', 'gui/501', plistPath],
+    ['launchctl', 'bootout', 'gui/501/com.ccarchive.archive'],
+    ['launchctl', 'bootstrap', 'gui/501', plistPath],
+  ]);
+  assert.match(fs.readFileSync(plistPath, 'utf8'), /<integer>5<\/integer>\s*<key>Minute<\/key>\s*<integer>15<\/integer>/);
+});
+
+test('macOS install: if launchctl refuses, nothing is left installed and the run exits 2', () => {
+  const e = schedEnv();
+  assert.throws(() => withSeam(e, () => cc.installSchedule({
+    platform: 'darwin', home: e.home, nodePath: SCHED_NODE, scriptPath: SCHED_SCRIPT, uid: 1 }), 5),
+  (err) => err instanceof cc.CcError && /could not load/.test(err.message));
+  assert.ok(!fs.existsSync(cc.schedulePaths(e.home).plistPath));
+});
+
+const OLD_STYLE_PLIST = `<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0"><dict>
+<key>Label</key><string>com.ccarchive.archive</string>
+<key>ProgramArguments</key><array><string>/n</string><string>/s</string></array>
+<key>StartInterval</key><integer>86400</integer>
+<key>RunAtLoad</key><true/>
+</dict></plist>
+`;
+
+test('macOS uninstall removes an OLD-style (RunAtLoad/StartInterval) plist and says so', () => {
+  const e = schedEnv();
+  const { plistPath } = cc.schedulePaths(e.home);
+  fs.mkdirSync(path.dirname(plistPath), { recursive: true });
+  fs.writeFileSync(plistPath, OLD_STYLE_PLIST);
+  const { result, stdout } = withSeam(e, () => cc.uninstallSchedule({ platform: 'darwin', home: e.home, uid: 501 }));
+  assert.equal(result, 0);
+  assert.ok(!fs.existsSync(plistPath));
+  assert.deepEqual(e.argvs(), [['launchctl', 'bootout', 'gui/501/com.ccarchive.archive']]);
+  assert.match(stdout, /older login-style agent/);
+});
+
+test('macOS install over an OLD-style plist replaces it with a calendar one and says so', () => {
+  const e = schedEnv();
+  const { plistPath } = cc.schedulePaths(e.home);
+  fs.mkdirSync(path.dirname(plistPath), { recursive: true });
+  fs.writeFileSync(plistPath, OLD_STYLE_PLIST);
+  const { stdout } = withSeam(e, () => cc.installSchedule({ platform: 'darwin', home: e.home, nodePath: SCHED_NODE,
+    scriptPath: SCHED_SCRIPT, uid: 501 }));
+  assert.doesNotMatch(fs.readFileSync(plistPath, 'utf8'), /RunAtLoad|StartInterval/);
+  assert.match(stdout, /replaced an older login-style agent/);
+  assert.equal(e.argvs()[0][1], 'bootout', 'the old agent was unloaded first');
+});
+
+test('macOS uninstall with nothing installed says so and asks the scheduler nothing', () => {
+  const e = schedEnv();
+  const { result, stdout } = withSeam(e, () => cc.uninstallSchedule({ platform: 'darwin', home: e.home, uid: 1 }));
+  assert.equal(result, 0);
+  assert.match(stdout, /No schedule installed/);
+  assert.deepEqual(e.argvs(), []);
+});
+
+test('macOS status: absent file, calendar file (time + loaded), old-style file (flagged) — read-only', () => {
+  const e = schedEnv();
+  const o = { platform: 'darwin', home: e.home, uid: 501 };
+  let r = withSeam(e, () => cc.scheduleStatus(o));
+  assert.match(r.stdout, /file:\s+absent/);
+  assert.deepEqual(e.argvs(), [], 'no file, no question put to launchd');
+  withSeam(e, () => cc.installSchedule({ ...o, nodePath: SCHED_NODE, scriptPath: SCHED_SCRIPT, at: '02:45' }));
+  fs.writeFileSync(e.log, '');
+  r = withSeam(e, () => cc.scheduleStatus(o));
+  assert.match(r.stdout, /daily calendar schedule/);
+  assert.match(r.stdout, /time:\s+02:45 local/);
+  assert.match(r.stdout, /loaded: yes/);
+  assert.deepEqual(e.argvs(), [['launchctl', 'print', 'gui/501/com.ccarchive.archive']]);
+  r = withSeam(e, () => cc.scheduleStatus(o), 1);
+  assert.match(r.stdout, /loaded: no/);
+  fs.writeFileSync(cc.schedulePaths(e.home).plistPath, OLD_STYLE_PLIST);
+  r = withSeam(e, () => cc.scheduleStatus(o));
+  assert.match(r.stdout, /OLD login-style agent/);
+  assert.equal(fs.readFileSync(cc.schedulePaths(e.home).plistPath, 'utf8'), OLD_STYLE_PLIST, 'status changed nothing');
+});
+
+test('Linux install: writes service + timer, then daemon-reload and enable --now (argv through the seam)', () => {
+  const e = schedEnv();
+  const { result, stdout } = withSeam(e, () => cc.installSchedule({
+    platform: 'linux', home: e.home, nodePath: SCHED_NODE, scriptPath: SCHED_SCRIPT, at: '01:20' }));
+  assert.equal(result, 0);
+  assert.deepEqual(e.argvs(), [
+    ['systemctl', '--user', 'show-environment'],
+    ['systemctl', '--user', 'daemon-reload'],
+    ['systemctl', '--user', 'enable', '--now', 'ccarchive.timer'],
+  ]);
+  const { timerPath, servicePath } = cc.schedulePaths(e.home);
+  assert.equal(timerPath, path.join(e.home, '.config', 'systemd', 'user', 'ccarchive.timer'));
+  assert.match(fs.readFileSync(timerPath, 'utf8'), /^OnCalendar=\*-\*-\* 01:20:00$/m);
+  assert.match(fs.readFileSync(timerPath, 'utf8'), /^Persistent=true$/m);
+  assert.match(fs.readFileSync(servicePath, 'utf8'), /^Type=oneshot$/m);
+  assert.match(stdout, /caught up/);
+  assert.match(stdout, /loginctl enable-linger\); this did not enable it/);
+  assert.ok(!e.argvs().some((a) => a.includes('enable-linger') || a[0] === 'loginctl'), 'lingering is never enabled');
+});
+
+test('Linux re-install disables the old timer first; uninstall disables, deletes both files, reloads', () => {
+  const e = schedEnv();
+  const o = { platform: 'linux', home: e.home, nodePath: SCHED_NODE, scriptPath: SCHED_SCRIPT };
+  withSeam(e, () => cc.installSchedule(o));
+  fs.writeFileSync(e.log, '');
+  withSeam(e, () => cc.installSchedule({ ...o, at: '06:00' }));
+  assert.deepEqual(e.argvs().slice(0, 2), [['systemctl', '--user', 'show-environment'],
+    ['systemctl', '--user', 'disable', '--now', 'ccarchive.timer']]);
+  fs.writeFileSync(e.log, '');
+  const { result, stdout } = withSeam(e, () => cc.uninstallSchedule(o));
+  assert.equal(result, 0);
+  assert.deepEqual(e.argvs(), [['systemctl', '--user', 'disable', '--now', 'ccarchive.timer'],
+    ['systemctl', '--user', 'daemon-reload']]);
+  const { timerPath, servicePath } = cc.schedulePaths(e.home);
+  assert.ok(!fs.existsSync(timerPath) && !fs.existsSync(servicePath));
+  assert.match(stdout, /Removed schedule ccarchive\.timer/);
+  const again = withSeam(e, () => cc.uninstallSchedule(o));
+  assert.match(again.stdout, /No schedule installed/);
+});
+
+test('Linux uninstall exits 1 and says what to check when systemd will not confirm', () => {
+  const e = schedEnv();
+  const o = { platform: 'linux', home: e.home, nodePath: SCHED_NODE, scriptPath: SCHED_SCRIPT };
+  withSeam(e, () => cc.installSchedule(o));
+  const { result, stdout } = withSeam(e, () => cc.uninstallSchedule(o), 1);
+  assert.equal(result, 1);
+  assert.match(stdout, /systemd did not confirm/);
+  assert.ok(!fs.existsSync(cc.schedulePaths(e.home).timerPath), 'the files are still removed');
+});
+
+test('Linux status reads time, enabled and active through the seam', () => {
+  const e = schedEnv();
+  const o = { platform: 'linux', home: e.home, nodePath: SCHED_NODE, scriptPath: SCHED_SCRIPT, at: '07:10' };
+  let r = withSeam(e, () => cc.scheduleStatus(o));
+  assert.match(r.stdout, /files:\s+absent/);
+  assert.deepEqual(e.argvs(), []);
+  withSeam(e, () => cc.installSchedule(o));
+  fs.writeFileSync(e.log, '');
+  r = withSeam(e, () => cc.scheduleStatus(o));
+  assert.match(r.stdout, /time:\s+07:10 local/);
+  assert.match(r.stdout, /enabled: yes/);
+  assert.match(r.stdout, /active:\s+yes/);
+  assert.deepEqual(e.argvs(), [['systemctl', '--user', 'is-enabled', 'ccarchive.timer'],
+    ['systemctl', '--user', 'is-active', 'ccarchive.timer']]);
+  r = withSeam(e, () => cc.scheduleStatus(o), 1);
+  assert.match(r.stdout, /enabled: no/);
+});
+
+test('Linux with no working systemctl --user: refuses (CcError, exit 2), prints a crontab line, writes nothing', () => {
+  const e = schedEnv();
+  const logged = [];
+  const run = (cmd, args) => { logged.push([cmd, ...args]); return { status: null, stdout: '', error: new Error('ENOENT') }; };
+  const { stdout } = withSeam(e, () => {
+    assert.throws(() => cc.installSchedule({ platform: 'linux', home: e.home, nodePath: '/usr/bin/node',
+      scriptPath: '/x/ccarchive', at: '16:45', dest: '/my archive', run }),
+    (err) => err instanceof cc.CcError && /refused/.test(err.message));
+  });
+  assert.match(stdout, /^  45 16 \* \* \* \/usr\/bin\/node \/x\/ccarchive --dest '\/my archive'$/m);
+  assert.deepEqual(logged, [['systemctl', '--user', 'show-environment']], 'only the availability probe ran');
+  assert.ok(!fs.existsSync(path.join(e.home, '.config')), 'nothing was written');
+});
+
+test('Linux: if systemctl refuses to enable, the unit files are removed again', () => {
+  const e = schedEnv();
+  const run = (cmd, args) => ({ status: args.includes('enable') ? 1 : 0, stdout: '' });
+  assert.throws(() => withSeam(e, () => cc.installSchedule({ platform: 'linux', home: e.home, nodePath: SCHED_NODE,
+    scriptPath: SCHED_SCRIPT, run })), (err) => err instanceof cc.CcError && /could not enable/.test(err.message));
+  assert.ok(!fs.existsSync(cc.schedulePaths(e.home).timerPath));
+  assert.ok(!fs.existsSync(cc.schedulePaths(e.home).servicePath));
+});
+
+test('an unsupported platform is refused (exit 2) for all three flags; nothing is written or run', () => {
+  for (const platform of ['win32', 'freebsd']) {
+    for (const fn of [cc.installSchedule, cc.scheduleStatus, cc.uninstallSchedule]) {
+      const e = schedEnv();
+      withSeam(e, () => {
+        assert.throws(() => fn({ platform, home: e.home, nodePath: SCHED_NODE, scriptPath: SCHED_SCRIPT }),
+          (err) => err instanceof cc.CcError && err.code === 'ESCHEDULE' && new RegExp(platform).test(err.message));
+      });
+      assert.deepEqual(e.argvs(), []);
+      assert.deepEqual(fs.readdirSync(e.home), [], 'nothing written');
+    }
+  }
+});
+
+test('installSchedule validates --at before touching anything', () => {
+  const e = schedEnv();
+  withSeam(e, () => {
+    assert.throws(() => cc.installSchedule({ platform: 'darwin', home: e.home, at: '25:61' }),
+      (err) => err.code === 'EUSAGE' && /HH:MM/.test(err.message));
+  });
+  assert.deepEqual(e.argvs(), []);
+  assert.deepEqual(fs.readdirSync(e.home), []);
+});
+
+// -- the command line: argument rules, and a spawned CLI with a fake HOME + the seam --
+
+test('parseArgs: schedule flags are accepted; --at needs --install-schedule and a valid time', () => {
+  assert.doesNotThrow(() => cc.parseArgs(['--install-schedule']));
+  assert.doesNotThrow(() => cc.parseArgs(['--install-schedule', '--at', '04:30', '--dest', '/d']));
+  assert.doesNotThrow(() => cc.parseArgs(['--schedule-status']));
+  assert.doesNotThrow(() => cc.parseArgs(['--uninstall-schedule']));
+  const refuse = (args, re) => assert.throws(() => cc.parseArgs(args), (e) => e.code === 'EUSAGE' && re.test(e.message), args.join(' '));
+  refuse(['--install-schedule', '--at', '25:00'], /HH:MM/);
+  refuse(['--install-schedule', '--at', '3pm'], /HH:MM/);
+  refuse(['--install-schedule', '--at'], /needs a time/);
+  refuse(['--at', '03:00'], /only goes with --install-schedule/);
+  refuse(['--schedule-status', '--at', '03:00'], /does not go with/);
+  refuse(['--install-schedule', '--uninstall-schedule'], /cannot be combined/);
+  refuse(['--schedule-status', '--uninstall-schedule'], /cannot be combined/);
+});
+
+test('parseArgs: a schedule flag never rides along with an archive or other mode', () => {
+  for (const other of ['--restore', '--verify', '--audit', '--rekey', '--force', '--dry-run', '--clear-lock', '--json', '--source']) {
+    const args = ['--install-schedule', other, ...(other === '--source' ? ['/s'] : [])];
+    assert.throws(() => cc.parseArgs(args), (e) => e.code === 'EUSAGE' && /does not go with --install-schedule/.test(e.message), other);
+  }
+  assert.throws(() => cc.parseArgs(['--schedule-status', '--dest', '/d']), (e) => e.code === 'EUSAGE');
+  assert.throws(() => cc.parseArgs(['--nope']), (e) => e.code === 'EUSAGE', 'genuinely unknown flags are still refused');
+});
+
+test('CLI: the schedule flags run through the seam in a fake HOME; the old removal refusal is gone', { skip: !['darwin', 'linux'].includes(process.platform) }, () => {
+  const e = schedEnv();
+  const env = { ...process.env, HOME: e.home, CCARCHIVE_SCHEDULER_LOG: e.log };
+  const run = (...args) => spawnSync('node', [SCRIPT, ...args], { encoding: 'utf8', env });
+  const bad = run('--install-schedule', '--at', '99:99');
+  assert.equal(bad.status, 2);
+  assert.match(bad.stderr, /HH:MM/);
+  assert.doesNotMatch(bad.stderr, /was removed/);
+  assert.doesNotMatch(bad.stderr, /\n\s+at /, 'one clean line, no stack trace');
+  assert.deepEqual(e.argvs(), []);
+  const inst = run('--install-schedule', '--at', '03:30');
+  assert.equal(inst.status, 0, inst.stderr);
+  assert.match(inst.stdout, /03:30/);
+  assert.ok(e.argvs().length > 0, 'the scheduler was asked (through the seam)');
+  assert.ok(e.argvs().every((a) => ['launchctl', 'systemctl'].includes(a[0])));
+  const st = run('--schedule-status');
+  assert.equal(st.status, 0, st.stderr);
+  assert.match(st.stdout, /03:30 local/);
+  assert.match(st.stdout, /test seam active/);
+  const un = run('--uninstall-schedule');
+  assert.equal(un.status, 0, un.stderr);
+  assert.match(un.stdout, /Removed schedule/);
+  assert.equal(run('--uninstall-schedule').status, 0, 'a second uninstall is a quiet no-op');
+  assert.doesNotMatch(run('-h', '--install-schedule').stderr, /./, 'help still wins');
+});
+
+test('CLI: a schedule flag with an archive option exits 2 and archives nothing', () => {
+  const { dir, src, dest } = makeTree();
+  const e = schedEnv();
+  const env = { ...process.env, HOME: e.home, CCARCHIVE_SCHEDULER_LOG: e.log };
+  const r = spawnSync('node', [SCRIPT, '--install-schedule', '--source', src, '--dest', dest, '--force'], { encoding: 'utf8', env });
+  assert.equal(r.status, 2);
+  assert.ok(!fs.existsSync(dest), 'no archive run happened');
+  assert.deepEqual(e.argvs(), []);
+  void dir;
+});
+
+test('--help lists the schedule options briefly; the man page documents them, SCHEDULING and DESIGN', () => {
   const help = execFileSync('node', [SCRIPT, '-h'], { encoding: 'utf8' });
-  assert.doesNotMatch(help, /schedule(?!\.)/, '--help offers no schedule flag');
-  assert.match(help, /Run by hand/);
+  assert.match(help, /--install-schedule \[--at HH:MM\] \| --schedule-status \| --uninstall-schedule/);
   const page = fs.readFileSync(path.join(__dirname, 'man', 'ccarchive.1'), 'utf8').replace(/\\-/g, '-');
-  assert.match(page, /run by hand/i);
-  assert.doesNotMatch(page, /^\.TP\n\.B --(install|uninstall)-schedule|^\.TP\n\.B --schedule-status/m,
-    'no OPTIONS entry for a scheduler flag');
+  for (const needle of ['.SH SCHEDULING', '.SH DESIGN', 'StartCalendarInterval', 'Persistent=true', 'OnCalendar',
+    'loginctl enable-linger', 'Allow in the Background', 'CCARCHIVE_SCHEDULER_LOG', 'launchctl bootout']) {
+    assert.ok(page.includes(needle), `man page mentions ${needle}`);
+  }
+  assert.match(page, /not yet built/, 'DESIGN says encryption is planned, not built');
 });
 
 // --- integrity: sha256 manifest + verify ---------------------------------
@@ -2041,7 +2469,6 @@ test('parseArgs accepts every documented option and refuses the rest', () => {
     '--allow-repo-dest']));
   assert.throws(() => cc.parseArgs(['--nope']), (e) => e.code === 'EUSAGE');
   assert.throws(() => cc.parseArgs(['--source']), (e) => e.code === 'EUSAGE');
-  assert.throws(() => cc.parseArgs(['--install-schedule']), (e) => e.code === 'EREMOVED');
 });
 
 // -- HL3: authenticate before any write --
