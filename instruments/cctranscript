@@ -380,7 +380,7 @@ function currentRepoDir() {
 // it settles for the whole mirror. It is a speed path only: a prompt the prefix
 // does not contain is found by the whole-file read below, so the number can
 // never change an answer. Chosen from a census of 983 local mirrors
-// (2026-10-06): the first prompt ended within 16 KB in all but 25, within 64 KB
+// (2026-10-05 UTC): the first prompt ended within 16 KB in all but 25, within 64 KB
 // in all but 24, and the tail beyond that was flat out to 2.9 MB (23 beyond
 // 256 KB), so a larger bound buys only a handful of mirrors. 64 KB also equals
 // the cwd sniff's bound, and gunzipHead never reads less than 64 KB of

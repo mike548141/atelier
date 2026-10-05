@@ -60,3 +60,16 @@ flagged or overridden row itself. It screened out 115 more items by title
 and section, and the result block names them. One finding was filed as
 `115/240`: three enforced scanners still call themselves advisory. A worker
 has claimed it.
+
+## `210/180`: cctranscript's first-prompt column reads a bounded prefix
+
+A Sonnet worker built it (`83d9b0b`). The merge and close are in the
+commit after it. A 64 KB prefix read comes from a census of where the first
+prompt sits; when the prefix holds no prompt, the whole-file read runs as
+before. Listing output was byte-identical across three runs each, the
+function's answer was identical on all 983 mirrors, and listing CPU fell
+from about 27 s to about 7 s. The orchestrator re-ran the Node suite on
+the merged tree: 411 pass. It also corrected the census date in a code
+comment, which the worker had stamped from local time. The worker also
+measured `--search` and left it alone, because a prefix cannot be
+output-identical there.

@@ -330,7 +330,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [Why is the source smaller than the archived copy? — the shrink](roadmap/210-instruments-open-features/150-why-the-source-is-smaller-than-the-archived-copy.md)
 - ✅ 🎯 [ccarchive's summary counts files, and Mike's own read of the tool](roadmap/210-instruments-open-features/160-ccarchive-reports-file-counts-not-session-counts.md)
 - ✅ 🔎 [ccarchive's manifest lags its own mirror in 14 files, so the](roadmap/210-instruments-open-features/170-the-manifest-lags-the-mirror.md)
-- [~] 🔎 [--list --from-archive still fully gunzips every local mirror for](roadmap/210-instruments-open-features/180-first-prompt-column-gunzips-every-mirror.md)
+- ✅ 🔎 [--list --from-archive still fully gunzips every local mirror for](roadmap/210-instruments-open-features/180-first-prompt-column-gunzips-every-mirror.md)
 - ✅ [ccarchive --install-schedule recreates a login job Mike removed](roadmap/210-instruments-open-features/190-ccarchive-remove-install-schedule.md)
 - ✅ [A run aborts on one evicted iCloud mirror instead of skipping it](roadmap/210-instruments-open-features/200-ccarchive-aborts-on-an-evicted-icloud-mirror.md)
 - ✅ [ccarchive hardening — build the cold passes' counsel so an ordinary…](roadmap/210-instruments-open-features/210-ccarchive-hardening-batch.md)
