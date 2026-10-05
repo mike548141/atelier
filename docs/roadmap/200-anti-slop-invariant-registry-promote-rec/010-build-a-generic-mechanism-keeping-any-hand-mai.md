@@ -1,6 +1,6 @@
-- [ ] **Build a generic mechanism keeping any hand-maintained index true to
+- [~] **Build a generic mechanism keeping any hand-maintained index true to
       the directory it maps — option C, chosen over the counselled
-      single-index build.** Grounding: the decisions index drifted twice in
+      single-index build.** (claimed 2026-10-05-1133, wt: atelier-qr-200-010) Grounding: the decisions index drifted twice in
       three weeks (five records unlisted; then a retro-distilled entry
       naming a wrong path, caught only because pathscan landed the same
       day). Counsel recorded with the ruling: C is built on one bitten

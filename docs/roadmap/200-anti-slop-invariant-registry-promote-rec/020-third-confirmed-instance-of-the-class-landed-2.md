@@ -1,4 +1,4 @@
-- [ ] Third confirmed instance of the class landed 2026-08-03, and Mike ruled
+- [~] Third confirmed instance of the class landed 2026-08-03, and Mike ruled (claimed 2026-10-05-1133, wt: atelier-qr-200-doctrine)
       the mint queued here. The class: a test authored from the same mental
       model as the code it guards cannot falsify that model — mutation testing
       proves *wiring*, never *correctness*; when a test encodes a belief about

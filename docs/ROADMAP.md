@@ -297,11 +297,11 @@ then `python3 tools/board.py rebuild`.
 
 *[Narrative](roadmap/200-anti-slop-invariant-registry-promote-rec/README.md)*
 
-- [ ] [Build a generic mechanism keeping any hand-maintained index true to](roadmap/200-anti-slop-invariant-registry-promote-rec/010-build-a-generic-mechanism-keeping-any-hand-mai.md)
-- [ ] [Third confirmed instance of the class landed 2026-08-03, and Mike…](roadmap/200-anti-slop-invariant-registry-promote-rec/020-third-confirmed-instance-of-the-class-landed-2.md)
+- [~] [Build a generic mechanism keeping any hand-maintained index true to](roadmap/200-anti-slop-invariant-registry-promote-rec/010-build-a-generic-mechanism-keeping-any-hand-mai.md)
+- [~] (claimed 2026-10-05-1133, wt: atelier-qr-200-doctrine) [Third confirmed instance of the class landed 2026-08-03, and Mike…](roadmap/200-anti-slop-invariant-registry-promote-rec/020-third-confirmed-instance-of-the-class-landed-2.md)
 - [ ] 🎯 [R1 — the recurrence count has to become mechanical, and the mining](roadmap/200-anti-slop-invariant-registry-promote-rec/030-r1-the-recurrence-count-has-to-become-mechanic.md)
 - ✅ [R2 — find the actual triplications before consolidating any of them.](roadmap/200-anti-slop-invariant-registry-promote-rec/040-r2-find-the-actual-triplications-before-consol.md)
-- [ ] [Codify V1–V7 as the always-loaded reviewer checklist](roadmap/200-anti-slop-invariant-registry-promote-rec/050-codify-v1-v7-as-the-always-loaded-reviewer-che.md)
+- [~] (claimed 2026-10-05-1133, wt: atelier-qr-200-doctrine) [Codify V1–V7 as the always-loaded reviewer checklist](roadmap/200-anti-slop-invariant-registry-promote-rec/050-codify-v1-v7-as-the-always-loaded-reviewer-che.md)
 - [ ] [Two-layer acceptance criteria, one verification pass.](roadmap/200-anti-slop-invariant-registry-promote-rec/060-two-layer-acceptance-criteria-one-verification.md)
 - ✅ [Enforcement seam — how does an invariant get checked?](roadmap/200-anti-slop-invariant-registry-promote-rec/070-enforcement-seam-how-does-an-invariant-get-che.md)
 - [ ] [Where does the registry live? — the SCANNER half is answered and built](roadmap/200-anti-slop-invariant-registry-promote-rec/080-where-does-the-registry-live-the-scanner-half.md)
