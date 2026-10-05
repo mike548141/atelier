@@ -197,3 +197,57 @@ Changing what the scope suppresses is a behaviour change. Both go to Mike,
 so `115/080` stays open under 🎯 for that half alone. Five reporting
 divergences (D1–D5) are recorded on the item, not unified. Code pass
 queued at `160/730`.
+
+## Close: why the run stopped, and what it leaves
+
+**Stop condition: everything left is blocked.** Each open item was read
+again at the stop. Everything still open waits on one of three things: a
+ruling of Mike's (the 🎯 items and the candidate house rules), a Fable
+cold pass (the `⏳` queue), or a session in a child repo (pin bumps, child
+reds). Nothing progressable without one of those remained. Economics did
+not fire.
+
+**Delivered: 23 items closed.**
+- Ten were closed on evidence.
+- Four builds landed: `210/180`, `110/130`, `115/250` and `115/240`.
+- Two guard mechanisms landed: `200/010` (`indexscan`) and `115/080`
+  part 3 (`report.py`).
+- One board-state fix landed, `130/020`, which also closed `130/010` and
+  `320/460`.
+- Two doctrine texts landed: `200/050`, and `200/020`, which awaits
+  sign-off.
+- Two analyses landed: `300/020` and `260/090`, which also closed
+  `260/040`.
+- One inline records fix: `200/110`.
+- Four new items filed: `115/240`, `115/250`, `200/110` and `260/110`.
+  Three of them are closed.
+
+**Six rule-4 passes queued for Fable:** `160/680`, `690`, `700`, `710`,
+`720` and `730`. Take `720` first. A wrong pre-filter gate is a silent miss
+on a blocking secret or PII guard.
+
+**Open for Mike (🎯), put to him at close:**
+- `200/020`: sign-off on EVIDENCE §15's wording and home.
+- `115/080`: whether finding IDs get printed, and whether the allow-marker
+  scope should suppress in the three scanners that ignore it.
+- `300/020`'s seven forbid-only flags, two of them landed guards.
+- Three child floors are red on blocking secretscan findings. Each is that
+  child's work.
+- `rpi`'s two public-record corrections.
+- Whether to adopt P9 (`260/110`) before the next repo goes public.
+
+**Verification on the final merged tree:**
+- The full Python suite ran 1,757 tests, all OK.
+- Node passed 411/411 earlier in the run. Part 3 touched no instrument.
+- The two `BoundedMemory` tests that timed out for three workers under
+  load of 250–470 pass on a quiet machine.
+
+**Recorded against this run:**
+- `200/110` was done without a claim commit.
+- Two of the ten workers stamped dates from local time, in three places,
+  even though the dispatch bounds said `date -u`. Each was caught at merge by a grep
+  and corrected. That is a dispatch-prompt rule that does not bind. The
+  check that worked was the orchestrator's grep of each merged diff.
+- Running six workers at once, alongside other repos' test runs, pushed
+  the machine's load past 400. That cost wall time and three spurious
+  timeouts. The run held new dispatches until load fell.
