@@ -1,4 +1,4 @@
-- [ ] 🛑 **Rule-4 cold pass queued: ccarchive's manifest checkpoints and
+- [ ] **Rule-4 cold pass queued: ccarchive's manifest checkpoints and
       stale-entry heal (`210/170`).** The run authored this itself (its
       dispatched workers' output counts as the run's authorship). It was
       queued at landing, and the run neither takes it nor spawns a reviewer

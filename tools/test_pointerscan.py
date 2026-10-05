@@ -210,6 +210,80 @@ class CycleStateTest(unittest.TestCase):
         self.assertEqual(dets(text), [])
 
 
+class QueueStateTest(unittest.TestCase):
+    """Detector 3 (130/020) — the queued glyph means a review is queued and its
+    pass has not returned a verdict, because that glyph is what a session
+    counts to size the review queue. Both miscounts are pinned: a landed pass
+    still wearing it (2026-10-03: "20 queued" when none were) and a queued
+    review written without it (2026-10-05)."""
+
+    LANDED = (
+        f"- {Q} **Rule-4 cold pass queued: the widget rule.** Delta: the\n"
+        "      paragraph. Intent record: the session record.\n"
+        "      - [ ] **The pass RAN 2026-09-26 and the cycle stays OPEN — a\n"
+        "            MAJOR stands.** [verdict](../../reviews/w-cold.md).\n")
+
+    def test_a_landed_pass_still_wearing_the_glyph_is_flagged(self):
+        """The 27-item shape: claim in the lead, outcome beneath. The order
+        rule reads this as healthy (130/010); this detector does not."""
+        self.assertEqual(dets(self.LANDED), ["state"])
+        self.assertIn("verdict has landed",
+                      " ".join(reasons(self.LANDED, "state")))
+
+    def test_a_stated_cycle_outcome_alone_is_landing_evidence(self):
+        text = (f"- {Q} **Rule-4 cold pass queued: x.** Delta: y.\n"
+                "      - the cycle CLOSES on this pass (no MAJOR)\n")
+        self.assertEqual(dets(text), ["state"])
+
+    def test_a_claimed_pass_still_running_is_not_landed(self):
+        """A taken pointer keeps its glyph while the pass runs; a claim stamp
+        is not a verdict."""
+        text = (f"- [~] {Q} (claimed 2026-10-06-0100, wt: r) **Rule-4 cold "
+                "pass queued: x.** Delta: y. CLAIMED for the review run.\n")
+        self.assertEqual(dets(text), [])
+
+    def test_the_glyph_off_with_the_owed_work_named_is_silent(self):
+        fixed = self.LANDED.replace(f"- {Q} ", "- [ ] 🎯 ", 1)
+        self.assertEqual(dets(fixed), [])
+        closed = self.LANDED.replace(f"- {Q} ", "- [x] ", 1)
+        self.assertEqual(dets(closed), [])
+
+    def test_a_verdict_link_alone_is_not_landing(self):
+        """A pointer queuing a further pass cites the verdicts before it."""
+        text = (f"- {Q} **Review queued — the application.** Delta: x.\n"
+                "  **Verdicts applied:** [prior pass](reviews/p-cold.md),\n"
+                "  which returned PASS-WITH-FINDINGS.\n")
+        self.assertEqual(dets(text), [])
+
+    def test_a_queued_review_without_the_glyph_is_flagged(self):
+        text = ("- [ ] 🛑 **Rule-4 cold pass queued: the hardening.** Tier:\n"
+                "      the review tier. Delta: the tool. Intent record: x.\n")
+        self.assertEqual(dets(text), ["state"])
+        self.assertIn("counting the queue",
+                      " ".join(reasons(text, "state")))
+
+    def test_the_same_review_wearing_the_glyph_is_silent(self):
+        text = (f"- {Q} **Rule-4 cold pass queued: the hardening.** Tier:\n"
+                "      the review tier. Delta: the tool. Intent record: x.\n")
+        self.assertEqual(dets(text), [])
+
+    def test_a_title_mentioning_a_queued_review_that_has_run_is_silent(self):
+        """The 27 items after conversion: the title keeps its words as record,
+        and the RAN stamp says the pass is done."""
+        text = ("- [ ] 🎯 **Rule-4 cold pass queued: x.** Delta: y.\n"
+                "      - [ ] **The pass RAN 2026-09-26; the cycle CLOSES.**\n")
+        self.assertEqual(dets(text), [])
+
+    def test_a_backticked_glyph_in_a_title_is_a_mention(self):
+        """An item ABOUT pointers names the glyph in a code span."""
+        text = (f"- [ ] 🔎 **What a `{Q}` review pointer becomes when its "
+                "verdict lands.** A missing rule.\n")
+        self.assertEqual(dets(text), [])
+
+    def test_ordinary_open_work_is_silent(self):
+        self.assertEqual(dets("- [ ] **Build the widget.** Then test it.\n"), [])
+
+
 class ParseTest(unittest.TestCase):
     def test_fenced_examples_are_not_work_items(self):
         text = f"```\n- {Q} **Review queued.** Is this right?\n```\n"
@@ -305,7 +379,7 @@ class LiveSpecimenTest(unittest.TestCase):
             self.skipTest("no docs/ROADMAP.md in this checkout")
         findings = pointerscan.scan(["docs"], TOOLS_DIR.parent)
         for f in findings:
-            self.assertIn(f.detector, ("grammar", "cycle"))
+            self.assertIn(f.detector, ("grammar", "cycle", "state"))
             self.assertTrue(f.reason)
             self.assertGreater(f.line, 0)
 

@@ -1,4 +1,4 @@
-- [ ] 🛑 **Rule-4 cold pass queued: the linear line reader in three guards
+- [ ] 🎯 **Rule-4 cold pass queued: the linear line reader in three guards
       (`110/140`).** The run authored this itself (its dispatched workers'
       output counts as the run's authorship). It was queued at landing, and
       the run neither takes it nor spawns a reviewer for it. *Tier:* Fable,

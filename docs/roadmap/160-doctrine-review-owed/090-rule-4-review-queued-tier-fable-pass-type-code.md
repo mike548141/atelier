@@ -1,4 +1,4 @@
-- [ ] 🛑 **Rule-4 review queued (tier: Fable; pass type: code cold pass, the
+- [ ] 🎯 **Rule-4 review queued (tier: Fable; pass type: code cold pass, the
   EP application; the EP cycle's three MAJORs keep it open past this).**
   *Delta:* `tools/floor.py` + `tools/floorfleet.py` +
   `tools/pre-commit.sample` + `.githooks/pre-commit` +

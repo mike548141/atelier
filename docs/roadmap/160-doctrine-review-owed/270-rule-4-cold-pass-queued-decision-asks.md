@@ -1,4 +1,4 @@
-- [ ] 🛑 **Rule-4 cold pass queued — the ruling-ask rules (device, verified basis,
+- [ ] 🎯 **Rule-4 cold pass queued — the ruling-ask rules (device, verified basis,
       options with a recommendation).** Self-authored doctrine, queued at
       landing by its author, who may not take it. *Tier:* Fable, the
       principal-named review tier — checked at selection; a session that cannot

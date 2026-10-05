@@ -10,7 +10,7 @@ account belongs in the session record where the reviewer's deferral discipline
 governs when it is read. `REVIEW.md` rule 4 states the same ceiling at the point
 a pointer is written.
 
-Two things go wrong with a pointer, and one parse answers both:
+Three things go wrong with a pointer, and one parse answers all of them:
 
   1. GRAMMAR — *what may it say*. A pointer that seeds the reviewer's first
      question steers the pass it is queuing. Recorded three times; the third
@@ -22,6 +22,19 @@ Two things go wrong with a pointer, and one parse answers both:
      the same item carries the verdict of the review that ran is a mechanical
      contradiction. Five such residues came out of one commit; a sixth was
      still standing when this tool was built and is what it found on day one.
+  3. QUEUE STATE — *does the state line count true* (130/020, added
+     2026-10-06). The board legend makes the queued glyph mean one thing: a
+     review is queued and its pass has not returned a verdict. Two ways it
+     miscounts, one detector for each: a pointer whose own pass has RUN still
+     wearing the glyph (27 items on 2026-10-03, a session reported "20 queued"
+     when none were), and a queued review written as an ordinary open item
+     (a re-review on 2026-10-05), which a glyph count misses. Measured over
+     every item version the split board has held (768): the first fires on
+     exactly the 27 items one commit later proved against their verdicts — on
+     no other item — including earlier versions of four of them that were
+     either already stale or carried a further pass queued inside the landed
+     item, a shape the legend now rules out; the second fires on the one
+     re-review and nothing else.
 
 WHY NOT `reviewscan`
 --------------------
@@ -134,7 +147,7 @@ every healthy edit.
 
 ADVISORY, ALWAYS
 ----------------
-Findings exit 0. Both detectors read judgement-adjacent text and the honest
+Findings exit 0. Every detector reads judgement-adjacent text and the honest
 posture is to warn at the one moment the fix is free: a pointer is fixable in
 the commit that writes it. A line carrying `pointerscan:allow: <reason>`
 anywhere in an item exempts it — the same greppable hatch as the sibling
@@ -273,6 +286,24 @@ _RULED = re.compile(r"\bRULED\b|\brulings? (?:verbatim|applied)\b")
 _RESOLVED = re.compile(r"\*\*taken\*\*"
                        r"|\btaken\b\s*;"
                        r"|\bthe verdict is (?:above|below)\b", re.I)
+
+# Evidence that THIS item's own pass has run — the stamps the house's closes
+# actually write when a verdict lands ("The pass RAN 2026-09-26 and the cycle
+# stays OPEN", "the cycle CLOSES on this pass", "Five rule-4 Fable cold passes
+# ran 2026-08-05"). Deliberately NOT `_REVIEWED`: a pointer queuing a further
+# pass links the verdicts before it, so a verdict link is provenance, not
+# landing. A dated RAN stamp or a stated cycle outcome is the item speaking
+# about its own pass.
+_LANDED = re.compile(
+    r"\bRAN\s+\d{4}-\d{2}-\d{2}\b"
+    r"|(?i:\bpass(?:es)?\s+ran\s+\d{4}-\d{2}-\d{2}\b)"
+    r"|\bcycle\s+(?:CLOSED|CLOSES|stays\s+OPEN)\b")
+# The state line's own title claiming a queued or owed pass — the words a
+# pointer's title carries ("Rule-4 cold pass queued: …", "Rule-4 review
+# queued (tier: …)", "Rule-4 cold pass owed on …").
+_TITLE_LEAD = re.compile(r"^[^\w*]*\*\*")
+_TITLE_QUEUED = re.compile(r"\b(?:review|pass)\s+(?:is\s+)?(?:queued|owed)\b",
+                           re.I)
 
 
 @dataclass(frozen=True)
@@ -421,6 +452,61 @@ def cycle_findings(body: str) -> list[str]:
     return [f"says a review is owed while carrying its own verdict — {owed}"]
 
 
+def queued_state(marker: str, body: str) -> bool:
+    """Does the item's STATE say a review is queued? The glyph as the marker,
+    or in the state prefix after a claim stamp (a taken pass still running).
+    A glyph inside a code span is a mention, not a state."""
+    if QUEUED in marker:
+        return True
+    return marker.strip() != "[x]" and QUEUED in state_prefix(strip_code(body))
+
+
+def landed_findings(marker: str, body: str) -> list[str]:
+    """A pointer whose own pass has run, still wearing the queued glyph.
+
+    The board legend's rule (130/020): the glyph means a review is queued and
+    its pass has not yet returned a verdict, so it is the one thing a session
+    counts to size the review queue. The commit that lands the verdict takes
+    the glyph off the state line. ORDER IS NOT CONSULTED here, unlike
+    `cycle_findings`: on the split board the state line is the item's first
+    line, so a landed pointer always presents its glyph first and its verdict
+    after, the exact layout the order rule reads as healthy (130/010, probed
+    2026-08-18). What makes this precise instead is the evidence: a dated RAN
+    stamp or a stated cycle outcome, which a pointer queuing a further pass
+    has no reason to carry."""
+    if not queued_state(marker, body):
+        return []
+    if not _LANDED.search(strip_code(body)):
+        return []
+    return ["records its own pass as run while its state line still says "
+            "queued — the verdict has landed, so the glyph comes off: `[ ]` "
+            "with what is owed named (🎯 when it is the principal's ruling), "
+            "or `[x]` when nothing is"]
+
+
+def unmarked_findings(marker: str, body: str) -> list[str]:
+    """The inverse: an open item whose title says its review is queued, with no
+    queued glyph and no record of the pass having run. A session counting the
+    queue by its glyph misses it — found live, 2026-10-05, on a re-review
+    queued as an ordinary open item."""
+    if marker.strip() != "[ ]" or queued_state(marker, body):
+        return []
+    text = strip_code(body)
+    # The TITLE: an emphasis run the item opens with, eye-flags aside. An item
+    # opening on a verdict stamp and bolding an obligation mid-body is the
+    # older shape detector 2 already reads.
+    if not _TITLE_LEAD.match(text):
+        return []
+    runs = _EMPH.findall(text)
+    if not runs or not _TITLE_QUEUED.search(runs[0]):
+        return []
+    if _LANDED.search(strip_code(body)):
+        return []
+    return ["its title says a review is queued and nothing records the pass "
+            "as run, but the state line is not the queued glyph — a session "
+            "counting the queue misses it"]
+
+
 def scan_text(text: str, path: str = "",
               suppressed: list[int] | None = None) -> list[Finding]:
     """Pure, so the selftest and the tests drive it with no filesystem.
@@ -430,15 +516,27 @@ def scan_text(text: str, path: str = "",
     printing the same clean tick either way."""
     out: list[Finding] = []
     for item in parse_items(text):
+        unmarked = unmarked_findings(item.marker, item.body)
         if parse_allow(item.body) is not None:
-            if suppressed is not None and is_pointer(item.marker, item.body):
+            if suppressed is not None and (
+                    unmarked or is_pointer(item.marker, item.body)):
                 suppressed.append(1)
             continue
+        excerpt = " ".join(item.body.split())[:120]
+        # Detector 3, the inverse half: outside the pointer scope by
+        # construction (no glyph, and a title is not an emphasis-run CLAIM),
+        # so it is read before the scope test rather than after it.
+        for reason in unmarked:
+            out.append(Finding(path, item.line, "state", reason, excerpt))
         if not is_pointer(item.marker, item.body):
             continue
-        excerpt = " ".join(item.body.split())[:120]
         for reason in grammar_findings(item.body):
             out.append(Finding(path, item.line, "grammar", reason, excerpt))
+        landed = landed_findings(item.marker, item.body)
+        for reason in landed:
+            out.append(Finding(path, item.line, "state", reason, excerpt))
+        if landed:
+            continue        # the sharper statement of the same contradiction
         for reason in cycle_findings(item.body):
             out.append(Finding(path, item.line, "cycle", reason, excerpt))
     return out
@@ -578,6 +676,23 @@ _SPEC_ARCHIVED = (
     "      seven fixed, applied same day. **Applied-batch cold pass owed**\n"
     "      (above).\n")
 
+# Detector 3, both halves, in the split board's shape (130/020). A pointer
+# whose own pass has run, still wearing the glyph — the layout the 27 items
+# had before 1d96efa: claim in the lead, outcome in a sub-bullet beneath.
+_SPEC_LANDED = (
+    "- " + QUEUED + " **Rule-4 cold pass queued: the widget rule.** Delta:\n"
+    "      the paragraph. Intent record: the session record.\n"
+    "      - [ ] **The pass RAN 2026-09-26 and the cycle stays OPEN — a MAJOR\n"
+    "            stands.** [verdict](../../reviews/2026-09-25-0715-w.md).\n")
+# The same item once the verdict has landed and the glyph is off.
+_SPEC_LANDED_FIXED = _SPEC_LANDED.replace("- " + QUEUED + " ", "- [ ] 🎯 ", 1)
+# A re-review queued as an ordinary open item (2026-10-05's shape).
+_SPEC_UNMARKED = (
+    "- [ ] 🛑 **Rule-4 cold pass queued: the widget hardening.** Tier: the\n"
+    "      principal-named review tier. Delta: the tool and its tests.\n"
+    "      Intent record: the session record.\n")
+_SPEC_UNMARKED_FIXED = _SPEC_UNMARKED.replace("- [ ] 🛑 ", "- " + QUEUED + " ", 1)
+
 # Prose ABOUT pointers, in an ordinary work item. The scope must not sweep it in
 # — this is the shape of this build's own funding entry.
 _SPEC_PROSE = (
@@ -634,6 +749,17 @@ def _selftest() -> int:
           [is_pointer(i.marker, i.body) for i in parse_items(_SPEC_ARCHIVED)],
           [False])
     check("a completed item is silent", dets(_SPEC_ARCHIVED), [])
+
+    # --- detector 3: queue state (130/020) -----------------------------------
+    check("a landed pointer still wearing the glyph is flagged",
+          dets(_SPEC_LANDED), ["state"])
+    check("the landed pointer, glyph off, is silent", dets(_SPEC_LANDED_FIXED), [])
+    check("a queued review without the glyph is flagged",
+          dets(_SPEC_UNMARKED), ["state"])
+    check("the same review wearing the glyph is silent",
+          dets(_SPEC_UNMARKED_FIXED), [])
+    check("a further pass citing prior verdicts is not landed",
+          [f.detector for f in scan_text(_SPEC_FURTHER_PASS)], [])
 
     # --- hatch ---------------------------------------------------------------
     check("allow marker exempts",
@@ -692,8 +818,10 @@ def main(argv: list[str] | None = None) -> int:
 
     grammar = [f for f in findings if f.detector == "grammar"]
     cycle = [f for f in findings if f.detector == "cycle"]
+    state = [f for f in findings if f.detector == "state"]
     print(f"⚠ pointerscan: {len(findings)} finding(s) in queued-review "
-          f"pointers ({len(grammar)} grammar · {len(cycle)} cycle state).")
+          f"pointers ({len(grammar)} grammar · {len(cycle)} cycle state · "
+          f"{len(state)} queue state).")
     print()
     for f in findings:
         print(f"  {f.path}:{f.line}  [{f.detector}] {f.reason}")
@@ -713,6 +841,14 @@ def main(argv: list[str] | None = None) -> int:
         print("  review that ran. Say which state it is actually in — "
               "reviewed, ruled, applied")
         print("  — so the next session reads the queue and not the residue.")
+    if state:
+        print("  QUEUE STATE. The queued glyph on a state line means a review "
+              "is queued and its")
+        print("  pass has not returned a verdict — it is what a session counts "
+              "to size the queue")
+        print("  (board legend, 130/020). The commit that lands a verdict takes "
+              "it off; a review")
+        print("  still to run wears it, or the count misses it.")
     print()
     print("  ADVISORY ONLY — this never fails a build. A pointer is fixable "
           "in the commit")

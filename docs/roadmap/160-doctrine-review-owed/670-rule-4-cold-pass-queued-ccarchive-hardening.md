@@ -1,4 +1,4 @@
-- [ ] 🛑 **Rule-4 cold pass queued: ccarchive hardening (`210/210`).** The
+- ⏳ **Rule-4 cold pass queued: ccarchive hardening (`210/210`).** The
       run authored this itself. It was queued at landing, and the run neither
       takes it nor spawns a reviewer for it. *Tier:* Fable, the
       principal-named review tier, checked at selection. *Pass type:* code
