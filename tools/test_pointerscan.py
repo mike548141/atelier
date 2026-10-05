@@ -491,10 +491,6 @@ class ScopedMarker(unittest.TestCase):
         self.assertEqual(len(sup), 1)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class Allowances(unittest.TestCase):
     """GUARDS.md rule (c) — a marker with no reason is a mention."""
 
@@ -576,3 +572,7 @@ class BoundedMemory(unittest.TestCase):
             f"{self.MAX_BYTES_PER_ITEM}-byte/item bound. pointerscan's "
             "growth is legitimate (020/380 names it as an exception) but it "
             "must stay LINEAR — this looks like a superlinear regression.")
+
+
+if __name__ == "__main__":
+    unittest.main()

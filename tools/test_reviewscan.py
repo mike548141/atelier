@@ -269,10 +269,6 @@ class DeferralPlacementTest(unittest.TestCase):
         self.assertTrue(self.brief("# B\n\n## Scope\n\nfour lenses\n"))
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class Allowances(unittest.TestCase):
     """GUARDS.md rule (c) — a marker with no reason is a mention."""
 
@@ -354,3 +350,7 @@ class BoundedMemory(unittest.TestCase):
             f"peak RSS grew {growth / 1e6:.1f} MB for a 7 MB larger record "
             f"(small={small_peak / 1e6:.1f} MB, large={large_peak / 1e6:.1f} MB) "
             "— memory is scaling with input size again (020/380).")
+
+
+if __name__ == "__main__":
+    unittest.main()

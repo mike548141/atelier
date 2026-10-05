@@ -598,10 +598,6 @@ class ScopedMarker(unittest.TestCase):
             self.assertEqual(allowed, 2)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class Allowances(unittest.TestCase):
     """GUARDS.md rule (c) — a marker with no reason is a mention."""
 
@@ -694,3 +690,7 @@ class BoundedMemory(unittest.TestCase):
             f"archive store (small={small_peak / 1e6:.1f} MB, "
             f"large={large_peak / 1e6:.1f} MB) — memory is scaling with "
             "input size again (020/380).")
+
+
+if __name__ == "__main__":
+    unittest.main()

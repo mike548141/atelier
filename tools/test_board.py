@@ -225,10 +225,6 @@ class OutOfScope(unittest.TestCase):
         self.assertEqual(board.selftest(), 0)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class DuplicateNumbers(unittest.TestCase):
     """A duplicate section or item number is invisible to git (roadmap 010/120).
 
@@ -579,3 +575,7 @@ class StagedPlane(unittest.TestCase):
                          board.run_check(self.root, fix=False,
                                          source=board.INDEX))
         self.assertEqual(board.main(argv_rebuild), 0)
+
+
+if __name__ == "__main__":
+    unittest.main()

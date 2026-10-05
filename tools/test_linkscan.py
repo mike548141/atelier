@@ -616,10 +616,6 @@ class FindingCapAndMemo(unittest.TestCase):
         self.assertEqual(sug["nowhere/solo-file.md"], "z/solo-file.md")
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class Allowances(unittest.TestCase):
     """GUARDS.md — narrow, noisy, reasoned, declared."""
 
@@ -854,3 +850,7 @@ class BoundedMemory(unittest.TestCase):
             f"single-line input (small={small_peak / 1e6:.1f} MB, "
             f"large={large_peak / 1e6:.1f} MB) — the windowed reader is no "
             "longer bounding memory for an overlong physical line (020/380).")
+
+
+if __name__ == "__main__":
+    unittest.main()
