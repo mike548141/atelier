@@ -1,5 +1,5 @@
-- [ ] 🚩 **Re-rank the open guard work against the fourth requirement — and
-      expect some of it to fail** `[L][docs]` — blocked on `010` landing the
+- [~] 🚩 **Re-rank the open guard work against the fourth requirement — and
+      expect some of it to fail** (claimed 2026-10-05-1135, wt: atelier-qr-300-020) `[L][docs]` — blocked on `010` landing the
       test. Mike ruled 2026-08-17 that the posture *becomes* the test guard work
       has to pass, having been told to expect exactly this.
       **Why it is its own item and wants a FRESH session.** The open board
