@@ -376,19 +376,33 @@ that cleanup:
 - **Append-only by contract:** it never deletes from the archive. When Claude
   Code's cleanup removes a source log, the archived copy stays — that is the point.
   It doesn't parse the `.jsonl`, it preserves the bytes, so it's immune to schema
-  drift (unlike the observers below). Append-only is not overwrite-proof, so two
-  guards protect the sole durable copy: a **shrink guard** refuses to overwrite
-  when a newer source is *smaller* than the size recorded at capture (an append
-  log only grows, so a shrink means truncation or corruption upstream — `--force`
-  is the deliberate override). The guard is size-only and class-blind by choice:
-  the whole-document classes it also covers — memory `.md` files, subagent
-  `.meta.json` sidecars — can legitimately be rewritten smaller and will be
-  refused until forced, which is safe-over-silent rather than an oversight. The
-  second guard catches a source yielding **zero transcripts** against a non-empty
+  drift (unlike the observers below). Append-only is not overwrite-proof, so what
+  counts as a legitimate change is decided by **two kinds of data** (the mapping
+  is in one place in the code and in the man page's CAPTURE section):
+  **append-only records** — transcripts and subagent logs, the prompt history,
+  tool-result sidecars — only ever grow at the end, and a live file that does
+  anything else (shrinks, or is rewritten in place) is an **anomaly**: the archived
+  mirror is *never* overwritten, the changed live version is kept aside under
+  `<dest>/_anomalies/`, signed, and the run says so and exits 1 (`--force` is the
+  deliberate resolution: the live version becomes current and the previous mirror
+  is kept as a dated version). **Living documents** — memory notes and subagent
+  `.meta.json` sidecars — are edited over time, so a change that is not a pure
+  addition keeps the previous mirror as a dated version under `<dest>/_versions/`
+  (a rename, never a read, so an offloaded mirror works), the new one becomes
+  current, and the run exits 0 and counts the versions kept. "Pure append" is
+  tested without reading the mirror: the live file is at least the recorded length
+  and the sha256 of its first recorded-length bytes equals the signed entry's.
+  `--restore` restores the current version only. A second guard catches a source
+  yielding **zero transcripts** against a non-empty
   manifest: it exits non-zero instead of logging success while the archive quietly
   stops growing (the live dir moved). A dest inside a git work tree is
   also refused (`--allow-repo-dest` overrides): transcripts are personal data,
   and a repo dest is one commit away from publication.
+- **Counts a person recognises.** The summary and `--json` keep the file total
+  and add **sessions** (only a top-level `<project>/<uuid>.jsonl` is a session),
+  **subagent transcripts** (any `.jsonl` nested below one) and a per-kind
+  breakdown, plus what the archive holds including sources since pruned. The field
+  set is the same on every run, known zeros included.
 - **Integrity — sha256 manifest + `--verify`.** gzip's CRC-32 catches a corrupted
   `.gz` on decompression, but it's weak and only proves the file is
   self-consistent. So ccarchive records a **sha256 of each transcript's raw bytes**
@@ -487,7 +501,12 @@ that cleanup:
   required for survival. Idempotent, exits 0 with nothing to do.
 - **Trust model.** The signed manifest is the index of what ccarchive itself
   wrote, and a run trusts a mirror from the index plus a `stat` (each entry
-  records the mirror's size and time), reading bytes only when they disagree. A
+  records the mirror's size and time), reading bytes only when they disagree.
+  Entries from before those fields existed are checked once each by a bounded
+  catch-up on an ordinary run (a time slice per run, never an offloaded mirror),
+  reported as "N checked, M remain". The manifest and its signature are replaced
+  so that a kill between the two cannot leave a pair that reads as tampered, and
+  `--audit` checks the signature too and never reports an unverified index clean. A
   private, signed **intent journal** beside the key records each mirror a run is
   about to write, so the next run repairs the index for exactly what a dead run
   wrote. Any other archive file the index does not vouch for is adopted only if

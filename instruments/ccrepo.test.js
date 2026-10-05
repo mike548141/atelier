@@ -830,12 +830,14 @@ test('contract: --from-archive prices a .gz mirror; ccusage cross-check is off',
   assert.ok(Math.abs(row.cost - 30) < 1e-9);         // $30 at usd (rate 1)
 });
 
-test('contract: --from-archive never prices what ccarchive set aside under _untrusted/', () => {
+test('contract: --from-archive never prices what ccarchive set aside or kept under _untrusted/, _anomalies/ or _versions/', () => {
   const dest = makeCcrepoArchive();
-  const aside = pathMod.join(dest, '_untrusted', '20260101T000000Z', '-home-dev-synthetic-ccrepo');
-  fs.mkdirSync(aside, { recursive: true });
-  fs.writeFileSync(pathMod.join(aside, `${CCREPO_UUID}.jsonl.gz`),
-    zlib.gzipSync(ARCHIVE_LOG.replace('req-1', 'req-2').replace('msg-1', 'msg-2')));
+  for (const area of ['_untrusted', '_anomalies', '_versions']) {
+    const aside = pathMod.join(dest, area, '20260101T000000Z', '-home-dev-synthetic-ccrepo');
+    fs.mkdirSync(aside, { recursive: true });
+    fs.writeFileSync(pathMod.join(aside, `${CCREPO_UUID}.jsonl.gz`),
+      zlib.gzipSync(ARCHIVE_LOG.replace('req-1', `req-${area}`).replace('msg-1', `msg-${area}`)));
+  }
   const j = runCcrepoJson(dest, ['--from-archive', '--dest', dest, '-g', 'repo']);
   const total = j.rows.reduce((n, r) => n + r.totalTokens, 0);
   assert.equal(total, 2000000, 'only the archived copy is counted');

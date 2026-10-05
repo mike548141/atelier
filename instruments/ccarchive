@@ -37,7 +37,13 @@
  *
  * Append-only by contract: ccarchive never deletes from the archive. When
  * Claude Code's cleanup removes a source log, the archived copy remains — that
- * is the whole point. Pruning the archive is deliberately not a mode.
+ * is the whole point. Pruning the archive is deliberately not a mode. Nor does it
+ * overwrite a transcript's archived copy with anything but that transcript with
+ * more added at the end: a shrink or a rewrite in place is an ANOMALY, kept aside
+ * under _anomalies/ and reported (exit 1), while a living document (a memory note,
+ * a subagent .meta.json) that changes keeps its previous mirror under _versions/.
+ * See "two kinds of data" below; the man page's CAPTURE and KEPT COPIES sections
+ * state the same.
  *
  * The .jsonl schema is internal to Claude Code, but ccarchive doesn't parse it —
  * it preserves the bytes exactly — so it is immune to schema drift.
@@ -89,7 +95,7 @@ OPTIONS
   --dest <dir>           Archive dir (default: iCloud Drive; or $CCARCHIVE_DEST).
   --source <dir>         Read from <dir> (default: ~/.claude/projects).
   --dry-run              Preview; write nothing (works with --restore too).
-  --force                Overwrite a shrunk archive copy; with --restore, a newer live file.
+  --force                Make a live file that is not an append the archive's copy (the old one is kept); with --restore, a newer live file.
   --allow-repo-dest      Permit an archive dir inside a git work tree.
   --verify [--materialise]  Re-check archive vs signed sha256 manifest; --materialise reads evicted files too.
   --rekey                New signing key; re-sign the index (the deliberate clear for an untrusted one).
@@ -99,7 +105,7 @@ OPTIONS
   --json                 Machine-readable output (never styled).
   -h, --help             This summary.
 
-Mirror transcripts, subagent metadata, tool-result sidecars, memory and history into a compressed, append-only, signed archive; restore too. Unknown options are refused. Run by hand.  man ccarchive`;
+Mirror transcripts, subagent metadata, tool-result sidecars, memory and history into a compressed, signed archive; restore too. A transcript is only ever extended, never overwritten; the report counts files, sessions and subagent transcripts. Unknown options are refused. Run by hand.  man ccarchive`;
 
 function takeValue(flag) {
   const i = argv.indexOf(flag);
@@ -174,30 +180,70 @@ function checkpointEvery() {
   return Number.isInteger(n) && n > 0 ? n : CHECKPOINT_EVERY;
 }
 
-// A re-archive that would shrink the stored copy is suspect: session logs only
-// ever grow, so a smaller-than-recorded source usually means truncation or
-// corruption upstream. After Claude Code's cleanup the archive is the sole
-// durable copy, so an overwrite must never propagate that damage silently —
-// refuse unless the operator forces it (--force).
-//
-// The guard is size-only and class-blind, which is deliberate but worth naming:
-// a memory file or a subagent .meta.json is a whole document, not an append log,
-// so a legitimate rewrite CAN be smaller and would be refused until --force. That
-// is safe-over-silent by choice, and it stays cheap because the guard only fires
-// on a source that is BOTH newer than the mirror AND smaller than the recorded
-// size — a rewrite, never a first capture.
-//
-// The guard is only as good as the entry it reads (HL2). A run therefore hands it
-// only entries the signed index vouches for (see TRUST below): a lagging or
-// missing entry left by a run that died is repaired from the intent journal first,
-// a mirror the index does not vouch for is set aside rather than overwritten, and
-// an entry with no rawBytes (a legacy fromArchive one) gets its reference from the
-// mirror's own checked length before any overwrite — or the overwrite is refused.
-// Interface kept narrow (source size, a vouched entry) so a later class-aware check
-// can replace it without touching the callers.
-function isSuspectShrink(srcBytes, manifestEntry) {
-  return !!(manifestEntry && typeof manifestEntry.rawBytes === 'number'
-    && srcBytes < manifestEntry.rawBytes);
+// --- two kinds of data: what a change means -----------------------------------
+// The owner's model of what ccarchive keeps (210/210, his words quoted there):
+//   append-only records — session transcripts (and the subagent logs beneath them),
+//     the external prompt history, tool-result sidecars. Once written, the only
+//     legitimate change is growth at the end, however long after the last one (a
+//     paused session picked up again). Any other change — a shrink, or a rewrite in
+//     place — is an ANOMALY: the archived copy is never overwritten, the changed live
+//     version is kept aside, the run says so and exits 1.
+//   living documents — memory notes (<project>/memory/*.md) and subagent .meta.json
+//     sidecars. Claude (or other software) alters these over time, so a change that
+//     is not a pure addition is normal: the previous mirror is kept as a dated
+//     version, the new one becomes current, and the run exits 0.
+// This table is the one place the mapping lives; the man page CAPTURE section states it.
+const CLASS_KIND = {
+  transcript: 'append-only',
+  'tool-result': 'append-only',
+  memory: 'living',
+  'subagent-meta': 'living',
+};
+// A path outside every class (an entry an older allowlist wrote) is treated as
+// append-only: the strict reading, never the one that lets a mirror be replaced.
+function dataKind(rel) { return CLASS_KIND[captureClass(rel)] || 'append-only'; }
+
+// Is the live file a PURE APPEND of what the signed index recorded? Decided without
+// reading the mirror: the source must be at least the recorded length (rawBytes) and
+// its first rawBytes bytes must hash to the recorded sha256. That is exactly "the
+// archived bytes are a prefix of the live bytes" (the test --audit already uses),
+// checked against the signed entry instead of the mirror. Returns
+//   append    — the recorded bytes are the start of the live file (growth, or no change)
+//   shrunk    — the live file is shorter than what was recorded
+//   rewritten — long enough, but its first rawBytes bytes are not the recorded ones
+//   unknown   — the entry records no length or hash to test against
+// The caller hands it only an entry the signed index vouches for (see TRUST): a
+// lagging or missing entry left by a run that died is repaired from the intent
+// journal first, and a mirror the index does not vouch for is set aside, not tested.
+function classifyChange(raw, entry) {
+  if (!entry || typeof entry.rawBytes !== 'number' || typeof entry.sha256 !== 'string') return 'unknown';
+  if (raw.length < entry.rawBytes) return 'shrunk';
+  return sha256(raw.subarray(0, entry.rawBytes)) === entry.sha256 ? 'append' : 'rewritten';
+}
+
+// What the summary counts. A SESSION is a top-level <project>/<uuid>.jsonl and only
+// that; a SUBAGENT TRANSCRIPT is any .jsonl nested below it. The two numbers differ
+// a lot (one session can start dozens of agents), and only the first answers "how
+// many sessions". The external prompt history, tool-result sidecars, subagent
+// metadata and memory notes each have their own count.
+const COUNT_KINDS = ['session', 'subagentTranscript', 'history', 'toolResult', 'subagentMeta', 'memory'];
+function countKind(rel) {
+  const parts = rel.split(path.sep);
+  if (parts[0] === EXTERNAL_PREFIX) return 'history';
+  switch (captureClass(rel)) {
+    case 'transcript': return parts.length === 2 ? 'session' : 'subagentTranscript';
+    case 'tool-result': return 'toolResult';
+    case 'subagent-meta': return 'subagentMeta';
+    case 'memory': return 'memory';
+    default: return null;
+  }
+}
+function zeroKinds() { return Object.fromEntries(COUNT_KINDS.map((k) => [k, 0])); }
+// Counts over a list of rels: the file total, the two numbers the owner asked for, and every kind.
+function kindCounts(rels) {
+  const kinds = zeroKinds();
+  for (const rel of rels) { const k = countKind(rel); if (k) kinds[k]++; }
+  return { files: rels.length, sessions: kinds.session, subagentTranscripts: kinds.subagentTranscript, kinds };
 }
 
 // The write target must never sit inside a git work tree: the archive holds
@@ -438,7 +484,48 @@ const EXTERNAL_PREFIX = '_external';
 // from every walk, verify and restore. Reserved: like _external/ it cannot collide
 // with an encoded project directory (those begin with '-').
 const UNTRUSTED_DIR = '_untrusted';
-function isReservedRel(rel) { return rel.split(path.sep)[0] === UNTRUSTED_DIR; }
+
+// Two more reserved areas, both under the archive root and both recorded in the
+// signed manifest, so what is kept in them is covered by the signature:
+//   <dest>/_anomalies/<UTC stamp>/<rel>.gz — the live version of an append-only
+//     record that changed other than by appending (see the two kinds of data above).
+//     The archived mirror is left exactly as it was; this is the changed copy, kept
+//     so nothing is lost when the live file is later pruned.
+//   <dest>/_versions/<UTC stamp>/<rel>.gz — the previous mirror of a living
+//     document that changed other than by appending, renamed here (never read, so an
+//     iCloud-offloaded mirror works) before the new one is written.
+// Why a root-level area and not a .versions/ beside each mirror: a per-directory
+// folder would sit inside the project directories the other walks (and ccrepo and
+// cctranscript) read, and every one of those would need to learn to skip it; a
+// reserved root, like _untrusted/ and _external/, cannot collide with an encoded
+// project directory (those begin with '-') and is skipped in one place each. The
+// stamp is the run's start time, so one run's keeps sit together and a second keep
+// of the same file in one second gets a numbered stamp (-2, -3), never an overwrite.
+// Nothing here is ever deleted, overwritten, walked as a mirror, verified as one, or
+// restored from; --verify checks each kept copy against its signed hash and counts them.
+const ANOMALIES_DIR = '_anomalies';
+const VERSIONS_DIR = '_versions';
+const RESERVED_DIRS = [UNTRUSTED_DIR, ANOMALIES_DIR, VERSIONS_DIR];
+function isReservedRel(rel) { return RESERVED_DIRS.includes(rel.split(path.sep)[0]); }
+
+// A manifest key under _anomalies/ or _versions/ is a kept copy, not a mirror:
+// { area: 'anomaly' | 'version', stamp, of: the rel it was kept from }, else null.
+function keptInfo(key) {
+  const parts = key.split(path.sep);
+  const area = parts[0] === VERSIONS_DIR ? 'version' : parts[0] === ANOMALIES_DIR ? 'anomaly' : null;
+  if (!area || parts.length < 3) return null;
+  return { area, stamp: parts[1], of: parts.slice(2).join(path.sep) };
+}
+// The manifest's mirror entries (one per captured file) and its kept-copy entries.
+function mirrorRels(manifest) { return Object.keys(manifest).filter((k) => !keptInfo(k)); }
+function keptKeys(manifest) { return Object.keys(manifest).filter((k) => keptInfo(k)); }
+// An unused key for a kept copy: <area>/<stamp>/<rel>, or <stamp>-2, -3 ... on a clash.
+function keptKeyFor(destRoot, manifest, area, stamp, rel) {
+  for (let n = 1; ; n++) {
+    const key = path.join(area, n === 1 ? stamp : `${stamp}-${n}`, rel);
+    if (!manifest[key] && !fs.existsSync(path.join(destRoot, key + '.gz'))) return key;
+  }
+}
 
 function historySource(srcRoot) {
   return process.env.CCARCHIVE_HISTORY || path.join(path.dirname(srcRoot), 'history.jsonl');
@@ -600,13 +687,17 @@ function parseManifest(bytes, destRoot, opts = {}) {
   return {};
 }
 
-function saveManifest(destRoot, obj) {
-  fs.mkdirSync(destRoot, { recursive: true });
+function manifestText(obj) {
   const ordered = {};
   for (const k of Object.keys(obj).sort()) ordered[k] = obj[k];  // stable diffs
+  return JSON.stringify(ordered, null, 2) + '\n';
+}
+
+function saveManifest(destRoot, obj) {
+  fs.mkdirSync(destRoot, { recursive: true });
   // Atomic: a crash mid-write can't corrupt the manifest, and the unique temp name
   // means a planted link at a fixed ".tmp" path is never followed (MC9).
-  writeFileAtomic(manifestPath(destRoot), JSON.stringify(ordered, null, 2) + '\n');
+  writeFileAtomic(manifestPath(destRoot), manifestText(obj));
 }
 
 // Archived files as manifest keys (the .gz suffix stripped). Any archived .gz is
@@ -614,8 +705,9 @@ function saveManifest(destRoot, obj) {
 // external history.jsonl all mirror to <rel>.gz, so keying on the .gz suffix
 // alone (rather than .jsonl.gz) treats every captured class the same. The
 // manifest.json / .sig sidecars carry no .gz suffix, so they are never picked up.
-// The not-trusted area (<dest>/_untrusted/) is skipped: what a run set aside there
-// is not part of the archive, and no walk, verify or restore counts it.
+// The reserved areas (<dest>/_untrusted/, _anomalies/, _versions/) are skipped: what
+// a run set aside or kept there is not a mirror, and no walk, verify or restore
+// treats it as one.
 function listArchivedRels(destRoot) {
   const out = [];
   const walk = (dir) => {
@@ -624,7 +716,7 @@ function listArchivedRels(destRoot) {
     catch (e) { if (e.code === 'ENOENT') return; throw e; }
     for (const ent of entries) {
       const abs = path.join(dir, ent.name);
-      if (ent.isDirectory() && dir === destRoot && ent.name === UNTRUSTED_DIR) continue;
+      if (ent.isDirectory() && dir === destRoot && RESERVED_DIRS.includes(ent.name)) continue;
       if (ent.isDirectory()) walk(abs);
       else if (ent.isFile() && ent.name.endsWith('.gz')) out.push(path.relative(destRoot, abs).slice(0, -3));
     }
@@ -718,12 +810,53 @@ function loadSig(destRoot) {
 }
 
 // Sign the manifest's EXACT on-disk bytes into a detached sidecar. Atomic write so
-// a crash mid-write can't leave a half-written signature.
+// a crash mid-write can't leave a half-written signature. A signature written this
+// way supersedes any pending one (see saveManifestSigned).
 function signManifest(destRoot, keyBuf, manifestBytes) {
   const bytes = manifestBytes || fs.readFileSync(manifestPath(destRoot));
   const sig = { algorithm: SIG_ALGORITHM, keyId: keyId(keyBuf), mac: computeMac(keyBuf, bytes) };
   writeFileAtomic(sigPath(destRoot), JSON.stringify(sig, null, 2) + '\n');
+  try { fs.unlinkSync(sigNextPath(destRoot)); } catch {}
   return sig;
+}
+
+// The manifest and its signature are two files, and each is replaced atomically but
+// not both at once. Replacing them one after the other left a window (MC4): a run
+// killed between the two renames left a manifest its signature did not match, which
+// reads as tampered, and a run refuses a tampered index. So the new signature is
+// written FIRST, beside the old one, as manifest.json.sig.next; then the manifest is
+// replaced; then the .next is renamed over the signature. A kill at any point leaves
+// a pair that verifies: before the manifest rename, the old manifest and old
+// signature; after it, the new manifest and its signature in .next (which the checks
+// below accept, and the next write finishes); after the last rename, the new pair.
+// The .next is only ever accepted when it verifies under the key over the manifest
+// bytes actually on disk, so it is exactly as hard to forge as the signature itself.
+function sigNextPath(destRoot) { return sigPath(destRoot) + '.next'; }
+function saveManifestSigned(destRoot, obj, keyBuf) {
+  fs.mkdirSync(destRoot, { recursive: true });
+  const bytes = Buffer.from(manifestText(obj));
+  const sig = { algorithm: SIG_ALGORITHM, keyId: keyId(keyBuf), mac: computeMac(keyBuf, bytes) };
+  writeFileAtomic(sigNextPath(destRoot), JSON.stringify(sig, null, 2) + '\n');
+  writeFileAtomic(manifestPath(destRoot), bytes);
+  fs.renameSync(sigNextPath(destRoot), sigPath(destRoot));
+}
+
+// The verdict on the manifest's signature, counting a pending .next signature (the
+// window above) as the signature it is. { ...verifySignature, pendingSignature: true }
+// marks the second case so a caller can finish it.
+function checkManifestSignature(destRoot, bytes, keyBuf) {
+  const v = verifySignature(bytes, loadSig(destRoot), keyBuf);
+  if (v.state !== 'tampered') return v;
+  let next = null;
+  try { next = JSON.parse(fs.readFileSync(sigNextPath(destRoot), 'utf8')); } catch { next = null; }
+  if (next && verifySignature(bytes, next, keyBuf).state === 'verified') {
+    return { state: 'verified', keyId: v.keyId, pendingSignature: true };
+  }
+  return v;
+}
+// Finish a pending signature: rename it over the old one (only after it was verified).
+function completePendingSignature(destRoot) {
+  try { fs.renameSync(sigNextPath(destRoot), sigPath(destRoot)); } catch {}
 }
 
 // Pure verdict on a manifest's signature. States:
@@ -748,7 +881,8 @@ function verifySignature(manifestBytes, sig, keyBuf) {
 // One human line for a signature verdict — the trust anchor, shown up top.
 function signatureLine(sig, keyPath) {
   switch (sig.state) {
-    case 'verified':     return `  ✓ manifest signature verified (${SIG_ALGORITHM}, key ${sig.keyId})`;
+    case 'verified':     return `  ✓ manifest signature verified (${SIG_ALGORITHM}, key ${sig.keyId})` +
+      (sig.pendingSignature ? ` — a run was killed between replacing the manifest and its signature; the new signature is intact beside it and the next run completes the swap` : '');
     case 'tampered':     return `  ✗ manifest signature MISMATCH — the manifest was altered after signing (TAMPER EVIDENT)`;
     case 'key-mismatch': return `  ✗ manifest signed by a different key (sig ${sig.sigKeyId} vs your key ${sig.keyId}) — an unexpected key roll, or tampering`;
     case 'unsigned':     return `  ⚠ manifest is NOT signed — a pre-signing archive to migrate (run ccarchive), or the signature was removed`;
@@ -854,7 +988,7 @@ function authenticateManifest(destRoot, keyPath, opts = {}) {
     return { manifest: {}, keyBuf, fresh: true };
   }
   if (bytes === null) throw untrustedIndexError('orphan-signature', destRoot, keyPath);
-  const v = verifySignature(bytes, loadSig(destRoot), keyBuf);
+  const v = checkManifestSignature(destRoot, bytes, keyBuf);
   if (v.state !== 'verified') {
     throw untrustedIndexError(v.state, destRoot, keyPath,
       v.state === 'key-mismatch' ? `signature key ${v.sigKeyId}, your key ${v.keyId}` : null);
@@ -864,10 +998,9 @@ function authenticateManifest(destRoot, keyPath, opts = {}) {
   // (only reachable after a deliberate --rekey over it) starts a new one at once,
   // signed, so the signature never outlives the manifest it attests.
   if (opts.onCorrupt === 'setaside' && readManifestBytes(destRoot) === null) {
-    saveManifest(destRoot, {});
-    signManifest(destRoot, keyBuf);
+    saveManifestSigned(destRoot, {}, keyBuf);
   }
-  return { manifest, keyBuf, fresh: false };
+  return { manifest, keyBuf, fresh: false, pendingSignature: !!v.pendingSignature };
 }
 
 // --- run state kept OFF the archive: intent journal + lock ---------------------
@@ -1121,12 +1254,57 @@ function clearLock(keyPath, destRoot, asJson) {
 // ordinary run decides whether a mirror is vouched for from a stat, never a read:
 // every entry a run writes records the mirror's own size and mtime as they were
 // after the write (gzBytes, gzMtimeMs). A mirror whose stat agrees with its signed
-// entry is vouched for. An entry from before these fields existed is trusted as
-// signed until its next write (its bytes are still checked by --verify).
+// entry is vouched for. An entry from before these fields existed (legacy) is trusted
+// as signed until a run's catch-up pass has read its mirror once and recorded them, or
+// its next write (its bytes are still checked by --verify).
 function metadataAgrees(entry, st) {
   if (!entry) return false;
   if (typeof entry.gzBytes !== 'number' || typeof entry.gzMtimeMs !== 'number') return true;   // legacy
   return entry.gzBytes === st.size && Math.abs(entry.gzMtimeMs - st.mtimeMs) <= MTIME_TOLERANCE_MS;
+}
+
+// An entry from before the mirror's size and time were recorded: vouched for only by
+// trust in the signed index until a run has read the mirror once (see the catch-up
+// pass in archiveRun) or rewritten it.
+function isLegacyEntry(entry) {
+  return !!entry && (typeof entry.gzBytes !== 'number' || typeof entry.gzMtimeMs !== 'number');
+}
+
+// Which of these paths are iCloud-evicted (dataless)? One `stat` spawn per few hundred
+// paths instead of one per path (a spawn costs ~15 ms), the same batching cctranscript
+// uses for the archive. Honours CCARCHIVE_SIMULATE_DATALESS; off macOS nothing is.
+function datalessPaths(paths) {
+  const out = new Set();
+  if (process.env.CCARCHIVE_SIMULATE_DATALESS || process.platform !== 'darwin') {
+    for (const p of paths) if (isDataless(p)) out.add(p);
+    return out;
+  }
+  const CHUNK = 400;
+  for (let i = 0; i < paths.length; i += CHUNK) {
+    const chunk = paths.slice(i, i + CHUNK);
+    let text = '';
+    try {
+      text = execFileSync('stat', ['-f', '%f\t%N', ...chunk],
+        { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 64 * 1024 * 1024 });
+    } catch (e) { text = (e && typeof e.stdout === 'string') ? e.stdout : ''; }
+    for (const line of text.split('\n')) {
+      const tab = line.indexOf('\t');
+      if (tab < 0) continue;
+      const n = Number(line.slice(0, tab));
+      if (isDatalessFlags(n)) out.add(line.slice(tab + 1));
+    }
+  }
+  return out;
+}
+
+// The wall-clock slice of one run the legacy catch-up may use (see archiveRun). A
+// latency bound, not a count: a size derived from today's archive would be a number
+// fitted to a measurement. Override with $CCARCHIVE_LEGACY_BUDGET_MS (0 = one entry a run).
+const LEGACY_BUDGET_MS = 20000;
+function legacyBudgetMs() {
+  const raw = process.env.CCARCHIVE_LEGACY_BUDGET_MS;
+  const n = raw === undefined || raw === '' ? NaN : Number(raw);
+  return Number.isFinite(n) && n >= 0 ? n : LEGACY_BUDGET_MS;
 }
 
 // Move a mirror the index does not vouch for into <dest>/_untrusted/<stamp>/,
@@ -1143,9 +1321,15 @@ function moveUntrusted(destRoot, rel, stamp, gzPath) {
 
 function verifyArchive(destRoot, asJson, materialise, keyPath) {
   const manifest = loadManifest(destRoot);
+  // Every manifest entry is checked: the mirrors and the kept copies (versions and
+  // anomalies) alike — a kept copy is signed history, so losing or damaging one is
+  // as real as losing a mirror. `kept` counts them apart so the report can say so.
   const rels = Object.keys(manifest);
+  const keptRels = keptKeys(manifest);
   const result = { dest: destRoot, checked: rels.length, ok: 0, mismatch: [], missing: [],
-    corrupt: [], unreadable: [], evicted: [], unmanifested: [] };
+    corrupt: [], unreadable: [], evicted: [], unmanifested: [],
+    kept: { versions: keptRels.filter((k) => keptInfo(k).area === 'version').length,
+      anomalies: keptRels.filter((k) => keptInfo(k).area === 'anomaly').length } };
 
   for (const rel of rels) {
     const gzPath = path.join(destRoot, rel + '.gz');
@@ -1175,7 +1359,7 @@ function verifyArchive(destRoot, asJson, materialise, keyPath) {
   // Entries whose hash was backfilled from the .gz itself — the archive
   // attesting the archive, weaker than a raw-bytes anchor; surfaced, not hidden.
   // (Legacy only: runs no longer create them — see TRUST in the man page.)
-  result.fromArchive = rels.filter((rel) => manifest[rel].fromArchive).length;
+  result.fromArchive = mirrorRels(manifest).filter((rel) => manifest[rel].fromArchive).length;
   // Files earlier runs set aside as not trusted: not part of the archive and not
   // checked, but counted so they are never forgotten. The run that set each one
   // aside already exited 1 and said why; they do not fail a verify.
@@ -1187,7 +1371,7 @@ function verifyArchive(destRoot, asJson, materialise, keyPath) {
   // to migrate, or an UNVERIFIABLE one (no key). None is ever a silent green.
   const manifestExists = fs.existsSync(manifestPath(destRoot));
   result.signature = manifestExists
-    ? verifySignature(fs.readFileSync(manifestPath(destRoot)), loadSig(destRoot), loadKey(keyPath))
+    ? checkManifestSignature(destRoot, fs.readFileSync(manifestPath(destRoot)), loadKey(keyPath))
     : { state: 'absent' };
   const sigFailed = manifestExists && result.signature.state !== 'verified';
 
@@ -1206,6 +1390,11 @@ function verifyArchive(destRoot, asJson, materialise, keyPath) {
       (result.corrupt.length ? `, ${result.corrupt.length} corrupt` : '') +
       (result.unreadable.length ? `, ${result.unreadable.length} unreadable` : '') +
       (result.evicted.length ? `, ${result.evicted.length} evicted` : ''));
+  if (result.kept.versions || result.kept.anomalies) {
+    lines.push(`  ${result.kept.versions + result.kept.anomalies} kept aside, checked above like any archived file ` +
+      `(${result.kept.versions} earlier version${result.kept.versions === 1 ? '' : 's'}, ` +
+      `${result.kept.anomalies} anomal${result.kept.anomalies === 1 ? 'y' : 'ies'} — man ccarchive, INTEGRITY)`);
+  }
   if (result.fromArchive) {
     lines.push(`  ${result.fromArchive} entr${result.fromArchive === 1 ? 'y' : 'ies'} ` +
       `attest the archived copy only (source pruned before hashing — fromArchive)`);
@@ -1259,8 +1448,13 @@ function verifyArchive(destRoot, asJson, materialise, keyPath) {
 //             prefix of the live bytes: a pure append since the last archive.
 //             Normal between runs; the next `ccarchive` catches it up.
 //   mutated — live present, hash differs, and the live bytes are NOT a growth
-//             of the archived copy (rewritten, or shrunk/truncated). Real
-//             drift: the archive no longer equals the live session's history.
+//             of the archived copy (rewritten, or shrunk/truncated), for an
+//             append-only record. Real drift: the archive no longer equals the
+//             live session's history, and the next run keeps the changed live
+//             version aside and exits 1 (see the two kinds of data above).
+//   revised — the same divergence for a LIVING document (a memory note, a subagent
+//             .meta.json): normal, not drift. The next run keeps the previous
+//             version and archives the new one. Counted, like grown.
 //   renamed — a live file with no manifest entry whose content matches an
 //             archived entry recorded under a different path that is itself
 //             gone from the live store. Real drift: the archive is keyed by
@@ -1270,12 +1464,13 @@ function verifyArchive(destRoot, asJson, materialise, keyPath) {
 //   pruned  — an archived entry with no live counterpart, its content unseen
 //             live. The expected steady state after Claude Code's cleanup;
 //             counted.
-// Only mutated and renamed are drift worth a non-zero exit.
+// Only mutated and renamed are drift worth a non-zero exit (and an index whose
+// signature is not verified: the comparison is then against nothing anyone checked).
 
 // Bucket the live store against the manifest by sha256 alone (no byte reads):
 // `changed` still needs a byte-level look to split grown from mutated.
 function auditCategorize(manifest, liveList) {
-  const manifestRels = Object.keys(manifest);
+  const manifestRels = mirrorRels(manifest);   // kept copies are not mirrors
   const manifestSet = new Set(manifestRels);
   const liveSet = new Set(liveList.map((f) => f.rel));
 
@@ -1346,8 +1541,16 @@ function liveListWithHashes(srcRoot, unreadable) {
   return out;
 }
 
-function auditLiveStore(srcRoot, destRoot, asJson, materialise) {
-  const manifest = loadManifest(destRoot);
+function auditLiveStore(srcRoot, destRoot, asJson, materialise, keyPath) {
+  // The index the audit compares against is signature-checked first, over the exact
+  // bytes it then parses, and the verdict is part of the report: results taken from
+  // an index that is not verified are never presented as clean.
+  const bytes = readManifestBytes(destRoot);
+  const manifest = bytes === null ? {} : parseManifest(bytes, destRoot, { onCorrupt: 'throw' });
+  const signature = bytes === null
+    ? { state: 'absent' }
+    : checkManifestSignature(destRoot, bytes, loadKey(keyPath || resolveKeyPath(os.homedir())));
+  const unverified = bytes !== null && signature.state !== 'verified';
   const unreadable = [];
   const liveList = liveListWithHashes(srcRoot, unreadable);
 
@@ -1355,6 +1558,7 @@ function auditLiveStore(srcRoot, destRoot, asJson, materialise) {
   const absByRel = new Map(liveList.map((f) => [f.rel, f.abs]));
 
   const grown = [];
+  let revised = 0;              // living documents edited since the last archive
   const mutated = [];           // { rel, reason, liveBytes, archivedBytes }
   const evicted = [];           // { rel, liveBytes } — changed, archive copy dataless
   for (const rel of cat.changed) {
@@ -1383,25 +1587,33 @@ function auditLiveStore(srcRoot, destRoot, asJson, materialise) {
     const archivedBuf = m.buf;
     const kind = classifyDivergence(archivedBuf, liveBuf);
     if (kind === 'grown') grown.push(rel);
+    else if (dataKind(rel) === 'living') revised++;
     else mutated.push({ rel, reason: kind, liveBytes: liveBuf.length, archivedBytes: archivedBuf.length });
   }
 
   const result = {
-    live: srcRoot, archive: destRoot,
-    archived: Object.keys(manifest).length, live_total: liveList.length,
-    synced: cat.synced.length, grown: grown.length,
+    live: srcRoot, archive: destRoot, signature,
+    archived: mirrorRels(manifest).length, live_total: liveList.length,
+    synced: cat.synced.length, grown: grown.length, revised,
     added: cat.added.length, pruned: cat.pruned.length,
     mutated, renamed: cat.renamed, evicted, unreadable,
   };
   const drift = mutated.length + cat.renamed.length + unreadable.length;
+  const status = drift || unverified ? 1 : 0;
 
-  if (asJson) { process.stdout.write(JSON.stringify(result, null, 2) + '\n'); return drift ? 1 : 0; }
+  if (asJson) { process.stdout.write(JSON.stringify(result, null, 2) + '\n'); return status; }
 
-  const lines = [
-    `cc-transcripts audit → live store vs archive`,
+  const lines = [`cc-transcripts audit → live store vs archive`];
+  const sigLine = signatureLine(signature, keyPath || resolveKeyPath(os.homedir()));
+  if (sigLine) lines.push(sigLine);
+  if (unverified) {
+    lines.push(`  ⚠ the archive index is not verified, so the comparison below is against an index nobody ` +
+      `could check — it is not an all-clear (ccarchive --verify says more)`);
+  }
+  lines.push(
     `  ${result.archived} archived · ${result.synced} in sync, ${result.grown} grown, ` +
-      `${result.added} new, ${result.pruned} pruned`,
-  ];
+      `${result.added} new, ${result.pruned} pruned` +
+      (revised ? `, ${revised} revised (living documents; the next run keeps the old version)` : ''));
   if (drift) {
     lines.push(`  ${mutated.length} mutated, ${cat.renamed.length} renamed` +
       (unreadable.length ? `, ${unreadable.length} unreadable` : ''));
@@ -1425,15 +1637,15 @@ function auditLiveStore(srcRoot, destRoot, asJson, materialise) {
     lines.push(`  ⚠ ${evicted.length} changed but undetermined (archive copy dataless — ` +
       `not classified; re-run with --materialise, or ccarchive to re-archive the change)`);
   }
-  if (!drift && (result.grown || result.added)) {
-    lines.push(`  ⚠ ${result.grown + result.added} changed or added since the last archive — ` +
+  if (!drift && (result.grown || result.added || revised)) {
+    lines.push(`  ⚠ ${result.grown + result.added + revised} changed or added since the last archive — ` +
       `run ccarchive to catch up.`);
   }
-  if (!drift && !result.grown && !result.added && !evicted.length) {
+  if (!drift && !unverified && !result.grown && !result.added && !revised && !evicted.length) {
     lines.push('  ✓ the live store matches the archive (only expected pruning).');
   }
   process.stdout.write(lines.join('\n') + '\n');
-  return drift ? 1 : 0;
+  return status;
 }
 
 // --- restore: archive → live store ---------------------------------------
@@ -1487,7 +1699,7 @@ function isInsideRoot(root, target) {
 // archived key without disturbing the live rename. Content is byte-identical, so
 // this adds a copy under the old name rather than moving anything.
 function restoreTargets(manifest, srcRoot, destRoot, delta) {
-  if (!delta) return Object.keys(manifest).sort();
+  if (!delta) return mirrorRels(manifest).sort();   // the current version of every file, never a kept copy
   const liveList = liveListWithHashes(srcRoot, []);   // an unreadable live file is simply not a target
   const cat = auditCategorize(manifest, liveList);
   const absByRel = new Map(liveList.map((f) => [f.rel, f.abs]));
@@ -1499,7 +1711,9 @@ function restoreTargets(manifest, srcRoot, destRoot, delta) {
     // .gz gone, undecompressable or unreadable: still drift (restoreArchive then
     // reports the specific failure by name).
     if (!m.ok) { mutated.push(rel); continue; }
-    if (classifyDivergence(m.buf, liveBuf) !== 'grown') mutated.push(rel);  // grown excluded
+    // grown is ahead of the archive, and a living document edited since the last
+    // archive is `revised`, not drift: neither is a restore target.
+    if (classifyDivergence(m.buf, liveBuf) !== 'grown' && dataKind(rel) !== 'living') mutated.push(rel);
   }
   const renamedFrom = cat.renamed.map((r) => r.from);
   return [...new Set([...mutated, ...cat.pruned, ...renamedFrom])].sort();
@@ -1509,7 +1723,7 @@ function restoreTargets(manifest, srcRoot, destRoot, delta) {
 // authenticateManifest); absent, it is read unauthenticated (module callers only).
 function restoreArchive(srcRoot, destRoot, { delta, dryRun, force, asJson, manifest: given }) {
   const manifest = given || loadManifest(destRoot);
-  if (Object.keys(manifest).length === 0) {
+  if (mirrorRels(manifest).length === 0) {
     process.stderr.write(`ccarchive: nothing to restore — no manifest at ${destRoot}.\n`);
     return 1;
   }
@@ -1669,7 +1883,7 @@ function run() {
     return withLock(keyPath, destRoot, 'rekey', () => rekeyManifest(destRoot, keyPath, asJson));
   }
   if (argv.includes('--verify')) return verifyArchive(destRoot, asJson, materialise, keyPath);
-  if (argv.includes('--audit')) return auditLiveStore(srcRoot, destRoot, asJson, materialise);
+  if (argv.includes('--audit')) return auditLiveStore(srcRoot, destRoot, asJson, materialise, keyPath);
   if (argv.includes('--restore')) {
     // Restore writes live files from what the index vouches for, so it
     // authenticates the index first, exactly as an archive run does (HL3).
@@ -1726,10 +1940,17 @@ function archiveRun({ srcRoot, destRoot, keyPath, dryRun, force, asJson, lock })
   const walkErrors = [];
   const sources = listSources(srcRoot, walkErrors);
   const underRootCount = sources.filter((f) => !f.external).length;
+  // What is in the live store, by kind (the file total plus the two numbers the owner
+  // asked for, sessions and subagent transcripts); `archived` per kind is filled in as
+  // files are written. The field set is the same on every run: known zeros are printed.
+  const live = kindCounts(sources.map((f) => f.rel));
   const report = { source: srcRoot, dest: destRoot, dryRun, total: sources.length,
-    archived: 0, skipped: 0, refusedShrink: [], bytesRaw: 0, bytesGz: 0, files: [],
-    unreadable: [], unwritable: [], offloaded: [], deferred: [],
-    repaired: [], adopted: [], setAside: [], metadataRefreshed: 0, journal: null,
+    sessions: live.sessions, subagentTranscripts: live.subagentTranscripts,
+    kinds: Object.fromEntries(COUNT_KINDS.map((k) => [k, { files: live.kinds[k], archived: 0 }])),
+    archived: 0, skipped: 0, bytesRaw: 0, bytesGz: 0, files: [],
+    anomalies: [], versionsKept: [], unreadable: [], unwritable: [], offloaded: [], deferred: [],
+    repaired: [], adopted: [], setAside: [], corrupt: 0, metadataRefreshed: 0,
+    legacyChecked: 0, legacyRemaining: 0, legacyOffloaded: 0, journal: null,
     staleTempsRemoved: 0, ...(lock && lock.cleared ? { staleLockCleared: lock.cleared } : {}) };
   for (const e of walkErrors) {
     report.unreadable.push({ rel: path.relative(srcRoot, e.path) || '.', stage: 'walk', reason: e.code });
@@ -1746,10 +1967,10 @@ function archiveRun({ srcRoot, destRoot, keyPath, dryRun, force, asJson, lock })
   // forever while the archive silently stopped growing. Keyed on the under-root
   // capture, not the external history file, so a moved projects/ still trips the
   // alarm even if history.jsonl is still findable.
-  if (underRootCount === 0 && Object.keys(manifest).length > 0) {
+  if (underRootCount === 0 && mirrorRels(manifest).length > 0) {
     process.stderr.write(
       `ccarchive: source ${srcRoot} yielded no transcripts while the archive ` +
-      `holds ${Object.keys(manifest).length} — has the live directory moved?\n`);
+      `holds ${mirrorRels(manifest).length} — has the live directory moved?\n`);
     return 1;
   }
 
@@ -1775,11 +1996,13 @@ function archiveRun({ srcRoot, destRoot, keyPath, dryRun, force, asJson, lock })
   // the records still pending (everything else is now in the signed index) and
   // refresh the lock's heartbeat.
   const persist = () => {
-    saveManifest(destRoot, manifest);
-    signManifest(destRoot, keyBuf, fs.readFileSync(manifestPath(destRoot)));
+    saveManifestSigned(destRoot, manifest, keyBuf);
     rewriteJournal(jp, keyBuf, pending);
     heartbeatLock(lock);
   };
+  // A previous run killed between replacing the manifest and its signature left the
+  // new signature beside the old one (see saveManifestSigned); it verified, so finish it.
+  if (!dryRun && auth.pendingSignature) completePendingSignature(destRoot);
 
   // Is this mirror one the signed index vouches for? See TRUST (man page) and
   // metadataAgrees. When the cheap check passes nothing is read. Otherwise the
@@ -1793,7 +2016,9 @@ function archiveRun({ srcRoot, destRoot, keyPath, dryRun, force, asJson, lock })
   // An evicted mirror is never read: "not checked (offloaded)", left in place.
   // `deep` skips the cheap check (an overwrite about to rely on an entry that lacks
   // a size). Returns { ok } | { gone } (no mirror there now) | { skip, detail }.
-  const vouch = (rel, gzPath, st, liveAbs, deep) => {
+  // `legacy` marks the catch-up pass over entries from before the size and time were
+  // recorded: a match there is counted as legacyChecked by the caller, not as a refresh.
+  const vouch = (rel, gzPath, st, liveAbs, deep, legacy) => {
     const entry = manifest[rel];
     if (!deep && metadataAgrees(entry, st)) return { ok: true };
     if (isDataless(gzPath)) { noteOffloaded(rel); return { skip: 'offloaded' }; }
@@ -1810,7 +2035,7 @@ function archiveRun({ srcRoot, destRoot, keyPath, dryRun, force, asJson, lock })
       entry.gzMtimeMs = st.mtimeMs;
       if (typeof entry.rawBytes !== 'number') entry.rawBytes = m.buf.length;
       manifestChanged = true;
-      report.metadataRefreshed++;
+      if (!legacy) report.metadataRefreshed++;
       return { ok: true };
     }
     if (h !== null && liveAbs) {
@@ -1833,6 +2058,7 @@ function archiveRun({ srcRoot, destRoot, keyPath, dryRun, force, asJson, lock })
 
   const every = checkpointEvery();
   let sinceCheckpoint = 0;
+  const checkpointMaybe = () => { if (++sinceCheckpoint >= every) { persist(); sinceCheckpoint = 0; } };
   // Test seams (like CCARCHIVE_SIMULATE_DATALESS): die after writing K mirrors —
   // by a thrown error (the catch-path save runs), or with CCARCHIVE_TEST_FAIL_HOW=kill
   // by SIGKILL the instant the K-th mirror lands, before its index entry exists:
@@ -1842,11 +2068,68 @@ function archiveRun({ srcRoot, destRoot, keyPath, dryRun, force, asJson, lock })
   const verifiedDirs = new Set();
   const visited = new Set();
 
+  // The anomalies already kept aside, by the rel they were kept from: so an anomaly
+  // that has not changed since the last run is reported as "still differs" and is not
+  // copied again every run.
+  const anomalyIndex = new Map();
+  for (const key of keptKeys(manifest)) {
+    const info = keptInfo(key);
+    if (info.area !== 'anomaly') continue;
+    if (!anomalyIndex.has(info.of)) anomalyIndex.set(info.of, []);
+    anomalyIndex.get(info.of).push({ key, sha256: manifest[key].sha256, keptAt: manifest[key].keptAt || manifest[key].archivedAt });
+  }
+  // ensureMirrorDir for a path that must not go through a symlink: false (and the
+  // reason on the report) rather than a throw, so the one file is skipped.
+  const dirOk = (rel, dirAbs) => {
+    try { ensureMirrorDir(destRoot, dirAbs, verifiedDirs); return true; }
+    catch (e) {
+      if (!(e instanceof CcError) || !['ESYMLINK', 'ENOTDIR'].includes(e.code)) throw e;
+      report.unwritable.push({ rel, reason: e.message });
+      return false;
+    }
+  };
+
   try {
+  // Catch-up for entries from before the size and time were recorded (legacy): most
+  // are closed transcripts that never change again, so without this a run would never
+  // be able to vouch for them by a stat and only --verify would ever check them. Each
+  // one whose mirror is local is hashed ONCE: if it matches its signed sha256 the stat
+  // is recorded; if not, the adoption rule (TRUST) applies exactly as for any other
+  // mirror the index does not vouch for. An offloaded mirror is never read (and the
+  // flags are read in batches, one `stat` per few hundred files, not one per file).
+  // Bounded so a first run over a large archive does not stall: a wall-clock slice of
+  // the run (CCARCHIVE_LEGACY_BUDGET_MS, default 20 s), always at least one entry so
+  // every run makes progress. The bound is a latency limit for a one-off catch-up, not
+  // a size taken from any archive: each entry is checked once ever, so any archive
+  // converges, and until it does the unchecked entries are trusted as signed, exactly
+  // as before, and --verify still reads every one.
+  const legacyAll = mirrorRels(manifest).filter((rel) => isLegacyEntry(manifest[rel]));
+  if (!dryRun && legacyAll.length) {
+    const gzOf = (rel) => path.join(destRoot, rel + '.gz');
+    const off = datalessPaths(legacyAll.map(gzOf));
+    report.legacyOffloaded = legacyAll.filter((rel) => off.has(gzOf(rel))).length;
+    const budget = legacyBudgetMs();
+    const t0 = Date.now();
+    for (const rel of legacyAll) {
+      if (report.legacyChecked > 0 && Date.now() - t0 >= budget) break;
+      const gzPath = gzOf(rel);
+      if (off.has(gzPath)) continue;
+      let st;
+      try { st = fs.lstatSync(gzPath); } catch { continue; }
+      if (!st.isFile()) continue;
+      const liveAbs = liveAbsFor(srcRoot, rel);
+      let hasLive = false;
+      try { hasLive = fs.statSync(liveAbs).isFile(); } catch {}
+      report.legacyChecked++;
+      vouch(rel, gzPath, st, hasLive ? liveAbs : null, true, true);
+    }
+    if (manifestChanged) persist();
+  }
+
   for (const { abs: srcAbs, rel } of sources) {
     visited.add(rel);
     if (isReservedRel(rel)) {
-      report.unwritable.push({ rel, reason: `${UNTRUSTED_DIR}/ is reserved for files a run sets aside` });
+      report.unwritable.push({ rel, reason: `${rel.split(path.sep)[0]}/ is reserved for files a run sets aside or keeps` });
       continue;
     }
     let srcStat;
@@ -1879,45 +2162,119 @@ function archiveRun({ srcRoot, destRoot, keyPath, dryRun, force, asJson, lock })
     const destMtimeMs = mst ? mst.mtimeMs : null;
     if (!shouldArchive(srcStat.mtimeMs, destMtimeMs)) { report.skipped++; continue; }
 
-    // Shrink guard: this is an overwrite of the sole durable copy, and the source
-    // is smaller than what the (vouched) entry recorded — suspect, refuse. An entry
-    // with no recorded size (a legacy fromArchive one, say after a --restore) gets
-    // its reference from the mirror's own checked bytes first (HL2); if those cannot
-    // be read (offloaded), the overwrite waits rather than run unguarded.
-    if (!force && mst) {
-      const entry = manifest[rel];
-      if (entry && typeof entry.rawBytes !== 'number') {
-        const v = vouch(rel, destAbs, mst, srcAbs, true);
-        if (v.skip) {
-          report.deferred.push({ rel, reason: `no-size-${v.skip}`, ...(v.detail ? { detail: v.detail } : {}) });
-          continue;
-        }
-        if (v.gone) mst = null;
-      }
-      if (mst && isSuspectShrink(srcStat.size, manifest[rel])) {
-        report.refusedShrink.push(rel);
-        report.files.push({ rel, action: 'refused-shrink', rawBytes: srcStat.size,
-          recordedBytes: manifest[rel].rawBytes });
-        continue;
-      }
-    }
-
-    if (dryRun) {
+    const kind = dataKind(rel);
+    const kindKey = countKind(rel);
+    const wouldWrite = () => {
       report.archived++;
+      if (kindKey) report.kinds[kindKey].archived++;
+    };
+
+    // A first capture (no mirror to protect) needs no comparison. A dry run of one
+    // does not even read the source.
+    if (dryRun && !mst) {
+      wouldWrite();
       report.bytesRaw += srcStat.size;
       report.files.push({ rel, action: 'would-archive', rawBytes: srcStat.size });
       continue;
     }
 
+    // An entry with no recorded length (a legacy fromArchive one, say after a
+    // --restore) has nothing to test an append against; its reference comes from the
+    // mirror's own checked bytes first (HL2). If those cannot be read (offloaded),
+    // an append-only record waits rather than run unguarded; a living document goes on
+    // and, having no length to test, is kept as a version (a rename needs no read).
+    if (!force && mst) {
+      const entry = manifest[rel];
+      if (entry && typeof entry.rawBytes !== 'number') {
+        const v = vouch(rel, destAbs, mst, srcAbs, true);
+        if (v.skip) {
+          if (kind === 'append-only') {
+            report.deferred.push({ rel, reason: `no-size-${v.skip}`, ...(v.detail ? { detail: v.detail } : {}) });
+            continue;
+          }
+        } else if (v.gone) mst = null;
+      }
+    }
+
     let raw;
     try { raw = fs.readFileSync(srcAbs); } catch (e) { noteUnreadable(rel, 'read', e); continue; }
-    const gz = zlib.gzipSync(raw);
-    try { ensureMirrorDir(destRoot, path.dirname(destAbs), verifiedDirs); }
-    catch (e) {
-      if (!(e instanceof CcError) || !['ESYMLINK', 'ENOTDIR'].includes(e.code)) throw e;
-      report.unwritable.push({ rel, reason: e.message });
+
+    // What kind of change is this? Tested against the signed entry, never the mirror.
+    const entry = mst ? manifest[rel] : null;
+    const change = entry ? classifyChange(raw, entry) : 'new';
+    let versionOf = null;
+    if (change === 'shrunk' || change === 'rewritten' || change === 'unknown') {
+      if (kind === 'append-only' && !force) {
+        // An append-only record changed other than by appending: the archived mirror
+        // is never overwritten. The changed live version is kept aside, signed, once
+        // per distinct version, and the run says so and exits 1.
+        if (change === 'unknown') {
+          report.deferred.push({ rel, reason: 'no-size-unchecked' });
+          continue;
+        }
+        const liveSha = sha256(raw);
+        const item = { rel, kind: change, liveBytes: raw.length, archivedBytes: entry.rawBytes };
+        const known = (anomalyIndex.get(rel) || []).find((a) => a.sha256 === liveSha);
+        if (known) {
+          report.anomalies.push({ ...item, state: 'still-differs', keptAs: known.key, keptAt: known.keptAt });
+          report.files.push({ rel, action: 'anomaly-known', rawBytes: raw.length });
+          continue;
+        }
+        if (dryRun) {
+          report.anomalies.push({ ...item, state: 'would-keep-aside', keptAs: null, keptAt: null });
+          report.files.push({ rel, action: 'would-keep-aside', rawBytes: raw.length });
+          continue;
+        }
+        const key = keptKeyFor(destRoot, manifest, ANOMALIES_DIR, stamp, rel);
+        const target = path.join(destRoot, key + '.gz');
+        if (!dirOk(rel, path.dirname(target))) continue;
+        appendJournal(jp, keyBuf, { rel: key, sha256: liveSha, rawBytes: raw.length, run: runId, at: nowIso });
+        writeFileAtomic(target, zlib.gzipSync(raw), { atimeSec: srcStat.atimeMs / 1000, mtimeSec: srcStat.mtimeMs / 1000 });
+        manifest[key] = { sha256: liveSha, rawBytes: raw.length, archivedAt: nowIso, keptAt: nowIso, of: rel,
+          kind: 'anomaly', reason: change };
+        manifestChanged = true;
+        if (!anomalyIndex.has(rel)) anomalyIndex.set(rel, []);
+        anomalyIndex.get(rel).push({ key, sha256: liveSha, keptAt: nowIso });
+        report.anomalies.push({ ...item, state: 'kept-aside', keptAs: key, keptAt: nowIso });
+        report.files.push({ rel, action: 'anomaly-kept', rawBytes: raw.length, keptAs: key });
+        checkpointMaybe();
+        continue;
+      }
+      // A living document edited other than by appending, or an operator-forced
+      // replacement of an anomaly: the previous mirror is kept as a dated version
+      // before the new one is written.
+      versionOf = change;
+    }
+
+    if (dryRun) {
+      if (versionOf) report.versionsKept.push({ rel, keptAs: null, reason: versionOf });
+      wouldWrite();
+      report.bytesRaw += raw.length;
+      report.files.push({ rel, action: 'would-archive', rawBytes: raw.length });
       continue;
     }
+
+    if (!dirOk(rel, path.dirname(destAbs))) continue;
+    let versionKey = null;
+    if (versionOf) {
+      // Rename, never read: an iCloud-offloaded mirror is kept as readily as a local
+      // one. The intent is journalled first (so a kill between the rename and the
+      // index being saved is repaired from the journal), the entry is recorded the
+      // instant the rename lands, and only then is the new mirror written.
+      versionKey = keptKeyFor(destRoot, manifest, VERSIONS_DIR, stamp, rel);
+      const target = path.join(destRoot, versionKey + '.gz');
+      if (!dirOk(rel, path.dirname(target))) continue;
+      if (typeof entry.sha256 === 'string') {
+        appendJournal(jp, keyBuf, { rel: versionKey, sha256: entry.sha256,
+          rawBytes: Number.isInteger(entry.rawBytes) ? entry.rawBytes : -1, run: runId, at: nowIso });
+      }
+      fs.renameSync(destAbs, target);
+      manifest[versionKey] = { sha256: entry.sha256, ...(typeof entry.rawBytes === 'number' ? { rawBytes: entry.rawBytes } : {}),
+        archivedAt: entry.archivedAt, keptAt: nowIso, of: rel, kind: 'version', reason: versionOf };
+      manifestChanged = true;
+      report.versionsKept.push({ rel, keptAs: versionKey, reason: versionOf });
+    }
+    const gz = zlib.gzipSync(raw);
     // Intent first: the journal (off the archive, fsynced, signed) names the exact
     // bytes this mirror is about to hold, so if the run dies before its entry is in
     // the signed index, the next run can tell this mirror is ccarchive's own.
@@ -1938,12 +2295,13 @@ function archiveRun({ srcRoot, destRoot, keyPath, dryRun, force, asJson, lock })
       gzBytes: written.size, gzMtimeMs: written.mtimeMs };
     manifestChanged = true;
 
-    report.archived++;
+    wouldWrite();
     report.bytesRaw += raw.length;
     report.bytesGz += gz.length;
-    report.files.push({ rel, action: 'archived', rawBytes: raw.length, gzBytes: gz.length });
+    report.files.push({ rel, action: 'archived', rawBytes: raw.length, gzBytes: gz.length,
+      ...(versionKey ? { versionKept: versionKey } : {}) });
 
-    if (++sinceCheckpoint >= every) { persist(); sinceCheckpoint = 0; }
+    checkpointMaybe();
     if (failAfter && report.archived >= failAfter) {
       throw new Error(`CCARCHIVE_TEST_FAIL_AFTER: simulated death after ${report.archived} mirrors`);
     }
@@ -1976,10 +2334,7 @@ function archiveRun({ srcRoot, destRoot, keyPath, dryRun, force, asJson, lock })
   }
 
   if (!dryRun) {
-    if (manifestChanged) {
-      saveManifest(destRoot, manifest);
-      signManifest(destRoot, keyBuf, fs.readFileSync(manifestPath(destRoot)));
-    }
+    if (manifestChanged) saveManifestSigned(destRoot, manifest, keyBuf);
     // Finished: every mirror this run wrote is in the signed index, so the journal
     // keeps only the records still pending (an offloaded mirror not yet checked).
     rewriteJournal(jp, keyBuf, pending);
@@ -1989,18 +2344,17 @@ function archiveRun({ srcRoot, destRoot, keyPath, dryRun, force, asJson, lock })
       report.keyId = keyId(keyBuf);
     }
   }
+  // Everything the signed index holds, sources since pruned included: the other half
+  // of "how many files, how many sessions" — what is safe, not just what is live.
+  report.inArchive = kindCounts(mirrorRels(manifest));
+  report.corrupt = report.setAside.filter((s) => s.reason === 'corrupt').length;
+  report.legacyRemaining = mirrorRels(manifest).filter((rel) => isLegacyEntry(manifest[rel])).length;
 
-  // A run that skipped, refused or set aside anything fails at the end (never
-  // mid-way), so it is not missed.
+  // A run that skipped, set aside or found an anomaly in anything fails at the end
+  // (never mid-way), so it is not missed. Versions kept are expected and do not fail.
   const journalRejected = report.journal && report.journal.rejected ? report.journal.rejected : 0;
-  const failed = report.refusedShrink.length + report.unreadable.length + report.unwritable.length +
+  const failed = report.anomalies.length + report.unreadable.length + report.unwritable.length +
     report.setAside.length + report.deferred.length + journalRejected;
-
-  for (const rel of report.refusedShrink) {
-    process.stderr.write(
-      `ccarchive: REFUSED ${rel} — source is smaller than the archived copy ` +
-      `(truncated?). Re-run with --force to overwrite deliberately.\n`);
-  }
 
   if (asJson) {
     process.stdout.write(JSON.stringify(report, null, 2) + '\n');
@@ -2008,18 +2362,50 @@ function archiveRun({ srcRoot, destRoot, keyPath, dryRun, force, asJson, lock })
   }
 
   const verb = dryRun ? 'would archive' : 'archived';
+  const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
   const lines = [
     `cc-transcripts archive${dryRun ? ' (dry run)' : ''} → ${destRoot}`,
-    `  ${report.total} file${report.total === 1 ? '' : 's'} · ` +
+    `  ${report.total} file${report.total === 1 ? '' : 's'} (${plural(report.sessions, 'session', 'sessions')}, ` +
+      `${plural(report.subagentTranscripts, 'subagent transcript', 'subagent transcripts')}) · ` +
       `${report.archived} ${verb}, ${report.skipped} unchanged`,
+    `  by kind: ${plural(report.kinds.session.files, 'session', 'sessions')}, ` +
+      `${plural(report.kinds.subagentTranscript.files, 'subagent transcript', 'subagent transcripts')}, ` +
+      `${plural(report.kinds.history.files, 'prompt history', 'prompt histories')}, ` +
+      `${plural(report.kinds.toolResult.files, 'tool result', 'tool results')}, ` +
+      `${plural(report.kinds.subagentMeta.files, 'subagent metadata file', 'subagent metadata files')}, ` +
+      `${plural(report.kinds.memory.files, 'memory note', 'memory notes')}`,
+    `  the archive holds ${plural(report.inArchive.files, 'file', 'files')}: ` +
+      `${plural(report.inArchive.sessions, 'session', 'sessions')}, ` +
+      `${plural(report.inArchive.subagentTranscripts, 'subagent transcript', 'subagent transcripts')} ` +
+      `(sources since pruned included)`,
   ];
   if (report.archived > 0) {
     lines.push(dryRun
       ? `  ${humanBytes(report.bytesRaw)} raw to compress`
       : `  ${humanBytes(report.bytesGz)} written (from ${humanBytes(report.bytesRaw)} raw)`);
   }
-  if (report.refusedShrink.length) {
-    lines.push(`  ${report.refusedShrink.length} REFUSED (source smaller than archived copy — see stderr)`);
+  if (report.versionsKept.length) {
+    lines.push(`  ${report.versionsKept.length} version${report.versionsKept.length === 1 ? '' : 's'} ` +
+      `${dryRun ? 'would be kept' : 'kept'}: living documents (memory notes, subagent metadata) that changed ` +
+      `other than by appending — the previous copy is under ${VERSIONS_DIR}/, the new one is current`);
+  }
+  for (const a of report.anomalies) {
+    const what = a.kind === 'shrunk'
+      ? 'is shorter than the archived copy'
+      : 'is not an append to the archived copy (changed in place)';
+    if (a.state === 'still-differs') {
+      lines.push(`  ✗ STILL DIFFERS ${a.rel} — the live file ${what}; kept aside ${String(a.keptAt).slice(0, 10)} ` +
+        `as ${a.keptAs}, not copied again. The archived copy is untouched.`);
+    } else {
+      lines.push(`  ✗ ${dryRun ? 'WOULD KEEP ASIDE' : 'ANOMALY'} ${a.rel} — the live file ${what} ` +
+        `(live ${humanBytes(a.liveBytes)}, archived ${humanBytes(a.archivedBytes)}). The archived copy is untouched; ` +
+        `the live version ${dryRun ? 'would be kept' : 'is kept'} aside` + (a.keptAs ? ` as ${a.keptAs}` : '') + `.`);
+    }
+  }
+  if (report.anomalies.length) {
+    lines.push(`  Next: look at ${report.anomalies.length === 1 ? 'it' : 'them'}. If the live version is the one to ` +
+      `keep, ccarchive --force makes it the archive's copy and keeps the previous one under ${VERSIONS_DIR}/ ` +
+      `(man ccarchive, INTEGRITY).`);
   }
   if (!dryRun && report.manifestEntries) {
     lines.push(`  ${report.manifestEntries} sha256 in manifest.json` +
@@ -2073,9 +2459,15 @@ function archiveRun({ srcRoot, destRoot, keyPath, dryRun, force, asJson, lock })
     lines.push(`  ${report.offloaded.length} mirror${report.offloaded.length === 1 ? '' : 's'} not checked ` +
       `(offloaded — bytes in iCloud, not local; not downloaded)`);
   }
-  if (failed && failed > report.refusedShrink.length) {
-    lines.push(`  ${failed - report.refusedShrink.length} item${failed - report.refusedShrink.length === 1 ? '' : 's'} ` +
-      `above need${failed - report.refusedShrink.length === 1 ? 's' : ''} a person — the rest of the run completed; ` +
+  if (report.legacyChecked || report.legacyRemaining) {
+    lines.push(`  ${report.legacyChecked} older index entr${report.legacyChecked === 1 ? 'y' : 'ies'} checked, ` +
+      `${report.legacyRemaining} remain` +
+      (report.legacyOffloaded ? ` (${report.legacyOffloaded} offloaded, never read to check)` : '') +
+      ` — a few each run so a run stays quick; the rest are trusted as signed meanwhile, and --verify checks every one`);
+  }
+  if (failed) {
+    lines.push(`  ${failed} item${failed === 1 ? '' : 's'} ` +
+      `above need${failed === 1 ? 's' : ''} a person — the rest of the run completed; ` +
       `exiting non-zero so it is not missed`);
   }
   process.stdout.write(lines.join('\n') + '\n');
@@ -2100,6 +2492,35 @@ function recoverFromJournal(jp, keyBuf, destRoot, manifest, report, noteOffloade
   let changed = false;
   for (const [rel, recs] of byRel) {
     const gzPath = path.join(destRoot, rel + '.gz');
+    // A kept copy (a version or an anomaly) the dead run was writing or renaming into
+    // place: recorded in the index the same way, once its bytes are shown to be the
+    // ones the record names. Never anything else under a reserved area.
+    const kept = keptInfo(rel);
+    if (kept && isInsideRoot(destRoot, gzPath)) {
+      if (manifest[rel]) continue;                         // already in the index
+      let kst;
+      try { kst = fs.lstatSync(gzPath); }
+      catch (e) {
+        if (e.code !== 'ENOENT') summary.notAdopted.push({ rel, reason: e.code || e.message });
+        continue;
+      }
+      if (!kst.isFile()) { summary.notAdopted.push({ rel, reason: 'not a regular file' }); continue; }
+      if (isDataless(gzPath)) { pending.push(...recs); summary.pending++; noteOffloaded(rel); continue; }
+      const km = readMirror(gzPath);
+      if (!km.ok) {
+        if (km.kind === 'offloaded') { pending.push(...recs); summary.pending++; noteOffloaded(rel); continue; }
+        if (km.kind !== 'missing') summary.notAdopted.push({ rel, reason: km.kind });
+        continue;
+      }
+      const kh = sha256(km.buf);
+      const krec = recs.find((r) => r.sha256 === kh);
+      if (!krec) { summary.notAdopted.push({ rel, reason: 'its bytes are not the ones the run recorded it was keeping' }); continue; }
+      manifest[rel] = { sha256: kh, rawBytes: km.buf.length, archivedAt: krec.at, keptAt: krec.at, of: kept.of,
+        kind: kept.area, reason: 'recovered' };
+      report.repaired.push(rel);
+      changed = true;
+      continue;
+    }
     if (isReservedRel(rel) || !isInsideRoot(destRoot, gzPath)) {
       summary.notAdopted.push({ rel, reason: 'not a mirror path' });
       continue;
@@ -2177,7 +2598,10 @@ module.exports = {
   CcError, isOffloadError, readMirror, writeFileAtomic, tempPathFor, sweepStaleTemps, ensureMirrorDir,
   realpathNearest, reportFatal,
   sha256, manifestPath, loadManifest, saveManifest, listArchivedRels, verifyArchive,
-  isSuspectShrink, insideGitWorkTree, auditCategorize, classifyDivergence, auditLiveStore,
+  classifyChange, dataKind, countKind, kindCounts, COUNT_KINDS, mirrorRels, keptKeys, keptInfo, isLegacyEntry,
+  datalessPaths, legacyBudgetMs, saveManifestSigned, checkManifestSignature, sigNextPath,
+  ANOMALIES_DIR, VERSIONS_DIR,
+  insideGitWorkTree, auditCategorize, classifyDivergence, auditLiveStore,
   isDatalessFlags, statFlags, isDataless,
   classifyRestore, isInsideRoot, restoreTargets, restoreArchive,
   defaultKeyFile, resolveKeyPath, sigPath, keyId, computeMac, macEqual,

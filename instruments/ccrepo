@@ -859,8 +859,10 @@ function readAllEvents(covers, pricing, rollup) {
   for (const enc of dirs) {
     // _external is ccarchive's reserved home for the archived history.jsonl, not a
     // repo folder — never a session log to price. _untrusted holds files ccarchive
-    // set aside as not part of the archive — never counted either.
-    if (fromArchive && (enc === '_external' || enc === '_untrusted')) continue;
+    // set aside as not part of the archive, and _anomalies and _versions the copies it
+    // keeps beside a mirror (a changed live version, a previous version) — never
+    // counted either.
+    if (fromArchive && ['_external', '_untrusted', '_anomalies', '_versions'].includes(enc)) continue;
     const dir = path.join(root, enc);
     if (!isDir(dir)) continue;
     // Seed the label from the ledger when we have it — a cached dir then needs no
