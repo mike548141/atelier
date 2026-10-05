@@ -1,5 +1,7 @@
 # atelier — session log (index)
 
+<!-- indexscan:maps dir=sessions match=*.md -->
+
 Append-only, newest last; one line per session. Tail-read at session start.
 Full detail per session lives in `docs/sessions/<date>-NN-slug.md` — open a
 file only when its line needs unpacking (RECORD.md's index/detail split;

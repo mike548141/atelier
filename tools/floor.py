@@ -654,6 +654,28 @@ SCANNERS: tuple[Scanner, ...] = (
         default_scope="docs",
     ),
     Scanner(
+        "indexscan",
+        # 200/010, option C as ruled: one generic check that a hand-maintained
+        # index names every entry of the directory it maps (the UNLISTED
+        # direction; listed-but-missing stays linkscan's and pathscan's).
+        # OPT-IN PER INDEX — an index with no `indexscan:maps` declaration is
+        # never read as one, so this line reaches every child on its next run
+        # and checks nothing there until the child declares an index
+        # (`test_indexscan.py` pins the undeclared-repo pass at exit 0).
+        # Whole tree on both planes, like linkscan: the file that goes
+        # unlisted is in the diff, the index that should name it often is not.
+        # WARN-ONLY, adoption-first: `--warn` sits in the template exactly as
+        # pathscan's does, so the flip to blocking is one visible argument and
+        # a separate ruling, never a side effect.
+        hook=["--warn", "--root", "{root}", "{scope}"],
+        ci=["--warn", "--root", "{root}", "{scope}"],
+        advisory=["--warn", "--root", "{root}", "{scope}"],
+        why="a hand-maintained index names every file in the directory it maps",
+        # Fourth requirement (GUARDS.md, declared; its registry slot is not
+        # built yet, `115/120`): MAKES THE FAILURE CHEAP. An unlisted file
+        # still commits; the guard names the drift when the fix is one line.
+    ),
+    Scanner(
         "licenscan",
         hook=["--expect", "{licence}", "{scope}"],
         ci=["--expect", "{licence}", "{scope}"],

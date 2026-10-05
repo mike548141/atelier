@@ -46,7 +46,7 @@ sys.path.insert(0, str(TOOLS_DIR))
 # `pointerscan` is the tool the fix was copied FROM and is here to keep it
 # honest.
 SCANNERS = (
-    "conflictscan", "datescan", "leakscan", "linkscan", "pathscan",
+    "conflictscan", "datescan", "indexscan", "leakscan", "linkscan", "pathscan",
     "pointerscan", "reviewscan", "secretscan", "sizescan", "spellscan",
     "stampscan", "wrapscan",
 )
