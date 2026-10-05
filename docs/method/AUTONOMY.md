@@ -57,6 +57,18 @@ are hard or impossible to undo:
     publishes every one of those mentions at once. Pre-flip is the one moment a
     scrub buys everything back — nothing is published yet — so scrubbing that
     name is part of the making-public confirmation, not a follow-up to it.
+  - **The scrub runs last, over the gate's own records.** Run it on the final
+    commit, after the gate's records are written, and include those records,
+    above all any line joining a private repo's name to its scan state (RECORD
+    § *The record is public*). A flip publishes every path ever tracked, so the
+    gate also runs `publishscan --history`. (`260/090`.)
+  - **A planted canary is reconciled shape by shape.** Proof that a scanner
+    fires lists each planted shape and whether it fired. A shape that did not
+    fire is a finding to explain, never swapped out and never folded into a
+    count. (`260/090`.)
+  - **The doctrine pin is current at the flip.** Before the visibility change,
+    run the drift check (PROPAGATION) and compare the inlined floor with the
+    canonical one. (`260/090`.)
 - **Recoverability ends at push once anything downstream consumes it.** A pushed
   commit a peer, CI, or a deploy has already pulled is not revert-clean; a pushed
   **secret is burned** even after a history rewrite. So: a commit that contains a

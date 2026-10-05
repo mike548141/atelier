@@ -5,6 +5,18 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-10-05 — what the first flip's transcripts add to the pre-flip gate, `260/110`)
+- `AUTONOMY.md`'s making-public clause gains three lines from `260/090`'s
+  harvest. The scrub runs last and covers the gate's own records, including any
+  join of a private repo's name to its scan state. A planted canary is
+  reconciled shape by shape. The doctrine pin is current at the flip.
+- `publishscan --history`, opt-in: the same never-publish rules over every path
+  ever added on a branch, tag or remote-tracking ref, each hit reported with
+  its oldest adding commit and whether the tip still tracks it. Streamed; a
+  shallow clone exits 2. Default output is byte-identical (120 of 120 runs: four
+  flag sets over 29 local repos and one fixture, plus the selftest). Round 3 adds `*.egg-info/`, which no sibling
+  repo tracked at its tip, so no repo went red.
+
 ### Changed (2026-10-05 — one shared exit and reporting contract for the guards, `115/080` part 3)
 - `tools/report.py` holds the exit codes (0 clean · 1 blocking findings · 2 the
   scan broke) and the report lines fourteen scanners printed as copies. Every

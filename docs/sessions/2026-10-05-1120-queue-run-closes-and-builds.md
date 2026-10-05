@@ -251,3 +251,27 @@ on a blocking secret or PII guard.
 - Running six workers at once, alongside other repos' test runs, pushed
   the machine's load past 400. That cost wall time and three spurious
   timeouts. The run held new dispatches until load fell.
+
+## Addendum: Mike's answers at the close, and the two builds they opened
+
+Mike answered the four close-of-run questions in the device. His picks were
+from the session's options, and are recorded as answers, not rulings:
+- `200/020`: signed off as landed. Closed.
+- The two landed forbid-only guards are accepted as prevention, recorded on
+  `300/020`.
+- `115/080`: **"Both: fix markers and print IDs"**. This was not the
+  session's recommendation. It was claimed for an Opus worker, under the
+  constraint that every existing marker keeps silencing exactly what it
+  silences now.
+- P9 (`260/110`): build before the next flip. Claimed.
+
+A child's queue run handed up a gap over the channel: nothing reads the
+published CI conclusion. It is filed as `320/520`, and the child was told so.
+
+**`260/110` (P9) built and merged** (`89ff0d8`). Three lines join
+`AUTONOMY.md`'s making-public clause. The opt-in `publishscan --history`
+matches never-publish shapes against every path ever added on a pushed
+ref. Default output was byte-identical across 29 repos. On `rpi` it
+reproduces P7's evidence. The pass is queued at `160/740`. The worker found
+that the default planes miss non-ASCII paths, because git quotes them; that
+is filed and claimed as `260/120`.

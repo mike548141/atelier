@@ -283,6 +283,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: the standing reviewer checklist and the](roadmap/160-doctrine-review-owed/710-rule-4-cold-pass-queued-checklist-and-test-rule.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the per-rule pre-filter gates in](roadmap/160-doctrine-review-owed/720-rule-4-cold-pass-queued-scanner-gates.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the shared exit and reporting contract](roadmap/160-doctrine-review-owed/730-rule-4-cold-pass-queued-the-report-contract.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the pre-flip gate additions and](roadmap/160-doctrine-review-owed/740-rule-4-cold-pass-queued-the-pre-flip-gate.md)
 
 ## build/ layer — open strands
 
@@ -389,7 +390,8 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [P6 — rpi F5: estate-internal context accumulating in public](roadmap/260-sharing-public-since-2026-07-10-adr-0005/080-p6-rpi-f5-estate-internal-context-accumulating.md)
 - ✅ [P7 — harvest the rpi publication properly.](roadmap/260-sharing-public-since-2026-07-10-adr-0005/090-p7-harvest-the-rpi-publication-properly.md)
 - [ ] [P8 — traffic harvest: keep the history GitHub's 14-day window](roadmap/260-sharing-public-since-2026-07-10-adr-0005/100-p8-traffic-harvest-keep-the-history-github-s-1.md)
-- [~] 🔎 (claimed 2026-10-05-1821, wt: atelier-qr-260-110) [P9 — what the flip's transcripts add to the pre-flip gate](roadmap/260-sharing-public-since-2026-07-10-adr-0005/110-p9-what-the-flip-transcripts-add-to-the-gate.md)
+- ✅ 🔎 [P9 — what the flip's transcripts add to the pre-flip gate](roadmap/260-sharing-public-since-2026-07-10-adr-0005/110-p9-what-the-flip-transcripts-add-to-the-gate.md)
+- [~] 🔎 (claimed 2026-10-05-1842, wt: atelier-qr-260-120) [publishscan's default and staged planes miss any path git quotes](roadmap/260-sharing-public-since-2026-07-10-adr-0005/120-publishscan-misses-non-ascii-paths.md)
 
 ## Open questions
 
