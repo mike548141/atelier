@@ -5,6 +5,13 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-10-05 — cctranscript: the first-prompt column reads a prefix, `210/180`)
+- `--list --from-archive` finds each mirror's first prompt in a bounded 64 KB
+  prefix, and falls back to the whole-file read only when the prefix holds
+  none. Output is byte-identical; listing CPU fell from about 27 s to about 7 s
+  on one real archive. A corrupt mirror whose first prompt sits in its intact
+  prefix now lists a row instead of aborting the listing.
+
 ### Added (2026-10-05 — ccarchive: a real calendar schedule, `210/230`)
 Mike's ruling: the schedule option comes back as a schedule, not a run at every
 login, and his own machine stays manual. In plain terms:
