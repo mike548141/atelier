@@ -1,5 +1,5 @@
-- [ ] **The board miscounted the review queue — make its markers unambiguous to
-      the sessions that read them (Mike, 2026-10-03).** Mike's instruction,
+- [~] **The board miscounted the review queue — make its markers unambiguous to
+      the sessions that read them (Mike, 2026-10-03).** (claimed 2026-10-05-1128, wt: atelier-qr-130-020) Mike's instruction,
       verbatim, after a session summarised the failure for him:
 
       > good, now record that on the board as something to improve i.e. more

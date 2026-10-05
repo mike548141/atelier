@@ -1,4 +1,4 @@
-- [ ] **Enforcement seam — how does an invariant get checked?** (Per-candidate
+- [~] **Enforcement seam — how does an invariant get checked?** (claimed 2026-10-05-1128, wt: none) (Per-candidate
       seams proposed in the mining record — scanner vs checklist vs verifier,
       one line of why each; decisions ride the 🎯 rulings above.) Three
       candidates to place on our existing spectrum: a CI scanner (like

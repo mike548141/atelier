@@ -1,5 +1,5 @@
-- [ ] 🔎 **Sessions kept placing the tool list in a private repo and
-      crediting Mike with it, and he says it was never his**
+- [~] 🔎 **Sessions kept placing the tool list in a private repo and
+      crediting Mike with it, and he says it was never his** (claimed 2026-10-05-1128, wt: none)
       `[S][doctrine][records]`. Found 2026-10-03, when a session's question
       cited "your 2026-09-28 ruling (made in the child) put the list in the
       private estate-root repo". Mike's reply, verbatim:

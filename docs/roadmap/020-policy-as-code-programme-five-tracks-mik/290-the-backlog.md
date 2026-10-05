@@ -1,4 +1,4 @@
-- [ ] **The backlog.** atelier's own docs return ~7,900 findings, 1,187 of them
+- [~] **The backlog.** (claimed 2026-10-05-1128, wt: none) atelier's own docs return ~7,900 findings, 1,187 of them
       in `SESSIONS.md` alone. Records are append-only history and rewriting them
       would be dishonest, so the realistic scope is `docs/method/` +
       `docs/build/` (the shareable doctrine, ~39 P2 findings across method) and

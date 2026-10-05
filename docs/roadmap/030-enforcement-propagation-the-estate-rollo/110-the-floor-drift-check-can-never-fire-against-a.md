@@ -1,5 +1,5 @@
-- [ ] **The floor drift check can never fire against a stale checkout — the
-      canonical `<SHA>..HEAD` range is the defect.** `PROPAGATION.md`'s floor
+- [~] **The floor drift check can never fire against a stale checkout — the
+      canonical `<SHA>..HEAD` range is the defect.** (claimed 2026-10-05-1128, wt: none) `PROPAGATION.md`'s floor
       region tells every child to run
       `git -C "<atelier-path>" log --oneline <SHA>..HEAD`. That reads the
       child's *local* atelier checkout, and nothing keeps that checkout

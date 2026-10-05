@@ -1,5 +1,5 @@
-- [ ] 🔎 **leakscan and secretscan scan at roughly 0.5–1 MB/s, so a 128 MB
-      repo still takes minutes** `[M][tools]`. Measured 2026-10-03, after
+- [~] 🔎 **leakscan and secretscan scan at roughly 0.5–1 MB/s, so a 128 MB
+      repo still takes minutes** (claimed 2026-10-05-1128, wt: atelier-qr-110-130) `[M][tools]`. Measured 2026-10-03, after
       `110` stopped them walking untracked trees: leakscan took 231 s and
       secretscan 139 s over 128 MB of tracked text. Memory is flat (43–60
       MB), so this is time only. A profile from the same day puts leakscan's

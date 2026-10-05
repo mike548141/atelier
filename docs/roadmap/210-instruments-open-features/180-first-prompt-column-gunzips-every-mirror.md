@@ -1,5 +1,5 @@
-- [ ] 🔎 **`--list --from-archive` still fully gunzips every local mirror for
-  its first-prompt column** (found 2026-10-03 by the worker that fixed `050`;
+- [~] 🔎 **`--list --from-archive` still fully gunzips every local mirror for
+  its first-prompt column** (claimed 2026-10-05-1128, wt: atelier-qr-210-180) (found 2026-10-03 by the worker that fixed `050`;
   measured, not built)
 
   With `050`'s two causes fixed, the listing still takes about 7 s. A CPU

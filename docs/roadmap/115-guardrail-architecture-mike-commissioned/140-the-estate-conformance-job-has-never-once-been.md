@@ -1,5 +1,5 @@
-- [ ] 🔥 **The scheduled estate conformance job has never once been green — 19
-      runs, 19 failures, zero successes.** Verified directly 2026-08-15 against
+- [~] 🔥 **The scheduled estate conformance job has never once been green — 19
+      runs, 19 failures, zero successes.** (claimed 2026-10-05-1128, wt: none) Verified directly 2026-08-15 against
       the run history, not inferred: every scheduled run from 2026-07-28 to
       2026-08-14 ended `failure`. This is the daily job Mike ruled and paid for
       with a fine-grained token, built to assert the full claim — that every

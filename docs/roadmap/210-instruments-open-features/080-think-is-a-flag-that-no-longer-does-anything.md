@@ -1,4 +1,4 @@
-- [ ] **`--think` is a flag that no longer does anything.** The harness stopped
+- [~] **`--think` is a flag that no longer does anything.** (claimed 2026-10-05-1128, wt: none) The harness stopped
       writing thinking text to the log — blocks carry a `signature` and no
       content, so `readTurns`' `(b.thinking || '').trim()` gate finds nothing to
       render. Confirmed behaviourally as well as by census (9 text-bearing blocks

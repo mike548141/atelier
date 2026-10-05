@@ -1,4 +1,4 @@
-- [ ] **The unreasoned advisories are already in hand — do not re-file.**
+- [~] **The unreasoned advisories are already in hand — do not re-file.** (claimed 2026-10-05-1128, wt: none)
       Eight bare-list `advisory` declarations across six repos carry no reason
       and no expiry (`Baby Brain`, `FoodTracker`, `ec2_builder`,
       `hitchbots_guide`, `homenetwork` `wrapscan`; `docker-heap` `sizescan`;
