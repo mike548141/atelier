@@ -1,5 +1,5 @@
-- [~] 🚩 **Re-rank the open guard work against the fourth requirement — and
-      expect some of it to fail** (claimed 2026-10-05-1135, wt: atelier-qr-300-020) `[L][docs]` — blocked on `010` landing the
+- [x] 🚩 **Re-rank the open guard work against the fourth requirement — and
+      expect some of it to fail** `[L][docs]` — blocked on `010` landing the
       test. Mike ruled 2026-08-17 that the posture *becomes* the test guard work
       has to pass, having been told to expect exactly this.
       **Why it is its own item and wants a FRESH session.** The open board
@@ -283,3 +283,15 @@
          the act undoable first. Move to a holding area or snapshot, and delete
          later, so a wrong report costs a restore rather than the data. That is
          §10's move exactly.
+
+      ✅ **Closed 2026-10-05 — the pass is delivered** (queue run, Opus 5.5
+      orchestrating, an Opus 5.5 worker; merge `27586aa`). The result block
+      above declares 100 guards and guard items, 20 landed and 80 open, and
+      flags seven where the honest answer is *forbids the act, and nothing
+      makes the failure cheaper*. Two of those are landed guards (`leakscan`,
+      `publishscan`), and they go to Mike in plain language at the run's
+      close. Nothing was removed or unwired, as the item required. The 115
+      items screened out by title are named in the block, so a later pass can
+      confirm none of them hides a guard. One finding from the pass is filed
+      as `115/240`: three enforced scanners still describe themselves as
+      advisory.
