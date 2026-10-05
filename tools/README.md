@@ -776,7 +776,7 @@ A tree with no git skips visibly at exit 0 — not a fail-open, since nothing is
 tracked and so nothing can be published from it. Every *other* git failure (git
 absent, repo corrupt) is exit 2: a broken scan is not a pass.
 
-## `datescan.py` — absolute-UTC dating discipline (FIRST-OF-KIND, advisory only)
+## `datescan.py` — absolute-UTC dating discipline (enforced; shipped first-of-kind)
 
 Seam S3 (2026-07-22 invariant-candidates review): a dated record states
 ISO-8601 absolute dates stamped from `date -u`, never a relative-time word
@@ -788,9 +788,13 @@ denylist**, and an **ISO/UTC shape check** (a non-ISO absolute date like
 `23/07/2026` or `July 23, 2026`; an ISO-*shaped* date that isn't a real
 calendar day, e.g. `2026-13-40`).
 
-**This scanner has not yet earned an independent review** (don't-stack), so
-it is wired into CI **advisory-only** (`--warn`, always exit 0) and
-deliberately **not** in the blocking pre-commit hook.
+**Wiring: enforced.** The floor registry (`tools/floor.py`) runs it blocking
+on both the pre-commit hook and CI, and `floor.py --list` prints it
+`enforced`. It shipped first-of-kind and advisory-only (CI in `--warn`, kept
+out of the hook until it had an independent review); the flip to blocking in
+CI was Mike's ruling in `d24caec` (2026-07-23), after the cold review passed
+and the docs re-baselined to zero genuine breaches, and the registry
+(`40c7a22`, 2026-07-25) then put it on the hook plane too.
 
 Exemptions, deliberately generous (a false positive costs a comment; a noisy
 scanner trains itself away): a fenced code block or blockquoted line (quoted
@@ -818,7 +822,7 @@ usage/config error. Escape hatches mirror the sibling scanners:
 `<!-- datescan:allow: <reason> -->` per line, a glob in `.datescanignore` per
 path.
 
-## `wrapscan.py` — line-wrap / column hygiene (FIRST-OF-KIND, advisory only)
+## `wrapscan.py` — line-wrap / column hygiene (enforced; shipped first-of-kind)
 
 Seam S1 (2026-07-22 invariant-candidates review): Markdown prose under
 `docs/**` wraps at the house width; a line **materially over** it reds —
@@ -828,8 +832,12 @@ cycles running** (`SL7` → `AC1` at 122 cols → `IR3`), each fix re-introducin
 the next, because nothing mechanical caught a judgement the reviewer kept
 re-making. This scanner is that column count.
 
-**Not yet reviewed** (don't-stack) — wired CI **advisory-only** (`--warn`,
-always exit 0), **not** in the blocking pre-commit hook.
+**Wiring: enforced.** The floor registry runs it blocking on both the
+pre-commit hook and CI, and `floor.py --list` prints it `enforced`. It shipped
+advisory-only (CI in `--warn`, not in the hook, until reviewed); Mike's ruling
+flipped it to blocking in CI in `4f1c10c` (2026-07-23), once the
+doctrine-surface scope scanned clean, and the registry (`40c7a22`, 2026-07-25)
+then put it on the hook plane too.
 
 Column length is a character count, honest for the house's ASCII prose but not
 a true display-width measure (a stated Unicode caveat). Four exemptions,
@@ -857,7 +865,7 @@ usage/config error. Escape hatches mirror the sibling scanners:
 `<!-- wrapscan:allow: <reason> -->` per line, a glob in `.wrapscanignore` per
 path.
 
-## `spellscan.py` — NZ-English spelling (FIRST-OF-KIND, advisory only)
+## `spellscan.py` — NZ-English spelling (enforced; shipped first-of-kind)
 
 Seam S5 (2026-07-22 invariant-candidates review): `docs/**` uses NZ-English
 spelling (artefact, organise, colour, behaviour…). The premise is that a
@@ -865,8 +873,12 @@ scanner catches the convention the eye skips — the mining found `artifact`
 used 15+ times across `method/` despite the rule, caught as a finding only
 twice; the class is **under-detected, not rare**.
 
-**Not yet reviewed** (don't-stack) — wired CI **advisory-only** (`--warn`,
-always exit 0), **not** in the blocking pre-commit hook.
+**Wiring: enforced.** The floor registry runs it blocking on both the
+pre-commit hook and CI, and `floor.py --list` prints it `enforced`. It shipped
+advisory-only (CI in `--warn`, not in the hook, until reviewed); Mike's ruling
+flipped it to blocking in CI in `4f1c10c` (2026-07-23), with the frozen record
+stores netted by `.spellscanignore` rather than retro-spelled, and the
+registry (`40c7a22`, 2026-07-25) then put it on the hook plane too.
 
 The denylist is generated from stem lists, one source of truth: an
 `-ize/-ise` + `-yze/-yse` verb family (with a smaller `-ization/-isation`

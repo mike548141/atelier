@@ -17,14 +17,21 @@ have. Silently inferring macron coverage from the "NZ English with macrons"
 grounding would be the same silent-failure class this scanner exists to
 catch, so it is named rather than left implicit.
 
-BORDERLINE, NOT-YET-REVIEWED. Named "borderline (cheapest scanner)" in the
+BORDERLINE when it was mined. Named "borderline (cheapest scanner)" in the
 mining record: the dedicated corpus findings are thin (2, +1 bundled) — the
 promotion case rests on ROI (this is the cheapest scanner to write) plus a
 spot-check showing "artifact" alone recurs 15+ times across `method/` docs
-despite the house rule, i.e. the class is under-detected, not rare. Like
-`datescan`, this has not yet earned an independent review, so wire it
-advisory-only (`--warn`) and never into the blocking pre-commit hook until
-reviewed.
+despite the house rule, i.e. the class is under-detected, not rare.
+
+WIRING, AS OF NOW: ENFORCED. The floor registry (`tools/floor.py`) runs this
+scanner blocking on both planes — the pre-commit hook and CI — and
+`floor.py --list` prints it `enforced`. Like `datescan`, it shipped
+first-of-kind and advisory-only (CI in `--warn` mode, never the hook, until
+reviewed); Mike's ruling flipped it to blocking in CI in 4f1c10c
+(2026-07-23), with the frozen record stores netted by `.spellscanignore`
+rather than retro-spelled, and the registry (40c7a22, 2026-07-25) then put
+it on the hook plane too. `--warn` remains a report-only mode for
+re-baselining; the registry's `advisory` form uses it.
 
 THE DENYLIST — curated, not exhaustive. Two generative families (every
 inflected form is derived from a stem list, not hand-typed, so there is one
@@ -133,7 +140,7 @@ STATED RESIDUAL, HONESTLY:
     rather than hidden, same honesty as datescan's stated limits.
 
 Exit codes (fail-safe — anything but a clean scan is non-zero, UNLESS --warn):
-  0  clean; or --warn was given (advisory rollout — never blocks)
+  0  clean; or --warn was given (report-only mode — never blocks)
   1  findings, and --warn was NOT given
   2  usage / config error (a broken scan is NOT a pass)
 
@@ -717,9 +724,9 @@ def _main(argv: list[str] | None = None) -> int:
     ap.add_argument("--root", default=".",
                     help="repo root for .spellscanignore and relative paths")
     ap.add_argument("--warn", action="store_true",
-                    help="report findings but always exit 0 (advisory / "
-                         "warn-first rollout — this scanner is first-of-kind "
-                         "and not yet reviewed; it must not gate)")
+                    help="report findings but always exit 0 (report-only "
+                         "mode, for re-baselining or a warn-first rollout; "
+                         "the floor registry runs it without this by default)")
     ap.add_argument("--json", action="store_true", help="machine-readable output")
     ap.add_argument("--selftest", action="store_true",
                     help="run built-in checks and exit")
