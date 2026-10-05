@@ -858,8 +858,9 @@ function readAllEvents(covers, pricing, rollup) {
   catch { return { events: [], repoLabels, unpriced: new Map(), evicted, rollup: rollup ? { path: rollup.path, hits, misses } : null }; }
   for (const enc of dirs) {
     // _external is ccarchive's reserved home for the archived history.jsonl, not a
-    // repo folder — never a session log to price.
-    if (fromArchive && enc === '_external') continue;
+    // repo folder — never a session log to price. _untrusted holds files ccarchive
+    // set aside as not part of the archive — never counted either.
+    if (fromArchive && (enc === '_external' || enc === '_untrusted')) continue;
     const dir = path.join(root, enc);
     if (!isDir(dir)) continue;
     // Seed the label from the ledger when we have it — a cached dir then needs no

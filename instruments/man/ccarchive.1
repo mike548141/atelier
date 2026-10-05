@@ -23,6 +23,11 @@ ccarchive \- durably preserve every Claude Code transcript, word for word
 .B ccarchive \-\-rekey
 .RI [ \-\-dest
 .IR dir ]
+.br
+.B ccarchive
+.BR \-\-lock\-status " | " \-\-clear\-lock
+.RI [ \-\-dest
+.IR dir ]
 .SH DESCRIPTION
 Claude Code records each session as a raw JSON-lines log under
 .IR ~/.claude/projects/ <encoded-repo>/ <session-uuid> .jsonl
@@ -207,8 +212,12 @@ below.
 .B \-\-rekey
 Mint a fresh signing key (replacing any existing one) and re-sign the current
 manifest with it. The deliberate key roll \(em after suspected key exposure, or
-on a cadence. See
+on a cadence \(em and the one deliberate way to clear an index a run refused to
+trust: run it only once you are satisfied the archive is intact. Takes the lock.
+See
 .B SIGNING
+and
+.B TRUST
 below.
 .TP
 .B \-\-audit
@@ -259,6 +268,23 @@ and
 buckets \(em rather than the whole archive. Ignored without
 .BR \-\-restore .
 .TP
+.B \-\-lock\-status
+Say whether a run holds this archive's lock:
+.BR free ,
+.B held
+by a live run (with its pid, host, start time and last heartbeat), or
+.B STUCK
+\(em the holder is not running. Read-only. See
+.B LOCK
+below.
+.TP
+.B \-\-clear\-lock
+Clear a stuck lock. Refuses, naming the holder, while the holder is still
+running, and refuses a lock taken on another host (its liveness cannot be
+checked from here). See
+.B LOCK
+below.
+.TP
 .B \-\-json
 Emit a machine-readable JSON summary instead of the human report. Never
 styled; safe to pipe into
@@ -266,6 +292,13 @@ styled; safe to pipe into
 .TP
 .BR \-h ", " \-\-help
 Print a concise usage summary and exit. This manual is the full reference.
+.PP
+Any other option \(em a typo such as
+.BR \-\-dry\-runn ,
+a stray word, or
+.B \-\-dest
+with no directory after it \(em is refused by name with exit status 2 before
+anything is read or written, so a mistyped preview can never run a real archive.
 .SH RUNNING IT
 .B ccarchive
 is run by hand. It installs nothing and schedules nothing: no launchd agent, no
@@ -322,13 +355,30 @@ is kept.
 A file present in the archive but absent from the manifest is reported
 .B UNMANIFESTED
 and fails the verify: it is either injected, or history the manifest lost, and
-both deserve a human eye. Entries whose source was pruned before hashing
-existed are marked
+both deserve a human eye. The next ordinary run adopts it only if it is
+byte-identical to the live copy, and otherwise moves it aside (see
+.BR TRUST ).
+Entries an earlier version wrote for files whose source was pruned before
+hashing existed are marked
 .B fromArchive
-in the manifest \(em their hash attests the archived copy only, not the
-original raw bytes \(em and
+\(em their hash attests the archived copy only, not the original raw bytes \(em
+and
 .B \-\-verify
-counts them distinctly.
+counts them distinctly. Runs no longer create such entries.
+.PP
+A
+.B MISMATCH
+is reported with its next step: the archived bytes are not the ones the signed
+index recorded (bit rot, a sync glitch or tampering), and the copy is left
+untouched;
+.B \-\-audit
+shows whether the live copy still matches the record. Keep the copy until you
+have decided. A
+.B MISSING
+copy may have been deleted, or set aside by a run that found it did not match
+its record. Files under
+.I _untrusted/
+are counted, not checked.
 .PP
 The archive never
 .I deletes
@@ -379,7 +429,9 @@ the manifest would pass. That gap is closed by
 .BR SIGNING ,
 below: the manifest is signed with a key kept off the archive, so a forged
 manifest fails
-.BR \-\-verify .
+.BR \-\-verify ,
+and a run that would write refuses it rather than re-sign it (see
+.BR TRUST ).
 .SH SIGNING
 The manifest is the trust anchor, but a manifest an attacker can rewrite anchors
 nothing: with write access to the archive volume (for the default iCloud Drive
@@ -404,16 +456,23 @@ the archive volume, and writes a detached signature beside it as
 recomputes the MAC with the local key: a manifest altered after signing no
 longer carries a MAC the key reproduces, so the tampering is
 .BR "tamper-evident" .
-Every manifest write re-signs; a pre-signing archive is migrated to a signed one
-on the next ordinary run.
+Every manifest write re-signs \(em but only after the run has authenticated the
+manifest it loaded (see
+.BR TRUST ),
+so a run never launders a forged index into a signed one. A pre-signing
+(unsigned) archive is therefore not migrated silently: a run refuses it, and the
+operator migrates it deliberately with
+.BR \-\-rekey .
 .PP
 The manifest is saved, and re-signed, every 50 mirrors written and again if a
-run fails part-way, so a run that dies leaves the manifest covering every mirror
-it had written. A manifest entry is only ever set after its mirror is fully
-written. An entry that already lags its mirror is not rewritten by an ordinary
-run; it stays as recorded and
-.B \-\-verify
-reports it. Overlapping runs are not locked against.
+run fails part-way with an error it can catch. A run killed outright (power
+loss, a hard kill) can leave up to 50 mirrors ahead of the manifest; the intent
+journal described under
+.B TRUST
+is what lets the next run put exactly those back. A manifest entry is only ever
+set after its mirror is fully written. Overlapping runs are prevented by a lock
+(see
+.BR LOCK ).
 .PP
 The scheme is symmetric (HMAC), not a public-key signature, by design: the
 signer and the verifier are the same machine and user, so a locally-held key is
@@ -464,7 +523,8 @@ non-zero for, each non-green case: a
 manifest (a pre-signing archive to migrate, or a removed signature); and an
 .B unverifiable
 manifest \(em no key on this machine, so the signature cannot be checked at all
-(bring the key out-of-band, or establish one with a run). Only a manifest whose
+(bring the key out-of-band; a run will not mint a new one while a manifest
+exists). Only a manifest whose
 signature the local key reproduces exits
 .BR 0 .
 The signature is
@@ -472,6 +532,136 @@ The signature is
 not tamper-proof: it detects a forgery at verify time, it does not prevent the
 write, and an attacker who also steals the key can forge a valid signature \(em
 which is why the key's confidentiality and cheap rotation matter.
+.SH TRUST
+The signed manifest is the index of what
+.B ccarchive
+itself wrote. It is also cheaper to read than the archive, so a run decides what
+it trusts from the index and a
+.BR stat (2)
+of each mirror, and reads a mirror's bytes only when the two disagree.
+.PP
+.B Authenticate before any write.
+An ordinary run and
+.B \-\-restore
+check the manifest's signature before they use it, over the exact bytes they
+then parse, and refuse anything but
+.B verified
+\(em a manifest changed after signing, one signed by a different key, an
+unsigned one, one that cannot be checked because there is no key here, or a
+signature whose manifest has gone. The refusal names the state, changes nothing
+and exits 2. A missing key is never minted while a manifest exists: that would
+re-sign an index nobody checked. A genuinely new archive \(em no manifest
+and no signature \(em proceeds,
+and is signed as it is written. The one deliberate clear
+is
+.BR \-\-rekey ,
+once the operator is satisfied the archive is intact. A dry run refuses the same
+way, since what it would preview is a refusal.
+.PP
+.B The intent journal.
+Before a run writes each mirror it appends one record to a private journal
+beside the signing key, off the archive (see
+.BR FILES ):
+the mirror's path, the sha256 and length of the exact bytes it is about to
+write, the run's id and the time. Each record is flushed to disk and signed with
+the signing key, so an edited record is detected. At each checkpoint, and when
+it finishes, the run cuts the journal down to what is still pending and removes
+it when nothing is. A journal found when a run starts therefore proves the
+previous run died part way. For each record, if the mirror is there and its
+decompressed bytes hash to what the record says, the index entry is set from the
+record and the run reports it
+.BR REPAIRED .
+An evicted mirror is not read: its record stays pending and it is reported
+.BR "not checked (offloaded)" .
+A mirror that does not match its record is not adopted from the journal; the
+rule below then applies to it. A record whose signature fails is never used,
+and the run exits 1.
+.PP
+.B Anything else the index does not vouch for.
+Each index entry a run writes records the mirror's own size and modification
+time as written. A mirror is vouched for when its
+.BR stat (2)
+agrees with its signed entry \(em no read needed. A mirror with no entry, or
+whose size or time disagrees with its entry, and that the journal does not
+explain, is handled in this order:
+.IP \(bu 2
+its bytes still hash to the signed entry \(em only its size or time changed (a
+sync tool re-stamped it, say); the entry's size and time are refreshed;
+.IP \(bu 2
+its bytes are identical (sha256) to the live copy \(em it is
+.B ADOPTED
+into the index;
+.IP \(bu 2
+anything else \(em it is
+.B moved
+to
+.IR <dest>/_untrusted/<UTC\ stamp>/<rel>.gz :
+never deleted, never overwritten (a second one under the same name gets a
+numbered suffix), never adopted. The live copy, if there is one, is then
+archived normally, and the run exits 1 explaining what it set aside and why.
+.PP
+Files under
+.I _untrusted/
+are not part of the archive: every walk,
+.B \-\-verify
+and
+.B \-\-restore
+leave them out
+.RB ( \-\-verify
+counts them). Look at them, then keep or remove them yourself. An evicted mirror
+is never read to make this decision: it is reported
+.B "not checked (offloaded)"
+and left where it is, and if its live copy has changed, that change is reported
+.B NOT ARCHIVED
+(exit 1) rather than written over a copy nobody checked.
+.PP
+An entry written by a version without the size and time fields is trusted as
+signed until its next write; its bytes are still checked by
+.BR \-\-verify .
+The shrink guard (see
+.BR INTEGRITY )
+is only ever fed entries the index vouches for: an entry left lagging by a dead
+run is repaired from the journal first, and an entry with no recorded size (a
+legacy
+.B fromArchive
+one, say after a restore) takes its reference from the mirror's own checked
+length before any overwrite \(em or, when the mirror is evicted, the overwrite
+waits and is reported
+.BR "NOT ARCHIVED" .
+.SH LOCK
+One run at a time per archive. An ordinary run,
+.B \-\-restore
+and
+.B \-\-rekey
+take an exclusive lock for the destination; the read-only modes
+.RB ( \-\-verify ,
+.BR \-\-audit ,
+.B \-\-lock\-status
+and any
+.BR \-\-dry\-run )
+take none. The lock is a small file beside the signing key (see
+.BR FILES ),
+created whole in one step, recording the holder's pid, host, the start time of
+that process (so a pid the system later hands to another process is not mistaken
+for the holder), when the run started, and a heartbeat refreshed at every
+checkpoint. A second run refuses, exit 2, naming the holder.
+.PP
+.B ccarchive \-\-lock\-status
+tells
+.BR free ,
+.B held
+by a live run since a given time, or
+.B "STUCK: holder not running"
+(exit 1). A lock is stuck when it was taken on this host and its process is no
+longer running, or its pid now belongs to a process that started at another
+time.
+.B ccarchive \-\-clear\-lock
+clears a stuck lock, and refuses while the holder is alive. A run that finds a
+provably stuck lock clears it itself and says so on standard error. A lock
+taken on another host cannot be judged from here: it is reported, never cleared
+automatically, and
+.B \-\-clear\-lock
+refuses it; delete the file by hand only if you are sure that run is gone.
 .SH AUDIT
 .B \-\-verify
 asks one question \(em is the
@@ -568,13 +758,18 @@ used to fail on one with
 .I Unknown system error \-11
 (macOS's
 .BR EDEADLK ,
-returned when the system will not download an evicted file on demand). The one
-read a run can still make of a mirror is the hash backfill of an archived file
-that has no manifest entry. An evicted one is skipped there and reported as
+returned when the system will not download an evicted file on demand). A run
+reads a mirror only when the signed index does not vouch for it, or to repair
+the index from the intent journal (see
+.BR TRUST ).
+An evicted one is never read there: it is reported as
 .B not checked (offloaded),
 and so is any read that fails with that error. Not checked is not a failure: it
 exits
-.BR 0 .
+.BR 0 ,
+unless a changed live copy is waiting behind it (then
+.BR "NOT ARCHIVED" ,
+exit 1).
 .PP
 Detection is metadata-only \(em
 .BR stat (1)
@@ -625,13 +820,16 @@ list under
 the rest of the run completes and the manifest is saved, and the run then exits
 non-zero so it is not missed. A mirror that will not decompress is named in the
 same way by
-.BR \-\-verify ,
-.B \-\-restore
-and the run's hash backfill (the
-.I corrupt
-list), and processing continues. Anything that does stop a run \(em an
-unreadable
-manifest, a destination that cannot be written \(em ends in one line on standard
+.B \-\-verify
+and
+.BR \-\-restore ,
+and processing continues; a run that meets one the index does not vouch for
+sets it aside (see
+.BR TRUST ).
+Anything that does stop a run \(em an
+unreadable or untrusted
+manifest, a lock held by another run, an unknown option, a destination that
+cannot be written \(em ends in one line on standard
 error, or a structured
 .I {"error": ...}
 object on standard output under
@@ -641,10 +839,15 @@ and exit status 2; there is no stack trace.
 Read-only modes (\fB\-\-verify\fR, \fB\-\-audit\fR, \fB\-\-restore\fR and any
 \fB\-\-dry\-run\fR) never rename or overwrite anything. If the manifest is not
 valid
-JSON they stop with an error and leave it where it is. Only an ordinary run sets
-an invalid manifest aside, as
+JSON they stop with an error and leave it where it is. Invalid JSON never
+carries a valid signature, so an ordinary run refuses it too (see
+.BR TRUST ).
+Only after the operator's deliberate
+.B \-\-rekey
+does an ordinary run set an invalid manifest aside, as
 .IR manifest.json.corrupt\-<UTC\ timestamp> ,
-never over an earlier set-aside copy, and then starts a new one. A manifest that
+never over an earlier set-aside copy, and then start a new, signed
+one. A manifest that
 exists but cannot be read (an I/O error, or an evicted placeholder) is not
 treated as invalid and is never set aside: the run stops and changes nothing.
 .SH RESTORE
@@ -716,7 +919,10 @@ reads it as
 .B synced
 and a repeated restore is idempotent.
 .PP
-Restore checks before it writes. The gunzipped bytes of each target are compared
+Restore checks before it writes. It first authenticates the manifest exactly as
+a run does (see
+.BR TRUST ),
+and refuses an index it cannot. The gunzipped bytes of each target are compared
 with the sha256 the manifest recorded, and a copy that does not match (bit rot,
 tampering) is
 .B refused
@@ -783,6 +989,32 @@ The signing key (hex, mode 0600), off the archive volume. Override with
 .BR CCARCHIVE_KEYFILE .
 Back it up out-of-band \(em a new machine needs it to verify.
 .TP
+.I <dest>/_untrusted/<UTC stamp>/<rel>.gz
+A file a run found in the archive that the signed index does not vouch for and
+that was not identical to the live copy: moved here, never deleted, never
+adopted, and left out of every walk, verify and restore. See
+.BR TRUST .
+.TP
+.I <dest>/manifest.json.sig.orphan\-<UTC stamp>
+A signature that was left with no manifest beside it, moved aside by
+.BR \-\-rekey .
+.TP
+.I ~/.claude/ccarchive\-state/<id>.journal
+The intent journal for one destination
+.RI ( <id>
+is a hash of the destination's real path): one signed record per mirror a run
+is about to write. Mode 0600, in a 0700 directory beside the signing key (it
+follows
+.BR CCARCHIVE_KEYFILE ).
+Present only while a run is going, after one died part way, or while a record
+waits on an evicted mirror. See
+.BR TRUST .
+.TP
+.I ~/.claude/ccarchive\-state/<id>.lock
+The lock for one destination, while a run that writes holds it (or after one
+died). See
+.BR LOCK .
+.TP
 .I <dest>/.<name>.<pid>.<random>.tmp
 A temporary file of a write in progress, or left by a run that died. See
 .BR "ATOMIC WRITES" .
@@ -802,6 +1034,9 @@ new machine (bring the signing key too, or the signature reads as unverifiable).
 .B ccarchive \-\-rekey
 Roll the signing key and re-sign the manifest \(em after suspected key exposure,
 or on a cadence.
+.TP
+.B ccarchive \-\-lock\-status
+Is a run holding the archive, or did one leave a stuck lock?
 .TP
 .B ccarchive \-\-audit
 Report whether any live transcript has drifted (been rewritten, truncated or
@@ -839,10 +1074,19 @@ overrides), when it refuses an archive destination inside a git work tree
 .RB ( \-\-allow\-repo\-dest
 overrides), when the layout-drift alarm fires (zero transcripts found while the
 manifest is non-empty), or \(em after completing everything else \(em when it
-skipped a source it could not read, refused to write a mirror through a symbolic
-link inside the archive, or found an archived mirror that will not decompress.
+skipped a source or a mirror it could not read, refused to write a mirror
+through a symbolic link inside the archive, set a file aside under
+.IR _untrusted/ ,
+left a changed live copy
+.B NOT ARCHIVED
+because the copy it would replace could not be checked, or found an intent
+journal record whose signature failed. Repairing the index from the journal,
+adopting a mirror identical to its live copy, refreshing an entry's size and
+time, and clearing a stuck lock are reported but exit
+.BR 0 .
 See
 .BR INTEGRITY ,
+.BR TRUST ,
 .B ATOMIC WRITES
 and
 .BR "ONE BAD FILE" .
@@ -900,18 +1144,29 @@ is gone or will not decompress, or a file it could not read). A restore that
 only
 writes, skips identical or ahead files, or has nothing to do exits
 .BR 0 .
+.B \-\-lock\-status
+exits
+.B 1
+when the lock is stuck or was taken on another host, else
+.BR 0 .
 .PP
 .B 2
-is also what a removed schedule flag, an unreadable or invalid manifest in a
-read-only mode, and an I/O failure that stops a run (for example a destination
-that cannot be written) exit with.
+is also what an unknown or removed option, an unreadable or invalid manifest in
+a read-only mode, a manifest a run or restore cannot authenticate (see
+.BR TRUST ),
+a lock held by another run (or a
+.B \-\-clear\-lock
+of a live or foreign one), and an I/O failure that stops a run (for example a
+destination that cannot be written) exit with.
 .SH NOTES
 The default destination is the operator's iCloud Drive, derived at runtime
 from the home directory; no personal path is baked into the tool. It reads the
 source read-only and writes only under the destination, plus the signing key at
 .I ~/.claude/ccarchive-signing.key
 .RB ( CCARCHIVE_KEYFILE
-to relocate). Under
+to relocate) and the intent journal and lock in a
+.I ccarchive\-state
+directory beside it. Under
 .BR \-\-restore ,
 it writes live files under the source tree. A destination inside a git work tree
 is refused, and the check resolves symbolic links, so a destination that is a

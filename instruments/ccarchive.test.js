@@ -99,6 +99,12 @@ function makeTree() {
   return { dir, src, dest };
 }
 
+// Re-sign a manifest a test edited by hand, as if the tool itself had written it:
+// a write-mode run authenticates the index first (HL3) and refuses one it cannot.
+function resign(dest, keyFile = process.env.CCARCHIVE_KEYFILE) {
+  cc.signManifest(dest, cc.ensureKey(keyFile));
+}
+
 function runJson(src, dest, ...flags) {
   const out = execFileSync('node', [SCRIPT, '--json', '--source', src, '--dest', dest, ...flags],
     { encoding: 'utf8' });
@@ -390,11 +396,16 @@ test('contract: --verify fails on an unmanifested (injected) archive file and na
 });
 
 test('contract: --verify surfaces fromArchive entries distinctly (archive attesting itself)', () => {
+  // Runs no longer create fromArchive entries (an unvouched mirror with no live copy
+  // is set aside, never adopted), but an index written by an earlier version still
+  // carries them: build one by hand, signed, and check --verify still counts it.
   const { src, dest } = makeTree();
   runJson(src, dest);
-  fs.rmSync(cc.manifestPath(dest));                       // lose the manifest…
-  fs.rmSync(path.join(src, '-repo-b', 'uuid2.jsonl'));    // …and one source is pruned
-  runJson(src, dest);                                     // backfill: uuid2 from its .gz
+  const mf = cc.loadManifest(dest);
+  const rel = '-repo-b/uuid2.jsonl';
+  mf[rel] = { sha256: mf[rel].sha256, archivedAt: 'legacy', fromArchive: true };
+  cc.saveManifest(dest, mf);
+  resign(dest);
   const res = spawnSync('node', [SCRIPT, '--verify', '--json', '--dest', dest],
     { encoding: 'utf8' });
   assert.equal(res.status, 0);
@@ -836,6 +847,7 @@ test('contract: restore refuses a manifest key that would escape the live root (
   fs.mkdirSync(src, { recursive: true });
   // A hand-built manifest whose key climbs out of the source tree (zip-slip).
   cc.saveManifest(dest, { '../escaped.jsonl': { sha256: 'x', rawBytes: 1 } });
+  resign(dest);                                              // signed, so only the path guard is under test
   const escapee = path.join(dir, 'escaped.jsonl');
   assert.ok(!fs.existsSync(escapee));
 
@@ -984,12 +996,20 @@ test('contract: a missing signature on a key-present archive prompts migration, 
   assert.match(runCli('--verify', '--dest', dest).stdout, /NOT signed/);
 });
 
-test('contract: a legacy unsigned manifest is migrated (signed) by the next ordinary run', () => {
+test('contract: an unsigned manifest is refused by an ordinary run; --rekey is the deliberate migration (HL3)', () => {
   const { src, dest } = makeTree();
   runJson(src, dest);
-  fs.rmSync(path.join(dest, 'manifest.json.sig'));           // simulate a pre-signing archive
+  fs.rmSync(path.join(dest, 'manifest.json.sig'));           // a pre-signing archive, or a removed signature
   assert.equal(runCli('--verify', '--dest', dest, '--json').status, 1);   // unsigned → fails
-  runJson(src, dest);                                        // an ordinary run re-signs it
+  const before = fs.readFileSync(cc.manifestPath(dest));
+  const refused = runCli('--json', '--source', src, '--dest', dest);
+  assert.equal(refused.status, 2, 'an unauthenticated index is never re-signed by an ordinary run');
+  assert.equal(JSON.parse(refused.stdout).state, 'unsigned');
+  assert.ok(!fs.existsSync(path.join(dest, 'manifest.json.sig')), 'no signature was written');
+  assert.deepEqual(fs.readFileSync(cc.manifestPath(dest)), before);
+  // The operator, satisfied, migrates it deliberately; runs then proceed.
+  assert.equal(runCli('--rekey', '--dest', dest).status, 0);
+  assert.equal(runCli('--source', src, '--dest', dest).status, 0);
   const r = runCli('--verify', '--dest', dest, '--json');
   assert.equal(r.status, 0);
   assert.equal(JSON.parse(r.stdout).signature.state, 'verified');
@@ -1470,6 +1490,7 @@ test('an ordinary run leaves an equal-size skipped entry untouched', () => {
   const manifest = cc.loadManifest(dest);
   manifest[rel].archivedAt = 'marker';
   cc.saveManifest(dest, manifest);
+  resign(dest);
   runJson(src, dest);
   assert.equal(cc.loadManifest(dest)[rel].archivedAt, 'marker');
 });
@@ -1620,6 +1641,7 @@ test('contract: the run\'s tail backfill reports an evicted unmanifested mirror 
   const manifest = cc.loadManifest(dest);
   delete manifest[REL_B];
   cc.saveManifest(dest, manifest);
+  resign(dest);
   fs.chmodSync(path.join(dest, REL_B + '.gz'), 0o000);
   const r = spawnSync('node', [SCRIPT, '--json', '--source', src, '--dest', dest],
     { encoding: 'utf8', env: { ...process.env, CCARCHIVE_SIMULATE_DATALESS: 'uuid2' } });
@@ -1775,23 +1797,26 @@ test('contract: delta --restore and --audit survive an undecompressable mirror',
   assert.deepEqual(r.report.errors.map((e) => e.reason), ['corrupt-archive']);
 });
 
-test('contract: the run\'s tail backfill names an undecompressable mirror, still saves the manifest, exits 1', () => {
+test('contract: an unmanifested, undecompressable mirror with no live copy is set aside, the run still saves, exits 1', () => {
   const { src, dest } = makeTree();
   runJson(src, dest);
   fs.rmSync(path.join(src, REL_B));            // pruned: only the mirror remains
   const manifest = cc.loadManifest(dest);
   delete manifest[REL_B];
   cc.saveManifest(dest, manifest);
+  resign(dest);
   corruptMirror(dest, REL_B, 'plain');
+  const bad = fs.readFileSync(path.join(dest, REL_B + '.gz'));
   touchNewer(path.join(src, REL_A), '{"turn":1}\n{"turn":2}\n{"turn":3}\n');   // a real mirror written this run
   const r = runCli('--json', '--source', src, '--dest', dest);
   assert.equal(r.status, 1);
   const j = JSON.parse(r.stdout);
-  assert.deepEqual(j.corrupt.map((c) => c.rel), [REL_B]);
+  assert.deepEqual(j.setAside.map((c) => [c.rel, c.reason]), [[REL_B, 'corrupt']]);
+  assert.deepEqual(fs.readFileSync(path.join(dest, j.setAside[0].movedTo)), bad, 'moved, byte for byte, not deleted');
   assert.equal(j.archived, 1);
   assert.ok(cc.loadManifest(dest)[REL_A].rawBytes > 20, 'the mirror written this run reached the manifest');
-  assert.ok(!cc.loadManifest(dest)[REL_B], 'the bad mirror stays unmanifested, so --verify keeps flagging it');
-  assert.equal(runCli('--verify', '--dest', dest).status, 1);
+  assert.ok(!cc.loadManifest(dest)[REL_B], 'the bad mirror was never adopted');
+  assert.equal(runCli('--verify', '--dest', dest).status, 0, 'what was set aside is not part of the archive');
 });
 
 // --- MC5: one top-level catch -----------------------------------------------
@@ -1849,6 +1874,7 @@ test('contract: restore of an entry with no recorded sha256 is refused as unveri
   const manifest = cc.loadManifest(dest);
   delete manifest[REL_B].sha256;
   cc.saveManifest(dest, manifest);
+  resign(dest);
   const original = fs.readFileSync(path.join(src, REL_B));
   fs.rmSync(path.join(src, REL_B));
   const r = runRestore(src, dest);
@@ -1878,27 +1904,31 @@ test('contract: --verify, --audit, --restore (and --dry-run) never move an unpar
   fs.writeFileSync(mp, '{ this is not json');
   const before = fs.readFileSync(mp);
   const files = listDir(dest);
-  for (const args of [['--verify'], ['--audit'], ['--restore'], ['--restore', '--dry-run'], ['--restore', '--delta']]) {
+  // --verify and --audit read it and stop (EMANIFEST); --restore and a dry run
+  // authenticate it first, and garbage never carries a valid signature (EUNTRUSTED).
+  for (const [args, code] of [[['--verify'], 'EMANIFEST'], [['--audit'], 'EMANIFEST'], [['--restore'], 'EUNTRUSTED'],
+    [['--restore', '--dry-run'], 'EUNTRUSTED'], [['--restore', '--delta'], 'EUNTRUSTED'], [['--dry-run'], 'EUNTRUSTED']]) {
     const r = runCli(...args, '--json', '--source', src, '--dest', dest);
     assert.equal(r.status, 2, args.join(' '));
-    assert.equal(JSON.parse(r.stdout).code, 'EMANIFEST');
+    assert.equal(JSON.parse(r.stdout).code, code, args.join(' '));
     assert.deepEqual(fs.readFileSync(mp), before, `${args.join(' ')} left the manifest byte-identical`);
     assert.deepEqual(listDir(dest), files, `${args.join(' ')} created and moved nothing`);
   }
-  const d = runCli('--dry-run', '--json', '--source', src, '--dest', dest);
-  assert.equal(d.status, 0);
-  assert.match(d.stderr, /a real run would set it aside/);
-  assert.deepEqual(fs.readFileSync(mp), before);
-  assert.deepEqual(listDir(dest), files);
 });
 
 test('contract: a write-mode run sets an unparseable manifest aside under a timestamped name, never overwriting an earlier one', () => {
   const { src, dest } = makeTree();
   runJson(src, dest);
   const mp = path.join(dest, 'manifest.json');
+  // Garbage never verifies, so an ordinary run refuses it (HL3) and moves nothing;
+  // only after the operator's deliberate --rekey does a run set it aside.
   fs.writeFileSync(mp, 'first corruption');
+  assert.equal(runCli('--source', src, '--dest', dest).status, 2);
+  assert.ok(!listDir(dest).some((n) => n.startsWith('manifest.json.corrupt-')), 'a refused run moves nothing');
+  assert.equal(runCli('--rekey', '--dest', dest).status, 0);
   runJson(src, dest);
   fs.writeFileSync(mp, 'second corruption');
+  assert.equal(runCli('--rekey', '--dest', dest).status, 0);
   runJson(src, dest);
   const kept = listDir(dest).filter((n) => n.startsWith('manifest.json.corrupt-'));
   assert.equal(kept.length, 2, 'both casualties are kept');
@@ -1923,4 +1953,555 @@ test('contract: a dest that is a symlink into a git work tree is refused (MC6)',
   assert.match(r.stderr, /refusing to archive into a git work tree/);
   assert.deepEqual(fs.readdirSync(path.join(tree, 'out')), []);
   assert.equal(runCli('--source', src, '--dest', link, '--allow-repo-dest').status, 0);
+});
+
+// --- hardening, part B: the archive's trust model ---------------------------
+// HL3 (authenticate before any write), the intent journal (a run that died part
+// way is repaired only from what it recorded it was writing), the adoption rule
+// for anything else the signed index does not vouch for (HL1, HL6), the shrink
+// guard fed only vouched entries (HL2: S5, S2c, S10), the lock against
+// overlapping runs (HL14), and unknown options refused.
+
+const os_ = os;
+function lockFileFor(key, dest) { return cc.lockPath(key, dest); }
+function writeLock(key, dest, holder) {
+  const lp = lockFileFor(key, dest);
+  fs.mkdirSync(path.dirname(lp), { recursive: true });
+  fs.writeFileSync(lp, JSON.stringify(holder, null, 2) + '\n', { mode: 0o600 });
+  return lp;
+}
+function liveHolder(over = {}) {
+  const now = new Date().toISOString();
+  return { pid: process.pid, host: os_.hostname(), startId: cc.processStartId(process.pid),
+    startedAt: now, heartbeat: now, mode: 'archive', ...over };
+}
+// A pid that has certainly exited: a child we ran to completion.
+function deadPid() { return spawnSync('node', ['-e', '']).pid; }
+// Rewrite a source with new bytes and an mtime well clear of any earlier stamp.
+function touchLater(file, bytes, secs = 120) {
+  fs.writeFileSync(file, bytes);
+  const t = new Date(Date.now() + secs * 1000);
+  fs.utimesSync(file, t, t);
+}
+function gunzipAt(p) { return zlib.gunzipSync(fs.readFileSync(p)); }
+
+// -- unknown options --
+
+test('contract: an unknown option is refused (exit 2, named) before anything is written — a typo never runs an archive', () => {
+  const { src, dest } = makeTree();
+  for (const bad of ['--dry-runn', '--materialize', 'stray-positional', '--dest=elsewhere']) {
+    const r = runCli('--json', '--source', src, '--dest', dest, bad);
+    assert.equal(r.status, 2, bad);
+    assert.equal(JSON.parse(r.stdout).code, 'EUSAGE');
+    assert.ok(r.stderr.includes(JSON.stringify(bad)), `the refusal names ${bad}`);
+    assert.ok(!fs.existsSync(dest), `${bad}: nothing was archived`);
+  }
+  const noValue = runCli('--source', src, '--dest');
+  assert.equal(noValue.status, 2);
+  assert.match(noValue.stderr, /--dest needs a directory/);
+  assert.equal(runCli('--source', src, '--dest', dest, '--dry-run').status, 0, 'the real flag still works');
+});
+
+test('parseArgs accepts every documented option and refuses the rest', () => {
+  assert.doesNotThrow(() => cc.parseArgs(['--dest', 'd', '--source', 's', '--dry-run', '--force', '--json',
+    '--verify', '--materialise', '--audit', '--restore', '--delta', '--rekey', '--lock-status', '--clear-lock',
+    '--allow-repo-dest']));
+  assert.throws(() => cc.parseArgs(['--nope']), (e) => e.code === 'EUSAGE');
+  assert.throws(() => cc.parseArgs(['--source']), (e) => e.code === 'EUSAGE');
+  assert.throws(() => cc.parseArgs(['--install-schedule']), (e) => e.code === 'EREMOVED');
+});
+
+// -- HL3: authenticate before any write --
+
+test('contract: a tampered index stops an ordinary run, --restore and a dry run (exit 2) — nothing re-signed or written (HL3)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  // The closed-caveat shape: a forged mirror AND a manifest hash edited to match.
+  const forged = Buffer.from('{"forged":"history"}\n');
+  fs.writeFileSync(path.join(dest, REL_B + '.gz'), zlib.gzipSync(forged));
+  const mf = cc.loadManifest(dest);
+  mf[REL_B].sha256 = cc.sha256(forged);
+  cc.saveManifest(dest, mf);
+  const sigFile = path.join(dest, 'manifest.json.sig');
+  const before = { m: fs.readFileSync(cc.manifestPath(dest)), s: fs.readFileSync(sigFile) };
+  const mirrorA = fs.readFileSync(path.join(dest, REL_A + '.gz'));
+  touchLater(path.join(src, REL_A), '{"turn":1}\n{"turn":2}\n{"turn":3}\n');   // real work waiting
+
+  const r = runCli('--json', '--source', src, '--dest', dest);
+  assert.equal(r.status, 2);
+  const j = JSON.parse(r.stdout);
+  assert.equal(j.code, 'EUNTRUSTED');
+  assert.equal(j.state, 'tampered');
+  assert.match(r.stderr, /signature state: tampered/);
+  assert.match(r.stderr, /ccarchive --rekey/);
+  assert.deepEqual(fs.readFileSync(cc.manifestPath(dest)), before.m, 'manifest untouched');
+  assert.deepEqual(fs.readFileSync(sigFile), before.s, 'never re-signed');
+  assert.deepEqual(fs.readFileSync(path.join(dest, REL_A + '.gz')), mirrorA, 'nothing archived behind the refusal');
+  for (const args of [['--restore'], ['--restore', '--dry-run'], ['--dry-run']]) {
+    const x = runCli(...args, '--json', '--source', src, '--dest', dest);
+    assert.equal(x.status, 2, args.join(' '));
+    assert.equal(JSON.parse(x.stdout).state, 'tampered');
+  }
+  const v = runCli('--verify', '--json', '--dest', dest);
+  assert.equal(v.status, 1);
+  assert.equal(JSON.parse(v.stdout).signature.state, 'tampered', 'the evidence survives the run');
+});
+
+test('contract: a missing key while a signed index exists is refused — no key is minted, nothing re-signed (HL3)', () => {
+  const { src, dest } = makeTree();
+  const key = freshKeyFile();
+  runCliKey(key, '--json', '--source', src, '--dest', dest);
+  fs.rmSync(key);
+  const sig = fs.readFileSync(path.join(dest, 'manifest.json.sig'));
+  const r = runCliKey(key, '--json', '--source', src, '--dest', dest);
+  assert.equal(r.status, 2);
+  assert.equal(JSON.parse(r.stdout).state, 'no-key');
+  assert.ok(!fs.existsSync(key), 'a new key would re-sign an index nobody checked');
+  assert.deepEqual(fs.readFileSync(path.join(dest, 'manifest.json.sig')), sig);
+});
+
+test('contract: an index signed by another key is refused; a fresh archive proceeds and signs (HL3)', () => {
+  const { src, dest } = makeTree();
+  const keyA = freshKeyFile();
+  runCliKey(keyA, '--json', '--source', src, '--dest', dest);
+  const keyB = freshKeyFile();
+  cc.mintKey(keyB);
+  const r = runCliKey(keyB, '--json', '--source', src, '--dest', dest);
+  assert.equal(r.status, 2);
+  assert.equal(JSON.parse(r.stdout).state, 'key-mismatch');
+  const { src: src2, dest: dest2 } = makeTree();
+  const keyC = freshKeyFile();
+  const fresh = runCliKey(keyC, '--json', '--source', src2, '--dest', dest2);
+  assert.equal(fresh.status, 0, 'no manifest and no signature: a new archive');
+  assert.equal(JSON.parse(fresh.stdout).signed, true);
+  assert.ok(fs.existsSync(keyC), 'its key is minted on first use');
+});
+
+test('contract: a removed manifest with its signature left is refused; --rekey moves the orphan signature aside', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  fs.rmSync(cc.manifestPath(dest));
+  const r = runCli('--json', '--source', src, '--dest', dest);
+  assert.equal(r.status, 2);
+  assert.equal(JSON.parse(r.stdout).state, 'orphan-signature');
+  const rk = runCli('--rekey', '--json', '--dest', dest);
+  assert.equal(rk.status, 0);
+  assert.match(JSON.parse(rk.stdout).orphanSignatureMovedTo, /^manifest\.json\.sig\.orphan-/);
+  // Now a new archive over the old mirrors: each is adopted only because it is
+  // byte-identical to its live copy.
+  const j = runJson(src, dest);
+  assert.equal(j.adopted.length, 3);
+  assert.deepEqual(j.setAside, []);
+  assert.equal(runCli('--verify', '--dest', dest).status, 0);
+});
+
+// -- the intent journal --
+
+test('contract: a run killed after a mirror lands, before its index entry, is repaired from its intent journal', () => {
+  const { src, dest } = makeTree();
+  const key = freshKeyFile();
+  const r = runEnv({ CCARCHIVE_KEYFILE: key, CCARCHIVE_TEST_FAIL_AFTER: '2', CCARCHIVE_TEST_FAIL_HOW: 'kill' },
+    '--json', '--source', src, '--dest', dest);
+  assert.equal(r.signal, 'SIGKILL', 'a hard kill: no catch-path save ran');
+  const written = cc.listArchivedRels(dest).sort();
+  assert.equal(written.length, 2);
+  assert.ok(!fs.existsSync(cc.manifestPath(dest)), 'the index never heard of them');
+  const jp = cc.journalPath(key, dest);
+  assert.ok(fs.existsSync(jp), 'the journal is beside the key, off the archive');
+  assert.ok(!jp.startsWith(dest));
+  assert.equal(fs.statSync(jp).mode & 0o777, 0o600);
+  assert.equal(fs.statSync(path.dirname(jp)).mode & 0o777, 0o700);
+  assert.equal(fs.readFileSync(jp, 'utf8').trim().split('\n').length, 2, 'one fsynced record per mirror, written first');
+  const lp = cc.lockPath(key, dest);
+  assert.ok(fs.existsSync(lp), 'the killed run left its lock behind');
+
+  const n = runEnv({ CCARCHIVE_KEYFILE: key }, '--json', '--source', src, '--dest', dest);
+  assert.equal(n.status, 0, n.stderr);
+  const j = JSON.parse(n.stdout);
+  assert.deepEqual(j.repaired.slice().sort(), written, 'exactly the mirrors the dead run recorded');
+  assert.deepEqual(j.adopted, [], 'repaired from the journal, not merely adopted by comparison');
+  assert.deepEqual(j.setAside, []);
+  assert.match(n.stderr, /cleared a stuck lock/);
+  assert.ok(j.staleLockCleared, 'and it says so under --json too');
+  assert.ok(!fs.existsSync(jp), 'a run that finishes removes its journal');
+  assert.ok(!fs.existsSync(lp), 'and releases its lock');
+  const m = cc.loadManifest(dest);
+  for (const rel of cc.listArchivedRels(dest)) assert.equal(m[rel].sha256, cc.sha256(gunzipAt(path.join(dest, rel + '.gz'))));
+  assert.equal(runCliKey(key, '--verify', '--dest', dest).status, 0);
+});
+
+test('contract: a journal record that fails its signature check is never used; the mirror it names is set aside (exit 1)', () => {
+  const { src, dest } = makeTree();
+  const key = freshKeyFile();
+  runEnv({ CCARCHIVE_KEYFILE: key, CCARCHIVE_TEST_FAIL_AFTER: '1', CCARCHIVE_TEST_FAIL_HOW: 'kill' },
+    '--json', '--source', src, '--dest', dest);
+  const [rel] = cc.listArchivedRels(dest);
+  // A tamperer swaps the mirror and edits the journal record to vouch for the swap.
+  const forged = Buffer.from('{"forged":"history"}\n');
+  fs.writeFileSync(path.join(dest, rel + '.gz'), zlib.gzipSync(forged));
+  const jp = cc.journalPath(key, dest);
+  const rec = JSON.parse(fs.readFileSync(jp, 'utf8').trim());
+  rec.sha256 = cc.sha256(forged);
+  rec.rawBytes = forged.length;
+  fs.writeFileSync(jp, JSON.stringify(rec) + '\n');
+  const n = runEnv({ CCARCHIVE_KEYFILE: key }, '--json', '--source', src, '--dest', dest);
+  assert.equal(n.status, 1);
+  const j = JSON.parse(n.stdout);
+  assert.equal(j.journal.rejected, 1);
+  assert.deepEqual(j.repaired, []);
+  assert.deepEqual(j.setAside.map((s) => [s.rel, s.reason]), [[rel, 'no-entry-differs-from-live']]);
+  assert.deepEqual(gunzipAt(path.join(dest, j.setAside[0].movedTo)), forged, 'kept, not deleted');
+  assert.notEqual(cc.loadManifest(dest)[rel].sha256, cc.sha256(forged), 'the forgery is not in the index');
+  assert.equal(runCliKey(key, '--verify', '--dest', dest).status, 0);
+});
+
+test('contract: a journal record for an evicted mirror stays pending, "not checked (offloaded)", until a run can check it', { skip: asRoot }, () => {
+  const { src, dest } = makeTree();
+  const key = freshKeyFile();
+  runEnv({ CCARCHIVE_KEYFILE: key, CCARCHIVE_TEST_FAIL_AFTER: '1', CCARCHIVE_TEST_FAIL_HOW: 'kill' },
+    '--json', '--source', src, '--dest', dest);
+  const [rel] = cc.listArchivedRels(dest);
+  const gz = path.join(dest, rel + '.gz');
+  fs.chmodSync(gz, 0o000);                     // any read would fail: proves it is not read
+  const n = runEnv({ CCARCHIVE_KEYFILE: key, CCARCHIVE_SIMULATE_DATALESS: path.basename(rel) },
+    '--json', '--source', src, '--dest', dest);
+  assert.equal(n.status, 0, n.stderr);
+  const j = JSON.parse(n.stdout);
+  assert.equal(j.journal.pending, 1);
+  assert.ok(j.offloaded.includes(rel));
+  assert.deepEqual(j.repaired, []);
+  assert.deepEqual(j.setAside, [], 'an evicted mirror is never moved unchecked');
+  const jp = cc.journalPath(key, dest);
+  assert.equal(cc.readJournal(jp, cc.loadKey(key)).records.length, 1, 'the record is kept, re-signed, for later');
+  fs.chmodSync(gz, 0o644);
+  const later = runEnv({ CCARCHIVE_KEYFILE: key }, '--json', '--source', src, '--dest', dest);
+  assert.equal(later.status, 0);
+  assert.deepEqual(JSON.parse(later.stdout).repaired, [rel]);
+  assert.ok(!fs.existsSync(jp));
+});
+
+test('readJournal: signed records pass; an edited record is rejected; a torn final line is ignored', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ccarchive-j-'));
+  const jp = path.join(dir, 'x.journal');
+  const key = crypto.randomBytes(32);
+  const rec = { rel: 'a/b.jsonl', sha256: 'f'.repeat(64), rawBytes: 10, run: '1-ab', at: 'T' };
+  cc.appendJournal(jp, key, rec);
+  cc.appendJournal(jp, key, { ...rec, rel: 'a/c.jsonl' });
+  assert.equal(fs.statSync(jp).mode & 0o777, 0o600);
+  assert.deepEqual(cc.readJournal(jp, key).records.map((r) => r.rel), ['a/b.jsonl', 'a/c.jsonl']);
+  const lines = fs.readFileSync(jp, 'utf8').split('\n');
+  const edited = JSON.parse(lines[1]);
+  edited.rawBytes = 11;
+  fs.writeFileSync(jp, lines[0] + '\n' + JSON.stringify(edited) + '\n{"rel":"half');
+  const j = cc.readJournal(jp, key);
+  assert.deepEqual(j.records.map((r) => r.rel), ['a/b.jsonl']);
+  assert.equal(j.rejected, 1);
+  assert.equal(j.torn, true);
+  assert.equal(cc.readJournal(jp, crypto.randomBytes(32)).records.length, 0, 'another key vouches for nothing');
+  assert.equal(cc.readJournal(path.join(dir, 'absent'), key), null);
+});
+
+// -- the adoption rule (HL1, HL6) --
+
+test('contract: a mirror with no index entry that is identical to the live copy is adopted (exit 0)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const mf = cc.loadManifest(dest);
+  delete mf[REL_B];
+  cc.saveManifest(dest, mf);
+  resign(dest);
+  const j = runJson(src, dest);
+  assert.deepEqual(j.adopted.map((a) => [a.rel, a.reason]), [[REL_B, 'no-entry']]);
+  const e = cc.loadManifest(dest)[REL_B];
+  assert.equal(e.sha256, cc.sha256(fs.readFileSync(path.join(src, REL_B))));
+  assert.equal(typeof e.gzBytes, 'number', 'and it now carries the cheap check');
+  assert.equal(runCli('--verify', '--dest', dest).status, 0);
+});
+
+test('contract: S2b — a mirror with no entry and an older, shorter live copy is set aside intact, never re-based on the source (HL1)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const original = gunzipAt(path.join(dest, REL_B + '.gz'));
+  const mf = cc.loadManifest(dest);
+  delete mf[REL_B];
+  cc.saveManifest(dest, mf);
+  resign(dest);
+  const live = path.join(src, REL_B);
+  fs.writeFileSync(live, '{"o":1}\n');                       // restored from an older backup
+  const old = new Date(Date.now() - 3_600_000);
+  fs.utimesSync(live, old, old);
+  const r = runCli('--json', '--source', src, '--dest', dest);
+  assert.equal(r.status, 1, 'set aside: a person must look');
+  const j = JSON.parse(r.stdout);
+  assert.deepEqual(j.setAside.map((s) => [s.rel, s.reason]), [[REL_B, 'no-entry-differs-from-live']]);
+  assert.match(j.setAside[0].movedTo, /^_untrusted\/\d{8}T\d{6}Z\/-repo-b\/uuid2\.jsonl\.gz$/);
+  assert.deepEqual(gunzipAt(path.join(dest, j.setAside[0].movedTo)), original, 'the intact copy is kept byte for byte');
+  assert.equal(gunzipAt(path.join(dest, REL_B + '.gz')).toString(), '{"o":1}\n', 'the live copy archived in its place');
+  const h = runCli('--source', src, '--dest', dest);
+  assert.equal(h.status, 0, 'the next run has nothing left to set aside');
+  assert.equal(runCli('--verify', '--dest', dest).status, 0, '_untrusted/ is not part of the archive');
+});
+
+test('contract: S2c — a mirror with no entry is never overwritten by a truncated, newer source (HL2)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const original = gunzipAt(path.join(dest, REL_B + '.gz'));
+  const mf = cc.loadManifest(dest);
+  delete mf[REL_B];
+  cc.saveManifest(dest, mf);
+  resign(dest);
+  touchLater(path.join(src, REL_B), '{"o"');                 // truncated, newer
+  const r = runCli('--json', '--source', src, '--dest', dest);
+  assert.equal(r.status, 1);
+  const j = JSON.parse(r.stdout);
+  assert.deepEqual(j.setAside.map((s) => s.rel), [REL_B]);
+  assert.deepEqual(gunzipAt(path.join(dest, j.setAside[0].movedTo)), original);
+  const human = runCli('--source', src, '--dest', dest, '--dry-run');
+  assert.equal(human.status, 0);
+});
+
+test('contract: an injected archive file with no live copy is set aside, never adopted as "fromArchive" (HL1)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const injected = path.join('-repo-b', 'injected.jsonl');
+  fs.writeFileSync(path.join(dest, injected + '.gz'), zlib.gzipSync('{"x":1}\n'));
+  const r = runCli('--source', src, '--dest', dest);
+  assert.equal(r.status, 1);
+  assert.match(r.stdout, /✗ SET ASIDE -repo-b\/injected\.jsonl → _untrusted\/.* no entry for it, and there is no live copy/);
+  assert.ok(!cc.loadManifest(dest)[injected], 'never adopted');
+  assert.ok(!fs.existsSync(path.join(dest, injected + '.gz')));
+  const v = runCli('--verify', '--json', '--dest', dest);
+  assert.equal(v.status, 0);
+  assert.equal(JSON.parse(v.stdout).untrusted, 1, 'counted, not forgotten');
+  assert.equal(runRestore(src, dest).report.considered, 3, 'restore never considers it');
+});
+
+test('contract: a swapped mirror whose stat disagrees with its signed entry is set aside; the live copy is re-archived (HL6)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const forged = zlib.gzipSync('{"swapped":"in","by":"someone else"}\n');
+  fs.writeFileSync(path.join(dest, REL_B + '.gz'), forged);
+  const r = runCli('--json', '--source', src, '--dest', dest);
+  assert.equal(r.status, 1);
+  const j = JSON.parse(r.stdout);
+  assert.deepEqual(j.setAside.map((s) => [s.rel, s.reason]), [[REL_B, 'disagrees-with-entry-differs-from-live']]);
+  assert.deepEqual(fs.readFileSync(path.join(dest, j.setAside[0].movedTo)), forged);
+  assert.deepEqual(gunzipAt(path.join(dest, REL_B + '.gz')), fs.readFileSync(path.join(src, REL_B)));
+  assert.equal(runCli('--verify', '--dest', dest).status, 0);
+});
+
+test('contract: a mirror whose stat changed but whose bytes still match the signed hash is only refreshed (exit 0)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const gz = path.join(dest, REL_B + '.gz');
+  const t = new Date(Date.now() + 86_400_000);
+  fs.utimesSync(gz, t, t);                                   // e.g. a sync tool re-stamped it
+  const j = runJson(src, dest);
+  assert.equal(j.metadataRefreshed, 1);
+  assert.equal(j.archived, 0, 'nothing rewritten');
+  assert.deepEqual(j.setAside, []);
+  assert.equal(cc.loadManifest(dest)[REL_B].gzMtimeMs, fs.statSync(gz).mtimeMs);
+});
+
+test('contract: an unvouched mirror that is evicted is never read or moved; a changed live copy waits (exit 1)', { skip: asRoot }, () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const mf = cc.loadManifest(dest);
+  delete mf[REL_B];
+  cc.saveManifest(dest, mf);
+  resign(dest);
+  const gz = path.join(dest, REL_B + '.gz');
+  fs.chmodSync(gz, 0o000);
+  try {
+    const quiet = runCliSim('uuid2', '--json', '--source', src, '--dest', dest);
+    assert.equal(quiet.status, 0, 'nothing waiting: not checked is not a failure');
+    assert.ok(JSON.parse(quiet.stdout).offloaded.includes(REL_B));
+    touchLater(path.join(src, REL_B), '{"other":"session","grown":true}\n');
+    const r = runCliSim('uuid2', '--json', '--source', src, '--dest', dest);
+    assert.equal(r.status, 1);
+    assert.deepEqual(JSON.parse(r.stdout).deferred.map((d) => [d.rel, d.reason]), [[REL_B, 'unvouched-offloaded']]);
+    assert.ok(fs.existsSync(gz), 'left exactly where it was');
+    const h = runCliSim('uuid2', '--source', src, '--dest', dest);
+    assert.match(h.stdout, /NOT ARCHIVED -repo-b\/uuid2\.jsonl .*offloaded.*Open it in Finder/);
+  } finally { fs.chmodSync(gz, 0o644); }
+});
+
+test('contract: an ordinary run with nothing changed reads no mirror — the signed index is enough', { skip: asRoot }, () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const mirrors = cc.listArchivedRels(dest).map((rel) => path.join(dest, rel + '.gz'));
+  for (const m of mirrors) fs.chmodSync(m, 0o000);           // a read of any would fail loudly
+  try {
+    const j = runJson(src, dest);
+    assert.equal(j.skipped, 3);
+    assert.deepEqual(j.unreadable, []);
+    assert.deepEqual(j.setAside, []);
+  } finally { for (const m of mirrors) fs.chmodSync(m, 0o644); }
+});
+
+test('contract: a source path under the reserved _untrusted/ is never archived', () => {
+  const { src, dest } = makeTree();
+  fs.mkdirSync(path.join(src, '_untrusted'));
+  fs.writeFileSync(path.join(src, '_untrusted', 'x.jsonl'), '{"x":1}\n');
+  const r = runCli('--json', '--source', src, '--dest', dest);
+  assert.equal(r.status, 1);
+  assert.deepEqual(JSON.parse(r.stdout).unwritable.map((u) => u.rel), [path.join('_untrusted', 'x.jsonl')]);
+});
+
+// -- HL2: the shrink guard only ever reads a vouched entry --
+
+test('contract: S5 — an entry lagging its mirror after a hard kill no longer disarms the shrink guard (HL2)', () => {
+  const { src, dest } = makeTree();
+  const key = freshKeyFile();
+  runCliKey(key, '--json', '--source', src, '--dest', dest);
+  const live = path.join(src, REL_B);
+  const grown = Buffer.from('{"other":"session"}\n{"more":"turns","and":"more turns"}\n');
+  touchLater(live, grown, 120);
+  const k = runEnv({ CCARCHIVE_KEYFILE: key, CCARCHIVE_TEST_FAIL_AFTER: '1', CCARCHIVE_TEST_FAIL_HOW: 'kill' },
+    '--json', '--source', src, '--dest', dest);
+  assert.equal(k.signal, 'SIGKILL');
+  assert.ok(cc.loadManifest(dest)[REL_B].rawBytes < grown.length, 'the entry lags the mirror');
+  touchLater(live, grown.subarray(0, 30), 240);              // truncated to a size in between
+  const r = runEnv({ CCARCHIVE_KEYFILE: key }, '--json', '--source', src, '--dest', dest);
+  assert.equal(r.status, 1);
+  const j = JSON.parse(r.stdout);
+  assert.deepEqual(j.repaired, [REL_B], 'the lag is repaired from the journal first');
+  assert.deepEqual(j.refusedShrink, [REL_B], 'so the guard sees the real size and refuses');
+  assert.deepEqual(gunzipAt(path.join(dest, REL_B + '.gz')), grown, 'the intact mirror is untouched');
+  assert.equal(runCliKey(key, '--verify', '--dest', dest).status, 0);
+});
+
+test('contract: S10 — an entry with no recorded size takes its reference from the checked mirror; a truncation is refused (HL2)', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const original = gunzipAt(path.join(dest, REL_B + '.gz'));
+  const mf = cc.loadManifest(dest);
+  mf[REL_B] = { sha256: mf[REL_B].sha256, archivedAt: 'legacy', fromArchive: true };   // no rawBytes, no stat fields
+  cc.saveManifest(dest, mf);
+  resign(dest);
+  touchLater(path.join(src, REL_B), '{"o"');
+  const r = runCli('--json', '--source', src, '--dest', dest);
+  assert.equal(r.status, 1);
+  assert.deepEqual(JSON.parse(r.stdout).refusedShrink, [REL_B]);
+  assert.deepEqual(gunzipAt(path.join(dest, REL_B + '.gz')), original);
+  assert.equal(cc.loadManifest(dest)[REL_B].rawBytes, original.length, 'the reference is now recorded');
+});
+
+test('contract: S10, evicted — with no recorded size and the mirror offloaded, the overwrite waits instead of running unguarded', { skip: asRoot }, () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const mf = cc.loadManifest(dest);
+  mf[REL_B] = { sha256: mf[REL_B].sha256, archivedAt: 'legacy', fromArchive: true };
+  cc.saveManifest(dest, mf);
+  resign(dest);
+  const gz = path.join(dest, REL_B + '.gz');
+  const before = fs.readFileSync(gz);
+  touchLater(path.join(src, REL_B), '{"o"');
+  fs.chmodSync(gz, 0o000);
+  try {
+    const r = runCliSim('uuid2', '--json', '--source', src, '--dest', dest);
+    assert.equal(r.status, 1);
+    assert.deepEqual(JSON.parse(r.stdout).deferred.map((d) => [d.rel, d.reason]), [[REL_B, 'no-size-offloaded']]);
+  } finally { fs.chmodSync(gz, 0o644); }
+  assert.deepEqual(fs.readFileSync(gz), before, 'not overwritten');
+});
+
+// -- the lock (HL14) --
+
+test('contract: a run refuses while another live run holds the lock; read-only modes and dry runs are not blocked', () => {
+  const { src, dest } = makeTree();
+  runJson(src, dest);
+  const key = process.env.CCARCHIVE_KEYFILE;
+  const lp = writeLock(key, dest, liveHolder());             // this test process: alive, same start identity
+  try {
+    const r = runCli('--json', '--source', src, '--dest', dest);
+    assert.equal(r.status, 2);
+    assert.equal(JSON.parse(r.stdout).code, 'ELOCKED');
+    assert.match(r.stderr, new RegExp(`pid ${process.pid}`));
+    for (const args of [['--restore'], ['--rekey']]) {
+      assert.equal(runCli(...args, '--json', '--source', src, '--dest', dest).status, 2, args.join(' '));
+    }
+    assert.equal(runCli('--verify', '--dest', dest).status, 0);
+    assert.equal(runCli('--audit', '--source', src, '--dest', dest).status, 0);
+    assert.equal(runCli('--dry-run', '--source', src, '--dest', dest).status, 0);
+    assert.equal(runCli('--restore', '--dry-run', '--source', src, '--dest', dest).status, 0);
+    const s = runCli('--lock-status', '--json', '--dest', dest);
+    assert.equal(s.status, 0);
+    assert.equal(JSON.parse(s.stdout).state, 'held');
+    const c = runCli('--clear-lock', '--dest', dest);
+    assert.equal(c.status, 2, 'a live holder is never cleared');
+    assert.match(c.stderr, /held by a live run/);
+    assert.ok(fs.existsSync(lp));
+  } finally { fs.rmSync(lp, { force: true }); }
+  assert.equal(runCli('--source', src, '--dest', dest).status, 0, 'free again');
+});
+
+test('contract: --lock-status reports a stuck lock (holder not running) and --clear-lock clears it', () => {
+  const { dest } = makeTree();
+  const key = process.env.CCARCHIVE_KEYFILE;
+  assert.equal(JSON.parse(runCli('--lock-status', '--json', '--dest', dest).stdout).state, 'free');
+  const lp = writeLock(key, dest, liveHolder({ pid: deadPid(), startId: 'a start that is over' }));
+  const s = runCli('--lock-status', '--dest', dest);
+  assert.equal(s.status, 1);
+  assert.match(s.stdout, /STUCK: holder not running — pid \d+ is not running/);
+  const c = runCli('--clear-lock', '--json', '--dest', dest);
+  assert.equal(c.status, 0);
+  assert.equal(JSON.parse(c.stdout).cleared, true);
+  assert.ok(!fs.existsSync(lp));
+});
+
+test('contract: a reused pid is not mistaken for the holder — a run clears that stuck lock itself and says so', () => {
+  const { src, dest } = makeTree();
+  const key = process.env.CCARCHIVE_KEYFILE;
+  // Our own (running) pid, but recorded with a different process start: the holder
+  // died and the system gave its pid to another process.
+  writeLock(key, dest, liveHolder({ startId: 'Thu Jan  1 00:00:00 1970' }));
+  const s = runCli('--lock-status', '--json', '--dest', dest);
+  assert.equal(s.status, 1);
+  assert.equal(JSON.parse(s.stdout).state, 'stuck');
+  assert.match(JSON.parse(s.stdout).why, /belongs to another process/);
+  const r = runCli('--json', '--source', src, '--dest', dest);
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stderr, /cleared a stuck lock .* belongs to another process/);
+  assert.ok(JSON.parse(r.stdout).staleLockCleared);
+  assert.ok(!fs.existsSync(cc.lockPath(key, dest)), 'and released its own at the end');
+});
+
+test('contract: a lock taken on another host cannot be judged from here: reported, and --clear-lock refuses', () => {
+  const { dest } = makeTree();
+  const key = process.env.CCARCHIVE_KEYFILE;
+  const lp = writeLock(key, dest, liveHolder({ host: 'some-other-host.invalid' }));
+  try {
+    const s = runCli('--lock-status', '--json', '--dest', dest);
+    assert.equal(s.status, 1);
+    assert.equal(JSON.parse(s.stdout).state, 'foreign');
+    const c = runCli('--clear-lock', '--dest', dest);
+    assert.equal(c.status, 2);
+    assert.match(c.stderr, /another host/);
+    assert.ok(fs.existsSync(lp));
+  } finally { fs.rmSync(lp, { force: true }); }
+});
+
+test('acquireLock writes a whole 0600 lock; the heartbeat refreshes only a lock still ours; release removes it', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ccarchive-lk-'));
+  const key = path.join(dir, 'k.key');
+  const dest = path.join(dir, 'archive');
+  const lock = cc.acquireLock(key, dest, 'archive');
+  const lp = cc.lockPath(key, dest);
+  assert.equal(fs.statSync(lp).mode & 0o777, 0o600);
+  const held = cc.readLock(lp);
+  assert.equal(held.pid, process.pid);
+  assert.equal(held.startId, cc.processStartId(process.pid));
+  assert.equal(cc.lockState(held).state, 'held');
+  assert.throws(() => cc.acquireLock(key, dest, 'archive'), (e) => e.code === 'ELOCKED', 'exclusive');
+  cc.heartbeatLock(lock);
+  assert.ok(cc.readLock(lp).heartbeat >= held.startedAt);
+  fs.writeFileSync(lp, JSON.stringify({ ...held, pid: held.pid + 1, startedAt: 'someone else' }));
+  assert.throws(() => cc.heartbeatLock(lock), (e) => e.code === 'ELOCKLOST');
+  cc.releaseLock(lock);
+  assert.ok(fs.existsSync(lp), 'a lock that is no longer ours is never removed');
+  fs.rmSync(lp);
+  const again = cc.acquireLock(key, dest, 'archive');
+  cc.releaseLock(again);
+  assert.ok(!fs.existsSync(lp));
 });

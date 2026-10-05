@@ -398,9 +398,9 @@ that cleanup:
   The manifest tracks the *archive* (append-only), not live sources — a pruned
   session keeps its recorded hash because its `.gz` is kept. An archived file
   *absent* from the manifest fails the verify (injected, or lost history — both
-  need a human eye), and entries backfilled from the `.gz` after their source was
-  pruned are counted distinctly (`fromArchive`: the archive attesting itself, a
-  weaker anchor than raw bytes). The sha256 manifest defends against *accidental*
+  need a human eye), and legacy entries an earlier version backfilled from the
+  `.gz` after their source was pruned are counted distinctly (`fromArchive`: the
+  archive attesting itself, a weaker anchor than raw bytes). The sha256 manifest defends against *accidental*
   corruption; the **signature** below raises it to *tamper-evident*. Run `--verify`
   any time, and after any restore.
 - **Tamper-evidence — a signed manifest.** The hash manifest alone isn't
@@ -421,7 +421,10 @@ that cleanup:
   manifest, so a roll loses nothing) — roll on suspected exposure or on a cadence,
   but keep an **out-of-band backup** of the key, because a *new machine* needs it to
   verify (SECRETS.md's redundancy obligation, applied). Every manifest write
-  re-signs, and a pre-signing archive is migrated on the next run. `--verify` fails
+  re-signs — but only after the run has **authenticated** the manifest it loaded:
+  a run (or `--restore`) refuses an index whose signature is anything but
+  verified, exit 2, and `--rekey` is the one deliberate clear, so a run never
+  launders a forged index into a signed one. `--verify` fails
   **safe and honest**, never green on doubt: it separates a `MISMATCH` (tamper) from
   a `different-key` signature, an `unsigned` manifest (migrate), and an
   `unverifiable` one (no key here). What it does **not** stop: a tamperer who also
@@ -482,6 +485,18 @@ that cleanup:
   copy — a large `cleanupPeriodDays` is optional (a longer *live* working window
   for the other instruments, and a buffer if the runs are ever spaced out), never
   required for survival. Idempotent, exits 0 with nothing to do.
+- **Trust model.** The signed manifest is the index of what ccarchive itself
+  wrote, and a run trusts a mirror from the index plus a `stat` (each entry
+  records the mirror's size and time), reading bytes only when they disagree. A
+  private, signed **intent journal** beside the key records each mirror a run is
+  about to write, so the next run repairs the index for exactly what a dead run
+  wrote. Any other archive file the index does not vouch for is adopted only if
+  it is byte-identical to the live copy; otherwise it is moved to
+  `<dest>/_untrusted/` (never deleted, never adopted) and the run exits 1. One
+  run at a time per archive, by a **lock** with `--lock-status` to see whether
+  it is stuck and `--clear-lock` to clear a stuck one. Unknown options are
+  refused, so a typo never runs an archive. Full detail: `man ccarchive`, TRUST
+  and LOCK.
 - **One bad file never aborts a run.** An unreadable source or an undecompressable
   mirror is named in the report and skipped, the run completes, and it exits 1 at
   the end; a fatal error is one clean line and exit 2. Every archive write is a

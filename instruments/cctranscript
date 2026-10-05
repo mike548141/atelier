@@ -339,7 +339,8 @@ function liveSessions() {
 // Sessions in a ccarchive mirror: <dest>/<repoDir>/<uuid>.jsonl.gz — the same
 // one-level shape as the live store (nested subagent logs and tool-result
 // sidecars aren't sessions in either). _external/ is ccarchive's reserved home
-// for the archived history.jsonl, not a repo folder — skipped.
+// for the archived history.jsonl, not a repo folder — skipped; so is _untrusted/,
+// where ccarchive sets aside files that are not part of the archive.
 function archiveSessions() {
   const out = [];
   const found = [];
@@ -347,7 +348,7 @@ function archiveSessions() {
   let repos;
   try { repos = fs.readdirSync(root); } catch { return out; }
   for (const repoDir of repos) {
-    if (repoDir === '_external') continue;
+    if (repoDir === '_external' || repoDir === '_untrusted') continue;
     const dir = path.join(root, repoDir);
     if (!isDir(dir)) continue;
     for (const file of fs.readdirSync(dir)) {
