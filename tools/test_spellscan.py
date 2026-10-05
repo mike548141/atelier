@@ -438,10 +438,6 @@ class LinkedWorktreeSkipped(unittest.TestCase):
         self.assertNotIn("weird/real.txt", found)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class Allowances(unittest.TestCase):
     """GUARDS.md — narrow, noisy, reasoned, declared."""
 
@@ -584,3 +580,7 @@ class BoundedMemory(unittest.TestCase):
             f"many-line file (small={small_peak / 1e6:.1f} MB, "
             f"large={large_peak / 1e6:.1f} MB) — memory is scaling with "
             "input size again (020/380).")
+
+
+if __name__ == "__main__":
+    unittest.main()

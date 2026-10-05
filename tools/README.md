@@ -982,7 +982,7 @@ constant may not red a build · `2` usage/config error.
 
 ## `pointerscan.py` — the queued-review pointer, refs-only and true (advisory only)
 
-Two guards on one parse of `ROADMAP.md`'s queued-review pointers:
+Three detectors on one parse of `ROADMAP.md`'s queued-review pointers:
 
 - **grammar** — a pointer that seeds the reviewer's first question steers the
   pass it is queuing, against the ceiling `ROADMAP.md` and `REVIEW.md` both
@@ -992,6 +992,10 @@ Two guards on one parse of `ROADMAP.md`'s queued-review pointers:
 - **cycle state** — an item asserting a review is owed while carrying the verdict
   of the review that ran, with the state it is *actually* in named (reviewed,
   ruled, applied) rather than only the contradiction.
+- **queue state** (`state`, added by `130/020`) — whether the state line counts
+  true. Fires on a pointer whose own pass has run while it still wears the
+  queued glyph, and on a queued review written as an ordinary open item with no
+  glyph, which a count of the glyph misses.
 
 The scope decision — **what makes an item a queued-review pointer** — is settled
 in the module docstring on the four recorded specimens, and it is the load-bearing

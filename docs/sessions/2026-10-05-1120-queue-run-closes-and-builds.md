@@ -305,3 +305,14 @@ markers keep their meaning, and the evidence covers 554 fixture runs and
 `160/750`. Three defects were filed as `115/270`. The CHANGELOG conflict
 with the P9 entry was resolved keeping both. Local-time stamps in it were
 corrected.
+
+## `115/270`: parts 2 and 3 done, part 1 a decision
+
+The worker stalled once (the harness watchdog) and was resumed from its
+transcript. Its first attempt at `115/260` stalled without committing
+anything and was re-dispatched fresh. Part 2 corrected a README count. Part
+3 found nine test files, not two, whose direct run silently skipped up to
+half their tests, and fixed all nine. Part 1 asks whether sizescan's
+allow-marker may silence the cold-content gate. The original design says
+yes and later text says no. Blast radius is zero, so it goes to Mike with
+a recommendation.

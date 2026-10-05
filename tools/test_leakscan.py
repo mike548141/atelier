@@ -659,10 +659,6 @@ class LinkedWorktreeSkipped(unittest.TestCase):
         self.assertNotIn("weird/real.txt", found)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class IgnoreFileReasons(unittest.TestCase):
     """GUARDS.md rule (c) — an ignore glob is the widest allowance a scanner
     grants, so it is the last place an unexplained exemption should be
@@ -1330,3 +1326,7 @@ class GatesAreNecessary(unittest.TestCase):
         term = ("zzzterm", re.compile(r"\bzzzterm\b", re.IGNORECASE))
         fs = ls.scan_text("t", "plain words and zzzterm", [term])
         self.assertEqual([f.rule for f in fs], ["local-term"])
+
+
+if __name__ == "__main__":
+    unittest.main()
