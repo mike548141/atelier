@@ -309,6 +309,214 @@ class HatchAndModeTest(unittest.TestCase):
         self.assertEqual(self.run_tool("--selftest").returncode, 0)
 
 
+def commit(root: Path, msg: str = "x") -> str:
+    subprocess.run(["git", "-C", str(root), "commit", "-qm", msg], check=True,
+                   capture_output=True)
+    return subprocess.run(["git", "-C", str(root), "rev-parse", "HEAD"],
+                          check=True, capture_output=True,
+                          text=True).stdout.strip()
+
+
+def git(root: Path, *args: str) -> None:
+    subprocess.run(["git", "-C", str(root), *args], check=True,
+                   capture_output=True)
+
+
+class HistoryTest(unittest.TestCase):
+    """260/110 item 3: a flip publishes every path ever tracked, so the
+    pre-flip gate needs the same rules over history. Opt-in: the default
+    planes are untouched."""
+
+    def run_tool(self, *args: str) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            [sys.executable, str(TOOLS / "publishscan.py"), *args],
+            capture_output=True, text=True)
+
+    def history_json(self, root: Path) -> tuple[int, dict]:
+        r = self.run_tool("--root", str(root), "--history", "--json")
+        return r.returncode, json.loads(r.stdout)
+
+    def test_a_path_added_then_deleted_is_found(self):
+        """The rpi shape (260/090): a build directory committed, then
+        removed. The tip scan is clean; the history scan is not."""
+        with tempfile.TemporaryDirectory() as s:
+            root = git_repo(Path(s))
+            add(root, "README.md")
+            commit(root)
+            add(root, "src/pkg.egg-info/PKG-INFO")
+            added = commit(root)
+            git(root, "rm", "-rq", "--cached", "src/pkg.egg-info")
+            commit(root)
+            self.assertEqual(self.run_tool("--root", s).returncode, 0)
+            code, doc = self.history_json(root)
+            self.assertEqual(code, 1)
+            self.assertEqual(doc["findings"], [{
+                "path": "src/pkg.egg-info/PKG-INFO",
+                "why": publishscan.matches("src/pkg.egg-info/PKG-INFO"),
+                "first_commit": added,
+                "first_date": doc["findings"][0]["first_date"],
+                "tracked_at_tip": False}])
+            text = self.run_tool("--root", s, "--history")
+            self.assertIn("history only", text.stdout)
+            self.assertIn(added[:12], text.stdout)
+
+    def test_a_renamed_path_is_found_under_both_names(self):
+        """Renamed INTO a never-publish name: found at the rename. Renamed
+        OUT of one: still found at its original add. Rename detection would
+        hide the first (it is an R, not an A); --no-renames makes it an add."""
+        with tempfile.TemporaryDirectory() as s:
+            root = git_repo(Path(s))
+            add(root, "notes.txt")
+            add(root, ".npmrc")
+            npmrc_added = commit(root)
+            (root / "config").mkdir()
+            git(root, "mv", "notes.txt", "config/.env")
+            git(root, "mv", ".npmrc", "npmrc.example")
+            renamed = commit(root)
+            git(root, "rm", "-q", "config/.env")
+            commit(root)
+            code, doc = self.history_json(root)
+            self.assertEqual(code, 1)
+            got = {f["path"]: f["first_commit"] for f in doc["findings"]}
+            self.assertEqual(got, {".npmrc": npmrc_added,
+                                   "config/.env": renamed})
+
+    def test_a_clean_history_is_green(self):
+        with tempfile.TemporaryDirectory() as s:
+            root = git_repo(Path(s))
+            add(root, "README.md")
+            commit(root)
+            add(root, "src/env.py")
+            commit(root)
+            r = self.run_tool("--root", s, "--history")
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("2 path addition(s) across 2 commit(s)", r.stdout)
+
+    def test_the_oldest_add_is_reported_and_tip_state_is_read(self):
+        """Added, removed, added again: the first commit is the one that
+        published it first, and the tip still tracks it."""
+        with tempfile.TemporaryDirectory() as s:
+            root = git_repo(Path(s))
+            add(root, ".mcp.json")
+            first = commit(root)
+            git(root, "rm", "-q", "--cached", ".mcp.json")
+            commit(root)
+            add(root, ".mcp.json")
+            commit(root)
+            _, doc = self.history_json(root)
+            self.assertEqual(len(doc["findings"]), 1)
+            self.assertEqual(doc["findings"][0]["first_commit"], first)
+            self.assertTrue(doc["findings"][0]["tracked_at_tip"])
+
+    def test_every_branch_counts_and_the_stash_does_not(self):
+        """A flip publishes pushed refs. An unmerged branch is one; the stash
+        is never pushed."""
+        with tempfile.TemporaryDirectory() as s:
+            root = git_repo(Path(s))
+            add(root, "README.md")
+            commit(root)
+            git(root, "checkout", "-qb", "side")
+            add(root, "debug.log")
+            commit(root)
+            git(root, "checkout", "-q", "main")
+            add(root, ".env")
+            git(root, "stash", "push", "-q", "-m", "local only")
+            _, doc = self.history_json(root)
+            self.assertEqual([f["path"] for f in doc["findings"]],
+                             ["debug.log"])
+
+    def test_a_path_a_merge_introduced_is_found(self):
+        """Merges carry no diff by default; first-parent diffs show a path
+        the merge itself added."""
+        with tempfile.TemporaryDirectory() as s:
+            root = git_repo(Path(s))
+            add(root, "README.md")
+            commit(root)
+            git(root, "checkout", "-qb", "side")
+            add(root, "a.txt")
+            commit(root)
+            git(root, "checkout", "-q", "main")
+            git(root, "merge", "-q", "--no-ff", "--no-commit", "side")
+            add(root, ".envrc")
+            merged = commit(root, "merge")
+            _, doc = self.history_json(root)
+            self.assertEqual({f["path"]: f["first_commit"]
+                              for f in doc["findings"]}, {".envrc": merged})
+
+    def test_a_non_ascii_path_is_matched_unquoted(self):
+        """git quotes non-ASCII paths in line output; -z does not, so the
+        never-publish name at the end still matches."""
+        with tempfile.TemporaryDirectory() as s:
+            root = git_repo(Path(s))
+            add(root, "café/.env")
+            commit(root)
+            _, doc = self.history_json(root)
+            self.assertEqual([f["path"] for f in doc["findings"]],
+                             ["café/.env"])
+
+    def test_the_ignore_file_applies_to_history(self):
+        with tempfile.TemporaryDirectory() as s:
+            root = git_repo(Path(s))
+            add(root, ".mcp.json")
+            commit(root)
+            git(root, "rm", "-q", "--cached", ".mcp.json")
+            add(root, ".publishscanignore",
+                ".mcp.json  # deliberate: fixture endpoint list, no live data\n")
+            commit(root)
+            self.assertEqual(self.run_tool("--root", s, "--history").returncode,
+                             0)
+
+    def test_a_shallow_clone_is_a_broken_scan(self):
+        with tempfile.TemporaryDirectory() as s:
+            (Path(s) / "src").mkdir()
+            src = git_repo(Path(s) / "src")
+            add(src, ".env")
+            commit(src)
+            add(src, "README.md")
+            commit(src)
+            dst = Path(s) / "dst"
+            subprocess.run(["git", "clone", "-q", "--depth", "1",
+                            f"file://{src}", str(dst)], check=True,
+                           capture_output=True)
+            r = self.run_tool("--root", str(dst), "--history")
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn("shallow", r.stderr)
+
+    def test_a_repo_with_no_commits_is_clean(self):
+        with tempfile.TemporaryDirectory() as s:
+            git_repo(Path(s))
+            r = self.run_tool("--root", s, "--history")
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("0 path addition(s) across 0 commit(s)", r.stdout)
+
+    def test_history_and_staged_are_exclusive(self):
+        with tempfile.TemporaryDirectory() as s:
+            git_repo(Path(s))
+            r = self.run_tool("--root", s, "--history", "--staged")
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+
+    def test_warn_never_blocks_history(self):
+        with tempfile.TemporaryDirectory() as s:
+            root = git_repo(Path(s))
+            add(root, ".env")
+            commit(root)
+            r = self.run_tool("--root", s, "--history", "--warn")
+            self.assertEqual(r.returncode, 0, r.stdout)
+            self.assertIn("advisory", r.stdout)
+
+    def test_the_stream_reassembles_tokens_across_chunk_edges(self):
+        """Bounded memory: git's output is read a chunk at a time, so a
+        token split across two reads must come back whole."""
+        import io
+        data = b"\x01abc 1\0\nfirst/path\0second\0\x01def 2\0\nthird"
+        for size in (1, 2, 3, 7, 64):
+            with self.subTest(chunk=size):
+                self.assertEqual(
+                    list(publishscan._nul_tokens(io.BytesIO(data), size)),
+                    [b"\x01abc 1", b"\nfirst/path", b"second",
+                     b"\x01def 2", b"\nthird"])
+
+
 class ControlCharacterTest(unittest.TestCase):
     """Nothing this tool ingests can repaint the terminal it reports to.
 

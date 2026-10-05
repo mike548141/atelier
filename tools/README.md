@@ -773,8 +773,25 @@ would ever see.
 python3 tools/publishscan.py --root .            # the tracked set (CI plane)
 python3 tools/publishscan.py --root . --staged   # what this commit adds (hook)
 python3 tools/publishscan.py --root . --warn     # advisory while a repo cleans up
+python3 tools/publishscan.py --root . --history  # every path ever added (pre-flip)
 python3 tools/publishscan.py --selftest          # prove it against fixtures
 ```
+
+**`--history` is the pre-flip plane, and it is opt-in.** The default planes
+read the current tree, but a flip publishes every path ever pushed. The
+history plane applies the same rules and the same ignore file to every path
+added on any branch, tag or remote-tracking ref. It reports each hit with the
+oldest commit that added it, and says whether the tip still tracks it or it
+lives in history only. A history-only hit cannot be untracked away; removing it
+takes a history rewrite or a fresh history, and that is the owner's call before
+the flip. It reads `git log --name-only -z` and not `rev-list --objects`,
+because the blob walk prints one name per blob and drops every other path with
+the same bytes. Its output is streamed, and only the hits are held. A shallow
+clone is a broken scan (exit 2). `--history` and `--staged` are separate
+planes and cannot be combined. The floor registry does not run it. It was added
+with round 3's single shape, `*.egg-info/`, from the harvest of a flip's
+transcripts (`260/090`); that shape was tracked at the tip of no sibling repo
+when it landed.
 
 A tree with no git skips visibly at exit 0 — not a fail-open, since nothing is
 tracked and so nothing can be published from it. Every *other* git failure (git
