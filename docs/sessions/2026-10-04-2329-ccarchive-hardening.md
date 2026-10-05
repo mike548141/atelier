@@ -77,6 +77,25 @@ for the two-kind split and for treating prompt history as append-only.
 and after listing of the key directory and the archive root showed no writes,
 99 files waiting, 4 memory versions to keep, no anomalies.
 
+## After the merge — the first real run, and a one-off adoption
+
+Mike: *"Yes, run it now"*. The first real run on the new code: exit 0, 99
+files archived, 4 memory-note versions kept, signature verified. `--verify`
+then found 44 mirrors with no index entry, already unindexed on 2026-10-03
+(eight sessions with their subagent logs and tool outputs, all from old
+worktree projects). Their live sources were long pruned and iCloud had
+offloaded them, so under the new rule they could be neither adopted nor
+moved. Mike's ruling, verbatim: *"As a one off because this is new - bring
+them into the archive properly, index them, sign them etc. so they are
+trusted. Going forward I expect that should not need to happen again."* He
+had iCloud download the folder. A one-off script took the tool's own lock,
+authenticated the manifest, hashed each mirror's gunzipped bytes, and wrote
+44 entries marked `adoptedBy: owner-ruling-2026-10-05-one-off` through the
+tool's own signed save. It was dry-run first. Afterwards `--verify` exited 0:
+**9,399 in the manifest, 9,399 verified, 0 mismatched, 0 missing.** That is
+the whole archive checked byte for byte, nothing skipped as offloaded. The
+script was not committed: it is a single act, recorded here.
+
 ## Errors, recorded against this run
 
 - 🛑 **A worker recreated the login job Mike had removed.** Part A's worker,
