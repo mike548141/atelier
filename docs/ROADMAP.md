@@ -149,7 +149,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [The exception audit above checked reason-presence and](roadmap/110-estate-duplication-exception-audit-mike/100-two-granularities-the-2026-08-09-audit-never-asked-about.md)
 - ✅ 🔥 [The content guards walk the whole filesystem, untracked trees](roadmap/110-estate-duplication-exception-audit-mike/110-guards-walk-untracked-trees.md)
 - ✅ 🔥 [pathscan and linkscan are unbounded on one large file](roadmap/110-estate-duplication-exception-audit-mike/120-pathscan-and-linkscan-are-unbounded-on-one-big-file.md)
-- [~] 🔎 [leakscan and secretscan scan at roughly 0.5–1 MB/s, so a 128 MB](roadmap/110-estate-duplication-exception-audit-mike/130-leakscan-and-secretscan-scan-under-1-mb-per-second.md)
+- ✅ 🔎 [leakscan and secretscan scan at roughly 0.5–1 MB/s, so a 128 MB](roadmap/110-estate-duplication-exception-audit-mike/130-leakscan-and-secretscan-scan-under-1-mb-per-second.md)
 - ✅ 🔥 [leakscan, secretscan and conflictscan's line reader re-slices](roadmap/110-estate-duplication-exception-audit-mike/140-the-line-reader-re-slices-per-line.md)
 
 ## Guardrails for atelier and its children (Mike commissioned 2026-08-15)
@@ -281,6 +281,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: one unambiguous review-pointer state](roadmap/160-doctrine-review-owed/690-rule-4-cold-pass-queued-the-pointer-state.md)
 - [ ] ⏳ [Rule-4 cold pass queued: indexscan, the generic index-integrity](roadmap/160-doctrine-review-owed/700-rule-4-cold-pass-queued-indexscan.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the standing reviewer checklist and the](roadmap/160-doctrine-review-owed/710-rule-4-cold-pass-queued-checklist-and-test-rule.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the per-rule pre-filter gates in](roadmap/160-doctrine-review-owed/720-rule-4-cold-pass-queued-scanner-gates.md)
 
 ## build/ layer — open strands
 

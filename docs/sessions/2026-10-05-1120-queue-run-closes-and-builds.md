@@ -157,3 +157,17 @@ point. Four pre-flip-gate findings are filed together as `260/110` (P9).
 One finding goes to `320/480` as a second shape of its class. Two
 corrections belong in `rpi`'s own public records and are left for Mike's
 report, not written there from here.
+
+## `110/130`: leakscan and secretscan, three to five times faster
+
+A Sonnet worker built it (`c938b58`). It uses lever 4, cheap per-rule gates
+each pattern makes necessary. Lever 3 was declined with its reason
+recorded. Levers 1 and 2 were out of scope. Output was byte-identical on
+three corpora, and a 1.15-million-line differential fuzz found zero
+mismatches. The fuzz caught two gate bugs of the worker's own before
+commit. The orchestrator read every secretscan gate against its pattern
+before merging, and checked that no named rule is case-insensitive, since
+a literal gate would be unsound against an `(?i)` pattern. It also re-ran
+the two modules' tests (306 OK) and both selftests. A wrong gate is a
+silent miss on a blocking guard, so the cold pass at `160/720` is the one
+to take first.

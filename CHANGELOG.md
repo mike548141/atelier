@@ -5,6 +5,13 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-10-05 — leakscan and secretscan: per-rule pre-filters, `110/130`)
+- Each rule skips its regex on a line that provably cannot match it, using a
+  cheap test its own pattern makes necessary. Output is byte-identical, proven
+  by CLI comparison and a 1.15-million-line differential fuzz. It is about 3×
+  faster for leakscan and 4.6× for secretscan on a 50 MB corpus. No rule,
+  finding, suppression or exit code changed.
+
 ### Added (2026-10-05 — the standing reviewer checklist and a test-evidence rule, `200/050`, `200/020`)
 - `REVIEW.md` § *The standing checklist*: seven checks every review runs
   unasked (V1–V7, approved 2026-07-23), each pointing at where it is already

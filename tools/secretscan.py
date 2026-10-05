@@ -82,6 +82,7 @@ from __future__ import annotations
 import argparse
 import codecs
 import fnmatch
+import itertools
 import json
 import math
 import re
@@ -391,6 +392,10 @@ NAMED: list[Pattern] = [
 # monotonic widening — it can only ADD matches a preceding `=` used to hide,
 # never remove one that fired before — so the blocking set does not shrink.
 HIGH_ENTROPY_RX = re.compile(r"(?<![A-Za-z0-9+_-])[A-Za-z0-9+_-]{32,}={0,2}(?![A-Za-z0-9+=_-])")
+# The shortest line HIGH_ENTROPY_RX can match in — the `{32,}` above, restated
+# so scan_lines can skip the regex on shorter lines (110/130). A test pins it
+# to the pattern, so the two cannot drift apart.
+HIGH_ENTROPY_MIN_LEN = 32
 HIGH_ENTROPY_MIN = 4.0        # bits/char; random base64 sits ~5.0, prose ~3-4
 ASSIGNED_ENTROPY_MIN = 3.0    # assigned values get context, so a lower bar
 
@@ -771,6 +776,64 @@ def _assigned_is_secret(value: str) -> bool:
     return False
 
 
+# --- per-rule pre-filters (roadmap 110/130, lever 4) ---------------------
+#
+# Each gate is a CHEAP test on the line that is NECESSARY for its rule to match:
+# if the gate says no, the rule's regex provably has no match on that line, so
+# skipping `finditer` changes nothing — same findings, same order, same counts.
+# That is the only property a gate may have. A gate that could reject a line the
+# rule would match is a silent false negative in a credential scanner, the
+# worst failure this tool has, so every gate below is a literal (or fixed
+# shape) the rule's own pattern text contains, never a guess about the data.
+# A rule with no entry has no provable cheap necessary condition and always
+# runs its full regex (fail open). Every literal here is case-sensitive because
+# the pattern it comes from is — none of the NAMED rules carries `(?i)`.
+# `test_secretscan.GatesAreNecessary` pins each gate against its rule.
+#
+# The `assigned` gate is deliberately vocabulary-free: SECRET_KEY_RX's fixed
+# tail is `\b\s*[:=]\s*["']?<6+ value chars>`; this is the part from the
+# `[:=]` on, necessary whatever key names are added later because it names no
+# key. (Starting at `[:=]` means the regex engine only wakes at a colon or an
+# equals sign, not at every word.)
+_ASSIGNED_TAIL_RX = re.compile(r"""[:=]\s*["']?[^\s"'`,;:]{6}""")
+
+NAMED_GATES: dict[str, "object"] = {
+    "private-key-header": lambda ln: "PRIVATE KEY-----" in ln,
+    "pgp-private-key": lambda ln: "-----BEGIN PGP PRIVATE KEY BLOCK-----" in ln,  # secretscan:allow: the detection literal, not a key
+    "aws-access-key-id": lambda ln: "AKIA" in ln or "ASIA" in ln,
+    # `gh[posru]_…` carries `gh`, `github_pat_…` carries that literal; both
+    # carry `_`. (`github` itself does not contain `gh`.)
+    "github-token": lambda ln: "_" in ln and ("gh" in ln or "github_pat_" in ln),
+    "slack-token": lambda ln: "xox" in ln,
+    "slack-webhook": lambda ln: "https://hooks.slack.com/services/" in ln,
+    "google-api-key": lambda ln: "AIza" in ln,
+    "gcp-oauth-secret": lambda ln: "GOCSPX-" in ln,
+    "stripe-key": lambda ln: "k_live_" in ln or "k_test_" in ln,
+    "anthropic-key": lambda ln: "sk-ant-" in ln,
+    "openai-key": lambda ln: "sk-" in ln,
+    "npm-token": lambda ln: "npm_" in ln,
+    "twilio-key": lambda ln: "SK" in ln,
+    "sendgrid-key": lambda ln: "SG." in ln,
+    "jwt": lambda ln: ".eyJ" in ln,
+    "basic-auth-url": lambda ln: "://" in ln and "@" in ln,
+}
+# One entry per NAMED rule, in NAMED's order: (pattern, gate-or-None).
+_NAMED_GATED: tuple[tuple[Pattern, "object"], ...] = tuple(
+    (p, NAMED_GATES.get(p.name)) for p in NAMED)
+_ACTIVE_CACHE: dict[frozenset[str], tuple] = {}
+
+
+def _active_named(disabled: frozenset[str]) -> tuple:
+    """`_NAMED_GATED` minus the disabled rules, memoised per disabled-set."""
+    if not isinstance(disabled, frozenset):   # a plain set worked before
+        disabled = frozenset(disabled)
+    got = _ACTIVE_CACHE.get(disabled)
+    if got is None:
+        got = _ACTIVE_CACHE[disabled] = tuple(
+            (p, g) for p, g in _NAMED_GATED if p.name not in disabled)
+    return got
+
+
 def _record(findings: list[Finding], tally: Tally | None, finding: Finding) -> None:
     """Append `finding` unless the run-wide materialization cap (020/370,
     `MAX_MATERIALIZED_FINDINGS`) has been reached — in which case
@@ -798,19 +861,22 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
     # match time would also count entropy hits that dedupe was about to drop,
     # inflating the very number this exists to make trustworthy.
     allow_by_line: dict[int, str] = {}
+    named = _active_named(disabled)
     for lineno, line in numbered_lines:
-        scope = parse_allow(line)
+        # The marker regex opens with the literal marker text, so a line
+        # without it cannot carry a marker (110/130, lever 4).
+        scope = parse_allow(line) if ALLOW_MARKER in line else None
         if scope is not None:
             allow_by_line[lineno] = scope
 
-        for pat in NAMED:
-            if pat.name in disabled:
+        for pat, gate in named:
+            if gate is not None and not gate(line):
                 continue
             for m in pat.regex.finditer(line):
                 _record(findings, tally, Finding(path, lineno, pat.name, "named",
                                                  pat.severity, redact(m.group(0), "named")))
 
-        if "assigned" not in disabled:
+        if "assigned" not in disabled and _ASSIGNED_TAIL_RX.search(line):
             for m in SECRET_KEY_RX.finditer(line):
                 value = m.group(2)
                 if _assigned_is_secret(value):
@@ -826,10 +892,24 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
         # in the tool. The suppression itself is unchanged: same regex, same
         # per-line scope, same precedence ahead of the fingerprint carve-out, so
         # a line that is both counts once, as a public-key line.
+        #
+        # 110/130 (lever 4): the three line-level lookups below — public-key
+        # keyword, fingerprint spans, URL spans — are pure functions of the
+        # line that are read ONLY inside the loop over entropy matches. So the
+        # (rare) entropy match is found first, and they are computed only if
+        # there is one; with none, the loop body would never have run. A match
+        # needs 32 characters, so a shorter line cannot have one. The matches
+        # stay a lazy iterator (peek one, chain the rest) — a list would hold
+        # every match of an overlong line at once, which 020/370 forbids.
+        entropy = (HIGH_ENTROPY_RX.finditer(line) if len(line) >= HIGH_ENTROPY_MIN_LEN
+                   else iter(()))
+        first = next(entropy, None)
+        if first is None:
+            continue    # the entropy pass is the LAST step of the line loop
         public_key_line = bool(PUBLIC_KEY_RX.search(line))
         fingerprints = () if public_key_line else _fingerprint_spans(line)
         url_spans = () if public_key_line else _url_spans(line)
-        for m in HIGH_ENTROPY_RX.finditer(line):
+        for m in itertools.chain((first,), entropy):
             span = m.group(0)
             if public_key_line:
                 if tally is not None:
@@ -869,6 +949,8 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
                                                  RESPONSE_ADVISORY))
     # A named/assigned hit and a bare entropy hit often fire on the same token;
     # keep the more specific one so the report isn't doubled.
+    if not findings:
+        return []
     kept: list[Finding] = []
     for f in _dedupe_same_span(findings):
         scope = allow_by_line.get(f.line)
