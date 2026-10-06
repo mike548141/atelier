@@ -353,3 +353,12 @@ markers fixed, IDs where a kind exists. The item and his close report
 both carry the correction. It is the run's own lesson again: read the
 artefact, not a summary of it, and that includes before putting a question
 to Mike.
+
+**Last device question, answered with a ruling in Mike's own words**
+(`115/270` part 1). The verbatim text is on the item. Never allow the
+cold-content gate to be silenced. Make the gate name the exact items it
+judges done. And no arbitrary size limits. That last part reaches past
+the question asked, to sizescan's size-advisory half. It is filed as three
+builds on the item, and is not built this session, on economics. Mike also
+said he is not sure what else sizescan does, so the next session explains
+that before removing anything.

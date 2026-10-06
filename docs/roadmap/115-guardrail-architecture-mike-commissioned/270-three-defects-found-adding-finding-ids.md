@@ -1,4 +1,4 @@
-- [ ] 🎯 🔎 **Three defects found while adding finding IDs** `[S][tools]`.
+- [ ] 🔎 **Three defects found while adding finding IDs** `[S][tools]`.
       Found 2026-10-05 by the `080` finding-ID worker, and not fixed there:
       1. 🚩 **sizescan's cold-content gate can be silenced by a header
          marker, and its own text says it cannot.** The remedy text and the
@@ -38,3 +38,39 @@
       anywhere carries a `sizescan:allow` header or a `.sizescanignore` hit
       over cold content. So either fix is safe today. It goes to Mike with
       a recommendation at the close.
+
+      ⚖️ **RULED by Mike, 2026-10-05, in his own words.** The question
+      offered "allow it, with a reason" (which the session recommended) or
+      "never allow it". He answered in free text:
+
+      > Never allow it as I don't want any of my repo's to run a flat running
+      > log, they should all being using the new method where the main board
+      > (aka roadmap) is a simple list of the work and its state, all the
+      > detail that defines the work etc is in a standalone file. I'm not
+      > sure what other files / content sizescan is used for.
+      > Inline with my ruling that checks (including guards) must fail
+      > noisily - When sizescan finds the a violation such as completed work
+      > it should report the specific items or lines that sizescan believes
+      > are completed and ready to move to the archive to save the AI from
+      > infereing that.
+      > I specifically do not want artibuary limits like a fixed kb or line
+      > count as limits because that is contrary to the purpose
+
+      **What it asks for, as three builds, each subordinate to his words
+      above:**
+      - **(a)** No hatch silences the cold-content gate. A `sizescan:allow`
+        header, a `cold-content` scope and `.sizescanignore` all stop
+        exempting it. The blast radius was measured at zero across 29 repos.
+      - **(b)** The gate names the specific items or lines it judges done
+        and ready to archive, so no session has to infer them.
+      - **(c)** No arbitrary size limit. sizescan's *size-advisory* half
+        flags files over a fixed line reference (about 300 for the board
+        index, about 250 for the session log). On his words, that is
+        exactly the kind of limit he does not want. It never fails a build,
+        but it prints on every commit.
+      🤔 **Owed to Mike before (c) is built:** he said he is not sure what
+      else sizescan is used for. The next session explains its two halves
+      in plain words, and what removing the size half would lose, before
+      that half is removed.
+      `[ ]` stays: parts (a) to (c) are owed. This is the next session's
+      first pick, beside `280`.
