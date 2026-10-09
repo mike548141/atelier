@@ -514,6 +514,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [PROPOSAL, hand-up from a private child — sessions cannot find tools](roadmap/320-child-filed-findings-via-pointing-up/500-sessions-cannot-find-installed-tools-toolbox-has-no-locator.md)
 - ✅ 🔎 [Sessions kept placing the tool list in a private repo and](roadmap/320-child-filed-findings-via-pointing-up/510-sessions-credited-mike-with-a-private-tool-list.md)
 - [ ] 🔎 [Hand-up: nothing at session open, or before "verified", reads the](roadmap/320-child-filed-findings-via-pointing-up/520-nothing-reads-the-published-ci-conclusion.md)
+- [ ] 🔎 [Hand-up from a private child: a repo that holds one network's](roadmap/320-child-filed-findings-via-pointing-up/530-a-network-tree-repo-trips-the-floor-s-scanners-by-construction.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
