@@ -33,7 +33,7 @@
         error tempts the fastest edit: the failure was not ignorance of the
         rule but reaching for the edit that silenced the message.
 
-  - [ ] 💡 **Possible mechanical half, offered not decided.** A compose-style
+  - [ ] 💡 **Possible mechanical half, offered not decided.** A declarative-config
         lint cannot know the estate, so this is probably doctrine only. But
         a child that keeps one canonical file declaring its shared resources
         can have a check that flags any *new* resource declaration outside
