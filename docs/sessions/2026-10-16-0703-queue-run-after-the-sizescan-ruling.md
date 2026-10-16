@@ -110,3 +110,15 @@ as patches in the session scratch dir, for the record only. The worktrees
 and branches were removed, and the items were re-dispatched fresh from
 `b572594`, at most two at a time, under `nice`, with a load check before
 each heavy step.
+
+## `115/090`: the second-dial audit, recorded; the build is Mike's
+
+The audit finished before the crash and was read-only. The orchestrator
+re-checked its four sharpest citations against the code (leakscan's "no
+advisory tier", datescan's named silent miss, licenscan's exit path, and
+pathscan's docstring) before recording it on the item. 2 of 16 registered
+guards have a second dial. 9 of the 15 one-dial guards record coverage that
+was narrowed for noise at tool altitude. The ranking puts leakscan first,
+then datescan, then harvestscan. Which guards get a dial is a posture call
+on blocking guards, so the item stays open, marked 🎯. Three places where a
+guard's text and code disagree are filed as `115/290`, not fixed in passing.

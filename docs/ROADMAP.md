@@ -164,7 +164,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [A coined paraphrase is still presented on the board as a child](roadmap/115-guardrail-architecture-mike-commissioned/060-a-coined-paraphrase-is-still-cited-on-the-boar.md)
 - [ ] [PRINCIPLES.md §9 has no guard, and the only safe candidate is scoped](roadmap/115-guardrail-architecture-mike-commissioned/070-principles-9-has-no-guard-and-the-only-safe-ca.md)
 - ✅ [(FUNDED by Mike 2026-09-20; parts 1–3 DONE; the marker-scope and…](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
-- [~] (claimed 2026-10-16-0712, in place — the audit only) [Give every guard a second dial — the standing consequence of Mike's](roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md)
+- [ ] 🎯 [Give every guard a second dial — the standing consequence of Mike's](roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md)
 - [ ] 🎯 [Build a before-plane — the guardrail class that acts at the moment of](roadmap/115-guardrail-architecture-mike-commissioned/100-the-before-plane-is-empty-and-it-is-the-only.md)
 - [ ] 🔥 [The apex and the always-confirm floor have no mechanical backing at](roadmap/115-guardrail-architecture-mike-commissioned/110-the-apex-and-the-autonomy-floor-have-no-mecha.md)
 - [ ] 🎯 [Every guard declares the purpose it answers to, and proves it fires](roadmap/115-guardrail-architecture-mike-commissioned/120-every-guard-declares-the-purpose-it-answers-to.md)
@@ -183,6 +183,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [Two blocking guards never scan a staged file whose path git quotes](roadmap/115-guardrail-architecture-mike-commissioned/260-staged-plane-guards-skip-git-quoted-paths.md)
 - [~] 🔎 (claimed 2026-10-16-0705, wt: atelier-qr-115-270ab — parts (a) [Three defects found while adding finding IDs](roadmap/115-guardrail-architecture-mike-commissioned/270-three-defects-found-adding-finding-ids.md)
 - [~] 🔎 [An added line can pose as a diff header in secretscan's staged](roadmap/115-guardrail-architecture-mike-commissioned/280-an-added-line-can-pose-as-a-diff-header-in-secretscan.md)
+- [ ] 🔎 [Three guard descriptions disagree with their own code](roadmap/115-guardrail-architecture-mike-commissioned/290-three-guards-describe-a-response-tier-their-code-lacks.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 

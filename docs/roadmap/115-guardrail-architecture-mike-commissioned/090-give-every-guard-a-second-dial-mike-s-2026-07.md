@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-16-0712, in place — the audit only) **Give every guard a second dial — the standing consequence of Mike's
+- [ ] 🎯 **Give every guard a second dial — the standing consequence of Mike's
       2026-07-28 correction, carried across the whole fleet.** The
       scanner-precision track was opened on the premise that a false positive on
       a correct line trains someone to write an allow-marker, and that is how a
@@ -24,3 +24,48 @@
       have a response tier separate from detection, and which conflate them —
       because the estate's own rule is that recurrence earns the check, and the
       recurrence count for this class has never been taken.
+
+      🔎 **The audit, run 2026-10-16** (a read-only Sonnet pass over the
+      code and the README. The orchestrator re-checked its four sharpest
+      citations against the code before recording it). A guard has a
+      *second dial* when a finding's response, block or report-only, is set
+      separately from detecting it. The registry's `advisory=` field is a
+      different dial: it switches the whole scanner, so it was counted
+      apart.
+      - **Tally.** Of the 16 registered guards, **2 have two dials**
+        (secretscan, whose only advisory rule is `low-variety-entropy`, and
+        sizescan). **13 have one.** `board` is N/A: it checks exact
+        equality, so there is nothing to trade. Of the 3 unregistered
+        guards, blockscan has two dials, and stampscan and signscan have
+        one.
+      - **The recurrence count this item asked for.** 9 of the 15 one-dial
+        guards carry a code comment recording coverage that was narrowed,
+        or declined, to stop false positives: leakscan, linkscan,
+        reviewscan, publishscan, datescan, wrapscan, spellscan, harvestscan
+        and pathscan. Two of them record a principal's ruling: harvestscan's
+        scope cut and wrapscan's scope. The other seven were settled at
+        tool altitude, which is the shape Mike's correction named.
+      - **Ranked by what is lost silently today:**
+        1. **leakscan.** It has no advisory tier (`leakscan.py:346`), yet
+           rules were withdrawn or narrowed for noise: the `diagnosis` key,
+           ipv6 and nz-address. A child may `--disable` a whole rule class,
+           and the README suggests that for networking repos. Its
+           `severity` field is computed but never used for the response.
+        2. **datescan.** It blocks, and its docstring names a deliberate
+           silent miss: a bare "today" with no date cue now passes
+           (`datescan.py:117-121`). Every `>` line is exempt.
+        3. **harvestscan.** It is warn-only, and was still cut to 6 of 429
+           roadmap commits in scope, because the only lever left was scope.
+        4. Lower: publishscan (path classes left out rather than demoted),
+           spellscan and wrapscan (excluded surfaces), licenscan (cheapest:
+           the severity data already exists), linkscan and pathscan (named
+           residuals).
+      - **Code and text disagree in three places.** These are filed
+        separately as `115/290`, not fixed here.
+
+      🎯 **What is left is Mike's call.** Which guards get a second dial,
+      and in what order, is a posture choice on blocking guards. leakscan
+      is the personal-data boundary, where `SECRETS.md` § *The boundary's
+      posture* says to over-flag. The audit's recommendation is leakscan
+      first, then datescan. licenscan's dial comes almost free with
+      `115/290`.
