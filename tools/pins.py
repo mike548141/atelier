@@ -73,9 +73,10 @@ ICLOUD_MARKERS = ("com~apple~clouddocs", "mobile documents", "library/cloudstora
 # building this fix, over SYNTHETIC sibling trees (never real ones — see
 # the module docstring's own read-only posture): an 8 MB CLAUDE.md drove
 # ~15 MB of extra peak RSS over a 1 MB twin. Grounded in the class, not a
-# measurement: a real CLAUDE.md is bounded by sizescan's own SIZE_REFERENCE
-# (~200 lines); two-plus orders of magnitude past that leaves generous
-# headroom while giving a fixed ceiling. Refused, reported (stderr), never
+# measurement: a real CLAUDE.md is a thin onramp of about 200 lines (the
+# class reference sizescan once held for it, since removed by 115/270 c;
+# nothing here reads that number); two-plus orders of magnitude past that
+# leaves generous headroom while giving a fixed ceiling. Refused, reported (stderr), never
 # silently misread as "no pin".
 MAX_CLAUDE_MD_BYTES = 2 * 1024 * 1024
 

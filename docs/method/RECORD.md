@@ -59,11 +59,11 @@ stopped instead of re-deriving it:
   `SESSIONS-ARCHIVE.md` growth store (grepped on demand, never loaded whole) —
   the same current-truth/history split as `ROADMAP`→`ROADMAP-DONE`, and the
   answer to the one move a bloated *already-split* index otherwise lacks.
-  `tools/sizescan.py` reports the index as an **advisory** when it outgrows its
-  size reference — a lean index carries no `[x]` items, so it never gates, and the
-  size nudge is exactly what surfaces a regression back to a flat log. (Grounded
-  2026-07-14: the cold review found the append-only rule and the budget colliding
-  with no sanctioned move for an index that had already done the split.)
+  `tools/sizescan.py` does not measure the index's length — it has no size check
+  (Mike's ruling, 2026-10-05: no arbitrary line or size limits) — so a regression
+  back to a flat log is caught at review, not by a number. (Grounded 2026-07-14:
+  the cold review found the append-only rule and the budget colliding with no
+  sanctioned move for an index that had already done the split.)
 - **Detail lives on demand** — when a session is substantial, its full detail
   goes in a `docs/sessions/<date>-<HHMM>-<slug>.md` file and the index carries
   a one-line pointer. (`HHMM` is the session's start time, 24-hour, in UTC —
@@ -264,9 +264,12 @@ then nothing fires when a file bloats again. So it carries a **signal** —
 so the signal keys on **relocatable cold content on the hot path**, not length:
 it **gates** on a completed `[x]` item in a checkbox-worklog file (a done item
 belongs in `ROADMAP-DONE.md`; left inline it is pure cost with a lossless fix),
-and reports line count only as an **advisory** — never a build failure, because a
-file long purely from live current-truth has nothing to relocate. Growth stores
-are excluded by design; flagging the *destination* would punish the fix. The
+and does not report line count at all (Mike's ruling, 2026-10-05: no arbitrary
+size limits; the old length advisory was removed 2026-10-16), because a file
+long purely from live current-truth has nothing to relocate. Resolved narrative
+under an open item is real cold content a machine cannot name, so it stays
+caught at review. Growth stores are excluded by design; flagging the
+*destination* would punish the fix. The
 destination has its own contract, though — **harvest integrity** (Mike's ruling,
 2026-07-22): the named archive stores (`*-DONE.md`, `*-ARCHIVE.md`) record
 finished history only, so a live state marker there (a `[ ]`/`[~]`/`⏳` list
