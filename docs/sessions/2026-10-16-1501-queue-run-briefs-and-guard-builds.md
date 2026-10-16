@@ -92,3 +92,17 @@ spot-read one brief in full before committing. The siblings note
 same-surface overlaps so a runner can sequence them: `520` and `540` share
 the queue-run skill, and `540`, `550` and `560` share `CONCURRENCY.md`.
 Each pointer now names its brief and says the review has not run.
+
+## Briefs, batch C ✅ seven more written, none run
+
+A second Opus brief-writer wrote `160/700`–`760` (prefixes IX, CK, GT, RT,
+PF, MK, QP), all from the 2026-10-05 queue run's tool deltas. These guard
+files have changed since, several of them today, so each brief lists the
+later commits on its surfaces with SHA and subject, and asks the reviewer to
+judge the delta's own claims at HEAD. Two points surfaced for the reviewer
+rather than judged here: `160/700`'s merge commit added lines found in
+neither parent, and `160/760` overlaps the 2026-10-16 staged-reader fix.
+`160/700` needs ten lines of the barred session index, and `160/710` an
+older version of a session file. Each brief allows that read and requires it
+to be disclosed. The orchestrator spot-read one brief's head before
+committing.

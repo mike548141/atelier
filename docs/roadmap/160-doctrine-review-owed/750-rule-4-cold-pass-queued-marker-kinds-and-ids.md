@@ -10,9 +10,10 @@
       `CHANGELOG.md`, from `db1aa4d` to `ded8d32` and the merge that landed
       them on `main` on 2026-10-05. *Intent record:*
       [`../../sessions/2026-10-05-1120-queue-run-closes-and-builds.md`](../../sessions/2026-10-05-1120-queue-run-closes-and-builds.md).
-      `[~]` **CLAIMED 2026-10-16-1548 UTC for brief-writing only** by a
-      Mike-opened `claude-opus-5-5` session (queue run abe96d8d) that authored
-      none of the delta, on Mike's 2026-10-16 answer that a fresh Opus session
-      writes these briefs. The brief-writer does not run the review: the pass
-      stays queued for a further criterion-passing cold Fable session once the
-      brief lands.
+      **Brief WRITTEN 2026-10-16, review NOT run** —
+      `docs/reviews/2026-10-16-1551-marker-kinds-finding-ids-cold.md` with a
+      `.deferred.md` sibling. Written by an Opus brief-writer that authored
+      none of the delta (queue run abe96d8d), on Mike's 2026-10-16 answer that
+      a fresh Opus session writes these briefs; its exposure is disclosed in
+      the brief. The pass stays queued for a further criterion-passing cold
+      Fable session.
