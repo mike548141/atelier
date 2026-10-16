@@ -79,3 +79,16 @@ advisory lines go, 2 inert hatches are named. The worker's finding, that
 `RECORD.md`'s index rotation now names a trigger nothing measures, is filed
 as `115/330`. Pass queued at `160/850`, a code and doctrine pass, because
 `RECORD.md` changed.
+
+## Briefs, batch A ✅ seven of 21 written, none run
+
+One Opus brief-writer wrote the briefs and `.deferred.md` siblings for
+`160/500` and `520`–`570` (prefixes TB, SY, RM, HM, WV, TC, BR). Each is
+scoped from the pointer, the landing commit's subject, stat, diff and
+message body, with no intent record, session log or prior verdict opened.
+Its exposure is disclosed in each brief, including stray grep lines from
+the commissioning items met while sweeping for mirror sites. The orchestrator
+spot-read one brief in full before committing. The siblings note
+same-surface overlaps so a runner can sequence them: `520` and `540` share
+the queue-run skill, and `540`, `550` and `560` share `CONCURRENCY.md`.
+Each pointer now names its brief and says the review has not run.
