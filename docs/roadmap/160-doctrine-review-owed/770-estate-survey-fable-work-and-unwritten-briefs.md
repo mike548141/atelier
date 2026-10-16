@@ -18,3 +18,16 @@
       before writing the cards. For atelier itself: 22 queued passes,
       `160/500` to `160/780`, none briefed. Session record:
       [`../../sessions/2026-10-16-0703-queue-run-after-the-sizescan-ruling.md`](../../sessions/2026-10-16-0703-queue-run-after-the-sizescan-ruling.md).
+
+      🔁 **Re-verified after the 07:35 UTC crash**, on Mike's instruction to
+      check that this was really complete. A ref-by-ref pass of both survey
+      outputs against the cards found four omissions, now added:
+      - one repo's 18 written briefs, which had been summarised and are now
+        listed item by item;
+      - a stale "review still owed" note;
+      - an open re-pass question that is Mike's;
+      - one repo's undated standing review practice.
+      The repos that had a session live at the crash were re-read at 08:00
+      UTC. Since the survey, one pass had landed, and two more verdicts were
+      left uncommitted in that repo. Every other repo is unchanged since the
+      survey.

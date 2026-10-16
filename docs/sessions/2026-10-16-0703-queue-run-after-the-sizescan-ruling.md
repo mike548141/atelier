@@ -122,3 +122,19 @@ was narrowed for noise at tool altitude. The ranking puts leakscan first,
 then datescan, then harvestscan. Which guards get a dial is a posture call
 on blocking guards, so the item stays open, marked 🎯. Three places where a
 guard's text and code disagree are filed as `115/290`, not fixed in passing.
+
+## Re-checking `160/770` on Mike's instruction, and one error caught
+
+Mike asked for the survey to be confirmed complete, not just delivered. A
+ref-by-ref check of both survey outputs against the cards found four
+omissions. The largest: one repo's 18 briefs had been summarised in one line
+instead of listed. All four were added. The repos that had a live session at
+the crash were re-read. One had landed a verdict and left two more
+uncommitted, so its card now says to recover the reopened session rather
+than launch a fresh one.
+
+**Recorded against this run:** the orchestrator began the plain-fix half
+of `115/290` (two docstrings) inline **without claiming it first**, in a
+tool call Mike rejected. The edits had already reached the working tree.
+They were reverted to the last commit's state, unlanded, and `115/290`
+stays unclaimed.
