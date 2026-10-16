@@ -124,13 +124,11 @@ function locateTranscript(spec) {
 }
 
 // Harness wrappers that ride in a type:"user" record but are not the principal
-// typing. Text that is nothing BUT these is not a prompt for the asks list.
-const WRAPPERS = ['system-reminder', 'task-notification', 'command-name', 'command-message',
-  'command-args', 'local-command-stdout', 'local-command-stderr', 'local-command-caveat',
-  'cross-session-message', 'browser_instruction'];
-const WRAPPER_RE = new RegExp(`<(${WRAPPERS.join('|')})\\b[^>]*>[\\s\\S]*?</\\1>`, 'g');
+// typing. Text that is nothing BUT these is not a prompt for the asks list. The
+// list is cctranscript's own (its harness wrappers plus the slash-command ones,
+// which hold none of the principal's sentences), so the two tools cannot drift.
 function stripWrappers(text) {
-  return text.replace(WRAPPER_RE, ' ').trim();
+  return cct.stripElements(text, [...cct.HARNESS_TAGS, ...cct.COMMAND_TAGS]).trim();
 }
 
 // The close-out ask heuristic (design note §9). A sentence is listed when it
@@ -184,13 +182,15 @@ async function readTranscript(file) {
     }
     let text = null, ref = null, channel = null, principal = false;
     if (o.type === 'user' && !o.toolUseResult) {
-      // Numbered exactly as cctranscript's readTurns/numberTurns do, so refs match.
-      const raw = cct.extractText(o.message && o.message.content).trim();
-      if (!raw) continue;
+      // Classified and numbered by cctranscript's own classifier: every record
+      // it returns takes the next exchange number (harness text included, as in
+      // cctranscript's numberTurns), but only a prompt can be the principal's.
+      const c = cct.classifyUserRecord(o);
+      if (!c) continue;
       n++; k = 0;
       ref = String(n); channel = 'turn';
-      text = stripWrappers(raw);
-      principal = !o.isMeta && text.length > 0;
+      text = stripWrappers(c.text);
+      principal = c.kind === 'prompt' && text.length > 0;
     } else if (o.type === 'attachment' && cct.isHumanQueuedCommand(o.attachment)) {
       const raw = cct.extractText(o.attachment.prompt).trim();
       if (!raw) continue;

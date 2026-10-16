@@ -98,6 +98,33 @@ three are told apart. A header chip,
 .BR "N mid-turn" ,
 appears only when the session holds at least one.
 .PP
+Not everything the log records as a user message is something you typed. A
+background task's
+.I <task-notification>
+report, a record the harness marks
+.IR isMeta ,
+or the echo of a slash command's output is
+.B harness
+text, and is rendered as such: on the left in grey, labelled
+.BR Harness ,
+as one clipped line (the full text is in
+.BR \-\-json ).
+A header chip,
+.BR "N harness" ,
+counts them apart from
+.BR "N you" ,
+and appears only when the session holds at least one. Harness text still opens
+an exchange and takes its number, because the replies that follow it answer it,
+and dropping the number would shift every
+.I N
+already quoted in committed records; it is simply not counted, or shown, as
+your prompt. A
+.I <browser_instruction>
+block that a browser extension prepends to a real prompt is removed from that
+prompt's text. Your own slash commands
+.RI ( <command-name> )
+stay yours.
+.PP
 With no
 .I session
 argument the tool renders the latest session for the repo you are currently in,
@@ -264,8 +291,11 @@ as a prompt for this purpose, found with no
 .B \-\-tools
 needed, since it is read by the same
 .I readTurns
-pass the render uses. See NOTES for the one channel of your own typed input
-that this does
+pass the render uses. Harness text is searched too, and a hit in it reports
+role
+.BR harness ,
+so it is never mistaken for your prompt. See NOTES for the one channel of your
+own typed input that this does
 .I not
 cover.
 .PP
@@ -315,6 +345,19 @@ is set.
 emits a machine-readable array of turns \(em the same refs, roles, models,
 timestamps and text \(em and is never styled, so it is safe to pipe into
 .BR jq (1).
+A turn's
+.I role
+is
+.BR you ,
+.BR you-mid ,
+.BR claude ,
+.BR harness ,
+or, with the gates that reveal them,
+.BR think ,
+.BR tool " or " result ;
+a harness turn carries its
+.I ref
+like a prompt and its full, unclipped text.
 .SH OPTIONS
 .TP
 .I session

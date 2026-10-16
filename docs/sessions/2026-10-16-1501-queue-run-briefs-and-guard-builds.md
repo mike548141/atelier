@@ -190,3 +190,13 @@ claims are released. The items stay open as work. Points worth carrying:
   were already public as PRs before they landed.
 - `320/620` and `320/640` carry an NZ-local date in the child's text. The
   child's content is left as filed.
+
+## `210/250` ✅ cctranscript stops crediting harness text to Mike
+
+A Sonnet worker, `cea247e`, merged after the orchestrator read it, ran the
+instruments suite (443 of 443) and corrected one NZ-local date. One shared
+classifier now decides whether a record is the principal's, for cctranscript
+and `ccclose` both. Harness records keep their exchange numbers, so quoted
+refs stay valid. This session's own count went from 13 "you" turns to the 1
+Mike actually typed, with the 12 background-task notifications shown as
+harness. The worker's finding is filed as `210/260`. Pass queued at `160/880`.

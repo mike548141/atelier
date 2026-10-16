@@ -306,6 +306,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: sizescan's size advisory removed](roadmap/160-doctrine-review-owed/850-rule-4-cold-pass-queued-size-advisory-removed.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the floor's advisory count scoped to its](roadmap/160-doctrine-review-owed/860-rule-4-cold-pass-queued-advisory-count-per-scanner.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose, the close-out checker](roadmap/160-doctrine-review-owed/870-rule-4-cold-pass-queued-ccclose.md)
+- [ ] ⏳ [Rule-4 cold pass queued: cctranscript's harness classification](roadmap/160-doctrine-review-owed/880-rule-4-cold-pass-queued-harness-classification.md)
 
 ## build/ layer — open strands
 
@@ -368,7 +369,8 @@ then `python3 tools/board.py rebuild`.
 - [ ] [💡 IDEA ONLY — do not build until Mike says to start: keep whole](roadmap/210-instruments-open-features/220-whole-document-history-like-git.md)
 - ✅ [ccarchive: bring back a schedule, as a real calendar schedule, not](roadmap/210-instruments-open-features/230-ccarchive-a-real-calendar-schedule.md)
 - [ ] 🔎 [ccarchive's design charter, in Mike's words, checked against the](roadmap/210-instruments-open-features/240-ccarchive-design-charter.md)
-- [~] 🔎 (claimed 2026-10-16-1633 UTC by queue run abe96d8d, a worker) [cctranscript counts some harness text as the principal's prompts](roadmap/210-instruments-open-features/250-cctranscript-counts-harness-text-as-prompts.md)
+- ✅ 🔎 [cctranscript counts some harness text as the principal's prompts](roadmap/210-instruments-open-features/250-cctranscript-counts-harness-text-as-prompts.md)
+- [ ] 🔎 [A harness notification reads two ways depending on its record](roadmap/210-instruments-open-features/260-notification-records-read-two-ways.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 

@@ -88,20 +88,28 @@ no operation a fixing flag could name.
 ## 6. Reuse of cctranscript
 
 `cctranscript` exports its classifiers when required, with its CLI guarded by
-`require.main === module`. ccclose takes four of them: `extractText` (a
-message body as text, whatever its block shape), `isHumanQueuedCommand` (which
+`require.main === module`. ccclose takes five of them: `extractText` (a
+message body as text, whatever its block shape), `classifyUserRecord` (whether a
+`type:"user"` record is the principal's prompt or harness text),
+`isHumanQueuedCommand` (which
 mid-turn records are the principal's own typing: not every `queued_command` is),
-`friendlyModel` (the models line) and `humanDelta` (the window's span). It does **not** take `readTurns`, which reads the whole log
+`friendlyModel` (the models line) and `humanDelta` (the window's span), plus the
+wrapper lists `stripElements` works from. It does **not** take `readTurns`, which reads the whole log
 into memory. ccclose streams the log line by line instead, so a long session
 costs one line of memory at a time. The prompt numbering matches
 `cctranscript`'s refs exactly (turn `N`, mid-turn `N+K`), so a ref ccclose
 prints opens the same exchange in `cctranscript`.
 
-Two further filters are ccclose's own, applied after cctranscript's rules and
-only for the asks list: a `type:"user"` record marked `isMeta`, and text that is
-wholly a harness wrapper (`<task-notification>`, `<command-name>`,
-`<local-command-stdout>`, `<system-reminder>`, `<browser_instruction>` and kin),
-are not the principal typing. They still count toward the numbering, so the refs stay cctranscript's.
+Whether a `type:"user"` record is the principal's is cctranscript's call, made
+once in `classifyUserRecord`: a record marked `isMeta`, or text that is wholly a
+harness wrapper (`<task-notification>`, `<local-command-stdout>`,
+`<system-reminder>`, `<browser_instruction>` and kin), is harness text, and
+cctranscript shows it with its own role. Harness text still takes an exchange
+number there (the model answers it, and renumbering would move quoted refs), so
+ccclose numbers it the same way and only declines to treat it as an ask. One
+filter remains ccclose's own, for the asks list only: the slash-command wrappers
+(`<command-name>` and kin) are stripped from a prompt's text, because they hold
+none of the principal's sentences, though cctranscript still shows the record as theirs.
 
 ## 7. The checks
 

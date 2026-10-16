@@ -5,6 +5,16 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-10-16 — harness text is not the principal's, `210/250`)
+- `cctranscript` no longer counts harness text in user records as your
+  prompts. A background task's notification, a meta record and a slash
+  command's output echo now have the role `harness`: grey and clipped in the
+  render, a separate header count, full text in `--json`. An injected
+  browser-instruction block is removed from the prompt it was joined to.
+  Harness text keeps its exchange number, so refs already quoted do not
+  move. On 12 recent sessions, "you" fell from 181 to 56. `ccclose` shares
+  the one classifier.
+
 ### Added (2026-10-16 — `ccclose`, the close-out checker, `020/180`)
 - `ccclose` checks a session's close from a fresh read of the repo, GitHub
   (through `gh`) and the session's transcript, never from the session's
