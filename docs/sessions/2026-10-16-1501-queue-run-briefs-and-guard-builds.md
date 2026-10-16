@@ -153,3 +153,18 @@ estate's tools one by one, and whether a session may add one is the very
 question `160/500`'s brief asks, so that is put to Mike. The worker's finding
 about cctranscript's turn classification is filed as `210/250`. Pass queued at
 `160/870`. The model-router sub-items stay idea-only.
+
+## Ten child hand-ups landed (PRs #98–#107), unreviewed
+
+`ccclose`'s first run flagged two open PRs, and the PR list held ten child
+hand-ups waiting since 2026-10-09, every one unlanded. A finding on a PR
+nobody merges has no owner, so this run did the parent's half
+(`PROPAGATION.md` § *Pointing up*): it merged each reporter's branch as-is,
+never rebased, and said in each merge that the content is the child's and
+unreviewed. Seven filers had picked the same free number, `320/530`, and one
+had picked `115/310`, which this run had just used. So nine were renumbered
+in their merges, to `320/570`–`640` and `115/340`. The text inside each item
+still carries the filer's original number, as in the precedent landings
+(`19f4c8c`). `board.py --check` is current. PR #97 (leakscan's G3 build) is
+held for Mike and was left alone. **Not done:** verifying each finding at
+HEAD, which the section's own practice asks for. That is next-session work.
