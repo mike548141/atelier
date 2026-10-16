@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🎯 **MISSING HOUSE RULE — the house has no method for splitting one repo
+- [ ] 🎯 **MISSING HOUSE RULE — the house has no method for splitting one repo
       into two, and two children have now each worked one out alone**
       `[M][doctrine]`. Hand-up from a private child via § *Pointing up*,
       2026-10-11. The evidence is held in the children's private records, so
@@ -64,3 +64,9 @@
       The children can supply their records for the extraction on request.
 
       review: owed to atelier at extraction. This filing is a report only.
+      🔎 **Verified at HEAD 2026-10-16** (1501 UTC queue run, a read-only
+      Sonnet worker): ✅ confirmed, atelier half only (the two instances are
+      child-side). No method text for splitting a repo in `docs/method/`,
+      `docs/build/`, `skills/` or the READMEs; the nearest is
+      `docs/build/REPO-BOUNDARY.md:71-80`, which says *when* to split (cheap,
+      do it promptly) and not *how*. Overlaps `320/230` (silent-skip guard).

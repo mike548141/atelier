@@ -168,3 +168,25 @@ still carries the filer's original number, as in the precedent landings
 (`19f4c8c`). `board.py --check` is current. PR #97 (leakscan's G3 build) is
 held for Mike and was left alone. **Not done:** verifying each finding at
 HEAD, which the section's own practice asks for. That is next-session work.
+
+## The thirteen hand-ups verified at HEAD
+
+Two read-only Sonnet workers checked every landed hand-up against atelier as
+it stands. Tool claims were reproduced in throwaway repos, and doc claims
+were checked by searching for the rule. **Eleven confirmed, two partly**:
+`320/530` blames the wrong scanner for one trip, and `320/620`'s fact is
+already a fill-in slot, so its real residue is that stampscan has no
+placeholder handling. Each item carries its verification note, and the
+claims are released. The items stay open as work. Points worth carrying:
+
+- `115/340` is confirmed on this machine's git: `cherry-pick`, `rebase` and
+  a clean `merge --no-ff` skip `pre-commit`. This run's own merges used
+  `--no-commit` and then `git commit`, so the hook ran on them. Its one
+  cherry-pick (`dc0ed0e`, `115/320`) did not, so that commit's evidence is
+  the floor run in CI, not the local hook.
+- 🚩 Privacy, flagged, nothing changed: `320/530` and `320/590` describe a
+  private child and the estate root in class terms, but specifically enough
+  that someone who knows the estate could infer which repos they mean. Both
+  were already public as PRs before they landed.
+- `320/620` and `320/640` carry an NZ-local date in the child's text. The
+  child's content is left as filed.

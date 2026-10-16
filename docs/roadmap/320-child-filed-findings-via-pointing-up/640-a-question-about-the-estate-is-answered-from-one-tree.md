@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🔎 **Hand-up: a cross-estate question gets answered from one repo's
+- [ ] 🔎 **Hand-up: a cross-estate question gets answered from one repo's
       tree, and "it does not exist" goes back to the principal**
       `[S][doctrine]`. Handed up by a private child's orchestrated queue run
       on 2026-10-17, under `PROPAGATION.md` § *Pointing up*. **Evidence, as
@@ -29,3 +29,9 @@
       toolbox; a line in the ask doctrine that an "it does not exist" answer
       states its search scope. Whether any becomes doctrine, and in which
       shape, is for the ruling round.
+      🔎 **Verified at HEAD 2026-10-16** (1501 UTC queue run, a read-only
+      Sonnet worker): ✅ confirmed, three gaps (incident child-side). No
+      cross-repo findability convention, no rule on the scope of a *where*
+      negative, no capture-at-speaking rule; `cctranscript --search` exists
+      but is transcripts only. The "doctrine covers never generalise a
+      negative" aside is not in atelier's docs. Overlaps `320/230`, `320/220`.

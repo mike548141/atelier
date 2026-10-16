@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🔎 **Hand-up: a child's own visibility fact sits inside its verbatim floor copy, so when the fact changes the child cannot keep it true** `[S][doctrine]`. Handed up by a child's session on 2026-10-17, for atelier to consider. A suspicion of a wrong rule, with one measured instance; no fix proposed. <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
+- [ ] 🔎 **Hand-up: a child's own visibility fact sits inside its verbatim floor copy, so when the fact changes the child cannot keep it true** `[S][doctrine]`. Handed up by a child's session on 2026-10-17, for atelier to consider. A suspicion of a wrong rule, with one measured instance; no fix proposed. <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 
       **What was measured.** The floor's visibility bullet is copied into each
       child's onramp verbatim, and the 2026-09-19 *floor copy verbatim* ruling
@@ -19,3 +19,9 @@
       **Smaller, same family:** `310`'s README and item `310/040` name a child
       by the repository name it had before a rename; that child's sessions now
       open under its new name.
+      🔎 **Verified at HEAD 2026-10-16** (1501 UTC queue run, a read-only
+      Sonnet worker): ⚠️ partly. The visibility fact already is a slot,
+      `<visibility fact>` (`PROPAGATION.md:78,198`), which a child fills and
+      may re-fill; `320/360` records exactly that. The real residue: stampscan
+      has no placeholder handling (a filled `<SHA>` reds), and nothing says
+      a fill is re-editable. The 310 rename remark holds. Overlaps `320/370`.

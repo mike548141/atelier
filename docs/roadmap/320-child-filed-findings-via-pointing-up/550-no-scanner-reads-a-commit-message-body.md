@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🔎 **Hand-up: no floor scanner reads a commit message, so a term that is
+- [ ] 🔎 **Hand-up: no floor scanner reads a commit message, so a term that is
       caught in files lands unflagged in a message body** `[M][tools]` — filed
       2026-10-11 from a private child repo via `PROPAGATION.md` § *Pointing
       up*. Class only: no repo, term, person or hash appears below. Checked
@@ -40,3 +40,9 @@
         stopping the count growing, and the value of (a) is sizing the job
         before a flip. Evidence is the child's own sweep, not re-run here:
         **unevidenced at atelier's end**.
+      🔎 **Verified at HEAD 2026-10-16** (1501 UTC queue run, a read-only
+        Sonnet worker): CONFIRMED. datescan, wrapscan and pathscan docstrings
+        exclude commit messages; publishscan --history reads paths only; no
+        commit-msg hook ships. Repro: a commit body with an IPv6 address and a
+        relative-time word exits 0; the same address in a staged file exits 1.
+        320/240 exists. Sweep counts are child-side.

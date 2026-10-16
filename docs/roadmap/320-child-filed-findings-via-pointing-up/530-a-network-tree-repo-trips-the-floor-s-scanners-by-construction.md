@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🔎 **Hand-up from a private child: a repo that holds one network's
+- [ ] 🔎 **Hand-up from a private child: a repo that holds one network's
       desired state and operational records trips the floor's scanners by
       construction — a create-repo type for it** `[M][doctrine][tools]` —
       filed 2026-10-09 under `PROPAGATION.md` § *Pointing up*. A report, not
@@ -65,3 +65,9 @@
   **What the child did locally.** It narrowed with reasons and kept the
   incident in its own record, per step 3 and 4 of the route. It added no
   general rule. Whether (1) and (2) are one item or two is atelier's to split.
+      🔎 **Verified at HEAD 2026-10-16** (1501 UTC queue run, a read-only
+        Sonnet worker): PARTLY. Repro with atelier tools: secretscan flags a
+        timestamped evidence path in prose, publishscan a capture file,
+        leakscan (not secretscan) the IPv6 resolvers. No network-tree type
+        exists. Ask 2 half-served: datescan and spellscan skip blockquotes,
+        wrapscan skips fences only. Child history not verifiable here.

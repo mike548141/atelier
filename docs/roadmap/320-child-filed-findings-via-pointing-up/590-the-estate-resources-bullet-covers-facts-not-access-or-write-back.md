@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🔎 **Hand-up: the floor's *Estate resources* bullet covers facts —
+- [ ] 🔎 **Hand-up: the floor's *Estate resources* bullet covers facts —
       don't re-derive, don't copy down — and says nothing about the two
       behaviours the principal keeps having to ask for: drawing on the
       estate root's access before asking him to act at a provider, and
@@ -43,3 +43,9 @@
       `PROPAGATION.md`'s estate-root section. The ruling round decides.
       **Acceptance test, the principal's own:** he stops having to remind
       children. Count the reminders in his own turns before and after.
+      🔎 **Verified at HEAD 2026-10-16** (1501 UTC queue run, a read-only
+      Sonnet worker): ✅ confirmed (the gap; the evidence is child-side). The
+      floor bullet (`PROPAGATION.md:189-197`) says where facts live and
+      forbids re-deriving, with no check-the-root-before-asking and no
+      write-back duty; `ACCESS.md` and `REACH.md:116` do not supply them.
+      Same bullet as `320/410`, `320/380`(ii) and `320/540`: sequence them.

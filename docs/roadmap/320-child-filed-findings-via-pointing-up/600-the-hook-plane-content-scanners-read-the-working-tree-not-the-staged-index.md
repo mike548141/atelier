@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🔎 **Hand-up from a private child: at the hook plane the content
+- [ ] 🔎 **Hand-up from a private child: at the hook plane the content
       scanners (`spellscan`, `wrapscan`, and by registry `datescan`,
       `reviewscan`, `sizescan`) read the WORKING TREE, not the staged index,
       so one writer's unstaged draft blocks everyone else's commit, and the
@@ -78,3 +78,9 @@
       list, and what the floor prints for a staged-only finding in a file
       whose disk copy differs. A fixture pair mirroring the two measurements
       above would pin both directions.
+      🔎 **Verified at HEAD 2026-10-16** (1501 UTC queue run, a read-only
+        Sonnet worker): CONFIRMED, still true at HEAD: 39a74b9 and f4afb7a
+        touched secretscan, leakscan, conflictscan and report only. Repro: an
+        unstaged US spelling blocked a clean commit; a staged one fixed on
+        disk after git add committed unread; datescan and wrapscan also block
+        on unstaged files. Reviewscan and sizescan: code-read only.

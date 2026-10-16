@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🔎 **Hand-up: a REFUSED commit leaves its work staged in the shared
+- [ ] 🔎 **Hand-up: a REFUSED commit leaves its work staged in the shared
       index, where the next session's commit takes it, and no rule says
       what the refused session owes.** Filed from a private child on
       2026-10-16 through § *Pointing up*: written directly into the
@@ -55,3 +55,9 @@
       to the child.
       *review: owed on whatever doctrine text the ruling produces (rule 4:
       a session that neither authored nor was instructed by the author).*
+      🔎 **Verified at HEAD 2026-10-16** (1501 UTC queue run, a read-only
+      Sonnet worker): ✅ confirmed. `CONCURRENCY.md:84-95` has only the
+      taker's rule; nothing covers what a session owes the index after a
+      refusal. Reproduced in a throwaway repo: a refused commit left the
+      file staged, and a second session's commit took it under its own
+      message. Pathspec commit is still only proposed in `320/350`.

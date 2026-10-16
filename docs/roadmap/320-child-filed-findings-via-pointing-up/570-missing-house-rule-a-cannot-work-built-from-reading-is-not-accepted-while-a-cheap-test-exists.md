@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🔎 **MISSING HOUSE RULE — a "this cannot work" built only from reading is
+- [ ] 🔎 **MISSING HOUSE RULE — a "this cannot work" built only from reading is
       not accepted while a cheap, disposable test exists** `[S][doctrine]` —
       hand-up from a private child repo, filed 2026-10-11 via `PROPAGATION.md`
       § *Pointing up*. Class only: no repo, host, product, person or date
@@ -55,3 +55,9 @@
         item for the probe-returns-nothing case; this one is the
         no-probe-was-ever-run case. Evidence is the child's own account, not
         re-measured here: **unevidenced at atelier's end**.
+      🔎 **Verified at HEAD 2026-10-16** (1501 UTC queue run, a read-only
+        Sonnet worker): CONFIRMED as a gap. EVIDENCE.md s.2 and s.15,
+        REVIEW.md 'Re-run every live-proven claim' and 320/230 exist; none
+        bars a negative reached by reading alone. The quoted 'validated means
+        it started' line appears nowhere in atelier, so that supporting claim
+        is unsupported here. The incident is child-side.

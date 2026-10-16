@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🔎 **Hand-up: the repo-local check seam (`local` in
+- [ ] 🔎 **Hand-up: the repo-local check seam (`local` in
       `.atelier-floor.json`) is absent from the README and the method docs, and
       a child recorded a hand-up for a capability that already existed**
       `[S][doctrine]` — filed 2026-10-11 from a private child repo via
@@ -44,3 +44,9 @@
         that needs a third-party library has no stated way to declare a
         dependency for the CI plane. Child's own account; the declaration was
         run once in the hook plane and blocked a staged duplicate key.
+      🔎 **Verified at HEAD 2026-10-16** (1501 UTC queue run, a read-only
+        Sonnet worker): CONFIRMED (atelier side). The local seam is in the
+        floor.py docstring (since 2026-07-26) and REPO-STANDARD.md, not
+        tools/README.md; GUARDS.md only points at the file. The hook sample
+        header omits local. Repro: a hook-only local check blocked a staged
+        duplicate key (exit 1).

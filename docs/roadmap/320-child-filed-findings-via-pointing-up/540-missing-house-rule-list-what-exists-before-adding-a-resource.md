@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🔎 **MISSING HOUSE RULE — list what already exists before adding a
+- [ ] 🔎 **MISSING HOUSE RULE — list what already exists before adding a
       resource to an estate, and read the neighbouring file before inventing a
       pattern** `[S][doctrine]` — hand-up from a private child repo, filed
       2026-10-11 via `PROPAGATION.md` § *Pointing up*. Class only: no repo,
@@ -40,3 +40,9 @@
         it. That is the child's to build; the house's part is the rule.
         Evidence is the child's own account, not re-measured here:
         **unevidenced at atelier's end**.
+      🔎 **Verified at HEAD 2026-10-16** (1501 UTC queue run, a read-only
+        Sonnet worker): CONFIRMED as a gap. No list-before-create or read-the-
+        neighbouring-file rule in docs/method, docs/build, skills or
+        CLAUDE.md; nearest are REVIEW.md lens 3 and PROPAGATION.md 'Check the
+        parent's file first', both on other subjects. The incident is child-
+        side, not verifiable here.

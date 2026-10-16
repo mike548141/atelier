@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🔎 **Merges, cherry-picks and rebases make commits the hook plane
+- [ ] 🔎 **Merges, cherry-picks and rebases make commits the hook plane
       never sees** `[S][tools]`. Hand-up filed 2026-10-16 by a private
       child, found by a cold review there and measured again before filing.
       Not fixed in the child's place: the floor hook is the house's.
@@ -32,3 +32,9 @@
          installs `pre-commit` but not `pre-merge-commit`.
       review: warranted, light — a guard-coverage change on every repo's
       hook plane.
+      🔎 **Verified at HEAD 2026-10-16** (1501 UTC queue run, a read-only
+        Sonnet worker): CONFIRMED on git 2.50.1: with a failing pre-commit,
+        merge --no-ff, cherry-pick and rebase exit 0 and never run it; a
+        conflicted merge finished by git commit does. A pre-merge-commit hook
+        does fire on a clean merge. Atelier ships pre-commit only; GUARDS.md
+        is silent. Adjacent: 320/480.

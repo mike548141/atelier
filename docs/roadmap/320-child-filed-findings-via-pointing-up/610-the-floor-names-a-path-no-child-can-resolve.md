@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🔎 **Hand-up: the floor region now names a path no child can resolve,
+- [ ] 🔎 **Hand-up: the floor region now names a path no child can resolve,
       so `pathscan` flags every verbatim child copy** `[XS][doctrine][tools]`.
       Handed up by a public child's queue run on 2026-10-16 under
       `PROPAGATION.md` § *Pointing up*, found while bumping its pin to
@@ -23,3 +23,9 @@
       `stamp:begin … region=floor` block in a child, since that text is
       checked by the stamp, not by the child's tree; (4) leave it, and
       record that this one warn-only finding is expected in children.
+      🔎 **Verified at HEAD 2026-10-16** (1501 UTC queue run, a read-only
+      Sonnet worker): ✅ confirmed, reproduced. `pathscan.py --root . .` on
+      a copy of the template floor: exit 1, `CLAUDE.md:89 [missing-path]
+      method/TOOLBOX.md`; an allow-marker clears it but stampscan then
+      reports drift. One detail off: *Source & drift* reads `<atelier-path>`
+      (a skipped placeholder), not `../atelier`. Overlaps `320/010`, `170`.
