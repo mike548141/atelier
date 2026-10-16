@@ -1,7 +1,9 @@
 """Tests for indexscan — a hand-maintained index names every file it maps.
 
-Board `200/010`. Covers both directions (unlisted here; listed-but-missing
-deferred to linkscan, pinned below so the deferral cannot rot silently), the
+Board `200/010` and `320/430`. Covers both directions (unlisted here;
+listed-but-missing deferred to linkscan, pinned below so the deferral cannot
+rot silently), the date rule (a dated index line may not predate the file it
+links; later is an addendum and passes), the
 `exclude=`/`before=` scope, the allow marker and its staleness, the config
 errors `--warn` must never soften, the undeclared-repo pass that makes the
 registry line safe to float to every child, and the registry wiring itself.
@@ -219,6 +221,163 @@ class AllowMarker(Fixture):
                          ("f.py", "why so"))
         self.assertIsNone(indexscan.parse_allow("indexscan:allow: <entry> <reason>"))
         self.assertIsNone(indexscan.parse_allow("indexscan:allow:"))
+
+
+class DateRule(Fixture):
+    """`320/430`'s second residual: an index line whose date or time cannot
+    be true of the file it links. Only 'the line predates the file' fires —
+    later is an addendum, which the real session index is full of."""
+
+    DECL = "<!-- indexscan:maps dir=log match=*.md -->\n"
+
+    def index(self, *lines, files=("2026-07-14-1200-x.md",), decl=None):
+        for f in files:
+            self.write(f"d/log/{f}")
+        self.write("d/I.md", "# i\n" + (decl or self.DECL) + "\n".join(lines) + "\n")
+
+    def dates(self):
+        got, tally = self.scan()
+        return [g for g in got if g[0] != "unlisted"], tally
+
+    def test_a_line_dated_before_its_file_is_flagged(self):
+        self.index("- [2026-07-13 · early](log/2026-07-14-1200-x.md) — t")
+        got, tally = self.dates()
+        self.assertEqual(got, [("date-mismatch", "d/log/2026-07-14-1200-x.md")])
+        self.assertEqual(tally.dated_lines, 1)
+
+    def test_an_exact_time_before_the_file_start_is_flagged(self):
+        self.index("- [2026-07-14 · 1100 UTC · early](log/2026-07-14-1200-x.md) — t")
+        self.assertEqual(self.dates()[0],
+                         [("date-mismatch", "d/log/2026-07-14-1200-x.md")])
+
+    def test_matching_and_later_lines_pass(self):
+        self.index("- [2026-07-14 · 1200 UTC · same](log/2026-07-14-1200-x.md)",
+                   "- [2026-07-14 · 1830 UTC · later time](log/2026-07-14-1200-x.md)",
+                   "- [2026-07-14 · no time](log/2026-07-14-1200-x.md)",
+                   "- [2026-07-16 · addendum · later day](log/2026-07-14-1200-x.md)")
+        got, tally = self.dates()
+        self.assertEqual(got, [])
+        self.assertEqual(tally.dated_lines, 4)
+
+    def test_an_approximate_time_is_never_compared(self):
+        self.index("- [2026-07-14 · ~1100 UTC · rough](log/2026-07-14-1200-x.md)")
+        self.assertEqual(self.dates()[0], [])
+
+    def test_a_counter_numbered_file_has_no_time_to_compare(self):
+        self.index("- [2026-07-10 · 0100 UTC · t](log/2026-07-10-01-old.md)",
+                   files=("2026-07-10-01-old.md",))
+        self.assertEqual(self.dates()[0], [])
+
+    def test_an_undated_index_is_untouched(self):
+        """No dates in the link text, or no dates in the file names: nothing
+        to compare, so nothing to fire on — the rule cannot red such an index."""
+        self.index("- [ADR five](log/2026-07-14-1200-x.md)",
+                   "- [2026-07-13 · looks dated](log/undated-name.md)",
+                   files=("2026-07-14-1200-x.md", "undated-name.md"))
+        got, tally = self.dates()
+        self.assertEqual(got, [])
+        self.assertEqual(tally.dated_lines, 0)
+
+    def test_only_the_leading_link_of_a_list_item_counts(self):
+        self.index("- [Title](log/2026-07-14-1200-x.md) — see [2026-07-01](log/"
+                   "2026-07-14-1200-x.md)",
+                   "Prose [2026-07-01 · x](log/2026-07-14-1200-x.md)",
+                   "```", "- [2026-07-01 · fenced](log/2026-07-14-1200-x.md)", "```")
+        self.assertEqual(self.dates()[0], [])
+
+    def test_an_impossible_date_is_not_our_class(self):
+        self.index("- [2026-13-45 · junk](log/2026-07-14-1200-x.md)")
+        self.assertEqual(self.dates()[0], [])
+
+    def test_a_link_into_a_directory_entry_is_compared_by_the_entry_name(self):
+        self.write("d/log/2026-07-14-1200-bundle/part.md")
+        self.write("d/I.md", "# i\n<!-- indexscan:maps dir=log match=* -->\n"
+                   "- [2026-07-01 · t](log/2026-07-14-1200-bundle/part.md)\n")
+        self.assertEqual(self.dates()[0],
+                         [("date-mismatch", "d/log/2026-07-14-1200-bundle")])
+
+    def test_excluded_and_unmatched_entries_are_not_answered_for(self):
+        self.index("- [2026-07-01 · t](log/2026-07-14-1200-x.md)",
+                   decl="<!-- indexscan:maps dir=log match=*.md "
+                        "exclude=2026-07-14-*.md -->\n")
+        self.assertEqual(self.dates()[0], [])
+
+    def test_the_scoped_marker_on_the_line_exempts_that_line_only(self):
+        mark = ("<!-- indexscan:allow:date-mismatch: 2026-07-14-1200-x.md "
+                "back-dated on purpose -->")
+        self.index(f"- [2026-07-01 · t](log/2026-07-14-1200-x.md) {mark}",
+                   "- [2026-07-02 · u](log/2026-07-14-1200-x.md)")
+        got, tally = self.dates()
+        self.assertEqual(got, [("date-mismatch", "d/log/2026-07-14-1200-x.md")])
+        self.assertEqual(tally.by_marker, 1)
+        self.assertEqual(
+            [f.line for f in indexscan.scan_paths([self.root], self.root,
+                                                  indexscan.Tally())], [4])
+
+    def test_a_marker_off_its_line_or_for_another_entry_is_stale(self):
+        self.index("<!-- indexscan:allow:date-mismatch: 2026-07-14-1200-x.md "
+                   "not on the line -->",
+                   "- [2026-07-14 · fine](log/2026-07-14-1200-x.md) "
+                   "<!-- indexscan:allow:date-mismatch: other.md wrong name -->")
+        got, _ = self.dates()
+        self.assertEqual(got, [("stale-allow", "2026-07-14-1200-x.md"),
+                               ("stale-allow", "other.md")])
+
+    def test_a_marker_naming_the_wrong_entry_does_not_exempt(self):
+        self.index("- [2026-07-01 · t](log/2026-07-14-1200-x.md) "
+                   "<!-- indexscan:allow:date-mismatch: other.md oops -->")
+        got, tally = self.dates()
+        self.assertEqual(got, [("date-mismatch", "d/log/2026-07-14-1200-x.md"),
+                               ("stale-allow", "other.md")])
+        self.assertEqual(tally.by_marker, 0)
+
+    def test_the_unscoped_unlisted_marker_does_not_exempt_a_date_mismatch(self):
+        self.index("<!-- indexscan:allow: 2026-07-14-1200-x.md was owed -->",
+                   "- [2026-07-01 · t](log/2026-07-14-1200-x.md)")
+        got, _ = self.dates()
+        self.assertEqual(got, [("date-mismatch", "d/log/2026-07-14-1200-x.md"),
+                               ("stale-allow", "2026-07-14-1200-x.md")])
+
+    def test_the_cap_holds_and_is_counted(self):
+        self.index(*[f"- [2026-07-01 · {i}](log/2026-07-14-1200-x.md)"
+                     for i in range(5)])
+        old = indexscan.MAX_MATERIALIZED_FINDINGS
+        indexscan.MAX_MATERIALIZED_FINDINGS = 3
+        try:
+            tally = indexscan.Tally()
+            findings = indexscan.scan_paths([self.root], self.root, tally)
+        finally:
+            indexscan.MAX_MATERIALIZED_FINDINGS = old
+        self.assertEqual((len(findings), tally.findings_over_cap), (3, 2))
+        code, out, _ = run(["--warn", "--root", str(self.root)])
+        self.assertIn("date-mismatch", out)
+
+    def test_warn_exits_0_findings_exit_1_and_json_carries_the_count(self):
+        self.index("- [2026-07-01 · t](log/2026-07-14-1200-x.md)")
+        self.assertEqual(run(["--root", str(self.root)])[0], 1)
+        self.assertEqual(run(["--warn", "--root", str(self.root)])[0], 0)
+        doc = json.loads(run(["--json", "--root", str(self.root)])[1])
+        self.assertEqual(doc["checked"]["dated_lines"], 1)
+        self.assertEqual(doc["findings"][0]["kind"], "date-mismatch")
+
+    def test_the_marker_grammar_parses_both_forms(self):
+        self.assertEqual(indexscan.parse_allow_scoped(
+            "indexscan:allow:date-mismatch: f.md why so"),
+            ("date-mismatch", "f.md", "why so"))
+        self.assertEqual(indexscan.parse_allow_scoped("indexscan:allow: f.md why so"),
+                         ("", "f.md", "why so"))
+        self.assertIsNone(indexscan.parse_allow_scoped(
+            "indexscan:allow:date-mismatch: f.md"))
+        # Quoted in documentation with its placeholders unfilled: not a marker.
+        self.assertIsNone(indexscan.parse_allow_scoped(
+            "`<!-- indexscan:allow:date-mismatch: <entry> <reason> -->`"))
+
+    def test_documentation_quoting_the_scoped_form_raises_no_stale_allow(self):
+        self.write("d/log/a.md")
+        self.write("d/I.md", "# i\n" + self.DECL + "[a](log/a.md)\n"
+                   "Write `<!-- indexscan:allow:date-mismatch: <entry> <reason> -->`"
+                   " on the line.\n")
+        self.assertEqual(self.scan()[0], [])
 
 
 class Declarations(Fixture):

@@ -106,7 +106,8 @@ class TestMarkerGrammar(unittest.TestCase):
 _REASON = r"[\w\"\'“‘]"
 _PIN = {
     "conflictscan": {"ALLOW_RX": r"\bconflictscan:allow:[ \t]*(?P<reason>" + _REASON + ")"},
-    "indexscan": {"ALLOW_RX": r"\bindexscan:allow:[ \t]*(?P<reason>" + _REASON + ")"},
+    # Scoped since 320/430: `:date-mismatch:` is the line-bound form.
+    "indexscan": {"ALLOW_RX": r"\bindexscan:allow(?::(?P<kind>[A-Za-z0-9_-]+))?:[ \t]*(?P<reason>" + _REASON + ")"},
     "wrapscan": {"ALLOW_RX": r"\bwrapscan:allow:[ \t]*(?P<reason>" + _REASON + ")"},
     "datescan": {
         "ALLOW_MARKER_RX": r"\bdatescan:allow:\s*" + _REASON,
