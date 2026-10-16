@@ -1,4 +1,4 @@
-- [ ] 🎯 **Give every guard a second dial — the standing consequence of Mike's
+- [ ] **Give every guard a second dial — the standing consequence of Mike's
       2026-07-28 correction, carried across the whole fleet.** The
       scanner-precision track was opened on the premise that a false positive on
       a correct line trains someone to write an allow-marker, and that is how a
@@ -69,3 +69,18 @@
       posture* says to over-flag. The audit's recommendation is leakscan
       first, then datescan. licenscan's dial comes almost free with
       `115/290`.
+
+      ✅ **Answered 2026-10-16, at the close of the queue run: leakscan
+      first.** The device question set out the audit's ranking and what
+      each choice changes. It offered leakscan first, datescan first, or
+      not now, and Mike picked "leakscan first", the recommended option.
+      That is his *answer*, recorded as such. **The build is owed:** a
+      report-only tier in leakscan for its low-confidence rules. The
+      audit's candidates are `ipv4`, `nz-address`, `nz-phone`,
+      `coordinates`, `nz-ird`, and the withdrawn `diagnosis` key. Those
+      rules would then report rather than be disabled, and a child's
+      `--disable` of a whole class should be weighed against that. It
+      uses `severity`, which leakscan already computes. It is first-of-kind
+      on the personal-data boundary, so it gets a design note and the
+      capable tier, and its blast radius is measured across the children
+      before landing. datescan and harvestscan follow.

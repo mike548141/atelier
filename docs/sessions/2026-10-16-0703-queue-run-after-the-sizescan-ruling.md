@@ -235,3 +235,5 @@ items carry the detail:
    - the amendment was landed, revised to the post-change strength;
    - pass queued at `160/820`.
    The next push to `main` was the first push with no bypass behind it.
+3. **`115/090`.** Mike answered **"leakscan first"**. The build is owed
+   on the item, as a first-of-kind on the personal-data boundary.
