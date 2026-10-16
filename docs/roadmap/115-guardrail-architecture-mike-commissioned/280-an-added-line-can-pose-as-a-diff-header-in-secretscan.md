@@ -1,5 +1,5 @@
-- [ ] 🔎 **An added line can pose as a diff header in secretscan's staged
-      plane** `[S][tools]`. Found 2026-10-05 by the `260` worker and not
+- [~] 🔎 **An added line can pose as a diff header in secretscan's staged
+      plane** (claimed 2026-10-16-0705, wt: atelier-qr-115-280) `[S][tools]`. Found 2026-10-05 by the `260` worker and not
       fixed there, because it is old behaviour outside that item.
       `secretscan` treats any line starting `+++ ` in
       `git diff --cached --unified=0` as a file header. An added line whose
