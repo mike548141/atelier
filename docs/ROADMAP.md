@@ -542,6 +542,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up from a private child: at the hook plane the content](roadmap/320-child-filed-findings-via-pointing-up/600-the-hook-plane-content-scanners-read-the-working-tree-not-the-staged-index.md)
 - [ ] 🔎 [Hand-up: the floor region now names a path no child can resolve,](roadmap/320-child-filed-findings-via-pointing-up/610-the-floor-names-a-path-no-child-can-resolve.md)
 - [ ] 🔎 [Hand-up: a child's own visibility fact sits inside its verbatim floor…](roadmap/320-child-filed-findings-via-pointing-up/620-a-childs-own-visibility-fact-sits-inside-the-verbatim-floor.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
+- [ ] 🔎 [Hand-up: a REFUSED commit leaves its work staged in the shared](roadmap/320-child-filed-findings-via-pointing-up/630-a-refused-commit-leaves-its-work-staged-for-the-next-committer.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
