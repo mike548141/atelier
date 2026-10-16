@@ -1,5 +1,5 @@
-- [~] 🔎 **Two corroboration failures worth minting, both self-caught by the
-      child that made them.** (claimed 2026-10-16-0712, in place) Offered upward by a child session as method
+- [x] 🔎 **Two corroboration failures worth minting, both self-caught by the
+      child that made them.** Offered upward by a child session as method
       material rather than as an ask, from an episode where three sessions
       reached a wrong shared conclusion about a doctrine clause. Recorded here
       because the child's own framing is better than a later reconstruction
@@ -36,3 +36,13 @@
       anyone re-opening the source. **That is now the second recorded
       instance**, which is what the recurrence rule asks for before a rule is
       minted rather than merely noted.
+
+      ✅ **2026-10-16: (a) minted, (b) left as recorded.** (a) now has three
+      instances, which meets the >2 promotion rule: this episode, `115/060`,
+      and the 2026-09-20 scratch-file attribution in `CONCURRENCY.md`
+      § *Orchestrated queue runs*. So it is minted in
+      [`EVIDENCE.md`](../../method/EVIDENCE.md) §13, beside the corroboration
+      rung. (b) has one instance. It stays in `CONCURRENCY.md` § *Re-run,
+      don't reason*, not promoted. Its second instance is the trigger to
+      re-open it. Review queued at `160/780`. Session record:
+      [`../../sessions/2026-10-16-0703-queue-run-after-the-sizescan-ruling.md`](../../sessions/2026-10-16-0703-queue-run-after-the-sizescan-ruling.md).

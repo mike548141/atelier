@@ -188,6 +188,27 @@ it. One measurement shape to name: a scanner delta compares per-finding output,
 never totals — identical counts can hide one finding swapped for another (the
 principal's ruling, 2026-08-23).
 
+**A second voice is not a second angle unless it opened the source.** The
+corroboration rung means an independent route to the fact. A peer that agrees
+with a claim it never checked shares that claim's error by construction, so two
+agreeing parties who did not each open the source are one unread claim with an
+echo. When a second party agrees, ask which artefact it opened: the file, the
+transcript, the API answer. Count the agreement as corroboration only if it
+opened something the first party did not. Repetition is the cheapest agreement
+there is and the least informative, and it is how a claim gains authority
+without anyone re-reading where it came from. (Grounded three times, and
+minted at the third under the >2 promotion rule in `PROPAGATION.md`
+§ *When a rule keeps breaking*. First, a child's sessions agreed that a child
+had mistranslated a doctrine clause, until a third read the doctrine and found
+both wrong: `200/090`, and the kept exchange in `CONCURRENCY.md` § *Re-run,
+don't reason*. Second, a coined paraphrase in quotation marks became a cited
+source for a second board item: `115/060`. Third, on 2026-09-20, two sessions
+agreed on which worker had written some escaped scratch files, and a transcript
+neither had opened falsified it within the hour: `CONCURRENCY.md`
+§ *Orchestrated queue runs*. The sibling rule from the first episode, that a
+symptom count locates a fault's existence and never its site, has one recorded
+instance. It stays in `CONCURRENCY.md` and is not promoted here.)
+
 **Handing the question to the principal is not a rung on this ladder.** It sits
 *beside* the ladder, and it is reached only when the climb is genuinely blocked —
 not when the agent simply doesn't have the value to hand. The failure mode is

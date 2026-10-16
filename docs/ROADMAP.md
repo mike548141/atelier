@@ -202,7 +202,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md)*
 
 - ✅ 🔎 [The machine-check half — the second thing Mike ruled, and it is not](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/010-the-machine-check-half-the-second-thing-mike-r.md)
-- [~] 🔎 (claimed 2026-10-16-0712, in place) [ADR 0008's clause is now closer to true and still not true.](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/020-adr-0008-s-clause-is-now-closer-to-true-and-st.md)
+- [ ] 🎯🔎 [ADR 0008's clause is now closer to true and still not true.](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/020-adr-0008-s-clause-is-now-closer-to-true-and-st.md)
 
 ## The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)
 
@@ -290,6 +290,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: allow-markers that name a kind, and](roadmap/160-doctrine-review-owed/750-rule-4-cold-pass-queued-marker-kinds-and-ids.md)
 - [ ] ⏳ [Rule-4 cold pass queued: guards read git-quoted paths](roadmap/160-doctrine-review-owed/760-rule-4-cold-pass-queued-quoted-paths.md)
 - [~] [Estate survey: which repos hold Fable-dependent work, and which](roadmap/160-doctrine-review-owed/770-estate-survey-fable-work-and-unwritten-briefs.md)
+- [ ] ⏳ [Rule-4 cold pass queued: agreement is not corroboration, minted in](roadmap/160-doctrine-review-owed/780-rule-4-cold-pass-queued-agreement-is-not-corroboration.md)
 
 ## build/ layer — open strands
 
@@ -320,7 +321,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Two-layer acceptance criteria, one verification pass.](roadmap/200-anti-slop-invariant-registry-promote-rec/060-two-layer-acceptance-criteria-one-verification.md)
 - ✅ [Enforcement seam — how does an invariant get checked?](roadmap/200-anti-slop-invariant-registry-promote-rec/070-enforcement-seam-how-does-an-invariant-get-che.md)
 - [ ] [Where does the registry live? — the SCANNER half is answered and built](roadmap/200-anti-slop-invariant-registry-promote-rec/080-where-does-the-registry-live-the-scanner-half.md)
-- [~] 🔎 [Two corroboration failures worth minting, both self-caught by the](roadmap/200-anti-slop-invariant-registry-promote-rec/090-two-corroboration-failures-worth-minting-from.md)
+- ✅ 🔎 [Two corroboration failures worth minting, both self-caught by the](roadmap/200-anti-slop-invariant-registry-promote-rec/090-two-corroboration-failures-worth-minting-from.md)
 - ✅ 🔎 [The R2 survey found eleven places where the doctrine's own copies](roadmap/200-anti-slop-invariant-registry-promote-rec/100-r2-found-eleven-live-contradictions.md)
 - ✅ 🔎 [The mining record behind this section, and this section's README,](roadmap/200-anti-slop-invariant-registry-promote-rec/110-the-mining-record-and-this-readme-are-stale.md)
 
