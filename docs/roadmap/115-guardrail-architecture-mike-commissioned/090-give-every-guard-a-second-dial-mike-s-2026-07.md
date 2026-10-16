@@ -1,4 +1,4 @@
-- [ ] **Give every guard a second dial — the standing consequence of Mike's
+- [ ] 🎯 **Give every guard a second dial — the standing consequence of Mike's
       2026-07-28 correction, carried across the whole fleet.** The
       scanner-precision track was opened on the premise that a false positive on
       a correct line trains someone to write an allow-marker, and that is how a
@@ -84,3 +84,28 @@
       on the personal-data boundary, so it gets a design note and the
       capable tier, and its blast radius is measured across the children
       before landing. datescan and harvestscan follow.
+
+      🛑 **Build held 2026-10-16 (1501 UTC queue run): the answer meets an
+      earlier ruling it was not briefed on.** Before claiming the build, the
+      run read `docs/method/SECRETS.md` § *The boundary's posture*. It says
+      `leakscan` "gains no advisory form, and that asymmetry is now decided
+      rather than incidental — the fit being that a leak of personal data is
+      the one exposure no rotation undoes." That sentence is Mike's ruling on
+      finding EI6, 2026-07-29 ("RULED: accept all three", in
+      `docs/reviews/2026-07-29-1243-e6-intent-cold.md`), landed in
+      `68b7e9b`. The same section says the blocking set never shrinks. The
+      audit above ranked leakscan first without citing either, and the device
+      question that carried its ranking did not mention them. So the
+      2026-10-16 answer was given unbriefed on the point that decides it.
+      Mike can change his ruling; he has to be told he would be. Two readings
+      of a build exist, and they differ on exactly that point:
+      - **additive only:** rules that are withdrawn or switched off today
+        (the `diagnosis` key, a child's `--disable` of a whole class) come
+        back as report-only, and nothing that blocks today stops blocking.
+        This widens coverage but is still the advisory form EI6 ruled out.
+      - **demotion:** low-confidence rules that block today (`ipv4`,
+        `nz-address`, `nz-phone`, `coordinates`, `nz-ird`) report instead.
+        This shrinks the blocking set on the personal-data boundary.
+      🎯 **Owed to Mike, re-briefed, at the run's close:** keep EI6 (no
+      leakscan dial; datescan becomes the first second dial), lift it for the
+      additive-only form, or lift it fully. Nothing is built until then.
