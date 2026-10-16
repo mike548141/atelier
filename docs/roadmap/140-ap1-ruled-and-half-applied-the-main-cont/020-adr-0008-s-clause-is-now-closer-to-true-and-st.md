@@ -1,4 +1,4 @@
-- [ ] 🎯 🔎 **ADR 0008's clause is now closer to true and still not true.** Of its
+- [x] 🔎 **ADR 0008's clause is now closer to true and still not true.** Of its
       three named legs, one is now in force (branch protection, via the ruleset),
       one is in force but **bypassable by the admin role** — the bypass Mike ruled
       for, so the control is a guard against accident and third-party push, never
@@ -70,3 +70,20 @@
       > push. So AP1 stays open. The remaining exposure is the owner account itself,
       > whose controls are its 2FA, its single-writer status, and public
       > visibility, under which every push is published and can be inspected.
+
+      ✅ **Landed 2026-10-16, on Mike's answer at the close of the run.** He
+      was re-briefed in the device on AR1 and AR8: the false "no ruleset"
+      premise behind his 2026-08-23 ruling, the live state, and the draft.
+      He was offered three options: land the draft; land it and drop the
+      admin bypass; or hold it for a ruling round. He picked **"Land draft
+      + drop bypass"**. That is his *answer* to the question, recorded as
+      such. Done:
+      - The ruleset's `bypass_actors` was set to `[]` through the API. A
+        read-back confirms it, and 30 of the 30 latest commits on `main`
+        were verified first.
+      - The amendment was appended to ADR 0008, revised from the draft above
+        to state the post-change strength. Signing is now in force for every
+        account. The owner can still edit the ruleset itself, so AP1 stays
+        open.
+      - Review queued at `160/820`. The draft quoted above is superseded by
+        the landed text.

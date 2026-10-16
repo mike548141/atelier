@@ -200,3 +200,54 @@ leakscan, linkscan, reviewscan, board and licenscan. The registry
 docstring is corrected in the same change, and a test pinning the prose
 lists to `Scanner.advisory` is queued at `020/340`. Decision 2's *intent* —
 what a child may soften is not the child's call — stands unchanged.
+
+## Amended 2026-10-16 — the boundary as it now stands: three legs, three strengths (`140/020`; AR1)
+
+**The 2026-08-23 amendment was already out of date when it was written.**
+It says `main` carries "no branch protection and no ruleset". A live read on
+2026-10-16 shows ruleset `20603641`, `enforcement: active`, on the default
+branch. Its `created_at` is 2026-08-09 09:58 UTC, two weeks before that
+amendment. So the amendment's "re-affirmed at this amendment" read did not
+see a control that existed. The principal's 2026-08-23 ruling rested on
+that false premise (AR8). It is left above as written, because the record
+of what was believed is part of the history. This section supersedes it.
+It was landed on Mike's answer at the close of the 2026-10-16 queue run,
+after he was re-briefed on that premise.
+
+**Read live on 2026-10-16** (`repos/mike548141/atelier/rulesets/20603641`
+and `rules/branches/main`), after the change below, the clause's three legs
+stand at three different strengths. None of them is the flat control the
+Consequences clause names:
+
+- **Branch protection — in force for every account.** The ruleset's
+  `deletion` and `non_fast_forward` rules stop `main` being deleted or
+  rewritten. Neither blocks an ordinary signed fast-forward push, so the
+  direct-to-`main` working the claim mechanics rely on is untouched.
+- **Signed commits — in force for every account, the owner's included.**
+  `required_signatures` is active. Until 2026-10-16 the ruleset had one
+  bypass actor, the repository admin role with `bypass_mode: always`, which
+  Mike ruled for on 2026-08-09. On his answer at this amendment it was
+  removed, and `bypass_actors` now reads `[]`. Before the change, 30 of the
+  30 latest commits on `main` were verified. `signscan` stays warn-first on
+  both of the floor's planes. The platform is now the enforcing plane.
+- **Review on the registry — post-hoc.** Registry changes land directly on
+  `main` under the standing autonomy grant. Review follows landing, through
+  `REVIEW.md` rule 4's queued cold pass, and never gates the push.
+
+**The machine check is built.** `floorfleet` reads `rules/branches/main`
+whenever a plane already talks to GitHub. It prints a boundary line under
+the parent row: red when `deletion` or `non_fast_forward` is missing,
+unknown (never a pass) when the API cannot be read, and green otherwise.
+`--check` fails on red or unknown (`115/180`, built 2026-09-18 under
+`140/010`). `required_signatures` is shown there but is informational, and
+the row does not read the bypass list (AR2, still open).
+
+**What this does not close.** The supply-chain exposure the clause names
+is narrowed, not removed. The owner account can still edit or delete the
+ruleset itself, so anyone holding the owner's credentials can first remove
+the control, then put arbitrary code on `main`, and every child's CI would
+run it at its next push. Signing now forces that attacker to hold the
+signing key too, or to change the ruleset first, which is a visible act.
+So AP1 stays open. The remaining exposure is the owner account itself,
+whose controls are its 2FA, its single-writer status, and public
+visibility, under which every push is published and can be inspected.

@@ -222,3 +222,16 @@ items carry the detail:
   reverted.
 - The first survey cards were summarised where they should have been
   listed, and four omissions were found when Mike asked for a check.
+
+## Decisions taken at the close, one at a time, in the device
+
+1. **`115/270` (c).** The explanation was owed first: sizescan's three
+   checks, and what the length nudge is the only pointer to. Mike answered
+   **"Remove it"**. The build is owed on the item. No exit code changes.
+2. **`140/020` / AR1.** Mike was re-briefed on AR8's false premise and
+   answered **"Land draft + drop bypass"**. Done this sitting:
+   - the ruleset's admin bypass was removed through the API and read back,
+     after 30 of 30 recent commits verified as signed;
+   - the amendment was landed, revised to the post-change strength;
+   - pass queued at `160/820`.
+   The next push to `main` was the first push with no bypass behind it.

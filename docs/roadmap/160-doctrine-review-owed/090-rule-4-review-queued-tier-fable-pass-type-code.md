@@ -88,3 +88,9 @@
             the stale sentence as its authority and never reads the bypass; AR8
             (MAJOR) formed at reconcile. Findings are the principal's to decide
             (rule 3); nothing was applied.
+
+            ⚖️ **AR1 answered 2026-10-16.** Mike was re-briefed on AR8's
+            false premise and answered "Land draft + drop bypass". The
+            amendment landed (`140/020`), and the ruleset's admin bypass was
+            removed. AR2 to AR7, and AR8's process lesson, are still his to
+            rule.

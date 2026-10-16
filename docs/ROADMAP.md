@@ -204,7 +204,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md)*
 
 - ✅ 🔎 [The machine-check half — the second thing Mike ruled, and it is not](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/010-the-machine-check-half-the-second-thing-mike-r.md)
-- [ ] 🎯🔎 [ADR 0008's clause is now closer to true and still not true.](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/020-adr-0008-s-clause-is-now-closer-to-true-and-st.md)
+- ✅ 🔎 [ADR 0008's clause is now closer to true and still not true.](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/020-adr-0008-s-clause-is-now-closer-to-true-and-st.md)
 
 ## The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)
 
@@ -296,6 +296,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: no hatch silences sizescan's cold-content](roadmap/160-doctrine-review-owed/790-rule-4-cold-pass-queued-sizescan-cold-content-hatches.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the staged diff read by its structure](roadmap/160-doctrine-review-owed/800-rule-4-cold-pass-queued-staged-diff-structural-reader.md)
 - [ ] ⏳ [Rule-4 cold pass queued: indexscan's date rule (320/430).](roadmap/160-doctrine-review-owed/810-rule-4-cold-pass-queued-indexscan-date-rule.md)
+- [ ] ⏳ [Rule-4 cold pass queued: ADR 0008's boundary amendment and the](roadmap/160-doctrine-review-owed/820-rule-4-cold-pass-queued-adr-0008-boundary-amendment.md)
 
 ## build/ layer — open strands
 
