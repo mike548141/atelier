@@ -93,7 +93,18 @@ login is fresh, and that lapses \(em which is precisely why route 2 exists as a
 fallback rather than as the only path.
 .SS Route 2 \(em the operator's own grant (fallback, stores one secret)
 .B ccmail \-\-auth
-mints it once per machine, interactively. It needs a terminal and a browser, and
+mints it once per machine, interactively.
+.B Where route 1 is configured, plain
+.B \-\-auth
+.B asks for nothing:
+it reports the delegation route live, or says the fix is
+.BR "gcloud auth login" ,
+and stops before any client\-ID prompt. Setting up the fallback beside a
+configured delegation is a deliberate act:
+.BR "ccmail \-\-auth \-\-fallback" .
+(Grounded: sessions read the old status line \(em an empty keychain shown as a
+failure with \(lqfix: ccmail \-\-auth\(rq \(em and sent the operator into a
+client\-ID setup he did not need, more than once.) It needs a terminal and a browser, and
 prints the four Google Cloud console steps first: enable the Gmail API, set up
 the consent screen (choose
 .B Internal

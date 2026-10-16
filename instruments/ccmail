@@ -99,6 +99,24 @@ function loadConfig() {
   }
 }
 
+function delegationConfigured(cfg) {
+  return Boolean(cfg && cfg.delegate && cfg.delegate.serviceAccount && cfg.delegate.subject);
+}
+
+// What to say about an EMPTY keychain route. Where delegation is configured the
+// keychain grant is a fallback nobody needs, and offering `ccmail --auth` there
+// sends the operator into a client-ID setup they cannot answer and do not need
+// — the fix for a lapsed delegation is `gcloud auth login`, nothing else. The
+// --auth advice is kept for the one case it is right: no delegation at all.
+// (Grounded: the old "fix: ccmail --auth" line was relayed to the operator,
+// twice, by sessions reading --status, after delegation was already live.)
+function keychainAbsentDetail(delegated, onMac) {
+  if (!onMac) return 'unavailable off macOS';
+  return delegated
+    ? 'not set up — not needed, the delegation route is configured'
+    : 'nothing stored yet — fix: ccmail --auth';
+}
+
 // ---------------------------------------------------------------------------
 // Credential store — the Keychain, and nothing else
 //
@@ -350,9 +368,7 @@ async function resolveToken() {
     if (r.ok) return { token: r.token, route: 'keychain', subject: creds.account };
     tried.push(`stored grant — ${r.why}`);
   } else {
-    tried.push(keychainAvailable()
-      ? 'stored grant — nothing in the Keychain yet (fix: ccmail --auth)'
-      : 'stored grant — unavailable off macOS');
+    tried.push(`stored grant — ${keychainAbsentDetail(delegationConfigured(cfg), keychainAvailable())}`);
   }
 
   die('no way in to the mailbox. Both routes were tried:\n' +
@@ -610,7 +626,24 @@ function ask(rl, q) {
   return new Promise((resolve) => rl.question(q, (a) => resolve(a.trim())));
 }
 
-async function cmdAuth() {
+async function cmdAuth(fallback) {
+  // Check the route that needs no setup BEFORE asking for anything. Where
+  // delegation is configured, --auth is never the fix: live means nothing to
+  // do, lapsed means `gcloud auth login`. Either way, no client-ID prompt.
+  const cfg = loadConfig();
+  if (delegationConfigured(cfg) && !fallback) {
+    const r = await delegatedToken(cfg.delegate);
+    if (r.ok) {
+      process.stdout.write(`ccmail is already live for ${cfg.delegate.subject} via delegation — ` +
+                           '--auth is not needed.\n');
+      return;
+    }
+    die('--auth is not the fix here: the delegation route is configured, so no client ID or\n' +
+        `secret is needed. ${r.expired ? 'The Google Cloud login has lapsed — run' : `Delegation failed (${r.why}) — try`}\n` +
+        '  gcloud auth login\n' +
+        'then check with  ccmail --status\n' +
+        '(To set up the keychain fallback deliberately anyway: ccmail --auth --fallback)');
+  }
   if (!process.stdin.isTTY) {
     die('--auth needs a terminal — it opens a browser for a one-time consent.\n' +
         'Run it yourself in a shell:  ccmail --auth');
@@ -743,10 +776,12 @@ async function cmdStatus(json) {
       detail: r.ok ? `stored grant for ${creds.account}, in the macOS Keychain` : r.why,
     });
   } else {
+    const delegated = delegationConfigured(cfg);
     routes.push({
       route: 'keychain',
       live: false,
-      detail: keychainAvailable() ? 'nothing stored yet — fix: ccmail --auth' : 'unavailable off macOS',
+      optional: delegated,
+      detail: keychainAbsentDetail(delegated, keychainAvailable()),
     });
   }
 
@@ -769,7 +804,7 @@ async function cmdStatus(json) {
     : '❌ ccmail has no way in to the mailbox\n');
   process.stdout.write(`   scope       ${SCOPE} (read-only)\n`);
   for (const r of routes) {
-    process.stdout.write(`   ${r.live ? '✅' : '❌'} ${r.route.padEnd(10)} ${r.detail}\n`);
+    process.stdout.write(`   ${r.live ? '✅' : r.optional ? '➖' : '❌'} ${r.route.padEnd(10)} ${r.detail}\n`);
   }
   process.stdout.write(`   downloads   ${defaultDest()}\n`);
   if (!winner) process.exit(1);
@@ -927,7 +962,9 @@ function print(obj) {
 const HELP = `ccmail — open Gmail attachments from any session
 
 USAGE
-  ccmail --auth                       one-time setup (terminal + browser)
+  ccmail --auth                       keychain fallback setup — only where delegation
+                                      is NOT configured; with it, says gcloud auth login
+  ccmail --auth --fallback            set up the keychain fallback beside delegation
   ccmail --status                     is it live, and for which account
   ccmail --search <gmail-query>       find message ids (Gmail search syntax)
   ccmail <message-id>                 list what is attached to that message
@@ -971,6 +1008,7 @@ async function main(argv) {
     switch (a) {
       case '-h': case '--help': process.stdout.write(HELP); return;
       case '--auth': mode = 'auth'; break;
+      case '--fallback': opts.fallback = true; break;
       case '--status': mode = 'status'; break;
       case '--search': mode = 'search'; search = next(); break;
       case '--get': get = next(); break;
@@ -991,7 +1029,7 @@ async function main(argv) {
     }
   }
 
-  if (mode === 'auth') return cmdAuth();
+  if (mode === 'auth') return cmdAuth(opts.fallback);
   if (mode === 'status') return cmdStatus(opts.json);
   if (mode === 'search') return cmdSearch(search, opts.limit, opts.json);
   if (!positional) { process.stdout.write(HELP); return; }
@@ -1006,5 +1044,5 @@ if (require.main === module) {
 module.exports = {
   attachmentsOf, walkParts, safeName, select, xmlText, extractXlsx,
   extractOffice, officeKind, human, insideGitWorkTree, header, buildUrl,
-  loadConfig, configFile, keychainAvailable,
+  loadConfig, configFile, keychainAvailable, delegationConfigured, keychainAbsentDetail,
 };

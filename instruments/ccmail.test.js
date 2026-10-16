@@ -353,3 +353,38 @@ test('loadConfig tolerates a missing file and a malformed one', () => {
   assert.equal(cc.loadConfig().delegate.subject, 'b');
   delete process.env.CCMAIL_CONFIG;
 });
+
+test('delegationConfigured needs both the service account and the subject', () => {
+  assert.equal(cc.delegationConfigured({}), false);
+  assert.equal(cc.delegationConfigured({ delegate: { serviceAccount: 'test-service-account' } }), false);
+  assert.equal(cc.delegationConfigured({ delegate: { subject: 'test-mailbox' } }), false);
+  assert.equal(cc.delegationConfigured({ delegate: { serviceAccount: 'test-service-account', subject: 'test-mailbox' } }), true);
+});
+
+test('an empty keychain never sends a delegation operator to --auth', () => {
+  const d = cc.keychainAbsentDetail(true, true);
+  assert.doesNotMatch(d, /--auth/);
+  assert.match(d, /not needed/);
+});
+
+test('an empty keychain still offers --auth where there is no delegation', () => {
+  assert.match(cc.keychainAbsentDetail(false, true), /fix: ccmail --auth/);
+  assert.equal(cc.keychainAbsentDetail(false, false), 'unavailable off macOS');
+  assert.equal(cc.keychainAbsentDetail(true, false), 'unavailable off macOS');
+});
+
+test('--auth with delegation configured asks for nothing and points at gcloud', () => {
+  // A delegation config with no gcloud on PATH: the route fails, and --auth
+  // must stop with the gcloud advice instead of prompting for a client ID.
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ccmail-auth-'));
+  const cfg = path.join(dir, 'ccmail.json');
+  fs.writeFileSync(cfg, JSON.stringify({ delegate: { serviceAccount: 'test-service-account', subject: 'test-mailbox' } }));
+  const r = spawnSync(process.execPath, [path.join(__dirname, 'ccmail'), '--auth'], {
+    encoding: 'utf8',
+    input: '',
+    env: { ...process.env, HOME: dir, CCMAIL_CONFIG: cfg, CCMAIL_GCLOUD: path.join(dir, 'no-gcloud'), PATH: '/nonexistent' },
+  });
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr, /gcloud auth login/);
+  assert.doesNotMatch(r.stdout + r.stderr, /Client ID/);
+});
