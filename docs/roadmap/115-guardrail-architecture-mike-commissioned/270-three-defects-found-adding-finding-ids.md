@@ -1,4 +1,4 @@
-- [~] 🔎 **Three defects found while adding finding IDs** (claimed 2026-10-16-0705, wt: atelier-qr-115-270ab — parts (a) and (b) only; (c) waits on the explanation owed to Mike) `[S][tools]`.
+- [ ] 🎯 🔎 **Three defects found while adding finding IDs** and (b) only; (c) waits on the explanation owed to Mike) `[S][tools]`.
       Found 2026-10-05 by the `080` finding-ID worker, and not fixed there:
       1. 🚩 **sizescan's cold-content gate can be silenced by a header
          marker, and its own text says it cannot.** The remedy text and the
@@ -74,3 +74,21 @@
       that half is removed.
       `[ ]` stays: parts (a) to (c) are owed. This is the next session's
       first pick, beside `280`.
+
+      ✅ **Parts (a) and (b) built 2026-10-16** (`f9ccba8`, merged
+      `ccfad42`. A Sonnet 5.5 worker re-dispatched fresh after the 07:35 UTC
+      crash, because the first attempt died unfinished and was discarded).
+      (a): no allow header, `cold-content` scope or `.sizescanignore` glob
+      exempts cold content any more. They still quiet the size advisory,
+      and the report names any such hatch as present but unable to exempt.
+      (b): each flagged file lists its completed items as `line N: text`,
+      capped run-wide in the house way. `--json` carries them too. The
+      pointerscan heading leftover is fixed. **Blast radius:** of 30 repos,
+      none changes exit code. One was already red before the change, on
+      completed items with no hatch involved. 🔎 **Found and fixed in the
+      same code:** the `.sizescanignore` count always printed 0, because
+      the skip list was never appended to, so the suppression line had
+      reported a false zero. Tests: 1,851 Python and 411 Node, all OK. The
+      new tests fail on the old module. Review queued at `160/790`.
+      🎯 **(c) is still owed, and waits on Mike:** what the size-advisory
+      half is for has to be explained to him before it is removed.

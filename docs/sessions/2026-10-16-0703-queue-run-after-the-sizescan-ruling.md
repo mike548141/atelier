@@ -138,3 +138,15 @@ of `115/290` (two docstrings) inline **without claiming it first**, in a
 tool call Mike rejected. The edits had already reached the working tree.
 They were reverted to the last commit's state, unlanded, and `115/290`
 stays unclaimed.
+
+## `115/270` (a) and (b): built, after the fresh rebuild
+
+The rebuilt worker landed `f9ccba8`, and the orchestrator read the diff
+before merging it as `ccfad42`. No allow header, `cold-content` scope or
+ignore glob exempts cold content now. Each such hatch is named in the report
+as present but powerless. Each flagged file lists its completed items by
+line. Re-run before the merge: the targeted test files, and a live scan of
+this repo (unchanged output except for the new wording). The blast radius
+is zero of 30 repos. One defect was found and fixed inside the delta: the
+ignore-glob count was always printed as 0. Pass queued at `160/790`. Part
+(c) waits on Mike, and the item now carries the 🎯.

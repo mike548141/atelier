@@ -181,7 +181,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [Three enforced scanners still describe themselves as advisory](roadmap/115-guardrail-architecture-mike-commissioned/240-three-enforced-scanners-call-themselves-advisory.md)
 - ✅ 🔎 [pointerscan still walks the whole tree, harness worktrees included](roadmap/115-guardrail-architecture-mike-commissioned/250-pointerscan-still-walks-the-whole-tree.md)
 - ✅ 🔎 [Two blocking guards never scan a staged file whose path git quotes](roadmap/115-guardrail-architecture-mike-commissioned/260-staged-plane-guards-skip-git-quoted-paths.md)
-- [~] 🔎 (claimed 2026-10-16-0705, wt: atelier-qr-115-270ab — parts (a) [Three defects found while adding finding IDs](roadmap/115-guardrail-architecture-mike-commissioned/270-three-defects-found-adding-finding-ids.md)
+- [ ] 🎯🔎 [Three defects found while adding finding IDs](roadmap/115-guardrail-architecture-mike-commissioned/270-three-defects-found-adding-finding-ids.md)
 - [~] 🔎 [An added line can pose as a diff header in secretscan's staged](roadmap/115-guardrail-architecture-mike-commissioned/280-an-added-line-can-pose-as-a-diff-header-in-secretscan.md)
 - [ ] 🔎 [Three guard descriptions disagree with their own code](roadmap/115-guardrail-architecture-mike-commissioned/290-three-guards-describe-a-response-tier-their-code-lacks.md)
 
@@ -292,6 +292,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: guards read git-quoted paths](roadmap/160-doctrine-review-owed/760-rule-4-cold-pass-queued-quoted-paths.md)
 - ✅ [Estate survey: which repos hold Fable-dependent work, and which](roadmap/160-doctrine-review-owed/770-estate-survey-fable-work-and-unwritten-briefs.md)
 - [ ] ⏳ [Rule-4 cold pass queued: agreement is not corroboration, minted in](roadmap/160-doctrine-review-owed/780-rule-4-cold-pass-queued-agreement-is-not-corroboration.md)
+- [ ] ⏳ [Rule-4 cold pass queued: no hatch silences sizescan's cold-content](roadmap/160-doctrine-review-owed/790-rule-4-cold-pass-queued-sizescan-cold-content-hatches.md)
 
 ## build/ layer — open strands
 
