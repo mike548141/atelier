@@ -106,3 +106,15 @@ neither parent, and `160/760` overlaps the 2026-10-16 staged-reader fix.
 older version of a session file. Each brief allows that read and requires it
 to be disclosed. The orchestrator spot-read one brief's head before
 committing.
+
+## Briefs, batch B ✅ the last seven written; all 21 briefed, none run
+
+A third Opus brief-writer wrote `160/580`, `590`, `610`, `620`, `670`, `680`
+and `690` (prefixes RB, TT, TG, FM, HD, FP, PO). `670`, the ccarchive
+hardening re-review, is the largest: its sibling names the two earlier
+verdicts its delta answered, unopened. The brief-writer reworded the
+reviewscan marker line, because the model's wording said the orchestrator
+holds the sibling outside the tree, which is not true for a committed
+sibling. **Every one of atelier's 21 unbriefed passes now has a brief.** The
+Fable sessions that run them are Mike's to start; the launch line is in the
+user-local cards.
