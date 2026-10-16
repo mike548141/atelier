@@ -5,6 +5,21 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Added (2026-10-16 — `ccclose`, the close-out checker, `020/180`)
+- `ccclose` checks a session's close from a fresh read of the repo, GitHub
+  (through `gh`) and the session's transcript, never from the session's
+  memory. It prints the session id, transcript and window, then eleven
+  checks: worktrees, branches, pushes, PRs, the session record, the board,
+  live claims, the floor at the pushed head (full SHA; a cancelled run is not
+  a pass), review pointers, workaround-shaped commands and the working tree.
+  It ends by listing the principal's close-out asks from the transcript,
+  under *Asked of this close — answer each*.
+- Read-only, and usable in any repo: conventions are detected, and an absent
+  input prints "not applicable" rather than a pass. Attribution is by the
+  transcript window, and that heuristic is printed on every run. Design note
+  `instruments/ccclose.design.md`, man page `ccclose(1)`. Not yet installed
+  onto the machine's path.
+
 ### Fixed (2026-10-16 — the floor's advisory count, `115/320`)
 - `floor.py` reads a scanner's advisory count only from that scanner's own
   whole count line, and takes the last one. A file named like the count line

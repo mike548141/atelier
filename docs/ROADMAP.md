@@ -48,7 +48,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [E7 residue — G3 (binary media): FUNDED as its own item, soon](roadmap/020-policy-as-code-programme-five-tracks-mik/150-e7-residue-g3-binary-media-funded-as-its-own-i.md)
 - ✅ [E9 — every scanner walks gitignored nested worktrees, and counts the](roadmap/020-policy-as-code-programme-five-tracks-mik/160-e9-every-scanner-walks-gitignored-nested-workt.md)
 - [ ] 🎯 [F1 — rebuild the block-vs-advise model from base. REBUILT](roadmap/020-policy-as-code-programme-five-tracks-mik/170-f1-rebuild-the-block-vs-advise-model-from-base.md)
-- [~] (claimed 2026-10-16-1554 UTC by queue run abe96d8d, the close-out checker build, an Opus worker) [The mechanisable form of it](roadmap/020-policy-as-code-programme-five-tracks-mik/180-the-mechanisable-form-of-it.md)
+- [ ] [The mechanisable form of it](roadmap/020-policy-as-code-programme-five-tracks-mik/180-the-mechanisable-form-of-it.md)
 - [ ] [The measurement that supports it, and its limits.](roadmap/020-policy-as-code-programme-five-tracks-mik/190-the-measurement-that-supports-it-and-its-limit.md)
 - [ ] [Aggravating factor worth keeping](roadmap/020-policy-as-code-programme-five-tracks-mik/200-aggravating-factor-worth-keeping.md)
 - ✅ [The Three Laws and the Zeroth are OUT of the apex (Mike, ruled](roadmap/020-policy-as-code-programme-five-tracks-mik/210-the-three-laws-and-the-zeroth-are-coming-out-o.md)
@@ -304,6 +304,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: licenscan's warn tier made real](roadmap/160-doctrine-review-owed/840-rule-4-cold-pass-queued-licenscan-advisory-tier.md)
 - [ ] ⏳ [Rule-4 cold pass queued: sizescan's size advisory removed](roadmap/160-doctrine-review-owed/850-rule-4-cold-pass-queued-size-advisory-removed.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the floor's advisory count scoped to its](roadmap/160-doctrine-review-owed/860-rule-4-cold-pass-queued-advisory-count-per-scanner.md)
+- [ ] ⏳ [Rule-4 cold pass queued: ccclose, the close-out checker](roadmap/160-doctrine-review-owed/870-rule-4-cold-pass-queued-ccclose.md)
 
 ## build/ layer — open strands
 
@@ -366,6 +367,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [💡 IDEA ONLY — do not build until Mike says to start: keep whole](roadmap/210-instruments-open-features/220-whole-document-history-like-git.md)
 - ✅ [ccarchive: bring back a schedule, as a real calendar schedule, not](roadmap/210-instruments-open-features/230-ccarchive-a-real-calendar-schedule.md)
 - [ ] 🔎 [ccarchive's design charter, in Mike's words, checked against the](roadmap/210-instruments-open-features/240-ccarchive-design-charter.md)
+- [ ] 🔎 [cctranscript counts some harness text as the principal's prompts](roadmap/210-instruments-open-features/250-cctranscript-counts-harness-text-as-prompts.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 

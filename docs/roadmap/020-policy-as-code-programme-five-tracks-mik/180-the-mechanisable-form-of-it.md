@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-16-1554 UTC by queue run abe96d8d, the close-out checker build, an Opus worker) **The mechanisable form of it:** any claim about *current state* comes
+- [ ] **The mechanisable form of it:** any claim about *current state* comes
       from a fresh read, never from context. `RECORD.md` already says this for
       one case — the all-clear is the pushed floor run, not the local scan —
       and the general rule is the same shape. A close-out that is mechanical
@@ -94,3 +94,31 @@
         checks Mike gave mid-turn. **The model-router sub-items stay
         idea-only.** Mike said nothing to start them. The build is
         first-of-kind, so it gets a design pass before code.
+
+  - [x] ✅ **The close-out checker is built: `ccclose`, 2026-10-16** (1501
+        UTC queue run, an Opus 5.5 worker; design `ef3673a` committed before
+        the code, build `4eda680`, merged on `main`; the orchestrator read
+        both, ran it on its own live session, and corrected three NZ-local
+        dates to UTC at the merge). An instrument in Node, by ADR 0006's
+        purpose rule, reusing cctranscript's prompt classifiers. It prints
+        the session id, transcript, window, commits and prompts, then eleven
+        checks from a fresh read: worktrees, branches, pushes, PRs, the
+        session record, the board, live claims, the floor at the pushed head
+        (full SHA, and a cancelled run is not a pass), review pointers,
+        workaround-shaped commands and the working tree. Then it lists the
+        principal's close-out asks from the transcript under *Asked of this
+        close — answer each*. Read-only, with `--no-optional-locks` on every
+        git call. An absent input prints "not applicable", never a pass.
+        Attribution is by the transcript window, and it says so on every run.
+        Design note `instruments/ccclose.design.md`, man page `ccclose(1)`,
+        22 tests over throwaway repos and a `gh` stub (433 of 433 in the
+        instruments suite). Its first real run found two open PRs and the
+        orchestrator's own `git reset --hard`, both owed an answer at the
+        close. 🔎 Found, not fixed, filed as `210/250`: cctranscript counts
+        some harness text as the principal's prompts. 🎯 **Not installed.**
+        `instruments/install` would put it on every session's path, but the
+        expected toolbox in `TOOLBOX.md` lists the estate's own tools by
+        name, and whether a session may add a row is the open question in
+        `160/500`'s brief. So installing it is Mike's call, asked at the
+        close. Review queued at `160/870`. The model-router sub-items above
+        stay idea-only; they are why this item stays open.

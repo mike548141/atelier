@@ -138,3 +138,18 @@ it took a probe, not the report, to see what it cost.
 `test_spellscan` (77) pass on `main` with every merge so far. The
 `BoundedMemory` failures the workers saw were the load class. The floor run
 at `b8c99dd`, which contains the three tool merges, is green.
+
+## `020/180` ✅ `ccclose`, the close-out checker, built (not installed)
+
+An Opus worker committed a design note first (`ef3673a`), then the build
+(`4eda680`). The orchestrator read both, merged them, and corrected three
+NZ-local dates to UTC. It then ran the tool on this live session. The run was
+useful at once. It listed the open claim and the unpushed worker commits, as
+expected mid-run. It also found two PRs opened during this window by other
+sessions (child hand-ups) and this run's own `git reset --hard`, which was
+used to undo a no-commit cherry-pick. Each of those is answered at the close.
+The tool is not installed onto the path: the expected toolbox names the
+estate's tools one by one, and whether a session may add one is the very
+question `160/500`'s brief asks, so that is put to Mike. The worker's finding
+about cctranscript's turn classification is filed as `210/250`. Pass queued at
+`160/870`. The model-router sub-items stay idea-only.
