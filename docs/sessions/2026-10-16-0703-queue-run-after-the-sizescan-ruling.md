@@ -241,3 +241,7 @@ items carry the detail:
    build is owed on the item, and the whole item is now buildable.
 5. **`020/180`.** Mike answered **"Build it"** for the close-out checker.
    The model-router sub-items stay idea-only.
+6. **Briefs for `160/500`–`760`.** Mike answered **"A fresh Opus session"**
+   writes them, then Fable runs the passes. The launch line is in the user-local cards.
+
+All six decisions were answered in the device and recorded on their items as answers.

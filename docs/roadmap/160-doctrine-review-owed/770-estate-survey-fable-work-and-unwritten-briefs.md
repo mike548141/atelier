@@ -31,3 +31,11 @@
       UTC. Since the survey, one pass had landed, and two more verdicts were
       left uncommitted in that repo. Every other repo is unchanged since the
       survey.
+
+      ⚖️ **Who briefs atelier's own 21: answered 2026-10-16.** In the
+      device at the close, Mike picked "a fresh Opus session" over "a Fable
+      session" to write the briefs for `160/500`–`760`. That is his
+      *answer*, recorded as such. The brief-writer is off-tier, which is
+      disclosed, forms no finding, and stops. The passes still run on
+      Fable. The 2026-10-16 run may not brief `160/780`–`810`, which it
+      authored. The launch line is in the user-local cards.
