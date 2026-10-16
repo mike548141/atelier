@@ -332,8 +332,10 @@ that's a peer of the ccusage one:
 ## cctranscript's header line — and what a missing figure prints as
 
 Under the session title sits one dense summary line, read left to right:
-turn counts, then **agents started · finished**, then the context peak, then the
-clock span. It is designed to be read by **comparing two sessions side by side**,
+turn counts (your prompts counted apart from mid-turn messages and from
+**harness** text — task notifications and other records the harness wrote, which
+take an exchange number but are never counted as yours), then **agents started ·
+finished**, then the context peak, then the clock span. It is designed to be read by **comparing two sessions side by side**,
 which fixes one rule: the *field set* never varies between runs.
 
 **Agents started vs finished** is a deliberate pair. *Started* counts the spawn

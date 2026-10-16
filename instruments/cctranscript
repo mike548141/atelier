@@ -49,6 +49,15 @@
  * needs no flag at all. Listing never reads an iCloud-evicted mirror (that
  * would fault the bytes back down); rendering one chosen session may.
  *
+ * Not every type:"user" record is the principal's typing either. A background
+ * task's <task-notification>, a record the harness marks isMeta, and the like are
+ * harness text: role "harness", counted apart from "you", shown as one grey
+ * clipped line (--json keeps it whole). It still takes an exchange number — the
+ * model answers it, and dropping the number would shift every ref already quoted
+ * — and ccclose numbers it the same way. A browser-extension <browser_instruction>
+ * block prepended to a real prompt is removed from that prompt's text. See
+ * classifyUserRecord.
+ *
  * A message typed while a turn is still in flight ("mid-turn") never becomes a
  * type:"user" record — it logs as type:"attachment" · attachment.type:
  * "queued_command". Rendered as its own turn, mirrored right like a prompt but
@@ -417,8 +426,10 @@ function firstPromptInLines(lines) {
     if (!ln.trim()) continue;
     let o; try { o = JSON.parse(ln); } catch { continue; }
     if (o.type === 'user' && !o.toolUseResult) {
-      const t = extractText(o.message && o.message.content);
-      if (t) return t.replace(/\s+/g, ' ').trim();
+      // Harness text (a task notification, a meta record) is not a prompt, so a
+      // session that opens with one is listed by its first real prompt.
+      const c = classifyUserRecord(o);
+      if (c && c.kind === 'prompt') return c.text.replace(/\s+/g, ' ').trim();
     } else if (o.type === 'attachment' && isHumanQueuedCommand(o.attachment)) {
       const t = extractText(o.attachment.prompt);
       if (t) return t.replace(/\s+/g, ' ').trim();
@@ -433,6 +444,46 @@ function extractText(content) {
   if (typeof content === 'string') return content;
   if (!Array.isArray(content)) return '';
   return content.filter((b) => b && b.type === 'text').map((b) => b.text).join('\n');
+}
+
+// Text the harness writes into a type:"user" record that the principal did not
+// type, found by census of the live store (2026-10-17, 40 recent sessions of one
+// repo): a background-task <task-notification> (the commonest by far), the
+// <local-command-stdout>/<local-command-caveat> echo of a slash command, a
+// <cross-session-message> from a peer's session, a <system-reminder>, and the
+// <browser_instruction> block a browser extension prepends to a real prompt.
+// Records the harness itself marks isMeta: true (skill bodies and the like) are
+// harness text whatever they contain. The slash-command wrappers are listed
+// apart: <command-name> et al. record the principal's own /command, so a record
+// that is only those stays theirs (a prompt) — but a consumer hunting for asks
+// (ccclose) strips them too, because they hold no sentences of the principal's.
+const HARNESS_TAGS = ['system-reminder', 'task-notification', 'local-command-stdout',
+  'local-command-stderr', 'local-command-caveat', 'cross-session-message', 'browser_instruction'];
+const COMMAND_TAGS = ['command-name', 'command-message', 'command-args'];
+// The one injected element seen riding on a REAL prompt (prepended to the
+// principal's typing in the same record), so the only one removed from a prompt's
+// displayed text. The others are only ever stripped to decide a record is wholly
+// harness text; a prompt that merely quotes one keeps it.
+const JOINED_TAGS = ['browser_instruction'];
+
+// Remove every <tag ...>...</tag> element of the named tags. Not trimmed.
+function stripElements(text, tags) {
+  return text.replace(new RegExp(`<(${tags.join('|')})\\b[^>]*>[\\s\\S]*?</\\1>`, 'g'), ' ');
+}
+
+// Classify one type:"user" record that is not a tool result. The one place the
+// question "is this the principal's prompt?" is answered, for readTurns,
+// firstUserPromptText and ccclose alike, so they cannot disagree.
+//   null                              → no text at all (nothing to number)
+//   { kind: 'harness', text: <raw> }  → isMeta, or wholly harness wrappers
+//   { kind: 'prompt',  text }         → the principal's; text has any joined
+//                                       browser instruction taken out
+function classifyUserRecord(o) {
+  const raw = extractText(o && o.message && o.message.content).trim();
+  if (!raw) return null;
+  if (o.isMeta) return { kind: 'harness', text: raw };
+  if (!stripElements(raw, HARNESS_TAGS).trim()) return { kind: 'harness', text: raw };
+  return { kind: 'prompt', text: stripElements(raw, JOINED_TAGS).trim() };
 }
 
 // A message typed while a turn is already in flight never becomes a normal
@@ -650,8 +701,12 @@ function readTurns(file, opts = {}) {
     }
 
     if (o.type === 'user' && !o.toolUseResult) {
-      const text = extractText(o.message && o.message.content).trim();
-      if (text) turns.push({ role: 'you', ts, text });
+      // Harness text keeps the position (and so the exchange number) it always
+      // had: the model answers it, so the replies after it belong to it, and
+      // renumbering would move every N/N.M ref already quoted in committed
+      // records. What changes is only whose it is — role 'harness', not 'you'.
+      const c = classifyUserRecord(o);
+      if (c) turns.push({ role: c.kind === 'harness' ? 'harness' : 'you', ts, text: c.text });
     } else if (o.type === 'attachment' && isHumanQueuedCommand(o.attachment)) {
       // Typed while a turn was already in flight: genuine fresh principal
       // text, but it does NOT open a new exchange (numberTurns gives it its
@@ -694,6 +749,10 @@ function readTurns(file, opts = {}) {
 // each of Claude's *text* replies to it is N.M (M resets per prompt). Thinking
 // and tool turns stay unnumbered — the citable unit is what a human quotes.
 //
+// A 'harness' turn (a task notification, a meta record) opens an exchange and
+// takes its N exactly as a prompt does. It is NOT the principal's, and every
+// count of "your prompts" excludes it, but the replies that follow it are
+// answers to it, and dropping its number would shift every later ref.
 // A mid-turn message ('you-mid') does NOT open a new exchange and does NOT
 // bump N — it gets its own ref N+K (K resets to 1 at each new prompt, and
 // counts only mid-turn messages within that exchange). This is deliberate,
@@ -715,7 +774,7 @@ function readTurns(file, opts = {}) {
 function numberTurns(turns) {
   let n = 0, m = 0, k = 0;
   for (const t of turns) {
-    if (t.role === 'you') { n++; m = 0; k = 0; t.ref = String(n); }
+    if (t.role === 'you' || t.role === 'harness') { n++; m = 0; k = 0; t.ref = String(n); }
     else if (t.role === 'you-mid') { k++; t.ref = `${n}+${k}`; }
     else if (t.role === 'claude') { m++; t.ref = `${n}.${m}`; }
     t.encl = String(n);
@@ -761,6 +820,10 @@ const ROLE = {
   // same principal), a hollow icon and a distinct label are the whole of what
   // marks it apart from a turn-opening prompt.
   'you-mid': { icon: '▹', label: 'Mid-turn', color: ESC.cyan },
+  // Text the harness wrote into a user-type record — a task notification, a
+  // meta record. Left side and grey: it is not the principal's, so it must not
+  // mirror right like a prompt.
+  harness:  { icon: '◦', label: 'Harness',  color: ESC.grey },
   claude:   { icon: '◂', label: 'Claude',   color: ESC.green },
   think:    { icon: '✱', label: 'thinking', color: ESC.grey },
   tool:     { icon: '⚙', label: 'tool',     color: ESC.blue },
@@ -856,11 +919,20 @@ function renderBody(text, role, width, side) {
 // transcript reads as scannable sections; the counter orients you in a long
 // scroll and gives each ask a reference number. The label sits on the right,
 // tying it to the right-aligned prompt below it.
-function exchangeRule(n) {
-  const lab = `▸ ${n}`;
+// A harness-opened exchange gets the same rule in grey with a hollow ◦, so the
+// numbering reads unbroken while the rule itself says it is not your prompt.
+function exchangeRule(n, harness = false) {
+  const lab = `${harness ? '◦' : '▸'} ${n}`;
   const tail = '──';
   const dashes = Math.max(0, TW - lab.length - tail.length - 2);
-  return paint(ESC.dim, '─'.repeat(dashes) + ' ') + paint(ESC.cyan, lab) + paint(ESC.dim, ' ' + tail);
+  return paint(ESC.dim, '─'.repeat(dashes) + ' ') + paint(harness ? ESC.grey : ESC.cyan, lab) + paint(ESC.dim, ' ' + tail);
+}
+
+// Harness text is shown as one clipped line: a notification or a skill body can
+// run to kilobytes and is not what the transcript is for. --json keeps it whole.
+function harnessLine(text, width) {
+  const flat = text.replace(/\s+/g, ' ').trim();
+  return flat.length > width ? flat.slice(0, width - 1) + '…' : flat;
 }
 
 // Build a turn's header line: role label (+ N.M ref and model tag for Claude)
@@ -1093,7 +1165,7 @@ function runSearch() {
     const hits = [];
     let toolLayerHolds = false;
     for (const t of turns) {
-      const searched = t.role === 'you' || t.role === 'you-mid' || t.role === 'claude'
+      const searched = t.role === 'you' || t.role === 'you-mid' || t.role === 'claude' || t.role === 'harness'
         || (showTools && (t.role === 'tool' || t.role === 'result'));
       const m = scanText(probe, t.text);
       if (!m.count) continue;
@@ -1168,7 +1240,7 @@ function printSearchJson(term, layers, stats, trunc, topN, shown, elapsedMs) {
 }
 
 function printSearchTable(layers, stats, trunc, topN, shown, elapsedMs) {
-  const REF_W = 5, ROLE_W = 6, INDENT = 5;
+  const REF_W = 5, ROLE_W = 7, INDENT = 5;
   console.log();
   for (const r of shown) {
     const s = r.session;
@@ -1298,6 +1370,9 @@ function runTranscript() {
   // fixed visible in the same header a reader already scans, not to quietly
   // inflate "you" by a count that used to be zero.
   if (count('you-mid')) parts.push(`${count('you-mid')} mid-turn`);
+  // Likewise harness text: counted apart from 'you' so the chip never says you
+  // typed what the harness wrote. Conditional, like mid-turn: absent at zero.
+  if (count('harness')) parts.push(`${count('harness')} harness`);
   if (showThink && count('think')) parts.push(`${count('think')} thinking`);
   if (showTools && count('tool')) parts.push(`${count('tool')} tool`);
   // How wide the session ran — always two chips, in this order, on every run.
@@ -1345,8 +1420,10 @@ function runTranscript() {
     prevTs = t.ts || prevTs;
     console.log();
     if (side === 'right') console.log(exchangeRule(t.ref));
+    else if (t.role === 'harness') console.log(exchangeRule(t.ref, true));
     console.log(turnHeader(role, t.model, fmtTime(t.ts), deltaMs, side, t.ref));
-    for (const line of renderBody(t.text, role, CW, side)) console.log(line);
+    const body = t.role === 'harness' ? harnessLine(t.text, CW - 2) : t.text;
+    for (const line of renderBody(body, role, CW, side)) console.log(line);
   }
   console.log();
 }
@@ -1373,5 +1450,5 @@ module.exports = {
   readTurns, numberTurns, defaultArchiveDest, readLogText, isDatalessFlags, sessionRecord, statFlagsBatch, gunzipHead,
   firstUserPromptText, FIRST_PROMPT_PREFIX,
   subagentDir, finishedAgents, escapeRegex, rawForms, scanText, excerptAround,
-  isHumanQueuedCommand,
+  isHumanQueuedCommand, classifyUserRecord, stripElements, HARNESS_TAGS, COMMAND_TAGS,
 };

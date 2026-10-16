@@ -843,6 +843,123 @@ test('--list: a session whose only prompt-shaped text is a mid-turn message stil
   assert.equal(out[0].firstPrompt, 'the only typed text here');
 });
 
+// --- harness text in type:"user" records (board item 210/250) -------------
+// A background task's notification, a record the harness marks isMeta, and an
+// injected browser-instruction block all arrive in type:"user" records. They
+// used to be read as the principal's prompts and counted as such.
+
+const taskNotifUser = (ts = '2026-01-02T03:04:14.000Z') => ({
+  type: 'user', timestamp: ts, cwd: '/home/dev/synthetic-repo',
+  message: { role: 'user', content: '<task-notification>\n<task-id>abc123</task-id>\n<summary>Background job "build" finished</summary>\n</task-notification>' },
+});
+const metaUser = (text, ts = '2026-01-02T03:04:15.000Z') => ({
+  type: 'user', isMeta: true, timestamp: ts, cwd: '/home/dev/synthetic-repo',
+  message: { role: 'user', content: [{ type: 'text', text }] },
+});
+const BROWSER_BLOCK = '<browser_instruction>\n# Synthetic browser extension\nUse the tabs tool first.\n</browser_instruction>';
+
+test('classifyUserRecord: a prompt, harness text and nothing are told apart', () => {
+  const rec = (content, extra = {}) => ({ type: 'user', message: { role: 'user', content }, ...extra });
+  assert.deepEqual(cc.classifyUserRecord(rec('  a plain ask ')), { kind: 'prompt', text: 'a plain ask' });
+  assert.equal(cc.classifyUserRecord(rec('   ')), null);
+  assert.equal(cc.classifyUserRecord(rec([{ type: 'text', text: '' }])), null);
+  // Wholly a harness wrapper → harness, with the raw text kept whole.
+  const tn = '<task-notification><summary>done</summary></task-notification>';
+  assert.deepEqual(cc.classifyUserRecord(rec(tn)), { kind: 'harness', text: tn });
+  assert.equal(cc.classifyUserRecord(rec('<local-command-stdout>ok</local-command-stdout>')).kind, 'harness');
+  assert.equal(cc.classifyUserRecord(rec('<system-reminder>x</system-reminder>')).kind, 'harness');
+  // isMeta is harness whatever the text says.
+  assert.equal(cc.classifyUserRecord(rec('Make sure the roadmap is updated.', { isMeta: true })).kind, 'harness');
+  // A browser instruction joined onto a real prompt: still a prompt, block removed.
+  assert.deepEqual(cc.classifyUserRecord(rec(`${BROWSER_BLOCK}\nShip it`)), { kind: 'prompt', text: 'Ship it' });
+  // ...and a lone one is harness.
+  assert.equal(cc.classifyUserRecord(rec(BROWSER_BLOCK)).kind, 'harness');
+  // The principal's own slash command stays theirs; so does a prompt that merely
+  // quotes a wrapper (only the browser instruction is ever taken out of one).
+  assert.equal(cc.classifyUserRecord(rec('<command-name>/clear</command-name>')).kind, 'prompt');
+  const quoted = 'why does <system-reminder>x</system-reminder> show up?';
+  assert.deepEqual(cc.classifyUserRecord(rec(quoted)), { kind: 'prompt', text: quoted });
+});
+
+test('readTurns: a task notification and a meta record are harness, not you', () => {
+  const file = midTurnFile([
+    you('first ask'), claude('first reply'),
+    taskNotifUser(), claude('noted the build finished'),
+    metaUser('skill body the harness injected'), claude('using the skill'),
+    you('second ask'),
+  ]);
+  const { turns } = cc.readTurns(file);
+  assert.deepEqual(turns.map((t) => t.role),
+    ['you', 'claude', 'harness', 'claude', 'harness', 'claude', 'you']);
+  assert.match(turns[2].text, /^<task-notification>/);       // whole, unclipped
+  assert.equal(turns[4].text, 'skill body the harness injected');
+});
+
+test('numberTurns: harness text keeps the exchange number it always had, so no later ref moves', () => {
+  const file = midTurnFile([
+    you('first ask'), claude('a'), taskNotifUser(), claude('b'), you('second ask'), claude('c'),
+  ]);
+  const turns = cc.numberTurns(cc.readTurns(file).turns);
+  assert.deepEqual(turns.map((t) => t.ref), ['1', '1.1', '2', '2.1', '3', '3.1']);
+  assert.deepEqual(turns.map((t) => t.role), ['you', 'claude', 'harness', 'claude', 'you', 'claude']);
+});
+
+test('readTurns: a browser instruction joined onto a real prompt is not part of the prompt text', () => {
+  const file = midTurnFile([you(`${BROWSER_BLOCK}\nWhat is on the board today?`), claude('reply')]);
+  const { turns } = cc.readTurns(file);
+  assert.deepEqual(turns.map((t) => t.role), ['you', 'claude']);
+  assert.equal(turns[0].text, 'What is on the board today?');
+});
+
+test('CLI: --json gives harness text its own role and the full text; the header counts it apart from you', () => {
+  const file = midTurnFile([
+    you('first ask'), claude('a'), taskNotifUser(), claude('b'), metaUser('meta body'), you('second ask'),
+  ]);
+  const j = JSON.parse(execFileSync('node', [SCRIPT, '--json', file], { encoding: 'utf8' }));
+  assert.deepEqual(j.turns.map((t) => [t.role, t.ref]),
+    [['you', '1'], ['claude', '1.1'], ['harness', '2'], ['claude', '2.1'], ['harness', '3'], ['you', '4']]);
+  assert.match(j.turns[2].text, /<summary>Background job "build" finished<\/summary>/);
+  const out = execFileSync('node', [SCRIPT, '--no-color', file], { encoding: 'utf8' });
+  assert.match(out, /2 you · 2 Claude · 2 harness/);
+});
+
+test('CLI: the human render shows harness text on the left, labelled and clipped to a line', () => {
+  const long = 'x'.repeat(400);
+  const file = midTurnFile([you('ask'), metaUser(`first line\nsecond line ${long}`), claude('reply')]);
+  const out = execFileSync('node', [SCRIPT, '--no-color', '--width', '80', file], { encoding: 'utf8' });
+  const lines = out.split('\n');
+  const at = lines.findIndex((l) => l.includes('Harness'));
+  assert.ok(at > 0, 'a Harness label is printed');
+  assert.match(lines[at], /^ ◦ Harness 2/);                  // left side, hollow icon, its exchange number
+  assert.match(lines[at - 1], /◦ 2 ──$/);                     // the numbered rule, in the harness glyph
+  assert.match(lines[at + 1], /first line second line/);       // collapsed to one line
+  assert.match(lines[at + 1], /…/);
+  assert.doesNotMatch(out, new RegExp(long));                  // not the whole 400 characters
+});
+
+test('CLI: the human render strips a joined browser instruction from the prompt it came with', () => {
+  const file = midTurnFile([you(`${BROWSER_BLOCK}\nWhat is on the board today?`), claude('reply')]);
+  const out = execFileSync('node', [SCRIPT, '--no-color', file], { encoding: 'utf8' });
+  assert.match(out, /What is on the board today\?/);
+  assert.doesNotMatch(out, /browser_instruction|Synthetic browser extension/);
+});
+
+test('--list: a session that opens with a task notification is labelled by its first real prompt', () => {
+  const file = midTurnFile([taskNotifUser(), metaUser('meta body'), you(`${BROWSER_BLOCK}\nthe real first ask`), claude('r')]);
+  const out = JSON.parse(execFileSync('node', [SCRIPT, '--json', '--list', file], { encoding: 'utf8' }));
+  assert.equal(out[0].firstPrompt, 'the real first ask');
+});
+
+test('search: harness text is still found, but reported as harness, never as a prompt', () => {
+  const home = makeStore([[UUID(1), [
+    you('ask'), metaUser('the term cairnscan is only in injected text'), claude('reply'),
+  ]]]);
+  const j = searchJson(home, '--search', 'cairnscan');
+  assert.equal(j.meta.hits, 1);
+  assert.equal(j.sessions[0].hits[0].role, 'harness');
+  assert.equal(j.sessions[0].hits[0].ref, '2');
+});
+
 test('search: a literal term matches metacharacters literally; --regex treats them as a pattern', () => {
   const home = makeStore([
     [UUID(1), [you('the gate lives in tools/floor.py today')]],

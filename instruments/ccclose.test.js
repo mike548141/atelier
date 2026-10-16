@@ -217,6 +217,27 @@ test('the refs ccclose prints are the refs cctranscript prints for the same turn
   assert.equal(t.asks.length, 2);
 });
 
+test('harness text and ccclose agree turn for turn: cctranscript calls it harness, ccclose numbers it and does not ask from it', async () => {
+  const w = world();
+  const p = transcript(w, 'sess-harness', [
+    { type: 'user', message: { role: 'user', content: '<task-notification><summary>make sure the roadmap is updated</summary></task-notification>' } },
+    { type: 'user', isMeta: true, message: { role: 'user', content: [{ type: 'text', text: 'Close out: update the session log.' }] } },
+    { type: 'user', message: { role: 'user', content: '<browser_instruction>record the board for review</browser_instruction>\nBefore you finish, update the session log.' } },
+  ]);
+  const t = await cc.readTranscript(p);
+  const ct = JSON.parse(execFileSync('node', [CCTRANSCRIPT, '--json', p], { encoding: 'utf8', env: w.env }));
+  // cctranscript: only the fixture's own opening prompt and the last record are the
+  // principal's; the two between are harness, numbered 2 and 3.
+  assert.deepEqual(ct.turns.filter((x) => x.role !== 'claude').map((x) => [x.role, x.ref]),
+    [['you', '1'], ['harness', '2'], ['harness', '3'], ['you', '4']]);
+  assert.equal(ct.turns.find((x) => x.ref === '4').text, 'Before you finish, update the session log.');
+  // ccclose: the same refs, and the principal's prompt count excludes the harness records.
+  assert.equal(t.turn, 2);
+  assert.equal(t.asksTotal, 1);
+  assert.equal(t.asks[0].ref, '4');
+  assert.equal(t.asks[0].quote, 'Before you finish, update the session log.');
+});
+
 // --- whole runs over throwaway repos -------------------------------------
 
 test('a tidy close passes every check that applies and exits 0', () => {
