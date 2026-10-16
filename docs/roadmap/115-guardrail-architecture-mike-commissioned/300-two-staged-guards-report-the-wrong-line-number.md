@@ -1,4 +1,4 @@
-- [ ] 🔎 **conflictscan and leakscan report the wrong line number on the
+- [~] (claimed 2026-10-16-1501 UTC by queue run abe96d8d, a worker) 🔎 **conflictscan and leakscan report the wrong line number on the
       staged plane** `[S][tools]`. Found 2026-10-16 by the orchestrator's
       own probe while checking `280` before its merge. This is not caused by
       `280`: the old code does it too. Measured: a file whose lines 1–4 are

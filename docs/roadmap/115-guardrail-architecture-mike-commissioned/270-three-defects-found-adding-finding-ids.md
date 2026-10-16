@@ -1,4 +1,4 @@
-- [ ] 🔎 **Three defects found while adding finding IDs** `[S][tools]`.
+- [~] (claimed 2026-10-16-1501 UTC by queue run abe96d8d, part c only, a worker) 🔎 **Three defects found while adding finding IDs** `[S][tools]`.
       Found 2026-10-05 by the `080` finding-ID worker, and not fixed there:
       1. 🚩 **sizescan's cold-content gate can be silenced by a header
          marker, and its own text says it cannot.** The remedy text and the

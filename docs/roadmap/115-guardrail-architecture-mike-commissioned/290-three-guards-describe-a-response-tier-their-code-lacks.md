@@ -1,4 +1,4 @@
-- [ ] 🔎 **Three guard descriptions disagree with their own code**
+- [~] (claimed 2026-10-16-1501 UTC by queue run abe96d8d, a worker) 🔎 **Three guard descriptions disagree with their own code**
       `[S][tools]`. Found 2026-10-16 by the `090` audit and checked against
       the code before filing. Not fixed in passing:
       1. **licenscan promises a warn tier that does not exist.** Its
