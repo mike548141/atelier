@@ -536,6 +536,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up: no floor scanner reads a commit message, so a term that is](roadmap/320-child-filed-findings-via-pointing-up/550-no-scanner-reads-a-commit-message-body.md)
 - [ ] 🔎 [Hand-up: the repo-local check seam (local in](roadmap/320-child-filed-findings-via-pointing-up/560-the-repo-local-check-seam-is-absent-from-the-readme-and-method-docs.md)
 - [ ] 🔎 [MISSING HOUSE RULE — a "this cannot work" built only from reading is](roadmap/320-child-filed-findings-via-pointing-up/570-missing-house-rule-a-cannot-work-built-from-reading-is-not-accepted-while-a-cheap-test-exists.md)
+- [ ] 🎯 [MISSING HOUSE RULE — the house has no method for splitting one repo](roadmap/320-child-filed-findings-via-pointing-up/580-missing-house-rule-splitting-a-repo-has-no-method.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
