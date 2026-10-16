@@ -3,7 +3,7 @@
       one case — the all-clear is the pushed floor run, not the local scan —
       and the general rule is the same shape. A close-out that is mechanical
       rather than narrative is the concrete change.
-  - [ ] 🎯 **Mike's own close-out checklist, verbatim (2026-09-12), as the
+  - [ ] **Mike's own close-out checklist, verbatim (2026-09-12), as the
         acceptance shape for the tool this item wants:** *"maybe we make some
         code that every session uses when I ask it to close out the session.
         Giving me standard outputs like transcript ID etc. but also check for
@@ -76,3 +76,21 @@
             explicit override always available. Which, and how the table
             gets validated against drift as Anthropic's own guidance
             changes, is unscoped here.
+  - [ ] ✅ **Answered 2026-10-16, at the close of a queue run: build the
+        close-out checker.** The device question asked whether the tool
+        should be built or stay an idea, because the item's own text did not
+        say. Mike picked "Build it", the recommended option. That is his
+        *answer*, recorded as such. **Scope of the build:** the checklist
+        bullet above is the acceptance shape. A tool a session runs at close
+        prints the standard outputs (the session ID among them). It checks,
+        from a fresh read and not from the session's memory:
+        - worktrees and branches put away, and PRs merged;
+        - the session record and its index line written, and the board
+          rebuilt;
+        - no live `[~]` claim left by this session;
+        - the floor green on the pushed head;
+        - reviews queued where owed.
+        Where it can, it reads the session's transcript for close-out
+        checks Mike gave mid-turn. **The model-router sub-items stay
+        idea-only.** Mike said nothing to start them. The build is
+        first-of-kind, so it gets a design pass before code.
