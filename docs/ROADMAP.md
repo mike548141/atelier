@@ -185,6 +185,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [An added line can pose as a diff header in secretscan's staged](roadmap/115-guardrail-architecture-mike-commissioned/280-an-added-line-can-pose-as-a-diff-header-in-secretscan.md)
 - [ ] 🔎 [Three guard descriptions disagree with their own code](roadmap/115-guardrail-architecture-mike-commissioned/290-three-guards-describe-a-response-tier-their-code-lacks.md)
 - [ ] 🔎 [conflictscan and leakscan report the wrong line number on the](roadmap/115-guardrail-architecture-mike-commissioned/300-two-staged-guards-report-the-wrong-line-number.md)
+- [ ] 🔎 [Merges, cherry-picks and rebases make commits the hook plane](roadmap/115-guardrail-architecture-mike-commissioned/310-merges-cherry-picks-and-rebases-skip-the-hook-plane.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 
