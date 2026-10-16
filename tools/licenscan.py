@@ -394,7 +394,7 @@ RESPONSE_ADVISORY = "advisory"
 ADVISORY_SEVERITIES = frozenset({"medium"})
 
 # The prefix of the one line that always says how many advisory findings this
-# run made. `tools/floor.py`'s `ADVISORY_COUNT_RX` reads it back off the output,
+# run made. `tools/floor.py`'s `advisory_count_rx` reads it back off the output,
 # and `test_floor.py::AdvisoryCountContract` runs the real scanner against that
 # pattern.
 ADVISORY_COUNT_PREFIX = "licenscan advisory:"

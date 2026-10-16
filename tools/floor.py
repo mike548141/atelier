@@ -380,7 +380,7 @@ class Scanner:
     # place, and there is no fleet-wide default to override.
     scope_paths: tuple[str, ...] = ()
     # This check reports findings it deliberately does NOT block on, and states
-    # how many on a line this file reads back (`ADVISORY_COUNT_RX`). Set for a
+    # how many on a line this file reads back (`advisory_count_rx`). Set for a
     # check whose advisory findings must reach the board rather than scroll past
     # in its own output — E6b's third consumer leg, ruled 2026-08-04: the count
     # is persistent and cannot quietly vanish. It comes from THIS run's output,
@@ -725,13 +725,29 @@ BY_NAME = {s.name: s for s in SCANNERS}
 # recorded as `advisory=-1` ("declared a count, produced none") rather than as 0,
 # and `test_floor.py::AdvisoryCountContract` runs the real scanner and matches
 # this pattern against its real output, from both sides, on every push.
-ADVISORY_COUNT_RX = re.compile(r"advisory:\s*(\d+)\s+finding\(s\)")
+#
+# SCANNER-SPECIFIC AND WHOLE-LINE (115/320). The captured output is already one
+# scanner's own, so another scanner's count cannot arrive in it. But a scanner's
+# own findings print text the scanner does not control: a finding line carries
+# the flagged PATH, and a file named `advisory: 77 finding(s).txt` made the old
+# unanchored `advisory: N finding(s)` pattern read 77 off a blocking finding
+# line, ahead of the real count line below it. So the pattern names the scanner
+# and must be the whole line, in the scanner's own wording (the
+# `<name> advisory: N finding(s) — reported, not blocking.` line both
+# count-carriers build in `advisory_count_line`): a finding line continues past
+# `finding(s)` with `:LINE  [kind]`, and never matches.
+def advisory_count_rx(name: str) -> "re.Pattern[str]":
+    return re.compile(
+        rf"^[ \t]*{re.escape(name)} advisory:[ \t]*(\d+)[ \t]+finding\(s\)"
+        r" — reported, not blocking\.[ \t]*$", re.MULTILINE)
 
 
-def _read_advisory_count(output: str) -> int:
-    """The count this run reported, or -1 if the contract line was not there."""
-    m = ADVISORY_COUNT_RX.search(output)
-    return int(m.group(1)) if m else -1
+def _read_advisory_count(output: str, name: str) -> int:
+    """The count the scanner `name` reported on this run, or -1 if its contract
+    line was not there. Reads the LAST such line: the count is printed after
+    every finding line, so a stray earlier match could never outrank it."""
+    found = advisory_count_rx(name).findall(output)
+    return int(found[-1]) if found else -1
 
 
 class ConfigError(RuntimeError):
@@ -1817,7 +1833,8 @@ def run(plane: str, root: Path, tools: Path, cfg: Config, ci: bool,
                                       text=True, errors="replace")
                 rc = proc.returncode
                 print(proc.stdout, end="", file=child_stdout, flush=True)
-                advisory_findings = _read_advisory_count(proc.stdout)
+                advisory_findings = _read_advisory_count(proc.stdout,
+                                                         scanner.name)
             else:
                 rc = subprocess.run(argv, check=False,
                                     stdout=child_stdout).returncode
@@ -2023,7 +2040,8 @@ def _selftest() -> int:
 
     # The boundary/integrity checks must have NO advisory form — this is the
     # rule the whole "nothing is silently absent" design rests on.
-    for name in ("secretscan", "leakscan", "linkscan", "reviewscan"):
+    for name in ("secretscan", "leakscan", "conflictscan", "linkscan",
+                 "reviewscan", "board", "licenscan"):
         check(f"{name} cannot be softened", BY_NAME[name].advisory is None)
     for name in ("sizescan", "datescan", "wrapscan", "spellscan"):
         check(f"{name} can re-baseline", BY_NAME[name].advisory is not None)

@@ -10,11 +10,14 @@ ways to fail quietly, which is what these tests hold shut:
      ITSELF: `advisory` (runs, reports, does not block) or `disabled` (with a
      reason). Anything ambiguous is rejected outright, never coerced.
   2. A check could be softened where softening is not legitimate. The boundary
-     scanners (secretscan, leakscan) and integrity scanners (linkscan,
-     reviewscan) have NO advisory form: a burned secret, a leaked personal fact
-     and a botched harvest are not re-baselining problems. Only the prose-hygiene
-     checks may re-baseline, because adopting them genuinely does demand a
-     one-off cleanup pass.
+     scanners (secretscan, leakscan, conflictscan) and integrity scanners
+     (linkscan, reviewscan, board) have NO advisory form, nor does licenscan: a
+     burned secret, a leaked personal fact, a committed conflict marker and a
+     botched harvest are not re-baselining problems. A check is softenable
+     exactly when its registry entry carries an advisory form, and that is
+     now more than the prose-hygiene checks: sizescan, publishscan and the
+     prose scanners have one (publishscan as an adoption aid, not a severity
+     tier). The registry, not this prose, is the authority (AP2).
 
 The invocation contract (real scanners, real commits) is pinned separately by
 test_precommit.py. These tests are the decision logic: what runs, in what state,
@@ -66,10 +69,26 @@ class RegistryTest(unittest.TestCase):
             self.assertTrue((TOOLS_DIR / f"{s.name}.py").is_file(),
                             f"{s.name}.py is registered but missing")
 
+    # The checks a child cannot soften: boundary (secretscan, leakscan,
+    # conflictscan), integrity (linkscan, reviewscan, board) and licenscan.
+    # Spelled out here rather than derived from the registry, so making one of
+    # them softenable fails a test instead of quietly redefining the list.
+    UNSOFTENABLE = ("secretscan", "leakscan", "conflictscan", "linkscan",
+                    "reviewscan", "board", "licenscan")
+
     def test_boundary_and_integrity_checks_cannot_be_softened(self):
-        for name in ("secretscan", "leakscan", "linkscan", "reviewscan"):
+        for name in self.UNSOFTENABLE:
             self.assertIsNone(floor.BY_NAME[name].advisory,
                               f"{name} must have no advisory form")
+
+    def test_a_child_cannot_ask_to_soften_any_of_them(self):
+        """The registry pin above is the mechanism; this is the door a child
+        would actually knock on. Asking for an advisory state a scanner does not
+        offer is a config error, never a silent downgrade."""
+        for name in self.UNSOFTENABLE:
+            with self.subTest(name=name):
+                with self.assertRaises(floor.ConfigError):
+                    _cfg({"advisory": [name]})
 
     def test_hygiene_checks_can_re_baseline(self):
         for name in ("sizescan", "datescan", "wrapscan", "spellscan"):
@@ -1328,9 +1347,9 @@ class AdvisoryCountContract(unittest.TestCase):
                  "--expect", "Apache-2.0", str(root / "docs")],
                 capture_output=True, text=True)
         self.assertEqual(0, out.returncode, "an advisory finding must not block")
-        self.assertEqual(1, floor._read_advisory_count(out.stdout))
+        self.assertEqual(1, floor._read_advisory_count(out.stdout, "licenscan"))
         # A zero is read as zero, never as silence.
-        self.assertEqual(0, floor._read_advisory_count(clean.stdout))
+        self.assertEqual(0, floor._read_advisory_count(clean.stdout, "licenscan"))
 
     def test_the_board_carries_licenscans_count(self):
         with tempfile.TemporaryDirectory() as td:
@@ -1362,7 +1381,7 @@ class AdvisoryCountContract(unittest.TestCase):
                  "--root", str(root), str(root)],
                 capture_output=True, text=True)
         self.assertEqual(0, out.returncode, "an advisory finding must not block")
-        self.assertEqual(1, floor._read_advisory_count(out.stdout))
+        self.assertEqual(1, floor._read_advisory_count(out.stdout, "secretscan"))
 
     def test_a_zero_count_is_read_as_zero_not_as_silence(self):
         with tempfile.TemporaryDirectory() as td:
@@ -1372,14 +1391,61 @@ class AdvisoryCountContract(unittest.TestCase):
                 [sys.executable, str(TOOLS_DIR / "secretscan.py"),
                  "--root", str(root), str(root)],
                 capture_output=True, text=True)
-        self.assertEqual(0, floor._read_advisory_count(out.stdout))
+        self.assertEqual(0, floor._read_advisory_count(out.stdout, "secretscan"))
 
     def test_a_missing_count_line_is_minus_one_never_zero(self):
         """The drift case. If the scanner's wording moves, the board must go
         LOUD, not quietly green — a silent 0 is the exact failure the whole
         consumer ruling exists to prevent."""
-        self.assertEqual(-1, floor._read_advisory_count("✓ clean\n"))
-        self.assertEqual(-1, floor._read_advisory_count(""))
+        self.assertEqual(-1, floor._read_advisory_count("✓ clean\n", "secretscan"))
+        self.assertEqual(-1, floor._read_advisory_count("", "secretscan"))
+
+    def test_the_count_is_scoped_to_the_scanner_that_printed_it(self):
+        """115/320. A count line in another scanner's wording is not this
+        scanner's count: the old `advisory: N finding(s)` pattern matched any."""
+        other = "  licenscan advisory: 4 finding(s) — reported, not blocking.\n"
+        self.assertEqual(-1, floor._read_advisory_count(other, "secretscan"))
+        self.assertEqual(4, floor._read_advisory_count(other, "licenscan"))
+        # A name that merely ends in the scanner's own is not the scanner.
+        self.assertEqual(-1, floor._read_advisory_count(
+            "  xsecretscan advisory: 4 finding(s) — reported, not blocking.\n",
+            "secretscan"))
+
+    def test_a_finding_line_cannot_pose_as_the_count_line(self):
+        """115/320, constructed. A finding line prints the flagged PATH, and a
+        path may read like the contract line. Synthetic first, then end to end
+        against the real scanner."""
+        real = "  secretscan advisory: 1 finding(s) — reported, not blocking.\n"
+        for path in ("advisory: 77 finding(s).txt",
+                     "secretscan advisory: 77 finding(s).txt"):
+            with self.subTest(path=path):
+                out = (f"  {path}:1  [high/named] aws-access-key-id → AKIA…\n"
+                       + real)
+                self.assertEqual(1, floor._read_advisory_count(out, "secretscan"))
+                # Without the real line there is no count to read, not a 77.
+                self.assertEqual(-1, floor._read_advisory_count(
+                    out.replace(real, ""), "secretscan"))
+
+    def test_a_path_that_reads_like_the_count_does_not_move_the_board(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "docs").mkdir()
+            # One real advisory finding: a 40-char hex run with no credential key.
+            (root / "note.md").write_text(
+                "see commit 9f3a1c2b4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f90\n",
+                encoding="utf-8")
+            # One BLOCKING finding whose printed path reads like the count line.
+            # Built from parts so this file carries no key-shaped literal.
+            key = "AKIA" + "QRSTUVWXYZ234568"
+            (root / "advisory: 77 finding(s).txt").write_text(
+                f"k = {key}\n", encoding="utf-8")
+            out = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "secretscan.py"),
+                 "--root", str(root), str(root)],
+                capture_output=True, text=True)
+        self.assertEqual(1, out.returncode, "the key must block")
+        self.assertIn("advisory: 77 finding(s).txt", out.stdout)
+        self.assertEqual(1, floor._read_advisory_count(out.stdout, "secretscan"))
 
     def test_the_board_carries_the_count(self):
         with tempfile.TemporaryDirectory() as td:
