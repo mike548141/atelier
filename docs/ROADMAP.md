@@ -541,6 +541,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up: the floor's Estate resources bullet covers facts](roadmap/320-child-filed-findings-via-pointing-up/590-the-estate-resources-bullet-covers-facts-not-access-or-write-back.md)
 - [ ] 🔎 [Hand-up from a private child: at the hook plane the content](roadmap/320-child-filed-findings-via-pointing-up/600-the-hook-plane-content-scanners-read-the-working-tree-not-the-staged-index.md)
 - [ ] 🔎 [Hand-up: the floor region now names a path no child can resolve,](roadmap/320-child-filed-findings-via-pointing-up/610-the-floor-names-a-path-no-child-can-resolve.md)
+- [ ] 🔎 [Hand-up: a child's own visibility fact sits inside its verbatim floor…](roadmap/320-child-filed-findings-via-pointing-up/620-a-childs-own-visibility-fact-sits-inside-the-verbatim-floor.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
