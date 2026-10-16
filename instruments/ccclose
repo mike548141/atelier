@@ -1,0 +1,749 @@
+#!/usr/bin/env node
+/*
+ * ccclose — check, from a fresh read, whether a session's close left anything
+ * owing.
+ *
+ * RECORD.md's close declaration says what a close owes and that "nothing is
+ * owed" is a claim that must carry its evidence. This is that evidence, read
+ * from the repo, the host and the session's own transcript rather than from the
+ * session's memory, which is the thing that drifts in a long session. It prints
+ * the standard outputs (session id, transcript, window), eleven checks in a
+ * fixed order, the principal's close-out asks found in the transcript, and a
+ * one-line verdict. The design of record is instruments/ccclose.design.md.
+ *
+ * ATTRIBUTION IS A HEURISTIC, and the output says so on every run: "this
+ * session's" commits, branches, worktrees, claims and PRs are the ones dated
+ * inside the window (first to last transcript timestamp) on this repo. Two
+ * sessions working one repo at once can each be credited with the other's work.
+ * The one stronger signal is a [~] claim line that names the session's 8-char id
+ * prefix.
+ *
+ * READ-ONLY. It never commits, pushes, fetches, removes a worktree or edits a
+ * file. "Pushed" therefore means "in a remote-tracking ref as of the last
+ * fetch". The only network is `gh`, and only when gh is present and
+ * authenticated; otherwise those checks print unknown, never a pass.
+ *
+ * The transcript is streamed a line at a time. The prompt classifiers are
+ * cctranscript's own (required from beside this file), so a ref printed here
+ * opens the same exchange in cctranscript.
+ *
+ * Test seam: $CCCLOSE_GH names the gh executable (default "gh"), so the tests
+ * can stand a stub in for the network.
+ */
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const readline = require('node:readline');
+const { spawnSync } = require('node:child_process');
+
+const cct = require(path.join(__dirname, 'cctranscript'));
+
+const HELP = `ccclose — check a session's close from a fresh read
+
+USAGE
+  ccclose [--session <id|path>] [--root <dir>] [--json]
+
+OPTIONS
+  --session <id|path>  The session to check: a session id, or a .jsonl path.
+                       Default: $CLAUDE_CODE_SESSION_ID.
+  --root <dir>         The repo to check (default: the current directory).
+  --json               Machine-readable output.
+  -h, --help           This help.
+
+Checks worktrees, branches, pushes, PRs, the session record, the board, live
+claims, the floor at the pushed head, review pointers, workaround-shaped
+commands and the working tree, then lists the principal's close-out asks.
+Read-only. Exit 0 when no check fails.  Full manual: man ccclose`;
+
+// The cap on every listed set. Counts stay whole; only the lists are cut.
+const CAP = 25;
+
+// --- arguments -----------------------------------------------------------
+
+function parseArgs(argv) {
+  const opts = { session: null, root: null, json: false, help: false };
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '-h' || a === '--help') opts.help = true;
+    else if (a === '--json') opts.json = true;
+    else if (a === '--session' || a === '--root') {
+      const v = argv[i + 1];
+      if (v === undefined || v.startsWith('--')) return { error: `${a} needs a value` };
+      opts[a.slice(2)] = v;
+      i++;
+    } else return { error: `unknown argument '${a}'` };
+  }
+  return opts;
+}
+
+// --- small helpers -------------------------------------------------------
+
+function run(cmd, args, cwd, timeout = 30000) {
+  let r;
+  try {
+    r = spawnSync(cmd, args, {
+      cwd, encoding: 'utf8', timeout, maxBuffer: 64 * 1024 * 1024,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  } catch (e) { return { ok: false, code: null, out: '', err: String(e && e.message) }; }
+  if (r.error) return { ok: false, code: null, out: r.stdout || '', err: String(r.error.message) };
+  return { ok: r.status === 0, code: r.status, out: r.stdout || '', err: r.stderr || '' };
+}
+// --no-optional-locks: `git status` otherwise refreshes the index under
+// index.lock, which is a write, and on a shared checkout it can collide with a
+// peer session's commit. A checker must not cause the contention it reports on.
+const git = (root, args, timeout) => run('git', ['--no-optional-locks', '-C', root, ...args], root, timeout);
+const lines = (s) => s.split('\n').filter((l) => l.length > 0);
+const isDir = (p) => { try { return fs.statSync(p).isDirectory(); } catch { return false; } };
+const isFile = (p) => { try { return fs.statSync(p).isFile(); } catch { return false; } };
+const clip = (s, n) => {
+  const flat = String(s).replace(/\s+/g, ' ').trim();
+  return flat.length > n ? flat.slice(0, n - 1) + '…' : flat;
+};
+const utc = (ms) => (Number.isFinite(ms) ? new Date(ms).toISOString().slice(0, 16).replace('T', ' ') : 'unknown');
+const short = (sha) => (sha ? sha.slice(0, 12) : 'unknown');
+
+// --- the transcript ------------------------------------------------------
+
+// Find <id>.jsonl in any project folder: a session that moved into a worktree
+// still logs under the folder it started in, so the cwd encoding is not enough.
+function locateTranscript(spec) {
+  if (!spec) return null;
+  if (spec.includes('/') || spec.endsWith('.jsonl')) {
+    const p = path.resolve(spec);
+    return isFile(p) ? p : null;
+  }
+  const projects = path.join(os.homedir(), '.claude', 'projects');
+  let dirs;
+  try { dirs = fs.readdirSync(projects); } catch { return null; }
+  for (const d of dirs) {
+    const p = path.join(projects, d, `${spec}.jsonl`);
+    if (isFile(p)) return p;
+  }
+  return null;
+}
+
+// Harness wrappers that ride in a type:"user" record but are not the principal
+// typing. Text that is nothing BUT these is not a prompt for the asks list.
+const WRAPPERS = ['system-reminder', 'task-notification', 'command-name', 'command-message',
+  'command-args', 'local-command-stdout', 'local-command-stderr', 'local-command-caveat',
+  'cross-session-message', 'browser_instruction'];
+const WRAPPER_RE = new RegExp(`<(${WRAPPERS.join('|')})\\b[^>]*>[\\s\\S]*?</\\1>`, 'g');
+function stripWrappers(text) {
+  return text.replace(WRAPPER_RE, ' ').trim();
+}
+
+// The close-out ask heuristic (design note §9). A sentence is listed when it
+// has a strong close phrase, or both a cue and an object. It errs towards
+// listing: a missed ask is the costly error.
+const STRONG = /\b(close[- ]?out|closing out|ready to close|before (?:you )?(?:close|closing|finish|finishing|stop|stopping|wrap)|at (?:the )?close|wrap(?:ping)? up|tidy[- ]?up|clean[- ]?up|leave (?:it |things |everything |the \w+ )?(?:clean|tidy))\b/i;
+const CUE = /\b(make sure|ensure|remember to|don'?t forget|do not forget|check (?:that|whether|for|if)|before you|at the end|when (?:you'?re|you are|it'?s) (?:done|finished)|close|closing|record(?:ed|s)?|log(?:ged)?|update[ds]?)\b/i;
+const OBJECT = /\b(session (?:log|record|entry)|sessions\.md|roadmap|board|changelog|worktrees?|branch(?:es)?|PRs?|pull requests?|merged?|push(?:ed)?|learnings?|defects?|evidence|assumptions?|decisions?|questions?|rulings?|follow-?ups?|memory|reviews?|floor)\b/i;
+function askSentences(text) {
+  const out = [];
+  for (const raw of text.split(/\n+|(?<=[.!?])\s+/)) {
+    const s = raw.trim();
+    if (s.length < 3) continue;
+    if (STRONG.test(s) || (CUE.test(s) && OBJECT.test(s))) out.push(s);
+  }
+  return out;
+}
+
+// Shell commands shaped like a workaround (Mike: "no work arounds when issues
+// come up like contention on commits"). Listed, never judged: some are fine.
+const BYPASSES = [
+  ['hooks skipped', /--no-verify\b/],
+  ['signing switched off', /--no-gpg-sign\b|commit\.gpgsign=false|gpg\.format=\S*\s/],
+  ['hooks redirected', /core\.hooksPath\s*=/],
+  ['force push', /\bgit\b[^|;&]*\bpush\b[^|;&]*(?:\s-f\b|--force\b|--force-with-lease\b)/],
+  ['hard reset', /\bgit\b[^|;&]*\breset\b[^|;&]*--hard\b/],
+  ['bare stash', /\bgit\s+stash(?:\s+(?:pop|push)?\s*)?(?:$|[;&|])/],
+  ['stage everything', /\bgit\s+add\s+(?:-A\b|--all\b|\.(?:\s|$))/],
+  ['lock file removed', /\brm\b[^|;&]*index\.lock\b/],
+  ['protection bypassed', /\bgh\s+pr\s+merge\b[^|;&]*--admin\b/],
+];
+function bypassesIn(command) {
+  return BYPASSES.filter(([, re]) => re.test(command)).map(([label]) => label);
+}
+
+// Stream the log once: window, prompt counts, asks, models, bypasses.
+async function readTranscript(file) {
+  const t = {
+    first: null, last: null, turn: 0, midTurn: 0, models: new Set(),
+    asks: [], asksTotal: 0, bypasses: [], bypassesTotal: 0,
+  };
+  let n = 0, k = 0;
+  const rl = readline.createInterface({ input: fs.createReadStream(file), crlfDelay: Infinity });
+  for await (const ln of rl) {
+    if (!ln.trim()) continue;
+    let o; try { o = JSON.parse(ln); } catch { continue; }
+    const ms = o.timestamp ? Date.parse(o.timestamp) : NaN;
+    if (Number.isFinite(ms)) {
+      if (t.first === null || ms < t.first) t.first = ms;
+      if (t.last === null || ms > t.last) t.last = ms;
+    }
+    let text = null, ref = null, channel = null, principal = false;
+    if (o.type === 'user' && !o.toolUseResult) {
+      // Numbered exactly as cctranscript's readTurns/numberTurns do, so refs match.
+      const raw = cct.extractText(o.message && o.message.content).trim();
+      if (!raw) continue;
+      n++; k = 0;
+      ref = String(n); channel = 'turn';
+      text = stripWrappers(raw);
+      principal = !o.isMeta && text.length > 0;
+    } else if (o.type === 'attachment' && cct.isHumanQueuedCommand(o.attachment)) {
+      const raw = cct.extractText(o.attachment.prompt).trim();
+      if (!raw) continue;
+      k++;
+      ref = `${n}+${k}`; channel = 'mid-turn';
+      text = stripWrappers(raw);
+      principal = text.length > 0;
+    } else if (o.type === 'assistant') {
+      const m = cct.friendlyModel(o.message && o.message.model);
+      if (m) t.models.add(m);
+      const content = o.message && Array.isArray(o.message.content) ? o.message.content : [];
+      for (const b of content) {
+        if (b.type !== 'tool_use' || b.name !== 'Bash') continue;
+        const cmd = b.input && typeof b.input.command === 'string' ? b.input.command : '';
+        const hit = bypassesIn(cmd);
+        if (!hit.length) continue;
+        t.bypassesTotal++;
+        if (t.bypasses.length < CAP) {
+          t.bypasses.push({ ts: Number.isFinite(ms) ? new Date(ms).toISOString() : null, kinds: hit, command: clip(cmd, 160) });
+        }
+      }
+      continue;
+    } else continue;
+    if (!principal) continue;
+    if (channel === 'turn') t.turn++; else t.midTurn++;
+    const found = askSentences(text);
+    if (!found.length) continue;
+    t.asksTotal++;
+    if (t.asks.length < CAP) {
+      t.asks.push({
+        ts: Number.isFinite(ms) ? new Date(ms).toISOString() : null,
+        channel, ref, quote: clip(found.join(' … '), 240),
+      });
+    }
+  }
+  t.models = [...t.models];
+  return t;
+}
+
+// --- the repo ------------------------------------------------------------
+
+function repoFacts(rootArg) {
+  const r = git(rootArg, ['rev-parse', '--show-toplevel']);
+  if (!r.ok) return { isGit: false, root: path.resolve(rootArg) };
+  const root = r.out.trim();
+  const head = git(root, ['rev-parse', 'HEAD']);
+  const branch = git(root, ['symbolic-ref', '--quiet', '--short', 'HEAD']);
+  const common = git(root, ['rev-parse', '--path-format=absolute', '--git-common-dir']);
+  const remotes = lines(git(root, ['remote']).out);
+  // The default branch: origin/HEAD's target, else main/master, else HEAD's.
+  let remote = remotes.includes('origin') ? 'origin' : (remotes[0] || null);
+  let defaultBranch = null;
+  if (remote) {
+    const sym = git(root, ['symbolic-ref', '--quiet', '--short', `refs/remotes/${remote}/HEAD`]);
+    if (sym.ok) defaultBranch = sym.out.trim().slice(remote.length + 1);
+  }
+  if (!defaultBranch) {
+    for (const b of ['main', 'master']) {
+      if (git(root, ['rev-parse', '--verify', '--quiet', `refs/heads/${b}`]).ok) { defaultBranch = b; break; }
+    }
+  }
+  if (!defaultBranch && branch.ok) defaultBranch = branch.out.trim();
+  const remoteRef = remote && defaultBranch
+    && git(root, ['rev-parse', '--verify', '--quiet', `refs/remotes/${remote}/${defaultBranch}`]).ok
+    ? `refs/remotes/${remote}/${defaultBranch}` : null;
+  const url = remote ? git(root, ['remote', 'get-url', remote]).out.trim() : '';
+  return {
+    isGit: true, root,
+    head: head.ok ? head.out.trim() : null,
+    branch: branch.ok ? branch.out.trim() : null,
+    commonDir: common.ok ? common.out.trim() : null,
+    remotes, remote, defaultBranch, remoteRef,
+    github: /github\.com[:/]/.test(url),
+  };
+}
+
+// Commits whose committer time is inside the window. --since takes a day of
+// slack so a time-zone reading of the bound can never drop one; the exact
+// filter is on %ct.
+function inWindow(sec, w) { return sec * 1000 >= Math.floor(w.first / 1000) * 1000 && sec * 1000 <= w.last; }
+function sinceArg(w) { return `--since=${new Date(w.first - 86400000).toISOString()}`; }
+function windowCommits(repo, w, revs, extra = []) {
+  const r = git(repo.root, ['log', ...revs, sinceArg(w), '--format=%H%x09%ct%x09%s', ...extra]);
+  if (!r.ok) return null;
+  return lines(r.out).map((l) => { const [sha, ct, ...s] = l.split('\t'); return { sha, ct: Number(ct), subject: s.join('\t') }; })
+    .filter((c) => inWindow(c.ct, w));
+}
+
+function linkedWorktrees(repo) {
+  const r = git(repo.root, ['worktree', 'list', '--porcelain']);
+  if (!r.ok) return null;
+  const entries = [];
+  let cur = null;
+  for (const l of r.out.split('\n')) {
+    if (l.startsWith('worktree ')) { cur = { path: l.slice(9), branch: null }; entries.push(cur); }
+    else if (cur && l.startsWith('branch ')) cur.branch = l.slice(7).replace(/^refs\/heads\//, '');
+    else if (cur && l === 'detached') cur.branch = '(detached)';
+  }
+  const linked = entries.slice(1);
+  // Each linked worktree's admin dir is <common>/worktrees/<name>, whose gitdir
+  // file points back at <worktree>/.git. Its birth time is when it was added.
+  const born = new Map();
+  const adminRoot = repo.commonDir ? path.join(repo.commonDir, 'worktrees') : null;
+  let names = [];
+  try { names = adminRoot ? fs.readdirSync(adminRoot) : []; } catch {}
+  for (const name of names) {
+    const admin = path.join(adminRoot, name);
+    try {
+      const target = path.dirname(fs.readFileSync(path.join(admin, 'gitdir'), 'utf8').trim());
+      const st = fs.statSync(admin);
+      born.set(safeReal(target), st.birthtimeMs > 0 ? st.birthtimeMs : null);
+    } catch {}
+  }
+  for (const e of linked) e.born = born.has(safeReal(e.path)) ? born.get(safeReal(e.path)) : null;
+  return linked;
+}
+function safeReal(p) { try { return fs.realpathSync(p); } catch { return p; } }
+
+// --- the checks ----------------------------------------------------------
+
+const ICON = { pass: '✅', fail: '❌', warn: '⚠️', na: '➖' };
+function check(id, label, status, summary, items = [], itemsTotal = items.length) {
+  return { id, label, status, summary, items: items.slice(0, CAP), itemsTotal };
+}
+const NOT_GIT = 'not a git repository';
+const NO_WINDOW = 'the session window is unknown (no transcript), so nothing can be attributed';
+
+function checkWorktrees(repo, w) {
+  const L = 'Worktrees put away';
+  if (!repo.isGit) return check('worktrees', L, 'na', NOT_GIT);
+  const wts = linkedWorktrees(repo);
+  if (wts === null) return check('worktrees', L, 'warn', 'git worktree list failed');
+  if (!wts.length) return check('worktrees', L, 'pass', 'no linked worktrees');
+  if (!w) return check('worktrees', L, 'warn', `${wts.length} linked worktree(s); ${NO_WINDOW}`,
+    wts.map((e) => `${e.path} (${e.branch || '?'})`));
+  const mine = wts.filter((e) => e.born !== null && e.born >= w.first && e.born <= w.last);
+  const unknown = wts.filter((e) => e.born === null);
+  const others = wts.length - mine.length - unknown.length;
+  if (mine.length) {
+    return check('worktrees', L, 'fail',
+      `${mine.length} created in the window still exist · ${others} other(s) not attributed`,
+      mine.map((e) => `${e.path} (${e.branch || '?'})`));
+  }
+  if (unknown.length) {
+    return check('worktrees', L, 'warn', `${unknown.length} with no readable creation time · ${others} other(s) not attributed`,
+      unknown.map((e) => `${e.path} (${e.branch || '?'})`));
+  }
+  return check('worktrees', L, 'pass', `none created in the window remain · ${others} other(s) not attributed`);
+}
+
+function sessionBranches(repo, w) {
+  const r = git(repo.root, ['for-each-ref', 'refs/heads', '--format=%(refname:short)%09%(committerdate:unix)%09%(objectname)']);
+  if (!r.ok) return null;
+  return lines(r.out).map((l) => { const [name, ct, sha] = l.split('\t'); return { name, ct: Number(ct), sha }; })
+    .filter((b) => b.name !== repo.defaultBranch);
+}
+
+function checkBranches(repo, w) {
+  const L = 'Branches put away';
+  if (!repo.isGit) return check('branches', L, 'na', NOT_GIT);
+  const all = sessionBranches(repo, w);
+  if (all === null) return check('branches', L, 'warn', 'git for-each-ref failed');
+  if (!all.length) return check('branches', L, 'pass', `no branch besides ${repo.defaultBranch || 'the default'}`);
+  if (!w) return check('branches', L, 'warn', `${all.length} branch(es) besides the default; ${NO_WINDOW}`, all.map((b) => b.name));
+  const mine = all.filter((b) => inWindow(b.ct, w));
+  const target = repo.remoteRef || (repo.defaultBranch ? `refs/heads/${repo.defaultBranch}` : null);
+  if (!mine.length) return check('branches', L, 'pass', `none with a tip in the window · ${all.length} other(s) not attributed`);
+  const items = mine.map((b) => {
+    const merged = target && git(repo.root, ['merge-base', '--is-ancestor', b.sha, target]).ok;
+    return `${b.name} (${merged ? 'merged, not deleted' : 'not merged'})`;
+  });
+  return check('branches', L, 'fail', `${mine.length} with a tip in the window still exist · ${all.length - mine.length} other(s) not attributed`, items);
+}
+
+function checkPushed(repo, w) {
+  const L = 'Commits pushed';
+  if (!repo.isGit) return check('pushed', L, 'na', NOT_GIT);
+  if (!repo.remotes.length) return check('pushed', L, 'na', 'no remote configured');
+  if (!w) return check('pushed', L, 'warn', NO_WINDOW);
+  const c = windowCommits(repo, w, ['--branches', '--not', '--remotes']);
+  if (c === null) return check('pushed', L, 'warn', 'git log failed');
+  if (!c.length) return check('pushed', L, 'pass', 'every commit from the window is on a remote (as of the last fetch)');
+  return check('pushed', L, 'fail', `${c.length} commit(s) from the window on no remote (as of the last fetch)`,
+    c.map((x) => `${short(x.sha)} ${clip(x.subject, 80)}`), c.length);
+}
+
+// gh, if present and authenticated. Returns the binary or a reason string.
+function ghReady(repo) {
+  const bin = process.env.CCCLOSE_GH || 'gh';
+  const r = run(bin, ['auth', 'status'], repo.root, 20000);
+  if (r.code === null) return { reason: 'gh is not installed' };
+  if (!r.ok) return { reason: 'gh is not authenticated' };
+  return { bin };
+}
+function ghJson(gh, repo, args) {
+  const r = run(gh.bin, args, repo.root, 30000);
+  if (!r.ok) return null;
+  try { return JSON.parse(r.out); } catch { return null; }
+}
+
+function checkPrs(repo, w, gh, branches) {
+  const L = 'PRs merged';
+  if (!repo.isGit) return check('prs', L, 'na', NOT_GIT);
+  if (!repo.github) return check('prs', L, 'na', 'no GitHub remote');
+  if (gh.reason) return check('prs', L, 'warn', `unknown — ${gh.reason}`);
+  const prs = ghJson(gh, repo, ['pr', 'list', '--state', 'open', '--limit', '100',
+    '--json', 'number,title,headRefName,createdAt,url']);
+  if (!Array.isArray(prs)) return check('prs', L, 'warn', 'unknown — gh pr list failed');
+  if (!prs.length) return check('prs', L, 'pass', 'no open PRs');
+  if (!w) return check('prs', L, 'warn', `${prs.length} open PR(s); ${NO_WINDOW}`, prs.map((p) => `#${p.number} ${clip(p.title, 70)}`));
+  const names = new Set((branches || []).filter((b) => inWindow(b.ct, w)).map((b) => b.name));
+  const mine = prs.filter((p) => {
+    const at = Date.parse(p.createdAt);
+    return (Number.isFinite(at) && at >= w.first && at <= w.last) || names.has(p.headRefName);
+  });
+  if (!mine.length) return check('prs', L, 'pass', `none of this session's open · ${prs.length} other open PR(s) not attributed`);
+  return check('prs', L, 'fail', `${mine.length} of this session's still open`,
+    mine.map((p) => `#${p.number} ${clip(p.title, 70)} (${p.headRefName})`));
+}
+
+// The session log adapter: docs/SESSIONS.md or SESSIONS.md, with a sessions/
+// detail store beside it when the repo keeps one.
+function sessionLog(repo) {
+  for (const rel of ['docs/SESSIONS.md', 'SESSIONS.md']) {
+    if (isFile(path.join(repo.root, rel))) {
+      const detail = path.join(path.dirname(rel), 'sessions');
+      return { log: rel, detail: isDir(path.join(repo.root, detail)) ? detail : null };
+    }
+  }
+  return null;
+}
+
+function checkSessionRecord(repo, w) {
+  const L = 'Session record written';
+  if (!repo.isGit) return check('session-record', L, 'na', NOT_GIT);
+  const s = sessionLog(repo);
+  if (!s) return check('session-record', L, 'na', 'no session log in this repo (looked for docs/SESSIONS.md, SESSIONS.md)');
+  if (!w) return check('session-record', L, 'warn', NO_WINDOW);
+  const idx = windowCommits(repo, w, ['--branches', '--remotes'], ['--', s.log]);
+  const det = s.detail ? windowCommits(repo, w, ['--branches', '--remotes'], ['--', s.detail]) : [];
+  if (idx === null || det === null) return check('session-record', L, 'warn', 'git log failed');
+  const dirty = lines(git(repo.root, ['status', '--porcelain', '--', s.log, ...(s.detail ? [s.detail] : [])]).out);
+  const what = `${s.log}${s.detail ? ` + ${s.detail}/` : ''}`;
+  if (!idx.length) {
+    return check('session-record', L, 'fail', dirty.length
+      ? `written but not committed (${dirty.length} uncommitted change(s) in ${what})`
+      : `no commit in the window touches ${s.log}`, dirty);
+  }
+  if (s.detail && !det.length) return check('session-record', L, 'warn', `index line committed in the window, but no detail file under ${s.detail}/`);
+  if (dirty.length) return check('session-record', L, 'warn', `committed in the window, with ${dirty.length} further uncommitted change(s)`, dirty);
+  return check('session-record', L, 'pass', `${idx.length} commit(s) to the index${s.detail ? `, ${det.length} to the detail store` : ''} in the window`);
+}
+
+// The board adapter. A generated board carries board.py's banner beside a
+// roadmap/ item store; a hand-kept ROADMAP.md has claims but nothing to rebuild.
+function board(repo) {
+  for (const rel of ['docs/ROADMAP.md', 'ROADMAP.md']) {
+    const p = path.join(repo.root, rel);
+    if (!isFile(p)) continue;
+    let head = '';
+    try { const fd = fs.openSync(p, 'r'); const b = Buffer.alloc(512); const n = fs.readSync(fd, b, 0, 512, 0); fs.closeSync(fd); head = b.toString('utf8', 0, n); } catch {}
+    const items = path.join(path.dirname(rel), 'roadmap');
+    const generated = head.includes('GENERATED by board.py') || head.includes('GENERATED by tools/board.py');
+    return { index: rel, items: generated && isDir(path.join(repo.root, items)) ? items : null, generated };
+  }
+  return null;
+}
+
+function boardTool(repo) {
+  for (const p of [path.join(repo.root, 'tools', 'board.py'), path.resolve(__dirname, '..', 'tools', 'board.py')]) {
+    if (isFile(p)) return p;
+  }
+  return null;
+}
+
+function checkBoard(repo, b) {
+  const L = 'Board index rebuilt';
+  if (!repo.isGit) return check('board', L, 'na', NOT_GIT);
+  if (!b) return check('board', L, 'na', 'no board in this repo');
+  if (!b.generated || !b.items) return check('board', L, 'na', `${b.index} is hand-kept, so there is nothing generated to rebuild`);
+  const tool = boardTool(repo);
+  if (!tool) return check('board', L, 'warn', 'unknown — board.py not found in the repo or beside ccclose');
+  const r = run('python3', [tool, '--check', '--root', repo.root], repo.root, 120000);
+  if (r.code === 0) return check('board', L, 'pass', `${b.index} matches ${b.items}/ (board.py --check)`);
+  if (r.code === 1) return check('board', L, 'fail', `${b.index} is stale against ${b.items}/ (board.py --check)`,
+    lines(r.out + r.err).slice(0, 5).map((l) => clip(l, 120)));
+  return check('board', L, 'warn', `unknown — board.py --check could not run (${r.code === null ? 'python3 missing or timed out' : `exit ${r.code}`})`);
+}
+
+const CLAIM_LINE = /^\s*[-*]\s+\[~\]/;
+const CLAIM_TIME = /claimed\s+(\d{4})-(\d{2})-(\d{2})[-T ](\d{2}):?(\d{2})/;
+function claimFiles(repo, b) {
+  if (b.items) {
+    const out = [];
+    const walk = (dir) => {
+      let ents; try { ents = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+      for (const e of ents) {
+        if (out.length >= 5000) return;
+        const p = path.join(dir, e.name);
+        if (e.isDirectory()) walk(p); else if (e.name.endsWith('.md')) out.push(p);
+      }
+    };
+    walk(path.join(repo.root, b.items));
+    return out;
+  }
+  return [path.join(repo.root, b.index)];
+}
+
+function checkClaims(repo, w, b, sid) {
+  const L = 'No live claim left';
+  if (!repo.isGit) return check('claims', L, 'na', NOT_GIT);
+  if (!b) return check('claims', L, 'na', 'no board in this repo');
+  const sid8 = sid ? sid.slice(0, 8) : null;
+  const mine = [], others = [];
+  for (const f of claimFiles(repo, b)) {
+    let text; try { const st = fs.statSync(f); if (st.size > 1024 * 1024) continue; text = fs.readFileSync(f, 'utf8'); } catch { continue; }
+    text.split('\n').forEach((line, i) => {
+      if (!CLAIM_LINE.test(line)) return;
+      const where = `${path.relative(repo.root, f)}:${i + 1}`;
+      let attributed = sid8 && line.includes(sid8);
+      if (!attributed && w) {
+        const m = line.match(CLAIM_TIME);
+        if (m) {
+          const at = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]);
+          attributed = at >= Math.floor(w.first / 60000) * 60000 && at <= w.last;
+        }
+      }
+      (attributed ? mine : others).push(`${where} ${clip(line.replace(CLAIM_LINE, '[~]'), 100)}`);
+    });
+  }
+  if (mine.length) return check('claims', L, 'fail', `${mine.length} [~] claim(s) of this session's still live · ${others.length} other(s) not attributed`, mine, mine.length);
+  if (!w && !sid8 && others.length) return check('claims', L, 'warn', `${others.length} live [~] claim(s); ${NO_WINDOW}`, others, others.length);
+  return check('claims', L, 'pass', `none of this session's · ${others.length} other live claim(s) not attributed`);
+}
+
+function hasWorkflows(repo) {
+  const d = path.join(repo.root, '.github', 'workflows');
+  try { return fs.readdirSync(d).some((n) => /\.ya?ml$/.test(n)); } catch { return false; }
+}
+
+const RED = new Set(['failure', 'timed_out', 'startup_failure', 'cancelled', 'action_required']);
+const GREEN = new Set(['success', 'skipped', 'neutral']);
+function checkFloor(repo, w, gh) {
+  const L = 'Floor green at the pushed head';
+  if (!repo.isGit) return check('floor', L, 'na', NOT_GIT);
+  if (!repo.github) return check('floor', L, 'na', 'no GitHub remote');
+  if (!hasWorkflows(repo)) return check('floor', L, 'na', 'no workflows under .github/workflows');
+  if (!repo.remoteRef) return check('floor', L, 'na', 'no remote-tracking ref for the default branch');
+  if (!w) return check('floor', L, 'warn', NO_WINDOW);
+  const c = windowCommits(repo, w, [repo.remoteRef]);
+  if (c === null) return check('floor', L, 'warn', 'git log failed');
+  if (!c.length) return check('floor', L, 'na', `nothing from the window reached ${repo.remoteRef.replace('refs/remotes/', '')} (as of the last fetch)`);
+  const sha = c.reduce((a, x) => (x.ct > a.ct ? x : a)).sha;  // full sha: a short one silently returns []
+  const tip = git(repo.root, ['rev-parse', repo.remoteRef]).out.trim();
+  const moved = tip && tip !== sha ? ` (the branch has since moved on to ${short(tip)})` : '';
+  if (gh.reason) return check('floor', L, 'warn', `unknown for ${short(sha)} — ${gh.reason}`);
+  const runs = ghJson(gh, repo, ['run', 'list', '--commit', sha, '--limit', '50',
+    '--json', 'databaseId,workflowName,status,conclusion,url']);
+  if (!Array.isArray(runs)) return check('floor', L, 'warn', `unknown for ${short(sha)} — gh run list failed`);
+  if (!runs.length) return check('floor', L, 'warn', `no run reported for ${short(sha)}${moved}`);
+  const latest = new Map();
+  for (const r of runs) {
+    const prev = latest.get(r.workflowName);
+    if (!prev || (r.databaseId || 0) > (prev.databaseId || 0)) latest.set(r.workflowName, r);
+  }
+  const rs = [...latest.values()];
+  const items = rs.map((r) => `${r.workflowName}: ${r.status === 'completed' ? r.conclusion : r.status}`);
+  const red = rs.filter((r) => r.status === 'completed' && RED.has(r.conclusion));
+  if (red.length) {
+    const cancelled = red.some((r) => r.conclusion === 'cancelled');
+    return check('floor', L, 'fail', `${short(sha)}${moved}: ${red.length} run(s) not green${cancelled ? ' — cancelled is not a pass; re-run on this sha' : ''}`, items);
+  }
+  const pending = rs.filter((r) => r.status !== 'completed');
+  if (pending.length) return check('floor', L, 'warn', `${short(sha)}${moved}: ${pending.length} run(s) pending`, items);
+  if (rs.every((r) => GREEN.has(r.conclusion))) return check('floor', L, 'pass', `${short(sha)}${moved}: ${rs.length} workflow(s) green`, items);
+  return check('floor', L, 'warn', `${short(sha)}${moved}: a conclusion ccclose does not know`, items);
+}
+
+const DOCTRINE_TOOL_DIRS = ['docs/method', 'docs/build', 'docs/decisions', 'tools', 'instruments', 'skills', 'commands'];
+function checkReviews(repo, w, b) {
+  const L = 'Reviews queued where owed';
+  if (!repo.isGit) return check('reviews', L, 'na', NOT_GIT);
+  if (!b) return check('reviews', L, 'na', 'no board to queue a review on');
+  const dirs = DOCTRINE_TOOL_DIRS.filter((d) => isDir(path.join(repo.root, d)));
+  if (!dirs.length) return check('reviews', L, 'na', 'no doctrine or tool paths in this repo');
+  if (!w) return check('reviews', L, 'warn', NO_WINDOW);
+  const r = git(repo.root, ['log', '--branches', '--remotes', sinceArg(w), '--format=@@%ct', '--name-only']);
+  if (!r.ok) return check('reviews', L, 'warn', 'git log failed');
+  const touched = new Set();
+  let ct = 0;
+  for (const l of lines(r.out)) {
+    if (l.startsWith('@@')) { ct = Number(l.slice(2)); continue; }
+    if (inWindow(ct, w) && dirs.some((d) => l.startsWith(d + '/'))) touched.add(l);
+  }
+  if (!touched.size) return check('reviews', L, 'pass', 'no doctrine or tool path changed in the window');
+  const boardPaths = [b.index, ...(b.items ? [b.items] : [])];
+  const p = git(repo.root, ['log', '--branches', '--remotes', sinceArg(w), '--format=@@%ct', '-p', '--', ...boardPaths], 120000);
+  if (!p.ok) return check('reviews', L, 'warn', `unknown — ${touched.size} doctrine/tool path(s) changed, and the board's history could not be read`, [...touched]);
+  let pointers = 0;
+  ct = 0;
+  for (const l of p.out.split('\n')) {
+    if (l.startsWith('@@') && /^@@\d+$/.test(l)) { ct = Number(l.slice(2)); continue; }
+    if (inWindow(ct, w) && l.startsWith('+') && !l.startsWith('+++') && l.includes('⏳')) pointers++;
+  }
+  if (pointers) return check('reviews', L, 'pass', `${touched.size} doctrine/tool path(s) changed · ${pointers} ⏳ line(s) added to the board`);
+  return check('reviews', L, 'warn',
+    `${touched.size} doctrine/tool path(s) changed and no ⏳ landed — owed unless the work is self-verifying (REVIEW.md § calibrate to risk); say which`,
+    [...touched], touched.size);
+}
+
+function checkBypasses(t) {
+  const L = 'Workaround-shaped commands';
+  if (!t) return check('bypasses', L, 'na', 'no transcript');
+  if (!t.bypassesTotal) return check('bypasses', L, 'pass', 'none in the transcript');
+  return check('bypasses', L, 'warn', `${t.bypassesTotal} command(s) shaped like a workaround — listed, not judged; answer each`,
+    t.bypasses.map((x) => `${x.ts ? utc(Date.parse(x.ts)) + ' UTC' : 'unknown time'} [${x.kinds.join(', ')}] ${x.command}`), t.bypassesTotal);
+}
+
+function checkTree(repo) {
+  const L = 'Working tree clean';
+  if (!repo.isGit) return check('tree', L, 'na', NOT_GIT);
+  const r = git(repo.root, ['status', '--porcelain']);
+  if (!r.ok) return check('tree', L, 'warn', 'git status failed');
+  const dirty = lines(r.out);
+  if (!dirty.length) return check('tree', L, 'pass', 'clean');
+  return check('tree', L, 'warn', `${dirty.length} uncommitted change(s) — cannot be attributed (they may be a live peer's)`, dirty, dirty.length);
+}
+
+// --- assemble and render -------------------------------------------------
+
+const HEURISTIC = '"this session\'s" = dated inside the window on this repo; sessions that overlapped can be credited with each other\'s work';
+const ASK_HEURISTIC = 'keyword heuristic over the principal\'s turn and mid-turn prompts — lists, does not judge';
+
+async function collect(opts) {
+  const sid = opts.session || process.env.CLAUDE_CODE_SESSION_ID || null;
+  const source = opts.session ? '--session' : (sid ? '$CLAUDE_CODE_SESSION_ID' : null);
+  const file = locateTranscript(sid);
+  let t = null, readErr = null;
+  if (file) { try { t = await readTranscript(file); } catch (e) { readErr = e.message; } }
+  // The session running this command is still live: its log's last line was
+  // written before whatever it did since (a commit made just before running
+  // ccclose can postdate it), so its window runs to now. A past session named
+  // with --session keeps its transcript's own end.
+  const live = !!sid && sid === process.env.CLAUDE_CODE_SESSION_ID;
+  const w = t && t.first !== null ? { first: t.first, last: live ? Math.max(t.last, Date.now()) : t.last } : null;
+  const sessionId = sid && (sid.includes('/') || sid.endsWith('.jsonl'))
+    ? path.basename(sid).replace(/\.jsonl$/, '') : sid;
+  const repo = repoFacts(path.resolve(opts.root || process.cwd()));
+  const b = repo.isGit ? board(repo) : null;
+  const needGh = repo.isGit && repo.github;
+  const gh = needGh ? ghReady(repo) : { reason: 'not needed' };
+  const branches = repo.isGit ? sessionBranches(repo, w) : null;
+  const checks = [
+    checkWorktrees(repo, w),
+    checkBranches(repo, w),
+    checkPushed(repo, w),
+    checkPrs(repo, w, gh, branches),
+    checkSessionRecord(repo, w),
+    checkBoard(repo, b),
+    checkClaims(repo, w, b, sessionId),
+    checkFloor(repo, w, gh),
+    checkReviews(repo, w, b),
+    checkBypasses(t),
+    checkTree(repo),
+  ];
+  const commitsIn = repo.isGit && w ? windowCommits(repo, w, ['--branches', '--remotes']) : null;
+  const unpushed = repo.isGit && w && repo.remotes.length ? windowCommits(repo, w, ['--branches', '--not', '--remotes']) : null;
+  const count = (s) => checks.filter((c) => c.status === s).length;
+  const v = { fail: count('fail'), warn: count('warn'), pass: count('pass'), na: count('na'), asks: t ? t.asksTotal : null };
+  v.status = v.fail ? 'fail' : v.warn ? 'warn' : 'pass';
+  v.line = `${ICON[v.status]} ${v.fail ? 'not ready to close' : v.warn ? 'no check fails; some need a look' : 'ready to close'}`
+    + ` · ${v.fail} fail · ${v.warn} unknown or partial · ${v.pass} pass · ${v.na} not applicable`
+    + ` · ${v.asks === null ? 'asks unknown' : `${v.asks} ask(s) to answer`}`;
+  return {
+    tool: 'ccclose',
+    session: {
+      id: sessionId, source, transcript: file, found: !!file,
+      why: file ? (readErr ? `transcript unreadable: ${readErr}` : null)
+        : (sid ? `no transcript found for ${sid}` : 'no session id: pass --session or set $CLAUDE_CODE_SESSION_ID'),
+    },
+    window: {
+      known: !!w,
+      first: w ? new Date(w.first).toISOString() : null,
+      last: w ? new Date(w.last).toISOString() : null,
+      toNow: !!w && live,
+      heuristic: HEURISTIC,
+    },
+    repo: {
+      isGit: repo.isGit, root: repo.root, branch: repo.branch || null, head: repo.head || null,
+      defaultBranch: repo.defaultBranch || null, remoteRef: repo.remoteRef || null,
+    },
+    commits: { inWindow: commitsIn ? commitsIn.length : null, notOnRemote: unpushed ? unpushed.length : null },
+    prompts: { turn: t ? t.turn : null, midTurn: t ? t.midTurn : null },
+    models: t ? t.models : null,
+    checks,
+    asked: { heuristic: ASK_HEURISTIC, total: t ? t.asksTotal : null, items: t ? t.asks : [] },
+    verdict: v,
+  };
+}
+
+const num = (x) => (x === null || x === undefined ? 'unknown' : String(x));
+
+function render(r) {
+  const out = [];
+  const name = r.repo.isGit ? path.basename(r.repo.root) : path.basename(r.repo.root) + ' (not a git repo)';
+  out.push(`ccclose · close-out check · ${name}`);
+  const row = (k, v) => out.push(`  ${k.padEnd(11)} ${v}`);
+  row('Session', r.session.id ? `${r.session.id}${r.session.source ? ` (from ${r.session.source})` : ''}` : 'unknown');
+  row('Transcript', r.session.transcript && !r.session.why ? r.session.transcript : `unknown — ${r.session.why}`);
+  if (r.window.known) {
+    const span = Date.parse(r.window.last) - Date.parse(r.window.first);
+    row('Window', `${utc(Date.parse(r.window.first))} to ${utc(Date.parse(r.window.last))} UTC · ${cct.humanDelta(Math.max(0, span), false)}`
+      + (r.window.toNow ? ' (live session: runs to now)' : ''));
+  } else row('Window', 'unknown');
+  row('Repo', r.repo.isGit
+    ? `${r.repo.root} · ${r.repo.branch || '(detached)'} @ ${short(r.repo.head)} · default ${r.repo.defaultBranch || 'unknown'}`
+    : `${r.repo.root} — not a git repository`);
+  row('Commits', `${num(r.commits.inWindow)} in the window · ${num(r.commits.notOnRemote)} on no remote (as of the last fetch)`);
+  row('Prompts', `${num(r.prompts.turn)} turn · ${num(r.prompts.midTurn)} mid-turn · models ${r.models && r.models.length ? r.models.join(', ') : 'unknown'}`);
+  row('Heuristic', HEURISTIC);
+  out.push('');
+  out.push('Checks');
+  const w = Math.max(...r.checks.map((c) => c.label.length));
+  for (const c of r.checks) {
+    out.push(`  ${ICON[c.status]} ${c.label.padEnd(w)}  ${c.summary}`);
+    for (const it of c.items) out.push(`       - ${it}`);
+    if (c.itemsTotal > c.items.length) out.push(`       … and ${c.itemsTotal - c.items.length} more`);
+  }
+  out.push('');
+  out.push(`Asked of this close — answer each  (${ASK_HEURISTIC})`);
+  if (r.asked.total === null) out.push('  unknown — no transcript');
+  else if (!r.asked.items.length) out.push('  none found');
+  else {
+    r.asked.items.forEach((a, i) => {
+      out.push(`  ${i + 1}. ${a.ts ? utc(Date.parse(a.ts)) + ' UTC' : 'unknown time'} · ${a.channel} ${a.ref} · "${a.quote}"`);
+    });
+    if (r.asked.total > r.asked.items.length) out.push(`  … and ${r.asked.total - r.asked.items.length} more`);
+  }
+  out.push('');
+  out.push(r.verdict.line);
+  return out.join('\n');
+}
+
+async function main() {
+  const opts = parseArgs(process.argv.slice(2));
+  if (opts.error) { console.error(`ccclose: ${opts.error}\n\n${HELP}`); process.exit(2); }
+  if (opts.help) { console.log(HELP); process.exit(0); }
+  if (opts.root && !isDir(path.resolve(opts.root))) { console.error(`ccclose: --root ${opts.root} is not a directory`); process.exit(2); }
+  const r = await collect(opts);
+  console.log(opts.json ? JSON.stringify(r, null, 2) : render(r));
+  process.exit(r.verdict.fail ? 1 : 0);
+}
+
+if (require.main === module) main();
+
+module.exports = { parseArgs, stripWrappers, askSentences, bypassesIn, readTranscript, locateTranscript, collect, render, CAP };

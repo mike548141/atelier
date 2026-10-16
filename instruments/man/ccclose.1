@@ -1,0 +1,340 @@
+.TH CCCLOSE 1 "2026-10-17" "atelier instruments" "User Commands"
+.SH NAME
+ccclose \- check whether a session's close left anything owing
+.SH SYNOPSIS
+.B ccclose
+.RB [ \-\-session
+.IR id | path ]
+.RB [ \-\-root
+.IR dir ]
+.RB [ \-\-json ]
+.br
+.B ccclose
+.BR \-h " | " \-\-help
+.SH DESCRIPTION
+A session that finishes a sequence of work does the tidy-up and then declares
+that it is ready to close.
+That declaration is a claim, and it needs evidence: worktrees and branches put
+away, commits pushed, pull requests merged, the session record written, the
+board rebuilt, no claim left live, the floor green on what was pushed, and
+reviews queued where they are owed.
+A session that answers those from its own memory is answering from the thing
+that drifts most in a long session.
+.PP
+.B ccclose
+answers them from a fresh read instead: of the repository, of the GitHub host
+through
+.BR gh (1),
+and of the session's own transcript.
+It prints the standard outputs (the session id, its transcript, its time
+window, the repo and its head), eleven checks in a fixed order, the
+principal's close-out asks found in the transcript, and a one-line verdict.
+It changes nothing.
+.SS The session and its window
+The session is
+.B $CLAUDE_CODE_SESSION_ID
+unless
+.B \-\-session
+names another.
+Its transcript is found as
+.IR ~/.claude/projects/ * / id .jsonl,
+looking in every project folder, because a session that moved into a worktree
+still logs under the folder it started in.
+.PP
+The session's
+.B window
+runs from the first to the last timestamp in the transcript.
+When the session is the one running
+.B ccclose
+(its id is
+.BR $CLAUDE_CODE_SESSION_ID ),
+it is still live, so its window runs to now: a commit made just before the
+check can postdate the log's last line.
+The session's commits, branches, worktrees, claims and pull requests are taken
+to be the ones dated inside that window on this repo.
+.B This is a heuristic,
+and every run prints it: two sessions that worked the same repo at the same
+time can each be credited with the other's work.
+One signal is stronger: a
+.B [~]
+claim line that names the first eight characters of the session id is this
+session's whatever its date.
+Times print in UTC, because the output is evidence that gets pasted into
+records, and records keep UTC.
+.SS The checks
+Each check ends in one of four states:
+.B \[u2705]
+pass,
+.B \[u274C]
+fail,
+.B \[u26A0]
+partial or unknown, and
+.B \[u2796]
+not applicable, which means its input is absent and the line says why.
+A check never passes on something it could not read.
+.TP
+.B Worktrees put away
+A linked worktree whose admin directory was created inside the window and
+still exists fails.
+Creation time is the directory's birth time; where the filesystem records
+none, the worktree's age is unknown and the check warns.
+.TP
+.B Branches put away
+A local branch other than the default whose tip is inside the window fails,
+whether or not it was merged: a landed branch is deleted, so a merged branch
+that still exists is not put away.
+Each is listed as
+.I merged, not deleted
+or
+.IR "not merged" .
+.TP
+.B Commits pushed
+A commit from the window that no remote-tracking ref contains fails.
+.B ccclose
+does not fetch, so this is as of the last fetch.
+.TP
+.B PRs merged
+An open pull request created inside the window, or headed by one of the
+session's branches, fails.
+Needs a GitHub remote and a working
+.BR gh .
+.TP
+.B Session record written
+The session log is
+.I docs/SESSIONS.md
+or
+.IR SESSIONS.md ,
+with a
+.I sessions/
+detail store beside it when the repo keeps one.
+No commit in the window touching the log fails; edits that are only
+uncommitted fail as
+.IR "written but not committed" .
+An index line with no detail file warns.
+.TP
+.B Board index rebuilt
+A generated board is a
+.I ROADMAP.md
+carrying board.py's generated banner beside a
+.I roadmap/
+item store.
+.B ccclose
+runs
+.B board.py \-\-check
+(the repo's own
+.I tools/board.py
+if it has one, else the copy in the atelier checkout
+.B ccclose
+lives in) and fails when the index is stale.
+A hand-kept board has nothing to rebuild and is not applicable.
+.TP
+.B No live claim left
+A
+.B [~]
+line in the board's item files fails when it names the session's id prefix or
+carries a
+.I claimed YYYY-MM-DD-HHMM
+time inside the window.
+Other live claims are counted, not failed.
+.TP
+.B Floor green at the pushed head
+The commit checked is the newest one from the window that the default
+branch's remote-tracking ref contains, not the ref's head: a later push by
+another session would be evidence for a different tree.
+It is passed to
+.B gh run list \-\-commit
+as a full sha, because a short one silently returns nothing.
+Per workflow the latest run counts.
+A failed run fails, and so does a
+.B cancelled
+one: a cancelled run is not a pass, so re-run it on that sha.
+A run still in progress warns as pending.
+No run at all warns.
+.TP
+.B Reviews queued where owed
+When a doctrine or tool path changed in the window (whichever of
+.IR docs/method/ ", " docs/build/ ", " docs/decisions/ ", " tools/ ,
+.IR instruments/ ", " skills/ ", " commands/
+the repo has), a line carrying the review-queued marker
+.B \[u23F3]
+must have been added to the board in the window.
+A miss only warns, because whether work earns a review is a judgement:
+self-verifying work over reviewed machinery does not.
+The session says which.
+.TP
+.B Workaround-shaped commands
+The transcript's shell commands are read for the shapes of a workaround:
+hooks skipped, signing switched off, hooks redirected, a force push, a hard
+reset, a bare
+.BR "git stash" ,
+staging everything, removing an
+.IR index.lock ,
+and
+.BR "gh pr merge \-\-admin" .
+Some are legitimate, so a hit only warns; each is listed for the session to
+answer.
+.TP
+.B Working tree clean
+Uncommitted changes warn.
+They cannot be attributed: changes a session did not make are the sign that
+another session is live.
+.SS Asked of this close \(em answer each
+After the checks,
+.B ccclose
+lists the principal's prompts that hold a close-out instruction, as short
+quotes with their UTC time, their channel
+.RI ( turn " or " mid-turn )
+and the ref
+.BR cctranscript (1)
+gives the same exchange.
+The principal's prompts are chosen by cctranscript's rules (not every
+mid-turn record is the principal typing), less records marked as meta and
+text that is only a harness wrapper.
+.PP
+The match is a
+.BR "keyword heuristic" .
+A sentence is listed when it has a strong close phrase (close out, ready to
+close, before you finish, tidy up, wrap up, leave it clean), or both a cue
+(make sure, remember to, check that, record, update) and an object (session
+log, roadmap, board, changelog, worktree, branch, PR, push, learnings,
+defects, evidence, assumptions, decisions, questions).
+It lists; it does not judge whether an ask was met.
+.SH OPTIONS
+.TP
+.BI \-\-session " id" | path
+The session to check: a session id, looked up in every folder under
+.IR ~/.claude/projects/ ,
+or the path to a transcript
+.I .jsonl
+file.
+Default:
+.BR $CLAUDE_CODE_SESSION_ID .
+With neither, the session is unknown and every check that needs its window
+says so.
+.TP
+.BI \-\-root " dir"
+The repository to check.
+Default: the current directory.
+Any directory inside a repo will do; its top level is used.
+.TP
+.B \-\-json
+Machine-readable output: the same content, with each check's status as
+.BR pass ", " fail ", " warn " or " na ,
+uncapped counts beside the capped lists, and
+.B null
+wherever a figure is unknown.
+.TP
+.BR \-h ", " \-\-help
+A one-screen summary.
+.SH OUTPUT
+The field set is the same on every run: every check prints, zeros print, and a
+figure the tool could not read prints
+.BR unknown ,
+never 0.
+Each listed set is capped at 25 lines, followed by the number not shown.
+The last line is the verdict, for example:
+.PP
+.RS
+.nf
+\[u274C] not ready to close \[u00B7] 2 fail \[u00B7] 1 unknown or partial \[u00B7] 6 pass \[u00B7] 2 not applicable \[u00B7] 3 ask(s) to answer
+.fi
+.RE
+.SH FILES
+.TP
+.IR ~/.claude/projects/ * / id .jsonl
+Session transcripts, read only and a line at a time.
+.TP
+.I docs/SESSIONS.md \fRor\fP SESSIONS.md
+The session log, with its
+.I sessions/
+detail store.
+.TP
+.I docs/ROADMAP.md \fRor\fP ROADMAP.md
+The board index, with its
+.I roadmap/
+item store when the board is generated.
+.SH ENVIRONMENT
+.TP
+.B CLAUDE_CODE_SESSION_ID
+The default session, set by Claude Code in every session's shell.
+.TP
+.B CCCLOSE_GH
+The
+.B gh
+executable to run.
+Default:
+.BR gh .
+The tests point it at a stub.
+.SH EXAMPLES
+Check the current session's close, from the repo it worked in:
+.PP
+.RS
+.nf
+ccclose
+.fi
+.RE
+.PP
+Check an earlier session, against another checkout:
+.PP
+.RS
+.nf
+ccclose \-\-session 1edeadf7\-7675\-488a\-a722\-a97ab5098531 \-\-root ~/src/demo
+.fi
+.RE
+.PP
+Feed the result to another tool:
+.PP
+.RS
+.nf
+ccclose \-\-json | jq '.checks[] | select(.status == "fail")'
+.fi
+.RE
+.SH EXIT STATUS
+.TP
+.B 0
+No check failed.
+Some may warn or be unknown; the verdict line says so.
+.TP
+.B 1
+At least one check failed.
+.TP
+.B 2
+A usage error: an unknown flag, a flag with no value, or a
+.B \-\-root
+that is not a directory.
+.SH NOTES
+.B ccclose
+is read-only.
+It never commits, pushes, fetches, removes a worktree or edits a file.
+Every git call runs with
+.BR \-\-no\-optional\-locks ,
+because a plain
+.B git status
+refreshes the index under
+.IR index.lock ,
+and on a checkout another session shares, that write can collide with its
+commit.
+Its only network use is
+.BR gh ,
+and only when
+.B gh
+is installed and
+.B gh auth status
+succeeds; otherwise the pull request and floor checks are unknown.
+.PP
+It does not check whether the session's findings (defects, learnings,
+evidence, assumptions) reached the record.
+That is a reading of meaning, not a fact a fresh read can prove; the session
+record check proves a record was written, and the asks list puts the rest to
+the session.
+.PP
+The transcript format is internal to Claude Code and can shift between
+releases; the classifiers are cctranscript's, so a fix there reaches both.
+The design of record is
+.IR instruments/ccclose.design.md .
+.SH SEE ALSO
+.BR cctranscript (1),
+.BR ccrepo (1),
+.BR ccarchive (1),
+.BR gh (1),
+.BR git-worktree (1)

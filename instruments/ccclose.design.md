@@ -1,10 +1,12 @@
 # ccclose — a close-out checker a session runs before it declares the close
 
-Status: **design** (2026-10-17). Written before the build because the tool is
-first-of-kind: nothing in `instruments/` or `tools/` has checked a whole
-session's close before. The build follows in the next commit; where it departs
-from this note, the man page and the build's record say so and this note stays
-as written.
+Status: **built** (2026-10-17; design pass the same day, committed on its own
+first). Written before the build because the tool is first-of-kind: nothing in
+`instruments/` or `tools/` has checked a whole session's close before. Three
+changes landed with the build: §6 first named `encodePath` as reused, and the
+build took `friendlyModel` and `humanDelta` instead; §4 gained the live
+session's window running to now; and §8 gained `--no-optional-locks`. The last
+two are marked where they sit.
 
 ## 1. What it is, in one line
 
@@ -62,6 +64,11 @@ serves.
   credited with the other's work. One attribution is stronger: a `[~]` claim
   line that names the session's 8-character id prefix (the queue-run claim
   form) is this session's whatever its date.
+- **A live session's window runs to now.** When the session checked is the one
+  running ccclose (its id is `$CLAUDE_CODE_SESSION_ID`), the log's last line
+  can predate a commit made just before the check, so the window's end is now.
+  *(Added in the build: the throwaway-repo dogfood missed a branch committed
+  after the fixture log's last line.)*
 - **Times print in UTC**, labelled. The output is close-out evidence that gets
   pasted into records, and records are UTC at rest (`CONVENTIONS.md`).
 
@@ -81,10 +88,10 @@ no operation a fixing flag could name.
 ## 6. Reuse of cctranscript
 
 `cctranscript` exports its classifiers when required, with its CLI guarded by
-`require.main === module`. ccclose takes three of them: `extractText` (a
+`require.main === module`. ccclose takes four of them: `extractText` (a
 message body as text, whatever its block shape), `isHumanQueuedCommand` (which
 mid-turn records are the principal's own typing: not every `queued_command` is),
-and `encodePath`. It does **not** take `readTurns`, which reads the whole log
+`friendlyModel` (the models line) and `humanDelta` (the window's span). It does **not** take `readTurns`, which reads the whole log
 into memory. ccclose streams the log line by line instead, so a long session
 costs one line of memory at a time. The prompt numbering matches
 `cctranscript`'s refs exactly (turn `N`, mid-turn `N+K`), so a ref ccclose
@@ -93,8 +100,8 @@ prints opens the same exchange in `cctranscript`.
 Two further filters are ccclose's own, applied after cctranscript's rules and
 only for the asks list: a `type:"user"` record marked `isMeta`, and text that is
 wholly a harness wrapper (`<task-notification>`, `<command-name>`,
-`<local-command-stdout>`, `<system-reminder>` and kin), are not the principal
-typing. They still count toward the numbering, so the refs stay cctranscript's.
+`<local-command-stdout>`, `<system-reminder>`, `<browser_instruction>` and kin),
+are not the principal typing. They still count toward the numbering, so the refs stay cctranscript's.
 
 ## 7. The checks
 
@@ -155,8 +162,10 @@ each is found by looking:
 
 ## 8. Read-only and network
 
-ccclose never commits, pushes, fetches, removes a worktree or edits a file. It
-does not `git fetch`, so "pushed" means "contained in a remote-tracking ref as
+ccclose never commits, pushes, fetches, removes a worktree or edits a file.
+Every git call runs with `--no-optional-locks`, because a plain `git status`
+refreshes the index under `index.lock`, and on a shared checkout that write can
+collide with a peer's commit. *(Added in the build.)* It does not `git fetch`, so "pushed" means "contained in a remote-tracking ref as
 of the last fetch", and the output says so. The only network is `gh`, only when
 `gh` is on `PATH` and `gh auth status` succeeds; otherwise checks 4 and 8 are
 ⚠️ unknown. `board.py --check` is the one subprocess outside git and gh, and it

@@ -19,6 +19,7 @@ drives Chrome via Playwright); each documents its own runtime.
 |-----------------|-----------|---------------------------------------------------------------------|
 | `ccrepo`        | observe   | Claude Code token & cost totals, grouped/filtered any way (`-g repo,model`, `--branch`, message-grain cost reconciled against ccusage), plus how large sessions' context windows got. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
 | `cctranscript`  | observe   | Timestamped transcript of a session — the timestamps the chat UI hides, plus how big its context grew and how many subagents it started vs finished. `--search <term>` asks the other question: which turns, across every session in scope, match a term or a `--regex`. Reads the live logs, or ccarchive's mirror (`--from-archive`). |
+| `ccclose`       | observe   | The close-out checker. From a fresh read of the repo, GitHub and the session's own transcript, says whether a close left anything owing (worktrees, branches, pushes, PRs, the session record, the board, live claims, the floor at the pushed head, review pointers, workaround-shaped commands) and lists the principal's close-out asks for the session to answer. Read-only. |
 | `ccarchive`     | preserve  | Durably mirror every raw `.jsonl` transcript into a compressed, append-only archive that outlives Claude Code's cleanup. |
 | `ccmail`        | extend    | Open the Gmail attachments the mailbox connector can only *name* — it lists filenames and attachment ids but has no call that returns bytes. Fetches them to disk with its own read-only grant so the ordinary Read tool can open them. |
 | `ccpdf`         | extend    | A PDF page renderer built on macOS's own PDFKit, installed as `pdftoppm` — the binary Claude Code's file reader shells out to. Without it, a PDF on disk is still unreadable. |
@@ -39,18 +40,19 @@ judged from a user who moves between them. Verified 2026-07-23 by reading all
 three `--help` texts, man pages and argument parsers end to end — the tools
 were already consistent; this table is the standing reference so they stay
 that way. Re-verified 2026-08-09, when `cctranscript --search` landed and moved
-three of the rows below.
+three of the rows below. `ccclose` took a column on 2026-10-17. It shares only
+`--json` and `-h`; each dash in its column says why the operation is absent.
 
-| Flag | Meaning | `ccarchive` | `cctranscript` | `ccrepo` |
-|------|---------|:-----------:|:---------------:|:--------:|
-| `--dest <dir>` | Where the archive lives (default iCloud Drive, or `$CCARCHIVE_DEST`) | write target | read target (implies `--from-archive`) | read target (implies `--from-archive`) |
-| `--from-archive` | Read `ccarchive`'s mirror instead of the live logs | — (it *is* the archive) | ✅ | ✅ |
-| `--materialise` | Also read an iCloud-evicted (dataless) file, faulting its bytes back | ✅ (`--verify`/`--audit`) | ✅ (`--search`) | ✅ |
-| `--since` / `--until` | Bound to a local date range (`YYYYMMDD`), judged on each message's own timestamp | — | ✅ (`--search`) | ✅ |
-| `--top <n>` | Keep only the first n rows per level, after ordering | — | ✅ (`--search`) | ✅ |
-| `--json` | Machine-readable output; never styled | ✅ | ✅ | ✅ |
-| `--repo` | The repo dimension | — | `--repo <name>` selects one repo to read | `--repo <list>` filters/groups (comma = OR, `!` excludes, `*` globs) |
-| `-h`, `--help` | One-screen usage summary | ✅ | ✅ | ✅ |
+| Flag | Meaning | `ccarchive` | `cctranscript` | `ccrepo` | `ccclose` |
+|------|---------|:-----------:|:---------------:|:--------:|:---------:|
+| `--dest <dir>` | Where the archive lives (default iCloud Drive, or `$CCARCHIVE_DEST`) | write target | read target (implies `--from-archive`) | read target (implies `--from-archive`) | — |
+| `--from-archive` | Read `ccarchive`'s mirror instead of the live logs | — (it *is* the archive) | ✅ | ✅ | — (a session being closed is live) |
+| `--materialise` | Also read an iCloud-evicted (dataless) file, faulting its bytes back | ✅ (`--verify`/`--audit`) | ✅ (`--search`) | ✅ | — |
+| `--since` / `--until` | Bound to a local date range (`YYYYMMDD`), judged on each message's own timestamp | — | ✅ (`--search`) | ✅ | — (its window is the session's own) |
+| `--top <n>` | Keep only the first n rows per level, after ordering | — | ✅ (`--search`) | ✅ | — (lists are capped at 25, the cut counted) |
+| `--json` | Machine-readable output; never styled | ✅ | ✅ | ✅ | ✅ |
+| `--repo` | The repo dimension | — | `--repo <name>` selects one repo to read | `--repo <list>` filters/groups (comma = OR, `!` excludes, `*` globs) | — (`--root <dir>` names the checkout to check, as the `tools/` scanners spell it) |
+| `-h`, `--help` | One-screen usage summary | ✅ | ✅ | ✅ | ✅ |
 
 **Note — `--materialise` is the worked example, and it now has a second act.**
 Until 2026-08-09 this note explained why `cctranscript` carried **no**
@@ -362,6 +364,28 @@ key is never simply absent. A zero still prints wherever it is proved: no spawn
 call in the log means no agent can have run. The context figure is the case with
 *no* fixed pair to keep aligned, so it simply omits itself when a log carries no
 usage records — the opposite treatment, for the opposite reason.
+
+## ccclose — the close-out, read fresh
+
+`RECORD.md`'s close declaration says a session declares the close only when the
+tidy-up is done, and that "nothing is owed" must carry its evidence. `ccclose`
+is that evidence, read from the repo, from GitHub through `gh`, and from the
+session's own transcript, never from the session's memory. It prints the
+session id, transcript and window, eleven checks in a fixed order (✅ pass ·
+❌ fail · ⚠️ partial or unknown · ➖ not applicable, with the reason), the
+principal's close-out asks found in the transcript under *Asked of this close —
+answer each*, and a verdict line. It exits 0 only when no check fails.
+
+Two things it says on every run, because they bound what it can prove.
+**Attribution is a heuristic:** "this session's" work is what is dated inside
+the transcript's window on this repo, so sessions that overlapped can be
+credited with each other's work. **The asks are a keyword match:** it lists, it
+does not judge. Repo conventions (session log, board, review paths) are
+detected, so it runs in any repo and a check whose input is absent says "not
+applicable" rather than pass. It is read-only: no fetch, no commit, no clean-up.
+`gh` is optional (those checks read unknown without it), and `python3` runs the
+board's own `--check`. The design of record is `ccclose.design.md`; the full
+reference is `man ccclose`.
 
 ## ccarchive — keeping transcripts past Claude Code's cleanup
 
