@@ -1328,6 +1328,58 @@ class StagedQuotedPathsTest(unittest.TestCase):
                 self._git("rm", "-q", "-f", "--", name)
 
 
+class StagedPosedHeaderTest(unittest.TestCase):
+    """115/280 — an added line whose text begins `++ ` prints as `+++ …`. The
+    old reader took it for a file header: every added line after it was
+    attributed to the posed name (here an ignored path, so silently skipped on
+    a blocking guard), and the posed line itself was dropped as "not added"."""
+
+    SECRET = "token = aB3dE5fG7hJ9kL1mN3pQ5rS7tU9vW1xY3z"
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        self._git("init", "-q")
+        (self.tmp / ".secretscanignore").write_text(
+            "docs/ignored.md  # fixture: the path the posed header names\n")
+        old = os.getcwd()
+        os.chdir(self.tmp)
+        self.addCleanup(os.chdir, old)
+
+    def _git(self, *args):
+        import subprocess
+        return subprocess.run(["git", "-C", str(self.tmp), *args], check=True,
+                              capture_output=True, text=True)
+
+    def _stage(self, name, text):
+        (self.tmp / name).write_text(text)
+        self._git("add", "--", name)
+
+    def _findings(self):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            code = ss.main(["--staged", "--root", str(self.tmp), "--json"])
+        return code, [(f["path"], f["line"])
+                      for f in json.loads(buf.getvalue())["findings"]]
+
+    def test_a_posed_ignored_header_does_not_hide_the_lines_after_it(self):
+        self._stage("posed.md",
+                    f"ok\n++ b/docs/ignored.md\n{self.SECRET}\n")
+        self.assertEqual({"posed.md": [(1, "ok"), (2, "++ b/docs/ignored.md"),
+                                       (3, self.SECRET)]},
+                         ss.staged_added_lines())
+        self.assertEqual((1, [("posed.md", 3)]), self._findings())
+
+    def test_a_posed_line_is_itself_scanned(self):
+        self._stage("posed.md", f"++ {self.SECRET}\n")
+        self.assertEqual((1, [("posed.md", 1)]), self._findings())
+
+    def test_a_real_ignored_file_is_still_ignored(self):
+        (self.tmp / "docs").mkdir()
+        self._stage("docs/ignored.md", self.SECRET + "\n")
+        self.assertEqual((0, []), self._findings())
+
+
 class StagedAbsolutePathTest(unittest.TestCase):
     """An absolute path in --staged mode must be REFUSED, not silently obeyed.
 

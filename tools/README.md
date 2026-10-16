@@ -1375,8 +1375,15 @@ It also reads git's path output (`115/260`). git C-quotes a path holding a
 non-ASCII byte, tab, newline, double quote or backslash, so a parser that
 expects a bare path misses the file. `nul_paths` reads `-z` output (the raw
 path; `board.py`, `harvestscan.py`). `diff_header_path` and `unquote_c` read
-the `+++` header of a staged diff, which has no `-z` form (`conflictscan.py`,
-`leakscan.py`, `secretscan.py`, all passing `-c core.quotePath=false`).
+the `+++` header of a staged diff, which has no `-z` form.
+
+The same three guards read the staged diff through one function,
+`staged_added` (`115/280`). It follows the diff's structure, not its look: a
+file header is only what git writes between `diff --git` and a file's first
+`@@`, and a hunk's `@@ -a,b +c,d @@` counts say where its body ends. An added
+line whose own text begins `++ ` prints as `+++ …`, and used to pass for a
+header, moving the lines after it to a posed file name. It fails closed: a
+diff that does not fit its counts is exit 2, never a guess.
 `test_report.py` tests each helper and pins each converted scanner's lines as
 literals. What a scanner prints reaches every child's CI at its next run, so a
 shared edit that changes one of those lines fails the suite first.

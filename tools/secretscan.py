@@ -86,7 +86,6 @@ import itertools
 import json
 import math
 import re
-import subprocess
 import sys
 from dataclasses import dataclass, asdict, field
 from pathlib import Path
@@ -1163,12 +1162,6 @@ def scan_paths(paths: list[Path], root: Path,
     return findings
 
 
-# A unified-diff hunk header: `@@ -oldStart[,oldCount] +newStart[,newCount] @@`.
-# Only the NEW side matters here — it is the file the commit is about to
-# produce, and every added/context line after this header advances from it.
-_HUNK_HEADER_RX = re.compile(r"^@@ -\d+(?:,\d+)? \+(?P<new_start>\d+)(?:,\d+)? @@")
-
-
 def staged_added_lines() -> dict[str, list[tuple[int, str]]]:
     """Path → [(real file line number, added-line text), ...] for the staged
     diff. Scans only what a commit would introduce (the pre-commit hot path),
@@ -1198,46 +1191,16 @@ def staged_added_lines() -> dict[str, list[tuple[int, str]]]:
     R is in the filter deliberately (review B4): git detects renames by
     default, and a renamed-AND-edited file's added lines are exactly as
     leak-capable as a modified file's — ACM alone silently skipped them."""
-    out = subprocess.run(
-        ["git", "-c", "core.quotePath=false", "diff", "--cached",
-         "--unified=0", "--no-color", "--diff-filter=ACMR"],
-        capture_output=True, text=True, check=True).stdout
+    # The diff is read by `report.staged_added` (115/280): the file header is
+    # taken from git's structure, the real line number from each hunk's
+    # counts, and the quoting of a tab/newline/quote/backslash name undone
+    # (115/260). An added line that merely LOOKS like a header (`++ b/x`
+    # prints as `+++ b/x`) used to move attribution here, and was itself
+    # dropped as not-an-added-line, hiding what followed it.
     files: dict[str, list[tuple[int, str]]] = {}
-    current: str | None = None
-    new_lineno = 0
-    for line in out.splitlines():
-        if line.startswith("+++ "):
-            # `core.quotePath=false` leaves a tab, newline, quote or backslash
-            # in a name still C-quoted (`+++ "b/…"`); the shared reader
-            # undoes that and strips the whitespace tab described above
-            # (115/260). A header it does not recognise (no `b/` prefix) is
-            # taken as written, as it always was.
-            path = report.diff_header_path(line)
-            if path is None:
-                path = line[len("+++ "):]
-                if path.startswith("b/"):
-                    path = path[2:]
-                path = path.rstrip("\t")
-            current = path
-            files.setdefault(current, [])
-            continue
-        if line.startswith("@@"):
-            m = _HUNK_HEADER_RX.match(line)
-            if m:
-                new_lineno = int(m.group("new_start"))
-            continue
-        if current is None:
-            continue
-        if line.startswith("+") and not line.startswith("+++"):
-            files[current].append((new_lineno, line[1:]))
-            new_lineno += 1
-        elif line.startswith(" "):
-            # --unified=0 asks git for none of these, but a caller-side change
-            # to that flag must not silently start mis-numbering again.
-            new_lineno += 1
-        # a '-' (removed) line, and `\ No newline at end of file`, do not
-        # advance the new-file counter — neither lands in the new file.
-    return {path: lines for path, lines in files.items() if lines}
+    for path, lineno, text in report.staged_added():
+        files.setdefault(path, []).append((lineno, text))
+    return files
 
 
 def advisory_count_line(n: int) -> str:
@@ -1368,7 +1331,7 @@ def _main(argv: list[str] | None = None) -> int:
     if args.staged:
         try:
             staged = staged_added_lines()
-        except subprocess.CalledProcessError as e:
+        except report.STAGED_DIFF_FAILURES as e:
             return report.git_diff_failed("secretscan", e)
         # An ABSOLUTE path here scans NOTHING and exits 0 — the silent-success
         # class (linkscan L1) this tool already closes for a missing path, found

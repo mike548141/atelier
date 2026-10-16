@@ -672,6 +672,69 @@ class StagedQuotedPaths(unittest.TestCase):
         self.assertEqual(0, code)
 
 
+class StagedPosedHeader(unittest.TestCase):
+    """115/280 — an added line whose text begins `++ b/…` prints as `+++ b/…`,
+    which `report.diff_header_path` accepts as a header. The old reader moved
+    attribution to the posed (here ignored) path, hiding the leak after it, and
+    dropped the posed line itself as "not an added line". The term list is an
+    EMPTY file, so only the structural shapes are in play."""
+
+    # Assembled so this file does not itself carry the shape it plants.
+    LEAK = "-----BEGIN " + "RSA PRIVATE KEY-----"
+
+    def setUp(self):
+        self.repo = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.repo, ignore_errors=True)
+        self._git("init", "-q")
+        empty = self.repo / "no-terms.txt"      # untracked; never staged
+        empty.write_text("")
+        (self.repo / ".leakscanignore").write_text(
+            "docs/ignored.md  # fixture: the path the posed header names\n")
+        env = unittest.mock.patch.dict(
+            os.environ, {"ATELIER_LEAKSCAN_TERMS": str(empty)})
+        env.start()
+        self.addCleanup(env.stop)
+        old = os.getcwd()
+        os.chdir(self.repo)
+        self.addCleanup(os.chdir, old)
+
+    def _git(self, *args):
+        return subprocess.run(["git", "-C", str(self.repo), *args],
+                              capture_output=True, text=True, check=True)
+
+    def _stage(self, name, text):
+        p = self.repo / name
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text)
+        self._git("add", "--", name)
+
+    def _paths(self):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), \
+                contextlib.redirect_stderr(io.StringIO()):
+            code = ls.main(["--staged", "--root", str(self.repo), "--json"])
+        return code, sorted(f["path"] for f in json.loads(buf.getvalue())["findings"])
+
+    def test_a_posed_ignored_header_does_not_hide_the_leak_after_it(self):
+        self._stage("posed.md", f"ok\n++ b/docs/ignored.md\n{self.LEAK}\n")
+        self.assertEqual(
+            {"posed.md": f"ok\n++ b/docs/ignored.md\n{self.LEAK}"},
+            ls.staged_added_lines())
+        self.assertEqual((1, ["posed.md"]), self._paths())
+
+    def test_a_posed_quoted_header_does_not_hide_it_either(self):
+        self._stage("posed.md", f'++ "b/docs/ignored.md"\n{self.LEAK}\n')
+        self.assertEqual((1, ["posed.md"]), self._paths())
+
+    def test_a_posed_line_is_itself_scanned(self):
+        self._stage("posed.md", f"++ {self.LEAK}\n")
+        self.assertEqual((1, ["posed.md"]), self._paths())
+
+    def test_a_real_ignored_file_is_still_ignored(self):
+        self._stage("docs/ignored.md", self.LEAK + "\n")
+        self.assertEqual((0, []), self._paths())
+
+
 class LinkedWorktreeSkipped(unittest.TestCase):
     """020/160 (E9): `_walk_files` must prune a directory whose `.git` entry
     is a regular FILE (`gitdir: <path>`, the linked-worktree/submodule

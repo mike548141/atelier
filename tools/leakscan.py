@@ -56,7 +56,6 @@ import fnmatch
 import json
 import os
 import re
-import subprocess
 import sys
 from dataclasses import dataclass, asdict, field
 from pathlib import Path
@@ -943,24 +942,14 @@ def staged_added_lines() -> dict[str, str]:
     R is in the filter deliberately (review B4): git detects renames by
     default, and a renamed-AND-edited file's added lines are exactly as
     leak-capable as a modified file's — ACM alone silently skipped them."""
-    # `core.quotePath=false` keeps a non-ASCII path raw; a path with a tab,
-    # newline, quote or backslash is still C-quoted (`+++ "b/…"`), which
-    # `report.diff_header_path` reads. Without both, the file's header never
-    # matched and its added lines were never scanned (115/260).
-    out = subprocess.run(
-        ["git", "-c", "core.quotePath=false", "diff", "--cached",
-         "--unified=0", "--no-color", "--diff-filter=ACMR"],
-        capture_output=True, text=True, check=True).stdout
+    # `report.staged_added` reads the diff by its structure (115/280): the
+    # path of a quoted name is undone there (115/260), and an added line that
+    # merely looks like a header (`++ b/x` prints as `+++ b/x`) can neither
+    # move attribution nor be dropped from the scan.
     files: dict[str, list[str]] = {}
-    current: str | None = None
-    for line in out.splitlines():
-        header = report.diff_header_path(line)
-        if header is not None:
-            current = header
-            files.setdefault(current, [])
-        elif line.startswith("+") and not line.startswith("+++") and current:
-            files[current].append(line[1:])
-    return {path: "\n".join(lines) for path, lines in files.items() if lines}
+    for path, _lineno, text in report.staged_added():
+        files.setdefault(path, []).append(text)
+    return {path: "\n".join(lines) for path, lines in files.items()}
 
 
 class TermsPathError(RuntimeError):
@@ -1086,7 +1075,7 @@ def _main(argv: list[str] | None = None) -> int:
     if args.staged:
         try:
             staged = staged_added_lines()
-        except subprocess.CalledProcessError as e:
+        except report.STAGED_DIFF_FAILURES as e:
             return report.git_diff_failed("leakscan", e)
         # Positional paths, in --staged mode, restrict the scan to staged files
         # under those prefixes — e.g. scan only the shareable `tiki/` subtree of

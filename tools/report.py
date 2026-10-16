@@ -23,7 +23,9 @@ scanner's own allow-marker accepts (the second half of `115/080` part 3).
 
 And one thing that is not output at all: the readers of git's path output
 (`nul_paths`, `diff_header_path`, `unquote_c`, at the foot of the file), so that
-no guard parses a C-quoted path as though it were a bare one (`115/260`).
+no guard parses a C-quoted path as though it were a bare one (`115/260`), and
+the one reader of the staged diff (`staged_added`, also at the foot), so that
+no guard takes an added line for a file header (`115/280`).
 
 WHAT THIS MODULE DELIBERATELY DOES NOT DO: unify behaviour or wording. Every
 difference between the scanners is a PARAMETER here — the scanner's name, the
@@ -46,10 +48,11 @@ from __future__ import annotations
 
 import os
 import re
+import subprocess
 import sys
 from dataclasses import asdict
 from pathlib import Path
-from typing import Callable, Iterable, Sequence
+from typing import Callable, Iterable, Iterator, Sequence
 
 # The house exit-code contract.
 EXIT_CLEAN = 0      # nothing blocking (clean, advisory-only, or --warn)
@@ -277,3 +280,127 @@ def nul_paths(raw: bytes) -> list[str]:
     escaped), so an undecodable name still round-trips into a later `git`
     argument. An empty token (the trailing NUL) is dropped."""
     return [os.fsdecode(tok) for tok in raw.split(b"\0") if tok]
+
+
+# --- reading the staged diff (115/280) --------------------------------------
+#
+# Three guards scan what a commit would add: secretscan, conflictscan and
+# leakscan, each from `git diff --cached --unified=0`. Each used to find the
+# file a line belongs to by testing every line for `+++ `. But an ADDED line
+# whose own text begins `++ ` prints as `+++ …`: it looked like a header, moved
+# the attribution of every added line after it to whatever name followed, and
+# (the other half of the same test) was itself dropped as "not an added line".
+# A posed name that a guard ignores or exempts hid the real lines after it, on
+# a blocking guard. `diff_header_path` narrowed what counts as a header; it
+# could not say WHERE one may appear, and git's own `b/…` spelling is exactly
+# what a poser types.
+#
+# So the reader follows the diff's structure, not its look. Outside a hunk
+# every line is git's: `diff --git` opens a file and the `+++` line before that
+# file's first `@@` names it. Inside a hunk, the `@@ -a,b +c,d @@` counts say
+# how many old and new lines the body holds, so a line is body until those
+# counts reach zero, whatever it starts with (an omitted count means 1). The
+# counts are the whole argument: git used them to write the body, so a hunk's
+# last line is known without reading its text.
+#
+# Fail closed: a line that cannot sit where the counts put it means the output
+# is not a shape this reader understands. That is `DiffReadError` (exit 2 via
+# `git_diff_failed`), never a guess that might hide a line.
+
+STAGED_DIFF_CMD = (
+    "git", "-c", "core.quotePath=false", "diff", "--cached", "--unified=0",
+    "--no-color", "--no-ext-diff", "--src-prefix=a/", "--dst-prefix=b/",
+    "--diff-filter=ACMR")
+
+_HUNK_RX = re.compile(
+    r"^@@ -\d+(?:,(?P<old_n>\d+))? \+(?P<new_start>\d+)(?:,(?P<new_n>\d+))? @@")
+
+
+class DiffReadError(Exception):
+    """The staged diff is not shaped the way git writes one."""
+
+
+STAGED_DIFF_FAILURES = (subprocess.CalledProcessError, DiffReadError)
+
+
+def parse_added_lines(raw: bytes) -> Iterator[tuple[str, int, str]]:
+    """Every added line of a `--unified=0` diff as (path, real new-file line
+    number, text without the leading `+`).
+
+    Split on the newline byte only: `str.splitlines` also breaks on form feed,
+    vertical tab, NEL and the Unicode separators, and universal newlines break
+    on a lone CR, and each lets an added line's own text start a line of its
+    own. One trailing CR (a CRLF file) is dropped, as universal newlines did.
+    The prefixes are pinned by `STAGED_DIFF_CMD`, so a header that is not
+    `b/…` or `/dev/null` is not git's and is refused."""
+    lines = raw.split(b"\n")
+    if lines and lines[-1] == b"":
+        lines.pop()
+    path: str | None = None
+    in_file = False          # a `diff --git` has been seen
+    in_header = False        # between `diff --git` and the file's first `@@`
+    old_rem = new_rem = 0    # lines the current hunk still owes
+    lineno = 0
+    for n, b in enumerate(lines, 1):
+        line = b.decode("utf-8", "replace")
+        if line.endswith("\r"):
+            line = line[:-1]
+        if old_rem or new_rem:
+            kind = line[:1]
+            if kind == "+" and new_rem and path is not None:
+                new_rem -= 1
+                yield path, lineno, line[1:]
+                lineno += 1
+            elif kind == "-" and old_rem:
+                old_rem -= 1
+            elif kind == " " and old_rem and new_rem:
+                old_rem -= 1
+                new_rem -= 1
+                lineno += 1
+            elif kind != "\\":     # `\ No newline at end of file`: no count
+                raise DiffReadError(
+                    f"diff line {n} does not fit its hunk's counts: {line[:60]!r}")
+            continue
+        if line.startswith("diff --git "):
+            path, in_file, in_header = None, True, True
+        elif line.startswith("@@"):
+            m = _HUNK_RX.match(line)
+            if m is None or not in_file:
+                raise DiffReadError(
+                    f"diff line {n}: a hunk with no file or no counts: "
+                    f"{line[:60]!r}")
+            in_header = False
+            old_n, new_n = m.group("old_n"), m.group("new_n")
+            old_rem = 1 if old_n is None else int(old_n)
+            new_rem = 1 if new_n is None else int(new_n)
+            lineno = int(m.group("new_start"))
+        elif in_header and line.startswith("+++ "):
+            if line.rstrip("\t") == "+++ /dev/null":
+                path = None
+            else:
+                path = diff_header_path(line)
+                if path is None:
+                    raise DiffReadError(
+                        f"diff line {n}: an unrecognised file header: "
+                        f"{line[:60]!r}")
+        elif line.startswith("+"):
+            # Git writes a `+` line outside a hunk only as the `+++` header
+            # handled above. Any other is added text the counts did not
+            # account for: refuse it rather than drop it.
+            raise DiffReadError(
+                f"diff line {n}: added text outside a hunk: {line[:60]!r}")
+        # Any other line outside a hunk is git's own (`index`, `---`, `mode`,
+        # `rename`, `Binary files … differ`, `\ No newline`): never added text.
+    if old_rem or new_rem:
+        raise DiffReadError("the diff ends inside a hunk")
+
+
+def staged_added() -> list[tuple[str, int, str]]:
+    """The added lines of the staged diff as (path, line number, text), read by
+    `parse_added_lines`. Raises `subprocess.CalledProcessError` if git fails and
+    `DiffReadError` if its output is not a diff the reader understands; callers
+    catch `STAGED_DIFF_FAILURES` and exit 2. R is in the diff filter on purpose:
+    git detects renames by default, and a renamed-and-edited file's added lines
+    are as leak-capable as a modified file's."""
+    out = subprocess.run(list(STAGED_DIFF_CMD), capture_output=True, check=True)
+    return list(parse_added_lines(out.stdout))
