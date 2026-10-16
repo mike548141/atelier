@@ -1,4 +1,4 @@
-- [ ] **The mechanisable form of it:** any claim about *current state* comes
+- [~] (claimed 2026-10-16-1554 UTC by queue run abe96d8d, the close-out checker build, an Opus worker) **The mechanisable form of it:** any claim about *current state* comes
       from a fresh read, never from context. `RECORD.md` already says this for
       one case — the all-clear is the pushed floor run, not the local scan —
       and the general rule is the same shape. A close-out that is mechanical

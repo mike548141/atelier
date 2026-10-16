@@ -48,7 +48,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [E7 residue — G3 (binary media): FUNDED as its own item, soon](roadmap/020-policy-as-code-programme-five-tracks-mik/150-e7-residue-g3-binary-media-funded-as-its-own-i.md)
 - ✅ [E9 — every scanner walks gitignored nested worktrees, and counts the](roadmap/020-policy-as-code-programme-five-tracks-mik/160-e9-every-scanner-walks-gitignored-nested-workt.md)
 - [ ] 🎯 [F1 — rebuild the block-vs-advise model from base. REBUILT](roadmap/020-policy-as-code-programme-five-tracks-mik/170-f1-rebuild-the-block-vs-advise-model-from-base.md)
-- [ ] [The mechanisable form of it](roadmap/020-policy-as-code-programme-five-tracks-mik/180-the-mechanisable-form-of-it.md)
+- [~] (claimed 2026-10-16-1554 UTC by queue run abe96d8d, the close-out checker build, an Opus worker) [The mechanisable form of it](roadmap/020-policy-as-code-programme-five-tracks-mik/180-the-mechanisable-form-of-it.md)
 - [ ] [The measurement that supports it, and its limits.](roadmap/020-policy-as-code-programme-five-tracks-mik/190-the-measurement-that-supports-it-and-its-limit.md)
 - [ ] [Aggravating factor worth keeping](roadmap/020-policy-as-code-programme-five-tracks-mik/200-aggravating-factor-worth-keeping.md)
 - ✅ [The Three Laws and the Zeroth are OUT of the apex (Mike, ruled](roadmap/020-policy-as-code-programme-five-tracks-mik/210-the-three-laws-and-the-zeroth-are-coming-out-o.md)
