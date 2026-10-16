@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-16-1501 UTC by queue run abe96d8d, a worker) 🔎 **Three guard descriptions disagree with their own code**
+- [x] 🔎 **Three guard descriptions disagree with their own code**
       `[S][tools]`. Found 2026-10-16 by the `090` audit and checked against
       the code before filing. Not fixed in passing:
       1. **licenscan promises a warn tier that does not exist.** Its
@@ -34,3 +34,28 @@
       the blast radius across the children, where the change can only turn
       a red green. Parts 2 and 3 (the docstrings) are still plain fixes,
       unclaimed. The whole item is now buildable.
+
+      ✅ **Done 2026-10-16, all three parts** (1501 UTC queue run, a Sonnet
+      5.5 worker; `e3e8a4f`, merged on `main`; the orchestrator read the
+      diff and corrected two dates at the merge).
+      1. licenscan's warn is real. Each finding carries a response worked
+         out from its severity: `high` blocks as before, `medium` reports in
+         its own advisory block at exit 0. The tier is opt-in, so a severity
+         not named advisory blocks. `licenscan advisory: N finding(s)` prints
+         on every run, zero included, and the floor board reads it as it
+         reads secretscan's. `--json` gains `blocked`, `counts` and a
+         per-finding `response`. A child still cannot soften licenscan.
+      2. pathscan's docstring says it has been a registry entry since
+         2026-08-05.
+      3. floor.py's "no advisory form by design" names publishscan's
+         adoption-aid exception.
+      New tests fail on the old code (8 of 9, 3 of 3, and the pinned
+      literal). **Blast radius, 29 repos, scanner view:** 6 go from exit 1
+      to exit 0 on one advisory each, 2 stay at exit 1 on one `high`
+      finding each, 21 are clean on both, none goes green to red. Suite:
+      1,903 tests, one failure, the known `test_pins.BoundedMemory` load
+      timeout (load 55–157). 🔎 Found, not fixed, filed as `115/320`: a
+      stale "only the prose-hygiene checks may re-baseline" comment in
+      `test_floor.py`, an unsoftenable-scanner selftest that pins only four
+      of the seven, and an advisory-count regex that matches any scanner's
+      wording. Review queued at `160/840`.

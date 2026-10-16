@@ -5,6 +5,19 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-10-16 — licenscan's warn is real, `115/290`)
+- `licenscan`'s `medium` findings (a permissive header under a different
+  permissive licence, an unknown declaration, an unrecognised LICENSE) now
+  report in a `🟡 ADVISORY FINDINGS` block at exit 0. `high` findings still
+  block. The text had called these a warn while every one counted toward
+  exit 1 (Mike's answer, 2026-10-16: make the warning real).
+  `licenscan advisory: N finding(s)` prints on every run and the floor board
+  reads it as it reads `secretscan`'s; `--json` gains `blocked`, `counts`
+  and `response`. Across 29 repos: 6 go red to green, 2 stay red on a `high`
+  finding, none goes the other way.
+- `pathscan`'s docstring says it is a registry entry (since 2026-08-05), and
+  `floor.py`'s "no advisory form by design" names publishscan's exception.
+
 ### Fixed (2026-10-16 — staged findings at their real line, `115/300`)
 - `conflictscan` and `leakscan` report a staged finding at its real line in
   the file. Both numbered a finding by its position among the file's added

@@ -58,3 +58,13 @@ The worker found that conflictscan's open-conflict state runs across hunks:
 filed as `115/310`. Pass queued at `160/830`. The one suite failure was
 `test_pins.BoundedMemory` at a load of about 300, with other repos' pytest
 runs filling the machine. Re-checked at the close.
+
+## `115/290` ✅ licenscan's warn is real, and two docstrings fixed
+
+A Sonnet worker, `e3e8a4f`, merged. The orchestrator read the diff and
+corrected two dates written in NZ time to UTC at the merge. `medium`
+findings report without blocking, `high` still blocks, and the board counts
+advisories as it does for secretscan. Blast radius across 29 repos: 6 red to
+green, 2 stay red, none green to red. Its findings were filed as `115/320`.
+Pass queued at `160/840`. The suite failure was the same `BoundedMemory`
+load timeout.

@@ -4,7 +4,9 @@ Every licence body/declaration here is a fictional fixture — the SPDX *shape* 
 what's under test, not any real project's licence choice.
 """
 
+import json
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -428,6 +430,110 @@ class Allowances(unittest.TestCase):
         rep = lc.scan_repo(lc.Path("."), [("LICENSE", body)], None)
         self.assertNotIn("unknown-license", kinds(rep))
         self.assertEqual(rep.suppressed_declarations, 1)
+
+
+class TwoResponses(unittest.TestCase):
+    """115/290 (ruled 2026-10-16: "Make the warning real"). A `medium` finding
+    REPORTS without blocking; a `high` one still blocks. Each test drives the
+    real CLI on a real tree, because the defect was in the exit code, which no
+    engine-level assertion reaches."""
+
+    # A permissive header in a permissive repo: `mismatch`, `medium`.
+    MIXED_HEADER = ("vendor/y.py", "# SPDX-License-Identifier: MIT\n")  # licenscan:allow: test fixture, not a real header
+    # A declaration that is not a recognised SPDX id: `unknown-declaration`.
+    UNKNOWN_DECL = ("pyproject.toml", 'license = "Fictional-Licence-9"\n')
+    # A declaration contradicting LICENSE: `mismatch`, `high`.
+    CONTRADICTION = ("pyproject.toml", 'license = "MIT"\n')
+
+    def _run(self, files, *args):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            for rel, text in files:
+                p = root / rel
+                p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_text(text, encoding="utf-8")
+            return subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "licenscan.py"), str(root), *args],
+                capture_output=True, text=True)
+
+    def test_advisory_only_exits_zero_and_shows_the_block(self):
+        for label, extra in (("permissive header", self.MIXED_HEADER),
+                             ("unknown declaration", self.UNKNOWN_DECL),
+                             ("unnameable LICENSE", None)):
+            with self.subTest(label):
+                files = ([("LICENSE", PROPRIETARY)] if extra is None
+                         else [("LICENSE", APACHE), extra])
+                r = self._run(files)
+                self.assertEqual(0, r.returncode, r.stdout + r.stderr)
+                self.assertIn("🟡 ADVISORY FINDINGS", r.stdout)
+                self.assertIn("[advisory/", r.stdout)
+                self.assertIn("licenscan advisory: 1 finding(s)", r.stdout)
+                self.assertNotIn("Publish blocked", r.stdout)
+                self.assertNotIn("✗", r.stdout)
+
+    def test_high_plus_advisory_exits_one_and_shows_both(self):
+        r = self._run([("LICENSE", APACHE), self.CONTRADICTION, self.MIXED_HEADER])
+        self.assertEqual(1, r.returncode, r.stdout + r.stderr)
+        # The headline counts what BLOCKS, not what was found.
+        self.assertIn("✗ licenscan: 1 finding(s)", r.stdout)
+        self.assertIn("Publish blocked", r.stdout)
+        self.assertIn("[high/mismatch]", r.stdout)
+        self.assertIn("🟡 ADVISORY FINDINGS", r.stdout)
+        self.assertIn("[advisory/mismatch]", r.stdout)
+        self.assertIn("licenscan advisory: 1 finding(s)", r.stdout)
+
+    def test_a_blocking_finding_alone_still_blocks(self):
+        r = self._run([("pyproject.toml", 'license = "MIT"\n')])  # no LICENSE
+        self.assertEqual(1, r.returncode, r.stdout + r.stderr)
+        self.assertNotIn("🟡 ADVISORY FINDINGS", r.stdout)
+        self.assertIn("licenscan advisory: 0 finding(s)", r.stdout)
+
+    def test_copyleft_poison_still_blocks(self):
+        r = self._run([("LICENSE", APACHE),
+                       ("vendor/z.py", "# SPDX-License-Identifier: GPL-3.0\n")])  # licenscan:allow: test fixture, not a real header
+        self.assertEqual(1, r.returncode, r.stdout + r.stderr)
+
+    def test_the_count_line_is_printed_on_a_clean_run_too(self):
+        """A count that appears only when non-zero makes "no line" mean two
+        things (nothing found, or the wording drifted)."""
+        r = self._run([("LICENSE", APACHE)])
+        self.assertEqual(0, r.returncode, r.stdout + r.stderr)
+        self.assertIn("licenscan advisory: 0 finding(s)", r.stdout)
+        self.assertNotIn("ADVISORY FINDINGS", r.stdout)
+
+    def test_json_advisory_only(self):
+        r = self._run([("LICENSE", APACHE), self.MIXED_HEADER], "--json")
+        self.assertEqual(0, r.returncode, r.stdout + r.stderr)
+        out = json.loads(r.stdout)
+        self.assertFalse(out["clean"])      # something was found
+        self.assertFalse(out["blocked"])    # but nothing blocks
+        self.assertEqual({"blocking": 0, "advisory": 1}, out["counts"])
+        self.assertEqual(["advisory"], [f["response"] for f in out["findings"]])
+
+    def test_json_blocked(self):
+        r = self._run([("LICENSE", APACHE), self.CONTRADICTION, self.MIXED_HEADER],
+                      "--json")
+        self.assertEqual(1, r.returncode, r.stdout + r.stderr)
+        out = json.loads(r.stdout)
+        self.assertTrue(out["blocked"])
+        self.assertEqual({"blocking": 1, "advisory": 1}, out["counts"])
+        self.assertEqual({"block", "advisory"},
+                         {f["response"] for f in out["findings"]})
+
+    def test_response_follows_severity_and_unknown_severity_blocks(self):
+        self.assertEqual("advisory", lc.Finding("mismatch", "medium", "m").response)
+        self.assertEqual("block", lc.Finding("mismatch", "high", "m").response)
+        # Fail-safe: a tier is opted into by name, never reached by omission.
+        self.assertEqual("block", lc.Finding("mismatch", "low", "m").response)
+        self.assertTrue(lc.Finding("mismatch", "low", "m").blocks)
+
+    def test_the_two_blocks_share_no_headline_wording(self):
+        rep = lc.Report(repo_license="Apache-2.0")
+        rep.findings.append(lc.Finding("mismatch", "medium", "m", "a.py", 1))
+        out = lc.render_human(rep)
+        self.assertNotIn("✗", out)
+        self.assertNotIn("Publish blocked", out)
+        self.assertIn("none of these blocked anything", out)
 
 
 class SelfTest(unittest.TestCase):
