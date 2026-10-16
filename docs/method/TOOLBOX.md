@@ -57,7 +57,7 @@ how to install it when it is missing.
 | `docker` | containers | — | Docker Desktop, or Colima via Homebrew |
 | `terraform`, `wrangler`, `cloudflared` | infrastructure, Cloudflare | `wrangler`: npm global bin | Homebrew; `npm i -g wrangler` |
 | `nmap`, `openssl`, `sops`, `age`, `tcpdump`, `ike-scan` | network and security | `ike-scan`: per its repo's onramp | Homebrew (`tcpdump` and `openssl` ship with macOS) |
-| `tiki`, `cctranscript`, `ccrepo`, `ccmail`, `ccarchive` | the estate's own tools | user bin | their repos' install steps (`instruments/` here) |
+| `tiki`, `cctranscript`, `ccrepo`, `ccmail`, `ccarchive`, `ccclose` | the estate's own tools | user bin | their repos' install steps (`instruments/` here) |
 
 **Known quirks, generic to macOS rather than to any one machine:**
 - macOS `openssl` is LibreSSL.

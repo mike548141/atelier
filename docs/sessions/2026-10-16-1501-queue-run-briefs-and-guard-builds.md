@@ -248,3 +248,15 @@ brief them.
   had been checked clean just before.
 - Load from other repos' sessions reached 550 on 12 cores mid-run. Dispatches
   were held until it fell. The cap of four agents was kept throughout.
+
+## Answers at the close, one at a time, in the device
+
+1. **`115/090`.** Re-briefed on EI6. Mike answered **"Report-only for off
+   rules"**: rules that are switched off come back as report-only, and
+   nothing that blocks today is demoted. This lifts EI6 for that case only.
+   The build is owed and the item carries its shape. The `🎯` is removed.
+2. **`ccclose` install.** Mike answered **"Install it"**. It was added to
+   `TOOLBOX.md`'s expected-toolbox row, and `instruments/install` was run.
+   The toolbox edit joins `160/870`'s delta.
+
+Both are recorded on their items as answers.

@@ -6,7 +6,9 @@
       code and design cold pass, per `method/REVIEW.md` rule 4. *Delta, scoped to
       paths:* `instruments/ccclose`, `instruments/ccclose.test.js`,
       `instruments/ccclose.design.md`, `instruments/man/ccclose.1` and
-      `instruments/README.md`, commits `ef3673a` and `4eda680` and their merge, landed on
+      `instruments/README.md`, commits `ef3673a` and `4eda680` and their merge,
+      and the `TOOLBOX.md` expected-toolbox row that names it (the close
+      commit), landed on
       `main` on 2026-10-16.
       *Intent record:*
       [`../../sessions/2026-10-16-1501-queue-run-briefs-and-guard-builds.md`](../../sessions/2026-10-16-1501-queue-run-briefs-and-guard-builds.md).

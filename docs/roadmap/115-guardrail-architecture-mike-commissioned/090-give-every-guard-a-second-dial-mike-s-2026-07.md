@@ -1,4 +1,4 @@
-- [ ] 🎯 **Give every guard a second dial — the standing consequence of Mike's
+- [ ] **Give every guard a second dial — the standing consequence of Mike's
       2026-07-28 correction, carried across the whole fleet.** The
       scanner-precision track was opened on the premise that a false positive on
       a correct line trains someone to write an allow-marker, and that is how a
@@ -109,3 +109,20 @@
       🎯 **Owed to Mike, re-briefed, at the run's close:** keep EI6 (no
       leakscan dial; datescan becomes the first second dial), lift it for the
       additive-only form, or lift it fully. Nothing is built until then.
+
+      ✅ **Answered 2026-10-16, re-briefed, at the 1501 run's close:
+      report-only for rules that are off, nothing demoted.** The device
+      question set out the EI6 ruling (2026-07-29: leakscan gains no
+      advisory form, because leaked personal data cannot be rotated), said
+      that the 2026-10-16 question had not shown it, and offered three
+      options: report-only for off rules, keep EI6, or demote noisy rules
+      too. Mike picked "Report-only for off rules", the recommended option.
+      That is his *answer*, recorded as such. It lifts EI6 for this narrow
+      case only. **The build is owed, first-of-kind, capable tier, design
+      note first:** rules that are off today (withdrawn ones such as the
+      `diagnosis` key, and a child's `--disable` of a whole class) report
+      without blocking. Nothing that blocks today stops blocking. A test
+      pins that, so the blocking set cannot shrink. `SECRETS.md`
+      § *The boundary's posture* is amended in the same landing to state
+      the narrowed asymmetry, and that landing queues its own rule-4 pass.
+      Measure the blast radius across the children before landing.

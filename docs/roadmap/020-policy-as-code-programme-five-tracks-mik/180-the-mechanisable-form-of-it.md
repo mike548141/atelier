@@ -122,3 +122,11 @@
         `160/500`'s brief. So installing it is Mike's call, asked at the
         close. Review queued at `160/870`. The model-router sub-items above
         stay idea-only; they are why this item stays open.
+        ✅ **Install answered 2026-10-16 at the close: "Install it".** The
+        device question explained what installing means. Mike picked the
+        recommended option, which is his *answer*. Done the same sitting:
+        `ccclose` was added to the expected toolbox row in `TOOLBOX.md`
+        beside the estate's other instruments, and `instruments/install` was
+        run. It created only the `ccclose` symlink and its man page link,
+        and `ccclose --help` and `man -w ccclose` resolve. The toolbox edit
+        joins `160/870`'s delta.
