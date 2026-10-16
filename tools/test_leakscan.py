@@ -718,7 +718,8 @@ class StagedPosedHeader(unittest.TestCase):
     def test_a_posed_ignored_header_does_not_hide_the_leak_after_it(self):
         self._stage("posed.md", f"ok\n++ b/docs/ignored.md\n{self.LEAK}\n")
         self.assertEqual(
-            {"posed.md": f"ok\n++ b/docs/ignored.md\n{self.LEAK}"},
+            {"posed.md": [(1, "ok"), (2, "++ b/docs/ignored.md"),
+                          (3, self.LEAK)]},
             ls.staged_added_lines())
         self.assertEqual((1, ["posed.md"]), self._paths())
 
@@ -733,6 +734,81 @@ class StagedPosedHeader(unittest.TestCase):
     def test_a_real_ignored_file_is_still_ignored(self):
         self._stage("docs/ignored.md", self.LEAK + "\n")
         self.assertEqual((0, []), self._paths())
+
+
+class StagedRealLineNumbers(unittest.TestCase):
+    """115/300 — a finding on the staged plane is reported at its line in the
+    file, not at its position among the file's added lines. The old code
+    joined the added lines and numbered the blob from 1, so a leak staged on
+    line 5 of a file whose lines 1-4 were already committed was reported at
+    line 1. The term list is an EMPTY file, so only the structural shapes are
+    in play."""
+
+    # Assembled so this file does not itself carry the shape it plants.
+    LEAK = "-----BEGIN " + "RSA PRIVATE KEY-----"
+
+    def setUp(self):
+        self.repo = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.repo, ignore_errors=True)
+        self._git("init", "-q")
+        empty = self.repo / "no-terms.txt"      # untracked; never staged
+        empty.write_text("")
+        env = unittest.mock.patch.dict(
+            os.environ, {"ATELIER_LEAKSCAN_TERMS": str(empty)})
+        env.start()
+        self.addCleanup(env.stop)
+        old = os.getcwd()
+        os.chdir(self.repo)
+        self.addCleanup(os.chdir, old)
+
+    def _git(self, *args):
+        return subprocess.run(
+            ["git", "-C", str(self.repo), *args],
+            capture_output=True, text=True, check=True,
+            env={**os.environ,
+                 "GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@example.invalid",  # leakscan:allow: RFC-2606 fixture identity for a throwaway test repo
+                 "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@example.invalid"})  # leakscan:allow: RFC-2606 fixture identity for a throwaway test repo
+
+    def _commit(self, name, lines):
+        (self.repo / name).write_text("\n".join(lines) + "\n")
+        self._git("add", "--", name)
+        self._git("-c", "commit.gpgsign=false", "commit", "-q", "-m", "base")
+
+    def _stage(self, name, lines):
+        (self.repo / name).write_text("\n".join(lines) + "\n")
+        self._git("add", "--", name)
+
+    def _found(self):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), \
+                contextlib.redirect_stderr(io.StringIO()):
+            code = ls.main(["--staged", "--root", str(self.repo), "--json"])
+        return code, [(f["path"], f["line"], f["rule"])
+                      for f in json.loads(buf.getvalue())["findings"]]
+
+    def test_a_leak_below_unchanged_lines_reports_its_file_line(self):
+        base = ["a", "b", "c", "d"]
+        self._commit("c.md", base)
+        self._stage("c.md", base + [self.LEAK])
+        self.assertEqual({"c.md": [(5, self.LEAK)]}, ls.staged_added_lines())
+        self.assertEqual((1, [("c.md", 5, "private-key-header")]),
+                         self._found())
+
+    def test_findings_in_a_second_hunk_report_their_file_lines(self):
+        base = [f"l{i}" for i in range(1, 31)]
+        self._commit("two.md", base)
+        # One leak on new line 5; 20 unchanged lines later (more than a
+        # hunk's context, so git cuts a second hunk) another on line 26.
+        new = base[:4] + [self.LEAK] + base[4:24] + [self.LEAK] + base[24:]
+        self._stage("two.md", new)
+        self.assertEqual((1, [("two.md", 5, "private-key-header"),
+                              ("two.md", 26, "private-key-header")]),
+                         self._found())
+
+    def test_a_new_file_still_reports_from_line_one(self):
+        self._stage("fresh.md", ["# title", self.LEAK])
+        self.assertEqual((1, [("fresh.md", 2, "private-key-header")]),
+                         self._found())
 
 
 class LinkedWorktreeSkipped(unittest.TestCase):

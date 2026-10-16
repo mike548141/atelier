@@ -691,9 +691,10 @@ def scan_lines(path: str, numbered_lines: list[tuple[int, str]],
               tally: Tally | None = None) -> list[Finding]:
     """The scanning engine. `numbered_lines` pairs each line of text with its
     real line number — the shape `_scan_file` needs to call this once per
-    physical line while streaming a file, and `scan_text` below is the
-    whole-blob convenience wrapper every existing caller (staged mode, the
-    path-name scan, the test suite) uses."""
+    physical line while streaming a file, and the staged plane, whose added
+    lines are not consecutive lines of the file (115/300). `scan_text` below
+    is the whole-blob convenience wrapper the path-name scan and the test
+    suite use."""
     findings: list[Finding] = []
     rules = _active_rules(disabled)
     for lineno, line in numbered_lines:
@@ -743,8 +744,9 @@ def scan_text(path: str, text: str,
               disabled: frozenset[str] = frozenset(),
               tally: Tally | None = None) -> list[Finding]:
     """Scan a whole text blob, numbering lines sequentially from 1 — the
-    staged-diff and path-name callers' shape (both already hold their input
-    in memory: a diff's added lines, or a single path string)."""
+    path-name caller's shape (it holds a single path string in memory). The
+    staged plane does not use this: its lines carry real file line numbers
+    and go to `scan_lines` (115/300)."""
     return scan_lines(path, list(enumerate(text.splitlines(), start=1)),
                       local_terms, disabled, tally)
 
@@ -936,9 +938,11 @@ def scan_paths(paths: list[Path], root: Path,
     return findings
 
 
-def staged_added_lines() -> dict[str, str]:
-    """Map path → the added-line text of the staged diff. Scans only what a
-    commit would introduce (the pre-commit hot path), not the whole tree.
+def staged_added_lines() -> dict[str, list[tuple[int, str]]]:
+    """Map path → [(real file line number, added-line text), ...] of the
+    staged diff. Scans only what a commit would introduce (the pre-commit hot
+    path), not the whole tree. The line number is the line's place in the file
+    the commit produces, not its place among the file's added lines (115/300).
     R is in the filter deliberately (review B4): git detects renames by
     default, and a renamed-AND-edited file's added lines are exactly as
     leak-capable as a modified file's — ACM alone silently skipped them."""
@@ -946,10 +950,10 @@ def staged_added_lines() -> dict[str, str]:
     # path of a quoted name is undone there (115/260), and an added line that
     # merely looks like a header (`++ b/x` prints as `+++ b/x`) can neither
     # move attribution nor be dropped from the scan.
-    files: dict[str, list[str]] = {}
-    for path, _lineno, text in report.staged_added():
-        files.setdefault(path, []).append(text)
-    return {path: "\n".join(lines) for path, lines in files.items()}
+    files: dict[str, list[tuple[int, str]]] = {}
+    for path, lineno, text in report.staged_added():
+        files.setdefault(path, []).append((lineno, text))
+    return files
 
 
 class TermsPathError(RuntimeError):
@@ -1093,20 +1097,20 @@ def _main(argv: list[str] | None = None) -> int:
             return rc
         prefixes = tuple(p.rstrip("/") + "/" for p in args.paths)
         if prefixes:
-            staged = {path: text for path, text in staged.items()
+            staged = {path: lines for path, lines in staged.items()
                       if path.startswith(prefixes) or path in args.paths}
         # .leakscanignore applies in staged mode too, so an exemption means the
         # same thing whether you scan the tree or a commit.
         globs = load_ignore_globs(root)
         findings = []
-        for path, text in staged.items():
+        for path, lines in staged.items():
             if _ignored(path, globs):
                 tally.files_by_glob += 1
                 continue
             # G2 on the hot path too: a leak in a NEW file's name reaches the
             # remote by the same commit as one in its body.
             findings.extend(scan_path_name(path, local_terms, disabled, tally))
-            findings.extend(scan_text(path, text, local_terms, disabled, tally))
+            findings.extend(scan_lines(path, lines, local_terms, disabled, tally))
     else:
         # A RELATIVE target resolves against --root, never the caller's cwd:
         # mixing the two reads one repo's file under another repo's rules,
