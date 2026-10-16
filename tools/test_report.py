@@ -616,5 +616,183 @@ class TestGitPathReading(unittest.TestCase):
         self.assertEqual(b"bad\xff.md", os.fsencode(name))
 
 
+class ParseAddedLinesTest(unittest.TestCase):
+    """115/280 — the one reader of the staged diff. An ADDED line whose text
+    begins `++ ` prints as `+++ …`, which three guards took for a file header.
+    The reader follows the diff's structure (the hunk counts), so a header is
+    only ever what git wrote between `diff --git` and a file's first `@@`.
+    Fixtures are REAL `git diff` output from a scratch repo, not hand-typed."""
+
+    GIT_ENV = {"GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@example.invalid",  # leakscan:allow: RFC-2606 fixture identity for a throwaway test repo
+               "GIT_COMMITTER_NAME": "t",
+               "GIT_COMMITTER_EMAIL": "t@example.invalid"}  # leakscan:allow: RFC-2606 fixture identity for a throwaway test repo
+
+    def setUp(self):
+        self.repo = Path(tempfile.mkdtemp())
+        self.addCleanup(__import__("shutil").rmtree, self.repo,
+                        ignore_errors=True)
+        self.git("init", "-q")
+        old = os.getcwd()
+        os.chdir(self.repo)
+        self.addCleanup(os.chdir, old)
+
+    def git(self, *args):
+        import subprocess
+        return subprocess.run(["git", "-C", str(self.repo), *args], check=True,
+                              capture_output=True,
+                              env={**os.environ, **self.GIT_ENV}).stdout
+
+    def put(self, name, data):
+        p = self.repo / name
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_bytes(data if isinstance(data, bytes) else data.encode())
+
+    def commit_base(self):
+        self.git("add", "-A")
+        self.git("commit", "-q", "-m", "base")
+
+    def staged(self):
+        return list(report.staged_added())
+
+    def raw_diff(self):
+        """The staged diff exactly as the guards read it, but WITHOUT the
+        added/copied/modified/renamed filter, so deletions are in it too."""
+        cmd = [a for a in report.STAGED_DIFF_CMD[1:]
+               if not a.startswith("--diff-filter")]
+        return self.git(*cmd)
+
+    def test_multi_file_rename_quoted_new_deleted_binary_and_mode(self):
+        base = "".join(f"keep {i}\n" for i in range(1, 30))
+        self.put("a.md", "".join(f"line {i}\n" for i in range(1, 41)))
+        self.put("rename_me.txt", base)
+        self.put("café/n.md", "one\ntwo\nthree\n")
+        self.put("gone.txt", "bye\n")
+        self.put("tab\tname.md", "x\n")
+        self.put("sp ace/f.md", "y\n")
+        self.put("mode.sh", "echo hi\n")
+        self.commit_base()
+        lines = [f"line {i}\n" for i in range(1, 41)]
+        lines[2] = "changed 3\n"
+        lines.insert(30, "inserted\n")
+        self.put("a.md", "".join(lines))
+        self.put("new.py", "print(1)\nprint(2)\n")
+        self.git("mv", "rename_me.txt", "renamed.txt")
+        self.put("renamed.txt", base + "tail\n")
+        self.put("café/n.md", "one\nTWO\nthree\nfour\n")
+        self.put("tab\tname.md", "x\nsecond\n")
+        self.put("sp ace/f.md", "y\nz\n")
+        (self.repo / "gone.txt").unlink()
+        self.put("blob.bin", b"\x00\x01\xff" * 20)
+        os.chmod(self.repo / "mode.sh", 0o755)
+        self.git("add", "-A")
+        self.assertEqual([
+            ("a.md", 3, "changed 3"),
+            ("a.md", 31, "inserted"),
+            ("café/n.md", 2, "TWO"),
+            ("café/n.md", 4, "four"),
+            ("new.py", 1, "print(1)"),
+            ("new.py", 2, "print(2)"),
+            ("renamed.txt", 30, "tail"),
+            ("sp ace/f.md", 2, "z"),
+            ("tab\tname.md", 2, "second"),
+        ], sorted(self.staged()))
+        # With deletions left IN the diff (`+++ /dev/null`, a hunk of only
+        # removed lines) the reader still reads every file the same.
+        self.assertIn(b"+++ /dev/null", self.raw_diff())
+        self.assertEqual(sorted(self.staged()),
+                         sorted(report.parse_added_lines(self.raw_diff())))
+
+    def test_a_posed_header_inside_a_hunk_moves_nothing(self):
+        self.put("x.md", "base\n")
+        self.commit_base()
+        self.put("x.md", "base\n++ b/docs/ignored.md\nreal\n+++ b/other.md\n")
+        self.put("y.md", "++ b/x.md\nafter\n")
+        self.git("add", "-A")
+        self.assertEqual([
+            ("x.md", 2, "++ b/docs/ignored.md"),
+            ("x.md", 3, "real"),
+            ("x.md", 4, "+++ b/other.md"),
+            ("y.md", 1, "++ b/x.md"),
+            ("y.md", 2, "after"),
+        ], sorted(self.staged()))
+
+    def test_a_posed_quoted_header_and_dev_null_move_nothing(self):
+        self.put("x.md", '++ "b/docs/ignored.md"\n++ /dev/null\nreal\n')
+        self.git("add", "-A")
+        self.assertEqual([
+            ("x.md", 1, '++ "b/docs/ignored.md"'),
+            ("x.md", 2, "++ /dev/null"),
+            ("x.md", 3, "real"),
+        ], self.staged())
+
+    def test_a_posed_diff_and_hunk_header_in_added_text_move_nothing(self):
+        self.put("x.md", "diff --git a/z b/z\n@@ -1 +1 @@\n+++ b/z\nreal\n")
+        self.git("add", "-A")
+        self.assertEqual(["diff --git a/z b/z", "@@ -1 +1 @@", "+++ b/z",
+                          "real"], [t for _, _, t in self.staged()])
+        self.assertEqual({"x.md"}, {p for p, _, _ in self.staged()})
+
+    def test_line_separators_inside_a_line_do_not_split_it(self):
+        # `str.splitlines` breaks on these; an added line's own text must
+        # never start a line of the diff.
+        for sep in ("\x0c", "\x0b", "\x1c", "\x85", " ", "\r"):
+            with self.subTest(sep=repr(sep)):
+                self.put("x.md", f"a{sep}+++ b/docs/ignored.md\nreal\n")
+                self.git("add", "-A")
+                self.assertEqual(
+                    [("x.md", 1, f"a{sep}+++ b/docs/ignored.md"),
+                     ("x.md", 2, "real")], self.staged())
+
+    def test_crlf_files_lose_only_the_line_ending(self):
+        self.put("x.md", "one\r\ntwo\r\n")
+        self.git("add", "-A")
+        self.assertEqual([("x.md", 1, "one"), ("x.md", 2, "two")],
+                         self.staged())
+
+    def test_no_newline_marker_and_one_line_counts(self):
+        self.put("x.md", "a\nb\nc")
+        self.commit_base()
+        self.put("x.md", "a\nB\nc2")
+        self.git("add", "-A")
+        self.assertIn(b"\\ No newline at end of file", self.raw_diff())
+        self.assertEqual([("x.md", 2, "B"), ("x.md", 3, "c2")], self.staged())
+
+    def test_configured_prefixes_do_not_change_what_is_read(self):
+        self.put("x.md", "base\n")
+        self.commit_base()
+        self.put("x.md", "base\nnew\n")
+        self.git("add", "-A")
+        for setting in ("diff.noprefix=true", "diff.mnemonicPrefix=true"):
+            with self.subTest(setting=setting):
+                self.git("config", *setting.split("="))
+                self.assertEqual([("x.md", 2, "new")], self.staged())
+
+    def test_nothing_staged_is_empty(self):
+        self.assertEqual([], self.staged())
+
+    def test_a_diff_that_is_not_git_shaped_is_refused_not_guessed(self):
+        for name, raw in [
+            ("hunk before any file", b"@@ -0,0 +1 @@\n+x\n"),
+            ("hunk without counts", b"diff --git a/x b/x\n+++ b/x\n@@ nope\n"),
+            ("body line of no kind",
+             b"diff --git a/x b/x\n+++ b/x\n@@ -0,0 +1 @@\nzzz\n"),
+            ("hunk longer than its counts",
+             b"diff --git a/x b/x\n+++ b/x\n@@ -0,0 +1 @@\n+a\n+b\n+++ b/y\n"),
+            ("ends inside a hunk",
+             b"diff --git a/x b/x\n+++ b/x\n@@ -0,0 +1,2 @@\n+a\n"),
+            ("header not b/ or /dev/null",
+             b"diff --git a/x b/x\n+++ w/x\n@@ -0,0 +1 @@\n+a\n"),
+        ]:
+            with self.subTest(name=name):
+                with self.assertRaises(report.DiffReadError):
+                    list(report.parse_added_lines(raw))
+
+    def test_a_hunk_longer_than_its_counts_is_the_posed_header_case(self):
+        # The same diff, count-correct: the `+++ b/y` is body, not a header.
+        raw = (b"diff --git a/x b/x\n+++ b/x\n@@ -0,0 +1,2 @@\n+a\n+++ b/y\n")
+        self.assertEqual([("x", 1, "a"), ("x", 2, "++ b/y")],
+                         list(report.parse_added_lines(raw)))
+
+
 if __name__ == "__main__":
     unittest.main()

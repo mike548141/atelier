@@ -351,6 +351,60 @@ class StagedQuotedPaths(unittest.TestCase):
         self.assertEqual(0, code)
 
 
+class StagedPosedHeader(unittest.TestCase):
+    """115/280 — an added line whose text begins `++ b/…` prints as `+++ b/…`,
+    which `report.diff_header_path` accepts as a header. The old reader moved
+    attribution to the posed (here ignored) path, hiding the marker after it,
+    and dropped the posed line itself as "not an added line"."""
+
+    MARKER = "<" * 7 + " HEAD"
+
+    def setUp(self):
+        self.repo = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.repo, ignore_errors=True)
+        _git(self.repo, "init", "-q")
+        (self.repo / ".conflictscanignore").write_text(
+            "docs/ignored.md  # fixture: the path the posed header names\n")
+        self._old_cwd = os.getcwd()
+        os.chdir(self.repo)
+        self.addCleanup(os.chdir, self._old_cwd)
+
+    def _stage(self, name, text):
+        p = self.repo / name
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text)
+        _git(self.repo, "add", "--", name)
+
+    def _paths(self):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), \
+                contextlib.redirect_stderr(io.StringIO()):
+            code = cs.main(["--staged", "--root", str(self.repo), "--json"])
+        return code, sorted(f["path"] for f in json.loads(buf.getvalue())["findings"])
+
+    def test_a_posed_ignored_header_does_not_hide_the_marker_after_it(self):
+        self._stage("posed.md", f"ok\n++ b/docs/ignored.md\n{self.MARKER}\n")
+        self.assertEqual(
+            {"posed.md": f"ok\n++ b/docs/ignored.md\n{self.MARKER}"},
+            cs.staged_added_lines())
+        self.assertEqual((1, ["posed.md"]), self._paths())
+
+    def test_a_posed_quoted_header_does_not_hide_it_either(self):
+        self._stage("posed.md", f'++ "b/docs/ignored.md"\n{self.MARKER}\n')
+        self.assertEqual((1, ["posed.md"]), self._paths())
+
+    def test_a_posed_line_is_itself_kept(self):
+        # A marker must open its line, so `++ <<<<<<<` is no finding; the
+        # point is that the posed line is no longer dropped as a "header".
+        self._stage("posed.md", f"++ {self.MARKER}\n")
+        self.assertEqual({"posed.md": f"++ {self.MARKER}"},
+                         cs.staged_added_lines())
+
+    def test_a_real_ignored_file_is_still_ignored(self):
+        self._stage("docs/ignored.md", self.MARKER + "\n")
+        self.assertEqual((0, []), self._paths())
+
+
 class BoundedMemory(unittest.TestCase):
     """020/380 — the same class of defect `020/370` fixed in `secretscan`,
     applied here: peak memory must be bounded by a constant that does not
