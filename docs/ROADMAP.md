@@ -289,7 +289,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: the pre-flip gate additions and](roadmap/160-doctrine-review-owed/740-rule-4-cold-pass-queued-the-pre-flip-gate.md)
 - [ ] ⏳ [Rule-4 cold pass queued: allow-markers that name a kind, and](roadmap/160-doctrine-review-owed/750-rule-4-cold-pass-queued-marker-kinds-and-ids.md)
 - [ ] ⏳ [Rule-4 cold pass queued: guards read git-quoted paths](roadmap/160-doctrine-review-owed/760-rule-4-cold-pass-queued-quoted-paths.md)
-- [~] [Estate survey: which repos hold Fable-dependent work, and which](roadmap/160-doctrine-review-owed/770-estate-survey-fable-work-and-unwritten-briefs.md)
+- ✅ [Estate survey: which repos hold Fable-dependent work, and which](roadmap/160-doctrine-review-owed/770-estate-survey-fable-work-and-unwritten-briefs.md)
 - [ ] ⏳ [Rule-4 cold pass queued: agreement is not corroboration, minted in](roadmap/160-doctrine-review-owed/780-rule-4-cold-pass-queued-agreement-is-not-corroboration.md)
 
 ## build/ layer — open strands

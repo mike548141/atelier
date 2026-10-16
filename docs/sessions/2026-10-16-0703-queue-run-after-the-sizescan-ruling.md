@@ -60,3 +60,53 @@ scratch-file attribution. So it is minted in `EVIDENCE.md` §13, beside the
 corroboration rung, with all three instances cited. *A symptom count locates
 existence, not site* has one instance. It stays where it is and is not
 promoted. A rule-4 doctrine pass is queued at `160/780`.
+
+## `160/770`: the estate Fable survey, delivered
+
+The survey was delivered as one launch card per repo, user-local. The
+orchestrator spot-checked the two survey passes against the files before
+writing the cards. In short: one repo has 13 written briefs unrun. One has
+18 claimed by a live session, which the crash below then cut. One has 5
+written briefs plus 8 unbriefed deltas. A lockout-class fleet upgrade
+design in another waits on a brief. Seven repos hold one or two passes
+each. atelier has 22 queued passes and no brief.
+
+## 🛑 The crash at 07:35 UTC, and what was redone
+
+**What happened.** At 07:35:04 UTC every VS Code process got SIGTERM in
+the same second: every window's renderer, every extension host, the shared
+process and the pty host (VS Code's `main.log`: `crashed with code 15 and
+reason 'killed'`). Every Claude session in VS Code died with it. That was
+this run and its three in-flight workers, and live sessions in at least
+four other repos. Load averages read 33 / 63 / 135 when this run resumed
+at 07:49. **The cause is not established.** The facts are a whole-app
+SIGTERM, not a single window, at a 15-minute load average past 100. This
+run had six agents in flight just before, against a remembered cap of
+about four, and at least one was looping a scanner over 29 repos. That
+makes the run a **plausible contributor, not a proven cause**. Other
+repos' sessions were busy too. Recorded against this run: it went past
+its own concurrency cap without checking `uptime` before the second wave.
+
+**A side effect Mike hit.** A file write was waiting for his approval in
+a diff tab when the app died. The restored window kept reopening that tab
+for a file that did not exist. The write never happened. The file was
+then written from the shell.
+
+**What was checked and kept.** All four of this run's commits were pushed,
+and the floor is green on the head, `b572594` (the three before it were
+cancelled by cancel-in-progress, superseded). The contents of the last
+commit were re-read: no tool-call markup, and the ADR left unchanged as
+intended. Triage, the two surveys and the `115/090` audit had all finished
+before the crash, and they were read-only. Survey claims were spot-checked
+against the files.
+
+**What was discarded and redone.** The three build workers were all
+unfinished. `115/270`'s worker had no change in its worktree, because it
+had been building on copies in its scratch directory. `115/280`'s worker
+had 8 files modified and nothing committed. `320/430`'s had 3 files staged
+and nothing committed. On Mike's instruction to redo anything that cannot
+be trusted, all three were treated as untrusted. Their diffs were saved
+as patches in the session scratch dir, for the record only. The worktrees
+and branches were removed, and the items were re-dispatched fresh from
+`b572594`, at most two at a time, under `nice`, with a load check before
+each heavy step.
