@@ -92,3 +92,19 @@
       new tests fail on the old module. Review queued at `160/790`.
       🎯 **(c) is still owed, and waits on Mike:** what the size-advisory
       half is for has to be explained to him before it is removed.
+
+      ✅ **(c) answered 2026-10-16, at the close of the queue run:
+      remove the size advisory.** The question was asked in the device after
+      the explanation owed above. It said what each of sizescan's three
+      checks is for, and that removing the length nudge loses the only
+      pointer to finished work written as prose, which is then caught only at
+      review. Mike picked "Remove it", the recommended option, over two
+      alternatives: replacing it with a shape check, or keeping it off
+      generated boards only. This is his *answer* to that question. The
+      ruling it implements is his 2026-10-05 text above. **The build is
+      owed:** remove the size-advisory half (the line references,
+      `sizescan:budget=N`, and the advisory output) along with its tests,
+      docs and the module docstring's account of it. Keep the cold-content
+      and harvest-integrity gates. No exit code changes, because the
+      advisory never failed a build. Every child's output changes at its
+      next run. Measure that before landing.
