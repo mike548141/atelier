@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up from a private child: a repo that holds one network's
+- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🔎 **Hand-up from a private child: a repo that holds one network's
       desired state and operational records trips the floor's scanners by
       construction — a create-repo type for it** `[M][doctrine][tools]` —
       filed 2026-10-09 under `PROPAGATION.md` § *Pointing up*. A report, not

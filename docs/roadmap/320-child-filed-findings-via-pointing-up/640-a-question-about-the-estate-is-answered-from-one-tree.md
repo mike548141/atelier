@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: a cross-estate question gets answered from one repo's
+- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🔎 **Hand-up: a cross-estate question gets answered from one repo's
       tree, and "it does not exist" goes back to the principal**
       `[S][doctrine]`. Handed up by a private child's orchestrated queue run
       on 2026-10-17, under `PROPAGATION.md` § *Pointing up*. **Evidence, as

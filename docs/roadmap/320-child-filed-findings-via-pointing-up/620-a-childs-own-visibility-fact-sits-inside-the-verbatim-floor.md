@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: a child's own visibility fact sits inside its verbatim floor copy, so when the fact changes the child cannot keep it true** `[S][doctrine]`. Handed up by a child's session on 2026-10-17, for atelier to consider. A suspicion of a wrong rule, with one measured instance; no fix proposed. <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
+- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🔎 **Hand-up: a child's own visibility fact sits inside its verbatim floor copy, so when the fact changes the child cannot keep it true** `[S][doctrine]`. Handed up by a child's session on 2026-10-17, for atelier to consider. A suspicion of a wrong rule, with one measured instance; no fix proposed. <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 
       **What was measured.** The floor's visibility bullet is copied into each
       child's onramp verbatim, and the 2026-09-19 *floor copy verbatim* ruling

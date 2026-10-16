@@ -1,4 +1,4 @@
-- [ ] 🎯 **MISSING HOUSE RULE — the house has no method for splitting one repo
+- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🎯 **MISSING HOUSE RULE — the house has no method for splitting one repo
       into two, and two children have now each worked one out alone**
       `[M][doctrine]`. Hand-up from a private child via § *Pointing up*,
       2026-10-11. The evidence is held in the children's private records, so

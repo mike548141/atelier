@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: a REFUSED commit leaves its work staged in the shared
+- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🔎 **Hand-up: a REFUSED commit leaves its work staged in the shared
       index, where the next session's commit takes it, and no rule says
       what the refused session owes.** Filed from a private child on
       2026-10-16 through § *Pointing up*: written directly into the

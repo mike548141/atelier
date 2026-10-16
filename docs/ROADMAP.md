@@ -188,7 +188,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [conflictscan's open-conflict state runs across staged hunks](roadmap/115-guardrail-architecture-mike-commissioned/310-conflictscan-open-conflict-state-runs-across-hunks.md)
 - ✅ 🔎 [Three small gaps in the floor's tests and count contract](roadmap/115-guardrail-architecture-mike-commissioned/320-three-small-floor-test-and-contract-gaps.md)
 - [ ] 🔎 [RECORD.md's index rotation has lost its trigger](roadmap/115-guardrail-architecture-mike-commissioned/330-record-md-rotation-trigger-has-no-signal.md)
-- [ ] 🔎 [Merges, cherry-picks and rebases make commits the hook plane](roadmap/115-guardrail-architecture-mike-commissioned/340-merges-cherry-picks-and-rebases-skip-the-hook-plane.md)
+- [~] 🔎 (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) [Merges, cherry-picks and rebases make commits the hook plane](roadmap/115-guardrail-architecture-mike-commissioned/340-merges-cherry-picks-and-rebases-skip-the-hook-plane.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 
@@ -368,7 +368,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [💡 IDEA ONLY — do not build until Mike says to start: keep whole](roadmap/210-instruments-open-features/220-whole-document-history-like-git.md)
 - ✅ [ccarchive: bring back a schedule, as a real calendar schedule, not](roadmap/210-instruments-open-features/230-ccarchive-a-real-calendar-schedule.md)
 - [ ] 🔎 [ccarchive's design charter, in Mike's words, checked against the](roadmap/210-instruments-open-features/240-ccarchive-design-charter.md)
-- [ ] 🔎 [cctranscript counts some harness text as the principal's prompts](roadmap/210-instruments-open-features/250-cctranscript-counts-harness-text-as-prompts.md)
+- [~] 🔎 (claimed 2026-10-16-1633 UTC by queue run abe96d8d, a worker) [cctranscript counts some harness text as the principal's prompts](roadmap/210-instruments-open-features/250-cctranscript-counts-harness-text-as-prompts.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
@@ -532,18 +532,18 @@ then `python3 tools/board.py rebuild`.
 - ✅ [PROPOSAL, hand-up from a private child — sessions cannot find tools](roadmap/320-child-filed-findings-via-pointing-up/500-sessions-cannot-find-installed-tools-toolbox-has-no-locator.md)
 - ✅ 🔎 [Sessions kept placing the tool list in a private repo and](roadmap/320-child-filed-findings-via-pointing-up/510-sessions-credited-mike-with-a-private-tool-list.md)
 - [ ] 🔎 [Hand-up: nothing at session open, or before "verified", reads the](roadmap/320-child-filed-findings-via-pointing-up/520-nothing-reads-the-published-ci-conclusion.md)
-- [ ] 🔎 [Hand-up from a private child: a repo that holds one network's](roadmap/320-child-filed-findings-via-pointing-up/530-a-network-tree-repo-trips-the-floor-s-scanners-by-construction.md)
-- [ ] 🔎 [MISSING HOUSE RULE — list what already exists before adding a](roadmap/320-child-filed-findings-via-pointing-up/540-missing-house-rule-list-what-exists-before-adding-a-resource.md)
-- [ ] 🔎 [Hand-up: no floor scanner reads a commit message, so a term that is](roadmap/320-child-filed-findings-via-pointing-up/550-no-scanner-reads-a-commit-message-body.md)
-- [ ] 🔎 [Hand-up: the repo-local check seam (local in](roadmap/320-child-filed-findings-via-pointing-up/560-the-repo-local-check-seam-is-absent-from-the-readme-and-method-docs.md)
-- [ ] 🔎 [MISSING HOUSE RULE — a "this cannot work" built only from reading is](roadmap/320-child-filed-findings-via-pointing-up/570-missing-house-rule-a-cannot-work-built-from-reading-is-not-accepted-while-a-cheap-test-exists.md)
-- [ ] 🎯 [MISSING HOUSE RULE — the house has no method for splitting one repo](roadmap/320-child-filed-findings-via-pointing-up/580-missing-house-rule-splitting-a-repo-has-no-method.md)
-- [ ] 🔎 [Hand-up: the floor's Estate resources bullet covers facts](roadmap/320-child-filed-findings-via-pointing-up/590-the-estate-resources-bullet-covers-facts-not-access-or-write-back.md)
-- [ ] 🔎 [Hand-up from a private child: at the hook plane the content](roadmap/320-child-filed-findings-via-pointing-up/600-the-hook-plane-content-scanners-read-the-working-tree-not-the-staged-index.md)
-- [ ] 🔎 [Hand-up: the floor region now names a path no child can resolve,](roadmap/320-child-filed-findings-via-pointing-up/610-the-floor-names-a-path-no-child-can-resolve.md)
-- [ ] 🔎 [Hand-up: a child's own visibility fact sits inside its verbatim floor…](roadmap/320-child-filed-findings-via-pointing-up/620-a-childs-own-visibility-fact-sits-inside-the-verbatim-floor.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
-- [ ] 🔎 [Hand-up: a REFUSED commit leaves its work staged in the shared](roadmap/320-child-filed-findings-via-pointing-up/630-a-refused-commit-leaves-its-work-staged-for-the-next-committer.md)
-- [ ] 🔎 [Hand-up: a cross-estate question gets answered from one repo's](roadmap/320-child-filed-findings-via-pointing-up/640-a-question-about-the-estate-is-answered-from-one-tree.md)
+- [~] 🔎 (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) [Hand-up from a private child: a repo that holds one network's](roadmap/320-child-filed-findings-via-pointing-up/530-a-network-tree-repo-trips-the-floor-s-scanners-by-construction.md)
+- [~] 🔎 (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) [MISSING HOUSE RULE — list what already exists before adding a](roadmap/320-child-filed-findings-via-pointing-up/540-missing-house-rule-list-what-exists-before-adding-a-resource.md)
+- [~] 🔎 (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) [Hand-up: no floor scanner reads a commit message, so a term that is](roadmap/320-child-filed-findings-via-pointing-up/550-no-scanner-reads-a-commit-message-body.md)
+- [~] 🔎 (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) [Hand-up: the repo-local check seam (local in](roadmap/320-child-filed-findings-via-pointing-up/560-the-repo-local-check-seam-is-absent-from-the-readme-and-method-docs.md)
+- [~] 🔎 (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) [MISSING HOUSE RULE — a "this cannot work" built only from reading is](roadmap/320-child-filed-findings-via-pointing-up/570-missing-house-rule-a-cannot-work-built-from-reading-is-not-accepted-while-a-cheap-test-exists.md)
+- [~] 🎯 (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) [MISSING HOUSE RULE — the house has no method for splitting one repo](roadmap/320-child-filed-findings-via-pointing-up/580-missing-house-rule-splitting-a-repo-has-no-method.md)
+- [~] 🔎 (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) [Hand-up: the floor's Estate resources bullet covers facts](roadmap/320-child-filed-findings-via-pointing-up/590-the-estate-resources-bullet-covers-facts-not-access-or-write-back.md)
+- [~] 🔎 (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) [Hand-up from a private child: at the hook plane the content](roadmap/320-child-filed-findings-via-pointing-up/600-the-hook-plane-content-scanners-read-the-working-tree-not-the-staged-index.md)
+- [~] 🔎 (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) [Hand-up: the floor region now names a path no child can resolve,](roadmap/320-child-filed-findings-via-pointing-up/610-the-floor-names-a-path-no-child-can-resolve.md)
+- [~] 🔎 (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) [Hand-up: a child's own visibility fact sits inside its verbatim floor…](roadmap/320-child-filed-findings-via-pointing-up/620-a-childs-own-visibility-fact-sits-inside-the-verbatim-floor.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
+- [~] 🔎 (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) [Hand-up: a REFUSED commit leaves its work staged in the shared](roadmap/320-child-filed-findings-via-pointing-up/630-a-refused-commit-leaves-its-work-staged-for-the-next-committer.md)
+- [~] 🔎 (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) [Hand-up: a cross-estate question gets answered from one repo's](roadmap/320-child-filed-findings-via-pointing-up/640-a-question-about-the-estate-is-answered-from-one-tree.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 

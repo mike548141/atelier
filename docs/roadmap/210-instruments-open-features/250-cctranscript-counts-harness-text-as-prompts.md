@@ -1,4 +1,4 @@
-- [ ] 🔎 **cctranscript counts some harness text as the principal's prompts**
+- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, a worker) 🔎 **cctranscript counts some harness text as the principal's prompts**
       `[S][instruments]`. Found 2026-10-16 by the `020/180` worker while
       building `ccclose` on top of cctranscript's classifiers, and checked on
       a fixture before filing. `readTurns` treats every user-type record

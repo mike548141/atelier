@@ -1,4 +1,4 @@
-- [ ] 🔎 **MISSING HOUSE RULE — a "this cannot work" built only from reading is
+- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🔎 **MISSING HOUSE RULE — a "this cannot work" built only from reading is
       not accepted while a cheap, disposable test exists** `[S][doctrine]` —
       hand-up from a private child repo, filed 2026-10-11 via `PROPAGATION.md`
       § *Pointing up*. Class only: no repo, host, product, person or date

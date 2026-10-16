@@ -1,4 +1,4 @@
-- [ ] 🔎 **MISSING HOUSE RULE — list what already exists before adding a
+- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🔎 **MISSING HOUSE RULE — list what already exists before adding a
       resource to an estate, and read the neighbouring file before inventing a
       pattern** `[S][doctrine]` — hand-up from a private child repo, filed
       2026-10-11 via `PROPAGATION.md` § *Pointing up*. Class only: no repo,

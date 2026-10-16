@@ -1,4 +1,4 @@
-- [ ] 🔎 **Hand-up: the floor's *Estate resources* bullet covers facts —
+- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🔎 **Hand-up: the floor's *Estate resources* bullet covers facts —
       don't re-derive, don't copy down — and says nothing about the two
       behaviours the principal keeps having to ask for: drawing on the
       estate root's access before asking him to act at a provider, and

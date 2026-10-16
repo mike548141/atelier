@@ -1,4 +1,4 @@
-- [ ] 🔎 **Merges, cherry-picks and rebases make commits the hook plane
+- [~] (claimed 2026-10-16-1633 UTC by queue run abe96d8d, verification at HEAD only, a read-only worker) 🔎 **Merges, cherry-picks and rebases make commits the hook plane
       never sees** `[S][tools]`. Hand-up filed 2026-10-16 by a private
       child, found by a cold review there and measured again before filing.
       Not fixed in the child's place: the floor hook is the house's.
