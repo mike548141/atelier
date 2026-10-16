@@ -538,6 +538,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [MISSING HOUSE RULE — a "this cannot work" built only from reading is](roadmap/320-child-filed-findings-via-pointing-up/570-missing-house-rule-a-cannot-work-built-from-reading-is-not-accepted-while-a-cheap-test-exists.md)
 - [ ] 🎯 [MISSING HOUSE RULE — the house has no method for splitting one repo](roadmap/320-child-filed-findings-via-pointing-up/580-missing-house-rule-splitting-a-repo-has-no-method.md)
 - [ ] 🔎 [Hand-up: the floor's Estate resources bullet covers facts](roadmap/320-child-filed-findings-via-pointing-up/590-the-estate-resources-bullet-covers-facts-not-access-or-write-back.md)
+- [ ] 🔎 [Hand-up from a private child: at the hook plane the content](roadmap/320-child-filed-findings-via-pointing-up/600-the-hook-plane-content-scanners-read-the-working-tree-not-the-staged-index.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
