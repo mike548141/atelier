@@ -70,13 +70,13 @@ never change a verdict or an exit code, and nothing is rewritten for you.
 
 **sizescan** (a hygiene check, not a safety scan) gates on **relocatable cold
 content** — a completed `[x]` item on a checkbox-worklog file, whose fix is a
-lossless move to the history store — and treats **length** as a pure advisory.
-Cost is size × read-frequency, so the enemy is cold content sitting on the hot
-path, never fulsomeness: a roadmap that is long purely from a genuine list of
-*open* items is never failed, only reported. The gate says "this done item is
-pure cost with a lossless fix, harvest it"; the advisory says "this file is long,
-look at it" and never breaks a build. The judgement of whether a long all-open
-file is fine or hiding resolved narrative stays human.
+lossless move to the history store — and on live state in an archive store. It
+has **no size check**: a file is never reported for its length (Mike's ruling,
+2026-10-05; the old length advisory was removed 2026-10-16). Cost is
+size × read-frequency, so the enemy is cold content sitting on the hot path,
+never fulsomeness: a roadmap that is long purely from a genuine list of *open*
+items is not mentioned at all. The judgement of whether a long all-open file is
+hiding resolved narrative stays human, caught at review.
 
 **board** (a records-hygiene check, board-store ADR 2026-08-15) guards the one
 derived file the split board keeps: `ROADMAP.md` is generated from the per-item
@@ -689,48 +689,66 @@ fulsomeness — it is **cold content on the hot path**: content that is finished
 (no longer live current-truth) yet still loaded every session. `sizescan` fires
 on exactly that, and only where the fix is mechanical and lossless:
 
-- **The gate** fires on **relocatable cold content** — a completed `[x]` item on
-  a checkbox-worklog file (`ROADMAP.md`), whose whole remedy is a lossless move
-  to `ROADMAP-DONE.md` (the current-truth/history split). The gate can never
-  demand a reword: it fires only when a machine can name the fix as a move. It
-  never fires on length.
-- **Length is a pure advisory** — the line count reports (a class reference
-  point: `ROADMAP` ~300, `SESSIONS`/`README`/`ARCHITECTURE` ~250, `CLAUDE` ~200,
-  where the fleet's healthy files sit) but **never fails a build**. A file long
-  purely from live open items is fine; the number is a prompt to look for
-  un-marked resolved narrative, not a ceiling to golf under.
+- **The cold-content gate** fires on **relocatable cold content** — a completed
+  `[x]` item on a checkbox-worklog file (`ROADMAP.md`), whose whole remedy is a
+  lossless move to `ROADMAP-DONE.md` (the current-truth/history split). The gate
+  can never demand a reword: it fires only when a machine can name the fix as a
+  move. It never fires on length.
+- **The harvest-integrity gate** fires on a live state marker (`[ ]`, `[~]`, `⏳`)
+  in a named archive store (`*-DONE.md`, `*-ARCHIVE.md`), which records finished
+  history only.
 
-Narrow in two further deliberate directions:
+**There is no size check.** sizescan once also reported a hot file's length
+against a class reference point (`ROADMAP` ~300 lines, `SESSIONS`/`README`/
+`ARCHITECTURE` ~250, `CLAUDE` ~200) as an advisory that never failed a build,
+with a `sizescan:budget=N` marker to override it. Mike's ruling: "I specifically
+do not want artibuary limits like a fixed kb or line count as limits because
+that is contrary to the purpose", and asked what the advisory was for, he
+answered "Remove it" (`115/270` c). The reference points, the marker and the
+advisory output are gone. What that gave up, stated plainly: the advisory was
+the only pointer to **prose-shaped cold content** (resolved narrative under an
+*open* item) and to thinness, which a machine cannot name without guessing. They
+stay **caught at review, not measured**, with nothing in the tool pointing at
+them. A finding still prints its file's line count as context, never as a
+trigger.
 
-- **It meters only the files meant to stay lean** — `ROADMAP.md`, `SESSIONS.md`,
-  `ARCHITECTURE.md`, plus the **root** `README.md` and `CLAUDE.md` (a nested
-  `tools/README.md` is a reference index, read on demand — not metered, so the
-  signal stays sharp). A long *reference* doc (`PRINCIPLES.md`, a doctrine file)
-  is read on demand, not every session, so it isn't metered either.
-- **It ignores the append-only stores by design** — `ROADMAP-DONE.md`,
-  `CHANGELOG.md`, `SPECS.md`, and anything under `sessions/`, `reviews/`,
-  `decisions/`, or archive dirs. Those are the *destinations* the split moves
-  detail into; flagging them would punish the very fix the tool encourages.
+Scope, in two deliberate directions:
 
-Prose-shaped cold content (resolved narrative under an *open* item) and thinness
-aren't mechanically detectable — they stay **caught at review, not measured** (the
-standing one-sided honesty: the tool never fails on what it can't name losslessly).
-A legitimately long all-open file can quiet the advisory with an inline
-`sizescan:budget=N` (grounded in its class, never its current length), a
-`sizescan:allow: <reason>` header, or a glob in `.sizescanignore`.
+- **Cold content is looked for in `ROADMAP.md` only**, wherever it lives. The
+  other current-truth names (`SESSIONS.md`, `ARCHITECTURE.md`, the root
+  `README.md` and `CLAUDE.md`) are no longer measured for anything; their first
+  15 lines are still read, so that a hatch left in them is named as inert (below)
+  rather than silently accepted. A nested `tools/README.md` is a reference index
+  and is not read.
+- **It ignores the append-only stores** — `ROADMAP-DONE.md`, `CHANGELOG.md`,
+  `SPECS.md`, and anything under `sessions/`, `reviews/`, `decisions/`, or archive
+  dirs — for cold content. Those are the *destinations* the split moves detail
+  into. A named archive store inside one is still integrity-checked.
 
 **Nothing silences the cold-content gate** (`115/270`, Mike's ruling: no repo
 keeps a flat running log; the board is a list of work and its state, and the
 detail lives in a standalone file). An unscoped `sizescan:allow`, a
 `sizescan:allow:cold-content` scope and a `.sizescanignore` glob all leave a
-file's completed `[x]` items gated; the glob no longer skips the file, only its
-size advisory. They still quiet the size advisory (the scope `cold-content`
-quiets nothing), and an archive store's integrity check is still exempt from
-an unscoped marker or a glob. Where one of them is present on a file that carries
-cold content the report says so (`note: sizescan:allow header (unscoped)
-present — it cannot exempt cold content`), so it is never ignored in silence.
-A marker scoped to `size-advisory` or `harvest-integrity` exempts that kind only
-(`115/080`).
+file's completed `[x]` items gated; a glob no longer skips the file.
+
+**Two hatches still do something, only on an archive store.** An unscoped (or
+`harvest-integrity`-scoped) `sizescan:allow: <reason>` header exempts the store's
+integrity check, and a glob in `.sizescanignore` skips it. They are counted on
+the `suppressed:` line.
+
+**Every other hatch is present and inert, and the report names it.** With the
+size advisory gone, a `sizescan:allow` on any other hot-path file (it only ever
+quieted that advisory), a scope that does not cover the file's own kind
+(`size-advisory`, `cold-content`, or `harvest-integrity` on a roadmap), a
+`.sizescanignore` glob over a hot-path file and a leftover `sizescan:budget=N`
+exempt nothing. Each is listed under "Inert hatches" with its path (on a roadmap
+that carries cold content, under that finding instead: `note: sizescan:allow
+header (unscoped) present and inert — it cannot exempt cold content`), counted on
+the `suppressed:` line as `N inert hatch(es) (exempt nothing)`, and carried in
+`--json` as `inert_hatches`. They change no verdict and no exit code: remove
+them. No new exemption exists. `size-advisory` stays a recognised, retired scope
+name so a stale `sizescan:allow:size-advisory:` marker is not mistaken for the
+unscoped form, which *would* exempt an archive store (`115/080`).
 
 **The gate names what it counted.** Each flagged file lists every completed item
 (`line 12: the item's text`, text capped at 60 characters), so the move to
@@ -739,26 +757,28 @@ run-wide at `MAX_MATERIALIZED_FINDINGS` (50,000, the cap every scanner uses);
 items past it are counted, never dropped silently: the report prints
 `…and N more completed item(s), counted but not listed`, the `suppressed:` line
 carries `N beyond the 50000-finding cap`, and `--json` carries each file's
-`cold_listed` (`line`, `title`), its `cold_hatches` and a top-level
-`cold_items_over_cap`.
+`cold_listed` (`line`, `title`), its `cold_hatches` and two top-level fields,
+`cold_items_over_cap` and `inert_hatches`.
 
 ### Usage
 
 ```sh
-python3 tools/sizescan.py                  # report over the whole repo (length advisory + any cold content)
+python3 tools/sizescan.py                  # report over the whole repo (cold content, archive integrity, inert hatches)
 python3 tools/sizescan.py --root repo      # scan a child from atelier
-python3 tools/sizescan.py --check          # gate: exit 1 only if a file has relocatable cold content
+python3 tools/sizescan.py --check          # gate: exit 1 on relocatable cold content or a live archive marker
 python3 tools/sizescan.py --json           # machine-readable
 python3 tools/sizescan.py --selftest       # prove the engine offline
 ```
 
 **The gate has a narrow bite.** Cold content is a recoverable hygiene threshold
 with a lossless fix — harvest the `[x]` item aside — so a bare `sizescan`
-**reports and exits 0** (drop it in CI to surface the advisory numbers without
-breaking a build); `--check` gives it teeth, but **only on cold content, never on
-length**. Exit codes: `0` clean or length-advisory-only · `1` cold content
-present **and** `--check` · `2` usage/config error (a scan that read nothing is
-never green — fail-loud, not fail-open).
+**reports and exits 0** (drop it in CI to surface findings without breaking a
+build); `--check` gives it teeth, but **only on cold content and archive
+integrity, never on length** (length is not reported at all). Exit codes: `0`
+clean, or findings without `--check` (inert hatches are named but never change
+it) · `1` cold content or a live archive marker present **and** `--check` · `2`
+usage/config error (a scan that read nothing is never green — fail-loud, not
+fail-open).
 
 **Wired into the gate (2026-07-20).** `sizescan --check` runs in atelier's
 `ci.yml` and the child `floor.yml` in cold-content mode. Because it gates only on

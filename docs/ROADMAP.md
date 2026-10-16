@@ -181,12 +181,13 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [Three enforced scanners still describe themselves as advisory](roadmap/115-guardrail-architecture-mike-commissioned/240-three-enforced-scanners-call-themselves-advisory.md)
 - ✅ 🔎 [pointerscan still walks the whole tree, harness worktrees included](roadmap/115-guardrail-architecture-mike-commissioned/250-pointerscan-still-walks-the-whole-tree.md)
 - ✅ 🔎 [Two blocking guards never scan a staged file whose path git quotes](roadmap/115-guardrail-architecture-mike-commissioned/260-staged-plane-guards-skip-git-quoted-paths.md)
-- [~] 🔎 (claimed 2026-10-16-1501 UTC by queue run abe96d8d, part c only, a worker) [Three defects found while adding finding IDs](roadmap/115-guardrail-architecture-mike-commissioned/270-three-defects-found-adding-finding-ids.md)
+- ✅ 🔎 [Three defects found while adding finding IDs](roadmap/115-guardrail-architecture-mike-commissioned/270-three-defects-found-adding-finding-ids.md)
 - ✅ 🔎 [An added line can pose as a diff header in secretscan's staged](roadmap/115-guardrail-architecture-mike-commissioned/280-an-added-line-can-pose-as-a-diff-header-in-secretscan.md)
 - ✅ 🔎 [Three guard descriptions disagree with their own code](roadmap/115-guardrail-architecture-mike-commissioned/290-three-guards-describe-a-response-tier-their-code-lacks.md)
 - ✅ 🔎 [conflictscan and leakscan report the wrong line number on the](roadmap/115-guardrail-architecture-mike-commissioned/300-two-staged-guards-report-the-wrong-line-number.md)
 - [ ] 🔎 [conflictscan's open-conflict state runs across staged hunks](roadmap/115-guardrail-architecture-mike-commissioned/310-conflictscan-open-conflict-state-runs-across-hunks.md)
 - [ ] 🔎 [Three small gaps in the floor's tests and count contract](roadmap/115-guardrail-architecture-mike-commissioned/320-three-small-floor-test-and-contract-gaps.md)
+- [ ] 🔎 [RECORD.md's index rotation has lost its trigger](roadmap/115-guardrail-architecture-mike-commissioned/330-record-md-rotation-trigger-has-no-signal.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 
@@ -301,6 +302,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: ADR 0008's boundary amendment and the](roadmap/160-doctrine-review-owed/820-rule-4-cold-pass-queued-adr-0008-boundary-amendment.md)
 - [ ] ⏳ [Rule-4 cold pass queued: staged findings at their real line](roadmap/160-doctrine-review-owed/830-rule-4-cold-pass-queued-staged-real-line-numbers.md)
 - [ ] ⏳ [Rule-4 cold pass queued: licenscan's warn tier made real](roadmap/160-doctrine-review-owed/840-rule-4-cold-pass-queued-licenscan-advisory-tier.md)
+- [ ] ⏳ [Rule-4 cold pass queued: sizescan's size advisory removed](roadmap/160-doctrine-review-owed/850-rule-4-cold-pass-queued-size-advisory-removed.md)
 
 ## build/ layer — open strands
 

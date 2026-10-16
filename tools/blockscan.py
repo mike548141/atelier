@@ -173,8 +173,8 @@ extractor makes). `MAX_MAPPED_FILE_BYTES` below is the fix: every read
 checks the object's size FIRST (`git cat-file -s`, or `stat()` on disk) and
 refuses — loudly, as the same fail-safe `ConfigError` every other broken
 read already raises — rather than buffering an oversized file. The cap is
-two-plus orders of magnitude past any real doctrine doc on record (sizescan
-itself bounds the leanest of these files to a few hundred lines), so no
+two-plus orders of magnitude past any real doctrine doc on record (the
+leanest of these files run to a few hundred lines), so no
 mapped file is ever affected in practice; it exists purely to give a FIXED
 ceiling on what this guard will ever hold for one file, reported rather than
 silently degraded if ever crossed (`method/GUARDS.md` rule b).
@@ -222,8 +222,8 @@ DEFAULT_MAP_NAME = "blockscan_map.json"
 # 020/380 — see the module docstring's BOUNDED MEMORY section. A mapped file
 # whose object size exceeds this is refused (ConfigError, exit 2) rather than
 # read whole. Grounded in the CLASS of file this map ever names (a hand-
-# maintained doctrine doc — sizescan itself keeps the leanest of these to a
-# few hundred lines / tens of KB), not fitted to any measurement: two-plus
+# maintained doctrine doc — the leanest of these run to a few hundred lines /
+# tens of KB), not fitted to any measurement: two-plus
 # orders of magnitude past that leaves generous headroom while still giving
 # a fixed, checkable ceiling.
 MAX_MAPPED_FILE_BYTES = 4 * 1024 * 1024

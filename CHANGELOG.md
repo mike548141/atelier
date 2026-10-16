@@ -5,6 +5,19 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Removed (2026-10-16 — sizescan's size advisory, `115/270` c)
+- `sizescan` no longer measures length: the line references,
+  `sizescan:budget=N`, and the size-advisory output and JSON fields are gone
+  (Mike's ruling, 2026-10-05, no arbitrary size limits; his answer
+  2026-10-16, "Remove it"). The cold-content and harvest-integrity gates are
+  unchanged and no exit code changes anywhere. Prose-shaped cold content is
+  now caught at review only.
+- A hatch left with nothing to exempt is reported as inert, in the report,
+  in `--json` (`inert_hatches`) and on the `suppressed:` line.
+  `size-advisory` stays a retired scope name so a stale scoped marker is
+  not read as the unscoped one. Across 29 repos: exit codes unchanged, 28
+  advisory lines gone, 2 inert hatches named.
+
 ### Changed (2026-10-16 — licenscan's warn is real, `115/290`)
 - `licenscan`'s `medium` findings (a permissive header under a different
   permissive licence, an unknown declaration, an unrecognised LICENSE) now

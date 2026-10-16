@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-16-1501 UTC by queue run abe96d8d, part c only, a worker) 🔎 **Three defects found while adding finding IDs** `[S][tools]`.
+- [x] 🔎 **Three defects found while adding finding IDs** `[S][tools]`.
       Found 2026-10-05 by the `080` finding-ID worker, and not fixed there:
       1. 🚩 **sizescan's cold-content gate can be silenced by a header
          marker, and its own text says it cannot.** The remedy text and the
@@ -108,3 +108,25 @@
       and harvest-integrity gates. No exit code changes, because the
       advisory never failed a build. Every child's output changes at its
       next run. Measure that before landing.
+
+      ✅ **(c) built 2026-10-16, so the item is done** (1501 UTC queue run,
+      a Sonnet 5.5 worker; `72a68cc`, merged on `main`; the orchestrator
+      read the diff before the merge). sizescan has no size check now: the
+      line references, `sizescan:budget=N`, and the advisory's output and
+      JSON fields are gone, along with their tests and docs, and
+      `RECORD.md`'s two sentences that described it. The cold-content and
+      harvest-integrity gates are unchanged. A hatch left with nothing to
+      exempt (an allow header on a hot-path file, a scope that does not fit
+      its file, a glob over a hot-path file, a leftover budget marker) is
+      reported as inert, in the report, in `--json` and on the
+      `suppressed:` line, never accepted in silence. `size-advisory` stays
+      a retired scope name, so a stale scoped marker is not read as the
+      unscoped one, which would widen a live exemption. **Blast radius, 29
+      repos:** exit codes unchanged everywhere (the one repo red before is
+      red on cold content, as before); 28 advisory lines across 12 repos go
+      to 0; 2 repos now see one inert hatch named each. New tests fail on
+      the old module (26 of 42 in the touched classes). Suite: 1,894, with
+      the two known `BoundedMemory` load timeouts. 🔎 Found, not fixed:
+      `RECORD.md` still says a session index that outgrows its budget
+      rotates, and nothing now measures a budget. Filed as `115/330`.
+      Review queued at `160/850`.

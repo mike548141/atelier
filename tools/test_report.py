@@ -314,15 +314,17 @@ class TestScannerLinePins(unittest.TestCase):
 
     def test_sizescan(self):
         import sizescan as m
-        self.assertEqual(m._suppression_line(1, 2),
+        self.assertEqual(m._suppression_line(1, 2, 0, 3),
                          "  suppressed: 1 file(s) by sizescan:allow header · "
                          "2 file(s) by .sizescanignore · "
+                         "3 inert hatch(es) (exempt nothing) · "
                          "0 beyond the 50000-finding cap (counted, not listed)")
         self.assertEqual(m.render_human([]),
                          "✓ sizescan clean — no relocatable cold content on the hot "
                          "path; archive stores hold no live markers.\n"
                          "  suppressed: 0 file(s) by sizescan:allow header · "
                          "0 file(s) by .sizescanignore · "
+                         "0 inert hatch(es) (exempt nothing) · "
                          "0 beyond the 50000-finding cap (counted, not listed)")
 
     def test_licenscan(self):
@@ -444,11 +446,14 @@ class TestFindingLinePins(unittest.TestCase):
 
     def test_sizescan_per_kind_lines(self):
         import sizescan as m
-        out = m.render_human([m.Finding("ROADMAP.md", 320, 2, 300, 20, "", True)])
+        out = m.render_human([m.Finding("ROADMAP.md", 320, 2, "", True),
+                              m.Finding("ROADMAP-DONE.md", 9, 0, "", True, 1)])
         self.assertIn("      → 2 completed [x] item(s) to harvest [cold-content, gated]"
                       "  [sizescan:cold-content]", out.splitlines())
-        self.assertIn("      → over the ~300-line reference (+20) [size-advisory]"
-                      "  [sizescan:size-advisory]", out.splitlines())
+        self.assertIn("      → 1 live state marker(s) ([ ]/[~]/⏳ list items) in an "
+                      "archive store [harvest-integrity, gated]"
+                      "  [sizescan:harvest-integrity]", out.splitlines())
+        self.assertNotIn("size-advisory", out)
 
     def test_pointerscan(self):
         import pointerscan as m
@@ -545,10 +550,14 @@ class TestFindingIdRoundTrip(unittest.TestCase):
             lambda r: [r])
 
     def test_sizescan(self):
-        body = "- [x] done\n" + "- [ ] open\n" * 310
+        # two kinds: a completed item on the roadmap (no marker may exempt it)
+        # and a live item in an archive store (the one thing a marker can)
+        road = "- [x] done\n- [ ] open\n"
+        done = "- [x] harvested\n- [ ] buried\n"
         self.round_trip(
-            "sizescan", {"ROADMAP.md": "# R\n" + body},
-            lambda k: {"ROADMAP.md": f"<!-- sizescan" f":allow:{k}: fixture -->\n" + body},
+            "sizescan", {"ROADMAP.md": "# R\n" + road, "ROADMAP-DONE.md": "# D\n" + done},
+            lambda k: {"ROADMAP.md": f"<!-- sizescan" f":allow:{k}: fixture -->\n" + road,
+                       "ROADMAP-DONE.md": f"<!-- sizescan" f":allow:{k}: fixture -->\n" + done},
             lambda r: ["--check", "--root", r, r], unexemptable=("cold-content",))
 
     def test_pointerscan(self):

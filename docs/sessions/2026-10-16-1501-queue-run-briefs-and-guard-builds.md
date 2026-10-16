@@ -68,3 +68,14 @@ advisories as it does for secretscan. Blast radius across 29 repos: 6 red to
 green, 2 stay red, none green to red. Its findings were filed as `115/320`.
 Pass queued at `160/840`. The suite failure was the same `BoundedMemory`
 load timeout.
+
+## `115/270` (c) ✅ sizescan's size advisory removed, so the item is done
+
+A Sonnet worker, `72a68cc`, merged after the orchestrator read the diff,
+including the two `RECORD.md` sentences it rewrote. sizescan has no size
+check now. The two gates stay, and hatches with nothing left to exempt are
+named as inert. Blast radius across 29 repos: no exit code moves, 28
+advisory lines go, 2 inert hatches are named. The worker's finding, that
+`RECORD.md`'s index rotation now names a trigger nothing measures, is filed
+as `115/330`. Pass queued at `160/850`, a code and doctrine pass, because
+`RECORD.md` changed.

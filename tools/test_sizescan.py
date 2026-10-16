@@ -1,17 +1,19 @@
 """Stdlib-only tests for sizescan (no pytest needed): `python3 -m unittest`.
 
-Pure-logic parts (count_lines, reference_for, cold_item_count) are unit-tested
-directly. The end-to-end parts build a throwaway tree under a tmp dir and drive
-scan_paths() / main(), so the metered-set selection (growth stores skipped,
-reference docs unmetered, root-only READMEs), the escape hatches, and the
-cold-content-gate-vs-advisory exit contract are proven against the real
-filesystem, not a mock.
+Pure-logic parts (cold_item_count, live_item_count) are unit-tested directly.
+The end-to-end parts build a throwaway tree under a tmp dir and drive
+scan_paths() / main(), so the candidate selection (growth stores skipped,
+reference docs unread, root-only READMEs), the escape hatches, inert-hatch
+naming and the gate exit contract are proven against the real filesystem, not a
+mock.
 
 The gate model (Mike's 2026-07-20 ruling, reworked 2026-07-20): `--check` fails
 ONLY on relocatable cold content — a completed `[x]` item on the hot path, whose
-fix is a lossless move to ROADMAP-DONE.md. A file that is merely *long* from live
-current-truth is advisory, never a build failure — cost is size × read-frequency,
-and there is nothing to relocate in an all-open roadmap."""
+fix is a lossless move to ROADMAP-DONE.md — and on live state in an archive
+store. A file that is merely *long* from live current-truth is not reported at
+all: the size advisory was removed (115/270 c, Mike's ruling 2026-10-05 and his
+answer of 2026-10-16), and there is nothing to relocate in an all-open
+roadmap."""
 
 import io
 import shutil
@@ -26,7 +28,10 @@ import memprobe
 
 TOOLS_DIR = Path(__file__).resolve().parent
 
-R = sizescan.SIZE_REFERENCE["ROADMAP.md"]
+# A length far past anything the retired size advisory ever flagged (its class
+# references ran 200 to 300). It is a fixture for "a long file is silent", not a
+# limit: nothing in sizescan reads a number like it any more.
+LONG = 5000
 
 
 def _cold(n_open=1, n_done=0):
@@ -34,33 +39,17 @@ def _cold(n_open=1, n_done=0):
     return "".join(["- [ ] open item\n"] * n_open + ["- [x] done item\n"] * n_done)
 
 
-class CountLines(unittest.TestCase):
-    def test_trailing_newline_not_counted_as_extra(self):
-        self.assertEqual(sizescan.count_lines("a\nb\n"), 2)
-        self.assertEqual(sizescan.count_lines("a\nb"), 2)
+class NoSizeCheck(unittest.TestCase):
+    """115/270 c: the size advisory is gone, and with it every name it had."""
 
-    def test_empty(self):
-        self.assertEqual(sizescan.count_lines(""), 0)
+    def test_the_reference_points_and_helpers_are_gone(self):
+        for name in ("SIZE_REFERENCE", "reference_for", "count_lines",
+                     "_BUDGET_MARKER", "_STORE_HINT"):
+            self.assertFalse(hasattr(sizescan, name), name)
 
-    def test_crlf(self):
-        self.assertEqual(sizescan.count_lines("a\r\nb\r\n"), 2)
-
-
-class ReferenceFor(unittest.TestCase):
-    def test_default_for_current_truth_basename(self):
-        self.assertEqual(sizescan.reference_for("body\n", "ROADMAP.md"),
-                         sizescan.SIZE_REFERENCE["ROADMAP.md"])
-
-    def test_unmetered_basename_is_none(self):
-        self.assertIsNone(sizescan.reference_for("body\n", "PRINCIPLES.md"))
-        self.assertIsNone(sizescan.reference_for("body\n", "CHANGELOG.md"))
-
-    def test_inline_override_wins(self):
-        self.assertEqual(sizescan.reference_for("sizescan:budget=42\n", "ROADMAP.md"), 42)
-
-    def test_inline_override_accepts_colon_and_space(self):
-        self.assertEqual(sizescan.reference_for("<!-- sizescan:budget: 900 -->", "SESSIONS.md"), 900)
-        self.assertEqual(sizescan.reference_for("sizescan:budget 55", "README.md"), 55)
+    def test_a_finding_carries_no_size_fields(self):
+        names = set(sizescan.Finding.__dataclass_fields__)
+        self.assertFalse(names & {"reference", "over"}, names)
 
 
 class ColdItemCount(unittest.TestCase):
@@ -146,19 +135,15 @@ class _TreeTest(unittest.TestCase):
 
 
 class Selection(_TreeTest):
-    def test_over_reference_current_truth_flags_advisory(self):
-        self.write("docs/ROADMAP.md", R + 1)
-        f = self.finding("docs/ROADMAP.md")
-        self.assertIsNotNone(f)
-        self.assertFalse(f.gated)          # long but all-current: advisory, not gated
-        self.assertEqual(f.cold_items, 0)
-
-    def test_under_reference_no_cold_is_silent(self):
-        self.write("docs/ROADMAP.md", R - 1)
+    def test_a_long_all_open_roadmap_is_silent(self):
+        # 115/270 c: length is never reported, however far it runs
+        self.write_text("docs/ROADMAP.md", _cold(LONG, 0))
         self.assertEqual(self.flagged(), [])
 
-    def test_exactly_at_reference_is_silent(self):
-        self.write("docs/ROADMAP.md", R)
+    def test_every_current_truth_file_is_silent_at_any_length(self):
+        for rel in ("docs/ROADMAP.md", "docs/SESSIONS.md", "README.md",
+                    "ARCHITECTURE.md", "CLAUDE.md"):
+            self.write(rel, LONG)
         self.assertEqual(self.flagged(), [])
 
     def test_small_file_with_cold_content_flags_and_gates(self):
@@ -168,29 +153,38 @@ class Selection(_TreeTest):
         self.assertIsNotNone(f)
         self.assertTrue(f.gated)
         self.assertEqual(f.cold_items, 2)
-        self.assertEqual(f.over, 0)        # small: no size advisory, just the gate
 
-    def test_growth_stores_never_metered(self):
+    def test_a_long_roadmap_with_cold_content_reports_its_length_as_context(self):
+        self.write_text("docs/ROADMAP.md", _cold(LONG, 1))
+        f = self.finding("docs/ROADMAP.md")
+        self.assertEqual((f.lines, f.cold_items, f.gated), (LONG + 1, 1, True))
+
+    def test_growth_stores_never_flagged_for_size(self):
         self.write("docs/ROADMAP-DONE.md", 5000)
         self.write("docs/SPECS.md", 5000)
         self.write("CHANGELOG.md", 5000)
         self.assertEqual(self.flagged(), [])
 
-    def test_reference_doc_not_metered(self):
+    def test_reference_doc_not_read(self):
         self.write("docs/PRINCIPLES.md", 5000)
         self.assertEqual(self.flagged(), [])
 
-    def test_metered_basename_inside_growth_store_ignored(self):
+    def test_hot_path_basename_inside_growth_store_ignored(self):
+        self.write_text("_archive/ROADMAP.md", _cold(1, 3))
         self.write("_archive/ARCHITECTURE.md", 5000)
         self.write("docs/reviews/README.md", 5000)
         self.assertEqual(self.flagged(), [])
 
-    def test_root_readme_metered_nested_readme_not(self):
-        self.write("README.md", R + 1)
-        self.write("tools/README.md", 5000)
-        self.assertEqual(self.flagged(), ["README.md"])
+    def test_root_readme_read_nested_readme_not(self):
+        # only the root README is a current-truth file; a hatch left in it is
+        # named (below), a nested one is not even looked at
+        self.write_text("README.md", f"<!-- {sizescan.ALLOW_MARKER}: long -->\n")
+        self.write_text("tools/README.md", f"<!-- {sizescan.ALLOW_MARKER}: long -->\n")
+        inert = []
+        sizescan.scan_paths([self.tmp], self.tmp, None, inert)
+        self.assertEqual([h.path for h in inert], ["README.md"])
 
-    def test_roadmap_metered_wherever_it_lives(self):
+    def test_roadmap_read_wherever_it_lives(self):
         self.write_text("docs/ROADMAP.md", _cold(1, 1))
         self.assertEqual(self.flagged(), ["docs/ROADMAP.md"])
 
@@ -241,17 +235,18 @@ class Hatches(_TreeTest):
                         ("prose\n" * 20) + "we set sizescan:allow here in discussion\n"
                         + _cold(1, 2))
         self.assertEqual(self.flagged(), ["docs/ROADMAP.md"])
+        self.assertEqual(self.finding("docs/ROADMAP.md").cold_hatches, [])
 
-    def test_header_allow_marker_quiets_the_advisory_not_the_gate(self):
-        # 115/270 a, Mike's ruling: no hatch silences cold content. The marker
-        # still quiets the size advisory, and the report says it was present.
+    def test_header_allow_marker_does_not_exempt_the_gate_and_is_named(self):
+        # 115/270 a, Mike's ruling: no hatch silences cold content. The report
+        # says it was present, and (115/270 c) that it is inert.
         self.write_text("docs/ROADMAP.md",
                         f"<!-- {sizescan.ALLOW_MARKER}: living doc -->\n"
-                        + _cold(R + 5, 5))
+                        + _cold(LONG, 5))
         f = self.finding("docs/ROADMAP.md")
         self.assertIsNotNone(f)
         self.assertTrue(f.gated)
-        self.assertEqual((f.cold_items, f.over), (5, 0))
+        self.assertEqual(f.cold_items, 5)
         self.assertEqual(f.cold_hatches, [f"{sizescan.ALLOW_MARKER} header (unscoped)"])
 
     def test_cold_content_scope_does_not_exempt_the_gate(self):
@@ -265,11 +260,14 @@ class Hatches(_TreeTest):
         self.assertEqual(f.cold_hatches,
                          [f"{sizescan.ALLOW_MARKER}:cold-content header"])
 
-    def test_a_scope_for_another_kind_is_not_named_as_a_cold_hatch(self):
+    def test_a_scope_for_another_kind_is_inert_on_a_roadmap_too(self):
+        # 115/270 c: it used to quiet the size advisory, which is gone, so a
+        # `size-advisory` scope now does nothing and the report says so.
         self.write_text("docs/ROADMAP.md",
                         f"<!-- {sizescan.ALLOW_MARKER}:size-advisory: long -->\n"
                         + _cold(1, 2))
-        self.assertEqual(self.finding("docs/ROADMAP.md").cold_hatches, [])
+        self.assertEqual(self.finding("docs/ROADMAP.md").cold_hatches,
+                         [f"{sizescan.ALLOW_MARKER}:size-advisory header"])
 
     def test_overlapping_paths_do_not_double_report(self):
         # F4: dedup by resolved path
@@ -278,44 +276,46 @@ class Hatches(_TreeTest):
         paths = [f.path.replace("\\", "/") for f in findings]
         self.assertEqual(paths.count("docs/ROADMAP.md"), 1)
 
-    def test_budget_override_quiets_advisory_but_not_the_gate(self):
-        # a huge budget silences the size nudge; it must NOT hide cold content
+    def test_budget_marker_is_inert_and_does_not_hide_cold_content(self):
+        # the retired override: nothing reads its number, the gate stands, and
+        # the marker is named so it is not mistaken for something live
         self.write_text("docs/ROADMAP.md",
-                        "<!-- sizescan:budget=100000 -->\n" + _cold(R, 2))
+                        "<!-- sizescan:budget=100000 -->\n" + _cold(1, 2))
         f = self.finding("docs/ROADMAP.md")
-        self.assertIsNotNone(f)
-        self.assertEqual(f.over, 0)        # advisory quieted
-        self.assertTrue(f.gated)           # gate stands
+        self.assertTrue(f.gated)
         self.assertEqual(f.cold_items, 2)
+        self.assertEqual(f.cold_hatches, ["sizescan:budget header"])
 
-    def test_budget_override_silences_advisory_only_file(self):
-        # a long all-current file with a grounded budget goes fully silent
-        self.write_text("docs/ROADMAP.md",
-                        "<!-- sizescan:budget=100000 -->\n" + _cold(R + 50, 0))
-        self.assertEqual(self.flagged(), [])
-
-    def test_sizescanignore_glob_quiets_the_advisory_not_the_gate(self):
-        # The ignored hot-path file is still read: its cold content gates and
-        # its size advisory stays quiet.
-        self.write_text("docs/ROADMAP.md", _cold(R + 5, 5))
+    def test_sizescanignore_glob_does_not_exempt_the_gate_and_is_named(self):
+        # The ignored hot-path file is still read: its cold content gates.
+        self.write_text("docs/ROADMAP.md", _cold(1, 5))
         (self.tmp / ".sizescanignore").write_text("# a reasoned fixture exemption\ndocs/ROADMAP.md\n")
         f = self.finding("docs/ROADMAP.md")
         self.assertIsNotNone(f)
         self.assertTrue(f.gated)
-        self.assertEqual((f.cold_items, f.over), (5, 0))
+        self.assertEqual(f.cold_items, 5)
         self.assertEqual(f.cold_hatches, [".sizescanignore glob"])
 
-    def test_sizescanignore_glob_still_skips_a_file_with_nothing_to_gate(self):
-        self.write_text("docs/ROADMAP.md", _cold(R + 5, 0))
+    def test_sizescanignore_glob_over_a_clean_roadmap_is_inert_not_a_suppression(self):
+        # it skipped such a file once (and counted it); now it exempts nothing,
+        # so it is an inert hatch and is NOT counted as a file suppressed
+        self.write_text("docs/ROADMAP.md", _cold(3, 0))
         (self.tmp / ".sizescanignore").write_text("# a reasoned fixture exemption\ndocs/ROADMAP.md\n")
-        counts = {}
-        self.assertEqual(sizescan.scan_paths([self.tmp], self.tmp, counts), [])
-        self.assertEqual(counts["files_by_glob"], 1)
+        counts, inert = {}, []
+        self.assertEqual(sizescan.scan_paths([self.tmp], self.tmp, counts, inert), [])
+        self.assertEqual(counts["files_by_glob"], 0)
+        self.assertEqual(counts["inert_hatches"], 1)
+        self.assertEqual([(h.path, h.hatch) for h in inert],
+                         [("docs/ROADMAP.md", ".sizescanignore glob")])
 
     def test_sizescanignore_still_skips_an_archive_store_wholesale(self):
+        # the one place a glob still has an effect
         self.write_text("docs/ROADMAP-DONE.md", "- [ ] parked here\n")
         (self.tmp / ".sizescanignore").write_text("# a reasoned fixture exemption\ndocs/ROADMAP-DONE.md\n")
-        self.assertEqual(self.flagged(), [])
+        counts, inert = {}, []
+        self.assertEqual(sizescan.scan_paths([self.tmp], self.tmp, counts, inert), [])
+        self.assertEqual((counts["files_by_glob"], counts["inert_hatches"], inert),
+                         (1, 0, []))
 
     def test_check_exits_1_through_every_hatch_and_says_so(self):
         (self.tmp / ".sizescanignore").write_text("# a reasoned fixture exemption\nignored/*\n")
@@ -336,6 +336,105 @@ class Hatches(_TreeTest):
                 self.assertIn(f"note: {named} present", buf.getvalue())
                 self.assertIn("cannot exempt cold content", buf.getvalue())
                 (self.tmp / rel).unlink()
+
+
+class InertHatches(_TreeTest):
+    """115/270 c: with the size advisory gone, a hatch that quieted it exempts
+    nothing. It must never be accepted in silence, and must never change a
+    verdict or an exit code."""
+
+    def scan(self):
+        counts, inert = {}, []
+        found = sizescan.scan_paths([self.tmp], self.tmp, counts, inert)
+        return found, counts, sorted((h.path, h.hatch) for h in inert)
+
+    def run_main(self, *args):
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            code = sizescan.main([*args, "--root", str(self.tmp), str(self.tmp)])
+        return code, buf.getvalue()
+
+    def test_a_stale_allow_marker_on_a_non_roadmap_hot_file_is_named(self):
+        for rel in ("docs/SESSIONS.md", "ARCHITECTURE.md", "README.md", "CLAUDE.md"):
+            self.write_text(rel, f"<!-- {sizescan.ALLOW_MARKER}: long -->\n" + "x\n" * 40)
+        found, counts, inert = self.scan()
+        self.assertEqual(found, [])
+        self.assertEqual(counts["inert_hatches"], 4)
+        self.assertEqual([h for _, h in inert],
+                         [f"{sizescan.ALLOW_MARKER} header (unscoped)"] * 4)
+        self.assertEqual(counts["files_allowed"], 0)    # suppresses nothing
+
+    def test_a_stale_budget_marker_is_named(self):
+        self.write_text("docs/SESSIONS.md", "<!-- sizescan:budget: 900 -->\n")
+        self.assertEqual(self.scan()[2],
+                         [("docs/SESSIONS.md", "sizescan:budget header")])
+
+    def test_a_clean_roadmap_with_a_stale_allow_is_clean_but_names_it(self):
+        self.write_text("docs/ROADMAP.md",
+                        f"<!-- {sizescan.ALLOW_MARKER}: long -->\n" + _cold(LONG, 0))
+        code, out = self.run_main("--check")
+        self.assertEqual(code, 0)
+        self.assertIn("sizescan clean", out)
+        self.assertIn("Inert hatches", out)
+        self.assertIn(f"docs/ROADMAP.md: {sizescan.ALLOW_MARKER} header (unscoped)", out)
+        self.assertIn("1 inert hatch(es) (exempt nothing)", out)
+
+    def test_a_hatch_on_a_cold_finding_is_named_once_and_counted_once(self):
+        self.write_text("docs/ROADMAP.md",
+                        f"<!-- {sizescan.ALLOW_MARKER}: x -->\n" + _cold(1, 1))
+        code, out = self.run_main("--check")
+        self.assertEqual(code, 1)
+        self.assertEqual(out.count(f"{sizescan.ALLOW_MARKER} header (unscoped)"), 1)
+        self.assertNotIn("Inert hatches", out)
+        self.assertIn("1 inert hatch(es) (exempt nothing)", out)
+
+    def test_a_marker_that_still_exempts_is_not_inert(self):
+        # unscoped, or `harvest-integrity`, on an archive store: the one live use
+        for scope in ("", ":harvest-integrity"):
+            with self.subTest(scope=scope):
+                self.write_text("docs/ROADMAP-DONE.md",
+                                f"<!-- {sizescan.ALLOW_MARKER}{scope}: parked -->\n- [ ] parked\n")
+                found, counts, inert = self.scan()
+                self.assertEqual((found, inert, counts["files_allowed"]), ([], [], 1))
+
+    def test_a_scope_that_does_not_cover_an_archive_store_is_inert_and_does_not_exempt(self):
+        # `cold-content` never exempted it; the retired `size-advisory` must not
+        # be misread as the unscoped form (which would exempt it)
+        for scope in ("cold-content", "size-advisory"):
+            with self.subTest(scope=scope):
+                self.write_text("docs/ROADMAP-DONE.md",
+                                f"<!-- {sizescan.ALLOW_MARKER}:{scope}: parked -->\n- [ ] parked\n")
+                found, counts, inert = self.scan()
+                self.assertEqual([f.path for f in found], ["docs/ROADMAP-DONE.md"])
+                self.assertEqual(inert, [("docs/ROADMAP-DONE.md",
+                                          f"{sizescan.ALLOW_MARKER}:{scope} header")])
+                self.assertEqual(counts["files_allowed"], 0)
+
+    def test_inert_hatches_never_change_an_exit_code(self):
+        self.write_text("docs/SESSIONS.md",
+                        f"<!-- {sizescan.ALLOW_MARKER}: x -->\n<!-- sizescan:budget=9 -->\n")
+        self.write_text("docs/ROADMAP.md", _cold(2, 0))
+        (self.tmp / ".sizescanignore").write_text("# fixture\ndocs/ROADMAP.md\n")
+        self.assertEqual(self.run_main("--check")[0], 0)
+        self.write_text("docs/ROADMAP.md", _cold(2, 1))
+        self.assertEqual(self.run_main("--check")[0], 1)
+        self.assertEqual(self.run_main()[0], 0)
+
+    def test_json_carries_them_with_a_known_zero(self):
+        import json
+        self.write_text("docs/ROADMAP.md", _cold(1, 0))
+        self.assertEqual(json.loads(self.run_main("--json")[1])["inert_hatches"], [])
+        self.write_text("README.md", f"<!-- {sizescan.ALLOW_MARKER}: x -->\n")
+        self.assertEqual(json.loads(self.run_main("--json")[1])["inert_hatches"],
+                         [{"path": "README.md",
+                           "hatch": f"{sizescan.ALLOW_MARKER} header (unscoped)"}])
+
+    def test_a_hot_file_is_read_for_its_header_only(self):
+        # a huge stale-marker file costs one chunk, not a full pass, and a
+        # marker past the header (line 16 on) is a mention, not a hatch
+        self.write_text("ARCHITECTURE.md",
+                        "x\n" * 15 + f"<!-- {sizescan.ALLOW_MARKER}: late -->\n")
+        self.assertEqual(self.scan()[2], [])
 
 
 class ColdItemListing(_TreeTest):
@@ -440,7 +539,7 @@ class ExitContract(_TreeTest):
             code = sizescan.main([*args, "--root", str(self.tmp), str(self.tmp)])
         return code, buf.getvalue()
 
-    def test_advisory_default_exit_zero_even_with_cold_content(self):
+    def test_default_exit_zero_even_with_cold_content(self):
         self.write_text("docs/ROADMAP.md", _cold(1, 2))
         code, out = self._run()
         self.assertEqual(code, 0)          # no --check: reports but never fails
@@ -453,42 +552,42 @@ class ExitContract(_TreeTest):
         self.assertIn("[cold-content, gated]", out)
 
     def test_check_does_not_gate_a_long_all_open_roadmap(self):
-        # THE reversal: fulsome live current-truth is never a build failure
-        self.write_text("docs/ROADMAP.md", _cold(R + 50, 0))
+        # THE reversal: fulsome live current-truth is never a build failure,
+        # and (115/270 c) is not even mentioned
+        self.write_text("docs/ROADMAP.md", _cold(LONG, 0))
         code, out = self._run("--check")
         self.assertEqual(code, 0)
-        self.assertIn("[size-advisory]", out)
+        self.assertIn("sizescan clean", out)
+        self.assertNotIn("size", out.replace("sizescan", ""))
 
     def test_check_exits_zero_when_no_cold_content(self):
-        self.write_text("docs/ROADMAP.md", _cold(R - 1, 0))
+        self.write_text("docs/ROADMAP.md", _cold(10, 0))
         code, _ = self._run("--check")
         self.assertEqual(code, 0)
 
-    def test_check_size_advisory_reports_but_exits_zero(self):
-        self.write("ARCHITECTURE.md",
-                   sizescan.SIZE_REFERENCE["ARCHITECTURE.md"] + 40)
+    def test_check_never_reports_a_long_judgement_doc(self):
+        self.write("ARCHITECTURE.md", LONG)
         code, out = self._run("--check")
-        self.assertEqual(code, 0)          # long judgement doc: never gate-failing
-        self.assertIn("ARCHITECTURE.md", out)
-        self.assertIn("[size-advisory]", out)
+        self.assertEqual(code, 0)
+        self.assertNotIn("ARCHITECTURE.md", out)
 
-    def test_check_cold_content_wins_over_advisory(self):
-        self.write("ARCHITECTURE.md",
-                   sizescan.SIZE_REFERENCE["ARCHITECTURE.md"] + 40)   # advisory only
-        self.write_text("docs/ROADMAP.md", _cold(1, 1))              # cold → gate
+    def test_check_cold_content_is_the_only_finding_beside_a_long_file(self):
+        self.write("ARCHITECTURE.md", LONG)                      # silent
+        self.write_text("docs/ROADMAP.md", _cold(1, 1))          # cold → gate
         code, out = self._run("--check")
         self.assertEqual(code, 1)
         self.assertIn("[cold-content, gated]", out)
-        self.assertIn("[size-advisory]", out)
+        self.assertNotIn("ARCHITECTURE.md", out)
+        self.assertIn("1 file(s) flagged", out)
 
     def test_gate_is_cold_content_not_a_static_file_set(self):
         # Pin the doctrine: gating is driven by relocatable cold content, so a
         # long all-current ROADMAP/SESSIONS does not gate, but any file's [x]
         # items would. There is no static GATED set to drift.
         self.assertFalse(hasattr(sizescan, "GATED"))
-        self.write_text("docs/SESSIONS.md", "x\n" * (sizescan.SIZE_REFERENCE["SESSIONS.md"] + 5))
+        self.write_text("docs/SESSIONS.md", "x\n" * LONG)
         code, _ = self._run("--check")
-        self.assertEqual(code, 0)          # a big index (no [x]) is advisory only
+        self.assertEqual(code, 0)          # a big index (no [x]) is not reported
 
     def test_json_output(self):
         self.write_text("docs/ROADMAP.md", _cold(1, 1))
@@ -500,6 +599,7 @@ class ExitContract(_TreeTest):
         self.assertEqual(f0["path"].replace("\\", "/"), "docs/ROADMAP.md")
         self.assertEqual(f0["cold_items"], 1)
         self.assertTrue(f0["gated"])
+        self.assertFalse({"reference", "over"} & set(f0))
 
 
 class HarvestIntegrity(_TreeTest):
@@ -620,7 +720,7 @@ class HarvestIntegrity(_TreeTest):
                         "ssh host uptime\n```\nprose tail\n")
         self.assertEqual(self.finding("docs/ROADMAP-DONE.md").live_items, 1)
 
-    def test_archive_store_never_size_metered(self):
+    def test_archive_store_is_never_flagged_for_size(self):
         self.write_text("docs/ROADMAP-DONE.md", "- [x] done\n" + "x\n" * 3000)
         self.assertEqual(self.flagged(), [])
 
@@ -714,7 +814,8 @@ _MARK = "sizescan" + ":allow"   # built from parts: no source line is a marker
 
 class ScopedMarker(unittest.TestCase):
     """115/080: a header marker scoped to one kind exempts that kind only
-    (AM4); every marker that exempted before still exempts the whole file."""
+    (AM4); since 115/270 the only kind a marker can still exempt is an archive
+    store's `harvest-integrity`, so everything else it says is inert."""
 
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp())
@@ -722,40 +823,42 @@ class ScopedMarker(unittest.TestCase):
 
     def scan(self, marker):
         (self.tmp / "ROADMAP.md").write_text(
-            f"<!-- {marker} -->\n" + _cold(n_open=R + 5, n_done=2))
+            f"<!-- {marker} -->\n" + _cold(n_open=5, n_done=2))
         (self.tmp / "ROADMAP-DONE.md").write_text(
             f"<!-- {marker} -->\n" + _cold(n_open=1, n_done=1))
         counts = {}
         found = {f.path: f for f in sizescan.scan_paths([self.tmp], self.tmp, counts)}
         return found, counts["files_allowed"]
 
-    def test_size_advisory_scope_keeps_the_cold_content_gate(self):
+    def test_size_advisory_scope_keeps_both_gates(self):
+        # retired kind: read as scoped to something that no longer exists, so it
+        # exempts neither the cold content nor the archive store
         found, allowed = self.scan(f"{_MARK}:size-advisory: long by design")
         hot = found["ROADMAP.md"]
-        self.assertEqual((hot.cold_items, hot.over, hot.gated), (2, 0, True))
+        self.assertEqual((hot.cold_items, hot.gated), (2, True))
         self.assertIn("ROADMAP-DONE.md", found)
-        self.assertEqual(allowed, 2)
+        self.assertEqual(allowed, 0)
 
     def test_cold_content_scope_no_longer_exempts_the_gate(self):
-        # 115/270 a: it used to take the gate away and keep the advisory; it
-        # now takes nothing away.
+        # 115/270 a: it used to take the gate away; it takes nothing away
         found, _ = self.scan(f"{_MARK}:cold-content: harvested elsewhere")
         hot = found["ROADMAP.md"]
         self.assertEqual((hot.cold_items, hot.gated), (2, True))
-        self.assertGreater(hot.over, 0)
+        self.assertIn("ROADMAP-DONE.md", found)
 
     def test_harvest_integrity_scope_covers_only_the_archive_store(self):
-        found, _ = self.scan(f"{_MARK}:harvest-integrity: open on purpose")
+        found, allowed = self.scan(f"{_MARK}:harvest-integrity: open on purpose")
         self.assertNotIn("ROADMAP-DONE.md", found)
         self.assertEqual(found["ROADMAP.md"].cold_items, 2)
+        self.assertEqual(allowed, 1)       # only the store was exempted
 
-    def test_the_unscoped_form_and_an_unknown_scope_exempt_all_but_cold_content(self):
+    def test_the_unscoped_form_and_an_unknown_scope_exempt_only_the_archive_store(self):
         for marker in (f"{_MARK}: living doc", f"{_MARK}:living-doc: why"):
             found, allowed = self.scan(marker)
             self.assertEqual(set(found), {"ROADMAP.md"})   # the store is exempt
             hot = found["ROADMAP.md"]
-            self.assertEqual((hot.cold_items, hot.over, hot.gated), (2, 0, True))
-            self.assertEqual(allowed, 2)
+            self.assertEqual((hot.cold_items, hot.gated), (2, True))
+            self.assertEqual(allowed, 1)
 
 
 class Allowances(unittest.TestCase):
