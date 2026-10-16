@@ -20,3 +20,17 @@
       **The work:** 2 and 3 are plain fixes. 1 needs the posture read
       before choosing between the code and the text. It is the cheapest
       second dial on the board (`090`).
+
+      ✅ **Part 1 answered 2026-10-16, at the close of the queue run: make
+      the warning real.** The device question offered two options: make
+      mild findings report without blocking, or reword the text to say
+      everything blocks. Mike picked "Make the warning real", the
+      recommended option. That is his *answer*, recorded as such. **The
+      build is owed:** licenscan's `warn` verdicts (`medium` severity:
+      permissive-into-permissive mixes and unknown declarations) report
+      without blocking. `high` findings (no licence, incompatible) still
+      block. Follow secretscan's advisory pattern: a distinct report block,
+      exit 0 for advisory-only, and the advisory count on the board. Check
+      the blast radius across the children, where the change can only turn
+      a red green. Parts 2 and 3 (the docstrings) are still plain fixes,
+      unclaimed. The whole item is now buildable.
