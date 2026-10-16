@@ -693,12 +693,31 @@ Prose-shaped cold content (resolved narrative under an *open* item) and thinness
 aren't mechanically detectable — they stay **caught at review, not measured** (the
 standing one-sided honesty: the tool never fails on what it can't name losslessly).
 A legitimately long all-open file can quiet the advisory with an inline
-`sizescan:budget=N` (grounded in its class, never its current length), opt out
-with `sizescan:allow`, or a glob in `.sizescanignore` — none of which silences the
-cold-content gate; for that, harvest the `[x]` items. A header marker scoped to
-one kind, `sizescan:allow:<kind>: <reason>`, exempts that kind only:
-`size-advisory`, `cold-content` or `harvest-integrity` (`115/080`). The
-unscoped form, and a scope naming none of the three, exempt the whole file.
+`sizescan:budget=N` (grounded in its class, never its current length), a
+`sizescan:allow: <reason>` header, or a glob in `.sizescanignore`.
+
+**Nothing silences the cold-content gate** (`115/270`, Mike's ruling: no repo
+keeps a flat running log; the board is a list of work and its state, and the
+detail lives in a standalone file). An unscoped `sizescan:allow`, a
+`sizescan:allow:cold-content` scope and a `.sizescanignore` glob all leave a
+file's completed `[x]` items gated; the glob no longer skips the file, only its
+size advisory. They still quiet the size advisory (the scope `cold-content`
+quiets nothing), and an archive store's integrity check is still exempt from
+an unscoped marker or a glob. Where one of them is present on a file that carries
+cold content the report says so (`note: sizescan:allow header (unscoped)
+present — it cannot exempt cold content`), so it is never ignored in silence.
+A marker scoped to `size-advisory` or `harvest-integrity` exempts that kind only
+(`115/080`).
+
+**The gate names what it counted.** Each flagged file lists every completed item
+(`line 12: the item's text`, text capped at 60 characters), so the move to
+`ROADMAP-DONE.md` is a lookup, not an inference. The listing is capped
+run-wide at `MAX_MATERIALIZED_FINDINGS` (50,000, the cap every scanner uses);
+items past it are counted, never dropped silently: the report prints
+`…and N more completed item(s), counted but not listed`, the `suppressed:` line
+carries `N beyond the 50000-finding cap`, and `--json` carries each file's
+`cold_listed` (`line`, `title`), its `cold_hatches` and a top-level
+`cold_items_over_cap`.
 
 ### Usage
 

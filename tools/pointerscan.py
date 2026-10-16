@@ -2,8 +2,8 @@
 """pointerscan — a queued-review pointer says only what it may, and only what is
 still true.
 
-TWO FAILURES, ONE PARSE
-------------------------
+THREE FAILURES, ONE PARSE
+-------------------------
 `ROADMAP.md`'s own preamble states the pointer's ceiling: **refs only** — name
 the delta and the intent record, carry no evaluative account, because the
 account belongs in the session record where the reviewer's deferral discipline

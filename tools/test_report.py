@@ -314,12 +314,14 @@ class TestScannerLinePins(unittest.TestCase):
         import sizescan as m
         self.assertEqual(m._suppression_line(1, 2),
                          "  suppressed: 1 file(s) by sizescan:allow header · "
-                         "2 file(s) by .sizescanignore")
+                         "2 file(s) by .sizescanignore · "
+                         "0 beyond the 50000-finding cap (counted, not listed)")
         self.assertEqual(m.render_human([]),
                          "✓ sizescan clean — no relocatable cold content on the hot "
                          "path; archive stores hold no live markers.\n"
                          "  suppressed: 0 file(s) by sizescan:allow header · "
-                         "0 file(s) by .sizescanignore")
+                         "0 file(s) by .sizescanignore · "
+                         "0 beyond the 50000-finding cap (counted, not listed)")
 
     def test_licenscan(self):
         import licenscan as m
@@ -477,9 +479,11 @@ class TestFindingIdRoundTrip(unittest.TestCase):
         found = json.loads(p.stdout)["findings"]
         return sorted(i for f in found for i in (f.get("ids") or [f["id"]]))
 
-    def round_trip(self, name, files, marked, args, env=None):
+    def round_trip(self, name, files, marked, args, env=None, unexemptable=()):
         """`files` maps rel path -> body; `marked(kind)` gives the same map
-        with a marker scoped to `kind`."""
+        with a marker scoped to `kind`. A kind in `unexemptable` is one that
+        NO marker may exempt (sizescan's `cold-content`, 115/270 a): its ID
+        must survive the marker, and the other IDs be unaffected."""
         with tempfile.TemporaryDirectory() as td:
             def write(m):
                 for rel, body in m.items():
@@ -494,6 +498,10 @@ class TestFindingIdRoundTrip(unittest.TestCase):
                 self.assertEqual(scanner, name)
                 write(marked(kind))
                 after = self.run_json(name, args(td), env)
+                if kind in unexemptable:
+                    self.assertEqual(after, ids, f"{name}: {kind!r} must stand")
+                    write(files)
+                    continue
                 self.assertNotIn(fid, after, f"{name}: a marker scoped to {kind!r}")
                 self.assertEqual(after, [i for i in ids if i != fid])
                 write(files)
@@ -537,7 +545,7 @@ class TestFindingIdRoundTrip(unittest.TestCase):
         self.round_trip(
             "sizescan", {"ROADMAP.md": "# R\n" + body},
             lambda k: {"ROADMAP.md": f"<!-- sizescan" f":allow:{k}: fixture -->\n" + body},
-            lambda r: ["--check", "--root", r, r])
+            lambda r: ["--check", "--root", r, r], unexemptable=("cold-content",))
 
     def test_pointerscan(self):
         import pointerscan as m
