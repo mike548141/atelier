@@ -1,5 +1,5 @@
-- [~] 🔎 **An added line can pose as a diff header in secretscan's staged
-      plane** (claimed 2026-10-16-0705, wt: atelier-qr-115-280) `[S][tools]`. Found 2026-10-05 by the `260` worker and not
+- [x] 🔎 **An added line can pose as a diff header in secretscan's staged
+      plane** `[S][tools]`. Found 2026-10-05 by the `260` worker and not
       fixed there, because it is old behaviour outside that item.
       `secretscan` treats any line starting `+++ ` in
       `git diff --cached --unified=0` as a file header. An added line whose
@@ -14,3 +14,21 @@
       a hunk. Then use the shared reader, and add a test that a posed header
       inside a hunk does not move attribution. Check whether the shared
       reader has the same hole inside a hunk.
+
+      ✅ **Fixed 2026-10-16** (`39a74b9`, merged `ef75803`. A Sonnet 5.5
+      worker re-dispatched fresh after the 07:35 UTC crash). **The shared
+      reader had the same hole.** In `conflictscan` and `leakscan`, an added
+      `++ b/x` was taken as a header, and the line itself was dropped. Now
+      one reader, `report.staged_added`, serves all three guards. It follows
+      `diff --git`, the `+++` header and each hunk's `@@` counts, so a header
+      is never recognised inside a hunk. It fails closed (exit 2) on a diff
+      it cannot fit. It splits on the newline byte only, and it pins the
+      diff prefixes. Evidence: the new tests fail on the old modules. The
+      staged output is byte-identical on a realistic scratch change set, and
+      the whole-tree output is identical. 1,859 Python and 411 Node tests
+      pass. The orchestrator reproduced the hole on its own probe: the old
+      `conflictscan` was clean over a hidden marker, and the new one blocks.
+      This merge commit was the first real run of the new readers. The probe
+      also showed that two guards report the wrong line number on the staged
+      plane, which is older behaviour and is filed as `300`. Review queued at
+      `160/800`.

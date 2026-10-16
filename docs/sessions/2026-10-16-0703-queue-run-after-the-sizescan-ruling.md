@@ -150,3 +150,19 @@ this repo (unchanged output except for the new wording). The blast radius
 is zero of 30 repos. One defect was found and fixed inside the delta: the
 ignore-glob count was always printed as 0. Pass queued at `160/790`. Part
 (c) waits on Mike, and the item now carries the 🎯.
+
+## `115/280`: the staged diff read by its structure
+
+The rebuilt worker landed `39a74b9`. Before merging it as `ef75803`, the
+orchestrator read the diff, re-ran the four affected test files, and
+reproduced the hole on its own scratch repo. Under the old `conflictscan`
+an added `++ b/ignored.md` line hid the conflict marker after it and the
+scan read clean. The new one blocks. The shared reader had the hole too,
+so all three staged guards moved to one reader. That reader fails closed on
+a shape it cannot fit. The merge commit's own hook was the first real run
+of it. The same probe found an older defect, filed as `115/300`: conflictscan
+and leakscan number a staged finding by its position among the added
+lines, not its line in the file. Pass queued at `160/800`. Memory note: the
+reader holds the staged diff in memory, as the old code did, so this is no
+regression against the bounded-memory rule. Streaming that plane would be
+a separate item.
