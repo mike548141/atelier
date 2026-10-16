@@ -38,3 +38,23 @@ session"*.
 - Claimed at `2e2da81` before any work: `115/270` (c), `115/290`, `115/300`,
   and briefs for `160/500` and `520`–`570`. Finding prefixes for all 21 briefs
   were checked free across the tree before assignment.
+
+## `115/090`: held, and put back to Mike
+
+Before claiming leakscan's second dial, the run read `SECRETS.md`
+§ *The boundary's posture*. It records Mike's EI6 ruling (2026-07-29) that
+leakscan gains no advisory form, and that the blocking set never shrinks.
+The 2026-10-16 audit ranked leakscan first without citing either, so the
+answer that commissioned the build was given unbriefed on the point that
+decides it. The item now carries both readings of a build (additive only, or
+demotion) and is marked `🎯`. Nothing was built (`14b3efe`).
+
+## `115/300` ✅ staged findings at their real line
+
+A Sonnet worker, `f4afb7a`, merged. conflictscan and leakscan now report a
+staged finding at its line in the file, using the line number the shared
+reader already carried. The orchestrator read the diff before the merge.
+The worker found that conflictscan's open-conflict state runs across hunks:
+filed as `115/310`. Pass queued at `160/830`. The one suite failure was
+`test_pins.BoundedMemory` at a load of about 300, with other repos' pytest
+runs filling the machine. Re-checked at the close.

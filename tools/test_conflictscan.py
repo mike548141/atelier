@@ -385,7 +385,8 @@ class StagedPosedHeader(unittest.TestCase):
     def test_a_posed_ignored_header_does_not_hide_the_marker_after_it(self):
         self._stage("posed.md", f"ok\n++ b/docs/ignored.md\n{self.MARKER}\n")
         self.assertEqual(
-            {"posed.md": f"ok\n++ b/docs/ignored.md\n{self.MARKER}"},
+            {"posed.md": [(1, "ok"), (2, "++ b/docs/ignored.md"),
+                          (3, self.MARKER)]},
             cs.staged_added_lines())
         self.assertEqual((1, ["posed.md"]), self._paths())
 
@@ -397,12 +398,71 @@ class StagedPosedHeader(unittest.TestCase):
         # A marker must open its line, so `++ <<<<<<<` is no finding; the
         # point is that the posed line is no longer dropped as a "header".
         self._stage("posed.md", f"++ {self.MARKER}\n")
-        self.assertEqual({"posed.md": f"++ {self.MARKER}"},
+        self.assertEqual({"posed.md": [(1, f"++ {self.MARKER}")]},
                          cs.staged_added_lines())
 
     def test_a_real_ignored_file_is_still_ignored(self):
         self._stage("docs/ignored.md", self.MARKER + "\n")
         self.assertEqual((0, []), self._paths())
+
+
+class StagedRealLineNumbers(unittest.TestCase):
+    """115/300 — a finding on the staged plane is reported at its line in the
+    file, not at its position among the file's added lines. The old code
+    joined the added lines and numbered the blob from 1, so a marker staged
+    on line 5 of a file whose lines 1-4 were already committed was reported
+    at line 1."""
+
+    OPENER = "<" * 7 + " HEAD"
+    CLOSER = ">" * 7 + " feature"
+
+    def setUp(self):
+        self.repo = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.repo, ignore_errors=True)
+        _git(self.repo, "init", "-q")
+        self._old_cwd = os.getcwd()
+        os.chdir(self.repo)
+        self.addCleanup(os.chdir, self._old_cwd)
+
+    def _commit(self, name, lines):
+        (self.repo / name).write_text("\n".join(lines) + "\n")
+        _git(self.repo, "add", "--", name)
+        _git(self.repo, "-c", "commit.gpgsign=false", "commit", "-q",
+             "-m", "base")
+
+    def _stage(self, name, lines):
+        (self.repo / name).write_text("\n".join(lines) + "\n")
+        _git(self.repo, "add", "--", name)
+
+    def _found(self):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), \
+                contextlib.redirect_stderr(io.StringIO()):
+            code = cs.main(["--staged", "--root", str(self.repo), "--json"])
+        return code, [(f["path"], f["line"], f["kind"])
+                      for f in json.loads(buf.getvalue())["findings"]]
+
+    def test_a_marker_below_unchanged_lines_reports_its_file_line(self):
+        base = ["a", "b", "c", "d"]
+        self._commit("c.md", base)
+        self._stage("c.md", base + [self.OPENER])
+        self.assertEqual({"c.md": [(5, self.OPENER)]},
+                         cs.staged_added_lines())
+        self.assertEqual((1, [("c.md", 5, "opener")]), self._found())
+
+    def test_findings_in_a_second_hunk_report_their_file_lines(self):
+        base = [f"l{i}" for i in range(1, 31)]
+        self._commit("two.md", base)
+        # The opener lands on new line 5; 20 unchanged lines later (more than
+        # a hunk's context, so git cuts a second hunk) the closer lands on 26.
+        new = base[:4] + [self.OPENER] + base[4:24] + [self.CLOSER] + base[24:]
+        self._stage("two.md", new)
+        self.assertEqual((1, [("two.md", 5, "opener"),
+                              ("two.md", 26, "closer")]), self._found())
+
+    def test_a_new_file_still_reports_from_line_one(self):
+        self._stage("fresh.md", ["# title", self.OPENER])
+        self.assertEqual((1, [("fresh.md", 2, "opener")]), self._found())
 
 
 class BoundedMemory(unittest.TestCase):

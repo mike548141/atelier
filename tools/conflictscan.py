@@ -313,18 +313,23 @@ def _line_finding(path: str, lineno: int, window: str, is_final_window: bool,
     return None, in_conflict
 
 
-def scan_text(path: str, text: str, tally: "Tally | None" = None) -> list[Finding]:
-    """Walk `text` line by line, tracking whether we are inside what looks
-    like an open conflict region (an OPENER seen with no CLOSER since) — see
-    the module docstring's "THE `=======` AMBIGUITY" section for why
-    SEPARATOR/BASE are gated on this state and OPENER/CLOSER are not.
+def scan_lines(path: str, numbered_lines: "list[tuple[int, str]]",
+               tally: "Tally | None" = None) -> list[Finding]:
+    """Walk `(real line number, text)` pairs in order, tracking whether we are
+    inside what looks like an open conflict region (an OPENER seen with no
+    CLOSER since) — see the module docstring's "THE `=======` AMBIGUITY"
+    section for why SEPARATOR/BASE are gated on this state and OPENER/CLOSER
+    are not.
 
-    The staged-diff caller's shape: the diff's added lines are already held
-    in memory, so this is the whole-blob convenience wrapper; `_scan_file`
-    below is the streaming shape the whole-tree walk uses."""
+    The staged-diff caller's shape (115/300): a staged diff's added lines are
+    not consecutive lines of the file, so each carries its real line number
+    from `report.staged_added` and a finding is reported at THAT line. The
+    open-conflict state still runs through the added lines in order, exactly
+    as before: only the number a finding is reported at changed.
+    `_scan_file` below is the streaming shape the whole-tree walk uses."""
     findings: list[Finding] = []
     in_conflict = False
-    for lineno, raw in enumerate(text.splitlines(), start=1):
+    for lineno, raw in numbered_lines:
         finding, in_conflict = _line_finding(path, lineno, raw, True, in_conflict)
         if finding is None:
             continue
@@ -334,6 +339,13 @@ def scan_text(path: str, text: str, tally: "Tally | None" = None) -> list[Findin
             continue
         _record(findings, tally, finding)
     return findings
+
+
+def scan_text(path: str, text: str, tally: "Tally | None" = None) -> list[Finding]:
+    """Scan a whole text blob, numbering its lines from 1 — the whole-blob
+    convenience wrapper over `scan_lines` (the selftest and the test suite
+    use it); the staged plane passes real line numbers to `scan_lines`."""
+    return scan_lines(path, list(enumerate(text.splitlines(), start=1)), tally)
 
 
 def _looks_binary(data: bytes) -> bool:
@@ -501,10 +513,14 @@ def scan_paths(paths: list[Path], root: Path,
     return findings
 
 
-def staged_added_lines() -> dict[str, str]:
-    """Path → the added-line text of the staged diff. Scans only what a
-    commit would introduce (the pre-commit hot path), not the whole tree —
-    identical shape to `secretscan.staged_added_lines`.
+def staged_added_lines() -> dict[str, list[tuple[int, str]]]:
+    """Path → [(real file line number, added-line text), ...] of the staged
+    diff. Scans only what a commit would introduce (the pre-commit hot path),
+    not the whole tree — identical shape to `secretscan.staged_added_lines`.
+
+    The line number is the line's place in the file the commit produces, not
+    its place among the file's added lines (115/300): a marker staged on line
+    5 of a file whose lines 1-4 are unchanged is reported at 5, not at 1.
 
     `R` is in the diff filter deliberately (matches `secretscan`'s own
     review-B4 reasoning): a renamed-and-edited file's added lines can carry a
@@ -514,10 +530,10 @@ def staged_added_lines() -> dict[str, str]:
     # path of a quoted name is undone there (115/260), and an added line that
     # merely looks like a header (`++ b/x` prints as `+++ b/x`) can neither
     # move attribution nor be dropped from the scan.
-    files: dict[str, list[str]] = {}
-    for path, _lineno, text in report.staged_added():
-        files.setdefault(path, []).append(text)
-    return {path: "\n".join(lines) for path, lines in files.items()}
+    files: dict[str, list[tuple[int, str]]] = {}
+    for path, lineno, text in report.staged_added():
+        files.setdefault(path, []).append((lineno, text))
+    return files
 
 
 def render_human(findings: list[Finding], tally: "Tally | None" = None) -> str:
@@ -587,15 +603,15 @@ def _main(argv: list[str] | None = None) -> int:
             return rc
         prefixes = tuple(p.rstrip("/") + "/" for p in args.paths)
         if prefixes:
-            staged = {path: text for path, text in staged.items()
+            staged = {path: lines for path, lines in staged.items()
                       if path.startswith(prefixes) or path in args.paths}
         globs = load_ignore_globs(root)
         findings = []
-        for path, text in staged.items():
+        for path, lines in staged.items():
             if _ignored(path, globs):
                 tally.files_by_glob += 1
                 continue
-            findings.extend(scan_text(path, text, tally))
+            findings.extend(scan_lines(path, lines, tally))
     else:
         # A RELATIVE target resolves against --root, never the caller's cwd:
         # mixing the two reads one repo's file under another repo's rules,

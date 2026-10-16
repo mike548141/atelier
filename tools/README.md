@@ -1408,7 +1408,11 @@ file header is only what git writes between `diff --git` and a file's first
 `@@`, and a hunk's `@@ -a,b +c,d @@` counts say where its body ends. An added
 line whose own text begins `++ ` prints as `+++ …`, and used to pass for a
 header, moving the lines after it to a posed file name. It fails closed: a
-diff that does not fit its counts is exit 2, never a guess.
+diff that does not fit its counts is exit 2, never a guess. Each added line
+comes with its real line number in the file the commit produces, and all three
+guards report a finding at that line (`115/300`): a marker staged on line 5 of
+a file whose lines 1-4 are unchanged is reported at 5, not at its position
+among the added lines.
 `test_report.py` tests each helper and pins each converted scanner's lines as
 literals. What a scanner prints reaches every child's CI at its next run, so a
 shared edit that changes one of those lines fails the suite first.

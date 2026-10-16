@@ -184,7 +184,8 @@ then `python3 tools/board.py rebuild`.
 - [~] 🔎 (claimed 2026-10-16-1501 UTC by queue run abe96d8d, part c only, a worker) [Three defects found while adding finding IDs](roadmap/115-guardrail-architecture-mike-commissioned/270-three-defects-found-adding-finding-ids.md)
 - ✅ 🔎 [An added line can pose as a diff header in secretscan's staged](roadmap/115-guardrail-architecture-mike-commissioned/280-an-added-line-can-pose-as-a-diff-header-in-secretscan.md)
 - [~] 🔎 (claimed 2026-10-16-1501 UTC by queue run abe96d8d, a worker) [Three guard descriptions disagree with their own code](roadmap/115-guardrail-architecture-mike-commissioned/290-three-guards-describe-a-response-tier-their-code-lacks.md)
-- [~] 🔎 (claimed 2026-10-16-1501 UTC by queue run abe96d8d, a worker) [conflictscan and leakscan report the wrong line number on the](roadmap/115-guardrail-architecture-mike-commissioned/300-two-staged-guards-report-the-wrong-line-number.md)
+- ✅ 🔎 [conflictscan and leakscan report the wrong line number on the](roadmap/115-guardrail-architecture-mike-commissioned/300-two-staged-guards-report-the-wrong-line-number.md)
+- [ ] 🔎 [conflictscan's open-conflict state runs across staged hunks](roadmap/115-guardrail-architecture-mike-commissioned/310-conflictscan-open-conflict-state-runs-across-hunks.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 
@@ -297,6 +298,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: the staged diff read by its structure](roadmap/160-doctrine-review-owed/800-rule-4-cold-pass-queued-staged-diff-structural-reader.md)
 - [ ] ⏳ [Rule-4 cold pass queued: indexscan's date rule (320/430).](roadmap/160-doctrine-review-owed/810-rule-4-cold-pass-queued-indexscan-date-rule.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ADR 0008's boundary amendment and the](roadmap/160-doctrine-review-owed/820-rule-4-cold-pass-queued-adr-0008-boundary-amendment.md)
+- [ ] ⏳ [Rule-4 cold pass queued: staged findings at their real line](roadmap/160-doctrine-review-owed/830-rule-4-cold-pass-queued-staged-real-line-numbers.md)
 
 ## build/ layer — open strands
 

@@ -5,6 +5,14 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-10-16 — staged findings at their real line, `115/300`)
+- `conflictscan` and `leakscan` report a staged finding at its real line in
+  the file. Both numbered a finding by its position among the file's added
+  lines, so a marker staged on line 5 under four unchanged lines was
+  reported at line 1. They now use the line number `report.staged_added`
+  already yields, as `secretscan` did. Only the number changes: no format,
+  rule or exit code moves, and whole-tree output is byte-identical.
+
 ### Changed (2026-10-16 — three guard fixes, `115/270`, `115/280`, `320/430`)
 - `sizescan`: no hatch silences the cold-content gate any more (Mike's
   2026-10-05 ruling). The gate used to be exempted by an unscoped
