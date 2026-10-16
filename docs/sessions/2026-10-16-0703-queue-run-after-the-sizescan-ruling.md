@@ -245,3 +245,16 @@ items carry the detail:
    writes them, then Fable runs the passes. The launch line is in the user-local cards.
 
 All six decisions were answered in the device and recorded on their items as answers.
+
+**One more against this run, found at the close.** The claim-release regex
+`\(claimed [^)]*\)` stopped at the `)` of "(a)" inside `115/270`'s own claim
+fragment, and left half the fragment on the item's head line from `70a8c54`
+to `e4e93e5`. It was caught when wrapscan flagged the line, and repaired.
+Every other item this run released was re-read and is clean. A board helper
+that releases claims would remove this class. The close-out checker
+(`020/180`) is the natural home for that check.
+
+**Next session's picks, after the answers:** the `115/270` (c) removal,
+`115/290` (now fully buildable), `115/300`, and the leakscan second dial
+(`115/090`, first-of-kind, so capable tier). The close-out checker
+(`020/180`) gets its design pass. A fresh Opus session writes the 21 briefs.
