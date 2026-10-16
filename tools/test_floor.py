@@ -1290,10 +1290,63 @@ class AdvisoryCountContract(unittest.TestCase):
         # It is not a softening: secretscan still may not be made advisory by a
         # child. The two ideas share a word and nothing else.
         self.assertIsNone(floor.BY_NAME["secretscan"].advisory)
+        # licenscan carries one too (115/290): same shape, its own contract
+        # tests below. Not a softening either.
+        self.assertTrue(floor.BY_NAME["licenscan"].advisory_count)
+        self.assertIsNone(floor.BY_NAME["licenscan"].advisory)
         others = [s.name for s in floor.SCANNERS
-                  if s.advisory_count and s.name != "secretscan"]
+                  if s.advisory_count and s.name not in ("secretscan", "licenscan")]
         self.assertEqual([], others, "a new count-carrying check needs its own "
                                      "contract test, not this one by accident")
+
+    def _licence_repo(self, td: str, *extra: tuple[str, str]) -> Path:
+        """A tiny repo asserting Apache-2.0, with a permissive header in a
+        vendored file: one advisory finding, nothing blocking."""
+        root = Path(td)
+        (root / "docs").mkdir()
+        (root / "LICENSE").write_text(
+            "Apache License\nVersion 2.0, January 2004\n", encoding="utf-8")
+        (root / "vendor").mkdir()
+        (root / "vendor" / "y.py").write_text(
+            "# SPDX-License-Identifier: MIT\n", encoding="utf-8")  # licenscan:allow: test fixture, not a real header
+        (root / floor.CONFIG_NAME).write_text(
+            json.dumps({"licence": "Apache-2.0"}), encoding="utf-8")
+        for rel, text in extra:
+            (root / rel).write_text(text, encoding="utf-8")
+        return root
+
+    def test_floors_pattern_matches_licenscans_real_output(self):
+        """The seam, exercised end to end for the second count-carrier."""
+        with tempfile.TemporaryDirectory() as td:
+            root = self._licence_repo(td)
+            out = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "licenscan.py"),
+                 "--expect", "Apache-2.0", str(root)],
+                capture_output=True, text=True)
+            clean = subprocess.run(
+                [sys.executable, str(TOOLS_DIR / "licenscan.py"),
+                 "--expect", "Apache-2.0", str(root / "docs")],
+                capture_output=True, text=True)
+        self.assertEqual(0, out.returncode, "an advisory finding must not block")
+        self.assertEqual(1, floor._read_advisory_count(out.stdout))
+        # A zero is read as zero, never as silence.
+        self.assertEqual(0, floor._read_advisory_count(clean.stdout))
+
+    def test_the_board_carries_licenscans_count(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = self._licence_repo(td)
+            r = self._run("--plane", "ci", "--root", str(root))
+        self.assertEqual(0, r.returncode, r.stderr)
+        self.assertIn("1 advisory finding(s) — reported, not blocking", r.stderr)
+        self.assertRegex(r.stderr, r"🟡 licenscan\s+enforced")
+
+    def test_a_blocking_licence_finding_still_fails_the_floor(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = self._licence_repo(
+                td, ("pyproject.toml", 'license = "MIT"\n'))  # licenscan:allow: test fixture
+            r = self._run("--plane", "ci", "--root", str(root))
+        self.assertEqual(1, r.returncode, r.stderr)
+        self.assertRegex(r.stderr, r"❌ licenscan\s+enforced")
 
     def test_floors_pattern_matches_the_scanners_real_output(self):
         """The seam itself, exercised end to end — no fixture string."""

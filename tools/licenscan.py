@@ -32,19 +32,38 @@ Three checks, in rising specificity:
      vendored-in file (needs attention) or a poison pill: copyleft (GPL/AGPL/
      LGPL/MPL) code cannot be relicensed under a permissive repo licence.
 
-The compatibility judgement is deliberately CONSERVATIVE and advisory — it flags
-for a human, it is not legal advice. It does not encode the deep cases (e.g. the
+The compatibility judgement is deliberately CONSERVATIVE — it flags for a human,
+it is not legal advice. It does not encode the deep cases (e.g. the
 Apache-2.0/GPLv2 patent-clause incompatibility); it encodes the one that bites in
 practice: copyleft-into-permissive is a block, permissive-into-permissive and
 anything-into-copyleft is a warn (inconsistency worth a look, not a stopper).
+
+TWO RESPONSES, NOT ONE — the warn is real (115/290, ruled 2026-10-16: "Make the
+warning real"). Every finding carries a `response`, derived from its severity:
+
+  * BLOCK — `high` severity: no LICENSE, a declaration that contradicts it, an
+    incompatible (copyleft-into-permissive) header, a failed `--expect`. These
+    blocked before this tier existed and still do, with the same finding.
+  * ADVISORY — `medium` severity: a permissive header differing from a
+    permissive repo licence, a LICENSE or declaration the scan cannot read as a
+    known SPDX id. REPORTED in full, in a block of its own, and the exit code
+    stays 0. Until 2026-10-17 the text called these a "warn" while the code
+    counted every one toward exit 1, so a "warn" blocked a publish.
+
+An advisory finding nobody reads is cover, not coverage, so it ships the way
+secretscan's does (`secretscan.py`, § TWO RESPONSES): the line
+`licenscan advisory: N finding(s)` is printed on EVERY run, zero included, and
+`tools/floor.py`'s board reads it into a `🟡 N advisory finding(s)` count from
+THIS run's output — no state file, nothing to go stale. A severity this tool
+does not know as advisory blocks: the tier is opt-IN, never a default.
 
 What it structurally CANNOT see (review B3 — a clean scan means "no known shape
 matched", not "licence-safe"): a vendored file carrying the traditional PROSE
 licence header with no `SPDX-License-Identifier` tag — the commonest real-world
 copyleft shape — is invisible to check 3; the human pre-publish scrub owns that
 case. Dual-licence expressions (`MIT OR Apache-2.0`) and `LicenseRef-` custom
-ids *in a metadata declaration* degrade conservatively to an unknown-declaration
-warn (friction, never a false pass). Under a custom repo licence the only
+ids *in a metadata declaration* degrade conservatively to an advisory
+unknown-declaration finding (reported, never a silent pass). Under a custom repo licence the only
 per-file judgement made is the copyleft one: a permissive foreign header is left
 unremarked, because "differs from the repo licence" is unanswerable when the
 repo licence has no name to differ from. A legitimately bundled copyleft
@@ -52,9 +71,10 @@ component (the NOTICE case) will block — the allow-marker / .licenscanignore
 hatch, with its reason recorded, is the sanctioned way to express "bundled, not
 relicensed".
 
-Exit codes (fail-safe — anything but a clean, verifiable scan is non-zero):
-  0  clean — one coherent, recognised licence, no incompatible headers
-  1  findings (blocks a publish)
+Exit codes (fail-safe — anything but a verifiable scan with nothing BLOCKING is
+non-zero):
+  0  clean, or advisory findings only (they are REPORTED, never a gate)
+  1  blocking findings (blocks a publish)
   2  usage / config error (a scan that couldn't run is NOT a pass)
 
 Zero third-party dependencies; stdlib only.
@@ -365,14 +385,40 @@ def declarations_in(rel: str, text: str,
 
 
 # ---- findings ------------------------------------------------------------------
+# The two responses (115/290). `response` is DERIVED from `severity`, so the two
+# can never disagree: `medium` is the advisory tier, and anything else — `high`,
+# or a severity added later and not yet classified — blocks. Fail-safe: a tier
+# is opted into by name, never reached by omission.
+RESPONSE_BLOCK = "block"
+RESPONSE_ADVISORY = "advisory"
+ADVISORY_SEVERITIES = frozenset({"medium"})
+
+# The prefix of the one line that always says how many advisory findings this
+# run made. `tools/floor.py`'s `ADVISORY_COUNT_RX` reads it back off the output,
+# and `test_floor.py::AdvisoryCountContract` runs the real scanner against that
+# pattern.
+ADVISORY_COUNT_PREFIX = "licenscan advisory:"
+
+
 @dataclass
 class Finding:
     kind: str          # "no-license" | "unknown-license" | "mismatch" |
                        # "incompatible" | "unknown-declaration" | "expect-mismatch"
-    severity: str      # "high" | "medium"
+    severity: str      # "high" (blocks) | "medium" (advisory)
     message: str
     path: str = ""
     line: int = 0
+    # "block" | "advisory", set from `severity` in `__post_init__` and never
+    # passed in. A dataclass field (not a property) so `--json` carries it.
+    response: str = field(init=False, default=RESPONSE_BLOCK)
+
+    def __post_init__(self) -> None:
+        self.response = (RESPONSE_ADVISORY if self.severity in ADVISORY_SEVERITIES
+                         else RESPONSE_BLOCK)
+
+    @property
+    def blocks(self) -> bool:
+        return self.response == RESPONSE_BLOCK
 
 
 def compatibility(repo: str, header: str) -> str:
@@ -410,7 +456,17 @@ class Report:
 
     @property
     def clean(self) -> bool:
+        """Nothing found at ALL, advisory findings included. This is not the
+        exit-code question; that is `blocking`."""
         return not self.findings
+
+    @property
+    def blocking(self) -> list[Finding]:
+        return [f for f in self.findings if f.blocks]
+
+    @property
+    def advisory(self) -> list[Finding]:
+        return [f for f in self.findings if not f.blocks]
 
 
 def scan_repo(root: Path, files: list[tuple[str, str]],
@@ -662,24 +718,69 @@ def _suppression_line(rep: Report) -> str:
          f"{MAX_FILE_BYTES // (1024 * 1024)} MiB scanned truncated"])
 
 
+def advisory_count_line(n: int) -> str:
+    """The one line that always says how many advisory findings this run made.
+
+    ALWAYS printed, zero included: a line printed only when non-zero makes "no
+    line" mean two things, nothing found or the wording drifted and the board
+    is now parsing a message that no longer exists. Printing the zero collapses
+    that, so a count that disappears is a defect somebody can see (the same
+    reasoning as secretscan's `advisory_count_line`)."""
+    return f"  {ADVISORY_COUNT_PREFIX} {n} finding(s) — reported, not blocking."
+
+
+def _render_advisory(advisory: list[Finding]) -> list[str]:
+    """The advisory detail block. Shares NO wording with the blocking block —
+    not the ✗, not "Publish blocked", not the remediation paragraph — so a
+    reader skimming two adjacent lists can tell which one stopped the publish
+    without reading either closely. It states its own exit-code consequence
+    rather than leaving it to be inferred."""
+    lines = ["",
+             "🟡 ADVISORY FINDINGS — none of these blocked anything.",
+             "   Licence friction worth a human look before publishing: a permissive",
+             "   header that differs from the repo licence, or a LICENSE or declaration",
+             "   this scan cannot read as a known SPDX id. Shown rather than dropped,",
+             "   because a mix it cannot judge is not a mix it has cleared."]
+    for f in sorted(advisory, key=lambda x: (x.path, x.line)):
+        loc = f"{f.path}:{f.line}  " if f.path else ""
+        lines.append(report.with_id(
+            f"     {loc}[advisory/{f.kind}] {f.message}", "licenscan", f.kind))
+    lines.append(f"   Intended? Append '# {ALLOW_MARKER}:<kind>: <reason>' to the line,")
+    lines.append("   or add a path glob to .licenscanignore. Not legal advice.")
+    return lines
+
+
 def render_human(rep: Report) -> str:
-    lines: list[str] = []
+    blocking, advisory = rep.blocking, rep.advisory
     lic = rep.repo_license or rep.repo_license_declared or "unrecognised"
-    if rep.clean:
-        return (report.clean_head("licenscan",
-                                  f"repo licence {lic}, all declarations agree.")
-                + "\n" + _suppression_line(rep))
-    lines.append(report.findings_head("licenscan", len(rep.findings),
+    lines: list[str] = []
+    if not blocking:
+        if not advisory:
+            lines.append(report.clean_head(
+                "licenscan", f"repo licence {lic}, all declarations agree."))
+        else:
+            lines.append(report.clean_head(
+                "licenscan", f"nothing blocks a publish — repo licence {lic}; "
+                             "see the advisory findings below."))
+        lines.append(_suppression_line(rep))
+        lines.append(advisory_count_line(len(advisory)))
+        if advisory:
+            lines.extend(_render_advisory(advisory))
+        return "\n".join(lines)
+    lines.append(report.findings_head("licenscan", len(blocking),
                                       tail=f" — repo licence {lic}. Publish blocked.\n"))
-    for f in sorted(rep.findings, key=lambda x: (x.severity != "high", x.path, x.line)):
+    for f in sorted(blocking, key=lambda x: (x.path, x.line)):
         loc = f"  {f.path}:{f.line}  " if f.path else "  "
         lines.append(report.with_id(f"{loc}[{f.severity}/{f.kind}] {f.message}",
                                     "licenscan", f.kind))
     lines.append("")
     lines.append(_suppression_line(rep))
+    lines.append(advisory_count_line(len(advisory)))
     lines.append(f"\n  A false positive: append '# {ALLOW_MARKER}: <reason>' to the")
     lines.append("  line, or add a path glob to .licenscanignore. Not legal advice —")
     lines.append("  a conservative flag for a human to resolve before going public.")
+    if advisory:
+        lines.extend(_render_advisory(advisory))
     return "\n".join(lines)
 
 
@@ -712,9 +813,16 @@ def _main(argv: list[str] | None = None) -> int:
     rep.files_by_glob = len(_skipped)
     rep.files_truncated = len(_truncated)
 
+    blocking, advisory = rep.blocking, rep.advisory
     if args.json:
         print(json.dumps({
+            # `clean` keeps its meaning (nothing found at all) and `blocked`
+            # tracks the exit code. Two fields, not one redefined, so a
+            # consumer written against the old shape cannot start reading a
+            # green tick off a run that has advisory findings in it.
             "clean": rep.clean,
+            "blocked": bool(blocking),
+            "counts": {"blocking": len(blocking), "advisory": len(advisory)},
             "repo_license": rep.repo_license,
             "repo_license_declared": rep.repo_license_declared,
             "repo_license_path": rep.repo_license_path,
@@ -723,7 +831,7 @@ def _main(argv: list[str] | None = None) -> int:
         }, indent=2))
     else:
         print(render_human(rep))
-    return report.exit_code(len(rep.findings))
+    return report.exit_code(len(blocking))
 
 
 def _selftest() -> int:
@@ -817,6 +925,11 @@ def _selftest() -> int:
                    any(f.kind == "mismatch" and f.severity == "medium"
                        for f in mixp.findings)
                    and not any(f.severity == "high" for f in mixp.findings)))
+    # 115/290: a warn REPORTS without blocking; a block still blocks.
+    checks.append(("a warn is advisory, not blocking",
+                   bool(mixp.advisory) and not mixp.blocking))
+    checks.append(("a copyleft poison still blocks",
+                   bool(poison.blocking) and not poison.advisory))
 
     # no LICENSE at all
     none_lic = scan_repo(Path("."), [("pyproject.toml", 'license = "MIT"\n')], None)

@@ -427,14 +427,37 @@ gates.
 
 | Check | Catches | Severity |
 |---|---|---|
-| **LICENSE present + recognised** | an open repo with no LICENSE (all-rights-reserved by default), or a LICENSE body no known SPDX licence matches (read as a declared custom licence since 2026-08-05 — the per-file header checks keep running; only declaration comparison is skipped) | high / medium |
-| **Declarations agree** | metadata that names a *different* licence than LICENSE — `pyproject.toml`, `package.json`, `Cargo.toml`, `*.gemspec`, `setup.cfg`, a README shields.io badge — i.e. the repo contradicting itself | high |
-| **No incompatible header** | a file with an `SPDX-License-Identifier` differing from the repo licence — copyleft (GPL/AGPL/LGPL/MPL) into a permissive repo is a **block** (can't be relicensed on publish); permissive-into-permissive is a warn | high / medium |
+| **LICENSE present + recognised** | an open repo with no LICENSE (all-rights-reserved by default), or a LICENSE body no known SPDX licence matches (read as a declared custom licence since 2026-08-05 — the per-file header checks keep running; only declaration comparison is skipped) | high (no LICENSE, blocks) / medium (unrecognised, advisory) |
+| **Declarations agree** | metadata that names a *different* licence than LICENSE — `pyproject.toml`, `package.json`, `Cargo.toml`, `*.gemspec`, `setup.cfg`, a README shields.io badge — i.e. the repo contradicting itself; or a declaration that is not a recognised SPDX id at all | high (contradiction, blocks) / medium (unknown id, advisory) |
+| **No incompatible header** | a file with an `SPDX-License-Identifier` differing from the repo licence — copyleft (GPL/AGPL/LGPL/MPL) into a permissive repo is a **block** (can't be relicensed on publish); permissive-into-permissive is a warn, reported without blocking | high (blocks) / medium (advisory) |
 
-The compatibility judgement is deliberately **conservative and advisory** — it
-flags for a human, it is not legal advice, and it does not encode the deep cases
-(e.g. Apache-2.0/GPLv2). It encodes the one that bites in practice:
+The compatibility judgement is deliberately **conservative** — it flags for a
+human, it is not legal advice, and it does not encode the deep cases (e.g.
+Apache-2.0/GPLv2). It encodes the one that bites in practice:
 copyleft-into-permissive.
+
+### Two responses (115/290, 2026-10-17)
+
+A finding carries a **response** as well as a kind, derived from its severity,
+and only one response touches the exit code:
+
+| Response | Severity | Findings | Exit code |
+|---|---|---|---|
+| **block** | `high` | no LICENSE, a declaration contradicting it, a copyleft header in a permissive (or custom) repo, a failed `--expect` | `1` |
+| **advisory** | `medium` | a permissive header differing from the repo licence, a LICENSE or declaration the scan cannot read as a known SPDX id | `0` |
+
+Until 2026-10-17 the docstring and this section called the `medium` findings a
+*warn* ("friction, never a silent pass") while the code counted every one toward
+exit 1, so a warn blocked a publish. Mike ruled 2026-10-16: *make the warning
+real.* The blocking set did not move; the `medium` findings are now shown in a
+`🟡 ADVISORY FINDINGS` block of their own, which shares no wording with the
+blocking block. A severity the tool does not know as advisory blocks. The tier
+ships with its consumer, the way `secretscan`'s does: `licenscan` prints
+`licenscan advisory: N finding(s)` on **every** run, zero included, and
+`floor.py`'s board reads it into a `🟡 N advisory finding(s)` count from that
+run's output (no state file). `--json` carries `blocked`, `counts` (`blocking`,
+`advisory`) and a `response` on each finding; `clean` keeps its meaning of
+nothing found at all.
 
 ### Usage
 
@@ -446,8 +469,8 @@ python3 tools/licenscan.py --json               # machine-readable, for CI/compo
 python3 tools/licenscan.py --selftest           # prove the engine on this box
 ```
 
-Exit codes match the others (`0` clean · `1` findings, publish blocked · `2`
-usage/config error). Escape hatches mirror them: `# licenscan:allow: <reason>`
+Exit codes match the others (`0` clean **or advisory-only** · `1` blocking
+findings, publish blocked · `2` usage/config error). Escape hatches mirror them: `# licenscan:allow: <reason>`
 per line (a deliberately dual-licensed file, or a header in test data), a glob in
 `.licenscanignore` per path. `# licenscan:allow:<kind>: <reason>` exempts one
 kind only (`mismatch`, `incompatible`, `unknown-declaration`,

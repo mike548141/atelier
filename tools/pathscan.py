@@ -12,18 +12,20 @@ existed), `post-method B14` (an ACCESS pointer at a map that doesn't exist),
 `post-method B11` ("seed from `templates/`" — no such dir). All three are bare
 prose, none is a Markdown link — exactly the gap `linkscan` cannot see.
 
-STATUS — WIRED ADVISORY, REVIEWED ONCE, NOT GATING. It is invoked from
-`ci.yml` with `--warn` (never blocks), and is NOT in `tools/floor.py`'s
-registry — a bespoke step, which the review flagged (PS5) as the
-vendored-policy shape the registry exists to end; promoting it is a later,
-separate phase. Its first-of-kind cold review (rule 4, Fable, 2026-07-26)
-returned PASS-WITH-FINDINGS — 3 MAJOR, 5 MINOR — and recommended KEEPING IT
-ADVISORY until four preconditions land. This delta is the funded rescope
-(Mike's ruling, 2026-08-04) discharging three of them: the fourth anchor and
-root-file scope (PS1), the gated-surface residual burn-down (one true
+STATUS — IN THE FLOOR REGISTRY, WARN-ONLY, REVIEWED ONCE, NOT GATING. It has
+been a `tools/floor.py` registry entry since 2026-08-05 (PS5), so it runs on
+every child's hook and CI through the floor, with `--warn` in the registry
+template (never blocks). It began as a bespoke step in atelier's own `ci.yml`,
+which the review flagged (PS5) as the vendored-policy shape the registry exists
+to end; the registry line retired that step. Its first-of-kind cold review
+(rule 4, Fable, 2026-07-26) returned PASS-WITH-FINDINGS — 3 MAJOR, 5 MINOR —
+and recommended KEEPING IT ADVISORY until four preconditions land. The funded
+rescope (Mike's ruling, 2026-08-04) discharged three of them: the fourth anchor
+and root-file scope (PS1), the gated-surface residual burn-down (one true
 positive fixed, the false positives marked), and the docstring corrections
-(PS2, PS3, PS6, PS7, PS8). Registry promotion (PS5) is explicitly deferred.
-THE FLIP TO BLOCKING IS STILL A DECISION, not this build's to take.
+(PS2, PS3, PS6, PS7, PS8); registry promotion (PS5) followed on 2026-08-05.
+THE FLIP TO BLOCKING IS STILL A DECISION, not this build's to take: it is the
+removal of `--warn` from the registry template.
 
 THE CHECK, deliberately narrow (a broad flaky path-guesser is worse than a
 sharp honest one):

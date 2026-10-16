@@ -81,7 +81,8 @@ they are not the same fact:
 
   🟡 secretscan  enforced   (🟡 21 advisory finding(s) — reported, not blocking)
         a BLOCKING check that also reported findings it deliberately passed on
-        (E6b). This check still gates; these particular findings did not.
+        (E6b; licenscan does the same with its `medium` findings, 115/290).
+        This check still gates; these particular findings did not.
   👁️ pathscan    warn-only  (warn-only wiring — reports findings, can never
                              block this build)
         a check that gates NOTHING, whatever it finds, on any repo.
@@ -146,7 +147,10 @@ non-None). At HEAD that excludes the boundary scanners (secretscan, leakscan,
 conflictscan),
 the integrity scanners (linkscan, reviewscan, board) and licenscan — a
 burned secret, a leaked personal fact, a committed conflict marker and a
-broken link are not re-baselining problems. Asking for an
+broken link are not re-baselining problems. The boundary exception is
+publishscan: it IS softenable, as an adoption aid (children already track the
+file it looks for, and a blocking check landing by propagation would red their
+next commit), not as a severity tier. Asking for an
 advisory state a scanner does not offer is an error, not a silent downgrade.
 (This paragraph's earlier only-prose-hygiene list went stale when sizescan
 and publishscan gained forms; the registry, not prose, is the authority —
@@ -347,7 +351,14 @@ class Scanner:
     `hook`/`ci` are argument templates; a None plane means the check does not run
     there at all. `advisory` is the argument form that reports without blocking —
     None means this check may not be softened (see the module docstring: boundary
-    and integrity checks have no advisory form, by design).
+    and integrity checks have no advisory form, by design, with one exception:
+    publishscan, a boundary check, carries one as an ADOPTION AID — a child
+    declares it while it cleans up a file it has not yet been told about — not
+    as a severity tier; its registry entry says why).
+
+    That is a different thing from a check's OWN advisory findings
+    (`advisory_count`, below): secretscan and licenscan have no advisory FORM a
+    child may select, and still report some findings without blocking.
 
     `{scope}` is the tree the check reads. `default_scope` says what that is when
     the child declares nothing: the whole repo, or its records subtree.
@@ -682,6 +693,12 @@ SCANNERS: tuple[Scanner, ...] = (
         advisory=None,
         why="the declared licence is the one actually asserted",
         opt_in=True,  # only with a declared `licence` — see the docstring
+        # Like secretscan, NOT a softening: `advisory=None` above still says a
+        # child may never soften this check. What this adds is licenscan's own
+        # second response (115/290, ruled 2026-10-16: "Make the warning real"):
+        # its `medium` findings are reported and never block, and the count
+        # reaches the board rather than scrolling past in its own output.
+        advisory_count=True,
     ),
 )
 

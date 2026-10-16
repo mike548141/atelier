@@ -330,14 +330,16 @@ class TestScannerLinePins(unittest.TestCase):
         rep = m.Report(repo_license="MIT")
         supp = ("  suppressed: 0 declaration(s) by allow-marker · 0 file(s) by "
                 ".licenscanignore · 0 file(s) over 8 MiB scanned truncated")
+        count = "  licenscan advisory: 0 finding(s) — reported, not blocking."
         self.assertEqual(m.render_human(rep),
                          "✓ licenscan clean — repo licence MIT, all declarations "
-                         "agree.\n" + supp)
+                         "agree.\n" + supp + "\n" + count)
         rep.findings.append(m.Finding("mismatch", "high", "msg", "a.txt", 3))
         lines = m.render_human(rep).splitlines()
         self.assertEqual(lines[0], "✗ licenscan: 1 finding(s) — repo licence MIT. "
                                    "Publish blocked.")
         self.assertIn(supp, lines)
+        self.assertIn(count, lines)
 
     def test_reviewscan(self):
         import reviewscan as m
