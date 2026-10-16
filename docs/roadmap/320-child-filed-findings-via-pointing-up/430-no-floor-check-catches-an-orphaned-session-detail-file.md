@@ -1,5 +1,5 @@
-- [~] 🔎 **Hand-up: nothing catches an orphaned session-detail file once the
-      session log is an index.** (claimed 2026-10-16-0712, wt: atelier-qr-320-430 — the date/slug half) Filed from the public child `tuhura`
+- [x] 🔎 **Hand-up: nothing catches an orphaned session-detail file once the
+      session log is an index.** Filed from the public child `tuhura`
       2026-09-20 (finding F7 of the rule-4 cold pass on its session-log
       split). The child's own intent record flagged this as a residual it
       was accepting; the review found the residual is **half already
@@ -49,3 +49,16 @@
       gets the check by adding the same line to its own index. The second
       gap here, an index line whose date or slug disagrees with its file,
       is not checked, so this item stays open for it.
+
+      ✅ **The date half is built (2026-10-16).** `1c24781`, merged as
+      `da3227d`, from a Sonnet 5.5 worker re-dispatched fresh after the
+      07:35 UTC crash. `indexscan` now has a warn-only `date-mismatch`
+      check: a dated index line must not predate the date-named file it
+      links. It checks that direction only. In atelier's session index, 16
+      of 252 dated lines are legitimately later than their file, being
+      addenda and close stamps, so an equality rule would cry wolf.
+      **No further work is owed: slug drift is not mechanisable.** Link text
+      is free prose, so there is nothing crisp to compare it against, and
+      the tool says that rather than guessing. That is the disposition for
+      the rest of this item. 0 findings here and 0 in the siblings, so it
+      is a tripwire, not a find. Review queued at `160/810`.

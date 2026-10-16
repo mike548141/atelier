@@ -166,3 +166,59 @@ lines, not its line in the file. Pass queued at `160/800`. Memory note: the
 reader holds the staged diff in memory, as the old code did, so this is no
 regression against the bounded-memory rule. Streaming that plane would be
 a separate item.
+
+## `320/430`: the date half, built; slug drift named as not mechanisable
+
+The rebuilt worker landed `1c24781`. Before merging it as `da3227d`, the
+orchestrator re-ran the live scan (252 dated lines compared, 0 findings)
+and the four affected test files. `test_pins`' one failure in the worker's
+run was a load-only `BoundedMemory` timeout, and it passed once the machine
+was quieter. Only "a line predates its file" fires. Equality would cry
+wolf on 16 legitimate addenda and close stamps. Slug drift is not checked:
+the link text is free prose. The item closes on that disposition. Pass
+queued at `160/810`. CHANGELOG entries were written for all three guard
+changes.
+
+## Close
+
+**Stop condition: economics, with the rest blocked on Mike or a Fable
+session.** The orchestrator's context passed 370k, which is where the last
+run stopped too. Every remaining buildable item is small and better taken
+cold.
+
+**Delivered.**
+- Closed: `200/090` (one rule minted in `EVIDENCE.md`), `160/770` (the
+  estate Fable survey), `115/280` (staged diffs read by structure),
+  `320/430` (indexscan's date rule).
+- Landed with the item kept open for a ruling: `115/270` (a) and (b),
+  where (c) waits on Mike, and `115/090`'s audit, where the build is Mike's.
+- Drafted, reverted unlanded, and held for Mike: `140/020`.
+- Filed: `115/290` (three guards' text disagrees with their code) and
+  `115/300` (two staged guards report the wrong line number).
+- Rule-4 passes queued for Fable: `160/780`, `790`, `800`, `810`.
+
+**Next session's picks.**
+- `115/300`: small, and the shared reader already yields the right number.
+- `115/290` parts 2 and 3: plain docstring fixes, to be claimed first.
+- Briefs for atelier's 21 unbriefed passes `160/500`–`760`. A session that
+  authored none of them writes them. This run may not brief `780`–`810`.
+
+**Open for Mike.** Each is taken to him one at a time at the close, and the
+items carry the detail:
+1. `115/270` (c): what sizescan's size advisory is for, before it goes.
+2. `140/020`: AR1 and AR8, re-brief and accept the draft amendment.
+3. `115/090`: which guards get a second dial.
+4. `115/290` part 1: make licenscan's warn tier real, or reword it.
+5. `020/180`: whether the close-out checker is idea-only or commissioned.
+   Its own text cannot tell.
+6. Who writes atelier's 21 missing briefs, and on which tier.
+
+**Recorded against this run, collected.**
+- It went past its own concurrency cap without checking `uptime` before the
+  second wave. That is a plausible contributor to the 07:35 crash, not a
+  proven cause, and the memory is updated.
+- It claimed `140/020` before reading the item's cross-references.
+- It began `115/290` without a claim. Mike rejected that, and the edit was
+  reverted.
+- The first survey cards were summarised where they should have been
+  listed, and four omissions were found when Mike asked for a check.

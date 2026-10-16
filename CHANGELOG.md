@@ -5,6 +5,27 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-10-16 — three guard fixes, `115/270`, `115/280`, `320/430`)
+- `sizescan`: no hatch silences the cold-content gate any more (Mike's
+  2026-10-05 ruling). The gate used to be exempted by an unscoped
+  `sizescan:allow` header, a `cold-content` scope or a `.sizescanignore` glob.
+  Now it is not, and the report names any such hatch as present but unable to
+  exempt. The three still quiet the size advisory. Each flagged file lists its
+  completed items as `line N: text`, capped run-wide (`--json`: `cold_listed`,
+  `cold_hatches`, `cold_items_over_cap`). The `.sizescanignore` count is real
+  now, where before it always printed 0. No exit code changes in any of 30
+  repos.
+- `secretscan`, `conflictscan` and `leakscan` read the staged diff through one
+  structural reader (`report.staged_added`), so an added line that begins
+  `++ ` can no longer pose as a file header and hide the lines after it. The
+  reader fails closed (exit 2) on a diff it cannot fit, splits on the newline
+  byte only, and pins the diff prefixes. Staged output is byte-identical on a
+  realistic change set, apart from the findings the hole used to hide.
+- `indexscan` gains `date-mismatch`, warn-only: a dated index line that links
+  a date-named file must not predate it. It checks only that direction,
+  because later-dated lines are legitimate addenda. Slug drift is not checked.
+  0 findings in atelier and its siblings.
+
 ### Changed (2026-10-05 — allow-markers that name a kind, and finding IDs, `115/080` part 3)
 - `licenscan`, `sizescan` and `pointerscan` read a marker's scope and ignored
   it, so any marker exempted every kind. A scope that names one of their kinds

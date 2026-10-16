@@ -295,6 +295,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: agreement is not corroboration, minted in](roadmap/160-doctrine-review-owed/780-rule-4-cold-pass-queued-agreement-is-not-corroboration.md)
 - [ ] ⏳ [Rule-4 cold pass queued: no hatch silences sizescan's cold-content](roadmap/160-doctrine-review-owed/790-rule-4-cold-pass-queued-sizescan-cold-content-hatches.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the staged diff read by its structure](roadmap/160-doctrine-review-owed/800-rule-4-cold-pass-queued-staged-diff-structural-reader.md)
+- [ ] ⏳ [Rule-4 cold pass queued: indexscan's date rule (320/430).](roadmap/160-doctrine-review-owed/810-rule-4-cold-pass-queued-indexscan-date-rule.md)
 
 ## build/ layer — open strands
 
@@ -510,7 +511,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [CANDIDATE HOUSE RULE — verify a figure correction in the RENDERED](roadmap/320-child-filed-findings-via-pointing-up/400-count-survivors-in-the-rendered-artefact-not-the-source-you-edited.md)
 - [ ] 🔎 [Hand-up: the canonical floor's estate resources bullet is](roadmap/320-child-filed-findings-via-pointing-up/410-the-estate-root-cannot-write-the-canonical-floors-estate-resources-bullet.md)
 - [ ] 🔎 [Hand-up: a queued-review pointer may name a moving bound, and](roadmap/320-child-filed-findings-via-pointing-up/420-a-queued-review-pointer-may-name-a-moving-bound.md)
-- [~] 🔎 [Hand-up: nothing catches an orphaned session-detail file once the](roadmap/320-child-filed-findings-via-pointing-up/430-no-floor-check-catches-an-orphaned-session-detail-file.md)
+- ✅ 🔎 [Hand-up: nothing catches an orphaned session-detail file once the](roadmap/320-child-filed-findings-via-pointing-up/430-no-floor-check-catches-an-orphaned-session-detail-file.md)
 - [ ] 🔎 [A review file's follow-up list and the board item that points at it](roadmap/320-child-filed-findings-via-pointing-up/440-a-review-file-and-its-board-item-drift-apart.md)
 - [ ] 🔎 [A wrapped claim does not project into the index, a ] in a title](roadmap/320-child-filed-findings-via-pointing-up/450-a-wrapped-claim-does-not-project-and-two-more-from-a-child-s-cold-passes.md)
 - ✅ 🔎 [MISSING HOUSE RULE — what a review pointer becomes when its](roadmap/320-child-filed-findings-via-pointing-up/460-missing-rule-what-a-review-pointer-becomes-when-its-verdict-lands.md)
