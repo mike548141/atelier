@@ -105,12 +105,31 @@ principal — flip to `[x]` with a dated disposition note, un-harvest back to
 the roadmap, or reformat a parent that was only ever a heading. Never
 silently fix.
 
-Hatches (header-only — the first 15 lines, never the body, so a file that merely
-*mentions* a marker in prose does not silently exempt itself):
+**Nothing silences the cold-content gate** (Mike's ruling, 2026-10-05, in his
+words: "Never allow it as I don't want any of my repo's to run a flat running
+log, they should all being using the new method where the main board (aka
+roadmap) is a simple list of the work and its state, all the detail that
+defines the work etc is in a standalone file"). No marker and no ignore glob
+exempts a file that carries completed `[x]` items from the cold-content gate.
+A repo that keeps a flat running log is exactly the defect the gate exists to
+name. Where a hatch is present on a file that carries cold content, the report
+says so plainly (`sizescan:allow header present … cannot exempt cold
+content`) — a hatch is never silently ignored.
 
-  * `sizescan:allow` — exempt the file from **everything** (advisory *and* the
-    cold-content gate). For a repo that deliberately keeps, say, a flat session
-    log; keep the reason on the marker line so the exemption is self-documenting.
+And the gate does not leave the session to infer what is done: every flagged
+file lists each completed item it counted (line number and item text), so the
+move to the archive is a lookup, not a judgement. The listing is bounded the way
+every scanner's findings are (`MAX_MATERIALIZED_FINDINGS`, run-wide): past the
+cap the items are counted, never silently dropped, and the report says how many.
+
+Hatches (header-only — the first 15 lines, never the body, so a file that merely
+*mentions* a marker in prose does not silently exempt itself). None of them
+touches the cold-content gate:
+
+  * `sizescan:allow` — quiet the file's **size advisory** (and, for an archive
+    store, its harvest-integrity check). It does NOT exempt cold content, in any
+    spelling: unscoped, or scoped `cold-content`. Keep the reason on the marker
+    line so the exemption is self-documenting.
   * `sizescan:budget=N` — override the advisory **reference point** for a
     legitimately large all-current file, to quiet its size nudge. It does **not**
     touch the gate (the gate is cold content, not length), and — like any
@@ -119,7 +138,9 @@ Hatches (header-only — the first 15 lines, never the body, so a file that mere
     circular: it can't be exceeded the moment it's written and says nothing about
     what the file *should* be. Fix the file or ground the number; a true signal
     beats a silenced one.
-  * A glob in `.sizescanignore` — skip a path wholesale.
+  * A glob in `.sizescanignore` — quiet the path's **size advisory** (and skip an
+    archive store wholesale). The file is still read, because a hot-path file
+    that carries cold content is still gated.
 
 Advisory by default. A bare `sizescan` **reports and exits 0** — drop it in CI to
 surface the numbers without ever breaking a build. `--check` is the opt-in gate,
@@ -146,7 +167,7 @@ import fnmatch
 import json
 import re
 import sys
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -154,10 +175,10 @@ import filewalk  # noqa: E402
 import allowmarker  # noqa: E402
 import report  # noqa: E402
 
-# A file whose HEADER carries this marker is exempt from EVERYTHING — the size
-# advisory and the cold-content gate (e.g. a repo that deliberately keeps a flat
-# session log rather than an index). Keep the reason on the same line so the
-# exemption is self-documenting.
+# A file whose HEADER carries this marker has its SIZE ADVISORY quieted (and, for
+# an archive store, its harvest-integrity check). It never exempts cold content:
+# Mike's 2026-10-05 ruling is that no hatch silences that gate. Keep the reason
+# on the same line so the exemption is self-documenting.
 ALLOW_MARKER = "sizescan:allow"
 
 # GUARDS.md rule (c): a marker only counts with a colon and a non-empty reason,
@@ -169,18 +190,19 @@ ALLOW_RX = allowmarker.marker_rx(ALLOW_MARKER, scope="one", group="kind")
 def parse_allow(text: str) -> str | None:
     """The scope of the allow-marker, or None if there is no reasoned one.
 
-    Header-scoped: sizescan exempts a whole FILE, deliberately blunter than
-    the sibling scanners' per-line allows, because a file-level exemption is a
-    deliberate declaration rather than a passing convenience (F2). A marker
-    with no reason returns None — a mention, not an exemption."""
+    Header-scoped: sizescan quiets a whole FILE's advisory, deliberately
+    blunter than the sibling scanners' per-line allows, because a file-level
+    exemption is a deliberate declaration rather than a passing convenience
+    (F2). A marker with no reason returns None — a mention, not an exemption."""
     return allowmarker.scope_of(ALLOW_RX, text, "kind")
 
 
 # The three kinds of finding a file can carry — the bracketed tags on its
 # report lines. A header marker scoped to one (`sizescan:allow:size-advisory:
 # <reason>`) exempts that kind only (115/080; AM4). The unscoped form, and a
-# scope naming none of these, still exempt the whole file, as they always did
-# — `allowmarker.covers`.
+# scope naming none of these, exempt every kind EXCEPT `cold-content`, which no
+# marker exempts (115/270, Mike's ruling) — `allowmarker.covers`, then the
+# explicit `cold-content` carve-out in `scan_paths`.
 FINDING_KINDS = frozenset({"cold-content", "harvest-integrity",
                            "size-advisory"})
 
@@ -298,6 +320,41 @@ STORE_DIR_NAMES = {"sessions", "reviews", "decisions",
                    "_archive", "archive", "intake"}
 
 
+# A completed item's title is held to this many characters (an ellipsis counts
+# as one), so the listing fits the house 85-column limit after its indent and
+# `line N:` lead, and so a pathological multi-KB bullet costs a fixed amount.
+_TITLE_CHARS = 60
+
+# A completed item's bullet and checkbox, stripped to leave just its text.
+_COLD_LEAD = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s+\[[xX]\]\s*")
+
+# The run-wide cap on completed items held for the listing, the same bound
+# every other scanner puts on the findings it builds (`leakscan`,
+# `linkscan`, … `MAX_MATERIALIZED_FINDINGS`, derived there): each held item
+# costs on the order of 100 B here, so memory stays fixed however many `[x]`
+# lines the tree holds. Items past the cap are COUNTED (the file's
+# `cold_items` is always the true count), never dropped silently, and the
+# report prints how many were not listed (`report.over_cap_line`).
+MAX_MATERIALIZED_FINDINGS = 50_000
+
+
+@dataclass
+class ColdItem:
+    line: int            # 1-based physical line number of the completed item
+    title: str           # its text, bullet and box stripped, capped at _TITLE_CHARS
+
+
+def _item_title(text: str) -> str:
+    """The text of a completed item: bullet and box stripped, whitespace
+    collapsed, capped at `_TITLE_CHARS` with an ellipsis."""
+    title = " ".join(_COLD_LEAD.sub("", text, count=1).split())
+    if not title:
+        return "(no text)"
+    if len(title) > _TITLE_CHARS:
+        return title[:_TITLE_CHARS - 1].rstrip() + "…"
+    return title
+
+
 @dataclass
 class Finding:
     path: str            # the flagged file, repo-relative
@@ -308,6 +365,14 @@ class Finding:
     store: str           # where its cold content / overflow belongs
     gated: bool          # True = fails --check (cold content or live markers)
     live_items: int = 0  # live state markers ([ ]/[~]/⏳) in an archive store
+    # The completed items counted in `cold_items`, in file order (115/270 b),
+    # up to the run-wide cap; `cold_items - len(cold_listed)` were counted but
+    # not listed.
+    cold_listed: list = field(default_factory=list)
+    # The hatches present on a file that carries cold content, each of which
+    # would once have exempted it and now cannot (115/270 a). Named in the
+    # report so a marker or glob is never silently ignored.
+    cold_hatches: list = field(default_factory=list)
 
 
 # The harvest hint per current-truth file — where its overflow belongs, so the
@@ -505,10 +570,14 @@ def _iter_physical_lines(path: Path):
         yield lineno, pending, truncated
 
 
-def _scan_file_metrics(path: Path, basename: str) -> tuple[str, int, int, int]:
+def _scan_file_metrics(path: Path, basename: str, item_slots: int = 0
+                       ) -> tuple[str, int, int, int, list[ColdItem]]:
     """Stream `path` once (twice only in the rare unbalanced-fence case) to
-    compute `(header, line_count, cold_items, live_items)` without ever
+    compute `(header, line_count, cold_items, live_items, items)` without ever
     holding the whole file, or a per-line record of it, in memory (020/380).
+    `items` is the first `item_slots` completed items (line number and capped
+    title only, 115/270 b), so what is held is bounded by the caller's slots,
+    never by the file; the count in `cold_items` is always the true one.
 
     Replaces the old `p.read_text()` → `count_lines`/`cold_item_count`/
     `live_item_count`, each of which re-derived `text.splitlines()` over the
@@ -528,6 +597,7 @@ def _scan_file_metrics(path: Path, basename: str) -> tuple[str, int, int, int]:
         n = 0
         in_fence = False
         cold = live = 0
+        items: list[ColdItem] = []
         for lineno, text, _truncated in _iter_physical_lines(path):
             n = lineno
             if lineno <= MARKER_SCAN_LINES:
@@ -540,23 +610,32 @@ def _scan_file_metrics(path: Path, basename: str) -> tuple[str, int, int, int]:
             if ignore_fences or not in_fence:
                 if want_cold and _COLD_ITEM.match(text):
                     cold += 1
+                    if len(items) < item_slots:
+                        items.append(ColdItem(lineno, _item_title(text)))
                 if want_live and _LIVE_ITEM.match(text):
                     live += 1
-        return "\n".join(header_lines), n, cold, live, in_fence
+        return "\n".join(header_lines), n, cold, live, items, in_fence
 
-    header, n, cold, live, unbalanced = one_pass(ignore_fences=False)
+    header, n, cold, live, items, unbalanced = one_pass(ignore_fences=False)
     if unbalanced:
-        header, n, cold, live, _ = one_pass(ignore_fences=True)
-    return header, n, cold, live
+        header, n, cold, live, items, _ = one_pass(ignore_fences=True)
+    return header, n, cold, live, items
 
 
 def iter_candidates(paths: list[Path], root: Path, globs: list[str],
-                    skipped: list[int] | None = None):
+                    skipped: list[int] | None = None,
+                    evaluate_ignored: bool = False):
     """Yield candidate files under the given paths, skipping growth-store dirs
     and ignored globs. A file is a candidate iff its basename is a metered
     current-truth file OR a named archive store (integrity-checked, never
     size-metered). Results are de-duplicated by resolved path so overlapping
-    args (`sizescan . docs`) don't double-report the same file (F4)."""
+    args (`sizescan . docs`) don't double-report the same file (F4).
+
+    A `.sizescanignore` match is skipped wholesale and counted in `skipped`,
+    EXCEPT with `evaluate_ignored` (what `scan_paths` passes): a metered
+    hot-path file is then still yielded, because no glob exempts it from the
+    cold-content gate (115/270 a); the caller works out which were ignored.
+    An ignored archive store is skipped either way, as before."""
     seen: set[Path] = set()
     for base in paths:
         base = base.resolve()
@@ -580,9 +659,27 @@ def iter_candidates(paths: list[Path], root: Path, globs: list[str],
             if p.name in ROOT_ONLY and rp.parent != root.resolve():
                 continue
             if _ignored(_rel(p, root), globs):
-                continue
+                if not evaluate_ignored or is_archive_store(p.name):
+                    if skipped is not None:
+                        skipped.append(1)
+                    continue
             seen.add(rp)
             yield p
+
+
+def _cold_hatches(scope: str | None, ignored_by_glob: bool) -> list[str]:
+    """The hatches present on a file that would once have exempted its cold
+    content and now cannot (115/270 a), named for the report: the allow-marker
+    in whatever spelling covered `cold-content` (unscoped, a scope naming
+    nothing, or `cold-content` itself) and a `.sizescanignore` glob. A marker
+    scoped to another kind never covered it, so it is not named."""
+    out = []
+    if allowmarker.covers(scope, "cold-content", FINDING_KINDS):
+        out.append(f"{ALLOW_MARKER}:{scope} header" if scope
+                   else f"{ALLOW_MARKER} header (unscoped)")
+    if ignored_by_glob:
+        out.append(".sizescanignore glob")
+    return out
 
 
 def scan_paths(paths: list[Path], root: Path,
@@ -590,8 +687,11 @@ def scan_paths(paths: list[Path], root: Path,
     globs = load_ignore_globs(root)
     findings: list[Finding] = []
     files_allowed = 0
+    ignored_hot = 0
     skipped: list[int] = []
-    for p in iter_candidates(paths, root, globs, skipped):
+    slots = MAX_MATERIALIZED_FINDINGS
+    cold_over_cap = 0
+    for p in iter_candidates(paths, root, globs, skipped, evaluate_ignored=True):
         # 020/380 — streamed rather than `p.read_text()` + whole-file regex
         # passes: peak memory for this file is now bounded by `_MAX_LINE_BYTES`
         # regardless of the file's own size. `header` is already the
@@ -599,13 +699,19 @@ def scan_paths(paths: list[Path], root: Path,
         # produced from full text, so `parse_allow`/`reference_for` (which
         # re-slice to the same bound) need no change.
         try:
-            header, n, cold, live = _scan_file_metrics(p, p.name)
+            header, n, cold, live, items = _scan_file_metrics(p, p.name, slots)
         except OSError:
             continue
+        slots -= len(items)
+        cold_over_cap += cold - len(items)
         scope = parse_allow(header)
         if scope is not None:
             files_allowed += 1
-            if allowmarker.is_blanket(scope, FINDING_KINDS):
+            # A blanket marker (unscoped, or a scope naming no kind) still
+            # exempts an archive store's integrity check and a hot file's
+            # size advisory, as ever; it never exempts cold content (below).
+            if is_archive_store(p.name) and allowmarker.is_blanket(
+                    scope, FINDING_KINDS):
                 continue
         if is_archive_store(p.name):
             # Integrity only — an archive store is never size-metered. A live
@@ -623,19 +729,28 @@ def scan_paths(paths: list[Path], root: Path,
         if reference is None:
             continue
         over = max(0, n - reference)
+        # An ignore glob quiets the size advisory only; the file is still read
+        # for cold content (115/270 a).
+        ignored_by_glob = _ignored(_rel(p, root), globs)
+        if ignored_by_glob:
+            ignored_hot += 1
+            over = 0
         # A header marker scoped to one kind takes that facet away and leaves
         # the other (115/080): `sizescan:allow:size-advisory:` quiets the
-        # length note and keeps the cold-content gate.
-        if allowmarker.covers(scope, "cold-content", FINDING_KINDS):
-            cold = 0
+        # length note and keeps the cold-content gate. The cold-content gate
+        # is never taken away by any marker or glob (115/270 a) — `cold` is
+        # left as counted, and the hatches that cannot exempt it are named.
         if allowmarker.covers(scope, "size-advisory", FINDING_KINDS):
             over = 0
         # Emit a finding only if there's something to say: relocatable cold
         # content (gates) or an over-reference size (advisory). A lean, all-open
         # hot file is silent.
         if cold or over:
-            findings.append(Finding(_rel(p, root), n, cold, reference, over,
-                                    _STORE_HINT.get(p.name, ""), cold > 0))
+            findings.append(Finding(
+                _rel(p, root), n, cold, reference, over,
+                _STORE_HINT.get(p.name, ""), cold > 0,
+                cold_listed=items,
+                cold_hatches=_cold_hatches(scope, ignored_by_glob) if cold else []))
     # Rule (b): report the suppression counts through the caller's optional
     # `counts` dict, so a clean report cannot look identical to one where every
     # file was exempted. An out-param rather than a changed return type: the
@@ -643,7 +758,8 @@ def scan_paths(paths: list[Path], root: Path,
     # would churn them all for no gain.
     if counts is not None:
         counts["files_allowed"] = files_allowed
-        counts["files_by_glob"] = len(skipped)
+        counts["files_by_glob"] = len(skipped) + ignored_hot
+        counts["cold_over_cap"] = cold_over_cap
     return findings
 
 
@@ -654,20 +770,25 @@ def _kinds(f: Finding) -> list[str]:
                             ("size-advisory", f.over)) if n])
 
 
-def _suppression_line(files_allowed: int, files_by_glob: int) -> str:
-    """Rule (b): known zeros printed, so two runs can be compared."""
+def _suppression_line(files_allowed: int, files_by_glob: int,
+                      cold_over_cap: int = 0) -> str:
+    """Rule (b): known zeros printed, so two runs can be compared. The cap part
+    is the house one (`report.cap_part`), printed as a zero when nothing was
+    held back."""
     return report.suppressed_line(
         [f"{files_allowed} file(s) by sizescan:allow header",
-         f"{files_by_glob} file(s) by .sizescanignore"])
+         f"{files_by_glob} file(s) by .sizescanignore",
+         report.cap_part(cold_over_cap, MAX_MATERIALIZED_FINDINGS)])
 
 
 def render_human(findings: list[Finding], files_allowed: int = 0,
-                 files_by_glob: int = 0) -> str:
+                 files_by_glob: int = 0, cold_over_cap: int = 0) -> str:
     if not findings:
         return (report.clean_head("sizescan",
                                   "no relocatable cold content on the hot "
                                   "path; archive stores hold no live markers.")
-                + "\n" + _suppression_line(files_allowed, files_by_glob))
+                + "\n" + _suppression_line(files_allowed, files_by_glob,
+                                           cold_over_cap))
     n_cold = sum(1 for f in findings if f.cold_items)
     n_live = sum(1 for f in findings if f.live_items)
     n_gated = sum(1 for f in findings if f.gated)
@@ -687,6 +808,18 @@ def render_human(findings: list[Finding], files_allowed: int = 0,
                 f"[cold-content, gated]", "sizescan", "cold-content"))
             if f.store:
                 lines.append(f"        {f.store}")
+            if f.cold_listed or f.cold_items:
+                lines.append("        completed items counted (line: item):")
+            for it in f.cold_listed:
+                lines.append(f"          line {it.line}: {it.title}")
+            unlisted = f.cold_items - len(f.cold_listed)
+            if unlisted > 0:
+                lines.append(report.over_cap_line(
+                    unlisted, MAX_MATERIALIZED_FINDINGS,
+                    noun="completed item(s)", indent="          "))
+            for hatch in f.cold_hatches:
+                lines.append(f"        note: {hatch} present — it cannot exempt "
+                             f"cold content.")
         if f.live_items:
             lines.append(report.with_id(
                 f"      → {f.live_items} live state marker(s) "
@@ -721,11 +854,12 @@ def render_human(findings: list[Finding], files_allowed: int = 0,
     lines.append(f"  Legitimately long all-current file: declare 'sizescan:budget=N' "
                  f"in the first {MARKER_SCAN_LINES} lines (GROUNDED in the file's "
                  f"class, never its current length — see the module doc) to quiet the "
-                 f"size advisory; '{ALLOW_MARKER}' to exempt fully; or a glob in "
-                 f".sizescanignore. Neither hatch silences the cold-content gate — "
-                 f"for that, harvest the [x] items.")
+                 f"size advisory; '{ALLOW_MARKER}' or a glob in .sizescanignore also "
+                 f"quiet it. None of the three silences the cold-content gate — "
+                 f"for that, harvest the completed [x] items"
+                 f"{' listed above' if n_cold else ''}.")
     lines.append("")
-    lines.append(_suppression_line(files_allowed, files_by_glob))
+    lines.append(_suppression_line(files_allowed, files_by_glob, cold_over_cap))
     return "\n".join(lines)
 
 
@@ -766,7 +900,8 @@ def _main(argv: list[str] | None = None) -> int:
     if rc is not None:
         return rc
     try:
-        counts: dict[str, int] = {"files_allowed": 0, "files_by_glob": 0}
+        counts: dict[str, int] = {"files_allowed": 0, "files_by_glob": 0,
+                                  "cold_over_cap": 0}
         findings = scan_paths(targets, root, counts)
     except OSError as e:
         return report.cannot_read("sizescan", e)
@@ -774,6 +909,9 @@ def _main(argv: list[str] | None = None) -> int:
     if args.json:
         print(json.dumps({
             "clean": not findings,
+            # Completed items counted but not listed (past the run-wide cap):
+            # known zero printed, so two runs compare (rule b).
+            "cold_items_over_cap": counts["cold_over_cap"],
             # One finding per FILE, carrying up to two kinds, so `ids` (a
             # list, one per kind present) rather than the one `id` the
             # per-line scanners give.
@@ -783,7 +921,7 @@ def _main(argv: list[str] | None = None) -> int:
         }, indent=2))
     else:
         print(render_human(findings, counts["files_allowed"],
-                           counts["files_by_glob"]))
+                           counts["files_by_glob"], counts["cold_over_cap"]))
 
     # Advisory by default: everything is a report, exit 0. --check gives teeth to
     # the ONE thing whose remedy is a pure-win move — relocatable cold content (a
@@ -864,10 +1002,44 @@ def _selftest() -> int:
         print("FAIL: all-open roadmap should be advisory (over-reference), not gated")
         ok = False
 
-    # allow-marker exempts a would-be-gated file entirely.
-    (docs / "ROADMAP.md").write_text(f"<!-- {ALLOW_MARKER}: living doc -->\n" + cold)
-    if any(f.path.replace("\\", "/") == "docs/ROADMAP.md" for f in scan_paths([tmp], tmp)):
-        print("FAIL: allow-marker did not exempt")
+    # No hatch exempts cold content (115/270 a): an unscoped allow header, a
+    # `cold-content` scope and a `.sizescanignore` glob each still gate the
+    # file, say so in the report, and quiet only the size advisory.
+    long_cold = cold + "- [ ] open\n" * (ref + 5)
+    for label, header, advisory_quiet in (
+            ("unscoped", f"<!-- {ALLOW_MARKER}: living doc -->\n", True),
+            ("cold-content scope",
+             f"<!-- {ALLOW_MARKER}:cold-content: harvested -->\n", False)):
+        (docs / "ROADMAP.md").write_text(header + long_cold)
+        hf = {f.path.replace("\\", "/"): f for f in scan_paths([tmp], tmp)}
+        h = hf.get("docs/ROADMAP.md")
+        if not h or not h.gated or h.cold_items != 2:
+            print(f"FAIL: {label} allow-marker exempted cold content: {h}")
+            ok = False
+        elif (h.over == 0) != advisory_quiet or len(h.cold_hatches) != 1:
+            print(f"FAIL: {label} allow-marker should be named in the report "
+                  f"and quiet the advisory only if unscoped: {h}")
+            ok = False
+    (docs / "ROADMAP.md").write_text(long_cold)
+    (tmp / ".sizescanignore").write_text("# selftest fixture\ndocs/ROADMAP.md\n")
+    hf = {f.path.replace("\\", "/"): f for f in scan_paths([tmp], tmp)}
+    h = hf.get("docs/ROADMAP.md")
+    if (not h or not h.gated or h.over != 0
+            or h.cold_hatches != [".sizescanignore glob"]):
+        print(f"FAIL: .sizescanignore glob exempted cold content: {h}")
+        ok = False
+    (tmp / ".sizescanignore").unlink()
+
+    # The finding names each completed item: line number and text.
+    (docs / "ROADMAP.md").write_text(cold)
+    h = {f.path.replace("\\", "/"): f for f in scan_paths([tmp], tmp)}.get(
+        "docs/ROADMAP.md")
+    if not h or [(i.line, i.title) for i in h.cold_listed] != [
+            (2, "done one"), (3, "done two")]:
+        print(f"FAIL: the completed items were not named by line and text: {h}")
+        ok = False
+    elif "line 3: done two" not in render_human([h]):
+        print("FAIL: the report did not list the completed items")
         ok = False
 
     # F1: a repo living UNDER a store-named ancestor must still be scanned.

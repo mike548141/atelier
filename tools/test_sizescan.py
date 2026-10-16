@@ -242,11 +242,34 @@ class Hatches(_TreeTest):
                         + _cold(1, 2))
         self.assertEqual(self.flagged(), ["docs/ROADMAP.md"])
 
-    def test_header_allow_marker_exempts_everything(self):
-        # allow exempts BOTH the advisory and the cold-content gate
+    def test_header_allow_marker_quiets_the_advisory_not_the_gate(self):
+        # 115/270 a, Mike's ruling: no hatch silences cold content. The marker
+        # still quiets the size advisory, and the report says it was present.
         self.write_text("docs/ROADMAP.md",
-                        f"<!-- {sizescan.ALLOW_MARKER}: living doc -->\n" + _cold(1, 5))
-        self.assertEqual(self.flagged(), [])
+                        f"<!-- {sizescan.ALLOW_MARKER}: living doc -->\n"
+                        + _cold(R + 5, 5))
+        f = self.finding("docs/ROADMAP.md")
+        self.assertIsNotNone(f)
+        self.assertTrue(f.gated)
+        self.assertEqual((f.cold_items, f.over), (5, 0))
+        self.assertEqual(f.cold_hatches, [f"{sizescan.ALLOW_MARKER} header (unscoped)"])
+
+    def test_cold_content_scope_does_not_exempt_the_gate(self):
+        self.write_text("docs/ROADMAP.md",
+                        f"<!-- {sizescan.ALLOW_MARKER}:cold-content: harvested -->\n"
+                        + _cold(1, 3))
+        f = self.finding("docs/ROADMAP.md")
+        self.assertIsNotNone(f)
+        self.assertTrue(f.gated)
+        self.assertEqual(f.cold_items, 3)
+        self.assertEqual(f.cold_hatches,
+                         [f"{sizescan.ALLOW_MARKER}:cold-content header"])
+
+    def test_a_scope_for_another_kind_is_not_named_as_a_cold_hatch(self):
+        self.write_text("docs/ROADMAP.md",
+                        f"<!-- {sizescan.ALLOW_MARKER}:size-advisory: long -->\n"
+                        + _cold(1, 2))
+        self.assertEqual(self.finding("docs/ROADMAP.md").cold_hatches, [])
 
     def test_overlapping_paths_do_not_double_report(self):
         # F4: dedup by resolved path
@@ -271,10 +294,143 @@ class Hatches(_TreeTest):
                         "<!-- sizescan:budget=100000 -->\n" + _cold(R + 50, 0))
         self.assertEqual(self.flagged(), [])
 
-    def test_sizescanignore_glob_skips(self):
-        self.write_text("docs/ROADMAP.md", _cold(1, 5))
+    def test_sizescanignore_glob_quiets_the_advisory_not_the_gate(self):
+        # The ignored hot-path file is still read: its cold content gates and
+        # its size advisory stays quiet.
+        self.write_text("docs/ROADMAP.md", _cold(R + 5, 5))
         (self.tmp / ".sizescanignore").write_text("# a reasoned fixture exemption\ndocs/ROADMAP.md\n")
+        f = self.finding("docs/ROADMAP.md")
+        self.assertIsNotNone(f)
+        self.assertTrue(f.gated)
+        self.assertEqual((f.cold_items, f.over), (5, 0))
+        self.assertEqual(f.cold_hatches, [".sizescanignore glob"])
+
+    def test_sizescanignore_glob_still_skips_a_file_with_nothing_to_gate(self):
+        self.write_text("docs/ROADMAP.md", _cold(R + 5, 0))
+        (self.tmp / ".sizescanignore").write_text("# a reasoned fixture exemption\ndocs/ROADMAP.md\n")
+        counts = {}
+        self.assertEqual(sizescan.scan_paths([self.tmp], self.tmp, counts), [])
+        self.assertEqual(counts["files_by_glob"], 1)
+
+    def test_sizescanignore_still_skips_an_archive_store_wholesale(self):
+        self.write_text("docs/ROADMAP-DONE.md", "- [ ] parked here\n")
+        (self.tmp / ".sizescanignore").write_text("# a reasoned fixture exemption\ndocs/ROADMAP-DONE.md\n")
         self.assertEqual(self.flagged(), [])
+
+    def test_check_exits_1_through_every_hatch_and_says_so(self):
+        (self.tmp / ".sizescanignore").write_text("# a reasoned fixture exemption\nignored/*\n")
+        for rel, head, named in (
+                ("docs/ROADMAP.md", f"<!-- {sizescan.ALLOW_MARKER}: x -->\n",
+                 f"{sizescan.ALLOW_MARKER} header (unscoped)"),
+                ("docs/ROADMAP.md",
+                 f"<!-- {sizescan.ALLOW_MARKER}:cold-content: x -->\n",
+                 f"{sizescan.ALLOW_MARKER}:cold-content header"),
+                ("ignored/ROADMAP.md", "", ".sizescanignore glob")):
+            with self.subTest(hatch=named):
+                self.write_text(rel, head + _cold(1, 1))
+                buf = io.StringIO()
+                with redirect_stdout(buf):
+                    code = sizescan.main(["--check", "--root", str(self.tmp),
+                                          str(self.tmp)])
+                self.assertEqual(code, 1)
+                self.assertIn(f"note: {named} present", buf.getvalue())
+                self.assertIn("cannot exempt cold content", buf.getvalue())
+                (self.tmp / rel).unlink()
+
+
+class ColdItemListing(_TreeTest):
+    """115/270 b: the finding names each completed item, so no session has to
+    infer them. Bounded the way every scanner's findings are."""
+
+    def test_names_each_item_by_line_and_text(self):
+        self.write_text("docs/ROADMAP.md",
+                        "# Roadmap\n"
+                        "- [ ] open\n"
+                        "- [x] 🔎 **First done thing** with detail\n"
+                        "      continuation line\n"
+                        "  * [X] nested done\n"
+                        "1. [x] ordered done\n")
+        f = self.finding("docs/ROADMAP.md")
+        self.assertEqual([(i.line, i.title) for i in f.cold_listed],
+                         [(3, "🔎 **First done thing** with detail"),
+                          (5, "nested done"), (6, "ordered done")])
+        self.assertEqual(f.cold_items, 3)
+
+    def test_lines_inside_a_fence_are_not_listed(self):
+        self.write_text("docs/ROADMAP.md",
+                        "```\n- [x] quoted\n```\n- [x] real\n")
+        self.assertEqual([(i.line, i.title)
+                          for i in self.finding("docs/ROADMAP.md").cold_listed],
+                         [(4, "real")])
+
+    def test_unclosed_fence_recount_lists_from_the_second_pass_only(self):
+        self.write_text("docs/ROADMAP.md", "- [x] a\n```\n- [x] b\n")
+        f = self.finding("docs/ROADMAP.md")
+        self.assertEqual([(i.line, i.title) for i in f.cold_listed],
+                         [(1, "a"), (3, "b")])
+        self.assertEqual(f.cold_items, 2)
+
+    def test_long_title_is_truncated_to_fit_the_column_limit(self):
+        self.write_text("docs/ROADMAP.md", "- [x] " + "word " * 100 + "\n")
+        title = self.finding("docs/ROADMAP.md").cold_listed[0].title
+        self.assertEqual(len(title), sizescan._TITLE_CHARS)
+        self.assertTrue(title.endswith("…"))
+
+    def test_empty_item_text_is_stated_not_blank(self):
+        self.write_text("docs/ROADMAP.md", "- [x]\n")
+        self.assertEqual(self.finding("docs/ROADMAP.md").cold_listed[0].title,
+                         "(no text)")
+
+    def test_report_lists_every_item_within_85_columns(self):
+        self.write_text("docs/ROADMAP.md",
+                        "- [ ] open\n- [x] " + "long " * 40 + "\n- [x] short\n")
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            sizescan.main(["--root", str(self.tmp), str(self.tmp)])
+        out = buf.getvalue()
+        self.assertIn("completed items counted (line: item):", out)
+        self.assertIn("          line 3: short", out)
+        for ln in out.splitlines():
+            if ln.startswith("          line "):
+                self.assertLessEqual(len(ln), 85, ln)
+
+    def test_cap_holds_and_the_rest_are_counted_not_listed(self):
+        self.write_text("docs/ROADMAP.md", _cold(1, 5))
+        old = sizescan.MAX_MATERIALIZED_FINDINGS
+        sizescan.MAX_MATERIALIZED_FINDINGS = 3
+        self.addCleanup(setattr, sizescan, "MAX_MATERIALIZED_FINDINGS", old)
+        counts = {}
+        f = sizescan.scan_paths([self.tmp], self.tmp, counts)[0]
+        self.assertEqual(f.cold_items, 5)            # the true count survives
+        self.assertEqual(len(f.cold_listed), 3)
+        self.assertEqual(counts["cold_over_cap"], 2)
+        out = sizescan.render_human([f], cold_over_cap=2)
+        self.assertIn("  …and 2 more completed item(s)", out)
+        self.assertIn("counted but not listed (past the 3-finding memory cap)", out)
+        self.assertIn("2 beyond the 3-finding cap (counted, not listed)", out)
+
+    def test_cap_is_run_wide_across_files(self):
+        self.write_text("docs/ROADMAP.md", _cold(1, 2))
+        self.write_text("sub/docs/ROADMAP.md", _cold(1, 2))
+        old = sizescan.MAX_MATERIALIZED_FINDINGS
+        sizescan.MAX_MATERIALIZED_FINDINGS = 3
+        self.addCleanup(setattr, sizescan, "MAX_MATERIALIZED_FINDINGS", old)
+        counts = {}
+        found = sizescan.scan_paths([self.tmp], self.tmp, counts)
+        self.assertEqual(sum(len(f.cold_listed) for f in found), 3)
+        self.assertEqual(counts["cold_over_cap"], 1)
+
+    def test_json_carries_the_items_and_a_known_zero_over_cap(self):
+        import json
+        self.write_text("docs/ROADMAP.md", "- [ ] o\n- [x] done\n")
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            sizescan.main(["--json", "--root", str(self.tmp), str(self.tmp)])
+        data = json.loads(buf.getvalue())
+        self.assertEqual(data["cold_items_over_cap"], 0)
+        f0 = data["findings"][0]
+        self.assertEqual(f0["cold_listed"], [{"line": 2, "title": "done"}])
+        self.assertEqual(f0["cold_hatches"], [])
 
 
 class ExitContract(_TreeTest):
@@ -580,10 +736,12 @@ class ScopedMarker(unittest.TestCase):
         self.assertIn("ROADMAP-DONE.md", found)
         self.assertEqual(allowed, 2)
 
-    def test_cold_content_scope_keeps_the_size_advisory(self):
+    def test_cold_content_scope_no_longer_exempts_the_gate(self):
+        # 115/270 a: it used to take the gate away and keep the advisory; it
+        # now takes nothing away.
         found, _ = self.scan(f"{_MARK}:cold-content: harvested elsewhere")
         hot = found["ROADMAP.md"]
-        self.assertEqual((hot.cold_items, hot.gated), (0, False))
+        self.assertEqual((hot.cold_items, hot.gated), (2, True))
         self.assertGreater(hot.over, 0)
 
     def test_harvest_integrity_scope_covers_only_the_archive_store(self):
@@ -591,10 +749,12 @@ class ScopedMarker(unittest.TestCase):
         self.assertNotIn("ROADMAP-DONE.md", found)
         self.assertEqual(found["ROADMAP.md"].cold_items, 2)
 
-    def test_the_unscoped_form_and_an_unknown_scope_still_exempt_the_file(self):
+    def test_the_unscoped_form_and_an_unknown_scope_exempt_all_but_cold_content(self):
         for marker in (f"{_MARK}: living doc", f"{_MARK}:living-doc: why"):
             found, allowed = self.scan(marker)
-            self.assertEqual(found, {})
+            self.assertEqual(set(found), {"ROADMAP.md"})   # the store is exempt
+            hot = found["ROADMAP.md"]
+            self.assertEqual((hot.cold_items, hot.over, hot.gated), (2, 0, True))
             self.assertEqual(allowed, 2)
 
 
