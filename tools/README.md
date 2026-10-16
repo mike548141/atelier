@@ -1098,7 +1098,7 @@ the reviewed false-positive/false-negative modes.
 
 A hand-maintained index — a decisions index, a session log kept as an index
 plus detail files, a tool or instrument catalogue — can drift from the
-directory it maps in two directions. **Listed but missing** was already
+directory it maps in three ways. **Listed but missing** was already
 guarded and is not re-checked here: `linkscan` fails a Markdown link to a file
 that is not there, and `pathscan` reports a backtick-named path that does not
 resolve. **Unlisted** was guarded by nothing: a file committed into the
@@ -1143,6 +1143,30 @@ glob with its reason. atelier's own two markers are of that deferment kind:
 the shared file-walk and allow-marker helpers have catalogue entries owed by
 two open review findings (FW2, AM5).
 
+**The date rule (`date-mismatch`, `320/430`'s second residual).** An index
+line whose date disagrees with the file it links passes `linkscan`, because the
+link resolves. For a declaring index, `indexscan` reads the *leading* link of
+each list item whose text opens with an ISO date (optionally `· HHMM UTC`) and
+whose target is a date-named entry of a declared directory, and flags the line
+if it is dated **earlier** than the file: an entry cannot predate the file it
+describes. On the same date, an exact time earlier than the file's `-HHMM-`
+start fires too; an approximate `~HHMM` is never compared. An index whose lines
+carry no dates is never touched.
+
+It checks "not earlier", not "equal", on evidence: atelier's session index has
+many lines legitimately *later* than their file — addendum lines appended after
+a later ruling, and entries stamped at session close — so an equality rule
+fires on all of them. **The slug is not checked at all**: link text is free
+prose with nothing crisp to compare against the filename, and a heuristic there
+would cry wolf. Also unseen: a line dated too *late* (it reads as an addendum),
+a link that is not the item's leading token, and table rows.
+
+A deliberate exception is marked **on the offending line**, the narrowest unit,
+in its own scoped form: `<!-- indexscan:allow:date-mismatch: <entry> <reason> -->`
+with the entry's name. Anywhere else, or naming another entry, it exempts
+nothing and is reported `stale-allow`. The earlier unscoped marker still
+exempts an *unlisted* entry only; it never silences a date finding.
+
 **Fourth requirement — declared: makes the failure cheap.** It forbids
 nothing: an unlisted file still commits, and whether a file belongs in an index
 is the index-keeper's call. It names the drift at the commit that causes it,
@@ -1162,12 +1186,13 @@ python3 tools/indexscan.py --selftest
 ```
 
 Exit codes: `0` clean, or findings under `--warn` · `1` an `unlisted` entry, a
-`missing-dir` (the declared directory is gone) or a `stale-allow` · `2` a
+`missing-dir` (the declared directory is gone), a `date-mismatch` or a
+`stale-allow` · `2` a
 malformed or unknown-key declaration, a `dir=` escaping the root, a bad
 `before=` date, an unreasoned ignore glob, a path that does not exist — never
 downgraded by `--warn`. **What it cannot see**: whether a listed entry's line
-is *true* about it (an index line whose date disagrees with the file it links,
-`320/430`'s second residual, passes); an index that is not Markdown (a YAML
+is *true* about it beyond the date rule above (a line's slug, or a date that is
+wrong in the later direction, passes); an index that is not Markdown (a YAML
 manifest); a name mentioned only in bare prose without a link or code span.
 The converse is loose by design: **any** link or code span naming an entry
 counts as listing it, wherever it sits in the index — a passing mention is

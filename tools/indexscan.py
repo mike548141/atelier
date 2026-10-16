@@ -4,8 +4,8 @@
 THE CLASS (board `200/010`, option C as ruled; `320/430` is the same class
 filed from a child). A hand-maintained index — a decisions index, a session
 log split into an index plus detail files, a tool or instrument catalogue —
-names the files of one directory. Two things can drift apart, and only one of
-them was guarded:
+names the files of one directory. Three things can drift apart, and only one
+of them was guarded:
 
   * LISTED BUT MISSING — the index names a file that is not there. Already
     guarded, and NOT re-checked here: `linkscan` (enforced, whole tree, both
@@ -19,6 +19,9 @@ them was guarded:
     on `200/010` found 22 hand-maintained indexes of 7 kinds across the
     estate, guarded against this direction by none of them. THIS is the
     check this file adds.
+  * MISDATED — the index line links a file that is there, but the date (or
+    time) on the line cannot be true of it. `linkscan` passes it: the link
+    resolves. `320/430`'s second residual; see "THE DATE RULE" below.
 
 ADOPTION IS OPT-IN, PER INDEX. An index declares, in its own text, which
 directory it maps and which file pattern it covers. A file with no
@@ -61,21 +64,49 @@ carries either:
 
 A usage example inside a fenced block is not a catalogue entry, so fences
 are skipped. Loose by design in the other direction: ANY such link or span
-counts, wherever it sits — a passing mention reads as an entry. What this does NOT check: whether a listed entry's line says
-anything true about it (a session line whose date disagrees with the file
-it links, `320/430`'s second residual, still passes — the link resolves).
+counts, wherever it sits — a passing mention reads as an entry.
+
+THE DATE RULE (kind `date-mismatch`). Opted into by the same declaration;
+an index whose lines carry no dates is never touched. It reads only the
+LEADING link of a list item, `- [<text>](<dest>)`, where `<text>` opens with
+an ISO date (optionally ` · HHMM UTC`, `~` marking an approximate time) and
+`<dest>` lands on an entry of a declared directory (`match=`/`exclude=`
+apply) whose name opens with an ISO date (optionally `-HHMM-`). It fires when
+the line is dated EARLIER than the file it links: a line cannot describe a
+file that did not yet exist. Same date: an exact time earlier than the file's
+`HHMM` start fires likewise; an approximate (`~`) time is never compared.
+
+WHY "NOT EARLIER" AND NOT "EQUAL" (the grounding, not a guess). The real
+session index has many lines whose date or time is LATER than the file they
+link, legitimately: an addendum line appended when a later ruling was applied
+(`2026-07-15 · addendum: …` on a `2026-07-14-…` file), and a primary line
+stamped when the session closed rather than when its file began. An equality
+rule fires on every one of them. "Earlier" is the only direction that is
+never true of a real entry, so it is the only direction checked.
+
+WHAT THE DATE RULE CANNOT SEE: a line dated too LATE (indistinguishable from
+an addendum); the SLUG — the link text is free prose, with nothing in it to
+compare against the filename, so slug drift is NOT checked and no heuristic
+stands in for it; list items whose link is not the leading token; table rows.
+It does not check whether the rest of the line is true, either.
 
 EXEMPTIONS — fail noisy, then subtract (`method/GUARDS.md` rule b). Every
 subtraction is counted on the summary line, known zeros included:
 
   * THE ALLOW MARKER, in the index, where the index's readers see it:
         <!-- indexscan:allow: <entry> <reason> -->
-    The shared grammar (`tools/allowmarker.py`, unscoped, reason required);
-    this scanner reads the reason's first word as the entry's name, so one
+    The shared grammar (`tools/allowmarker.py`, reason required); this
+    scanner reads the reason's first word as the entry's name, so one
     marker exempts exactly one entry (rule a). A marker naming no reason
     after the entry exempts nothing (rule c). A marker that exempts nothing
     — its entry is listed, gone, or outside every `match=` — is reported as
     `stale-allow`: an exemption that outlived its cause is drift too.
+    That form is for `unlisted`. A `date-mismatch` takes its own scoped form,
+    on the offending line itself (the narrowest unit — one line, not every
+    line that names the entry):
+        <!-- indexscan:allow:date-mismatch: <entry> <reason> -->
+    where `<entry>` is the name the line links. On any other line, or naming
+    another entry, it exempts nothing and is reported `stale-allow`.
   * `exclude=` / `before=` on the declaration are SCOPE, not exemptions: the
     declarer saying what the index answers for. Like `scope` on a softenable
     floor check they need no reason; they are counted all the same.
@@ -90,16 +121,17 @@ does is name the drift at the commit that causes it, when the fix is one line.
 
 Exit codes (house contract):
   0  clean — or findings under --warn (the floor registry's wiring)
-  1  findings: an unlisted entry, a mapped directory that is gone, a stale
-     allow marker
+  1  findings: an unlisted entry, a mapped directory that is gone, a
+     misdated index line, a stale allow marker
   2  usage / config error — a malformed or unknown-key declaration, a `dir=`
      escaping --root, a bad `before=` date, an unreasoned ignore glob, a path
      that does not exist. NEVER downgraded by --warn: a declaration the
      scanner cannot read is a check that is not running, not a clean pass.
 
-Bounded: each file is read line by line, a physical line past
-`MAX_LINE_CHARS` in chunks (a link straddling the cut is the named residual),
-and what is held is the set of entries of the one directory being checked.
+Bounded: each file is read line by line (three times for a declaring index), a
+physical line past `MAX_LINE_CHARS` in chunks (a link straddling the cut is the
+named residual), and what is held is the set of entries of the one directory
+being checked; the date rule holds nothing beyond its findings.
 Zero third-party dependencies; stdlib only.
 """
 
@@ -122,7 +154,8 @@ import allowmarker  # noqa: E402
 import report  # noqa: E402
 
 ALLOW_MARKER = "indexscan:allow"
-ALLOW_RX = allowmarker.marker_rx(ALLOW_MARKER)
+ALLOW_RX = allowmarker.marker_rx(ALLOW_MARKER, scope="one")
+DATE_KIND = "date-mismatch"
 
 # A declaration is a WHOLE LINE that opens an HTML comment with the keyword —
 # documentation quoting the syntax inside a code span or a fence is never one
@@ -133,6 +166,13 @@ DECL_RX = re.compile(r"^\s{0,3}<!--\s*indexscan:maps\b(?P<body>.*?)-->\s*$")
 DECL_KEYS = ("dir", "match", "exclude", "before")
 ISO_DATE_RX = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 LEADING_DATE_RX = re.compile(r"^(\d{4}-\d{2}-\d{2})")
+
+# The leading link of a list item, and what a dated link text opens with.
+LEAD_LINK_RX = re.compile(
+    r"^\s{0,3}(?:[-*+]|\d{1,9}[.)])\s+\[(?P<text>[^\]]*)\]\(\s*<?(?P<dest>[^)\s>]+)")
+TEXT_STAMP_RX = re.compile(
+    r"^(?P<date>\d{4}-\d{2}-\d{2})(?:\s*·\s*(?P<approx>~?)(?P<time>\d{4})\s*UTC\b)?")
+NAME_STAMP_RX = re.compile(r"^(?P<date>\d{4}-\d{2}-\d{2})(?:-(?P<time>\d{4})(?=-|\.|$))?")
 
 FENCE_RX = re.compile(r"^\s{0,3}(`{3,}|~{3,})")
 LINK_RX = re.compile(r"\]\(\s*<?([^)\s>]+)>?")
@@ -176,7 +216,7 @@ class Decl:
 class Finding:
     path: str      # the index file
     line: int      # the declaration (or allow marker) the finding belongs to
-    kind: str      # unlisted | missing-dir | stale-allow
+    kind: str      # unlisted | missing-dir | date-mismatch | stale-allow
     entry: str     # repo-relative path of the entry (or the mapped dir)
     detail: str
 
@@ -190,6 +230,7 @@ class Tally:
     by_exclude: int = 0
     by_before: int = 0
     files_by_glob: int = 0
+    dated_lines: int = 0
     findings_over_cap: int = 0
     _materialized: int = field(default=0, repr=False, compare=False)
 
@@ -202,7 +243,8 @@ class Tally:
 
     def summary(self) -> str:
         return (f"  checked: {self.declarations} declaration(s) in "
-                f"{self.indexes} index file(s), {self.entries} entr(ies) mapped\n"
+                f"{self.indexes} index file(s), {self.entries} entr(ies) mapped, "
+                f"{self.dated_lines} dated index line(s) compared\n"
                 + report.suppressed_line(
                     [f"{self.by_marker} by allow-marker",
                      f"{self.by_exclude} by exclude=",
@@ -216,6 +258,12 @@ def parse_allow(line: str) -> tuple[str, str] | None:
     """`(entry, reason)` for a reasoned marker, else None. The shared grammar
     finds the marker; its reason's first word names the entry, and the rest
     must still carry a reason (rule c) or the marker exempts nothing."""
+    hit = parse_allow_scoped(line)
+    return None if hit is None else hit[1:]
+
+
+def parse_allow_scoped(line: str) -> tuple[str, str, str] | None:
+    """`(scope, entry, reason)`; scope is "" for the unscoped form."""
     m = ALLOW_RX.search(line)
     if not m:
         return None
@@ -225,7 +273,13 @@ def parse_allow(line: str) -> tuple[str, str] | None:
     entry = entry.strip().rstrip("/")
     if not entry or not re.search(r"\w", reason):
         return None
-    return entry, reason.strip()
+    if not m.group("kind") and entry.endswith(":"):
+        # `allow:date-mismatch: <entry> <reason>` quoted with its placeholders
+        # unfilled: the grammar's unscoped branch would read `date-mismatch:`
+        # as an entry name. No entry name ends in a colon; this is a scoped
+        # marker with no reason of its own, which exempts nothing.
+        return None
+    return m.group("kind") or "", entry, reason.strip()
 
 
 def _iter_lines(path: Path):
@@ -335,9 +389,9 @@ def discover(path: Path, index_rel: str) -> tuple[list[Decl], dict[str, int]]:
         if at_start and DECL_START_RX.match(text):
             decls.append(_parse_decl(text, lineno, index_rel))
             continue
-        hit = parse_allow(text)
-        if hit is not None:
-            allows.setdefault(hit[0], lineno)
+        hit = parse_allow_scoped(text)
+        if hit is not None and hit[0] != DATE_KIND:   # that form is line-bound
+            allows.setdefault(hit[1], lineno)
     return decls, allows
 
 
@@ -393,6 +447,113 @@ def _references(path: Path, index_rel: str, mapped_dirs: set[str],
                 for base in (*mapped_dirs, index_dir, ""):
                     mark(_join(base, tok))
     return found
+
+
+def _clock(hhmm: str | None) -> int | None:
+    """Minutes since midnight for a real `HHMM`, else None (not a time)."""
+    if not hhmm or not (hhmm[:2] < "24" and hhmm[2:] < "60"):
+        return None
+    return int(hhmm[:2]) * 60 + int(hhmm[2:])
+
+
+def _real_date(iso: str) -> bool:
+    try:
+        datetime.date.fromisoformat(iso)
+    except ValueError:
+        return False
+    return True
+
+
+def _entry_path(dest: str, index_dir: str, decls: list[Decl]) -> str | None:
+    """The repo-relative path of the declared-directory entry a link
+    destination lands on (the file, or the subdirectory it is inside),
+    honouring `match=` and `exclude=`; None if it lands on none."""
+    if SCHEME_RX.match(dest) or dest.startswith(("#", "//")):
+        return None
+    dest = urllib.parse.unquote(dest.split("#", 1)[0].split("?", 1)[0])
+    if not dest:
+        return None
+    path = _norm(dest.lstrip("/")) if dest.startswith("/") else _join(index_dir, dest)
+    if not path:
+        return None
+    for d in decls:
+        if d.dir:
+            if not path.startswith(d.dir + "/"):
+                continue
+            rest = path[len(d.dir) + 1:]
+        else:
+            rest = path
+        name = rest.split("/", 1)[0]
+        if name and any(fnmatch.fnmatchcase(name, g) for g in d.match) \
+                and not any(fnmatch.fnmatchcase(name, g) for g in d.exclude):
+            return f"{d.dir}/{name}" if d.dir else name
+    return None
+
+
+def _misdated(text: str, name: str) -> str | None:
+    """Why a dated link text cannot be true of the dated entry it links, or
+    None. Only 'the line predates the file' counts (see THE DATE RULE)."""
+    t, n = TEXT_STAMP_RX.match(text), NAME_STAMP_RX.match(name)
+    if not t or not n or not _real_date(t["date"]) or not _real_date(n["date"]):
+        return None
+    if t["date"] < n["date"]:
+        return (f"the line is dated {t['date']} but the file it links begins "
+                f"{n['date']} — an entry cannot predate its file; fix the "
+                "line's date or its link")
+    if t["date"] == n["date"] and t["time"] and not t["approx"]:
+        lt, ln = _clock(t["time"]), _clock(n["time"])
+        if lt is not None and ln is not None and lt < ln:
+            return (f"the line says {t['time']} UTC but the file it links "
+                    f"begins {n['time']} UTC the same day — an entry cannot "
+                    "predate its file; fix the line's time or its link")
+    return None
+
+
+def check_dates(path: Path, index_rel: str, decls: list[Decl],
+                tally: Tally) -> list[Finding]:
+    """Pass 3 (THE DATE RULE): one streaming read; holds nothing but the
+    findings. A line-bound `date-mismatch` marker is consumed here too, so a
+    marker that exempted nothing is reported as stale."""
+    findings: list[Finding] = []
+    index_dir = posixpath.dirname(index_rel)
+    for lineno, text, at_start in _unfenced(path):
+        if not at_start:
+            continue
+        marker = None
+        if "indexscan:allow" in text:
+            hit = parse_allow_scoped(text)
+            if hit is not None and hit[0] == DATE_KIND:
+                marker = hit[1]
+        why = entry = None
+        name = ""
+        m = LEAD_LINK_RX.match(text)
+        if m:
+            entry = _entry_path(m["dest"], index_dir, decls)
+            name = posixpath.basename(entry) if entry else ""
+            if entry is not None and NAME_STAMP_RX.match(name) \
+                    and TEXT_STAMP_RX.match(m["text"]):
+                tally.dated_lines += 1
+                why = _misdated(m["text"], name)
+        if why is None:
+            if marker is not None:
+                _add(findings, tally, Finding(
+                    index_rel, lineno, "stale-allow", marker,
+                    f"this {DATE_KIND} marker exempts nothing — its line is "
+                    "not a misdated link to that entry — remove it"))
+            continue
+        if marker is not None and marker == name:
+            tally.by_marker += 1
+            continue
+        if marker is not None:
+            _add(findings, tally, Finding(
+                index_rel, lineno, "stale-allow", marker,
+                f"this {DATE_KIND} marker names {marker!r} but the line "
+                f"links {name!r} — it exempts nothing"))
+        _add(findings, tally, Finding(
+            index_rel, lineno, DATE_KIND, entry,
+            why + f"; or mark that line '<!-- {ALLOW_MARKER}:{DATE_KIND}: "
+            f"{name} <reason> -->'"))
+    return findings
 
 
 def _rel(p: Path, root: Path) -> str:
@@ -469,6 +630,7 @@ def check_index(path: Path, index_rel: str, decls: list[Decl],
             "in the mapped directory and never named by the index — add its "
             "line, widen exclude=, or mark it "
             f"'<!-- {ALLOW_MARKER}: {name} <reason> -->'"))
+    findings.extend(check_dates(path, index_rel, decls, tally))
     for name, line in sorted(allows.items(), key=lambda kv: kv[1]):
         if name not in used:
             _add(findings, tally, Finding(
@@ -494,7 +656,8 @@ def render_human(findings: list[Finding], tally: Tally) -> str:
     if not total:
         head = report.clean_head(
             "indexscan",
-            "every mapped entry is named by its index." if tally.declarations
+            "every mapped entry is named by its index and no dated line "
+            "predates its file." if tally.declarations
             else "no index declares a mapped directory "
                  "(nothing to check; adoption is opt-in per index).")
         return head + "\n" + tally.summary()
@@ -513,7 +676,8 @@ def _main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         prog="indexscan",
         description="Check that every hand-maintained index which declares a "
-                    "mapped directory names every entry in it.")
+                    "mapped directory names every entry in it, and that no "
+                    "dated index line predates the file it links.")
     ap.add_argument("paths", nargs="*",
                     help="files/dirs to search for declaring indexes (default: --root)")
     ap.add_argument("--root", default=".",
@@ -555,7 +719,8 @@ def _main(argv: list[str] | None = None) -> int:
             "findings_over_cap": tally.findings_over_cap,
             "checked": {"indexes": tally.indexes,
                         "declarations": tally.declarations,
-                        "entries": tally.entries},
+                        "entries": tally.entries,
+                        "dated_lines": tally.dated_lines},
             "suppressed": {"by_allow_marker": tally.by_marker,
                            "by_exclude": tally.by_exclude,
                            "by_before": tally.by_before,
@@ -588,11 +753,14 @@ def _selftest() -> int:
             "before=2026-02-01 -->\n"
             "<!-- indexscan:allow: 2026-05-03-allowed.md selftest fixture -->\n"
             "- [listed](records/2026-05-01-listed.md)\n"
+            "- [2026-04-30 · back-dated](records/2026-05-01-listed.md) — x\n"
+            "- [2026-05-09 · addendum](records/2026-05-01-listed.md) — later is fine\n"
             "```\n- [fenced](records/2026-05-02-orphan.md)\n```\n",
             encoding="utf-8")
         tally = Tally()
         got = sorted((f.kind, f.entry) for f in scan_paths([tmp], tmp.resolve(), tally))
-        want = [("unlisted", "docs/records/2026-05-02-orphan.md")]
+        want = [("date-mismatch", "docs/records/2026-05-01-listed.md"),
+                ("unlisted", "docs/records/2026-05-02-orphan.md")]
         if got != want:
             print(f"FAIL: got {got}, expected {want}")
             ok = False

@@ -258,7 +258,8 @@ class TestScannerLinePins(unittest.TestCase):
         t = m.Tally()
         self.assertEqual(t.summary(),
                          "  checked: 0 declaration(s) in 0 index file(s), 0 entr(ies) "
-                         "mapped\n  suppressed: 0 by allow-marker · 0 by exclude= · "
+                         "mapped, 0 dated index line(s) compared\n"
+                         "  suppressed: 0 by allow-marker · 0 by exclude= · "
                          "0 by before= · 0 file(s) by .indexscanignore · "
                          f"0 beyond {CAP}")
         self.assertEqual(m.render_human([], t).splitlines()[0],
@@ -266,7 +267,8 @@ class TestScannerLinePins(unittest.TestCase):
                          "(nothing to check; adoption is opt-in per index).")
         t.declarations = 1
         self.assertEqual(m.render_human([], t).splitlines()[0],
-                         "✓ indexscan clean — every mapped entry is named by its index.")
+                         "✓ indexscan clean — every mapped entry is named by its index "
+                         "and no dated line predates its file.")
         t.findings_over_cap = 3
         lines = m.render_human([], t).splitlines()
         # The over-cap line carries no cap clause — pinned as-is, not endorsed.
