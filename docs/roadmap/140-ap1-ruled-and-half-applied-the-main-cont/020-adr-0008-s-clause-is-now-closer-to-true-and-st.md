@@ -1,4 +1,4 @@
-- [ ] 🔎 **ADR 0008's clause is now closer to true and still not true.** Of its
+- [~] 🔎 **ADR 0008's clause is now closer to true and still not true.** (claimed 2026-10-16-0712, in place) Of its
       three named legs, one is now in force (branch protection, via the ruleset),
       one is in force but **bypassable by the admin role** — the bypass Mike ruled
       for, so the control is a guard against accident and third-party push, never

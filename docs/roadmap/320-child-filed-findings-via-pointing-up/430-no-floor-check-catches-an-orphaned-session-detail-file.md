@@ -1,5 +1,5 @@
-- [ ] 🔎 **Hand-up: nothing catches an orphaned session-detail file once the
-      session log is an index.** Filed from the public child `tuhura`
+- [~] 🔎 **Hand-up: nothing catches an orphaned session-detail file once the
+      session log is an index.** (claimed 2026-10-16-0712, wt: atelier-qr-320-430 — the date/slug half) Filed from the public child `tuhura`
       2026-09-20 (finding F7 of the rule-4 cold pass on its session-log
       split). The child's own intent record flagged this as a residual it
       was accepting; the review found the residual is **half already

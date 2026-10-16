@@ -1,5 +1,5 @@
-- [ ] 🔎 **Two corroboration failures worth minting, both self-caught by the
-      child that made them.** Offered upward by a child session as method
+- [~] 🔎 **Two corroboration failures worth minting, both self-caught by the
+      child that made them.** (claimed 2026-10-16-0712, in place) Offered upward by a child session as method
       material rather than as an ask, from an episode where three sessions
       reached a wrong shared conclusion about a doctrine clause. Recorded here
       because the child's own framing is better than a later reconstruction

@@ -1,4 +1,4 @@
-- [ ] **Give every guard a second dial — the standing consequence of Mike's
+- [~] (claimed 2026-10-16-0712, in place — the audit only) **Give every guard a second dial — the standing consequence of Mike's
       2026-07-28 correction, carried across the whole fleet.** The
       scanner-precision track was opened on the premise that a false positive on
       a correct line trains someone to write an allow-marker, and that is how a

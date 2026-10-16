@@ -164,7 +164,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [A coined paraphrase is still presented on the board as a child](roadmap/115-guardrail-architecture-mike-commissioned/060-a-coined-paraphrase-is-still-cited-on-the-boar.md)
 - [ ] [PRINCIPLES.md §9 has no guard, and the only safe candidate is scoped](roadmap/115-guardrail-architecture-mike-commissioned/070-principles-9-has-no-guard-and-the-only-safe-ca.md)
 - ✅ [(FUNDED by Mike 2026-09-20; parts 1–3 DONE; the marker-scope and…](roadmap/115-guardrail-architecture-mike-commissioned/080-single-source-the-scanner-harness-ga1-with-mik.md)
-- [ ] [Give every guard a second dial — the standing consequence of Mike's](roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md)
+- [~] (claimed 2026-10-16-0712, in place — the audit only) [Give every guard a second dial — the standing consequence of Mike's](roadmap/115-guardrail-architecture-mike-commissioned/090-give-every-guard-a-second-dial-mike-s-2026-07.md)
 - [ ] 🎯 [Build a before-plane — the guardrail class that acts at the moment of](roadmap/115-guardrail-architecture-mike-commissioned/100-the-before-plane-is-empty-and-it-is-the-only.md)
 - [ ] 🔥 [The apex and the always-confirm floor have no mechanical backing at](roadmap/115-guardrail-architecture-mike-commissioned/110-the-apex-and-the-autonomy-floor-have-no-mecha.md)
 - [ ] 🎯 [Every guard declares the purpose it answers to, and proves it fires](roadmap/115-guardrail-architecture-mike-commissioned/120-every-guard-declares-the-purpose-it-answers-to.md)
@@ -202,7 +202,7 @@ then `python3 tools/board.py rebuild`.
 *[Narrative](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/README.md)*
 
 - ✅ 🔎 [The machine-check half — the second thing Mike ruled, and it is not](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/010-the-machine-check-half-the-second-thing-mike-r.md)
-- [ ] 🔎 [ADR 0008's clause is now closer to true and still not true.](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/020-adr-0008-s-clause-is-now-closer-to-true-and-st.md)
+- [~] 🔎 (claimed 2026-10-16-0712, in place) [ADR 0008's clause is now closer to true and still not true.](roadmap/140-ap1-ruled-and-half-applied-the-main-cont/020-adr-0008-s-clause-is-now-closer-to-true-and-st.md)
 
 ## The residue ruling round runs in a FRESH SESSION (Mike, 2026-08-09)
 
@@ -320,7 +320,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] [Two-layer acceptance criteria, one verification pass.](roadmap/200-anti-slop-invariant-registry-promote-rec/060-two-layer-acceptance-criteria-one-verification.md)
 - ✅ [Enforcement seam — how does an invariant get checked?](roadmap/200-anti-slop-invariant-registry-promote-rec/070-enforcement-seam-how-does-an-invariant-get-che.md)
 - [ ] [Where does the registry live? — the SCANNER half is answered and built](roadmap/200-anti-slop-invariant-registry-promote-rec/080-where-does-the-registry-live-the-scanner-half.md)
-- [ ] 🔎 [Two corroboration failures worth minting, both self-caught by the](roadmap/200-anti-slop-invariant-registry-promote-rec/090-two-corroboration-failures-worth-minting-from.md)
+- [~] 🔎 [Two corroboration failures worth minting, both self-caught by the](roadmap/200-anti-slop-invariant-registry-promote-rec/090-two-corroboration-failures-worth-minting-from.md)
 - ✅ 🔎 [The R2 survey found eleven places where the doctrine's own copies](roadmap/200-anti-slop-invariant-registry-promote-rec/100-r2-found-eleven-live-contradictions.md)
 - ✅ 🔎 [The mining record behind this section, and this section's README,](roadmap/200-anti-slop-invariant-registry-promote-rec/110-the-mining-record-and-this-readme-are-stale.md)
 
@@ -505,7 +505,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [CANDIDATE HOUSE RULE — verify a figure correction in the RENDERED](roadmap/320-child-filed-findings-via-pointing-up/400-count-survivors-in-the-rendered-artefact-not-the-source-you-edited.md)
 - [ ] 🔎 [Hand-up: the canonical floor's estate resources bullet is](roadmap/320-child-filed-findings-via-pointing-up/410-the-estate-root-cannot-write-the-canonical-floors-estate-resources-bullet.md)
 - [ ] 🔎 [Hand-up: a queued-review pointer may name a moving bound, and](roadmap/320-child-filed-findings-via-pointing-up/420-a-queued-review-pointer-may-name-a-moving-bound.md)
-- [ ] 🔎 [Hand-up: nothing catches an orphaned session-detail file once the](roadmap/320-child-filed-findings-via-pointing-up/430-no-floor-check-catches-an-orphaned-session-detail-file.md)
+- [~] 🔎 [Hand-up: nothing catches an orphaned session-detail file once the](roadmap/320-child-filed-findings-via-pointing-up/430-no-floor-check-catches-an-orphaned-session-detail-file.md)
 - [ ] 🔎 [A review file's follow-up list and the board item that points at it](roadmap/320-child-filed-findings-via-pointing-up/440-a-review-file-and-its-board-item-drift-apart.md)
 - [ ] 🔎 [A wrapped claim does not project into the index, a ] in a title](roadmap/320-child-filed-findings-via-pointing-up/450-a-wrapped-claim-does-not-project-and-two-more-from-a-child-s-cold-passes.md)
 - ✅ 🔎 [MISSING HOUSE RULE — what a review pointer becomes when its](roadmap/320-child-filed-findings-via-pointing-up/460-missing-rule-what-a-review-pointer-becomes-when-its-verdict-lands.md)
