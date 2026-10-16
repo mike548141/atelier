@@ -5,6 +5,13 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Fixed (2026-10-16 — the floor's advisory count, `115/320`)
+- `floor.py` reads a scanner's advisory count only from that scanner's own
+  whole count line, and takes the last one. A file named like the count line
+  could make the board read its number off a blocking finding line.
+- `conflictscan`, `board` and `licenscan` are pinned as checks a child cannot
+  soften, beside the four already pinned, in the selftest and the tests.
+
 ### Removed (2026-10-16 — sizescan's size advisory, `115/270` c)
 - `sizescan` no longer measures length: the line references,
   `sizescan:budget=N`, and the size-advisory output and JSON fields are gone

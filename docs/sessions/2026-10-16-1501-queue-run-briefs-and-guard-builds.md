@@ -118,3 +118,23 @@ holds the sibling outside the tree, which is not true for a committed
 sibling. **Every one of atelier's 21 unbriefed passes now has a brief.** The
 Fable sessions that run them are Mike's to start; the launch line is in the
 user-local cards.
+
+## `115/320` ✅ and `115/310` closed without a code change
+
+One Sonnet worker took both. `115/320` (`dc0ed0e`, cherry-picked): the
+board's advisory count is read per scanner and whole-line, and three more
+checks are pinned as unsoftenable. Pass queued at `160/860`.
+
+`115/310` reproduced, but its fix was **not merged**. Before merging, the
+orchestrator ran the fix against the commonest real bad merge, where the
+"ours" lines between opener and separator are unchanged context. The fix
+lost the true separator finding there. The old false separator can only sit
+beside an opener that already blocks, so it is the cheaper defect. The item
+is closed with that evidence, and `d79492b` is left unmerged. Recorded
+against this run: the worker's report named this exact case as untested, and
+it took a probe, not the report, to see what it cost.
+
+**Load-timeout re-check.** At a load of about 17, `test_pins` (19) and
+`test_spellscan` (77) pass on `main` with every merge so far. The
+`BoundedMemory` failures the workers saw were the load class. The floor run
+at `b8c99dd`, which contains the three tool merges, is green.
