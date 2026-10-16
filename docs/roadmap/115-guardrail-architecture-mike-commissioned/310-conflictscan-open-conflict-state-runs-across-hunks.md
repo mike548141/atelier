@@ -1,4 +1,4 @@
-- [ ] 🔎 **conflictscan's open-conflict state runs across staged hunks**
+- [~] (claimed 2026-10-16-1556 UTC by queue run abe96d8d, a worker) 🔎 **conflictscan's open-conflict state runs across staged hunks**
       `[S][tools]`. Found 2026-10-16 by the `300` worker, not reproduced and
       not fixed there, because it is old behaviour outside that item. On the
       staged plane conflictscan walks a file's added lines in order and

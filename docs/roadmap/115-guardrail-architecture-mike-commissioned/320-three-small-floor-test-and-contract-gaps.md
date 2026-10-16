@@ -1,4 +1,4 @@
-- [ ] 🔎 **Three small gaps in the floor's tests and count contract**
+- [~] (claimed 2026-10-16-1556 UTC by queue run abe96d8d, a worker) 🔎 **Three small gaps in the floor's tests and count contract**
       `[S][tools]`. Found 2026-10-16 by the `290` worker, not fixed there:
       1. `tools/test_floor.py` (its head comment, about lines 14–18) says
          only the prose-hygiene checks may re-baseline. sizescan,

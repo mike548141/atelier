@@ -185,8 +185,8 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [An added line can pose as a diff header in secretscan's staged](roadmap/115-guardrail-architecture-mike-commissioned/280-an-added-line-can-pose-as-a-diff-header-in-secretscan.md)
 - ✅ 🔎 [Three guard descriptions disagree with their own code](roadmap/115-guardrail-architecture-mike-commissioned/290-three-guards-describe-a-response-tier-their-code-lacks.md)
 - ✅ 🔎 [conflictscan and leakscan report the wrong line number on the](roadmap/115-guardrail-architecture-mike-commissioned/300-two-staged-guards-report-the-wrong-line-number.md)
-- [ ] 🔎 [conflictscan's open-conflict state runs across staged hunks](roadmap/115-guardrail-architecture-mike-commissioned/310-conflictscan-open-conflict-state-runs-across-hunks.md)
-- [ ] 🔎 [Three small gaps in the floor's tests and count contract](roadmap/115-guardrail-architecture-mike-commissioned/320-three-small-floor-test-and-contract-gaps.md)
+- [~] 🔎 (claimed 2026-10-16-1556 UTC by queue run abe96d8d, a worker) [conflictscan's open-conflict state runs across staged hunks](roadmap/115-guardrail-architecture-mike-commissioned/310-conflictscan-open-conflict-state-runs-across-hunks.md)
+- [~] 🔎 (claimed 2026-10-16-1556 UTC by queue run abe96d8d, a worker) [Three small gaps in the floor's tests and count contract](roadmap/115-guardrail-architecture-mike-commissioned/320-three-small-floor-test-and-contract-gaps.md)
 - [ ] 🔎 [RECORD.md's index rotation has lost its trigger](roadmap/115-guardrail-architecture-mike-commissioned/330-record-md-rotation-trigger-has-no-signal.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
