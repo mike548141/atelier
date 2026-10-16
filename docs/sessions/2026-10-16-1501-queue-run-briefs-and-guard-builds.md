@@ -200,3 +200,51 @@ and `ccclose` both. Harness records keep their exchange numbers, so quoted
 refs stay valid. This session's own count went from 13 "you" turns to the 1
 Mike actually typed, with the 12 background-task notifications shown as
 harness. The worker's finding is filed as `210/260`. Pass queued at `160/880`.
+
+## Close
+
+**Stop condition: economics.** The orchestrator's context passed about 340k,
+near where earlier runs stopped. What is left on the board is mostly waiting
+on Mike, on a Fable session, or is first-of-kind work better started fresh.
+All agents finished before the close; none was left running.
+
+**Closed:** `115/300`, `115/290`, `115/270` (the whole item), `115/320`,
+`115/310` (no code change, on evidence), `020/180`'s build (`ccclose`), and
+`210/250`. **All 21 missing briefs written** (`160/500`–`760`). **Ten child
+hand-ups landed** (PRs #98–#107), and all thirteen of their items verified at
+HEAD. **Held:** `115/090`, for Mike, on the EI6 conflict. **Filed:**
+`115/310` (and closed), `115/320`, `115/330`, `210/250`, `210/260`.
+**Passes queued:** `160/830`–`880`, six, none briefed. This session may not
+brief them.
+
+**Next session's picks.**
+- Fable: the 21 briefed passes. `720` and `760` first. The launch line is in
+  the user-local cards.
+- `115/090`, once Mike has answered the re-brief.
+- The thirteen verified hand-ups, now plain work items. `320/630`, a refused
+  commit leaving its work staged, pairs with `320/350`, the pathspec commit
+  proposal. `115/340`, hooks skipped on cherry-pick and rebase, is a gap in
+  the floor itself.
+- `115/330`: what triggers index rotation now that nothing measures size.
+- `210/260`: small.
+- At open, also check `gh pr list` for new hand-ups, as this run's memory
+  note says.
+
+**Open for Mike**, put to him in the device at the close:
+1. `115/090`: leakscan's second dial against his EI6 ruling.
+2. Whether `ccclose` joins the expected toolbox and is installed onto the
+   path.
+
+**Recorded against this run, collected.**
+- The worker bounds file left out the UTC-date rule, so two of six workers
+  wrote NZ-local dates. The merge-time grep caught all five.
+- `115/310`'s fix nearly merged on green tests. Only a probe of the realistic
+  case showed it lost a true finding.
+- `dc0ed0e` was cherry-picked, and a cherry-pick skips the pre-commit hook
+  (`115/340`). Its evidence is the floor run in CI.
+- One `git reset --hard HEAD` was used, to undo this run's own no-commit
+  cherry-pick on a tree that held nothing else. `ccclose` lists it as
+  workaround-shaped. It is answered here: nothing was lost, and the tree
+  had been checked clean just before.
+- Load from other repos' sessions reached 550 on 12 cores mid-run. Dispatches
+  were held until it fell. The cap of four agents was kept throughout.
