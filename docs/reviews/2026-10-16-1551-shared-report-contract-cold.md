@@ -191,3 +191,360 @@ phase-1 text. Then fold the sibling in below the reconcile and delete it.
 Findings on self-authored doctrine are the principal's to decide (rule 3; a
 guard is doctrine by function): record all, apply nothing; counsel per finding is
 welcome, labelled and kept beneath it.
+
+---
+
+# Verdict — phase 1
+
+**Run:** 2026-10-17 UTC, in worktree `/Users/mike/worktrees/atelier-review-1017`
+(branch `review-1017`, HEAD `c68f063` at the start of the pass, `7d06d9d` by its
+end — the orchestrator's commits of sibling passes; nothing of mine). Phase-1
+findings written before any barred material was opened.
+
+## Provenance, repeated
+
+- **Reviewer:** a cold `claude-fable-5-1` subagent (the principal-named review
+  tier, checked at selection), spawned on 2026-10-17 UTC by a Fable orchestrator
+  that authored none of the delta and none of this brief, and that holds the
+  deferred sibling in a context partition until these findings are committed.
+  The reviewer formed every finding and every severity; the orchestrator formed
+  none. This session was started and instructed by neither the delta's author
+  (the 2026-10-05 queue run) nor the brief-writer, so rule 4's criterion holds.
+- **What I read before writing:** this brief; `docs/method/REVIEW.md` whole; the
+  landing commit's `--stat`, subject and full diff; `tools/report.py` and
+  `tools/test_report.py` at HEAD and at `ffabef3`; `tools/README.md`'s scanner
+  sections and the `report.py` section at HEAD; the exit, warn and advisory-count
+  parts of `tools/floor.py`; `.githooks/pre-commit`; the invocation lines of
+  `.github/workflows/ci.yml`; the fetch lines of the child `floor.yml` template;
+  the hand-spelled contract lines of `pointerscan`, `board`, `stampscan`,
+  `blockscan`, `signscan`, `publishscan`, `harvestscan`, `reviewscan`; the OSError
+  handling of the scanning guards; `allowmarker.IgnoreFileError`; `coldsweep`
+  output with every exclusion the brief lists (no `--include-barred`).
+- ⚠️ **Exposure, disclosed.** My second git command, `git show ffabef3 --
+  <paths>`, printed the landing commit's **message body** before the diff — a
+  barred item (the author's own account) — because I stripped only the header
+  lines, not the body. I cannot un-read it. What it told me, so the reader can
+  weigh it: the author's list of cases it claims byte-identity on (real tree,
+  four fixture trees, error cases, cap patched to 0 and 1, `--warn`, `--json`,
+  `--staged`, `--disable`, `--check`, `--selftest`), that the pins also pass on
+  the pre-change scanners, and that `pointerscan`/`board.py` were left out on
+  purpose. I treated each as a claim to re-drive (the re-run ledger below), not
+  as settled; no finding below rests on it, and RT1–RT3 came from probes the
+  body does not mention. Nothing else barred was opened: no prior verdict, no
+  session record, not the queue pointer, not the sibling, not the `115/` section.
+
+## Lens 1 — approach and assumptions (named first, then attacked)
+
+Load-bearing assumptions I name myself:
+
+1. **Every per-guard difference is a parameter; no default can drift in.** True
+   for the lines the helpers build (name, tally parts, noun, tail, indent,
+   example path, exception tuple are all passed, none defaulted into a guard's
+   output). It is **overstated** as a description of the delta: three guards
+   (`licenscan`, `publishscan`, `reviewscan`) keep their own wording of the
+   missing-root line and `reviewscan` its own per-path refusal, routed through
+   `report.broken(name, text)` — so the "single source" has two mechanisms, a
+   shared line and a shared prefix around a private line (RT6).
+2. **Byte-identical output on the real tree and four fixture trees proves
+   equivalence for every child.** It proves the branches those trees reach. I
+   re-drove it wider (the ledger): 14 guards × 30–45 invocations each, old
+   against new, including the cases the brief names. Zero behavioural
+   differences; the only diffs are traceback frames on a forced exception.
+   What it cannot prove is that the shared exit-2 paths are **reachable** — and
+   for `cannot_read` they are not, in five of nine callers (RT1). Equivalence
+   held; the contract the module documents did not.
+3. **One shared module lowers the cost of a wrong edit.** Holds, because
+   `test_report.py` pins each guard's lines as literals (and I confirmed the
+   pins are grounded: they pass unchanged against the pre-change scanners). A
+   wrong shared edit fails 14 pins before any child's CI sees it. The residual
+   is the one the brief names: a wrong edit that *passes* the pins (a logic
+   change in `exit_code`, say) reaches every child at its next run; the
+   `test_exit_code_reads_truthiness` pin covers the int/list/bool cases only
+   (RT8).
+4. **The hook and CI planes read nothing but the exit code.** True for exit
+   (`Result.failed` is `rc != 0` on enforced and warn-only checks), plus one
+   printed line for the two advisory-count carriers. So an error that exits 1
+   instead of 2 still blocks (RT4 is a misreport, not a bypass), and an error
+   that exits 0 is the only dangerous class — which is exactly RT1 and RT2.
+5. **A guard file is never copied alone.** True in practice (children check
+   atelier out and run `tools/floor.py`; neither hook nor template vendors a
+   file), and the delta is safe on that footing. The code and `floor.py` still
+   *say* the opposite in eleven places (RT5).
+
+**Was this the right problem, solved the right way?** Yes. Eleven identical
+`main()` wrappers and ten copies of one stderr line were the vendored-policy
+shape the registry exists to end, and the move is behaviour-preserving as
+claimed. The non-goal (no finding IDs) was honest and is reviewed elsewhere.
+
+## Lens 2 — correctness and quality
+
+`report.py`'s delta helpers (`exit_code` through `suppressed_line`) read whole;
+`test_report.py` read whole at both revisions; all fourteen scanner diffs read
+line by line. Each call site passes what the old inline code computed; the
+`--warn` short-circuit, the `(--warn …)` notice placement (`publishscan`'s
+`print()` + line became one `print(WARN_NOTICE)` — same bytes), the
+`breakdown`/`disabled` gating, and the `sizescan` `args.check and any(...)`
+boolean all reproduce. The per-guard table:
+
+| Guard | config-error tuple (before → after) | exit-2 paths (before = after) | `--warn` |
+|---|---|---|---|
+| conflictscan | `(IgnoreFileError,)` → same | root · git diff · absolute staged · missing path · cannot read | none |
+| datescan | `(IgnoreFileError,)` → same | root · missing path · cannot read (**dead**, RT1) | findings 0; exit-2 paths precede it |
+| harvestscan | no wrapper (before or after) | root only | warn-only by construction |
+| indexscan | `(IgnoreFileError,)` → same; `ConfigError`, `OSError` inside `_main` | root · missing path · config · cannot read | findings 0; exit-2 paths precede |
+| leakscan | `(IgnoreFileError,)` → same | terms path · `--require-terms` · unknown `--disable` · git diff · absolute staged · missing path; no root line (missing root surfaces as missing path) | none |
+| licenscan | `(IgnoreFileError,)` → same | not a directory (own wording via `broken`) | none at `ffabef3` |
+| linkscan | `(IgnoreFileError,)` → same | root · missing path · cannot read | none |
+| pathscan | `(IgnoreFileError, FloorConfigError)` → same | root · missing path · cannot read | findings 0; exit-2 paths precede |
+| publishscan | no wrapper; `BadIgnoreFile`/`RuntimeError` inside `run` | root (own wording) · bad ignore · git failure | findings 0; exit-2 paths precede |
+| reviewscan | no wrapper | root (own wording) · each missing path (own wording) | none |
+| secretscan | `(IgnoreFileError,)` → same | unknown `--disable` · git diff · absolute staged · missing path; no root line | none |
+| sizescan | `(IgnoreFileError,)` → same | root · missing path · cannot read | `--check` gates instead |
+| spellscan | `(IgnoreFileError,)` → same | root · missing path · cannot read (**dead**, RT1) | findings 0; exit-2 paths precede |
+| wrapscan | `(IgnoreFileError,)` → same | root · missing path · cannot read (**dead**, RT1) | findings 0; exit-2 paths precede |
+
+`--warn` never masks an exit 2: in every guard the refusals run before the warn
+test, and the differential confirms `missing-root/warn` and `missing-path/warn`
+exit 2 on all six warn-capable guards. `--json` key order is unchanged (the
+JSON cases are byte-identical old against new). Over-cap and suppressed lines
+print known zeros (pinned and observed).
+
+**The pins' grounding** (the brief's question): the landed `test_report.py`
+copied into the `ffabef3^` clone passes all 32 tests against the pre-change
+scanners, so the literals were written from the old output, not from the new
+helpers. V2 holds for that claim.
+
+## Lens 3 — completeness and harvest
+
+- `tools/README.md`'s `report.py` section is accurate for the delta; the
+  per-scanner "Exit codes" sentences (about a dozen) stay hand-spelled (RT10).
+- `docs/method/GUARDS.md` states no exit code and no `--warn` spelling —
+  nothing to sweep there (discharged by grep for exit/warn/stderr).
+- `tools/floor.py`: `WARN_MODE_FLAGS` untouched; its comment that *every*
+  scanner with a warn form prints the shared notice is false for `stampscan`
+  (RT6). The advisory-count line `floor.py` parses was not taken into
+  `report.py` and now has two copies (`secretscan`, `licenscan` since
+  `e3e8a4f`, 2026-10-16) — RT6.
+- Unconverted guards still spelling the contract by hand: `pointerscan` (root
+  and per-path refusals, its own `suppressed:` line, a different "path does not
+  exist" shape — first path only, raw argument), `board.py` (`✗ board: root …`),
+  `stampscan`, `blockscan`, `signscan`. README names the first two as
+  deliberate; the rest are outside the floor registry.
+- Left-out spellings (leakscan's clean head, indexscan's cap-less over-cap line,
+  datescan's tally-less findings path): the right call for a
+  behaviour-preserving part, and the test file says "pinned, not endorsed".
+  Counsel: a later deliberate output change can unify them; none hides a defect.
+
+## Lens 4 — security and privacy (mandatory)
+
+`/security-review` is **discharged by grounds**: the work is a landed delta and
+this session's pending diff is other reviewers' drafts (and this one); aiming
+the scanner at it would read their briefs and scan none of the work. The read
+below is by hand against the OWASP Top 10 / ASVS classes that bear on a CLI
+guard: injection, path handling, output/log injection, sensitive data in error
+output, and dependency/shadowing.
+
+- **Silent bypass by exit code** — the brief's headline threat. Two live cases,
+  both pre-existing, both now sitting behind a shared helper that claims to
+  close them: an unreadable file on the two boundary guards (RT1) and a
+  `--staged` scope spelled `./x` (RT2). Neither reaches the wired hook or CI
+  plane (analysis in each finding).
+- **Injection:** every subprocess is a list argv with no shell; nothing from the
+  tree reaches a command line. Discharged.
+- **Output / terminal injection:** `report.broken` writes its message raw.
+  The house already treats control characters in config-authored text as a
+  real class (floor.py FR3, ruled 2026-08-23; publishscan's ingest seam), and
+  an `.xignore` glob is tracked config that lands by PR — RT3.
+- **Sensitive data in error lines:** `cannot_read` prints a path and
+  `strerror` only; `IgnoreFileError` prints the offending globs (config, not
+  content); `TermsPathError` prints the term-list path, which is a
+  home-directory path (RT9); `DiffReadError` — a later commit's — prints up to
+  60 characters of a diff line (RT9). No error line prints scanned content
+  from this delta's helpers.
+- **Module shadowing:** probed. A planted `report.py` in the working
+  directory, in the scanned tree and on `PYTHONPATH` is **not** loaded when a
+  scanner runs as a script: the tools directory is inserted at `sys.path[0]`
+  and no stdlib or site-packages module of that name exists on this machine.
+  Discharged with that probe; the residual is a `report.py` planted *inside*
+  the tools directory, which is the repo itself.
+- **Design altitude:** the delta exposes nothing new and collects nothing; it
+  narrows the surface where a wrong line could be written. No threat
+  enumeration was recorded with the work — for a refactor of printed strings I
+  do not raise that as a finding.
+
+## Standing checklist V1–V7
+
+- **V1 (no claim stronger than evidence):** the "behaviour-preserving" claim
+  held under a wider re-drive than the author's; the module docstring's
+  "the exit-2 stderr lines for … an unreadable file" is stronger than the
+  code (RT1); "single-sourced" is slightly stronger than the delta (RT6).
+- **V2 (re-run every live-proven claim):** re-run, not read — ledger below.
+  All reproduce.
+- **V3 (changed rule swept to every mirror):** the import was added without
+  sweeping the "copyable alone" claims (RT5); README's exit-code sentences
+  unswept (RT10). Child templates carry no scanner text to sweep.
+- **V4 (one fact, one home):** two homes for the advisory-count line and
+  about a dozen for the exit-code prose (RT6, RT10).
+- **V5 (no internal contradiction):** code that imports three siblings beside
+  comments saying it imports none (RT5); `floor.py`'s "every scanner prints
+  this notice" beside `stampscan`'s different notice (RT6).
+- **V6 (security on every review):** lens 4 above; `/security-review`
+  discharged by grounds, hand read delivered.
+- **V7 (rule-4 provenance in brief and verdict):** present in both; the
+  exposure above is disclosed where a reader meets it.
+
+## Findings
+
+**RT1 — MODERATE.** The shared `cannot_read` exit-2 path is dead code in five
+of its nine callers. On a tree holding an unreadable file (mode 000),
+`secretscan`, `leakscan`, `datescan`, `spellscan` and `wrapscan` print
+`✓ … clean` and exit 0; `conflictscan`, `indexscan`, `linkscan`, `pathscan` and
+`sizescan` exit 2 as the contract says. Cause: the bounded-memory rewrites
+(`8fbb341` 2026-09-19 for secretscan, `886524f` 2026-09-20 for the others)
+wrapped each per-file read in `except OSError: return []`, documented as
+matching a mid-walk race, which also swallows a never-readable file. Not
+introduced by this delta — but the delta single-sourced the helper, documented
+"an unreadable file" as one of the exit-2 lines in `report.py`'s docstring and
+`README`'s `report.py` section, and pinned the helper's text while five callers
+can never reach it. Plane analysis, why MODERATE not MAJOR: the hook runs the
+boundary guards `--staged` (reads the diff, not files) and CI runs them on a
+fresh checkout (everything readable), so no wired plane is bypassed; hand runs
+and a child's subtree runs are. Counsel (labelled): count the swallowed files
+on the `suppressed:` line and exit 2 when the count is non-zero, or state the
+race exemption in the contract and drop the claim; the test is one
+`chmod 000` fixture per guard.
+
+**RT2 — MODERATE.** `--staged` scoping by `./sub`, `docs/../sub` or a
+Windows-style path scans nothing and exits 0 with `✓ clean` on `secretscan`,
+`leakscan` and `conflictscan` (probed at HEAD and in both revisions; `sub/`
+on the same staged key exits 1). This is the silent-success class
+`refuse_absolute_staged` exists to close, closed for the one spelling the
+helper's docstring names. `README`'s own private-repo recipe
+(`leakscan --staged tiki/`) is one `./` away from silent cover. Pre-existing;
+the consolidation was the moment the helper's name promised more than its
+test. Counsel: normalise each prefix (`posixpath.normpath`), refuse one that
+is absolute or escapes the root after normalising, and print the number of
+staged files in scope so a run that covered nothing says so.
+
+**RT3 — MODERATE.** `report.broken` writes its message to stderr with control
+characters intact, so `refuse_missing_paths`, `cannot_read` and every
+`broken(name, str(e))` carry an ESC sequence from a path or an ignore-file glob
+straight to the committer's terminal or the CI log (probed: `\x1b[2J\x1b[H`
+survives). The `.xignore` file is tracked config that a PR can land, and
+`allowmarker.load_ignore_globs` does not strip it. The house ruled this class
+worth closing for `.atelier-floor.json` (floor.py FR3, 2026-08-23) and
+`publishscan` closes it at its ingest seam; the shared module is now the one
+place that closes it for all fourteen. Counsel: `CONTROL_CHARS_RE.sub("", …)`
+in `broken()`, with a pin.
+
+**RT4 — minor.** Exit 2 is not what a broken scan returns in two classes. (a)
+An **unreadable ignore file** gives a traceback and exit 1 on `leakscan`,
+`secretscan`, `licenscan` and `publishscan` (the load happens outside their
+`OSError` guard), exit 2 on the rest. (b) Any **uncaught exception** gives
+Python's traceback and exit 1 — the same code as "findings". `guarded_main`
+re-raises by design and `test_guarded_main_never_swallows_other_errors` pins
+that. Fail-closed in effect (`Result.failed` is `rc != 0`), misreported in
+code. Counsel: catch `Exception` in `guarded_main`, print the traceback and
+return 2 — that keeps "never swallow" (the trace is printed) and makes the
+code honest; the pin would be reworded, which is the principal's call.
+
+**RT5 — minor.** Eleven sites still say a scanner is self-contained or
+copyable alone while it imports `filewalk`, `allowmarker` and now `report`:
+`floor.py:719-720` (the design justification for the printed advisory line),
+`test_floor.py:1294`, `linkscan.py:296`, `pathscan.py:174, 687, 1121`,
+`datescan.py:501`, `spellscan.py:506`, `wrapscan.py:398`, `stampscan.py:451`,
+`reviewscan.py:166`, `secretscan.py:67, 640`. The first two imports broke the
+claim before this delta; the delta added the third without a sweep (V3/V5).
+No behaviour risk — nothing vendors a file — but a reader of `floor.py:719`
+is told a design reason that is no longer true.
+
+**RT6 — minor.** The contract is not quite single-sourced. Three guards keep
+private wording of the missing-root line (`licenscan` "not a directory",
+`publishscan`/`reviewscan` "--root X is not a directory") and `reviewscan` a
+per-path refusal, via `broken`; `stampscan` prints a warn notice that differs
+from the one `floor.py` says every scanner prints ("drift not blocking");
+`pointerscan` and `board.py` are unconverted (README says so); and the
+advisory-count line `floor.py` parses now exists twice (`secretscan`,
+`licenscan`, the latter from `e3e8a4f` 2026-10-16). Harvest, not defect:
+each is a line a future shared edit will miss.
+
+**RT7 — minor.** A target containing `..` resolves outside `--root` and is
+scanned without a word (differential `dotdot-path`: exit 0 on eleven guards).
+`resolve_targets` promises "never the caller's cwd"; nothing promises "never
+outside the root", and the ignore file and anchors of the root then govern a
+tree they were not written for — the same mismatch `010/110` closed for cwd.
+Pre-existing. Counsel: refuse a resolved target that is not under the root
+unless given absolute.
+
+**RT8 — note.** `exit_code(blocking: object)` accepts anything: a generator or
+an empty-but-truthy tally object returns 1, `None`, `""` or `0.0` return 0.
+All nineteen call sites at HEAD pass an `int` or a `bool` (grepped), so no
+live defect; the pin covers int/list/bool only. Counsel: type it `int | bool`.
+
+**RT9 — note.** Two error lines carry local detail to stderr: `TermsPathError`
+prints the term-list path (a home-directory path) and `DiffReadError`
+(`39a74b9`, not this delta) prints up to 60 characters of a diff line. The
+first is pre-existing and reaches CI only under `--require-terms`; the second
+fires only on a diff git did not write. Named, not raised beyond a note.
+
+**RT10 — note.** `tools/README.md` keeps about a dozen hand-spelled copies of
+the exit-code contract (lines 242, 406, 472, 534, 663, 777, 910, 953, 1001,
+1133, 1231, 1287, 1387 at HEAD) beside the new `report.py` section. Single-
+sourcing the code was the natural moment to make the prose one stamped copy
+with pointers (V4). Each copy is currently correct.
+
+## Overall
+
+**PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE · 4 minor · 3 note.**
+
+The delta does what it claims: byte-identical stdout, stderr and exit code on
+every converted guard under a wider re-drive than the author's, pins grounded
+in the old output, selftests and both floor planes green at HEAD. The findings
+are about what the consolidation inherited and now vouches for — three
+shared exit-2 promises that the code does not keep everywhere (RT1, RT2, RT4),
+one house-ruled class it is now the right place to close (RT3), and claims the
+import left stale (RT5, RT6).
+
+## Re-run ledger
+
+| Claim / step | How re-run | Result |
+|---|---|---|
+| `python3 -m unittest tools.test_report -v` at HEAD | worktree, `nice -n 10` | 70 tests OK |
+| the same at `ffabef3` | scratch clone `RT/new` | passes (32 tests, the landed file) |
+| pins pass against the pre-change scanners | landed `test_report.py` + `report.py` copied into clone `RT/old` at `ffabef3^` | 32 tests OK; copies removed after |
+| byte-identity, 14 guards | `RT/rtdiff.py`: `ffabef3^` vs `ffabef3`, one guard at a time under `nice`; trees: clean, findings, suppressed, bad ignore file, unreadable file, unreadable ignore file, symlinks (good and broken), the real tree (clone `RT/new`); variants: `--json`, `--warn`, `--check`, `--staged` (with `sub/`, `./sub`, `docs/../sub`, a Windows path, an absolute path, not-a-repo), missing root (± `--warn`), missing path (± `--warn`), `../` path, absolute path, unknown `--disable`, no terms / `--require-terms` / bad `--terms`, `--expect` mismatch, cap patched to 0 and 1 (± `--json`), forced exception, `--selftest` | 0 behavioural differences across ~520 paired runs; only traceback frames differ on the forced exception |
+| every converted scanner's `--selftest`; `floor.py --selftest` | HEAD, by path | all 15 exit 0 |
+| the floor on both planes at HEAD | `floor.py --plane hook --root .` and `--plane ci --root .` | both exit 0 (CI board: 23 secretscan advisories, leakscan cover note) |
+| full Python suite, once | `python3 -m unittest discover -s tools -p 'test_*.py'` under `nice`, foreground; moved to background by the harness at 600 s | see the line below the ledger |
+| `import report` shadowing | planted `report.py` in cwd, scanned tree, `PYTHONPATH` | not loaded; no stdlib/site module named `report` |
+| control characters through `broken` | in-process probe | passed through raw |
+| coldsweep (`report\.py`, helper names, "copyable alone", the stampscan notice) | with the brief's three `--also-exclude`s, no `--include-barred` | 12 / 19 / 1 hits, all cited above |
+
+Full suite result — **not readable, stated honestly.** The run completed and
+the harness reported exit 0, but I had piped it through `tail -6`, so the
+reported code is the pipe's and the `Ran N tests … OK` summary was lost
+behind the subprocess output that flushed after it. The one permitted run is
+spent, so I record the pass as **unverified** rather than claimed. Evidence that
+does stand: `test_report` green at HEAD (70 tests), every selftest and both
+floor planes green at HEAD, and the pushed floor on `main` is the all-clear the
+house relies on. Owed: one `python3 -m unittest discover -s tools -p 'test_*.py'
+> log 2>&1; echo $?` by whoever next holds the machine (follow-up below).
+
+## Follow-up checklist (for the principal's decision — nothing applied)
+
+- [ ] RT1 — decide: count-and-exit-2 for an unreadable file, or document the
+      swallow and drop the claim (five guards, one fixture each)
+- [ ] RT2 — normalise and refuse non-canonical `--staged` prefixes; print files
+      in scope
+- [ ] RT3 — strip control characters in `report.broken`
+- [ ] RT4 — `guarded_main`: traceback + exit 2 on an uncaught exception; move
+      the ignore-file load inside the `OSError` guard on four guards
+- [ ] RT5 — sweep the eleven "copyable alone" sites (or make them true)
+- [ ] RT6 — fold the three private root lines, stampscan's notice and the
+      second `advisory_count_line` into `report.py`, or record why not
+- [ ] RT7 — refuse a target that resolves outside `--root`
+- [ ] RT8 — type `exit_code` as `int | bool`
+- [ ] RT9 — nothing owed; noted
+- [ ] RT10 — one stamped home for the exit-code prose in `tools/README.md`
+- [ ] Re-run the full Python suite once with its summary captured to a file
+      (this pass's run lost the summary to a pipe — ledger above)
