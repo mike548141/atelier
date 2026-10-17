@@ -90,6 +90,10 @@ reviewer swept it. This session instructed the writers, so it does not run those
   because a live session's permission mode is read at launch and every subagent inherits it.
   Two replies reported the settings edit as the fix before the third said what only he could do.
 - **Five reviewers leaked a barred commit body** by the obvious `git show`; filed as `130/030`.
+- **The pushed floor was red for eight hours and nobody read it.** The ccmail hand-up landed at
+  `019157c` carried one 89-byte man-page line; the floor's man-page lint (mandoc at the STYLE
+  level) failed on every push from then on, while every local lint ran at a level that hides
+  STYLE. Found by `ccclose` at the close, wrapped at `c7f5b73`, floor green at that head.
 - **Subagents at close:** 21 reviewers and 3 brief-writers, all finished; none still working
   (`020/420`'s check, done by hand because `ccclose` does not yet read the agent list).
 
