@@ -185,3 +185,290 @@ phase-1 text. Fold the sibling in below the reconcile and delete it.
 
 The author is not the taker, so record every finding and apply nothing; counsel
 on fixes is welcome, labelled as counsel.
+
+---
+
+# Verdict — phase 1 (2026-10-17 UTC)
+
+## Provenance
+
+- **Who ran this:** a cold Fable subagent (`claude-fable-5-1`), spawned 2026-10-17 UTC by a
+  Fable orchestrator that authored neither the delta nor this brief and passed only the
+  spawn prompt (process rules, prefix `FP`, the brief's path). Rule 4's criterion holds: no
+  session in this chain started or instructed the authoring run. Tier checked at claim:
+  Fable, as the brief requires. The orchestrator forms no finding; every finding and
+  severity below is this reviewer's.
+- **Tree:** worktree `/Users/mike/worktrees/atelier-review-1017`, branch `review-1017`,
+  HEAD `ac88dc4` (descends from `8acfff1`; `instruments/` identical to `main`). No git
+  write was run there. Probes ran in a private clone under this session's scratchpad
+  (`FP/clone` at `ac88dc4`; `FP/old` holds `83d9b0b^`'s instrument with ONE scratch-only
+  edit, an export of `firstUserPromptText`, so old and new could be called side by side).
+- **What was read:** this brief; the two landing commits' diffs for the instrument paths;
+  `instruments/cctranscript` at HEAD (`gunzipHead`, `cwdFromLog`, `sessionRecord`,
+  `archiveSessions`, `runList`, the first-prompt pair, the argv parser, `--help`);
+  `instruments/cctranscript.test.js` whole; `instruments/ccrepo` lines 684–700 and
+  826–834; `instruments/man/cctranscript.1` lines 360–380; `instruments/README.md`
+  lines 60–66 and 572–578; `CHANGELOG.md` lines 154–159; `docs/method/REVIEW.md`
+  V1–V7; `.githooks/pre-commit`, `tools/floor.py` and `.github/workflows/ci.yml` for the
+  invocations; `docs/roadmap/210-instruments-open-features/240-ccarchive-design-charter.md`
+  lines 28–36 (a coldsweep hit; not a barred item). Nothing under `docs/reviews/` except
+  this file; no `docs/SESSIONS.md`, `docs/sessions/`, `docs/ROADMAP-DONE.md`, pointer,
+  sibling, or the two barred 210 items. No real transcript or archive was read: every
+  probe used synthetic mirrors with `HOME` pointed at an empty scratch directory.
+- ⚠️ **Exposure, disclosed.** The first `git show` of this pass printed both landing
+  commits' message bodies before the orchestrator's bar on them had been registered. They
+  hold the author's account (the census, the timings, the disclosed difference). Every
+  claim in them was re-driven below rather than taken on trust, and none shaped a
+  severity; but the reviewer saw the author's framing before forming findings.
+- The brief's line "No later commit has touched either path" was true when written and
+  stale an hour later: `cea247e` (2026-10-16 16:43 UTC, item 210/250, merged `99f4c2a`)
+  rewrote the body of `firstPromptInLines`. Reviewed at HEAD as the brief directs; the
+  rewrite keeps the one predicate shared by the prefix path and the whole-file path, so
+  the delta's invariant is unaffected (FP8).
+
+## Lens answers
+
+**1 — Approach & assumptions.** The load-bearing assumptions, named first:
+
+- (a) The bytes `gunzipHead` returns are a byte-exact prefix of what the whole-file
+  inflate would return. True for an intact stream (inflate is sequential). **Not
+  checked** for a damaged one: gzip's only integrity check (CRC-32 and length) is in the
+  trailer, which the prefix path never reaches, so a corrupted-but-still-decodable prefix
+  yields bytes the whole-file read would have rejected. This is where "cannot change an
+  answer" fails (FP1).
+- (b) Line boundaries are the byte `0x0a`, and a cut at the last `0x0a` leaves only
+  complete lines. True, and UTF-8-safe: `0x0a` never occurs inside a multi-byte sequence,
+  so decoding complete lines from the prefix equals decoding them from the whole.
+- (c) The per-line predicate is pure and identical in both paths. True: both call
+  `firstPromptInLines`, and `cea247e` changed that one function, not either caller.
+- (d) The whole-file split tolerates whatever the prefix split tolerates (CRLF, blank
+  lines, unparsable lines). True: same function, same `split('\n')`.
+- (e) Nothing changes the file between the prefix read and the fallback read. Driven
+  (matrix row "race"): a hit answers from the prefix alone and a miss discards it, so the
+  answer always comes wholly from one version; the window cannot produce a mixed answer.
+- The 64 KB bound cannot matter to correctness given the fallback, only to speed; the
+  census is therefore a tuning claim, not a safety claim, and the shape of its benefit
+  reproduces (ledger). Picking it from one archive is fine for a speed path.
+
+**2 — Correctness & quality.** Delta and tests read whole. Matrix below, old (`83d9b0b^`)
+against new (HEAD), function-level, bytes read and inflates counted by wrapping `fs` and
+`zlib` in the probe process. Every intact case is equal; every divergence is a damaged
+mirror, and one divergence is a silently wrong answer (FP1). The new tests do not fail
+against the parent's code for any behavioural reason (FP2).
+
+| case | gz bytes | old → new | read old/new | inflates | note |
+|---|---|---|---|---|---|
+| inside | 814 275 | equal | 1.6 MB / 64 KB | 1/1 | prompt line 3 |
+| straddle | 232 420 | equal | 465 KB / 530 KB | 1/2 | prompt line spans the cut |
+| after | 1 083 946 | equal | 2.2 MB / 2.2 MB | 1/2 | fallback answered |
+| longline-incomp | 162 720 | equal | 325 KB / 391 KB | 1/2 | no `0x0a` in head |
+| longline-comp | 424 | equal | 848 B / 424 B | 1/1 | 300 KB line in head |
+| noprompt-big | 542 660 | equal (`''`) | 1.1 MB / 1.2 MB | 1/2 | |
+| noprompt-tiny | 53 | equal (`''`) | 106 B / 159 B | 1/2 | strict read twice |
+| carriers-first | 303 690 | equal | 607 KB / 64 KB | 1/1 | 3 carriers then prompt |
+| crlf | 218 208 | equal | 436 KB / 64 KB | 1/1 | `\r\n` ends |
+| multibyte-straddle | 235 461 | equal | 471 KB / 536 KB | 1/2 | 3-byte chars at the cut |
+| multibyte-later | 66 906 | equal | 134 KB / 64 KB | 1/1 | |
+| multimember-m2 | 217 138 | equal | 434 KB / 64 KB | 1/1 | prompt in member 2 |
+| multimember-m1 | 217 132 | equal | 434 KB / 64 KB | 1/1 | |
+| trailing junk | 108 637 | old throws / new answers | 217 KB / 64 KB | 1/1 | correct text |
+| trailing-small | 109 | both throw | | 1/2 | |
+| truncated-in | 300 000 | old throws / new answers | 600 KB / 64 KB | 1/1 | the disclosed case |
+| truncated-after | 300 000 | both throw | | 1/2 | |
+| truncated-small | 40 | both throw | | 1/2 | |
+| zero-byte | 0 | both throw | | 1/2 | |
+| plain-text-small | 107 | both throw | | 1/2 | |
+| plain-text-big | 200 212 | both throw | | 1/2 | |
+| bomb-after | 83 369 | equal | 167 KB / 232 KB | 1/2 | 80 MB zeros, prompt last |
+| bomb-before | 83 380 | equal | 167 KB / 64 KB | 1/1 | 63 MB inflated for line 2 |
+| corrupt-stored | 202 381 | old throws / **new WRONG** | 405 KB / 192 KB | 1/2 | flip in prompt |
+| corrupt-huffman | 109 706 | old throws / new lists | 219 KB / 64 KB | 1/1 | flip after prompt |
+| corrupt-crc-only | 109 722 | old throws / new lists | 219 KB / 64 KB | 1/1 | trailer bad only |
+| corrupt-late | 2 000 560 | old throws / new lists | 4.0 MB / 192 KB | 1/2 | flip at 1.5 MB |
+
+`gunzipHead`'s doubling loop: one read and one inflate on every default-level case (64 KB
+compressed inflates past the 64 KB want); the two stored-block (level 0) cases took the
+doubling branch — 64 KB then 128 KB read, two inflates — and returned on the hit. Memory
+proxy (inflated output bytes): equal to or below the old path on every case except the
+highly compressible late-prompt one (FP5). The evicted-mirror guard: `firstUserPromptText`
+is reached only from `runList` (both the text and `--json` branches test `s.evicted`
+first) and `cwdFromLog` only from `sessionRecord` (guarded); `--search` reads mirrors
+through `readTurns` behind its own `evicted && !materialise` skip. No path reads an
+offloaded file for a listing. `--search` is untouched by the delta: its diff touches no
+line of `runSearch`/`readTurns`, verified by the commit diff and by the HEAD read.
+
+Full CLI listing, old against new, over the clean synthetic pool (the 19 intact mirrors):
+text and `--json` byte-identical (SHA-256 equal). Over the dirty pool both abort with an
+uncaught zlib error and a raw stack trace, as before; the rows new printed before aborting
+include the silently altered prompt from `corrupt-stored`.
+
+**3 — Completeness / harvest.** The behaviour change is in `CHANGELOG.md` and the commit;
+not in `--help` (a digest, fine), not in `instruments/man/cctranscript.1`, not in
+`instruments/README.md` (FP3). `ccrepo`'s `cwdFromLog` still gunzips every mirror whole for
+a 64 KB sniff, under a comment that says a cheap partial read does not exist; the ccarchive
+charter item still says cctranscript gunzips every mirror for one column (FP4).
+
+**4 — Security & privacy.** `/security-review` discharged by grounds: it reads this
+session's pending diff, which is other reviewers' draft verdicts, not the landed delta; the
+read was done by hand against the OWASP Top 10. A01/A02/A05/A07/A10: nothing to bite on
+(no auth, no crypto, no config, no network). A03 injection: paths come from `readdir` of
+the archive root and reach only `fs` calls; the one spawn (`stat -f`) is pre-existing and
+array-argumented. A04 design: the input is the principal's private transcripts; the delta
+reads fewer bytes of each and adds no output surface. A06 components: `node:zlib` only.
+**A08 integrity: FP1** — the prefix path has no integrity check, so damaged bytes can be
+listed as a prompt where the old path refused. A09 logging: a damaged mirror still aborts
+the whole listing with a raw zlib stack trace that names the mirror's path (pre-existing,
+out of scope, noted under FP1's counsel). Resource use: the prefix inflate is bounded by
+what 64 KB of deflate can hold (about 66 MB at the 1032:1 ceiling; 63 MB measured on
+zeros), so not a bomb, but FP5. Terminal control sequences: for an intact mirror the
+prefix path returns the identical string, and for a damaged one any bytes must still parse
+as a JSON string inside a record, so the set of bytes that can reach the terminal is not
+widened; `runList` clips at 70 characters and strips nothing, as before. File descriptors:
+`gunzipHead` closes in `finally`; the fallback uses `readFileSync`; `cwdFromLog`'s live
+branch closes before returning. Privacy of this pass: no real archive read; synthetic
+mirrors only; `HOME` pointed at an empty scratch directory for every CLI run.
+
+## Findings
+
+Severities are this reviewer's. Doctrine and design are the principal's to decide; the
+work is recorded, nothing applied. Counsel is labelled.
+
+**FP1 — MODERATE (A08 integrity).** The delta's safety claim — "a hit is final … the
+prefix … can never change an answer" (code comment, commit, CHANGELOG) — is false for a
+damaged mirror, and the disclosed difference understates it. gzip verifies data only in
+the trailer; the prefix path never reads the trailer, so a corrupted prefix that still
+decodes is trusted. Probe: a level-0 mirror with one byte flipped inside the prompt text
+lists the altered text (old: throws); a sweep of 400 single-bit flips across the first
+2.4 KB of a default-level mirror's compressed bytes gave 175 both-throw, 187 new-correct
+where old threw, and **38 (9.5 %) where new listed wrong text** where old threw. The
+commit discloses "a corrupt mirror whose first prompt sits in the intact prefix now
+lists" — but the code cannot tell an intact prefix from a damaged one, and the row it
+prints can be wrong, which is exactly the harm the brief's "why it earns a review" names.
+Mitigants, which hold the severity below MAJOR: it needs a damaged mirror; ccarchive keeps
+a SHA-256 manifest and `--verify` for integrity; the listing is a navigation aid and the
+chosen session renders through the strict whole-file read, which still throws. *Counsel:*
+(i) state the honest contract where the claim now sits — comment, CHANGELOG, man page: the
+prefix path reads bytes the trailer never checked, so on a damaged mirror it may list a
+wrong or partial first prompt where the whole read refused, and integrity is `ccarchive
+--verify`'s job; (ii) pin it with a test built like the probe (level 0, one byte flipped,
+assert the altered text is returned, so the contract is explicit rather than accidental);
+(iii) optionally, catch the fallback's throw in `runList` and print a marked row (as the
+evicted row does) instead of aborting the listing with a stack trace — pre-existing, but
+the delta's disclosure leans on that abort as the "before". *Recurrence prevention:* a
+partial inflate is unverified data; any consumer that acts on one says so at the point of
+use, and the claim "cannot change an answer" is reserved for paths that re-check.
+
+**FP2 — minor.** The five new tests do not distinguish the delta from its parent. Run
+against `83d9b0b^`'s code with only the missing export added, all five pass (the parent's
+whole-file read satisfies every assertion); without the export they fail on `TypeError`,
+not behaviour. They pin the invariant the delta promises, which is worth having, but none
+pins the one place behaviour differs (the disclosed truncated-in-prefix case now listing),
+and nothing pins the dropped partial line as a behaviour — the comment's rationale ("could
+parse as a different, shorter object") is inert for JSONL, since a cut object never parses;
+the drop is still right, but for a different reason (a whole-file strict read whose last
+line lacks `0x0a` is otherwise re-read, which the `nonl` test shows). *Counsel:* add the
+FP1 test and a truncated-in-prefix test; reword the comment to the real reason.
+
+**FP3 — minor (V3).** The behaviour change and the prefix read are stated in `CHANGELOG.md`
+and the commit only. `instruments/man/cctranscript.1` (`--from-archive`, `--list`) and
+`instruments/README.md` describe listing as peeking each candidate for its first prompt and
+say nothing about what a damaged mirror now does. *Counsel:* one sentence in the man page
+beside the evicted-marker sentence, carrying FP1's honest contract.
+
+**FP4 — minor (V5, harvest).** Two live statements now contradict the delta.
+`instruments/ccrepo` lines 693–695 gunzip every mirror whole for the 64 KB cwd sniff under
+"gzip has no cheap partial read", while `cctranscript`'s `gunzipHead` is that read
+(ccrepo's rollup cache makes the cost small on warm runs, so the stale comment is the
+defect, the harvest a nicety). `docs/roadmap/210-instruments-open-features/240-…` line 33
+still says cctranscript's "archive pool still gunzips every mirror for one column
+(`210/180`)". *Counsel:* fix the comment (and share the helper if ccrepo ever wants it);
+tick the charter line.
+
+**FP5 — note (resource).** `gunzipHead` inflates the whole 64 KB compressed chunk whatever
+`want` is (no output cap), and `firstUserPromptText` keeps `head` in scope while the
+fallback inflates the whole file, so on a highly compressible mirror whose prompt is late
+the new path holds about 1.8× the old peak (143 MB vs 80 MB inflated on the 80 MB-of-zeros
+case; 63 MB inflated to read line 2 on the prompt-first case). Bounded, so not a bomb, and
+real logs inflate nearer 5–10×. *Counsel:* `head = null` before the fallback, or scope it.
+
+**FP6 — note (speed only).** Two double reads: when the file is at most 64 KB compressed,
+`gunzipHead` already did the strict whole inflate, and a miss then re-reads and re-inflates
+the same bytes (noprompt-tiny: two inflates); and for every mirror `sessionRecord` and
+`runList` each inflate the same 64 KB prefix (cwd sniff, then first prompt), two prefix
+inflates per mirror. Neither changes an answer. *Counsel:* carry the sniffed head on the
+session record, or return it from `gunzipHead` with a flag saying "this was the whole file".
+
+**FP7 — note (V4).** The 64 KB bound lives as four literals — `FIRST_PROMPT_PREFIX`,
+two `65536`s in `cwdFromLog`, the floor in `gunzipHead` — with a comment asserting they
+agree instead of one named constant.
+
+**FP8 — note (provenance).** The brief's "no later commit has touched either path" was
+overtaken by `cea247e` within the hour; the rewrite of `firstPromptInLines` keeps the
+shared-predicate symmetry (assumption c) and the matrix ran at HEAD, so no finding on the
+delta — recorded so the next reader of this brief does not take the line as current. Also
+noted: `firstUserPromptText` is now exported without the evicted guard its callers apply,
+so a future caller must remember it.
+
+## Overall
+
+**PASS-WITH-FINDINGS · 0 MAJOR · 1 MODERATE · 3 minor · 4 note**
+
+The speed path is correct on every intact input the matrix could construct, the listing is
+byte-identical over an intact pool, and the CPU shape reproduces. The one claim it rests
+on is over-stated for damaged mirrors, and that is a disclosure-and-test gap, not a design
+fault.
+
+## Re-run ledger
+
+All from the scratch clone at `ac88dc4` (tests, floors, CLI) or the worktree (sweeps,
+lint), foreground, under `nice -n 10`, one heavy process at a time; exit codes read
+explicitly. Load averages at the time ran 8–20 (other sessions' suites).
+
+| step | command (abridged) | result |
+|---|---|---|
+| node suite | `node --test instruments/*.test.js` (once, clone) | 447/447 pass, exit 0 |
+| delta tests vs parent | the five `first prompt` tests on `83d9b0b^` + shim | 5/5 pass (FP2) |
+| same, no shim | as above without the export | 5 fail, all `TypeError` |
+| man lint | `mandoc -T lint instruments/man/cctranscript.1` | silent, exit 0 |
+| matrix | `matrix.js` (27 cases, old vs new, counters) | table above; FP1, FP5, FP6 |
+| flip sweep | `flips.js` (400 single-bit flips) | 175 / 187 / 38 (FP1) |
+| CLI listing | `--list --all --from-archive --dest <clean> [--json]`, old/new | SHA-256 equal |
+| CLI listing, dirty pool | same over the damaged mirrors | both exit 1, raw zlib trace |
+| timing shape | `timing.js`: 300 mirrors, 111.5 MB gz, 9 late prompts, 3 runs | see below; equal |
+| real-archive claims | not run (privacy rule; shape reproduced) | discharged by grounds |
+| floor, hook plane | `floor.py --plane hook --root <clone> --tools <clone>/tools` | exit 0 ✅ |
+| floor, ci plane | `floor.py --plane ci --root .` (clone) | exit 0, all ✅ |
+| Python suite | not in this brief's re-run list | not run |
+| coldsweep | delta's names; rule-2 bar + the four `--also-exclude`s | 34 hits, exit 0; not wide |
+
+Timing shape: old 2.33–2.46 s CPU per run of the function over the corpus, new 0.54–0.57 s
+(about 4.3×); answers equal on all 300.
+
+The real-archive timing (about 27 s to 7 s for the listing; 24 s to 4 s for the function)
+is discharged on grounds: the brief's privacy rule bars displaying a listing, the function
+ratio reproduces at about 4.3× on a synthetic corpus of similar shape, and the
+byte-identical claim reproduces on the synthetic pool. The census numbers (983 mirrors,
+24 beyond 64 KB) are the author's and were not re-counted; they tune speed only.
+
+## Standing checklist V1–V7
+
+- V1 — FP1 (claim stronger than its evidence); the timing and byte-identical claims hold
+  in shape.
+- V2 — every "measured"/"byte-identical" claim re-driven (ledger); the census discharged
+  as a tuning claim.
+- V3 — FP3 (man page, README not swept); CHANGELOG is.
+- V4 — FP7.
+- V5 — FP4 (ccrepo comment; charter line).
+- V6 — lens 4 by hand; `/security-review` discharged by grounds; FP1 carries the
+  recurrence step.
+- V7 — provenance above, including the exposure.
+
+## Follow-up checklist (for the principal / the taker; nothing applied here)
+
+- [ ] FP1 — decide the contract for a damaged mirror and state it in comment, CHANGELOG,
+  man page; add the corrupt-prefix test; consider a marked row instead of an abort.
+- [ ] FP2 — add the discriminating tests; reword the partial-line comment.
+- [ ] FP3 — one man-page sentence beside the evicted marker.
+- [ ] FP4 — fix ccrepo's stale comment; tick the charter line.
+- [ ] FP5/FP6/FP7 — speed and tidiness counsel, take or leave.
+- [ ] FP8 — refresh the brief's "no later commit" line if the brief is reused.
