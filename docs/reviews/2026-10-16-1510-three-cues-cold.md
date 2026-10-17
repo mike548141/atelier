@@ -367,3 +367,118 @@ the delta is prose; machine load averaged 8–11 throughout.
       the brief's sweep instruction was reached. Phase 2 and the orchestrator weigh whether
       TC2/TC4 stand as independent; the reviewer's own view is that they stand on their
       probes but not on their independence.
+
+### Reconcile
+
+Phase 1 committed at `9e45243`; the sibling was received from the orchestrator as text after
+that commit (2026-10-17 UTC). Opened at reconcile, and nothing else: the landing commit's message
+body; the intent record `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md`
+(its `200/040` and close sections); the commissioning item `200/100` (C5 as filed and closed);
+the two prior verdicts the sibling names, read for their cue findings and decision state; the
+pointer `280/030`; the 2026-10-03 ruling inventory's CH rows. Phase-1 text above is unrevised.
+
+**Against the seeded questions.**
+
+- *Q1 (predicates not re-checked; "all cheap" over a channel; "by accident" vs say-so).*
+  Anticipated TC4 (the say-so misdescription) and TC5 (cheapness conditional). Both formed in
+  phase 1; the predicate table answers the question cue by cue. Nothing changes.
+- *Q2 (the third cue asks but does not say what to do with the answer — cue or fact-finding
+  step?).* Anticipated TC1 exactly. Phase-1 severity stands at MODERATE; the sibling's framing
+  ("belongs beside the cues") is one of two shapes the counsel under TC1 allows for, and the
+  choice is the principal's.
+- *Q3 (the opening written for two — does it describe three?).* Answered in lens 2: it still
+  reads true, being count-free and grounded in the backstop's blind spot. The adjacent count it
+  led the reviewer to is TC3. Nothing changes.
+
+**Against the intent record and the commissioning item.** The landing commit's body says what
+the diff shows and no more: two "two cues" over three bullets, the third having come with
+§ The channel. `200/100` C5 is filed as "internal" with file:line evidence and is closed with
+the same two-word description. The intent record carries no evaluative account of C5 beyond
+"each fixed separately with its own pass", and records the principal's "fix the contradictions
+one by one" as an answer, not a ruling. The brief's account of the work is accurate; nothing in
+the author's narrative was relied on in phase 1 and nothing in it moves a severity.
+
+**Against the two prior verdicts — the finding this reconcile forms.**
+
+- `2026-07-20-1355-concurrency-flip-cold.md`: CF2 `[fixed]` wrote "their silence licenses
+  nothing" into the paragraph so that cue-silence could never license relaxing; CF6 `[fixed]`
+  dropped "(primary)" from the say-so cue. TC2 is the CF2 principle re-opened by the third
+  bullet's "fact" sentence — the same observation the channel verdict made at its reconcile.
+- `2026-08-17-1000-channel-doctrine-cold.md`: **CH2** (MODERATE) is TC2 in substance, with
+  the same repro lines and the same counsel; **CH7** (minor) is two findings in one — the
+  "two cues" count over three bullets, *and* the "by accident" misdescription — of which the
+  first half is what `df0820e` fixed and the second half is TC4. Decision state at HEAD, read
+  from `280/030` and the 2026-10-03 ruling inventory: the channel cycle is closed at 0 MAJOR
+  and **CH1–CH16 await the principal's ruling round**; CH2 sits in the inventory as unruled
+  with no overtaking change; CH7 is listed as open wording. So TC2 and TC4 are not new: they
+  are open findings re-found, and the exposure disclosed in the provenance is why the reviewer
+  cannot claim to have re-found them cold. They stand on their probes; their severities are
+  unchanged; the principal should rule them *once*, under whichever ID the ruling round reaches
+  first.
+
+**TC7 — minor — formed at reconcile — the delta discharged half of an open finding without
+citing it, and the record still shows that half open.** CH7 named the "two cues" count on
+2026-08-17; it sat unapplied for 47 days until R2's survey re-found the same defect as C5 and
+`df0820e` fixed it, with neither the commit body, the commissioning item nor the 2026-10-03
+run's record mentioning CH7. At HEAD the channel pointer `280/030` still lists CH7 among the
+open wording findings, and the verdict file carries no `[fixed]` against it. Two consequences:
+the ruling round will present a count defect that no longer exists, and the record cannot show
+that the open-verdict route failed to deliver a fix the survey route then delivered — which is
+the datum § *When a rule keeps breaking* would want. *Counsel:* a one-line `[fixed: df0820e —
+count half only]` note against CH7 at the ruling round, and the same cross-check (grep the
+finding IDs on the delta path before filing) when `200/100`'s remaining fixes are closed, since
+C1–C11 were surveyed over surfaces that carry open verdicts.
+
+**Overlap with sibling passes of this batch.** The worktree-venv pass (§ *The substrate*) and
+the harvest pass (the closing-litany bullet) closed on `main` at `07c62ea` and `825880b`; both
+are on `docs/method/CONCURRENCY.md` but neither touches § *The trigger*, and neither verdict was
+opened. No sequencing conflict with this pass's findings.
+
+**Overall, restated: PASS-WITH-FINDINGS · 0 MAJOR · 2 MODERATE · 3 minor · 2 note** (TC7
+added at reconcile; no phase-1 severity amended).
+
+## Deferred material — folded in at reconcile
+
+# Sibling to the three-cues cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-16-1510-three-cues-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-10-16 UTC by the Opus brief-writer named in the brief's provenance; it
+forms no finding. Fold this file in below the reconcile and delete it at phase 2.
+
+## Intent and commissioning records
+
+- Intent record: `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` —
+  **not opened by the brief-writer**.
+- Commissioning item: `200/100` C5, in
+  `docs/roadmap/200-anti-slop-invariant-registry-promote-rec/100-r2-found-eleven-live-contradictions.md`
+  — **not opened by the brief-writer**.
+- The landing commit's message body (read by the brief-writer): it says the section said "two
+  cues" twice over a list of three, the third having arrived with § *The channel* without the
+  count being updated.
+
+## Prior verdicts on these surfaces (named by filename grep, not opened, not exhaustive)
+
+- `docs/reviews/2026-07-20-1355-concurrency-flip-cold.md`
+- `docs/reviews/2026-08-17-1000-channel-doctrine-cold.md` — by its name alone, possibly the pass
+  on the channel doctrine that brought the third cue (unverified; not opened)
+
+## The pointer's own lens hints
+
+None. The pointer is refs-only; its last sub-bullet is the brief-writer's orchestrator's claim.
+
+## Overlap with sibling passes of this batch
+
+`docs/method/CONCURRENCY.md` is also the subject of the worktree-venv pass (§ *The substrate*,
+a few lines above) and the harvest pass (the closing-litany bullet). Sequence them if one runner
+takes several.
+
+## Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. The count was fixed, but the predicates were not re-checked: "all cheap, no locking
+   machinery" now covers a messaging channel, and the third cue says "the other two are
+   discoveries you make by accident" when one of them is the principal saying so at open.
+2. The third cue enumerates peers and asks. It does not say what to do with the answer. Is it a
+   firing cue for the substrate rule, or a fact-finding step that belongs beside the cues?
+3. The section's opening names "a blind spot in the cues below" and describes only the
+   dirty-tree cue's blind spot. Written for two, does it still describe three?
