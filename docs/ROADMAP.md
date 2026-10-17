@@ -190,6 +190,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [Three small gaps in the floor's tests and count contract](roadmap/115-guardrail-architecture-mike-commissioned/320-three-small-floor-test-and-contract-gaps.md)
 - [ ] 🔎 [RECORD.md's index rotation has lost its trigger](roadmap/115-guardrail-architecture-mike-commissioned/330-record-md-rotation-trigger-has-no-signal.md)
 - [ ] 🔎 [Merges, cherry-picks and rebases make commits the hook plane](roadmap/115-guardrail-architecture-mike-commissioned/340-merges-cherry-picks-and-rebases-skip-the-hook-plane.md)
+- [ ] 🔎 [A cloud session cannot satisfy the hook plane's leakscan term](roadmap/115-guardrail-architecture-mike-commissioned/350-a-cloud-session-cannot-satisfy-the-hook-planes-term-requirement.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 
