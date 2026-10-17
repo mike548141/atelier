@@ -189,3 +189,357 @@ phase-1 text. Then fold the sibling in below the reconcile and delete it.
 Findings on self-authored doctrine are the principal's to decide (rule 3; a
 guard is doctrine by function): record all, apply nothing; counsel per finding is
 welcome, labelled and kept beneath it.
+
+---
+
+# Verdict — 2026-10-17 UTC
+
+## Provenance (repeated, V7)
+
+- **Reviewer:** a fresh `claude-fable-5-1` subagent (Fable tier, the principal-named
+  review tier — checked at claim), spawned 2026-10-17 UTC by a Fable orchestrator
+  through a standing prompt file for prefix `GT`. The orchestrator authored none of
+  the delta and none of this brief, and held the `.deferred.md` sibling outside this
+  reviewer's reach. Neither the delta's author (the 2026-10-05 queue run) nor the
+  brief-writer started or instructed this session: rule 4's criterion passes.
+- **Worktree:** `/Users/mike/worktrees/atelier-review-1017`, branch `review-1017`,
+  HEAD `8acfff1` (confirmed an ancestor-or-equal of the brief's floor). Read-only
+  git only; probes and the pre-/post-landing extractions ran in a private clone
+  under this session's scratchpad, in a folder named `GT`.
+- **Interruption, disclosed:** the pass was cut off by an API rate limit on
+  2026-10-17 UTC after the unit tests and selftests had passed, and resumed in the
+  same agent transcript; the differential runs and everything after them ran on
+  resumption. No phase-1 text was written before the interruption.
+- **What was read:** this brief; `docs/method/REVIEW.md` whole; the landing diff
+  `c938b58^..c938b58` for the four delta files (diff only — the commit's message
+  body stayed closed); both scanners and both test modules at HEAD;
+  `tools/allowmarker.py`; `docs/method/GUARDS.md`; `docs/method/EVIDENCE.md` §15;
+  `tools/README.md` §§ leakscan/secretscan; `CHANGELOG.md` lines 120–165;
+  `.leakscanignore`, `.secretscanignore`, `.atelier-floor.json`,
+  `.githooks/pre-commit`, `.github/workflows/ci.yml`, a grep of `tools/floor.py`;
+  and, from the cold sweep, one table row of board item `300/020` and one paragraph
+  of `260/120` (neither barred). The barred set — prior verdicts, `SESSIONS.md`,
+  `docs/sessions/`, `ROADMAP-DONE.md`, the queue pointer, the sibling, items
+  `110/130` and `115/280`, the landing commit's message body — was not opened.
+- **Sweep:** `tools/coldsweep.py` with the brief's four `--also-exclude` paths, no
+  `--include-barred` (444 files barred, 593 searched).
+- **Exposure, disclosed:** the CI-plane floor run printed the 23 advisory findings'
+  `path:line` locations (fixture files; no values). A 1 MiB cost probe overran its
+  600 s budget, was moved to the background by the harness and stopped by this
+  reviewer within about a minute; no other heavy process was running at the time.
+- **`/security-review`:** discharged by grounds — the delta landed 2026-10-05, and
+  this session's pending diff is other reviewers' drafts, so the scanner cannot be
+  aimed at the work. The code-altitude read was done by hand (lens 4).
+
+## Lens 1 — approach and assumptions
+
+Load-bearing assumptions, named first and then tested:
+
+1. **Every gate is a necessary condition, provable from the pattern text.** Tested
+   rule by rule from the regex (table below), independently of the delta's tests,
+   and then by three differential runs (gated vs ungated at HEAD; pre- vs
+   post-landing; gated vs ungated at the landing commit) over the repo tree and a
+   20,181-line corpus derived from every alternative of every gated rule. **Holds
+   at HEAD** for all 15 leakscan gates, all 16 secretscan named gates, the assigned
+   tail gate, the 32-character entropy floor and both marker literal pre-checks.
+2. **The speed gain was worth any residual risk on a blocking guard.** The risk
+   that matters is not a wrong gate today but a gate that goes stale when its rule
+   widens — and that risk is carried by a hand-kept corpus, not by structure
+   (GT2). Accepting the gates as landed is reasonable; the maintenance contract is
+   under-built.
+3. **Byte-identical output on two trees plus a fuzz corpus proves equivalence.**
+   It proves equivalence over the inputs used. The regex derivation is the proof;
+   the fuzz is corroboration. This pass did the derivation and re-drove the fuzz
+   with an independent corpus (Unicode digits and whitespace that `\d`/`\s`
+   accept, full-width look-alike separators the literals reject, boundary lengths,
+   every marker spelling, overlapping MAC/IPv6 spans, every `--disable` shape the
+   tests use plus two more). All identical.
+4. **A gate keyed by rule name fails open when a rule is renamed.** True in the
+   weak sense: `test_every_gate_names_a_real_rule` fails the suite on a stale name,
+   so a rename is caught, not silently ungated. The failure mode that is *not*
+   caught is a rule whose regex widens under an unchanged name (GT2).
+5. **Lever 3 (one combined alternation) is rightly not built.** Verified: rules
+   overlap on one span (a MAC is a valid IPv6 shape and is shadowed by D5; a
+   payment card and an IRD number share digit runs) and carry per-rule
+   validators, so a single leftmost-match alternation cannot reproduce rule-ordered
+   per-rule findings. The recorded reason is sound.
+6. **Unstated:** the gates change which regexes run, so they change the scanner's
+   worst case. They make it *better* on lines that fail a gate and leave it
+   *unchanged* on lines that pass one — and three pre-existing regexes are
+   quadratic on long lines (GT1). The delta did not create that; it did not name
+   it either, and its speed claim reads as if the worst case had moved.
+
+## Lens 2 — correctness and quality
+
+Both gate blocks and their tests read whole; `c938b58` diffed. Later commits on
+the same files (`ffabef3`, `ded8d32`, `b609b4b`, `4dfaf8d`, `39a74b9`, `f4afb7a`)
+changed no line mentioning a gate, confirmed by grepping the `e7575f7..HEAD` diff
+of both scanners; the gates were reviewed at HEAD.
+
+### Per-rule gate table (derived from the regex at HEAD)
+
+Flags: no leakscan structural rule or secretscan named rule carries `re.IGNORECASE`
+except the two key-context rules (`(?i)` inline), whose gates test only the
+letter-free tail, so case folding (including the Kelvin sign and long s) cannot
+reach them. All patterns are `str` patterns with Unicode `\d`/`\s`; every gate that
+uses `\d` or `\s` is a `str` regex with the same classes, and every gate that uses
+`str.count`/`in` tests a literal the rule also spells literally.
+
+| Rule (leakscan) | Weakest condition every match satisfies | Gate | Verdict |
+|---|---|---|---|
+| private-key-header | ends in the literal `PRIVATE KEY-----` | that literal `in` | necessary |
+| aws-access-key-id | starts with the 4-letter prefix | prefix `in` | necessary |
+| jwt | contains `.eyJ` (second segment lead-in) | `.eyJ` `in` | necessary |
+| email | contains `@` | `@` `in` | necessary |
+| pii-key-context | tail `[:=]\s*["']?` + 2 value chars | `_PII_TAIL_RX` (same classes) | necessary |
+| payment-card | 13+ digits, or `\d{4}` groups | `\d{4}` search | necessary |
+| iban | match length ≥ 2+2+11 = 15 | `len(line) >= 15` | necessary; near no-op |
+| mac-address | five `[:-]` separators | `count(":")+count("-") >= 5` | necessary |
+| ipv4 | three literal dots | `count(".") >= 3` | necessary |
+| ipv6 | each of 4 alternatives has ≥ 2 colons | `count(":") >= 2` | necessary |
+| nz-bank-account | three literal hyphens | `count("-") >= 3` | necessary |
+| nz-phone | tail `\d{3}[\s-]?\d{3,4}` | `\d{3}[\s-]?\d{3}` search | necessary |
+| nz-address | ends in one of 20 suffix words, case-sensitive | same 20 literals, no flags | necessary |
+| coordinates | one `,` and two literal `.` | `"," in` and `count(".") >= 2` | necessary |
+| nz-ird | two literal hyphens | `count("-") >= 2` | necessary |
+
+| Rule (secretscan) | Weakest condition every match satisfies | Gate | Verdict |
+|---|---|---|---|
+| private-key-header | literal tail | tail `in` | necessary |
+| pgp-private-key | whole literal | whole literal `in` | necessary |
+| aws-access-key-id | one of two 4-letter prefixes | either `in` | necessary |
+| github-token | alt 1 has `gh`+`_`; alt 2 has `github_pat_` (which has `_`) | `_` and (`gh` or `github_pat_`) | necessary |
+| slack-token | starts `xox` | `xox` `in` | necessary |
+| slack-webhook | literal scheme+host+path prefix | that prefix `in` | necessary |
+| google-api-key | starts `AIza` | `AIza` `in` | necessary |
+| gcp-oauth-secret | starts `GOCSPX-` | `GOCSPX-` `in` | necessary |
+| stripe-key | `k_live_` or `k_test_` | either `in` | necessary |
+| anthropic-key | starts `sk-ant-` | `sk-ant-` `in` | necessary |
+| openai-key | starts `sk-` | `sk-` `in` | necessary |
+| npm-token | starts `npm_` | `npm_` `in` | necessary |
+| twilio-key | starts `SK` (case-sensitive) | `SK` `in` | necessary |
+| sendgrid-key | starts `SG.` | `SG.` `in` | necessary |
+| jwt | contains `.eyJ` | `.eyJ` `in` | necessary |
+| basic-auth-url | contains `://` and `@` | both `in` | necessary |
+| assigned (SECRET_KEY_RX) | tail `[:=]\s*["']?` + 6 value chars | `_ASSIGNED_TAIL_RX` | necessary |
+| high-entropy | `{32,}` token ⇒ line ≥ 32 chars | `len(line) >= 32`, test-pinned to the pattern | necessary |
+| allow-marker (both) | `marker_rx` opens `\b` + escaped literal, no flags | `ALLOW_MARKER in line` | necessary |
+
+Rules a gate names that no longer exist: none (test-pinned). Rules with no gate:
+none in either table. `_shadow_spans`: skipping the shadowed rule when its own gate
+fails drops nothing (there is no finding to suppress); skipping a shadower whose
+gate fails drops nothing (it has no span). The `continue` after the entropy peek is
+the last statement of the line loop at HEAD, so it skips nothing today (GT4 on the
+fragility). The early `return []` skips only `_dedupe_same_span` and the marker
+subtraction, both of which are no-ops on an empty list; no tally counter is
+touched by either. The machine-local term list runs ungated (test-pinned, D1);
+the path-name scan goes through `scan_lines` and is gated identically, which is
+correct because the gates are necessary conditions.
+
+**The tests' near-miss corpora** were written by hand from the same reading that
+wrote the gates (one or a few positives per rule, random single-character
+mutation), not derived from the regexes. The coverage assertion is per rule, not
+per alternative. That is the hinge of GT2.
+
+## Lens 3 — completeness and harvest
+
+- `tools/README.md` describes what both guards catch and says nothing about
+  gates; nothing there is now false. `docs/method/GUARDS.md` governs responses to
+  findings, not detection, and makes no claim the gates touch.
+- `CHANGELOG.md` (2026-10-05 entry) is the delta's one live-surface claim: output
+  byte-identical (reproduced), "no rule, finding, suppression or exit code
+  changed" (reproduced), and speed figures on a 50 MB corpus (partially
+  reproduced, GT7).
+- Copies of gated patterns elsewhere: none outside the two scanners (grep of
+  `tools/` and `instruments/`). Between the two scanners, three named shapes are
+  copied; one has diverged (GT5).
+- The sweep surfaced board item `300/020` naming `110/130` as "inherits both"
+  with the constraint "output must stay byte-identical" — consistent with the
+  delta — and `260/120` citing `110/130`'s gate risk as a class. Nothing else.
+
+## Lens 4 — security and privacy
+
+Design altitude: the gates are a pure optimisation layered under two blocking
+boundary guards; the threat is a false negative. Code altitude, by hand against the
+OWASP Top 10 and ASVS: injection, XSS and auth classes do not apply (no network,
+no HTML, no auth; stdlib only; input is repo text). The relevant classes are
+**denial of service through regular expressions** (ASVS V5 input handling; CWE-1333)
+and **data exposure in output** (ASVS V8). Exposure: unchanged — findings print
+redacted excerpts as before, and the differential runs showed identical excerpts.
+ReDoS: three pre-existing quadratic regexes are reachable on gate-passing lines
+(GT1). Hunting the line a gate rejects that its rule would match: none found, by
+derivation or by 20,181 adversarial lines in three configurations.
+
+## Standing checklist V1–V7
+
+- **V1** — The CHANGELOG's speed figures are stronger than what can be re-driven
+  from the repo (GT7); the equivalence claim is exactly as strong as its evidence.
+- **V2** — Re-run: both test modules, both selftests, the equivalence claim (three
+  ways), the floor on both planes, the full Python suite, the instrument suite.
+  Ledger below. One unrelated suite failure recorded (GT8).
+- **V3** — The rule changed is scanner internals; README, GUARDS and the floor
+  template carry no mirror of it. Nothing owed.
+- **V4** — Two homes for leakscan's gate table in one module (GT3).
+- **V5** — No internal contradiction found. The secretscan comment "none of the
+  NAMED rules carries `(?i)`" is true at HEAD and is the premise of every
+  case-sensitive literal gate; it is not test-pinned (folded into GT2's counsel).
+- **V6** — Lens 4 above; `/security-review` discharged by grounds.
+- **V7** — Provenance stated above and in the brief.
+
+## Findings
+
+### GT1 — MODERATE — three quadratic regexes remain reachable past the gates (pre-existing)
+
+leakscan `email` (`\b[A-Za-z0-9._%+-]+@…`), secretscan `basic-auth-url`
+(`\b[a-zA-Z][a-zA-Z0-9+.-]*://…`) and secretscan's `URL_RX` carve-out
+(`\b[A-Za-z][A-Za-z0-9+.-]*://…`) each restart a greedy class run at every word
+boundary and scan to end of line before failing on the literal that follows. On a
+line made of short word-boundary-rich runs (digit-dash, `1.`, `sk-`, `eyJ.`)
+without that literal, cost is O(n²): measured at 8K/16K/32K characters, the
+regexes alone take 0.10/0.36/1.21 s (email), 0.07/0.11/0.42 s (basic-auth-url) and
+0.04/0.15/0.55 s (URL_RX) — a ×4 per doubling. The gates skip these on lines that
+lack the literal, which is why `scan_lines` at HEAD is 100× faster than ungated on
+those lines; but one trailing `@`, one `://…@` tail, or (for `URL_RX`) any
+32-character entropy token on the line re-opens the path: HEAD gated `scan_lines`
+measured 0.08/0.33/1.29 s and 0.06/0.21/0.99 s on two such lines. Extrapolated,
+a 1 MiB line costs about 22 minutes and the reader's own 4 MiB window about 6
+hours — in a **blocking** pre-commit hook and a CI job, for one long line in a
+minified asset or data row. A 1 MiB run of this probe exceeded 600 s and had to be
+killed. The pre-landing module (`c938b58^`) shows the same ×4 scaling, so this is
+charged to the rules, not to the gates; it is recorded here because the brief asked
+for regex cost "now that gates change which regexes run", and because the delta's
+speed claim invites the reading that the worst case moved. It did not.
+*Counsel:* make the three runs non-backtracking — on Python ≥ 3.11 a possessive
+quantifier (`[A-Za-z0-9._%+-]++@`, `[A-Za-z0-9+.-]*+://`) fails in one pass; where
+the stdlib floor is older, an atomic group or a pre-scan for the literal followed
+by a bounded backward match does the same. Pin with a timing test at two sizes
+(linear ⇒ ~×2). The fix is to the regexes and is the principal's to decide (a
+guard is doctrine by function).
+
+### GT2 — MODERATE — gate necessity is guarded by a hand-kept corpus, per rule not per branch
+
+`GatesAreNecessary.test_a_rule_that_matches_always_passes_its_gate` proves the
+gate only on lines the corpus happens to match, and asserts coverage per *rule*
+(`exercised == set(GATES)`), so a rule with one matching positive counts as
+covered however many alternatives its regex has. If a rule's regex is later
+widened under the same name — a second key prefix added to leakscan's AWS rule (as
+secretscan's already has), a new IPv6 form, a new token family in a multi-branch
+rule — and no positive of the new shape is added, the stale gate rejects every
+line of the new shape and the suite stays green. That is the "silent false negative
+in a boundary scanner" the module comment names as the worst failure, with the
+guard against it resting on a maintainer remembering to extend a tuple in a test
+file. Structurally, the gates sit ~380 lines from the rules they condition
+(`GATES` at line 613, `STRUCTURAL` at 237; `NAMED_GATES` at 795, `NAMED` at 344),
+and a rule's declaration carries no mention of its gate, so the regex edit and the
+gate edit never meet in one diff hunk. The secretscan premise "no NAMED rule
+carries `(?i)`" is likewise a comment, not a test: a future `(?i)` rule paired with
+a case-sensitive literal gate would be the same drift. No defect at HEAD; the
+derivation above and the differential runs hold. *Counsel:* (a) declare the gate
+beside the rule — a `gate` field on `Pattern`, set in `_p(...)`, with `GATES`
+derived from it; (b) pin the premise: assert no NAMED/STRUCTURAL regex has the
+IGNORECASE flag unless its gate is flag-aware; (c) replace per-rule coverage with
+a corpus generated from the regexes (the brief's lens-2 ask), or at least assert
+each top-level alternation branch is exercised. (a) is the one that changes the
+maintainer's path; (b) is a two-line test.
+
+### GT3 — minor — leakscan reads its gate table from two homes
+
+`scan_lines` iterates the import-time snapshot `_GATED` (via `_active_rules`),
+while `_shadow_spans` looks up the live `GATES` dict per call. Patching one
+without the other splits behaviour: the delta's own equivalence test has to patch
+`GATES`, `_GATED` and `_ACTIVE_CACHE` together to switch gating off, and a future
+caller or test that patches only `GATES` gets gated rules with ungated shadows (or
+the reverse). V4, one fact one home. *Counsel:* have `_shadow_spans` read the same
+snapshot (pass the active tuple in, or look up through `_active_rules`), or build
+the per-rule pairs from `GATES` at call time behind the existing memo.
+
+### GT4 — minor — the entropy `continue` relies on an unpinned structural invariant
+
+The early `continue` after `first = next(entropy, None)` is correct only while the
+entropy pass is the last statement of the line loop — stated in a comment, pinned
+by nothing. A step appended inside the loop later (a new line-level rule, a per-line
+tally) would be silently skipped on every line without an entropy match, which is
+nearly all of them. *Counsel:* wrap the entropy block in `if first is not None:`
+so no `continue` is needed, or add a test that appends a sentinel step through a
+seam and asserts it ran on a short line.
+
+### GT5 — minor — a gated rule is copied between the scanners and has diverged
+
+`aws-access-key-id` is one prefix in leakscan and two in secretscan;
+`private-key-header` and `jwt` are textually identical copies. Each gate matches
+its own copy, so nothing is wrong at HEAD — but this is where GT2's drift lands
+first: harmonising leakscan's rule to secretscan's by copying the regex and not
+the gate would silently drop the second prefix. The module docstrings defend the
+duplication as deliberate self-containment; that is a fair trade, and it is also
+the trade that makes a divergent gate possible. *Counsel:* a cross-pin test that
+the three shared shapes are equal in both scanners (or that any difference is
+declared in a comment the test reads), which keeps self-containment and removes
+the silent half.
+
+### GT6 — note — the brief's first re-run invocation does not run
+
+`python3 -m unittest tools.test_leakscan tools.test_secretscan -v` fails with
+`ModuleNotFoundError` (the test modules import their siblings as top-level names).
+The working form is `python3 -m unittest discover -s tools -p 'test_leakscan.py'`
+(and the same for secretscan), which is what the CI floor runs. Rule 1: the
+brief's framing is attackable; this is a defect in the ask, not the work.
+
+### GT7 — note — the CHANGELOG's speed figures cannot be re-driven exactly
+
+"About 3× faster for leakscan and 4.6× for secretscan on a 50 MB corpus" names a
+corpus that is not in the repo. On this pass's 650 KB match-dense corpus, gated vs
+ungated at HEAD measured 11.9 → 4.4 s (2.7×) and 7.4 → 3.0 s (2.5×); the leakscan
+figure is consistent, the secretscan figure is not reproduced (a match-dense
+corpus flatters neither). V1: the equivalence claim is reproducible and the speed
+claim is a reported measurement with no re-runnable input. *Counsel:* state the
+corpus shape (or ship a generator) beside any future speed figure, or state the
+figure as "measured once on a private corpus".
+
+### GT8 — note — one unrelated failure in the full suite under load
+
+`test_pins.BoundedMemory.test_peak_memory_does_not_scale_with_sibling_count`
+failed once in the full-suite run (1916 tests, 655 s) with machine load averages
+3.5–5.7 from other live sessions; the delta touches no file it reads. Recorded, not
+charged: a memory-scaling assertion on a shared machine is the env-gated class, and
+one run is not a diagnosis. The two delta test modules passed in isolation (152 and
+169 tests).
+
+## Overall
+
+**PASS-WITH-FINDINGS — 0 MAJOR · 2 MODERATE · 3 minor · 3 note.** Every gate at
+HEAD is a necessary condition for its rule, by derivation and by three independent
+differential runs; the delta's byte-identical claim reproduces. The two MODERATEs
+are a pre-existing quadratic worst case the gates mask but do not fix (GT1), and a
+necessity contract whose only guard against future drift is a hand-kept corpus
+(GT2). Nothing applied; all findings are for the principal.
+
+## Re-run ledger (all 2026-10-17 UTC, worktree HEAD `8acfff1`, `nice -n 10`, foreground)
+
+| Claim / check | How | Result |
+|---|---|---|
+| Delta test modules | `unittest discover -s tools -p test_leakscan.py` / `…secretscan.py` | 152 OK · 169 OK |
+| Selftests | `tools/leakscan.py --selftest`, `tools/secretscan.py --selftest` | both OK, exit 0 |
+| Gated = ungated at HEAD | monkeypatched module over clone tree + 20,181-line corpus, 3 disable sets each | identical, both scanners |
+| Pre- = post-landing | `c938b58^` plain vs `c938b58` gated, same inputs | identical, both scanners |
+| Gated = ungated at landing | `c938b58` both modes | identical, both scanners |
+| Corpus reaches every gated rule | per-rule counts from the gated run | all 15 + all 19 fire |
+| Adversarial cost | per-cell subprocess timing at 16K/32K, and 8K/16K/32K | GT1 (×4 per doubling) |
+| Full Python suite (once) | `unittest discover -s tools -p 'test_*.py'` | 1916 run, 1 failure (GT8) |
+| Instrument suite (once) | `node --test instruments/*.test.js` | 447 pass, 0 fail |
+| Floor, hook plane | `floor.py --plane hook --root . --tools tools` | all enforced ✅, exit 0 |
+| Floor, CI plane | `floor.py --plane ci --root .` | exit 0; secretscan 23 advisory 🟡; leakscan clean (structural + local) |
+| Cold sweep | `coldsweep.py` + four `--also-exclude`, no `--include-barred` | 43 hits, 444 barred, 2 unbarred board lines read |
+
+## Follow-up checklist (for the principal; nothing applied)
+
+- [ ] GT1 — decide whether to make the three regexes non-backtracking and pin
+      linearity with a timing test (Python floor permitting possessive quantifiers).
+- [ ] GT2 — decide on declaring the gate beside its rule, pinning the no-`(?i)`
+      premise, and per-alternative (or regex-derived) coverage.
+- [ ] GT3 — one home for leakscan's gate table.
+- [ ] GT4 — remove the `continue`'s dependence on loop order, or pin it.
+- [ ] GT5 — cross-pin the three shared shapes between the scanners.
+- [ ] GT6 — correct the re-run invocation in the brief template these briefs copy.
+- [ ] GT7 — ground future speed figures in a re-runnable corpus.
+- [ ] GT8 — re-run `test_pins.BoundedMemory` on a quiet machine before treating it
+      as flaky.
