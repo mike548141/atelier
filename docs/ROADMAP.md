@@ -554,6 +554,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up: the session-open prompt's "restore" left a net change](roadmap/320-child-filed-findings-via-pointing-up/670-the-session-open-restore-left-a-net-change-that-reverses-a-ruling.md)
 - [ ] 🔎 [Hand-up: a dispatched worker cannot keep a long check in the…](roadmap/320-child-filed-findings-via-pointing-up/680-a-dispatched-worker-cannot-keep-a-long-check-in-the-foreground.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
 - [ ] 🔎 [Hand-up: a scanner's --selftest prints its fixture findings in the…](roadmap/320-child-filed-findings-via-pointing-up/690-a-scanner-selftest-prints-fixture-findings-in-the-floors-own-shape.md) <!-- wrapscan:allow: a state line carries the whole state in one line so the index reads true -->
+- [ ] 🔎 [Hand-up: the process table is a shared surface, so a pattern kill](roadmap/320-child-filed-findings-via-pointing-up/700-the-process-table-is-a-shared-surface-and-a-pattern-kill-crosses-sessions.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
