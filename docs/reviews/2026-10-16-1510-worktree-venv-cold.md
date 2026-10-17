@@ -392,3 +392,108 @@ directory and are left for the orchestrator's sweep.
 - [ ] WV6 — after WV1: teach `tools/worktree.py start` the environment step, or decide not to.
 - [ ] Application of the rulings is a doctrine edit and earns its own cold pass (REVIEW
       § Applying decisions); this pass returned a MAJOR, so the cycle stays open.
+
+### Reconcile (phase 2, 2026-10-17 UTC)
+
+Opened after phase 1 was committed (`fc70ff5`): the sibling's text (relayed verbatim by the
+orchestrator), the landing commit's message body, the commissioning item (`200/100`, C4), the
+intent record (the 2026-10-03 0144 UTC queue-run session) and the two prior CONCURRENCY verdicts
+the sibling names. The three-cues and harvest briefs of this batch stayed closed. Phase-1 text
+above is unchanged.
+
+**Against the seeded questions.** All three seeds and three of the six phase-1 findings
+coincide; the findings were formed and committed before the seeds were read, so the overlap is
+convergence, not steering. The three findings outside the seeds (WV4, WV5, WV6) are where this
+pass added to the floor.
+
+- *Seed 1* (the primary's venv imports the primary's source; name it or drop the option) ↔
+  **WV1**. Converged, and the phase-1 probe answers the seed's conditional: not "could", but
+  did — 9 of 9 src-layout invocations and every console script in both layouts. The seed's
+  either/or is the counsel already recorded; the pass does not choose between them (rule 3).
+- *Seed 2* (an estate fact presented as doctrine, unconditionally) ↔ **WV3**. Converged; the
+  severity stays minor. The scope word "the estate" is present, so this is a dropped condition
+  rather than a false claim, and the harm is bounded to adopters still in a synced folder.
+- *Seed 3* (the retained first sentence stale; harness-native worktrees under `.claude`) ↔
+  **WV2**. Converged, and the pass grounds the second half the seed only gestures at:
+  `.gitignore` line 20, ten ignore files and `tools/worktree.py` lines 510 and 536 place the
+  harness-native path inside the primary, and § The trigger's "take a worktree by default"
+  points sessions at exactly that path.
+
+**Against the intent record and the commissioning item.** The commissioned fix was C4 of the
+eleven contradictions: *make the bullet agree with STORAGE*. The item's close note and the
+commit body describe two edits — drop the shared-external-venv claim, add the no-carry
+consequence. Both re-verified true in phase 1. Neither record mentions the two-option sentence
+("makes its own, or points at the primary's explicitly"): that clause went beyond the recorded
+intent and carries no decision or reasoning anywhere in the record. The intent record itself
+holds no C4-specific account beyond the batch line ("each fixed separately with its own pass");
+the commit body is the author's only narrative. The author's framing — a stale-layout
+correction — explains the shape of the defect: it corrected the venv half and reached for a
+practical consequence without re-driving it, and left the location half as found.
+
+**Against the two prior verdicts.** `2026-07-11-concurrency-put-away.md` and
+`2026-07-20-1355-concurrency-flip-cold.md` contain no line on venvs, iCloud, `~/worktrees` or
+the substrate bullet: this bullet has never been under review before. WV2's stale clause is
+therefore not a regression past a prior pass; it is first-time cover.
+
+**Finding formed at reconcile.**
+
+**WV7 — note (formed at reconcile).** *The clause that carries the MAJOR is undocumented
+scope.* The commissioning item records the fix as "follows STORAGE … and adds the consequence: a
+worktree does not inherit the gitignored `.venv`"; the commit body says the same. The
+"makes its own, or points at the primary's explicitly" sentence appears in neither, so the
+option WV1 found defective was added without a recorded reason — a claim without its test
+(PRINCIPLES §6). Recorded for the pattern, not as a second count against the sentence; it
+sharpens WV1's counsel toward dropping the option rather than conditioning it, since there is
+no stated purpose to preserve.
+
+**Overall, restated:** **PASS-WITH-FINDINGS — 1 MAJOR · 1 MODERATE · 2 minor · 3 note.** The
+reconcile changed no phase-1 severity; it added one note. The cycle stays open on WV1.
+
+## Deferred material — folded in at reconcile
+
+# Sibling to the worktree-venv cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-16-1510-worktree-venv-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-10-16 UTC by the Opus brief-writer named in the brief's provenance; it
+forms no finding. Fold this file in below the reconcile and delete it at phase 2.
+
+## Intent and commissioning records
+
+- Intent record: `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` —
+  **not opened by the brief-writer**.
+- Commissioning item: `200/100` C4, in
+  `docs/roadmap/200-anti-slop-invariant-registry-promote-rec/100-r2-found-eleven-live-contradictions.md`
+  — **not opened by the brief-writer**.
+- The landing commit's message body (read by the brief-writer): it says the bullet described the
+  iCloud-era layout, that STORAGE made in-repo `.venv` the norm when the estate left iCloud, and
+  that the new text adds the consequence a session meets in practice.
+
+## Prior verdicts on these surfaces (named by filename grep, not opened, not exhaustive)
+
+No verdict carries the old "external venv" phrase. Nearest CONCURRENCY substrate passes by name:
+`docs/reviews/2026-07-11-concurrency-put-away.md`,
+`docs/reviews/2026-07-20-1355-concurrency-flip-cold.md`.
+
+## The pointer's own lens hints
+
+None. The pointer is refs-only; its last sub-bullet is the brief-writer's orchestrator's claim.
+
+## Overlap with sibling passes of this batch
+
+`docs/method/CONCURRENCY.md` is also the subject of the three-cues pass (§ *The trigger*) and the
+harvest pass (the closing-litany bullet). Different sections; sequence them if one runner takes
+several.
+
+## Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. "Or points at the primary's explicitly" re-admits the sharing the old text recommended. With
+   an editable install, the primary's venv imports the primary's source, so a worktree's tests
+   could run the wrong tree and pass. Should the bullet name that, or drop the option?
+2. STORAGE's rule is conditional on a synced working copy; the bullet states "the norm is an
+   in-repo `.venv`" unconditionally, with an estate-history date, in a doctrine file adopters
+   read. Is that an estate fact presented as house doctrine?
+3. The retained first sentence still gives iCloud sync churn as the reason worktrees live in
+   `~/worktrees/`, after the estate left iCloud, while harness-native worktrees land in a
+   worktrees folder under the repo's own `.claude` directory (per this repo's `.gitignore`). Did
+   the fix leave the bullet's other half stale?

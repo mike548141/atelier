@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued: the worktree venv sentence follows
+- [ ] 🛑 **Rule-4 cold pass queued: the worktree venv sentence follows
       STORAGE (`200/100` C4).** The run authored this itself. It was queued
       at landing, and the run neither takes it nor spawns a reviewer for it.
       *Tier:* Fable, the principal-named review tier, checked at selection.
@@ -26,3 +26,17 @@
       spawns forms every finding and severity. The sibling, the intent record
       and prior verdicts stay unopened by the reviewer until its phase-1
       findings are committed. Provenance and exposure go in the verdict.
+      - [ ] 🛑 **The pass RAN 2026-10-17 and the cycle stays OPEN — a MAJOR
+            stands.** The rule-4 Fable cold pass (taker: a fresh
+            `claude-fable-5-1` subagent under a `claude-fable-5-1` orchestrator
+            — the shape disclosed in the claim above; the sibling, the intent
+            record and prior verdicts opened only after the phase-1 findings
+            were committed) returned PASS-WITH-FINDINGS — 1 MAJOR · 1 MODERATE ·
+            2 minor · 3 note →
+            [`2026-10-16-1510-worktree-venv-cold.md`](../../reviews/2026-10-16-1510-worktree-venv-cold.md)
+            (sibling folded in and deleted). WV1 (MAJOR): the "or points at the
+            primary's explicitly" option runs the primary tree's code from a
+            worktree in every src-layout invocation and console script, tests
+            passing green on the wrong tree; WV7 (note) formed at reconcile.
+            Findings are the principal's to decide (rule 3); nothing was
+            applied.
