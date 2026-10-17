@@ -29,3 +29,17 @@
       counts each child twice, and the file manager fills with aliases).
       Overlaps `320/180` (the same convention breaks in a worktree), which
       is the same root cause from another direction.
+      🔎 **Addendum, handed up 2026-10-17 by a private child: the same
+        assumption fails harder in a cloud session.** A principal-opened
+        Claude Code cloud session on that child (2026-10-17) had a fresh
+        clone of the child only: no parent checkout at any depth. So the
+        drift check, the pre-commit floor (no `core.hooksPath`), the hook
+        test and `board.py rebuild` all could not run until the session
+        cloned the public parent read-only by hand; before that, it kept the
+        generated board index current with an ad-hoc surgical updater, and
+        CI's floor was the only plane that checked its commits (measured by
+        that session, recorded in its own log). Relayed, not re-measured
+        here. The shape it adds to this item: whatever single setting
+        replaces the relative path also needs a fallback for a host with no
+        parent checkout at all (fetch the pinned parent, or say plainly the
+        local planes are off).
