@@ -9,3 +9,10 @@
       `tools/README.md`, commit `1c24781` and merge `da3227d`, landed on
       `main` on 2026-10-16. *Intent record:*
       [`../../sessions/2026-10-16-0703-queue-run-after-the-sizescan-ruling.md`](../../sessions/2026-10-16-0703-queue-run-after-the-sizescan-ruling.md).
+      **Brief WRITTEN 2026-10-17, review NOT run** —
+      `docs/reviews/2026-10-17-0930-indexscan-date-rule-cold.md` with a
+      `.deferred.md` sibling. Written by an Opus brief-writer that authored none
+      of the delta (dispatched by the Mike-opened Fable review session, wt
+      atelier-review-1017), on Mike's 2026-10-16 answer that a fresh Opus
+      session writes these briefs; its exposure is disclosed in the brief. The
+      pass stays queued for a further criterion-passing cold Fable session.
