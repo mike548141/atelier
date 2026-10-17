@@ -293,7 +293,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Rule-4 cold pass queued: the standing reviewer checklist and the](roadmap/160-doctrine-review-owed/710-rule-4-cold-pass-queued-checklist-and-test-rule.md)
 - [ ] 🎯 [Rule-4 cold pass queued: the per-rule pre-filter gates in](roadmap/160-doctrine-review-owed/720-rule-4-cold-pass-queued-scanner-gates.md)
 - [ ] 🎯 [Rule-4 cold pass queued: the shared exit and reporting contract](roadmap/160-doctrine-review-owed/730-rule-4-cold-pass-queued-the-report-contract.md)
-- [ ] ⏳ [Rule-4 cold pass queued: the pre-flip gate additions and](roadmap/160-doctrine-review-owed/740-rule-4-cold-pass-queued-the-pre-flip-gate.md)
+- [ ] 🛑 [Rule-4 cold pass queued: the pre-flip gate additions and](roadmap/160-doctrine-review-owed/740-rule-4-cold-pass-queued-the-pre-flip-gate.md)
 - [ ] 🛑 [Rule-4 cold pass queued: allow-markers that name a kind, and](roadmap/160-doctrine-review-owed/750-rule-4-cold-pass-queued-marker-kinds-and-ids.md)
 - [ ] 🛑 [Rule-4 cold pass queued: guards read git-quoted paths](roadmap/160-doctrine-review-owed/760-rule-4-cold-pass-queued-quoted-paths.md)
 - ✅ [Estate survey: which repos hold Fable-dependent work, and which](roadmap/160-doctrine-review-owed/770-estate-survey-fable-work-and-unwritten-briefs.md)

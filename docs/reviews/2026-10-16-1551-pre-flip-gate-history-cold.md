@@ -569,3 +569,164 @@ sessions' test runs; every heavy step ran one at a time under `nice -n 10`.
 - [ ] PF9 — README line or `--remote`
 - [ ] PF10 — fix the re-run line in the brief template the 2026-10-16 briefs copy
 - [ ] PF13, PF14 — wording and drain, at leisure
+
+### Reconcile (2026-10-17 UTC)
+
+**Provenance of this step.** Phase 1 was committed unrevised as `30ae4f7` by the
+orchestrator, which then released the sibling's text to this reviewer by message.
+That orchestrating session was cut after the release (budget limit, then a
+machine restart) before this step ran; a coordinator message resumed it on
+2026-10-17 UTC with the same instruction, and the sibling's text was taken from
+this reviewer's own transcript. Opened only after `30ae4f7`: the sibling (as
+messaged), the queue pointer `160/740`, the three `260/…` items (`090`, `110`,
+`120`), the intent record `docs/sessions/2026-10-05-1120-…`, the landing and
+merge commit bodies, and the six prior verdicts the sibling names (greps and
+the passages they led to — PB1–PB4 and the no-git reasoning of the 2026-08-02
+pass, PA1 of its application, PL3–PL5 of the 2026-10-03 round-2 pass, ER1 of
+the 2026-07-28 estate-root pass). ⚠️ One instruction slip, disclosed: the
+step was "reads only", and to answer seeded question 6 this reviewer ran
+`wrapscan` by hand over `CHANGELOG.md` (a read-only guard, no write) — recorded
+here rather than hidden. Nothing in phase 1 is revised; nothing is folded or
+deleted.
+
+**Against the intent record and the `260` items.** The record's account of the
+delta (three lines in AUTONOMY, opt-in `--history` over every path ever added on
+a pushed ref, byte-identical over 29 repos, the pass queued at `160/740`, the
+quoted-path miss filed as `120`) matches the diff and the brief's framing; no
+claim in it contradicts a phase-1 finding. Two things the record adds that the
+brief did not carry: `120`'s close says *"no separate pass is queued; `160/740`
+covers `publishscan` as it now stands"* — so `c1cef10` (both tip planes read
+`-z` through `_git_stream`) is inside this pass's remit after all. It was
+exercised: the file was read whole at HEAD, the 46 tests include its three
+`core.quotePath=true` cases, both floor planes ran it at HEAD, and the
+non-ASCII history probe (C10a) runs through the same reader; the byte-identical
+re-drive compared `89ff0d8^` with `89ff0d8` only, so `c1cef10`'s own "29 of 29
+identical" figure stands un-re-run like the first. Nothing found against it. And
+`090`'s harvest names the join incident the bullets answer — a session entry
+joining a private sibling's name to its unresolved scan count five minutes before
+a flip, caught by nothing — which is the evidence PF5 asks the bullet to make
+executable, not a reason to soften it: the scrub that is meant to catch that
+line is still undefined.
+
+**Against the seeded questions.**
+
+1. *Not-a-repo passes at exit 0.* → **PF3** stands, formed cold. The 2026-08-02
+   pass argued and tested the exit-0 skip as "a complete scan of an empty set"
+   for the floor planes, where fixture trees are plain directories; that
+   reasoning was never extended to a hand-run gate on one repo, and the probe
+   (C14a) shows the gate passing on a wrong `--root`.
+2. *The converse of the stash — refs the host holds that the clone lacks; does
+   the doctrine say to fetch?* → **PF1** stands as the top finding, formed cold
+   with five probes. The docstring says "fetch first"; the AUTONOMY bullet says
+   nothing about fetching, and a fetch does not bring `refs/pull/*` or a
+   force-pushed-over commit anyway. The seeded question is narrower than the
+   finding (it asks whether the runner is told to fetch; the finding is that
+   fetching does not close the gap and no surface says so).
+3. *What makes "runs" true at the flip?* → nothing mechanical, as phase 1's
+   lens-1 assumption 3 and **PF11** say. The seeded form is sharper than PF11's
+   note: the bullet states the gate "runs" a mode no registry, hook, skill or
+   template invokes, and the two surfaces a session holds at the flip point at
+   no gate. Weighed again with the question in hand, this reviewer would still
+   record it as doctrine counsel rather than raise the severity: the fix is one
+   pointer and an honest "observable, not enforced" line (PROPAGATION's own
+   caveat), and the decision is the principal's.
+4. *If the scrub finds something in the gate's record and the record is edited,
+   has the scrub run last?* → **PF5** stands (the fixed point is unstated); the
+   seeded question is the same hole seen from the edit side. The answer PF5's
+   counsel gives: the scrub re-runs after any edit it causes, and terminates
+   because its own clean line names nothing — a rule the bullet should say.
+5. *The one repo whose history held `*.egg-info/`: known, and recorded privately
+   as owed before its flip?* → Answered by `110`'s close: the tool "on `rpi`'s
+   history reproduces P7's evidence: 7 history-only hits", and `090`'s harvest
+   found the shape in `rpi`'s history by hand. That repo has been public since
+   2026-07-29 (its flip is the one the harvest studied), so nothing is owed
+   before a flip and the history-only hits are already published, as the tool's
+   own docstring says of `rpi`. No private record is needed and none is
+   claimed; this reviewer read no private repo. The commit body's "one repo's
+   history held it" is counts-only, meeting PL3's bar for survey-derived bodies.
+6. *The over-long CHANGELOG line.* → confirmed and **PF15** below, formed at
+   reconcile. `CHANGELOG.md:118` is 113 columns against the 85-column budget
+   (the delta's own line; two older lines, 1200 and 2827, are also over). It is
+   inside no guard's reach **by scope, not by exemption**: `wrapscan`'s registry
+   entry has `default_scope="docs"` on both planes, so the repo-root changelog
+   is never walked, and `.wrapscanignore` does not name it — so there was no
+   exemption to be deliberate about. A hand run (`wrapscan --root .
+   CHANGELOG.md`) reds all three lines.
+
+**Against the prior verdicts.** PB1–PB4 and PA1–PA4 are applied in the code read
+at HEAD (depth matching, reasoned ignore globs, rebase to the top with the
+notice on stderr, controls stripped at the seam); the rebase notice this pass
+flagged under lens 4 is PA1's stderr line, so the exposure it carries into a
+captured gate transcript is a design consequence of that ruling, noted and not
+charged. PL1 (non-ASCII miss) is the defect `c1cef10` closed; PL3's counsel that
+commit bodies on survey-derived work carry a counts-only bar is met by both
+bodies here. **PL5 already named the `tools.test_publishscan` import failure on
+2026-10-03 and counselled the `ci.yml` invocation form for briefs**; the
+2026-10-16 brief repeated the failing form, so **PF10 is a recurrence**, the
+second instance — the counsel moves from "fix the line" to "fix the template the
+brief-writers copy". ER1 (2026-07-28) put the pre-flip scrub into AUTONOMY naming
+the onramp only; `090` found it did not cover the gate's own records, and bullet
+1 is that extension — PF5 asks for its terms, not its removal.
+
+**Finding formed at reconcile.**
+
+**PF15 — note (formed at reconcile, from seeded question 6) — the delta's
+CHANGELOG line is over the column budget and outside the wrap guard's scope.**
+`CHANGELOG.md:118`, 113 columns; `wrapscan` reads `docs` by default on both
+planes and the root changelog is never scanned, so the breach is structural,
+not exempted. *Counsel:* wrap the line; decide whether `CHANGELOG.md` belongs in
+`wrapscan`'s scope (it is doctrine-adjacent prose a child reads to understand a
+new red — PL4's point) or state in the registry `why` that it is out.
+
+**Overall after reconcile: unchanged — PASS-WITH-FINDINGS — 1 MAJOR · 4 MODERATE
+· 4 minor · 6 note** (PF15 added at reconcile). The cycle stays open on PF1.
+
+## Deferred material — folded in at reconcile
+
+# Deferred sibling — the pre-flip gate and publishscan --history (160/740)
+
+**Held under REVIEW.md rule 1's split. Open only after your phase-1 findings in
+`docs/reviews/2026-10-16-1551-pre-flip-gate-history-cold.md` are committed.** A
+floor, never a fence: these questions were seeded by a brief-writer who read the
+landing diffs and commit body, so they carry that reading's framing. Reconcile
+against them; do not let them narrow what you found.
+
+## Intent record (not opened by the brief-writer)
+
+- `docs/sessions/2026-10-05-1120-queue-run-closes-and-builds.md`
+
+## Prior verdicts on the same surfaces (named, not opened)
+
+- `docs/reviews/2026-08-02-2313-publishscan-cold.md`
+- `docs/reviews/2026-08-03-0649-publishscan-application-cold.md`
+- `docs/reviews/2026-08-02-2210-publish-surface-delta-cold.md`
+- `docs/reviews/2026-08-03-0653-publish-surface-application-cold.md`
+- `docs/reviews/2026-10-03-0357-publishscan-round-2-cold.md`
+- `docs/reviews/2026-07-28-1216-estate-root-widening-cold.md` (names the
+  pre-flip moment)
+
+## The queue pointer's own lens hints
+
+None. The pointer is refs-only, plus the orchestrator's brief-writing claim line.
+
+## Seeded questions (the brief-writer's, from the diffs)
+
+1. `run_history` prints a pass and exits 0 for "not a git repository". The gate
+   is run on the one repo about to be published; is a gate pointed at the wrong
+   directory meant to pass?
+2. The docstring says refs, not `--all`, because "the stash is never pushed". Is
+   the converse covered — a ref the host holds that the local clone does not
+   (pruned branches, pull-request refs, commits reachable only by hash after a
+   force-push)? Does the doctrine tell the gate runner to fetch them first?
+3. The bullet says the gate "runs `publishscan --history`", but the mode is
+   opt-in and nothing in the floor runs it. What makes the doctrine's "runs"
+   true at the moment of a flip?
+4. "The scrub runs last … and include[s] those records" — if the scrub finds
+   something in the gate's own record and that record is then edited, has the
+   scrub still run last?
+5. The changelog says no repo went red because no sibling tracked `*.egg-info/`
+   at its tip, while "one repo's history held it". Is that repo now a known
+   `--history` finding, and is anything recording that it is owed before its own
+   flip — in a private place, not here?
+6. The CHANGELOG entry carries a line longer than the column budget. Is it inside
+   a guard's reach, and was the wrap guard's exemption for that file deliberate?
