@@ -177,3 +177,386 @@ reconcile and delete it.
 
 Findings on doctrine are the principal's to decide (rule 3): record all, apply nothing; counsel
 per finding is welcome, labelled as counsel.
+
+---
+
+# Verdict — phase 1 (prefix `EC`)
+
+**Reviewer tier:** Fable 5.1 (`claude-fable-5-1`), checked at selection: it is the tier the
+principal named (ruling 2026-08-04), so rule 4's stop clause did not fire. Phase 1 begun
+2026-10-17 23:38 UTC; completion time is the last line of the re-run ledger.
+
+## Provenance, repeated
+
+- **Spawn.** This reviewer was spawned by a Mike-opened Claude Code **cloud** session running
+  `claude-fable-5-1` as orchestrator (it opened on `claude-opus-5` and Mike switched it to Fable
+  before any claim or pass). That session authored none of the delta or the brief and was not
+  started or instructed by their authors. The orchestrator forms no finding and writes no
+  severity; it holds the `.deferred.md` sibling outside the checkout at a path not given to me,
+  commits this phase-1 file before releasing the sibling, and received one operational note from
+  Mike's watching session (model, queue scope, container facts, merge instruction — no evaluative
+  content about any delta). The queue pointer's claim line discloses the same shape; I have not
+  opened the pointer. The brief's own provenance (an Opus brief-writer, off-tier, forming no
+  finding) stands as written above and is not contradicted by anything I read.
+- **Container.** One checkout at `/home/user/atelier`, branch `claude/review-work-briefs-adj6ad`,
+  HEAD `0aff4d8`; the orchestrator states HEAD equals `origin/main` and I could not re-drive that
+  (no network git here) — *relayed*. No worktrees, no sibling repos, no estate root, no
+  `~/.claude/`, no `gh`, no GitHub API. The clone is **shallow**: `.git/shallow` names `c824287`
+  (committed 2026-10-17 09:40 UTC) as the graft root; 52 commits are reachable from HEAD; the
+  landing commit `b572594` is present as an object with its parent, but is not an ancestor of
+  HEAD in the local graph. This bears on one re-run (EC9). Scratch directory
+  `/home/user/scratch/EC/` was created; nothing was written to it in phase 1 — every probe ran
+  read-only in place. No git command that writes was run; no file other than this one was edited.
+- **Read, in order.** `docs/method/REVIEW.md`; this brief; `docs/method/00-APEX.md` once; the
+  delta by `git show --stat --format=%s b572594` and `git diff b572594^ b572594 --
+  docs/method/EVIDENCE.md` (subject, stat and diff only — the body is unread); `EVIDENCE.md`,
+  `CONCURRENCY.md` and `PROPAGATION.md` whole at HEAD; `docs/method/README.md`; board items
+  `115/060` whole and `020/390` lines 30–74; `.githooks/pre-commit`; `.github/workflows/ci.yml`;
+  `.atelier-floor.json`; `tools/datescan.py` lines 239–268; `CHANGELOG.md` head plus greps;
+  `README.md`, `skills/*/SKILL.md` and `commands/*.md` by grep.
+- **Exposure, disclosed.** `tools/coldsweep.py` with the brief's three `--also-exclude` paths and
+  never `--include-barred`; its hits included two index lines of `docs/ROADMAP.md` that print the
+  *titles* of the barred pointer (160/780) and the barred commissioning item (200/090) — title
+  words only, neither file opened. `git log --graph -12` printed other passes' commit *subjects*
+  (TB, PF) — subjects only; no verdict file opened. `git show --stat --format=%s c824287` printed
+  a whole-tree stat (the graft root) including file names under `docs/reviews/` and
+  `docs/sessions/` — names only. Nothing under `docs/reviews/2026-10-16-*`, `2026-10-17-*`
+  (other than this file), `drafts/`, `withdrawn/`, `docs/SESSIONS.md`, `docs/sessions/`,
+  `docs/ROADMAP-DONE.md`, the queue pointer or `200/090` was opened. The sibling was not looked
+  for.
+
+## Lens 1 — Approach & assumptions
+
+Load-bearing assumptions, named by me before reading the brief's probes as questions:
+
+- **A.** The defect in the three episodes is in the *agreement* — a second party endorsing a
+  claim it never checked — rather than in the first party's claim being unsourced.
+- **B.** "Which artefact did it open" is a test the receiving party can apply.
+- **C.** `EVIDENCE.md` §13 is the point of use, where a session grades an agreement.
+- **D.** Three recorded instances of one pattern exist, and counting them satisfies the >2 rule.
+- **E.** A doctrine paragraph is the right remedy, as against a mechanism or a record field.
+
+Attacked:
+
+- **A** holds as far as it goes. In all three episodes the *first* claim already sat at the
+  recall/inference rung — a reading of a doctrine clause reasoned from a summary, a coined
+  paraphrase, a three-signal inference — and §2 already tiers an unsourced agreement as
+  `ai-inference`, §4 already says one unconfirmed source is a lead. The paragraph's novelty is
+  operational (what to *ask*), not epistemic. The operational part is where the defect is (EC1).
+- **B** is followable as "ask" and not closable by the asker: the answer is a peer's claim, which
+  `CONCURRENCY.md § Re-run, don't reason` calls a hypothesis, and a past record cannot be asked.
+  The checkable half is the asserter's, in §1's durable register; the paragraph does not reach
+  for it (EC3).
+- **C** is reasonable — the rung's definition is where a reader decides whether an agreement
+  counts — but a third statement placed there without being made the home is the V4 defect the
+  house names (EC2).
+- **D**: episodes 1 and 3 are two parties agreeing with neither having opened the source; episode
+  2 is one record citing another record's coinage. The paragraph's closing sentence bridges them
+  by definition ("repetition is the cheapest agreement"); the heading is framed for the narrower
+  class (EC8).
+- **E**: `PROPAGATION.md § When a rule keeps breaking` requires the chosen rung to be tested
+  against the recorded occurrences. The 2026-09-20 recurrence happened in a session editing the
+  very file that already carried the rule, so findability was not the failure, and a third
+  statement elsewhere would not have prevented it by the section's own criterion. The test is not
+  on the record (EC4).
+
+The brief's framing, attacked: its non-goal (the >2 threshold itself) is a legitimate narrowing —
+it fences the threshold, not the counting or the placement, both of which it keeps in scope. Its
+"No later commit touches `EVIDENCE.md`; confirm that" is true of the file's *content* and false of
+the prescribed *command* in this container (EC9). Its account of what the work is — one paragraph
+of 21 lines at the stated position — is accurate (diff reproduced).
+
+## Lens 2 — Correctness & quality
+
+**Diff reproduced.** `git diff b572594^ b572594 -- docs/method/EVIDENCE.md`: one hunk, 21 added
+lines (20 of text, one blank), inserted after the ladder's closing paragraph and before *Handing
+the question to the principal*; identical at HEAD (`git diff --stat b572594 HEAD -- docs/method/
+EVIDENCE.md` is empty). Lines 191–210 at HEAD; the longest line is 79 columns.
+
+**Cross-references, each opened:**
+
+- `PROPAGATION.md § When a rule keeps breaking` — resolves; states the >2 promotion rule ("act at
+  the third instance") at line 811. Holds.
+- `CONCURRENCY.md § Re-run, don't reason` — resolves. Records the *class* (lines 542–544: the
+  bolded bullet, "two-of-three agreement … one unread claim with an echo") and that a party
+  "re-read a doctrine passage and withdrew its own assertion". It does **not** record the
+  narrative the paragraph gives — a child *mistranslated* a doctrine clause; a *third* read the
+  doctrine and found *both* wrong. That narrative's primary source is the kept transcript under
+  `docs/sessions/` (the section's *Bearing* links it) and/or `200/090` — both barred until
+  phase 2. **Not re-driven in phase 1**; reconcile checks it (EC7).
+- `115/060` — resolves; records exactly what the paragraph says: a coined paraphrase in quotation
+  marks had become a citable source for a second board item (found by a 2026-08-09 cold pass;
+  verified still live 2026-08-15). Holds.
+- `CONCURRENCY.md § Orchestrated queue runs` — resolves; the ⚠️ provenance paragraph records
+  the 2026-09-20 attribution, two sessions agreeing on it, and a transcript check "the next
+  hour" falsifying it. Holds; `020/390` lines 40–56 corroborate in the same words ("neither
+  had looked").
+- `200/090` — barred; reconcile.
+
+**The case table.** The paragraph carries two tests. **T-lead** (sentences 1 and 3): did the
+second party open *the source*? **T-count** (sentence 5, the one phrased as the counting rule):
+did it open *something the first party did not*? For each of the brief's cases:
+
+- *Opened the same artefact as the first* — T-lead: a second angle. T-count: not corroboration.
+  **Diverge.**
+- *Opened a different artefact derived from the first* (a generated index, a rendered copy) —
+  T-lead: unclear whether a derivative is "the source". T-count: corroboration. **Diverge** — and
+  a derivative shares the source's error by construction, which "an independent route to the
+  fact" forbids.
+- *A tool's output, the second party ran it* — both: counts ("the API answer"). One answer.
+- *A tool's output, the second party read the first's paste of it* — T-lead: no. T-count: yes,
+  because the paste or transcript is something the first party did not "open". **Diverge.**
+- *The principal agreeing without opening* — both: no. One answer. (§13's *Handing the question
+  to the principal* already keeps authority and evidence apart; nothing new is needed.)
+- *A cold reviewer agreeing with a prior verdict after its own read of the same delta* — T-lead:
+  a second angle. T-count: not corroboration. **Diverge** — and this is the independence
+  `REVIEW.md` rule 2 is built to buy (the REACH case).
+- *A subagent re-reading text its parent quoted to it* — T-lead: no. T-count: yes — "the
+  transcript" is on the paragraph's own list of artefacts. **Diverge**, and T-count admits the
+  paradigm echo.
+- *A party that re-ran a probe rather than opening a file* — T-lead's verb "opened" does not
+  literally cover a reproduction; the example list does. T-count: yes. One answer by example,
+  not by rule.
+
+Four of eight rows diverge and one is unclear. A reader does not reach one answer (EC1).
+
+**Done vs stubbed.** The paragraph claims nothing beyond itself. "Grounded three times": two of
+three re-driven against the cited surfaces in phase 1, the first's narrative deferred. "Has one
+recorded instance" (the sibling rule): true on the unbarred tree — `coldsweep` finds the phrase
+only at its CONCURRENCY home (line 545) and in this paragraph — but see EC6 on its form.
+
+## Lens 3 — Completeness / harvest
+
+Every surface that states the rung or the rule, at HEAD:
+
+- `EVIDENCE.md` §2, §4, §13. §4's "its own corroboration" (one direct observation settles a
+  reported fact) and §13's "primary + corroboration" for high stakes are in a pre-existing mild
+  tension; the paragraph neither worsens nor resolves it, and does not cite §2 or §4 where either
+  would anchor it.
+- `CONCURRENCY.md` lines 542–544 and 816–817 — two bolded statements of the rule, differing in
+  reach ("the second party never opened" / "neither party opened"); neither points at
+  `EVIDENCE.md`; `EVIDENCE.md` cites both as grounding, which is not a pointer to a home (EC2).
+- `REVIEW.md` — never uses the word; its independence model treats two independent reads of one
+  delta as the independence worth buying, which T-count denies (under EC1).
+- `README.md` — no mention of the ladder (grep). `docs/method/README.md` — its `EVIDENCE.md`
+  summary lists §§1–10 topics and no §13; pre-existing staleness, not this delta's.
+- Plugin skills (`skills/*/SKILL.md`) and `commands/*.md` — zero hits for the rung, the rule,
+  `EVIDENCE.md` or §13. Nothing disagrees; nothing to stamp.
+- `PROPAGATION.md`'s floor block — does not carry the ladder; nothing owed there.
+- `CHANGELOG.md` — no line for the minting, where house practice carries doctrine lines (EC5).
+
+Duplicated or ignored: §2 + §4 already imply the rule; the paragraph's distinct value is the
+operational test — the part with the defect.
+
+## Lens 4 — Security & privacy
+
+*Design altitude.* The paragraph names no repo, person, host, account or filesystem path beyond
+two board-item refs and two method files; the three episodes are described by class ("a child's
+sessions", "two sessions", "some escaped scratch files"). The cited surfaces: `115/060`
+describes rather than quotes and names no child; `CONCURRENCY.md § Orchestrated queue runs`
+names two generic `/tmp` filenames and a per-project scratch parent — pre-existing and already
+public; the § *Re-run* bearing names the public child `faves`, public by its own record. Nothing
+the paragraph adds should not be public. *Code altitude.* No code in the delta; the OWASP
+catalogue has nothing to bite on prose — the one applicable class, sensitive-data exposure, is
+checked by the hand read above and by `leakscan` (structural) clean at HEAD on the tree and on
+the file. **`/security-review` not run — discharged by grounds:** it reads this session's pending
+diff (this brief), its own exclusions bar markdown so its pass would be definitionally empty, and
+aiming it at a dirty brief is the SL2 hazard REVIEW.md records. **Hook-plane leakscan with the
+term list: not re-driven here (relayed)** — the container has no local term list and the hook
+plane refused by design (115/350); the CI plane is the honest plane here and is clean.
+
+## Findings
+
+**EC1 — MAJOR — The paragraph states its test two ways, and they disagree on the paradigm
+cases.** Sentences 1 and 3 test whether the second party *opened the source*; sentence 5 counts
+corroboration only if it *opened something the first party did not*. Probe: the case table above
+— four of eight rows diverge. Two rows carry the weight. (a) A second party that independently
+opened the *same* artefact is "a second angle" by the lead and "not corroboration" by the count,
+and that case is the independence `REVIEW.md` rule 2 exists to buy. (b) A subagent re-reading its
+parent's quote, or a session reading a peer's pasted tool output, has opened "the transcript" —
+on the paragraph's own list — which the first party did not open, so the counting sentence
+admits the exact echo the paragraph exists to refuse. The sentence phrased as the rule is the one
+that misfires. V5, inside a 21-line rule inherited by every child. *Counsel (labelled; the
+decision is the principal's):* state the test in the ladder's own vocabulary — an agreeing party
+contributes the rung *it* stands on, never the rung it agrees with; a party at recall, or at a
+quote of the first party's claim, adds nothing; a party that opened the same primary is a second
+fetch — strong against misreading, still one route; the corroboration rung is reached by a
+*different* route, another artefact or a reproduction. One sentence resolves every row and keeps
+the heading true.
+
+**EC2 — MODERATE — Three originals and no home.** `CONCURRENCY.md` carries two bolded statements
+of the rule (542–544; 816–817); the minting adds a third in `EVIDENCE.md` (191–198) and
+touches neither CONCURRENCY site — `EVIDENCE.md` is the only method file in `b572594`'s stat.
+None is stamped; none points at another as canonical; the three already differ in reach
+(second party / neither party / a different artefact). `PROPAGATION.md § One statement, stamped
+copies`: "Three independent statements of one rule is the defect"; `EVIDENCE.md` §9. V4 and V3.
+*Counsel:* make §13 the home once EC1 is settled, and reduce the two CONCURRENCY statements to
+the instance records they already are — both sit inside bearings — pointing up at §13, or stamp
+them.
+
+**EC3 — MODERATE — The duty sits on the receiver alone, and the receiver's question returns
+testimony.** The operative verb is *ask*. A reader who cannot see the other party's reads can
+ask; the answer is a peer's claim (a hypothesis, per `CONCURRENCY.md § Re-run, don't reason`),
+and a past record cannot be asked. In all three grounding episodes the corrective act was not a
+question put to the agreeing party but someone *opening the artefact*; none of the three records
+a receiver asking and being answered. The checkable half is the asserter's — a claim of agreement
+names the artefact it rests on, in the record (`EVIDENCE.md` §1's durable register, §12's
+enforce-by-machine) — and the paragraph does not reach for §1, so what it adds is honour-system
+on both sides. *Counsel:* one sentence of writer's duty pointing at §1; keep the receiver's rule
+as the fallback when the record is silent — treat the agreement as absent and climb yourself,
+which §13 already says.
+
+**EC4 — MODERATE — The grounding note claims the ladder's authority for the count and skips its
+test for the rung.** `PROPAGATION.md § When a rule keeps breaking` requires testing a rung against
+the recorded occurrences before stopping on it (RL1) and says a wording change "reliably is not"
+progress. Run the test the paragraph did not record: the rule was written into `CONCURRENCY.md`
+on 2026-08-17; the third occurrence (2026-09-20) was produced by a session editing that file's
+own § *Orchestrated queue runs* — findability was not what failed, so a third statement in
+another file would not have prevented it. Rung 2 (a record field "artefact opened:", lintable as
+absent) and rung 3 (make the artefact check the first step of an attribution, as the 2026-09-20
+fix did for scratch paths) are not considered on the record. PROPAGATION gives the author a
+defensible reading — promotion into doctrine is "a separate act" from climbing (RL3) — so the
+finding is that the test was owed and not shown, not that promotion was wrong; the threshold is
+the brief's non-goal. *Counsel:* record the rung test in `200/090`; if a paragraph is still the
+pick, say why rungs 2 and 3 do not fit these three incidents.
+
+**EC5 — minor — A CHANGELOG line is owed.** `PROPAGATION.md § The mechanism` point 1: the
+CHANGELOG carries one line per doctrine change, and a child's drift check reads it. The minting
+has none — no 2026-10-16 entry mentions corroboration or `200/090`; all seven 2026-10-16 entries
+are tool changes. House practice does carry doctrine lines: `EVIDENCE.md` §15 (CHANGELOG line
+140), the §13 ladder (2923), the 2026-08-23 scanner-delta sentence (353). Mitigated: `git log`
+shows the subject plainly and point 1 names it as the other route. V3.
+
+**EC6 — minor — A stored derived value, and a decision of record, inside doctrine.** "Has one
+recorded instance" is a count that rots the moment a second instance is recorded — `EVIDENCE.md`
+§8's own rule, broken inside `EVIDENCE.md`. The two closing sentences record a decision *not* to
+promote a rule that lives in another file: a record-of-decision whose home is the commissioning
+item or the session record, not §13. A reader of the ladder gains nothing from them. *Counsel:*
+drop both sentences; reconcile will check whether `200/090` already holds the decision.
+
+**EC7 — minor — Two citation imprecisions in the grounding.** (i) "the kept exchange in
+`CONCURRENCY.md § Re-run, don't reason`": the exchange is kept under `docs/sessions/` (the
+section's *Bearing* links it); CONCURRENCY holds the extraction, so a reader following the
+citation finds a summary and one more hop. (ii) The first episode's narrative — a mistranslated
+clause; a third read the doctrine and found both wrong — is not in the cited section, which
+records the class and that one party re-read a passage and withdrew its assertion. **Not
+re-driven in phase 1**; reconcile checks it against the transcript and `200/090`. Also: "a
+child's sessions agreed that a child had mistranslated" reads as two children; if one is meant,
+say so.
+
+**EC8 — note — The second instance is of a neighbouring class.** Episodes 1 and 3 are two
+parties agreeing with neither having opened the source. Episode 2 (`115/060`) is one record
+citing another record's coinage as a quoted source — no second voice agreed; a claim was
+repeated. The closing sentence bridges them by definition. The class that covers all three is
+"a claim gains standing from a party that did not open the source", one level above the
+heading's "second voice". This feeds EC1: name the class at that level and the heading, the
+count and the three episodes line up.
+
+**EC9 — note — The brief's confirm-step and prescribed re-run misfire in this container.** "No
+later commit touches `EVIDENCE.md`; confirm that" and `git log --oneline b572594..HEAD --
+docs/method/EVIDENCE.md — empty, or each commit named`: on this shallow clone the log names
+`c824287`, the graft root, which "adds" every file — a false positive a reviewer could record as
+a later touch. The honest confirmation is blob identity: `git diff --stat b572594 HEAD --
+docs/method/EVIDENCE.md` is empty, so no commit between the landing and HEAD changed the file's
+content. *Counsel for the brief template, not the delta:* prescribe the blob comparison, which is
+depth-independent, or say what a shallow clone prints.
+
+*Observed, out of scope, not a finding:* `pathscan` (warn-only) reports one pre-existing stale
+path in `docs/decisions/2026-10-03-0641-the-exception-register.md` line 84 (`tools/exception.py`
+does not exist). It is visible on every CI run and is not this delta's.
+
+## Standing checklist V1–V7
+
+- **V1** — "Grounded three times": two of three re-driven against the cited surfaces; the first's
+  narrative deferred (EC7). "Minted at the third under the >2 rule": the count holds if episode 2
+  is accepted as the same class (EC8). No other claim stronger than its evidence found.
+- **V2** — ledger below; one prescribed re-run misfires here (EC9).
+- **V3** — mirror sites swept: `CONCURRENCY.md` ×2 (EC2), `CHANGELOG.md` (EC5), skills, commands
+  and both READMEs (nothing restates the rung).
+- **V4** — EC2.
+- **V5** — EC1 within the paragraph; the §4/§13 tension pre-exists and is not worsened;
+  `REVIEW.md`'s independence model cuts against T-count (under EC1).
+- **V6** — lens 4 above; `/security-review` discharged by grounds.
+- **V7** — provenance stated in the brief and repeated above; both disclose the orchestrator
+  arrangement.
+
+## Overall
+
+**PASS-WITH-FINDINGS — 1 MAJOR · 3 MODERATE · 3 minor · 2 note.** The rule is right in intent
+and its three instances are recorded where the paragraph says; its operative sentence is not yet
+one rule (EC1), and it was minted as a third original rather than a home (EC2). Rule 3: every
+finding recorded, nothing applied; counsel is labelled.
+
+## Re-run ledger
+
+All commands run from `/home/user/atelier` at HEAD `0aff4d8`; exit codes read explicitly.
+
+- `date -u` → `Sat Oct 17 23:38:00 UTC 2026` at open.
+- `git status --short` → empty (clean). `git log --oneline -1` → `0aff4d8 review: claim the 12
+  briefed rule-4 passes …` on `claude/review-work-briefs-adj6ad`.
+- `git show --stat --format=%s b572594` → subject `method: mint "agreement is not corroboration"
+  in EVIDENCE (200/090)`; 7 files, `docs/method/EVIDENCE.md | 21 ++++`; author date
+  2026-10-16 07:16 UTC (`%aI`). Body not printed.
+- `git diff b572594^ b572594 -- docs/method/EVIDENCE.md` → one hunk, 21 added lines (reproduced
+  under lens 2).
+- `git log --oneline b572594..HEAD -- docs/method/EVIDENCE.md` → **one line, `c824287`** — not
+  empty. `git log --format='%h parents=[%p]' -1 c824287` → no parents; `.git/shallow` →
+  `c824287`; `git rev-list --count HEAD` → 52; `git merge-base --is-ancestor b572594 HEAD` →
+  **no**. So the listed commit is the shallow graft root, not a later edit (EC9).
+- `git diff --stat b572594 HEAD -- docs/method/EVIDENCE.md` → **empty** (content identical).
+  Also empty: `b572594` vs `c824287`, and `c824287` vs HEAD.
+- `git merge-base --is-ancestor 8acfff1 HEAD` → yes (the brief's "8acfff1 or later" holds).
+- `python3 tools/floor.py --list --plane ci --root .` and `--plane hook` → 16 checks each; plans
+  identical.
+- **`python3 tools/floor.py --plane ci --root .` → exit 0.** 11 enforced green; secretscan 🟡 23
+  advisory (pre-existing, none in the delta); leakscan 🟡 structural-only (the plane does not pass
+  `--require-terms`); pathscan warn-only 1 finding (pre-existing, `docs/decisions/2026-10-03-…`
+  line 84); harvestscan, pointerscan, indexscan clean. **This is the plane I ran as the floor.**
+- **`python3 tools/floor.py --plane hook --root .` → exit 1, BLOCKED by leakscan** — "--require-
+  terms set but no local term list found … refusing to report it as a pass". Expected in this
+  container (115/350); every other check on the hook plane green or as on CI.
+- `python3 tools/linkscan.py --root . docs/method/EVIDENCE.md` → exit 0, clean.
+- `python3 tools/pathscan.py --warn --root . docs/method/EVIDENCE.md` → exit 0, clean (1
+  pre-existing allow-marker suppressed).
+- `python3 tools/leakscan.py --root . docs/method/EVIDENCE.md` → exit 0, clean, structural only.
+- `python3 tools/wrapscan.py --root . docs/method` → exit 0, clean (85-column budget; the
+  paragraph's longest line is 79: `awk 'NR>=191 && NR<=210 {print length}'`).
+- `python3 tools/spellscan.py --root . docs/method` → exit 0, clean.
+- `python3 tools/datescan.py --root . docs/method/EVIDENCE.md` → exit 0, clean.
+- `python3 tools/coldsweep.py --root . <three --also-exclude as the brief> -i '<pattern>'`, 645
+  files swept, 409 excluded as barred, exit 0 each: `corroborat` → 45 hits (rule statements at
+  `CONCURRENCY.md` 542, 816; `EVIDENCE.md` 177–196; the rest board items and `SECRETS.md` using
+  the word in its ordinary sense); `symptom count` → 2 hits (`CONCURRENCY.md` 545, `EVIDENCE.md`
+  209); `second angle` → 3 (all `EVIDENCE.md`); `unread claim|with an echo` → 2
+  (`CONCURRENCY.md` 544, `EVIDENCE.md` 194); `>2 promotion` → 3 (`EVIDENCE.md` 200, 304;
+  `PROPAGATION.md` 811).
+- `grep -n -i -E 'corroborat|200/090|b572594|2026-10-16' CHANGELOG.md` → no entry for the
+  minting; the three `corroborat` hits are 2026-07 lines. `grep -n 'EVIDENCE' CHANGELOG.md` → 13
+  lines, including §15 (140) and §13 (2923).
+- `grep -n -i -E 'corroborat|evidence ladder|EVIDENCE\.md|§13' skills/*/SKILL.md commands/*.md`
+  → exit 1 (no hits). `grep -n -i -E 'EVIDENCE|ladder|corroborat' README.md` → one hit, the
+  PRINCIPLES precedence ladder; nothing on EVIDENCE.
+- **Not run, with grounds:** the full Python suite, `node --test instruments/*.test.js` and the
+  `mandoc` lint — the delta is prose with no code surface any of them reaches, and the container's
+  four CPUs are shared with up to five concurrent reviewers; `/security-review` — lens 4 above;
+  hook-plane leakscan with terms, and any check needing another repo, the estate root or a live
+  platform read — impossible in this container, relayed, never faked.
+- `python3 tools/floor.py --plane ci --root .` re-run after this verdict was written → exit 0,
+  same board as above; `python3 tools/reviewscan.py --root . docs/reviews` → exit 0, 182 briefs
+  clean; `python3 tools/datescan.py --root . <this file>` → exit 0. `git status --short` → only
+  this file modified.
+- Phase 1 complete: `date -u` → `Sat Oct 17 23:52:45 UTC 2026` (2026-10-17 23:52 UTC).
+
+## Follow-up checklist
+
+- [ ] **EC1** — the principal rules on the test's wording; one sentence carries the rule.
+- [ ] **EC2** — choose the home; reduce or stamp the two `CONCURRENCY.md` statements.
+- [ ] **EC3** — writer-side duty, one sentence, pointing at §1.
+- [ ] **EC4** — the rung test recorded in `200/090`.
+- [ ] **EC5** — a CHANGELOG line.
+- [ ] **EC6** — move the sibling-rule sentences to the record.
+- [ ] **EC7** — citation precision; reconcile verifies the first episode's narrative.
+- [ ] **EC8** — feeds EC1; no separate action.
+- [ ] **EC9** — for the brief template, not the delta.
+- [ ] **Phase 2** — open the sibling, `200/090`, the queue pointer, the landing commit's body and
+      the kept transcript; reconcile beneath this verdict; fold the sibling in; delete it.
