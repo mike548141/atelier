@@ -509,3 +509,147 @@ sessions live); one heavy process at a time, all under `nice -n 10`.
 - [ ] QP7 — secretscan docstring points at `report.py`.
 - [ ] QP9 — strip control bytes from reported paths in the three guards' human output.
 - [ ] Phase 2: open the sibling, reconcile, fold.
+
+### Reconcile
+
+Written 2026-10-17 UTC after phase 1 was committed (`2f9cfe4`). Opened at this step and
+not before: the sibling's text (handed over by the orchestrator), the two landing
+commits' message bodies, the queue pointer `160/760`, the intent record
+`docs/sessions/2026-10-05-1120-queue-run-closes-and-builds.md` (§ `260/120`,
+§ `115/260`), and the four prior verdicts named in the sibling (their lens-1 tables,
+the findings SG1, BA2, PL1, PL15, and the GW finding list). Phase-1 text above is
+unrevised. One small probe was run at reconcile (Q4, below) and is marked as such.
+
+**Against the seeded questions.**
+
+1. *Was the posed `++ b/x` case tested at `4dfaf8d`, and is it what `115/280` and
+   `39a74b9` addressed?* Not tested: the delta's `test_diff_header_path_ignores_everything_else`
+   lists `++ b/x` (two pluses, which no diff ever prints) but not `+++ b/x`, the spelling an
+   added `++ b/x` line produces. Yes, that is what `39a74b9` closed — the structural reader.
+   The intent record files `115/280` as a `secretscan` defect; phase 1 showed it on all
+   three guards at landing (table, "attributed to `evil` ×3"). QP4 stands; the record's
+   scope of the defect was one guard short.
+2. *Under `diff.noprefix` or `diff.mnemonicPrefix`, does the guard scan nothing and exit
+   0, at landing and at HEAD?* At landing, leakscan and conflictscan scanned nothing from
+   any real file under either setting; they exited 1 in my fixture only because the posed
+   `evil` header and a `b/inner.md` (read as `inner.md`) supplied two spurious names — in a
+   repo without those, exit 0. secretscan's fallback reported every file under a wrong name
+   (quotes kept, or `i/` kept). At HEAD, no: all names HIT under both. The question seeds
+   the two prefix settings; phase 1 also found `diff.external`, the one that failed open
+   on all three guards at landing with nothing to rescue the exit code (QP2). The seeded
+   framing was narrower than the defect.
+3. *A non-UTF-8 name becomes U+FFFD; does the guard fail to open it (exit 2), skip it, or
+   report under a name nobody can find?* At landing none of the three: the process died
+   with a traceback before any name was formed (QP3). At HEAD, the third: it reports under
+   the U+FFFD spelling (phase-1 table, `LOSSY`), never tries to open it, never exits 2
+   (QP6). The question presumes `unquote_c` is on the path; under the guards' pinned
+   `quotePath=false` it is not — the raw byte reaches `parse_added_lines`'s own `replace`
+   decode, and `unquote_c`'s octal branch is reachable only from the tests.
+4. *Two `-z` readers: one fact in two homes; same name for the same bytes; can control
+   stripping change a never-publish match?* Yes, two homes (QP6; V4). No, not the same
+   name for undecodable bytes: U+FFFD versus a surrogate-escaped character. Control
+   stripping — **probed at reconcile**, three index-injected names on publishscan's staged
+   plane at HEAD: a name with a C0 byte *inside* `.env` and one with a C0 byte *after* it
+   were both reported as `…/.env`; a name whose basename starts with an ESC sequence and
+   ends `.env` was not reported (nor would it be unstripped: the patterns are `.env` and
+   `.env.*`, not `*.env`). So stripping can only *make* a match, never stop one — the
+   fail-closed direction — and the reported path is the stripped spelling, which names a
+   file that does not literally exist. Not a new defect; it sharpens QP6 and QP9: one
+   decoding, with sanitising at the print seam rather than the matching seam.
+5. *Is the trailing-TAB rule git's documented rule or one version's observation?* Not in
+   the manual. It is git's deliberate behaviour since the 2008 change that made headers
+   with spaced names parseable by `patch`, keyed on a space in the name; phase 1 observed
+   exactly that on 2.50.1 (TAB after a space, none after a tab) — so the commit body's
+   "found by running real git" is an observation that happens to match the source's
+   intent. The delta's unit test pins the belief with a literal string (EVIDENCE § 15's
+   shape); at HEAD `test_report.py`'s real-git fixture (`sp ace/f.md`) exercises it live,
+   which is the stronger pin. Assumption 3 in lens 1 stands as "holds, for the reason
+   git's source gives", not as documented doctrine.
+6. *Did the fix reach `filewalk.py` and the other `ls-files` readers?* `filewalk` needed
+   nothing: it already read `-z` and `os.fsdecode` (its own cold pass, GW, probed quoted
+   names: rows 09, 09c). Every other `tools/` reader is covered (lens 3). The one reader
+   not reached is `instruments/ccclose` (QP5); the question's "other tools" did not look
+   past `tools/`.
+
+**Against the intent record and the commit bodies.** The record's claims for both items
+— byte-identical output on atelier and a staged scratch clone, new tests failing on the
+old code — reproduce (ledger). Its 29-sibling-repo runs were not re-run, by rule. The
+`4dfaf8d` body's "accepts only git's two default-prefix spellings, so an added line that
+merely reads `++ …` is not taken for a header" is the claim QP4 falsifies; its "Known and
+left" paragraph (the spaced-path TAB previously kept in the key) matches the pre-delta
+column of the phase-1 table. The `c1cef10` body's "control characters are still stripped
+at the ingest seam" is the behaviour Q4's probe exercised. Neither body, nor the record,
+mentions the diff's prefix or external-diff configuration, the process working directory,
+or non-UTF-8 bytes — QP1, QP2 and QP3 are not anticipated anywhere in the author's account.
+
+**Against the pointer.** Refs-only, as rule 4 asks; the claim line discloses the
+reviewer-plus-orchestrator shape that phase 1's provenance repeats. Nothing to reconcile.
+
+**Against the prior verdicts.** SG1 (`160/390`, MODERATE), BA2 (`160/260`, MODERATE) and
+PL1 (`160/470`, MAJOR) are the three prior sightings of the C-quoting class on `board`
+and `publishscan`; PL15 counselled closing it once with "one NUL-delimited git-listing
+helper shared by every guard that reads `git ls-files` or `git diff --cached`". This delta
+is that closure for `board`, `harvestscan` and the three staged guards — SG1's and PL1's
+counsel is applied in substance — but PL15's "one helper" half-landed: publishscan kept
+its own `-z` reader (QP6), so the class has one fix and two readers. No prior verdict
+raised the working-directory dependence (QP1), the unpinned diff configuration (QP2) or
+raw-byte decoding (QP3); PL noted that publishscan strips controls "at both seams", which
+is the asymmetry QP9 now names on the other three guards. The GW pass (filewalk) found
+nothing this delta reopens.
+
+**Findings formed at reconcile.** None. Q4's probe sharpened QP6 and QP9 without adding a
+defect; Q1 corrected the record's one-guard scope of `115/280` inside QP4's text rather
+than as a new finding.
+
+**Overall, restated: PASS-WITH-FINDINGS — 1 MAJOR · 2 MODERATE · 4 minor · 2 note.**
+Unchanged by reconcile. Nothing applied; every finding is the principal's to decide.
+
+## Deferred material — folded in at reconcile
+
+# Deferred sibling — guards read git-quoted paths (160/760)
+
+**Held under REVIEW.md rule 1's split. Open only after your phase-1 findings in
+`docs/reviews/2026-10-16-1551-git-quoted-paths-cold.md` are committed.** A floor,
+never a fence: these questions were seeded by a brief-writer who read the landing
+diffs and commit bodies, so they carry that reading's framing. Reconcile against
+them; do not let them narrow what you found.
+
+## Intent record (not opened by the brief-writer)
+
+- `docs/sessions/2026-10-05-1120-queue-run-closes-and-builds.md`
+
+## Prior verdicts on the same surfaces (named, not opened)
+
+- `docs/reviews/2026-09-25-0715-staged-plane-check-cold.md`
+- `docs/reviews/2026-09-25-0715-bw-rulings-applied-cold.md`
+- `docs/reviews/2026-10-03-0357-publishscan-round-2-cold.md`
+- `docs/reviews/2026-10-04-2215-git-enumerated-walk-cold.md`
+
+## The queue pointer's own lens hints
+
+None. The pointer is refs-only, plus the orchestrator's brief-writing claim line.
+
+## Seeded questions (the brief-writer's, from the diffs)
+
+1. `diff_header_path`'s docstring says only git's two default-prefix spellings
+   count, "so an added line that merely reads `++ …` is not taken for a header".
+   An added line whose content is `++ b/x` prints as `+++ b/x` and matches the
+   unquoted spelling exactly. Was that case ever tested at `4dfaf8d`, and is it
+   what board item `115/280` and commit `39a74b9` later addressed?
+2. The guards pin `core.quotePath=false` but not `diff.noprefix` or
+   `diff.mnemonicPrefix`. Under either, no header starts `+++ b/`; does the guard
+   then scan nothing and exit 0, at landing and at HEAD?
+3. `unquote_c` decodes with `replace`, so a non-UTF-8 name becomes U+FFFD and no
+   longer names a real file. Does the guard then fail to open it (exit 2), skip it
+   silently, or report under a name nobody can find?
+4. publishscan decodes its `-z` tokens through its own `_decode` (UTF-8 with
+   `replace`, then control characters stripped); `report.nul_paths` uses
+   `os.fsdecode`. Two readers of one format, landed three hours apart by the same
+   run — is that one fact in two homes, and do they give the same name for the
+   same bytes? Can stripping a control character make a name match, or stop
+   matching, a never-publish pattern?
+5. The commit says a trailing TAB marks "a name whose contents contain a space".
+   Is that git's documented rule, or an observation from one git version (EVIDENCE
+   § 15: a test written from the same belief as the code)?
+6. Did the fix reach `filewalk.py` and the other tools that read `ls-files`
+   without `-z`, or only the ones the triggering case named?

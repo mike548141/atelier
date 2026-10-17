@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: guards read git-quoted paths
+- [ ] 🛑 **Rule-4 cold pass queued: guards read git-quoted paths
       (`115/260`, `260/120`).** The run authored this itself (its dispatched
       workers' output counts as the run's authorship). It is queued at
       landing, and the run neither takes it nor spawns a reviewer for it.
@@ -29,3 +29,16 @@
       spawns forms every finding and severity. The sibling, the intent record
       and prior verdicts stay unopened by the reviewer until its phase-1
       findings are committed. Provenance and exposure go in the verdict.
+      - [ ] 🛑 **The pass RAN 2026-10-17 and the cycle stays OPEN — a MAJOR
+            stands.** The rule-4 Fable cold pass (taker: a fresh
+            `claude-fable-5-1` subagent under a `claude-fable-5-1` orchestrator
+            — the shape disclosed in the claim above; the sibling, the intent
+            record and prior verdicts opened only after the phase-1 findings
+            were committed) returned PASS-WITH-FINDINGS — 1 MAJOR · 2 MODERATE ·
+            4 minor · 2 note →
+            [`2026-10-16-1551-git-quoted-paths-cold.md`](../../reviews/2026-10-16-1551-git-quoted-paths-cold.md)
+            (sibling folded in and deleted). QP2 (MAJOR): at the landing commit,
+            unpinned diff config (noprefix, mnemonicPrefix, diff.external) made
+            leakscan and conflictscan miss every staged file or pass empty;
+            closed at HEAD by 39a74b9, the external-diff leg untested. Findings
+            are the principal's to decide (rule 3); nothing was applied.
