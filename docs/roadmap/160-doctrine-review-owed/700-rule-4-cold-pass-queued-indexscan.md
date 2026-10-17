@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: `indexscan`, the generic index-integrity
+- [ ] 🛑 **Rule-4 cold pass queued: `indexscan`, the generic index-integrity
       guard (`200/010`).** The run authored this itself (its dispatched
       worker's output counts as the run's authorship). It is queued at
       landing, and the run neither takes it nor spawns a reviewer for it.
@@ -30,3 +30,17 @@
       spawns forms every finding and severity. The sibling, the intent record
       and prior verdicts stay unopened by the reviewer until its phase-1
       findings are committed. Provenance and exposure go in the verdict.
+      - [ ] 🛑 **The pass RAN 2026-10-17 and the cycle stays OPEN — a MAJOR
+            stands.** The rule-4 Fable cold pass (taker: a fresh
+            `claude-fable-5-1` subagent under a `claude-fable-5-1` orchestrator
+            — the shape disclosed in the claim above; the sibling, the intent
+            record and prior verdicts opened only after the phase-1 findings
+            were committed) returned PASS-WITH-FINDINGS — 1 MAJOR · 1 MODERATE ·
+            5 minor · 3 note →
+            [`2026-10-16-1551-indexscan-guard-cold.md`](../../reviews/2026-10-16-1551-indexscan-guard-cold.md)
+            (sibling folded in and deleted). IX1 (MAJOR): the delta's
+            "listed-but-missing is already guarded" claim is false for code-span
+            catalogues, so the tools and instruments indexes have no guard when
+            an entry's file is deleted; IX10 (minor) formed at reconcile.
+            Findings are the principal's to decide (rule 3); nothing was
+            applied.

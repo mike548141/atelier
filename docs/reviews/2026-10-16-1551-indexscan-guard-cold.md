@@ -510,3 +510,134 @@ foreground; machine load 25–28 throughout.
 - [ ] IX6 — Mike confirms or re-rules the ten session-index exemptions.
 - [ ] IX7–IX9 — one clause each in the docstring/README when IX1's wording is touched.
 - [ ] Phase 2: reconcile against the sibling once the orchestrator releases it.
+
+### Reconcile (phase 2, 2026-10-17 UTC)
+
+Phase 1 was committed as `8d90b90` before any of this was opened. Opened for this step, and
+nothing else: the sibling's text (relayed by the orchestrator), the intent record's
+`200/010` section, the queue pointer, both landing commits' message bodies, and the FW2 and
+AM5 findings and checklist lines in the two prior verdicts the sibling names. No scanner or
+suite was run; phase-1 text is untouched.
+
+**Against the intent record and the pointer.** The pointer is refs-only and its claim line
+discloses the same Fable-reviewer-under-Fable-orchestrator shape my provenance states —
+consistent. The intent record says the orchestrator "read each one" of the ten session
+side-records and that the allow-markers are "the orchestrator's own judgement. A reviewer
+may prefer index lines" — so IX6 was anticipated by the author and is confirmed, not
+changed: the decision is still open and still Mike's. The same paragraph says the guard
+"checks both directions, and leaves the listed-but-missing direction to
+`linkscan`/`pathscan`" — two halves of one sentence that contradict each other, and the
+docstring sides with the second; this sharpens IX1's record half (noted here, no new ID).
+The merge body matches the intent record and adds nothing.
+
+**Against the prior verdicts.** FW2 (minor, file-walk pass) and AM5 (MODERATE, allow-marker
+grammar pass) are both open — unchecked on their checklists, no `[fixed]` tag — which agrees
+with the mechanical proof in lens 3 (both markers consumed, neither stale). The markers'
+stated causes stand.
+
+**Against the seeded questions.**
+
+1. *Ten markers in the merge; same decision?* Answered cold as IX6. With the record open:
+   one agent, one landing, two accounts — "left for the records owner" in `8d10487`, then
+   ten reasoned markers in `5600b0e` — and the intent record owns the second as its own
+   judgement, not a ruling. Rule (b)'s "fail noisy, then subtract" was honoured in *form*:
+   ten individual, counted, reasoned subtractions, not a blanket `exclude=`. Whether a
+   whole class of records-only captures belongs under per-file markers, index lines, or a
+   different directory is the judgement IX6 hands to Mike. Severity unchanged (minor).
+2. *Does a passing mention satisfy "listed"?* Yes — IX7, formed cold (`instruments/install`
+   is the live instance). The question's own example is moot for the tools index:
+   `ROADMAP.md` appears in eight spans of `tools/README.md` but is not a `*.py` entry, so
+   it lists nothing. How much the check can see in a prose-heavy index: exactly the files
+   that no span or link anywhere names — cover is narrowest in the indexes with the most
+   prose, which is the cost lens 1 (assumption 2) accepted as the right default for a
+   warn-only guard.
+3. *Can a span naming a same-named file elsewhere list an entry it does not describe?* A
+   bare-name span, yes: `` `a.md` `` resolves against the mapped directory first, so it
+   lists the mapped `a.md` whatever file the sentence meant. A path span cannot cross
+   directories (probe 33: `x/two.py` does not list `two.py`). Same looseness as IX7/IX8;
+   no new finding.
+4. *Whole-tree cost; exit 2 in an unadopted child.* Cost: only Markdown files are opened,
+   line-streamed, three passes for a declaring index and one for the rest; adversarial
+   lines ran under a second (probes 35–39); bounded. Exit 2: **yes, it blocks** — a
+   finding formed at reconcile, **IX10** below. Probe 30 drove only a *well-formed* stray
+   line (`missing-dir`, warn-only); the malformed case I reasoned from the code and the
+   floor's rule at `tools/floor.py` lines 1468–1477: a non-zero exit from a warn-only
+   check "has always blocked", deliberately, and `--warn` never downgrades 2.
+5. *`dir=` containment after symlink resolution or lexically?* Lexically only — IX2,
+   formed cold, with its prevention step.
+6. *A new kind of file in `instruments/`.* A tracked lock file or dot-file shows as
+   `unlisted` (`*` matches a leading dot in `fnmatch`); a cache directory does not — the
+   shared walk prunes the skip-set names and, in git mode, anything ignored. That is the
+   behaviour the declaration intends: the index-keeper decides, by a line, an `exclude=`
+   or a reasoned marker, and the guard forbids nothing. By code reading, not re-driven.
+
+**IX10 — minor (formed at reconcile).** A line that *begins* `<!-- indexscan:maps` at line
+start outside a fence, in any Markdown file of any child, must parse or the guard exits 2;
+the floor treats a non-zero exit from a warn-only check as blocking on both planes
+(`tools/floor.py` 1468–1477, a deliberate rule). So a half-typed or placeholder
+declaration — the docstring's `dir=<path> match=<glob>` form pasted at line start — blocks
+every commit in a repo that never adopted the guard, while the README says the scanner
+"cannot red a repo that has not declared one". Both statements are true on their own terms
+(a malformed line *is* an attempted declaration, and "a declaration the scanner cannot read
+is a check that is not running" is sound) and the docstring says exit 2 is never
+downgraded; what is missing is the sentence that joins them where an adopter reads. The
+house's own quoted examples are safe (fenced in the README; a mid-line span in the
+CHANGELOG). Rests on `8d10487`. *Counsel:* one clause in the README's opt-in paragraph —
+a malformed declaration line blocks on both planes; `.indexscanignore` is the escape for
+a file that must quote the raw syntax — and, if Mike prefers the cheap failure, report a
+malformed declaration as a finding kind instead of exit 2 and let `--warn` carry it.
+
+**Overall, restated: PASS-WITH-FINDINGS — 1 MAJOR · 1 MODERATE · 5 minor · 3 note.**
+(IX10 added at reconcile; nothing in phase 1 revised.)
+
+## Deferred material — folded in at reconcile
+
+# Deferred sibling — indexscan cold pass (160/700)
+
+**Held under REVIEW.md rule 1's split. Open only after your phase-1 findings in
+`docs/reviews/2026-10-16-1551-indexscan-guard-cold.md` are committed.** It is a
+floor, never a fence: these questions were seeded by a brief-writer who read the
+landing diffs and commit bodies, so they carry that reading's framing. Reconcile
+against them; do not let them narrow what you already found.
+
+## Intent record (not opened by the brief-writer)
+
+- `docs/sessions/2026-10-05-1120-queue-run-closes-and-builds.md`
+
+## Prior verdicts on the same surfaces (named, not opened)
+
+No prior verdict names `indexscan`. Two verdicts own the open findings that
+`tools/README.md` lines 4–5 allow-mark against (FW2, AM5):
+
+- `docs/reviews/2026-09-25-0715-single-sourced-file-walk-cold.md`
+- `docs/reviews/2026-10-03-0357-shared-allow-marker-grammar-cold.md`
+
+## The queue pointer's own lens hints
+
+None. The pointer is refs-only (delta, intent record, tier, pass type), plus the
+orchestrator's brief-writing claim line.
+
+## Seeded questions (the brief-writer's, from the diffs)
+
+1. The ten `indexscan:allow` lines in `docs/SESSIONS.md` arrived in the merge
+   commit `5600b0e`, not in `8d10487`. The commit body says the session index
+   "reports 10 unlisted detail files, left for the records owner". Was leaving
+   them for the owner and then silencing all ten in an unreviewed merge the same
+   decision? Who ruled each reason, and is a blanket allow of a whole class of
+   records what the guard's rule-(b) "fail noisy, then subtract" means?
+2. The listed test is "any link or code span anywhere outside a fence". Does a
+   passing mention in prose — say `` `ROADMAP.md` `` in a sentence of the tools
+   catalogue — satisfy it for a file that has no catalogue entry? If so, how much
+   of the "unlisted" class can the check actually see in a prose-heavy index?
+3. Code spans resolve against three bases (mapped dir, index dir, `--root`). Can
+   a span naming a same-named file elsewhere in the tree list an entry it does not
+   describe?
+4. The floor entry runs the guard whole-tree on the hook plane. Is that cost
+   bounded on a large child, and does its exit-2 path (a malformed declaration in
+   any file) block every commit in a child that never adopted the guard but
+   happens to carry a line beginning `<!-- indexscan:maps`?
+5. The docstring says `dir=` "must stay inside --root". Is that checked after
+   symlink resolution, or only lexically?
+6. `instruments/README.md` maps `match=*` with an exclude list. Does a new kind of
+   file in `instruments/` (a lock file, a dot-file, a cache directory) show as
+   unlisted, and is that the behaviour the declaration intends?
