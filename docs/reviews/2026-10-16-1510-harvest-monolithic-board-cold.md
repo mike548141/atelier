@@ -409,3 +409,121 @@ lens 4). The dirty tree the floor saw was the orchestrator's context partition (
 - [ ] HM3 — a GLOSSARY entry for "roadmap close"; the three sites point at it (minor)
 - [ ] HM5 — scope or historicise `RECORD.md` lines 120–130 (minor)
 - [ ] HM6, HM7, HM8, HM9 — notes; HM9's stale paths are ordinary hygiene for any session
+
+### Reconcile
+
+Opened after phase 1 was committed (`f6111be`), and only what the orchestrator named: the
+sibling's text (relayed, not the file), the landing commit's message body, the intent record
+`docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md`, the commissioning item
+`200/100`, the five prior verdicts the sibling lists, and the sync-gate pass's closed brief.
+The worktree-venv and three-cues briefs were not opened. Nothing above is revised.
+
+**Against the intent record and the commissioning item.** The intent record carries no
+per-site account of C3: it records the principal's "fix the contradictions one by one" as an
+answer, not a ruling, and closes `200/100` as "all eleven contradictions, each fixed separately
+with its own pass". The commissioning item's C3 line names the four sites by file:line and
+says only `RECORD.md` 233–236 reconciled them "by board mode"; its ✅ close line and the landing
+commit's body both say all four sites now say harvest only for a monolithic board. At HEAD that
+is three of four (HM1) — the ✅ line and the body were true at `b218f1e` and are stale since
+`4d80321`/`6a0ac93`; neither record is wrong for its date. Nothing in either record names the
+word's second sense (HM2) or the child template (HM4): the fix was framed, from the C3 line on,
+as a word-led drift repair at four named sites, which is the frame HM2–HM4 find too narrow.
+
+**Seeded question 1** (did the GLOSSARY-sense duty leave the close list on split boards?).
+HM2 is the same observation reached independently, with the pointer direction added: the
+GLOSSARY entry sends its reader to RECORD, where the word now means the mechanical move. On the
+site the question names the duty did not merely narrow, it was reverted outright (HM1), so at
+HEAD the prompt again tells a split-board session to do a step RECORD says does not exist.
+
+**Seeded question 2** ("roadmap close" undefined; does RECORD use the term?). HM3: no, RECORD
+never uses the phrase; the reader finds the concept at lines 230 and 279 and not the term.
+
+**Seeded question 3** (does the parenthetical parse for a monolithic child?). Phase 1 found
+the two parentheticals parse for both shapes, with the mid-migration case resolved by RECORD
+rather than the site (HM3); the child's real problem is not the parenthetical but its own
+stamped header's trigger, which no site and no gate agrees with (HM4).
+
+**Seeded question 4** (is scoping at four sites the restatement drift the closing-litany
+bullet warns against?). Yes, and the bullet carrying the warning is one of the four sites.
+Phase 1's lens-1 answer and HM3 say the same: three phrasings for one step, none stamped, in a
+section whose own text says it must "point at it, never restate it".
+
+**Against the five prior verdicts.** The 2026-07-22 harvest-integrity pass (HI-F4, minor)
+found the child template teaches the gate's grammar only post-hoc, mid-red-build; HM4 is the
+same template failing the same child one line earlier, at the trigger. The 2026-08-15
+board-store pass listed `skills/queue-run/SKILL.md`'s "roadmap harvest" and `CONCURRENCY.md`'s
+"the roadmap harvest" as monolith-era residue and handed them to the `010/040` sweep, and read
+the template `ROADMAP.md` as "correct for monolithic children"; the sweep closed on 2026-09-18
+with "nothing to fix", and C3 then fixed those two residues on 2026-10-03. The template header
+has now been passed by three readings on the same word-led basis; HM4 is the first to test its
+trigger against the gate. The 2026-07-29 and 2026-09-25 harvestscan passes and the 2026-07-22
+queue-run pass touch none of the delta's text; the queue-run pass's per-item-close findings are
+upstream of the litany bullet and unaffected.
+
+**Against the sync-gate pass** (`skills/queue-run/SKILL.md`, steps 2 and 4). It confirmed by
+diff that `b218f1e` touched step 6 only and that step 2 is unmoved; no conflict with HM3, whose
+subject is step 6's term. Its SY3 (a term differing from its sibling copies) is the same class
+as HM3 on a different line of the same file.
+
+**Formed at reconcile — HM10 — note.** The `010/040` sweep's closing line ("Swept 2026-09-18,
+nothing to fix") stands on the board as evidence that the surfaces it grepped are right, while
+two of the residues the 2026-08-15 pass had handed it were live contradictions fixed fifteen
+days later by C3, and a third (the template header, HM4) was passed on the same basis. A
+word-led sweep that finds nothing should record the words it searched and the basis it accepted
+hits on, so a later reader can see what it could not have found. *Counsel:* an addendum under
+`010/040` naming the two residues C3 fixed and pointing at HM4 — the principal's call.
+
+**Overall, restated:** **PASS-WITH-FINDINGS — 1 MAJOR · 2 MODERATE · 2 minor · 5 note**
+(HM10 added at reconcile; no phase-1 severity changed).
+
+## Deferred material — folded in at reconcile
+
+# Sibling to the harvest-scoping cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-16-1510-harvest-monolithic-board-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-10-16 UTC by the Opus brief-writer named in the brief's provenance; it
+forms no finding. Fold this file in below the reconcile and delete it at phase 2.
+
+## Intent and commissioning records
+
+- Intent record: `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` —
+  **not opened by the brief-writer**.
+- Commissioning item: `200/100` C3, in
+  `docs/roadmap/200-anti-slop-invariant-registry-promote-rec/100-r2-found-eleven-live-contradictions.md`
+  — **not opened by the brief-writer**.
+- The landing commit's message body (read by the brief-writer): it says RECORD held both "a split
+  board has no harvest step" and "harvesting is part of every close", and that three close lists
+  repeated the second unqualified.
+
+## Prior verdicts on these surfaces (named by filename grep, not opened, not exhaustive)
+
+- `docs/reviews/2026-07-22-0819-harvest-integrity-gate-cold.md`
+- `docs/reviews/2026-07-29-1306-b4-harvestscan-cold.md`
+- `docs/reviews/2026-08-15-1030-board-store-migration-cold.md`
+- `docs/reviews/2026-09-25-0715-harvestscan-prefix-filter-cold.md`
+- `docs/reviews/2026-07-22-1149-queue-run-doctrine-cold.md`
+
+## The pointer's own lens hints
+
+None. The pointer is refs-only; its last sub-bullet is the brief-writer's orchestrator's claim.
+
+## Overlap with sibling passes of this batch
+
+- `skills/queue-run/SKILL.md` is also the sync-gate pass's subject
+  (`2026-10-16-1510-queue-run-sync-gate-cold.md`, step 2).
+- `docs/method/CONCURRENCY.md` is also the subject of the worktree-venv pass (§ *The substrate*)
+  and the three-cues pass (§ *The trigger*). Different sections; a runner taking several should
+  sequence them and say so.
+
+## Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. The session-open prompt's close list used to say "roadmap harvested"; it now reads "roadmap
+   items closed (harvested, on a monolithic board)". If the principal meant the GLOSSARY sense —
+   extract what the work taught — that duty has quietly left the close list on split boards.
+2. "Roadmap close" is a new term in two places, defined in neither. The skill says its close
+   contents "bind in RECORD"; does RECORD use that term?
+3. atelier runs a split board; most children are stamped monolithic. A child session reading the
+   skill or the prompt meets a parenthetical written for atelier's shape. Does it parse for them?
+4. The fix scopes the word at four sites rather than defining it once and pointing. Is that the
+   restatement-drift pattern CONCURRENCY's own closing-litany bullet warns against?
