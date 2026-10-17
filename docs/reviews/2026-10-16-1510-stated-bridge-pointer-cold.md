@@ -353,3 +353,104 @@ All from the worktree root, one at a time, under `nice -n 10`; machine load 8–
 - [ ] BR4 — a `GLOSSARY.md` entry for *stated bridge*; a citation at `ACCESS.md:72`.
 - [ ] BR5 — stamp or dedupe the three copies of *tracked debt to shorten, not a resting state*.
 - [ ] Phase 2: reconcile against the sibling once this file is committed.
+
+### Reconcile (2026-10-17 10:30 UTC, after phase 1 landed as `c7039c9`)
+
+Opened at phase 2, and only these: the sibling's text (relayed by the orchestrator), the landing
+commit's message body, the commissioning item `200/100`, the intent record
+`docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` (grep for C6, `200/100`,
+SECRETS, "sweep"; the `200/040` section), and grep-located passages of the three prior verdicts
+the sibling names. Phase-1 text above is unrevised.
+
+**Seeded question 1 — a third instance, and was the sweep by phrase or by meaning?** Confirmed as
+BR1, and the records now show *why* it was missed. The commissioning item's C6 names exactly
+`SECRETS.md:76` and `:270`, the two lines carrying the literal phrase "stated-bridge rule"; the R2
+survey that filed it was claim-keyed on that phrase, so `:157–158` ("stated bridge
+(`DATA-PROTECTION.md`)", no "rule") never entered the item. The landing commit's body says
+"twice cited" and "both citations now point there" — true of the two lines the item listed, false
+as a count of the class. The intent record carries no C6-specific narrative beyond "fix the
+contradictions one by one" (his answer, recorded as an answer); it neither claims nor describes a
+sweep. So the sweep was by the survey's line list, which was by phrase; nobody swept by meaning.
+BR1's severity stands at MODERATE: the fix delivered what the item asked, and the item was
+narrower than the defect.
+
+**Seeded question 2 — does §7 oblige what SECRETS needs, or does the grammar need one home?**
+Matches BR2. The 2026-07-23 security-canon verdict (lens 1; Gap B) records that §5's
+*Secure by default* was deliberately built *on* §7's grammar, which supports the phase-1 reading:
+one home (§7), many applications, no second home needed. What §7 lacks is the platform-imposed
+shape; §5 holds that case for credentials. BR2 and its counsel stand unchanged.
+
+**Seeded question 3 — why a pointer at two sites and not the others?** Matches BR4 (ACCESS:72,
+SECRETS:167). The prior verdicts add a datum: site B's wording at `:270` was the 2026-07-22 pass's
+own suggested fix for SA2, applied verbatim on 2026-07-23 (`f8350ee`), and site D (`:167`) is
+SA4's apply from the same commit. Both inherited the file's then-standing citation convention,
+which was already wrong. The 2026-09-25 ccmail verdict uses "stated bridge" unanchored in a
+code-review record, which is the term travelling beyond doctrine without a definition to point at
+— more weight for the glossary entry BR4 counsels, none for raising its severity.
+
+**Finding formed at reconcile:**
+
+**BR6 — note (formed at reconcile). The 2026-07-22 cold pass verified the citation's *file*, not
+its *rule*.** That verdict's cross-reference check records "stated-bridge references →
+`DATA-PROTECTION.md` exists as claimed" — a file-existence test, which is exactly what `pathscan`
+mechanises and exactly what a dangling pointer survives. The same verdict then relied on the
+mis-cited rule in its own SA2 reasoning ("the stated-bridge rule it cites twice in this very
+delta"). The dangling citation therefore passed one cold review and was reproduced by the apply
+of that review's findings. This is the class BR3 names from the other side: a citation form no
+scanner can check past the filename invites a reviewer to check only the filename. *Counsel:* when
+the principal settles BR3's form, a reviewer's cross-reference line should state the rule reached,
+not the file found; that is a `REVIEW.md` wording question, the principal's to decide.
+
+**Intent record and commissioning item against phase 1:** nothing contradicts a phase-1 finding.
+The item's C6 closure line ("Both `SECRETS.md` citations … now point at `PRINCIPLES.md`") is
+accurate for the two lines it names and silent on the third; BR1 is the gap between the item and
+the file.
+
+**Overall, restated after reconcile:** **PASS-WITH-FINDINGS — 0 MAJOR · 1 MODERATE · 2 minor ·
+3 note** (BR6 added at reconcile; no phase-1 severity changed).
+
+## Deferred material — folded in at reconcile
+
+# Sibling to the stated-bridge-pointer cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-16-1510-stated-bridge-pointer-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-10-16 UTC by the Opus brief-writer named in the brief's provenance; it
+forms no finding. Fold this file in below the reconcile and delete it at phase 2.
+
+## Intent and commissioning records
+
+- Intent record: `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` —
+  **not opened by the brief-writer**.
+- Commissioning item: `200/100` C6, in
+  `docs/roadmap/200-anti-slop-invariant-registry-promote-rec/100-r2-found-eleven-live-contradictions.md`
+  — **not opened by the brief-writer**.
+- The landing commit's message body (read by the brief-writer): it says SECRETS "twice cited"
+  DATA-PROTECTION's stated-bridge rule, that file has no such rule, and both citations now point
+  at PRINCIPLES' rule.
+
+## Prior verdicts on these surfaces (named by filename grep, not opened, not exhaustive)
+
+- `docs/reviews/2026-07-22-1021-secrets-access-cold-pass.md`
+- `docs/reviews/2026-07-23-0222-security-canon-abce-cold.md`
+- `docs/reviews/2026-09-25-0715-ccmail-build-cold.md`
+
+## The pointer's own lens hints
+
+None. The pointer is refs-only; its last sub-bullet is the brief-writer's orchestrator's claim.
+
+## Overlap with sibling passes of this batch
+
+None: no other 2026-10-16 pass of this brief-writer touches `docs/method/SECRETS.md`.
+
+## Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. SECRETS' password-minting section, unchanged by the delta, still reads "An imposed cap is a
+   stated bridge (`DATA-PROTECTION.md`)". The commit message says the mis-citation occurred twice.
+   Is this a third instance the sweep missed, and was the sweep done by phrase or by meaning?
+2. PRINCIPLES' rule is about hand-actions on live systems pending codification. A standing
+   credential is not a hand-action, and an offline store's missing read trail is never going to
+   be "brought into code". Does the cited rule oblige what SECRETS needs, or does the grammar need
+   one defined home (§5 already calls it a grammar)?
+3. The break-glass paragraph and `ACCESS.md` also use "stated bridge" with no citation. If the
+   term needs a pointer at two sites, why not at the others?
