@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: allow-markers that name a kind, and
+- [ ] 🛑 **Rule-4 cold pass queued: allow-markers that name a kind, and
       finding IDs (`115/080`, the last half of part 3).** The run authored
       this itself (its dispatched worker's output counts as the run's
       authorship). It is queued at landing, and the run neither takes it nor
@@ -30,3 +30,16 @@
       forms every finding and severity. The sibling, the intent record and prior
       verdicts stay unopened by the reviewer until its phase-1 findings are
       committed. Provenance and exposure go in the verdict.
+      - [ ] 🛑 **The pass RAN 2026-10-17 and the cycle stays OPEN — a MAJOR
+            stands.** The rule-4 Fable cold pass (taker: a fresh
+            `claude-fable-5-1` subagent under a `claude-fable-5-1` orchestrator
+            — the shape disclosed in the claim above; the sibling, the intent
+            record and prior verdicts opened only after the phase-1 findings
+            were committed) returned PASS-WITH-FINDINGS — 1 MAJOR · 1 MODERATE ·
+            3 minor · 0 note →
+            [`2026-10-16-1551-marker-kinds-finding-ids-cold.md`](../../reviews/2026-10-16-1551-marker-kinds-finding-ids-cold.md)
+            (sibling folded in and deleted). MK1 (MAJOR): the "any other scope
+            exempts every kind" branch is kept on grounds the delta's own survey
+            refutes, and it silences a copyleft header on a publish gate; the
+            same class as LK1, AM2 and AM4, met a fourth time. Findings are the
+            principal's to decide (rule 3); nothing was applied.

@@ -459,3 +459,132 @@ Counsel: match the marker per physical line, before the join.
 - [ ] MK4 — sweep the Finding IDs paragraph, the sizescan "two kinds" wording
       and `_kinds` for `1c24781` and `72a68cc`.
 - [ ] MK5 — pointerscan matches markers per physical line.
+
+### Reconcile
+
+Phase 1 was committed at `1ce640c` before any of this was opened. Opened for
+phase 2, reads only: the sibling (received from the orchestrator), the intent
+record `docs/sessions/2026-10-05-1120-queue-run-closes-and-builds.md`, the queue
+pointer, the four prior verdicts the sibling names, and the landing commits'
+message bodies (already read in phase 1 — the brief allowed it). No phase-1 text
+is revised; nothing is folded or deleted here.
+
+**Against the seeded questions.**
+
+1. *Does the new hatch make the old widening more likely to be hit?* Yes, and
+   that is MK1's second half: the ID hands every reader a kind name to type by
+   hand, and the table shows what one slip of the hand does. The prior verdicts
+   place it: AM4 (2026-10-03) asked licenscan to compare the kind — the delta
+   delivers that for a recognised kind and leaves AM4's other sentence, "a
+   typo'd or foreign scope then exempts silently … three behaviours for one
+   spelling", exactly where it was. AM2 (the scope-with-no-reason backtrack,
+   table row 10) was held MODERATE with the note that the MAJOR argument grows
+   stronger after single-sourcing; LK1 (2026-08-09) argued MAJOR for the same
+   class, unruled. MK1 is the class's fourth meeting, the first in which the
+   fail-open was written down as a deliberate rule with grounds, and the
+   grounds do not hold. The intent record explains the choice: the pick was
+   claimed "under the constraint that every existing marker keeps silencing
+   exactly what it silences now". Fail-closed on an unrecognised scope meets
+   that constraint trivially — there was no existing marker in the shape — so
+   the constraint was read wider than it needed to be. MAJOR stands.
+2. *Three kinds or two; does anything still name the dropped kind?* The sibling
+   read the landing diff, where `_kinds` listed three and two could coexist
+   (cold content and the size advisory on one roadmap). At HEAD `_kinds` lists
+   two and `scan_paths` never sets both, so "up to two" is false and `ids`
+   always holds one — MK4 (b), resting on `72a68cc`. A live marker naming
+   `size-advisory` is kept as a retired, scoped-and-inert name (table row 11),
+   which is the right half of the lesson; nothing in the tree stores an old
+   `--json` capture, so no stored ID names it.
+3. *Case-insensitive round trip?* Yes for spellscan alone: it compares the
+   scope and the word both lower-cased, so `Color` prints `spellscan:color`
+   and either spelling in the marker works (table). The shared grammar itself
+   is case-sensitive, which is why an upper-cased kind is a blanket in the
+   three `covers` scanners (table row 7) and inert in the five rule-matching
+   ones.
+4. *Is the ID set stale for indexscan; is the rule pinned?* Stale — MK4 (a),
+   resting on `1c24781`. Nothing pins "a scanner with a scoped marker prints an
+   ID": `test_allowmarker` pins each scanner's grammar parameters and
+   `test_report` pins the nine lines that do print; no test asserts the rule
+   over the set, so indexscan drifted without a red. Sharpens MK4; no new ID.
+5. *Did sibling-repo output reach this public repo?* No. The tests are
+   fixture-only; `CHANGELOG.md` and `tools/README.md` carry counts ("29 real
+   trees", "174 runs"); the landing bodies say "28 sibling repos"; the intent
+   record's `115/080` passage gives counts only. No path, name or finding from
+   another repo is in this delta's records or tests.
+6. *Is leakscan's rule for a term hit derived from the term?* No. The rule is
+   the constant `local-term`, so the ID is `leakscan:local-term` for every term
+   hit, and the excerpt stays the pre-existing two-character redaction. Nothing
+   of the term enters the ID (lens 4 holds).
+
+**Against the intent record and the pointer.** The record says the device
+question named the wrong three guards and "14", corrected against the code to
+three scanners and nine IDs — my reading of the code agrees. It records the
+pick as an answer, not a ruling, and the constraint quoted under question 1.
+Its "No child parses a finding line" matches my consumer read of this tree;
+its real-tree counts are the claim I could not re-run, by rule. The pointer is
+refs-only and its claim line describes the shape I ran under.
+
+**Against the prior verdicts.** AM4: half delivered, half is MK1. AM5 (the
+grammar documented nowhere a user reads): partly delivered — three README
+sections and the Finding IDs paragraph now give each scanner's vocabulary; the
+scanner-by-scope table AM5 asked for does not exist and `GUARDS.md` still
+states no grammar, which is MK1's doctrine gap. AM10 (a scope naming no rule
+is silently inert; count it): not delivered; MK3 is its neighbour. XR7 and
+the exception-register notes said no scanner had a finding ID on 2026-10-04;
+nine do now, so that design's `--match-from-finding` premise half exists —
+a note for that item's owner, no finding here. PL16 counted the fail-open-
+in-a-blocking-gate class at three meetings; MK1 is a fourth on a different
+mechanism (the hatch, not the path reader). The linear-line-reader verdict
+does not overlap (its subject is the staged reader, this brief's non-goal).
+
+No finding was formed at reconcile. Severities unchanged.
+
+**Overall, restated: PASS-WITH-FINDINGS — 1 MAJOR · 1 MODERATE · 3 minor ·
+0 note.**
+
+## Deferred material — folded in at reconcile
+
+# Deferred sibling — marker kinds and finding IDs (160/750)
+
+**Held under REVIEW.md rule 1's split. Open only after your phase-1 findings in
+`docs/reviews/2026-10-16-1551-marker-kinds-finding-ids-cold.md` are committed.**
+A floor, never a fence: these questions were seeded by a brief-writer who read the
+landing diffs and commit bodies, so they carry that reading's framing. Reconcile
+against them; do not let them narrow what you found.
+
+## Intent record (not opened by the brief-writer)
+
+- `docs/sessions/2026-10-05-1120-queue-run-closes-and-builds.md`
+
+## Prior verdicts on the same surfaces (named, not opened)
+
+- `docs/reviews/2026-10-03-0357-shared-allow-marker-grammar-cold.md` (the shared
+  grammar; its AM4 is the defect `db1aa4d` cites)
+- `docs/reviews/2026-10-04-2215-exception-register-design-cold.md`
+- `docs/reviews/2026-10-04-2215-linear-line-reader-cold.md`
+- `docs/reviews/2026-10-03-0357-publishscan-round-2-cold.md`
+
+## The queue pointer's own lens hints
+
+None. The pointer is refs-only, plus the orchestrator's brief-writing claim line.
+
+## Seeded questions (the brief-writer's, from the diffs)
+
+1. `covers` keeps "any other scope exempts every kind". A marker with a typo in
+   its kind therefore exempts everything — and the printed ID now invites readers
+   to type kinds by hand. Does the new hatch make the old widening more likely to
+   be hit, not less?
+2. sizescan's `_kinds` lists three kinds; the `--json` comment and the commit say
+   "up to two". Which is true, and after `72a68cc` removed one kind, does a live
+   marker or a stored ID now name a kind that no longer exists?
+3. spellscan's ID uses the word lower-cased. Does the marker grammar compare
+   scopes case-insensitively, so a capitalised finding's ID still round-trips?
+4. `ded8d32` says conflictscan, wrapscan and indexscan get no ID because their
+   marker takes no scope. `1c24781` later gave indexscan a scoped kind. Is the
+   ID set now stale for indexscan, and does anything pin the rule "a guard with a
+   scoped marker prints an ID"?
+5. The back-compat evidence for both commits ran the scanners over 28–29 sibling
+   repos on the machine. Did any of that output — repo names, paths, findings —
+   land in this public repo's records or tests?
+6. leakscan's ID is the rule name. For a machine-local term hit, is the "rule"
+   a generic label or something derived from the term itself?
