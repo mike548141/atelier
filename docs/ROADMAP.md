@@ -286,7 +286,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Rule-4 cold pass queued: pathscan and linkscan stream and cap](roadmap/160-doctrine-review-owed/640-rule-4-cold-pass-queued-bounded-pathscan-linkscan.md)
 - [ ] 🎯 [Rule-4 cold pass queued: the exception-register design, before it is](roadmap/160-doctrine-review-owed/650-rule-4-cold-pass-queued-exception-register-design.md)
 - [ ] 🎯 [Rule-4 cold pass queued: the linear line reader in three guards](roadmap/160-doctrine-review-owed/660-rule-4-cold-pass-queued-linear-reader.md)
-- ⏳ [Rule-4 cold pass queued: ccarchive hardening (210/210).](roadmap/160-doctrine-review-owed/670-rule-4-cold-pass-queued-ccarchive-hardening.md)
+- [ ] 🎯 [Rule-4 cold pass queued: ccarchive hardening (210/210).](roadmap/160-doctrine-review-owed/670-rule-4-cold-pass-queued-ccarchive-hardening.md)
 - [ ] ⏳ [Rule-4 cold pass queued: cctranscript's first-prompt prefix read](roadmap/160-doctrine-review-owed/680-rule-4-cold-pass-queued-first-prompt-prefix.md)
 - [ ] ⏳ [Rule-4 cold pass queued: one unambiguous review-pointer state](roadmap/160-doctrine-review-owed/690-rule-4-cold-pass-queued-the-pointer-state.md)
 - [ ] ⏳ [Rule-4 cold pass queued: indexscan, the generic index-integrity](roadmap/160-doctrine-review-owed/700-rule-4-cold-pass-queued-indexscan.md)

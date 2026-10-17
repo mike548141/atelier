@@ -601,3 +601,204 @@ over an unverified index) — and each is the principal's to decide under rule 3
       beside the `SF_DATALESS` note.
 - [ ] HD16: the `ccmail.1` line-length warning is another item's; this pass only notes it.
 - [ ] Run `node --test instruments/*.test.js` once in a quiet window (not run here).
+
+### Reconcile
+
+Phase 1 was committed as `18a6aed` before any surface below was opened. Opened at
+reconcile, reads only (the orchestrator's load rule: no suite, no scanner, no probe):
+the sibling's text as relayed; the queue pointer; both intent records; the two verdicts
+whose IDs the commits cite (`HL`, `MC`), in full for their findings and reconcile
+sections; the five landing commits' message bodies; the ADR 0006 verdict's launchd
+lines; the `210` items' file names and the charter's encryption lines. Nothing in
+phase 1 is revised; where a seed changed my reading, it says so here.
+
+**Seeded questions.**
+
+1. *One destination, two machines.* Confirmed from the code, not probed: the lock and
+   journal are keyed by the destination's real path but live under the running home, so
+   machine B is never excluded by A's lock, and B cannot read A's journal. A mirror A
+   wrote and had not yet indexed is, to B, a mirror with no entry: adopted only if B's
+   live copy is byte-identical, otherwise set aside under `_untrusted/` with exit 1 —
+   and A's next run then finds its journalled mirror gone (ENOENT: "the write never
+   landed") and re-archives from its live copy, so nothing is lost but B's report stays
+   red until the set-aside copy is removed by hand. **HD5, extended at reconcile:** the
+   lock section's "one run at a time per archive" is per machine, and a shared
+   destination needs either a destination-side lock or a stated "one machine writes"
+   rule. No change of severity.
+2. *Rollback.* HD1, formed before the seed was read; the seed names the same three
+   sources (sync conflict, backup restore, destination write). Nothing binds freshness.
+3. *Legacy trust.* The catch-up converges (probed: budget 0, negative, junk, huge all
+   progress) and each entry is hashed once; the weakness the seed names is real but
+   bounded and documented. One residue the intent record adds: the 44 entries a one-off
+   script wrote on 2026-10-05 outside the tool carry an `adoptedBy` mark; whether they
+   carry the mirror stat fields is not visible from here — if not, they are legacy entries
+   the catch-up will read once. Evicted legacy mirrors are never read by the catch-up and
+   stay "trusted as signed" for as long as they are evicted, by design.
+4. *Platform.* Answered in lenses 3 and 4: `stat -f` is behind a darwin gate, so GNU
+   `stat` is never called; `ps -o lstart=` is a procps form; the Ubuntu CI run reaches
+   the lock tests (process identity) and the seam-driven dataless tests, and skips only
+   the real `SF_DATALESS` path. The missing `--` is HD14.
+5. *Seams.* HD14 and ENVIRONMENT: a stale `CCARCHIVE_SCHEDULER_LOG` makes
+   `--install-schedule` report "Scheduled" having asked no scheduler; `CCARCHIVE_TEST_FAIL_AFTER`
+   kills every run (the page says so). A scheduled run does not inherit the shell, so
+   the reach is a hand run, as MC7's note in the `MC` verdict already judged.
+6. *Uninstall reach.* It removes one fixed path, `~/Library/LaunchAgents/` under the
+   tool's own label, and classes it login-style by the presence of `RunAtLoad`,
+   `StartInterval` or `KeepAlive`. It cannot reach another program's file. The ADR 0006
+   verdict records an earlier hand-wired plist under a different label (`nz.cxi.*`),
+   verified gone on 2026-07-17; the man page's "under the same label" is right for every
+   installer the tool itself shipped. No finding.
+7. *Retention.* A stated choice, not an unexamined default: KEPT COPIES says nothing is
+   ever deleted; DESIGN says the archive is readable by anyone who can read the
+   destination and encryption is not built; `210/240` holds the charter with encryption
+   pending. What no surface says is the privacy consequence of the two new areas — more
+   copies of private text in a cloud folder — which lens 4 records above. Counsel only:
+   one sentence in KEPT COPIES, and `210/240`'s encryption item is where the weight sits.
+8. *Story drift.* HD9: the README bullet is the one surface still telling Part A's
+   story; `--help`, the man page and both CHANGELOG entries (the second superseding the
+   first in plain words) agree with the code.
+
+**Cited IDs, checked against the verdict that raised each, not the commit's account.**
+
+| ID | what the finding said | at HEAD | verdict |
+|---|---|---|---|
+| HL1 / MC1 | skip-path backfill recorded the source's hash | adoption rule reads the mirror; `HL11` test builds the shape | answered |
+| HL2 | shrink guard read the manifest; lag, no-entry, no-length disarmed it | `classifyChange` fed only vouched entries; S5/S2c/S10 tests; probed | answered |
+| HL3 | a run re-signed an unauthenticated index | `authenticateManifest`; probed exit 2 in run, dry-run, restore | answered; `--rekey` is now the one path, unchecked (HD3) |
+| HL4 / MC2 | in-place mirror write | `writeFileAtomic` everywhere; probed | answered |
+| HL5 | gunzip error crashed verify, restore, run | `readMirror` classifies; probed in all four modes | answered |
+| HL6 | lag stranded, advice wrong | journal repair + adoption + next-step lines; probed | answered |
+| HL7 | restore wrote unchecked bytes | hash check, `--force` cannot override; probed | answered |
+| HL8 | one unreadable source aborted the run | named and skipped; probed file and dir | answered |
+| HL9 / MC9 | mirror write followed a symlink; planted temp link | lstat + unique temp + O_EXCL; probed | answered (MC9's `0644` point unchanged, by its own terms) |
+| HL10 | read-only modes moved the manifest | `onCorrupt: 'throw'` on every read-only path; test 2361 | answered |
+| HL11 | regression test did not build its shape | test at line 1913 does; mutation M2 catches it | answered |
+| HL12 / MC4 (page) | checkpoint overclaimed; CHANGELOG silent | SIGNING states throw vs hard kill; two entries | answered |
+| HL13 / MC7 | seams undocumented | ENVIRONMENT + drift-guard test | answered |
+| HL14 | overlapping runs unlocked | a lock, per machine | answered on one machine (HD5) |
+| MC3 | no test fails without the checkpoint | hard-kill test; mutation M1 fails it | answered |
+| MC4 (mechanism) | a kill between the two renames read as tampered | `.sig.next` swap; MC4 test | answered; the order itself is unguarded (HD4) |
+| MC5 | part-way failure unstructured | top-level catch, exit 2, JSON object | answered; two exit-1 refusals still print no JSON (HD12) |
+| MC6 | symlinked dest bypassed the repo guard | `realpathNearest`; test 2403 | answered |
+
+**Uncited findings in those two verdicts:** HL15 (process: the recommendation put to the
+principal is not on the record), MC8 (process: the review worktree lacked the delta) and
+MC10 (checkpoint cost on a synced destination, "recorded so the trade is visible"). None
+is code; MC10's trade is unchanged at HEAD (whole-manifest rewrite every 50 mirrors). The
+`S2c`, `S4c` and `S5` the commits name are probe shapes from the `HL` verdict, all
+covered by tests at HEAD.
+
+**The intent record's own residue list** (five items "for that pass to weigh") against
+phase 1: the older-mtime rewrite is HD13(a), which adds the equal-mtime case; the
+per-state anomaly copies are documented; the pre-journal lag "set aside once" was met in
+the field by the 2026-10-05 one-off adoption; a narrow race when clearing a stuck lock is
+documented in the code. The fourth — *`--rekey` mints the key before it re-signs* — is
+true at HEAD (`mintKey` then `signManifest`): a kill between the two leaves every
+destination signed under a key that no longer exists, and the only recovery is another
+`--rekey`, which re-signs unverified. **HD2 and HD3, extended at reconcile:** the residue
+the authors recorded is the same mechanism, seen from the crash side. No change of
+severity.
+
+**Commit claims against the record.** The test counts the bodies give (103 → 129 → 156
+→ 194) sit below HEAD's 223 because `72e0093` added the schedule tests; the "17 targeted
+mutations each caught" and "14 … each caught" claims could not be re-run as stated (the
+mutations are not in the record) — my five of my own choosing are the sample, with one
+survivor (HD4). The 2026-10-05 whole-archive `--verify` figure in the intent record is
+the record's own; nothing here contradicts it.
+
+**Provenance, restated.** The pointer's claim shape (reviewer-plus-orchestrator, both
+seats Fable, the sibling held outside the worktree and the harness scratchpad) matches
+what this session experienced. The queue-run session that opened the claim is the
+orchestrator named in phase 1; it authored none of the delta.
+
+**Findings formed at reconcile:** none with a new ID. HD5 (two machines), HD2 and HD3
+(the crash-side residue) are extended above without a change of severity.
+
+**Overall line, restated: PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE · 8 minor · 5 note.**
+Nothing applied; the findings are the principal's. Phase 2 ends here; no file but this
+one edited, nothing folded or deleted (the orchestrator folds the sibling in).
+
+## Deferred material — folded in at reconcile
+
+# Deferred sibling — ccarchive hardening
+
+**Held under rule 1's split** (`docs/method/REVIEW.md`). Open only after your
+phase-1 findings are committed to the brief
+`docs/reviews/2026-10-16-1550-ccarchive-hardening-cold.md`. At verdict, fold this
+file in below your reconcile and delete it.
+
+Written 2026-10-16 UTC by the Opus brief-writer named in the brief, which authored
+none of the delta and forms no finding: the questions below are seeds, a floor
+and never a fence.
+
+## Intent record
+
+- `docs/sessions/2026-10-04-2329-ccarchive-hardening.md` — **not opened by the
+  brief-writer**. The records commit `21a772f` appended to it after the run's
+  close; the widening commits `bab1451` and `72e0093` may be recorded there or in
+  `docs/sessions/2026-10-05-1120-queue-run-closes-and-builds.md` (also not
+  opened).
+
+## The earlier verdicts this delta answers (named, not opened)
+
+The commit messages cite finding IDs as answered. ID greps over `docs/reviews/`
+place them in these two files; neither was opened by the brief-writer:
+
+- `docs/reviews/2026-10-04-2215-ccarchive-heal-pulled-cold.md` — the `HL` IDs
+- `docs/reviews/2026-10-03-0357-manifest-checkpoints-cold.md` — the `MC` IDs
+
+For each cited ID, check at reconcile that the code at HEAD answers what the
+finding said, not what the commit message says it said; and list any finding in
+those two verdicts the series does not cite.
+
+## Other prior verdicts naming the tool (named, not opened)
+
+- `docs/reviews/2026-07-17-1000-adr0006-ccarchive-preserve-cold.md`
+- `docs/reviews/2026-07-17-1000-cli-docs-standard-cold.md` and
+  `docs/reviews/2026-07-17-1157-cli-docs-applied-cold.md`
+- `docs/reviews/2026-07-17-1000-conventions-utc-at-rest-cold.md` and
+  `docs/reviews/2026-07-17-1157-conventions-utc-applied-cold.md`
+- `docs/reviews/2026-07-20-2040-size-rebalance-cold.md`
+- `docs/reviews/2026-08-15-1032-cctranscript-search-cold.md`
+- `docs/reviews/2026-08-17-1321-plain-reply-repurpose-design.md`
+- `docs/reviews/2026-09-25-0715-ccmail-build-cold.md`
+- `docs/reviews/2026-10-03-0357-archive-pool-speedup-cold.md`
+
+## The pointer's own lens hints
+
+None. The pointer is refs-only (delta, intent record, tier, pass type).
+
+## Seeded questions
+
+1. **One destination, two machines.** The lock and the intent journal both live
+   under the running machine's home, not on the destination. If the destination
+   syncs between machines, does the lock exclude the other machine at all, and
+   what does machine B do with a mirror machine A wrote but has not yet indexed
+   (no entry → set aside as untrusted)?
+2. **Rollback.** The signature is an HMAC over the manifest bytes. Does anything
+   bind freshness, so that an older, validly signed manifest-and-signature pair
+   (from a sync conflict, a backup restore, or an attacker with destination
+   write) is refused rather than read as `verified`?
+3. **Legacy trust.** Entries written before the hardening carry no mirror stat
+   and are "trusted as signed until their next write". Every archive that
+   predates the change starts in that state; is the stat-vouching weakest
+   exactly where the most data sits, and does the legacy budget close it?
+4. **Platform.** `stat -f` and `ps -o lstart=` are BSD and macOS forms; GNU
+   `stat -f` reports file-system status instead. The schedule now supports
+   Linux. Does the legacy batched stat, or the lock's process identity, behave
+   on Linux, and does the Ubuntu CI run reach those paths or skip them? The
+   `stat` argv also passes paths with no `--` separator.
+5. **Seams in the shipped tool.** `CCARCHIVE_SCHEDULER_LOG` turns every scheduler
+   call into a log line, and `CCARCHIVE_SCHEDULER_EXIT` fakes its result. Can a
+   variable left set in a user's shell make `--install-schedule` report success
+   while installing nothing, or make a real run inject a fault?
+6. **Uninstall reach.** `--uninstall-schedule` also removes "an old login-style
+   plist". By what test does it decide a file is its own, and can it remove a
+   file another program owns?
+7. **Retention.** `_anomalies/` and `_versions/` are never deleted, hold private
+   transcripts and memory notes, and the destination may be a cloud-synced
+   folder with encryption at rest unbuilt. Is unbounded retention of extra copies
+   a privacy design choice the man page states, or an unexamined default?
+8. **Story drift.** Part A removed the installer and refused its flags by name;
+   `72e0093` brought it back two hours later. Do the man page, `--help`, the
+   README and both CHANGELOG entries now tell one consistent story?
