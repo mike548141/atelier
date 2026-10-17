@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: one unambiguous review-pointer state
+- [ ] 🛑 **Rule-4 cold pass queued: one unambiguous review-pointer state
       (`130/020`).** The run authored this itself (its dispatched worker's
       output counts as the run's authorship). It is queued at landing, and the
       run neither takes it nor spawns a reviewer for it. *Tier:* Fable, the
@@ -29,3 +29,17 @@
       spawns forms every finding and severity. The sibling, the intent record
       and prior verdicts stay unopened by the reviewer until its phase-1
       findings are committed. Provenance and exposure go in the verdict.
+      - [ ] 🛑 **The pass RAN 2026-10-17 and the cycle stays OPEN — a MAJOR
+            stands.** The rule-4 Fable cold pass (taker: a fresh
+            `claude-fable-5-1` subagent under a `claude-fable-5-1` orchestrator
+            — the shape disclosed in the claim above; the sibling, the intent
+            record and prior verdicts opened only after the phase-1 findings
+            were committed) returned PASS-WITH-FINDINGS — 1 MAJOR · 3 MODERATE ·
+            7 minor · 2 note →
+            [`2026-10-16-1550-queued-glyph-state-cold.md`](../../reviews/2026-10-16-1550-queued-glyph-state-cold.md)
+            (sibling folded in and deleted). PO1 (MAJOR): the legend admits
+            three queue counts and every live pointer wears the unnamed `- [ ]
+            ⏳` shape its own author wrote, so a session following the legend's
+            words miscounts the queue; PO13 (minor) formed at reconcile.
+            Findings are the principal's to decide (rule 3); nothing was
+            applied.

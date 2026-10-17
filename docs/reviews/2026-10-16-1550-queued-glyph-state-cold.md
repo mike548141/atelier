@@ -648,3 +648,169 @@ the foreground, one at a time. HEAD named per step.
 - [ ] PO12 — the measurement's unit and script recorded.
 - [ ] Phase 2: the sixteen rewritten state lines against their verdicts; the
       message bodies against the diff table above; the sibling's seeded questions.
+
+### Reconcile (phase 2, 2026-10-17 UTC — opened after `e9ecaa0` committed phase 1)
+
+Opened at reconcile, reads only: the sibling (relayed verbatim by the orchestrator),
+both landing commits' message bodies, the queue pointer `690`, the intent record's
+`130/020` section, the fifteen landed items' close stamps at `952f78a` with their
+linked verdicts' overall lines, and the ten prior verdicts the sibling names (by
+grep on their finding headings; `BS2`, `BS5`, `TR1` read in full). Phase-1 text is
+untouched.
+
+**Against the seeded questions.**
+
+1. *Two shapes, one count.* Confirmed and sharpened by PO1: the brief-writer's
+   2026-10-16 grep gave 12 + 17; at `46fec06` it is 0 + 19 — the twelve marker-form
+   pointers landed their verdicts on 2026-10-17 and every pointer queued since the
+   legend wears the prefix form. The pointer `690` names its delta as "the state
+   lines of the sixteen `160` items it converted" and was itself written `- [ ] ⏳`
+   by the run's orchestrator in the landing merge (the intent record: "Doctrine
+   pass queued at `160/690`"), which settles A4: the shape is the author's, not a
+   later drift. A session following the legend's words counts only the first.
+2. *Do generator, scanner and legend agree?* No — PO1 (prefix glyph: flag to
+   `board.py`, state to `pointerscan`, unnamed by the legend) and PO2 (no claim
+   grammar). No prior verdict raised the prefix position; PO1 is new. `BS5`
+   (2026-08-15) found the legend had dropped off the session read path — a cause
+   that makes A4 likelier and PO1's counsel (say it in the count sentence) the
+   right altitude rather than a reminder.
+3. *`_LANDED` — precision or a fitted pattern?* Both halves answered in phase 1:
+   precision is measured (27 and no other over 1066 versions, including versions
+   that predate the 2026-10-03 incident); recall is measured only indirectly —
+   the 48 landed title-queued items all carry an upper-case `RAN <date>`, so the
+   house's close vocabulary is uniform at HEAD and no live miss exists — while the
+   probe shows the pattern is fitted to that vocabulary (PO5: lower-case and
+   prepositional forms miss). The message's "768 item versions" is the
+   change-event unit within three (PO12 stands: unit unstated in the delta).
+4. *Warn-only while `board` is enforced?* `board` enforces a derived file's
+   consistency with its source, a mechanical fact with a free remedy; detector 3
+   reads judgement-adjacent prose. The tiers differ for a reason the delta states
+   and this pass accepts. PO3's point is narrower than the question: not the tier,
+   but that nothing prints the count — the counsel is a count surface, not a flip.
+5. *The child red — held or shipped?* Shipped. `952f78a`'s body records "1 line in
+   one child, whose enforced board check reads stale until that child rebuilds its
+   index"; the intent record's `130/020` section does not mention it, and nothing
+   names a hold or a notice to the principal. PO10's mechanism is confirmed by the
+   measurement; see PO13 below, formed at reconcile.
+6. *Is 🎯 on an open review an owed ruling, and can a session find the ruling
+   queue?* The message says 🎯 went on "the 13 whose record says the findings are
+   the principal's to decide" — consistent with the thirteen items' own stamps
+   (each: `RAN <date>`, "cycle stays OPEN", ≥ 1 MAJOR, findings the principal's).
+   But the ruling queue has no count surface either: by the legend eye-flags are
+   not state, and at `46fec06` nine such items lead with 🛑 instead (PO8), so a
+   🎯 count under-reads it. Recorded under PO8; no new ID.
+
+**The sixteen state lines against their verdicts** (rule 2 work, done here).
+Thirteen 🛑 → 🎯 items: each carries a dated `RAN` stamp (2026-08-09 through
+2026-10-04), "the cycle stays OPEN", and a verdict whose overall line shows ≥ 1
+MAJOR (`650`: FAIL, 3 MAJOR; `460`/`630`: 2 MAJOR; the rest 1) — the glyph-off,
+🎯-led state matches the legend's rule and the verdicts. `460` and `510`: the
+message says the flag was dropped because they are "ruled and built, the re-review
+is 670's"; the items' own text at `952f78a` says the rulings walk is owed and "the
+cycle stays open until" the re-review, and the intent record agrees ("each item's
+own text holds its cycle open until `670` runs, so they stay open"). The message's
+reason contradicts the items it rewrote; PO8's first half is confirmed, severity
+unchanged (no count moves). `670`: `[ ] 🛑` → `- ⏳` was correct on 2026-10-05 (no
+verdict, a real queued re-review); it landed on 2026-10-17 and is `[ ] 🎯` at HEAD.
+`210/130`: `RAN 2026-09-26`, 1 MAJOR, cycle open — 🎯 matches.
+The message's "16 state lines rewritten, no other word touched" and "queue by state
+lines: 11 before, 12 after" both match the diff and the counts in lens 2.
+
+**Against the intent record.** It states the delta's claims in the same words as
+the message and adds two facts the verdict already met: the local-time date stamps
+corrected to UTC (PO11's `06` → `05`), and 87 targeted tests on the merged tree
+(this pass: 87 in the two modules, 1916 in the suite). It does not mention the
+child red (PO13) or the prefix shape of the pointer it queued (PO1).
+
+**Against the ten prior verdicts.** `BS2` (2026-08-15, MODERATE) counselled a
+`board` warning on "a body-resident `(claimed …)` under a `[ ]` glyph" — the claim
+shape all 21 briefed passes wear on 2026-10-17 is exactly that, and the warning was
+never built; PO2 inherits that history and its counsel stands. `BS5` is the
+read-path cause noted under question 2. `TR1` concerns the off-tier stop, not the
+state. The remaining seven raise nothing on the glyph, the flags or the claim
+shape; none anticipates PO1.
+
+**Per-finding disposition after reconcile.** PO1 MAJOR, PO2–PO4 MODERATE, PO5–PO9
+and PO12 minor, PO10–PO11 note: all stand, none revised.
+
+**PO13 — minor — formed at reconcile.** `952f78a` reds one child's enforced `board`
+check at that child's next floor run, with no child edit; the message discloses it,
+the session record does not, and nothing records a hold or a notice to the
+principal before the push. The remedy is one rebuild commit and the measurement
+was taken, so the cost was small — but the house's practice for a parent change
+that reds a child is to hold it for the principal, and a disclosure that lives only
+in a commit body is not where a child's session will look when its floor goes red.
+*Counsel:* a one-line note in the session record naming the child class and the
+remedy, and the same line wherever the fleet's floor changes are announced.
+
+**Overall, restated: PASS-WITH-FINDINGS — 1 MAJOR · 3 MODERATE · 7 minor · 2 note.**
+
+## Deferred material — folded in at reconcile
+
+# Deferred sibling — one unambiguous review-pointer state
+
+**Held under rule 1's split** (`docs/method/REVIEW.md`). Open only after your
+phase-1 findings are committed to the brief
+`docs/reviews/2026-10-16-1550-queued-glyph-state-cold.md`. At verdict, fold this
+file in below your reconcile and delete it.
+
+Written 2026-10-16 UTC by the Opus brief-writer named in the brief, which authored
+none of the delta and forms no finding: the questions below are seeds, a floor
+and never a fence.
+
+## Intent record
+
+- `docs/sessions/2026-10-05-1120-queue-run-closes-and-builds.md` — **not opened
+  by the brief-writer**.
+
+## Prior verdicts on the same surfaces (named, not opened)
+
+Path greps over `docs/reviews/` for `tools/pointerscan` and `tools/board.py` name
+these; none was opened by the brief-writer:
+
+- `docs/reviews/2026-08-05-1238-pointer-grammar-b4-wiring-cold.md`
+- `docs/reviews/2026-08-15-1030-board-store-migration-cold.md`
+- `docs/reviews/2026-08-17-0730-board-generator-child-truth-cold.md`
+- `docs/reviews/2026-08-17-1321-bs1-wording-cold.md`
+- `docs/reviews/2026-08-21-0820-pointing-up-cold.md`
+- `docs/reviews/2026-09-25-0715-0918-registry-code-cold.md`
+- `docs/reviews/2026-09-25-0715-bw-rulings-applied-cold.md`
+- `docs/reviews/2026-09-25-0715-linked-worktree-skip-cold.md`
+- `docs/reviews/2026-09-25-0715-staged-plane-check-cold.md`
+- `docs/reviews/2026-09-25-0715-tier-ruling-cold.md`
+
+Plus, for the phase-2 state-line check, the verdict of each of the sixteen items
+`b02c56d` rewrote (found from each item's own links).
+
+## The pointer's own lens hints
+
+None. The pointer is refs-only (delta, intent record, tier, pass type).
+
+## Seeded questions
+
+1. **Two shapes, one count.** The legend says the queue is "the count of `⏳`
+   state lines — the index's `- ⏳` lines". At HEAD the generated index carries
+   queued pointers in two shapes: `- ⏳ [` (the glyph as the marker) and
+   `- [ ] ⏳ [` (an open box with the glyph as a flag). This pass's own pointer
+   and 160/680's wear the second shape. A brief-writer's grep on 2026-10-16 found
+   12 of the first and 17 of the second. Does a session following the legend's
+   words count only the first, and miss most of the queue — the very miscount the
+   delta set out to end?
+2. `board.py` maps `⏳` as a marker and also lifts it as a flag; `pointerscan`'s
+   `queued_state` accepts it as the marker or in the state prefix. Do the
+   generator, the scanner and the legend agree on what a queued pointer is?
+3. `_LANDED` keys on an upper-case `RAN` and a few cycle phrasings. The house's
+   own close stamps vary. How many real landed pointers in history would it miss,
+   and is the "exactly 27, no other" measurement evidence of precision, or a
+   pattern fitted to the one incident it was built from?
+4. The detector is warn-only, while its subject is an obligation (an owed review)
+   whose miss the legend says it exists to prevent. Is warn-only the right tier,
+   given `board` itself is enforced?
+5. The commit says the index change makes one child's enforced board check
+   "read stale until that child rebuilds its index" — a red in a child the
+   author did not touch. Was that red held for the principal, as the fleet
+   blast-radius practice asks, or shipped?
+6. 🛑 became 🎯 on thirteen items "whose record says the findings are the
+   principal's to decide". Is a decision mark on an open review the same as an
+   owed ruling, and does the legend's "eye-flags are never state" leave a session
+   any way to find the ruling queue?
