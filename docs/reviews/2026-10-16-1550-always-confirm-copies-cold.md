@@ -463,3 +463,150 @@ First sweep: 77 hits over 630 files, 407 barred. Count sweep: 2 hits, both histo
 - [ ] FM6 — scoped `blockscan:allow:` with reason on the apex section or the bullet.
 - [ ] FM7 — `GLOSSARY.md` floor entry names the three senses, or the apex names the sense it means.
 - [ ] Phase 2: reconcile against the sibling once released.
+
+### Reconcile (2026-10-17 UTC, after phase 1 landed as `689ab00`)
+
+Opened at phase 2, on the orchestrator's release of the sibling text: the sibling; the landing
+commit's message body; the queue pointer `160/620`; the intent record
+`docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` (the `200/040` and
+`200/100` passages); and the ten prior verdicts the sibling names, by grep for the floor-list
+terms and then the matching sections in full — chiefly `2026-07-14-2235` (F1, where the apex
+lists were born), `2026-08-17-1000` (RR1, RR8), and `2026-09-25-0715-ask-rule-to-children`
+(AK2). Phase-1 text above is unrevised; nothing is folded or deleted here.
+
+**Against the intent record and the commit body.** The intent record files C7 as one of eleven
+disagreeing copy-sets from the `200/040` survey ("41 independent restatements, 20 pointers,
+7 stamped — only the floor block is mechanically stamped"), and records Mike's "fix the
+contradictions one by one" as an answer, not a ruling. The body confirms the structural
+reading in lens 2: the one stop left out is deploy-on-push, on the ground that it "arguably
+sits inside 'widening its audience'". That phrase is the *block's* wording for member A; the
+two apex copies the commit edited say "making a repo public", which carries no audience
+clause — so the subsumption the body relies on fails on the very copies it was editing
+(FM1 stands, and is sharpened). The body also counts the onramp skill as a copy that "already
+matched", which confirms row 6 is treated as a copy and left unstamped (FM5 stands).
+
+**Against the prior verdicts.** Three open findings already sit on this surface, none ruled:
+
+- **RR1 (2026-08-17, MODERATE, unchecked):** the apex exception restates the floor narrower
+  than `AUTONOMY.md`; counsel "refer to `AUTONOMY.md`'s floor by name, drop the enumeration".
+  **FM3 is the same finding two months on**, now with the add-a-collaborator case routed. The
+  landing commit extended the enumeration RR1 counselled removing — see FM8.
+- **RR8 (2026-08-17, unchecked) and AK2 (2026-09-25, MODERATE, unchecked):** the onramp
+  skill's floor list is an unstamped third original that sweeps keep missing. **FM5 is the
+  same finding**, with the commit body's own "already matched" as the new evidence that it is
+  treated as a copy without being watched as one. One ruling would close RR8, AK2 and FM5.
+- **F1 (2026-07-14, [fixed] on Mike's ruling):** the apex sentence became two-armed —
+  "governance ruling **or** always-confirm floor stop (`PROPAGATION.md` floor)". So the
+  "`PROPAGATION.md` floor" attribution FM3 names is the wording of a ruled fix, not a later
+  drift; FM3's counsel on attribution is therefore a re-brief of that ruling, not a correction
+  of a slip — stated so the principal rules on it knowing its provenance.
+- **foundation Q2 (2026-07-10, [fixed]):** "a pull-quote lists 4 of 6 floor items" is the
+  class FM2 re-finds in `AUTONOMY.md`'s own headline quote (7 of 10 bullets); the 2026-07-10
+  fix reached the pull-quote then under review and the headline was not swept.
+- No prior verdict names the `AUTONOMY.md` → copies watching gap (FM1's second half), the
+  deploy-on-push absence, or the TOOLBOX approval-record seam (FM4): those are new.
+
+**Seeded questions, each answered.**
+
+1. *Did the 2026-08-17 ruling name the floor by reference or by enumeration?* By reference.
+   The ruling-round verdict records ruling two as "where the approval is an always-confirm
+   floor stop, the re-briefing must come before the irreversible action", and RR1 found the
+   exception paragraph's seven-item enumeration to be the applying session's, not the
+   ruling's. So the commit edited a convenience copy inside a sentence attributed to the
+   ruling; it did not rewrite the ruling — but the attribution makes any future reader take
+   the list as the ruling's scope, which is RR1's and FM3's point: point, don't enumerate.
+2. *Does the first apex list now match the `PROPAGATION.md` block member for member?* No. The
+   block names "or widening its audience" (A), "people's safety" (I) and "widening your own
+   grant" (E, which the apex's first list carries in its governance arm and its second list
+   not at all). Matrix rows 1–2 against row 4; FM3.
+3. *Does an argued subsumption meet "in every copy"?* No, on two counts: the subsumption's own
+   wording is absent from the copies edited (above), and `AUTONOMY.md` lists K as its own
+   bullet, so until the principal folds it (FM1's first decision) a copy that omits it drops a
+   member. FM1.
+4. *Is the README's enumerated summary a second source that should have been a pointer?*
+   Yes, on V4's test and on the record: the commit body says the README "also dropped new
+   trust surfaces" — a second drift on the same line (the first being its pre-2026-10-03
+   state). Folded into FM3's counsel as row 3: the item keeps its one-line character ("confirm
+   on the hard-to-undo floor") and points at `AUTONOMY.md` § *Always confirm* instead of
+   listing. No new finding; FM3's counsel is widened to rows 1–3.
+5. *Should the apex carry the floor as a stamped copy?* No — a pointer, for a mechanical
+   reason: the floor region admits no declared narrowing (`115/030`, verbatim), and the
+   apex's lists are clauses inside sentences, so a stamp would red on shape alone. Stamping
+   fits the onramp (FM5, if its text goes verbatim); the apex and README fit pointing. The
+   mechanism the apex needs is the other direction — `AUTONOMY.md` mapped as a `blockscan`
+   source (FM1).
+
+**Finding formed at reconcile.**
+
+**FM8 — minor (reconcile).** The fix ran against open counsel on its own surface. RR1
+(2026-08-17) counselled dropping the apex enumerations and RR8/AK2 counselled stamping or
+pointing the onramp; all three were unruled on 2026-10-03, and the C7 fix extended the
+enumerations instead, with the queue run's "fix one by one" recorded as an answer rather than
+a ruling. Not a defect of the delta's content — an enumeration made more complete is better
+than one less complete — but a pre-emption of a pending ruling's direction, and the shape
+`PROPAGATION.md` § *When a rule keeps breaking* names: a rewording where a mechanism was
+already counselled. *Counsel:* when a contradiction fix lands on a surface with an unruled
+finding, the fix's record names that finding and the direction it chose; here, FM1/FM3/FM5
+and RR1/RR8/AK2 go to one ruling together.
+
+**Overall, restated:** **PASS-WITH-FINDINGS — 1 MAJOR · 4 MODERATE · 2 minor · 1 note**
+(FM8 added at reconcile; no phase-1 severity changed).
+
+## Deferred material — folded in at reconcile
+
+# Deferred sibling — the always-confirm floor list's copies
+
+**Held under rule 1's split** (`docs/method/REVIEW.md`). Open only after your
+phase-1 findings are committed to the brief
+`docs/reviews/2026-10-16-1550-always-confirm-copies-cold.md`. At verdict, fold
+this file in below your reconcile and delete it.
+
+Written 2026-10-16 UTC by the Opus brief-writer named in the brief, which authored
+none of the delta and forms no finding: the questions below are seeds, a floor
+and never a fence.
+
+## Intent record
+
+- `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` —
+  **not opened by the brief-writer**.
+
+## Prior verdicts on the same surface (named, not opened)
+
+Path greps over `docs/reviews/` for `always-confirm` name these; none was opened
+by the brief-writer:
+
+- `docs/reviews/2026-07-10-atelier-foundation.md`
+- `docs/reviews/2026-07-12-reach-rereview.md`
+- `docs/reviews/2026-07-14-2235-informed-principal-apex-cold.md`
+- `docs/reviews/2026-07-22-1149-queue-run-doctrine-cold.md`
+- `docs/reviews/2026-07-23-0222-apex-widening-cold.md`
+- `docs/reviews/2026-08-15-1031-laws-removal-apex-cold.md`
+- `docs/reviews/2026-08-17-0622-authority-absolute-cold.md`
+- `docs/reviews/2026-08-17-1000-ruling-round-application-cold.md`
+- `docs/reviews/2026-09-25-0715-ask-rule-to-children-cold.md`
+- `docs/reviews/2026-09-25-0715-tier-ruling-cold.md`
+
+## The pointer's own lens hints
+
+None. The pointer is refs-only (delta, intent record, tier, pass type).
+
+## Seeded questions
+
+1. The second apex list opens "One exception, and it is the always-confirm floor
+   (the principal's ruling, 2026-08-17)". Adding a member inside a sentence
+   attributed to a dated ruling changes what the record says that ruling
+   covered. Did the 2026-08-17 ruling name the floor by reference (so the list
+   is a convenience copy) or by enumeration (so the edit rewrites a ruling)?
+2. The first apex list is introduced as "the `PROPAGATION.md` floor". Does it now
+   match `PROPAGATION.md`'s floor block member for member, including the stops
+   that block names that the apex does not?
+3. The commit leaves AUTONOMY's non-routine deploy-on-push stop out of every
+   summary on the grounds that it "arguably sits inside widening its audience".
+   AUTONOMY lists it as a separate bullet. Does an argued subsumption meet the
+   commit's own title, "in every copy"?
+4. `method/README.md` is a reading-order summary ending "Repos may narrow". Is an
+   enumerated summary of a safety list a second source (V4) that should have been
+   a pointer instead, given it drifted once already?
+5. None of the three edited lists is a stamped region. Should the apex carry the
+   floor as a stamped copy watched by a guard, as `PROPAGATION.md` and the child
+   template do?

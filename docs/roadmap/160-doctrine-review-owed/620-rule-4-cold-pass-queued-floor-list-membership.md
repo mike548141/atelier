@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued: the always-confirm list's copies match
+- [ ] 🛑 **Rule-4 cold pass queued: the always-confirm list's copies match
       AUTONOMY (`200/100` C7).** The run authored this itself. It was
       queued at landing, and the run neither takes it nor spawns a reviewer
       for it. *Tier:* Fable, the principal-named review tier, checked at
@@ -28,3 +28,17 @@
       forms every finding and severity. The sibling, the intent record and prior
       verdicts stay unopened by the reviewer until its phase-1 findings are
       committed. Provenance and exposure go in the verdict.
+      - [ ] 🛑 **The pass RAN 2026-10-17 and the cycle stays OPEN — a MAJOR
+            stands.** The rule-4 Fable cold pass (taker: a fresh
+            `claude-fable-5-1` subagent under a `claude-fable-5-1` orchestrator
+            — the shape disclosed in the claim above; the sibling, the intent
+            record and prior verdicts opened only after the phase-1 findings
+            were committed) returned PASS-WITH-FINDINGS — 1 MAJOR · 4 MODERATE ·
+            2 minor · 1 note →
+            [`2026-10-16-1550-always-confirm-copies-cold.md`](../../reviews/2026-10-16-1550-always-confirm-copies-cold.md)
+            (sibling folded in and deleted). FM1 (MAJOR): AUTONOMY's
+            deploy-on-push floor member has been absent from every copy since
+            2026-07-10, and no mechanism watches the canonical list against any
+            copy; FM3 and FM5 duplicate the unruled RR1 and RR8/AK2; FM8 (minor)
+            formed at reconcile. Findings are the principal's to decide (rule
+            3); nothing was applied.
