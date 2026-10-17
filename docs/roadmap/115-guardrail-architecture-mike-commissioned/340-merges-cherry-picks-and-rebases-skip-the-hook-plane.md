@@ -38,3 +38,21 @@
         conflicted merge finished by git commit does. A pre-merge-commit hook
         does fire on a clean merge. Atelier ships pre-commit only; GUARDS.md
         is silent. Adjacent: 320/480.
+      🔎 **Addendum, handed up 2026-10-17 by a private child** (found by a
+        cold review there, re-measured before filing on git 2.50.1 with a
+        throwaway repo whose `pre-commit` logs and exits 1). Three facts the
+        item does not yet carry:
+        - **A hand-resolved rebase conflict lands new bytes unhooked.** A
+          rebase that stops on a conflict, is resolved by hand and finished
+          with `rebase --continue` exits 0 and never runs `pre-commit`. The
+          resolved bytes are new content no client-side plane checked. This
+          is the shape of the house's own `git pull --rebase --autostash`
+          session-open habit, so the conflicted-merge exception above has
+          no rebase counterpart.
+        - **`git revert` skips `pre-commit` too**, like cherry-pick: a
+          revert exits 0 with the failing hook never run. Item 2's
+          "cherry-pick and rebase have no client-side hook" should name
+          revert as well.
+        - **A clean revert exposes no `REVERT_HEAD`** while
+          `prepare-commit-msg` runs, so a hook cannot use that file to tell
+          a revert from an ordinary commit at that point.
