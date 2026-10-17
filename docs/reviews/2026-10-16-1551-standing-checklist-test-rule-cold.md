@@ -550,3 +550,165 @@ reviewable.
 - [ ] CK14 — note for the brief-writer template: a lens-4 comparison target
       must not sit in the deferred set.
 - [ ] Reconcile at phase 2; overall line restated there.
+
+### Reconcile
+
+Phase 1 committed at `8174f45`; the orchestrator then passed the sibling's text.
+Opened for this step, reads only, no suite or scanner run: the sibling as
+messaged; the intent record `docs/sessions/2026-10-05-1120-queue-run-closes-and-
+builds.md` (the `200/050`–`200/020` section, the close summary and the addendum);
+the queue pointer `160/710`; board items `200/020`, `200/050`, `200/110`; the
+`b8aba22` annotation diff on the mining record and the section README; the three
+landing commits' message bodies; the passages of the four named prior verdicts
+that touch the skill, the templates, the lens roster or `EVIDENCE.md` §13; and
+the closed RB pass (`2026-10-16-1550-review-brief-applies-nothing-cold.md`),
+its lens-3 brief, RB9 and its reconcile. Phase-1 text above is unrevised.
+
+**Seeded questions**
+
+1. *The discharge clause — did an author addition to principal-approved text need
+   his ruling before landing?* No new finding. The clause was flagged in the
+   commit body, the board item and the intent record, and the delta landed with
+   its `⏳` pointer in the same merge — that is rule 4's landing-equals-queuing,
+   and rule 3 makes the clause this pass's to judge and his to decide. Judged in
+   lens 2: a faithful borrowing of lens 4's discharge shape, which the 2026-07-21
+   pass (SL) already found sound as "mirrors `review: not warranted`". Nothing to
+   add.
+2. *Homes unamended?* Holds. V3's `stampscan` is the record's own "S4 scanner"
+   seam by its built name; V7's "Not mechanised" is the record's "partly
+   mechanical — a verdict-file field". V4 and V1 gained pointers to where the
+   fact already lives (`EVIDENCE.md` §9, `PROPAGATION.md`, `00-APEX.md`); the
+   record named seams, not pages, so these are locations, not changed homes.
+   CK6 and CK7 are wording findings and stand unchanged.
+3. *"A brief need not list them" against lifecycle step 1 and the skill's
+   "Include:" list.* No conflict (phase 1, lens 2): neither surface requires
+   V1–V7 in a brief, and "need not" permits without forbidding.
+4. *V2 and V6 compressed — compression or narrowing?* Compression. The skill's
+   own item 3 carries lens 4's scanner clause whole and item 5 the re-run rule
+   whole, so the one-sentence checklist loses nothing at the point of use.
+   Confirmed as phase 1 read it.
+5. *Does §15 tell a reader a trustworthy capture from the zero-everywhere
+   harness?* No — a gap phase 1 touched only from the staleness side. Formed
+   at reconcile as CK15 below.
+6. *Is the child SHA resolvable outside?* No: the child repo is private, so the
+   hash grounds nothing for a public reader; it locates for estate sessions
+   only. Folded into CK9, whose severity moves below.
+
+**Against the intent record, the pointer and the board**
+
+- The record's account matches the commit bodies and adds one fact that changes
+  a finding: at the run's close the principal picked *"Sign off as landed"* for
+  `200/020` from the session's options, recorded on the item and in the addendum
+  as an answer, not a ruling, and the item is `[x]`. So the surfaces at HEAD are
+  `EVIDENCE.md` (settled) and the board (signed off 2026-10-05) agreeing, with
+  `CHANGELOG.md`'s "his sign-off on its wording is owed" — written at the merge,
+  before the close-of-run answer — the one stale sentence. **CK3 re-rated
+  MODERATE → minor at reconcile:** the cross-surface disagreement is real on a
+  public current-truth surface, but it is one unrevised changelog line, not an
+  unflagged in-flight rule; the status-line half of CK3's counsel falls away and
+  the fix is the changelog. The wording findings still return to him, as the
+  item itself says they will.
+- `200/110` and the `b8aba22` annotation confirm CK4 and sharpen it: the same
+  run, the same day, recorded that "the appendix of full ID citations … was never
+  written: the V-blocks are the only citation list" and that `050` "cited only
+  IDs it had opened" — and the landed section still says the record holds "its
+  full citation list for each line". Severity unchanged (minor); the counsel is
+  one word.
+- `200/020` publishes every detail §15 carries and more (the rail label's value,
+  run numbers, the name of the review that disproved it). The commit body's
+  claim — "at the detail the public board item already carries, with nothing
+  more from the child repo" — holds; §15 carries less. Phase 1's "sole public
+  surface" was an artefact of the brief's sweep excludes, which barred the `200/`
+  directory, and is corrected here. **CK9 re-rated minor → note:** the delta adds
+  no exposure; what remains is minimisation counsel, and a trim that left the
+  board item untouched would change nothing a reader can reach. Q6's point
+  stands inside it: the hash grounds nothing publicly.
+- The pointer is refs-only and discloses the reviewer-plus-orchestrator shape;
+  it matches the provenance repeated in phase 1.
+
+**Against the four prior verdicts and the RB pass**
+
+- `2026-07-21-2158` (SL): SL1 was this class exactly — a roster landed in the
+  parent while the skill taught the old one — and its counsel was a mechanical
+  parity check; the application built `LensRosterParityTest` for the lens roster
+  only. CK5 is the same class on a second roster, and the house's chosen remedy
+  is the precedent CK5's counsel cites. SL3 (the CONTRIBUTING template left
+  carrying the pre-delta sentence) is CK2's class on the same template.
+- `2026-07-22-0244` (SL application): confirms the pin covers the lens roster
+  and the template's security sentence and nothing else; CK5 unchanged.
+- `2026-08-02-2348` (deferral delta): touches none of this delta's claims;
+  nothing to reconcile.
+- `2026-07-26-2215` (EE, §13): reads §13's rungs as ordered by evidential
+  strength and keeps the principal beside the ladder; CK1's counsel to ground on
+  that ladder sits with that reading, and no prior finding anchors or contradicts
+  CK1.
+- RB pass: RB9 (note) records the same unwatched-copy fact as CK5 with a narrower
+  counsel, and its reconcile reads SL1's counsel as built "for the lens roster
+  only" — the same reading. RB's brief excluded the checklist sentence ("not this
+  delta"), so CK2 is not pre-stated there. RB6 is the mirror of CK3: there a
+  missing changelog entry, here a present but stale one.
+
+**Finding formed at reconcile**
+
+**CK15 — minor (formed at reconcile, seeded question 5).** §15 offers "capture
+the wire" as the outside authority, and its own second grounding instance is a
+capture harness that "reported `refusals_received: 0` everywhere" and was caught
+only by accident. The text does not say that a capture is itself an instrument
+whose output is a claim — §14's rule, one section above — so a reader can swap
+one unfalsified belief (the code's) for another (the harness's) and call it
+grounded. *Counsel:* one clause: "a capture is an instrument (§14) — drive it
+through a known refusal before its zero means anything."
+
+**Overall, restated:** PASS-WITH-FINDINGS — 0 MAJOR · 2 MODERATE · 8 minor ·
+5 note. (CK3 to minor and CK9 to note at reconcile; CK15 added; CK1 and CK2
+unchanged; nothing overturned.)
+
+## Deferred material — folded in at reconcile
+
+# Deferred sibling — standing checklist and test-assumption rule (160/710)
+
+**Held under REVIEW.md rule 1's split. Open only after your phase-1 findings in
+`docs/reviews/2026-10-16-1551-standing-checklist-test-rule-cold.md` are
+committed.** A floor, never a fence: these questions were seeded by a brief-writer
+who read the landing diffs and commit bodies, so they carry that reading's
+framing. Reconcile against them; do not let them narrow what you found.
+
+## Intent record (not opened by the brief-writer)
+
+- `docs/sessions/2026-10-05-1120-queue-run-closes-and-builds.md`
+
+## Prior verdicts on the same surfaces (named, not opened)
+
+None names the checklist section or § 15. Verdicts that touched the review-brief
+skill or `REVIEW.md`'s lens text, for the reconcile:
+
+- `docs/reviews/2026-07-21-2158-review-scope-security-lens4-cold.md`
+- `docs/reviews/2026-07-22-0244-sl-application-cold.md`
+- `docs/reviews/2026-08-02-2348-deferral-delta-cold.md`
+- `docs/reviews/2026-07-26-2215-evidence-escalation-rung-cold.md` (`EVIDENCE.md`
+  § 13, the neighbour of § 15)
+
+## The queue pointer's own lens hints
+
+None. The pointer is refs-only, plus the orchestrator's brief-writing claim line.
+
+## Seeded questions (the brief-writer's, from the diffs)
+
+1. `90c42ec`'s body names "one addition beyond the record's text, for the
+   reviewer to judge": the one-line discharge clause. Is an author-flagged
+   addition to principal-approved text itself a change that needed his ruling
+   before landing, under rule 3?
+2. The section's header says "Approved by the principal 2026-07-23, item by item"
+   and "homes unamended" appears in the commit body. Does the landed text name a
+   home for any check that the 2026-07-23 approval did not (for instance
+   `stampscan` on V3, or "Not mechanised" on V7)?
+3. "A brief need not list them" — does that sit with REVIEW.md's lifecycle step 1,
+   which says what a brief contains, and with the skill's "Include:" list?
+4. The skill paragraph compresses V2 to "re-run every recorded proof in scope"
+   and V6 to "security & privacy", dropping the `/security-review` clause. Is that
+   compression or narrowing, by the skill's own header?
+5. § 15 says a wire capture is an outside authority. One grounding instance is a
+   capture harness that read zero everywhere. Does the rule as written tell a
+   reader how to tell a trustworthy capture from that one?
+6. § 15 cites a child commit by SHA in a public repo. Is that SHA resolvable by
+   anyone outside, and if not, does it ground anything for the public reader?
