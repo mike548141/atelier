@@ -420,3 +420,130 @@ average above 7 with two sibling reviewers live.
       weaken the bundled-mode drift claim honestly.
 - [ ] Exercise case C2 (untracked file at a path the incoming commit creates) before relying on
       any statement about it.
+
+### Reconcile
+
+*Phase 2, 2026-10-17 09:57 UTC. Phase 1 is committed at `b50db0c`. Opened for this step and
+for nothing else: the sibling's text as relayed by the orchestrator; the landing commit's
+message body; the intent record `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-
+defects.md` (grep-targeted passages); the commissioning item `200/100` in full; the three
+prior verdicts the sibling names, grep-targeted to the bookend, the skill and their finding
+headings. The harvest pass's brief, named under overlap, was not opened. Phase-1 text above is
+unrevised.*
+
+**Against the intent record and the commit body.** The author's account matches the diff and
+claims no more than it does: the skill contradicted its parent, the header forbids that, the
+fix was made "on its own, per Mike's answer *ok one by one*". The commissioning item records
+that as an **answer, not a ruling** (`420/020`), and — this is the load-bearing line for SY2 —
+names the class itself: *"four of the eleven are a skill or template that says it compresses
+its parent and then contradicts it … `stampscan`'s region mechanism, extended to those
+artefacts, is the obvious lever. Whether to extend it is a decision, not a fix, so it is not
+taken here."* So the author saw the class, declined to decide it (correctly, rule 3), and fixed
+the instance by restatement. SY2's severity stands; what reconcile adds is that counsel (b) is
+not a new idea but the decision the item already queued for the principal, and SY2 is the
+evidence that the instance-fix left the class open on the very file where it was named.
+
+**Against the seeded questions.**
+
+1. *Has the fix re-created the drift class one level down?* — **Yes; SY2.** Same reading
+   reached independently; the item's own words above are the author's position on it.
+2. *Where does the claim happen when the primary is dirty?* — **Nowhere written; SY1.** The
+   2026-09-25 verdict's HF6 (minor) is the session-shaped half of the same gap: the bookend
+   errors in the worktree gate 1 routes you to, because a fresh branch has no upstream. SY1
+   is the orchestrator-shaped half: before any worktree, step 4 needs a current `main` in the
+   primary and no surface says how to get one. Neither HF6 nor any HF finding carries a
+   decision tag yet, so the pair is open together.
+3. *What dirty work can be a run's own at start?* — **SY4**, with one refinement formed here:
+   the sibling's second live case, *a worker's output left in the primary*, is the run's own
+   authorship for rule 4 (QR2) yet not "this session's" edits for the status read, so a
+   literal step 2 stops on its own run's leftover — a correct stop for the wrong reason, and
+   a sign "yours" wants defining as *this session's uncommitted edits*, nothing wider. No new
+   finding; it sharpens SY4's counsel.
+4. *Upstream or remote; do the two texts agree?* — **SY3.** HF5 (2026-09-25, minor) had
+   already found gate 2's stated *reason* in the parent is not the mechanism (the pull fails
+   before any stash); the skill omits the reason and keeps the gate, so on that point the
+   copy is cleaner than its source. The term still differs three ways.
+5. *Does a run now sync twice, and is the second "yours" well defined?* — **Yes, and yes —
+   SY7 (note, formed at reconcile).** In this repo step 2 runs the bookend, then the onramp's
+   `CLAUDE.md` step 1 runs it again. Between them the run has done nothing, so the second
+   read sees the same tree and "yours" is still empty; on a clean tree the repeat is an
+   idempotent no-op. The one case where it bites is the stop path: having moved to a
+   worktree, the second bookend errors there (HF6's case G shape, reproduced in my case G).
+   Harmless, but a run executing both surfaces literally meets an error the doctrine told it
+   it would not — the `320/150` class. *Counsel:* step 2 could say "then load the onramp;
+   where the repo's read order repeats the bookend, the one you ran counts."
+
+**Against the prior verdicts.**
+
+- `2026-07-22-1149` (queue-run doctrine): QR6 built `QueueRunSkillTest` as *the* guard for
+  this file's stamped-copy status — the house already chose the parity-test lever for exactly
+  this surface. SY2's counsel (b) is that lever extended to step 2, not a new mechanism.
+- `2026-08-17-1000` (channel doctrine): CH4 (MODERATE) is the "never `stash`" vs `--autostash`
+  contradiction that `320/210` then grounded and `54201e0` fixed in the parent — the ancestry
+  of the gate the skill now restates. CH12 (minor) is a prior instance of SY6's class: a
+  doctrine change every child stamps with no `CHANGELOG.md` entry. SY6 keeps MODERATE because
+  it adds the silent plugin version, which CH12 did not have in view.
+- `2026-09-25-0715` (the 0918 hand-up fixes): HF1 (MODERATE) measured what my case J measured —
+  a non-conflicting autostash returns a peer's staged files unstaged, and the parent's
+  mechanism clause names the rarer harm. Independent reproduction; SY4 leans on it. HF3
+  (MODERATE) named `skills/queue-run` as a surface the 0918 fix left standing with the bare
+  bookend: **`d6a3faf` closes HF3's queue-run leg**, which neither the commit body nor the
+  commissioning item says — the defect reached the author by the R2 survey, not by HF3. The
+  principal's decision on HF3 should see that one of its three legs is already closed.
+
+**Overlap.** The harvest pass reads the same file at step 6; this pass touched steps 2 and 4
+only. No conflict I can see from this side; the orchestrator holds both verdicts.
+
+**Overall, restated:** **PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE · 3 minor · 1 note** (SY7
+added at reconcile; no phase-1 severity moved).
+
+## Deferred material — folded in at reconcile
+
+# Sibling to the queue-run sync-gate cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-16-1510-queue-run-sync-gate-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-10-16 UTC by the Opus brief-writer named in the brief's provenance; it
+forms no finding. Fold this file in below the reconcile and delete it at phase 2.
+
+## Intent and commissioning records
+
+- Intent record: `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` —
+  **not opened by the brief-writer**.
+- Commissioning item: `200/100` C1, in
+  `docs/roadmap/200-anti-slop-invariant-registry-promote-rec/100-r2-found-eleven-live-contradictions.md`
+  — **not opened by the brief-writer**.
+- The landing commit's message body (read by the brief-writer): it says the skill contradicted
+  CONCURRENCY, that the skill's header forbids that, and that the fix was made on its own per a
+  principal answer quoted there.
+
+## Prior verdicts on these surfaces (named by filename grep, not opened, not exhaustive)
+
+- `docs/reviews/2026-07-22-1149-queue-run-doctrine-cold.md`
+- `docs/reviews/2026-08-17-1000-channel-doctrine-cold.md`
+- `docs/reviews/2026-09-25-0715-0918-hand-up-fixes-cold.md`
+
+## The pointer's own lens hints
+
+None. The pointer is refs-only; its last sub-bullet is the brief-writer's orchestrator's claim.
+
+## Overlap with sibling passes of this batch
+
+`skills/queue-run/SKILL.md` is also the subject of the harvest pass
+(`2026-10-16-1510-harvest-monolithic-board-cold.md`, step 6). Different steps; a runner taking
+both should run them in sequence and say so, since one reading of the file serves both.
+
+## Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. The skill's header forbids restating standing rules, and step 2 now restates CONCURRENCY's two
+   gates in full rather than pointing at them. Has the fix re-created the drift class the header
+   names, one level down?
+2. A queue run claims items on `main` from the primary checkout before it moves anywhere. If the
+   primary is dirty with a peer's work, step 2 says stop and move — where does the claim happen?
+3. "Only your own work": at a run's start, what dirty work can be its own? A run resumed after a
+   context cut, or a worker's output left in the primary, are the live cases.
+4. "A repo with no upstream skips the pull", where CONCURRENCY says "no remote, no bookend".
+   Upstream and remote are different facts; which is meant, and do the two texts agree?
+5. Step 2 then loads the onramp, and atelier's own read order (its `CLAUDE.md` step 1) runs the
+   same status-then-pull again. Does a run now sync twice, and is the second pass's "yours"
+   still well defined once the run has started work?
