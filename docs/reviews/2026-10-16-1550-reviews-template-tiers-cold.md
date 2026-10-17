@@ -479,3 +479,171 @@ foreground, `nice -n 10`, exit codes read explicitly.
       decide whether "stamped" is the right word for an unstamped pointer.
 - [ ] TT6 — a template-set assertion that no model is named (`test_templates.py`).
 - [ ] Phase 2: reconcile against the sibling once released.
+
+### Reconcile
+
+*Written 2026-10-17 UTC after phase 1 was committed (`1e3da4a`). Opened, and only
+these: the sibling's text as the orchestrator relayed it; the queue pointer
+`160/590`; the intent record
+`docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md`; the six
+prior verdicts the sibling names; the landing commit's message body (read
+in phase 1 — it is the author's account of why, named there as exposure). No
+scanner or process was run in this phase (machine load above 150, the
+orchestrator's instruction). Nothing above this heading was revised.*
+
+**The seeded questions against the findings.** Every seed was already on the
+phase-1 surface; none reshaped a finding or a severity.
+
+- *Q1 (keeping "more capable")* ≙ **TT1**. Answered: it contradicts the parent,
+  not restates it; severity unchanged.
+- *Q2 (two paragraphs on the applier)* ≙ **TT2**. Answered: they do not agree,
+  and the closing line is the one with teeth for a child; severity unchanged.
+- *Q3 ("the workhorse seat" — defined where a child can reach? exact term in
+  `ECONOMICS.md`?)* ≙ **TT3**, sharpened on re-read. The two halves have
+  different answers, and phase 1 ran them together: **yes** for the workhorse —
+  the child's own `docs/ECONOMICS.md` template defines *Workhorse seat* at its
+  line 14, so that half is reachable without atelier; **no** for the reviewer —
+  "principal-named review tier" is defined in neither child file nor any
+  `docs/method/` file. The parent `ECONOMICS.md` never uses the exact phrase
+  "workhorse seat": it says "workhorse tier", "the two seats map to the two
+  tiers", and "workhorse → capable tier → principal". So the closing line's
+  term is reachable but not the parent's; the opening line's term is neither.
+  TT3's counsel stands as written (use the child's seat names, both of them).
+- *Q4 (the header's "nothing that can go stale")* ≙ **TT6**. Answered: the
+  promise the author relied on is not in the file.
+- *Q5 (rule 4 absent — compression or narrowing?)* ≙ **TT4**. Answered: a
+  narrowing, because the dropped half is the spawn test for the category the
+  parent calls the widest blast radius; minor because the pointer up is intact.
+- *Q6 (bare `REVIEW.md` rule 3, no anchor; "enough to act on without opening
+  atelier")* — folded into **TT3** in phase 1. Answered more precisely here: the
+  *routing* the delta added is self-contained (the principal decides; the
+  builder applies nothing to doctrine), so a child can act on it without
+  atelier; what it cannot do without atelier is recognise the *class* — rule
+  3's by-function definition of doctrine is not in the file (TT4) — or resolve
+  the citation's number to a text. The header's promise holds for the decision
+  and fails for the recognition.
+
+**The intent record.** It carries no C8-specific reasoning beyond the commit
+body: `200/100`'s eleven contradictions were "each fixed separately with its own
+pass (`160/520`–`630`)" in the run's second sitting, on Mike's answer "fix the
+contradictions one by one" — recorded there as an answer, not a ruling. Two
+things in it bear on the findings. First, the `200/040` survey classed four of
+the eleven as "a skill or template contradicting the parent it claims to
+compress"; this delta fixed the model-name instance of that class and left two
+contradictions of the same class standing in the same sentences (TT1, TT2) — the
+survey's framing was right and the fix was narrower than it. Second, the run's
+own closing lesson, written about two other items — "read the artefact, not the
+summary of it" — describes TT1 and TT2 exactly: the fix was made from the
+contradiction's summary (two model names) rather than from a re-read of the
+sentences they sat in. Observation, not a finding; the record is honest about
+its own class of error. The run's tier shape (Opus orchestrating, Sonnet
+workers; doctrine-text items escalated) is consistent with the delta's Opus
+trailer and with the provenance the brief states.
+
+**The queue pointer.** Refs-only, as rule 4's ceiling demands; its provenance
+matches the brief's and mine. Its own tier line reads "Fable, the principal-named
+review tier" — the phrase's home is this board boilerplate (every `160/` pointer
+carries it, as the phase-1 sweep found), which is where the delta's author met
+it. That confirms TT3's account of the term's provenance: board vocabulary
+imported into a child file, not doctrine vocabulary compressed into one.
+
+**The six prior verdicts on this file.** None overturns a finding; three ground
+the counsel.
+
+- *2026-07-17-1000* (F1, MAJOR) and *2026-07-17-1157*: the UTC minting clause
+  and ADR pointer this file carries at its § *Format* opening — verified
+  resolving in phase 1 lens 2. The 1157 reconcile's reason for leaving the ADR
+  pointer out of the child's `CLAUDE.md` block — "a child never reads atelier's
+  ADRs" and "an ADR path in a child block would dangle" — is the reachability
+  test TT3 applies; the house has applied it to this file's siblings before.
+- *2026-07-19-0407* (F1, F7): the `<atelier-path>` fill and the birth of
+  `ReviewsTemplateTest` — "pin the invariants, not the prose". The invariants
+  pinned then were the header, the trigger, the prose clause and the
+  placeholder; "names no model" was not an invariant anyone had met yet. TT6's
+  counsel extends that precedent rather than inventing one. That pass's
+  harvest note — children keep a local economics short-fork the template set
+  ships — is the file that became the child `docs/ECONOMICS.md` template, the
+  seat-vocabulary home TT3 points at.
+- *2026-07-21-2158* (SL3, SL4): "at pin bump a child's CONTRIBUTING and reviews
+  README describe two different review scopes" is the cross-file class TT3
+  names between the reviews README and the child `ECONOMICS.md`; and SL1's fix
+  pinned "the child template on the security sentence" by literal match, the
+  mechanism shape TT6 counsels. SL4 is also why the delta's "builder applies
+  the findings on ordinary code" is right at HEAD: narrowing lives only in
+  non-goals, and that holds through this delta.
+- *2026-07-22-0244* (AC1, AC2): confirms the literal-sentence pin on this file
+  as "brittle-but-tripwire, the right failure direction" — the accepted trade
+  TT6 would reuse. Nothing on seats.
+- *2026-08-09-0823*: touches this file only through pathscan's resolved index
+  path. Its brief header is the earliest of the six to write "Fable (the
+  principal-named review tier, ruling 2026-08-04)" — the phrase's origin as
+  brief-and-pointer boilerplate, consistent with TT3.
+
+**Reconcile-stage observation, not a finding.** SL3 shows the child
+`CONTRIBUTING.md` template carries its own house-practice sentence on who
+reviews. Phase 1's model-name grep covered it (0 hits) but did not read it for
+seat vocabulary, and this phase may open only the named surfaces, so whether it
+names the reviewer in a fifth way is unverified. It belongs on TT3's follow-up
+line as a one-file read, not as a new finding.
+
+**No finding formed at reconcile.** No severity changed. The overall line
+stands: **PASS-WITH-FINDINGS — 0 MAJOR · 2 MODERATE · 3 minor · 1 note.**
+Fold of the sibling and its deletion are the orchestrator's, per its
+instruction; nothing below this section was written by this reviewer.
+
+## Deferred material — folded in at reconcile
+
+# Deferred sibling — the child reviews template names tiers, not models
+
+**Held under rule 1's split** (`docs/method/REVIEW.md`). Open only after your
+phase-1 findings are committed to the brief
+`docs/reviews/2026-10-16-1550-reviews-template-tiers-cold.md`. At verdict, fold
+this file in below your reconcile and delete it.
+
+Written 2026-10-16 UTC by the Opus brief-writer named in the brief, which authored
+none of the delta and forms no finding: the questions below are seeds, a floor
+and never a fence.
+
+## Intent record
+
+- `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` —
+  **not opened by the brief-writer**.
+
+## Prior verdicts on the same surface (named, not opened)
+
+Path greps over `docs/reviews/` for `templates/docs/reviews/README` name these;
+none was opened by the brief-writer:
+
+- `docs/reviews/2026-07-17-1000-conventions-utc-at-rest-cold.md`
+- `docs/reviews/2026-07-17-1157-conventions-utc-applied-cold.md`
+- `docs/reviews/2026-07-19-0407-review-trigger-sizescan-combined-cold.md`
+- `docs/reviews/2026-07-21-2158-review-scope-security-lens4-cold.md`
+- `docs/reviews/2026-07-22-0244-sl-application-cold.md`
+- `docs/reviews/2026-08-09-0823-floor-render-batch-cold.md`
+
+## The pointer's own lens hints
+
+None. The pointer is refs-only (delta, intent record, tier, pass type).
+
+## Seeded questions
+
+1. The opening paragraph now says the house practice is "a more capable model
+   (the principal-named review tier)". `REVIEW.md` § *Why review* says
+   independence and fresh context deliver most of the value even with the same
+   model, and capability is the multiplier. Does keeping "more capable" restate
+   the parent or contradict it?
+2. The paragraph now ends "findings on self-authored doctrine are the
+   principal's to decide (`REVIEW.md` rule 3)"; the file's last paragraph still
+   says "apply fixes back on the workhorse seat" with no doctrine carve-out. Do
+   the two paragraphs agree?
+3. "The workhorse seat" — is it defined anywhere a child can reach without
+   opening atelier, and does `ECONOMICS.md` use exactly that term?
+4. The commit body cites the file's header as promising it "carries nothing that
+   can go stale". The header at HEAD says it is a thin floor plus a pointer up.
+   Is the promise the author relied on actually in the file?
+5. Rule 4's cold-spawn requirement for self-authored doctrine is absent from the
+   file. Is that a compression a "thin floor" may make, or a narrowing its own
+   header forbids?
+6. The `<atelier-path>/docs/method/REVIEW.md` rule 3 pointer has no anchor; a
+   child cannot follow it without atelier on disk. Does "enough to act on
+   without opening atelier" hold for the decision-routing the delta added?
