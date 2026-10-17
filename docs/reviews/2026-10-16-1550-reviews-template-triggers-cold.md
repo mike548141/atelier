@@ -496,3 +496,158 @@ applied; the decisions are the principal's.
 - [ ] The floor on both planes re-run at HEAD by the applier once machine load
       allows; this pass could not.
 - [ ] Phase 2: reconcile against the sibling once released.
+
+### Reconcile (2026-10-17 UTC, after phase 1 was committed as `181f5d3`)
+
+Opened at this stage, nothing earlier: the sibling's text (messaged by the
+orchestrator), the queue pointer, the intent record (its `200/040`, `200/100`
+and close paragraphs), the six prior verdicts the sibling names (by grep for this
+file's path, then the cited sections), and the closed TT pass on the same file
+(`2026-10-16-1550-reviews-template-tiers-cold.md`). Phase-1 text above is
+unrevised.
+
+**Per seeded question**
+
+- *Q1 (header vs body)* ≙ **TG1**. The prior verdict
+  `2026-07-19-0407` F7 (LOW) met the same tension when the body held the three
+  old-fork bullets: "the header bans what its body then does, and nothing
+  mechanical pins either". The principal ruled F7 fixed on 2026-07-19 by
+  `ReviewsTemplateTest` pinning the invariants — header marker, commitment
+  trigger, prose clause, placeholder — with the list left in and the header left
+  standing. So the house precedent is: a marked, narrowing-free list may sit
+  under this header *when its invariants are pinned*. The delta then copied the
+  parent's own four classes — exactly the content F7 named as "trigger content
+  that can drift when the parent's trigger next changes" — and extended neither
+  the pin nor the header, and ADR 0100 decision 3 still reads "one commitment
+  question plus a thin floor". The intent record's `200/040` paragraph says the
+  author knew "only the floor block is mechanically stamped". Severity held at
+  MAJOR. *Counsel refined by the precedent:* option (b) has a cheaper form the
+  house has already accepted on this file (`2026-07-22-0244` AC1/AC2: a
+  literal-sentence pin is "brittle-but-tripwire, the right failure direction") —
+  extend `ReviewsTemplateTest` to assert each class phrase is present and lifted
+  from `REVIEW.md` lines 446–447 by literal match, no stampscan region needed;
+  and reword header lines 5–6 to "restate only the pinned classes". Option (a)
+  stands as the ADR-consistent alternative. The choice is the principal's.
+- *Q2 (the qualifier's reach)* ≙ **TG3**. Yes as a hazard, no as a fact of the
+  rendered text: the qualifier governs bullet 6 only, so bullets 7–8 are
+  unqualified for every child, and the commit message's account matches neither
+  reading. Nothing new.
+- *Q3 (the census)* ≙ **TG2** and lens 2's table. "Six" is reachable only by one
+  choice of what counts (five class-list copies, two pointers, one sibling
+  list), and copies 3–4 (the skill) differ from `REVIEW.md` on "actions". Origin,
+  now visible: `2026-07-19-0407` F3's ruled fix re-keyed the skill and wrote
+  "anything irreversible or public" there, so the term drifted inside a ruled
+  application — TG2's counsel touches a wording the principal has already ruled
+  on once, which is why it is counsel.
+- *Q4 (records-only edit in a public repo)* ≙ **TG2**, lens 2 case 5. Yes: as
+  written a child reads every public commit as earning a review, and the file's
+  own routine examples contradict it on the next line.
+- *Q5 (a leaf child that nothing inherits from)* — not covered in phase 1;
+  **TG9 — note, formed at reconcile.** The reason clause is `ECONOMICS.md`'s
+  wording (line 365). In a leaf child "everywhere it is inherited" is true only
+  if the child's own future sessions count as inheritors; the class binds
+  regardless, because rule 3 keys doctrine on *governing future agent
+  behaviour*, not on descendants. The reason under-states the class for the
+  commonest child shape. *Counsel:* "doctrine text, because a wrong rule governs
+  every session that reads it" is true in every child shape and shorter.
+
+**Against the intent record.** It narrates `200/100` only as a set: eleven
+contradictions filed from the `200/040` survey, "fix the contradictions one by
+one" recorded as an answer and not a ruling, and all eleven closed "each fixed
+separately with its own pass". Nothing in it describes C9's shape or reasons;
+the commit message is the author's only account, and it is tested in lens 2.
+The record's "only the floor block is mechanically stamped" (its `200/040`
+paragraph) corroborates TG1 and TG6. No contradiction with phase 1.
+
+**Against the pointer.** Refs-only, as rule 4 requires; its claim block
+discloses the reviewer-plus-orchestrator shape in the terms phase 1's
+provenance repeats. Consistent.
+
+**Against the six prior verdicts.**
+
+- *2026-07-19-0407* — F7 and its ruling are the precedent TG1 reconciles
+  against (above); F3 is TG2's origin; F1 is why `create-repo` fills this file's
+  placeholder, unaffected by the delta. Its seeded question 4 ("a pointer with
+  a thin floor, or a re-marked fork still free to drift?") is the question the
+  delta re-opens.
+- *2026-07-17-1000* and *-1157* — touch this file only on its UTC date line;
+  nothing on the trigger.
+- *2026-07-21-2158* — SL4 (the Type field's "correctness only" offer) and SL7
+  (wrap) sit in other sections; SL3's class, "a child's CONTRIBUTING and reviews
+  README describe two different review scopes", was checked in phase 1 lens 3:
+  the CONTRIBUTING template carries the trigger sentence and no classes, so the
+  delta opens no new cross-file disagreement there.
+- *2026-07-22-0244* — AC1/AC2's accepted literal-sentence pin on this file is
+  the mechanism TG1's refined counsel reuses.
+- *2026-08-09-0823* — reaches this file only through a resolved pathscan link.
+
+**Against the closed TT pass (same file, other section).** TT5 (minor) and
+TG6 are the same finding on the same evidence — no stamp marker, `pins.py`
+reads pins only, hand re-copy is the sole channel; TT5 adds that the header and
+the test docstring both say "stamped" for a file stampscan does not watch,
+which supports TG1. TT6 (note) overlaps TG5: `CHANGELOG.md` has no entry for
+`77fc609` either, so the changelog gap is the whole 2026-10-03 run's, not C9's
+alone. TT's phase-1 reading that "the header's promise holds after the delta"
+is about its own delta (tiers, the opening and closing paragraphs) and names
+the trigger list as a non-goal, so it does not conflict with TG1. No TT finding
+is contradicted by this pass and none is duplicated under a new ID.
+
+**Overall, restated: PASS-WITH-FINDINGS — 1 MAJOR · 3 MODERATE · 1 minor ·
+4 note** (TG9 added at reconcile; every phase-1 severity unchanged).
+
+## Deferred material — folded in at reconcile
+
+# Deferred sibling — the child reviews template's trigger list
+
+**Held under rule 1's split** (`docs/method/REVIEW.md`). Open only after your
+phase-1 findings are committed to the brief
+`docs/reviews/2026-10-16-1550-reviews-template-triggers-cold.md`. At verdict,
+fold this file in below your reconcile and delete it.
+
+Written 2026-10-16 UTC by the Opus brief-writer named in the brief, which authored
+none of the delta and forms no finding: the questions below are seeds, a floor
+and never a fence.
+
+## Intent record
+
+- `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` —
+  **not opened by the brief-writer**.
+
+## Prior verdicts on the same surface (named, not opened)
+
+Path greps over `docs/reviews/` for `templates/docs/reviews/README` name these;
+none was opened by the brief-writer:
+
+- `docs/reviews/2026-07-17-1000-conventions-utc-at-rest-cold.md`
+- `docs/reviews/2026-07-17-1157-conventions-utc-applied-cold.md`
+- `docs/reviews/2026-07-19-0407-review-trigger-sizescan-combined-cold.md`
+- `docs/reviews/2026-07-21-2158-review-scope-security-lens4-cold.md`
+- `docs/reviews/2026-07-22-0244-sl-application-cold.md`
+- `docs/reviews/2026-08-09-0823-floor-render-batch-cold.md`
+
+The 2026-07-19 combined pass's filename names the review trigger; it is the
+likeliest prior ruling on whether this file may carry a trigger list at all.
+
+## The pointer's own lens hints
+
+None. The pointer is refs-only (delta, intent record, tier, pass type).
+
+## Seeded questions
+
+1. The file's header comment says, in capitals, not to restate atelier's trigger
+   list here, because an unmarked local copy is how the file drifted before. The
+   delta restates more of it. Is the delta compliant with the header, did the
+   header need changing with it, or is the header now false?
+2. "and, in a product repo, also:" is followed by three bullets at the same
+   level, of which only the first is plausibly product-specific. Does the
+   qualifier now scope "bundled third-party code" and "a load-bearing
+   assumption" to product repos, narrowing the parent for every other child?
+3. The commit says six copies exist and only this one drifted. Does the census
+   hold, and does each of the other five match `REVIEW.md` exactly?
+4. "anything irreversible or public" sits beside the paragraph's "genuinely
+   routine work … a records-only edit". A records-only edit pushed to a public
+   repo is public. Does a child now read every public commit as earning a
+   review?
+5. The list now has "doctrine text, because a wrong rule propagates everywhere
+   it is inherited". For a leaf child that nothing inherits from, is the reason
+   true, and does the class still bind there?

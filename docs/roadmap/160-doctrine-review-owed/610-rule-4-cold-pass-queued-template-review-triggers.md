@@ -1,4 +1,4 @@
-- ⏳ **Rule-4 cold pass queued: the template reviews README's trigger list
+- [ ] 🛑 **Rule-4 cold pass queued: the template reviews README's trigger list
       gains REVIEW's classes (`200/100` C9).** The run authored this
       itself. It was queued at landing, and the run neither takes it nor
       spawns a reviewer for it. *Tier:* Fable, the principal-named review
@@ -28,3 +28,16 @@
       forms every finding and severity. The sibling, the intent record and prior
       verdicts stay unopened by the reviewer until its phase-1 findings are
       committed. Provenance and exposure go in the verdict.
+      - [ ] 🛑 **The pass RAN 2026-10-17 and the cycle stays OPEN — a MAJOR
+            stands.** The rule-4 Fable cold pass (taker: a fresh
+            `claude-fable-5-1` subagent under a `claude-fable-5-1` orchestrator
+            — the shape disclosed in the claim above; the sibling, the intent
+            record and prior verdicts opened only after the phase-1 findings
+            were committed) returned PASS-WITH-FINDINGS — 1 MAJOR · 3 MODERATE ·
+            1 minor · 4 note →
+            [`2026-10-16-1550-reviews-template-triggers-cold.md`](../../reviews/2026-10-16-1550-reviews-template-triggers-cold.md)
+            (sibling folded in and deleted). TG1 (MAJOR): the delta restates the
+            parent's trigger list in a file whose header forbids exactly that,
+            unstamped and unpinned, reversing ADR 0100 decision 3 unrecorded;
+            TG9 (note) formed at reconcile. Findings are the principal's to
+            decide (rule 3); nothing was applied.
