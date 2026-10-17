@@ -308,6 +308,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: the floor's advisory count scoped to its](roadmap/160-doctrine-review-owed/860-rule-4-cold-pass-queued-advisory-count-per-scanner.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose, the close-out checker](roadmap/160-doctrine-review-owed/870-rule-4-cold-pass-queued-ccclose.md)
 - [ ] ⏳ [Rule-4 cold pass queued: cctranscript's harness classification](roadmap/160-doctrine-review-owed/880-rule-4-cold-pass-queued-harness-classification.md)
+- [ ] ⏳ [Rule-4 cold pass queued: ccmail stops sending the operator to](roadmap/160-doctrine-review-owed/890-rule-4-cold-pass-queued-ccmail-auth-advice.md)
 
 ## build/ layer — open strands
 
@@ -372,6 +373,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [ccarchive's design charter, in Mike's words, checked against the](roadmap/210-instruments-open-features/240-ccarchive-design-charter.md)
 - ✅ 🔎 [cctranscript counts some harness text as the principal's prompts](roadmap/210-instruments-open-features/250-cctranscript-counts-harness-text-as-prompts.md)
 - [ ] 🔎 [A harness notification reads two ways depending on its record](roadmap/210-instruments-open-features/260-notification-records-read-two-ways.md)
+- ✅ [ccmail sent the operator to ccmail --auth, a client-ID setup he](roadmap/210-instruments-open-features/270-ccmail-sent-the-operator-to-a-setup-he-did-not-need.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
