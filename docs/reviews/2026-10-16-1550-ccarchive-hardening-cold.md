@@ -230,3 +230,374 @@ reconcile and delete it.
 
 The author is not the taker, so record every finding and apply nothing; counsel
 on fixes is welcome, labelled as counsel.
+
+---
+
+# Verdict — phase 1 (2026-10-17 UTC)
+
+## Provenance (V7)
+
+- **Reviewer:** a fresh `claude-fable-5-1` subagent (the principal-named tier, checked at
+  claim), spawned 2026-10-17 UTC by a Fable orchestrator that authored none of the delta
+  and none of this brief, holds the deferred sibling outside the tree until this verdict
+  is committed, and forms no finding and writes no severity. Reviewer-plus-orchestrator
+  shape, disclosed here as rule 4 requires. Neither the authoring run (Sonnet and Opus
+  workers under an Opus orchestrator, per the commits' co-author trailers) nor the Opus
+  brief-writer started or instructed this session.
+- **Worktree:** `/Users/mike/worktrees/atelier-review-1017`, branch `review-1017`, read
+  at `c7039c9` and re-checked at `c394683` (the delta paths are byte-identical at both).
+  No git command that writes was run there. Probes, mutations and the test suite ran in
+  a private clone under this session's scratchpad, named by prefix `HD`.
+- **What was read:** this brief; `docs/method/REVIEW.md` §§ *Independence* through
+  *The standing checklist*; the eight delta paths in full at HEAD; the per-commit diffs
+  of the delta (`git diff <parent> <commit> -- <path>`, never `git show`), the commits'
+  subjects and co-author trailers only — **no commit message body was opened**; the
+  `.githooks/pre-commit`, `tools/floor.py` and `.github/workflows/ci.yml` invocation
+  lines; `docs/ROADMAP.md` line 368 (one hit from the cold sweep, the closed 210/190
+  index line); the GitHub Actions run list for `main` (titles are other sessions' commit
+  subjects — exposure to their *existence*, not their content, disclosed) and one failing
+  step's log. The cold sweep ran with the three `--also-exclude` paths the brief names and
+  **without** `--include-barred`. The clone's `ls` showed a sibling design file for
+  encryption; it was not opened (non-goal).
+- **Exposure:** the probe output printed this machine's hostname and scratch paths; none
+  is reproduced here.
+
+## Lens 1 — approach and assumptions (named first, then attacked)
+
+1. **The adversary** is anyone or anything that can write the archive volume but not
+   the operator's home: iCloud itself, another device sharing the account, a sync fault.
+   Same-user processes (every Claude Code session, which reads and writes `~/.claude`)
+   are trusted by construction; the key sits where they can read it. The man page says
+   so (SIGNING, "an attacker who also steals the key"). *Holds, with one gap:* the
+   adversary it names can **roll the index back**, and nothing detects that (HD1).
+2. **One key per home, one journal and lock per destination.** The asymmetry is
+   load-bearing and unstated: `--rekey` is a per-destination remedy wired to a per-home
+   key (HD2).
+3. **`--rekey` is "the deliberate clear", taken once the operator is satisfied.** The
+   code trusts the word *deliberate* and never checks what it clears; the same page
+   advises rolling on a cadence (HD3).
+4. **The lock is per machine.** "One run at a time per archive" is true per home; two
+   machines sharing one iCloud destination are not serialised, and the only way the
+   `foreign` state is reached in the default layout is a hostname change (HD5).
+5. **mtime is the change signal.** A rewrite that preserves the live file's mtime is
+   invisible to an ordinary run until `--audit` (probed: run exit 0, audit exit 1). The
+   man page documents the *older*-mtime case; the equal case is implied, not stated.
+   The two-kinds check only runs on files the mtime test lets through (HD13).
+6. **A dataless placeholder keeps its size and mtime**, so the stat-vouch never reads an
+   evicted mirror. Everything the DATALESS section promises rests on this, and the tests
+   can only simulate it. Not checkable from here; recorded as the open assumption it is
+   (HD13).
+7. **Two kinds fit every class.** Transcripts, subagent logs and tool-result sidecars as
+   append-only; memory and `.meta.json` as living; the unknown defaults strict. The
+   fit is right for what the tool knows; if Claude Code ever compacts `history.jsonl`
+   the daily run turns red with an anomaly, which is noise in the safe direction, not
+   loss. Fine.
+8. **"Vouch for" means:** the signed index says so, and the mirror's stat agrees. A
+   swap that keeps size and mtime passes an ordinary run (it is healed by the next
+   append and caught by `--verify`); the design says this is the trade, and it is.
+
+The non-goals are legitimate narrowings: encryption at rest is declared "planned, not
+yet built" in DESIGN; the cctranscript prefix read and the records commit touch nothing
+here.
+
+## Lens 2 — correctness and quality
+
+Driven in the clone, every probe under a scratch HOME, source, destination, key, history
+and scheduler seam. The state table (exit codes read explicitly, plain and `--json`):
+
+| state × mode | exit | matches § EXIT STATUS |
+|---|---|---|
+| fresh, idle, idle dry-run; verify; audit; restore nothing-to-do | 0 0 0 · 0 · 0 · 0 | yes |
+| shrunk transcript: dry-run / run / run again / json / audit | 1 1 1 1 1 | yes (STILL DIFFERS) |
+| shrunk: restore --delta / --delta --force / audit after | 1 / 0 / 0 | yes |
+| same-length rewrite: run / --force / run / verify | 1 / 0 / 0 / 0 | yes; version kept |
+| rewritten then grown | 1 | yes (anomaly) |
+| memory note append / same-length rewrite / shrink / verify | 0 0 0 0 | yes; `-2` stamp |
+| same-size rewrite with mtime preserved: run / audit | 0 / 1 | run silent (HD13) |
+| unreadable source file / directory | 1 / 1 | yes, named |
+| corrupt mirror: verify / audit / restore / run / run, live grown | 1 0 1 1 0 | yes; set aside |
+| restore, mirror misses its hash, without and with --force | 1 / 1 | yes, force refused |
+| symlink at mirror path / at a directory / at dest root | 0 / 1 / 0 | yes; nothing outside |
+| stale temps (live pid, dead pid) | 0 | dead removed; live kept |
+| hard kill after mirror 2, verify, next run, verify | KILL 1 0 0 | REPAIRED; lock cleared |
+| thrown death after mirror 1, next run | 2 / 0 | catch-path save held |
+| journal replay: intact entry / planted mirror it matches | 0 / 0 | no-op / adopted (needs key) |
+| planted mirror, no entry, no live / identical to live | 1 / 0 | set aside / ADOPTED |
+| legacy entry; budget 0, -5, abc, huge | 0 0 0 0 0 | yes |
+| lock held by a live pid: run / rekey / verify / clear / status | 2 2 0 2 0 | yes |
+| reused pid / unreadable lock | 0 / 0 | cleared, said so |
+| evicted (seam): stat agrees, live grew / verify / audit / stat differs | 0 0 0 1 | yes |
+| source dirs named `_versions`, `_untrusted` | 1 | NOT WRITTEN, reserved |
+| dest in a git work tree: run / json / restore | 1 1 1 | yes; json silent (HD12) |
+| manifest edited one byte: run / dry-run / restore / verify / audit | 2 2 2 1 1 | yes |
+| unsigned; no key with manifest; no key verify | 2 / 2 / 1 | yes |
+| no key: --rekey over the edited manifest; run; verify after | 0 / 0 / 0 | **laundered** (HD3) |
+| two destinations, --rekey on A: verify B / run B / audit B | 1 / 2 / 1 | **B refused** (HD2) |
+| rollback: older pair back, b.gz kept / removed / audit / run | 1 / 0 / 0 / 0 | **silent** (HD1) |
+| rollback with b since pruned (mirror kept) | 1 | set aside to `_untrusted` |
+| 256 MB bomb planted unmanifested: ordinary run | 1 | 564 MB RSS (HD7) |
+| `--at` 24:00, 23:60, 7:5, "", padded ×2 / 03:00 | 2 ×6 / 0 | yes |
+| schedule flag + dry-run, dest, json, verify, 2nd flag, bare --at | 2 ×7 | yes; 1 seam call |
+| re-install over an agent, bootstrap fails | 2 | old agent gone (HD6) |
+
+Every claim re-driven held except those marked. `--help` by path under the scratch
+environment: exit 0, 22 lines, points at the man page. `--bogus --json`: exit 2 with a
+structured error object. Mutation sample (five of my own, each against the matching test
+subset): four were caught (in-loop checkpoint removed → MC3 fails; `classifyChange`
+always-append → 4 fail; foreign-lock check removed → 1 fails; restore root check removed →
+1 fails); **one survived**: swapping the manifest-then-signature write order in
+`saveManifestSigned` leaves the MC4 test green, because that test builds the killed state
+by hand rather than driving the write (HD4).
+
+## Lens 3 — completeness and harvest
+
+- Man page against behaviour, section by section: SCHEDULING, INTEGRITY, KEPT COPIES,
+  SIGNING, TRUST, LOCK, AUDIT, DATALESS, ATOMIC WRITES, ONE BAD FILE, RESTORE, ENVIRONMENT
+  (every `CCARCHIVE_*` the script reads is listed; the drift guard test pins it), FILES
+  (exact, including `.sig.next`, `.orphan-`, the state files and the schedule files),
+  EXIT STATUS (every exit-1 reason observed is listed) — all agree with what ran, with
+  the exceptions in HD5, HD6, HD12, HD13 and HD15.
+- `--help`: agrees with the man page's option set.
+- `instruments/README.md`: § *ccarchive* still says it installs no schedule and refuses
+  the `--install-schedule` family by name (HD9) — the one mirror site `72e0093` missed.
+- `CHANGELOG.md`: the two entries match the delta; the "Run by hand" claim of the first
+  is superseded by the second, correctly.
+- The reserved-name list as one fact in three tools (V4): three literal copies with no
+  stamp; ccrepo's gained a test, cctranscript's did not (HD11).
+- BSD-only subprocess calls: `stat -f` is platform-gated; `ps -o lstart=` is valid on
+  procps. CI on Ubuntu exercises every test except the real `stat -f` path and the one
+  CLI schedule test skipped off darwin/linux (it runs on linux). Adequate.
+
+## Lens 4 — security and privacy
+
+`/security-review` discharged by grounds: it reads the session's pending diff, which is
+other reviewers' drafts, not this landed delta. Read by hand against the OWASP Top 10 /
+ASVS vectors for this class:
+
+- **Injection into argv:** no shell anywhere; `execFileSync`/`spawnSync` with arrays.
+  `launchctl`/`systemctl` arguments are fixed strings plus a home-derived path. `stat`
+  is given paths without `--`: a destination beginning with `-` makes `stat` fail and
+  eviction detection silently no-op — harmless, untidy (HD14). `ps` gets a number.
+- **Path traversal:** restore keys pass `isInsideRoot`; external rels are a fixed list;
+  journal rels are checked against the dest root and the reserved areas; kept keys are
+  built from source-relative paths. Mutation M5 shows the restore guard is tested.
+- **Symlinks:** mirror path, directory on the way, temp name and the manifest temp are
+  all handled (probed: nothing written outside). The check-then-rename race needs a
+  same-user attacker — outside the model.
+- **Crypto:** HMAC-SHA256, 32 random bytes, constant-time compare, keyId is 12 hex of a
+  hash (leaks nothing). Gaps: no freshness, so rollback passes (HD1); a pre-existing
+  key with wide mode is used as-is (HD10); a key file with a non-hex byte mid-string is
+  silently truncated by `Buffer.from(…, 'hex')` into a different, shorter key (HD14).
+- **Test seams in the shipped tool:** all read on every run and documented as such; the
+  dangerous one is the scheduler seam, which makes `--install-schedule` *report success*
+  while asking no scheduler (status discloses the seam; install does not) (HD14).
+- **Generated plist/unit/crontab:** XML-escaped; systemd `%`, `$`, `"` and `\` escaped;
+  cron `%` escaped. A newline in a path breaks the systemd line and splits the cron line
+  — self-inflicted only (HD14).
+- **Output injection:** a file name carrying a newline forges lines in the plain report
+  (probed: a fake "every archived transcript matches" line appeared mid-report);
+  `--json` is safe (HD8).
+- **Decompression bombs:** `gunzipSync` is unbounded; a planted unmanifested `.gz` is
+  inflated whole by the ordinary run's adoption check (HD7).
+- **Design altitude, privacy:** kept copies multiply retained transcripts, unbounded by
+  design and documented ("never deletes"). Mirrors land `0644` in `0755` directories
+  (umask), the same as the live files; the archive lives in iCloud Drive unencrypted,
+  declared as planned-not-built in DESIGN. The schedule log appends forever and holds
+  encoded project paths, not content. Nothing undeclared.
+
+## Findings
+
+**HD1 — MODERATE — a rolled-back index is a signed index: the stated adversary can erase
+pruned history without evidence.** Probe: run 1 archives `a`; run 2 adds `b`; the older
+manifest and signature pair is put back and `b.jsonl.gz` removed. `--verify` 0, `--audit`
+0, the next run 0 — `b` is gone from the archive and from every report. Only sessions
+whose live copy is already pruned (the ones the archive exists for) can be erased this
+way; a live one is simply re-archived. With the mirror left in place the rollback is
+noisy (set aside under `_untrusted/`, exit 1), but there is no mode to re-adopt from
+there, so a *non-adversarial* rollback (a sync fault restoring an older pair) costs hand
+recovery. The HMAC has no freshness and the journal is cleared after every clean run, so
+nothing off the volume remembers which index is current. **Recurrence prevention
+(counsel):** keep a signed record of the last-saved manifest's digest and a counter in the
+state directory; refuse (or flag as `rolled-back`) when the volume's index predates it;
+let `--rekey`, or a named flag, clear that deliberately. Document rollback as an attack
+the signature alone does not cover.
+
+**HD2 — MODERATE — one key per home, `--rekey` per destination: rolling the key for one
+archive breaks every other archive signed under it.** Probe: archives A and B under the
+same key verify; `--rekey` (A) → `--verify --dest B` exits 1 "signed by a different key —
+an unexpected key roll, or tampering"; an ordinary run on B is refused, exit 2. The only
+documented remedy is `--rekey --dest B`, which re-signs B's index **unverified** (HD3). The
+man page's own EXAMPLES show a second destination, and SIGNING advises rolling on a
+cadence. **Counsel:** either a key per destination (keyed like the journal and lock) or a
+`--rekey` that re-signs every destination the state directory knows, verifying each under
+the old key first; at minimum, name this in SIGNING § Rotation.
+
+**HD3 — MODERATE — `--rekey` never checks the signature it replaces, so the routine roll
+the page recommends launders whatever is on the volume.** Probe: a manifest edited by one
+byte with the key removed (state `no-key`, unverifiable) → `--rekey` exits 0 with no
+mention of the state it cleared → the next run exits 0 → `--verify` green. The same holds
+with the old key present and the manifest tampered. TRUST calls `--rekey` "the one
+deliberate clear, once the operator is satisfied the archive is intact"; SIGNING says to
+roll "on a cadence besides". The two uses share one flag and the flag does not know which
+it is (V5). **Recurrence prevention (counsel):** `--rekey` verifies under the old key
+first and refuses anything but `verified` unless told to clear (a separate flag, or
+`--rekey --accept-unverified`), and prints the state it cleared in both report shapes.
+
+**HD4 — minor — the MC4 guard does not guard the write order.** The test builds the
+killed state by hand ("Do exactly what saveManifestSigned does, stopping after the
+manifest rename"); with the two writes swapped in `saveManifestSigned` it still passes
+(mutation M3). The property at HEAD is correct; its regression guard is absent. Counsel:
+drive the kill through a seam at the point between the two writes, as MC3 does.
+
+**HD5 — minor — `foreign` is reachable only by a hostname change, and then it blocks
+everything.** The lock lives under the local home, so a lock "from another host" cannot
+arrive by sharing; what does arrive is this machine's own dead lock read under a changed
+`os.hostname()` (macOS laptops change it with the network). Probe: a dead local lock
+under another hostname → the run is refused (exit 2), `--lock-status` reports another
+host, `--clear-lock` refuses and tells the operator to delete the file by hand. A
+scheduled archive then stops until someone notices. LOCK's "one run at a time per
+archive" is also per machine, not per archive, for a destination two machines share.
+Counsel: compare a stable machine identity stored in the state directory, or let
+`--clear-lock` clear a foreign lock with an explicit flag; say "per machine" in LOCK.
+
+**HD6 — minor — a failed re-install removes the schedule that was there and reports that
+nothing was installed.** Probe (seam, bootstrap pretends exit 5): the old plist is booted
+out and overwritten before `launchctl bootstrap` runs; on failure the new file is removed
+and the message reads "nothing was installed; the file it wrote was removed". The previous
+agent is gone and the message does not say so. Counsel: keep the old plist bytes and put
+them back (and bootstrap them) on failure, or say plainly that the previous schedule was
+removed.
+
+**HD7 — minor — decompression is unbounded, so the stated adversary can make every
+ordinary run inflate a planted file whole.** Probe: a 255 KB `.gz` of 256 MB planted as
+an unmanifested mirror → the ordinary run's adoption check inflates it entirely (peak RSS
+564 MB) before setting it aside. Linear in the expansion; a few MB of gzip is an
+out-of-memory kill, and an OOM is not a thrown error, so the catch-path save does not
+run (the journal repairs the index next time, but the run never completes while the file
+sits there). `--verify` and `--restore` read only manifested entries, so they are exposed
+only to what the key can sign. **Recurrence prevention (counsel):** pass
+`maxOutputLength` to every `gunzipSync` — the signed entry's `rawBytes` plus one where an
+entry exists (a longer stream is a mismatch by definition), a fixed ceiling otherwise —
+and classify the overflow as `corrupt`.
+
+**HD8 — minor — a file name can forge lines in the plain report.** Probe: a source file
+whose name carries a newline and a fake "every archived transcript matches its recorded
+sha256." line produced exactly that line, twice, in the middle of an anomaly report (exit
+1). `--json` escapes it. The names come from the live store (encoded working-directory
+paths and Claude Code's own names), so the realistic source is a repository path, not an
+attacker; still, the human report is the one a person reads in the schedule log.
+**Recurrence prevention (counsel):** render every `rel` in the plain report through one
+escaper (JSON-style for control characters) — one function, used at every print site.
+
+**HD9 — minor — V5/V3: `instruments/README.md` § *ccarchive* still says the tool installs
+no launchd agent and "refuses the old `--install-schedule` family of flags by name"
+(lines 524–526), while line 128 of the same file, `--help`, the man page and the CHANGELOG
+say it installs a calendar schedule when asked.** `72e0093` swept the man page and
+CHANGELOG but not this bullet.
+
+**HD10 — minor — a pre-existing key file with wide permissions is used as-is.** Probe: a
+key written `0644` before the first run → the run signs with it and leaves it `0644`;
+`mintKey` enforces `0600` only on the key it mints. A key the operator copied in by hand
+(the documented out-of-band path) keeps whatever mode the copy gave it. **Recurrence
+prevention (counsel):** `loadKey` refuses, or chmods and says so, when the mode is wider
+than `0600`, and validates the hex strictly (HD14).
+
+**HD11 — minor — V4: the reserved-area list is three unstamped literal copies, and the
+cctranscript copy landed without a test.** `ccarchive` (`RESERVED_DIRS` plus
+`EXTERNAL_PREFIX`), `ccrepo` line 865 and `cctranscript` line 361 each spell the four names
+out; `ccrepo.test.js` gained a test in the delta; `cctranscript.test.js` has none for
+`_anomalies`/`_versions` (grep: no hit). A fifth reserved name added to ccarchive reaches
+the other two only by someone remembering. Counsel: export the list from ccarchive and
+stamp the two copies, or add the missing cctranscript test now and a cross-tool drift
+guard.
+
+**HD12 — note — `--json` prints nothing on stdout for the two early exit-1 refusals**
+(a destination inside a git work tree; the layout-drift alarm). A machine caller gets
+exit 1 and an empty document; every other failure shape yields an object. Counsel: emit
+`{"error": …}` on stdout under `--json` for these two as `reportFatal` does.
+
+**HD13 — note — two assumptions the record should carry.** (a) A rewrite that preserves
+the live file's mtime is invisible to an ordinary run (probe: run 0, audit 1); INTEGRITY
+documents the older-mtime case only. (b) The stat-vouch of an evicted mirror assumes a
+dataless placeholder keeps its size and mtime; the tests simulate eviction, and the one
+real observation recorded is of the `SF_DATALESS` bit, not of `st_size`/`st_mtime`. If
+(b) is false, every evicted mirror reads as unvouched and any growth behind it goes NOT
+ARCHIVED. Counsel: state (a) in INTEGRITY; verify (b) once against a real evicted file and
+record the observation beside the existing one.
+
+**HD14 — note — small hygiene items, each probed.** `stat` is called without `--` (a
+destination named `-L` makes it fail silently and eviction detection no-op). A key file
+with a non-hex pair mid-string is truncated by `Buffer.from(…, 'hex')` into a shorter key
+(probe: a 5-pair string gave 2 bytes) and reads as `key-mismatch`, blaming tampering. A
+newline in a home or script path breaks the systemd `ExecStart` line and splits the
+crontab line into two. With `CCARCHIVE_SCHEDULER_LOG` set outside a test,
+`--install-schedule` writes the plist and reports "Scheduled" while asking no scheduler;
+only `--schedule-status` discloses the seam. The fatal line for a bad key reads
+"ccarchive: ccarchive: …" (double prefix).
+
+**HD15 — note — the plain report's version line misnames a forced transcript.** After
+`--force` on an anomaly the report says "1 version kept: living documents (memory notes,
+subagent metadata) that changed other than by appending"; the version kept is of a
+transcript the operator forced. KEPT COPIES states both cases; the line states one.
+
+**HD16 — note — CI plane, for the ledger.** The delta's landing merge `eade807` never got
+a completed run (cancelled by the next push, cancel-in-progress); the first completed run
+after it on `main` was green on 2026-10-05 (`68e9baf`). `main` was red on 2026-10-17 at
+the *man page lint* step on a page outside this delta (`ccmail.1`, a mandoc 1.14.6 STYLE
+line-length warning that the local mandoc does not raise); `ccarchive.1` lints clean on
+both.
+
+## Standing checklist (V1–V7)
+
+- **V1** — the record's claims held under re-run except where findings say otherwise:
+  "tamper-evident" is true for edits and false for rollback (HD1); "one run at a time
+  per archive" is per machine (HD5); the MC4 claim is true but unguarded (HD4).
+- **V2** — every live-proven claim in scope re-run: suite, floor (hook plane), man lint
+  and render, `--help`, the state table, the seams, the mutations. CI plane read from the
+  run list (HD16).
+- **V3** — the schedule's return was swept to the man page and CHANGELOG, not to the README
+  bullet (HD9); the reserved-name change was swept to ccrepo with a test and to
+  cctranscript without one (HD11).
+- **V4** — the reserved-name list has three homes (HD11); the kind table has one home with
+  a stated copy and a drift guard — fine.
+- **V5** — `--rekey` as deliberate clear versus `--rekey` on a cadence (HD3); README
+  against itself (HD9); report wording against KEPT COPIES (HD15).
+- **V6** — run, by hand, against the catalogue; `/security-review` discharged by grounds
+  (lens 4).
+- **V7** — stated in the brief and repeated above.
+
+## Overall
+
+**PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE · 8 minor · 5 note.**
+
+The archive is never lost or silently overwritten on any state the run can meet from the
+live side, and every refusal, set-aside and repair the record claims reproduced. The
+three MODERATEs are all in the trust model's edges — what the signature does not cover
+(rollback), and what `--rekey` does without checking (two destinations; a routine roll
+over an unverified index) — and each is the principal's to decide under rule 3.
+
+## Re-run ledger
+
+| command (from the clone unless noted) | result |
+|---|---|
+| `nice -n 10 node --test instruments/ccarchive.test.js` (once) | 223 pass, 0 fail, exit 0, 122 s |
+| `node --test --test-name-pattern <subset>` × 5 mutations | 4 caught, 1 survived (HD4) |
+| `mandoc -T lint instruments/man/ccarchive.1` (worktree) | exit 0, no output |
+| `man -P cat instruments/man/ccarchive.1` (worktree) | exit 0, 1,135 lines |
+| `instruments/ccarchive --help` by path, scratch env | exit 0 |
+| `tools/floor.py --plane hook --root <worktree> --tools …` | exit 0; 11 enforced, 4 warn-only |
+| CI plane: `gh run list --branch main` + one failed-step log | see HD16 |
+| `tools/coldsweep.py --root . --also-exclude ×3 '<pattern>'` | 37 hits / 614 files; 423 barred |
+| `probe.js` (state table, P1–P12) and `probe2.js` | logs under the HD scratchpad |
+| `ccrepo.test.js`, `cctranscript.test.js`, the Python suite | **not run** (load rule); follow-up |
+
+## Follow-up checklist
+
+- [ ] HD1–HD3: the principal rules; counsel is labelled above.
+- [ ] HD4: a seam-driven kill between the two writes of `saveManifestSigned`.
+- [ ] HD5, HD6, HD7, HD8, HD10, HD12, HD14, HD15: ordinary code fixes, each one commit.
+- [ ] HD9, HD11: README sweep; cctranscript test; stamp or export the reserved list.
+- [ ] HD13(b): one observation of `st_size`/`st_mtime` on a real evicted mirror, recorded
+      beside the `SF_DATALESS` note.
+- [ ] HD16: the `ccmail.1` line-length warning is another item's; this pass only notes it.
+- [ ] Run `node --test instruments/*.test.js` once in a quiet window (not run here).
