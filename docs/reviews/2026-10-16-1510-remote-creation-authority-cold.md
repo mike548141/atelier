@@ -419,3 +419,120 @@ All nine are the principal's to decide (rule 3); nothing has been applied.
 - [ ] RM8 — a hook-wiring step in REPO-STANDARD's process before the remote.
 - [ ] RM9 — re-ground "Private-first" on a live home.
 - [ ] Phase 2: open the sibling, reconcile, orchestrator folds and deletes it.
+
+### Reconcile (phase 2, 2026-10-17 10:09 UTC)
+
+Opened after `36815d5` committed phase 1, in this order: the sibling (as text from the
+orchestrator), the landing commit's message body, the commissioning item `200/100` (C2 and
+its fix line), the intent record `docs/sessions/2026-10-03-0144-…`, the queue pointer
+`160/530`, and the two prior verdicts the sibling names (`2026-07-10-create-repo-rewire.md`
+at its question 9 and finding C6; `2026-10-04-2215-pii-by-purpose-cold.md`, confirmed to
+touch REPO-STANDARD's personal-data bullet only — no overlap). Phase-1 text above is
+unrevised. No finding changes severity; one observation is recorded below and deliberately
+not raised to a finding, with grounds.
+
+**What the records add.** The landing body and `200/100`'s fix line say the same thing in the
+author's words: neither the standard nor the skill cited a ruling, so the standard took "the
+more careful reading until Mike says otherwise", and `200/100` marks that choice as "the
+session's". The intent record carries nothing on C2 beyond the batch: the eleven were fixed
+one by one on the principal's answer *"ok one by one"*, recorded there as an answer, not a
+ruling. The 2026-07-10 verdict is where the current wording was born: its question 9 asked
+whether the skill's `gh repo create … --push` "no confirmation needed" was "one notch past
+the grant", its answer was yes — "push is recoverable" justifies the push, not a new outward
+surface — and finding **C6 (low)** was applied by the author as "authority anchored to Mike's
+ask". So the chain is: a cold reviewer's finding (2026-07-10) → applied to the skill by its
+author → carried into `skills/` (2026-07-21) → copied into the parent by a second author
+(2026-10-03). No link in it is the principal's own words. That is exactly RM4's claim,
+now with its provenance.
+
+**Against the seeded questions.**
+
+1. *Interim state, or a resolution the author made itself?* Both authors say interim, in the
+   records; the live text reads as settled. I do not raise this to a finding: doctrine text
+   does not carry "pending" marks — the `⏳` pointer and this pass *are* the mark, and that
+   mechanism worked (the pass ran). What is owed is not a caveat in step 5 but the ruling and
+   its home — RM4 — and the author's "until Mike says otherwise" is the honest shape of that.
+   One sharpening: the stricter-wins interim rule assumes the two readings differ only in
+   strictness. RM2 shows they also differ in *test* (invocation vs ask-content), and the
+   parent copied the stricter-sounding words while keeping a different test — so the interim
+   has not produced one reading, only two stricter-than-before readings.
+2. *Should the stop live in AUTONOMY?* RM4 says yes, independently formed, with the
+   create/delete asymmetry as the reason the class needs stating at all. The 2026-07-10
+   verdict reached the same altitude ("a new outward surface … against AUTONOMY's actual
+   floor") and then applied the fix in the skill, not in AUTONOMY — the finding was answered
+   in the wrong file, which is how it came to need answering again in REPO-STANDARD. Both
+   times the question was asked of AUTONOMY and both times AUTONOMY was left silent.
+3. *Is a board item the principal's ask or a session's paraphrase?* RM3, independently
+   formed. The records reinforce it: `200/100` itself distinguishes his *answer* from a
+   *ruling*, so the house already has the vocabulary and step 5 does not use it.
+4. *No instruction for a refused or pending confirmation.* RM5, independently formed, and
+   the 2026-07-10 verdict supplies a sharper fact: it recorded "`<owner/repo>` filled before
+   the remote exists (harmless — value is deterministic)". That was true when a remote always
+   followed; the confirm branch the delta adds is the first path on which the value is *not*
+   deterministic, so a judgement made harmless in July is no longer so. The child-filed item
+   `320/370` is the same defect reaching the floor text from the other side.
+
+**Per finding.** RM1, RM6, RM7, RM8, RM9 have no seeded question and no record answering
+them; they stand as written. RM1's profile-visibility path was not in the 2026-07-10
+verdict's scope either (its question 9 read `--private` as a literal, which it then was;
+the profile substitution came with the 2026-07-21 de-instancing). RM7's history is confirmed
+by the records: the July sweep fixed the skill and did not list the standard among its
+surfaces.
+
+**Observation, not a finding (formed at reconcile; grounds for not raising it).** The
+2026-07-10 verdict names the single outward `gh repo create --push` as a live proof "owed
+beyond this review … (first keeper run)". Whether a later keeper scaffold discharged it is
+not readable from the surfaces this pass opened, and this brief forbids creating a remote to
+test it, so I record the open question and claim nothing about its state.
+
+**Overall, restated: PASS-WITH-FINDINGS — 1 MAJOR · 6 MODERATE · 1 minor · 1 note.**
+Unchanged by reconcile.
+
+## Deferred material — folded in at reconcile
+
+# Sibling to the remote-creation-authority cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-16-1510-remote-creation-authority-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-10-16 UTC by the Opus brief-writer named in the brief's provenance; it
+forms no finding. Fold this file in below the reconcile and delete it at phase 2.
+
+## Intent and commissioning records
+
+- Intent record: `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` —
+  **not opened by the brief-writer**.
+- Commissioning item: `200/100` C2, in
+  `docs/roadmap/200-anti-slop-invariant-registry-promote-rec/100-r2-found-eleven-live-contradictions.md`
+  — **not opened by the brief-writer**.
+- The landing commit's message body (read by the brief-writer): it says neither the standard nor
+  the skill cites a ruling, so the standard took the more careful reading until the principal
+  says otherwise.
+
+## Prior verdicts on these surfaces (named by filename grep, not opened, not exhaustive)
+
+- `docs/reviews/2026-07-10-create-repo-rewire.md` — the only verdict carrying the old phrase
+- `docs/reviews/2026-10-04-2215-pii-by-purpose-cold.md` — same file, a later commit
+
+## The pointer's own lens hints
+
+None. The pointer is refs-only; its last sub-bullet is the brief-writer's orchestrator's claim.
+
+## Overlap with sibling passes of this batch
+
+No other 2026-10-16 pass of this brief-writer touches `docs/build/REPO-STANDARD.md`. The file's
+personal-data bullet was the 2026-10-04 pii-by-purpose pass's subject; different section.
+
+## Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. The canonical standard was changed to match its delivery skill, on the author's own judgement
+   that neither side had a ruling. PROPAGATION says the stricter reading wins *until the conflict
+   is resolved upward*. Step 5 now states the interim reading as settled text, with no mark that
+   a ruling is still owed. Is that the interim state, or a resolution the author made itself?
+2. AUTONOMY grants push to the owner's own remotes and is silent on creating one. If creating a
+   remote now needs a confirmation in some cases, should that live in AUTONOMY's floor, the one
+   place a session checks for stops? One fact, one home (V4).
+3. "When they asked for a repo with a remote": a queue run acts on board items, not live words.
+   Is a board item that says "create a repo" the principal's ask, or a session's paraphrase of it?
+4. The commit subject frames the old text as a justification ("push is recoverable"); the new
+   text keeps "private by default" but adds no instruction for a refused or pending confirmation,
+   though steps 6 and the visibility stamp assume a remote exists.
