@@ -472,3 +472,140 @@ byte-identical claim reproduces on the synthetic pool. The census numbers (983 m
 - [ ] FP4 — fix ccrepo's stale comment; tick the charter line.
 - [ ] FP5/FP6/FP7 — speed and tidiness counsel, take or leave.
 - [ ] FP8 — refresh the brief's "no later commit" line if the brief is reused.
+
+### Reconcile (phase 2, 2026-10-17 UTC)
+
+Opened after the phase-1 commit `6f01de8`, on the orchestrator's release: the sibling's text
+(sent verbatim), the queue pointer, the intent record's `210/180` section, and the three prior
+verdicts the sibling names (the 2026-10-03 archive-pool pass `CP`, the 2026-08-15 search pass
+`CS`, the 2026-08-17 plain-reply design pass). The two commissioning 210 items stay unopened:
+the release did not name them. Phase-1 text above is unrevised. No suite re-run; no new probe.
+
+**Seeded question 1 — the comment's "can never change an answer" against the commit's
+disclosed difference.** Both cannot be true as written, and the comment is the overclaim (V1):
+FP1 stands and is sharper than the seed, because the probe shows the difference is not only
+"lists instead of aborting" but "can list wrong text" where the old read refused. On whether
+the new behaviour is the one the tool wants: the direction is the one two prior passes
+counselled — `CP4` (2026-10-03) and `CS11` (2026-08-15) both found `firstUserPromptText`
+aborting the whole listing with a raw stack on an unreadable or damaged mirror and asked for a
+per-row guard with a marker, as `--search` does. Neither was taken, and the delta's disclosure
+now leans on that still-open abort as its "before". FP1's counsel (iii) is `CP4`, not a new
+ask; the honest contract (i) and the pinning test (ii) are this pass's additions.
+
+**Seeded question 2 — how large is the decoded buffer, and is it ever worse than the whole
+read?** FP5 answers it: `gunzipHead` returns the whole inflate of 64 KB compressed, so on a
+1000:1 body it returns about 63–67 MB (this pass measured 63 MB on zeros; `CP` measured 67 MB
+and a 129 MB RSS delta on the same shape). It is worse than the old path only when the prompt
+is beyond the prefix on a highly compressible mirror, where the retained `head` plus the
+fallback's whole inflate peaks at about 1.8× the old (143 MB against 80 MB inflated). `CP7`
+recorded that the listing's memory peak sat in `firstUserPromptText`; the delta lowers it for
+every prompt-early mirror and can raise it for a late-prompt compressible one. Note-level, as
+phase 1 rated it.
+
+**Seeded question 3 — is a `Z_SYNC_FLUSH` partial inflate always a byte-exact prefix of the
+full decompression, including multi-member files and trailing bytes?** For an intact stream,
+yes: this pass's matrix (two multi-member shapes, two trailing-bytes shapes, a straddling
+multi-byte line) and `CP`'s eight shapes (a member cut inside the next member's header, trailing
+garbage beyond the prefix, a long `FNAME` header) agree, with no counter-example found. For a
+damaged stream, no — and that is FP1: nothing in the prefix path can know the stream is intact,
+because gzip's check is in the trailer. The "first match is final" argument therefore holds
+exactly as far as the mirror is intact; on trailing junk the prefix is exact and the whole read
+refuses anyway, which is the disclosed class.
+
+**Seeded question 4 — a bound fitted to one machine's data, and what the comment publishes.**
+Soundness: for a speed-only bound with a whole-file fallback, a census of one archive is an
+adequate basis (lens 1); the number tunes cost and cannot change an answer for an intact
+mirror. Publication: this pass had not weighed the second half, so it is formed here.
+
+**FP9 — note (formed at reconcile; privacy, the principal's call).** The code comment, the
+CHANGELOG entry, the commit body and the intent record all state the principal's archive's
+shape — 983 mirrors, the first-prompt distribution out to a 2.9 MB tail, listing CPU before and
+after — in a public repository. It is aggregate and names no session, path or text, and the
+repo's changelog already carries timings "on one real archive", so the sensitivity is low; but
+the public comment carries more of the archive than its justification needs. *Counsel:* the
+comment can say "a census of one archive: nearly every first prompt within 16 KB, a flat tail
+beyond", and the counts can stay in the session record, if the principal wants the archive's
+size kept out of the code.
+
+**Seeded question 5 — do the new tests fail against the parent?** No: FP2. With only the
+missing export added to the parent, all five pass; without it they fail on `TypeError`. They
+pin output equality, which the parent had, and not the one place behaviour differs.
+
+**Against the intent record.** Its `210/180` section states what the commit states (three
+byte-identical listings, 983 equal answers, about 27 s to 7 s, Node 411 pass) and adds that
+the worker measured `--search` and left it alone because a prefix cannot be output-identical
+there — consistent with the non-goal and with this pass's HEAD read. The record names a Sonnet
+worker as builder; the pointer counts that as the run's authorship, and rule 4's criterion is
+unaffected. Nothing in the record alters a finding or a severity.
+
+**Against the pointer.** Refs-only, as the sibling says. The pointer was added by `78cc660`,
+after the close commit, and says so itself: queuing followed landing by one commit rather than
+riding it. Recorded for V7's count; no finding, since the lag is disclosed in the pointer and
+cost the review nothing.
+
+**Against the prior verdicts.** `CP7` proposed exactly this change, with the caveat that the
+first user line is not guaranteed inside 64 KB so a fall-through is needed; the delta honours
+the caveat. `CP4` and `CS11` remain open and FP1's counsel (iii) folds into them. `CP6`
+(no CHANGELOG entry at the 2026-10-03 landing) does not recur: this delta's entry exists. The
+2026-08-17 design pass touches `firstUserPromptText` only as a name in a list; nothing to
+reconcile.
+
+**Overall line, restated:** PASS-WITH-FINDINGS · 0 MAJOR · 1 MODERATE · 3 minor · 5 note
+(FP9 added at reconcile; phase-1 severities unchanged).
+
+## Deferred material — folded in at reconcile
+
+# Deferred sibling — cctranscript's first-prompt prefix read
+
+**Held under rule 1's split** (`docs/method/REVIEW.md`). Open only after your
+phase-1 findings are committed to the brief
+`docs/reviews/2026-10-16-1550-first-prompt-prefix-cold.md`. At verdict, fold this
+file in below your reconcile and delete it.
+
+Written 2026-10-16 UTC by the Opus brief-writer named in the brief, which authored
+none of the delta and forms no finding: the questions below are seeds, a floor
+and never a fence.
+
+## Intent record
+
+- `docs/sessions/2026-10-05-1120-queue-run-closes-and-builds.md` — **not opened
+  by the brief-writer**. The follow-up commit `72bc6d3` appended to it.
+
+## Prior verdicts on the same surface (named, not opened)
+
+Path greps over `docs/reviews/` for `instruments/cctranscript` name these; none
+was opened by the brief-writer:
+
+- `docs/reviews/2026-08-15-1032-cctranscript-search-cold.md`
+- `docs/reviews/2026-08-17-1321-plain-reply-repurpose-design.md`
+- `docs/reviews/2026-10-03-0357-archive-pool-speedup-cold.md` — by its name, the
+  likeliest review of the change that introduced `gunzipHead`
+
+## The pointer's own lens hints
+
+None. The pointer is refs-only (delta, intent record, tier, pass type). Note for
+V7 and rule 4's landing = queuing: the pointer was added by `78cc660`, after the
+close commit `72bc6d3`, not in the commit that landed the work; that commit's
+message says so itself.
+
+## Seeded questions
+
+1. The code comment says the bound "can never change an answer"; the commit
+   message discloses that a corrupt mirror whose prompt sits in the intact prefix
+   now lists instead of aborting the listing. Both cannot be true as written. Is
+   the comment an overclaim (V1), and is the new behaviour the one the tool
+   wants?
+2. `gunzipHead` inflates with `Z_SYNC_FLUSH` and returns as soon as it has at
+   least `want` bytes — it can return far more. For a highly compressible log, how
+   large is the buffer the prefix path decodes and then converts to a string, and
+   is that ever worse than the whole-file read it replaced?
+3. Is a `Z_SYNC_FLUSH` partial inflate always a byte-exact prefix of the full
+   decompression — including multi-member files and files with trailing bytes —
+   which the "first match is final" argument needs?
+4. The 64 KB bound and its justification come from a census of the principal's
+   own archive, recorded in a code comment. Is a number fitted to one machine's
+   current data a sound basis even for a speed-only bound, and does the comment
+   publish anything about the private archive (its size, its shape) that should
+   not be in a public file?
+5. Do the new tests actually fail against the parent, or do they pass on both
+   (pinning only output equality, which the parent already had)?
