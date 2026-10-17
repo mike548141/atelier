@@ -472,3 +472,142 @@ the defect, and it contradicts the floor the same doctrine inlines into every ch
 - [ ] TB8, TB9 — label inferences as the session's; retitle the layering section.
 - [ ] TB10 — fallbacks in the finding method.
 - [ ] TB12 — `ccpdf` row, or a reason it is not expected.
+
+### Reconcile
+
+Phase 1 committed as `c824287`; the sibling's text was then passed to me by the orchestrator, and
+I opened the intent record (`docs/sessions/2026-10-03-0144-…`, the toolbox passages), the queue
+pointer, `320/500`, `320/510`, `420/020`, and the toolbox-related passages of the four prior
+verdicts the sibling names. The landing commit's body was read as the sibling describes it.
+Phase-1 text above is unrevised.
+
+**Against the seven seeded questions.** Each one lands on a finding formed before I opened the
+sibling: Q1 → TB4; Q2 → TB1; Q3 → TB6; Q4 → TB2; Q5 → TB9; Q6 → TB8; Q7 → TB3 and TB4. Full
+overlap is recorded, not claimed as corroboration of either side (REVIEW § *What review is not*):
+the brief-writer and I read the same delta with different context, and both arrived at the same
+seven seams; what it does show is that none of them needed the author's framing to find.
+
+**Against the intent record and the commissioning items, per finding:**
+
+- **TB1 (MAJOR) — stands, sharpened.** Mike's 2026-10-03 words in `320/500` are wider than what
+  TOOLBOX quotes: *"If the tool is on the list and its not installed (or needs an update) then
+  claude should expect that its approved to use that tool, upgrade it to keep it working etc."*
+  So the grant for a **listed** tool is his, verbatim, and the doc leaves that sentence out. What
+  no record carries is a word from him on who adds a row afterwards: he asked the session to
+  *propose* candidates ("Any others you can think of … that I should be including?") and then
+  picked groups — an answer, as `320/500` itself labels it. The standing "a session updates this
+  list" bullet has no ruling behind it and is the session's rule; the contradiction with
+  AUTONOMY's *Widening your own authority* stands. The record's own account — "An unlisted tool
+  still stops at the floor" — is true only until the session lists it.
+- **TB2 (MODERATE) — stands.** The record says "Upgrades are a routine ask, in his words"; his
+  words settle the *weight* of the ask, not where it sits in AUTONOMY's two classes nor what an
+  unattended run does. No record addresses that.
+- **TB3 (MODERATE) — stands.** `320/500`'s one-machine probe and the record's "this Mac's
+  inventory" are the same machine I probed: Homebrew absent, tools in the user bin. The table's
+  *Get* column was not grounded in that inventory; the *Find* column was.
+- **TB4 (MODERATE) — stands, with precedent.** The 2026-08-02 and 2026-08-03 verdicts (PS2,
+  PSA1) had Mike rule *accept + name it* for exactly this class — the seed templates stay
+  published and TOOLBOX names the residual ("the estate default remains mapped"). The toolbox
+  table is the same class and the residual is not extended to it. The counsel in TB4 is that
+  precedent applied; the decision remains his.
+- **TB5, TB13 (MODERATE, minor) — stand.** The record lists the surfaces it fixed (TOOLBOX's
+  scaffold text, the floor bullet, a child's record); `docs/method/README.md` and the changelog
+  are not among them.
+- **TB6 (minor) — stands, reframed.** The bridge *listed = approved* exists in his words (above);
+  it is only unwritten in the doctrine. The repair is a quotation, not a new rule.
+- **TB7 (MODERATE) — stands.** The record and `320/510` both say the floor change "reaches each
+  child when it re-stamps"; `320/610` is what the first re-stamp found. The intent record did not
+  anticipate it, and nothing in the delta's records tested the bullet from a child's tree.
+- **TB8 (minor) — (i) corrected at reconcile.** I wrote that "the install grant [is] the
+  session's design, not his words"; the grant for listed tools is his (the sentence quoted under
+  TB1). What remains the session's is the hardening of "not necessarily … paths" into "never …
+  paths, hostnames, accounts or token scopes", the *Get* column as a published artefact, and
+  "Batch upgrade asks". (ii) stands: `420/020` is the commissioning item for exactly the
+  answer/ruling distinction the Bearing blurs, and the record says the run "relabelled" its
+  records to match — the Bearing was missed. (iii) stands.
+- **TB9 (minor) — stands.** The 2026-07-10 foundation verdict (A5) held the TOOLBOX
+  practice/instance split up as the model for restructuring AUTONOMY and STORAGE; the delta
+  changed the model without saying so at the sites that cite it. See TB14.
+- **TB10 (minor) — stands.** `320/500`'s option C (a probe reporting present / off-`PATH` /
+  missing by name) was ruled "B, then C" on 2026-09-28 and the record says C "is not built …
+  whether to build it is open". A built probe is where the method's fallbacks would live.
+- **TB11, TB12 (notes) — stand.** `320/500`'s probe lists `sshd`, `pwsh`, `kubectl`, `tofu` as
+  seen or missing; none is in the table, which is consistent with the groups he picked. `ccpdf`
+  remains the one atelier instrument unlisted.
+
+**Formed at reconcile:**
+
+- **TB14 — note.** `docs/method/COMMUNICATION.md:16` reads "The same split as `TOOLBOX.md`,
+  applied to communication" — pattern in the repo, values in the person-level context. That is
+  the *old* TOOLBOX split; the new TOOLBOX publishes the instance. The analogy now points at a
+  shape TOOLBOX no longer has. Seen as a grep hit in the phase-1 sweep, not written up then; a
+  mirror site for TB9 (V3). *Counsel:* "the split `TOOLBOX.md` used to make" or point at the
+  Bearing's list/detail split instead.
+
+**Prior verdicts, otherwise.** Foundation H3 recorded TOOLBOX once carrying a fabricated AUTONOMY
+quotation (2026-07-10, fixed); TB8's attention to what is quoted versus inferred is in that class.
+The 2026-10-04 pii-by-purpose verdict touches the template's *Hard constraints* only, outside this
+delta, as the sibling says.
+
+**Overall, restated:** **PASS-WITH-FINDINGS — 1 MAJOR · 5 MODERATE · 5 minor · 3 note** (TB14
+added at reconcile; no phase-1 severity changed).
+
+## Deferred material — folded in at reconcile
+
+# Sibling to the expected-toolbox cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-16-1510-expected-toolbox-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-10-16 UTC by the Opus brief-writer named in the brief's provenance; it
+forms no finding. Fold this file in below the reconcile and delete it at phase 2.
+
+## Intent and commissioning records
+
+- Intent record: `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` —
+  **not opened by the brief-writer**.
+- Commissioning board items (single grep lines seen, never read whole):
+  `320/500` (sessions cannot find installed tools), `320/510` (sessions credited Mike with a
+  private tool list), `420/020` (an answer is not a ruling).
+- The landing commit's message body (read by the brief-writer): it quotes the principal, says the
+  floor change reaches each child when it re-stamps, and records that `320/510` and `420/020` were
+  applied in the same change.
+
+## Prior verdicts on these surfaces (named by filename grep, not opened, not exhaustive)
+
+- `docs/reviews/2026-07-10-atelier-foundation.md`
+- `docs/reviews/2026-08-02-2210-publish-surface-delta-cold.md`
+- `docs/reviews/2026-08-03-0653-publish-surface-application-cold.md`
+- `docs/reviews/2026-10-04-2215-pii-by-purpose-cold.md` — same template file, a later commit
+
+## The pointer's own lens hints
+
+None. The pointer is refs-only; its last sub-bullet is the brief-writer's orchestrator's claim.
+
+## Overlap with sibling passes of this batch
+
+No other 2026-10-16 pass touches TOOLBOX, AUTONOMY or the floor region. The template
+`docs/build/templates/CLAUDE.md` was also changed by `1ffefc7` (the 2026-10-04 pii-by-purpose
+pass's subject), so a runner should read that region at HEAD, not at `55572b1`.
+
+## Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. TOOLBOX's allowlist section argues that publishing what runs unattended turns reconnaissance
+   into a plan. The new table publishes the expected tools — including network and security
+   tooling and the estate's own CLIs — together with a grant to install any of them unasked. Is
+   that the same exposure in a different shape, and does the closing *Bearing* line reconcile it?
+2. "When a session finds a tool the list lacks … it updates this list", plus "Listed and missing
+   → install it", lets a session list a tool and install it in one commit. Does that collide with
+   AUTONOMY's floor that an agent records a grant and never originates one?
+3. "Unapproved tool" survives in AUTONOMY's intro and floor, the apex, the floor region, the
+   template, the onramp skill and `docs/method/README.md`; TOOLBOX's own opening still says
+   "approved". Is "approved" now "listed", and who approves a row?
+4. "Upgrading is a routine ask, not a floor stop": AUTONOMY has two classes. Is a third defined
+   anywhere a session would find it, and what does an unattended run do with a stale tool?
+5. The heading *Two things, kept separate* now introduces two bullets that both say "this doc".
+   Did the practice/instance layering survive, or collapse silently into one public instance?
+6. The surrounding text turns the quoted "does not necessarily mean paths need to be published"
+   into "never a machine's paths, hostnames, accounts or token scopes" — a stronger rule than the
+   quote. Whose rule is the stronger one?
+7. Several *Get* routes are `.pkg` or vendor installers that need admin rights, but only Homebrew
+   is flagged as Mike's to run; user-level pip and global npm routes pull unpinned packages. Does
+   "a trusted package manager" cover them?
