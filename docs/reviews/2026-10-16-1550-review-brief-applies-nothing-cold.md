@@ -463,3 +463,143 @@ Each scanner finished in under ten seconds; load had fallen to 10.66 by the pass
 - [ ] RB6 — `CHANGELOG.md` *Changed* entry dated 2026-10-03.
 - [ ] RB7–RB10 — optional, at the principal's discretion.
 - [ ] Run the floor on both planes at HEAD when the machine is quiet; this pass could not.
+
+### Reconcile (2026-10-17 UTC, phase 2)
+
+Opened after `ac88dc4` committed phase 1, on the orchestrator's release: the sibling's
+text, the queue pointer, the intent record, and the seven prior verdicts the sibling names.
+Nothing else in the barred set was opened (the `200/100` item file was not named, so it
+stays unread). Reads only; no scanner, no suite. Phase-1 text above is unrevised.
+
+**Against the seeded questions**
+
+1. *Does a reviewer learn it must not apply anything itself?* No — only what the author may
+   do. Matches RB4. The prior briefs confirm the gap is lived, not theoretical: the 0407
+   and 0544 briefs each had to write "Apply **nothing** (rule 3)" into the ask, as this
+   brief's *Process* did.
+2. *"The author may apply" versus step 4's "builder/owner"; does "may" leave the tags
+   unowned?* In a warm-spawned review the spawning session is the builder, so the parties
+   coincide and the skill's "author" is a fair compression. The tags are not unowned: the
+   same sentence has the author record them, and `[backlog]` and `[rejected: grounds]` are
+   the tags for the findings it chooses not to apply. "Builder/owner" is the wider term —
+   it covers an owner landing a contributor's work — and the skill narrows it to "author";
+   no case in the scenario table turns on that, so no finding.
+3. *Is the spawn sentence reachable when it binds?* No. It sits in the verdict-landing
+   section, read after the review has run; the decision it governs — who spawns — is taken
+   before any brief exists, and the section a session reads at that moment
+   (§ *Independence is the core*) says only "run the review cold". Phase 1 found the
+   content lossy (RB1); the placement compounds it. Recorded as RB11 below, formed at
+   reconcile.
+4. *Is the silence on § Applying decisions to doctrine a compression or a narrowing?*
+   Narrowing in effect: a compression leaves the reader able to comply with less text; this
+   omission leaves an applier unable to know it must queue the next `⏳` and must not spawn
+   the application review. RB2's MODERATE stands. The prior verdicts show the practice the
+   skill fails to carry: the 0544 pass records the applier queuing the pointer and writing
+   no brief; the 0913 pass records the terminal application closing the cycle on a
+   no-MAJOR pass.
+5. *Is a gendered principal a defect in a generic copy?* A style defect at most (RB10,
+   note); the parent's own voice is "the principal", so the counsel is to match it. The
+   principal's call.
+6. *Does a change in what an installed skill tells sessions to do owe a changelog entry
+   or a version?* An entry, yes (RB6, minor): the plugin-bundle verdict of 2026-07-11
+   already treats the changelog entry as the description of the shipped tree, and the
+   adjacent skill change (200/050) got one. A version, no: the changelog's *Unreleased*
+   rule and the manifests' unchanged `0.2.0` since 2026-07-21 are house practice.
+
+**Against the intent record and the pointer**
+
+- The intent record files `200/100` as eleven sets of copies that disagree, "four of the
+  eleven a skill or template contradicting the parent it claims to compress", and closes it
+  with each contradiction fixed separately under its own pass. Mike's "fix the
+  contradictions one by one" is recorded there as an answer, not a ruling. The record
+  carries no account of the rule-4 sentence; the only account of it is the commit message's
+  "Rule 4 says the review must come from a cold spawn". So the delta did two things: it
+  fixed the filed contradiction (who applies — correct) and added a rule-4 restatement
+  that the filing did not ask for, and the addition is the part that drifted (RB1). The
+  intent record does not alter any finding or severity.
+- The pointer is refs-only and discloses the orchestrated shape as rule 4 requires; its
+  claim matches the provenance repeated above.
+
+**Against the seven prior verdicts**
+
+- None of the seven reviewed the who-applies sentence: the pre-delta "applied and
+  re-driven the same session" survived all of them, so there is no prior finding to
+  reconcile RB1–RB10 against and no anchor to correct.
+- Two of them found this same skill drifting from its parent on a central claim —
+  0407 F3 (the retired trigger, MAJOR) and 2158 SL1 (three lenses, MAJOR); SL1 names the
+  class as having shipped twice. RB1 is the third instance of that class on this file.
+  SL1's own counsel, a mechanical parity check between the skill and `REVIEW.md`, was
+  built for the lens roster only (`test_skill_names_every_canonical_lens`); RB9's counsel
+  extends it to the rules the delta restates.
+- The 2348 pass and the 0913 application confirm the rule-3 practice the skill compresses
+  (counsel labelled, decisions the principal's, terminal application closes) — consistent
+  with rows 2, 4 and 5 of the scenario table.
+
+**Finding formed at reconcile**
+
+**RB11 — note (formed at reconcile, seeded question 3) — the spawn clause is placed
+where it cannot bind.** The only rule-4 sentence in the skill lives under § *Running it
+and landing the verdict*; the moment it governs is before the brief exists, when the
+section in reach is § *Independence is the core*, which stops at cold context. Even with
+RB1's wording fixed, a session deciding who spawns does not meet the sentence. *Counsel:*
+state the criterion once under § *Independence is the core* (where "run the review cold"
+now sits) and have the verdict-landing bullet point back to it.
+
+**Overall, restated:** PASS-WITH-FINDINGS — 1 MAJOR · 1 MODERATE · 4 minor · 5 note.
+Nothing applied; the findings are the principal's to decide (rule 3).
+
+## Deferred material — folded in at reconcile
+
+# Deferred sibling — the review-brief skill on who applies findings
+
+**Held under rule 1's split** (`docs/method/REVIEW.md`). Open only after your
+phase-1 findings are committed to the brief
+`docs/reviews/2026-10-16-1550-review-brief-applies-nothing-cold.md`. At verdict,
+fold this file in below your reconcile and delete it.
+
+Written 2026-10-16 UTC by the Opus brief-writer named in the brief, which authored
+none of the delta and forms no finding: the questions below are seeds, a floor
+and never a fence.
+
+## Intent record
+
+- `docs/sessions/2026-10-03-0144-queue-run-handups-and-tool-defects.md` —
+  **not opened by the brief-writer**.
+
+## Prior verdicts on the same surface (named, not opened)
+
+Path greps over `docs/reviews/` for `skills/review-brief` name these; none was
+opened by the brief-writer:
+
+- `docs/reviews/2026-07-11-plugin-bundle.md`
+- `docs/reviews/2026-07-19-0407-review-trigger-sizescan-combined-cold.md`
+- `docs/reviews/2026-07-19-0544-combined-applied-batch-cold.md`
+- `docs/reviews/2026-07-21-0913-review-line-artefact-cold.md`
+- `docs/reviews/2026-07-21-2158-review-scope-security-lens4-cold.md`
+- `docs/reviews/2026-07-22-0244-sl-application-cold.md`
+- `docs/reviews/2026-08-02-2348-deferral-delta-cold.md`
+
+## The pointer's own lens hints
+
+None. The pointer is refs-only (delta, intent record, tier, pass type).
+
+## Seeded questions
+
+1. The section is titled *Running it and landing the verdict* and opens in the
+   reviewer's voice ("Reproduce the floor first"), then switches to what "the
+   author" may do. Does a reviewer reading it learn that it must not apply
+   anything itself, or only what the author may do?
+2. The ordinary-code bullet says "the author may apply a finding". `REVIEW.md`
+   lifecycle step 4 speaks of "the builder/owner". Are those the same party in a
+   warm-spawned review, and does "may" leave the decision tags unowned?
+3. The doctrine bullet ends "the review itself must come from a cold spawn" —
+   placed in the verdict-landing section, after the review has run. Is that
+   sentence reachable at the moment it binds (deciding who spawns)?
+4. The paragraph says nothing of `REVIEW.md` § *Applying decisions to doctrine*:
+   that applying decided findings is itself a doctrine edit earning a queued cold
+   pass. Is the omission a compression or a narrowing the stamp forbids?
+5. The doctrine bullet refers to the principal as "he". The skill ships to
+   adopters as a plugin; is a gendered principal a defect in a generic copy?
+6. The commit touched no `CHANGELOG.md` and no plugin version. Is a change in
+   what an installed skill tells sessions to do a user-visible change that owes
+   one?
