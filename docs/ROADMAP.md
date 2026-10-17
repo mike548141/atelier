@@ -548,6 +548,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [Hand-up: a REFUSED commit leaves its work staged in the shared](roadmap/320-child-filed-findings-via-pointing-up/630-a-refused-commit-leaves-its-work-staged-for-the-next-committer.md)
 - [ ] 🔎 [Hand-up: a cross-estate question gets answered from one repo's](roadmap/320-child-filed-findings-via-pointing-up/640-a-question-about-the-estate-is-answered-from-one-tree.md)
 - [ ] 🔎 [Hand-up: an estate fact learned in a child has no rule sending it](roadmap/320-child-filed-findings-via-pointing-up/650-an-estate-fact-learned-in-a-child-has-no-rule-to-travel-up.md)
+- [ ] 🔎 [Hand-up: the house assumes every repo is a direct sibling of the](roadmap/320-child-filed-findings-via-pointing-up/660-grouping-children-into-folders-breaks-the-sibling-convention.md)
 
 ## 🔐 SHA-2 or better for every hash — Mike-commissioned, 2026-08-22
 
