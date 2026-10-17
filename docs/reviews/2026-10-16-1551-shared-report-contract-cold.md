@@ -548,3 +548,136 @@ house relies on. Owed: one `python3 -m unittest discover -s tools -p 'test_*.py'
 - [ ] RT10 — one stamped home for the exit-code prose in `tools/README.md`
 - [ ] Re-run the full Python suite once with its summary captured to a file
       (this pass's run lost the summary to a pipe — ledger above)
+
+### Reconcile
+
+Phase 1 committed as `93a67a9` (2026-10-17 UTC). Opened after that, reads only:
+the sibling (as relayed by the orchestrator), the intent record
+`docs/sessions/2026-10-05-1120-queue-run-closes-and-builds.md` (its `115/080`
+part-3 section), the queue pointer, the board item `115/080` (its part-3 notes
+and divergences D1–D5), the four prior verdicts the sibling names, and the
+scanner-rule-gates pass (GT). No phase-1 text revised; nothing folded or
+deleted; no suite or scanner run.
+
+**Against the seeded questions.**
+
+1. *Crash exits 1, not 2 — was that already true, and does the contract say
+   2?* Already true: the old `main()` wrappers caught the same single class,
+   and the differential's forced-exception case exits 1 on both revisions.
+   The contract implies 2 without saying it: `report.py` defines 2 as "the
+   scan itself is broken (a broken scan is not a pass)" and the README as
+   "usage/config error"; a crash is the former by definition and gets the
+   latter's neighbour code. RT4 stands, minor.
+2. *Does any call site route an exit-2 condition through `exit_code`, so
+   `--warn` swallows it?* No. All nineteen call sites pass a findings count or
+   the `--check` gate; every refusal returns before the warn test; the
+   differential's `missing-root/warn`, `missing-path/warn` and
+   `badignore/warn` cases exit 2 on all six warn-capable guards. Discharged;
+   no finding.
+3. *Were the byte-identity cases chosen from the old output or from the
+   helpers?* The pins were written from the old output — proven by running the
+   landed `test_report.py` against the `ffabef3^` scanners (32 tests pass).
+   The origin of the author's fixture cases (453 of 453 and 38 of 38, per the
+   intent record) cannot be read off the record; my re-drive is independent
+   of both and agrees. BL13's caution applies to mine as much as theirs: an
+   equivalence corpus proves the paths it reaches, and RT1 is about a path
+   neither corpus can reach.
+4. *Broken symlink exits 2; a symlink out of the root is read — a change?*
+   Neither is a change: the `symlinks` tree and `broken-symlink-path` case are
+   byte-identical old against new, and RC13 (2026-09-25) and FW6 record the
+   out-of-root read as pre-existing and unchanged by every single-sourcing
+   since. RT7 (a `..` target) is the path-shaped sibling of FW6, not a repeat.
+5. *Who decides "genuinely differs", and is there a test?* The worker did,
+   and recorded the five divergences as D1–D5 on the item, so the judgement
+   has a record. The pins are the test: a later edit that routes a divergent
+   line through a helper and keeps its bytes passes (correctly); one that
+   changes them fails. Adequate; no finding.
+
+**Against the intent record and the item.** Its two claims in scope —
+byte-identity and pins-pass-on-old — both reproduce (ledger). It records
+"D5, no tally counts an unreadable file (FW8, re-confirmed)" and "FW4 has
+grown … `floor.py` … now false a third time", so the author knew RT1's and
+RT5's classes and left them unedited for FW8's and FW4's rulings — consistent
+with a behaviour-preserving part. What the record does not say, and RT1 adds,
+is that the delta then *documented* the unreadable-file line as part of the
+contract (`report.py` docstring, README `report.py` section) while five
+callers cannot reach it; that V1 half is the delta's own.
+
+**Against prior verdicts.**
+
+- RT1 ≡ **FW8** (2026-09-25, MODERATE, still `[ ]` on that pass's checklist)
+  and D5. Same seven-of-eleven count then; five of the nine `cannot_read`
+  callers now (`licenscan` and `sizescan` sit outside that helper). Severity
+  agrees with FW8's; RT1 stands as the re-confirmation anchored at the helper,
+  plus the documentation half above.
+- RT5 ≡ **FW4** (minor, open) + **AM13** (note) + the item's "coupling,
+  stated". Known three passes running; this delta is the third import. Stands.
+- RT3 ≈ **AM9** (note: `IgnoreFileError` echoes the glob; counsel to reuse
+  publishscan's stripping). AM9 bounded it as a committed file on a run that
+  already exits 2; I rated MODERATE on the house's own FR3 ruling for the
+  sibling config file and on the single seam now available. The principal may
+  fold the two; the counsel is the same line of code.
+- RT2 is **new**: no prior verdict names the `./x`, `x/../y` or Windows-path
+  scope. It is the family RC1 (2026-09-25, MAJOR) named — "the silent-success
+  class the tools close three other ways (absolute path, missing path, empty
+  scope)" — one spelling that list did not cover, on the same three guards.
+- RT4(a) overlaps **FW1**'s family (an OSError outside the guard surfaces as a
+  traceback); FW1 was the directory case, this is the ignore file. Stands.
+- The full-suite pipe slip in my ledger repeats **BL10** (2026-09-25) exactly;
+  the class now has two instances in the record. BL10's remedy — read the
+  pushed floor's CI run for the landing SHA — is the one I counsel for the
+  follow-up, in place of a local re-run.
+- GT (scanner rule gates): no overlap with the exit contract.
+
+**Formed at reconcile:** none. The reconcile moved no severity and withdrew
+no finding.
+
+**Overall, restated: PASS-WITH-FINDINGS — 0 MAJOR · 3 MODERATE · 4 minor ·
+3 note.**
+
+## Deferred material — folded in at reconcile
+
+# Deferred sibling — the shared exit and reporting contract (160/730)
+
+**Held under REVIEW.md rule 1's split. Open only after your phase-1 findings in
+`docs/reviews/2026-10-16-1551-shared-report-contract-cold.md` are committed.** A
+floor, never a fence: these questions were seeded by a brief-writer who read the
+landing diff and commit body, so they carry that reading's framing. Reconcile
+against them; do not let them narrow what you found.
+
+## Intent record (not opened by the brief-writer)
+
+- `docs/sessions/2026-10-05-1120-queue-run-closes-and-builds.md`
+
+## Prior verdicts on the same surfaces (named, not opened)
+
+No prior verdict names `report.py`. Verdicts that name the `115/080`
+consolidation, for the reconcile:
+
+- `docs/reviews/2026-09-25-0715-0918-registry-code-cold.md`
+- `docs/reviews/2026-09-25-0715-bounded-guard-layer-cold.md`
+- `docs/reviews/2026-09-25-0715-single-sourced-file-walk-cold.md`
+- `docs/reviews/2026-10-03-0357-shared-allow-marker-grammar-cold.md`
+
+## The queue pointer's own lens hints
+
+None. The pointer is refs-only, plus the orchestrator's brief-writing claim line.
+
+## Seeded questions (the brief-writer's, from the diff)
+
+1. `guarded_main` converts only the listed exception classes to exit 2. Any
+   other exception escapes, Python prints a traceback and exits 1 — the
+   "findings" code, not "broken". Was that already true before the delta, and
+   either way, does the contract this module claims to own say a crash is exit 2?
+2. `exit_code(blocking, warn=...)` returns 0 under `--warn` for any `blocking`.
+   Is there a guard whose call site now routes an exit-2 condition through
+   `exit_code` instead of `broken`, so `--warn` swallows it?
+3. The commit body says the byte-identity check covered "four synthetic fixture
+   trees plus error cases". Were the cases chosen from what the old scanners
+   printed, or from what the helpers were written to print?
+4. `resolve_targets` and `refuse_missing_paths` treat a broken symlink as
+   missing (exit 2) and a symlink out of the root as present. Is either a change
+   from any guard's old behaviour?
+5. The module docstring says a scanner whose line "genuinely differs" keeps its
+   own spelling. Who decides "genuinely", and is there a test that fails if a
+   later edit routes one of those through a shared helper?
