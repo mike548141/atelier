@@ -543,3 +543,170 @@ necessity contract whose only guard against future drift is a hand-kept corpus
 - [ ] GT7 — ground future speed figures in a re-runnable corpus.
 - [ ] GT8 — re-run `test_pins.BoundedMemory` on a quiet machine before treating it
       as flaky.
+
+### Reconcile
+
+Phase 1 was committed as `8b13041` before any of the following was opened. Opened
+for this step, on the orchestrator's release, 2026-10-17 UTC: the sibling's text
+(as a message, not the file); the intent record
+`docs/sessions/2026-10-05-1120-queue-run-closes-and-builds.md` (its `110/130`
+section and the queue handoff); the queue pointer `160/720`; the landing and merge
+commits' message bodies (`c938b58`, `e7575f7`); and the passages of the five named
+prior verdicts that bear on these surfaces (located by grep, read in context). No
+phase-1 text is revised below.
+
+**Against the intent record and the commit bodies.** Every claim they make that
+this pass could re-drive, it re-drove and reproduced: byte-identical output,
+no rule/finding/suppression/tally/exit change, every gated rule exercised, lever 3
+declined for the reason the source records. Two details sharpen phase-1 findings
+rather than alter them. (i) The orchestrator "read every secretscan gate against
+its pattern" and checked the no-`(?i)` premise for the *named* rules; the leakscan
+gates are not recorded as read by anyone but their author. This pass derived both
+tables and found them sound, so there is no gap at HEAD — but it is the premise
+GT2 asks to pin. (ii) "The fuzz first caught two gate transcription errors of
+mine, both fixed before this commit" is the strongest evidence in the record *for*
+GT2: wrong readings of a pattern do happen, and the only thing that caught them was
+the corpus — which is the one guard the design leaves to hand maintenance. The merge
+body's "3.1× and 4.6×" is the figure GT7 could not re-drive; unchanged.
+
+**Against the seeded questions.**
+
+1. *Two AWS patterns, or one gate narrower than its pattern?* The patterns differ:
+   leakscan's rule names one four-letter prefix, secretscan's names two, and each
+   gate matches its own pattern exactly. Neither gate is narrower than its rule.
+   Formed before reading this as GT5 (the divergence is the drift site, not a
+   defect).
+2. *Do any counted/literal gates miss a separator or suffix the pattern accepts?*
+   No. Every separator the five named patterns accept is a literal ASCII character
+   (`-`, `[:-]`, `\.`, `,`), and the suffix words are case-sensitive literals with
+   no flag, so an en dash, a space or a different case does not match the *rule*
+   either. Unicode digits and whitespace are accepted by `\d`/`\s` in the rules, but
+   the gates that could be affected count literals the rule also spells literally
+   (`nz-bank-account`, `nz-ird`, `mac-address`, `coordinates`) or use the same
+   Unicode class (`nz-phone`, `payment-card`). The phase-1 corpus carried
+   Arabic-Indic and full-width digits, no-break and em spaces, full-width colon,
+   dot and at-sign, and U+2010 hyphen; gated and ungated output was identical.
+   Answered in the phase-1 table.
+3. *Is "no NAMED rule carries `(?i)`" also true of `re.compile` flags and of
+   leakscan's structural rules?* Yes on both counts at HEAD: `_p(...)` passes
+   `flags=0` for every rule in both tables, no call site sets a flag, and `(?i)`
+   appears inline only in `PII_KEY_RX` and `SECRET_KEY_RX`, whose gates test a
+   letter-free tail. The premise is true and unpinned — GT2's counsel (b) is the
+   two-line test that pins it.
+4. *Would the author's own generator ever produce the line that exposes a wrong
+   gate?* Not if the wrong reading is shared by gate and positive: the positives
+   are hand-written and the mutation is single-character, so a missing alternative
+   is never generated (`EVIDENCE.md` §15). It did expose two transcription errors
+   where the positive was right and the gate wrong, which is what it can do. The
+   outside-the-author check for this delta is phase 1's derivation from the regex
+   and its independently derived corpus; both found no wrong gate. This is GT2.
+5. *Did the old no-finding path count or report anything the early `return []`
+   skips?* No. With an empty list the old path called `_dedupe_same_span([])`
+   (returns `[]`), iterated nothing, and touched no tally; `scan_lines` has no
+   stale-marker accounting (markers are subtracted per finding only), and the
+   advisory count is computed by the caller from the returned findings. Answered
+   in phase 1 (lens 2).
+6. *Rename or split: silent detach, or a gate inherited by a different pattern?*
+   A rename detaches **loudly**: `test_every_gate_names_a_real_rule` fails the
+   suite on a gate whose name matches no rule. Inheritance — a new or widened
+   pattern under an existing gated name — is caught only if the corpus holds a
+   positive of the new shape that the old gate rejects. Nothing structural pins
+   it. This is GT2, and the structural remedy is GT2's counsel (a): declare the
+   gate beside the rule so the two change in one hunk.
+
+**Against the prior verdicts.**
+
+- `2026-10-04-2215-bounded-pathscan-linkscan-cold.md`, **BP9**: found the same
+  class in pathscan's scheme-URL pattern — quadratic on "a long run of dotted or
+  hyphenated words", about a quarter of an hour per 1 MiB window — and recorded
+  that "`110/130` covers regex cost per byte in leakscan and secretscan only".
+  The landed `110/130` took lever 4 and did not touch per-byte regex cost on
+  gate-passing lines, so the half BP9 left to this item is the half GT1 reports
+  as open. GT1 stands at MODERATE; this reconcile raises its standing from "a
+  pre-existing shape this pass happened to measure" to "the named remainder of a
+  class a prior verdict already filed".
+- `2026-09-25-0715-secretscan-stream-pathscan-roots-cold.md`: measured
+  `basic-auth-url` and `URL_RX` at 25k/50k/100k characters on *base64 and
+  alphanumeric runs*, found them linear, and recorded "no super-linear path
+  found". That measurement is right for its input and does not generalise: a
+  single alphanumeric run has a word boundary at one position, so the greedy
+  class restarts once; GT1's inputs (`sk-`, `eyJ.`, `12-` repeated) place a
+  boundary every three or four characters and reproduce ×4 per doubling on the
+  same two regexes. The control was not comparable to the adversarial shape.
+  Not a contradiction of that pass's data; a correction of its conclusion.
+- `2026-10-03-0357-shared-allow-marker-grammar-cold.md` and
+  `2026-08-09-0826-e7-leakscan-build-cold.md`: both concern the marker regex's
+  scope backtracking (a scoped form re-parsing as unscoped). The delta's
+  `ALLOW_MARKER in line` pre-check sits in front of that regex and alters neither
+  its acceptance nor its backtracking — the pre-check is a necessary literal, and
+  phase 1's corpus carried every marker spelling. Nothing to reconcile.
+- `2026-10-04-2215-linear-line-reader-cold.md`: the reader's cost; names
+  `110/130` only as the commissioning head. Nothing bears on the gates.
+
+**Finding formed at reconcile.**
+
+### GT9 — note (formed at reconcile) — per-byte regex cost: three sightings, no standing test
+
+BP9 (pathscan, 2026-10-04), the 2026-09-25 pass's falsified-then-restored
+hypothesis, and GT1's three regexes are the same defect class — a greedy class
+restarting at every word boundary — found three times on three guards by hand
+probes with different inputs, one of which drew the wrong conclusion from a
+non-comparable control. `PROPAGATION.md`'s promotion rule (> 2 instances) is met.
+*Counsel:* one shared timing test, applied to every guard's rule table, that runs
+each pattern on a boundary-rich adversarial line at two sizes and asserts roughly
+linear scaling — the control shape written down once, so no future probe has to
+rediscover which input is adversarial.
+
+**Overall line, restated after reconcile:** PASS-WITH-FINDINGS — 0 MAJOR ·
+2 MODERATE · 3 minor · 4 note. No phase-1 severity changed; GT9 is new, at note.
+
+## Deferred material — folded in at reconcile
+
+# Deferred sibling — per-rule gates in leakscan and secretscan (160/720)
+
+**Held under REVIEW.md rule 1's split. Open only after your phase-1 findings in
+`docs/reviews/2026-10-16-1551-scanner-rule-gates-cold.md` are committed.** A
+floor, never a fence: these questions were seeded by a brief-writer who read the
+landing diff and commit body, so they carry that reading's framing. Reconcile
+against them; do not let them narrow what you found.
+
+## Intent record (not opened by the brief-writer)
+
+- `docs/sessions/2026-10-05-1120-queue-run-closes-and-builds.md`
+
+## Prior verdicts on the same surfaces (named, not opened)
+
+Many verdicts name these two scanners. The nearest, for the reconcile:
+
+- `docs/reviews/2026-10-04-2215-linear-line-reader-cold.md` (names 110/130)
+- `docs/reviews/2026-10-04-2215-bounded-pathscan-linkscan-cold.md` (names 110/130)
+- `docs/reviews/2026-09-25-0715-secretscan-stream-pathscan-roots-cold.md`
+- `docs/reviews/2026-10-03-0357-shared-allow-marker-grammar-cold.md`
+- `docs/reviews/2026-08-09-0826-e7-leakscan-build-cold.md`
+
+## The queue pointer's own lens hints
+
+None. The pointer is refs-only, plus the orchestrator's brief-writing claim line.
+
+## Seeded questions (the brief-writer's, from the diff)
+
+1. leakscan gates `aws-access-key-id` on one four-letter prefix; secretscan
+   gates its rule of the same name on two. Are the two patterns really different,
+   or is one gate narrower than its pattern?
+2. Several leakscan gates count ASCII hyphens or test ASCII literals
+   (`nz-bank-account`, `nz-ird`, `mac-address`, `nz-address`, `coordinates`).
+   Does any of those patterns accept a space, an en dash, a Unicode digit or a
+   different letter case as a separator or suffix that the gate does not?
+3. The commit says "none of the NAMED rules carries `(?i)`". Is that also true of
+   flags passed to `re.compile`, and of the structural rules in leakscan, which the
+   same sentence does not cover?
+4. The differential fuzz (1.15M lines) and the near-miss tests were generated by
+   the same author who wrote the gates. If a gate encodes a wrong reading of a
+   pattern, would that generator ever produce the line that exposes it?
+5. secretscan's new early `return []` when nothing was found: did the old path,
+   after the loop, count or report anything a no-finding file still owes (a stale
+   allow marker, an advisory tally, a dedupe counter)?
+6. A gate is looked up by rule name. If a rule is later renamed or split, does the
+   old gate silently detach (the rule runs ungated: slower, still safe) or can a
+   new rule inherit a gate written for a different pattern (a gate that rejects
+   lines the new pattern matches: a silent miss)? Is anything pinning that?
