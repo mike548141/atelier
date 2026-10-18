@@ -389,6 +389,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [A harness notification reads two ways depending on its record](roadmap/210-instruments-open-features/260-notification-records-read-two-ways.md)
 - ✅ [ccmail sent the operator to ccmail --auth, a client-ID setup he](roadmap/210-instruments-open-features/270-ccmail-sent-the-operator-to-a-setup-he-did-not-need.md)
 - ✅ [BUILT 2026-10-18](roadmap/210-instruments-open-features/280-ccclose-prints-the-identifiers-block.md)
+- [ ] 🔎 [ccclose --identifiers over-credits work from overlapping](roadmap/210-instruments-open-features/290-ccclose-identifiers-over-credits-overlapping-sessions.md)
 
 ## Observability of the collaboration itself (2026-07-30)
 
