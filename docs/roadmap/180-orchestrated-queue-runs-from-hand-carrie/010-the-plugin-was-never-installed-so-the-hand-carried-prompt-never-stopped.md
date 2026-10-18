@@ -1,4 +1,4 @@
-- [~] (claimed 2026-10-18-0001, wt: atelier-qr-180-plugin) **The delivery vehicle shipped but was never installed — the hand-carried
+- [x] **INSTALLED AND CARRIED 2026-10-18** (wt: atelier-qr-180-plugin) **The delivery vehicle shipped but was never installed — the hand-carried
       prompt this section retired never actually stopped.** This section's own
       README records the pattern as built 2026-07-22 and its executor trial
       concluded 2026-08-03: `CONCURRENCY.md` § *Orchestrated queue runs*,
@@ -34,3 +34,20 @@
       that framing or whether the spend-directive language should be widened to
       say it explicitly, so a run that reads only the skill doesn't infer
       "spend" as "budget" alone.
+
+  **Closed 2026-10-18** (a Mike-opened Opus 5.5 queue run). Follow-on 1: the
+  plugin is installed at user scope on the principal's machine, from a
+  **local-path** marketplace on the primary checkout. A GitHub install was
+  tried first and is a copy frozen at `plugin.json`'s `version` (0.2.0 since
+  2026-07-21), with auto-update off for third-party marketplaces; the docs
+  say a local-path marketplace loads the plugin in place. Measured, not taken
+  from the docs: a fresh headless session lists all eight `atelier:` skills,
+  and loading `atelier:session-onramp` reports its base directory as the
+  checkout's own `skills/session-onramp`. A clause-by-clause map of the
+  principal's prompt against the skill found six clauses carried nowhere and
+  five partly; all are now carried (commit `998c35f`), so the invocation plus
+  the run's own brief is the whole prompt. **Not yet observed**: a real run
+  opened with `/atelier:queue-run` — the first one is the practical proof.
+  Follow-on 2: the spend directive is read as value, not budget
+  (`CONCURRENCY.md` § *Deliberately not in this doctrine*). Rule-4 cold pass
+  queued at `160/900`.
