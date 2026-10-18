@@ -13,7 +13,9 @@
       *Delta, scoped to paths:* `tools/leakscan.py`, `tools/floor.py`,
       `tools/allowmarker.py`, `tools/README.md`, `CHANGELOG.md` (the
       020/150 entry) and their tests, squash commit `b5a2c53` (PR #97) on
-      `main`, 2026-10-18.
+      `main`, 2026-10-18; and, widened by the same session (AW6), commit
+      `34dc0f0` (`020/440`: one specific reason may keep several named
+      sets), 2026-10-19.
       *Intent record:*
       [`../020-policy-as-code-programme-five-tracks-mik/150-e7-residue-g3-binary-media-funded-as-its-own-i.md`](../020-policy-as-code-programme-five-tracks-mik/150-e7-residue-g3-binary-media-funded-as-its-own-i.md).
       No brief written.

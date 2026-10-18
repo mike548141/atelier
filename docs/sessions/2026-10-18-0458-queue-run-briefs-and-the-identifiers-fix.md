@@ -200,3 +200,14 @@ Mike answered the close report, and the run reopened:
   `010/180`, `010/190`, `160/970` and `160/980`. Worktrees `atelier-qr-010-170`,
   `-020-150` and `-records-1018b`, all removed. Two more Opus workers ran, and
   all 7 agents reported.
+- **`020/440` closed (`34dc0f0`), on Mike's correction of 2026-10-19:** *"I am
+  fine with one reason applying to multiple fields of metadata, but it should
+  be specific e.g. fields A, B, and C allowed because of X"*. A `.leakscanbinaries`
+  set line may now name several metadata sets under one reason, with no
+  wildcard. "Fields" was read as the scanner's named sets, because individual
+  Exif tags are not read; the item says so, so the reading can be corrected.
+  Built inline by the orchestrator. 2,032 Python tests green. `160/980` is
+  widened to cover it.
+- **Scratchpad emptied at close.** A peer session reported that the deny rule
+  which had refused `rm -rf` on scratch paths was narrowed on Mike's
+  instruction. This session changed no settings.
