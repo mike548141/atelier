@@ -306,7 +306,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🛑 [Rule-4 cold pass queued: ADR 0008's boundary amendment and the](roadmap/160-doctrine-review-owed/820-rule-4-cold-pass-queued-adr-0008-boundary-amendment.md)
 - [ ] 🎯 [Rule-4 cold pass queued: staged findings at their real line](roadmap/160-doctrine-review-owed/830-rule-4-cold-pass-queued-staged-real-line-numbers.md)
 - [ ] 🛑 [Rule-4 cold pass queued: licenscan's warn tier made real](roadmap/160-doctrine-review-owed/840-rule-4-cold-pass-queued-licenscan-advisory-tier.md)
-- [ ] ⏳ [Rule-4 cold pass queued: sizescan's size advisory removed](roadmap/160-doctrine-review-owed/850-rule-4-cold-pass-queued-size-advisory-removed.md)
+- [ ] 🎯 [Rule-4 cold pass queued: sizescan's size advisory removed](roadmap/160-doctrine-review-owed/850-rule-4-cold-pass-queued-size-advisory-removed.md)
 - [ ] 🛑 [Rule-4 cold pass queued: the floor's advisory count scoped to its](roadmap/160-doctrine-review-owed/860-rule-4-cold-pass-queued-advisory-count-per-scanner.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose, the close-out checker](roadmap/160-doctrine-review-owed/870-rule-4-cold-pass-queued-ccclose.md)
 - [ ] ⏳ [Rule-4 cold pass queued: cctranscript's harness classification](roadmap/160-doctrine-review-owed/880-rule-4-cold-pass-queued-harness-classification.md)
