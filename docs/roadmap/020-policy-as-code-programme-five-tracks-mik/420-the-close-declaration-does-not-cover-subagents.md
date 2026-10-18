@@ -1,4 +1,5 @@
-- [ ] 🔎 **The close declaration does not cover subagents: nothing checks that
+- [~] (claimed 2026-10-18-0035, wt: atelier-qr-020-420)
+      🔎 **The close declaration does not cover subagents: nothing checks that
       every agent a session launched has finished before "ready to close", and
       closing the tab kills a running agent silently** Filed 2026-10-16 (UTC)
       from a session with no repo, after the principal asked whether the

@@ -73,7 +73,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [Parallel workers in one run share a scratchpad path, and one](roadmap/020-policy-as-code-programme-five-tracks-mik/390-parallel-workers-share-one-scratchpad-path.md)
 - ✅ 🔥 [harvestscan's vanished-item check is quadratic in the number of](roadmap/020-policy-as-code-programme-five-tracks-mik/400-harvestscans-similarity-pass-is-quadratic.md)
 - [ ] 🔎 [GUARDS.md § Adoption assumes every guard can install](roadmap/020-policy-as-code-programme-five-tracks-mik/410-adoption-assumes-advisory-first.md)
-- [ ] 🔎 [The close declaration does not cover subagents: nothing checks that](roadmap/020-policy-as-code-programme-five-tracks-mik/420-the-close-declaration-does-not-cover-subagents.md)
+- [~] (claimed 2026-10-18-0035, wt: atelier-qr-020-420) [(untitled)](roadmap/020-policy-as-code-programme-five-tracks-mik/420-the-close-declaration-does-not-cover-subagents.md)
 
 ## Enforcement propagation — the estate rollout (ADR 0008, 2026-07-25)
 
