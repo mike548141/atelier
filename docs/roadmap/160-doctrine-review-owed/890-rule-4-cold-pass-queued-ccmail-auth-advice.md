@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: ccmail stops sending the operator to
+- [ ] 🛑 **Rule-4 cold pass queued: ccmail stops sending the operator to
       `--auth` (`210/270`).** A hand-up from a private child, landed here by
       the 2026-10-17 review run, which authored none of it and does not take
       it; the filing session wrote the change and queued the review as owed.
@@ -38,3 +38,24 @@
       forms every finding and severity. The sibling, the intent record and
       prior verdicts stay unopened by the reviewer until its phase-1 findings
       are committed. Provenance and exposure go in the verdict.
+      - [ ] 🛑 **The pass RAN 2026-10-18 UTC and the cycle stays OPEN — a MAJOR
+            stands.** The rule-4 Fable cold pass (taker: a fresh
+            `claude-fable-5-1` subagent under a `claude-fable-5-1` cloud
+            orchestrator — the shape disclosed in the claim above; the sibling,
+            the intent record and prior verdicts opened only after the phase-1
+            findings were committed, `ad920ce`) returned PASS-WITH-FINDINGS —
+            1 MAJOR · 4 MODERATE · 4 minor · 6 note →
+            [`2026-10-17-1010-ccmail-auth-advice-cold.md`](../../reviews/2026-10-17-1010-ccmail-auth-advice-cold.md)
+            (sibling folded in and deleted). MA1 (MAJOR): the "not needed"
+            wording and the `optional` field gate on delegation being
+            configured rather than live, so in every lapsed, failing or refused
+            state the tool tells the operator the fallback is not needed at the
+            moment it is dark — contradicting ADR 0006's recorded re-ruling,
+            the tool's header, the man page and the README. Among the
+            MODERATEs: the end-to-end test executes the machine's real `gcloud`
+            under its own isolation claim (MA3), and the change landed by
+            direct push after PR #108's own CI failed the man-page lint (MA4) —
+            so this pointer's "the commit that landed PR #108" reads as
+            re-authored content, PR #108 closed unmerged (MA10). MA14 (note)
+            and MA15 (minor) formed at reconcile. Findings are the principal's
+            to decide (rule 3); nothing was applied.

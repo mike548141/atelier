@@ -187,3 +187,546 @@ phase-1 text. Then fold the sibling in below the reconcile and delete it.
 Findings on self-authored doctrine are the principal's to decide (rule 3; a
 guard is doctrine by function, and `RECORD.md` is doctrine): record all, apply
 nothing; counsel per finding is welcome, labelled and kept beneath it.
+
+---
+
+## Verdict — phase 1 (written 2026-10-18 UTC, before the sibling was opened)
+
+### Provenance, repeated
+
+- **Reviewer:** Claude Fable 5.1 (`claude-fable-5-1`), the principal-named tier (ruling
+  2026-08-04), checked at selection; the rule-4 stop clause did not fire.
+- **Spawn:** dispatched by a Mike-opened Claude Code **cloud** session (`claude-fable-5-1`,
+  orchestrating; it opened on `claude-opus-5` and Mike switched it to Fable before any claim
+  or pass). That session authored none of the delta or this brief and was not started or
+  instructed by their authors. It forms no finding and writes no severity; it holds the
+  `.deferred.md` sibling outside the checkout at a path this reviewer was not given, commits
+  this phase-1 text before releasing the sibling, and received one operational note from
+  Mike's watching session (model, queue scope, container facts, merge instruction — no
+  evaluative content about any delta). The claim line in the queue pointer discloses the same
+  shape; the pointer was not opened. The brief-writer's own exposure is disclosed above.
+- **Container:** a cloud container — one checkout (a full clone, unshallowed), **no
+  worktrees, no sibling repos, no estate root, no user-level Claude directory**. `gh` is on
+  PATH with an invalid token; nothing here needed it. python3 3.13, node v22, git. 4 CPUs
+  shared with up to five other reviewers; every heavy process below ran alone and in the
+  foreground. Scratch: `/home/user/scratch/SZ/` (fixtures, driver, logs, private clone).
+- **Checkout worked in:** `/home/user/atelier`, branch `claude/review-work-briefs-adj6ad`,
+  HEAD `fe72b22` when this pass began (another pass's phase-1 commit `0dd1bfda` landed on
+  the branch during the run — expected). The clone's `origin/main` ref resolves to
+  `fe020b16`; the orchestrator named `0aff4d8`; both are ancestors of HEAD and the branch
+  adds only review commits. The seven delta paths are byte-identical at `da85210`, `0aff4d8`
+  and HEAD (`git diff --stat` empty). **No worktree was used and no git command that writes
+  was run in the checkout.** Older code was taken from a private clone
+  (`/home/user/scratch/SZ/clone`) with `git archive` of `tools/` at `2e2da81` (= `72a68cc^`),
+  `72a68cc` and HEAD; the HEAD extraction was `cmp`-identical to the checkout's `sizescan.py`.
+- **What was read:** `docs/method/REVIEW.md`, this brief, `docs/method/00-APEX.md`, the
+  repo `CLAUDE.md`; `tools/sizescan.py`, `tools/test_sizescan.py` and `tools/allowmarker.py`
+  whole at HEAD; `docs/method/RECORD.md` whole; `tools/README.md` lines 655–780 at HEAD plus
+  its `72a68cc` hunks; the `72a68cc` diff on all seven paths (`git diff 72a68cc^ 72a68cc`,
+  never a bare `show`); subjects and stats only for `72a68cc`, `da85210`, `f9ccba8`,
+  `e3e8a4f`, `f4afb7a`; the merge's stat against both parents and its CHANGELOG-only hunk;
+  `tools/floor.py`'s sizescan registry entry and selftest lines; `tools/test_floor.py`
+  150–165; `.githooks/pre-commit` 1–90; `ci.yml` (grep); `docs/method/GUARDS.md` 225–295;
+  board item `115/230` whole and the `115/` directory listing (titles; `270` and `330` not
+  opened); `110/100` lines 110–130; `tools/test_report.py`'s round-trip helper and sizescan
+  pins; `tools/indexscan.py` lines 1–45; `.sizescanignore`, `.wrapscanignore`, `.gitignore`;
+  grep hits only in `CHANGELOG.md`, `tools/test_allowmarker.py`, `tools/floorfleet.py`.
+  Templates (`docs/build/templates/`), `skills/` and `docs/method/` other than `RECORD.md`
+  were grepped for sizescan: no hits.
+- ⚠️ **Exposure, disclosed.** (1) `docs/SESSIONS.md` is rule-2 barred; a grep for the
+  indexscan declaration printed its first three lines (an `indexscan:maps` declaration and
+  two `indexscan:allow` lines naming two 2026-07-22 record files). No session entry was
+  read; nothing in those lines bears on this delta. A slip, by this reviewer, while checking
+  whether indexscan covers the session index. (2) `git log` on the branch showed five other
+  passes' verdict-commit subjects; none opened. (3) One coldsweep hit was `docs/ROADMAP.md`'s
+  index line for this pass's pointer — the title line only. (4) `tools/__pycache__/` exists
+  in the checkout, written 2026-10-17 23:09–23:11 UTC, before this pass began (2026-10-18
+  00:03 UTC); it is gitignored and not this reviewer's — every Python run here set
+  `PYTHONDONTWRITEBYTECODE=1`. Not opened before this point: any other `2026-10-16-*` or
+  `2026-10-17-*` review file, `drafts/`, `withdrawn/`, `ROADMAP-DONE.md`, `docs/sessions/`,
+  the queue pointer, `115/270`, `115/330`, the sibling, or any delta commit's message body.
+- **Sweep:** `tools/coldsweep.py` with the brief's four `--also-exclude` paths exactly as
+  given, seven patterns (every name the retired advisory carried); never `--include-barred`.
+
+### Load-bearing assumptions, named first (lens 1)
+
+The delta's own framing, tested rather than taken:
+
+- **A1 — "Nothing a gate relied on is now unread."** Holds. Before and after, the
+  cold-content gate reads only `ROADMAP.md` and the integrity gate only `*-DONE.md` /
+  `*-ARCHIVE.md`; both are still streamed whole (table rows R24–R25, A15, A17). What moved
+  to header-only (15 lines) are the four other hot-path names, which never gated.
+- **A2 — "Keeping `size-advisory` in `FINDING_KINDS` is needed to stop a stale marker
+  widening."** Holds, and it is the shared grammar that makes it so: `allowmarker.covers`
+  treats a scope naming *none* of the kinds as the unscoped form (its docstring calls this
+  "not endorsed", the class of board `115/230` item 1). Probe A05 (retired scope, live
+  store: still gates) against A06 (a typo'd scope, live store: exempt, counted as an
+  allow) is the difference the retained name buys. But the protection covers one spelling
+  only — every other unrecognised scope still widens, and the delta's documentation says
+  the opposite (**SZ1**).
+- **A3 — "Reporting an inert hatch is safer than accepting or rejecting it."** Defensible:
+  silent acceptance is the defect the delta names; rejecting (exit 2) would red children's
+  floors on a non-defect. The cost is that an inert hatch has no expiry or escalation, so
+  the "remove it" in the report is advice nobody is made to act on (**SZ10**, note).
+- **A4 — "Caught at review" is a real detector for prose-shaped cold content and for a
+  session index regressing to a flat log.** Does not hold as written. No review, scan or
+  session rule reads `SESSIONS.md` or an all-open `ROADMAP.md` for shape: cold passes are
+  barred from the index until phase 2 (rule 2, `coldsweep`'s default exclusion), `indexscan`
+  checks that the index names every mapped file and that dates are plausible (its docstring,
+  lines 1–45) — not entry shape — and the one routine reader, the next session's start,
+  tails the index with no rule telling it to act. The tool docs say so honestly ("nothing in
+  this tool points at it"); `RECORD.md` does not (**SZ2**).
+- **A5 — "The removal changes no exit code anywhere."** Holds on 75 fixture rows × 3 modes
+  at `72a68cc^` vs `72a68cc` (zero changes), and by construction: exit 1 keys on `gated`,
+  which was already cold-content-or-live-marker only. The estate-wide count in the CHANGELOG
+  entry (29 repos) is **not re-driven here (relayed)** — no sibling repo exists in this
+  container, and the brief forbids pointing a scanner at one anyway.
+
+### Per-lens answers
+
+**1. Approach & assumptions.** The removal implements a recorded ruling and the brief
+names that decision a non-goal; it is honoured as one. What the removal leaves undetected
+is stated plainly in `tools/sizescan.py` and `tools/README.md` ("the only pointer to
+prose-shaped cold content… gone"), which is the honest shape. `RECORD.md` substitutes the
+word "review" for the lost detector in two places and leaves "nothing fires when a file
+bloats again — so it carries a signal" standing a paragraph later, now untrue for bloat
+(SZ2). The retained-name design (A2) is a local patch over a shared fail-open grammar
+with an open item (`115/230`); patching locally is reasonable while that item waits, but
+the docs then overclaim what is inert (SZ1).
+
+**2. Correctness & quality.** Code and docstring agree everywhere the hatch table was
+driven except the two overclaims (SZ1, SZ4) and one wrong explanatory sentence in the
+report (SZ5). New ≡ HEAD on every row. The 90 tests at HEAD pass; 26 of them fail against
+the `72a68cc^` module — 15 for exactly the reason each test names (the advisory line
+present, `reference`/`over` in the finding, `SIZE_REFERENCE` present, the inert tally
+absent, `files_allowed` 2 not 1), 11 by `TypeError`/`KeyError` on the new `inert`
+parameter and JSON key, which proves presence of the feature rather than the behaviour
+named. `test_check_exits_1_through_every_hatch_and_says_so` and
+`test_sizescanignore_glob_does_not_exempt_the_gate_and_is_named` pass on both — they are
+`f9ccba8`'s pins, insensitive to the "and inert" wording. The `test_report.py` pins and
+round-trip match the rendered lines byte-for-byte (run, not read). No overclaim of
+done-vs-stubbed found in the delta itself.
+
+**3. Completeness / harvest.** Surfaces that still named the advisory: `tools/README.md`
+and the module docstring now carry it as history only (correct); `CHANGELOG.md` carries a
+`Removed` entry — landed in the merge commit, not in `72a68cc` (SZ6); the same-day
+2026-10-16 "no hatch silences" entry beneath it still says the three hatches "quiet the size
+advisory", acceptable in an append-only log but worth knowing; `test_allowmarker.py` pins
+`FINDING_KINDS` with the retired name (intended); templates and the create-repo skill
+carry no sizescan hatch at all (clean); `docs/method/GUARDS.md` and `PROPAGATION.md` do not
+name sizescan (clean by absence). Left behind: `RECORD.md` line 57 still says an index
+"outgrows its budget" (SZ3); board item `110/100` still lists `sizescan:budget` as a live
+reasonless exemption (SZ7); atelier's own `.sizescanignore` glob exempts nothing a walk can
+reach and its comment states a purpose `f9ccba8` already retired (SZ11). Children that may
+carry a now-inert marker: **not checkable here (relayed)**; the CHANGELOG says two across
+the estate; this repo has zero (`--check --root . .` at HEAD: `0 inert hatch(es)`).
+
+**4. Security & privacy.** Design altitude: the delta *narrows* what is read (four hot
+names header-only), adds no new input class, and keeps the two gates' read set unchanged.
+Integrity hunt, from the table: no marker or glob exempts an archive store now that did
+not before, none stops exempting one that did (A01–A22, G01–G08 old ≡ new on exempt
+status); no file a gate used to read is unread (A1). The one live-and-silent hatch on the
+integrity gate — an unrecognised scope — is pre-existing (A06 identical at `72a68cc^`) and
+is the subject of SZ1 because the delta now documents it as inert. Code altitude, by
+hand against the OWASP Top 10 classes that fit a stdlib file scanner: no shell, no eval, no
+network (injection: none); targets resolve against `--root` via the shared
+`report.resolve_targets` (path handling: unchanged); reads are streamed with fixed caps
+and `_read_header` stops at 15 lines (resource exhaustion: improved); the new regex
+`sizescan:budget\s*[=:]?\s*(\d+)` runs over a 15-line header bounded at 8 KiB per line
+(no catastrophic backtracking surface); `--json` adds repo-relative paths and hatch
+labels only (disclosure: nothing new). Fixtures: every probe here was synthetic; the
+delta's tests likewise. `/security-review` **discharged by grounds**: it reads the
+session's pending diff, and in this shared checkout the pending diff is other reviewers'
+briefs, not the landed delta; nothing here was aimed at it.
+
+### The standing checklist
+
+- **V1 — No claim stronger than its evidence.** Two bites: SZ1 ("everything else is
+  inert and named" — an unrecognised scope is live and unnamed) and SZ2 ("caught at review"
+  — no detector exists). Minor: SZ4 (a budget marker on a glob-skipped store is never
+  named), SZ5.
+- **V2 — Re-run every recorded "live-proven" claim.** Re-run: every test file the brief
+  lists, `--selftest`, the full suite, both floor planes, the repo-wide `--check`, and the
+  table. Not re-drivable here: the CHANGELOG's 29-repo count (relayed; see A5).
+- **V3 — Changed rule swept to every mirror site.** Swept: README, docstring, CHANGELOG,
+  tests, `pins.py`, `blockscan.py`, templates, skills, `docs/method/`. Missed by the delta:
+  `RECORD.md` line 57 (SZ3, same bullet it edited), board `110/100` (SZ7), the repo's own
+  `.sizescanignore` comment (SZ11).
+- **V4 — One fact, one home.** The retired reference numbers (~300/~250/~200) survive as
+  history in three places and as the live grounding of `MAX_CLAUDE_MD_BYTES` in `pins.py`,
+  honestly labelled "nothing here reads that number" (SZ9, note). Acceptable.
+- **V5 — No internal contradiction.** Three doc layers disagree on what still exempts:
+  `_inert_hatches`' docstring and the tests say "or a scope naming no kind"; the module
+  docstring and README say "only two hatches… unscoped or `harvest-integrity`" (SZ1).
+  `RECORD.md`'s edited paragraph: "nothing fires when a file bloats… so it carries a
+  signal" against "does not report line count at all" (SZ2). `RECORD.md` line 57 against
+  the delta's own sentence five lines later (SZ3).
+- **V6 — Security & privacy on every review.** Lens 4 above; `/security-review` discharged
+  with grounds.
+- **V7 — Rule-4 pass states its spawn provenance.** Brief: yes (its *Spawn provenance*
+  section). Verdict: above.
+
+### The hatch table (HEAD code; `72a68cc^` → `72a68cc`; HEAD ≡ `72a68cc` on every row)
+
+Fixture: 75 rows under `/home/user/scratch/SZ/rows/`, each run bare, `--check` and `--json`
+at the three SHAs (675 invocations; log `hatchtable.out`, raw `hatchtable.json`). Codes:
+`gate` finding that fails `--check` · `adv` size-advisory finding, exit 0 (old only) · `0`
+silent · `X` exempt and counted "by sizescan:allow header" · `K` skipped wholesale and
+counted "by .sizescanignore" · `+h` named on the cold finding · `+I` named inert and
+tallied · `+a` counted as an allow though it exempted nothing (old) · `+k` counted as a
+glob skip though the file still gated (old) · `–` not read.
+
+| Header hatch (lines 1–15) | `ROADMAP.md` with `[x]` | `ROADMAP.md` all-open, 400 lines | other hot file, 400 lines | archive store, live item | archive store, clean |
+|---|---|---|---|---|---|
+| none | gate → gate | adv → 0 | adv → 0 | gate → gate | 0 → 0 |
+| `sizescan:allow: <reason>` (unscoped) | gate+h+a → gate+h+I | 0+a → 0+I | 0+a → 0+I | X → X | X → X |
+| `…:allow:cold-content:` | gate+h+a → gate+h+I | adv+a → 0+I | adv+a → 0+I | gate+a → gate+I | 0+a → 0+I |
+| `…:allow:harvest-integrity:` | gate+a → gate+h+I | adv+a → 0+I | adv+a → 0+I | X → X | X → X |
+| `…:allow:size-advisory:` (retired) | gate+a → gate+h+I | 0+a → 0+I | 0+a → 0+I | gate+a → gate+I | 0+a → 0+I |
+| unrecognised scope (`…:allow:living-doc:`, a typo of `harvest-integrity`) | gate+h+a → gate+h+I | 0+a → 0+I | 0+a → 0+I | **X → X, unnamed (SZ1)** | X → X |
+| marker with no reason (`sizescan:allow`, `sizescan:allow:`) | gate → gate | adv → 0 | adv → 0 | gate → gate | 0 → 0 |
+| body-only mention (line 16 or later) | gate → gate | adv → 0 | adv → 0 | gate → gate | 0 → 0 |
+| `sizescan:budget=N` (`=`, `: ` and space forms) | gate(ref=N) → gate+h+I | 0 → 0+I | 0 → 0+I | gate → gate+I | 0 → 0+I |
+| `sizescan:budget=` (no digits) | gate → gate (not a marker) | — | — | — | — |
+| `.sizescanignore` glob matching the file | gate+h+k → gate+h+I | 0+k → 0+I | 0+k → 0+I | K → K | K → K |
+| glob **and** a budget or scoped marker on the same store | n/a | n/a | n/a | K, markers unseen → K, markers unseen (SZ4) | same |
+| unscoped allow **and** budget on one file | gate+h+a → gate+2h+2I | 0+a → 0+2I | 0+a → 0+2I | X → X (+I for the budget) | — |
+| glob with no reason anywhere in `.sizescanignore` | exit 2 → exit 2, every class (`IgnoreFileError`) | | | | |
+
+| Location / file class | What is read, old → new | Gate behaviour |
+|---|---|---|
+| `ROADMAP.md` at root, under `docs/`, under `sub/docs/` | whole → whole | gates on `[x]` (both) |
+| a ROADMAP.md under an archive directory (a growth-store dir) | – → – | never gated (both) |
+| the four other hot-path names: SESSIONS.md and ARCHITECTURE.md under docs/, README.md and CLAUDE.md at the root | whole (for length) → first 15 lines | never gated; stale hatches now named |
+| a README.md or CLAUDE.md anywhere but the root (one under docs/, the nested one under tools/) | – → – | a hatch there is never named |
+| a hot-path basename inside a store directory (a README.md under reviews/, a SESSIONS.md under sessions/) | – → – | a hatch there is never named |
+| `*-DONE.md` / `*-ARCHIVE.md` anywhere, incl. `docs/sessions/` and `other/` | whole → whole | gates on `[ ]`/`[~]`/`⏳` (both) |
+| `node_modules/<pkg>/ROADMAP-DONE.md` | – → – | never scanned (HA1, both) |
+| `SESSIONS.md` carrying `[x]` items | counted as nothing (both) | `cold_item_count` is roadmap-only |
+
+Boundary checks: a marker on line 15 is a hatch, on line 16 a mention, at both SHAs; the
+`suppressed:` line gains one field ("N inert hatch(es) (exempt nothing)") and nothing in
+`tools/floor.py`, `tools/floorfleet.py` or `instruments/` parses sizescan's `--json` or its
+tally (grep), so the shape change has no consumer beyond `test_report.py`, which pins it.
+
+### Findings
+
+**SZ1 — MODERATE — An unrecognised scope on an archive store is a live, silent hatch; the
+delta documents it as inert.** `tools/sizescan.py` lines 125–145 ("only two hatches can
+still exempt anything… Everything else is present and inert, and is named") and
+`tools/README.md` lines 734–751 ("Two hatches still do something… Every other hatch is
+present and inert, and the report names it") are stronger than the code. A header marker
+whose scope names none of `FINDING_KINDS` — a typo of `harvest-integrity`, any invented
+word — exempts an archive store's integrity check (probe A06: live `[ ]` item, no finding,
+exit 0 under `--check`), is counted only as "1 file(s) by sizescan:allow header",
+indistinguishable from a deliberate unscoped marker, and is never named. `_inert_hatches`'
+own docstring (lines 665–674, "or a scope naming no kind") and the test
+`test_the_unscoped_form_and_an_unknown_scope_exempt_only_the_archive_store` know this; the
+two reader-facing documents and the CHANGELOG entry do not. The behaviour is pre-existing
+(`72a68cc^` identical) and comes from `allowmarker.covers`' additive rule, which its own
+docstring marks "not endorsed… kept until `115/230` is ruled"; the delta leans on that very
+rule to justify retaining `size-advisory`, so it knew the mechanism. Lens 4: on the
+integrity gate, a child's misspelt scope parks live work in an archive with no trace in the
+report, which is the "hatch read as if it did something" class the delta exists to end,
+inverted.
+*Counsel (the reviewer's, for the principal; applies nothing):* (a) say it in the docstring
+and README — "an unscoped marker, a `harvest-integrity` scope, **or any scope the tool does
+not recognise**, exempts the store"; (b) with no behaviour change, print a note under the
+store ("unrecognised scope `X` — read as unscoped; exempting") and tally it separately on
+the `suppressed:` line, so the shape is visible per rule (b); (c) leave the behavioural fix
+(unknown scope → inert) to `115/230`, which already says it needs an estate count first.
+Recommend (a)+(b) now.
+
+**SZ2 — MODERATE — `RECORD.md` names "review" as the detector that replaces the advisory,
+and no such detector exists; the same paragraph still says the discipline "carries a
+signal" for bloat.** Lines 62–66: "a regression back to a flat log is caught at review, not
+by a number"; lines 269–271: resolved narrative "stays caught at review". No review reads
+the session index or an all-open roadmap for shape (A4 above: rule 2 bars cold passes from
+`SESSIONS.md`; `indexscan` checks mapping and dates, not entry shape; the next session's
+start tails the index with no rule to act). Lines 261–263, unedited by the delta and now
+false for length: "nothing fires when a file bloats again. So it carries a **signal** —
+`tools/sizescan.py`" — after this delta nothing fires on bloat, by ruling. For a repo on the
+split board (atelier itself) the cold-content gate is structurally silent too (a done item
+flips in its own file, lines 230–236), so for this repo the advisory was the last signal on
+the hot path and the doctrine now claims one where there is none. The tool docs are honest
+about the loss; the doctrine is not — and the doctrine is what children read. The ruling
+(remove the advisory) is a non-goal and stands; the *wording* that replaced it is the
+author's, and it is the author's wording this finding is on.
+*Counsel:* options for the principal — (i) write it as it is: "not detected by any tool or
+scheduled review; relies on the writing session's discipline and the next session
+noticing" (the stub-honestly rule, one sentence, lines 62–66 and 269–271; and reword
+261–263 so "signal" is claimed for `[x]` items and live markers only); (ii) a **shape**
+check, not a size check, consistent with the ruling — `SESSIONS.md`'s own contract is one
+dated line per session, so an entry that is not a single dated line is a flat-log
+regression a machine can name without any number; (iii) add "the index stayed one line per
+session" to the session-close tidy-up list in `RECORD.md`. Recommend (i) now, (ii) as a
+board item for the principal's decision; they are compatible.
+
+**SZ3 — minor — `RECORD.md` line 57 still says an index "outgrows its budget" and
+rotates; there is no budget, and no rotation trigger is now named anywhere.** The delta
+edited lines 62–66 of the same bullet and left this sentence. The 2026-07-14 grounding note
+("the budget colliding") is history and fine; "outgrows its budget" is present-tense
+doctrine pointing at a removed mechanism. (Mirror sweep, V3/V5.)
+
+**SZ4 — minor — A stale `sizescan:budget` or scoped marker on an archive store that a
+`.sizescanignore` glob skips is never named (probe A11).** The glob skips the store before
+its header is read, so "Everything else is present and inert, and is named, never silently
+accepted" (docstring line 135) overclaims by one class; `_inert_hatches`' docstring half
+says so ("skips the store before it is read"). Fix is one header read for a glob-skipped
+store, or a qualified claim.
+
+**SZ5 — minor — The report's "Inert hatches" explanation gives the wrong reason for some of
+them.** `_inert_block` (lines 785–788): "each exempts nothing, because sizescan no longer
+has a size advisory for it to quiet". A `cold-content` scope on an archive store (A03), or
+a `harvest-integrity`/`cold-content` scope on a non-roadmap hot file (H05, H07), never
+quieted the advisory — at `72a68cc^` the advisory still fired beside them (`over=151`).
+They exempt nothing because they never did. Wording.
+
+**SZ6 — note — Brief framing, tested (rule 1).** The merge `da85210`'s own changes beyond
+`72a68cc` are not "board and record files only": it carries the `CHANGELOG.md` `Removed`
+entry (+13 lines). The entry is owed under `RECORD.md`'s lockstep rule and is present at the
+landing on the shared branch; its content is accurate except as SZ1 notes ("a stale scoped
+marker is not read as the unscoped one" is true of `size-advisory` only). Its estate-wide
+claim — 29 repos, exit codes unchanged, 28 advisory lines gone, 2 inert hatches named — is
+**not re-driven here (relayed)**; the exit-code half is supported by the table and by
+construction.
+
+**SZ7 — note — Board item `110/100` line 124 still lists `sizescan:budget` among three live
+exemptions that "need no reason and are not counted".** A dated audit observation inside an
+open item; a reader acting on the item would look for a hatch that no longer exists.
+
+**SZ8 — note — Two tally habits worth knowing, both pre-existing and unchanged.** An
+exempting marker on a *clean* archive store counts as "1 file(s) by sizescan:allow header"
+though it suppressed nothing (A12); and the inert count sits on the `suppressed:` line
+while the docstring says it "is not a suppression". GUARDS rule (b) counts mechanisms, so
+both are defensible; the second is a category mix the delta acknowledges.
+
+**SZ9 — note — `tools/pins.py` line 79 was widened to 90 columns** (the file already carries
+nine other lines over 85; `wrapscan` scans Markdown only, so no floor effect). The "about
+200 lines" figure is now the live ground of `MAX_CLAUDE_MD_BYTES` with its only home in that
+comment, honestly labelled; `blockscan.py`'s "a few hundred lines" likewise. Acceptable.
+
+**SZ10 — note — Inert hatches have no expiry and no escalation.** The report says "remove
+them"; nothing makes anyone. GUARDS says deferment expires; this is closer to acceptance,
+and report-only is the house pattern for a non-defect, so the choice is defensible. Recorded
+so the trade-off is visible, not as a defect.
+
+**SZ11 — note — atelier's own `.sizescanignore` glob (`.claude/worktrees/**`) exempts
+nothing a walk can reach, and its comment states a purpose already retired.** `filewalk`
+prunes a linked worktree at its `.git` file, so the glob never fires (the tree reports
+`0 file(s) by .sizescanignore · 0 inert`); and since `f9ccba8` a glob does not stop a
+hot-path file gating, so the comment's "lets another session's mid-flight tree gate this
+one's commit" is no longer what the glob prevents for `ROADMAP.md` (table R12/R14, old).
+Belongs to `160/790`'s scope more than this delta's; recorded here because this delta is
+the one that would now name such a glob inert if it ever matched.
+
+### Overall
+
+**PASS-WITH-FINDINGS — 0 MAJOR · 2 MODERATE · 3 minor · 6 note.** The ruling is implemented
+faithfully and the gates' behaviour is unchanged on every row driven; the two MODERATEs are
+claims stronger than their evidence — the hatch docs say an unrecognised scope is inert when
+it exempts, and `RECORD.md` says review catches what nothing now detects.
+
+### Re-run ledger
+
+| Claim or check | How | Result |
+|---|---|---|
+| `test_sizescan.py` | `python3 -m unittest discover -s tools -p test_sizescan.py` | 90 tests OK (10.7 s) |
+| `test_report.py` / `test_allowmarker.py` / `test_pins.py` / `test_blockscan.py` | same, each file alone, sequentially | 70 / 30 / 19 / 26 OK |
+| `sizescan --selftest` | `python3 tools/sizescan.py --selftest` | `selftest OK`, rc 0 |
+| repo at HEAD | `python3 tools/sizescan.py --check --root . .` | clean, rc 0; `0 inert hatch(es)`; `.sizescanignore` present, matches nothing |
+| full Python suite, once, foreground | `python3 -m unittest discover -s tools -p 'test_*.py'` | 1916 tests OK (176.9 s) |
+| floor, CI plane | `python3 tools/floor.py --plane ci --root .` | rc 0; sizescan ✅; pathscan warn-only finding on an unrelated ADR; secretscan 23 advisory, unrelated |
+| floor, hook plane | `python3 tools/floor.py --plane hook --root .` | rc 1, BLOCKED by leakscan — no user-local term list in this container (`115/350`), expected; sizescan ✅ |
+| hatch table | `/home/user/scratch/SZ/hatchtable.py`, 75 rows × {bare, `--check`, `--json`} × {`72a68cc^`, `72a68cc`, HEAD} | 0 exit-code changes old → new; 0 differences new vs HEAD |
+| new tests fail on `72a68cc^` for the reason named | HEAD's `test_sizescan.py` against the `2e2da81` module in scratch | 26 of 90 fail: 15 for the named reason, 11 by `TypeError`/`KeyError` on the new parameter/key |
+| "exit codes unchanged across 29 repos" (CHANGELOG) | — | **not re-driven here (relayed)**: no sibling repo in this container; supported by construction and by the table |
+| "2 inert hatches named" across the estate (CHANGELOG) | — | **not re-driven here (relayed)**; this repo has 0 |
+| `/security-review` | — | discharged by grounds (landed delta; pending diff is other reviewers' briefs) |
+| mirror sweep | `coldsweep.py` with the brief's exclusions, 7 patterns | hits listed under lens 3; no barred file searched |
+
+### Follow-up checklist (for the principal; nothing applied)
+
+- [ ] SZ1 — name the unrecognised-scope form as live in docstring and README; consider the
+      report note and separate tally; route the behavioural fix through `115/230`.
+- [ ] SZ2 — reword `RECORD.md` 62–66, 261–263, 269–271 to state honestly what detects a
+      flat-log regression and prose-shaped cold content (nothing, today); decide whether a
+      shape check on the index's one-line contract is wanted.
+- [ ] SZ3 — `RECORD.md` line 57: drop "outgrows its budget" or name the rotation trigger.
+- [ ] SZ4 — read a glob-skipped store's header, or qualify the "never silently accepted" claim.
+- [ ] SZ5 — reword `_inert_block`'s reason.
+- [ ] SZ7 — annotate `110/100` line 124.
+- [ ] SZ11 — refresh the `.sizescanignore` comment (or drop the dead glob) under `160/790`.
+- [ ] Relayed, for a session with the estate: confirm the two inert hatches the CHANGELOG
+      counts are named on their repos' next floor run.
+
+### Reconcile (phase 2, 2026-10-18 UTC — phase 1 committed as `5de15d6` first)
+
+**Opened at this step, in this order:** the sibling (its path given by the orchestrator after
+the commit), the queue pointer `160/850`, the intent record
+`docs/sessions/2026-10-16-1501-queue-run-briefs-and-guard-builds.md`, the commissioning item
+`115/270` whole, `115/330` whole, the message bodies of `72a68cc` and `da85210`
+(`git show -s --format=%B`), and the first six lines of `420/020` (the item seeded question 2
+cites). **Not opened:** the five prior verdicts the sibling lists by filename, `SESSIONS.md`'s
+entries, `ROADMAP-DONE.md`, any other pass's brief or verdict. Phase-1 text above is unrevised.
+
+**Against the seeded questions.**
+
+- *Q1 (which review; is the doctrine describing a detector that does not exist?)* → **SZ2**,
+  formed cold; the sibling asked the same question and the answer stands: no review, scan or
+  session rule reads the index or an all-open roadmap for shape. The intent record and
+  `115/270` sharpen it: the device question that drew "Remove it" told the principal the loss
+  "is then caught only at review" — so the phrase entered doctrine from the *briefing*, and the
+  principal accepted the cost as it was described to him. Per `00-APEX.md` the answer stands as
+  his word; what is challengeable is the briefing, and the challenge goes *to* him by re-brief.
+  Disposition therefore: one line to the principal — "nothing detects it today; does the answer
+  stand?" — alongside the rewording in SZ2's counsel (i). `115/330` (filed by the author at the
+  merge) covers the narrower rotation-trigger question; SZ2 adds the "caught at review" wording
+  and the lines 261–263 contradiction, which `115/330` does not name. The item's own candidate
+  list (a reading cost the session can see; a calendar boundary; drop the sentence) and SZ2's
+  counsel (ii)/(iii) are compatible; the principal picks once.
+- *Q2 (was "Remove it" given with the trade-off stated; does the delta claim more of a ruling
+  than the words carry?)* → The record answers the first half yes: `115/270` says the question
+  explained sizescan's three checks and the loss before asking, and offered three options with
+  a recommendation. The second half yields a reconcile-formed finding, **SZ13** below: the
+  module docstring's "Mike's rulings, 2026-10-05 and 2026-10-16" labels the 2026-10-16 *answer*
+  a ruling, which is the exact class `420/020` (commissioned 2026-10-03: "an answer to a
+  session's question is not a ruling; records must tell them apart") exists to stop. The
+  README and CHANGELOG keep the distinction; the board item keeps it ("This is his *answer*…
+  The ruling it implements is his 2026-10-05 text"); one docstring line does not.
+- *Q3 (did any other current-truth file carry something a gate acted on?)* → No. Table row H11
+  and assumption A1: `cold_item_count` was roadmap-only at `72a68cc^` too (a `SESSIONS.md`
+  with `[x]` items produced nothing at either SHA), and the integrity gate's read set is
+  unchanged. Scope narrowing cost no gated finding.
+- *Q4 (the reverse hazard — an unknown or misspelt scope on an archive store)* → **SZ1**,
+  formed cold with the same probe shape (A06, A22). The commit body repeats the overclaim
+  ("The only hatches still able to exempt anything are an unscoped or harvest-integrity allow
+  header on an archive store and a glob over an archive store"), so the omission runs through
+  docstring, README, CHANGELOG and commit message alike; only `_inert_hatches`' docstring and
+  one test tell the truth. Severity stands.
+- *Q5 (`pins.py`'s "about 200 lines" after the house ruled such numbers arbitrary)* → **SZ9**
+  stands as a note. The 2026-10-05 text rules out *limits* on files; `MAX_CLAUDE_MD_BYTES` is a
+  ceiling on what `pins` will read, two-plus orders above the class, honestly labelled as
+  grounded in a number nothing reads. A different object from the one ruled on.
+- *Q6 (inert hatches in a child with many stale markers — signal or new noise?)* → **SZ10**
+  stands as a note, with the record's number: two inert hatches across 29 repos. The advisory
+  printed on every commit with no remedy but a budget marker; an inert line prints only where
+  a stale hatch exists and ends for good when it is removed — the same cost class, bounded,
+  with a remedy. Whether anyone acts on it is the expiry question SZ10 already names.
+
+**Against the intent record and the commit bodies.**
+
+- The author's "26 of 42 in the touched classes fail on the old module" and this pass's
+  independent 26 of 90 over the whole file agree on the count. The estate figures (29 repos, no
+  exit code moves, 28 lines → 0, 2 inert named) are consistent across CHANGELOG, item, intent
+  record and both bodies; still **relayed, not re-driven**, for want of a sibling repo here.
+- **SZ3** — the author found this at the merge and filed it as `115/330` ("Found, not fixed…
+  nothing now measures a budget"). Phase 1 listed it under V3 as missed; at reconcile the honest
+  word is *deferred by filing*, which is the apex's shape. The defect is real and open;
+  severity stands as minor; no second item is owed — it lands on `115/330`.
+- **SZ6** — corroborated: the queue pointer's path list is the brief-writer's source and it
+  omits `CHANGELOG.md`, which the merge carried; the merge body is accurate about what it did.
+- **SZ4, SZ5, SZ7, SZ8, SZ11** — nothing in the record bears on them; they stand.
+- The intent record notes the orchestrator read "the two `RECORD.md` sentences it rewrote"
+  before merging. The third `RECORD.md` sentence — line 57's "outgrows its budget" — sits in
+  the same bullet and was filed rather than read into the diff; and the one at 261–263 ("so it
+  carries a signal") was neither. That is the gap SZ2 and SZ3 occupy between them.
+
+**Findings formed at reconcile** (marked as such; the principal's to decide):
+
+**SZ12 — note (formed at reconcile) — The options offered in the 2026-10-16 device question are
+summarised, not recorded.** `115/270` says the principal picked "Remove it" over "replacing it
+with a shape check, or keeping it off generated boards only", and preserves his word; the
+options' own wording is not preserved. A later session proposing a shape check (SZ2's counsel
+ii, or `115/330`'s candidates) cannot tell from the record whether it is re-offering the option
+he declined. `RECORD.md` § *An approval is not the whole ruling* binds the approver's words,
+which were kept; this is the agent's half of the exchange, one sentence short.
+
+**SZ13 — minor (formed at reconcile) — `tools/sizescan.py` line 50 calls the 2026-10-16 answer a
+ruling.** "(Mike's rulings, 2026-10-05 and 2026-10-16)". The 2026-10-05 text is a ruling on
+limits; the 2026-10-16 "Remove it" is his answer to a session's question, picked from offered
+options, as `115/270` itself says and as the README and CHANGELOG word it. `420/020` (open,
+commissioned by the principal) names this class and asks that records tell the two apart; a
+shipped docstring that children read is such a record. One line to reword.
+
+**Overall, restated:** **PASS-WITH-FINDINGS — 0 MAJOR · 2 MODERATE · 4 minor · 7 note** (phase 1:
+0 · 2 · 3 · 6; reconcile adds SZ13 minor and SZ12 note). The ruling is implemented faithfully
+and no gate moved; the two MODERATEs are claims stronger than their evidence — a hatch
+documented as inert that still exempts (SZ1), and a doctrine detector named where none exists
+(SZ2), the latter now with a one-line re-brief owed to the principal because the phrase came
+from the briefing he was given.
+
+## Deferred material — folded in at the verdict
+
+*The `.deferred.md` sibling that sat beside this brief, folded in verbatim at phase 2 and then
+deleted, per rule 1 ("split for the duration, merged at rest").*
+
+# Sibling to the size-advisory-removed cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-17-0955-size-advisory-removed-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-10-17 UTC by the Opus brief-writer named in the brief's provenance; it
+forms no finding. Fold this file in below the reconcile and delete it at phase 2.
+
+## Intent and commissioning records
+
+- Intent record: `docs/sessions/2026-10-16-1501-queue-run-briefs-and-guard-builds.md` —
+  **not opened by the brief-writer**.
+- Commissioning board item (title line seen, never read whole): `115/270` (three defects found
+  adding finding IDs), part c. Filed at the same merge: `115/330` (RECORD.md's index rotation has
+  lost its trigger) — open, and about a passage this delta edits.
+- The landing commit's message body (read by the brief-writer): Mike ruled on 115/270
+  (2026-10-05) that he does not want arbitrary limits such as a fixed size or line count, and on
+  2026-10-16, asked what the advisory was for and what removing it would lose, answered "Remove
+  it". It says prose-shaped cold content is now caught at review with nothing in the tool pointing
+  at it, "the cost Mike was told about and accepted"; lists the hatches left inert and says each
+  is reported, never accepted in silence; says no new exemption is invented; keeps `size-advisory`
+  in `FINDING_KINDS` so a stale scoped marker is not read as the unscoped form (which would exempt
+  an archive store's integrity check); says the other current-truth files are still walked,
+  header only. It claims 26 of 42 tests in the touched classes fail on the old module, and an
+  estate blast radius of 29 repos with no exit code changed and 28 size-advisory lines over 12
+  repos before, none after.
+
+## Prior verdicts on these surfaces (named by filename grep, not opened, not exhaustive)
+
+- `docs/reviews/2026-07-14-2048-lean-files-sizescan-cold.md`
+- `docs/reviews/2026-07-19-0407-review-trigger-sizescan-combined-cold.md`
+- `docs/reviews/2026-07-20-2040-size-rebalance-cold.md`
+- `docs/reviews/2026-07-22-0819-harvest-integrity-gate-cold.md`
+- `docs/reviews/2026-07-26-2215-record-pushed-floor-cold.md` — a RECORD.md pass
+
+## The pointer's own lens hints
+
+None beyond "its dispatched worker's output counts as the run's authorship" and the pass type
+"code and doctrine". Refs-only.
+
+## Overlap with sibling passes of this batch
+
+- 160/790 (`f9ccba8`, no hatch silences the cold-content gate) is this delta's direct
+  predecessor on the same file and is briefed by this run's other brief-writer. What `f9ccba8`
+  decided about the cold-content gate is 790's; what this delta changed in the hatches that
+  survived it is this pass's.
+- 160/830 (`f4afb7a`) and 160/840 (`e3e8a4f`) share the base; 840 also edits
+  `tools/test_report.py` and `tools/README.md`.
+
+## Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. The removed advisory was, in `RECORD.md`'s own words, "exactly what surfaces a regression back
+   to a flat log". The new text says that regression is "caught at review, not by a number". Which
+   review, triggered by what? 115/330 suggests the author's run already saw this gap; is the
+   doctrine now describing a detector that does not exist?
+2. Mike's 2026-10-05 ruling is about limits; the removed advisory never gated. Was "Remove it"
+   given with the trade-off stated in plain words, and does the delta's text claim more of a
+   ruling than the quoted words carry (see the board's 420/020 discipline)?
+3. The scope narrowed: cold content is now looked for in `ROADMAP.md` only, and the other
+   current-truth files are read header-only. Was any of them previously checked for anything a
+   gate acted on, so that a cold-content `[x]` in, say, a monolithic `SESSIONS.md` now passes?
+4. Keeping `size-advisory` as a retired scope so it is not read as unscoped: is the reverse
+   hazard handled — an unknown or misspelt scope on an archive store, and how the shared allow
+   grammar treats it?
+5. The `pins.py` comment still cites "about 200 lines" for a CLAUDE.md, "the class reference
+   sizescan once held". Is a ceiling grounded in a number the house has just ruled arbitrary
+   still grounded?
+6. Inert hatches are reported but never change an exit code. In a child with many stale markers,
+   is that a signal anyone acts on, or new noise on every commit — the cost the removal was meant
+   to end?

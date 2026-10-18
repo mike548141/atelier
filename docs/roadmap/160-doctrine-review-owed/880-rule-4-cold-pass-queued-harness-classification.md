@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: cctranscript's harness classification
+- [ ] 🎯 **Rule-4 cold pass queued: cctranscript's harness classification
       (`210/250`).** The run authored this itself (its dispatched worker's
       output counts as the run's authorship). It is queued at landing, and
       the run neither takes it nor spawns a reviewer for it. *Tier:* Fable,
@@ -34,3 +34,22 @@
       forms every finding and severity. The sibling, the intent record and
       prior verdicts stay unopened by the reviewer until its phase-1 findings
       are committed. Provenance and exposure go in the verdict.
+      - [ ] 🎯 **The pass RAN 2026-10-18 UTC; the cycle CLOSES on this pass (no
+            MAJOR) — what remains is decided into the backlog.** The rule-4
+            Fable cold pass (taker: a fresh `claude-fable-5-1` subagent under a
+            `claude-fable-5-1` cloud orchestrator — the shape disclosed in the
+            claim above; the sibling, the intent record and prior verdicts
+            opened only after the phase-1 findings were committed, `87cb7c6`)
+            returned PASS-WITH-FINDINGS — 0 MAJOR · 2 MODERATE · 4 minor ·
+            6 note →
+            [`2026-10-17-1010-harness-classification-cold.md`](../../reviews/2026-10-17-1010-harness-classification-cold.md)
+            (sibling folded in and deleted). HC1 (MODERATE): the shared
+            classifier's grounding claim that the slash-command wrappers "hold
+            no sentences of the principal's" is false for the command-arguments
+            wrapper, so `ccclose` strips and drops an ask the principal types
+            as a slash command's argument. HC2 (MODERATE, conditional —
+            relayed, not re-drivable in the container): the companion claim
+            that only the browser-instruction wrapper ever rides on a real
+            prompt is the design's load-bearing assumption. HC12 (note) formed
+            at reconcile. Findings are the principal's to decide (rule 3);
+            nothing was applied.
