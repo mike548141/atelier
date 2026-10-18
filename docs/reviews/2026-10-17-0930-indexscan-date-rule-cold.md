@@ -584,3 +584,191 @@ exemption — both warn-only today and both the principal's to decide.
 - [ ] DM10 — hand to the 160/700 pass or its follow-ups.
 - [ ] DM11 — note beside the quoted-syntax rule.
 - [ ] Siblings' "0 findings" — re-drive where the sibling repos are reachable.
+
+### Reconcile (phase 2, 2026-10-18T00:04Z) — phase-1 text above is unrevised
+
+Phase 1 was committed as `0dd1bfd` and pushed by the orchestrator before the sibling reached the
+tree. Opened at phase 2, in this order: the sibling; the queue pointer `160/810`; the
+commissioning item `320/430`; the landing and merge message bodies (`git show -s --format=%B`);
+the intent record `docs/sessions/2026-10-16-0703-queue-run-after-the-sizescan-ruling.md`
+(§ *320/430* and § *Close*). Prior verdicts, read to reconcile and never to anchor: the
+2026-10-03 shared-grammar verdict (grep for its scope findings, AM2/AM4 and the `115/230`
+paragraphs) and the 160/700 indexscan verdict, which **ran on 2026-10-17** after the brief named
+it as unrun (grep for its finding headers and its `before=`/angle-bracket rows only). The unrun
+160/750 brief named in the sibling was **not opened** — a brief with no verdict is another pass's
+framing and nothing to reconcile with. Two further count-only re-drives ran over the session
+index (`/home/user/scratch/DM/q4.py`): numbers only, no line text.
+
+**Against the seeded questions.**
+
+1. *Commissioned "agreement"; built "not earlier"; whose call?* The record is unambiguous on who:
+   the intent record says "Only 'a line predates its file' fires … Slug drift is not checked …
+   **The item closes on that disposition**", and `320/430` reads "**No further work is owed:
+   slug drift is not mechanisable** … That is the disposition for the rest of this item", ticked
+   `[x]`. No ruling is cited for either half of the narrowing; the pointer is refs-only. The
+   narrowing is **sound on the evidence** — I re-drove the direction (0 earlier-dated lines, 14
+   later, at both `1c24781^` and HEAD) and agree that link text offers no crisp comparator for the
+   slug — so lens 1's answer stands: right problem, right direction. What rule 3 reaches is not
+   the engineering choice but the **close**: a commissioned scope narrowed and the item shut on
+   the author's own disposition, where the same intent record kept `115/270` "landed with the
+   item kept open for a ruling". → **DM13**, formed at reconcile.
+2. *Does an unknown kind now exempt an unlisted entry?* Yes — this is **DM2** (S44), formed
+   before the question was read. The commit body's "no legacy marker is silently widened" is
+   narrowly true (the 12 live markers are unscoped and parse identically) and silent on new
+   scoped markers, which is the widening. The 160/700 verdict formed the same observation
+   independently as **IX4 (minor)**; I hold MODERATE because indexscan had no live scoped marker
+   to protect, so the `115/230` reason for keeping the widening does not apply here, and the
+   rule-matching scanners' behaviour (unknown scope exempts nothing) was available. Both
+   severities are on the record for the principal; the 2026-10-03 pass's AM2 (malformed-scope
+   direction, ruling owed) is the open ruling this belongs beside.
+3. *Nested bullets at ≥ 4 spaces?* Confirmed silently out (S07) and absent from the documented
+   blind spots — inside **DM4**. On the real index the shape has 0 instances (count-only).
+4. *Do 254 / 16 / 204 re-drive?* Partly. **204 first links, 0 differing in date, 1 in time**
+   reproduces exactly at `1c24781^`. **252 dated lines compared** reproduces exactly as the
+   whole-tree live run at that commit (242 session + 10 decisions). **254 dated session lines
+   with 16 later (9 by date, 7 by time) does not**: by the rule's own regexes over the index as
+   it stood at `1c24781^`, every dated link to a declared dated entry — leading or not — is 242
+   lines, 8 later by date and 6 by same-day time, 0 earlier; at HEAD 245 / 8 / 6 / 0. The
+   twelve extra lines and the two extra "later" lines are not reproducible from that index, and
+   the merge body and `320/430` quote "16 of 252", a ratio across two populations. The
+   conclusion (0 earlier) is unaffected. → **DM14**, formed at reconcile; DM8's "many" stands as
+   written.
+5. *Glyph, emphasis or icon before the date — how many lines?* Exactly **1** link to a dated
+   session entry whose text carries an ISO date in its first 24 characters but not at the open
+   (count only; same at `1c24781^` and HEAD). One real line sits outside the "opens with"
+   grammar; DM4 already records the shape.
+6. *Same clock everywhere?* In atelier yes (lens 1, point 2). For a child that stamps file names
+   in **local** time while its lines say `UTC`, the file name reads *later* than the UTC line —
+   NZ local is ahead of UTC — so the rule fires **false positives** on every such line, and the
+   remedy text steers the child to change the true line rather than the misnamed file. Children
+   are not reachable here, so this is reasoning, not measurement; it sharpens **DM6** and is
+   why a rename belongs among the named causes.
+7. *Who reads a warn-only `date-mismatch`?* The committing session, in the hook's output at the
+   moment it writes the line (the `✗ indexscan` block prints before the floor board, the reach
+   probe shows), and anyone who opens the CI log's `::group::indexscan (warn-only)`. Nobody is
+   notified later: `instruments/ccclose`'s floor check reads the pushed head's CI *conclusion*,
+   which a warn-only finding never changes. "A tripwire" is honest if read as *the tripper sees
+   it, once, at the cheapest moment to fix it* — the fourth-requirement posture — and overstated
+   if read as *someone is told*. DM5 bears on it: the `why` that frames the output does not
+   mention dates.
+
+**Against the intent record and the commit bodies.** The bodies' account matches the landed
+state on every claim I could re-drive except the counts in DM14; "13 fail or error on the previous
+module, the other five pass on both by design" reproduces exactly (lens 2). The merge body's
+rebuild-after-crash and quieter-machine notes are consistent with the intent record and bear on
+nothing in the delta.
+
+**Against the 160/700 verdict (ran 2026-10-17).** IX4 ≡ DM2 in substance (severities differ,
+both recorded). Its table row 32 — "`before=` does not shield a dated line — consistent" — saw
+DM1's behaviour and judged it consistent with the docstring's `match=`/`exclude=` list; DM1
+reads the same behaviour against the `before=` paragraph's "blameless" and RECORD.md's
+append-only rule, and stands as a divergence for the principal. The `mark()` first-ancestor
+stop in **DM10** does not appear in IX1–IX10 and is handed to that cycle's follow-ups; IX8(b)
+already covers the angle-bracket destination edge. IX1 (MAJOR, the unlisted rule's
+"listed-but-missing is already guarded" claim) is that pass's subject and touches nothing here.
+
+**Findings formed at reconcile.**
+
+**DM13 — minor (formed at reconcile).** The commissioned item `320/430` was closed `[x]` by its
+author on the author's own narrowing of the commission — "date or slug disagrees" became
+"earlier only; slug never" — with "No further work is owed" written as the item's disposition and
+no ruling recorded (intent record § *320/430*; the pointer is refs-only). The narrowing is
+grounded and I endorse its substance; the *close* of a commissioned scope on self-authored
+grounds is the principal's confirmation to give, and the honest shape the same record used
+elsewhere is "landed with the item kept open for a ruling". *Counsel:* reopen `320/430` to a
+one-line ruling request (accept the narrowing and close, or keep the slug half open), then close
+on the answer.
+
+**DM14 — note (formed at reconcile, V1).** The record's grounding counts mix populations: "254
+dated lines … 16 later (9 + 7)" does not reproduce from the index at `1c24781^` (242 / 14 by the
+rule's own regexes), while "252 compared" and "204 first links, 0 / 1" reproduce exactly; the
+merge body and `320/430` then state "16 of 252". The direction conclusion holds in every count.
+*Counsel:* a one-line correction in the next record that cites the figures, naming the
+population measured.
+
+**No phase-1 finding is withdrawn or re-graded.**
+
+**Overall, restated: PASS-WITH-FINDINGS — MAJOR 0 · MODERATE 2 · minor 6 · note 6** (14
+findings: DM1–DM12 from phase 1; DM13, DM14 formed at reconcile). Headline unchanged: `before=`
+does not scope the date rule although its own paragraph calls such entries blameless, so a
+frozen-record line still fires and every offered remedy edits an append-only entry (DM1), and
+the grammar change lets any unknown marker kind exempt an unlisted entry where the old grammar
+exempted nothing (DM2). All findings are the principal's to decide (rule 3); nothing applied.
+
+## Deferred material — folded in at the verdict
+
+*The sibling `docs/reviews/2026-10-17-0930-indexscan-date-rule-cold.deferred.md`, written by
+the Opus brief-writer and held by the orchestrator outside the checkout until phase 1 was
+committed; folded in here verbatim and deleted from the tree at phase 2 (REVIEW.md rule 1,
+"split for the duration, merged at rest").*
+
+> # Sibling to the indexscan date-rule cold pass — held under rule 1's split
+>
+> Sibling of `docs/reviews/2026-10-17-0930-indexscan-date-rule-cold.md`, held under
+> `docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+> committed.** Written 2026-10-17 UTC by the Opus brief-writer named in the brief's provenance; it
+> forms no finding. Fold this file in below the reconcile and delete it at phase 2.
+>
+> ## Intent and commissioning records
+>
+> - Intent record: `docs/sessions/2026-10-16-0703-queue-run-after-the-sizescan-ruling.md` —
+>   **not opened by the brief-writer**.
+> - Commissioning board item (head line seen, never read whole): `320/430` (a hand-up from a public
+>   child: nothing catches an orphaned session-detail file once the session log is an index). Its
+>   unlisted-file half shipped earlier as `indexscan` (`200/010`, 160/700); this delta is its
+>   second residual.
+> - The landing commit's message body (read by the brief-writer): it says "the brief asked for
+>   agreement; the real index says otherwise", and grounds "not earlier" in a count over the
+>   session index — 254 dated lines linking a dated file, 16 of them later than their file (9 by
+>   date, 7 by same-day time), all called legitimate (addenda and close stamps); it measured and
+>   rejected a first-line-must-equal rule (0 of 204 first links differ in date, 1 in time) because
+>   a session spanning midnight would make it a heuristic; it lists the blind spots as the README
+>   does; it says the existing unscoped marker still exempts `unlisted` only "so no legacy marker is
+>   silently widened"; it reports 252 dated lines compared here with 0 findings, one sibling repo
+>   declaring an index (10 lines, 0 findings) and a probe over every sibling repo's dated leading
+>   links (109 lines, 0 mismatches), and calls the rule "a tripwire, not a find"; and it says 13
+>   of the 18 new tests fail or error on the previous module, the other five passing on both by
+>   design.
+> - The merge's message body: the orchestrator re-ran the live scan and the four affected test
+>   files; one load-only test failure passed once the machine was quieter; rebuilt fresh after a
+>   07:35 UTC crash.
+>
+> ## Prior verdicts on these surfaces (named by filename grep, not opened, not exhaustive)
+>
+> - `docs/reviews/2026-10-16-1551-indexscan-guard-cold.md` — an unrun 2026-10-16 brief on the
+>   guard's first landing (160/700; another pass's framing)
+> - `docs/reviews/2026-10-03-0357-shared-allow-marker-grammar-cold.md` — the shared grammar whose
+>   `scope="one"` branch this delta adopts
+> - `docs/reviews/2026-10-16-1551-marker-kinds-finding-ids-cold.md` — an unrun 2026-10-16 brief on
+>   scoped marker kinds (another pass's framing)
+>
+> ## The pointer's own lens hints
+>
+> None. The pointer is refs-only.
+>
+> ## Overlap with sibling passes of this batch
+>
+> - 160/700 (indexscan, the base guard) shares every code path except the date rule; a finding
+>   on `discover`'s marker handling may belong to either.
+> - 160/750 (marker kinds and finding IDs) owns the scoped-kind grammar this delta adopts.
+>
+> ## Seeded questions (the brief-writer's suspicions, a floor not a fence)
+>
+> 1. The commission asked for agreement between a line and its file; the delta built "not
+>    earlier" instead, on the author's own measurement. Is that departure from the commissioned
+>    rule recorded as a ruling, an answer, or the author's call, and does rule 3 reach it?
+> 2. With `scope="one"`, any kind word is captured. In `discover`, every marker whose scope is not
+>    `date-mismatch` is filed as an `unlisted` exemption. Does a marker with a misspelt scope, or
+>    any other scope word, now exempt an unlisted entry — a widening the commit says did not
+>    happen?
+> 3. `LEAD_LINK_RX` allows at most three spaces of indent. Are nested addendum bullets (indented
+>    four or more) silently out of the rule, and is that in the documented blind spots?
+> 4. The counts disagree with each other (254 dated lines in the measurement, 252 compared in the
+>    live run, 204 first links). Which population is which, and do they re-drive?
+> 5. Link text that opens with a glyph, emphasis or a status icon before its date is not a dated
+>    line. How many index lines in the tree have that shape (count only, not text)?
+> 6. Does the file name's `HHMM` mean the same clock as the line's `HHMM UTC` everywhere the rule
+>    is reachable, including children whose session files may be stamped in local time?
+> 7. The rule is warn-only on every plane, and the author found no true defect in any repo. Who
+>    reads a warn-only `date-mismatch`, and is "a tripwire" honest about whether anyone would see
+>    it trip?
