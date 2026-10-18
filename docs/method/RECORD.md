@@ -103,8 +103,9 @@ stopped instead of re-deriving it:
       own commit cannot name itself; the closing message adds it.
     - **Pull requests**: the number of each one the session opened, merged or
       landed, and which it did.
-    - **Board**: items filed, claimed and closed, and the `⏳` review items
-      queued, by number.
+    - **Board**: by number, the items the session completed, the new items
+      it created, any it claimed and left open, and the `⏳` review items it
+      queued.
     - **Worktrees and branches**: each one the session created, by path and
       branch, and whether it was put away. A removed worktree leaves no trace
       in git, so this list comes from the transcript.
@@ -115,7 +116,8 @@ stopped instead of re-deriving it:
     Asked for by Mike, 2026-10-18 (`180/080`): *"the useful identifiers at the
     tail of the session. I am thinking things like commit ID's created by the
     session, the session ID and any others you recommend"*, then *"Other ID's
-    to record at the end would be PR ID's worktrees created"*. The rest of
+    to record at the end would be PR ID's worktrees created"* and *"and work
+    IDs completed from the board, and new work ID's created"*. The rest of
     the set is the agent's recommendation.
 - **Finish the sequence, then *declare* the close.** When the agent judges a
   **sequence of work** done, it does the full tidy-up **unprompted** and *says

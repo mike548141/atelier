@@ -19,7 +19,10 @@
       `CONCURRENCY.md` and the skill; the version field dropped from both
       plugin manifests; README); and commit `1adf398` (`180/070`, `180/080`:
       the session id first, the identifiers block in `RECORD.md` § *The
-      session log*, and the prompt, `CONCURRENCY.md` and skill pointers).
+      session log*, and the prompt, `CONCURRENCY.md` and skill pointers),
+      with its two same-day `RECORD.md` sharpenings, commit `46320f8` and the
+      one after it (PRs, worktrees created, board items completed and
+      created).
       *Intent record:*
       [`../180-orchestrated-queue-runs-from-hand-carrie/010-the-plugin-was-never-installed-so-the-hand-carried-prompt-never-stopped.md`](../180-orchestrated-queue-runs-from-hand-carrie/010-the-plugin-was-never-installed-so-the-hand-carried-prompt-never-stopped.md)
       ,

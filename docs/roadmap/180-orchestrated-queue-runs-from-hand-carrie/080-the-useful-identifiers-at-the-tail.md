@@ -21,3 +21,6 @@
   block now says each PR's number and what the session did to it, and each
   worktree created, by path and branch, read from the transcript because a
   removed worktree leaves nothing in git. `210/280` was told the same.
+  Then: *"and work IDs completed from the board, and new work ID's
+  created"*. The Board line now names completed and created items
+  explicitly, plus claimed-and-open items and reviews queued.
