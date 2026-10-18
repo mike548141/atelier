@@ -26,7 +26,8 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [index_title's fallback swallows the claim fragment into the generated…](roadmap/010-board-store-migration-per-item-files-mik/140-index-title-fallback-swallows-the-claim-fragment.md)
 - ✅ 🔥 [board called a current index stale from every worktree of atelier,…](roadmap/010-board-store-migration-per-item-files-mik/150-board-judged-the-tree-from-the-tool-s-own-path.md)
 - [ ] 🎯 [CF3's dirty-sibling stop is now stricter than its cause requires —…](roadmap/010-board-store-migration-per-item-files-mik/160-cf3-s-sibling-stop-is-now-stricter-than-its-cause.md)
-- [~] (claimed 2026-10-18-0710, wt: atelier-qr-010-170) [Project an item's logical first paragraph into the index, with a…](roadmap/010-board-store-migration-per-item-files-mik/170-the-index-projects-the-logical-first-paragraph-with-a-grace.md)
+- ✅ [DONE 2026-10-18](roadmap/010-board-store-migration-per-item-files-mik/170-the-index-projects-the-logical-first-paragraph-with-a-grace.md)
+- [ ] 🔎 [The paragraph projection (010/170) loses two small signals, and a…](roadmap/010-board-store-migration-per-item-files-mik/180-the-paragraph-projection-loses-two-small-signals.md)
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
 
@@ -320,6 +321,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Cold pass queued: the opening prompt's template history, for privacy…](roadmap/160-doctrine-review-owed/940-cold-pass-queued-template-history-privacy.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the staged-positional reader the three…](roadmap/160-doctrine-review-owed/950-rule-4-cold-pass-queued-staged-positional-reader.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose --identifiers credits commits on…](roadmap/160-doctrine-review-owed/960-rule-4-cold-pass-queued-identifiers-credit-on-evidence.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the index projects the logical first…](roadmap/160-doctrine-review-owed/970-rule-4-cold-pass-queued-paragraph-projection-and-grace.md)
 
 ## build/ layer — open strands
 
