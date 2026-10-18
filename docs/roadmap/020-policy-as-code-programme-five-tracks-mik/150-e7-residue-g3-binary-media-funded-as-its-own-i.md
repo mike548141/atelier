@@ -50,3 +50,9 @@
       rules only. That stands against E6a's no-advisory-form decision, and
       Mike's answer is the authority for this one exception. Recorded so
       the next reader does not read it as E6a quietly loosened.
+      Mike, 2026-10-18, narrowing the second answer: *"PS that reason for
+      the image metadata must be specific to the sets of metadata it wants
+      to keep. It should only keep the metadata it has a need for"*. So the
+      single opaque-metadata scope is not enough as built. An entry names
+      each metadata set it keeps (for example a colour profile) with its
+      own need, and any set it does not name still blocks.
