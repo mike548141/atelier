@@ -322,12 +322,15 @@ c81d07a2e4f9b613:icc  docs/img/site.jpg  # keeps the brand colours true on wide-
 
   Mike, 2026-10-18: *"that reason for the image metadata must be specific to
   the sets of metadata it wants to keep. It should only keep the metadata it
-  has a need for"*. So every set present in the file blocks as
-  `binary-metadata`, naming the set, until its own line keeps it. Keeping
-  `icc` never keeps the `exif` beside it. A set line's reason must be its
-  own: one that repeats the file line's reason, or another set's for the
-  same file, is refused, so one comment over a file and its sets (a blanket)
-  does not load. The same need for the same set in two files is fine. Strip
+  has a need for"*. And, 2026-10-19: *"I am fine with one reason applying
+  to multiple fields of metadata, but it should be specific e.g. fields A,
+  B, and C allowed because of X"*. So every set present in the file blocks
+  as `binary-metadata`, naming the set, until a line names it. One line may
+  name one set (`<digest>:icc  path`) or several (`<digest>:icc,xmp  path`)
+  under one reason, the need for exactly those sets. There is no wildcard.
+  Keeping `icc` never keeps the `exif` beside it. A set line's reason may not
+  repeat the file line's own reason, so one comment over a file and its sets
+  (a blanket) does not load. Strip
   what you don't need (for example `exiftool -all= file`, or
   `exiftool -all= -tagsfromfile @ -icc_profile file` to keep only the colour
   profile). A set line for a set the file doesn't carry is stale and blocks:

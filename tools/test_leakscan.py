@@ -2149,8 +2149,9 @@ class BinaryGrace(_TreeCase):
 
 
 class BinaryNamedSets(_TreeCase):
-    """Per-set acceptance: an entry names every metadata set it keeps, each
-    on its own line with its own need; a set present and not named blocks,
+    """Per-set acceptance: an entry names every metadata set it keeps, one or
+    several to a line under the need for exactly those sets (020/440); a set
+    present and not named blocks,
     naming the set. All images are synthetic, built from bytes here."""
 
     ICC = _zlib.compress(b"synthetic colour profile bytes")
@@ -2224,6 +2225,22 @@ class BinaryNamedSets(_TreeCase):
         self.assertEqual((ls.BINARY_MANIFEST, 3), (fs[0].path, fs[0].line))
         self.assertIn("keeps exif, which these bytes do not carry", fs[0].excerpt)
 
+    def test_one_reason_may_keep_several_named_sets(self):
+        data = self.png_icc((b"eXIf", b"MM\x00\x2a"))
+        d = _sha(data)
+        self.put("m.png", data)
+        # Both sets named under one reason: the image passes.
+        self.manifest(f"{d}  m.png  # product photo, reviewed\n"
+                      f"{d}:exif,icc  m.png  # print shop needs the camera "
+                      "profile and colour profile\n")
+        self.assertEqual([], self.rules())
+        # Name only one: the other still blocks, by name.
+        self.manifest(f"{d}  m.png  # product photo, reviewed\n"
+                      f"{d}:icc  m.png  # print colour\n")
+        fs = self.scan()
+        self.assertEqual(["binary-metadata"], [f.rule for f in fs])
+        self.assertIn("exif", fs[0].excerpt)
+
     def test_kept_text_sets_are_still_scanned(self):
         self.keep("t.png", _png((b"tEXt", b"Author\x00a.b@example.com")), "png-text")
         self.assertEqual(["email"], self.rules())
@@ -2238,8 +2255,14 @@ class BinaryNamedSets(_TreeCase):
         d = _sha(b"x")
         e = _sha(b"y")
         self._refused(f"{d}:icc  a.png  # colour accuracy\n", "no file line")
-        self._refused(f"{d}  a.png  # ok\n{d}:icc,exif  a.png  # both\n",
-                      "one metadata set per line")
+        self._refused(f"{d}  a.png  # ok\n{d}:icc,icc  a.png  # twice\n",
+                      "list each metadata set once")
+        self._refused(f"{d}  a.png  # ok\n{d}:icc,  a.png  # trailing comma\n",
+                      "list each metadata set once")
+        self._refused(f"{d}  a.png  # ok\n{d}:icc,colour  a.png  # colour\n",
+                      "unknown metadata set colour")
+        self._refused(f"{d}  a.png  # ok\n{d}:icc  a.png  # colour\n"
+                      f"{d}:exif,icc  a.png  # again\n", "icc in 'a.png' already kept at line 2")
         self._refused(f"{d}  a.png  # ok\n{e}:icc  a.png  # colour\n",
                       "different digest")
         self._refused(f"{d}  a.png  # ok\n{d}:icc  a.png  # colour\n"
@@ -2249,12 +2272,18 @@ class BinaryNamedSets(_TreeCase):
         self._refused(f"{d}  a.png  # ok\n{d}:icc  a.png\n",
                       "keeping icc in 'a.png' has no stated reason")
 
-    def test_a_shared_reason_is_one_blanket_line_and_refused(self):
+    def test_the_files_own_reason_cannot_stand_for_its_metadata(self):
         d = _sha(b"x")
         self._refused(f"# logo, reviewed\n{d}  a.png\n{d}:icc  a.png\n",
                       "needs its own reason")
-        self._refused(f"{d}  a.png  # ok\n{d}:icc  a.png  # needed\n"
-                      f"{d}:exif  a.png  # needed\n", "repeats line 2")
+        self._refused(f"# logo, reviewed\n{d}  a.png\n{d}:icc,exif  a.png\n",
+                      "repeats the file line 2's")
+        # Mike, 2026-10-19 (020/440): one specific reason may cover several
+        # named sets, on one line or shared by two lines.
+        self.manifest(f"{d}  a.png  # ok\n{d}:icc  a.png  # print colour\n"
+                      f"{d}:exif  a.png  # print colour\n")
+        self.assertEqual({"icc", "exif"},
+                         set(ls.load_binary_manifest(self.tmp)["a.png"].sets))
         # The same need for the same set in two files is not a blanket.
         self.manifest(f"{d}  a.png  # a\n{d}:icc  a.png  # brand colours\n"
                       f"{d}  b.png  # b\n{d}:icc  b.png  # brand colours\n")

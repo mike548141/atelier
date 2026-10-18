@@ -861,9 +861,13 @@ def _ignored(rel: str, globs: list[str]) -> bool:
 #     NAMED SETS of `METADATA_SETS` — the sets the walker can tell apart.
 #     Mike, 2026-10-18, on 020/150: "that reason for the image metadata must
 #     be specific to the sets of metadata it wants to keep. It should only
-#     keep the metadata it has a need for". So an entry names each set it
-#     keeps on its own line, with its own need, and every set present in the
-#     file that no line names blocks as `binary-metadata`, naming the set.
+#     keep the metadata it has a need for". And, 2026-10-19, on 020/440: "I
+#     am fine with one reason applying to multiple fields of metadata, but it
+#     should be specific e.g. fields A, B, and C allowed because of X". So a
+#     set line names each set it keeps explicitly — one (`:icc`) or several
+#     (`:icc,xmp`) — under one reason, the need for exactly those sets; there
+#     is no wildcard, and every set present in the file that no line names
+#     blocks as `binary-metadata`, naming the set.
 #     Accepting the pixels never accepts a GPS block, and keeping a colour
 #     profile never keeps the Exif beside it. TEXT sets (PNG text chunks, XMP,
 #     JPEG comments) are ALSO decoded and run through the ordinary rule set
@@ -1004,13 +1008,19 @@ def load_binary_manifest(root: Path) -> dict[str, BinaryEntry]:
                             f"[:<metadata set>]  <path>'")
             continue
         scope = m.group("scope")
-        if scope and "," in scope:
-            problems.append(f"line {n}: one metadata set per line, each with its "
-                            f"own need — split '{scope}'")
+        # A set line names its sets explicitly: one, or several under one
+        # reason (Mike, 2026-10-19, 020/440: "fields A, B, and C allowed
+        # because of X"). Each must be a real set, named once; there is no
+        # wildcard, so the reason is always about a stated list.
+        names = scope.split(",") if scope else []
+        if scope and (not all(names) or len(set(names)) != len(names)):
+            problems.append(f"line {n}: list each metadata set once, separated "
+                            f"by commas — '{scope}'")
             continue
-        if scope and scope not in METADATA_SETS:
-            problems.append(f"line {n}: unknown metadata set {scope} (the sets "
-                            f"are {', '.join(METADATA_SETS)})")
+        unknown = [x for x in names if x not in METADATA_SETS]
+        if unknown:
+            problems.append(f"line {n}: unknown metadata set {', '.join(unknown)} "
+                            f"(the sets are {', '.join(METADATA_SETS)})")
             continue
         path = m.group("path").strip()
         path = path[2:] if path.startswith("./") else path
@@ -1020,40 +1030,43 @@ def load_binary_manifest(root: Path) -> dict[str, BinaryEntry]:
             continue
         digest = m.group("digest").lower()
         if scope:
-            set_lines.append((n, path, digest, scope, reason))
+            set_lines.append((n, path, digest, tuple(names), reason))
         elif path in files:
             problems.append(f"line {n}: '{path}' already listed at line "
                             f"{files[path][2]}")
         else:
             files[path] = (digest, reason, n)
     kept: dict[str, dict[str, KeptSet]] = {}
-    for n, path, digest, name, reason in set_lines:
+    for n, path, digest, group, reason in set_lines:
+        label = ",".join(group)
         if path not in files:
-            problems.append(f"line {n}: keeps {name} in '{path}', but no file line "
+            problems.append(f"line {n}: keeps {label} in '{path}', but no file line "
                             f"'<digest>  {path}' accepts the file")
             continue
         if not _same_digest(digest, files[path][0]):
-            problems.append(f"line {n}: keeps {name} in '{path}' under a different "
+            problems.append(f"line {n}: keeps {label} in '{path}' under a different "
                             f"digest from its file line {files[path][2]}")
             continue
         sets = kept.setdefault(path, {})
-        if name in sets:
-            problems.append(f"line {n}: {name} in '{path}' already kept at line "
-                            f"{sets[name].lineno}")
+        again = [x for x in group if x in sets]
+        if again:
+            problems.append(f"line {n}: {', '.join(again)} in '{path}' already kept "
+                            f"at line {sets[again[0]].lineno}")
             continue
-        # "Specific to the sets of metadata it wants to keep" (Mike,
-        # 2026-10-18): a set's need may not be the file's reason or another
-        # set's. One comment stanza over a file line and its set lines gives
-        # every line the same text, so this is what refuses the blanket form.
-        same = [files[path][2]] if reason == files[path][1] else []
-        same += [k.lineno for k in sets.values() if k.reason == reason]
-        if same:
-            problems.append(f"line {n}: keeping {name} in '{path}' needs its own "
-                            f"reason, the need for that set — it repeats line "
-                            f"{same[0]}'s (a comment over several lines is one "
-                            "blanket reason)")
+        # The metadata's need may not be the file's own reason: one comment
+        # stanza over a file line and its set lines gives every line the same
+        # text, and that is the blanket form — the pixels' reason standing in
+        # for the metadata's. Several sets under ONE reason is allowed (Mike,
+        # 2026-10-19, 020/440), because the line names exactly which sets the
+        # reason covers; so two set lines sharing a reason are not refused.
+        if reason == files[path][1]:
+            problems.append(f"line {n}: keeping {label} in '{path}' needs its own "
+                            f"reason, the need for those sets — it repeats the "
+                            f"file line {files[path][2]}'s (a comment over the file "
+                            "and its sets is one blanket reason)")
             continue
-        sets[name] = KeptSet(name, reason, n)
+        for name in group:
+            sets[name] = KeptSet(name, reason, n)
     if problems:
         raise BinaryManifestError(
             f"{BINARY_MANIFEST}: {len(problems)} problem(s) — {'; '.join(problems)}. "

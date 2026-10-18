@@ -5,6 +5,16 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-10-19 — one reason may keep several named metadata sets, `020/440`)
+- **A `.leakscanbinaries` set line may name several metadata sets under one
+  reason:** `<digest>:icc,xmp  path  # why these sets are kept`. Each set is
+  named explicitly; there is no wildcard, and any set the file carries that
+  no line names still blocks. Mike, 2026-10-19: *"I am fine with one reason
+  applying to multiple fields of metadata, but it should be specific e.g.
+  fields A, B, and C allowed because of X"*. Two set lines may now share a
+  reason; a set line still may not just repeat the file line's reason.
+  Nothing changes for a manifest already written one set per line.
+
 ### Added (2026-10-18 — leakscan gates binary files, warning only until 2026-11-18, `020/150`)
 - **What G3 checks.** `leakscan` no longer skips a tracked binary in
   silence. A binary (an image, PDF, font, archive) needs an entry in
