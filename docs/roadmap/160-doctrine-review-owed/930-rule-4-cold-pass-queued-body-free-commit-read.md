@@ -1,5 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: the body-free commit read (`130/030`).**
-      (claimed 2026-10-18-0503, wt: atelier-qr-briefs-1018)
+- [ ] ⏳ **Rule-4 cold pass queued: the body-free commit read (`130/030`).**
       The `review-brief` skill's text is doctrine by function, and `coldsweep`
       is a guard whose clean output is read as "nothing barred was seen". So
       the authoring session (a Mike-opened Opus 5.5 queue run, 2026-10-18, wt
@@ -12,4 +11,9 @@
       `30aa8dc`, which also queued this item), both on `main`, 2026-10-18.
       *Intent record:*
       [`../130-a-closed-cycle-can-keep-its-and-pointers/030-the-brief-bars-the-commit-body-but-names-no-command-that-avoids-it.md`](../130-a-closed-cycle-can-keep-its-and-pointers/030-the-brief-bars-the-commit-body-but-names-no-command-that-avoids-it.md).
-      No brief written.
+      **Brief WRITTEN 2026-10-18, review NOT run** —
+      `docs/reviews/2026-10-18-0508-body-free-commit-read-cold.md` with a
+      `.deferred.md` sibling. Written by an Opus brief-writer that authored
+      none of the delta (dispatched by the Mike-opened Opus 5.5 queue run, wt
+      atelier-qr-briefs-1018); its exposure is disclosed in the brief. The
+      pass stays queued for a criterion-passing cold Fable session.

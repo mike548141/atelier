@@ -1,5 +1,4 @@
-- [~] ⏳ **Rule-4 cold pass queued: the queue-run skill carries the whole
-      (claimed 2026-10-18-0520, wt: atelier-qr-briefs-1018)
+- [ ] ⏳ **Rule-4 cold pass queued: the queue-run skill carries the whole
       run brief (`180/010`, `180/030`), and worker teardown (`180/020`).**
       Doctrine text, so the authoring session (a Mike-opened Opus 5.5 queue
       run, 2026-10-18, wt atelier-qr-180-plugin) queues this and does not
@@ -32,4 +31,9 @@
       [`../180-orchestrated-queue-runs-from-hand-carrie/020-teardown-inferred-from-git-is-not-the-same-as-stopped.md`](../180-orchestrated-queue-runs-from-hand-carrie/020-teardown-inferred-from-git-is-not-the-same-as-stopped.md)
       and
       [`../180-orchestrated-queue-runs-from-hand-carrie/030-the-canonical-session-open-prompt-is-not-the-one-in-use.md`](../180-orchestrated-queue-runs-from-hand-carrie/030-the-canonical-session-open-prompt-is-not-the-one-in-use.md).
-      No brief written.
+      **Brief WRITTEN 2026-10-18, review NOT run** —
+      `docs/reviews/2026-10-18-0517-queue-run-carries-the-brief-cold.md` with
+      a `.deferred.md` sibling. Written by an Opus brief-writer that authored
+      none of the delta (dispatched by the Mike-opened Opus 5.5 queue run, wt
+      atelier-qr-briefs-1018); its exposure is disclosed in the brief. The
+      pass stays queued for a criterion-passing cold Fable session.
