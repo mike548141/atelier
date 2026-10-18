@@ -32,3 +32,8 @@ docs/ROADMAP-DONE.md
 # linkscan/sizescan already carried this rule; adding it to the rest closes the
 # class rather than the next instance.
 .claude/worktrees/
+
+# 2026-10-18 (180/060): the opening prompt's template history is the
+# principal's verbatim historical text, one commit per version; the same
+# 2026-07-23 ruling applies (history is not retro-spelled). One path only.
+docs/method/session-open/template-history.md
