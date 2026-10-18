@@ -5,6 +5,18 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-10-18 — the plugin versions by commit; four prompt lines back, `180/040`, `180/050`)
+- `.claude-plugin/plugin.json` and the marketplace entry no longer carry a
+  `version`, so each commit is its own plugin version. A GitHub install
+  updates to the newest commit on `/plugin update`, instead of staying frozen
+  at 0.2.0. `claude plugin validate` warns about the missing version; that
+  is the trade chosen. Hooks installed by `/atelier:install-hook` need
+  re-running after every update.
+- The session-open prompt gets back four lines it had dropped: the date at
+  open with checklist progress reports, verify-don't-infer, board answers as
+  bullets, and the fuller close check. `queue-run` and `CONCURRENCY.md` carry
+  them too.
+
 ### Changed (2026-10-18 — `/atelier:queue-run` carries the whole run brief, `180/010`, `180/030`)
 - The `queue-run` skill now carries every clause of the hand-carried run
   prompt it replaces. The text after the invocation is the run's brief. New

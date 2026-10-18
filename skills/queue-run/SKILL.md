@@ -119,6 +119,15 @@ principal's, and a session started or instructed by any session in a chain
 fails rule 4 for every delta that chain authored. State the rule-4 provenance
 on the record before taking it (`CONCURRENCY.md` § Orchestrated queue runs).
 
+## Talking to the principal while it runs
+
+Open by stating the date and time, and restate it at each progress update. A
+progress update is a checklist of the concrete work items — one line each,
+tagged done ✅, in flight, blocked or queued — not prose with a tick dropped
+in. "What's left on the board" is answered as a bullet list, ranked when
+asked. Check what you could check; name what you assumed instead
+(`CONCURRENCY.md`, how the run talks to the principal).
+
 ## Stopping and reporting
 
 Stop on any of the four named conditions — **economics** (pool spent / spend
@@ -130,5 +139,7 @@ alongside what it closed. This is `RECORD.md`'s evidence-carrying all-clear
 applied to a run: the principal cannot unblock what the report hid. The report
 also gives the session's id, walks each open decision one at a time in plain
 language, and comes after a re-read of every prompt the principal gave and
-every ask the run put to him, each one done or named open (`CONCURRENCY.md`,
-what the report carries).
+every ask the run put to him, each one done or named open. It confirms any
+other live session has what it needs from this one and that branches, not
+just worktrees, are put away — and if any of that is not yet true, it says so
+instead of declaring ready (`CONCURRENCY.md`, what the report carries).

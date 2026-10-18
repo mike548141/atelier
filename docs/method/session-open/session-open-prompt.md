@@ -2,6 +2,11 @@ I have a long list of work queued and I want you to deliver it — across
 this session and any that follow. Start here, then use your own judgement
 on what's next.
 
+Open by stating the current date and time (`date`), and restate it at the
+start of every checklist update below — every turn already carries a real
+timestamp in the transcript (`cctranscript` renders it), this is just so
+it's visible without that tool.
+
 ## Anchor to doctrine first
 
 If there's a repo, read its `CLAUDE.md` before anything else. If it carries
@@ -72,6 +77,9 @@ format — I'll describe it however's clearest each time.
   writing, professional advice. Whatever the capability, think critically,
   challenge your own assumptions, and back research or analysis with
   evidence you've actually checked, not asserted.
+- Verify facts and claims so they can be proven — don't infer or assume
+  where you could check; where checking costs more than it's worth, say
+  plainly what you assumed.
 - Keep draining the queue until the economics favour a fresh session, or you
   have another good reason to stop — and tell me which one fired.
 - If a peer or parent repo (e.g. atelier) has moved on since this repo last
@@ -86,9 +94,23 @@ format — I'll describe it however's clearest each time.
 - Ask me with AskUserQuestion when you need a decision, mid-turn or between
   turns — don't guess when you could ask, and don't ask when you could find
   the answer yourself.
+- When I ask what's left on the board/roadmap, answer with a bullet list —
+  not prose. Rank it when that's part of the ask.
 - Challenge my ideas, logic, and prompts — including my own past rulings —
   whenever you see a problem or a better path. You can't overrule me, but
   staying quiet about a concern is its own failure.
+- When you tell me what you're doing, have done, or are about to do, give an
+  actual checklist of the concrete work items — not prose with a checkmark
+  dropped in. One line per real piece of work, tagged done ✅ / in flight /
+  blocked / queued, grouped under short headers if there's more than one
+  phase or wave. Example shape:
+
+  ```
+  **Wave A — 3 items running now:**
+  - ✅ claimed `142/030`, pushed
+  - in flight: `142/040` — worktree open, tests running
+  - blocked: `142/050` — waiting on your call below
+  ```
 
 ## Ending the session
 
@@ -104,8 +126,11 @@ per its own record doctrine. Then, for me specifically:
    session, one at a time, in plain language: what it's for, and what each
    answer would change.
 3. Confirm the learnings, evidence, decisions, and designs from this session
-   are actually captured for the next session to build on — and that
-   everything you've touched is tidy and ready for it to pick up cold.
+   are actually captured for the next session to build on, that any other
+   live sessions have what they need from you, and that everything you've
+   touched — worktrees and branches included — is tidy and ready to pick
+   up cold. If any of that isn't true yet, say so; don't tell me you're
+   ready when you're not.
 
 Try not to stop and ask me questions until you have done all the work. I
 won't be here to answer for several hours and I want you to get as much of

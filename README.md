@@ -82,12 +82,16 @@ the scanners and docs are referenced in place, never copied):
 /plugin install atelier@atelier
 ```
 
-Installed from GitHub, the plugin is a copy frozen at its `version` number, and
-new commits reach you only when that number moves. If you keep a local clone
-and want the doctrine current, add the marketplace from the clone's path
-instead (`/plugin marketplace add /path/to/atelier`). A local-path marketplace
-loads the plugin in place, so every session start reads the clone's files as
-they are.
+The plugin carries no version number, so each commit is a version of its own
+(Claude Code falls back to the commit). Installed from GitHub, it is a copy
+of the commit you installed; `/plugin marketplace update atelier` then
+`/plugin update atelier@atelier` brings it to the newest, which can include
+doctrine whose review is still pending (the board's ⏳ items). Auto-update is
+off by default for marketplaces like this one. If you keep a local clone, add
+the marketplace from the clone's path instead
+(`/plugin marketplace add /path/to/atelier`): a local-path marketplace loads
+the plugin in place, so every session start reads the clone's files as they
+are.
 
 What you get:
 
@@ -95,9 +99,9 @@ What you get:
   licence · link) over any repo. Zero-dependency stdlib Python, bundled.
 - **`/atelier:install-hook`** — install the fail-closed git pre-commit scan hook
   into the current repo (git hooks don't travel, so it's per-clone; and the
-  hook's scanner path is pinned to the installed plugin *version*, so re-run
-  it in each hooked repo after a plugin update — until then the hook blocks,
-  it never waves through).
+  hook's scanner path is pinned to the installed plugin *version*, which is
+  now the commit, so re-run it in each hooked repo after every plugin update
+  — until then the hook blocks, it never waves through).
 - **`session-onramp`** skill — loads the apex (honesty, adaptation) and
   the always-confirm floor, then points at the rest of the doctrine, read on demand.
 - **`review-brief`** skill — the peer-review lifecycle that turns "looks right"

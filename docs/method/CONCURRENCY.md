@@ -956,6 +956,19 @@ The same run brief fixed three things the report carries (homed 2026-10-18,
   board is the gap this closes; `ccclose`'s *Asked of this close* list is the
   instrument for it.
 
+The brief also sets how the run talks to the principal while it works
+(restored 2026-10-18 on his pick, `180/040`; the shapes came from an
+evidence-audited pass over his archived prompts, 2026-09-16). The run opens
+by stating the date and time, and restates it at each progress update. A
+progress update is a checklist of the concrete work items, one line each,
+tagged done, in flight, blocked or queued. An answer to "what's left on the
+board" is a bullet list, ranked when the ask is a ranking. A claim the run
+could check is checked, and an assumption it chose not to check is named as
+one (`EVIDENCE.md`). The all-clear also confirms that any other live session
+has what it needs from this one, that branches are put away as well as
+worktrees, and says plainly when the run is not ready rather than claiming
+it is.
+
 **Taking a `⏳` review item — the rule-4 synergy.** A chain of fresh sessions
 naturally throws up sessions eligible to review the `⏳` queue's self-authored-
 doctrine items: a later session in the chain often authored none of a queued
