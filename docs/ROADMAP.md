@@ -316,6 +316,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: the deferral's side doors (320/720).](roadmap/160-doctrine-review-owed/910-rule-4-cold-pass-queued-deferral-side-doors.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the close declaration covers subagents](roadmap/160-doctrine-review-owed/920-rule-4-cold-pass-queued-close-covers-subagents.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the body-free commit read (130/030).](roadmap/160-doctrine-review-owed/930-rule-4-cold-pass-queued-body-free-commit-read.md)
+- [ ] ⏳ [Cold pass queued: the opening prompt's template history, for](roadmap/160-doctrine-review-owed/940-cold-pass-queued-template-history-privacy.md)
 
 ## build/ layer — open strands
 
@@ -332,7 +333,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/030-the-canonical-session-open-prompt-is-not-the-one-in-use.md)
 - ✅ [RESTORED 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/040-four-prompt-lines-come-back.md)
 - ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/050-the-public-plugin-tracks-every-commit.md)
-- [~] (claimed 2026-10-18-0215, wt: atelier-qr-180-060) [(untitled)](roadmap/180-orchestrated-queue-runs-from-hand-carrie/060-the-opening-prompt-template-history-from-the-transcripts.md)
+- ✅ [LANDED 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/060-the-opening-prompt-template-history-from-the-transcripts.md)
 - ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/070-session-id-at-open-and-no-date-line.md)
 - ✅ [DONE 2026-10-18](roadmap/180-orchestrated-queue-runs-from-hand-carrie/080-the-useful-identifiers-at-the-tail.md)
 

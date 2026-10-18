@@ -10,7 +10,7 @@ of how it changed.
   (V1 to V9, folded in by subtree merge). With atelier's plugin installed,
   `/atelier:queue-run <this run's brief>` does the same job without the paste
   (`skills/queue-run/SKILL.md`, `CONCURRENCY.md` § *Orchestrated queue runs*).
-- `template-history.md` is the **template history**:
+- [`template-history.md`](template-history.md) is the **template history**:
   one commit per version of the reusable part of the prompt, in the order the
   versions were first used. Read it with
   `git log --follow -p docs/method/session-open/template-history.md`. Each
