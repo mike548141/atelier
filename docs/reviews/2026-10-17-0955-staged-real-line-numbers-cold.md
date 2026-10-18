@@ -564,3 +564,164 @@ Logs and probe: `/home/user/scratch/RN/logs/`, `/home/user/scratch/RN/probe.py`.
       if it covers this class.
 - [ ] RN4 — two docstring touch-ups and one test comment, when next in the
       files.
+
+### Reconcile
+
+Phase 2, begun 2026-10-17 23:57 UTC after the orchestrator committed phase 1
+as `74a7053` and released the sibling into the tree. Opened for this step:
+the sibling, the queue pointer `160/830`, the intent record
+`docs/sessions/2026-10-16-1501-queue-run-briefs-and-guard-builds.md`
+(§§ `115/300`, `115/310`), board items `115/300` and `115/310`, and the
+landing and merge commit bodies. The four prior verdicts the sibling names
+by filename were **not** opened: none is on this delta (two are on the shared
+reader and leakscan's gates, two are older), and no finding here rests on
+them. Phase-1 text above is unrevised. **No finding was formed at
+reconcile.**
+
+**Against the seeded questions.**
+
+1. *Open-conflict state across hunks; `115/310`.* This is RN3. The record
+   shows the delta carried it forward knowingly (docstring: "exactly as
+   before"), the worker filed it, a state-reset fix (`d79492b`) was built and
+   **rejected on evidence** before merge: in the commonest real case — a bad
+   merge staged against `HEAD` — the "ours" lines between opener and
+   separator are unchanged context, so a reset at any gap loses the true
+   separator. My probes agree with that reasoning from both sides: the
+   `opener-then-setext` shape reproduces `310`'s false separator (now at its
+   true line, 27), and the `committed-closer-between` shape is the mirror
+   image, where the unseen context line is the closer. The false separator
+   only ever stands beside a genuine opener that already blocks, as `310`'s
+   closure says. Yes: a finding's line is now right while its cause may sit
+   in another hunk — and `310`'s own closing note ("a separator reported
+   with its hunk") is the shape that would say so. RN3 stays a note and
+   corroborates the closure; nothing to add.
+2. *Does any leakscan rule read line 1, adjacency or the previous line?* No
+   — lens 1 assumption 3 and the `scan_lines` read: allow scope, shadows and
+   validators are computed per line; no state crosses lines; nothing keys on
+   line 1. Confirmed, no finding.
+3. *Is secretscan's number the reader's number on every shape?* At HEAD it
+   is the same number by construction — secretscan has consumed
+   `report.staged_added` since `115/280` — and the probe shows all three
+   guards agreeing on the below-unchanged shape at every version. The
+   README's "all three guards" holds.
+4. *Tests by hand or real git?* Real git, in a temp repo, for every staged
+   test (lens 2). They test the claim.
+5. *Path-name scan numbered from 1 through `scan_text`?* `scan_path_name`
+   rewrites the line to 0 and the human report prints "in the path name";
+   meaningful and consistent with body findings (lens 3). No finding.
+6. *Whole-tree byte-identity: by construction or by fixture?* By
+   construction: the tree plane runs `_scan_file` → per-physical-line
+   `_line_finding`/`scan_lines` and never calls the staged reader or
+   `scan_text`, and `_line_finding` is untouched by the delta. The author's
+   fixture evidence is therefore confirmatory, not load-bearing; I re-ran it
+   anyway (ledger) because a recorded proof is re-run, not read.
+
+**Against the intent record and the commit bodies.**
+
+- The commit body's "no output format, rule, exit code or JSON field moves"
+  is the sentence RN1 qualifies: on the embedded-separator class the exit
+  code does move (1 → 0), toward agreement with the tree plane. Everything
+  else in that paragraph reproduces.
+- `115/300`'s close says the new tests fail on the old code "four of six,
+  with the two new-file controls passing on both". My run against
+  `f4afb7a^`: four of six fail (two per guard), the two new-file controls
+  pass — an exact match.
+- `115/300` and the intent record report one suite failure at a machine load
+  of about 300 (`test_pins.BoundedMemory`), re-checked at the close. At this
+  HEAD, on a quiet container: 1916 tests, 0 failures. The suite grew by 19
+  tests since; nothing in the delta's surfaces changed.
+- `115/300`: "No other guard consumes the reader" — true at HEAD (lens 3).
+- RN2 (staged mode reads the cwd's index, not `--root`'s) appears nowhere in
+  the intent record, `115/300`, `115/310` or either commit body, and a search
+  of the now-readable stores (`ROADMAP-DONE.md`, every item file, every
+  session record) finds no prior filing; `010/110` (relative path arguments
+  resolve against `--root`, closed 2026-08-23) is the tree plane's cousin
+  and does not cover the staged `git diff` invocation. RN2 therefore stands
+  as a new harvest item. By the sibling's own split ("a defect in the number
+  the reader yields belongs there; how this delta consumes it belongs
+  here") its home is the shared reader, `160/800`'s surface — which repo the
+  reader reads is the reader's business. Routing is the principal's call;
+  recorded here because this delta's tests and docstrings assume the answer.
+- RN4: nothing in the seeded material bears on it. Stands.
+
+**Overlap with sibling passes.** `160/800` is where RN2's fix would land;
+`160/840` and `160/850` touch `tools/README.md` only in other paragraphs
+(verified: the README diff after `f4afb7a` does not touch the shared-reader
+paragraph this delta edited); `160/720` reviews the gates inside the
+`scan_lines` this delta now feeds — the gates are necessary-condition
+pre-filters and the staged plane changes nothing about what reaches them.
+
+**Overall line, restated:**
+**PASS-WITH-FINDINGS — 0 MAJOR · 0 MODERATE · 2 minor · 2 note.**
+No finding formed at reconcile; severities unchanged.
+
+## Deferred material — folded in at the verdict
+
+*The sibling `docs/reviews/2026-10-17-0955-staged-real-line-numbers-cold.deferred.md`,
+folded in at phase 2 and deleted, per `REVIEW.md` rule 1 ("split for the
+duration, merged at rest"). Text verbatim; its `##` section headings are
+nested one level (`###`) so they sit under this heading, nothing else
+changed.*
+
+# Sibling to the staged-real-line-numbers cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-17-0955-staged-real-line-numbers-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-10-17 UTC by the Opus brief-writer named in the brief's provenance; it
+forms no finding. Fold this file in below the reconcile and delete it at phase 2.
+
+### Intent and commissioning records
+
+- Intent record: `docs/sessions/2026-10-16-1501-queue-run-briefs-and-guard-builds.md` —
+  **not opened by the brief-writer**.
+- Commissioning board item (title line seen, never read whole): `115/300` (conflictscan and
+  leakscan report the wrong line number). Filed at the same merge: `115/310` (conflictscan's
+  open-conflict state runs across staged hunks).
+- The landing commit's message body (read by the brief-writer): on the staged plane both guards
+  joined a file's added lines into one blob numbered from 1, so a finding pointed at the wrong
+  line, though it still blocked; "secretscan already numbered by hunk"; `report.staged_added`
+  already yielded the real number and both guards discarded it; "Only the number a finding is
+  reported at changes: no output format, rule, exit code or JSON field moves"; conflictscan's
+  open-conflict state "still runs through the added lines in order, as before"; two new tests
+  per guard fail on the old code; whole-tree output byte-identical on the repo and on a fixture.
+
+### Prior verdicts on these surfaces (named by filename grep, not opened, not exhaustive)
+
+- `docs/reviews/2026-08-09-0826-e7-leakscan-build-cold.md`
+- `docs/reviews/2026-09-25-0715-staged-plane-check-cold.md`
+- `docs/reviews/2026-10-16-1551-git-quoted-paths-cold.md` — the staged path reader, 160/760
+- `docs/reviews/2026-10-16-1551-scanner-rule-gates-cold.md` — leakscan's gates, 160/720 (its
+  brief was one of this brief-writer's templates)
+
+### The pointer's own lens hints
+
+None beyond "its dispatched worker's output counts as the run's authorship". Refs-only.
+
+### Overlap with sibling passes of this batch
+
+- 160/800 (`39a74b9`, the shared staged-diff reader in `tools/report.py`) is this delta's
+  foundation and is briefed by this run's other brief-writer. A defect in the number the reader
+  yields belongs there; how this delta consumes it belongs here.
+- 160/840 (`e3e8a4f`) and 160/850 (`72a68cc`) branched from the same base and also edit
+  `tools/README.md`; the merges were sequential.
+- 160/720 (scanner gates) reviews leakscan's `scan_lines` gate checks at HEAD, the same function
+  this delta now feeds from the staged plane.
+
+### Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. "Only the number changes": conflictscan's open-conflict state used to run across a joined
+   blob and now runs across numbered pairs from several hunks, unchanged. 115/310, filed at the
+   same merge, suggests that state crossing hunks is itself a defect. Did the delta knowingly
+   carry it forward, and is a finding's line now right while its cause is a line in another hunk?
+2. Does any leakscan rule or marker check look at line 1, line adjacency, or "the previous line"
+   (a preceding-line allow, a header-only scope)? With real numbers, line 1 of the staged input
+   may no longer be line 1 of the file.
+3. The README paragraph now says "all three guards" report at the real line. Is secretscan's
+   per-hunk numbering the same number as `report.staged_added`'s, on every diff shape?
+4. Do the new tests build the numbered pairs by hand, or stage a real diff through git? If by
+   hand, they test the plumbing, not the claim.
+5. leakscan's staged path also runs the path-name scan through `scan_text`, numbered from 1 —
+   is that line number meaningful to a reader, and is it consistent with the body findings now?
+6. The whole-tree "byte-identical" evidence was taken by the author on one repo and one fixture.
+   Is the whole-tree plane provably untouched by construction, making that evidence unnecessary,
+   or does it rest on the fixture?
