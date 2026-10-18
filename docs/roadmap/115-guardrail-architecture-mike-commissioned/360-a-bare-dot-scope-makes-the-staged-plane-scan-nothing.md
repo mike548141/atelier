@@ -1,4 +1,5 @@
-- [ ] 🔎 **A bare `.` (or `./…`) positional makes the three staged-plane
+- [~] 🔎 **A bare `.` (or `./…`) positional makes the three staged-plane
+      (claimed 2026-10-18-0522, wt: atelier-qr-115-360)
       guards scan nothing and report clean** `[S][tools]`. Found 2026-10-18 by
       the cloud session running the review queue, when the pushed floor went
       red on a finding its own by-hand staged scan had passed.
