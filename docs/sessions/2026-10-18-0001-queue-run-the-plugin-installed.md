@@ -122,6 +122,28 @@ Asked at the close, one decision at a time, through the decision device:
   shown as `~/`). Its first real run over-credited a parallel session's work
   (`210/290`, filed), so the block below is corrected by hand where marked.
 
+## The last asks: one text, the block in the command, the first real run
+
+- **One text (`180/090`).** Mike asked for the text `/atelier:queue-run`
+  uses to be a file he can open and paste, with no drift unless he
+  authorises it. He expected the prompt file was already exactly that. It
+  wasn't: the skill restated the prompt in its own words. Now the skill loads
+  `docs/method/session-open/session-open-prompt.md` and adds nothing, and
+  `tools/test_queue_run_single_source.py` fails on a pointer change or a
+  copied line (checked against a planted copy). The file is principal-owned.
+  Then, on his instruction, the loose copy in his home directory was deleted
+  (sha256 recorded on the estate-root repo's item 950).
+- **The block in the command (`210/300`).** He asked whether the identifiers
+  block was in `ccclose` itself or only in prompt and doctrine. It was only
+  behind `--identifiers`. Now a plain run ends with it.
+- **The first real `/atelier:queue-run`** (session `8e498ef1`, opened by
+  Mike, bare invocation). Watched from here. In its first five minutes it
+  synced, saw this session's live claim and stayed off it, named its session
+  id and model, claimed `210/290` and the briefs for `160/910`–`940` on
+  `main` before any work, and dispatched a Sonnet worker and two Opus
+  brief-writers. It loaded the skill as it stood before `180/090`. Sent it a
+  file-set notice: `ccclose` changed under its `210/290` worker.
+
 ## Recorded against itself
 
 - Twice a commit was refused by the hook while the output was filtered
@@ -135,13 +157,13 @@ Asked at the close, one decision at a time, through the decision device:
 
 ## Identifiers
 - **Session**: e1d4097c-51e0-4103-8dc4-2c361166237b · Opus 5.5 · 2026-10-17 23:59 to 2026-10-18 04:14 UTC
-- **Commits** (88 on `main`, this session's own; hand-corrected from the tool's 115, `210/290`): `b12c76d` to `ec37c6b` on the first-parent line, excluding `b6be263` (PR #119, a parallel cloud session's). 50 of them are the template history, author-dated to each version's first use.
+- **Commits** (88 to the first close, then 9 more through `055b326`; this session's own; hand-corrected from the tool's 115, `210/290`): `b12c76d` to `ec37c6b` on the first-parent line, excluding `b6be263` (PR #119, a parallel cloud session's). 50 of them are the template history, author-dated to each version's first use.
 - **Pull requests** (2):
   - #120 merge run — now merged
   - #121 merge run — now merged
 - **Board**:
-  - completed: 020/420, 130/030, 180/010, 180/020, 180/030, 180/040, 180/050, 180/060, 180/070, 180/080, 210/280, 320/720
-  - created: 160/900, 160/910, 160/920, 160/930, 160/940, 180/030, 180/040, 180/050, 180/060, 180/070, 180/080, 210/280, 210/290, 320/720 (320/720 arrived as PR #120, landed here)
+  - completed: 020/420, 130/030, 180/010, 180/020, 180/030, 180/040, 180/050, 180/060, 180/070, 180/080, 180/090, 210/280, 210/300, 320/720
+  - created: 160/900, 160/910, 160/920, 160/930, 160/940, 180/030, 180/040, 180/050, 180/060, 180/070, 180/080, 210/280, 210/290, 210/300, 180/090, 320/720 (320/720 arrived as PR #120, landed here)
   - claimed (still open): none
   - ⏳ review items created: 160/900, 160/910, 160/920, 160/930, 160/940
 - **Worktrees and branches** (7):
@@ -152,6 +174,7 @@ Asked at the close, one decision at a time, through the decision device:
   - ~/worktrees/atelier-qr-180-070 (branch qr-180-070) — worktree put away; branch deleted
   - ~/worktrees/atelier-qr-210-280 (branch qr-210-280) — worktree put away; branch deleted
   - ~/worktrees/atelier-qr-180-060 (branch qr-180-060) — worktree put away; branch deleted
+  - ~/worktrees/atelier-qr-180-090 (branch qr-180-090) — worktree put away; branch deleted
 - **Agents**: 6 · 6 reported · 0 stopped on purpose · 0 result never consumed · 0 cut mid-flight
   - a61c42c Build ccclose --identifiers — reported (completed notification)
   - a6ede35 Mine opening-prompt template versions — reported (completed notification)
@@ -159,6 +182,6 @@ Asked at the close, one decision at a time, through the decision device:
   - aab4048 Map prompt clauses to doctrine — reported (completed notification)
   - ab1989e Build coldsweep --commit — reported (completed notification)
   - ac4bc87 Plugin update semantics — reported (completed notification)
-- **Other repos**: the private estate-root repo, two commits (claim and close of its item 950). User-level, outside any repo: the plugin install in Claude Code's user settings, and two memory notes.
+- **Other repos**: the private estate-root repo, three commits on its item 950 (claim, close, and the deletion addendum). User-level, outside any repo: the plugin install in Claude Code's user settings, and two memory notes.
 
 *Generated by `ccclose --identifiers`; Commits, the Board lines and Other repos corrected by hand as marked.*
