@@ -20,3 +20,7 @@
       now share a reason. Existing one-set-per-line manifests load
       unchanged. 219 leakscan and 2,032 Python tests green. Reviewed under
       `160/980`, widened to this commit.
+      🚩 **The reading of "fields" above was wrong.** Mike, 2026-10-19: *"I
+      did mean fields as in GPS versus the camera model. Things like exif,
+      iptc, xmp are data types, nto fields"*. What landed here works at the
+      data-type level. The field-level rule he meant is filed as `020/450`.

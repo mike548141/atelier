@@ -211,3 +211,10 @@ Mike answered the close report, and the run reopened:
 - **Scratchpad emptied at close.** A peer session reported that the deny rule
   which had refused `rm -rf` on scratch paths was narrowed on Mike's
   instruction. This session changed no settings.
+- 🚩 **`020/440` read "fields" as data types, and Mike corrected it.** His
+  words: *"I did mean fields as in GPS versus the camera model. Things like
+  exif, iptc, xmp are data types, nto fields. Put it on the board to do in a
+  future session"*. Filed as `020/450`, field-level metadata acceptance, not
+  built. The run stated its reading on the item and in its report before
+  closing. But "fields" in his own sentence was the first meaning to test, and
+  the run defaulted to the granularity the tool already had.
