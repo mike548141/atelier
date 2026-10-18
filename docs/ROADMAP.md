@@ -26,6 +26,7 @@ then `python3 tools/board.py rebuild`.
 - ✅ 🔎 [index_title's fallback swallows the claim fragment into the generated](roadmap/010-board-store-migration-per-item-files-mik/140-index-title-fallback-swallows-the-claim-fragment.md)
 - ✅ 🔥 [board called a current index stale from every worktree of atelier,](roadmap/010-board-store-migration-per-item-files-mik/150-board-judged-the-tree-from-the-tool-s-own-path.md)
 - [ ] 🎯 [CF3's dirty-sibling stop is now stricter than its cause requires](roadmap/010-board-store-migration-per-item-files-mik/160-cf3-s-sibling-stop-is-now-stricter-than-its-cause.md)
+- [~] [Project an item's logical first paragraph into the index, with a](roadmap/010-board-store-migration-per-item-files-mik/170-the-index-projects-the-logical-first-paragraph-with-a-grace.md)
 
 ## Policy-as-code programme — five tracks (Mike approved 2026-07-27)
 
