@@ -309,7 +309,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🎯 [Rule-4 cold pass queued: sizescan's size advisory removed](roadmap/160-doctrine-review-owed/850-rule-4-cold-pass-queued-size-advisory-removed.md)
 - [ ] 🛑 [Rule-4 cold pass queued: the floor's advisory count scoped to its](roadmap/160-doctrine-review-owed/860-rule-4-cold-pass-queued-advisory-count-per-scanner.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccclose, the close-out checker](roadmap/160-doctrine-review-owed/870-rule-4-cold-pass-queued-ccclose.md)
-- [ ] ⏳ [Rule-4 cold pass queued: cctranscript's harness classification](roadmap/160-doctrine-review-owed/880-rule-4-cold-pass-queued-harness-classification.md)
+- [ ] 🎯 [Rule-4 cold pass queued: cctranscript's harness classification](roadmap/160-doctrine-review-owed/880-rule-4-cold-pass-queued-harness-classification.md)
 - [ ] ⏳ [Rule-4 cold pass queued: ccmail stops sending the operator to](roadmap/160-doctrine-review-owed/890-rule-4-cold-pass-queued-ccmail-auth-advice.md)
 
 ## build/ layer — open strands

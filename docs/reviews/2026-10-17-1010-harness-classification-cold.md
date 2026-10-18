@@ -612,3 +612,159 @@ the repo's own fixtures.
 - [ ] HC6 — brief-writer's note: diff the merge against the landing commit before writing
       "checked".
 - [ ] HC7–HC11 — notes; no action owed unless the principal wants the regex anchored.
+
+### Reconcile — phase 2, 2026-10-18 00:28 UTC
+
+Phase-1 text above is unrevised. Opened at phase 2, after the orchestrator committed phase 1
+as `87cb7c6`: the sibling (folded in below), the queue pointer `160/880`, the intent record
+`docs/sessions/2026-10-16-1501-queue-run-briefs-and-guard-builds.md`, the commissioning
+item `210/250`, its neighbour `210/260`, and both commit bodies (`cea247e`, `99f4c2a`).
+Reconcile-step reading of prior verdicts, disclosed: three passages of
+`docs/reviews/2026-10-16-1550-first-prompt-prefix-cold.md` that name `cea247e` (its FP8), one
+grep hit in `docs/reviews/2026-08-15-1032-cctranscript-search-cold.md` not pursued, and the
+counts only from one line of `docs/SESSIONS.md` (for seeded question 7). The
+`2026-10-16-1551` pass the sibling names was not opened. One further probe ran
+(`/home/user/scratch/HC/harnessonly.js`, for seeded question 6).
+
+**Against the intent record and the commit bodies.** The author's account matches the code
+I read: one classifier, harness keeps its number, ccclose takes the exported lists. Its two
+live-store claims — "181 → 56 on the 12 most recent sessions" with "last-exchange numbers
+match old and new on all 12", and the intent record's own session going from 13 `you` to
+the one Mike typed with 12 notifications shown as harness — are consistent with the
+synthetic invariance I re-drove (0 refs moved) and stay **relayed**, not weighed (ledger 6b,
+9, 10). The body's "so they cannot disagree" is the claim HC3 narrows. The merge body's "one
+NZ-local date corrected" is the line HC6 found; the brief-writer read that body and still
+wrote "changes none of the delta paths (checked)". `210/250`'s "dropping the number is a
+one-place change" is not quite so: `numberTurns` and ccclose's own `n++` both carry it — an
+instance of HC10's drift risk already in a record, no new finding.
+
+**Against the seeded questions.**
+
+1. HC6 answers the date: NZ-local at rest in the landing commit, UTC after the merge. Two
+   censuses ground two different things — the 40-session one the tag list, the 12-session
+   one the before/after count and the last-exchange check. Consistent; neither re-drivable
+   here.
+2. Yes: `turns.length` counts harness turns and the `you` chip excludes them — probed
+   ("4 turns · 0 you · 2 Claude · 2 harness"; invariance A: "28 turns · 7 you · … ·
+   6 harness"). The README's new sentence about `you` reads true; its "field set never
+   varies" is HC11.
+3. Yes — HC2 and HC3 are exactly this. The shared classifier ended disagreement on *whose
+   record it is*; the two tools still disagree on *what the prompt's text is*.
+4. A slash command's expansion and a skill body are `isMeta` and classify harness, which is
+   right for their text (the harness wrote it). The principal's authorship of the
+   invocation survives only in the `<command-…>` record, shown as `you` with raw XML (rows
+   57–59), and the typed arguments are dropped by ccclose — HC1. Whether any principal-typed
+   sentence is itself logged `isMeta` is relayed (A2).
+5. Yes: `isHumanQueuedCommand` rejects `commandMode:"task-notification"`, so the same
+   notification is a numbered grey turn as a user record and invisible as an attachment.
+   The author filed it (`210/260`), and its text is accurate: neither shape credits the
+   principal. One design note for that item, not a finding here: a turn given to the
+   attachment shape must not bump `N` — the mid-turn `N+K` precedent is the only shape that
+   keeps every quoted ref.
+6. Probed. A session whose only user records are harness text: `--list` labels it with the
+   empty string (the row shows id and time, blank label; `--json` `firstPrompt: ""`); the
+   header reads `4 turns · 0 you · 2 Claude · 2 harness`; `--json` refs are `1, 1.1, 2,
+   2.1`, harness-opened; ccclose counts `turn=0 mid=0 asks=0` with the window known. Honest
+   on every surface; no finding.
+7. Yes, and nothing but the CHANGELOG marks the break — **HC12, below, formed at
+   reconcile.**
+8. HC7.
+
+**Against the prior verdicts named.** FP8 of the first-prompt-prefix pass already records
+that `cea247e` overtook its brief within the hour and that the `firstPromptInLines` rewrite
+keeps the predicate shared by the prefix and whole-file paths — consistent with my lens 2
+(the `--list` label asks the classifier on both paths). Nothing in the search cold pass's
+one hit bears on the delta. Overlap with `160/870`: ccclose's `stripWrappers` and the user
+branch of `readTranscript` are reviewed here (HC1, HC3); its other code is that pass's.
+
+**HC12 — note, formed at reconcile — `you` counts quoted before 2026-10-16 are not
+comparable with the new reader's, and only the CHANGELOG says so.** Seeded question 7 asked
+whether old figures were quoted and whether anything flags the break. Probe: `docs/SESSIONS.md`
+carries at least one header line from the old reader ("206 turns · 24 you · 182 Claude",
+counts only); the old `you` figure is an upper bound that included harness records, so a
+reader comparing it with a fresh run of the same session will see a drop and nothing in the
+tool, the man page or the record says why. Records are frozen and correct for their date;
+the CHANGELOG entry is the one flag. *Counsel:* one NOTES line in the man page — counts of
+`you` taken before 2026-10-16 include what is now `harness` — or nothing, if the CHANGELOG is
+judged enough.
+
+**Overall, restated: PASS-WITH-FINDINGS — 0 MAJOR · 2 MODERATE · 4 minor · 6 note.**
+HC1–HC11 stand as written; HC12 is the one finding formed at reconcile.
+
+## Deferred material — folded in at the verdict
+
+*The sibling `docs/reviews/2026-10-17-1010-harness-classification-cold.deferred.md`,
+folded in verbatim at phase 2 and deleted, per `REVIEW.md` rule 1 (split for the duration,
+merged at rest).*
+
+# Sibling to the harness-classification cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-17-1010-harness-classification-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the
+brief are committed.** Written 2026-10-17 UTC by the Opus brief-writer named in the
+brief's provenance; it forms no finding. Fold this file in below the reconcile and
+delete it at phase 2.
+
+## Intent and commissioning records
+
+- Intent record: `docs/sessions/2026-10-16-1501-queue-run-briefs-and-guard-builds.md` —
+  **not opened by the brief-writer**.
+- Commissioning board item (name only, never opened): `210/250` (cctranscript counts
+  harness text as prompts), filed by the merge that landed ccclose. Neighbouring item
+  filed by this delta's merge: `210/260` (notification records read two ways).
+- The landing commit's message body (read by the brief-writer), in summary:
+  `readTurns` treated every non-tool-result user record as the principal's, so task
+  notifications, `isMeta` records and slash-command output echoes took role "you", and
+  a prepended browser-instruction block showed as part of a real prompt; "on the 12
+  most recent sessions of one repo that read 181 'you' turns where 56 are the
+  principal's". One shared classifier now serves `readTurns`, the `--list` label and
+  ccclose "so they cannot disagree"; harness text keeps its exchange number so quoted
+  refs do not move, and "last-exchange numbers match old and new on all 12 sessions
+  checked". Trailer: a Sonnet model.
+- The merge's body: read by the orchestrator before the merge; "one NZ-local date
+  corrected"; closes 210/250, files 210/260, queues 160/880.
+
+## Prior verdicts on these surfaces (named by filename grep, not opened, not exhaustive)
+
+- `docs/reviews/2026-08-15-1032-cctranscript-search-cold.md` — the search surface
+- `docs/reviews/2026-10-16-1550-first-prompt-prefix-cold.md` — the `--list` first-prompt
+  label this delta changes (`firstPromptInLines`)
+- `docs/reviews/2026-10-16-1551-git-quoted-paths-cold.md` — names ccclose
+
+## The pointer's own lens hints
+
+None. The pointer is refs-only.
+
+## Overlap with sibling passes of this batch
+
+- 160/870 (ccclose's build) shares `instruments/ccclose`, its tests, the design note and
+  the README. This delta rewrote ccclose's own classification twenty minutes after that
+  one merged. The 160/870 brief tells its runner to leave this delta's hunks here.
+- The first-prompt-prefix pass (2026-10-16) reviewed the `--list` label code before this
+  delta changed its record test.
+
+## Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. The comment above `HARNESS_TAGS` dates its census 2026-10-17 and counts 40 sessions;
+   the commit was made 2026-10-16 16:43 UTC and its body counts 12. Is the comment's date
+   NZ-local at rest, and which census grounds the tag list?
+2. The header's first chip is `${turns.length} turns`. Does that total now include
+   harness turns while the `you` chip excludes them, and does the README's account of
+   the header still read true?
+3. Only `browser_instruction` is removed from a real prompt. A `system-reminder` joined
+   to a real prompt stays in the text cctranscript shows as the principal's, while
+   ccclose strips it for the asks. Is that the disagreement the shared classifier was
+   meant to end?
+4. `isMeta` records are harness "whatever they contain". Does any principal action (a
+   slash command's expansion, a skill invoked by the principal) log as `isMeta` and so
+   lose its authorship?
+5. 210/260's title says notification records are read two ways. Do task notifications
+   ever arrive as `queued_command` attachments, where `isHumanQueuedCommand` and not this
+   classifier decides, so the two shapes disagree?
+6. A transcript whose only user records are harness text: what does `--list` label it,
+   and what does ccclose number?
+7. Prompt-share figures computed before this change have been quoted in records and
+   memory. Does anything flag that counts from the old reader are not comparable with
+   counts from the new?
+8. `stripElements` builds a fresh lazy-match regex per call over the whole record text.
+   With kilobyte-scale notifications and an unclosed tag, what is its cost?
