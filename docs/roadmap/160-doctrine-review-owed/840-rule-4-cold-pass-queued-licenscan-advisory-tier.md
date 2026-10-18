@@ -1,4 +1,4 @@
-- [ ] ⏳ **Rule-4 cold pass queued: licenscan's warn tier made real
+- [ ] 🛑 **Rule-4 cold pass queued: licenscan's warn tier made real
       (`115/290`).** The run authored this itself (its dispatched worker's
       output counts as the run's authorship). It is queued at landing, and
       the run neither takes it nor spawns a reviewer for it. *Tier:* Fable,
@@ -34,3 +34,22 @@
       forms every finding and severity. The sibling, the intent record and
       prior verdicts stay unopened by the reviewer until its phase-1 findings
       are committed. Provenance and exposure go in the verdict.
+      - [ ] 🛑 **The pass RAN 2026-10-18 UTC and the cycle stays OPEN — a MAJOR
+            stands.** The rule-4 Fable cold pass (taker: a fresh
+            `claude-fable-5-1` subagent under a `claude-fable-5-1` cloud
+            orchestrator — the shape disclosed in the claim above; the sibling,
+            the intent record and prior verdicts opened only after the phase-1
+            findings were committed, `f470d3e`) returned PASS-WITH-FINDINGS —
+            1 MAJOR · 1 MODERATE · 5 minor · 4 note →
+            [`2026-10-17-0955-licenscan-advisory-tier-cold.md`](../../reviews/2026-10-17-0955-licenscan-advisory-tier-cold.md)
+            (sibling folded in and deleted). LA1 (MAJOR): the warn is real, but
+            its membership was inherited from the old `"warn"` label rather
+            than decided — named to the principal as "mild", never shown to
+            include unmodelled copyleft mixes — so the gate now exits 0 for
+            every licence id and family mix it cannot judge (eight probed
+            shapes flip from exit 1 at the delta's parent to exit 0 at HEAD);
+            the reviewer reads this as a re-brief owed on the briefing, not a
+            challenge to the ruling. LA2 (MODERATE): a committed file carrying
+            a newline can set the board's licenscan advisory count to zero.
+            LA11 (note) formed at reconcile. Findings are the principal's to
+            decide (rule 3); nothing was applied.

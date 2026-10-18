@@ -628,3 +628,190 @@ judge.
 - [ ] LA7 — home `advisory_count_line` and its regex in `tools/report.py`.
 - [ ] LA8 / LA9 — wording; decide or leave.
 - [ ] LA10 — no action; record only.
+
+### Reconcile
+
+Written 2026-10-18 (UTC), after phase 1 was committed as `f470d3e`. Opened in this phase,
+in this order: the sibling; the queue pointer `160/840`; the commissioning item `115/290`;
+`115/320` and its pointer `160/860`; the message bodies of `e3e8a4f`, `6acefc9` and
+`dc0ed0e`; the intent record's licenscan passages (lines 26–70 and 209–223 of
+`docs/sessions/2026-10-16-1501-queue-run-briefs-and-guard-builds.md`). Of the three prior
+verdicts the sibling names I ran targeted greps, not whole reads, and read fifteen lines of
+one (`2026-08-09-0825-e6b-advisory-e3-fingerprint-cold.md`, AB5) — disclosed because it
+changes how two findings are attributed. I also grepped `tools/floorfleet.py` and the README's
+floor paragraph for seeded Q2/Q3. No other `2026-10-16-*` / `2026-10-17-*` brief was opened.
+Phase-1 text above is unrevised; one finding is formed here and marked as such.
+
+**Against the intent record and the ruling.** The record agrees with what I read from
+the tree: a Sonnet worker, `e3e8a4f`, read by the orchestrator at the merge, two NZ-local
+dates corrected to UTC (the re-merge diff shows exactly those two). The ruling as recorded
+in `115/290`: the device question offered "make mild findings report without blocking" or
+"reword the text to say everything blocks"; the answer text names the class as "`medium`
+severity: permissive-into-permissive mixes and unknown declarations". So **part of LA1's
+class — unknown declarations — was named in the question the principal answered**, under
+the word "mild". LA1 is therefore a challenge on the briefing, never on the authority
+(`00-APEX.md` § *rulings are conditioned on being informed*): nothing put to him said that
+"unknown declaration" includes a copyleft id the tables do not know (F11, F18, F19), or that
+the same `medium` label covers a GPL-2.0-only header in a GPL-3.0 repo, GPL in MPL, AGPL in
+GPL (F21, F24, F25) — those mixes appear in no question, item, commit body or record. LA1
+stands at MAJOR as a re-brief: the ruling is kept as his word, and the class's membership is
+put back to him with the probes. The commit body's own words ("a severity not named advisory
+blocks, so the tier is opt-in") describe the safeguard LA1 shows is aimed at the wrong axis.
+
+**Per seeded question.**
+
+1. *Could a repo carry a copyleft licence the scan cannot name and pass at exit 0? Was that
+   class moved knowingly?* Yes — LA1, eight probed shapes. Knowingly as to the *label*
+   (`medium`, named in the ruling), not as to the *membership*: no record names the
+   unmodelled copyleft cases. Under the floor, an unreadable LICENSE body still blocks via
+   `--expect` (F03 X, F17 X); the standalone scrub path (`commands/scan.md`, the README
+   usage) does not pass `--expect` and exits 0 (F17).
+2. *Is an exit-0 advisory in CI output a silent pass in practice for an unattended run?* For
+   the CI job as a status, yes — green is green. The design's answer is the board line and
+   its `--json` count in the CI log (probed: `🟡 licenscan enforced (🟡 1 advisory
+   finding(s)…)`). Checked at reconcile: `tools/floorfleet.py` carries *declared* softenings
+   (`advisory`/`disabled` with reasons and dates), not per-run advisory counts, so no
+   estate-wide surface shows that a child's licence gate is passing on advisory findings;
+   the CI log of that child is the only persistent record. → LA11 (formed here). This is
+   the state E6b shipped for secretscan too; what changes is the class riding on it (LA1).
+3. *Does any surface a person reads tell `advisory=None` from `advisory_count=True`?* Three
+   do, one does not. The board line carries both facts at once (`enforced` plus the `🟡 N
+   advisory finding(s)` note — probed); `floor.py`'s `Scanner` docstring now separates them
+   in words (the delta's own correction); the README's secretscan section explains the mark
+   (line ~350). The CONTRIBUTING template lists licenscan among the checks "that may never be
+   softened" and says nothing of a check that passes on a class of its own findings —
+   "unsoftenable" still means exactly "a child may not soften it", so its meaning is intact;
+   what a reader of that template is not told is that the gate itself now passes on LA1's
+   class. No new finding: it is LA1's documentation face, and LA4/LA5 already carry the
+   prose.
+4. *As landed at `e3e8a4f`, was the count line forgeable by a file path?* Yes — LA10, F14
+   (board 77 on a blocking run), closed by `dc0ed0e` (`115/320` part 3). Attribution
+   sharpened at reconcile: the floor's reader was flagged for exactly this on 2026-08-09
+   (that pass's **AB5, note**: "a hostile filename could spoof the parsed count … cheap
+   hardening when next touched"), and the delta is the next touch of that contract — it
+   added a second carrier without taking the hardening. AB5's "no impact today" rested on
+   blocking runs exiting 1 regardless; that reasoning does not reach the advisory-only run,
+   where the board's `🟡` *is* the control — which is LA2's half (lines printed *after* the
+   count line, F15/F26, live at HEAD). I hold LA10 at note because `dc0ed0e` closed its half
+   within ninety minutes of the landing and before this pass ran; LA2 stays MODERATE because
+   its half is open at HEAD and AB5's reasoning never covered it. `160/860` owns the reader;
+   the render order and the unneutralised strings are this delta's, as the sibling's
+   overlap rule puts it.
+5. *Is the publishscan sentence a docstring correction or a doctrine change landed inside a
+   licenscan commit?* A correction. The exception has lived in the registry — doctrine by
+   function, with its stated adoption-aid reason — since publishscan's entry was written;
+   the delta made two sentences agree with code that already held the rule. `115/290` part 3
+   called it a plain fix and I agree. The one thing worth saying is that the sentence now
+   states a *category* rule ("boundary checks have no advisory form … with one exception")
+   whose authority is the registry line, not the sentence — AP2's principle, which the
+   sentence itself cites.
+6. *Were the six repos' findings looked at, or only the exit codes?* The item, the commit
+   body and the intent record all give the "scanner view": six go exit 1 → 0 "on one
+   advisory each", two stay red "on one `high` finding each", none the other way. The
+   **kinds** of those six advisory findings are recorded nowhere I can read. That matters
+   for LA1: if any of the six is an unmodelled copyleft case, a child repo is now publishable
+   with it. Not re-drivable here (no sibling repo in this container). *Counsel:* before
+   ruling on LA1, ask for the six findings' kinds and ids — a one-line `--json` read per repo,
+   and the cheapest decisive evidence on the board.
+
+**Per finding, where reconcile adds anything.** LA1 — see above; the class was partly in
+the ruling by label, not by membership. LA2 — AB5 context above; the sibling's overlap rule
+assigns the reader to `160/860` and the printed line to this pass, which is how LA2 is
+written. LA3 — the wrong date originates in `115/290` part 2 ("registered since 2026-08-05
+(`floor.py`, `tools/README.md`, `ci.yml`)"), which the worker carried into the docstring;
+the item says it was "checked against the code before filing" — presence was checked, the
+date was not; git says 2026-08-06 UTC. LA5 (ii) — `commands/scan.md`'s standalone invocation
+is also the path seeded Q1 asks about. LA7 — the commit body says "licenscan joins
+secretscan as a count-carrying check"; neither record considered `report.py` as the home.
+LA10 — AB5, above. LA4, LA6, LA8, LA9 — nothing in the deferred material bears on them.
+
+**LA11 — note, formed at reconcile (seeded Q2; `tools/floorfleet.py` grep). The fleet
+board shows declared softenings, not per-run advisory counts.** `floorfleet.py` reads each
+child's `.atelier-floor.json` declarations (reasons, review dates, expiry) and renders those;
+it has no field for the `advisory` count a floor run reports. So an advisory-only licence
+finding in a child — including every LA1 case — persists on no estate-wide surface a person
+looks at; it lives in that child's CI log and `--json`. Pre-existing for secretscan since
+E6b; recorded here because LA1 widens what rides on it. *Counsel:* if LA1 (a) is not taken,
+consider carrying the per-scanner advisory count onto the fleet board as the consumer leg
+E6b named "persistent".
+
+**Overall, restated: PASS-WITH-FINDINGS — 1 MAJOR (LA1) · 1 MODERATE (LA2) · 5 minor
+(LA3–LA7) · 4 note (LA8–LA11; LA11 formed at reconcile).** Headline unchanged: the warn is
+real, but its membership was inherited from the old `"warn"` label — partly named to the
+principal as "mild", never shown to include unmodelled copyleft — so the gate now passes
+every licence it cannot judge.
+
+## Deferred material — folded in at the verdict
+
+*The sibling `docs/reviews/2026-10-17-0955-licenscan-advisory-tier-cold.deferred.md`,
+folded in verbatim at phase 2 and deleted, per `REVIEW.md` rule 1 ("split for the duration,
+merged at rest"). Its heading levels are as written there.*
+
+# Sibling to the licenscan advisory-tier cold pass — held under rule 1's split
+
+Sibling of `docs/reviews/2026-10-17-0955-licenscan-advisory-tier-cold.md`, held under
+`docs/method/REVIEW.md` rule 1's split. **Open only after the phase-1 findings in the brief are
+committed.** Written 2026-10-17 UTC by the Opus brief-writer named in the brief's provenance; it
+forms no finding. Fold this file in below the reconcile and delete it at phase 2.
+
+## Intent and commissioning records
+
+- Intent record: `docs/sessions/2026-10-16-1501-queue-run-briefs-and-guard-builds.md` —
+  **not opened by the brief-writer**.
+- Commissioning board item (title line seen, never read whole): `115/290` (three guard
+  descriptions disagree with their own code). Filed at the same merge: `115/320` (three small
+  gaps in the floor's tests and count contract), which `dc0ed0e` then addressed.
+- The landing commit's message body (read by the brief-writer): the docstring and README called
+  a permissive-into-permissive mix or an unknown declaration a "warn: friction, never a silent
+  pass" while the code made every one count toward exit 1; it quotes Mike's 2026-10-16 answer on
+  115/290, "make the warning real"; it says a severity not named advisory blocks so the tier is
+  opt-in; floor gains licenscan as a count-carrying check with `advisory=None` kept; pathscan's
+  docstring said it was not in the registry though it has been since 2026-08-05; `Scanner`'s
+  docstring said boundary checks have no advisory form "by design" while publishscan carries one
+  as an adoption aid. It claims nine new licenscan tests (eight fail on the old code), three floor
+  contract tests, and an estate blast radius of 29 repos: six red to green, none the other way,
+  two still red on high findings.
+- `dc0ed0e`'s message body (read by the brief-writer, another pass's subject): the count pattern
+  was unanchored and a file named like the count line made the board read a count off a blocking
+  finding, reproduced against secretscan; the pattern is now built per scanner and must be the
+  whole line.
+- The merge `6acefc9` changed "2026-10-17" to "2026-10-16" in two places in the delta (the
+  README's section heading and the "Until …" sentences).
+
+## Prior verdicts on these surfaces (named by filename grep, not opened, not exhaustive)
+
+- `docs/reviews/2026-08-06-0903-licenscan-e1e2-cold.md`
+- `docs/reviews/2026-08-09-0825-e6b-advisory-e3-fingerprint-cold.md` — secretscan's advisory
+  tier, the model this delta cites
+- `docs/reviews/2026-07-28-1204-c1-advisory-cold.md`
+
+## The pointer's own lens hints
+
+None beyond "its dispatched worker's output counts as the run's authorship". Refs-only.
+
+## Overlap with sibling passes of this batch
+
+- 160/860 (`dc0ed0e`) rewrites the floor's count reader this delta first used, and pins
+  licenscan as unsoftenable in tests. A defect in the count reader at HEAD is 860's; a defect in
+  the count line licenscan prints, or in the contract as `e3e8a4f` landed it, is this pass's.
+- 160/830 (`f4afb7a`) and 160/850 (`72a68cc`) share the base and edit `tools/README.md`;
+  160/850 also edits `tools/test_report.py`.
+
+## Seeded questions (the brief-writer's suspicions, a floor not a fence)
+
+1. An unrecognised LICENSE body and an unrecognised declaration are now advisory. Could a repo
+   carry a copyleft licence the scan cannot name (a `LicenseRef-`, a dual expression, an
+   unfamiliar SPDX id) and pass a publish gate at exit 0? Was that class moved knowingly?
+2. The fix chose to make the code match the prose. The prose said "never a silent pass"; is an
+   exit-0 advisory in CI output a silent pass in practice for an unattended run?
+3. `advisory=None` (a child may not soften) and `advisory_count=True` (the check reports some
+   findings without blocking) now sit side by side on two scanners. Does any surface a person
+   reads tell those apart, or does "unsoftenable" now mean less than it did?
+4. As landed at `e3e8a4f`, was the count line forgeable by a file path in the same output (the
+   defect `dc0ed0e` later fixed for secretscan)? If so, the delta shipped a known-shape hole that
+   a later commit closed; say which commit carries it.
+5. The publishscan sentence added to `floor.py` describes a boundary check that IS softenable.
+   Is that a correction of a docstring, or a change to doctrine about what boundary checks may
+   do, landed inside a licenscan commit?
+6. The blast-radius claim (six repos red to green) is a statement that six repos had findings
+   that previously blocked and now do not. Were those findings looked at, or only the exit codes?
