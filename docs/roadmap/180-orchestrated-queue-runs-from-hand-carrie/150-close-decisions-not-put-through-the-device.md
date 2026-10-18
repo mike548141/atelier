@@ -12,3 +12,5 @@
   **Addendum, same day.** Mike, on reading the close: it *"did not use
   askuserquestion for its questions"*, plural. The PR #97 question and the
   refused delete were also put in prose. See `180/170`.
+  On reopening it again offered a choice in prose (*"Say the word and I'll
+  put a reminder in your calendar"*) rather than asking through the device.

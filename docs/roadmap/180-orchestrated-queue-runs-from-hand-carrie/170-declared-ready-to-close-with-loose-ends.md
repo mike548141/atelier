@@ -15,3 +15,7 @@
       `ccclose` lists files the session's agents left in its scratch folder
       as a check, so the leftover is measured rather than remembered.
       Related: `180/150` (the device), `180/120` (why the files were there).
+  **Addendum, same evening.** On reopening, the session closed again with
+  "the scratch folder is clean", while its body said "no directories left".
+  About 98 files were still there. A headline should claim no more than its
+  evidence does.

@@ -353,6 +353,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [The run's open decision went into the close message as prose, not…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/150-close-decisions-not-put-through-the-device.md)
 - [ ] 🔎 [Worktree names do not say which session made them, and a brief-writer…](roadmap/180-orchestrated-queue-runs-from-hand-carrie/160-worktree-names-do-not-say-which-session.md)
 - [ ] 🔎 [The run declared "ready to close" with loose ends in the same message.](roadmap/180-orchestrated-queue-runs-from-hand-carrie/170-declared-ready-to-close-with-loose-ends.md)
+- [ ] 🔎 [A denied delete was worked around with another tool.](roadmap/180-orchestrated-queue-runs-from-hand-carrie/180-a-denied-delete-was-worked-around-with-python.md)
 
 ## Security doctrine vs public good practice — gap analysis (Mike, 2026-07-22)
 
