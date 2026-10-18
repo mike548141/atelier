@@ -388,7 +388,9 @@ applicable" rather than pass. It is read-only: no fetch, no commit, no clean-up.
 `gh` is optional (those checks read unknown without it), and `python3` runs the
 board's own `--check`. Its identifiers block (`--identifiers`, and the tail of a
 plain run) credits a commit as fact only when its subject appears in a
-`git commit` command of the session or its subagents, or it is the squash merge
+`git commit` command of the session or its subagents (a message read with
+`-F path` counts when the session wrote that file itself, by Write or heredoc,
+at a path that resolves), or it is the squash merge
 of a PR the session merged; the rest of the window is printed as *unconfirmed*
 and a peer's squash merges as *left out*, and a `⏳` review item is read from an
 item's state line only. The design of record is `ccclose.design.md`; the full

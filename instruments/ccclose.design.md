@@ -380,8 +380,18 @@ Options weighed:
   `git merge` command of the session, or of any of its subagents (the same
   directory check 12 reads), is credited. A repeated subject cannot cross
   sessions in practice because the window still bounds the candidates. A
-  message in a variable or file is unreadable and its commit lands as
-  unconfirmed, never as credited.
+  message in a variable is unreadable and its commit lands as unconfirmed,
+  never as credited. A message in a file (`-F path`, `--file=path`, 210/310) is
+  read from the same transcript's own evidence of writing that file: the
+  Write tool's `file_path` and the first non-empty line of its `content`, or a
+  heredoc in a Bash command (`cat > path <<'EOF'`, `cat <<EOF > path`,
+  `tee path <<EOF`; appends are skipped, since the file's first line is then
+  unknown). The path must match exactly after resolving it against the
+  command's cwd (and a `git -C dir`), never by basename. The latest write
+  before the commit, in the same transcript, wins; where the writer is a
+  different transcript of the session (parent or subagent), the two cannot be
+  ordered and a subject from any write to that path is accepted. A file the
+  session did not write, such as a peer's, matches nothing.
 - *Time window only.* Kept as the fallback, but never as fact: what only the
   window supports is printed as *unconfirmed* with an instruction to check it.
   Over-listing an unconfirmed commit costs a glance; crediting a peer's work
@@ -392,7 +402,19 @@ cannot credit what the commit line does not. The `⏳` marker follows board.py's
 grammar: the file's first line, after the `- [ ]`, `- [~]`, `- [x]` or bare
 `- ⏳` form, outside backtick code spans, and *gained* by the commit.
 
-Not solved: a session whose commit messages are all unreadable (`-F file`,
-variables) gets an empty credited list and everything unconfirmed, which is
-honest but unhelpful; a commit made by a tool on the session's behalf (a script
-that commits) is unconfirmed too.
+A path with a shell variable (`$S/m.txt`, `${DIR}/m.txt`) resolves only when
+the same command, or an earlier one in the transcript, assigned the variable a
+literal (`S=/abs/path`, or a literal relative to the cwd). A variable set from
+a command (`S=$(mktemp -d)`), from another variable, or never in the
+transcript leaves the commit unconfirmed. Every run says so, in the
+attribution line: a message read from a file is matched only when the session
+wrote that file at a path that resolves. The JSON field set is unchanged.
+
+Not solved: a message file written some other way (`echo`, `printf`, an
+editor, a script, `sed -i` on an existing file) or at a path built by a
+command is unreadable, and so is a message in a variable; a session that
+commits only that way gets an empty credited list and everything unconfirmed,
+which is honest but unhelpful. A Write whose result was an error still counts
+as a write. Symlinked paths (`/tmp` against `/private/tmp`) are compared as
+written, not by realpath. A commit made by a tool on the session's behalf (a
+script that commits) is unconfirmed too.

@@ -304,8 +304,9 @@ function ghPrCommands(command) {
 // The subject lines of the commits a command makes, read from the command text.
 // This house commits with `git commit -q`, so a SHA never reaches the transcript,
 // but the message does: in `-m`, or in a heredoc (`-m "$(cat <<'EOF' ...)"` or
-// `-F - <<'EOF'`). A message held in a variable or a file (`-F path`) cannot be
-// read and is missed, never guessed; the commit it made is then "unconfirmed".
+// `-F - <<'EOF'`). A message held in a variable is missed, never guessed; the
+// commit it made is then "unconfirmed". A message in a file (`-F path`) is read
+// by messageFilesIn / MsgEvidence below, from the session's own Write or heredoc.
 const GIT_MSG = /\bgit\s+(?:(?:-[Cc]|-c)\s+\S+\s+|--no-pager\s+)*(?:commit|merge)\b/g;
 const normSubject = (x) => String(x).replace(/\s+/g, ' ').trim();
 function commitSubjectsIn(command) {
@@ -332,6 +333,151 @@ function commitSubjectsIn(command) {
       if (msg !== null) msg = msg.split('\n')[0];
     }
     if (msg !== null && msg.trim()) out.push(normSubject(msg));
+  }
+  return out;
+}
+
+// A commit message given as a file (`git commit -F path`, `--file=path`) leaves
+// no subject in the command, but the session may have written that file itself:
+// with its Write tool, or a heredoc (`cat > path <<'EOF'`, `cat <<EOF > path`,
+// `tee path <<EOF`). Each transcript (the parent's, each subagent's) is read in
+// order into a MsgEvidence; the file commits are then matched to the writes of
+// the same path (exact path, resolved against the command's cwd, never a
+// basename). A path with a shell variable resolves only when the variable was
+// assigned a literal earlier, in the same command or before. Anything else stays
+// unmatched, so the commit stays "unconfirmed" (design note 15.1).
+const HEREDOC_AT = /<<-?\s*(['"]?)([A-Za-z_]\w*)\1/;
+const strip = (x) => x.replace(/^(['"])(.*)\1$/, '$2');
+const LITERAL_ASSIGN = /(?:^|[\s;&|(])(?:export\s+|declare\s+(?:-x\s+)?|local\s+)?([A-Za-z_]\w*)=("[^"$`\\\n]*"|'[^'\n]*'|[^\s"'$`\;&|()<>]+)/g;
+
+// The literal assignments of a command, each with its offset: S=/abs/path only.
+function assignmentsIn(command) {
+  const out = [];
+  if (!command.includes('=')) return out;
+  for (const m of command.matchAll(LITERAL_ASSIGN)) out.push({ at: m.index, name: m[1], value: strip(m[2]) });
+  return out;
+}
+
+// $NAME or ${NAME} in a path -> the literal it was last assigned, or null.
+function expandVars(word, vars) {
+  let ok = true;
+  const out = word.replace(/\$(?:\{([A-Za-z_]\w*)\}|([A-Za-z_]\w*))/g, (all, a, b) => {
+    const v = vars.get(a || b);
+    if (v === undefined) { ok = false; return all; }
+    return v;
+  });
+  return ok && !/[$`]/.test(out) ? out : null;
+}
+
+function resolvePath(word, cwd, vars, base) {
+  if (!word) return null;
+  let x = expandVars(word, vars);
+  if (x === null || x === '') return null;
+  if (x === '~' || x.startsWith('~/')) x = path.join(process.env.HOME || '', x.slice(1));
+  if (path.isAbsolute(x)) return path.resolve(x);
+  const root = base ? resolvePath(base, cwd, vars, null) : cwd;
+  return root && path.isAbsolute(root) ? path.resolve(root, x) : null;
+}
+
+// The `-F path` / `--file=path` commits of a command: [{ at, word, dir }]. `dir`
+// is a `git -C dir` value, which a relative path is read against.
+function messageFilesIn(command) {
+  const out = [];
+  for (const m of command.matchAll(GIT_MSG)) {
+    const words = shellWords(command.slice(m.index + m[0].length));
+    const c = /-C\s+(\S+)/.exec(m[0]);
+    for (let i = 0; i < words.length; i++) {
+      const x = words[i];
+      let f = null;
+      if (x === '--file' || /^-[A-Za-z]*F$/.test(x)) f = words[i + 1];
+      else if (x.startsWith('--file=')) f = x.slice('--file='.length);
+      if (f !== undefined && f !== null && f !== '-' && f !== '') { out.push({ at: m.index, word: f, dir: c ? strip(c[1]) : null }); break; }
+    }
+  }
+  return out;
+}
+
+// Files a command writes with a heredoc: [{ at, word, subject }], subject = the
+// body's first non-empty line. Appends (>>, tee -a) are skipped: the first line
+// of the file would then be unknown.
+const REDIRECT_OUT = /(?<![>\d&])>(?![>&])\s*("[^"\n]+"|'[^'\n]+'|[^\s;&|<>]+)/;
+const TEE_OUT = /\btee\s+((?:-\S+\s+)*)("[^"\n]+"|'[^'\n]+'|[^\s;&|<>-][^\s;&|<>]*)/;
+function heredocWritesIn(command) {
+  const out = [];
+  if (!command.includes('<<')) return out;
+  const ls = command.split('\n');
+  const start = [];
+  let off = 0;
+  for (const l of ls) { start.push(off); off += l.length + 1; }
+  for (let i = 0; i < ls.length; i++) {
+    const hd = HEREDOC_AT.exec(ls[i]);
+    if (!hd) continue;
+    let subject = null, j = i + 1;
+    for (; j < ls.length && ls[j].trim() !== hd[2]; j++) if (subject === null && ls[j].trim()) subject = normSubject(ls[j]);
+    // The command part of the line, less the heredoc marker. Only `cat` and
+    // `tee` are read as writing the body to a file.
+    const line = ls[i].slice(0, hd.index) + ' ' + ls[i].slice(hd.index + hd[0].length);
+    let target = null;
+    if (/\b(?:cat|tee)\b/.test(line)) {
+      const r = REDIRECT_OUT.exec(line), t = TEE_OUT.exec(line);
+      if (r) target = strip(r[1]);
+      else if (t && !/(?:^|\s)(?:-\w*a\w*|--append)(?:\s|$)/.test(t[1])) target = strip(t[2]);
+    }
+    if (subject !== null && target) out.push({ at: start[i] + hd.index, word: target, subject });
+    i = j;
+  }
+  return out;
+}
+
+// One transcript's evidence about message files, read in order.
+function MsgEvidence() {
+  return { n: 0, vars: new Map(), writes: [], files: [] };
+}
+function noteMessageSources(ev, name, input, cwd) {
+  if (!ev || !input) return;
+  const base = ev.n++;
+  if (name === 'Write') {
+    if (typeof input.file_path !== 'string' || typeof input.content !== 'string') return;
+    const p = resolvePath(input.file_path, cwd, ev.vars, null);
+    const first = input.content.split('\n').find((l) => l.trim());
+    if (p && first !== undefined) ev.writes.push({ path: p, subject: normSubject(first), seq: base });
+    return;
+  }
+  if (name !== 'Bash' || typeof input.command !== 'string') return;
+  const cmd = input.command;
+  const rel = (at) => base + (at + 1) / (cmd.length + 2);
+  const assigns = assignmentsIn(cmd);
+  const hds = cmd.includes('<<') ? heredocWritesIn(cmd) : [];
+  const files = cmd.includes('git') && /-F|--file/.test(cmd) ? messageFilesIn(cmd) : [];
+  // Variables as they stand at an offset: earlier commands, then this one's own.
+  const envAt = (at) => {
+    const v = new Map(ev.vars);
+    for (const a of assigns) if (a.at < at) v.set(a.name, resolvePath(a.value, cwd, v, null) || a.value);
+    return v;
+  };
+  for (const h of hds) {
+    const p = resolvePath(h.word, cwd, envAt(h.at), null);
+    if (p) ev.writes.push({ path: p, subject: h.subject, seq: rel(h.at) });
+  }
+  for (const f of files) {
+    const v = envAt(f.at);
+    const p = resolvePath(f.word, cwd, v, f.dir);
+    if (p) ev.files.push({ path: p, seq: rel(f.at) });
+  }
+  for (const a of assigns) ev.vars.set(a.name, a.value);
+}
+
+// The subjects the files commits read: the latest earlier write to the path in
+// the same transcript; with none, a write by any other transcript of the
+// session (unorderable, so any is accepted). A path nobody here wrote adds nothing.
+function fileSubjects(evs) {
+  const out = new Set();
+  for (const ev of evs) {
+    for (const f of ev.files) {
+      const own = ev.writes.filter((w) => w.path === f.path && w.seq < f.seq);
+      if (own.length) { out.add(own.reduce((a, b) => (b.seq >= a.seq ? b : a)).subject); continue; }
+      for (const o of evs) if (o !== ev) for (const w of o.writes) if (w.path === f.path) out.add(w.subject);
+    }
   }
   return out;
 }
@@ -389,7 +535,7 @@ async function readTranscript(file) {
     // What the session did to PRs and worktrees, from its own commands (see
     // the identifiers section): pend holds a command until its result lands.
     prs: new Map(), worktrees: [], pend: new Map(),
-    commitSubjects: new Set(),
+    commitSubjects: new Set(), msg: MsgEvidence(),
   };
   let n = 0, k = 0;
   const rl = readline.createInterface({ input: fs.createReadStream(file), crlfDelay: Infinity });
@@ -440,6 +586,7 @@ async function readTranscript(file) {
       for (const b of content) {
         if (b.type !== 'tool_use') continue;
         if (b.name === 'EnterWorktree' && b.id) t.pend.set(b.id, { enter: true });
+        if (b.name === 'Write' || b.name === 'Bash') noteMessageSources(t.msg, b.name, b.input, o.cwd);
         if (b.name !== 'Bash') continue;
         const cmd = b.input && typeof b.input.command === 'string' ? b.input.command : '';
         notePending(t, b.id, cmd, o.cwd);
@@ -1110,6 +1257,7 @@ function firstParentShas(repo, w) {
 // each subagent's (the same subagents/ directory check 12 reads).
 async function commitEvidence(file, t) {
   const subjects = new Set(t ? t.commitSubjects : []);
+  const evs = t ? [t.msg] : [];
   const merges = new Set();
   if (t) for (const [n, e] of t.prs) if (e.merged) merges.add(n);
   const dir = file ? path.join(path.dirname(file), path.basename(file, '.jsonl'), 'subagents') : null;
@@ -1117,19 +1265,24 @@ async function commitEvidence(file, t) {
   try { names = dir && isDir(dir) ? fs.readdirSync(dir).filter((n) => /^agent-.+\.jsonl$/.test(n)).sort() : []; } catch {}
   for (const n of names) {
     const rl = readline.createInterface({ input: fs.createReadStream(path.join(dir, n)), crlfDelay: Infinity });
+    const ev = MsgEvidence();
+    evs.push(ev);
     try {
       for await (const ln of rl) {
-        if (!ln.includes('"Bash"') || !(ln.includes('git') || ln.includes('gh'))) continue;
+        if (!ln.includes('"Bash"') && !ln.includes('"Write"')) continue;
         let o; try { o = JSON.parse(ln); } catch { continue; }
         if (o.type !== 'assistant' || !o.message || !Array.isArray(o.message.content)) continue;
         for (const b of o.message.content) {
-          if (!b || b.type !== 'tool_use' || b.name !== 'Bash' || !b.input || typeof b.input.command !== 'string') continue;
+          if (!b || b.type !== 'tool_use' || (b.name !== 'Bash' && b.name !== 'Write') || !b.input) continue;
+          noteMessageSources(ev, b.name, b.input, o.cwd);
+          if (b.name !== 'Bash' || typeof b.input.command !== 'string') continue;
           for (const x of commitSubjectsIn(b.input.command)) subjects.add(x);
           if (b.input.command.includes('gh')) for (const k of ghPrCommands(b.input.command).merges) merges.add(k);
         }
       }
     } catch {}
   }
+  for (const x of fileSubjects(evs)) subjects.add(x);
   return { subjects, merges };
 }
 
@@ -1353,7 +1506,7 @@ function renderIdentifiers(r) {
 
 const HEURISTIC = '"this session\'s" = dated inside the window on this repo; sessions that overlapped can be credited with each other\'s work';
 // The identifiers block's own note: its commits and board lines are not window-dated.
-const ID_HEURISTIC = 'commits and board movement above the unconfirmed lines are matched to commit commands in the session\'s own transcript and its subagents\'; what is only dated inside the window is marked unconfirmed, and open PRs, worktrees and branches are still credited by the window or by the session\'s commands';
+const ID_HEURISTIC = 'commits and board movement above the unconfirmed lines are matched to commit commands in the session\'s own transcript and its subagents\' (a message read from a file is matched only when the session wrote that file at a path that resolves, and cannot be matched otherwise); what is only dated inside the window is marked unconfirmed, and open PRs, worktrees and branches are still credited by the window or by the session\'s commands';
 const ASK_HEURISTIC = 'keyword heuristic over the principal\'s turn and mid-turn prompts — lists, does not judge';
 
 // What both forms read first: the session, its transcript and window, the repo,
@@ -1499,4 +1652,4 @@ async function main() {
 if (require.main === module) main();
 
 module.exports = { parseArgs, stripWrappers, askSentences, bypassesIn, taskNotifications, readTranscript, locateTranscript, gather, collect, collectIdentifiers, renderIdentifiers,
-  worktreeAdds, ghPrCommands, commitSubjectsIn, render, CAP };
+  worktreeAdds, ghPrCommands, commitSubjectsIn, messageFilesIn, heredocWritesIn, render, CAP };

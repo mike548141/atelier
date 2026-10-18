@@ -317,7 +317,14 @@ command (this house commits with
 .BR \-q ,
 so the message is in the transcript but the sha is not;
 .B \-m
-and heredoc messages are read, one held in a file or a variable is not), or
+and heredoc messages are read; so is a message read from a file with
+.B \-F
+or
+.BR \-\-file ,
+but only when the session itself wrote that file earlier, with its Write
+tool or a heredoc, at the same path; a path holding a shell variable counts
+only if the session assigned the variable a literal; a message in a variable,
+or in a file nobody in the session wrote, cannot be matched), or
 it is the squash merge of a PR the session ran
 .B gh pr merge
 on.

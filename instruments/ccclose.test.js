@@ -1097,6 +1097,119 @@ test('--identifiers commits: the session\'s own commit commands confirm its comm
   assert.match(out, /- \*\*Commits\*\* \(3\): \w+ \w+ \w+ · unbroken, `\w+\^\.\.\w+`\n  - unconfirmed, dated in the window only \(0\): none\n  - left out \(0\): none\n/);
 });
 
+// A commit message read from a file (210/310): the file must have been written
+// by the session itself, at a path that resolves.
+const writeUse = (id, file_path, content, cwd) => ({ type: 'assistant', cwd, message: { model: 'claude-opus-5-5', content: [{ type: 'tool_use', id, name: 'Write', input: { file_path, content } }] } });
+
+function fileWorld(subjects) {
+  const w = world();
+  const root = repo(w);
+  subjects.forEach(([s, min], i) => { write(root, `f${i}.txt`, String(i)); commit(w, root, s, NOW - min * MIN); });
+  return { w, root };
+}
+
+test('messageFilesIn and heredocWritesIn read the file forms, and only the literal-path ones they can use', () => {
+  assert.deepEqual(cc.messageFilesIn('git commit -q -F /t/m.txt').map((x) => x.word), ['/t/m.txt']);
+  assert.deepEqual(cc.messageFilesIn('git commit --file=/t/m.txt').map((x) => x.word), ['/t/m.txt']);
+  assert.deepEqual(cc.messageFilesIn('git -C /r commit -qF "$S/m.txt"').map((x) => [x.word, x.dir]), [['$S/m.txt', '/r']]);
+  assert.deepEqual(cc.messageFilesIn('git commit -q -F - <<\'EOF\'\nx\nEOF'), []);
+  assert.deepEqual(cc.messageFilesIn('git commit -q -m "a: b"'), []);
+  const h = (c) => cc.heredocWritesIn(c).map((x) => [x.word, x.subject]);
+  assert.deepEqual(h("cat > /t/m <<'EOF'\n\nhd: one\n\nbody\nEOF"), [['/t/m', 'hd: one']]);
+  assert.deepEqual(h('cat <<EOF > /t/m\nhd: two\nEOF'), [['/t/m', 'hd: two']]);
+  assert.deepEqual(h('tee /t/m <<EOF\nhd: three\nEOF'), [['/t/m', 'hd: three']]);
+  // An append leaves the file's first line unknown; a non-file heredoc writes nothing.
+  assert.deepEqual(h('cat >> /t/m <<EOF\nhd: four\nEOF'), []);
+  assert.deepEqual(h('tee -a /t/m <<EOF\nhd: five\nEOF'), []);
+  assert.deepEqual(h('git commit -q -F - <<EOF\nhd: six\nEOF'), []);
+});
+
+test('--identifiers commits: -F path is credited when the session Wrote that file, by absolute or cwd-relative path', () => {
+  const { w, root } = fileWorld([['file: written with Write', 40], ['file: relative path', 35], ['peer: unrelated', 30]]);
+  transcript(w, 'sess-id-30', [
+    writeUse('w1', '/work/msg/one.txt', '\nfile: written with Write\n\nwhy it matters\n'),
+    bashUse('c1', 'git commit -q -F /work/msg/one.txt', '/work'),
+    writeUse('w2', 'msg/two.txt', 'file: relative path\n', '/work'),
+    bashUse('c2', 'git commit -q --file=msg/two.txt', '/work'),
+  ]);
+  const j = parseId(w, root, 'sess-id-30');
+  assert.deepEqual(subjectsOf(j.commits.items), ['file: written with Write', 'file: relative path']);
+  assert.deepEqual(subjectsOf(j.commits.unconfirmed.items), ['peer: unrelated']);
+});
+
+test('--identifiers commits: -F path is credited when an earlier heredoc wrote it, and the latest write wins', () => {
+  const { w, root } = fileWorld([['hd: first message', 40], ['hd: second message', 35], ['hd: tee message', 30]]);
+  transcript(w, 'sess-id-31', [
+    bashUse('h1', "cat > /work/m.txt <<'EOF'\nhd: stale draft\nEOF"),
+    bashUse('h2', "cat > /work/m.txt <<'EOF'\nhd: first message\n\nbody\nEOF\ngit commit -q -F /work/m.txt"),
+    bashUse('h3', 'cat <<EOF > /work/m.txt\nhd: second message\nEOF'),
+    bashUse('c3', 'git commit -q -F /work/m.txt'),
+    bashUse('h4', 'tee /work/t.txt <<EOF\nhd: tee message\nEOF\ngit commit -q -F /work/t.txt'),
+  ]);
+  const j = parseId(w, root, 'sess-id-31');
+  assert.deepEqual(subjectsOf(j.commits.items), ['hd: first message', 'hd: second message', 'hd: tee message']);
+  assert.equal(j.commits.unconfirmed.total, 0);
+});
+
+test('--identifiers commits: a file written after the commit that names it does not credit it', () => {
+  const { w, root } = fileWorld([['late: written after', 40]]);
+  transcript(w, 'sess-id-32', [
+    bashUse('c1', 'git commit -q -F /work/late.txt'),
+    writeUse('w1', '/work/late.txt', 'late: written after\n'),
+  ]);
+  const j = parseId(w, root, 'sess-id-32');
+  assert.equal(j.commits.total, 0);
+  assert.deepEqual(subjectsOf(j.commits.unconfirmed.items), ['late: written after']);
+});
+
+test('--identifiers commits: a $VAR path is credited only when the variable was assigned a literal', () => {
+  const { w, root } = fileWorld([['var: assigned in the same command', 41], ['var: same line', 39], ['var: assigned earlier, braces', 35], ['var: never assigned', 30], ['var: assigned from a command', 25]]);
+  transcript(w, 'sess-id-33', [
+    bashUse('v1', "S=/work/msgs\ncat > $S/a.txt <<'EOF'\nvar: assigned in the same command\nEOF\ngit commit -q -F \"$S/a.txt\""),
+    // The assignment and the heredoc on one line, before other commands.
+    bashUse('v1b', "cd /work && S=/work/msgs && cat > $S/e.txt <<'EOF'\nvar: same line\nEOF\ngit commit -q -F $S/e.txt"),
+    bashUse('v2', 'export DIR=/work/other'),
+    writeUse('w2', '/work/other/b.txt', 'var: assigned earlier, braces\n'),
+    bashUse('v3', 'git commit -q -F ${DIR}/b.txt'),
+    // Written by a heredoc under an unassigned variable, then committed from it.
+    bashUse('v4', "cat > $NOPE/c.txt <<'EOF'\nvar: never assigned\nEOF\ngit commit -q -F $NOPE/c.txt"),
+    // Assigned from a command: not a literal, so not resolvable.
+    bashUse('v5', "T=$(mktemp -d)\ncat > $T/d.txt <<'EOF'\nvar: assigned from a command\nEOF\ngit commit -q -F $T/d.txt"),
+  ]);
+  const j = parseId(w, root, 'sess-id-33');
+  assert.deepEqual(subjectsOf(j.commits.items), ['var: assigned in the same command', 'var: same line', 'var: assigned earlier, braces']);
+  assert.deepEqual(subjectsOf(j.commits.unconfirmed.items), ['var: never assigned', 'var: assigned from a command']);
+  assert.match(idRun(w, root, 'sess-id-33').out, /cannot be matched otherwise/);
+});
+
+test('--identifiers commits: a peer\'s message file is not the session\'s, even when the subject matches', () => {
+  const { w, root } = fileWorld([['peer: wrote this one', 40], ['mine: wrote my own', 35]]);
+  // The peer (a subagent-less other session) wrote /work/peer.txt; this session only
+  // commits from it and from a basename-alike path of its own.
+  transcript(w, 'sess-id-34', [
+    writeUse('w1', '/work/mine/msg.txt', 'mine: wrote my own\n'),
+    bashUse('c1', 'git commit -q -F /work/peer/msg.txt'),
+    bashUse('c2', 'git commit -q -F /work/peer.txt'),
+    bashUse('c3', 'git commit -q -F /work/mine/msg.txt'),
+  ]);
+  const j = parseId(w, root, 'sess-id-34');
+  assert.deepEqual(subjectsOf(j.commits.items), ['mine: wrote my own']);
+  assert.deepEqual(subjectsOf(j.commits.unconfirmed.items), ['peer: wrote this one']);
+});
+
+test('--identifiers commits: a subagent\'s Write credits the subagent\'s -F commit, and the parent\'s unordered use of it', () => {
+  const { w, root } = fileWorld([['agent: own file', 40], ['agent: parent commits it', 35]]);
+  const at = (m) => new Date(NOW + m * MIN).toISOString();
+  agent(w, 'sess-id-35', 'bb222222', { turns: [
+    { ...writeUse('a1', '/work/a/m1.txt', 'agent: own file\n'), timestamp: at(-41) },
+    { ...bashUse('a2', 'git commit -q -F /work/a/m1.txt'), timestamp: at(-40) },
+    { ...writeUse('a3', '/work/a/m2.txt', 'agent: parent commits it\n'), timestamp: at(-36) },
+    ...finishedTurns] });
+  transcript(w, 'sess-id-35', [bashUse('p1', 'git commit -q -F /work/a/m2.txt'), viaAttachment('bb222222', 'completed')]);
+  const j = parseId(w, root, 'sess-id-35');
+  assert.deepEqual(subjectsOf(j.commits.items), ['agent: own file', 'agent: parent commits it']);
+});
+
 test('--identifiers commits: a peer\'s commits in the window are unconfirmed, not credited, and break the range', () => {
   const w = world();
   const root = repo(w);
