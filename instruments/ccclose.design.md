@@ -75,12 +75,12 @@ serves.
 ## 5. The surface
 
 ```
-ccclose [--session <id|path>] [--root <dir>] [--json]
+ccclose [--session <id|path>] [--root <dir>] [--json] [--identifiers]
 ccclose -h | --help
 ```
 
-Three selectors and nothing else. `--session` and `--root` name *what is
-checked* (the house convention: a flag is named for what it selects, as
+Two selectors and two output forms: `--json` and `--identifiers` (§15). `--session`
+and `--root` name *what is checked* (the house convention: a flag is named for what it selects, as
 `--from-archive` is). `--root` defaults to the current directory and is resolved to
 its git top level. No `--fix`: the tool is read-only by contract (§8), so it has
 no operation a fixing flag could name.
@@ -285,3 +285,55 @@ in the page.
 First-of-kind and doctrine-adjacent (it encodes RECORD's close declaration as
 code), so a rule-4 cold review is owed on the build. The building session does
 not spawn it. The orchestrating session queues the `⏳`.
+
+## 15. The identifiers form
+
+`ccclose --identifiers` prints the block `RECORD.md` asks every detail record and
+closing message to end with ("read fresh at close, never recalled"; asked for by
+Mike, 2026-10-18, board item `210/280`). It prints only a `## Identifiers`
+heading and seven fields in `RECORD.md`'s order, and runs none of the twelve
+checks: it shares their reads (`gather()`: session, transcript, window, repo,
+board, `gh`, branches) but not their verdicts, so it never waits on
+`board.py --check` or a floor run. It exits `0`, since it is a record and not a
+verdict. `--json` gives the same fields as JSON, as there was nothing to design.
+
+The field set is stable (§10): an empty field prints `none`, a field the tool
+cannot derive prints `by hand — <why>` and never a guess, and `Other repos`
+always prints the by-hand line, because nothing here can see another repo.
+
+- **Commits.** The window's commits on this repo (the §4 heuristic), oldest
+  first, as short shas. The range shows only when each commit's one parent is
+  the commit before it, and is written `first^..last` because a git range
+  excludes its left end. A session that interleaved with another, or merged,
+  prints the list and no range, which is the honest answer.
+- **Pull requests.** The repo alone cannot name a merged PR, so the union of
+  three sources: `gh pr create` results (the PR URL in the output),
+  `gh pr merge <n>` commands, and the open PRs check 4 already credits. Each
+  carries what the session did (`opened`, `merge run`) and its state now from
+  `gh pr view`. A command whose result is an error counts for nothing, a
+  merge with no number or `--repo` is skipped, and a created PR whose URL names
+  another repo is counted and left to hand.
+- **Board.** From one `git log -p -U0` over the item store, per commit in the
+  window: an added item file is *created*; a first line that becomes `- [x]` is
+  *completed*; one that becomes `- [~]` is *claimed*, listed only if it is
+  still claimed at the end (a claim released inside the window is not owed);
+  a `⏳` line added to an item file marks a *review item created*. Ids come from
+  the path's two numeric prefixes. A hand-kept board has no item store and
+  prints by hand.
+- **Worktrees and branches.** A worktree put away and its deleted branch leave
+  no trace in git, so the creations are read from the transcript: `git worktree
+  add` commands (path, and `-b` or the path's name for the branch) and
+  `EnterWorktree` results saying "Created worktree at ...". Each is then
+  checked now: directory present or put away, branch deleted or kept (merged
+  or not). Worktrees born in the window and branches with a tip in it are
+  added, since those still exist and the repo can show them.
+- **Agents.** Check 12's per-agent reads, uncapped, because an identifier list
+  that stops at 25 stops being a record.
+
+The shell parsing is deliberately small (the first segment of a command, the
+common option forms). A form it cannot read is missed, not guessed, and the
+block's last line repeats the §4 attribution heuristic in italics.
+
+Not done: the commits of workers' other repos, a PR opened from a checkout of
+another repo (counted, listed by hand), and a `gh pr merge` that names no
+number.

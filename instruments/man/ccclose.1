@@ -1,4 +1,4 @@
-.TH CCCLOSE 1 "2026-10-16" "atelier instruments" "User Commands"
+.TH CCCLOSE 1 "2026-10-18" "atelier instruments" "User Commands"
 .SH NAME
 ccclose \- check whether a session's close left anything owing
 .SH SYNOPSIS
@@ -8,6 +8,7 @@ ccclose \- check whether a session's close left anything owing
 .RB [ \-\-root
 .IR dir ]
 .RB [ \-\-json ]
+.RB [ \-\-identifiers ]
 .br
 .B ccclose
 .BR \-h " | " \-\-help
@@ -272,8 +273,99 @@ uncapped counts beside the capped lists, and
 .B null
 wherever a figure is unknown.
 .TP
+.B \-\-identifiers
+Print only the identifiers block that
+.I RECORD.md
+asks every session record and closing message to end with, and run none of the
+checks.
+See
+.B IDENTIFIERS
+below.
+With
+.BR \-\-json ,
+the same fields as JSON.
+Exit status is 0: the block is a record, not a verdict.
+.TP
 .BR \-h ", " \-\-help
 A one-screen summary.
+.SH IDENTIFIERS
+.B ccclose \-\-identifiers
+prints a paste-ready markdown block, headed
+.BR "## Identifiers" ,
+with seven fields in the order
+.I RECORD.md
+gives them.
+The fields are the same on every run: one that is empty prints
+.BR none ,
+and one that cannot be derived prints
+.B by hand
+and says why, never a guess.
+.TP
+.B Session
+The session id, the models its transcript shows, and its window in UTC.
+.TP
+.B Commits
+The commits dated inside the window on this repo, as short shas, oldest
+first.
+When each commit's only parent is the one before it (an unbroken run on one
+branch) the range follows, written
+.IR first ^.. last
+so that it is a git range over exactly those commits.
+.TP
+.B Pull requests
+Every PR the session's own commands opened
+.RB ( "gh pr create" ,
+whose result names the PR) or ran a merge on
+.RB ( "gh pr merge <n>" ),
+joined with the open PRs ccclose credits to the window, each with its
+state now from
+.BR "gh pr view" .
+A command that failed counts for nothing, and a PR whose URL names another
+repository is counted and left to be listed by hand.
+Without
+.B gh
+the numbers still print and the state reads unknown.
+.TP
+.B Board
+Read from the commits' own diffs of the item store, one line per group:
+.B completed
+(an item whose first line became
+.BR "\- [x]" ),
+.B created
+(an item file added),
+.B "claimed (still open)"
+(first line became
+.BR "\- [~]" ,
+and still is at the end of the window) and the
+.B \[u23F3]
+review items created (an item that gained a
+.B \[u23F3]
+line).
+Items are named by section and item number, such as 180/060.
+A hand-kept board has no item store to diff and prints by hand.
+.TP
+.B Worktrees and branches
+Worktrees the session created, read from its
+.B git worktree add
+commands (the path, and the branch from
+.B \-b
+or the path's name) and its
+.B EnterWorktree
+results, because a worktree put away and its deleted branch leave no trace in
+git.
+Each prints whether the worktree is still present or put away, and whether the
+branch is deleted or kept, merged or not.
+Worktrees born inside the window and branches with a tip inside it are added.
+.TP
+.B Agents
+How many subagents the session launched, how each ended, and each one's short
+id and description.
+The list is whole, not capped.
+.TP
+.B Other repos
+Not read by ccclose; always prints a fill-in-by-hand line.
+.PP
+The last line is an italic note of the attribution heuristic.
 .SH OUTPUT
 The field set is the same on every run: every check prints, zeros print, and a
 figure the tool could not read prints
@@ -342,11 +434,21 @@ Feed the result to another tool:
 ccclose \-\-json | jq '.checks[] | select(.status == "fail")'
 .fi
 .RE
+.PP
+Print the identifiers block, to paste at the tail of a session record:
+.PP
+.RS
+.nf
+ccclose \-\-identifiers
+.fi
+.RE
 .SH EXIT STATUS
 .TP
 .B 0
 No check failed.
 Some may warn or be unknown; the verdict line says so.
+.B \-\-identifiers
+always exits 0.
 .TP
 .B 1
 At least one check failed.
