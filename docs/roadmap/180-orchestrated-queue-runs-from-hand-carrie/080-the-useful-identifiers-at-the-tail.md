@@ -16,3 +16,8 @@
   block. The tool half is filed at `210/280`: `ccclose --identifiers`, so the
   block is copied rather than recalled. Cold pass: `160/900` widens to this
   commit.
+  **Addendum, same day.** Mike added: *"Other ID's to record at the end
+  would be PR ID's worktrees created"*. Both were already in the set. The
+  block now says each PR's number and what the session did to it, and each
+  worktree created, by path and branch, read from the transcript because a
+  removed worktree leaves nothing in git. `210/280` was told the same.
