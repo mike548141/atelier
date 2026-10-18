@@ -7,8 +7,8 @@
       *Tier:* Fable, the principal-named review tier, checked at selection.
       *Pass type:* code and doctrine cold pass, per `method/REVIEW.md` rule 4.
       *Delta, scoped to paths:* `tools/coldsweep.py`, `tools/test_coldsweep.py`
-      and `skills/review-brief/SKILL.md`, the two commits on `main` on
-      2026-10-18 that close `130/030`.
+      (commit `8132805`) and `skills/review-brief/SKILL.md` (commit
+      `30aa8dc`, which also queued this item), both on `main`, 2026-10-18.
       *Intent record:*
       [`../130-a-closed-cycle-can-keep-its-and-pointers/030-the-brief-bars-the-commit-body-but-names-no-command-that-avoids-it.md`](../130-a-closed-cycle-can-keep-its-and-pointers/030-the-brief-bars-the-commit-body-but-names-no-command-that-avoids-it.md).
       No brief written.
