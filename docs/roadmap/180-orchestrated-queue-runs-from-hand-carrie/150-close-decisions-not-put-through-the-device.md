@@ -9,3 +9,6 @@
       but does not say *through the device*, so a prose list reads as
       compliant. **Shape:** the report list names the device for every open
       decision at the close, with prose only where the harness has no device.
+  **Addendum, same day.** Mike, on reading the close: it *"did not use
+  askuserquestion for its questions"*, plural. The PR #97 question and the
+  refused delete were also put in prose. See `180/170`.
