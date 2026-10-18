@@ -15,9 +15,8 @@ run**: read the *current* `../atelier/docs/method/CONCURRENCY.md` §
 pattern this whole brief invokes, and its sibling docs (`ECONOMICS.md`,
 `RECORD.md`, `REVIEW.md`) cover claiming, concurrency, and close discipline
 in more current detail than anything below. Follow them rather than
-re-deriving your own version. (If atelier's plugin is installed, `/atelier:
-queue-run` is the same pattern as an invocation — use it instead of this
-file when it's available.) Say which model you're on in your first report,
+re-deriving your own version. (`/atelier:queue-run` runs exactly this file,
+so the command and this text cannot differ.) Say which model you're on in your first report,
 then get on with it — don't ask me which tier to use, and don't stop because
 a more capable one exists. Stop only if the work outruns you, and say so.
 

@@ -5,6 +5,13 @@ newest first. Everything stays under _Unreleased_ until there's a reason to tag.
 
 ## [Unreleased]
 
+### Changed (2026-10-18 — `/atelier:queue-run` runs the prompt file itself, `180/090`)
+- The `queue-run` skill now loads
+  `docs/method/session-open/session-open-prompt.md` and adds nothing, so the
+  command and the copy the principal pastes by hand are one text.
+  `tools/test_queue_run_single_source.py` fails if the skill stops pointing
+  at the file or copies its lines. The prompt file is principal-owned text.
+
 ### Changed (2026-10-18 — session id first, identifiers last, `180/070`, `180/080`)
 - A queue run's first line is now its session id, so another session or
   `cctranscript` can find it. The date-and-time line is dropped: the harness

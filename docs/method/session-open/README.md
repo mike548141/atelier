@@ -5,11 +5,13 @@ brief that points the session at the repo's doctrine and says how he wants it
 to work, close and report. This directory keeps that prompt and the history
 of how it changed.
 
-- [`session-open-prompt.md`](session-open-prompt.md) is the **current** text.
-  Its own git history runs back to a first reconstruction made on 2026-09-16
-  (V1 to V9, folded in by subtree merge). With atelier's plugin installed,
-  `/atelier:queue-run <this run's brief>` does the same job without the paste
-  (`skills/queue-run/SKILL.md`, `CONCURRENCY.md` § *Orchestrated queue runs*).
+- [`session-open-prompt.md`](session-open-prompt.md) is the **current** text,
+  and it is exactly what `/atelier:queue-run <this run's brief>` runs: the
+  skill loads this file and adds nothing, so the command and the copy pasted
+  by hand are one text (`180/090`; `tools/test_queue_run_single_source.py`
+  guards it). It is the principal's text: an agent changes it only on his
+  say-so, quoted in the commit. Its own git history runs back to a first
+  reconstruction made on 2026-09-16 (V1 to V9, folded in by subtree merge).
 - [`template-history.md`](template-history.md) is the **template history**:
   one commit per version of the reusable part of the prompt, in the order the
   versions were first used. Read it with

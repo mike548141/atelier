@@ -109,7 +109,8 @@ What you get:
 - **`queue-run`** skill — orchestrate a queue run: drain the shared queue as an
   orchestrator, execute via workers in worktrees, close records per item so a
   session cap loses at most the item in flight.
-  `/atelier:queue-run <the run's brief>` replaces a hand-carried run prompt.
+  `/atelier:queue-run <the run's brief>` runs the principal's prompt,
+  `docs/method/session-open/session-open-prompt.md`, word for word.
 - **`create-repo`** skill — scaffold a new repo (or standardise an existing one)
   to the house standard, stamped from **your own** instance profile
   (`~/.atelier/instance.yaml`, filled interactively on first run, never
