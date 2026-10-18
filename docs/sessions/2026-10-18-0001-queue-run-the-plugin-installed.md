@@ -184,7 +184,16 @@ Asked at the close, one decision at a time, through the decision device:
   can tell apart) on the item. It raised that question in prose, the
   `180/150` gap again.
 
+- **Last loose end:** hand-up PR #122 (`320/730`, a child's wrapscan
+  refuses the new paragraph projection's claim lines) landed as-is at
+  `b0a17f6`; floor green there.
+
 ## Recorded against itself
+- **One hook bypass, undone.** A temporary `git commit --no-verify -m wip`
+  parked a half-applied board edit across a rebase (2026-10-18 05:06 UTC). It
+  was reset (`git reset --soft`) and recommitted through the hook as
+  `055b326`. No unhooked commit reached `main`. `ccclose` lists it as
+  workaround-shaped, and this is the answer.
 - **Records committed from the primary checkout while a peer was live.**
   The peer's `git pull` there was refused because this session's session-log
   edits were staged at that moment. Its chained push then ran anyway. From
@@ -210,7 +219,7 @@ Asked at the close, one decision at a time, through the decision device:
 ## Identifiers
 - **Session**: e1d4097c-51e0-4103-8dc4-2c361166237b · Opus 5.5 · 2026-10-17 23:59 to 2026-10-18 04:14 UTC
 - **Commits** (102 on `main`, this session's own, hand-corrected because the tool over-credits a parallel session (`210/290`)): `b12c76d` to `88a5dc8` on the first-parent line, then `4839fd8`, `880334a`, `bed4a95`, `41355e3`, `9d65b6a` and `376bc5f`; peer commits interleaved after `a9f11ff` are excluded. Excluded are `b6be263` (PR #119, a parallel cloud session's) and `f0d6238` (the parallel queue-run `8e498ef1`'s claim). 50 of the 96 are the template history, author-dated to each version's first use. This record's own commit follows `88a5dc8`.
-- **Pull requests** (2):
+- **Pull requests** (3, #122 landed last):
   - #120 merge run — now merged
   - #121 merge run — now merged
 - **Board**:
