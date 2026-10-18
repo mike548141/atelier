@@ -36,6 +36,15 @@ loaded the skill as it stood before `180/090` landed.
   `910` and `930` briefs were landed on the writer's scanner-clean report and were
   not read whole. All five `⏳` pointers from `160/900` to `940` now carry a
   written brief, and none of their passes has run.
+- **`115/360` closed (`692c04a`): a bare `.` no longer empties a staged scan.** A
+  Sonnet worker built one shared reader, `report.scope_staged`, for leakscan,
+  secretscan and conflictscan. It normalises spelling and refuses a path that
+  leaves the repo. The item's own proposal, to refuse any positional that empties
+  the set, was deliberately not built. The orchestrator's dispatch flagged that it
+  would block a legitimate commit staging only files outside the hook plane's
+  declared scope, and the worker proved that case still passes. The orchestrator
+  read the guard diff and re-ran the four touched test files (458 OK) before
+  landing. The cold pass is queued at `160/950`.
 
 ## Recorded against itself
 

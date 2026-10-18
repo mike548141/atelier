@@ -191,7 +191,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] 🔎 [RECORD.md's index rotation has lost its trigger](roadmap/115-guardrail-architecture-mike-commissioned/330-record-md-rotation-trigger-has-no-signal.md)
 - [ ] 🔎 [Merges, cherry-picks and rebases make commits the hook plane](roadmap/115-guardrail-architecture-mike-commissioned/340-merges-cherry-picks-and-rebases-skip-the-hook-plane.md)
 - [ ] 🔎 [A cloud session cannot satisfy the hook plane's leakscan term](roadmap/115-guardrail-architecture-mike-commissioned/350-a-cloud-session-cannot-satisfy-the-hook-planes-term-requirement.md)
-- [~] 🔎 [A bare . (or ./…) positional makes the three staged-plane](roadmap/115-guardrail-architecture-mike-commissioned/360-a-bare-dot-scope-makes-the-staged-plane-scan-nothing.md)
+- ✅ [DONE 2026-10-18](roadmap/115-guardrail-architecture-mike-commissioned/360-a-bare-dot-scope-makes-the-staged-plane-scan-nothing.md)
 
 ## test_plainscan.StopHook is FLAKY, and CI cannot see it (found 2026-08-09)
 
@@ -317,6 +317,7 @@ then `python3 tools/board.py rebuild`.
 - [ ] ⏳ [Rule-4 cold pass queued: the close declaration covers subagents](roadmap/160-doctrine-review-owed/920-rule-4-cold-pass-queued-close-covers-subagents.md)
 - [ ] ⏳ [Rule-4 cold pass queued: the body-free commit read (130/030).](roadmap/160-doctrine-review-owed/930-rule-4-cold-pass-queued-body-free-commit-read.md)
 - [ ] ⏳ [Cold pass queued: the opening prompt's template history, for](roadmap/160-doctrine-review-owed/940-cold-pass-queued-template-history-privacy.md)
+- [ ] ⏳ [Rule-4 cold pass queued: the staged-positional reader the three](roadmap/160-doctrine-review-owed/950-rule-4-cold-pass-queued-staged-positional-reader.md)
 
 ## build/ layer — open strands
 

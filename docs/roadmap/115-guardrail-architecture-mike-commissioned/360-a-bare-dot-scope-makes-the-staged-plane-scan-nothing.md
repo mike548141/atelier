@@ -1,5 +1,5 @@
-- [~] 🔎 **A bare `.` (or `./…`) positional makes the three staged-plane
-      (claimed 2026-10-18-0522, wt: atelier-qr-115-360)
+- [x] **DONE 2026-10-18** (wt: atelier-qr-115-360)
+      🔎 **A bare `.` (or `./…`) positional makes the three staged-plane
       guards scan nothing and report clean** `[S][tools]`. Found 2026-10-18 by
       the cloud session running the review queue, when the pushed floor went
       red on a finding its own by-hand staged scan had passed.
@@ -39,3 +39,16 @@
       - review: not owed until the fix lands; it touches three guards'
         staged readers, which are doctrine by function, so it queues its own
         ⏳ at landing.
+      ✅ **Fixed 2026-10-18, `692c04a`.** One shared reader,
+      `report.scope_staged`, now serves all three guards. It normalises each
+      positional (`.` restricts nothing; `./x` means `x`) and refuses, exit
+      2, one that normalises out of the repo (`..`, `../x`), beside the
+      existing absolute-path refusal. The item's proposed refusal, "a
+      positional that empties a non-empty set", was deliberately NOT built:
+      the hook plane passes declared scope as positionals, so a commit
+      staging only out-of-scope files empties the set legitimately. Once
+      spelling is normalised, leftover emptiness is scope. Probed in a
+      scratch clone: `.`/`./docs` were exit 0 over a staged conflict marker
+      and key before the fix, exit 1 after; hook plane scoped elsewhere
+      stays clean, scoped to the findings still blocks. 16 new tests;
+      1949 Python tests green. Cold pass queued at `160/950`.
