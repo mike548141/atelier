@@ -83,6 +83,20 @@ questions until you have done all the work"*.
 - `020/420`'s close first said `ccclose` was not on the path. It is, as a
   link into the checkout, so check 12 is live. Corrected on the item.
 
+## Mike's close-out answers, enacted
+
+Asked at the close, one decision at a time, through the decision device:
+
+- **Prompt lines**: he picked all four of the dropped 2026-09-16 lines (the
+  fuller close check, the date with checklist updates, verify-don't-infer,
+  board answers as bullets). Restored, and carried in `CONCURRENCY.md` and
+  the skill (`180/040`). Four smaller phrases were not offered to him and
+  stay out; they are named on the item.
+- **Plugin version**: *"Track every commit"*. The version field was dropped
+  from both manifests (`180/050`). His install is unaffected because it
+  loads in place.
+- **Loose prompt copy**: keep it as a fallback. Left in place.
+
 ## Recorded against itself
 
 - Twice a commit was refused by the hook while the output was filtered
