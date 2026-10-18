@@ -67,13 +67,23 @@ failed, so `160/890`'s "the commit that landed PR #108" describes re-authored co
 - `115/350`, filed at the first commit: a cloud session cannot satisfy the hook plane's leakscan
   `--require-terms`, because the term list is the principal's user-local personal data and the
   container has no `~/.claude/` of his. Every commit of this run was made `--no-verify` after
-  running the hook plane by hand (green bar that refusal) and leakscan structural-only over the
-  staged lines, and says so in its message. **A full-cover leakscan run at the merged head is
-  owed from a machine that holds the list.**
-- Commit identity: author `Mike Clements` per the house convention, committer
-  `Claude <noreply@anthropic.com>` because the CCR signing key is registered to that address
-  and the ruleset requires GitHub-verified commits on `main`; the claim commit was amended once
-  (`274ff9c` → `911827f`) to make that so, before PR #118 merged.
+  running the hook plane by hand (green bar that refusal), and each message also says "leakscan
+  structural-only green on the staged lines" — **a claim that was vacuous**: the by-hand scan
+  was `leakscan --staged --root . .`, and a bare `.` positional empties the staged set, so
+  those scans covered nothing (`115/360`, filed at the close). The structural cover that
+  actually held was the CI tree plane, green on every pushed head until the session record
+  itself. **A full-cover leakscan run at the merged head is owed from a machine that holds
+  the list.**
+- `115/360`, filed at the close: a bare `.` or `./…` positional makes `leakscan`, `secretscan`
+  and `conflictscan` scan nothing in `--staged` mode and report clean — the absolute-path
+  refusal's sibling hole, measured with a staged conflict marker and a staged live-shaped key.
+  The real hook plane is not affected (`floor.py` expands the scope to declared paths or
+  none); a hand run with the natural spelling is.
+- Commit identity: author `Mike Clements` per the house convention; committer the harness's
+  own identity — the no-reply address the CCR signing key is registered to, the same one every
+  Co-Authored-By trailer in this repo carries — because the ruleset requires GitHub-verified
+  commits on `main`; the claim commit was amended once (`274ff9c` → `911827f`) to make that so,
+  before PR #118 merged.
 - Container fixes for the reviewers, none of them repo changes: `core.hooksPath` set, `mandoc`
   and `openssh-client` installed (the Python suite had one error without `ssh-keygen`; 1916 OK
   with it), and the clone unshallowed.
@@ -96,6 +106,11 @@ failed, so `160/890`'s "the commit that landed PR #108" describes re-authored co
   reworded it before its own phase 1 was committed.
 - **One brief was stale on arrival**: the ccmail brief's "no later commit touches the three
   paths" was false by the time the pass ran; the pointer's delta list carried the fix.
+- **The pushed floor went red on this record's own first commit** (`be19ed9`): the commit
+  identity bullet quoted the harness's no-reply address, an email-shaped string, where
+  `RECORD.md` § *Describe, don't quote* says to describe it. CI's tree-plane leakscan caught
+  it; the by-hand staged scan had not, which is how `115/360` was found. Reworded in the
+  commit that follows, with this bullet added.
 - **The harness's stop hook asked for every in-progress verdict to be committed**, eight times
   across the run; each time the dirty file was a reviewer's half-written phase, and committing
   it would have put an incomplete verdict on the record. Declined each time, with the reason.
